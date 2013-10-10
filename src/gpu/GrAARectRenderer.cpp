@@ -84,9 +84,9 @@ public:
                 "\tcoverage = coverage*scaleH*clamp((%s.w-abs(%s.y))/spanH, 0.0, 1.0);\n",
                 fsRectName, fsRectName);
 
-            SkString modulate;
-            GrGLSLModulatef<4>(&modulate, inputColor, "coverage");
-            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+                                   (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<1>("coverage")).c_str());
         }
 
         static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
@@ -217,9 +217,9 @@ public:
                     "\tcoverage = coverage*scaleH*clamp((%s.y-perpDot)/spanH, 0.0, 1.0);\n",
                     fsWidthHeightName);
 
-            SkString modulate;
-            GrGLSLModulatef<4>(&modulate, inputColor, "coverage");
-            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+                                   (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<1>("coverage")).c_str());
         }
 
         static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {

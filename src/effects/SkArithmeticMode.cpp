@@ -366,7 +366,7 @@ void GrGLArithmeticEffect::emitCode(GrGLShaderBuilder* builder,
 
     // We don't try to optimize for this case at all
     if (NULL == inputColor) {
-        builder->fsCodeAppendf("\t\tconst vec4 src = %s;\n", GrGLSLOnesVecf(4));
+        builder->fsCodeAppendf("\t\tconst vec4 src = vec4(1);\n");
     } else {
         builder->fsCodeAppendf("\t\tvec4 src = %s;\n", inputColor);
         if (gUseUnpremul) {

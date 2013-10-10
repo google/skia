@@ -559,9 +559,9 @@ public:
             builder->fsCodeAppendf("\t\t\tedgeAlpha = "
                                    "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);\n\t\t}\n");
 
-            SkString modulate;
-            GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
-            builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+
+            builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+                                   (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<1>("edgeAlpha")).c_str());
 
             builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
         }

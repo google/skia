@@ -410,7 +410,7 @@ public:
 
             if (NULL == inputColor) {
                 // could optimize this case, but we aren't for now.
-                inputColor = GrGLSLOnesVecf(4);
+                inputColor = "vec4(1)";
             }
             // The max() is to guard against 0 / 0 during unpremul when the incoming color is
             // transparent black.

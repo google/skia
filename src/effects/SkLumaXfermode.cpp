@@ -214,7 +214,7 @@ void GrGLLumaMaskEffect::emitCode(GrGLShaderBuilder* builder,
     const char* dstColor = builder->dstColor();
     SkASSERT(NULL != dstColor);
     if (NULL == inputColor) {
-        inputColor = GrGLSLOnesVecf(4);
+        inputColor = "vec4(1)";
     }
 
     const char *opA = lumaOpA<char>(lumaEffect.getMode(), inputColor, dstColor);

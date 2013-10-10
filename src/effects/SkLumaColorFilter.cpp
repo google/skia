@@ -120,7 +120,7 @@ public:
                               const TransformedCoordsArray&,
                               const TextureSamplerArray&) SK_OVERRIDE {
             if (NULL == inputColor) {
-                inputColor = GrGLSLOnesVecf(4);
+                inputColor = "vec4(1)";
             }
 
             // The max() is to guard against 0 / 0 during unpremul when the incoming color is

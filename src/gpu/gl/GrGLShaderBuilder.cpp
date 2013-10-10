@@ -99,8 +99,6 @@ GrGLShaderBuilder::GrGLShaderBuilder(GrGpuGL* gpu,
     , fFSOutputs(kMaxFSOutputs)
     , fUniforms(kVarsPerBlock)
     , fSetupFragPosition(false)
-    , fKnownColorValue(GrGLProgramDesc::KnownColorInputValue(desc.getHeader().fColorInput))
-    , fKnownCoverageValue(GrGLProgramDesc::KnownColorInputValue(desc.getHeader().fCoverageInput))
     , fHasCustomColorOutput(false)
     , fHasSecondaryOutput(false)
     , fTopLeftFragPosRead(kTopLeftFragPosRead_FragPosKey == desc.getHeader().fFragPosKey) {
@@ -152,6 +150,10 @@ GrGLShaderBuilder::GrGLShaderBuilder(GrGpuGL* gpu,
         fColorUniform = this->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                          kVec4f_GrSLType, "Color", &name);
         fInputColor = name;
+    } else if (GrGLProgramDesc::kSolidWhite_ColorInput == header.fColorInput) {
+        fInputColor = GrGLSLExpr<4>(1);
+    } else if (GrGLProgramDesc::kTransBlack_ColorInput == header.fColorInput) {
+        fInputColor = GrGLSLExpr<4>(0);
     }
 
     if (GrGLProgramDesc::kUniform_ColorInput == header.fCoverageInput) {
@@ -159,6 +161,10 @@ GrGLShaderBuilder::GrGLShaderBuilder(GrGpuGL* gpu,
         fCoverageUniform = this->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType, "Coverage", &name);
         fInputCoverage = name;
+    } else if (GrGLProgramDesc::kSolidWhite_ColorInput == header.fCoverageInput) {
+        fInputCoverage = GrGLSLExpr<4>(1);
+    } else if (GrGLProgramDesc::kTransBlack_ColorInput == header.fCoverageInput) {
+        fInputCoverage = GrGLSLExpr<4>(0);
     }
 
     if (k110_GrGLSLGeneration != fGpu->glslGeneration()) {
@@ -289,7 +295,7 @@ void GrGLShaderBuilder::fsAppendTextureLookupAndModulate(
                                             GrSLType varyingType) {
     SkString lookup;
     this->appendTextureLookup(&lookup, sampler, coordName, varyingType);
-    GrGLSLModulatef<4>(&fFSCode, modulation, lookup.c_str());
+    fFSCode.append((GrGLSLExpr<4>(modulation) * GrGLSLExpr<4>(lookup)).c_str());
 }
 
 GrGLShaderBuilder::DstReadKey GrGLShaderBuilder::KeyForDstRead(const GrTexture* dstCopy,
@@ -509,12 +515,11 @@ void GrGLShaderBuilder::createAndEmitEffects(GrGLProgramEffectsBuilder* programE
                                              const GrEffectStage* effectStages[],
                                              const EffectKey effectKeys[],
                                              int effectCnt,
-                                             SkString* fsInOutColor,
-                                             GrSLConstantVec* fsInOutColorKnownValue) {
+                                             GrGLSLExpr<4>* fsInOutColor) {
     bool effectEmitted = false;
 
-    SkString inColor = *fsInOutColor;
-    SkString outColor;
+    GrGLSLExpr<4> inColor = *fsInOutColor;
+    GrGLSLExpr<4> outColor;
 
     for (int e = 0; e < effectCnt; ++e) {
         SkASSERT(NULL != effectStages[e] && NULL != effectStages[e]->getEffect());
@@ -522,24 +527,29 @@ void GrGLShaderBuilder::createAndEmitEffects(GrGLProgramEffectsBuilder* programE
 
         CodeStage::AutoStageRestore csar(&fCodeStage, &stage);
 
-        if (kZeros_GrSLConstantVec == *fsInOutColorKnownValue) {
+        if (inColor.isZeros()) {
+            SkString inColorName;
+
             // Effects have no way to communicate zeros, they treat an empty string as ones.
-            this->nameVariable(&inColor, '\0', "input");
-            this->fsCodeAppendf("\tvec4 %s = %s;\n", inColor.c_str(), GrGLSLZerosVecf(4));
+            this->nameVariable(&inColorName, '\0', "input");
+            this->fsCodeAppendf("\tvec4 %s = %s;\n", inColorName.c_str(), inColor.c_str());
+            inColor = inColorName;
         }
 
         // create var to hold stage result
-        this->nameVariable(&outColor, '\0', "output");
-        this->fsCodeAppendf("\tvec4 %s;\n", outColor.c_str());
+        SkString outColorName;
+        this->nameVariable(&outColorName, '\0', "output");
+        this->fsCodeAppendf("\tvec4 %s;\n", outColorName.c_str());
+        outColor = outColorName;
+
 
         programEffectsBuilder->emitEffect(stage,
                                           effectKeys[e],
                                           outColor.c_str(),
-                                          inColor.isEmpty() ? NULL : inColor.c_str(),
+                                          inColor.isOnes() ? NULL : inColor.c_str(),
                                           fCodeStage.stageIndex());
 
         inColor = outColor;
-        *fsInOutColorKnownValue = kNone_GrSLConstantVec;
         effectEmitted = true;
     }
 
@@ -829,16 +839,14 @@ GrGLProgramEffects* GrGLFullShaderBuilder::createAndEmitEffects(
         const GrEffectStage* effectStages[],
         const EffectKey effectKeys[],
         int effectCnt,
-        SkString* inOutFSColor,
-        GrSLConstantVec* fsInOutColorKnownValue) {
+        GrGLSLExpr<4>* inOutFSColor) {
 
     GrGLVertexProgramEffectsBuilder programEffectsBuilder(this, effectCnt);
     this->INHERITED::createAndEmitEffects(&programEffectsBuilder,
                                           effectStages,
                                           effectKeys,
                                           effectCnt,
-                                          inOutFSColor,
-                                          fsInOutColorKnownValue);
+                                          inOutFSColor);
     return programEffectsBuilder.finish();
 }
 
@@ -939,15 +947,13 @@ GrGLProgramEffects* GrGLFragmentOnlyShaderBuilder::createAndEmitEffects(
         const GrEffectStage* effectStages[],
         const EffectKey effectKeys[],
         int effectCnt,
-        SkString* inOutFSColor,
-        GrSLConstantVec* fsInOutColorKnownValue) {
+        GrGLSLExpr<4>* inOutFSColor) {
 
     GrGLTexGenProgramEffectsBuilder texGenEffectsBuilder(this, effectCnt);
     this->INHERITED::createAndEmitEffects(&texGenEffectsBuilder,
                                           effectStages,
                                           effectKeys,
                                           effectCnt,
-                                          inOutFSColor,
-                                          fsInOutColorKnownValue);
+                                          inOutFSColor);
     return texGenEffectsBuilder.finish();
 }

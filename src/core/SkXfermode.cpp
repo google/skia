@@ -944,7 +944,7 @@ public:
 
             // We don't try to optimize for this case at all
             if (NULL == inputColor) {
-                builder->fsCodeAppendf("\t\tconst vec4 ones = %s;\n", GrGLSLOnesVecf(4));
+                builder->fsCodeAppendf("\t\tconst vec4 ones = vec4(1);\n");
                 inputColor = "ones";
             }
             builder->fsCodeAppendf("\t\t// SkXfermode::Mode: %s\n", SkXfermode::ModeName(mode));

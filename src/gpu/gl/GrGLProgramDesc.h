@@ -113,17 +113,6 @@ private:
         kColorInputCnt
     };
 
-    static GrSLConstantVec KnownColorInputValue(ColorInput ci) {
-        switch (ci) {
-            case GrGLProgramDesc::kTransBlack_ColorInput:
-                return kZeros_GrSLConstantVec;
-            case GrGLProgramDesc::kSolidWhite_ColorInput:
-                return kOnes_GrSLConstantVec;
-            default:
-                return kNone_GrSLConstantVec;
-        }
-    }
-
     enum CoverageOutput {
         // modulate color and coverage, write result as the color output.
         kModulate_CoverageOutput,

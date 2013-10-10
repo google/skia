@@ -149,12 +149,8 @@ public:
                                     "\t\t\tcolor.a = thresh;\n"
                                     "\t\t}\n");
 
-            builder->fsCodeAppend("color = ");
-            SkString outStr;
-            outStr.appendf("\t\t%s = ", outputColor);
-            GrGLSLModulatef<4>(&outStr, inputColor, "color");
-            outStr.append(";\n");
-            builder->fsCodeAppend(outStr.c_str());
+            builder->fsCodeAppendf("color = %s = %s;\n", outputColor,
+                                   (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<4>("color")).c_str());
         }
 
         virtual void setData(const GrGLUniformManager& uman, const GrDrawEffect& e) SK_OVERRIDE {

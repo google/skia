@@ -11,10 +11,10 @@
 #include "gl/GrGLInterface.h"
 #include "GrColor.h"
 #include "GrTypesPriv.h"
+#include "SkString.h"
 
 class GrGLContextInfo;
 class GrGLShaderVar;
-class SkString;
 
 // Limited set of GLSL versions we build shaders for. Caller should round
 // down the GLSL version to one of these enums.
@@ -37,43 +37,6 @@ enum GrGLSLGeneration {
     k150_GrGLSLGeneration,
 };
 
-enum GrSLConstantVec {
-    kZeros_GrSLConstantVec,
-    kOnes_GrSLConstantVec,
-    kNone_GrSLConstantVec,
-};
-
-namespace {
-static inline int GrSLTypeToVecLength(GrSLType type) {
-    static const int kVecLengths[] = {
-        0, // kVoid_GrSLType
-        1, // kFloat_GrSLType
-        2, // kVec2f_GrSLType
-        3, // kVec3f_GrSLType
-        4, // kVec4f_GrSLType
-        1, // kMat33f_GrSLType
-        1, // kMat44f_GrSLType
-        1, // kSampler2D_GrSLType
-    };
-    GR_STATIC_ASSERT(kGrSLTypeCount == GR_ARRAY_COUNT(kVecLengths));
-    return kVecLengths[type];
-}
-
-static inline const char* GrGLSLOnesVecf(int count) {
-    static const char* kONESVEC[] = {"ERROR", "1.0", "vec2(1,1)",
-                                     "vec3(1,1,1)", "vec4(1,1,1,1)"};
-    SkASSERT(count >= 1 && count < (int)GR_ARRAY_COUNT(kONESVEC));
-    return kONESVEC[count];
-}
-
-static inline const char* GrGLSLZerosVecf(int count) {
-    static const char* kZEROSVEC[] = {"ERROR", "0.0", "vec2(0,0)",
-                                      "vec3(0,0,0)", "vec4(0,0,0,0)"};
-    SkASSERT(count >= 1 && count < (int)GR_ARRAY_COUNT(kZEROSVEC));
-    return kZEROSVEC[count];
-}
-}
-
 /**
  * Gets the most recent GLSL Generation compatible with the OpenGL context.
  */
@@ -89,7 +52,7 @@ const char* GrGetGLSLVersionDecl(const GrGLContextInfo&);
 /**
  * Converts a GrSLType to a string containing the name of the equivalent GLSL type.
  */
-static const char* GrGLSLTypeString(GrSLType t) {
+static inline const char* GrGLSLTypeString(GrSLType t) {
     switch (t) {
         case kVoid_GrSLType:
             return "void";
@@ -113,101 +76,203 @@ static const char* GrGLSLTypeString(GrSLType t) {
     }
 }
 
-/** Return the type enum for a vector of floats of length n (1..4),
-    e.g. 1 -> "float", 2 -> "vec2", ... */
-static inline const char* GrGLSLFloatVectorTypeString(int n) {
-    return GrGLSLTypeString(GrSLFloatVectorType(n));
+/** A class representing a GLSL expression.
+ * The instance can be a variable name, expression or vecN(0) or vecN(1). Does simple constant
+ * folding with help of 1 and 0.
+ * Complex expressions can be constructed with operators *, +, -
+ */
+template <int N>
+class GrGLSLExpr {
+public:
+    /** Constructs an invalid expression.
+     * Useful only as a return value from functions that never actually return
+     * this and instances that will be assigned to later. */
+    GrGLSLExpr()
+        : fType(kFullExpr_ExprType) {
+        SK_COMPILE_ASSERT(N > 0 && N <= 4, dimensions_not_in_range);
+        // The only constructor that is allowed to build an empty expression.
+        SkASSERT(!this->isValid());
+    }
+
+    /** Constructs an expression with all components as value v */
+    explicit GrGLSLExpr(int v) {
+        SK_COMPILE_ASSERT(N > 0 && N <= 4, dimensions_not_in_range);
+        if (v == 0) {
+            fType = kZeros_ExprType;
+        } else if (v == 1) {
+            fType = kOnes_ExprType;
+        } else {
+            fType = kFullExpr_ExprType;
+            fExpr.appendf(CastIntStr(), v);
+        }
+    }
+
+    /** Constructs an expression from a string.
+     * Argument expr is a simple expression or a parenthesized expression. */
+    // TODO: make explicit once effects input Exprs.
+    GrGLSLExpr(const char expr[]) {
+        SK_COMPILE_ASSERT(N > 0 && N <= 4, dimensions_not_in_range);
+        if (NULL == expr) {  // TODO: remove this once effects input Exprs.
+            fType = kOnes_ExprType;
+        } else {
+            fType = kFullExpr_ExprType;
+            fExpr = expr;
+        }
+        SkASSERT(this->isValid());
+    }
+
+    /** Constructs an expression from a string.
+     * Argument expr is a simple expression or a parenthesized expression. */
+    // TODO: make explicit once effects input Exprs.
+    GrGLSLExpr(const SkString& expr) {
+        SK_COMPILE_ASSERT(N > 0 && N <= 4, dimensions_not_in_range);
+        if (expr.isEmpty()) {  // TODO: remove this once effects input Exprs.
+            fType = kOnes_ExprType;
+        } else {
+            fType = kFullExpr_ExprType;
+            fExpr = expr;
+        }
+        SkASSERT(this->isValid());
+    }
+
+    bool isOnes() const { return kOnes_ExprType == fType; }
+    bool isZeros() const { return kZeros_ExprType == fType; }
+
+    const char* c_str() const {
+        if (kZeros_ExprType == fType) {
+            return ZerosStr();
+        } else if (kOnes_ExprType == fType) {
+            return OnesStr();
+        }
+        SkASSERT(!fExpr.isEmpty()); // Empty expressions should not be used.
+        return fExpr.c_str();
+    }
+
+private:
+    GrGLSLExpr(const char format[], const char in0[])
+        : fType(kFullExpr_ExprType) {
+        fExpr.appendf(format, in0);
+    }
+
+    GrGLSLExpr(const char format[], const char in0[], const char in1[])
+        : fType(kFullExpr_ExprType) {
+        fExpr.appendf(format, in0, in1);
+    }
+
+    GrGLSLExpr(const char format[], const char in0[], char in1)
+        : fType(kFullExpr_ExprType) {
+        fExpr.appendf(format, in0, in1);
+    }
+
+    bool isValid() const {
+        return kFullExpr_ExprType != fType || !fExpr.isEmpty();
+    }
+
+    static const char* ZerosStr();
+    static const char* OnesStr();
+    static const char* ExtractAlphaStr();
+    static const char* CastStr();
+    static const char* CastIntStr();
+
+    /** Casts the expression expr into smaller or bigger expression.
+     * Casting is done with GLSL rules:
+     * M==3, N==4 vec3(a, b, c) -> vec4(a, b, c, 0)
+     * N==4, M==3 vec4(a, b, c, d) -> vec3(a, b, c)
+     */
+    template <int M>
+    static GrGLSLExpr<N> VectorCast(const GrGLSLExpr<M>& expr);
+
+    /** GLSL multiplication: component-wise or multiply each component by a scalar.
+     * M == N --> vecN(in0.x * in1.x, ...)
+     * M == 1 --> vecN(in0.x * in1, ...)
+     * otherwise --> compile-time error
+     */
+    template <int M>
+    static GrGLSLExpr<N> Mul(const GrGLSLExpr<N>& in0, const GrGLSLExpr<M>& in1);
+
+    /** GLSL addition: component-wise or add a scalar to each compoment.
+     * M == N --> vecN(in0.x + in1.x, ...)
+     * M == 1 --> vecN(in0.x + in1, ...)
+     * otherwise --> compile-time error
+     */
+    template <int M>
+    static GrGLSLExpr<N> Add(const GrGLSLExpr<N>& in0, const GrGLSLExpr<M>& in1);
+
+    /** GLSL subtraction: component-wise or subtract compoments by a scalar.
+     * M == N --> vecN(in0.x - in1.x, ...)
+     * M == 1 --> vecN(in0.x - in1, ...)
+     * otherwise --> compile-time error
+     */
+    template <int M>
+    static GrGLSLExpr<N> Sub(const GrGLSLExpr<N>& in0, const GrGLSLExpr<M>& in1);
+
+    enum ExprType {
+        kZeros_ExprType,
+        kOnes_ExprType,
+        kFullExpr_ExprType,
+    };
+    ExprType fType;
+    SkString fExpr;
+
+    template <int> friend class GrGLSLExpr;
+
+    /** Multiplies two expressions component-wise. */
+    template <int M> friend GrGLSLExpr<M> operator*(const GrGLSLExpr<M>&, const GrGLSLExpr<M>&);
+    /** Adds two expressions component-wise. */
+    template <int M> friend GrGLSLExpr<M> operator+(const GrGLSLExpr<M>&, const GrGLSLExpr<M>&);
+    /** Subtracts two expressions component-wise. */
+    template <int M> friend GrGLSLExpr<M> operator-(const GrGLSLExpr<M>&, const GrGLSLExpr<M>&);
+    /** Multiplies every component of an expression with a scalar expression. */
+    friend GrGLSLExpr<4> operator*(const GrGLSLExpr<4>&, const GrGLSLExpr<1>&);
+    /** Adds a scalar expression to every component of an expression. */
+    friend GrGLSLExpr<4> operator+(const GrGLSLExpr<4>&, const GrGLSLExpr<1>&);
+    /** Subtracts a scalar expression from every component of an expression. */
+    friend GrGLSLExpr<4> operator-(const GrGLSLExpr<4>&, const GrGLSLExpr<1>&);
+
+    friend GrGLSLExpr<1> GrGLSLExprExtractAlpha(const GrGLSLExpr<4>& expr);
+    friend GrGLSLExpr<4> GrGLSLExprCast4(const GrGLSLExpr<1>& expr);
+};
+
+
+template <int N>
+inline GrGLSLExpr<N> operator*(const GrGLSLExpr<N>& in0, const GrGLSLExpr<N>&in1) {
+    return GrGLSLExpr<N>::Mul(in0, in1);
 }
 
-/** Return the GLSL swizzle operator for a homogenous component of a vector
-    with the given number of coordinates, e.g. 2 -> ".y", 3 -> ".z" */
-const char* GrGLSLVectorHomogCoord(int count);
-const char* GrGLSLVectorHomogCoord(GrSLType type);
-
-/** Return the GLSL swizzle operator for a nonhomogenous components of a vector
-    with the given number of coordinates, e.g. 2 -> ".x", 3 -> ".xy" */
-const char* GrGLSLVectorNonhomogCoords(int count);
-const char* GrGLSLVectorNonhomogCoords(GrSLType type);
-
-/**
-  * Produces a string that is the result of modulating two inputs. The inputs must be vecN or
-  * float. The result is always a vecN. The inputs may be expressions, not just identifier names.
-  * Either can be NULL or "" in which case the default params control whether a vector of ones or
-  * zeros. It is an error to pass kNone for default<i> if in<i> is NULL or "". Note that when the
-  * function determines that the result is a zeros or ones vec then any expression represented by
-  * or in1 will not be emitted (side effects won't occur). The return value indicates whether a
-  * known zeros or ones vector resulted. The output can be suppressed when known vector is produced
-  * by passing true for omitIfConstVec.
-  */
 template <int N>
-GrSLConstantVec GrGLSLModulatef(SkString* outAppend,
-                                const char* in0,
-                                const char* in1,
-                                GrSLConstantVec default0 = kOnes_GrSLConstantVec,
-                                GrSLConstantVec default1 = kOnes_GrSLConstantVec,
-                                bool omitIfConstVec = false);
+inline GrGLSLExpr<N> operator+(const GrGLSLExpr<N>& in0, const GrGLSLExpr<N>&in1) {
+    return GrGLSLExpr<N>::Add(in0, in1);
+}
 
-/**
- * Produces a string that is the result of adding two inputs. The inputs must be vecN or
- * float. The result is always a vecN. The inputs may be expressions, not just identifier names.
- * Either can be NULL or "" in which case the default params control whether a vector of ones or
- * zeros. It is an error to pass kNone for default<i> if in<i> is NULL or "". Note that when the
- * function determines that the result is a zeros or ones vec then any expression represented by
- * or in1 will not be emitted (side effects won't occur). The return value indicates whether a
- * known zeros or ones vector resulted. The output can be suppressed when known vector is produced
- * by passing true for omitIfConstVec.
- */
 template <int N>
-GrSLConstantVec GrGLSLAddf(SkString* outAppend,
-                           const char* in0,
-                           const char* in1,
-                           GrSLConstantVec default0 = kZeros_GrSLConstantVec,
-                           GrSLConstantVec default1 = kZeros_GrSLConstantVec,
-                           bool omitIfConstVec = false);
+inline GrGLSLExpr<N> operator-(const GrGLSLExpr<N>& in0, const GrGLSLExpr<N>&in1) {
+    return GrGLSLExpr<N>::Sub(in0, in1);
+}
+
+inline GrGLSLExpr<4> operator*(const GrGLSLExpr<4>& in0, const GrGLSLExpr<1>& in1) {
+    return GrGLSLExpr<4>::Mul(in0, in1);
+}
+
+inline GrGLSLExpr<4> operator+(const GrGLSLExpr<4>& in0, const GrGLSLExpr<1>& in1) {
+    return GrGLSLExpr<4>::Add(in0, in1);
+}
+
+inline GrGLSLExpr<4> operator-(const GrGLSLExpr<4>& in0, const GrGLSLExpr<1>& in1) {
+    return GrGLSLExpr<4>::Sub(in0, in1);
+}
+
+/** Casts an vec1 expression  to vec4 expresison, eg. vec1(v) -> vec4(v,v,v,v). */
+GrGLSLExpr<4> GrGLSLExprCast4(const GrGLSLExpr<1>& expr);
+
+/** Extracts alpha component from an expression of vec<4>. */
+GrGLSLExpr<1> GrGLSLExprExtractAlpha(const GrGLSLExpr<4>& expr);
 
 /**
- * Produces a string that is the result of subtracting two inputs. The inputs must be vecN or
- * float. The result is always a vecN. The inputs may be expressions, not just identifier names.
- * Either can be NULL or "" in which case the default params control whether a vector of ones or
- * zeros. It is an error to pass kNone for default<i> if in<i> is NULL or "". Note that when the
- * function determines that the result is a zeros or ones vec then any expression represented by
- * or in1 will not be emitted (side effects won't occur). The return value indicates whether a
- * known zeros or ones vector resulted. The output can be suppressed when known vector is produced
- * by passing true for omitIfConstVec.
+ * Does an inplace mul, *=, of vec4VarName by mulFactor.
+ * A semicolon and newline are added after the assignment.
  */
-template <int N>
-GrSLConstantVec GrGLSLSubtractf(SkString* outAppend,
-                                const char* in0,
-                                const char* in1,
-                                GrSLConstantVec default0 = kZeros_GrSLConstantVec,
-                                GrSLConstantVec default1 = kZeros_GrSLConstantVec,
-                                bool omitIfConstVec = false);
-
-/**
- * Does an inplace mul, *=, of vec4VarName by mulFactor. If mulFactorDefault is not kNone then
- * mulFactor may be either "" or NULL. In this case either nothing will be appended (kOnes) or an
- * assignment of vec(0,0,0,0) will be appended (kZeros). The assignment is prepended by tabCnt tabs.
- * A semicolon and newline are added after the assignment. (TODO: Remove tabCnt when we auto-insert
- * tabs to GrGLEffect-generated lines.) If a zeros vec is assigned then the return value is
- * kZeros, otherwise kNone.
- */
-GrSLConstantVec GrGLSLMulVarBy4f(SkString* outAppend,
-                                 int tabCnt,
-                                 const char* vec4VarName,
-                                 const char* mulFactor,
-                                 GrSLConstantVec mulFactorDefault = kOnes_GrSLConstantVec);
-
-/**
- * Given an expression that evaluates to a GLSL vec4, extract a component. If expr is NULL or ""
- * the value of defaultExpr is used. It is an error to pass an empty expr and have set defaultExpr
- * to kNone. The return value indicates whether the value is known to be 0 or 1. If omitIfConst is
- * set then nothing is appended when the return is not kNone.
- */
-GrSLConstantVec GrGLSLGetComponent4f(SkString* outAppend,
-                                     const char* expr,
-                                     GrColorComponentFlags component,
-                                     GrSLConstantVec defaultExpr = kNone_GrSLConstantVec,
-                                     bool omitIfConst = false);
+void GrGLSLMulVarBy4f(SkString* outAppend, unsigned tabCnt,
+                      const char* vec4VarName, const GrGLSLExpr<4>& mulFactor);
 
 #include "GrGLSL_impl.h"
 

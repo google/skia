@@ -167,40 +167,26 @@ public:
 
     /**
      * Interfaces used by GrGLProgram.
-     * TODO: These are used by GrGLProgram to insert a mode color filter. Remove these when the
-     * color filter is expressed as a GrEffect.
      */
-    const SkString& getInputColor() const {
-        SkASSERT(fInputColor.isEmpty() != (kNone_GrSLConstantVec == fKnownColorValue));
+    const GrGLSLExpr<4>& getInputColor() const {
         return fInputColor;
     }
-    GrSLConstantVec getKnownColorValue() const {
-        SkASSERT(fInputColor.isEmpty() != (kNone_GrSLConstantVec == fKnownColorValue));
-        return fKnownColorValue;
-    }
-    const SkString& getInputCoverage() const {
-        SkASSERT(fInputCoverage.isEmpty() != (kNone_GrSLConstantVec == fKnownCoverageValue));
+    const GrGLSLExpr<4>& getInputCoverage() const {
         return fInputCoverage;
-    }
-    GrSLConstantVec getKnownCoverageValue() const {
-        SkASSERT(fInputCoverage.isEmpty() != (kNone_GrSLConstantVec == fKnownCoverageValue));
-        return fKnownCoverageValue;
     }
 
     /**
      * Adds code for effects and returns a GrGLProgramEffects* object. The caller is responsible for
      * deleting it when finished. effectStages contains the effects to add. effectKeys[i] is the key
      * generated from effectStages[i]. inOutFSColor specifies the input color to the first stage and
-     * is updated to be the output color of the last stage. fsInOutColorKnownValue specifies whether
-     * the input color has a known constant value and is updated to refer to the status of the
-     * output color. The handles to texture samplers for effectStage[i] are added to
+     * is updated to be the output color of the last stage.
+     * The handles to texture samplers for effectStage[i] are added to
      * effectSamplerHandles[i].
      */
     virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
                                                      const EffectKey effectKeys[],
                                                      int effectCnt,
-                                                     SkString* inOutFSColor,
-                                                     GrSLConstantVec* fsInOutColorKnownValue) = 0;
+                                                     GrGLSLExpr<4>* inOutFSColor) = 0;
 
     const char* getColorOutputName() const;
     const char* enableSecondaryOutput();
@@ -225,8 +211,8 @@ public:
 protected:
     GrGpuGL* gpu() const { return fGpu; }
 
-    void setInputColor(const char* inputColor) { fInputColor = inputColor; }
-    void setInputCoverage(const char* inputCoverage) { fInputCoverage = inputCoverage; }
+    void setInputColor(const GrGLSLExpr<4>& inputColor) { fInputColor = inputColor; }
+    void setInputCoverage(const GrGLSLExpr<4>& inputCoverage) { fInputCoverage = inputCoverage; }
 
     /** Add input/output variable declarations (i.e. 'varying') to the fragment shader. */
     GrGLShaderVar& fsInputAppend() { return fFSInputs.push_back(); }
@@ -241,8 +227,7 @@ protected:
                               const GrEffectStage* effectStages[],
                               const EffectKey effectKeys[],
                               int effectCnt,
-                              SkString* inOutFSColor,
-                              GrSLConstantVec* fsInOutColorKnownValue);
+                              GrGLSLExpr<4>* inOutFSColor);
 
     virtual bool compileAndAttachShaders(GrGLuint programId) const;
     virtual void bindProgramLocations(GrGLuint programId) const;
@@ -344,10 +329,8 @@ private:
     bool                                    fSetupFragPosition;
     GrGLUniformManager::UniformHandle       fDstCopySamplerUniform;
 
-    SkString                                fInputColor;
-    GrSLConstantVec                         fKnownColorValue;
-    SkString                                fInputCoverage;
-    GrSLConstantVec                         fKnownCoverageValue;
+    GrGLSLExpr<4>                           fInputColor;
+    GrGLSLExpr<4>                           fInputCoverage;
 
     bool                                    fHasCustomColorOutput;
     bool                                    fHasSecondaryOutput;
@@ -413,8 +396,7 @@ public:
                 const GrEffectStage* effectStages[],
                 const EffectKey effectKeys[],
                 int effectCnt,
-                SkString* inOutFSColor,
-                GrSLConstantVec* fsInOutColorKnownValue) SK_OVERRIDE;
+                GrGLSLExpr<4>* inOutFSColor) SK_OVERRIDE;
 
     GrGLUniformManager::UniformHandle getViewMatrixUniform() const {
         return fViewMatrixUniform;
@@ -463,8 +445,7 @@ public:
                 const GrEffectStage* effectStages[],
                 const EffectKey effectKeys[],
                 int effectCnt,
-                SkString* inOutFSColor,
-                GrSLConstantVec* fsInOutColorKnownValue) SK_OVERRIDE;
+                GrGLSLExpr<4>* inOutFSColor) SK_OVERRIDE;
 
 private:
     int fNumTexCoordSets;

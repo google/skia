@@ -110,9 +110,8 @@ void GrGLConicEffect::emitCode(GrGLFullShaderBuilder* builder,
         }
     }
 
-    SkString modulate;
-    GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
-    builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+    builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+                           (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<1>("edgeAlpha")).c_str());
 }
 
 GrGLEffect::EffectKey GrGLConicEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
@@ -239,9 +238,9 @@ void GrGLQuadEffect::emitCode(GrGLFullShaderBuilder* builder,
         }
     }
 
-    SkString modulate;
-    GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
-    builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+    builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+                           (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<1>("edgeAlpha")).c_str());
+
 
     builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
 }
@@ -383,9 +382,8 @@ void GrGLCubicEffect::emitCode(GrGLFullShaderBuilder* builder,
         }
     }
 
-    SkString modulate;
-    GrGLSLModulatef<4>(&modulate, inputColor, "edgeAlpha");
-    builder->fsCodeAppendf("\t%s = %s;\n", outputColor, modulate.c_str());
+    builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+                           (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<1>("edgeAlpha")).c_str());
 }
 
 GrGLEffect::EffectKey GrGLCubicEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {

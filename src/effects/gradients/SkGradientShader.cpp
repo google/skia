@@ -950,11 +950,8 @@ void GrGLGradientEffect::emitColor(GrGLShaderBuilder* builder,
             builder->fsCodeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
         }
 
-        SkString output;
-        builder->fsCodeAppendf("\t%s = ", outputColor);
-        GrGLSLModulatef<4>(&output, inputColor, "colorTemp");
-        builder->fsCodeAppend(output.c_str());
-        builder->fsCodeAppend(";\n");
+        builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+                               (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<4>("colorTemp")).c_str());
     } else if (GrGradientEffect::kThree_ColorType == ColorTypeFromKey(key)){
         builder->fsCodeAppendf("\tfloat oneMinus2t = 1.0 - (2.0 * (%s));\n",
                                gradientTValue);
@@ -977,11 +974,8 @@ void GrGLGradientEffect::emitColor(GrGLShaderBuilder* builder,
             builder->fsCodeAppend("\tcolorTemp.rgb *= colorTemp.a;\n");
         }
 
-        SkString output;
-        builder->fsCodeAppendf("\t%s = ", outputColor);
-        GrGLSLModulatef<4>(&output, inputColor, "colorTemp");
-        builder->fsCodeAppend(output.c_str());
-        builder->fsCodeAppend(";\n");
+        builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
+                               (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<4>("colorTemp")).c_str());
     } else {
         builder->fsCodeAppendf("\tvec2 coord = vec2(%s, %s);\n",
                                gradientTValue,

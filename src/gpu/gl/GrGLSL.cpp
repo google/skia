@@ -63,26 +63,6 @@ const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
     }
 }
 
-const char* GrGLSLVectorHomogCoord(int count) {
-    static const char* HOMOGS[] = {"ERROR", "", ".y", ".z", ".w"};
-    SkASSERT(count >= 1 && count < (int)GR_ARRAY_COUNT(HOMOGS));
-    return HOMOGS[count];
-}
-
-const char* GrGLSLVectorHomogCoord(GrSLType type) {
-    return GrGLSLVectorHomogCoord(GrSLTypeToVecLength(type));
-}
-
-const char* GrGLSLVectorNonhomogCoords(int count) {
-    static const char* NONHOMOGS[] = {"ERROR", "", ".x", ".xy", ".xyz"};
-    SkASSERT(count >= 1 && count < (int)GR_ARRAY_COUNT(NONHOMOGS));
-    return NONHOMOGS[count];
-}
-
-const char* GrGLSLVectorNonhomogCoords(GrSLType type) {
-    return GrGLSLVectorNonhomogCoords(GrSLTypeToVecLength(type));
-}
-
 namespace {
     void append_tabs(SkString* outAppend, int tabCnt) {
         static const char kTabs[] = "\t\t\t\t\t\t\t\t";
@@ -94,50 +74,19 @@ namespace {
     }
 }
 
-GrSLConstantVec GrGLSLMulVarBy4f(SkString* outAppend,
-                                 int tabCnt,
-                                 const char* vec4VarName,
-                                 const char* mulFactor,
-                                 GrSLConstantVec mulFactorDefault) {
-    bool haveFactor = NULL != mulFactor && '\0' != *mulFactor;
-
-    SkASSERT(NULL != outAppend);
-    SkASSERT(NULL != vec4VarName);
-    SkASSERT(kNone_GrSLConstantVec != mulFactorDefault || haveFactor);
-
-    if (!haveFactor) {
-        if (kOnes_GrSLConstantVec == mulFactorDefault) {
-            return kNone_GrSLConstantVec;
-        } else {
-            SkASSERT(kZeros_GrSLConstantVec == mulFactorDefault);
-            append_tabs(outAppend, tabCnt);
-            outAppend->appendf("%s = vec4(0, 0, 0, 0);\n", vec4VarName);
-            return kZeros_GrSLConstantVec;
-        }
+void GrGLSLMulVarBy4f(SkString* outAppend,
+                      unsigned tabCnt,
+                      const char* vec4VarName,
+                      const GrGLSLExpr<4>& mulFactor) {
+    if (mulFactor.isOnes()) {
+        *outAppend = SkString();
     }
+
     append_tabs(outAppend, tabCnt);
-    outAppend->appendf("%s *= %s;\n", vec4VarName, mulFactor);
-    return kNone_GrSLConstantVec;
+
+    if (mulFactor.isZeros()) {
+        outAppend->appendf("%s = vec4(0);\n", vec4VarName);
+    }
+    outAppend->appendf("%s *= %s;\n", vec4VarName, mulFactor.c_str());
 }
 
-GrSLConstantVec GrGLSLGetComponent4f(SkString* outAppend,
-                                     const char* expr,
-                                     GrColorComponentFlags component,
-                                     GrSLConstantVec defaultExpr,
-                                     bool omitIfConst) {
-    if (NULL == expr || '\0' == *expr) {
-        SkASSERT(defaultExpr != kNone_GrSLConstantVec);
-        if (!omitIfConst) {
-            if (kOnes_GrSLConstantVec == defaultExpr) {
-                outAppend->append("1.0");
-            } else {
-                SkASSERT(kZeros_GrSLConstantVec == defaultExpr);
-                outAppend->append("0.0");
-            }
-        }
-        return defaultExpr;
-    } else {
-        outAppend->appendf("(%s).%c", expr, GrColorComponentFlagToChar(component));
-        return kNone_GrSLConstantVec;
-    }
-}
