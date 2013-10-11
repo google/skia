@@ -15,6 +15,8 @@
 #include "SkTemplates.h"
 #include "SkTypes.h"
 
+#include <stdio.h>
+
 /// If outputDir.isEmpty(), don't write out diff files.
 static void create_diff_images (DiffMetricProc dmp,
                                 const int colorThreshold,
