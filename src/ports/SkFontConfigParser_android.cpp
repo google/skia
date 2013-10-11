@@ -10,6 +10,7 @@
 #include "SkTypeface.h"
 
 #include <expat.h>
+#include <stdio.h>
 #include <sys/system_properties.h>
 
 #define SYSTEM_FONTS_FILE "/system/etc/system_fonts.xml"
