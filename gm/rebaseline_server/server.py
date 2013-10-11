@@ -13,11 +13,13 @@ HTTP server for our HTML rebaseline viewer.
 import argparse
 import BaseHTTPServer
 import json
+import logging
 import os
 import posixpath
 import re
 import shutil
 import sys
+import urlparse
 
 # Imports from within Skia
 #
@@ -91,16 +93,17 @@ class Server(object):
     the gm-actuals and expectations will automatically be updated every few
     minutes.  See discussion in https://codereview.chromium.org/24274003/ .
     """
-    print 'Checking out latest actual GM results from %s into %s ...' % (
-        ACTUALS_SVN_REPO, self._actuals_dir)
+    logging.info('Checking out latest actual GM results from %s into %s ...' % (
+        ACTUALS_SVN_REPO, self._actuals_dir))
     actuals_repo = svn.Svn(self._actuals_dir)
     if not os.path.isdir(self._actuals_dir):
       os.makedirs(self._actuals_dir)
       actuals_repo.Checkout(ACTUALS_SVN_REPO, '.')
     else:
       actuals_repo.Update('.')
-    print 'Parsing results from actuals in %s and expectations in %s ...' % (
-        self._actuals_dir, self._expectations_dir)
+    logging.info(
+        'Parsing results from actuals in %s and expectations in %s ...' % (
+        self._actuals_dir, self._expectations_dir))
     self.results = results.Results(
       actuals_root=self._actuals_dir,
       expected_root=self._expectations_dir)
@@ -109,13 +112,13 @@ class Server(object):
     self.fetch_results()
     if self._export:
       server_address = ('', self._port)
-      print ('WARNING: Running in "export" mode. Users on other machines will '
-             'be able to modify your GM expectations!')
+      logging.warning('Running in "export" mode. Users on other machines will '
+                      'be able to modify your GM expectations!')
     else:
       server_address = ('127.0.0.1', self._port)
     http_server = BaseHTTPServer.HTTPServer(server_address, HTTPRequestHandler)
-    print 'Ready for requests on http://%s:%d' % (
-        http_server.server_name, http_server.server_port)
+    logging.info('Ready for requests on http://%s:%d' % (
+        http_server.server_name, http_server.server_port))
     http_server.serve_forever()
 
 
@@ -127,7 +130,7 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """ Handles all GET requests, forwarding them to the appropriate
         do_GET_* dispatcher. """
     if self.path == '' or self.path == '/' or self.path == '/index.html' :
-      self.redirect_to('/static/view.html')
+      self.redirect_to('/static/view.html?resultsToLoad=all')
       return
     if self.path == '/favicon.ico' :
       self.redirect_to('/static/favicon.ico')
@@ -146,21 +149,20 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     dispatcher = dispatchers[dispatcher_name]
     dispatcher(remainder)
 
-  def do_GET_results(self, result_type):
+  def do_GET_results(self, type):
     """ Handle a GET request for GM results.
-    For now, we ignore the remaining path info, because we only know how to
-    return all results.
 
     Args:
-      result_type: currently unused
-
-    TODO(epoger): Unless we start making use of result_type, remove that
-    parameter."""
-    print 'do_GET_results: sending results of type "%s"' % result_type
-    # TODO(epoger): Cache response_dict rather than the results object, to save
-    # time on subsequent fetches (no need to regenerate the header, etc.)
-    response_dict = _SERVER.results.GetAll()
-    if response_dict:
+      type: string indicating which set of results to return;
+            must be one of the results.RESULTS_* constants
+    """
+    logging.debug('do_GET_results: sending results of type "%s"' % type)
+    try:
+      # TODO(epoger): Rather than using a global variable for the handler
+      # to refer to the Server object, make Server a subclass of
+      # HTTPServer, and then it could be available to the handler via
+      # the handler's .server instance variable.
+      response_dict = _SERVER.results.get_results_of_type(type)
       response_dict['header'] = {
         # Hash of testData, which the client must return with any edits--
         # this ensures that the edits were made to a particular dataset.
@@ -176,7 +178,7 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         'isExported': _SERVER.is_exported(),
       }
       self.send_json_dict(response_dict)
-    else:
+    except:
       self.send_error(404)
 
   def do_GET_static(self, path):
@@ -187,14 +189,18 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     Args:
       path: path to file (under static directory) to retrieve
     """
-    print 'do_GET_static: sending file "%s"' % path
+    # Strip arguments ('?resultsToLoad=all') from the path
+    path = urlparse.urlparse(path).path
+
+    logging.debug('do_GET_static: sending file "%s"' % path)
     static_dir = os.path.realpath(os.path.join(PARENT_DIRECTORY, 'static'))
     full_path = os.path.realpath(os.path.join(static_dir, path))
     if full_path.startswith(static_dir):
       self.send_file(full_path)
     else:
-      print ('Attempted do_GET_static() of path [%s] outside of static dir [%s]'
-             % (full_path, static_dir))
+      logging.error(
+          'Attempted do_GET_static() of path [%s] outside of static dir [%s]'
+          % (full_path, static_dir))
       self.send_error(404)
 
   def redirect_to(self, url):
@@ -246,6 +252,7 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 def main():
+  logging.basicConfig(level=logging.INFO)
   parser = argparse.ArgumentParser()
   parser.add_argument('--actuals-dir',
                     help=('Directory into which we will check out the latest '

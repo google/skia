@@ -14,8 +14,8 @@
   <!-- TODO(epoger): Add some indication of how old the
   expected/actual data is -->
 
-  <em ng-hide="categories">
-    Loading data, please wait...
+  <em>
+    {{loadingMessage}}
   </em>
 
   <div ng-hide="!categories">
@@ -143,13 +143,13 @@
           <td>{{result.test}}</td>
           <td>{{result.config}}</td>
           <td>
-	    <a target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png">
+            <a target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png">
               <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png"/>
             </a>
           </td>
           <td>
-	    <a target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png">
-	      <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png"/>
+            <a target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png">
+              <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png"/>
             </a>
           </td>
           <td ng-hide="!header.isEditable">

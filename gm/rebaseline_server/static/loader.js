@@ -31,13 +31,23 @@ Loader.filter(
 
 Loader.controller(
   'Loader.Controller',
-  function($scope, $http, $filter) {
-    $http.get("/results/all").then(
-      function(response) {
-        $scope.header = response.data.header;
-        $scope.categories = response.data.categories;
-        $scope.testData = response.data.testData;
+  function($scope, $http, $filter, $location) {
+    var resultsToLoad = $location.search().resultsToLoad;
+    $scope.loadingMessage = "Loading results of type '" + resultsToLoad +
+        "', please wait...";
+
+    $http.get("/results/" + resultsToLoad).success(
+      function(data, status, header, config) {
+        $scope.loadingMessage = "Processing data, please wait...";
+
+        $scope.header = data.header;
+        $scope.categories = data.categories;
+        $scope.testData = data.testData;
         $scope.sortColumn = 'test';
+
+        for (var i = 0; i < $scope.testData.length; i++) {
+          $scope.testData[i].index = i;
+        }
 
         $scope.hiddenResultTypes = {
           'failure-ignored': true,
@@ -48,6 +58,12 @@ Loader.controller(
         $scope.selectedItems = {};
 
         $scope.updateResults();
+        $scope.loadingMessage = "";
+      }
+    ).error(
+      function(data, status, header, config) {
+        $scope.loadingMessage = "Failed to load results of type '"
+            + resultsToLoad + "'";
       }
     );
 
