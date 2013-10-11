@@ -16,6 +16,8 @@ class SkPdfContext;
 
 // TODO(edisonn): ability to turn on asserts for known good files
 
+// Severity of the issue, if it something interesting info, the result of an NYI feature,
+// sme ignorable defect in pdf or a major issue.
 enum SkPdfIssueSeverity {
     kInfo_SkPdfIssueSeverity,
     kCodeWarning_SkPdfIssueSeverity, // e.g. like NYI, PDF file is Ok.
@@ -27,6 +29,7 @@ enum SkPdfIssueSeverity {
     _kCount__SkPdfIssueSeverity
 };
 
+// The type of the issue.
 enum SkPdfIssue {
     kNoIssue_SkPdfIssue,
 
@@ -58,19 +61,30 @@ enum SkPdfIssue {
 
 #ifdef PDF_REPORT
 
+// Calls SkPdfReport(...) if report is true.
 void SkPdfReportIf(bool report,
                    SkPdfIssueSeverity sev, SkPdfIssue issue,
                    const char* context,
                    const SkPdfNativeObject* obj,
                    SkPdfContext* pdfContext);
+
+// Reports an issue, along with information where it happened, for example obj can be used to report
+// where exactly in th pdf there is a corruption
+// TODO(edisonn): add ability to report the callstack
 void SkPdfReport(SkPdfIssueSeverity sev, SkPdfIssue issue,
                  const char* context,
                  const SkPdfNativeObject* obj,
                  SkPdfContext* pdfContext);
+
+// Reports that an object does not have the expected type
+// TODO(edisonn): replace with SkPdfReportIfUnexpectedType() to simplify the callers?
+// TODO(edisonn): pass the keyword/operator too which triggers the issue.
 void SkPdfReportUnexpectedType(SkPdfIssueSeverity sev,
                                const char* context,
                                const SkPdfNativeObject* obj, int anyOfTypes,
                                SkPdfContext* pdfContext);
+
+// Code only in builds with reporting turn on.
 #define SkPdfREPORTCODE(code) code
 
 #else  // !PDF_REPORT

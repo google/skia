@@ -28,6 +28,10 @@ const char* getSeverityName(SkPdfIssueSeverity sev) {
 }
 
 // TODO(edisonn): add a flag to set the minimum warning level
+// TODO(edisonn): get the address in the file, and report it.
+// TODO(edisonn): build a html file based on warnings which would showe the original pdf
+//                content, with tooltips where warnings/errors were reported.
+
 
 #ifdef PDF_REPORT
 void SkPdfReport(SkPdfIssueSeverity sev, SkPdfIssue issue,

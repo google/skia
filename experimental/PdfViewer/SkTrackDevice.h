@@ -16,6 +16,11 @@
  *   A Track Device is used to track that callstack of an operation that affected some pixels.
  *   It can be used with SampleApp to investigate bugs (CL not checked in yet).
  *
+ *   every drawFoo is implemented as such:
+ *      before();   // - collects state of interesting pixels
+ *      INHERITED::drawFoo(...);
+ *      after();  // - checks if pixels of interest, and issue a breakpoint.
+ *
  */
 class SkTrackDevice : public SkBitmapDevice {
 public:
@@ -39,6 +44,8 @@ public:
 
     virtual ~SkTrackDevice() {}
 
+    // Install a tracker - we can reuse the tracker between multiple devices, and the state of the
+    // tracker is preserved - number and location of poinbts, ...
     void installTracker(SkTracker* tracker) {
         fTracker = tracker;
         fTracker->newFrame();

@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+// TODO(edisonn): this file not commented much on purpose.
+// It will probably need heavy refactoring soon anyway to support all encodings, fonts and
+// proper text sizing and spacing
+
 #ifndef SkPdfFont_DEFINED
 #define SkPdfFont_DEFINED
 

@@ -3062,6 +3062,8 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
     SkAssertResult(pdfContext.fOriginalMatrix.setPolyToPoly(pdfSpace, skiaSpace, 4));
     SkTraceMatrix(pdfContext.fOriginalMatrix, "Original matrix");
 
+    pdfContext.fOriginalMatrix.postConcat(canvas->getTotalMatrix());
+
     pdfContext.fGraphicsState.fCTM = pdfContext.fOriginalMatrix;
     pdfContext.fGraphicsState.fContentStreamMatrix = pdfContext.fOriginalMatrix;
     pdfContext.fGraphicsState.fMatrixTm = pdfContext.fGraphicsState.fCTM;
@@ -3071,7 +3073,7 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
     canvas->clipRect(dst, SkRegion::kIntersect_Op, true);
 #endif
 
-    canvas->setMatrix(pdfContext.fOriginalMatrix);
+    canvas->concat(pdfContext.fOriginalMatrix);
 
     doPage(&pdfContext, canvas, fPdfDoc->page(page));
 

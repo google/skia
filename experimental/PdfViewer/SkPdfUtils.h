@@ -30,6 +30,8 @@ enum SkPdfResult {
     kCount_SkPdfResult
 };
 
+// In order to operate fast, when we parse the pdf, we try not to allocate many new strings,
+// and if possible we refer the string in the pdf stream.
 struct NotOwnedString {
     const unsigned char* fBuffer;
     // TODO(edisonn): clean up, the last two bytes are used to signal if compression is used

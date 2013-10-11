@@ -33,8 +33,7 @@ void SkPdfGraphicsState::applyGraphicsState(SkPaint* paint, bool stroking) {
     // TODO(edisonn): miter, ...
     if (stroking) {
         paint->setStrokeWidth(SkDoubleToScalar(fLineWidth));
-        // TODO(edisonn): perf, avoid allocs allocs
-        // of the intervals
+        // TODO(edisonn): perf, avoid allocs of the intervals
         if (fDashArrayLength > 0) {
             paint->setPathEffect(new SkDashPathEffect(fDashArray,
                                                       fDashArrayLength,

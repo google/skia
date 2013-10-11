@@ -13,34 +13,39 @@
 #include "SkPdfConfig.h"
 #include "SkPdfUtils.h"
 
+class SkPdfAllocator;
 class SkPdfFont;
 class SkPdfDoc;
+class SkPdfNativeDoc;
 class SkPdfNativeObject;
 class SkPdfResourceDictionary;
 class SkPdfSoftMaskDictionary;
+#include "SkTypes.h"
 
-class SkPdfNativeDoc;
-class SkPdfAllocator;
 
-// TODO(edisonn): move this class in include/core?
-// Ref objects can't be dealt unless we use a specific class initialization
-// The difference between SkTDStackNew and SkTDStack is that SkTDStackNew uses new/delete
-// to be a manage c++ stuff (like initializations)
+// TODO(edisonn): move SkTDStackNester class in its own private file
 
 // Adobe limits it to 28, so 256 should be more than enough
 #define MAX_NESTING 256
 
-#include "SkTypes.h"
-template <typename T> class SkTDStackNew : SkNoncopyable {
+/** \class SkTDStackNester
+ *
+ * The difference between SkTDStackNester and SkTDStack is that:
+ *   - SkTDStackNester uses new/delete to manage initializations
+ *   - Supports nest/unnest which simulates a stack of stack. unnest will pop all the
+ *     objects pushed since the last nest
+ */
+
+template <typename T> class SkTDStackNester : SkNoncopyable {
 public:
-    SkTDStackNew() : fCount(0), fTotalCount(0), fLocalCount(0) {
+    SkTDStackNester() : fCount(0), fTotalCount(0), fLocalCount(0) {
         fInitialRec.fNext = NULL;
         fRec = &fInitialRec;
 
     //  fCount = kSlotCount;
     }
 
-    ~SkTDStackNew() {
+    ~SkTDStackNester() {
         Rec* rec = fRec;
         while (rec != &fInitialRec) {
             Rec* next = rec->fNext;
@@ -157,7 +162,9 @@ private:
     int     fNestingLevel;
 };
 
-// TODO(edisonn): better class design.
+/** \class SkTDStackNester
+ *   Operates on stroking or non-stroking properties.
+ */
 class SkPdfColorOperator {
 
     /*
@@ -168,9 +175,7 @@ class SkPdfColorOperator {
      */
 
     // TODO(edisonn): implement the array part too
-    // does not own the char*
 // TODO(edisonn): remove this public, let fields be private
-// TODO(edisonn): make color space an enum!
 public:
     NotOwnedString fColorSpace;
     SkPdfNativeObject* fPattern;
@@ -187,15 +192,14 @@ public:
     SkColor fColor;
     double fOpacity;  // ca or CA
 
-    // TODO(edisonn): add here other color space options.
-
 public:
     void setRGBColor(SkColor color) {
         // TODO(edisonn): ASSERT DeviceRGB is the color space.
         fPattern = NULL;
         fColor = color;
     }
-    // TODO(edisonn): double check the default values for all fields.
+
+    // TODO(edisonn): implement the default values for all fields.
     SkPdfColorOperator() : fPattern(NULL), fColor(SK_ColorBLACK), fOpacity(1) {
         NotOwnedString::init(&fColorSpace, "DeviceRGB");
     }
@@ -216,7 +220,9 @@ public:
     }
 };
 
-// TODO(edisonn): better class design.
+/** \class SkTDStackNester
+ *   Operates on stroking or non-stroking properties.
+ */
 struct SkPdfGraphicsState {
     // TODO(edisonn): deprecate and remove these!
     double              fCurPosX;
@@ -235,9 +241,8 @@ struct SkPdfGraphicsState {
     SkPdfResourceDictionary* fResources;
 
 
-    // TODO(edisonn): move most of these in canvas/paint?
-    // we could have some in canvas (matrixes?),
-    // some in 2 paints (stroking paint and non stroking paint)
+    // TODO(edisonn): Can we move most of these in canvas/paint?
+    // Might need to strore some properties in 2 paints (stroking paint and non stroking paint)
 
 //    TABLE 4.2 Device-independent graphics state parameters
 /*
@@ -457,10 +462,7 @@ smoothness             number             (PDF 1.3) The precision with which col
                                           installation-dependent.
  */
 
-
-
     // TODO(edisonn): some defaults are contextual, they could on colorspace, pdf version, ...
-
     SkPdfGraphicsState() {
         fCurPosX      = 0.0;
         fCurPosY      = 0.0;
@@ -493,14 +495,15 @@ smoothness             number             (PDF 1.3) The precision with which col
     void applyGraphicsState(SkPaint* paint, bool stroking);
 };
 
+/** \class SkPdfContext
+ *   The context of the drawing. The document we draw from, the current stack of objects, ...
+ */
 class SkPdfContext {
 public:
-    SkTDStackNew<SkPdfNativeObject*>  fObjectStack;
-    SkTDStackNew<SkPdfGraphicsState>  fStateStack;
+    SkTDStackNester<SkPdfNativeObject*>  fObjectStack;
+    SkTDStackNester<SkPdfGraphicsState>  fStateStack;
     SkPdfGraphicsState              fGraphicsState;
     SkPdfNativeDoc*                 fPdfDoc;
-    // TODO(edisonn): the allocator, could be freed after the page is done drawing, so we have the
-    // pixels on the screen asap.
     SkPdfAllocator*                 fTmpPageAllocator;
     SkMatrix                        fOriginalMatrix;
 
