@@ -64,6 +64,7 @@
         '../tests/FontNamesTest.cpp',
         '../tests/FrontBufferedStreamTest.cpp',
         '../tests/GeometryTest.cpp',
+        '../tests/GifTest.cpp',
         '../tests/GLInterfaceValidation.cpp',
         '../tests/GLProgramsTest.cpp',
         '../tests/GpuBitmapCopyTest.cpp',
