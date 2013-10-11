@@ -161,7 +161,7 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
             SkString familyName;
             typeface->getFamilyName(&familyName);
             if (verbose) {
-                printf("[%s]\n", familyName.c_str());
+                SkDebugf("[%s]\n", familyName.c_str());
             }
 
             SkAutoTUnref<SkTypeface::LocalizedStrings> familyNamesIter(
@@ -169,7 +169,7 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
             SkTypeface::LocalizedString familyNameLocalized;
             while (familyNamesIter->next(&familyNameLocalized)) {
                 if (verbose) {
-                    printf("(%s) <%s>\n", familyNameLocalized.fString.c_str(),
+                    SkDebugf("(%s) <%s>\n", familyNameLocalized.fString.c_str(),
                                           familyNameLocalized.fLanguage.c_str());
                 }
             }
@@ -193,7 +193,7 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
                     "Requested family name, got something else."
                 );
                 if (verbose) {
-                    printf("{%s} <%s>\n", record.name.c_str(), record.language.c_str());
+                    SkDebugf("{%s} <%s>\n", record.name.c_str(), record.language.c_str());
                 }
             }
 
@@ -205,12 +205,12 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
                     "Requested subfamily name, got something else."
                 );
                 if (verbose) {
-                    printf("{{%s}} <%s>\n", record.name.c_str(), record.language.c_str());
+                    SkDebugf("{{%s}} <%s>\n", record.name.c_str(), record.language.c_str());
                 }
             }
 
             if (verbose) {
-                printf("\n");
+                SkDebugf("\n");
             }
         }
     }

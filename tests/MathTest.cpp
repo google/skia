@@ -147,14 +147,14 @@ static void test_blend31() {
                 int r2 = SkScalarRoundToInt(SkFloatToScalar(f));
 
                 if (r0 != r1 && r0 != r2) {
-                    printf("src:%d dst:%d a:%d result:%d float:%g\n",
-                                 src, dst, a, r0, f);
+                    SkDebugf("src:%d dst:%d a:%d result:%d float:%g\n",
+                                  src,   dst, a,        r0,      f);
                     failed += 1;
                 }
                 if (r0 > 255) {
                     death += 1;
-                    printf("death src:%d dst:%d a:%d result:%d float:%g\n",
-                           src, dst, a, r0, f);
+                    SkDebugf("death src:%d dst:%d a:%d result:%d float:%g\n",
+                                        src,   dst, a,        r0,      f);
                 }
             }
         }

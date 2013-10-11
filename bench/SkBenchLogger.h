@@ -11,6 +11,7 @@
 
 #include "SkTypes.h"
 #include "SkString.h"
+#include <stdio.h>
 
 class SkFILEWStream;
 

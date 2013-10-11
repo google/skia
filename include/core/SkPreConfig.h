@@ -70,7 +70,6 @@
     #if !defined(SK_WARN_UNUSED_RESULT)
         #define SK_WARN_UNUSED_RESULT
     #endif
-    #include "sk_stdint.h"
 #endif
 
 //////////////////////////////////////////////////////////////////////
@@ -97,17 +96,6 @@
         #define SK_CPU_BENDIAN
     #else
         #define SK_CPU_LENDIAN
-    #endif
-#endif
-
-//////////////////////////////////////////////////////////////////////
-
-#ifndef SK_MMAP_SUPPORT
-    #ifdef SK_BUILD_FOR_WIN32
-        // by default, if we're windows, we assume we don't have mmap
-        #define SK_MMAP_SUPPORT 0
-    #else
-        #define SK_MMAP_SUPPORT 1
     #endif
 #endif
 

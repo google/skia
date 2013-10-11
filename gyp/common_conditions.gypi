@@ -32,7 +32,6 @@
         'defines': [
           'SK_BUILD_FOR_WIN32',
           'SK_FONTHOST_USES_FONTMGR',
-          'SK_IGNORE_STDINT_DOT_H',
           '_CRT_SECURE_NO_WARNINGS',
           'GR_GL_FUNCTION_TYPE=__stdcall',
         ],

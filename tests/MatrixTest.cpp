@@ -26,7 +26,7 @@ static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
 static bool nearly_equal(const SkMatrix& a, const SkMatrix& b) {
     for (int i = 0; i < 9; i++) {
         if (!nearly_equal_scalar(a[i], b[i])) {
-            printf("not equal %g %g\n", (float)a[i], (float)b[i]);
+            SkDebugf("not equal %g %g\n", (float)a[i], (float)b[i]);
             return false;
         }
     }

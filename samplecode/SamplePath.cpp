@@ -61,15 +61,15 @@ static void test_cubic2() {
         int ix = (int)x;
         int fx = (int)(x * 65536);
         int ffx = SkScalarToFixed(x);
-        printf("%g %x %x %x\n", x, ix, fx, ffx);
+        SkDebugf("%g %x %x %x\n", x, ix, fx, ffx);
 
         SkRect r = path.getBounds();
         SkIRect ir;
         r.round(&ir);
-        printf("[%g %g %g %g] [%x %x %x %x]\n",
-               SkScalarToDouble(r.fLeft), SkScalarToDouble(r.fTop),
-               SkScalarToDouble(r.fRight), SkScalarToDouble(r.fBottom),
-               ir.fLeft, ir.fTop, ir.fRight, ir.fBottom);
+        SkDebugf("[%g %g %g %g] [%x %x %x %x]\n",
+                SkScalarToDouble(r.fLeft), SkScalarToDouble(r.fTop),
+                SkScalarToDouble(r.fRight), SkScalarToDouble(r.fBottom),
+                ir.fLeft, ir.fTop, ir.fRight, ir.fBottom);
     }
 
     SkBitmap bitmap;

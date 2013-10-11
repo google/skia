@@ -50,14 +50,14 @@ static void standardTestCases(skiatest::Reporter* reporter) {
         const SkDQuad& quad = quadraticLines[index];
         order = reducer.reduce(quad, SkReduceOrder::kFill_Style);
         if (order != 2) {
-            printf("[%d] line quad order=%d\n", (int) index, order);
+            SkDebugf("[%d] line quad order=%d\n", (int) index, order);
         }
     }
     for (index = firstQuadraticModLineTest; index < quadraticModEpsilonLines_count; ++index) {
         const SkDQuad& quad = quadraticModEpsilonLines[index];
         order = reducer.reduce(quad, SkReduceOrder::kFill_Style);
         if (order != 3) {
-            printf("[%d] line mod quad order=%d\n", (int) index, order);
+            SkDebugf("[%d] line mod quad order=%d\n", (int) index, order);
         }
     }
 }

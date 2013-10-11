@@ -14,6 +14,7 @@
 #include "SkRRect.h"
 #include "SkString.h"
 #include <stdarg.h>
+#include <stdio.h>
 
 // needed just to know that these are all subclassed from SkFlattenable
 #include "SkShader.h"

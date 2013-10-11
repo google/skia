@@ -9,6 +9,7 @@
 
 #include "SkPathOps.h"
 #include "SkTypes.h"
+#include <stdio.h>
 
 #ifdef SK_RELEASE
 #define FORCE_RELEASE 1

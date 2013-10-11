@@ -30,7 +30,7 @@ static void test_giantClip() {
 }
 
 static void PrintCurve(const char *name, const SkPoint crv[4]) {
-    printf("%s: %.10g, %.10g, %.10g, %.10g, %.10g, %.10g, %.10g, %.10g\n",
+    SkDebugf("%s: %.10g, %.10g, %.10g, %.10g, %.10g, %.10g, %.10g, %.10g\n",
             name,
             (float)crv[0].fX, (float)crv[0].fY,
             (float)crv[1].fX, (float)crv[1].fY,

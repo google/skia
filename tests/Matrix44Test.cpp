@@ -64,7 +64,7 @@ static bool nearly_equal(const SkMatrix44& a, const SkMatrix44& b) {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
             if (!nearly_equal_mscalar(a.get(i, j), b.get(i, j))) {
-                printf("not equal %g %g\n", a.get(i, j), b.get(i, j));
+                SkDebugf("not equal %g %g\n", a.get(i, j), b.get(i, j));
                 return false;
             }
         }

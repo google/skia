@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "Sk64.h"
 #include "SkGradientShader.h"
+#include "SkString.h"
 
 static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorMAGENTA };
@@ -71,12 +72,12 @@ protected:
         SkScalar l = SK_Scalar1 * 100;
         SkScalar t = SK_Scalar1 * 100;
         draw_gradient2(canvas, SkRect::MakeXYWH(l, t, w, h), delta);
-        char txt[512];
-        sprintf(txt, "gap at \"tangent\" pt = %f", SkScalarToFloat(delta));
+        SkString txt;
+        txt.appendf("gap at \"tangent\" pt = %f", SkScalarToFloat(delta));
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setColor(SK_ColorBLACK);
-        canvas->drawText(txt, strlen(txt), l + w/2 + w*DELTA_SCALE*delta, t + h + SK_Scalar1 * 10, paint);
+        canvas->drawText(txt.c_str(), txt.size(), l + w/2 + w*DELTA_SCALE*delta, t + h + SK_Scalar1 * 10, paint);
         this->inval(NULL);
     }
 

@@ -170,7 +170,7 @@ class TestWData {
 
         SkString stringResult = stringify_advance_data(result.get());
         if (!stringResult.equals(fExpected)) {
-            printf("Expected: %s\n  Result: %s\n", fExpected, stringResult.c_str());
+            SkDebugf("Expected: %s\n  Result: %s\n", fExpected, stringResult.c_str());
             return false;
         }
         return true;

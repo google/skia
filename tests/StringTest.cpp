@@ -8,7 +8,7 @@
 #include "Test.h"
 #include "SkString.h"
 #include <stdarg.h>
-
+#include <stdio.h>
 
 // Windows vsnprintf doesn't 0-terminate safely), but is so far
 // encapsulated in SkString that we can't test it directly.

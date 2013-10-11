@@ -8,6 +8,7 @@
 
 #include "GrGLUtil.h"
 #include "SkMatrix.h"
+#include <stdio.h>
 
 void GrGLClearErr(const GrGLInterface* gl) {
     while (GR_GL_NO_ERROR != gl->fGetError()) {}

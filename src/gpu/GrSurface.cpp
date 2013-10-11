@@ -9,6 +9,7 @@
 
 #include "SkBitmap.h"
 #include "SkImageEncoder.h"
+#include <stdio.h>
 
 SK_DEFINE_INST_COUNT(GrSurface)
 
