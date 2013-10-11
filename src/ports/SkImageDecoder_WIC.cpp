@@ -6,9 +6,27 @@
  * found in the LICENSE file.
  */
 
+#include "SkTypes.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+// Workaround for:
+// http://connect.microsoft.com/VisualStudio/feedback/details/621653/
+// http://crbug.com/225822
+// In VS2010 both intsafe.h and stdint.h define the following without guards.
+// SkTypes brought in windows.h and stdint.h and the following defines are
+// not used by this file. However, they may be re-introduced by wincodec.h.
+#undef INT8_MIN
+#undef INT16_MIN
+#undef INT32_MIN
+#undef INT64_MIN
+#undef INT8_MAX
+#undef UINT8_MAX
+#undef INT16_MAX
+#undef UINT16_MAX
+#undef INT32_MAX
+#undef UINT32_MAX
+#undef INT64_MAX
+#undef UINT64_MAX
+
 #include <wincodec.h>
 #include "SkAutoCoInitialize.h"
 #include "SkImageDecoder.h"
