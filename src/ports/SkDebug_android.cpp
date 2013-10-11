@@ -8,6 +8,7 @@
 
 
 #include "SkTypes.h"
+#include <stdio.h>
 
 static const size_t kBufferSize = 256;
 
