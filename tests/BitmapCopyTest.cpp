@@ -244,7 +244,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
         for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
             SkBitmap srcOpaque, srcPremul, dst;
-            
+
             {
                 SkColorTable* ctOpaque = NULL;
                 SkColorTable* ctPremul = NULL;
@@ -259,7 +259,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 srcPremul.allocPixels(ctPremul);
                 SkSafeUnref(ctOpaque);
                 SkSafeUnref(ctPremul);
-                
+
                 srcOpaque.setIsOpaque(true);
                 srcPremul.setIsOpaque(false);
             }
@@ -333,7 +333,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                         REPORTER_ASSERT(reporter,
                                     (copy.getColorTable() != NULL) == hasCT);
                     }
-                    
+
                     bitmap = srcPremul;
                     bitmap.setIsVolatile(false);
                     if (bitmap.extractSubset(&subset, r)) {
