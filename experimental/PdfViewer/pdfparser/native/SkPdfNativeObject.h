@@ -30,6 +30,18 @@ class SkPdfAllocator;
 #define kUnfilteredStreamBit 1
 #define kOwnedStreamBit 2
 
+/** \class SkPdfNativeObject
+ *
+ *  The SkPdfNativeObject class is used to store a pdf object. Classes that inherit it are not
+ *  allowed to add fields.
+ *
+ *  SkPdfAllocator will allocate them in chunks and will free them in destructor.
+ *
+ *  You can allocate one on the stack, as long as you call reset() at the end, and any objects it
+ *  points to in an allocator. But if your object is a simple one, like number, then
+ *  putting it on stack will be just fine.
+ *
+ */
 class SkPdfNativeObject {
  public:
      enum ObjectType {
@@ -94,13 +106,16 @@ private:
     void* fData;
     DataType fDataType;
 
-    // Keep this the last entries
 #ifdef PDF_TRACK_OBJECT_USAGE
+    // Records if the object was used during rendering/proccessing. It can be used to track
+    // what features are only partially implemented, by looking at what objects have not been
+    // accessed.
     mutable bool fUsed;
 #endif   // PDF_TRACK_OBJECT_USAGE
 
 #ifdef PDF_TRACK_STREAM_OFFSETS
 public:
+    // TODO(edisonn): replace them with char* start, end - and a mechanism to register streams.
     int fStreamId;
     int fOffsetStart;
     int fOffsetEnd;
@@ -109,11 +124,11 @@ public:
 public:
 
 #ifdef PDF_TRACK_STREAM_OFFSETS
+    // TODO(edisonn): remove these ones.
     int streamId() const { return fStreamId; }
     int offsetStart() const { return fOffsetStart; }
     int offsetEnd() const { return fOffsetEnd; }
 #endif  // PDF_TRACK_STREAM_OFFSETS
-
 
     SkPdfNativeObject() : fInRendering(0)
                         , fObjectType(kInvalid_PdfObjectType)
@@ -131,30 +146,40 @@ public:
 #endif  // PDF_TRACK_STREAM_OFFSETS
     {}
 
+    // Used to verify if a form is used in rendering, to check for infinite loops.
     bool inRendering() const { return fInRendering != 0; }
     void startRendering() {fInRendering = 1;}
     void doneRendering() {fInRendering = 0;}
 
+    // Each object can cache one entry associated with it.
+    // for example a SkPdfImage could cache an SkBitmap, of a SkPdfFont, could cache a SkTypeface.
     inline bool hasData(DataType type) {
         return type == fDataType;
     }
 
+    // returns the cached value
     inline void* data(DataType type) {
         return type == fDataType ? fData : NULL;
     }
 
+    // Stores something in the cache
     inline void setData(void* data, DataType type) {
         releaseData();
         fDataType = type;
         fData = data;
     }
 
+    // destroys the cache
     void releaseData();
 
+    // TODO(edisonn): add an assert that reset was called
 //    ~SkPdfNativeObject() {
 //        //reset();  must be called manually! Normally, will be called by allocator destructor.
 //    }
 
+    // Resets a pdf object, deleting all resources directly referenced.
+    // It will not reset/delete indirect resources.
+    // (e.g. it deletes only the array holding pointers to objects, but does not del the objects)
     void reset() {
         SkPdfMarkObjectUnused();
 
@@ -179,12 +204,15 @@ public:
         releaseData();
     }
 
+    // returns the object type (Null, Integer, String, Dictionary, ... )
+    // It does not specify what type of dictionary we have.
     ObjectType type() {
         SkPdfMarkObjectUsed();
 
         return fObjectType;
     }
 
+    // Gives quick access to the buffer's address of a string/keyword/name
     const char* c_str() const {
         SkPdfMarkObjectUsed();
 
@@ -201,6 +229,7 @@ public:
         }
     }
 
+    // Gives quick access to the length of a string/keyword/name
     size_t lenstr() const {
         SkPdfMarkObjectUsed();
 
@@ -242,8 +271,8 @@ public:
         return nyi;
     }
 
+    // Creates a Boolean object. Assumes and asserts that it was never initialized.
     static void makeBoolean(bool value, SkPdfNativeObject* obj) {
-
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
         obj->fObjectType = kBoolean_PdfObjectType;
@@ -258,6 +287,7 @@ public:
         return obj;
     }
 
+    // Creates an Integer object. Assumes and asserts that it was never initialized.
     static void makeInteger(int64_t value, SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
@@ -265,6 +295,7 @@ public:
         obj->fIntegerValue = value;
     }
 
+    // Creates a Real object. Assumes and asserts that it was never initialized.
     static void makeReal(double value, SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
@@ -272,6 +303,7 @@ public:
         obj->fRealValue = value;
     }
 
+    // Creates a Null object. Assumes and asserts that it was never initialized.
     static void makeNull(SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
@@ -285,8 +317,10 @@ public:
         return obj;
     }
 
+    // TODO(edisonn): this might not woirk well in Chrome
     static SkPdfNativeObject kNull;
 
+    // Creates a Numeric object from a string. Assumes and asserts that it was never initialized.
     static void makeNumeric(const unsigned char* start, const unsigned char* end,
                             SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
@@ -308,6 +342,7 @@ public:
         }
     }
 
+    // Creates a Reference object. Assumes and asserts that it was never initialized.
     static void makeReference(unsigned int id, unsigned int gen, SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
@@ -316,67 +351,77 @@ public:
         obj->fRef.fGen = gen;
     }
 
+    // Creates a Reference object. Resets the object before use.
     static void resetAndMakeReference(unsigned int id, unsigned int gen, SkPdfNativeObject* obj) {
         obj->reset();
         makeReference(id, gen, obj);
     }
 
-
+    // Creates a String object. Assumes and asserts that it was never initialized.
     static void makeString(const unsigned char* start, SkPdfNativeObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kString_PdfObjectType);
     }
 
+    // Creates a String object. Assumes and asserts that it was never initialized.
     static void makeString(const unsigned char* start, const unsigned char* end,
                            SkPdfNativeObject* obj) {
         makeStringCore(start, end - start, obj, kString_PdfObjectType);
     }
 
+    // Creates a String object. Assumes and asserts that it was never initialized.
     static void makeString(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
         makeStringCore(start, bytes, obj, kString_PdfObjectType);
     }
 
-
+    // Creates a HexString object. Assumes and asserts that it was never initialized.
     static void makeHexString(const unsigned char* start, SkPdfNativeObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kHexString_PdfObjectType);
     }
 
+    // Creates a HexString object. Assumes and asserts that it was never initialized.
     static void makeHexString(const unsigned char* start, const unsigned char* end,
                               SkPdfNativeObject* obj) {
         makeStringCore(start, end - start, obj, kHexString_PdfObjectType);
     }
 
+    // Creates a HexString object. Assumes and asserts that it was never initialized.
     static void makeHexString(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
         makeStringCore(start, bytes, obj, kHexString_PdfObjectType);
     }
 
-
+    // Creates a Name object. Assumes and asserts that it was never initialized.
     static void makeName(const unsigned char* start, SkPdfNativeObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kName_PdfObjectType);
     }
 
+    // Creates a Name object. Assumes and asserts that it was never initialized.
     static void makeName(const unsigned char* start, const unsigned char* end,
                          SkPdfNativeObject* obj) {
         makeStringCore(start, end - start, obj, kName_PdfObjectType);
     }
 
+    // Creates a Name object. Assumes and asserts that it was never initialized.
     static void makeName(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
         makeStringCore(start, bytes, obj, kName_PdfObjectType);
     }
 
-
+    // Creates a Keyword object. Assumes and asserts that it was never initialized.
     static void makeKeyword(const unsigned char* start, SkPdfNativeObject* obj) {
         makeStringCore(start, strlen((const char*)start), obj, kKeyword_PdfObjectType);
     }
 
+    // Creates a Keyword object. Assumes and asserts that it was never initialized.
     static void makeKeyword(const unsigned char* start, const unsigned char* end,
                             SkPdfNativeObject* obj) {
         makeStringCore(start, end - start, obj, kKeyword_PdfObjectType);
     }
 
+    // Creates a Keyword object. Assumes and asserts that it was never initialized.
     static void makeKeyword(const unsigned char* start, size_t bytes, SkPdfNativeObject* obj) {
         makeStringCore(start, bytes, obj, kKeyword_PdfObjectType);
     }
 
+    // Creates an empty Array object. Assumes and asserts that it was never initialized.
     static void makeEmptyArray(SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
@@ -384,6 +429,7 @@ public:
         obj->fArray = new SkTDArray<SkPdfNativeObject*>();
     }
 
+    // Appends an object into the array. Assumes <this> is an array.
     bool appendInArray(SkPdfNativeObject* obj) {
         SkASSERT(fObjectType == kArray_PdfObjectType);
         if (fObjectType != kArray_PdfObjectType) {
@@ -395,6 +441,7 @@ public:
         return true;
     }
 
+    // Returns the size of an array.
     size_t size() const {
         SkPdfMarkObjectUsed();
 
@@ -403,6 +450,7 @@ public:
         return fArray->count();
     }
 
+    // Returns one object of an array, by index.
     SkPdfNativeObject* objAtAIndex(int i) {
         SkPdfMarkObjectUsed();
 
@@ -411,17 +459,7 @@ public:
         return (*fArray)[i];
     }
 
-    SkPdfNativeObject* removeLastInArray() {
-        SkPdfMarkObjectUsed();
-
-        SkASSERT(fObjectType == kArray_PdfObjectType);
-
-        SkPdfNativeObject* ret = NULL;
-        fArray->pop(&ret);
-
-        return ret;
-    }
-
+    // Returns one object of an array, by index.
     const SkPdfNativeObject* objAtAIndex(int i) const {
         SkPdfMarkObjectUsed();
 
@@ -430,6 +468,7 @@ public:
         return (*fArray)[i];
     }
 
+    // Returns one object of an array, by index.
     SkPdfNativeObject* operator[](int i) {
         SkPdfMarkObjectUsed();
 
@@ -446,6 +485,19 @@ public:
         return (*fArray)[i];
     }
 
+    // Removes the last object in the array.
+    SkPdfNativeObject* removeLastInArray() {
+        SkPdfMarkObjectUsed();
+
+        SkASSERT(fObjectType == kArray_PdfObjectType);
+
+        SkPdfNativeObject* ret = NULL;
+        fArray->pop(&ret);
+
+        return ret;
+    }
+
+    // Creates an empty Dictionary object. Assumes and asserts that it was never initialized.
     static void makeEmptyDictionary(SkPdfNativeObject* obj) {
         SkASSERT(obj->fObjectType == kInvalid_PdfObjectType);
 
@@ -462,6 +514,8 @@ public:
     // which will be used in code
     // add function SkPdfFastNameKey key(const char* key);
     // TODO(edisonn): setting the same key twice, will make the value undefined!
+
+    // this[key] = value;
     bool set(const SkPdfNativeObject* key, SkPdfNativeObject* value) {
         SkPdfMarkObjectUsed();
 
@@ -476,12 +530,14 @@ public:
         return set(key->fStr.fBuffer, key->fStr.fBytes, value);
     }
 
+    // this[key] = value;
     bool set(const char* key, SkPdfNativeObject* value) {
         SkPdfMarkObjectUsed();
 
         return set((const unsigned char*)key, strlen(key), value);
     }
 
+    // this[key] = value;
     bool set(const unsigned char* key, size_t len, SkPdfNativeObject* value) {
         SkPdfMarkObjectUsed();
 
@@ -495,6 +551,7 @@ public:
         return fMap->set((const char*)key, len, value);
     }
 
+    // Returns an object from a Dictionary, identified by it's name.
     SkPdfNativeObject* get(const SkPdfNativeObject* key) {
         SkPdfMarkObjectUsed();
 
@@ -509,12 +566,14 @@ public:
         return get(key->fStr.fBuffer, key->fStr.fBytes);
     }
 
+    // Returns an object from a Dictionary, identified by it's name.
     SkPdfNativeObject* get(const char* key) {
         SkPdfMarkObjectUsed();
 
         return get((const unsigned char*)key, strlen(key));
     }
 
+    // Returns an object from a Dictionary, identified by it's name.
     SkPdfNativeObject* get(const unsigned char* key, size_t len) {
         SkPdfMarkObjectUsed();
 
@@ -537,6 +596,7 @@ public:
         return ret;
     }
 
+    // Returns an object from a Dictionary, identified by it's name.
     const SkPdfNativeObject* get(const SkPdfNativeObject* key) const {
         SkPdfMarkObjectUsed();
 
@@ -551,12 +611,14 @@ public:
         return get(key->fStr.fBuffer, key->fStr.fBytes);
     }
 
+    // Returns an object from a Dictionary, identified by it's name.
     const SkPdfNativeObject* get(const char* key) const {
         SkPdfMarkObjectUsed();
 
         return get((const unsigned char*)key, strlen(key));
     }
 
+    // Returns an object from a Dictionary, identified by it's name.
     const SkPdfNativeObject* get(const unsigned char* key, size_t len) const {
         SkPdfMarkObjectUsed();
 
@@ -579,6 +641,7 @@ public:
         return ret;
     }
 
+    // Returns an object from a Dictionary, identified by it's name.
     const SkPdfNativeObject* get(const char* key, const char* abr) const {
         SkPdfMarkObjectUsed();
 
@@ -590,6 +653,7 @@ public:
         return get(abr);
     }
 
+    // Returns an object from a Dictionary, identified by it's name.
     SkPdfNativeObject* get(const char* key, const char* abr) {
         SkPdfMarkObjectUsed();
 
@@ -601,6 +665,7 @@ public:
         return get(abr);
     }
 
+    // Casts the object to a Dictionary. Asserts if the object is not a Dictionary.
     SkPdfDictionary* asDictionary() {
         SkPdfMarkObjectUsed();
 
@@ -611,6 +676,7 @@ public:
         return (SkPdfDictionary*) this;
     }
 
+    // Casts the object to a Dictionary. Asserts if the object is not a Dictionary.
     const SkPdfDictionary* asDictionary() const {
         SkPdfMarkObjectUsed();
 
@@ -622,48 +688,58 @@ public:
     }
 
 
+    // Returns true if the object is a Reference.
     bool isReference() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kReference_PdfObjectType;
     }
 
+    // Returns true if the object is a Boolean.
     bool isBoolean() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kBoolean_PdfObjectType;
     }
 
+    // Returns true if the object is an Integer.
     bool isInteger() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kInteger_PdfObjectType;
     }
+
 private:
+    // Returns true if the object is a Real number.
     bool isReal() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kReal_PdfObjectType;
     }
+
 public:
+    // Returns true if the object is a Number (either Integer or Real).
     bool isNumber() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kInteger_PdfObjectType || fObjectType == kReal_PdfObjectType;
     }
 
+    // Returns true if the object is a R keyword (used to identify references, e.g. "10 3 R".
     bool isKeywordReference() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kKeyword_PdfObjectType && fStr.fBytes == 1 && fStr.fBuffer[0] == 'R';
     }
 
+    // Returns true if the object is a Keyword.
     bool isKeyword() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kKeyword_PdfObjectType;
     }
 
+    // Returns true if the object is a given Keyword.
     bool isKeyword(const char* keyword) const {
         SkPdfMarkObjectUsed();
 
@@ -682,12 +758,14 @@ public:
         return true;
     }
 
+    // Returns true if the object is a Name.
     bool isName() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kName_PdfObjectType;
     }
 
+    // Returns true if the object is a given Name.
     bool isName(const char* name) const {
         SkPdfMarkObjectUsed();
 
@@ -696,30 +774,37 @@ public:
                 strncmp((const char*)fStr.fBuffer, name, fStr.fBytes) == 0;
     }
 
+    // Returns true if the object is an Array.
     bool isArray() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kArray_PdfObjectType;
     }
 
+    // Returns true if the object is a Date.
+    // TODO(edisonn): NYI
     bool isDate() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kString_PdfObjectType || fObjectType == kHexString_PdfObjectType;
     }
 
+    // Returns true if the object is a Dictionary.
     bool isDictionary() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kDictionary_PdfObjectType;
     }
 
+    // Returns true if the object is a Date.
+    // TODO(edisonn): NYI
     bool isFunction() const {
         SkPdfMarkObjectUsed();
 
         return false;  // NYI
     }
 
+    // Returns true if the object is a Rectangle.
     bool isRectangle() const {
         SkPdfMarkObjectUsed();
 
@@ -727,38 +812,43 @@ public:
         return fObjectType == kArray_PdfObjectType && fArray->count() == 4;
     }
 
-    // TODO(edisonn): has stream .. or is stream ... TBD
+    // TODO(edisonn): Design: decide if we should use hasStream or isStream
+    // Returns true if the object has a stream associated with it.
     bool hasStream() const {
         SkPdfMarkObjectUsed();
 
         return isDictionary() && fStr.fBuffer != NULL;
     }
 
-    // TODO(edisonn): has stream .. or is stream ... TBD
+    // Returns the stream associated with the dictionary. As of now, it casts this to Stream.
     const SkPdfStream* getStream() const {
         SkPdfMarkObjectUsed();
 
         return hasStream() ? (const SkPdfStream*)this : NULL;
     }
 
+    // Returns the stream associated with the dictionary. As of now, it casts this to Stream.
     SkPdfStream* getStream() {
         SkPdfMarkObjectUsed();
 
         return hasStream() ? (SkPdfStream*)this : NULL;
     }
 
+    // Returns true if the object is a String or HexString.
     bool isAnyString() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kString_PdfObjectType || fObjectType == kHexString_PdfObjectType;
     }
 
+    // Returns true if the object is a HexString.
     bool isHexString() const {
         SkPdfMarkObjectUsed();
 
         return fObjectType == kHexString_PdfObjectType;
     }
 
+    // Returns true if the object is a Matrix.
     bool isMatrix() const {
         SkPdfMarkObjectUsed();
 
@@ -766,6 +856,7 @@ public:
         return fObjectType == kArray_PdfObjectType && fArray->count() == 6;
     }
 
+    // Returns the int value stored in the object. Assert if the object is not an Integer.
     inline int64_t intValue() const {
         SkPdfMarkObjectUsed();
 
@@ -777,7 +868,9 @@ public:
         }
         return fIntegerValue;
     }
+
 private:
+    // Returns the real value stored in the object. Assert if the object is not a Real.
     inline double realValue() const {
         SkPdfMarkObjectUsed();
 
@@ -789,7 +882,10 @@ private:
         }
         return fRealValue;
     }
+
 public:
+    // Returns the numeric value stored in the object. Assert if the object is not a Real
+    // or an Integer.
     inline double numberValue() const {
         SkPdfMarkObjectUsed();
 
@@ -802,6 +898,8 @@ public:
         return fObjectType == kReal_PdfObjectType ? fRealValue : fIntegerValue;
     }
 
+    // Returns the numeric value stored in the object as a scalar. Assert if the object is not
+    // a Realor an Integer.
     inline SkScalar scalarValue() const {
         SkPdfMarkObjectUsed();
 
@@ -815,6 +913,7 @@ public:
                                                     SkIntToScalar(fIntegerValue);
     }
 
+    // Returns the id of the referenced object. Assert if the object is not a Reference.
     int referenceId() const {
         SkPdfMarkObjectUsed();
 
@@ -822,6 +921,7 @@ public:
         return fRef.fId;
     }
 
+    // Returns the generation of the referenced object. Assert if the object is not a Reference.
     int referenceGeneration() const {
         SkPdfMarkObjectUsed();
 
@@ -829,6 +929,7 @@ public:
         return fRef.fGen;
     }
 
+    // Returns the buffer of a Name object. Assert if the object is not a Name.
     inline const char* nameValue() const {
         SkPdfMarkObjectUsed();
 
@@ -841,6 +942,7 @@ public:
         return (const char*)fStr.fBuffer;
     }
 
+    // Returns the buffer of a (Hex)String object. Assert if the object is not a (Hex)String.
     inline const char* stringValue() const {
         SkPdfMarkObjectUsed();
 
@@ -853,6 +955,7 @@ public:
         return (const char*)fStr.fBuffer;
     }
 
+    // Returns the storage of any type that can hold a form of string.
     inline NotOwnedString strRef() {
         SkPdfMarkObjectUsed();
 
@@ -884,6 +987,7 @@ public:
         return SkString((const char*)fStr.fBuffer, fStr.fBytes);
     }
 
+    // Returns an SkString with the value of the (Hex)String object.
     inline SkString stringValue2() const {
         SkPdfMarkObjectUsed();
 
@@ -896,6 +1000,7 @@ public:
         return SkString((const char*)fStr.fBuffer, fStr.fBytes);
     }
 
+    // Returns the boolean of the Bool object. Assert if the object is not a Bool.
     inline bool boolValue() const {
         SkPdfMarkObjectUsed();
 
@@ -908,6 +1013,7 @@ public:
         return fBooleanValue;
     }
 
+    // Returns the rectangle of the Rectangle object. Assert if the object is not a Rectangle.
     SkRect rectangleValue() const {
         SkPdfMarkObjectUsed();
 
@@ -933,6 +1039,7 @@ public:
                                 SkDoubleToScalar(array[3]));
     }
 
+    // Returns the matrix of the Matrix object. Assert if the object is not a Matrix.
     SkMatrix matrixValue() const {
         SkPdfMarkObjectUsed();
 
@@ -955,9 +1062,13 @@ public:
         return SkMatrixFromPdfMatrix(array);
     }
 
+    // Runs all the filters of this stream, except the last one, if it is a DCT.
+    // Returns false on failure.
     bool filterStream();
 
-
+    // Runs all the filters of this stream, except the last one, if it is a DCT, a gives back
+    // the buffer and the length. The object continues to own the buffer.
+    // Returns false on failure.
     bool GetFilteredStreamRef(unsigned char const** buffer, size_t* len) {
         SkPdfMarkObjectUsed();
 
@@ -980,18 +1091,22 @@ public:
         return true;
     }
 
+    // Returns true if the stream is already filtered.
     bool isStreamFiltered() const {
         SkPdfMarkObjectUsed();
 
         return hasStream() && ((fStr.fBytes & 1) == kFilteredStreamBit);
     }
 
+    // Returns true if this object own the buffer, or false if an Allocator own it.
     bool isStreamOwned() const {
         SkPdfMarkObjectUsed();
 
         return hasStream() && ((fStr.fBytes & 2) == kOwnedStreamBit);
     }
 
+    // Gives back the original buffer and the length. The object continues to own the buffer.
+    // Returns false if the stream is already filtered.
     bool GetUnfilteredStreamRef(unsigned char const** buffer, size_t* len) const {
         SkPdfMarkObjectUsed();
 
@@ -1014,6 +1129,7 @@ public:
         return true;
     }
 
+    // Add a stream to this Dictionarry. Asserts we do not have yet a stream.
     bool addStream(const unsigned char* buffer, size_t len) {
         SkPdfMarkObjectUsed();
 
@@ -1059,6 +1175,7 @@ public:
         }
     }
 
+    // Returns the string representation of the object value.
     SkString toString(int firstRowLevel = 0, int level = 0) {
         SkString str;
         appendSpaces(&str, firstRowLevel);
@@ -1186,6 +1303,8 @@ private:
     bool applyDCTDecodeFilter();
 };
 
+// These classes are provided for convenience. You still have to make sure an SkPdfInteger
+// is indeed an Integer.
 class SkPdfStream : public SkPdfNativeObject {};
 class SkPdfArray : public SkPdfNativeObject {};
 class SkPdfString : public SkPdfNativeObject {};

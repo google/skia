@@ -17,6 +17,12 @@
 
 #define MAX_TRACKING_POINTS 100
 
+/** \class SkTracker
+ *
+ *   A Tracker can be attached to a SkTrackDevice and it will store the track pixels.
+ *   It can be used with SampleApp to investigate bugs (CL not checked in yet).
+ *
+ */
 class SkTracker {
 public:
     SkTracker() : fEnabled(false)

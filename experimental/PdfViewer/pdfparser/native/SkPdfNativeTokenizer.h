@@ -8,15 +8,20 @@
 #ifndef SkPdfNativeTokenizer_DEFINED
 #define SkPdfNativeTokenizer_DEFINED
 
-#include "SkPdfConfig.h"
-
-#include "SkTDArray.h"
-#include "SkTDict.h"
 #include <math.h>
 #include <string.h>
 
+#include "SkPdfConfig.h"
+#include "SkTDArray.h"
+#include "SkTDict.h"
+
+// All these constants are defined by the PDF 1.4 Spec.
+
 class SkPdfDictionary;
 class SkPdfImageDictionary;
+class SkPdfNativeDoc;
+class SkPdfNativeObject;
+
 
 // White Spaces
 #define kNUL_PdfWhiteSpace '\x00'
@@ -49,7 +54,12 @@ class SkPdfImageDictionary;
 // 4) vector (e.f. T type[256] .. return type[ch] ...
 // 5) manually build the expression with least number of operators, e.g. for consecutive
 // chars, we can use an binary equal ignoring last bit
-#define isPdfWhiteSpace(ch) (((ch)==kNUL_PdfWhiteSpace)||((ch)==kHT_PdfWhiteSpace)||((ch)==kLF_PdfWhiteSpace)||((ch)==kFF_PdfWhiteSpace)||((ch)==kCR_PdfWhiteSpace)||((ch)==kSP_PdfWhiteSpace))
+#define isPdfWhiteSpace(ch) (((ch)==kNUL_PdfWhiteSpace)|| \
+                             ((ch)==kHT_PdfWhiteSpace)|| \
+                             ((ch)==kLF_PdfWhiteSpace)|| \
+                             ((ch)==kFF_PdfWhiteSpace)|| \
+                             ((ch)==kCR_PdfWhiteSpace)|| \
+                             ((ch)==kSP_PdfWhiteSpace))
 
 #define isPdfEOL(ch) (((ch)==kLF_PdfWhiteSpace)||((ch)==kCR_PdfWhiteSpace))
 
@@ -73,26 +83,16 @@ class SkPdfImageDictionary;
 const unsigned char* skipPdfWhiteSpaces(const unsigned char* buffer, const unsigned char* end);
 const unsigned char* endOfPdfToken(const unsigned char* start, const unsigned char* end);
 
-// TODO(edisonn): typedef read and integer tyepes? make less readable...
-//typedef double SkPdfReal;
-//typedef int64_t SkPdfInteger;
-
-// an allocator only allocates memory, and it deletes it all when the allocator is destroyed
-// this would allow us not to do any garbage collection while we parse or draw a pdf, and defere it
-// while the user is looking at the image
-
-class SkPdfNativeObject;
-
-class SkPdfAllocator {
 #define BUFFER_SIZE 1024
-    SkTDArray<SkPdfNativeObject*> fHistory;
-    SkTDArray<void*> fHandles;
-    SkPdfNativeObject* fCurrent;
-    int fCurrentUsed;
 
-    SkPdfNativeObject* allocBlock();
-    size_t fSizeInBytes;
-
+/** \class SkPdfAllocator
+ *
+ *   An allocator only allocates memory, and it deletes it all when the allocator is destroyed.
+ *   This strategy would allow us not to do any garbage collection while we parse and/or render
+ *   a pdf.
+ *
+ */
+class SkPdfAllocator {
 public:
     SkPdfAllocator() {
         fSizeInBytes = sizeof(*this);
@@ -102,9 +102,10 @@ public:
 
     ~SkPdfAllocator();
 
+    // Allocates an object. It will be reset automatically when ~SkPdfAllocator() is called.
     SkPdfNativeObject* allocObject();
 
-    // TODO(edisonn): free this memory in destructor, track the usage?
+    // Allocates a buffer. It will be freed automatically when ~SkPdfAllocator() is called.
     void* alloc(size_t bytes) {
         void* data = malloc(bytes);
         fHandles.push(data);
@@ -112,41 +113,71 @@ public:
         return data;
     }
 
+    // Returns the number of bytes used in this allocator.
     size_t bytesUsed() const {
         return fSizeInBytes;
     }
+
+private:
+    SkTDArray<SkPdfNativeObject*> fHistory;
+    SkTDArray<void*> fHandles;
+    SkPdfNativeObject* fCurrent;
+    int fCurrentUsed;
+
+    SkPdfNativeObject* allocBlock();
+    size_t fSizeInBytes;
 };
 
-class SkPdfNativeDoc;
-const unsigned char* nextObject(const unsigned char* start, const unsigned char* end, SkPdfNativeObject* token, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
-
+// Type of a parsed token.
 enum SkPdfTokenType {
     kKeyword_TokenType,
     kObject_TokenType,
 };
 
+
+/** \struct PdfToken
+ *
+ *   Stores the result of the parsing - a keyword or an object.
+ *
+ */
 struct PdfToken {
-    const char*      fKeyword;
-    size_t           fKeywordLength;
-    SkPdfNativeObject*     fObject;
-    SkPdfTokenType   fType;
+    const char*             fKeyword;
+    size_t                  fKeywordLength;
+    SkPdfNativeObject*      fObject;
+    SkPdfTokenType          fType;
 
     PdfToken() : fKeyword(NULL), fKeywordLength(0), fObject(NULL) {}
 };
 
+/** \class SkPdfNativeTokenizer
+ *
+ *   Responsible to tokenize a stream in small tokens, eityh a keyword or an object.
+ *   A renderer can feed on the tokens and render a pdf.
+ *
+ */
 class SkPdfNativeTokenizer {
 public:
-    SkPdfNativeTokenizer(SkPdfNativeObject* objWithStream, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
-    SkPdfNativeTokenizer(const unsigned char* buffer, int len, SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
+    SkPdfNativeTokenizer(SkPdfNativeObject* objWithStream,
+                         SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
+    SkPdfNativeTokenizer(const unsigned char* buffer, int len,
+                         SkPdfAllocator* allocator, SkPdfNativeDoc* doc);
 
     virtual ~SkPdfNativeTokenizer();
 
+    // Reads one token. Returns false if there are no more tokens.
     bool readToken(PdfToken* token);
-    bool readTokenCore(PdfToken* token);
+
+    // Put back a token to be read in the nextToken read. Only one token is allowed to be put
+    // back. Must not necesaarely be the last token read.
     void PutBack(PdfToken token);
+
+    // Reads the inline image that is present in the stream. At this point we just consumed the ID
+    // token already.
     SkPdfImageDictionary* readInlineImage();
 
 private:
+    bool readTokenCore(PdfToken* token);
+
     SkPdfNativeDoc* fDoc;
     SkPdfAllocator* fAllocator;
 
@@ -158,5 +189,10 @@ private:
     bool fHasPutBack;
     PdfToken fPutBack;
 };
+
+const unsigned char* nextObject(const unsigned char* start, const unsigned char* end,
+                                SkPdfNativeObject* token,
+                                SkPdfAllocator* allocator,
+                                SkPdfNativeDoc* doc);
 
 #endif  // SkPdfNativeTokenizer_DEFINED

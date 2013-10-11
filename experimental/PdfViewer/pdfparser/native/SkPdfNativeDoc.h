@@ -35,44 +35,97 @@ class SkStream;
 // But if the pdf is missing the xref, then we will have to read most of pdf to be able to render
 // page 100.
 
+/** \class SkPdfNativeDoc
+ *
+ *  The SkPdfNativeDoc class is used to load a PDF in memory and it represents a PDF Document.
+ *
+ */
 class SkPdfNativeDoc {
 private:
+    // Information about public objects in pdf that can be referenced with ID GEN R
     struct PublicObjectEntry {
+        // Offset in the file where the object starts.
         long fOffset;
+
+        // Offset in file where the object ends. Could be used to quickly fail if there is a
+        // problem in pdf structure.
         // long endOffset;  // TODO(edisonn): determine the end of the object,
                             // to be used when the doc is corrupted, for fast failure.
+
+        // Refered object.
         SkPdfNativeObject* fObj;
+
+        // If refered object is a reference, we resolve recursively the reference until we find
+        // the real object.
         SkPdfNativeObject* fResolvedReference;
+
+        // Used to break a recursive reference to itself.
         bool fIsReferenceResolved;
     };
 
 public:
+    // TODO(edisonn) should be deprecated
     SkPdfNativeDoc(const char* path);
+
+    // TODO(edisonn) should be deprecated
     SkPdfNativeDoc(SkStream* stream);
 
     ~SkPdfNativeDoc();
 
+    // returns the number of pages in the pdf
     int pages() const;
+
+    // returns the page resources
     SkPdfResourceDictionary* pageResources(int page);
+
+    // returns the page's mediabox i points - the page physical boundaries.
     SkRect MediaBox(int page);
+
+    // Returns a tokenizer of a page. The passed allocator will be used to allocate objects that
+    // are parsed. It should be destroyed after the tokenizer.
     SkPdfNativeTokenizer* tokenizerOfPage(int n, SkPdfAllocator* allocator);
 
+    // Returns a tokenizer of a pdf stream. The passed allocator will be used to allocate objects
+    // that are parsed. It should be destroyed after the tokenizer.
     SkPdfNativeTokenizer* tokenizerOfStream(SkPdfNativeObject* stream, SkPdfAllocator* allocator);
+
+    // Returns a tokenizer of a memory buffer. The passed allocator will be used to allocate objects
+    // that are parsed. It should be destroyed after the tokenizer.
     SkPdfNativeTokenizer* tokenizerOfBuffer(const unsigned char* buffer, size_t len,
                                             SkPdfAllocator* allocator);
 
-    size_t objects() const;
-    SkPdfNativeObject* object(int i);
-    SkPdfPageObjectDictionary* page(int page);
 
+    //returns objects that are references and can be queried.
+    size_t objects() const;
+
+    // returns an object.
+    // TODO(edisonn): pdf updates are not supported yet.
+    //                add generation parameter to support page updates.
+    SkPdfNativeObject* object(int id /*, int generation*/ );
+
+    // returns the object that holds all the page informnation
+    // TODO(edisonn): pdf updates are not supported yet.
+    //                add generation parameter to support page updates.
+    SkPdfPageObjectDictionary* page(int page/*, int generation*/);
+
+    // TODO(edisonn): deprecate the mapper - was used when we supported multiple
+    // parsers (podofo)
+    // The mapper maps allows an object to be mapped to a different dictionary type
+    // and it could verify the integrity of the object.
     const SkPdfMapper* mapper() const;
+
+    // Allocator of the pdf - this holds all objects that are publicly referenced
+    // and all the objects that they refer
     SkPdfAllocator* allocator() const;
 
+    // Allows a renderer to create values to be dumped on the stack for operators to process them.
     SkPdfReal* createReal(double value) const;
     SkPdfInteger* createInteger(int value) const;
     // the string does not own the char*
     SkPdfString* createString(const unsigned char* sz, size_t len) const;
 
+    // Resolve a reference object. Will recursively resolve the reference
+    // until a real object is found
     SkPdfNativeObject* resolveReference(SkPdfNativeObject* ref);
 
     // Reports an approximation of all the memory usage.
@@ -82,6 +135,8 @@ private:
 
     // Takes ownership of bytes.
     void init(const void* bytes, size_t length);
+
+    // loads a pdf that has missing xref
     void loadWithoutXRef();
 
     const unsigned char* readCrossReferenceSection(const unsigned char* xrefStart,

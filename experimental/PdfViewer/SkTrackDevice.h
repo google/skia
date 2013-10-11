@@ -11,6 +11,12 @@
 #include "SkBitmapDevice.h"
 #include "SkTracker.h"
 
+/** \class SkTrackDevice
+ *
+ *   A Track Device is used to track that callstack of an operation that affected some pixels.
+ *   It can be used with SampleApp to investigate bugs (CL not checked in yet).
+ *
+ */
 class SkTrackDevice : public SkBitmapDevice {
 public:
     SK_DECLARE_INST_COUNT(SkTrackDevice)

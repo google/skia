@@ -10,6 +10,12 @@
 
 #include "SkCanvas.h"
 
+/** \class SkNulCanvas
+ *
+ *   Nul Canvas is a canvas that does nothing. It is used to measure the perf of just parsing
+ *   a pdf, without actually rendering anything.
+ *
+ */
 class SK_API SkNulCanvas : public SkCanvas {
 public:
     SK_DECLARE_INST_COUNT(SkNulCanvas);
