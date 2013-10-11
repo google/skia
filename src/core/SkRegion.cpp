@@ -183,6 +183,7 @@ bool SkRegion::op(const SkRegion& rgn, const SkIRect& rect, Op op) {
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_BUILD_FOR_ANDROID
+#include <stdio.h>
 char* SkRegion::toString() {
     Iterator iter(*this);
     int count = 0;
