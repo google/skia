@@ -183,6 +183,9 @@ static void ground_truth_2d(int width, int height,
     for ( ; i < resultCount; ++i) {
         result[i] = 0;
     }
+
+    SkMask::FreeImage(src.fImage);
+    SkMask::FreeImage(dst.fImage);
 }
 
 // Implement a step function that is 255 between min and max; 0 elsewhere.
