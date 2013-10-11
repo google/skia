@@ -593,15 +593,14 @@ int tool_main(int argc, char** argv) {
                 }
 
                 timer.start();
-                if (NULL != canvas) {
-                    canvas->save();
-                }
-
                 // Inner loop that allows us to break the run into smaller
                 // chunks (e.g. frames). This is especially useful for the GPU
                 // as we can flush and/or swap buffers to keep the GPU from
                 // queuing up too much work.
                 for (int loopCount = loopsPerIter; loopCount > 0; ) {
+                    if (NULL != canvas) {
+                        canvas->save();
+                    }
                     if (frameIntervalComputed && loopCount > loopsPerFrame) {
                         bench->setLoops(loopsPerFrame);
                         loopCount -= loopsPerFrame;
@@ -629,11 +628,11 @@ int tool_main(int argc, char** argv) {
                         glContext->swapBuffers();
                     }
 #endif
+                    if (NULL != canvas) {
+                        canvas->restore();
+                    }
                 }
 
-                if (NULL != canvas) {
-                    canvas->restore();
-                }
 
 
                 // Stop truncated timers before GL calls complete, and stop the full timers after.
