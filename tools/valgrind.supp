@@ -32,3 +32,25 @@
     fun:FcPatternObjectInsertElt
     fun:FcPatternObjectAddWithBinding
 }
+{
+    Driver_bug_1
+    Memcheck:Value8
+    ...
+    obj:/usr/lib/x86_64-linux-gnu/dri/swrast_dri.so
+    fun:lp_rast_triangle_3
+}
+{
+    Driver_bug_2
+    Memcheck:Value8
+    ...
+    obj:/usr/lib/x86_64-linux-gnu/dri/swrast_dri.so
+    fun:lp_rast_triangle_2
+}
+{
+    Driver_bug_3
+    Memcheck:Value8
+    obj:/usr/lib/x86_64-linux-gnu/dri/libdricore.so
+    fun:_mesa_readpixels
+    fun:_mesa_ReadnPixelsARB
+    fun:_mesa_ReadPixels
+}
