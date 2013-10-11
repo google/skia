@@ -1220,7 +1220,7 @@ const SkMatrix::MapPtsProc SkMatrix::gMapPtsProcs[] = {
 void SkMatrix::mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
     SkASSERT((dst && src && count > 0) || 0 == count);
     // no partial overlap
-    SkASSERT(src == dst || SkAbs32((int32_t)(src - dst)) >= count);
+    SkASSERT(src == dst || &dst[count] <= &src[0] || &src[count] <= &dst[0]);
 
     this->getMapPtsProc()(*this, dst, src, count);
 }
