@@ -124,7 +124,7 @@ static void sk_once_slow(bool* done, SkBaseMutex* mutex, void (*once)(Arg), Arg 
 // ANNOTATE_BENIGN_RACE, it might make sense to pull that in as a dependency
 // rather than continue to reproduce it here.
 
-#ifdef DYNAMIC_ANNOTATIONS_ENABLED
+#if DYNAMIC_ANNOTATIONS_ENABLED
 // TSAN provides this hook to supress a known-safe apparent race.
 extern "C" {
 void AnnotateBenignRace(const char* file, int line, const volatile void* mem, const char* desc);
