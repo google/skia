@@ -16,9 +16,17 @@ SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const SkRe
     SkASSERT(s);
 #ifdef SK_CROP_RECT_IS_INT
     SkIRect cropRect;
-    rect.roundOut(&cropRect);
+    if (rect.width() == 0 || rect.height() == 0) {
+        cropRect = SkIRect::MakeLargest();
+    } else {
+        rect.roundOut(&cropRect);
+    }
 #else
-    CropRect cropRect(rect);
+    uint32_t flags = CropRect::kHasAll_CropEdge;
+    if (rect.width() == 0 || rect.height() == 0) {
+        flags = 0x0;
+    }
+    CropRect cropRect(rect, flags);
 #endif
     return SkNEW_ARGS(SkRectShaderImageFilter, (s, &cropRect));
 }
