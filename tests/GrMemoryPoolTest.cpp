@@ -14,7 +14,6 @@
 #include "SkTemplates.h"
 #include "SkInstCnt.h"
 
-namespace {
 // A is the top of an inheritance tree of classes that overload op new and
 // and delete to use a GrMemoryPool. The objects have values of different types
 // that can be set and checked.
@@ -177,7 +176,7 @@ A* A::Create(SkRandom* r) {
             return NULL;
     }
 }
-}
+
 struct Rec {
     A* fInstance;
     int fValue;

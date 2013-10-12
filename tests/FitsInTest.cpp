@@ -11,8 +11,6 @@
 #include "SkTFitsIn.h"
 #include <limits>
 
-namespace {
-
 #define TEST(S, s, D, expected) REPORTER_ASSERT(reporter, (SkTFitsIn<D>((S)(s)) == (expected)))
 
 static void FitsInTest(skiatest::Reporter* reporter) {
@@ -68,8 +66,6 @@ static void FitsInTest(skiatest::Reporter* reporter) {
 
     // Uncommenting the following should cause compile failures.
     //TEST(float, 1, uint64_t, true);
-}
-
 }
 
 #include "TestClassDef.h"

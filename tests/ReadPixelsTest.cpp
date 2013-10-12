@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -17,14 +16,12 @@
 #include "GrContextFactory.h"
 #endif
 
-
 static const int DEV_W = 100, DEV_H = 100;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
 static const SkRect DEV_RECT_S = SkRect::MakeWH(DEV_W * SK_Scalar1,
                                                 DEV_H * SK_Scalar1);
 
-namespace {
-SkPMColor getCanvasColor(int x, int y) {
+static SkPMColor getCanvasColor(int x, int y) {
     SkASSERT(x >= 0 && x < DEV_W);
     SkASSERT(y >= 0 && y < DEV_H);
 
@@ -53,7 +50,7 @@ SkPMColor getCanvasColor(int x, int y) {
     return SkPremultiplyARGBInline(a, r, g, b);
 }
 
-SkPMColor getBitmapColor(int x, int y, int w) {
+static SkPMColor getBitmapColor(int x, int y, int w) {
     int n = y * w + x;
 
     U8CPU b = n & 0xff;
@@ -62,9 +59,9 @@ SkPMColor getBitmapColor(int x, int y, int w) {
     return SkPackARGB32(0xff, r, g , b);
 }
 
-SkPMColor convertConfig8888ToPMColor(SkCanvas::Config8888 config8888,
-                                     uint32_t color,
-                                     bool* premul) {
+static SkPMColor convertConfig8888ToPMColor(SkCanvas::Config8888 config8888,
+                                            uint32_t color,
+                                            bool* premul) {
     const uint8_t* c = reinterpret_cast<uint8_t*>(&color);
     U8CPU a,r,g,b;
     *premul = false;
@@ -106,7 +103,7 @@ SkPMColor convertConfig8888ToPMColor(SkCanvas::Config8888 config8888,
     return SkPackARGB32(a, r, g, b);
 }
 
-void fillCanvas(SkCanvas* canvas) {
+static void fillCanvas(SkCanvas* canvas) {
     static SkBitmap bmp;
     if (bmp.isNull()) {
         bmp.setConfig(SkBitmap::kARGB_8888_Config, DEV_W, DEV_H);
@@ -130,7 +127,7 @@ void fillCanvas(SkCanvas* canvas) {
     canvas->restore();
 }
 
-void fillBitmap(SkBitmap* bitmap) {
+static void fillBitmap(SkBitmap* bitmap) {
     SkASSERT(bitmap->lockPixelsAreWritable());
     SkAutoLockPixels alp(*bitmap);
     int w = bitmap->width();
@@ -144,7 +141,7 @@ void fillBitmap(SkBitmap* bitmap) {
     }
 }
 
-bool checkPixel(SkPMColor a, SkPMColor b, bool didPremulConversion) {
+static bool checkPixel(SkPMColor a, SkPMColor b, bool didPremulConversion) {
     if (!didPremulConversion) {
         return a == b;
     }
@@ -167,12 +164,12 @@ bool checkPixel(SkPMColor a, SkPMColor b, bool didPremulConversion) {
 // checks the bitmap contains correct pixels after the readPixels
 // if the bitmap was prefilled with pixels it checks that these weren't
 // overwritten in the area outside the readPixels.
-bool checkRead(skiatest::Reporter* reporter,
-               const SkBitmap& bitmap,
-               int x, int y,
-               bool checkCanvasPixels,
-               bool checkBitmapPixels,
-               SkCanvas::Config8888 config8888) {
+static bool checkRead(skiatest::Reporter* reporter,
+                      const SkBitmap& bitmap,
+                      int x, int y,
+                      bool checkCanvasPixels,
+                      bool checkBitmapPixels,
+                      SkCanvas::Config8888 config8888) {
     SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
     SkASSERT(!bitmap.isNull());
     SkASSERT(checkCanvasPixels || checkBitmapPixels);
@@ -226,13 +223,12 @@ enum BitmapInit {
     kBitmapInitCnt
 };
 
-BitmapInit nextBMI(BitmapInit bmi) {
+static BitmapInit nextBMI(BitmapInit bmi) {
     int x = bmi;
     return static_cast<BitmapInit>(++x);
 }
 
-
-void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init) {
+static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init) {
     int w = rect.width();
     int h = rect.height();
     int rowBytes = 0;
@@ -255,7 +251,7 @@ void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init) {
     }
 }
 
-void ReadPixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
+static void ReadPixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
     const SkIRect testRects[] = {
         // entire thing
         DEV_RECT,
@@ -409,7 +405,6 @@ void ReadPixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
             }
         }
     }
-}
 }
 
 #include "TestClassDef.h"

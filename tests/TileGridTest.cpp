@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -21,7 +20,6 @@ enum Tile {
     kAll_Tile = kTopLeft_Tile | kTopRight_Tile | kBottomLeft_Tile | kBottomRight_Tile,
 };
 
-namespace {
 class MockCanvas : public SkCanvas {
 public:
     MockCanvas(SkBaseDevice* device) : SkCanvas(device)
@@ -35,7 +33,6 @@ public:
 
     SkTDArray<SkRect> fRects;
 };
-}
 
 class TileGridTest {
 public:
@@ -277,7 +274,6 @@ public:
         TestOverlapOffsetQueryAlignment(reporter);
     }
 };
-
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("TileGrid", TileGridTestClass, TileGridTest::Test)

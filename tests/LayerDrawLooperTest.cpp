@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
 #include "SkBitmap.h"
 #include "SkBitmapDevice.h"
@@ -16,8 +17,6 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkXfermode.h"
-
-namespace {
 
 class FakeDevice : public SkBitmapDevice {
 public:
@@ -34,8 +33,6 @@ public:
 private:
     typedef SkBitmapDevice INHERITED;
 };
-
-} // namespace
 
 static void test_frontToBack(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkLayerDrawLooper> looper(SkNEW(SkLayerDrawLooper));

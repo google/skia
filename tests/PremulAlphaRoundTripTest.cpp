@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -16,10 +15,7 @@
 #include "SkGpuDevice.h"
 #endif
 
-
-namespace {
-
-void fillCanvas(SkCanvas* canvas, SkCanvas::Config8888 unpremulConfig) {
+static void fillCanvas(SkCanvas* canvas, SkCanvas::Config8888 unpremulConfig) {
     SkBitmap bmp;
     bmp.setConfig(SkBitmap::kARGB_8888_Config, 256, 256);
     bmp.allocPixels();
@@ -40,7 +36,7 @@ static const SkCanvas::Config8888 gUnpremulConfigs[] = {
     SkCanvas::kRGBA_Unpremul_Config8888,
 };
 
-void PremulAlphaRoundTripTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
+static void PremulAlphaRoundTripTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
     SkAutoTUnref<SkBaseDevice> device;
     for (int dtype = 0; dtype < 2; ++dtype) {
 
@@ -113,7 +109,6 @@ void PremulAlphaRoundTripTest(skiatest::Reporter* reporter, GrContextFactory* fa
             }
         }
     }
-}
 }
 
 #include "TestClassDef.h"

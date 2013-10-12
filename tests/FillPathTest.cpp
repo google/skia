@@ -11,8 +11,6 @@
 #include "SkScan.h"
 #include "SkBlitter.h"
 
-namespace {
-
 struct FakeBlitter : public SkBlitter {
   FakeBlitter()
       : m_blitCount(0)
@@ -24,8 +22,6 @@ struct FakeBlitter : public SkBlitter {
 
   int m_blitCount;
 };
-
-}
 
 // http://code.google.com/p/skia/issues/detail?id=87
 // Lines which is not clipped by boundary based clipping,

@@ -27,12 +27,9 @@ DEF_TEST(SkOnce_Singlethreaded, r) {
     REPORTER_ASSERT(r, 5 == x);
 }
 
-
 DEF_SK_ONCE(add_six, int* x) {
     *x += 6;
 }
-
-namespace {
 
 class Racer : public SkRunnable {
 public:
@@ -41,8 +38,6 @@ public:
         SK_ONCE(add_six, ptr);
     }
 };
-
-}  // namespace
 
 DEF_TEST(SkOnce_Multithreaded, r) {
     const int kTasks = 16, kThreads = 4;

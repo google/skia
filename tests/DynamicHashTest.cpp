@@ -1,3 +1,10 @@
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "Test.h"
 #include "SkTDynamicHash.h"
 
@@ -7,10 +14,10 @@ struct Entry {
     int key;
     double value;
 };
+
 const int& GetKey(const Entry& entry) { return entry.key; }
 uint32_t GetHash(const int& key) { return key; }
 bool AreEqual(const Entry& entry, const int& key) { return entry.key == key; }
-
 
 class Hash : public SkTDynamicHash<Entry, int, GetKey, GetHash, AreEqual> {
 public:
