@@ -317,8 +317,8 @@ FINISHED:
     SkASSERT((vert - base) <= maxPts);
     SkASSERT((idx - idxBase) <= maxIdxs);
 
-    *vertexCnt = vert - base;
-    *indexCnt = idx - idxBase;
+    *vertexCnt = static_cast<int>(vert - base);
+    *indexCnt = static_cast<int>(idx - idxBase);
 
     }
     return true;

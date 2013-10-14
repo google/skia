@@ -203,9 +203,9 @@ int GrBufferAllocPool::currentBufferItems(size_t itemSize) const {
         const BufferBlock& back = fBlocks.back();
         size_t usedBytes = back.fBuffer->sizeInBytes() - back.fBytesFree;
         size_t pad = GrSizeAlignUpPad(usedBytes, itemSize);
-        return (back.fBytesFree - pad) / itemSize;
+        return static_cast<int>((back.fBytesFree - pad) / itemSize);
     } else if (fPreallocBuffersInUse < fPreallocBuffers.count()) {
-        return fMinBlockSize / itemSize;
+        return static_cast<int>(fMinBlockSize / itemSize);
     }
     return 0;
 }
@@ -404,7 +404,7 @@ void* GrVertexBufferAllocPool::makeSpace(size_t vertexSize,
 
     *buffer = (const GrVertexBuffer*) geomBuffer;
     SkASSERT(0 == offset % vertexSize);
-    *startVertex = offset / vertexSize;
+    *startVertex = static_cast<int>(offset / vertexSize);
     return ptr;
 }
 
@@ -425,7 +425,7 @@ bool GrVertexBufferAllocPool::appendVertices(size_t vertexSize,
 }
 
 int GrVertexBufferAllocPool::preallocatedBufferVertices(size_t vertexSize) const {
-    return INHERITED::preallocatedBufferSize() / vertexSize;
+    return static_cast<int>(INHERITED::preallocatedBufferSize() / vertexSize);
 }
 
 int GrVertexBufferAllocPool::currentBufferVertices(size_t vertexSize) const {
@@ -462,7 +462,7 @@ void* GrIndexBufferAllocPool::makeSpace(int indexCount,
 
     *buffer = (const GrIndexBuffer*) geomBuffer;
     SkASSERT(0 == offset % sizeof(uint16_t));
-    *startIndex = offset / sizeof(uint16_t);
+    *startIndex = static_cast<int>(offset / sizeof(uint16_t));
     return ptr;
 }
 
@@ -480,7 +480,7 @@ bool GrIndexBufferAllocPool::appendIndices(int indexCount,
 }
 
 int GrIndexBufferAllocPool::preallocatedBufferIndices() const {
-    return INHERITED::preallocatedBufferSize() / sizeof(uint16_t);
+    return static_cast<int>(INHERITED::preallocatedBufferSize() / sizeof(uint16_t));
 }
 
 int GrIndexBufferAllocPool::currentBufferIndices() const {

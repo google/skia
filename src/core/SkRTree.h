@@ -179,7 +179,7 @@ private:
     const size_t fNodeSize;
 
     // This is the count of data elements (rather than total nodes in the tree)
-    size_t fCount;
+    int fCount;
 
     Branch fRoot;
     SkChunkAlloc fNodes;

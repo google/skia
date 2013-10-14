@@ -41,7 +41,7 @@ void* GrMemoryPool::allocate(size_t size) {
     size = GrSizeAlignUp(size, kAlignment);
     size += kPerAllocPad;
     if (fTail->fFreeSize < size) {
-        int blockSize = size;
+        size_t blockSize = size;
         blockSize = GrMax<size_t>(blockSize, fMinAllocSize);
         BlockHeader* block = CreateBlock(blockSize);
 

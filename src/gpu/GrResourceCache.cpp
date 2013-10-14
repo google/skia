@@ -354,7 +354,7 @@ void GrResourceCache::purgeAllUnlocked() {
     // so we don't want to just do a simple loop kicking each
     // entry out. Instead change the budget and purge.
 
-    int savedMaxBytes = fMaxBytes;
+    size_t savedMaxBytes = fMaxBytes;
     int savedMaxCount = fMaxCount;
     fMaxBytes = (size_t) -1;
     fMaxCount = 0;

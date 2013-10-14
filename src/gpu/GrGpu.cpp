@@ -183,12 +183,12 @@ GrRenderTarget* GrGpu::wrapBackendRenderTarget(const GrBackendRenderTargetDesc& 
     return this->onWrapBackendRenderTarget(desc);
 }
 
-GrVertexBuffer* GrGpu::createVertexBuffer(uint32_t size, bool dynamic) {
+GrVertexBuffer* GrGpu::createVertexBuffer(size_t size, bool dynamic) {
     this->handleDirtyContext();
     return this->onCreateVertexBuffer(size, dynamic);
 }
 
-GrIndexBuffer* GrGpu::createIndexBuffer(uint32_t size, bool dynamic) {
+GrIndexBuffer* GrGpu::createIndexBuffer(size_t size, bool dynamic) {
     this->handleDirtyContext();
     return this->onCreateIndexBuffer(size, dynamic);
 }

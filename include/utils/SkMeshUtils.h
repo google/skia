@@ -27,14 +27,14 @@ public:
     bool init(SkPoint tex[], uint16_t indices[],
               int texW, int texH, int rows, int cols);
 
-    size_t          indexCount() const { return fIndexCount; }
+    int             indexCount() const { return fIndexCount; }
     const uint16_t* indices() const { return fIndices; }
 
     size_t          texCount() const { return fTexCount; }
     const SkPoint*  tex() const { return fTex; }
 
 private:
-    size_t      fIndexCount, fTexCount;
+    int         fIndexCount, fTexCount;
     SkPoint*    fTex;
     uint16_t*   fIndices;
     void*       fStorage; // may be null

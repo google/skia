@@ -20,10 +20,10 @@ bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {
         return true;
     }
     const char* extensionString = this->getExtensionsString(dc);
-    int extLength = strlen(ext);
+    size_t extLength = strlen(ext);
 
     while (true) {
-        int n = strcspn(extensionString, " ");
+        size_t n = strcspn(extensionString, " ");
         if (n == extLength && 0 == strncmp(ext, extensionString, n)) {
             return true;
         }

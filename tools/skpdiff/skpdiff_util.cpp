@@ -130,7 +130,7 @@ bool get_directory(const char path[], SkTArray<SkString>* entries) {
     return true;
 #elif SK_BUILD_FOR_WIN32
     char pathDirGlob[MAX_PATH];
-    char pathLength = strlen(path);
+    size_t pathLength = strlen(path);
     strncpy(pathDirGlob, path, pathLength);
 
     if (path[pathLength - 1] == '/' || path[pathLength - 1] == '\\') {

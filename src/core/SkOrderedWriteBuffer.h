@@ -42,9 +42,9 @@ public:
     void writeToMemory(void* dst) { fWriter.flatten(dst); }
     uint32_t* reserve(size_t size) { return fWriter.reserve(size); }
 
-    uint32_t bytesWritten() const { return fWriter.bytesWritten(); }
+    size_t bytesWritten() const { return fWriter.bytesWritten(); }
     // Deprecated.  Please call bytesWritten instead.  TODO(mtklein): clean up
-    uint32_t size() const { return this->bytesWritten(); }
+    size_t size() const { return this->bytesWritten(); }
 
     virtual void writeByteArray(const void* data, size_t size) SK_OVERRIDE;
     virtual void writeBool(bool value) SK_OVERRIDE;

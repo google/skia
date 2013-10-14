@@ -688,7 +688,7 @@ protected:
             case kArray_GeometrySrcType:
                 return src.fIndexCount;
             case kBuffer_GeometrySrcType:
-                return src.fIndexBuffer->sizeInBytes() / sizeof(uint16_t);
+                return static_cast<int>(src.fIndexBuffer->sizeInBytes() / sizeof(uint16_t));
             default:
                 GrCrash("Unexpected Index Source.");
                 return 0;

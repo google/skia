@@ -1149,7 +1149,7 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTar
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
+GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(size_t size, bool dynamic) {
     GrGLVertexBuffer::Desc desc;
     desc.fDynamic = dynamic;
     desc.fSizeInBytes = size;
@@ -1182,7 +1182,7 @@ GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
     }
 }
 
-GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
+GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(size_t size, bool dynamic) {
     GrGLIndexBuffer::Desc desc;
     desc.fDynamic = dynamic;
     desc.fSizeInBytes = size;

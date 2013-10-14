@@ -52,7 +52,7 @@ bool SkGrDescKey::lt(const GrKey& rh) const {
     const SkDescriptor* srcDesc = ((const SkGrDescKey*)&rh)->fDesc;
     size_t lenLH = fDesc->getLength();
     size_t lenRH = srcDesc->getLength();
-    int cmp = memcmp(fDesc, srcDesc, SkMin32(lenLH, lenRH));
+    int cmp = memcmp(fDesc, srcDesc, SkTMin<size_t>(lenLH, lenRH));
     if (0 == cmp) {
         return lenLH < lenRH;
     } else {

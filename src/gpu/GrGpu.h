@@ -106,7 +106,7 @@ public:
      *
      * @return    The vertex buffer if successful, otherwise NULL.
      */
-    GrVertexBuffer* createVertexBuffer(uint32_t size, bool dynamic);
+    GrVertexBuffer* createVertexBuffer(size_t size, bool dynamic);
 
     /**
      * Creates an index buffer.
@@ -118,7 +118,7 @@ public:
      *
      * @return The index buffer if successful, otherwise NULL.
      */
-    GrIndexBuffer* createIndexBuffer(uint32_t size, bool dynamic);
+    GrIndexBuffer* createIndexBuffer(size_t size, bool dynamic);
 
     /**
      * Creates a path object that can be stenciled using stencilPath(). It is
@@ -421,8 +421,8 @@ private:
                                        size_t rowBytes) = 0;
     virtual GrTexture* onWrapBackendTexture(const GrBackendTextureDesc&) = 0;
     virtual GrRenderTarget* onWrapBackendRenderTarget(const GrBackendRenderTargetDesc&) = 0;
-    virtual GrVertexBuffer* onCreateVertexBuffer(uint32_t size, bool dynamic) = 0;
-    virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size, bool dynamic) = 0;
+    virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) = 0;
+    virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) = 0;
     virtual GrPath* onCreatePath(const SkPath& path, const SkStrokeRec&) = 0;
 
     // overridden by backend-specific derived class to perform the clear and

@@ -1460,7 +1460,7 @@ static void populate_glyph_to_unicode(IDWriteFontFace* fontFace,
     }
 
     glyphToUnicode->setCount(maxGlyph+1);
-    for (size_t j = 0; j < maxGlyph+1u; ++j) {
+    for (USHORT j = 0; j < maxGlyph+1u; ++j) {
         (*glyphToUnicode)[j] = 0;
     }
 
