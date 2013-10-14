@@ -790,6 +790,10 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
             }
         } else if (strcmp(*argv, "--list") == 0) {
             listTitles();
+        } else if (strcmp(*argv, "--pictureDir") == 0) {
+            ++argv;  // This case is dealt with in registerPictFileSamples().
+        } else if (strcmp(*argv, "--picture") == 0) {
+            ++argv;  // This case is dealt with in registerPictFileSample().
         }
         else {
             usage(commandName);
