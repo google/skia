@@ -7523,6 +7523,38 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "lumafilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8173147590874209422
+        ]
+      ]
+    }, 
+    "lumafilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18301896678941552052
+        ]
+      ]
+    }, 
+    "lumafilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12563574753072610937
+        ]
+      ]
+    }, 
+    "lumafilter_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13708921526950002195
+        ]
+      ]
+    }, 
     "lumamode_565.png": {
       "allowed-digests": [
         [

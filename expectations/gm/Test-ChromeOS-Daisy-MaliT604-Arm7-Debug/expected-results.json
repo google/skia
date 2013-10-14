@@ -4104,6 +4104,22 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "lumafilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3201918754991261323
+        ]
+      ]
+    }, 
+    "lumafilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18431835377098403941
+        ]
+      ]
+    }, 
     "lumamode_565.png": {
       "allowed-digests": [
         [
