@@ -13,7 +13,7 @@
 
 namespace sk_tools {
 
-void PdfRenderer::init(SkPicture* pict) {
+void PdfRenderer::init(SkPicture* pict, SkWStream* stream) {
     SkASSERT(NULL == fPicture);
     SkASSERT(NULL == fCanvas.get());
     if (fPicture != NULL || NULL != fCanvas.get()) {
@@ -26,44 +26,35 @@ void PdfRenderer::init(SkPicture* pict) {
     }
 
     fPicture = pict;
-    fCanvas.reset(this->setupCanvas());
+    fCanvas.reset(this->setupCanvas(stream, pict->width(), pict->height()));
 }
 
-SkCanvas* PdfRenderer::setupCanvas() {
-    return this->setupCanvas(fPicture->width(), fPicture->height());
-}
+SkCanvas* PdfRenderer::setupCanvas(SkWStream* stream, int width, int height) {
+    fPdfDoc.reset(SkDocument::CreatePDF(stream, NULL, fEncoder));
 
-SkCanvas* PdfRenderer::setupCanvas(int width, int height) {
-    SkISize pageSize = SkISize::Make(width, height);
-    fPDFDevice = SkNEW_ARGS(SkPDFDevice, (pageSize, pageSize, SkMatrix::I()));
-    fPDFDevice->setDCTEncoder(fEncoder);
-    return SkNEW_ARGS(SkCanvas, (fPDFDevice));
+    SkCanvas* canvas = fPdfDoc->beginPage(SkIntToScalar(width), SkIntToScalar(height));
+    canvas->ref();
+
+    return canvas;
 }
 
 void PdfRenderer::end() {
     fPicture = NULL;
     fCanvas.reset(NULL);
-    if (fPDFDevice) {
-        SkDELETE(fPDFDevice);
-        fPDFDevice = NULL;
-    }
+    fPdfDoc.reset(NULL);
 }
 
-void PdfRenderer::write(SkWStream* stream) const {
-    SkPDFDocument doc;
-    doc.appendPage(fPDFDevice);
-    doc.emitPDF(stream);
-}
-
-void SimplePdfRenderer::render() {
+bool SimplePdfRenderer::render() {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
     if (NULL == fCanvas.get() || NULL == fPicture) {
-        return;
+        return false;
     }
 
     fCanvas->drawPicture(*fPicture);
     fCanvas->flush();
+
+    return fPdfDoc->close();
 }
 
 }

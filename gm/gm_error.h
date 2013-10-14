@@ -28,6 +28,7 @@ namespace skiagm {
 
         kIntentionallySkipped_ErrorType,
         kRenderModeMismatch_ErrorType,
+        kGeneratePdfFailed_ErrorType,
         kExpectationsMismatch_ErrorType,
         kMissingExpectations_ErrorType,
         kWritingReferenceImage_ErrorType,
@@ -45,6 +46,8 @@ namespace skiagm {
             return "IntentionallySkipped";
         case kRenderModeMismatch_ErrorType:
             return "RenderModeMismatch";
+        case kGeneratePdfFailed_ErrorType:
+            return "GeneratePdfFailed";
         case kExpectationsMismatch_ErrorType:
             return "ExpectationsMismatch";
         case kMissingExpectations_ErrorType:

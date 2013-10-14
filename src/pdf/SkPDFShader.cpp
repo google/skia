@@ -9,7 +9,6 @@
 
 #include "SkPDFShader.h"
 
-#include "SkCanvas.h"
 #include "SkData.h"
 #include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
@@ -870,6 +869,8 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     unflip.preScale(SK_Scalar1, -SK_Scalar1);
     SkISize size = SkISize::Make(SkScalarRound(deviceBounds.width()),
                                  SkScalarRound(deviceBounds.height()));
+    // TODO(edisonn): should we pass here the DCT encoder of the destination device?
+    // TODO(edisonn): NYI Perspective, use SkPDFDeviceFlattener.
     SkPDFDevice pattern(size, size, unflip);
     SkCanvas canvas(&pattern);
 

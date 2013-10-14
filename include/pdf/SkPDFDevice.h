@@ -11,6 +11,7 @@
 #define SkPDFDevice_DEFINED
 
 #include "SkBitmapDevice.h"
+#include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -63,7 +64,7 @@ public:
      *         inverse scale+translate to accommodate the one that SkPDFDevice
      *         always does.
      */
-    // TODO(vandebo): The sizes should be SkSize and not SkISize.
+    // Deprecated, please use SkDocument::CreatePdf() instead.
     SK_API SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
                        const SkMatrix& initialTransform);
     SK_API virtual ~SkPDFDevice();
@@ -311,6 +312,11 @@ private:
                                 const SkMatrix& matrix);
 
     typedef SkBitmapDevice INHERITED;
+
+    // TODO(edisonn): Only SkDocument_PDF and SkPDFImageShader should be able to create
+    // an SkPDFDevice
+    //friend class SkDocument_PDF;
+    //friend class SkPDFImageShader;
 };
 
 #endif

@@ -15,6 +15,7 @@
       'include_dirs': [
         '../include/pdf',
         '../src/core', # needed to get SkGlyphCache.h and SkTextFormatParams.h
+        '../src/pdf',
         '../src/utils', # needed to get SkBitSet.h
       ],
       'sources': [

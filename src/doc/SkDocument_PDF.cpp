@@ -6,8 +6,8 @@
  */
 
 #include "SkDocument.h"
-#include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
+#include "SkPDFDeviceFlattener.h"
 
 class SkDocument_PDF : public SkDocument {
 public:
@@ -27,19 +27,14 @@ public:
 
 protected:
     virtual SkCanvas* onBeginPage(SkScalar width, SkScalar height,
-                                  const SkRect& content) SK_OVERRIDE {
+                                  const SkRect& trimBox) SK_OVERRIDE {
         SkASSERT(NULL == fCanvas);
         SkASSERT(NULL == fDevice);
 
-        SkISize pageS, contentS;
-        SkMatrix matrix;
+        SkSize mediaBoxSize;
+        mediaBoxSize.set(width, height);
 
-        pageS.set(SkScalarRoundToInt(width), SkScalarRoundToInt(height));
-        contentS.set(SkScalarRoundToInt(content.width()),
-                     SkScalarRoundToInt(content.height()));
-        matrix.setTranslate(content.fLeft, content.fTop);
-
-        fDevice = SkNEW_ARGS(SkPDFDevice, (pageS, contentS, matrix));
+        fDevice = SkNEW_ARGS(SkPDFDeviceFlattener, (mediaBoxSize, &trimBox));
         if (fEncoder) {
             fDevice->setDCTEncoder(fEncoder);
         }
@@ -78,7 +73,7 @@ protected:
 
 private:
     SkPDFDocument*  fDoc;
-    SkPDFDevice* fDevice;
+    SkPDFDeviceFlattener* fDevice;
     SkCanvas*       fCanvas;
     SkPicture::EncodeBitmap fEncoder;
 };

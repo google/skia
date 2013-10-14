@@ -2034,6 +2034,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
                                      const SkBitmap& bitmap,
                                      const SkIRect* srcRect,
                                      const SkPaint& paint) {
+    // TODO(edisonn): Perspective matrix support implemented here
     SkMatrix scaled;
     // Adjust for origin flip.
     scaled.setScale(SK_Scalar1, -SK_Scalar1);

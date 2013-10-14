@@ -13,6 +13,8 @@
         '<(skia_src_path)/pdf/SkPDFCatalog.cpp',
         '<(skia_src_path)/pdf/SkPDFCatalog.h',
         '<(skia_src_path)/pdf/SkPDFDevice.cpp',
+        '<(skia_src_path)/pdf/SkPDFDeviceFlattener.cpp',
+        '<(skia_src_path)/pdf/SkPDFDeviceFlattener.h',
         '<(skia_src_path)/pdf/SkPDFDocument.cpp',
         '<(skia_src_path)/pdf/SkPDFFont.cpp',
         '<(skia_src_path)/pdf/SkPDFFont.h',

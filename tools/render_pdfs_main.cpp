@@ -131,28 +131,24 @@ static bool make_output_filepath(SkString* path, const SkString& dir,
  * @param inputFilename The skp file that was read.
  * @param renderer The object responsible to write the pdf file.
  */
-static bool write_output(const SkString& outputDir,
-                         const SkString& inputFilename,
-                         const sk_tools::PdfRenderer& renderer) {
+static SkWStream* open_stream(const SkString& outputDir,
+                              const SkString& inputFilename) {
     if (outputDir.isEmpty()) {
-        SkDynamicMemoryWStream stream;
-        renderer.write(&stream);
-        return true;
+        return SkNEW(SkDynamicMemoryWStream);
     }
 
     SkString outputPath;
     if (!make_output_filepath(&outputPath, outputDir, inputFilename)) {
-        return false;
+        return NULL;
     }
 
-    SkFILEWStream stream(outputPath.c_str());
-    if (!stream.isValid()) {
+    SkFILEWStream* stream = SkNEW_ARGS(SkFILEWStream, (outputPath.c_str()));
+    if (!stream->isValid()) {
         SkDebugf("Could not write to file %s\n", outputPath.c_str());
-        return false;
+        return NULL;
     }
-    renderer.write(&stream);
 
-    return true;
+    return stream;
 }
 
 /** Reads an skp file, renders it to pdf and writes the output to a pdf file
@@ -182,13 +178,19 @@ static bool render_pdf(const SkString& inputPath, const SkString& outputDir,
     SkDebugf("exporting... [%i %i] %s\n", picture->width(), picture->height(),
              inputPath.c_str());
 
-    renderer.init(picture);
+    SkWStream* stream(open_stream(outputDir, inputFilename));
 
-    renderer.render();
+    if (!stream) {
+        return false;
+    }
 
-    bool success = write_output(outputDir, inputFilename, renderer);
+    renderer.init(picture, stream);
+
+    bool success = renderer.render();
+    SkDELETE(stream);
 
     renderer.end();
+
     return success;
 }
 
