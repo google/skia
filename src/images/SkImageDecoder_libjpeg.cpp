@@ -16,12 +16,10 @@
 #include "SkTemplates.h"
 #include "SkTime.h"
 #include "SkUtils.h"
+#include "SkRTConf.h"
 #include "SkRect.h"
 #include "SkCanvas.h"
 
-#if defined(SK_DEBUG)
-#include "SkRTConf.h"  // SK_CONF_DECLARE
-#endif  // defined(SK_DEBUG)
 
 #include <stdio.h>
 extern "C" {
@@ -40,10 +38,14 @@ extern "C" {
 // support for two additional formats (1) JCS_RGBA_8888 and (2) JCS_RGB_565.
 
 #if defined(SK_DEBUG)
-SK_CONF_DECLARE(bool, c_suppressJPEGImageDecoderWarnings,
-    "images.jpeg.suppressDecoderWarnings", false,
-    "Suppress most JPG warnings when calling decode functions.");
+#define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS false
+#else  // !defined(SK_DEBUG)
+#define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS true
 #endif  // defined(SK_DEBUG)
+SK_CONF_DECLARE(bool, c_suppressJPEGImageDecoderWarnings,
+                "images.jpeg.suppressDecoderWarnings",
+                DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS,
+                "Suppress most JPG warnings when calling decode functions.");
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -74,7 +76,6 @@ static void initialize_info(jpeg_decompress_struct* cinfo, skjpeg_source_mgr* sr
     jpeg_create_decompress(cinfo);
     overwrite_mem_buffer_size(cinfo);
     cinfo->src = src_mgr;
-#if defined(SK_DEBUG)
     /* To suppress warnings with a SK_DEBUG binary, set the
      * environment variable "skia_images_jpeg_suppressDecoderWarnings"
      * to "true".  Inside a program that links to skia:
@@ -82,9 +83,6 @@ static void initialize_info(jpeg_decompress_struct* cinfo, skjpeg_source_mgr* sr
     if (c_suppressJPEGImageDecoderWarnings) {
         cinfo->err->emit_message = &do_nothing_emit_message;
     }
-#else  // Always suppress in release mode.
-    cinfo->err->emit_message = &do_nothing_emit_message;
-#endif  // defined(SK_DEBUG)
 }
 
 #ifdef SK_BUILD_FOR_ANDROID

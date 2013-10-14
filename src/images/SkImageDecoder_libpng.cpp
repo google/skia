@@ -13,16 +13,12 @@
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkMath.h"
+#include "SkRTConf.h"
 #include "SkScaledBitmapSampler.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
 #include "transform_scanline.h"
-
-#if defined(SK_DEBUG)
-#include "SkRTConf.h"  // SK_CONF_DECLARE
-#endif  // defined(SK_DEBUG)
-
 extern "C" {
 #include "png.h"
 }
@@ -45,10 +41,16 @@ extern "C" {
 #endif
 
 #if defined(SK_DEBUG)
-SK_CONF_DECLARE(bool, c_suppressPNGImageDecoderWarnings,
-    "images.png.suppressDecoderWarnings", false,
-    "Suppress most PNG warnings when calling image decode functions.");
+#define DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS false
+#else  // !defined(SK_DEBUG)
+#define DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS true
 #endif  // defined(SK_DEBUG)
+SK_CONF_DECLARE(bool, c_suppressPNGImageDecoderWarnings,
+                "images.png.suppressDecoderWarnings",
+                DEFAULT_FOR_SUPPRESS_PNG_IMAGE_DECODER_WARNINGS,
+                "Suppress most PNG warnings when calling image decode "
+                "functions.");
+
 
 
 class SkPNGImageIndex {
@@ -222,18 +224,14 @@ bool SkPNGImageDecoder::onDecodeInit(SkStream* sk_stream, png_structp *png_ptrp,
     * the compiler header file version, so that we know if the application
     * was compiled with a compatible version of the library.  */
 
-#if defined(SK_DEBUG)
     png_error_ptr user_warning_fn =
         (c_suppressPNGImageDecoderWarnings) ? (&do_nothing_warning_fn) : NULL;
     /* NULL means to leave as default library behavior. */
-    /* c_suppressPNGImageDecoderWarnings defaults to false. */
+    /* c_suppressPNGImageDecoderWarnings default depends on SK_DEBUG. */
     /* To suppress warnings with a SK_DEBUG binary, set the
      * environment variable "skia_images_png_suppressDecoderWarnings"
      * to "true".  Inside a program that links to skia:
      * SK_CONF_SET("images.png.suppressDecoderWarnings", true); */
-#else  // Always suppress in release mode
-    png_error_ptr user_warning_fn = &do_nothing_warning_fn;
-#endif  // defined(SK_DEBUG)
 
     png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
         NULL, sk_error_fn, user_warning_fn);
