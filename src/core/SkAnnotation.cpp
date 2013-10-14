@@ -30,13 +30,13 @@ SkData* SkAnnotation::find(const char key[]) const {
     return fKey.equals(key) ? fData : NULL;
 }
 
-SkAnnotation::SkAnnotation(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+SkAnnotation::SkAnnotation(SkFlattenableReadBuffer& buffer) {
     fFlags = buffer.readUInt();
     buffer.readString(&fKey);
     fData = buffer.readByteArrayAsData();
 }
 
-void SkAnnotation::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkAnnotation::writeToBuffer(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeUInt(fFlags);
     buffer.writeString(fKey.c_str());
     buffer.writeDataAsByteArray(fData);

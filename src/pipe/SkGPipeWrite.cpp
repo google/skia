@@ -48,7 +48,6 @@ static SkFlattenable* get_paintflat(const SkPaint& paint, unsigned paintFlat) {
         case kShader_PaintFlat:         return paint.getShader();
         case kImageFilter_PaintFlat:    return paint.getImageFilter();
         case kXfermode_PaintFlat:       return paint.getXfermode();
-        case kAnnotation_PaintFlat:     return paint.getAnnotation();
     }
     SkDEBUGFAIL("never gets here");
     return NULL;
@@ -1121,6 +1120,26 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
         fWriter.write(storage, size);
         for (size_t i = 0; i < size/4; i++) {
 //            SkDebugf("[%d] %08X\n", i, storage[i]);
+        }
+    }
+
+    //
+    //  Do these after we've written kPaintOp_DrawOp
+    
+    if (base.getAnnotation() != paint.getAnnotation()) {
+        if (NULL == paint.getAnnotation()) {
+            this->writeOp(kSetAnnotation_DrawOp, 0, 0);
+        } else {
+            SkOrderedWriteBuffer buffer(1024);
+            paint.getAnnotation()->writeToBuffer(buffer);
+            size = buffer.bytesWritten();
+            
+            SkAutoMalloc storage(size);
+            buffer.writeToMemory(storage.get());
+            
+            this->writeOp(kSetAnnotation_DrawOp, 0, 1);
+            fWriter.write32(size);
+            fWriter.write(storage.get(), size);
         }
     }
 }

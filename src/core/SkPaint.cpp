@@ -2099,7 +2099,13 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         buffer.writeFlattenable(this->getRasterizer());
         buffer.writeFlattenable(this->getLooper());
         buffer.writeFlattenable(this->getImageFilter());
-        buffer.writeFlattenable(this->getAnnotation());
+
+        if (fAnnotation) {
+            buffer.writeBool(true);
+            fAnnotation->writeToBuffer(buffer);
+        } else {
+            buffer.writeBool(false);
+        }
     }
 #ifdef SK_BUILD_FOR_ANDROID
     if (flatFlags & kHasNonDefaultPaintOptionsAndroid_FlatFlag) {
@@ -2180,7 +2186,10 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
         SkSafeUnref(this->setRasterizer(buffer.readFlattenableT<SkRasterizer>()));
         SkSafeUnref(this->setLooper(buffer.readFlattenableT<SkDrawLooper>()));
         SkSafeUnref(this->setImageFilter(buffer.readFlattenableT<SkImageFilter>()));
-        SkSafeUnref(this->setAnnotation(buffer.readFlattenableT<SkAnnotation>()));
+        
+        if (buffer.readBool()) {
+            this->setAnnotation(SkNEW_ARGS(SkAnnotation, (buffer)))->unref();
+        }
     } else {
         this->setPathEffect(NULL);
         this->setShader(NULL);

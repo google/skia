@@ -62,7 +62,6 @@
 
 void SkFlattenable::InitializeFlattenables() {
 
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkAnnotation)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkAvoidXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBicubicImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapProcShader)

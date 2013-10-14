@@ -8,10 +8,12 @@
 #ifndef SkAnnotation_DEFINED
 #define SkAnnotation_DEFINED
 
-#include "SkFlattenable.h"
+#include "SkRefCnt.h"
 #include "SkString.h"
 
 class SkData;
+class SkFlattenableReadBuffer;
+class SkFlattenableWriteBuffer;
 class SkStream;
 class SkWStream;
 struct SkPoint;
@@ -20,7 +22,7 @@ struct SkPoint;
  *  Experimental class for annotating draws. Do not use directly yet.
  *  Use helper functions at the bottom of this file for now.
  */
-class SkAnnotation : public SkFlattenable {
+class SkAnnotation : public SkRefCnt {
 public:
     enum Flags {
         // If set, the associated drawing primitive should not be drawn
@@ -39,21 +41,15 @@ public:
      */
     SkData* find(const char key[]) const;
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkAnnotation)
-
-protected:
     SkAnnotation(SkFlattenableReadBuffer&);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    void writeToBuffer(SkFlattenableWriteBuffer&) const;
 
 private:
     SkString    fKey;
     SkData*     fData;
     uint32_t    fFlags;
 
-    void writeToStream(SkWStream*) const;
-    void readFromStream(SkStream*);
-
-    typedef SkFlattenable INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 /**

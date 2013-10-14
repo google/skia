@@ -15,6 +15,7 @@
 #include "SkReader32.h"
 #include "SkStream.h"
 
+#include "SkAnnotation.h"
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
 #include "SkMaskFilter.h"
@@ -52,9 +53,6 @@ static void set_paintflat(SkPaint* paint, SkFlattenable* obj, unsigned paintFlat
             break;
         case kXfermode_PaintFlat:
             paint->setXfermode((SkXfermode*)obj);
-            break;
-        case kAnnotation_PaintFlat:
-            paint->setAnnotation((SkAnnotation*)obj);
             break;
         default:
             SkDEBUGFAIL("never gets here");
@@ -672,6 +670,22 @@ static void typeface_rp(SkCanvas*, SkReader32* reader, uint32_t,
     p->setTypeface(static_cast<SkTypeface*>(reader->readPtr()));
 }
 
+static void annotation_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
+                          SkGPipeState* state) {
+    SkPaint* p = state->editPaint();
+    
+    if (SkToBool(PaintOp_unpackData(op32))) {
+        const size_t size = reader->readU32();
+        SkAutoMalloc storage(size);
+
+        reader->read(storage.get(), size);
+        SkOrderedReadBuffer buffer(storage.get(), size);
+        p->setAnnotation(SkNEW_ARGS(SkAnnotation, (buffer)))->unref();
+    } else {
+        p->setAnnotation(NULL);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void def_Typeface_rp(SkCanvas*, SkReader32*, uint32_t, SkGPipeState* state) {
@@ -755,6 +769,8 @@ static const ReadProc gReadTable[] = {
 
     paintOp_rp,
     typeface_rp,
+    annotation_rp,
+
     def_Typeface_rp,
     def_PaintFlat_rp,
     def_Bitmap_rp,
