@@ -9,9 +9,9 @@
 #define SkAnnotation_DEFINED
 
 #include "SkFlattenable.h"
+#include "SkString.h"
 
 class SkData;
-class SkDataSet;
 class SkStream;
 class SkWStream;
 struct SkPoint;
@@ -27,18 +27,17 @@ public:
         kNoDraw_Flag  = 1 << 0,
     };
 
-    SkAnnotation(SkDataSet*, uint32_t flags);
+    SkAnnotation(const char key[], SkData* value, uint32_t flags);
     virtual ~SkAnnotation();
 
     uint32_t getFlags() const { return fFlags; }
-    SkDataSet* getDataSet() const { return fDataSet; }
 
     bool isNoDraw() const { return SkToBool(fFlags & kNoDraw_Flag); }
 
     /**
-     *  Helper for search the annotation's dataset.
+     *  Return the data for the specified key, or NULL.
      */
-    SkData* find(const char name[]) const;
+    SkData* find(const char key[]) const;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkAnnotation)
 
@@ -47,7 +46,8 @@ protected:
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 
 private:
-    SkDataSet*  fDataSet;
+    SkString    fKey;
+    SkData*     fData;
     uint32_t    fFlags;
 
     void writeToStream(SkWStream*) const;

@@ -252,7 +252,6 @@
       'core/SkPreConfig.h',
       'core/SkImageFilterUtils.h',
       'core/SkLineClipper.h',
-      'core/SkDataSet.h',
       'core/SkPathEffect.h',
       'core/SkString.h',
       'core/SkPixelRef.h',
