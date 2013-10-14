@@ -598,9 +598,9 @@ int tool_main(int argc, char** argv) {
                 // as we can flush and/or swap buffers to keep the GPU from
                 // queuing up too much work.
                 for (int loopCount = loopsPerIter; loopCount > 0; ) {
-                    if (NULL != canvas) {
-                        canvas->save();
-                    }
+                    // Save and restore around each call to draw() to guarantee a pristine canvas.
+                    SkAutoCanvasRestore saveRestore(canvas, true/*also save*/);
+
                     if (frameIntervalComputed && loopCount > loopsPerFrame) {
                         bench->setLoops(loopsPerFrame);
                         loopCount -= loopsPerFrame;
@@ -628,9 +628,6 @@ int tool_main(int argc, char** argv) {
                         glContext->swapBuffers();
                     }
 #endif
-                    if (NULL != canvas) {
-                        canvas->restore();
-                    }
                 }
 
 

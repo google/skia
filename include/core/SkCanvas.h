@@ -1145,11 +1145,12 @@ private:
 */
 class SkAutoCanvasRestore : SkNoncopyable {
 public:
-    SkAutoCanvasRestore(SkCanvas* canvas, bool doSave) : fCanvas(canvas) {
-        SkASSERT(canvas);
-        fSaveCount = canvas->getSaveCount();
-        if (doSave) {
-            canvas->save();
+    SkAutoCanvasRestore(SkCanvas* canvas, bool doSave) : fCanvas(canvas), fSaveCount(0) {
+        if (fCanvas) {
+            fSaveCount = canvas->getSaveCount();
+            if (doSave) {
+                canvas->save();
+            }
         }
     }
     ~SkAutoCanvasRestore() {
