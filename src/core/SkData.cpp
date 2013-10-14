@@ -158,28 +158,6 @@ SkData* SkData::NewWithCString(const char cstr[]) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkData::flatten(SkFlattenableWriteBuffer& buffer) const {
-    buffer.writeByteArray(fPtr, fSize);
-}
-
-SkData::SkData(SkFlattenableReadBuffer& buffer) {
-    fSize = buffer.getArrayCount();
-    fReleaseProcContext = NULL;
-
-    if (fSize > 0) {
-        fPtr = sk_malloc_throw(fSize);
-        fReleaseProc = sk_free_releaseproc;
-    } else {
-        fPtr = NULL;
-        fReleaseProc = NULL;
-    }
-
-    buffer.readByteArray(const_cast<void*>(fPtr));
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
 #include "SkDataSet.h"
 #include "SkFlattenable.h"
 #include "SkStream.h"
@@ -283,7 +261,7 @@ void SkDataSet::flatten(SkFlattenableWriteBuffer& buffer) const {
     if (fCount > 0) {
         buffer.writeByteArray(fPairs[0].fKey, fKeySize);
         for (int i = 0; i < fCount; ++i) {
-            buffer.writeFlattenable(fPairs[i].fValue);
+            buffer.writeDataAsByteArray(fPairs[i].fValue);
         }
     }
 }
@@ -320,7 +298,7 @@ SkDataSet::SkDataSet(SkFlattenableReadBuffer& buffer) {
         for (int i = 0; i < fCount; ++i) {
             fPairs[i].fKey = keyStorage;
             keyStorage += strlen(keyStorage) + 1;
-            fPairs[i].fValue = buffer.readFlattenableT<SkData>();
+            fPairs[i].fValue = buffer.readByteArrayAsData();
         }
     } else {
         fKeySize = 0;

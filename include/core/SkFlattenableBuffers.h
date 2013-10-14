@@ -10,6 +10,7 @@
 #define SkFlattenableBuffers_DEFINED
 
 #include "SkColor.h"
+#include "SkData.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
 
@@ -97,6 +98,13 @@ public:
         this->readPoint(&point);
         return point;
     }
+    
+    SkData* readByteArrayAsData() {
+        size_t len = this->getArrayCount();
+        void* buffer = sk_malloc_throw(len);
+        (void)this->readByteArray(buffer);
+        return SkData::NewFromMalloc(buffer, len);
+    }
 
     template <typename T> T* readFlattenableT() {
         return static_cast<T*>(this->readFlattenable());
@@ -164,6 +172,10 @@ public:
     }
 
     bool persistTypeface() const { return (fFlags & kCrossProcess_Flag) != 0; }
+
+    void writeDataAsByteArray(SkData* data) {
+        this->writeByteArray(data->data(), data->size());
+    }
 
 protected:
     // A helper function so that each subclass does not have to be a friend of SkFlattenable
