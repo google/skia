@@ -49,14 +49,14 @@ namespace skiagm {
         /**
          * Create a ResultDigest representing an actual image result.
          */
-        GmResultDigest(const SkBitmap &bitmap);
+        explicit GmResultDigest(const SkBitmap &bitmap);
 
         /**
          * Create a ResultDigest representing an allowed result
          * checksum within JSON expectations file, in the form
          * ["bitmap-64bitMD5", 12345].
          */
-        GmResultDigest(const Json::Value &jsonTypeValuePair);
+        explicit GmResultDigest(const Json::Value &jsonTypeValuePair);
 
         /**
          * Returns true if this GmResultDigest was fully and successfully
@@ -96,7 +96,7 @@ namespace skiagm {
      */
     class BitmapAndDigest {
     public:
-        BitmapAndDigest(const SkBitmap &bitmap) : fBitmap(bitmap), fDigest(bitmap) {}
+        explicit BitmapAndDigest(const SkBitmap &bitmap) : fBitmap(bitmap), fDigest(bitmap) {}
 
         const SkBitmap fBitmap;
         const GmResultDigest fDigest;
@@ -110,7 +110,7 @@ namespace skiagm {
         /**
          * No expectations at all.
          */
-        Expectations(bool ignoreFailure=kDefaultIgnoreFailure);
+        explicit Expectations(bool ignoreFailure=kDefaultIgnoreFailure);
 
         /**
          * Expect exactly one image (appropriate for the case when we
@@ -125,7 +125,7 @@ namespace skiagm {
          * It's fine if the jsonElement is null or empty; in that case, we just
          * don't have any expectations.
          */
-        Expectations(Json::Value jsonElement);
+        explicit Expectations(Json::Value jsonElement);
 
         /**
          * Returns true iff we want to ignore failed expectations.
@@ -179,7 +179,7 @@ namespace skiagm {
     public:
         SK_DECLARE_INST_COUNT(ExpectationsSource)
 
-        virtual Expectations get(const char *testName) = 0;
+        virtual Expectations get(const char *testName) const = 0;
 
     private:
         typedef SkRefCnt INHERITED;
@@ -197,9 +197,9 @@ namespace skiagm {
          * rootDir: directory under which to look for image files
          *          (this string will be copied to storage within this object)
          */
-        IndividualImageExpectationsSource(const char *rootDir) : fRootDir(rootDir) {}
+        explicit IndividualImageExpectationsSource(const char *rootDir) : fRootDir(rootDir) {}
 
-        Expectations get(const char *testName) SK_OVERRIDE ;
+        Expectations get(const char *testName) const SK_OVERRIDE ;
 
     private:
         const SkString fRootDir;
@@ -216,9 +216,9 @@ namespace skiagm {
          *
          * jsonPath: path to JSON file to read
          */
-        JsonExpectationsSource(const char *jsonPath);
+        explicit JsonExpectationsSource(const char *jsonPath);
 
-        Expectations get(const char *testName) SK_OVERRIDE;
+        Expectations get(const char *testName) const SK_OVERRIDE;
 
     private:
 

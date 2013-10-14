@@ -203,7 +203,7 @@ namespace skiagm {
 
     // IndividualImageExpectationsSource class...
 
-    Expectations IndividualImageExpectationsSource::get(const char *testName) {
+    Expectations IndividualImageExpectationsSource::get(const char *testName) const {
         SkString path = SkOSPath::SkPathJoin(fRootDir.c_str(), testName);
         SkBitmap referenceBitmap;
         bool decodedReferenceBitmap =
@@ -226,7 +226,7 @@ namespace skiagm {
         fJsonExpectedResults = fJsonRoot[kJsonKey_ExpectedResults];
     }
 
-    Expectations JsonExpectationsSource::get(const char *testName) {
+    Expectations JsonExpectationsSource::get(const char *testName) const {
         return Expectations(fJsonExpectedResults[testName]);
     }
 
