@@ -111,10 +111,18 @@ SkRTConf<T>::SkRTConf(const char *name, const T &defaultValue, const char *descr
 template<typename T>
 void SkRTConf<T>::print(SkWStream *o) const {
     char outline[200]; // should be ok because we specify a max. width for everything here.
-
-    sprintf(outline, "%-30.30s", getName());
-    doPrint(&(outline[30]));
-    sprintf(&(outline[60]), " %.128s", fDescription.c_str());
+    char *outptr;
+    if (strlen(getName()) >= 30) {
+        o->writeText(getName());
+        o->writeText(" ");
+        outptr = &(outline[0]);
+    } else {
+        sprintf(outline, "%-30.30s", getName());
+        outptr = &(outline[30]);
+    }
+    
+    doPrint(outptr);
+    sprintf(outptr+30, " %.128s", fDescription.c_str());
     for (size_t i = strlen(outline); i --> 0 && ' ' == outline[i];) {
         outline[i] = '\0';
     }
