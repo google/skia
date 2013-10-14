@@ -507,7 +507,7 @@ class GrGLLight;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkLight : public SkFlattenable {
+class SkLight : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkLight)
 
@@ -526,6 +526,10 @@ public:
     virtual bool requiresFragmentPosition() const = 0;
     virtual SkLight* transform(const SkMatrix& matrix) const = 0;
 
+    // Defined below SkLight's subclasses.
+    void flattenLight(SkFlattenableWriteBuffer& buffer) const;
+    static SkLight* UnflattenLight(SkFlattenableReadBuffer& buffer);
+
 protected:
     SkLight(SkColor color)
       : fColor(SkIntToScalar(SkColorGetR(color)),
@@ -533,17 +537,15 @@ protected:
                SkIntToScalar(SkColorGetB(color))) {}
     SkLight(const SkPoint3& color)
       : fColor(color) {}
-    SkLight(SkFlattenableReadBuffer& buffer)
-      : INHERITED(buffer) {
+    SkLight(SkFlattenableReadBuffer& buffer) {
         fColor = readPoint3(buffer);
     }
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
-        INHERITED::flatten(buffer);
-        writePoint3(fColor, buffer);
-    }
+
+    virtual void onFlattenLight(SkFlattenableWriteBuffer& buffer) const = 0;
+
 
 private:
-    typedef SkFlattenable INHERITED;
+    typedef SkRefCnt INHERITED;
     SkPoint3 fColor;
 };
 
@@ -583,20 +585,18 @@ public:
                fDirection == o.fDirection;
     }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDistantLight)
+    SkDistantLight(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+        fDirection = readPoint3(buffer);
+    }
 
 protected:
     SkDistantLight(const SkPoint3& direction, const SkPoint3& color)
       : INHERITED(color), fDirection(direction) {
     }
-    SkDistantLight(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-        fDirection = readPoint3(buffer);
-    }
     virtual SkLight* transform(const SkMatrix& matrix) const {
         return new SkDistantLight(direction(), color());
     }
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const {
-        INHERITED::flatten(buffer);
+    virtual void onFlattenLight(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
         writePoint3(fDirection, buffer);
     }
 
@@ -646,16 +646,14 @@ public:
         return new SkPointLight(location, color());
     }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPointLight)
-
-protected:
     SkPointLight(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
         fLocation = readPoint3(buffer);
     }
+
+protected:
     SkPointLight(const SkPoint3& location, const SkPoint3& color)
      : INHERITED(color), fLocation(location) {}
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const {
-        INHERITED::flatten(buffer);
+    virtual void onFlattenLight(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
         writePoint3(fLocation, buffer);
     }
 
@@ -729,9 +727,6 @@ public:
     SkScalar coneScale() const { return fConeScale; }
     const SkPoint3& s() const { return fS; }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpotLight)
-
-protected:
     SkSpotLight(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
         fLocation = readPoint3(buffer);
         fTarget = readPoint3(buffer);
@@ -741,6 +736,7 @@ protected:
         fConeScale = buffer.readScalar();
         fS = readPoint3(buffer);
     }
+protected:
     SkSpotLight(const SkPoint3& location, const SkPoint3& target, SkScalar specularExponent, SkScalar cosOuterConeAngle, SkScalar cosInnerConeAngle, SkScalar coneScale, const SkPoint3& s, const SkPoint3& color)
      : INHERITED(color),
        fLocation(location),
@@ -752,8 +748,7 @@ protected:
        fS(s)
     {
     }
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const {
-        INHERITED::flatten(buffer);
+    virtual void onFlattenLight(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
         writePoint3(fLocation, buffer);
         writePoint3(fTarget, buffer);
         buffer.writeScalar(fSpecularExponent);
@@ -795,6 +790,29 @@ private:
 const SkScalar SkSpotLight::kSpecularExponentMin = SkFloatToScalar(1.0f);
 const SkScalar SkSpotLight::kSpecularExponentMax = SkFloatToScalar(128.0f);
 
+///////////////////////////////////////////////////////////////////////////////
+
+void SkLight::flattenLight(SkFlattenableWriteBuffer& buffer) const {
+    // Write type first, then baseclass, then subclass.
+    buffer.writeInt(this->type());
+    writePoint3(fColor, buffer);
+    this->onFlattenLight(buffer);
+}
+
+/*static*/ SkLight* SkLight::UnflattenLight(SkFlattenableReadBuffer& buffer) {
+    // Read type first.
+    const SkLight::LightType type = (SkLight::LightType)buffer.readInt();
+    switch (type) {
+        // Each of these constructors must first call SkLight's, so we'll read the baseclass
+        // then subclass, same order as flattenLight.
+        case SkLight::kDistant_LightType: return SkNEW_ARGS(SkDistantLight, (buffer));
+        case SkLight::kPoint_LightType:   return SkNEW_ARGS(SkPointLight, (buffer));
+        case SkLight::kSpot_LightType:    return SkNEW_ARGS(SkSpotLight, (buffer));
+        default:
+            SkDEBUGFAIL("Unknown LightType.");
+            return NULL;
+    }
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 SkLightingImageFilter::SkLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkImageFilter* input, const CropRect* cropRect)
@@ -865,15 +883,14 @@ SkLightingImageFilter::~SkLightingImageFilter() {
 }
 
 SkLightingImageFilter::SkLightingImageFilter(SkFlattenableReadBuffer& buffer)
-  : INHERITED(buffer)
-{
-    fLight = buffer.readFlattenableT<SkLight>();
+  : INHERITED(buffer) {
+    fLight = SkLight::UnflattenLight(buffer);
     fSurfaceScale = buffer.readScalar();
 }
 
 void SkLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeFlattenable(fLight);
+    fLight->flattenLight(buffer);
     buffer.writeScalar(fSurfaceScale);
 }
 
@@ -1562,7 +1579,4 @@ void GrGLSpotLight::emitLightColor(GrGLShaderBuilder* builder,
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkLightingImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDiffuseLightingImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSpecularLightingImageFilter)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDistantLight)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPointLight)
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSpotLight)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
