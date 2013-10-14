@@ -21,6 +21,7 @@ int tool_main(int argc, char** argv) {
         SkDebugf("Usage:\n %s imagefile\n\n", argv[0]);
         return 3;
     }
+    SkAutoGraphics ag;  // Enable use of SkRTConfig
     SkBitmap bitmap;
     if (!(SkImageDecoder::DecodeFile(argv[1], &bitmap))) {
         return 2;

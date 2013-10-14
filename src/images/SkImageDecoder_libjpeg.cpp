@@ -39,13 +39,20 @@ extern "C" {
 
 #if defined(SK_DEBUG)
 #define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS false
+#define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_ERRORS false
 #else  // !defined(SK_DEBUG)
 #define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS true
+#define DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_ERRORS true
 #endif  // defined(SK_DEBUG)
 SK_CONF_DECLARE(bool, c_suppressJPEGImageDecoderWarnings,
                 "images.jpeg.suppressDecoderWarnings",
                 DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_WARNINGS,
                 "Suppress most JPG warnings when calling decode functions.");
+SK_CONF_DECLARE(bool, c_suppressJPEGImageDecoderErrors,
+                "images.jpeg.suppressDecoderErrors",
+                DEFAULT_FOR_SUPPRESS_JPEG_IMAGE_DECODER_ERRORS,
+                "Suppress most JPG error messages when decode "
+                "function fails.");
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -69,6 +76,9 @@ static void overwrite_mem_buffer_size(jpeg_decompress_struct* cinfo) {
 static void do_nothing_emit_message(jpeg_common_struct*, int) {
     /* do nothing */
 }
+static void do_nothing_output_message(j_common_ptr) {
+    /* do nothing */
+}
 
 static void initialize_info(jpeg_decompress_struct* cinfo, skjpeg_source_mgr* src_mgr) {
     SkASSERT(cinfo != NULL);
@@ -82,6 +92,13 @@ static void initialize_info(jpeg_decompress_struct* cinfo, skjpeg_source_mgr* sr
      * SK_CONF_SET("images.jpeg.suppressDecoderWarnings", true); */
     if (c_suppressJPEGImageDecoderWarnings) {
         cinfo->err->emit_message = &do_nothing_emit_message;
+    }
+    /* To suppress error messages with a SK_DEBUG binary, set the
+     * environment variable "skia_images_jpeg_suppressDecoderErrors"
+     * to "true".  Inside a program that links to skia:
+     * SK_CONF_SET("images.jpeg.suppressDecoderErrors", true); */
+    if (c_suppressJPEGImageDecoderErrors) {
+        cinfo->err->output_message = &do_nothing_output_message;
     }
 }
 
@@ -309,12 +326,12 @@ static bool skip_src_rows_tile(jpeg_decompress_struct* cinfo,
 // set a break-point in one place to see all error exists.
 static bool return_false(const jpeg_decompress_struct& cinfo,
                          const SkBitmap& bm, const char caller[]) {
-#ifdef SK_DEBUG
-    char buffer[JMSG_LENGTH_MAX];
-    cinfo.err->format_message((const j_common_ptr)&cinfo, buffer);
-    SkDebugf("libjpeg error %d <%s> from %s [%d %d]\n", cinfo.err->msg_code,
-             buffer, caller, bm.width(), bm.height());
-#endif
+    if (!(c_suppressJPEGImageDecoderErrors)) {
+        char buffer[JMSG_LENGTH_MAX];
+        cinfo.err->format_message((const j_common_ptr)&cinfo, buffer);
+        SkDebugf("libjpeg error %d <%s> from %s [%d %d]\n",
+                 cinfo.err->msg_code, buffer, caller, bm.width(), bm.height());
+    }
     return false;   // must always return false
 }
 
