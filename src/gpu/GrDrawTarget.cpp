@@ -981,6 +981,8 @@ void GrDrawTargetCaps::reset() {
     fMaxRenderTargetSize = 0;
     fMaxTextureSize = 0;
     fMaxSampleCount = 0;
+
+    memset(fConfigRenderSupport, 0, sizeof(fConfigRenderSupport));
 }
 
 GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
@@ -1000,6 +1002,8 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fMaxRenderTargetSize = other.fMaxRenderTargetSize;
     fMaxTextureSize = other.fMaxTextureSize;
     fMaxSampleCount = other.fMaxSampleCount;
+
+    memcpy(fConfigRenderSupport, other.fConfigRenderSupport, sizeof(fConfigRenderSupport));
 
     return *this;
 }
@@ -1021,4 +1025,29 @@ void GrDrawTargetCaps::print() const {
     GrPrintf("Max Texture Size            : %d\n", fMaxTextureSize);
     GrPrintf("Max Render Target Size      : %d\n", fMaxRenderTargetSize);
     GrPrintf("Max Sample Count            : %d\n", fMaxSampleCount);
+
+    static const char* kConfigNames[] = {
+        "Unknown",  // kUnknown_GrPixelConfig
+        "Alpha8",   // kAlpha_8_GrPixelConfig,
+        "Index8",   // kIndex_8_GrPixelConfig,
+        "RGB565",   // kRGB_565_GrPixelConfig,
+        "RGBA444",  // kRGBA_4444_GrPixelConfig,
+        "RGBA8888", // kRGBA_8888_GrPixelConfig,
+        "BGRA8888", // kBGRA_8888_GrPixelConfig,
+    };
+    GR_STATIC_ASSERT(0 == kUnknown_GrPixelConfig);
+    GR_STATIC_ASSERT(1 == kAlpha_8_GrPixelConfig);
+    GR_STATIC_ASSERT(2 == kIndex_8_GrPixelConfig);
+    GR_STATIC_ASSERT(3 == kRGB_565_GrPixelConfig);
+    GR_STATIC_ASSERT(4 == kRGBA_4444_GrPixelConfig);
+    GR_STATIC_ASSERT(5 == kRGBA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(6 == kBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kConfigNames) == kGrPixelConfigCnt);
+
+    SkASSERT(!fConfigRenderSupport[kUnknown_GrPixelConfig]);
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kConfigNames); ++i)  {
+        if (i != kUnknown_GrPixelConfig) {
+            GrPrintf("%s is renderable: %s\n", kConfigNames[i], gNY[fConfigRenderSupport[i]]);
+        }
+    }
 }

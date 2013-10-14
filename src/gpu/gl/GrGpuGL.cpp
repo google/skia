@@ -127,9 +127,6 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
     fHWBoundTextures.reset(ctx.info().caps()->maxFragmentTextureUnits());
     fHWTexGenSettings.reset(ctx.info().caps()->maxFixedFunctionTextureCoords());
 
-    fillInConfigRenderableTable();
-
-
     GrGLClearErr(fGLContext.interface());
 
     if (gPrintStartupSpew) {
@@ -177,65 +174,6 @@ GrGpuGL::~GrGpuGL() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGpuGL::fillInConfigRenderableTable() {
-
-    // OpenGL < 3.0
-    //  no support for render targets unless the GL_ARB_framebuffer_object
-    //  extension is supported (in which case we get ALPHA, RED, RG, RGB,
-    //  RGBA (ALPHA8, RGBA4, RGBA8) for OpenGL > 1.1). Note that we
-    //  probably don't get R8 in this case.
-
-    // OpenGL 3.0
-    //  base color renderable: ALPHA, RED, RG, RGB, and RGBA
-    //  sized derivatives: ALPHA8, R8, RGBA4, RGBA8
-
-    // >= OpenGL 3.1
-    //  base color renderable: RED, RG, RGB, and RGBA
-    //  sized derivatives: R8, RGBA4, RGBA8
-    //  if the GL_ARB_compatibility extension is supported then we get back
-    //  support for GL_ALPHA and ALPHA8
-
-    // GL_EXT_bgra adds BGRA render targets to any version
-
-    // ES 2.0
-    //  color renderable: RGBA4, RGB5_A1, RGB565
-    //  GL_EXT_texture_rg adds support for R8 as a color render target
-    //  GL_OES_rgb8_rgba8 and/or GL_ARM_rgba8 adds support for RGBA8
-    //  GL_EXT_texture_format_BGRA8888 and/or GL_APPLE_texture_format_BGRA8888 added BGRA support
-
-    // ES 3.0
-    // Same as ES 2.0 except R8 and RGBA8 are supported without extensions (the functions called
-    // below already account for this).
-
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        // Post 3.0 we will get R8
-        // Prior to 3.0 we will get ALPHA8 (with GL_ARB_framebuffer_object)
-        if (this->glVersion() >= GR_GL_VER(3,0) ||
-            this->hasExtension("GL_ARB_framebuffer_object")) {
-            fConfigRenderSupport[kAlpha_8_GrPixelConfig] = true;
-        }
-    } else {
-        // On ES we can only hope for R8
-        fConfigRenderSupport[kAlpha_8_GrPixelConfig] =
-                                this->glCaps().textureRedSupport();
-    }
-
-    if (kDesktop_GrGLBinding != this->glBinding()) {
-        // only available in ES
-        fConfigRenderSupport[kRGB_565_GrPixelConfig] = true;
-    }
-
-    // we no longer support 444 as a render target
-    fConfigRenderSupport[kRGBA_4444_GrPixelConfig] = false;
-
-    if (this->glCaps().rgba8RenderbufferSupport()) {
-        fConfigRenderSupport[kRGBA_8888_GrPixelConfig] = true;
-    }
-
-    if (this->glCaps().bgraFormatSupport()) {
-        fConfigRenderSupport[kBGRA_8888_GrPixelConfig] = true;
-    }
-}
 
 GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig readConfig,
                                                  GrPixelConfig surfaceConfig) const {
@@ -2460,8 +2398,8 @@ inline bool can_blit_framebuffer(const GrSurface* dst,
                                  const GrSurface* src,
                                  const GrGpuGL* gpu,
                                  bool* wouldNeedTempFBO = NULL) {
-    if (gpu->isConfigRenderable(dst->config()) &&
-        gpu->isConfigRenderable(src->config()) &&
+    if (gpu->glCaps().isConfigRenderable(dst->config()) &&
+        gpu->glCaps().isConfigRenderable(src->config()) &&
         gpu->glCaps().usesMSAARenderBuffers()) {
         // ES3 doesn't allow framebuffer blits when the src has MSAA and the configs don't match
         // or the rects are not the same (not just the same size but have the same edges).
@@ -2501,7 +2439,7 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
     if (NULL != srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
         return false;
     }
-    if (gpu->isConfigRenderable(src->config()) && NULL != dst->asTexture() &&
+    if (gpu->glCaps().isConfigRenderable(src->config()) && NULL != dst->asTexture() &&
         dst->origin() == src->origin() && kIndex_8_GrPixelConfig != src->config()) {
         if (NULL != wouldNeedTempFBO) {
             *wouldNeedTempFBO = NULL == src->asRenderTarget();

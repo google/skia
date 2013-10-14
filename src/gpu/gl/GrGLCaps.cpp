@@ -334,6 +334,67 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     } else if (GrGLCaps::kNone_MSFBOType != fMSFBOType) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxSampleCount);
     }
+
+    this->initConfigRenderableTable(ctxInfo);
+}
+
+void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
+
+    // OpenGL < 3.0
+    //  no support for render targets unless the GL_ARB_framebuffer_object
+    //  extension is supported (in which case we get ALPHA, RED, RG, RGB,
+    //  RGBA (ALPHA8, RGBA4, RGBA8) for OpenGL > 1.1). Note that we
+    //  probably don't get R8 in this case.
+
+    // OpenGL 3.0
+    //  base color renderable: ALPHA, RED, RG, RGB, and RGBA
+    //  sized derivatives: ALPHA8, R8, RGBA4, RGBA8
+
+    // >= OpenGL 3.1
+    //  base color renderable: RED, RG, RGB, and RGBA
+    //  sized derivatives: R8, RGBA4, RGBA8
+    //  if the GL_ARB_compatibility extension is supported then we get back
+    //  support for GL_ALPHA and ALPHA8
+
+    // GL_EXT_bgra adds BGRA render targets to any version
+
+    // ES 2.0
+    //  color renderable: RGBA4, RGB5_A1, RGB565
+    //  GL_EXT_texture_rg adds support for R8 as a color render target
+    //  GL_OES_rgb8_rgba8 and/or GL_ARM_rgba8 adds support for RGBA8
+    //  GL_EXT_texture_format_BGRA8888 and/or GL_APPLE_texture_format_BGRA8888 added BGRA support
+
+    // ES 3.0
+    // Same as ES 2.0 except R8 and RGBA8 are supported without extensions (the functions called
+    // below already account for this).
+
+    if (kDesktop_GrGLBinding == ctxInfo.binding()) {
+        // Post 3.0 we will get R8
+        // Prior to 3.0 we will get ALPHA8 (with GL_ARB_framebuffer_object)
+        if (ctxInfo.version() >= GR_GL_VER(3,0) ||
+            ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
+            fConfigRenderSupport[kAlpha_8_GrPixelConfig] = true;
+        }
+    } else {
+        // On ES we can only hope for R8
+        fConfigRenderSupport[kAlpha_8_GrPixelConfig] = fTextureRedSupport;
+    }
+
+    if (kDesktop_GrGLBinding != ctxInfo.binding()) {
+        // only available in ES
+        fConfigRenderSupport[kRGB_565_GrPixelConfig] = true;
+    }
+
+    // we no longer support 444 as a render target
+    fConfigRenderSupport[kRGBA_4444_GrPixelConfig] = false;
+
+    if (this->fRGBA8RenderbufferSupport) {
+        fConfigRenderSupport[kRGBA_8888_GrPixelConfig] = true;
+    }
+
+    if (this->fBGRAFormatSupport) {
+        fConfigRenderSupport[kBGRA_8888_GrPixelConfig] = true;
+    }
 }
 
 bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,

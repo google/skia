@@ -291,14 +291,6 @@ public:
     }
 
     /**
-     * Can the provided configuration act as a color render target?
-     */
-    bool isConfigRenderable(GrPixelConfig config) const {
-        SkASSERT(kGrPixelConfigCnt > config);
-        return fConfigRenderSupport[config];
-    }
-
-    /**
      * These methods are called by the clip manager's setupClipping function
      * which (called as part of GrGpu's implementation of onDraw and
      * onStencilPath member functions.) The GrGpu subclass should flush the
@@ -400,10 +392,6 @@ protected:
 
     // The final stencil settings to use as determined by the clip manager.
     GrStencilSettings fStencilSettings;
-
-    // Derived classes need access to this so they can fill it out in their
-    // constructors
-    bool    fConfigRenderSupport[kGrPixelConfigCnt];
 
     // Helpers for setting up geometry state
     void finalizeReservedVertices();

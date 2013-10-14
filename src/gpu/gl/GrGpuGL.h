@@ -261,8 +261,6 @@ private:
                                    GrGLuint texID,
                                    GrGLRenderTarget::Desc* desc);
 
-    void fillInConfigRenderableTable();
-
     GrGLContext fGLContext;
 
     // GL program-related state

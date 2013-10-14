@@ -286,8 +286,9 @@ private:
         }
     };
 
-    void initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli);
-    void initStencilFormats(const GrGLContextInfo& ctxInfo);
+    void initFSAASupport(const GrGLContextInfo&, const GrGLInterface*);
+    void initStencilFormats(const GrGLContextInfo&);
+    void initConfigRenderableTable(const GrGLContextInfo&);
 
     // tracks configs that have been verified to pass the FBO completeness when
     // used as a color attachment
