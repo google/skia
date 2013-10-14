@@ -77,7 +77,6 @@
       'effects/SkPerlinNoiseShader.h',
       'effects/SkLerpXfermode.h',
       'effects/SkLumaColorFilter.h',
-      'effects/SkLumaXfermode.h',
       'effects/SkRectShaderImageFilter.h',
       'effects/SkMagnifierImageFilter.h',
       'effects/SkBicubicImageFilter.h',

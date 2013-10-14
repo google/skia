@@ -16,7 +16,6 @@
 #include "SkLumaColorFilter.h"
 #include "SkMallocPixelRef.h"
 #include "SkXfermode.h"
-#include "SkLumaXfermode.h"
 #include "SkMagnifierImageFilter.h"
 
 void SkFlattenable::InitializeFlattenables() {
@@ -33,6 +32,5 @@ void SkFlattenable::InitializeFlattenables() {
     SkBlurMaskFilter::InitializeFlattenables();
     SkColorFilter::InitializeFlattenables();
     SkGradientShader::InitializeFlattenables();
-    SkLumaMaskXfermode::InitializeFlattenables();
     SkXfermode::InitializeFlattenables();
 }

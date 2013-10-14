@@ -47,7 +47,6 @@
 #include "SkLerpXfermode.h"
 #include "SkLightingImageFilter.h"
 #include "SkLumaColorFilter.h"
-#include "SkLumaXfermode.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkMergeImageFilter.h"
@@ -118,7 +117,6 @@ void SkFlattenable::InitializeFlattenables() {
     SkGradientShader::InitializeFlattenables();
     SkImages::InitializeFlattenables();
     SkLightingImageFilter::InitializeFlattenables();
-    SkLumaMaskXfermode::InitializeFlattenables();
     SkTableColorFilter::InitializeFlattenables();
     SkXfermode::InitializeFlattenables();
 }

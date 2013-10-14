@@ -12,7 +12,6 @@
 #include "SkRandom.h"
 #include "SkString.h"
 #include "SkXfermode.h"
-#include "SkLumaXfermode.h"
 
 // Benchmark that draws non-AA rects with an SkXfermode::Mode
 class XfermodeBench : public SkBenchmark {
@@ -124,9 +123,5 @@ BENCH(SkXfermode::kHue_Mode)
 BENCH(SkXfermode::kSaturation_Mode)
 BENCH(SkXfermode::kColor_Mode)
 BENCH(SkXfermode::kLuminosity_Mode)
-
-BENCH(SkLumaMaskXfermode::Create(SkXfermode::kSrcIn_Mode), "SrcInLuma")
-BENCH(SkLumaMaskXfermode::Create(SkXfermode::kDstIn_Mode), "DstInLuma")
-BENCH(SkLumaMaskXfermode::Create(SkXfermode::kSrcOver_Mode), "SrcOverLuma")
 
 DEF_BENCH(return new XferCreateBench;)
