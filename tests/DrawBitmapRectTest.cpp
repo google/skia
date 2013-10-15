@@ -322,10 +322,7 @@ static void TestDrawBitmapRect(skiatest::Reporter* reporter) {
     test_giantrepeat_crbug118018(reporter);
 
     test_treatAsSprite(reporter);
-    
-    if (false) {    // will enable when fix lands
-        test_faulty_pixelref(reporter);
-    }
+    test_faulty_pixelref(reporter);
 }
 
 #include "TestClassDef.h"

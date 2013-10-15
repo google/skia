@@ -150,7 +150,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
                                         simd)) {
                 // we failed to create fScaledBitmap, so just return and let
                 // the scanline proc handle it.
-                return true;
+                return false;
 
             }
             fScaledCacheID = SkScaledImageCache::AddAndLock(fOrigBitmap,
