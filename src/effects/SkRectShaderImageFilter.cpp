@@ -31,6 +31,11 @@ SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const SkRe
     return SkNEW_ARGS(SkRectShaderImageFilter, (s, &cropRect));
 }
 
+SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const CropRect* cropRect) {
+    SkASSERT(s);
+    return SkNEW_ARGS(SkRectShaderImageFilter, (s, cropRect));
+}
+
 SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, const CropRect* cropRect)
   : INHERITED(NULL, cropRect)
   , fShader(s) {
