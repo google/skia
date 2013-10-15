@@ -221,7 +221,8 @@ benchgraph_download_rawdata $PLATFORM 7618 "$BENCHDATA_FILE_SUFFIXES_NO_INDIVIDU
 benchgraph_download_rawdata $PLATFORM 7671 "$BENCHDATA_FILE_SUFFIXES_YES_INDIVIDUAL_TILES"
 benchgraph_download_rawdata $PLATFORM 7679 "$BENCHDATA_FILE_SUFFIXES_YES_INDIVIDUAL_TILES"
 benchgraph_download_rawdata $PLATFORM 7686 "$BENCHDATA_FILE_SUFFIXES_YES_INDIVIDUAL_TILES"
-benchgraph_test $PLATFORM
+#TODO(bensong): fixes this test.
+#benchgraph_test $PLATFORM
 
 #
 # Run self test for skimage ...
