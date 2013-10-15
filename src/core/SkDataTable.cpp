@@ -7,7 +7,6 @@
 
 #include "SkData.h"
 #include "SkDataTable.h"
-#include "SkFlattenableBuffers.h"
 
 SK_DEFINE_INST_COUNT(SkDataTable)
 
@@ -74,65 +73,6 @@ const void* SkDataTable::at(int index, size_t* size) const {
             *size = fU.fDir[index].fSize;
         }
         return fU.fDir[index].fPtr;
-    }
-}
-
-SkDataTable::SkDataTable(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-    fElemSize = 0;
-    fU.fElems = NULL;
-    fFreeProc = NULL;
-    fFreeProcContext = NULL;
-
-    fCount = buffer.read32();
-    if (fCount) {
-        fElemSize = buffer.read32();
-        if (fElemSize) {
-            size_t size = buffer.getArrayCount();
-            // size is the size of our elems data
-            SkASSERT(fCount * fElemSize == size);
-            void* addr = sk_malloc_throw(size);
-            if (buffer.readByteArray(addr) != size) {
-                sk_throw();
-            }
-            fU.fElems = (const char*)addr;
-            fFreeProcContext = addr;
-        } else {
-            size_t dataSize = buffer.read32();
-
-            size_t allocSize = fCount * sizeof(Dir) + dataSize;
-            void* addr = sk_malloc_throw(allocSize);
-            Dir* dir = (Dir*)addr;
-            char* elem = (char*)(dir + fCount);
-            for (int i = 0; i < fCount; ++i) {
-                dir[i].fPtr = elem;
-                dir[i].fSize = buffer.readByteArray(elem);
-                elem += dir[i].fSize;
-            }
-            fU.fDir = dir;
-            fFreeProcContext = addr;
-        }
-        fFreeProc = malloc_freeproc;
-    }
-}
-
-void SkDataTable::flatten(SkFlattenableWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-
-    buffer.write32(fCount);
-    if (fCount) {
-        buffer.write32(fElemSize);
-        if (fElemSize) {
-            buffer.writeByteArray(fU.fElems, fCount * fElemSize);
-        } else {
-            size_t dataSize = 0;
-            for (int i = 0; i < fCount; ++i) {
-                dataSize += fU.fDir[i].fSize;
-            }
-            buffer.write32(dataSize);
-            for (int i = 0; i < fCount; ++i) {
-                buffer.writeByteArray(fU.fDir[i].fPtr, fU.fDir[i].fSize);
-            }
-        }
     }
 }
 

@@ -25,26 +25,10 @@ static void test_is_equal(skiatest::Reporter* reporter,
     }
 }
 
-static void test_datatable_flatten(skiatest::Reporter* reporter,
-                                   SkDataTable* table) {
-    SkOrderedWriteBuffer wb(1024);
-    wb.writeFlattenable(table);
-
-    size_t wsize = wb.size();
-    SkAutoMalloc storage(wsize);
-    wb.writeToMemory(storage.get());
-
-    SkOrderedReadBuffer rb(storage.get(), wsize);
-    SkAutoTUnref<SkDataTable> newTable((SkDataTable*)rb.readFlattenable());
-
-    test_is_equal(reporter, table, newTable);
-}
-
 static void test_datatable_is_empty(skiatest::Reporter* reporter,
                                     SkDataTable* table) {
     REPORTER_ASSERT(reporter, table->isEmpty());
     REPORTER_ASSERT(reporter, 0 == table->count());
-    test_datatable_flatten(reporter, table);
 }
 
 static void test_emptytable(skiatest::Reporter* reporter) {
@@ -77,7 +61,6 @@ static void test_simpletable(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, *itable->atT<int>(i, &size) == idata[i]);
         REPORTER_ASSERT(reporter, sizeof(int) == size);
     }
-    test_datatable_flatten(reporter, itable);
 }
 
 static void test_vartable(skiatest::Reporter* reporter) {
@@ -104,7 +87,6 @@ static void test_vartable(skiatest::Reporter* reporter) {
         const char* s = table->atStr(i);
         REPORTER_ASSERT(reporter, strlen(s) == strlen(str[i]));
     }
-    test_datatable_flatten(reporter, table);
 }
 
 static void test_tablebuilder(skiatest::Reporter* reporter) {
@@ -131,7 +113,6 @@ static void test_tablebuilder(skiatest::Reporter* reporter) {
         const char* s = table->atStr(i);
         REPORTER_ASSERT(reporter, strlen(s) == strlen(str[i]));
     }
-    test_datatable_flatten(reporter, table);
 }
 
 static void test_globaltable(skiatest::Reporter* reporter) {
@@ -150,7 +131,6 @@ static void test_globaltable(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, *table->atT<const char>(i, &size) == i);
         REPORTER_ASSERT(reporter, sizeof(int) == size);
     }
-    test_datatable_flatten(reporter, table);
 }
 
 static void TestDataTable(skiatest::Reporter* reporter) {
