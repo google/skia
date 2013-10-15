@@ -38,4 +38,4 @@ displacement
 # Added by bsalomon as part of https://codereview.chromium.org/27170003/
 # images differ in lsb
 complexclip_aa_gpu
-complexclip_aa_laye_gpu
+complexclip_aa_layer_gpu
