@@ -18,7 +18,7 @@ public:
     virtual ~SkRgnBuilder();
 
     // returns true if it could allocate the working storage needed
-    bool init(int maxHeight, int maxTransitions);
+    bool init(int maxHeight, int maxTransitions, bool pathIsInverse);
 
     void done() {
         if (fCurrScanline != NULL) {
@@ -102,15 +102,29 @@ SkRgnBuilder::~SkRgnBuilder() {
     sk_free(fStorage);
 }
 
-bool SkRgnBuilder::init(int maxHeight, int maxTransitions) {
+bool SkRgnBuilder::init(int maxHeight, int maxTransitions, bool pathIsInverse) {
     if ((maxHeight | maxTransitions) < 0) {
         return false;
     }
 
     Sk64 count, size;
 
+    if (pathIsInverse) {
+        // allow for additional X transitions to "invert" each scanline
+        // [ L' ... normal transitions ... R' ]
+        //
+        maxTransitions += 2;
+    }
+
     // compute the count with +1 and +3 slop for the working buffer
     count.setMul(maxHeight + 1, 3 + maxTransitions);
+
+    if (pathIsInverse) {
+        // allow for two "empty" rows for the top and bottom
+        //      [ Y, 1, L, R, S] == 5 (*2 for top and bottom)
+        count.add(10);
+    }
+
     if (!count.is32() || count.isNeg()) {
         return false;
     }
@@ -120,7 +134,7 @@ bool SkRgnBuilder::init(int maxHeight, int maxTransitions) {
     if (!size.is32() || size.isNeg()) {
         return false;
     }
-
+    
     fStorage = (SkRegion::RunType*)sk_malloc_flags(size.get32(), 0);
     if (NULL == fStorage) {
         return false;
@@ -312,7 +326,9 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
 
     SkRgnBuilder builder;
 
-    if (!builder.init(bot - top, SkMax32(pathTransitions, clipTransitions))) {
+    if (!builder.init(bot - top,
+                      SkMax32(pathTransitions, clipTransitions),
+                      path.isInverseFillType())) {
         // can't allocate working space, so return false
         return this->setEmpty();
     }

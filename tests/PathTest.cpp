@@ -2599,10 +2599,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_bad_cubic_crbug234190();
     test_android_specific_behavior(reporter);
     test_path_close_issue1474(reporter);
-    
-    if (false) {    // will remove when fix lands
-        test_path_to_region(reporter);
-    }
+    test_path_to_region(reporter);
 }
 
 #include "TestClassDef.h"
