@@ -12,6 +12,7 @@
 #ifdef SK_DEBUG
 #include "SkString.h"
 
+#ifdef SK_SUPPORT_UNITTEST
     // compress names 6 chars per long (packed 5 bits/char )
         // note: little advantage to splitting chars across longs, since 3 longs at 2 unused bits each
         // allow for one additional split char (vs. the 18 unsplit chars in the three longs)
@@ -175,9 +176,8 @@ static const struct SkNameRGB {
     { "yellowgreen",          0x9ACD32 }
 };
 
-int colorNamesSize = sizeof(colorNames) / sizeof(colorNames[0]);
+int colorNamesSize = SK_ARRAY_COUNT(colorNames);
 
-#ifdef SK_SUPPORT_UNITTEST
 static void CreateTable() {
     SkString comment;
     size_t originalSize = 0;
