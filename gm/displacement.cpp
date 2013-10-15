@@ -65,7 +65,7 @@ protected:
 
     void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) {
         canvas->save();
-        canvas->translate(x, y);
+        canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
         canvas->clipRect(SkRect::MakeWH(SkIntToScalar(fBitmap.width()), SkIntToScalar(fBitmap.height())));
         canvas->drawBitmap(fBitmap, 0, 0, &paint);
         canvas->restore();
