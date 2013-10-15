@@ -34,3 +34,8 @@ pdf-poppler
 # Added by senorblanco as part of https://codereview.chromium.org/26531002/.
 # New test cases added; will need rebaseline.
 displacement
+
+# Added by bsalomon as part of https://codereview.chromium.org/27170003/
+# images differ in lsb
+complexclip_aa_gpu
+complexclip_aa_laye_gpu
