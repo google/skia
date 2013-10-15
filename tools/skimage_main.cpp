@@ -93,6 +93,21 @@ static void make_outname(SkString* dst, const char outDir[], const char src[],
 
 // Store the names of the filenames to report later which ones failed, succeeded, and were
 // invalid.
+// FIXME: Add more arrays, for more specific types of errors, and make the output simpler.
+// If each array holds one type of error, the output can change from:
+//
+// Failures:
+//      <image> failed for such and such reason
+//      <image> failed for some different reason
+//
+// to:
+//
+// Such and such failures:
+//      <image>
+//
+// Different reason failures:
+//      <image>
+//
 static SkTArray<SkString, false> gInvalidStreams;
 static SkTArray<SkString, false> gMissingCodecs;
 static SkTArray<SkString, false> gDecodeFailures;
@@ -104,6 +119,9 @@ static SkTArray<SkString, false> gFailedSubsetDecodes;
 // the bots will not turn red with each new image test.
 static SkTArray<SkString, false> gMissingExpectations;
 static SkTArray<SkString, false> gMissingSubsetExpectations;
+// For files that are expected to fail.
+static SkTArray<SkString, false> gKnownFailures;
+static SkTArray<SkString, false> gKnownSubsetFailures;
 
 static SkBitmap::Config gPrefConfig(SkBitmap::kNo_Config);
 
@@ -188,24 +206,15 @@ static void write_expectations(const SkBitmap& bitmap, const char* filename) {
 }
 
 /**
- *  Return true if this filename is a known failure, and therefore a failure
- *  to decode should be ignored.
- */
-static bool expect_to_fail(const char* filename) {
-    if (NULL == gJsonExpectations.get()) {
-        return false;
-    }
-    skiagm::Expectations jsExpectations = gJsonExpectations->get(filename);
-    return jsExpectations.ignoreFailure();
-}
-
-/**
  *  Compare against an expectation for this filename, if there is one.
  *  @param digest GmResultDigest, computed from the decoded bitmap, to compare to the
- *           expectation.
+ *          expectation.
  *  @param filename String used to find the expected value.
  *  @param failureArray Array to add a failure message to on failure.
- *  @param missingArray Array to add missing expectation to on failure.
+ *  @param missingArray Array to add failure message to when missing image
+ *          expectation.
+ *  @param ignoreArray Array to add failure message to when the image does not match
+ *          the expectation, but this is a failure we can ignore.
  *  @return bool True in any of these cases:
  *                  - the bitmap matches the expectation.
  *               False in any of these cases:
@@ -217,7 +226,8 @@ static bool expect_to_fail(const char* filename) {
 static bool compare_to_expectations_if_necessary(const skiagm::GmResultDigest& digest,
                                                  const char* filename,
                                                  SkTArray<SkString, false>* failureArray,
-                                                 SkTArray<SkString, false>* missingArray) {
+                                                 SkTArray<SkString, false>* missingArray,
+                                                 SkTArray<SkString, false>* ignoreArray) {
     if (!digest.isValid()) {
         if (failureArray != NULL) {
             failureArray->push_back().printf("decoded %s, but could not create a GmResultDigest.",
@@ -243,7 +253,10 @@ static bool compare_to_expectations_if_necessary(const skiagm::GmResultDigest& d
         return true;
     }
 
-    if (failureArray != NULL) {
+    if (jsExpectation.ignoreFailure()) {
+        ignoreArray->push_back().printf("%s does not match expectation, but this is known.",
+                                        filename);
+    } else if (failureArray != NULL) {
         failureArray->push_back().printf("decoded %s, but the result does not match "
                                          "expectations.",
                                          filename);
@@ -410,12 +423,26 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
 
     if (!codec->decode(&stream, &bitmap, gPrefConfig,
                        SkImageDecoder::kDecodePixels_Mode)) {
-        if (expect_to_fail(filename)) {
-            gSuccessfulDecodes.push_back().appendf(
-                "failed to decode %s, which is a known failure.", srcPath);
-        } else {
-            gDecodeFailures.push_back().set(srcPath);
+        if (NULL != gJsonExpectations.get()) {
+            skiagm::Expectations jsExpectations = gJsonExpectations->get(filename);
+            if (jsExpectations.ignoreFailure()) {
+                // This is a known failure.
+                gKnownFailures.push_back().appendf(
+                    "failed to decode %s, which is a known failure.", srcPath);
+                return;
+            }
+            if (jsExpectations.empty()) {
+                // This is a failure, but it is a new file. Mark it as missing, with
+                // a note that it should be marked failing.
+                gMissingExpectations.push_back().appendf(
+                    "new file %s (with no expectations) FAILED to decode.", srcPath);
+                return;
+            }
         }
+
+        // If there was a failure, and either there was no expectations file, or
+        // the expectations file listed a valid expectation, report the failure.
+        gDecodeFailures.push_back().set(srcPath);
         return;
     }
 
@@ -438,7 +465,8 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
     skiagm::GmResultDigest digest(bitmap);
     if (compare_to_expectations_if_necessary(digest, filename,
                                              &gDecodeFailures,
-                                             &gMissingExpectations)) {
+                                             &gMissingExpectations,
+                                             &gKnownFailures)) {
         gSuccessfulDecodes.push_back().printf("%s [%d %d]", srcPath, bitmap.width(),
                                               bitmap.height());
     } else if (!FLAGS_mismatchPath.isEmpty()) {
@@ -491,7 +519,8 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
                     if (compare_to_expectations_if_necessary(subsetDigest,
                                                              subsetName.c_str(),
                                                              &gFailedSubsetDecodes,
-                                                             &gMissingSubsetExpectations)) {
+                                                             &gMissingSubsetExpectations,
+                                                             &gKnownSubsetFailures)) {
                         gSuccessfulSubsetDecodes.push_back().printf("Decoded subset %s from %s",
                                                               subsetDim.c_str(), srcPath);
                     } else if (!FLAGS_mismatchPath.isEmpty()) {
@@ -714,7 +743,10 @@ int tool_main(int argc, char** argv) {
         failed |= print_strings("Failed subset decodes", gFailedSubsetDecodes);
         print_strings("Decoded subsets", gSuccessfulSubsetDecodes);
         print_strings("Missing subset expectations", gMissingSubsetExpectations);
+        print_strings("Known subset failures", gKnownSubsetFailures);
     }
+
+    print_strings("Known failures", gKnownFailures);
 
     return failed ? -1 : 0;
 }

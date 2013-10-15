@@ -39,6 +39,66 @@ def DieIfFilesMismatch(expected, actual):
             expected, actual)
         exit(1)
 
+def test_invalid_file(file_dir, skimage_binary):
+    """ Test the return value of skimage when an invalid file is decoded.
+        If there is no expectation file, or the file expects a particular
+        result, skimage should return nonzero indicating failure.
+        If the file has no expectation, or ignore-failure is set to true,
+        skimage should return zero indicating success. """
+    invalid_file = os.path.join(file_dir, "skimage", "input", "bad-images",
+                                "invalid.png")
+    # No expectations file:
+    args = [skimage_binary, "--readPath", invalid_file]
+    result = subprocess.call(args)
+    if 0 == result:
+      print "'%s' should have reported failure!" % " ".join(args)
+      exit(1)
+
+    # Directory holding all expectations files
+    expectations_dir = os.path.join(file_dir, "skimage", "input", "bad-images")
+
+    # Expectations file expecting a valid decode:
+    incorrect_expectations = os.path.join(expectations_dir,
+                                          "incorrect-results.json")
+    args = [skimage_binary, "--readPath", invalid_file,
+            "--readExpectationsPath", incorrect_expectations]
+    result = subprocess.call(args)
+    if 0 == result:
+      print "'%s' should have reported failure!" % " ".join(args)
+      exit(1)
+
+    # Empty expectations:
+    empty_expectations = os.path.join(expectations_dir, "empty-results.json")
+    subprocess.check_call([skimage_binary, "--readPath", invalid_file,
+                           "--readExpectationsPath", empty_expectations])
+
+    # Ignore failure:
+    ignore_expectations = os.path.join(expectations_dir, "ignore-results.json")
+    subprocess.check_call([skimage_binary, "--readPath", invalid_file,
+                           "--readExpectationsPath", ignore_expectations])
+
+def test_incorrect_expectations(file_dir, skimage_binary):
+    """ Test that comparing to incorrect expectations fails, unless
+        ignore-failures is set to true. """
+    valid_file = os.path.join(file_dir, "skimage", "input",
+                                    "images-with-known-hashes",
+                                    "1209453360120438698.png")
+    expectations_dir = os.path.join(file_dir, "skimage", "input",
+                                    "images-with-known-hashes")
+
+    incorrect_results = os.path.join(expectations_dir,
+                                     "incorrect-results.json")
+    args = [skimage_binary, "--readPath", valid_file, "--readExpectationsPath",
+            incorrect_results]
+    result = subprocess.call(args)
+    if 0 == result:
+      print "'%s' should have reported failure!" % " ".join(args)
+      exit(1)
+
+    ignore_results = os.path.join(expectations_dir, "ignore-failures.json")
+    subprocess.check_call([skimage_binary, "--readPath", valid_file,
+                           "--readExpectationsPath", ignore_results])
+
 def main():
     # Use the directory of this file as the out directory
     file_dir = os.path.abspath(os.path.dirname(__file__))
@@ -68,8 +128,8 @@ def main():
     subprocess.check_call([skimage_binary, "--readPath", images_dir,
                            "--readExpectationsPath", expectations_path])
 
-    # TODO(scroggo): Add a test that compares expectations and image files that
-    # are known to NOT match, and make sure it returns an error.
+    test_incorrect_expectations(file_dir=file_dir,
+                                skimage_binary=skimage_binary)
 
     # Generate an expectations file from an empty directory.
     empty_dir = tempfile.mkdtemp()
@@ -90,6 +150,8 @@ def main():
     golden_expectations = os.path.join(file_dir, "skimage", "output-expected",
                                        "nonexistent-dir", "expectations.json")
     DieIfFilesMismatch(expected=golden_expectations, actual=expectations_path)
+
+    test_invalid_file(file_dir=file_dir, skimage_binary=skimage_binary)
 
     # Done with all tests.
     print "Self tests succeeded!"

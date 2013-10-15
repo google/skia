@@ -1,0 +1,16 @@
+{
+   "actual-results" : {
+      "failed" : null,
+      "failure-ignored" : null,
+      "no-comparison" : null,
+      "succeeded" : null
+   },
+   "expected-results" : {
+      "invalid.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 8011846386646810712 ]
+         ],
+         "ignore-failure" : false
+      }
+   }
+}
