@@ -155,4 +155,3 @@ SkData* SkData::NewWithCString(const char cstr[]) {
     }
     return NewWithCopy(cstr, size);
 }
-

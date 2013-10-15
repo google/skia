@@ -1125,7 +1125,7 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
 
     //
     //  Do these after we've written kPaintOp_DrawOp
-    
+
     if (base.getAnnotation() != paint.getAnnotation()) {
         if (NULL == paint.getAnnotation()) {
             this->writeOp(kSetAnnotation_DrawOp, 0, 0);
@@ -1133,10 +1133,10 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
             SkOrderedWriteBuffer buffer(1024);
             paint.getAnnotation()->writeToBuffer(buffer);
             size = buffer.bytesWritten();
-            
+
             SkAutoMalloc storage(size);
             buffer.writeToMemory(storage.get());
-            
+
             this->writeOp(kSetAnnotation_DrawOp, 0, 1);
             fWriter.write32(size);
             fWriter.write(storage.get(), size);

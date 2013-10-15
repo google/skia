@@ -2186,7 +2186,7 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
         SkSafeUnref(this->setRasterizer(buffer.readFlattenableT<SkRasterizer>()));
         SkSafeUnref(this->setLooper(buffer.readFlattenableT<SkDrawLooper>()));
         SkSafeUnref(this->setImageFilter(buffer.readFlattenableT<SkImageFilter>()));
-        
+
         if (buffer.readBool()) {
             this->setAnnotation(SkNEW_ARGS(SkAnnotation, (buffer)))->unref();
         }

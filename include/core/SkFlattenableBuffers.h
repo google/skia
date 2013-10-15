@@ -98,7 +98,7 @@ public:
         this->readPoint(&point);
         return point;
     }
-    
+
     SkData* readByteArrayAsData() {
         size_t len = this->getArrayCount();
         void* buffer = sk_malloc_throw(len);

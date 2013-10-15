@@ -673,7 +673,7 @@ static void typeface_rp(SkCanvas*, SkReader32* reader, uint32_t,
 static void annotation_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
                           SkGPipeState* state) {
     SkPaint* p = state->editPaint();
-    
+
     if (SkToBool(PaintOp_unpackData(op32))) {
         const size_t size = reader->readU32();
         SkAutoMalloc storage(size);
