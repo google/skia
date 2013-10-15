@@ -2398,8 +2398,8 @@ inline bool can_blit_framebuffer(const GrSurface* dst,
                                  const GrSurface* src,
                                  const GrGpuGL* gpu,
                                  bool* wouldNeedTempFBO = NULL) {
-    if (gpu->glCaps().isConfigRenderable(dst->config()) &&
-        gpu->glCaps().isConfigRenderable(src->config()) &&
+    if (gpu->glCaps().isConfigRenderable(dst->config(), dst->desc().fSampleCnt > 0) &&
+        gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
         gpu->glCaps().usesMSAARenderBuffers()) {
         // ES3 doesn't allow framebuffer blits when the src has MSAA and the configs don't match
         // or the rects are not the same (not just the same size but have the same edges).
@@ -2439,8 +2439,10 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
     if (NULL != srcRT && srcRT->renderFBOID() != srcRT->textureFBOID()) {
         return false;
     }
-    if (gpu->glCaps().isConfigRenderable(src->config()) && NULL != dst->asTexture() &&
-        dst->origin() == src->origin() && kIndex_8_GrPixelConfig != src->config()) {
+    if (gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
+        NULL != dst->asTexture() &&
+        dst->origin() == src->origin() &&
+        kIndex_8_GrPixelConfig != src->config()) {
         if (NULL != wouldNeedTempFBO) {
             *wouldNeedTempFBO = NULL == src->asRenderTarget();
         }

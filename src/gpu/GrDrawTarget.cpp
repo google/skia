@@ -1047,7 +1047,10 @@ void GrDrawTargetCaps::print() const {
     SkASSERT(!fConfigRenderSupport[kUnknown_GrPixelConfig]);
     for (size_t i = 0; i < SK_ARRAY_COUNT(kConfigNames); ++i)  {
         if (i != kUnknown_GrPixelConfig) {
-            GrPrintf("%s is renderable: %s\n", kConfigNames[i], gNY[fConfigRenderSupport[i]]);
+            GrPrintf("%s is renderable: %s, with MSAA: %s\n",
+                     kConfigNames[i],
+                     gNY[fConfigRenderSupport[i][0]],
+                     gNY[fConfigRenderSupport[i][1]]);
         }
     }
 }

@@ -1687,9 +1687,8 @@ GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-bool GrContext::isConfigRenderable(GrPixelConfig config) const {
-    return fGpu->caps()->isConfigRenderable(config);
+bool GrContext::isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
+    return fGpu->caps()->isConfigRenderable(config, withMSAA);
 }
 
 static inline intptr_t setOrClear(intptr_t bits, int shift, intptr_t pred) {

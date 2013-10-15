@@ -288,6 +288,7 @@ private:
 
     void initFSAASupport(const GrGLContextInfo&, const GrGLInterface*);
     void initStencilFormats(const GrGLContextInfo&);
+    // This must be called after initFSAASupport().
     void initConfigRenderableTable(const GrGLContextInfo&);
 
     // tracks configs that have been verified to pass the FBO completeness when

@@ -218,7 +218,7 @@ GrEffectRef* BATShader::asNewEffect(GrContext* context, const SkPaint& paint) co
     }
 
     GrTextureDesc maskDesc;
-    if (context->isConfigRenderable(kAlpha_8_GrPixelConfig)) {
+    if (context->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
         maskDesc.fConfig = kAlpha_8_GrPixelConfig;
     } else {
         maskDesc.fConfig = kRGBA_8888_GrPixelConfig;

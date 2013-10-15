@@ -286,7 +286,7 @@ public:
     /**
      * Can the provided configuration act as a color render target?
      */
-    bool isConfigRenderable(GrPixelConfig config) const;
+    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const;
 
     /**
      * Return the max width or height of a render target supported by the

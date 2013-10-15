@@ -113,6 +113,10 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
     if (kUnknown_GrPixelConfig == desc.fConfig) {
         return NULL;
     }
+    if ((desc.fFlags & kRenderTarget_GrTextureFlagBit) &&
+        !this->caps()->isConfigRenderable(desc.fConfig, desc.fSampleCnt > 0)) {
+        return NULL;
+    }
 
     this->handleDirtyContext();
     GrTexture* tex = this->onCreateTexture(desc, srcData, rowBytes);

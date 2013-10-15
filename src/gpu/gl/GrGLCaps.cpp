@@ -368,32 +368,54 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
     // Same as ES 2.0 except R8 and RGBA8 are supported without extensions (the functions called
     // below already account for this).
 
+    enum {
+        kNo_MSAA = 0,
+        kYes_MSAA = 1,
+    };
+
     if (kDesktop_GrGLBinding == ctxInfo.binding()) {
         // Post 3.0 we will get R8
         // Prior to 3.0 we will get ALPHA8 (with GL_ARB_framebuffer_object)
         if (ctxInfo.version() >= GR_GL_VER(3,0) ||
             ctxInfo.hasExtension("GL_ARB_framebuffer_object")) {
-            fConfigRenderSupport[kAlpha_8_GrPixelConfig] = true;
+            fConfigRenderSupport[kAlpha_8_GrPixelConfig][kNo_MSAA] = true;
+            fConfigRenderSupport[kAlpha_8_GrPixelConfig][kYes_MSAA] = true;
         }
     } else {
         // On ES we can only hope for R8
-        fConfigRenderSupport[kAlpha_8_GrPixelConfig] = fTextureRedSupport;
+        fConfigRenderSupport[kAlpha_8_GrPixelConfig][kNo_MSAA] = fTextureRedSupport;
+        fConfigRenderSupport[kAlpha_8_GrPixelConfig][kYes_MSAA] = fTextureRedSupport;
     }
 
     if (kDesktop_GrGLBinding != ctxInfo.binding()) {
         // only available in ES
-        fConfigRenderSupport[kRGB_565_GrPixelConfig] = true;
+        fConfigRenderSupport[kRGB_565_GrPixelConfig][kNo_MSAA] = true;
+        fConfigRenderSupport[kRGB_565_GrPixelConfig][kYes_MSAA] = true;
     }
 
     // we no longer support 444 as a render target
-    fConfigRenderSupport[kRGBA_4444_GrPixelConfig] = false;
+    fConfigRenderSupport[kRGBA_4444_GrPixelConfig][kNo_MSAA]  = false;
+    fConfigRenderSupport[kRGBA_4444_GrPixelConfig][kYes_MSAA]  = false;
 
     if (this->fRGBA8RenderbufferSupport) {
-        fConfigRenderSupport[kRGBA_8888_GrPixelConfig] = true;
+        fConfigRenderSupport[kRGBA_8888_GrPixelConfig][kNo_MSAA]  = true;
+        fConfigRenderSupport[kRGBA_4444_GrPixelConfig][kYes_MSAA]  = false;
     }
 
     if (this->fBGRAFormatSupport) {
-        fConfigRenderSupport[kBGRA_8888_GrPixelConfig] = true;
+        fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kNo_MSAA]  = true;
+        // The GL_EXT_texture_format_BGRA8888 extension does not add BGRA to the list of
+        // configs that are color-renderable and can be passed to glRenderBufferStorageMultisample.
+        fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kYes_MSAA] =
+            !fBGRAIsInternalFormat || !this->usesMSAARenderBuffers();
+    }
+
+    // If we don't support MSAA then undo any places above where we set a config as renderable with
+    // msaa.
+    if (kNone_MSFBOType == fMSFBOType) {
+        for (int i = 0; i < kGrPixelConfigCnt; ++i) {
+            fConfigRenderSupport[i][kYes_MSAA] = false;
+        }
     }
 }
 

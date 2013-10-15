@@ -44,12 +44,9 @@ public:
     // Will be 0 if MSAA is not supported
     int maxSampleCount() const { return fMaxSampleCount; }
 
-    /**
-     * Can the provided configuration act as a render target?
-     */
-    bool isConfigRenderable(GrPixelConfig config) const {
+    bool isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
         SkASSERT(kGrPixelConfigCnt > config);
-        return fConfigRenderSupport[config];
+        return fConfigRenderSupport[config][withMSAA];
     }
 
 protected:
@@ -70,7 +67,8 @@ protected:
     int fMaxTextureSize;
     int fMaxSampleCount;
 
-    bool fConfigRenderSupport[kGrPixelConfigCnt];
+    // The first entry for each config is without msaa and the second is with.
+    bool fConfigRenderSupport[kGrPixelConfigCnt][2];
 
     typedef SkRefCnt INHERITED;
 };
