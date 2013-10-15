@@ -8,9 +8,63 @@
 #include "Test.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkData.h"
+#include "SkPaint.h"
 #include "SkShader.h"
+#include "SkSurface.h"
 #include "SkRandom.h"
 #include "SkMatrixUtils.h"
+
+#include "SkLazyPixelRef.h"
+#include "SkLruImageCache.h"
+
+// A BitmapFactory that always fails when asked to return pixels.
+static bool FailureDecoder(const void* data, size_t length, SkImage::Info* info,
+                           const SkBitmapFactory::Target* target) {
+    if (info) {
+        info->fWidth = info->fHeight = 100;
+        info->fColorType = SkImage::kRGBA_8888_ColorType;
+        info->fAlphaType = kPremul_SkAlphaType;
+    }
+    // this will deliberately return false if they are asking us to decode
+    // into pixels.
+    return NULL == target;
+}
+
+// crbug.com/295895
+// Crashing in skia when a pixelref fails in lockPixels
+//
+static void test_faulty_pixelref(skiatest::Reporter* reporter) {
+    // need a cache, but don't expect to use it, so the budget is not critical
+    SkLruImageCache cache(10 * 1000);
+    // construct a garbage data represent "bad" encoded data.
+    SkAutoDataUnref data(SkData::NewFromMalloc(malloc(1000), 1000));
+    SkAutoTUnref<SkPixelRef> pr(new SkLazyPixelRef(data, FailureDecoder, &cache));
+    
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+    bm.setPixelRef(pr);
+    // now our bitmap has a pixelref, but we know it will fail to lock
+
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(200, 200));
+    SkCanvas* canvas = surface->getCanvas();
+
+    const SkPaint::FilterLevel levels[] = {
+        SkPaint::kNone_FilterLevel,
+        SkPaint::kLow_FilterLevel,
+        SkPaint::kMedium_FilterLevel,
+        SkPaint::kHigh_FilterLevel,
+    };
+
+    SkPaint paint;
+    canvas->scale(2, 2);    // need a scale, otherwise we may ignore filtering
+    for (size_t i = 0; i < SK_ARRAY_COUNT(levels); ++i) {
+        paint.setFilterLevel(levels[i]);
+        canvas->drawBitmap(bm, 0, 0, &paint);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 static void rand_matrix(SkMatrix* mat, SkRandom& rand, unsigned mask) {
     mat->setIdentity();
@@ -268,6 +322,10 @@ static void TestDrawBitmapRect(skiatest::Reporter* reporter) {
     test_giantrepeat_crbug118018(reporter);
 
     test_treatAsSprite(reporter);
+    
+    if (false) {    // will enable when fix lands
+        test_faulty_pixelref(reporter);
+    }
 }
 
 #include "TestClassDef.h"
