@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
@@ -18,6 +18,50 @@
 #include "SkSurface.h"
 #include "SkTypes.h"
 #include "SkWriter32.h"
+
+static void make_path0(SkPath* path) {
+    // from  *  https://code.google.com/p/skia/issues/detail?id=1706
+
+    path->moveTo(146.939f, 1012.84f);
+    path->lineTo(181.747f, 1009.18f);
+    path->lineTo(182.165f, 1013.16f);
+    path->lineTo(147.357f, 1016.82f);
+    path->lineTo(146.939f, 1012.84f);
+    path->close();
+}
+
+static void make_path1(SkPath* path) {
+    path->addRect(SkRect::MakeXYWH(10, 10, 10, 1));
+}
+
+typedef void (*PathProc)(SkPath*);
+
+/*
+ *  Regression test: we used to crash (overwrite internal storage) during
+ *  construction of the region when the path was INVERSE. That is now fixed,
+ *  so test these regions (which used to assert/crash).
+ *
+ *  https://code.google.com/p/skia/issues/detail?id=1706
+ */
+static void test_path_to_region(skiatest::Reporter* reporter) {
+    PathProc procs[] = {
+        make_path0,
+        make_path1,
+    };
+    
+    SkRegion clip;
+    clip.setRect(0, 0, 1255, 1925);
+    
+    for (size_t i = 0; i < SK_ARRAY_COUNT(procs); ++i) {
+        SkPath path;
+        procs[i](&path);
+        
+        SkRegion rgn;
+        rgn.setPath(path, clip);
+        path.toggleInverseFillType();
+        rgn.setPath(path, clip);
+    }
+}
 
 #if defined(WIN32)
     #define SUPPRESS_VISIBILITY_WARNING
@@ -2555,6 +2599,10 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_bad_cubic_crbug234190();
     test_android_specific_behavior(reporter);
     test_path_close_issue1474(reporter);
+    
+    if (true) {    // will remove when fix lands
+        test_path_to_region(reporter);
+    }
 }
 
 #include "TestClassDef.h"
