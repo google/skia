@@ -2600,7 +2600,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_android_specific_behavior(reporter);
     test_path_close_issue1474(reporter);
     
-    if (true) {    // will remove when fix lands
+    if (false) {    // will remove when fix lands
         test_path_to_region(reporter);
     }
 }
