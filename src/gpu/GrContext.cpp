@@ -286,18 +286,18 @@ static void stretchImage(void* dst,
                          void* src,
                          int srcW,
                          int srcH,
-                         int bpp) {
+                         size_t bpp) {
     GrFixed dx = (srcW << 16) / dstW;
     GrFixed dy = (srcH << 16) / dstH;
 
     GrFixed y = dy >> 1;
 
-    int dstXLimit = dstW*bpp;
+    size_t dstXLimit = dstW*bpp;
     for (int j = 0; j < dstH; ++j) {
         GrFixed x = dx >> 1;
         void* srcRow = (uint8_t*)src + (y>>16)*srcW*bpp;
         void* dstRow = (uint8_t*)dst + j*dstW*bpp;
-        for (int i = 0; i < dstXLimit; i += bpp) {
+        for (size_t i = 0; i < dstXLimit; i += bpp) {
             memcpy((uint8_t*) dstRow + i,
                    (uint8_t*) srcRow + (x>>16)*bpp,
                    bpp);
@@ -374,7 +374,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         // no longer need to clamp at min RT size.
         rtDesc.fWidth  = GrNextPow2(desc.fWidth);
         rtDesc.fHeight = GrNextPow2(desc.fHeight);
-        int bpp = GrBytesPerPixel(desc.fConfig);
+        size_t bpp = GrBytesPerPixel(desc.fConfig);
         SkAutoSMalloc<128*128*4> stretchedPixels(bpp * rtDesc.fWidth * rtDesc.fHeight);
         stretchImage(stretchedPixels.get(), rtDesc.fWidth, rtDesc.fHeight,
                      srcData, desc.fWidth, desc.fHeight, bpp);

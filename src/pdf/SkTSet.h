@@ -291,12 +291,12 @@ public:
         // A O(n log n) algorithm is necessary as O(n^2) will choke some GMs.
         SkAutoMalloc sortedArray(fOrderedArray->bytes());
         T* sortedBase = reinterpret_cast<T*>(sortedArray.get());
-        size_t count = fOrderedArray->count();
+        int count = fOrderedArray->count();
         fOrderedArray->copyRange(sortedBase, 0, count);
 
         SkTQSort<T>(sortedBase, sortedBase + count - 1);
 
-        for (size_t i = 0; i < count; ++i) {
+        for (int i = 0; i < count; ++i) {
             if (sortedBase[i] != (*fSetArray)[i]) {
                 return false;
             }

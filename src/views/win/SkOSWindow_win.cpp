@@ -124,7 +124,7 @@ bool SkOSWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             }
         } break;
         case WM_UNICHAR:
-            this->handleChar(wParam);
+            this->handleChar((SkUnichar) wParam);
             return true;
         case WM_CHAR: {
             this->handleChar(SkUTF8_ToUnichar((char*)&wParam));

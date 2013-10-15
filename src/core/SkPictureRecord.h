@@ -130,8 +130,8 @@ private:
      * end of blocks could go unused). Possibly add a second addDraw that
      * operates in this manner.
      */
-    uint32_t addDraw(DrawType drawType, uint32_t* size) {
-        uint32_t offset = fWriter.size();
+    size_t addDraw(DrawType drawType, uint32_t* size) {
+        size_t offset = fWriter.size();
 
         this->predrawNotify();
 
@@ -202,7 +202,7 @@ public:
 
 #ifdef SK_DEBUG_VALIDATE
 public:
-    void validate(uint32_t initialOffset, uint32_t size) const;
+    void validate(size_t initialOffset, uint32_t size) const;
 private:
     void validateBitmaps() const;
     void validateMatrices() const;
@@ -211,7 +211,7 @@ private:
     void validateRegions() const;
 #else
 public:
-    void validate(uint32_t initialOffset, uint32_t size) const {
+    void validate(size_t initialOffset, uint32_t size) const {
         SkASSERT(fWriter.size() == initialOffset + size);
     }
 #endif

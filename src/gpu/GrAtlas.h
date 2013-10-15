@@ -54,7 +54,7 @@ private:
     GrRectanizer*           fRects;
     GrAtlasMgr*             fAtlasMgr;
     GrIPoint16              fOffset;
-    int                     fBytesPerPixel;
+    size_t                  fBytesPerPixel;
 
     friend class GrAtlasMgr;
 };

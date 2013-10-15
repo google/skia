@@ -17,7 +17,7 @@ public:
         fFontScalerKey = scaler->getKey();
     }
 
-    uint32_t getHash() const { return fFontScalerKey->getHash(); }
+    intptr_t getHash() const { return fFontScalerKey->getHash(); }
 
     static bool LT(const GrTextStrike& strike, const Key& key) {
         return *strike.getFontScalerKey() < *key.fFontScalerKey;

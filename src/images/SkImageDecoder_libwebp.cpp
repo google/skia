@@ -242,7 +242,7 @@ static bool webp_get_config_resize(WebPDecoderConfig* config,
 
     config->output.colorspace = mode;
     config->output.u.RGBA.rgba = (uint8_t*)decodedBitmap->getPixels();
-    config->output.u.RGBA.stride = decodedBitmap->rowBytes();
+    config->output.u.RGBA.stride = (int) decodedBitmap->rowBytes();
     config->output.u.RGBA.size = decodedBitmap->getSize();
     config->output.is_external_memory = 1;
 

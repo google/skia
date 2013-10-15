@@ -65,7 +65,7 @@ SkPDFResourceDict::SkPDFResourceDict() : SkPDFDict() {
 
     // Actual sub-dicts will be lazily added later
     fTypes.setCount(kResourceTypeCount);
-    for (size_t i=0; i < kResourceTypeCount; i++) {
+    for (int i=0; i < kResourceTypeCount; i++) {
         fTypes[i] = NULL;
     }
 }

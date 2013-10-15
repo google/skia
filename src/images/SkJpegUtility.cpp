@@ -69,9 +69,9 @@ static void sk_skip_input_data(j_decompress_ptr cinfo, long num_bytes) {
     skjpeg_source_mgr*  src = (skjpeg_source_mgr*)cinfo->src;
 
     if (num_bytes > (long)src->bytes_in_buffer) {
-        long bytesToSkip = num_bytes - src->bytes_in_buffer;
+        size_t bytesToSkip = num_bytes - src->bytes_in_buffer;
         while (bytesToSkip > 0) {
-            long bytes = (long)src->fStream->skip(bytesToSkip);
+            size_t bytes = src->fStream->skip(bytesToSkip);
             if (bytes <= 0 || bytes > bytesToSkip) {
 //              SkDebugf("xxxxxxxxxxxxxx failure to skip request %d returned %d\n", bytesToSkip, bytes);
                 cinfo->err->error_exit((j_common_ptr)cinfo);

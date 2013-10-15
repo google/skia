@@ -694,7 +694,7 @@ void SkGPipeCanvas::drawPaint(const SkPaint& paint) {
 }
 
 void SkGPipeCanvas::drawPoints(PointMode mode, size_t count,
-                                   const SkPoint pts[], const SkPaint& paint) {
+                               const SkPoint pts[], const SkPaint& paint) {
     if (count) {
         NOTIFY_SETUP(this);
         this->writePaint(paint);

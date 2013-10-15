@@ -20,7 +20,7 @@ static int count_glyphs(const uint16_t start[]) {
     while (*curr != gUniqueGlyphIDs_Sentinel) {
         curr += 1;
     }
-    return curr - start;
+    return static_cast<int>(curr - start);
 }
 
 class FontCacheBench : public SkBenchmark {
@@ -39,7 +39,7 @@ protected:
 
         const uint16_t* array = gUniqueGlyphIDs;
         while (*array != gUniqueGlyphIDs_Sentinel) {
-            size_t count = count_glyphs(array);
+            int count = count_glyphs(array);
             for (int i = 0; i < this->getLoops(); ++i) {
                 paint.measureText(array, count * sizeof(uint16_t));
             }

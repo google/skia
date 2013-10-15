@@ -2154,10 +2154,10 @@ size_t LogFontTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
     if (NULL == data) {
         length = 0;
     }
-    DWORD bufferSize = GetFontData(hdc, tag, offset, data, length);
+    DWORD bufferSize = GetFontData(hdc, tag, (DWORD) offset, data, (DWORD) length);
     if (bufferSize == GDI_ERROR) {
         call_ensure_accessible(lf);
-        bufferSize = GetFontData(hdc, tag, offset, data, length);
+        bufferSize = GetFontData(hdc, tag, (DWORD) offset, data, (DWORD) length);
     }
 
     SelectObject(hdc, savefont);

@@ -31,8 +31,8 @@ static void test_bsearch() {
         1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99
     };
 
-    for (size_t n = 0; n < GR_ARRAY_COUNT(array); n++) {
-        for (size_t i = 0; i < n; i++) {
+    for (int n = 0; n < static_cast<int>(GR_ARRAY_COUNT(array)); ++n) {
+        for (int i = 0; i < n; i++) {
             int index = GrTBSearch<int, int>(array, n, array[i]);
             SkASSERT(index == (int) i);
             index = GrTBSearch<int, int>(array, n, -array[i]);

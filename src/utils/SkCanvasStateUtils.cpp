@@ -60,7 +60,7 @@ struct SkCanvasLayerState {
     union {
         struct {
             RasterConfig config; // pixel format: a value from RasterConfigs.
-            uint32_t rowBytes;   // Number of bytes from start of one line to next.
+            size_t rowBytes;     // Number of bytes from start of one line to next.
             void* pixels;        // The pixels, all (height * rowBytes) of them.
         } raster;
         struct {

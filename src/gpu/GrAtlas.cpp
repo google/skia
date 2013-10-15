@@ -62,16 +62,14 @@ GrPlot::~GrPlot() {
     delete fRects;
 }
 
-static void adjust_for_offset(GrIPoint16* loc, const GrIPoint16& offset) {
+static inline void adjust_for_offset(GrIPoint16* loc, const GrIPoint16& offset) {
     loc->fX += offset.fX * GR_ATLAS_WIDTH;
     loc->fY += offset.fY * GR_ATLAS_HEIGHT;
 }
 
-static uint8_t* zero_fill(uint8_t* ptr, int count) {
-    while (--count >= 0) {
-        *ptr++ = 0;
-    }
-    return ptr;
+static inline uint8_t* zero_fill(uint8_t* ptr, size_t count) {
+    sk_bzero(ptr, count);
+    return ptr + count;
 }
 
 bool GrPlot::addSubImage(int width, int height, const void* image,
@@ -128,7 +126,7 @@ GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrPixelConfig config) {
     fTexture = NULL;
 
     // set up allocated plots
-    int bpp = GrBytesPerPixel(fPixelConfig);
+    size_t bpp = GrBytesPerPixel(fPixelConfig);
     fPlots = SkNEW_ARRAY(GrPlot, (GR_PLOT_WIDTH*GR_PLOT_HEIGHT));
     fFreePlots = NULL;
     GrPlot* currPlot = fPlots;
