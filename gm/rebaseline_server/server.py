@@ -19,6 +19,8 @@ import posixpath
 import re
 import shutil
 import sys
+import thread
+import time
 import urlparse
 
 # Imports from within Skia
@@ -38,6 +40,7 @@ import svn
 import results
 
 ACTUALS_SVN_REPO = 'http://skia-autogen.googlecode.com/svn/gm-actual'
+EXPECTATIONS_SVN_REPO = 'http://skia.googlecode.com/svn/trunk/expectations/gm'
 PATHSPLIT_RE = re.compile('/([^/]+)/(.+)')
 TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.realpath(__file__))))
@@ -65,7 +68,8 @@ class Server(object):
   def __init__(self,
                actuals_dir=DEFAULT_ACTUALS_DIR,
                expectations_dir=DEFAULT_EXPECTATIONS_DIR,
-               port=DEFAULT_PORT, export=False):
+               port=DEFAULT_PORT, export=False, editable=True,
+               reload_seconds=0):
     """
     Args:
       actuals_dir: directory under which we will check out the latest actual
@@ -74,33 +78,60 @@ class Server(object):
                         must already be in that directory)
       port: which TCP port to listen on for HTTP requests
       export: whether to allow HTTP clients on other hosts to access this server
+      editable: whether HTTP clients are allowed to submit new baselines
+      reload_seconds: polling interval with which to check for new results;
+                      if 0, don't check for new results at all
     """
     self._actuals_dir = actuals_dir
     self._expectations_dir = expectations_dir
     self._port = port
     self._export = export
+    self._editable = editable
+    self._reload_seconds = reload_seconds
 
   def is_exported(self):
     """ Returns true iff HTTP clients on other hosts are allowed to access
     this server. """
     return self._export
 
-  def fetch_results(self):
-    """ Create self.results, based on the expectations in
-    self._expectations_dir and the latest actuals from skia-autogen.
+  def is_editable(self):
+    """ Returns true iff HTTP clients are allowed to submit new baselines. """
+    return self._editable
 
-    TODO(epoger): Add a new --browseonly mode setting.  In that mode,
-    the gm-actuals and expectations will automatically be updated every few
-    minutes.  See discussion in https://codereview.chromium.org/24274003/ .
+  def reload_seconds(self):
+    """ Returns the result reload period in seconds, or 0 if we don't reload
+    results. """
+    return self._reload_seconds
+
+  def _update_results(self):
+    """ Create or update self.results, based on the expectations in
+    self._expectations_dir and the latest actuals from skia-autogen.
     """
-    logging.info('Checking out latest actual GM results from %s into %s ...' % (
-        ACTUALS_SVN_REPO, self._actuals_dir))
+    logging.info('Updating actual GM results in %s from SVN repo %s ...' % (
+        self._actuals_dir, ACTUALS_SVN_REPO))
     actuals_repo = svn.Svn(self._actuals_dir)
     if not os.path.isdir(self._actuals_dir):
       os.makedirs(self._actuals_dir)
       actuals_repo.Checkout(ACTUALS_SVN_REPO, '.')
     else:
       actuals_repo.Update('.')
+
+    # We only update the expectations dir if the server was run with a nonzero
+    # --reload argument; otherwise, we expect the user to maintain her own
+    # expectations as she sees fit.
+    #
+    # TODO(epoger): Use git instead of svn to check out expectations, since
+    # the Skia repo is moving to git.
+    if self._reload_seconds:
+      logging.info('Updating expected GM results in %s from SVN repo %s ...' % (
+          self._expectations_dir, EXPECTATIONS_SVN_REPO))
+      expectations_repo = svn.Svn(self._expectations_dir)
+      if not os.path.isdir(self._expectations_dir):
+        os.makedirs(self._expectations_dir)
+        expectations_repo.Checkout(EXPECTATIONS_SVN_REPO, '.')
+      else:
+        expectations_repo.Update('.')
+
     logging.info(
         'Parsing results from actuals in %s and expectations in %s ...' % (
         self._actuals_dir, self._expectations_dir))
@@ -108,12 +139,26 @@ class Server(object):
       actuals_root=self._actuals_dir,
       expected_root=self._expectations_dir)
 
+  def _result_reloader(self):
+    """ If --reload argument was specified, reload results at the appropriate
+    interval.
+    """
+    while self._reload_seconds:
+      time.sleep(self._reload_seconds)
+      with self.results_lock:
+        self._update_results()
+
   def run(self):
-    self.fetch_results()
+    self._update_results()
+    self.results_lock = thread.allocate_lock()
+    thread.start_new_thread(self._result_reloader, ())
+
     if self._export:
       server_address = ('', self._port)
-      logging.warning('Running in "export" mode. Users on other machines will '
-                      'be able to modify your GM expectations!')
+      if self._editable:
+        logging.warning('Running with combination of "export" and "editable" '
+                        'flags.  Users on other machines will '
+                        'be able to modify your GM expectations!')
     else:
       server_address = ('127.0.0.1', self._port)
     http_server = BaseHTTPServer.HTTPServer(server_address, HTTPRequestHandler)
@@ -162,17 +207,29 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       # to refer to the Server object, make Server a subclass of
       # HTTPServer, and then it could be available to the handler via
       # the handler's .server instance variable.
-      response_dict = _SERVER.results.get_results_of_type(type)
+
+      with _SERVER.results_lock:
+        response_dict = _SERVER.results.get_results_of_type(type)
+        time_updated = _SERVER.results.get_timestamp()
       response_dict['header'] = {
+        # Timestamps:
+        # 1. when this data was last updated
+        # 2. when the caller should check back for new data (if ever)
+        #
+        # We only return these timestamps if the --reload argument was passed;
+        # otherwise, we have no idea when the expectations were last updated
+        # (we allow the user to maintain her own expectations as she sees fit).
+        'timeUpdated': time_updated if _SERVER.reload_seconds() else None,
+        'timeNextUpdateAvailable': (
+            (time_updated+_SERVER.reload_seconds()) if _SERVER.reload_seconds()
+            else None),
+
         # Hash of testData, which the client must return with any edits--
         # this ensures that the edits were made to a particular dataset.
-        'data-hash': str(hash(repr(response_dict['testData']))),
+        'dataHash': str(hash(repr(response_dict['testData']))),
 
         # Whether the server will accept edits back.
-        # TODO(epoger): Not yet implemented, so hardcoding to False;
-        # once we implement the 'browseonly' mode discussed in
-        # https://codereview.chromium.org/24274003/#msg6 , this value will vary.
-        'isEditable': False,
+        'isEditable': _SERVER.is_editable(),
 
         # Whether the service is accessible from other hosts.
         'isExported': _SERVER.is_exported(),
@@ -180,6 +237,7 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.send_json_dict(response_dict)
     except:
       self.send_error(404)
+      raise
 
   def do_GET_static(self, path):
     """ Handle a GET request for a file under the 'static' directory.
@@ -259,6 +317,9 @@ def main():
                           'actual GM results. If this directory does not '
                           'exist, it will be created. Defaults to %(default)s'),
                     default=DEFAULT_ACTUALS_DIR)
+  parser.add_argument('--editable', action='store_true',
+                      help=('TODO(epoger): NOT YET IMPLEMENTED.  '
+                            'Allow HTTP clients to submit new baselines.'))
   parser.add_argument('--expectations-dir',
                     help=('Directory under which to find GM expectations; '
                           'defaults to %(default)s'),
@@ -268,15 +329,24 @@ def main():
                             'on localhost, allow HTTP clients on other hosts '
                             'to access this server.  WARNING: doing so will '
                             'allow users on other hosts to modify your '
-                            'GM expectations!'))
+                            'GM expectations, if combined with --editable.'))
   parser.add_argument('--port', type=int,
                       help=('Which TCP port to listen on for HTTP requests; '
                             'defaults to %(default)s'),
                       default=DEFAULT_PORT)
+  parser.add_argument('--reload', type=int,
+                      help=('How often (a period in seconds) to update the '
+                            'results.  If specified, both EXPECTATIONS_DIR and '
+                            'ACTUAL_DIR will be updated.  '
+                            'By default, we do not reload at all, and you '
+                            'must restart the server to pick up new data.'),
+                      default=0)
   args = parser.parse_args()
   global _SERVER
-  _SERVER = Server(expectations_dir=args.expectations_dir,
-                   port=args.port, export=args.export)
+  _SERVER = Server(actuals_dir=args.actuals_dir,
+                   expectations_dir=args.expectations_dir,
+                   port=args.port, export=args.export, editable=args.editable,
+                   reload_seconds=args.reload)
   _SERVER.run()
 
 if __name__ == '__main__':

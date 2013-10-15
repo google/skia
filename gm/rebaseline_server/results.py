@@ -16,6 +16,7 @@ import logging
 import os
 import re
 import sys
+import time
 
 # Imports from within Skia
 #
@@ -53,6 +54,13 @@ class Results(object):
     self._actual_builder_dicts = Results._get_dicts_from_root(actuals_root)
     self._expected_builder_dicts = Results._get_dicts_from_root(expected_root)
     self._combine_actual_and_expected()
+    self._timestamp = int(time.time())
+
+  def get_timestamp(self):
+    """Return the time at which this object was created, in seconds past epoch
+    (UTC).
+    """
+    return self._timestamp
 
   def get_results_of_type(self, type):
     """Return results of some/all tests (depending on 'type' parameter).
@@ -113,7 +121,12 @@ class Results(object):
     Returns:
       A meta-dictionary containing all the JSON dictionaries found within
       the directory tree, keyed by the builder name of each dictionary.
+
+    Raises:
+      IOError if root does not refer to an existing directory
     """
+    if not os.path.isdir(root):
+      raise IOError('no directory found at path %s' % root)
     meta_dict = {}
     for dirpath, dirnames, filenames in os.walk(root):
       for matching_filename in fnmatch.filter(filenames, pattern):

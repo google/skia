@@ -31,7 +31,8 @@ Loader.filter(
 
 Loader.controller(
   'Loader.Controller',
-  function($scope, $http, $filter, $location) {
+    function($scope, $http, $filter, $location) {
+    $scope.windowTitle = "Loading GM Results...";
     var resultsToLoad = $location.search().resultsToLoad;
     $scope.loadingMessage = "Loading results of type '" + resultsToLoad +
         "', please wait...";
@@ -44,6 +45,7 @@ Loader.controller(
         $scope.categories = data.categories;
         $scope.testData = data.testData;
         $scope.sortColumn = 'test';
+        $scope.showTodos = true;
 
         for (var i = 0; i < $scope.testData.length; i++) {
           $scope.testData[i].index = i;
@@ -59,11 +61,13 @@ Loader.controller(
 
         $scope.updateResults();
         $scope.loadingMessage = "";
+        $scope.windowTitle = "Current GM Results";
       }
     ).error(
       function(data, status, header, config) {
         $scope.loadingMessage = "Failed to load results of type '"
             + resultsToLoad + "'";
+        $scope.windowTitle = "Failed to Load GM Results";
       }
     );
 
@@ -107,6 +111,11 @@ Loader.controller(
         $scope.hiddenConfigs[thisConfig] = true;
       }
       $scope.areUpdatesPending = true;
+    }
+
+    $scope.localTimeString = function(secondsPastEpoch) {
+      var d = new Date(secondsPastEpoch * 1000);
+      return d.toString();
     }
 
     $scope.updateResults = function() {

@@ -1,19 +1,14 @@
 <!DOCTYPE html>
 
-<html ng-app="Loader">
+<html ng-app="Loader" ng-controller="Loader.Controller">
 
 <head>
-  <title>Current GM Results</title>
+  <title ng-bind="windowTitle"></title>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
   <script src="loader.js"></script>
 </head>
 
 <body>
-  <div ng-controller="Loader.Controller">
-
-  <!-- TODO(epoger): Add some indication of how old the
-  expected/actual data is -->
-
   <em>
     {{loadingMessage}}
   </em>
@@ -23,6 +18,9 @@
          style="background-color:#ffbb00">
       WARNING!  These results are editable and exported, so any user
       who can connect to this server over the network can modify them.
+    </div>
+    <div ng-hide="!(header.timeUpdated)">
+      Results current as of {{localTimeString(header.timeUpdated)}}
     </div>
   <table border="1">
     <tr>
@@ -83,22 +81,41 @@
   </table>
 
     <p>
-      TODO(epoger): Add ability to filter builder and test names
-      (using a free-form text field, with partial string match)
-      <br>
-      TODO(epoger): Add more columns, such as pixel diffs, notes/bugs,
-      ignoreFailure boolean
-      <br>
-      TODO(epoger): Improve the column sorting, as per
-      <a href="http://jsfiddle.net/vojtajina/js64b/14/">
-        http://jsfiddle.net/vojtajina/js64b/14/
-      </a>
-      <br>
-      TODO(epoger): Right now, if you change which column is used to
-      sort the data, the column widths may fluctuate based on the
-      longest string <i>currently visible</i> within the top {{displayLimit}}
-      results.  Can we fix the column widths to be wide enough to hold
-      any result, even the currently hidden results?
+      TODO(epoger):
+      <input type="checkbox" name="showTodosCheckbox" value="true"
+             ng-checked="showTodos == true"
+             ng-click="showTodos = !showTodos">
+      show
+      <ul ng-hide="!showTodos">
+        <li>
+          Implement editing of results (we have added the --editable
+          flag to the server, but it&#39;s not fully implemented yet).
+          <div ng-hide="!header.isEditable">
+            Currently selected items are: {{selectedItems}}
+          </div>
+        </li><li>
+          If server was run with --reload flag, automatically check for
+          new results and tell the user when new results are available
+          (the user can reload the page if he wants to see them).
+        </li><li>
+          Add ability to filter builder and test names
+          (using a free-form text field, with partial string match)
+        </li><li>
+          Add more columns, such as pixel diffs, notes/bugs,
+          ignoreFailure boolean
+        </li><li>
+          Improve the column sorting, as per
+          <a href="http://jsfiddle.net/vojtajina/js64b/14/">
+            http://jsfiddle.net/vojtajina/js64b/14/
+          </a>
+        </li><li>
+          Right now, if you change which column is used to
+          sort the data, the column widths may fluctuate based on the
+          longest string <i>currently visible</i> within the top {{displayLimit}}
+          results.  Can we fix the column widths to be wide enough to hold
+          any result, even the currently hidden results?
+        </li>
+      </ul>
       <p>
       Found {{filteredTestData.length}} matches, and displaying the first
       {{displayLimit}}: <br>
@@ -134,7 +151,6 @@
           </th>
           <th ng-hide="!header.isEditable">
             <!-- item-selection checkbox column -->
-            {{selectedItems}}  <!-- TODO(epoger): temporary debug output -->
           </th>
         </tr>
         <tr ng-repeat="result in limitedTestData">
@@ -160,7 +176,6 @@
                    ng-click="toggleItemSelected(result.index)">
         </tr>
       </table>
-  </div>
   </div>
 
   <!-- TODO(epoger): Can we get the base URLs (commondatastorage and
