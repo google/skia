@@ -19,7 +19,7 @@
     SkColorTable holds an array SkPMColors (premultiplied 32-bit colors) used by
     8-bit bitmaps, where the bitmap bytes are interpreted as indices into the colortable.
 */
-class SkColorTable : public SkFlattenable {
+class SkColorTable : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkColorTable)
 
@@ -75,11 +75,8 @@ public:
         SkDEBUGCODE(f16BitCacheLockCount -= 1);
     }
 
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorTable)
-
-protected:
     explicit SkColorTable(SkFlattenableReadBuffer&);
-    void flatten(SkFlattenableWriteBuffer&) const;
+    void writeToBuffer(SkFlattenableWriteBuffer&) const;
 
 private:
     SkPMColor*  fColors;
@@ -91,7 +88,7 @@ private:
 
     void inval16BitCache();
 
-    typedef SkFlattenable INHERITED;
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

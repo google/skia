@@ -100,7 +100,7 @@ SkColorTable::SkColorTable(SkFlattenableReadBuffer& buffer) {
 #endif
 }
 
-void SkColorTable::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkColorTable::writeToBuffer(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeUInt(fAlphaType);
     buffer.writeColorArray(fColors, fCount);
 }

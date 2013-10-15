@@ -46,7 +46,7 @@ void SkMallocPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeByteArray(fStorage, fSize);
     buffer.writeBool(fCTable != NULL);
     if (fCTable) {
-        buffer.writeFlattenable(fCTable);
+        fCTable->writeToBuffer(buffer);
     }
 }
 
@@ -56,7 +56,7 @@ SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer)
     fStorage = sk_malloc_throw(fSize);
     buffer.readByteArray(fStorage);
     if (buffer.readBool()) {
-        fCTable = buffer.readFlattenableT<SkColorTable>();
+        fCTable = SkNEW_ARGS(SkColorTable, (buffer));
     } else {
         fCTable = NULL;
     }
