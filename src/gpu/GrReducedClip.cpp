@@ -355,7 +355,13 @@ void reduced_stack_walker(const SkClipStack& stack,
                     break;
                 case SkRegion::kIntersect_Op:
                     // intersecting with the empty set yields the empty set
-                    skippable = kAllOut_InitialState == *initialState;
+                    if (kAllOut_InitialState == *initialState) {
+                        skippable = true;
+                    } else {
+                        // We can clear to zero and then simply draw the clip element.
+                        *initialState = kAllOut_InitialState;
+                        element->setOp(SkRegion::kReplace_Op);
+                    }
                     break;
                 case SkRegion::kUnion_Op:
                     if (kAllIn_InitialState == *initialState) {
