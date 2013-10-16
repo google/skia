@@ -1312,9 +1312,31 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
 
 }
 
+static void test_isRect_open_close(skiatest::Reporter* reporter) {
+    SkPath path;
+    bool isClosed;
+
+    path.moveTo(0, 0); path.lineTo(1, 0); path.lineTo(1, 1); path.lineTo(0, 1);
+
+    if (false) {
+        // I think these should pass, but isRect() doesn't behave
+        // this way... yet
+        REPORTER_ASSERT(reporter, path.isRect(NULL, NULL));
+        REPORTER_ASSERT(reporter, path.isRect(&isClosed, NULL));
+        REPORTER_ASSERT(reporter, !isClosed);
+    }
+
+    path.close();
+    REPORTER_ASSERT(reporter, path.isRect(NULL, NULL));
+    REPORTER_ASSERT(reporter, path.isRect(&isClosed, NULL));
+    REPORTER_ASSERT(reporter, isClosed);
+}
+
 // Simple isRect test is inline TestPath, below.
 // test_isRect provides more extensive testing.
 static void test_isRect(skiatest::Reporter* reporter) {
+    test_isRect_open_close(reporter);
+
     // passing tests (all moveTo / lineTo...
     SkPoint r1[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
     SkPoint r2[] = {{1, 0}, {1, 1}, {0, 1}, {0, 0}};
