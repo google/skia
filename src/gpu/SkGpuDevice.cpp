@@ -951,7 +951,16 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                 GrTexture* filtered;
 
                 if (paint.getMaskFilter()->filterMaskGPU(mask.texture(), maskRect, &filtered, true)) {
+                    // filterMaskGPU gives us ownership of a ref to the result
                     SkAutoTUnref<GrTexture> atu(filtered);
+
+                    // If the scratch texture that we used as the filter src also holds the filter
+                    // result then we must detach so that this texture isn't recycled for a later
+                    // draw.
+                    if (filtered == mask.texture()) {
+                        mask.detach();
+                        filtered->unref(); // detach transfers GrAutoScratchTexture's ref to us.
+                    }
 
                     if (draw_mask(fContext, maskRect, &grPaint, filtered)) {
                         // This path is completely drawn

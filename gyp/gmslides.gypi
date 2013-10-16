@@ -115,6 +115,7 @@
     '../gm/shadows.cpp',
     '../gm/shallowgradient.cpp',
     '../gm/simpleaaclip.cpp',
+    '../gm/skbug1719.cpp',
     '../gm/stringart.cpp',
     '../gm/spritebitmap.cpp',
     '../gm/srcmode.cpp',
