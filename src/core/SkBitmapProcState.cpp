@@ -299,6 +299,11 @@ bool SkBitmapProcState::lockBaseBitmap() {
         }
     }
     fScaledBitmap.lockPixels(); // just 'cause the cache made a copy :(
+    if (!fScaledBitmap.getPixels()) {
+        // TODO: find out how this can happen, and add a unittest to exercise
+        // inspired by BUG=chromium:295895
+        return false;
+    }
     fBitmap = &fScaledBitmap;
     return true;
 }
