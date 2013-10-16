@@ -53,6 +53,10 @@ protected:
 
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE;
 
+    Mode getMode() const {
+        return fMode;
+    }
+
 private:
     Mode    fMode;
     Coeff   fSrcCoeff, fDstCoeff;

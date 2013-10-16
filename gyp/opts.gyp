@@ -173,6 +173,7 @@
         '../src/opts/SkBitmapProcState_matrix_clamp_neon.h',
         '../src/opts/SkBitmapProcState_matrix_repeat_neon.h',
         '../src/opts/SkBlitRow_opts_arm_neon.cpp',
+        '../src/opts/SkXfermode_opts_arm_neon.cpp',
       ],
     },
   ],
