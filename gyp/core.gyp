@@ -22,7 +22,6 @@
         '../include/utils',
         '../include/xml',
         '../src/core',
-        '../src/opts',
         '../src/image',
       ],
       'sources': [
