@@ -129,8 +129,8 @@ public:
     }
 };
 
-
-int main(int argc, char** argv) {
+int tool_main(int argc, char** argv);
+int tool_main(int argc, char** argv) {
     SkGraphics::Init();
 
     SkCommandLineFlags::Parse(argc, argv);
@@ -164,3 +164,9 @@ int main(int argc, char** argv) {
 
     return reporter.failed() > 0;
 }
+
+#if !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_NACL)
+int main(int argc, char** argv) {
+    return tool_main(argc, argv);
+}
+#endif

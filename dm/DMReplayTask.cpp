@@ -19,7 +19,9 @@ ReplayTask::ReplayTask(const char* suffix,
 
 void ReplayTask::draw() {
     SkPicture picture;
-    SkCanvas* canvas = picture.beginRecording(fGM->width(), fGM->height(), 0 /*flags*/);
+    SkCanvas* canvas = picture.beginRecording(SkScalarCeilToInt(fGM->width()),
+                                              SkScalarCeilToInt(fGM->height()),
+                                              0 /*flags*/);
 
     canvas->concat(fGM->getInitialTransform());
     fGM->draw(canvas);
@@ -28,7 +30,7 @@ void ReplayTask::draw() {
     picture.endRecording();
 
     SkBitmap bitmap;
-    bitmap.setConfig(fConfig, fGM->width(), fGM->height());
+    bitmap.setConfig(fConfig, SkScalarCeilToInt(fGM->width()), SkScalarCeilToInt(fGM->height()));
     bitmap.allocPixels();
     bitmap.eraseColor(0x00000000);
 

@@ -24,7 +24,7 @@ CpuTask::CpuTask(const char* name,
 
 void CpuTask::draw() {
     SkBitmap bitmap;
-    bitmap.setConfig(fConfig, fGM->width(), fGM->height());
+    bitmap.setConfig(fConfig, SkScalarCeilToInt(fGM->width()), SkScalarCeilToInt(fGM->height()));
     bitmap.allocPixels();
     bitmap.eraseColor(0x00000000);
     SkCanvas canvas(bitmap);

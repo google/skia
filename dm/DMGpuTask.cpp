@@ -30,7 +30,7 @@ static void* new_gr_context_factory() {
 }
 
 static void delete_gr_context_factory(void* factory) {
-    return SkDELETE((GrContextFactory*) factory);
+    SkDELETE((GrContextFactory*) factory);
 }
 
 static GrContextFactory* get_gr_factory() {
@@ -40,7 +40,11 @@ static GrContextFactory* get_gr_factory() {
 
 void GpuTask::draw() {
     GrContext* gr = get_gr_factory()->get(fContextType);  // Will be owned by device.
-    SkGpuDevice device(gr, fConfig, fGM->width(), fGM->height(), fSampleCount);
+    SkGpuDevice device(gr,
+                       fConfig,
+                       SkScalarCeilToInt(fGM->width()),
+                       SkScalarCeilToInt(fGM->height()),
+                       fSampleCount);
     SkCanvas canvas(&device);
 
     canvas.concat(fGM->getInitialTransform());
@@ -48,7 +52,7 @@ void GpuTask::draw() {
     canvas.flush();
 
     SkBitmap bitmap;
-    bitmap.setConfig(fConfig, fGM->width(), fGM->height());
+    bitmap.setConfig(fConfig, SkScalarCeilToInt(fGM->width()), SkScalarCeilToInt(fGM->height()));
     canvas.readPixels(&bitmap, 0, 0);
 
     // We offload checksum comparison to the main CPU threadpool.
@@ -57,7 +61,7 @@ void GpuTask::draw() {
 }
 
 bool GpuTask::shouldSkip() const {
-    return fGM->getFlags() & skiagm::GM::kSkipGPU_Flag;
+    return SkToBool(fGM->getFlags() & skiagm::GM::kSkipGPU_Flag);
 }
 
 }  // namespace DM
