@@ -163,6 +163,8 @@ class JsonRebaseliner(object):
   #           rebaseline whatever configs the JSON results summary file tells
   #           us to
   #  add_new: if True, add expectations for tests which don't have any yet
+  #  add_ignored: if True, add expectations for tests for which failures are
+  #               currently ignored
   #  bugs: optional list of bug numbers which pertain to these expectations
   #  notes: free-form text notes to add to all updated expectations
   #  mark_unreviewed: if True, mark these expectations as NOT having been
@@ -177,9 +179,9 @@ class JsonRebaseliner(object):
   def __init__(self, expectations_root, expectations_input_filename,
                expectations_output_filename, actuals_base_url,
                actuals_filename, exception_handler,
-               tests=None, configs=None, add_new=False, bugs=None, notes=None,
-               mark_unreviewed=None, mark_ignore_failure=False,
-               from_trybot=False):
+               tests=None, configs=None, add_new=False, add_ignored=False,
+               bugs=None, notes=None, mark_unreviewed=None,
+               mark_ignore_failure=False, from_trybot=False):
     self._expectations_root = expectations_root
     self._expectations_input_filename = expectations_input_filename
     self._expectations_output_filename = expectations_output_filename
@@ -189,6 +191,7 @@ class JsonRebaseliner(object):
     self._actuals_filename = actuals_filename
     self._exception_handler = exception_handler
     self._add_new = add_new
+    self._add_ignored = add_ignored
     self._bugs = bugs
     self._notes = notes
     self._mark_unreviewed = mark_unreviewed
@@ -281,6 +284,8 @@ class JsonRebaseliner(object):
     sections = [gm_json.JSONKEY_ACTUALRESULTS_FAILED]
     if self._add_new:
       sections.append(gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON)
+    if self._add_ignored:
+      sections.append(gm_json.JSONKEY_ACTUALRESULTS_FAILUREIGNORED)
     results_to_update = self._GetActualResults(json_url=actuals_url,
                                                sections=sections)
 
@@ -365,6 +370,11 @@ parser.add_argument('--add-new', action='store_true',
                           'updating expectations for failing tests, add '
                           'expectations for tests which don\'t have '
                           'expectations yet.'))
+parser.add_argument('--add-ignored', action='store_true',
+                    help=('in addition to the standard behavior of '
+                          'updating expectations for failing tests, add '
+                          'expectations for tests for which failures are '
+                          'currently ignored.'))
 parser.add_argument('--bugs', metavar='BUG', type=int, nargs='+',
                     help=('Skia bug numbers (under '
                           'https://code.google.com/p/skia/issues/list ) which '
@@ -465,7 +475,8 @@ for builder in builders:
         actuals_base_url=args.actuals_base_url,
         actuals_filename=args.actuals_filename,
         exception_handler=exception_handler,
-        add_new=args.add_new, bugs=args.bugs, notes=args.notes,
+        add_new=args.add_new, add_ignored=args.add_ignored,
+        bugs=args.bugs, notes=args.notes,
         mark_unreviewed=args.unreviewed,
         mark_ignore_failure=args.ignore_failure,
         from_trybot=args.from_trybot)
