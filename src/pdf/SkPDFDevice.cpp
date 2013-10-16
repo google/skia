@@ -2028,23 +2028,100 @@ int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
     return resourceIndex;
 }
 
-void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
+void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
                                      const SkClipStack* clipStack,
-                                     const SkRegion& clipRegion,
-                                     const SkBitmap& bitmap,
+                                     const SkRegion& origClipRegion,
+                                     const SkBitmap& origBitmap,
                                      const SkIRect* srcRect,
                                      const SkPaint& paint) {
-    // TODO(edisonn): Perspective matrix support implemented here
+    SkMatrix matrix = origMatrix;
+    SkRegion perspectiveBounds;
+    const SkRegion* clipRegion = &origClipRegion;
+    SkBitmap perspectiveBitmap;
+    const SkBitmap* bitmap = &origBitmap;
+    SkBitmap tmpSubsetBitmap;
+
+    // Rasterize the bitmap using perspective in a new bitmap.
+    if (origMatrix.hasPerspective()) {
+        SkBitmap* subsetBitmap;
+        if (srcRect) {
+            if (!origBitmap.extractSubset(&tmpSubsetBitmap, *srcRect)) {
+               return;
+            }
+            subsetBitmap = &tmpSubsetBitmap;
+        } else {
+            subsetBitmap = &tmpSubsetBitmap;
+            *subsetBitmap = origBitmap;
+        }
+        srcRect = NULL;
+
+        // Transform the bitmap in the new space.
+        SkPath perspectiveOutline;
+        perspectiveOutline.addRect(
+                SkRect::MakeWH(SkIntToScalar(subsetBitmap->width()),
+                               SkIntToScalar(subsetBitmap->height())));
+        perspectiveOutline.transform(origMatrix);
+
+        // TODO(edisonn): perf - use current clip too.
+        // Retrieve the bounds of the new shape.
+        SkRect bounds = perspectiveOutline.getBounds();
+
+        // TODO(edisonn): add DPI settings. Currently 1 pixel/point, which does
+        // not look great, but it is not producing large PDFs.
+
+        // TODO(edisonn): A better approach would be to use a bitmap shader
+        // (in clamp mode) and draw a rect over the entire bounding box. Then
+        // intersect perspectiveOutline to the clip. That will avoid introducing
+        // alpha to the image while still giving good behavior at the edge of
+        // the image.  Avoiding alpha will reduce the pdf size and generation
+        // CPU time some.
+
+        perspectiveBitmap.setConfig(SkBitmap::kARGB_8888_Config,
+                                    SkScalarCeilToInt(bounds.width()),
+                                    SkScalarCeilToInt(bounds.height()));
+        perspectiveBitmap.allocPixels();
+        perspectiveBitmap.eraseColor(SK_ColorTRANSPARENT);
+
+        SkBitmapDevice device(perspectiveBitmap);
+        SkCanvas canvas(&device);
+
+        SkScalar deltaX = bounds.left();
+        SkScalar deltaY = bounds.top();
+
+        SkMatrix offsetMatrix = origMatrix;
+        offsetMatrix.postTranslate(-deltaX, -deltaY);
+
+        // Translate the draw in the new canvas, so we perfectly fit the
+        // shape in the bitmap.
+        canvas.setMatrix(offsetMatrix);
+
+        canvas.drawBitmap(*subsetBitmap, SkIntToScalar(0), SkIntToScalar(0));
+
+        // Make sure the final bits are in the bitmap.
+        canvas.flush();
+
+        // In the new space, we use the identity matrix translated.
+        matrix.setTranslate(deltaX, deltaY);
+        perspectiveBounds.setRect(
+                SkIRect::MakeXYWH(SkScalarFloorToInt(bounds.x()),
+                                  SkScalarFloorToInt(bounds.y()),
+                                  SkScalarCeilToInt(bounds.width()),
+                                  SkScalarCeilToInt(bounds.height())));
+        clipRegion = &perspectiveBounds;
+        srcRect = NULL;
+        bitmap = &perspectiveBitmap;
+    }
+
     SkMatrix scaled;
     // Adjust for origin flip.
     scaled.setScale(SK_Scalar1, -SK_Scalar1);
     scaled.postTranslate(0, SK_Scalar1);
     // Scale the image up from 1x1 to WxH.
-    SkIRect subset = SkIRect::MakeWH(bitmap.width(), bitmap.height());
+    SkIRect subset = SkIRect::MakeWH(bitmap->width(), bitmap->height());
     scaled.postScale(SkIntToScalar(subset.width()),
                      SkIntToScalar(subset.height()));
     scaled.postConcat(matrix);
-    ScopedContentEntry content(this, clipStack, clipRegion, scaled, paint);
+    ScopedContentEntry content(this, clipStack, *clipRegion, scaled, paint);
     if (!content.entry()) {
         return;
     }
@@ -2053,7 +2130,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
         return;
     }
 
-    SkPDFImage* image = SkPDFImage::CreateImage(bitmap, subset, fEncoder);
+    SkPDFImage* image = SkPDFImage::CreateImage(*bitmap, subset, fEncoder);
     if (!image) {
         return;
     }
