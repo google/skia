@@ -30,7 +30,3 @@
 # Added by epoger for https://code.google.com/p/skia/issues/detail?id=1657
 # ('Poppler random failures'): ignore any Poppler failures, for now
 pdf-poppler
-
-# Added by senorblanco as part of https://codereview.chromium.org/26531002/.
-# New test cases added; will need rebaseline.
-displacement
