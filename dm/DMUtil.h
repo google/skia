@@ -1,6 +1,7 @@
 #ifndef DMUtil_DEFINED
 #define DMUtil_DEFINED
 
+#include "SkBitmap.h"
 #include "SkString.h"
 #include "gm_expectations.h"
 
@@ -14,9 +15,8 @@ SkString underJoin(const char* a, const char* b);
 // png("a") -> "a.png"
 SkString png(SkString s);
 
-// Roughly, expectations.match(digest), but only does it if we're not ignoring the result.
-bool meetsExpectations(const skiagm::Expectations& expectations,
-                       const skiagm::GmResultDigest& digest);
+// Roughly, expectations.match(GmResultDigest(bitmap)), but calculates the digest lazily.
+bool meetsExpectations(const skiagm::Expectations& expectations, const SkBitmap bitmap);
 
 }  // namespace DM
 

@@ -13,8 +13,7 @@ ComparisonTask::ComparisonTask(const Task& parent,
     {}
 
 void ComparisonTask::draw() {
-    const skiagm::GmResultDigest digest(fBitmap);
-    if (!meetsExpectations(fExpectations, digest)) {
+    if (!meetsExpectations(fExpectations, fBitmap)) {
         this->fail();
     }
 }

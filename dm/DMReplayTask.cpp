@@ -8,13 +8,11 @@ namespace DM {
 ReplayTask::ReplayTask(const char* suffix,
                        const Task& parent,
                        skiagm::GM* gm,
-                       skiagm::GmResultDigest reference,
-                       SkBitmap::Config config)
+                       SkBitmap reference)
     : Task(parent)
     , fName(underJoin(parent.name().c_str(), suffix))
     , fGM(gm)
     , fReference(reference)
-    , fConfig(config)
     {}
 
 void ReplayTask::draw() {
@@ -30,7 +28,9 @@ void ReplayTask::draw() {
     picture.endRecording();
 
     SkBitmap bitmap;
-    bitmap.setConfig(fConfig, SkScalarCeilToInt(fGM->width()), SkScalarCeilToInt(fGM->height()));
+    bitmap.setConfig(fReference.config(),
+                     SkScalarCeilToInt(fGM->width()),
+                     SkScalarCeilToInt(fGM->height()));
     bitmap.allocPixels();
     bitmap.eraseColor(0x00000000);
 
@@ -38,8 +38,10 @@ void ReplayTask::draw() {
     replay.drawPicture(picture);
     replay.flush();
 
-    const skiagm::GmResultDigest replayDigest(bitmap);
-    if (!replayDigest.equals(fReference)) {
+    const SkAutoLockPixels mine(bitmap), theirs(fReference);
+    if (bitmap.getSize() != fReference.getSize() ||
+        0 != memcmp(bitmap.getPixels(), fReference.getPixels(), bitmap.getSize()))
+    {
         this->fail();
     }
 }

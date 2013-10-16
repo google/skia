@@ -13,11 +13,12 @@ SkString png(SkString s) {
     return s;
 }
 
-bool meetsExpectations(const skiagm::Expectations& expectations,
-                       const skiagm::GmResultDigest& digest) {
-    return expectations.ignoreFailure()
-        || expectations.empty()
-        || expectations.match(digest);
+bool meetsExpectations(const skiagm::Expectations& expectations, const SkBitmap bitmap) {
+    if (expectations.ignoreFailure() || expectations.empty()) {
+        return true;
+    }
+    const skiagm::GmResultDigest digest(bitmap);
+    return expectations.match(digest);
 }
 
 }  // namespace DM

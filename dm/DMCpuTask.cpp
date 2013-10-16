@@ -33,14 +33,13 @@ void CpuTask::draw() {
     fGM->draw(&canvas);
     canvas.flush();
 
-    const skiagm::GmResultDigest digest(bitmap);
-    if (!meetsExpectations(fExpectations, digest)) {
+    if (!meetsExpectations(fExpectations, bitmap)) {
         this->fail();
     }
 
     if (FLAGS_replay) {
         this->spawnChild(SkNEW_ARGS(ReplayTask,
-                                   ("replay", *this, fGMFactory(NULL), digest, fConfig)));
+                                   ("replay", *this, fGMFactory(NULL), bitmap)));
     }
 }
 

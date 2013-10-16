@@ -10,7 +10,7 @@
 #include "gm.h"
 #include "gm_expectations.h"
 
-// Records a GM through an SkPicture, draws it, and compares against the reference checksum.
+// Records a GM through an SkPicture, draws it, and compares against the reference bitmap.
 
 namespace DM {
 
@@ -20,8 +20,7 @@ public:
     ReplayTask(const char* name,
                const Task& parent,
                skiagm::GM*,
-               skiagm::GmResultDigest reference,
-               SkBitmap::Config);
+               SkBitmap reference);
 
     virtual void draw() SK_OVERRIDE;
     virtual bool usesGpu() const SK_OVERRIDE { return false; }
@@ -31,8 +30,7 @@ public:
 private:
     const SkString fName;
     SkAutoTDelete<skiagm::GM> fGM;
-    const skiagm::GmResultDigest fReference;
-    const SkBitmap::Config fConfig;
+    const SkBitmap fReference;
 };
 
 }  // namespace DM
