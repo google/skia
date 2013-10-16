@@ -14,7 +14,6 @@
       'type': 'none',
       'dependencies': [
         'most.gyp:most',
-        'dm.gyp:dm',
       ],
       'conditions': [
         ['skia_os in ("ios", "android", "chromeos") or (skia_os == "mac" and skia_arch_width == 32)', {
