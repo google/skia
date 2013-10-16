@@ -2434,7 +2434,6 @@ void SkPaint::toString(SkString* str) const {
     if (this->getFlags()) {
         bool needSeparator = false;
         SkAddFlagToString(str, this->isAntiAlias(), "AntiAlias", &needSeparator);
-        SkAddFlagToString(str, this->isFilterBitmap(), "FilterBitmap", &needSeparator);
         SkAddFlagToString(str, this->isDither(), "Dither", &needSeparator);
         SkAddFlagToString(str, this->isUnderlineText(), "UnderlineText", &needSeparator);
         SkAddFlagToString(str, this->isStrikeThruText(), "StrikeThruText", &needSeparator);
@@ -2453,6 +2452,11 @@ void SkPaint::toString(SkString* str) const {
         str->append("None");
     }
     str->append(")</dd>");
+
+    str->append("<dt>FilterLevel:</dt><dd>");
+    static const char* gFilterLevelStrings[] = { "None", "Low", "Medium", "High" };
+    str->append(gFilterLevelStrings[this->getFilterLevel()]);
+    str->append("</dd>");
 
     str->append("<dt>TextAlign:</dt><dd>");
     static const char* gTextAlignStrings[SkPaint::kAlignCount] = { "Left", "Center", "Right" };
