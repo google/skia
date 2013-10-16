@@ -31,9 +31,6 @@ class SK_API SkImageFilter : public SkFlattenable {
 public:
     SK_DECLARE_INST_COUNT(SkImageFilter)
 
-#ifdef SK_CROP_RECT_IS_INT
-    typedef SkIRect CropRect;
-#else
     struct CropRect {
         SkRect fRect;
         uint32_t fFlags;
@@ -46,12 +43,12 @@ public:
         };
         CropRect() {}
         explicit CropRect(const SkRect& rect, uint32_t flags = kHasAll_CropEdge) : fRect(rect), fFlags(flags) {}
+        // Returns true if any of the crop edges have been set.
         bool isSet() const
         {
             return fFlags != 0x0;
         }
     };
-#endif
 
     class Proxy {
     public:
@@ -160,11 +157,7 @@ public:
      *  "offset" parameter in onFilterImage and filterImageGPU(). (The latter
      *  ensures that the resulting buffer is drawn in the correct location.)
      */
-#ifdef SK_CROP_RECT_IS_INT
-    bool cropRectIsSet() const { return !fCropRect.isLargest(); }
-#else
     bool cropRectIsSet() const { return fCropRect.isSet(); }
-#endif
 
 protected:
     SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = NULL);

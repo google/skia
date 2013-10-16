@@ -109,11 +109,7 @@ public:
         {
             // Check that a color filter image filter with a crop rect cannot
             // be expressed as a color filter.
-#ifdef SK_CROP_RECT_IS_INT
-            SkIRect cropRect = SkIRect::MakeXYWH(0, 0, 100, 100);
-#else
             SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(0, 0, 100, 100));
-#endif
             SkAutoTUnref<SkImageFilter> grayWithCrop(make_grayscale(NULL, &cropRect));
             REPORTER_ASSERT(reporter, false == grayWithCrop->asColorFilter(NULL));
         }

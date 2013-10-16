@@ -133,13 +133,8 @@ protected:
 
         SkAutoTUnref<SkColorFilter> cf(
             SkColorFilter::CreateModeFilter(SK_ColorBLUE, SkXfermode::kSrcIn_Mode));
-#ifdef SK_CROP_RECT_IS_INT
-        SkIRect cropRect = SkIRect::MakeXYWH(10, 10, 44, 44);
-        SkIRect bogusRect = SkIRect::MakeXYWH(-100, -100, 10, 10);
-#else
         SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)), SkImageFilter::CropRect::kHasAll_CropEdge);
         SkImageFilter::CropRect bogusRect(SkRect::Make(SkIRect::MakeXYWH(-100, -100, 10, 10)), SkImageFilter::CropRect::kHasAll_CropEdge);
-#endif
 
         SkAutoTUnref<SkImageFilter> offset(new SkOffsetImageFilter(
             SkIntToScalar(-10), SkIntToScalar(-10)));

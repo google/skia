@@ -85,11 +85,7 @@ protected:
         SkColor white(0xFFFFFFFF);
         SkPaint paint;
 
-#ifdef SK_CROP_RECT_IS_INT
-        SkIRect cropRect = SkIRect::MakeXYWH(20, 10, 60, 65);
-#else
         SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(20, 10, 60, 65));
-#endif
 
         int y = 0;
         for (int i = 0; i < 2; i++) {
