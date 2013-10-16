@@ -9802,6 +9802,30 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "skbug1719_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2332391077132553330
+        ]
+      ]
+    }, 
+    "skbug1719_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13212045663266308489
+        ]
+      ]
+    }, 
+    "skbug1719_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7759996282679263695
+        ]
+      ]
+    }, 
     "spritebitmap_565.png": {
       "allowed-digests": [
         [

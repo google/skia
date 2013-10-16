@@ -6800,6 +6800,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "skbug1719_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2332391077132553330
+        ]
+      ]
+    }, 
+    "skbug1719_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13212045663266308489
+        ]
+      ]
+    }, 
+    "skbug1719_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18076832306553747621
+        ]
+      ]
+    }, 
     "spritebitmap_565.png": {
       "allowed-digests": [
         [
