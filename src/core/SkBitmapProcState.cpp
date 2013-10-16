@@ -159,6 +159,12 @@ bool SkBitmapProcState::possiblyScaleImage() {
                                                             fScaledBitmap);
         }
         fScaledBitmap.lockPixels(); // wonder if Resize() should have locked this
+        if (!fScaledBitmap.getPixels()) {
+            // TODO: find out how this can happen, and add a unittest to exercise
+            // inspired by BUG=chromium:295895
+            return false;
+        }
+
         fBitmap = &fScaledBitmap;
 
         // set the inv matrix type to translate-only;
