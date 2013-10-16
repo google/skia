@@ -68,7 +68,7 @@ SkImageFilter::SkImageFilter(SkFlattenableReadBuffer& buffer)
     : fInputCount(buffer.readInt()), fInputs(new SkImageFilter*[fInputCount]) {
     for (int i = 0; i < fInputCount; i++) {
         if (buffer.readBool()) {
-            fInputs[i] = static_cast<SkImageFilter*>(buffer.readFlattenable());
+            fInputs[i] = buffer.readImageFilter();
         } else {
             fInputs[i] = NULL;
         }

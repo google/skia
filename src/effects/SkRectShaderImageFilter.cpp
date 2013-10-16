@@ -45,7 +45,7 @@ SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, const CropRect* cr
 
 SkRectShaderImageFilter::SkRectShaderImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer) {
-    fShader = buffer.readFlattenableT<SkShader>();
+    fShader = buffer.readShader();
 }
 
 void SkRectShaderImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {

@@ -27,15 +27,15 @@ SkComposeShader::SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode) {
 
 SkComposeShader::SkComposeShader(SkFlattenableReadBuffer& buffer) :
     INHERITED(buffer) {
-    fShaderA = buffer.readFlattenableT<SkShader>();
+    fShaderA = buffer.readShader();
     if (NULL == fShaderA) {
         fShaderA = SkNEW_ARGS(SkColorShader, (0));
     }
-    fShaderB = buffer.readFlattenableT<SkShader>();
+    fShaderB = buffer.readShader();
     if (NULL == fShaderB) {
         fShaderB = SkNEW_ARGS(SkColorShader, (0));
     }
-    fMode = buffer.readFlattenableT<SkXfermode>();
+    fMode = buffer.readXfermode();
 }
 
 SkComposeShader::~SkComposeShader() {

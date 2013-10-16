@@ -34,7 +34,7 @@ SkXfermodeImageFilter::~SkXfermodeImageFilter() {
 
 SkXfermodeImageFilter::SkXfermodeImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer) {
-    fMode = buffer.readFlattenableT<SkXfermode>();
+    fMode = buffer.readXfermode();
 }
 
 void SkXfermodeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {

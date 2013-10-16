@@ -2178,14 +2178,14 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
     }
 
     if (flatFlags & kHasEffects_FlatFlag) {
-        SkSafeUnref(this->setPathEffect(buffer.readFlattenableT<SkPathEffect>()));
-        SkSafeUnref(this->setShader(buffer.readFlattenableT<SkShader>()));
-        SkSafeUnref(this->setXfermode(buffer.readFlattenableT<SkXfermode>()));
-        SkSafeUnref(this->setMaskFilter(buffer.readFlattenableT<SkMaskFilter>()));
-        SkSafeUnref(this->setColorFilter(buffer.readFlattenableT<SkColorFilter>()));
-        SkSafeUnref(this->setRasterizer(buffer.readFlattenableT<SkRasterizer>()));
-        SkSafeUnref(this->setLooper(buffer.readFlattenableT<SkDrawLooper>()));
-        SkSafeUnref(this->setImageFilter(buffer.readFlattenableT<SkImageFilter>()));
+        SkSafeUnref(this->setPathEffect(buffer.readPathEffect()));
+        SkSafeUnref(this->setShader(buffer.readShader()));
+        SkSafeUnref(this->setXfermode(buffer.readXfermode()));
+        SkSafeUnref(this->setMaskFilter(buffer.readMaskFilter()));
+        SkSafeUnref(this->setColorFilter(buffer.readColorFilter()));
+        SkSafeUnref(this->setRasterizer(buffer.readRasterizer()));
+        SkSafeUnref(this->setLooper(buffer.readDrawLooper()));
+        SkSafeUnref(this->setImageFilter(buffer.readImageFilter()));
 
         if (buffer.readBool()) {
             this->setAnnotation(SkNEW_ARGS(SkAnnotation, (buffer)))->unref();

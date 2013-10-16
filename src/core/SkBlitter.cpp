@@ -683,7 +683,7 @@ public:
 
 protected:
     Sk3DShader(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-        fProxy = buffer.readFlattenableT<SkShader>();
+        fProxy = buffer.readShader();
         fPMColor = buffer.readColor();
         fMask = NULL;
     }

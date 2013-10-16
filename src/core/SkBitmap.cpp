@@ -1610,7 +1610,7 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
     switch (reftype) {
         case SERIALIZE_PIXELTYPE_REF_DATA: {
             size_t offset = buffer.readUInt();
-            SkPixelRef* pr = buffer.readFlattenableT<SkPixelRef>();
+            SkPixelRef* pr = buffer.readPixelRef();
             SkSafeUnref(this->setPixelRef(pr, offset));
             break;
         }

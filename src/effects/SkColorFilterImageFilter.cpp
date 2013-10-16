@@ -83,7 +83,7 @@ SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,
 }
 
 SkColorFilterImageFilter::SkColorFilterImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-    fColorFilter = buffer.readFlattenableT<SkColorFilter>();
+    fColorFilter = buffer.readColorFilter();
 }
 
 void SkColorFilterImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {

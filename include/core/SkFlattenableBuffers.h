@@ -15,6 +15,7 @@
 #include "SkPoint.h"
 
 class SkBitmap;
+class SkDrawLooper;
 class SkFlattenable;
 struct SkIRect;
 class SkMatrix;
@@ -28,7 +29,21 @@ class SkRegion;
 class SkStream;
 class SkString;
 class SkTypeface;
+class SkUnitMapper;
 class SkWStream;
+
+enum SkEffectType {
+    kColorFilter_SkEffectType,
+    kDrawLooper_SkEffectType,
+    kImageFilter_SkEffectType,
+    kMaskFilter_SkEffectType,
+    kPathEffect_SkEffectType,
+    kPixelRef_SkEffectType,
+    kRasterizer_SkEffectType,
+    kShader_SkEffectType,
+    kUnitMapper_SkEffectType,
+    kXfermode_SkEffectType,
+};
 
 class SkFlattenableReadBuffer {
 public:
@@ -64,8 +79,40 @@ public:
     virtual void readString(SkString* string) = 0;
     virtual void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) = 0;
 
+    virtual SkFlattenable* readFlattenable(SkEffectType) = 0;
+
+    SkColorFilter* readColorFilter() {
+        return (SkColorFilter*)this->readFlattenable(kColorFilter_SkEffectType);
+    }
+    SkDrawLooper* readDrawLooper() {
+        return (SkDrawLooper*)this->readFlattenable(kDrawLooper_SkEffectType);
+    }
+    SkImageFilter* readImageFilter() {
+        return (SkImageFilter*)this->readFlattenable(kImageFilter_SkEffectType);
+    }
+    SkMaskFilter* readMaskFilter() {
+        return (SkMaskFilter*)this->readFlattenable(kMaskFilter_SkEffectType);
+    }
+    SkPathEffect* readPathEffect() {
+        return (SkPathEffect*)this->readFlattenable(kPathEffect_SkEffectType);
+    }
+    SkPixelRef* readPixelRef() {
+        return (SkPixelRef*)this->readFlattenable(kPixelRef_SkEffectType);
+    }
+    SkRasterizer* readRasterizer() {
+        return (SkRasterizer*)this->readFlattenable(kRasterizer_SkEffectType);
+    }
+    SkShader* readShader() {
+        return (SkShader*)this->readFlattenable(kShader_SkEffectType);
+    }
+    SkUnitMapper* readUnitMapper() {
+        return (SkUnitMapper*)this->readFlattenable(kUnitMapper_SkEffectType);
+    }
+    SkXfermode* readXfermode() {
+        return (SkXfermode*)this->readFlattenable(kXfermode_SkEffectType);
+    }
+
     // common data structures
-    virtual SkFlattenable* readFlattenable() = 0;
     virtual void readPoint(SkPoint* point) = 0;
     virtual void readMatrix(SkMatrix* matrix) = 0;
     virtual void readIRect(SkIRect* rect) = 0;
@@ -104,10 +151,6 @@ public:
         void* buffer = sk_malloc_throw(len);
         (void)this->readByteArray(buffer);
         return SkData::NewFromMalloc(buffer, len);
-    }
-
-    template <typename T> T* readFlattenableT() {
-        return static_cast<T*>(this->readFlattenable());
     }
 
 private:

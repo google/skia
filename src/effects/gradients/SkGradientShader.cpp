@@ -146,7 +146,7 @@ static uint32_t unpack_flags(uint32_t packed) {
 SkGradientShaderBase::SkGradientShaderBase(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
     fCacheAlpha = 256;
 
-    fMapper = buffer.readFlattenableT<SkUnitMapper>();
+    fMapper = buffer.readUnitMapper();
 
     fCache16 = fCache16Storage = NULL;
     fCache32 = NULL;

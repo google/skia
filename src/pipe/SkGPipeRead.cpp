@@ -18,6 +18,7 @@
 #include "SkAnnotation.h"
 #include "SkColorFilter.h"
 #include "SkDrawLooper.h"
+#include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkOrderedReadBuffer.h"
 #include "SkPathEffect.h"
@@ -26,6 +27,22 @@
 #include "SkShader.h"
 #include "SkTypeface.h"
 #include "SkXfermode.h"
+
+static SkEffectType paintflat_to_effecttype(PaintFlats pf) {
+    static const uint8_t gEffectTypesInPaintFlatsOrder[] = {
+        kColorFilter_SkEffectType,
+        kDrawLooper_SkEffectType,
+        kImageFilter_SkEffectType,
+        kMaskFilter_SkEffectType,
+        kPathEffect_SkEffectType,
+        kRasterizer_SkEffectType,
+        kShader_SkEffectType,
+        kXfermode_SkEffectType,
+    };
+    
+    SkASSERT((size_t)pf < SK_ARRAY_COUNT(gEffectTypesInPaintFlatsOrder));
+    return (SkEffectType)gEffectTypesInPaintFlatsOrder[pf];
+}
 
 static void set_paintflat(SkPaint* paint, SkFlattenable* obj, unsigned paintFlat) {
     SkASSERT(paintFlat < kCount_PaintFlats);
@@ -105,7 +122,7 @@ public:
 
     void defFlattenable(PaintFlats pf, int index) {
         index--;
-        SkFlattenable* obj = fReader->readFlattenable();
+        SkFlattenable* obj = fReader->readFlattenable(paintflat_to_effecttype(pf));
         if (fFlatArray.count() == index) {
             *fFlatArray.append() = obj;
         } else {

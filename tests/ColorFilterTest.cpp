@@ -15,7 +15,7 @@
 #include "SkOrderedReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
 
-static SkFlattenable* reincarnate_flattenable(SkFlattenable* obj) {
+static SkColorFilter* reincarnate_colorfilter(SkFlattenable* obj) {
     SkOrderedWriteBuffer wb(1024);
     wb.writeFlattenable(obj);
 
@@ -25,11 +25,7 @@ static SkFlattenable* reincarnate_flattenable(SkFlattenable* obj) {
     wb.writeToMemory(storage.get());
 
     SkOrderedReadBuffer rb(storage.get(), size);
-    return rb.readFlattenable();
-}
-
-template <typename T> T* reincarnate(T* obj) {
-    return (T*)reincarnate_flattenable(obj);
+    return rb.readColorFilter();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,7 +78,7 @@ static void test_asColorMode(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, m == expectedMode);
 
         {
-            SkColorFilter* cf2 = reincarnate(cf);
+            SkColorFilter* cf2 = reincarnate_colorfilter(cf);
             SkAutoUnref aur2(cf2);
             REPORTER_ASSERT(reporter, cf2);
 

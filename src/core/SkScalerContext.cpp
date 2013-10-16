@@ -66,14 +66,15 @@ void SkGlyph::zeroMetrics() {
     #define DUMP_RECx
 #endif
 
-static SkFlattenable* load_flattenable(const SkDescriptor* desc, uint32_t tag) {
+static SkFlattenable* load_flattenable(const SkDescriptor* desc, uint32_t tag,
+                                       SkEffectType et) {
     SkFlattenable*  obj = NULL;
     uint32_t        len;
     const void*     data = desc->findEntry(tag, &len);
 
     if (data) {
         SkOrderedReadBuffer   buffer(data, len);
-        obj = buffer.readFlattenable();
+        obj = buffer.readFlattenable(et);
         SkASSERT(buffer.offset() == buffer.size());
     }
     return obj;
@@ -84,9 +85,9 @@ SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkDescriptor* desc)
 
     , fBaseGlyphCount(0)
     , fTypeface(SkRef(typeface))
-    , fPathEffect(static_cast<SkPathEffect*>(load_flattenable(desc, kPathEffect_SkDescriptorTag)))
-    , fMaskFilter(static_cast<SkMaskFilter*>(load_flattenable(desc, kMaskFilter_SkDescriptorTag)))
-    , fRasterizer(static_cast<SkRasterizer*>(load_flattenable(desc, kRasterizer_SkDescriptorTag)))
+    , fPathEffect(static_cast<SkPathEffect*>(load_flattenable(desc, kPathEffect_SkDescriptorTag, kPathEffect_SkEffectType)))
+    , fMaskFilter(static_cast<SkMaskFilter*>(load_flattenable(desc, kMaskFilter_SkDescriptorTag, kMaskFilter_SkEffectType)))
+    , fRasterizer(static_cast<SkRasterizer*>(load_flattenable(desc, kRasterizer_SkDescriptorTag, kRasterizer_SkEffectType)))
 
       // Initialize based on our settings. Subclasses can also force this.
     , fGenerateImageFromPath(fRec.fFrameWidth > 0 || fPathEffect != NULL || fRasterizer != NULL)

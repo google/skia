@@ -268,7 +268,11 @@ SkTypeface* SkOrderedReadBuffer::readTypeface() {
     }
 }
 
-SkFlattenable* SkOrderedReadBuffer::readFlattenable() {
+SkFlattenable* SkOrderedReadBuffer::readFlattenable(SkEffectType et) {
+    //
+    // TODO: confirm that et matches the factory we decide to use
+    //
+
     SkFlattenable::Factory factory = NULL;
 
     if (fFactoryCount > 0) {

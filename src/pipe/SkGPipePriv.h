@@ -19,11 +19,11 @@
 enum PaintFlats {
     kColorFilter_PaintFlat,
     kDrawLooper_PaintFlat,
+    kImageFilter_PaintFlat,
     kMaskFilter_PaintFlat,
     kPathEffect_PaintFlat,
     kRasterizer_PaintFlat,
     kShader_PaintFlat,
-    kImageFilter_PaintFlat,
     kXfermode_PaintFlat,
 
     kLast_PaintFlat = kXfermode_PaintFlat

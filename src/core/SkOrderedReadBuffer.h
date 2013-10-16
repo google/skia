@@ -52,7 +52,7 @@ public:
     virtual void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) SK_OVERRIDE;
 
     // common data structures
-    virtual SkFlattenable* readFlattenable() SK_OVERRIDE;
+    virtual SkFlattenable* readFlattenable(SkEffectType) SK_OVERRIDE;
     virtual void readPoint(SkPoint* point) SK_OVERRIDE;
     virtual void readMatrix(SkMatrix* matrix) SK_OVERRIDE;
     virtual void readIRect(SkIRect* rect) SK_OVERRIDE;
