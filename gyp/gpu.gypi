@@ -9,6 +9,7 @@
   'variables': {
     'skgpu_sources': [
       '<(skia_include_path)/gpu/GrBackendEffectFactory.h',
+      '<(skia_include_path)/gpu/GrBitmapTextContext.h',
       '<(skia_include_path)/gpu/GrClipData.h',
       '<(skia_include_path)/gpu/GrColor.h',
       '<(skia_include_path)/gpu/GrConfig.h',
@@ -53,6 +54,7 @@
       '<(skia_src_path)/gpu/GrAtlas.cpp',
       '<(skia_src_path)/gpu/GrAtlas.h',
       '<(skia_src_path)/gpu/GrBinHashKey.h',
+      '<(skia_src_path)/gpu/GrBitmapTextContext.cpp',
       '<(skia_src_path)/gpu/GrBlend.cpp',
       '<(skia_src_path)/gpu/GrBlend.h',
       '<(skia_src_path)/gpu/GrBufferAllocPool.cpp',
