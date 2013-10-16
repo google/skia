@@ -14,6 +14,22 @@
 #include "SkInstCnt.h"
 #include "SkTemplates.h"
 
+#ifdef SK_REF_CNT_BASE_INCLUDE
+#include SK_REF_CNT_BASE_INCLUDE
+#else
+/** \class SkRefCntBase
+
+    Default implementation of SkRefCntBase. The base class' contract is to
+    provide an implementation of aboutToRef. Embedders of skia can specify
+    an alternate implementation by setting SK_REF_CNT_BASE_INCLUDE. This is
+    useful for adding debug run-time checks to enforce certain usage patterns.
+*/
+class SK_API SkRefCntBase {
+public:
+    void aboutToRef() const {}
+};
+#endif
+
 /** \class SkRefCnt
 
     SkRefCnt is the base class for objects that may be shared by multiple
@@ -24,7 +40,7 @@
     destructor to be called explicitly (or via the object going out of scope on
     the stack or calling delete) if getRefCnt() > 1.
 */
-class SK_API SkRefCnt : SkNoncopyable {
+class SK_API SkRefCnt : public SkRefCntBase {
 public:
     SK_DECLARE_INST_COUNT_ROOT(SkRefCnt)
 
@@ -61,6 +77,7 @@ public:
     */
     void ref() const {
         SkASSERT(fRefCnt > 0);
+        this->INHERITED::aboutToRef();
         sk_atomic_inc(&fRefCnt);  // No barrier required.
     }
 
@@ -106,6 +123,12 @@ protected:
 
 private:
     /**
+     *  Make SkRefCnt non-copyable.
+     */
+    SkRefCnt(const SkRefCnt&);
+    SkRefCnt& operator=(const SkRefCnt&);
+
+    /**
      *  Called when the ref count goes to 0.
      */
     virtual void internal_dispose() const {
@@ -120,7 +143,7 @@ private:
 
     mutable int32_t fRefCnt;
 
-    typedef SkNoncopyable INHERITED;
+    typedef SkRefCntBase INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
