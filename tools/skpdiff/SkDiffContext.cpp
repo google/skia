@@ -167,6 +167,20 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
             SkString baselineAbsPath = get_absolute_path(currentRecord->fBaselinePath);
             SkString testAbsPath = get_absolute_path(currentRecord->fTestPath);
 
+            // strip off directory structure and find the common part of the filename
+            SkString baseName = SkOSPath::SkBasename(baselineAbsPath.c_str());
+            SkString testName = SkOSPath::SkBasename(testAbsPath.c_str());
+            for (size_t x = 0; x < baseName.size(); ++x) {
+                if (baseName[x] != testName[x]) {
+                    baseName.insertUnichar(x, '\n');
+                    break;
+                }
+            }
+
+            stream.writeText("            \"commonName\": \"");
+            stream.writeText(baseName.c_str());
+            stream.writeText("\",\n");
+
             stream.writeText("            \"baselinePath\": \"");
             stream.writeText(baselineAbsPath.c_str());
             stream.writeText("\",\n");

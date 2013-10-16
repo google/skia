@@ -5,7 +5,7 @@ body, img, div {
 }
 
 table {
-    width:100%;
+    width: auto;
     border-collapse: collapse;
     border-spacing: 0;
     padding: 8px;
@@ -13,7 +13,7 @@ table {
 
 td {
     border-top: 1px solid #DDD;
-    padding: 8px;
+    padding: 16px;
 }
 thead > tr > td {
     border: none;
@@ -72,6 +72,11 @@ input[type="checkbox"].lastselected {
     background: #96c56f;
     background: -webkit-linear-gradient(top, #96c56f 0%,#a9db80 100%);
 }
+
+.common-name {
+    vertical-align: top;
+}
+
 
 .gm-image {
     border: 1px dotted black;

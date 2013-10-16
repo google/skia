@@ -33,6 +33,7 @@
           <thead>
             <tr>
               <td ng-show="isDynamic">Rebaseline?</td>
+              <td>Name</td>
               <td>Expected Image</td>
               <td>Actual Image</td>
               <td>Results</td>
@@ -51,6 +52,7 @@
                        ng-click="selectedRebaseline($index, $event)"
                        ng-class="{lastselected: lastSelectedIndex == $index}" />
               </td>
+              <td class="common-name">{{ record.commonName }}</td>
               <td>
                 <swap-img left-src="{{ record.baselinePath }}"
                           right-src="{{ record.testPath }}"
