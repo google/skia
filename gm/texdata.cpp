@@ -42,7 +42,7 @@ protected:
         GrRenderTarget* target = device->accessRenderTarget();
         GrContext* ctx = GM::GetGr(canvas);
         if (ctx && target) {
-            SkPMColor gTextureData[(2 * S) * (2 * S)];
+            SkAutoTArray<SkPMColor> gTextureData((2 * S) * (2 * S));
             static const int stride = 2 * S;
             static const SkPMColor gray  = SkPackARGB32(0x40, 0x40, 0x40, 0x40);
             static const SkPMColor white = SkPackARGB32(0xff, 0xff, 0xff, 0xff);
@@ -88,7 +88,7 @@ protected:
                 desc.fWidth     = 2 * S;
                 desc.fHeight    = 2 * S;
                 GrTexture* texture =
-                    ctx->createUncachedTexture(desc, gTextureData, 0);
+                    ctx->createUncachedTexture(desc, gTextureData.get(), 0);
 
                 if (!texture) {
                     return;
@@ -127,7 +127,7 @@ protected:
                     }
                 }
                 texture->writePixels(S, (i ? 0 : S), S, S,
-                                     texture->config(), gTextureData,
+                                     texture->config(), gTextureData.get(),
                                      4 * stride);
                 ctx->drawRect(paint, SkRect::MakeWH(2*S, 2*S));
             }
