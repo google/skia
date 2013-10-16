@@ -12,7 +12,8 @@
 SK_DEFINE_INST_COUNT(SkRefCnt)
 SK_DEFINE_INST_COUNT(SkWeakRefCnt)
 
+#ifdef SK_BUILD_FOR_WIN
 SkRefCnt::SkRefCnt(const SkRefCnt&) { }
-
-SkRefCnt::operator=(const SkRefCnt&) { }
+SkRefCnt& SkRefCnt::operator=(const SkRefCnt&) { return *this; }
+#endif
 
