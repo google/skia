@@ -8,8 +8,10 @@
 #include "SkBitmap.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
+#include "SkRunnable.h"
 #include "SkStream.h"
 #include "SkTDict.h"
+#include "SkThreadPool.h"
 
 #include "SkDiffContext.h"
 #include "SkImageDiffer.h"
@@ -22,6 +24,7 @@ SkDiffContext::SkDiffContext() {
     fRecords = NULL;
     fDiffers = NULL;
     fDifferCount = 0;
+    fThreadCount = SkThreadPool::kThreadPerCore;
 }
 
 SkDiffContext::~SkDiffContext() {
@@ -93,8 +96,29 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
             differ->deleteDiff(diffID);
         }
     }
+
+    // if we get a difference and we want the alpha mask then compute it here.
 }
 
+class SkThreadedDiff : public SkRunnable {
+public:
+    SkThreadedDiff() : fDiffContext(NULL) { }
+
+    void setup(SkDiffContext* diffContext, const SkString& baselinePath, const SkString& testPath) {
+        fDiffContext = diffContext;
+        fBaselinePath = baselinePath;
+        fTestPath = testPath;
+    }
+
+    virtual void run() SK_OVERRIDE {
+        fDiffContext->addDiff(fBaselinePath.c_str(), fTestPath.c_str());
+    }
+
+private:
+    SkDiffContext* fDiffContext;
+    SkString fBaselinePath;
+    SkString fTestPath;
+};
 
 void SkDiffContext::diffDirectories(const char baselinePath[], const char testPath[]) {
     // Get the files in the baseline, we will then look for those inside the test path
@@ -104,9 +128,12 @@ void SkDiffContext::diffDirectories(const char baselinePath[], const char testPa
         return;
     }
 
-    for (int baselineIndex = 0; baselineIndex < baselineEntries.count(); baselineIndex++) {
-        SkDebugf("[%i/%i] ", baselineIndex, baselineEntries.count());
-        const char* baseFilename = baselineEntries[baselineIndex].c_str();
+    SkThreadPool threadPool(fThreadCount);
+    SkTArray<SkThreadedDiff> runnableDiffs;
+    runnableDiffs.reset(baselineEntries.count());
+
+    for (int x = 0; x < baselineEntries.count(); x++) {
+        const char* baseFilename = baselineEntries[x].c_str();
 
         // Find the real location of each file to compare
         SkString baselineFile = SkOSPath::SkPathJoin(baselinePath, baseFilename);
@@ -115,11 +142,14 @@ void SkDiffContext::diffDirectories(const char baselinePath[], const char testPa
         // Check that the test file exists and is a file
         if (sk_exists(testFile.c_str()) && !sk_isdir(testFile.c_str())) {
             // Queue up the comparison with the differ
-            this->addDiff(baselineFile.c_str(), testFile.c_str());
+            runnableDiffs[x].setup(this, baselineFile, testFile);
+            threadPool.add(&runnableDiffs[x]);
         } else {
             SkDebugf("Baseline file \"%s\" has no corresponding test file\n", baselineFile.c_str());
         }
     }
+
+    threadPool.wait();
 }
 
 
@@ -144,13 +174,16 @@ void SkDiffContext::diffPatterns(const char baselinePattern[], const char testPa
         return;
     }
 
-    for (int entryIndex = 0; entryIndex < baselineEntries.count(); entryIndex++) {
-        SkDebugf("[%i/%i] ", entryIndex, baselineEntries.count());
-        const char* baselineFilename = baselineEntries[entryIndex].c_str();
-        const char* testFilename     = testEntries    [entryIndex].c_str();
+    SkThreadPool threadPool(fThreadCount);
+    SkTArray<SkThreadedDiff> runnableDiffs;
+    runnableDiffs.reset(baselineEntries.count());
 
-        this->addDiff(baselineFilename, testFilename);
+    for (int x = 0; x < baselineEntries.count(); x++) {
+        runnableDiffs[x].setup(this, baselineEntries[x], testEntries[x]);
+        threadPool.add(&runnableDiffs[x]);
     }
+
+    threadPool.wait();
 }
 
 void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
@@ -164,6 +197,7 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
     while (NULL != currentRecord) {
         stream.writeText("        {\n");
 
+            SkString differenceAbsPath = get_absolute_path(currentRecord->fDifferencePath);
             SkString baselineAbsPath = get_absolute_path(currentRecord->fBaselinePath);
             SkString testAbsPath = get_absolute_path(currentRecord->fTestPath);
 
@@ -179,6 +213,10 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
 
             stream.writeText("            \"commonName\": \"");
             stream.writeText(baseName.c_str());
+            stream.writeText("\",\n");
+
+            stream.writeText("            \"differencePath\": \"");
+            stream.writeText(differenceAbsPath.c_str());
             stream.writeText("\",\n");
 
             stream.writeText("            \"baselinePath\": \"");

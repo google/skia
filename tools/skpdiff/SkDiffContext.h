@@ -23,6 +23,8 @@ public:
     SkDiffContext();
     ~SkDiffContext();
 
+    void setThreadCount(int threadCount) { fThreadCount = threadCount; }
+
     /**
      * Sets the differs to be used in each diff. Already started diffs will not retroactively use
      * these.
@@ -104,6 +106,7 @@ private:
     };
 
     struct DiffRecord {
+        SkString           fDifferencePath;
         SkString           fBaselinePath;
         SkString               fTestPath;
         SkTArray<DiffData>        fDiffs;
@@ -117,6 +120,7 @@ private:
 
     SkImageDiffer** fDiffers;
     int fDifferCount;
+    int fThreadCount;
 };
 
 #endif

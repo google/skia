@@ -40,6 +40,7 @@ DEFINE_string2(patterns, p, "", "Use two patterns to compare images: <baseline> 
 DEFINE_string2(output, o, "", "Writes the output of these diffs to output: <output>");
 DEFINE_bool(jsonp, true, "Output JSON with padding");
 DEFINE_string(csv, "", "Writes the output of these diffs to a csv file");
+DEFINE_int32(threads, -1, "run N threads in parallel [default is derived from CPUs available]");
 
 #if SK_SUPPORT_OPENCL
 /// A callback for any OpenCL errors
@@ -187,6 +188,10 @@ int tool_main(int argc, char * argv[]) {
 
     SkDiffContext ctx;
     ctx.setDiffers(chosenDiffers);
+
+    if (FLAGS_threads >= 0) {
+        ctx.setThreadCount(FLAGS_threads);
+    }
 
     // Perform a folder diff if one is requested
     if (!FLAGS_folders.isEmpty()) {
