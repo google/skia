@@ -48,14 +48,14 @@ static void test_path_to_region(skiatest::Reporter* reporter) {
         make_path0,
         make_path1,
     };
-    
+
     SkRegion clip;
     clip.setRect(0, 0, 1255, 1925);
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(procs); ++i) {
         SkPath path;
         procs[i](&path);
-        
+
         SkRegion rgn;
         rgn.setPath(path, clip);
         path.toggleInverseFillType();

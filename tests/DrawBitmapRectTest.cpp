@@ -40,7 +40,7 @@ static void test_faulty_pixelref(skiatest::Reporter* reporter) {
     // construct a garbage data represent "bad" encoded data.
     SkAutoDataUnref data(SkData::NewFromMalloc(malloc(1000), 1000));
     SkAutoTUnref<SkPixelRef> pr(new SkLazyPixelRef(data, FailureDecoder, &cache));
-    
+
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
     bm.setPixelRef(pr);

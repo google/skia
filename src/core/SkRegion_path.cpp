@@ -134,7 +134,7 @@ bool SkRgnBuilder::init(int maxHeight, int maxTransitions, bool pathIsInverse) {
     if (!size.is32() || size.isNeg()) {
         return false;
     }
-    
+
     fStorage = (SkRegion::RunType*)sk_malloc_flags(size.get32(), 0);
     if (NULL == fStorage) {
         return false;
