@@ -245,6 +245,7 @@ DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kC
 DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kClamp_TileMode, kOval_GeomType); )
 
 DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kMirror_TileMode); )
+DEF_BENCH( return new GradientBench(kRadial_GradType, gGradData[0], SkShader::kRepeat_TileMode); )
 DEF_BENCH( return new GradientBench(kSweep_GradType); )
 DEF_BENCH( return new GradientBench(kSweep_GradType, gGradData[1]); )
 DEF_BENCH( return new GradientBench(kSweep_GradType, gGradData[2]); )

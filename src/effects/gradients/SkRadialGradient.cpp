@@ -46,6 +46,15 @@ void SkRadialGradient_BuildTable() {
 
 namespace {
 
+// GCC doesn't like using static functions as template arguments.  So force these to be non-static.
+inline SkFixed mirror_tileproc_nonstatic(SkFixed x) {
+    return mirror_tileproc(x);
+}
+
+inline SkFixed repeat_tileproc_nonstatic(SkFixed x) {
+    return repeat_tileproc(x);
+}
+
 void rad_to_unit_matrix(const SkPoint& center, SkScalar radius,
                                SkMatrix* matrix) {
     SkScalar    inv = SkScalarInvert(radius);
@@ -105,50 +114,34 @@ void shadeSpan16_radial_clamp(SkScalar sfx, SkScalar sdx,
     }
 }
 
-void shadeSpan16_radial_mirror(SkScalar sfx, SkScalar sdx,
-        SkScalar sfy, SkScalar sdy,
-        uint16_t* SK_RESTRICT dstC, const uint16_t* SK_RESTRICT cache,
-        int toggle, int count) {
+template <SkFixed (*TileProc)(SkFixed)>
+void shadeSpan16_radial(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
+                        uint16_t* SK_RESTRICT dstC, const uint16_t* SK_RESTRICT cache,
+                        int toggle, int count) {
     do {
-#ifdef SK_SCALAR_IS_FLOAT
-        float fdist = sk_float_sqrt(sfx*sfx + sfy*sfy);
-        SkFixed dist = SkFloatToFixed(fdist);
-#else
-        SkFixed magnitudeSquared = SkFixedSquare(sfx) +
-            SkFixedSquare(sfy);
-        if (magnitudeSquared < 0) // Overflow.
-            magnitudeSquared = SK_FixedMax;
-        SkFixed dist = SkFixedSqrt(magnitudeSquared);
-#endif
-        unsigned fi = mirror_tileproc(dist);
+        const SkFixed dist = SkFloatToFixed(sk_float_sqrt(fx*fx + fy*fy));
+        const unsigned fi = TileProc(dist);
         SkASSERT(fi <= 0xFFFF);
         *dstC++ = cache[toggle + (fi >> SkGradientShaderBase::kCache16Shift)];
         toggle = next_dither_toggle16(toggle);
-        sfx += sdx;
-        sfy += sdy;
-    } while (--count != 0);
-}
-
-void shadeSpan16_radial_repeat(SkScalar sfx, SkScalar sdx,
-        SkScalar sfy, SkScalar sdy,
-        uint16_t* SK_RESTRICT dstC, const uint16_t* SK_RESTRICT cache,
-        int toggle, int count) {
-    SkFixed fx = SkScalarToFixed(sfx);
-    SkFixed dx = SkScalarToFixed(sdx);
-    SkFixed fy = SkScalarToFixed(sfy);
-    SkFixed dy = SkScalarToFixed(sdy);
-    do {
-        SkFixed dist = SkFixedSqrt(SkFixedSquare(fx) + SkFixedSquare(fy));
-        unsigned fi = repeat_tileproc(dist);
-        SkASSERT(fi <= 0xFFFF);
         fx += dx;
         fy += dy;
-        *dstC++ = cache[toggle + (fi >> SkGradientShaderBase::kCache16Shift)];
-        toggle = next_dither_toggle16(toggle);
     } while (--count != 0);
 }
 
+void shadeSpan16_radial_mirror(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
+                               uint16_t* SK_RESTRICT dstC, const uint16_t* SK_RESTRICT cache,
+                               int toggle, int count) {
+    shadeSpan16_radial<mirror_tileproc_nonstatic>(fx, dx, fy, dy, dstC, cache, toggle, count);
 }
+
+void shadeSpan16_radial_repeat(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
+                               uint16_t* SK_RESTRICT dstC, const uint16_t* SK_RESTRICT cache,
+                               int toggle, int count) {
+    shadeSpan16_radial<repeat_tileproc_nonstatic>(fx, dx, fy, dy, dstC, cache, toggle, count);
+}
+
+}  // namespace
 
 /////////////////////////////////////////////////////////////////////
 
@@ -367,45 +360,13 @@ void shadeSpan_radial_clamp(SkScalar sfx, SkScalar sdx,
 // Unrolling this loop doesn't seem to help (when float); we're stalling to
 // get the results of the sqrt (?), and don't have enough extra registers to
 // have many in flight.
-void shadeSpan_radial_mirror(SkScalar sfx, SkScalar sdx,
-        SkScalar sfy, SkScalar sdy,
-        SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
-        int count, int toggle) {
+template <SkFixed (*TileProc)(SkFixed)>
+void shadeSpan_radial(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
+                      SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
+                      int count, int toggle) {
     do {
-#ifdef SK_SCALAR_IS_FLOAT
-        float fdist = sk_float_sqrt(sfx*sfx + sfy*sfy);
-        SkFixed dist = SkFloatToFixed(fdist);
-#else
-        SkFixed magnitudeSquared = SkFixedSquare(sfx) +
-            SkFixedSquare(sfy);
-        if (magnitudeSquared < 0) // Overflow.
-            magnitudeSquared = SK_FixedMax;
-        SkFixed dist = SkFixedSqrt(magnitudeSquared);
-#endif
-        unsigned fi = mirror_tileproc(dist);
-        SkASSERT(fi <= 0xFFFF);
-        *dstC++ = cache[toggle + (fi >> SkGradientShaderBase::kCache32Shift)];
-        toggle = next_dither_toggle(toggle);
-        sfx += sdx;
-        sfy += sdy;
-    } while (--count != 0);
-}
-
-void shadeSpan_radial_repeat(SkScalar sfx, SkScalar sdx,
-        SkScalar sfy, SkScalar sdy,
-        SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
-        int count, int toggle) {
-    SkFixed fx = SkScalarToFixed(sfx);
-    SkFixed dx = SkScalarToFixed(sdx);
-    SkFixed fy = SkScalarToFixed(sfy);
-    SkFixed dy = SkScalarToFixed(sdy);
-    do {
-        SkFixed magnitudeSquared = SkFixedSquare(fx) +
-            SkFixedSquare(fy);
-        if (magnitudeSquared < 0) // Overflow.
-            magnitudeSquared = SK_FixedMax;
-        SkFixed dist = SkFixedSqrt(magnitudeSquared);
-        unsigned fi = repeat_tileproc(dist);
+        const SkFixed dist = SkFloatToFixed(sk_float_sqrt(fx*fx + fy*fy));
+        const unsigned fi = TileProc(dist);
         SkASSERT(fi <= 0xFFFF);
         *dstC++ = cache[toggle + (fi >> SkGradientShaderBase::kCache32Shift)];
         toggle = next_dither_toggle(toggle);
@@ -413,7 +374,20 @@ void shadeSpan_radial_repeat(SkScalar sfx, SkScalar sdx,
         fy += dy;
     } while (--count != 0);
 }
+
+void shadeSpan_radial_mirror(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
+                             SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
+                             int count, int toggle) {
+    shadeSpan_radial<mirror_tileproc_nonstatic>(fx, dx, fy, dy, dstC, cache, count, toggle);
 }
+
+void shadeSpan_radial_repeat(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
+                             SkPMColor* SK_RESTRICT dstC, const SkPMColor* SK_RESTRICT cache,
+                             int count, int toggle) {
+    shadeSpan_radial<repeat_tileproc_nonstatic>(fx, dx, fy, dy, dstC, cache, count, toggle);
+}
+
+}  // namespace
 
 void SkRadialGradient::shadeSpan(int x, int y,
                                 SkPMColor* SK_RESTRICT dstC, int count) {
