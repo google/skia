@@ -183,7 +183,7 @@ protected:
         static const int rowHeight = 60;
         static const int colWidth = 300;
         canvas->save();
-        for (size_t s = 0; s < SK_ARRAY_COUNT(shaders); s++) {
+        for (int s = 0; s < static_cast<int>(SK_ARRAY_COUNT(shaders)); s++) {
             canvas->save();
             int i = 2*s;
             canvas->translate(SkIntToScalar((i / testsPerCol) * colWidth),

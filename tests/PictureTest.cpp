@@ -191,7 +191,7 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
             SkAutoDataUnref data(SkPictureUtils::GatherPixelRefs(pic, r));
             REPORTER_ASSERT(reporter, data);
             if (data) {
-                int count = data->size() / sizeof(SkPixelRef*);
+                int count = static_cast<int>(data->size() / sizeof(SkPixelRef*));
                 REPORTER_ASSERT(reporter, 1 == count);
                 REPORTER_ASSERT(reporter, *(SkPixelRef**)data->data() == refs[i]);
             }
@@ -209,7 +209,7 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
 
             SkData* data = SkPictureUtils::GatherPixelRefs(pic, r);
             size_t dataSize = data ? data->size() : 0;
-            int gatherCount = dataSize / sizeof(SkPixelRef*);
+            int gatherCount = static_cast<int>(dataSize / sizeof(SkPixelRef*));
             SkASSERT(gatherCount * sizeof(SkPixelRef*) == dataSize);
             SkPixelRef** gatherRefs = data ? (SkPixelRef**)(data->data()) : NULL;
             SkAutoDataUnref adu(data);

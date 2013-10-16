@@ -21,7 +21,7 @@ public:
         fData = NULL;
 #endif
     }
-    SkTDArray(const T src[], size_t count) {
+    SkTDArray(const T src[], int count) {
         SkASSERT(src || count == 0);
 
         fReserve = fCount = 0;
@@ -98,7 +98,7 @@ public:
     /**
      *  Return the number of elements in the array
      */
-    int count() const { return (int)fCount; }
+    int count() const { return fCount; }
 
     /**
      *  return the number of bytes in the array: count * sizeof(T)
@@ -111,11 +111,11 @@ public:
     const T*  end() const { return fArray ? fArray + fCount : NULL; }
 
     T&  operator[](int index) {
-        SkASSERT((unsigned)index < fCount);
+        SkASSERT(index < fCount);
         return fArray[index];
     }
     const T&  operator[](int index) const {
-        SkASSERT((unsigned)index < fCount);
+        SkASSERT(index < fCount);
         return fArray[index];
     }
 
@@ -144,7 +144,7 @@ public:
         fCount = 0;
     }
 
-    void setCount(size_t count) {
+    void setCount(int count) {
         if (count > fReserve) {
             this->growBy(count - fCount);
         } else {
@@ -152,10 +152,10 @@ public:
         }
     }
 
-    void setReserve(size_t reserve) {
+    void setReserve(int reserve) {
         if (reserve > fReserve) {
             SkASSERT(reserve > fCount);
-            size_t count = fCount;
+            int count = fCount;
             this->growBy(reserve - fCount);
             fCount = count;
         }
@@ -170,8 +170,8 @@ public:
     T* append() {
         return this->append(1, NULL);
     }
-    T* append(size_t count, const T* src = NULL) {
-        size_t oldCount = fCount;
+    T* append(int count, const T* src = NULL) {
+        int oldCount = fCount;
         if (count)  {
             SkASSERT(src == NULL || fArray == NULL ||
                     src + count <= fArray || fArray + oldCount <= src);
@@ -190,10 +190,10 @@ public:
         return result;
     }
 
-    T* insert(size_t index) {
+    T* insert(int index) {
         return this->insert(index, 1, NULL);
     }
-    T* insert(size_t index, size_t count, const T* src = NULL) {
+    T* insert(int index, int count, const T* src = NULL) {
         SkASSERT(count);
         SkASSERT(index <= fCount);
         size_t oldCount = fCount;
@@ -206,15 +206,15 @@ public:
         return dst;
     }
 
-    void remove(size_t index, size_t count = 1) {
+    void remove(int index, int count = 1) {
         SkASSERT(index + count <= fCount);
         fCount = fCount - count;
         memmove(fArray + index, fArray + index + count, sizeof(T) * (fCount - index));
     }
 
-    void removeShuffle(size_t index) {
+    void removeShuffle(int index) {
         SkASSERT(index < fCount);
-        size_t newCount = fCount - 1;
+        int newCount = fCount - 1;
         fCount = newCount;
         if (index != newCount) {
             memcpy(fArray + index, fArray + newCount, sizeof(T));
@@ -256,7 +256,7 @@ public:
      * Copies up to max elements into dst. The number of items copied is
      * capped by count - index. The actual number copied is returned.
      */
-    int copyRange(T* dst, size_t index, int max) const {
+    int copyRange(T* dst, int index, int max) const {
         SkASSERT(max >= 0);
         SkASSERT(!max || dst);
         if (index >= fCount) {
@@ -346,13 +346,14 @@ private:
     ArrayT* fData;
 #endif
     T*      fArray;
-    size_t  fReserve, fCount;
+    int     fReserve;
+    int     fCount;
 
-    void growBy(size_t extra) {
+    void growBy(int extra) {
         SkASSERT(extra);
 
         if (fCount + extra > fReserve) {
-            size_t size = fCount + extra + 4;
+            int size = fCount + extra + 4;
             size += size >> 2;
 
             fArray = (T*)sk_realloc_throw(fArray, size * sizeof(T));

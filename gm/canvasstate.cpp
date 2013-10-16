@@ -71,7 +71,7 @@ protected:
 
         // columns -- flags
         // rows -- permutations of setting the clip and matrix
-        for (size_t i = 0; i < SK_ARRAY_COUNT(flags); ++i) {
+        for (int i = 0; i < static_cast<int>(SK_ARRAY_COUNT(flags)); ++i) {
             for (int j = 0; j < 2; ++j) {
                 for (int k = 0; k < 2; ++k) {
                     this->drawTestPattern(i, (2*j)+k, canvas, flags[i],

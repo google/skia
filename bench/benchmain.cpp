@@ -331,7 +331,7 @@ int tool_main(int argc, char** argv) {
     bool runDefaultConfigs = false;
     // Try user-given configs first.
     for (int i = 0; i < FLAGS_config.count(); i++) {
-        for (size_t j = 0; j < SK_ARRAY_COUNT(gConfigs); j++) {
+        for (int j = 0; j < static_cast<int>(SK_ARRAY_COUNT(gConfigs)); ++j) {
             if (0 == strcmp(FLAGS_config[i], gConfigs[j].name)) {
                 *configs.append() = j;
             } else if (0 == strcmp(FLAGS_config[i], kDefaultsConfigStr)) {
@@ -341,7 +341,7 @@ int tool_main(int argc, char** argv) {
     }
     // If there weren't any, fill in with defaults.
     if (runDefaultConfigs) {
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
+        for (int i = 0; i < static_cast<int>(SK_ARRAY_COUNT(gConfigs)); ++i) {
             if (gConfigs[i].runByDefault) {
                 *configs.append() = i;
             }

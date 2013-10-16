@@ -38,7 +38,7 @@ bool SkPopplerRasterizePDF(SkStream* pdf, SkBitmap* output) {
     return false;
   }
 
-  size_t width = image.width(), height = image.height();
+  int width = image.width(), height = image.height();
   size_t rowSize = image.bytes_per_row();
   char *imgData = image.data();
 
@@ -51,9 +51,9 @@ bool SkPopplerRasterizePDF(SkStream* pdf, SkBitmap* output) {
   SkPMColor* bitmapPixels = (SkPMColor*)bitmap.getPixels();
 
   // do pixel-by-pixel copy to deal with RGBA ordering conversions
-  for (size_t y = 0; y < height; y++) {
+  for (int y = 0; y < height; y++) {
     char *rowData = imgData;
-    for (size_t x = 0; x < width; x++) {
+    for (int x = 0; x < width; x++) {
       uint8_t a = rowData[3];
       uint8_t r = rowData[2];
       uint8_t g = rowData[1];

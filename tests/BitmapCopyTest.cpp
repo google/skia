@@ -415,7 +415,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 reporter->reportFailed(str);
             }
 
-            size_t subW, subH;
+            int subW, subH;
             // Set sizes to be height = 2 to force the last row of the
             // source to be used, thus verifying correct operation if
             // the bitmap is an extracted subset.
@@ -472,7 +472,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 // To simplify verifying correctness of copies attach
                 // buf to a SkBitmap, but copies are done using the
                 // raw buffer pointer.
-                const uint32_t bufSize = subH *
+                const size_t bufSize = subH *
                     SkBitmap::ComputeRowBytes(src.getConfig(), subW) * 2;
                 SkAutoMalloc autoBuf (bufSize);
                 uint8_t* buf = static_cast<uint8_t*>(autoBuf.get());
@@ -482,8 +482,8 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
 
                 // Set up values for each pixel being copied.
                 Coordinates coords(subW * subH);
-                for (size_t x = 0; x < subW; ++x)
-                    for (size_t y = 0; y < subH; ++y)
+                for (int x = 0; x < subW; ++x)
+                    for (int y = 0; y < subH; ++y)
                     {
                         int index = y * subW + x;
                         SkASSERT(index < coords.length);

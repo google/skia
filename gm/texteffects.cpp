@@ -194,7 +194,7 @@ protected:
 
         SkString str("Hamburgefons");
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++) {
+        for (int i = 0; i < static_cast<int>(SK_ARRAY_COUNT(gRastProcs)); i++) {
             apply_shader(&paint, i);
 
             //  paint.setMaskFilter(NULL);

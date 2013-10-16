@@ -78,7 +78,7 @@ void* GrGLBufferImpl::lock(GrGpuGL* gpu) {
         this->bind(gpu);
         // Let driver know it can discard the old data
         GL_CALL(gpu, BufferData(fBufferType,
-                                fDesc.fSizeInBytes,
+                                (GrGLsizeiptr) fDesc.fSizeInBytes,
                                 NULL,
                                 fDesc.fDynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
         GR_GL_CALL_RET(gpu->glInterface(),
@@ -119,7 +119,7 @@ bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInB
 
 #if GR_GL_USE_BUFFER_DATA_NULL_HINT
     if (fDesc.fSizeInBytes == srcSizeInBytes) {
-        GL_CALL(gpu, BufferData(fBufferType, srcSizeInBytes, src, usage));
+        GL_CALL(gpu, BufferData(fBufferType, (GrGLsizeiptr) srcSizeInBytes, src, usage));
     } else {
         // Before we call glBufferSubData we give the driver a hint using
         // glBufferData with NULL. This makes the old buffer contents
@@ -127,8 +127,8 @@ bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInB
         // draws that reference the old contents. With this hint it can
         // assign a different allocation for the new contents to avoid
         // flushing the gpu past draws consuming the old contents.
-        GL_CALL(gpu, BufferData(fBufferType, fDesc.fSizeInBytes, NULL, usage));
-        GL_CALL(gpu, BufferSubData(fBufferType, 0, srcSizeInBytes, src));
+        GL_CALL(gpu, BufferData(fBufferType, (GrGLsizeiptr) fDesc.fSizeInBytes, NULL, usage));
+        GL_CALL(gpu, BufferSubData(fBufferType, 0, (GrGLsizeiptr) srcSizeInBytes, src));
     }
 #else
     // Note that we're cheating on the size here. Currently no methods

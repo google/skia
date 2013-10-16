@@ -199,7 +199,7 @@ public:
 
     /** Reserves memory for the set.
      */
-    void setReserve(size_t reserve) {
+    void setReserve(int reserve) {
         SkASSERT(fSetArray);
         SkASSERT(fOrderedArray);
         fSetArray->setReserve(reserve);
