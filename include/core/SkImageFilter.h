@@ -31,9 +31,8 @@ class SK_API SkImageFilter : public SkFlattenable {
 public:
     SK_DECLARE_INST_COUNT(SkImageFilter)
 
-    struct CropRect {
-        SkRect fRect;
-        uint32_t fFlags;
+    class CropRect {
+    public:
         enum CropEdge {
             kHasLeft_CropEdge   = 0x01,
             kHasTop_CropEdge    = 0x02,
@@ -43,11 +42,11 @@ public:
         };
         CropRect() {}
         explicit CropRect(const SkRect& rect, uint32_t flags = kHasAll_CropEdge) : fRect(rect), fFlags(flags) {}
-        // Returns true if any of the crop edges have been set.
-        bool isSet() const
-        {
-            return fFlags != 0x0;
-        }
+        uint32_t flags() const { return fFlags; }
+        const SkRect& rect() const { return fRect; }
+    private:
+        SkRect fRect;
+        uint32_t fFlags;
     };
 
     class Proxy {
@@ -149,15 +148,16 @@ public:
     }
 
     /**
-     *  Returns the crop rectangle of this filter. This is set at construction
-     *  time, and determines which pixels from the input image will
-     *  be processed. The size of this rectangle should be used as the size
-     *  of the destination image. The origin of this rect should be used to
-     *  offset access to the input images, and should also be added to the
-     *  "offset" parameter in onFilterImage and filterImageGPU(). (The latter
-     *  ensures that the resulting buffer is drawn in the correct location.)
+     *  Returns whether any edges of the crop rect have been set. The crop
+     *  rect is set at construction time, and determines which pixels from the
+     *  input image will be processed. The size of the crop rect should be
+     *  used as the size of the destination image. The origin of this rect
+     *  should be used to offset access to the input images, and should also
+     *  be added to the "offset" parameter in onFilterImage and
+     *  filterImageGPU(). (The latter ensures that the resulting buffer is
+     *  drawn in the correct location.)
      */
-    bool cropRectIsSet() const { return fCropRect.isSet(); }
+    bool cropRectIsSet() const { return fCropRect.flags() != 0x0; }
 
 protected:
     SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = NULL);

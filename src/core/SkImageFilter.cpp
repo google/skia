@@ -61,8 +61,10 @@ SkImageFilter::SkImageFilter(SkFlattenableReadBuffer& buffer)
             fInputs[i] = NULL;
         }
     }
-    buffer.readRect(&fCropRect.fRect);
-    fCropRect.fFlags = buffer.readUInt();
+    SkRect rect;
+    buffer.readRect(&rect);
+    uint32_t flags = buffer.readUInt();
+    fCropRect = CropRect(rect, flags);
 }
 
 void SkImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
@@ -74,8 +76,8 @@ void SkImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
             buffer.writeFlattenable(input);
         }
     }
-    buffer.writeRect(fCropRect.fRect);
-    buffer.writeUInt(fCropRect.fFlags);
+    buffer.writeRect(fCropRect.rect());
+    buffer.writeUInt(fCropRect.flags());
 }
 
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
@@ -158,14 +160,15 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMa
 
 bool SkImageFilter::applyCropRect(SkIRect* rect, const SkMatrix& matrix) const {
     SkRect cropRect;
-    matrix.mapRect(&cropRect, fCropRect.fRect);
+    matrix.mapRect(&cropRect, fCropRect.rect());
     SkIRect cropRectI;
     cropRect.roundOut(&cropRectI);
+    uint32_t flags = fCropRect.flags();
     // If the original crop rect edges were unset, max out the new crop edges
-    if (!(fCropRect.fFlags & CropRect::kHasLeft_CropEdge)) cropRectI.fLeft = SK_MinS32;
-    if (!(fCropRect.fFlags & CropRect::kHasTop_CropEdge)) cropRectI.fTop = SK_MinS32;
-    if (!(fCropRect.fFlags & CropRect::kHasRight_CropEdge)) cropRectI.fRight = SK_MaxS32;
-    if (!(fCropRect.fFlags & CropRect::kHasBottom_CropEdge)) cropRectI.fBottom = SK_MaxS32;
+    if (!(flags & CropRect::kHasLeft_CropEdge)) cropRectI.fLeft = SK_MinS32;
+    if (!(flags & CropRect::kHasTop_CropEdge)) cropRectI.fTop = SK_MinS32;
+    if (!(flags & CropRect::kHasRight_CropEdge)) cropRectI.fRight = SK_MaxS32;
+    if (!(flags & CropRect::kHasBottom_CropEdge)) cropRectI.fBottom = SK_MaxS32;
     return rect->intersect(cropRectI);
 }
 
