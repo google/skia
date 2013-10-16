@@ -12,7 +12,10 @@
     {
       'target_name': 'everything',
       'type': 'none',
-      'dependencies': ['most.gyp:most'],
+      'dependencies': [
+        'most.gyp:most',
+        'dm.gyp:dm',
+      ],
       'conditions': [
         ['skia_os in ("ios", "android", "chromeos") or (skia_os == "mac" and skia_arch_width == 32)', {
           # debugger is not supported on this platform
