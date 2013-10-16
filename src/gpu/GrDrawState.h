@@ -160,8 +160,7 @@ public:
          }
 
          ~AutoVertexAttribRestore(){
-             fDrawState->fCommon.fVAPtr = fVAPtr;
-             fDrawState->fCommon.fVACount = fVACount;
+             fDrawState->setVertexAttribs(fVAPtr, fVACount);
          }
 
      private:
