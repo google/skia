@@ -846,7 +846,7 @@ void SkDeferredCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
+void SkDeferredCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
     if (fDeferredDrawing && this->isFullFrame(&rect, &paint) &&
         isPaintOpaque(&paint)) {
         this->getDeferredDevice()->skipPendingCommands();
@@ -869,7 +869,7 @@ void SkDeferredCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     }
 }
 
-void SkDeferredCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
+void SkDeferredCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawPath(path, paint);
     this->recordedDrawCommand();

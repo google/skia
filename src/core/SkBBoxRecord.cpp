@@ -20,23 +20,23 @@ void SkBBoxRecord::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     }
 }
 
-void SkBBoxRecord::onDrawRect(const SkRect& rect, const SkPaint& paint) {
+void SkBBoxRecord::drawRect(const SkRect& rect, const SkPaint& paint) {
     if (this->transformBounds(rect, &paint)) {
-        INHERITED::onDrawRect(rect, paint);
+        INHERITED::drawRect(rect, paint);
     }
 }
 
-void SkBBoxRecord::onDrawPath(const SkPath& path, const SkPaint& paint) {
+void SkBBoxRecord::drawPath(const SkPath& path, const SkPaint& paint) {
     if (path.isInverseFillType()) {
         // If path is inverse filled, use the current clip bounds as the
         // path's device-space bounding box.
         SkIRect clipBounds;
         if (this->getClipDeviceBounds(&clipBounds)) {
             this->handleBBox(SkRect::MakeFromIRect(clipBounds));
-            INHERITED::onDrawPath(path, paint);
+            INHERITED::drawPath(path, paint);
         }
     } else if (this->transformBounds(path.getBounds(), &paint)) {
-        INHERITED::onDrawPath(path, paint);
+        INHERITED::drawPath(path, paint);
     }
 }
 

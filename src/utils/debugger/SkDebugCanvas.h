@@ -182,6 +182,8 @@ public:
 
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
 
+    virtual void drawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
+
     virtual void drawPicture(SkPicture& picture) SK_OVERRIDE;
 
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
@@ -193,6 +195,8 @@ public:
     virtual void drawPosTextH(const void* text, size_t byteLength,
                               const SkScalar xpos[], SkScalar constY,
                               const SkPaint&) SK_OVERRIDE;
+
+    virtual void drawRect(const SkRect& rect, const SkPaint&) SK_OVERRIDE;
 
     virtual void drawRRect(const SkRRect& rrect, const SkPaint& paint) SK_OVERRIDE;
 
@@ -230,11 +234,6 @@ public:
 
     static const int kVizImageHeight = 256;
     static const int kVizImageWidth = 256;
-
-protected:
-    virtual void onDrawRect(const SkRect& rect, const SkPaint&) SK_OVERRIDE;
-
-    virtual void onDrawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
 
 private:
     SkTDArray<SkDrawCommand*> fCommandVector;

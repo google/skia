@@ -575,20 +575,16 @@ public:
         will be filled or stroked based on the Style in the paint.
         @param rect     The rect to be drawn
         @param paint    The paint used to draw the rect
-
-        Overriding this function is deprecated. It will be made non-virtual
-        soon. Instead override onDrawRect.
     */
-    virtual void drawRect(const SkRect& rect, const SkPaint& paint) {
-        this->onDrawRect(rect, paint);
-    }
+    virtual void drawRect(const SkRect& rect, const SkPaint& paint);
 
     /** Draw the specified rectangle using the specified paint. The rectangle
         will be filled or framed based on the Style in the paint.
         @param rect     The rect to be drawn
         @param paint    The paint used to draw the rect
     */
-    void drawIRect(const SkIRect& rect, const SkPaint& paint) {
+    void drawIRect(const SkIRect& rect, const SkPaint& paint)
+    {
         SkRect r;
         r.set(rect);    // promotes the ints to scalars
         this->drawRect(r, paint);
@@ -660,18 +656,8 @@ public:
         filled or framed based on the Style in the paint.
         @param path     The path to be drawn
         @param paint    The paint used to draw the path
-
-        Overriding this function is deprecated. It will be made non-virtual
-        soon. Instead override onDrawRect.
     */
-    virtual void drawPath(const SkPath& path, const SkPaint& paint) {
-        SkRect rect;
-        if (path.isRect(&rect)) {
-            this->onDrawRect(rect, paint);
-        } else {
-            this->onDrawPath(path, paint);
-        }
-    }
+    virtual void drawPath(const SkPath& path, const SkPaint& paint);
 
     /** Draw the specified bitmap, with its top/left corner at (x,y), using the
         specified paint, transformed by the current matrix. Note: if the paint
@@ -1047,10 +1033,6 @@ protected:
     // notify our surface (if we have one) that we are about to draw, so it
     // can perform copy-on-write or invalidate any cached images
     void predrawNotify();
-
-    virtual void onDrawRect(const SkRect& rect, const SkPaint& paint);
-
-    virtual void onDrawPath(const SkPath& path, const SkPaint& paint);
 
     /** DEPRECATED -- use constructor(device)
 
