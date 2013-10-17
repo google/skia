@@ -899,9 +899,73 @@ void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
     SkDEBUGCODE(this->validate();)
 }
 
+#include "SkGeometry.h"
+
+static int build_arc_points(const SkRect& oval, SkScalar startAngle,
+                            SkScalar sweepAngle,
+                            SkPoint pts[kSkBuildQuadArcStorage]) {
+
+    if (0 == sweepAngle &&
+        (0 == startAngle || SkIntToScalar(360) == startAngle)) {
+        // Chrome uses this path to move into and out of ovals. If not
+        // treated as a special case the moves can distort the oval's
+        // bounding box (and break the circle special case).
+        pts[0].set(oval.fRight, oval.centerY());
+        return 1;
+    } else if (0 == oval.width() && 0 == oval.height()) {
+        // Chrome will sometimes create 0 radius round rects. Having degenerate
+        // quad segments in the path prevents the path from being recognized as
+        // a rect.
+        // TODO: optimizing the case where only one of width or height is zero
+        // should also be considered. This case, however, doesn't seem to be
+        // as common as the single point case.
+        pts[0].set(oval.fRight, oval.fTop);
+        return 1;
+    }
+
+    SkVector start, stop;
+
+    start.fY = SkScalarSinCos(SkDegreesToRadians(startAngle), &start.fX);
+    stop.fY = SkScalarSinCos(SkDegreesToRadians(startAngle + sweepAngle),
+                             &stop.fX);
+
+    /*  If the sweep angle is nearly (but less than) 360, then due to precision
+        loss in radians-conversion and/or sin/cos, we may end up with coincident
+        vectors, which will fool SkBuildQuadArc into doing nothing (bad) instead
+        of drawing a nearly complete circle (good).
+             e.g. canvas.drawArc(0, 359.99, ...)
+             -vs- canvas.drawArc(0, 359.9, ...)
+        We try to detect this edge case, and tweak the stop vector
+     */
+    if (start == stop) {
+        SkScalar sw = SkScalarAbs(sweepAngle);
+        if (sw < SkIntToScalar(360) && sw > SkIntToScalar(359)) {
+            SkScalar stopRad = SkDegreesToRadians(startAngle + sweepAngle);
+            // make a guess at a tiny angle (in radians) to tweak by
+            SkScalar deltaRad = SkScalarCopySign(SK_Scalar1/512, sweepAngle);
+            // not sure how much will be enough, so we use a loop
+            do {
+                stopRad -= deltaRad;
+                stop.fY = SkScalarSinCos(stopRad, &stop.fX);
+            } while (start == stop);
+        }
+    }
+
+    SkMatrix    matrix;
+
+    matrix.setScale(SkScalarHalf(oval.width()), SkScalarHalf(oval.height()));
+    matrix.postTranslate(oval.centerX(), oval.centerY());
+
+    return SkBuildQuadArc(start, stop,
+                          sweepAngle > 0 ? kCW_SkRotationDirection :
+                                           kCCW_SkRotationDirection,
+                          &matrix, pts);
+}
+
 static void add_corner_arc(SkPath* path, const SkRect& rect,
                            SkScalar rx, SkScalar ry, int startAngle,
-                           SkPath::Direction dir, bool forceMoveTo) {
+                           SkPath::Direction dir, bool addArcTo,
+                           bool forceMoveTo = false) {
     // These two asserts are not sufficient, since really we want to know
     // that the pair of radii (e.g. left and right, or top and bottom) sum
     // to <= dimension, but we don't have that data here, so we just have
@@ -931,7 +995,15 @@ static void add_corner_arc(SkPath* path, const SkRect& rect,
         sweep = -sweep;
     }
 
-    path->arcTo(r, start, sweep, forceMoveTo);
+    if (addArcTo) {
+        path->arcTo(r, start, sweep, forceMoveTo);
+    } else {
+        SkPoint pts[kSkBuildQuadArcStorage];
+        int count = build_arc_points(r, start, sweep, pts);
+        for (int i = 1; i < count; i += 2) {
+            path->quadTo(pts[i], pts[i+1]);
+        }
+    }
 }
 
 void SkPath::addRoundRect(const SkRect& rect, const SkScalar radii[],
@@ -961,15 +1033,15 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
         SkAutoPathBoundsUpdate apbu(this, bounds);
 
         if (kCW_Direction == dir) {
-            add_corner_arc(this, bounds, rrect.fRadii[0].fX, rrect.fRadii[0].fY, 180, dir, true);
-            add_corner_arc(this, bounds, rrect.fRadii[1].fX, rrect.fRadii[1].fY, 270, dir, false);
-            add_corner_arc(this, bounds, rrect.fRadii[2].fX, rrect.fRadii[2].fY,   0, dir, false);
-            add_corner_arc(this, bounds, rrect.fRadii[3].fX, rrect.fRadii[3].fY,  90, dir, false);
+            add_corner_arc(this, bounds, rrect.fRadii[0].fX, rrect.fRadii[0].fY, 180, dir, true, true);
+            add_corner_arc(this, bounds, rrect.fRadii[1].fX, rrect.fRadii[1].fY, 270, dir, true);
+            add_corner_arc(this, bounds, rrect.fRadii[2].fX, rrect.fRadii[2].fY,   0, dir, true);
+            add_corner_arc(this, bounds, rrect.fRadii[3].fX, rrect.fRadii[3].fY,  90, dir, true);
         } else {
-            add_corner_arc(this, bounds, rrect.fRadii[0].fX, rrect.fRadii[0].fY, 180, dir, true);
-            add_corner_arc(this, bounds, rrect.fRadii[3].fX, rrect.fRadii[3].fY,  90, dir, false);
-            add_corner_arc(this, bounds, rrect.fRadii[2].fX, rrect.fRadii[2].fY,   0, dir, false);
-            add_corner_arc(this, bounds, rrect.fRadii[1].fX, rrect.fRadii[1].fY, 270, dir, false);
+            add_corner_arc(this, bounds, rrect.fRadii[0].fX, rrect.fRadii[0].fY, 180, dir, true, true);
+            add_corner_arc(this, bounds, rrect.fRadii[3].fX, rrect.fRadii[3].fY,  90, dir, true);
+            add_corner_arc(this, bounds, rrect.fRadii[2].fX, rrect.fRadii[2].fY,   0, dir, true);
+            add_corner_arc(this, bounds, rrect.fRadii[1].fX, rrect.fRadii[1].fY, 270, dir, true);
         }
         this->close();
     }
@@ -989,7 +1061,9 @@ bool SkPath::hasOnlyMoveTos() const {
     return true;
 }
 
+#ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
 #define CUBIC_ARC_FACTOR    ((SK_ScalarSqrt2 - SK_Scalar1) * 4 / 3)
+#endif
 
 void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                           Direction dir) {
@@ -1031,60 +1105,96 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
         ry = halfH;
     }
 
+#ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
     SkScalar    sx = SkScalarMul(rx, CUBIC_ARC_FACTOR);
     SkScalar    sy = SkScalarMul(ry, CUBIC_ARC_FACTOR);
 
     this->incReserve(17);
+#else
+    this->incReserve(13);
+#endif
     this->moveTo(rect.fRight - rx, rect.fTop);
     if (dir == kCCW_Direction) {
         if (!skip_hori) {
-            this->lineTo(rect.fLeft + rx, rect.fTop);       // top
+            this->lineTo(rect.fLeft + rx, rect.fTop);           // top
         }
+#ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
         this->cubicTo(rect.fLeft + rx - sx, rect.fTop,
                       rect.fLeft, rect.fTop + ry - sy,
                       rect.fLeft, rect.fTop + ry);          // top-left
+#else
+        add_corner_arc(this, rect, rx, ry, 180, dir, false);    // top-left
+#endif
         if (!skip_vert) {
             this->lineTo(rect.fLeft, rect.fBottom - ry);        // left
         }
+#ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
         this->cubicTo(rect.fLeft, rect.fBottom - ry + sy,
                       rect.fLeft + rx - sx, rect.fBottom,
                       rect.fLeft + rx, rect.fBottom);       // bot-left
+#else
+        add_corner_arc(this, rect, rx, ry, 90, dir, false);     // bot-left
+#endif
         if (!skip_hori) {
-            this->lineTo(rect.fRight - rx, rect.fBottom);   // bottom
+            this->lineTo(rect.fRight - rx, rect.fBottom);       // bottom
         }
+#ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
         this->cubicTo(rect.fRight - rx + sx, rect.fBottom,
                       rect.fRight, rect.fBottom - ry + sy,
                       rect.fRight, rect.fBottom - ry);      // bot-right
+#else
+        add_corner_arc(this, rect, rx, ry, 0, dir, false);      // bot-right
+#endif
         if (!skip_vert) {
-            this->lineTo(rect.fRight, rect.fTop + ry);
+            this->lineTo(rect.fRight, rect.fTop + ry);          // right
         }
+#ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
         this->cubicTo(rect.fRight, rect.fTop + ry - sy,
                       rect.fRight - rx + sx, rect.fTop,
                       rect.fRight - rx, rect.fTop);         // top-right
+#else
+        add_corner_arc(this, rect, rx, ry, 270, dir, false);    // top-right
+#endif
     } else {
+#ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
         this->cubicTo(rect.fRight - rx + sx, rect.fTop,
                       rect.fRight, rect.fTop + ry - sy,
                       rect.fRight, rect.fTop + ry);         // top-right
+#else
+        add_corner_arc(this, rect, rx, ry, 270, dir, false);    // top-right
+#endif
         if (!skip_vert) {
-            this->lineTo(rect.fRight, rect.fBottom - ry);
+            this->lineTo(rect.fRight, rect.fBottom - ry);       // right
         }
+#ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
         this->cubicTo(rect.fRight, rect.fBottom - ry + sy,
                       rect.fRight - rx + sx, rect.fBottom,
                       rect.fRight - rx, rect.fBottom);      // bot-right
+#else
+        add_corner_arc(this, rect, rx, ry, 0, dir, false);      // bot-right
+#endif
         if (!skip_hori) {
-            this->lineTo(rect.fLeft + rx, rect.fBottom);    // bottom
+            this->lineTo(rect.fLeft + rx, rect.fBottom);        // bottom
         }
+#ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
         this->cubicTo(rect.fLeft + rx - sx, rect.fBottom,
                       rect.fLeft, rect.fBottom - ry + sy,
                       rect.fLeft, rect.fBottom - ry);       // bot-left
+#else
+        add_corner_arc(this, rect, rx, ry, 90, dir, false);     // bot-left
+#endif
         if (!skip_vert) {
-            this->lineTo(rect.fLeft, rect.fTop + ry);       // left
+            this->lineTo(rect.fLeft, rect.fTop + ry);           // left
         }
+#ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
         this->cubicTo(rect.fLeft, rect.fTop + ry - sy,
                       rect.fLeft + rx - sx, rect.fTop,
                       rect.fLeft + rx, rect.fTop);          // top-left
+#else
+        add_corner_arc(this, rect, rx, ry, 180, dir, false);    // top-left
+#endif
         if (!skip_hori) {
-            this->lineTo(rect.fRight - rx, rect.fTop);      // top
+            this->lineTo(rect.fRight - rx, rect.fTop);          // top
         }
     }
     this->close();
@@ -1172,69 +1282,6 @@ void SkPath::addCircle(SkScalar x, SkScalar y, SkScalar r, Direction dir) {
     }
 }
 
-#include "SkGeometry.h"
-
-static int build_arc_points(const SkRect& oval, SkScalar startAngle,
-                            SkScalar sweepAngle,
-                            SkPoint pts[kSkBuildQuadArcStorage]) {
-
-    if (0 == sweepAngle &&
-        (0 == startAngle || SkIntToScalar(360) == startAngle)) {
-        // Chrome uses this path to move into and out of ovals. If not
-        // treated as a special case the moves can distort the oval's
-        // bounding box (and break the circle special case).
-        pts[0].set(oval.fRight, oval.centerY());
-        return 1;
-    } else if (0 == oval.width() && 0 == oval.height()) {
-        // Chrome will sometimes create 0 radius round rects. Having degenerate
-        // quad segments in the path prevents the path from being recognized as
-        // a rect.
-        // TODO: optimizing the case where only one of width or height is zero
-        // should also be considered. This case, however, doesn't seem to be
-        // as common as the single point case.
-        pts[0].set(oval.fRight, oval.fTop);
-        return 1;
-    }
-
-    SkVector start, stop;
-
-    start.fY = SkScalarSinCos(SkDegreesToRadians(startAngle), &start.fX);
-    stop.fY = SkScalarSinCos(SkDegreesToRadians(startAngle + sweepAngle),
-                             &stop.fX);
-
-    /*  If the sweep angle is nearly (but less than) 360, then due to precision
-        loss in radians-conversion and/or sin/cos, we may end up with coincident
-        vectors, which will fool SkBuildQuadArc into doing nothing (bad) instead
-        of drawing a nearly complete circle (good).
-             e.g. canvas.drawArc(0, 359.99, ...)
-             -vs- canvas.drawArc(0, 359.9, ...)
-        We try to detect this edge case, and tweak the stop vector
-     */
-    if (start == stop) {
-        SkScalar sw = SkScalarAbs(sweepAngle);
-        if (sw < SkIntToScalar(360) && sw > SkIntToScalar(359)) {
-            SkScalar stopRad = SkDegreesToRadians(startAngle + sweepAngle);
-            // make a guess at a tiny angle (in radians) to tweak by
-            SkScalar deltaRad = SkScalarCopySign(SK_Scalar1/512, sweepAngle);
-            // not sure how much will be enough, so we use a loop
-            do {
-                stopRad -= deltaRad;
-                stop.fY = SkScalarSinCos(stopRad, &stop.fX);
-            } while (start == stop);
-        }
-    }
-
-    SkMatrix    matrix;
-
-    matrix.setScale(SkScalarHalf(oval.width()), SkScalarHalf(oval.height()));
-    matrix.postTranslate(oval.centerX(), oval.centerY());
-
-    return SkBuildQuadArc(start, stop,
-                          sweepAngle > 0 ? kCW_SkRotationDirection :
-                                           kCCW_SkRotationDirection,
-                          &matrix, pts);
-}
-
 void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
                    bool forceMoveTo) {
     if (oval.width() < 0 || oval.height() < 0) {
@@ -1255,8 +1302,7 @@ void SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
     }
 }
 
-void SkPath::addArc(const SkRect& oval, SkScalar startAngle,
-                    SkScalar sweepAngle) {
+void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle) {
     if (oval.isEmpty() || 0 == sweepAngle) {
         return;
     }

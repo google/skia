@@ -30,3 +30,26 @@
 # Added by epoger for https://code.google.com/p/skia/issues/detail?id=1657
 # ('Poppler random failures'): ignore any Poppler failures, for now
 pdf-poppler
+
+# Added by robertphillips as part of https://codereview.chromium.org/26372006/
+rrect
+rrect_aa
+rrect_bw
+pathinterior
+strokes_round
+complexclip2_path_aa
+complexclip2_path_bw
+strokerect
+nest_aa
+ninepatch-stretch
+roundrects
+mixed_xfermodes
+simpleaaclip_path
+simpleaaclip_aaclip
+rrect_clip_aa
+rrect_clip_bw
+pathopsskpclip
+samplerstress
+pathfill
+convexpaths
+
