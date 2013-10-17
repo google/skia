@@ -25,4 +25,3 @@ GrTextContext::GrTextContext(GrContext* context, const GrPaint& paint) : fPaint(
 
     fDrawTarget = fContext->getTextTarget();
 }
-

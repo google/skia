@@ -16,4 +16,3 @@ SK_DEFINE_INST_COUNT(SkWeakRefCnt)
 SkRefCnt::SkRefCnt(const SkRefCnt&) { }
 SkRefCnt& SkRefCnt::operator=(const SkRefCnt&) { return *this; }
 #endif
-

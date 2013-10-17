@@ -1448,7 +1448,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     if (rowBytes != tightRowBytes) {
         if (this->glCaps().packRowLengthSupport()) {
             SkASSERT(!(rowBytes % sizeof(GrColor)));
-            GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH, 
+            GL_CALL(PixelStorei(GR_GL_PACK_ROW_LENGTH,
                                 static_cast<GrGLint>(rowBytes / sizeof(GrColor))));
             readDstRowBytes = rowBytes;
         } else {

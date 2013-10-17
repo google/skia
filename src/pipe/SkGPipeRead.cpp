@@ -39,7 +39,7 @@ static SkEffectType paintflat_to_effecttype(PaintFlats pf) {
         kShader_SkEffectType,
         kXfermode_SkEffectType,
     };
-    
+
     SkASSERT((size_t)pf < SK_ARRAY_COUNT(gEffectTypesInPaintFlatsOrder));
     return (SkEffectType)gEffectTypesInPaintFlatsOrder[pf];
 }
