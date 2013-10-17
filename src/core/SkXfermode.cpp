@@ -13,11 +13,6 @@
 #include "SkFlattenableBuffers.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
-#include "SkUtilsArm.h"
-
-#if !SK_ARM_NEON_IS_NONE
-#include "SkXfermode_opts_arm_neon.h"
-#endif
 
 SK_DEFINE_INST_COUNT(SkXfermode)
 
@@ -1955,7 +1950,4 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSrcXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDstInXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDstOutXfermode)
-#if !SK_ARM_NEON_IS_NONE
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkNEONProcCoeffXfermode)
-#endif
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
