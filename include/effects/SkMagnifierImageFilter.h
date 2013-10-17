@@ -16,10 +16,6 @@ class SK_API SkMagnifierImageFilter : public SkImageFilter {
 public:
     SkMagnifierImageFilter(SkRect srcRect, SkScalar inset);
 
-#if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkMatrix& matrix) const SK_OVERRIDE;
-#endif
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMagnifierImageFilter)
 
 protected:
@@ -28,6 +24,9 @@ protected:
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+#if SK_SUPPORT_GPU
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkMatrix& matrix) const SK_OVERRIDE;
+#endif
 
 private:
     SkRect fSrcRect;

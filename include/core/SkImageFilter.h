@@ -86,23 +86,6 @@ public:
     bool filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst);
 
     /**
-     *  Returns true if the filter can be expressed a single-pass
-     *  GrEffect, used to process this filter on the GPU, or false if
-     *  not.
-     *
-     *  If effect is non-NULL, a new GrEffect instance is stored
-     *  in it.  The caller assumes ownership of the stage, and it is up to the
-     *  caller to unref it.
-     *
-     *  The effect can assume its vertexCoords space maps 1-to-1 with texels
-     *  in the texture.  "matrix" is a transformation to apply to filter
-     *  parameters before they are used in the effect. Note that this function
-     *  will be called with (NULL, NULL, SkMatrix::I()) to query for support,
-     *  so returning "true" indicates support for all possible matrices.
-     */
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix) const;
-
-    /**
      *  Returns true if the filter can be processed on the GPU.  This is most
      *  often used for multi-pass effects, where intermediate results must be
      *  rendered to textures.  For single-pass effects, use asNewEffect().
@@ -184,6 +167,23 @@ protected:
     // "rect" and the transformed crop rect. If there is no overlap, returns
     // false and leaves "rect" unchanged.
     bool applyCropRect(SkIRect* rect, const SkMatrix& matrix) const;
+
+    /**
+     *  Returns true if the filter can be expressed a single-pass
+     *  GrEffect, used to process this filter on the GPU, or false if
+     *  not.
+     *
+     *  If effect is non-NULL, a new GrEffect instance is stored
+     *  in it.  The caller assumes ownership of the stage, and it is up to the
+     *  caller to unref it.
+     *
+     *  The effect can assume its vertexCoords space maps 1-to-1 with texels
+     *  in the texture.  "matrix" is a transformation to apply to filter
+     *  parameters before they are used in the effect. Note that this function
+     *  will be called with (NULL, NULL, SkMatrix::I()) to query for support,
+     *  so returning "true" indicates support for all possible matrices.
+     */
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix) const;
 
 private:
     typedef SkFlattenable INHERITED;

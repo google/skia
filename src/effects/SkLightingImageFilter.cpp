@@ -262,10 +262,6 @@ public:
     SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale,
                                  SkScalar kd, SkImageFilter* input, const CropRect* cropRect);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDiffuseLightingImageFilter)
-
-#if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix) const SK_OVERRIDE;
-#endif
     SkScalar kd() const { return fKD; }
 
 protected:
@@ -273,7 +269,9 @@ protected:
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
-
+#if SK_SUPPORT_GPU
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix) const SK_OVERRIDE;
+#endif
 
 private:
     typedef SkLightingImageFilter INHERITED;
@@ -285,10 +283,6 @@ public:
     SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks, SkScalar shininess, SkImageFilter* input, const CropRect* cropRect);
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSpecularLightingImageFilter)
 
-#if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix) const SK_OVERRIDE;
-#endif
-
     SkScalar ks() const { return fKS; }
     SkScalar shininess() const { return fShininess; }
 
@@ -297,6 +291,9 @@ protected:
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+#if SK_SUPPORT_GPU
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix) const SK_OVERRIDE;
+#endif
 
 private:
     typedef SkLightingImageFilter INHERITED;

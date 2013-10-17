@@ -184,6 +184,7 @@ GrEffectRef* GrMagnifierEffect::TestCreate(SkRandom* random,
                                            GrContext* context,
                                            const GrDrawTargetCaps&,
                                            GrTexture** textures) {
+    GrTexture* texture = textures[0];
     const int kMaxWidth = 200;
     const int kMaxHeight = 200;
     const int kMaxInset = 20;
@@ -191,15 +192,16 @@ GrEffectRef* GrMagnifierEffect::TestCreate(SkRandom* random,
     uint32_t height = random->nextULessThan(kMaxHeight);
     uint32_t x = random->nextULessThan(kMaxWidth - width);
     uint32_t y = random->nextULessThan(kMaxHeight - height);
-    SkScalar inset = SkIntToScalar(random->nextULessThan(kMaxInset));
+    uint32_t inset = random->nextULessThan(kMaxInset);
 
-    SkAutoTUnref<SkMagnifierImageFilter> filter(
-            new SkMagnifierImageFilter(
-                SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
-                                 SkIntToScalar(width), SkIntToScalar(height)),
-                inset));
-    GrEffectRef* effect;
-    filter->asNewEffect(&effect, textures[0], SkMatrix::I());
+    GrEffectRef* effect = GrMagnifierEffect::Create(
+        texture,
+        (float) width / texture->width(),
+        (float) height / texture->height(),
+        texture->width() / (float) x,
+        texture->height() / (float) y,
+        (float) inset / texture->width(),
+        (float) inset / texture->height());
     SkASSERT(NULL != effect);
     return effect;
 }
