@@ -41,6 +41,7 @@ complexclip2_path_aa
 complexclip2_path_bw
 strokerect
 nested_aa
+nested_bw
 ninepatch-stretch
 roundrects
 mixed_xfermodes
