@@ -141,6 +141,11 @@ private slots:
     void actionOverdrawVizWidget(bool isToggled);
 
     /**
+        Applies the new texture filter override
+     */
+    void actionTextureFilter();
+
+    /**
         Rewinds from the current step back to the start of the commands.
      */
     void actionRewind();

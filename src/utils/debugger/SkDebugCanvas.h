@@ -16,6 +16,8 @@
 #include "SkTArray.h"
 #include "SkString.h"
 
+class SkTexOverrideFilter;
+
 class SK_API SkDebugCanvas : public SkCanvas {
 public:
     SkDebugCanvas(int width, int height);
@@ -27,6 +29,11 @@ public:
      * Enable or disable overdraw visualization
      */
     void setOverdrawViz(bool overdrawViz) { fOverdrawViz = overdrawViz; }
+
+    /**
+     * Enable or disable texure filtering override
+     */
+    void overrideTexFiltering(bool overrideTexFiltering, SkPaint::FilterLevel level); 
 
     /**
         Executes all draw calls to the canvas.
@@ -245,8 +252,12 @@ private:
     SkMatrix fUserMatrix;
     SkMatrix fMatrix;
     SkIRect fClip;
+
     bool fOverdrawViz;
     SkDrawFilter* fOverdrawFilter;
+
+    bool fOverrideTexFiltering;
+    SkTexOverrideFilter* fTexOverrideFilter;
 
     /**
         Number of unmatched save() calls at any point during a draw.

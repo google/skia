@@ -107,6 +107,12 @@ public:
         }
     }
 
+    void setTexFilterOverride(bool texFilterOverride, SkPaint::FilterLevel level) {
+        if (NULL != fDebugCanvas) {
+            fDebugCanvas->overrideTexFiltering(texFilterOverride, level);
+        }
+    }
+
     void getOverviewText(const SkTDArray<double>* typeTimes, double totTime,
                          SkString* overview, int numRuns);
 

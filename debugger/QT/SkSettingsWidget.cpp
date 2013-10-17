@@ -91,6 +91,34 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     connect(&fGLMSAA16On, SIGNAL(toggled(bool)), this, SIGNAL(glSettingsChanged()));
 #endif
 
+    {
+        // set up filter buttons
+        fFilterButtonGroup.setTitle("Filtering");
+        fFilterButtonGroup.setMinimumWidth(178);
+        fFilterButtonGroup.setMaximumWidth(178);
+
+        fFilterDefault.setText("As encoded");
+        fFilterDefault.setChecked(true);
+        fFilterNone.setText("None");
+        fFilterLow.setText("Low");
+        fFilterMed.setText("Med");
+        fFilterHigh.setText("High");
+
+        fFilterLayout.addWidget(&fFilterDefault);
+        fFilterLayout.addWidget(&fFilterNone);
+        fFilterLayout.addWidget(&fFilterLow);
+        fFilterLayout.addWidget(&fFilterMed);
+        fFilterLayout.addWidget(&fFilterHigh);
+
+        fFilterButtonGroup.setLayout(&fFilterLayout);
+
+        connect(&fFilterDefault, SIGNAL(toggled(bool)), this, SIGNAL(texFilterSettingsChanged()));
+        connect(&fFilterNone,    SIGNAL(toggled(bool)), this, SIGNAL(texFilterSettingsChanged()));
+        connect(&fFilterLow,     SIGNAL(toggled(bool)), this, SIGNAL(texFilterSettingsChanged()));
+        connect(&fFilterMed,     SIGNAL(toggled(bool)), this, SIGNAL(texFilterSettingsChanged()));
+        connect(&fFilterHigh,    SIGNAL(toggled(bool)), this, SIGNAL(texFilterSettingsChanged()));
+    }
+
     fRasterLayout.addWidget(&fRasterLabel);
     fRasterLayout.addWidget(&fRasterCheckBox);
 
@@ -110,6 +138,7 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     fCanvasLayout.addLayout(&fGLLayout);
     fCanvasLayout.addWidget(&fGLMSAAButtonGroup);
 #endif
+    fCanvasLayout.addWidget(&fFilterButtonGroup);
 
     // Command Toggle
     fCommandToggle.setText("Command Scrolling Preferences");

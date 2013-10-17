@@ -94,6 +94,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
 #if SK_SUPPORT_GPU
     connect(&fSettingsWidget, SIGNAL(glSettingsChanged()), this, SLOT(actionGLWidget()));
 #endif
+    connect(&fSettingsWidget, SIGNAL(texFilterSettingsChanged()), this, SLOT(actionTextureFilter()));
     connect(fSettingsWidget.getRasterCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionRasterWidget(bool)));
     connect(fSettingsWidget.getOverdrawVizCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionOverdrawVizWidget(bool)));
     connect(&fActionPause, SIGNAL(toggled(bool)), this, SLOT(pauseDrawing(bool)));
@@ -518,6 +519,13 @@ void SkDebuggerGUI::actionRasterWidget(bool isToggled) {
 
 void SkDebuggerGUI::actionOverdrawVizWidget(bool isToggled) {
     fDebugger.setOverdrawViz(isToggled);
+    fCanvasWidget.update();
+}
+
+void SkDebuggerGUI::actionTextureFilter() {
+    SkPaint::FilterLevel level;
+    bool enabled = fSettingsWidget.getFilterOverride(&level);
+    fDebugger.setTexFilterOverride(enabled, level);
     fCanvasWidget.update();
 }
 

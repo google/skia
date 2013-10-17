@@ -20,6 +20,8 @@
 #include <QCheckBox>
 #include <QLineEdit>
 
+#include "SkPaint.h"
+
 /** \class SkSettingsWidget
 
     The SettingsWidget contains multiple checkboxes and toggles for altering
@@ -56,6 +58,25 @@ public:
 
 #endif
 
+    bool getFilterOverride(SkPaint::FilterLevel* filterLevel) {
+        if (fFilterDefault.isChecked()) {
+            *filterLevel = SkPaint::kNone_FilterLevel;
+            return false;
+        }
+
+        if (fFilterNone.isChecked()) {
+            *filterLevel = SkPaint::kNone_FilterLevel;
+        } else if (fFilterLow.isChecked()) {
+            *filterLevel = SkPaint::kLow_FilterLevel;
+        } else if (fFilterMed.isChecked()) {
+            *filterLevel = SkPaint::kMedium_FilterLevel;
+        } else {
+            *filterLevel = SkPaint::kHigh_FilterLevel;
+        }
+
+        return true;
+    }
+
     QCheckBox* getRasterCheckBox() {
         return &fRasterCheckBox;
     }
@@ -72,6 +93,7 @@ signals:
     void scrollingPreferences(bool isStickyActivate);
     void showStyle(bool isSingleCommand);
     void visibilityFilter(bool isEnabled);
+    void texFilterSettingsChanged();
 #if SK_SUPPORT_GPU
     void glSettingsChanged();
 #endif
@@ -121,6 +143,15 @@ private:
     QRadioButton fGLMSAA4On;
     QRadioButton fGLMSAA16On;
 #endif
+
+    // for filtering group
+    QGroupBox fFilterButtonGroup;
+    QVBoxLayout fFilterLayout;
+    QRadioButton fFilterDefault;
+    QRadioButton fFilterNone;
+    QRadioButton fFilterLow;
+    QRadioButton fFilterMed;
+    QRadioButton fFilterHigh;
 
     QFrame fZoomFrame;
     QHBoxLayout fZoomLayout;
