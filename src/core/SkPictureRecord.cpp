@@ -868,7 +868,7 @@ void SkPictureRecord::drawOval(const SkRect& oval, const SkPaint& paint) {
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawRect(const SkRect& rect, const SkPaint& paint) {
+void SkPictureRecord::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     // op + paint index + rect
     uint32_t size = 2 * kUInt32Size + sizeof(rect);
     size_t initialOffset = this->addDraw(DRAW_RECT, &size);
@@ -895,7 +895,7 @@ void SkPictureRecord::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     }
 }
 
-void SkPictureRecord::drawPath(const SkPath& path, const SkPaint& paint) {
+void SkPictureRecord::onDrawPath(const SkPath& path, const SkPaint& paint) {
     // op + paint index + path index
     uint32_t size = 3 * kUInt32Size;
     size_t initialOffset = this->addDraw(DRAW_PATH, &size);

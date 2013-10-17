@@ -323,7 +323,7 @@ void SkDumpCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
     this->dump(kDrawOval_Verb, &paint, "drawOval(%s)", str.c_str());
 }
 
-void SkDumpCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
+void SkDumpCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     SkString str;
     toString(rect, &str);
     this->dump(kDrawRect_Verb, &paint, "drawRect(%s)", str.c_str());
@@ -335,7 +335,7 @@ void SkDumpCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     this->dump(kDrawRRect_Verb, &paint, "drawRRect(%s)", str.c_str());
 }
 
-void SkDumpCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
+void SkDumpCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     SkString str;
     toString(path, &str);
     this->dump(kDrawPath_Verb, &paint, "drawPath(%s)", str.c_str());

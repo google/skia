@@ -135,7 +135,7 @@ static int showPathContour(SkPath::Iter& iter) {
 }
 
 class PathCanvas : public SkCanvas {
-    virtual void drawPath(const SkPath& path, const SkPaint& paint) {
+    virtual void onDrawPath(const SkPath& path, const SkPaint& paint) {
         if (nameonly) {
             SkDebugf("    %s%d,\n", filename.c_str(), ++count);
             return;
