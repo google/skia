@@ -17,6 +17,8 @@
 
 SK_DEFINE_INST_COUNT(SkPath);
 
+#define SK_IGNORE_QUAD_RR_CORNERS_OPT 1
+
 // This value is just made-up for now. When count is 4, calling memset was much
 // slower than just writing the loop. This seems odd, and hopefully in the
 // future this we appear to have been a fluke...
