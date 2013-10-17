@@ -150,7 +150,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
                                         simd)) {
                 // we failed to create fScaledBitmap, so just return and let
                 // the scanline proc handle it.
-                return true;
+                return false;
 
             }
             fScaledCacheID = SkScaledImageCache::AddAndLock(fOrigBitmap,
@@ -159,6 +159,12 @@ bool SkBitmapProcState::possiblyScaleImage() {
                                                             fScaledBitmap);
         }
         fScaledBitmap.lockPixels(); // wonder if Resize() should have locked this
+        if (!fScaledBitmap.getPixels()) {
+            // TODO: find out how this can happen, and add a unittest to exercise
+            // inspired by BUG=chromium:295895
+            return false;
+        }
+
         fBitmap = &fScaledBitmap;
 
         // set the inv matrix type to translate-only;
@@ -293,6 +299,11 @@ bool SkBitmapProcState::lockBaseBitmap() {
         }
     }
     fScaledBitmap.lockPixels(); // just 'cause the cache made a copy :(
+    if (!fScaledBitmap.getPixels()) {
+        // TODO: find out how this can happen, and add a unittest to exercise
+        // inspired by BUG=chromium:295895
+        return false;
+    }
     fBitmap = &fScaledBitmap;
     return true;
 }
