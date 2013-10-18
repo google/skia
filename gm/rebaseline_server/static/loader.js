@@ -45,13 +45,7 @@ Loader.controller(
         $scope.categories = data.categories;
         $scope.testData = data.testData;
         $scope.sortColumn = 'test';
-        $scope.showTodos = false;
-
-	$scope.dispositions = [
-	  'Unfiled', 'Hidden', 'Pending Approval'
-	];
-	$scope.defaultDisposition = $scope.dispositions[0];
-	$scope.viewingDisposition = $scope.defaultDisposition;
+        $scope.showTodos = true;
 
         for (var i = 0; i < $scope.testData.length; i++) {
           $scope.testData[i].index = i;
@@ -117,10 +111,6 @@ Loader.controller(
         $scope.hiddenConfigs[thisConfig] = true;
       }
       $scope.areUpdatesPending = true;
-    }
-
-    $scope.setViewingDisposition = function(disposition) {
-      $scope.viewingDisposition = disposition;
     }
 
     $scope.localTimeString = function(secondsPastEpoch) {

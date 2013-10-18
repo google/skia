@@ -6,7 +6,6 @@
   <title ng-bind="windowTitle"></title>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
   <script src="loader.js"></script>
-  <link rel="stylesheet" href="view.css">
 </head>
 
 <body>
@@ -14,75 +13,16 @@
     {{loadingMessage}}
   </em>
 
-  <div ng-hide="!categories"><!-- everything: hide until data is loaded -->
-
+  <div ng-hide="!categories">
     <div ng-hide="!(header.isEditable && header.isExported)"
          style="background-color:#ffbb00">
       WARNING!  These results are editable and exported, so any user
       who can connect to this server over the network can modify them.
     </div>
-
-    <div style="background-color:#bbffbb"><!-- TODOs -->
-      <p>
-      TODO(epoger):
-      <input type="checkbox" name="showTodosCheckbox" value="true"
-             ng-checked="showTodos == true"
-             ng-click="showTodos = !showTodos">
-      show
-      <ul ng-hide="!showTodos">
-        <li>
-          Implement editing of results (we have added the --editable
-          flag to the server, but it&#39;s not fully implemented yet).
-          <div ng-hide="!header.isEditable">
-            Currently selected items are: {{selectedItems}}
-          </div>
-        </li><li>
-          If server was run with --reload flag, automatically check for
-          new results and tell the user when new results are available
-          (the user can reload the page if he wants to see them).
-        </li><li>
-          Add ability to filter builder and test names
-          (using a free-form text field, with partial string match)
-        </li><li>
-          Add more columns, such as pixel diffs, notes/bugs,
-          ignoreFailure boolean
-        </li><li>
-          Improve the column sorting, as per
-          <a href="http://jsfiddle.net/vojtajina/js64b/14/">
-            http://jsfiddle.net/vojtajina/js64b/14/
-          </a>
-        </li><li>
-          Right now, if you change which column is used to
-          sort the data, the column widths may fluctuate based on the
-          longest string <i>currently visible</i> within the top {{displayLimit}}
-          results.  Can we fix the column widths to be wide enough to hold
-          any result, even the currently hidden results?
-        </li>
-      </ul>
-    </div><!-- TODOs -->
-
     <div ng-hide="!(header.timeUpdated)">
       Results current as of {{localTimeString(header.timeUpdated)}}
     </div>
-
-    <div style="font-size:20px"><!-- tabs -->
-      <div ng-repeat="disposition in dispositions"
-           style="display:inline-block">
-        <div class="disposition-tab-{{disposition == viewingDisposition}}"
-             style="display:inline-block"
-             ng-click="setViewingDisposition(disposition)">
-          &nbsp;{{disposition}}&nbsp;
-        </div>
-        <div style="display:inline-block">
-          &nbsp;
-        </div>
-      </div>
-    </div><!-- tabs -->
-
-    <div class="disposition-tab-true"><!-- display of current disposition type -->
-
-    <br>
-    <table ng-hide="viewingDisposition != defaultDisposition" border="1">
+  <table border="1">
     <tr>
       <th colspan="2">
         Filters
@@ -140,19 +80,49 @@
     </tr>
   </table>
 
+    <p>
+      TODO(epoger):
+      <input type="checkbox" name="showTodosCheckbox" value="true"
+             ng-checked="showTodos == true"
+             ng-click="showTodos = !showTodos">
+      show
+      <ul ng-hide="!showTodos">
+        <li>
+          Implement editing of results (we have added the --editable
+          flag to the server, but it&#39;s not fully implemented yet).
+          <div ng-hide="!header.isEditable">
+            Currently selected items are: {{selectedItems}}
+          </div>
+        </li><li>
+          If server was run with --reload flag, automatically check for
+          new results and tell the user when new results are available
+          (the user can reload the page if he wants to see them).
+        </li><li>
+          Add ability to filter builder and test names
+          (using a free-form text field, with partial string match)
+        </li><li>
+          Add more columns, such as pixel diffs, notes/bugs,
+          ignoreFailure boolean
+        </li><li>
+          Improve the column sorting, as per
+          <a href="http://jsfiddle.net/vojtajina/js64b/14/">
+            http://jsfiddle.net/vojtajina/js64b/14/
+          </a>
+        </li><li>
+          Right now, if you change which column is used to
+          sort the data, the column widths may fluctuate based on the
+          longest string <i>currently visible</i> within the top {{displayLimit}}
+          results.  Can we fix the column widths to be wide enough to hold
+          any result, even the currently hidden results?
+        </li>
+      </ul>
       <p>
-      Found {{filteredTestData.length}} matches;
-      <span ng-hide="filteredTestData.length <= limitedTestData.length">
-        displaying the first {{limitedTestData.length}}
-      </span>
-      <span ng-hide="filteredTestData.length > limitedTestData.length">
-        displaying them all
-      </span>
-      <br>
-
+      Found {{filteredTestData.length}} matches, and displaying the first
+      {{displayLimit}}: <br>
+      <!-- TODO(epoger): If (displayLimit <= filteredTestData.length),
+           modify this message to indicate that all results are shown. -->
       (click on the column header radio buttons to re-sort by that column)
       <br>
-
       <table border="1">
         <tr>
           <th ng-repeat="categoryName in ['resultType', 'builder', 'test', 'config']">
@@ -206,8 +176,7 @@
                    ng-click="toggleItemSelected(result.index)">
         </tr>
       </table>
-  </div><!-- display of current disposition type -->
-  </div><!-- everything: hide until data is loaded -->
+  </div>
 
   <!-- TODO(epoger): Can we get the base URLs (commondatastorage and
        issues list) from
