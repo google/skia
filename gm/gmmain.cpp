@@ -36,6 +36,7 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkStream.h"
+#include "SkString.h"
 #include "SkTArray.h"
 #include "SkTDict.h"
 #include "SkTileGridPicture.h"
@@ -1421,8 +1422,12 @@ DEFINE_bool(hierarchy, false, "Whether to use multilevel directory structure "
 DEFINE_string(ignoreErrorTypes, kDefaultIgnorableErrorTypes.asString(" ").c_str(),
               "Space-separated list of ErrorTypes that should be ignored. If any *other* error "
               "types are encountered, the tool will exit with a nonzero return value.");
+DEFINE_string(ignoreFailuresFile, "", "Path to file containing a list of tests for which we "
+              "should ignore failures.\n"
+              "The file should list one test per line, except for comment lines starting with #");
 DEFINE_string(ignoreTests, "", "Space delimited list of tests for which we should ignore "
-              "failures.");
+              "failures.\n"
+              "DEPRECATED in favor of --ignoreFailuresFile; see bug 1730");
 DEFINE_string(match, "", "[~][^]substring[$] [...] of test name to run.\n"
               "Multiple matches may be separated by spaces.\n"
               "~ causes a matching test to always be skipped\n"
@@ -1780,6 +1785,42 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
 }
 
 /**
+ * Read individual lines from a file, pushing them into the given array.
+ *
+ * @param filename path to the file to read
+ * @param lines array of strings to add the lines to
+ * @returns true if able to read lines from the file
+ */
+static bool read_lines_from_file(const char* filename, SkTArray<SkString> &lines) {
+    SkAutoTUnref<SkStream> streamWrapper(SkStream::NewFromFile(filename));
+    SkStream *stream = streamWrapper.get();
+    if (!stream) {
+        gm_fprintf(stderr, "unable to read file '%s'\n", filename);
+        return false;
+    }
+
+    char c;
+    SkString line;
+    while (1 == stream->read(&c, 1)) {
+        // If we hit either CR or LF, we've completed a line.
+        //
+        // TODO: If the file uses both CR and LF, this will return an extra blank
+        // line for each line of the file.  Which is OK for current purposes...
+        //
+        // TODO: Does this properly handle unicode?  It doesn't matter for
+        // current purposes...
+        if ((c == 0x0d) || (c == 0x0a)) {
+            lines.push_back(line);
+            line.reset();
+        } else {
+            line.append(&c, 1);
+        }
+    }
+    lines.push_back(line);
+    return true;
+}
+
+/**
  * Return a list of all entries in an array of strings as a single string
  * of this form:
  * "item1", "item2", "item3"
@@ -2020,9 +2061,32 @@ static bool parse_flags_ignore_error_types(ErrorCombination* outErrorTypes) {
  */
 static bool parse_flags_ignore_tests(SkTArray<SkString> &ignoreTestSubstrings) {
     ignoreTestSubstrings.reset();
-    for (int i = 0; i < FLAGS_ignoreTests.count(); i++) {
-        ignoreTestSubstrings.push_back(SkString(FLAGS_ignoreTests[i]));
+
+    // Parse --ignoreTests
+    if (FLAGS_ignoreTests.count() > 0) {
+        gm_fprintf(stderr, "you are using deprecated --ignoreTests flag\n");
+        for (int i = 0; i < FLAGS_ignoreTests.count(); i++) {
+            ignoreTestSubstrings.push_back(SkString(FLAGS_ignoreTests[i]));
+        }
     }
+
+    // Parse --ignoreFailuresFile
+    for (int i = 0; i < FLAGS_ignoreFailuresFile.count(); i++) {
+        SkTArray<SkString> linesFromFile;
+        if (!read_lines_from_file(FLAGS_ignoreFailuresFile[i], linesFromFile)) {
+            return false;
+        } else {
+            for (int j = 0; j < linesFromFile.count(); j++) {
+                SkString thisLine = linesFromFile[j];
+                if (thisLine.isEmpty() || thisLine.startsWith('#')) {
+                    // skip this line
+                } else {
+                    ignoreTestSubstrings.push_back(thisLine);
+                }
+            }
+        }
+    }
+
     return true;
 }
 
