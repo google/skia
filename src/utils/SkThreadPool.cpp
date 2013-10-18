@@ -28,7 +28,7 @@ static int num_cores() {
 }
 
 SkThreadPool::SkThreadPool(int count)
-: fDone(false) {
+: fState(kRunning_State), fBusyThreads(0) {
     if (count < 0) count = num_cores();
     // Create count threads, all running SkThreadPool::Loop.
     for (int i = 0; i < count; i++) {
@@ -39,14 +39,14 @@ SkThreadPool::SkThreadPool(int count)
 }
 
 SkThreadPool::~SkThreadPool() {
-    if (!fDone) {
+    if (kRunning_State == fState) {
         this->wait();
     }
 }
 
 void SkThreadPool::wait() {
     fReady.lock();
-    fDone = true;
+    fState = kWaiting_State;
     fReady.broadcast();
     fReady.unlock();
 
@@ -55,6 +55,7 @@ void SkThreadPool::wait() {
         fThreads[i]->join();
         SkDELETE(fThreads[i]);
     }
+    SkASSERT(fQueue.isEmpty());
 }
 
 /*static*/ void SkThreadPool::Loop(void* arg) {
@@ -65,8 +66,14 @@ void SkThreadPool::wait() {
         // We have to be holding the lock to read the queue and to call wait.
         pool->fReady.lock();
         while(pool->fQueue.isEmpty()) {
-            // Is it time to die?
-            if (pool->fDone) {
+            // Does the client want to stop and are all the threads ready to stop?
+            // If so, we move into the halting state, and whack all the threads so they notice.
+            if (kWaiting_State == pool->fState && pool->fBusyThreads == 0) {
+                pool->fState = kHalting_State;
+                pool->fReady.broadcast();
+            }
+            // Any time we find ourselves in the halting state, it's quitting time.
+            if (kHalting_State == pool->fState) {
                 pool->fReady.unlock();
                 return;
             }
@@ -83,14 +90,20 @@ void SkThreadPool::wait() {
         // Having claimed our SkRunnable, we now give up the lock while we run it.
         // Otherwise, we'd only ever do work on one thread at a time, which rather
         // defeats the point of this code.
+        pool->fBusyThreads++;
         pool->fReady.unlock();
 
         // OK, now really do the work.
         r->fRunnable->run();
         SkDELETE(r);
+
+        // Let everyone know we're not busy.
+        pool->fReady.lock();
+        pool->fBusyThreads--;
+        pool->fReady.unlock();
     }
 
-    SkASSERT(false); // Unreachable.  The only exit happens when pool->fDone.
+    SkASSERT(false); // Unreachable.  The only exit happens when pool->fState is kHalting_State.
 }
 
 void SkThreadPool::add(SkRunnable* r) {
@@ -105,7 +118,7 @@ void SkThreadPool::add(SkRunnable* r) {
 
     // We have some threads.  Queue it up!
     fReady.lock();
-    SkASSERT(!fDone);  // We shouldn't be adding work to a pool that's shut down.
+    SkASSERT(fState != kHalting_State);  // Shouldn't be able to add work when we're halting.
     LinkedRunnable* linkedRunnable = SkNEW(LinkedRunnable);
     linkedRunnable->fRunnable = r;
     fQueue.addToHead(linkedRunnable);
