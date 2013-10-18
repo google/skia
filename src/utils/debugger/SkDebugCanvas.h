@@ -33,7 +33,7 @@ public:
     /**
      * Enable or disable texure filtering override
      */
-    void overrideTexFiltering(bool overrideTexFiltering, SkPaint::FilterLevel level); 
+    void overrideTexFiltering(bool overrideTexFiltering, SkPaint::FilterLevel level);
 
     /**
         Executes all draw calls to the canvas.

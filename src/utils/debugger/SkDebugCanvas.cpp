@@ -133,7 +133,7 @@ private:
     typedef SkDrawFilter INHERITED;
 };
 
-// SkTexOverrideFilter modifies every paint to use the specified 
+// SkTexOverrideFilter modifies every paint to use the specified
 // texture filtering mode
 class SkTexOverrideFilter : public SkDrawFilter {
 public:
@@ -279,12 +279,12 @@ void SkDebugCanvas::toggleFilter(bool toggle) {
     fFilter = toggle;
 }
 
-void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkPaint::FilterLevel level) { 
+void SkDebugCanvas::overrideTexFiltering(bool overrideTexFiltering, SkPaint::FilterLevel level) {
     if (NULL == fTexOverrideFilter) {
         fTexOverrideFilter = new SkTexOverrideFilter;
     }
 
-    fOverrideTexFiltering = overrideTexFiltering; 
+    fOverrideTexFiltering = overrideTexFiltering;
     fTexOverrideFilter->setFilterLevel(level);
 }
 
