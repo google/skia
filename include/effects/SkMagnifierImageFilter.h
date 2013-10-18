@@ -25,7 +25,7 @@ protected:
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkMatrix& matrix) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkMatrix& matrix, const SkIRect& bounds) const SK_OVERRIDE;
 #endif
 
 private:

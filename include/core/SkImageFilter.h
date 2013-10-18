@@ -89,7 +89,8 @@ public:
      *  Returns true if the filter can be processed on the GPU.  This is most
      *  often used for multi-pass effects, where intermediate results must be
      *  rendered to textures.  For single-pass effects, use asNewEffect().
-     *  The default implementation returns asNewEffect(NULL, NULL, SkMatrix::I()).
+     *  The default implementation returns asNewEffect(NULL, NULL, SkMatrix::I(),
+     *  SkIRect()).
      */
     virtual bool canFilterImageGPU() const;
 
@@ -183,7 +184,10 @@ protected:
      *  will be called with (NULL, NULL, SkMatrix::I()) to query for support,
      *  so returning "true" indicates support for all possible matrices.
      */
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix) const;
+    virtual bool asNewEffect(GrEffectRef** effect,
+                             GrTexture*,
+                             const SkMatrix& matrix,
+                             const SkIRect& bounds) const;
 
 private:
     typedef SkFlattenable INHERITED;

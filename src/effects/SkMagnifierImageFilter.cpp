@@ -247,7 +247,7 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(SkRect srcRect, SkScalar inset)
 }
 
 #if SK_SUPPORT_GPU
-bool SkMagnifierImageFilter::asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkMatrix&) const {
+bool SkMagnifierImageFilter::asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkMatrix&, const SkIRect&) const {
     if (effect) {
         *effect = GrMagnifierEffect::Create(texture,
                                             fSrcRect.x() / texture->width(),

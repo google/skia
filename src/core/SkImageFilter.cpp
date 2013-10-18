@@ -106,7 +106,7 @@ bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const SkMatrix&,
 }
 
 bool SkImageFilter::canFilterImageGPU() const {
-    return this->asNewEffect(NULL, NULL, SkMatrix::I());
+    return this->asNewEffect(NULL, NULL, SkMatrix::I(), SkIRect());
 }
 
 bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
@@ -141,7 +141,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMa
     GrEffectRef* effect;
     SkMatrix matrix(ctm);
     matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
-    this->asNewEffect(&effect, srcTexture, matrix);
+    this->asNewEffect(&effect, srcTexture, matrix, bounds);
     SkASSERT(effect);
     SkAutoUnref effectRef(effect);
     GrPaint paint;
@@ -178,7 +178,7 @@ bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
     return true;
 }
 
-bool SkImageFilter::asNewEffect(GrEffectRef**, GrTexture*, const SkMatrix&) const {
+bool SkImageFilter::asNewEffect(GrEffectRef**, GrTexture*, const SkMatrix&, const SkIRect&) const {
     return false;
 }
 

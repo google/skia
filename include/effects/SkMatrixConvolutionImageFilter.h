@@ -47,9 +47,18 @@ public:
                            alpha is copied from the source image.
         @param input       The input image filter.  If NULL, the src bitmap
                            passed to filterImage() is used instead.
+        @param cropRect    The rectangle to which the output processing will be limited.
     */
 
-    SkMatrixConvolutionImageFilter(const SkISize& kernelSize, const SkScalar* kernel, SkScalar gain, SkScalar bias, const SkIPoint& target, TileMode tileMode, bool convolveAlpha, SkImageFilter* input = NULL);
+    SkMatrixConvolutionImageFilter(const SkISize& kernelSize,
+                                   const SkScalar* kernel,
+                                   SkScalar gain,
+                                   SkScalar bias,
+                                   const SkIPoint& target,
+                                   TileMode tileMode,
+                                   bool convolveAlpha,
+                                   SkImageFilter* input = NULL,
+                                   const CropRect* cropRect = NULL);
     virtual ~SkMatrixConvolutionImageFilter();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)
@@ -62,7 +71,10 @@ protected:
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrEffectRef** effect,
+                             GrTexture*,
+                             const SkMatrix& matrix,
+                             const SkIRect& bounds) const SK_OVERRIDE;
 #endif
 
 private:
@@ -76,11 +88,23 @@ private:
     typedef SkImageFilter INHERITED;
 
     template <class PixelFetcher, bool convolveAlpha>
-    void filterPixels(const SkBitmap& src, SkBitmap* result, const SkIRect& rect);
+    void filterPixels(const SkBitmap& src,
+                      SkBitmap* result,
+                      const SkIRect& rect,
+                      const SkIRect& bounds);
     template <class PixelFetcher>
-    void filterPixels(const SkBitmap& src, SkBitmap* result, const SkIRect& rect);
-    void filterInteriorPixels(const SkBitmap& src, SkBitmap* result, const SkIRect& rect);
-    void filterBorderPixels(const SkBitmap& src, SkBitmap* result, const SkIRect& rect);
+    void filterPixels(const SkBitmap& src,
+                      SkBitmap* result,
+                      const SkIRect& rect,
+                      const SkIRect& bounds);
+    void filterInteriorPixels(const SkBitmap& src,
+                              SkBitmap* result,
+                              const SkIRect& rect,
+                              const SkIRect& bounds);
+    void filterBorderPixels(const SkBitmap& src,
+                            SkBitmap* result,
+                            const SkIRect& rect,
+                            const SkIRect& bounds);
 };
 
 #endif

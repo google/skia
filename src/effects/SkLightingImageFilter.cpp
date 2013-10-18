@@ -270,7 +270,7 @@ protected:
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix, const SkIRect& bounds) const SK_OVERRIDE;
 #endif
 
 private:
@@ -292,7 +292,7 @@ protected:
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix, const SkIRect& bounds) const SK_OVERRIDE;
 #endif
 
 private:
@@ -957,7 +957,7 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy*,
 }
 
 #if SK_SUPPORT_GPU
-bool SkDiffuseLightingImageFilter::asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkMatrix& matrix) const {
+bool SkDiffuseLightingImageFilter::asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkMatrix& matrix, const SkIRect&) const {
     if (effect) {
         SkScalar scale = SkScalarMul(surfaceScale(), SkIntToScalar(255));
         *effect = GrDiffuseLightingEffect::Create(texture, light(), scale, matrix, kd());
@@ -1033,7 +1033,7 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy*,
 }
 
 #if SK_SUPPORT_GPU
-bool SkSpecularLightingImageFilter::asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkMatrix& matrix) const {
+bool SkSpecularLightingImageFilter::asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkMatrix& matrix, const SkIRect&) const {
     if (effect) {
         SkScalar scale = SkScalarMul(surfaceScale(), SkIntToScalar(255));
         *effect = GrSpecularLightingEffect::Create(texture, light(), scale, matrix, ks(), shininess());

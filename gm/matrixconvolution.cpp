@@ -44,10 +44,12 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(400, 300);
+        return make_isize(500, 300);
     }
 
-    void draw(SkCanvas* canvas, int x, int y, const SkIPoint& target, SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha) {
+    void draw(SkCanvas* canvas, int x, int y, const SkIPoint& target,
+              SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha,
+              const SkImageFilter::CropRect* cropRect = NULL) {
         SkScalar kernel[9] = {
             SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
             SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
@@ -56,14 +58,26 @@ protected:
         SkISize kernelSize = SkISize::Make(3, 3);
         SkScalar gain = SkFloatToScalar(0.3f), bias = SkIntToScalar(100);
         SkPaint paint;
-        SkAutoTUnref<SkImageFilter> filter(SkNEW_ARGS(SkMatrixConvolutionImageFilter, (kernelSize, kernel, gain, bias, target, tileMode, convolveAlpha)));
+        SkAutoTUnref<SkImageFilter> filter(
+            SkNEW_ARGS(SkMatrixConvolutionImageFilter, (kernelSize,
+                                                        kernel,
+                                                        gain,
+                                                        bias,
+                                                        target,
+                                                        tileMode,
+                                                        convolveAlpha,
+                                                        NULL,
+                                                        cropRect)));
         paint.setImageFilter(filter);
         canvas->save();
-        canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
-            SkIntToScalar(fBitmap.width()), SkIntToScalar(fBitmap.height())));
-        canvas->drawBitmap(fBitmap, SkIntToScalar(x), SkIntToScalar(y), &paint);
+        canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+        canvas->clipRect(SkRect::MakeWH(SkIntToScalar(fBitmap.width()),
+                                        SkIntToScalar(fBitmap.height())));
+        canvas->drawBitmap(fBitmap, 0, 0, &paint);
         canvas->restore();
     }
+
+    typedef SkMatrixConvolutionImageFilter MCIF;
 
     virtual void onDraw(SkCanvas* canvas) {
         if (!fInitialized) {
@@ -73,15 +87,20 @@ protected:
         canvas->clear(0x00000000);
         SkIPoint target = SkIPoint::Make(1, 0);
         for (int x = 10; x < 310; x += 100) {
-            draw(canvas, x, 10, target, SkMatrixConvolutionImageFilter::kClamp_TileMode, true);
-            draw(canvas, x, 110, target, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, true);
-            draw(canvas, x, 210, target, SkMatrixConvolutionImageFilter::kRepeat_TileMode, true);
+            this->draw(canvas, x, 10, target, MCIF::kClamp_TileMode, true);
+            this->draw(canvas, x, 110, target, MCIF::kClampToBlack_TileMode, true);
+            this->draw(canvas, x, 210, target, MCIF::kRepeat_TileMode, true);
             target.fY++;
         }
         target.fY = 1;
-        draw(canvas, 310, 10, target, SkMatrixConvolutionImageFilter::kClamp_TileMode, false);
-        draw(canvas, 310, 110, target, SkMatrixConvolutionImageFilter::kClampToBlack_TileMode, false);
-        draw(canvas, 310, 210, target, SkMatrixConvolutionImageFilter::kRepeat_TileMode, false);
+        SkImageFilter::CropRect rect(SkRect::MakeXYWH(10, 10, 60, 60));
+        this->draw(canvas, 310, 10, target, MCIF::kClamp_TileMode, true, &rect);
+        this->draw(canvas, 310, 110, target, MCIF::kClampToBlack_TileMode, true, &rect);
+        this->draw(canvas, 310, 210, target, MCIF::kRepeat_TileMode, true, &rect);
+
+        this->draw(canvas, 410, 10, target, MCIF::kClamp_TileMode, false);
+        this->draw(canvas, 410, 110, target, MCIF::kClampToBlack_TileMode, false);
+        this->draw(canvas, 410, 210, target, MCIF::kRepeat_TileMode, false);
     }
 
 private:

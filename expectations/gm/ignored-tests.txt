@@ -31,3 +31,6 @@
 # ('Poppler random failures'): ignore any Poppler failures, for now
 pdf-poppler
 
+# Added by senorblanco as part of https://codereview.chromium.org/27471002/.
+# New test cases added; will need rebaseline.
+matrixconvolution
