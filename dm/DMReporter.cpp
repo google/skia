@@ -3,7 +3,13 @@
 namespace DM {
 
 void Reporter::updateStatusLine() const {
-    SkDebugf("\r\033[K%d / %d, %d failed", this->finished(), this->started(), this->failed());
+    SkString status;
+    status.printf("\r\033[K%d / %d", this->finished(), this->started());
+    const int failed = this->failed();
+    if (failed > 0) {
+        status.appendf(", %d failed", failed);
+    }
+    SkDebugf(status.c_str());
 }
 
 int32_t Reporter::failed() const {

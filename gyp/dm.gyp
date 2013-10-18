@@ -25,6 +25,7 @@
             '../dm/DMTask.cpp',
             '../dm/DMTaskRunner.cpp',
             '../dm/DMUtil.cpp',
+            '../dm/DMWriteTask.cpp',
             '../gm/gm.cpp',
             '../gm/gm_expectations.cpp',
 

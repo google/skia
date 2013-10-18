@@ -51,4 +51,4 @@ bool ReplayTask::shouldSkip() const {
            fGM->getFlags() & skiagm::GM::kSkipPicture_Flag;
 }
 
-}  // namespace
+}  // namespace DM

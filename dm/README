@@ -3,7 +3,6 @@ DM is like GM, but multithreaded.  It doesn't do everything GM does yet.
 Current approximate list of missing features:
   --mismatchPath
   --missingExpectationsPath
-  --writePath
   --writePicturePath
 
   --deferred / --pipe

@@ -1,6 +1,7 @@
 #include "DMCpuTask.h"
 #include "DMReplayTask.h"
 #include "DMUtil.h"
+#include "DMWriteTask.h"
 #include "SkCommandLineFlags.h"
 
 DEFINE_bool(replay, false, "If true, run replay tests for each CpuTask.");
@@ -41,6 +42,7 @@ void CpuTask::draw() {
         this->spawnChild(SkNEW_ARGS(ReplayTask,
                                    ("replay", *this, fGMFactory(NULL), bitmap)));
     }
+    this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
 }
 
 bool CpuTask::shouldSkip() const {
