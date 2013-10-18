@@ -528,7 +528,7 @@ bool SkDashPathEffect::asPoints(PointData* results,
     return true;
 }
 
-SkFlattenable::Factory SkDashPathEffect::getFactory() {
+SkFlattenable::Factory SkDashPathEffect::getFactory() const {
     return fInitialDashLength < 0 ? NULL : CreateProc;
 }
 

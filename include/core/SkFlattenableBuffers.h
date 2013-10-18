@@ -182,7 +182,7 @@ public:
                                     SkPaint::TextEncoding encoding) = 0;
 
     // common data structures
-    virtual void writeFlattenable(SkFlattenable* flattenable) = 0;
+    virtual void writeFlattenable(const SkFlattenable* flattenable) = 0;
     virtual void writeColor(const SkColor& color) = 0;
     virtual void writeColorArray(const SkColor* color, uint32_t count) = 0;
     virtual void writePoint(const SkPoint& point) = 0;
@@ -222,7 +222,7 @@ public:
 
 protected:
     // A helper function so that each subclass does not have to be a friend of SkFlattenable
-    void flattenObject(SkFlattenable* obj, SkFlattenableWriteBuffer& buffer);
+    void flattenObject(const SkFlattenable* obj, SkFlattenableWriteBuffer& buffer);
 
     uint32_t fFlags;
 };

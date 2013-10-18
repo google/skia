@@ -27,10 +27,10 @@ class SkFlattenableWriteBuffer;
     }
 
 #define SK_DECLARE_UNFLATTENABLE_OBJECT() \
-    virtual Factory getFactory() SK_OVERRIDE { return NULL; }
+    virtual Factory getFactory() const SK_OVERRIDE { return NULL; }
 
 #define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable) \
-    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; } \
+    virtual Factory getFactory() const SK_OVERRIDE { return CreateProc; } \
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { \
         return SkNEW_ARGS(flattenable, (buffer)); \
     }
@@ -53,7 +53,7 @@ public:
      to recreate your class given a buffer (previously written to by your
      override of flatten().
      */
-    virtual Factory getFactory() = 0;
+    virtual Factory getFactory() const = 0;
 
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);

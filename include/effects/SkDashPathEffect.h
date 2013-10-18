@@ -47,7 +47,7 @@ public:
                           const SkStrokeRec&, const SkMatrix&,
                           const SkRect*) const SK_OVERRIDE;
 
-    virtual Factory getFactory() SK_OVERRIDE;
+    virtual Factory getFactory() const SK_OVERRIDE;
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
