@@ -210,74 +210,16 @@ static void tileModeCode(SkShader::TileMode mode, SkString* result) {
     }
 }
 
-/**
- *  Returns PS function code that would apply perspective to a x, y point.
- *  The function assumes that the stack has at least two elements,
- *  and that the top 2 elements are numeric values.
- *  After ececuting this code on a PS stack, the last 2 elements are updated
- *  while the rest of the stack is preserved intact.
- *  xy2xy is the inverse perspective matrix.
- */
-static SkString apply_perspective_to_coordinates(
-        const SkMatrix& inversePerspectiveMatrix) {
-    SkString code;
-    if (!inversePerspectiveMatrix.hasPerspective()) {
-        return code;
-    }
-
-    // Perspective matrix should be:
-    // 1   0  0
-    // 0   1  0
-    // p0 p1 p2
-
-    SkScalar p0 = inversePerspectiveMatrix[SkMatrix::kMPersp0];
-    SkScalar p1 = inversePerspectiveMatrix[SkMatrix::kMPersp1];
-    SkScalar p2 = inversePerspectiveMatrix[SkMatrix::kMPersp2];
-
-    // y = y / (p2 + p0 x + p1 y)
-    // x = x / (p2 + p0 x + p1 y)
-
-    // Input on stack: x y
-    code.append("dup ");                // x y y
-    code.appendScalar(p1);              // x y y p1
-    code.append(" mul "                 // x y y*p1
-                " 2 index ");           // x y y*p1 x
-    code.appendScalar(p0);              // x y y p1 x p0
-    code.append(" mul ");               // x y y*p1 x*p0
-    code.appendScalar(p2);              // x y y p1 x*p0 p2
-    code.append("add "                  // x y y*p1 x*p0+p2
-                "add "                  // x y y*p1+x*p0+p2
-                "1 index "              // x y y*p1+x*p0+p2 y
-                "1 index "              // x y y*p1+x*p0+p2 y y*p1+x*p0+p2
-                "div "                  // x y y*p1+x*p0+p2 y/(y*p1+x*p0+p2)
-                "4 1 roll "             // y/(y*p1+x*p0+p2) x y y*p1+x*p0+p2
-                "exch "                 // y/(y*p1+x*p0+p2) x y*p1+x*p0+p2 y
-                "pop "                  // y/(y*p1+x*p0+p2) x y*p1+x*p0+p2
-                "div "                  // y/(y*p1+x*p0+p2) x/(y*p1+x*p0+p2)
-                "exch\n");              // x/(y*p1+x*p0+p2) y/(y*p1+x*p0+p2)
-
-    return code;
-}
-
-static SkString linearCode(const SkShader::GradientInfo& info,
-                           const SkMatrix& perspectiveRemover) {
-    SkString function("{");
-
-    function.append(apply_perspective_to_coordinates(perspectiveRemover));
-
-    function.append("pop\n");  // Just ditch the y value.
+static SkString linearCode(const SkShader::GradientInfo& info) {
+    SkString function("{pop\n");  // Just ditch the y value.
     tileModeCode(info.fTileMode, &function);
     gradientFunctionCode(info, &function);
     function.append("}");
     return function;
 }
 
-static SkString radialCode(const SkShader::GradientInfo& info,
-                           const SkMatrix& perspectiveRemover) {
+static SkString radialCode(const SkShader::GradientInfo& info) {
     SkString function("{");
-
-    function.append(apply_perspective_to_coordinates(perspectiveRemover));
-
     // Find the distance from the origin.
     function.append("dup "      // x y y
                     "mul "      // x y^2
@@ -297,8 +239,7 @@ static SkString radialCode(const SkShader::GradientInfo& info,
    with one simplification, the coordinate space has been scaled so that
    Dr = 1.  This means we don't need to scale the entire equation by 1/Dr^2.
  */
-static SkString twoPointRadialCode(const SkShader::GradientInfo& info,
-                                   const SkMatrix& perspectiveRemover) {
+static SkString twoPointRadialCode(const SkShader::GradientInfo& info) {
     SkScalar dx = info.fPoint[0].fX - info.fPoint[1].fX;
     SkScalar dy = info.fPoint[0].fY - info.fPoint[1].fY;
     SkScalar sr = info.fRadius[0];
@@ -308,9 +249,6 @@ static SkString twoPointRadialCode(const SkShader::GradientInfo& info,
     // We start with a stack of (x y), copy it and then consume one copy in
     // order to calculate b and the other to calculate c.
     SkString function("{");
-
-    function.append(apply_perspective_to_coordinates(perspectiveRemover));
-
     function.append("2 copy ");
 
     // Calculate -b and b^2.
@@ -348,8 +286,7 @@ static SkString twoPointRadialCode(const SkShader::GradientInfo& info,
 /* Conical gradient shader, based on the Canvas spec for radial gradients
    See: http://www.w3.org/TR/2dcontext/#dom-context-2d-createradialgradient
  */
-static SkString twoPointConicalCode(const SkShader::GradientInfo& info,
-                                    const SkMatrix& perspectiveRemover) {
+static SkString twoPointConicalCode(const SkShader::GradientInfo& info) {
     SkScalar dx = info.fPoint[1].fX - info.fPoint[0].fX;
     SkScalar dy = info.fPoint[1].fY - info.fPoint[0].fY;
     SkScalar r0 = info.fRadius[0];
@@ -363,9 +300,6 @@ static SkString twoPointConicalCode(const SkShader::GradientInfo& info,
     // We start with a stack of (x y), copy it and then consume one copy in
     // order to calculate b and the other to calculate c.
     SkString function("{");
-
-    function.append(apply_perspective_to_coordinates(perspectiveRemover));
-
     function.append("2 copy ");
 
     // Calculate b and b^2; b = -2 * (y * dy + x * dx + r0 * dr).
@@ -461,8 +395,7 @@ static SkString twoPointConicalCode(const SkShader::GradientInfo& info,
     return function;
 }
 
-static SkString sweepCode(const SkShader::GradientInfo& info,
-                          const SkMatrix& perspectiveRemover) {
+static SkString sweepCode(const SkShader::GradientInfo& info) {
     SkString function("{exch atan 360 div\n");
     tileModeCode(info.fTileMode, &function);
     gradientFunctionCode(info, &function);
@@ -792,49 +725,10 @@ SkPDFAlphaFunctionShader::SkPDFAlphaFunctionShader(SkPDFShader::State* state)
                                  SkMatrix::I());
 }
 
-// Finds affine and persp such that in = affine * persp.
-// but it returns the inverse of perspective matrix.
-static bool split_perspective(const SkMatrix in, SkMatrix* affine,
-                              SkMatrix* perspectiveInverse) {
-    const SkScalar p2 = in[SkMatrix::kMPersp2];
-
-    if (SkScalarNearlyZero(p2)) {
-        return false;
-    }
-
-    const SkScalar zero = SkIntToScalar(0);
-    const SkScalar one = SkIntToScalar(1);
-
-    const SkScalar sx = in[SkMatrix::kMScaleX];
-    const SkScalar kx = in[SkMatrix::kMSkewX];
-    const SkScalar tx = in[SkMatrix::kMTransX];
-    const SkScalar ky = in[SkMatrix::kMSkewY];
-    const SkScalar sy = in[SkMatrix::kMScaleY];
-    const SkScalar ty = in[SkMatrix::kMTransY];
-    const SkScalar p0 = in[SkMatrix::kMPersp0];
-    const SkScalar p1 = in[SkMatrix::kMPersp1];
-
-    // Perspective matrix would be:
-    // 1  0  0
-    // 0  1  0
-    // p0 p1 p2
-    // But we need the inverse of persp.
-    perspectiveInverse->setAll(one,          zero,       zero,
-                               zero,         one,        zero,
-                               -p0 / p2,     -p1/p2,     1/p2);
-
-    affine->setAll(sx - p0 * tx / p2,       kx - p1 * tx / p2,      tx / p2,
-                   ky - p0 * ty / p2,       sy - p1 * ty / p2,      ty / p2,
-                   zero,                    zero,                   one);
-
-    return true;
-}
-
 SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
         : SkPDFDict("Pattern"),
           fState(state) {
-    SkString (*codeFunction)(const SkShader::GradientInfo& info,
-                             const SkMatrix& perspectiveRemover) = NULL;
+    SkString (*codeFunction)(const SkShader::GradientInfo& info) = NULL;
     SkPoint transformPoints[2];
 
     // Depending on the type of the gradient, we want to transform the
@@ -886,24 +780,8 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
     // the gradient can be drawn on on the unit segment.
     SkMatrix mapperMatrix;
     unitToPointsMatrix(transformPoints, &mapperMatrix);
-
-    SkMatrix perspectiveInverseOnly = SkMatrix::I();
-
     SkMatrix finalMatrix = fState.get()->fCanvasTransform;
     finalMatrix.preConcat(fState.get()->fShaderTransform);
-
-    // Preserves as much as posible in the final matrix, and only removes
-    // the perspective. The inverse of the perspective is stored in
-    // perspectiveInverseOnly matrix and has 3 useful numbers
-    // (p0, p1, p2), while everything else is either 0 or 1.
-    // In this way the shader will handle it eficiently, with minimal code.
-    if (finalMatrix.hasPerspective()) {
-        if (!split_perspective(finalMatrix,
-                               &finalMatrix, &perspectiveInverseOnly)) {
-            return;
-        }
-    }
-
     finalMatrix.preConcat(mapperMatrix);
 
     SkRect bbox;
@@ -934,9 +812,9 @@ SkPDFFunctionShader::SkPDFFunctionShader(SkPDFShader::State* state)
             inverseMapperMatrix.mapRadius(info->fRadius[0]);
         twoPointRadialInfo.fRadius[1] =
             inverseMapperMatrix.mapRadius(info->fRadius[1]);
-        functionCode = codeFunction(twoPointRadialInfo, perspectiveInverseOnly);
+        functionCode = codeFunction(twoPointRadialInfo);
     } else {
-        functionCode = codeFunction(*info, perspectiveInverseOnly);
+        functionCode = codeFunction(*info);
     }
 
     SkAutoTUnref<SkPDFDict> pdfShader(new SkPDFDict);
