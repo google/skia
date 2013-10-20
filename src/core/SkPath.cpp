@@ -17,8 +17,6 @@
 
 SK_DEFINE_INST_COUNT(SkPath);
 
-#define SK_IGNORE_QUAD_RR_CORNERS_OPT 1
-
 // This value is just made-up for now. When count is 4, calling memset was much
 // slower than just writing the loop. This seems odd, and hopefully in the
 // future this we appear to have been a fluke...
@@ -966,8 +964,7 @@ static int build_arc_points(const SkRect& oval, SkScalar startAngle,
 
 static void add_corner_arc(SkPath* path, const SkRect& rect,
                            SkScalar rx, SkScalar ry, int startAngle,
-                           SkPath::Direction dir, bool addArcTo,
-                           bool forceMoveTo = false) {
+                           SkPath::Direction dir, bool forceMoveTo) {
     // These two asserts are not sufficient, since really we want to know
     // that the pair of radii (e.g. left and right, or top and bottom) sum
     // to <= dimension, but we don't have that data here, so we just have
@@ -997,15 +994,7 @@ static void add_corner_arc(SkPath* path, const SkRect& rect,
         sweep = -sweep;
     }
 
-    if (addArcTo) {
-        path->arcTo(r, start, sweep, forceMoveTo);
-    } else {
-        SkPoint pts[kSkBuildQuadArcStorage];
-        int count = build_arc_points(r, start, sweep, pts);
-        for (int i = 1; i < count; i += 2) {
-            path->quadTo(pts[i], pts[i+1]);
-        }
-    }
+    path->arcTo(r, start, sweep, forceMoveTo);
 }
 
 void SkPath::addRoundRect(const SkRect& rect, const SkScalar radii[],
@@ -1035,15 +1024,15 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
         SkAutoPathBoundsUpdate apbu(this, bounds);
 
         if (kCW_Direction == dir) {
-            add_corner_arc(this, bounds, rrect.fRadii[0].fX, rrect.fRadii[0].fY, 180, dir, true, true);
-            add_corner_arc(this, bounds, rrect.fRadii[1].fX, rrect.fRadii[1].fY, 270, dir, true);
-            add_corner_arc(this, bounds, rrect.fRadii[2].fX, rrect.fRadii[2].fY,   0, dir, true);
-            add_corner_arc(this, bounds, rrect.fRadii[3].fX, rrect.fRadii[3].fY,  90, dir, true);
+            add_corner_arc(this, bounds, rrect.fRadii[0].fX, rrect.fRadii[0].fY, 180, dir, true);
+            add_corner_arc(this, bounds, rrect.fRadii[1].fX, rrect.fRadii[1].fY, 270, dir, false);
+            add_corner_arc(this, bounds, rrect.fRadii[2].fX, rrect.fRadii[2].fY,   0, dir, false);
+            add_corner_arc(this, bounds, rrect.fRadii[3].fX, rrect.fRadii[3].fY,  90, dir, false);
         } else {
-            add_corner_arc(this, bounds, rrect.fRadii[0].fX, rrect.fRadii[0].fY, 180, dir, true, true);
-            add_corner_arc(this, bounds, rrect.fRadii[3].fX, rrect.fRadii[3].fY,  90, dir, true);
-            add_corner_arc(this, bounds, rrect.fRadii[2].fX, rrect.fRadii[2].fY,   0, dir, true);
-            add_corner_arc(this, bounds, rrect.fRadii[1].fX, rrect.fRadii[1].fY, 270, dir, true);
+            add_corner_arc(this, bounds, rrect.fRadii[0].fX, rrect.fRadii[0].fY, 180, dir, true);
+            add_corner_arc(this, bounds, rrect.fRadii[3].fX, rrect.fRadii[3].fY,  90, dir, false);
+            add_corner_arc(this, bounds, rrect.fRadii[2].fX, rrect.fRadii[2].fY,   0, dir, false);
+            add_corner_arc(this, bounds, rrect.fRadii[1].fX, rrect.fRadii[1].fY, 270, dir, false);
         }
         this->close();
     }
@@ -1113,9 +1102,20 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
 
     this->incReserve(17);
 #else
-    this->incReserve(13);
+    // Please see SkBuildQuadArc for more information but, we need to pull
+    // the off-curve quadratic points in a little bit to make the round
+    // rects convex.
+    static const SkScalar kOffCurveEpsilon = 0.0001f;
+
+    SkScalar    midPtX = rx * SK_ScalarRoot2Over2;
+    SkScalar    midPtY = ry * SK_ScalarRoot2Over2;
+
+    SkScalar    offPtX = rx * SK_ScalarTanPIOver8 - kOffCurveEpsilon;
+    SkScalar    offPtY = ry * SK_ScalarTanPIOver8 - kOffCurveEpsilon;
+
+    this->incReserve(21);
 #endif
-    this->moveTo(rect.fRight - rx, rect.fTop);
+    this->moveTo(rect.fRight - rx, rect.fTop);                  // top-right
     if (dir == kCCW_Direction) {
         if (!skip_hori) {
             this->lineTo(rect.fLeft + rx, rect.fTop);           // top
@@ -1125,7 +1125,10 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fLeft, rect.fTop + ry - sy,
                       rect.fLeft, rect.fTop + ry);          // top-left
 #else
-        add_corner_arc(this, rect, rx, ry, 180, dir, false);    // top-left
+        this->quadTo(rect.fLeft + rx - offPtX, rect.fTop + kOffCurveEpsilon,
+                     rect.fLeft + rx - midPtX, rect.fTop + ry - midPtY);
+        this->quadTo(rect.fLeft + kOffCurveEpsilon, rect.fTop + ry - offPtY,
+                     rect.fLeft, rect.fTop + ry);
 #endif
         if (!skip_vert) {
             this->lineTo(rect.fLeft, rect.fBottom - ry);        // left
@@ -1135,7 +1138,10 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fLeft + rx - sx, rect.fBottom,
                       rect.fLeft + rx, rect.fBottom);       // bot-left
 #else
-        add_corner_arc(this, rect, rx, ry, 90, dir, false);     // bot-left
+        this->quadTo(rect.fLeft + kOffCurveEpsilon, rect.fBottom - ry + offPtY,
+                     rect.fLeft + rx - midPtX, rect.fBottom - ry + midPtY);
+        this->quadTo(rect.fLeft + rx - offPtX, rect.fBottom - kOffCurveEpsilon,
+                     rect.fLeft + rx, rect.fBottom);
 #endif
         if (!skip_hori) {
             this->lineTo(rect.fRight - rx, rect.fBottom);       // bottom
@@ -1145,7 +1151,10 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fRight, rect.fBottom - ry + sy,
                       rect.fRight, rect.fBottom - ry);      // bot-right
 #else
-        add_corner_arc(this, rect, rx, ry, 0, dir, false);      // bot-right
+        this->quadTo(rect.fRight - rx + offPtX, rect.fBottom - kOffCurveEpsilon,
+                     rect.fRight - rx + midPtX, rect.fBottom - ry + midPtY);
+        this->quadTo(rect.fRight - kOffCurveEpsilon, rect.fBottom - ry + offPtY,
+                     rect.fRight, rect.fBottom - ry);
 #endif
         if (!skip_vert) {
             this->lineTo(rect.fRight, rect.fTop + ry);          // right
@@ -1155,7 +1164,10 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fRight - rx + sx, rect.fTop,
                       rect.fRight - rx, rect.fTop);         // top-right
 #else
-        add_corner_arc(this, rect, rx, ry, 270, dir, false);    // top-right
+        this->quadTo(rect.fRight - kOffCurveEpsilon, rect.fTop + ry - offPtY,
+                     rect.fRight - rx + midPtX, rect.fTop + ry - midPtY);
+        this->quadTo(rect.fRight - rx + offPtX, rect.fTop + kOffCurveEpsilon,
+                     rect.fRight - rx, rect.fTop);
 #endif
     } else {
 #ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
@@ -1163,7 +1175,10 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fRight, rect.fTop + ry - sy,
                       rect.fRight, rect.fTop + ry);         // top-right
 #else
-        add_corner_arc(this, rect, rx, ry, 270, dir, false);    // top-right
+        this->quadTo(rect.fRight - rx + offPtX, rect.fTop + kOffCurveEpsilon,
+                     rect.fRight - rx + midPtX, rect.fTop + ry - midPtY);
+        this->quadTo(rect.fRight - kOffCurveEpsilon, rect.fTop + ry - offPtY,
+                     rect.fRight, rect.fTop + ry);
 #endif
         if (!skip_vert) {
             this->lineTo(rect.fRight, rect.fBottom - ry);       // right
@@ -1173,7 +1188,10 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fRight - rx + sx, rect.fBottom,
                       rect.fRight - rx, rect.fBottom);      // bot-right
 #else
-        add_corner_arc(this, rect, rx, ry, 0, dir, false);      // bot-right
+        this->quadTo(rect.fRight - kOffCurveEpsilon, rect.fBottom - ry + offPtY,
+                     rect.fRight - rx + midPtX, rect.fBottom - ry + midPtY);
+        this->quadTo(rect.fRight - rx + offPtX, rect.fBottom - kOffCurveEpsilon,
+                     rect.fRight - rx, rect.fBottom);
 #endif
         if (!skip_hori) {
             this->lineTo(rect.fLeft + rx, rect.fBottom);        // bottom
@@ -1183,7 +1201,10 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fLeft, rect.fBottom - ry + sy,
                       rect.fLeft, rect.fBottom - ry);       // bot-left
 #else
-        add_corner_arc(this, rect, rx, ry, 90, dir, false);     // bot-left
+        this->quadTo(rect.fLeft + rx - offPtX, rect.fBottom - kOffCurveEpsilon,
+                     rect.fLeft + rx - midPtX, rect.fBottom - ry + midPtY);
+        this->quadTo(rect.fLeft + kOffCurveEpsilon, rect.fBottom - ry + offPtY,
+                     rect.fLeft, rect.fBottom - ry);
 #endif
         if (!skip_vert) {
             this->lineTo(rect.fLeft, rect.fTop + ry);           // left
@@ -1193,7 +1214,10 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fLeft + rx - sx, rect.fTop,
                       rect.fLeft + rx, rect.fTop);          // top-left
 #else
-        add_corner_arc(this, rect, rx, ry, 180, dir, false);    // top-left
+        this->quadTo(rect.fLeft + kOffCurveEpsilon, rect.fTop + ry - offPtY,
+                     rect.fLeft + rx - midPtX, rect.fTop + ry - midPtY);
+        this->quadTo(rect.fLeft + rx - offPtX, rect.fTop + kOffCurveEpsilon,
+                     rect.fLeft + rx, rect.fTop);
 #endif
         if (!skip_hori) {
             this->lineTo(rect.fRight - rx, rect.fTop);          // top

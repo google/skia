@@ -1124,7 +1124,7 @@ bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     doAA &= fAllowSoftClip;
 
     if (fMCRec->fMatrix->rectStaysRect()) {
-        // for these simpler matrices, we can stay a rect ever after applying
+        // for these simpler matrices, we can stay a rect even after applying
         // the matrix. This means we don't have to a) make a path, and b) tell
         // the region code to scan-convert the path, only to discover that it
         // is really just a rect.
@@ -1134,7 +1134,7 @@ bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
         fClipStack.clipDevRect(r, op, doAA);
         return fMCRec->fRasterClip->op(r, op, doAA);
     } else {
-        // since we're rotate or some such thing, we convert the rect to a path
+        // since we're rotated or some such thing, we convert the rect to a path
         // and clip against that, since it can handle any matrix. However, to
         // avoid recursion in the case where we are subclassed (e.g. Pictures)
         // we explicitly call "our" version of clipPath.
