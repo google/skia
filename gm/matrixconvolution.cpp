@@ -93,7 +93,7 @@ protected:
             target.fY++;
         }
         target.fY = 1;
-        SkImageFilter::CropRect rect(SkRect::MakeXYWH(10, 10, 60, 60));
+        SkImageFilter::CropRect rect(SkRect::MakeXYWH(10, 5, 60, 60));
         this->draw(canvas, 310, 10, target, MCIF::kClamp_TileMode, true, &rect);
         this->draw(canvas, 310, 110, target, MCIF::kClampToBlack_TileMode, true, &rect);
         this->draw(canvas, 310, 210, target, MCIF::kRepeat_TileMode, true, &rect);

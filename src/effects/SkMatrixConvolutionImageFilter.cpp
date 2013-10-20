@@ -515,11 +515,15 @@ void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
     uman.set1f(fGainUni, conv.gain());
     uman.set1f(fBiasUni, conv.bias());
     const SkIRect& bounds = conv.bounds();
-    uman.set4f(fBoundsUni,
-                (float) bounds.left() / texture.width(),
-                (float) bounds.top() / texture.height(),
-                (float) bounds.right() / texture.width(),
-                (float) bounds.bottom() / texture.height());
+    float left = (float) bounds.left() / texture.width();
+    float top = (float) bounds.top() / texture.height();
+    float right = (float) bounds.right() / texture.width();
+    float bottom = (float) bounds.bottom() / texture.height();
+    if (texture.origin() == kBottomLeft_GrSurfaceOrigin) {
+        uman.set4f(fBoundsUni, left, 1.0f - bottom, right, 1.0f - top);
+    } else {
+        uman.set4f(fBoundsUni, left, top, right, bottom);
+    }
 }
 
 GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
