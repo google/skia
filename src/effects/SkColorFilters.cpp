@@ -498,7 +498,7 @@ protected:
 
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {}
 
-    virtual Factory getFactory() const {
+    virtual Factory getFactory() {
         return CreateProc;
     }
 
