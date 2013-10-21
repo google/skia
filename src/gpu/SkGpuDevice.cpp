@@ -1170,8 +1170,6 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
 
         return;
     }
-    
-    fContext->concatMatrix(m);
 
     GrTextureParams params;
     SkPaint::FilterLevel paintFilterLevel = paint.getFilterLevel();
@@ -1204,9 +1202,9 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
 
     if (!this->shouldTileBitmap(bitmap, params, srcRectPtr)) {
         // take the simple case
-        this->internalDrawBitmap(bitmap, srcRect, params, paint, flags);
+        this->internalDrawBitmap(bitmap, srcRect, m, params, paint, flags);
     } else {
-        this->drawTiledBitmap(bitmap, srcRect, params, paint, flags);
+        this->drawTiledBitmap(bitmap, srcRect, m, params, paint, flags);
     }
 }
 
@@ -1214,6 +1212,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
 // been determined to be too large to fit in VRAM
 void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                   const SkRect& srcRect,
+                                  const SkMatrix& m,
                                   const GrTextureParams& params,
                                   const SkPaint& paint,
                                   SkCanvas::DrawBitmapRectFlags flags) {
@@ -1234,8 +1233,9 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
         if (!fContext->getClip()->fClipStack->intersectRectWithClip(&clipRect)) {
             return;
         }
-        SkMatrix inverse;
-        if (!fContext->getMatrix().invert(&inverse)) {
+        SkMatrix matrix, inverse;
+        matrix.setConcat(fContext->getMatrix(), m);
+        if (!matrix.invert(&inverse)) {
             return;
         }
         inverse.mapRect(&clipRect);
@@ -1285,11 +1285,10 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
             if (bitmap.extractSubset(&tmpB, iTileR)) {
                 // now offset it to make it "local" to our tmp bitmap
                 tileR.offset(-offset.fX, -offset.fY);
-                SkMatrix tmpM;
-                tmpM.setTranslate(offset.fX, offset.fY);
-                GrContext::AutoMatrix am;
-                am.setPreConcat(fContext, tmpM);
-                this->internalDrawBitmap(tmpB, tileR, params, paint, flags);
+                SkMatrix tmpM(m);
+                tmpM.preTranslate(offset.fX, offset.fY);
+
+                this->internalDrawBitmap(tmpB, tileR, tmpM, params, paint, flags);
             }
         }
     }
@@ -1346,6 +1345,7 @@ static bool may_color_bleed(const SkRect& srcRect,
  */
 void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                      const SkRect& srcRect,
+                                     const SkMatrix& m,
                                      const GrTextureParams& params,
                                      const SkPaint& paint,
                                      SkCanvas::DrawBitmapRectFlags flags) {
@@ -1373,18 +1373,19 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         // Need texture domain if drawing a sub rect.
         needsTextureDomain = srcRect.width() < bitmap.width() ||
                              srcRect.height() < bitmap.height();
-        if (needsTextureDomain && fContext->getMatrix().rectStaysRect()) {
-            const SkMatrix& matrix = fContext->getMatrix();
+        if (needsTextureDomain && m.rectStaysRect() && fContext->getMatrix().rectStaysRect()) {
             // sampling is axis-aligned
             SkRect transformedRect;
-            matrix.mapRect(&transformedRect, srcRect);
-            
+            SkMatrix srcToDeviceMatrix(m);
+            srcToDeviceMatrix.postConcat(fContext->getMatrix());
+            srcToDeviceMatrix.mapRect(&transformedRect, srcRect);
+
             if (has_aligned_samples(srcRect, transformedRect)) {
                 // We could also turn off filtering here (but we already did a cache lookup with
                 // params).
                 needsTextureDomain = false;
             } else {
-                needsTextureDomain = may_color_bleed(srcRect, transformedRect, matrix);
+                needsTextureDomain = may_color_bleed(srcRect, transformedRect, m);
             }
         }
     }
@@ -1427,7 +1428,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         return;
     }
 
-    fContext->drawRectToRect(grPaint, dstRect, paintRect, NULL);
+    fContext->drawRectToRect(grPaint, dstRect, paintRect, &m);
 }
 
 static bool filter_texture(SkBaseDevice* device, GrContext* context,
