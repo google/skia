@@ -158,6 +158,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
         GrGLProgramDesc pdesc;
 
         int currAttribIndex = 1;  // we need to always leave room for position
+        int currTextureCoordSet = 0;
         int attribIndices[2];
         GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
 
@@ -167,7 +168,9 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
         SkAutoSTMalloc<8, const GrEffectStage*> stages(numStages);
 
-        for (int s = 0; s < numStages; ++s) {
+        bool useFixedFunctionTexturing = this->shouldUseFixedFunctionTexturing();
+
+        for (int s = 0; s < numStages;) {
             SkAutoTUnref<const GrEffectRef> effect(GrEffectTestFactory::CreateStage(
                                                                             &random,
                                                                             this->getContext(),
@@ -178,15 +181,29 @@ bool GrGpuGL::programUnitTest(int maxStages) {
             // If adding this effect would exceed the max attrib count then generate a
             // new random effect.
             if (currAttribIndex + numAttribs > GrDrawState::kMaxVertexAttribCnt) {
-                --s;
                 continue;
             }
+
+
+            // If adding this effect would exceed the max texture coord set count then generate a
+            // new random effect.
+            if (useFixedFunctionTexturing && !(*effect)->hasVertexCode()) {
+                int numTransforms = (*effect)->numTransforms();
+                if (currTextureCoordSet + numTransforms > this->glCaps().maxFixedFunctionTextureCoords()) {
+                    continue;
+                }
+                currTextureCoordSet += numTransforms;
+            }
+
+            useFixedFunctionTexturing = useFixedFunctionTexturing && !(*effect)->hasVertexCode();
+
             for (int i = 0; i < numAttribs; ++i) {
                 attribIndices[i] = currAttribIndex++;
             }
             GrEffectStage* stage = SkNEW_ARGS(GrEffectStage,
                                               (effect.get(), attribIndices[0], attribIndices[1]));
             stages[s] = stage;
+            ++s;
         }
         const GrTexture* dstTexture = random.nextBool() ? dummyTextures[0] : dummyTextures[1];
         pdesc.setRandom(&random,

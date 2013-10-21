@@ -51,9 +51,7 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
     fColorFilterColor = GrColor_ILLEGAL;
 
     if (fDesc.getHeader().fHasVertexCode ||
-        !fGpu->glCaps().fixedFunctionSupport() ||
-        !fGpu->glCaps().pathRenderingSupport()) {
-
+        !fGpu->shouldUseFixedFunctionTexturing()) {
         GrGLFullShaderBuilder fullBuilder(fGpu, fUniformManager, fDesc);
         if (this->genProgram(&fullBuilder, colorStages, coverageStages)) {
             fUniformHandles.fViewMatrixUni = fullBuilder.getViewMatrixUniform();

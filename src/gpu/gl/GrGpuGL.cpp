@@ -2108,6 +2108,7 @@ void GrGpuGL::enableTexGen(int unitIdx,
     SkASSERT(this->glCaps().fixedFunctionSupport());
     SkASSERT(this->caps()->pathRenderingSupport());
     SkASSERT(components >= kS_TexGenComponents && components <= kSTR_TexGenComponents);
+    SkASSERT(this->glCaps().maxFixedFunctionTextureCoords() >= unitIdx);
 
     if (GR_GL_OBJECT_LINEAR == fHWTexGenSettings[unitIdx].fMode &&
         components == fHWTexGenSettings[unitIdx].fNumComponents &&
@@ -2180,6 +2181,7 @@ void GrGpuGL::enableTexGen(int unitIdx, TexGenComponents components, const SkMat
 void GrGpuGL::disableUnusedTexGen(int numUsedTexCoordSets) {
 
     SkASSERT(this->glCaps().fixedFunctionSupport());
+    SkASSERT(this->glCaps().maxFixedFunctionTextureCoords() >= numUsedTexCoordSets);
 
     for (int i = numUsedTexCoordSets; i < fHWActiveTexGenSets; i++) {
         if (0 == fHWTexGenSettings[i].fNumComponents) {

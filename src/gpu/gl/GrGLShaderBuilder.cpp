@@ -943,6 +943,13 @@ GrGLFragmentOnlyShaderBuilder::GrGLFragmentOnlyShaderBuilder(GrGpuGL* gpu,
     SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fCoverageInput);
 }
 
+int GrGLFragmentOnlyShaderBuilder::addTexCoordSets(int count) {
+    int firstFreeCoordSet = fNumTexCoordSets;
+    fNumTexCoordSets += count;
+    SkASSERT(gpu()->glCaps().maxFixedFunctionTextureCoords() >= fNumTexCoordSets);
+    return firstFreeCoordSet;
+}
+
 GrGLProgramEffects* GrGLFragmentOnlyShaderBuilder::createAndEmitEffects(
         const GrEffectStage* effectStages[],
         const EffectKey effectKeys[],

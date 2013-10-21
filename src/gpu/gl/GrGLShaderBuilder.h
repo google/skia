@@ -439,7 +439,7 @@ public:
     GrGLFragmentOnlyShaderBuilder(GrGpuGL*, GrGLUniformManager&, const GrGLProgramDesc&);
 
     int getNumTexCoordSets() const { return fNumTexCoordSets; }
-    int addTexCoordSets(int count) { return (fNumTexCoordSets += count) - count; }
+    int addTexCoordSets(int count);
 
     virtual GrGLProgramEffects* createAndEmitEffects(
                 const GrEffectStage* effectStages[],

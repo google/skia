@@ -50,6 +50,10 @@ public:
     void enableTexGen(int unitIdx, TexGenComponents, const GrGLfloat* coefficients);
     void enableTexGen(int unitIdx, TexGenComponents, const SkMatrix& matrix);
     void disableUnusedTexGen(int numUsedTexCoordSets);
+    bool shouldUseFixedFunctionTexturing() const {
+        return this->glCaps().fixedFunctionSupport() &&
+               this->glCaps().pathRenderingSupport();
+    }
 
     bool programUnitTest(int maxStages);
 
