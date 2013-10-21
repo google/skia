@@ -1,11 +1,8 @@
 #include "DMCpuTask.h"
 #include "DMReplayTask.h"
+#include "DMSerializeTask.h"
 #include "DMUtil.h"
 #include "DMWriteTask.h"
-#include "SkCommandLineFlags.h"
-
-DEFINE_bool(replay, false, "If true, run replay tests for each CpuTask.");
-// TODO(mtklein): add the other various options
 
 namespace DM {
 
@@ -18,30 +15,26 @@ CpuTask::CpuTask(const char* name,
     : Task(reporter, taskRunner)
     , fGMFactory(gmFactory)
     , fGM(fGMFactory(NULL))
-    , fName(underJoin(fGM->shortName(), name))
-    , fExpectations(expectations.get(png(fName).c_str()))
+    , fName(UnderJoin(fGM->shortName(), name))
+    , fExpectations(expectations.get(Png(fName).c_str()))
     , fConfig(config)
     {}
 
 void CpuTask::draw() {
     SkBitmap bitmap;
-    bitmap.setConfig(fConfig, SkScalarCeilToInt(fGM->width()), SkScalarCeilToInt(fGM->height()));
-    bitmap.allocPixels();
-    bitmap.eraseColor(0x00000000);
-    SkCanvas canvas(bitmap);
+    SetupBitmap(fConfig, fGM.get(), &bitmap);
 
+    SkCanvas canvas(bitmap);
     canvas.concat(fGM->getInitialTransform());
     fGM->draw(&canvas);
     canvas.flush();
 
-    if (!meetsExpectations(fExpectations, bitmap)) {
+    if (!MeetsExpectations(fExpectations, bitmap)) {
         this->fail();
     }
 
-    if (FLAGS_replay) {
-        this->spawnChild(SkNEW_ARGS(ReplayTask,
-                                   ("replay", *this, fGMFactory(NULL), bitmap)));
-    }
+    this->spawnChild(SkNEW_ARGS(ReplayTask, (*this, fGMFactory(NULL), bitmap)));
+    this->spawnChild(SkNEW_ARGS(SerializeTask, (*this, fGMFactory(NULL), bitmap)));
     this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
 }
 

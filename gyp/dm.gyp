@@ -22,6 +22,7 @@
             '../dm/DMGpuTask.cpp',
             '../dm/DMReplayTask.cpp',
             '../dm/DMReporter.cpp',
+            '../dm/DMSerializeTask.cpp',
             '../dm/DMTask.cpp',
             '../dm/DMTaskRunner.cpp',
             '../dm/DMUtil.cpp',

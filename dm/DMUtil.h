@@ -9,14 +9,26 @@
 
 namespace DM {
 
-// underJoin("a", "b") -> "a_b"
-SkString underJoin(const char* a, const char* b);
+// UnderJoin("a", "b") -> "a_b"
+SkString UnderJoin(const char* a, const char* b);
 
-// png("a") -> "a.png"
-SkString png(SkString s);
+// Png("a") -> "a.png"
+SkString Png(SkString s);
 
 // Roughly, expectations.match(GmResultDigest(bitmap)), but calculates the digest lazily.
-bool meetsExpectations(const skiagm::Expectations& expectations, const SkBitmap bitmap);
+bool MeetsExpectations(const skiagm::Expectations& expectations, const SkBitmap bitmap);
+
+// Draw gm to picture.
+void RecordPicture(skiagm::GM* gm, SkPicture* picture);
+
+// Prepare bitmap to have gm draw into it with this config.
+void SetupBitmap(const SkBitmap::Config config, skiagm::GM* gm, SkBitmap* bitmap);
+
+// Draw picture to bitmap.
+void DrawPicture(SkPicture* picture, SkBitmap* bitmap);
+
+// Are these identical bitmaps?
+bool BitmapsEqual(const SkBitmap& a, const SkBitmap& b);
 
 }  // namespace DM
 

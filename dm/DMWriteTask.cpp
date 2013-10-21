@@ -27,7 +27,7 @@ void WriteTask::draw() {
     const SkString dir = SkOSPath::SkPathJoin(root, fConfig.c_str());
     if (!sk_mkdir(root) ||
         !sk_mkdir(dir.c_str())  ||
-        !SkImageEncoder::EncodeFile(png(SkOSPath::SkPathJoin(dir.c_str(), fGmName.c_str())).c_str(),
+        !SkImageEncoder::EncodeFile(Png(SkOSPath::SkPathJoin(dir.c_str(), fGmName.c_str())).c_str(),
                                     fBitmap,
                                     SkImageEncoder::kPNG_Type,
                                     100/*quality*/))

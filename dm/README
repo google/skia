@@ -7,7 +7,6 @@ Current approximate list of missing features:
 
   --deferred / --pipe
   --rtree
-  --serialize
   --tiledGrid
 
 

@@ -1,5 +1,5 @@
-#ifndef DMReplayTask_DEFINED
-#define DMReplayTask_DEFINED
+#ifndef DMSerializeTask_DEFINED
+#define DMSerializeTask_DEFINED
 
 #include "DMTask.h"
 #include "SkBitmap.h"
@@ -7,16 +7,16 @@
 #include "SkTemplates.h"
 #include "gm.h"
 
-// Records a GM through an SkPicture, draws it, and compares against the reference bitmap.
+// Record a picture, serialize it, deserialize it, then draw it and compare to reference bitmap.
 
 namespace DM {
 
-class ReplayTask : public Task {
+class SerializeTask : public Task {
 
 public:
-    ReplayTask(const Task& parent,
-               skiagm::GM*,
-               SkBitmap reference);
+    SerializeTask(const Task& parent,
+                  skiagm::GM*,
+                  SkBitmap reference);
 
     virtual void draw() SK_OVERRIDE;
     virtual bool usesGpu() const SK_OVERRIDE { return false; }
@@ -31,4 +31,4 @@ private:
 
 }  // namespace DM
 
-#endif  // DMReplayTask_DEFINED
+#endif  // DMSerializeTask_DEFINED

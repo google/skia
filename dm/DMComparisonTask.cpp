@@ -13,7 +13,7 @@ ComparisonTask::ComparisonTask(const Task& parent,
     {}
 
 void ComparisonTask::draw() {
-    if (!meetsExpectations(fExpectations, fBitmap)) {
+    if (!MeetsExpectations(fExpectations, fBitmap)) {
         this->fail();
     }
 }
