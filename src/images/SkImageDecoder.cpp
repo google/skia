@@ -405,10 +405,6 @@ static bool decode_pixels_to_8888(SkImageDecoder* decoder, SkStream* stream,
 bool SkImageDecoder::DecodeMemoryToTarget(const void* buffer, size_t size,
                                           SkImage::Info* info,
                                           const SkBitmapFactory::Target* target) {
-    if (NULL == info) {
-        return false;
-    }
-
     // FIXME: Just to get this working, implement in terms of existing
     // ImageDecoder calls.
     SkBitmap bm;
@@ -427,14 +423,17 @@ bool SkImageDecoder::DecodeMemoryToTarget(const void* buffer, size_t size,
     // Now set info properly.
     // Since Config is SkBitmap::kARGB_8888_Config, SkBitmapToImageInfo
     // will always succeed.
-    SkAssertResult(SkBitmapToImageInfo(bm, info));
+    if (info) {
+        SkAssertResult(SkBitmapToImageInfo(bm, info));
+    }
 
     if (NULL == target) {
         return true;
     }
 
     if (target->fRowBytes != SkToU32(bm.rowBytes())) {
-        if (target->fRowBytes < SkImageMinRowBytes(*info)) {
+        size_t minRB = SkBitmap::ComputeRowBytes(bm.config(), bm.width());
+        if (target->fRowBytes < minRB) {
             SkDEBUGFAIL("Desired row bytes is too small");
             return false;
         }

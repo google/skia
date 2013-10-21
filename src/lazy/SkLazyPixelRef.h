@@ -71,11 +71,15 @@ private:
     SkImageCache*               fImageCache;
     intptr_t                    fCacheId;
     size_t                      fRowBytes;
+    SkImage::Info               fLazilyCachedInfo;
 
 #if LAZY_CACHE_STATS
     static int32_t              gCacheHits;
     static int32_t              gCacheMisses;
 #endif
+
+    // lazily initialized our cached info. Returns NULL on failure.
+    const SkImage::Info* getCachedInfo();
 
     typedef SkPixelRef INHERITED;
 };
