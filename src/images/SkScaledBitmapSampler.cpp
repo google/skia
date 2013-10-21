@@ -549,7 +549,11 @@ static bool Sample_Gray_DA8(void* SK_RESTRICT dstRow,
                             const uint8_t* SK_RESTRICT src,
                             int width, int deltaSrc, int,
                             const SkPMColor[]) {
-    memcpy(dstRow, src, width);
+    // Sampling Gray to A8 uses the same function as Index to Index8,
+    // except we assume that there is alpha for speed, since an A8
+    // bitmap with no alpha is not interesting.
+    (void) Sample_Index_DI(dstRow, src, width, deltaSrc, /* y unused */ 0,
+                           /* ctable unused */ NULL);
     return true;
 }
 

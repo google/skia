@@ -495,6 +495,39 @@ static void fill_below_level(int y, SkBitmap* bitmap) {
     canvas.drawColor(SK_ColorWHITE);
 }
 
+/**
+ *  Get the config and bytes per pixel of the source data. Return
+ *  whether the data is supported.
+ */
+static bool get_src_config(const jpeg_decompress_struct& cinfo,
+                           SkScaledBitmapSampler::SrcConfig* sc,
+                           int* srcBytesPerPixel) {
+    SkASSERT(sc != NULL && srcBytesPerPixel != NULL);
+    if (JCS_CMYK == cinfo.out_color_space) {
+        // In this case we will manually convert the CMYK values to RGB
+        *sc = SkScaledBitmapSampler::kRGBX;
+        // The CMYK work-around relies on 4 components per pixel here
+        *srcBytesPerPixel = 4;
+    } else if (3 == cinfo.out_color_components && JCS_RGB == cinfo.out_color_space) {
+        *sc = SkScaledBitmapSampler::kRGB;
+        *srcBytesPerPixel = 3;
+#ifdef ANDROID_RGB
+    } else if (JCS_RGBA_8888 == cinfo.out_color_space) {
+        *sc = SkScaledBitmapSampler::kRGBX;
+        *srcBytesPerPixel = 4;
+    } else if (JCS_RGB_565 == cinfo.out_color_space) {
+        *sc = SkScaledBitmapSampler::kRGB_565;
+        *srcBytesPerPixel = 2;
+#endif
+    } else if (1 == cinfo.out_color_components &&
+               JCS_GRAYSCALE == cinfo.out_color_space) {
+        *sc = SkScaledBitmapSampler::kGray;
+        *srcBytesPerPixel = 1;
+    } else {
+        return false;
+    }
+    return true;
+}
 
 bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 #ifdef TIME_DECODE
@@ -543,6 +576,10 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 #endif
 
     if (1 == sampleSize && SkImageDecoder::kDecodeBounds_Mode == mode) {
+        // Assume an A8 bitmap is not opaque to avoid the check of each
+        // individual pixel. It is very unlikely to be opaque, since
+        // an opaque A8 bitmap would not be very interesting.
+        // Otherwise, a jpeg image is opaque.
         return bm->setConfig(config, cinfo.image_width, cinfo.image_height, 0,
                              SkBitmap::kA8_Config == config ?
                                 kPremul_SkAlphaType : kOpaque_SkAlphaType);
@@ -565,6 +602,10 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         if (SkImageDecoder::kDecodeBounds_Mode == mode && valid_output_dimensions(cinfo)) {
             SkScaledBitmapSampler smpl(cinfo.output_width, cinfo.output_height,
                                        recompute_sampleSize(sampleSize, cinfo));
+            // Assume an A8 bitmap is not opaque to avoid the check of each
+            // individual pixel. It is very unlikely to be opaque, since
+            // an opaque A8 bitmap would not be very interesting.
+            // Otherwise, a jpeg image is opaque.
             return bm->setConfig(config, smpl.scaledWidth(), smpl.scaledHeight(),
                                  0, SkBitmap::kA8_Config == config ?
                                     kPremul_SkAlphaType : kOpaque_SkAlphaType);
@@ -580,6 +621,10 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     }
 
     SkScaledBitmapSampler sampler(cinfo.output_width, cinfo.output_height, sampleSize);
+    // Assume an A8 bitmap is not opaque to avoid the check of each
+    // individual pixel. It is very unlikely to be opaque, since
+    // an opaque A8 bitmap would not be very interesting.
+    // Otherwise, a jpeg image is opaque.
     bm->setConfig(config, sampler.scaledWidth(), sampler.scaledHeight(), 0,
                   SkBitmap::kA8_Config != config ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
@@ -625,21 +670,9 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
     // check for supported formats
     SkScaledBitmapSampler::SrcConfig sc;
-    if (JCS_CMYK == cinfo.out_color_space) {
-        // In this case we will manually convert the CMYK values to RGB
-        sc = SkScaledBitmapSampler::kRGBX;
-    } else if (3 == cinfo.out_color_components && JCS_RGB == cinfo.out_color_space) {
-        sc = SkScaledBitmapSampler::kRGB;
-#ifdef ANDROID_RGB
-    } else if (JCS_RGBA_8888 == cinfo.out_color_space) {
-        sc = SkScaledBitmapSampler::kRGBX;
-    } else if (JCS_RGB_565 == cinfo.out_color_space) {
-        sc = SkScaledBitmapSampler::kRGB_565;
-#endif
-    } else if (1 == cinfo.out_color_components &&
-               JCS_GRAYSCALE == cinfo.out_color_space) {
-        sc = SkScaledBitmapSampler::kGray;
-    } else {
+    int srcBytesPerPixel;
+
+    if (!get_src_config(cinfo, &sc, &srcBytesPerPixel)) {
         return return_false(cinfo, *bm, "jpeg colorspace");
     }
 
@@ -647,8 +680,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         return return_false(cinfo, *bm, "sampler.begin");
     }
 
-    // The CMYK work-around relies on 4 components per pixel here
-    SkAutoMalloc srcStorage(cinfo.output_width * 4);
+    SkAutoMalloc srcStorage(cinfo.output_width * srcBytesPerPixel);
     uint8_t* srcRow = (uint8_t*)srcStorage.get();
 
     //  Possibly skip initial rows [sampler.srcY0]
@@ -801,7 +833,13 @@ bool SkJPEGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
     SkScaledBitmapSampler sampler(width, height, skiaSampleSize);
 
     SkBitmap bitmap;
+    bitmap.setConfig(config, sampler.scaledWidth(), sampler.scaledHeight());
+    // Assume an A8 bitmap is not opaque to avoid the check of each
+    // individual pixel. It is very unlikely to be opaque, since
+    // an opaque A8 bitmap would not be very interesting.
+    // Otherwise, a jpeg image is opaque.
     bitmap.setConfig(config, sampler.scaledWidth(), sampler.scaledHeight(), 0,
+                     config == SkBitmap::kA8_Config ? kPremul_SkAlphaType :
                      kOpaque_SkAlphaType);
 
     // Check ahead of time if the swap(dest, src) is possible or not.
@@ -869,21 +907,9 @@ bool SkJPEGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
 
     // check for supported formats
     SkScaledBitmapSampler::SrcConfig sc;
-    if (JCS_CMYK == cinfo->out_color_space) {
-        // In this case we will manually convert the CMYK values to RGB
-        sc = SkScaledBitmapSampler::kRGBX;
-    } else if (3 == cinfo->out_color_components && JCS_RGB == cinfo->out_color_space) {
-        sc = SkScaledBitmapSampler::kRGB;
-#ifdef ANDROID_RGB
-    } else if (JCS_RGBA_8888 == cinfo->out_color_space) {
-        sc = SkScaledBitmapSampler::kRGBX;
-    } else if (JCS_RGB_565 == cinfo->out_color_space) {
-        sc = SkScaledBitmapSampler::kRGB_565;
-#endif
-    } else if (1 == cinfo->out_color_components &&
-               JCS_GRAYSCALE == cinfo->out_color_space) {
-        sc = SkScaledBitmapSampler::kGray;
-    } else {
+    int srcBytesPerPixel;
+
+    if (!get_src_config(*cinfo, &sc, &srcBytesPerPixel)) {
         return return_false(*cinfo, *bm, "jpeg colorspace");
     }
 
@@ -891,8 +917,7 @@ bool SkJPEGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
         return return_false(*cinfo, bitmap, "sampler.begin");
     }
 
-    // The CMYK work-around relies on 4 components per pixel here
-    SkAutoMalloc  srcStorage(width * 4);
+    SkAutoMalloc  srcStorage(width * srcBytesPerPixel);
     uint8_t* srcRow = (uint8_t*)srcStorage.get();
 
     //  Possibly skip initial rows [sampler.srcY0]

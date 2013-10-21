@@ -372,9 +372,14 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
 
     if ((SkBitmap::kA8_Config == config || SkBitmap::kIndex8_Config == config)
         && 1 == sampleSize) {
-        // A8 is only allowed if the original was GRAY.
-        SkASSERT(config != SkBitmap::kA8_Config
-                 || PNG_COLOR_TYPE_GRAY == colorType);
+        if (SkBitmap::kA8_Config == config) {
+            // For an A8 bitmap, we assume there is an alpha for speed. It is
+            // possible the bitmap is opaque, but that is an unlikely use case
+            // since it would not be very interesting.
+            reallyHasAlpha = true;
+            // A8 is only allowed if the original was GRAY.
+            SkASSERT(PNG_COLOR_TYPE_GRAY == colorType);
+        }
         for (int i = 0; i < number_passes; i++) {
             for (png_uint_32 y = 0; y < origHeight; y++) {
                 uint8_t* bmRow = decodedBitmap->getAddr8(0, y);
@@ -456,17 +461,22 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     if (0 != theTranspColor) {
         reallyHasAlpha |= substituteTranspColor(decodedBitmap, theTranspColor);
     }
-    if (reallyHasAlpha && this->getRequireUnpremultipliedColors() &&
-        SkBitmap::kARGB_8888_Config != decodedBitmap->config()) {
-        // If the caller wants an unpremultiplied bitmap, and we let them get
-        // away with a config other than 8888, and it has alpha after all,
-        // return false, since the result will have premultiplied colors.
-        return false;
+    if (reallyHasAlpha && this->getRequireUnpremultipliedColors()) {
+        switch (decodedBitmap->config()) {
+            case SkBitmap::kIndex8_Config:
+                // Fall through.
+            case SkBitmap::kARGB_4444_Config:
+                // We have chosen not to support unpremul for these configs.
+                return false;
+            default: {
+                // Fall through to finish the decode. This config either
+                // supports unpremul or it is irrelevant because it has no
+                // alpha (or only alpha).
+                // These brackets prevent a warning.
+            }
+        }
     }
-    if (SkBitmap::kA8_Config == decodedBitmap->config()) {
-        reallyHasAlpha = true;
-    }
-    
+
     SkAlphaType alphaType = kOpaque_SkAlphaType;
     if (reallyHasAlpha) {
         if (this->getRequireUnpremultipliedColors()) {
@@ -852,9 +862,14 @@ bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
 
     if ((SkBitmap::kA8_Config == config || SkBitmap::kIndex8_Config == config)
         && 1 == sampleSize) {
-        // A8 is only allowed if the original was GRAY.
-        SkASSERT(config != SkBitmap::kA8_Config
-                 || PNG_COLOR_TYPE_GRAY == colorType);
+        if (SkBitmap::kA8_Config == config) {
+            // For an A8 bitmap, we assume there is an alpha for speed. It is
+            // possible the bitmap is opaque, but that is an unlikely use case
+            // since it would not be very interesting.
+            reallyHasAlpha = true;
+            // A8 is only allowed if the original was GRAY.
+            SkASSERT(PNG_COLOR_TYPE_GRAY == colorType);
+        }
 
         for (int i = 0; i < number_passes; i++) {
             png_configure_decoder(png_ptr, &actualTop, i);
@@ -945,8 +960,20 @@ bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
     if (0 != theTranspColor) {
         reallyHasAlpha |= substituteTranspColor(&decodedBitmap, theTranspColor);
     }
-    if (SkBitmap::kA8_Config == decodedBitmap.config()) {
-        reallyHasAlpha = true;
+    if (reallyHasAlpha && this->getRequireUnpremultipliedColors()) {
+        switch (decodedBitmap.config()) {
+            case SkBitmap::kIndex8_Config:
+                // Fall through.
+            case SkBitmap::kARGB_4444_Config:
+                // We have chosen not to support unpremul for these configs.
+                return false;
+            default: {
+                // Fall through to finish the decode. This config either
+                // supports unpremul or it is irrelevant because it has no
+                // alpha (or only alpha).
+                // These brackets prevent a warning.
+            }
+        }
     }
     SkAlphaType alphaType = kOpaque_SkAlphaType;
     if (reallyHasAlpha) {
