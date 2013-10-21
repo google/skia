@@ -38,12 +38,11 @@ SK_DEFINE_INST_COUNT(SkSurface_Gpu)
 SkSurface_Gpu::SkSurface_Gpu(GrContext* ctx, const SkImage::Info& info,
                              int sampleCount)
         : INHERITED(info.fWidth, info.fHeight) {
-    bool isOpaque;
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
 
     fDevice = SkNEW_ARGS(SkGpuDevice, (ctx, config, info.fWidth, info.fHeight, sampleCount));
 
-    if (!isOpaque) {
+    if (!SkAlphaTypeIsOpaque(info.fAlphaType)) {
         fDevice->clear(0x0);
     }
 }
@@ -119,8 +118,7 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImage::Info& info,
         return NULL;
     }
 
-    bool isOpaque;
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
 
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kCheckAllocation_GrTextureFlagBit;
@@ -136,3 +134,4 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImage::Info& info,
 
     return SkNEW_ARGS(SkSurface_Gpu, (ctx, tex->asRenderTarget()));
 }
+

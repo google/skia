@@ -64,7 +64,8 @@ bool SkImageRef::getInfo(SkBitmap* bitmap) {
 bool SkImageRef::isOpaque(SkBitmap* bitmap) {
     if (bitmap && bitmap->pixelRef() == this) {
         bitmap->lockPixels();
-        bitmap->setIsOpaque(fBitmap.isOpaque());
+        // what about colortables??????
+        bitmap->setAlphaType(fBitmap.alphaType());
         bitmap->unlockPixels();
         return true;
     }

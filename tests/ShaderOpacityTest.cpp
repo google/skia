@@ -32,7 +32,7 @@ static void test_bitmap(skiatest::Reporter* reporter) {
     shader->unref();
 
     // test 3: explicitly opaque
-    bmp.setIsOpaque(true);
+    bmp.setAlphaType(kOpaque_SkAlphaType);
     shader = SkShader::CreateBitmapShader(bmp,
         SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
     REPORTER_ASSERT(reporter, shader);
@@ -40,7 +40,7 @@ static void test_bitmap(skiatest::Reporter* reporter) {
     shader->unref();
 
     // test 4: explicitly not opaque
-    bmp.setIsOpaque(false);
+    bmp.setAlphaType(kPremul_SkAlphaType);
     shader = SkShader::CreateBitmapShader(bmp,
         SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
     REPORTER_ASSERT(reporter, shader);

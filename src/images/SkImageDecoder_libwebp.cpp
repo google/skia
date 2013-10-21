@@ -293,11 +293,8 @@ bool SkWEBPImageDecoder::setDecodeConfig(SkBitmap* decodedBitmap,
         return false;
     }
 
-    decodedBitmap->setConfig(config, width, height, 0);
-
-    decodedBitmap->setIsOpaque(!fHasAlpha);
-
-    return true;
+    return decodedBitmap->setConfig(config, width, height, 0,
+                                    fHasAlpha ? kPremul_SkAlphaType : kOpaque_SkAlphaType);
 }
 
 bool SkWEBPImageDecoder::onBuildTileIndex(SkStreamRewindable* stream,

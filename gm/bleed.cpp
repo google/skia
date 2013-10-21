@@ -19,7 +19,8 @@
 static void make_red_ringed_bitmap(SkBitmap* result, int width, int height) {
     SkASSERT(0 == width % 2 && 0 == width % 2);
 
-    result->setConfig(SkBitmap::kARGB_8888_Config, width, height);
+    result->setConfig(SkBitmap::kARGB_8888_Config, width, height, 0,
+                      kOpaque_SkAlphaType);
     result->allocPixels();
     SkAutoLockPixels lock(*result);
 
@@ -56,7 +57,6 @@ static void make_red_ringed_bitmap(SkBitmap* result, int width, int height) {
     for (int x = 0; x < width; ++x) {
         scanline[x] = SK_ColorRED;
     }
-    result->setIsOpaque(true);
     result->setImmutable();
 }
 

@@ -48,11 +48,10 @@ public:
         , fDoScale(doScale) {
         SkBitmap bm;
 
-        bm.setConfig(SkBitmap::kARGB_8888_Config, kWidth, kHeight);
-
+        bm.setConfig(SkBitmap::kARGB_8888_Config, kWidth, kHeight, 0,
+                     kOpaque_SkAlphaType);
         bm.allocPixels();
         bm.eraseColor(SK_ColorWHITE);
-        bm.setIsOpaque(true);
 
         create_gradient(&bm);
 

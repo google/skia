@@ -93,11 +93,10 @@ private:
             SkPackARGB32(0xFF, 0x40, 0x40, 0x40)
         };
         SkBitmap bg;
-        bg.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
+        bg.setConfig(SkBitmap::kARGB_8888_Config, 2, 2, 0, kOpaque_SkAlphaType);
         bg.allocPixels();
         SkAutoLockPixels bgAlp(bg);
         memcpy(bg.getPixels(), kCheckData, sizeof(kCheckData));
-        bg.setIsOpaque(true);
 
         fBG.reset(SkShader::CreateBitmapShader(bg,
                                                SkShader::kRepeat_TileMode,

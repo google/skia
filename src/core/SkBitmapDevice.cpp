@@ -27,9 +27,9 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkDeviceProperties&
 }
 
 SkBitmapDevice::SkBitmapDevice(SkBitmap::Config config, int width, int height, bool isOpaque) {
-    fBitmap.setConfig(config, width, height);
+    fBitmap.setConfig(config, width, height, 0, isOpaque ?
+                      kOpaque_SkAlphaType : kPremul_SkAlphaType);
     fBitmap.allocPixels();
-    fBitmap.setIsOpaque(isOpaque);
     if (!isOpaque) {
         fBitmap.eraseColor(SK_ColorTRANSPARENT);
     }
@@ -39,9 +39,9 @@ SkBitmapDevice::SkBitmapDevice(SkBitmap::Config config, int width, int height, b
                                const SkDeviceProperties& deviceProperties)
     : SkBaseDevice(deviceProperties) {
 
-    fBitmap.setConfig(config, width, height);
+    fBitmap.setConfig(config, width, height, 0, isOpaque ?
+                      kOpaque_SkAlphaType : kPremul_SkAlphaType);
     fBitmap.allocPixels();
-    fBitmap.setIsOpaque(isOpaque);
     if (!isOpaque) {
         fBitmap.eraseColor(SK_ColorTRANSPARENT);
     }

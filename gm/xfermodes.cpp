@@ -60,9 +60,8 @@ class XfermodesGM : public GM {
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
-        fBG.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4);
+        fBG.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4, kOpaque_SkAlphaType);
         fBG.setPixels(gData);
-        fBG.setIsOpaque(true);
 
         make_bitmaps(W, H, &fSrcB, &fDstB);
     }

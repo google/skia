@@ -48,7 +48,7 @@ void BitmapTransformerTestClass::onRun(Reporter* reporter) {
         {
             bitmap.setConfig(configs[configIndex], kWidth, kHeight);
             REPORTER_ASSERT(reporter, bitmap.allocPixels());
-            bitmap.setIsOpaque(true);
+            bitmap.setAlphaType(kOpaque_SkAlphaType);
             bitmap.eraseColor(SK_ColorBLUE);
             // Change rows [0,1] from blue to [red,green].
             SkCanvas canvas(bitmap);

@@ -287,7 +287,8 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
     // Convolve into the result.
     SkBitmap result;
     result.setConfig(SkBitmap::kARGB_8888_Config,
-        destSubset.width(), destSubset.height());
+                     destSubset.width(), destSubset.height(), 0,
+                     source.alphaType());
     result.allocPixels(allocator, NULL);
     if (!result.readyToDraw()) {
         return false;
@@ -299,8 +300,6 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
         static_cast<unsigned char*>(result.getPixels()),
         convolveProcs, true);
 
-    // Preserve the "opaque" flag for use as an optimization later.
-    result.setIsOpaque(source.isOpaque());
     *resultPtr = result;
     return true;
 }

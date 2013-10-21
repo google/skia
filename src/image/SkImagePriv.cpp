@@ -9,45 +9,16 @@
 #include "SkCanvas.h"
 #include "SkPicture.h"
 
-SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info& info,
-                                           bool* isOpaque) {
+SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info& info) {
     switch (info.fColorType) {
         case SkImage::kAlpha_8_ColorType:
-            switch (info.fAlphaType) {
-                case kIgnore_SkAlphaType:
-                    // makes no sense
-                    return SkBitmap::kNo_Config;
-
-                case kOpaque_SkAlphaType:
-                    *isOpaque = true;
-                    return SkBitmap::kA8_Config;
-
-                case kPremul_SkAlphaType:
-                case kUnpremul_SkAlphaType:
-                    *isOpaque = false;
-                    return SkBitmap::kA8_Config;
-            }
-            break;
+            return SkBitmap::kA8_Config;
 
         case SkImage::kRGB_565_ColorType:
-            // we ignore fAlpahType, though some would not make sense
-            *isOpaque = true;
             return SkBitmap::kRGB_565_Config;
 
         case SkImage::kPMColor_ColorType:
-            switch (info.fAlphaType) {
-                case kIgnore_SkAlphaType:
-                case kUnpremul_SkAlphaType:
-                    // not supported yet
-                    return SkBitmap::kNo_Config;
-                case kOpaque_SkAlphaType:
-                    *isOpaque = true;
-                    return SkBitmap::kARGB_8888_Config;
-                case kPremul_SkAlphaType:
-                    *isOpaque = false;
-                    return SkBitmap::kARGB_8888_Config;
-            }
-            break;
+            return SkBitmap::kARGB_8888_Config;
 
         default:
             // break for unsupported colortypes

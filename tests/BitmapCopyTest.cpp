@@ -249,8 +249,8 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 SkColorTable* ctOpaque = NULL;
                 SkColorTable* ctPremul = NULL;
 
-                srcOpaque.setConfig(gPairs[i].fConfig, W, H);
-                srcPremul.setConfig(gPairs[i].fConfig, W, H);
+                srcOpaque.setConfig(gPairs[i].fConfig, W, H, 0, kOpaque_SkAlphaType);
+                srcPremul.setConfig(gPairs[i].fConfig, W, H, 0, kPremul_SkAlphaType);
                 if (SkBitmap::kIndex8_Config == gPairs[i].fConfig) {
                     ctOpaque = init_ctable(kOpaque_SkAlphaType);
                     ctPremul = init_ctable(kPremul_SkAlphaType);
@@ -259,9 +259,6 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 srcPremul.allocPixels(ctPremul);
                 SkSafeUnref(ctOpaque);
                 SkSafeUnref(ctPremul);
-
-                srcOpaque.setIsOpaque(true);
-                srcPremul.setIsOpaque(false);
             }
             init_src(srcOpaque);
             init_src(srcPremul);
@@ -315,7 +312,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                         REPORTER_ASSERT(reporter, subset.width() == 1);
                         REPORTER_ASSERT(reporter, subset.height() == 1);
                         REPORTER_ASSERT(reporter,
-                                        subset.isOpaque() == bitmap.isOpaque());
+                                        subset.alphaType() == bitmap.alphaType());
                         REPORTER_ASSERT(reporter,
                                         subset.isVolatile() == true);
 
@@ -333,12 +330,11 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                         REPORTER_ASSERT(reporter,
                                     (copy.getColorTable() != NULL) == hasCT);
                     }
-
                     bitmap = srcPremul;
                     bitmap.setIsVolatile(false);
                     if (bitmap.extractSubset(&subset, r)) {
                         REPORTER_ASSERT(reporter,
-                                        subset.isOpaque() == bitmap.isOpaque());
+                                        subset.alphaType() == bitmap.alphaType());
                         REPORTER_ASSERT(reporter,
                                         subset.isVolatile() == false);
                     }

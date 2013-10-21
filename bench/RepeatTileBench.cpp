@@ -115,7 +115,8 @@ protected:
     virtual void onPreDraw() SK_OVERRIDE {
         fBitmap.allocPixels();
         fBitmap.eraseColor(fIsOpaque ? SK_ColorWHITE : 0);
-        fBitmap.setIsOpaque(fIsOpaque);
+        fBitmap.setAlphaType(fIsOpaque ?
+                             kOpaque_SkAlphaType : kPremul_SkAlphaType);
 
         draw_into_bitmap(fBitmap);
 

@@ -466,7 +466,16 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     if (SkBitmap::kA8_Config == decodedBitmap->config()) {
         reallyHasAlpha = true;
     }
-    decodedBitmap->setIsOpaque(!reallyHasAlpha);
+    
+    SkAlphaType alphaType = kOpaque_SkAlphaType;
+    if (reallyHasAlpha) {
+        if (this->getRequireUnpremultipliedColors()) {
+            alphaType = kUnpremul_SkAlphaType;
+        } else {
+            alphaType = kPremul_SkAlphaType;
+        }
+    }
+    decodedBitmap->setAlphaType(alphaType);
     return true;
 }
 
@@ -939,7 +948,15 @@ bool SkPNGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
     if (SkBitmap::kA8_Config == decodedBitmap.config()) {
         reallyHasAlpha = true;
     }
-    decodedBitmap.setIsOpaque(!reallyHasAlpha);
+    SkAlphaType alphaType = kOpaque_SkAlphaType;
+    if (reallyHasAlpha) {
+        if (this->getRequireUnpremultipliedColors()) {
+            alphaType = kUnpremul_SkAlphaType;
+        } else {
+            alphaType = kPremul_SkAlphaType;
+        }
+    }
+    decodedBitmap.setAlphaType(alphaType);
 
     if (swapOnly) {
         bm->swap(decodedBitmap);

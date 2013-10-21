@@ -31,8 +31,7 @@ public:
             return false;
         }
 
-        bool isOpaque;
-        if (SkImageInfoToBitmapConfig(info, &isOpaque) == SkBitmap::kNo_Config) {
+        if (SkImageInfoToBitmapConfig(info) == SkBitmap::kNo_Config) {
             return false;
         }
 
@@ -85,23 +84,19 @@ SkImage* SkImage_Raster::NewEmpty() {
 
 SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes)
         : INHERITED(info.fWidth, info.fHeight) {
-    bool isOpaque;
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
 
-    fBitmap.setConfig(config, info.fWidth, info.fHeight, rowBytes);
+    fBitmap.setConfig(config, info.fWidth, info.fHeight, rowBytes, info.fAlphaType);
     fBitmap.setPixelRef(SkNEW_ARGS(SkDataPixelRef, (data)))->unref();
-    fBitmap.setIsOpaque(isOpaque);
     fBitmap.setImmutable();
 }
 
 SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes)
 : INHERITED(info.fWidth, info.fHeight) {
-    bool isOpaque;
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
 
-    fBitmap.setConfig(config, info.fWidth, info.fHeight, rowBytes);
+    fBitmap.setConfig(config, info.fWidth, info.fHeight, rowBytes, info.fAlphaType);
     fBitmap.setPixelRef(pr);
-    fBitmap.setIsOpaque(isOpaque);
 }
 
 SkImage_Raster::~SkImage_Raster() {}

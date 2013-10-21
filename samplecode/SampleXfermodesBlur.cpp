@@ -77,9 +77,8 @@ public:
     const static int W = 64;
     const static int H = 64;
     XfermodesBlurView() {
-        fBG.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4);
+        fBG.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4, kOpaque_SkAlphaType);
         fBG.setPixels(gBG);
-        fBG.setIsOpaque(true);
     }
 
 protected:

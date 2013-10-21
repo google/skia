@@ -39,8 +39,7 @@ private:
 bool SkSurface_Raster::Valid(const SkImage::Info& info, size_t rowBytes) {
     static const size_t kMaxTotalSize = SK_MaxS32;
 
-    bool isOpaque;
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
 
     int shift = 0;
     switch (config) {
@@ -83,26 +82,20 @@ bool SkSurface_Raster::Valid(const SkImage::Info& info, size_t rowBytes) {
 
 SkSurface_Raster::SkSurface_Raster(const SkImage::Info& info, void* pixels, size_t rb)
         : INHERITED(info.fWidth, info.fHeight) {
-    bool isOpaque;
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
-
-    fBitmap.setConfig(config, info.fWidth, info.fHeight, rb);
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
+    fBitmap.setConfig(config, info.fWidth, info.fHeight, rb, info.fAlphaType);
     fBitmap.setPixels(pixels);
-    fBitmap.setIsOpaque(isOpaque);
     fWeOwnThePixels = false;    // We are "Direct"
 }
 
 SkSurface_Raster::SkSurface_Raster(const SkImage::Info& info, SkPixelRef* pr, size_t rb)
         : INHERITED(info.fWidth, info.fHeight) {
-    bool isOpaque;
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
-
-    fBitmap.setConfig(config, info.fWidth, info.fHeight, rb);
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
+    fBitmap.setConfig(config, info.fWidth, info.fHeight, rb, info.fAlphaType);
     fBitmap.setPixelRef(pr);
-    fBitmap.setIsOpaque(isOpaque);
     fWeOwnThePixels = true;
 
-    if (!isOpaque) {
+    if (!SkAlphaTypeIsOpaque(info.fAlphaType)) {
         fBitmap.eraseColor(SK_ColorTRANSPARENT);
     }
 }

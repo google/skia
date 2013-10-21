@@ -143,6 +143,7 @@ void SkBitmap::swap(SkBitmap& other) {
     SkTSwap(fWidth, other.fWidth);
     SkTSwap(fHeight, other.fHeight);
     SkTSwap(fConfig, other.fConfig);
+    SkTSwap(fAlphaType, other.fAlphaType);
     SkTSwap(fFlags, other.fFlags);
     SkTSwap(fBytesPerPixel, other.fBytesPerPixel);
 
@@ -266,33 +267,76 @@ void SkBitmap::getBounds(SkIRect* bounds) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBitmap::setConfig(Config c, int width, int height, size_t rowBytes) {
-    this->freePixels();
-
-    if ((width | height) < 0) {
-        goto err;
+static bool validate_alphaType(SkBitmap::Config config, SkAlphaType alphaType,
+                               SkAlphaType* canonical) {
+    switch (config) {
+        case SkBitmap::kNo_Config:
+            alphaType = kIgnore_SkAlphaType;
+            break;
+        case SkBitmap::kA1_Config:
+        case SkBitmap::kA8_Config:
+            if (kUnpremul_SkAlphaType == alphaType) {
+                alphaType = kPremul_SkAlphaType;
+            }
+            // fall-through
+        case SkBitmap::kIndex8_Config:
+        case SkBitmap::kARGB_4444_Config:
+        case SkBitmap::kARGB_8888_Config:
+            if (kIgnore_SkAlphaType == alphaType) {
+                return false;
+            }
+            break;
+        case SkBitmap::kRGB_565_Config:
+            alphaType = kOpaque_SkAlphaType;
+            break;
     }
+    if (canonical) {
+        *canonical = alphaType;
+    }
+    return true;
+}
 
+bool SkBitmap::setConfig(Config config, int width, int height, size_t rowBytes,
+                         SkAlphaType alphaType) {
+    if ((width | height) < 0) {
+        goto ERROR;
+    }
     if (rowBytes == 0) {
-        rowBytes = SkBitmap::ComputeRowBytes(c, width);
-        if (0 == rowBytes && kNo_Config != c) {
-            goto err;
+        rowBytes = SkBitmap::ComputeRowBytes(config, width);
+        if (0 == rowBytes && kNo_Config != config) {
+            goto ERROR;
         }
     }
 
-    fConfig     = SkToU8(c);
+    if (!validate_alphaType(config, alphaType, &alphaType)) {
+        goto ERROR;
+    }
+
+    this->freePixels();
+
+    fConfig     = SkToU8(config);
+    fAlphaType  = SkToU8(alphaType);
     fWidth      = width;
     fHeight     = height;
     fRowBytes   = SkToU32(rowBytes);
 
-    fBytesPerPixel = (uint8_t)ComputeBytesPerPixel(c);
+    fBytesPerPixel = (uint8_t)ComputeBytesPerPixel(config);
 
     SkDEBUGCODE(this->validate();)
-    return;
+    return true;
 
     // if we got here, we had an error, so we reset the bitmap to empty
-err:
+ERROR:
     this->reset();
+    return false;
+}
+
+bool SkBitmap::setAlphaType(SkAlphaType alphaType) {
+    if (!validate_alphaType(this->config(), alphaType, &alphaType)) {
+        return false;
+    }
+    fAlphaType = SkToU8(alphaType);
+    return true;
 }
 
 void SkBitmap::updatePixelsFromRef() const {
@@ -521,46 +565,6 @@ void SkBitmap::setImmutable() {
         fPixelRef->setImmutable();
     } else {
         fFlags |= kImageIsImmutable_Flag;
-    }
-}
-
-bool SkBitmap::isOpaque() const {
-    switch (fConfig) {
-        case kNo_Config:
-            return true;
-
-        case kA1_Config:
-        case kA8_Config:
-        case kARGB_4444_Config:
-        case kARGB_8888_Config:
-            return (fFlags & kImageIsOpaque_Flag) != 0;
-
-        case kIndex8_Config: {
-            bool isOpaque;
-
-            this->lockPixels();
-            isOpaque = fColorTable && fColorTable->isOpaque();
-            this->unlockPixels();
-            return isOpaque;
-        }
-
-        case kRGB_565_Config:
-            return true;
-
-        default:
-            SkDEBUGFAIL("unknown bitmap config pased to isOpaque");
-            return false;
-    }
-}
-
-void SkBitmap::setIsOpaque(bool isOpaque) {
-    /*  we record this regardless of fConfig, though it is ignored in
-        isOpaque() for configs that can't support per-pixel alpha.
-    */
-    if (isOpaque) {
-        fFlags |= kImageIsOpaque_Flag;
-    } else {
-        fFlags &= ~kImageIsOpaque_Flag;
     }
 }
 
@@ -958,9 +962,9 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
         SkPixelRef* pixelRef = fPixelRef->deepCopy(this->config(), &subset);
         if (pixelRef != NULL) {
             SkBitmap dst;
-            dst.setConfig(this->config(), subset.width(), subset.height());
+            dst.setConfig(this->config(), subset.width(), subset.height(), 0,
+                          this->alphaType());
             dst.setIsVolatile(this->isVolatile());
-            dst.setIsOpaque(this->isOpaque());
             dst.setPixelRef(pixelRef)->unref();
             SkDEBUGCODE(dst.validate());
             result->swap(dst);
@@ -979,9 +983,9 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     }
 
     SkBitmap dst;
-    dst.setConfig(this->config(), r.width(), r.height(), this->rowBytes());
+    dst.setConfig(this->config(), r.width(), r.height(), this->rowBytes(),
+                  this->alphaType());
     dst.setIsVolatile(this->isVolatile());
-    dst.setIsOpaque(this->isOpaque());
 
     if (fPixelRef) {
         // share the pixelref with a custom offset
@@ -1070,7 +1074,8 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     }
 
     SkBitmap tmpDst;
-    tmpDst.setConfig(dstConfig, src->width(), src->height());
+    tmpDst.setConfig(dstConfig, src->width(), src->height(), 0,
+                     src->alphaType());
 
     // allocate colortable if srcConfig == kIndex8_Config
     SkColorTable* ctable = (dstConfig == kIndex8_Config) ?
@@ -1129,8 +1134,6 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
         paint.setDither(true);
         canvas.drawBitmap(*src, 0, 0, &paint);
     }
-
-    tmpDst.setIsOpaque(src->isOpaque());
 
     dst->swap(tmpDst);
     return true;
@@ -1579,7 +1582,7 @@ void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeInt(fHeight);
     buffer.writeInt(fRowBytes);
     buffer.writeInt(fConfig);
-    buffer.writeBool(this->isOpaque());
+    buffer.writeInt(fAlphaType);
 
     if (fPixelRef) {
         if (fPixelRef->getFactory()) {
@@ -1602,9 +1605,9 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
     int height = buffer.readInt();
     int rowBytes = buffer.readInt();
     int config = buffer.readInt();
+    int alphaType = buffer.readInt();
 
-    this->setConfig((Config)config, width, height, rowBytes);
-    this->setIsOpaque(buffer.readBool());
+    this->setConfig((Config)config, width, height, rowBytes, (SkAlphaType)alphaType);
 
     int reftype = buffer.readInt();
     switch (reftype) {

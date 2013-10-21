@@ -100,7 +100,7 @@ protected:
 
     static void setBitmapOpaque(SkBitmap* bm, bool isOpaque) {
         SkAutoLockPixels alp(*bm);  // needed for ctable
-        bm->setIsOpaque(isOpaque);
+        bm->setAlphaType(isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
 #if 0
         SkColorTable* ctable = bm->getColorTable();
         if (ctable) {

@@ -13,8 +13,7 @@
 
 class SkPicture;
 
-extern SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info&,
-                                                  bool* isOpaque);
+extern SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info&);
 
 extern int SkImageBytesPerPixel(SkImage::ColorType);
 

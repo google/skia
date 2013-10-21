@@ -137,14 +137,17 @@ static SkBitmap::Config grConfig2skConfig(GrPixelConfig config, bool* isOpaque) 
     }
 }
 
+/*
+ * GrRenderTarget does not know its opaqueness, only its config, so we have
+ * to make conservative guesses when we return an "equivalent" bitmap.
+ */
 static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
-    GrPixelConfig config = renderTarget->config();
-
     bool isOpaque;
+    SkBitmap::Config config = grConfig2skConfig(renderTarget->config(), &isOpaque);
+
     SkBitmap bitmap;
-    bitmap.setConfig(grConfig2skConfig(config, &isOpaque),
-                     renderTarget->width(), renderTarget->height());
-    bitmap.setIsOpaque(isOpaque);
+    bitmap.setConfig(config, renderTarget->width(), renderTarget->height(), 0,
+                     isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
     return bitmap;
 }
 

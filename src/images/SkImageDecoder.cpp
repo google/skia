@@ -245,8 +245,7 @@ bool SkImageDecoder::cropBitmap(SkBitmap *dst, SkBitmap *src, int sampleSize,
     }
     // if the destination has no pixels then we must allocate them.
     if (dst->isNull()) {
-        dst->setConfig(src->getConfig(), w, h);
-        dst->setIsOpaque(src->isOpaque());
+        dst->setConfig(src->getConfig(), w, h, 0, src->alphaType());
 
         if (!this->allocPixelRef(dst, NULL)) {
             SkDEBUGF(("failed to allocate pixels needed to crop the bitmap"));

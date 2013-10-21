@@ -150,15 +150,14 @@ SkData* SkLazyPixelRef::onRefEncodedData() {
 
 static bool init_from_info(SkBitmap* bm, const SkImage::Info& info,
                            size_t rowBytes) {
-    bool isOpaque;
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
     if (SkBitmap::kNo_Config == config) {
         return false;
     }
 
-    bm->setConfig(config, info.fWidth, info.fHeight, rowBytes);
-    bm->setIsOpaque(isOpaque);
-    return bm->allocPixels();
+    return bm->setConfig(config, info.fWidth, info.fHeight, rowBytes, info.fAlphaType)
+           &&
+           bm->allocPixels();
 }
 
 bool SkLazyPixelRef::onImplementsDecodeInto() {

@@ -543,9 +543,9 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 #endif
 
     if (1 == sampleSize && SkImageDecoder::kDecodeBounds_Mode == mode) {
-        bm->setConfig(config, cinfo.image_width, cinfo.image_height);
-        bm->setIsOpaque(config != SkBitmap::kA8_Config);
-        return true;
+        return bm->setConfig(config, cinfo.image_width, cinfo.image_height, 0,
+                             SkBitmap::kA8_Config == config ?
+                                kPremul_SkAlphaType : kOpaque_SkAlphaType);
     }
 
     /*  image_width and image_height are the original dimensions, available
@@ -565,9 +565,9 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         if (SkImageDecoder::kDecodeBounds_Mode == mode && valid_output_dimensions(cinfo)) {
             SkScaledBitmapSampler smpl(cinfo.output_width, cinfo.output_height,
                                        recompute_sampleSize(sampleSize, cinfo));
-            bm->setConfig(config, smpl.scaledWidth(), smpl.scaledHeight());
-            bm->setIsOpaque(config != SkBitmap::kA8_Config);
-            return true;
+            return bm->setConfig(config, smpl.scaledWidth(), smpl.scaledHeight(),
+                                 0, SkBitmap::kA8_Config == config ?
+                                    kPremul_SkAlphaType : kOpaque_SkAlphaType);
         } else {
             return return_false(cinfo, *bm, "start_decompress");
         }
@@ -580,8 +580,8 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     }
 
     SkScaledBitmapSampler sampler(cinfo.output_width, cinfo.output_height, sampleSize);
-    bm->setConfig(config, sampler.scaledWidth(), sampler.scaledHeight());
-    bm->setIsOpaque(config != SkBitmap::kA8_Config);
+    bm->setConfig(config, sampler.scaledWidth(), sampler.scaledHeight(), 0,
+                  SkBitmap::kA8_Config != config ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }
@@ -801,8 +801,8 @@ bool SkJPEGImageDecoder::onDecodeSubset(SkBitmap* bm, const SkIRect& region) {
     SkScaledBitmapSampler sampler(width, height, skiaSampleSize);
 
     SkBitmap bitmap;
-    bitmap.setConfig(config, sampler.scaledWidth(), sampler.scaledHeight());
-    bitmap.setIsOpaque(true);
+    bitmap.setConfig(config, sampler.scaledWidth(), sampler.scaledHeight(), 0,
+                     kOpaque_SkAlphaType);
 
     // Check ahead of time if the swap(dest, src) is possible or not.
     // If yes, then we will stick to AllocPixelRef since it's cheaper with the

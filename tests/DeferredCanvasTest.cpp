@@ -333,7 +333,7 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         paint.setStyle(SkPaint::kFill_Style);
         SkBitmap bmp;
         create(&bmp, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
-        bmp.setIsOpaque(true);
+        bmp.setAlphaType(kOpaque_SkAlphaType);
         SkShader* shader = SkShader::CreateBitmapShader(bmp,
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
         paint.setShader(shader)->unref();
@@ -371,7 +371,7 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         paint.setStyle(SkPaint::kFill_Style);
         SkBitmap bmp;
         create(&bmp, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
-        bmp.setIsOpaque(false);
+        bmp.setAlphaType(kPremul_SkAlphaType);
         SkShader* shader = SkShader::CreateBitmapShader(bmp,
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
         paint.setShader(shader)->unref();

@@ -126,7 +126,7 @@ protected:
             fBitmap = bm;
         }
 
-        fBitmap.setIsOpaque(fIsOpaque);
+        fBitmap.setAlphaType(fIsOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
         fBitmap.setIsVolatile(fIsVolatile);
     }
 

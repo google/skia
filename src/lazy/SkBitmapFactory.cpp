@@ -53,16 +53,13 @@ bool SkBitmapFactory::installPixelRef(SkData* data, SkBitmap* dst) {
         return false;
     }
 
-    bool isOpaque = false;
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info, &isOpaque);
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
 
     Target target;
     // FIMXE: There will be a problem if this rowbytes is calculated differently from
     // in SkLazyPixelRef.
     target.fRowBytes = SkImageMinRowBytes(info);
-
-    dst->setConfig(config, info.fWidth, info.fHeight, target.fRowBytes);
-    dst->setIsOpaque(isOpaque);
+    dst->setConfig(config, info.fWidth, info.fHeight, target.fRowBytes, info.fAlphaType);
 
     // fImageCache and fCacheSelector are mutually exclusive.
     SkASSERT(NULL == fImageCache || NULL == fCacheSelector);

@@ -133,8 +133,8 @@ bool SkBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
     SkScaledBitmapSampler sampler(width, height, getSampleSize());
 
-    bm->setConfig(config, sampler.scaledWidth(), sampler.scaledHeight());
-    bm->setIsOpaque(true);
+    bm->setConfig(config, sampler.scaledWidth(), sampler.scaledHeight(), 0,
+                  kOpaque_SkAlphaType);
 
     if (justBounds) {
         return true;

@@ -104,11 +104,13 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         case kCGImageAlphaNoneSkipLast:
         case kCGImageAlphaNoneSkipFirst:
             SkASSERT(SkBitmap::ComputeIsOpaque(*bm));
-            bm->setIsOpaque(true);
+            bm->setAlphaType(kOpaque_SkAlphaType);
             break;
         default:
             // we don't know if we're opaque or not, so compute it.
-            bm->computeAndSetOpaquePredicate();
+            if (SkBitmap::ComputeIsOpaque(*bm)) {
+                bm->setAlphaType(kOpaque_SkAlphaType);
+            }
     }
     if (!bm->isOpaque() && this->getRequireUnpremultipliedColors()) {
         // CGBitmapContext does not support unpremultiplied, so the image has been premultiplied.
@@ -119,6 +121,7 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
                 *addr = unpremultiply_pmcolor(*addr);
             }
         }
+        bm->setAlphaType(kUnpremul_SkAlphaType);
     }
     bm->unlockPixels();
     return true;
