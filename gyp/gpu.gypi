@@ -124,7 +124,7 @@
       '<(skia_src_path)/gpu/GrTextStrike_impl.h',
       '<(skia_src_path)/gpu/GrTexture.cpp',
       '<(skia_src_path)/gpu/GrTextureAccess.cpp',
-      '<(skia_src_path)/gpu/GrTHashCache.h',
+      '<(skia_src_path)/gpu/GrTHashTable.h',
       '<(skia_src_path)/gpu/GrVertexBuffer.h',
       '<(skia_src_path)/gpu/gr_unittests.cpp',
 

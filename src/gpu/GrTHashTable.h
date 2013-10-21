@@ -8,8 +8,8 @@
 
 
 
-#ifndef GrTHashCache_DEFINED
-#define GrTHashCache_DEFINED
+#ifndef GrTHashTable_DEFINED
+#define GrTHashTable_DEFINED
 
 #include "GrTypes.h"
 #include "SkTDArray.h"

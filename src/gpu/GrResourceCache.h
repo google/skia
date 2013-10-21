@@ -13,7 +13,7 @@
 
 #include "GrConfig.h"
 #include "GrTypes.h"
-#include "GrTHashCache.h"
+#include "GrTHashTable.h"
 #include "GrBinHashKey.h"
 #include "SkTInternalLList.h"
 
@@ -185,8 +185,6 @@ bool GrResourceKey::EQ(const GrResourceEntry& a, const GrResourceEntry& b) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "GrTHashCache.h"
 
 /**
  *  Cache of GrResource objects.

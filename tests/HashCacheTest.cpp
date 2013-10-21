@@ -10,7 +10,7 @@
 
 // This is a GR test
 #if SK_SUPPORT_GPU
-#include "GrTHashCache.h"
+#include "GrTHashTable.h"
 
 struct HashElement {
     int     fKey;

@@ -9,7 +9,7 @@
 #define GrTextureStripAtlas_DEFINED
 
 #include "GrBinHashKey.h"
-#include "GrTHashCache.h"
+#include "GrTHashTable.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkTDArray.h"

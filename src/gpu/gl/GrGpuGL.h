@@ -19,8 +19,8 @@
 #include "GrGLVertexArray.h"
 #include "GrGLVertexBuffer.h"
 #include "GrGpu.h"
+#include "GrTHashTable.h"
 #include "SkTypes.h"
-#include "../GrTHashCache.h"
 
 #ifdef SK_DEVELOPER
 #define PROGRAM_CACHE_STATS
