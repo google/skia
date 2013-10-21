@@ -180,12 +180,19 @@ function create_inputs_dir {
     --writeJsonSummaryPath $JSON_DIR/different-pixels-no-hierarchy.json
 
   mkdir -p $IMAGES_DIR/empty-dir
+
+  echo "# Comment line" >$GM_IGNORE_FAILURES_FILE
+  echo "" >>$GM_IGNORE_FAILURES_FILE
+  echo "# ignore any test runs whose filename contains '8888/selfte'" >>$GM_IGNORE_FAILURES_FILE
+  echo "#   (in other words, config is 8888 and test name starts with 'selfte')" >>$GM_IGNORE_FAILURES_FILE
+  echo "8888/selfte" >>$GM_IGNORE_FAILURES_FILE
 }
 
 GM_TESTDIR=gm/tests
 GM_INPUTS=$GM_TESTDIR/inputs
 GM_OUTPUTS=$GM_TESTDIR/outputs
 GM_TEMPFILES=$GM_TESTDIR/tempfiles
+GM_IGNORE_FAILURES_FILE=$GM_INPUTS/ignored-tests.txt
 
 create_inputs_dir $GM_INPUTS
 
@@ -202,11 +209,7 @@ gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/d
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/compared-against-different-pixels-json"
 
 # Exercise --ignoreFailuresFile flag.
-FAILURES_FILE="$GM_INPUTS/ignoreFailureFile"
-echo "# Comment line" >$FAILURES_FILE
-echo "" >>$FAILURES_FILE
-echo "8888/selfte" >>$FAILURES_FILE
-gm_test "--verbose --hierarchy --match selftest1 --ignoreFailuresFile $FAILURES_FILE $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/ignoring-one-test"
+gm_test "--verbose --hierarchy --match selftest1 --ignoreFailuresFile $GM_IGNORE_FAILURES_FILE $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/ignoring-one-test"
 
 # Compare different pixels, but with a SUBSET of the expectations marked as
 # ignore-failure.
@@ -215,7 +218,7 @@ gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/dif
 # Compare generated image against an empty "expected image" dir.
 # Even the tests that have been marked as ignore-failure should show up as
 # no-comparison.
-gm_test "--verbose --hierarchy --match selftest1 --ignoreTests 8888 $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
+gm_test "--verbose --hierarchy --match selftest1 --ignoreFailuresFile $GM_IGNORE_FAILURES_FILE $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
 
 # Compare generated image against a nonexistent "expected image" dir.
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r ../path/to/nowhere" "$GM_OUTPUTS/compared-against-nonexistent-dir"

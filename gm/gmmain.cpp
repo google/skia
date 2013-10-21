@@ -1425,9 +1425,6 @@ DEFINE_string(ignoreErrorTypes, kDefaultIgnorableErrorTypes.asString(" ").c_str(
 DEFINE_string(ignoreFailuresFile, "", "Path to file containing a list of tests for which we "
               "should ignore failures.\n"
               "The file should list one test per line, except for comment lines starting with #");
-DEFINE_string(ignoreTests, "", "Space delimited list of tests for which we should ignore "
-              "failures.\n"
-              "DEPRECATED in favor of --ignoreFailuresFile; see bug 1730");
 DEFINE_string(match, "", "[~][^]substring[$] [...] of test name to run.\n"
               "Multiple matches may be separated by spaces.\n"
               "~ causes a matching test to always be skipped\n"
@@ -2061,14 +2058,6 @@ static bool parse_flags_ignore_error_types(ErrorCombination* outErrorTypes) {
  */
 static bool parse_flags_ignore_tests(SkTArray<SkString> &ignoreTestSubstrings) {
     ignoreTestSubstrings.reset();
-
-    // Parse --ignoreTests
-    if (FLAGS_ignoreTests.count() > 0) {
-        gm_fprintf(stderr, "you are using deprecated --ignoreTests flag\n");
-        for (int i = 0; i < FLAGS_ignoreTests.count(); i++) {
-            ignoreTestSubstrings.push_back(SkString(FLAGS_ignoreTests[i]));
-        }
-    }
 
     // Parse --ignoreFailuresFile
     for (int i = 0; i < FLAGS_ignoreFailuresFile.count(); i++) {
