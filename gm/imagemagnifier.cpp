@@ -38,7 +38,7 @@ protected:
         SkPaint paint;
         paint.setImageFilter(
             new SkMagnifierImageFilter(
-                SkRect::MakeXYWH(SkIntToScalar(125), SkIntToScalar(125),
+                SkRect::MakeXYWH(SkIntToScalar(100), SkIntToScalar(100),
                                  SkIntToScalar(WIDTH / 2),
                                  SkIntToScalar(HEIGHT / 2)),
                 100))->unref();
