@@ -59,7 +59,7 @@ public:
     virtual void writeEncodedString(const void* value, size_t byteLength,
                                     SkPaint::TextEncoding encoding) SK_OVERRIDE;
 
-    virtual void writeFlattenable(SkFlattenable* flattenable) SK_OVERRIDE;
+    virtual void writeFlattenable(const SkFlattenable* flattenable) SK_OVERRIDE;
     virtual void writeColor(const SkColor& color) SK_OVERRIDE;
     virtual void writeColorArray(const SkColor* color, uint32_t count) SK_OVERRIDE;
     virtual void writePoint(const SkPoint& point) SK_OVERRIDE;

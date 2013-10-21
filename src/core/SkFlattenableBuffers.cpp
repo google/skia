@@ -51,6 +51,7 @@ void SkFlattenableWriteBuffer::writePaint(const SkPaint& paint) {
     paint.flatten(*this);
 }
 
-void SkFlattenableWriteBuffer::flattenObject(SkFlattenable* obj, SkFlattenableWriteBuffer& buffer) {
+void SkFlattenableWriteBuffer::flattenObject(const SkFlattenable* obj,
+                                             SkFlattenableWriteBuffer& buffer) {
     obj->flatten(buffer);
 }

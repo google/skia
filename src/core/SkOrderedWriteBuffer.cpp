@@ -253,7 +253,7 @@ void SkOrderedWriteBuffer::setBitmapEncoder(SkPicture::EncodeBitmap bitmapEncode
     }
 }
 
-void SkOrderedWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
+void SkOrderedWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
     /*
      *  If we have a factoryset, then the first 32bits tell us...
      *       0: failure to write the flattenable
