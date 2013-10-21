@@ -704,7 +704,8 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
       fLastContentEntry(NULL),
       fLastMarginContentEntry(NULL),
       fClipStack(NULL),
-      fEncoder(NULL) {
+      fEncoder(NULL),
+      fRasterDpi(SkFloatToScalar(72.0f)) {
     // just report that PDF does not supports perspective
     // TODO(edisonn): update the shape when possible
     // or dump in an image otherwise
@@ -734,7 +735,9 @@ SkPDFDevice::SkPDFDevice(const SkISize& layerSize,
       fExistingClipRegion(existingClipRegion),
       fLastContentEntry(NULL),
       fLastMarginContentEntry(NULL),
-      fClipStack(NULL) {
+      fClipStack(NULL),
+      fEncoder(NULL),
+      fRasterDpi(SkFloatToScalar(72.0f)) {
     fInitialTransform.reset();
     this->init();
 }

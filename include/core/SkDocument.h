@@ -16,6 +16,10 @@
 class SkCanvas;
 class SkWStream;
 
+/** SK_ScalarDefaultDPI is 72 DPI.
+*/
+#define SK_ScalarDefaultRasterDPI           SkFloatToScalar(72.0f)
+
 /**
  *  High-level API for creating a document-based canvas. To use..
  *
@@ -35,9 +39,19 @@ public:
      *  If there is an error trying to create the doc, returns NULL.
      *  encoder sets the DCTEncoder for images, to encode a bitmap
      *    as JPEG (DCT).
+     *  rasterDpi - the DPI at which features without native PDF support
+     *              will be rasterized (e.g. draw image with perspective,
+     *              draw text with perspective, ...)
+     *              A larger DPI would create a PDF that reflects the original
+     *              intent with better fidelity, but it can make for larger
+     *              PDF files too, which would use more memory while rendering,
+     *              and it would be slower to be processed or sent online or
+     *              to printer.
      */
-    static SkDocument* CreatePDF(const char filename[],
-                                 SkPicture::EncodeBitmap encoder = NULL);
+    static SkDocument* CreatePDF(
+            const char filename[],
+            SkPicture::EncodeBitmap encoder = NULL,
+            SkScalar rasterDpi = SK_ScalarDefaultRasterDPI);
 
     /**
      *  Create a PDF-backed document, writing the results into a stream.
@@ -50,9 +64,18 @@ public:
      *  The proc can delete the stream, or whatever it needs to do.
      *  encoder sets the DCTEncoder for images, to encode a bitmap
      *    as JPEG (DCT).
-     */
-    static SkDocument* CreatePDF(SkWStream*, void (*Done)(SkWStream*) = NULL,
-                                 SkPicture::EncodeBitmap encoder = NULL);
+     *  rasterDpi - the DPI at which features without native PDF support
+     *              will be rasterized (e.g. draw image with perspective,
+     *              draw text with perspective, ...)
+     *              A larger DPI would create a PDF that reflects the original
+     *              intent with better fidelity, but it can make for larger
+     *              PDF files too, which would use more memory while rendering,
+     *              and it would be slower to be processed or sent online or
+     *              to printer.     */
+    static SkDocument* CreatePDF(
+            SkWStream*, void (*Done)(SkWStream*) = NULL,
+            SkPicture::EncodeBitmap encoder = NULL,
+            SkScalar rasterDpi = SK_ScalarDefaultRasterDPI);
 
     /**
      *  Begin a new page for the document, returning the canvas that will draw

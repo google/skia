@@ -197,6 +197,20 @@ protected:
 
     virtual bool allowImageFilter(SkImageFilter*) SK_OVERRIDE;
 
+    /**
+     *  rasterDpi - the DPI at which features without native PDF support
+     *              will be rasterized (e.g. draw image with perspective,
+     *              draw text with perspective, ...)
+     *              A larger DPI would create a PDF that reflects the original
+     *              intent with better fidelity, but it can make for larger
+     *              PDF files too, which would use more memory while rendering,
+     *              and it would be slower to be processed or sent online or
+     *              to printer.
+     */
+    void setRasterDpi(SkScalar rasterDpi) {
+        fRasterDpi = rasterDpi;
+    }
+
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in
     // order to get the right access levels without using friend.
@@ -233,6 +247,7 @@ private:
     SkAutoTDelete<SkPDFGlyphSetMap> fFontGlyphUsage;
 
     SkPicture::EncodeBitmap fEncoder;
+    SkScalar fRasterDpi;
 
     SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
                 const SkRegion& existingClipRegion);
