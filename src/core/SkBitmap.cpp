@@ -299,17 +299,17 @@ static bool validate_alphaType(SkBitmap::Config config, SkAlphaType alphaType,
 bool SkBitmap::setConfig(Config config, int width, int height, size_t rowBytes,
                          SkAlphaType alphaType) {
     if ((width | height) < 0) {
-        goto ERROR;
+        goto BAD_CONFIG;
     }
     if (rowBytes == 0) {
         rowBytes = SkBitmap::ComputeRowBytes(config, width);
         if (0 == rowBytes && kNo_Config != config) {
-            goto ERROR;
+            goto BAD_CONFIG;
         }
     }
 
     if (!validate_alphaType(config, alphaType, &alphaType)) {
-        goto ERROR;
+        goto BAD_CONFIG;
     }
 
     this->freePixels();
@@ -326,7 +326,7 @@ bool SkBitmap::setConfig(Config config, int width, int height, size_t rowBytes,
     return true;
 
     // if we got here, we had an error, so we reset the bitmap to empty
-ERROR:
+BAD_CONFIG:
     this->reset();
     return false;
 }
