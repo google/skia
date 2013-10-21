@@ -1691,16 +1691,6 @@ bool GrContext::isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
     return fGpu->caps()->isConfigRenderable(config, withMSAA);
 }
 
-static inline intptr_t setOrClear(intptr_t bits, int shift, intptr_t pred) {
-    intptr_t mask = 1 << shift;
-    if (pred) {
-        bits |= mask;
-    } else {
-        bits &= ~mask;
-    }
-    return bits;
-}
-
 void GrContext::setupDrawBuffer() {
     SkASSERT(NULL == fDrawBuffer);
     SkASSERT(NULL == fDrawBufferVBAllocPool);

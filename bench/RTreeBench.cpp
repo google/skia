@@ -147,18 +147,8 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static inline SkIRect make_simple_rect(SkRandom&, int index, int numRects) {
-    SkIRect out = {0, 0, GENERATE_EXTENTS, GENERATE_EXTENTS};
-    return out;
-}
-
 static inline SkIRect make_concentric_rects_increasing(SkRandom&, int index, int numRects) {
     SkIRect out = {0, 0, index + 1, index + 1};
-    return out;
-}
-
-static inline SkIRect make_concentric_rects_decreasing(SkRandom&, int index, int numRects) {
-    SkIRect out = {0, 0, numRects - index, numRects - index};
     return out;
 }
 
@@ -179,30 +169,12 @@ static inline SkIRect make_YXordered_rects(SkRandom& rand, int index, int numRec
     return out;
 }
 
-static inline SkIRect make_point_rects(SkRandom& rand, int index, int numRects) {
-    SkIRect out;
-    out.fLeft   = rand.nextU() % GENERATE_EXTENTS;
-    out.fTop    = rand.nextU() % GENERATE_EXTENTS;
-    out.fRight  = out.fLeft + (GENERATE_EXTENTS / 200);
-    out.fBottom = out.fTop + (GENERATE_EXTENTS / 200);
-    return out;
-}
-
 static inline SkIRect make_random_rects(SkRandom& rand, int index, int numRects) {
     SkIRect out;
     out.fLeft   = rand.nextS() % GENERATE_EXTENTS;
     out.fTop    = rand.nextS() % GENERATE_EXTENTS;
     out.fRight  = out.fLeft + 1 + rand.nextU() % (GENERATE_EXTENTS / 5);
     out.fBottom = out.fTop  + 1 + rand.nextU() % (GENERATE_EXTENTS / 5);
-    return out;
-}
-
-static inline SkIRect make_large_rects(SkRandom& rand, int index, int numRects) {
-    SkIRect out;
-    out.fLeft   = rand.nextU() % GENERATE_EXTENTS;
-    out.fTop    = rand.nextU() % GENERATE_EXTENTS;
-    out.fRight  = out.fLeft + (GENERATE_EXTENTS / 3);
-    out.fBottom = out.fTop  + (GENERATE_EXTENTS / 3);
     return out;
 }
 

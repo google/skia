@@ -230,9 +230,12 @@ static inline void add_line_to_segment(const SkPoint& pt,
     devBounds->growToInclude(pt.fX, pt.fY);
 }
 
+#ifdef SK_DEBUG
 static inline bool contains_inclusive(const SkRect& rect, const SkPoint& p) {
     return p.fX >= rect.fLeft && p.fX <= rect.fRight && p.fY >= rect.fTop && p.fY <= rect.fBottom;
 }
+#endif
+
 static inline void add_quad_segment(const SkPoint pts[3],
                                     SegmentArray* segments,
                                     SkRect* devBounds) {

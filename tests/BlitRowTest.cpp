@@ -12,10 +12,6 @@
 #include "SkGradientShader.h"
 #include "SkRect.h"
 
-static inline const char* boolStr(bool value) {
-    return value ? "true" : "false";
-}
-
 // these are in the same order as the SkBitmap::Config enum
 static const char* gConfigName[] = {
     "None", "A1", "A8", "Index8", "565", "4444", "8888", "RLE_Index8"

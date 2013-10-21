@@ -858,29 +858,6 @@ static void add_elem_to_region(const SkClipStack::Element& element,
     region->op(elemRegion, element.getOp());
 }
 
-// This can assist with debugging the clip stack reduction code when the test below fails.
-static inline void print_clip(const SkClipStack::Element& element) {
-    static const char* kOpStrs[] = {
-        "DF",
-        "IS",
-        "UN",
-        "XR",
-        "RD",
-        "RP",
-    };
-    if (SkClipStack::Element::kEmpty_Type != element.getType()) {
-        const SkRect& bounds = element.getBounds();
-        bool isRect = SkClipStack::Element::kRect_Type == element.getType();
-        SkDebugf("%s %s %s [%f %f] x [%f %f]\n",
-                 kOpStrs[element.getOp()],
-                 (isRect ? "R" : "P"),
-                 (element.isInverseFilled() ? "I" : " "),
-                 bounds.fLeft, bounds.fRight, bounds.fTop, bounds.fBottom);
-    } else {
-        SkDebugf("EM\n");
-    }
-}
-
 static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
     // We construct random clip stacks, reduce them, and then rasterize both versions to verify that
     // they are equal.

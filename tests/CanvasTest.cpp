@@ -94,8 +94,6 @@ static void test_clipVisitor(skiatest::Reporter* reporter, SkCanvas* canvas) {
 
 static const int kWidth = 2;
 static const int kHeight = 2;
-// Maximum stream length for picture serialization
-static const size_t kMaxPictureBufferSize = 1024;
 
 // Format strings that describe the test context.  The %s token is where
 // the name of the test step is inserted.  The context is required for
@@ -109,28 +107,18 @@ static const char* const kPictureDrawAssertMessageFormat =
     "Drawing test step %s with SkPicture";
 static const char* const kPictureSecondDrawAssertMessageFormat =
     "Duplicate draw of test step %s with SkPicture";
-static const char* const kPictureReDrawAssertMessageFormat =
-    "Playing back test step %s from an SkPicture to another SkPicture";
 static const char* const kDeferredDrawAssertMessageFormat =
     "Drawing test step %s with SkDeferredCanvas";
 static const char* const kProxyDrawAssertMessageFormat =
     "Drawing test step %s with SkProxyCanvas";
 static const char* const kNWayDrawAssertMessageFormat =
     "Drawing test step %s with SkNWayCanvas";
-static const char* const kRoundTripAssertMessageFormat =
-    "test step %s, SkPicture consistency after round trip";
-static const char* const kPictureRecoringAssertMessageFormat =
-    "test step %s, SkPicture state consistency after recording";
-static const char* const kPicturePlaybackAssertMessageFormat =
-    "test step %s, SkPicture state consistency in playback canvas";
 static const char* const kDeferredPreFlushAssertMessageFormat =
     "test step %s, SkDeferredCanvas state consistency before flush";
 static const char* const kDeferredPostFlushPlaybackAssertMessageFormat =
     "test step %s, SkDeferredCanvas playback canvas state consistency after flush";
 static const char* const kDeferredPostSilentFlushPlaybackAssertMessageFormat =
     "test step %s, SkDeferredCanvas playback canvas state consistency after silent flush";
-static const char* const kDeferredPostFlushAssertMessageFormat =
-    "test step %s, SkDeferredCanvas state consistency after flush";
 static const char* const kPictureResourceReuseMessageFormat =
     "test step %s, SkPicture duplicate flattened object test";
 static const char* const kProxyStateAssertMessageFormat =

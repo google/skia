@@ -15,12 +15,8 @@
 #include "SkStrokeRec.h"
 #include "SkTemplates.h"
 
-static const GrGLuint GR_MAX_GLUINT = ~0U;
-static const GrGLint  GR_INVAL_GLINT = ~0;
-
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->glInterface(), RET, X)
-
 
 #define SKIP_CACHE_CHECK    true
 

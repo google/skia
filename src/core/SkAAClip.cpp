@@ -36,9 +36,11 @@ private:
 
 #define kMaxInt32   0x7FFFFFFF
 
+#ifdef SK_DEBUG
 static inline bool x_in_rect(int x, const SkIRect& rect) {
     return (unsigned)(x - rect.fLeft) < (unsigned)rect.width();
 }
+#endif
 
 static inline bool y_in_rect(int y, const SkIRect& rect) {
     return (unsigned)(y - rect.fTop) < (unsigned)rect.height();

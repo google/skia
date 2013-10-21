@@ -62,7 +62,7 @@ struct SortSet {
     SkPoint endPt;
 };
 
-static const SortSet set1[] = {
+/*static const SortSet set1[] = {
     {cubics[0], 4, 0.66666987081928919, 0.875, {0, 0}},
     {lines[0], 2, 0.574070336, 0.388888889, {0, 0}},
     {cubics[0], 4, 0.66666987081928919, 0.4050371120499307, {0, 0}},
@@ -72,7 +72,7 @@ static const SortSet set1[] = {
 static const SortSet set1a[] = {
     {cubics[0], 4, 0.666666667, 0.405037112, {4.58007812f,2.83203125f}},
     {lines[0], 2, 0.574074074, 0.9140625, {4.44444466f,2.77777767f}},
-};
+};*/
 
 static const SortSet set2[] = {
     {cubics[0], 4, 0.666666667, 0.875, {0, 0}},
@@ -86,10 +86,10 @@ static const SortSet set3[] = {
     {quads[0], 3, 1, 0, {0, 0}},
 };
 
-static const SortSet set4[] = {
+/*static const SortSet set4[] = {
     {cubics[2], 4, 0.812114222, 1, {0, 0}},
     {cubics[3], 4, 0.0684734759, 0, {0, 0}},
-};
+};*/
 
 static const SortSet set5[] = {
     {lines[1], 2, 0.777777778, 1, {0, 0}},
@@ -183,11 +183,11 @@ static const SortSet set14[] = {
     {quads[2], 3, 0.5, 0.7, {0, 0}},
 };
 
-static const SortSet set15[] = {
+/*static const SortSet set15[] = {
     {cubics[14], 4, 0.93081374, 1, {0, 0}},
     {cubics[15], 4, 0.188518131, 0, {0, 0}},
     {cubics[14], 4, 0.93081374, 0, {0, 0}},
-};
+};*/
 
 static const SortSet set16[] = {
     {cubics[17], 4, 0.0682619216, 0, {130.042755f,11417.4131f}},

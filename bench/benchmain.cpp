@@ -206,8 +206,6 @@ typedef GrContextFactory::GLContextType GLContextType;
 static const GLContextType kNative = GrContextFactory::kNative_GLContextType;
 #if SK_ANGLE
 static const GLContextType kANGLE  = GrContextFactory::kANGLE_GLContextType;
-#else
-static const GLContextType kANGLE  = kNative;
 #endif
 static const GLContextType kDebug  = GrContextFactory::kDebug_GLContextType;
 static const GLContextType kNull   = GrContextFactory::kNull_GLContextType;
