@@ -240,7 +240,7 @@ bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes w
         );
 
         // Note: we don't need to premultiply here since we specified PBGRA
-        if (ComputeIsOpaque(*bm)) {
+        if (SkBitmap::ComputeIsOpaque(*bm)) {
             bm->setAlphaType(kOpaque_SkAlphaType);
         }
     }
