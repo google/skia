@@ -40,7 +40,7 @@ SkLazyPixelRef::SkLazyPixelRef(SkData* data, SkBitmapFactory::DecodeProc proc, S
 
     // mark as uninitialized -- all fields are -1
     memset(&fLazilyCachedInfo, 0xFF, sizeof(fLazilyCachedInfo));
-        
+
     // Since this pixel ref bases its data on encoded data, it should never change.
     this->setImmutable();
 }

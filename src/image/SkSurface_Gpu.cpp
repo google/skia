@@ -134,4 +134,3 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImage::Info& info,
 
     return SkNEW_ARGS(SkSurface_Gpu, (ctx, tex->asRenderTarget()));
 }
-
