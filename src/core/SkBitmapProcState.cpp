@@ -343,8 +343,11 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
             return false;
         }
     }
-
-    SkASSERT(fBitmap);
+    // The above logic should have always assigned fBitmap, but in case it
+    // didn't, we check for that now...
+    if (NULL == fBitmap) {
+        return false;
+    }
 
     bool trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
     bool clampClamp = SkShader::kClamp_TileMode == fTileModeX &&
