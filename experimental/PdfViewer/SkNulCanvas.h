@@ -55,8 +55,10 @@ public:
     virtual void drawPaint(const SkPaint& paint) {}
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                             const SkPaint& paint) {}
+    virtual void drawRect(const SkRect& rect, const SkPaint& paint) {}
     virtual void drawOval(const SkRect& oval, const SkPaint&) {}
     virtual void drawRRect(const SkRRect& rrect, const SkPaint& paint) {}
+    virtual void drawPath(const SkPath& path, const SkPaint& paint) {}
     virtual void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                             const SkPaint* paint = NULL) {}
     virtual void drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
@@ -93,8 +95,6 @@ public:
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter) {return NULL;}
 
 protected:
-    virtual void onDrawRect(const SkRect& rect, const SkPaint& paint) {}
-    virtual void onDrawPath(const SkPath& path, const SkPaint& paint) {}
     virtual SkCanvas* canvasForDrawIter() {return NULL;}
     virtual SkBaseDevice* setDevice(SkBaseDevice* device) {return NULL;}
 

@@ -43,7 +43,9 @@ public:
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                             const SkPaint&) SK_OVERRIDE;
     virtual void drawOval(const SkRect&, const SkPaint&) SK_OVERRIDE;
+    virtual void drawRect(const SkRect&, const SkPaint&) SK_OVERRIDE;
     virtual void drawRRect(const SkRRect&, const SkPaint&) SK_OVERRIDE;
+    virtual void drawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
     virtual void drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                             const SkPaint*) SK_OVERRIDE;
     virtual void drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
@@ -78,8 +80,6 @@ public:
     virtual void endCommentGroup() SK_OVERRIDE;
 
 protected:
-    virtual void onDrawRect(const SkRect&, const SkPaint&) SK_OVERRIDE;
-    virtual void onDrawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
     SkTDArray<SkCanvas*> fList;
 
     class Iter;

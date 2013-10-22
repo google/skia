@@ -1631,7 +1631,7 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
     LOOPER_END
 }
 
-void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
+void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
     if (paint.canComputeFastBounds()) {
@@ -1699,7 +1699,7 @@ void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 }
 
 
-void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
+void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
     if (!path.isFinite()) {

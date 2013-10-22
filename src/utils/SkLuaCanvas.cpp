@@ -187,7 +187,7 @@ void SkLuaCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
+void SkLuaCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
     AUTO_LUA("drawRect");
     lua.pushRect(rect, "rect");
     lua.pushPaint(paint, "paint");
@@ -199,7 +199,7 @@ void SkLuaCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
+void SkLuaCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     AUTO_LUA("drawPath");
     lua.pushPath(path, "path");
     lua.pushPaint(paint, "paint");

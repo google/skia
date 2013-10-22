@@ -25,14 +25,13 @@ public:
     MockCanvas(SkBaseDevice* device) : SkCanvas(device)
     {}
 
-    SkTDArray<SkRect> fRects;
-
-protected:
-    virtual void onDrawRect(const SkRect& rect, const SkPaint&)
+    virtual void drawRect(const SkRect& rect, const SkPaint&)
     {
         // This capture occurs before quick reject.
         fRects.push(rect);
     }
+
+    SkTDArray<SkRect> fRects;
 };
 
 class TileGridTest {

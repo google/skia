@@ -162,7 +162,10 @@ public:
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                             const SkPaint& paint) SK_OVERRIDE;
     virtual void drawOval(const SkRect&, const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawRect(const SkRect& rect, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawRRect(const SkRRect&, const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawPath(const SkPath& path, const SkPaint& paint)
+                          SK_OVERRIDE;
     virtual void drawBitmap(const SkBitmap& bitmap, SkScalar left,
                             SkScalar top, const SkPaint* paint)
                             SK_OVERRIDE;
@@ -231,8 +234,6 @@ public:
     };
 
 protected:
-    virtual void onDrawRect(const SkRect& rect, const SkPaint& paint) SK_OVERRIDE;
-    virtual void onDrawPath(const SkPath& path, const SkPaint& paint) SK_OVERRIDE;
     virtual SkCanvas* canvasForDrawIter();
     DeferredDevice* getDeferredDevice() const;
 

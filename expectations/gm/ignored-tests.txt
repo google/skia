@@ -34,11 +34,3 @@ pdf-poppler
 # Added by sugoi for https://codereview.chromium.org/28273005/
 imagemagnifier
 
-# Added by bsalomon as part of https://codereview.chromium.org/23484007/
-# to temporarily ignore slight changes between the way rectangle paths
-# and rectangles render.
-pathopsinverse
-convexpaths
-path-reverse
-inverse_paths
-strokerect

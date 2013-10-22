@@ -53,7 +53,9 @@ public:
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
                             const SkPaint&) SK_OVERRIDE;
     virtual void drawOval(const SkRect&, const SkPaint&) SK_OVERRIDE;
+    virtual void drawRect(const SkRect&, const SkPaint&) SK_OVERRIDE;
     virtual void drawRRect(const SkRRect&, const SkPaint&) SK_OVERRIDE;
+    virtual void drawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
     virtual void drawBitmap(const SkBitmap&, SkScalar left, SkScalar top,
                             const SkPaint*) SK_OVERRIDE;
     virtual void drawBitmapRectToRect(const SkBitmap&, const SkRect* src,
@@ -103,10 +105,6 @@ public:
 
     void beginRecording();
     void endRecording();
-
-protected:
-    virtual void onDrawRect(const SkRect&, const SkPaint&) SK_OVERRIDE;
-    virtual void onDrawPath(const SkPath& path, const SkPaint&) SK_OVERRIDE;
 
 private:
     void handleOptimization(int opt);
