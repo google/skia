@@ -31,6 +31,3 @@
 # ('Poppler random failures'): ignore any Poppler failures, for now
 pdf-poppler
 
-# Added by sugoi for https://codereview.chromium.org/28273005/
-imagemagnifier
-
