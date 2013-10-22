@@ -41,3 +41,4 @@ pathopsinverse
 convexpaths
 path-reverse
 inverse_paths
+strokerect
