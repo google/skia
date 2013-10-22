@@ -79,7 +79,7 @@ static void test_file(skiatest::Reporter* reporter) {
     FILE* file = fopen(path.c_str(), "r");
     REPORTER_ASSERT(reporter, file != NULL);
     char header[100];
-    fread(header, 4, 1, file);
+    REPORTER_ASSERT(reporter, fread(header, 4, 1, file) != 0);
     REPORTER_ASSERT(reporter, strncmp(header, "%PDF", 4) == 0);
     fclose(file);
 }
