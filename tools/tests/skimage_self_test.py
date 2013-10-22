@@ -69,13 +69,31 @@ def test_invalid_file(file_dir, skimage_binary):
 
     # Empty expectations:
     empty_expectations = os.path.join(expectations_dir, "empty-results.json")
-    subprocess.check_call([skimage_binary, "--readPath", invalid_file,
-                           "--readExpectationsPath", empty_expectations])
+    output = subprocess.check_output([skimage_binary, "--readPath", invalid_file,
+                                      "--readExpectationsPath",
+                                      empty_expectations],
+                                     stderr=subprocess.STDOUT)
+    if not "Missing" in output:
+      # Another test (in main()) tests to ensure that "Missing" does not appear
+      # in the output. That test could be passed if the output changed so
+      # "Missing" never appears. This ensures that an error is not missed if
+      # that happens.
+      print "skimage output changed! This may cause other self tests to fail!"
+      exit(1)
 
     # Ignore failure:
     ignore_expectations = os.path.join(expectations_dir, "ignore-results.json")
-    subprocess.check_call([skimage_binary, "--readPath", invalid_file,
-                           "--readExpectationsPath", ignore_expectations])
+    output = subprocess.check_output([skimage_binary, "--readPath", invalid_file,
+                                      "--readExpectationsPath",
+                                      ignore_expectations],
+                                     stderr=subprocess.STDOUT)
+    if not "failures" in output:
+      # Another test (in main()) tests to ensure that "failures" does not
+      # appear in the output. That test could be passed if the output changed
+      # so "failures" never appears. This ensures that an error is not missed
+      # if that happens.
+      print "skimage output changed! This may cause other self tests to fail!"
+      exit(1)
 
 def test_incorrect_expectations(file_dir, skimage_binary):
     """ Test that comparing to incorrect expectations fails, unless
@@ -125,8 +143,28 @@ def main():
 
     # Tell skimage to read back the expectations file it just wrote, and
     # confirm that the images in images_dir match it.
-    subprocess.check_call([skimage_binary, "--readPath", images_dir,
-                           "--readExpectationsPath", expectations_path])
+    output = subprocess.check_output([skimage_binary, "--readPath", images_dir,
+                                      "--readExpectationsPath",
+                                      expectations_path],
+                                     stderr=subprocess.STDOUT)
+
+    # Although skimage succeeded, it would have reported success if the file
+    # was missing from the expectations file. Consider this a failure, since
+    # the expectations file was created from this same image. (It will print
+    # "Missing" in this case before listing the missing expectations).
+    if "Missing" in output:
+      print "Expectations file was missing expectations!"
+      print output
+      exit(1)
+
+    # Again, skimage would succeed if there were known failures (and print
+    # "failures"), but there should be no failures, since the file just
+    # created did not include failures to ignore.
+    if "failures" in output:
+      print "Image failed!"
+      print output
+      exit(1)
+
 
     test_incorrect_expectations(file_dir=file_dir,
                                 skimage_binary=skimage_binary)

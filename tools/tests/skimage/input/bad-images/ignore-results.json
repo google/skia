@@ -6,7 +6,7 @@
       "succeeded" : null
    },
    "expected-results" : {
-      "invalid.png" : {
+      "invalid-png_None.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 8011846386646810712 ]
          ],

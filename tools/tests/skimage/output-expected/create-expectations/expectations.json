@@ -6,13 +6,13 @@
       "succeeded" : null
    },
    "expected-results" : {
-      "1209453360120438698.png" : {
+      "1209453360120438698-png_None.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 1209453360120438698 ]
          ],
          "ignore-failure" : false
       },
-      "12927999507540085554.png" : {
+      "12927999507540085554-png_None.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 12927999507540085554 ]
          ],

@@ -388,8 +388,7 @@ parser.add_argument('--configs', metavar='CONFIG', nargs='+',
                     help=('which configurations to rebaseline, e.g. '
                           '"--configs 565 8888", as a filter over the full set '
                           'of results in ACTUALS_FILENAME; if unspecified, '
-                          'rebaseline *all* configs that are available. '
-                          'Ignored if SKIMAGE is True.'))
+                          'rebaseline *all* configs that are available.'))
 parser.add_argument('--expectations-filename',
                     help=('filename (under EXPECTATIONS_ROOT) to read '
                           'current expectations from, and to write new '
@@ -422,7 +421,7 @@ parser.add_argument('--tests', metavar='TEST', nargs='+',
                           '"--tests aaclip bigmatrix", as a filter over the '
                           'full set of results in ACTUALS_FILENAME; if '
                           'unspecified, rebaseline *all* tests that are '
-                          'available. Ignored if SKIMAGE is True.'))
+                          'available.'))
 parser.add_argument('--unreviewed', action='store_true',
                     help=('mark all expectations modified by this run as '
                           '"%s": False' %
@@ -454,9 +453,6 @@ if args.skimage:
     args.actuals_base_url = gm_json.SKIMAGE_ACTUALS_BASE_URL
   if args.expectations_root == parser.get_default('expectations_root'):
     args.expectations_root = gm_json.SKIMAGE_EXPECTATIONS_ROOT
-  # Also ignore TESTS and CONFIGS
-  args.tests = None
-  args.configs = None
 for builder in builders:
   if not builder in TEST_BUILDERS:
     raise Exception(('unrecognized builder "%s"; ' +

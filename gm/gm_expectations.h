@@ -116,7 +116,12 @@ namespace skiagm {
          * Expect exactly one image (appropriate for the case when we
          * are comparing against a single PNG file).
          */
-        Expectations(const SkBitmap& bitmap, bool ignoreFailure=kDefaultIgnoreFailure);
+        explicit Expectations(const SkBitmap& bitmap, bool ignoreFailure=kDefaultIgnoreFailure);
+
+        /**
+         * Expect exactly one image, whose digest has already been computed.
+         */
+        explicit Expectations(const BitmapAndDigest& bitmapAndDigest);
 
         /**
          * Create Expectations from a JSON element as found within the

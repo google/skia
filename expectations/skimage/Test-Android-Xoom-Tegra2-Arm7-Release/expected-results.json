@@ -6,7 +6,7 @@
     "succeeded": null
   }, 
   "expected-results": {
-    "01_original.jpg": {
+    "01-original-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -16,7 +16,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "01_original.jpg_[1283,728,1670,749]": {
+    "01-original-jpg-[1283,728,1670,749]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -26,7 +26,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "01_original.jpg_[1291,725,1774,1184]": {
+    "01-original-jpg-[1291,725,1774,1184]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -36,7 +36,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "01_original.jpg_[1767,337,1818,684]": {
+    "01-original-jpg-[1767,337,1818,684]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -46,7 +46,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "01_original.jpg_[306,297,863,724]": {
+    "01-original-jpg-[306,297,863,724]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -56,7 +56,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "01_original.jpg_[514,137,879,980]": {
+    "01-original-jpg-[514,137,879,980]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -66,7 +66,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "02_empty_filter.JPG": {
+    "02-empty-filter-JPG_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -76,7 +76,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "02_empty_filter.JPG_[1283,728,1670,749]": {
+    "02-empty-filter-JPG-[1283,728,1670,749]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -86,7 +86,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "02_empty_filter.JPG_[1291,725,1774,1184]": {
+    "02-empty-filter-JPG-[1291,725,1774,1184]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -96,7 +96,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "02_empty_filter.JPG_[1767,337,1818,684]": {
+    "02-empty-filter-JPG-[1767,337,1818,684]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -106,7 +106,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "02_empty_filter.JPG_[306,297,863,724]": {
+    "02-empty-filter-JPG-[306,297,863,724]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -116,7 +116,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "02_empty_filter.JPG_[514,137,879,980]": {
+    "02-empty-filter-JPG-[514,137,879,980]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -126,7 +126,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "03_none_filter.JPG": {
+    "03-none-filter-JPG_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -136,7 +136,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "03_none_filter.JPG_[1283,728,1670,749]": {
+    "03-none-filter-JPG-[1283,728,1670,749]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -146,7 +146,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "03_none_filter.JPG_[1291,725,1774,1184]": {
+    "03-none-filter-JPG-[1291,725,1774,1184]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -156,7 +156,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "03_none_filter.JPG_[1767,337,1818,684]": {
+    "03-none-filter-JPG-[1767,337,1818,684]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -166,7 +166,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "03_none_filter.JPG_[306,297,863,724]": {
+    "03-none-filter-JPG-[306,297,863,724]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -176,7 +176,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "03_none_filter.JPG_[514,137,879,980]": {
+    "03-none-filter-JPG-[514,137,879,980]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -186,7 +186,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "1.bmp": {
+    "1-bmp_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -196,7 +196,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "5.sm.webp": {
+    "5-sm-webp_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -206,7 +206,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "5.sm.webp_[103,149,154,207]": {
+    "5-sm-webp-[103,149,154,207]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -216,7 +216,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "5.sm.webp_[110,45,267,119]": {
+    "5-sm-webp-[110,45,267,119]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -226,7 +226,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "5.sm.webp_[194,120,303,142]": {
+    "5-sm-webp-[194,120,303,142]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -236,7 +236,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "5.sm.webp_[223,42,242,84]": {
+    "5-sm-webp-[223,42,242,84]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -246,7 +246,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "5.sm.webp_[67,3,262,9]": {
+    "5-sm-webp-[67,3,262,9]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -256,7 +256,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "CMYK.jpg": {
+    "CMYK-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -266,7 +266,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "CMYK.jpg_[381,433,494,496]": {
+    "CMYK-jpg-[381,433,494,496]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -276,7 +276,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "CMYK.jpg_[43,296,68,433]": {
+    "CMYK-jpg-[43,296,68,433]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -286,7 +286,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "CMYK.jpg_[46,148,293,209]": {
+    "CMYK-jpg-[46,148,293,209]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -296,7 +296,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "CMYK.jpg_[554,68,627,409]": {
+    "CMYK-jpg-[554,68,627,409]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -306,7 +306,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "CMYK.jpg_[7,149,504,316]": {
+    "CMYK-jpg-[7,149,504,316]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -316,7 +316,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Left.jpg": {
+    "Lower-Left-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -326,7 +326,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Left.jpg_[122,128,147,160]": {
+    "Lower-Left-jpg-[122,128,147,160]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -336,7 +336,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Left.jpg_[123,2,137,55]": {
+    "Lower-Left-jpg-[123,2,137,55]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -346,7 +346,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Left.jpg_[183,8,204,124]": {
+    "Lower-Left-jpg-[183,8,204,124]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -356,7 +356,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Left.jpg_[82,106,255,166]": {
+    "Lower-Left-jpg-[82,106,255,166]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -366,7 +366,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Left.jpg_[93,178,184,182]": {
+    "Lower-Left-jpg-[93,178,184,182]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -376,7 +376,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Right.jpg": {
+    "Lower-Right-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -386,7 +386,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Right.jpg_[142,56,255,189]": {
+    "Lower-Right-jpg-[142,56,255,189]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -396,7 +396,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Right.jpg_[17,52,133,57]": {
+    "Lower-Right-jpg-[17,52,133,57]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -406,7 +406,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Right.jpg_[182,17,223,92]": {
+    "Lower-Right-jpg-[182,17,223,92]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -416,7 +416,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Right.jpg_[63,84,206,121]": {
+    "Lower-Right-jpg-[63,84,206,121]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -426,7 +426,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Lower_Right.jpg_[86,53,213,176]": {
+    "Lower-Right-jpg-[86,53,213,176]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -436,7 +436,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "PANO_20121023_214540.jpg": {
+    "PANO-20121023-214540-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -446,7 +446,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "PANO_20121023_214540.jpg_[2502,197,3999,706]": {
+    "PANO-20121023-214540-jpg-[2502,197,3999,706]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -456,7 +456,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "PANO_20121023_214540.jpg_[3153,152,3336,413]": {
+    "PANO-20121023-214540-jpg-[3153,152,3336,413]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -466,7 +466,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "PANO_20121023_214540.jpg_[3166,50,4165,115]": {
+    "PANO-20121023-214540-jpg-[3166,50,4165,115]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -476,7 +476,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "PANO_20121023_214540.jpg_[526,283,7495,788]": {
+    "PANO-20121023-214540-jpg-[526,283,7495,788]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -486,7 +486,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "PANO_20121023_214540.jpg_[656,164,3947,413]": {
+    "PANO-20121023-214540-jpg-[656,164,3947,413]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -496,7 +496,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Softskin-Series-Folder-Folder-TV-DEXTER-2.ico": {
+    "Softskin-Series-Folder-Folder-TV-DEXTER-2-ico_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -506,7 +506,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Left.jpg": {
+    "Upper-Left-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -516,7 +516,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Left.jpg_[122,29,147,60]": {
+    "Upper-Left-jpg-[122,29,147,60]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -526,7 +526,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Left.jpg_[123,16,137,189]": {
+    "Upper-Left-jpg-[123,16,137,189]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -536,7 +536,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Left.jpg_[183,77,204,180]": {
+    "Upper-Left-jpg-[183,77,204,180]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -546,7 +546,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Left.jpg_[82,116,255,149]": {
+    "Upper-Left-jpg-[82,116,255,149]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -556,7 +556,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Left.jpg_[93,33,184,112]": {
+    "Upper-Left-jpg-[93,33,184,112]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -566,7 +566,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Right.jpg": {
+    "Upper-Right-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -576,7 +576,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Right.jpg_[142,29,255,60]": {
+    "Upper-Right-jpg-[142,29,255,60]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -586,7 +586,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Right.jpg_[17,16,133,189]": {
+    "Upper-Right-jpg-[17,16,133,189]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -596,7 +596,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Right.jpg_[182,33,223,112]": {
+    "Upper-Right-jpg-[182,33,223,112]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -606,7 +606,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Right.jpg_[63,77,206,180]": {
+    "Upper-Right-jpg-[63,77,206,180]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -616,7 +616,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "Upper_Right.jpg_[86,116,213,149]": {
+    "Upper-Right-jpg-[86,116,213,149]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -626,7 +626,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "art.jpg": {
+    "art-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -636,7 +636,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "art.jpg_[223,697,962,884]": {
+    "art-jpg-[223,697,962,884]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -646,7 +646,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "art.jpg_[507,565,830,784]": {
+    "art-jpg-[507,565,830,784]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -656,7 +656,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "art.jpg_[547,29,822,808]": {
+    "art-jpg-[547,29,822,808]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -666,7 +666,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "art.jpg_[634,124,743,737]": {
+    "art-jpg-[634,124,743,737]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -676,7 +676,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "art.jpg_[783,937,1154,980]": {
+    "art-jpg-[783,937,1154,980]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -686,7 +686,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_jpeg.jpg": {
+    "baseline-jpeg-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -696,7 +696,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_jpeg.jpg_[267,565,750,784]": {
+    "baseline-jpeg-jpg-[267,565,750,784]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -706,7 +706,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_jpeg.jpg_[514,260,623,697]": {
+    "baseline-jpeg-jpg-[514,260,623,697]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -716,7 +716,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_jpeg.jpg_[562,884,863,937]": {
+    "baseline-jpeg-jpg-[562,884,863,937]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -726,7 +726,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_jpeg.jpg_[743,497,794,604]": {
+    "baseline-jpeg-jpg-[743,497,794,604]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -736,7 +736,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_jpeg.jpg_[902,749,1027,808]": {
+    "baseline-jpeg-jpg-[902,749,1027,808]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -746,7 +746,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_restart_jpeg.jpg": {
+    "baseline-restart-jpeg-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -756,7 +756,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_restart_jpeg.jpg_[267,565,750,784]": {
+    "baseline-restart-jpeg-jpg-[267,565,750,784]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -766,7 +766,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_restart_jpeg.jpg_[514,260,623,697]": {
+    "baseline-restart-jpeg-jpg-[514,260,623,697]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -776,7 +776,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_restart_jpeg.jpg_[562,884,863,937]": {
+    "baseline-restart-jpeg-jpg-[562,884,863,937]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -786,7 +786,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_restart_jpeg.jpg_[743,497,794,604]": {
+    "baseline-restart-jpeg-jpg-[743,497,794,604]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -796,7 +796,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "baseline_restart_jpeg.jpg_[902,749,1027,808]": {
+    "baseline-restart-jpeg-jpg-[902,749,1027,808]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -806,7 +806,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "bmp_test.bmp": {
+    "bmp-test-bmp_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -816,7 +816,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "desk_yahoonews_0.jpg": {
+    "desk-yahoonews-0-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -825,7 +825,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "desk_yahoonews_0.jpg_[267,80,750,373]": {
+    "desk-yahoonews-0-jpg-[267,80,750,373]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -834,7 +834,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "desk_yahoonews_0.jpg_[514,132,623,377]": {
+    "desk-yahoonews-0-jpg-[514,132,623,377]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -843,7 +843,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "desk_yahoonews_0.jpg_[562,745,863,820]": {
+    "desk-yahoonews-0-jpg-[562,745,863,820]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -852,7 +852,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "desk_yahoonews_0.jpg_[743,348,794,945]": {
+    "desk-yahoonews-0-jpg-[743,348,794,945]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -861,7 +861,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "desk_yahoonews_0.jpg_[902,45,1027,936]": {
+    "desk-yahoonews-0-jpg-[902,45,1027,936]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -870,7 +870,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "kokteylogo.png": {
+    "kokteylogo-png_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -880,7 +880,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "kokteylogo.png_[26,0,57,17]": {
+    "kokteylogo-png-[26,0,57,17]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -890,7 +890,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "kokteylogo.png_[26,4,45,5]": {
+    "kokteylogo-png-[26,4,45,5]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -900,7 +900,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "kokteylogo.png_[27,8,36,9]": {
+    "kokteylogo-png-[27,8,36,9]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -910,7 +910,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "kokteylogo.png_[38,4,53,17]": {
+    "kokteylogo-png-[38,4,53,17]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -920,7 +920,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "kokteylogo.png_[69,4,71,17]": {
+    "kokteylogo-png-[69,4,71,17]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -930,7 +930,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "photo.jpg.png": {
+    "photo-jpg-png_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -940,7 +940,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "photo.jpg.png_[134,45,259,424]": {
+    "photo-jpg-png-[134,45,259,424]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -950,7 +950,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "photo.jpg.png_[2,132,367,377]": {
+    "photo-jpg-png-[2,132,367,377]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -960,7 +960,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "photo.jpg.png_[231,348,282,433]": {
+    "photo-jpg-png-[231,348,282,433]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -970,7 +970,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "photo.jpg.png_[238,80,267,373]": {
+    "photo-jpg-png-[238,80,267,373]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -980,7 +980,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "photo.jpg.png_[306,233,351,308]": {
+    "photo-jpg-png-[306,233,351,308]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -990,7 +990,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "png_test.png": {
+    "png-test-png_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1000,7 +1000,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "png_test.png_[103,17,154,124]": {
+    "png-test-png-[103,17,154,124]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1010,7 +1010,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "png_test.png_[110,85,267,304]": {
+    "png-test-png-[110,85,267,304]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1020,7 +1020,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "png_test.png_[223,404,562,457]": {
+    "png-test-png-[223,404,562,457]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1030,7 +1030,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "png_test.png_[262,269,387,328]": {
+    "png-test-png-[262,269,387,328]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1040,7 +1040,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "png_test.png_[514,217,623,260]": {
+    "png-test-png-[514,217,623,260]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1050,7 +1050,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_jpeg.jpg": {
+    "progressive-jpeg-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1060,7 +1060,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_jpeg.jpg_[267,565,750,784]": {
+    "progressive-jpeg-jpg-[267,565,750,784]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1070,7 +1070,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_jpeg.jpg_[514,260,623,697]": {
+    "progressive-jpeg-jpg-[514,260,623,697]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1080,7 +1080,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_jpeg.jpg_[562,884,863,937]": {
+    "progressive-jpeg-jpg-[562,884,863,937]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1090,7 +1090,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_jpeg.jpg_[743,497,794,604]": {
+    "progressive-jpeg-jpg-[743,497,794,604]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1100,7 +1100,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_jpeg.jpg_[902,749,1027,808]": {
+    "progressive-jpeg-jpg-[902,749,1027,808]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1110,7 +1110,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_restart_jpeg.jpg": {
+    "progressive-restart-jpeg-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1120,7 +1120,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_restart_jpeg.jpg_[267,565,750,784]": {
+    "progressive-restart-jpeg-jpg-[267,565,750,784]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1130,7 +1130,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_restart_jpeg.jpg_[514,260,623,697]": {
+    "progressive-restart-jpeg-jpg-[514,260,623,697]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1140,7 +1140,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_restart_jpeg.jpg_[562,884,863,937]": {
+    "progressive-restart-jpeg-jpg-[562,884,863,937]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1150,7 +1150,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_restart_jpeg.jpg_[743,497,794,604]": {
+    "progressive-restart-jpeg-jpg-[743,497,794,604]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1160,7 +1160,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "progressive_restart_jpeg.jpg_[902,749,1027,808]": {
+    "progressive-restart-jpeg-jpg-[902,749,1027,808]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1170,7 +1170,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "tabl_mozilla_0.jpg": {
+    "tabl-mozilla-0-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1179,7 +1179,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "tabl_mozilla_0.jpg_[187,29,1065,403]": {
+    "tabl-mozilla-0-jpg-[187,29,1065,403]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1188,7 +1188,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "tabl_mozilla_0.jpg_[194,100,951,214]": {
+    "tabl-mozilla-0-jpg-[194,100,951,214]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1197,7 +1197,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "tabl_mozilla_0.jpg_[443,259,934,572]": {
+    "tabl-mozilla-0-jpg-[443,259,934,572]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1206,7 +1206,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "tabl_mozilla_0.jpg_[567,322,737,425]": {
+    "tabl-mozilla-0-jpg-[567,322,737,425]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1215,7 +1215,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "tabl_mozilla_0.jpg_[809,359,1249,532]": {
+    "tabl-mozilla-0-jpg-[809,359,1249,532]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1224,7 +1224,7 @@
       ], 
       "ignore-failure": true
     }, 
-    "webp_test.webp": {
+    "webp-test-webp_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1234,7 +1234,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "webp_test.webp_[103,17,154,124]": {
+    "webp-test-webp-[103,17,154,124]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1244,7 +1244,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "webp_test.webp_[110,85,267,304]": {
+    "webp-test-webp-[110,85,267,304]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1254,7 +1254,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "webp_test.webp_[223,404,562,457]": {
+    "webp-test-webp-[223,404,562,457]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1264,7 +1264,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "webp_test.webp_[262,269,387,328]": {
+    "webp-test-webp-[262,269,387,328]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -1274,7 +1274,7 @@
       "ignore-failure": false, 
       "reviewed-by-human": false
     }, 
-    "webp_test.webp_[514,217,623,260]": {
+    "webp-test-webp-[514,217,623,260]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 

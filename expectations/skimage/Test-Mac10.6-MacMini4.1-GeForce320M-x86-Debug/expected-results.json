@@ -6,7 +6,7 @@
     "succeeded": null
   }, 
   "expected-results": {
-    "01_original.jpg": {
+    "01-original-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -15,7 +15,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "02_empty_filter.JPG": {
+    "02-empty-filter-JPG_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -24,7 +24,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "03_none_filter.JPG": {
+    "03-none-filter-JPG_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -33,7 +33,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "1.bmp": {
+    "1-bmp_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -42,7 +42,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "5.sm.webp": {
+    "5-sm-webp_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -51,7 +51,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "5.sm.webp_[103,149,154,207]": {
+    "5-sm-webp-[103,149,154,207]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -60,7 +60,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "5.sm.webp_[110,45,267,119]": {
+    "5-sm-webp-[110,45,267,119]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -69,7 +69,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "5.sm.webp_[194,120,303,142]": {
+    "5-sm-webp-[194,120,303,142]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -78,7 +78,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "5.sm.webp_[223,42,242,84]": {
+    "5-sm-webp-[223,42,242,84]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -87,7 +87,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "5.sm.webp_[67,3,262,9]": {
+    "5-sm-webp-[67,3,262,9]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -96,7 +96,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "CMYK.jpg": {
+    "CMYK-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -105,7 +105,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "Lower_Left.jpg": {
+    "Lower-Left-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -114,7 +114,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "Lower_Right.jpg": {
+    "Lower-Right-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -123,7 +123,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "PANO_20121023_214540.jpg": {
+    "PANO-20121023-214540-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -132,7 +132,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "Softskin-Series-Folder-Folder-TV-DEXTER-2.ico": {
+    "Softskin-Series-Folder-Folder-TV-DEXTER-2-ico_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -141,7 +141,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "Upper_Left.jpg": {
+    "Upper-Left-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -150,7 +150,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "Upper_Right.jpg": {
+    "Upper-Right-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -159,7 +159,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "art.jpg": {
+    "art-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -168,7 +168,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "baseline_jpeg.jpg": {
+    "baseline-jpeg-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -177,7 +177,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "baseline_restart_jpeg.jpg": {
+    "baseline-restart-jpeg-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -186,7 +186,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "bmp_test.bmp": {
+    "bmp-test-bmp_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -195,7 +195,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "desk_yahoonews_0.jpg": {
+    "desk-yahoonews-0-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -204,7 +204,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "kokteylogo.png": {
+    "kokteylogo-png_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -213,7 +213,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "photo.jpg.png": {
+    "photo-jpg-png_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -222,7 +222,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "png_test.png": {
+    "png-test-png_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -231,7 +231,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "progressive_jpeg.jpg": {
+    "progressive-jpeg-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -240,7 +240,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "progressive_restart_jpeg.jpg": {
+    "progressive-restart-jpeg-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -249,7 +249,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "tabl_mozilla_0.jpg": {
+    "tabl-mozilla-0-jpg_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -258,7 +258,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "webp_test.webp": {
+    "webp-test-webp_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -267,7 +267,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "webp_test.webp_[103,17,154,124]": {
+    "webp-test-webp-[103,17,154,124]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -276,7 +276,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "webp_test.webp_[110,85,267,304]": {
+    "webp-test-webp-[110,85,267,304]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -285,7 +285,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "webp_test.webp_[223,404,562,457]": {
+    "webp-test-webp-[223,404,562,457]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -294,7 +294,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "webp_test.webp_[262,269,387,328]": {
+    "webp-test-webp-[262,269,387,328]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
@@ -303,7 +303,7 @@
       ], 
       "ignore-failure": false
     }, 
-    "webp_test.webp_[514,217,623,260]": {
+    "webp-test-webp-[514,217,623,260]_8888.png" : {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 

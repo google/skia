@@ -141,6 +141,12 @@ namespace skiagm {
         fAllowedResultDigests.push_back(GmResultDigest(bitmap));
     }
 
+    Expectations::Expectations(const BitmapAndDigest& bitmapAndDigest) {
+        fBitmap = bitmapAndDigest.fBitmap;
+        fIgnoreFailure = false;
+        fAllowedResultDigests.push_back(bitmapAndDigest.fDigest);
+    }
+
     Expectations::Expectations(Json::Value jsonElement) {
         if (jsonElement.empty()) {
             fIgnoreFailure = kDefaultIgnoreFailure;
