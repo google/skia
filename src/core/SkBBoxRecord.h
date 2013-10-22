@@ -31,8 +31,6 @@ public:
 
     virtual void drawOval(const SkRect& rect, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawRRect(const SkRRect& rrect, const SkPaint& paint) SK_OVERRIDE;
-    virtual void drawRect(const SkRect& rect, const SkPaint& paint) SK_OVERRIDE;
-    virtual void drawPath(const SkPath& path, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                             const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
@@ -64,6 +62,10 @@ public:
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPicture(SkPicture& picture) SK_OVERRIDE;
+
+protected:
+    virtual void onDrawRect(const SkRect& rect, const SkPaint& paint) SK_OVERRIDE;
+    virtual void onDrawPath(const SkPath& path, const SkPaint& paint) SK_OVERRIDE;
 
 private:
     /**

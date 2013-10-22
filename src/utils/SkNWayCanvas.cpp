@@ -190,7 +190,7 @@ void SkNWayCanvas::drawOval(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
-void SkNWayCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
+void SkNWayCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
         iter->drawRect(rect, paint);
@@ -204,7 +204,7 @@ void SkNWayCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     }
 }
 
-void SkNWayCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
+void SkNWayCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
         iter->drawPath(path, paint);

@@ -363,7 +363,7 @@ void SkDebugCanvas::drawPaint(const SkPaint& paint) {
     addDrawCommand(new SkDrawPaintCommand(paint));
 }
 
-void SkDebugCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
+void SkDebugCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     addDrawCommand(new SkDrawPathCommand(path, paint));
 }
 
@@ -387,7 +387,7 @@ void SkDebugCanvas::drawPosTextH(const void* text, size_t byteLength,
         new SkDrawPosTextHCommand(text, byteLength, xpos, constY, paint));
 }
 
-void SkDebugCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
+void SkDebugCanvas::onDrawRect(const SkRect& rect, const SkPaint& paint) {
     // NOTE(chudy): Messing up when renamed to DrawRect... Why?
     addDrawCommand(new SkDrawRectCommand(rect, paint));
 }
