@@ -23,11 +23,6 @@ bool SkImageFilterUtils::WrapTexture(GrTexture* texture, int width, int height, 
 bool SkImageFilterUtils::GetInputResultGPU(SkImageFilter* filter, SkImageFilter::Proxy* proxy,
                                            const SkBitmap& src, const SkMatrix& ctm,
                                            SkBitmap* result, SkIPoint* offset) {
-    // Ensure that GrContext calls under filterImage and filterImageGPU below will see an identity
-    // matrix with no clip and that the matrix, clip, and render target set before this function was
-    // called are restored before we return to the caller.
-    GrContext* context = src.getTexture()->getContext();
-    GrContext::AutoWideOpenIdentityDraw awoid(context, NULL);
     if (!filter) {
         *result = src;
         return true;
@@ -36,7 +31,9 @@ bool SkImageFilterUtils::GetInputResultGPU(SkImageFilter* filter, SkImageFilter:
     } else {
         if (filter->filterImage(proxy, src, ctm, result, offset)) {
             if (!result->getTexture()) {
-                GrTexture* resultTex = GrLockAndRefCachedBitmapTexture(context, *result, NULL);
+                GrContext* context = ((GrTexture *) src.getTexture())->getContext();
+                GrTexture* resultTex = GrLockAndRefCachedBitmapTexture(context,
+                    *result, NULL);
                 result->setPixelRef(new SkGrPixelRef(resultTex))->unref();
                 GrUnlockAndUnrefCachedBitmapTexture(resultTex);
             }
