@@ -910,11 +910,17 @@ void SkDiffuseLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) con
     buffer.writeScalar(fKD);
 }
 
-bool SkDiffuseLightingImageFilter::onFilterImage(Proxy*,
-                                                 const SkBitmap& src,
+bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
+                                                 const SkBitmap& source,
                                                  const SkMatrix& ctm,
                                                  SkBitmap* dst,
                                                  SkIPoint* offset) {
+    SkImageFilter* input = getInput(0);
+    SkBitmap src = source;
+    if (input && !input->filterImage(proxy, source, ctm, &src, offset)) {
+        return false;
+    }
+
     if (src.config() != SkBitmap::kARGB_8888_Config) {
         return false;
     }
@@ -988,11 +994,17 @@ void SkSpecularLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) co
     buffer.writeScalar(fShininess);
 }
 
-bool SkSpecularLightingImageFilter::onFilterImage(Proxy*,
-                                                  const SkBitmap& src,
+bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
+                                                  const SkBitmap& source,
                                                   const SkMatrix& ctm,
                                                   SkBitmap* dst,
                                                   SkIPoint* offset) {
+    SkImageFilter* input = getInput(0);
+    SkBitmap src = source;
+    if (input && !input->filterImage(proxy, source, ctm, &src, offset)) {
+        return false;
+    }
+
     if (src.config() != SkBitmap::kARGB_8888_Config) {
         return false;
     }
