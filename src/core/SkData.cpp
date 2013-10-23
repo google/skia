@@ -8,6 +8,7 @@
 #include "SkData.h"
 #include "SkFlattenableBuffers.h"
 #include "SkOSFile.h"
+#include "SkOnce.h"
 
 SK_DEFINE_INST_COUNT(SkData)
 
@@ -49,11 +50,14 @@ size_t SkData::copyRange(size_t offset, size_t length, void* buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkData::NewEmptyImpl(SkData** empty) {
+    *empty = new SkData(NULL, 0, NULL, NULL);
+}
+
 SkData* SkData::NewEmpty() {
     static SkData* gEmptyRef;
-    if (NULL == gEmptyRef) {
-        gEmptyRef = new SkData(NULL, 0, NULL, NULL);
-    }
+    SK_DECLARE_STATIC_ONCE(once);
+    SkOnce(&once, SkData::NewEmptyImpl, &gEmptyRef);
     gEmptyRef->ref();
     return gEmptyRef;
 }

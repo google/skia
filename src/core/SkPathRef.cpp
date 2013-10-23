@@ -6,6 +6,7 @@
  */
 
 #include "SkBuffer.h"
+#include "SkOnce.h"
 #include "SkPath.h"
 #include "SkPathRef.h"
 
@@ -36,6 +37,18 @@ SkPoint* SkPathRef::Editor::growForConic(SkScalar w) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+void SkPathRef::CreateEmptyImpl(SkPathRef** empty) {
+    *empty = SkNEW(SkPathRef);
+    (*empty)->computeBounds();  // Preemptively avoid a race to clear fBoundsIsDirty.
+}
+
+SkPathRef* SkPathRef::CreateEmpty() {
+    static SkPathRef* gEmptyPathRef;
+    SK_DECLARE_STATIC_ONCE(once);
+    SkOnce(&once, SkPathRef::CreateEmptyImpl, &gEmptyPathRef);
+    return SkRef(gEmptyPathRef);
+}
+
 void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
                                       const SkPathRef& src,
                                       const SkMatrix& matrix) {

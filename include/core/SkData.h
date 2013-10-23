@@ -136,6 +136,9 @@ private:
     SkData(const void* ptr, size_t size, ReleaseProc, void* context);
     virtual ~SkData();
 
+    // Called the first time someone calls NewEmpty to initialize the singleton.
+    static void NewEmptyImpl(SkData**);
+
     typedef SkRefCnt INHERITED;
 };
 

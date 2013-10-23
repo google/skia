@@ -10,32 +10,35 @@
 #include "Test.h"
 #include "TestClassDef.h"
 
-DEF_SK_ONCE(add_five, int* x) {
+static void add_five(int* x) {
     *x += 5;
 }
 
 DEF_TEST(SkOnce_Singlethreaded, r) {
     int x = 0;
 
+    SK_DECLARE_STATIC_ONCE(once);
     // No matter how many times we do this, x will be 5.
-    SK_ONCE(add_five, &x);
-    SK_ONCE(add_five, &x);
-    SK_ONCE(add_five, &x);
-    SK_ONCE(add_five, &x);
-    SK_ONCE(add_five, &x);
+    SkOnce(&once, add_five, &x);
+    SkOnce(&once, add_five, &x);
+    SkOnce(&once, add_five, &x);
+    SkOnce(&once, add_five, &x);
+    SkOnce(&once, add_five, &x);
 
     REPORTER_ASSERT(r, 5 == x);
 }
 
-DEF_SK_ONCE(add_six, int* x) {
+static void add_six(int* x) {
     *x += 6;
 }
 
 class Racer : public SkRunnable {
 public:
+    SkOnceFlag* once;
     int* ptr;
+
     virtual void run() SK_OVERRIDE {
-        SK_ONCE(add_six, ptr);
+        SkOnce(once, add_six, ptr);
     }
 };
 
@@ -44,8 +47,10 @@ DEF_TEST(SkOnce_Multithreaded, r) {
 
     // Make a bunch of tasks that will race to be the first to add six to x.
     Racer racers[kTasks];
+    SK_DECLARE_STATIC_ONCE(once);
     int x = 0;
     for (int i = 0; i < kTasks; i++) {
+        racers[i].once = &once;
         racers[i].ptr = &x;
     }
 

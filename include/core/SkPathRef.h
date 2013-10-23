@@ -108,14 +108,7 @@ public:
     /**
      * Gets a path ref with no verbs or points.
      */
-    static SkPathRef* CreateEmpty() {
-        static SkPathRef* gEmptyPathRef;
-        if (!gEmptyPathRef) {
-            gEmptyPathRef = SkNEW(SkPathRef); // leak!
-            gEmptyPathRef->computeBounds();   // Premptively avoid a race to clear fBoundsIsDirty.
-        }
-        return SkRef(gEmptyPathRef);
-    }
+    static SkPathRef* CreateEmpty();
 
     /**
      *  Returns true if all of the points in this path are finite, meaning there
@@ -396,6 +389,11 @@ private:
     int32_t genID() const;
 
     SkDEBUGCODE(void validate() const;)
+
+    /**
+     * Called the first time someone calls CreateEmpty to actually create the singleton.
+     */
+    static void CreateEmptyImpl(SkPathRef** empty);
 
     enum {
         kMinSize = 256,

@@ -1894,14 +1894,15 @@ SkScalar SkMatrix::getMaxStretch() const {
     return SkScalarSqrt(largerRoot);
 }
 
-DEF_SK_ONCE(reset_identity_matrix, SkMatrix* identity) {
+static void reset_identity_matrix(SkMatrix* identity) {
     identity->reset();
 }
 
 const SkMatrix& SkMatrix::I() {
     // If you can use C++11 now, you might consider replacing this with a constexpr constructor.
     static SkMatrix gIdentity;
-    SK_ONCE(reset_identity_matrix, &gIdentity);
+    SK_DECLARE_STATIC_ONCE(once);
+    SkOnce(&once, reset_identity_matrix, &gIdentity);
     return gIdentity;
 }
 
