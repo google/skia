@@ -673,12 +673,11 @@ bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
-bool SkXfermode::asNewEffectOrCoeff(GrContext*, GrEffectRef**, Coeff* src, Coeff* dst, GrTexture*) const {
+bool SkXfermode::asNewEffectOrCoeff(GrEffectRef**, Coeff* src, Coeff* dst, GrTexture*) const {
     return this->asCoeff(src, dst);
 }
 
 bool SkXfermode::AsNewEffectOrCoeff(SkXfermode* xfermode,
-                                    GrContext* context,
                                     GrEffectRef** effect,
                                     Coeff* src,
                                     Coeff* dst,
@@ -686,7 +685,7 @@ bool SkXfermode::AsNewEffectOrCoeff(SkXfermode* xfermode,
     if (NULL == xfermode) {
         return ModeAsCoeff(kSrcOver_Mode, src, dst);
     } else {
-        return xfermode->asNewEffectOrCoeff(context, effect, src, dst, background);
+        return xfermode->asNewEffectOrCoeff(effect, src, dst, background);
     }
 }
 
@@ -1364,8 +1363,7 @@ bool SkProcCoeffXfermode::asCoeff(Coeff* sc, Coeff* dc) const {
 }
 
 #if SK_SUPPORT_GPU
-bool SkProcCoeffXfermode::asNewEffectOrCoeff(GrContext*,
-                                             GrEffectRef** effect,
+bool SkProcCoeffXfermode::asNewEffectOrCoeff(GrEffectRef** effect,
                                              Coeff* src,
                                              Coeff* dst,
                                              GrTexture* background) const {

@@ -436,7 +436,7 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
 
     SkXfermode* mode = skPaint.getXfermode();
     GrEffectRef* xferEffect = NULL;
-    if (SkXfermode::AsNewEffectOrCoeff(mode, dev->context(), &xferEffect, &sm, &dm)) {
+    if (SkXfermode::AsNewEffectOrCoeff(mode, &xferEffect, &sm, &dm)) {
         if (NULL != xferEffect) {
             grPaint->addColorEffect(xferEffect)->unref();
             sm = SkXfermode::kOne_Coeff;

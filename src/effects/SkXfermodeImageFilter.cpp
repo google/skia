@@ -123,7 +123,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
 
     SkXfermode::Coeff sm, dm;
-    if (!SkXfermode::AsNewEffectOrCoeff(fMode, context, &xferEffect, &sm, &dm, backgroundTex)) {
+    if (!SkXfermode::AsNewEffectOrCoeff(fMode, &xferEffect, &sm, &dm, backgroundTex)) {
         return false;
     }
 

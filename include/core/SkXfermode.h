@@ -13,7 +13,6 @@
 #include "SkFlattenable.h"
 #include "SkColor.h"
 
-class GrContext;
 class GrEffectRef;
 class GrTexture;
 class SkString;
@@ -204,8 +203,7 @@ public:
         access to destination color (setWillReadDstColor()), and use that in the fragment shader
         (builder->dstColor()).
      */
-    virtual bool asNewEffectOrCoeff(GrContext*,
-                                    GrEffectRef** effect,
+    virtual bool asNewEffectOrCoeff(GrEffectRef** effect,
                                     Coeff* src,
                                     Coeff* dst,
                                     GrTexture* background = NULL) const;
@@ -215,7 +213,6 @@ public:
      *  is NULL, and if so, treats it as kSrcOver_Mode.
      */
     static bool AsNewEffectOrCoeff(SkXfermode*,
-                                   GrContext*,
                                    GrEffectRef** effect,
                                    Coeff* src,
                                    Coeff* dst,

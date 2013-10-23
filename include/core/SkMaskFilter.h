@@ -14,6 +14,7 @@
 #include "SkMask.h"
 #include "SkPaint.h"
 
+class GrContext;
 class SkBitmap;
 class SkBlitter;
 class SkBounder;
