@@ -56,6 +56,27 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     bool skipColor = SkToBool(blendOpts & (GrDrawState::kEmitTransBlack_BlendOptFlag |
                                            GrDrawState::kEmitCoverage_BlendOptFlag));
+    int firstEffectiveColorStage = 0;
+    bool inputColorIsUsed = true;
+    if (!skipColor) {
+        firstEffectiveColorStage = drawState.numColorStages();
+        while (firstEffectiveColorStage > 0 && inputColorIsUsed) {
+            --firstEffectiveColorStage;
+            const GrEffect* effect = drawState.getColorStage(firstEffectiveColorStage).getEffect()->get();
+            inputColorIsUsed = effect->willUseInputColor();
+        }
+    }
+
+    int firstEffectiveCoverageStage = 0;
+    bool inputCoverageIsUsed = true;
+    if (!skipCoverage) {
+        firstEffectiveCoverageStage = drawState.numCoverageStages();
+        while (firstEffectiveCoverageStage > 0 && inputCoverageIsUsed) {
+            --firstEffectiveCoverageStage;
+            const GrEffect* effect = drawState.getCoverageStage(firstEffectiveCoverageStage).getEffect()->get();
+            inputCoverageIsUsed = effect->willUseInputColor();
+        }
+    }
 
     // The descriptor is used as a cache key. Thus when a field of the
     // descriptor will not affect program generation (because of the attribute
@@ -70,10 +91,11 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     bool colorIsTransBlack = SkToBool(blendOpts & GrDrawState::kEmitTransBlack_BlendOptFlag);
     bool colorIsSolidWhite = (blendOpts & GrDrawState::kEmitCoverage_BlendOptFlag) ||
-                             (!requiresColorAttrib && 0xffffffff == drawState.getColor());
+                             (!requiresColorAttrib && 0xffffffff == drawState.getColor()) ||
+                             (!inputColorIsUsed);
 
-    int numEffects = (skipColor ? 0 : drawState.numColorStages()) +
-                     (skipCoverage ? 0 : drawState.numCoverageStages());
+    int numEffects = (skipColor ? 0 : (drawState.numColorStages() - firstEffectiveColorStage)) +
+                     (skipCoverage ? 0 : (drawState.numCoverageStages() - firstEffectiveCoverageStage));
 
     size_t newKeyLength = KeyLength(numEffects);
     bool allocChanged;
@@ -93,7 +115,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     bool readFragPosition = false;
     bool hasVertexCode = false;
     if (!skipColor) {
-        for (int s = 0; s < drawState.numColorStages(); ++s) {
+        for (int s = firstEffectiveColorStage; s < drawState.numColorStages(); ++s) {
             effectKeys[currEffectKey++] =
                 get_key_and_update_stats(drawState.getColorStage(s), gpu->glCaps(),
                                          requiresLocalCoordAttrib, &readsDst, &readFragPosition,
@@ -101,7 +123,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         }
     }
     if (!skipCoverage) {
-        for (int s = 0; s < drawState.numCoverageStages(); ++s) {
+        for (int s = firstEffectiveCoverageStage; s < drawState.numCoverageStages(); ++s) {
             effectKeys[currEffectKey++] =
                 get_key_and_update_stats(drawState.getCoverageStage(s), gpu->glCaps(),
                                          requiresLocalCoordAttrib, &readsDst, &readFragPosition,
@@ -111,7 +133,6 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     header->fHasVertexCode = hasVertexCode || requiresLocalCoordAttrib;
     header->fEmitsPointSize = isPoints;
-    header->fColorFilterXfermode = skipColor ? SkXfermode::kDst_Mode : drawState.getColorFilterMode();
 
     // Currently the experimental GS will only work with triangle prims (and it doesn't do anything
     // other than pass through values from the VS to the FS anyway).
@@ -139,7 +160,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     if (skipCoverage) {
         header->fCoverageInput = kTransBlack_ColorInput;
-    } else if (covIsSolidWhite) {
+    } else if (covIsSolidWhite || !inputCoverageIsUsed) {
         header->fCoverageInput = kSolidWhite_ColorInput;
     } else if (defaultToUniformInputs && !requiresCoverageAttrib) {
         header->fCoverageInput = kUniform_ColorInput;
@@ -202,10 +223,6 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     bool separateCoverageFromColor = false;
     if (!drawState.isCoverageDrawing() && !skipCoverage &&
         (drawState.numCoverageStages() > 0 || requiresCoverageAttrib)) {
-        // color filter is applied between color/coverage computation
-        if (SkXfermode::kDst_Mode != header->fColorFilterXfermode) {
-            separateCoverageFromColor = true;
-        }
 
         // If we're stenciling then we want to discard samples that have zero coverage
         if (drawState.getStencil().doesWrite()) {
@@ -237,24 +254,23 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         }
     }
     if (!skipColor) {
-        for (int s = 0; s < drawState.numColorStages(); ++s) {
+        for (int s = firstEffectiveColorStage; s < drawState.numColorStages(); ++s) {
             colorStages->push_back(&drawState.getColorStage(s));
         }
-        header->fColorEffectCnt = drawState.numColorStages();
     }
     if (!skipCoverage) {
         SkTArray<const GrEffectStage*, true>* array;
         if (separateCoverageFromColor) {
             array = coverageStages;
-            header->fCoverageEffectCnt = drawState.numCoverageStages();
         } else {
             array = colorStages;
-            header->fColorEffectCnt += drawState.numCoverageStages();
         }
-        for (int s = 0; s < drawState.numCoverageStages(); ++s) {
+        for (int s = firstEffectiveCoverageStage; s < drawState.numCoverageStages(); ++s) {
             array->push_back(&drawState.getCoverageStage(s));
         }
     }
+    header->fColorEffectCnt = colorStages->count();
+    header->fCoverageEffectCnt = coverageStages->count();
 
     *desc->checksum() = 0;
     *desc->checksum() = SkChecksum::Compute(reinterpret_cast<uint32_t*>(desc->fKey.get()),

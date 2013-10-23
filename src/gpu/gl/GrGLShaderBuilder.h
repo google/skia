@@ -168,10 +168,10 @@ public:
     /**
      * Interfaces used by GrGLProgram.
      */
-    const GrGLSLExpr<4>& getInputColor() const {
+    const GrGLSLExpr4& getInputColor() const {
         return fInputColor;
     }
-    const GrGLSLExpr<4>& getInputCoverage() const {
+    const GrGLSLExpr4& getInputCoverage() const {
         return fInputCoverage;
     }
 
@@ -186,7 +186,7 @@ public:
     virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
                                                      const EffectKey effectKeys[],
                                                      int effectCnt,
-                                                     GrGLSLExpr<4>* inOutFSColor) = 0;
+                                                     GrGLSLExpr4* inOutFSColor) = 0;
 
     const char* getColorOutputName() const;
     const char* enableSecondaryOutput();
@@ -211,8 +211,8 @@ public:
 protected:
     GrGpuGL* gpu() const { return fGpu; }
 
-    void setInputColor(const GrGLSLExpr<4>& inputColor) { fInputColor = inputColor; }
-    void setInputCoverage(const GrGLSLExpr<4>& inputCoverage) { fInputCoverage = inputCoverage; }
+    void setInputColor(const GrGLSLExpr4& inputColor) { fInputColor = inputColor; }
+    void setInputCoverage(const GrGLSLExpr4& inputCoverage) { fInputCoverage = inputCoverage; }
 
     /** Add input/output variable declarations (i.e. 'varying') to the fragment shader. */
     GrGLShaderVar& fsInputAppend() { return fFSInputs.push_back(); }
@@ -227,7 +227,7 @@ protected:
                               const GrEffectStage* effectStages[],
                               const EffectKey effectKeys[],
                               int effectCnt,
-                              GrGLSLExpr<4>* inOutFSColor);
+                              GrGLSLExpr4* inOutFSColor);
 
     virtual bool compileAndAttachShaders(GrGLuint programId) const;
     virtual void bindProgramLocations(GrGLuint programId) const;
@@ -329,8 +329,8 @@ private:
     bool                                    fSetupFragPosition;
     GrGLUniformManager::UniformHandle       fDstCopySamplerUniform;
 
-    GrGLSLExpr<4>                           fInputColor;
-    GrGLSLExpr<4>                           fInputCoverage;
+    GrGLSLExpr4                             fInputColor;
+    GrGLSLExpr4                             fInputCoverage;
 
     bool                                    fHasCustomColorOutput;
     bool                                    fHasSecondaryOutput;
@@ -396,7 +396,7 @@ public:
                 const GrEffectStage* effectStages[],
                 const EffectKey effectKeys[],
                 int effectCnt,
-                GrGLSLExpr<4>* inOutFSColor) SK_OVERRIDE;
+                GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
 
     GrGLUniformManager::UniformHandle getViewMatrixUniform() const {
         return fViewMatrixUniform;
@@ -445,7 +445,7 @@ public:
                 const GrEffectStage* effectStages[],
                 const EffectKey effectKeys[],
                 int effectCnt,
-                GrGLSLExpr<4>* inOutFSColor) SK_OVERRIDE;
+                GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
 
 private:
     int fNumTexCoordSets;

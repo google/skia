@@ -160,7 +160,6 @@ private:
 
         SkBool8                     fHasVertexCode;
         SkBool8                     fEmitsPointSize;
-        SkXfermode::Mode            fColorFilterXfermode : 8;
 
         // To enable experimental geometry shader code (not for use in
         // production)

@@ -77,7 +77,7 @@ namespace {
 void GrGLSLMulVarBy4f(SkString* outAppend,
                       unsigned tabCnt,
                       const char* vec4VarName,
-                      const GrGLSLExpr<4>& mulFactor) {
+                      const GrGLSLExpr4& mulFactor) {
     if (mulFactor.isOnes()) {
         *outAppend = SkString();
     }

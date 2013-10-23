@@ -475,13 +475,6 @@ inline bool skPaint2GrPaintNoShader(SkGpuDevice* dev,
             SkAutoTUnref<GrEffectRef> effect(colorFilter->asNewEffect(dev->context()));
             if (NULL != effect.get()) {
                 grPaint->addColorEffect(effect);
-            } else {
-                // TODO: rewrite this using asNewEffect()
-                SkColor color;
-                SkXfermode::Mode filterMode;
-                if (colorFilter->asColorMode(&color, &filterMode)) {
-                    grPaint->setXfermodeColorFilter(filterMode, SkColor2GrColor(color));
-                }
             }
         }
     }

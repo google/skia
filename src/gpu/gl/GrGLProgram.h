@@ -139,7 +139,6 @@ private:
         UniformHandle       fViewMatrixUni;
         UniformHandle       fColorUni;
         UniformHandle       fCoverageUni;
-        UniformHandle       fColorFilterUni;
 
         // We use the render target height to provide a y-down frag coord when specifying
         // origin_upper_left is not supported.
@@ -187,7 +186,6 @@ private:
     MatrixState                       fMatrixState;
     GrColor                           fColor;
     GrColor                           fCoverage;
-    GrColor                           fColorFilterColor;
     int                               fDstCopyTexUnit;
 
     SkAutoTDelete<GrGLProgramEffects> fColorEffects;

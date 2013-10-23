@@ -48,7 +48,6 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
     fDstCopyTexUnit = -1;
 
     fColor = GrColor_ILLEGAL;
-    fColorFilterColor = GrColor_ILLEGAL;
 
     if (fDesc.getHeader().fHasVertexCode ||
         !fGpu->shouldUseFixedFunctionTexturing()) {
@@ -97,117 +96,6 @@ void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
     }
 }
 
-namespace {
-// given two blend coefficients determine whether the src
-// and/or dst computation can be omitted.
-inline void need_blend_inputs(SkXfermode::Coeff srcCoeff,
-                              SkXfermode::Coeff dstCoeff,
-                              bool* needSrcValue,
-                              bool* needDstValue) {
-    if (SkXfermode::kZero_Coeff == srcCoeff) {
-        switch (dstCoeff) {
-            // these all read the src
-            case SkXfermode::kSC_Coeff:
-            case SkXfermode::kISC_Coeff:
-            case SkXfermode::kSA_Coeff:
-            case SkXfermode::kISA_Coeff:
-                *needSrcValue = true;
-                break;
-            default:
-                *needSrcValue = false;
-                break;
-        }
-    } else {
-        *needSrcValue = true;
-    }
-    if (SkXfermode::kZero_Coeff == dstCoeff) {
-        switch (srcCoeff) {
-            // these all read the dst
-            case SkXfermode::kDC_Coeff:
-            case SkXfermode::kIDC_Coeff:
-            case SkXfermode::kDA_Coeff:
-            case SkXfermode::kIDA_Coeff:
-                *needDstValue = true;
-                break;
-            default:
-                *needDstValue = false;
-                break;
-        }
-    } else {
-        *needDstValue = true;
-    }
-}
-
-/**
- * Create a blend_coeff * value string to be used in shader code. Sets empty
- * string if result is trivially zero.
- */
-inline void blend_term_string(SkString* str, SkXfermode::Coeff coeff,
-                       const char* src, const char* dst,
-                       const char* value) {
-    switch (coeff) {
-    case SkXfermode::kZero_Coeff:    /** 0 */
-        *str = "";
-        break;
-    case SkXfermode::kOne_Coeff:     /** 1 */
-        *str = value;
-        break;
-    case SkXfermode::kSC_Coeff:
-        str->printf("(%s * %s)", src, value);
-        break;
-    case SkXfermode::kISC_Coeff:
-        str->printf("((vec4(1) - %s) * %s)", src, value);
-        break;
-    case SkXfermode::kDC_Coeff:
-        str->printf("(%s * %s)", dst, value);
-        break;
-    case SkXfermode::kIDC_Coeff:
-        str->printf("((vec4(1) - %s) * %s)", dst, value);
-        break;
-    case SkXfermode::kSA_Coeff:      /** src alpha */
-        str->printf("(%s.a * %s)", src, value);
-        break;
-    case SkXfermode::kISA_Coeff:     /** inverse src alpha (i.e. 1 - sa) */
-        str->printf("((1.0 - %s.a) * %s)", src, value);
-        break;
-    case SkXfermode::kDA_Coeff:      /** dst alpha */
-        str->printf("(%s.a * %s)", dst, value);
-        break;
-    case SkXfermode::kIDA_Coeff:     /** inverse dst alpha (i.e. 1 - da) */
-        str->printf("((1.0 - %s.a) * %s)", dst, value);
-        break;
-    default:
-        GrCrash("Unexpected xfer coeff.");
-        break;
-    }
-}
-/**
- * Adds a line to the fragment shader code which modifies the color by
- * the specified color filter.
- */
-void add_color_filter(GrGLShaderBuilder* builder,
-                      const char * outputVar,
-                      SkXfermode::Coeff uniformCoeff,
-                      SkXfermode::Coeff colorCoeff,
-                      const char* filterColor,
-                      const char* inColor) {
-    SkString colorStr, constStr;
-    blend_term_string(&colorStr, colorCoeff, filterColor, inColor, inColor);
-    blend_term_string(&constStr, uniformCoeff, filterColor, inColor, filterColor);
-    GrGLSLExpr<4> sum;
-    if (colorStr.isEmpty() && constStr.isEmpty()) {
-        sum = GrGLSLExpr<4>(0);
-    } else if (colorStr.isEmpty()) {
-        sum = constStr;
-    } else if (constStr.isEmpty()) {
-        sum = colorStr;
-    } else {
-        sum = GrGLSLExpr<4>(colorStr) + GrGLSLExpr<4>(constStr);
-    }
-    builder->fsCodeAppendf("\t%s = %s;\n", outputVar, sum.c_str());
-}
-}
-
 bool GrGLProgram::genProgram(GrGLShaderBuilder* builder,
                              const GrEffectStage* colorStages[],
                              const GrEffectStage* coverageStages[]) {
@@ -216,40 +104,17 @@ bool GrGLProgram::genProgram(GrGLShaderBuilder* builder,
     const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
 
     // incoming color to current stage being processed.
-    GrGLSLExpr<4> inColor = builder->getInputColor();
-
-    // Get the coeffs for the Mode-based color filter, determine if color is needed.
-    SkXfermode::Coeff colorCoeff;
-    SkXfermode::Coeff filterColorCoeff;
-    SkAssertResult(
-        SkXfermode::ModeAsCoeff(header.fColorFilterXfermode,
-                                &filterColorCoeff,
-                                &colorCoeff));
-    bool needColor, needFilterColor;
-    need_blend_inputs(filterColorCoeff, colorCoeff, &needFilterColor, &needColor);
+    GrGLSLExpr4 inColor = builder->getInputColor();
 
     fColorEffects.reset(
         builder->createAndEmitEffects(colorStages,
                                       fDesc.effectKeys(),
-                                      needColor ? fDesc.numColorEffects() : 0,
+                                      fDesc.numColorEffects(),
                                       &inColor));
-
-    // Insert the color filter. This will soon be replaced by a color effect.
-    if (SkXfermode::kDst_Mode != header.fColorFilterXfermode) {
-        const char* colorFilterColorUniName = NULL;
-        fUniformHandles.fColorFilterUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
-                                                              kVec4f_GrSLType, "FilterColor",
-                                                              &colorFilterColorUniName);
-
-        builder->fsCodeAppend("\tvec4 filteredColor;\n");
-        add_color_filter(builder, "filteredColor", filterColorCoeff,
-                         colorCoeff, colorFilterColorUniName, inColor.c_str());
-        inColor = "filteredColor";
-    }
 
     ///////////////////////////////////////////////////////////////////////////
     // compute the partial coverage
-    GrGLSLExpr<4> inCoverage = builder->getInputCoverage();
+    GrGLSLExpr4 inCoverage = builder->getInputCoverage();
 
     fCoverageEffects.reset(
         builder->createAndEmitEffects(coverageStages,
@@ -272,13 +137,13 @@ bool GrGLProgram::genProgram(GrGLShaderBuilder* builder,
         const char* secondaryOutputName = builder->enableSecondaryOutput();
 
         // default coeff to ones for kCoverage_DualSrcOutput
-        GrGLSLExpr<4> coeff(1);
+        GrGLSLExpr4 coeff(1);
         if (GrGLProgramDesc::kSecondaryCoverageISA_CoverageOutput == header.fCoverageOutput) {
             // Get (1-A) into coeff
-            coeff = GrGLSLExprCast4(GrGLSLExpr<1>(1) - GrGLSLExprExtractAlpha(inColor));
+            coeff = GrGLSLExpr4::VectorCast(GrGLSLExpr1(1) - inColor.a());
         } else if (GrGLProgramDesc::kSecondaryCoverageISC_CoverageOutput == header.fCoverageOutput) {
             // Get (1-RGBA) into coeff
-            coeff = GrGLSLExpr<4>(1) - inColor;
+            coeff = GrGLSLExpr4(1) - inColor;
         }
         // Get coeff * coverage into modulate and then write that to the dual source output.
         builder->fsCodeAppendf("\t%s = %s;\n", secondaryOutputName, (coeff * inCoverage).c_str());
@@ -288,12 +153,12 @@ bool GrGLProgram::genProgram(GrGLShaderBuilder* builder,
     // combine color and coverage as frag color
 
     // Get "color * coverage" into fragColor
-    GrGLSLExpr<4> fragColor = inColor * inCoverage;
+    GrGLSLExpr4 fragColor = inColor * inCoverage;
     // Now tack on "+(1-coverage)dst onto the frag color if we were asked to do so.
     if (GrGLProgramDesc::kCombineWithDst_CoverageOutput == header.fCoverageOutput) {
-        GrGLSLExpr<4> dstCoeff = GrGLSLExpr<4>(1) - inCoverage;
+        GrGLSLExpr4 dstCoeff = GrGLSLExpr4(1) - inCoverage;
 
-        GrGLSLExpr<4> dstContribution = dstCoeff * GrGLSLExpr<4>(builder->dstColor());
+        GrGLSLExpr4 dstContribution = dstCoeff * GrGLSLExpr4(builder->dstColor());
 
         fragColor = fragColor + dstContribution;
     }
@@ -352,15 +217,6 @@ void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
     this->setCoverage(drawState, coverage, sharedState);
     this->setMatrixAndRenderTargetHeight(drawState);
 
-    // Setup the SkXfermode::Mode-based colorfilter uniform if necessary
-    if (fUniformHandles.fColorFilterUni.isValid() &&
-        fColorFilterColor != drawState.getColorFilterColor()) {
-        GrGLfloat c[4];
-        GrColorToRGBAFloat(drawState.getColorFilterColor(), c);
-        fUniformManager.set4fv(fUniformHandles.fColorFilterUni, 0, 1, c);
-        fColorFilterColor = drawState.getColorFilterColor();
-    }
-
     if (NULL != dstCopy) {
         if (fUniformHandles.fDstCopyTopLeftUni.isValid()) {
             fUniformManager.set2f(fUniformHandles.fDstCopyTopLeftUni,
@@ -409,7 +265,7 @@ void GrGLProgram::setColor(const GrDrawState& drawState,
                 }
                 break;
             case GrGLProgramDesc::kUniform_ColorInput:
-                if (fColor != color) {
+                if (fColor != color && fUniformHandles.fColorUni.isValid()) {
                     // OpenGL ES doesn't support unsigned byte varieties of glUniform
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(color, c);

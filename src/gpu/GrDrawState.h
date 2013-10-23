@@ -265,18 +265,6 @@ public:
     }
 
     /**
-     * Add a color filter that can be represented by a color and a mode. Applied
-     * after color-computing effect stages.
-     */
-    void setColorFilter(GrColor c, SkXfermode::Mode mode) {
-        fCommon.fColorFilterColor = c;
-        fCommon.fColorFilterMode = mode;
-    }
-
-    GrColor getColorFilterColor() const { return fCommon.fColorFilterColor; }
-    SkXfermode::Mode getColorFilterMode() const { return fCommon.fColorFilterMode; }
-
-    /**
      * Constructor sets the color to be 'color' which is undone by the destructor.
      */
     class AutoColorRestore : public ::SkNoncopyable {
@@ -914,8 +902,6 @@ private:
         fCommon.fFlagBits = 0x0;
         fCommon.fStencilSettings.setDisabled();
         fCommon.fCoverage = 0xffffffff;
-        fCommon.fColorFilterMode = SkXfermode::kDst_Mode;
-        fCommon.fColorFilterColor = 0x0;
         fCommon.fDrawFace = kBoth_DrawFace;
     }
 
@@ -932,8 +918,6 @@ private:
         int                   fVACount;
         GrStencilSettings     fStencilSettings;
         GrColor               fCoverage;
-        SkXfermode::Mode      fColorFilterMode;
-        GrColor               fColorFilterColor;
         DrawFace              fDrawFace;
 
         // This is simply a different representation of info in fVertexAttribs and thus does
@@ -951,8 +935,6 @@ private:
                           !memcmp(fVAPtr, other.fVAPtr, fVACount * sizeof(GrVertexAttrib)) &&
                           fStencilSettings == other.fStencilSettings &&
                           fCoverage == other.fCoverage &&
-                          fColorFilterMode == other.fColorFilterMode &&
-                          fColorFilterColor == other.fColorFilterColor &&
                           fDrawFace == other.fDrawFace;
             SkASSERT(!result || 0 == memcmp(fFixedFunctionVertexAttribIndices,
                                             other.fFixedFunctionVertexAttribIndices,

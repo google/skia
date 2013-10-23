@@ -564,7 +564,7 @@ public:
 
 
             builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
-                                   (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<1>("edgeAlpha")).c_str());
+                                   (GrGLSLExpr4(inputColor) * GrGLSLExpr1("edgeAlpha")).c_str());
 
             builder->vsCodeAppendf("\t%s = %s;\n", vsName, attrName->c_str());
         }

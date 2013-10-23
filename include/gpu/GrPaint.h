@@ -85,31 +85,13 @@ public:
     bool isDither() const { return fDither; }
 
     /**
-     * Enables a SkXfermode::Mode-based color filter applied to the primitive color. The constant
-     * color passed to this function is considered the "src" color and the primitive's color is
-     * considered the "dst" color. Defaults to kDst_Mode which equates to simply passing through
-     * the primitive color unmodified.
-     */
-    void setXfermodeColorFilter(SkXfermode::Mode mode, GrColor color) {
-        fColorFilterColor = color;
-        fColorFilterXfermode = mode;
-    }
-    SkXfermode::Mode getColorFilterMode() const { return fColorFilterXfermode; }
-    GrColor getColorFilterColor() const { return fColorFilterColor; }
-
-    /**
-     * Disables the SkXfermode::Mode color filter.
-     */
-    void resetColorFilter() {
-        fColorFilterXfermode = SkXfermode::kDst_Mode;
-        fColorFilterColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
-    }
-
-    /**
      * Appends an additional color effect to the color computation.
      */
     const GrEffectRef* addColorEffect(const GrEffectRef* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(NULL != effect);
+        if (!(*effect)->willUseInputColor()) {
+            fColorStages.reset();
+        }
         SkNEW_APPEND_TO_TARRAY(&fColorStages, GrEffectStage, (effect, attr0, attr1));
         return effect;
     }
@@ -119,6 +101,9 @@ public:
      */
     const GrEffectRef* addCoverageEffect(const GrEffectRef* effect, int attr0 = -1, int attr1 = -1) {
         SkASSERT(NULL != effect);
+        if (!(*effect)->willUseInputColor()) {
+            fCoverageStages.reset();
+        }
         SkNEW_APPEND_TO_TARRAY(&fCoverageStages, GrEffectStage, (effect, attr0, attr1));
         return effect;
     }
@@ -153,9 +138,6 @@ public:
         fColor = paint.fColor;
         fCoverage = paint.fCoverage;
 
-        fColorFilterColor = paint.fColorFilterColor;
-        fColorFilterXfermode = paint.fColorFilterXfermode;
-
         fColorStages = paint.fColorStages;
         fCoverageStages = paint.fCoverageStages;
 
@@ -171,7 +153,6 @@ public:
         this->resetColor();
         this->resetCoverage();
         this->resetStages();
-        this->resetColorFilter();
     }
 
     /**
@@ -244,9 +225,6 @@ private:
 
     GrColor                     fColor;
     uint8_t                     fCoverage;
-
-    GrColor                     fColorFilterColor;
-    SkXfermode::Mode            fColorFilterXfermode;
 
     void resetBlend() {
         fSrcBlendCoeff = kOne_GrBlendCoeff;

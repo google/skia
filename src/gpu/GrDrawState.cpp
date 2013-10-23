@@ -59,7 +59,6 @@ void GrDrawState::setFromPaint(const GrPaint& paint, const SkMatrix& vm, GrRende
     this->setState(GrDrawState::kHWAntialias_StateBit, paint.isAntiAlias());
 
     this->setBlendFunc(paint.getSrcBlendCoeff(), paint.getDstBlendCoeff());
-    this->setColorFilter(paint.getColorFilterColor(), paint.getColorFilterMode());
     this->setCoverage(paint.getCoverage());
 }
 
@@ -217,13 +216,6 @@ bool GrDrawState::srcAlphaWillBeOne() const {
     for (int s = 0; s < fColorStages.count(); ++s) {
         const GrEffectRef* effect = fColorStages[s].getEffect();
         (*effect)->getConstantColorComponents(&color, &validComponentFlags);
-    }
-
-    // Check if the color filter could introduce an alpha.
-    // We could skip the above work when this is true, but it is rare and the right fix is to make
-    // the color filter a GrEffect and implement getConstantColorComponents() for it.
-    if (SkXfermode::kDst_Mode != this->getColorFilterMode()) {
-        validComponentFlags = 0;
     }
 
     // Check whether coverage is treated as color. If so we run through the coverage computation.

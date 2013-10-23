@@ -61,9 +61,6 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
                                         currAttribIndex++ :
                                         -1;
 
-    header->fColorFilterXfermode = static_cast<SkXfermode::Mode>(
-                                       random->nextULessThan(SkXfermode::kLastCoeffMode + 1));
-
 #if GR_GL_EXPERIMENTAL_GS
     header->fExperimentalGS = gpu->caps()->geometryShaderSupport() && random->nextBool();
 #endif

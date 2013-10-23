@@ -56,12 +56,6 @@ bool GrPaint::getOpaqueAndKnownColor(GrColor* solidColor,
 
     // TODO: Share this implementation with GrDrawState
 
-    // Since fColorFilterXfermode is going away soon, we aren't attempting to handle anything but
-    // the default setting.
-    if (SkXfermode::kDst_Mode != fColorFilterXfermode) {
-        return false;
-    }
-
     GrColor coverage = GrColorPackRGBA(fCoverage, fCoverage, fCoverage, fCoverage);
     uint32_t coverageComps = kRGBA_GrColorComponentFlags;
     int count = fCoverageStages.count();

@@ -86,7 +86,7 @@ public:
 
 
             builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
-                                   (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<1>("coverage")).c_str());
+                                   (GrGLSLExpr4(inputColor) * GrGLSLExpr1("coverage")).c_str());
         }
 
         static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
@@ -219,7 +219,7 @@ public:
 
 
             builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
-                                   (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<1>("coverage")).c_str());
+                                   (GrGLSLExpr4(inputColor) * GrGLSLExpr1("coverage")).c_str());
         }
 
         static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {

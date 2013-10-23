@@ -423,6 +423,7 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
                                            const char* inputColor,
                                            const TransformedCoordsArray& coords,
                                            const TextureSamplerArray& samplers) {
+    sk_ignore_unused_variable(inputColor);
     SkString coords2D = builder->ensureFSCoords2D(coords, 0);
     fBoundsUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                      kVec4f_GrSLType, "Bounds");
@@ -548,6 +549,7 @@ GrMatrixConvolutionEffect::GrMatrixConvolutionEffect(GrTexture* texture,
     }
     fTarget[0] = static_cast<float>(target.x());
     fTarget[1] = static_cast<float>(target.y());
+    this->setWillNotUseInputColor();
 }
 
 GrMatrixConvolutionEffect::~GrMatrixConvolutionEffect() {

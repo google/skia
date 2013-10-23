@@ -95,6 +95,9 @@ public:
      */
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const = 0;
 
+    /** Will this effect read the source color value? */
+    bool willUseInputColor() const { return fWillUseInputColor; }
+
     /** This object, besides creating back-end-specific helper objects, is used for run-time-type-
         identification. The factory should be an instance of templated class,
         GrTBackendEffectFactory. It is templated on the subclass of GrEffect. The subclass must have
@@ -221,6 +224,7 @@ protected:
     GrEffect()
         : fWillReadDstColor(false)
         , fWillReadFragmentPosition(false)
+        , fWillUseInputColor(true)
         , fHasVertexCode(false)
         , fEffectRef(NULL) {}
 
@@ -287,6 +291,13 @@ protected:
      */
     void setWillReadFragmentPosition() { fWillReadFragmentPosition = true; }
 
+    /**
+     * If the effect will generate a result that does not depend on the input color value then it must
+     * call this function from its constructor. Otherwise, when its generated backend-specific code
+     * might fail during variable binding due to unused variables.
+     */
+    void setWillNotUseInputColor() { fWillUseInputColor = false; }
+
 private:
     bool isEqual(const GrEffect& other) const {
         if (&this->getFactory() != &other.getFactory()) {
@@ -321,6 +332,7 @@ private:
     SkSTArray<kMaxVertexAttribs, GrSLType, true> fVertexAttribTypes;
     bool                                         fWillReadDstColor;
     bool                                         fWillReadFragmentPosition;
+    bool                                         fWillUseInputColor;
     bool                                         fHasVertexCode;
     GrEffectRef*                                 fEffectRef;
 

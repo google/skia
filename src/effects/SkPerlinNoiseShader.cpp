@@ -610,6 +610,7 @@ protected:
         m.postTranslate(SK_Scalar1, SK_Scalar1);
         fCoordTransform.reset(kLocal_GrCoordSet, m);
         this->addCoordTransform(&fCoordTransform);
+        this->setWillNotUseInputColor();
     }
 
     SkPerlinNoiseShader::Type       fType;

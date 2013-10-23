@@ -150,7 +150,7 @@ public:
                                     "\t\t}\n");
 
             builder->fsCodeAppendf("color = %s = %s;\n", outputColor,
-                                   (GrGLSLExpr<4>(inputColor) * GrGLSLExpr<4>("color")).c_str());
+                                   (GrGLSLExpr4(inputColor) * GrGLSLExpr4("color")).c_str());
         }
 
         virtual void setData(const GrGLUniformManager& uman, const GrDrawEffect& e) SK_OVERRIDE {

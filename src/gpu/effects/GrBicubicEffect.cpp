@@ -44,6 +44,8 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
                                  const char* inputColor,
                                  const TransformedCoordsArray& coords,
                                  const TextureSamplerArray& samplers) {
+    sk_ignore_unused_variable(inputColor);
+
     SkString coords2D = builder->ensureFSCoords2D(coords, 0);
     fCoefficientsUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                            kMat44f_GrSLType, "Coefficients");
@@ -106,6 +108,7 @@ GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
             fCoefficients[x * 4 + y] = SkScalarToFloat(coefficients[y * 4 + x]);
         }
     }
+    this->setWillNotUseInputColor();
 }
 
 GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
@@ -120,6 +123,7 @@ GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
             fCoefficients[x * 4 + y] = SkScalarToFloat(coefficients[y * 4 + x]);
         }
     }
+    this->setWillNotUseInputColor();
 }
 
 GrBicubicEffect::~GrBicubicEffect() {

@@ -149,22 +149,22 @@ GrGLShaderBuilder::GrGLShaderBuilder(GrGpuGL* gpu,
         const char* name;
         fColorUniform = this->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                          kVec4f_GrSLType, "Color", &name);
-        fInputColor = name;
+        fInputColor = GrGLSLExpr4(name);
     } else if (GrGLProgramDesc::kSolidWhite_ColorInput == header.fColorInput) {
-        fInputColor = GrGLSLExpr<4>(1);
+        fInputColor = GrGLSLExpr4(1);
     } else if (GrGLProgramDesc::kTransBlack_ColorInput == header.fColorInput) {
-        fInputColor = GrGLSLExpr<4>(0);
+        fInputColor = GrGLSLExpr4(0);
     }
 
     if (GrGLProgramDesc::kUniform_ColorInput == header.fCoverageInput) {
         const char* name;
         fCoverageUniform = this->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType, "Coverage", &name);
-        fInputCoverage = name;
+        fInputCoverage = GrGLSLExpr4(name);
     } else if (GrGLProgramDesc::kSolidWhite_ColorInput == header.fCoverageInput) {
-        fInputCoverage = GrGLSLExpr<4>(1);
+        fInputCoverage = GrGLSLExpr4(1);
     } else if (GrGLProgramDesc::kTransBlack_ColorInput == header.fCoverageInput) {
-        fInputCoverage = GrGLSLExpr<4>(0);
+        fInputCoverage = GrGLSLExpr4(0);
     }
 
     if (k110_GrGLSLGeneration != fGpu->glslGeneration()) {
@@ -295,7 +295,7 @@ void GrGLShaderBuilder::fsAppendTextureLookupAndModulate(
                                             GrSLType varyingType) {
     SkString lookup;
     this->appendTextureLookup(&lookup, sampler, coordName, varyingType);
-    fFSCode.append((GrGLSLExpr<4>(modulation) * GrGLSLExpr<4>(lookup)).c_str());
+    fFSCode.append((GrGLSLExpr4(modulation) * GrGLSLExpr4(lookup)).c_str());
 }
 
 GrGLShaderBuilder::DstReadKey GrGLShaderBuilder::KeyForDstRead(const GrTexture* dstCopy,
@@ -515,11 +515,11 @@ void GrGLShaderBuilder::createAndEmitEffects(GrGLProgramEffectsBuilder* programE
                                              const GrEffectStage* effectStages[],
                                              const EffectKey effectKeys[],
                                              int effectCnt,
-                                             GrGLSLExpr<4>* fsInOutColor) {
+                                             GrGLSLExpr4* fsInOutColor) {
     bool effectEmitted = false;
 
-    GrGLSLExpr<4> inColor = *fsInOutColor;
-    GrGLSLExpr<4> outColor;
+    GrGLSLExpr4 inColor = *fsInOutColor;
+    GrGLSLExpr4 outColor;
 
     for (int e = 0; e < effectCnt; ++e) {
         SkASSERT(NULL != effectStages[e] && NULL != effectStages[e]->getEffect());
@@ -839,7 +839,7 @@ GrGLProgramEffects* GrGLFullShaderBuilder::createAndEmitEffects(
         const GrEffectStage* effectStages[],
         const EffectKey effectKeys[],
         int effectCnt,
-        GrGLSLExpr<4>* inOutFSColor) {
+        GrGLSLExpr4* inOutFSColor) {
 
     GrGLVertexProgramEffectsBuilder programEffectsBuilder(this, effectCnt);
     this->INHERITED::createAndEmitEffects(&programEffectsBuilder,
@@ -954,7 +954,7 @@ GrGLProgramEffects* GrGLFragmentOnlyShaderBuilder::createAndEmitEffects(
         const GrEffectStage* effectStages[],
         const EffectKey effectKeys[],
         int effectCnt,
-        GrGLSLExpr<4>* inOutFSColor) {
+        GrGLSLExpr4* inOutFSColor) {
 
     GrGLTexGenProgramEffectsBuilder texGenEffectsBuilder(this, effectCnt);
     this->INHERITED::createAndEmitEffects(&texGenEffectsBuilder,

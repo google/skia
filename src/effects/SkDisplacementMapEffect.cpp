@@ -348,6 +348,7 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
     this->addTextureAccess(&fDisplacementAccess);
     this->addCoordTransform(&fColorTransform);
     this->addTextureAccess(&fColorAccess);
+    this->setWillNotUseInputColor();
 }
 
 GrDisplacementMapEffect::~GrDisplacementMapEffect() {
