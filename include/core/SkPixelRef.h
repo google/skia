@@ -207,6 +207,8 @@ public:
     virtual void globalUnref();
 #endif
 
+    SK_DEFINE_FLATTENABLE_TYPE(SkPixelRef)
+
 protected:
     /** Called when the lockCount goes from 0 to 1. The caller will have already
         acquire a mutex for thread safety, so this method need not do that.

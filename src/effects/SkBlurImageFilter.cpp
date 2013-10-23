@@ -19,6 +19,10 @@ SkBlurImageFilter::SkBlurImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer) {
     fSigma.fWidth = buffer.readScalar();
     fSigma.fHeight = buffer.readScalar();
+    buffer.validate(SkScalarIsFinite(fSigma.fWidth) &&
+                    SkScalarIsFinite(fSigma.fHeight) &&
+                    (fSigma.fWidth >= 0) &&
+                    (fSigma.fHeight >= 0));
 }
 
 SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX,

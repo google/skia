@@ -143,6 +143,8 @@ public:
      */
     bool cropRectIsSet() const { return fCropRect.flags() != 0x0; }
 
+    SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
+
 protected:
     SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect = NULL);
 

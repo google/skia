@@ -59,7 +59,6 @@ void SkGraphics::Init() {
     skRTConfRegistry().printNonDefault( );
 #endif
 
-    SkFlattenable::InitializeFlattenables();
 #ifdef BUILD_EMBOSS_TABLE
     SkEmbossMask_BuildTable();
 #endif

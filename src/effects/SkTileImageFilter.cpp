@@ -13,6 +13,7 @@
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkShader.h"
+#include "SkValidationUtils.h"
 
 bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
                                       SkBitmap* dst, SkIPoint* offset) {
@@ -56,6 +57,7 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src, const S
 SkTileImageFilter::SkTileImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
     buffer.readRect(&fSrcRect);
     buffer.readRect(&fDstRect);
+    buffer.validate(SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
 }
 
 void SkTileImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {

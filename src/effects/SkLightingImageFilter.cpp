@@ -248,6 +248,9 @@ SkPoint3 readPoint3(SkFlattenableReadBuffer& buffer) {
     point.fX = buffer.readScalar();
     point.fY = buffer.readScalar();
     point.fZ = buffer.readScalar();
+    buffer.validate(SkScalarIsFinite(point.fX) &&
+                    SkScalarIsFinite(point.fY) &&
+                    SkScalarIsFinite(point.fZ));
     return point;
 };
 
@@ -732,6 +735,10 @@ public:
         fCosInnerConeAngle = buffer.readScalar();
         fConeScale = buffer.readScalar();
         fS = readPoint3(buffer);
+        buffer.validate(SkScalarIsFinite(fSpecularExponent) &&
+                        SkScalarIsFinite(fCosOuterConeAngle) &&
+                        SkScalarIsFinite(fCosInnerConeAngle) &&
+                        SkScalarIsFinite(fConeScale));
     }
 protected:
     SkSpotLight(const SkPoint3& location, const SkPoint3& target, SkScalar specularExponent, SkScalar cosOuterConeAngle, SkScalar cosInnerConeAngle, SkScalar coneScale, const SkPoint3& s, const SkPoint3& color)
@@ -876,13 +883,14 @@ SkImageFilter* SkLightingImageFilter::CreateSpotLitSpecular(
 }
 
 SkLightingImageFilter::~SkLightingImageFilter() {
-    fLight->unref();
+    SkSafeUnref(fLight);
 }
 
 SkLightingImageFilter::SkLightingImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(buffer) {
     fLight = SkLight::UnflattenLight(buffer);
     fSurfaceScale = buffer.readScalar();
+    buffer.validate(SkScalarIsFinite(fSurfaceScale));
 }
 
 void SkLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
@@ -903,6 +911,7 @@ SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkFlattenableReadBuff
   : INHERITED(buffer)
 {
     fKD = buffer.readScalar();
+    buffer.validate(SkScalarIsFinite(fKD));
 }
 
 void SkDiffuseLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
@@ -986,6 +995,8 @@ SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkFlattenableReadBu
 {
     fKS = buffer.readScalar();
     fShininess = buffer.readScalar();
+    buffer.validate(SkScalarIsFinite(fKS) &&
+                    SkScalarIsFinite(fShininess));
 }
 
 void SkSpecularLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {

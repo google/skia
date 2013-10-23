@@ -195,6 +195,7 @@
         '<(skia_src_path)/core/SkTypefaceCache.h',
         '<(skia_src_path)/core/SkUnPreMultiply.cpp',
         '<(skia_src_path)/core/SkUtils.cpp',
+        '<(skia_src_path)/core/SkValidatingReadBuffer.cpp',
         '<(skia_src_path)/core/SkWriter32.cpp',
         '<(skia_src_path)/core/SkXfermode.cpp',
 

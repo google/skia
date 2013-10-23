@@ -20,6 +20,18 @@
 #include "SkMatrix.h"
 #endif
 
+static bool tile_mode_is_valid(SkMatrixConvolutionImageFilter::TileMode tileMode) {
+    switch (tileMode) {
+    case SkMatrixConvolutionImageFilter::kClamp_TileMode:
+    case SkMatrixConvolutionImageFilter::kRepeat_TileMode:
+    case SkMatrixConvolutionImageFilter::kClampToBlack_TileMode:
+        return true;
+    default:
+        break;
+    }
+    return false;
+}
+
 SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
     const SkISize& kernelSize,
     const SkScalar* kernel,
@@ -59,6 +71,9 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(SkFlattenableRead
     fTarget.fY = buffer.readInt();
     fTileMode = (TileMode) buffer.readInt();
     fConvolveAlpha = buffer.readBool();
+    buffer.validate(SkScalarIsFinite(fGain) &&
+                    SkScalarIsFinite(fBias) &&
+                    tile_mode_is_valid(fTileMode));
 }
 
 void SkMatrixConvolutionImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {

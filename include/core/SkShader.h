@@ -344,6 +344,8 @@ public:
 
     SkDEVCODE(virtual void toString(SkString* str) const;)
 
+    SK_DEFINE_FLATTENABLE_TYPE(SkShader)
+
 protected:
     enum MatrixClass {
         kLinear_MatrixClass,            // no perspective

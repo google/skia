@@ -35,7 +35,8 @@ private:
 
 // register the filter with the flattenable registry
 static SkFlattenable::Registrar gFailImageFilterReg("FailImageFilter",
-                                                    FailImageFilter::CreateProc);
+                                                    FailImageFilter::CreateProc,
+                                                    FailImageFilter::GetFlattenableType());
 
 class IdentityImageFilter : public SkImageFilter {
 public:
@@ -57,7 +58,8 @@ private:
 
 // register the filter with the flattenable registry
 static SkFlattenable::Registrar gIdentityImageFilterReg("IdentityImageFilter",
-                                                        IdentityImageFilter::CreateProc);
+                                                        IdentityImageFilter::CreateProc,
+                                                        IdentityImageFilter::GetFlattenableType());
 
 
 ///////////////////////////////////////////////////////////////////////////////

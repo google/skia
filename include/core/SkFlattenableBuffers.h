@@ -24,26 +24,12 @@ class SkOrderedWriteBuffer;
 class SkPath;
 class SkPixelRef;
 struct SkRect;
-class SkRefCnt;
 class SkRegion;
 class SkStream;
 class SkString;
 class SkTypeface;
 class SkUnitMapper;
 class SkWStream;
-
-enum SkEffectType {
-    kColorFilter_SkEffectType,
-    kDrawLooper_SkEffectType,
-    kImageFilter_SkEffectType,
-    kMaskFilter_SkEffectType,
-    kPathEffect_SkEffectType,
-    kPixelRef_SkEffectType,
-    kRasterizer_SkEffectType,
-    kShader_SkEffectType,
-    kUnitMapper_SkEffectType,
-    kXfermode_SkEffectType,
-};
 
 class SkFlattenableReadBuffer {
 public:
@@ -57,14 +43,20 @@ public:
         kCrossProcess_Flag      = 1 << 0,
         kScalarIsFloat_Flag     = 1 << 1,
         kPtrIs64Bit_Flag        = 1 << 2,
+        /** The kValidation_Flag is used to force stream validations (by making
+         * sure that no operation reads past the end of the stream, for example)
+         * and error handling if any reading operation yields an invalid value.
+         */
+        kValidation_Flag        = 1 << 3,
     };
 
     void setFlags(uint32_t flags) { fFlags = flags; }
     uint32_t getFlags() const { return fFlags; }
 
-    bool isCrossProcess() const { return SkToBool(fFlags & kCrossProcess_Flag); }
+    bool isCrossProcess() const { return SkToBool(fFlags & (kCrossProcess_Flag | kValidation_Flag)); }
     bool isScalarFloat() const { return SkToBool(fFlags & kScalarIsFloat_Flag); }
     bool isPtr64Bit() const { return SkToBool(fFlags & kPtrIs64Bit_Flag); }
+    bool isValidating() const { return SkToBool(fFlags & kValidation_Flag); }
 
     // primitives
     virtual bool readBool() = 0;
@@ -79,38 +71,24 @@ public:
     virtual void readString(SkString* string) = 0;
     virtual void* readEncodedString(size_t* length, SkPaint::TextEncoding encoding) = 0;
 
-    virtual SkFlattenable* readFlattenable(SkEffectType) = 0;
+    /**
+      @param type   This parameter is only used when using SkValidatingReadBuffer. It will verify
+                    that the object about to be deserialized is of the given type or early return
+                    NULL otherwise. The type provided here is the type of the base class of the
+                    object to deserialize.
+      */
+    virtual SkFlattenable* readFlattenable(SkFlattenable::Type type) = 0;
 
-    SkColorFilter* readColorFilter() {
-        return (SkColorFilter*)this->readFlattenable(kColorFilter_SkEffectType);
-    }
-    SkDrawLooper* readDrawLooper() {
-        return (SkDrawLooper*)this->readFlattenable(kDrawLooper_SkEffectType);
-    }
-    SkImageFilter* readImageFilter() {
-        return (SkImageFilter*)this->readFlattenable(kImageFilter_SkEffectType);
-    }
-    SkMaskFilter* readMaskFilter() {
-        return (SkMaskFilter*)this->readFlattenable(kMaskFilter_SkEffectType);
-    }
-    SkPathEffect* readPathEffect() {
-        return (SkPathEffect*)this->readFlattenable(kPathEffect_SkEffectType);
-    }
-    SkPixelRef* readPixelRef() {
-        return (SkPixelRef*)this->readFlattenable(kPixelRef_SkEffectType);
-    }
-    SkRasterizer* readRasterizer() {
-        return (SkRasterizer*)this->readFlattenable(kRasterizer_SkEffectType);
-    }
-    SkShader* readShader() {
-        return (SkShader*)this->readFlattenable(kShader_SkEffectType);
-    }
-    SkUnitMapper* readUnitMapper() {
-        return (SkUnitMapper*)this->readFlattenable(kUnitMapper_SkEffectType);
-    }
-    SkXfermode* readXfermode() {
-        return (SkXfermode*)this->readFlattenable(kXfermode_SkEffectType);
-    }
+    SkColorFilter* readColorFilter();
+    SkDrawLooper* readDrawLooper();
+    SkImageFilter* readImageFilter();
+    SkMaskFilter* readMaskFilter();
+    SkPathEffect* readPathEffect();
+    SkPixelRef* readPixelRef();
+    SkRasterizer* readRasterizer();
+    SkShader* readShader();
+    SkUnitMapper* readUnitMapper();
+    SkXfermode* readXfermode();
 
     // common data structures
     virtual void readPoint(SkPoint* point) = 0;
@@ -153,7 +131,10 @@ public:
         return SkData::NewFromMalloc(buffer, len);
     }
 
+    virtual void validate(bool isValid) {}
+
 private:
+    template <typename T> T* readFlattenableT();
     uint32_t fFlags;
 };
 
@@ -205,13 +186,22 @@ public:
 
     enum Flags {
         kCrossProcess_Flag               = 0x01,
+        /** The kValidation_Flag is used here to make sure the write operation
+         *  is symmetric with the read operation using the equivalent flag
+         *  SkFlattenableReadBuffer::kValidation_Flag.
+         */
+        kValidation_Flag                 = 0x02,
     };
 
     uint32_t getFlags() const { return fFlags; }
     void setFlags(uint32_t flags) { fFlags = flags; }
 
     bool isCrossProcess() const {
-        return SkToBool(fFlags & kCrossProcess_Flag);
+        return SkToBool(fFlags & (kCrossProcess_Flag | kValidation_Flag));
+    }
+
+    bool isValidating() const {
+        return SkToBool(fFlags & kValidation_Flag);
     }
 
     bool persistTypeface() const { return (fFlags & kCrossProcess_Flag) != 0; }

@@ -131,6 +131,8 @@ public:
     SkDEVCODE(virtual void toString(SkString* str) const = 0;)
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
+    SK_DEFINE_FLATTENABLE_TYPE(SkColorFilter)
+
 protected:
     SkColorFilter() {}
     SkColorFilter(SkFlattenableReadBuffer& rb) : INHERITED(rb) {}

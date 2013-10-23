@@ -23,8 +23,7 @@ SkData* SkSerializeFlattenable(SkFlattenable* flattenable) {
     return SkData::NewFromMalloc(data, size);
 }
 
-// TODO: this guy should be renamed to ImageFilter, or take SkEffectType as
-// a parameter.
+// TODO: this guy should be renamed to ImageFilter, or take SkFlattenable::Type as a parameter.
 SkFlattenable* SkDeserializeFlattenable(const void* data, size_t size) {
     SkOrderedReadBuffer buffer(data, size);
     return buffer.readImageFilter();

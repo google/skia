@@ -29,6 +29,9 @@ SkDropShadowImageFilter::SkDropShadowImageFilter(SkFlattenableReadBuffer& buffer
     fDy = buffer.readScalar();
     fSigma = buffer.readScalar();
     fColor = buffer.readColor();
+    buffer.validate(SkScalarIsFinite(fDx) &&
+                    SkScalarIsFinite(fDy) &&
+                    SkScalarIsFinite(fSigma));
 }
 
 void SkDropShadowImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const

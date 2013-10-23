@@ -15,7 +15,6 @@
 
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
-#include "SkAnnotation.h"
 #include "SkArithmeticMode.h"
 #include "SkAvoidXfermode.h"
 #include "SkBicubicImageFilter.h"
@@ -31,7 +30,6 @@
 #include "SkComposeShader.h"
 #include "SkCornerPathEffect.h"
 #include "SkDashPathEffect.h"
-#include "SkData.h"
 #include "SkDiscretePathEffect.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
@@ -50,6 +48,7 @@
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkOnce.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPixelXorXfermode.h"
 #include "SkRectShaderImageFilter.h"
@@ -59,8 +58,7 @@
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 
-void SkFlattenable::InitializeFlattenables() {
-
+static void InitializeFlattenables(int*) {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkAvoidXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBicubicImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapProcShader)
@@ -113,4 +111,10 @@ void SkFlattenable::InitializeFlattenables() {
     SkLightingImageFilter::InitializeFlattenables();
     SkTableColorFilter::InitializeFlattenables();
     SkXfermode::InitializeFlattenables();
+}
+
+void SkFlattenable::InitializeFlattenablesIfNeeded() {
+    int dummy;
+    SK_DECLARE_STATIC_ONCE(once);
+    SkOnce(&once, InitializeFlattenables, &dummy);
 }
