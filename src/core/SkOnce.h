@@ -129,7 +129,7 @@ void AnnotateBenignRace(const char* file, int line, const volatile void* mem, co
 // This is our fast path, called all the time.  We do really want it to be inlined.
 template <typename Arg>
 inline void SkOnce(SkOnceFlag* once, void (*f)(Arg), Arg arg) {
-    ANNOTATE_BENIGN_RACE(once->done, "Don't worry TSAN, we're sure this is safe.");
+    ANNOTATE_BENIGN_RACE(&(once->done), "Don't worry TSAN, we're sure this is safe.");
     if (!once->done) {
         sk_once_slow(once, f, arg);
     }
