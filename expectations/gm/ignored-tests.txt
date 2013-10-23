@@ -31,3 +31,5 @@
 # ('Poppler random failures'): ignore any Poppler failures, for now
 pdf-poppler
 
+# Added by bsalomon, test case added in https://codereview.chromium.org/30593003
+imagefiltersgraph

@@ -7,11 +7,13 @@
 
 #include "gm.h"
 
+#include "SkArithmeticMode.h"
 #include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorFilter.h"
 #include "SkColorMatrixFilter.h"
 #include "SkColorFilterImageFilter.h"
+#include "SkFlattenableBuffers.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkXfermodeImageFilter.h"
@@ -19,6 +21,59 @@
 #include "SkTestImageFilters.h"
 
 ///////////////////////////////////////////////////////////////////////////////
+
+// More closely models how Blink's OffsetFilter works as of 10/23/13. SkOffsetImageFilter doesn't
+// perform a draw and this one does.
+class SimpleOffsetFilter : public SkImageFilter {
+public:
+    SimpleOffsetFilter(SkScalar dx, SkScalar dy, SkImageFilter* input)
+    : SkImageFilter(input), fDX(dx), fDY(dy) {}
+
+    virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+                               SkBitmap* dst, SkIPoint* offset) SK_OVERRIDE {
+        SkBitmap source = src;
+        SkImageFilter* input = getInput(0);
+        SkIPoint srcOffset = SkIPoint::Make(0, 0);
+        if (NULL != input && !input->filterImage(proxy, src, ctm, &source, &srcOffset)) {
+            return false;
+        }
+
+        SkIRect bounds;
+        source.getBounds(&bounds);
+
+        if (!this->applyCropRect(&bounds, ctm)) {
+            return false;
+        }
+
+        SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
+        SkCanvas canvas(device);
+        SkPaint paint;
+        paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+        canvas.drawBitmap(source, fDX - bounds.left(), fDY - bounds.top(), &paint);
+        *dst = device->accessBitmap(false);
+        offset->fX += bounds.left();
+        offset->fY += bounds.top();
+        return true;
+    }
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SimpleOffsetFilter);
+
+protected:
+    explicit SimpleOffsetFilter(SkFlattenableReadBuffer& buffer)
+    : SkImageFilter(buffer) {
+        fDX = buffer.readScalar();
+        fDY = buffer.readScalar();
+    }
+
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+        this->SkImageFilter::flatten(buffer);
+        buffer.writeScalar(fDX);
+        buffer.writeScalar(fDY);
+    }
+
+private:
+    SkScalar fDX, fDY;
+};
 
 class ImageFiltersGraphGM : public skiagm::GM {
 public:
@@ -43,7 +98,7 @@ protected:
         canvas.drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
     }
 
-    virtual SkISize onISize() { return SkISize::Make(200, 100); }
+    virtual SkISize onISize() { return SkISize::Make(500, 150); }
 
     virtual void onDraw(SkCanvas* canvas) {
         if (!fInitialized) {
@@ -80,6 +135,22 @@ protected:
             SkPaint paint;
             paint.setImageFilter(blendColor);
             canvas->drawBitmap(fBitmap, 100, 0, &paint);
+        }
+        {
+            SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
+                                    0, SK_Scalar1, 0, 0, 0,
+                                    0, 0, SK_Scalar1, 0, 0,
+                                    0, 0, 0, SkFloatToScalar(0.5f), 0 };
+            SkColorMatrixFilter matrixCF(matrix);
+            SkAutoTUnref<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Create(&matrixCF));
+            SimpleOffsetFilter offsetFilter(SkIntToScalar(10), SkIntToScalar(10), matrixFilter);
+
+            SkAutoTUnref<SkXfermode> arith(SkArithmeticMode::Create(0, SK_Scalar1, SK_Scalar1, 0));
+            SkXfermodeImageFilter arithFilter(arith, matrixFilter, &offsetFilter);
+
+            SkPaint paint;
+            paint.setImageFilter(&arithFilter);
+            canvas->drawSprite(fBitmap, 200, 0, &paint);
         }
     }
 
