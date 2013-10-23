@@ -44,7 +44,12 @@ const void* SkValidatingReadBuffer::skip(size_t size) {
 // true, which the caller should check to see if an error occurred during the read operation.
 
 bool SkValidatingReadBuffer::readBool() {
-    return this->readInt() != 0;
+    uint32_t value = this->readInt();
+    // Boolean value should be either 0 or 1
+    if (value & ~1) {
+        fError = true;
+    }
+    return value != 0;
 }
 
 SkColor SkValidatingReadBuffer::readColor() {

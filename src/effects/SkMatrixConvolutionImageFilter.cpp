@@ -61,17 +61,27 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(SkFlattenableRead
     : INHERITED(buffer) {
     fKernelSize.fWidth = buffer.readInt();
     fKernelSize.fHeight = buffer.readInt();
-    uint32_t size = fKernelSize.fWidth * fKernelSize.fHeight;
-    fKernel = SkNEW_ARRAY(SkScalar, size);
-    SkDEBUGCODE(uint32_t readSize = )buffer.readScalarArray(fKernel);
-    SkASSERT(readSize == size);
+    if ((fKernelSize.fWidth >= 1) && (fKernelSize.fHeight >= 1) &&
+        // Make sure size won't be larger than a signed int,
+        // which would still be extremely large for a kernel,
+        // but we don't impose a hard limit for kernel size
+        (SK_MaxS32 / fKernelSize.fWidth >= fKernelSize.fHeight)) {
+        uint32_t size = fKernelSize.fWidth * fKernelSize.fHeight;
+        fKernel = SkNEW_ARRAY(SkScalar, size);
+        uint32_t readSize = buffer.readScalarArray(fKernel);
+        SkASSERT(readSize == size);
+        buffer.validate(readSize == size);
+    } else {
+        fKernel = 0;
+    }
     fGain = buffer.readScalar();
     fBias = buffer.readScalar();
     fTarget.fX = buffer.readInt();
     fTarget.fY = buffer.readInt();
     fTileMode = (TileMode) buffer.readInt();
     fConvolveAlpha = buffer.readBool();
-    buffer.validate(SkScalarIsFinite(fGain) &&
+    buffer.validate((fKernel != 0) &&
+                    SkScalarIsFinite(fGain) &&
                     SkScalarIsFinite(fBias) &&
                     tile_mode_is_valid(fTileMode));
 }

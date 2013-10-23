@@ -161,7 +161,9 @@ SkMergeImageFilter::SkMergeImageFilter(SkFlattenableReadBuffer& buffer) : INHERI
     if (hasModes) {
         this->initAllocModes();
         int nbInputs = countInputs();
-        SkASSERT(buffer.getArrayCount() == nbInputs * sizeof(fModes[0]));
+        bool sizeMatches = buffer.getArrayCount() == nbInputs * sizeof(fModes[0]);
+        buffer.validate(sizeMatches);
+        SkASSERT(sizeMatches);
         buffer.readByteArray(fModes);
         for (int i = 0; i < nbInputs; ++i) {
             buffer.validate(SkIsValidMode((SkXfermode::Mode)fModes[i]));
