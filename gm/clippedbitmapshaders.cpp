@@ -45,12 +45,13 @@ static const SkScalar SLIDE_SIZE = 300;
 
 class ClippedBitmapShadersGM : public GM {
 public:
-    ClippedBitmapShadersGM(SkShader::TileMode mode)
-    : fMode(mode) {
+    ClippedBitmapShadersGM(SkShader::TileMode mode, bool hq=false)
+    : fMode(mode), fHQ(hq) {
     }
 
 protected:
     SkShader::TileMode fMode;
+    bool fHQ;
 
     virtual SkString onShortName() {
         SkString descriptor;
@@ -68,13 +69,16 @@ protected:
                 SkASSERT(false);
         }
         descriptor.prepend("clipped-bitmap-shaders-");
+        if (fHQ) {
+            descriptor.append("-hq");
+        }
         return descriptor;
     }
 
     virtual SkISize onISize() {
         return SkISize::Make(300, 300);
     }
-
+    
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bmp = create_bitmap();
         SkShader* shader = SkShader::CreateBitmapShader(
@@ -87,6 +91,10 @@ protected:
         s.postTranslate(SLIDE_SIZE / 2, SLIDE_SIZE / 2);
         shader->setLocalMatrix(s);
         paint.setShader(shader)->unref();
+        
+        if (fHQ) {
+            paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
+        }
 
         SkScalar margin = (SLIDE_SIZE / 3 - RECT_SIZE) / 2;
         for (int i = 0; i < 3; i++) {
@@ -115,4 +123,10 @@ private:
 DEF_GM( return new ClippedBitmapShadersGM(SkShader::kRepeat_TileMode); )
 DEF_GM( return new ClippedBitmapShadersGM(SkShader::kMirror_TileMode); )
 DEF_GM( return new ClippedBitmapShadersGM(SkShader::kClamp_TileMode); )
+
+DEF_GM( return new ClippedBitmapShadersGM(SkShader::kRepeat_TileMode, true); )
+DEF_GM( return new ClippedBitmapShadersGM(SkShader::kMirror_TileMode, true); )
+DEF_GM( return new ClippedBitmapShadersGM(SkShader::kClamp_TileMode, true); )
+
+
 }

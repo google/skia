@@ -116,7 +116,7 @@ GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  const SkMatrix &matrix,
                                  const GrTextureParams &params,
                                  GrCoordSet coordSet)
-  : INHERITED(texture, MakeDivByTextureWHMatrix(texture), params, coordSet) {
+  : INHERITED(texture, matrix, params, coordSet) {
     for (int y = 0; y < 4; y++) {
         for (int x = 0; x < 4; x++) {
             // Convert from row-major scalars to column-major floats.
