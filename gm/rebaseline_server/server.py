@@ -60,6 +60,9 @@ DEFAULT_ACTUALS_DIR = '.gm-actuals'
 DEFAULT_EXPECTATIONS_DIR = os.path.join(TRUNK_DIRECTORY, 'expectations', 'gm')
 DEFAULT_PORT = 8888
 
+_HTTP_HEADER_CONTENT_LENGTH = 'Content-Length'
+_HTTP_HEADER_CONTENT_TYPE = 'Content-Type'
+
 _SERVER = None   # This gets filled in by main()
 
 class Server(object):
@@ -103,41 +106,48 @@ class Server(object):
     results. """
     return self._reload_seconds
 
-  def _update_results(self):
+  def update_results(self):
     """ Create or update self.results, based on the expectations in
     self._expectations_dir and the latest actuals from skia-autogen.
     """
-    logging.info('Updating actual GM results in %s from SVN repo %s ...' % (
-        self._actuals_dir, ACTUALS_SVN_REPO))
-    actuals_repo = svn.Svn(self._actuals_dir)
-    if not os.path.isdir(self._actuals_dir):
-      os.makedirs(self._actuals_dir)
-      actuals_repo.Checkout(ACTUALS_SVN_REPO, '.')
-    else:
-      actuals_repo.Update('.')
-
-    # We only update the expectations dir if the server was run with a nonzero
-    # --reload argument; otherwise, we expect the user to maintain her own
-    # expectations as she sees fit.
-    #
-    # TODO(epoger): Use git instead of svn to check out expectations, since
-    # the Skia repo is moving to git.
-    if self._reload_seconds:
-      logging.info('Updating expected GM results in %s from SVN repo %s ...' % (
-          self._expectations_dir, EXPECTATIONS_SVN_REPO))
-      expectations_repo = svn.Svn(self._expectations_dir)
-      if not os.path.isdir(self._expectations_dir):
-        os.makedirs(self._expectations_dir)
-        expectations_repo.Checkout(EXPECTATIONS_SVN_REPO, '.')
+    with self.results_lock:
+      # self.results_lock prevents us from updating the actual GM results
+      # in multiple threads simultaneously
+      logging.info('Updating actual GM results in %s from SVN repo %s ...' % (
+          self._actuals_dir, ACTUALS_SVN_REPO))
+      actuals_repo = svn.Svn(self._actuals_dir)
+      if not os.path.isdir(self._actuals_dir):
+        os.makedirs(self._actuals_dir)
+        actuals_repo.Checkout(ACTUALS_SVN_REPO, '.')
       else:
-        expectations_repo.Update('.')
+        actuals_repo.Update('.')
 
-    logging.info(
-        'Parsing results from actuals in %s and expectations in %s ...' % (
-        self._actuals_dir, self._expectations_dir))
-    self.results = results.Results(
-      actuals_root=self._actuals_dir,
-      expected_root=self._expectations_dir)
+      # We only update the expectations dir if the server was run with a
+      # nonzero --reload argument; otherwise, we expect the user to maintain
+      # her own expectations as she sees fit.
+      #
+      # self.results_lock prevents us from updating the expected GM results
+      # in multiple threads simultaneously
+      #
+      # TODO(epoger): Use git instead of svn to check out expectations, since
+      # the Skia repo is moving to git.
+      if self._reload_seconds:
+        logging.info(
+            'Updating expected GM results in %s from SVN repo %s ...' % (
+            self._expectations_dir, EXPECTATIONS_SVN_REPO))
+        expectations_repo = svn.Svn(self._expectations_dir)
+        if not os.path.isdir(self._expectations_dir):
+          os.makedirs(self._expectations_dir)
+          expectations_repo.Checkout(EXPECTATIONS_SVN_REPO, '.')
+        else:
+          expectations_repo.Update('.')
+
+      logging.info(
+          'Parsing results from actuals in %s and expectations in %s ...' % (
+          self._actuals_dir, self._expectations_dir))
+      self.results = results.Results(
+        actuals_root=self._actuals_dir,
+        expected_root=self._expectations_dir)
 
   def _result_reloader(self):
     """ If --reload argument was specified, reload results at the appropriate
@@ -145,12 +155,11 @@ class Server(object):
     """
     while self._reload_seconds:
       time.sleep(self._reload_seconds)
-      with self.results_lock:
-        self._update_results()
+      self.update_results()
 
   def run(self):
-    self._update_results()
     self.results_lock = thread.allocate_lock()
+    self.update_results()
     thread.start_new_thread(self._result_reloader, ())
 
     if self._export:
@@ -224,6 +233,9 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             (time_updated+_SERVER.reload_seconds()) if _SERVER.reload_seconds()
             else None),
 
+        # The type we passed to get_results_of_type()
+        'type': type,
+
         # Hash of testData, which the client must return with any edits--
         # this ensures that the edits were made to a particular dataset.
         'dataHash': str(hash(repr(response_dict['testData']))),
@@ -260,6 +272,76 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
           'Attempted do_GET_static() of path [%s] outside of static dir [%s]'
           % (full_path, static_dir))
       self.send_error(404)
+
+  def do_POST(self):
+    """ Handles all POST requests, forwarding them to the appropriate
+        do_POST_* dispatcher. """
+    # All requests must be of this form:
+    #   /dispatcher
+    # where 'dispatcher' indicates which do_POST_* dispatcher to run.
+    normpath = posixpath.normpath(self.path)
+    dispatchers = {
+      '/edits': self.do_POST_edits,
+    }
+    try:
+      dispatcher = dispatchers[normpath]
+      dispatcher()
+      self.send_response(200)
+    except:
+      self.send_error(404)
+      raise
+
+  def do_POST_edits(self):
+    """ Handle a POST request with modifications to GM expectations, in this
+    format:
+
+    {
+      'oldResultsType': 'all',    # type of results that the client loaded
+                                  # and then made modifications to
+      'oldResultsHash': 39850913, # hash of results when the client loaded them
+                                  # (ensures that the client and server apply
+                                  # modifications to the same base)
+      'modifications': [
+        {
+          'builder': 'Test-Android-Nexus10-MaliT604-Arm7-Debug',
+          'test': 'strokerect',
+          'config': 'gpu',
+          'expectedHashType': 'bitmap-64bitMD5',
+          'expectedHashDigest': '1707359671708613629',
+        },
+        ...
+      ],
+    }
+
+    Raises an Exception if there were any problems.
+    """
+    if not _SERVER.is_editable():
+      raise Exception('this server is not running in --editable mode')
+
+    content_type = self.headers[_HTTP_HEADER_CONTENT_TYPE]
+    if content_type != 'application/json;charset=UTF-8':
+      raise Exception('unsupported %s [%s]' % (
+          _HTTP_HEADER_CONTENT_TYPE, content_type))
+
+    content_length = int(self.headers[_HTTP_HEADER_CONTENT_LENGTH])
+    json_data = self.rfile.read(content_length)
+    data = json.loads(json_data)
+    logging.debug('do_POST_edits: received new GM expectations data [%s]' %
+                  data)
+
+    with _SERVER.results_lock:
+      oldResultsType = data['oldResultsType']
+      oldResults = _SERVER.results.get_results_of_type(oldResultsType)
+      oldResultsHash = str(hash(repr(oldResults['testData'])))
+      if oldResultsHash != data['oldResultsHash']:
+        raise Exception('results of type "%s" changed while the client was '
+                        'making modifications. The client should reload the '
+                        'results and submit the modifications again.' %
+                        oldResultsType)
+      _SERVER.results.edit_expectations(data['modifications'])
+
+    # Now that the edits have been committed, update results to reflect them.
+    _SERVER.update_results()
 
   def redirect_to(self, url):
     """ Redirect the HTTP client to a different url.
@@ -318,8 +400,7 @@ def main():
                           'exist, it will be created. Defaults to %(default)s'),
                     default=DEFAULT_ACTUALS_DIR)
   parser.add_argument('--editable', action='store_true',
-                      help=('TODO(epoger): NOT YET IMPLEMENTED.  '
-                            'Allow HTTP clients to submit new baselines.'))
+                      help=('Allow HTTP clients to submit new baselines.'))
   parser.add_argument('--expectations-dir',
                     help=('Directory under which to find GM expectations; '
                           'defaults to %(default)s'),

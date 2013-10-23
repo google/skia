@@ -31,6 +31,8 @@ if GM_DIRECTORY not in sys.path:
 import gm_json
 
 IMAGE_FILENAME_RE = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
+IMAGE_FILENAME_FORMATTER = '%s_%s.png'  # pass in (testname, config)
+
 CATEGORIES_TO_SUMMARIZE = [
     'builder', 'test', 'config', 'resultType',
 ]
@@ -41,9 +43,9 @@ class Results(object):
   """ Loads actual and expected results from all builders, supplying combined
   reports as requested.
 
-  Once this object has been constructed, the results are immutable.  If you
-  want to update the results based on updated JSON file contents, you will
-  need to create a new Results object."""
+  Once this object has been constructed, the results (in self._results[])
+  are immutable.  If you want to update the results based on updated JSON
+  file contents, you will need to create a new Results object."""
 
   def __init__(self, actuals_root, expected_root):
     """
@@ -51,9 +53,9 @@ class Results(object):
       actuals_root: root directory containing all actual-results.json files
       expected_root: root directory containing all expected-results.json files
     """
-    self._actual_builder_dicts = Results._get_dicts_from_root(actuals_root)
-    self._expected_builder_dicts = Results._get_dicts_from_root(expected_root)
-    self._combine_actual_and_expected()
+    self._actuals_root = actuals_root
+    self._expected_root = expected_root
+    self._load_actual_and_expected()
     self._timestamp = int(time.time())
 
   def get_timestamp(self):
@@ -61,6 +63,51 @@ class Results(object):
     (UTC).
     """
     return self._timestamp
+
+  def edit_expectations(self, modifications):
+    """Edit the expectations stored within this object and write them back
+    to disk.
+
+    Note that this will NOT update the results stored in self._results[] ;
+    in order to see those updates, you must instantiate a new Results object
+    based on the (now updated) files on disk.
+
+    Args:
+      modifications: a list of dictionaries, one for each expectation to update:
+
+         [
+           {
+             'builder': 'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug',
+             'test': 'bigmatrix',
+             'config': '8888',
+             'expectedHashType': 'bitmap-64bitMD5',
+             'expectedHashDigest': '10894408024079689926',
+           },
+           ...
+         ]
+
+    TODO(epoger): For now, this does not allow the caller to set any fields
+    other than expectedHashType/expectedHashDigest, and assumes that
+    ignore-failure should be set to False.  We need to add support
+    for other fields (notes, bugs, etc.) and ignore-failure=True.
+    """
+    expected_builder_dicts = Results._read_dicts_from_root(self._expected_root)
+    for mod in modifications:
+      image_name = IMAGE_FILENAME_FORMATTER % (mod['test'], mod['config'])
+      # TODO(epoger): assumes a single allowed digest per test
+      allowed_digests = [[mod['expectedHashType'],
+                          int(mod['expectedHashDigest'])]]
+      new_expectations = {
+          gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS: allowed_digests,
+          gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE: False,
+      }
+      builder_dict = expected_builder_dicts[mod['builder']]
+      builder_expectations = builder_dict.get(gm_json.JSONKEY_EXPECTEDRESULTS)
+      if not builder_expectations:
+        builder_expectations = {}
+        builder_dict[gm_json.JSONKEY_EXPECTEDRESULTS] = builder_expectations
+      builder_expectations[image_name] = new_expectations
+    Results._write_dicts_to_root(expected_builder_dicts, self._expected_root)
 
   def get_results_of_type(self, type):
     """Return results of some/all tests (depending on 'type' parameter).
@@ -111,7 +158,7 @@ class Results(object):
     return self._results[type]
 
   @staticmethod
-  def _get_dicts_from_root(root, pattern='*.json'):
+  def _read_dicts_from_root(root, pattern='*.json'):
     """Read all JSON dictionaries within a directory tree.
 
     Args:
@@ -131,17 +178,72 @@ class Results(object):
     for dirpath, dirnames, filenames in os.walk(root):
       for matching_filename in fnmatch.filter(filenames, pattern):
         builder = os.path.basename(dirpath)
+        # If we are reading from the collection of actual results, skip over
+        # the Trybot results (we don't maintain baselines for them).
         if builder.endswith('-Trybot'):
           continue
         fullpath = os.path.join(dirpath, matching_filename)
         meta_dict[builder] = gm_json.LoadFromFile(fullpath)
     return meta_dict
 
-  def _combine_actual_and_expected(self):
-    """Gathers the results of all tests, across all builders (based on the
-    contents of self._actual_builder_dicts and self._expected_builder_dicts),
+  @staticmethod
+  def _write_dicts_to_root(meta_dict, root, pattern='*.json'):
+    """Write all per-builder dictionaries within meta_dict to files under
+    the root path.
+
+    Security note: this will only write to files that already exist within
+    the root path (as found by os.walk() within root), so we don't need to
+    worry about malformed content writing to disk outside of root.
+    However, the data written to those files is not double-checked, so it
+    could contain poisonous data.
+
+    Args:
+      meta_dict: a builder-keyed meta-dictionary containing all the JSON
+                 dictionaries we want to write out
+      root: path to root of directory tree within which to write files
+      pattern: which files to write within root (fnmatch-style pattern)
+
+    Raises:
+      IOError if root does not refer to an existing directory
+      KeyError if the set of per-builder dictionaries written out was
+               different than expected
+    """
+    if not os.path.isdir(root):
+      raise IOError('no directory found at path %s' % root)
+    actual_builders_written = []
+    for dirpath, dirnames, filenames in os.walk(root):
+      for matching_filename in fnmatch.filter(filenames, pattern):
+        builder = os.path.basename(dirpath)
+        # We should never encounter Trybot *expectations*, but if we are
+        # writing into the actual-results dir, skip the Trybot actuals.
+        # (I don't know why we would ever write into the actual-results dir,
+        # though.)
+        if builder.endswith('-Trybot'):
+          continue
+        per_builder_dict = meta_dict.get(builder)
+        if per_builder_dict:
+          fullpath = os.path.join(dirpath, matching_filename)
+          gm_json.WriteToFile(per_builder_dict, fullpath)
+          actual_builders_written.append(builder)
+
+    # Check: did we write out the set of per-builder dictionaries we
+    # expected to?
+    expected_builders_written = sorted(meta_dict.keys())
+    actual_builders_written.sort()
+    if expected_builders_written != actual_builders_written:
+      raise KeyError(
+          'expected to write dicts for builders %s, but actually wrote them '
+          'for builders %s' % (
+              expected_builders_written, actual_builders_written))
+
+  def _load_actual_and_expected(self):
+    """Loads the results of all tests, across all builders (based on the
+    files within self._actuals_root and self._expected_root),
     and stores them in self._results.
     """
+    actual_builder_dicts = Results._read_dicts_from_root(self._actuals_root)
+    expected_builder_dicts = Results._read_dicts_from_root(self._expected_root)
+
     categories_all = {}
     categories_failures = {}
     Results._ensure_included_in_category_dict(categories_all,
@@ -160,9 +262,9 @@ class Results(object):
 
     data_all = []
     data_failures = []
-    for builder in sorted(self._actual_builder_dicts.keys()):
+    for builder in sorted(actual_builder_dicts.keys()):
       actual_results_for_this_builder = (
-          self._actual_builder_dicts[builder][gm_json.JSONKEY_ACTUALRESULTS])
+          actual_builder_dicts[builder][gm_json.JSONKEY_ACTUALRESULTS])
       for result_type in sorted(actual_results_for_this_builder.keys()):
         results_of_this_type = actual_results_for_this_builder[result_type]
         if not results_of_this_type:
@@ -172,7 +274,7 @@ class Results(object):
           try:
             # TODO(epoger): assumes a single allowed digest per test
             expected_image = (
-                self._expected_builder_dicts
+                expected_builder_dicts
                     [builder][gm_json.JSONKEY_EXPECTEDRESULTS]
                     [image_name][gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS]
                     [0])
