@@ -29,10 +29,8 @@ public:
     virtual bool asCoeff(Coeff* sc, Coeff* dc) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffectOrCoeff(GrEffectRef** effect,
-                                    Coeff* src,
-                                    Coeff* dst,
-                                    GrTexture* background) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrEffectRef** effect,
+                             GrTexture* background) const SK_OVERRIDE;
 #endif
 
     SK_DEVELOPER_TO_STRING()

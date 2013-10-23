@@ -192,25 +192,20 @@ public:
     }
 
     /** A subclass may implement this factory function to work with the GPU backend. It is legal
-        to call this with all but the context param NULL to simply test the return value. effect,
-        src, and dst must all be NULL or all non-NULL. If effect is non-NULL then the xfermode may
-        optionally allocate an effect to return and the caller as *effect. The caller will install
-        it and own a ref to it. Since the xfermode may or may not assign *effect, the caller should
-        set *effect to NULL beforehand. If the function returns true and *effect is NULL then the
-        src and dst coeffs will be applied to the draw. When *effect is non-NULL the coeffs are
-        ignored. background specifies the texture to use as the background for compositing, and
-        should be accessed in the effect's fragment shader. If NULL, the effect should request
-        access to destination color (setWillReadDstColor()), and use that in the fragment shader
-        (builder->dstColor()).
+        to call this with all params NULL to simply test the return value. If effect is non-NULL
+        then the xfermode may optionally allocate an effect to return and the caller as *effect.
+        The caller will install it and own a ref to it. Since the xfermode may or may not assign
+        *effect, the caller should set *effect to NULL beforehand. background specifies the
+        texture to use as the background for compositing, and should be accessed in the effect's
+        fragment shader. If NULL, the effect should request access to destination color
+        (setWillReadDstColor()), and use that in the fragment shader (builder->dstColor()).
      */
-    virtual bool asNewEffectOrCoeff(GrEffectRef** effect,
-                                    Coeff* src,
-                                    Coeff* dst,
-                                    GrTexture* background = NULL) const;
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture* background = NULL) const;
 
-    /**
-     *  The same as calling xfermode->asNewEffect(...), except that this also checks if the xfermode
-     *  is NULL, and if so, treats it as kSrcOver_Mode.
+    /** Returns true if the xfermode can be expressed as coeffs (src, dst), or as an effect
+        (effect). This helper calls the asCoeff() and asNewEffect() virtuals. If the xfermode is
+        NULL, it is treated as kSrcOver_Mode. It is legal to call this with all params NULL to
+        simply test the return value.  effect, src, and dst must all be NULL or all non-NULL.
      */
     static bool AsNewEffectOrCoeff(SkXfermode*,
                                    GrEffectRef** effect,

@@ -673,8 +673,8 @@ bool SkXfermode::asMode(Mode* mode) const {
     return false;
 }
 
-bool SkXfermode::asNewEffectOrCoeff(GrEffectRef**, Coeff* src, Coeff* dst, GrTexture*) const {
-    return this->asCoeff(src, dst);
+bool SkXfermode::asNewEffect(GrEffectRef** effect, GrTexture* background) const {
+    return false;
 }
 
 bool SkXfermode::AsNewEffectOrCoeff(SkXfermode* xfermode,
@@ -684,8 +684,10 @@ bool SkXfermode::AsNewEffectOrCoeff(SkXfermode* xfermode,
                                     GrTexture* background) {
     if (NULL == xfermode) {
         return ModeAsCoeff(kSrcOver_Mode, src, dst);
+    } else if (xfermode->asCoeff(src, dst)) {
+        return true;
     } else {
-        return xfermode->asNewEffectOrCoeff(effect, src, dst, background);
+        return xfermode->asNewEffect(effect, background);
     }
 }
 
@@ -1363,13 +1365,8 @@ bool SkProcCoeffXfermode::asCoeff(Coeff* sc, Coeff* dc) const {
 }
 
 #if SK_SUPPORT_GPU
-bool SkProcCoeffXfermode::asNewEffectOrCoeff(GrEffectRef** effect,
-                                             Coeff* src,
-                                             Coeff* dst,
-                                             GrTexture* background) const {
-    if (this->asCoeff(src, dst)) {
-        return true;
-    }
+bool SkProcCoeffXfermode::asNewEffect(GrEffectRef** effect,
+                                      GrTexture* background) const {
     if (XferEffect::IsSupportedMode(fMode)) {
         if (NULL != effect) {
             *effect = XferEffect::Create(fMode, background);

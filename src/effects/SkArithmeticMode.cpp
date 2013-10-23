@@ -36,7 +36,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkArithmeticMode_scalar)
 
 #if SK_SUPPORT_GPU
-    virtual bool asNewEffectOrCoeff(GrEffectRef** effect, Coeff*, Coeff*, GrTexture* background) const SK_OVERRIDE;
+    virtual bool asNewEffect(GrEffectRef** effect, GrTexture* background) const SK_OVERRIDE;
 #endif
 
 private:
@@ -408,10 +408,7 @@ GrEffectRef* GrArithmeticEffect::TestCreate(SkRandom* rand,
 
 GR_DEFINE_EFFECT_TEST(GrArithmeticEffect);
 
-bool SkArithmeticMode_scalar::asNewEffectOrCoeff(GrEffectRef** effect,
-                                                 Coeff*,
-                                                 Coeff*,
-                                                 GrTexture* background) const {
+bool SkArithmeticMode_scalar::asNewEffect(GrEffectRef** effect, GrTexture* background) const {
     if (effect) {
         *effect = GrArithmeticEffect::Create(SkScalarToFloat(fK[0]),
                                              SkScalarToFloat(fK[1]),
