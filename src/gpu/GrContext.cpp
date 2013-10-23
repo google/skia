@@ -1238,7 +1238,6 @@ bool GrContext::readTexturePixels(GrTexture* texture,
     SK_TRACE_EVENT0("GrContext::readTexturePixels");
     ASSERT_OWNED_RESOURCE(texture);
 
-    // TODO: code read pixels for textures that aren't also rendertargets
     GrRenderTarget* target = texture->asRenderTarget();
     if (NULL != target) {
         return this->readRenderTargetPixels(target,
@@ -1246,6 +1245,27 @@ bool GrContext::readTexturePixels(GrTexture* texture,
                                             config, buffer, rowBytes,
                                             flags);
     } else {
+        // TODO: make this more efficient for cases where we're reading the entire
+        //       texture, i.e., use GetTexImage() instead
+
+        // create scratch rendertarget and read from that
+        GrAutoScratchTexture ast;
+        GrTextureDesc desc;
+        desc.fFlags = kRenderTarget_GrTextureFlagBit;
+        desc.fWidth = width;
+        desc.fHeight = height;
+        desc.fConfig = config;
+        desc.fOrigin = kTopLeft_GrSurfaceOrigin;
+        ast.set(this, desc, kExact_ScratchTexMatch);
+        GrTexture* dst = ast.texture();
+        if (NULL != dst && NULL != (target = dst->asRenderTarget())) {
+            this->copyTexture(texture, target, NULL);
+            return this->readRenderTargetPixels(target,
+                                                left, top, width, height,
+                                                config, buffer, rowBytes,
+                                                flags);
+        }
+       
         return false;
     }
 }

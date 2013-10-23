@@ -173,7 +173,6 @@ void GrFontCache::validate() const {
 
 #ifdef SK_DEVELOPER
 void GrFontCache::dump() const {
-/*  Disabled for now
     static int gDumpCount = 0;
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (NULL != fAtlasMgr[i]) {
@@ -186,7 +185,6 @@ void GrFontCache::dump() const {
         }
     }
     ++gDumpCount;
-*/
 }
 #endif
 
