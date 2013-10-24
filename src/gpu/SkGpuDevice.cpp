@@ -1371,7 +1371,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
             // sampling is axis-aligned
             SkRect transformedRect;
             matrix.mapRect(&transformedRect, srcRect);
-            
+
             if (has_aligned_samples(srcRect, transformedRect)) {
                 // We could also turn off filtering here (but we already did a cache lookup with
                 // params).

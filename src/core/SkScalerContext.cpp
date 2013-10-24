@@ -71,7 +71,7 @@ static SkFlattenable* load_flattenable(const SkDescriptor* desc, uint32_t tag,
     SkFlattenable*  obj = NULL;
     uint32_t        len;
     const void*     data = desc->findEntry(tag, &len);
- 
+
     if (data) {
         SkOrderedReadBuffer   buffer(data, len);
         obj = buffer.readFlattenable(ft);

@@ -1265,7 +1265,7 @@ bool GrContext::readTexturePixels(GrTexture* texture,
                                                 config, buffer, rowBytes,
                                                 flags);
         }
-       
+
         return false;
     }
 }

@@ -78,7 +78,7 @@ protected:
     virtual SkISize onISize() {
         return SkISize::Make(300, 300);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bmp = create_bitmap();
         SkShader* shader = SkShader::CreateBitmapShader(
@@ -91,7 +91,7 @@ protected:
         s.postTranslate(SLIDE_SIZE / 2, SLIDE_SIZE / 2);
         shader->setLocalMatrix(s);
         paint.setShader(shader)->unref();
-        
+
         if (fHQ) {
             paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
         }
