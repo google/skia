@@ -56,6 +56,10 @@ void GpuTask::draw() {
     bitmap.setConfig(fConfig, SkScalarCeilToInt(fGM->width()), SkScalarCeilToInt(fGM->height()));
     canvas.readPixels(&bitmap, 0, 0);
 
+#if GR_CACHE_STATS
+    gr->printCacheStats();
+#endif
+
     // We offload checksum comparison to the main CPU threadpool.
     // This cuts run time by about 30%.
     this->spawnChild(SkNEW_ARGS(ComparisonTask, (*this, fExpectations, bitmap)));
