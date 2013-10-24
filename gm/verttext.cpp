@@ -90,7 +90,6 @@ protected:
             SkPaint paint;
             paint.setAntiAlias(true);
             paint.setTextSize(SkIntToScalar(TEXT_SIZE));
-            paint.setTextSkewX(-SK_Scalar1 / 4);
             //paint.setTypeface(fFace);
             //paint.setFakeBoldText(true);
 
