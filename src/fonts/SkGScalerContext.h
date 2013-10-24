@@ -29,6 +29,8 @@ protected:
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const SK_OVERRIDE;
 
+    virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
+                                uint16_t glyphs[], int glyphCount) const SK_OVERRIDE;
     virtual int onCountGlyphs() const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
 

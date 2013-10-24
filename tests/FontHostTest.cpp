@@ -8,6 +8,7 @@
 #include "Test.h"
 #include "SkPaint.h"
 #include "SkFontStream.h"
+#include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 #include "SkEndian.h"
@@ -72,6 +73,49 @@ static void test_countGlyphs(skiatest::Reporter* reporter, SkTypeface* face) {
     }
 }
 
+// The following three are all the same code points in various encodings.
+static uint8_t utf8Chars[] = { 0x61, 0xE4, 0xB8, 0xAD, 0xD0, 0xAF, 0xD7, 0x99, 0xD7, 0x95, 0xF0, 0x9D, 0x84, 0x9E, 0x61 };
+static uint16_t utf16Chars[] = { 0x0061, 0x4E2D, 0x042F, 0x05D9, 0x05D5, 0xD834, 0xDD1E, 0x0061 };
+static uint32_t utf32Chars[] = { 0x00000061, 0x00004E2D, 0x0000042F, 0x000005D9, 0x000005D5, 0x0001D11E, 0x00000061 };
+
+struct CharsToGlyphs_TestData {
+    const void* chars;
+    int charCount;
+    size_t charsByteLength;
+    SkTypeface::Encoding typefaceEncoding;
+    const char* name;
+} static charsToGlyphs_TestData[] = {
+    { utf8Chars, 7, sizeof(utf8Chars), SkTypeface::kUTF8_Encoding, "Simple UTF-8" },
+    { utf16Chars, 7, sizeof(utf16Chars), SkTypeface::kUTF16_Encoding, "Simple UTF-16" },
+    { utf32Chars, 7, sizeof(utf32Chars), SkTypeface::kUTF32_Encoding, "Simple UTF-32" },
+};
+
+// Test that SkPaint::textToGlyphs agrees with SkTypeface::charsToGlyphs.
+static void test_charsToGlyphs(skiatest::Reporter* reporter, SkTypeface* face) {
+    uint16_t paintGlyphIds[256];
+    uint16_t faceGlyphIds[256];
+
+    for (size_t testIndex = 0; testIndex < SK_ARRAY_COUNT(charsToGlyphs_TestData); ++testIndex) {
+        CharsToGlyphs_TestData& test = charsToGlyphs_TestData[testIndex];
+
+        SkPaint paint;
+        paint.setTypeface(face);
+        paint.setTextEncoding((SkPaint::TextEncoding)test.typefaceEncoding);
+        paint.textToGlyphs(test.chars, test.charsByteLength, paintGlyphIds);
+
+        face->charsToGlyphs(test.chars, test.typefaceEncoding, faceGlyphIds, test.charCount);
+
+        for (int i = 0; i < test.charCount; ++i) {
+            SkString name;
+            face->getFamilyName(&name);
+            SkString a;
+            a.appendf("%s, paintGlyphIds[%d] = %d, faceGlyphIds[%d] = %d, face = %s", 
+                      test.name, i, (int)paintGlyphIds[i], i, (int)faceGlyphIds[i], name.c_str());
+            REPORTER_ASSERT_MESSAGE(reporter, paintGlyphIds[i] == faceGlyphIds[i], a.c_str());
+        }
+    }
+}
+
 static void test_fontstream(skiatest::Reporter* reporter,
                             SkStream* stream, int ttcIndex) {
     int n = SkFontStream::GetTableTags(stream, ttcIndex, NULL);
@@ -110,11 +154,19 @@ static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream) {
 }
 
 static void test_fontstream(skiatest::Reporter* reporter) {
-    // TODO: replace when we get a tools/resources/fonts/test.ttc
-    const char* name = "/AmericanTypewriter.ttc";
-    SkFILEStream stream(name);
+    // This test cannot run if there is no resource path.
+    SkString resourcePath = skiatest::Test::GetResourcePath();
+    if (resourcePath.isEmpty()) {
+        SkDebugf("Could not run fontstream test because resourcePath not specified.");
+        return;
+    }
+    SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), "test.ttc");
+
+    SkFILEStream stream(filename.c_str());
     if (stream.isValid()) {
         test_fontstream(reporter, &stream);
+    } else {
+        SkDebugf("Could not run fontstream test because test.ttc not found.");
     }
 }
 
@@ -169,8 +221,7 @@ static void test_tables(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); ++i) {
-        SkTypeface* face = SkTypeface::CreateFromName(gNames[i],
-                                                      SkTypeface::kNormal);
+        SkAutoTUnref<SkTypeface> face(SkTypeface::CreateFromName(gNames[i], SkTypeface::kNormal));
         if (face) {
 #ifdef DUMP_TABLES
             SkDebugf("%s\n", gNames[i]);
@@ -178,7 +229,7 @@ static void test_tables(skiatest::Reporter* reporter) {
             test_tables(reporter, face);
             test_unitsPerEm(reporter, face);
             test_countGlyphs(reporter, face);
-            face->unref();
+            test_charsToGlyphs(reporter, face);
         }
     }
 }

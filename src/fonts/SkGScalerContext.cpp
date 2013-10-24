@@ -194,6 +194,11 @@ void SkGTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
     fProxy->getFontDescriptor(desc, isLocal);
 }
 
+int SkGTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
+                                 uint16_t glyphs[], int glyphCount) const {
+    return fProxy->charsToGlyphs(chars, encoding, glyphs, glyphCount);
+}
+
 int SkGTypeface::onCountGlyphs() const {
     return fProxy->countGlyphs();
 }

@@ -177,6 +177,7 @@ static void test_unpremul(skiatest::Reporter* reporter) {
     // This test cannot run if there is no resource path.
     SkString resourcePath = skiatest::Test::GetResourcePath();
     if (resourcePath.isEmpty()) {
+        SkDebugf("Could not run unpremul test because resourcePath not specified.");
         return;
     }
     SkOSFile::Iter iter(resourcePath.c_str());

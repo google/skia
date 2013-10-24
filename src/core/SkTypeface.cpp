@@ -49,6 +49,13 @@ protected:
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                 const uint32_t*, uint32_t) const SK_OVERRIDE { return NULL; }
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE { }
+    virtual int onCharsToGlyphs(const void* chars, Encoding encoding,
+                                uint16_t glyphs[], int glyphCount) const SK_OVERRIDE {
+        if (glyphs && glyphCount > 0) {
+            sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
+        }
+        return 0;
+    }
     virtual int onCountGlyphs() const SK_OVERRIDE { return 0; };
     virtual int onGetUPEM() const SK_OVERRIDE { return 0; };
     class EmptyLocalizedStrings : public SkTypeface::LocalizedStrings {
@@ -246,21 +253,4 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
 
 SkTypeface* SkTypeface::refMatchingStyle(Style style) const {
     return this->onRefMatchingStyle(style);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-int SkTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
-                                uint16_t glyphs[], int glyphCount) const {
-    static bool printed = false;
-    if (!printed) {
-        // Only want to see this message once
-        SkDebugf("\n *** onCharsToGlyphs unimplemented ***\n");
-        printed = true;
-    }
-    if (glyphs && glyphCount > 0) {
-        sk_bzero(glyphs, glyphCount * sizeof(glyphs[0]));
-    }
-    return 0;
 }

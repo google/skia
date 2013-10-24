@@ -160,7 +160,7 @@ public:
      *  optionally return their corresponding glyph IDs (if glyphs is not NULL).
      *
      *  @param chars pointer to the array of character codes
-     *  @param encoding how the characteds are encoded
+     *  @param encoding how the characters are encoded
      *  @param glyphs (optional) returns the corresponding glyph IDs for each
      *          character code, up to glyphCount values. If a character code is
      *          not found in the typeface, the corresponding glyph ID will be 0.
@@ -307,7 +307,7 @@ protected:
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
     virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
-                                int glyphCount) const;
+                                int glyphCount) const = 0;
     virtual int onCountGlyphs() const = 0;
 
     virtual int onGetUPEM() const = 0;
