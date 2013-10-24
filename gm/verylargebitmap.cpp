@@ -69,10 +69,10 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        int veryBig = 70*1024; // 64K < size
-        int big = 60*1024;     // 32K < size < 64K
+        int veryBig = 65*1024; // 64K < size
+        int big = 33*1024;     // 32K < size < 64K
         // smaller than many max texture sizes, but large enough to gpu-tile for memory reasons.
-        int medium = 7*1024;
+        int medium = 5*1024;
         int small = 150;
 
         SkColor colors[2];
@@ -90,8 +90,6 @@ protected:
 
         colors[0] = SK_ColorMAGENTA;
         colors[1] = SK_ColorYELLOW;
-        // as of this writing, the raster code will fail to draw the scaled version
-        // since it has a 64K limit on x,y coordinates... (but gpu should succeed)
         show_bm(canvas, medium, medium, colors);
         canvas->translate(0, SkIntToScalar(150));
 
