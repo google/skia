@@ -7,18 +7,27 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
+#include "SkGradientShader.h"
 #include "SkPath.h"
 
-static void make_bm(SkBitmap* bm, int width, int height, SkColor color) {
+static void make_bm(SkBitmap* bm, int width, int height, SkColor colors[2]) {
     bm->setConfig(SkBitmap::kARGB_8888_Config, width, height);
     bm->allocPixels();
-    bm->eraseColor(color);
+    SkCanvas canvas(*bm);
+    SkPoint center = {SkIntToScalar(width)/2, SkIntToScalar(height)/2};
+    SkScalar radius = 40;
+    SkShader* shader = SkGradientShader::CreateRadial(center, radius, colors, NULL, 2,
+                                                      SkShader::kMirror_TileMode);
+    SkPaint paint;
+    paint.setShader(shader)->unref();
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+    canvas.drawPaint(paint);
     bm->setImmutable();
 }
 
-static void show_bm(SkCanvas* canvas, int width, int height, SkColor color) {
+static void show_bm(SkCanvas* canvas, int width, int height, SkColor colors[2]) {
     SkBitmap bm;
-    make_bm(&bm, width, height, color);
+    make_bm(&bm, width, height, colors);
 
     SkPaint paint;
     SkRect r;
@@ -56,24 +65,41 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(640, 480);
+        return SkISize::Make(500, 600);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         int veryBig = 70*1024; // 64K < size
-        int big = 60*1024;      // 32K < size < 64K
+        int big = 60*1024;     // 32K < size < 64K
+        // smaller than many max texture sizes, but large enough to gpu-tile for memory reasons.
+        int medium = 7*1024;
         int small = 150;
 
+        SkColor colors[2];
+
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
-        show_bm(canvas, small, small, SK_ColorRED);
+        colors[0] = SK_ColorRED;
+        colors[1] = SK_ColorGREEN;
+        show_bm(canvas, small, small, colors);
         canvas->translate(0, SkIntToScalar(150));
 
-        show_bm(canvas, big, small, SK_ColorBLUE);
+        colors[0] = SK_ColorBLUE;
+        colors[1] = SK_ColorMAGENTA;
+        show_bm(canvas, big, small, colors);
         canvas->translate(0, SkIntToScalar(150));
 
+        colors[0] = SK_ColorMAGENTA;
+        colors[1] = SK_ColorYELLOW;
         // as of this writing, the raster code will fail to draw the scaled version
         // since it has a 64K limit on x,y coordinates... (but gpu should succeed)
-        show_bm(canvas, veryBig, small, SK_ColorGREEN);
+        show_bm(canvas, medium, medium, colors);
+        canvas->translate(0, SkIntToScalar(150));
+
+        colors[0] = SK_ColorGREEN;
+        colors[1] = SK_ColorYELLOW;
+        // as of this writing, the raster code will fail to draw the scaled version
+        // since it has a 64K limit on x,y coordinates... (but gpu should succeed)
+        show_bm(canvas, veryBig, small, colors);
     }
 
 private:
