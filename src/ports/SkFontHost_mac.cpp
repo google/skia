@@ -945,21 +945,21 @@ unsigned SkScalerContext_Mac::generateGlyphCount(void) {
 }
 
 uint16_t SkScalerContext_Mac::generateCharToGlyph(SkUnichar uni) {
-    CGGlyph     cgGlyph;
-    UniChar     theChar;
-
-    // Validate our parameters and state
-    SkASSERT(uni <= 0x0000FFFF);
-    SkASSERT(sizeof(CGGlyph) <= sizeof(uint16_t));
+    CGGlyph cgGlyph[2];
+    UniChar theChar[2];
 
     // Get the glyph
-    theChar = (UniChar) uni;
+    size_t numUniChar = SkUTF16_FromUnichar(uni, theChar);
+    SkASSERT(sizeof(CGGlyph) <= sizeof(uint16_t));
 
-    if (!CTFontGetGlyphsForCharacters(fCTFont, &theChar, &cgGlyph, 1)) {
-        cgGlyph = 0;
+    // Undocumented behavior of CTFontGetGlyphsForCharacters with non-bmp code points.
+    // When a surragate pair is detected, the glyph index used is the index of the first
+    // UniChar of the pair (the lower location).
+    if (!CTFontGetGlyphsForCharacters(fCTFont, theChar, cgGlyph, numUniChar)) {
+        cgGlyph[0] = 0;
     }
 
-    return cgGlyph;
+    return cgGlyph[0];
 }
 
 void SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
