@@ -1,5 +1,5 @@
-# Failures of any GM tests/configs listed in this file will be ignored, as if
-# they had been marked "ignore-failure": true in the per-builder
+# Failures of any GM tests/configs listed in this file will be ignored [1], as
+# if they had been marked "ignore-failure": true in the per-builder
 # expected-results.json files.
 #
 # The idea is that, if you modify a GM test in such a way that you know it will
@@ -16,6 +16,12 @@
 # For more information, see https://code.google.com/p/skia/issues/detail?id=1600
 # ('GM expectations: create tool to suppress failures until new baselines are
 # checked in')
+#
+#
+# [1] Differences between renderModes (e.g., normal rendering path and
+# "serialized") are NEVER ignored.  See
+# https://code.google.com/p/skia/issues/detail?id=1748 ('gm: add new result
+# type, RenderModeMismatch')
 
 # EXAMPLES: (remove the first '#' on each line)
 #
