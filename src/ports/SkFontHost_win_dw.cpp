@@ -1190,10 +1190,11 @@ int DWriteFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
         }
         break;
     }
-    case SkTypeface::kUTF32_Encoding:
+    case SkTypeface::kUTF32_Encoding: {
         const UINT32* utf32 = reinterpret_cast<const UINT32*>(chars);
         fDWriteFontFace->GetGlyphIndices(utf32, glyphCount, glyphs);
         break;
+    }
     default:
         SK_CRASH();
     }
