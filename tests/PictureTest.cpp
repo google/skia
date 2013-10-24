@@ -182,6 +182,7 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
     for (size_t k = 0; k < SK_ARRAY_COUNT(procs); ++k) {
         SkAutoTUnref<SkPicture> pic(record_bitmaps(bm, pos, N, procs[k]));
 
+        REPORTER_ASSERT(reporter, pic->willPlayBackBitmaps() || N == 0);
         // quick check for a small piece of each quadrant, which should just
         // contain 1 bitmap.
         for (size_t  i = 0; i < SK_ARRAY_COUNT(pos); ++i) {
@@ -607,6 +608,49 @@ static void test_clip_expansion(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, testCanvas.getClipCount() == 2);
 }
 
+static void test_hierarchical(skiatest::Reporter* reporter) {
+    SkBitmap bm;
+    make_bm(&bm, 10, 10, SK_ColorRED, true);
+
+    SkCanvas* canvas;
+
+    SkPicture childPlain;
+    childPlain.beginRecording(10, 10);
+    childPlain.endRecording();
+    REPORTER_ASSERT(reporter, !childPlain.willPlayBackBitmaps()); // 0
+
+    SkPicture childWithBitmap;
+    childWithBitmap.beginRecording(10, 10)->drawBitmap(bm, 0, 0);
+    childWithBitmap.endRecording();
+    REPORTER_ASSERT(reporter, childWithBitmap.willPlayBackBitmaps()); // 1
+
+    SkPicture parentPP;
+    canvas = parentPP.beginRecording(10, 10);
+    canvas->drawPicture(childPlain);
+    parentPP.endRecording();
+    REPORTER_ASSERT(reporter, !parentPP.willPlayBackBitmaps()); // 0
+
+    SkPicture parentPWB;
+    canvas = parentPWB.beginRecording(10, 10);
+    canvas->drawPicture(childWithBitmap);
+    parentPWB.endRecording();
+    REPORTER_ASSERT(reporter, parentPWB.willPlayBackBitmaps()); // 1
+
+    SkPicture parentWBP;
+    canvas = parentWBP.beginRecording(10, 10);
+    canvas->drawBitmap(bm, 0, 0);
+    canvas->drawPicture(childPlain);
+    parentWBP.endRecording();
+    REPORTER_ASSERT(reporter, parentWBP.willPlayBackBitmaps()); // 1
+
+    SkPicture parentWBWB;
+    canvas = parentWBWB.beginRecording(10, 10);
+    canvas->drawBitmap(bm, 0, 0);
+    canvas->drawPicture(childWithBitmap);
+    parentWBWB.endRecording();
+    REPORTER_ASSERT(reporter, parentWBWB.willPlayBackBitmaps()); // 2
+}
+
 static void TestPicture(skiatest::Reporter* reporter) {
 #ifdef SK_DEBUG
     test_deleting_empty_playback();
@@ -620,6 +664,7 @@ static void TestPicture(skiatest::Reporter* reporter) {
     test_clone_empty(reporter);
     test_clip_bound_opt(reporter);
     test_clip_expansion(reporter);
+    test_hierarchical(reporter);
 }
 
 #include "TestClassDef.h"

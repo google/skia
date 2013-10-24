@@ -73,6 +73,8 @@ public:
 
     void dumpSize() const;
 
+    bool containsBitmaps() const;
+
 #ifdef SK_BUILD_FOR_ANDROID
     // Can be called in the middle of playback (the draw() call). WIll abort the
     // drawing and return from draw() after the "current" op code is done

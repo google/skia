@@ -354,6 +354,11 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     }
 }
 
+bool SkPicture::willPlayBackBitmaps() const {
+    if (!fPlayback) return false;
+    return fPlayback->containsBitmaps();
+}
+
 #ifdef SK_BUILD_FOR_ANDROID
 void SkPicture::abortPlayback() {
     if (NULL == fPlayback) {

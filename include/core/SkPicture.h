@@ -186,6 +186,13 @@ public:
      */
     void serialize(SkWStream*, EncodeBitmap encoder = NULL) const;
 
+    /**
+     * Returns true if any bitmaps may be produced when this SkPicture
+     * is replayed.
+     * Returns false if called while still recording.
+     */
+    bool willPlayBackBitmaps() const;
+
 #ifdef SK_BUILD_FOR_ANDROID
     /** Signals that the caller is prematurely done replaying the drawing
         commands. This can be called from a canvas virtual while the picture

@@ -300,6 +300,18 @@ void SkPicturePlayback::dumpSize() const {
              SafeCount(fRegions));
 }
 
+bool SkPicturePlayback::containsBitmaps() const {
+    if (fBitmaps && fBitmaps->count() > 0) {
+        return true;
+    }
+    for (int i = 0; i < fPictureCount; ++i) {
+        if (fPictureRefs[i]->willPlayBackBitmaps()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
