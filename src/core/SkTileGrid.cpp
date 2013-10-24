@@ -91,13 +91,8 @@ void SkTileGrid::search(const SkIRect& query, SkTDArray<void*>* results) {
         *results = this->tile(tileStartX, tileStartY);
     } else {
         results->reset();
-        SkTDArray<int> curPositions;
-        curPositions.setCount(queryTileCount);
-        // Note: Reserving space for 1024 tile pointers on the stack. If the
-        // malloc becomes a bottleneck, we may consider increasing that number.
-        // Typical large web page, say 2k x 16k, would require 512 tiles of
-        // size 256 x 256 pixels.
-        SkAutoSTArray<1024, SkTDArray<void *>*> storage(queryTileCount);
+        SkAutoSTArray<kStackAllocationTileCount, int> curPositions(queryTileCount);
+        SkAutoSTArray<kStackAllocationTileCount, SkTDArray<void *>*> storage(queryTileCount);
         SkTDArray<void *>** tileRange = storage.get();
         int tile = 0;
         for (int x = tileStartX; x < tileEndX; ++x) {
