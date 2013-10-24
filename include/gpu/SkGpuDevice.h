@@ -191,13 +191,11 @@ private:
                           const SkRect* srcRectPtr) const;
     void internalDrawBitmap(const SkBitmap&,
                             const SkRect&,
-                            const SkMatrix&,
                             const GrTextureParams& params,
                             const SkPaint& paint,
                             SkCanvas::DrawBitmapRectFlags flags);
     void drawTiledBitmap(const SkBitmap& bitmap,
                          const SkRect& srcRect,
-                         const SkMatrix& m,
                          const GrTextureParams& params,
                          const SkPaint& paint,
                          SkCanvas::DrawBitmapRectFlags flags);
