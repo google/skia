@@ -42,6 +42,7 @@ void GrTexture::internal_dispose() const {
         return;
     }
 
+    SkASSERT(0 == this->getDeferredRefCount());
     this->INHERITED::internal_dispose();
 }
 

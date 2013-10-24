@@ -68,6 +68,7 @@ public:
 
     void incDeferredRefCount() const { SkASSERT(fDeferredRefCount >= 0); ++fDeferredRefCount; }
     void decDeferredRefCount() const { SkASSERT(fDeferredRefCount > 0); --fDeferredRefCount; }
+    int getDeferredRefCount() const { return fDeferredRefCount; }
 
 protected:
     /**

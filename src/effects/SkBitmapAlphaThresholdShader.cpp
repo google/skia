@@ -9,7 +9,7 @@
 
 class BATShader : public SkShader {
 public:
-    SK_DECLARE_INST_COUNT(SkThresholdShader);
+    SK_DECLARE_INST_COUNT(BATShader);
 
     BATShader(const SkBitmap& bitmap, SkRegion region, U8CPU);
     BATShader(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
@@ -33,6 +33,8 @@ private:
 
     typedef SkShader INHERITED;
 };
+
+SK_DEFINE_INST_COUNT(BATShader)
 
 SkShader* SkBitmapAlphaThresholdShader::Create(const SkBitmap& bitmap,
                                                const SkRegion& region,
