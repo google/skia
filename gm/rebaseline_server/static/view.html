@@ -16,13 +16,13 @@
 
   <div ng-hide="!categories"><!-- everything: hide until data is loaded -->
 
-    <div ng-hide="!(header.isEditable && header.isExported)"
-         style="background-color:#ffbb00">
+    <div class="warning-div"
+         ng-hide="!(header.isEditable && header.isExported)">
       WARNING!  These results are editable and exported, so any user
       who can connect to this server over the network can modify them.
     </div>
 
-    <div style="background-color:#bbffbb"><!-- TODOs -->
+    <div class="todo-div"><!-- TODOs -->
       <p>
       TODO(epoger):
       <input type="checkbox" name="showTodosCheckbox" value="true"
@@ -59,23 +59,22 @@
       Results current as of {{localTimeString(header.timeUpdated)}}
     </div>
 
-    <div style="font-size:20px"><!-- tabs -->
-      <div ng-repeat="tab in tabs"
-           style="display:inline-block">
+    <div><!-- tabs -->
+      <div class="tab-spacer" ng-repeat="tab in tabs">
         <div class="tab-{{tab == viewingTab}}"
-             style="display:inline-block"
              ng-click="setViewingTab(tab)">
           &nbsp;{{tab}} ({{numResultsPerTab[tab]}})&nbsp;
         </div>
-        <div style="display:inline-block">
+        <div class="tab-spacer">
           &nbsp;
         </div>
       </div>
     </div><!-- tabs -->
 
-    <div class="tab-true"><!-- display of current tab -->
+    <div class="tab-main"><!-- main display area of selected tab -->
 
     <br>
+    <!-- We only show the filters/settings table on the Unfiled tab. -->
     <table ng-hide="viewingTab != defaultTab" border="1">
     <tr>
       <th colspan="2">
@@ -92,8 +91,8 @@
           <input type="checkbox"
                  name="resultTypes"
                  value="{{resultType}}"
-                 ng-checked="!isHiddenResultType(resultType)"
-                 ng-click="toggleHiddenResultType(resultType)">
+                 ng-checked="!isValueInSet(resultType, hiddenResultTypes)"
+                 ng-click="toggleValueInSet(resultType, hiddenResultTypes); setUpdatesPending(true)">
           {{resultType}} ({{count}})<br>
         </label>
       </td>
@@ -103,8 +102,8 @@
           <input type="checkbox"
                  name="configs"
                  value="{{config}}"
-                 ng-checked="!isHiddenConfig(config)"
-                 ng-click="toggleHiddenConfig(config)">
+                 ng-checked="!isValueInSet(config, hiddenConfigs)"
+                 ng-click="toggleValueInSet(config, hiddenConfigs); setUpdatesPending(true)">
           {{config}} ({{count}})<br>
         </label>
       </td>
@@ -124,7 +123,7 @@
                  maxlength="4"/>
         </td></tr>
         <tr><td>
-          <button style="font-size:30px"
+          <button class="update-results-button"
                   ng-click="updateResults()"
                   ng-disabled="!areUpdatesPending">
             Update Results
@@ -136,6 +135,7 @@
 
       <p>
 
+      <!-- Submission UI that we only show in the Pending Approval tab. -->
       <div ng-hide="'Pending Approval' != viewingTab">
         <div style="display:inline-block">
           <button style="font-size:20px"
@@ -182,6 +182,7 @@
 
       <table border="1">
         <tr>
+          <!-- Most column headers are displayed in a common fashion... -->
           <th ng-repeat="categoryName in ['resultType', 'builder', 'test', 'config']">
             <input type="radio"
                    name="sortColumnRadio"
@@ -190,6 +191,7 @@
                    ng-click="sortResultsBy(categoryName)">
             {{categoryName}}
           </th>
+          <!-- ... but there are a few columns where we display things differently. -->
           <th>
             <input type="radio"
                    name="sortColumnRadio"
@@ -229,11 +231,11 @@
             <input type="checkbox"
                    name="rowSelect"
                    value="{{result.index}}"
-                   ng-checked="isItemSelected(result.index)"
-                   ng-click="toggleItemSelected(result.index)">
+                   ng-checked="isValueInArray(result.index, selectedItems)"
+                   ng-click="toggleValueInArray(result.index, selectedItems)">
         </tr>
       </table>
-  </div><!-- display of current tab -->
+  </div><!-- main display area of selected tab -->
   </div><!-- everything: hide until data is loaded -->
 
   <!-- TODO(epoger): Can we get the base URLs (commondatastorage and

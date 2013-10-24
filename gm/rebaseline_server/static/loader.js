@@ -8,6 +8,7 @@ var Loader = angular.module(
     []
 );
 
+
 // TODO(epoger): Combine ALL of our filtering operations (including
 // truncation) into this one filter, so that runs most efficiently?
 // (We would have to make sure truncation still took place after
@@ -20,6 +21,8 @@ Loader.filter(
       var filteredItems = [];
       for (var i = 0; i < unfilteredItems.length; i++) {
         var item = unfilteredItems[i];
+	// For performance, we examine the "set" objects directly rather
+	// than calling $scope.isValueInSet().
         if (!(true == hiddenResultTypes[item.resultType]) &&
             !(true == hiddenConfigs[item.config]) &&
             (viewingTab == item.tab)) {
@@ -31,6 +34,7 @@ Loader.filter(
   }
 );
 
+
 Loader.controller(
   'Loader.Controller',
     function($scope, $http, $filter, $location) {
@@ -39,6 +43,11 @@ Loader.controller(
     $scope.loadingMessage = "Loading results of type '" + resultsToLoad +
         "', please wait...";
 
+    /**
+     * On initial page load, load a full dictionary of results.
+     * Once the dictionary is loaded, unhide the page elements so they can
+     * render the data.
+     */
     $http.get("/results/" + resultsToLoad).success(
       function(data, status, header, config) {
         $scope.loadingMessage = "Processing data, please wait...";
@@ -74,13 +83,16 @@ Loader.controller(
           $scope.testData[i].tab = $scope.defaultTab;
         }
 
+	// Arrays within which the user can toggle individual elements.
+        $scope.selectedItems = [];
+
+	// Sets within which the user can toggle individual elements.
         $scope.hiddenResultTypes = {
           'failure-ignored': true,
           'no-comparison': true,
           'succeeded': true,
         };
         $scope.hiddenConfigs = {};
-        $scope.selectedItems = [];
 
         $scope.updateResults();
         $scope.loadingMessage = "";
@@ -94,57 +106,19 @@ Loader.controller(
       }
     );
 
-    $scope.isItemSelected = function(index) {
-      return (-1 != $scope.selectedItems.indexOf(index));
-    }
-    $scope.toggleItemSelected = function(index) {
-      var i = $scope.selectedItems.indexOf(index);
-      if (-1 == i) {
-        $scope.selectedItems.push(index);
-      } else {
-        $scope.selectedItems.splice(i, 1);
-      }
-      // unlike other toggle methods below, does not set
-      // $scope.areUpdatesPending = true;
-    }
 
-    $scope.isHiddenResultType = function(thisResultType) {
-      return (true == $scope.hiddenResultTypes[thisResultType]);
-    }
-    $scope.toggleHiddenResultType = function(thisResultType) {
-      if (true == $scope.hiddenResultTypes[thisResultType]) {
-        delete $scope.hiddenResultTypes[thisResultType];
-      } else {
-        $scope.hiddenResultTypes[thisResultType] = true;
-      }
-      $scope.areUpdatesPending = true;
-    }
+    //
+    // Tab operations.
+    //
 
-    // TODO(epoger): Rather than maintaining these as hard-coded
-    // variants of isHiddenResultType and toggleHiddenResultType, we
-    // should create general-purpose functions that can work with ANY
-    // category.
-    // But for now, I wanted to see this working. :-)
-    $scope.isHiddenConfig = function(thisConfig) {
-      return (true == $scope.hiddenConfigs[thisConfig]);
-    }
-    $scope.toggleHiddenConfig = function(thisConfig) {
-      if (true == $scope.hiddenConfigs[thisConfig]) {
-        delete $scope.hiddenConfigs[thisConfig];
-      } else {
-        $scope.hiddenConfigs[thisConfig] = true;
-      }
-      $scope.areUpdatesPending = true;
-    }
-
+    /**
+     * Change the selected tab.
+     *
+     * @param tab (string): name of the tab to select
+     */
     $scope.setViewingTab = function(tab) {
       $scope.viewingTab = tab;
       $scope.updateResults();
-    }
-
-    $scope.localTimeString = function(secondsPastEpoch) {
-      var d = new Date(secondsPastEpoch * 1000);
-      return d.toString();
     }
 
     /**
@@ -177,6 +151,31 @@ Loader.controller(
       $scope.numResultsPerTab[newTab] += numItems;
     }
 
+
+    //
+    // updateResults() and friends.
+    //
+
+    /**
+     * Set $scope.areUpdatesPending (to enable/disable the Update Results
+     * button).
+     *
+     * TODO(epoger): We could reduce the amount of code by just setting the
+     * variable directly (from, e.g., a button's ng-click handler).  But when
+     * I tried that, the HTML elements depending on the variable did not get
+     * updated.
+     * It turns out that this is due to variable scoping within an ng-repeat
+     * element; see http://stackoverflow.com/questions/15388344/behavior-of-assignment-expression-invoked-by-ng-click-within-ng-repeat
+     *
+     * @param val boolean value to set $scope.areUpdatesPending to
+     */
+    $scope.setUpdatesPending = function(val) {
+      $scope.areUpdatesPending = val;
+    }
+
+    /**
+     * Update the displayed results, based on filters/settings.
+     */
     $scope.updateResults = function() {
       $scope.displayLimit = $scope.displayLimitPending;
       // TODO(epoger): Every time we apply a filter, AngularJS creates
@@ -209,13 +208,23 @@ Loader.controller(
             $scope.filteredTestData, $scope.displayLimit);
       }
       $scope.imageSize = $scope.imageSizePending;
-      $scope.areUpdatesPending = false;
+      $scope.setUpdatesPending(false);
     }
 
+    /**
+     * Re-sort the displayed results.
+     *
+     * @param sortColumn (string): name of the column to sort on
+     */
     $scope.sortResultsBy = function(sortColumn) {
       $scope.sortColumn = sortColumn;
       $scope.updateResults();
     }
+
+
+    //
+    // Operations for sending info back to the server.
+    //
 
     /**
      * Tell the server that the actual results of these particular tests
@@ -266,5 +275,90 @@ Loader.controller(
         $scope.submitPending = false;
       });
     }
+
+
+    //
+    // Operations we use to mimic Set semantics, in such a way that
+    // checking for presence within the Set is as fast as possible.
+    // But getting a list of all values within the Set is not necessarily
+    // possible.
+    // TODO(epoger): move into a separate .js file?
+    //
+
+    /**
+     * Returns true if value "value" is present within set "set".
+     *
+     * @param value a value of any type
+     * @param set an Object which we use to mimic set semantics
+     *        (this should make isValueInSet faster than if we used an Array)
+     */
+    $scope.isValueInSet = function(value, set) {
+      return (true == set[value]);
+    }
+
+    /**
+     * If value "value" is already in set "set", remove it; otherwise, add it.
+     *
+     * @param value a value of any type
+     * @param set an Object which we use to mimic set semantics
+     */
+    $scope.toggleValueInSet = function(value, set) {
+      if (true == set[value]) {
+        delete set[value];
+      } else {
+        set[value] = true;
+      }
+    }
+
+
+    //
+    // Array operations; similar to our Set operations, but operate on a
+    // Javascript Array so we *can* easily get a list of all values in the Set.
+    // TODO(epoger): move into a separate .js file?
+    //
+
+    /**
+     * Returns true if value "value" is present within array "array".
+     *
+     * @param value a value of any type
+     * @param array a Javascript Array
+     */
+    $scope.isValueInArray = function(value, array) {
+      return (-1 != array.indexOf(value));
+    }
+
+    /**
+     * If value "value" is already in array "array", remove it; otherwise,
+     * add it.
+     *
+     * @param value a value of any type
+     * @param array a Javascript Array
+     */
+    $scope.toggleValueInArray = function(value, array) {
+      var i = array.indexOf(value);
+      if (-1 == i) {
+        array.push(value);
+      } else {
+        array.splice(i, 1);
+      }
+    }
+
+
+    //
+    // Miscellaneous utility functions.
+    // TODO(epoger): move into a separate .js file?
+    //
+
+    /**
+     * Returns a human-readable (in local time zone) time string for a
+     * particular moment in time.
+     *
+     * @param secondsPastEpoch (numeric): seconds past epoch in UTC
+     */
+    $scope.localTimeString = function(secondsPastEpoch) {
+      var d = new Date(secondsPastEpoch * 1000);
+      return d.toString();
+    }
+
   }
 );

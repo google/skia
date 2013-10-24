@@ -1,6 +1,32 @@
+/* Special alert areas at the top of the page. */
+.todo-div {
+    background-color: #bbffbb;
+}
+.warning-div {
+    background-color: #ffbb00;
+}
+
+/* Tab which has been selected. */
 .tab-true {
     background-color: #ccccff;
+    display: inline-block;
+    font-size: 20px;
 }
+/* All other tabs. */
 .tab-false {
     background-color: #8888ff;
+    display: inline-block;
+    font-size: 20px;
+}
+/* Spacers between tabs. */
+.tab-spacer {
+    display: inline-block;
+}
+/* The main working area (connected to the selected tab). */
+.tab-main {
+    background-color: #ccccff;
+}
+
+.update-results-button {
+    font-size: 30px;
 }
