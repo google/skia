@@ -392,10 +392,12 @@ GrEffectRef* ModeColorFilterEffect::TestCreate(SkRandom* rand,
                                     GrContext*,
                                     const GrDrawTargetCaps&,
                                     GrTexture*[]) {
-    int mode = rand->nextRangeU(0, SkXfermode::kLastCoeffMode);
+    SkXfermode::Mode mode = SkXfermode::kDst_Mode;
+    while (SkXfermode::kDst_Mode == mode) {
+        mode = static_cast<SkXfermode::Mode>(rand->nextRangeU(0, SkXfermode::kLastCoeffMode));
+    }
     GrColor color = rand->nextU();
-    static AutoEffectUnref gEffect(SkNEW_ARGS(ModeColorFilterEffect, (color, static_cast<SkXfermode::Mode>(mode))));
-    return CreateEffectRef(gEffect);
+    return ModeColorFilterEffect::Create(color, mode);
 }
 
 GrEffectRef* SkModeColorFilter::asNewEffect(GrContext*) const {
