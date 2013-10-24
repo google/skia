@@ -15,6 +15,7 @@
 #include "GrTypes.h"
 #include "GrTHashTable.h"
 #include "GrBinHashKey.h"
+#include "SkMessageBus.h"
 #include "SkTInternalLList.h"
 
 class GrResource;
@@ -139,6 +140,11 @@ private:
     };
 
     Key fKey;
+};
+
+// The cache listens for these messages to purge junk resources proactively.
+struct GrResourceInvalidatedMessage {
+    GrResourceKey key;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -394,6 +400,10 @@ private:
     void*          fOverbudgetData;
 
     void internalPurge(int extraCount, size_t extraBytes);
+
+    // Listen for messages that a resource has been invalidated and purge cached junk proactively.
+    SkMessageBus<GrResourceInvalidatedMessage>::Inbox fInvalidationInbox;
+    void purgeInvalidated();
 
 #ifdef SK_DEBUG
     static size_t countBytes(const SkTInternalLList<GrResourceEntry>& list);

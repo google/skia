@@ -7,6 +7,9 @@
 
 #include "SkGr.h"
 #include "SkConfig8888.h"
+#include "SkMessageBus.h"
+#include "SkPixelRef.h"
+#include "GrResourceCache.h"
 
 /*  Fill out buffer with the compressed format Ganesh expects from a colortable
  based bitmap. [palette (colortable) + indices].
@@ -86,6 +89,28 @@ static void generate_bitmap_texture_desc(const SkBitmap& bitmap, GrTextureDesc* 
     desc->fSampleCnt = 0;
 }
 
+namespace {
+
+// When the SkPixelRef genID changes, invalidate a corresponding GrResource described by key.
+class GrResourceInvalidator : public SkPixelRef::GenIDChangeListener {
+public:
+    explicit GrResourceInvalidator(GrResourceKey key) : fKey(key) {}
+private:
+    GrResourceKey fKey;
+
+    virtual void onChange() SK_OVERRIDE {
+        const GrResourceInvalidatedMessage message = { fKey };
+        SkMessageBus<GrResourceInvalidatedMessage>::Post(message);
+    }
+};
+
+}  // namespace
+
+static void add_genID_listener(GrResourceKey key, SkPixelRef* pixelRef) {
+    SkASSERT(NULL != pixelRef);
+    pixelRef->addGenIDChangeListener(SkNEW_ARGS(GrResourceInvalidator, (key)));
+}
+
 static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
                                               bool cache,
                                               const GrTextureParams* params,
@@ -112,7 +137,12 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
             if (cache) {
                 GrCacheID cacheID;
                 generate_bitmap_cache_id(origBitmap, &cacheID);
-                return ctx->createTexture(params, desc, cacheID, storage.get(), bitmap->width());
+
+                GrResourceKey key;
+                GrTexture* result = ctx->createTexture(params, desc, cacheID,
+                                                       storage.get(), bitmap->width(), &key);
+                add_genID_listener(key, origBitmap.pixelRef());
+                return result;
             } else {
                 GrTexture* result = ctx->lockAndRefScratchTexture(desc,
                                                             GrContext::kExact_ScratchTexMatch);
@@ -137,8 +167,13 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
         // This texture is likely to be used again so leave it in the cache
         GrCacheID cacheID;
         generate_bitmap_cache_id(origBitmap, &cacheID);
-        return ctx->createTexture(params, desc, cacheID, bitmap->getPixels(), bitmap->rowBytes());
-    } else {
+
+        GrResourceKey key;
+        GrTexture* result = ctx->createTexture(params, desc, cacheID,
+                                               bitmap->getPixels(), bitmap->rowBytes(), &key);
+        add_genID_listener(key, origBitmap.pixelRef());
+        return result;
+   } else {
         // This texture is unlikely to be used again (in its present form) so
         // just use a scratch texture. This will remove the texture from the
         // cache so no one else can find it. Additionally, once unlocked, the

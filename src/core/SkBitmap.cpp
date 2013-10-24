@@ -1057,7 +1057,8 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
                 if (tmpSrc.config() == dstConfig && NULL == alloc) {
                     dst->swap(tmpSrc);
                     if (dst->pixelRef() && this->config() == dstConfig) {
-                        dst->pixelRef()->fGenerationID = fPixelRef->getGenerationID();
+                        // TODO(scroggo): fix issue 1742
+                        dst->pixelRef()->cloneGenID(*fPixelRef);
                     }
                     return true;
                 }
@@ -1097,8 +1098,9 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
         if (tmpDst.getSize() == src->getSize()) {
             memcpy(tmpDst.getPixels(), src->getPixels(), src->getSafeSize());
             SkPixelRef* pixelRef = tmpDst.pixelRef();
-            if (pixelRef != NULL) {
-                pixelRef->fGenerationID = this->getGenerationID();
+            if (NULL != pixelRef && NULL != fPixelRef) {
+                // TODO(scroggo): fix issue 1742
+                pixelRef->cloneGenID(*fPixelRef);
             }
         } else {
             const char* srcP = reinterpret_cast<const char*>(src->getPixels());
@@ -1152,7 +1154,8 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
         if (pixelRef) {
             uint32_t rowBytes;
             if (dstConfig == fConfig) {
-                pixelRef->fGenerationID = fPixelRef->getGenerationID();
+                // TODO(scroggo): fix issue 1742
+                pixelRef->cloneGenID(*fPixelRef);
                 // Use the same rowBytes as the original.
                 rowBytes = fRowBytes;
             } else {

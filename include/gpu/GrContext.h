@@ -131,11 +131,14 @@ public:
      * @param srcData   Pointer to the pixel values.
      * @param rowBytes  The number of bytes between rows of the texture. Zero
      *                  implies tightly packed rows.
+     * @param cacheKey  (optional) If non-NULL, we'll write the cache key we used to cacheKey.
      */
     GrTexture* createTexture(const GrTextureParams* params,
                              const GrTextureDesc& desc,
                              const GrCacheID& cacheID,
-                             void* srcData, size_t rowBytes);
+                             void* srcData,
+                             size_t rowBytes,
+                             GrResourceKey* cacheKey = NULL);
 
     /**
      * Search for an entry based on key and dimensions. If found, ref it and return it. The return

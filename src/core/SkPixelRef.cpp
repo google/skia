@@ -85,12 +85,12 @@ void SkPixelRef::setMutex(SkBaseMutex* mutex) {
 // just need a > 0 value, so pick a funny one to aid in debugging
 #define SKPIXELREF_PRELOCKED_LOCKCOUNT     123456789
 
-SkPixelRef::SkPixelRef(SkBaseMutex* mutex) : fPreLocked(false) {
+SkPixelRef::SkPixelRef(SkBaseMutex* mutex) {
     this->setMutex(mutex);
     fPixels = NULL;
     fColorTable = NULL; // we do not track ownership of this
     fLockCount = 0;
-    fGenerationID = 0;  // signal to rebuild
+    this->needsNewGenID();
     fIsImmutable = false;
     fPreLocked = false;
 }
@@ -103,7 +103,24 @@ SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex)
     fLockCount = 0;
     fIsImmutable = buffer.readBool();
     fGenerationID = buffer.readUInt();
+    fUniqueGenerationID = false;  // Conservatively assuming the original still exists.
     fPreLocked = false;
+}
+
+SkPixelRef::~SkPixelRef() {
+    this->callGenIDChangeListeners();
+}
+
+void SkPixelRef::needsNewGenID() {
+    fGenerationID = 0;
+    fUniqueGenerationID = false;
+}
+
+void SkPixelRef::cloneGenID(const SkPixelRef& that) {
+    // This is subtle.  We must call that.getGenerationID() to make sure its genID isn't 0.
+    this->fGenerationID = that.getGenerationID();
+    this->fUniqueGenerationID = false;
+    that.fUniqueGenerationID = false;
 }
 
 void SkPixelRef::setPreLocked(void* pixels, SkColorTable* ctable) {
@@ -129,6 +146,7 @@ void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
         buffer.writeUInt(0);
     } else {
         buffer.writeUInt(fGenerationID);
+        fUniqueGenerationID = false;  // Conservative, a copy is probably about to exist.
     }
 }
 
@@ -178,8 +196,29 @@ bool SkPixelRef::onDecodeInto(int pow2, SkBitmap* bitmap) {
 uint32_t SkPixelRef::getGenerationID() const {
     if (0 == fGenerationID) {
         fGenerationID = SkNextPixelRefGenerationID();
+        fUniqueGenerationID = true;  // The only time we can be sure of this!
     }
     return fGenerationID;
+}
+
+void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
+    if (NULL == listener || !fUniqueGenerationID) {
+        // No point in tracking this if we're not going to call it.
+        SkDELETE(listener);
+        return;
+    }
+    *fGenIDChangeListeners.append() = listener;
+}
+
+void SkPixelRef::callGenIDChangeListeners() {
+    // We don't invalidate ourselves if we think another SkPixelRef is sharing our genID.
+    if (fUniqueGenerationID) {
+        for (int i = 0; i < fGenIDChangeListeners.count(); i++) {
+            fGenIDChangeListeners[i]->onChange();
+        }
+    }
+    // Listeners get at most one shot, so whether these triggered or not, blow them away.
+    fGenIDChangeListeners.deleteAll();
 }
 
 void SkPixelRef::notifyPixelsChanged() {
@@ -188,8 +227,8 @@ void SkPixelRef::notifyPixelsChanged() {
         SkDebugf("========== notifyPixelsChanged called on immutable pixelref");
     }
 #endif
-    // this signals us to recompute this next time around
-    fGenerationID = 0;
+    this->callGenIDChangeListeners();
+    this->needsNewGenID();
 }
 
 void SkPixelRef::setImmutable() {

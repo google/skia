@@ -393,7 +393,8 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
                                     const GrTextureDesc& desc,
                                     const GrCacheID& cacheID,
                                     void* srcData,
-                                    size_t rowBytes) {
+                                    size_t rowBytes,
+                                    GrResourceKey* cacheKey) {
     SK_TRACE_EVENT0("GrContext::createTexture");
 
     GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
@@ -412,6 +413,10 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
         // necessary space before adding it.
         fTextureCache->purgeAsNeeded(1, texture->sizeInBytes());
         fTextureCache->addResource(resourceKey, texture);
+
+        if (NULL != cacheKey) {
+            *cacheKey = resourceKey;
+        }
     }
 
     return texture;

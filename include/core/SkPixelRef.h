@@ -14,6 +14,7 @@
 #include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkFlattenable.h"
+#include "SkTDArray.h"
 
 #ifdef SK_DEBUG
     /**
@@ -49,6 +50,7 @@ public:
     SK_DECLARE_INST_COUNT(SkPixelRef)
 
     explicit SkPixelRef(SkBaseMutex* mutex = NULL);
+    virtual ~SkPixelRef();
 
     /** Return the pixel memory returned from lockPixels, or null if the
         lockCount is 0.
@@ -209,6 +211,22 @@ public:
 
     SK_DEFINE_FLATTENABLE_TYPE(SkPixelRef)
 
+    // Register a listener that may be called the next time our generation ID changes.
+    //
+    // We'll only call the listener if we're confident that we are the only SkPixelRef with this
+    // generation ID.  If our generation ID changes and we decide not to call the listener, we'll
+    // never call it: you must add a new listener for each generation ID change.  We also won't call
+    // the listener when we're certain no one knows what our generation ID is.
+    //
+    // This can be used to invalidate caches keyed by SkPixelRef generation ID.
+    struct GenIDChangeListener {
+        virtual ~GenIDChangeListener() {}
+        virtual void onChange() = 0;
+    };
+
+    // Takes ownership of listener.
+    void addGenIDChangeListener(GenIDChangeListener* listener);
+
 protected:
     /** Called when the lockCount goes from 0 to 1. The caller will have already
         acquire a mutex for thread safety, so this method need not do that.
@@ -254,17 +272,15 @@ protected:
     void setPreLocked(void* pixels, SkColorTable* ctable);
 
 private:
-
     SkBaseMutex*    fMutex; // must remain in scope for the life of this object
     void*           fPixels;
     SkColorTable*   fColorTable;    // we do not track ownership, subclass does
     int             fLockCount;
 
     mutable uint32_t fGenerationID;
+    mutable bool     fUniqueGenerationID;
 
-    // SkBitmap is only a friend so that when copying, it can modify the new SkPixelRef to have the
-    // same fGenerationID as the original.
-    friend class SkBitmap;
+    SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are owned
 
     SkString    fURI;
 
@@ -273,7 +289,15 @@ private:
     // only ever set in constructor, const after that
     bool    fPreLocked;
 
+    void needsNewGenID();
+    void callGenIDChangeListeners();
+
     void setMutex(SkBaseMutex* mutex);
+
+    // When copying a bitmap to another with the same shape and config, we can safely
+    // clone the pixelref generation ID too, which makes them equivalent under caching.
+    friend class SkBitmap;  // only for cloneGenID
+    void cloneGenID(const SkPixelRef&);
 
     typedef SkFlattenable INHERITED;
 };

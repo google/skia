@@ -284,6 +284,8 @@ void GrResourceCache::purgeAsNeeded(int extraCount, size_t extraBytes) {
 
     fPurging = true;
 
+    this->purgeInvalidated();
+
     this->internalPurge(extraCount, extraBytes);
     if (((fEntryCount+extraCount) > fMaxCount ||
         (fEntryBytes+extraBytes) > fMaxBytes) &&
@@ -296,6 +298,25 @@ void GrResourceCache::purgeAsNeeded(int extraCount, size_t extraBytes) {
     }
 
     fPurging = false;
+}
+
+void GrResourceCache::purgeInvalidated() {
+    SkTDArray<GrResourceInvalidatedMessage> invalidated;
+    fInvalidationInbox.poll(&invalidated);
+
+    for (int i = 0; i < invalidated.count(); i++) {
+        // We're somewhat missing an opportunity here.  We could use the
+        // default find functor that gives us back resources whether we own
+        // them exclusively or not, and when they're not exclusively owned mark
+        // them for purging later when they do become exclusively owned.
+        //
+        // This is complicated and confusing.  May try this in the future.  For
+        // now, these resources are just LRU'd as if we never got the message.
+        GrResourceEntry* entry = fCache.find(invalidated[i].key, GrTFindUnreffedFunctor());
+        if (entry) {
+            this->deleteResource(entry);
+        }
+    }
 }
 
 void GrResourceCache::deleteResource(GrResourceEntry* entry) {
