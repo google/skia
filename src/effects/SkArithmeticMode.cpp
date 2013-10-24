@@ -402,7 +402,7 @@ GrEffectRef* GrArithmeticEffect::TestCreate(SkRandom* rand,
     float k3 = rand->nextF();
     float k4 = rand->nextF();
 
-    static AutoEffectUnref gEffect(SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4, NULL)));
+    AutoEffectUnref gEffect(SkNEW_ARGS(GrArithmeticEffect, (k1, k2, k3, k4, NULL)));
     return CreateEffectRef(gEffect);
 }
 
