@@ -1353,8 +1353,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 
     SkRect dstRect(srcRect);
     SkRect paintRect;
-    SkScalar wInv = SkScalarInvert(SkIntToScalar(bitmap.width()));
-    SkScalar hInv = SkScalarInvert(SkIntToScalar(bitmap.height()));
+    SkScalar wInv = SkScalarInvert(SkIntToScalar(texture->width()));
+    SkScalar hInv = SkScalarInvert(SkIntToScalar(texture->height()));
     paintRect.setLTRB(SkScalarMul(srcRect.fLeft,   wInv),
                       SkScalarMul(srcRect.fTop,    hInv),
                       SkScalarMul(srcRect.fRight,  wInv),
@@ -1388,14 +1388,14 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         // Use a constrained texture domain to avoid color bleeding
         SkScalar left, top, right, bottom;
         if (srcRect.width() > SK_Scalar1) {
-            SkScalar border = SK_ScalarHalf / bitmap.width();
+            SkScalar border = SK_ScalarHalf / texture->width();
             left = paintRect.left() + border;
             right = paintRect.right() - border;
         } else {
             left = right = SkScalarHalf(paintRect.left() + paintRect.right());
         }
         if (srcRect.height() > SK_Scalar1) {
-            SkScalar border = SK_ScalarHalf / bitmap.height();
+            SkScalar border = SK_ScalarHalf / texture->height();
             top = paintRect.top() + border;
             bottom = paintRect.bottom() - border;
         } else {

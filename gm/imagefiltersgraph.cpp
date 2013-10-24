@@ -109,6 +109,14 @@ protected:
         canvas.drawText(str, strlen(str), SkIntToScalar(20), SkIntToScalar(70), paint);
     }
 
+    void drawClippedBitmap(SkCanvas* canvas, const SkBitmap& bitmap, const SkPaint& paint) {
+        canvas->save();
+        canvas->clipRect(SkRect::MakeXYWH(0, 0,
+            SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height())));
+        canvas->drawBitmap(bitmap, 0, 0, &paint);
+        canvas->restore();
+    }
+
     virtual SkISize onISize() { return SkISize::Make(500, 150); }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -129,6 +137,7 @@ protected:
             SkPaint paint;
             paint.setImageFilter(merge);
             canvas->drawPaint(paint);
+            canvas->translate(SkIntToScalar(100), 0);
         }
         {
             SkAutoTUnref<SkImageFilter> morph(new SkDilateImageFilter(5, 5));
@@ -145,7 +154,8 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(blendColor);
-            canvas->drawBitmap(fBitmap, 100, 0, &paint);
+            drawClippedBitmap(canvas, fBitmap, paint);
+            canvas->translate(SkIntToScalar(100), 0);
         }
         {
             SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
@@ -161,7 +171,21 @@ protected:
 
             SkPaint paint;
             paint.setImageFilter(&arithFilter);
-            canvas->drawSprite(fBitmap, 200, 0, &paint);
+            drawClippedBitmap(canvas, fBitmap, paint);
+            canvas->translate(SkIntToScalar(100), 0);
+        }
+        {
+            SkAutoTUnref<SkImageFilter> blur(new SkBlurImageFilter(
+              SkIntToScalar(10), SkIntToScalar(10)));
+
+            SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcIn_Mode));
+            SkImageFilter::CropRect cropRect(SkRect::MakeWH(SkIntToScalar(95), SkIntToScalar(100)));
+            SkAutoTUnref<SkImageFilter> blend(new SkXfermodeImageFilter(mode, blur, NULL, &cropRect));
+
+            SkPaint paint;
+            paint.setImageFilter(blend);
+            drawClippedBitmap(canvas, fBitmap, paint);
+            canvas->translate(SkIntToScalar(100), 0);
         }
     }
 
