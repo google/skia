@@ -648,16 +648,11 @@ private:
     void init(const SkClipStack* clipStack, const SkRegion& clipRegion,
               const SkMatrix& matrix, const SkPaint& paint, bool hasText) {
         fDstFormXObject = NULL;
-        if (matrix.hasPerspective() ||
-                (paint.getShader() &&
-                 paint.getShader()->getLocalMatrix().hasPerspective())) {
-            // Just report that PDF does not supports perspective
-            // TODO(edisonn): update the shape when possible
-            // or dump in an image otherwise
-            NOT_IMPLEMENTED(true, false);
+        // Shape has to be flatten before we get here.
+        if (matrix.hasPerspective()) {
+            NOT_IMPLEMENTED(!matrix.hasPerspective(), false);
             return;
         }
-
         if (paint.getXfermode()) {
             paint.getXfermode()->asMode(&fXfermode);
         }
@@ -706,9 +701,8 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
       fClipStack(NULL),
       fEncoder(NULL),
       fRasterDpi(SkFloatToScalar(72.0f)) {
-    // just report that PDF does not supports perspective
-    // TODO(edisonn): update the shape when possible
-    // or dump in an image otherwise
+    // Just report that PDF does not supports perspective in the
+    // initial transform.
     NOT_IMPLEMENTED(initialTransform.hasPerspective(), true);
 
     // Skia generally uses the top left as the origin but PDF natively has the
