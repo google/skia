@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "bench/check_bench_regressions.py", line 218, in <module>
+    main()
+  File "bench/check_bench_regressions.py", line 214, in main
+    platform_and_alg)
+  File "bench/check_bench_regressions.py", line 161, in check_expectations
+    '\n'.join(exceptions))
+Exception: Bench values out of range:
+Bench desk_baidu.skp_record_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th value 0.83 out of range [5.155, 11.033].

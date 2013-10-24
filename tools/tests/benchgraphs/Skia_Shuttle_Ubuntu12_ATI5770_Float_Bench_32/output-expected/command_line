@@ -1,1 +1,0 @@
-python bench/bench_graph_svg.py -d tools/tests/benchgraphs/Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32/raw-bench-data -r -150 -f -150 -x 1024 -y 768 -l Title -m 25th -o tools/tests/benchgraphs/Skia_Shuttle_Ubuntu12_ATI5770_Float_Bench_32/output-actual/graph.xhtml

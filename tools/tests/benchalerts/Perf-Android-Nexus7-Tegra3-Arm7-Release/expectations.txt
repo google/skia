@@ -1,0 +1,3 @@
+# Bench expectation entries for testing check_bench_regressions.py.
+desk_amazon.skp_record_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1.213,-8.908,11.334
+desk_baidu.skp_record_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,0.939,5.155,11.033

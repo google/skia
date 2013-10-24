@@ -1,0 +1,1 @@
+python bench/check_bench_regressions.py -a 25th -b Perf-Android-Nexus7-Tegra3-Arm7-Release -d tools/tests/benchalerts/Perf-Android-Nexus7-Tegra3-Arm7-Release/raw-bench-data -e tools/tests/benchalerts/Perf-Android-Nexus7-Tegra3-Arm7-Release/expectations.txt -r 69c9e1a7261a3c8361e2b2c109d6340862149e34
