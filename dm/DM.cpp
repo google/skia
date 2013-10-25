@@ -84,9 +84,6 @@ static void kick_off_tasks(const SkTDArray<GMRegistry::Factory>& gms,
     #endif
 
     for (int i = 0; i < gms.count(); i++) {
-        SkAutoTDelete<GM> gmForName(gms[i](NULL));
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, gmForName->shortName())) continue;
-
 #define START(name, type, ...)                                                     \
     if (lowercase(configs[j]).equals(name)) {                                      \
         tasks->add(SkNEW_ARGS(DM::type,                                            \
@@ -142,7 +139,10 @@ int tool_main(int argc, char** argv) {
 
     SkTDArray<GMRegistry::Factory> gms;
     for (const GMRegistry* reg = GMRegistry::Head(); reg != NULL; reg = reg->next()) {
-        *gms.append() = reg->factory();
+        SkAutoTDelete<GM> gmForName(reg->factory()(NULL));
+        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, gmForName->shortName())) {
+            *gms.append() = reg->factory();
+        }
     }
     SkDebugf("%d GMs x %d configs\n", gms.count(), configs.count());
 
