@@ -14,25 +14,9 @@
 #include "SkInstCnt.h"
 #include "SkTemplates.h"
 
-#ifdef SK_REF_CNT_BASE_INCLUDE
-#include SK_REF_CNT_BASE_INCLUDE
-#else
 /** \class SkRefCntBase
 
-    Default implementation of SkRefCntBase. The base class' contract is to
-    provide an implementation of aboutToRef. Embedders of skia can specify
-    an alternate implementation by setting SK_REF_CNT_BASE_INCLUDE. This is
-    useful for adding debug run-time checks to enforce certain usage patterns.
-*/
-class SK_API SkRefCntBase {
-public:
-    void aboutToRef() const {}
-};
-#endif
-
-/** \class SkRefCnt
-
-    SkRefCnt is the base class for objects that may be shared by multiple
+    SkRefCntBase is the base class for objects that may be shared by multiple
     objects. When an existing owner wants to share a reference, it calls ref().
     When an owner wants to release its reference, it calls unref(). When the
     shared object's reference count goes to zero as the result of an unref()
@@ -40,17 +24,17 @@ public:
     destructor to be called explicitly (or via the object going out of scope on
     the stack or calling delete) if getRefCnt() > 1.
 */
-class SK_API SkRefCnt : public SkRefCntBase {
+class SK_API SkRefCntBase : public SkNoncopyable {
 public:
-    SK_DECLARE_INST_COUNT_ROOT(SkRefCnt)
+    SK_DECLARE_INST_COUNT_ROOT(SkRefCntBase)
 
     /** Default construct, initializing the reference count to 1.
     */
-    SkRefCnt() : fRefCnt(1) {}
+    SkRefCntBase() : fRefCnt(1) {}
 
     /** Destruct, asserting that the reference count is 1.
     */
-    virtual ~SkRefCnt() {
+    virtual ~SkRefCntBase() {
 #ifdef SK_DEBUG
         SkASSERT(fRefCnt == 1);
         fRefCnt = 0;    // illegal value, to catch us if we reuse after delete
@@ -77,7 +61,6 @@ public:
     */
     void ref() const {
         SkASSERT(fRefCnt > 0);
-        this->INHERITED::aboutToRef();
         sk_atomic_inc(&fRefCnt);  // No barrier required.
     }
 
@@ -102,11 +85,6 @@ public:
     }
 #endif
 
-    /**
-     * Alias for unref(), for compatibility with WTF::RefPtr.
-     */
-    void deref() { this->unref(); }
-
 protected:
     /**
      *  Allow subclasses to call this if they've overridden internal_dispose
@@ -123,12 +101,6 @@ protected:
 
 private:
     /**
-     *  Make SkRefCnt non-copyable.
-     */
-    SkRefCnt(const SkRefCnt&);
-    SkRefCnt& operator=(const SkRefCnt&);
-
-    /**
      *  Called when the ref count goes to 0.
      */
     virtual void internal_dispose() const {
@@ -143,8 +115,16 @@ private:
 
     mutable int32_t fRefCnt;
 
-    typedef SkRefCntBase INHERITED;
+    typedef SkNoncopyable INHERITED;
 };
+
+#ifdef SK_REF_CNT_MIXIN_INCLUDE
+// It is the responsibility of the following include to define the type SkRefCnt.
+// This SkRefCnt should normally derive from SkRefCntBase.
+#include SK_REF_CNT_MIXIN_INCLUDE
+#else
+class SK_API SkRefCnt : public SkRefCntBase { };
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
