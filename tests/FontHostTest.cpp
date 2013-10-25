@@ -109,7 +109,7 @@ static void test_charsToGlyphs(skiatest::Reporter* reporter, SkTypeface* face) {
             SkString name;
             face->getFamilyName(&name);
             SkString a;
-            a.appendf("%s, paintGlyphIds[%d] = %d, faceGlyphIds[%d] = %d, face = %s", 
+            a.appendf("%s, paintGlyphIds[%d] = %d, faceGlyphIds[%d] = %d, face = %s",
                       test.name, i, (int)paintGlyphIds[i], i, (int)faceGlyphIds[i], name.c_str());
             REPORTER_ASSERT_MESSAGE(reporter, paintGlyphIds[i] == faceGlyphIds[i], a.c_str());
         }
