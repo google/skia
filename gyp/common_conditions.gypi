@@ -280,7 +280,6 @@
           [ 'skia_sanitizer', {
             'cflags': [
               '-fsanitize=<(skia_sanitizer)',
-              '-fno-omit-frame-pointer',
             ],
             'ldflags': [
               '-fsanitize=<(skia_sanitizer)',
@@ -303,6 +302,9 @@
               # Extra warnings we like but that only Clang knows about.
               '-Wstring-conversion',
             ],
+          }],
+          [ 'skia_keep_frame_pointer', {
+            'cflags': [ '-fno-omit-frame-pointer' ],
           }],
         ],
       },

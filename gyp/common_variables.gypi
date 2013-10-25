@@ -120,8 +120,10 @@
       }],
       [ 'skia_sanitizer', {
         'skia_clang_build': 1,
+        'skia_keep_frame_pointer': 1,
       }, {
         'skia_clang_build%': 0,
+        'skia_keep_frame_pointer%': 0,
       }],
     ],
 
