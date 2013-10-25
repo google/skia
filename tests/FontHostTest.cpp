@@ -72,7 +72,7 @@ static void test_countGlyphs(skiatest::Reporter* reporter, SkTypeface* face) {
         SkDebugf("--- typeface returned 0 glyphs [%X]\n", face->uniqueID());
     }
 }
-#if 0
+
 // The following three are all the same code points in various encodings.
 static uint8_t utf8Chars[] = { 0x61, 0xE4, 0xB8, 0xAD, 0xD0, 0xAF, 0xD7, 0x99, 0xD7, 0x95, 0xF0, 0x9D, 0x84, 0x9E, 0x61 };
 static uint16_t utf16Chars[] = { 0x0061, 0x4E2D, 0x042F, 0x05D9, 0x05D5, 0xD834, 0xDD1E, 0x0061 };
@@ -115,7 +115,6 @@ static void test_charsToGlyphs(skiatest::Reporter* reporter, SkTypeface* face) {
         }
     }
 }
-#endif
 
 static void test_fontstream(skiatest::Reporter* reporter,
                             SkStream* stream, int ttcIndex) {
@@ -230,7 +229,7 @@ static void test_tables(skiatest::Reporter* reporter) {
             test_tables(reporter, face);
             test_unitsPerEm(reporter, face);
             test_countGlyphs(reporter, face);
-            //test_charsToGlyphs(reporter, face);
+            test_charsToGlyphs(reporter, face);
         }
     }
 }
