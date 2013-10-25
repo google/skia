@@ -1032,23 +1032,21 @@ static void determine_clipped_src_rect(const GrContext* context,
     }
 }
 
-
 bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
                                    const GrTextureParams& params,
                                    const SkRect* srcRectPtr,
                                    int maxTileSize,
-                                   int* tileSize) const {
+                                   int* tileSize,
+                                   SkIRect* clippedSrcRect) const {
     // if bitmap is explictly texture backed then just use the texture
     if (NULL != bitmap.getTexture()) {
         return false;
     }
 
-    SkIRect clippedSrcRect;
-
     // if it's larger than the max tile size, then we have no choice but tiling.
     if (bitmap.width() > maxTileSize || bitmap.height() > maxTileSize) {
-        determine_clipped_src_rect(fContext, bitmap, srcRectPtr, &clippedSrcRect);
-        *tileSize = determine_tile_size(bitmap, clippedSrcRect, maxTileSize);
+        determine_clipped_src_rect(fContext, bitmap, srcRectPtr, clippedSrcRect);
+        *tileSize = determine_tile_size(bitmap, *clippedSrcRect, maxTileSize);
         return true;
     }
 
@@ -1076,9 +1074,9 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
     }
 
     // Figure out how much of the src we will need based on the src rect and clipping.
-    determine_clipped_src_rect(fContext, bitmap, srcRectPtr, &clippedSrcRect);
+    determine_clipped_src_rect(fContext, bitmap, srcRectPtr, clippedSrcRect);
     *tileSize = kBmpSmallTileSize; // already know whole bitmap fits in one max sized tile.
-    size_t usedTileBytes = get_tile_count(clippedSrcRect, kBmpSmallTileSize) *
+    size_t usedTileBytes = get_tile_count(*clippedSrcRect, kBmpSmallTileSize) *
                            kBmpSmallTileSize * kBmpSmallTileSize;
 
     return usedTileBytes < 2 * bmpSize;
@@ -1219,8 +1217,10 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     }
     int tileSize;
 
-    if (this->shouldTileBitmap(bitmap, params, srcRectPtr, maxTileSize, &tileSize)) {
-        this->drawTiledBitmap(bitmap, srcRect, params, paint, flags, tileSize);
+    SkIRect clippedSrcRect;
+    if (this->shouldTileBitmap(bitmap, params, srcRectPtr, maxTileSize, &tileSize,
+                               &clippedSrcRect)) {
+        this->drawTiledBitmap(bitmap, srcRect, clippedSrcRect, params, paint, flags, tileSize);
     } else {
         // take the simple case
         this->internalDrawBitmap(bitmap, srcRect, params, paint, flags);
@@ -1231,25 +1231,12 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
 // been determined to be too large to fit in VRAM
 void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                   const SkRect& srcRect,
+                                  const SkIRect& clippedSrcIRect,
                                   const GrTextureParams& params,
                                   const SkPaint& paint,
                                   SkCanvas::DrawBitmapRectFlags flags,
                                   int tileSize) {
-
-    // compute clip bounds in local coordinates
-    SkRect clipRect;
-    {
-        const GrRenderTarget* rt = fContext->getRenderTarget();
-        clipRect.setWH(SkIntToScalar(rt->width()), SkIntToScalar(rt->height()));
-        if (!fContext->getClip()->fClipStack->intersectRectWithClip(&clipRect)) {
-            return;
-        }
-        SkMatrix inverse;
-        if (!fContext->getMatrix().invert(&inverse)) {
-            return;
-        }
-        inverse.mapRect(&clipRect);
-    }
+    SkRect clippedSrcRect = SkRect::MakeFromIRect(clippedSrcIRect);
 
     int nx = bitmap.width() / tileSize;
     int ny = bitmap.height() / tileSize;
@@ -1261,7 +1248,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                       SkIntToScalar((x + 1) * tileSize),
                       SkIntToScalar((y + 1) * tileSize));
 
-            if (!SkRect::Intersects(tileR, clipRect)) {
+            if (!SkRect::Intersects(tileR, clippedSrcRect)) {
                 continue;
             }
 

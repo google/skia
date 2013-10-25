@@ -184,13 +184,16 @@ private:
 
     /**
      * Helper functions called by drawBitmapCommon. By the time these are called the SkDraw's
-     * matrix has already been set on GrContext
+     * matrix, clip, and the device's render target has already been set on GrContext.
      */
+
+    // The tileSize and clippedSrcRect will be valid only if true is returned.
     bool shouldTileBitmap(const SkBitmap& bitmap,
                           const GrTextureParams& sampler,
                           const SkRect* srcRectPtr,
                           int maxTileSize,
-                          int* tileSize) const;
+                          int* tileSize,
+                          SkIRect* clippedSrcRect) const;
     void internalDrawBitmap(const SkBitmap&,
                             const SkRect&,
                             const GrTextureParams& params,
@@ -198,6 +201,7 @@ private:
                             SkCanvas::DrawBitmapRectFlags flags);
     void drawTiledBitmap(const SkBitmap& bitmap,
                          const SkRect& srcRect,
+                         const SkIRect& clippedSrcRect,
                          const GrTextureParams& params,
                          const SkPaint& paint,
                          SkCanvas::DrawBitmapRectFlags flags,
