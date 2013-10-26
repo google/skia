@@ -1922,7 +1922,7 @@ int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
     // Undocumented behavior of CTFontGetGlyphsForCharacters with non-bmp code points:
     // When a surrogate pair is detected, the glyph index used is the index of the high surrogate.
     // It is documented that if a mapping is unavailable, the glyph will be set to 0.
-    
+
     SkAutoSTMalloc<1024, UniChar> charStorage;
     const UniChar* src; // UniChar is a UTF-16 16-bit code unit.
     int srcCount;
