@@ -25,9 +25,7 @@
     <div class="todo-div"><!-- TODOs -->
       <p>
       TODO(epoger):
-      <input type="checkbox" name="showTodosCheckbox" value="true"
-             ng-checked="showTodos == true"
-             ng-click="showTodos = !showTodos">
+      <input type="checkbox" ng-model="showTodos">
       show
       <ul ng-hide="!showTodos">
         <li>
@@ -38,8 +36,13 @@
           Add ability to filter builder and test names
           (using a free-form text field, with partial string match)
         </li><li>
-          Add more columns, such as pixel diffs, notes/bugs,
-          ignoreFailure boolean
+          Add pixel diffs, and sorting by percentage of different pixels
+        </li><li>
+          Add ability to sort/filter by reviewed-by-human. Depends on
+          <a href="https://code.google.com/p/skia/issues/detail?id=1758">
+          bug 1758
+          </a>
+          ('rebaseline_server: make the "categories" struct passed from server to client a list instead of a dict')
         </li><li>
           Improve the column sorting, as per
           <a href="http://jsfiddle.net/vojtajina/js64b/14/">
@@ -85,6 +88,7 @@
       </th>
     </tr>
     <tr valign="top">
+      <!-- TODO(epoger): make this an ng-repeat over resultType, config, etc? -->
       <td>
         resultType<br>
         <label ng-repeat="(resultType, count) in categories['resultType']">
@@ -150,6 +154,21 @@
             Submitting, please wait...
           </div>
         </div>
+        <div>
+          Advanced settings...
+          <input type="checkbox" ng-model="showSubmitAdvancedSettings">
+          show
+          <ul ng-hide="!showSubmitAdvancedSettings">
+            <li ng-repeat="setting in ['reviewed-by-human', 'ignore-failures']">
+              {{setting}}
+              <input type="checkbox" ng-model="submitAdvancedSettings[setting]">
+            </li>
+            <li ng-repeat="setting in ['bug']">
+              {{setting}}
+              <input type="text" ng-model="submitAdvancedSettings[setting]">
+            </li>
+          </ul>
+        </div>
       </div>
 
       <p>
@@ -167,11 +186,23 @@
           (click on the column header radio buttons to re-sort by that column)
         </div>
         <div style="float:right">
+          <div>
+            all tests shown:
+            <button ng-click="selectAllItems()">
+              select
+            </button>
+            <button ng-click="clearAllItems()">
+              clear
+            </button>
+            <button ng-click="toggleAllItems()">
+              toggle
+            </button>
+          </div>
           <div ng-repeat="otherTab in tabs">
             <button ng-click="moveSelectedItemsToTab(otherTab)"
                     ng-disabled="selectedItems.length == 0"
                     ng-hide="otherTab == viewingTab">
-              {{selectedItems.length}} move selected tests to {{otherTab}} tab
+              move {{selectedItems.length}} selected tests to {{otherTab}} tab
             </button>
           </div>
         </div>
@@ -195,6 +226,14 @@
           <th>
             <input type="radio"
                    name="sortColumnRadio"
+                   value="bugs"
+                   ng-checked="(sortColumn == 'bugs')"
+                   ng-click="sortResultsBy('bugs')">
+            bugs
+          </th>
+          <th>
+            <input type="radio"
+                   name="sortColumnRadio"
                    value="expectedHashDigest"
                    ng-checked="(sortColumn == 'expectedHashDigest')"
                    ng-click="sortResultsBy('expectedHashDigest')">
@@ -213,10 +252,16 @@
           </th>
         </tr>
         <tr ng-repeat="result in limitedTestData">
-          <td>{{result.resultType}}</td>
-          <td>{{result.builder}}</td>
-          <td>{{result.test}}</td>
-          <td>{{result.config}}</td>
+          <td ng-repeat="categoryName in ['resultType', 'builder', 'test', 'config']">
+            {{result[categoryName]}}
+          </td>
+          <td>
+            <a ng-repeat="bug in result['bugs']"
+               href="https://code.google.com/p/skia/issues/detail?id={{bug}}"
+               target="_blank">
+              {{bug}}
+            </a>
+          </td>
           <td>
             <a target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png">
               <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png"/>

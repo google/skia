@@ -21,8 +21,9 @@ Loader.filter(
       var filteredItems = [];
       for (var i = 0; i < unfilteredItems.length; i++) {
         var item = unfilteredItems[i];
-	// For performance, we examine the "set" objects directly rather
-	// than calling $scope.isValueInSet().
+        // For performance, we examine the "set" objects directly rather
+        // than calling $scope.isValueInSet().
+        // Besides, I don't think we have access to $scope in here...
         if (!(true == hiddenResultTypes[item.resultType]) &&
             !(true == hiddenConfigs[item.config]) &&
             (viewingTab == item.tab)) {
@@ -58,6 +59,12 @@ Loader.controller(
         $scope.sortColumn = 'test';
         $scope.showTodos = false;
 
+        $scope.showSubmitAdvancedSettings = false;
+        $scope.submitAdvancedSettings = {};
+        $scope.submitAdvancedSettings['reviewed-by-human'] = true;
+        $scope.submitAdvancedSettings['ignore-failures'] = false;
+        $scope.submitAdvancedSettings['bug'] = '';
+
         // Create the list of tabs (lists into which the user can file each
         // test).  This may vary, depending on isEditable.
         $scope.tabs = [
@@ -83,10 +90,10 @@ Loader.controller(
           $scope.testData[i].tab = $scope.defaultTab;
         }
 
-	// Arrays within which the user can toggle individual elements.
+        // Arrays within which the user can toggle individual elements.
         $scope.selectedItems = [];
 
-	// Sets within which the user can toggle individual elements.
+        // Sets within which the user can toggle individual elements.
         $scope.hiddenResultTypes = {
           'failure-ignored': true,
           'no-comparison': true,
@@ -105,6 +112,48 @@ Loader.controller(
         $scope.windowTitle = "Failed to Load GM Results";
       }
     );
+
+
+    //
+    // Select/Clear/Toggle all tests.
+    //
+
+    /**
+     * Select all currently showing tests.
+     */
+    $scope.selectAllItems = function() {
+      var numItemsShowing = $scope.limitedTestData.length;
+      for (var i = 0; i < numItemsShowing; i++) {
+        var index = $scope.limitedTestData[i].index;
+        if (!$scope.isValueInArray(index, $scope.selectedItems)) {
+          $scope.toggleValueInArray(index, $scope.selectedItems);
+        }
+      }
+    }
+
+    /**
+     * Deselect all currently showing tests.
+     */
+    $scope.clearAllItems = function() {
+      var numItemsShowing = $scope.limitedTestData.length;
+      for (var i = 0; i < numItemsShowing; i++) {
+        var index = $scope.limitedTestData[i].index;
+        if ($scope.isValueInArray(index, $scope.selectedItems)) {
+          $scope.toggleValueInArray(index, $scope.selectedItems);
+        }
+      }
+    }
+
+    /**
+     * Toggle selection of all currently showing tests.
+     */
+    $scope.toggleAllItems = function() {
+      var numItemsShowing = $scope.limitedTestData.length;
+      for (var i = 0; i < numItemsShowing; i++) {
+        var index = $scope.limitedTestData[i].index;
+        $scope.toggleValueInArray(index, $scope.selectedItems);
+      }
+    }
 
 
     //
@@ -204,8 +253,7 @@ Loader.controller(
                     true
                 ),
                 $scope.sortColumn);
-        $scope.limitedTestData = $filter("limitTo")(
-            $scope.filteredTestData, $scope.displayLimit);
+        $scope.limitedTestData = $scope.filteredTestData;
       }
       $scope.imageSize = $scope.imageSizePending;
       $scope.setUpdatesPending(false);
@@ -235,6 +283,21 @@ Loader.controller(
      */
     $scope.submitApprovals = function(testDataSubset) {
       $scope.submitPending = true;
+
+      // Convert bug text field to null or 1-item array.
+      var bugs = null;
+      var bugNumber = parseInt($scope.submitAdvancedSettings['bug']);
+      if (!isNaN(bugNumber)) {
+        bugs = [bugNumber];
+      }
+
+      // TODO(epoger): This is a suboptimal way to prevent users from
+      // rebaselining failures in alternative renderModes, but it does work.
+      // For a better solution, see
+      // https://code.google.com/p/skia/issues/detail?id=1748 ('gm: add new
+      // result type, RenderModeMismatch')
+      var encounteredComparisonConfig = false;
+
       var newResults = [];
       for (var i = 0; i < testDataSubset.length; i++) {
         var actualResult = testDataSubset[i];
@@ -245,7 +308,26 @@ Loader.controller(
           expectedHashType: actualResult['actualHashType'],
           expectedHashDigest: actualResult['actualHashDigest'],
         };
+        if (0 == expectedResult.config.indexOf('comparison-')) {
+          encounteredComparisonConfig = true;
+        }
+
+        // Advanced settings...
+        expectedResult['reviewed-by-human'] =
+            $scope.submitAdvancedSettings['reviewed-by-human'];
+        if (true == $scope.submitAdvancedSettings['ignore-failure']) {
+          // if it's false, don't send it at all (just keep the default)
+          expectedResult['ignoreFailure'] = true;
+        }
+        expectedResult['bugs'] = bugs;
+
         newResults.push(expectedResult);
+      }
+      if (encounteredComparisonConfig) {
+        alert("Approval failed -- you cannot approve results with config " +
+            "type comparison-*");
+        $scope.submitPending = false;
+        return;
       }
       $http({
         method: "POST",

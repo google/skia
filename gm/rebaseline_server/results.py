@@ -33,9 +33,17 @@ import gm_json
 IMAGE_FILENAME_RE = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
 IMAGE_FILENAME_FORMATTER = '%s_%s.png'  # pass in (testname, config)
 
+FIELDS_PASSED_THRU_VERBATIM = [
+    gm_json.JSONKEY_EXPECTEDRESULTS_BUGS,
+    gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE,
+    gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED,
+]
 CATEGORIES_TO_SUMMARIZE = [
     'builder', 'test', 'config', 'resultType',
+    gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE,
+    gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED,
 ]
+
 RESULTS_ALL = 'all'
 RESULTS_FAILURES = 'failures'
 
@@ -82,14 +90,13 @@ class Results(object):
              'config': '8888',
              'expectedHashType': 'bitmap-64bitMD5',
              'expectedHashDigest': '10894408024079689926',
+             'bugs': [123, 456],
+             'ignore-failure': false,
+             'reviewed-by-human': true,
            },
            ...
          ]
 
-    TODO(epoger): For now, this does not allow the caller to set any fields
-    other than expectedHashType/expectedHashDigest, and assumes that
-    ignore-failure should be set to False.  We need to add support
-    for other fields (notes, bugs, etc.) and ignore-failure=True.
     """
     expected_builder_dicts = Results._read_dicts_from_root(self._expected_root)
     for mod in modifications:
@@ -99,8 +106,11 @@ class Results(object):
                           int(mod['expectedHashDigest'])]]
       new_expectations = {
           gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS: allowed_digests,
-          gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE: False,
       }
+      for field in FIELDS_PASSED_THRU_VERBATIM:
+        value = mod.get(field)
+        if value is not None:
+          new_expectations[field] = value
       builder_dict = expected_builder_dicts[mod['builder']]
       builder_expectations = builder_dict.get(gm_json.JSONKEY_EXPECTEDRESULTS)
       if not builder_expectations:
@@ -142,14 +152,17 @@ class Results(object):
          'testData': # list of test results, with a dictionary for each
          [
            {
+             'resultType': 'failed',
              'builder': 'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug',
              'test': 'bigmatrix',
              'config': '8888',
-             'resultType': 'failed',
              'expectedHashType': 'bitmap-64bitMD5',
              'expectedHashDigest': '10894408024079689926',
              'actualHashType': 'bitmap-64bitMD5',
              'actualHashDigest': '2409857384569',
+             'bugs': [123, 456],
+             'ignore-failure': false,
+             'reviewed-by-human': true,
            },
            ...
          ], # end of 'testData' list
@@ -246,6 +259,7 @@ class Results(object):
 
     categories_all = {}
     categories_failures = {}
+
     Results._ensure_included_in_category_dict(categories_all,
                                               'resultType', [
         gm_json.JSONKEY_ACTUALRESULTS_FAILED,
@@ -271,13 +285,18 @@ class Results(object):
           continue
         for image_name in sorted(results_of_this_type.keys()):
           actual_image = results_of_this_type[image_name]
+
+          # Default empty expectations; overwrite these if we find any real ones
+          expectations_per_test = None
+          expected_image = [None, None]
           try:
+            expectations_per_test = (
+                expected_builder_dicts
+                [builder][gm_json.JSONKEY_EXPECTEDRESULTS][image_name])
             # TODO(epoger): assumes a single allowed digest per test
             expected_image = (
-                expected_builder_dicts
-                    [builder][gm_json.JSONKEY_EXPECTEDRESULTS]
-                    [image_name][gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS]
-                    [0])
+                expectations_per_test
+                [gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS][0])
           except (KeyError, TypeError):
             # There are several cases in which we would expect to find
             # no expectations for a given test:
@@ -285,12 +304,7 @@ class Results(object):
             # 1. result_type == NOCOMPARISON
             #   There are no expectations for this test yet!
             #
-            # 2. ignore-tests.txt
-            #   If a test has been listed in ignore-tests.txt, then its status
-            #   may show as FAILUREIGNORED even if it doesn't have any
-            #   expectations yet.
-            #
-            # 3. alternate rendering mode failures (e.g. serialized)
+            # 2. alternate rendering mode failures (e.g. serialized)
             #   In cases like
             #   https://code.google.com/p/skia/issues/detail?id=1684
             #   ('tileimagefilter GM test failing in serialized render mode'),
@@ -299,19 +313,16 @@ class Results(object):
             #   for the test (the implicit expectation is that it must
             #   render the same in all rendering modes).
             #
-            # Don't log types 1 or 2, because they are common.
+            # Don't log type 1, because it is common.
             # Log other types, because they are rare and we should know about
             # them, but don't throw an exception, because we need to keep our
             # tools working in the meanwhile!
-            if result_type not in [
-                gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON,
-                gm_json.JSONKEY_ACTUALRESULTS_FAILUREIGNORED] :
+            if result_type != gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON:
               logging.warning('No expectations found for test: %s' % {
                   'builder': builder,
                   'image_name': image_name,
                   'result_type': result_type,
                   })
-            expected_image = [None, None]
 
           # If this test was recently rebaselined, it will remain in
           # the 'failed' set of actuals until all the bots have
@@ -333,20 +344,31 @@ class Results(object):
 
           (test, config) = IMAGE_FILENAME_RE.match(image_name).groups()
           results_for_this_test = {
+              'resultType': updated_result_type,
               'builder': builder,
               'test': test,
               'config': config,
-              'resultType': updated_result_type,
               'actualHashType': actual_image[0],
               'actualHashDigest': str(actual_image[1]),
               'expectedHashType': expected_image[0],
               'expectedHashDigest': str(expected_image[1]),
+
+              # FIELDS_PASSED_THRU_VERBATIM that may be overwritten below...
+              gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE: False,
           }
+          if expectations_per_test:
+            for field in FIELDS_PASSED_THRU_VERBATIM:
+              results_for_this_test[field] = expectations_per_test.get(field)
           Results._add_to_category_dict(categories_all, results_for_this_test)
           data_all.append(results_for_this_test)
+
+          # TODO(epoger): In effect, we have a list of resultTypes that we
+          # include in the different result lists (data_all and data_failures).
+          # This same list should be used by the calls to
+          # Results._ensure_included_in_category_dict() earlier on.
           if updated_result_type != gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED:
             Results._add_to_category_dict(categories_failures,
-                                       results_for_this_test)
+                                          results_for_this_test)
             data_failures.append(results_for_this_test)
 
     self._results = {
@@ -373,8 +395,6 @@ class Results(object):
     """
     for category in CATEGORIES_TO_SUMMARIZE:
       category_value = test_results.get(category)
-      if not category_value:
-        continue  # test_results did not include this category, keep going
       if not category_dict.get(category):
         category_dict[category] = {}
       if not category_dict[category].get(category_value):
