@@ -108,6 +108,30 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "android_paint_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5774266992660776888
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "android_paint_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13638158883459891437
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
     "arcofzorro_565.png": {
       "allowed-digests": [
         [
@@ -255,6 +279,30 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmap_premul_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3459248890389921752
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "bitmap_premul_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1875487390803094182
+        ]
+      ], 
+      "bugs": [
+        1759
       ], 
       "reviewed-by-human": false
     }, 
@@ -1830,6 +1878,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "clipped-bitmap-shaders-clamp-hq_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5543970311616574408
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-clamp-hq_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9243927175489158803
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
     "clipped-bitmap-shaders-clamp_565.png": {
       "allowed-digests": [
         [
@@ -1854,6 +1926,30 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "clipped-bitmap-shaders-mirror-hq_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14000830941634575767
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-mirror-hq_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14412729226029504152
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
     "clipped-bitmap-shaders-mirror_565.png": {
       "allowed-digests": [
         [
@@ -1875,6 +1971,30 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-tile-hq_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5937007347321497195
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-tile-hq_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6655127558305687514
+        ]
+      ], 
+      "bugs": [
+        1759
       ], 
       "reviewed-by-human": false
     }, 
@@ -3972,6 +4092,30 @@
       ], 
       "ignore-failure": false
     }, 
+    "gradients_no_texture_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6508616671304835587
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradients_no_texture_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13555748371863386882
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
     "gradients_view_perspective_565.png": {
       "allowed-digests": [
         [
@@ -5913,6 +6057,30 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "stringart_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          517466260915157438
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "stringart_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12919217765216356865
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
     "stroke-fill_565.png": {
       "allowed-digests": [
         [
@@ -6294,6 +6462,18 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "tilemode_bitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8734529266436311543
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
     "tilemode_gradient_565.png": {
       "allowed-digests": [
         [
@@ -6315,6 +6495,18 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tilemode_gradient_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10356917473407340850
+        ]
+      ], 
+      "bugs": [
+        1759
       ], 
       "reviewed-by-human": false
     }, 
@@ -6369,6 +6561,18 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "tilemodes_npot_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16699787702086383065
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
     "tinybitmap_565.png": {
       "allowed-digests": [
         [
@@ -6390,6 +6594,18 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "tinybitmap_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5633315905476176630
+        ]
+      ], 
+      "bugs": [
+        1759
       ], 
       "reviewed-by-human": false
     }, 
@@ -6444,6 +6660,18 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "typeface_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3449195366356383828
+        ]
+      ], 
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
+    }, 
     "typefacestyles_565.png": {
       "allowed-digests": [
         [
@@ -6465,6 +6693,18 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "typefacestyles_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13157091006852688628
+        ]
+      ], 
+      "bugs": [
+        1759
       ], 
       "reviewed-by-human": false
     }, 
