@@ -91,7 +91,7 @@
       <!-- TODO(epoger): make this an ng-repeat over resultType, config, etc? -->
       <td>
         resultType<br>
-        <label ng-repeat="(resultType, count) in categories['resultType']">
+        <label ng-repeat="(resultType, count) in categories['resultType'] track by $index">
           <input type="checkbox"
                  name="resultTypes"
                  value="{{resultType}}"
@@ -102,7 +102,7 @@
       </td>
       <td>
         config<br>
-        <label ng-repeat="(config, count) in categories['config']">
+        <label ng-repeat="(config, count) in categories['config'] track by $index">
           <input type="checkbox"
                  name="configs"
                  value="{{config}}"
