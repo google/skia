@@ -90,6 +90,13 @@ void GrFontCache::freeAll() {
     fTail = NULL;
 }
 
+void GrFontCache::purgeStrike(GrTextStrike* strike) {
+    const GrFontCache::Key key(strike->fFontScalerKey);
+    fCache.remove(key, strike);
+    this->detachStrikeFromList(strike);
+    delete strike;
+}
+
 void GrFontCache::purgeExceptFor(GrTextStrike* preserveStrike) {
     SkASSERT(NULL != preserveStrike);
     GrTextStrike* strike = fTail;
@@ -105,11 +112,7 @@ void GrFontCache::purgeExceptFor(GrTextStrike* preserveStrike) {
         if (purge) {
             // keep purging if we won't free up any atlases with this strike.
             purge = strikeToPurge->fAtlas.isEmpty();
-            int index = fCache.slowFindIndex(strikeToPurge);
-            SkASSERT(index >= 0);
-            fCache.removeAt(index, strikeToPurge->fFontScalerKey->getHash());
-            this->detachStrikeFromList(strikeToPurge);
-            delete strikeToPurge;
+            this->purgeStrike(strikeToPurge);
         }
     }
 #if FONT_CACHE_STATS
@@ -130,11 +133,7 @@ void GrFontCache::freePlotExceptFor(GrTextStrike* preserveStrike) {
         strike = strikeToPurge->fPrev;
         if (strikeToPurge->removeUnusedPlots()) {
             if (strikeToPurge->fAtlas.isEmpty()) {
-                int index = fCache.slowFindIndex(strikeToPurge);
-                SkASSERT(index >= 0);
-                fCache.removeAt(index, strikeToPurge->fFontScalerKey->getHash());
-                this->detachStrikeFromList(strikeToPurge);
-                delete strikeToPurge;
+                this->purgeStrike(strikeToPurge);
             }
             break;
         }

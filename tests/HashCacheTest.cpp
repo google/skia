@@ -155,12 +155,6 @@ static void TestHashCache(skiatest::Reporter* reporter) {
         HashElement* found = cache.find(0);
         REPORTER_ASSERT(reporter, NULL == found);
     }
-
-    // remove all
-    {
-        cache.removeAll();
-        REPORTER_ASSERT(reporter, 0 == cache.count());
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

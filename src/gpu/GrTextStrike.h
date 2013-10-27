@@ -29,8 +29,7 @@ class GrFontPurgeListener;
  */
 class GrTextStrike {
 public:
-    GrTextStrike(GrFontCache*, const GrKey* fontScalerKey, GrMaskFormat,
-                 GrAtlasMgr*);
+    GrTextStrike(GrFontCache*, const GrKey* fontScalerKey, GrMaskFormat, GrAtlasMgr*);
     ~GrTextStrike();
 
     const GrKey* getFontScalerKey() const { return fFontScalerKey; }
@@ -116,6 +115,7 @@ private:
 
     GrTextStrike* generateStrike(GrFontScaler*, const Key&);
     inline void detachStrikeFromList(GrTextStrike*);
+    void purgeStrike(GrTextStrike* strike);
 };
 
 #endif

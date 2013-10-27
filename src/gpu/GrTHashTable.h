@@ -14,15 +14,6 @@
 #include "GrTypes.h"
 #include "SkTDArray.h"
 
-// GrTDefaultFindFunctor implements the default find behavior for
-// GrTHashTable (i.e., return the first resource that matches the
-// provided key)
-template <typename T> class GrTDefaultFindFunctor {
-public:
-    // always accept the first element examined
-    bool operator()(const T*) const { return true; }
-};
-
 /**
  *  Key needs
  *      static bool EQ(const Entry&, const HashKey&);
@@ -34,24 +25,24 @@ public:
  */
 template <typename T, typename Key, size_t kHashBits> class GrTHashTable {
 public:
-    GrTHashTable() { sk_bzero(fHash, sizeof(fHash)); }
+    GrTHashTable() { this->clearHash(); }
     ~GrTHashTable() {}
 
     int count() const { return fSorted.count(); }
-    T*  find(const Key&) const;
-    template <typename FindFuncType> T*  find(const Key&, const FindFuncType&) const;
+
+    struct Any {
+        // Return the first resource that matches the key.
+        bool operator()(const T*) const { return true; }
+    };
+
+    T* find(const Key& key) const { return this->find(key, Any()); }
+    template <typename Filter> T* find(const Key&, Filter filter) const;
+
     // return true if key was unique when inserted.
     bool insert(const Key&, T*);
     void remove(const Key&, const T*);
-    T* removeAt(int index, uint32_t hash);
-    void removeAll();
-    void deleteAll();
-    void unrefAll();
 
-    /**
-     *  Return the index for the element, using a linear search.
-     */
-    int slowFindIndex(T* elem) const { return fSorted.find(elem); }
+    void deleteAll();
 
 #ifdef SK_DEBUG
     void validate() const;
@@ -62,6 +53,8 @@ public:
     const SkTDArray<T*>& getArray() const { return fSorted; }
     SkTDArray<T*>& getArray() { return fSorted; }
 private:
+    void clearHash() { sk_bzero(fHash, sizeof(fHash)); }
+
     enum {
         kHashCount = 1 << kHashBits,
         kHashMask  = kHashCount - 1
@@ -120,20 +113,13 @@ int GrTHashTable<T, Key, kHashBits>::searchArray(const Key& key) const {
 }
 
 template <typename T, typename Key, size_t kHashBits>
-T* GrTHashTable<T, Key, kHashBits>::find(const Key& key) const {
-    GrTDefaultFindFunctor<T> find;
-
-    return this->find(key, find);
-}
-
-template <typename T, typename Key, size_t kHashBits>
-template <typename FindFuncType>
-T* GrTHashTable<T, Key, kHashBits>::find(const Key& key, const FindFuncType& findFunc) const {
+template <typename Filter>
+T* GrTHashTable<T, Key, kHashBits>::find(const Key& key, Filter filter) const {
 
     int hashIndex = hash2Index(key.getHash());
     T* elem = fHash[hashIndex];
 
-    if (NULL != elem && Key::EQ(*elem, key) && findFunc(elem)) {
+    if (NULL != elem && Key::EQ(*elem, key) && filter(elem)) {
         return elem;
     }
 
@@ -150,7 +136,7 @@ T* GrTHashTable<T, Key, kHashBits>::find(const Key& key, const FindFuncType& fin
     SkASSERT(0 == index || Key::LT(*array[index - 1], key));
 
     for ( ; index < count() && Key::EQ(*array[index], key); ++index) {
-        if (findFunc(fSorted[index])) {
+        if (filter(fSorted[index])) {
             // update the hash
             fHash[hashIndex] = fSorted[index];
             return fSorted[index];
@@ -196,33 +182,9 @@ void GrTHashTable<T, Key, kHashBits>::remove(const Key& key, const T* elem) {
 }
 
 template <typename T, typename Key, size_t kHashBits>
-T* GrTHashTable<T, Key, kHashBits>::removeAt(int elemIndex, uint32_t hash) {
-    int hashIndex = hash2Index(hash);
-    if (fHash[hashIndex] == fSorted[elemIndex]) {
-        fHash[hashIndex] = NULL;
-    }
-    // remove from our sorted array
-    T* elem = fSorted[elemIndex];
-    fSorted.remove(elemIndex);
-    return elem;
-}
-
-template <typename T, typename Key, size_t kHashBits>
-void GrTHashTable<T, Key, kHashBits>::removeAll() {
-    fSorted.reset();
-    sk_bzero(fHash, sizeof(fHash));
-}
-
-template <typename T, typename Key, size_t kHashBits>
 void GrTHashTable<T, Key, kHashBits>::deleteAll() {
     fSorted.deleteAll();
-    sk_bzero(fHash, sizeof(fHash));
-}
-
-template <typename T, typename Key, size_t kHashBits>
-void GrTHashTable<T, Key, kHashBits>::unrefAll() {
-    fSorted.unrefAll();
-    sk_bzero(fHash, sizeof(fHash));
+    this->clearHash();
 }
 
 #ifdef SK_DEBUG
