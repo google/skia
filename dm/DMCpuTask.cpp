@@ -1,4 +1,5 @@
 #include "DMCpuTask.h"
+#include "DMPipeTask.h"
 #include "DMReplayTask.h"
 #include "DMSerializeTask.h"
 #include "DMUtil.h"
@@ -32,6 +33,10 @@ void CpuTask::draw() {
     if (!MeetsExpectations(fExpectations, bitmap)) {
         this->fail();
     }
+
+    this->spawnChild(SkNEW_ARGS(PipeTask, (*this, fGMFactory(NULL), bitmap, false, false)));
+    this->spawnChild(SkNEW_ARGS(PipeTask, (*this, fGMFactory(NULL), bitmap, true, false)));
+    this->spawnChild(SkNEW_ARGS(PipeTask, (*this, fGMFactory(NULL), bitmap, true, true)));
 
     this->spawnChild(SkNEW_ARGS(ReplayTask, (*this, fGMFactory(NULL), bitmap)));
     this->spawnChild(SkNEW_ARGS(SerializeTask, (*this, fGMFactory(NULL), bitmap)));

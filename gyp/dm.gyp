@@ -11,6 +11,7 @@
             '../gm',
             '../src/core',
             '../src/effects',
+            '../src/pipe/utils/',
             '../src/utils',
             '../src/utils/debugger',
         ],
@@ -20,6 +21,7 @@
             '../dm/DMComparisonTask.cpp',
             '../dm/DMCpuTask.cpp',
             '../dm/DMGpuTask.cpp',
+            '../dm/DMPipeTask.cpp',
             '../dm/DMReplayTask.cpp',
             '../dm/DMReporter.cpp',
             '../dm/DMSerializeTask.cpp',
@@ -30,7 +32,7 @@
             '../gm/gm.cpp',
             '../gm/gm_expectations.cpp',
 
-            # TODO: split these out as a library in src/utils/debugger.
+            '../src/pipe/utils/SamplePipeControllers.cpp',
             '../src/utils/debugger/SkDebugCanvas.cpp',
             '../src/utils/debugger/SkDrawCommand.cpp',
             '../src/utils/debugger/SkObjectParser.cpp',
