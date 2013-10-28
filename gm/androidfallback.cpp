@@ -16,6 +16,11 @@ public:
     }
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        // TODO(scroggo): Undo this if we decide to fix skia:1763.
+        return GM::kSkipPipe_Flag;
+    }
+
     virtual SkString onShortName() SK_OVERRIDE {
         return SkString("android_paint");
     }
