@@ -50,6 +50,10 @@ protected:
         canvas->restore();
     }
 
+    virtual uint32_t onGetFlags() const {
+        return kSkipPipe_Flag;
+    }
+
 private:
     /** Draw an arbitrary rectangle at a given location and label it with some
      *  text. */
