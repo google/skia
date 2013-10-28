@@ -815,13 +815,11 @@ static void map2_ad(const SkMScalar mat[][4], const double* SK_RESTRICT src2,
 
 static void map2_pf(const SkMScalar mat[][4], const float* SK_RESTRICT src2,
                     int count, float* SK_RESTRICT dst4) {
-    double r;
     for (int n = 0; n < count; ++n) {
-        double sx = src2[0];
-        double sy = src2[1];
+        float sx = src2[0];
+        float sy = src2[1];
         for (int i = 0; i < 4; i++) {
-            r = mat[0][i] * sx + mat[1][i] * sy + mat[3][i];
-            dst4[i] = SkMScalarToFloat(r);
+            dst4[i] = mat[0][i] * sx + mat[1][i] * sy + mat[3][i];
         }
         src2 += 2;
         dst4 += 4;
