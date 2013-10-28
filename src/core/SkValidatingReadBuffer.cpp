@@ -11,10 +11,9 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 
-SkValidatingReadBuffer::SkValidatingReadBuffer(const void* data, size_t size) {
+SkValidatingReadBuffer::SkValidatingReadBuffer(const void* data, size_t size) :
+    fError(false) {
     this->setMemory(data, size);
-    fError = false;
-
     this->setFlags(SkFlattenableReadBuffer::kValidation_Flag);
 }
 
