@@ -399,7 +399,7 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
 
     if (this->fRGBA8RenderbufferSupport) {
         fConfigRenderSupport[kRGBA_8888_GrPixelConfig][kNo_MSAA]  = true;
-        fConfigRenderSupport[kRGBA_4444_GrPixelConfig][kYes_MSAA]  = false;
+        fConfigRenderSupport[kRGBA_8888_GrPixelConfig][kYes_MSAA]  = true;
     }
 
     if (this->fBGRAFormatSupport) {
