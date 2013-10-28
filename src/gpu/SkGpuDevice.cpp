@@ -1742,7 +1742,8 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
         if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
             return;
         }
-        GrBitmapTextContext context(fContext, grPaint);
+
+        GrBitmapTextContext context(fContext, grPaint, paint.getColor());
         myDraw.fProcs = this->initDrawForText(&context);
         this->INHERITED::drawText(myDraw, text, byteLength, x, y, paint);
     }
@@ -1765,7 +1766,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
         if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
             return;
         }
-        GrBitmapTextContext context(fContext, grPaint);
+        GrBitmapTextContext context(fContext, grPaint, paint.getColor());
         myDraw.fProcs = this->initDrawForText(&context);
         this->INHERITED::drawPosText(myDraw, text, byteLength, pos, constY,
                                      scalarsPerPos, paint);

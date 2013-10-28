@@ -12,6 +12,7 @@
 #include "GrIndexBuffer.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
+#include "SkColorPriv.h"
 #include "SkPath.h"
 #include "SkRTConf.h"
 #include "SkStrokeRec.h"
@@ -22,9 +23,12 @@ static const int kGlyphCoordsAttributeIndex = 1;
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
-GrBitmapTextContext::GrBitmapTextContext(GrContext* context, const GrPaint& paint) :
+GrBitmapTextContext::GrBitmapTextContext(GrContext* context, const GrPaint& paint,
+                                         SkColor color) :
                                          GrTextContext(context, paint) {
     fAutoMatrix.setIdentity(fContext, &fPaint);
+
+    fSkPaintColor = color;
 
     fStrike = NULL;
 
@@ -37,6 +41,13 @@ GrBitmapTextContext::GrBitmapTextContext(GrContext* context, const GrPaint& pain
 
 GrBitmapTextContext::~GrBitmapTextContext() {
     this->flushGlyphs();
+}
+
+static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
+    unsigned r = SkColorGetR(c);
+    unsigned g = SkColorGetG(c);
+    unsigned b = SkColorGetB(c);
+    return GrColorPackRGBA(r, g, b, 0xff);
 }
 
 void GrBitmapTextContext::flushGlyphs() {
@@ -65,12 +76,16 @@ void GrBitmapTextContext::flushGlyphs() {
                 fPaint.numColorStages()) {
                 GrPrintf("LCD Text will not draw correctly.\n");
             }
-            // setup blend so that we get mask * paintColor + (1-mask)*dstColor
-            drawState->setBlendConstant(fPaint.getColor());
+            // We don't use the GrPaint's color in this case because it's been premultiplied by
+            // alpha. Instead we feed in a non-premultiplied color, and multiply its alpha by
+            // the mask texture color. The end result is that we get 
+            //            mask*paintAlpha*paintColor + (1-mask*paintAlpha)*dstColor
+            int a = SkColorGetA(fSkPaintColor);
+            // paintAlpha
+            drawState->setColor(SkColorSetARGB(a, a, a, a));
+            // paintColor
+            drawState->setBlendConstant(skcolor_to_grcolor_nopremultiply(fSkPaintColor));
             drawState->setBlendFunc(kConstC_GrBlendCoeff, kISC_GrBlendCoeff);
-            // don't modulate by the paint's color in the frag since we're
-            // already doing it via the blend const.
-            drawState->setColor(0xffffffff);
         } else {
             // set back to normal in case we took LCD path previously.
             drawState->setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
@@ -82,6 +97,7 @@ void GrBitmapTextContext::flushGlyphs() {
         fDrawTarget->drawIndexedInstances(kTriangles_GrPrimitiveType,
                                           nGlyphs,
                                           4, 6);
+
         fDrawTarget->resetVertexSource();
         fVertices = NULL;
         fMaxVertices = 0;
