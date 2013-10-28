@@ -24,15 +24,15 @@ public:
 protected:
     virtual void onPreDraw() SK_OVERRIDE {
         if (!fInitialized) {
-            make_bitmap();
-            make_checkerboard();
+            this->makeBitmap();
+            this->makeCheckerboard();
             fInitialized = true;
         }
     }
 
-    void make_bitmap() {
-        const int w = isSmall() ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
-        const int h = isSmall() ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
+    void makeBitmap() {
+        const int w = this->isSmall() ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
+        const int h = this->isSmall() ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
         fBitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
         fBitmap.allocPixels();
         SkBitmapDevice device(fBitmap);
@@ -46,9 +46,9 @@ protected:
         canvas.drawText(str, strlen(str), SkIntToScalar(15), SkIntToScalar(55), paint);
     }
 
-    void make_checkerboard() {
-        const int w = isSmall() ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
-        const int h = isSmall() ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
+    void makeCheckerboard() {
+        const int w = this->isSmall() ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
+        const int h = this->isSmall() ? FILTER_HEIGHT_LARGE : FILTER_HEIGHT_LARGE;
         fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config, w, h);
         fCheckerboard.allocPixels();
         SkBitmapDevice device(fCheckerboard);
@@ -74,7 +74,8 @@ protected:
     void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) {
         canvas->save();
         canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
-            SkIntToScalar(fBitmap.width()), SkIntToScalar(fBitmap.height())));
+                                          SkIntToScalar(fBitmap.width()), 
+                                          SkIntToScalar(fBitmap.height())));
         canvas->drawBitmap(fBitmap, SkIntToScalar(x), SkIntToScalar(y), &paint);
         canvas->restore();
     }
@@ -95,7 +96,7 @@ public:
 
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
-        return isSmall() ? "displacement_zero_small" : "displacement_zero_large";
+        return this->isSmall() ? "displacement_zero_small" : "displacement_zero_large";
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
@@ -107,7 +108,7 @@ protected:
              SkDisplacementMapEffect::kG_ChannelSelectorType, 0.0f, displ)))->unref();
 
         for (int i = 0; i < this->getLoops(); i++) {
-            drawClippedBitmap(canvas, 0, 0, paint);
+            this->drawClippedBitmap(canvas, 0, 0, paint);
         }
     }
 
@@ -158,8 +159,8 @@ protected:
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kR_ChannelSelectorType,
              SkDisplacementMapEffect::kB_ChannelSelectorType, 32.0f, displ)))->unref();
-        for (int i = 0; i < this->getLoops(); i++) {
-            drawClippedBitmap(canvas, 200, 0, paint);
+        for (int i = 0; i < this->getLoops(); ++i) {
+            this->drawClippedBitmap(canvas, 200, 0, paint);
         }
     }
 
