@@ -8,12 +8,14 @@
 #include "SkFlattenableSerialization.h"
 
 #include "SkData.h"
-#include "SkValidatingReadBuffer.h"
+#include "SkFlattenable.h"
+#include "SkImageFilter.h"
+#include "SkOrderedReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
 
-SkData* SkValidatingSerializeFlattenable(SkFlattenable* flattenable) {
+SkData* SkSerializeFlattenable(SkFlattenable* flattenable) {
     SkOrderedWriteBuffer writer(1024);
-    writer.setFlags(SkOrderedWriteBuffer::kValidation_Flag);
+    writer.setFlags(SkOrderedWriteBuffer::kCrossProcess_Flag);
     writer.writeFlattenable(flattenable);
     uint32_t size = writer.bytesWritten();
     void* data = sk_malloc_throw(size);
@@ -21,8 +23,8 @@ SkData* SkValidatingSerializeFlattenable(SkFlattenable* flattenable) {
     return SkData::NewFromMalloc(data, size);
 }
 
-SkFlattenable* SkValidatingDeserializeFlattenable(const void* data, size_t size,
-                                                  SkFlattenable::Type type) {
-    SkValidatingReadBuffer buffer(data, size);
-    return buffer.readFlattenable(type);
+// TODO: this guy should be renamed to ImageFilter, or take SkFlattenable::Type as a parameter.
+SkFlattenable* SkDeserializeFlattenable(const void* data, size_t size) {
+    SkOrderedReadBuffer buffer(data, size);
+    return buffer.readImageFilter();
 }

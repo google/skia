@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2013 Google Inc.
  *
@@ -6,14 +7,13 @@
  */
 #include "SampleCode.h"
 #include "SkBicubicImageFilter.h"
-#include "SkBitmapDevice.h"
 #include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkComposeImageFilter.h"
-#include "SkData.h"
+#include "SkBitmapDevice.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkFlattenableSerialization.h"
@@ -262,25 +262,6 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
     return (filter || canBeNull) ? filter : make_image_filter(canBeNull);
 }
 
-static SkImageFilter* make_serialized_image_filter() {
-    SkAutoTUnref<SkImageFilter> filter(make_image_filter(false));
-    SkAutoTUnref<SkData> data(SkValidatingSerializeFlattenable(filter));
-    const unsigned char* ptr = static_cast<const unsigned char*>(data->data());
-    size_t len = data->size();
-#ifdef SK_ADD_RANDOM_BIT_FLIPS
-    unsigned char* p = const_cast<unsigned char*>(ptr);
-    for (size_t i = 0; i < len; ++i, ++p) {
-        if ((R(1000) == 1)) { // 0.1% of the time, flip a bit
-            *p ^= (1 << R(8));
-        }
-    }
-#endif // SK_ADD_RANDOM_BIT_FLIPS
-    SkFlattenable* flattenable = SkValidatingDeserializeFlattenable(ptr, len,
-                                    SkImageFilter::GetFlattenableType());
-    SkASSERT(NULL != flattenable);
-    return static_cast<SkImageFilter*>(flattenable);
-}
-
 static void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& paint) {
     canvas->save();
     canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
@@ -291,7 +272,7 @@ static void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& pai
 
 static void do_fuzz(SkCanvas* canvas) {
     SkPaint paint;
-    paint.setImageFilter(make_serialized_image_filter())->unref();
+    paint.setImageFilter(make_image_filter());
     drawClippedBitmap(canvas, 0, 0, paint);
 }
 
