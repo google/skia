@@ -11,6 +11,7 @@
 #include "SkData.h"
 #include "SkImageCache.h"
 #include "SkImagePriv.h"
+#include "SkScaledImageCache.h"
 
 #if LAZY_CACHE_STATS
 #include "SkThread.h"
@@ -22,9 +23,9 @@ int32_t SkLazyPixelRef::gCacheMisses;
 SkLazyPixelRef::SkLazyPixelRef(SkData* data, SkBitmapFactory::DecodeProc proc, SkImageCache* cache)
     // Pass NULL for the Mutex so that the default (ring buffer) will be used.
     : INHERITED(NULL)
+    , fErrorInDecoding(false)
     , fDecodeProc(proc)
     , fImageCache(cache)
-    , fCacheId(SkImageCache::UNINITIALIZED_ID)
     , fRowBytes(0) {
     SkASSERT(fDecodeProc != NULL);
     if (NULL == data) {
@@ -35,8 +36,12 @@ SkLazyPixelRef::SkLazyPixelRef(SkData* data, SkBitmapFactory::DecodeProc proc, S
         fData->ref();
         fErrorInDecoding = data->size() == 0;
     }
-    SkASSERT(cache != NULL);
-    cache->ref();
+    if (fImageCache != NULL) {
+        fImageCache->ref();
+        fCacheId = SkImageCache::UNINITIALIZED_ID;
+    } else {
+        fScaledCacheId = NULL;
+    }
 
     // mark as uninitialized -- all fields are -1
     memset(&fLazilyCachedInfo, 0xFF, sizeof(fLazilyCachedInfo));
@@ -48,6 +53,14 @@ SkLazyPixelRef::SkLazyPixelRef(SkData* data, SkBitmapFactory::DecodeProc proc, S
 SkLazyPixelRef::~SkLazyPixelRef() {
     SkASSERT(fData != NULL);
     fData->unref();
+    if (NULL == fImageCache) {
+        if (fScaledCacheId != NULL) {
+            SkScaledImageCache::Unlock(fScaledCacheId);
+            // TODO(halcanary): SkScaledImageCache needs a
+            // throwAwayCache(id) method.
+        }
+        return;
+    }
     SkASSERT(fImageCache);
     if (fCacheId != SkImageCache::UNINITIALIZED_ID) {
         fImageCache->throwAwayCache(fCacheId);
@@ -79,10 +92,91 @@ const SkImage::Info* SkLazyPixelRef::getCachedInfo() {
     return &fLazilyCachedInfo;
 }
 
+/**
+   Returns bitmap->getPixels() on success; NULL on failure */
+static void* decode_into_bitmap(SkImage::Info* info,
+                                SkBitmapFactory::DecodeProc decodeProc,
+                                size_t* rowBytes,
+                                SkData* data,
+                                SkBitmap* bm) {
+    SkASSERT(info && decodeProc && rowBytes && data && bm);
+    if (!(bm->setConfig(SkImageInfoToBitmapConfig(*info), info->fWidth,
+                        info->fHeight, *rowBytes, info->fAlphaType)
+          && bm->allocPixels(NULL, NULL))) {
+        // Use the default allocator.  It may be necessary for the
+        // SkLazyPixelRef to have a allocator field which is passed
+        // into allocPixels().
+        return NULL;
+    }
+    SkBitmapFactory::Target target;
+    target.fAddr = bm->getPixels();
+    target.fRowBytes = bm->rowBytes();
+    *rowBytes = target.fRowBytes;
+    if (!decodeProc(data->data(), data->size(), info, &target)) {
+        return NULL;
+    }
+    return target.fAddr;
+}
+
+void* SkLazyPixelRef::lockScaledImageCachePixels() {
+    SkASSERT(!fErrorInDecoding);
+    SkASSERT(NULL == fImageCache);
+    SkBitmap bitmap;
+    const SkImage::Info* info = this->getCachedInfo();
+    if (info == NULL) {
+        return NULL;
+    }
+    // If this is the first time though, this is guaranteed to fail.
+    // Maybe we should have a flag that says "don't even bother looking"
+    fScaledCacheId = SkScaledImageCache::FindAndLock(this->getGenerationID(),
+                                                     info->fWidth,
+                                                     info->fHeight,
+                                                     &bitmap);
+    if (fScaledCacheId != NULL) {
+        SkAutoLockPixels autoLockPixels(bitmap);
+        void* pixels = bitmap.getPixels();
+        SkASSERT(NULL != pixels);
+        // At this point, the autoLockPixels will unlockPixels()
+        // to remove bitmap's lock on the pixels.  We will then
+        // destroy bitmap.  The *only* guarantee that this pointer
+        // remains valid is the guarantee made by
+        // SkScaledImageCache that it will not destroy the *other*
+        // bitmap (SkScaledImageCache::Rec.fBitmap) that holds a
+        // reference to the concrete PixelRef while this record is
+        // locked.
+        return pixels;
+    } else {
+        // Cache has been purged, must re-decode.
+        void* pixels = decode_into_bitmap(const_cast<SkImage::Info*>(info),
+                                          fDecodeProc, &fRowBytes, fData,
+                                          &bitmap);
+        if (NULL == pixels) {
+            fErrorInDecoding = true;
+            return NULL;
+        }
+        fScaledCacheId = SkScaledImageCache::AddAndLock(this->getGenerationID(),
+                                                        info->fWidth,
+                                                        info->fHeight,
+                                                        bitmap);
+        SkASSERT(fScaledCacheId != NULL);
+        return pixels;
+    }
+}
+
 void* SkLazyPixelRef::onLockPixels(SkColorTable**) {
     if (fErrorInDecoding) {
         return NULL;
     }
+    if (NULL == fImageCache) {
+        return this->lockScaledImageCachePixels();
+    } else {
+        return this->lockImageCachePixels();
+    }
+}
+
+void* SkLazyPixelRef::lockImageCachePixels() {
+    SkASSERT(fImageCache != NULL);
+    SkASSERT(!fErrorInDecoding);
     SkBitmapFactory::Target target;
     // Check to see if the pixels still exist in the cache.
     if (SkImageCache::UNINITIALIZED_ID == fCacheId) {
@@ -147,8 +241,19 @@ void SkLazyPixelRef::onUnlockPixels() {
     if (fErrorInDecoding) {
         return;
     }
-    if (fCacheId != SkImageCache::UNINITIALIZED_ID) {
-        fImageCache->releaseCache(fCacheId);
+    if (NULL == fImageCache) {
+        // onUnlockPixels() should never be called a second time from
+        // PixelRef::Unlock() without calling onLockPixels() first.
+        SkASSERT(NULL != fScaledCacheId);
+        if (NULL != fScaledCacheId) {
+            SkScaledImageCache::Unlock(fScaledCacheId);
+            fScaledCacheId = NULL;
+        }
+    } else {  // use fImageCache
+        SkASSERT(SkImageCache::UNINITIALIZED_ID != fCacheId);
+        if (SkImageCache::UNINITIALIZED_ID != fCacheId) {
+            fImageCache->releaseCache(fCacheId);
+        }
     }
 }
 
@@ -156,8 +261,6 @@ SkData* SkLazyPixelRef::onRefEncodedData() {
     fData->ref();
     return fData;
 }
-
-#include "SkImagePriv.h"
 
 static bool init_from_info(SkBitmap* bm, const SkImage::Info& info,
                            size_t rowBytes) {
@@ -206,3 +309,4 @@ bool SkLazyPixelRef::onDecodeInto(int pow2, SkBitmap* bitmap) {
     *bitmap = tmp;
     return true;
 }
+

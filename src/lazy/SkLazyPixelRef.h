@@ -10,8 +10,10 @@
 
 #include "SkBitmapFactory.h"
 #include "SkImage.h"
+#include "SkImageCache.h"
 #include "SkPixelRef.h"
 #include "SkFlattenable.h"
+#include "SkScaledImageCache.h"
 
 class SkColorTable;
 class SkData;
@@ -33,8 +35,9 @@ public:
      *  Create a new SkLazyPixelRef.
      *  @param SkData Encoded data representing the pixels.
      *  @param DecodeProc Called to decode the pixels when needed. Must be non-NULL.
-     *  @param SkImageCache Object that handles allocating and freeing the pixel memory, as needed.
-     *         Must not be NULL.
+     *  @param SkImageCache Object that handles allocating and freeing
+     *         the pixel memory, as needed.  If NULL, use the global
+     *         SkScaledImageCache.
      */
     SkLazyPixelRef(SkData*, SkBitmapFactory::DecodeProc, SkImageCache*);
 
@@ -69,7 +72,10 @@ private:
     SkData*                     fData;
     SkBitmapFactory::DecodeProc fDecodeProc;
     SkImageCache*               fImageCache;
-    intptr_t                    fCacheId;
+    union {
+        SkImageCache::ID        fCacheId;
+        SkScaledImageCache::ID* fScaledCacheId;
+    };
     size_t                      fRowBytes;
     SkImage::Info               fLazilyCachedInfo;
 
@@ -80,6 +86,9 @@ private:
 
     // lazily initialized our cached info. Returns NULL on failure.
     const SkImage::Info* getCachedInfo();
+    void* lockScaledImageCachePixels();
+    void* lockImageCachePixels();
+
 
     typedef SkPixelRef INHERITED;
 };

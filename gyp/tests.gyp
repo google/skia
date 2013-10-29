@@ -10,6 +10,7 @@
       'include_dirs' : [
         '../src/core',
         '../src/effects',
+        '../src/image',
         '../src/lazy',
         '../src/pathops',
         '../src/pdf',
@@ -34,6 +35,7 @@
         '../tests/BitSetTest.cpp',
         '../tests/BlitRowTest.cpp',
         '../tests/BlurTest.cpp',
+        '../tests/CachedDecodingPixelRefTest.cpp',
         '../tests/CanvasTest.cpp',
         '../tests/CanvasStateTest.cpp',
         '../tests/ChecksumTest.cpp',
