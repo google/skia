@@ -229,14 +229,8 @@ void SkMatrix44::preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
         return;
     }
 
-    const double X = SkMScalarToDouble(dx);
-    const double Y = SkMScalarToDouble(dy);
-    const double Z = SkMScalarToDouble(dz);
-
-    double tmp;
     for (int i = 0; i < 4; ++i) {
-        tmp = fMat[0][i] * X + fMat[1][i] * Y + fMat[2][i] * Z + fMat[3][i];
-        fMat[3][i] = SkDoubleToMScalar(tmp);
+        fMat[3][i] = fMat[0][i] * dx + fMat[1][i] * dy + fMat[2][i] * dz + fMat[3][i];
     }
     this->dirtyTypeMask();
 }
@@ -783,10 +777,10 @@ static void map2_sd(const SkMScalar mat[][4], const double* SK_RESTRICT src2,
 
 static void map2_af(const SkMScalar mat[][4], const float* SK_RESTRICT src2,
                     int count, float* SK_RESTRICT dst4) {
-    double r;
+    SkMScalar r;
     for (int n = 0; n < count; ++n) {
-        double sx = src2[0];
-        double sy = src2[1];
+        SkMScalar sx = SkFloatToMScalar(src2[0]);
+        SkMScalar sy = SkFloatToMScalar(src2[1]);
         r = mat[0][0] * sx + mat[1][0] * sy + mat[3][0];
         dst4[0] = SkMScalarToFloat(r);
         r = mat[0][1] * sx + mat[1][1] * sy + mat[3][1];
@@ -815,14 +809,13 @@ static void map2_ad(const SkMScalar mat[][4], const double* SK_RESTRICT src2,
 
 static void map2_pf(const SkMScalar mat[][4], const float* SK_RESTRICT src2,
                     int count, float* SK_RESTRICT dst4) {
+    SkMScalar r;
     for (int n = 0; n < count; ++n) {
-        float sx = src2[0];
-        float sy = src2[1];
+        SkMScalar sx = SkFloatToMScalar(src2[0]);
+        SkMScalar sy = SkFloatToMScalar(src2[1]);
         for (int i = 0; i < 4; i++) {
-            dst4[i] =
-                SkMScalarToFloat(mat[0][i]) * sx +
-                SkMScalarToFloat(mat[1][i]) * sy +
-                SkMScalarToFloat(mat[3][i]);
+            r = mat[0][i] * sx + mat[1][i] * sy + mat[3][i];
+            dst4[i] = SkMScalarToFloat(r);
         }
         src2 += 2;
         dst4 += 4;
