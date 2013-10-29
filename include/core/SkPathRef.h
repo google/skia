@@ -227,13 +227,6 @@ public:
      */
     uint32_t writeSize();
 
-    /**
-     * Gets an ID that uniquely identifies the contents of the path ref. If two path refs have the
-     * same ID then they have the same verbs and points. However, two path refs may have the same
-     * contents but different genIDs.
-     */
-    uint32_t genID() const;
-
 private:
     enum SerializationOffsets {
         kIsFinite_SerializationShift = 25,  // requires 1 bit
@@ -387,6 +380,14 @@ private:
         return reinterpret_cast<intptr_t>(fVerbs) - reinterpret_cast<intptr_t>(fPoints);
     }
 
+    /**
+     * Gets an ID that uniquely identifies the contents of the path ref. If two path refs have the
+     * same ID then they have the same verbs and points. However, two path refs may have the same
+     * contents but different genIDs. Zero is reserved and means an ID has not yet been determined
+     * for the path ref.
+     */
+    int32_t genID() const;
+
     SkDEBUGCODE(void validate() const;)
 
     /**
@@ -412,7 +413,7 @@ private:
     enum {
         kEmptyGenID = 1, // GenID reserved for path ref with zero points and zero verbs.
     };
-    mutable uint32_t    fGenerationID;
+    mutable int32_t     fGenerationID;
     SkDEBUGCODE(int32_t fEditorsAttached;) // assert that only one editor in use at any time.
 
     typedef SkRefCnt INHERITED;

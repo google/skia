@@ -147,7 +147,7 @@ private:
 SkPath::SkPath()
     : fPathRef(SkPathRef::CreateEmpty())
 #ifdef SK_BUILD_FOR_ANDROID
-    , fSourcePath(NULL)
+    , fGenerationID(0)
 #endif
 {
     this->resetFields();
@@ -161,15 +161,18 @@ void SkPath::resetFields() {
     fConvexity = kUnknown_Convexity;
     fDirection = kUnknown_Direction;
     fIsOval = false;
-
-    // We don't touch Android's fSourcePath.  It's used to track texture garbage collection, so we
-    // don't want to muck with it if it's been set to something non-NULL.
+#ifdef SK_BUILD_FOR_ANDROID
+    GEN_ID_INC;
+    // We don't touch fSourcePath.  It's used to track texture garbage collection, so we don't
+    // want to muck with it if it's been set to something non-NULL.
+#endif
 }
 
 SkPath::SkPath(const SkPath& that)
     : fPathRef(SkRef(that.fPathRef.get())) {
     this->copyFields(that);
 #ifdef SK_BUILD_FOR_ANDROID
+    fGenerationID = that.fGenerationID;
     fSourcePath   = that.fSourcePath;
 #endif
     SkDEBUGCODE(that.validate();)
@@ -186,6 +189,7 @@ SkPath& SkPath::operator=(const SkPath& that) {
         fPathRef.reset(SkRef(that.fPathRef.get()));
         this->copyFields(that);
 #ifdef SK_BUILD_FOR_ANDROID
+        GEN_ID_INC;  // Similar to swap, we can't just copy this or it could go back in time.
         fSourcePath = that.fSourcePath;
 #endif
     }
@@ -228,6 +232,10 @@ void SkPath::swap(SkPath& that) {
         SkTSwap<uint8_t>(fDirection, that.fDirection);
         SkTSwap<SkBool8>(fIsOval, that.fIsOval);
 #ifdef SK_BUILD_FOR_ANDROID
+        // It doesn't really make sense to swap the generation IDs here, because they might go
+        // backwards.  To be safe we increment both to mark them both as changed.
+        GEN_ID_INC;
+        GEN_ID_PTR_INC(&that);
         SkTSwap<const SkPath*>(fSourcePath, that.fSourcePath);
 #endif
     }
@@ -320,16 +328,11 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
     return check_edge_against_rect(prevPt, firstPt, rect, direction);
 }
 
-uint32_t SkPath::getGenerationID() const {
-    uint32_t genID = fPathRef->genID();
 #ifdef SK_BUILD_FOR_ANDROID
-    SkASSERT((unsigned)fFillType < (1 << (32 - kPathRefGenIDBitCnt)));
-    genID |= static_cast<uint32_t>(fFillType) << kPathRefGenIDBitCnt;
-#endif
-    return genID;
+uint32_t SkPath::getGenerationID() const {
+    return fGenerationID;
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
 const SkPath* SkPath::getSourcePath() const {
     return fSourcePath;
 }
@@ -630,12 +633,14 @@ void SkPath::setLastPt(SkScalar x, SkScalar y) {
         fIsOval = false;
         SkPathRef::Editor ed(&fPathRef);
         ed.atPoint(count-1)->set(x, y);
+        GEN_ID_INC;
     }
 }
 
 void SkPath::setConvexity(Convexity c) {
     if (fConvexity != c) {
         fConvexity = c;
+        GEN_ID_INC;
     }
 }
 
@@ -664,6 +669,8 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     fLastMoveToIndex = ed.pathRef()->countPoints();
 
     ed.growForVerb(kMove_Verb)->set(x, y);
+
+    GEN_ID_INC;
 }
 
 void SkPath::rMoveTo(SkScalar x, SkScalar y) {
@@ -695,6 +702,7 @@ void SkPath::lineTo(SkScalar x, SkScalar y) {
     ed.growForVerb(kLine_Verb)->set(x, y);
     fSegmentMask |= kLine_SegmentMask;
 
+    GEN_ID_INC;
     DIRTY_AFTER_EDIT;
 }
 
@@ -716,6 +724,7 @@ void SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     pts[1].set(x2, y2);
     fSegmentMask |= kQuad_SegmentMask;
 
+    GEN_ID_INC;
     DIRTY_AFTER_EDIT;
 }
 
@@ -747,6 +756,7 @@ void SkPath::conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
         pts[1].set(x2, y2);
         fSegmentMask |= kConic_SegmentMask;
 
+        GEN_ID_INC;
         DIRTY_AFTER_EDIT;
     }
 }
@@ -772,6 +782,7 @@ void SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     pts[2].set(x3, y3);
     fSegmentMask |= kCubic_SegmentMask;
 
+    GEN_ID_INC;
     DIRTY_AFTER_EDIT;
 }
 
@@ -797,6 +808,7 @@ void SkPath::close() {
             case kMove_Verb: {
                 SkPathRef::Editor ed(&fPathRef);
                 ed.growForVerb(kClose_Verb);
+                GEN_ID_INC;
                 break;
             }
             case kClose_Verb:
@@ -882,6 +894,7 @@ void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
         vb[~count] = kClose_Verb;
     }
 
+    GEN_ID_INC;
     DIRTY_AFTER_EDIT;
     SkDEBUGCODE(this->validate();)
 }
@@ -1707,6 +1720,12 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fConvexity = fConvexity;
         }
 
+#ifdef SK_BUILD_FOR_ANDROID
+        if (!matrix.isIdentity() && !dst->hasComputedBounds()) {
+            GEN_ID_PTR_INC(dst);
+        }
+#endif
+
         if (kUnknown_Direction == fDirection) {
             dst->fDirection = kUnknown_Direction;
         } else {
@@ -2114,6 +2133,8 @@ uint32_t SkPath::readFromMemory(const void* storage) {
         );
 
     buffer.skipToAlign4();
+
+    GEN_ID_INC;
 
     SkDEBUGCODE(this->validate();)
     return SkToU32(buffer.pos());

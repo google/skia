@@ -16,6 +16,14 @@
 #include "SkTDArray.h"
 #include "SkRefCnt.h"
 
+#ifdef SK_BUILD_FOR_ANDROID
+#define GEN_ID_INC              fGenerationID++
+#define GEN_ID_PTR_INC(ptr)     (ptr)->fGenerationID++
+#else
+#define GEN_ID_INC
+#define GEN_ID_PTR_INC(ptr)
+#endif
+
 class SkReader32;
 class SkWriter32;
 class SkAutoPathBoundsUpdate;
@@ -32,10 +40,10 @@ public:
     SK_DECLARE_INST_COUNT_ROOT(SkPath);
 
     SkPath();
-    SkPath(const SkPath&);
+    SkPath(const SkPath&);  // Copies fGenerationID on Android.
     ~SkPath();
 
-    SkPath& operator=(const SkPath&);
+    SkPath& operator=(const SkPath&);  // Increments fGenerationID on Android.
     friend  SK_API bool operator==(const SkPath&, const SkPath&);
     friend bool operator!=(const SkPath& a, const SkPath& b) {
         return !(a == b);
@@ -72,6 +80,7 @@ public:
     */
     void setFillType(FillType ft) {
         fFillType = SkToU8(ft);
+        GEN_ID_INC;
     }
 
     /** Returns true if the filltype is one of the Inverse variants */
@@ -83,6 +92,7 @@ public:
      */
     void toggleInverseFillType() {
         fFillType ^= 2;
+        GEN_ID_INC;
      }
 
     enum Convexity {
@@ -904,25 +914,16 @@ public:
      *  If buffer is NULL, it still returns the number of bytes.
      */
     uint32_t writeToMemory(void* buffer) const;
-
     /**
      *  Initialized the region from the buffer, returning the number
      *  of bytes actually read.
      */
     uint32_t readFromMemory(const void* buffer);
 
-    /** Returns a non-zero, globally unique value corresponding to the set of verbs
-        and points in the path (but not the fill type [except on Android skbug.com/1762]).
-        Each time the path is modified, a different generation ID will be returned. 
-    */
-    uint32_t getGenerationID() const;
-
 #ifdef SK_BUILD_FOR_ANDROID
-    static const int kPathRefGenIDBitCnt = 30; // leave room for the fill type (skbug.com/1762)
+    uint32_t getGenerationID() const;
     const SkPath* getSourcePath() const;
     void setSourcePath(const SkPath* path);
-#else
-    static const int kPathRefGenIDBitCnt = 32;
 #endif
 
     SkDEBUGCODE(void validate() const;)
@@ -952,6 +953,7 @@ private:
     mutable uint8_t     fDirection;
     mutable SkBool8     fIsOval;
 #ifdef SK_BUILD_FOR_ANDROID
+    uint32_t            fGenerationID;
     const SkPath*       fSourcePath;
 #endif
 
