@@ -45,11 +45,8 @@ static inline void print128f(__m128 value) {
 // because the border is handled specially, this is guaranteed to have all 16 pixels
 // available to it without running off the bitmap's edge.
 
-int debug_x = 20;
-int debug_y = 255;
-
 void highQualityFilter_SSE2(const SkBitmapProcState& s, int x, int y,
-                        SkPMColor* SK_RESTRICT colors, int count) {
+                            SkPMColor* SK_RESTRICT colors, int count) {
 
     const int maxX = s.fBitmap->width() - 1;
     const int maxY = s.fBitmap->height() - 1;
