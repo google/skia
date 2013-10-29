@@ -19,6 +19,7 @@ TODO(epoger): Fix indentation in this file (2-space indents, not 4-space).
 # common Python modules
 import optparse
 import os
+import posixpath
 import re
 import shutil
 import subprocess
@@ -87,8 +88,15 @@ def FindPathToSkDiff(user_set_path=None):
         raise Exception('unable to find skdiff at user-set path %s' %
                         user_set_path)
     trunk_path = os.path.join(os.path.dirname(__file__), os.pardir)
-    possible_paths = [os.path.join(trunk_path, 'out', 'Release', 'skdiff'),
-                      os.path.join(trunk_path, 'out', 'Debug', 'skdiff')]
+
+    extension = ''
+    if os.name is 'nt':
+        extension = '.exe'
+        
+    possible_paths = [os.path.join(trunk_path, 'out', 'Release',
+                                    'skdiff' + extension),
+                      os.path.join(trunk_path, 'out', 'Debug',
+                                   'skdiff' + extension)]
     for try_path in possible_paths:
         if os.path.isfile(try_path):
             return try_path
@@ -202,7 +210,9 @@ def _GitExportBaseVersionOfFile(file_within_repo, dest_path):
     # For now, though, "git show" is the most straightforward implementation
     # I could come up with.  I tried using "git cat-file", but I had trouble
     # getting it to work as desired.
-    args = ['git', 'show', os.path.join('HEAD:.', file_within_repo)]
+    # Note that git expects / rather than \ as a path separator even on
+    # windows.
+    args = ['git', 'show', posixpath.join('HEAD:.', file_within_repo)]
     with open(dest_path, 'wb') as outfile:
         proc = subprocess.Popen(args, stdout=outfile)
         proc.communicate()
