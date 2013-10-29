@@ -11,15 +11,13 @@
 #include "SkPoint.h"
 #include "SkStream.h"
 
-SkAnnotation::SkAnnotation(const char key[], SkData* value, uint32_t flags)
-        : fKey(key) {
+SkAnnotation::SkAnnotation(const char key[], SkData* value) : fKey(key) {
     if (NULL == value) {
         value = SkData::NewEmpty();
     } else {
         value->ref();
     }
     fData = value;
-    fFlags = flags;
 }
 
 SkAnnotation::~SkAnnotation() {
@@ -31,13 +29,11 @@ SkData* SkAnnotation::find(const char key[]) const {
 }
 
 SkAnnotation::SkAnnotation(SkFlattenableReadBuffer& buffer) {
-    fFlags = buffer.readUInt();
     buffer.readString(&fKey);
     fData = buffer.readByteArrayAsData();
 }
 
 void SkAnnotation::writeToBuffer(SkFlattenableWriteBuffer& buffer) const {
-    buffer.writeUInt(fFlags);
     buffer.writeString(fKey.c_str());
     buffer.writeDataAsByteArray(fData);
 }
@@ -59,11 +55,7 @@ const char* SkAnnotationKeys::Link_Named_Dest_Key() {
 #include "SkCanvas.h"
 
 static void annotate_paint(SkPaint& paint, const char* key, SkData* value) {
-    SkAnnotation* ann = SkNEW_ARGS(SkAnnotation, (key, value,
-                                                  SkAnnotation::kNoDraw_Flag));
-
-    paint.setAnnotation(ann)->unref();
-    SkASSERT(paint.isNoDrawAnnotation());
+    paint.setAnnotation(SkNEW_ARGS(SkAnnotation, (key, value)))->unref();
 }
 
 void SkAnnotateRectWithURL(SkCanvas* canvas, const SkRect& rect, SkData* value) {

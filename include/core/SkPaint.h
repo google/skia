@@ -638,10 +638,10 @@ public:
     /**
      *  Returns true if there is an annotation installed on this paint, and
      *  the annotation specifics no-drawing.
+     *
+     *  Deprecated: all annotations are no-draw.  Please just check getAnnotation().
      */
-    bool isNoDrawAnnotation() const {
-        return SkToBool(fPrivFlags & kNoDrawAnnotation_PrivFlag);
-    }
+    bool isNoDrawAnnotation() const { return this->getAnnotation() != NULL; }
 
     /**
      *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
@@ -1006,11 +1006,8 @@ private:
     unsigned        fStyle : 2;
     unsigned        fTextEncoding : 2;  // 3 values
     unsigned        fHinting : 2;
-    unsigned        fPrivFlags : 4; // these are not flattened/unflattened
+    //unsigned      fFreeBits : 4;
 
-    enum PrivFlags {
-        kNoDrawAnnotation_PrivFlag  = 1 << 0,
-    };
 
     SkDrawCacheProc    getDrawCacheProc() const;
     SkMeasureCacheProc getMeasureCacheProc(TextBufferDirection dir,

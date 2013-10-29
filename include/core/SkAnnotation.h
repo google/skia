@@ -24,17 +24,8 @@ struct SkPoint;
  */
 class SkAnnotation : public SkRefCnt {
 public:
-    enum Flags {
-        // If set, the associated drawing primitive should not be drawn
-        kNoDraw_Flag  = 1 << 0,
-    };
-
-    SkAnnotation(const char key[], SkData* value, uint32_t flags);
+    SkAnnotation(const char key[], SkData* value);
     virtual ~SkAnnotation();
-
-    uint32_t getFlags() const { return fFlags; }
-
-    bool isNoDraw() const { return SkToBool(fFlags & kNoDraw_Flag); }
 
     /**
      *  Return the data for the specified key, or NULL.
@@ -47,7 +38,6 @@ public:
 private:
     SkString    fKey;
     SkData*     fData;
-    uint32_t    fFlags;
 
     typedef SkRefCnt INHERITED;
 };

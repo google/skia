@@ -80,7 +80,6 @@ SkPaint::SkPaint() {
     fStyle      = kFill_Style;
     fTextEncoding = kUTF8_TextEncoding;
     fHinting    = SkPaintDefaults_Hinting;
-    fPrivFlags  = 0;
 #ifdef SK_BUILD_FOR_ANDROID
     new (&fPaintOptionsAndroid) SkPaintOptionsAndroid;
     fGenerationID = 0;
@@ -427,10 +426,6 @@ SkImageFilter* SkPaint::setImageFilter(SkImageFilter* imageFilter) {
 SkAnnotation* SkPaint::setAnnotation(SkAnnotation* annotation) {
     SkRefCnt_SafeAssign(fAnnotation, annotation);
     GEN_ID_INC;
-
-    bool isNoDraw = annotation && annotation->isNoDraw();
-    fPrivFlags = SkSetClearMask(fPrivFlags, isNoDraw, kNoDrawAnnotation_PrivFlag);
-
     return annotation;
 }
 
@@ -2115,8 +2110,6 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
 }
 
 void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
-    fPrivFlags = 0;
-
     uint8_t flatFlags = 0;
     if (buffer.isOrderedBinaryBuffer()) {
         SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
