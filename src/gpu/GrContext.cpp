@@ -511,19 +511,25 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
     SkASSERT(NULL != texture->getCacheEntry());
 
     // Conceptually, the cache entry is going to assume responsibility
-    // for the creation ref.
+    // for the creation ref. Assert refcnt == 1.
     SkASSERT(texture->unique());
 
-    // Since this texture came from an AutoScratchTexture it should
-    // still be in the exclusive pile
-    fTextureCache->makeNonExclusive(texture->getCacheEntry());
-
     if (fGpu->caps()->reuseScratchTextures()) {
+        // Since this texture came from an AutoScratchTexture it should
+        // still be in the exclusive pile. Recycle it.
+        fTextureCache->makeNonExclusive(texture->getCacheEntry());
         this->purgeCache();
-    } else {
+    } else if (texture->getDeferredRefCount() <= 0) {
         // When we aren't reusing textures we know this scratch texture
         // will never be reused and would be just wasting time in the cache
+        fTextureCache->makeNonExclusive(texture->getCacheEntry());
         fTextureCache->deleteResource(texture->getCacheEntry());
+    } else {
+        // In this case (fDeferredRefCount > 0) but the cache is the only
+        // one holding a real ref. Mark the object so when the deferred
+        // ref count goes to 0 the texture will be deleted (remember
+        // in this code path scratch textures aren't getting reused).
+        texture->setNeedsDeferredUnref();
     }
 }
 
@@ -536,8 +542,25 @@ void GrContext::unlockScratchTexture(GrTexture* texture) {
     // while it was locked (to avoid two callers simultaneously getting
     // the same texture).
     if (texture->getCacheEntry()->key().isScratch()) {
-        fTextureCache->makeNonExclusive(texture->getCacheEntry());
-        this->purgeCache();
+        if (fGpu->caps()->reuseScratchTextures()) {
+            fTextureCache->makeNonExclusive(texture->getCacheEntry());
+            this->purgeCache();
+        } else if (texture->unique() && texture->getDeferredRefCount() <= 0) {
+            // Only the cache now knows about this texture. Since we're never 
+            // reusing scratch textures (in this code path) it would just be 
+            // wasting time sitting in the cache.
+            fTextureCache->makeNonExclusive(texture->getCacheEntry());
+            fTextureCache->deleteResource(texture->getCacheEntry());
+        } else {
+            // In this case (fRefCnt > 1 || defRefCnt > 0) but we don't really
+            // want to readd it to the cache (since it will never be reused). 
+            // Instead, give up the cache's ref and leave the decision up to
+            // addExistingTextureToCache once its ref count reaches 0. For
+            // this to work we need to leave it in the exclusive list.
+            texture->setFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit);
+            // Give up the cache's ref to the texture
+            texture->unref();
+        }
     }
 }
 

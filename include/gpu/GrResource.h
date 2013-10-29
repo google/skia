@@ -66,9 +66,23 @@ public:
     void setCacheEntry(GrResourceEntry* cacheEntry) { fCacheEntry = cacheEntry; }
     GrResourceEntry* getCacheEntry() { return fCacheEntry; }
 
-    void incDeferredRefCount() const { SkASSERT(fDeferredRefCount >= 0); ++fDeferredRefCount; }
-    void decDeferredRefCount() const { SkASSERT(fDeferredRefCount > 0); --fDeferredRefCount; }
+    void incDeferredRefCount() const { 
+        SkASSERT(fDeferredRefCount >= 0); 
+        ++fDeferredRefCount; 
+    }
+
+    void decDeferredRefCount() const { 
+        SkASSERT(fDeferredRefCount > 0); 
+        --fDeferredRefCount; 
+        if (0 == fDeferredRefCount && this->needsDeferredUnref()) {
+            SkASSERT(this->getRefCnt() > 1);
+            this->unref();
+        }
+    }
+
     int getDeferredRefCount() const { return fDeferredRefCount; }
+
+    void setNeedsDeferredUnref() { fFlags |= kDeferredUnref_FlagBit; }
 
 protected:
     /**
@@ -87,7 +101,8 @@ protected:
     virtual void onAbandon() {};
 
     bool isInCache() const { return NULL != fCacheEntry; }
-    bool isWrapped() const { return kWrapped_Flag & fFlags; }
+    bool isWrapped() const { return kWrapped_FlagBit & fFlags; }
+    bool needsDeferredUnref() const { return SkToBool(kDeferredUnref_FlagBit & fFlags); }
 
 private:
 #ifdef SK_DEBUG
@@ -105,7 +120,20 @@ private:
     mutable int         fDeferredRefCount;  // How many references in deferred drawing buffers.
 
     enum Flags {
-        kWrapped_Flag = 0x1,
+        /**
+         * This resource wraps a GPU resource given to us by the user.
+         * Lifetime management is left up to the user (i.e., we will not 
+         * free it).
+         */
+        kWrapped_FlagBit         = 0x1,
+
+        /**
+         * This texture should be de-refed when the deferred ref count goes
+         * to zero. A resource gets into this state when the resource cache
+         * is holding a ref-of-obligation (i.e., someone needs to own it but
+         * no one else wants to) but doesn't really want to keep it around.
+         */
+        kDeferredUnref_FlagBit  = 0x2,
     };
     uint32_t         fFlags;
 

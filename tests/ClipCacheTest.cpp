@@ -197,15 +197,12 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     // verify that the old state is restored
     check_state(reporter, cache, clip1, texture1, bound1);
     REPORTER_ASSERT(reporter, texture1->getRefCnt());
-    REPORTER_ASSERT(reporter, texture2->getRefCnt());
 
     // manually clear the state
     cache.reset();
 
     // verify it is now empty
     check_state(reporter, cache, emptyClip, NULL, emptyBound);
-    REPORTER_ASSERT(reporter, texture1->getRefCnt());
-    REPORTER_ASSERT(reporter, texture2->getRefCnt());
 
     // pop again - so there is no state
     cache.pop();
@@ -215,8 +212,6 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
     // only do in release since it generates asserts in debug
     check_state(reporter, cache, emptyClip, NULL, emptyBound);
 #endif
-    REPORTER_ASSERT(reporter, texture1->getRefCnt());
-    REPORTER_ASSERT(reporter, texture2->getRefCnt());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

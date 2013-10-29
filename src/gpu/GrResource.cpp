@@ -17,7 +17,7 @@ GrResource::GrResource(GrGpu* gpu, bool isWrapped) {
     fCacheEntry       = NULL;
     fDeferredRefCount = 0;
     if (isWrapped) {
-        fFlags = kWrapped_Flag;
+        fFlags = kWrapped_FlagBit;
     } else {
         fFlags = 0;
     }
