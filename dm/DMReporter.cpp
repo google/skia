@@ -1,8 +1,16 @@
 #include "DMReporter.h"
 
+#include "SkCommandLineFlags.h"
+
+DEFINE_bool(quiet, false, "If true, don't print status updates.");
+
 namespace DM {
 
 void Reporter::updateStatusLine() const {
+    if (FLAGS_quiet) {
+        return;
+    }
+
     SkString status;
     status.printf("\r\033[K%d / %d", this->finished(), this->started());
     const int failed = this->failed();
