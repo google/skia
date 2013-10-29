@@ -128,7 +128,7 @@ DEFINE_string2(match, m, NULL, "[~][^]substring[$] [...] of test name to run.\n"
                                "If a test does not match any list entry,\n" \
                                "it is skipped unless some list entry starts with ~");
 DEFINE_string2(tmpDir, t, NULL, "tmp directory for tests to use.");
-DEFINE_string2(resourcePath, i, NULL, "directory for test resources.");
+DEFINE_string2(resourcePath, i, "resources", "directory for test resources.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
 DEFINE_bool2(single, z, false, "run tests on a single thread internally.");
 DEFINE_bool2(verbose, v, false, "enable verbose output.");
