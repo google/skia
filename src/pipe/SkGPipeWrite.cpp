@@ -1128,18 +1128,17 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
 
     if (base.getAnnotation() != paint.getAnnotation()) {
         if (NULL == paint.getAnnotation()) {
-            this->writeOp(kSetAnnotation_DrawOp, 0, 0);
+            if (this->needOpBytes()) {
+                this->writeOp(kSetAnnotation_DrawOp, 0, 0);
+            }
         } else {
             SkOrderedWriteBuffer buffer(1024);
             paint.getAnnotation()->writeToBuffer(buffer);
-            size = buffer.bytesWritten();
-
-            SkAutoMalloc storage(size);
-            buffer.writeToMemory(storage.get());
-
-            this->writeOp(kSetAnnotation_DrawOp, 0, 1);
-            fWriter.write32(size);
-            fWriter.write(storage.get(), size);
+            const size_t size = buffer.bytesWritten();
+            if (this->needOpBytes(size)) {
+                this->writeOp(kSetAnnotation_DrawOp, 0, size);
+                buffer.writeToMemory(fWriter.reserve(size));
+            }
         }
         base.setAnnotation(paint.getAnnotation());
     }

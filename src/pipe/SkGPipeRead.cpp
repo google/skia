@@ -691,13 +691,11 @@ static void annotation_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
                           SkGPipeState* state) {
     SkPaint* p = state->editPaint();
 
-    if (SkToBool(PaintOp_unpackData(op32))) {
-        const size_t size = reader->readU32();
-        SkAutoMalloc storage(size);
-
-        reader->read(storage.get(), size);
-        SkOrderedReadBuffer buffer(storage.get(), size);
+    const size_t size = DrawOp_unpackData(op32);
+    if (size > 0) {
+        SkOrderedReadBuffer buffer(reader->skip(size), size);
         p->setAnnotation(SkNEW_ARGS(SkAnnotation, (buffer)))->unref();
+        SkASSERT(buffer.offset() == size);
     } else {
         p->setAnnotation(NULL);
     }

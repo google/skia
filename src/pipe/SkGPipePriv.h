@@ -236,8 +236,6 @@ enum PaintOps {
     kTextSkewX_PaintOp, // arg scalar - text
     kTypeface_PaintOp,  // arg inline (index) - text
 
-    kAnnotation_PaintOp,// arg SkAnnotation_flat, data=bool-has-size
-
     kFlatIndex_PaintOp, // flags=paintflat, data=index
 };
 
