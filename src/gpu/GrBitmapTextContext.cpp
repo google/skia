@@ -78,7 +78,7 @@ void GrBitmapTextContext::flushGlyphs() {
             }
             // We don't use the GrPaint's color in this case because it's been premultiplied by
             // alpha. Instead we feed in a non-premultiplied color, and multiply its alpha by
-            // the mask texture color. The end result is that we get 
+            // the mask texture color. The end result is that we get
             //            mask*paintAlpha*paintColor + (1-mask*paintAlpha)*dstColor
             int a = SkColorGetA(fSkPaintColor);
             // paintAlpha
