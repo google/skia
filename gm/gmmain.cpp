@@ -1724,7 +1724,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
             errorsForAllModes.add(kIntentionallySkipped_ErrorType);
         } else {
             SkPicture* pict = gmmain.generate_new_picture(
-                gm, kRTree_BbhType, SkPicture::kUsePathBoundsForClip_RecordingFlag);
+                gm, kRTree_BbhType, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
             SkAutoUnref aur(pict);
             SkBitmap bitmap;
             gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap);
