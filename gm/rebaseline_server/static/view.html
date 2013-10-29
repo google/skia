@@ -33,9 +33,6 @@
           new results and tell the user when new results are available
           (the user can reload the page if he wants to see them).
         </li><li>
-          Add ability to filter builder and test names
-          (using a free-form text field, with partial string match)
-        </li><li>
           Add pixel diffs, and sorting by percentage of different pixels
         </li><li>
           Add ability to sort/filter by reviewed-by-human. Depends on
@@ -48,6 +45,14 @@
           <a href="http://jsfiddle.net/vojtajina/js64b/14/">
             http://jsfiddle.net/vojtajina/js64b/14/
           </a>
+        </li><li>
+          For the text-filtered categories, allow regular expression matching
+          (or Unix-style wildcard matching) instead of simple substring match?
+          <!-- In order to do this efficiently, we should probably do the
+               expression matching over the list of categories returned,
+               use that to generate a list of category values that fulfill the
+               regex, and when filtering the results just look for category
+               values within that list. -->
         </li><li>
           Right now, if you change which column is used to
           sort the data, the column widths may fluctuate based on the
@@ -80,7 +85,7 @@
     <!-- We only show the filters/settings table on the Unfiled tab. -->
     <table ng-hide="viewingTab != defaultTab" border="1">
     <tr>
-      <th colspan="2">
+      <th colspan="4">
         Filters
       </th>
       <th>
@@ -99,6 +104,27 @@
                  ng-click="toggleValueInSet(resultType, hiddenResultTypes); setUpdatesPending(true)">
           {{resultType}} ({{count}})<br>
         </label>
+        <button ng-click="hiddenResultTypes = {}; updateResults()">
+          all
+        </button>
+        <button ng-click="hiddenResultTypes = {}; toggleValuesInSet(allResultTypes, hiddenResultTypes); updateResults()">
+          none
+        </button>
+        <button ng-click="toggleValuesInSet(allResultTypes, hiddenResultTypes); updateResults()">
+          toggle
+        </button>
+      </td>
+      <td ng-repeat="category in ['builder', 'test']">
+        {{category}}
+        <br>
+        <input type="text"
+               ng-model="categoryValueMatch[category]"
+               ng-change="setUpdatesPending(true)"/>
+        <br>
+        <button ng-click="setCategoryValueMatch(category, '')"
+                ng-disabled="('' == categoryValueMatch[category])">
+          clear (show all)
+        </button>
       </td>
       <td>
         config<br>
@@ -110,6 +136,15 @@
                  ng-click="toggleValueInSet(config, hiddenConfigs); setUpdatesPending(true)">
           {{config}} ({{count}})<br>
         </label>
+        <button ng-click="hiddenConfigs = {}; updateResults()">
+          all
+        </button>
+        <button ng-click="hiddenConfigs = {}; toggleValuesInSet(allConfigs, hiddenConfigs); updateResults()">
+          none
+        </button>
+        <button ng-click="toggleValuesInSet(allConfigs, hiddenConfigs); updateResults()">
+          toggle
+        </button>
       </td>
       <td><table>
         <tr><td>
@@ -251,9 +286,23 @@
             <!-- item-selection checkbox column -->
           </th>
         </tr>
+
+        <!-- For most columns... if the user clicks on the cell, and we are on
+             the default tab, update the filter to only show results with the
+             same value for this category.
+             This is made a bit tricky by the fact that AngularJS expressions
+             do not allow control flow statements.  See
+             http://docs.angularjs.org/guide/expression -->
         <tr ng-repeat="result in limitedTestData">
-          <td ng-repeat="categoryName in ['resultType', 'builder', 'test', 'config']">
+          <td ng-click="(viewingTab != defaultTab) || showOnlyResultType(result.resultType)">
+            {{result.resultType}}
+          </td>
+          <td ng-repeat="categoryName in ['builder', 'test']"
+              ng-click="(viewingTab != defaultTab) || setCategoryValueMatch(categoryName, result[categoryName])">
             {{result[categoryName]}}
+          </td>
+          <td ng-click="(viewingTab != defaultTab) || showOnlyConfig(result.config)">
+            {{result.config}}
           </td>
           <td>
             <a ng-repeat="bug in result['bugs']"

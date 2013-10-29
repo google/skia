@@ -17,7 +17,7 @@ Loader.filter(
   'removeHiddenItems',
   function() {
     return function(unfilteredItems, hiddenResultTypes, hiddenConfigs,
-                    viewingTab) {
+                    builderSubstring, testSubstring, viewingTab) {
       var filteredItems = [];
       for (var i = 0; i < unfilteredItems.length; i++) {
         var item = unfilteredItems[i];
@@ -26,6 +26,8 @@ Loader.filter(
         // Besides, I don't think we have access to $scope in here...
         if (!(true == hiddenResultTypes[item.resultType]) &&
             !(true == hiddenConfigs[item.config]) &&
+            !(-1 == item.builder.indexOf(builderSubstring)) &&
+            !(-1 == item.test.indexOf(testSubstring)) &&
             (viewingTab == item.tab)) {
           filteredItems.push(item);
         }
@@ -99,7 +101,14 @@ Loader.controller(
           'no-comparison': true,
           'succeeded': true,
         };
+        $scope.allResultTypes = Object.keys(data.categories['resultType']);
         $scope.hiddenConfigs = {};
+        $scope.allConfigs = Object.keys(data.categories['config']);
+
+        // Associative array of partial string matches per category.
+        $scope.categoryValueMatch = {};
+        $scope.categoryValueMatch.builder = "";
+        $scope.categoryValueMatch.test = "";
 
         $scope.updateResults();
         $scope.loadingMessage = "";
@@ -239,6 +248,8 @@ Loader.controller(
                     $scope.testData,
                     $scope.hiddenResultTypes,
                     $scope.hiddenConfigs,
+                    $scope.categoryValueMatch.builder,
+                    $scope.categoryValueMatch.test,
                     $scope.viewingTab
                 ),
                 $scope.sortColumn);
@@ -266,6 +277,46 @@ Loader.controller(
      */
     $scope.sortResultsBy = function(sortColumn) {
       $scope.sortColumn = sortColumn;
+      $scope.updateResults();
+    }
+
+    /**
+     * Set $scope.categoryValueMatch[name] = value, and update results.
+     *
+     * @param name
+     * @param value
+     */
+    $scope.setCategoryValueMatch = function(name, value) {
+      $scope.categoryValueMatch[name] = value;
+      $scope.updateResults();
+    }
+
+    /**
+     * Update $scope.hiddenResultTypes so that ONLY this resultType is showing,
+     * and update the visible results.
+     *
+     * @param resultType
+     */
+    $scope.showOnlyResultType = function(resultType) {
+      $scope.hiddenResultTypes = {};
+      // TODO(epoger): Maybe change $scope.allResultTypes to be a Set like
+      // $scope.hiddenResultTypes (rather than an array), so this operation is
+      // simpler (just assign or add allResultTypes to hiddenResultTypes).
+      $scope.toggleValuesInSet($scope.allResultTypes, $scope.hiddenResultTypes);
+      $scope.toggleValueInSet(resultType, $scope.hiddenResultTypes);
+      $scope.updateResults();
+    }
+
+    /**
+     * Update $scope.hiddenConfigs so that ONLY this config is showing,
+     * and update the visible results.
+     *
+     * @param config
+     */
+    $scope.showOnlyConfig = function(config) {
+      $scope.hiddenConfigs = {};
+      $scope.toggleValuesInSet($scope.allConfigs, $scope.hiddenConfigs);
+      $scope.toggleValueInSet(config, $scope.hiddenConfigs);
       $scope.updateResults();
     }
 
@@ -389,6 +440,19 @@ Loader.controller(
         delete set[value];
       } else {
         set[value] = true;
+      }
+    }
+
+    /**
+     * For each value in valueArray, call toggleValueInSet(value, set).
+     *
+     * @param valueArray
+     * @param set
+     */
+    $scope.toggleValuesInSet = function(valueArray, set) {
+      var arrayLength = valueArray.length;
+      for (var i = 0; i < arrayLength; i++) {
+        $scope.toggleValueInSet(valueArray[i], set);
       }
     }
 
