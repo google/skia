@@ -1141,6 +1141,7 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
             fWriter.write32(size);
             fWriter.write(storage.get(), size);
         }
+        base.setAnnotation(paint.getAnnotation());
     }
 }
 
