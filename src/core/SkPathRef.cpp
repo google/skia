@@ -289,8 +289,9 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb) {
     return ret;
 }
 
-int32_t SkPathRef::genID() const {
+uint32_t SkPathRef::genID() const {
     SkASSERT(!fEditorsAttached);
+    static const uint32_t kMask = (static_cast<int64_t>(1) << SkPath::kPathRefGenIDBitCnt) - 1;
     if (!fGenerationID) {
         if (0 == fPointCnt && 0 == fVerbCnt) {
             fGenerationID = kEmptyGenID;
@@ -299,7 +300,7 @@ int32_t SkPathRef::genID() const {
             // do a loop in case our global wraps around, as we never want to return a 0 or the
             // empty ID
             do {
-                fGenerationID = sk_atomic_inc(&gPathRefGenerationID) + 1;
+                fGenerationID = (sk_atomic_inc(&gPathRefGenerationID) + 1) & kMask;
             } while (fGenerationID <= kEmptyGenID);
         }
     }
