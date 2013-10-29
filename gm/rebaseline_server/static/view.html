@@ -10,6 +10,13 @@
 </head>
 
 <body>
+  <h2>
+    Instructions, roadmap, etc. are at
+    <a href="http://tinyurl.com/SkiaRebaselineServer">
+      http://tinyurl.com/SkiaRebaselineServer
+    </a>
+  </h2>
+
   <em>
     {{loadingMessage}}
   </em>
@@ -21,47 +28,6 @@
       WARNING!  These results are editable and exported, so any user
       who can connect to this server over the network can modify them.
     </div>
-
-    <div class="todo-div"><!-- TODOs -->
-      <p>
-      TODO(epoger):
-      <input type="checkbox" ng-model="showTodos">
-      show
-      <ul ng-hide="!showTodos">
-        <li>
-          If server was run with --reload flag, automatically check for
-          new results and tell the user when new results are available
-          (the user can reload the page if he wants to see them).
-        </li><li>
-          Add pixel diffs, and sorting by percentage of different pixels
-        </li><li>
-          Add ability to sort/filter by reviewed-by-human. Depends on
-          <a href="https://code.google.com/p/skia/issues/detail?id=1758">
-          bug 1758
-          </a>
-          ('rebaseline_server: make the "categories" struct passed from server to client a list instead of a dict')
-        </li><li>
-          Improve the column sorting, as per
-          <a href="http://jsfiddle.net/vojtajina/js64b/14/">
-            http://jsfiddle.net/vojtajina/js64b/14/
-          </a>
-        </li><li>
-          For the text-filtered categories, allow regular expression matching
-          (or Unix-style wildcard matching) instead of simple substring match?
-          <!-- In order to do this efficiently, we should probably do the
-               expression matching over the list of categories returned,
-               use that to generate a list of category values that fulfill the
-               regex, and when filtering the results just look for category
-               values within that list. -->
-        </li><li>
-          Right now, if you change which column is used to
-          sort the data, the column widths may fluctuate based on the
-          longest string <i>currently visible</i> within the top {{displayLimit}}
-          results.  Can we fix the column widths to be wide enough to hold
-          any result, even the currently hidden results?
-        </li>
-      </ul>
-    </div><!-- TODOs -->
 
     <div ng-hide="!(header.timeUpdated)">
       Results current as of {{localTimeString(header.timeUpdated)}}
