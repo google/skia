@@ -233,6 +233,20 @@ int SkTypeface::getUnitsPerEm() const {
     return this->onGetUPEM();
 }
 
+bool SkTypeface::getKerningPairAdjustments(const uint16_t glyphs[], int count,
+                                           int32_t adjustments[]) const {
+    SkASSERT(count >= 0);
+    // check for the only legal way to pass a NULL.. everything is 0
+    // in which case they just want to know if this face can possibly support
+    // kerning (true) or never (false).
+    if (NULL == glyphs || NULL == adjustments) {
+        SkASSERT(NULL == glyphs);
+        SkASSERT(0 == count);
+        SkASSERT(NULL == adjustments);
+    }
+    return this->onGetKerningPairAdjustments(glyphs, count, adjustments);
+}
+
 SkTypeface::LocalizedStrings* SkTypeface::createFamilyNameIterator() const {
     return this->onCreateFamilyNameIterator();
 }
@@ -254,3 +268,11 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
 SkTypeface* SkTypeface::refMatchingStyle(Style style) const {
     return this->onRefMatchingStyle(style);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool SkTypeface::onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
+                                             int32_t adjustments[]) const {
+    return false;
+}
+

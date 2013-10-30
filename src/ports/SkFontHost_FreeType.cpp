@@ -729,6 +729,26 @@ int SkTypeface_FreeType::onGetUPEM() const {
     return face ? face->units_per_EM : 0;
 }
 
+bool SkTypeface_FreeType::onGetKerningPairAdjustments(const uint16_t glyphs[],
+                                      int count, int32_t adjustments[]) const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face || !FT_HAS_KERNING(face)) {
+        return false;
+    }
+
+    for (int i = 0; i < count - 1; ++i) {
+        FT_Vector delta;
+        FT_Error err = FT_Get_Kerning(face, glyphs[i], glyphs[i+1],
+                                      FT_KERNING_UNSCALED, &delta);
+        if (err) {
+            return false;
+        }
+        adjustments[i] = delta.x;
+    }
+    return true;
+}
+
 SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
                                                    const SkDescriptor* desc)
         : SkScalerContext_FreeType_Base(typeface, desc) {

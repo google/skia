@@ -59,7 +59,8 @@ protected:
                                 SkAdvancedTypefaceMetrics::PerGlyphInfo,
                                 const uint32_t*, uint32_t) const SK_OVERRIDE;
     virtual int onGetUPEM() const SK_OVERRIDE;
-
+    virtual bool onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
+                                       int32_t adjustments[]) const SK_OVERRIDE;
     virtual int onCharsToGlyphs(const void* chars, Encoding, uint16_t glyphs[],
                                 int glyphCount) const SK_OVERRIDE;
     virtual int onCountGlyphs() const SK_OVERRIDE;

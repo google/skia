@@ -74,6 +74,64 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static void getGlyphPositions(const SkPaint& paint, const uint16_t glyphs[],
+                             int count, SkScalar x, SkScalar y, SkPoint pos[]) {
+    SkASSERT(SkPaint::kGlyphID_TextEncoding == paint.getTextEncoding());
+
+    SkAutoSTMalloc<128, SkScalar> widthStorage(count);
+    SkScalar* widths = widthStorage.get();
+    paint.getTextWidths(glyphs, count * sizeof(uint16_t), widths);
+    
+    for (int i = 0; i < count; ++i) {
+        pos[i].set(x, y);
+        x += widths[i];
+    }
+}
+
+static void applyKerning(SkPoint pos[], const int32_t adjustments[], int count,
+                         const SkPaint& paint) {
+    SkScalar scale = paint.getTextSize() / paint.getTypeface()->getUnitsPerEm();
+
+    SkScalar globalAdj = 0;
+    for (int i = 0; i < count - 1; ++i) {
+        globalAdj += adjustments[i] * scale;
+        pos[i + 1].fX += globalAdj;
+    }
+}
+
+static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
+                         SkScalar x, SkScalar y, const SkPaint& paint) {
+    SkTypeface* face = paint.getTypeface();
+    if (!face) {
+        canvas->drawText(text, len, x, y, paint);
+        return;
+    }
+
+    SkAutoSTMalloc<128, uint16_t> glyphStorage(len);
+    uint16_t* glyphs = glyphStorage.get();
+    int glyphCount = paint.textToGlyphs(text, len, glyphs);
+    if (glyphCount < 1) {
+        return;
+    }
+
+    SkAutoSTMalloc<128, int32_t> adjustmentStorage(glyphCount - 1);
+    int32_t* adjustments = adjustmentStorage.get();
+    if (!face->getKerningPairAdjustments(glyphs, glyphCount, adjustments)) {
+        canvas->drawText(text, len, x, y, paint);
+        return;
+    }
+
+    SkPaint glyphPaint(paint);
+    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+    SkAutoSTMalloc<128, SkPoint> posStorage(glyphCount);
+    SkPoint* pos = posStorage.get();
+    getGlyphPositions(glyphPaint, glyphs, glyphCount, x, y, pos);
+
+    applyKerning(pos, adjustments, glyphCount, glyphPaint);
+    canvas->drawPosText(glyphs, glyphCount * sizeof(uint16_t), pos, glyphPaint);
+}
+
 static const struct {
     const char* fName;
     SkTypeface::Style   fStyle;
@@ -96,9 +154,10 @@ static const int gFaceStylesCount = SK_ARRAY_COUNT(gFaceStyles);
 
 class TypefaceStylesGM : public skiagm::GM {
     SkTypeface* fFaces[gFaceStylesCount];
+    bool fApplyKerning;
 
 public:
-    TypefaceStylesGM() {
+    TypefaceStylesGM(bool applyKerning) : fApplyKerning(applyKerning) {
         for (int i = 0; i < gFaceStylesCount; i++) {
             fFaces[i] = SkTypeface::CreateFromName(gFaceStyles[i].fName,
                                                    gFaceStyles[i].fStyle);
@@ -113,7 +172,11 @@ public:
 
 protected:
     virtual SkString onShortName() SK_OVERRIDE {
-        return SkString("typefacestyles");
+        SkString name("typefacestyles");
+        if (fApplyKerning) {
+            name.append("_kerning");
+        }
+        return name;
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
@@ -125,17 +188,24 @@ protected:
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(30));
 
-        const char* text = "Hamburgefons";
+        const char* text = fApplyKerning ? "Type AWAY" : "Hamburgefons";
         const size_t textLen = strlen(text);
 
         SkScalar x = SkIntToScalar(10);
         SkScalar dy = paint.getFontMetrics(NULL);
         SkScalar y = dy;
 
-        paint.setLinearText(true);
+        if (fApplyKerning) {
+            paint.setSubpixelText(true);
+        } else {
+            paint.setLinearText(true);
+        }
         for (int i = 0; i < gFaceStylesCount; i++) {
             paint.setTypeface(fFaces[i]);
             canvas->drawText(text, textLen, x, y, paint);
+            if (fApplyKerning) {
+                drawKernText(canvas, text, textLen, x + 240, y, paint);
+            }
             y += dy;
         }
     }
@@ -147,4 +217,5 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_GM( return new TypefaceGM; )
-DEF_GM( return new TypefaceStylesGM; )
+DEF_GM( return new TypefaceStylesGM(false); )
+DEF_GM( return new TypefaceStylesGM(true); )
