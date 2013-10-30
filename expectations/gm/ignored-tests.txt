@@ -43,3 +43,12 @@ verylargebitmap
 # Add by robertphillips in https://codereview.chromium.org/50813002/
 morphology
 
+# Added by vandebo in https://codereview.chromium.org/42473002/ because the gm
+# will need a rebaseline.
+xfermodes
+xfermodes2
+xfermodes3
+aarectmodes
+colormatrix
+lumafilter
+mixed_xfermodes

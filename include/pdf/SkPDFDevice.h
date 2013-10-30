@@ -262,12 +262,11 @@ private:
     void cleanUp(bool clearFontUsage);
     SkPDFFormXObject* createFormXObjectFromDevice();
 
-    // Clear the passed clip from all existing content entries.
-    void clearClipFromContent(const SkClipStack* clipStack,
-                              const SkRegion& clipRegion);
-    void drawFormXObjectWithClip(SkPDFFormXObject* form,
+    void drawFormXObjectWithMask(int xObjectIndex,
+                                 SkPDFFormXObject* mask,
                                  const SkClipStack* clipStack,
                                  const SkRegion& clipRegion,
+                                 SkXfermode::Mode mode,
                                  bool invertClip);
 
     // If the paint or clip is such that we shouldn't draw anything, this
@@ -281,7 +280,8 @@ private:
                                     bool hasText,
                                     SkPDFFormXObject** dst);
     void finishContentEntry(SkXfermode::Mode xfermode,
-                            SkPDFFormXObject* dst);
+                            SkPDFFormXObject* dst,
+                            SkPath* shape);
     bool isContentEmpty();
 
     void populateGraphicStateEntryFromPaint(const SkMatrix& matrix,
@@ -291,6 +291,7 @@ private:
                                             bool hasText,
                                             GraphicStateEntry* entry);
     int addGraphicStateResource(SkPDFGraphicState* gs);
+    int addXObjectResource(SkPDFObject* xObject);
 
     void updateFont(const SkPaint& paint, uint16_t glyphID,
                     ContentEntry* contentEntry);

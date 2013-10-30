@@ -46,17 +46,84 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst) {
 static uint16_t gData[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
 
 class XfermodesGM : public GM {
+    enum SrcType {
+     //! A WxH image with a rectangle in the lower right.
+     kRectangleImage_SrcType               = 0x01,
+     //! kRectangleImage_SrcType with an alpha of 34.5%.
+     kRectangleImageWithAlpha_SrcType      = 0x02,
+     //! kRectnagleImageWithAlpha_SrcType scaled down by half.
+     kSmallRectangleImageWithAlpha_SrcType = 0x04,
+     //! kRectangleImage_SrcType drawn directly instead in an image.
+     kRectangle_SrcType                    = 0x08,
+     //! Two rectangles, first on the right half, second on the bottom half.
+     kQuarterClear_SrcType                 = 0x10,
+     //! kQuarterClear_SrcType in a layer.
+     kQuarterClearInLayer_SrcType          = 0x20,
+
+     kAll_SrcType                          = 0x3F, //!< All the source types.
+     kBasic_SrcType                        = 0x03, //!< Just basic source types.
+    };
+
     SkBitmap    fBG;
     SkBitmap    fSrcB, fDstB;
 
-    void draw_mode(SkCanvas* canvas, SkXfermode* mode, int alpha,
+    /* The srcType argument indicates what to draw for the source part. Skia
+     * uses the implied shape of the drawing command and these modes
+     * demonstrate that.
+     */
+    void draw_mode(SkCanvas* canvas, SkXfermode* mode, SrcType srcType,
                    SkScalar x, SkScalar y) {
         SkPaint p;
+        SkMatrix m;
+        bool restoreNeeded = false;
+        m.setTranslate(x, y);
 
-        canvas->drawBitmap(fSrcB, x, y, &p);
-        p.setAlpha(alpha);
+        canvas->drawBitmapMatrix(fSrcB, m, &p);
         p.setXfermode(mode);
-        canvas->drawBitmap(fDstB, x, y, &p);
+        switch (srcType) {
+            case kQuarterClearInLayer_SrcType: {
+                SkRect bounds = SkRect::MakeXYWH(x, y, W, H);
+                canvas->saveLayer(&bounds, &p);
+                restoreNeeded = true;
+                p.setXfermodeMode(SkXfermode::kSrcOver_Mode);
+                // Fall through.
+            }
+            case kQuarterClear_SrcType: {
+                SkScalar halfW = SkIntToScalar(W) / 2;
+                SkScalar halfH = SkIntToScalar(H) / 2;
+                p.setColor(0xFF66AAFF);
+                SkRect r = SkRect::MakeXYWH(x + halfW, y, halfW, H);
+                canvas->drawRect(r, p);
+                p.setColor(0xFFAA66FF);
+                r = SkRect::MakeXYWH(x, y + halfH, W, halfH);
+                canvas->drawRect(r, p);
+                break;
+            }
+            case kRectangle_SrcType: {
+                SkScalar w = SkIntToScalar(W);
+                SkScalar h = SkIntToScalar(H);
+                SkRect r = SkRect::MakeXYWH(x + w / 3, y + h / 3,
+                                            w * 37 / 60, h * 37 / 60);
+                p.setColor(0xFF66AAFF);
+                canvas->drawRect(r, p);
+                break;
+            }
+            case kSmallRectangleImageWithAlpha_SrcType:
+                m.postScale(SK_ScalarHalf, SK_ScalarHalf, x, y);
+                // Fall through.
+            case kRectangleImageWithAlpha_SrcType:
+                p.setAlpha(0x88);
+                // Fall through.
+            case kRectangleImage_SrcType:
+                canvas->drawBitmapMatrix(fDstB, m, &p);
+                break;
+            default:
+                break;
+        }
+
+        if (restoreNeeded) {
+            canvas->restore();
+        }
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
@@ -77,7 +144,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(790, 640);
+        return make_isize(1590, 640);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -85,38 +152,44 @@ protected:
 
         const struct {
             SkXfermode::Mode  fMode;
-            const char*         fLabel;
+            const char*       fLabel;
+            int               fSourceTypeMask;  // The source types to use this
+                                                // mode with. See draw_mode for
+                                                // an explanation of each type.
+                                                // PDF has to play some tricks
+                                                // to support the base modes,
+                                                // test those more extensively.
         } gModes[] = {
-            { SkXfermode::kClear_Mode,    "Clear"     },
-            { SkXfermode::kSrc_Mode,      "Src"       },
-            { SkXfermode::kDst_Mode,      "Dst"       },
-            { SkXfermode::kSrcOver_Mode,  "SrcOver"   },
-            { SkXfermode::kDstOver_Mode,  "DstOver"   },
-            { SkXfermode::kSrcIn_Mode,    "SrcIn"     },
-            { SkXfermode::kDstIn_Mode,    "DstIn"     },
-            { SkXfermode::kSrcOut_Mode,   "SrcOut"    },
-            { SkXfermode::kDstOut_Mode,   "DstOut"    },
-            { SkXfermode::kSrcATop_Mode,  "SrcATop"   },
-            { SkXfermode::kDstATop_Mode,  "DstATop"   },
-            { SkXfermode::kXor_Mode,      "Xor"       },
+            { SkXfermode::kClear_Mode,        "Clear",        kAll_SrcType   },
+            { SkXfermode::kSrc_Mode,          "Src",          kAll_SrcType   },
+            { SkXfermode::kDst_Mode,          "Dst",          kAll_SrcType   },
+            { SkXfermode::kSrcOver_Mode,      "SrcOver",      kAll_SrcType   },
+            { SkXfermode::kDstOver_Mode,      "DstOver",      kAll_SrcType   },
+            { SkXfermode::kSrcIn_Mode,        "SrcIn",        kAll_SrcType   },
+            { SkXfermode::kDstIn_Mode,        "DstIn",        kAll_SrcType   },
+            { SkXfermode::kSrcOut_Mode,       "SrcOut",       kAll_SrcType   },
+            { SkXfermode::kDstOut_Mode,       "DstOut",       kAll_SrcType   },
+            { SkXfermode::kSrcATop_Mode,      "SrcATop",      kAll_SrcType   },
+            { SkXfermode::kDstATop_Mode,      "DstATop",      kAll_SrcType   },
 
-            { SkXfermode::kPlus_Mode,         "Plus"          },
-            { SkXfermode::kModulate_Mode,     "Modulate"      },
-            { SkXfermode::kScreen_Mode,       "Screen"        },
-            { SkXfermode::kOverlay_Mode,      "Overlay"       },
-            { SkXfermode::kDarken_Mode,       "Darken"        },
-            { SkXfermode::kLighten_Mode,      "Lighten"       },
-            { SkXfermode::kColorDodge_Mode,   "ColorDodge"    },
-            { SkXfermode::kColorBurn_Mode,    "ColorBurn"     },
-            { SkXfermode::kHardLight_Mode,    "HardLight"     },
-            { SkXfermode::kSoftLight_Mode,    "SoftLight"     },
-            { SkXfermode::kDifference_Mode,   "Difference"    },
-            { SkXfermode::kExclusion_Mode,    "Exclusion"     },
-            { SkXfermode::kMultiply_Mode,     "Multiply"      },
-            { SkXfermode::kHue_Mode,          "Hue"           },
-            { SkXfermode::kSaturation_Mode,   "Saturation"    },
-            { SkXfermode::kColor_Mode,        "Color"         },
-            { SkXfermode::kLuminosity_Mode,   "Luminosity"    },
+            { SkXfermode::kXor_Mode,          "Xor",          kBasic_SrcType },
+            { SkXfermode::kPlus_Mode,         "Plus",         kBasic_SrcType },
+            { SkXfermode::kModulate_Mode,     "Modulate",     kAll_SrcType   },
+            { SkXfermode::kScreen_Mode,       "Screen",       kBasic_SrcType },
+            { SkXfermode::kOverlay_Mode,      "Overlay",      kBasic_SrcType },
+            { SkXfermode::kDarken_Mode,       "Darken",       kBasic_SrcType },
+            { SkXfermode::kLighten_Mode,      "Lighten",      kBasic_SrcType },
+            { SkXfermode::kColorDodge_Mode,   "ColorDodge",   kBasic_SrcType },
+            { SkXfermode::kColorBurn_Mode,    "ColorBurn",    kBasic_SrcType },
+            { SkXfermode::kHardLight_Mode,    "HardLight",    kBasic_SrcType },
+            { SkXfermode::kSoftLight_Mode,    "SoftLight",    kBasic_SrcType },
+            { SkXfermode::kDifference_Mode,   "Difference",   kBasic_SrcType },
+            { SkXfermode::kExclusion_Mode,    "Exclusion",    kBasic_SrcType },
+            { SkXfermode::kMultiply_Mode,     "Multiply",     kAll_SrcType   },
+            { SkXfermode::kHue_Mode,          "Hue",          kBasic_SrcType },
+            { SkXfermode::kSaturation_Mode,   "Saturation",   kBasic_SrcType },
+            { SkXfermode::kColor_Mode,        "Color",        kBasic_SrcType },
+            { SkXfermode::kLuminosity_Mode,   "Luminosity",   kBasic_SrcType },
         };
 
         const SkScalar w = SkIntToScalar(W);
@@ -135,9 +208,13 @@ protected:
         const int W = 5;
 
         SkScalar x0 = 0;
-        for (int twice = 0; twice < 2; twice++) {
-            SkScalar x = x0, y = 0;
+        SkScalar y0 = 0;
+        for (int sourceType = 1; sourceType & kAll_SrcType; sourceType <<= 1) {
+            SkScalar x = x0, y = y0;
             for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
+                if ((gModes[i].fSourceTypeMask & sourceType) == 0) {
+                    continue;
+                }
                 SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
                 SkAutoUnref aur(mode);
                 SkRect r;
@@ -149,7 +226,8 @@ protected:
                 canvas->drawRect(r, p);
 
                 canvas->saveLayer(&r, NULL, SkCanvas::kARGB_ClipLayer_SaveFlag);
-                draw_mode(canvas, mode, twice ? 0x88 : 0xFF, r.fLeft, r.fTop);
+                draw_mode(canvas, mode, static_cast<SrcType>(sourceType),
+                          r.fLeft, r.fTop);
                 canvas->restore();
 
                 r.inset(-SK_ScalarHalf, -SK_ScalarHalf);
@@ -167,7 +245,15 @@ protected:
                     y += h + SkIntToScalar(30);
                 }
             }
-            x0 += SkIntToScalar(400);
+            if (y < 320) {
+                if (x > x0) {
+                    y += h + SkIntToScalar(30);
+                }
+                y0 = y;
+            } else {
+                x0 += SkIntToScalar(400);
+                y0 = 0;
+            }
         }
         s->unref();
     }
