@@ -127,7 +127,6 @@ static void test_android_specific_behavior(skiatest::Reporter* reporter) {
     original.setSourcePath(&source);
     original.moveTo(0, 0);
     original.lineTo(1, 1);
-    REPORTER_ASSERT(reporter, original.getGenerationID() > 0);
     REPORTER_ASSERT(reporter, original.getSourcePath() == &source);
 
     uint32_t copyID, assignID;
@@ -137,35 +136,86 @@ static void test_android_specific_behavior(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, copy.getGenerationID() == original.getGenerationID());
     REPORTER_ASSERT(reporter, copy.getSourcePath() == original.getSourcePath());
 
-    // Test assigment operator.  Increment generation ID, copy source path.
+    // Test assigment operator.  Change generation ID, copy source path.
     SkPath assign;
     assignID = assign.getGenerationID();
     assign = original;
-    REPORTER_ASSERT(reporter, assign.getGenerationID() > assignID);
+    REPORTER_ASSERT(reporter, assign.getGenerationID() != assignID);
     REPORTER_ASSERT(reporter, assign.getSourcePath() == original.getSourcePath());
 
-    // Test rewind.  Increment generation ID, don't touch source path.
+    // Test rewind.  Change generation ID, don't touch source path.
     copyID = copy.getGenerationID();
     copy.rewind();
-    REPORTER_ASSERT(reporter, copy.getGenerationID() > copyID);
+    REPORTER_ASSERT(reporter, copy.getGenerationID() != copyID);
     REPORTER_ASSERT(reporter, copy.getSourcePath() == original.getSourcePath());
 
-    // Test reset.  Increment generation ID, don't touch source path.
+    // Test reset.  Change generation ID, don't touch source path.
     assignID = assign.getGenerationID();
     assign.reset();
-    REPORTER_ASSERT(reporter, assign.getGenerationID() > assignID);
+    REPORTER_ASSERT(reporter, assign.getGenerationID() != assignID);
     REPORTER_ASSERT(reporter, assign.getSourcePath() == original.getSourcePath());
 
-    // Test swap.  Increment both generation IDs, swap source paths.
+    // Test swap.  Swap the generation IDs, swap source paths.
+    copy.reset();
+    copy.moveTo(2, 2);
     copy.setSourcePath(&anotherSource);
     copyID = copy.getGenerationID();
+    assign.moveTo(3, 3);
     assignID = assign.getGenerationID();
     copy.swap(assign);
-    REPORTER_ASSERT(reporter, copy.getGenerationID() > copyID);
-    REPORTER_ASSERT(reporter, assign.getGenerationID() > assignID);
+    REPORTER_ASSERT(reporter, copy.getGenerationID() != copyID);
+    REPORTER_ASSERT(reporter, assign.getGenerationID() != assignID);
     REPORTER_ASSERT(reporter, copy.getSourcePath() == original.getSourcePath());
     REPORTER_ASSERT(reporter, assign.getSourcePath() == &anotherSource);
 #endif
+}
+
+static void test_gen_id(skiatest::Reporter* reporter) {
+    SkPath a, b;
+    REPORTER_ASSERT(reporter, a.getGenerationID() == b.getGenerationID());
+
+    a.moveTo(0, 0);
+    const uint32_t z = a.getGenerationID();
+    REPORTER_ASSERT(reporter, z != b.getGenerationID());
+
+    a.reset();
+    REPORTER_ASSERT(reporter, a.getGenerationID() == b.getGenerationID());
+
+    a.moveTo(1, 1);
+    const uint32_t y = a.getGenerationID();
+    REPORTER_ASSERT(reporter, z != y);
+
+    b.moveTo(2, 2);
+    const uint32_t x = b.getGenerationID();
+    REPORTER_ASSERT(reporter, x != y && x != z);
+
+    a.swap(b);
+    REPORTER_ASSERT(reporter, b.getGenerationID() == y && a.getGenerationID() == x);
+
+    b = a;
+    REPORTER_ASSERT(reporter, b.getGenerationID() == x);
+
+    SkPath c(a);
+    REPORTER_ASSERT(reporter, c.getGenerationID() == x);
+
+    c.lineTo(3, 3);
+    const uint32_t w = c.getGenerationID();
+    REPORTER_ASSERT(reporter, b.getGenerationID() == x);
+    REPORTER_ASSERT(reporter, a.getGenerationID() == x);
+    REPORTER_ASSERT(reporter, w != x);
+
+#ifdef SK_BUILD_FOR_ANDROID
+    static bool kExpectGenIDToIgnoreFill = false;
+#else
+    static bool kExpectGenIDToIgnoreFill = true;
+#endif
+
+    c.toggleInverseFillType();
+    const uint32_t v = c.getGenerationID();
+    REPORTER_ASSERT(reporter, (v == w) == kExpectGenIDToIgnoreFill);
+
+    c.rewind();
+    REPORTER_ASSERT(reporter, v != c.getGenerationID());
 }
 
 // This used to assert in the debug build, as the edges did not all line-up.
@@ -2620,6 +2670,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_bad_cubic_crbug229478();
     test_bad_cubic_crbug234190();
     test_android_specific_behavior(reporter);
+    test_gen_id(reporter);
     test_path_close_issue1474(reporter);
     test_path_to_region(reporter);
 }
