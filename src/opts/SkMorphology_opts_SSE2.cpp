@@ -7,6 +7,7 @@
 
 
 #include "SkColorPriv.h"
+#include "SkMorphology_opts_SSE2.h"
 
 #include <emmintrin.h>
 
