@@ -78,6 +78,7 @@
             '../src/opts/SkBlitMask_opts_arm.cpp',
             '../src/opts/SkBlitRow_opts_arm.cpp',
             '../src/opts/SkBlitRow_opts_arm.h',
+            '../src/opts/SkMorphology_opts_none.cpp',
             '../src/opts/SkXfermode_opts_arm.cpp',
           ],
           'conditions': [
