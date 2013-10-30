@@ -1357,7 +1357,8 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
     if (content.needShape()) {
         SkPath shape;
         shape.addRect(SkRect::MakeXYWH(SkIntToScalar(x), SkIntToScalar(y),
-                                       device->width(), device->height()));
+                                       SkIntToScalar(device->width()),
+                                       SkIntToScalar(device->height())));
         content.setShape(shape);
     }
     if (!content.needSource()) {
@@ -2246,7 +2247,8 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
     }
     if (content.needShape()) {
         SkPath shape;
-        shape.addRect(SkRect::MakeWH(subset.width(), subset.height()));
+        shape.addRect(SkRect::MakeWH(SkIntToScalar(subset.width()),
+                                     SkIntToScalar( subset.height())));
         shape.transform(matrix);
         content.setShape(shape);
     }
