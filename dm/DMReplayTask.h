@@ -14,9 +14,10 @@ namespace DM {
 class ReplayTask : public Task {
 
 public:
-    ReplayTask(const Task& parent,
-               skiagm::GM*,
-               SkBitmap reference);
+    ReplayTask(const Task& parent,  // ReplayTask must be a child task.  Pass its parent here.
+               skiagm::GM*,         // GM to run through a pipe.  Takes ownership.
+               SkBitmap reference,  // Bitmap to compare pipe results to.
+               bool useRTree);      // Record with an RTree?
 
     virtual void draw() SK_OVERRIDE;
     virtual bool usesGpu() const SK_OVERRIDE { return false; }
@@ -27,6 +28,7 @@ private:
     const SkString fName;
     SkAutoTDelete<skiagm::GM> fGM;
     const SkBitmap fReference;
+    const bool fUseRTree;
 };
 
 }  // namespace DM

@@ -18,8 +18,8 @@ SkString Png(SkString s);
 // Roughly, expectations.match(GmResultDigest(bitmap)), but calculates the digest lazily.
 bool MeetsExpectations(const skiagm::Expectations& expectations, const SkBitmap bitmap);
 
-// Draw gm to picture.
-void RecordPicture(skiagm::GM* gm, SkPicture* picture);
+// Draw gm to picture.  Passes recordFlags to SkPicture::beginRecording().
+void RecordPicture(skiagm::GM* gm, SkPicture* picture, uint32_t recordFlags = 0);
 
 // Prepare bitmap to have gm draw into it with this config.
 void SetupBitmap(const SkBitmap::Config config, skiagm::GM* gm, SkBitmap* bitmap);

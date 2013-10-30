@@ -23,10 +23,10 @@ bool MeetsExpectations(const skiagm::Expectations& expectations, const SkBitmap 
     return expectations.match(digest);
 }
 
-void RecordPicture(skiagm::GM* gm, SkPicture* picture) {
+void RecordPicture(skiagm::GM* gm, SkPicture* picture, uint32_t recordFlags) {
     SkCanvas* canvas = picture->beginRecording(SkScalarCeilToInt(gm->width()),
                                                SkScalarCeilToInt(gm->height()),
-                                               0 /*flags*/);
+                                               recordFlags);
     canvas->concat(gm->getInitialTransform());
     gm->draw(canvas);
     canvas->flush();

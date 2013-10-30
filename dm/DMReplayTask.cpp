@@ -6,21 +6,25 @@
 #include "SkPicture.h"
 
 DEFINE_bool(replay, false, "If true, run picture replay tests.");
+DEFINE_bool(rtree,  false, "If true, run picture replay tests with an rtree.");
 
 namespace DM {
 
 ReplayTask::ReplayTask(const Task& parent,
                        skiagm::GM* gm,
-                       SkBitmap reference)
+                       SkBitmap reference,
+                       bool useRTree)
     : Task(parent)
-    , fName(UnderJoin(parent.name().c_str(), "replay"))
+    , fName(UnderJoin(parent.name().c_str(), useRTree ? "rtree" : "replay"))
     , fGM(gm)
     , fReference(reference)
+    , fUseRTree(useRTree)
     {}
 
 void ReplayTask::draw() {
     SkPicture recorded;
-    RecordPicture(fGM.get(), &recorded);
+    const uint32_t flags = fUseRTree ? SkPicture::kOptimizeForClippedPlayback_RecordingFlag : 0;
+    RecordPicture(fGM.get(), &recorded, flags);
 
     SkBitmap bitmap;
     SetupBitmap(fReference.config(), fGM.get(), &bitmap);
@@ -32,7 +36,17 @@ void ReplayTask::draw() {
 }
 
 bool ReplayTask::shouldSkip() const {
-    return !FLAGS_replay || fGM->getFlags() & skiagm::GM::kSkipPicture_Flag;
+    if (fGM->getFlags() & skiagm::GM::kSkipPicture_Flag) {
+        return true;
+    }
+
+    if (FLAGS_rtree && fUseRTree) {
+        return false;
+    }
+    if (FLAGS_replay && !fUseRTree) {
+        return false;
+    }
+    return true;
 }
 
 }  // namespace DM
