@@ -2961,14 +2961,17 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y) {
     return dir;
 }
 
+static bool contains_inclusive(const SkRect& r, SkScalar x, SkScalar y) {
+    return r.fLeft <= x && x <= r.fRight && r.fTop <= y && y <= r.fBottom;
+}
+
 bool SkPath::contains(SkScalar x, SkScalar y) const {
     bool isInverse = this->isInverseFillType();
     if (this->isEmpty()) {
         return isInverse;
     }
 
-    const SkRect& bounds = this->getBounds();
-    if (!bounds.contains(x, y)) {
+    if (!contains_inclusive(this->getBounds(), x, y)) {
         return isInverse;
     }
 

@@ -120,25 +120,6 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
 // Test out the cases when the RR degenerates to a rect
 static void test_round_rect_rects(skiatest::Reporter* reporter) {
     SkRect r;
-    static const SkPoint pts[] = {
-        // Upper Left
-        { -SK_Scalar1, -SK_Scalar1 },               // out
-        { SK_Scalar1, SK_Scalar1 },                 // in
-        // Upper Right
-        { SkIntToScalar(101), -SK_Scalar1},         // out
-        { SkIntToScalar(99), SK_Scalar1 },          // in
-        // Lower Right
-        { SkIntToScalar(101), SkIntToScalar(101) }, // out
-        { SkIntToScalar(99), SkIntToScalar(99) },   // in
-        // Lower Left
-        { -SK_Scalar1, SkIntToScalar(101) },        // out
-        { SK_Scalar1, SkIntToScalar(99) },          // in
-        // Middle
-        { SkIntToScalar(50), SkIntToScalar(50) }    // in
-    };
-    static const bool isIn[] = { false, true, false, true, false, true, false, true, true };
-
-    SkASSERT(SK_ARRAY_COUNT(pts) == SK_ARRAY_COUNT(isIn));
 
     //----
     SkRRect empty;
@@ -157,9 +138,6 @@ static void test_round_rect_rects(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkRRect::kRect_Type == rr1.type());
     r = rr1.rect();
     REPORTER_ASSERT(reporter, rect == r);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
-        REPORTER_ASSERT(reporter, isIn[i] == rr1.contains(pts[i].fX, pts[i].fY));
-    }
 
     //----
     SkPoint radii[4] = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } };
@@ -170,9 +148,6 @@ static void test_round_rect_rects(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkRRect::kRect_Type == rr2.type());
     r = rr2.rect();
     REPORTER_ASSERT(reporter, rect == r);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
-        REPORTER_ASSERT(reporter, isIn[i] == rr2.contains(pts[i].fX, pts[i].fY));
-    }
 
     //----
     SkPoint radii2[4] = { { 0, 0 }, { 20, 20 }, { 50, 50 }, { 20, 50 } };
@@ -184,29 +159,6 @@ static void test_round_rect_rects(skiatest::Reporter* reporter) {
 
 // Test out the cases when the RR degenerates to an oval
 static void test_round_rect_ovals(skiatest::Reporter* reporter) {
-    static const SkScalar kEps = 0.1f;
-    static const SkScalar kWidthTol = SkScalarHalf(kWidth) * (SK_Scalar1 - SK_ScalarRoot2Over2);
-    static const SkScalar kHeightTol = SkScalarHalf(kHeight) * (SK_Scalar1 - SK_ScalarRoot2Over2);
-    static const SkPoint pts[] = {
-        // Upper Left
-        { kWidthTol - kEps, kHeightTol - kEps },       // out
-        { kWidthTol + kEps, kHeightTol + kEps },       // in
-        // Upper Right
-        { kWidth + kEps - kWidthTol, kHeightTol - kEps },     // out
-        { kWidth - kEps - kWidthTol, kHeightTol + kEps },      // in
-        // Lower Right
-        { kWidth + kEps - kWidthTol, kHeight + kEps - kHeightTol },   // out
-        { kWidth - kEps - kWidthTol, kHeight - kEps - kHeightTol },   // in
-        // Lower Left
-        { kWidthTol - kEps, kHeight + kEps - kHeightTol },     //out
-        { kWidthTol + kEps, kHeight - kEps - kHeightTol },     // in
-        // Middle
-        { SkIntToScalar(50), SkIntToScalar(50) } // in
-    };
-    static const bool isIn[] = { false, true, false, true, false, true, false, true, true };
-
-    SkASSERT(SK_ARRAY_COUNT(pts) == SK_ARRAY_COUNT(isIn));
-
     //----
     SkRect oval;
     SkRect rect = SkRect::MakeLTRB(0, 0, kWidth, kHeight);
@@ -216,75 +168,24 @@ static void test_round_rect_ovals(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkRRect::kOval_Type == rr1.type());
     oval = rr1.rect();
     REPORTER_ASSERT(reporter, oval == rect);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
-        REPORTER_ASSERT(reporter, isIn[i] == rr1.contains(pts[i].fX, pts[i].fY));
-    }
 }
 
 // Test out the non-degenerate RR cases
 static void test_round_rect_general(skiatest::Reporter* reporter) {
-    static const SkScalar kEps = 0.1f;
-    static const SkScalar kDist20 = 20 * (SK_Scalar1 - SK_ScalarRoot2Over2);
-    static const SkPoint pts[] = {
-        // Upper Left
-        { kDist20 - kEps, kDist20 - kEps },       // out
-        { kDist20 + kEps, kDist20 + kEps },       // in
-        // Upper Right
-        { kWidth + kEps - kDist20, kDist20 - kEps },     // out
-        { kWidth - kEps - kDist20, kDist20 + kEps },      // in
-        // Lower Right
-        { kWidth + kEps - kDist20, kHeight + kEps - kDist20 },   // out
-        { kWidth - kEps - kDist20, kHeight - kEps - kDist20 },   // in
-        // Lower Left
-        { kDist20 - kEps, kHeight + kEps - kDist20 },     //out
-        { kDist20 + kEps, kHeight - kEps - kDist20 },     // in
-        // Middle
-        { SkIntToScalar(50), SkIntToScalar(50) } // in
-    };
-    static const bool isIn[] = { false, true, false, true, false, true, false, true, true };
-
-    SkASSERT(SK_ARRAY_COUNT(pts) == SK_ARRAY_COUNT(isIn));
-
     //----
     SkRect rect = SkRect::MakeLTRB(0, 0, kWidth, kHeight);
     SkRRect rr1;
     rr1.setRectXY(rect, 20, 20);
 
     REPORTER_ASSERT(reporter, SkRRect::kSimple_Type == rr1.type());
-    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
-        REPORTER_ASSERT(reporter, isIn[i] == rr1.contains(pts[i].fX, pts[i].fY));
-    }
 
     //----
-    static const SkScalar kDist50 = 50*(SK_Scalar1 - SK_ScalarRoot2Over2);
-    static const SkPoint pts2[] = {
-        // Upper Left
-        { -SK_Scalar1, -SK_Scalar1 },           // out
-        { SK_Scalar1, SK_Scalar1 },             // in
-        // Upper Right
-        { kWidth + kEps - kDist20, kDist20 - kEps },     // out
-        { kWidth - kEps - kDist20, kDist20 + kEps },     // in
-        // Lower Right
-        { kWidth + kEps - kDist50, kHeight + kEps - kDist50 },   // out
-        { kWidth - kEps - kDist50, kHeight - kEps - kDist50 },   // in
-        // Lower Left
-        { kDist20 - kEps, kHeight + kEps - kDist50 },     // out
-        { kDist20 + kEps, kHeight - kEps - kDist50 },     // in
-        // Middle
-        { SkIntToScalar(50), SkIntToScalar(50) }  // in
-    };
-
-    SkASSERT(SK_ARRAY_COUNT(pts2) == SK_ARRAY_COUNT(isIn));
-
     SkPoint radii[4] = { { 0, 0 }, { 20, 20 }, { 50, 50 }, { 20, 50 } };
 
     SkRRect rr2;
     rr2.setRectRadii(rect, radii);
 
     REPORTER_ASSERT(reporter, SkRRect::kComplex_Type == rr2.type());
-    for (size_t i = 0; i < SK_ARRAY_COUNT(pts); ++i) {
-        REPORTER_ASSERT(reporter, isIn[i] == rr2.contains(pts2[i].fX, pts2[i].fY));
-    }
 }
 
 // Test out questionable-parameter handling

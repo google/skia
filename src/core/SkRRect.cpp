@@ -116,27 +116,6 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     SkDEBUGCODE(this->validate();)
 }
 
-bool SkRRect::contains(SkScalar x, SkScalar y) const {
-    SkDEBUGCODE(this->validate();)
-
-    if (kEmpty_Type == this->type()) {
-        return false;
-    }
-
-    if (!fRect.contains(x, y)) {
-        return false;
-    }
-
-    if (kRect_Type == this->type()) {
-        // the 'fRect' test above was sufficient
-        return true;
-    }
-
-    // We know the point is inside the RR's bounds. The only way it can
-    // be out is if it outside one of the corners
-    return checkCornerContainment(x, y);
-}
-
 // This method determines if a point known to be inside the RRect's bounds is
 // inside all the corners.
 bool SkRRect::checkCornerContainment(SkScalar x, SkScalar y) const {

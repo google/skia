@@ -199,30 +199,6 @@ public:
     }
 
     /**
-     *  Returns true if (p.fX,p.fY) is inside the RR, and the RR
-     *  is not empty.
-     *
-     *  Contains treats the left and top differently from the right and bottom.
-     *  The left and top coordinates of the RR are themselves considered
-     *  to be inside, while the right and bottom are not. All the points on the
-     *  edges of the corners are considered to be inside.
-     */
-    bool contains(const SkPoint& p) const {
-        return contains(p.fX, p.fY);
-    }
-
-    /**
-     *  Returns true if (x,y) is inside the RR, and the RR
-     *  is not empty.
-     *
-     *  Contains treats the left and top differently from the right and bottom.
-     *  The left and top coordinates of the RR are themselves considered
-     *  to be inside, while the right and bottom are not. All the points on the
-     *  edges of the corners are considered to be inside.
-     */
-    bool contains(SkScalar x, SkScalar y) const;
-
-    /**
      *  Call inset on the bounds, and adjust the radii to reflect what happens
      *  in stroking: If the corner is sharp (no curvature), leave it alone,
      *  otherwise we grow/shrink the radii by the amount of the inset. If a
