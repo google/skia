@@ -31,6 +31,8 @@ public:
     GrGpuGL(const GrGLContext& ctx, GrContext* context);
     virtual ~GrGpuGL();
 
+    const GrGLContext& glContext() const { return fGLContext; }
+
     const GrGLInterface* glInterface() const { return fGLContext.interface(); }
     const GrGLContextInfo& ctxInfo() const { return fGLContext.info(); }
     GrGLBinding glBinding() const { return fGLContext.info().binding(); }
@@ -176,8 +178,6 @@ private:
     void flushBlend(bool isLines, GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff);
 
     bool hasExtension(const char* ext) const { return fGLContext.info().hasExtension(ext); }
-
-    const GrGLContext& glContext() const { return fGLContext; }
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 

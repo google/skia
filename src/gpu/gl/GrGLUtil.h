@@ -83,6 +83,7 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
 bool GrGLIsMesaFromVersionString(const char* versionString);
 GrGLVendor GrGLGetVendorFromString(const char* vendorString);
 GrGLRenderer GrGLGetRendererFromString(const char* rendererString);
+bool GrGLIsChromiumFromRendererString(const char* rendererString);
 
 // these variants call glGetString()
 GrGLBinding GrGLGetBindingInUse(const GrGLInterface*);
@@ -90,6 +91,7 @@ GrGLVersion GrGLGetVersion(const GrGLInterface*);
 GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
 GrGLVendor GrGLGetVendor(const GrGLInterface*);
 GrGLRenderer GrGLGetRenderer(const GrGLInterface*);
+
 
 /**
  * Helpers for glGetError()

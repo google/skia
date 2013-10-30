@@ -590,25 +590,33 @@ bool GrGLShaderBuilder::finish(GrGLuint* outProgramId) {
     this->bindProgramLocations(programId);
 
     GL_CALL(LinkProgram(programId));
-    GrGLint linked = GR_GL_INIT_ZERO;
-    GL_CALL(GetProgramiv(programId, GR_GL_LINK_STATUS, &linked));
-    if (!linked) {
-        GrGLint infoLen = GR_GL_INIT_ZERO;
-        GL_CALL(GetProgramiv(programId, GR_GL_INFO_LOG_LENGTH, &infoLen));
-        SkAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
-        if (infoLen > 0) {
-            // retrieve length even though we don't need it to workaround
-            // bug in chrome cmd buffer param validation.
-            GrGLsizei length = GR_GL_INIT_ZERO;
-            GL_CALL(GetProgramInfoLog(programId,
-                                      infoLen+1,
-                                      &length,
-                                      (char*)log.get()));
-            GrPrintf((char*)log.get());
+
+    // Calling GetProgramiv is expensive in Chromium. Assume success in release builds.
+    bool checkLinked = !fGpu->ctxInfo().isChromium();
+#ifdef SK_DEBUG
+    checkLinked = true;
+#endif
+    if (checkLinked) {
+        GrGLint linked = GR_GL_INIT_ZERO;
+        GL_CALL(GetProgramiv(programId, GR_GL_LINK_STATUS, &linked));
+        if (!linked) {
+            GrGLint infoLen = GR_GL_INIT_ZERO;
+            GL_CALL(GetProgramiv(programId, GR_GL_INFO_LOG_LENGTH, &infoLen));
+            SkAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
+            if (infoLen > 0) {
+                // retrieve length even though we don't need it to workaround
+                // bug in chrome cmd buffer param validation.
+                GrGLsizei length = GR_GL_INIT_ZERO;
+                GL_CALL(GetProgramInfoLog(programId,
+                                          infoLen+1,
+                                          &length,
+                                          (char*)log.get()));
+                GrPrintf((char*)log.get());
+            }
+            SkDEBUGFAIL("Error linking program");
+            GL_CALL(DeleteProgram(programId));
+            return false;
         }
-        SkDEBUGFAIL("Error linking program");
-        GL_CALL(DeleteProgram(programId));
-        return false;
     }
 
     fUniformManager.getUniformLocations(programId, fUniforms);
@@ -616,13 +624,14 @@ bool GrGLShaderBuilder::finish(GrGLuint* outProgramId) {
     return true;
 }
 
-namespace {
 // Compiles a GL shader, attaches it to a program, and releases the shader's reference.
 // (That way there's no need to hang on to the GL shader id and delete it later.)
-bool attach_shader(const GrGLInterface* gli,
-                   GrGLuint programId,
-                   GrGLenum type,
-                   const SkString& shaderSrc) {
+static bool attach_shader(const GrGLContext& glCtx,
+                          GrGLuint programId,
+                          GrGLenum type,
+                          const SkString& shaderSrc) {
+    const GrGLInterface* gli = glCtx.interface();
+
     GrGLuint shaderId;
     GR_GL_CALL_RET(gli, shaderId, CreateShader(type));
     if (0 == shaderId) {
@@ -632,28 +641,36 @@ bool attach_shader(const GrGLInterface* gli,
     const GrGLchar* sourceStr = shaderSrc.c_str();
     GrGLint sourceLength = static_cast<GrGLint>(shaderSrc.size());
     GR_GL_CALL(gli, ShaderSource(shaderId, 1, &sourceStr, &sourceLength));
-
-    GrGLint compiled = GR_GL_INIT_ZERO;
     GR_GL_CALL(gli, CompileShader(shaderId));
-    GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_COMPILE_STATUS, &compiled));
 
-    if (!compiled) {
-        GrGLint infoLen = GR_GL_INIT_ZERO;
-        GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_INFO_LOG_LENGTH, &infoLen));
-        SkAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
-        if (infoLen > 0) {
-            // retrieve length even though we don't need it to workaround bug in chrome cmd buffer
-            // param validation.
-            GrGLsizei length = GR_GL_INIT_ZERO;
-            GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1,
-                                             &length, (char*)log.get()));
-            GrPrintf(shaderSrc.c_str());
-            GrPrintf("\n%s", log.get());
+    // Calling GetShaderiv in Chromium is quite expensive. Assume success in release builds.
+    bool checkCompiled = !glCtx.info().isChromium();
+#ifdef SK_DEBUG
+    checkCompiled = true;
+#endif
+    if (checkCompiled) {
+        GrGLint compiled = GR_GL_INIT_ZERO;
+        GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_COMPILE_STATUS, &compiled));
+
+        if (!compiled) {
+            GrGLint infoLen = GR_GL_INIT_ZERO;
+            GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_INFO_LOG_LENGTH, &infoLen));
+            SkAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
+            if (infoLen > 0) {
+                // retrieve length even though we don't need it to workaround bug in Chromium cmd
+                // buffer param validation.
+                GrGLsizei length = GR_GL_INIT_ZERO;
+                GR_GL_CALL(gli, GetShaderInfoLog(shaderId, infoLen+1,
+                                                 &length, (char*)log.get()));
+                GrPrintf(shaderSrc.c_str());
+                GrPrintf("\n%s", log.get());
+            }
+            SkDEBUGFAIL("Shader compilation failed!");
+            GR_GL_CALL(gli, DeleteShader(shaderId));
+            return false;
         }
-        SkDEBUGFAIL("Shader compilation failed!");
-        GR_GL_CALL(gli, DeleteShader(shaderId));
-        return false;
-    } else if (c_PrintShaders) {
+    }
+    if (c_PrintShaders) {
         GrPrintf(shaderSrc.c_str());
         GrPrintf("\n");
     }
@@ -661,8 +678,6 @@ bool attach_shader(const GrGLInterface* gli,
     GR_GL_CALL(gli, AttachShader(programId, shaderId));
     GR_GL_CALL(gli, DeleteShader(shaderId));
     return true;
-}
-
 }
 
 bool GrGLShaderBuilder::compileAndAttachShaders(GrGLuint programId) const {
@@ -680,7 +695,7 @@ bool GrGLShaderBuilder::compileAndAttachShaders(GrGLuint programId) const {
     fragShaderSrc.append("void main() {\n");
     fragShaderSrc.append(fFSCode);
     fragShaderSrc.append("}\n");
-    if (!attach_shader(fGpu->glInterface(), programId, GR_GL_FRAGMENT_SHADER, fragShaderSrc)) {
+    if (!attach_shader(fGpu->glContext(), programId, GR_GL_FRAGMENT_SHADER, fragShaderSrc)) {
         return false;
     }
 
@@ -851,7 +866,7 @@ GrGLProgramEffects* GrGLFullShaderBuilder::createAndEmitEffects(
 }
 
 bool GrGLFullShaderBuilder::compileAndAttachShaders(GrGLuint programId) const {
-    const GrGLInterface* glInterface = this->gpu()->glInterface();
+    const GrGLContext& glCtx = this->gpu()->glContext();
     SkString vertShaderSrc(GrGetGLSLVersionDecl(this->ctxInfo()));
     this->appendUniformDecls(kVertex_Visibility, &vertShaderSrc);
     this->appendDecls(fVSAttrs, &vertShaderSrc);
@@ -859,7 +874,7 @@ bool GrGLFullShaderBuilder::compileAndAttachShaders(GrGLuint programId) const {
     vertShaderSrc.append("void main() {\n");
     vertShaderSrc.append(fVSCode);
     vertShaderSrc.append("}\n");
-    if (!attach_shader(glInterface, programId, GR_GL_VERTEX_SHADER, vertShaderSrc)) {
+    if (!attach_shader(glCtx, programId, GR_GL_VERTEX_SHADER, vertShaderSrc)) {
         return false;
     }
 
@@ -887,7 +902,7 @@ bool GrGLFullShaderBuilder::compileAndAttachShaders(GrGLuint programId) const {
                              "\t}\n"
                              "\tEndPrimitive();\n");
         geomShaderSrc.append("}\n");
-        if (!attach_shader(glInterface, programId, GR_GL_GEOMETRY_SHADER, geomShaderSrc)) {
+        if (!attach_shader(glCtx, programId, GR_GL_GEOMETRY_SHADER, geomShaderSrc)) {
             return false;
         }
     }

@@ -16,6 +16,7 @@ GrGLContextInfo& GrGLContextInfo::operator= (const GrGLContextInfo& ctxInfo) {
     fRenderer = ctxInfo.fRenderer;
     fExtensions = ctxInfo.fExtensions;
     fIsMesa = ctxInfo.fIsMesa;
+    fIsChromium = ctxInfo.fIsChromium;
     *fGLCaps = *ctxInfo.fGLCaps.get();
     return *this;
 }
@@ -28,6 +29,11 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
         const GrGLubyte* verUByte;
         GR_GL_CALL_RET(interface, verUByte, GetString(GR_GL_VERSION));
         const char* ver = reinterpret_cast<const char*>(verUByte);
+
+        const GrGLubyte* rendererUByte;
+        GR_GL_CALL_RET(interface, rendererUByte, GetString(GR_GL_RENDERER));
+        const char* renderer = reinterpret_cast<const char*>(rendererUByte);
+
         GrGLBinding binding = GrGLGetBindingInUseFromString(ver);
 
         if (0 != binding && interface->validate(binding) && fExtensions.init(binding, interface)) {
@@ -39,9 +45,11 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
 
             fVendor = GrGLGetVendor(interface);
 
-            fRenderer = GrGLGetRenderer(interface);
+            fRenderer = GrGLGetRendererFromString(renderer);
 
             fIsMesa = GrGLIsMesaFromVersionString(ver);
+
+            fIsChromium = GrGLIsChromiumFromRendererString(renderer);
 
             fGLCaps->init(*this, interface);
             return true;
@@ -61,6 +69,7 @@ void GrGLContextInfo::reset() {
     fVendor = kOther_GrGLVendor;
     fRenderer = kOther_GrGLRenderer;
     fIsMesa = false;
+    fIsChromium = false;
     fExtensions.reset();
     fGLCaps->reset();
 }

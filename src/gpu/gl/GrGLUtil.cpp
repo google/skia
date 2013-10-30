@@ -129,6 +129,10 @@ bool GrGLIsMesaFromVersionString(const char* versionString) {
     return 4 == n;
 }
 
+bool GrGLIsChromiumFromRendererString(const char* rendererString) {
+    return 0 == strcmp(rendererString, "Chromium");
+}
+
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {
     if (NULL == versionString) {
         SkDEBUGFAIL("NULL GL version string.");
