@@ -14,6 +14,8 @@
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkUtils_opts_SSE2.h"
 #include "SkUtils.h"
+#include "SkMorphology_opts.h"
+#include "SkMorphology_opts_SSE2.h"
 
 #include "SkRTConf.h"
 
@@ -245,6 +247,24 @@ SkMemset32Proc SkMemset32GetPlatformProc() {
         return sk_memset32_SSE2;
     } else {
         return NULL;
+    }
+}
+
+SkMorphologyProc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {
+    if (!cachedHasSSE2()) {
+        return NULL;
+    }
+    switch (type) {
+        case kDilateX_SkMorphologyProcType:
+            return SkDilateX_SSE2;
+        case kDilateY_SkMorphologyProcType:
+            return SkDilateY_SSE2;
+        case kErodeX_SkMorphologyProcType:
+            return SkErodeX_SSE2;
+        case kErodeY_SkMorphologyProcType:
+            return SkErodeY_SSE2;
+        default:
+            return NULL;
     }
 }
 
