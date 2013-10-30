@@ -100,6 +100,20 @@ protected:
         show_bm(canvas, veryBig, small, colors);
     }
 
+    virtual uint32_t onGetFlags() const {
+#ifdef SK_BUILD_FOR_WIN32
+        // The Windows bot runs out of memory in replay modes on this test in 32bit builds:
+        // http://skbug.com/1756
+        return kSkipPicture_Flag            |
+               kSkipPipe_Flag               |
+               kSkipPipeCrossProcess_Flag   |
+               kSkipTiled_Flag              |
+               kSkipScaledReplay_Flag;
+#else
+        return 0;
+#endif
+    }
+
 private:
     typedef skiagm::GM INHERITED;
 };
