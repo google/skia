@@ -201,4 +201,3 @@ DEF_TEST(CachedDecodingPixelRefTest, reporter) {
         SkScaledImageCache::SetByteLimit(oldByteLimit);
     }
 }
-

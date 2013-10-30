@@ -260,7 +260,7 @@ SkScaledImageCache::ID* SkScaledImageCache::findAndLock(const SkBitmap& orig,
 
 SkScaledImageCache::ID* SkScaledImageCache::findAndLockMip(const SkBitmap& orig,
                                                            SkMipMap const ** mip) {
-    Rec* rec = this->findAndLock(orig.getGenerationID(), 0, 0, 
+    Rec* rec = this->findAndLock(orig.getGenerationID(), 0, 0,
                                  get_bounds_from_bitmap(orig));
     if (rec) {
         SkASSERT(rec->fMip);

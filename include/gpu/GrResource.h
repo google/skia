@@ -66,14 +66,14 @@ public:
     void setCacheEntry(GrResourceEntry* cacheEntry) { fCacheEntry = cacheEntry; }
     GrResourceEntry* getCacheEntry() { return fCacheEntry; }
 
-    void incDeferredRefCount() const { 
-        SkASSERT(fDeferredRefCount >= 0); 
-        ++fDeferredRefCount; 
+    void incDeferredRefCount() const {
+        SkASSERT(fDeferredRefCount >= 0);
+        ++fDeferredRefCount;
     }
 
-    void decDeferredRefCount() const { 
-        SkASSERT(fDeferredRefCount > 0); 
-        --fDeferredRefCount; 
+    void decDeferredRefCount() const {
+        SkASSERT(fDeferredRefCount > 0);
+        --fDeferredRefCount;
         if (0 == fDeferredRefCount && this->needsDeferredUnref()) {
             SkASSERT(this->getRefCnt() > 1);
             this->unref();
@@ -122,7 +122,7 @@ private:
     enum Flags {
         /**
          * This resource wraps a GPU resource given to us by the user.
-         * Lifetime management is left up to the user (i.e., we will not 
+         * Lifetime management is left up to the user (i.e., we will not
          * free it).
          */
         kWrapped_FlagBit         = 0x1,

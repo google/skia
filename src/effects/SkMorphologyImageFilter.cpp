@@ -507,8 +507,8 @@ bool apply_morphology(const SkBitmap& input,
                               morphType, Gr1DKernelEffect::kX_Direction);
         SkIRect clearRect = SkIRect::MakeXYWH(dstRect.fLeft, dstRect.fBottom,
                                               dstRect.width(), radius.fHeight);
-        context->clear(&clearRect, GrMorphologyEffect::kErode_MorphologyType == morphType ? 
-                                   SK_ColorWHITE : 
+        context->clear(&clearRect, GrMorphologyEffect::kErode_MorphologyType == morphType ?
+                                   SK_ColorWHITE :
                                    SK_ColorTRANSPARENT);
         src.reset(ast.detach());
         srcRect = dstRect;
