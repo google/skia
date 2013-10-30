@@ -447,9 +447,9 @@ GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, Scra
              !(inDesc.fFlags & kRenderTarget_GrTextureFlagBit) ||
              (inDesc.fConfig != kAlpha_8_GrPixelConfig));
 
-    if (!fGpu->caps()->reuseScratchTextures()) {
-        // If we're never recycling scratch textures we can
-        // always make them the right size
+    if (!fGpu->caps()->reuseScratchTextures() &&
+        !(inDesc.fFlags & kRenderTarget_GrTextureFlagBit)) {
+        // If we're never recycling this texture we can always make it the right size
         return create_scratch_texture(fGpu, fTextureCache, inDesc);
     }
 
@@ -514,7 +514,7 @@ void GrContext::addExistingTextureToCache(GrTexture* texture) {
     // for the creation ref. Assert refcnt == 1.
     SkASSERT(texture->unique());
 
-    if (fGpu->caps()->reuseScratchTextures()) {
+    if (fGpu->caps()->reuseScratchTextures() || NULL != texture->asRenderTarget()) {
         // Since this texture came from an AutoScratchTexture it should
         // still be in the exclusive pile. Recycle it.
         fTextureCache->makeNonExclusive(texture->getCacheEntry());
@@ -542,7 +542,7 @@ void GrContext::unlockScratchTexture(GrTexture* texture) {
     // while it was locked (to avoid two callers simultaneously getting
     // the same texture).
     if (texture->getCacheEntry()->key().isScratch()) {
-        if (fGpu->caps()->reuseScratchTextures()) {
+        if (fGpu->caps()->reuseScratchTextures() || NULL != texture->asRenderTarget()) {
             fTextureCache->makeNonExclusive(texture->getCacheEntry());
             this->purgeCache();
         } else if (texture->unique() && texture->getDeferredRefCount() <= 0) {

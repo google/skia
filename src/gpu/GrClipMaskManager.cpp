@@ -392,7 +392,8 @@ void GrClipMaskManager::getTemp(int width, int height, GrAutoScratchTexture* tem
 // hit)
 bool GrClipMaskManager::getMaskTexture(int32_t clipStackGenID,
                                        const SkIRect& clipSpaceIBounds,
-                                       GrTexture** result) {
+                                       GrTexture** result,
+                                       bool willUpload) {
     bool cached = fAACache.canReuse(clipStackGenID, clipSpaceIBounds);
     if (!cached) {
 
@@ -402,7 +403,7 @@ bool GrClipMaskManager::getMaskTexture(int32_t clipStackGenID,
         fAACache.reset();
 
         GrTextureDesc desc;
-        desc.fFlags = kRenderTarget_GrTextureFlagBit;
+        desc.fFlags = willUpload ? kNone_GrTextureFlags : kRenderTarget_GrTextureFlagBit;
         desc.fWidth = clipSpaceIBounds.width();
         desc.fHeight = clipSpaceIBounds.height();
         desc.fConfig = kRGBA_8888_GrPixelConfig;
@@ -427,7 +428,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
 
     GrTexture* result;
-    if (this->getMaskTexture(clipStackGenID, clipSpaceIBounds, &result)) {
+    if (this->getMaskTexture(clipStackGenID, clipSpaceIBounds, &result, false)) {
         fCurrClipMaskType = kAlpha_ClipMaskType;
         return result;
     }
@@ -925,7 +926,7 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t clipStackGenID,
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
 
     GrTexture* result;
-    if (this->getMaskTexture(clipStackGenID, clipSpaceIBounds, &result)) {
+    if (this->getMaskTexture(clipStackGenID, clipSpaceIBounds, &result, true)) {
         return result;
     }
 

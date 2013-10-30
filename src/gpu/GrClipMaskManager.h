@@ -121,10 +121,11 @@ private:
 
     // Gets a texture to use for the clip mask. If true is returned then a cached mask was found
     // that already contains the rasterization of the clip stack, otherwise an uninitialized texture
-    // is returned.
+    // is returned. 'willUpload' is set when the alpha mask needs to be uploaded from the CPU.
     bool getMaskTexture(int32_t clipStackGenID,
                         const SkIRect& clipSpaceIBounds,
-                        GrTexture** result);
+                        GrTexture** result,
+                        bool willUpload);
 
     bool useSWOnlyPath(const GrReducedClip::ElementList& elements);
 
