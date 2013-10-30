@@ -179,7 +179,7 @@ setup_device() {
   case $TARGET_DEVICE in
     nexus_s)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
-      DEFINES="${DEFINES} skia_texture_cache_mb_limit=24"
+      DEFINES="${DEFINES} skia_resource_cache_mb_limit=24"
       ANDROID_ARCH="arm"
       ;;
     nexus_4 | nexus_7 | nexus_10)
@@ -192,17 +192,17 @@ setup_device() {
       ;;
     galaxy_nexus)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon=1 arm_version=7 arm_thumb=1"
-      DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+      DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
       ANDROID_ARCH="arm"
       ;;
     intel_rhb)
       DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
-      DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+      DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
       ANDROID_ARCH="x86"
       ;;
     razr_i)
       DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
-      DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+      DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
       ANDROID_ARCH="x86"
       ;;
     arm_v7)
@@ -223,7 +223,7 @@ setup_device() {
       ;;
     x86)
       DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
-      DEFINES="${DEFINES} skia_texture_cache_mb_limit=32"
+      DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
       ANDROID_ARCH="x86"
       ;;
     *)

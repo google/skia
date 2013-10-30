@@ -50,9 +50,14 @@
           ],
         },
       }],
-      [ 'skia_texture_cache_mb_limit != 0', {
+      [ 'skia_resource_cache_mb_limit != 0', {
         'defines': [
-          'GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT=<(skia_texture_cache_mb_limit)',
+          'GR_DEFAULT_RESOURCE_CACHE_MB_LIMIT=<(skia_resource_cache_mb_limit)',
+        ],
+      }],
+      [ 'skia_resource_cache_count_limit != 0', {
+        'defines': [
+          'GR_DEFAULT_RESOURCE_CACHE_COUNT_LIMIT=<(skia_resource_cache_count_limit)',
         ],
       }],
     ],

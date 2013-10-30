@@ -72,7 +72,7 @@ typedef unsigned __int64 uint64_t;
  *  GR_USER_CONFIG_FILE. It should be defined relative to GrConfig.h
  *
  *  e.g. it can change the BUILD target or supply its own defines for anything
- *  else (e.g. GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT)
+ *  else (e.g. GR_DEFAULT_RESOURCE_CACHE_MB_LIMIT)
  */
 #if !defined(GR_USER_CONFIG_FILE)
     #include "GrUserConfig.h"
@@ -216,12 +216,21 @@ inline void GrDebugCrash(const char* msg) { GrPrintf(msg); SkASSERT(false); }
 #endif
 
 /**
- * GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT gives a threshold (in megabytes) for the
+ * GR_DEFAULT_RESOURCE_CACHE_MB_LIMIT gives a threshold (in megabytes) for the
  * maximum size of the texture cache in vram. The value is only a default and
  * can be overridden at runtime.
  */
-#if !defined(GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT)
-    #define GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT 96
+#if !defined(GR_DEFAULT_RESOURCE_CACHE_MB_LIMIT)
+    #define GR_DEFAULT_RESOURCE_CACHE_MB_LIMIT 96
+#endif
+
+/**
+ * GR_DEFAULT_RESOURCE_CACHE_COUNT_LIMIT specifies the maximum number of
+ * textures the texture cache can hold in vram. The value is only a default and
+ * can be overridden at runtime.
+ */
+#if !defined(GR_DEFAULT_RESOURCE_CACHE_COUNT_LIMIT)
+    #define GR_DEFAULT_RESOURCE_CACHE_COUNT_LIMIT 2048
 #endif
 
 /**

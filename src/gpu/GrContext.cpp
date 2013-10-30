@@ -54,8 +54,8 @@ SK_CONF_DECLARE(bool, c_Defer, "gpu.deferContext", true,
     #define GR_DEBUG_PARTIAL_COVERAGE_CHECK 0
 #endif
 
-static const size_t MAX_TEXTURE_CACHE_COUNT = 2048;
-static const size_t MAX_TEXTURE_CACHE_BYTES = GR_DEFAULT_TEXTURE_CACHE_MB_LIMIT * 1024 * 1024;
+static const size_t MAX_RESOURCE_CACHE_COUNT = GR_DEFAULT_RESOURCE_CACHE_COUNT_LIMIT;
+static const size_t MAX_RESOURCE_CACHE_BYTES = GR_DEFAULT_RESOURCE_CACHE_MB_LIMIT * 1024 * 1024;
 
 static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 15;
 static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
@@ -134,8 +134,8 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
     fGpu->setDrawState(fDrawState);
 
     fTextureCache = SkNEW_ARGS(GrResourceCache,
-                               (MAX_TEXTURE_CACHE_COUNT,
-                                MAX_TEXTURE_CACHE_BYTES));
+                               (MAX_RESOURCE_CACHE_COUNT,
+                                MAX_RESOURCE_CACHE_BYTES));
     fTextureCache->setOverbudgetCallback(OverbudgetCB, this);
 
     fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
