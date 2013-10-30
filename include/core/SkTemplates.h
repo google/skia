@@ -369,7 +369,7 @@ private:
     T* fPtr;
 };
 
-template <size_t N, typename T> class SK_API SkAutoSTMalloc : SkNoncopyable {
+template <size_t N, typename T> class SkAutoSTMalloc : SkNoncopyable {
 public:
     SkAutoSTMalloc() {
         fPtr = NULL;
