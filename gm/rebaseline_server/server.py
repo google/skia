@@ -18,6 +18,7 @@ import os
 import posixpath
 import re
 import shutil
+import socket
 import sys
 import thread
 import time
@@ -64,6 +65,17 @@ _HTTP_HEADER_CONTENT_LENGTH = 'Content-Length'
 _HTTP_HEADER_CONTENT_TYPE = 'Content-Type'
 
 _SERVER = None   # This gets filled in by main()
+
+def get_routable_ip_address():
+  """Returns routable IP address of this host (the IP address of its network
+     interface that would be used for most traffic, not its localhost
+     interface).  See http://stackoverflow.com/a/166589 """
+  sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+  sock.connect(('8.8.8.8', 80))
+  host = sock.getsockname()[0]
+  sock.close()
+  return host
+
 
 class Server(object):
   """ HTTP server for our HTML rebaseline viewer. """
@@ -164,15 +176,16 @@ class Server(object):
 
     if self._export:
       server_address = ('', self._port)
+      host = get_routable_ip_address()
       if self._editable:
         logging.warning('Running with combination of "export" and "editable" '
                         'flags.  Users on other machines will '
                         'be able to modify your GM expectations!')
     else:
-      server_address = ('127.0.0.1', self._port)
+      host = '127.0.0.1'
+      server_address = (host, self._port)
     http_server = BaseHTTPServer.HTTPServer(server_address, HTTPRequestHandler)
-    logging.info('Ready for requests on http://%s:%d' % (
-        http_server.server_name, http_server.server_port))
+    logging.info('Ready for requests on http://%s:%d' % (host, http_server.server_port))
     http_server.serve_forever()
 
 
