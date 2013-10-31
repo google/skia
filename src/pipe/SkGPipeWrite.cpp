@@ -294,7 +294,7 @@ private:
 
     inline void doNotify() {
         if (!fDone) {
-            size_t bytes = fWriter.bytesWritten() - fBytesNotified;
+            size_t bytes = fWriter.size() - fBytesNotified;
             if (bytes > 0) {
                 fController->notifyWritten(bytes);
                 fBytesNotified += bytes;
@@ -467,7 +467,7 @@ bool SkGPipeCanvas::needOpBytes(size_t needed) {
     }
 
     needed += 4;  // size of DrawOp atom
-    if (fWriter.bytesWritten() + needed > fBlockSize) {
+    if (fWriter.size() + needed > fBlockSize) {
         // Before we wipe out any data that has already been written, read it
         // out.
         this->doNotify();

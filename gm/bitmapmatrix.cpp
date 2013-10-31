@@ -81,7 +81,7 @@ protected:
             // SkGpuDevice::drawPath() -> SkGpuDevice::drawWithMaskFilter()
             SkPaint paint;
 
-            paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+            paint.setFilterBitmap(true);
 
             SkMaskFilter* mf = SkBlurMaskFilter::Create(
                 SkBlurMaskFilter::kNormal_BlurStyle,

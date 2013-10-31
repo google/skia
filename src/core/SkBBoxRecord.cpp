@@ -32,7 +32,7 @@ void SkBBoxRecord::drawPath(const SkPath& path, const SkPaint& paint) {
         // path's device-space bounding box.
         SkIRect clipBounds;
         if (this->getClipDeviceBounds(&clipBounds)) {
-            this->handleBBox(SkRect::Make(clipBounds));
+            this->handleBBox(SkRect::MakeFromIRect(clipBounds));
             INHERITED::drawPath(path, paint);
         }
     } else if (this->transformBounds(path.getBounds(), &paint)) {

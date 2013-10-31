@@ -96,19 +96,20 @@ public:
     */
     bool isNull() const { return NULL == fPixelRef; }
 
-    /** Return the config for the bitmap. */
+    /** Return the config for the bitmap.
+    */
     Config  config() const { return (Config)fConfig; }
-
-    SK_ATTR_DEPRECATED("use config()")
+    /** DEPRECATED, use config()
+    */
     Config  getConfig() const { return this->config(); }
-
-    /** Return the bitmap's width, in pixels. */
+    /** Return the bitmap's width, in pixels.
+    */
     int width() const { return fWidth; }
-
-    /** Return the bitmap's height, in pixels. */
+    /** Return the bitmap's height, in pixels.
+    */
     int height() const { return fHeight; }
-
-    /** Return the number of bytes between subsequent rows of the bitmap. */
+    /** Return the number of bytes between subsequent rows of the bitmap.
+    */
     size_t rowBytes() const { return fRowBytes; }
 
     /** Return the shift amount per pixel (i.e. 0 for 1-byte per pixel, 1 for
@@ -188,7 +189,9 @@ public:
         return SkAlphaTypeIsOpaque(this->alphaType());
     }
 
-    SK_ATTR_DEPRECATED("use setAlphaType")
+    /**
+     *  DEPRECATED: use setAlpahType() instead.
+     */
     void setIsOpaque(bool opaque) {
         this->setAlphaType(opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
     }
@@ -416,7 +419,7 @@ public:
      */
     void eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) const;
 
-    SK_ATTR_DEPRECATED("use eraseARGB or eraseColor")
+    // DEPRECATED -- call eraseColor or eraseARGB
     void eraseRGB(U8CPU r, U8CPU g, U8CPU b) const {
         this->eraseARGB(0xFF, r, g, b);
     }
@@ -550,7 +553,9 @@ public:
      */
     bool canCopyTo(Config newConfig) const;
 
-    SK_ATTR_DEPRECATED("use setFilterLevel on SkPaint")
+    /**
+     *  DEPRECATED -- will be replaced with API on SkPaint
+     */
     void buildMipMap(bool forceRebuild = false);
 
 #ifdef SK_BUILD_FOR_ANDROID

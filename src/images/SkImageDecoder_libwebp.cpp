@@ -521,7 +521,7 @@ private:
 
 bool SkWEBPImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bm,
                                   int quality) {
-    const SkBitmap::Config config = bm.config();
+    const SkBitmap::Config config = bm.getConfig();
     const ScanlineImporter scanline_import = ChooseImporter(config);
     if (NULL == scanline_import) {
         return false;

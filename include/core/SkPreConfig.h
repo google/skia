@@ -14,13 +14,6 @@
     #include "config.h"
 #endif
 
-// Allows embedders that want to disable macros that take arguments to just
-// define that symbol to be one of these
-//
-#define SK_NOTHING_ARG1(arg1)
-#define SK_NOTHING_ARG2(arg1, arg2)
-#define SK_NOTHING_ARG3(arg1, arg2, arg3)
-
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_PALM) && !defined(SK_BUILD_FOR_WINCE) && !defined(SK_BUILD_FOR_WIN32) && !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_SDL) && !defined(SK_BUILD_FOR_BREW) && !defined(SK_BUILD_FOR_NACL)

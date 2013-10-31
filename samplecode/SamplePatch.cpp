@@ -269,7 +269,7 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setDither(true);
-        paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+        paint.setFilterBitmap(true);
 
         canvas->translate(SkIntToScalar(20), 0);
 

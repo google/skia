@@ -66,10 +66,10 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record, bool deepCop
     record.dumpPaints();
 #endif
 
-    record.validate(record.writeStream().bytesWritten(), 0);
+    record.validate(record.writeStream().size(), 0);
     const SkWriter32& writer = record.writeStream();
     init();
-    if (writer.bytesWritten() == 0) {
+    if (writer.size() == 0) {
         fOpData = SkData::NewEmpty();
         return;
     }
@@ -85,7 +85,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record, bool deepCop
     }
 
     {
-        size_t size = writer.bytesWritten();
+        size_t size = writer.size();
         void* buffer = sk_malloc_throw(size);
         writer.flatten(buffer);
         SkASSERT(!fOpData);

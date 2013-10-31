@@ -57,7 +57,7 @@ protected:
         SkSize scale = SkSize::Make(sk32, sk32);
         canvas->save();
         canvas->scale(sk32, sk32);
-        bilinearPaint.setFilterLevel(SkPaint::kLow_FilterLevel);
+        bilinearPaint.setFilterBitmap(true);
         canvas->drawBitmap(fCheckerboard, 0, 0, &bilinearPaint);
         canvas->restore();
         SkAutoTUnref<SkImageFilter> bicubic(SkBicubicImageFilter::CreateMitchell(scale));

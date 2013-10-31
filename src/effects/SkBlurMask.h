@@ -44,19 +44,17 @@ public:
                                 Style style,
                                 SkIPoint* margin = NULL);
 
-    SK_ATTR_DEPRECATED("use sigma version")
+    // DEPRECATED - radius-based
     static bool BlurRect(SkMask *dst, const SkRect &src,
                          SkScalar radius, Style style,
                          SkIPoint *margin = NULL,
                          SkMask::CreateMode createMode =
                                                 SkMask::kComputeBoundsAndRenderImage_CreateMode);
-
-    SK_ATTR_DEPRECATED("use sigma version")
+    // DEPRECATED - radius-based
     static bool Blur(SkMask* dst, const SkMask& src,
                      SkScalar radius, Style style, Quality quality,
                      SkIPoint* margin = NULL);
-
-    SK_ATTR_DEPRECATED("use sigma version")
+    // DEPRECATED - radius-based
     static bool BlurGroundTruth(SkMask* dst, const SkMask& src,
                                 SkScalar radius, Style style,
                                 SkIPoint* margin = NULL);

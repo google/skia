@@ -1156,7 +1156,7 @@ static bool just_translate(const SkMatrix& matrix, const SkBitmap& bitmap) {
 
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
                               const SkPaint& paint) const {
-    SkASSERT(bitmap.config() == SkBitmap::kA8_Config);
+    SkASSERT(bitmap.getConfig() == SkBitmap::kA8_Config);
 
     if (just_translate(*fMatrix, bitmap)) {
         int ix = SkScalarRound(fMatrix->getTranslateX());
@@ -1264,7 +1264,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     // nothing to draw
     if (fRC->isEmpty() ||
             bitmap.width() == 0 || bitmap.height() == 0 ||
-            bitmap.config() == SkBitmap::kNo_Config) {
+            bitmap.getConfig() == SkBitmap::kNo_Config) {
         return;
     }
 
@@ -1290,7 +1290,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         }
     }
 
-    if (bitmap.config() != SkBitmap::kA8_Config &&
+    if (bitmap.getConfig() != SkBitmap::kA8_Config &&
             just_translate(matrix, bitmap)) {
         //
         // It is safe to call lock pixels now, since we know the matrix is
@@ -1323,7 +1323,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     SkDraw draw(*this);
     draw.fMatrix = &matrix;
 
-    if (bitmap.config() == SkBitmap::kA8_Config) {
+    if (bitmap.getConfig() == SkBitmap::kA8_Config) {
         draw.drawBitmapAsMask(bitmap, paint);
     } else {
         SkAutoBitmapShaderInstall install(bitmap, paint);
@@ -1343,7 +1343,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y,
     // nothing to draw
     if (fRC->isEmpty() ||
             bitmap.width() == 0 || bitmap.height() == 0 ||
-            bitmap.config() == SkBitmap::kNo_Config) {
+            bitmap.getConfig() == SkBitmap::kNo_Config) {
         return;
     }
 

@@ -48,7 +48,7 @@ bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
         OwnDeviceCanvas canvas(dev);
         SkPaint paint;
 
-        paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+        paint.setFilterBitmap(true);
         canvas.scale(scale, scale);
         canvas.drawBitmap(src, 0, 0, &paint);
         tmp = dev->accessBitmap(false);

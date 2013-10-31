@@ -87,7 +87,7 @@ public:
 
     /** Return the bitmap config of the device's pixels
     */
-    virtual SkBitmap::Config config() const SK_OVERRIDE { return fBitmap.config(); }
+    virtual SkBitmap::Config config() const SK_OVERRIDE { return fBitmap.getConfig(); }
 
     /**
      *  DEPRECATED: This will be made protected once WebKit stops using it.

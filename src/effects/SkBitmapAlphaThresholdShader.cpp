@@ -249,7 +249,7 @@ GrEffectRef* BATShader::asNewEffect(GrContext* context, const SkPaint& paint) co
     context->setMatrix(matrix);
 
     while (!iter.done()) {
-        SkRect rect = SkRect::Make(iter.rect());
+        SkRect rect = SkRect::MakeFromIRect(iter.rect());
         context->drawRect(grPaint, rect);
         iter.next();
     }

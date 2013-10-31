@@ -53,8 +53,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define CHECK_FOR_ANNOTATION(paint) \
-    do { if (paint.getAnnotation()) { return; } } while (0)
+#define CHECK_FOR_NODRAW_ANNOTATION(paint) \
+    do { if (paint.isNoDrawAnnotation()) { return; } } while (0)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -572,7 +572,7 @@ static const GrPrimitiveType gPointMode2PrimtiveType[] = {
 
 void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
                              size_t count, const SkPoint pts[], const SkPaint& paint) {
-    CHECK_FOR_ANNOTATION(paint);
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
 
     SkScalar width = paint.getStrokeWidth();
@@ -606,7 +606,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
 
 void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
                            const SkPaint& paint) {
-    CHECK_FOR_ANNOTATION(paint);
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
 
     bool doStroke = paint.getStyle() != SkPaint::kFill_Style;
@@ -662,7 +662,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
 
 void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
                            const SkPaint& paint) {
-    CHECK_FOR_ANNOTATION(paint);
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
 
     bool usePath = !rect.isSimple();
@@ -695,7 +695,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
 
 void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
                            const SkPaint& paint) {
-    CHECK_FOR_ANNOTATION(paint);
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
 
     bool usePath = false;
@@ -787,7 +787,7 @@ bool draw_with_mask_filter(GrContext* context, const SkPath& devPath,
     texture->writePixels(0, 0, desc.fWidth, desc.fHeight, desc.fConfig,
                                dstM.fImage, dstM.fRowBytes);
 
-    SkRect maskRect = SkRect::Make(dstM.fBounds);
+    SkRect maskRect = SkRect::MakeFromIRect(dstM.fBounds);
 
     return draw_mask(context, maskRect, grp, texture);
 }
@@ -860,7 +860,7 @@ SkBitmap wrap_texture(GrTexture* texture) {
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
-    CHECK_FOR_ANNOTATION(paint);
+    CHECK_FOR_NODRAW_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
 
     GrPaint grPaint;
@@ -1017,7 +1017,7 @@ static void determine_clipped_src_rect(const GrContext* context,
         clippedSrcIRect->setEmpty();
         return;
     }
-    SkRect clippedSrcRect = SkRect::Make(*clippedSrcIRect);
+    SkRect clippedSrcRect = SkRect::MakeFromIRect(*clippedSrcIRect);
     inv.mapRect(&clippedSrcRect);
     if (NULL != srcRectPtr) {
         if (!clippedSrcRect.intersect(*srcRectPtr)) {
@@ -1236,7 +1236,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                   const SkPaint& paint,
                                   SkCanvas::DrawBitmapRectFlags flags,
                                   int tileSize) {
-    SkRect clippedSrcRect = SkRect::Make(clippedSrcIRect);
+    SkRect clippedSrcRect = SkRect::MakeFromIRect(clippedSrcIRect);
 
     int nx = bitmap.width() / tileSize;
     int ny = bitmap.height() / tileSize;

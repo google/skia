@@ -102,7 +102,7 @@ protected:
         SkPaint fillPaint;
         fillPaint.setAntiAlias(true);
         fillPaint.setTextSize(SkIntToScalar(kPointSize));
-        fillPaint.setFilterLevel(SkPaint::kLow_FilterLevel);
+        fillPaint.setFilterBitmap(true);
         fillPaint.setShader(shader);
 
         SkPaint outlinePaint;

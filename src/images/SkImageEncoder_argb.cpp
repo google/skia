@@ -87,7 +87,7 @@ static ScanlineImporter ChooseImporter(const SkBitmap::Config& config) {
 }
 
 bool SkARGBImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap, int) {
-    const SkBitmap::Config config = bitmap.config();
+    const SkBitmap::Config config = bitmap.getConfig();
     const ScanlineImporter scanline_import = ChooseImporter(config);
     if (NULL == scanline_import) {
         return false;

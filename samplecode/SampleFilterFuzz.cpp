@@ -231,9 +231,9 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
                 make_scalar(true), make_scalar(true), R(10.0f), make_scalar()) :
             SkPerlinNoiseShader::CreateTubulence(
                 make_scalar(true), make_scalar(true), R(10.0f), make_scalar()));
-        SkImageFilter::CropRect cropR(SkRect::MakeWH(SkIntToScalar(kBitmapSize),
-                                                     SkIntToScalar(kBitmapSize)));
-        filter = SkRectShaderImageFilter::Create(shader, &cropR);
+        filter = SkRectShaderImageFilter::Create(shader,
+                                                 SkRect::MakeWH(SkIntToScalar(kBitmapSize),
+                                                                SkIntToScalar(kBitmapSize)));
     }
         break;
     case DROP_SHADOW:

@@ -362,7 +362,7 @@ public:
         this->drawRect(rect, matrix, NULL, NULL);
     }
     void drawSimpleRect(const SkIRect& irect, const SkMatrix* matrix = NULL) {
-        SkRect rect = SkRect::Make(irect);
+        SkRect rect = SkRect::MakeFromIRect(irect);
         this->drawRect(rect, matrix, NULL, NULL);
     }
 

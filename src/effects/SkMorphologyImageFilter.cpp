@@ -501,7 +501,7 @@ void apply_morphology_pass(GrContext* context,
                                                     direction,
                                                     radius,
                                                     morphType))->unref();
-    context->drawRectToRect(paint, SkRect::Make(dstRect), SkRect::Make(srcRect));
+    context->drawRectToRect(paint, SkRect::MakeFromIRect(dstRect), SkRect::MakeFromIRect(srcRect));
 }
 
 bool apply_morphology(const SkBitmap& input,

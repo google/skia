@@ -505,8 +505,7 @@ public:
             paint->setAntiAlias(SkOSMenu::kOnState == fAAState);
         }
         if (SkOSMenu::kMixedState != fFilterState) {
-            paint->setFilterLevel(SkOSMenu::kOnState == fFilterState ?
-                                  SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+            paint->setFilterBitmap(SkOSMenu::kOnState == fFilterState);
         }
         if (SkOSMenu::kMixedState != fSubpixelState) {
             paint->setSubpixelText(SkOSMenu::kOnState == fSubpixelState);

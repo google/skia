@@ -366,7 +366,7 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
                                       GrTextureDomainEffect::MakeTexelDomain(srcMask, srcBound),
                                       GrTextureDomainEffect::kDecal_WrapMode,
                                       GrTextureParams::kNone_FilterMode))->unref();
-    fGpu->drawSimpleRect(SkRect::Make(dstBound), NULL);
+    fGpu->drawSimpleRect(SkRect::MakeFromIRect(dstBound), NULL);
 }
 
 // get a texture to act as a temporary buffer for AA clip boolean operations
@@ -722,7 +722,7 @@ bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
                     SET_RANDOM_COLOR
                     // The view matrix is setup to do clip space -> stencil space translation, so
                     // draw rect in clip space.
-                    fGpu->drawSimpleRect(SkRect::Make(clipSpaceIBounds), NULL);
+                    fGpu->drawSimpleRect(SkRect::MakeFromIRect(clipSpaceIBounds), NULL);
                 }
             }
         }
@@ -961,7 +961,7 @@ GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t clipStackGenID,
             // but leave the pixels inside the geometry alone. For reverse difference we invert all
             // the pixels before clearing the ones outside the geometry.
             if (SkRegion::kReverseDifference_Op == op) {
-                SkRect temp = SkRect::Make(clipSpaceIBounds);
+                SkRect temp = SkRect::MakeFromIRect(clipSpaceIBounds);
                 // invert the entire scene
                 helper.draw(temp, SkRegion::kXOR_Op, false, 0xFF);
             }

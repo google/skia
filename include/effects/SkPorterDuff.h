@@ -13,6 +13,8 @@
 
 class SkXfermode;
 
+/** DEPRECATED - use SkXfermode::Mode instead
+ */
 class SK_API SkPorterDuff {
 public:
     /** List of predefined xfermodes. In general, the algebra for the modes
@@ -74,6 +76,6 @@ public:
     /** Return the corersponding SkXfermode::Mode
      */
     static SkXfermode::Mode ToXfermodeMode(Mode);
-} SK_ATTR_DEPRECATED("use SkXfermode::Mode");
+};
 
 #endif

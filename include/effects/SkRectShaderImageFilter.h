@@ -25,9 +25,7 @@ public:
      *               If NULL or a given crop edge is not specified, the source
      *               primitive's bounds are used instead.
      */
-    SK_ATTR_DEPRECATED("use Create(SkShader*, const CropRect*)")
-    static SkRectShaderImageFilter* Create(SkShader* s, const SkRect& rect);
-
+    /* DEPRECATED */ static SkRectShaderImageFilter* Create(SkShader* s, const SkRect& rect);
     static SkRectShaderImageFilter* Create(SkShader* s, const CropRect* rect = NULL);
     virtual ~SkRectShaderImageFilter();
 

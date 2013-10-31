@@ -163,7 +163,7 @@ protected:
             SkBitmap bm;
 
             bm = make_chessbm(5, 5);
-            paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+            paint.setFilterBitmap(true);
 
             srcRect.setXYWH(1, 1, 3, 3);
             SkMaskFilter* mf = SkBlurMaskFilter::Create(

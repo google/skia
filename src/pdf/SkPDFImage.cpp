@@ -27,7 +27,7 @@ static bool skip_compression(SkPDFCatalog* catalog) {
 
 static size_t get_uncompressed_size(const SkBitmap& bitmap,
                                     const SkIRect& srcRect) {
-    switch (bitmap.config()) {
+    switch (bitmap.getConfig()) {
         case SkBitmap::kIndex8_Config:
             return srcRect.width() * srcRect.height();
         case SkBitmap::kARGB_4444_Config:
@@ -491,7 +491,7 @@ static SkBitmap unpremultiply_bitmap(const SkBitmap& bitmap,
 SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
                                     const SkIRect& srcRect,
                                     SkPicture::EncodeBitmap encoder) {
-    if (bitmap.config() == SkBitmap::kNo_Config) {
+    if (bitmap.getConfig() == SkBitmap::kNo_Config) {
         return NULL;
     }
 
@@ -569,7 +569,7 @@ SkPDFImage::SkPDFImage(SkStream* stream,
         fStreamValid = false;
     }
 
-    SkBitmap::Config config = fBitmap.config();
+    SkBitmap::Config config = fBitmap.getConfig();
 
     insertName("Type", "XObject");
     insertName("Subtype", "Image");

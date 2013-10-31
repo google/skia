@@ -19,7 +19,6 @@ SkString SkBenchmark::gResourcePath;
 SkBenchmark::SkBenchmark() {
     fForceAlpha = 0xFF;
     fForceAA = true;
-    fForceFilter = false;
     fDither = SkTriState::kDefault;
     fIsRendering = true;
     fOrMask = fClearMask = 0;
@@ -49,8 +48,7 @@ void SkBenchmark::postDraw() {
 void SkBenchmark::setupPaint(SkPaint* paint) {
     paint->setAlpha(fForceAlpha);
     paint->setAntiAlias(fForceAA);
-    paint->setFilterLevel(fForceFilter ? SkPaint::kLow_FilterLevel
-                                       : SkPaint::kNone_FilterLevel);
+    paint->setFilterBitmap(fForceFilter);
 
     paint->setFlags((paint->getFlags() & ~fClearMask) | fOrMask);
 

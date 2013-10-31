@@ -134,11 +134,11 @@ protected:
 
         SkPaint p;
         p.setColor(0xFF000000);
-        p.setFilterLevel(SkPaint::kLow_FilterLevel);
+        p.setFilterBitmap(true);
 
         SkPaint p2;         // for drawVertices path
         p2.setColor(0xFF000000);
-        p2.setFilterLevel(SkPaint::kLow_FilterLevel);
+        p2.setFilterBitmap(true);
         p2.setShader(SkShader::CreateBitmapShader(fAtlas,
                                                   SkShader::kClamp_TileMode,
                                                   SkShader::kClamp_TileMode))->unref();

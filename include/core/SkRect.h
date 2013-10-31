@@ -401,7 +401,7 @@ struct SK_API SkRect {
         return r;
     }
 
-    SK_ATTR_DEPRECATED("use Make()")
+    // DEPRECATED: call Make(r)
     static SkRect SK_WARN_UNUSED_RESULT MakeFromIRect(const SkIRect& irect) {
         SkRect r;
         r.set(SkIntToScalar(irect.fLeft),

@@ -186,7 +186,7 @@ public:
      */
     static bool ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst);
 
-    SK_ATTR_DEPRECATED("use AsMode(...)")
+    // DEPRECATED: call AsMode(...)
     static bool IsMode(const SkXfermode* xfer, Mode* mode) {
         return AsMode(xfer, mode);
     }

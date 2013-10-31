@@ -85,8 +85,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
-        paint.setFilterLevel(fDoFilter ? SkPaint::kLow_FilterLevel
-                                       : SkPaint::kNone_FilterLevel);
+        paint.setFilterBitmap(fDoFilter);
         if (fDoTrans) {
             paint.setColor(SkColorSetARGBMacro(0x80, 0xFF, 0xFF, 0xFF));
         }

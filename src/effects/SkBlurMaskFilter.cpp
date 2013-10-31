@@ -386,7 +386,7 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRect& srcBounds,
 
     float sigma3 = 3 * SkScalarToFloat(xformedSigma);
 
-    SkRect clipRect = SkRect::Make(clipBounds);
+    SkRect clipRect = SkRect::MakeFromIRect(clipBounds);
     SkRect srcRect(srcBounds);
 
     // Outset srcRect and clipRect by 3 * sigma, to compute affected blur area.

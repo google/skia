@@ -310,10 +310,10 @@ void SkOrderedWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
     // make room for the size of the flattened object
     (void)fWriter.reserve(sizeof(uint32_t));
     // record the current size, so we can subtract after the object writes.
-    uint32_t offset = fWriter.bytesWritten();
+    uint32_t offset = fWriter.size();
     // now flatten the object
     flattenObject(flattenable, *this);
-    uint32_t objSize = fWriter.bytesWritten() - offset;
+    uint32_t objSize = fWriter.size() - offset;
     // record the obj's size
     *fWriter.peek32(offset - sizeof(uint32_t)) = objSize;
 }

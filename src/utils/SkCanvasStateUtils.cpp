@@ -171,7 +171,7 @@ static void setup_MC_state(SkMCState* state, const SkMatrix& matrix, const SkReg
     }
 
     // allocate memory for the clip then and copy them to the struct
-    state->clipRects = (ClipRect*) sk_malloc_throw(clipWriter.bytesWritten());
+    state->clipRects = (ClipRect*) sk_malloc_throw(clipWriter.size());
     clipWriter.flatten(state->clipRects);
 }
 
@@ -239,9 +239,9 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     }
 
     // allocate memory for the layers and then and copy them to the struct
-    SkASSERT(layerWriter.bytesWritten() == layerCount * sizeof(SkCanvasLayerState));
+    SkASSERT(layerWriter.size() == layerCount * sizeof(SkCanvasLayerState));
     canvasState->layerCount = layerCount;
-    canvasState->layers = (SkCanvasLayerState*) sk_malloc_throw(layerWriter.bytesWritten());
+    canvasState->layers = (SkCanvasLayerState*) sk_malloc_throw(layerWriter.size());
     layerWriter.flatten(canvasState->layers);
 
     // for now, just ignore any client supplied DrawFilter.

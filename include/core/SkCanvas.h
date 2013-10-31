@@ -57,7 +57,7 @@ public:
     */
     explicit SkCanvas(SkBaseDevice* device);
 
-    /** Construct a canvas with the specified bitmap to draw into.
+    /** Deprecated - Construct a canvas with the specified bitmap to draw into.
         @param bitmap   Specifies a bitmap for the canvas to draw into. Its
                         structure are copied to the canvas.
     */
@@ -942,10 +942,11 @@ public:
     */
     ClipType getClipType() const;
 
-    /** DEPRECATED -- need to move this guy to private/friend
-     *  Return the current device clip (concatenation of all clip calls).
+    /** Return the current device clip (concatenation of all clip calls).
      *  This does not account for the translate in any of the devices.
      *  @return the current device clip (concatenation of all clip calls).
+     *
+     *  DEPRECATED -- call getClipDeviceBounds() instead.
      */
     const SkRegion& getTotalClip() const;
 
@@ -1033,8 +1034,8 @@ protected:
     // can perform copy-on-write or invalidate any cached images
     void predrawNotify();
 
-    /**
-     DEPRECATED -- need to remove when subclass stop relying on it.
+    /** DEPRECATED -- use constructor(device)
+
      Marked as 'protected' to avoid new clients using this before we can
      completely remove it.
 

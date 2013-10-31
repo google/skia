@@ -39,20 +39,18 @@ static void draw_into_bitmap(const SkBitmap& bm) {
  */
 
 class BitmapRectBench : public SkBenchmark {
-    SkBitmap                fBitmap;
-    bool                    fSlightMatrix;
-    uint8_t                 fAlpha;
-    SkPaint::FilterLevel    fFilterLevel;
-    SkString                fName;
-    SkRect                  fSrcR, fDstR;
-
+    SkBitmap    fBitmap;
+    bool        fDoFilter;
+    bool        fSlightMatrix;
+    uint8_t     fAlpha;
+    SkString    fName;
+    SkRect      fSrcR, fDstR;
     static const int kWidth = 128;
     static const int kHeight = 128;
 public:
-    BitmapRectBench(U8CPU alpha, SkPaint::FilterLevel filterLevel,
-                    bool slightMatrix)  {
+    BitmapRectBench(U8CPU alpha, bool doFilter, bool slightMatrix)  {
         fAlpha = SkToU8(alpha);
-        fFilterLevel = filterLevel;
+        fDoFilter = doFilter;
         fSlightMatrix = slightMatrix;
 
         fBitmap.setConfig(SkBitmap::kARGB_8888_Config, kWidth, kHeight);
@@ -61,8 +59,7 @@ public:
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         fName.printf("bitmaprect_%02X_%sfilter_%s",
-                     fAlpha,
-                     SkPaint::kNone_FilterLevel == fFilterLevel ? "no" : "",
+                     fAlpha, fDoFilter ? "" : "no",
                      fSlightMatrix ? "trans" : "identity");
         return fName.c_str();
     }
@@ -92,7 +89,7 @@ protected:
 
         SkPaint paint;
         this->setupPaint(&paint);
-        paint.setFilterLevel(fFilterLevel);
+        paint.setFilterBitmap(fDoFilter);
         paint.setAlpha(fAlpha);
 
         for (int i = 0; i < this->getLoops(); i++) {
@@ -104,10 +101,10 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-DEF_BENCH(return new BitmapRectBench(0xFF, SkPaint::kNone_FilterLevel, false))
-DEF_BENCH(return new BitmapRectBench(0x80, SkPaint::kNone_FilterLevel, false))
-DEF_BENCH(return new BitmapRectBench(0xFF, SkPaint::kLow_FilterLevel, false))
-DEF_BENCH(return new BitmapRectBench(0x80, SkPaint::kLow_FilterLevel, false))
+DEF_BENCH(return new BitmapRectBench(0xFF, false, false))
+DEF_BENCH(return new BitmapRectBench(0x80, false, false))
+DEF_BENCH(return new BitmapRectBench(0xFF, true, false))
+DEF_BENCH(return new BitmapRectBench(0x80, true, false))
 
-DEF_BENCH(return new BitmapRectBench(0xFF, SkPaint::kNone_FilterLevel, true))
-DEF_BENCH(return new BitmapRectBench(0xFF, SkPaint::kLow_FilterLevel, true))
+DEF_BENCH(return new BitmapRectBench(0xFF, false, true))
+DEF_BENCH(return new BitmapRectBench(0xFF, true, true))

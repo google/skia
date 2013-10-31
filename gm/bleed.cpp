@@ -91,7 +91,7 @@ protected:
         SkRect dst = SkRect::MakeXYWH(0, 0, SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
         SkPaint paint;
-        paint.setFilterLevel(filter ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+        paint.setFilterBitmap(filter);
 
         canvas->save();
         canvas->translate(SkIntToScalar(transX), SkIntToScalar(transY));
@@ -108,7 +108,7 @@ protected:
         SkRect dst = SkRect::MakeXYWH(0, 0, SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
         SkPaint paint;
-        paint.setFilterLevel(filter ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+        paint.setFilterBitmap(filter);
 
         canvas->save();
         canvas->translate(SkIntToScalar(transX), SkIntToScalar(transY));
@@ -125,7 +125,7 @@ protected:
         SkRect dst = SkRect::MakeXYWH(0, 0, SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
         SkPaint paint;
-        paint.setFilterLevel(filter ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+        paint.setFilterBitmap(filter);
 
         canvas->save();
         canvas->translate(SkIntToScalar(transX), SkIntToScalar(transY));
@@ -142,7 +142,7 @@ protected:
         SkRect dst = SkRect::MakeXYWH(0, 0, SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
         SkPaint paint;
-        paint.setFilterLevel(filter ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+        paint.setFilterBitmap(filter);
         SkMaskFilter* mf = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
                                          SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3)));
         paint.setMaskFilter(mf)->unref();

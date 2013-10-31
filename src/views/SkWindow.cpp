@@ -117,7 +117,7 @@ void SkWindow::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 
 void SkWindow::eraseRGB(U8CPU r, U8CPU g, U8CPU b)
 {
-    fBitmap.eraseARGB(0xFF, r, g, b);
+    fBitmap.eraseRGB(r, g, b);
 }
 
 bool SkWindow::handleInval(const SkRect* localR)

@@ -444,7 +444,7 @@ static void mesh_slide(SkCanvas* canvas) {
 
     SkPaint paint;
     paint.setDither(true);
-    paint.setFilterLevel(SkPaint::kLow_FilterLevel);
+    paint.setFilterBitmap(true);
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
         canvas->save();

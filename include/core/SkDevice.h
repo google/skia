@@ -90,9 +90,8 @@ public:
     */
     virtual bool isOpaque() const = 0;
 
-    /** Return the bitmap config of the device's pixels
+    /** DEPRECATED - Return the bitmap config of the device's pixels
      */
-    SK_ATTR_DEPRECATED("want to hide configness of the device -- don't use")
     virtual SkBitmap::Config config() const = 0;
 
     /** Return the bitmap associated with this device. Call this each time you need
@@ -118,7 +117,6 @@ public:
      *  will determines how the pixel valuess are intepreted. If the bitmap is
      *  not kARGB_8888_Config then this parameter is ignored.
      */
-    SK_ATTR_DEPRECATED("use SkCanvas version of same call")
     virtual void writePixels(const SkBitmap& bitmap, int x, int y,
                              SkCanvas::Config8888 config8888 = SkCanvas::kNative_Premul_Config8888) = 0;
 

@@ -857,7 +857,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
 
     // which check, in case we're being called by a client with a dummy device
     // (e.g. they have a bounder that always aborts the draw)
-    if (SkBitmap::kNo_Config == device.config()) {
+    if (SkBitmap::kNo_Config == device.getConfig()) {
         SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
         return blitter;
     }
@@ -940,7 +940,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         return blitter;
     }
 
-    switch (device.config()) {
+    switch (device.getConfig()) {
         case SkBitmap::kA1_Config:
             SK_PLACEMENT_NEW_ARGS(blitter, SkA1_Blitter,
                                   storage, storageSize, (device, *paint));

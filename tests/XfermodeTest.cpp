@@ -23,7 +23,7 @@ static void test_asMode(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, reportedMode != mode);
 
         // test IsMode
-        REPORTER_ASSERT(reporter, SkXfermode::AsMode(xfer, &reportedMode));
+        REPORTER_ASSERT(reporter, SkXfermode::IsMode(xfer, &reportedMode));
         REPORTER_ASSERT(reporter, reportedMode == mode);
 
         // repeat that test, but with asMode instead
@@ -41,7 +41,7 @@ static void test_asMode(skiatest::Reporter* reporter) {
     SkXfermode::Mode reportedMode = ILLEGAL_MODE;
     REPORTER_ASSERT(reporter, !bogusXfer->asMode(&reportedMode));
     REPORTER_ASSERT(reporter, reportedMode == ILLEGAL_MODE);
-    REPORTER_ASSERT(reporter, !SkXfermode::AsMode(bogusXfer, &reportedMode));
+    REPORTER_ASSERT(reporter, !SkXfermode::IsMode(bogusXfer, &reportedMode));
     REPORTER_ASSERT(reporter, reportedMode == ILLEGAL_MODE);
     bogusXfer->unref();
 }

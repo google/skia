@@ -353,7 +353,7 @@ struct SK_API SkPoint {
     /** Return true if this point and the given point are far enough apart
         such that a vector between them would be non-degenerate.
 
-        WARNING: Unlike the explicit tolerance version,
+        WARNING: Unlike the deprecated version of equalsWithinTolerance(),
         this method does not use componentwise comparison.  Instead, it
         uses a comparison designed to match judgments elsewhere regarding
         degeneracy ("points A and B are so close that the vector between them
@@ -363,7 +363,10 @@ struct SK_API SkPoint {
         return !CanNormalize(fX - p.fX, fY - p.fY);
     }
 
-    /** WARNING: There is no guarantee that the result will reflect judgments
+    /** DEPRECATED: Return true if this and the given point are componentwise
+        within tolerance "tol".
+
+        WARNING: There is no guarantee that the result will reflect judgments
         elsewhere regarding degeneracy ("points A and B are so close that the
         vector between them is essentially zero").
     */
