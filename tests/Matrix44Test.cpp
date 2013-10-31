@@ -73,8 +73,7 @@ static bool nearly_equal(const SkMatrix44& a, const SkMatrix44& b) {
 }
 
 static bool is_identity(const SkMatrix44& m) {
-    SkMatrix44 identity;
-    identity.reset();
+    SkMatrix44 identity(SkMatrix44::kIdentity_Constructor);
     return nearly_equal(m, identity);
 }
 
@@ -85,7 +84,7 @@ static bool bits_isonly(int value, int mask) {
 
 static void test_constructor(skiatest::Reporter* reporter) {
     // Allocate a matrix on the heap
-    SkMatrix44* placeholderMatrix = new SkMatrix44();
+    SkMatrix44* placeholderMatrix = new SkMatrix44(SkMatrix44::kUninitialized_Constructor);
     SkAutoTDelete<SkMatrix44> deleteMe(placeholderMatrix);
 
     for (int row = 0; row < 4; ++row) {
@@ -115,7 +114,8 @@ static void test_constructor(skiatest::Reporter* reporter) {
 }
 
 static void test_translate(skiatest::Reporter* reporter) {
-    SkMatrix44 mat, inverse;
+    SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 inverse(SkMatrix44::kUninitialized_Constructor);
 
     mat.setTranslate(0, 0, 0);
     REPORTER_ASSERT(reporter, bits_isonly(mat.getType(), SkMatrix44::kIdentity_Mask));
@@ -124,7 +124,9 @@ static void test_translate(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, mat.invert(&inverse));
     REPORTER_ASSERT(reporter, bits_isonly(inverse.getType(), SkMatrix44::kTranslate_Mask));
 
-    SkMatrix44 a, b, c;
+    SkMatrix44 a(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 b(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 c(SkMatrix44::kUninitialized_Constructor);
     a.set3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
     b.setTranslate(10, 11, 12);
 
@@ -140,7 +142,8 @@ static void test_translate(skiatest::Reporter* reporter) {
 }
 
 static void test_scale(skiatest::Reporter* reporter) {
-    SkMatrix44 mat, inverse;
+    SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 inverse(SkMatrix44::kUninitialized_Constructor);
 
     mat.setScale(1, 1, 1);
     REPORTER_ASSERT(reporter, bits_isonly(mat.getType(), SkMatrix44::kIdentity_Mask));
@@ -149,7 +152,9 @@ static void test_scale(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, mat.invert(&inverse));
     REPORTER_ASSERT(reporter, bits_isonly(inverse.getType(), SkMatrix44::kScale_Mask));
 
-    SkMatrix44 a, b, c;
+    SkMatrix44 a(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 b(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 c(SkMatrix44::kUninitialized_Constructor);
     a.set3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
     b.setScale(10, 11, 12);
 
@@ -207,7 +212,7 @@ static void test_map2(skiatest::Reporter* reporter, const SkMatrix44& mat) {
 }
 
 static void test_map2(skiatest::Reporter* reporter) {
-    SkMatrix44 mat;
+    SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gMakeProcs); ++i) {
         gMakeProcs[i](&mat);
@@ -216,7 +221,7 @@ static void test_map2(skiatest::Reporter* reporter) {
 }
 
 static void test_gettype(skiatest::Reporter* reporter) {
-    SkMatrix44 matrix;
+    SkMatrix44 matrix(SkMatrix44::kIdentity_Constructor);
 
     REPORTER_ASSERT(reporter, matrix.isIdentity());
     REPORTER_ASSERT(reporter, SkMatrix44::kIdentity_Mask == matrix.getType());
@@ -251,7 +256,7 @@ static void test_gettype(skiatest::Reporter* reporter) {
 }
 
 static void test_common_angles(skiatest::Reporter* reporter) {
-    SkMatrix44 rot;
+    SkMatrix44 rot(SkMatrix44::kUninitialized_Constructor);
     // Test precision of rotation in common cases
     int common_angles[] = { 0, 90, -90, 180, -180, 270, -270, 360, -360 };
     for (int i = 0; i < 9; ++i) {
@@ -264,7 +269,10 @@ static void test_common_angles(skiatest::Reporter* reporter) {
 
 static void test_concat(skiatest::Reporter* reporter) {
     int i;
-    SkMatrix44 a, b, c, d;
+    SkMatrix44 a(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 b(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 c(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 d(SkMatrix44::kUninitialized_Constructor);
 
     a.setTranslate(10, 10, 10);
     b.setScale(2, 2, 2);
@@ -301,11 +309,11 @@ static void test_concat(skiatest::Reporter* reporter) {
 }
 
 static void test_determinant(skiatest::Reporter* reporter) {
-    SkMatrix44 a;
+    SkMatrix44 a(SkMatrix44::kIdentity_Constructor);
     REPORTER_ASSERT(reporter, nearly_equal_double(1, a.determinant()));
     a.set(1, 1, 2);
     REPORTER_ASSERT(reporter, nearly_equal_double(2, a.determinant()));
-    SkMatrix44 b;
+    SkMatrix44 b(SkMatrix44::kUninitialized_Constructor);
     REPORTER_ASSERT(reporter, a.invert(&b));
     REPORTER_ASSERT(reporter, nearly_equal_double(0.5, b.determinant()));
     SkMatrix44 c = b = a;
@@ -326,11 +334,10 @@ static void test_determinant(skiatest::Reporter* reporter) {
 }
 
 static void test_invert(skiatest::Reporter* reporter) {
-    SkMatrix44 inverse;
+    SkMatrix44 inverse(SkMatrix44::kUninitialized_Constructor);
     double inverseData[16];
 
-    SkMatrix44 identity;
-    identity.setIdentity();
+    SkMatrix44 identity(SkMatrix44::kIdentity_Constructor);
     identity.invert(&inverse);
     inverse.asRowMajord(inverseData);
     assert16<double>(reporter, inverseData,
@@ -339,7 +346,7 @@ static void test_invert(skiatest::Reporter* reporter) {
                      0, 0, 1, 0,
                      0, 0, 0, 1);
 
-    SkMatrix44 translation;
+    SkMatrix44 translation(SkMatrix44::kUninitialized_Constructor);
     translation.setTranslate(2, 3, 4);
     translation.invert(&inverse);
     inverse.asRowMajord(inverseData);
@@ -349,7 +356,7 @@ static void test_invert(skiatest::Reporter* reporter) {
                      0, 0, 1, -4,
                      0, 0, 0, 1);
 
-    SkMatrix44 scale;
+    SkMatrix44 scale(SkMatrix44::kUninitialized_Constructor);
     scale.setScale(2, 4, 8);
     scale.invert(&inverse);
     inverse.asRowMajord(inverseData);
@@ -359,7 +366,7 @@ static void test_invert(skiatest::Reporter* reporter) {
                      0,   0,    0.125, 0,
                      0,   0,    0,     1);
 
-    SkMatrix44 scaleTranslation;
+    SkMatrix44 scaleTranslation(SkMatrix44::kUninitialized_Constructor);
     scaleTranslation.setScale(10, 100, 1000);
     scaleTranslation.preTranslate(2, 3, 4);
     scaleTranslation.invert(&inverse);
@@ -370,10 +377,10 @@ static void test_invert(skiatest::Reporter* reporter) {
                      0,    0,  0.001, -4,
                      0,    0,    0,   1);
 
-    SkMatrix44 rotation;
+    SkMatrix44 rotation(SkMatrix44::kUninitialized_Constructor);
     rotation.setRotateDegreesAbout(0, 0, 1, 90);
     rotation.invert(&inverse);
-    SkMatrix44 expected;
+    SkMatrix44 expected(SkMatrix44::kUninitialized_Constructor);
     double expectedInverseRotation[16] =
             {0,  1, 0, 0,
              -1, 0, 0, 0,
@@ -382,7 +389,7 @@ static void test_invert(skiatest::Reporter* reporter) {
     expected.setRowMajord(expectedInverseRotation);
     REPORTER_ASSERT(reporter, nearly_equal(expected, inverse));
 
-    SkMatrix44 affine;
+    SkMatrix44 affine(SkMatrix44::kUninitialized_Constructor);
     affine.setRotateDegreesAbout(0, 0, 1, 90);
     affine.preScale(10, 20, 100);
     affine.preTranslate(2, 3, 4);
@@ -395,8 +402,7 @@ static void test_invert(skiatest::Reporter* reporter) {
     expected.setRowMajord(expectedInverseAffine);
     REPORTER_ASSERT(reporter, nearly_equal(expected, inverse));
 
-    SkMatrix44 perspective;
-    perspective.setIdentity();
+    SkMatrix44 perspective(SkMatrix44::kIdentity_Constructor);
     perspective.setDouble(3, 2, 1.0);
     perspective.invert(&inverse);
     double expectedInversePerspective[16] =
@@ -407,8 +413,7 @@ static void test_invert(skiatest::Reporter* reporter) {
     expected.setRowMajord(expectedInversePerspective);
     REPORTER_ASSERT(reporter, nearly_equal(expected, inverse));
 
-    SkMatrix44 affineAndPerspective;
-    affineAndPerspective.setIdentity();
+    SkMatrix44 affineAndPerspective(SkMatrix44::kIdentity_Constructor);
     affineAndPerspective.setDouble(3, 2, 1.0);
     affineAndPerspective.preScale(10, 20, 100);
     affineAndPerspective.preTranslate(2, 3, 4);
@@ -423,8 +428,8 @@ static void test_invert(skiatest::Reporter* reporter) {
 }
 
 static void test_transpose(skiatest::Reporter* reporter) {
-    SkMatrix44 a;
-    SkMatrix44 b;
+    SkMatrix44 a(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 b(SkMatrix44::kUninitialized_Constructor);
 
     int i = 0;
     for (int row = 0; row < 4; ++row) {
@@ -439,7 +444,7 @@ static void test_transpose(skiatest::Reporter* reporter) {
 }
 
 static void test_get_set_double(skiatest::Reporter* reporter) {
-    SkMatrix44 a;
+    SkMatrix44 a(SkMatrix44::kUninitialized_Constructor);
     for (int row = 0; row < 4; ++row) {
         for (int col = 0; col < 4; ++col) {
             a.setDouble(row, col, 3.141592653589793);
@@ -454,7 +459,9 @@ static void test_get_set_double(skiatest::Reporter* reporter) {
 }
 
 static void test_set_row_col_major(skiatest::Reporter* reporter) {
-    SkMatrix44 a, b, c, d;
+    SkMatrix44 a(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 b(SkMatrix44::kUninitialized_Constructor);
+
     for (int row = 0; row < 4; ++row) {
         for (int col = 0; col < 4; ++col) {
             a.setDouble(row, col, row * 4 + col);
@@ -489,7 +496,7 @@ static void test_3x3_conversion(skiatest::Reporter* reporter) {
                                          5, 6, 0, 8,
                                          0, 0, 1, 0,
                                          13, 14, 0, 16 };
-    SkMatrix44 a44;
+    SkMatrix44 a44(SkMatrix44::kUninitialized_Constructor);
     a44.setRowMajor(values4x4);
 
     SkMatrix a33 = a44;
@@ -498,7 +505,7 @@ static void test_3x3_conversion(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, expected33 == a33);
 
     SkMatrix44 a44flattened = a33;
-    SkMatrix44 expected44flattened;
+    SkMatrix44 expected44flattened(SkMatrix44::kUninitialized_Constructor);
     expected44flattened.setRowMajor(values4x4flattened);
     REPORTER_ASSERT(reporter, nearly_equal(a44flattened, expected44flattened));
 
@@ -522,9 +529,12 @@ static void test_3x3_conversion(skiatest::Reporter* reporter) {
 }
 
 static void TestMatrix44(skiatest::Reporter* reporter) {
-    SkMatrix44 mat, inverse, iden1, iden2, rot;
+    SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 inverse(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 iden1(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 iden2(SkMatrix44::kUninitialized_Constructor);
+    SkMatrix44 rot(SkMatrix44::kUninitialized_Constructor);
 
-    mat.reset();
     mat.setTranslate(1, 1, 1);
     mat.invert(&inverse);
     iden1.setConcat(mat, inverse);

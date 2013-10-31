@@ -91,7 +91,7 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setDither(true);
-        paint.setFilterBitmap(true);
+        paint.setFilterLevel(SkPaint::kLow_FilterLevel);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
             canvas->save();

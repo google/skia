@@ -324,7 +324,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkBitmap& source,
     SkSpriteBlitter* blitter = NULL;
     unsigned alpha = paint.getAlpha();
 
-    switch (source.getConfig()) {
+    switch (source.config()) {
         case SkBitmap::kARGB_8888_Config:
             SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D16_S32_BlitRowProc,
                                   storage, storageSize, (source));

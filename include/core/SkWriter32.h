@@ -46,7 +46,8 @@ public:
 
     // return the current offset (will always be a multiple of 4)
     size_t bytesWritten() const { return fSize; }
-    // DEPRECATED: use bytesWritten instead  TODO(mtklein): clean up
+
+    SK_ATTR_DEPRECATED("use bytesWritten")
     size_t size() const { return this->bytesWritten(); }
 
     // Returns true if we've written only into the storage passed into constructor or reset.

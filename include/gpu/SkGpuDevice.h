@@ -43,16 +43,16 @@ public:
     SkGpuDevice(GrContext*, SkBitmap::Config, int width, int height, int sampleCount = 0);
 
     /**
+     *  DEPRECATED -- need to make this private, call Create(surface)
      *  New device that will render to the specified renderTarget.
-     *  DEPRECATED: Use Create(surface)
      */
     SkGpuDevice(GrContext*, GrRenderTarget*);
 
     /**
+     *  DEPRECATED -- need to make this private, call Create(surface)
      *  New device that will render to the texture (as a rendertarget).
      *  The GrTexture's asRenderTarget() must be non-NULL or device will not
      *  function.
-     *  DEPRECATED: Use Create(surface)
      */
     SkGpuDevice(GrContext*, GrTexture*);
 

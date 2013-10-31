@@ -31,7 +31,7 @@ SkString* SkObjectParser::BitmapToString(const SkBitmap& bitmap) {
     SkASSERT(SkBitmap::kConfigCount == 7);
 
     mBitmap->append(" Config: ");
-    mBitmap->append(gConfigStrings[bitmap.getConfig()]);
+    mBitmap->append(gConfigStrings[bitmap.config()]);
 
     if (bitmap.isOpaque()) {
         mBitmap->append(" opaque");

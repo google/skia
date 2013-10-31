@@ -22,7 +22,7 @@ SkBBoxHierarchyRecord::SkBBoxHierarchyRecord(uint32_t recordFlags,
 void SkBBoxHierarchyRecord::handleBBox(const SkRect& bounds) {
     SkIRect r;
     bounds.roundOut(&r);
-    SkPictureStateTree::Draw* draw = fStateTree->appendDraw(this->writeStream().size());
+    SkPictureStateTree::Draw* draw = fStateTree->appendDraw(this->writeStream().bytesWritten());
     fBoundingHierarchy->insert(draw, r, true);
 }
 
@@ -33,7 +33,7 @@ int SkBBoxHierarchyRecord::save(SaveFlags flags) {
 
 int SkBBoxHierarchyRecord::saveLayer(const SkRect* bounds, const SkPaint* paint,
                                      SaveFlags flags) {
-    fStateTree->appendSaveLayer(this->writeStream().size());
+    fStateTree->appendSaveLayer(this->writeStream().bytesWritten());
     return INHERITED::saveLayer(bounds, paint, flags);
 }
 
@@ -80,27 +80,27 @@ void SkBBoxHierarchyRecord::setMatrix(const SkMatrix& matrix) {
 bool SkBBoxHierarchyRecord::clipRect(const SkRect& rect,
                                      SkRegion::Op op,
                                      bool doAntiAlias) {
-    fStateTree->appendClip(this->writeStream().size());
+    fStateTree->appendClip(this->writeStream().bytesWritten());
     return INHERITED::clipRect(rect, op, doAntiAlias);
 }
 
 bool SkBBoxHierarchyRecord::clipRegion(const SkRegion& region,
                                        SkRegion::Op op) {
-    fStateTree->appendClip(this->writeStream().size());
+    fStateTree->appendClip(this->writeStream().bytesWritten());
     return INHERITED::clipRegion(region, op);
 }
 
 bool SkBBoxHierarchyRecord::clipPath(const SkPath& path,
                                      SkRegion::Op op,
                                      bool doAntiAlias) {
-    fStateTree->appendClip(this->writeStream().size());
+    fStateTree->appendClip(this->writeStream().bytesWritten());
     return INHERITED::clipPath(path, op, doAntiAlias);
 }
 
 bool SkBBoxHierarchyRecord::clipRRect(const SkRRect& rrect,
                                       SkRegion::Op op,
                                       bool doAntiAlias) {
-    fStateTree->appendClip(this->writeStream().size());
+    fStateTree->appendClip(this->writeStream().bytesWritten());
     return INHERITED::clipRRect(rrect, op, doAntiAlias);
 }
 
@@ -109,7 +109,7 @@ bool SkBBoxHierarchyRecord::shouldRewind(void* data) {
     // SkPicture has rewound its command stream.  To match that rewind in the
     // BBH, we rewind all draws that reference commands that were recorded
     // past the point to which the SkPicture has rewound, which is given by
-    // writeStream().size().
+    // writeStream().bytesWritten().
     SkPictureStateTree::Draw* draw = static_cast<SkPictureStateTree::Draw*>(data);
-    return draw->fOffset >= writeStream().size();
+    return draw->fOffset >= writeStream().bytesWritten();
 }

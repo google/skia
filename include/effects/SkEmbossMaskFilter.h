@@ -25,7 +25,7 @@ public:
 
     SkEmbossMaskFilter(SkScalar blurSigma, const Light& light);
 
-    // DEPRECATED - radius-based
+    SK_ATTR_DEPRECATED("use sigma version")
     SkEmbossMaskFilter(const Light& light, SkScalar blurRadius);
 
     // overrides from SkMaskFilter

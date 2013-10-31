@@ -502,11 +502,11 @@ size_t SkBitmap::getSafeSize() const {
     // This is intended to be a size_t version of ComputeSafeSize64(), just
     // faster. The computation is meant to be identical.
     return (fHeight ? ((fHeight - 1) * fRowBytes) +
-            ComputeRowBytes(getConfig(), fWidth): 0);
+            ComputeRowBytes(this->config(), fWidth): 0);
 }
 
 Sk64 SkBitmap::getSafeSize64() const {
-    return ComputeSafeSize64(getConfig(), fWidth, fHeight, fRowBytes);
+    return ComputeSafeSize64(this->config(), fWidth, fHeight, fRowBytes);
 }
 
 bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
@@ -516,12 +516,12 @@ bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
         dstRowBytes = fRowBytes;
     }
 
-    if (dstRowBytes < ComputeRowBytes(getConfig(), fWidth) ||
+    if (dstRowBytes < ComputeRowBytes(this->config(), fWidth) ||
         dst == NULL || (getPixels() == NULL && pixelRef() == NULL))
         return false;
 
     if (!preserveDstPad && static_cast<uint32_t>(dstRowBytes) == fRowBytes) {
-        size_t safeSize = getSafeSize();
+        size_t safeSize = this->getSafeSize();
         if (safeSize > dstSize || safeSize == 0)
             return false;
         else {
@@ -535,12 +535,12 @@ bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
         }
     } else {
         // If destination has different stride than us, then copy line by line.
-        if (ComputeSafeSize(getConfig(), fWidth, fHeight, dstRowBytes) >
+        if (ComputeSafeSize(this->config(), fWidth, fHeight, dstRowBytes) >
             dstSize)
             return false;
         else {
             // Just copy what we need on each line.
-            size_t rowBytes = ComputeRowBytes(getConfig(), fWidth);
+            size_t rowBytes = ComputeRowBytes(this->config(), fWidth);
             SkAutoLockPixels lock(*this);
             const uint8_t* srcP = reinterpret_cast<const uint8_t*>(getPixels());
             uint8_t* dstP = reinterpret_cast<uint8_t*>(dst);
@@ -874,7 +874,7 @@ void SkBitmap::eraseArea(const SkIRect& rect, SkColor c) const {
  *  within the bounds of the SkPixelRef being used.
  */
 static size_t get_sub_offset(const SkBitmap& bm, int x, int y) {
-    switch (bm.getConfig()) {
+    switch (bm.config()) {
         case SkBitmap::kA8_Config:
         case SkBitmap:: kIndex8_Config:
             // x is fine as is for the calculation
@@ -1005,7 +1005,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 #include "SkPaint.h"
 
 bool SkBitmap::canCopyTo(Config dstConfig) const {
-    if (this->getConfig() == kNo_Config) {
+    if (this->config() == kNo_Config) {
         return false;
     }
 
@@ -1028,7 +1028,7 @@ bool SkBitmap::canCopyTo(Config dstConfig) const {
     }
 
     // do not copy src if srcConfig == kA1_Config while dstConfig != kA1_Config
-    if (this->getConfig() == kA1_Config && !sameConfigs) {
+    if (this->config() == kA1_Config && !sameConfigs) {
         return false;
     }
 
@@ -1305,7 +1305,7 @@ void SkBitmap::buildMipMap(bool forceRebuild) {
 
     void (*proc)(SkBitmap* dst, int x, int y, const SkBitmap& src);
 
-    const SkBitmap::Config config = this->getConfig();
+    const SkBitmap::Config config = this->config();
 
     switch (config) {
         case kARGB_8888_Config:
@@ -1444,7 +1444,7 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha,
     SkASSERT(alpha != NULL);
     SkASSERT(alphaRowBytes >= src.width());
 
-    SkBitmap::Config config = src.getConfig();
+    SkBitmap::Config config = src.config();
     int              w = src.width();
     int              h = src.height();
     size_t           rb = src.rowBytes();

@@ -51,7 +51,7 @@ bool SkShader::setContext(const SkBitmap& device,
     const SkMatrix* m = &matrix;
     SkMatrix        total;
 
-    fDeviceConfig = SkToU8(device.getConfig());
+    fDeviceConfig = SkToU8(device.config());
     fPaintAlpha = paint.getAlpha();
     if (this->hasLocalMatrix()) {
         total.setConcat(matrix, this->getLocalMatrix());

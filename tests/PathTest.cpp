@@ -1768,7 +1768,7 @@ static void write_and_read_back(skiatest::Reporter* reporter,
                                 const SkPath& p) {
     SkWriter32 writer(100);
     writer.writePath(p);
-    size_t size = writer.size();
+    size_t size = writer.bytesWritten();
     SkAutoMalloc storage(size);
     writer.flatten(storage.get());
     SkReader32 reader(storage.get(), size);

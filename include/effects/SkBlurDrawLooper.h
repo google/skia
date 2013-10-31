@@ -38,7 +38,7 @@ public:
     SkBlurDrawLooper(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
                      uint32_t flags = kNone_BlurFlag);
 
-    // DEPRECATED - radius-based
+//    SK_ATTR_DEPRECATED("use sigma version")
     SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy, SkColor color,
                      uint32_t flags = kNone_BlurFlag);
     virtual ~SkBlurDrawLooper();

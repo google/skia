@@ -139,7 +139,7 @@ static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContextFactory* fa
             SkCanvas drawingCanvas(device);
             SkPaint paint;
             paint.setColor(SK_ColorRED);
-            drawingCanvas.drawRect(SkRect::MakeFromIRect(subsetRect), paint);
+            drawingCanvas.drawRect(SkRect::Make(subsetRect), paint);
 
             // Extract a subset. If this succeeds we will test copying the subset.
             SkBitmap subset;

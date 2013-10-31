@@ -374,6 +374,11 @@
     #define SK_UNUSED SK_ATTRIBUTE(unused)
 #endif
 
+#if !defined(SK_ATTR_DEPRECATED)
+    // we ignore msg for now...
+    #define SK_ATTR_DEPRECATED(msg) SK_ATTRIBUTE(deprecated)
+#endif
+
 //////////////////////////////////////////////////////////////////////
 
 #ifndef SK_PRINTF_LIKE

@@ -213,7 +213,7 @@ bool GrInOrderDrawBuffer::quickInsideClip(const SkRect& devBounds) {
             // free via the viewport. We don't want to think that clipping must be enabled in this
             // case. So we extend the clip outward from the edge to avoid these false negatives.
             fClipProxyState = kValid_ClipProxyState;
-            fClipProxy = SkRect::MakeFromIRect(rect);
+            fClipProxy = SkRect::Make(rect);
 
             if (fClipProxy.fLeft <= 0) {
                 fClipProxy.fLeft = SK_ScalarMin;

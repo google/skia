@@ -1307,7 +1307,7 @@ bool SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegio
                     SkRect deviceBounds;
                     SkIRect deviceIBounds;
                     this->getDevice()->getGlobalBounds(&deviceIBounds);
-                    deviceBounds = SkRect::MakeFromIRect(deviceIBounds);
+                    deviceBounds = SkRect::Make(deviceIBounds);
                     this->SkCanvas::save(SkCanvas::kMatrix_SaveFlag);
                     // set the clip in device space
                     this->SkCanvas::setMatrix(SkMatrix::I());

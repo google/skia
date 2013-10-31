@@ -110,7 +110,7 @@ protected:
         s->setLocalMatrix(m);
 
         paint.setShader(s)->unref();
-        paint.setFilterBitmap(fDoFilter);
+        paint.setFilterLevel(fDoFilter ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
 
         canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
 
