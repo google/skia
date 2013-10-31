@@ -81,10 +81,10 @@ public:
 
     bool getUseGPU() const { return fUseGPU; }
     void setUseGPU(bool ug) { fUseGPU = ug; }
-    
+
     bool getTriangle() const { return fUseTriangle; }
     void setTriangle(bool ut) { fUseTriangle = ut; }
-    
+
     void toggleRectAsOval() { fRectAsOval = !fRectAsOval; }
 
     bool getUseClip() const { return fUseClip; }
@@ -343,42 +343,42 @@ void FatBits::drawRect(SkCanvas* canvas, SkPoint pts[2]) {
 void FatBits::drawTriangleSkeleton(SkCanvas* max, const SkPoint pts[]) {
     SkPaint paint;
     this->setupSkeletonPaint(&paint);
-    
+
     SkPath path;
     path.moveTo(pts[0]);
     path.lineTo(pts[1]);
     path.lineTo(pts[2]);
     path.close();
-    
+
     max->drawPath(path, paint);
 }
 
 void FatBits::drawTriangle(SkCanvas* canvas, SkPoint pts[3]) {
     SkPaint paint;
-    
+
     fInverse.mapPoints(pts, 3);
-    
+
     if (fGrid) {
         apply_grid(pts, 3);
     }
-    
+
     SkPath path;
     path.moveTo(pts[0]);
     path.lineTo(pts[1]);
     path.lineTo(pts[2]);
     path.close();
-    
+
     erase(fMinSurface);
     this->setupPaint(&paint);
     paint.setColor(FAT_PIXEL_COLOR);
     fMinSurface->getCanvas()->drawPath(path, paint);
     this->copyMinToMax();
-    
+
     SkCanvas* max = fMaxSurface->getCanvas();
-    
+
     fMatrix.mapPoints(pts, 3);
     this->drawTriangleSkeleton(max, pts);
-    
+
     fMaxSurface->draw(canvas, 0, 0, NULL);
 }
 
@@ -498,7 +498,7 @@ protected:
         int index = -1;
         int count = fFB.getTriangle() ? 3 : 2;
         SkScalar tol = 12;
-        
+
         for (int i = 0; i < count; ++i) {
             if (fPts[i].equalsWithinTolerance(pt, tol)) {
                 index = i;

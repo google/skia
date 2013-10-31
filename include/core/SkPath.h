@@ -913,7 +913,7 @@ public:
 
     /** Returns a non-zero, globally unique value corresponding to the set of verbs
         and points in the path (but not the fill type [except on Android skbug.com/1762]).
-        Each time the path is modified, a different generation ID will be returned. 
+        Each time the path is modified, a different generation ID will be returned.
     */
     uint32_t getGenerationID() const;
 

@@ -39,7 +39,7 @@ public:
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
 
     // Scratch textures not being reused means that those scratch textures
-    // that we upload to (i.e., don't have a render target) will not be 
+    // that we upload to (i.e., don't have a render target) will not be
     // recycled in the texture cache. This is to prevent ghosting by drivers
     // (in particular for deferred architectures).
     bool reuseScratchTextures() const { return fReuseScratchTextures; }

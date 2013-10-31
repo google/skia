@@ -26,7 +26,7 @@
 //#define GR_DEFAULT_RESOURCE_CACHE_MB_LIMIT 96
 
 /**
- * This specifies the maximum number of textures the texture cache can hold 
+ * This specifies the maximum number of textures the texture cache can hold
  * in vram. The value is only a default and can be overridden at runtime.
  */
 //#define GR_DEFAULT_RESOURCE_CACHE_COUNT_LIMIT 2048

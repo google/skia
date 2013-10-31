@@ -81,7 +81,7 @@ static void getGlyphPositions(const SkPaint& paint, const uint16_t glyphs[],
     SkAutoSTMalloc<128, SkScalar> widthStorage(count);
     SkScalar* widths = widthStorage.get();
     paint.getTextWidths(glyphs, count * sizeof(uint16_t), widths);
-    
+
     for (int i = 0; i < count; ++i) {
         pos[i].set(x, y);
         x += widths[i];
