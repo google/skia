@@ -376,7 +376,7 @@
 
 #if !defined(SK_ATTR_DEPRECATED)
     // we ignore msg for now...
-    #define SK_ATTR_DEPRECATED(msg) SK_ATTRIBUTE(deprecated)
+    #define SK_ATTR_DEPRECATED(msg) //SK_ATTRIBUTE(deprecated)
 #endif
 
 //////////////////////////////////////////////////////////////////////
