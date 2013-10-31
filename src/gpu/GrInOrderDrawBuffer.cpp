@@ -419,7 +419,8 @@ void GrInOrderDrawBuffer::onDrawPath(const GrPath* path,
     }
 }
 
-void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color, GrRenderTarget* renderTarget) {
+void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color, 
+                                bool canIgnoreRect, GrRenderTarget* renderTarget) {
     SkIRect r;
     if (NULL == renderTarget) {
         renderTarget = this->drawState()->getRenderTarget();
@@ -435,6 +436,7 @@ void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color, GrRenderTarg
     Clear* clr = this->recordClear();
     clr->fColor = color;
     clr->fRect = *rect;
+    clr->fCanIgnoreRect = canIgnoreRect;
     clr->fRenderTarget = renderTarget;
     renderTarget->ref();
 }
@@ -540,6 +542,7 @@ void GrInOrderDrawBuffer::flush() {
             case kClear_Cmd:
                 fDstGpu->clear(&fClears[currClear].fRect,
                                fClears[currClear].fColor,
+                               fClears[currClear].fCanIgnoreRect,
                                fClears[currClear].fRenderTarget);
                 ++currClear;
                 break;

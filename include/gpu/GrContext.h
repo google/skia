@@ -379,10 +379,12 @@ public:
      * Clear the entire or rect of the render target, ignoring any clips.
      * @param rect  the rect to clear or the whole thing if rect is NULL.
      * @param color the color to clear to.
+     * @param canIgnoreRect allows partial clears to be converted to whole
+     *                      clears on platforms for which that is cheap
      * @param target if non-NULL, the render target to clear otherwise clear
      *               the current render target
      */
-    void clear(const SkIRect* rect, GrColor color,
+    void clear(const SkIRect* rect, GrColor color, bool canIgnoreRect,
                GrRenderTarget* target = NULL);
 
     /**

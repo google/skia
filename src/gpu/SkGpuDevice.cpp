@@ -548,7 +548,7 @@ SkBitmap::Config SkGpuDevice::config() const {
 
 void SkGpuDevice::clear(SkColor color) {
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
-    fContext->clear(&rect, SkColor2GrColor(color), fRenderTarget);
+    fContext->clear(&rect, SkColor2GrColor(color), true, fRenderTarget);
     fNeedClear = false;
 }
 
@@ -822,7 +822,7 @@ bool create_mask_GPU(GrContext* context,
     GrContext::AutoRenderTarget art(context, maskTexture->asRenderTarget());
     GrContext::AutoClip ac(context, clipRect);
 
-    context->clear(NULL, 0x0);
+    context->clear(NULL, 0x0, true);
 
     GrPaint tempPaint;
     if (doAA) {

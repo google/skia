@@ -1255,11 +1255,15 @@ void GrGpuGL::flushScissor() {
     }
 }
 
-void GrGpuGL::onClear(const SkIRect* rect, GrColor color) {
+void GrGpuGL::onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) {
     const GrDrawState& drawState = this->getDrawState();
     const GrRenderTarget* rt = drawState.getRenderTarget();
     // parent class should never let us get here with no RT
     SkASSERT(NULL != rt);
+
+    if (canIgnoreRect && this->glCaps().fullClearIsFree()) {
+        rect = NULL;
+    }
 
     SkIRect clippedRect;
     if (NULL != rect) {

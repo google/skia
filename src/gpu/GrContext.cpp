@@ -645,10 +645,12 @@ bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
 
 void GrContext::clear(const SkIRect* rect,
                       const GrColor color,
+                      bool canIgnoreRect,
                       GrRenderTarget* target) {
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
-    this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf)->clear(rect, color, target);
+    this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf)->clear(rect, color, 
+                                                                canIgnoreRect, target);
 }
 
 void GrContext::drawPaint(const GrPaint& origPaint) {
@@ -833,7 +835,7 @@ void GrContext::drawRect(const GrPaint& paint,
                 // Will it blend?
                 GrColor clearColor;
                 if (paint.isOpaqueAndConstantColor(&clearColor)) {
-                    target->clear(NULL, clearColor);
+                    target->clear(NULL, clearColor, true);
                     return;
                 }
             }

@@ -248,6 +248,8 @@ public:
     /// Is there support for discarding the frame buffer
     bool discardFBSupport() const { return fDiscardFBSupport; }
 
+    bool fullClearIsFree() const { return fFullClearIsFree; }
+
 private:
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
@@ -329,6 +331,7 @@ private:
     bool fIsCoreProfile : 1;
     bool fFixedFunctionSupport : 1;
     bool fDiscardFBSupport : 1;
+    bool fFullClearIsFree : 1;
 
     typedef GrDrawTargetCaps INHERITED;
 };

@@ -461,6 +461,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
     // clear the part that we care about.
     fGpu->clear(&maskSpaceIBounds,
                 kAllIn_InitialState == initialState ? 0xffffffff : 0x00000000,
+                true,
                 result->asRenderTarget());
 
     // When we use the stencil in the below loop it is important to have this clip installed.
@@ -505,6 +506,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
                 // clear the temp target and set blend to replace
                 fGpu->clear(&maskSpaceElementIBounds,
                             invert ? 0xffffffff : 0x00000000,
+                            true,
                             dst->asRenderTarget());
                 setup_boolean_blendcoeffs(drawState, SkRegion::kReplace_Op);
 

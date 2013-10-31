@@ -135,7 +135,7 @@ private:
         GrStencilBuffer* sb,
         GrRenderTarget* rt) SK_OVERRIDE;
 
-    virtual void onClear(const SkIRect* rect, GrColor color) SK_OVERRIDE;
+    virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) SK_OVERRIDE;
 
     virtual void onForceRenderTargetFlush() SK_OVERRIDE;
 

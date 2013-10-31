@@ -265,6 +265,7 @@ public:
     // GrDrawTarget overrides
     virtual void clear(const SkIRect* rect,
                        GrColor color,
+                       bool canIgnoreRect,
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
     virtual void purgeResources() SK_OVERRIDE {
@@ -426,8 +427,9 @@ private:
     virtual GrPath* onCreatePath(const SkPath& path, const SkStrokeRec&) = 0;
 
     // overridden by backend-specific derived class to perform the clear and
-    // clearRect. NULL rect means clear whole target.
-    virtual void onClear(const SkIRect* rect, GrColor color) = 0;
+    // clearRect. NULL rect means clear whole target. If canIgnoreRect is
+    // true, it is okay to perform a full clear instead of a partial clear
+    virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) = 0;
 
     // overridden by backend-specific derived class to perform the draw call.
     virtual void onGpuDraw(const DrawInfo&) = 0;

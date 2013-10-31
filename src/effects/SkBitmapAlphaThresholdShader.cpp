@@ -241,7 +241,7 @@ GrEffectRef* BATShader::asNewEffect(GrContext* context, const SkPaint& paint) co
     grPaint.setBlendFunc(kOne_GrBlendCoeff, kZero_GrBlendCoeff);
     SkRegion::Iterator iter(fRegion);
     context->setRenderTarget(maskTexture->asRenderTarget());
-    context->clear(NULL, 0x0);
+    context->clear(NULL, 0x0, true);
 
     // offset to ensure border is zero on top/left
     SkMatrix matrix;

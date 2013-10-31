@@ -205,6 +205,7 @@ GrPath* GrGpu::createPath(const SkPath& path, const SkStrokeRec& stroke) {
 
 void GrGpu::clear(const SkIRect* rect,
                   GrColor color,
+                  bool canIgnoreRect,
                   GrRenderTarget* renderTarget) {
     GrDrawState::AutoRenderTargetRestore art;
     if (NULL != renderTarget) {
@@ -215,7 +216,7 @@ void GrGpu::clear(const SkIRect* rect,
         return;
     }
     this->handleDirtyContext();
-    this->onClear(rect, color);
+    this->onClear(rect, color, canIgnoreRect);
 }
 
 void GrGpu::forceRenderTargetFlush() {

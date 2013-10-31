@@ -71,6 +71,7 @@ public:
                                int* indexCount) const SK_OVERRIDE;
     virtual void clear(const SkIRect* rect,
                        GrColor color,
+                       bool canIgnoreRect,
                        GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
 
     virtual void initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) SK_OVERRIDE;
@@ -117,6 +118,7 @@ private:
 
         SkIRect         fRect;
         GrColor         fColor;
+        bool            fCanIgnoreRect;
         GrRenderTarget* fRenderTarget;
     };
 

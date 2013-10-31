@@ -538,7 +538,7 @@ bool apply_morphology(const SkBitmap& input,
                                               dstRect.width(), radius.fHeight);
         context->clear(&clearRect, GrMorphologyEffect::kErode_MorphologyType == morphType ?
                                    SK_ColorWHITE :
-                                   SK_ColorTRANSPARENT);
+                                   SK_ColorTRANSPARENT, false);
         src.reset(ast.detach());
         srcRect = dstRect;
     }
