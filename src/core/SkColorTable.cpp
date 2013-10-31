@@ -93,10 +93,10 @@ SkColorTable::SkColorTable(SkFlattenableReadBuffer& buffer) {
     fAlphaType = SkToU8(buffer.readUInt());
     fCount = buffer.getArrayCount();
     fColors = (SkPMColor*)sk_malloc_throw(fCount * sizeof(SkPMColor));
-    SkDEBUGCODE(const uint32_t countRead =) buffer.readColorArray(fColors);
+    SkDEBUGCODE(bool success =) buffer.readColorArray(fColors, fCount);
 #ifdef SK_DEBUG
     SkASSERT((unsigned)fCount <= 256);
-    SkASSERT(countRead == fCount);
+    SkASSERT(success);
 #endif
 }
 

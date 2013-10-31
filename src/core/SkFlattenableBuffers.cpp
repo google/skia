@@ -37,7 +37,7 @@ SkFlattenableReadBuffer::~SkFlattenableReadBuffer() { }
 void* SkFlattenableReadBuffer::readFunctionPtr() {
     void* proc;
     SkASSERT(sizeof(void*) == this->getArrayCount());
-    this->readByteArray(&proc);
+    this->readByteArray(&proc, sizeof(void*));
     return proc;
 }
 

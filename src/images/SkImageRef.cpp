@@ -176,7 +176,7 @@ SkImageRef::SkImageRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex)
 
     size_t length = buffer.getArrayCount();
     fStream = SkNEW_ARGS(SkMemoryStream, (length));
-    buffer.readByteArray((void*)fStream->getMemoryBase());
+    buffer.readByteArray((void*)fStream->getMemoryBase(), length);
 
     fPrev = fNext = NULL;
     fFactory = NULL;

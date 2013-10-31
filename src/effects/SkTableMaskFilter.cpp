@@ -77,7 +77,7 @@ void SkTableMaskFilter::flatten(SkFlattenableWriteBuffer& wb) const {
 SkTableMaskFilter::SkTableMaskFilter(SkFlattenableReadBuffer& rb)
         : INHERITED(rb) {
     SkASSERT(256 == rb.getArrayCount());
-    rb.readByteArray(fTable);
+    rb.readByteArray(fTable, 256);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

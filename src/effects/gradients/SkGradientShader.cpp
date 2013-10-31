@@ -159,7 +159,7 @@ SkGradientShaderBase::SkGradientShaderBase(SkFlattenableReadBuffer& buffer) : IN
     } else {
         fOrigColors = fStorage;
     }
-    buffer.readColorArray(fOrigColors);
+    buffer.readColorArray(fOrigColors, colorCount);
 
     {
         uint32_t packed = buffer.readUInt();

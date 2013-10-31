@@ -59,18 +59,20 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
 
 SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(SkFlattenableReadBuffer& buffer)
     : INHERITED(buffer) {
+    // We need to be able to read at most SK_MaxS32 bytes, so divide that
+    // by the size of a scalar to know how many scalars we can read.
+    static const int32_t kMaxSize = SK_MaxS32 / sizeof(SkScalar);
     fKernelSize.fWidth = buffer.readInt();
     fKernelSize.fHeight = buffer.readInt();
     if ((fKernelSize.fWidth >= 1) && (fKernelSize.fHeight >= 1) &&
         // Make sure size won't be larger than a signed int,
         // which would still be extremely large for a kernel,
         // but we don't impose a hard limit for kernel size
-        (SK_MaxS32 / fKernelSize.fWidth >= fKernelSize.fHeight)) {
-        uint32_t size = fKernelSize.fWidth * fKernelSize.fHeight;
+        (kMaxSize / fKernelSize.fWidth >= fKernelSize.fHeight)) {
+        size_t size = fKernelSize.fWidth * fKernelSize.fHeight;
         fKernel = SkNEW_ARRAY(SkScalar, size);
-        uint32_t readSize = buffer.readScalarArray(fKernel);
-        SkASSERT(readSize == size);
-        buffer.validate(readSize == size);
+        SkDEBUGCODE(bool success =) buffer.readScalarArray(fKernel, size);
+        SkASSERT(success);
     } else {
         fKernel = 0;
     }

@@ -189,7 +189,7 @@ SkTable_ColorFilter::SkTable_ColorFilter(SkFlattenableReadBuffer& buffer) : INHE
 
     size_t size = buffer.getArrayCount();
     SkASSERT(size <= sizeof(storage));
-    buffer.readByteArray(storage);
+    buffer.readByteArray(storage, size);
 
     SkDEBUGCODE(size_t raw = ) SkPackBits::Unpack8(storage, size, fStorage);
 

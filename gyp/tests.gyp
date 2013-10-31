@@ -123,6 +123,7 @@
         '../tests/RTreeTest.cpp',
         '../tests/SHA1Test.cpp',
         '../tests/ScalarTest.cpp',
+        '../tests/SerializationTest.cpp',
         '../tests/ShaderImageFilterTest.cpp',
         '../tests/ShaderOpacityTest.cpp',
         '../tests/Sk64Test.cpp',

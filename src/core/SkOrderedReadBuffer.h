@@ -61,11 +61,11 @@ public:
     virtual void readPath(SkPath* path) SK_OVERRIDE;
 
     // binary data and arrays
-    virtual uint32_t readByteArray(void* value) SK_OVERRIDE;
-    virtual uint32_t readColorArray(SkColor* colors) SK_OVERRIDE;
-    virtual uint32_t readIntArray(int32_t* values) SK_OVERRIDE;
-    virtual uint32_t readPointArray(SkPoint* points) SK_OVERRIDE;
-    virtual uint32_t readScalarArray(SkScalar* values) SK_OVERRIDE;
+    virtual bool readByteArray(void* value, size_t size) SK_OVERRIDE;
+    virtual bool readColorArray(SkColor* colors, size_t size) SK_OVERRIDE;
+    virtual bool readIntArray(int32_t* values, size_t size) SK_OVERRIDE;
+    virtual bool readPointArray(SkPoint* points, size_t size) SK_OVERRIDE;
+    virtual bool readScalarArray(SkScalar* values, size_t size) SK_OVERRIDE;
 
     // helpers to get info about arrays and binary data
     virtual uint32_t getArrayCount() SK_OVERRIDE;
@@ -113,6 +113,8 @@ public:
     }
 
 private:
+    bool readArray(void* value, size_t size, size_t elementSize);
+
     SkReader32 fReader;
     void* fMemoryPtr;
 

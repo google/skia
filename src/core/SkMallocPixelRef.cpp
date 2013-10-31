@@ -54,7 +54,7 @@ SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer, NULL) {
     fSize = buffer.getArrayCount();
     fStorage = sk_malloc_throw(fSize);
-    buffer.readByteArray(fStorage);
+    buffer.readByteArray(fStorage, fSize);
     if (buffer.readBool()) {
         fCTable = SkNEW_ARGS(SkColorTable, (buffer));
     } else {

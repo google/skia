@@ -132,7 +132,7 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
 SkEmbossMaskFilter::SkEmbossMaskFilter(SkFlattenableReadBuffer& buffer)
         : SkMaskFilter(buffer) {
     SkASSERT(buffer.getArrayCount() == sizeof(Light));
-    buffer.readByteArray(&fLight);
+    buffer.readByteArray(&fLight, sizeof(Light));
     SkASSERT(fLight.fPad == 0); // for the font-cache lookup to be clean
     fBlurSigma = buffer.readScalar();
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO

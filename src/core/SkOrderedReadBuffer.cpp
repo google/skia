@@ -137,38 +137,37 @@ void SkOrderedReadBuffer::readPath(SkPath* path) {
     fReader.readPath(path);
 }
 
-uint32_t SkOrderedReadBuffer::readByteArray(void* value) {
-    const uint32_t length = fReader.readU32();
-    memcpy(value, fReader.skip(SkAlign4(length)), length);
-    return length;
+bool SkOrderedReadBuffer::readArray(void* value, size_t size, size_t elementSize) {
+    const size_t count = this->getArrayCount();
+    if (count == size) {
+        (void)fReader.skip(sizeof(uint32_t)); // Skip array count
+        const size_t byteLength = count * elementSize;
+        memcpy(value, fReader.skip(SkAlign4(byteLength)), byteLength);
+        return true;
+    }
+    SkASSERT(false);
+    fReader.skip(fReader.available());
+    return false;
 }
 
-uint32_t SkOrderedReadBuffer::readColorArray(SkColor* colors) {
-    const uint32_t count = fReader.readU32();
-    const uint32_t byteLength = count * sizeof(SkColor);
-    memcpy(colors, fReader.skip(SkAlign4(byteLength)), byteLength);
-    return count;
+bool SkOrderedReadBuffer::readByteArray(void* value, size_t size) {
+    return readArray(static_cast<unsigned char*>(value), size, sizeof(unsigned char));
 }
 
-uint32_t SkOrderedReadBuffer::readIntArray(int32_t* values) {
-    const uint32_t count = fReader.readU32();
-    const uint32_t byteLength = count * sizeof(int32_t);
-    memcpy(values, fReader.skip(SkAlign4(byteLength)), byteLength);
-    return count;
+bool SkOrderedReadBuffer::readColorArray(SkColor* colors, size_t size) {
+    return readArray(colors, size, sizeof(SkColor));
 }
 
-uint32_t SkOrderedReadBuffer::readPointArray(SkPoint* points) {
-    const uint32_t count = fReader.readU32();
-    const uint32_t byteLength = count * sizeof(SkPoint);
-    memcpy(points, fReader.skip(SkAlign4(byteLength)), byteLength);
-    return count;
+bool SkOrderedReadBuffer::readIntArray(int32_t* values, size_t size) {
+    return readArray(values, size, sizeof(int32_t));
 }
 
-uint32_t SkOrderedReadBuffer::readScalarArray(SkScalar* values) {
-    const uint32_t count = fReader.readU32();
-    const uint32_t byteLength = count * sizeof(SkScalar);
-    memcpy(values, fReader.skip(SkAlign4(byteLength)), byteLength);
-    return count;
+bool SkOrderedReadBuffer::readPointArray(SkPoint* points, size_t size) {
+    return readArray(points, size, sizeof(SkPoint));
+}
+
+bool SkOrderedReadBuffer::readScalarArray(SkScalar* values, size_t size) {
+    return readArray(values, size, sizeof(SkScalar));
 }
 
 uint32_t SkOrderedReadBuffer::getArrayCount() {

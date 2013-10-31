@@ -308,7 +308,7 @@ void SkColorMatrixFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
 SkColorMatrixFilter::SkColorMatrixFilter(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer) {
     SkASSERT(buffer.getArrayCount() == 20);
-    buffer.readScalarArray(fMatrix.fMat);
+    buffer.readScalarArray(fMatrix.fMat, 20);
     this->initState(fMatrix.fMat);
     for (int i = 0; i < 20; ++i) {
         buffer.validate(SkScalarIsFinite(fMatrix.fMat[i]));

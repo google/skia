@@ -120,8 +120,8 @@ void SkKernel33MaskFilter::flatten(SkFlattenableWriteBuffer& wb) const {
 
 SkKernel33MaskFilter::SkKernel33MaskFilter(SkFlattenableReadBuffer& rb)
         : SkKernel33ProcMaskFilter(rb) {
-    SkDEBUGCODE(const uint32_t count = )rb.readIntArray(&fKernel[0][0]);
-    SkASSERT(9 == count);
+    SkDEBUGCODE(bool success = )rb.readIntArray(&fKernel[0][0], 9);
+    SkASSERT(success);
     fShift = rb.readInt();
 }
 

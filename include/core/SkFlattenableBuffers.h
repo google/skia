@@ -99,11 +99,24 @@ public:
     virtual void readPath(SkPath* path) = 0;
 
     // binary data and arrays
-    virtual uint32_t readByteArray(void* value) = 0;
-    virtual uint32_t readColorArray(SkColor* colors) = 0;
-    virtual uint32_t readIntArray(int32_t* values) = 0;
-    virtual uint32_t readPointArray(SkPoint* points) = 0;
-    virtual uint32_t readScalarArray(SkScalar* values) = 0;
+
+    /**
+      * In the following read.*Array(...) functions, the size parameter specifies the allocation
+      * size in number of elements (or in bytes, for void*) of the pointer parameter. If the
+      * pointer parameter's size does not match the size to be read, the pointer parameter's memory
+      * will then stay uninitialized, the cursor will be moved to the end of the stream and, in the
+      * case where isValidating() is true, an error flag will be set internally (see
+      * SkValidatingReadBuffer).
+      * If the sizes match, then "size" amount of memory will be read.
+      *
+      * @param size amount of memory expected to be read
+      * @return true if the size parameter matches the size to be read, false otherwise
+      */
+    virtual bool readByteArray(void* value, size_t size) = 0;
+    virtual bool readColorArray(SkColor* colors, size_t size) = 0;
+    virtual bool readIntArray(int32_t* values, size_t size) = 0;
+    virtual bool readPointArray(SkPoint* points, size_t size) = 0;
+    virtual bool readScalarArray(SkScalar* values, size_t size) = 0;
 
     /** This helper peeks into the buffer and reports back the length of the next array in
      *  the buffer but does not change the state of the buffer.
@@ -127,7 +140,7 @@ public:
     SkData* readByteArrayAsData() {
         size_t len = this->getArrayCount();
         void* buffer = sk_malloc_throw(len);
-        (void)this->readByteArray(buffer);
+        (void)this->readByteArray(buffer, len);
         return SkData::NewFromMalloc(buffer, len);
     }
 
