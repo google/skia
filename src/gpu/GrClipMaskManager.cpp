@@ -407,7 +407,7 @@ bool GrClipMaskManager::getMaskTexture(int32_t clipStackGenID,
         desc.fWidth = clipSpaceIBounds.width();
         desc.fHeight = clipSpaceIBounds.height();
         desc.fConfig = kRGBA_8888_GrPixelConfig;
-        if (this->getContext()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
+        if (willUpload || this->getContext()->isConfigRenderable(kAlpha_8_GrPixelConfig, false)) {
             // We would always like A8 but it isn't supported on all platforms
             desc.fConfig = kAlpha_8_GrPixelConfig;
         }
