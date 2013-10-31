@@ -141,7 +141,9 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
                 GrResourceKey key;
                 GrTexture* result = ctx->createTexture(params, desc, cacheID,
                                                        storage.get(), bitmap->width(), &key);
-                add_genID_listener(key, origBitmap.pixelRef());
+                if (NULL != result) {
+                    add_genID_listener(key, origBitmap.pixelRef());
+                }
                 return result;
             } else {
                 GrTexture* result = ctx->lockAndRefScratchTexture(desc,
@@ -171,7 +173,9 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
         GrResourceKey key;
         GrTexture* result = ctx->createTexture(params, desc, cacheID,
                                                bitmap->getPixels(), bitmap->rowBytes(), &key);
-        add_genID_listener(key, origBitmap.pixelRef());
+        if (NULL != result) {
+            add_genID_listener(key, origBitmap.pixelRef());
+        }
         return result;
    } else {
         // This texture is unlikely to be used again (in its present form) so
