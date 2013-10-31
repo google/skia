@@ -39,13 +39,3 @@ pdf-poppler
 
 # Added by bsalomon in https://codereview.chromium.org/31033002
 verylargebitmap
-
-# Added by vandebo in https://codereview.chromium.org/42473002/ because the gm
-# will need a rebaseline.
-xfermodes
-xfermodes2
-xfermodes3
-aarectmodes
-colormatrix
-lumafilter
-mixed_xfermodes
