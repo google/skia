@@ -7060,10 +7060,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5824624971106568298
+          14419229469100975106
         ]
       ], 
-      "ignore-failure": false
+      "bugs": [
+        1784
+      ], 
+      "reviewed-by-human": true
     }, 
     "imagemagnifier_565.png": {
       "allowed-digests": [
