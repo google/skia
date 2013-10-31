@@ -109,8 +109,8 @@ public:
 
     /**
         Returns the vector of draw commands
-        DEPRECATED: please use getDrawCommandAt and getSize instead
      */
+    SK_ATTR_DEPRECATED("please use getDrawCommandAt and getSize instead")
     const SkTDArray<SkDrawCommand*>& getDrawCommands() const;
 
     /**

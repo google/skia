@@ -123,7 +123,6 @@ public:
     void setConvexity(Convexity);
 
     /**
-     *  DEPRECATED: use getConvexity()
      *  Returns true if the path is flagged as being convex. This is not a
      *  confirmed by any analysis, it is just the value set earlier.
      */
@@ -132,12 +131,12 @@ public:
     }
 
     /**
-     *  DEPRECATED: use setConvexity()
      *  Set the isConvex flag to true or false. Convex paths may draw faster if
      *  this flag is set, though setting this to true on a path that is in fact
      *  not convex can give undefined results when drawn. Paths default to
      *  isConvex == false
      */
+    SK_ATTR_DEPRECATED("use setConvexity")
     void setIsConvex(bool isConvex) {
         this->setConvexity(isConvex ? kConvex_Convexity : kConcave_Convexity);
     }

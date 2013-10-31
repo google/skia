@@ -96,7 +96,7 @@ static uint32_t getPixel(int x, int y, const SkBitmap& bm) {
     SkAutoLockPixels lock(bm);
     const void* rawAddr = bm.getAddr(x,y);
 
-    switch (bm.getConfig()) {
+    switch (bm.config()) {
         case SkBitmap::kARGB_8888_Config:
             memcpy(&val, rawAddr, sizeof(uint32_t));
             break;
@@ -130,7 +130,7 @@ static void setPixel(int x, int y, uint32_t val, SkBitmap& bm) {
     SkAutoLockPixels lock(bm);
     void* rawAddr = bm.getAddr(x,y);
 
-    switch (bm.getConfig()) {
+    switch (bm.config()) {
         case SkBitmap::kARGB_8888_Config:
             memcpy(rawAddr, &val, sizeof(uint32_t));
             break;
@@ -162,7 +162,7 @@ static void setPixel(int x, int y, uint32_t val, SkBitmap& bm) {
 // Utility to return string containing name of each format, to
 // simplify diagnostic output.
 static const char* getSkConfigName(const SkBitmap& bm) {
-    switch (bm.getConfig()) {
+    switch (bm.config()) {
         case SkBitmap::kNo_Config: return "SkBitmap::kNo_Config";
         case SkBitmap::kA1_Config: return "SkBitmap::kA1_Config";
         case SkBitmap::kA8_Config: return "SkBitmap::kA8_Config";
@@ -458,7 +458,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
 
                 srcReady = src.extractSubset(&subset, r);
             } else {
-                srcReady = src.copyTo(&subset, src.getConfig());
+                srcReady = src.copyTo(&subset, src.config());
             }
 
             // Not all configurations will generate a valid 'subset'.
@@ -469,7 +469,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 // buf to a SkBitmap, but copies are done using the
                 // raw buffer pointer.
                 const size_t bufSize = subH *
-                    SkBitmap::ComputeRowBytes(src.getConfig(), subW) * 2;
+                    SkBitmap::ComputeRowBytes(src.config(), subW) * 2;
                 SkAutoMalloc autoBuf (bufSize);
                 uint8_t* buf = static_cast<uint8_t*>(autoBuf.get());
 
@@ -496,8 +496,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 memset(buf, 0xFF, bufSize);
                 // Config with stride greater than src but that fits in buf.
                 bufBm.setConfig(gPairs[i].fConfig, subW, subH,
-                    SkBitmap::ComputeRowBytes(subset.getConfig(), subW)
-                                              * 2);
+                    SkBitmap::ComputeRowBytes(subset.config(), subW) * 2);
                 bufBm.setPixels(buf);
                 successExpected = false;
                 // Then attempt to copy with a stride that is too large

@@ -80,7 +80,7 @@ protected:
         shader->setLocalMatrix(s);
         paint.setShader(shader)->unref();
         paint.setAntiAlias(false);
-        paint.setFilterBitmap(true);
+        paint.setFilterLevel(SkPaint::kLow_FilterLevel);
         rect.setLTRB(pt.fX - small, pt.fY - small,
                      pt.fX + small, pt.fY + small);
         canvas->drawRect(rect, paint);

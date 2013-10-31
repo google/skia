@@ -277,7 +277,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkBitmap& source,
     SkColorFilter* filter = paint.getColorFilter();
     SkSpriteBlitter* blitter = NULL;
 
-    switch (source.getConfig()) {
+    switch (source.config()) {
         case SkBitmap::kARGB_4444_Config:
             if (alpha != 0xFF) {
                 return NULL;    // we only have opaque sprites

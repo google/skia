@@ -86,7 +86,7 @@ static void test_ptr(skiatest::Reporter* reporter) {
     writer.writePtr(p1);
     writer.write8(0x66);
 
-    size_t size = writer.size();
+    size_t size = writer.bytesWritten();
     REPORTER_ASSERT(reporter, 2 * sizeof(void*) + 2 * sizeof(int32_t));
 
     char buffer[32];
@@ -103,14 +103,14 @@ static void test_ptr(skiatest::Reporter* reporter) {
 static void test1(skiatest::Reporter* reporter, SkWriter32* writer) {
     const uint32_t data[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     for (size_t i = 0; i < SK_ARRAY_COUNT(data); ++i) {
-        REPORTER_ASSERT(reporter, i*4 == writer->size());
+        REPORTER_ASSERT(reporter, i*4 == writer->bytesWritten());
         writer->write32(data[i]);
         uint32_t* addr = writer->peek32(i * 4);
         REPORTER_ASSERT(reporter, data[i] == *addr);
     }
 
     char buffer[sizeof(data)];
-    REPORTER_ASSERT(reporter, sizeof(buffer) == writer->size());
+    REPORTER_ASSERT(reporter, sizeof(buffer) == writer->bytesWritten());
     writer->flatten(buffer);
     REPORTER_ASSERT(reporter, !memcmp(data, buffer, sizeof(buffer)));
 }
@@ -124,7 +124,7 @@ static void test2(skiatest::Reporter* reporter, SkWriter32* writer) {
         len += SkWriter32::WriteStringSize(gStr, i);
         writer->writeString(gStr, i);
     }
-    REPORTER_ASSERT(reporter, writer->size() == len);
+    REPORTER_ASSERT(reporter, writer->bytesWritten() == len);
 
     SkAutoMalloc storage(len);
     writer->flatten(storage.get());
@@ -167,7 +167,7 @@ static void testWritePad(skiatest::Reporter* reporter, SkWriter32* writer) {
         }
     }
 
-    uint32_t totalBytes = writer->size();
+    uint32_t totalBytes = writer->bytesWritten();
 
     SkAutoMalloc readStorage(totalBytes);
     writer->flatten(readStorage.get());

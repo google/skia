@@ -37,7 +37,8 @@ static void test_asShaderMode(skiatest::Reporter* reporter) {
         SkShader* s = SkGradientShader::CreateRadial(
             center, radius, colors, pos, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
         SkPaint paint;
-        paint.setImageFilter(SkRectShaderImageFilter::Create(s, r))->unref();
+        SkImageFilter::CropRect cr(r);
+        paint.setImageFilter(SkRectShaderImageFilter::Create(s, &cr))->unref();
         canvasFilter.drawRect(r, paint);
         s->unref();
     }

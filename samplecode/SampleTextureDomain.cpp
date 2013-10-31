@@ -48,7 +48,7 @@ protected:
         SkIRect srcRect;
         SkRect dstRect;
         SkPaint paint;
-        paint.setFilterBitmap(true);
+        paint.setFilterLevel(SkPaint::kLow_FilterLevel);
 
         // Test that bitmap draws from malloc-backed bitmaps respect
         // the constrained texture domain.

@@ -90,8 +90,9 @@ public:
     */
     virtual bool isOpaque() const = 0;
 
-    /** DEPRECATED - Return the bitmap config of the device's pixels
+    /** Return the bitmap config of the device's pixels
      */
+    SK_ATTR_DEPRECATED("want to hide configness of the device -- don't use")
     virtual SkBitmap::Config config() const = 0;
 
     /** Return the bitmap associated with this device. Call this each time you need

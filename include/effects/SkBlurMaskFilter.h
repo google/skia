@@ -33,9 +33,7 @@ public:
         kAll_BlurFlag = 0x03
     };
 
-    /**
-     *  DEPRECATED - radius-based
-     */
+    SK_ATTR_DEPRECATED("use sigma version")
     static SkMaskFilter* Create(SkScalar radius, BlurStyle style,
                                 uint32_t flags = kNone_BlurFlag);
 
@@ -59,7 +57,7 @@ public:
     static SkMaskFilter* CreateEmboss(SkScalar blurSigma, const SkScalar direction[3],
                                       SkScalar ambient, SkScalar specular);
 
-    // DEPRECATED - radius-based
+    SK_ATTR_DEPRECATED("use sigma version")
     static SkMaskFilter* CreateEmboss(const SkScalar direction[3],
                                       SkScalar ambient, SkScalar specular,
                                       SkScalar blurRadius);

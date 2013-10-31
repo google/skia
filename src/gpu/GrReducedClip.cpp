@@ -51,7 +51,7 @@ void ReduceClipStack(const SkClipStack& stack,
 
     const SkIRect* bounds = &queryBounds;
 
-    SkRect scalarQueryBounds = SkRect::MakeFromIRect(queryBounds);
+    SkRect scalarQueryBounds = SkRect::Make(queryBounds);
 
     if (iior) {
         SkASSERT(SkClipStack::kNormal_BoundsType == stackBoundsType);
@@ -67,7 +67,7 @@ void ReduceClipStack(const SkClipStack& stack,
         } else if (isectRect.intersect(stackBounds, scalarQueryBounds)) {
             if (NULL != tighterBounds) {
                 isectRect.roundOut(tighterBounds);
-                SkRect scalarTighterBounds = SkRect::MakeFromIRect(*tighterBounds);
+                SkRect scalarTighterBounds = SkRect::Make(*tighterBounds);
                 if (scalarTighterBounds == isectRect) {
                     // the round-out didn't add any area outside the clip rect.
                     *requiresAA = false;
@@ -119,7 +119,7 @@ void ReduceClipStack(const SkClipStack& stack,
         }
     }
 
-    SkRect scalarBounds = SkRect::MakeFromIRect(*bounds);
+    SkRect scalarBounds = SkRect::Make(*bounds);
 
     // Now that we have determined the bounds to use and filtered out the trivial cases, call the
     // helper that actually walks the stack.

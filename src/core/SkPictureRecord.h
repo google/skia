@@ -131,7 +131,7 @@ private:
      * operates in this manner.
      */
     size_t addDraw(DrawType drawType, uint32_t* size) {
-        size_t offset = fWriter.size();
+        size_t offset = fWriter.bytesWritten();
 
         this->predrawNotify();
 
@@ -212,7 +212,7 @@ private:
 #else
 public:
     void validate(size_t initialOffset, uint32_t size) const {
-        SkASSERT(fWriter.size() == initialOffset + size);
+        SkASSERT(fWriter.bytesWritten() == initialOffset + size);
     }
 #endif
 

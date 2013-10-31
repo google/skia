@@ -72,7 +72,7 @@ SkXfermode* SkPorterDuff::CreateXfermode(SkPorterDuff::Mode mode) {
 
 bool SkPorterDuff::IsMode(SkXfermode* xfer, Mode* pdmode) {
     SkXfermode::Mode xfmode;
-    if (!SkXfermode::IsMode(xfer, &xfmode)) {
+    if (!SkXfermode::AsMode(xfer, &xfmode)) {
         return false;
     }
     return find_pdmode(xfmode, pdmode);

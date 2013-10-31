@@ -129,7 +129,7 @@ SkMipMap::Level* SkMipMap::AllocLevels(int levelCount, size_t pixelSize) {
 SkMipMap* SkMipMap::Build(const SkBitmap& src) {
     void (*proc)(SkBitmap* dst, int x, int y, const SkBitmap& src);
 
-    const SkBitmap::Config config = src.getConfig();
+    const SkBitmap::Config config = src.config();
     switch (config) {
         case SkBitmap::kARGB_8888_Config:
             proc = downsampleby2_proc32;

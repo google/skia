@@ -1607,13 +1607,13 @@ bool SkPDFDevice::handleRectAnnotation(const SkRect& r, const SkMatrix& matrix,
     SkData* urlData = annotationInfo->find(SkAnnotationKeys::URL_Key());
     if (urlData) {
         handleLinkToURL(urlData, r, matrix);
-        return p.isNoDrawAnnotation();
+        return p.getAnnotation() != NULL;
     }
     SkData* linkToName = annotationInfo->find(
             SkAnnotationKeys::Link_Named_Dest_Key());
     if (linkToName) {
         handleLinkToNamedDest(linkToName, r, matrix);
-        return p.isNoDrawAnnotation();
+        return p.getAnnotation() != NULL;
     }
     return false;
 }
@@ -1631,7 +1631,7 @@ bool SkPDFDevice::handlePointAnnotation(const SkPoint* points, size_t count,
         for (size_t i = 0; i < count; i++) {
             defineNamedDestination(nameData, points[i], matrix);
         }
-        return paint.isNoDrawAnnotation();
+        return paint.getAnnotation() != NULL;
     }
     return false;
 }

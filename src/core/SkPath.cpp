@@ -97,7 +97,8 @@ public:
     }
 
     ~SkAutoPathBoundsUpdate() {
-        fPath->setIsConvex(fDegenerate);
+        fPath->setConvexity(fDegenerate ? SkPath::kConvex_Convexity
+                                        : SkPath::kUnknown_Convexity);
         if (fEmpty || fHasValidBounds) {
             fPath->setBounds(fRect);
         }

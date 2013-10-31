@@ -1123,7 +1123,7 @@ private:
 
 bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap,
                                  int /*quality*/) {
-    SkBitmap::Config config = bitmap.getConfig();
+    SkBitmap::Config config = bitmap.config();
 
     const bool hasAlpha = !bitmap.isOpaque();
     int colorType = PNG_COLOR_MASK_COLOR;
