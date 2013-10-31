@@ -40,9 +40,6 @@ pdf-poppler
 # Added by bsalomon in https://codereview.chromium.org/31033002
 verylargebitmap
 
-# Add by robertphillips in https://codereview.chromium.org/50813002/
-morphology
-
 # Added by vandebo in https://codereview.chromium.org/42473002/ because the gm
 # will need a rebaseline.
 xfermodes
