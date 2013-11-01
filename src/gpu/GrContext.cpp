@@ -649,7 +649,7 @@ void GrContext::clear(const SkIRect* rect,
                       GrRenderTarget* target) {
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
-    this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf)->clear(rect, color, 
+    this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf)->clear(rect, color,
                                                                 canIgnoreRect, target);
 }
 

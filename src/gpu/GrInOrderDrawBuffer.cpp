@@ -419,7 +419,7 @@ void GrInOrderDrawBuffer::onDrawPath(const GrPath* path,
     }
 }
 
-void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color, 
+void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color,
                                 bool canIgnoreRect, GrRenderTarget* renderTarget) {
     SkIRect r;
     if (NULL == renderTarget) {
