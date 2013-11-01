@@ -197,7 +197,7 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """ Handles all GET requests, forwarding them to the appropriate
         do_GET_* dispatcher. """
     if self.path == '' or self.path == '/' or self.path == '/index.html' :
-      self.redirect_to('/static/view.html?resultsToLoad=all')
+      self.redirect_to('/static/index.html')
       return
     if self.path == '/favicon.ico' :
       self.redirect_to('/static/favicon.ico')
