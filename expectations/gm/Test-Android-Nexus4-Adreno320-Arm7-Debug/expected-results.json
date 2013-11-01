@@ -5162,34 +5162,37 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6526898598632434468
+          4769373685178837804
         ]
       ], 
       "bugs": [
-        1578
+        1780
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "morphology_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14644933624381601288
+          4745545581417020166
         ]
       ], 
       "bugs": [
-        1578
+        1780
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "morphology_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2806472454232486046
+          6360412548159967461
         ]
       ], 
-      "ignore-failure": false
+      "bugs": [
+        1780
+      ], 
+      "reviewed-by-human": true
     }, 
     "nested_aa_565.png": {
       "allowed-digests": [
