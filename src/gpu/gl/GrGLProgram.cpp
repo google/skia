@@ -241,8 +241,11 @@ void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
     fColorEffects->setData(fGpu, fUniformManager, colorStages);
     fCoverageEffects->setData(fGpu, fUniformManager, coverageStages);
 
+
+    // TexGen state applies to the the fixed function vertex shader. For custom shaders, it's
+    // ignored, so we don't need to change the texgen settings in that case.
     if (!fHasVertexShader) {
-        fGpu->disableUnusedTexGen(fNumTexCoordSets);
+        fGpu->flushTexGenSettings(fNumTexCoordSets);
     }
 }
 

@@ -2104,9 +2104,7 @@ void GrGpuGL::setProjectionMatrix(const SkMatrix& matrix,
 void GrGpuGL::enableTexGen(int unitIdx,
                            TexGenComponents components,
                            const GrGLfloat* coefficients) {
-
     SkASSERT(this->glCaps().fixedFunctionSupport());
-    SkASSERT(this->caps()->pathRenderingSupport());
     SkASSERT(components >= kS_TexGenComponents && components <= kSTR_TexGenComponents);
     SkASSERT(this->glCaps().maxFixedFunctionTextureCoords() >= unitIdx);
 
@@ -2142,19 +2140,18 @@ void GrGpuGL::enableTexGen(int unitIdx,
         GL_CALL(TexGenfv(GR_GL_S + i, GR_GL_OBJECT_PLANE, plane));
     }
 
-    GL_CALL(PathTexGen(GR_GL_TEXTURE0 + unitIdx,
-                       GR_GL_OBJECT_LINEAR,
-                       components,
-                       coefficients));
+    if (this->caps()->pathRenderingSupport()) {
+        GL_CALL(PathTexGen(GR_GL_TEXTURE0 + unitIdx,
+                           GR_GL_OBJECT_LINEAR,
+                           components,
+                           coefficients));
+    }
 
     memcpy(fHWTexGenSettings[unitIdx].fCoefficients, coefficients,
            3 * components * sizeof(GrGLfloat));
-
-    fHWActiveTexGenSets = SkTMax(fHWActiveTexGenSets, unitIdx);
 }
 
 void GrGpuGL::enableTexGen(int unitIdx, TexGenComponents components, const SkMatrix& matrix) {
-
     GrGLfloat coefficients[3 * 3];
     SkASSERT(this->glCaps().fixedFunctionSupport());
     SkASSERT(components >= kS_TexGenComponents && components <= kSTR_TexGenComponents);
@@ -2178,25 +2175,35 @@ void GrGpuGL::enableTexGen(int unitIdx, TexGenComponents components, const SkMat
     enableTexGen(unitIdx, components, coefficients);
 }
 
-void GrGpuGL::disableUnusedTexGen(int numUsedTexCoordSets) {
-
+void GrGpuGL::flushTexGenSettings(int numUsedTexCoordSets) {
     SkASSERT(this->glCaps().fixedFunctionSupport());
     SkASSERT(this->glCaps().maxFixedFunctionTextureCoords() >= numUsedTexCoordSets);
 
-    for (int i = numUsedTexCoordSets; i < fHWActiveTexGenSets; i++) {
-        if (0 == fHWTexGenSettings[i].fNumComponents) {
-            continue;
+    // Only write the inactive tex gens, since active tex gens were written
+    // when they were enabled.
+
+    SkDEBUGCODE(
+        for (int i = 0; i < numUsedTexCoordSets; i++) {
+            SkASSERT(0 != fHWTexGenSettings[i].fNumComponents);
         }
+    );
+
+    for (int i = numUsedTexCoordSets; i < fHWActiveTexGenSets; i++) {
+        SkASSERT(0 != fHWTexGenSettings[i].fNumComponents);
 
         this->setTextureUnit(i);
         for (int j = 0; j < fHWTexGenSettings[i].fNumComponents; j++) {
             GL_CALL(Disable(GR_GL_TEXTURE_GEN_S + j));
         }
-        GL_CALL(PathTexGen(GR_GL_TEXTURE0 + i, GR_GL_NONE, 0, NULL));
+
+        if (this->caps()->pathRenderingSupport()) {
+            GL_CALL(PathTexGen(GR_GL_TEXTURE0 + i, GR_GL_NONE, 0, NULL));
+        }
+
         fHWTexGenSettings[i].fNumComponents = 0;
     }
 
-    fHWActiveTexGenSets = SkTMin(fHWActiveTexGenSets, numUsedTexCoordSets);
+    fHWActiveTexGenSets = numUsedTexCoordSets;
 }
 
 void GrGpuGL::flushMiscFixedFunctionState() {
