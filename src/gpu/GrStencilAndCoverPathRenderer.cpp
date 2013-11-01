@@ -55,7 +55,7 @@ void GrStencilAndCoverPathRenderer::onStencilPath(const SkPath& path,
                                                   const SkStrokeRec& stroke,
                                                   GrDrawTarget* target) {
     SkASSERT(!path.isInverseFillType());
-    SkAutoTUnref<GrPath> p(fGpu->createPath(path, stroke));
+    SkAutoTUnref<GrPath> p(fGpu->getContext()->createPath(path, stroke));
     target->stencilPath(p, path.getFillType());
 }
 
@@ -69,7 +69,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
     GrDrawState* drawState = target->drawState();
     SkASSERT(drawState->getStencil().isDisabled());
 
-    SkAutoTUnref<GrPath> p(fGpu->createPath(path, stroke));
+    SkAutoTUnref<GrPath> p(fGpu->getContext()->createPath(path, stroke));
 
     if (path.isInverseFillType()) {
         GR_STATIC_CONST_SAME_STENCIL(kInvertedStencilPass,

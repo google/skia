@@ -217,6 +217,7 @@ void GrContext::contextDestroyed() {
     fOvalRenderer->reset();
 
     fTextureCache->purgeAllUnlocked();
+
     fFontCache->freeAll();
     fGpu->markContextDirty();
 }
@@ -1811,6 +1812,22 @@ const GrEffectRef* GrContext::createUPMToPMEffect(GrTexture* texture,
     } else {
         return NULL;
     }
+}
+
+GrPath* GrContext::createPath(const SkPath& inPath, const SkStrokeRec& stroke) {
+    SkASSERT(fGpu->caps()->pathRenderingSupport());
+
+    // TODO: now we add to fTextureCache. This should change to fResourceCache.
+    GrResourceKey resourceKey = GrPath::ComputeKey(inPath, stroke);
+    GrPath* path = static_cast<GrPath*>(fTextureCache->find(resourceKey));
+    if (NULL != path && path->isEqualTo(inPath, stroke)) {
+        path->ref();
+    } else {
+        path = fGpu->createPath(inPath, stroke);
+        fTextureCache->purgeAsNeeded(1, path->sizeInBytes());
+        fTextureCache->addResource(resourceKey, path);
+    }
+    return path;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

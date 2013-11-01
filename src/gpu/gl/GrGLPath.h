@@ -13,8 +13,6 @@
 #include "gl/GrGLFunctions.h"
 
 class GrGpuGL;
-class SkPath;
-class SkStrokeRec;
 
 /**
  * Currently this represents a path built using GL_NV_path_rendering. If we

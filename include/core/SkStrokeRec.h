@@ -81,6 +81,14 @@ public:
      */
     bool applyToPath(SkPath* dst, const SkPath& src) const;
 
+    bool operator==(const SkStrokeRec& other) const {
+            return fWidth == other.fWidth &&
+                   fMiterLimit == other.fMiterLimit &&
+                   fCap == other.fCap &&
+                   fJoin == other.fJoin &&
+                   fStrokeAndFill == other.fStrokeAndFill;
+    }
+
 private:
     SkScalar        fWidth;
     SkScalar        fMiterLimit;

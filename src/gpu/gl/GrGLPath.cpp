@@ -8,7 +8,6 @@
 
 #include "GrGLPath.h"
 #include "GrGpuGL.h"
-#include "SkStrokeRec.h"
 
 #define GPUGL static_cast<GrGpuGL*>(this->getGpu())
 
@@ -87,7 +86,7 @@ inline GrGLenum cap_to_gl_cap(SkPaint::Cap cap) {
 static const bool kIsWrapped = false; // The constructor creates the GL path object.
 
 GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
-    : INHERITED(gpu, kIsWrapped, stroke) {
+    : INHERITED(gpu, kIsWrapped, path, stroke) {
 #ifndef SK_SCALAR_IS_FLOAT
     GrCrash("Assumes scalar is float.");
 #endif
@@ -98,14 +97,14 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
     SkSTArray<16, GrGLubyte, true> pathCommands;
     SkSTArray<16, SkPoint, true> pathPoints;
 
-    int verbCnt = path.countVerbs();
-    int pointCnt = path.countPoints();
+    int verbCnt = fSkPath.countVerbs();
+    int pointCnt = fSkPath.countPoints();
     pathCommands.resize_back(verbCnt);
     pathPoints.resize_back(pointCnt);
 
     // TODO: Direct access to path points since we could pass them on directly.
-    path.getPoints(&pathPoints[0], pointCnt);
-    path.getVerbs(&pathCommands[0], verbCnt);
+    fSkPath.getPoints(&pathPoints[0], pointCnt);
+    fSkPath.getVerbs(&pathCommands[0], verbCnt);
 
     SkDEBUGCODE(int numPts = 0);
     for (int i = 0; i < verbCnt; ++i) {
@@ -118,7 +117,6 @@ GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
     GL_CALL(PathCommands(fPathID,
                          verbCnt, &pathCommands[0],
                          2 * pointCnt, GR_GL_FLOAT, &pathPoints[0]));
-    fBounds = path.getBounds();
 
     if (stroke.needToApply()) {
         GL_CALL(PathParameterf(fPathID, GR_GL_PATH_STROKE_WIDTH, SkScalarToFloat(stroke.getWidth())));
