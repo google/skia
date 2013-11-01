@@ -174,45 +174,45 @@
 
       <p>
 
-      <div>
-        <div style="float:left">
-          Found {{filteredTestData.length}} matches;
-          <span ng-hide="filteredTestData.length <= limitedTestData.length">
-            displaying the first {{limitedTestData.length}}
-          </span>
-          <span ng-hide="filteredTestData.length > limitedTestData.length">
-            displaying them all
-          </span>
-          <br>
-          (click on the column header radio buttons to re-sort by that column)
-        </div>
-        <div style="float:right">
-          <div>
-            all tests shown:
-            <button ng-click="selectAllItems()">
-              select
-            </button>
-            <button ng-click="clearAllItems()">
-              clear
-            </button>
-            <button ng-click="toggleAllItems()">
-              toggle
-            </button>
-          </div>
-          <div ng-repeat="otherTab in tabs">
-            <button ng-click="moveSelectedItemsToTab(otherTab)"
-                    ng-disabled="selectedItems.length == 0"
-                    ng-hide="otherTab == viewingTab">
-              move {{selectedItems.length}} selected tests to {{otherTab}} tab
-            </button>
-          </div>
-        </div>
-        <div style="clear:both">
-        </div>
-      </div>
-      <br>
-
-      <table border="1">
+    <table border="0"><tr><td> <!-- table holding results header + results table -->
+      <table border="0" width="100%"> <!-- results header -->
+        <tr>
+          <td>
+            Found {{filteredTestData.length}} matches;
+            <span ng-hide="filteredTestData.length <= limitedTestData.length">
+              displaying the first {{limitedTestData.length}}
+            </span>
+            <span ng-hide="filteredTestData.length > limitedTestData.length">
+              displaying them all
+            </span>
+            <br>
+            (click on the column header radio buttons to re-sort by that column)
+          </td>
+          <td align="right">
+            <div>
+              all tests shown:
+              <button ng-click="selectAllItems()">
+                select
+              </button>
+              <button ng-click="clearAllItems()">
+                clear
+              </button>
+              <button ng-click="toggleAllItems()">
+                toggle
+              </button>
+            </div>
+            <div ng-repeat="otherTab in tabs">
+              <button ng-click="moveSelectedItemsToTab(otherTab)"
+                      ng-disabled="selectedItems.length == 0"
+                      ng-hide="otherTab == viewingTab">
+                move {{selectedItems.length}} selected tests to {{otherTab}} tab
+              </button>
+            </div>
+          </td>
+        </tr>
+      </table> <!-- results header -->
+      </td></tr><tr><td>
+      <table border="1"> <!-- results -->
         <tr>
           <!-- Most column headers are displayed in a common fashion... -->
           <th ng-repeat="categoryName in ['resultType', 'builder', 'test', 'config']">
@@ -294,7 +294,9 @@
                    ng-checked="isValueInArray(result.index, selectedItems)"
                    ng-click="toggleValueInArray(result.index, selectedItems)">
         </tr>
-      </table>
+      </table> <!-- results -->
+    </td></tr></table> <!-- table holding results header + results table -->
+
   </div><!-- main display area of selected tab -->
   </div><!-- everything: hide until data is loaded -->
 
