@@ -42,3 +42,22 @@ verylargebitmap
 
 # Added by yunchao in https://codereview.chromium.org/54213002
 rects
+
+# Added by caryclark in https://codereview.chromium.org/48783002/
+complexclip2_path_aa
+complexclip2_path_bw
+convexpaths
+mixed_xfermodes
+nested_aa
+ninepatch-stretch
+pathfill
+pathinterior
+pathopsskpclip
+roundrects
+rrect
+rrect_clip
+samplerstress
+simpleaaclip_aaclip
+simpleaaclip_path
+strokerect
+strokes_round

@@ -1083,23 +1083,21 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
     } else if (skip_vert) {
         ry = halfH;
     }
-
 #ifdef SK_IGNORE_QUAD_RR_CORNERS_OPT
     SkScalar    sx = SkScalarMul(rx, CUBIC_ARC_FACTOR);
     SkScalar    sy = SkScalarMul(ry, CUBIC_ARC_FACTOR);
 
     this->incReserve(17);
 #else
-    // Please see SkBuildQuadArc for more information but, we need to pull
-    // the off-curve quadratic points in a little bit to make the round
-    // rects convex.
-    static const SkScalar kOffCurveEpsilon = 0.0001f;
+// The mid point of the quadratic arc approximation is half way between the two
+// control points. The float epsilon adjustment moves the on curve point out by
+// two bits, distributing the convex test error between the round rect approximation
+// and the convex cross product sign equality test.
+    SkScalar    midPtX = rx * (SK_Scalar1 + SK_ScalarTanPIOver8 + FLT_EPSILON * 4) / 2;
+    SkScalar    midPtY = ry * (SK_Scalar1 + SK_ScalarTanPIOver8 + FLT_EPSILON * 4) / 2;
 
-    SkScalar    midPtX = rx * SK_ScalarRoot2Over2;
-    SkScalar    midPtY = ry * SK_ScalarRoot2Over2;
-
-    SkScalar    offPtX = rx * SK_ScalarTanPIOver8 - kOffCurveEpsilon;
-    SkScalar    offPtY = ry * SK_ScalarTanPIOver8 - kOffCurveEpsilon;
+    SkScalar    offPtX = rx * SK_ScalarTanPIOver8;
+    SkScalar    offPtY = ry * SK_ScalarTanPIOver8;
 
     this->incReserve(21);
 #endif
@@ -1113,9 +1111,9 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fLeft, rect.fTop + ry - sy,
                       rect.fLeft, rect.fTop + ry);          // top-left
 #else
-        this->quadTo(rect.fLeft + rx - offPtX, rect.fTop + kOffCurveEpsilon,
+        this->quadTo(rect.fLeft + rx - offPtX, rect.fTop,
                      rect.fLeft + rx - midPtX, rect.fTop + ry - midPtY);
-        this->quadTo(rect.fLeft + kOffCurveEpsilon, rect.fTop + ry - offPtY,
+        this->quadTo(rect.fLeft, rect.fTop + ry - offPtY,
                      rect.fLeft, rect.fTop + ry);
 #endif
         if (!skip_vert) {
@@ -1126,9 +1124,9 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fLeft + rx - sx, rect.fBottom,
                       rect.fLeft + rx, rect.fBottom);       // bot-left
 #else
-        this->quadTo(rect.fLeft + kOffCurveEpsilon, rect.fBottom - ry + offPtY,
+        this->quadTo(rect.fLeft, rect.fBottom - ry + offPtY,
                      rect.fLeft + rx - midPtX, rect.fBottom - ry + midPtY);
-        this->quadTo(rect.fLeft + rx - offPtX, rect.fBottom - kOffCurveEpsilon,
+        this->quadTo(rect.fLeft + rx - offPtX, rect.fBottom,
                      rect.fLeft + rx, rect.fBottom);
 #endif
         if (!skip_hori) {
@@ -1139,9 +1137,9 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fRight, rect.fBottom - ry + sy,
                       rect.fRight, rect.fBottom - ry);      // bot-right
 #else
-        this->quadTo(rect.fRight - rx + offPtX, rect.fBottom - kOffCurveEpsilon,
+        this->quadTo(rect.fRight - rx + offPtX, rect.fBottom,
                      rect.fRight - rx + midPtX, rect.fBottom - ry + midPtY);
-        this->quadTo(rect.fRight - kOffCurveEpsilon, rect.fBottom - ry + offPtY,
+        this->quadTo(rect.fRight, rect.fBottom - ry + offPtY,
                      rect.fRight, rect.fBottom - ry);
 #endif
         if (!skip_vert) {
@@ -1152,9 +1150,9 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fRight - rx + sx, rect.fTop,
                       rect.fRight - rx, rect.fTop);         // top-right
 #else
-        this->quadTo(rect.fRight - kOffCurveEpsilon, rect.fTop + ry - offPtY,
+        this->quadTo(rect.fRight, rect.fTop + ry - offPtY,
                      rect.fRight - rx + midPtX, rect.fTop + ry - midPtY);
-        this->quadTo(rect.fRight - rx + offPtX, rect.fTop + kOffCurveEpsilon,
+        this->quadTo(rect.fRight - rx + offPtX, rect.fTop,
                      rect.fRight - rx, rect.fTop);
 #endif
     } else {
@@ -1163,9 +1161,9 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fRight, rect.fTop + ry - sy,
                       rect.fRight, rect.fTop + ry);         // top-right
 #else
-        this->quadTo(rect.fRight - rx + offPtX, rect.fTop + kOffCurveEpsilon,
+        this->quadTo(rect.fRight - rx + offPtX, rect.fTop,
                      rect.fRight - rx + midPtX, rect.fTop + ry - midPtY);
-        this->quadTo(rect.fRight - kOffCurveEpsilon, rect.fTop + ry - offPtY,
+        this->quadTo(rect.fRight, rect.fTop + ry - offPtY,
                      rect.fRight, rect.fTop + ry);
 #endif
         if (!skip_vert) {
@@ -1176,9 +1174,9 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fRight - rx + sx, rect.fBottom,
                       rect.fRight - rx, rect.fBottom);      // bot-right
 #else
-        this->quadTo(rect.fRight - kOffCurveEpsilon, rect.fBottom - ry + offPtY,
+        this->quadTo(rect.fRight, rect.fBottom - ry + offPtY,
                      rect.fRight - rx + midPtX, rect.fBottom - ry + midPtY);
-        this->quadTo(rect.fRight - rx + offPtX, rect.fBottom - kOffCurveEpsilon,
+        this->quadTo(rect.fRight - rx + offPtX, rect.fBottom,
                      rect.fRight - rx, rect.fBottom);
 #endif
         if (!skip_hori) {
@@ -1189,9 +1187,9 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fLeft, rect.fBottom - ry + sy,
                       rect.fLeft, rect.fBottom - ry);       // bot-left
 #else
-        this->quadTo(rect.fLeft + rx - offPtX, rect.fBottom - kOffCurveEpsilon,
+        this->quadTo(rect.fLeft + rx - offPtX, rect.fBottom,
                      rect.fLeft + rx - midPtX, rect.fBottom - ry + midPtY);
-        this->quadTo(rect.fLeft + kOffCurveEpsilon, rect.fBottom - ry + offPtY,
+        this->quadTo(rect.fLeft, rect.fBottom - ry + offPtY,
                      rect.fLeft, rect.fBottom - ry);
 #endif
         if (!skip_vert) {
@@ -1202,9 +1200,9 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
                       rect.fLeft + rx - sx, rect.fTop,
                       rect.fLeft + rx, rect.fTop);          // top-left
 #else
-        this->quadTo(rect.fLeft + kOffCurveEpsilon, rect.fTop + ry - offPtY,
+        this->quadTo(rect.fLeft, rect.fTop + ry - offPtY,
                      rect.fLeft + rx - midPtX, rect.fTop + ry - midPtY);
-        this->quadTo(rect.fLeft + rx - offPtX, rect.fTop + kOffCurveEpsilon,
+        this->quadTo(rect.fLeft + rx - offPtX, rect.fTop,
                      rect.fLeft + rx, rect.fTop);
 #endif
         if (!skip_hori) {
@@ -2263,8 +2261,20 @@ void SkPath::validate() const {
 static int sign(SkScalar x) { return x < 0; }
 #define kValueNeverReturnedBySign   2
 
-static int CrossProductSign(const SkVector& a, const SkVector& b) {
-    return SkScalarSignAsInt(SkPoint::CrossProduct(a, b));
+static bool AlmostEqual(SkScalar compA, SkScalar compB) {
+    // The error epsilon was empirically derived; worse case round rects
+    // with a mid point outset by 2x float epsilon in tests had an error
+    // of 12.
+    const int epsilon = 16;
+    if (!SkScalarIsFinite(compA) || !SkScalarIsFinite(compB)) {
+        return false;
+    }
+    if (sk_float_abs(compA) <= FLT_EPSILON && sk_float_abs(compB) <= FLT_EPSILON) {
+        return true;
+    }
+    int aBits = SkFloatAs2sCompliment(compA);
+    int bBits = SkFloatAs2sCompliment(compB);
+    return aBits < bBits + epsilon && bBits < aBits + epsilon;
 }
 
 // only valid for a single contour
@@ -2275,6 +2285,7 @@ struct Convexicator {
     , fDirection(SkPath::kUnknown_Direction) {
         fSign = 0;
         // warnings
+        fLastPt.set(0, 0);
         fCurrPt.set(0, 0);
         fVec0.set(0, 0);
         fVec1.set(0, 0);
@@ -2300,6 +2311,7 @@ struct Convexicator {
         } else {
             SkVector vec = pt - fCurrPt;
             if (vec.fX || vec.fY) {
+                fLastPt = fCurrPt;
                 fCurrPt = pt;
                 if (++fPtCount == 2) {
                     fFirstVec = fVec1 = vec;
@@ -2333,7 +2345,11 @@ private:
         SkASSERT(vec.fX || vec.fY);
         fVec0 = fVec1;
         fVec1 = vec;
-        int sign = CrossProductSign(fVec0, fVec1);
+        SkScalar cross = SkPoint::CrossProduct(fVec0, fVec1);
+        SkScalar smallest = SkTMin(fCurrPt.fX, SkTMin(fCurrPt.fY, SkTMin(fLastPt.fX, fLastPt.fY)));
+        SkScalar largest = SkTMax(fCurrPt.fX, SkTMax(fCurrPt.fY, SkTMax(fLastPt.fX, fLastPt.fY)));
+        largest = SkTMax(largest, -smallest);
+        int sign = AlmostEqual(largest, largest + cross) ? 0 : SkScalarSignAsInt(cross);
         if (0 == fSign) {
             fSign = sign;
             if (1 == sign) {
@@ -2349,6 +2365,7 @@ private:
         }
     }
 
+    SkPoint             fLastPt;
     SkPoint             fCurrPt;
     SkVector            fVec0, fVec1, fFirstVec;
     int                 fPtCount;   // non-degenerate points
