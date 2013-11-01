@@ -39,7 +39,7 @@ public:
     /**
      *  Signature for a function to decode an image from encoded data.
      */
-    typedef bool (*DecodeProc)(const void* data, size_t length, SkImage::Info*, const Target*);
+    typedef bool (*DecodeProc)(const void* data, size_t length, SkImageInfo*, const Target*);
 
     /**
      *  Create a bitmap factory which uses DecodeProc for decoding.
@@ -67,18 +67,18 @@ public:
     bool installPixelRef(SkData*, SkBitmap*);
 
     /**
-     *  An object for selecting an SkImageCache to use based on an SkImage::Info.
+     *  An object for selecting an SkImageCache to use based on an SkImageInfo.
      */
     class CacheSelector : public SkRefCnt {
 
     public:
         SK_DECLARE_INST_COUNT(CacheSelector)
         /**
-         *  Return an SkImageCache to use based on the provided SkImage::Info. If the caller decides
+         *  Return an SkImageCache to use based on the provided SkImageInfo. If the caller decides
          *  to hang on to the result, it will call ref, so the implementation should not add a ref
          *  as a result of this call.
          */
-        virtual SkImageCache* selectCache(const SkImage::Info&) = 0;
+        virtual SkImageCache* selectCache(const SkImageInfo&) = 0;
 
     private:
         typedef SkRefCnt INHERITED;

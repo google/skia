@@ -117,10 +117,10 @@ protected:
 
     static SkSurface* compat_surface(SkCanvas* canvas, const SkISize& size,
                                      bool skipGPU) {
-        SkImage::Info info = {
+        SkImageInfo info = {
             size.width(),
             size.height(),
-            SkImage::kPMColor_ColorType,
+            kPMColor_SkColorType,
             kPremul_SkAlphaType
         };
 #if SK_SUPPORT_GPU

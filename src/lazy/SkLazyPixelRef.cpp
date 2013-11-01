@@ -68,7 +68,7 @@ SkLazyPixelRef::~SkLazyPixelRef() {
     fImageCache->unref();
 }
 
-static size_t ComputeMinRowBytesAndSize(const SkImage::Info& info, size_t* rowBytes) {
+static size_t ComputeMinRowBytesAndSize(const SkImageInfo& info, size_t* rowBytes) {
     *rowBytes = SkImageMinRowBytes(info);
 
     Sk64 safeSize;
@@ -80,9 +80,9 @@ static size_t ComputeMinRowBytesAndSize(const SkImage::Info& info, size_t* rowBy
     return safeSize.is32() ? safeSize.get32() : 0;
 }
 
-const SkImage::Info* SkLazyPixelRef::getCachedInfo() {
+const SkImageInfo* SkLazyPixelRef::getCachedInfo() {
     if (fLazilyCachedInfo.fWidth < 0) {
-        SkImage::Info info;
+        SkImageInfo info;
         fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, NULL);
         if (fErrorInDecoding) {
             return NULL;
@@ -94,7 +94,7 @@ const SkImage::Info* SkLazyPixelRef::getCachedInfo() {
 
 /**
    Returns bitmap->getPixels() on success; NULL on failure */
-static void* decode_into_bitmap(SkImage::Info* info,
+static void* decode_into_bitmap(SkImageInfo* info,
                                 SkBitmapFactory::DecodeProc decodeProc,
                                 size_t* rowBytes,
                                 SkData* data,
@@ -122,7 +122,7 @@ void* SkLazyPixelRef::lockScaledImageCachePixels() {
     SkASSERT(!fErrorInDecoding);
     SkASSERT(NULL == fImageCache);
     SkBitmap bitmap;
-    const SkImage::Info* info = this->getCachedInfo();
+    const SkImageInfo* info = this->getCachedInfo();
     if (info == NULL) {
         return NULL;
     }
@@ -147,7 +147,7 @@ void* SkLazyPixelRef::lockScaledImageCachePixels() {
         return pixels;
     } else {
         // Cache has been purged, must re-decode.
-        void* pixels = decode_into_bitmap(const_cast<SkImage::Info*>(info),
+        void* pixels = decode_into_bitmap(const_cast<SkImageInfo*>(info),
                                           fDecodeProc, &fRowBytes, fData,
                                           &bitmap);
         if (NULL == pixels) {
@@ -204,7 +204,7 @@ void* SkLazyPixelRef::lockImageCachePixels() {
 
     SkASSERT(fData != NULL && fData->size() > 0);
     if (NULL == target.fAddr) {
-        const SkImage::Info* info = this->getCachedInfo();
+        const SkImageInfo* info = this->getCachedInfo();
         if (NULL == info) {
             SkASSERT(SkImageCache::UNINITIALIZED_ID == fCacheId);
             return NULL;
@@ -262,7 +262,7 @@ SkData* SkLazyPixelRef::onRefEncodedData() {
     return fData;
 }
 
-static bool init_from_info(SkBitmap* bm, const SkImage::Info& info,
+static bool init_from_info(SkBitmap* bm, const SkImageInfo& info,
                            size_t rowBytes) {
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
     if (SkBitmap::kNo_Config == config) {
@@ -284,7 +284,7 @@ bool SkLazyPixelRef::onDecodeInto(int pow2, SkBitmap* bitmap) {
         return false;
     }
 
-    SkImage::Info info;
+    SkImageInfo info;
     // Determine the size of the image in order to determine how much memory to allocate.
     // FIXME: As an optimization, only do this part once.
     fErrorInDecoding = !fDecodeProc(fData->data(), fData->size(), &info, NULL);

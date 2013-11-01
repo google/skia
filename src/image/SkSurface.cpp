@@ -101,7 +101,7 @@ SkImage* SkSurface::newImageSnapshot() {
     return image;
 }
 
-SkSurface* SkSurface::newSurface(const SkImage::Info& info) {
+SkSurface* SkSurface::newSurface(const SkImageInfo& info) {
     return asSB(this)->onNewSurface(info);
 }
 

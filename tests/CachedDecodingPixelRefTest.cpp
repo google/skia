@@ -55,7 +55,7 @@ static SkData* create_data_from_bitmap(const SkBitmap& bm,
 static bool simple_bitmap_factory(SkBitmapFactory::DecodeProc proc,
                                   SkData* data,
                                   SkBitmap* dst) {
-    SkImage::Info info;
+    SkImageInfo info;
     if (!proc(data->data(), data->size(), &info, NULL)) {
         return false;
     }

@@ -40,7 +40,7 @@ public:
         SkSafeUnref(fPurgeableImageCache);
     }
 
-    virtual SkImageCache* selectCache(const SkImage::Info& info) SK_OVERRIDE {
+    virtual SkImageCache* selectCache(const SkImageInfo& info) SK_OVERRIDE {
         if (info.fWidth * info.fHeight > 32 * 1024 && fPurgeableImageCache != NULL) {
             return fPurgeableImageCache;
         }

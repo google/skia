@@ -14,12 +14,12 @@ class SkSurface_Gpu : public SkSurface_Base {
 public:
     SK_DECLARE_INST_COUNT(SkSurface_Gpu)
 
-    SkSurface_Gpu(GrContext*, const SkImage::Info&, int sampleCount);
+    SkSurface_Gpu(GrContext*, const SkImageInfo&, int sampleCount);
     SkSurface_Gpu(GrContext*, GrRenderTarget*);
     virtual ~SkSurface_Gpu();
 
     virtual SkCanvas* onNewCanvas() SK_OVERRIDE;
-    virtual SkSurface* onNewSurface(const SkImage::Info&) SK_OVERRIDE;
+    virtual SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE;
     virtual SkImage* onNewImageSnapshot() SK_OVERRIDE;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
@@ -35,7 +35,7 @@ SK_DEFINE_INST_COUNT(SkSurface_Gpu)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSurface_Gpu::SkSurface_Gpu(GrContext* ctx, const SkImage::Info& info,
+SkSurface_Gpu::SkSurface_Gpu(GrContext* ctx, const SkImageInfo& info,
                              int sampleCount)
         : INHERITED(info.fWidth, info.fHeight) {
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
@@ -64,7 +64,7 @@ SkCanvas* SkSurface_Gpu::onNewCanvas() {
     return SkNEW_ARGS(SkCanvas, (fDevice));
 }
 
-SkSurface* SkSurface_Gpu::onNewSurface(const SkImage::Info& info) {
+SkSurface* SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
     GrRenderTarget* rt = fDevice->accessRenderTarget();
     int sampleCount = rt->numSamples();
     return SkSurface::NewRenderTarget(fDevice->context(), info, sampleCount);
@@ -113,7 +113,7 @@ SkSurface* SkSurface::NewRenderTargetDirect(GrContext* ctx,
     return SkNEW_ARGS(SkSurface_Gpu, (ctx, target));
 }
 
-SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImage::Info& info, int sampleCount) {
+SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImageInfo& info, int sampleCount) {
     if (NULL == ctx) {
         return NULL;
     }

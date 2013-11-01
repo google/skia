@@ -77,7 +77,7 @@ private:
         SkScaledImageCache::ID* fScaledCacheId;
     };
     size_t                      fRowBytes;
-    SkImage::Info               fLazilyCachedInfo;
+    SkImageInfo                 fLazilyCachedInfo;
 
 #if LAZY_CACHE_STATS
     static int32_t              gCacheHits;

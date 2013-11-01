@@ -57,7 +57,7 @@ public:
         return SkNEW_ARGS(SkCanvas, (fBitmap));
     }
 
-    virtual SkSurface* onNewSurface(const SkImage::Info&) SK_OVERRIDE {
+    virtual SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE {
         return NULL;
     }
 
@@ -692,10 +692,10 @@ static PixelPtr getSurfacePixelPtr(SkSurface* surface, bool useGpu) {
 }
 
 static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFactory* factory) {
-    SkImage::Info imageSpec = {
+    SkImageInfo imageSpec = {
         10,  // width
         10,  // height
-        SkImage::kPMColor_ColorType,
+        kPMColor_SkColorType,
         kPremul_SkAlphaType
     };
     SkSurface* surface;
@@ -759,10 +759,10 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
 }
 
 static void TestDeferredCanvasSetSurface(skiatest::Reporter* reporter, GrContextFactory* factory) {
-    SkImage::Info imageSpec = {
+    SkImageInfo imageSpec = {
         10,  // width
         10,  // height
-        SkImage::kPMColor_ColorType,
+        kPMColor_SkColorType,
         kPremul_SkAlphaType
     };
     SkSurface* surface;

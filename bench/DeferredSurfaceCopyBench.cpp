@@ -34,10 +34,10 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         // The canvas is not actually used for this test except to provide
         // configuration information: gpu, multisampling, size, etc?
-        SkImage::Info info;
+        SkImageInfo info;
         info.fWidth = kSurfaceWidth;
         info.fHeight = kSurfaceHeight;
-        info.fColorType = SkImage::kPMColor_ColorType;
+        info.fColorType = kPMColor_SkColorType;
         info.fAlphaType = kPremul_SkAlphaType;
         const SkRect fullCanvasRect = SkRect::MakeWH(
             SkIntToScalar(kSurfaceWidth), SkIntToScalar(kSurfaceHeight));

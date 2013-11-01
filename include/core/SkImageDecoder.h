@@ -377,7 +377,7 @@ public:
      *  Sample usage:
      *  <code>
      *      // Determine the image's info: width/height/config
-     *      SkImage::Info info;
+     *      SkImageInfo info;
      *      bool success = DecodeMemoryToTarget(src, size, &info, NULL);
      *      if (!success) return;
      *      // Allocate space for the result:
@@ -389,7 +389,7 @@ public:
      *      success = DecodeMemoryToTarget(src, size, &info, &target);
      *  </code>
      */
-    static bool DecodeMemoryToTarget(const void* buffer, size_t size, SkImage::Info* info,
+    static bool DecodeMemoryToTarget(const void* buffer, size_t size, SkImageInfo* info,
                                      const SkBitmapFactory::Target* target);
 
     /** Decode the image stored in the specified SkStreamRewindable, and store the result

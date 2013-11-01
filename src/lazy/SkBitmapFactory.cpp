@@ -48,7 +48,7 @@ bool SkBitmapFactory::installPixelRef(SkData* data, SkBitmap* dst) {
         return false;
     }
 
-    SkImage::Info info;
+    SkImageInfo info;
     if (!fDecodeProc(data->data(), data->size(), &info, NULL)) {
         return false;
     }

@@ -24,10 +24,10 @@ enum SurfaceType {
 };
 
 static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context) {
-    static const SkImage::Info imageSpec = {
+    static const SkImageInfo imageSpec = {
         10,  // width
         10,  // height
-        SkImage::kPMColor_ColorType,
+        kPMColor_SkColorType,
         kPremul_SkAlphaType
     };
 

@@ -16,10 +16,10 @@ SkImageWidget::SkImageWidget(SkDebugger *debugger)
     , fDebugger(debugger) {
     this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
 
-    SkImage::Info info;
+    SkImageInfo info;
     info.fWidth = kImageWidgetWidth;
     info.fHeight = kImageWidgetHeight;
-    info.fColorType = SkImage::kPMColor_ColorType;
+    info.fColorType = kPMColor_SkColorType;
     info.fAlphaType = kPremul_SkAlphaType;
 
     fSurface = SkSurface::NewRasterDirect(info, fPixels, 4 * kImageWidgetWidth);

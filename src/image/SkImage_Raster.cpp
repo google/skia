@@ -24,7 +24,7 @@ public:
         if (info.fWidth > maxDimension || info.fHeight > maxDimension) {
             return false;
         }
-        if ((unsigned)info.fColorType > (unsigned)kLastEnum_ColorType) {
+        if ((unsigned)info.fColorType > (unsigned)kLastEnum_SkColorType) {
             return false;
         }
         if ((unsigned)info.fAlphaType > (unsigned)kLastEnum_SkAlphaType) {
@@ -50,7 +50,7 @@ public:
 
     static SkImage* NewEmpty();
 
-    SkImage_Raster(const SkImage::Info&, SkData*, size_t rb);
+    SkImage_Raster(const SkImageInfo&, SkData*, size_t rb);
     virtual ~SkImage_Raster();
 
     virtual void onDraw(SkCanvas*, SkScalar, SkScalar, const SkPaint*) SK_OVERRIDE;
@@ -58,7 +58,7 @@ public:
     virtual bool getROPixels(SkBitmap*) const SK_OVERRIDE;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
-    SkImage_Raster(const SkImage::Info&, SkPixelRef*, size_t rowBytes);
+    SkImage_Raster(const SkImageInfo&, SkPixelRef*, size_t rowBytes);
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
@@ -116,7 +116,7 @@ bool SkImage_Raster::getROPixels(SkBitmap* dst) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkImage* SkImage::NewRasterCopy(const SkImage::Info& info, const void* pixels, size_t rowBytes) {
+SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, size_t rowBytes) {
     if (!SkImage_Raster::ValidArgs(info, rowBytes)) {
         return NULL;
     }
@@ -134,7 +134,7 @@ SkImage* SkImage::NewRasterCopy(const SkImage::Info& info, const void* pixels, s
 }
 
 
-SkImage* SkImage::NewRasterData(const SkImage::Info& info, SkData* pixelData, size_t rowBytes) {
+SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* pixelData, size_t rowBytes) {
     if (!SkImage_Raster::ValidArgs(info, rowBytes)) {
         return NULL;
     }
@@ -156,7 +156,7 @@ SkImage* SkImage::NewRasterData(const SkImage::Info& info, SkData* pixelData, si
     return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes));
 }
 
-SkImage* SkNewImageFromPixelRef(const SkImage::Info& info, SkPixelRef* pr,
+SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
                                 size_t rowBytes) {
     return SkNEW_ARGS(SkImage_Raster, (info, pr, rowBytes));
 }

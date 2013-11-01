@@ -84,7 +84,7 @@ SkBitmap::Allocator* SkImageDecoder::setAllocator(SkBitmap::Allocator*) {
 
 void SkImageDecoder::setSampleSize(int) {}
 
-bool SkImageDecoder::DecodeMemoryToTarget(const void*, size_t, SkImage::Info*,
+bool SkImageDecoder::DecodeMemoryToTarget(const void*, size_t, SkImageInfo*,
                                           const SkBitmapFactory::Target*) {
     return false;
 }

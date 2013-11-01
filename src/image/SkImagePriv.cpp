@@ -9,15 +9,15 @@
 #include "SkCanvas.h"
 #include "SkPicture.h"
 
-SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info& info) {
+SkBitmap::Config SkImageInfoToBitmapConfig(const SkImageInfo& info) {
     switch (info.fColorType) {
-        case SkImage::kAlpha_8_ColorType:
+        case kAlpha_8_SkColorType:
             return SkBitmap::kA8_Config;
 
-        case SkImage::kRGB_565_ColorType:
+        case kRGB_565_SkColorType:
             return SkBitmap::kRGB_565_Config;
 
-        case SkImage::kPMColor_ColorType:
+        case kPMColor_SkColorType:
             return SkBitmap::kARGB_8888_Config;
 
         default:
@@ -27,31 +27,31 @@ SkBitmap::Config SkImageInfoToBitmapConfig(const SkImage::Info& info) {
     return SkBitmap::kNo_Config;
 }
 
-int SkImageBytesPerPixel(SkImage::ColorType ct) {
+int SkImageBytesPerPixel(SkColorType ct) {
     static const uint8_t gColorTypeBytesPerPixel[] = {
-        1,  // kAlpha_8_ColorType
-        2,  // kRGB_565_ColorType
-        4,  // kRGBA_8888_ColorType
-        4,  // kBGRA_8888_ColorType
-        4,  // kPMColor_ColorType
+        1,  // kAlpha_8_SkColorType
+        2,  // kRGB_565_SkColorType
+        4,  // kRGBA_8888_SkColorType
+        4,  // kBGRA_8888_SkColorType
+        4,  // kPMColor_SkColorType
     };
 
     SkASSERT((size_t)ct < SK_ARRAY_COUNT(gColorTypeBytesPerPixel));
     return gColorTypeBytesPerPixel[ct];
 }
 
-bool SkBitmapToImageInfo(const SkBitmap& bm, SkImage::Info* info) {
+bool SkBitmapToImageInfo(const SkBitmap& bm, SkImageInfo* info) {
     switch (bm.config()) {
         case SkBitmap::kA8_Config:
-            info->fColorType = SkImage::kAlpha_8_ColorType;
+            info->fColorType = kAlpha_8_SkColorType;
             break;
 
         case SkBitmap::kRGB_565_Config:
-            info->fColorType = SkImage::kRGB_565_ColorType;
+            info->fColorType = kRGB_565_SkColorType;
             break;
 
         case SkBitmap::kARGB_8888_Config:
-            info->fColorType = SkImage::kPMColor_ColorType;
+            info->fColorType = kPMColor_SkColorType;
             break;
 
         default:
@@ -66,7 +66,7 @@ bool SkBitmapToImageInfo(const SkBitmap& bm, SkImage::Info* info) {
 }
 
 SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef) {
-    SkImage::Info info;
+    SkImageInfo info;
     if (!SkBitmapToImageInfo(bm, &info)) {
         return NULL;
     }

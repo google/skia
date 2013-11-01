@@ -19,11 +19,11 @@
 #include "SkLruImageCache.h"
 
 // A BitmapFactory that always fails when asked to return pixels.
-static bool FailureDecoder(const void* data, size_t length, SkImage::Info* info,
+static bool FailureDecoder(const void* data, size_t length, SkImageInfo* info,
                            const SkBitmapFactory::Target* target) {
     if (info) {
         info->fWidth = info->fHeight = 100;
-        info->fColorType = SkImage::kRGBA_8888_ColorType;
+        info->fColorType = kRGBA_8888_SkColorType;
         info->fAlphaType = kPremul_SkAlphaType;
     }
     // this will deliberately return false if they are asking us to decode

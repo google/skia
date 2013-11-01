@@ -35,7 +35,7 @@ public:
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
      */
-    static SkSurface* NewRasterDirect(const SkImage::Info&, void* pixels, size_t rowBytes);
+    static SkSurface* NewRasterDirect(const SkImageInfo&, void* pixels, size_t rowBytes);
 
     /**
      *  Return a new surface, with the memory for the pixels automatically
@@ -44,16 +44,16 @@ public:
      *  If the requested surface cannot be created, or the request is not a
      *  supported configuration, NULL will be returned.
      */
-    static SkSurface* NewRaster(const SkImage::Info&);
+    static SkSurface* NewRaster(const SkImageInfo&);
 
     /**
-     *  Helper version of NewRaster. It creates a SkImage::Info with the
+     *  Helper version of NewRaster. It creates a SkImageInfo with the
      *  specified width and height, and populates the rest of info to match
      *  pixels in SkPMColor format.
      */
     static SkSurface* NewRasterPMColor(int width, int height) {
-        SkImage::Info info = {
-            width, height, SkImage::kPMColor_ColorType, kPremul_SkAlphaType
+        SkImageInfo info = {
+            width, height, kPMColor_SkColorType, kPremul_SkAlphaType
         };
         return NewRaster(info);
     }
@@ -74,7 +74,7 @@ public:
      *  Return a new surface whose contents will be drawn to an offscreen
      *  render target, allocated by the surface.
      */
-    static SkSurface* NewRenderTarget(GrContext*, const SkImage::Info&, int sampleCount = 0);
+    static SkSurface* NewRenderTarget(GrContext*, const SkImageInfo&, int sampleCount = 0);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
@@ -133,7 +133,7 @@ public:
      *  ... // draw using canvasB
      *  canvasA->drawSurface(surfaceB); // <--- this will always be optimal!
      */
-    SkSurface* newSurface(const SkImage::Info&);
+    SkSurface* newSurface(const SkImageInfo&);
 
     /**
      *  Returns an image of the current state of the surface pixels up to this

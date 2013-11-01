@@ -106,8 +106,8 @@ public:
         fInverse.setScale(SK_Scalar1 / zoom, SK_Scalar1 / zoom);
         fShader->setLocalMatrix(fMatrix);
 
-        SkImage::Info info = {
-            width, height, SkImage::kPMColor_ColorType, SkImage::kPremul_AlphaType
+        SkImageInfo info = {
+            width, height, kPMColor_SkColorType, kPremul_SkAlphaType
         };
         fMinSurface.reset(SkSurface::NewRaster(info));
         info.fWidth *= zoom;

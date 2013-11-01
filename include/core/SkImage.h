@@ -23,6 +23,30 @@ class GrTexture;
 // need for TileMode
 #include "SkShader.h"
 
+enum SkColorType {
+    kAlpha_8_SkColorType,
+    kRGB_565_SkColorType,
+    kRGBA_8888_SkColorType,
+    kBGRA_8888_SkColorType,
+    
+#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
+    kPMColor_SkColorType = kBGRA_8888_SkColorType,
+#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
+    kPMColor_SkColorType = kRGBA_8888_SkColorType,
+#else
+    #error "SK_*32_SHFIT values must correspond to BGRA or RGBA byte order"
+#endif
+
+    kLastEnum_SkColorType = kBGRA_8888_SkColorType
+};
+
+struct SkImageInfo {
+    int         fWidth;
+    int         fHeight;
+    SkColorType fColorType;
+    SkAlphaType fAlphaType;
+};
+
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
  *  particular type of image could be actually storing its data on the GPU, or
@@ -37,36 +61,27 @@ class SK_API SkImage : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkImage)
 
-    enum ColorType {
-        kAlpha_8_ColorType,
-        kRGB_565_ColorType,
-        kRGBA_8888_ColorType,
-        kBGRA_8888_ColorType,
+#ifdef SK_SUPPORT_LEGACY_COLORTYPE
+    typedef SkColorType ColorType;
 
-#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-        kPMColor_ColorType = kBGRA_8888_ColorType,
-#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-        kPMColor_ColorType = kRGBA_8888_ColorType,
-#else
-        #error "SK_*32_SHFIT values must correspond to BGRA or RGBA byte order"
+    static const SkColorType kAlpha_8_ColorType     = kAlpha_8_SkColorType;
+    static const SkColorType kRGB_565_ColorType     = kRGB_565_SkColorType;
+    static const SkColorType kRGBA_8888_ColorType   = kRGBA_8888_SkColorType;
+    static const SkColorType kBGRA_8888_ColorType   = kBGRA_8888_SkColorType;
+    static const SkColorType kPMColor_ColorType     = kPMColor_SkColorType;
+    static const SkColorType kLastEnum_ColorType    = kLastEnum_SkColorType;
 #endif
 
-        kLastEnum_ColorType = kBGRA_8888_ColorType
-    };
-
+#ifdef SK_SUPPORT_LEGACY_ALPHATYPE
     typedef SkAlphaType AlphaType;
 
     static const SkAlphaType kIgnore_AlphaType   = kIgnore_SkAlphaType;
     static const SkAlphaType kOpaque_AlphaType   = kOpaque_SkAlphaType;
     static const SkAlphaType kPremul_AlphaType   = kPremul_SkAlphaType;
     static const SkAlphaType kUnpremul_AlphaType = kUnpremul_SkAlphaType;
+#endif
 
-    struct Info {
-        int         fWidth;
-        int         fHeight;
-        ColorType   fColorType;
-        SkAlphaType fAlphaType;
-    };
+    typedef SkImageInfo Info;
 
     static SkImage* NewRasterCopy(const Info&, const void* pixels, size_t rowBytes);
     static SkImage* NewRasterData(const Info&, SkData* pixels, size_t rowBytes);

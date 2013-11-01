@@ -15,13 +15,13 @@ static const size_t kIgnoreRowBytesValue = (size_t)~0;
 
 class SkSurface_Raster : public SkSurface_Base {
 public:
-    static bool Valid(const SkImage::Info&, size_t rb = kIgnoreRowBytesValue);
+    static bool Valid(const SkImageInfo&, size_t rb = kIgnoreRowBytesValue);
 
-    SkSurface_Raster(const SkImage::Info&, void*, size_t rb);
-    SkSurface_Raster(const SkImage::Info&, SkPixelRef*, size_t rb);
+    SkSurface_Raster(const SkImageInfo&, void*, size_t rb);
+    SkSurface_Raster(const SkImageInfo&, SkPixelRef*, size_t rb);
 
     virtual SkCanvas* onNewCanvas() SK_OVERRIDE;
-    virtual SkSurface* onNewSurface(const SkImage::Info&) SK_OVERRIDE;
+    virtual SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE;
     virtual SkImage* onNewImageSnapshot() SK_OVERRIDE;
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
@@ -36,7 +36,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkSurface_Raster::Valid(const SkImage::Info& info, size_t rowBytes) {
+bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
     static const size_t kMaxTotalSize = SK_MaxS32;
 
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
@@ -80,7 +80,7 @@ bool SkSurface_Raster::Valid(const SkImage::Info& info, size_t rowBytes) {
     return true;
 }
 
-SkSurface_Raster::SkSurface_Raster(const SkImage::Info& info, void* pixels, size_t rb)
+SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, void* pixels, size_t rb)
         : INHERITED(info.fWidth, info.fHeight) {
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
     fBitmap.setConfig(config, info.fWidth, info.fHeight, rb, info.fAlphaType);
@@ -88,7 +88,7 @@ SkSurface_Raster::SkSurface_Raster(const SkImage::Info& info, void* pixels, size
     fWeOwnThePixels = false;    // We are "Direct"
 }
 
-SkSurface_Raster::SkSurface_Raster(const SkImage::Info& info, SkPixelRef* pr, size_t rb)
+SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, SkPixelRef* pr, size_t rb)
         : INHERITED(info.fWidth, info.fHeight) {
     SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
     fBitmap.setConfig(config, info.fWidth, info.fHeight, rb, info.fAlphaType);
@@ -104,7 +104,7 @@ SkCanvas* SkSurface_Raster::onNewCanvas() {
     return SkNEW_ARGS(SkCanvas, (fBitmap));
 }
 
-SkSurface* SkSurface_Raster::onNewSurface(const SkImage::Info& info) {
+SkSurface* SkSurface_Raster::onNewSurface(const SkImageInfo& info) {
     return SkSurface::NewRaster(info);
 }
 
@@ -139,7 +139,7 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSurface* SkSurface::NewRasterDirect(const SkImage::Info& info, void* pixels, size_t rowBytes) {
+SkSurface* SkSurface::NewRasterDirect(const SkImageInfo& info, void* pixels, size_t rowBytes) {
     if (!SkSurface_Raster::Valid(info, rowBytes)) {
         return NULL;
     }
@@ -150,7 +150,7 @@ SkSurface* SkSurface::NewRasterDirect(const SkImage::Info& info, void* pixels, s
     return SkNEW_ARGS(SkSurface_Raster, (info, pixels, rowBytes));
 }
 
-SkSurface* SkSurface::NewRaster(const SkImage::Info& info) {
+SkSurface* SkSurface::NewRaster(const SkImageInfo& info) {
     if (!SkSurface_Raster::Valid(info)) {
         return NULL;
     }
