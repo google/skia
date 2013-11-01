@@ -292,6 +292,7 @@ bool SkIntersections::cubicExactEnd(const SkDCubic& cubic1, bool start, const Sk
     tmpLine[1].fX += cubic2[2 - start].fY - cubic2[t1Index].fY;
     tmpLine[1].fY -= cubic2[2 - start].fX - cubic2[t1Index].fX;
     SkIntersections impTs;
+    impTs.allowNear(false);
     impTs.intersectRay(cubic1, tmpLine);
     for (int index = 0; index < impTs.used(); ++index) {
         SkDPoint realPt = impTs.pt(index);
@@ -446,6 +447,7 @@ int SkIntersections::intersect(const SkDCubic& c1, const SkDCubic& c2) {
             return fUsed;
         }
     } else {
+        // OPTIMIZATION: set exact end bits here to avoid cubic exact end later
         for (int i1 = 0; i1 < 4; i1 += 3) {
             for (int i2 = 0; i2 < 4; i2 += 3) {
                 if (c1[i1].approximatelyEqual(c2[i2])) {
@@ -483,21 +485,22 @@ int SkIntersections::intersect(const SkDCubic& c1, const SkDCubic& c2) {
         return fUsed;
     }
     // FIXME: pass in cached bounds from caller
-    SkDRect c1Bounds, c2Bounds;
-    c1Bounds.setBounds(c1);  // OPTIMIZE use setRawBounds ?
+    SkDRect c2Bounds;
     c2Bounds.setBounds(c2);
-    if (!(exactEndBits & 1)) {
+    if (!(exactEndBits & 4)) {
         cubicNearEnd(c1, false, c2, c2Bounds);
     }
-    if (!(exactEndBits & 2)) {
+    if (!(exactEndBits & 8)) {
         cubicNearEnd(c1, true, c2, c2Bounds);
     }
     if (!selfIntersect) {
+        SkDRect c1Bounds;
+        c1Bounds.setBounds(c1);  // OPTIMIZE use setRawBounds ?
         swap();
-        if (!(exactEndBits & 4)) {
+        if (!(exactEndBits & 1)) {
             cubicNearEnd(c2, false, c1, c1Bounds);
         }
-        if (!(exactEndBits & 8)) {
+        if (!(exactEndBits & 2)) {
             cubicNearEnd(c2, true, c1, c1Bounds);
         }
         swap();
@@ -506,7 +509,61 @@ int SkIntersections::intersect(const SkDCubic& c1, const SkDCubic& c2) {
         SkASSERT(!selfIntersect);
         return fUsed;
     }
-    ::intersect(c1, 0, 1, c2, 0, 1, 1, *this);
+    SkIntersections i;
+    i.fAllowNear = false;
+    i.fMax = 9;
+    ::intersect(c1, 0, 1, c2, 0, 1, 1, i);
+    int compCount = i.used();
+    if (compCount) {
+        int exactCount = used();
+        if (exactCount == 0) {
+            set(i);
+        } else {
+            // at least one is exact or near, and at least one was computed. Eliminate duplicates
+            for (int exIdx = 0; exIdx < exactCount; ++exIdx) {
+                for (int cpIdx = 0; cpIdx < compCount; ) {
+                    if (fT[0][0] == i[0][0] && fT[1][0] == i[1][0]) {
+                        i.removeOne(cpIdx);
+                        --compCount;
+                        continue;
+                    }
+                    double tAvg = (fT[0][exIdx] + i[0][cpIdx]) / 2;
+                    SkDPoint pt = c1.ptAtT(tAvg);
+                    if (!pt.approximatelyEqual(fPt[exIdx])) {
+                        ++cpIdx;
+                        continue;
+                    }
+                    tAvg = (fT[1][exIdx] + i[1][cpIdx]) / 2;
+                    pt = c2.ptAtT(tAvg);
+                    if (!pt.approximatelyEqual(fPt[exIdx])) {
+                        ++cpIdx;
+                        continue;
+                    }
+                    i.removeOne(cpIdx);
+                    --compCount;
+                }
+            }
+            // if mid t evaluates to nearly the same point, skip the t
+            for (int cpIdx = 0; cpIdx < compCount - 1; ) {
+                double tAvg = (fT[0][cpIdx] + i[0][cpIdx + 1]) / 2;
+                SkDPoint pt = c1.ptAtT(tAvg);
+                if (!pt.approximatelyEqual(fPt[cpIdx])) {
+                    ++cpIdx;
+                    continue;
+                }
+                tAvg = (fT[1][cpIdx] + i[1][cpIdx + 1]) / 2;
+                pt = c2.ptAtT(tAvg);
+                if (!pt.approximatelyEqual(fPt[cpIdx])) {
+                    ++cpIdx;
+                    continue;
+                }
+                i.removeOne(cpIdx);
+                --compCount;
+            }
+            // in addition to adding below missing function, think about how to say
+            append(i);
+        }
+    }
     // If an end point and a second point very close to the end is returned, the second
     // point may have been detected because the approximate quads
     // intersected at the end and close to it. Verify that the second point is valid.

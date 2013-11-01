@@ -68,6 +68,15 @@ public:
         fTestFun = testFun;
     }
 
+    PathOpsThreadedRunnable(void (*testFun)(PathOpsThreadState*), int dirNo, const char* str,
+            PathOpsThreadedTestRunner* runner) {
+        SkASSERT(strlen(str) < sizeof(fState.fSerialNo) - 1);
+        fState.fA = dirNo;
+        strcpy(fState.fSerialNo, str);
+        fState.fReporter = runner->fReporter;
+        fTestFun = testFun;
+    }
+
     virtual void run() SK_OVERRIDE {
         SkBitmap bitmap;
         fState.fBitmap = &bitmap;

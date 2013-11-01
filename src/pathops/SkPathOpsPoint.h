@@ -98,7 +98,7 @@ struct SkDPoint {
 
     // note: this can not be implemented with
     // return approximately_equal(a.fY, fY) && approximately_equal(a.fX, fX);
-    // because that will not take the magnitude of the values
+    // because that will not take the magnitude of the values into account
     bool approximatelyEqual(const SkDPoint& a) const {
         if (approximately_equal(fX, a.fX) && approximately_equal(fY, a.fY)) {
             return true;
@@ -134,6 +134,20 @@ struct SkDPoint {
         float largest = SkTMax(SkTMax(SkTMax(a.fX, b.fX), a.fY), b.fY);
         largest = SkTMax(largest, -tiniest);
         return AlmostBequalUlps((double) largest, largest + dist); // is dist within ULPS tolerance?
+    }
+
+    bool approximatelyPEqual(const SkDPoint& a) const {
+        if (approximately_equal(fX, a.fX) && approximately_equal(fY, a.fY)) {
+            return true;
+        }
+        if (!RoughlyEqualUlps(fX, a.fX) || !RoughlyEqualUlps(fY, a.fY)) {
+            return false;
+        }
+        double dist = distance(a);  // OPTIMIZATION: can we compare against distSq instead ?
+        double tiniest = SkTMin(SkTMin(SkTMin(fX, a.fX), fY), a.fY);
+        double largest = SkTMax(SkTMax(SkTMax(fX, a.fX), fY), a.fY);
+        largest = SkTMax(largest, -tiniest);
+        return AlmostPequalUlps(largest, largest + dist); // is the dist within ULPS tolerance?
     }
 
     bool approximatelyZero() const {
@@ -186,7 +200,7 @@ struct SkDPoint {
         SkDebugf("}");
     }
 
-    static void DumpSkPoint(const SkPoint& pt) {
+    static void dump(const SkPoint& pt) {
         SkDebugf("{");
         DebugDumpFloat(pt.fX);
         SkDebugf(", ");

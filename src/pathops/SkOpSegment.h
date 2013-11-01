@@ -259,12 +259,15 @@ public:
                     SkTArray<SkOpAngle, true>* angles, SkTArray<SkOpAngle*, true>* sorted);
     int crossedSpanY(const SkPoint& basePt, SkScalar* bestY, double* hitT, bool* hitSomething,
                      double mid, bool opp, bool current) const;
+    bool findCoincidentMatch(const SkOpSpan* span, const SkOpSegment* other, int oStart, int oEnd,
+                             int step, SkPoint* startPt, SkPoint* endPt, double* endT) const;
     SkOpSegment* findNextOp(SkTDArray<SkOpSpan*>* chase, int* nextStart, int* nextEnd,
                             bool* unsortable, SkPathOp op, const int xorMiMask,
                             const int xorSuMask);
     SkOpSegment* findNextWinding(SkTDArray<SkOpSpan*>* chase, int* nextStart, int* nextEnd,
                                  bool* unsortable);
     SkOpSegment* findNextXor(int* nextStart, int* nextEnd, bool* unsortable);
+    int findT(double t, const SkOpSegment* ) const;
     SkOpSegment* findTop(int* tIndex, int* endIndex, bool* unsortable, bool onlySortable);
     void fixOtherTIndex();
     void initWinding(int start, int end);
@@ -272,6 +275,7 @@ public:
                      SkScalar hitOppDx);
     bool isMissing(double startT, const SkPoint& pt) const;
     bool isTiny(const SkOpAngle* angle) const;
+    bool joinCoincidence(bool end, SkOpSegment* other, double otherT, int step, bool cancel);
     SkOpSpan* markAndChaseDoneBinary(int index, int endIndex);
     SkOpSpan* markAndChaseDoneUnary(int index, int endIndex);
     SkOpSpan* markAndChaseWinding(const SkOpAngle* angle, int winding, int oppWinding);

@@ -141,14 +141,18 @@ public:
         if (fAllowNear) {
             addNearEndPoints();
         }
-        double rootVals[2];
-        int roots = intersectRay(rootVals);
-        for (int index = 0; index < roots; ++index) {
-            double quadT = rootVals[index];
-            double lineT = findLineT(quadT);
-            SkDPoint pt;
-            if (pinTs(&quadT, &lineT, &pt, kPointUninitialized)) {
-                fIntersections->insert(quadT, lineT, pt);
+        if (fIntersections->used() == 2) {
+            // FIXME : need sharable code that turns spans into coincident if middle point is on
+        } else {
+            double rootVals[2];
+            int roots = intersectRay(rootVals);
+            for (int index = 0; index < roots; ++index) {
+                double quadT = rootVals[index];
+                double lineT = findLineT(quadT);
+                SkDPoint pt;
+                if (pinTs(&quadT, &lineT, &pt, kPointUninitialized)) {
+                    fIntersections->insert(quadT, lineT, pt);
+                }
             }
         }
         return fIntersections->used();

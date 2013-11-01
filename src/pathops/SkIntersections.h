@@ -183,9 +183,6 @@ public:
         return intersect(aQuad, bQuad);
     }
 
-    int quadRay(const SkPoint pts[3], const SkDLine& line);
-    void removeOne(int index);
-
     // leaves flip, swap, max alone
     void reset() {
         fAllowNear = true;
@@ -218,6 +215,7 @@ public:
         SkASSERT(++fDepth < 16);
     }
 
+    void append(const SkIntersections& );
     static double Axial(const SkDQuad& , const SkDPoint& , bool vertical);
     void cleanUpCoincidence();
     int coincidentUsed() const;
@@ -246,8 +244,11 @@ public:
     int intersectRay(const SkDQuad&, const SkDLine&);
     int intersectRay(const SkDCubic&, const SkDLine&);
     static SkDPoint Line(const SkDLine&, const SkDLine&);
+    int lineRay(const SkPoint pts[2], const SkDLine& line);
     void offset(int base, double start, double end);
     void quickRemoveOne(int index, int replace);
+    int quadRay(const SkPoint pts[3], const SkDLine& line);
+    void removeOne(int index);
     static bool Test(const SkDLine& , const SkDLine&);
     int vertical(const SkDLine&, double x);
     int vertical(const SkDLine&, double top, double bottom, double x, bool flipped);

@@ -174,6 +174,63 @@ void SkOpContour::calcPartialCoincidentWinding() {
     }
 }
 
+void SkOpContour::joinCoincidence(const SkTArray<SkCoincidence, true>& coincidences, bool partial) {
+    int count = coincidences.count();
+#if DEBUG_CONCIDENT
+    if (count > 0) {
+        SkDebugf("%s count=%d\n", __FUNCTION__, count);
+    }
+#endif
+    // look for a lineup where the partial implies another adjoining coincidence
+    for (int index = 0; index < count; ++index) {
+        const SkCoincidence& coincidence = coincidences[index];
+        int thisIndex = coincidence.fSegments[0];
+        SkOpSegment& thisOne = fSegments[thisIndex];
+        SkOpContour* otherContour = coincidence.fOther;
+        int otherIndex = coincidence.fSegments[1];
+        SkOpSegment& other = otherContour->fSegments[otherIndex];
+        double startT = coincidence.fTs[0][0];
+        double endT = coincidence.fTs[0][1];
+        if (startT == endT) {  // this can happen in very large compares
+            continue;
+        }
+        double oStartT = coincidence.fTs[1][0];
+        double oEndT = coincidence.fTs[1][1];
+        if (oStartT == oEndT) {
+            continue;
+        }
+        bool swapStart = startT > endT;
+        bool swapOther = oStartT > oEndT;
+        if (swapStart) {
+            SkTSwap<double>(startT, endT);
+            SkTSwap<double>(oStartT, oEndT);
+        }
+        bool cancel = swapOther != swapStart;
+        int step = swapStart ? -1 : 1;
+        int oStep = swapOther ? -1 : 1;
+        double oMatchStart = cancel ? oEndT : oStartT;
+        if (partial ? startT != 0 || oMatchStart != 0 : (startT == 0) != (oMatchStart == 0)) {
+            bool added = false;
+            if (oMatchStart != 0) {
+                added = thisOne.joinCoincidence(false, &other, oMatchStart, oStep, cancel);
+            }
+            if (startT != 0 && !added) {
+                (void) other.joinCoincidence(cancel, &thisOne, startT, step, cancel);
+            }
+        }
+        double oMatchEnd = cancel ? oStartT : oEndT;
+        if (partial ? endT != 1 || oMatchEnd != 1 : (endT == 1) != (oMatchEnd == 1)) {
+            bool added = false;
+            if (oMatchEnd != 1) {
+                added = thisOne.joinCoincidence(true, &other, oMatchEnd, -oStep, cancel);
+            }
+            if (endT != 1 && !added) {
+                (void) other.joinCoincidence(!cancel, &thisOne, endT, -step, cancel);
+            }
+        }
+    }
+}
+
 void SkOpContour::calcCommonCoincidentWinding(const SkCoincidence& coincidence) {
     int thisIndex = coincidence.fSegments[0];
     SkOpSegment& thisOne = fSegments[thisIndex];

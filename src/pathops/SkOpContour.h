@@ -152,6 +152,11 @@ public:
         }
     }
 
+    void joinCoincidence() {
+        joinCoincidence(fCoincidences, false);
+        joinCoincidence(fPartialCoincidences, true);
+    }
+
     SkOpSegment* nonVerticalSegment(int* start, int* end);
 
     bool operand() const {
@@ -239,7 +244,8 @@ public:
 #endif
 
 private:
-    void calcCommonCoincidentWinding(const SkCoincidence& coincidence);
+    void calcCommonCoincidentWinding(const SkCoincidence& );
+    void joinCoincidence(const SkTArray<SkCoincidence, true>& , bool partial);
     void setBounds();
 
     SkTArray<SkOpSegment> fSegments;

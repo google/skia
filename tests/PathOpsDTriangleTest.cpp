@@ -45,5 +45,31 @@ static void PathOpsTriangleUtilitiesTest(skiatest::Reporter* reporter) {
     }
 }
 
+static const SkDTriangle oneOff[] = {
+    {{{271.03291625750461, 5.0402503630087025e-05}, {275.21652430019037, 3.6997300650817753},
+      {279.25839233398438, 7.7416000366210938}}},
+
+    {{{271.03291625750461, 5.0402503617874572e-05}, {275.21652430019037, 3.6997300650817877},
+      {279.25839233398438, 7.7416000366210938}}}
+};
+
+static const size_t oneOff_count = SK_ARRAY_COUNT(oneOff);
+
+static void PathOpsTriangleOneOffTest(skiatest::Reporter* reporter) {
+    for (size_t index = 0; index < oneOff_count; ++index) {
+        const SkDTriangle& triangle = oneOff[index];
+        SkASSERT(ValidTriangle(triangle));
+        for (int inner = 0; inner < 3; ++inner) {
+            bool result = triangle.contains(triangle.fPts[inner]);
+            if (result) {
+                SkDebugf("%s [%d][%d] point on triangle is not in\n", __FUNCTION__, index, inner);
+                REPORTER_ASSERT(reporter, 0);
+            }
+        }
+    }
+}
+
 #include "TestClassDef.h"
 DEFINE_TESTCLASS_SHORT(PathOpsTriangleUtilitiesTest)
+
+DEFINE_TESTCLASS_SHORT(PathOpsTriangleOneOffTest)

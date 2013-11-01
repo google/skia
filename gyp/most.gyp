@@ -18,6 +18,7 @@
         'tests.gyp:tests',
         'tools.gyp:tools',
         'pathops_unittest.gyp:*',
+        'skpskgr_test.gyp:*',
 #       'pdfviewer.gyp:pdfviewer',
       ],
       'conditions': [

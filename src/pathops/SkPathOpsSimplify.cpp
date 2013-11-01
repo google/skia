@@ -182,15 +182,7 @@ bool Simplify(const SkPath& path, SkPath* result) {
             next = *nextPtr++;
         } while (AddIntersectTs(current, next) && nextPtr != listEnd);
     } while (currentPtr != listEnd);
-    // eat through coincident edges
-    CoincidenceCheck(&contourList, 0);
-    FixOtherTIndex(&contourList);
-    CheckEnds(&contourList);
-    CheckTiny(&contourList);
-    SortSegments(&contourList);
-#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
-    DebugShowActiveSpans(contourList);
-#endif
+    HandleCoincidence(&contourList, 0);
     // construct closed contours
     SkPathWriter simple(*result);
     if (builder.xorMask() == kWinding_PathOpsMask ? bridgeWinding(contourList, &simple)

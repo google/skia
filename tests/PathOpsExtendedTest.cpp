@@ -12,6 +12,7 @@
 #include "SkForceLinking.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
+#include "SkRTConf.h"
 #include "SkStream.h"
 #include "SkThreadPool.h"
 
@@ -634,6 +635,10 @@ bool testThreadedPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
 SK_DECLARE_STATIC_MUTEX(gMutex);
 
 int initializeTests(skiatest::Reporter* reporter, const char* test) {
+#if 0  // doesn't work yet
+    SK_CONF_SET("images.jpeg.suppressDecoderWarnings", true);
+    SK_CONF_SET("images.png.suppressDecoderWarnings", true);
+#endif
 #ifdef SK_DEBUG
     SkPathOpsDebug::gMaxWindSum = 4;
     SkPathOpsDebug::gMaxWindValue = 4;

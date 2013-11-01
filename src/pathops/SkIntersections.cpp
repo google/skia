@@ -7,6 +7,12 @@
 
 #include "SkIntersections.h"
 
+void SkIntersections::append(const SkIntersections& i) {
+    for (int index = 0; index < i.fUsed; ++index) {
+        insert(i[0][index], i[1][index], i.pt(index));
+    }
+}
+
 int (SkIntersections::*CurveVertical[])(const SkPoint[], SkScalar, SkScalar, SkScalar, bool) = {
     NULL,
     &SkIntersections::verticalLine,
@@ -16,7 +22,7 @@ int (SkIntersections::*CurveVertical[])(const SkPoint[], SkScalar, SkScalar, SkS
 
 int (SkIntersections::*CurveRay[])(const SkPoint[], const SkDLine&) = {
     NULL,
-    NULL,
+    &SkIntersections::lineRay,
     &SkIntersections::quadRay,
     &SkIntersections::cubicRay
 };
@@ -124,6 +130,13 @@ void SkIntersections::insertCoincident(double one, double two, const SkDPoint& p
     int bit = 1 << index;
     fIsCoincident[0] |= bit;
     fIsCoincident[1] |= bit;
+}
+
+int SkIntersections::lineRay(const SkPoint pts[2], const SkDLine& line) {
+    SkDLine l;
+    l.set(pts);
+    fMax = 2;
+    return intersectRay(l, line);
 }
 
 void SkIntersections::offset(int base, double start, double end) {

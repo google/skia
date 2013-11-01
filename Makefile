@@ -48,6 +48,7 @@ VALID_TARGETS := \
                  SampleApp_APK \
                  skhello \
                  skia_lib \
+                 skpskgr_test \
                  tests \
                  tools \
                  skpdiff

@@ -50,6 +50,11 @@ inline bool AlmostBequalUlps(double a, double b) {
     return AlmostBequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
 }
 
+bool AlmostPequalUlps(float a, float b);
+inline bool AlmostPequalUlps(double a, double b) {
+    return AlmostPequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+}
+
 bool RoughlyEqualUlps(float a, float b);
 inline bool RoughlyEqualUlps(double a, double b) {
     return RoughlyEqualUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));

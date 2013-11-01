@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkAddIntersections.h"
 #include "SkOpEdgeBuilder.h"
 #include "SkPathOpsCommon.h"
 #include "SkPathWriter.h"
@@ -350,7 +351,7 @@ SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList,
     return current;
 }
 
-void CheckEnds(SkTArray<SkOpContour*, true>* contourList) {
+static void checkEnds(SkTArray<SkOpContour*, true>* contourList) {
     // it's hard to determine if the end of a cubic or conic nearly intersects another curve.
     // instead, look to see if the connecting curve intersected at that same end.
     int contourCount = (*contourList).count();
@@ -361,7 +362,7 @@ void CheckEnds(SkTArray<SkOpContour*, true>* contourList) {
 }
 
 // A tiny interval may indicate an undiscovered coincidence. Find and fix.
-void CheckTiny(SkTArray<SkOpContour*, true>* contourList) {
+static void checkTiny(SkTArray<SkOpContour*, true>* contourList) {
     int contourCount = (*contourList).count();
     for (int cTest = 0; cTest < contourCount; ++cTest) {
         SkOpContour* contour = (*contourList)[cTest];
@@ -369,7 +370,7 @@ void CheckTiny(SkTArray<SkOpContour*, true>* contourList) {
     }
 }
 
-void FixOtherTIndex(SkTArray<SkOpContour*, true>* contourList) {
+static void fixOtherTIndex(SkTArray<SkOpContour*, true>* contourList) {
     int contourCount = (*contourList).count();
     for (int cTest = 0; cTest < contourCount; ++cTest) {
         SkOpContour* contour = (*contourList)[cTest];
@@ -377,7 +378,15 @@ void FixOtherTIndex(SkTArray<SkOpContour*, true>* contourList) {
     }
 }
 
-void SortSegments(SkTArray<SkOpContour*, true>* contourList) {
+static void joinCoincidence(SkTArray<SkOpContour*, true>* contourList) {
+    int contourCount = (*contourList).count();
+    for (int cTest = 0; cTest < contourCount; ++cTest) {
+        SkOpContour* contour = (*contourList)[cTest];
+        contour->joinCoincidence();
+    }
+}
+
+static void sortSegments(SkTArray<SkOpContour*, true>* contourList) {
     int contourCount = (*contourList).count();
     for (int cTest = 0; cTest < contourCount; ++cTest) {
         SkOpContour* contour = (*contourList)[cTest];
@@ -601,5 +610,23 @@ void Assemble(const SkPathWriter& path, SkPathWriter* simple) {
        SkASSERT(sLink[rIndex] == SK_MaxS32);
        SkASSERT(eLink[rIndex] == SK_MaxS32);
     }
+#endif
+}
+
+void HandleCoincidence(SkTArray<SkOpContour*, true>* contourList, int total) {
+#if DEBUG_SHOW_WINDING
+    SkOpContour::debugShowWindingValues(contourList);
+#endif
+    CoincidenceCheck(contourList, total);
+#if DEBUG_SHOW_WINDING
+    SkOpContour::debugShowWindingValues(contourList);
+#endif
+    fixOtherTIndex(contourList);
+    checkEnds(contourList);
+    checkTiny(contourList);
+    joinCoincidence(contourList);
+    sortSegments(contourList);
+#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
+    DebugShowActiveSpans(*contourList);
 #endif
 }

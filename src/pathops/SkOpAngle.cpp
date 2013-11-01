@@ -207,7 +207,10 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {  // this/lh: left-hand; r
         return COMPARE_RESULT("roots == 0 || rroots == 0", this < &rh);
     }
     SkASSERT(fSide != 0 && rh.fSide != 0);
-    SkASSERT(fSide * rh.fSide > 0); // both are the same sign
+    if (fSide * rh.fSide < 0) {
+        fUnsortable = true;
+        return COMPARE_RESULT("14 fSide * rh.fSide < 0", this < &rh);
+    }
     SkDPoint lLoc;
     double best = SK_ScalarInfinity;
 #if DEBUG_SORT
@@ -246,7 +249,7 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {  // this/lh: left-hand; r
     if (flip) {
         leftLessThanRight = !leftLessThanRight;
     }
-    return COMPARE_RESULT("14 leftLessThanRight", leftLessThanRight);
+    return COMPARE_RESULT("15 leftLessThanRight", leftLessThanRight);
 }
 
 bool SkOpAngle::isHorizontal() const {

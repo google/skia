@@ -2718,8 +2718,6 @@ static void skpakmmos_ru100(skiatest::Reporter* reporter) {
     testPathOp(reporter, path, pathB, kIntersect_PathOp);
 }
 
-#define SKPS_WORKING 0
-#if SKPS_WORKING
 static void skpcarpetplanet_ru22(skiatest::Reporter* reporter) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -2744,6 +2742,8 @@ static void skpcarpetplanet_ru22(skiatest::Reporter* reporter) {
     testPathOp(reporter, path, pathB, kIntersect_PathOp);
 }
 
+#define SKPS_WORKING 0
+#if SKPS_WORKING
 static void skpcarrot_is24(skiatest::Reporter* reporter) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -3010,7 +3010,33 @@ static void cubicOp96d(skiatest::Reporter* reporter) {
     testPathOp(reporter, path, pathB, kDifference_PathOp);
 }
 
-static void (*firstTest)(skiatest::Reporter* ) = 0;
+static void cubicOp97x(skiatest::Reporter* reporter) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 2);
+    path.cubicTo(0, 6, 2, 1, 2, 1);
+    path.close();
+    pathB.setFillType(SkPath::kEvenOdd_FillType);
+    pathB.moveTo(1, 2);
+    pathB.cubicTo(1, 2, 2, 0, 6, 0);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kXOR_PathOp);
+}
+
+static void cubicOp98x(skiatest::Reporter* reporter) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 3);
+    path.cubicTo(3, 6, 4, 1, 6, 3);
+    path.close();
+    pathB.setFillType(SkPath::kEvenOdd_FillType);
+    pathB.moveTo(1, 4);
+    pathB.cubicTo(3, 6, 3, 0, 6, 3);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kXOR_PathOp);
+}
+
+static void (*firstTest)(skiatest::Reporter* ) = bufferOverflow;
 
 static struct TestDesc tests[] = {
 #if ISSUE_1435_WORKING
@@ -3018,11 +3044,13 @@ static struct TestDesc tests[] = {
 #endif
 #if SKPS_WORKING
     TEST(skpcarrot_is24),
-    TEST(skpcarpetplanet_ru22),  // cubic/cubic intersect detects unwanted coincidence
 #endif
 #if ISSUE_1417_WORKING_ON_LINUX_32
     TEST(issue1417),
 #endif
+    TEST(cubicOp98x),
+    TEST(cubicOp97x),
+    TEST(skpcarpetplanet_ru22),  // cubic/cubic intersect detects unwanted coincidence
     TEST(cubicOp96d),
     TEST(cubicOp95u),
     TEST(skpadbox_lt15),

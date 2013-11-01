@@ -1298,6 +1298,7 @@ int SkOpSegment::crossedSpanY(const SkPoint& basePt, SkScalar* bestY, double* hi
     SkIntersections intersections;
     // OPTIMIZE: use specialty function that intersects ray with curve,
     // returning t values only for curve (we don't care about t on ray)
+    intersections.allowNear(false);
     int pts = (intersections.*CurveVertical[SkPathOpsVerbToPoints(fVerb)])
             (fPts, top, bottom, basePt.fX, false);
     if (pts == 0 || (current && pts == 1)) {
@@ -1420,15 +1421,29 @@ void SkOpSegment::checkEnds() {
         }
         // t start/last describe the range of spans that match the t of this span
         double t = span.fT;
-        int tStart = index;
-        while (--tStart >= 0 && (t == fTs[tStart].fT || fTs[tStart].fTiny))
-            ;
-        int tLast = index;
-        while (fTs[tLast].fTiny) {
-            ++tLast;
+        double tBottom = -1;
+        int tStart = -1;
+        int tLast = count;
+        bool lastSmall = false;
+        double afterT = t;
+        for (int inner = 0; inner < count; ++inner) {
+            double innerT = fTs[inner].fT;
+            if (innerT <= t && innerT > tBottom) {
+                if (innerT < t || !lastSmall) {
+                    tStart = inner - 1;
+                }
+                tBottom = innerT;
+            }
+            if (innerT > afterT) {
+                if (t == afterT && lastSmall) {
+                    afterT = innerT;
+                } else {
+                    tLast = inner;
+                    break;
+                }
+            }
+            lastSmall = innerT <= t ? fTs[inner].fSmall : false;
         }
-        while (++tLast < count && t == fTs[tLast].fT)
-            ;
         for (int peekIndex = peekStart; peekIndex <= peekLast; ++peekIndex) {
             if (peekIndex == span.fOtherIndex) {  // skip the other span pointed to by this span
                 continue;
@@ -1694,6 +1709,70 @@ void SkOpSegment::checkTiny() {
         missing.fSegment->fixOtherTIndex();
         missing.fOther->fixOtherTIndex();
     }
+}
+
+bool SkOpSegment::findCoincidentMatch(const SkOpSpan* span, const SkOpSegment* other, int oStart,
+        int oEnd, int step, SkPoint* startPt, SkPoint* endPt, double* endT) const {
+    SkASSERT(span->fT == 0 || span->fT == 1);
+    SkASSERT(span->fOtherT == 0 || span->fOtherT == 1);
+    const SkOpSpan* otherSpan = &other->span(oEnd);
+    double refT = otherSpan->fT;
+    const SkPoint& refPt = otherSpan->fPt;
+    const SkOpSpan* lastSpan = &other->span(step > 0 ? other->count() - 1 : 0);
+    do {
+        const SkOpSegment* match = span->fOther;
+        if (match == otherSpan->fOther) {
+            // find start of respective spans and see if both have winding
+            int startIndex, endIndex;
+            if (span->fOtherT == 1) {
+                endIndex = span->fOtherIndex;
+                startIndex = match->nextExactSpan(endIndex, -1);
+            } else {
+                startIndex = span->fOtherIndex;
+                endIndex = match->nextExactSpan(startIndex, 1);
+            }
+            const SkOpSpan& startSpan = match->span(startIndex);
+            if (startSpan.fWindValue != 0) {
+                // draw ray from endSpan.fPt perpendicular to end tangent and measure distance
+                // to other segment.
+                const SkOpSpan& endSpan = match->span(endIndex);
+                SkDLine ray;
+                SkVector dxdy;
+                if (span->fOtherT == 1) {
+                    ray.fPts[0].set(startSpan.fPt);
+                    dxdy = match->dxdy(startIndex);
+                } else {
+                    ray.fPts[0].set(endSpan.fPt);
+                    dxdy = match->dxdy(endIndex);
+                }
+                ray.fPts[1].fX = ray.fPts[0].fX + dxdy.fY;
+                ray.fPts[1].fY = ray.fPts[0].fY - dxdy.fX;
+                SkIntersections i;
+                int roots = (i.*CurveRay[SkPathOpsVerbToPoints(other->verb())])(other->pts(), ray);
+                for (int index = 0; index < roots; ++index) {
+                    if (ray.fPts[0].approximatelyEqual(i.pt(index))) {
+                        double matchMidT = (match->span(startIndex).fT
+                                + match->span(endIndex).fT) / 2;
+                        SkPoint matchMidPt = match->ptAtT(matchMidT);
+                        double otherMidT = (i[0][index] + other->span(oStart).fT) / 2;
+                        SkPoint otherMidPt = other->ptAtT(otherMidT);
+                        if (SkDPoint::ApproximatelyEqual(matchMidPt, otherMidPt)) {
+                            *startPt = startSpan.fPt;
+                            *endPt = endSpan.fPt;
+                            *endT = endSpan.fT;
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        if (otherSpan == lastSpan) {
+            break;
+        }
+        otherSpan += step;
+    } while (otherSpan->fT == refT || otherSpan->fPt == refPt);
+    return false;
 }
 
 /*
@@ -2076,6 +2155,18 @@ int SkOpSegment::findStartingEdge(const SkTArray<SkOpAngle*, true>& sorted, int 
     return firstIndex;
 }
 
+int SkOpSegment::findT(double t, const SkOpSegment* match) const {
+    int count = this->count();
+    for (int index = 0; index < count; ++index) {
+        const SkOpSpan& span = fTs[index];
+        if (span.fT == t && span.fOther == match) {
+            return index;
+        }
+    }
+    SkASSERT(0);
+    return -1;
+}
+
 // FIXME: either:
 // a) mark spans with either end unsortable as done, or
 // b) rewrite findTop / findTopSegment / findTopContour to iterate further
@@ -2295,6 +2386,76 @@ bool SkOpSegment::isSimple(int end) const {
     }
     if (approximately_greater_than_one(t)) {
         return !approximately_greater_than_one(fTs[count - 2].fT);
+    }
+    return false;
+}
+
+bool SkOpSegment::isTiny(const SkOpAngle* angle) const {
+    int start = angle->start();
+    int end = angle->end();
+    const SkOpSpan& mSpan = fTs[SkMin32(start, end)];
+    return mSpan.fTiny;
+}
+
+bool SkOpSegment::isTiny(int index) const {
+    return fTs[index].fTiny;
+}
+
+// look pair of active edges going away from coincident edge
+// one of them should be the continuation of other
+// if both are active, look to see if they both the connect to another coincident pair
+// if one at least one is a line, then make the pair coincident
+// if neither is a line, test for coincidence
+bool SkOpSegment::joinCoincidence(bool end, SkOpSegment* other, double otherT, int step,
+        bool cancel) {
+    int otherTIndex = other->findT(otherT, this);
+    int next = other->nextExactSpan(otherTIndex, step);
+    int otherMin = SkTMin(otherTIndex, next);
+    int otherWind = other->span(otherMin).fWindValue;
+    if (otherWind == 0) {
+        return false;
+    }
+    SkASSERT(next >= 0);
+    if (end) {
+        int tIndex = count() - 1;
+        do {
+            SkOpSpan* test = &fTs[tIndex];
+            SkASSERT(test->fT == 1);
+            if (test->fOther == other || test->fOtherT != 0) {
+                continue;
+            }
+            SkPoint startPt, endPt;
+            double endT;
+            if (findCoincidentMatch(test, other, otherTIndex, next, step, &startPt, &endPt, &endT)) {
+                SkOpSegment* match = test->fOther;
+                if (cancel) {
+                    match->addTCancel(startPt, endPt, other);
+                } else {
+                    match->addTCoincident(startPt, endPt, endT, other);
+                }
+                return true;
+            }
+        } while (fTs[--tIndex].fT == 1);
+    } else {
+        int tIndex = 0;
+        do {
+            SkOpSpan* test = &fTs[tIndex];
+            SkASSERT(test->fT == 0);
+            if (test->fOther == other || test->fOtherT != 1) {
+                continue;
+            }
+            SkPoint startPt, endPt;
+            double endT;
+            if (findCoincidentMatch(test, other, otherTIndex, next, step, &startPt, &endPt, &endT)) {
+                SkOpSegment* match = test->fOther;
+                if (cancel) {
+                    match->addTCancel(startPt, endPt, other);
+                } else {
+                    match->addTCoincident(startPt, endPt, endT, other);
+                }
+                return true;
+            }
+        } while (fTs[++tIndex].fT == 0);
     }
     return false;
 }
@@ -3018,17 +3179,6 @@ void SkOpSegment::subDivideBounds(int start, int end, SkPathOpsBounds* bounds) c
     (bounds->*SetCurveBounds[SkPathOpsVerbToPoints(fVerb)])(edge);
 }
 
-bool SkOpSegment::isTiny(const SkOpAngle* angle) const {
-    int start = angle->start();
-    int end = angle->end();
-    const SkOpSpan& mSpan = fTs[SkMin32(start, end)];
-    return mSpan.fTiny;
-}
-
-bool SkOpSegment::isTiny(int index) const {
-    return fTs[index].fTiny;
-}
-
 void SkOpSegment::TrackOutsidePair(SkTArray<SkPoint, true>* outsidePts, const SkPoint& endPt,
         const SkPoint& startPt) {
     int outCount = outsidePts->count();
@@ -3558,10 +3708,10 @@ void SkOpSegment::dumpPts() const {
     SkDebugf("{{");
     int index = 0;
     do {
-        SkDPoint::DumpSkPoint(fPts[index]);
+        SkDPoint::dump(fPts[index]);
         SkDebugf(", ");
     } while (++index < last);
-    SkDPoint::DumpSkPoint(fPts[index]);
+    SkDPoint::dump(fPts[index]);
     SkDebugf("}}\n");
 }
 

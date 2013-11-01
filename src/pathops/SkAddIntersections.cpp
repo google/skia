@@ -383,8 +383,8 @@ bool AddIntersectTs(SkOpContour* test, SkOpContour* next) {
                 for (int pt = 0; pt < pts - 1; ++pt) {
                     const SkDPoint& point = ts.pt(pt);
                     const SkDPoint& next = ts.pt(pt + 1);
-                    if (wt.isNear(ts[swap][pt], ts[swap][pt + 1], point, next)
-                            && wn.isNear(ts[!swap][pt], ts[!swap][pt + 1], point, next)) {
+                    if (wt.isPartial(ts[swap][pt], ts[swap][pt + 1], point, next)
+                            && wn.isPartial(ts[!swap][pt], ts[!swap][pt + 1], point, next)) {
                         if (!wt.addPartialCoincident(wn, ts, pt, swap)) {
                             // remove extra point if two map to same float values
                             ts.cleanUpCoincidence();  // prefer (t == 0 or t == 1)

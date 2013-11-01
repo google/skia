@@ -301,7 +301,7 @@ static bool binary_search(const SkDQuad& quad1, const SkDQuad& quad2, double* t1
             *pt = t1[1];
     #if ONE_OFF_DEBUG
             SkDebugf("%s t1=%1.9g t2=%1.9g (%1.9g,%1.9g) == (%1.9g,%1.9g)\n", __FUNCTION__,
-                    t1Seed, t2Seed, t1[1].fX, t1[1].fY, t1[2].fX, t1[2].fY);
+                    t1Seed, t2Seed, t1[1].fX, t1[1].fY, t2[1].fX, t2[1].fY);
     #endif
             return true;
         }
@@ -490,15 +490,11 @@ int SkIntersections::intersect(const SkDQuad& q1, const SkDQuad& q2) {
         pts2[index] = q2.ptAtT(roots2Copy[index]);
     }
     if (r1Count == r2Count && r1Count <= 1) {
-        if (r1Count == 1) {
+        if (r1Count == 1 && used() == 0) {
             if (pts1[0].approximatelyEqual(pts2[0])) {
                 insert(roots1Copy[0], roots2Copy[0], pts1[0]);
             } else if (pts1[0].moreRoughlyEqual(pts2[0])) {
                 // experiment: try to find intersection by chasing t
-                rootCount = findRoots(i2, q1, roots1, useCubic, flip1, 0);
-                (void) addValidRoots(roots1, rootCount, roots1Copy);
-                rootCount2 = findRoots(i1, q2, roots2, useCubic, flip2, 0);
-                (void) addValidRoots(roots2, rootCount2, roots2Copy);
                 if (binary_search(q1, q2, roots1Copy, roots2Copy, pts1)) {
                     insert(roots1Copy[0], roots2Copy[0], pts1[0]);
                 }

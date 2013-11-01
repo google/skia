@@ -215,6 +215,8 @@ public:
         }
     }
 
+    /* Note that this does not look for endpoints of the line that are near the cubic.
+       These points are found later when check ends looks for missing points */
     void addNearEndPoints() {
         for (int cIndex = 0; cIndex < 4; cIndex += 3) {
             double cubicT = (double) (cIndex >> 1);

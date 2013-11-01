@@ -304,20 +304,7 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
     for (index = 0; index < contourList.count(); ++index) {
         total += contourList[index]->segments().count();
     }
-#if DEBUG_SHOW_WINDING
-    SkOpContour::debugShowWindingValues(contourList);
-#endif
-    CoincidenceCheck(&contourList, total);
-#if DEBUG_SHOW_WINDING
-    SkOpContour::debugShowWindingValues(contourList);
-#endif
-    FixOtherTIndex(&contourList);
-    CheckEnds(&contourList);
-    CheckTiny(&contourList);
-    SortSegments(&contourList);
-#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
-    DebugShowActiveSpans(contourList);
-#endif
+    HandleCoincidence(&contourList, total);
     // construct closed contours
     SkPathWriter wrapper(*result);
     bridgeOp(contourList, op, xorMask, xorOpMask, &wrapper);
