@@ -312,7 +312,11 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                             ctxInfo.hasExtension("GL_NV_path_rendering");
 
     fDstReadInShaderSupport = kNone_FBFetchType != fFBFetchType;
+#ifdef SK_BUILD_FOR_ANDROID
+    fReuseScratchTextures = true;
+#else
     fReuseScratchTextures = kARM_GrGLVendor != ctxInfo.vendor();
+#endif
 
     // Enable supported shader-related caps
     if (kDesktop_GrGLBinding == binding) {
