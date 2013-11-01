@@ -1006,7 +1006,7 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
     {
         SkClipStack stack;
         stack.clipDevRect(SkRect::MakeXYWH(0, 0, 100, 100), SkRegion::kReplace_Op, true);
-        stack.clipDevRect(SkRect::MakeXYWH(0, 0, 50.3, 50.3), SkRegion::kReplace_Op, true);
+        stack.clipDevRect(SkRect::MakeXYWH(0, 0, 50.3f, 50.3f), SkRegion::kReplace_Op, true);
         SkIRect inflatedIBounds = SkIRect::MakeXYWH(0, 0, 100, 100);
 
         GrReducedClip::ElementList reducedClips;
@@ -1032,31 +1032,14 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
         //  A  B
         //  C  D
 
-        stack.clipDevRect(SkRect::MakeXYWH(0, 0, 25.3, 25.3), SkRegion::kReplace_Op, true);
+        stack.clipDevRect(SkRect::MakeXYWH(0, 0, 25.3f, 25.3f), SkRegion::kReplace_Op, true);
         int32_t genIDA = stack.getTopmostGenID();
-        stack.clipDevRect(SkRect::MakeXYWH(50, 0, 25.3, 25.3), SkRegion::kUnion_Op, true);
+        stack.clipDevRect(SkRect::MakeXYWH(50, 0, 25.3f, 25.3f), SkRegion::kUnion_Op, true);
         int32_t genIDB = stack.getTopmostGenID();
-        stack.clipDevRect(SkRect::MakeXYWH(0, 50, 25.3, 25.3), SkRegion::kUnion_Op, true);
+        stack.clipDevRect(SkRect::MakeXYWH(0, 50, 25.3f, 25.3f), SkRegion::kUnion_Op, true);
         int32_t genIDC = stack.getTopmostGenID();
-        stack.clipDevRect(SkRect::MakeXYWH(50, 50, 25.3, 25.3), SkRegion::kUnion_Op, true);
+        stack.clipDevRect(SkRect::MakeXYWH(50, 50, 25.3f, 25.3f), SkRegion::kUnion_Op, true);
         int32_t genIDD = stack.getTopmostGenID();
-
-        // The base test is to test each rect in two ways:
-        // 1) The box dimensions. (Should reduce to "all in", no elements).
-        // 2) A bit over the box dimensions.
-        // In the case 2, test that the generation id is what is expected.
-        // The rects are of fractional size so that case 2 never gets optimized to an empty element
-        // list.
-
-        // Not passing in tighter bounds is tested for consistency.
-        struct GenIDTestCase {
-            SkIRect testBounds;
-            int reducedClipCount;
-            int32_t reducedGenID;
-            GrReducedClip::InitialState initialState;
-            SkIRect tighterBounds; // If this is empty, the query will not pass tighter bounds
-                                   // parameter.
-        };
 
 #define XYWH SkIRect::MakeXYWH
 
@@ -1064,7 +1047,22 @@ static void test_reduced_clip_stack_genid(skiatest::Reporter* reporter) {
         unused.setEmpty();
         SkIRect stackBounds = XYWH(0, 0, 76, 76);
 
-        GenIDTestCase testCases[] = {
+        // The base test is to test each rect in two ways:
+        // 1) The box dimensions. (Should reduce to "all in", no elements).
+        // 2) A bit over the box dimensions.
+        // In the case 2, test that the generation id is what is expected.
+        // The rects are of fractional size so that case 2 never gets optimized to an empty element
+        // list.
+        
+        // Not passing in tighter bounds is tested for consistency.
+        struct {
+            SkIRect testBounds;
+            int reducedClipCount;
+            int32_t reducedGenID;
+            GrReducedClip::InitialState initialState;
+            SkIRect tighterBounds; // If this is empty, the query will not pass tighter bounds
+            // parameter.
+        } testCases[] = {
             // Rect A.
             { XYWH(0, 0, 25, 25), 0, SkClipStack::kWideOpenGenID, GrReducedClip::kAllIn_InitialState, XYWH(0, 0, 25, 25) },
             { XYWH(0, 0, 25, 25), 0, SkClipStack::kWideOpenGenID, GrReducedClip::kAllIn_InitialState, unused },
