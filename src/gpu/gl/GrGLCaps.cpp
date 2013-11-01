@@ -312,11 +312,10 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                             ctxInfo.hasExtension("GL_NV_path_rendering");
 
     fDstReadInShaderSupport = kNone_FBFetchType != fFBFetchType;
-#ifdef SK_BUILD_FOR_ANDROID
-    fReuseScratchTextures = false;
-#else
-    fReuseScratchTextures = kARM_GrGLVendor != ctxInfo.vendor();
-#endif
+
+    // Disable scratch texture reuse on Mali and Adreno devices
+    fReuseScratchTextures = kARM_GrGLVendor != ctxInfo.vendor() &&
+                            kQualcomm_GrGLVendor != ctxInfo.vendor();
 
     // Enable supported shader-related caps
     if (kDesktop_GrGLBinding == binding) {
