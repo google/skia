@@ -794,7 +794,7 @@ static inline bool rect_contains_inclusive(const SkRect& rect, const SkPoint& po
 
 void GrContext::drawRect(const GrPaint& paint,
                          const SkRect& rect,
-                         SkScalar width,
+                         const SkStrokeRec* stroke,
                          const SkMatrix* matrix) {
     SK_TRACE_EVENT0("GrContext::drawRect");
 
@@ -802,6 +802,7 @@ void GrContext::drawRect(const GrPaint& paint,
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
 
+    SkScalar width = stroke == NULL ? -1 : stroke->getWidth();
     SkMatrix combinedMatrix = target->drawState()->getViewMatrix();
     if (NULL != matrix) {
         combinedMatrix.preConcat(*matrix);
@@ -854,9 +855,9 @@ void GrContext::drawRect(const GrPaint& paint,
             return;
         }
         if (width >= 0) {
-            fAARectRenderer->strokeAARect(this->getGpu(), target,
-                                          rect, combinedMatrix, devBoundRect,
-                                          width, useVertexCoverage);
+            fAARectRenderer->strokeAARect(this->getGpu(), target, rect,
+                                          combinedMatrix, devBoundRect,
+                                          stroke, useVertexCoverage);
         } else {
             // filled AA rect
             fAARectRenderer->fillAARect(this->getGpu(), target,
