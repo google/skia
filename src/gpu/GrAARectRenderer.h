@@ -11,7 +11,6 @@
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
-#include "SkStrokeRec.h"
 
 class GrGpu;
 class GrDrawTarget;
@@ -26,8 +25,7 @@ public:
 
     GrAARectRenderer()
     : fAAFillRectIndexBuffer(NULL)
-    , fAAMiterStrokeRectIndexBuffer(NULL)
-    , fAABevelStrokeRectIndexBuffer(NULL) {
+    , fAAStrokeRectIndexBuffer(NULL) {
     }
 
     void reset();
@@ -37,7 +35,7 @@ public:
     }
 
     // TODO: potentialy fuse the fill & stroke methods and differentiate
-    // between them by passing in stroke (==NULL means fill).
+    // between them by passing in strokeWidth (<0 means fill).
 
     void fillAARect(GrGpu* gpu,
                     GrDrawTarget* target,
@@ -65,7 +63,7 @@ public:
                       const SkRect& rect,
                       const SkMatrix& combinedMatrix,
                       const SkRect& devRect,
-                      const SkStrokeRec* stroke,
+                      SkScalar width,
                       bool useVertexCoverage);
 
     // First rect is outer; second rect is inner
@@ -77,13 +75,12 @@ public:
 
 private:
     GrIndexBuffer*              fAAFillRectIndexBuffer;
-    GrIndexBuffer*              fAAMiterStrokeRectIndexBuffer;
-    GrIndexBuffer*              fAABevelStrokeRectIndexBuffer;
+    GrIndexBuffer*              fAAStrokeRectIndexBuffer;
 
     GrIndexBuffer* aaFillRectIndexBuffer(GrGpu* gpu);
 
-    static int aaStrokeRectIndexCount(bool miterStroke);
-    GrIndexBuffer* aaStrokeRectIndexBuffer(GrGpu* gpu, bool miterStroke);
+    static int aaStrokeRectIndexCount();
+    GrIndexBuffer* aaStrokeRectIndexBuffer(GrGpu* gpu);
 
     // TODO: Remove the useVertexCoverage boolean. Just use it all the time
     // since we now have a coverage vertex attribute
@@ -107,10 +104,8 @@ private:
     void geometryStrokeAARect(GrGpu* gpu,
                               GrDrawTarget* target,
                               const SkRect& devOutside,
-                              const SkRect& devOutsideAssist,
                               const SkRect& devInside,
-                              bool useVertexCoverage,
-                              bool miterStroke);
+                              bool useVertexCoverage);
 
     typedef SkRefCnt INHERITED;
 };
