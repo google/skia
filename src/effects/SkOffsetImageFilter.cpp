@@ -19,7 +19,11 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
                                         SkIPoint* loc) {
     SkImageFilter* input = getInput(0);
     SkBitmap src = source;
+#ifdef SK_DISABLE_OFFSETIMAGEFILTER_OPTIMIZATION
+    if (false) {
+#else
     if (!cropRectIsSet()) {
+#endif
         if (input && !input->filterImage(proxy, source, matrix, &src, loc)) {
             return false;
         }
