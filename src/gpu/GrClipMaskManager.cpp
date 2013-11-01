@@ -113,7 +113,6 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
     fCurrClipMaskType = kNone_ClipMaskType;
 
     ElementList elements(16);
-    int32_t genID;
     InitialState initialState;
     SkIRect clipSpaceIBounds;
     bool requiresAA;
@@ -133,7 +132,6 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
         ReduceClipStack(*clipDataIn->fClipStack,
                         clipSpaceRTIBounds,
                         &elements,
-                        &genID,
                         &initialState,
                         &clipSpaceIBounds,
                         &requiresAA);
@@ -158,6 +156,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
 
     // If MSAA is enabled we can do everything in the stencil buffer.
     if (0 == rt->numSamples() && requiresAA) {
+        int32_t genID = clipDataIn->fClipStack->getTopmostGenID();
         GrTexture* result = NULL;
 
         if (this->useSWOnlyPath(elements)) {
@@ -208,8 +207,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
 
     // use the stencil clip if we can't represent the clip as a rectangle.
     SkIPoint clipSpaceToStencilSpaceOffset = -clipDataIn->fOrigin;
-    this->createStencilClipMask(genID,
-                                initialState,
+    this->createStencilClipMask(initialState,
                                 elements,
                                 clipSpaceIBounds,
                                 clipSpaceToStencilSpaceOffset);
@@ -392,11 +390,11 @@ void GrClipMaskManager::getTemp(int width, int height, GrAutoScratchTexture* tem
 // Handles caching & allocation (if needed) of a clip alpha-mask texture for both the sw-upload
 // or gpu-rendered cases. Returns true if there is no more work to be done (i.e., we got a cache
 // hit)
-bool GrClipMaskManager::getMaskTexture(int32_t elementsGenID,
+bool GrClipMaskManager::getMaskTexture(int32_t clipStackGenID,
                                        const SkIRect& clipSpaceIBounds,
                                        GrTexture** result,
                                        bool willUpload) {
-    bool cached = fAACache.canReuse(elementsGenID, clipSpaceIBounds);
+    bool cached = fAACache.canReuse(clipStackGenID, clipSpaceIBounds);
     if (!cached) {
 
         // There isn't a suitable entry in the cache so we create a new texture to store the mask.
@@ -414,7 +412,7 @@ bool GrClipMaskManager::getMaskTexture(int32_t elementsGenID,
             desc.fConfig = kAlpha_8_GrPixelConfig;
         }
 
-        fAACache.acquireMask(elementsGenID, desc, clipSpaceIBounds);
+        fAACache.acquireMask(clipStackGenID, desc, clipSpaceIBounds);
     }
 
     *result = fAACache.getLastMask();
@@ -423,14 +421,14 @@ bool GrClipMaskManager::getMaskTexture(int32_t elementsGenID,
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 8-bit clip mask in alpha
-GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
+GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t clipStackGenID,
                                                   InitialState initialState,
                                                   const ElementList& elements,
                                                   const SkIRect& clipSpaceIBounds) {
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
 
     GrTexture* result;
-    if (this->getMaskTexture(elementsGenID, clipSpaceIBounds, &result, false)) {
+    if (this->getMaskTexture(clipStackGenID, clipSpaceIBounds, &result, false)) {
         fCurrClipMaskType = kAlpha_ClipMaskType;
         return result;
     }
@@ -571,8 +569,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 1-bit clip mask in the stencil buffer. 'devClipBounds' are in device
 // (as opposed to canvas) coordinates
-bool GrClipMaskManager::createStencilClipMask(int32_t elementsGenID,
-                                              InitialState initialState,
+bool GrClipMaskManager::createStencilClipMask(InitialState initialState,
                                               const ElementList& elements,
                                               const SkIRect& clipSpaceIBounds,
                                               const SkIPoint& clipSpaceToStencilOffset) {
@@ -590,10 +587,11 @@ bool GrClipMaskManager::createStencilClipMask(int32_t elementsGenID,
     if (NULL == stencilBuffer) {
         return false;
     }
+    int32_t genID = elements.tail()->getGenID();
 
-    if (stencilBuffer->mustRenderClip(elementsGenID, clipSpaceIBounds, clipSpaceToStencilOffset)) {
+    if (stencilBuffer->mustRenderClip(genID, clipSpaceIBounds, clipSpaceToStencilOffset)) {
 
-        stencilBuffer->setLastClip(elementsGenID, clipSpaceIBounds, clipSpaceToStencilOffset);
+        stencilBuffer->setLastClip(genID, clipSpaceIBounds, clipSpaceToStencilOffset);
 
         // Set the matrix so that rendered clip elements are transformed from clip to stencil space.
         SkVector translate = {
@@ -923,14 +921,14 @@ void GrClipMaskManager::adjustStencilParams(GrStencilSettings* settings,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t elementsGenID,
+GrTexture* GrClipMaskManager::createSoftwareClipMask(int32_t clipStackGenID,
                                                      GrReducedClip::InitialState initialState,
                                                      const GrReducedClip::ElementList& elements,
                                                      const SkIRect& clipSpaceIBounds) {
     SkASSERT(kNone_ClipMaskType == fCurrClipMaskType);
 
     GrTexture* result;
-    if (this->getMaskTexture(elementsGenID, clipSpaceIBounds, &result, true)) {
+    if (this->getMaskTexture(clipStackGenID, clipSpaceIBounds, &result, true)) {
         return result;
     }
 

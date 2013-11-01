@@ -36,6 +36,10 @@ public:
         SkASSERT(clipGenID != SkClipStack::kWideOpenGenID);
         SkASSERT(clipGenID != SkClipStack::kEmptyGenID);
 
+        if (SkClipStack::kInvalidGenID == clipGenID) {
+            return false;
+        }
+
         GrClipStackFrame* back = (GrClipStackFrame*) fStack.back();
 
         // We could reuse the mask if bounds is a subset of last bounds. We'd have to communicate
