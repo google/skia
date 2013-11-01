@@ -50,6 +50,15 @@ protected:
         }
 
         {
+            // AA with translucent
+            SkPaint p;
+            p.setColor(SK_ColorWHITE);
+            p.setAntiAlias(true);
+            p.setAlpha(0x66);
+            fPaints.push_back(p);
+        }
+
+        {
             // AA with mask filter
             SkPaint p;
             p.setColor(SK_ColorWHITE);
@@ -108,11 +117,43 @@ protected:
         }
 
         {
+            // AA with bevel-stroke style
+            SkPaint p;
+            p.setColor(SK_ColorWHITE);
+            p.setAntiAlias(true);
+            p.setStyle(SkPaint::kStroke_Style);
+            p.setStrokeJoin(SkPaint::kBevel_Join);
+            p.setStrokeWidth(SkIntToScalar(3));
+            fPaints.push_back(p);
+        }
+
+        {
+            // AA with round-stroke style
+            SkPaint p;
+            p.setColor(SK_ColorWHITE);
+            p.setAntiAlias(true);
+            p.setStyle(SkPaint::kStroke_Style);
+            p.setStrokeJoin(SkPaint::kRound_Join);
+            p.setStrokeWidth(SkIntToScalar(3));
+            fPaints.push_back(p);
+        }
+
+        {
             // AA with stroke style, width = 0
             SkPaint p;
             p.setColor(SK_ColorWHITE);
             p.setAntiAlias(true);
             p.setStyle(SkPaint::kStroke_Style);
+            fPaints.push_back(p);
+        }
+
+        {
+            // AA with stroke style, width wider than rect width and/or height
+            SkPaint p;
+            p.setColor(SK_ColorWHITE);
+            p.setAntiAlias(true);
+            p.setStyle(SkPaint::kStroke_Style);
+            p.setStrokeWidth(SkIntToScalar(40));
             fPaints.push_back(p);
         }
 
