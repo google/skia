@@ -44,9 +44,12 @@ verylargebitmap
 rects
 
 # Added by caryclark in https://codereview.chromium.org/48783002/
+# suppress changes on round rects
 complexclip2_path_aa
 complexclip2_path_bw
 convexpaths
+hairlines
+markofzorro
 mixed_xfermodes
 nested_aa
 ninepatch-stretch
@@ -57,6 +60,8 @@ roundrects
 rrect
 rrect_clip
 samplerstress
+shadertext
+shadertext2
 simpleaaclip_aaclip
 simpleaaclip_path
 strokerect
