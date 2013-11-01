@@ -45,11 +45,11 @@ rects
 
 # Added by caryclark in https://codereview.chromium.org/48783002/
 # suppress changes on round rects
+arcofzorro
 complexclip2_path_aa
 complexclip2_path_bw
 convexpaths
 hairlines
-markofzorro
 mixed_xfermodes
 nested_aa
 ninepatch-stretch
