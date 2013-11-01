@@ -313,7 +313,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     fDstReadInShaderSupport = kNone_FBFetchType != fFBFetchType;
 #ifdef SK_BUILD_FOR_ANDROID
-    fReuseScratchTextures = true;
+    fReuseScratchTextures = false;
 #else
     fReuseScratchTextures = kARM_GrGLVendor != ctxInfo.vendor();
 #endif
