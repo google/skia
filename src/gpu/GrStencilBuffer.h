@@ -43,8 +43,7 @@ public:
     bool mustRenderClip(int32_t clipStackGenID,
                         const SkIRect& clipSpaceRect,
                         const SkIPoint clipSpaceToStencilOffset) const {
-        return SkClipStack::kInvalidGenID == clipStackGenID ||
-               fLastClipStackGenID != clipStackGenID ||
+        return fLastClipStackGenID != clipStackGenID ||
                fLastClipSpaceOffset != clipSpaceToStencilOffset ||
                !fLastClipStackRect.contains(clipSpaceRect);
     }
