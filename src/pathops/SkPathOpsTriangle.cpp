@@ -46,6 +46,6 @@ bool SkDTriangle::contains(const SkDPoint& pt) const {
     if (v <= 0) {
         return false;
     }
-    return u + v < w * wSign; 
+    return u + v < w * wSign;
 #endif
 }

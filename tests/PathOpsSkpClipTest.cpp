@@ -323,7 +323,7 @@ static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
     const int slices = 3;
     int xInterval = SkTMax(pWidth - maxDimension, 0) / (slices - 1);
     int yInterval = SkTMax(pHeight - maxDimension, 0) / (slices - 1);
-    SkRect rect = {0, 0, SkIntToScalar(SkTMin(maxDimension, pWidth)), 
+    SkRect rect = {0, 0, SkIntToScalar(SkTMin(maxDimension, pWidth)),
             SkIntToScalar(SkTMin(maxDimension, pHeight))};
     canvas->clipRect(rect);
     SkMSec start = SkTime::GetMSecs();

@@ -28,7 +28,7 @@ enum SkColorType {
     kRGB_565_SkColorType,
     kRGBA_8888_SkColorType,
     kBGRA_8888_SkColorType,
-    
+
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
     kPMColor_SkColorType = kBGRA_8888_SkColorType,
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)

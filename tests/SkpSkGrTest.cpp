@@ -96,7 +96,7 @@ struct TestResult {
     }
 
     void testOne();
-    
+
     char fFilename[kMaxLength];
     TestStep fTestStep;
     int fDirNo;
@@ -114,7 +114,7 @@ struct SkpSkGrThreadState {
         sk_bzero(fDirsFound, sizeof(fDirsFound));
         sk_bzero(fError, sizeof(fError));
     }
-    
+
     char fFilesFound[kMaxFiles][kMaxLength];
     int fDirsFound[kMaxFiles];
     int fError[kMaxFiles];
@@ -338,7 +338,7 @@ static SkMSec timePict(SkPicture* pic, SkCanvas* canvas) {
     const int slices = 3;
     int xInterval = SkTMax(pWidth - maxDimension, 0) / (slices - 1);
     int yInterval = SkTMax(pHeight - maxDimension, 0) / (slices - 1);
-    SkRect rect = {0, 0, SkIntToScalar(SkTMin(maxDimension, pWidth)), 
+    SkRect rect = {0, 0, SkIntToScalar(SkTMin(maxDimension, pWidth)),
             SkIntToScalar(SkTMin(maxDimension, pHeight))};
     canvas->clipRect(rect);
     SkMSec start = SkTime::GetMSecs();
