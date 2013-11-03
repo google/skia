@@ -7,7 +7,7 @@
 #include "SkOpContour.h"
 #include "SkPath.h"
 
-#if SK_DEBUG
+#ifdef SK_DEBUG
 #include "SkPathOpsPoint.h"
 #endif
 
