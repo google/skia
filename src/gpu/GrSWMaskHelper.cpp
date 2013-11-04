@@ -73,20 +73,21 @@ void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegio
             paint.setStrokeWidth(stroke.getWidth());
         }
     }
-
-    SkXfermode* mode = SkXfermode::Create(op_to_mode(op));
-
-    paint.setXfermode(mode);
     paint.setAntiAlias(antiAlias);
-    paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
 
-    fDraw.drawPath(path, paint);
-
-    SkSafeUnref(mode);
+    if (SkRegion::kReplace_Op == op && 0xFF == alpha) {
+        SkASSERT(0xFF == paint.getAlpha());
+        fDraw.drawPathCoverage(path, paint);
+    } else {
+        paint.setXfermodeMode(op_to_mode(op));
+        paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
+        fDraw.drawPath(path, paint);
+    }
 }
 
 bool GrSWMaskHelper::init(const SkIRect& resultBounds,
-                          const SkMatrix* matrix) {
+                          const SkMatrix* matrix,
+                          bool zeroPixels) {
     if (NULL != matrix) {
         fMatrix = *matrix;
     } else {
@@ -103,7 +104,9 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
     if (!fBM.allocPixels()) {
         return false;
     }
-    sk_bzero(fBM.getPixels(), fBM.getSafeSize());
+    if (zeroPixels) {
+        sk_bzero(fBM.getPixels(), fBM.getSafeSize());
+    }
 
     sk_bzero(&fDraw, sizeof(fDraw));
     fRasterClip.setRect(bounds);
@@ -163,7 +166,7 @@ GrTexture* GrSWMaskHelper::DrawPathMaskToTexture(GrContext* context,
 
     GrSWMaskHelper helper(context);
 
-    if (!helper.init(resultBounds, matrix)) {
+    if (!helper.init(resultBounds, matrix, false)) {
         return NULL;
     }
 
