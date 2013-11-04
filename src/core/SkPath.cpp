@@ -2066,7 +2066,7 @@ SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
     Format in compressed buffer: [ptCount, verbCount, pts[], verbs[]]
 */
 
-size_t SkPath::writeToMemory(void* storage) const {
+uint32_t SkPath::writeToMemory(void* storage) const {
     SkDEBUGCODE(this->validate();)
 
     if (NULL == storage) {
@@ -2090,11 +2090,11 @@ size_t SkPath::writeToMemory(void* storage) const {
     fPathRef->writeToBuffer(&buffer);
 
     buffer.padToAlign4();
-    return buffer.pos();
+    return SkToU32(buffer.pos());
 }
 
-size_t SkPath::readFromMemory(const void* storage, size_t length) {
-    SkRBufferWithSizeCheck buffer(storage, length);
+uint32_t SkPath::readFromMemory(const void* storage) {
+    SkRBuffer   buffer(storage);
 
     uint32_t packed = buffer.readS32();
     fIsOval = (packed >> kIsOval_SerializationShift) & 1;
@@ -2108,18 +2108,14 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
 
     fPathRef.reset(SkPathRef::CreateFromBuffer(&buffer
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
-        , newFormat, packed
+        , newFormat, packed)
 #endif
-        ));
+        );
 
     buffer.skipToAlign4();
 
-    size_t sizeRead = 0;
-    if (buffer.isValid()) {
-        SkDEBUGCODE(this->validate();)
-        sizeRead = buffer.pos();
-    }
-    return sizeRead;
+    SkDEBUGCODE(this->validate();)
+    return SkToU32(buffer.pos());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
