@@ -62,3 +62,12 @@ simpleaaclip_aaclip
 simpleaaclip_path
 strokerect
 strokes_round
+
+# Added by senorblanco in https://codereview.chromium.org/57513002
+testimagefilters
+spritebitmap
+imagefiltersgraph
+imagefilterscropped
+imagefiltersbase
+imageblur
+colorfilterimagefilter

@@ -44,6 +44,10 @@ static void boxBlurX(const SkBitmap& src, SkBitmap* dst, int kernelSize,
 {
     int width = bounds.width(), height = bounds.height();
     int rightBorder = SkMin32(rightOffset + 1, width);
+#ifndef SK_DISABLE_BLUR_DIVISION_OPTIMIZATION
+    uint32_t scale = (1 << 24) / kernelSize;
+    uint32_t half = 1 << 23;
+#endif
     for (int y = 0; y < height; ++y) {
         int sumA = 0, sumR = 0, sumG = 0, sumB = 0;
         SkPMColor* p = src.getAddr32(bounds.fLeft, y + bounds.fTop);
@@ -58,10 +62,17 @@ static void boxBlurX(const SkBitmap& src, SkBitmap* dst, int kernelSize,
         const SkColor* sptr = src.getAddr32(bounds.fLeft, bounds.fTop + y);
         SkColor* dptr = dst->getAddr32(0, y);
         for (int x = 0; x < width; ++x) {
+#ifndef SK_DISABLE_BLUR_DIVISION_OPTIMIZATION
+            *dptr = SkPackARGB32((sumA * scale + half) >> 24,
+                                 (sumR * scale + half) >> 24,
+                                 (sumG * scale + half) >> 24,
+                                 (sumB * scale + half) >> 24);
+#else
             *dptr = SkPackARGB32(sumA / kernelSize,
                                  sumR / kernelSize,
                                  sumG / kernelSize,
                                  sumB / kernelSize);
+#endif
             if (x >= leftOffset) {
                 SkColor l = *(sptr - leftOffset);
                 sumA -= SkGetPackedA32(l);
@@ -89,6 +100,10 @@ static void boxBlurY(const SkBitmap& src, SkBitmap* dst, int kernelSize,
     int bottomBorder = SkMin32(bottomOffset + 1, height);
     int srcStride = src.rowBytesAsPixels();
     int dstStride = dst->rowBytesAsPixels();
+#ifndef SK_DISABLE_BLUR_DIVISION_OPTIMIZATION
+    uint32_t scale = (1 << 24) / kernelSize;
+    uint32_t half = 1 << 23;
+#endif
     for (int x = 0; x < width; ++x) {
         int sumA = 0, sumR = 0, sumG = 0, sumB = 0;
         SkColor* p = src.getAddr32(bounds.fLeft + x, bounds.fTop);
@@ -103,10 +118,17 @@ static void boxBlurY(const SkBitmap& src, SkBitmap* dst, int kernelSize,
         const SkColor* sptr = src.getAddr32(bounds.fLeft + x, bounds.fTop);
         SkColor* dptr = dst->getAddr32(x, 0);
         for (int y = 0; y < height; ++y) {
+#ifndef SK_DISABLE_BLUR_DIVISION_OPTIMIZATION
+            *dptr = SkPackARGB32((sumA * scale + half) >> 24,
+                                 (sumR * scale + half) >> 24,
+                                 (sumG * scale + half) >> 24,
+                                 (sumB * scale + half) >> 24);
+#else
             *dptr = SkPackARGB32(sumA / kernelSize,
                                  sumR / kernelSize,
                                  sumG / kernelSize,
                                  sumB / kernelSize);
+#endif
             if (y >= topOffset) {
                 SkColor l = *(sptr - topOffset * srcStride);
                 sumA -= SkGetPackedA32(l);
