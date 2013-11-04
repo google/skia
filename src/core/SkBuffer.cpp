@@ -34,6 +34,13 @@ size_t SkRBuffer::skipToAlign4()
     return n;
 }
 
+void SkRBufferWithSizeCheck::read(void* buffer, size_t size) {
+    fError = fError || (fPos + size > fStop);
+    if (!fError && (size > 0)) {
+        readNoSizeCheck(buffer, size);
+    }
+}
+
 void* SkWBuffer::skip(size_t size)
 {
     void* result = fPos;
