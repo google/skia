@@ -730,7 +730,7 @@ struct SK_API SkRect {
 
     /**
      *  Set the dst rectangle by rounding this rectangle's coordinates to their
-     *  nearest integer values using SkScalarRoundToInt.
+     *  nearest integer values using SkScalarRound.
      */
     void round(SkIRect* dst) const {
         SkASSERT(dst);
@@ -772,15 +772,6 @@ struct SK_API SkRect {
                  SkScalarFloorToInt(fRight), SkScalarFloorToInt(fBottom));
     }
 
-    /**
-     *  Return a new SkIRect which is contains the rounded coordinates of this
-     *  rect using SkScalarRoundToInt.
-     */
-    SkIRect round() const {
-        SkIRect ir;
-        this->round(&ir);
-        return ir;
-    }
 
     /**
      *  Swap top/bottom or left/right if there are flipped (i.e. if width()

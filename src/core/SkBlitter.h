@@ -76,8 +76,7 @@ public:
     static SkBlitter* Choose(const SkBitmap& device,
                              const SkMatrix& matrix,
                              const SkPaint& paint,
-                             void* storage, size_t storageSize,
-                             bool drawCoverage = false);
+                             void* storage, size_t storageSize);
 
     static SkBlitter* ChooseSprite(const SkBitmap& device,
                                    const SkPaint&,

@@ -48,8 +48,7 @@ public:
     // may be accumulated in the helper during creation, "resultBounds"
     // allows the caller to specify the region of interest - to limit the
     // amount of work.
-    bool init(const SkIRect& resultBounds, const SkMatrix* matrix,
-              bool zeroPixels = true);
+    bool init(const SkIRect& resultBounds, const SkMatrix* matrix);
 
     // Draw a single rect into the accumulation bitmap using the specified op
     void draw(const SkRect& rect, SkRegion::Op op,

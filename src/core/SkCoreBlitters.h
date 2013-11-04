@@ -40,17 +40,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkA8_Coverage_Blitter : public SkRasterBlitter {
-public:
-    SkA8_Coverage_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) SK_OVERRIDE;
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
-    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
-    virtual void blitMask(const SkMask&, const SkIRect&) SK_OVERRIDE;
-    virtual const SkBitmap* justAnOpaqueColor(uint32_t*) SK_OVERRIDE;
-};
-
 class SkA8_Blitter : public SkRasterBlitter {
 public:
     SkA8_Blitter(const SkBitmap& device, const SkPaint& paint);

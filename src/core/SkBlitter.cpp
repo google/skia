@@ -850,16 +850,14 @@ static XferInterp interpret_xfermode(const SkPaint& paint, SkXfermode* xfer,
 SkBlitter* SkBlitter::Choose(const SkBitmap& device,
                              const SkMatrix& matrix,
                              const SkPaint& origPaint,
-                             void* storage, size_t storageSize,
-                             bool drawCoverage) {
+                             void* storage, size_t storageSize) {
     SkASSERT(storageSize == 0 || storage != NULL);
 
     SkBlitter*  blitter = NULL;
 
     // which check, in case we're being called by a client with a dummy device
     // (e.g. they have a bounder that always aborts the draw)
-    if (SkBitmap::kNo_Config == device.config() ||
-            (drawCoverage && (SkBitmap::kA8_Config != device.config()))) {
+    if (SkBitmap::kNo_Config == device.config()) {
         SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
         return blitter;
     }
@@ -942,7 +940,6 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         return blitter;
     }
 
-    
     switch (device.config()) {
         case SkBitmap::kA1_Config:
             SK_PLACEMENT_NEW_ARGS(blitter, SkA1_Blitter,
@@ -950,12 +947,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
             break;
 
         case SkBitmap::kA8_Config:
-            if (drawCoverage) {
-                SkASSERT(NULL == shader);
-                SkASSERT(NULL == paint->getXfermode());
-                SK_PLACEMENT_NEW_ARGS(blitter, SkA8_Coverage_Blitter,
-                                      storage, storageSize, (device, *paint));
-            } else if (shader) {
+            if (shader) {
                 SK_PLACEMENT_NEW_ARGS(blitter, SkA8_Shader_Blitter,
                                       storage, storageSize, (device, *paint));
             } else {
