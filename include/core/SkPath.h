@@ -899,16 +899,19 @@ public:
     void dump() const;
 
     /**
-     *  Write the region to the buffer, and return the number of bytes written.
+     *  Write the path to the buffer, and return the number of bytes written.
      *  If buffer is NULL, it still returns the number of bytes.
      */
-    uint32_t writeToMemory(void* buffer) const;
-
+    size_t writeToMemory(void* buffer) const;
     /**
-     *  Initialized the region from the buffer, returning the number
-     *  of bytes actually read.
+     * Initializes the path from the buffer
+     *
+     * @param buffer Memory to read from
+     * @param length Amount of memory available in the buffer
+     * @return number of bytes read (must be a multiple of 4) or
+     *         0 if there was not enough memory available
      */
-    uint32_t readFromMemory(const void* buffer);
+    size_t readFromMemory(const void* buffer, size_t length);
 
     /** Returns a non-zero, globally unique value corresponding to the set of verbs
         and points in the path (but not the fill type [except on Android skbug.com/1762]).

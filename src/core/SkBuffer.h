@@ -56,7 +56,7 @@ public:
     /** Read the specified number of bytes from the data pointer. If buffer is not
         null, copy those bytes into buffer.
     */
-    void read(void* buffer, size_t size) {
+    virtual void read(void* buffer, size_t size) {
         if (size) {
             this->readNoSizeCheck(buffer, size);
         }
@@ -74,12 +74,34 @@ public:
     uint8_t     readU8() { uint8_t x; read(&x, 1); return x; }
     bool        readBool() { return this->readU8() != 0; }
 
-private:
+protected:
     void    readNoSizeCheck(void* buffer, size_t size);
 
     const char* fData;
     const char* fPos;
     const char* fStop;
+};
+
+/** \class SkRBufferWithSizeCheck
+
+    Same as SkRBuffer, except that a size check is performed before the read operation and an
+    error is set if the read operation is attempting to read past the end of the data.
+*/
+class SkRBufferWithSizeCheck : public SkRBuffer {
+public:
+    SkRBufferWithSizeCheck(const void* data, size_t size) : SkRBuffer(data, size), fError(false) {}
+
+    /** Read the specified number of bytes from the data pointer. If buffer is not
+        null and the number of bytes to read does not overflow this object's data,
+        copy those bytes into buffer.
+    */
+    virtual void read(void* buffer, size_t size) SK_OVERRIDE;
+
+    /** Returns whether or not a read operation attempted to read past the end of the data.
+    */
+    bool isValid() const { return !fError; }
+private:
+    bool fError;
 };
 
 /** \class SkWBuffer

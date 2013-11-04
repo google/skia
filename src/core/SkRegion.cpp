@@ -1100,9 +1100,9 @@ bool SkRegion::op(const SkRegion& rgna, const SkRegion& rgnb, Op op) {
 
 #include "SkBuffer.h"
 
-uint32_t SkRegion::writeToMemory(void* storage) const {
+size_t SkRegion::writeToMemory(void* storage) const {
     if (NULL == storage) {
-        uint32_t size = sizeof(int32_t); // -1 (empty), 0 (rect), runCount
+        size_t size = sizeof(int32_t); // -1 (empty), 0 (rect), runCount
         if (!this->isEmpty()) {
             size += sizeof(fBounds);
             if (this->isComplex()) {
@@ -1133,11 +1133,11 @@ uint32_t SkRegion::writeToMemory(void* storage) const {
     return buffer.pos();
 }
 
-uint32_t SkRegion::readFromMemory(const void* storage) {
-    SkRBuffer   buffer(storage);
-    SkRegion    tmp;
-    int32_t     count;
-
+size_t SkRegion::readFromMemory(const void* storage, size_t length) {
+    SkRBufferWithSizeCheck  buffer(storage, length);
+    SkRegion                tmp;
+    int32_t                 count;
+    
     count = buffer.readS32();
     if (count >= 0) {
         buffer.read(&tmp.fBounds, sizeof(tmp.fBounds));
@@ -1150,8 +1150,12 @@ uint32_t SkRegion::readFromMemory(const void* storage) {
             buffer.read(tmp.fRunHead->writable_runs(), count * sizeof(RunType));
         }
     }
-    this->swap(tmp);
-    return buffer.pos();
+    size_t sizeRead = 0;
+    if (buffer.isValid()) {
+        this->swap(tmp);
+        sizeRead = buffer.pos();
+    }
+    return sizeRead;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

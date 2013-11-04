@@ -244,14 +244,20 @@ public:
      *  write kSizeInMemory bytes, and that value is guaranteed to always be
      *  a multiple of 4. Return kSizeInMemory.
      */
-    uint32_t writeToMemory(void* buffer) const;
+    size_t writeToMemory(void* buffer) const;
 
     /**
-     *  Read the rrect from the specified buffer. This is guaranteed to always
-     *  read kSizeInMemory bytes, and that value is guaranteed to always be
-     *  a multiple of 4. Return kSizeInMemory.
+     * Reads the rrect from the specified buffer
+     *
+     * If the specified buffer is large enough, this will read kSizeInMemory bytes,
+     * and that value is guaranteed to always be a multiple of 4.
+     *
+     * @param buffer Memory to read from
+     * @param length Amount of memory available in the buffer
+     * @return number of bytes read (must be a multiple of 4) or
+     *         0 if there was not enough memory available
      */
-    uint32_t readFromMemory(const void* buffer);
+    size_t readFromMemory(const void* buffer, size_t length);
 
 private:
     SkRect fRect;

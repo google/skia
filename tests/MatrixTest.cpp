@@ -112,18 +112,19 @@ static void test_matrix_recttorect(skiatest::Reporter* reporter) {
 
 static void test_flatten(skiatest::Reporter* reporter, const SkMatrix& m) {
     // add 100 in case we have a bug, I don't want to kill my stack in the test
-    char buffer[SkMatrix::kMaxFlattenSize + 100];
-    uint32_t size1 = m.writeToMemory(NULL);
-    uint32_t size2 = m.writeToMemory(buffer);
+    static const size_t kBufferSize = SkMatrix::kMaxFlattenSize + 100;
+    char buffer[kBufferSize];
+    size_t size1 = m.writeToMemory(NULL);
+    size_t size2 = m.writeToMemory(buffer);
     REPORTER_ASSERT(reporter, size1 == size2);
     REPORTER_ASSERT(reporter, size1 <= SkMatrix::kMaxFlattenSize);
 
     SkMatrix m2;
-    uint32_t size3 = m2.readFromMemory(buffer);
+    size_t size3 = m2.readFromMemory(buffer, kBufferSize);
     REPORTER_ASSERT(reporter, size1 == size3);
     REPORTER_ASSERT(reporter, are_equal(reporter, m, m2));
 
-    char buffer2[SkMatrix::kMaxFlattenSize + 100];
+    char buffer2[kBufferSize];
     size3 = m2.writeToMemory(buffer2);
     REPORTER_ASSERT(reporter, size1 == size3);
     REPORTER_ASSERT(reporter, memcmp(buffer, buffer2, size1) == 0);
