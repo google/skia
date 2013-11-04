@@ -259,7 +259,7 @@ void SkRRect::inset(SkScalar dx, SkScalar dy, SkRRect* dst) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-size_t SkRRect::writeToMemory(void* buffer) const {
+uint32_t SkRRect::writeToMemory(void* buffer) const {
     SkASSERT(kSizeInMemory == sizeof(SkRect) + sizeof(fRadii));
 
     memcpy(buffer, &fRect, sizeof(SkRect));
@@ -267,11 +267,7 @@ size_t SkRRect::writeToMemory(void* buffer) const {
     return kSizeInMemory;
 }
 
-size_t SkRRect::readFromMemory(const void* buffer, size_t length) {
-    if (length < kSizeInMemory) {
-        return 0;
-    }
-
+uint32_t SkRRect::readFromMemory(const void* buffer) {
     SkScalar storage[12];
     SkASSERT(sizeof(storage) == kSizeInMemory);
 

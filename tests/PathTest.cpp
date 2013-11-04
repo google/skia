@@ -1808,12 +1808,12 @@ static void test_flattening(skiatest::Reporter* reporter) {
     // create a buffer that should be much larger than the path so we don't
     // kill our stack if writer goes too far.
     char buffer[1024];
-    size_t size1 = p.writeToMemory(NULL);
-    size_t size2 = p.writeToMemory(buffer);
+    uint32_t size1 = p.writeToMemory(NULL);
+    uint32_t size2 = p.writeToMemory(buffer);
     REPORTER_ASSERT(reporter, size1 == size2);
 
     SkPath p2;
-    size_t size3 = p2.readFromMemory(buffer, 1024);
+    uint32_t size3 = p2.readFromMemory(buffer);
     REPORTER_ASSERT(reporter, size1 == size3);
     REPORTER_ASSERT(reporter, p == p2);
 

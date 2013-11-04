@@ -280,7 +280,7 @@ protected:
                 SkASSERT(size == size2);
 
                 SkRegion    tmp3;
-                SkDEBUGCODE(size2 = ) tmp3.readFromMemory(buffer, 1000);
+                SkDEBUGCODE(size2 = ) tmp3.readFromMemory(buffer);
                 SkASSERT(size == size2);
 
                 SkASSERT(tmp3 == tmp);

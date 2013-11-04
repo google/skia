@@ -106,20 +106,27 @@ public:
     int32_t readS32() { return this->readInt(); }
     uint32_t readU32() { return this->readInt(); }
 
-    bool readPath(SkPath* path) {
-        return readObjectFromMemory(path);
+    void readPath(SkPath* path) {
+        size_t size = path->readFromMemory(this->peek());
+        SkASSERT(SkAlign4(size) == size);
+        (void)this->skip(size);
     }
 
-    bool readMatrix(SkMatrix* matrix) {
-        return readObjectFromMemory(matrix);
+    void readMatrix(SkMatrix* matrix) {
+        size_t size = matrix->readFromMemory(this->peek());
+        SkASSERT(SkAlign4(size) == size);
+        (void)this->skip(size);
     }
 
-    bool readRRect(SkRRect* rrect) {
-        return readObjectFromMemory(rrect);
+    SkRRect* readRRect(SkRRect* rrect) {
+        rrect->readFromMemory(this->skip(SkRRect::kSizeInMemory));
+        return rrect;
     }
 
-    bool readRegion(SkRegion* rgn) {
-        return readObjectFromMemory(rgn);
+    void readRegion(SkRegion* rgn) {
+        size_t size = rgn->readFromMemory(this->peek());
+        SkASSERT(SkAlign4(size) == size);
+        (void)this->skip(size);
     }
 
     /**
@@ -136,15 +143,6 @@ public:
     size_t readIntoString(SkString* copy);
 
 private:
-    template <typename T> bool readObjectFromMemory(T* obj) {
-        size_t size = obj->readFromMemory(this->peek(), this->available());
-        // If readFromMemory() fails (which means that available() was too small), it returns 0
-        bool success = (size > 0) && (size <= this->available()) && (SkAlign4(size) == size);
-        // In case of failure, we want to skip to the end
-        (void)this->skip(success ? size : this->available());
-        return success;
-    }
-
     // these are always 4-byte aligned
     const char* fCurr;  // current position within buffer
     const char* fStop;  // end of buffer
