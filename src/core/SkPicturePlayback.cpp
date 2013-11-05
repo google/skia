@@ -997,7 +997,8 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
             case DRAW_RRECT: {
                 const SkPaint& paint = *getPaint(reader);
                 SkRRect rrect;
-                canvas.drawRRect(*reader.readRRect(&rrect), paint);
+                reader.readRRect(&rrect);
+                canvas.drawRRect(rrect, paint);
             } break;
             case DRAW_SPRITE: {
                 const SkPaint* paint = getPaint(reader);

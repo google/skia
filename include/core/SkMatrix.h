@@ -559,9 +559,16 @@ public:
         kMaxFlattenSize = 9 * sizeof(SkScalar) + sizeof(uint32_t)
     };
     // return the number of bytes written, whether or not buffer is null
-    uint32_t writeToMemory(void* buffer) const;
-    // return the number of bytes read
-    uint32_t readFromMemory(const void* buffer);
+    size_t writeToMemory(void* buffer) const;
+    /**
+     * Reads data from the buffer parameter
+     *
+     * @param buffer Memory to read from
+     * @param length Amount of memory available in the buffer
+     * @return number of bytes read (must be a multiple of 4) or
+     *         0 if there was not enough memory available
+     */
+    size_t readFromMemory(const void* buffer, size_t length);
 
     SkDEVCODE(void dump() const;)
     SkDEVCODE(void toString(SkString*) const;)
