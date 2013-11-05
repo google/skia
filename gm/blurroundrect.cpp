@@ -169,7 +169,7 @@ protected:
         // Handle the scaling.
         this->INHERITED::onDraw(canvas);
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
-        SkMaskFilter* filter = SkBlurMaskFilter::Create(fBlurRadius,
+        SkMaskFilter* filter = SkBlurMaskFilter::Create(SkIntToScalar(fBlurRadius),
                 SkBlurMaskFilter::kNormal_BlurStyle);
         SkPaint paint;
         paint.setColor(SK_ColorBLUE);
