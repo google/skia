@@ -34,8 +34,8 @@ public:
         : fName("blurroundrect")
         , fWidth(width)
         , fHeight(height)
-        , fScaleX(scaleX)
-        , fScaleY(scaleY) {
+        , fScaleX(SkIntToScalar(scaleX))
+        , fScaleY(SkIntToScalar(scaleY)) {
         fName.appendf("-WH[%ix%i]-UL[%ix%i]-UR[%ix%i]-LR[%ix%i]-LL[%ix%i]-scale[%ix%i]",
                       width,  height,
                       ulX,    ulY,
@@ -48,7 +48,7 @@ public:
         radii[1].set(SkIntToScalar(urX), SkIntToScalar(urY));
         radii[2].set(SkIntToScalar(lrX), SkIntToScalar(lrY));
         radii[3].set(SkIntToScalar(llX), SkIntToScalar(llY));
-        SkRect r = SkRect::MakeWH(fWidth, fHeight);
+        SkRect r = SkRect::MakeWH(SkIntToScalar(fWidth), SkIntToScalar(fHeight));
         fRRect.setRectRadii(r, radii);
     }
 
@@ -168,7 +168,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         // Handle the scaling.
         this->INHERITED::onDraw(canvas);
-        canvas->translate(10, 10);
+        canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
         SkMaskFilter* filter = SkBlurMaskFilter::Create(fBlurRadius,
                 SkBlurMaskFilter::kNormal_BlurStyle);
         SkPaint paint;
