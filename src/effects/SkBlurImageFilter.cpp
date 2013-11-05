@@ -144,6 +144,8 @@ static void boxBlurY(const SkBitmap& src, SkBitmap* dst, int kernelSize,
                 sumB += SkGetPackedB32(r);
             }
             sptr += srcStride;
+            // The next leading pixel seems to be too hard to predict.  Hint the fetch.
+            SK_PREFETCH(sptr + (bottomOffset + 1) * srcStride);
             dptr += dstStride;
         }
     }

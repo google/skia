@@ -381,6 +381,15 @@
 
 //////////////////////////////////////////////////////////////////////
 
+#if defined(__clang__) || defined(__GNUC__)
+#define SK_PREFETCH(ptr) __builtin_prefetch(ptr)
+#define SK_WRITE_PREFETCH(ptr) __builtin_prefetch(ptr, 1)
+#else
+#define SK_PREFETCH(ptr)
+#define SK_WRITE_PREFETCH(ptr)
+#endif
+
+//////////////////////////////////////////////////////////////////////
 #ifndef SK_PRINTF_LIKE
 #if defined(__clang__) || defined(__GNUC__)
 #define SK_PRINTF_LIKE(A, B) __attribute__((format(printf, (A), (B))))
