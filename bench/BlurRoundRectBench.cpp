@@ -78,7 +78,7 @@ public:
                 looper->addLayerOnTop(info);
             }
             SkPaint paint;
-            SkRect rect = SkRect::MakeWH(fWidth, fHeight);
+            SkRect rect = SkRect::MakeWH(SkIntToScalar(fWidth), SkIntToScalar(fHeight));
             canvas->drawRect(rect, paint);
 
             paint.setLooper(looper)->unref();
