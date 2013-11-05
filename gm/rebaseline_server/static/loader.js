@@ -64,7 +64,7 @@ Loader.controller(
         $scope.showSubmitAdvancedSettings = false;
         $scope.submitAdvancedSettings = {};
         $scope.submitAdvancedSettings['reviewed-by-human'] = true;
-        $scope.submitAdvancedSettings['ignore-failures'] = false;
+        $scope.submitAdvancedSettings['ignore-failure'] = false;
         $scope.submitAdvancedSettings['bug'] = '';
 
         // Create the list of tabs (lists into which the user can file each
@@ -368,7 +368,7 @@ Loader.controller(
             $scope.submitAdvancedSettings['reviewed-by-human'];
         if (true == $scope.submitAdvancedSettings['ignore-failure']) {
           // if it's false, don't send it at all (just keep the default)
-          expectedResult['ignoreFailure'] = true;
+          expectedResult['ignore-failure'] = true;
         }
         expectedResult['bugs'] = bugs;
 

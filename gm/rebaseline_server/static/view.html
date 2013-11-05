@@ -160,7 +160,7 @@
           <input type="checkbox" ng-model="showSubmitAdvancedSettings">
           show
           <ul ng-hide="!showSubmitAdvancedSettings">
-            <li ng-repeat="setting in ['reviewed-by-human', 'ignore-failures']">
+            <li ng-repeat="setting in ['reviewed-by-human', 'ignore-failure']">
               {{setting}}
               <input type="checkbox" ng-model="submitAdvancedSettings[setting]">
             </li>
