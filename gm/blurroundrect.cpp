@@ -122,10 +122,10 @@ protected:
                     SkBlurMaskFilter::kNormal_BlurStyle,
                     SkBlurMaskFilter::kHighQuality_BlurFlag);
             paint->setMaskFilter(maskFilter)->unref();
-            SkColorFilter* colorFilter = SkColorFilter::CreateModeFilter((SkColor) 4279308561,
+            SkColorFilter* colorFilter = SkColorFilter::CreateModeFilter(SK_ColorLTGRAY,
                     SkXfermode::kSrcIn_Mode);
             paint->setColorFilter(colorFilter)->unref();
-            paint->setColor((SkColor) 4278190080);
+            paint->setColor(SK_ColorGRAY);
         }
         {
             SkLayerDrawLooper::LayerInfo info;
@@ -135,7 +135,7 @@ protected:
         canvas->drawRect(this->getRRect().rect(), paint);
 
         paint.setLooper(looper)->unref();
-        paint.setColor((SkColor) 4293848814);
+        paint.setColor(SK_ColorCYAN);
         paint.setAntiAlias(true);
 
         canvas->drawRRect(this->getRRect(), paint);
