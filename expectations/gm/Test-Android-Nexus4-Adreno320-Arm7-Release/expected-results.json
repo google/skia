@@ -1708,6 +1708,10 @@
           3716091659075403920
         ]
       ], 
+      "bugs": [
+        1791
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "canvas-layer-state_565.png": {
