@@ -103,8 +103,8 @@ public:
 
 protected:
     virtual SkISize getUnscaledSize() const SK_OVERRIDE {
-        return SkISize::Make(this->getRRect().rect().width(),
-                             this->getRRect().rect().height());
+        return SkISize::Make(SkScalarCeilToInt(this->getRRect().rect().width()),
+                             SkScalarCeilToInt(this->getRRect().rect().height()));
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
@@ -122,10 +122,10 @@ protected:
                     SkBlurMaskFilter::kNormal_BlurStyle,
                     SkBlurMaskFilter::kHighQuality_BlurFlag);
             paint->setMaskFilter(maskFilter)->unref();
-            SkColorFilter* colorFilter = SkColorFilter::CreateModeFilter(4279308561,
+            SkColorFilter* colorFilter = SkColorFilter::CreateModeFilter((SkColor) 4279308561,
                     SkXfermode::kSrcIn_Mode);
             paint->setColorFilter(colorFilter)->unref();
-            paint->setColor(4278190080);
+            paint->setColor((SkColor) 4278190080);
         }
         {
             SkLayerDrawLooper::LayerInfo info;
@@ -135,7 +135,7 @@ protected:
         canvas->drawRect(this->getRRect().rect(), paint);
 
         paint.setLooper(looper)->unref();
-        paint.setColor(4293848814);
+        paint.setColor((SkColor) 4293848814);
         paint.setAntiAlias(true);
 
         canvas->drawRRect(this->getRRect(), paint);
@@ -161,8 +161,8 @@ public:
 
 protected:
     virtual SkISize getUnscaledSize() const SK_OVERRIDE {
-        return SkISize::Make(this->getRRect().rect().width() + 20,
-                             this->getRRect().rect().height() + 20);
+        return SkISize::Make(SkScalarCeilToInt(this->getRRect().rect().width() + 20),
+                             SkScalarCeilToInt(this->getRRect().rect().height() + 20));
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
