@@ -12,6 +12,7 @@
 #include "SkPoint.h"
 
 class SkPath;
+class SkMatrix;
 
 // Path forward:
 //   core work
@@ -258,6 +259,17 @@ public:
      *         0 if there was not enough memory available
      */
     size_t readFromMemory(const void* buffer, size_t length);
+
+    /**
+     *  Transform by the specified matrix, and put the result in dst.
+     *
+     *  @param matrix SkMatrix specifying the transform. Must only contain
+     *      scale and/or translate, or this call will fail.
+     *  @param dst SkRRect to store the result. It is an error to use this,
+     *      which would make this function no longer const.
+     *  @return true on success, false on failure. If false, dst is unmodified.
+     */
+    bool transform(const SkMatrix& matrix, SkRRect* dst) const;
 
 private:
     SkRect fRect;

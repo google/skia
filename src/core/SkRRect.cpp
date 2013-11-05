@@ -6,6 +6,7 @@
  */
 
 #include "SkRRect.h"
+#include "SkMatrix.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -231,6 +232,85 @@ void SkRRect::computeType() const {
     }
 
     fType = kComplex_Type;
+}
+
+static bool matrix_only_scale_and_translate(const SkMatrix& matrix) {
+    const SkMatrix::TypeMask m = (SkMatrix::TypeMask) (SkMatrix::kAffine_Mask
+                                    | SkMatrix::kPerspective_Mask);
+    return (matrix.getType() & m) == 0;
+}
+
+bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
+    if (NULL == dst) {
+        return false;
+    }
+
+    // Assert that the caller is not trying to do this in place, which
+    // would violate const-ness. Do not return false though, so that
+    // if they know what they're doing and want to violate it they can.
+    SkASSERT(dst != this);
+
+    if (matrix.isIdentity()) {
+        *dst = *this;
+        return true;
+    }
+
+    // If transform supported 90 degree rotations (which it could), we could
+    // use SkMatrix::rectStaysRect() to check for a valid transformation.
+    if (!matrix_only_scale_and_translate(matrix)) {
+        return false;
+    }
+
+    SkRect newRect;
+    if (!matrix.mapRect(&newRect, fRect)) {
+        return false;
+    }
+
+    // At this point, this is guaranteed to succeed, so we can modify dst.
+    dst->fRect = newRect;
+
+    // Now scale each corner
+    SkScalar xScale = matrix.getScaleX();
+    const bool flipX = xScale < 0;
+    if (flipX) {
+        xScale = -xScale;
+    }
+    SkScalar yScale = matrix.getScaleY();
+    const bool flipY = yScale < 0;
+    if (flipY) {
+        yScale = -yScale;
+    }
+
+    // Scale the radii without respecting the flip.
+    for (int i = 0; i < 4; ++i) {
+        dst->fRadii[i].fX = SkScalarMul(fRadii[i].fX, xScale);
+        dst->fRadii[i].fY = SkScalarMul(fRadii[i].fY, yScale);
+    }
+
+    // Now swap as necessary.
+    if (flipX) {
+        if (flipY) {
+            // Swap with opposite corners
+            SkTSwap(dst->fRadii[kUpperLeft_Corner], dst->fRadii[kLowerRight_Corner]);
+            SkTSwap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerLeft_Corner]);
+        } else {
+            // Only swap in x
+            SkTSwap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kUpperLeft_Corner]);
+            SkTSwap(dst->fRadii[kLowerRight_Corner], dst->fRadii[kLowerLeft_Corner]);
+        }
+    } else if (flipY) {
+        // Only swap in y
+        SkTSwap(dst->fRadii[kUpperLeft_Corner], dst->fRadii[kLowerLeft_Corner]);
+        SkTSwap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerRight_Corner]);
+    }
+
+    // Since the only transforms that were allowed are scale and translate, the type
+    // remains unchanged.
+    dst->fType = fType;
+
+    SkDEBUGCODE(dst->validate();)
+
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
