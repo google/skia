@@ -20,7 +20,8 @@ enum InitialState {
 
 /**
  * This function takes a clip stack and a query rectangle and it produces a reduced set of
- * SkClipStack::Elements that are equivalent to applying the full stack to the rectangle. The
+ * SkClipStack::Elements that are equivalent to applying the full stack to the rectangle. The clip
+ * stack generation id that represents the list of elements is returned in resultGenID. The
  * initial state of the query rectangle before the first clip element is applied is returned via
  * initialState. Optionally, the caller can request a tighter bounds on the clip be returned via
  * tighterBounds. If not NULL, tighterBounds will always be contained by queryBounds after return.
@@ -33,6 +34,7 @@ enum InitialState {
 void ReduceClipStack(const SkClipStack& stack,
                      const SkIRect& queryBounds,
                      ElementList* result,
+                     int32_t* resultGenID,
                      InitialState* initialState,
                      SkIRect* tighterBounds = NULL,
                      bool* requiresAA = NULL);
