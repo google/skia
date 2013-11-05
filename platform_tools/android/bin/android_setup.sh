@@ -243,7 +243,7 @@ setup_device() {
   fi
   DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
 
-  exportVar GYP_DEFINES "$DEFINES"
+  exportVar GYP_DEFINES "$DEFINES $GYP_DEFINES"
   exportVar SKIA_OUT "out/config/android-${TARGET_DEVICE}"
 }
 
