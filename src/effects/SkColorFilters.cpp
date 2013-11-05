@@ -186,6 +186,13 @@ static inline ColorExpr color_filter_expression(const SkXfermode::Mode& mode,
 class ModeColorFilterEffect : public GrEffect {
 public:
     static GrEffectRef* Create(const GrColor& c, SkXfermode::Mode mode) {
+        // TODO: Make the effect take the coeffs rather than mode since we already do the
+        // conversion here.
+        SkXfermode::Coeff srcCoeff, dstCoeff;
+        if (!SkXfermode::ModeAsCoeff(mode, &srcCoeff, &dstCoeff)) {
+            SkDebugf("Failing to create color filter for mode %d\n", mode);
+            return NULL;
+        }
         AutoEffectUnref effect(SkNEW_ARGS(ModeColorFilterEffect, (c, mode)));
         return CreateEffectRef(effect);
     }
