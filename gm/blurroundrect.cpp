@@ -106,7 +106,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(SkIntToScalar(750), SkIntToScalar(750));
+        return SkISize::Make(750, 750);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
