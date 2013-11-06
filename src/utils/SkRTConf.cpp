@@ -263,14 +263,18 @@ template bool SkRTConfRegistry::parse(const char *name, float *value);
 template bool SkRTConfRegistry::parse(const char *name, double *value);
 template bool SkRTConfRegistry::parse(const char *name, const char **value);
 
-template <typename T> void SkRTConfRegistry::set(const char *name, T value) {
-
+template <typename T> void SkRTConfRegistry::set(const char *name,
+                                                 T value,
+                                                 bool warnIfNotFound) {
     SkTDArray<SkRTConfBase *> *confArray;
     if (!fConfs.find(name, &confArray)) {
-        SkDebugf("WARNING: Attempting to set configuration value \"%s\", but I've never heard of that.\n", name);
+        if (warnIfNotFound) {
+            SkDebugf("WARNING: Attempting to set configuration value \"%s\","
+                     " but I've never heard of that.\n", name);
+        }
         return;
     }
-
+    SkASSERT(confArray != NULL);
     for (SkRTConfBase **confBase = confArray->begin(); confBase != confArray->end(); confBase++) {
         // static_cast here is okay because there's only one kind of child class.
         SkRTConf<T> *concrete = static_cast<SkRTConf<T> *>(*confBase);
@@ -281,12 +285,12 @@ template <typename T> void SkRTConfRegistry::set(const char *name, T value) {
     }
 }
 
-template void SkRTConfRegistry::set(const char *name, bool value);
-template void SkRTConfRegistry::set(const char *name, int value);
-template void SkRTConfRegistry::set(const char *name, unsigned int value);
-template void SkRTConfRegistry::set(const char *name, float value);
-template void SkRTConfRegistry::set(const char *name, double value);
-template void SkRTConfRegistry::set(const char *name, char * value);
+template void SkRTConfRegistry::set(const char *name, bool value, bool);
+template void SkRTConfRegistry::set(const char *name, int value, bool);
+template void SkRTConfRegistry::set(const char *name, unsigned int value, bool);
+template void SkRTConfRegistry::set(const char *name, float value, bool);
+template void SkRTConfRegistry::set(const char *name, double value, bool);
+template void SkRTConfRegistry::set(const char *name, char * value, bool);
 
 SkRTConfRegistry &skRTConfRegistry() {
     static SkRTConfRegistry r;

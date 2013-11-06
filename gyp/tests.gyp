@@ -120,6 +120,7 @@
         '../tests/RegionTest.cpp',
         '../tests/ResourceCacheTest.cpp',
         '../tests/RoundRectTest.cpp',
+        '../tests/RuntimeConfigTest.cpp',
         '../tests/RTreeTest.cpp',
         '../tests/SHA1Test.cpp',
         '../tests/ScalarTest.cpp',
