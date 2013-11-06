@@ -1408,7 +1408,7 @@ static SkString pdfRasterizerUsage() {
 
 // Alphabetized ignoring "no" prefix ("readPath", "noreplay", "resourcePath").
 DEFINE_string(config, "", configUsage().c_str());
-DEFINE_string(pdfRasterizers, "", pdfRasterizerUsage().c_str());
+DEFINE_string(pdfRasterizers, "default", pdfRasterizerUsage().c_str());
 DEFINE_bool(deferred, false, "Exercise the deferred rendering test pass.");
 DEFINE_string(excludeConfig, "", "Space delimited list of configs to skip.");
 DEFINE_bool(forceBWtext, false, "Disable text anti-aliasing.");
@@ -2003,24 +2003,24 @@ static bool parse_flags_pdf_rasterizers(const SkTDArray<size_t>& configs,
         return true;
     }
 
-    for (int i = 0; i < FLAGS_pdfRasterizers.count(); i++) {
-        const char* rasterizer = FLAGS_pdfRasterizers[i];
-        const PDFRasterizerData* rasterizerPtr = findPDFRasterizer(rasterizer);
-
-        if (rasterizerPtr == NULL) {
-            gm_fprintf(stderr, "unrecognized rasterizer %s\n", rasterizer);
-            return false;
-        }
-        appendUnique<const PDFRasterizerData*>(outRasterizers,
-                                               rasterizerPtr);
-    }
-
-    if (outRasterizers->count() == 0) {
-        // if no config is specified by user, add the defaults
+    if (FLAGS_pdfRasterizers.count() == 1 &&
+            !strcmp(FLAGS_pdfRasterizers[0], "default")) {
         for (int i = 0; i < (int)SK_ARRAY_COUNT(kPDFRasterizers); ++i) {
             if (kPDFRasterizers[i].fRunByDefault) {
                 *outRasterizers->append() = &kPDFRasterizers[i];
             }
+        }
+    } else {
+        for (int i = 0; i < FLAGS_pdfRasterizers.count(); i++) {
+            const char* rasterizer = FLAGS_pdfRasterizers[i];
+            const PDFRasterizerData* rasterizerPtr =
+                    findPDFRasterizer(rasterizer);
+            if (rasterizerPtr == NULL) {
+                gm_fprintf(stderr, "unrecognized rasterizer %s\n", rasterizer);
+                return false;
+            }
+            appendUnique<const PDFRasterizerData*>(outRasterizers,
+                                                   rasterizerPtr);
         }
     }
 
