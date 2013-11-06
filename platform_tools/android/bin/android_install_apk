@@ -21,28 +21,26 @@ installLauncher="false"
 installOptions="-r"
 configuration="Debug"
 
-while (( "$#" )); do
-
-  if [[ "$1" == "-f" ]];
+for arg in ${APP_ARGS[@]}
+do
+  if [[ "${arg}" == "-f" ]];
   then
     forceRemoval="true"
-  elif [[ "$1" == "-h" ]];
+  elif [[ "${arg}" == "-h" ]];
   then
     print_usage
     exit
-  elif [[ "$1" == "-r" ]];
+  elif [[ "${arg}" == "-r" ]];
   then
     echo "DEPRECATED: -r is now a no-op"
-  elif [[ "$1" == "--release" ]];
-  then 
+  elif [[ "${arg}" == "--release" ]];
+  then
     configuration="Release"
   else
-    echo "ERROR: unrecognized option $1"
+    echo "ERROR: unrecognized option ${arg}"
     print_usage
     exit 1;
   fi
-
-shift
 done
 
 if [[ "$forceRemoval" == "true" ]];
