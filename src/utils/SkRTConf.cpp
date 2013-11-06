@@ -213,12 +213,11 @@ static inline void str_replace(char *s, char search, char replace) {
 }
 
 template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
-    SkString *str = NULL;
-    SkString tmp;
+    const char *str = NULL;
 
     for (int i = fConfigFileKeys.count() - 1 ; i >= 0; i--) {
         if (fConfigFileKeys[i]->equals(name)) {
-            str = fConfigFileValues[i];
+            str = fConfigFileValues[i]->c_str();
             break;
         }
     }
@@ -228,24 +227,15 @@ template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
 
     const char *environment_value = getenv(environment_variable.c_str());
     if (environment_value) {
-        if (NULL == str) {
-            str = &tmp;
-        }
-        str->set(environment_value);
+        str = environment_value;
     } else {
         // apparently my shell doesn't let me have environment variables that
         // have periods in them, so also let the user substitute underscores.
-        SkString underscore_environment_variable("skia_");
-        char *underscore_name = SkStrDup(name);
-        str_replace(underscore_name,'.','_');
-        underscore_environment_variable.append(underscore_name);
-        sk_free(underscore_name);
-        environment_value = getenv(underscore_environment_variable.c_str());
+        SkAutoTMalloc<char> underscore_name(SkStrDup(environment_variable.c_str()));
+        str_replace(underscore_name.get(), '.', '_');
+        environment_value = getenv(underscore_name.get());
         if (environment_value) {
-            if (NULL == str) {
-                str = &tmp;
-            }
-            str->set(environment_value);
+            str = environment_value;
         }
     }
 
@@ -254,11 +244,12 @@ template<typename T> bool SkRTConfRegistry::parse(const char *name, T* value) {
     }
 
     bool success;
-    T new_value = doParse<T>(str->c_str(),&success);
+    T new_value = doParse<T>(str, &success);
     if (success) {
         *value = new_value;
     } else {
-        SkDebugf("WARNING: Couldn't parse value \'%s\' for variable \'%s\'\n", str->c_str(), name);
+        SkDebugf("WARNING: Couldn't parse value \'%s\' for variable \'%s\'\n",
+                 str, name);
     }
     return success;
 }
