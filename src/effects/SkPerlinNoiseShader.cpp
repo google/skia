@@ -7,6 +7,7 @@
 
 #include "SkDither.h"
 #include "SkPerlinNoiseShader.h"
+#include "SkColorFilter.h"
 #include "SkFlattenableBuffers.h"
 #include "SkShader.h"
 #include "SkUnPreMultiply.h"
@@ -1294,6 +1295,16 @@ void GrGLSimplexNoise::setData(const GrGLUniformManager& uman, const GrDrawEffec
 
 GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint) const {
     SkASSERT(NULL != context);
+
+    if (0 == fNumOctaves) {
+        SkColor clearColor = 0;
+        if (kFractalNoise_Type == fType) {
+            clearColor = SkColorSetARGB(paint.getAlpha() / 2, 127, 127, 127);
+        }
+        SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(
+                                                clearColor, SkXfermode::kSrc_Mode));
+        return cf->asNewEffect(context);
+    }
 
     // Either we don't stitch tiles, either we have a valid tile size
     SkASSERT(!fStitchTiles || !fTileSize.isEmpty());

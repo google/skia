@@ -23,7 +23,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(200, 400);
+        return make_isize(200, 500);
     }
 
     void drawClippedRect(SkCanvas* canvas, int x, int y, const SkPaint& paint) {
@@ -52,27 +52,31 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         canvas->clear(0x00000000);
+        test(canvas,   0,   0, SkPerlinNoiseShader::kFractalNoise_Type,
+             0.1f, 0.1f, 0, 0, false);
+        test(canvas, 100,   0, SkPerlinNoiseShader::kTurbulence_Type,
+             0.1f, 0.1f, 0, 0, false);
 
-        test(canvas,   0, 0, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas,   0, 100, SkPerlinNoiseShader::kFractalNoise_Type,
              0.1f, 0.1f, 2, 0, false);
-        test(canvas, 100, 0, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas, 100, 100, SkPerlinNoiseShader::kFractalNoise_Type,
              0.2f, 0.4f, 5, 0, true);
 
-        test(canvas,   0, 100, SkPerlinNoiseShader::kTurbulence_Type,
+        test(canvas,   0, 200, SkPerlinNoiseShader::kTurbulence_Type,
              0.1f, 0.1f, 2, 0, true);
-        test(canvas, 100, 100, SkPerlinNoiseShader::kTurbulence_Type,
+        test(canvas, 100, 200, SkPerlinNoiseShader::kTurbulence_Type,
              0.2f, 0.4f, 5, 0, false);
 
-        test(canvas,   0, 200, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas,   0, 300, SkPerlinNoiseShader::kFractalNoise_Type,
              0.1f, 0.1f, 3, 1, false);
-        test(canvas, 100, 200, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas, 100, 300, SkPerlinNoiseShader::kFractalNoise_Type,
              0.1f, 0.1f, 3, 4, false);
 
         canvas->scale(SkFloatToScalar(0.75f), SkFloatToScalar(1.0f));
 
-        test(canvas,   0, 300, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas,   0, 400, SkPerlinNoiseShader::kFractalNoise_Type,
              0.1f, 0.1f, 2, 0, false);
-        test(canvas, 100, 300, SkPerlinNoiseShader::kFractalNoise_Type,
+        test(canvas, 100, 400, SkPerlinNoiseShader::kFractalNoise_Type,
              0.2f, 0.4f, 5, 0, true);
     }
 
