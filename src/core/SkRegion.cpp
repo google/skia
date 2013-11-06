@@ -1137,7 +1137,7 @@ size_t SkRegion::readFromMemory(const void* storage, size_t length) {
     SkRBufferWithSizeCheck  buffer(storage, length);
     SkRegion                tmp;
     int32_t                 count;
-    
+
     count = buffer.readS32();
     if (count >= 0) {
         buffer.read(&tmp.fBounds, sizeof(tmp.fBounds));
