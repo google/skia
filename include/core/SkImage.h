@@ -47,6 +47,9 @@ struct SkImageInfo {
     SkAlphaType fAlphaType;
 };
 
+bool operator==(const SkImageInfo& lhs, const SkImageInfo& rhs);
+bool operator!=(const SkImageInfo& lhs, const SkImageInfo& rhs);
+
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the
  *  particular type of image could be actually storing its data on the GPU, or

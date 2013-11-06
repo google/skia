@@ -322,6 +322,11 @@
         '<(skia_src_path)/lazy/SkPurgeableMemoryBlock_common.cpp',
         '<(skia_src_path)/lazy/SkPurgeableImageCache.cpp',
 
+        '<(skia_src_path)/lazy/SkCachingPixelRef.cpp',
+        '<(skia_src_path)/lazy/SkCachingPixelRef.h',
+        '<(skia_src_path)/lazy/SkLazyCachingPixelRef.cpp',
+        '<(skia_src_path)/lazy/SkLazyCachingPixelRef.h',
+
         # Path ops
         '<(skia_include_path)/pathops/SkPathOps.h',
 

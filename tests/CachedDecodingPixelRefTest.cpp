@@ -11,10 +11,13 @@
 #include "SkForceLinking.h"
 #include "SkImageDecoder.h"
 #include "SkImagePriv.h"
+#include "SkLazyCachingPixelRef.h"
 #include "SkLazyPixelRef.h"
 #include "SkScaledImageCache.h"
 #include "SkStream.h"
+
 #include "Test.h"
+#include "TestClassDef.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -92,6 +95,7 @@ static void compare_bitmaps(skiatest::Reporter* reporter,
     if (!pixelPerfect) {
         return;
     }
+
     int pixelErrors = 0;
     for (int y = 0; y < b2.height(); ++y) {
         for (int x = 0; x < b2.width(); ++x) {
@@ -103,101 +107,140 @@ static void compare_bitmaps(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, 0 == pixelErrors);
 }
 
+
+typedef void(*CompareEncodedToOriginal)(skiatest::Reporter* reporter,
+                                        SkData* encoded,
+                                        const SkBitmap& original,
+                                        bool pixelPerfect);
 /**
- *  This checks to see that a SkLazyPixelRef works as advertized.
- */
-#include "TestClassDef.h"
-DEF_TEST(CachedDecodingPixelRefTest, reporter) {
+   this function tests three differently encoded images against the
+   original bitmap  */
+static void test_three_encodings(skiatest::Reporter* reporter,
+                                 CompareEncodedToOriginal comp) {
     SkBitmap original;
     make_test_image(&original);
-    const size_t bitmapSize = original.getSize();
-    const size_t oldByteLimit = SkScaledImageCache::GetByteLimit();
-    REPORTER_ASSERT(reporter, (!(original.empty())) && (!(original.isNull())));
-
+    REPORTER_ASSERT(reporter, !original.empty());
+    REPORTER_ASSERT(reporter, !original.isNull());
+    if (original.empty() || original.isNull()) {
+        return;
+    }
     static const SkImageEncoder::Type types[] = {
         SkImageEncoder::kPNG_Type,
         SkImageEncoder::kJPEG_Type,
         SkImageEncoder::kWEBP_Type
     };
-
     for (size_t i = 0; i < SK_ARRAY_COUNT(types); i++) {
         SkImageEncoder::Type type = types[i];
         SkAutoDataUnref encoded(create_data_from_bitmap(original, type));
         REPORTER_ASSERT(reporter, encoded.get() != NULL);
-        if (NULL == encoded.get()) {
-            continue;
+        if (NULL != encoded.get()) {
+            bool comparePixels = (SkImageEncoder::kPNG_Type == type);
+            comp(reporter, encoded, original, comparePixels);
         }
-        SkBitmap lazy;
-        static const SkBitmapFactory::DecodeProc decoder =
-            &(SkImageDecoder::DecodeMemoryToTarget);
-        bool success = simple_bitmap_factory(decoder, encoded.get(), &lazy);
-
-        REPORTER_ASSERT(reporter, success);
-
-        size_t bytesUsed = SkScaledImageCache::GetBytesUsed();
-
-        if (oldByteLimit < bitmapSize) {
-            SkScaledImageCache::SetByteLimit(bitmapSize + oldByteLimit);
-        }
-        void* lazyPixels = NULL;
-
-        // Since this is lazy, it shouldn't have fPixels yet!
-        REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
-        {
-            SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
-            lazyPixels = lazy.getPixels();
-            REPORTER_ASSERT(reporter, NULL != lazy.getPixels());
-            // first time we lock pixels, we should get bump in the size
-            // of the cache by exactly bitmapSize.
-            REPORTER_ASSERT(reporter, bytesUsed + bitmapSize
-                            == SkScaledImageCache::GetBytesUsed());
-            bytesUsed = SkScaledImageCache::GetBytesUsed();
-        }
-        // pixels should be gone!
-        REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
-        {
-            SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
-            REPORTER_ASSERT(reporter, NULL != lazy.getPixels());
-
-            // verify that the same pixels are used this time.
-            REPORTER_ASSERT(reporter, lazy.getPixels() == lazyPixels);
-        }
-
-        bool comparePixels = (SkImageEncoder::kPNG_Type == type);
-        // Only PNG is pixel-perfect.
-        compare_bitmaps(reporter, original, lazy, comparePixels);
-
-        // force the cache to clear by making it too small.
-        SkScaledImageCache::SetByteLimit(bitmapSize / 2);
-        compare_bitmaps(reporter, original, lazy, comparePixels);
-
-        // I'm pretty sure that the logic of the cache should mean
-        // that it will clear to zero, regardless of where it started.
-        REPORTER_ASSERT(reporter, SkScaledImageCache::GetBytesUsed() == 0);
-        // TODO(someone) - write a custom allocator that can verify
-        // that the memory where those pixels were cached really did
-        // get freed.
-
-        ////////////////////////////////////////////////////////////////////////
-        //  The following commented-out code happens to work on my
-        //  machine, and indicates to me that the SkLazyPixelRef is
-        //  behaving as designed.  But I don't know an easy way to
-        //  guarantee that a second allocation of the same size will
-        //  give a different address.
-        ////////////////////////////////////////////////////////////////////////
-        // {
-        //     // confuse the heap allocation system
-        //     SkAutoMalloc autoMalloc(bitmapSize);
-        //     REPORTER_ASSERT(reporter, autoMalloc.get() == lazyPixels);
-        //     {
-        //         SkAutoLockPixels autoLockPixels(lazy);
-        //         // verify that *different* pixels are used this time.
-        //         REPORTER_ASSERT(reporter, lazy.getPixels() != lazyPixels);
-        //         compare_bitmaps(reporter, original, lazy, comparePixels);
-        //     }
-        // }
-
-        // restore cache size
-        SkScaledImageCache::SetByteLimit(oldByteLimit);
     }
+}
+
+/**
+ *  This checks to see that a SkLazyPixelRef works as advertised.
+ */
+static void compare_with_skLazyPixelRef(skiatest::Reporter* reporter,
+                                        SkData* encoded,
+                                        const SkBitmap& original,
+                                        bool comparePixels) {
+    SkBitmap lazy;
+    static const SkBitmapFactory::DecodeProc decoder =
+        &(SkImageDecoder::DecodeMemoryToTarget);
+    bool success = simple_bitmap_factory(decoder, encoded, &lazy);
+    REPORTER_ASSERT(reporter, success);
+
+    REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
+    {
+        SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
+        REPORTER_ASSERT(reporter, NULL != lazy.getPixels());
+    }
+    // pixels should be gone!
+    REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
+    {
+        SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
+        REPORTER_ASSERT(reporter, NULL != lazy.getPixels());
+    }
+    compare_bitmaps(reporter, original, lazy, comparePixels);
+}
+DEF_TEST(LazyPixelRef, reporter) {
+    test_three_encodings(reporter, compare_with_skLazyPixelRef);
+}
+
+
+
+/**
+ *  This checks to see that a SkLazyCachedPixelRef works as advertised.
+ */
+
+static void compare_with_skLazyCachedPixelRef(skiatest::Reporter* reporter,
+                                              SkData* encoded,
+                                              const SkBitmap& original,
+                                              bool comparePixels) {
+    SkBitmap lazy;
+    static const SkBitmapFactory::DecodeProc decoder =
+        &(SkImageDecoder::DecodeMemoryToTarget);
+    bool success = SkLazyCachingPixelRef::Install(decoder, encoded, &lazy);
+    REPORTER_ASSERT(reporter, success);
+
+    REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
+    {
+        SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
+        REPORTER_ASSERT(reporter, NULL != lazy.getPixels());
+    }
+    // pixels should be gone!
+    REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
+    {
+        SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
+        REPORTER_ASSERT(reporter, NULL != lazy.getPixels());
+    }
+    compare_bitmaps(reporter, original, lazy, comparePixels);
+}
+DEF_TEST(LazyCachedPixelRef, reporter) {
+    test_three_encodings(reporter, compare_with_skLazyCachedPixelRef);
+}
+
+class TestPixelRef : public SkCachingPixelRef {
+public:
+    TestPixelRef(int x) : fX(x) { }
+    virtual ~TestPixelRef() { }
+    static bool Install(SkBitmap* destination, int x) {
+        SkAutoTUnref<TestPixelRef> ref(SkNEW_ARGS(TestPixelRef, (x)));
+        return ref->configure(destination) && destination->setPixelRef(ref);
+    }
+    SK_DECLARE_UNFLATTENABLE_OBJECT()
+protected:
+    virtual bool onDecodeInfo(SkImageInfo* info) SK_OVERRIDE {
+        if (fX == 0) {
+            return false;
+        }
+        SkASSERT(info);
+        info->fWidth = 10;
+        info->fHeight = 10;
+        info->fColorType = kRGBA_8888_SkColorType;
+        info->fAlphaType = kOpaque_SkAlphaType;
+        return true;
+    }
+    virtual bool onDecodePixels(const SkImageInfo& info,
+                                void* pixels,
+                                size_t rowBytes) SK_OVERRIDE {
+        return false;
+    }
+private:
+    int fX;  // controls where the failure happens
+    typedef SkCachingPixelRef INHERITED;
+};
+
+DEF_TEST(CachingPixelRef, reporter) {
+    SkBitmap lazy;
+    // test the error handling
+    REPORTER_ASSERT(reporter, !TestPixelRef::Install(&lazy, 0));
+    // onDecodeInfo should succeed, allowing installation
+    REPORTER_ASSERT(reporter, TestPixelRef::Install(&lazy, 1));
+    SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
+    // onDecodePixels should fail, so getting pixels will fail.
+    REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
 }

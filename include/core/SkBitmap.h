@@ -17,6 +17,7 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
+struct SkImageInfo;
 struct SkIRect;
 struct SkRect;
 class SkPaint;
@@ -259,6 +260,7 @@ public:
                                kPremul_SkAlphaType);
     }
 
+    bool setConfig(const SkImageInfo& info, size_t rowBytes = 0);
 
     /** Use this to assign a new pixel address for an existing bitmap. This
         will automatically release any pixelref previously installed. Only call
