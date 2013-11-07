@@ -8,6 +8,8 @@
 #ifndef SkTracker_DEFINED
 #define SkTracker_DEFINED
 
+#include <stdio.h>
+
 #include "SkBitmap.h"
 #include "SkPoint.h"
 
