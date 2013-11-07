@@ -19,6 +19,9 @@ public:
     SkImageDiffer();
     virtual ~SkImageDiffer();
 
+    static const double RESULT_CORRECT = 1.0f;
+    static const double RESULT_INCORRECT = 0.0f;
+
     /**
      * Gets a unique and descriptive name of this differ
      * @return A statically allocated null terminated string that is the name of this differ
@@ -35,6 +38,12 @@ public:
      * Gets if this differ needs to be initialized with and OpenCL device and context.
      */
     virtual bool requiresOpenCL() { return false; }
+
+    /**
+     * Enables the generation of an alpha mask for all points of interest.
+     * @return True if the differ supports generating an alpha mask and false otherwise.
+     */
+    virtual bool enablePOIAlphaMask() { return false; }
 
     /**
      * Wraps a call to queueDiff by loading the given filenames into SkBitmaps
@@ -87,6 +96,13 @@ public:
      */
     virtual SkIPoint* getPointsOfInterest(int id) = 0;
 
+    /*
+     * Gets a bitmap containing an alpha mask containing transparent pixels at the points of
+     * interest for the diff of the given id. The results are only meaningful after the
+     * queued diff has finished.
+     * @param  id The id of the queued diff to query
+     */
+    virtual SkBitmap* getPointsOfInterestAlphaMask(int id) { return NULL; }
 
 
 protected:

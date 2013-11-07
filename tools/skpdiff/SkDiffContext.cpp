@@ -41,6 +41,12 @@ SkDiffContext::~SkDiffContext() {
     }
 }
 
+void SkDiffContext::setDifferenceDir(const SkString& path) {
+    if (!path.isEmpty() && sk_mkdir(path.c_str())) {
+        fDifferenceDir = path;
+    }
+}
+
 void SkDiffContext::setDiffers(const SkTDArray<SkImageDiffer*>& differs) {
     // Delete whatever the last array of differs was
     if (NULL != fDiffers) {
@@ -53,6 +59,23 @@ void SkDiffContext::setDiffers(const SkTDArray<SkImageDiffer*>& differs) {
     fDifferCount = differs.count();
     fDiffers = SkNEW_ARRAY(SkImageDiffer*, fDifferCount);
     differs.copy(fDiffers);
+}
+
+static SkString get_common_prefix(const SkString& a, const SkString& b) {
+    const size_t maxPrefixLength = SkTMin(a.size(), b.size());
+    SkASSERT(maxPrefixLength > 0);
+    for (size_t x = 0; x < maxPrefixLength; ++x) {
+        if (a[x] != b[x]) {
+            SkString result;
+            result.set(a.c_str(), x);
+            return result;
+        }
+    }
+    if (a.size() > b.size()) {
+        return b;
+    } else {
+        return a;
+    }
 }
 
 void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
@@ -75,9 +98,21 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
     newRecord->fNext = fRecords;
     fRecords = newRecord;
 
+    // compute the common name
+    SkString baseName = SkOSPath::SkBasename(baselinePath);
+    SkString testName = SkOSPath::SkBasename(testPath);
+    newRecord->fCommonName = get_common_prefix(baseName, testName);
+
+    bool alphaMaskPending = false;
+    bool alphaMaskCreated = false;
+
     // Perform each diff
     for (int differIndex = 0; differIndex < fDifferCount; differIndex++) {
         SkImageDiffer* differ = fDiffers[differIndex];
+        // TODO only enable for one differ
+        if (!alphaMaskCreated && !fDifferenceDir.isEmpty()) {
+            alphaMaskPending = differ->enablePOIAlphaMask();
+        }
         int diffID = differ->queueDiff(&baselineBitmap, &testBitmap);
         if (diffID >= 0) {
 
@@ -90,6 +125,25 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
             int poiCount = differ->getPointsOfInterestCount(diffID);
             SkIPoint* poi = differ->getPointsOfInterest(diffID);
             diffData.fPointsOfInterest.append(poiCount, poi);
+
+            if (alphaMaskPending
+                    && SkImageDiffer::RESULT_CORRECT != diffData.fResult
+                    && newRecord->fDifferencePath.isEmpty()) {
+                newRecord->fDifferencePath = SkOSPath::SkPathJoin(fDifferenceDir.c_str(),
+                                                                  newRecord->fCommonName.c_str());
+
+                // compute the image diff and output it
+                SkBitmap* alphaMask = differ->getPointsOfInterestAlphaMask(diffID);
+                SkBitmap copy;
+                alphaMask->copyTo(&copy, SkBitmap::kARGB_8888_Config);
+                SkImageEncoder::EncodeFile(newRecord->fDifferencePath.c_str(), copy,
+                                           SkImageEncoder::kPNG_Type, 100);
+            }
+
+            if (alphaMaskPending) {
+                alphaMaskPending = false;
+                alphaMaskCreated = true;
+            }
 
             // Because we are doing everything synchronously for now, we are done with the diff
             // after reading it.
@@ -201,18 +255,8 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
             SkString baselineAbsPath = get_absolute_path(currentRecord->fBaselinePath);
             SkString testAbsPath = get_absolute_path(currentRecord->fTestPath);
 
-            // strip off directory structure and find the common part of the filename
-            SkString baseName = SkOSPath::SkBasename(baselineAbsPath.c_str());
-            SkString testName = SkOSPath::SkBasename(testAbsPath.c_str());
-            for (size_t x = 0; x < baseName.size(); ++x) {
-                if (baseName[x] != testName[x]) {
-                    baseName.insertUnichar(x, '\n');
-                    break;
-                }
-            }
-
             stream.writeText("            \"commonName\": \"");
-            stream.writeText(baseName.c_str());
+            stream.writeText(currentRecord->fCommonName.c_str());
             stream.writeText("\",\n");
 
             stream.writeText("            \"differencePath\": \"");

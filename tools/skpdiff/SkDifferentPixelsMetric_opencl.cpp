@@ -47,6 +47,10 @@ const char* SkDifferentPixelsMetric::getName() {
     return "different_pixels";
 }
 
+bool SkDifferentPixelsMetric::enablePOIAlphaMask() {
+    return false;
+}
+
 int SkDifferentPixelsMetric::queueDiff(SkBitmap* baseline, SkBitmap* test) {
     int diffID = fQueuedDiffs.count();
     double startTime = get_seconds();

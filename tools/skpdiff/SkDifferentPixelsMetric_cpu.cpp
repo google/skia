@@ -16,10 +16,16 @@ struct SkDifferentPixelsMetric::QueuedDiff {
     bool finished;
     double result;
     SkTDArray<SkIPoint>* poi;
+    SkBitmap poiAlphaMask;
 };
 
 const char* SkDifferentPixelsMetric::getName() {
     return "different_pixels";
+}
+
+bool SkDifferentPixelsMetric::enablePOIAlphaMask() {
+    fPOIAlphaMask = true;
+    return true;
 }
 
 int SkDifferentPixelsMetric::queueDiff(SkBitmap* baseline, SkBitmap* test) {
@@ -44,6 +50,14 @@ int SkDifferentPixelsMetric::queueDiff(SkBitmap* baseline, SkBitmap* test) {
     int height = baseline->height();
     int differentPixelsCount = 0;
 
+    // Prepare the POI alpha mask if needed
+    if (fPOIAlphaMask) {
+        diff->poiAlphaMask.setConfig(SkBitmap::kA8_Config, width, height);
+        diff->poiAlphaMask.allocPixels();
+        diff->poiAlphaMask.lockPixels();
+        diff->poiAlphaMask.eraseARGB(SK_AlphaOPAQUE, 0, 0, 0);
+    }
+
     // Prepare the pixels for comparison
     baseline->lockPixels();
     test->lockPixels();
@@ -56,6 +70,9 @@ int SkDifferentPixelsMetric::queueDiff(SkBitmap* baseline, SkBitmap* test) {
             if (std::memcmp(&baselineRow[x * 4], &testRow[x * 4], 4) != 0) {
                 poi->push()->set(x, y);
                 differentPixelsCount++;
+                if (fPOIAlphaMask) {
+                    *diff->poiAlphaMask.getAddr8(x,y) = SK_AlphaTRANSPARENT;
+                }
             }
         }
     }
@@ -92,4 +109,11 @@ int SkDifferentPixelsMetric::getPointsOfInterestCount(int id) {
 
 SkIPoint* SkDifferentPixelsMetric::getPointsOfInterest(int id) {
     return fQueuedDiffs[id].poi->begin();
+}
+
+SkBitmap* SkDifferentPixelsMetric::getPointsOfInterestAlphaMask(int id) {
+    if (fQueuedDiffs[id].poiAlphaMask.empty()) {
+        return NULL;
+    }
+    return &fQueuedDiffs[id].poiAlphaMask;
 }

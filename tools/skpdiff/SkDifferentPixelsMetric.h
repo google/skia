@@ -27,13 +27,17 @@ class SkDifferentPixelsMetric :
     public SkImageDiffer {
 #endif
 public:
+    SkDifferentPixelsMetric() : fPOIAlphaMask(false) {}
+
     virtual const char* getName() SK_OVERRIDE;
+    virtual bool enablePOIAlphaMask() SK_OVERRIDE;
     virtual int queueDiff(SkBitmap* baseline, SkBitmap* test) SK_OVERRIDE;
     virtual void deleteDiff(int id) SK_OVERRIDE;
     virtual bool isFinished(int id) SK_OVERRIDE;
     virtual double getResult(int id) SK_OVERRIDE;
     virtual int getPointsOfInterestCount(int id) SK_OVERRIDE;
     virtual SkIPoint* getPointsOfInterest(int id) SK_OVERRIDE;
+    virtual SkBitmap* getPointsOfInterestAlphaMask(int id) SK_OVERRIDE;
 
 protected:
 #if SK_SUPPORT_OPENCL
@@ -41,8 +45,9 @@ protected:
 #endif
 
 private:
-    struct QueuedDiff;
+    bool fPOIAlphaMask;
 
+    struct QueuedDiff;
     SkTDArray<QueuedDiff> fQueuedDiffs;
 
 #if SK_SUPPORT_OPENCL

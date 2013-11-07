@@ -26,6 +26,12 @@ public:
     void setThreadCount(int threadCount) { fThreadCount = threadCount; }
 
     /**
+     * Creates the directory if it does not exist and uses it to store differences
+     * between images.
+     */
+    void setDifferenceDir(const SkString& directory);
+
+    /**
      * Sets the differs to be used in each diff. Already started diffs will not retroactively use
      * these.
      * @param differs An array of differs to use. The array is copied, but not the differs
@@ -106,6 +112,7 @@ private:
     };
 
     struct DiffRecord {
+        SkString           fCommonName;
         SkString           fDifferencePath;
         SkString           fBaselinePath;
         SkString               fTestPath;
@@ -121,6 +128,8 @@ private:
     SkImageDiffer** fDiffers;
     int fDifferCount;
     int fThreadCount;
+
+    SkString fDifferenceDir;
 };
 
 #endif

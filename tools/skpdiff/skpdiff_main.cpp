@@ -38,6 +38,7 @@ DEFINE_string2(differs, d, "", "The names of the differs to use or all of them b
 DEFINE_string2(folders, f, "", "Compare two folders with identical subfile names: <baseline folder> <test folder>");
 DEFINE_string2(patterns, p, "", "Use two patterns to compare images: <baseline> <test>");
 DEFINE_string2(output, o, "", "Writes the output of these diffs to output: <output>");
+DEFINE_string(alphaDir, "", "Writes the alpha mask of these diffs to output: <output>");
 DEFINE_bool(jsonp, true, "Output JSON with padding");
 DEFINE_string(csv, "", "Writes the output of these diffs to a csv file");
 DEFINE_int32(threads, -1, "run N threads in parallel [default is derived from CPUs available]");
@@ -186,8 +187,19 @@ int tool_main(int argc, char * argv[]) {
         }
     }
 
+    if (!FLAGS_alphaDir.isEmpty()) {
+        if (1 != FLAGS_alphaDir.count()) {
+            SkDebugf("alphaDir flag expects one argument: <directory>\n");
+            return 1;
+        }
+    }
+
     SkDiffContext ctx;
     ctx.setDiffers(chosenDiffers);
+
+    if (!FLAGS_alphaDir.isEmpty()) {
+        ctx.setDifferenceDir(SkString(FLAGS_alphaDir[0]));
+    }
 
     if (FLAGS_threads >= 0) {
         ctx.setThreadCount(FLAGS_threads);
