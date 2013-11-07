@@ -214,7 +214,8 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
 
     // TODO: report correct metrics for innerstyle, where we do not grow the
     // total bounds, but we do need an inset the size of our blur-radius
-    if (SkBlurMaskFilter::kInner_BlurStyle == fBlurStyle) {
+    if (SkBlurMaskFilter::kInner_BlurStyle == fBlurStyle ||
+        SkBlurMaskFilter::kOuter_BlurStyle == fBlurStyle) {
         return kUnimplemented_FilterReturn;
     }
 

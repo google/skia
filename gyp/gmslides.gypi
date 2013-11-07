@@ -9,6 +9,7 @@
     '../gm/arithmode.cpp',
     '../gm/beziereffects.cpp',
     '../gm/bicubicfilter.cpp',
+    '../gm/bigblurs.cpp',
     '../gm/bigmatrix.cpp',
     '../gm/bigtext.cpp',
     '../gm/bitmapalphathreshold.cpp',
