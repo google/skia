@@ -35,6 +35,24 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
     fFilter = false;
     fIndex = 0;
     fUserMatrix.reset();
+
+    // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
+    // operations. This can lead to problems in the debugger which expects all
+    // the operations in the captured skp to appear in the debug canvas. To
+    // circumvent this we create a wide open clip here (an empty clip rect
+    // is not sufficient).
+    // Internally, the SkRect passed to clipRect is converted to an SkIRect and
+    // rounded out. The following code creates a nearly maximal rect that will
+    // not get collapsed by the coming conversions (Due to precision loss the
+    // inset has to be surprisingly large).
+    SkIRect largeIRect = SkIRect::MakeLargest();
+    largeIRect.inset(1024, 1024);
+    SkRect large = SkRect::MakeFromIRect(largeIRect);
+#ifdef SK_DEBUG
+    large.roundOut(&largeIRect);
+    SkASSERT(!largeIRect.isEmpty());
+#endif
+    INHERITED::clipRect(large, SkRegion::kReplace_Op, false);
 }
 
 SkDebugCanvas::~SkDebugCanvas() {
