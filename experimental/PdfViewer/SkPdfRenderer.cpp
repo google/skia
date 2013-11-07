@@ -1782,7 +1782,7 @@ static SkPdfResult PdfOp_TJ(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
             SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity,
                                       "element [i] is null, no element should be null",
                                       array,
-                                      SkPdfNativeObject::_kAnyString_PdfObjectType ||
+                                      SkPdfNativeObject::_kAnyString_PdfObjectType |
                                               SkPdfNativeObject::_kNumber_PdfObjectType,
                                       pdfContext);
         } else if( (*array)[i]->isAnyString()) {
@@ -1805,7 +1805,7 @@ static SkPdfResult PdfOp_TJ(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
             pdfContext->fGraphicsState.fMatrixTm.preConcat(matrix);
         } else {
             SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "wrong type", (*array)[i],
-                                      SkPdfNativeObject::kArray_PdfObjectType ||
+                                      SkPdfNativeObject::kArray_PdfObjectType |
                                               SkPdfNativeObject::_kNumber_PdfObjectType,
                                       pdfContext);
         }
@@ -2521,7 +2521,7 @@ static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
             skpdfGraphicsStateApplyBM_array(pdfContext, gs->getBMAsArray(pdfContext->fPdfDoc));
         } else {
             SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity, "wrong type", gs->get("BM"),
-                                      SkPdfNativeObject::kArray_PdfObjectType ||
+                                      SkPdfNativeObject::kArray_PdfObjectType |
                                               SkPdfNativeObject::kName_PdfObjectType, pdfContext);
         }
     }
@@ -2536,7 +2536,7 @@ static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
             SkPdfReportUnexpectedType(kIgnoreError_SkPdfIssueSeverity,
                                       "wrong type",
                                       gs->get("BM"),
-                                      SkPdfNativeObject::kDictionary_PdfObjectType ||
+                                      SkPdfNativeObject::kDictionary_PdfObjectType |
                                               SkPdfNativeObject::kName_PdfObjectType,
                                               pdfContext);
         }
