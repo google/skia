@@ -19,6 +19,7 @@
     '../bench/ChromeBench.cpp',
     '../bench/CmapBench.cpp',
     '../bench/ColorFilterBench.cpp',
+    '../bench/CoverageBench.cpp',
     '../bench/DashBench.cpp',
     '../bench/DecodeBench.cpp',
     '../bench/DeferredCanvasBench.cpp',

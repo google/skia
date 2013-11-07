@@ -347,3 +347,93 @@ void SkA8_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         alpha += mask.fRowBytes;
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#define SK_A8_COVERAGE_BLIT_SKIP_ZEROS
+
+SkA8_Coverage_Blitter::SkA8_Coverage_Blitter(const SkBitmap& device,
+                             const SkPaint& paint) : SkRasterBlitter(device) {
+    SkASSERT(NULL == paint.getShader());
+    SkASSERT(NULL == paint.getXfermode());
+    SkASSERT(NULL == paint.getColorFilter());
+}
+
+void SkA8_Coverage_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
+                                      const int16_t runs[]) {
+    SkASSERT(0 == x);
+
+    uint8_t* device = fDevice.getAddr8(x, y);
+    SkDEBUGCODE(int totalCount = 0;)
+    
+    for (;;) {
+        int count = runs[0];
+        SkASSERT(count >= 0);
+        if (count == 0) {
+            return;
+        }
+#ifdef SK_A8_COVERAGE_BLIT_SKIP_ZEROS
+        if (antialias[0])
+#endif
+        {
+            memset(device, antialias[0], count);
+        }
+        runs += count;
+        antialias += count;
+        device += count;
+
+        SkDEBUGCODE(totalCount += count;)
+    }
+    SkASSERT(fDevice.width() == totalCount);
+}
+
+void SkA8_Coverage_Blitter::blitH(int x, int y, int width) {
+    memset(fDevice.getAddr8(x, y), 0xFF, width);
+}
+
+void SkA8_Coverage_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
+#ifdef SK_A8_COVERAGE_BLIT_SKIP_ZEROS
+    if (0 == alpha) {
+        return;
+    }
+#endif
+    uint8_t* dst = fDevice.getAddr8(x, y);
+    const size_t dstRB = fDevice.rowBytes();
+    while (--height >= 0) {
+        *dst = alpha;
+        dst += dstRB;
+    }
+}
+
+void SkA8_Coverage_Blitter::blitRect(int x, int y, int width, int height) {
+    uint8_t* dst = fDevice.getAddr8(x, y);
+    const size_t dstRB = fDevice.rowBytes();
+    while (--height >= 0) {
+        memset(dst, 0xFF, width);
+        dst += dstRB;
+    }
+}
+
+void SkA8_Coverage_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
+    SkASSERT(SkMask::kA8_Format == mask.fFormat);
+
+    int x = clip.fLeft;
+    int y = clip.fTop;
+    int width = clip.width();
+    int height = clip.height();
+
+    uint8_t* dst = fDevice.getAddr8(x, y);
+    const uint8_t* src = mask.getAddr8(x, y);
+    const size_t srcRB = mask.fRowBytes;
+    const size_t dstRB = fDevice.rowBytes();
+    
+    while (--height >= 0) {
+        memcpy(dst, src, width);
+        dst += dstRB;
+        src += srcRB;
+    }
+}
+
+const SkBitmap* SkA8_Coverage_Blitter::justAnOpaqueColor(uint32_t*) {
+    return NULL;
+}

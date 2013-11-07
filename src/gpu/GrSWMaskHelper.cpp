@@ -73,16 +73,16 @@ void GrSWMaskHelper::draw(const SkPath& path, const SkStrokeRec& stroke, SkRegio
             paint.setStrokeWidth(stroke.getWidth());
         }
     }
-
-    SkXfermode* mode = SkXfermode::Create(op_to_mode(op));
-
-    paint.setXfermode(mode);
     paint.setAntiAlias(antiAlias);
-    paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
 
-    fDraw.drawPath(path, paint);
-
-    SkSafeUnref(mode);
+    if (SkRegion::kReplace_Op == op && 0xFF == alpha) {
+        SkASSERT(0xFF == paint.getAlpha());
+        fDraw.drawPathCoverage(path, paint);
+    } else {
+        paint.setXfermodeMode(op_to_mode(op));
+        paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
+        fDraw.drawPath(path, paint);
+    }
 }
 
 bool GrSWMaskHelper::init(const SkIRect& resultBounds,
