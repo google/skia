@@ -272,7 +272,7 @@ void GrGLProgram::setColor(const GrDrawState& drawState,
                     // OpenGL ES doesn't support unsigned byte varieties of glUniform
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(color, c);
-                    fUniformManager.set4fv(fUniformHandles.fColorUni, 0, 1, c);
+                    fUniformManager.set4fv(fUniformHandles.fColorUni, 1, c);
                     fColor = color;
                 }
                 sharedState->fConstAttribColorIndex = -1;
@@ -311,7 +311,7 @@ void GrGLProgram::setCoverage(const GrDrawState& drawState,
                     // OpenGL ES doesn't support unsigned byte varieties of glUniform
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(coverage, c);
-                    fUniformManager.set4fv(fUniformHandles.fCoverageUni, 0, 1, c);
+                    fUniformManager.set4fv(fUniformHandles.fCoverageUni, 1, c);
                     fCoverage = coverage;
                 }
                 sharedState->fConstAttribCoverageIndex = -1;

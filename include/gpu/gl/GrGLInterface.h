@@ -252,6 +252,9 @@ public:
     //  the standard function in ES3+ or GL 3.0+.
     GLPtr<GrGLRenderbufferStorageMultisampleProc> fRenderbufferStorageMultisample;
 
+    // Pointer to BindUniformLocationCHROMIUM from the GL_CHROMIUM_bind_uniform_location extension.
+    GLPtr<GrGLBindUniformLocation> fBindUniformLocation;
+
     GLPtr<GrGLResolveMultisampleFramebufferProc> fResolveMultisampleFramebuffer;
     GLPtr<GrGLScissorProc> fScissor;
     GLPtr<GrGLShaderSourceProc> fShaderSource;

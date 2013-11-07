@@ -638,7 +638,7 @@ void GrGLRadial2Gradient::setData(const GrGLUniformManager& uman,
             data.isPosRoot() ? 1.f : -1.f
         };
 
-        uman.set1fv(fParamUni, 0, 6, values);
+        uman.set1fv(fParamUni, 6, values);
         fCachedCenter = centerX1;
         fCachedRadius = radius0;
         fCachedPosRoot = data.isPosRoot();

@@ -434,7 +434,7 @@ void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman,
         default:
             GrCrash("Unknown filter direction.");
     }
-    uman.set2fv(fImageIncrementUni, 0, 1, imageIncrement);
+    uman.set2fv(fImageIncrementUni, 1, imageIncrement);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

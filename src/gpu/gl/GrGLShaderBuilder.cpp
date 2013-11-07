@@ -588,6 +588,9 @@ bool GrGLShaderBuilder::finish(GrGLuint* outProgramId) {
     }
 
     this->bindProgramLocations(programId);
+    if (fUniformManager.isUsingBindUniform()) {
+      fUniformManager.getUniformLocations(programId, fUniforms);
+    }
 
     GL_CALL(LinkProgram(programId));
 
@@ -619,7 +622,9 @@ bool GrGLShaderBuilder::finish(GrGLuint* outProgramId) {
         }
     }
 
-    fUniformManager.getUniformLocations(programId, fUniforms);
+    if (!fUniformManager.isUsingBindUniform()) {
+      fUniformManager.getUniformLocations(programId, fUniforms);
+    }
     *outProgramId = programId;
     return true;
 }

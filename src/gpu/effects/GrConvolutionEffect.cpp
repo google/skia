@@ -120,7 +120,7 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,
         default:
             GrCrash("Unknown filter direction.");
     }
-    uman.set2fv(fImageIncrementUni, 0, 1, imageIncrement);
+    uman.set2fv(fImageIncrementUni, 1, imageIncrement);
     if (conv.useBounds()) {
         const float* bounds = conv.bounds();
         if (Gr1DKernelEffect::kY_Direction == conv.direction() &&
@@ -130,7 +130,7 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,
             uman.set2f(fBoundsUni, bounds[0], bounds[1]);
         }
     }
-    uman.set1fv(fKernelUni, 0, this->width(), conv.kernel());
+    uman.set1fv(fKernelUni, this->width(), conv.kernel());
 }
 
 GrGLEffect::EffectKey GrGLConvolutionEffect::GenKey(const GrDrawEffect& drawEffect,

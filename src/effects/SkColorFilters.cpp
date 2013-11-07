@@ -260,7 +260,7 @@ public:
                 const ModeColorFilterEffect& colorModeFilter = drawEffect.castEffect<ModeColorFilterEffect>();
                 GrGLfloat c[4];
                 GrColorToRGBAFloat(colorModeFilter.color(), c);
-                uman.set4fv(fFilterColorUni, 0, 1, c);
+                uman.set4fv(fFilterColorUni, 1, c);
             }
         }
 

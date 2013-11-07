@@ -95,7 +95,7 @@ void GrGLBicubicEffect::setData(const GrGLUniformManager& uman,
     float imageIncrement[2];
     imageIncrement[0] = 1.0f / texture.width();
     imageIncrement[1] = 1.0f / texture.height();
-    uman.set2fv(fImageIncrementUni, 0, 1, imageIncrement);
+    uman.set2fv(fImageIncrementUni, 1, imageIncrement);
     uman.setMatrix4f(fCoefficientsUni, effect.coefficients());
 }
 

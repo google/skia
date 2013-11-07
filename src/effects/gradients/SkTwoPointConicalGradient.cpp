@@ -655,7 +655,7 @@ void GrGLConical2Gradient::setData(const GrGLUniformManager& uman,
             SkScalarToFloat(diffRadius)
         };
 
-        uman.set1fv(fParamUni, 0, 6, values);
+        uman.set1fv(fParamUni, 6, values);
         fCachedCenter = centerX1;
         fCachedRadius = radius0;
         fCachedDiffRadius = diffRadius;
