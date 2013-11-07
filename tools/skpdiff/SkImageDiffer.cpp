@@ -11,6 +11,8 @@
 #include "SkImageDiffer.h"
 #include "skpdiff_util.h"
 
+const double SkImageDiffer::RESULT_CORRECT = 1.0f;
+const double SkImageDiffer::RESULT_INCORRECT = 0.0f;
 
 SkImageDiffer::SkImageDiffer()
     : fIsGood(true) {

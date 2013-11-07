@@ -19,8 +19,8 @@ public:
     SkImageDiffer();
     virtual ~SkImageDiffer();
 
-    static const double RESULT_CORRECT = 1.0f;
-    static const double RESULT_INCORRECT = 0.0f;
+    static const double RESULT_CORRECT;
+    static const double RESULT_INCORRECT;
 
     /**
      * Gets a unique and descriptive name of this differ
