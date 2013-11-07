@@ -396,10 +396,10 @@ public:
     /**
      *  Draw the rect using a paint.
      *  @param paint        describes how to color pixels.
-     *  @param stroke       the stroke information (width, join, cap). 
-     *                      If stroke == NULL, then the rect is filled. 
+     *  @param stroke       the stroke information (width, join, cap).
+     *                      If stroke == NULL, then the rect is filled.
      *                      Otherwise, if stroke width == 0, then the stroke
-     *                      is always a single pixel thick, else the rect is 
+     *                      is always a single pixel thick, else the rect is
      *                      mitered/beveled stroked based on stroke width.
      *  @param matrix       Optional matrix applied to the rect. Applied before
      *                      context's matrix or the paint's matrix.

@@ -96,4 +96,3 @@ private:
 };
 
 #endif  // SkLazyCachingPixelRef_DEFINED
-

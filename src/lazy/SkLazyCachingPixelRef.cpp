@@ -59,4 +59,3 @@ bool SkLazyCachingPixelRef::Install(SkBitmapFactory::DecodeProc proc,
         SkNEW_ARGS(SkLazyCachingPixelRef, (data, proc)));
     return ref->configure(destination) && destination->setPixelRef(ref);
 }
-

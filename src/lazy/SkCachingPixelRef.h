@@ -78,4 +78,3 @@ private:
 };
 
 #endif  // SkCachingPixelRef_DEFINED
-

@@ -109,4 +109,3 @@ bool SkCachingPixelRef::onDecodeInto(int pow2, SkBitmap* bitmap) {
     *bitmap = tmp;
     return true;
 }
-

@@ -368,7 +368,7 @@ static const uint16_t gMiterStrokeAARectIdx[] = {
  * Following comes a bevel-stroke rect and its indices:
  *
  *           4                                 7
- *            ********************************* 
+ *            *********************************
  *          *   ______________________________  *
  *         *  / 12                          15 \  *
  *        *  /                                  \  *
@@ -381,10 +381,10 @@ static const uint16_t gMiterStrokeAARectIdx[] = {
  *       *  |       |  ****************  |       |  *
  *       *  |       |____________________|       |  *
  *     1 *  |9    17                      18   10|  * 2
- *        *  \                                  /  * 
+ *        *  \                                  /  *
  *         *  \13 __________________________14/  *
  *          *                                   *
- *           ********************************** 
+ *           **********************************
  *          5                                  6
  */
 static const uint16_t gBevelStrokeAARectIdx[] = {
@@ -782,7 +782,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
 
     // For bevel-stroke, use 2 SkRect instances(devOutside and devOutsideAssist)
     // to draw the outer of the rect. Because there are 8 vertices on the outer
-    // edge, while vertex number of inner edge is 4, the same as miter-stroke. 
+    // edge, while vertex number of inner edge is 4, the same as miter-stroke.
     if (!miterStroke) {
         devOutside.inset(0, ry);
         devOutsideAssist.outset(0, ry);
