@@ -6742,12 +6742,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5896555337922724837
+          12284076178750590500
         ]
       ], 
       "bugs": [
-        1759
+        1814
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "selftest1_565.png": {
