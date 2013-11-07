@@ -909,7 +909,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
     // if hairline stroke is greater than radius, we don't handle that right now
     SkStrokeRec::Style style = stroke.getStyle();
     if (SkStrokeRec::kHairline_Style == style &&
-        (SK_ScalarHalf >= xRadius || SK_ScalarHalf >= yRadius)) {
+        (SK_ScalarHalf > xRadius || SK_ScalarHalf > yRadius)) {
         return false;
     }
 
@@ -920,7 +920,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
     scaledStroke.fY = SkScalarAbs(strokeWidth*(vm[SkMatrix::kMSkewX] + vm[SkMatrix::kMScaleY]));
 
     // if half of strokewidth is greater than radius, we don't handle that right now
-    if (SK_ScalarHalf*scaledStroke.fX >= xRadius || SK_ScalarHalf*scaledStroke.fY >= yRadius) {
+    if (SK_ScalarHalf*scaledStroke.fX > xRadius || SK_ScalarHalf*scaledStroke.fY > yRadius) {
         return false;
     }
 
@@ -968,7 +968,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
             bounds.outset(halfWidth, halfWidth);
         }
 
-        isStroked = (isStroked && innerRadius > 0);
+        isStroked = (isStroked && innerRadius >= 0);
 
         GrEffectRef* effect = CircleEdgeEffect::Create(isStroked);
         static const int kCircleEdgeAttrIndex = 1;
@@ -1064,7 +1064,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
             bounds.outset(scaledStroke.fX, scaledStroke.fY);
         }
 
-        isStroked = (isStroked && innerXRadius > 0 && innerYRadius > 0);
+        isStroked = (isStroked && innerXRadius >= 0 && innerYRadius >= 0);
 
         GrDrawTarget::AutoReleaseGeometry geo(target, 16, 0);
         if (!geo.succeeded()) {
