@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#ifdef PDF_REPORT
 
 #include "SkPdfReporter.h"
 
@@ -33,7 +34,6 @@ const char* getSeverityName(SkPdfIssueSeverity sev) {
 //                content, with tooltips where warnings/errors were reported.
 
 
-#ifdef PDF_REPORT
 void SkPdfReport(SkPdfIssueSeverity sev, SkPdfIssue issue,
                  const char* context,
                  const SkPdfNativeObject* obj,
