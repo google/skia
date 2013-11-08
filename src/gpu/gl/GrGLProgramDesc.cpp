@@ -156,7 +156,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         header->fHasVertexCode = true;
     }
 
-    bool covIsSolidWhite = !requiresCoverageAttrib && 0xffffffff == drawState.getCoverageColor();
+    bool covIsSolidWhite = !requiresCoverageAttrib && 0xffffffff == drawState.getCoverage();
 
     if (skipCoverage) {
         header->fCoverageInput = kTransBlack_ColorInput;

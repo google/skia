@@ -207,10 +207,10 @@ void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
         coverage = 0;
     } else if (blendOpts & GrDrawState::kEmitCoverage_BlendOptFlag) {
         color = 0xffffffff;
-        coverage = drawState.getCoverageColor();
+        coverage = drawState.getCoverage();
     } else {
         color = drawState.getColor();
-        coverage = drawState.getCoverageColor();
+        coverage = drawState.getCoverage();
     }
 
     this->setColor(drawState, color, sharedState);

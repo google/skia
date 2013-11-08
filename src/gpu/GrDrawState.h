@@ -311,11 +311,15 @@ public:
         fCommon.fCoverage = GrColorPackRGBA(coverage, coverage, coverage, coverage);
     }
 
-    uint8_t getCoverage() const {
-        return GrColorUnpackR(fCommon.fCoverage);
+    /**
+     * Version of above that specifies 4 channel per-vertex color. The value
+     * should be premultiplied.
+     */
+    void setCoverage4(GrColor coverage) {
+        fCommon.fCoverage = coverage;
     }
 
-    GrColor getCoverageColor() const {
+    GrColor getCoverage() const {
         return fCommon.fCoverage;
     }
 
