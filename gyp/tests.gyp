@@ -74,6 +74,7 @@
         '../tests/GpuColorFilterTest.cpp',
         '../tests/GpuDrawPathTest.cpp',
         '../tests/GrContextFactoryTest.cpp',
+        '../tests/GrDrawTargetTest.cpp',
         '../tests/GradientTest.cpp',
         '../tests/GrMemoryPoolTest.cpp',
         '../tests/GrSurfaceTest.cpp',
