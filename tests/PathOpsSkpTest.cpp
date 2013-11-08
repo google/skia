@@ -1549,10 +1549,59 @@ static void skpgithub_io_26(skiatest::Reporter* reporter) {
     testPathOp(reporter, path, pathB, kIntersect_PathOp);
 }
 
+static void skpskpicture14(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 994);
+    path.lineTo(0, 0);
+    path.lineTo(512, 0);
+    path.lineTo(512, 994);
+    path.lineTo(0, 994);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(-317, 168);
+    pathB.quadTo(-317, 166.757385f, -316.121338f, 165.878662f);
+    pathB.quadTo(-315.242645f, 165, -314, 165);
+    pathB.lineTo(320, 165);
+    pathB.quadTo(321.242615f, 165, 322.121338f, 165.878662f);
+    pathB.quadTo(323, 166.757385f, 323, 168);
+    pathB.lineTo(323, 193);
+    pathB.lineTo(-317, 193);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+}
+
+static void skpskpicture15(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(0, 193);
+    path.lineTo(323, 193);
+    path.lineTo(323, 168);
+    path.quadTo(323, 166.757385f, 322.121338f, 165.878662f);
+    path.quadTo(321.242615f, 165, 320, 165);
+    path.lineTo(0, 165);
+    path.lineTo(0, 193);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kInverseWinding_FillType);
+    pathB.moveTo(-314, 165);
+    pathB.lineTo(320, 165);
+    pathB.cubicTo(321.65686f, 165, 323, 166.34314f, 323, 168);
+    pathB.lineTo(323, 192);
+    pathB.lineTo(-317, 192);
+    pathB.lineTo(-317, 168);
+    pathB.cubicTo(-317, 166.34314f, -315.65686f, 165, -314, 165);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+}
+
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(skpskpicture14),
 #if TRY_SEPT_BROKEN_TESTS
+    TEST(skpskpicture15),
     TEST(skpwww_meb_gov_tr_6),
     TEST(skpwww_sciality_com_101),
     TEST(skpwww_booking_com_68),  // similar to lavoixdunord

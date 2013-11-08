@@ -228,7 +228,9 @@ int SkIntersections::horizontal(const SkDLine& line, double left, double right,
                     fT[1][index] = 1 - fT[1][index];
                 }
             }
-            computePoints(line, result);
+            fPt[0].fX = xIntercept;
+            fPt[0].fY = y;
+            fUsed = 1;
         }
     }
     if (fAllowNear || result == 2) {
@@ -314,7 +316,9 @@ int SkIntersections::vertical(const SkDLine& line, double top, double bottom,
                     fT[1][index] = 1 - fT[1][index];
                 }
             }
-            computePoints(line, result);
+            fPt[0].fX = x;
+            fPt[0].fY = yIntercept;
+            fUsed = 1;
         }
     }
     if (fAllowNear || result == 2) {
