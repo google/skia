@@ -365,7 +365,7 @@ void SkA8_Coverage_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
 
     uint8_t* device = fDevice.getAddr8(x, y);
     SkDEBUGCODE(int totalCount = 0;)
-    
+
     for (;;) {
         int count = runs[0];
         SkASSERT(count >= 0);
@@ -426,7 +426,7 @@ void SkA8_Coverage_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     const uint8_t* src = mask.getAddr8(x, y);
     const size_t srcRB = mask.fRowBytes;
     const size_t dstRB = fDevice.rowBytes();
-    
+
     while (--height >= 0) {
         memcpy(dst, src, width);
         dst += dstRB;

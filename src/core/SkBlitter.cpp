@@ -942,7 +942,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         return blitter;
     }
 
-    
+
     switch (device.config()) {
         case SkBitmap::kA1_Config:
             SK_PLACEMENT_NEW_ARGS(blitter, SkA1_Blitter,

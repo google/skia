@@ -509,4 +509,3 @@ void platformConvolutionProcs_arm_neon(SkConvolutionProcs* procs) {
     procs->fConvolveHorizontally = &convolveHorizontally_neon;
     procs->fApplySIMDPadding = &applySIMDPadding_neon;
 }
-

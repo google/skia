@@ -43,12 +43,12 @@ public:
         fDraw.fClip     = &fRC.bwRgn();
         fDraw.fRC       = &fRC;
     }
-    
+
 protected:
     virtual const char* onGetName() SK_OVERRIDE {
         return fName.c_str();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         if (fDrawCoverage) {
             for (int i = 0; i < this->getLoops(); ++i) {
@@ -60,7 +60,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };

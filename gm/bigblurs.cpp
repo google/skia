@@ -14,7 +14,7 @@ namespace skiagm {
 
 // This GM exercises the blurred rect nine-patching special cases when the
 // blurred rect is very large and/or very far from the origin.
-// It creates a large blurred rect/rectori then renders the 4 corners and the 
+// It creates a large blurred rect/rectori then renders the 4 corners and the
 // middle.
 class BigBlursGM : public GM {
 public:
@@ -70,21 +70,21 @@ protected:
 
         for (int i = 0; i < 2; ++i) {
             for (int j = 0; j < SkBlurMaskFilter::kBlurStyleCount; ++j) {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create((SkBlurMaskFilter::BlurStyle)j, 
+                SkMaskFilter* mf = SkBlurMaskFilter::Create((SkBlurMaskFilter::BlurStyle)j,
                                                             kSigma);
                 blurPaint.setMaskFilter(mf)->unref();
 
                 for (int k = 0; k < (int)SK_ARRAY_COUNT(origins); ++k) {
                     canvas->save();
 
-                    SkRect clipRect = SkRect::MakeXYWH(SkIntToScalar(desiredX), 
+                    SkRect clipRect = SkRect::MakeXYWH(SkIntToScalar(desiredX),
                                                        SkIntToScalar(desiredY),
-                                                       SkIntToScalar(kCloseUpSize), 
+                                                       SkIntToScalar(kCloseUpSize),
                                                        SkIntToScalar(kCloseUpSize));
 
                     canvas->clipRect(clipRect, SkRegion::kReplace_Op, false);
 
-                    canvas->translate(desiredX-origins[k].fX, 
+                    canvas->translate(desiredX-origins[k].fX,
                                       desiredY-origins[k].fY);
 
                     if (0 == i) {
