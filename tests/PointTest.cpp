@@ -117,7 +117,8 @@ static void test_underflow(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, pt == copy);  // pt is unchanged
 }
 
-static void PointTest(skiatest::Reporter* reporter) {
+#include "TestClassDef.h"
+DEF_TEST(Point, reporter) {
     test_casts(reporter);
 
     static const struct {
@@ -137,5 +138,22 @@ static void PointTest(skiatest::Reporter* reporter) {
     test_overflow(reporter);
 }
 
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Point", PointTestClass, PointTest)
+DEF_TEST(Point_setLengthFast, reporter) {
+    // Scale a (1,1) point to a bunch of different lengths,
+    // making sure the slow and fast paths are within 0.1%.
+    const float tests[] = { 1.0f, 0.0f, 1.0e-37f, 3.4e38f, 42.0f, 0.00012f };
+
+    const SkPoint kOne = {1.0f, 1.0f};
+    for (unsigned i = 0; i < SK_ARRAY_COUNT(tests); i++) {
+        SkPoint slow = kOne, fast = kOne;
+
+        slow.setLength(tests[i]);
+        fast.setLengthFast(tests[i]);
+
+        if (slow.length() < FLT_MIN && fast.length() < FLT_MIN) continue;
+
+        SkScalar ratio = slow.length() / fast.length();
+        REPORTER_ASSERT(reporter, ratio > 0.999f);
+        REPORTER_ASSERT(reporter, ratio < 1.001f);
+    }
+}

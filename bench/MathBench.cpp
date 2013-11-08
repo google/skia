@@ -92,6 +92,22 @@ private:
     typedef MathBench INHERITED;
 };
 
+class SkRSqrtMathBench : public MathBench {
+public:
+    SkRSqrtMathBench() : INHERITED("sk_float_rsqrt") {}
+protected:
+    virtual void performTest(float* SK_RESTRICT dst,
+                              const float* SK_RESTRICT src,
+                              int count) {
+        for (int i = 0; i < count; ++i) {
+            dst[i] = sk_float_rsqrt(src[i]);
+        }
+    }
+private:
+    typedef MathBench INHERITED;
+};
+
+
 class SlowISqrtMathBench : public MathBench {
 public:
     SlowISqrtMathBench() : INHERITED("slowIsqrt") {}
@@ -550,6 +566,7 @@ DEF_BENCH(return new DivModBench<int64_t>("int64_t"))
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_BENCH( return new NoOpMathBench(); )
+DEF_BENCH( return new SkRSqrtMathBench(); )
 DEF_BENCH( return new SlowISqrtMathBench(); )
 DEF_BENCH( return new FastISqrtMathBench(); )
 DEF_BENCH( return new QMul64Bench(); )
