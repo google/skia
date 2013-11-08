@@ -14,6 +14,7 @@
 #include "SkPathEffect.h"
 #include "SkRandom.h"
 #include "SkReader32.h"
+#include "SkRRect.h"
 #include "SkSize.h"
 #include "SkSurface.h"
 #include "SkTypes.h"
@@ -2572,6 +2573,33 @@ static void test_empty(skiatest::Reporter* reporter, const SkPath& p) {
     REPORTER_ASSERT(reporter, !(p != empty));
 }
 
+static void test_rrect_is_convex(skiatest::Reporter* reporter, SkPath* path) {
+    REPORTER_ASSERT(reporter, path->isConvex());
+    path->setConvexity(SkPath::kUnknown_Convexity);
+    REPORTER_ASSERT(reporter, path->isConvex());
+    path->reset();
+}
+
+static void test_rrect(skiatest::Reporter* reporter) {
+    SkPath p;
+    SkRRect rr;
+    SkVector radii[] = {{1, 2}, {3, 4}, {5, 6}, {7, 8}};
+    SkRect r = {10, 20, 30, 40};
+    rr.setRectRadii(r, radii);
+    p.addRRect(rr);
+    test_rrect_is_convex(reporter, &p);
+    p.addRRect(rr, SkPath::kCCW_Direction);
+    test_rrect_is_convex(reporter, &p);
+    p.addRoundRect(r, &radii[0].fX);
+    test_rrect_is_convex(reporter, &p);
+    p.addRoundRect(r, &radii[0].fX, SkPath::kCCW_Direction);
+    test_rrect_is_convex(reporter, &p);
+    p.addRoundRect(r, radii[1].fX, radii[1].fY);
+    test_rrect_is_convex(reporter, &p);
+    p.addRoundRect(r, radii[1].fX, radii[1].fY, SkPath::kCCW_Direction);
+    test_rrect_is_convex(reporter, &p);
+}
+
 static void TestPath(skiatest::Reporter* reporter) {
     SkTSize<SkScalar>::Make(3,4);
 
@@ -2673,6 +2701,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_gen_id(reporter);
     test_path_close_issue1474(reporter);
     test_path_to_region(reporter);
+    test_rrect(reporter);
 }
 
 #include "TestClassDef.h"
