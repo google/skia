@@ -63,14 +63,5 @@ simpleaaclip_path
 strokerect
 strokes_round
 
-# Added by senorblanco in https://codereview.chromium.org/57513002
-testimagefilters
-spritebitmap
-imagefiltersgraph
-imagefilterscropped
-imagefiltersbase
-imageblur
-colorfilterimagefilter
-
 # Added by sugoi in https://codereview.chromium.org/59173005
 perlinnoise
