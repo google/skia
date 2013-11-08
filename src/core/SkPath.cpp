@@ -1017,10 +1017,12 @@ static void add_corner_quads(SkPath* path, const SkRRect& rrect,
     SkScalar ry = radii.fY;
     // The mid point of the quadratic arc approximation is half way between the two
     // control points.
-    SkScalar midPtX = rx - rx * (SK_Scalar1 + SK_ScalarTanPIOver8) / 2;
-    SkScalar midPtY = ry - ry * (SK_Scalar1 + SK_ScalarTanPIOver8) / 2;
-    SkScalar offPtX = rx - rx * SK_ScalarTanPIOver8;
-    SkScalar offPtY = ry - ry * SK_ScalarTanPIOver8;
+    const SkScalar mid = 1 - (SK_Scalar1 + SK_ScalarTanPIOver8) / 2;
+    SkScalar midPtX = rx * mid;
+    SkScalar midPtY = ry * mid;
+    const SkScalar control = 1 - SK_ScalarTanPIOver8;
+    SkScalar offPtX = rx * control;
+    SkScalar offPtY = ry * control;
     static const int kCornerPts = 5;
     SkScalar xOff[kCornerPts];
     SkScalar yOff[kCornerPts];
