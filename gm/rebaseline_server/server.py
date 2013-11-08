@@ -124,8 +124,8 @@ class Server(object):
     """ Create or update self.results, based on the expectations in
     self._expectations_dir and the latest actuals from skia-autogen.
     """
-    with self.results_lock:
-      # self.results_lock prevents us from updating the actual GM results
+    with self._svn_update_lock:
+      # self._svn_update_lock prevents us from updating the actual GM results
       # in multiple threads simultaneously
       logging.info('Updating actual GM results in %s from SVN repo %s ...' % (
           self._actuals_dir, ACTUALS_SVN_REPO))
@@ -135,12 +135,11 @@ class Server(object):
         actuals_repo.Checkout(ACTUALS_SVN_REPO, '.')
       else:
         actuals_repo.Update('.')
-
       # We only update the expectations dir if the server was run with a
       # nonzero --reload argument; otherwise, we expect the user to maintain
       # her own expectations as she sees fit.
       #
-      # self.results_lock prevents us from updating the expected GM results
+      # self._svn_update_lock prevents us from updating the expected GM results
       # in multiple threads simultaneously
       #
       # TODO(epoger): Use git instead of svn to check out expectations, since
@@ -155,15 +154,21 @@ class Server(object):
           expectations_repo.Checkout(EXPECTATIONS_SVN_REPO, '.')
         else:
           expectations_repo.Update('.')
+      # end of "with self._svn_update_lock:"
 
-      logging.info(
+    logging.info(
           ('Parsing results from actuals in %s and expectations in %s, '
           + 'and generating pixel diffs (may take a while) ...') % (
           self._actuals_dir, self._expectations_dir))
-      self.results = results.Results(
+    new_results = results.Results(
         actuals_root=self._actuals_dir,
         expected_root=self._expectations_dir,
         generated_images_root=GENERATED_IMAGES_ROOT)
+
+    # Make sure we don't update self.results while a client is in the middle
+    # of reading from it.
+    with self.results_lock:
+      self.results = new_results
 
   def _result_reloader(self):
     """ If --reload argument was specified, reload results at the appropriate
@@ -175,6 +180,7 @@ class Server(object):
 
   def run(self):
     self.results_lock = thread.allocate_lock()
+    self._svn_update_lock = thread.allocate_lock()
     self.update_results()
     thread.start_new_thread(self._result_reloader, ())
 
@@ -189,7 +195,8 @@ class Server(object):
       host = '127.0.0.1'
       server_address = (host, self._port)
     http_server = BaseHTTPServer.HTTPServer(server_address, HTTPRequestHandler)
-    logging.info('Ready for requests on http://%s:%d' % (host, http_server.server_port))
+    logging.info('Ready for requests on http://%s:%d' % (
+        host, http_server.server_port))
     http_server.serve_forever()
 
 
