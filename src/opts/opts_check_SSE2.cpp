@@ -12,6 +12,7 @@
 #include "SkBlitRow.h"
 #include "SkBlitRect_opts_SSE2.h"
 #include "SkBlitRow_opts_SSE2.h"
+#include "SkBlurImage_opts_SSE2.h"
 #include "SkUtils_opts_SSE2.h"
 #include "SkUtils.h"
 #include "SkMorphology_opts.h"
@@ -266,6 +267,19 @@ SkMorphologyProc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {
         default:
             return NULL;
     }
+}
+
+bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
+                               SkBoxBlurProc* boxBlurY,
+                               SkBoxBlurProc* boxBlurXY) {
+#ifdef SK_DISABLE_BLUR_DIVISION_OPTIMIZATION
+    return false;
+#else
+    if (!cachedHasSSE2()) {
+        return false;
+    }
+    return SkBoxBlurGetPlatformProcs_SSE2(boxBlurX, boxBlurY, boxBlurXY);
+#endif
 }
 
 SkBlitRow::ColorRectProc PlatformColorRectProcFactory(); // suppress warning

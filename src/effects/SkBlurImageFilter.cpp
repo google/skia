@@ -10,6 +10,7 @@
 #include "SkColorPriv.h"
 #include "SkFlattenableBuffers.h"
 #include "SkGpuBlurUtils.h"
+#include "SkBlurImage_opts.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
 #include "SkImageFilterUtils.h"
@@ -125,26 +126,6 @@ static void boxBlur(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
     }
 }
 
-static void boxBlurX(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSize,
-                     int leftOffset, int rightOffset, int width, int height)
-{
-    boxBlur<kX, kX>(src, srcStride, dst, kernelSize, leftOffset, rightOffset, width, height);
-}
-
-#ifndef SK_DISABLE_BLUR_DIVISION_OPTIMIZATION
-static void boxBlurXY(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSize,
-                              int leftOffset, int rightOffset, int width, int height)
-{
-    boxBlur<kX, kY>(src, srcStride, dst, kernelSize, leftOffset, rightOffset, width, height);
-}
-#endif
-
-static void boxBlurY(const SkPMColor* src, int srcStride, SkPMColor* dst, int kernelSize,
-                     int topOffset, int bottomOffset, int width, int height)
-{
-    boxBlur<kY, kY>(src, srcStride, dst, kernelSize, topOffset, bottomOffset, width, height);
-}
-
 static void getBox3Params(SkScalar s, int *kernelSize, int* kernelSize3, int *lowOffset,
                           int *highOffset)
 {
@@ -212,6 +193,13 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     SkPMColor* d = dst->getAddr32(0, 0);
     int w = dstBounds.width(), h = dstBounds.height();
     int sw = src.rowBytesAsPixels();
+    SkBoxBlurProc boxBlurX, boxBlurY, boxBlurXY;
+    if (!SkBoxBlurGetPlatformProcs(&boxBlurX, &boxBlurY, &boxBlurXY)) {
+        boxBlurX = boxBlur<kX, kX>;
+        boxBlurY = boxBlur<kY, kY>;
+        boxBlurXY = boxBlur<kX, kY>;
+    }
+
     if (kernelSizeX > 0 && kernelSizeY > 0) {
 #ifndef SK_DISABLE_BLUR_DIVISION_OPTIMIZATION
         boxBlurX(s,  sw, t, kernelSizeX,  lowOffsetX,  highOffsetX, w, h);

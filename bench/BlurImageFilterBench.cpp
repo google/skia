@@ -84,6 +84,10 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_LARGE, 0, false);)
+DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_SMALL, 0, false);)
+DEF_BENCH(return new BlurImageFilterBench(0, BLUR_SIGMA_LARGE, false);)
+DEF_BENCH(return new BlurImageFilterBench(0, BLUR_SIGMA_SMALL, false);)
 DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_SMALL, BLUR_SIGMA_SMALL, true);)
 DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_SMALL, BLUR_SIGMA_SMALL, false);)
 DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_LARGE, BLUR_SIGMA_LARGE, true);)
