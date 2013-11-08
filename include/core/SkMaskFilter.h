@@ -21,6 +21,7 @@ class SkBounder;
 class SkMatrix;
 class SkPath;
 class SkRasterClip;
+class SkRRect;
 
 /** \class SkMaskFilter
 
@@ -162,6 +163,12 @@ protected:
                                            const SkMatrix&,
                                            const SkIRect& clipBounds,
                                            NinePatch*) const;
+    /**
+     *  Similar to filterRectsToNine, except it performs the work on a round rect.
+     */
+    virtual FilterReturn filterRRectToNine(const SkRRect&, const SkMatrix&,
+                                           const SkIRect& clipBounds,
+                                           NinePatch*) const;
 
 private:
     friend class SkDraw;
@@ -174,6 +181,14 @@ private:
     bool filterPath(const SkPath& devPath, const SkMatrix& devMatrix,
                     const SkRasterClip&, SkBounder*, SkBlitter* blitter,
                     SkPaint::Style style) const;
+
+    /** Helper method that, given a roundRect in device space, will rasterize it into a kA8_Format
+     mask and then call filterMask(). If this returns true, the specified blitter will be called
+     to render that mask. Returns false if filterMask() returned false.
+     */
+    bool filterRRect(const SkRRect& devRRect, const SkMatrix& devMatrix,
+                     const SkRasterClip&, SkBounder*, SkBlitter* blitter,
+                     SkPaint::Style style) const;
 
     typedef SkFlattenable INHERITED;
 };

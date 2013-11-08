@@ -11,6 +11,7 @@
 #include "SkGpuBlurUtils.h"
 #include "SkFlattenableBuffers.h"
 #include "SkMaskFilter.h"
+#include "SkRRect.h"
 #include "SkRTConf.h"
 #include "SkStringUtils.h"
 #include "SkStrokeRec.h"
@@ -49,6 +50,10 @@ public:
 
 protected:
     virtual FilterReturn filterRectsToNine(const SkRect[], int count, const SkMatrix&,
+                                           const SkIRect& clipBounds,
+                                           NinePatch*) const SK_OVERRIDE;
+
+    virtual FilterReturn filterRRectToNine(const SkRRect&, const SkMatrix&,
                                            const SkIRect& clipBounds,
                                            NinePatch*) const SK_OVERRIDE;
 
@@ -155,16 +160,50 @@ bool SkBlurMaskFilterImpl::filterRectMask(SkMask* dst, const SkRect& r,
 
 #include "SkCanvas.h"
 
-static bool drawRectsIntoMask(const SkRect rects[], int count, SkMask* mask) {
-    rects[0].roundOut(&mask->fBounds);
+static bool prepare_to_draw_into_mask(const SkRect& bounds, SkMask* mask) {
+    SkASSERT(mask != NULL);
+
+    bounds.roundOut(&mask->fBounds);
     mask->fRowBytes = SkAlign4(mask->fBounds.width());
     mask->fFormat = SkMask::kA8_Format;
-    size_t size = mask->computeImageSize();
+    const size_t size = mask->computeImageSize();
     mask->fImage = SkMask::AllocImage(size);
     if (NULL == mask->fImage) {
         return false;
     }
+
+    // FIXME: use sk_calloc in AllocImage?
     sk_bzero(mask->fImage, size);
+    return true;
+}
+
+static bool draw_rrect_into_mask(const SkRRect rrect, SkMask* mask) {
+    if (!prepare_to_draw_into_mask(rrect.rect(), mask)) {
+        return false;
+    }
+
+    // FIXME: This code duplicates code in draw_rects_into_mask, below. Is there a
+    // clean way to share more code?
+    SkBitmap bitmap;
+    bitmap.setConfig(SkBitmap::kA8_Config,
+                     mask->fBounds.width(), mask->fBounds.height(),
+                     mask->fRowBytes);
+    bitmap.setPixels(mask->fImage);
+
+    SkCanvas canvas(bitmap);
+    canvas.translate(-SkIntToScalar(mask->fBounds.left()),
+                     -SkIntToScalar(mask->fBounds.top()));
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas.drawRRect(rrect, paint);
+    return true;
+}
+
+static bool draw_rects_into_mask(const SkRect rects[], int count, SkMask* mask) {
+    if (!prepare_to_draw_into_mask(rects[0], mask)) {
+        return false;
+    }
 
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kA8_Config,
@@ -195,6 +234,114 @@ static bool drawRectsIntoMask(const SkRect rects[], int count, SkMask* mask) {
 static bool rect_exceeds(const SkRect& r, SkScalar v) {
     return r.fLeft < -v || r.fTop < -v || r.fRight > v || r.fBottom > v ||
            r.width() > v || r.height() > v;
+}
+
+SkMaskFilter::FilterReturn
+SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& matrix,
+                                        const SkIRect& clipBounds,
+                                        NinePatch* patch) const {
+    SkASSERT(patch != NULL);
+    switch (rrect.getType()) {
+        case SkRRect::kUnknown_Type:
+            // Unknown should never be returned.
+            SkASSERT(false);
+            // Fall through.
+        case SkRRect::kEmpty_Type:
+            // Nothing to draw.
+            return kFalse_FilterReturn;
+
+        case SkRRect::kRect_Type:
+            // We should have caught this earlier.
+            SkASSERT(false);
+            // Fall through.
+        case SkRRect::kOval_Type:
+            // The nine patch special case does not handle ovals, and we
+            // already have code for rectangles.
+            return kUnimplemented_FilterReturn;
+
+        case SkRRect::kSimple_Type:
+            // Fall through.
+        case SkRRect::kComplex_Type:
+            // These can take advantage of this fast path.
+            break;
+    }
+
+    // TODO: report correct metrics for innerstyle, where we do not grow the
+    // total bounds, but we do need an inset the size of our blur-radius
+    if (SkBlurMaskFilter::kInner_BlurStyle == fBlurStyle) {
+        return kUnimplemented_FilterReturn;
+    }
+
+    // TODO: take clipBounds into account to limit our coordinates up front
+    // for now, just skip too-large src rects (to take the old code path).
+    if (rect_exceeds(rrect.rect(), SkIntToScalar(32767))) {
+        return kUnimplemented_FilterReturn;
+    }
+
+    SkIPoint margin;
+    SkMask  srcM, dstM;
+    rrect.rect().roundOut(&srcM.fBounds);
+    srcM.fImage = NULL;
+    srcM.fFormat = SkMask::kA8_Format;
+    srcM.fRowBytes = 0;
+
+    if (!this->filterMask(&dstM, srcM, matrix, &margin)) {
+        return kFalse_FilterReturn;
+    }
+
+    // Now figure out the appropriate width and height of the smaller round rectangle
+    // to stretch. It will take into account the larger radius per side as well as double
+    // the margin, to account for inner and outer blur.
+    const SkVector& UL = rrect.radii(SkRRect::kUpperLeft_Corner);
+    const SkVector& UR = rrect.radii(SkRRect::kUpperRight_Corner);
+    const SkVector& LR = rrect.radii(SkRRect::kLowerRight_Corner);
+    const SkVector& LL = rrect.radii(SkRRect::kLowerLeft_Corner);
+
+    const SkScalar leftUnstretched = SkTMax(UL.fX, LL.fX) + SkIntToScalar(2 * margin.fX);
+    const SkScalar rightUnstretched = SkTMax(UR.fX, LR.fX) + SkIntToScalar(2 * margin.fX);
+
+    // Extra space in the middle to ensure an unchanging piece for stretching. Use 3 to cover
+    // any fractional space on either side plus 1 for the part to stretch.
+    const SkScalar stretchSize = SkIntToScalar(3);
+
+    const SkScalar totalSmallWidth = leftUnstretched + rightUnstretched + stretchSize;
+    if (totalSmallWidth >= rrect.rect().width()) {
+        // There is no valid piece to stretch.
+        return kUnimplemented_FilterReturn;
+    }
+
+    const SkScalar topUnstretched = SkTMax(UL.fY, UR.fY) + SkIntToScalar(2 * margin.fY);
+    const SkScalar bottomUnstretched = SkTMax(LL.fY, LR.fY) + SkIntToScalar(2 * margin.fY);
+
+    const SkScalar totalSmallHeight = topUnstretched + bottomUnstretched + stretchSize;
+    if (totalSmallHeight >= rrect.rect().height()) {
+        // There is no valid piece to stretch.
+        return kUnimplemented_FilterReturn;
+    }
+
+    SkRect smallR = SkRect::MakeWH(totalSmallWidth, totalSmallHeight);
+
+    SkRRect smallRR;
+    SkVector radii[4];
+    radii[SkRRect::kUpperLeft_Corner] = UL;
+    radii[SkRRect::kUpperRight_Corner] = UR;
+    radii[SkRRect::kLowerRight_Corner] = LR;
+    radii[SkRRect::kLowerLeft_Corner] = LL;
+    smallRR.setRectRadii(smallR, radii);
+
+    if (!draw_rrect_into_mask(smallRR, &srcM)) {
+        return kFalse_FilterReturn;
+    }
+
+    if (!this->filterMask(&patch->fMask, srcM, matrix, &margin)) {
+        return kFalse_FilterReturn;
+    }
+
+    patch->fMask.fBounds.offsetTo(0, 0);
+    patch->fOuterRect = dstM.fBounds;
+    patch->fCenter.fX = SkScalarCeilToInt(leftUnstretched) + 1;
+    patch->fCenter.fY = SkScalarCeilToInt(topUnstretched) + 1;
+    return kTrue_FilterReturn;
 }
 
 #ifdef SK_IGNORE_FAST_RECT_BLUR
@@ -303,7 +450,7 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     }
 
     if (count > 1 || !c_analyticBlurNinepatch) {
-        if (!drawRectsIntoMask(smallR, count, &srcM)) {
+        if (!draw_rects_into_mask(smallR, count, &srcM)) {
             return kFalse_FilterReturn;
         }
 

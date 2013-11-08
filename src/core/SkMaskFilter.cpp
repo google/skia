@@ -12,6 +12,7 @@
 #include "SkBounder.h"
 #include "SkDraw.h"
 #include "SkRasterClip.h"
+#include "SkRRect.h"
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
@@ -204,6 +205,26 @@ static int countNestedRects(const SkPath& path, SkRect rects[2]) {
     return path.isRect(&rects[0]);
 }
 
+bool SkMaskFilter::filterRRect(const SkRRect& devRRect, const SkMatrix& matrix,
+                               const SkRasterClip& clip, SkBounder* bounder,
+                               SkBlitter* blitter, SkPaint::Style style) const {
+    // Attempt to speed up drawing by creating a nine patch. If a nine patch
+    // cannot be used, return false to allow our caller to recover and perform
+    // the drawing another way.
+    NinePatch patch;
+    patch.fMask.fImage = NULL;
+    if (kTrue_FilterReturn != this->filterRRectToNine(devRRect, matrix,
+                                                      clip.getBounds(),
+                                                      &patch)) {
+        SkASSERT(NULL == patch.fMask.fImage);
+        return false;
+    }
+    draw_nine(patch.fMask, patch.fOuterRect, patch.fCenter, true, clip,
+              bounder, blitter);
+    SkMask::FreeImage(patch.fMask.fImage);
+    return true;
+}
+
 bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
                               const SkRasterClip& clip, SkBounder* bounder,
                               SkBlitter* blitter, SkPaint::Style style) const {
@@ -264,6 +285,12 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
     }
 
     return true;
+}
+
+SkMaskFilter::FilterReturn
+SkMaskFilter::filterRRectToNine(const SkRRect&, const SkMatrix&,
+                                const SkIRect& clipBounds, NinePatch*) const {
+    return kUnimplemented_FilterReturn;
 }
 
 SkMaskFilter::FilterReturn

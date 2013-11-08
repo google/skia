@@ -24,6 +24,7 @@ class SkRegion;
 class SkRasterClip;
 struct SkDrawProcs;
 struct SkRect;
+class SkRRect;
 
 class SkDraw {
 public:
@@ -34,6 +35,7 @@ public:
     void    drawPoints(SkCanvas::PointMode, size_t count, const SkPoint[],
                        const SkPaint&, bool forceUseDevice = false) const;
     void    drawRect(const SkRect&, const SkPaint&) const;
+    void    drawRRect(const SkRRect&, const SkPaint&) const;
     /**
      *  To save on mallocs, we allow a flag that tells us that srcPath is
      *  mutable, so that we don't have to make copies of it as we transform it.

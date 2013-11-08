@@ -27,6 +27,7 @@
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
 #include "SkRect.h"
+#include "SkRRect.h"
 #include "SkString.h"
 #include "SkTextFormatParams.h"
 #include "SkTemplates.h"
@@ -965,6 +966,13 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& rect,
     SkPDFUtils::AppendRectangle(r, &content.entry()->fContent);
     SkPDFUtils::PaintPath(paint.getStyle(), SkPath::kWinding_FillType,
                           &content.entry()->fContent);
+}
+
+void SkPDFDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect,
+                            const SkPaint& paint) {
+    SkPath  path;
+    path.addRRect(rrect);
+    this->drawPath(draw, path, paint, NULL, true);
 }
 
 void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
