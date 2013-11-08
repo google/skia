@@ -109,18 +109,18 @@ static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
 
     // Make sure this fails when it should (test with smaller size, but still multiple of 4)
     SkValidatingReadBuffer buffer(dataWritten, bytesWritten - 4);
-    const unsigned char* peekBefore = static_cast<const unsigned char*>(buffer.skip(0));
-    SerializationUtils<T>::Read(buffer, testObj);
-    const unsigned char* peekAfter = static_cast<const unsigned char*>(buffer.skip(0));
-    // This should have failed, since the buffer is too small to read a matrix from it
-    REPORTER_ASSERT(reporter, peekBefore == peekAfter);
+    T obj;
+    SerializationUtils<T>::Read(buffer, &obj);
+    REPORTER_ASSERT(reporter, !buffer.validate(true));
 
     // Make sure this succeeds when it should
     SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
-    peekBefore = static_cast<const unsigned char*>(buffer2.skip(0));
-    SerializationUtils<T>::Read(buffer2, testObj);
-    peekAfter = static_cast<const unsigned char*>(buffer2.skip(0));
+    const unsigned char* peekBefore = static_cast<const unsigned char*>(buffer2.skip(0));
+    T obj2;
+    SerializationUtils<T>::Read(buffer2, &obj2);
+    const unsigned char* peekAfter = static_cast<const unsigned char*>(buffer2.skip(0));
     // This should have succeeded, since there are enough bytes to read this
+    REPORTER_ASSERT(reporter, buffer2.validate(true));
     REPORTER_ASSERT(reporter, static_cast<size_t>(peekAfter - peekBefore) == bytesWritten);
 
     TestAlignment(testObj, reporter);

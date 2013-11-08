@@ -144,7 +144,15 @@ public:
         return SkData::NewFromMalloc(buffer, len);
     }
 
-    virtual void validate(bool isValid) {}
+    /** This function validates that the isValid input parameter is true
+      * If isValidating() is false, then true is always returned
+      * If isValidating() is true, then true is returned until validate() is called with isValid
+      * set to false. When isValid is false, an error flag will be set internally and, from that
+      * point on, validate() will return false. The error flag cannot be unset.
+      *
+      * @param isValid result of a test that is expected to be true
+      */
+    virtual bool validate(bool isValid);
 
 private:
     template <typename T> T* readFlattenableT();

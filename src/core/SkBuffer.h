@@ -56,23 +56,31 @@ public:
     /** Read the specified number of bytes from the data pointer. If buffer is not
         null, copy those bytes into buffer.
     */
-    virtual void read(void* buffer, size_t size) {
+    virtual bool read(void* buffer, size_t size) {
         if (size) {
             this->readNoSizeCheck(buffer, size);
         }
+        return true;
     }
 
     const void* skip(size_t size); // return start of skipped data
     size_t  skipToAlign4();
 
-    void*       readPtr() { void* ptr; read(&ptr, sizeof(ptr)); return ptr; }
-    SkScalar    readScalar() { SkScalar x; read(&x, 4); return x; }
-    uint32_t    readU32() { uint32_t x; read(&x, 4); return x; }
-    int32_t     readS32() { int32_t x; read(&x, 4); return x; }
-    uint16_t    readU16() { uint16_t x; read(&x, 2); return x; }
-    int16_t     readS16() { int16_t x; read(&x, 2); return x; }
-    uint8_t     readU8() { uint8_t x; read(&x, 1); return x; }
-    bool        readBool() { return this->readU8() != 0; }
+    bool readPtr(void** ptr) { return read(ptr, sizeof(void*)); }
+    bool readScalar(SkScalar* x) { return read(x, 4); }
+    bool readU32(uint32_t* x) { return read(x, 4); }
+    bool readS32(int32_t* x) { return read(x, 4); }
+    bool readU16(uint16_t* x) { return read(x, 2); }
+    bool readS16(int16_t* x) { return read(x, 2); }
+    bool readU8(uint8_t* x) { return read(x, 1); }
+    bool readBool(bool* x) {
+        uint8_t u8;
+        if (this->readU8(&u8)) {
+            *x = (u8 != 0);
+            return true;
+        }
+        return false;
+    }
 
 protected:
     void    readNoSizeCheck(void* buffer, size_t size);
@@ -95,7 +103,7 @@ public:
         null and the number of bytes to read does not overflow this object's data,
         copy those bytes into buffer.
     */
-    virtual void read(void* buffer, size_t size) SK_OVERRIDE;
+    virtual bool read(void* buffer, size_t size) SK_OVERRIDE;
 
     /** Returns whether or not a read operation attempted to read past the end of the data.
     */

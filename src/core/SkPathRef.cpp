@@ -112,7 +112,11 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
     if (newFormat) {
 #endif
-        int32_t packed = buffer->readU32();
+        int32_t packed;
+        if (!buffer->readS32(&packed)) {
+            SkDELETE(ref);
+            return NULL;
+        }
 
         ref->fIsFinite = (packed >> kIsFinite_SerializationShift) & 1;
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
@@ -121,19 +125,27 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer
     }
 #endif
 
-    ref->fGenerationID = buffer->readU32();
-    int32_t verbCount = buffer->readS32();
-    int32_t pointCount = buffer->readS32();
-    int32_t conicCount = buffer->readS32();
-    ref->resetToSize(verbCount, pointCount, conicCount);
+    int32_t verbCount, pointCount, conicCount;
+    if (!buffer->readU32(&(ref->fGenerationID)) ||
+        !buffer->readS32(&verbCount) ||
+        !buffer->readS32(&pointCount) ||
+        !buffer->readS32(&conicCount)) {
+        SkDELETE(ref);
+        return NULL;
+    }
 
+    ref->resetToSize(verbCount, pointCount, conicCount);
     SkASSERT(verbCount == ref->countVerbs());
     SkASSERT(pointCount == ref->countPoints());
     SkASSERT(conicCount == ref->fConicWeights.count());
-    buffer->read(ref->verbsMemWritable(), verbCount * sizeof(uint8_t));
-    buffer->read(ref->fPoints, pointCount * sizeof(SkPoint));
-    buffer->read(ref->fConicWeights.begin(), conicCount * sizeof(SkScalar));
-    buffer->read(&ref->fBounds, sizeof(SkRect));
+
+    if (!buffer->read(ref->verbsMemWritable(), verbCount * sizeof(uint8_t)) ||
+        !buffer->read(ref->fPoints, pointCount * sizeof(SkPoint)) ||
+        !buffer->read(ref->fConicWeights.begin(), conicCount * sizeof(SkScalar)) ||
+        !buffer->read(&ref->fBounds, sizeof(SkRect))) {
+        SkDELETE(ref);
+        return NULL;
+    }
     ref->fBoundsIsDirty = false;
     return ref;
 }

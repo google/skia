@@ -20,12 +20,13 @@ SkValidatingReadBuffer::SkValidatingReadBuffer(const void* data, size_t size) :
 SkValidatingReadBuffer::~SkValidatingReadBuffer() {
 }
 
-void SkValidatingReadBuffer::validate(bool isValid) {
+bool SkValidatingReadBuffer::validate(bool isValid) {
     if (!fError && !isValid) {
         // When an error is found, send the read cursor to the end of the stream
         fReader.skip(fReader.available());
         fError = true;
     }
+    return !fError;
 }
 
 void SkValidatingReadBuffer::setMemory(const void* data, size_t size) {
@@ -121,7 +122,7 @@ void SkValidatingReadBuffer::readMatrix(SkMatrix* matrix) {
     size_t size = 0;
     if (!fError) {
         size = matrix->readFromMemory(fReader.peek(), fReader.available());
-        this->validate((SkAlign4(size) != size) || (0 == size));
+        this->validate((SkAlign4(size) == size) && (0 != size));
     }
     if (!fError) {
         (void)this->skip(size);
@@ -146,7 +147,7 @@ void SkValidatingReadBuffer::readRegion(SkRegion* region) {
     size_t size = 0;
     if (!fError) {
         size = region->readFromMemory(fReader.peek(), fReader.available());
-        this->validate((SkAlign4(size) != size) || (0 == size));
+        this->validate((SkAlign4(size) == size) && (0 != size));
     }
     if (!fError) {
         (void)this->skip(size);
@@ -157,7 +158,7 @@ void SkValidatingReadBuffer::readPath(SkPath* path) {
     size_t size = 0;
     if (!fError) {
         size = path->readFromMemory(fReader.peek(), fReader.available());
-        this->validate((SkAlign4(size) != size) || (0 == size));
+        this->validate((SkAlign4(size) == size) && (0 != size));
     }
     if (!fError) {
         (void)this->skip(size);

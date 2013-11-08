@@ -2120,8 +2120,9 @@ size_t SkPath::writeToMemory(void* storage) const {
                      (fSegmentMask << kSegmentMask_SerializationShift) |
                      (fDirection << kDirection_SerializationShift)
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
-                     | (0x1 << kNewFormat_SerializationShift);
+                     | (0x1 << kNewFormat_SerializationShift)
 #endif
+                     ;
 
     buffer.write32(packed);
 
@@ -2134,7 +2135,11 @@ size_t SkPath::writeToMemory(void* storage) const {
 size_t SkPath::readFromMemory(const void* storage, size_t length) {
     SkRBufferWithSizeCheck buffer(storage, length);
 
-    uint32_t packed = buffer.readS32();
+    int32_t packed;
+    if (!buffer.readS32(&packed)) {
+        return 0;
+    }
+
     fIsOval = (packed >> kIsOval_SerializationShift) & 1;
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
     fFillType = (packed >> kFillType_SerializationShift) & 0xFF;
@@ -2144,18 +2149,21 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     bool newFormat = (packed >> kNewFormat_SerializationShift) & 1;
 #endif
 
-    fPathRef.reset(SkPathRef::CreateFromBuffer(&buffer
+    SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
         , newFormat, packed
 #endif
-        ));
-
-    buffer.skipToAlign4();
+        );
 
     size_t sizeRead = 0;
     if (buffer.isValid()) {
+        fPathRef.reset(pathRef);
         SkDEBUGCODE(this->validate();)
+        buffer.skipToAlign4();
         sizeRead = buffer.pos();
+    } else if (NULL != pathRef) {
+        // If the buffer is not valid, pathRef should be NULL
+        sk_throw();
     }
     return sizeRead;
 }

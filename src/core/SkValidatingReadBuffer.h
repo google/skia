@@ -60,7 +60,7 @@ public:
     // TODO: Implement this (securely) when needed
     virtual SkTypeface* readTypeface() SK_OVERRIDE;
 
-    virtual void validate(bool isValid) SK_OVERRIDE;
+    virtual bool validate(bool isValid) SK_OVERRIDE;
 
 private:
     bool readArray(void* value, size_t size, size_t elementSize);

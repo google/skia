@@ -42,15 +42,18 @@ size_t SkFontConfigInterface::FontIdentity::readFromMemory(const void* addr,
                                                            size_t size) {
     SkRBuffer buffer(addr, size);
 
-    fID = buffer.readU32();
-    fTTCIndex = buffer.readU32();
-    size_t strLen = buffer.readU32();
-    int weight = buffer.readU32();
-    int width = buffer.readU32();
-    SkFontStyle::Slant slant = (SkFontStyle::Slant)buffer.readU8();
+    (void)buffer.readU32(&fID);
+    (void)buffer.readS32(&fTTCIndex);
+    uint32_t strLen, weight, width;
+    (void)buffer.readU32(&strLen);
+    (void)buffer.readU32(&weight);
+    (void)buffer.readU32(&width);
+    uint8_t u8;
+    (void)buffer.readU8(&u8);
+    SkFontStyle::Slant slant = (SkFontStyle::Slant)u8;
     fStyle = SkFontStyle(weight, width, slant);
     fString.resize(strLen);
-    buffer.read(fString.writable_str(), strLen);
+    (void)buffer.read(fString.writable_str(), strLen);
     buffer.skipToAlign4();
 
     return buffer.pos();    // the actual number of bytes read

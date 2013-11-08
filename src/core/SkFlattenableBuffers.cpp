@@ -89,6 +89,10 @@ SkXfermode* SkFlattenableReadBuffer::readXfermode() {
     return this->readFlattenableT<SkXfermode>();
 }
 
+bool SkFlattenableReadBuffer::validate(bool isValid) {
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFlattenableWriteBuffer::SkFlattenableWriteBuffer() {
