@@ -29,6 +29,7 @@ GM_DIRECTORY = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 if GM_DIRECTORY not in sys.path:
   sys.path.append(GM_DIRECTORY)
 import gm_json
+import imagediffdb
 
 IMAGE_FILENAME_RE = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
 IMAGE_FILENAME_FORMATTER = '%s_%s.png'  # pass in (testname, config)
@@ -55,12 +56,15 @@ class Results(object):
   are immutable.  If you want to update the results based on updated JSON
   file contents, you will need to create a new Results object."""
 
-  def __init__(self, actuals_root, expected_root):
+  def __init__(self, actuals_root, expected_root, generated_images_root):
     """
     Args:
       actuals_root: root directory containing all actual-results.json files
       expected_root: root directory containing all expected-results.json files
+      generated_images_root: directory within which to create all pixels diffs;
+          if this directory does not yet exist, it will be created
     """
+    self._image_diff_db = imagediffdb.ImageDiffDB(generated_images_root)
     self._actuals_root = actuals_root
     self._expected_root = expected_root
     self._load_actual_and_expected()
@@ -249,6 +253,36 @@ class Results(object):
           'for builders %s' % (
               expected_builders_written, actual_builders_written))
 
+  def _generate_pixel_diffs_if_needed(self, test, expected_image, actual_image):
+    """If expected_image and actual_image both exist but are different,
+    add the image pair to self._image_diff_db and generate pixel diffs.
+
+    Args:
+      test: string; name of test
+      expected_image: (hashType, hashDigest) tuple describing the expected image
+      actual_image: (hashType, hashDigest) tuple describing the actual image
+    """
+    if expected_image == actual_image:
+      return
+
+    (expected_hashtype, expected_hashdigest) = expected_image
+    (actual_hashtype, actual_hashdigest) = actual_image
+    if None in [expected_hashtype, expected_hashdigest,
+                actual_hashtype, actual_hashdigest]:
+      return
+
+    expected_url = gm_json.CreateGmActualUrl(
+        test_name=test, hash_type=expected_hashtype,
+        hash_digest=expected_hashdigest)
+    actual_url = gm_json.CreateGmActualUrl(
+        test_name=test, hash_type=actual_hashtype,
+        hash_digest=actual_hashdigest)
+    self._image_diff_db.add_image_pair(
+        expected_image_locator=expected_hashdigest,
+        expected_image_url=expected_url,
+        actual_image_locator=actual_hashdigest,
+        actual_image_url=actual_url)
+
   def _load_actual_and_expected(self):
     """Loads the results of all tests, across all builders (based on the
     files within self._actuals_root and self._expected_root),
@@ -343,6 +377,9 @@ class Results(object):
             updated_result_type = result_type
 
           (test, config) = IMAGE_FILENAME_RE.match(image_name).groups()
+          self._generate_pixel_diffs_if_needed(
+              test=test, expected_image=expected_image,
+              actual_image=actual_image)
           results_for_this_test = {
               'resultType': updated_result_type,
               'builder': builder,
@@ -359,6 +396,26 @@ class Results(object):
           if expectations_per_test:
             for field in FIELDS_PASSED_THRU_VERBATIM:
               results_for_this_test[field] = expectations_per_test.get(field)
+
+          if updated_result_type == gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON:
+            pass # no diff record to calculate at all
+          elif updated_result_type == gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED:
+            results_for_this_test['percentDifferingPixels'] = 0
+            results_for_this_test['weightedDiffMeasure'] = 0
+          else:
+            try:
+              diff_record = self._image_diff_db.get_diff_record(
+                  expected_image_locator=expected_image[1],
+                  actual_image_locator=actual_image[1])
+              results_for_this_test['percentDifferingPixels'] = (
+                  diff_record.get_percent_pixels_differing())
+              results_for_this_test['weightedDiffMeasure'] = (
+                  diff_record.get_weighted_diff_measure())
+            except KeyError:
+              logging.warning('unable to find diff_record for ("%s", "%s")' %
+                              (expected_image[1], actual_image[1]))
+              pass
+
           Results._add_to_category_dict(categories_all, results_for_this_test)
           data_all.append(results_for_this_test)
 

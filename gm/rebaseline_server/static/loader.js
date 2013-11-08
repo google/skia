@@ -58,7 +58,7 @@ Loader.controller(
         $scope.header = data.header;
         $scope.categories = data.categories;
         $scope.testData = data.testData;
-        $scope.sortColumn = 'test';
+        $scope.sortColumn = 'weightedDiffMeasure';
         $scope.showTodos = false;
 
         $scope.showSubmitAdvancedSettings = false;
@@ -242,6 +242,13 @@ Loader.controller(
       // array copies?  (For better performance.)
 
       if ($scope.viewingTab == $scope.defaultTab) {
+
+        // TODO(epoger): Until we allow the user to reverse sort order,
+        // there are certain columns we want to sort in a different order.
+        var doReverse = (
+            ($scope.sortColumn == 'percentDifferingPixels') ||
+            ($scope.sortColumn == 'weightedDiffMeasure'));
+
         $scope.filteredTestData =
             $filter("orderBy")(
                 $filter("removeHiddenItems")(
@@ -252,7 +259,7 @@ Loader.controller(
                     $scope.categoryValueMatch.test,
                     $scope.viewingTab
                 ),
-                $scope.sortColumn);
+                $scope.sortColumn, doReverse);
         $scope.limitedTestData = $filter("limitTo")(
             $scope.filteredTestData, $scope.displayLimit);
       } else {

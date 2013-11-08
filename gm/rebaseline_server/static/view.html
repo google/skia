@@ -249,6 +249,22 @@
             actual image
           </th>
           <th>
+            <input type="radio"
+                   name="sortColumnRadio"
+                   value="percentDifferingPixels"
+                   ng-checked="(sortColumn == 'percentDifferingPixels')"
+                   ng-click="sortResultsBy('percentDifferingPixels')">
+            differing pixels
+          </th>
+          <th>
+            <input type="radio"
+                   name="sortColumnRadio"
+                   value="weightedDiffMeasure"
+                   ng-checked="(sortColumn == 'weightedDiffMeasure')"
+                   ng-click="sortResultsBy('weightedDiffMeasure')">
+            per-channel deltas
+          </th>
+          <th>
             <!-- item-selection checkbox column -->
           </th>
         </tr>
@@ -277,16 +293,49 @@
               {{bug}}
             </a>
           </td>
-          <td>
+
+          <!-- expected image -->
+          <td valign="top">
             <a target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png">
               <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png"/>
             </a>
           </td>
-          <td>
+
+          <!-- actual image -->
+          <td valign="top">
             <a target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png">
               <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png"/>
             </a>
           </td>
+
+          <!-- whitediffs: every differing pixel shown in white -->
+          <td valign="top">
+            <div ng-hide="result.expectedHashDigest == result.actualHashDigest">
+              <a target="_blank" href="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png">
+                <img width="{{imageSize}}" src="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png"/>
+              </a><br>
+              {{result.percentDifferingPixels.toFixed(4)}}%
+            </div>
+            <div ng-hide="result.expectedHashDigest != result.actualHashDigest"
+                 style="text-align:center">
+              &ndash;none&ndash;
+            </div>
+          </td>
+
+          <!-- diffs: per-channel RGB deltas -->
+          <td valign="top">
+            <div ng-hide="result.expectedHashDigest == result.actualHashDigest">
+              <a target="_blank" href="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png">
+                <img width="{{imageSize}}" src="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png"/>
+              </a><br>
+              {{result.weightedDiffMeasure.toFixed(4)}}%
+            </div>
+            <div ng-hide="result.expectedHashDigest != result.actualHashDigest"
+                 style="text-align:center">
+              &ndash;none&ndash;
+            </div>
+          </td>
+
           <td>
             <input type="checkbox"
                    name="rowSelect"

@@ -45,6 +45,8 @@ EXPECTATIONS_SVN_REPO = 'http://skia.googlecode.com/svn/trunk/expectations/gm'
 PATHSPLIT_RE = re.compile('/([^/]+)/(.+)')
 TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.realpath(__file__))))
+GENERATED_IMAGES_ROOT = os.path.join(PARENT_DIRECTORY, 'static',
+                                     'generated-images')
 
 # A simple dictionary of file name extensions to MIME types. The empty string
 # entry is used as the default when no extension was given or if the extension
@@ -155,11 +157,13 @@ class Server(object):
           expectations_repo.Update('.')
 
       logging.info(
-          'Parsing results from actuals in %s and expectations in %s ...' % (
+          ('Parsing results from actuals in %s and expectations in %s, '
+          + 'and generating pixel diffs (may take a while) ...') % (
           self._actuals_dir, self._expectations_dir))
       self.results = results.Results(
         actuals_root=self._actuals_dir,
-        expected_root=self._expectations_dir)
+        expected_root=self._expectations_dir,
+        generated_images_root=GENERATED_IMAGES_ROOT)
 
   def _result_reloader(self):
     """ If --reload argument was specified, reload results at the appropriate
