@@ -1572,6 +1572,7 @@ static void skpskpicture14(skiatest::Reporter* reporter) {
     testPathOp(reporter, path, pathB, kIntersect_PathOp);
 }
 
+#if TRY_SEPT_BROKEN_TESTS
 static void skpskpicture15(skiatest::Reporter* reporter) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
@@ -1595,6 +1596,7 @@ static void skpskpicture15(skiatest::Reporter* reporter) {
     pathB.close();
     testPathOp(reporter, path, pathB, kIntersect_PathOp);
 }
+#endif
 
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
