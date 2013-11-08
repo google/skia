@@ -2647,7 +2647,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9664749988736528320
+          13186989009750915998
         ]
       ], 
       "ignore-failure": false
@@ -2674,7 +2674,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12056374953708777097
+          9463776622404305630
         ]
       ], 
       "ignore-failure": false
@@ -2701,7 +2701,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15694924827642280637
+          17723912547412927673
         ]
       ], 
       "ignore-failure": false
@@ -2728,7 +2728,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4426854112255005642
+          7230795823228953479
         ]
       ], 
       "ignore-failure": false
@@ -2908,7 +2908,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12093566508135263710
+          12413534010573843404
         ]
       ], 
       "ignore-failure": false
@@ -4408,7 +4408,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1674150234889140712
+          5126451119919912174
         ]
       ], 
       "bugs": [
@@ -5011,7 +5011,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18087010494009752762
+          16033234687806780314
         ]
       ], 
       "bugs": [
@@ -5959,7 +5959,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10946419479837278137
+          9796299048315361356
         ]
       ], 
       "ignore-failure": false
@@ -5986,7 +5986,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10372332764473678696
+          5533074837245906822
         ]
       ], 
       "ignore-failure": false
@@ -6013,7 +6013,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6290909017923012998
+          8018893696397219345
         ]
       ], 
       "ignore-failure": false
@@ -7349,7 +7349,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15538738179199275923
+          5773327606625208564
         ]
       ], 
       "ignore-failure": false
