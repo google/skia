@@ -350,8 +350,6 @@ void SkA8_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define SK_A8_COVERAGE_BLIT_SKIP_ZEROS
-
 SkA8_Coverage_Blitter::SkA8_Coverage_Blitter(const SkBitmap& device,
                              const SkPaint& paint) : SkRasterBlitter(device) {
     SkASSERT(NULL == paint.getShader());
@@ -361,8 +359,6 @@ SkA8_Coverage_Blitter::SkA8_Coverage_Blitter(const SkBitmap& device,
 
 void SkA8_Coverage_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
                                       const int16_t runs[]) {
-    SkASSERT(0 == x);
-
     uint8_t* device = fDevice.getAddr8(x, y);
     SkDEBUGCODE(int totalCount = 0;)
 
@@ -372,10 +368,7 @@ void SkA8_Coverage_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
         if (count == 0) {
             return;
         }
-#ifdef SK_A8_COVERAGE_BLIT_SKIP_ZEROS
-        if (antialias[0])
-#endif
-        {
+        if (antialias[0]) {
             memset(device, antialias[0], count);
         }
         runs += count;
@@ -392,11 +385,10 @@ void SkA8_Coverage_Blitter::blitH(int x, int y, int width) {
 }
 
 void SkA8_Coverage_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
-#ifdef SK_A8_COVERAGE_BLIT_SKIP_ZEROS
     if (0 == alpha) {
         return;
     }
-#endif
+
     uint8_t* dst = fDevice.getAddr8(x, y);
     const size_t dstRB = fDevice.rowBytes();
     while (--height >= 0) {
