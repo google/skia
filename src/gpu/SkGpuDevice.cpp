@@ -12,7 +12,8 @@
 
 #include "GrContext.h"
 #include "GrBitmapTextContext.h"
-
+#include "GrGpu.h"
+#include "GrDrawTargetCaps.h"
 #include "SkGrTexturePixelRef.h"
 
 #include "SkColorFilter.h"
@@ -850,14 +851,6 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         return;
     }
 
-    // can we cheat, and treat a thin stroke as a hairline w/ coverage
-    // if we can, we draw lots faster (raster device does this same test)
-    SkScalar hairlineCoverage;
-    bool doHairLine = SkDrawTreatAsHairline(paint, fContext->getMatrix(), &hairlineCoverage);
-    if (doHairLine) {
-        grPaint.setCoverage(SkScalarRoundToInt(hairlineCoverage * grPaint.getCoverage()));
-    }
-
     // If we have a prematrix, apply it to the path, optimizing for the case
     // where the original path can in fact be modified in place (even though
     // its parameter type is const).
@@ -885,10 +878,6 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     if (pathEffect && pathEffect->filterPath(&effectPath, *pathPtr, &stroke,
                                              cullRect)) {
         pathPtr = &effectPath;
-    }
-
-    if (!pathEffect && doHairLine) {
-        stroke.setHairlineStyle();
     }
 
     if (paint.getMaskFilter()) {

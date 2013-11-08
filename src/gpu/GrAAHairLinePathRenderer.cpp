@@ -759,7 +759,7 @@ bool GrAAHairLinePathRenderer::createLineGeom(const SkPath& path,
     }
     devBounds->set(lines.begin(), lines.count());
     for (int i = 0; i < lineCnt; ++i) {
-        add_line(&lines[2*i], toSrc, drawState->getCoverage(), &verts);
+        add_line(&lines[2*i], toSrc, drawState->getCoverageColor(), &verts);
     }
     // All the verts computed by add_line are within sqrt(1^2 + 0.5^2) of the end points.
     static const SkScalar kSqrtOfOneAndAQuarter = SkFloatToScalar(1.118f);

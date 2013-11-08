@@ -987,24 +987,12 @@ static bool xfermodeSupportsCoverageAsAlpha(SkXfermode* xfer) {
     }
 }
 
-bool SkDrawTreatAsHairline(const SkPaint& paint, const SkMatrix& matrix,
-                           SkScalar* coverage) {
+bool SkDrawTreatAAStrokeAsHairline(SkScalar strokeWidth, const SkMatrix& matrix,
+                                   SkScalar* coverage) {
     SkASSERT(coverage);
-    if (SkPaint::kStroke_Style != paint.getStyle()) {
-        return false;
-    }
-    SkScalar strokeWidth = paint.getStrokeWidth();
-    if (0 == strokeWidth) {
-        *coverage = SK_Scalar1;
-        return true;
-    }
+    SkASSERT(strokeWidth > 0);
+    // We need to try to fake a thick-stroke with a modulated hairline.
 
-    // if we get here, we need to try to fake a thick-stroke with a modulated
-    // hairline
-
-    if (!paint.isAntiAlias()) {
-        return false;
-    }
     if (matrix.hasPerspective()) {
         return false;
     }

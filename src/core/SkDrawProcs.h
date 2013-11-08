@@ -59,12 +59,32 @@ struct SkDrawProcs {
     SkDraw1Glyph::Proc  fD1GProc;
 };
 
+bool SkDrawTreatAAStrokeAsHairline(SkScalar strokeWidth, const SkMatrix&,
+                                   SkScalar* coverage);
+
 /**
  *  If the current paint is set to stroke and the stroke-width when applied to
  *  the matrix is <= 1.0, then this returns true, and sets coverage (simulating
  *  a stroke by drawing a hairline with partial coverage). If any of these
  *  conditions are false, then this returns false and coverage is ignored.
  */
-bool SkDrawTreatAsHairline(const SkPaint&, const SkMatrix&, SkScalar* coverage);
+inline bool SkDrawTreatAsHairline(const SkPaint& paint, const SkMatrix& matrix,
+                                  SkScalar* coverage) {
+    if (SkPaint::kStroke_Style != paint.getStyle()) {
+        return false;
+    }
+
+    SkScalar strokeWidth = paint.getStrokeWidth();
+    if (0 == strokeWidth) {
+        *coverage = SK_Scalar1;
+        return true;
+    }
+
+    if (!paint.isAntiAlias()) {
+        return false;
+    }
+
+    return SkDrawTreatAAStrokeAsHairline(strokeWidth, matrix, coverage);
+}
 
 #endif

@@ -100,6 +100,15 @@ public:
      */
     bool canApplyCoverage() const;
 
+    /** When we're using coverage AA but the blend is incompatible (given gpu
+     * limitations) we should disable AA. */
+    bool shouldDisableCoverageAAForBlend() {
+        // Enable below if we should draw with AA even when it produces
+        // incorrect blending.
+        // return false;
+        return !this->canApplyCoverage();
+    }
+
     /**
      * Given the current draw state and hw support, will HW AA lines be used (if
      * a line primitive type is drawn)?
