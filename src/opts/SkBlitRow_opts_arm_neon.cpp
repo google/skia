@@ -31,9 +31,7 @@ void S32_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
         vsrc = vld4_u8((uint8_t*)src);
 
         // Convert src to 565
-        vdst = vshll_n_u8(vsrc.val[NEON_R], 8);
-        vdst = vsriq_n_u16(vdst, vshll_n_u8(vsrc.val[NEON_G], 8), 5);
-        vdst = vsriq_n_u16(vdst, vshll_n_u8(vsrc.val[NEON_B], 8), 5+6);
+        vdst = SkPixel32ToPixel16_neon8(vsrc);
 
         // Store
         vst1q_u16(dst, vdst);

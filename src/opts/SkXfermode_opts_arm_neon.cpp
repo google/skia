@@ -574,13 +574,14 @@ void SkNEONProcCoeffXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
 
     SkXfermodeProc proc = this->getProc();
     SkXfermodeProcSIMD procSIMD = reinterpret_cast<SkXfermodeProcSIMD>(fProcSIMD);
+    SkASSERT(procSIMD != NULL);
 
     if (NULL == aa) {
         // Unrolled NEON code
         while (count >= 8) {
             uint8x8x4_t vsrc, vdst, vres;
 
-#if (__GNUC__ == 4) && (__GNUC_MINOR__ > 6)
+#if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6))
             asm volatile (
                 "vld4.u8    %h[vsrc], [%[src]]!  \t\n"
                 "vld4.u8    %h[vdst], [%[dst]]   \t\n"
@@ -634,6 +635,74 @@ void SkNEONProcCoeffXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
                     C = SkFourByteInterp(C, dstC, a);
                 }
                 dst[i] = C;
+            }
+        }
+    }
+}
+
+void SkNEONProcCoeffXfermode::xfer16(uint16_t* SK_RESTRICT dst,
+                                     const SkPMColor* SK_RESTRICT src, int count,
+                                     const SkAlpha* SK_RESTRICT aa) const {
+    SkASSERT(dst && src && count >= 0);
+
+    SkXfermodeProc proc = this->getProc();
+    SkXfermodeProcSIMD procSIMD = reinterpret_cast<SkXfermodeProcSIMD>(fProcSIMD);
+    SkASSERT(procSIMD != NULL);
+
+    if (NULL == aa) {
+        while(count >= 8) {
+            uint16x8_t vdst, vres16;
+            uint8x8x4_t vdst32, vsrc, vres;
+
+            vdst = vld1q_u16(dst);
+
+#if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6))
+            asm volatile (
+                "vld4.u8    %h[vsrc], [%[src]]!  \t\n"
+                : [vsrc] "=w" (vsrc), [src] "+&r" (src)
+                : :
+            );
+#else
+            register uint8x8_t d0 asm("d0");
+            register uint8x8_t d1 asm("d1");
+            register uint8x8_t d2 asm("d2");
+            register uint8x8_t d3 asm("d3");
+
+            asm volatile (
+                "vld4.u8    {d0-d3},[%[src]]!;"
+                : "=w" (d0), "=w" (d1), "=w" (d2), "=w" (d3),
+                  [src] "+&r" (src)
+                : :
+            );
+            vsrc.val[0] = d0;
+            vsrc.val[1] = d1;
+            vsrc.val[2] = d2;
+            vsrc.val[3] = d3;
+#endif
+
+            vdst32 = SkPixel16ToPixel32_neon8(vdst);
+            vres = procSIMD(vsrc, vdst32);
+            vres16 = SkPixel32ToPixel16_neon8(vres);
+
+            vst1q_u16(dst, vres16);
+
+            count -= 8;
+            dst += 8;
+        }
+        for (int i = 0; i < count; i++) {
+            SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
+            dst[i] = SkPixel32ToPixel16_ToU16(proc(src[i], dstC));
+        }
+    } else {
+        for (int i = count - 1; i >= 0; --i) {
+            unsigned a = aa[i];
+            if (0 != a) {
+                SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
+                SkPMColor C = proc(src[i], dstC);
+                if (0xFF != a) {
+                    C = SkFourByteInterp(C, dstC, a);
+                }
+                dst[i] = SkPixel32ToPixel16_ToU16(C);
             }
         }
     }

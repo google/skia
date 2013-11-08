@@ -11,6 +11,8 @@ public:
 
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const SK_OVERRIDE;
+    virtual void xfer16(uint16_t* SK_RESTRICT dst, const SkPMColor* SK_RESTRICT src,
+                        int count, const SkAlpha* SK_RESTRICT aa) const SK_OVERRIDE;
 
     SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkNEONProcCoeffXfermode)
