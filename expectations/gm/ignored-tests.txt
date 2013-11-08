@@ -37,9 +37,6 @@
 # ('Poppler random failures'): ignore any Poppler failures, for now
 pdf-poppler
 
-# Added by bsalomon in https://codereview.chromium.org/31033002
-verylargebitmap
-
 # Added by yunchao in https://codereview.chromium.org/54213002
 rects
 
