@@ -18,7 +18,7 @@
 // around the outside edge. The inner ring is red and the outer ring is blue.
 static void make_ringed_bitmap(SkBitmap* result, int width, int height) {
     SkASSERT(0 == width % 2 && 0 == height % 2);
-    
+
     static const SkPMColor kRed = SkPreMultiplyColor(SK_ColorRED);
     static const SkPMColor kBlue = SkPreMultiplyColor(SK_ColorBLUE);
     static const SkPMColor kBlack = SkPreMultiplyColor(SK_ColorBLACK);
@@ -181,7 +181,7 @@ protected:
 
         // Currently there are no test cases with medium filtering since medium uses mip-mapping and
         // these draws are always upscaling.
-        
+
         // First draw a column with no bleeding, tiling, or filtering
         this->drawCase1(canvas, kCol0X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kNone_FilterLevel);
         this->drawCase2(canvas, kCol0X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kNone_FilterLevel);
@@ -199,7 +199,7 @@ protected:
         this->drawCase2(canvas, kCol2X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
         this->drawCase3(canvas, kCol2X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
         this->drawCase4(canvas, kCol2X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-        
+
 #if SK_SUPPORT_GPU
         GrContext* ctx = GM::GetGr(canvas);
         int oldMaxTextureSize = 0;
@@ -221,13 +221,13 @@ protected:
         this->drawCase2(canvas, kCol4X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
         this->drawCase3(canvas, kCol4X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
         this->drawCase4(canvas, kCol4X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-        
+
         // Then draw a column with bleeding, tiling, and low filtering
         this->drawCase1(canvas, kCol5X, kRow0Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
         this->drawCase2(canvas, kCol5X, kRow1Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
         this->drawCase3(canvas, kCol5X, kRow2Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
         this->drawCase4(canvas, kCol5X, kRow3Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-        
+
         // Finally draw a column with bleeding, tiling, and high filtering
         this->drawCase1(canvas, kCol6X, kRow0Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
         this->drawCase2(canvas, kCol6X, kRow1Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
