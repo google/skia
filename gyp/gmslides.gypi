@@ -91,6 +91,7 @@
     '../gm/morphology.cpp',
     '../gm/nested.cpp',
     '../gm/ninepatchstretch.cpp',
+    '../gm/nonclosedpaths.cpp',
     '../gm/offsetimagefilter.cpp',
     '../gm/optimizations.cpp',
     '../gm/ovals.cpp',
