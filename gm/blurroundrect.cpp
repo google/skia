@@ -63,8 +63,9 @@ public:
             info.fOffset = SkPoint::Make(SkIntToScalar(-1), SkIntToScalar(0));
             info.fPostTranslate = false;
             SkPaint* paint = looper->addLayerOnTop(info);
-            SkMaskFilter* maskFilter = SkBlurMaskFilter::Create(SK_ScalarHalf,
+            SkMaskFilter* maskFilter = SkBlurMaskFilter::Create(
                     SkBlurMaskFilter::kNormal_BlurStyle,
+                    SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf),
                     SkBlurMaskFilter::kHighQuality_BlurFlag);
             paint->setMaskFilter(maskFilter)->unref();
             SkColorFilter* colorFilter = SkColorFilter::CreateModeFilter(SK_ColorLTGRAY,
@@ -119,8 +120,9 @@ protected:
             SkAutoCanvasRestore autoRestore(canvas, true);
             canvas->translate(0, (r.height() + SkIntToScalar(20)) * i);
             for (size_t j = 0; j < SK_ARRAY_COUNT(cornerRadii); ++j) {
-                SkMaskFilter* filter = SkBlurMaskFilter::Create(SkIntToScalar(blurRadii[i]),
-                                            SkBlurMaskFilter::kNormal_BlurStyle);
+                SkMaskFilter* filter = SkBlurMaskFilter::Create(
+                    SkBlurMaskFilter::kNormal_BlurStyle,
+                    SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(blurRadii[i])));
                 SkPaint paint;
                 paint.setColor(SK_ColorBLUE);
                 paint.setMaskFilter(filter)->unref();

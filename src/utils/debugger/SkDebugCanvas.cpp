@@ -47,7 +47,7 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
     // inset has to be surprisingly large).
     SkIRect largeIRect = SkIRect::MakeLargest();
     largeIRect.inset(1024, 1024);
-    SkRect large = SkRect::MakeFromIRect(largeIRect);
+    SkRect large = SkRect::Make(largeIRect);
 #ifdef SK_DEBUG
     large.roundOut(&largeIRect);
     SkASSERT(!largeIRect.isEmpty());
