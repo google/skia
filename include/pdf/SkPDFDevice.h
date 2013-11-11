@@ -194,11 +194,6 @@ public:
         return *(fFontGlyphUsage.get());
     }
 
-protected:
-    virtual bool onReadPixels(const SkBitmap& bitmap, int x, int y,
-                              SkCanvas::Config8888) SK_OVERRIDE;
-
-    virtual bool allowImageFilter(SkImageFilter*) SK_OVERRIDE;
 
     /**
      *  rasterDpi - the DPI at which features without native PDF support
@@ -213,6 +208,12 @@ protected:
     void setRasterDpi(SkScalar rasterDpi) {
         fRasterDpi = rasterDpi;
     }
+
+protected:
+    virtual bool onReadPixels(const SkBitmap& bitmap, int x, int y,
+                              SkCanvas::Config8888) SK_OVERRIDE;
+
+    virtual bool allowImageFilter(SkImageFilter*) SK_OVERRIDE;
 
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in

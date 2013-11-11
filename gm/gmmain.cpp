@@ -198,6 +198,7 @@ static PipeFlagComboData gPipeWritingFlagCombos[] = {
 };
 
 static SkData* encode_to_dct_data(size_t* pixelRefOffset, const SkBitmap& bitmap);
+DECLARE_int32(pdfRasterDpi);
 
 const static ErrorCombination kDefaultIgnorableErrorTypes = ErrorCombination()
     .plus(kMissingExpectations_ErrorType)
@@ -636,7 +637,10 @@ public:
         SkMatrix initialTransform = gm->getInitialTransform();
         if (FLAGS_useDocumentInsteadOfDevice) {
             SkISize pageISize = gm->getISize();
-            SkAutoTUnref<SkDocument> pdfDoc(SkDocument::CreatePDF(&pdf, NULL, encode_to_dct_data));
+            SkAutoTUnref<SkDocument> pdfDoc(
+                    SkDocument::CreatePDF(&pdf, NULL,
+                                          encode_to_dct_data,
+                                          SkIntToScalar(FLAGS_pdfRasterDpi)));
 
             if (!pdfDoc.get()) {
                 return false;
@@ -667,6 +671,7 @@ public:
                 dev = new SkPDFDevice(pageSize, contentSize, initialTransform);
             }
             dev->setDCTEncoder(encode_to_dct_data);
+            dev->setRasterDpi(SkIntToScalar(FLAGS_pdfRasterDpi));
             SkAutoUnref aur(dev);
             SkCanvas c(dev);
             invokeGM(gm, &c, true, false);
@@ -1475,7 +1480,10 @@ DEFINE_int32(pdfJpegQuality, -1, "Encodes images in JPEG at quality level N, "
 // then we can write something reabable like --rotate centerx centery 90
 DEFINE_bool(forcePerspectiveMatrix, false, "Force a perspective matrix.");
 DEFINE_bool(useDocumentInsteadOfDevice, false, "Use SkDocument::CreateFoo instead of SkFooDevice.");
-
+DEFINE_int32(pdfRasterDpi, 72, "Scale at which at which the non suported "
+             "features in PDF are rasterized. Must be be in range 0-10000. "
+             "Default is 72. N = 0 will disable rasterizing features like "
+             "text shadows or perspective bitmaps.");
 static SkData* encode_to_dct_data(size_t* pixelRefOffset, const SkBitmap& bitmap) {
     // Filter output of warnings that JPEG is not available for the image.
     if (bitmap.width() >= 65500 || bitmap.height() >= 65500) return NULL;

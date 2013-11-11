@@ -50,6 +50,8 @@ struct TypefaceFallbackData {
 };
 #endif
 
+#define DPI_FOR_RASTER_SCALE_ONE 72
+
 // Utility functions
 
 static void emit_pdf_color(SkColor color, SkWStream* result) {
@@ -2171,6 +2173,9 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
 
     // Rasterize the bitmap using perspective in a new bitmap.
     if (origMatrix.hasPerspective()) {
+        if (fRasterDpi == 0) {
+            return;
+        }
         SkBitmap* subsetBitmap;
         if (srcRect) {
             if (!origBitmap.extractSubset(&tmpSubsetBitmap, *srcRect)) {
@@ -2183,7 +2188,8 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
         }
         srcRect = NULL;
 
-        // Transform the bitmap in the new space.
+        // Transform the bitmap in the new space, without taking into
+        // account the initial transform.
         SkPath perspectiveOutline;
         perspectiveOutline.addRect(
                 SkRect::MakeWH(SkIntToScalar(subsetBitmap->width()),
@@ -2194,8 +2200,24 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
         // Retrieve the bounds of the new shape.
         SkRect bounds = perspectiveOutline.getBounds();
 
-        // TODO(edisonn): add DPI settings. Currently 1 pixel/point, which does
-        // not look great, but it is not producing large PDFs.
+        // Transform the bitmap in the new space, taking into
+        // account the initial transform.
+        SkMatrix total = origMatrix;
+        total.postConcat(fInitialTransform);
+        total.postScale(SkIntToScalar(fRasterDpi) /
+                            SkIntToScalar(DPI_FOR_RASTER_SCALE_ONE),
+                        SkIntToScalar(fRasterDpi) /
+                            SkIntToScalar(DPI_FOR_RASTER_SCALE_ONE));
+        SkPath physicalPerspectiveOutline;
+        physicalPerspectiveOutline.addRect(
+                SkRect::MakeWH(SkIntToScalar(subsetBitmap->width()),
+                               SkIntToScalar(subsetBitmap->height())));
+        physicalPerspectiveOutline.transform(total);
+
+        SkScalar scaleX = physicalPerspectiveOutline.getBounds().width() /
+                              bounds.width();
+        SkScalar scaleY = physicalPerspectiveOutline.getBounds().height() /
+                              bounds.height();
 
         // TODO(edisonn): A better approach would be to use a bitmap shader
         // (in clamp mode) and draw a rect over the entire bounding box. Then
@@ -2204,9 +2226,12 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
         // the image.  Avoiding alpha will reduce the pdf size and generation
         // CPU time some.
 
-        perspectiveBitmap.setConfig(SkBitmap::kARGB_8888_Config,
-                                    SkScalarCeilToInt(bounds.width()),
-                                    SkScalarCeilToInt(bounds.height()));
+        perspectiveBitmap.setConfig(
+                SkBitmap::kARGB_8888_Config,
+                SkScalarCeilToInt(
+                        physicalPerspectiveOutline.getBounds().width()),
+                SkScalarCeilToInt(
+                        physicalPerspectiveOutline.getBounds().height()));
         perspectiveBitmap.allocPixels();
         perspectiveBitmap.eraseColor(SK_ColorTRANSPARENT);
 
@@ -2218,6 +2243,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
 
         SkMatrix offsetMatrix = origMatrix;
         offsetMatrix.postTranslate(-deltaX, -deltaY);
+        offsetMatrix.postScale(scaleX, scaleY);
 
         // Translate the draw in the new canvas, so we perfectly fit the
         // shape in the bitmap.
@@ -2228,8 +2254,11 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
         // Make sure the final bits are in the bitmap.
         canvas.flush();
 
-        // In the new space, we use the identity matrix translated.
-        matrix.setTranslate(deltaX, deltaY);
+        // In the new space, we use the identity matrix translated
+        // and scaled to reflect DPI.
+        matrix.setScale(1 / scaleX, 1 / scaleY);
+        matrix.postTranslate(deltaX, deltaY);
+
         perspectiveBounds.setRect(
                 SkIRect::MakeXYWH(SkScalarFloorToInt(bounds.x()),
                                   SkScalarFloorToInt(bounds.y()),
