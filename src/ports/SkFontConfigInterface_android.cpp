@@ -930,5 +930,6 @@ SkTypeface* SkCreateTypefaceForScript(HB_Script script, SkTypeface::Style style,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkFontMgr* SkFontMgr::Factory() {
-    return NULL;
+    SkFontConfigInterface* fci = SkFontConfigInterface::GetSingletonDirectInterface();
+    return fci ? SkNEW_ARGS(SkFontMgr_fontconfig, (fci)) : NULL;
 }
