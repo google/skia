@@ -208,6 +208,8 @@ SkFontMgr* SkFontMgr::RefDefault() {
 
 //////////////////////////////////////////////////////////////////////////
 
+#ifndef SK_FONTHOST_DOES_NOT_USE_FONTMGR
+
 #if 0
 static SkFontStyle TypefaceStyleBitsToFontStyle(SkTypeface::Style styleBits) {
     SkFontStyle::Weight weight = (styleBits & SkTypeface::kBold) ?
@@ -248,3 +250,5 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
     return fm->createFromStream(stream);
 }
+
+#endif

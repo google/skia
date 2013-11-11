@@ -446,6 +446,7 @@
       {
         'defines': [
           'SK_BUILD_FOR_ANDROID',
+          'SK_FONTHOST_DOES_NOT_USE_FONTMGR',
         ],
         'configurations': {
           'Debug': {
