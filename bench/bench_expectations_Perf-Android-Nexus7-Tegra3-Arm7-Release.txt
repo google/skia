@@ -205,7 +205,7 @@ desk_ebay.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-
 desk_espn.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,115.470,83.923,137.017
 desk_facebook.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,62.300,46.070,78.530
 desk_gmailthread.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,19.580,7.622,31.538
-desk_googleplus.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,44.750,30.275,59.225
+desk_googleplus.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,44.750,25.000,59.225
 desk_googlespreadsheet.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,53.570,30.213,68.927
 desk_googlespreadsheetdashed.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,71.280,44.152,88.408
 desk_gws.skp_simple_viewport_1280x800_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,10.480,-0.568,21.528
@@ -265,7 +265,7 @@ desk_ebay.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Rele
 desk_espn.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,27.280,14.552,40.008
 desk_facebook.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,74.230,56.807,91.653
 desk_gmailthread.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,47.710,32.939,72.481
-desk_googleplus.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,106.760,76.084,127.436
+desk_googleplus.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,106.760,72.00,127.436
 desk_googlespreadsheet.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,31.120,18.008,44.232
 desk_googlespreadsheetdashed.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,201.710,171.539,231.881
 desk_gws.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,15.410,3.869,26.951
@@ -284,7 +284,7 @@ desk_yahoonews.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7
 desk_yahoosports.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,36.450,22.805,50.095
 desk_youtube.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,22.220,9.998,34.442
 mobi_wikipedia.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,32.640,10.376,45.904
-tabl_androidpolice.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,328.00.,300.000,360.000
+tabl_androidpolice.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,328.00.,290.000,360.000
 tabl_cnet.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,24.070,11.663,36.477
 tabl_cnn.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,14.960,3.464,26.456
 tabl_culturalsolutions.skp_simple_viewport_1280x800_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,41.690,27.521,55.859
@@ -325,7 +325,7 @@ desk_ebay.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Re
 desk_espn.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,114.970,87.473,136.467
 desk_facebook.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,61.570,45.413,77.727
 desk_gmailthread.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,19.260,7.334,31.186
-desk_googleplus.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,43.960,29.564,58.356
+desk_googleplus.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,43.960,25.00,58.356
 desk_googlespreadsheet.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,35.910,22.319,49.501
 desk_googlespreadsheetdashed.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,53.180,37.862,68.498
 desk_gws.skp_simple_viewport_1280x800_rtree_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,10.340,-0.694,21.374

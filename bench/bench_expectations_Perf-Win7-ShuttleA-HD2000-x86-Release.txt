@@ -25,7 +25,7 @@ desk_ebay.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,40.180,6.16
 desk_espn.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,20.990,5.891,33.089
 desk_facebook.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,18.480,6.632,30.328
 desk_gmailthread.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,2.230,-7.993,12.453
-desk_googleplus.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,34.280,20.852,47.708
+desk_googleplus.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,34.280,15.00,47.708
 desk_googlespreadsheet.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.840,-6.544,14.224
 desk_googlespreadsheetdashed.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,7.340,-3.394,18.074
 desk_gws.skp_copy_tiles_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,2.520,-7.732,12.772
