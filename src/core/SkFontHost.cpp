@@ -193,6 +193,10 @@ SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[],
 
 void set_up_default(SkFontMgr** singleton) {
   *singleton = SkFontMgr::Factory();
+  // we never want to return NULL
+  if (NULL == *singleton) {
+      *singleton = SkNEW(SkEmptyFontMgr);
+  }
 }
 
 SkFontMgr* SkFontMgr::RefDefault() {
