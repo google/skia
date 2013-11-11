@@ -6,6 +6,12 @@
     fun:FcConfigFileExists
 }
 {
+    FcFontSetCreate_Leak
+    Memcheck:Leak
+    fun:malloc
+    fun:FcFontSetCreate
+}
+{
     Mesa_glsl_parsing
     Memcheck:Cond
     fun:_ZN22_mesa_glsl_parse_stateC1EP10gl_contextjPv
