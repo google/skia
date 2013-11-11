@@ -276,7 +276,8 @@ def SubmitTryRequest(args, is_svn=True):
     try_args = ['--use_svn',
                 '--svn_repo', GetTryRepo(),
                 '--root', GetCheckoutRoot(is_svn),
-                '--bot', botlist]
+                '--bot', botlist,
+                '--patchlevel', '0']
     if args.revision:
       try_args.extend(['-r', args.revision])
     trychange.TryChange(try_args, None, False)
