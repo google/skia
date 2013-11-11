@@ -65,6 +65,3 @@ perlinnoise
 
 # Added by bsalomon in support of adding HQ filter to GPU device drawBitmap
 bleed
-
-# Added by jvanverth until bungeman can determine correct output
-coloremoji
