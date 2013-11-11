@@ -5,29 +5,30 @@
  * found in the LICENSE file.
  */
 
-#include "GrBitmapTextContext.h"
+#include "GrDistanceFieldTextContext.h"
 #include "GrAtlas.h"
 #include "GrDrawTarget.h"
 #include "GrFontScaler.h"
 #include "GrIndexBuffer.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
-#include "SkColorPriv.h"
 #include "SkPath.h"
 #include "SkRTConf.h"
 #include "SkStrokeRec.h"
-#include "effects/GrCustomCoordsTextureEffect.h"
+#include "effects/GrDistanceFieldTextureEffect.h"
 
 static const int kGlyphCoordsAttributeIndex = 1;
 
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
-GrBitmapTextContext::GrBitmapTextContext(GrContext* context, const GrPaint& paint,
-                                         SkColor color) :
-                                         GrTextContext(context, paint) {
-    fAutoMatrix.setIdentity(fContext, &fPaint);
 
+GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context, 
+                                                       const GrPaint& paint,
+                                                       SkColor color,
+                                                       SkScalar textRatio)
+                                                     : GrTextContext(context, paint)
+                                                     , fTextRatio(textRatio) {
     fSkPaintColor = color;
 
     fStrike = NULL;
@@ -39,7 +40,7 @@ GrBitmapTextContext::GrBitmapTextContext(GrContext* context, const GrPaint& pain
     fMaxVertices = 0;
 }
 
-GrBitmapTextContext::~GrBitmapTextContext() {
+GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
     this->flushGlyphs();
 }
 
@@ -50,24 +51,24 @@ static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
     return GrColorPackRGBA(r, g, b, 0xff);
 }
 
-void GrBitmapTextContext::flushGlyphs() {
+void GrDistanceFieldTextContext::flushGlyphs() {
     if (NULL == fDrawTarget) {
         return;
     }
 
     GrDrawState* drawState = fDrawTarget->drawState();
     GrDrawState::AutoRestoreEffects are(drawState);
-    drawState->setFromPaint(fPaint, SkMatrix::I(), fContext->getRenderTarget());
+    drawState->setFromPaint(fPaint, fContext->getMatrix(), fContext->getRenderTarget());
 
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
         SkASSERT(GrIsALIGN4(fCurrVertex));
         SkASSERT(fCurrTexture);
-        GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kNone_FilterMode);
+        GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
 
         // This effect could be stored with one of the cache objects (atlas?)
         drawState->addCoverageEffect(
-                                GrCustomCoordsTextureEffect::Create(fCurrTexture, params),
+                                GrDistanceFieldTextureEffect::Create(fCurrTexture, params),
                                 kGlyphCoordsAttributeIndex)->unref();
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
@@ -97,7 +98,6 @@ void GrBitmapTextContext::flushGlyphs() {
         fDrawTarget->drawIndexedInstances(kTriangles_GrPrimitiveType,
                                           nGlyphs,
                                           4, 6);
-
         fDrawTarget->resetVertexSource();
         fVertices = NULL;
         fMaxVertices = 0;
@@ -116,18 +116,14 @@ extern const GrVertexAttrib gTextVertexAttribs[] = {
 
 };
 
-void GrBitmapTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
-                                          GrFixed vx, GrFixed vy,
-                                          GrFontScaler* scaler) {
+void GrDistanceFieldTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
+                                                 GrFixed vx, GrFixed vy,
+                                                 GrFontScaler* scaler) {
     if (NULL == fDrawTarget) {
         return;
     }
     if (NULL == fStrike) {
-#if SK_DISTANCEFIELD_FONTS
         fStrike = fContext->getFontCache()->getStrike(scaler, true);
-#else
-        fStrike = fContext->getFontCache()->getStrike(scaler);
-#endif
     }
 
     GrGlyph* glyph = fStrike->getGlyph(packed, scaler);
@@ -135,9 +131,13 @@ void GrBitmapTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         return;
     }
 
+    SkScalar sx = SkFixedToScalar(vx);
+    SkScalar sy = SkFixedToScalar(vy);
+/*
+    // not valid, need to find a different solution for this
     vx += SkIntToFixed(glyph->fBounds.fLeft);
     vy += SkIntToFixed(glyph->fBounds.fTop);
-
+   
     // keep them as ints until we've done the clip-test
     GrFixed width = glyph->fBounds.width();
     GrFixed height = glyph->fBounds.height();
@@ -151,7 +151,7 @@ void GrBitmapTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
             return;
         }
     }
-
+*/
     if (NULL == glyph->fPlot) {
         if (fStrike->getGlyphAtlas(glyph, scaler)) {
             goto HAS_ATLAS;
@@ -192,8 +192,7 @@ void GrBitmapTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
 
         GrContext::AutoMatrix am;
         SkMatrix translate;
-        translate.setTranslate(SkFixedToScalar(vx - SkIntToFixed(glyph->fBounds.fLeft)),
-                               SkFixedToScalar(vy - SkIntToFixed(glyph->fBounds.fTop)));
+        translate.setTranslate(sx, sy);
         GrPaint tmpPaint(fPaint);
         am.setPreConcat(fContext, translate, &tmpPaint);
         SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
@@ -205,10 +204,6 @@ HAS_ATLAS:
     SkASSERT(glyph->fPlot);
     GrDrawTarget::DrawToken drawToken = fDrawTarget->getCurrentDrawToken();
     glyph->fPlot->setDrawToken(drawToken);
-
-    // now promote them to fixed (TODO: Rethink using fixed pt).
-    width = SkIntToFixed(width);
-    height = SkIntToFixed(height);
 
     GrTexture* texture = glyph->fPlot->texture();
     SkASSERT(texture);
@@ -251,18 +246,33 @@ HAS_ATLAS:
         SkASSERT(2*sizeof(GrPoint) == fDrawTarget->getDrawState().getVertexSize());
     }
 
+    SkScalar dx = SkIntToScalar(glyph->fBounds.fLeft);
+    SkScalar dy = SkIntToScalar(glyph->fBounds.fTop);
+    SkScalar width = SkIntToScalar(glyph->fBounds.width());
+    SkScalar height = SkIntToScalar(glyph->fBounds.height());
+
+    SkScalar scale = fTextRatio;
+    dx *= scale;
+    dy *= scale;
+    sx += dx;
+    sy += dy;
+    width *= scale;
+    height *= scale;
+
     GrFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
     GrFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
+    GrFixed tw = SkIntToFixed(glyph->fBounds.width());
+    GrFixed th = SkIntToFixed(glyph->fBounds.height());
 
-    fVertices[2*fCurrVertex].setRectFan(SkFixedToFloat(vx),
-                                        SkFixedToFloat(vy),
-                                        SkFixedToFloat(vx + width),
-                                        SkFixedToFloat(vy + height),
+    fVertices[2*fCurrVertex].setRectFan(sx,
+                                        sy,
+                                        sx + width,
+                                        sy + height,
                                         2 * sizeof(SkPoint));
     fVertices[2*fCurrVertex+1].setRectFan(SkFixedToFloat(texture->normalizeFixedX(tx)),
                                           SkFixedToFloat(texture->normalizeFixedY(ty)),
-                                          SkFixedToFloat(texture->normalizeFixedX(tx + width)),
-                                          SkFixedToFloat(texture->normalizeFixedY(ty + height)),
+                                          SkFixedToFloat(texture->normalizeFixedX(tx + tw)),
+                                          SkFixedToFloat(texture->normalizeFixedY(ty + th)),
                                           2 * sizeof(SkPoint));
     fCurrVertex += 4;
 }

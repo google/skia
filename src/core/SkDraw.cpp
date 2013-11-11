@@ -1727,10 +1727,30 @@ void SkDraw::drawText(const char text[], size_t byteLength,
 
     SkDrawCacheProc glyphCacheProc = paint.getDrawCacheProc();
 
+#if SK_DISTANCEFIELD_FONTS
+    const SkMatrix* ctm = fMatrix;
+    const SkPaint* paintRef = &paint;
+    SkPaint paintCopy;
+    uint32_t procFlags = fProcs ? fProcs->fFlags : 0;
+    if (procFlags & SkDrawProcs::kUseScaledGlyphs_Flag) {
+        paintCopy = paint;
+        paintCopy.setTextSize(SkDrawProcs::kBaseDFFontSize);
+        paintCopy.setLCDRenderText(false);
+        paintRef = &paintCopy;
+    }
+    if (procFlags & SkDrawProcs::kSkipBakedGlyphTransform_Flag) {
+        ctm = NULL;
+    }
+    SkAutoGlyphCache    autoCache(*paintRef, &fDevice->fLeakyProperties, ctm);
+#else
     SkAutoGlyphCache    autoCache(paint, &fDevice->fLeakyProperties, fMatrix);
+#endif
     SkGlyphCache*       cache = autoCache.getCache();
 
     // transform our starting point
+#if SK_DISTANCEFIELD_FONTS
+    if (!(procFlags & SkDrawProcs::kSkipBakedGlyphTransform_Flag)) 
+#endif
     {
         SkPoint loc;
         fMatrix->mapXY(x, y, &loc);
@@ -1789,16 +1809,41 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     SkFixed fx = SkScalarToFixed(x) + d1g.fHalfSampleX;
     SkFixed fy = SkScalarToFixed(y) + d1g.fHalfSampleY;
 
+#if SK_DISTANCEFIELD_FONTS
+    SkFixed fixedScale;
+    if (procFlags & SkDrawProcs::kUseScaledGlyphs_Flag) {
+        fixedScale = SkScalarToFixed(paint.getTextSize()/(float)SkDrawProcs::kBaseDFFontSize);
+    }
+#endif
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
 
+#if SK_DISTANCEFIELD_FONTS
+        if (procFlags & SkDrawProcs::kUseScaledGlyphs_Flag) {
+            fx += SkFixedMul_portable(autokern.adjust(glyph), fixedScale);
+        } else {
+            fx += autokern.adjust(glyph);
+        }
+#else
         fx += autokern.adjust(glyph);
+#endif
 
         if (glyph.fWidth) {
             proc(d1g, fx, fy, glyph);
         }
+
+#if SK_DISTANCEFIELD_FONTS
+        if (procFlags & SkDrawProcs::kUseScaledGlyphs_Flag) {
+            fx += SkFixedMul_portable(glyph.fAdvanceX, fixedScale);
+            fy += SkFixedMul_portable(glyph.fAdvanceY, fixedScale);
+        } else {
+            fx += glyph.fAdvanceX;
+            fy += glyph.fAdvanceY;
+        }
+#else
         fx += glyph.fAdvanceX;
         fy += glyph.fAdvanceY;
+#endif
     }
 }
 
@@ -1956,7 +2001,23 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     }
 
     SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
+#if SK_DISTANCEFIELD_FONTS
+    const SkMatrix* ctm = fMatrix;
+    const SkPaint* paintRef = &paint;
+    SkPaint paintCopy;
+    uint32_t procFlags = fProcs ? fProcs->fFlags : 0;
+    if (procFlags & SkDrawProcs::kUseScaledGlyphs_Flag) {
+        paintCopy = paint;
+        paintCopy.setTextSize(SkDrawProcs::kBaseDFFontSize);
+        paintRef = &paintCopy;
+    }
+    if (procFlags & SkDrawProcs::kSkipBakedGlyphTransform_Flag) {
+        ctm = NULL;
+    }
+    SkAutoGlyphCache    autoCache(*paintRef, &fDevice->fLeakyProperties, ctm);
+#else
     SkAutoGlyphCache    autoCache(paint, &fDevice->fLeakyProperties, fMatrix);
+#endif
     SkGlyphCache*       cache = autoCache.getCache();
 
     SkAAClipBlitterWrapper wrapper;
@@ -1998,8 +2059,16 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
 
         if (SkPaint::kLeft_Align == paint.getTextAlign()) {
             while (text < stop) {
+#if SK_DISTANCEFIELD_FONTS
+                if (procFlags & SkDrawProcs::kSkipBakedGlyphTransform_Flag) {
+                    tms.fLoc.fX = *pos;
+                    tms.fLoc.fY = *(pos+1);
+                } else {
+                    tmsProc(tms, pos);
+                }
+#else
                 tmsProc(tms, pos);
-
+#endif
                 SkFixed fx = SkScalarToFixed(tms.fLoc.fX) + d1g.fHalfSampleX;
                 SkFixed fy = SkScalarToFixed(tms.fLoc.fY) + d1g.fHalfSampleY;
 

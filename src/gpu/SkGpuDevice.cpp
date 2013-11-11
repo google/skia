@@ -12,6 +12,9 @@
 
 #include "GrContext.h"
 #include "GrBitmapTextContext.h"
+#if SK_DISTANCEFIELD_FONTS
+#include "GrDistanceFieldTextContext.h"
+#endif
 
 #include "SkGrTexturePixelRef.h"
 
@@ -1701,6 +1704,11 @@ SkDrawProcs* SkGpuDevice::initDrawForText(GrTextContext* context) {
         fDrawProcs = SkNEW(GrSkDrawProcs);
         fDrawProcs->fD1GProc = SkGPU_Draw1Glyph;
         fDrawProcs->fContext = fContext;
+#if SK_DISTANCEFIELD_FONTS
+        fDrawProcs->fFlags = 0;
+        fDrawProcs->fFlags |= SkDrawProcs::kSkipBakedGlyphTransform_Flag;
+        fDrawProcs->fFlags |= SkDrawProcs::kUseScaledGlyphs_Flag;
+#endif
     }
 
     // init our (and GL's) state
@@ -1724,8 +1732,12 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
         if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
             return;
         }
-
+#if SK_DISTANCEFIELD_FONTS
+        GrDistanceFieldTextContext context(fContext, grPaint, paint.getColor(), 
+                                           paint.getTextSize());
+#else
         GrBitmapTextContext context(fContext, grPaint, paint.getColor());
+#endif
         myDraw.fProcs = this->initDrawForText(&context);
         this->INHERITED::drawText(myDraw, text, byteLength, x, y, paint);
     }
@@ -1748,7 +1760,12 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
         if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
             return;
         }
+#if SK_DISTANCEFIELD_FONTS
+        GrDistanceFieldTextContext context(fContext, grPaint, paint.getColor(), 
+                                           paint.getTextSize()/SkDrawProcs::kBaseDFFontSize);
+#else
         GrBitmapTextContext context(fContext, grPaint, paint.getColor());
+#endif
         myDraw.fProcs = this->initDrawForText(&context);
         this->INHERITED::drawPosText(myDraw, text, byteLength, pos, constY,
                                      scalarsPerPos, paint);

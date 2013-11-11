@@ -12,6 +12,10 @@
 #include "GrTextStrike_impl.h"
 #include "SkString.h"
 
+#if SK_DISTANCEFIELD_FONTS
+#include "edtaa3.h"
+#endif
+
 SK_DEFINE_INST_COUNT(GrFontScaler)
 SK_DEFINE_INST_COUNT(GrKey)
 
@@ -193,6 +197,11 @@ void GrFontCache::dump() const {
     static int gCounter;
 #endif
 
+#if SK_DISTANCEFIELD_FONTS
+#define DISTANCE_FIELD_PAD   4
+#define DISTANCE_FIELD_RANGE (4.0)
+#endif
+
 /*
     The text strike is specific to a given font/style/matrix setup, which is
     represented by the GrHostFontScaler object we are given in getGlyph().
@@ -246,6 +255,15 @@ GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
     }
 
     GrGlyph* glyph = fPool.alloc();
+#if SK_DISTANCEFIELD_FONTS
+    // expand bounds to hold full distance field data
+    if (fUseDistanceField) {
+        bounds.fLeft   -= DISTANCE_FIELD_PAD;
+        bounds.fRight  += DISTANCE_FIELD_PAD;
+        bounds.fTop    -= DISTANCE_FIELD_PAD;
+        bounds.fBottom += DISTANCE_FIELD_PAD;
+    }
+#endif
     glyph->init(packed, bounds);
     fCache.insert(packed, glyph);
     return glyph;
@@ -255,6 +273,7 @@ bool GrTextStrike::removeUnusedPlots() {
     fCache.getArray().visitAll(invalidate_glyph);
     return fAtlasMgr->removeUnusedPlots(&fAtlas);
 }
+
 
 bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
 #if 0   // testing hack to force us to flush our cache often
@@ -270,18 +289,118 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
     SkAutoRef ar(scaler);
 
     int bytesPerPixel = GrMaskFormatBytesPerPixel(fMaskFormat);
-    size_t size = glyph->fBounds.area() * bytesPerPixel;
-    SkAutoSMalloc<1024> storage(size);
-    if (!scaler->getPackedGlyphImage(glyph->fPackedID, glyph->width(),
-                                     glyph->height(),
-                                     glyph->width() * bytesPerPixel,
-                                     storage.get())) {
-        return false;
-    }
 
-    GrPlot* plot = fAtlasMgr->addToAtlas(&fAtlas, glyph->width(),
-                                         glyph->height(), storage.get(),
-                                         &glyph->fAtlasLocation);
+    GrPlot* plot;
+#if SK_DISTANCEFIELD_FONTS
+    if (fUseDistanceField) {
+        SkASSERT(1 == bytesPerPixel);
+
+        // we've already expanded the glyph dimensions to match the final size
+        // but must shrink back down to get the packed glyph data
+        int dfWidth = glyph->width();
+        int dfHeight = glyph->height();
+        int width = dfWidth - 2*DISTANCE_FIELD_PAD;
+        int height = dfHeight - 2*DISTANCE_FIELD_PAD;
+        size_t stride = width*bytesPerPixel;
+
+        size_t size = width * height * bytesPerPixel;
+        SkAutoSMalloc<1024> storage(size);
+        if (!scaler->getPackedGlyphImage(glyph->fPackedID, width, height, stride, storage.get())) {
+            return false;
+        }
+
+        // alloc storage for distance field glyph
+        size_t dfSize = dfWidth * dfHeight * bytesPerPixel;
+        SkAutoSMalloc<1024> dfStorage(dfSize);
+
+        // copy glyph into distance field storage
+        sk_bzero(dfStorage.get(), dfSize);
+
+        unsigned char* ptr = (unsigned char*) storage.get();
+        unsigned char* dfPtr = (unsigned char*) dfStorage.get();
+        size_t dfStride = dfWidth*bytesPerPixel;
+        dfPtr += DISTANCE_FIELD_PAD*dfStride;
+        dfPtr += DISTANCE_FIELD_PAD*bytesPerPixel;
+
+        for (int i = 0; i < height; ++i) {
+            memcpy(dfPtr, ptr, stride);
+
+            dfPtr += dfStride;
+            ptr += stride;
+        }
+
+        // generate distance field data
+        SkAutoSMalloc<1024> distXStorage(dfWidth*dfHeight*sizeof(short));
+        SkAutoSMalloc<1024> distYStorage(dfWidth*dfHeight*sizeof(short));
+        SkAutoSMalloc<1024> outerDistStorage(dfWidth*dfHeight*sizeof(double));
+        SkAutoSMalloc<1024> innerDistStorage(dfWidth*dfHeight*sizeof(double));
+        SkAutoSMalloc<1024> gxStorage(dfWidth*dfHeight*sizeof(double));
+        SkAutoSMalloc<1024> gyStorage(dfWidth*dfHeight*sizeof(double));
+
+        short* distX = (short*) distXStorage.get();
+        short* distY = (short*) distYStorage.get();
+        double* outerDist = (double*) outerDistStorage.get();
+        double* innerDist = (double*) innerDistStorage.get();
+        double* gx = (double*) gxStorage.get();
+        double* gy = (double*) gyStorage.get();
+
+        dfPtr = (unsigned char*) dfStorage.get();
+        EDTAA::computegradient(dfPtr, dfWidth, dfHeight, gx, gy);
+        EDTAA::edtaa3(dfPtr, gx, gy, dfWidth, dfHeight, distX, distY, outerDist);
+
+        for (int i = 0; i < dfWidth*dfHeight; ++i) {
+            *dfPtr = 255 - *dfPtr;
+            dfPtr++;
+        }
+        dfPtr = (unsigned char*) dfStorage.get();
+        sk_bzero(gx, sizeof(double)*dfWidth*dfHeight);
+        sk_bzero(gy, sizeof(double)*dfWidth*dfHeight);
+        EDTAA::computegradient(dfPtr, dfWidth, dfHeight, gx, gy);
+        EDTAA::edtaa3(dfPtr, gx, gy, dfWidth, dfHeight, distX, distY, innerDist);
+
+        for (int i = 0; i < dfWidth*dfHeight; ++i) {
+            unsigned char val;
+            double outerval = outerDist[i];
+            if (outerval < 0.0) { 
+                outerval = 0.0; 
+            }
+            double innerval = innerDist[i];
+            if (innerval < 0.0) { 
+                innerval = 0.0; 
+            }
+            double dist = outerval - innerval;
+            if (dist <= -DISTANCE_FIELD_RANGE) {
+                val = 255;
+            } else if (dist > DISTANCE_FIELD_RANGE) {
+                val = 0;
+            } else {
+                val = (unsigned char)((DISTANCE_FIELD_RANGE-dist)*128.0/DISTANCE_FIELD_RANGE);
+            }
+            *dfPtr++ = val;
+        }
+        
+        // copy to atlas
+        plot = fAtlasMgr->addToAtlas(&fAtlas, dfWidth, dfHeight, dfStorage.get(), 
+                                     &glyph->fAtlasLocation);
+
+    } else {
+#endif
+        size_t size = glyph->fBounds.area() * bytesPerPixel;
+        SkAutoSMalloc<1024> storage(size);
+        if (!scaler->getPackedGlyphImage(glyph->fPackedID, glyph->width(),
+                                         glyph->height(),
+                                         glyph->width() * bytesPerPixel,
+                                         storage.get())) {
+            return false;
+        }
+
+        plot = fAtlasMgr->addToAtlas(&fAtlas, glyph->width(), 
+                                     glyph->height(), storage.get(), 
+                                     &glyph->fAtlasLocation);
+#if SK_DISTANCEFIELD_FONTS
+    }
+#endif
+
     if (NULL == plot) {
         return false;
     }
@@ -289,3 +408,4 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
     glyph->fPlot = plot;
     return true;
 }
+

@@ -27,6 +27,17 @@
         ],
       },
     ],
+    [ 'skia_distancefield_fonts == 1',
+      {
+        'defines': [
+          'SK_DISTANCEFIELD_FONTS=1',
+        ],
+      }, {
+        'defines': [
+          'SK_DISTANCEFIELD_FONTS=0',
+        ],
+      },
+    ],
     [ 'skia_os == "win"',
       {
         'defines': [

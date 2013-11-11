@@ -83,6 +83,7 @@
       'dependencies': [
         'angle.gyp:*',
         'core.gyp:*',
+        'edtaa.gyp:*',
         'utils.gyp:*',
       ],
       'includes': [
@@ -130,6 +131,17 @@
           ],
           'defines': [
             'GR_ANDROID_PATH_RENDERING=1',
+          ],
+        }],
+        [ 'skia_distancefield_fonts', {
+          'sources': [
+            '<(skia_include_path)/gpu/GrDistanceFieldTextContext.h',
+            '<(skia_src_path)/gpu/GrDistanceFieldTextContext.cpp',
+            '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.cpp',
+            '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.h',
+          ],
+          'defines': [
+            'GR_DISTANCEFIELD_FONTS=1',
           ],
         }],
         [ 'skia_os == "linux" or skia_os == "chromeos"', {
