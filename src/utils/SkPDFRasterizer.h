@@ -11,5 +11,6 @@
 #include "SkStream.h"
 
 bool SkPopplerRasterizePDF(SkStream* pdf, SkBitmap* output);
+bool SkNativeRasterizePDF(SkStream* pdf, SkBitmap* output);
 
 #endif

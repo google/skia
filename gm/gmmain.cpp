@@ -1321,6 +1321,9 @@ static const PDFRasterizerData kPDFRasterizers[] = {
 #ifdef SK_BUILD_POPPLER
     { &SkPopplerRasterizePDF, "poppler", true },
 #endif
+#ifdef SK_BUILD_NATIVE_PDF_RENDERER
+    { &SkNativeRasterizePDF,  "native",  true },
+#endif  // SK_BUILD_NATIVE_PDF_RENDERER
 };
 
 static const char kDefaultsConfigStr[] = "defaults";

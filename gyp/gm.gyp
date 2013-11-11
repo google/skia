@@ -33,6 +33,7 @@
         '../src/pipe/utils/',
         '../src/utils/',
         '../src/utils/debugger',
+        '../experimental/PdfViewer',
       ],
       'includes': [
         'gmslides.gypi',
@@ -58,8 +59,14 @@
         'gm.gyp:gm_expectations',
         'jsoncpp.gyp:jsoncpp',
         'pdf.gyp:pdf',
+        'pdfviewer_lib.gyp:pdfviewer_lib',
       ],
       'conditions': [
+        ['skia_run_pdfviewer_in_gm', {
+          'defines': [
+            'SK_BUILD_NATIVE_PDF_RENDERER',
+          ],
+        }],
         ['skia_os in ["linux", "mac", "win"]', {
           'dependencies': [
             'poppler.gyp:libpoppler-cpp-gpl',
