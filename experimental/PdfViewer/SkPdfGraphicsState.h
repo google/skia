@@ -58,7 +58,7 @@ public:
     int depth() const { return fLocalCount; }
     bool empty() const { return fLocalCount == 0; }
 
-    bool nests() {
+    int nests() {
         return fNestingLevel;
     }
 
