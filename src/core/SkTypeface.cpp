@@ -69,7 +69,6 @@ protected:
     virtual size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const SK_OVERRIDE {
         return 0;
     }
-    virtual SkTypeface* onRefMatchingStyle(Style) const SK_OVERRIDE { return NULL; }
 };
 
 SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
@@ -263,10 +262,6 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
                                 const uint32_t* glyphIDs,
                                 uint32_t glyphIDsCount) const {
     return this->onGetAdvancedTypefaceMetrics(info, glyphIDs, glyphIDsCount);
-}
-
-SkTypeface* SkTypeface::refMatchingStyle(Style style) const {
-    return this->onRefMatchingStyle(style);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

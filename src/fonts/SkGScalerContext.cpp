@@ -220,15 +220,6 @@ size_t SkGTypeface::onGetTableData(SkFontTableTag tag, size_t offset,
     return fProxy->getTableData(tag, offset, length, data);
 }
 
-SkTypeface* SkGTypeface::onRefMatchingStyle(Style style) const {
-    if (this->style() == style) {
-        return const_cast<SkGTypeface*>(SkRef(this));
-    }
-
-    SkAutoTUnref<SkTypeface> other(fProxy->refMatchingStyle(style));
-    return SkNEW_ARGS(SkGTypeface, (other, fPaint));
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #if 0

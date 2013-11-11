@@ -529,7 +529,6 @@ bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
     }
 
     // Unknown language, return the BCP 47 code 'und' for 'undetermined'.
-    SkASSERT(false);
     record.language = "und";
     return true;
 }

@@ -6,6 +6,7 @@
  */
 
 #include "SkFontLCDConfig.h"
+#include "SkOnce.h"
 
 static SkFontLCDConfig::LCDOrientation gLCDOrientation = SkFontLCDConfig::kHorizontal_LCDOrientation;
 static SkFontLCDConfig::LCDOrder gLCDOrder = SkFontLCDConfig::kRGB_LCDOrder;
@@ -190,21 +191,18 @@ SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[],
     return this->onLegacyCreateTypeface(familyName, styleBits);
 }
 
+void set_up_default(SkFontMgr** singleton) {
+  *singleton = SkFontMgr::Factory();
+}
+
 SkFontMgr* SkFontMgr::RefDefault() {
-    static SkFontMgr* gFM;
-    if (NULL == gFM) {
-        gFM = SkFontMgr::Factory();
-        // we never want to return NULL
-        if (NULL == gFM) {
-            gFM = SkNEW(SkEmptyFontMgr);
-        }
-    }
+    static SkFontMgr* gFM = NULL;
+    SK_DECLARE_STATIC_ONCE(once);
+    SkOnce(&once, set_up_default, &gFM);
     return SkRef(gFM);
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_FONTHOST_USES_FONTMGR
 
 #if 0
 static SkFontStyle TypefaceStyleBitsToFontStyle(SkTypeface::Style styleBits) {
@@ -222,10 +220,17 @@ static SkFontStyle TypefaceStyleBitsToFontStyle(SkTypeface::Style styleBits) {
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        const char familyName[],
                                        SkTypeface::Style style) {
+    SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
     if (familyFace) {
-        return familyFace->refMatchingStyle(style);
+        bool bold = style & SkTypeface::kBold;
+        bool italic = style & SkTypeface::kItalic;
+        SkFontStyle newStyle = SkFontStyle(bold ? SkFontStyle::kBold_Weight
+                                                : SkFontStyle::kNormal_Weight,
+                                           SkFontStyle::kNormal_Width,
+                                           italic ? SkFontStyle::kItalic_Slant
+                                                  : SkFontStyle::kUpright_Slant);
+        return fm->matchFaceStyle(familyFace, newStyle);
     } else {
-        SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
         return fm->legacyCreateTypeface(familyName, style);
     }
 }
@@ -239,5 +244,3 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     SkAutoTUnref<SkFontMgr> fm(SkFontMgr::RefDefault());
     return fm->createFromStream(stream);
 }
-
-#endif

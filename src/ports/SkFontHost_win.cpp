@@ -275,7 +275,6 @@ protected:
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
-    virtual SkTypeface* onRefMatchingStyle(Style) const SK_OVERRIDE;
 };
 
 class FontMemResourceTypeface : public LogFontTypeface {
@@ -2452,10 +2451,6 @@ static SkTypeface* create_typeface(const SkTypeface* familyFace,
     return SkCreateTypefaceFromLOGFONT(lf);
 }
 
-SkTypeface* LogFontTypeface::onRefMatchingStyle(Style style) const {
-    return create_typeface(this, NULL, style);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkFontMgr.h"
@@ -2616,25 +2611,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#ifndef SK_FONTHOST_USES_FONTMGR
-
-SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
-                                       const char familyName[],
-                                       SkTypeface::Style styleBits) {
-    return create_typeface(familyFace, familyName, styleBits);
-}
-
-SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
-    return stream.get() ? CreateTypefaceFromStream(stream) : NULL;
-}
-
-SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
-    return create_from_stream(stream);
-}
-
-#endif
 
 SkFontMgr* SkFontMgr_New_GDI() {
     return SkNEW(SkFontMgrGDI);

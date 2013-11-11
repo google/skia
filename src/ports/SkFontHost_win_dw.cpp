@@ -574,7 +574,6 @@ protected:
     virtual int onGetTableTags(SkFontTableTag tags[]) const SK_OVERRIDE;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const SK_OVERRIDE;
-    virtual SkTypeface* onRefMatchingStyle(Style) const SK_OVERRIDE;
 };
 
 class SkScalerContext_DW : public SkScalerContext {
@@ -1762,12 +1761,6 @@ static SkTypeface* create_typeface(const SkTypeface* familyFace,
     return fontMgr->createTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get());
 }
 
-SkTypeface* DWriteFontTypeface::onRefMatchingStyle(Style style) const {
-    SkFontMgr_DirectWrite* fontMgr = NULL;
-    // todo: should each typeface have a ref to its fontmgr/cache?
-    return create_typeface(this, NULL, style, fontMgr);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static void get_locale_string(IDWriteLocalizedStrings* names, const WCHAR* preferedLocale,
@@ -1952,25 +1945,6 @@ SkTypeface* SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& pattern) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#ifndef SK_FONTHOST_USES_FONTMGR
-
-SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
-                                       const char familyName[],
-                                       SkTypeface::Style style) {
-    return create_typeface(familyFace, familyName, style, NULL);
-}
-
-SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    printf("SkFontHost::CreateTypefaceFromFile unimplemented");
-    return NULL;
-}
-
-SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
-    return create_from_stream(stream, 0);
-}
-
-#endif
 
 typedef decltype(GetUserDefaultLocaleName)* GetUserDefaultLocaleNameProc;
 static HRESULT GetGetUserDefaultLocaleNameProc(GetUserDefaultLocaleNameProc* proc) {
