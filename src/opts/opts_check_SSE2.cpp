@@ -271,14 +271,15 @@ SkMorphologyProc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {
 
 bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
                                SkBoxBlurProc* boxBlurY,
-                               SkBoxBlurProc* boxBlurXY) {
+                               SkBoxBlurProc* boxBlurXY,
+                               SkBoxBlurProc* boxBlurYX) {
 #ifdef SK_DISABLE_BLUR_DIVISION_OPTIMIZATION
     return false;
 #else
     if (!cachedHasSSE2()) {
         return false;
     }
-    return SkBoxBlurGetPlatformProcs_SSE2(boxBlurX, boxBlurY, boxBlurXY);
+    return SkBoxBlurGetPlatformProcs_SSE2(boxBlurX, boxBlurY, boxBlurXY, boxBlurYX);
 #endif
 }
 

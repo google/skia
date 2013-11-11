@@ -193,11 +193,12 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     SkPMColor* d = dst->getAddr32(0, 0);
     int w = dstBounds.width(), h = dstBounds.height();
     int sw = src.rowBytesAsPixels();
-    SkBoxBlurProc boxBlurX, boxBlurY, boxBlurXY;
-    if (!SkBoxBlurGetPlatformProcs(&boxBlurX, &boxBlurY, &boxBlurXY)) {
+    SkBoxBlurProc boxBlurX, boxBlurY, boxBlurXY, boxBlurYX;
+    if (!SkBoxBlurGetPlatformProcs(&boxBlurX, &boxBlurY, &boxBlurXY, &boxBlurYX)) {
         boxBlurX = boxBlur<kX, kX>;
         boxBlurY = boxBlur<kY, kY>;
         boxBlurXY = boxBlur<kX, kY>;
+        boxBlurYX = boxBlur<kY, kX>;
     }
 
     if (kernelSizeX > 0 && kernelSizeY > 0) {
@@ -221,9 +222,9 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         boxBlurX(d,  w,  t, kernelSizeX,  highOffsetX, lowOffsetX,  w, h);
         boxBlurX(t,  w,  d, kernelSizeX3, highOffsetX, highOffsetX, w, h);
     } else if (kernelSizeY > 0) {
-        boxBlurY(s,  sw, d, kernelSizeY,  lowOffsetY,  highOffsetY, h, w);
-        boxBlurY(d,  w,  t, kernelSizeY,  highOffsetY, lowOffsetY,  h, w);
-        boxBlurY(t,  w,  d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
+        boxBlurYX(s, sw, d, kernelSizeY,  lowOffsetY,  highOffsetY, h, w);
+        boxBlurX(d,  h,  t, kernelSizeY,  highOffsetY, lowOffsetY,  h, w);
+        boxBlurXY(t, h,  d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
     }
     offset->fX += srcBounds.fLeft;
     offset->fY += srcBounds.fTop;

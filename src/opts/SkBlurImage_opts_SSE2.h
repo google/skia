@@ -9,4 +9,5 @@
 
 bool SkBoxBlurGetPlatformProcs_SSE2(SkBoxBlurProc* boxBlurX,
                                     SkBoxBlurProc* boxBlurY,
-                                    SkBoxBlurProc* boxBlurXY);
+                                    SkBoxBlurProc* boxBlurXY,
+                                    SkBoxBlurProc* boxBlurYX);

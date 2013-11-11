@@ -15,5 +15,6 @@ typedef void (*SkBoxBlurProc)(const SkPMColor* src, int srcStride, SkPMColor* ds
 
 bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
                                SkBoxBlurProc* boxBlurY,
-                               SkBoxBlurProc* boxBlurXY);
+                               SkBoxBlurProc* boxBlurXY,
+                               SkBoxBlurProc* boxBlurYX);
 #endif

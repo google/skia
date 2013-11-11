@@ -107,9 +107,11 @@ void SkBoxBlur_SSE2(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
 
 bool SkBoxBlurGetPlatformProcs_SSE2(SkBoxBlurProc* boxBlurX,
                                     SkBoxBlurProc* boxBlurY,
-                                    SkBoxBlurProc* boxBlurXY) {
+                                    SkBoxBlurProc* boxBlurXY,
+                                    SkBoxBlurProc* boxBlurYX) {
     *boxBlurX = SkBoxBlur_SSE2<kX, kX>;
     *boxBlurY = SkBoxBlur_SSE2<kY, kY>;
     *boxBlurXY = SkBoxBlur_SSE2<kX, kY>;
+    *boxBlurYX = SkBoxBlur_SSE2<kY, kX>;
     return true;
 }

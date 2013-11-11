@@ -9,6 +9,7 @@
 
 bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
                                SkBoxBlurProc* boxBlurY,
-                               SkBoxBlurProc* boxBlurXY) {
+                               SkBoxBlurProc* boxBlurXY,
+                               SkBoxBlurProc* boxBlurYX) {
     return false;
 }
