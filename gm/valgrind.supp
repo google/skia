@@ -60,3 +60,10 @@
     fun:_mesa_ReadnPixelsARB
     fun:_mesa_ReadPixels
 }
+{
+    XOpenDisplay_Leak
+    Memcheck:Leak
+    fun:calloc
+    fun:_XConnectXCB
+    fun:XOpenDisplay
+}
