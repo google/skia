@@ -86,56 +86,6 @@ static bool add_page_and_replace_filename_extension(SkString* path, int page,
     return false;
 }
 
-static void make_filepath(SkString* path, const SkString& dir, const SkString& name) {
-    size_t len = dir.size();
-    path->set(dir);
-    if (0 < len  && '/' != dir[len - 1]) {
-        path->append("/");
-    }
-    path->append(name);
-}
-
-static bool is_path_seperator(const char chr) {
-#if defined(SK_BUILD_FOR_WIN)
-    return chr == '\\' || chr == '/';
-#else
-    return chr == '/';
-#endif
-}
-
-static void get_basename(SkString* basename, const SkString& path) {
-    if (path.size() == 0) {
-        basename->reset();
-        return;
-    }
-
-    size_t end = path.size() - 1;
-
-    // Paths pointing to directories often have a trailing slash,
-    // we remove it so the name is not empty
-    if (is_path_seperator(path[end])) {
-        if (end == 0) {
-            basename->reset();
-            return;
-        }
-
-        end -= 1;
-    }
-
-    size_t i = end;
-    do {
-        --i;
-        if (is_path_seperator(path[i])) {
-              const char* basenameStart = path.c_str() + i + 1;
-              size_t basenameLength = end - i;
-              basename->set(basenameStart, basenameLength);
-              return;
-        }
-    } while (i > 0);
-
-    basename->set(path.c_str(), end + 1);
-}
-
 /** Builds the output filename. path = dir/name, and it replaces expected
  * .skp extension with .pdf extention.
  * @param path Output filename.
@@ -146,7 +96,7 @@ static void get_basename(SkString* basename, const SkString& path) {
 static bool make_output_filepath(SkString* path, const SkString& dir,
                                  const SkString& name,
                                  int page) {
-    make_filepath(path, dir, name);
+    *path = SkOSPath::SkPathJoin(dir.c_str(), name.c_str());
     return add_page_and_replace_filename_extension(path, page,
                                                    PDF_FILE_EXTENSION,
                                                    PNG_FILE_EXTENSION);
@@ -264,8 +214,7 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
                         SkPdfRenderer& renderer) {
     SkDebugf("Loading PDF:  %s\n", inputPath.c_str());
 
-    SkString inputFilename;
-    get_basename(&inputFilename, inputPath);
+    SkString inputFilename = SkOSPath::SkBasename(inputPath.c_str());
 
     bool success = true;
 
@@ -357,10 +306,7 @@ static int process_input(const char* input, const SkString& outputDir,
         SkOSFile::Iter iter(input, PDF_FILE_EXTENSION);
         SkString inputFilename;
         while (iter.next(&inputFilename)) {
-            SkString inputPath;
-            SkString _input;
-            _input.append(input);
-            make_filepath(&inputPath, _input, inputFilename);
+            SkString inputPath = SkOSPath::SkPathJoin(input, inputFilename.c_str());
             if (!process_pdf(inputPath, outputDir, renderer)) {
                 ++failures;
             }
