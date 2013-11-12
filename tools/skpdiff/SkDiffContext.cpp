@@ -14,28 +14,18 @@
 #include "SkThreadPool.h"
 
 #include "SkDiffContext.h"
-#include "SkImageDiffer.h"
 #include "skpdiff_util.h"
 
 // Truncates the number of points of interests in JSON output to not freeze the parser
 static const int kMaxPOI = 100;
 
 SkDiffContext::SkDiffContext() {
-    fRecords = NULL;
     fDiffers = NULL;
     fDifferCount = 0;
     fThreadCount = SkThreadPool::kThreadPerCore;
 }
 
 SkDiffContext::~SkDiffContext() {
-    // Delete the record linked list
-    DiffRecord* currentRecord = fRecords;
-    while (NULL != currentRecord) {
-        DiffRecord* nextRecord = currentRecord->fNext;
-        SkDELETE(currentRecord);
-        currentRecord = nextRecord;
-    }
-
     if (NULL != fDiffers) {
         SkDELETE_ARRAY(fDiffers);
     }
@@ -82,6 +72,7 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
     // Load the images at the paths
     SkBitmap baselineBitmap;
     SkBitmap testBitmap;
+    SkAutoMutexAcquire imageLock(fImageMutex);
     if (!SkImageDecoder::DecodeFile(baselinePath, &baselineBitmap)) {
         SkDebugf("Failed to load bitmap \"%s\"\n", baselinePath);
         return;
@@ -90,68 +81,62 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
         SkDebugf("Failed to load bitmap \"%s\"\n", testPath);
         return;
     }
+    imageLock.release();
 
     // Setup a record for this diff
-    DiffRecord* newRecord = SkNEW(DiffRecord);
-    newRecord->fBaselinePath = baselinePath;
-    newRecord->fTestPath = testPath;
-    newRecord->fNext = fRecords;
-    fRecords = newRecord;
+    fRecordMutex.acquire();
+    DiffRecord* newRecord = fRecords.addToHead(DiffRecord());
+    fRecordMutex.release();
 
     // compute the common name
     SkString baseName = SkOSPath::SkBasename(baselinePath);
     SkString testName = SkOSPath::SkBasename(testPath);
     newRecord->fCommonName = get_common_prefix(baseName, testName);
 
+    newRecord->fBaselinePath = baselinePath;
+    newRecord->fTestPath = testPath;
+
     bool alphaMaskPending = false;
-    bool alphaMaskCreated = false;
+
+    // only enable alpha masks if a difference dir has been provided
+    if (!fDifferenceDir.isEmpty()) {
+        alphaMaskPending = true;
+    }
 
     // Perform each diff
     for (int differIndex = 0; differIndex < fDifferCount; differIndex++) {
         SkImageDiffer* differ = fDiffers[differIndex];
-        // TODO only enable for one differ
-        if (!alphaMaskCreated && !fDifferenceDir.isEmpty()) {
-            alphaMaskPending = differ->enablePOIAlphaMask();
+
+        // Copy the results into data for this record
+        DiffData& diffData = newRecord->fDiffs.push_back();
+        diffData.fDiffName = differ->getName();
+
+        if (!differ->diff(&baselineBitmap, &testBitmap, alphaMaskPending, &diffData.fResult)) {
+            // if the diff failed the remove its entry from the list
+            newRecord->fDiffs.pop_back();
+            continue;
         }
-        int diffID = differ->queueDiff(&baselineBitmap, &testBitmap);
-        if (diffID >= 0) {
 
-            // Copy the results into data for this record
-            DiffData& diffData = newRecord->fDiffs.push_back();
+        if (alphaMaskPending
+                && SkImageDiffer::RESULT_CORRECT != diffData.fResult.result
+                && !diffData.fResult.poiAlphaMask.empty()
+                && !newRecord->fCommonName.isEmpty()) {
 
-            diffData.fDiffName = differ->getName();
-            diffData.fResult = differ->getResult(diffID);
+            newRecord->fDifferencePath = SkOSPath::SkPathJoin(fDifferenceDir.c_str(),
+                                                              newRecord->fCommonName.c_str());
 
-            int poiCount = differ->getPointsOfInterestCount(diffID);
-            SkIPoint* poi = differ->getPointsOfInterest(diffID);
-            diffData.fPointsOfInterest.append(poiCount, poi);
+            // compute the image diff and output it
+            SkBitmap copy;
+            diffData.fResult.poiAlphaMask.copyTo(&copy, SkBitmap::kARGB_8888_Config);
+            SkImageEncoder::EncodeFile(newRecord->fDifferencePath.c_str(), copy,
+                                       SkImageEncoder::kPNG_Type, 100);
 
-            if (alphaMaskPending
-                    && SkImageDiffer::RESULT_CORRECT != diffData.fResult
-                    && newRecord->fDifferencePath.isEmpty()) {
-                newRecord->fDifferencePath = SkOSPath::SkPathJoin(fDifferenceDir.c_str(),
-                                                                  newRecord->fCommonName.c_str());
+            // cleanup the existing bitmap to free up resources;
+            diffData.fResult.poiAlphaMask.reset();
 
-                // compute the image diff and output it
-                SkBitmap* alphaMask = differ->getPointsOfInterestAlphaMask(diffID);
-                SkBitmap copy;
-                alphaMask->copyTo(&copy, SkBitmap::kARGB_8888_Config);
-                SkImageEncoder::EncodeFile(newRecord->fDifferencePath.c_str(), copy,
-                                           SkImageEncoder::kPNG_Type, 100);
-            }
-
-            if (alphaMaskPending) {
-                alphaMaskPending = false;
-                alphaMaskCreated = true;
-            }
-
-            // Because we are doing everything synchronously for now, we are done with the diff
-            // after reading it.
-            differ->deleteDiff(diffID);
+            alphaMaskPending = false;
         }
     }
-
-    // if we get a difference and we want the alpha mask then compute it here.
 }
 
 class SkThreadedDiff : public SkRunnable {
@@ -241,7 +226,9 @@ void SkDiffContext::diffPatterns(const char baselinePattern[], const char testPa
 }
 
 void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
-    DiffRecord* currentRecord = fRecords;
+    SkTLList<DiffRecord>::Iter iter(fRecords, SkTLList<DiffRecord>::Iter::kHead_IterStart);
+    DiffRecord* currentRecord = iter.get();
+
     if (useJSONP) {
         stream.writeText("var SkPDiffRecords = {\n");
     } else {
@@ -281,27 +268,13 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
                     stream.writeText("\",\n");
 
                     stream.writeText("                    \"result\": ");
-                    stream.writeScalarAsText((SkScalar)data.fResult);
+                    stream.writeScalarAsText((SkScalar)data.fResult.result);
                     stream.writeText(",\n");
 
-                    stream.writeText("                    \"pointsOfInterest\": [\n");
-                    for (int poiIndex = 0; poiIndex < data.fPointsOfInterest.count() &&
-                                           poiIndex < kMaxPOI; poiIndex++) {
-                        SkIPoint poi = data.fPointsOfInterest[poiIndex];
-                        stream.writeText("                        [");
-                        stream.writeDecAsText(poi.x());
-                        stream.writeText(",");
-                        stream.writeDecAsText(poi.y());
-                        stream.writeText("]");
+                    stream.writeText("                    \"pointsOfInterest\": ");
+                    stream.writeDecAsText(data.fResult.poiCount);
+                    stream.writeText("\n");
 
-                        // JSON does not allow trailing commas
-                        if (poiIndex + 1 < data.fPointsOfInterest.count() &&
-                            poiIndex + 1 < kMaxPOI) {
-                            stream.writeText(",");
-                        }
-                        stream.writeText("\n");
-                    }
-                    stream.writeText("                    ]\n");
                 stream.writeText("                }");
 
                 // JSON does not allow trailing commas
@@ -314,12 +287,13 @@ void SkDiffContext::outputRecords(SkWStream& stream, bool useJSONP) {
 
         stream.writeText("        }");
 
+        currentRecord = iter.next();
+
         // JSON does not allow trailing commas
-        if (NULL != currentRecord->fNext) {
+        if (NULL != currentRecord) {
             stream.writeText(",");
         }
         stream.writeText("\n");
-        currentRecord = currentRecord->fNext;
     }
     stream.writeText("    ]\n");
     if (useJSONP) {
@@ -335,7 +309,8 @@ void SkDiffContext::outputCsv(SkWStream& stream) {
 
     stream.writeText("key");
 
-    DiffRecord* currentRecord = fRecords;
+    SkTLList<DiffRecord>::Iter iter(fRecords, SkTLList<DiffRecord>::Iter::kHead_IterStart);
+    DiffRecord* currentRecord = iter.get();
 
     // Write CSV header and create a dictionary of all columns.
     while (NULL != currentRecord) {
@@ -348,14 +323,15 @@ void SkDiffContext::outputCsv(SkWStream& stream) {
                 cntColumns++;
             }
         }
-        currentRecord = currentRecord->fNext;
+        currentRecord = iter.next();
     }
     stream.writeText("\n");
 
     double values[100];
     SkASSERT(cntColumns < 100);  // Make the array larger, if we ever have so many diff types.
 
-    currentRecord = fRecords;
+    SkTLList<DiffRecord>::Iter iter2(fRecords, SkTLList<DiffRecord>::Iter::kHead_IterStart);
+    currentRecord = iter2.get();
     while (NULL != currentRecord) {
         for (int i = 0; i < cntColumns; i++) {
             values[i] = -1;
@@ -366,7 +342,7 @@ void SkDiffContext::outputCsv(SkWStream& stream) {
             int index = -1;
             SkAssertResult(columns.find(data.fDiffName, &index));
             SkASSERT(index >= 0 && index < cntColumns);
-            values[index] = data.fResult;
+            values[index] = data.fResult.result;
         }
 
         const char* filename = currentRecord->fBaselinePath.c_str() +
@@ -384,6 +360,6 @@ void SkDiffContext::outputCsv(SkWStream& stream) {
         }
         stream.writeText("\n");
 
-        currentRecord = currentRecord->fNext;
+        currentRecord = iter2.next();
     }
 }

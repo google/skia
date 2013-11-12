@@ -18,23 +18,11 @@
  */
 class SkPMetric : public SkImageDiffer {
 public:
-    virtual const char* getName() SK_OVERRIDE;
-    virtual int queueDiff(SkBitmap* baseline, SkBitmap* test) SK_OVERRIDE;
-    virtual void deleteDiff(int id) SK_OVERRIDE;
-    virtual bool isFinished(int id) SK_OVERRIDE;
-    virtual double getResult(int id) SK_OVERRIDE;
-    virtual int getPointsOfInterestCount(int id) SK_OVERRIDE;
-    virtual SkIPoint* getPointsOfInterest(int id) SK_OVERRIDE;
+    virtual const char* getName() const SK_OVERRIDE { return "perceptual"; }
+    virtual bool diff(SkBitmap* baseline, SkBitmap* test, bool computeMask,
+                      Result* result) const SK_OVERRIDE;
 
 private:
-    struct QueuedDiff {
-        bool finished;
-        double result;
-        SkTDArray<SkIPoint> poi;
-    };
-
-    SkTArray<QueuedDiff> fQueuedDiffs;
-
     typedef SkImageDiffer INHERITED;
 };
 

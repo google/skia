@@ -84,7 +84,7 @@ bool SkCLImageDiffer::loadKernelSource(const char source[], const char name[], c
     return true;
 }
 
-bool SkCLImageDiffer::makeImage2D(SkBitmap* bitmap, cl_mem* image) {
+bool SkCLImageDiffer::makeImage2D(SkBitmap* bitmap, cl_mem* image) const {
     cl_int imageErr;
     cl_image_format bitmapFormat;
     switch (bitmap->config()) {

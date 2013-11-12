@@ -65,7 +65,8 @@
         '../tools/flags/SkCommandLineFlags.cpp',
       ],
       'include_dirs': [
-        '../tools/flags'
+        '../tools/flags',
+        '../src/core/', # needed for SkTLList.h
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',

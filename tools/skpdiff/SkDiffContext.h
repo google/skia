@@ -8,12 +8,14 @@
 #ifndef SkDiffContext_DEFINED
 #define SkDiffContext_DEFINED
 
+#include "SkImageDiffer.h"
 #include "SkString.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
+#include "SkTLList.h"
+#include "SkThread.h"
 
 class SkWStream;
-class SkImageDiffer;
 
 /**
  * Collects records of diffs and outputs them as JSON.
@@ -64,29 +66,33 @@ public:
      * Output the records of each diff in JSON.
      *
      * The format of the JSON document is one top level array named "records".
-     * Each record in the array is an object with both a "baselinePath" and "testPath" string field.
+     * Each record in the array is an object with the following values:
+     *    "commonName"     : string containing the common prefix of the baselinePath
+     *                       and testPath filenames
+     *    "baselinePath"   : string containing the path to the baseline image
+     *    "testPath"       : string containing the path to the test image
+     *    "differencePath" : (optional) string containing the path to an alpha
+     *                       mask of the pixel difference between the baseline
+     *                       and test images
+     *
      * They also have an array named "diffs" with each element being one diff record for the two
      * images indicated in the above field.
      * A diff record includes:
      *    "differName"       : string name of the diff metric used
      *    "result"           : numerical result of the diff
-     *    "pointsOfInterest" : an array of coordinates (stored as a 2-array of ints) of interesting
-     *                         points
      *
      * Here is an example:
      *
      * {
      *     "records": [
      *         {
-     *             "baselinePath": "queue.png",
-     *             "testPath": "queue.png",
+     *             "commonName": "queue.png",
+     *             "baselinePath": "/a/queue.png",
+     *             "testPath": "/b/queue.png",
      *             "diffs": [
      *                 {
      *                     "differName": "different_pixels",
      *                     "result": 1,
-     *                     "pointsOfInterest": [
-     *                         [285,279],
-     *                     ]
      *                 }
      *             ]
      *         }
@@ -107,8 +113,7 @@ public:
 private:
     struct DiffData {
         const char* fDiffName;
-        double fResult;
-        SkTDArray<SkIPoint> fPointsOfInterest;
+        SkImageDiffer::Result fResult;
     };
 
     struct DiffRecord {
@@ -117,13 +122,22 @@ private:
         SkString           fBaselinePath;
         SkString               fTestPath;
         SkTArray<DiffData>        fDiffs;
-        DiffRecord*                fNext;
     };
+
+    // This is needed to work around a bug in the multithreaded case where the
+    // image decoders are crashing when large numbers of threads are invoking
+    // the decoder at the same time.
+    // see https://code.google.com/p/skia/issues/detail?id=1803
+    SkMutex fImageMutex;
+
+    // Used to protect access to fRecords and ensure only one thread is
+    // adding new entries at a time.
+    SkMutex fRecordMutex;
 
     // We use linked list for the records so that their pointers remain stable. A resizable array
     // might change its pointers, which would make it harder for async diffs to record their
     // results.
-    DiffRecord * fRecords;
+    SkTLList<DiffRecord> fRecords;
 
     SkImageDiffer** fDiffers;
     int fDifferCount;

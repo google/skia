@@ -26,7 +26,7 @@ class SkCLImageDiffer : public SkImageDiffer {
 public:
     SkCLImageDiffer();
 
-    virtual bool requiresOpenCL() SK_OVERRIDE { return true; }
+    virtual bool requiresOpenCL() const SK_OVERRIDE { return true; }
 
     /**
      * Initializes the OpenCL resources this differ needs to work
@@ -80,11 +80,14 @@ protected:
      * @param  image  A pointer to return the allocated image to
      * @return        True on success, false otherwise
      */
-    bool makeImage2D(SkBitmap* bitmap, cl_mem* image);
+    bool makeImage2D(SkBitmap* bitmap, cl_mem* image) const;
 
     cl_device_id     fDevice;
     cl_context       fContext;
     cl_command_queue fCommandQueue;
+
+protected:
+    bool fIsGood;
 
 private:
 
