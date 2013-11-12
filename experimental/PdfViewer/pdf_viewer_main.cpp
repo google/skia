@@ -140,8 +140,8 @@ static bool render_page(const SkString& outputDir,
         SkRect rect = renderer.MediaBox(page < 0 ? 0 :page);
 
         SkBitmap bitmap;
-        SkScalar width = SkScalarMul(rect.width(),  SkDoubleToScalar(sqrt(FLAGS_DPI / 72.0)));
-        SkScalar height = SkScalarMul(rect.height(),  SkDoubleToScalar(sqrt(FLAGS_DPI / 72.0)));
+        SkScalar width = SkScalarMul(rect.width(),  SkDoubleToScalar(FLAGS_DPI / 72.0));
+        SkScalar height = SkScalarMul(rect.height(),  SkDoubleToScalar(FLAGS_DPI / 72.0));
 
         rect = SkRect::MakeWH(width, height);
 
