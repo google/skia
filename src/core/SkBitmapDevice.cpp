@@ -232,7 +232,16 @@ void SkBitmapDevice::drawOval(const SkDraw& draw, const SkRect& oval, const SkPa
 void SkBitmapDevice::drawRRect(const SkDraw& draw, const SkRRect& rrect, const SkPaint& paint) {
     CHECK_FOR_ANNOTATION(paint);
 
+#ifdef SK_IGNORE_BLURRED_RRECT_OPT
+    SkPath  path;
+
+    path.addRRect(rrect);
+    // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
+    // required to override drawRRect.
+    this->drawPath(draw, path, paint, NULL, true);
+#else
     draw.drawRRect(rrect, paint);
+#endif
 }
 
 void SkBitmapDevice::drawPath(const SkDraw& draw, const SkPath& path,
