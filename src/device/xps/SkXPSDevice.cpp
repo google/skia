@@ -1203,6 +1203,14 @@ void SkXPSDevice::drawRect(const SkDraw& d,
     this->internalDrawRect(d, r, true, paint);
 }
 
+void SkXPSDevice::drawRRect(const SkDraw& d,
+                            const SkRRect& rr,
+                            const SkPaint& paint) {
+    SkPath path;
+    path.addRRect(rr);
+    this->drawPath(d, path, paint, NULL, true);
+}
+
 void SkXPSDevice::internalDrawRect(const SkDraw& d,
                                    const SkRect& r,
                                    bool transformRect,

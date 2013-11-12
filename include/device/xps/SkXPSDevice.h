@@ -85,6 +85,11 @@ protected:
         const SkRect& r,
         const SkPaint& paint) SK_OVERRIDE;
 
+    virtual void drawRRect(
+        const SkDraw&,
+        const SkRRect&,
+        const SkPaint& paint) SK_OVERRIDE;
+
     virtual void drawPath(
         const SkDraw&,
         const SkPath& platonicPath,

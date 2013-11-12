@@ -46,6 +46,7 @@ static void nothing_to_do() {}
  *  This device will route all bitmaps (primitives and in shaders) to its PRSet.
  *  It should never actually draw anything, so there need not be any pixels
  *  behind its device-bitmap.
+ *  FIXME: Derive from SkBaseDevice.
  */
 class GatherPixelRefDevice : public SkBitmapDevice {
 private:
@@ -91,6 +92,10 @@ public:
     }
     virtual void drawRect(const SkDraw&, const SkRect&,
                           const SkPaint& paint) SK_OVERRIDE {
+        this->addBitmapFromPaint(paint);
+    }
+    virtual void drawRRect(const SkDraw&, const SkRRect&,
+                           const SkPaint& paint) SK_OVERRIDE {
         this->addBitmapFromPaint(paint);
     }
     virtual void drawOval(const SkDraw&, const SkRect&,

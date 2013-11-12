@@ -137,6 +137,7 @@ void DeferredPipeController::playback(bool silent) {
 //-----------------------------------------------------------------------------
 // DeferredDevice
 //-----------------------------------------------------------------------------
+// FIXME: Derive from SkBaseDevice.
 class DeferredDevice : public SkBitmapDevice {
 public:
     explicit DeferredDevice(SkBaseDevice* immediateDevice);
@@ -196,6 +197,9 @@ protected:
         {SkASSERT(0);}
     virtual void drawRect(const SkDraw&, const SkRect& r,
                             const SkPaint& paint) SK_OVERRIDE
+        {SkASSERT(0);}
+    virtual void drawRRect(const SkDraw&, const SkRRect& rr,
+                           const SkPaint& paint) SK_OVERRIDE
         {SkASSERT(0);}
     virtual void drawPath(const SkDraw&, const SkPath& path,
                             const SkPaint& paint,
