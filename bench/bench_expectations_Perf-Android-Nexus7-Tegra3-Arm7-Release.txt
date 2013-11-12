@@ -549,7 +549,7 @@ tabl_pravda.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,
 tabl_sahadan.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,281.650,243.485,319.815
 tabl_slashdot.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,47.540,32.786,62.294
 tabl_techmeme.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,48.160,33.344,62.976
-tabl_theverge.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1821.720,1629.548,2013.892
+tabl_theverge.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1821.720,1959.548,2033.892
 tabl_transformice.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,382.280,314.052,430.508
 tabl_ukwsj.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,87.330,68.597,196.063
 tabl_vnexpress.skp_tile_256x256_grid_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,208.550,177.695,239.405
