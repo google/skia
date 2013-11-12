@@ -73,13 +73,6 @@ public:
     */
     virtual int height() const SK_OVERRIDE { return fBitmap.height(); }
 
-    /**
-     *  Return the bounds of the device in the coordinate space of the root
-     *  canvas. The root device will have its top-left at 0,0, but other devices
-     *  such as those associated with saveLayer may have a non-zero origin.
-     */
-    virtual void getGlobalBounds(SkIRect* bounds) const SK_OVERRIDE;
-
     /** Returns true if the device's bitmap's config treats every pixels as
         implicitly opaque.
     */
