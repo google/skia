@@ -1948,7 +1948,14 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
 
     SkPaint stockPaint;
 
-    if (xfermode == SkXfermode::kClear_Mode) {
+    if (xfermode == SkXfermode::kSrcATop_Mode) {
+        ScopedContentEntry content(this, &clipStack, clipRegion, identity,
+                                   stockPaint);
+        if (content.entry()) {
+            SkPDFUtils::DrawFormXObject(this->addXObjectResource(dst),
+                                        &content.entry()->fContent);
+        }
+    } else if (xfermode == SkXfermode::kClear_Mode || !srcFormXObject.get()) {
         return;
     } else if (xfermode == SkXfermode::kSrc_Mode ||
             xfermode == SkXfermode::kDstATop_Mode) {
@@ -1961,13 +1968,6 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
         }
         if (xfermode == SkXfermode::kSrc_Mode) {
             return;
-        }
-    } else if (xfermode == SkXfermode::kSrcATop_Mode) {
-        ScopedContentEntry content(this, &clipStack, clipRegion, identity,
-                                   stockPaint);
-        if (content.entry()) {
-            SkPDFUtils::DrawFormXObject(this->addXObjectResource(dst),
-                                        &content.entry()->fContent);
         }
     }
 
