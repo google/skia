@@ -7,6 +7,7 @@
 
 #include "SkFrontBufferedStream.h"
 #include "SkRefCnt.h"
+#include "SkStream.h"
 #include "SkTypes.h"
 #include "Test.h"
 
