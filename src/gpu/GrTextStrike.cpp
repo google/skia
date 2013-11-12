@@ -361,12 +361,12 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
         for (int i = 0; i < dfWidth*dfHeight; ++i) {
             unsigned char val;
             double outerval = outerDist[i];
-            if (outerval < 0.0) { 
-                outerval = 0.0; 
+            if (outerval < 0.0) {
+                outerval = 0.0;
             }
             double innerval = innerDist[i];
-            if (innerval < 0.0) { 
-                innerval = 0.0; 
+            if (innerval < 0.0) {
+                innerval = 0.0;
             }
             double dist = outerval - innerval;
             if (dist <= -DISTANCE_FIELD_RANGE) {
@@ -378,9 +378,9 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
             }
             *dfPtr++ = val;
         }
-        
+
         // copy to atlas
-        plot = fAtlasMgr->addToAtlas(&fAtlas, dfWidth, dfHeight, dfStorage.get(), 
+        plot = fAtlasMgr->addToAtlas(&fAtlas, dfWidth, dfHeight, dfStorage.get(),
                                      &glyph->fAtlasLocation);
 
     } else {
@@ -394,8 +394,8 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
             return false;
         }
 
-        plot = fAtlasMgr->addToAtlas(&fAtlas, glyph->width(), 
-                                     glyph->height(), storage.get(), 
+        plot = fAtlasMgr->addToAtlas(&fAtlas, glyph->width(),
+                                     glyph->height(), storage.get(),
                                      &glyph->fAtlasLocation);
 #if SK_DISTANCEFIELD_FONTS
     }
@@ -408,4 +408,3 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
     glyph->fPlot = plot;
     return true;
 }
-

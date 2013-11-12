@@ -23,7 +23,7 @@ SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
 
-GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context, 
+GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
                                                        const GrPaint& paint,
                                                        SkColor color,
                                                        SkScalar textRatio)
@@ -137,7 +137,7 @@ void GrDistanceFieldTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
     // not valid, need to find a different solution for this
     vx += SkIntToFixed(glyph->fBounds.fLeft);
     vy += SkIntToFixed(glyph->fBounds.fTop);
-   
+
     // keep them as ints until we've done the clip-test
     GrFixed width = glyph->fBounds.width();
     GrFixed height = glyph->fBounds.height();

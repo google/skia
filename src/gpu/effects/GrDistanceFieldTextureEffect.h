@@ -14,7 +14,7 @@
 class GrGLDistanceFieldTextureEffect;
 
 /**
- * The output color of this effect is a modulation of the input color and a sample from a 
+ * The output color of this effect is a modulation of the input color and a sample from a
  * distance field texture (using a smoothed step function near 0.5).
  * It allows explicit specification of the filtering and wrap modes (GrTextureParams). The input
  * coords are a custom attribute.

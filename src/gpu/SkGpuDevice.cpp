@@ -1733,7 +1733,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
             return;
         }
 #if SK_DISTANCEFIELD_FONTS
-        GrDistanceFieldTextContext context(fContext, grPaint, paint.getColor(), 
+        GrDistanceFieldTextContext context(fContext, grPaint, paint.getColor(),
                                            paint.getTextSize());
 #else
         GrBitmapTextContext context(fContext, grPaint, paint.getColor());
@@ -1761,7 +1761,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
             return;
         }
 #if SK_DISTANCEFIELD_FONTS
-        GrDistanceFieldTextContext context(fContext, grPaint, paint.getColor(), 
+        GrDistanceFieldTextContext context(fContext, grPaint, paint.getColor(),
                                            paint.getTextSize()/SkDrawProcs::kBaseDFFontSize);
 #else
         GrBitmapTextContext context(fContext, grPaint, paint.getColor());

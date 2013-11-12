@@ -14,7 +14,7 @@
 #include "GrTexture.h"
 
 // The distance field is constructed as unsigned char values, so that the zero value is at 128.
-// Hence our zero threshold is 128/255. 
+// Hence our zero threshold is 128/255.
 #define THRESHOLD "0.50196078431"
 
 class GrGLDistanceFieldTextureEffect : public GrGLVertexEffect {
@@ -47,7 +47,7 @@ public:
                                        kVec2f_GrSLType);
         builder->fsCodeAppend(";\n");
         builder->fsCodeAppend("\tfloat distance = texColor.r;\n");
-        // this gives us a smooth step across approximately one fragment 
+        // this gives us a smooth step across approximately one fragment
         // (assuming a radius of the diagonal of the fragment, hence a factor of sqrt(2)/2)
         builder->fsCodeAppend("\tfloat afwidth = 0.7071*length(vec2(dFdx(distance), dFdy(distance)));\n");
         builder->fsCodeAppend("\tfloat val = smoothstep("THRESHOLD"-afwidth, "THRESHOLD"+afwidth, distance);\n");

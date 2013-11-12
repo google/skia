@@ -1749,7 +1749,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
 
     // transform our starting point
 #if SK_DISTANCEFIELD_FONTS
-    if (!(procFlags & SkDrawProcs::kSkipBakedGlyphTransform_Flag)) 
+    if (!(procFlags & SkDrawProcs::kSkipBakedGlyphTransform_Flag))
 #endif
     {
         SkPoint loc;
