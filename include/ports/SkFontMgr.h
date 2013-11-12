@@ -41,6 +41,10 @@ public:
     void getFamilyName(int index, SkString* familyName);
     SkFontStyleSet* createStyleSet(int index);
 
+    /**
+     *  The caller must call unref() on the returned object.
+     *  Never returns NULL; will return an empty set if the name is not found.
+     */
     SkFontStyleSet* matchFamily(const char familyName[]);
 
     /**
@@ -89,6 +93,7 @@ protected:
     virtual void onGetFamilyName(int index, SkString* familyName) = 0;
     virtual SkFontStyleSet* onCreateStyleSet(int index) = 0;
 
+    /** May return NULL if the name is not found. */
     virtual SkFontStyleSet* onMatchFamily(const char familyName[]) = 0;
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],

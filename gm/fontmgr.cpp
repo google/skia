@@ -162,18 +162,16 @@ protected:
             "Helvetica Neue", "Arial"
         };
 
-        SkFontStyleSet* fset = NULL;
+        SkAutoTUnref<SkFontStyleSet> fset;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); ++i) {
-            fset = fFM->matchFamily(gNames[i]);
-            if (fset && fset->count() > 0) {
+            fset.reset(fFM->matchFamily(gNames[i]));
+            if (fset->count() > 0) {
                 break;
             }
         }
-
-        if (NULL == fset) {
+        if (NULL == fset.get()) {
             return;
         }
-        SkAutoUnref aur(fset);
 
         canvas->translate(20, 40);
         this->exploreFamily(canvas, paint, fset);
