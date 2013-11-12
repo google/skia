@@ -83,12 +83,7 @@ public:
      *  canvas. The root device will have its top-left at 0,0, but other devices
      *  such as those associated with saveLayer may have a non-zero origin.
      */
-    void getGlobalBounds(SkIRect* bounds) const {
-        SkASSERT(bounds);
-        const SkIPoint& origin = this->getOrigin();
-        bounds->setXYWH(origin.x(), origin.y(), this->width(), this->height());
-    }
-    
+    virtual void getGlobalBounds(SkIRect* bounds) const = 0;
 
     /** Returns true if the device's bitmap's config treats every pixel as
         implicitly opaque.
@@ -388,7 +383,6 @@ private:
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
     // any clip information.
-    // TODO: move to SkBitmapDevice
     virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) = 0;
 
     // just called by SkCanvas when built as a layer

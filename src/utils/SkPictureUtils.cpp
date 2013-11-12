@@ -45,38 +45,34 @@ static void nothing_to_do() {}
 /**
  *  This device will route all bitmaps (primitives and in shaders) to its PRSet.
  *  It should never actually draw anything, so there need not be any pixels
- *  behind its device.
+ *  behind its device-bitmap.
+ *  FIXME: Derive from SkBaseDevice.
  */
-class GatherPixelRefDevice : public SkBaseDevice {
-public:
-    GatherPixelRefDevice(int width, int height, PixelRefSet* prset) {
-        fSize.set(width, height);
-        fEmptyBitmap.setConfig(SkBitmap::kNo_Config, width, height);
-        fPRSet = prset;
+class GatherPixelRefDevice : public SkBitmapDevice {
+private:
+    PixelRefSet*  fPRSet;
+
+    void addBitmap(const SkBitmap& bm) {
+        fPRSet->add(bm.pixelRef());
     }
 
-    virtual uint32_t getDeviceCapabilities() SK_OVERRIDE { return 0; }
-    virtual int width() const SK_OVERRIDE { return fSize.width(); }
-    virtual int height() const SK_OVERRIDE { return fSize.height(); }
-    virtual bool isOpaque() const SK_OVERRIDE { return false; }
-    virtual SkBitmap::Config config() const SK_OVERRIDE {
-        return SkBitmap::kNo_Config;
+    void addBitmapFromPaint(const SkPaint& paint) {
+        SkShader* shader = paint.getShader();
+        if (shader) {
+            SkBitmap bm;
+            // Check whether the shader is a gradient in order to short-circuit
+            // call to asABitmap to prevent generation of bitmaps from
+            // gradient shaders, which implement asABitmap.
+            if (SkShader::kNone_GradientType == shader->asAGradient(NULL) &&
+                shader->asABitmap(&bm, NULL, NULL)) {
+                fPRSet->add(bm.pixelRef());
+            }
+        }
     }
-    virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE { return NULL; }
-    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) SK_OVERRIDE {
-        return true;
-    }
-    // TODO: allow this call to return failure, or move to SkBitmapDevice only.
-    virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE {
-        return fEmptyBitmap;
-    }
-    virtual void lockPixels() SK_OVERRIDE { nothing_to_do(); }
-    virtual void unlockPixels() SK_OVERRIDE { nothing_to_do(); }
-    virtual bool allowImageFilter(SkImageFilter*) SK_OVERRIDE { return false; }
-    virtual bool canHandleImageFilter(SkImageFilter*) SK_OVERRIDE { return false; }
-    virtual bool filterImage(SkImageFilter*, const SkBitmap&, const SkMatrix&,
-                             SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
-        return false;
+
+public:
+    GatherPixelRefDevice(const SkBitmap& bm, PixelRefSet* prset) : SkBitmapDevice(bm) {
+        fPRSet = prset;
     }
 
     virtual void clear(SkColor color) SK_OVERRIDE {
@@ -160,43 +156,8 @@ protected:
         return false;
     }
 
-    virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE {
-        not_supported();
-    }
-    virtual SkBaseDevice* onCreateCompatibleDevice(SkBitmap::Config config,
-                                                   int width, int height,
-                                                   bool isOpaque,
-                                                   Usage usage) SK_OVERRIDE {
-        // we expect to only get called via savelayer, in which case it is fine.
-        SkASSERT(kSaveLayer_Usage == usage);
-        return SkNEW_ARGS(GatherPixelRefDevice, (width, height, fPRSet));
-    }
-    virtual void flush() SK_OVERRIDE {}
-
 private:
-    PixelRefSet*  fPRSet;
-    SkBitmap fEmptyBitmap;  // legacy -- need to remove the need for this guy
-    SkISize fSize;
-
-    void addBitmap(const SkBitmap& bm) {
-      fPRSet->add(bm.pixelRef());
-    }
-
-    void addBitmapFromPaint(const SkPaint& paint) {
-      SkShader* shader = paint.getShader();
-      if (shader) {
-          SkBitmap bm;
-          // Check whether the shader is a gradient in order to short-circuit
-          // call to asABitmap to prevent generation of bitmaps from
-          // gradient shaders, which implement asABitmap.
-          if (SkShader::kNone_GradientType == shader->asAGradient(NULL) &&
-              shader->asABitmap(&bm, NULL, NULL)) {
-              fPRSet->add(bm.pixelRef());
-          }
-      }
-    }
-
-    typedef SkBaseDevice INHERITED;
+    typedef SkBitmapDevice INHERITED;
 };
 
 class NoSaveLayerCanvas : public SkCanvas {
@@ -253,7 +214,11 @@ SkData* SkPictureUtils::GatherPixelRefs(SkPicture* pict, const SkRect& area) {
     SkTDArray<SkPixelRef*> array;
     PixelRefSet prset(&array);
 
-    GatherPixelRefDevice device(pict->width(), pict->height(), &prset);
+    SkBitmap emptyBitmap;
+    emptyBitmap.setConfig(SkBitmap::kARGB_8888_Config, pict->width(), pict->height());
+    // note: we do not set any pixels (shouldn't need to)
+
+    GatherPixelRefDevice device(emptyBitmap, &prset);
     NoSaveLayerCanvas canvas(&device);
 
     canvas.clipRect(area, SkRegion::kIntersect_Op, false);

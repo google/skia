@@ -513,6 +513,13 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+void SkGpuDevice::getGlobalBounds(SkIRect* bounds) const {
+    if (NULL != bounds) {
+        const SkIPoint& origin = this->getOrigin();
+        bounds->setXYWH(origin.x(), origin.y(),
+                        this->width(), this->height());
+    }
+}
 
 SkBitmap::Config SkGpuDevice::config() const {
     if (NULL == fRenderTarget) {

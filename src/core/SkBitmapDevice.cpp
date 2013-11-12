@@ -77,6 +77,14 @@ void SkBitmapDevice::unlockPixels() {
     }
 }
 
+void SkBitmapDevice::getGlobalBounds(SkIRect* bounds) const {
+    if (NULL != bounds) {
+        const SkIPoint& origin = this->getOrigin();
+        bounds->setXYWH(origin.x(), origin.y(),
+                        fBitmap.width(), fBitmap.height());
+    }
+}
+
 void SkBitmapDevice::clear(SkColor color) {
     fBitmap.eraseColor(color);
 }
