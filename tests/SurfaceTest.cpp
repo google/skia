@@ -243,12 +243,14 @@ static void TestSurface(skiatest::Reporter* reporter, GrContextFactory* factory)
     TestGetTexture(reporter, kPicture_SurfaceType, NULL);
     if (NULL != factory) {
         GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
-        Test_crbug263329(reporter, context);
-        TestSurfaceCopyOnWrite(reporter, kGpu_SurfaceType, context);
-        TestSurfaceWritableAfterSnapshotRelease(reporter, kGpu_SurfaceType, context);
-        TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kDiscard_ContentChangeMode);
-        TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kRetain_ContentChangeMode);
-        TestGetTexture(reporter, kGpu_SurfaceType, context);
+        if (NULL != context) {
+            Test_crbug263329(reporter, context);
+            TestSurfaceCopyOnWrite(reporter, kGpu_SurfaceType, context);
+            TestSurfaceWritableAfterSnapshotRelease(reporter, kGpu_SurfaceType, context);
+            TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kDiscard_ContentChangeMode);
+            TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kRetain_ContentChangeMode);
+            TestGetTexture(reporter, kGpu_SurfaceType, context);
+        }
     }
 #endif
 }
