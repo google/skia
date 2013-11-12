@@ -37,7 +37,8 @@ enum SkColorType {
     #error "SK_*32_SHFIT values must correspond to BGRA or RGBA byte order"
 #endif
 
-    kLastEnum_SkColorType = kBGRA_8888_SkColorType
+    kIndex8_SkColorType,
+    kLastEnum_SkColorType = kIndex8_SkColorType
 };
 
 struct SkImageInfo {

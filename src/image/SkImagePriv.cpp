@@ -20,6 +20,9 @@ SkBitmap::Config SkImageInfoToBitmapConfig(const SkImageInfo& info) {
         case kPMColor_SkColorType:
             return SkBitmap::kARGB_8888_Config;
 
+        case kIndex8_SkColorType:
+            return SkBitmap::kIndex8_Config;
+
         default:
             // break for unsupported colortypes
             break;
@@ -34,6 +37,7 @@ int SkImageBytesPerPixel(SkColorType ct) {
         4,  // kRGBA_8888_SkColorType
         4,  // kBGRA_8888_SkColorType
         4,  // kPMColor_SkColorType
+        1,  // kIndex8_SkColorType
     };
 
     SkASSERT((size_t)ct < SK_ARRAY_COUNT(gColorTypeBytesPerPixel));
@@ -45,7 +49,11 @@ bool SkBitmapToImageInfo(const SkBitmap& bm, SkImageInfo* info) {
         case SkBitmap::kA8_Config:
             info->fColorType = kAlpha_8_SkColorType;
             break;
-
+            
+        case SkBitmap::kIndex8_Config:
+            info->fColorType = kIndex8_SkColorType;
+            break;
+            
         case SkBitmap::kRGB_565_Config:
             info->fColorType = kRGB_565_SkColorType;
             break;
