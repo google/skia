@@ -309,11 +309,11 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
         return false;
     }
 
+    PNGAutoClean autoClean(png_ptr, info_ptr);
+
     if (setjmp(png_jmpbuf(png_ptr))) {
         return false;
     }
-
-    PNGAutoClean autoClean(png_ptr, info_ptr);
 
     png_uint_32 origWidth, origHeight;
     int bitDepth, colorType, interlaceType;
