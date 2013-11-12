@@ -33,7 +33,6 @@
         '../src/pipe/utils/',
         '../src/utils/',
         '../src/utils/debugger',
-        '../experimental/PdfViewer',
       ],
       'includes': [
         'gmslides.gypi',
@@ -59,12 +58,17 @@
         'gm.gyp:gm_expectations',
         'jsoncpp.gyp:jsoncpp',
         'pdf.gyp:pdf',
-        'pdfviewer_lib.gyp:pdfviewer_lib',
       ],
       'conditions': [
         ['skia_run_pdfviewer_in_gm', {
           'defines': [
             'SK_BUILD_NATIVE_PDF_RENDERER',
+          ],
+          'include_dirs' : [
+            '../experimental/PdfViewer',
+          ],
+          'dependencies': [
+            'pdfviewer_lib.gyp:pdfviewer_lib',
           ],
         }],
         ['skia_os in ["linux", "mac", "win"]', {

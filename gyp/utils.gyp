@@ -214,6 +214,11 @@
             '../src/utils/android/ashmem.cpp',
           ],
         }],
+        ['skia_run_pdfviewer_in_gm', {
+          'defines': [
+            'SK_BUILD_NATIVE_PDF_RENDERER',
+          ],
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [
