@@ -83,11 +83,7 @@ static int boxBlur(const uint8_t* src, int src_y_stride, uint8_t* dst,
     int new_width = width + SkMax32(leftRadius, rightRadius) * 2;
     int dst_x_stride = transpose ? height : 1;
     int dst_y_stride = transpose ? 1 : new_width;
-#ifndef SK_DISABLE_BLUR_ROUNDING
     uint32_t half = 1 << 23;
-#else
-    uint32_t half = 0;
-#endif
     for (int y = 0; y < height; ++y) {
         uint32_t sum = 0;
         uint8_t* dptr = dst + y * dst_y_stride;
@@ -290,11 +286,7 @@ static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
     inner_weight += inner_weight >> 7;
     uint32_t outer_scale = (outer_weight << 16) / kernelSize;
     uint32_t inner_scale = (inner_weight << 16) / (kernelSize - 2);
-#ifndef SK_DISABLE_BLUR_ROUNDING
     uint32_t half = 1 << 23;
-#else
-    uint32_t half = 0;
-#endif
     int new_width = width + diameter;
     int dst_x_stride = transpose ? height : 1;
     int dst_y_stride = transpose ? 1 : new_width;
