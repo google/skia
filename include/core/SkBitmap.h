@@ -189,11 +189,6 @@ public:
         return SkAlphaTypeIsOpaque(this->alphaType());
     }
 
-    SK_ATTR_DEPRECATED("use setAlphaType")
-    void setIsOpaque(bool opaque) {
-        this->setAlphaType(opaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
-    }
-
     /** Returns true if the bitmap is volatile (i.e. should not be cached by devices.)
     */
     bool isVolatile() const;
@@ -238,8 +233,8 @@ public:
      *  it will return false.
      *
      *  Since this can be an expensive operation, the bitmap stores a flag for
-     *  this (isOpaque, setIsOpaque). Only call this if you need to compute this
-     *  value from "unknown" pixels.
+     *  this (isOpaque). Only call this if you need to compute this value from
+     *  "unknown" pixels.
      */
     static bool ComputeIsOpaque(const SkBitmap&);
 

@@ -58,12 +58,6 @@ protected:
     static void setBitmapOpaque(SkBitmap* bm, bool isOpaque) {
         SkAutoLockPixels alp(*bm);  // needed for ctable
         bm->setAlphaType(isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
-#if 0
-        SkColorTable* ctable = bm->getColorTable();
-        if (ctable) {
-            ctable->setIsOpaque(isOpaque);
-        }
-#endif
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
