@@ -49,11 +49,11 @@ bool SkBitmapToImageInfo(const SkBitmap& bm, SkImageInfo* info) {
         case SkBitmap::kA8_Config:
             info->fColorType = kAlpha_8_SkColorType;
             break;
-            
+
         case SkBitmap::kIndex8_Config:
             info->fColorType = kIndex8_SkColorType;
             break;
-            
+
         case SkBitmap::kRGB_565_Config:
             info->fColorType = kRGB_565_SkColorType;
             break;
