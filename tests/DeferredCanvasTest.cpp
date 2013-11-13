@@ -775,6 +775,9 @@ static void TestDeferredCanvasSetSurface(skiatest::Reporter* reporter, GrContext
 #if SK_SUPPORT_GPU
     if (useGpu) {
         GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
+        if (NULL == context) {
+            return;
+        }
         surface = SkSurface::NewRenderTarget(context, imageSpec);
         alternateSurface = SkSurface::NewRenderTarget(context, imageSpec);
     } else {
