@@ -2308,8 +2308,8 @@
       ], 
       "bugs": [
         1833
-      ],
-      "ignore-failure": true,
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "complexclip2_path_bw_565.png": {
@@ -5260,7 +5260,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9598070922630923928
+          12232165070823684420
         ]
       ], 
       "reviewed-by-human": true
@@ -5269,7 +5269,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2688967790132835501
+          13225934009004042882
         ]
       ], 
       "reviewed-by-human": true
@@ -5278,7 +5278,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12458152520050249643
+          2152147276837193687
         ]
       ], 
       "reviewed-by-human": true
@@ -5440,7 +5440,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1314688163055676855
+          8034039951118120848
         ]
       ], 
       "reviewed-by-human": true
@@ -5449,7 +5449,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2647522287635544392
+          8131650456008104994
         ]
       ], 
       "reviewed-by-human": true
@@ -5458,7 +5458,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16334231242890844352
+          12734559825085435008
         ]
       ], 
       "reviewed-by-human": true
@@ -5467,7 +5467,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3338023269413090790
+          17012185951565027445
         ]
       ], 
       "reviewed-by-human": true
@@ -5476,7 +5476,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11919787918423247702
+          8235185438151212132
         ]
       ], 
       "reviewed-by-human": true
@@ -5485,7 +5485,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11477185120303298113
+          18292989767320568552
         ]
       ], 
       "reviewed-by-human": true
