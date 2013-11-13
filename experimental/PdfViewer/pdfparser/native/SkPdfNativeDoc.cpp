@@ -140,7 +140,7 @@ void SkPdfNativeDoc::init(const void* bytes, size_t length) {
 
     if (fRootCatalogRef) {
         fRootCatalog = (SkPdfCatalogDictionary*)resolveReference(fRootCatalogRef);
-        if (fRootCatalog->isDictionary() && fRootCatalog->valid()) {
+        if (fRootCatalog != NULL && fRootCatalog->isDictionary() && fRootCatalog->valid()) {
             SkPdfPageTreeNodeDictionary* tree = fRootCatalog->Pages(this);
             if (tree && tree->isDictionary() && tree->valid()) {
                 fillPages(tree);
@@ -222,7 +222,7 @@ void SkPdfNativeDoc::loadWithoutXRef() {
 
     if (fRootCatalogRef) {
         fRootCatalog = (SkPdfCatalogDictionary*)resolveReference(fRootCatalogRef);
-        if (fRootCatalog->isDictionary() && fRootCatalog->valid()) {
+        if (fRootCatalog != NULL && fRootCatalog->isDictionary() && fRootCatalog->valid()) {
             SkPdfPageTreeNodeDictionary* tree = fRootCatalog->Pages(this);
             if (tree && tree->isDictionary() && tree->valid()) {
                 fillPages(tree);
@@ -583,7 +583,7 @@ SkPdfNativeObject* SkPdfNativeDoc::resolveReference(SkPdfNativeObject* ref) {
             fObjects[id].fObj = readObject(id);
         }
 
-        if (fObjects[id].fResolvedReference == NULL) {
+        if (fObjects[id].fObj != NULL && fObjects[id].fResolvedReference == NULL) {
             if (!fObjects[id].fObj->isReference()) {
                 fObjects[id].fResolvedReference = fObjects[id].fObj;
             } else {
