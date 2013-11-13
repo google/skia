@@ -8,7 +8,7 @@
 #ifndef SkImage_DEFINED
 #define SkImage_DEFINED
 
-#include "SkAlpha.h"
+#include "SkImageInfo.h"
 #include "SkImageEncoder.h"
 #include "SkRefCnt.h"
 #include "SkScalar.h"
@@ -22,34 +22,6 @@ class GrTexture;
 
 // need for TileMode
 #include "SkShader.h"
-
-enum SkColorType {
-    kAlpha_8_SkColorType,
-    kRGB_565_SkColorType,
-    kRGBA_8888_SkColorType,
-    kBGRA_8888_SkColorType,
-
-#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-    kPMColor_SkColorType = kBGRA_8888_SkColorType,
-#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-    kPMColor_SkColorType = kRGBA_8888_SkColorType,
-#else
-    #error "SK_*32_SHFIT values must correspond to BGRA or RGBA byte order"
-#endif
-
-    kIndex8_SkColorType,
-    kLastEnum_SkColorType = kIndex8_SkColorType
-};
-
-struct SkImageInfo {
-    int         fWidth;
-    int         fHeight;
-    SkColorType fColorType;
-    SkAlphaType fAlphaType;
-};
-
-bool operator==(const SkImageInfo& lhs, const SkImageInfo& rhs);
-bool operator!=(const SkImageInfo& lhs, const SkImageInfo& rhs);
 
 /**
  *  SkImage is an abstraction for drawing a rectagle of pixels, though the

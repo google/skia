@@ -11,13 +11,12 @@
 #define SkBitmap_DEFINED
 
 #include "Sk64.h"
-#include "SkAlpha.h"
 #include "SkColor.h"
 #include "SkColorTable.h"
+#include "SkImageInfo.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
-struct SkImageInfo;
 struct SkIRect;
 struct SkRect;
 class SkPaint;

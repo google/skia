@@ -10,9 +10,9 @@
 #ifndef SkColorTable_DEFINED
 #define SkColorTable_DEFINED
 
-#include "SkAlpha.h"
 #include "SkColor.h"
 #include "SkFlattenable.h"
+#include "SkImageInfo.h"
 
 /** \class SkColorTable
 

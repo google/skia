@@ -219,7 +219,6 @@
 
         '<(skia_include_path)/core/Sk64.h',
         '<(skia_include_path)/core/SkAdvancedTypefaceMetrics.h',
-        '<(skia_include_path)/core/SkAlpha.h',
         '<(skia_include_path)/core/SkBitmap.h',
         '<(skia_include_path)/core/SkBitmapDevice.h',
         '<(skia_include_path)/core/SkBlitRow.h',
@@ -255,6 +254,7 @@
         '<(skia_include_path)/core/SkImageEncoder.h',
         '<(skia_include_path)/core/SkImageFilter.h',
         '<(skia_include_path)/core/SkImageFilterUtils.h',
+        '<(skia_include_path)/core/SkImageInfo.h',
         '<(skia_include_path)/core/SkInstCnt.h',
         '<(skia_include_path)/core/SkMallocPixelRef.h',
         '<(skia_include_path)/core/SkMask.h',

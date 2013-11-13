@@ -12,14 +12,6 @@
 
 SK_DEFINE_INST_COUNT(SkImage)
 
-bool operator==(const SkImageInfo& lhs, const SkImageInfo& rhs) {
-    return 0 == memcmp(&lhs, &rhs, sizeof(SkImageInfo));
-}
-bool operator!=(const SkImageInfo& lhs, const SkImageInfo& rhs) {
-    return 0 != memcmp(&lhs, &rhs, sizeof(SkImageInfo));
-}
-
-
 static SkImage_Base* as_IB(SkImage* image) {
     return static_cast<SkImage_Base*>(image);
 }
