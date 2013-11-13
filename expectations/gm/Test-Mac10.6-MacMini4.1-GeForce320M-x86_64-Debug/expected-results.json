@@ -4687,10 +4687,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8283328956009111305
+          12745573413286945928
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_path_aa_mesa.png": {
       "allowed-digests": [
@@ -4714,10 +4714,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13166805920489321513
+          1952622871333890853
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_path_aa_pdf-poppler.png": {
       "allowed-digests": [
@@ -4780,10 +4780,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16089928281794658894
+          17769585706893555319
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_path_bw_pdf-poppler.png": {
       "allowed-digests": [

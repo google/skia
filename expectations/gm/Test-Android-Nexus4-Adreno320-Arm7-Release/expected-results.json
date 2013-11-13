@@ -2279,6 +2279,10 @@
           16465939891806643816
         ]
       ], 
+      "bugs": [
+        1833
+      ],
+      "ignore-failure": true,
       "reviewed-by-human": true
     }, 
     "complexclip2_path_aa_565.png": {

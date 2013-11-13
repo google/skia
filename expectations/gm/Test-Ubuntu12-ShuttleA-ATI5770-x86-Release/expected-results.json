@@ -3595,10 +3595,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11896771939432958425
+          652774029841565604
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_path_aa_pdf-poppler.png": {
       "allowed-digests": [

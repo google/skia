@@ -3328,10 +3328,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17407966440450637766
+          9173305563013405797
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_path_aa_msaa4.png": {
       "allowed-digests": [

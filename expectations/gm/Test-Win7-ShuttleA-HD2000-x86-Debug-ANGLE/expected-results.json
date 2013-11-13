@@ -4789,10 +4789,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5265362853106248316
+          3752934320563503856
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_path_aa_gpu.png": {
       "allowed-digests": [
