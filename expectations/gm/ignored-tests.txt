@@ -52,3 +52,6 @@ perlinnoise
 
 # Added by bsalomon in support of adding HQ filter to GPU device drawBitmap
 bleed
+
+# Added by jvanverth -- needs rebaselining
+blurrect_outer
