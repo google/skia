@@ -42,11 +42,6 @@ rects
 
 # Added by caryclark in https://codereview.chromium.org/48783002/
 # suppress changes on round rects
-pathopsskpclip
-roundrects
-rrect
-rrect_clip
-samplerstress
 simpleaaclip_aaclip
 simpleaaclip_path
 strokerect
