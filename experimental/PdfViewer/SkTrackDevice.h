@@ -148,15 +148,6 @@ protected:
         after();
     }
 
-#ifdef SK_BUILD_FOR_ANDROID
-    virtual void drawPosTextOnPath(const SkDraw& draw, const void* text, size_t len,
-                                   const SkPoint pos[], const SkPaint& paint,
-                                   const SkPath& path, const SkMatrix* matrix)  {
-        before();
-        INHERITED::drawPosTextOnPath(draw, text, len, pos, paint, path, matrix);
-        after();
-    }
-#endif
     virtual void drawVertices(const SkDraw& dummy1, SkCanvas::VertexMode dummy2, int vertexCount,
                               const SkPoint verts[], const SkPoint texs[],
                               const SkColor colors[], SkXfermode* xmode,

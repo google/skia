@@ -2279,69 +2279,6 @@ void SkDraw::drawTextOnPath(const char text[], size_t byteLength,
     }
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
-void SkDraw::drawPosTextOnPath(const char text[], size_t byteLength,
-                               const SkPoint pos[], const SkPaint& paint,
-                               const SkPath& path, const SkMatrix* matrix) const {
-    // nothing to draw
-    if (text == NULL || byteLength == 0 || fRC->isEmpty()) {
-        return;
-    }
-
-    SkMatrix scaledMatrix;
-    SkPathMeasure meas(path, false);
-
-    SkMeasureCacheProc glyphCacheProc = paint.getMeasureCacheProc(
-            SkPaint::kForward_TextBufferDirection, true);
-
-    // Copied (modified) from SkTextToPathIter constructor to setup paint
-    SkPaint tempPaint(paint);
-
-    tempPaint.setLinearText(true);
-    tempPaint.setMaskFilter(NULL); // don't want this affecting our path-cache lookup
-
-    if (tempPaint.getPathEffect() == NULL && !(tempPaint.getStrokeWidth() > 0
-            && tempPaint.getStyle() != SkPaint::kFill_Style)) {
-        tempPaint.setStyle(SkPaint::kFill_Style);
-        tempPaint.setPathEffect(NULL);
-    }
-    // End copied from SkTextToPathIter constructor
-
-    // detach cache
-    SkGlyphCache* cache = tempPaint.detachCache(NULL, NULL);
-
-    // Must set scale, even if 1
-    SkScalar scale = SK_Scalar1;
-    scaledMatrix.setScale(scale, scale);
-
-    // Loop over all glyph ids
-    for (const char* stop = text + byteLength; text < stop; pos++) {
-
-        const SkGlyph& glyph = glyphCacheProc(cache, &text);
-        SkPath tmp;
-
-        const SkPath* glyphPath = cache->findPath(glyph);
-        if (glyphPath == NULL) {
-            continue;
-        }
-
-        SkMatrix m(scaledMatrix);
-        m.postTranslate(pos->fX, 0);
-
-        if (matrix) {
-            m.postConcat(*matrix);
-        }
-
-        morphpath(&tmp, *glyphPath, meas, m);
-        this->drawPath(tmp, tempPaint);
-
-    }
-
-    // re-attach cache
-    SkGlyphCache::AttachCache(cache);
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 struct VertState {

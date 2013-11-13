@@ -811,21 +811,6 @@ public:
                                 const SkPath& path, const SkMatrix* matrix,
                                 const SkPaint& paint);
 
-#ifdef SK_BUILD_FOR_ANDROID
-    /** Draw the text on path, with each character/glyph origin specified by the pos[]
-        array. The origin is interpreted by the Align setting in the paint.
-        @param text The text to be drawn
-        @param byteLength   The number of bytes to read from the text parameter
-        @param pos      Array of positions, used to position each character
-        @param paint    The paint used for the text (e.g. color, size, style)
-        @param path The path to draw on
-        @param matrix The canvas matrix
-        */
-    void drawPosTextOnPath(const void* text, size_t byteLength,
-                           const SkPoint pos[], const SkPaint& paint,
-                           const SkPath& path, const SkMatrix* matrix);
-#endif
-
     /** Draw the picture into this canvas. This method effective brackets the
         playback of the picture's draw calls with save/restore, so the state
         of this canvas will be unchanged after this call.

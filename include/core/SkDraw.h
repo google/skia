@@ -63,11 +63,6 @@ public:
                         int scalarsPerPosition, const SkPaint& paint) const;
     void    drawTextOnPath(const char text[], size_t byteLength,
                         const SkPath&, const SkMatrix*, const SkPaint&) const;
-#ifdef SK_BUILD_FOR_ANDROID
-    void    drawPosTextOnPath(const char text[], size_t byteLength,
-                              const SkPoint pos[], const SkPaint& paint,
-                              const SkPath& path, const SkMatrix* matrix) const;
-#endif
     void    drawVertices(SkCanvas::VertexMode mode, int count,
                          const SkPoint vertices[], const SkPoint textures[],
                          const SkColor colors[], SkXfermode* xmode,

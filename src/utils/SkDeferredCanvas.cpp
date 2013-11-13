@@ -224,14 +224,6 @@ protected:
                                 const SkMatrix* matrix,
                                 const SkPaint& paint) SK_OVERRIDE
         {SkASSERT(0);}
-#ifdef SK_BUILD_FOR_ANDROID
-    virtual void drawPosTextOnPath(const SkDraw& draw, const void* text,
-                                    size_t len, const SkPoint pos[],
-                                    const SkPaint& paint,
-                                    const SkPath& path,
-                                    const SkMatrix* matrix) SK_OVERRIDE
-        {SkASSERT(0);}
-#endif
     virtual void drawVertices(const SkDraw&, SkCanvas::VertexMode,
                                 int vertexCount, const SkPoint verts[],
                                 const SkPoint texs[], const SkColor colors[],

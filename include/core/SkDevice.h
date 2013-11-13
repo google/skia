@@ -267,11 +267,6 @@ protected:
     virtual void drawTextOnPath(const SkDraw&, const void* text, size_t len,
                                 const SkPath& path, const SkMatrix* matrix,
                                 const SkPaint& paint) = 0;
-#ifdef SK_BUILD_FOR_ANDROID
-    virtual void drawPosTextOnPath(const SkDraw& draw, const void* text, size_t len,
-                                   const SkPoint pos[], const SkPaint& paint,
-                                   const SkPath& path, const SkMatrix* matrix) = 0;
-#endif
     virtual void drawVertices(const SkDraw&, SkCanvas::VertexMode, int vertexCount,
                               const SkPoint verts[], const SkPoint texs[],
                               const SkColor colors[], SkXfermode* xmode,
@@ -282,6 +277,11 @@ protected:
      */
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) = 0;
+
+    // DEPRECATED -- will remove this once the subclass stop overriding it
+    virtual void drawPosTextOnPath(const SkDraw&, const void* text, size_t len,
+                                   const SkPoint pos[], const SkPaint&,
+                                   const SkPath&, const SkMatrix*) {}
 
     /**
      *  On success (returns true), copy the device pixels into the bitmap.
