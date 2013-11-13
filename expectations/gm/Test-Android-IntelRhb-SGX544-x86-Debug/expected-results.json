@@ -7167,7 +7167,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1569462115826873455
+          14523064803091187924
         ]
       ], 
       "reviewed-by-human": true
@@ -7176,7 +7176,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17290162662552132085
+          14873182360903767219
         ]
       ], 
       "reviewed-by-human": true
@@ -7185,9 +7185,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9452363364165854393
+          3839120275819848465
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "rrect_clip_bw_565.png": {
       "allowed-digests": [
