@@ -88,7 +88,7 @@ public:
         const SkIPoint& origin = this->getOrigin();
         bounds->setXYWH(origin.x(), origin.y(), this->width(), this->height());
     }
-    
+
 
     /** Returns true if the device's bitmap's config treats every pixel as
         implicitly opaque.

@@ -20,7 +20,7 @@ enum SkAlphaType {
      *  in their alpha field, but intended the RGB to be treated as opaque.
      */
     kIgnore_SkAlphaType,
-    
+
     /**
      *  All pixels are stored as opaque. This differs slightly from kIgnore in
      *  that kOpaque has correct "opaque" values stored in the pixels, while
@@ -28,13 +28,13 @@ enum SkAlphaType {
      *  as opaque.
      */
     kOpaque_SkAlphaType,
-    
+
     /**
      *  All pixels have their alpha premultiplied in their color components.
      *  This is the natural format for the rendering target pixels.
      */
     kPremul_SkAlphaType,
-    
+
     /**
      *  All pixels have their color components stored without any regard to the
      *  alpha. e.g. this is the default configuration for PNG images.
@@ -43,7 +43,7 @@ enum SkAlphaType {
      *  generate this on output.
      */
     kUnpremul_SkAlphaType,
-    
+
     kLastEnum_SkAlphaType = kUnpremul_SkAlphaType
 };
 
