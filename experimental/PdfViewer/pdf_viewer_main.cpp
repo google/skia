@@ -41,13 +41,18 @@ DEFINE_double(DPI, 72, "DPI to be used for rendering (scale).");
 DEFINE_int32(benchLoad, 0, "Load the pdf file minimally N times, without any rendering and \n"
              "\tminimal parsing to ensure correctness. Default 0 (disabled).");
 DEFINE_int32(benchRender, 0, "Render the pdf content N times. Default 0 (disabled)");
+#if SK_SUPPORT_GPU
 DEFINE_string2(config, c, "8888", "Canvas to render:\n"
                                   "\t8888 - argb\n"
-#if SK_SUPPORT_GPU
                                   "\tgpu: use the gpu\n"
-#endif
                                   "\tnul - render in null canvas, any draw will just return.\n"
                );
+#else
+DEFINE_string2(config, c, "8888", "Canvas to render:\n"
+                                  "\t8888 - argb\n"
+                                  "\tnul - render in null canvas, any draw will just return.\n"
+               );
+#endif
 DEFINE_bool2(transparentBackground, t, false, "Make background transparent instead of white.");
 
 /**
@@ -168,8 +173,8 @@ static bool render_page(const SkString& outputDir,
                 GrTextureDesc desc;
                 desc.fConfig = kSkia8888_GrPixelConfig;
                 desc.fFlags = kRenderTarget_GrTextureFlagBit;
-                desc.fWidth = width;
-                desc.fHeight = height;
+                desc.fWidth = SkScalarCeilToInt(width);
+                desc.fHeight = SkScalarCeilToInt(height);
                 desc.fSampleCnt = 0;
                 target.reset(gr->createUncachedTexture(desc, NULL, 0));
             }
