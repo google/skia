@@ -5657,13 +5657,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9619819203956748282
+          6416756999047254279
         ]
       ], 
       "bugs": [
-        1578
+        1844
       ], 
-      "reviewed-by-human": false
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "dashing_pdf-poppler.png": {
       "allowed-digests": [
