@@ -40,13 +40,6 @@ pdf-poppler
 # Added by yunchao in https://codereview.chromium.org/54213002
 rects
 
-# Added by caryclark in https://codereview.chromium.org/48783002/
-# suppress changes on round rects
-simpleaaclip_aaclip
-simpleaaclip_path
-strokerect
-strokes_round
-
 # Added by sugoi in https://codereview.chromium.org/59173005
 perlinnoise
 
@@ -55,5 +48,3 @@ bleed
 
 # Added by jvanverth -- needs rebaselining
 blurrect_outer
-rrect_bw
-rrect_aa

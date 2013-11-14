@@ -5840,7 +5840,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17482634556223369670
+          10770911953932911247
         ]
       ], 
       "reviewed-by-human": true
@@ -5849,7 +5849,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16657092243522920749
+          13129111526267548417
         ]
       ], 
       "reviewed-by-human": true
@@ -5858,7 +5858,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6454198059189683608
+          16487393361410540691
         ]
       ], 
       "reviewed-by-human": true
@@ -5867,7 +5867,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15536668195733791299
+          7511906807982828937
         ]
       ], 
       "reviewed-by-human": true
@@ -5876,7 +5876,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3272328168902128148
+          11053501083830454032
         ]
       ], 
       "reviewed-by-human": true
@@ -6377,6 +6377,10 @@
           11236345308233619681
         ]
       ], 
+      "bugs": [
+        1833
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "simpleaaclip_rect_565.png": {
@@ -6563,11 +6567,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3847612599085637251
+          2222061328640068400
         ]
-      ], 
-      "bugs": [
-        1780
       ], 
       "reviewed-by-human": true
     }, 
@@ -6575,11 +6576,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3122060990041205070
+          10173009984769423213
         ]
-      ], 
-      "bugs": [
-        1780
       ], 
       "reviewed-by-human": true
     }, 
@@ -6587,11 +6585,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12517273561251709733
+          12489230643454325705
         ]
-      ], 
-      "bugs": [
-        1780
       ], 
       "reviewed-by-human": true
     }, 
