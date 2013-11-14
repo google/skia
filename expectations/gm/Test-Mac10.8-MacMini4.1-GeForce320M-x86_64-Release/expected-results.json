@@ -8407,9 +8407,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4287669296405914847
+          3624180917783566168
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "giantbitmap_mirror_point_rotate_565.png": {
