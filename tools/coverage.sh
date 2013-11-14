@@ -27,5 +27,5 @@ lcov $QUIET --gcov-tool=$GCOV -c -b out/Coverage -d out/Coverage -o /tmp/coverag
 
 lcov $QUIET -a /tmp/baseline -a /tmp/coverage -o /tmp/merged
 
-genhtml $QUIET /tmp/merged -o out/Coverage/report
+genhtml $QUIET /tmp/merged --legend -o out/Coverage/report
 xdg-open out/Coverage/report/index.html

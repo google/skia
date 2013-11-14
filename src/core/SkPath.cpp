@@ -662,7 +662,7 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     SkPathRef::Editor ed(&fPathRef);
 
     // remember our index
-    fLastMoveToIndex = ed.pathRef()->countPoints();
+    fLastMoveToIndex = fPathRef->countPoints();
 
     ed.growForVerb(kMove_Verb)->set(x, y);
 }
@@ -1106,7 +1106,7 @@ void SkPath::addRRect(const SkRRect& rrect, Direction dir) {
         fDirection = this->hasOnlyMoveTos() ? dir : kUnknown_Direction;
 
         SkAutoPathBoundsUpdate apbu(this, bounds);
-        SkAutoDisableDirectionCheck(this);
+        SkAutoDisableDirectionCheck addc(this);
 
         this->incReserve(21);
         if (kCW_Direction == dir) {
@@ -1134,6 +1134,7 @@ bool SkPath::hasOnlyMoveTos() const {
     for (int i = 0; i < count; ++i) {
         if (*verbs == kLine_Verb ||
             *verbs == kQuad_Verb ||
+            *verbs == kConic_Verb ||
             *verbs == kCubic_Verb) {
             return false;
         }
@@ -1179,7 +1180,7 @@ void SkPath::addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry,
     fDirection = this->hasOnlyMoveTos() ? dir : kUnknown_Direction;
 
     SkAutoPathBoundsUpdate apbu(this, rect);
-    SkAutoDisableDirectionCheck(this);
+    SkAutoDisableDirectionCheck addc(this);
 
     if (skip_hori) {
         rx = halfW;
@@ -1511,45 +1512,6 @@ static int pts_in_verb(unsigned verb) {
     return gPtsInVerb[verb];
 }
 
-// ignore the initial moveto, and stop when the 1st contour ends
-void SkPath::pathTo(const SkPath& path) {
-    int i, vcount = path.fPathRef->countVerbs();
-    // exit early if the path is empty, or just has a moveTo.
-    if (vcount < 2) {
-        return;
-    }
-
-    SkPathRef::Editor(&fPathRef, vcount, path.countPoints());
-
-    fIsOval = false;
-
-    const uint8_t* verbs = path.fPathRef->verbs();
-    // skip the initial moveTo
-    const SkPoint*  pts = path.fPathRef->points() + 1;
-    const SkScalar* conicWeight = path.fPathRef->conicWeights();
-
-    SkASSERT(verbs[~0] == kMove_Verb);
-    for (i = 1; i < vcount; i++) {
-        switch (verbs[~i]) {
-            case kLine_Verb:
-                this->lineTo(pts[0].fX, pts[0].fY);
-                break;
-            case kQuad_Verb:
-                this->quadTo(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY);
-                break;
-            case kConic_Verb:
-                this->conicTo(pts[0], pts[1], *conicWeight++);
-                break;
-            case kCubic_Verb:
-                this->cubicTo(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
-                break;
-            case kClose_Verb:
-                return;
-        }
-        pts += pts_in_verb(verbs[~i]);
-    }
-}
-
 // ignore the last point of the 1st contour
 void SkPath::reversePathTo(const SkPath& path) {
     int i, vcount = path.fPathRef->countVerbs();
@@ -1755,6 +1717,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             } else if (det2x2 > 0) {
                 dst->fDirection = fDirection;
             } else {
+                dst->fConvexity = kUnknown_Convexity;
                 dst->fDirection = kUnknown_Direction;
             }
         }
@@ -2319,9 +2282,7 @@ static bool AlmostEqual(SkScalar compA, SkScalar compB) {
     if (!SkScalarIsFinite(compA) || !SkScalarIsFinite(compB)) {
         return false;
     }
-    if (sk_float_abs(compA) <= FLT_EPSILON && sk_float_abs(compB) <= FLT_EPSILON) {
-        return true;
-    }
+    // no need to check for small numbers because SkPath::Iter has removed degenerate values
     int aBits = SkFloatAs2sCompliment(compA);
     int bBits = SkFloatAs2sCompliment(compB);
     return aBits < bBits + epsilon && bBits < aBits + epsilon;
@@ -2632,64 +2593,7 @@ static int find_min_max_x_at_y(const SkPoint pts[], int index, int n,
 }
 
 static void crossToDir(SkScalar cross, SkPath::Direction* dir) {
-    if (dir) {
-        *dir = cross > 0 ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
-    }
-}
-
-#if 0
-#include "SkString.h"
-#include "../utils/SkParsePath.h"
-static void dumpPath(const SkPath& path) {
-    SkString str;
-    SkParsePath::ToSVGString(path, &str);
-    SkDebugf("%s\n", str.c_str());
-}
-#endif
-
-namespace {
-// for use with convex_dir_test
-double mul(double a, double b) { return a * b; }
-SkScalar mul(SkScalar a, SkScalar b) { return SkScalarMul(a, b); }
-double toDouble(SkScalar a) { return SkScalarToDouble(a); }
-SkScalar toScalar(SkScalar a) { return a; }
-
-// determines the winding direction of a convex polygon with the precision
-// of T. CAST_SCALAR casts an SkScalar to T.
-template <typename T, T (CAST_SCALAR)(SkScalar)>
-bool convex_dir_test(int n, const SkPoint pts[], SkPath::Direction* dir) {
-    // we find the first three points that form a non-degenerate
-    // triangle. If there are no such points then the path is
-    // degenerate. The first is always point 0. Now we find the second
-    // point.
-    int i = 0;
-    enum { kX = 0, kY = 1 };
-    T v0[2];
-    while (1) {
-        v0[kX] = CAST_SCALAR(pts[i].fX) - CAST_SCALAR(pts[0].fX);
-        v0[kY] = CAST_SCALAR(pts[i].fY) - CAST_SCALAR(pts[0].fY);
-        if (v0[kX] || v0[kY]) {
-            break;
-        }
-        if (++i == n - 1) {
-            return false;
-        }
-    }
-    // now find a third point that is not colinear with the first two
-    // points and check the orientation of the triangle (which will be
-    // the same as the orientation of the path).
-    for (++i; i < n; ++i) {
-        T v1[2];
-        v1[kX] = CAST_SCALAR(pts[i].fX) - CAST_SCALAR(pts[0].fX);
-        v1[kY] = CAST_SCALAR(pts[i].fY) - CAST_SCALAR(pts[0].fY);
-        T cross = mul(v0[kX], v1[kY]) - mul(v0[kY], v1[kX]);
-        if (0 != cross) {
-            *dir = cross > 0 ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
-            return true;
-        }
-    }
-    return false;
-}
+    *dir = cross > 0 ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
 }
 
 /*
@@ -2701,15 +2605,18 @@ bool convex_dir_test(int n, const SkPoint pts[], SkPath::Direction* dir) {
  *  its cross product.
  */
 bool SkPath::cheapComputeDirection(Direction* dir) const {
-//    dumpPath(*this);
-    // don't want to pay the cost for computing this if it
-    // is unknown, so we don't call isConvex()
-
     if (kUnknown_Direction != fDirection) {
         *dir = static_cast<Direction>(fDirection);
         return true;
     }
-    const Convexity conv = this->getConvexityOrUnknown();
+
+    // don't want to pay the cost for computing this if it
+    // is unknown, so we don't call isConvex()
+    if (kConvex_Convexity == this->getConvexityOrUnknown()) {
+        SkASSERT(kUnknown_Direction == fDirection);
+        *dir = static_cast<Direction>(fDirection);
+        return false;
+    }
 
     ContourIter iter(*fPathRef.get());
 
@@ -2725,73 +2632,57 @@ bool SkPath::cheapComputeDirection(Direction* dir) const {
 
         const SkPoint* pts = iter.pts();
         SkScalar cross = 0;
-        if (kConvex_Convexity == conv) {
-            // We try first at scalar precision, and then again at double
-            // precision. This is because the vectors computed between distant
-            // points may lose too much precision.
-            if (convex_dir_test<SkScalar, toScalar>(n, pts, dir)) {
-                fDirection = *dir;
-                return true;
+        int index = find_max_y(pts, n);
+        if (pts[index].fY < ymax) {
+            continue;
+        }
+
+        // If there is more than 1 distinct point at the y-max, we take the
+        // x-min and x-max of them and just subtract to compute the dir.
+        if (pts[(index + 1) % n].fY == pts[index].fY) {
+            int maxIndex;
+            int minIndex = find_min_max_x_at_y(pts, index, n, &maxIndex);
+            if (minIndex == maxIndex) {
+                goto TRY_CROSSPROD;
             }
-            if (convex_dir_test<double, toDouble>(n, pts, dir)) {
-                fDirection = *dir;
-                return true;
-            } else {
-                return false;
-            }
+            SkASSERT(pts[minIndex].fY == pts[index].fY);
+            SkASSERT(pts[maxIndex].fY == pts[index].fY);
+            SkASSERT(pts[minIndex].fX <= pts[maxIndex].fX);
+            // we just subtract the indices, and let that auto-convert to
+            // SkScalar, since we just want - or + to signal the direction.
+            cross = minIndex - maxIndex;
         } else {
-            int index = find_max_y(pts, n);
-            if (pts[index].fY < ymax) {
+            TRY_CROSSPROD:
+            // Find a next and prev index to use for the cross-product test,
+            // but we try to find pts that form non-zero vectors from pts[index]
+            //
+            // Its possible that we can't find two non-degenerate vectors, so
+            // we have to guard our search (e.g. all the pts could be in the
+            // same place).
+
+            // we pass n - 1 instead of -1 so we don't foul up % operator by
+            // passing it a negative LH argument.
+            int prev = find_diff_pt(pts, index, n, n - 1);
+            if (prev == index) {
+                // completely degenerate, skip to next contour
                 continue;
             }
-
-            // If there is more than 1 distinct point at the y-max, we take the
-            // x-min and x-max of them and just subtract to compute the dir.
-            if (pts[(index + 1) % n].fY == pts[index].fY) {
-                int maxIndex;
-                int minIndex = find_min_max_x_at_y(pts, index, n, &maxIndex);
-                if (minIndex == maxIndex) {
-                    goto TRY_CROSSPROD;
-                }
-                SkASSERT(pts[minIndex].fY == pts[index].fY);
-                SkASSERT(pts[maxIndex].fY == pts[index].fY);
-                SkASSERT(pts[minIndex].fX <= pts[maxIndex].fX);
-                // we just subtract the indices, and let that auto-convert to
-                // SkScalar, since we just want - or + to signal the direction.
-                cross = minIndex - maxIndex;
-            } else {
-                TRY_CROSSPROD:
-                // Find a next and prev index to use for the cross-product test,
-                // but we try to find pts that form non-zero vectors from pts[index]
-                //
-                // Its possible that we can't find two non-degenerate vectors, so
-                // we have to guard our search (e.g. all the pts could be in the
-                // same place).
-
-                // we pass n - 1 instead of -1 so we don't foul up % operator by
-                // passing it a negative LH argument.
-                int prev = find_diff_pt(pts, index, n, n - 1);
-                if (prev == index) {
-                    // completely degenerate, skip to next contour
-                    continue;
-                }
-                int next = find_diff_pt(pts, index, n, 1);
-                SkASSERT(next != index);
-                cross = cross_prod(pts[prev], pts[index], pts[next]);
-                // if we get a zero and the points are horizontal, then we look at the spread in
-                // x-direction. We really should continue to walk away from the degeneracy until
-                // there is a divergence.
-                if (0 == cross && pts[prev].fY == pts[index].fY && pts[next].fY == pts[index].fY) {
-                    // construct the subtract so we get the correct Direction below
-                    cross = pts[index].fX - pts[next].fX;
-                }
+            int next = find_diff_pt(pts, index, n, 1);
+            SkASSERT(next != index);
+            cross = cross_prod(pts[prev], pts[index], pts[next]);
+            // if we get a zero and the points are horizontal, then we look at the spread in
+            // x-direction. We really should continue to walk away from the degeneracy until
+            // there is a divergence.
+            if (0 == cross && pts[prev].fY == pts[index].fY && pts[next].fY == pts[index].fY) {
+                // construct the subtract so we get the correct Direction below
+                cross = pts[index].fX - pts[next].fX;
             }
+        }
 
-            if (cross) {
-                // record our best guess so far
-                ymax = pts[index].fY;
-                ymaxCross = cross;
-            }
+        if (cross) {
+            // record our best guess so far
+            ymax = pts[index].fY;
+            ymaxCross = cross;
         }
     }
     if (ymaxCross) {
@@ -2822,7 +2713,7 @@ static SkScalar eval_cubic_pts(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c
 /*  Given 4 cubic points (either Xs or Ys), and a target X or Y, compute the
  t value such that cubic(t) = target
  */
-static bool chopMonoCubicAt(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c3,
+static void chopMonoCubicAt(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c3,
                             SkScalar target, SkScalar* t) {
     //   SkASSERT(c0 <= c1 && c1 <= c2 && c2 <= c3);
     SkASSERT(c0 < target && target < c3);
@@ -2851,7 +2742,6 @@ static bool chopMonoCubicAt(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c3,
         }
     }
     *t = mid;
-    return true;
 }
 
 template <size_t N> static void find_minmax(const SkPoint pts[],
@@ -2893,13 +2783,9 @@ static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y) {
     }
 
     // compute the actual x(t) value
-    SkScalar t, xt;
-    if (chopMonoCubicAt(pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY, y, &t)) {
-        xt = eval_cubic_pts(pts[0].fX, pts[1].fX, pts[2].fX, pts[3].fX, t);
-    } else {
-        SkScalar mid = SkScalarAve(pts[0].fY, pts[3].fY);
-        xt = y < mid ? pts[0].fX : pts[3].fX;
-    }
+    SkScalar t;
+    chopMonoCubicAt(pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY, y, &t);
+    SkScalar xt = eval_cubic_pts(pts[0].fX, pts[1].fX, pts[2].fX, pts[3].fX, t);
     return xt < x ? dir : 0;
 }
 

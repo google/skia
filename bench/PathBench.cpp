@@ -495,7 +495,6 @@ public:
         kAdd_AddType,
         kAddTrans_AddType,
         kAddMatrix_AddType,
-        kPathTo_AddType,
         kReverseAdd_AddType,
         kReversePathTo_AddType,
     };
@@ -513,8 +512,6 @@ protected:
                 return "path_add_path_trans";
             case kAddMatrix_AddType:
                 return "path_add_path_matrix";
-            case kPathTo_AddType:
-                return "path_path_to";
             case kReverseAdd_AddType:
                 return "path_reverse_add_path";
             case kReversePathTo_AddType:
@@ -526,9 +523,8 @@ protected:
     }
 
     virtual void onPreDraw() SK_OVERRIDE {
-        // pathTo and reversePathTo assume a single contour path.
-        bool allowMoves = kPathTo_AddType != fType &&
-                          kReversePathTo_AddType != fType;
+        // reversePathTo assumes a single contour path.
+        bool allowMoves = kReversePathTo_AddType != fType;
         this->createData(10, 100, allowMoves);
         fPaths0.reset(kPathCnt);
         fPaths1.reset(kPathCnt);
@@ -560,13 +556,6 @@ protected:
                     int idx = i & (kPathCnt - 1);
                     SkPath result = fPaths0[idx];
                     result.addPath(fPaths1[idx], fMatrix);
-                }
-                break;
-            case kPathTo_AddType:
-                for (int i = 0; i < this->getLoops(); ++i) {
-                    int idx = i & (kPathCnt - 1);
-                    SkPath result = fPaths0[idx];
-                    result.pathTo(fPaths1[idx]);
                 }
                 break;
             case kReverseAdd_AddType:
@@ -1036,7 +1025,6 @@ DEF_BENCH( return new PathEqualityBench(); )
 DEF_BENCH( return new SkBench_AddPathTest(SkBench_AddPathTest::kAdd_AddType); )
 DEF_BENCH( return new SkBench_AddPathTest(SkBench_AddPathTest::kAddTrans_AddType); )
 DEF_BENCH( return new SkBench_AddPathTest(SkBench_AddPathTest::kAddMatrix_AddType); )
-DEF_BENCH( return new SkBench_AddPathTest(SkBench_AddPathTest::kPathTo_AddType); )
 DEF_BENCH( return new SkBench_AddPathTest(SkBench_AddPathTest::kReverseAdd_AddType); )
 DEF_BENCH( return new SkBench_AddPathTest(SkBench_AddPathTest::kReversePathTo_AddType); )
 

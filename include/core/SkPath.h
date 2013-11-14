@@ -972,11 +972,6 @@ private:
     friend class Iter;
 
     friend class SkPathStroker;
-    /*  Append the first contour of path, ignoring path's initial point. If no
-        moveTo() call has been made for this contour, the first point is
-        automatically set to (0,0).
-    */
-    void pathTo(const SkPath& path);
 
     /*  Append, in reverse order, the first contour of path, ignoring path's
         last point. If no moveTo() call has been made for this contour, the
@@ -1019,7 +1014,8 @@ private:
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
     friend class SkAutoDisableDirectionCheck;
-    friend class SkBench_AddPathTest; // perf test pathTo/reversePathTo
+    friend class SkBench_AddPathTest; // perf test reversePathTo
+    friend class PathTest_Private; // unit test reversePathTo
 };
 
 #endif
