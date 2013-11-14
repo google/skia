@@ -15,6 +15,7 @@
 #include "SkPaint.h"
 #include "SkPoint.h"
 #include "SkRect.h"
+#include "SkStream.h"
 #include "SkTypeface.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -99,7 +100,7 @@ static void test_fontHostStream(skiatest::Reporter* reporter) {
         }
 
         int ttcIndex;
-        SkStream* fontData = origTypeface->openStream(&ttcIndex);
+        SkAutoTUnref<SkStream> fontData(origTypeface->openStream(&ttcIndex));
         SkTypeface* streamTypeface = SkTypeface::CreateFromStream(fontData);
         SkSafeUnref(paint.setTypeface(streamTypeface));
         drawBG(&streamCanvas);

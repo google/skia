@@ -130,11 +130,12 @@ public:
                 // 3 ) large negative specular exponent value
                 SkScalar specularExponent = SkFloatToScalar(-1000);
 
+                SkAutoTUnref<SkImageFilter> bmSrc(new SkBitmapSource(bitmap));
                 SkPaint paint;
                 paint.setImageFilter(SkLightingImageFilter::CreateSpotLitSpecular(
                         location, target, specularExponent, SkFloatToScalar(180),
                         0xFFFFFFFF, SK_Scalar1, SK_Scalar1, SK_Scalar1,
-                        new SkBitmapSource(bitmap)))->unref();
+                        bmSrc))->unref();
                 SkCanvas canvas(result);
                 SkRect r = SkRect::MakeWH(SkIntToScalar(kBitmapSize),
                                           SkIntToScalar(kBitmapSize));
@@ -144,9 +145,9 @@ public:
             {
                 // This tests for scale bringing width to 0
                 SkSize scale = SkSize::Make(SkFloatToScalar(-0.001f), SK_Scalar1);
+                SkAutoTUnref<SkImageFilter> bmSrc(new SkBitmapSource(bitmap));
                 SkAutoTUnref<SkBicubicImageFilter> bicubic(
-                    SkBicubicImageFilter::CreateMitchell(
-                        scale, new SkBitmapSource(bitmap)));
+                    SkBicubicImageFilter::CreateMitchell(scale, bmSrc));
                 SkBitmapDevice device(bitmap);
                 SkDeviceImageFilterProxy proxy(&device);
                 SkIPoint loc = SkIPoint::Make(0, 0);

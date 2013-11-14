@@ -273,13 +273,13 @@ static void cpu_blur_path(const SkPath& path, SkScalar gaussianSigma,
 }
 
 #if SK_SUPPORT_GPU
-static void gpu_blur_path(GrContextFactory* factory, const SkPath& path,
+static bool gpu_blur_path(GrContextFactory* factory, const SkPath& path,
                           SkScalar gaussianSigma,
                           int* result, int resultCount) {
 
     GrContext* grContext = factory->get(GrContextFactory::kNative_GLContextType);
     if (NULL == grContext) {
-        return;
+        return false;
     }
 
     GrTextureDesc desc;
@@ -295,6 +295,7 @@ static void gpu_blur_path(GrContextFactory* factory, const SkPath& path,
 
     blur_path(&canvas, path, gaussianSigma);
     readback(&canvas, result, resultCount);
+    return true;
 }
 #endif
 
@@ -355,7 +356,7 @@ static void test_sigma_range(skiatest::Reporter* reporter, GrContextFactory* fac
         cpu_blur_path(rectPath, sigma, rectSpecialCaseResult, kSize);
         cpu_blur_path(polyPath, sigma, generalCaseResult, kSize);
 #if SK_SUPPORT_GPU
-        gpu_blur_path(factory, rectPath, sigma, gpuResult, kSize);
+        bool haveGPUResult = gpu_blur_path(factory, rectPath, sigma, gpuResult, kSize);
 #endif
         ground_truth_2d(100, 100, sigma, groundTruthResult, kSize);
         brute_force_1d(-50.0f, 50.0f, sigma, bruteForce1DResult, kSize);
@@ -363,8 +364,10 @@ static void test_sigma_range(skiatest::Reporter* reporter, GrContextFactory* fac
         REPORTER_ASSERT(reporter, match(rectSpecialCaseResult, bruteForce1DResult, kSize, 5));
         REPORTER_ASSERT(reporter, match(generalCaseResult, bruteForce1DResult, kSize, 15));
 #if SK_SUPPORT_GPU
-        // 1 works everywhere but: Ubuntu13 & Nexus4
-        REPORTER_ASSERT(reporter, match(gpuResult, bruteForce1DResult, kSize, 10));
+        if (haveGPUResult) {
+            // 1 works everywhere but: Ubuntu13 & Nexus4
+            REPORTER_ASSERT(reporter, match(gpuResult, bruteForce1DResult, kSize, 10));
+        }
 #endif
         REPORTER_ASSERT(reporter, match(groundTruthResult, bruteForce1DResult, kSize, 1));
 
