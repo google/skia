@@ -5661,9 +5661,10 @@
         ]
       ], 
       "bugs": [
-        1578
+        1844
       ], 
-      "reviewed-by-human": false
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "dashing_pdf-poppler.png": {
       "allowed-digests": [
