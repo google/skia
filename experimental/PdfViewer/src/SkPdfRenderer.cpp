@@ -3087,73 +3087,73 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
     return true;
 }
 
-bool SkPdfRenderer::load(const SkString inputFileName) {
-    unload();
-
-    fPdfDoc = new SkPdfNativeDoc(inputFileName.c_str());
-    if (fPdfDoc->pages() == 0) {
-        delete fPdfDoc;
-        fPdfDoc = NULL;
+SkPdfRenderer* SkPdfRenderer::CreateFromFile(const char* inputFileName) {
+    // FIXME: SkPdfNativeDoc should have a similar Create function.
+    SkPdfNativeDoc* pdfDoc = SkNEW_ARGS(SkPdfNativeDoc, (inputFileName));
+    if (pdfDoc->pages() == 0) {
+        SkDELETE(pdfDoc);
+        return NULL;
     }
 
-    return fPdfDoc != NULL;
+    return SkNEW_ARGS(SkPdfRenderer, (pdfDoc));
 }
 
-bool SkPdfRenderer::load(SkStream* stream) {
-    unload();
-
+SkPdfRenderer* SkPdfRenderer::CreateFromStream(SkStream* stream) {
     // TODO(edisonn): create static function that could return NULL if there are errors
-    fPdfDoc = new SkPdfNativeDoc(stream);
-    if (fPdfDoc->pages() == 0) {
-        delete fPdfDoc;
-        fPdfDoc = NULL;
+    SkPdfNativeDoc* pdfDoc = SkNEW_ARGS(SkPdfNativeDoc, (stream));
+    if (pdfDoc->pages() == 0) {
+        SkDELETE(pdfDoc);
+        return NULL;
     }
 
-    return fPdfDoc != NULL;
+    return SkNEW_ARGS(SkPdfRenderer, (pdfDoc));
 }
 
+SkPdfRenderer::SkPdfRenderer(SkPdfNativeDoc* doc)
+    :fPdfDoc(doc) {
+}
+
+SkPdfRenderer::~SkPdfRenderer() {
+    SkDELETE(fPdfDoc);
+}
 
 int SkPdfRenderer::pages() const {
-    return fPdfDoc != NULL ? fPdfDoc->pages() : 0;
-}
-
-void SkPdfRenderer::unload() {
-    delete fPdfDoc;
-    fPdfDoc = NULL;
+    SkASSERT(fPdfDoc != NULL);
+    return fPdfDoc->pages();
 }
 
 SkRect SkPdfRenderer::MediaBox(int page) const {
-    SkASSERT(fPdfDoc);
+    SkASSERT(fPdfDoc != NULL);
     return fPdfDoc->MediaBox(page);
 }
 
 size_t SkPdfRenderer::bytesUsed() const {
-    return fPdfDoc ? fPdfDoc->bytesUsed() : 0;
+    SkASSERT(fPdfDoc != NULL);
+    return fPdfDoc->bytesUsed();
 }
 
 bool SkPDFNativeRenderToBitmap(SkStream* stream,
                                SkBitmap* output,
                                int page,
-                               SkPdfContent content,
+                               SkPdfContent unused,
                                double dpi) {
     SkASSERT(page >= 0);
-    SkPdfRenderer renderer;
-    renderer.load(stream);
-    if (!renderer.loaded() || page >= renderer.pages() || page < 0) {
+    SkPdfRenderer* renderer = SkPdfRenderer::CreateFromStream(stream);
+    if (NULL == renderer) {
         return false;
     }
 
-    SkRect rect = renderer.MediaBox(page < 0 ? 0 :page);
+    SkRect rect = renderer->MediaBox(page < 0 ? 0 :page);
 
-    SkScalar width = SkScalarMul(rect.width(),  SkDoubleToScalar(sqrt(dpi / 72.0)));
-    SkScalar height = SkScalarMul(rect.height(),  SkDoubleToScalar(sqrt(dpi / 72.0)));
+    SkScalar width = SkScalarMul(rect.width(),  SkDoubleToScalar(dpi / 72.0));
+    SkScalar height = SkScalarMul(rect.height(),  SkDoubleToScalar(dpi / 72.0));
 
     rect = SkRect::MakeWH(width, height);
 
-    setup_bitmap(output, (int)SkScalarToDouble(width), (int)SkScalarToDouble(height));
+    setup_bitmap(output, SkScalarCeilToInt(width), SkScalarCeilToInt(height));
 
     SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (*output)));
     SkCanvas canvas(device);
 
-    return renderer.renderPage(page, &canvas, rect);
+    return renderer->renderPage(page, &canvas, rect);
 }

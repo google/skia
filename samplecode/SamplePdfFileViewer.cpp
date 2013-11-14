@@ -37,18 +37,16 @@ private:
     SkPicture*  fPicture;  // TODO(edisonn): multiple pages, one page / picture, make it an array
 
     static SkPicture* LoadPdf(const char path[]) {
-        SkPicture* pic = NULL;
-
-        SkPdfRenderer renderer;
-        SkString skpath;
-        skpath.append(path);
-        renderer.load(skpath);
-        if (renderer.loaded()) {
-            pic = SkNEW(SkPicture);
-            SkCanvas* canvas = pic->beginRecording((int)renderer.MediaBox(0).width(), (int)renderer.MediaBox(0).height());
-            renderer.renderPage(0, canvas, renderer.MediaBox(0));
-            pic->endRecording();
+        SkAutoTDelete<SkPdfRenderer> renderer(SkPdfRenderer::CreateFromFile(path));
+        if (NULL == renderer.get()) {
+            return NULL;
         }
+
+        SkPicture* pic = SkNEW(SkPicture);
+        SkCanvas* canvas = pic->beginRecording((int) renderer->MediaBox(0).width(),
+                                               (int) renderer->MediaBox(0).height());
+        renderer->renderPage(0, canvas, renderer->MediaBox(0));
+        pic->endRecording();
         return pic;
     }
 

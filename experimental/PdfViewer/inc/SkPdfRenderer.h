@@ -9,17 +9,16 @@
 #ifndef SkPdfRenderer_DEFINED
 #define SkPdfRenderer_DEFINED
 
-// TODO(edisonn): remove this dependency, and load only from a stream!
-#include "SkString.h"
+#include "SkTypes.h"
 
 class SkBitmap;
 class SkCanvas;
 class SkPdfNativeDoc;
 struct SkRect;
 class SkStream;
-class SkString;
 
 // What kind of content to render.
+// FIXME: Currently unused.
 enum SkPdfContent {
     kNoForms_SkPdfContent,
     kAll_SkPdfContent,
@@ -30,26 +29,20 @@ enum SkPdfContent {
  *  The SkPdfRenderer class is used to render a PDF into canvas.
  *
  */
-class SkPdfRenderer {
+class SkPdfRenderer : public SkNoncopyable {
 public:
-    SkPdfRenderer() : fPdfDoc(NULL) {}
-    virtual ~SkPdfRenderer() {unload();}
+    // Create a new renderer from a stream.
+    // TODO(edisonn): replace it with a SkSmartStream which would know to to efficiently
+    // deal with a HTTP stream.
+    // FIXME: Untested.
+    static SkPdfRenderer* CreateFromStream(SkStream*);
+    // Create a new renderer from a file.
+    static SkPdfRenderer* CreateFromFile(const char* filename);
+
+    ~SkPdfRenderer();
 
     // Render a specific page into the canvas, in a specific rectangle.
     bool renderPage(int page, SkCanvas* canvas, const SkRect& dst) const;
-
-    // TODO(edisonn): deprecated, should be removed!
-    bool load(const SkString inputFileName);
-
-    // TODO(edisonn): replace it with a SkSmartStream which would know to to efficiently
-    // deal with a HTTP stream.
-    bool load(SkStream* stream);
-
-    // Unloads the pdf document.
-    void unload();
-
-    // Returns true if we succesfully loaded a document.
-    bool loaded() const {return fPdfDoc != NULL && pages() > 0;}
 
     // Returns the number of pages in the loaded pdf.
     int pages() const;
@@ -62,6 +55,8 @@ public:
     size_t bytesUsed() const;
 
 private:
+    // Takes ownership of SkPdfNativeDoc.
+    SkPdfRenderer(SkPdfNativeDoc*);
     SkPdfNativeDoc* fPdfDoc;
 };
 

@@ -68,6 +68,7 @@ public:
     SkPdfNativeDoc(const char* path);
 
     // TODO(edisonn) should be deprecated
+    // FIXME: Untested.
     SkPdfNativeDoc(SkStream* stream);
 
     ~SkPdfNativeDoc();

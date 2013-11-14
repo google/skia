@@ -16,6 +16,7 @@
       ],
       'include_dirs': [
         '../experimental/PdfViewer',
+        '../experimental/PdfViewer/inc',
         '../experimental/PdfViewer/pdfparser',
         '../experimental/PdfViewer/pdfparser/native',
       ],

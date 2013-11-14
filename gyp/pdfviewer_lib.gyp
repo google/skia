@@ -9,9 +9,13 @@
       'target_name': 'pdfviewer_lib',
       'type': 'static_library',
       'sources': [
+        # FIXME: Include directory is named "inc" (instead of "include") in
+        # order to not be considered the public API.
+        '../experimental/PdfViewer/inc/SkPdfRenderer.h',
+        '../experimental/PdfViewer/src/SkPdfRenderer.cpp',
+
         '../experimental/PdfViewer/SkPdfGraphicsState.cpp',
         '../experimental/PdfViewer/SkPdfFont.cpp',
-        '../experimental/PdfViewer/SkPdfRenderer.cpp',
         '../experimental/PdfViewer/SkPdfReporter.cpp',
         '../experimental/PdfViewer/SkPdfUtils.cpp',
         #'../experimental/PdfViewer/SkPdfNYI.cpp',
@@ -25,6 +29,7 @@
       ],
       'include_dirs': [
         '../experimental/PdfViewer',
+        '../experimental/PdfViewer/inc',
         '../experimental/PdfViewer/pdfparser',
         '../experimental/PdfViewer/pdfparser/native',
         '../experimental/PdfViewer/pdfparser/native/pdfapi',

@@ -1,3 +1,4 @@
+#
 {
   'variables': {
     #manually set sample_pdf_file_viewer to 1 to have the PdfViewer in SampleApp
@@ -167,7 +168,7 @@
            'pdfviewer_lib.gyp:pdfviewer_lib',
          ],
          'include_dirs' : [
-           '../experimental/PdfViewer/',
+           '../experimental/PdfViewer/inc',
          ],
          'sources': [
            '../samplecode/SamplePdfFileViewer.cpp',

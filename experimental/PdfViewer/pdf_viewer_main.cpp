@@ -214,81 +214,67 @@ static bool render_page(const SkString& outputDir,
 /** Reads an skp file, renders it to pdf and writes the output to a pdf file
  * @param inputPath The skp file to be read.
  * @param outputDir Output dir.
- * @param renderer The object responsible to render the skp object into pdf.
  */
-static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
-                        SkPdfRenderer& renderer) {
+static bool process_pdf(const SkString& inputPath, const SkString& outputDir) {
     SkDebugf("Loading PDF:  %s\n", inputPath.c_str());
 
     SkString inputFilename = SkOSPath::SkBasename(inputPath.c_str());
 
-    bool success = true;
+    SkAutoTDelete<SkPdfRenderer> renderer(SkPdfRenderer::CreateFromFile(inputPath.c_str()));
+    if (NULL == renderer.get()) {
+        SkDebugf("Failure loading file %s\n", inputPath.c_str());
+        return false;
+    }
 
-    success = renderer.load(inputPath);
     if (FLAGS_showMemoryUsage) {
-        SkDebugf("Memory usage after load: %u\n", (unsigned int)renderer.bytesUsed());
+        SkDebugf("Memory usage after load: %u\n", (unsigned int) renderer->bytesUsed());
     }
 
     // TODO(edisonn): bench timers
     if (FLAGS_benchLoad > 0) {
         for (int i = 0 ; i < FLAGS_benchLoad; i++) {
-            success = renderer.load(inputPath) && success;
-            if (FLAGS_showMemoryUsage) {
+            SkAutoTDelete<SkPdfRenderer> benchRenderer(
+                    SkPdfRenderer::CreateFromFile(inputPath.c_str()));
+            if (NULL == benchRenderer.get()) {
+                SkDebugf("Failed to load on %ith attempt\n", i);
+            } else if (FLAGS_showMemoryUsage) {
                 SkDebugf("Memory usage after load %i number : %u\n", i,
-                         (unsigned int)renderer.bytesUsed());
+                         (unsigned int) benchRenderer->bytesUsed());
             }
         }
     }
 
-    if (success) {
-        if (!renderer.pages())
-        {
-            SkDebugf("ERROR: Empty PDF Document %s\n", inputPath.c_str());
-            return false;
-        } else {
-            for (int i = 0; i < FLAGS_benchRender + 1; i++) {
-                // TODO(edisonn) if (i == 1) start timer
-                if (strcmp(FLAGS_pages[0], "all") == 0) {
-                    for (int pn = 0; pn < renderer.pages(); ++pn) {
-                        success = render_page(
-                                outputDir,
-                                inputFilename,
-                                renderer,
-                                FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 :
-                                                                                          pn) &&
-                                     success;
-                    }
-                } else if (strcmp(FLAGS_pages[0], "reverse") == 0) {
-                    for (int pn = renderer.pages() - 1; pn >= 0; --pn) {
-                        success = render_page(
-                                outputDir,
-                                inputFilename,
-                                renderer,
-                                FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 :
-                                                                                          pn) &&
-                                   success;
-                    }
-                } else if (strcmp(FLAGS_pages[0], "first") == 0) {
-                    success = render_page(
-                            outputDir,
-                            inputFilename,
-                            renderer,
-                            FLAGS_noExtensionForOnePagePdf && renderer.pages() == 1 ? -1 : 0) &&
-                                success;
-                } else if (strcmp(FLAGS_pages[0], "last") == 0) {
-                    success = render_page(
-                            outputDir,
-                            inputFilename,
-                            renderer,
-                            FLAGS_noExtensionForOnePagePdf &&
-                                    renderer.pages() == 1 ? -1 : renderer.pages() - 1) && success;
-                } else {
-                    int pn = atoi(FLAGS_pages[0]);
-                    success = render_page(outputDir, inputFilename, renderer,
-                                          FLAGS_noExtensionForOnePagePdf &&
-                                              renderer.pages() == 1 ? -1 : pn) && success;
-                }
+    if (!renderer->pages()) {
+        // This should never happen, since CreateFromFile will return NULL if there are no pages.
+        SkASSERT(false);
+        SkDebugf("ERROR: Empty PDF Document %s\n", inputPath.c_str());
+        return false;
+    }
+
+    bool success = true;
+    for (int i = 0; i < FLAGS_benchRender + 1; i++) {
+        // TODO(edisonn) if (i == 1) start timer
+        if (strcmp(FLAGS_pages[0], "all") == 0) {
+            for (int pn = 0; pn < renderer->pages(); ++pn) {
+                success &= render_page(outputDir, inputFilename, *renderer,
+                        FLAGS_noExtensionForOnePagePdf && renderer->pages() == 1 ? -1 : pn);
             }
+        } else if (strcmp(FLAGS_pages[0], "reverse") == 0) {
+            for (int pn = renderer->pages() - 1; pn >= 0; --pn) {
+                success &= render_page(outputDir, inputFilename, *renderer,
+                        FLAGS_noExtensionForOnePagePdf && renderer->pages() == 1 ? -1 : pn);
+            }
+        } else if (strcmp(FLAGS_pages[0], "first") == 0) {
+            success &= render_page(outputDir, inputFilename, *renderer,
+                    FLAGS_noExtensionForOnePagePdf && renderer->pages() == 1 ? -1 : 0);
+        } else if (strcmp(FLAGS_pages[0], "last") == 0) {
+            success &= render_page(outputDir, inputFilename, *renderer,
+                    FLAGS_noExtensionForOnePagePdf && renderer->pages() == 1 ? -1
+                    : renderer->pages() - 1);
+        } else {
+            int pn = atoi(FLAGS_pages[0]);
+            success &= render_page(outputDir, inputFilename, *renderer,
+                    FLAGS_noExtensionForOnePagePdf && renderer->pages() == 1 ? -1 : pn);
         }
     }
 
@@ -303,23 +289,21 @@ static bool process_pdf(const SkString& inputPath, const SkString& outputDir,
  * parse_pdf.
  * @param input A directory or an pdf file.
  * @param outputDir Output dir.
- * @param renderer The object responsible to render the skp object into pdf.
  */
-static int process_input(const char* input, const SkString& outputDir,
-                         SkPdfRenderer& renderer) {
+static int process_input(const char* input, const SkString& outputDir) {
     int failures = 0;
     if (sk_isdir(input)) {
         SkOSFile::Iter iter(input, PDF_FILE_EXTENSION);
         SkString inputFilename;
         while (iter.next(&inputFilename)) {
             SkString inputPath = SkOSPath::SkPathJoin(input, inputFilename.c_str());
-            if (!process_pdf(inputPath, outputDir, renderer)) {
+            if (!process_pdf(inputPath, outputDir)) {
                 ++failures;
             }
         }
     } else {
         SkString inputPath(input);
-        if (!process_pdf(inputPath, outputDir, renderer)) {
+        if (!process_pdf(inputPath, outputDir)) {
             ++failures;
         }
     }
@@ -336,8 +320,6 @@ int tool_main(int argc, char** argv) {
         exit(-1);
     }
 
-    SkPdfRenderer renderer;
-
     SkString outputDir;
     if (FLAGS_writePath.count() == 1) {
         outputDir.set(FLAGS_writePath[0]);
@@ -345,8 +327,7 @@ int tool_main(int argc, char** argv) {
 
     int failures = 0;
     for (int i = 0; i < FLAGS_readPath.count(); i ++) {
-        failures += process_input(FLAGS_readPath[i], outputDir, renderer);
-        renderer.unload();
+        failures += process_input(FLAGS_readPath[i], outputDir);
     }
 
     reportPdfRenderStats();

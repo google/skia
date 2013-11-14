@@ -126,11 +126,11 @@ void SkPdfNativeDoc::init(const void* bytes, size_t length) {
 
     bool storeCatalog = true;
     while (xrefByteOffset >= 0) {
-        const unsigned char* trailerStart = readCrossReferenceSection(fFileContent + xrefByteOffset,
-                                                                      xrefstartKeywordLine);
+        const unsigned char* trailerStart = this->readCrossReferenceSection(fFileContent + xrefByteOffset,
+                                                                            xrefstartKeywordLine);
         xrefByteOffset = -1;
         if (trailerStart < xrefstartKeywordLine) {
-            readTrailer(trailerStart, xrefstartKeywordLine, storeCatalog, &xrefByteOffset, false);
+            this->readTrailer(trailerStart, xrefstartKeywordLine, storeCatalog, &xrefByteOffset, false);
             storeCatalog = false;
         }
     }
@@ -303,7 +303,7 @@ const unsigned char* SkPdfNativeDoc::readCrossReferenceSection(const unsigned ch
                 return current;
             }
 
-            addCrossSectionInfo(startId + i, generation, offset, *token.c_str() == 'f');
+            this->addCrossSectionInfo(startId + i, generation, offset, *token.c_str() == 'f');
         }
     }
     SkPdfReport(kInfo_SkPdfIssueSeverity, kNoIssue_SkPdfIssue,
@@ -363,7 +363,7 @@ const unsigned char* SkPdfNativeDoc::readTrailer(const unsigned char* trailerSta
 void SkPdfNativeDoc::addCrossSectionInfo(int id, int generation, int offset, bool isFreed) {
     // TODO(edisonn): security here, verify id
     while (fObjects.count() < id + 1) {
-        reset(fObjects.append());
+        this->reset(fObjects.append());
     }
 
     fObjects[id].fOffset = offset;

@@ -65,7 +65,7 @@
             'SK_BUILD_NATIVE_PDF_RENDERER',
           ],
           'include_dirs' : [
-            '../experimental/PdfViewer',
+            '../experimental/PdfViewer/inc',
           ],
           'dependencies': [
             'pdfviewer_lib.gyp:pdfviewer_lib',
