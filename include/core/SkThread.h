@@ -64,5 +64,6 @@ public:
 private:
     SkBaseMutex* fMutex;
 };
+#define SkAutoMutexAcquire(...) SK_REQUIRE_LOCAL_VAR(SkAutoMutexAcquire)
 
 #endif

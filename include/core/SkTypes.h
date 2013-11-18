@@ -149,6 +149,32 @@ struct SkCompileAssert {
  */
 #define SK_MACRO_APPEND_LINE(name)  SK_MACRO_CONCAT(name, __LINE__)
 
+/**
+ * For some classes, it's almost always an error to instantiate one without a name, e.g.
+ *   {
+ *       SkAutoMutexAcquire(&mutex);
+ *       <some code>
+ *   }
+ * In this case, the writer meant to hold mutex while the rest of the code in the block runs,
+ * but instead the mutex is acquired and then immediately released.  The correct usage is
+ *   {
+ *       SkAutoMutexAcquire lock(&mutex);
+ *       <some code>
+ *   }
+ *
+ * To prevent callers from instantiating your class without a name, use SK_REQUIRE_LOCAL_VAR
+ * like this:
+ *   class classname {
+ *       <your class>
+ *   };
+ *   #define classname(...) SK_REQUIRE_LOCAL_VAR(classname)
+ *
+ * This won't work with templates, and you must inline the class' constructors and destructors.
+ * Take a look at SkAutoFree and SkAutoMalloc in this file for examples.
+ */
+#define SK_REQUIRE_LOCAL_VAR(classname) \
+    SK_COMPILE_ASSERT(false, missing_name_for_##classname)
+
 ///////////////////////////////////////////////////////////////////////
 
 /**
@@ -432,6 +458,7 @@ private:
     SkAutoFree(const SkAutoFree&);
     SkAutoFree& operator=(const SkAutoFree&);
 };
+#define SkAutoFree(...) SK_REQUIRE_LOCAL_VAR(SkAutoFree)
 
 /**
  *  Manage an allocated block of heap memory. This object is the sole manager of
@@ -518,6 +545,7 @@ private:
     void*   fPtr;
     size_t  fSize;  // can be larger than the requested size (see kReuse)
 };
+#define SkAutoMalloc(...) SK_REQUIRE_LOCAL_VAR(SkAutoMalloc)
 
 /**
  *  Manage an allocated block of memory. If the requested size is <= kSize, then
@@ -604,6 +632,7 @@ private:
     size_t      fSize;  // can be larger than the requested size (see kReuse)
     uint32_t    fStorage[(kSize + 3) >> 2];
 };
+// Can't guard the constructor because it's a template class.
 
 #endif /* C++ */
 

@@ -459,6 +459,7 @@ public:
 private:
     SkBounder*  fBounder;
 };
+#define SkAutoBounderCommit(...) SK_REQUIRE_LOCAL_VAR(SkAutoBounderCommit)
 
 #include "SkColorPriv.h"
 

@@ -174,6 +174,7 @@ public:
 private:
     CGPDFDocumentRef fDoc;
 };
+#define SkAutoPDFRelease(...) SK_REQUIRE_LOCAL_VAR(SkAutoPDFRelease)
 
 static void CGDataProviderReleaseData_FromMalloc(void*, const void* data,
                                                  size_t size) {

@@ -65,7 +65,13 @@ public:
                                      fStorage, sizeof(fStorage), drawCoverage);
     }
 
-    ~SkAutoBlitterChoose();
+    ~SkAutoBlitterChoose() {
+        if ((void*)fBlitter == (void*)fStorage) {
+            fBlitter->~SkBlitter();
+        } else {
+            SkDELETE(fBlitter);
+        }
+    }
 
     SkBlitter*  operator->() { return fBlitter; }
     SkBlitter*  get() const { return fBlitter; }
@@ -81,14 +87,7 @@ private:
     SkBlitter*  fBlitter;
     uint32_t    fStorage[kBlitterStorageLongCount];
 };
-
-SkAutoBlitterChoose::~SkAutoBlitterChoose() {
-    if ((void*)fBlitter == (void*)fStorage) {
-        fBlitter->~SkBlitter();
-    } else {
-        SkDELETE(fBlitter);
-    }
-}
+#define SkAutoBlitterChoose(...) SK_REQUIRE_LOCAL_VAR(SkAutoBlitterChoose)
 
 /**
  *  Since we are providing the storage for the shader (to avoid the perf cost
@@ -128,6 +127,7 @@ private:
     SkPaint     fPaint; // copy of caller's paint (which we then modify)
     uint32_t    fStorage[kBlitterStorageLongCount];
 };
+#define SkAutoBitmapShaderInstall(...) SK_REQUIRE_LOCAL_VAR(SkAutoBitmapShaderInstall)
 
 ///////////////////////////////////////////////////////////////////////////////
 

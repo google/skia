@@ -253,26 +253,6 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-class SkAutoPictureRecord : SkNoncopyable {
-public:
-    SkAutoPictureRecord(SkPicture* pict, int width, int height,
-                        uint32_t recordingFlags = 0) {
-        fPicture = pict;
-        fCanvas = pict->beginRecording(width, height, recordingFlags);
-    }
-    ~SkAutoPictureRecord() {
-        fPicture->endRecording();
-    }
-
-    /** Return the canvas to draw into for recording into the picture.
-    */
-    SkCanvas* getRecordingCanvas() const { return fCanvas; }
-
-private:
-    SkPicture*  fPicture;
-    SkCanvas*   fCanvas;
-};
-
 /**
  *  Subclasses of this can be passed to canvas.drawPicture. During the drawing
  *  of the picture, this callback will periodically be invoked. If its

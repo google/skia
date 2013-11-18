@@ -2153,6 +2153,7 @@ private:
     HFONT fFont;
     HFONT fSavefont;
 };
+#define SkAutoHDC(...) SK_REQUIRE_LOCAL_VAR(SkAutoHDC)
 
 int LogFontTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                                      uint16_t userGlyphs[], int glyphCount) const

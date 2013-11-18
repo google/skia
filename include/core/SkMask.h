@@ -157,5 +157,6 @@ public:
 private:
     uint8_t* fImage;
 };
+#define SkAutoMaskFreeImage(...) SK_REQUIRE_LOCAL_VAR(SkAutoMaskFreeImage)
 
 #endif

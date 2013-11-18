@@ -159,6 +159,7 @@ private:
     SkDescriptor*   fDesc;
     uint32_t        fStorage[(kStorageSize + 3) >> 2];
 };
+#define SkAutoDescriptor(...) SK_REQUIRE_LOCAL_VAR(SkAutoDescriptor)
 
 
 #endif

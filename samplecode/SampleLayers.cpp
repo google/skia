@@ -61,7 +61,7 @@ static void test_fade(SkCanvas* canvas) {
     SkPaint p;
     p.setAlpha(0x88);
 
-    SkAutoCanvasRestore(canvas, false);
+    SkAutoCanvasRestore ar2(canvas, false);
 
     // create the layers
 

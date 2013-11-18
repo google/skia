@@ -237,11 +237,13 @@ public:
 private:
     T*  fObj;
 };
+// Can't use the #define trick below to guard a bare SkAutoTUnref(...) because it's templated. :(
 
 class SkAutoUnref : public SkAutoTUnref<SkRefCnt> {
 public:
     SkAutoUnref(SkRefCnt* obj) : SkAutoTUnref<SkRefCnt>(obj) {}
 };
+#define SkAutoUnref(...) SK_REQUIRE_LOCAL_VAR(SkAutoUnref)
 
 class SkAutoRef : SkNoncopyable {
 public:
@@ -250,6 +252,7 @@ public:
 private:
     SkRefCnt* fObj;
 };
+#define SkAutoRef(...) SK_REQUIRE_LOCAL_VAR(SkAutoRef)
 
 /** Wrapper class for SkRefCnt pointers. This manages ref/unref of a pointer to
     a SkRefCnt (or subclass) object.

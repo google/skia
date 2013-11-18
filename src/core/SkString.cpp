@@ -626,27 +626,6 @@ void SkString::swap(SkString& other) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkAutoUCS2::SkAutoUCS2(const char utf8[]) {
-    size_t len = strlen(utf8);
-    fUCS2 = (uint16_t*)sk_malloc_throw((len + 1) * sizeof(uint16_t));
-
-    uint16_t* dst = fUCS2;
-    for (;;) {
-        SkUnichar uni = SkUTF8_NextUnichar(&utf8);
-        *dst++ = SkToU16(uni);
-        if (uni == 0) {
-            break;
-        }
-    }
-    fCount = (int)(dst - fUCS2);
-}
-
-SkAutoUCS2::~SkAutoUCS2() {
-    sk_free(fUCS2);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 SkString SkStringPrintf(const char* format, ...) {
     SkString formattedOutput;
     char buffer[kBufferSize];

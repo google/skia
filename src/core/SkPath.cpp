@@ -56,6 +56,7 @@ private:
     SkPath* fPath;
     bool    fSaved;
 };
+#define SkAutoDisableOvalCheck(...) SK_REQUIRE_LOCAL_VAR(SkAutoDisableOvalCheck)
 
 class SkAutoDisableDirectionCheck {
 public:
@@ -71,6 +72,7 @@ private:
     SkPath*              fPath;
     SkPath::Direction    fSaved;
 };
+#define SkAutoDisableDirectionCheck(...) SK_REQUIRE_LOCAL_VAR(SkAutoDisableDirectionCheck)
 
 /*  This guy's constructor/destructor bracket a path editing operation. It is
     used when we know the bounds of the amount we are going to add to the path
@@ -125,6 +127,7 @@ private:
         fDegenerate = is_degenerate(*path);
     }
 };
+#define SkAutoPathBoundsUpdate(...) SK_REQUIRE_LOCAL_VAR(SkAutoPathBoundsUpdate)
 
 ////////////////////////////////////////////////////////////////////////////
 

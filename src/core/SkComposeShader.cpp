@@ -59,6 +59,7 @@ private:
     SkPaint*    fPaint;
     uint8_t     fAlpha;
 };
+#define SkAutoAlphaRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoAlphaRestore)
 
 void SkComposeShader::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);

@@ -780,6 +780,7 @@ private:
     void*   fObj;
     Proc    fProc;
 };
+#define SkAutoCallProc(...) SK_REQUIRE_LOCAL_VAR(SkAutoCallProc)
 
 static void destroy_blitter(void* blitter) {
     ((SkBlitter*)blitter)->~SkBlitter();

@@ -1158,6 +1158,7 @@ private:
     SkCanvas*   fCanvas;
     int         fSaveCount;
 };
+#define SkAutoCanvasRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoCanvasRestore)
 
 /** Stack helper class to automatically open and close a comment block
  */
@@ -1179,5 +1180,6 @@ public:
 private:
     SkCanvas* fCanvas;
 };
+#define SkAutoCommentBlock(...) SK_REQUIRE_LOCAL_VAR(SkAutoCommentBlock)
 
 #endif

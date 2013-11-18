@@ -113,5 +113,6 @@ public:
 private:
     const char* fLabel;
 };
+#define SkAutoTrace(...) SK_REQUIRE_LOCAL_VAR(SkAutoTrace)
 
 #endif

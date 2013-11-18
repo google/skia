@@ -273,5 +273,6 @@ private:
 
     static bool DetachProc(const SkGlyphCache*, void*);
 };
+#define SkAutoGlyphCache(...) SK_REQUIRE_LOCAL_VAR(SkAutoGlyphCache)
 
 #endif
