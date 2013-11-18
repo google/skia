@@ -64,6 +64,9 @@ public:
      *  The proc can delete the stream, or whatever it needs to do.
      *  encoder sets the DCTEncoder for images, to encode a bitmap
      *    as JPEG (DCT).
+     *  Done - clean up method intended to allow deletion of the stream.
+     *         Its aborted parameter is true if the cleanup is due to an abort
+     *         call. It is false otherwise.
      *  rasterDpi - the DPI at which features without native PDF support
      *              will be rasterized (e.g. draw image with perspective,
      *              draw text with perspective, ...)
@@ -73,7 +76,7 @@ public:
      *              and it would be slower to be processed or sent online or
      *              to printer.     */
     static SkDocument* CreatePDF(
-            SkWStream*, void (*Done)(SkWStream*) = NULL,
+            SkWStream*, void (*Done)(SkWStream*,bool aborted) = NULL,
             SkPicture::EncodeBitmap encoder = NULL,
             SkScalar rasterDpi = SK_ScalarDefaultRasterDPI);
 
@@ -108,7 +111,7 @@ public:
     void abort();
 
 protected:
-    SkDocument(SkWStream*, void (*)(SkWStream*));
+    SkDocument(SkWStream*, void (*)(SkWStream*, bool aborted));
     // note: subclasses must call close() in their destructor, as the base class
     // cannot do this for them.
     virtual ~SkDocument();
@@ -128,7 +131,7 @@ protected:
 
 private:
     SkWStream* fStream;
-    void       (*fDoneProc)(SkWStream*);
+    void       (*fDoneProc)(SkWStream*, bool aborted);
     State      fState;
 
     typedef SkRefCnt INHERITED;

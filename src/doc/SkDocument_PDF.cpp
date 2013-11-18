@@ -11,7 +11,7 @@
 
 class SkDocument_PDF : public SkDocument {
 public:
-    SkDocument_PDF(SkWStream* stream, void (*doneProc)(SkWStream*),
+    SkDocument_PDF(SkWStream* stream, void (*doneProc)(SkWStream*,bool),
                    SkPicture::EncodeBitmap encoder,
                    SkScalar rasterDpi)
             : SkDocument(stream, doneProc)
@@ -86,13 +86,13 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDocument* SkDocument::CreatePDF(SkWStream* stream, void (*done)(SkWStream*),
+SkDocument* SkDocument::CreatePDF(SkWStream* stream, void (*done)(SkWStream*,bool),
                                   SkPicture::EncodeBitmap enc,
                                   SkScalar dpi) {
     return stream ? SkNEW_ARGS(SkDocument_PDF, (stream, done, enc, dpi)) : NULL;
 }
 
-static void delete_wstream(SkWStream* stream) {
+static void delete_wstream(SkWStream* stream, bool aborted) {
     SkDELETE(stream);
 }
 

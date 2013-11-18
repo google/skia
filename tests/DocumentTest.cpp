@@ -9,7 +9,7 @@
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
 
-    SkDocument* doc = SkDocument::CreatePDF(&stream);
+    SkAutoTUnref<SkDocument> doc(SkDocument::CreatePDF(&stream));
 
     doc->close();
 
