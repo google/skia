@@ -364,6 +364,7 @@ SkData* SkMemoryStream::setData(SkData* data) {
         fData = data;
         fData->ref();
     }
+    fOffset = 0;
     return data;
 }
 
