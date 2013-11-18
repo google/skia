@@ -16,9 +16,6 @@
 #include "SkDiffContext.h"
 #include "skpdiff_util.h"
 
-// Truncates the number of points of interests in JSON output to not freeze the parser
-static const int kMaxPOI = 100;
-
 SkDiffContext::SkDiffContext() {
     fDiffers = NULL;
     fDifferCount = 0;
