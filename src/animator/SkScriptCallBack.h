@@ -13,6 +13,8 @@
 
 class SkScriptCallBack {
 public:
+    virtual ~SkScriptCallBack() { }
+
     enum Type {
         kBox,
         kFunction,

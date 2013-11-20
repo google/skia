@@ -129,6 +129,8 @@ protected:
  */
 class GrGLProgramEffectsBuilder {
 public:
+    virtual ~GrGLProgramEffectsBuilder() { }
+
     /**
      * Emits the effect's shader code, and stores the necessary uniforms internally.
      */
@@ -211,6 +213,7 @@ private:
 class GrGLVertexProgramEffectsBuilder : public GrGLProgramEffectsBuilder {
 public:
     GrGLVertexProgramEffectsBuilder(GrGLFullShaderBuilder*, int reserveCount);
+    virtual ~GrGLVertexProgramEffectsBuilder() { }
 
     virtual void emitEffect(const GrEffectStage&,
                             GrGLProgramEffects::EffectKey,
@@ -298,6 +301,7 @@ private:
 class GrGLTexGenProgramEffectsBuilder : public GrGLProgramEffectsBuilder {
 public:
     GrGLTexGenProgramEffectsBuilder(GrGLFragmentOnlyShaderBuilder*, int reserveCount);
+    virtual ~GrGLTexGenProgramEffectsBuilder() { }
 
     virtual void emitEffect(const GrEffectStage&,
                             GrGLProgramEffects::EffectKey,
