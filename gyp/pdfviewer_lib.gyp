@@ -13,6 +13,7 @@
         # order to not be considered the public API.
         '../experimental/PdfViewer/inc/SkPdfContext.h',
         '../experimental/PdfViewer/inc/SkPdfRenderer.h',
+        '../experimental/PdfViewer/inc/SkPdfTokenLooper.h',
 
         '../experimental/PdfViewer/src/SkPdfContext.cpp',
         '../experimental/PdfViewer/src/SkPdfRenderer.cpp',

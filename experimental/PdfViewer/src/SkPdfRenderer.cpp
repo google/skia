@@ -23,6 +23,7 @@
 #include "SkPdfNativeTokenizer.h"
 #include "SkPdfRenderer.h"
 #include "SkPdfReporter.h"
+#include "SkPdfTokenLooper.h"
 #include "SkPdfUtils.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -207,35 +208,6 @@ public:
 StringsInit gStringsInit;
 
 // TODO(edisonn): Document PdfTokenLooper and subclasses.
-class PdfTokenLooper {
-protected:
-    PdfTokenLooper* fParent;
-    SkPdfNativeTokenizer* fTokenizer;
-    SkPdfContext* fPdfContext;
-    SkCanvas* fCanvas;
-
-public:
-    PdfTokenLooper(PdfTokenLooper* parent,
-                   SkPdfNativeTokenizer* tokenizer,
-                   SkPdfContext* pdfContext,
-                   SkCanvas* canvas)
-        : fParent(parent), fTokenizer(tokenizer), fPdfContext(pdfContext), fCanvas(canvas) {}
-
-    virtual ~PdfTokenLooper() {}
-
-    virtual SkPdfResult consumeToken(PdfToken& token) = 0;
-    virtual void loop() = 0;
-
-    void setUp(PdfTokenLooper* parent) {
-        fParent = parent;
-        fTokenizer = parent->fTokenizer;
-        fPdfContext = parent->fPdfContext;
-        fCanvas = parent->fCanvas;
-    }
-
-    SkPdfNativeTokenizer* tokenizer() { return fTokenizer; }
-};
-
 class PdfMainLooper : public PdfTokenLooper {
 public:
     PdfMainLooper(PdfTokenLooper* parent,
