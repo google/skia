@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkPdfContext_DEFINED
+#define SkPdfContext_DEFINED
+
 #include "SkMatrix.h"
 #include "SkTDStackNester.h"
 #include "SkPdfGraphicsState.h"
@@ -28,3 +31,4 @@ public:
     SkPdfContext(SkPdfNativeDoc* doc);
     ~SkPdfContext();
 };
+#endif // SkPdfContext_DEFINED
