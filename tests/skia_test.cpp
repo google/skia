@@ -255,16 +255,6 @@ int tool_main(int argc, char** argv) {
     if (FLAGS_verbose && testCount > 0) {
         SkDebugf("Ran %d Internal tests.\n", testCount);
     }
-#if SK_SUPPORT_GPU
-
-#if GR_CACHE_STATS
-    GrContext *gr = GpuTest::GetContext();
-
-    gr->printCacheStats();
-#endif
-
-#endif
-
     SkGraphics::Term();
     GpuTest::DestroyContexts();
 
