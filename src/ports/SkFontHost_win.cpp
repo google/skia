@@ -2436,22 +2436,6 @@ void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
     }
 }
 
-static SkTypeface* create_typeface(const SkTypeface* familyFace,
-                                   const char familyName[],
-                                   unsigned styleBits) {
-    LOGFONT lf;
-    if (NULL == familyFace && NULL == familyName) {
-        lf = get_default_font();
-    } else if (familyFace) {
-        LogFontTypeface* face = (LogFontTypeface*)familyFace;
-        lf = face->fLogFont;
-    } else {
-        logfont_for_name(familyName, &lf);
-    }
-    setStyle(&lf, (SkTypeface::Style)styleBits);
-    return SkCreateTypefaceFromLOGFONT(lf);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkFontMgr.h"
@@ -2604,7 +2588,14 @@ protected:
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
                                                unsigned styleBits) SK_OVERRIDE {
-        return create_typeface(NULL, familyName, styleBits);
+        LOGFONT lf;
+        if (NULL == familyName) {
+            lf = get_default_font();
+        } else {
+            logfont_for_name(familyName, &lf);
+        }
+        setStyle(&lf, (SkTypeface::Style)styleBits);
+        return SkCreateTypefaceFromLOGFONT(lf);
     }
 
 private:

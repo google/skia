@@ -1724,43 +1724,6 @@ SkAdvancedTypefaceMetrics* DWriteFontTypeface::onGetAdvancedTypefaceMetrics(
     return info;
 }
 
-static SkTypeface* create_typeface(const SkTypeface* familyFace,
-                                   const char familyName[],
-                                   unsigned style,
-                                   SkFontMgr_DirectWrite* fontMgr) {
-    HRESULT hr;
-    SkTScopedComPtr<IDWriteFontFamily> fontFamily;
-    if (familyFace) {
-        const DWriteFontTypeface* face = static_cast<const DWriteFontTypeface*>(familyFace);
-        *(&fontFamily) = SkRefComPtr(face->fDWriteFontFamily.get());
-
-    } else if (familyName) {
-        hr = get_by_family_name(familyName, &fontFamily);
-    }
-
-    if (NULL == fontFamily.get()) {
-        //No good family found, go with default.
-        SkTScopedComPtr<IDWriteFont> font;
-        hr = get_default_font(&font);
-        hr = font->GetFontFamily(&fontFamily);
-    }
-
-    SkTScopedComPtr<IDWriteFont> font;
-    DWRITE_FONT_WEIGHT weight = (style & SkTypeface::kBold)
-                                 ? DWRITE_FONT_WEIGHT_BOLD
-                                 : DWRITE_FONT_WEIGHT_NORMAL;
-    DWRITE_FONT_STRETCH stretch = DWRITE_FONT_STRETCH_UNDEFINED;
-    DWRITE_FONT_STYLE italic = (style & SkTypeface::kItalic)
-                                ? DWRITE_FONT_STYLE_ITALIC
-                                : DWRITE_FONT_STYLE_NORMAL;
-    hr = fontFamily->GetFirstMatchingFont(weight, stretch, italic, &font);
-
-    SkTScopedComPtr<IDWriteFontFace> fontFace;
-    hr = font->CreateFontFace(&fontFace);
-
-    return fontMgr->createTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get());
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static void get_locale_string(IDWriteLocalizedStrings* names, const WCHAR* preferedLocale,
@@ -1869,7 +1832,33 @@ SkTypeface* SkFontMgr_DirectWrite::onCreateFromFile(const char path[], int ttcIn
 
 SkTypeface* SkFontMgr_DirectWrite::onLegacyCreateTypeface(const char familyName[],
                                                           unsigned styleBits) {
-    return create_typeface(NULL, familyName, styleBits, this);
+    SkTScopedComPtr<IDWriteFontFamily> fontFamily;
+    if (familyName) {
+        get_by_family_name(familyName, &fontFamily);
+    }
+
+    if (NULL == fontFamily.get()) {
+        //No good family found, go with default.
+        SkTScopedComPtr<IDWriteFont> defaultFont;
+        HRNM(get_default_font(&defaultFont), "Could not get default font.");
+        HRNM(defaultFont->GetFontFamily(&fontFamily), "Could not get default font family.");
+    }
+
+    SkTScopedComPtr<IDWriteFont> font;
+    DWRITE_FONT_WEIGHT weight = (styleBits & SkTypeface::kBold)
+                              ? DWRITE_FONT_WEIGHT_BOLD
+                              : DWRITE_FONT_WEIGHT_NORMAL;
+    DWRITE_FONT_STRETCH stretch = DWRITE_FONT_STRETCH_UNDEFINED;
+    DWRITE_FONT_STYLE italic = (styleBits & SkTypeface::kItalic)
+                             ? DWRITE_FONT_STYLE_ITALIC
+                             : DWRITE_FONT_STYLE_NORMAL;
+    HRNM(fontFamily->GetFirstMatchingFont(weight, stretch, italic, &font),
+         "Could not get matching font.");
+
+    SkTScopedComPtr<IDWriteFontFace> fontFace;
+    HRNM(font->CreateFontFace(&fontFace), "Could not create font face.");
+
+    return this->createTypefaceFromDWriteFont(fontFace.get(), font.get(), fontFamily.get());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
