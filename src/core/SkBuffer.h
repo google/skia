@@ -39,6 +39,8 @@ public:
         fStop = (const char*)data + size;
     }
 
+    virtual ~SkRBuffer() { }
+
     /** Return the number of bytes that have been read from the beginning
         of the data pointer.
     */
