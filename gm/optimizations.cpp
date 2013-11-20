@@ -12,12 +12,10 @@
 #define WARN(msg)                                           \
     SkDebugf("%s:%d: %s\n", __FILE__, __LINE__, msg);
 
-namespace {
-
 // Do the commands in 'input' match the supplied pattern? Note: this is a pretty
 // heavy-weight operation since we are drawing the picture into a debug canvas
 // to extract the commands.
-bool check_pattern(SkPicture& input, const SkTDArray<DrawType> &pattern) {
+static bool check_pattern(SkPicture& input, const SkTDArray<DrawType> &pattern) {
     SkDebugCanvas debugCanvas(input.width(), input.height());
     debugCanvas.setBounds(input.width(), input.height());
     input.draw(&debugCanvas);
@@ -47,12 +45,12 @@ bool check_pattern(SkPicture& input, const SkTDArray<DrawType> &pattern) {
 //                     takes a different path if this is false)
 // colorsMatch       - control if the saveLayer and dbmr2r paint colors
 //                     match (the optimization will fail if they do not)
-SkPicture* create_save_layer_opt_1(SkTDArray<DrawType> *preOptPattern,
-                                   SkTDArray<DrawType> *postOptPattern,
-                                   const SkBitmap& checkerBoard,
-                                   bool saveLayerHasPaint,
-                                   bool dbmr2rHasPaint,
-                                   bool colorsMatch)  {
+static SkPicture* create_save_layer_opt_1(SkTDArray<DrawType>* preOptPattern,
+                                          SkTDArray<DrawType>* postOptPattern,
+                                          const SkBitmap& checkerBoard,
+                                          bool saveLayerHasPaint,
+                                          bool dbmr2rHasPaint,
+                                          bool colorsMatch)  {
     // Create the pattern that should trigger the optimization
     preOptPattern->setCount(5);
     (*preOptPattern)[0] = SAVE;
@@ -120,9 +118,9 @@ SkPicture* create_save_layer_opt_1(SkTDArray<DrawType> *preOptPattern,
 }
 
 // straight-ahead version that is seen in the skps
-SkPicture* create_save_layer_opt_1_v1(SkTDArray<DrawType> *preOptPattern,
-                                      SkTDArray<DrawType> *postOptPattern,
-                                      const SkBitmap& checkerBoard) {
+static SkPicture* create_save_layer_opt_1_v1(SkTDArray<DrawType>* preOptPattern,
+                                             SkTDArray<DrawType>* postOptPattern,
+                                             const SkBitmap& checkerBoard) {
     return create_save_layer_opt_1(preOptPattern, postOptPattern, checkerBoard,
                                    true,   // saveLayer has a paint
                                    true,   // dbmr2r has a paint
@@ -130,9 +128,9 @@ SkPicture* create_save_layer_opt_1_v1(SkTDArray<DrawType> *preOptPattern,
 }
 
 // alternate version that should still succeed
-SkPicture* create_save_layer_opt_1_v2(SkTDArray<DrawType> *preOptPattern,
-                                      SkTDArray<DrawType> *postOptPattern,
-                                      const SkBitmap& checkerBoard) {
+static SkPicture* create_save_layer_opt_1_v2(SkTDArray<DrawType>* preOptPattern,
+                                             SkTDArray<DrawType>* postOptPattern,
+                                             const SkBitmap& checkerBoard) {
     return create_save_layer_opt_1(preOptPattern, postOptPattern, checkerBoard,
                                    false,  // saveLayer doesn't have a paint!
                                    true,   // dbmr2r has a paint
@@ -140,9 +138,9 @@ SkPicture* create_save_layer_opt_1_v2(SkTDArray<DrawType> *preOptPattern,
 }
 
 // alternate version that should still succeed
-SkPicture* create_save_layer_opt_1_v3(SkTDArray<DrawType> *preOptPattern,
-                                      SkTDArray<DrawType> *postOptPattern,
-                                      const SkBitmap& checkerBoard) {
+static SkPicture* create_save_layer_opt_1_v3(SkTDArray<DrawType>* preOptPattern,
+                                             SkTDArray<DrawType>* postOptPattern,
+                                             const SkBitmap& checkerBoard) {
     return create_save_layer_opt_1(preOptPattern, postOptPattern, checkerBoard,
                                    true,   // saveLayer has a paint
                                    false,  // dbmr2r doesn't have a paint!
@@ -150,9 +148,9 @@ SkPicture* create_save_layer_opt_1_v3(SkTDArray<DrawType> *preOptPattern,
 }
 
 // version in which the optimization fails b.c. the colors don't match
-SkPicture* create_save_layer_opt_1_v4(SkTDArray<DrawType> *preOptPattern,
-                                      SkTDArray<DrawType> *postOptPattern,
-                                      const SkBitmap& checkerBoard) {
+static SkPicture* create_save_layer_opt_1_v4(SkTDArray<DrawType>* preOptPattern,
+                                             SkTDArray<DrawType>* postOptPattern,
+                                             const SkBitmap& checkerBoard) {
     return create_save_layer_opt_1(preOptPattern, postOptPattern, checkerBoard,
                                    true,   // saveLayer has a paint
                                    true,   // dbmr2r has a paint
@@ -174,12 +172,12 @@ SkPicture* create_save_layer_opt_1_v4(SkTDArray<DrawType> *preOptPattern,
 //                     takes a different path if this is false)
 // colorsMatch       - control if the saveLayer and dbmr2r paint colors
 //                     match (the optimization will fail if they do not)
-SkPicture* create_save_layer_opt_2(SkTDArray<DrawType> *preOptPattern,
-                                   SkTDArray<DrawType> *postOptPattern,
-                                   const SkBitmap& checkerBoard,
-                                   bool saveLayerHasPaint,
-                                   bool dbmr2rHasPaint,
-                                   bool colorsMatch)  {
+static SkPicture* create_save_layer_opt_2(SkTDArray<DrawType>* preOptPattern,
+                                          SkTDArray<DrawType>* postOptPattern,
+                                          const SkBitmap& checkerBoard,
+                                          bool saveLayerHasPaint,
+                                          bool dbmr2rHasPaint,
+                                          bool colorsMatch)  {
     // Create the pattern that should trigger the optimization
     preOptPattern->setCount(8);
     (*preOptPattern)[0] = SAVE;
@@ -260,9 +258,9 @@ SkPicture* create_save_layer_opt_2(SkTDArray<DrawType> *preOptPattern,
 }
 
 // straight-ahead version that is seen in the skps
-SkPicture* create_save_layer_opt_2_v1(SkTDArray<DrawType> *preOptPattern,
-                                      SkTDArray<DrawType> *postOptPattern,
-                                      const SkBitmap& checkerBoard) {
+static SkPicture* create_save_layer_opt_2_v1(SkTDArray<DrawType>* preOptPattern,
+                                             SkTDArray<DrawType>* postOptPattern,
+                                             const SkBitmap& checkerBoard) {
     return create_save_layer_opt_2(preOptPattern, postOptPattern, checkerBoard,
                                    true,   // saveLayer has a paint
                                    true,   // dbmr2r has a paint
@@ -270,9 +268,9 @@ SkPicture* create_save_layer_opt_2_v1(SkTDArray<DrawType> *preOptPattern,
 }
 
 // alternate version that should still succeed
-SkPicture* create_save_layer_opt_2_v2(SkTDArray<DrawType> *preOptPattern,
-                                      SkTDArray<DrawType> *postOptPattern,
-                                      const SkBitmap& checkerBoard) {
+static SkPicture* create_save_layer_opt_2_v2(SkTDArray<DrawType>* preOptPattern,
+                                             SkTDArray<DrawType>* postOptPattern,
+                                             const SkBitmap& checkerBoard) {
     return create_save_layer_opt_2(preOptPattern, postOptPattern, checkerBoard,
                                    false,  // saveLayer doesn't have a paint!
                                    true,   // dbmr2r has a paint
@@ -280,9 +278,9 @@ SkPicture* create_save_layer_opt_2_v2(SkTDArray<DrawType> *preOptPattern,
 }
 
 // alternate version that should still succeed
-SkPicture* create_save_layer_opt_2_v3(SkTDArray<DrawType> *preOptPattern,
-                                      SkTDArray<DrawType> *postOptPattern,
-                                      const SkBitmap& checkerBoard) {
+static SkPicture* create_save_layer_opt_2_v3(SkTDArray<DrawType>* preOptPattern,
+                                             SkTDArray<DrawType>* postOptPattern,
+                                             const SkBitmap& checkerBoard) {
     return create_save_layer_opt_2(preOptPattern, postOptPattern, checkerBoard,
                                    true,   // saveLayer has a paint
                                    false,  // dbmr2r doesn't have a paint!
@@ -290,17 +288,14 @@ SkPicture* create_save_layer_opt_2_v3(SkTDArray<DrawType> *preOptPattern,
 }
 
 // version in which the optimization fails b.c. the colors don't match
-SkPicture* create_save_layer_opt_2_v4(SkTDArray<DrawType> *preOptPattern,
-                                      SkTDArray<DrawType> *postOptPattern,
-                                      const SkBitmap& checkerBoard) {
+static SkPicture* create_save_layer_opt_2_v4(SkTDArray<DrawType>* preOptPattern,
+                                             SkTDArray<DrawType>* postOptPattern,
+                                             const SkBitmap& checkerBoard) {
     return create_save_layer_opt_2(preOptPattern, postOptPattern, checkerBoard,
                                    true,   // saveLayer has a paint
                                    true,   // dbmr2r has a paint
                                    false); // and the colors don't match!
 }
-
-};
-
 
 // As our .skp optimizations get folded into the captured skps our code will
 // no longer be locally exercised. This GM manually constructs the patterns

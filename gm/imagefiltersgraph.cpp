@@ -11,19 +11,15 @@
 #include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorFilter.h"
-#include "SkColorMatrixFilter.h"
 #include "SkColorFilterImageFilter.h"
+#include "SkColorMatrixFilter.h"
 #include "SkFlattenableBuffers.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOnce.h"
+#include "SkTestImageFilters.h"
 #include "SkXfermodeImageFilter.h"
 
-#include "SkTestImageFilters.h"
-
-///////////////////////////////////////////////////////////////////////////////
-
-namespace {
 // More closely models how Blink's OffsetFilter works as of 10/23/13. SkOffsetImageFilter doesn't
 // perform a draw and this one does.
 class SimpleOffsetFilter : public SkImageFilter {
@@ -76,7 +72,6 @@ protected:
 private:
     SkScalar fDX, fDY;
 };
-}
 
 static void init_flattenable(int*) {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SimpleOffsetFilter)
