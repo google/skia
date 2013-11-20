@@ -12,12 +12,8 @@
 #include "SkPaint.h"
 #include "SkPdfConfig.h"
 #include "SkPdfUtils.h"
-#include "SkTDStackNester.h"
 
-class SkPdfAllocator;
 class SkPdfFont;
-class SkPdfDoc;
-class SkPdfNativeDoc;
 class SkPdfNativeObject;
 class SkPdfResourceDictionary;
 class SkPdfSoftMaskDictionary;
@@ -80,7 +76,7 @@ public:
     }
 };
 
-/** \class SkTDStackNester
+/**
  *   Operates on stroking or non-stroking properties.
  */
 struct SkPdfGraphicsState {
@@ -353,22 +349,6 @@ smoothness             number             (PDF 1.3) The precision with which col
 
     // TODO(edisonn): make two functions instead, stroking and non stoking, avoid branching
     void applyGraphicsState(SkPaint* paint, bool stroking);
-};
-
-/** \class SkPdfContext
- *   The context of the drawing. The document we draw from, the current stack of objects, ...
- */
-class SkPdfContext {
-public:
-    SkTDStackNester<SkPdfNativeObject*>  fObjectStack;
-    SkTDStackNester<SkPdfGraphicsState>  fStateStack;
-    SkPdfGraphicsState              fGraphicsState;
-    SkPdfNativeDoc*                 fPdfDoc;
-    SkPdfAllocator*                 fTmpPageAllocator;
-    SkMatrix                        fOriginalMatrix;
-
-    SkPdfContext(SkPdfNativeDoc* doc);
-    ~SkPdfContext();
 };
 
 #endif  // SkPdfGraphicsState_DEFINED

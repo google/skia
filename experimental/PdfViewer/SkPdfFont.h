@@ -12,7 +12,7 @@
 #ifndef SkPdfFont_DEFINED
 #define SkPdfFont_DEFINED
 
-#include "SkPdfGraphicsState.h"
+#include "SkPdfContext.h"
 #include "SkPdfHeaders_autogen.h"
 #include "SkPdfMapper_autogen.h"
 #include "SkPdfUtils.h"

@@ -8,16 +8,6 @@
 #include "SkPdfGraphicsState.h"
 
 #include "SkDashPathEffect.h"
-#include "SkPdfNativeTokenizer.h"
-
-SkPdfContext::SkPdfContext(SkPdfNativeDoc* doc)
-    : fPdfDoc(doc)
-    , fTmpPageAllocator(new SkPdfAllocator()) {
-}
-
-SkPdfContext::~SkPdfContext() {
-    delete fTmpPageAllocator;
-}
 
 void SkPdfGraphicsState::applyGraphicsState(SkPaint* paint, bool stroking) {
     if (stroking) {
