@@ -1078,6 +1078,7 @@ static SkPdfResult doPage(SkPdfContext* pdfContext, SkCanvas* canvas,
         return kIgnoreError_SkPdfResult;
     }
 
+    // FIXME (scroggo): renderPage also sets fResources. Are these redundant?
     pdfContext->fGraphicsState.fResources = skobj->Resources(pdfContext->fPdfDoc);
 
     if (!pdfContext->fGraphicsState.fResources) {
@@ -1093,6 +1094,7 @@ static SkPdfResult doPage(SkPdfContext* pdfContext, SkCanvas* canvas,
     CheckRecursiveRendering checkRecursion(skobj);
 
 
+    // FIXME (scroggo): Is this save necessary? May be needed for rendering a nested PDF.
     PdfOp_q(pdfContext, canvas, NULL);
 
     // TODO(edisonn): MediaBox can be inherited!!!!
@@ -1648,6 +1650,9 @@ static SkPdfResult PdfOp_ET(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
         return kIgnoreError_SkPdfResult;
     }
+
+    pdfContext->fGraphicsState.fTextBlock = false;
+
     // TODO(edisonn): anything else to be done once we are done with draw text? Like restore stack?
     return kOK_SkPdfResult;
 }
@@ -3024,6 +3029,7 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
 
     SkPdfContext pdfContext(fPdfDoc);
 
+    // FIXME (scroggo): Is this matrix needed?
     pdfContext.fOriginalMatrix = SkMatrix::I();
     pdfContext.fGraphicsState.fResources = fPdfDoc->pageResources(page);
 
@@ -3037,6 +3043,7 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
         return true;
     }
 
+    // FIXME (scroggo): The media box may not be anchored at 0,0. Is this okay?
     SkScalar wp = fPdfDoc->MediaBox(page).width();
     SkScalar hp = fPdfDoc->MediaBox(page).height();
 
@@ -3062,6 +3069,8 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
     SkAssertResult(pdfContext.fOriginalMatrix.setPolyToPoly(pdfSpace, skiaSpace, 4));
     SkTraceMatrix(pdfContext.fOriginalMatrix, "Original matrix");
 
+    // FIXME (scroggo): Do we need to translate to account for the fact that
+    // the media box (or the destination rect) may not be anchored at 0,0?
     pdfContext.fOriginalMatrix.postConcat(canvas->getTotalMatrix());
 
     pdfContext.fGraphicsState.fCTM = pdfContext.fOriginalMatrix;
@@ -3073,6 +3082,8 @@ bool SkPdfRenderer::renderPage(int page, SkCanvas* canvas, const SkRect& dst) co
     canvas->clipRect(dst, SkRegion::kIntersect_Op, true);
 #endif
 
+    // FIXME (scroggo): This concat may not be necessary, since we generally
+    // call SkCanvas::setMatrix() before using the canvas.
     canvas->concat(pdfContext.fOriginalMatrix);
 
     doPage(&pdfContext, canvas, fPdfDoc->page(page));
