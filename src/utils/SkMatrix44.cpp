@@ -452,39 +452,41 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
     if (this->isIdentity()) {
         if (inverse) {
             inverse->setIdentity();
-            return true;
         }
+        return true;
     }
+
     if (this->isTranslate()) {
         if (inverse) {
             inverse->setTranslate(-fMat[3][0], -fMat[3][1], -fMat[3][2]);
         }
         return true;
     }
+
     if (this->isScaleTranslate()) {
         if (0 == fMat[0][0] * fMat[1][1] * fMat[2][2]) {
             return false;
         }
 
-    if (inverse) {
-        double invXScale = 1 / fMat[0][0];
-        double invYScale = 1 / fMat[1][1];
-        double invZScale = 1 / fMat[2][2];
+        if (inverse) {
+            double invXScale = 1 / fMat[0][0];
+            double invYScale = 1 / fMat[1][1];
+            double invZScale = 1 / fMat[2][2];
 
             inverse->fMat[0][0] = invXScale;
-        inverse->fMat[0][1] = 0;
-        inverse->fMat[0][2] = 0;
-        inverse->fMat[0][3] = 0;
+            inverse->fMat[0][1] = 0;
+            inverse->fMat[0][2] = 0;
+            inverse->fMat[0][3] = 0;
 
-        inverse->fMat[1][0] = 0;
-        inverse->fMat[1][1] = invYScale;
-        inverse->fMat[1][2] = 0;
-        inverse->fMat[1][3] = 0;
+            inverse->fMat[1][0] = 0;
+            inverse->fMat[1][1] = invYScale;
+            inverse->fMat[1][2] = 0;
+            inverse->fMat[1][3] = 0;
 
-        inverse->fMat[2][0] = 0;
+            inverse->fMat[2][0] = 0;
             inverse->fMat[2][1] = 0;
-        inverse->fMat[2][2] = invZScale;
-        inverse->fMat[2][3] = 0;
+            inverse->fMat[2][2] = invZScale;
+            inverse->fMat[2][3] = 0;
 
             inverse->fMat[3][0] = -fMat[3][0] * invXScale;
             inverse->fMat[3][1] = -fMat[3][1] * invYScale;
