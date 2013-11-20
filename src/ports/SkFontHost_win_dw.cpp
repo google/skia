@@ -113,6 +113,9 @@ protected:
                                                unsigned styleBits) SK_OVERRIDE;
 
 private:
+    HRESULT getByFamilyName(const WCHAR familyName[], IDWriteFontFamily** fontFamily);
+    HRESULT getDefaultFontFamily(IDWriteFontFamily** fontFamily);
+
     SkMutex fTFCacheMutex;
     void Add(SkTypeface* face, SkTypeface::Style requestedStyle, bool strong) {
         SkAutoMutexAcquire ama(fTFCacheMutex);
@@ -598,73 +601,6 @@ private:
     int fGlyphCount;
 };
 
-#define SK_DWRITE_DEFAULT_FONT_NAMED 1
-#define SK_DWRITE_DEFAULT_FONT_MESSAGE 2
-#define SK_DWRITE_DEFAULT_FONT_THEME 3
-#define SK_DWRITE_DEFAULT_FONT_SHELLDLG 4
-#define SK_DWRITE_DEFAULT_FONT_GDI 5
-#define SK_DWRITE_DEFAULT_FONT_STRATEGY SK_DWRITE_DEFAULT_FONT_MESSAGE
-
-static HRESULT get_default_font(IDWriteFont** font) {
-    IDWriteFactory* factory;
-    HRM(get_dwrite_factory(&factory), "Could not get factory.");
-
-#if SK_DWRITE_DEFAULT_FONT_STRATEGY == SK_DWRITE_DEFAULT_FONT_NAMED
-    SkTScopedComPtr<IDWriteFontCollection> sysFonts;
-    HRM(factory->GetSystemFontCollection(&sysFonts, false),
-        "Could not get system font collection.");
-
-    UINT32 index;
-    BOOL exists;
-    //hr = sysFonts->FindFamilyName(L"Georgia", &index, &exists);
-    HRM(sysFonts->FindFamilyName(L"Microsoft Sans Serif", &index, &exists),
-        "Could not access family names.");
-
-    if (!exists) {
-        SkDEBUGF(("The hard coded font family does not exist."));
-        return E_UNEXPECTED;
-    }
-
-    SkTScopedComPtr<IDWriteFontFamily> fontFamily;
-    HRM(sysFonts->GetFontFamily(index, &fontFamily),
-        "Could not load the requested font family.");
-
-    HRM(fontFamily->GetFont(0, font), "Could not get first font from family.");
-
-#elif SK_DWRITE_DEFAULT_FONT_STRATEGY == SK_DWRITE_DEFAULT_FONT_MESSAGE
-    SkTScopedComPtr<IDWriteGdiInterop> gdi;
-    HRM(factory->GetGdiInterop(&gdi), "Could not get GDI interop.");
-
-    NONCLIENTMETRICSW metrics;
-    metrics.cbSize = sizeof(metrics);
-    if (0 == SystemParametersInfoW(SPI_GETNONCLIENTMETRICS,
-                                   sizeof(metrics),
-                                   &metrics,
-                                   0)) {
-        return E_UNEXPECTED;
-    }
-    HRM(gdi->CreateFontFromLOGFONT(&metrics.lfMessageFont, font),
-        "Could not create DWrite font from LOGFONT.");
-
-#elif SK_DWRITE_DEFAULT_FONT_STRATEGY == SK_DWRITE_DEFAULT_FONT_THEME
-    //Theme body font?
-
-#elif SK_DWRITE_DEFAULT_FONT_STRATEGY == SK_DWRITE_DEFAULT_FONT_SHELLDLG
-    //"MS Shell Dlg" or "MS Shell Dlg 2"?
-
-#elif SK_DWRITE_DEFAULT_FONT_STRATEGY == SK_DWRITE_DEFAULT_FONT_GDI
-    //Never works.
-    SkTScopedComPtr<IDWriteGdiInterop> gdi;
-    HRM(factory->GetGdiInterop(&gdi), "Could not get GDI interop.");
-
-    static LOGFONTW gDefaultFont = {};
-    gDefaultFont.lfFaceName
-    HRM(gdi->CreateFontFromLOGFONT(&gDefaultFont, font),
-        "Could not create DWrite font from LOGFONT.";
-#endif
-    return S_OK;
-}
-
 static bool are_same(IUnknown* a, IUnknown* b) {
     SkTScopedComPtr<IUnknown> iunkA;
     if (FAILED(a->QueryInterface(&iunkA))) {
@@ -776,14 +712,6 @@ static bool FindByDWriteFont(SkTypeface* face, SkTypeface::Style requestedStyle,
 
     return wcscmp(dwFaceFontFamilyNameChar.get(), dwFontFamilyNameChar.get()) == 0 &&
            wcscmp(dwFaceFontNameChar.get(), dwFontNameChar.get()) == 0;
-}
-
-void SkDWriteFontFromTypeface(const SkTypeface* face, IDWriteFont** font) {
-    if (NULL == face) {
-        HRVM(get_default_font(font), "Could not get default font.");
-    } else {
-        *font = SkRefComPtr(static_cast<const DWriteFontTypeface*>(face)->fDWriteFont.get());
-    }
 }
 
 SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
@@ -1431,27 +1359,6 @@ SkScalerContext* DWriteFontTypeface::onCreateScalerContext(const SkDescriptor* d
     return SkNEW_ARGS(SkScalerContext_DW, (const_cast<DWriteFontTypeface*>(this), desc));
 }
 
-static HRESULT get_by_family_name(const char familyName[], IDWriteFontFamily** fontFamily) {
-    IDWriteFactory* factory;
-    HR(get_dwrite_factory(&factory));
-
-    SkTScopedComPtr<IDWriteFontCollection> sysFontCollection;
-    HR(factory->GetSystemFontCollection(&sysFontCollection, FALSE));
-
-    SkSMallocWCHAR wideFamilyName;
-    HR(cstring_to_wchar(familyName, &wideFamilyName));
-
-    UINT32 index;
-    BOOL exists;
-    HR(sysFontCollection->FindFamilyName(wideFamilyName.get(), &index, &exists));
-
-    if (exists) {
-        HR(sysFontCollection->GetFontFamily(index, fontFamily));
-        return S_OK;
-    }
-    return S_FALSE;
-}
-
 void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
     if (rec->fFlags & SkScalerContext::kLCD_BGROrder_Flag ||
         rec->fFlags & SkScalerContext::kLCD_Vertical_Flag)
@@ -1830,18 +1737,47 @@ SkTypeface* SkFontMgr_DirectWrite::onCreateFromFile(const char path[], int ttcIn
     return this->createFromStream(stream, ttcIndex);
 }
 
+HRESULT SkFontMgr_DirectWrite::getByFamilyName(const WCHAR wideFamilyName[],
+                                               IDWriteFontFamily** fontFamily) {
+    UINT32 index;
+    BOOL exists;
+    HR(fFontCollection->FindFamilyName(wideFamilyName, &index, &exists));
+
+    if (exists) {
+        HR(fFontCollection->GetFontFamily(index, fontFamily));
+        return S_OK;
+    }
+    return S_FALSE;
+}
+
+HRESULT SkFontMgr_DirectWrite::getDefaultFontFamily(IDWriteFontFamily** fontFamily) {
+    NONCLIENTMETRICSW metrics;
+    metrics.cbSize = sizeof(metrics);
+    if (0 == SystemParametersInfoW(SPI_GETNONCLIENTMETRICS,
+                                   sizeof(metrics),
+                                   &metrics,
+                                   0)) {
+        return E_UNEXPECTED;
+    }
+    HRM(this->getByFamilyName(metrics.lfMessageFont.lfFaceName, fontFamily),
+        "Could not create DWrite font family from LOGFONT.");
+
+    return S_OK;
+}
+
 SkTypeface* SkFontMgr_DirectWrite::onLegacyCreateTypeface(const char familyName[],
                                                           unsigned styleBits) {
     SkTScopedComPtr<IDWriteFontFamily> fontFamily;
     if (familyName) {
-        get_by_family_name(familyName, &fontFamily);
+        SkSMallocWCHAR wideFamilyName;
+        if (SUCCEEDED(cstring_to_wchar(familyName, &wideFamilyName))) {
+            this->getByFamilyName(wideFamilyName, &fontFamily);
+        }
     }
 
     if (NULL == fontFamily.get()) {
-        //No good family found, go with default.
-        SkTScopedComPtr<IDWriteFont> defaultFont;
-        HRNM(get_default_font(&defaultFont), "Could not get default font.");
-        HRNM(defaultFont->GetFontFamily(&fontFamily), "Could not get default font family.");
+        // No family with given name, try default.
+        HRNM(this->getDefaultFontFamily(&fontFamily), "Could not get default font family.");
     }
 
     SkTScopedComPtr<IDWriteFont> font;
