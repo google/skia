@@ -43,7 +43,7 @@ void SkPDFDeviceFlattener::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
     flattenPaint(d, &paintFlatten);
 
     SkPoint* flattenedPoints = SkNEW_ARRAY(SkPoint, count);
-    d.fMatrix->mapPoints(flattenedPoints, points, count);
+    d.fMatrix->mapPoints(flattenedPoints, points, SkToS32(count));
     SkDraw draw(d);
     SkMatrix identity = SkMatrix::I();
     draw.fMatrix = &identity;

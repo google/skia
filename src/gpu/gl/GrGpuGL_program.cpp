@@ -291,7 +291,7 @@ bool GrGpuGL::flushGraphicsState(DrawType type, const GrDeviceCoordTexture* dstC
 
 void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
 
-    GrGLsizei stride = this->getDrawState().getVertexSize();
+    GrGLsizei stride = static_cast<GrGLsizei>(this->getDrawState().getVertexSize());
 
     size_t vertexOffsetInBytes = stride * info.startVertex();
 

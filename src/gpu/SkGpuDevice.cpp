@@ -571,7 +571,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
 
     fContext->drawVertices(grPaint,
                            gPointMode2PrimtiveType[mode],
-                           count,
+                           SkToS32(count),
                            (GrPoint*)pts,
                            NULL,
                            NULL,
