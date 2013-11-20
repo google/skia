@@ -77,6 +77,7 @@ public:
 
 class SkPdfEncoding {
 public:
+    virtual ~SkPdfEncoding() {}
     virtual bool decodeText(const SkUnencodedText& textIn, SkDecodedText* textOut) const = 0;
     static SkPdfEncoding* fromName(const char* name);
 };
@@ -96,6 +97,7 @@ public:
 
 class SkPdfIdentityHEncoding : public SkPdfEncoding {
 public:
+    virtual ~SkPdfIdentityHEncoding() {}
     virtual bool decodeText(const SkUnencodedText& textIn, SkDecodedText* textOut) const {
         // TODO(edisonn): SkASSERT(textIn.len % 2 == 0); or report error?
 
@@ -119,6 +121,7 @@ public:
 // TODO(edisonn): using this one when no encoding is specified
 class SkPdfDefaultEncoding : public SkPdfEncoding {
 public:
+    virtual ~SkPdfDefaultEncoding() {}
     virtual bool decodeText(const SkUnencodedText& textIn, SkDecodedText* textOut) const {
         // TODO(edisonn): SkASSERT(textIn.len % 2 == 0); or report error?
 
@@ -141,6 +144,7 @@ public:
 
 class SkPdfCIDToGIDMapIdentityEncoding : public SkPdfEncoding {
 public:
+    virtual ~SkPdfCIDToGIDMapIdentityEncoding() {}
     virtual bool decodeText(const SkUnencodedText& textIn, SkDecodedText* textOut) const {
         // TODO(edisonn): SkASSERT(textIn.len % 2 == 0); or report error?
 
