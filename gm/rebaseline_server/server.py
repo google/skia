@@ -68,7 +68,7 @@ _HTTP_HEADER_CONTENT_TYPE = 'Content-Type'
 
 _SERVER = None   # This gets filled in by main()
 
-def get_routable_ip_address():
+def _get_routable_ip_address():
   """Returns routable IP address of this host (the IP address of its network
      interface that would be used for most traffic, not its localhost
      interface).  See http://stackoverflow.com/a/166589 """
@@ -77,6 +77,23 @@ def get_routable_ip_address():
   host = sock.getsockname()[0]
   sock.close()
   return host
+
+def _create_svn_checkout(dir_path, repo_url):
+  """Creates local checkout of an SVN repository at the specified directory
+  path, returning an svn.Svn object referring to the local checkout.
+
+  Args:
+    dir_path: path to the local checkout; if this directory does not yet exist,
+              it will be created and the repo will be checked out into it
+    repo_url: URL of SVN repo to check out into dir_path (unless the local
+              checkout already exists)
+  Returns: an svn.Svn object referring to the local checkout.
+  """
+  local_checkout = svn.Svn(dir_path)
+  if not os.path.isdir(dir_path):
+    os.makedirs(dir_path)
+    local_checkout.Checkout(repo_url, '.')
+  return local_checkout
 
 
 class Server(object):
@@ -105,6 +122,20 @@ class Server(object):
     self._export = export
     self._editable = editable
     self._reload_seconds = reload_seconds
+    self._actuals_repo = _create_svn_checkout(
+        dir_path=actuals_dir, repo_url=ACTUALS_SVN_REPO)
+
+    # We only update the expectations dir if the server was run with a
+    # nonzero --reload argument; otherwise, we expect the user to maintain
+    # her own expectations as she sees fit.
+    #
+    # TODO(epoger): Use git instead of svn to check out expectations, since
+    # the Skia repo is moving to git.
+    if reload_seconds:
+      self._expectations_repo = _create_svn_checkout(
+          dir_path=expectations_dir, repo_url=EXPECTATIONS_SVN_REPO)
+    else:
+      self._expectations_repo = None
 
   def is_exported(self):
     """ Returns true iff HTTP clients on other hosts are allowed to access
@@ -124,51 +155,24 @@ class Server(object):
     """ Create or update self.results, based on the expectations in
     self._expectations_dir and the latest actuals from skia-autogen.
     """
-    with self._svn_update_lock:
-      # self._svn_update_lock prevents us from updating the actual GM results
-      # in multiple threads simultaneously
-      logging.info('Updating actual GM results in %s from SVN repo %s ...' % (
-          self._actuals_dir, ACTUALS_SVN_REPO))
-      actuals_repo = svn.Svn(self._actuals_dir)
-      if not os.path.isdir(self._actuals_dir):
-        os.makedirs(self._actuals_dir)
-        actuals_repo.Checkout(ACTUALS_SVN_REPO, '.')
-      else:
-        actuals_repo.Update('.')
-      # We only update the expectations dir if the server was run with a
-      # nonzero --reload argument; otherwise, we expect the user to maintain
-      # her own expectations as she sees fit.
-      #
-      # self._svn_update_lock prevents us from updating the expected GM results
-      # in multiple threads simultaneously
-      #
-      # TODO(epoger): Use git instead of svn to check out expectations, since
-      # the Skia repo is moving to git.
-      if self._reload_seconds:
-        logging.info(
-            'Updating expected GM results in %s from SVN repo %s ...' % (
-            self._expectations_dir, EXPECTATIONS_SVN_REPO))
-        expectations_repo = svn.Svn(self._expectations_dir)
-        if not os.path.isdir(self._expectations_dir):
-          os.makedirs(self._expectations_dir)
-          expectations_repo.Checkout(EXPECTATIONS_SVN_REPO, '.')
-        else:
-          expectations_repo.Update('.')
-      # end of "with self._svn_update_lock:"
+    logging.info('Updating actual GM results in %s from SVN repo %s ...' % (
+        self._actuals_dir, ACTUALS_SVN_REPO))
+    self._actuals_repo.Update('.')
+
+    if self._expectations_repo:
+      logging.info(
+          'Updating expected GM results in %s from SVN repo %s ...' % (
+              self._expectations_dir, EXPECTATIONS_SVN_REPO))
+      self._expectations_repo.Update('.')
 
     logging.info(
           ('Parsing results from actuals in %s and expectations in %s, '
           + 'and generating pixel diffs (may take a while) ...') % (
           self._actuals_dir, self._expectations_dir))
-    new_results = results.Results(
+    self.results = results.Results(
         actuals_root=self._actuals_dir,
         expected_root=self._expectations_dir,
         generated_images_root=GENERATED_IMAGES_ROOT)
-
-    # Make sure we don't update self.results while a client is in the middle
-    # of reading from it.
-    with self.results_lock:
-      self.results = new_results
 
   def _result_reloader(self):
     """ If --reload argument was specified, reload results at the appropriate
@@ -179,14 +183,12 @@ class Server(object):
       self.update_results()
 
   def run(self):
-    self.results_lock = thread.allocate_lock()
-    self._svn_update_lock = thread.allocate_lock()
     self.update_results()
     thread.start_new_thread(self._result_reloader, ())
 
     if self._export:
       server_address = ('', self._port)
-      host = get_routable_ip_address()
+      host = _get_routable_ip_address()
       if self._editable:
         logging.warning('Running with combination of "export" and "editable" '
                         'flags.  Users on other machines will '
@@ -236,14 +238,18 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """
     logging.debug('do_GET_results: sending results of type "%s"' % type)
     try:
+      # Since we must make multiple calls to the Results object, grab a
+      # reference to it in case it is updated to point at a new Results
+      # object within another thread.
+      #
       # TODO(epoger): Rather than using a global variable for the handler
       # to refer to the Server object, make Server a subclass of
       # HTTPServer, and then it could be available to the handler via
       # the handler's .server instance variable.
+      results_obj = _SERVER.results
+      response_dict = results_obj.get_results_of_type(type)
+      time_updated = results_obj.get_timestamp()
 
-      with _SERVER.results_lock:
-        response_dict = _SERVER.results.get_results_of_type(type)
-        time_updated = _SERVER.results.get_timestamp()
       response_dict['header'] = {
         # Timestamps:
         # 1. when this data was last updated
@@ -353,16 +359,19 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     logging.debug('do_POST_edits: received new GM expectations data [%s]' %
                   data)
 
-    with _SERVER.results_lock:
-      oldResultsType = data['oldResultsType']
-      oldResults = _SERVER.results.get_results_of_type(oldResultsType)
-      oldResultsHash = str(hash(repr(oldResults['testData'])))
-      if oldResultsHash != data['oldResultsHash']:
-        raise Exception('results of type "%s" changed while the client was '
-                        'making modifications. The client should reload the '
-                        'results and submit the modifications again.' %
-                        oldResultsType)
-      _SERVER.results.edit_expectations(data['modifications'])
+    # Since we must make multiple calls to the Results object, grab a
+    # reference to it in case it is updated to point at a new Results
+    # object within another thread.
+    results_obj = _SERVER.results
+    oldResultsType = data['oldResultsType']
+    oldResults = results_obj.get_results_of_type(oldResultsType)
+    oldResultsHash = str(hash(repr(oldResults['testData'])))
+    if oldResultsHash != data['oldResultsHash']:
+      raise Exception('results of type "%s" changed while the client was '
+                      'making modifications. The client should reload the '
+                      'results and submit the modifications again.' %
+                      oldResultsType)
+    results_obj.edit_expectations(data['modifications'])
 
     # Now that the edits have been committed, update results to reflect them.
     _SERVER.update_results()

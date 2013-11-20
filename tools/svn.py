@@ -9,6 +9,7 @@ import fnmatch
 import os
 import re
 import subprocess
+import threading
 
 PROPERTY_MIMETYPE = 'svn:mime-type'
 
@@ -45,9 +46,16 @@ class Svn:
     def __init__(self, directory):
         """Set up to manipulate SVN control within the given directory.
 
+        The resulting object is thread-safe: access to all methods is
+        synchronized (if one thread is currently executing any of its methods,
+        all other threads must wait before executing any of its methods).
+
         @param directory
         """
         self._directory = directory
+        # This must be a reentrant lock, so that it can be held by both
+        # _RunCommand() and (some of) the methods that call it.
+        self._rlock = threading.RLock()
 
     def _RunCommand(self, args):
         """Run a command (from self._directory) and return stdout as a single
@@ -55,14 +63,16 @@ class Svn:
 
         @param args a list of arguments
         """
-        print 'RunCommand: %s' % args
-        proc = subprocess.Popen(args, cwd=self._directory,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        (stdout, stderr) = proc.communicate()
-        if proc.returncode is not 0:
-            raise Exception('command "%s" failed in dir "%s": %s' %
-                            (args, self._directory, stderr))
-        return stdout
+        with self._rlock:
+            print 'RunCommand: %s' % args
+            proc = subprocess.Popen(args, cwd=self._directory,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+            (stdout, stderr) = proc.communicate()
+            if proc.returncode is not 0:
+              raise Exception('command "%s" failed in dir "%s": %s' %
+                              (args, self._directory, stderr))
+            return stdout
 
     def GetInfo(self):
         """Run "svn info" and return a dictionary containing its output.
@@ -167,9 +177,10 @@ class Svn:
         @param property_name property_name to set for each file
         @param property_value what to set the property_name to
         """
-        all_files = os.listdir(self._directory)
-        matching_files = sorted(fnmatch.filter(all_files, filename_pattern))
-        self.SetProperty(matching_files, property_name, property_value)
+        with self._rlock:
+            all_files = os.listdir(self._directory)
+            matching_files = sorted(fnmatch.filter(all_files, filename_pattern))
+            self.SetProperty(matching_files, property_name, property_value)
 
     def ExportBaseVersionOfFile(self, file_within_repo, dest_path):
         """Retrieves a copy of the base version (what you would get if you ran
