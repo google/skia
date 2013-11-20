@@ -34,6 +34,7 @@ enum SkPdfIssue {
     kNoIssue_SkPdfIssue,
 
     kNullObject_SkPdfIssue,
+    kUnusedObject_SkPdfIssue,
     kUnexpectedArraySize_SkPdfIssue,
     kMissingEncoding_SkPdfIssue,
     kNYI_SkPdfIssue,

@@ -47,7 +47,7 @@ void SkPdfReportIf(bool report,
                    SkPdfIssueSeverity sev, SkPdfIssue issue,
                    const char* context,
                    const SkPdfNativeObject* obj,
-SkPdfContext* pdfContext) {
+                   SkPdfContext* pdfContext) {
     if (!report) {
         return;
     }

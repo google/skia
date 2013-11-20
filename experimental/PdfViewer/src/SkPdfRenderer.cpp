@@ -1133,7 +1133,7 @@ SkPdfResult PdfOp_Q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper**
         pdfContext->fStateStack.pop();
         canvas->restore();
 
-        if (pdfContext->fObjectStack.nests() == 0) {
+        if (pdfContext->fObjectStack.nestingLevel() == 0) {
             SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kStackNestingOverflow_SkPdfIssue,
                         "stack nesting overflow (q/Q)", NULL, pdfContext);
             return kIgnoreError_SkPdfResult;

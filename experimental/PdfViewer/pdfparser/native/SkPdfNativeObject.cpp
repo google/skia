@@ -110,7 +110,7 @@ bool SkPdfNativeObject::filterStream() {
 
 void SkPdfNativeObject::releaseData() {
 #ifdef PDF_TRACK_OBJECT_USAGE
-    SkPdfReportIf(!fUsed, kInfo_SkPdfIssueSeverity, kNoIssue_SkPdfIssue,
+    SkPdfReportIf(!fUsed, kInfo_SkPdfIssueSeverity, kUnusedObject_SkPdfIssue,
                   "Unused object in rendering", this, NULL);
 #endif  // PDF_TRACK_OBJECT_USAGE
 

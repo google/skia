@@ -1,3 +1,4 @@
+# GYP file to build experimental directory.
 {
   'targets': [
     {
