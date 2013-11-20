@@ -149,22 +149,6 @@
     # The following section is common to linux + derivatives and android
     [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android"]',
       {
-        'cflags': [
-          '-fno-exceptions',
-          '-fstrict-aliasing',
-        
-          '-Wall',
-          '-Wextra',
-          '-Winit-self',
-          '-Wpointer-arith',
-
-          '-Wno-unused-parameter',
-          '-Wno-c++11-extensions',
-        ],
-        'cflags_cc': [
-          '-fno-rtti',
-          '-Wnon-virtual-dtor',
-        ],
         'conditions': [
           [ 'skia_warnings_as_errors', {
             'cflags': [
@@ -245,6 +229,13 @@
             'defines': [ 'NDEBUG' ],
           },
         },
+        'cflags': [
+          '-Wall',
+          '-Wextra',
+          # suppressions below here were added for clang
+          '-Wno-unused-parameter',
+          '-Wno-c++11-extensions',
+        ],
         'conditions' : [
           [ 'skia_shared_lib', {
             'cflags': [
@@ -483,7 +474,13 @@
           '-llog',
         ],
         'cflags': [
+          '-Wall',
+          '-fno-exceptions',
+          '-fstrict-aliasing',
           '-fuse-ld=gold',
+        ],
+        'cflags_cc': [
+          '-fno-rtti',
         ],
         'conditions': [
           [ 'skia_shared_lib', {

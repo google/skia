@@ -129,9 +129,6 @@
       'cflags': [
         '-w'
       ],
-      'cflags_cc!': [
-        '-fno-rtti'
-      ],
       'conditions': [
         ['skia_os == "linux"', {
           'include_dirs': [

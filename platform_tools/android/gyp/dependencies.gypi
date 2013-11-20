@@ -42,7 +42,9 @@
         '../third_party/externals/expat/lib',
       ],
       'cflags': [
-        '-w',
+        '-Wall',
+        '-Wmissing-prototypes',
+        '-Wstrict-prototypes',
         '-fexceptions',
         '-DHAVE_EXPAT_CONFIG_H',
       ],
@@ -64,8 +66,11 @@
         '../third_party/externals/gif',
       ],
       'cflags': [
-        '-w',
+        '-Wno-format',
         '-DHAVE_CONFIG_H',
+      ],
+      'cflags!': [
+        '-Wall',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -99,8 +104,10 @@
         '../third_party/externals/png',
       ],
       'cflags': [
-        '-w',
         '-fvisibility=hidden',
+      ],
+      'cflags!': [
+        '-Wall',
       ],
       'link_settings': {
         'libraries': [
