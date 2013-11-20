@@ -21,7 +21,7 @@ public:
     Task(const Task& that);
     virtual ~Task();
 
-    void run();
+    void run() SK_OVERRIDE;
 
     virtual void draw() = 0;
     virtual bool usesGpu() const = 0;
@@ -36,6 +36,8 @@ private:
     // Both unowned.
     Reporter* fReporter;
     TaskRunner* fTaskRunner;
+
+    typedef SkRunnable INHERITED;
 };
 
 }  // namespace DM

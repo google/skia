@@ -12,7 +12,10 @@ Task::Task(Reporter* reporter, TaskRunner* taskRunner)
     fReporter->start();
 }
 
-Task::Task(const Task& that) : fReporter(that.fReporter), fTaskRunner(that.fTaskRunner) {
+Task::Task(const Task& that)
+    : INHERITED(that)
+    , fReporter(that.fReporter)
+    , fTaskRunner(that.fTaskRunner) {
     fReporter->start();
 }
 
