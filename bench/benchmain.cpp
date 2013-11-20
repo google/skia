@@ -1,20 +1,9 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#if SK_SUPPORT_GPU
-#include "GrContext.h"
-#include "GrContextFactory.h"
-#include "GrRenderTarget.h"
-#include "SkGpuDevice.h"
-#include "gl/GrGLDefines.h"
-#else
-class GrContext;
-#endif // SK_SUPPORT_GPU
 
 #include "BenchTimer.h"
 #include "SkBenchLogger.h"
@@ -29,6 +18,16 @@ class GrContext;
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkString.h"
+
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#include "GrContextFactory.h"
+#include "GrRenderTarget.h"
+#include "SkGpuDevice.h"
+#include "gl/GrGLDefines.h"
+#else
+class GrContext;
+#endif // SK_SUPPORT_GPU
 
 #include <limits>
 
