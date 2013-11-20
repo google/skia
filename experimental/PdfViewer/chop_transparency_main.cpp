@@ -29,6 +29,7 @@ struct Format {
     const char*             fSuffix;
 };
 
+/*
 static const Format gFormats[] = {
     { SkImageEncoder::kBMP_Type, SkImageDecoder::kBMP_Format, ".bmp" },
     { SkImageEncoder::kGIF_Type, SkImageDecoder::kGIF_Format, ".gif" },
@@ -38,6 +39,7 @@ static const Format gFormats[] = {
     { SkImageEncoder::kWBMP_Type, SkImageDecoder::kWBMP_Format, ".wbmp" },
     { SkImageEncoder::kWEBP_Type, SkImageDecoder::kWEBP_Format, ".webp" }
 };
+*/
 
 static SkISize opaqueSize(const SkBitmap& bm) {
     int width = 1;
