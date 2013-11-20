@@ -123,7 +123,7 @@ static void align_text(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
     *y = *y - yAdj;
 }
 
-static int max_glyphid_for_typeface(SkTypeface* typeface) {
+static size_t max_glyphid_for_typeface(SkTypeface* typeface) {
     SkAutoResolveDefaultTypeface autoResolve(typeface);
     typeface = autoResolve.get();
     return typeface->countGlyphs() - 1;

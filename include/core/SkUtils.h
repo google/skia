@@ -71,7 +71,8 @@ size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = NULL);
 #define SkUTF16_IsLowSurrogate(c)   (((c) & 0xFC00) == 0xDC00)
 
 int SkUTF16_CountUnichars(const uint16_t utf16[]);
-int SkUTF16_CountUnichars(const uint16_t utf16[], int numberOf16BitValues);
+int SkUTF16_CountUnichars(const uint16_t utf16[],
+                                  int numberOf16BitValues);
 // returns the current unichar and then moves past it (*p++)
 SkUnichar SkUTF16_NextUnichar(const uint16_t**);
 // this guy backs up to the previus unichar value, and returns it (*--p)
@@ -79,7 +80,7 @@ SkUnichar SkUTF16_PrevUnichar(const uint16_t**);
 size_t SkUTF16_FromUnichar(SkUnichar uni, uint16_t utf16[] = NULL);
 
 size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
-                      char utf8[] = NULL);
+                           char utf8[] = NULL);
 
 inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
 /*  The 'true' ranges are:

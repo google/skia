@@ -426,7 +426,7 @@ static SkBitmap unpremultiply_bitmap(const SkBitmap& bitmap,
     SkBitmap outBitmap;
     outBitmap.setConfig(bitmap.config(), srcRect.width(), srcRect.height());
     outBitmap.allocPixels();
-    int dstRow = 0;
+    size_t dstRow = 0;
 
     outBitmap.lockPixels();
     bitmap.lockPixels();

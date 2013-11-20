@@ -18,7 +18,7 @@ static const int kBmpOS2InfoSize = 12;
 static const int kMaxDim = SHRT_MAX / 2;
 
 bool BmpDecoderHelper::DecodeImage(const char* p,
-                                   size_t len,
+                                   int len,
                                    int max_pixels,
                                    BmpDecoderCallback* callback) {
   data_ = reinterpret_cast<const uint8*>(p);
@@ -182,7 +182,7 @@ void BmpDecoderHelper::DoRLEDecode() {
   static const uint8 RLE_DELTA = 2;
   int x = 0;
   int y = height_ - 1;
-  while (pos_ + 1 < len_) {
+  while (pos_ < len_ - 1) {
     uint8 cmd = GetByte();
     if (cmd != RLE_ESCAPE) {
       uint8 pixels = GetByte();
@@ -210,7 +210,7 @@ void BmpDecoderHelper::DoRLEDecode() {
           return;
         }
       } else if (cmd == RLE_DELTA) {
-        if (pos_ + 1 < len_) {
+        if (pos_ < len_ - 1) {
           uint8 dx = GetByte();
           uint8 dy = GetByte();
           x += dx;

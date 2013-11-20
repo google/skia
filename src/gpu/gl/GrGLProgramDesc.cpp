@@ -105,7 +105,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
         memset(desc->header(), 0, kHeaderSize);
     }
     // write the key length
-    *desc->atOffset<uint32_t, kLengthOffset>() = SkToU32(newKeyLength);
+    *desc->atOffset<uint32_t, kLengthOffset>() = newKeyLength;
 
     KeyHeader* header = desc->header();
     EffectKey* effectKeys = desc->effectKeys();
