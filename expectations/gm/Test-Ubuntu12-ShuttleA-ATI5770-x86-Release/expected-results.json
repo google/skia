@@ -5641,25 +5641,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1305965448524846400
+          9197174260075077089
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "filterbitmap_image_mandrill_16.png_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1797703772351591999
+          6785228778735341079
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "filterbitmap_image_mandrill_16.png_gpu.png": {
       "allowed-digests": [
@@ -5737,25 +5731,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7751515576006819921
+          9159992247759024219
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "filterbitmap_image_mandrill_32.png_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6796469421686674447
+          4190727368732355331
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "filterbitmap_image_mandrill_32.png_gpu.png": {
       "allowed-digests": [
@@ -9389,25 +9377,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5730804690964750307
+          11941973302220604418
         ]
       ], 
-      "bugs": [
-        1603
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "scaled_tilemodes_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8081093324693539385
+          5472904442149438644
         ]
       ], 
-      "bugs": [
-        1603
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "scaled_tilemodes_gpu.png": {
       "allowed-digests": [
