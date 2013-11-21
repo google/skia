@@ -1343,6 +1343,22 @@ GrEffectRef* XferEffect::TestCreate(SkRandom* rand,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+SkProcCoeffXfermode::SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+    uint32_t mode32 = buffer.read32() % SK_ARRAY_COUNT(gProcCoeffs);
+    if (mode32 >= SK_ARRAY_COUNT(gProcCoeffs)) {
+        // out of range, just set to something harmless
+        mode32 = SkXfermode::kSrcOut_Mode;
+    }
+    fMode = (SkXfermode::Mode)mode32;
+    
+    const ProcCoeff& rec = gProcCoeffs[fMode];
+    // these may be valid, or may be CANNOT_USE_COEFF
+    fSrcCoeff = rec.fSC;
+    fDstCoeff = rec.fDC;
+    // now update our function-ptr in the super class
+    this->INHERITED::setProc(rec.fProc);
+}
+
 bool SkProcCoeffXfermode::asMode(Mode* mode) const {
     if (mode) {
         *mode = fMode;

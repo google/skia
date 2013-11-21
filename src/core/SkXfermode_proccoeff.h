@@ -12,8 +12,6 @@ struct ProcCoeff {
 
 #define CANNOT_USE_COEFF    SkXfermode::Coeff(-1)
 
-extern  const ProcCoeff gProcCoeffs[];
-
 class SkProcCoeffXfermode : public SkProcXfermode {
 public:
     SkProcCoeffXfermode(const ProcCoeff& rec, Mode mode)
@@ -37,16 +35,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
 
 protected:
-    SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
-        fMode = (SkXfermode::Mode)buffer.read32();
-
-        const ProcCoeff& rec = gProcCoeffs[fMode];
-        // these may be valid, or may be CANNOT_USE_COEFF
-        fSrcCoeff = rec.fSC;
-        fDstCoeff = rec.fDC;
-        // now update our function-ptr in the super class
-        this->INHERITED::setProc(rec.fProc);
-    }
+    SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer);
 
     virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE;
 
