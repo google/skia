@@ -29,7 +29,10 @@ public:
             fname++; // skip the slash
         }
         fName.printf("decode_%s_%s", gConfigName[c], fname);
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:

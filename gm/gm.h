@@ -99,10 +99,6 @@ namespace skiagm {
             fCanvasIsDeferred = isDeferred;
         }
 
-#if SK_SUPPORT_GPU
-        static GrContext* GetGr(/*very nearly const*/ SkCanvas*);
-#endif
-
     const SkMatrix& getStarterMatrix() { return fStarterMatrix; }
     void setStarterMatrix(const SkMatrix& matrix) {
         fStarterMatrix = matrix;

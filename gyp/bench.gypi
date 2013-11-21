@@ -31,6 +31,7 @@
     '../bench/GameBench.cpp',
     '../bench/GradientBench.cpp',
     '../bench/GrMemoryPoolBench.cpp',
+    '../bench/GrResourceCacheBench.cpp',
     '../bench/ImageCacheBench.cpp',
     '../bench/ImageDecodeBench.cpp',
     '../bench/InterpBench.cpp',

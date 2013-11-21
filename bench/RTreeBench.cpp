@@ -34,8 +34,12 @@ public:
         if (fBulkLoad) {
             fName.append("_bulk");
         }
-        fIsRendering = false;
     }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
+    }
+
     virtual ~BBoxBuildBench() {
         fTree->unref();
     }
@@ -84,8 +88,12 @@ public:
         if (fBulkLoad) {
             fName.append("_bulk");
         }
-        fIsRendering = false;
     }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
+    }
+
     virtual ~BBoxQueryBench() {
         fTree->unref();
     }

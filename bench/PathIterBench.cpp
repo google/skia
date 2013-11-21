@@ -54,8 +54,10 @@ public:
                     break;
             }
         }
+    }
 
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:

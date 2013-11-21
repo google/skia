@@ -32,9 +32,10 @@ GrMemoryPool A::gPool(10 * (1 << 10), 10 * (1 << 10));
  */
 class GrMemoryPoolBenchStack : public SkBenchmark {
 public:
-    GrMemoryPoolBenchStack()  {
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
+
 protected:
     virtual const char* onGetName() {
         return "grmemorypool_stack";
@@ -83,9 +84,10 @@ private:
  */
 class GrMemoryPoolBenchRandom : public SkBenchmark {
 public:
-    GrMemoryPoolBenchRandom()  {
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
+
 protected:
     virtual const char* onGetName() {
         return "grmemorypool_random";
@@ -120,9 +122,10 @@ class GrMemoryPoolBenchQueue : public SkBenchmark {
         M = 4 * (1 << 10),
     };
 public:
-    GrMemoryPoolBenchQueue()  {
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
+
 protected:
     virtual const char* onGetName() {
         return "grmemorypool_queue";

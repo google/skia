@@ -104,8 +104,11 @@ class SortBench : public SkBenchmark {
 
 public:
     SortBench(Type t, SortType s) : fType(t), fSortProc(gSorts[s].fProc) {
-        fIsRendering = false;
         fName.printf("sort_%s_%s", gSorts[s].fName, gRec[t].fName);
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:

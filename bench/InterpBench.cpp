@@ -20,7 +20,10 @@ public:
         fName.printf("interp_%s", name);
         fFx = 3.3f;
         fDx = 0.1257f;
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
     virtual void performTest(int16_t dst[], float x, float dx, int count) = 0;

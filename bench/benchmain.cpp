@@ -157,27 +157,20 @@ static void performScale(SkCanvas* canvas, int w, int h) {
     canvas->translate(-x, -y);
 }
 
-enum Backend {
-    kNonRendering_Backend,
-    kRaster_Backend,
-    kGPU_Backend,
-    kPDF_Backend,
-};
-
 static SkBaseDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
-                                 Backend backend, int sampleCount, GrContext* context) {
+                                 SkBenchmark::Backend backend, int sampleCount, GrContext* context) {
     SkBaseDevice* device = NULL;
     SkBitmap bitmap;
     bitmap.setConfig(config, size.fX, size.fY);
 
     switch (backend) {
-        case kRaster_Backend:
+        case SkBenchmark::kRaster_Backend:
             bitmap.allocPixels();
             erase(bitmap);
             device = SkNEW_ARGS(SkBitmapDevice, (bitmap));
             break;
 #if SK_SUPPORT_GPU
-        case kGPU_Backend: {
+        case SkBenchmark::kGPU_Backend: {
             GrTextureDesc desc;
             desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fFlags = kRenderTarget_GrTextureFlagBit;
@@ -192,7 +185,7 @@ static SkBaseDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
             break;
         }
 #endif
-        case kPDF_Backend:
+        case SkBenchmark::kPDF_Backend:
         default:
             SkDEBUGFAIL("unsupported");
     }
@@ -223,22 +216,22 @@ static const struct Config {
     SkBitmap::Config    config;
     const char*         name;
     int                 sampleCount;
-    Backend             backend;
+    SkBenchmark::Backend backend;
     GLContextType       contextType;
     bool                runByDefault;
 } gConfigs[] = {
-    { SkBitmap::kNo_Config,        "NONRENDERING", 0, kNonRendering_Backend, kNative, true},
-    { SkBitmap::kARGB_8888_Config, "8888",         0, kRaster_Backend,       kNative, true},
-    { SkBitmap::kRGB_565_Config,   "565",          0, kRaster_Backend,       kNative, true},
+    { SkBitmap::kNo_Config,        "NONRENDERING", 0, SkBenchmark::kNonRendering_Backend, kNative, true},
+    { SkBitmap::kARGB_8888_Config, "8888",         0, SkBenchmark::kRaster_Backend,       kNative, true},
+    { SkBitmap::kRGB_565_Config,   "565",          0, SkBenchmark::kRaster_Backend,       kNative, true},
 #if SK_SUPPORT_GPU
-    { SkBitmap::kARGB_8888_Config, "GPU",          0, kGPU_Backend,          kNative, true},
-    { SkBitmap::kARGB_8888_Config, "MSAA4",        4, kGPU_Backend,          kNative, false},
-    { SkBitmap::kARGB_8888_Config, "MSAA16",      16, kGPU_Backend,          kNative, false},
+    { SkBitmap::kARGB_8888_Config, "GPU",          0, SkBenchmark::kGPU_Backend,          kNative, true},
+    { SkBitmap::kARGB_8888_Config, "MSAA4",        4, SkBenchmark::kGPU_Backend,          kNative, false},
+    { SkBitmap::kARGB_8888_Config, "MSAA16",      16, SkBenchmark::kGPU_Backend,          kNative, false},
 #if SK_ANGLE
-    { SkBitmap::kARGB_8888_Config, "ANGLE",        0, kGPU_Backend,          kANGLE,  true},
+    { SkBitmap::kARGB_8888_Config, "ANGLE",        0, SkBenchmark::kGPU_Backend,          kANGLE,  true},
 #endif // SK_ANGLE
-    { SkBitmap::kARGB_8888_Config, "Debug",        0, kGPU_Backend,          kDebug,  kIsDebug},
-    { SkBitmap::kARGB_8888_Config, "NULLGPU",      0, kGPU_Backend,          kNull,   true},
+    { SkBitmap::kARGB_8888_Config, "Debug",        0, SkBenchmark::kGPU_Backend,          kDebug,  kIsDebug},
+    { SkBitmap::kARGB_8888_Config, "NULLGPU",      0, SkBenchmark::kGPU_Backend,          kNull,   true},
 #endif // SK_SUPPORT_GPU
 };
 
@@ -349,7 +342,7 @@ int tool_main(int argc, char** argv) {
         // Non-rendering configs only run in normal mode
         for (int i = 0; i < configs.count(); ++i) {
             const Config& config = gConfigs[configs[i]];
-            if (kNonRendering_Backend == config.backend) {
+            if (SkBenchmark::kNonRendering_Backend == config.backend) {
                 configs.remove(i, 1);
                 --i;
             }
@@ -364,7 +357,7 @@ int tool_main(int argc, char** argv) {
     for (int i = 0; i < configs.count(); ++i) {
         const Config& config = gConfigs[configs[i]];
 
-        if (kGPU_Backend == config.backend) {
+        if (SkBenchmark::kGPU_Backend == config.backend) {
             GrContext* context = gContextFactory.get(config.contextType);
             if (NULL == context) {
                 logger.logError(SkStringPrintf(
@@ -426,7 +419,7 @@ int tool_main(int argc, char** argv) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
 #if SK_SUPPORT_GPU
         const Config& config = gConfigs[i];
-        if (kGPU_Backend != config.backend) {
+        if (SkBenchmark::kGPU_Backend != config.backend) {
             continue;
         }
         GrContext* context = gContextFactory.get(config.contextType);
@@ -479,14 +472,14 @@ int tool_main(int argc, char** argv) {
             const int configIndex = configs[i];
             const Config& config = gConfigs[configIndex];
 
-            if ((kNonRendering_Backend == config.backend) == bench->isRendering()) {
+            if (!bench->isSuitableFor(config.backend)) {
                 continue;
             }
 
             GrContext* context = NULL;
 #if SK_SUPPORT_GPU
             SkGLContextHelper* glContext = NULL;
-            if (kGPU_Backend == config.backend) {
+            if (SkBenchmark::kGPU_Backend == config.backend) {
                 context = gContextFactory.get(config.contextType);
                 if (NULL == context) {
                     continue;
@@ -502,7 +495,7 @@ int tool_main(int argc, char** argv) {
             const SkPicture::RecordingFlags kRecordFlags =
                 SkPicture::kUsePathBoundsForClip_RecordingFlag;
 
-            if (kNonRendering_Backend != config.backend) {
+            if (SkBenchmark::kNonRendering_Backend != config.backend) {
                 device.reset(make_device(config.config,
                                          dim,
                                          config.backend,
@@ -552,7 +545,7 @@ int tool_main(int argc, char** argv) {
 
 #if SK_SUPPORT_GPU
             SkGLContextHelper* contextHelper = NULL;
-            if (kGPU_Backend == config.backend) {
+            if (SkBenchmark::kGPU_Backend == config.backend) {
                 contextHelper = gContextFactory.getGLContext(config.contextType);
             }
             BenchTimer timer(contextHelper);
@@ -664,7 +657,7 @@ int tool_main(int argc, char** argv) {
             } while (!kIsDebug && !converged);
             if (FLAGS_verbose) { SkDebugf("\n"); }
 
-            if (FLAGS_outDir.count() && kNonRendering_Backend != config.backend) {
+            if (FLAGS_outDir.count() && SkBenchmark::kNonRendering_Backend != config.backend) {
                 saveFile(bench->getName(),
                          config.name,
                          FLAGS_outDir[0],

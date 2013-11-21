@@ -15,7 +15,10 @@ class Matrix44Bench : public SkBenchmark {
 public:
     Matrix44Bench(const char name[]) {
         fName.printf("matrix44_%s", name);
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
     virtual void performTest() = 0;

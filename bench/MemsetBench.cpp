@@ -34,7 +34,10 @@ public:
         fMaxSize = maxSize;
         fName.printf("memset%d_" SK_SIZE_T_SPECIFIER "_" SK_SIZE_T_SPECIFIER,
                      type, minSize, maxSize);
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
     virtual void performTest() = 0;

@@ -19,7 +19,10 @@ public:
     ChunkAllocBench(size_t minSize)  {
         fMinSize = minSize;
         fName.printf("chunkalloc_" SK_SIZE_T_SPECIFIER, minSize);
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:
@@ -85,7 +88,10 @@ public:
             fName.appendf("_w");
         }
         fName.appendf("_"SK_SIZE_T_SPECIFIER, num);
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:

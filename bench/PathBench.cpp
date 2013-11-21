@@ -216,8 +216,8 @@ private:
 
 class RandomPathBench : public SkBenchmark {
 public:
-    RandomPathBench()  {
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:
@@ -761,7 +761,6 @@ public:
     };
 
     ConservativelyContainsBench(Type type)  {
-        fIsRendering = false;
         fParity = false;
         fName = "conservatively_contains_";
         switch (type) {
@@ -778,6 +777,10 @@ public:
                 fPath.addOval(kBaseRect);
                 break;
         }
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 private:
@@ -903,7 +906,10 @@ public:
         for (int i = 0; i < CONICS; ++i) {
             rand_conic(&fConics[i], rand);
         }
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:

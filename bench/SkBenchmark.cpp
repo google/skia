@@ -21,7 +21,6 @@ SkBenchmark::SkBenchmark() {
     fForceAA = true;
     fForceFilter = false;
     fDither = SkTriState::kDefault;
-    fIsRendering = true;
     fOrMask = fClearMask = 0;
     fLoops = 1;
 }

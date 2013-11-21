@@ -16,9 +16,10 @@ enum {
 
 class RefCntBench_Stack : public SkBenchmark {
 public:
-    RefCntBench_Stack() {
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
+
 protected:
     virtual const char* onGetName() {
         return "ref_cnt_stack";
@@ -53,9 +54,10 @@ SK_DEFINE_INST_COUNT(PlacedRefCnt)
 
 class RefCntBench_Heap : public SkBenchmark {
 public:
-    RefCntBench_Heap() {
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
+
 protected:
     virtual const char* onGetName() {
         return "ref_cnt_heap";
@@ -79,9 +81,10 @@ private:
 
 class RefCntBench_New : public SkBenchmark {
 public:
-    RefCntBench_New() {
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
+
 protected:
     virtual const char* onGetName() {
         return "ref_cnt_new";
@@ -106,9 +109,10 @@ private:
 
 class WeakRefCntBench_Stack : public SkBenchmark {
 public:
-    WeakRefCntBench_Stack() {
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
+
 protected:
     virtual const char* onGetName() {
         return "ref_cnt_stack_weak";
@@ -136,9 +140,10 @@ public:
 
 class WeakRefCntBench_Heap : public SkBenchmark {
 public:
-    WeakRefCntBench_Heap() {
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
+
 protected:
     virtual const char* onGetName() {
         return "ref_cnt_heap_weak";
@@ -162,9 +167,10 @@ private:
 
 class WeakRefCntBench_New : public SkBenchmark {
 public:
-    WeakRefCntBench_New() {
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
+
 protected:
     virtual const char* onGetName() {
         return "ref_cnt_new_weak";

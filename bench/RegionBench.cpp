@@ -97,7 +97,10 @@ public:
             fA.op(randrect(rand), SkRegion::kXOR_Op);
             fB.op(randrect(rand), SkRegion::kXOR_Op);
         }
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:

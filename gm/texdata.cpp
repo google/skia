@@ -40,7 +40,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkBaseDevice* device = canvas->getTopDevice();
         GrRenderTarget* target = device->accessRenderTarget();
-        GrContext* ctx = GM::GetGr(canvas);
+        GrContext* ctx = canvas->getGrContext();
         if (ctx && target) {
             SkAutoTArray<SkPMColor> gTextureData((2 * S) * (2 * S));
             static const int stride = 2 * S;

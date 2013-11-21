@@ -29,6 +29,7 @@ class SkMetaData;
 class SkPicture;
 class SkRRect;
 class SkSurface_Base;
+class GrContext;
 
 /** \class SkCanvas
 
@@ -108,6 +109,12 @@ public:
     SkBaseDevice* createCompatibleDevice(SkBitmap::Config config,
                                          int width, int height,
                                          bool isOpaque);
+
+    /**
+     * Return the GPU context of the device that is associated with the canvas.
+     * For a canvas with non-GPU device, NULL is returned.
+     */
+    GrContext* getGrContext();
 
     ///////////////////////////////////////////////////////////////////////////
 

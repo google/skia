@@ -186,7 +186,7 @@ protected:
         SkAutoTUnref<SkSurface> surf2(SkSurface::NewPicture(info.fWidth, info.fHeight));
         SkAutoTUnref<SkSurface> surf3(SkSurface::NewPicture(info.fWidth, info.fHeight));
 #if SK_SUPPORT_GPU
-        GrContext* ctx = GM::GetGr(canvas);
+        GrContext* ctx = canvas->getGrContext();
 
         SkAutoTUnref<SkSurface> surf4(SkSurface::NewRenderTarget(ctx, info, 0));
 #endif

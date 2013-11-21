@@ -29,8 +29,10 @@ public:
         for (int i = 0; i < kBuffer; ++i) {
             fSrc[i] = rand.nextSScalar1();
         }
+    }
 
-        fIsRendering = false;
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
     virtual void performTest(float* SK_RESTRICT dst,
@@ -281,7 +283,10 @@ public:
             fProc = gRec[index].fProc;
             fName = gRec[index].fName;
         }
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:
@@ -346,7 +351,10 @@ public:
         } else {
             fName = "floor_std";
         }
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
     virtual void process(float) {}
@@ -404,7 +412,10 @@ public:
         } else {
             fName = "clz_intrinsic";
         }
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
     // just so the compiler doesn't remove our loops
@@ -457,7 +468,10 @@ public:
         }
 
         fName = "point_normalize";
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
     // just so the compiler doesn't remove our loops
@@ -501,7 +515,10 @@ public:
             fData[i%N] = rand.nextSScalar1();
         }
 
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:
@@ -534,7 +551,10 @@ class DivModBench : public SkBenchmark {
 public:
     explicit DivModBench(const char* name) {
         fName.printf("divmod_%s", name);
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:

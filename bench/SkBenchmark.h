@@ -49,6 +49,19 @@ public:
     const char* getName();
     SkIPoint getSize();
 
+    enum Backend {
+        kNonRendering_Backend,
+        kRaster_Backend,
+        kGPU_Backend,
+        kPDF_Backend,
+    };
+
+    // Call to determine whether the benchmark is intended for
+    // the rendering mode.
+    virtual bool isSuitableFor(Backend backend) {
+        return backend != kNonRendering_Backend;
+    }
+
     // Call before draw, allows the benchmark to do setup work outside of the
     // timer. When a benchmark is repeatedly drawn, this should be called once
     // before the initial draw.
@@ -75,13 +88,6 @@ public:
 
     void setDither(SkTriState::State state) {
         fDither = state;
-    }
-
-    /** If true; the benchmark does rendering; if false, the benchmark
-        doesn't, and so need not be re-run in every different rendering
-        mode. */
-    bool isRendering() {
-        return fIsRendering;
     }
 
     /** Assign masks for paint-flags. These will be applied when setupPaint()
@@ -120,8 +126,6 @@ protected:
     virtual void onPostDraw() {}
 
     virtual SkIPoint onGetSize();
-    /// Defaults to true.
-    bool    fIsRendering;
 
 private:
     int     fForceAlpha;

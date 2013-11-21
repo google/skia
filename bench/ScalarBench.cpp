@@ -16,7 +16,10 @@ class ScalarBench : public SkBenchmark {
 public:
     ScalarBench(const char name[])  {
         fName.printf("scalar_%s", name);
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
     virtual void performTest() = 0;
@@ -143,7 +146,10 @@ public:
             fPts[i].fX = rand.nextSScalar1();
             fPts[i].fY = rand.nextSScalar1();
         }
-        fIsRendering = false;
+    }
+
+    virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
+        return backend == kNonRendering_Backend;
     }
 
 protected:
