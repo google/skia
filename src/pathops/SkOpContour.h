@@ -72,10 +72,9 @@ public:
         return fSegments.count();
     }
 
-    int addT(int segIndex, SkOpContour* other, int otherIndex, const SkPoint& pt, double newT,
-            bool isNear) {
+    int addT(int segIndex, SkOpContour* other, int otherIndex, const SkPoint& pt, double newT) {
         setContainsIntercepts();
-        return fSegments[segIndex].addT(&other->fSegments[otherIndex], pt, newT, isNear);
+        return fSegments[segIndex].addT(&other->fSegments[otherIndex], pt, newT);
     }
 
     int addSelfT(int segIndex, SkOpContour* other, int otherIndex, const SkPoint& pt, double newT) {

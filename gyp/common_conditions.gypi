@@ -337,6 +337,13 @@
           }],
         ],
         'configurations': {
+          'Coverage': {
+            'xcode_settings': {
+               'GCC_OPTIMIZATION_LEVEL': '0',
+               'GCC_GENERATE_TEST_COVERAGE_FILES': 'YES',
+               'GCC_INSTRUMENT_PROGRAM_FLOW_ARCS' : 'YES',
+            },
+          },
           'Debug': {
             'xcode_settings': {
               'GCC_OPTIMIZATION_LEVEL': '0',

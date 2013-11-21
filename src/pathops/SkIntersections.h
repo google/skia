@@ -23,7 +23,6 @@ public:
         sk_bzero(fPt, sizeof(fPt));
         sk_bzero(fT, sizeof(fT));
         sk_bzero(fIsCoincident, sizeof(fIsCoincident));
-        sk_bzero(&fIsNear, sizeof(fIsNear));
         reset();
         fMax = 0;  // require that the caller set the max
     }
@@ -42,7 +41,6 @@ public:
         memcpy(fPt, i.fPt, sizeof(fPt));
         memcpy(fT, i.fT, sizeof(fT));
         memcpy(fIsCoincident, i.fIsCoincident, sizeof(fIsCoincident));
-        memcpy(&fIsNear, &i.fIsNear, sizeof(fIsNear));
         fUsed = i.fUsed;
         fMax = i.fMax;
         fSwap = i.fSwap;
@@ -117,10 +115,6 @@ public:
 
     bool isCoincident(int index) {
         return (fIsCoincident[0] & 1 << index) != 0;
-    }
-
-    bool isNear(int index) {
-        return (fIsNear & 1 << index) != 0;
     }
 
     int lineHorizontal(const SkPoint a[2], SkScalar left, SkScalar right, SkScalar y,
@@ -278,7 +272,6 @@ private:
     SkDPoint fPt[9];  // FIXME: since scans store points as SkPoint, this should also
     double fT[2][9];
     uint16_t fIsCoincident[2];  // bit set for each curve's coincident T
-    uint16_t fIsNear;  // bit set for each T if 2nd curve's point is near but not equal to 1st
     unsigned char fUsed;
     unsigned char fMax;
     bool fAllowNear;

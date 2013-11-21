@@ -23,13 +23,42 @@
 
 class SkLineParameters {
 public:
+
     void cubicEndPoints(const SkDCubic& pts) {
-        cubicEndPoints(pts, 0, 1);
-        if (dx() == 0 && dy() == 0) {
-            cubicEndPoints(pts, 0, 2);
-            if (dx() == 0 && dy() == 0) {
-                cubicEndPoints(pts, 0, 3);
+        int endIndex = 1;
+        cubicEndPoints(pts, 0, endIndex);
+        if (dy() != 0) {
+            return;
+        }
+        if (dx() == 0) {
+            cubicEndPoints(pts, 0, ++endIndex);
+            SkASSERT(endIndex == 2);
+            if (dy() != 0) {
+                return;
             }
+            if (dx() == 0) {
+                cubicEndPoints(pts, 0, ++endIndex);  // line
+                SkASSERT(endIndex == 3);
+                return;
+            }
+        }
+        if (dx() < 0) { // only worry about y bias when breaking cw/ccw tie
+            return;
+        }
+        // if cubic tangent is on x axis, look at next control point to break tie
+        // control point may be approximate, so it must move significantly to account for error
+        if (NotAlmostEqualUlps(pts[0].fY, pts[++endIndex].fY)) {
+            if (pts[0].fY > pts[endIndex].fY) {
+                a = DBL_EPSILON; // push it from 0 to slightly negative (y() returns -a)
+            }
+            return;
+        }
+        if (endIndex == 3) {
+            return;
+        }
+        SkASSERT(endIndex == 2);
+        if (pts[0].fY > pts[3].fY) {
+            a = DBL_EPSILON; // push it from 0 to slightly negative (y() returns -a)
         }
     }
 
@@ -55,8 +84,18 @@ public:
 
     void quadEndPoints(const SkDQuad& pts) {
         quadEndPoints(pts, 0, 1);
-        if (dx() == 0 && dy() == 0) {
+        if (dy() != 0) {
+            return;
+        }
+        if (dx() == 0) {
             quadEndPoints(pts, 0, 2);
+            return;
+        }
+        if (dx() < 0) { // only worry about y bias when breaking cw/ccw tie
+            return;
+        }
+        if (pts[0].fY > pts[2].fY) {
+            a = DBL_EPSILON;
         }
     }
 

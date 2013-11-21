@@ -108,7 +108,9 @@ bool SkOpAngle::operator<(const SkOpAngle& rh) const {  // this/lh: left-hand; r
     }
     // see if either curve can be lengthened before trying the tangent
     if (fSegment->other(fEnd) != rh.fSegment  // tangents not absolutely identical
-            && rh.fSegment->other(rh.fEnd) != fSegment) {  // and not intersecting
+            && rh.fSegment->other(rh.fEnd) != fSegment
+            && y != -DBL_EPSILON 
+            && ry != -DBL_EPSILON) {  // and not intersecting
         SkOpAngle longer = *this;
         SkOpAngle rhLonger = rh;
         if ((longer.lengthen(rh) | rhLonger.lengthen(*this))  // lengthen both

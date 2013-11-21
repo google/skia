@@ -3036,9 +3036,51 @@ static void cubicOp98x(skiatest::Reporter* reporter) {
     testPathOp(reporter, path, pathB, kXOR_PathOp);
 }
 
-static void (*firstTest)(skiatest::Reporter* ) = bufferOverflow;
+static void cubicOp99(skiatest::Reporter* reporter) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(3,6);
+    path.cubicTo(0,3, 6,5, 5,4);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(5,6);
+    pathB.cubicTo(4,5, 6,3, 3,0);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+}
+
+static void cubicOp100(skiatest::Reporter* reporter) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0,1);
+    path.cubicTo(0,2, 2,1, 4,2);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1,2);
+    pathB.cubicTo(2,4, 1,0, 2,0);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_PathOp);
+}
+
+static void cubicOp101(skiatest::Reporter* reporter) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0, 1);
+    path.cubicTo(2, 3, 2, 1, 5, 3);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 2);
+    pathB.cubicTo(3, 5, 1, 0, 3, 2);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+}
+
+static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(cubicOp101),
+    TEST(cubicOp100),
+    TEST(cubicOp99),
 #if ISSUE_1435_WORKING
     TEST(issue1435),
 #endif

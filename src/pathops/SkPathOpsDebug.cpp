@@ -134,9 +134,6 @@ void SkOpSpan::dump() const {
     if (fLoop) {
         SkDebugf(" loop");
     }
-    if (fNear) {
-        SkDebugf(" near");
-    }
     SkDebugf("\n");
 }
 

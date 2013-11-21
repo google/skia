@@ -12,10 +12,6 @@
 class SkOpSegment;
 
 struct SkOpSpan {
-    enum PointMatch {
-        kPointIsExact,
-        kPointIsNear
-    };
     SkOpSegment* fOther;
     SkPoint fPt;  // computed when the curves are intersected
     double fT;
@@ -31,7 +27,6 @@ struct SkOpSpan {
     bool fSmall;   // if set, consecutive points are almost equal
     bool fTiny;  // if set, span may still be considered once for edge following
     bool fLoop;  // set when a cubic loops back to this point
-    bool fNear;  // set if point is near segment end point
 
 #ifdef SK_DEBUG
     void dump() const;

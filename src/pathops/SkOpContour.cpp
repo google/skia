@@ -212,20 +212,17 @@ void SkOpContour::joinCoincidence(const SkTArray<SkCoincidence, true>& coinciden
         if (partial ? startT != 0 || oMatchStart != 0 : (startT == 0) != (oMatchStart == 0)) {
             bool added = false;
             if (oMatchStart != 0) {
-                added = thisOne.joinCoincidence(false, &other, oMatchStart, oStep, cancel);
+                added = thisOne.joinCoincidence(&other, oMatchStart, oStep, cancel);
             }
-            if (startT != 0 && !added) {
-                (void) other.joinCoincidence(cancel, &thisOne, startT, step, cancel);
+            if (!cancel && startT != 0 && !added) {
+                (void) other.joinCoincidence(&thisOne, startT, step, cancel);
             }
         }
         double oMatchEnd = cancel ? oStartT : oEndT;
         if (partial ? endT != 1 || oMatchEnd != 1 : (endT == 1) != (oMatchEnd == 1)) {
             bool added = false;
-            if (oMatchEnd != 1) {
-                added = thisOne.joinCoincidence(true, &other, oMatchEnd, -oStep, cancel);
-            }
-            if (endT != 1 && !added) {
-                (void) other.joinCoincidence(!cancel, &thisOne, endT, -step, cancel);
+            if (cancel && endT != 1 && !added) {
+                (void) other.joinCoincidence(&thisOne, endT, -step, cancel);
             }
         }
     }

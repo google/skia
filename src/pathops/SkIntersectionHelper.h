@@ -42,8 +42,8 @@ public:
     // be nearly equal, any problems caused by this should be taken care
     // of later.
     // On the edge or out of range values are negative; add 2 to get end
-    int addT(const SkIntersectionHelper& other, const SkPoint& pt, double newT, bool isNear) {
-        return fContour->addT(fIndex, other.fContour, other.fIndex, pt, newT, isNear);
+    int addT(const SkIntersectionHelper& other, const SkPoint& pt, double newT) {
+        return fContour->addT(fIndex, other.fContour, other.fIndex, pt, newT);
     }
 
     int addSelfT(const SkIntersectionHelper& other, const SkPoint& pt, double newT) {
@@ -75,14 +75,6 @@ public:
     bool isFirstLast(const SkIntersectionHelper& next) {
         return fContour == next.fContour && fIndex == 0
                 && next.fIndex == fLast - 1;
-    }
-
-    bool isNear(double t1, double t2, const SkDPoint& pt1, const SkDPoint& pt2) const {
-        const SkOpSegment& segment = fContour->segments()[fIndex];
-        double mid = (t1 + t2) / 2;
-        SkDPoint midPtByT = segment.dPtAtT(mid);
-        SkDPoint midPtByAvg = SkDPoint::Mid(pt1, pt2);
-        return midPtByT.approximatelyEqual(midPtByAvg);
     }
 
     bool isPartial(double t1, double t2, const SkDPoint& pt1, const SkDPoint& pt2) const {

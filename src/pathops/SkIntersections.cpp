@@ -108,21 +108,12 @@ int SkIntersections::insert(double one, double two, const SkDPoint& pt) {
         int clearMask = ~((1 << index) - 1);
         fIsCoincident[0] += fIsCoincident[0] & clearMask;
         fIsCoincident[1] += fIsCoincident[1] & clearMask;
-        fIsNear += fIsNear & clearMask;
     }
     fPt[index] = pt;
     fT[0][index] = one;
     fT[1][index] = two;
     ++fUsed;
     return index;
-}
-
-void SkIntersections::insertNear(double one, double two, const SkDPoint& pt) {
-    int index = insert(one, two, pt);
-    if (index < 0) {
-        return;
-    }
-    fIsNear |= 1 << index;
 }
 
 void SkIntersections::insertCoincident(double one, double two, const SkDPoint& pt) {
@@ -188,7 +179,6 @@ void SkIntersections::removeOne(int index) {
     fIsCoincident[0] -= ((fIsCoincident[0] >> 1) & ~((1 << index) - 1)) + coBit;
     SkASSERT(!(coBit ^ (fIsCoincident[1] & (1 << index))));
     fIsCoincident[1] -= ((fIsCoincident[1] >> 1) & ~((1 << index) - 1)) + coBit;
-    fIsNear -= ((fIsNear >> 1) & ~((1 << index) - 1)) + (fIsNear & (1 << index));
 }
 
 void SkIntersections::swapPts() {

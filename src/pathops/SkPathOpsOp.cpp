@@ -92,7 +92,7 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpan*>& chase, int& nextStart, int
                     nextEnd = end;
                 }
                 (void) segment->markAngle(maxWinding, sumWinding, oppMaxWinding,
-                    oppSumWinding, true, angle);
+                    oppSumWinding, angle);
             }
         } while (++nextIndex != lastIndex);
         if (first) {
