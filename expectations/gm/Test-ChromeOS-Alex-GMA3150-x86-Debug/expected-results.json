@@ -2260,25 +2260,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13027459637193428097
+          16323096857875033696
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashing2_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4446293814341478509
+          5640709001481339102
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashing3_565.png": {
       "allowed-digests": [
@@ -2296,13 +2290,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16627758443916891054
+          10177137740509529492
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashing_565.png": {
       "allowed-digests": [
@@ -5250,13 +5241,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11283972443307669821
+          6328709825021913313
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext3_565.png": {
       "allowed-digests": [
