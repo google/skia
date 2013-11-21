@@ -86,6 +86,7 @@ void GrGLSLMulVarBy4f(SkString* outAppend,
 
     if (mulFactor.isZeros()) {
         outAppend->appendf("%s = vec4(0);\n", vec4VarName);
+    } else {
+        outAppend->appendf("%s *= %s;\n", vec4VarName, mulFactor.c_str());
     }
-    outAppend->appendf("%s *= %s;\n", vec4VarName, mulFactor.c_str());
 }
