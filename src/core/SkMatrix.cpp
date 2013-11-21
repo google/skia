@@ -48,16 +48,18 @@ enum {
 
 #ifdef SK_SCALAR_IS_FLOAT
     static const int32_t kScalar1Int = 0x3f800000;
+    static const int32_t kPersp1Int  = 0x3f800000;
 #else
     #define scalarAsInt(x)  (x)
     static const int32_t kScalar1Int = (1 << 16);
+    static const int32_t kPersp1Int  = (1 << 30);
 #endif
 
 uint8_t SkMatrix::computePerspectiveTypeMask() const {
 #ifdef SK_SCALAR_SLOW_COMPARES
     if (SkScalarAs2sCompliment(fMat[kMPersp0]) |
             SkScalarAs2sCompliment(fMat[kMPersp1]) |
-            (SkScalarAs2sCompliment(fMat[kMPersp2]) - SK_Fract1)) {
+            (SkScalarAs2sCompliment(fMat[kMPersp2]) - kPersp1Int)) {
         return SkToU8(kORableMasks);
     }
 #else
@@ -83,7 +85,7 @@ uint8_t SkMatrix::computeTypeMask() const {
 #ifdef SK_SCALAR_SLOW_COMPARES
     if (SkScalarAs2sCompliment(fMat[kMPersp0]) |
             SkScalarAs2sCompliment(fMat[kMPersp1]) |
-            (SkScalarAs2sCompliment(fMat[kMPersp2]) - SK_Fract1)) {
+            (SkScalarAs2sCompliment(fMat[kMPersp2]) - kPersp1Int)) {
         return SkToU8(kORableMasks);
     }
 
