@@ -485,11 +485,27 @@ bool SkDrawPathCommand::render(SkCanvas* canvas) const {
 SkDrawPictureCommand::SkDrawPictureCommand(SkPicture& picture) :
     fPicture(picture) {
     fDrawType = DRAW_PICTURE;
-    fInfo.push(SkObjectParser::CustomTextToString("To be implemented."));
+    SkString* temp = new SkString;
+    temp->appendf("SkPicture: W: %d H: %d", picture.width(), picture.height());
+    fInfo.push(temp);
 }
 
 void SkDrawPictureCommand::execute(SkCanvas* canvas) {
     canvas->drawPicture(fPicture);
+}
+
+bool SkDrawPictureCommand::render(SkCanvas* canvas) const {
+    canvas->clear(0xFFFFFFFF);
+    canvas->save();
+
+    SkRect bounds = SkRect::MakeWH(fPicture.width(), fPicture.height());
+    xlate_and_scale_to_bounds(canvas, bounds);
+
+    canvas->drawPicture(const_cast<SkPicture&>(fPicture));
+
+    canvas->restore();
+
+    return true;
 }
 
 SkDrawPointsCommand::SkDrawPointsCommand(SkCanvas::PointMode mode, size_t count,

@@ -316,6 +316,8 @@ class SkDrawPictureCommand : public SkDrawCommand {
 public:
     SkDrawPictureCommand(SkPicture& picture);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
+
 private:
     SkPicture fPicture;
 
