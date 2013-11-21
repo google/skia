@@ -2012,7 +2012,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
         paintRef = &paintCopy;
     }
     if (procFlags & SkDrawProcs::kSkipBakedGlyphTransform_Flag) {
-        ctm = NULL;
+        ctm = &SkMatrix::I();
     }
     SkAutoGlyphCache    autoCache(*paintRef, &fDevice->fLeakyProperties, ctm);
 #else
@@ -2036,7 +2036,11 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     AlignProc          alignProc = pick_align_proc(paint.getTextAlign());
     SkDraw1Glyph       d1g;
     SkDraw1Glyph::Proc proc = d1g.init(this, blitter, cache, paint);
+#if SK_DISTANCEFIELD_FONTS
+    TextMapState       tms(*ctm, constY);
+#else
     TextMapState       tms(*fMatrix, constY);
+#endif
     TextMapState::Proc tmsProc = tms.pickProc(scalarsPerPosition);
 
     if (cache->isSubpixel()) {

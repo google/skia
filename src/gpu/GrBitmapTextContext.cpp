@@ -124,7 +124,7 @@ void GrBitmapTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
     }
     if (NULL == fStrike) {
 #if SK_DISTANCEFIELD_FONTS
-        fStrike = fContext->getFontCache()->getStrike(scaler, true);
+        fStrike = fContext->getFontCache()->getStrike(scaler, false);
 #else
         fStrike = fContext->getFontCache()->getStrike(scaler);
 #endif

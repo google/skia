@@ -1699,8 +1699,6 @@ SkDrawProcs* SkGpuDevice::initDrawForText(GrTextContext* context) {
         fDrawProcs->fContext = fContext;
 #if SK_DISTANCEFIELD_FONTS
         fDrawProcs->fFlags = 0;
-        fDrawProcs->fFlags |= SkDrawProcs::kSkipBakedGlyphTransform_Flag;
-        fDrawProcs->fFlags |= SkDrawProcs::kUseScaledGlyphs_Flag;
 #endif
     }
 
@@ -1726,13 +1724,22 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
             return;
         }
 #if SK_DISTANCEFIELD_FONTS
-        GrDistanceFieldTextContext context(fContext, grPaint, paint.getColor(),
-                                           paint.getTextSize());
-#else
-        GrBitmapTextContext context(fContext, grPaint, paint.getColor());
+        if (paint.getRasterizer()) {
 #endif
-        myDraw.fProcs = this->initDrawForText(&context);
-        this->INHERITED::drawText(myDraw, text, byteLength, x, y, paint);
+            GrBitmapTextContext context(fContext, grPaint, paint.getColor());
+            myDraw.fProcs = this->initDrawForText(&context);
+            this->INHERITED::drawText(myDraw, text, byteLength, x, y, paint);
+#if SK_DISTANCEFIELD_FONTS
+        } else {
+            GrDistanceFieldTextContext context(fContext, grPaint, paint.getColor(),
+                                               paint.getTextSize()/SkDrawProcs::kBaseDFFontSize);
+            myDraw.fProcs = this->initDrawForText(&context);
+            fDrawProcs->fFlags |= SkDrawProcs::kSkipBakedGlyphTransform_Flag;
+            fDrawProcs->fFlags |= SkDrawProcs::kUseScaledGlyphs_Flag;
+            this->INHERITED::drawText(myDraw, text, byteLength, x, y, paint);
+            fDrawProcs->fFlags = 0;
+       }
+#endif
     }
 }
 
@@ -1754,14 +1761,24 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
             return;
         }
 #if SK_DISTANCEFIELD_FONTS
-        GrDistanceFieldTextContext context(fContext, grPaint, paint.getColor(),
-                                           paint.getTextSize()/SkDrawProcs::kBaseDFFontSize);
-#else
-        GrBitmapTextContext context(fContext, grPaint, paint.getColor());
+        if (paint.getRasterizer()) {
 #endif
-        myDraw.fProcs = this->initDrawForText(&context);
-        this->INHERITED::drawPosText(myDraw, text, byteLength, pos, constY,
-                                     scalarsPerPos, paint);
+            GrBitmapTextContext context(fContext, grPaint, paint.getColor());
+            myDraw.fProcs = this->initDrawForText(&context);
+            this->INHERITED::drawPosText(myDraw, text, byteLength, pos, constY,
+                                         scalarsPerPos, paint);
+#if SK_DISTANCEFIELD_FONTS
+        } else {
+            GrDistanceFieldTextContext context(fContext, grPaint, paint.getColor(),
+                                               paint.getTextSize()/SkDrawProcs::kBaseDFFontSize);
+            myDraw.fProcs = this->initDrawForText(&context);
+            fDrawProcs->fFlags |= SkDrawProcs::kSkipBakedGlyphTransform_Flag;
+            fDrawProcs->fFlags |= SkDrawProcs::kUseScaledGlyphs_Flag;
+            this->INHERITED::drawPosText(myDraw, text, byteLength, pos, constY,
+                                         scalarsPerPos, paint);
+            fDrawProcs->fFlags = 0;
+        }
+#endif
     }
 }
 
