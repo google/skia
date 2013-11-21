@@ -160,9 +160,9 @@ public:
     FBFetchType fbFetchType() const { return fFBFetchType; }
 
     /**
-     * Prints the caps info using GrPrintf.
+     * Returs a string containeng the caps info.
      */
-    virtual void print() const SK_OVERRIDE;
+    virtual SkString dump() const SK_OVERRIDE;
 
     /**
      * Gets an array of legal stencil formats. These formats are not guaranteed

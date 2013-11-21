@@ -140,7 +140,7 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
         GrPrintf("------ EXTENSIONS\n");
         ctx.info().extensions().print();
         GrPrintf("\n");
-        ctx.info().caps()->print();
+        GrPrintf(ctx.info().caps()->dump().c_str());
     }
 
     fProgramCache = SkNEW_ARGS(ProgramCache, (this));

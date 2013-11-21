@@ -586,13 +586,13 @@ bool GrGLCaps::isColorConfigAndStencilFormatVerified(
     return false;
 }
 
-void GrGLCaps::print() const {
+SkString GrGLCaps::dump() const {
 
-    INHERITED::print();
+    SkString r = INHERITED::dump();
 
-    GrPrintf("--- GL-Specific ---\n");
+    r.appendf("--- GL-Specific ---\n");
     for (int i = 0; i < fStencilFormats.count(); ++i) {
-        GrPrintf("Stencil Format %d, stencil bits: %02d, total bits: %02d\n",
+        r.appendf("Stencil Format %d, stencil bits: %02d, total bits: %02d\n",
                  i,
                  fStencilFormats[i].fStencilBits,
                  fStencilFormats[i].fTotalBits);
@@ -627,35 +627,36 @@ void GrGLCaps::print() const {
     GR_STATIC_ASSERT(GR_ARRAY_COUNT(kFBFetchTypeStr) == kLast_FBFetchType + 1);
 
 
-    GrPrintf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));
-    GrPrintf("Fixed Function Support: %s\n", (fFixedFunctionSupport ? "YES" : "NO"));
-    GrPrintf("MSAA Type: %s\n", kMSFBOExtStr[fMSFBOType]);
-    GrPrintf("FB Fetch Type: %s\n", kFBFetchTypeStr[fFBFetchType]);
-    GrPrintf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
-    GrPrintf("Max FS Texture Units: %d\n", fMaxFragmentTextureUnits);
+    r.appendf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));
+    r.appendf("Fixed Function Support: %s\n", (fFixedFunctionSupport ? "YES" : "NO"));
+    r.appendf("MSAA Type: %s\n", kMSFBOExtStr[fMSFBOType]);
+    r.appendf("FB Fetch Type: %s\n", kFBFetchTypeStr[fFBFetchType]);
+    r.appendf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
+    r.appendf("Max FS Texture Units: %d\n", fMaxFragmentTextureUnits);
     if (fFixedFunctionSupport) {
-        GrPrintf("Max Fixed Function Texture Coords: %d\n", fMaxFixedFunctionTextureCoords);
+        r.appendf("Max Fixed Function Texture Coords: %d\n", fMaxFixedFunctionTextureCoords);
     }
-    GrPrintf("Max Vertex Attributes: %d\n", fMaxVertexAttributes);
-    GrPrintf("Support RGBA8 Render Buffer: %s\n", (fRGBA8RenderbufferSupport ? "YES": "NO"));
-    GrPrintf("BGRA support: %s\n", (fBGRAFormatSupport ? "YES": "NO"));
-    GrPrintf("BGRA is an internal format: %s\n", (fBGRAIsInternalFormat ? "YES": "NO"));
-    GrPrintf("Support texture swizzle: %s\n", (fTextureSwizzleSupport ? "YES": "NO"));
-    GrPrintf("Unpack Row length support: %s\n", (fUnpackRowLengthSupport ? "YES": "NO"));
-    GrPrintf("Unpack Flip Y support: %s\n", (fUnpackFlipYSupport ? "YES": "NO"));
-    GrPrintf("Pack Row length support: %s\n", (fPackRowLengthSupport ? "YES": "NO"));
-    GrPrintf("Pack Flip Y support: %s\n", (fPackFlipYSupport ? "YES": "NO"));
+    r.appendf("Max Vertex Attributes: %d\n", fMaxVertexAttributes);
+    r.appendf("Support RGBA8 Render Buffer: %s\n", (fRGBA8RenderbufferSupport ? "YES": "NO"));
+    r.appendf("BGRA support: %s\n", (fBGRAFormatSupport ? "YES": "NO"));
+    r.appendf("BGRA is an internal format: %s\n", (fBGRAIsInternalFormat ? "YES": "NO"));
+    r.appendf("Support texture swizzle: %s\n", (fTextureSwizzleSupport ? "YES": "NO"));
+    r.appendf("Unpack Row length support: %s\n", (fUnpackRowLengthSupport ? "YES": "NO"));
+    r.appendf("Unpack Flip Y support: %s\n", (fUnpackFlipYSupport ? "YES": "NO"));
+    r.appendf("Pack Row length support: %s\n", (fPackRowLengthSupport ? "YES": "NO"));
+    r.appendf("Pack Flip Y support: %s\n", (fPackFlipYSupport ? "YES": "NO"));
 
-    GrPrintf("Texture Usage support: %s\n", (fTextureUsageSupport ? "YES": "NO"));
-    GrPrintf("Texture Storage support: %s\n", (fTexStorageSupport ? "YES": "NO"));
-    GrPrintf("GL_R support: %s\n", (fTextureRedSupport ? "YES": "NO"));
-    GrPrintf("GL_ARB_imaging support: %s\n", (fImagingSupport ? "YES": "NO"));
-    GrPrintf("Two Format Limit: %s\n", (fTwoFormatLimit ? "YES": "NO"));
-    GrPrintf("Fragment coord conventions support: %s\n",
+    r.appendf("Texture Usage support: %s\n", (fTextureUsageSupport ? "YES": "NO"));
+    r.appendf("Texture Storage support: %s\n", (fTexStorageSupport ? "YES": "NO"));
+    r.appendf("GL_R support: %s\n", (fTextureRedSupport ? "YES": "NO"));
+    r.appendf("GL_ARB_imaging support: %s\n", (fImagingSupport ? "YES": "NO"));
+    r.appendf("Two Format Limit: %s\n", (fTwoFormatLimit ? "YES": "NO"));
+    r.appendf("Fragment coord conventions support: %s\n",
              (fFragCoordsConventionSupport ? "YES": "NO"));
-    GrPrintf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
-    GrPrintf("Use non-VBO for dynamic data: %s\n",
+    r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
+    r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
-    GrPrintf("Discard FrameBuffer support: %s\n", (fDiscardFBSupport ? "YES" : "NO"));
-    GrPrintf("Full screen clear is free: %s\n", (fFullClearIsFree ? "YES" : "NO"));
+    r.appendf("Discard FrameBuffer support: %s\n", (fDiscardFBSupport ? "YES" : "NO"));
+    r.appendf("Full screen clear is free: %s\n", (fFullClearIsFree ? "YES" : "NO"));
+    return r;
 }

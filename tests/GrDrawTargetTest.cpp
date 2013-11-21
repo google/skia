@@ -16,7 +16,8 @@
 
 static void test_print(skiatest::Reporter*, const GrDrawTargetCaps* caps) {
     // This used to assert.
-    caps->print();
+    SkString result = caps->dump();
+    SkASSERT(!result.isEmpty());
 }
 
 static void TestGrDrawTarget(skiatest::Reporter* reporter, GrContextFactory* factory) {
