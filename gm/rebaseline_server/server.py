@@ -108,8 +108,8 @@ class Server(object):
     Args:
       actuals_dir: directory under which we will check out the latest actual
                    GM results
-      expectations_dir: directory under which to find GM expectations (they
-                        must already be in that directory)
+      expectations_dir: DEPRECATED: directory under which to find
+                        GM expectations (they must already be in that directory)
       port: which TCP port to listen on for HTTP requests
       export: whether to allow HTTP clients on other hosts to access this server
       editable: whether HTTP clients are allowed to submit new baselines
@@ -434,8 +434,26 @@ def main():
                     default=DEFAULT_ACTUALS_DIR)
   parser.add_argument('--editable', action='store_true',
                       help=('Allow HTTP clients to submit new baselines.'))
-  parser.add_argument('--expectations-dir',
-                    help=('Directory under which to find GM expectations; '
+  # Deprecated the --expectations-dir option, because once our GM expectations
+  # are maintained within git we will no longer be able to check out and update
+  # them in isolation (in SVN you can update a single directory subtree within
+  # a checkout, but you cannot do that with git).
+  #
+  # In a git world, we will force the user to refer to expectations
+  # within the same checkout as this tool (at the relative path
+  # ../../expectations/gm ).  If they specify the --reload option, we will
+  # periodically run "git pull" on the entire Skia checkout, which will update
+  # the GM expectations along with everything else (such as this script).
+  #
+  # We can still allow --actuals-dir to be specified, though, because the
+  # actual results will continue to be maintained in the skia-autogen
+  # SVN repository.
+  parser.add_argument('--deprecated-expectations-dir',
+                    help=('DEPRECATED due to our transition from SVN to git '
+                          '(formerly known as --expectations-dir).  '
+                          'If you still need this option, contact '
+                          'epoger@google.com as soon as possible.  WAS: '
+                          'Directory under which to find GM expectations; '
                           'defaults to %(default)s'),
                     default=DEFAULT_EXPECTATIONS_DIR)
   parser.add_argument('--export', action='store_true',
@@ -450,7 +468,8 @@ def main():
                       default=DEFAULT_PORT)
   parser.add_argument('--reload', type=int,
                       help=('How often (a period in seconds) to update the '
-                            'results.  If specified, both EXPECTATIONS_DIR and '
+                            'results.  If specified, both '
+                            'DEPRECATED_EXPECTATIONS_DIR and '
                             'ACTUAL_DIR will be updated.  '
                             'By default, we do not reload at all, and you '
                             'must restart the server to pick up new data.'),
@@ -458,7 +477,7 @@ def main():
   args = parser.parse_args()
   global _SERVER
   _SERVER = Server(actuals_dir=args.actuals_dir,
-                   expectations_dir=args.expectations_dir,
+                   expectations_dir=args.deprecated_expectations_dir,
                    port=args.port, export=args.export, editable=args.editable,
                    reload_seconds=args.reload)
   _SERVER.run()
