@@ -90,7 +90,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionClearBreakpoints, SIGNAL(triggered()), this, SLOT(actionClearBreakpoints()));
     connect(&fActionClearDeletes, SIGNAL(triggered()), this, SLOT(actionClearDeletes()));
     connect(&fActionClose, SIGNAL(triggered()), this, SLOT(actionClose()));
-    connect(fSettingsWidget.getVisibilityButton(), SIGNAL(toggled(bool)), this, SLOT(actionCommandFilter()));
+    connect(&fSettingsWidget, SIGNAL(visibilityFilterChanged()), this, SLOT(actionCommandFilter()));
 #if SK_SUPPORT_GPU
     connect(&fSettingsWidget, SIGNAL(glSettingsChanged()), this, SLOT(actionGLWidget()));
 #endif
@@ -440,8 +440,7 @@ void SkDebuggerGUI::actionClearDeletes() {
 }
 
 void SkDebuggerGUI::actionCommandFilter() {
-    fDebugger.highlightCurrentCommand(
-            fSettingsWidget.getVisibilityButton()->isChecked());
+    fDebugger.highlightCurrentCommand(fSettingsWidget.getVisibilityFilter());
     fCanvasWidget.drawTo(fListWidget.currentRow());
     fImageWidget.draw();
 }
@@ -968,7 +967,7 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
      * TODO(chudy): This should be deprecated since fDebugger is not
      * recreated.
      * */
-    fDebugger.highlightCurrentCommand(fSettingsWidget.getVisibilityButton()->isChecked());
+    fDebugger.highlightCurrentCommand(fSettingsWidget.getVisibilityFilter());
 
     setupListWidget(commands);
     setupComboBox(commands);

@@ -16,9 +16,9 @@
 #include <QFrame>
 #include <QGroupBox>
 #include <QLabel>
-#include <QRadioButton>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QComboBox>
 
 #include "SkPaint.h"
 
@@ -40,41 +40,26 @@ public:
     /** Sets the displayed user zoom level. A scale of 1.0 represents no zoom. */
     void setZoomText(float scale);
 
-    QRadioButton* getVisibilityButton();
+    bool getVisibilityFilter() const {
+        return fVisibilityCombo.itemData(fVisibilityCombo.currentIndex()).toBool();
+    }
 
 #if SK_SUPPORT_GPU
-    bool isGLActive() {
+    bool isGLActive() const {
         return fGLCheckBox.isChecked();
     }
 
-    int getGLSampleCount() {
-        if (fGLMSAA4On.isChecked()) {
-            return 4;
-        } else if (fGLMSAA16On.isChecked()) {
-            return 16;
-        }
-        return 0;
+    int getGLSampleCount() const {
+        return fGLMSAACombo.itemData(fGLMSAACombo.currentIndex()).toInt();
     }
 
 #endif
 
-    bool getFilterOverride(SkPaint::FilterLevel* filterLevel) {
-        if (fFilterDefault.isChecked()) {
-            *filterLevel = SkPaint::kNone_FilterLevel;
-            return false;
-        }
+    bool getFilterOverride(SkPaint::FilterLevel* filterLevel) const {
+        int index = fFilterCombo.currentIndex();
+        *filterLevel = (SkPaint::FilterLevel)fFilterCombo.itemData(index).toUInt();
 
-        if (fFilterNone.isChecked()) {
-            *filterLevel = SkPaint::kNone_FilterLevel;
-        } else if (fFilterLow.isChecked()) {
-            *filterLevel = SkPaint::kLow_FilterLevel;
-        } else if (fFilterMed.isChecked()) {
-            *filterLevel = SkPaint::kMedium_FilterLevel;
-        } else {
-            *filterLevel = SkPaint::kHigh_FilterLevel;
-        }
-
-        return true;
+        return index > 0;
     }
 
     QCheckBox* getRasterCheckBox() {
@@ -92,7 +77,7 @@ private slots:
 signals:
     void scrollingPreferences(bool isStickyActivate);
     void showStyle(bool isSingleCommand);
-    void visibilityFilter(bool isEnabled);
+    void visibilityFilterChanged();
     void texFilterSettingsChanged();
 #if SK_SUPPORT_GPU
     void glSettingsChanged();
@@ -103,11 +88,10 @@ private:
     QFrame mainFrame;
     QVBoxLayout fVerticalLayout;
 
-    QLabel fVisibileText;
+    QLabel fVisibleText;
     QFrame fVisibleFrame;
     QVBoxLayout fVisibleFrameLayout;
-    QRadioButton fVisibleOn;
-    QRadioButton fVisibleOff;
+    QComboBox fVisibilityCombo;
 
     QLabel fCommandToggle;
     QFrame fCommandFrame;
@@ -139,19 +123,13 @@ private:
     QCheckBox fGLCheckBox;
     QGroupBox fGLMSAAButtonGroup;
     QVBoxLayout fGLMSAALayout;
-    QRadioButton fGLMSAAOff;
-    QRadioButton fGLMSAA4On;
-    QRadioButton fGLMSAA16On;
+    QComboBox fGLMSAACombo;
 #endif
 
     // for filtering group
     QGroupBox fFilterButtonGroup;
+    QComboBox fFilterCombo;
     QVBoxLayout fFilterLayout;
-    QRadioButton fFilterDefault;
-    QRadioButton fFilterNone;
-    QRadioButton fFilterLow;
-    QRadioButton fFilterMed;
-    QRadioButton fFilterHigh;
 
     QFrame fZoomFrame;
     QHBoxLayout fZoomLayout;

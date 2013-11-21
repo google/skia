@@ -16,8 +16,6 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     , mainFrameLayout(this)
     , fVerticalLayout(&mainFrame)
     , fVisibleFrameLayout(&fVisibleFrame)
-    , fVisibleOn(&fVisibleFrame)
-    , fVisibleOff(&fVisibleFrame)
     , fCommandLayout(&fCommandFrame)
     , fCurrentCommandBox(&fCommandFrame)
     , fCommandHitBox(&fCommandFrame)
@@ -37,16 +35,17 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     fVerticalLayout.setAlignment(Qt::AlignTop);
 
     // Visible Toggle
-    fVisibileText.setText("Visibility Filter");
+    fVisibleText.setText("Visibility Filter");
     fVisibleFrame.setFrameShape(QFrame::StyledPanel);
     fVisibleFrame.setFrameShadow(QFrame::Raised);
-    fVisibleOn.setText("On");
-    fVisibleOff.setText("Off");
-    fVisibleOff.setChecked(true);
-    fVisibleFrameLayout.setSpacing(6);
-    fVisibleFrameLayout.setContentsMargins(11,11,11,11);
-    fVisibleFrameLayout.addWidget(&fVisibleOn);
-    fVisibleFrameLayout.addWidget(&fVisibleOff);
+
+    fVisibilityCombo.addItem("Off", QVariant(false));
+    fVisibilityCombo.addItem("On", QVariant(true));
+
+    fVisibleFrameLayout.setContentsMargins(11, 5, 11, 5);
+    fVisibleFrameLayout.addWidget(&fVisibilityCombo);
+    connect(&fVisibilityCombo, SIGNAL(activated(int)), this,
+            SIGNAL(visibilityFilterChanged()));
 
     // Canvas
     fCanvasToggle.setText("Render Targets");
@@ -73,22 +72,19 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     fGLMSAAButtonGroup.setMaximumWidth(178);
     fGLMSAAButtonGroup.setEnabled(fGLCheckBox.isChecked());
 
-    fGLMSAAOff.setText("Off");
-    fGLMSAA4On.setText("4");
-    fGLMSAA4On.setChecked(true);
-    fGLMSAA16On.setText("16");
+    fGLMSAACombo.addItem("Off", QVariant(0));
+    fGLMSAACombo.addItem("4", QVariant(4));
+    fGLMSAACombo.addItem("16", QVariant(16));
 
-    fGLMSAALayout.addWidget(&fGLMSAAOff);
-    fGLMSAALayout.addWidget(&fGLMSAA4On);
-    fGLMSAALayout.addWidget(&fGLMSAA16On);
-
+    fGLMSAALayout.addWidget(&fGLMSAACombo);
     fGLMSAAButtonGroup.setLayout(&fGLMSAALayout);
 
-    connect(&fGLCheckBox, SIGNAL(toggled(bool)), &fGLMSAAButtonGroup, SLOT(setEnabled(bool)));
-    connect(&fGLCheckBox, SIGNAL(toggled(bool)), this, SIGNAL(glSettingsChanged()));
-    connect(&fGLMSAAOff, SIGNAL(toggled(bool)), this, SIGNAL(glSettingsChanged()));
-    connect(&fGLMSAA4On, SIGNAL(toggled(bool)), this, SIGNAL(glSettingsChanged()));
-    connect(&fGLMSAA16On, SIGNAL(toggled(bool)), this, SIGNAL(glSettingsChanged()));
+    connect(&fGLCheckBox, SIGNAL(toggled(bool)), &fGLMSAAButtonGroup,
+            SLOT(setEnabled(bool)));
+    connect(&fGLCheckBox, SIGNAL(toggled(bool)), this,
+            SIGNAL(glSettingsChanged()));
+    connect(&fGLMSAACombo, SIGNAL(activated(int)), this,
+            SIGNAL(glSettingsChanged()));
 #endif
 
     {
@@ -97,26 +93,17 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
         fFilterButtonGroup.setMinimumWidth(178);
         fFilterButtonGroup.setMaximumWidth(178);
 
-        fFilterDefault.setText("As encoded");
-        fFilterDefault.setChecked(true);
-        fFilterNone.setText("None");
-        fFilterLow.setText("Low");
-        fFilterMed.setText("Med");
-        fFilterHigh.setText("High");
+        fFilterCombo.addItem("As encoded", QVariant(SkPaint::kNone_FilterLevel));
+        fFilterCombo.addItem("None", QVariant(SkPaint::kNone_FilterLevel));
+        fFilterCombo.addItem("Low", QVariant(SkPaint::kLow_FilterLevel));
+        fFilterCombo.addItem("Medium", QVariant(SkPaint::kMedium_FilterLevel));
+        fFilterCombo.addItem("High", QVariant(SkPaint::kHigh_FilterLevel));
 
-        fFilterLayout.addWidget(&fFilterDefault);
-        fFilterLayout.addWidget(&fFilterNone);
-        fFilterLayout.addWidget(&fFilterLow);
-        fFilterLayout.addWidget(&fFilterMed);
-        fFilterLayout.addWidget(&fFilterHigh);
-
+        fFilterLayout.addWidget(&fFilterCombo);
         fFilterButtonGroup.setLayout(&fFilterLayout);
 
-        connect(&fFilterDefault, SIGNAL(toggled(bool)), this, SIGNAL(texFilterSettingsChanged()));
-        connect(&fFilterNone,    SIGNAL(toggled(bool)), this, SIGNAL(texFilterSettingsChanged()));
-        connect(&fFilterLow,     SIGNAL(toggled(bool)), this, SIGNAL(texFilterSettingsChanged()));
-        connect(&fFilterMed,     SIGNAL(toggled(bool)), this, SIGNAL(texFilterSettingsChanged()));
-        connect(&fFilterHigh,    SIGNAL(toggled(bool)), this, SIGNAL(texFilterSettingsChanged()));
+        connect(&fFilterCombo, SIGNAL(activated(int)), this,
+                SIGNAL(texFilterSettingsChanged()));
     }
 
     fRasterLayout.addWidget(&fRasterLabel);
@@ -193,7 +180,7 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     fZoomLayout.addWidget(&fZoomBox);
 
     // Adds all widgets to settings container
-    fVerticalLayout.addWidget(&fVisibileText);
+    fVerticalLayout.addWidget(&fVisibleText);
     fVerticalLayout.addWidget(&fVisibleFrame);
     fVerticalLayout.addWidget(&fCommandToggle);
     fVerticalLayout.addWidget(&fCommandFrame);
@@ -211,10 +198,6 @@ void SkSettingsWidget::updateCommand(int newCommand) {
 
 void SkSettingsWidget::updateHit(int newHit) {
     fCommandHitBox.setText(QString::number(newHit));
-}
-
-QRadioButton* SkSettingsWidget::getVisibilityButton() {
-    return &fVisibleOn;
 }
 
 void SkSettingsWidget::setZoomText(float scale) {
