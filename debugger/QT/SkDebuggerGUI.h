@@ -28,6 +28,7 @@
 #include <QtGui/QListView>
 #include <QtGui/QListWidget>
 #include <QtGui/QMainWindow>
+#include <QtGui/QSplitter>
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
 #include <QtGui/QVBoxLayout>
@@ -234,7 +235,7 @@ private slots:
     void toggleFilter(QString string);
 
 private:
-    QWidget fCentralWidget;
+    QSplitter fCentralSplitter;
     QStatusBar fStatusBar;
     QToolBar fToolBar;
 
@@ -266,8 +267,8 @@ private:
     QWidget fSpacer;
     QComboBox fFilter;
 
-    QHBoxLayout fContainerLayout;
-    QVBoxLayout fLeftColumnLayout;
+    QSplitter fLeftColumnSplitter;
+    QWidget fMainAndRightColumnWidget;
     QVBoxLayout fMainAndRightColumnLayout;
     QHBoxLayout fCanvasSettingsAndImageLayout;
     QVBoxLayout fSettingsAndImageLayout;
