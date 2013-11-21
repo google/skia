@@ -498,7 +498,8 @@ bool SkDrawPictureCommand::render(SkCanvas* canvas) const {
     canvas->clear(0xFFFFFFFF);
     canvas->save();
 
-    SkRect bounds = SkRect::MakeWH(fPicture.width(), fPicture.height());
+    SkRect bounds = SkRect::MakeWH(SkIntToScalar(fPicture.width()),
+                                   SkIntToScalar(fPicture.height()));
     xlate_and_scale_to_bounds(canvas, bounds);
 
     canvas->drawPicture(const_cast<SkPicture&>(fPicture));
