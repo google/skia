@@ -443,13 +443,13 @@ int tool_main(int argc, char** argv) {
     // Find the longest name of the benches we're going to run to make the output pretty.
     Iter names;
     SkBenchmark* bench;
-    int longestName = 0;
+    size_t longestName = 0;
     while ((bench = names.next()) != NULL) {
         SkAutoTUnref<SkBenchmark> benchUnref(bench);
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getName())) {
             continue;
         }
-        const int length = strlen(bench->getName());
+        const size_t length = strlen(bench->getName());
         longestName = length > longestName ? length : longestName;
     }
 
@@ -539,7 +539,7 @@ int tool_main(int argc, char** argv) {
                 loggedBenchName = true;
                 SkString str;
                 str.printf("running bench [%3d %3d] %*s ",
-                           dim.fX, dim.fY, longestName, bench->getName());
+                           dim.fX, dim.fY, (int)longestName, bench->getName());
                 logger.logProgress(str);
             }
 
