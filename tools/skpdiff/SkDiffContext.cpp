@@ -69,7 +69,6 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
     // Load the images at the paths
     SkBitmap baselineBitmap;
     SkBitmap testBitmap;
-    SkAutoMutexAcquire imageLock(fImageMutex);
     if (!SkImageDecoder::DecodeFile(baselinePath, &baselineBitmap)) {
         SkDebugf("Failed to load bitmap \"%s\"\n", baselinePath);
         return;
@@ -78,7 +77,6 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
         SkDebugf("Failed to load bitmap \"%s\"\n", testPath);
         return;
     }
-    imageLock.release();
 
     // Setup a record for this diff
     fRecordMutex.acquire();

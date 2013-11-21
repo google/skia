@@ -124,12 +124,6 @@ private:
         SkTArray<DiffData>        fDiffs;
     };
 
-    // This is needed to work around a bug in the multithreaded case where the
-    // image decoders are crashing when large numbers of threads are invoking
-    // the decoder at the same time.
-    // see https://code.google.com/p/skia/issues/detail?id=1803
-    SkMutex fImageMutex;
-
     // Used to protect access to fRecords and ensure only one thread is
     // adding new entries at a time.
     SkMutex fRecordMutex;
