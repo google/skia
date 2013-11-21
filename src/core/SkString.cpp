@@ -569,7 +569,7 @@ void SkString::appendf(const char format[], ...) {
     this->append(buffer, strlen(buffer));
 }
 
-void SkString::appendf(const char format[], va_list args) {
+void SkString::appendVAList(const char format[], va_list args) {
     char    buffer[kBufferSize];
     VSNPRINTF(buffer, kBufferSize, format, args);
 

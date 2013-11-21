@@ -66,7 +66,7 @@ public:
     void fsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
         va_list args;
         va_start(args, format);
-        fFSCode.appendf(format, args);
+        fFSCode.appendVAList(format, args);
         va_end(args);
     }
 
@@ -356,7 +356,7 @@ public:
     void vsCodeAppendf(const char format[], ...) SK_PRINTF_LIKE(2, 3) {
         va_list args;
         va_start(args, format);
-        fVSCode.appendf(format, args);
+        fVSCode.appendVAList(format, args);
         va_end(args);
     }
 
