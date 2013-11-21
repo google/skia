@@ -18,6 +18,7 @@
       'include_dirs': [
         '../include/images',
         '../include/lazy',
+        '../src/lazy',
         # for access to SkErrorInternals.h
         '../src/core/',
         # for access to SkImagePriv.h
@@ -36,6 +37,7 @@
         '../src/images/bmpdecoderhelper.cpp',
         '../src/images/bmpdecoderhelper.h',
 
+        '../src/images/SkDecodingImageGenerator.cpp',
         '../src/images/SkForceLinking.cpp',
         '../src/images/SkImageDecoder.cpp',
         '../src/images/SkImageDecoder_FactoryDefault.cpp',

@@ -8,6 +8,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkDecodingImageGenerator.h"
 #include "SkForceLinking.h"
 #include "SkImageDecoder.h"
 #include "SkImagePriv.h"
@@ -243,4 +244,36 @@ DEF_TEST(CachingPixelRef, reporter) {
     SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
     // onDecodePixels should fail, so getting pixels will fail.
     REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
+}
+
+static void compare_with_SkDecodingImageGenerator(skiatest::Reporter* reporter,
+                                                  SkData* encoded,
+                                                  const SkBitmap& original,
+                                                  bool comparePixels) {
+
+    SkBitmap lazy;
+    bool success = SkDecodingImageGenerator::Install(encoded, &lazy);
+    REPORTER_ASSERT(reporter, success);
+    if (!success) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
+    {
+        SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
+        REPORTER_ASSERT(reporter, NULL != lazy.getPixels());
+        if (NULL == lazy.getPixels()) {
+            return;
+        }
+    }
+    // pixels should be gone!
+    REPORTER_ASSERT(reporter, NULL == lazy.getPixels());
+    {
+        SkAutoLockPixels autoLockPixels(lazy);  // now pixels are good.
+        REPORTER_ASSERT(reporter, NULL != lazy.getPixels());
+    }
+    compare_bitmaps(reporter, original, lazy, comparePixels);
+}
+DEF_TEST(DecodingImageGenerator, reporter) {
+    test_three_encodings(reporter, compare_with_SkDecodingImageGenerator);
 }
