@@ -36,8 +36,6 @@
 
 #include <dwrite.h>
 
-SK_DECLARE_STATIC_MUTEX(gFTMutex);
-
 static bool isLCD(const SkScalerContext::Rec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat ||
            SkMask::kLCD32_Format == rec.fMaskFormat;
@@ -719,7 +717,6 @@ SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
         : SkScalerContext(typeface, desc)
         , fTypeface(SkRef(typeface))
         , fGlyphCount(-1) {
-    SkAutoMutexAcquire ac(gFTMutex);
 
     fXform.m11 = SkScalarToFloat(fRec.fPost2x2[0][0]);
     fXform.m12 = SkScalarToFloat(fRec.fPost2x2[1][0]);
@@ -975,8 +972,6 @@ static void rgb_to_lcd32(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
 }
 
 void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
-    SkAutoMutexAcquire ac(gFTMutex);
-
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
     const bool isAA = !isLCD(fRec);
 
@@ -1014,8 +1009,6 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
 }
 
 void SkScalerContext_DW::generatePath(const SkGlyph& glyph, SkPath* path) {
-    SkAutoMutexAcquire ac(gFTMutex);
-
     SkASSERT(&glyph && path);
 
     path->reset();
