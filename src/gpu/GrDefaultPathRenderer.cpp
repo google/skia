@@ -12,6 +12,7 @@
 #include "GrPathUtils.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
+#include "SkTLazy.h"
 #include "SkTrace.h"
 
 
@@ -325,11 +326,25 @@ FINISHED:
 }
 
 bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
-                                             const SkStrokeRec& stroke,
+                                             const SkStrokeRec& origStroke,
                                              GrDrawTarget* target,
                                              bool stencilOnly) {
 
     SkMatrix viewM = target->getDrawState().getViewMatrix();
+    SkTCopyOnFirstWrite<SkStrokeRec> stroke(origStroke);
+
+    SkScalar hairlineCoverage;
+    if (IsStrokeHairlineOrEquivalent(*stroke, target->getDrawState().getViewMatrix(),
+                                     &hairlineCoverage)) {
+        uint8_t newCoverage = SkScalarRoundToInt(hairlineCoverage *
+                                                 target->getDrawState().getCoverage());
+        target->drawState()->setCoverage(newCoverage);
+
+        if (!stroke->isHairlineStyle()) {
+            stroke.writable()->setHairlineStyle();
+        }
+    }
+
     SkScalar tol = SK_Scalar1;
     tol = GrPathUtils::scaleToleranceToSrc(tol, viewM, path.getBounds());
 
@@ -338,7 +353,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
     GrPrimitiveType primType;
     GrDrawTarget::AutoReleaseGeometry arg;
     if (!this->createGeom(path,
-                          stroke,
+                          *stroke,
                           tol,
                           target,
                           &primType,
@@ -361,7 +376,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
     bool                        reverse = false;
     bool                        lastPassIsBounds;
 
-    if (stroke.isHairlineStyle()) {
+    if (stroke->isHairlineStyle()) {
         passCount = 1;
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
@@ -371,7 +386,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
         lastPassIsBounds = false;
         drawFace[0] = GrDrawState::kBoth_DrawFace;
     } else {
-        if (single_pass_path(path, stroke)) {
+        if (single_pass_path(path, *stroke)) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
@@ -499,7 +514,10 @@ bool GrDefaultPathRenderer::canDrawPath(const SkPath& path,
                                         const GrDrawTarget* target,
                                         bool antiAlias) const {
     // this class can draw any path with any fill but doesn't do any anti-aliasing.
-    return (stroke.isFillStyle() || stroke.isHairlineStyle()) && !antiAlias;
+
+    return !antiAlias &&
+        (stroke.isFillStyle() ||
+         IsStrokeHairlineOrEquivalent(stroke, target->getDrawState().getViewMatrix(), NULL));
 }
 
 bool GrDefaultPathRenderer::onDrawPath(const SkPath& path,

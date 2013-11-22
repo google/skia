@@ -13,6 +13,7 @@
 #include "GrPathRendererChain.h"
 #include "GrStencil.h"
 
+#include "SkDrawProcs.h"
 #include "SkStrokeRec.h"
 #include "SkTArray.h"
 
@@ -135,6 +136,20 @@ public:
         SkASSERT(!path.isEmpty());
         SkASSERT(kNoSupport_StencilSupport != this->getStencilSupport(path, stroke, target));
         this->onStencilPath(path, stroke, target);
+    }
+
+    // Helper for determining if we can treat a thin stroke as a hairline w/ coverage.
+    // If we can, we draw lots faster (raster device does this same test).
+    static bool IsStrokeHairlineOrEquivalent(const SkStrokeRec& stroke, const SkMatrix& matrix,
+                                             SkScalar* outCoverage) {
+        if (stroke.isHairlineStyle()) {
+            if (NULL != outCoverage) {
+                *outCoverage = SK_Scalar1;
+            }
+            return true;
+        }
+        return stroke.getStyle() == SkStrokeRec::kStroke_Style &&
+            SkDrawTreatAAStrokeAsHairline(stroke.getWidth(), matrix, outCoverage);
     }
 
 protected:

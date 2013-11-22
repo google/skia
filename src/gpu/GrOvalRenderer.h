@@ -37,13 +37,13 @@ public:
                          const SkRRect& rrect, const SkStrokeRec& stroke);
 
 private:
-    bool drawEllipse(GrDrawTarget* target, bool useAA,
+    bool drawEllipse(GrDrawTarget* target, bool useCoverageAA,
                      const SkRect& ellipse,
                      const SkStrokeRec& stroke);
-    bool drawDIEllipse(GrDrawTarget* target, bool useAA,
+    bool drawDIEllipse(GrDrawTarget* target, bool useCoverageAA,
                        const SkRect& ellipse,
                        const SkStrokeRec& stroke);
-    void drawCircle(GrDrawTarget* target, bool useAA,
+    void drawCircle(GrDrawTarget* target, bool useCoverageAA,
                     const SkRect& circle,
                     const SkStrokeRec& stroke);
 

@@ -460,7 +460,11 @@ void GrOvalRenderer::reset() {
 bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bool useAA,
                               const SkRect& oval, const SkStrokeRec& stroke)
 {
-    if (!useAA) {
+    bool useCoverageAA = useAA &&
+        !target->getDrawState().getRenderTarget()->isMultisampled() &&
+        !target->shouldDisableCoverageAAForBlend();
+
+    if (!useCoverageAA) {
         return false;
     }
 
@@ -469,13 +473,13 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bo
     // we can draw circles
     if (SkScalarNearlyEqual(oval.width(), oval.height())
         && circle_stays_circle(vm)) {
-        this->drawCircle(target, useAA, oval, stroke);
+        this->drawCircle(target, useCoverageAA, oval, stroke);
     // if we have shader derivative support, render as device-independent
     } else if (target->caps()->shaderDerivativeSupport()) {
-        return this->drawDIEllipse(target, useAA, oval, stroke);
+        return this->drawDIEllipse(target, useCoverageAA, oval, stroke);
     // otherwise axis-aligned ellipses only
     } else if (vm.rectStaysRect()) {
-        return this->drawEllipse(target, useAA, oval, stroke);
+        return this->drawEllipse(target, useCoverageAA, oval, stroke);
     } else {
         return false;
     }
@@ -492,7 +496,7 @@ extern const GrVertexAttrib gCircleVertexAttribs[] = {
 };
 
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
-                                bool useAA,
+                                bool useCoverageAA,
                                 const SkRect& circle,
                                 const SkStrokeRec& stroke)
 {
@@ -597,7 +601,7 @@ extern const GrVertexAttrib gDIEllipseVertexAttribs[] = {
 };
 
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
-                                 bool useAA,
+                                 bool useCoverageAA,
                                  const SkRect& ellipse,
                                  const SkStrokeRec& stroke)
 {
@@ -606,7 +610,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
     {
         // we should have checked for this previously
         bool isAxisAlignedEllipse = drawState->getViewMatrix().rectStaysRect();
-        SkASSERT(useAA && isAxisAlignedEllipse);
+        SkASSERT(useCoverageAA && isAxisAlignedEllipse);
     }
 #endif
 
@@ -729,7 +733,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
 }
 
 bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
-                                   bool useAA,
+                                   bool useCoverageAA,
                                    const SkRect& ellipse,
                                    const SkStrokeRec& stroke)
 {
@@ -882,8 +886,12 @@ GrIndexBuffer* GrOvalRenderer::rRectIndexBuffer(GrGpu* gpu) {
 bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, bool useAA,
                                      const SkRRect& rrect, const SkStrokeRec& stroke)
 {
+    bool useCoverageAA = useAA &&
+        !target->getDrawState().getRenderTarget()->isMultisampled() &&
+        !target->shouldDisableCoverageAAForBlend();
+
     // only anti-aliased rrects for now
-    if (!useAA) {
+    if (!useCoverageAA) {
         return false;
     }
 
@@ -891,7 +899,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
 #ifdef SK_DEBUG
     {
         // we should have checked for this previously
-        SkASSERT(useAA && vm.rectStaysRect() && rrect.isSimple());
+        SkASSERT(useCoverageAA && vm.rectStaysRect() && rrect.isSimple());
     }
 #endif
 
