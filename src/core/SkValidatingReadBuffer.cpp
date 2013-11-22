@@ -94,14 +94,16 @@ void SkValidatingReadBuffer::readString(SkString* string) {
     // skip over the string + '\0' and then pad to a multiple of 4
     const size_t alignedSize = SkAlign4(len + 1);
     this->skip(alignedSize);
-    this->validate(cptr[len] == '\0');
+    if (!fError) {
+        this->validate(cptr[len] == '\0');
+    }
     if (!fError) {
         string->set(cptr, len);
     }
 }
 
 void* SkValidatingReadBuffer::readEncodedString(size_t* length, SkPaint::TextEncoding encoding) {
-    const int32_t encodingType = fReader.readInt();
+    const int32_t encodingType = this->readInt();
     this->validate(encodingType == encoding);
     *length = this->readInt();
     const void* ptr = this->skip(SkAlign4(*length));
@@ -114,8 +116,8 @@ void* SkValidatingReadBuffer::readEncodedString(size_t* length, SkPaint::TextEnc
 }
 
 void SkValidatingReadBuffer::readPoint(SkPoint* point) {
-    point->fX = fReader.readScalar();
-    point->fY = fReader.readScalar();
+    point->fX = this->readScalar();
+    point->fY = this->readScalar();
 }
 
 void SkValidatingReadBuffer::readMatrix(SkMatrix* matrix) {
