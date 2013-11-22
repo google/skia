@@ -522,9 +522,15 @@ enum PictureRecordOptType {
     kCollapseSaveLayer_OptType,  // Optimization eliminates a save/restore pair
 };
 
+enum PictureRecordOptFlags {
+    kSkipIfBBoxHierarchy_Flag = 0x1,  // Optimization should be skipped if the
+                                      // SkPicture has a bounding box hierarchy.
+};
+
 struct PictureRecordOpt {
     PictureRecordOptProc fProc;
     PictureRecordOptType fType;
+    unsigned fFlags;
 };
 /*
  * A list of the optimizations that are tried upon seeing a restore
@@ -532,9 +538,14 @@ struct PictureRecordOpt {
  *       Add the ability to fire optimizations on any op (not just RESTORE)
  */
 static const PictureRecordOpt gPictureRecordOpts[] = {
-    { collapse_save_clip_restore, kRewind_OptType },
-    { remove_save_layer1,         kCollapseSaveLayer_OptType },
-    { remove_save_layer2,         kCollapseSaveLayer_OptType }
+    // 'collapse_save_clip_restore' is skipped if there is a BBoxHierarchy
+    // because it is redundant with the state traversal optimization in
+    // SkPictureStateTree, and applying the optimization introduces significant
+    // record time overhead because it requires rewinding contents that were
+    // recorded into the BBoxHierarchy.
+    { collapse_save_clip_restore, kRewind_OptType, kSkipIfBBoxHierarchy_Flag },
+    { remove_save_layer1,         kCollapseSaveLayer_OptType, 0 },
+    { remove_save_layer2,         kCollapseSaveLayer_OptType, 0 }
 };
 
 // This is called after an optimization has been applied to the command stream
@@ -582,6 +593,10 @@ void SkPictureRecord::restore() {
     size_t opt = 0;
     if (!(fRecordFlags & SkPicture::kDisableRecordOptimizations_RecordingFlag)) {
         for (opt = 0; opt < SK_ARRAY_COUNT(gPictureRecordOpts); ++opt) {
+            if (0 != (gPictureRecordOpts[opt].fFlags & kSkipIfBBoxHierarchy_Flag)
+                && NULL != fBoundingHierarchy) {
+                continue;
+            }
             if ((*gPictureRecordOpts[opt].fProc)(&fWriter, fRestoreOffsetStack.top(), &fPaints)) {
                 // Some optimization fired so don't add the RESTORE
                 size = 0;
