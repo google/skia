@@ -61,7 +61,7 @@ class Results(object):
     Args:
       actuals_root: root directory containing all actual-results.json files
       expected_root: root directory containing all expected-results.json files
-      generated_images_root: directory within which to create all pixels diffs;
+      generated_images_root: directory within which to create all pixel diffs;
           if this directory does not yet exist, it will be created
     """
     self._image_diff_db = imagediffdb.ImageDiffDB(generated_images_root)
@@ -400,17 +400,23 @@ class Results(object):
           if updated_result_type == gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON:
             pass # no diff record to calculate at all
           elif updated_result_type == gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED:
+            results_for_this_test['numDifferingPixels'] = 0
             results_for_this_test['percentDifferingPixels'] = 0
             results_for_this_test['weightedDiffMeasure'] = 0
+            results_for_this_test['maxDiffPerChannel'] = 0
           else:
             try:
               diff_record = self._image_diff_db.get_diff_record(
                   expected_image_locator=expected_image[1],
                   actual_image_locator=actual_image[1])
+              results_for_this_test['numDifferingPixels'] = (
+                  diff_record.get_num_pixels_differing())
               results_for_this_test['percentDifferingPixels'] = (
                   diff_record.get_percent_pixels_differing())
               results_for_this_test['weightedDiffMeasure'] = (
                   diff_record.get_weighted_diff_measure())
+              results_for_this_test['maxDiffPerChannel'] = (
+                  diff_record.get_max_diff_per_channel())
             except KeyError:
               logging.warning('unable to find diff_record for ("%s", "%s")' %
                               (expected_image[1], actual_image[1]))

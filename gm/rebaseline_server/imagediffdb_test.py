@@ -30,12 +30,22 @@ def main():
   # 3. actual image URL
   # 4. expected percent_pixels_differing (as a string, to 4 decimal places)
   # 5. expected weighted_diff_measure (as a string, to 4 decimal places)
+  # 6. expected max_diff_per_channel
   selftests = [
-      ['16206093933823793653',
-       IMAGE_URL_BASE + 'arcofzorro/16206093933823793653.png',
-       '13786535001616823825',
-       IMAGE_URL_BASE + 'arcofzorro/13786535001616823825.png',
-       '0.0653', '0.0113'],
+      [
+          '16206093933823793653',
+          IMAGE_URL_BASE + 'arcofzorro/16206093933823793653.png',
+          '13786535001616823825',
+          IMAGE_URL_BASE + 'arcofzorro/13786535001616823825.png',
+          '0.0662', '0.0113', [255, 255, 247],
+      ],
+      [
+          '10552995703607727960',
+          IMAGE_URL_BASE + 'gradients_degenerate_2pt/10552995703607727960.png',
+          '11198253335583713230',
+          IMAGE_URL_BASE + 'gradients_degenerate_2pt/11198253335583713230.png',
+          '100.0000', '66.6667', [255, 0, 255],
+      ],
   ]
 
   # Add all image pairs to the database
@@ -51,7 +61,7 @@ def main():
                                 actual_image_locator=selftest[2])
     assert (('%.4f' % record.get_percent_pixels_differing()) == selftest[4])
     assert (('%.4f' % record.get_weighted_diff_measure()) == selftest[5])
-
+    assert (record.get_max_diff_per_channel() == selftest[6])
   logging.info("Self-test completed successfully!")
 
 

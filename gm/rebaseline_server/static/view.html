@@ -232,7 +232,7 @@
                    ng-click="sortResultsBy('bugs')">
             bugs
           </th>
-          <th>
+          <th width="{{imageSize}}">
             <input type="radio"
                    name="sortColumnRadio"
                    value="expectedHashDigest"
@@ -240,7 +240,7 @@
                    ng-click="sortResultsBy('expectedHashDigest')">
             expected image
           </th>
-          <th>
+          <th width="{{imageSize}}">
             <input type="radio"
                    name="sortColumnRadio"
                    value="actualHashDigest"
@@ -248,21 +248,21 @@
                    ng-click="sortResultsBy('actualHashDigest')">
             actual image
           </th>
-          <th>
+          <th width="{{imageSize}}">
             <input type="radio"
                    name="sortColumnRadio"
                    value="percentDifferingPixels"
                    ng-checked="(sortColumn == 'percentDifferingPixels')"
                    ng-click="sortResultsBy('percentDifferingPixels')">
-            differing pixels
+            differing pixels in white
           </th>
-          <th>
+          <th width="{{imageSize}}">
             <input type="radio"
                    name="sortColumnRadio"
                    value="weightedDiffMeasure"
                    ng-checked="(sortColumn == 'weightedDiffMeasure')"
                    ng-click="sortResultsBy('weightedDiffMeasure')">
-            per-channel deltas
+            difference per pixel
           </th>
           <th>
             <!-- item-selection checkbox column -->
@@ -295,26 +295,28 @@
           </td>
 
           <!-- expected image -->
-          <td valign="top">
-            <a target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png">
+          <td valign="top" width="{{imageSize}}">
+            <a class="image-link" target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png">
               <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png"/>
             </a>
           </td>
 
           <!-- actual image -->
-          <td valign="top">
-            <a target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png">
+          <td valign="top" width="{{imageSize}}">
+            <a class="image-link" target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png">
               <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png"/>
             </a>
           </td>
 
           <!-- whitediffs: every differing pixel shown in white -->
-          <td valign="top">
-            <div ng-hide="result.expectedHashDigest == result.actualHashDigest">
-              <a target="_blank" href="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png">
+          <td valign="top" width="{{imageSize}}">
+            <div ng-hide="result.expectedHashDigest == result.actualHashDigest"
+                 title="{{result.numDifferingPixels | number:0}} of {{(100 * result.numDifferingPixels / result.percentDifferingPixels) | number:0}} pixels ({{result.percentDifferingPixels.toFixed(4)}}%) differ from expectation.">
+              <a class="image-link" target="_blank" href="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png">
                 <img width="{{imageSize}}" src="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png"/>
               </a><br>
               {{result.percentDifferingPixels.toFixed(4)}}%
+              ({{result.numDifferingPixels}})
             </div>
             <div ng-hide="result.expectedHashDigest != result.actualHashDigest"
                  style="text-align:center">
@@ -323,12 +325,14 @@
           </td>
 
           <!-- diffs: per-channel RGB deltas -->
-          <td valign="top">
-            <div ng-hide="result.expectedHashDigest == result.actualHashDigest">
-              <a target="_blank" href="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png">
+          <td valign="top" width="{{imageSize}}">
+            <div ng-hide="result.expectedHashDigest == result.actualHashDigest"
+                 title="Weighted difference measure is {{result.weightedDiffMeasure.toFixed(4)}}%.  Maximum difference per channel: R={{result.maxDiffPerChannel[0]}}, G={{result.maxDiffPerChannel[1]}}, B={{result.maxDiffPerChannel[2]}}">
+              <a class="image-link" target="_blank" href="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png">
                 <img width="{{imageSize}}" src="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png"/>
               </a><br>
               {{result.weightedDiffMeasure.toFixed(4)}}%
+              {{result.maxDiffPerChannel}}
             </div>
             <div ng-hide="result.expectedHashDigest != result.actualHashDigest"
                  style="text-align:center">

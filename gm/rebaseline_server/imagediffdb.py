@@ -21,12 +21,12 @@ except ImportError:
                     + 'http://www.pythonware.com/products/pil/')
 
 IMAGE_SUFFIX = '.png'
-IMAGE_FORMAT = 'PNG'   # must match one of the PIL image formats, listed at
-                       # http://effbot.org/imagingbook/formats.htm
 
 IMAGES_SUBDIR = 'images'
 DIFFS_SUBDIR = 'diffs'
 WHITEDIFFS_SUBDIR = 'whitediffs'
+
+VALUES_PER_BAND = 256
 
 
 class DiffRecord(object):
@@ -65,33 +65,43 @@ class DiffRecord(object):
                      str(actual_image_locator) + IMAGE_SUFFIX),
         actual_image_url)
 
-    # Store the diff image (absolute diff at each pixel).
+    # Generate the diff image (absolute diff at each pixel) and
+    # max_diff_per_channel.
     diff_image = _generate_image_diff(actual_image, expected_image)
-    self._weighted_diff_measure = _calculate_weighted_diff_metric(diff_image)
+    diff_histogram = diff_image.histogram()
+    (diff_width, diff_height) = diff_image.size
+    self._weighted_diff_measure = _calculate_weighted_diff_metric(
+        diff_histogram, diff_width * diff_height)
+    self._max_diff_per_channel = _max_per_band(diff_histogram)
+
+    # Generate the whitediff image (any differing pixels show as white).
+    # This is tricky, because when you convert color images to grayscale or
+    # black & white in PIL, it has its own ideas about thresholds.
+    # We have to force it: if a pixel has any color at all, it's a '1'.
+    bands = diff_image.split()
+    graydiff_image = ImageChops.lighter(ImageChops.lighter(
+        bands[0], bands[1]), bands[2])
+    whitediff_image = (graydiff_image.point(lambda p: p > 0 and VALUES_PER_BAND)
+                                     .convert('1', dither=Image.NONE))
+
+    # Final touches on diff_image: use whitediff_image as an alpha mask.
+    # Unchanged pixels are transparent; differing pixels are opaque.
+    diff_image.putalpha(whitediff_image)
+
+    # Store the diff and whitediff images generated above.
     diff_image_locator = _get_difference_locator(
         expected_image_locator=expected_image_locator,
         actual_image_locator=actual_image_locator)
-    diff_image_filepath = os.path.join(
-        storage_root, DIFFS_SUBDIR, str(diff_image_locator) + IMAGE_SUFFIX)
-    _mkdir_unless_exists(os.path.join(storage_root, DIFFS_SUBDIR))
-    diff_image.save(diff_image_filepath, IMAGE_FORMAT)
-
-    # Store the whitediff image (any differing pixels show as white).
-    #
-    # TODO(epoger): From http://effbot.org/imagingbook/image.htm , it seems
-    # like we should be able to use im.point(function, mode) to perform both
-    # the point() and convert('1') operations simultaneously, but I couldn't
-    # get it to work.
-    whitediff_image = (diff_image.point(lambda p: (0, 256)[p!=0])
-                                 .convert('1'))
-    whitediff_image_filepath = os.path.join(
-        storage_root, WHITEDIFFS_SUBDIR, str(diff_image_locator) + IMAGE_SUFFIX)
-    _mkdir_unless_exists(os.path.join(storage_root, WHITEDIFFS_SUBDIR))
-    whitediff_image.save(whitediff_image_filepath, IMAGE_FORMAT)
+    basename = str(diff_image_locator) + IMAGE_SUFFIX
+    _save_image(diff_image, os.path.join(
+        storage_root, DIFFS_SUBDIR, basename))
+    _save_image(whitediff_image, os.path.join(
+        storage_root, WHITEDIFFS_SUBDIR, basename))
 
     # Calculate difference metrics.
     (self._width, self._height) = diff_image.size
-    self._num_pixels_differing = whitediff_image.histogram()[255]
+    self._num_pixels_differing = (
+        whitediff_image.histogram()[VALUES_PER_BAND - 1])
 
   def get_num_pixels_differing(self):
     """Returns the absolute number of pixels that differ."""
@@ -107,6 +117,11 @@ class DiffRecord(object):
     """Returns a weighted measure of image diffs, as a float between 0 and 100
     (inclusive)."""
     return self._weighted_diff_measure
+
+  def get_max_diff_per_channel(self):
+    """Returns the maximum difference between the expected and actual images
+    for each R/G/B channel, as a list."""
+    return self._max_diff_per_channel
 
 
 class ImageDiffDB(object):
@@ -175,26 +190,55 @@ class ImageDiffDB(object):
 
 # Utility functions
 
-def _calculate_weighted_diff_metric(image):
-  """Given a diff image (per-channel diff at each pixel between two images),
-  calculate the weighted diff metric (a stab at how different the two images
-  really are).
+def _calculate_weighted_diff_metric(histogram, num_pixels):
+  """Given the histogram of a diff image (per-channel diff at each
+  pixel between two images), calculate the weighted diff metric (a
+  stab at how different the two images really are).
 
   Args:
-    image: PIL image; a per-channel diff between two images
+    histogram: PIL histogram of a per-channel diff between two images
+    num_pixels: integer; the total number of pixels in the diff image
 
   Returns: a weighted diff metric, as a float between 0 and 100 (inclusive).
   """
-  # TODO(epoger): This is just a wild guess at an appropriate metric.
+  # TODO(epoger): As a wild guess at an appropriate metric, weight each
+  # different pixel by the square of its delta value.  (The more different
+  # a pixel is from its expectation, the more we care about it.)
   # In the long term, we will probably use some metric generated by
   # skpdiff anyway.
-  (width, height) = image.size
-  maxdiff = 3 * (width * height) * 255**2
-  h = image.histogram()
-  assert(len(h) % 256 == 0)
-  totaldiff = sum(map(lambda index,value: value * (index%256)**2,
-                      range(len(h)), h))
-  return float(100 * totaldiff) / maxdiff
+  assert(len(histogram) % VALUES_PER_BAND == 0)
+  num_bands = len(histogram) / VALUES_PER_BAND
+  max_diff = num_pixels * num_bands * (VALUES_PER_BAND - 1)**2
+  total_diff = 0
+  for index in xrange(len(histogram)):
+    total_diff += histogram[index] * (index % VALUES_PER_BAND)**2
+  return float(100 * total_diff) / max_diff
+
+def _max_per_band(histogram):
+  """Given the histogram of an image, return the maximum value of each band
+  (a.k.a. "color channel", such as R/G/B) across the entire image.
+
+  Args:
+    histogram: PIL histogram
+
+  Returns the maximum value of each band within the image histogram, as a list.
+  """
+  max_per_band = []
+  assert(len(histogram) % VALUES_PER_BAND == 0)
+  num_bands = len(histogram) / VALUES_PER_BAND
+  for band in xrange(num_bands):
+    # Assuming that VALUES_PER_BAND is 256...
+    #  the 'R' band makes up indices 0-255 in the histogram,
+    #  the 'G' band makes up indices 256-511 in the histogram,
+    #  etc.
+    min_index = band * VALUES_PER_BAND
+    index = min_index + VALUES_PER_BAND
+    while index > min_index:
+      index -= 1
+      if histogram[index] > 0:
+        max_per_band.append(index - min_index)
+        break
+  return max_per_band
 
 def _generate_image_diff(image1, image2):
   """Wrapper for ImageChops.difference(image1, image2) that will handle some
@@ -247,6 +291,18 @@ def _open_image(filepath):
   except IOError:
     logging.error('IOError loading image file %s' % filepath)
     raise
+
+def _save_image(image, filepath, format='PNG'):
+  """Write an image to disk, creating any intermediate directories as needed.
+
+  Args:
+    image: a PIL image object
+    filepath: path on local disk to write image to
+    format: one of the PIL image formats, listed at
+            http://effbot.org/imagingbook/formats.htm
+  """
+  _mkdir_unless_exists(os.path.dirname(filepath))
+  image.save(filepath, format)
 
 def _mkdir_unless_exists(path):
   """Unless path refers to an already-existing directory, create it.
