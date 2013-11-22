@@ -93,7 +93,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(kWidth, kHeight);
+        return SkISize::Make(kWidth, 780);
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
@@ -108,8 +108,8 @@ protected:
     void drawCase1(SkCanvas* canvas, int transX, int transY,
                    SkCanvas::DrawBitmapRectFlags flags, SkPaint::FilterLevel filter) {
         SkRect src = SkRect::MakeXYWH(2, 2,
-                                      kSmallTextureSize-4,
-                                      kSmallTextureSize-4);
+                                      SkIntToScalar(kSmallTextureSize-4),
+                                      SkIntToScalar(kSmallTextureSize-4));
         SkRect dst = SkRect::MakeXYWH(0, 0, SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
         SkPaint paint;
@@ -159,8 +159,8 @@ protected:
     void drawCase4(SkCanvas* canvas, int transX, int transY,
                    SkCanvas::DrawBitmapRectFlags flags, SkPaint::FilterLevel filter) {
         SkRect src = SkRect::MakeXYWH(2, 2,
-                                      kSmallTextureSize-4,
-                                      kSmallTextureSize-4);
+                                      SkIntToScalar(kSmallTextureSize-4),
+                                      SkIntToScalar(kSmallTextureSize-4));
         SkRect dst = SkRect::MakeXYWH(0, 0, SkIntToScalar(kBlockSize), SkIntToScalar(kBlockSize));
 
         SkPaint paint;
@@ -179,66 +179,76 @@ protected:
 
         canvas->clear(SK_ColorGRAY);
 
-        // Currently there are no test cases with medium filtering since medium uses mip-mapping and
-        // these draws are always upscaling.
+        for (int m = 0; m < 2; ++m) {
+            canvas->save();
+            if (m) {
+                static const SkScalar kBottom = SkIntToScalar(kRow3Y + kBlockSize + kBlockSpacing);
+                canvas->translate(0, kBottom);
+                SkMatrix rotate;
+                rotate.setRotate(15.f, 0, kBottom + kBlockSpacing);
+                canvas->concat(rotate);
+                canvas->scale(0.71f, 1.22f);
+            }
 
-        // First draw a column with no bleeding, tiling, or filtering
-        this->drawCase1(canvas, kCol0X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kNone_FilterLevel);
-        this->drawCase2(canvas, kCol0X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kNone_FilterLevel);
-        this->drawCase3(canvas, kCol0X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kNone_FilterLevel);
-        this->drawCase4(canvas, kCol0X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kNone_FilterLevel);
+            // First draw a column with no bleeding, tiling, or filtering
+            this->drawCase1(canvas, kCol0X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kNone_FilterLevel);
+            this->drawCase2(canvas, kCol0X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kNone_FilterLevel);
+            this->drawCase3(canvas, kCol0X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kNone_FilterLevel);
+            this->drawCase4(canvas, kCol0X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kNone_FilterLevel);
 
-        // Then draw a column with no bleeding or tiling but with low filtering
-        this->drawCase1(canvas, kCol1X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-        this->drawCase2(canvas, kCol1X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-        this->drawCase3(canvas, kCol1X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-        this->drawCase4(canvas, kCol1X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+            // Then draw a column with no bleeding or tiling but with low filtering
+            this->drawCase1(canvas, kCol1X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+            this->drawCase2(canvas, kCol1X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+            this->drawCase3(canvas, kCol1X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+            this->drawCase4(canvas, kCol1X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
 
-        // Then draw a column with no bleeding or tiling but with high filtering
-        this->drawCase1(canvas, kCol2X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-        this->drawCase2(canvas, kCol2X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-        this->drawCase3(canvas, kCol2X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-        this->drawCase4(canvas, kCol2X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-
-#if SK_SUPPORT_GPU
-        GrContext* ctx = canvas->getGrContext();
-        int oldMaxTextureSize = 0;
-        if (NULL != ctx) {
-            // shrink the max texture size so all our textures can be reasonably sized
-            oldMaxTextureSize = ctx->getMaxTextureSize();
-            ctx->setMaxTextureSizeOverride(kMaxTextureSize);
-        }
-#endif
-
-        // Then draw a column with no bleeding but with tiling and low filtering
-        this->drawCase1(canvas, kCol3X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-        this->drawCase2(canvas, kCol3X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-        this->drawCase3(canvas, kCol3X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-        this->drawCase4(canvas, kCol3X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-
-        // Then draw a column with no bleeding but with tiling and high filtering
-        this->drawCase1(canvas, kCol4X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-        this->drawCase2(canvas, kCol4X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-        this->drawCase3(canvas, kCol4X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-        this->drawCase4(canvas, kCol4X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-
-        // Then draw a column with bleeding, tiling, and low filtering
-        this->drawCase1(canvas, kCol5X, kRow0Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-        this->drawCase2(canvas, kCol5X, kRow1Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-        this->drawCase3(canvas, kCol5X, kRow2Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-        this->drawCase4(canvas, kCol5X, kRow3Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
-
-        // Finally draw a column with bleeding, tiling, and high filtering
-        this->drawCase1(canvas, kCol6X, kRow0Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-        this->drawCase2(canvas, kCol6X, kRow1Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-        this->drawCase3(canvas, kCol6X, kRow2Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
-        this->drawCase4(canvas, kCol6X, kRow3Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+            // Then draw a column with no bleeding or tiling but with high filtering
+            this->drawCase1(canvas, kCol2X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+            this->drawCase2(canvas, kCol2X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+            this->drawCase3(canvas, kCol2X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+            this->drawCase4(canvas, kCol2X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
 
 #if SK_SUPPORT_GPU
-        if (NULL != ctx) {
-            ctx->setMaxTextureSizeOverride(oldMaxTextureSize);
-        }
+            GrContext* ctx = canvas->getGrContext();
+            int oldMaxTextureSize = 0;
+            if (NULL != ctx) {
+                // shrink the max texture size so all our textures can be reasonably sized
+                oldMaxTextureSize = ctx->getMaxTextureSize();
+                ctx->setMaxTextureSizeOverride(kMaxTextureSize);
+            }
 #endif
+
+            // Then draw a column with no bleeding but with tiling and low filtering
+            this->drawCase1(canvas, kCol3X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+            this->drawCase2(canvas, kCol3X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+            this->drawCase3(canvas, kCol3X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+            this->drawCase4(canvas, kCol3X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+
+            // Then draw a column with no bleeding but with tiling and high filtering
+            this->drawCase1(canvas, kCol4X, kRow0Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+            this->drawCase2(canvas, kCol4X, kRow1Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+            this->drawCase3(canvas, kCol4X, kRow2Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+            this->drawCase4(canvas, kCol4X, kRow3Y, SkCanvas::kNone_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+
+            // Then draw a column with bleeding, tiling, and low filtering
+            this->drawCase1(canvas, kCol5X, kRow0Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+            this->drawCase2(canvas, kCol5X, kRow1Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+            this->drawCase3(canvas, kCol5X, kRow2Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+            this->drawCase4(canvas, kCol5X, kRow3Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kLow_FilterLevel);
+
+            // Finally draw a column with bleeding, tiling, and high filtering
+            this->drawCase1(canvas, kCol6X, kRow0Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+            this->drawCase2(canvas, kCol6X, kRow1Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+            this->drawCase3(canvas, kCol6X, kRow2Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+            this->drawCase4(canvas, kCol6X, kRow3Y, SkCanvas::kBleed_DrawBitmapRectFlag, SkPaint::kHigh_FilterLevel);
+
+#if SK_SUPPORT_GPU
+            if (NULL != ctx) {
+                ctx->setMaxTextureSizeOverride(oldMaxTextureSize);
+            }
+#endif
+            canvas->restore();
+        }
     }
 
 private:
@@ -258,7 +268,6 @@ private:
     static const int kRow1Y = 2*kBlockSpacing + kBlockSize;
     static const int kRow2Y = 3*kBlockSpacing + 2*kBlockSize;
     static const int kRow3Y = 4*kBlockSpacing + 3*kBlockSize;
-    static const int kHeight = 5*kBlockSpacing + 4*kBlockSize;
 
     static const int kSmallTextureSize = 6;
     static const int kMaxTextureSize = 32;

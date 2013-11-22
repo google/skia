@@ -1105,26 +1105,25 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
         SkBitmap        tmp;    // subset of bitmap, if necessary
         const SkBitmap* bitmapPtr = &bitmap;
         if (NULL != srcRectPtr) {
-            SkIRect iSrc;
-            srcRect.roundOut(&iSrc);
+            // In bleed mode we position and trim the bitmap based on the src rect which is
+            // already accounted for in 'm' and 'srcRect'. In clamp mode we need to chop out
+            // the desired portion of the bitmap and then update 'm' and 'srcRect' to
+            // compensate.
+            if (!(SkCanvas::kBleed_DrawBitmapRectFlag & flags)) {
+                SkIRect iSrc;
+                srcRect.roundOut(&iSrc);
 
-            SkPoint offset = SkPoint::Make(SkIntToScalar(iSrc.fLeft),
-                                           SkIntToScalar(iSrc.fTop));
+                SkPoint offset = SkPoint::Make(SkIntToScalar(iSrc.fLeft),
+                                               SkIntToScalar(iSrc.fTop));
 
-            if (SkCanvas::kBleed_DrawBitmapRectFlag & flags) {
-                // In bleed mode we want to expand the src rect on all sides
-                // but stay within the bitmap bounds
-                SkIRect iClampRect = SkIRect::MakeWH(bitmap.width(), bitmap.height());
-                clamped_unit_outset_with_offset(&iSrc, &offset, iClampRect);
+                if (!bitmap.extractSubset(&tmp, iSrc)) {
+                    return;     // extraction failed
+                }
+                bitmapPtr = &tmp;
+                srcRect.offset(-offset.fX, -offset.fY);
+                // The source rect has changed so update the matrix
+                newM.preTranslate(offset.fX, offset.fY);
             }
-
-            if (!bitmap.extractSubset(&tmp, iSrc)) {
-                return;     // extraction failed
-            }
-            bitmapPtr = &tmp;
-            srcRect.offset(-offset.fX, -offset.fY);
-            // The source rect has changed so update the matrix
-            newM.preTranslate(offset.fX, offset.fY);
         }
 
         SkPaint paintWithTexture(paint);
