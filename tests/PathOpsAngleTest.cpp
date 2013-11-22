@@ -169,12 +169,12 @@ static const SortSet set12[] = {
     {lines[9], 2, 0.5, 0, {0, 0}},
 };
 
-static const SortSet set13[] = {
+/*static const SortSet set13[] = {
     {cubics[13], 4, 0.5, 0.400631046, {0, 0}},
     {lines[10], 2, 0.791666667, 0.928, {0, 0}},
     {lines[10], 2, 0.791666667, 0.333333333, {0, 0}},
     {cubics[13], 4, 0.5, 0.866666667, {0, 0}},
-};
+};*/
 
 static const SortSet set14[] = {
     {quads[2], 3, 0.5, 0.310102051, {0, 0}},

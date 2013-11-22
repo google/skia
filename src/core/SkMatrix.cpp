@@ -48,11 +48,14 @@ enum {
 
 #ifdef SK_SCALAR_IS_FLOAT
     static const int32_t kScalar1Int = 0x3f800000;
-    static const int32_t kPersp1Int  = 0x3f800000;
 #else
     #define scalarAsInt(x)  (x)
     static const int32_t kScalar1Int = (1 << 16);
     static const int32_t kPersp1Int  = (1 << 30);
+#endif
+
+#ifdef SK_SCALAR_SLOW_COMPARES
+    static const int32_t kPersp1Int  = 0x3f800000;
 #endif
 
 uint8_t SkMatrix::computePerspectiveTypeMask() const {
