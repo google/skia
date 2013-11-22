@@ -335,8 +335,8 @@ SkString* SkObjectParser::TextToString(const void* text, size_t byteLength,
         }
         case SkPaint::kUTF16_TextEncoding: {
             decodedText->append("UTF-16: ");
-            size_t sizeNeeded = SkUTF16_ToUTF8((uint16_t*)text, 
-                                                SkToS32(byteLength / 2), 
+            size_t sizeNeeded = SkUTF16_ToUTF8((uint16_t*)text,
+                                                SkToS32(byteLength / 2),
                                                 NULL);
             SkAutoSTMalloc<0x100, char> utf8(sizeNeeded);
             SkUTF16_ToUTF8((uint16_t*)text, SkToS32(byteLength / 2), utf8);

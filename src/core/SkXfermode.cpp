@@ -1350,7 +1350,7 @@ SkProcCoeffXfermode::SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer) : INHE
         mode32 = SkXfermode::kSrcOut_Mode;
     }
     fMode = (SkXfermode::Mode)mode32;
-    
+
     const ProcCoeff& rec = gProcCoeffs[fMode];
     // these may be valid, or may be CANNOT_USE_COEFF
     fSrcCoeff = rec.fSC;
