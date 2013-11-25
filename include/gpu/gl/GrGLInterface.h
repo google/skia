@@ -84,7 +84,7 @@ const GrGLInterface* GrGLCreateANGLEInterface();
  * Creates a null GrGLInterface that doesn't draw anything. Used for measuring
  * CPU overhead.
  */
-const GrGLInterface* GrGLCreateNullInterface();
+const SK_API GrGLInterface* GrGLCreateNullInterface();
 
 /**
  * Creates a debugging GrGLInterface that doesn't draw anything. Used for
