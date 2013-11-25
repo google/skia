@@ -75,10 +75,11 @@ void SkDrawBitmap::dump(SkAnimateMaker* maker) {
     const char* formatName;
     switch (format) {
         case 0: formatName = "none"; break;
-        case 1: formatName = "A8"; break;
-        case 2: formatName = "Index8"; break;
-        case 3: formatName = "RGB16"; break;
-        case 4: formatName = "RGB32"; break;
+        case 1: formatName = "A1"; break;
+        case 2: formatName = "A8"; break;
+        case 3: formatName = "Index8"; break;
+        case 4: formatName = "RGB16"; break;
+        case 5: formatName = "RGB32"; break;
     }
     SkDebugf("format=\"%s\" />\n", formatName);
 }
