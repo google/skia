@@ -11,7 +11,9 @@ import re
 import subprocess
 import threading
 
+
 PROPERTY_MIMETYPE = 'svn:mime-type'
+
 
 # Status types for GetFilesWithStatus()
 STATUS_ADDED                 = 0x01
