@@ -3946,9 +3946,23 @@ static void testQuad10(skiatest::Reporter* reporter) {
     testSimplify(reporter, path);
 }
 
+static void testQuad11(skiatest::Reporter* reporter) {
+    SkPath path;
+    path.moveTo(2, 0);
+    path.quadTo(0, 1, 1, 2);
+    path.lineTo(1, 2);
+    path.close();
+    path.moveTo(0, 0);
+    path.lineTo(1, 1);
+    path.quadTo(1, 3, 3, 3);
+    path.close();
+    testSimplify(reporter, path);
+}
+
 static void (*firstTest)(skiatest::Reporter* ) = 0;
 
 static TestDesc tests[] = {
+    TEST(testQuad11),
     TEST(testQuad10),
     TEST(testQuad9),
     TEST(testTriangles4x),

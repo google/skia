@@ -304,15 +304,10 @@ protected:
         SkDPoint xy = fQuad.ptAtT(t);
         double dx = fLine[1].fX - fLine[0].fX;
         double dy = fLine[1].fY - fLine[0].fY;
-        double dxT = (xy.fX - fLine[0].fX) / dx;
-        double dyT = (xy.fY - fLine[0].fY) / dy;
-        if (!between(FLT_EPSILON, dxT, 1 - FLT_EPSILON) && between(0, dyT, 1)) {
-            return dyT;
+        if (fabs(dx) > fabs(dy)) {
+            return (xy.fX - fLine[0].fX) / dx;
         }
-        if (!between(FLT_EPSILON, dyT, 1 - FLT_EPSILON) && between(0, dxT, 1)) {
-            return dxT;
-        }
-        return fabs(dx) > fabs(dy) ? dxT : dyT;
+        return (xy.fY - fLine[0].fY) / dy;
     }
 
     bool pinTs(double* quadT, double* lineT, SkDPoint* pt, PinTPoint ptSet) {
