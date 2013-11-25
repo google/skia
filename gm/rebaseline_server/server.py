@@ -41,10 +41,10 @@ import svn
 import results
 
 ACTUALS_SVN_REPO = 'http://skia-autogen.googlecode.com/svn/gm-actual'
-EXPECTATIONS_SVN_REPO = 'http://skia.googlecode.com/svn/trunk/expectations/gm'
 PATHSPLIT_RE = re.compile('/([^/]+)/(.+)')
 TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.realpath(__file__))))
+EXPECTATIONS_DIR = os.path.join(TRUNK_DIRECTORY, 'expectations', 'gm')
 GENERATED_IMAGES_ROOT = os.path.join(PARENT_DIRECTORY, 'static',
                                      'generated-images')
 
@@ -60,7 +60,6 @@ MIME_TYPE_MAP = {'': 'application/octet-stream',
                  }
 
 DEFAULT_ACTUALS_DIR = '.gm-actuals'
-DEFAULT_EXPECTATIONS_DIR = os.path.join(TRUNK_DIRECTORY, 'expectations', 'gm')
 DEFAULT_PORT = 8888
 
 _HTTP_HEADER_CONTENT_LENGTH = 'Content-Length'
@@ -101,15 +100,12 @@ class Server(object):
 
   def __init__(self,
                actuals_dir=DEFAULT_ACTUALS_DIR,
-               expectations_dir=DEFAULT_EXPECTATIONS_DIR,
                port=DEFAULT_PORT, export=False, editable=True,
                reload_seconds=0):
     """
     Args:
       actuals_dir: directory under which we will check out the latest actual
                    GM results
-      expectations_dir: DEPRECATED: directory under which to find
-                        GM expectations (they must already be in that directory)
       port: which TCP port to listen on for HTTP requests
       export: whether to allow HTTP clients on other hosts to access this server
       editable: whether HTTP clients are allowed to submit new baselines
@@ -117,7 +113,6 @@ class Server(object):
                       if 0, don't check for new results at all
     """
     self._actuals_dir = actuals_dir
-    self._expectations_dir = expectations_dir
     self._port = port
     self._export = export
     self._editable = editable
@@ -129,11 +124,15 @@ class Server(object):
     # nonzero --reload argument; otherwise, we expect the user to maintain
     # her own expectations as she sees fit.
     #
-    # TODO(epoger): Use git instead of svn to check out expectations, since
+    # TODO(epoger): Use git instead of svn to update the expectations dir, since
     # the Skia repo is moving to git.
+    # When we make that change, we will have to update the entire workspace,
+    # not just the expectations dir, because git only operates on the repo
+    # as a whole.
+    # And since Skia uses depot_tools to manage its dependencies, we will have
+    # to run "gclient sync" rather than a raw "git pull".
     if reload_seconds:
-      self._expectations_repo = _create_svn_checkout(
-          dir_path=expectations_dir, repo_url=EXPECTATIONS_SVN_REPO)
+      self._expectations_repo = svn.Svn(EXPECTATIONS_DIR)
     else:
       self._expectations_repo = None
 
@@ -153,7 +152,7 @@ class Server(object):
 
   def update_results(self):
     """ Create or update self.results, based on the expectations in
-    self._expectations_dir and the latest actuals from skia-autogen.
+    EXPECTATIONS_DIR and the latest actuals from skia-autogen.
     """
     logging.info('Updating actual GM results in %s from SVN repo %s ...' % (
         self._actuals_dir, ACTUALS_SVN_REPO))
@@ -161,17 +160,16 @@ class Server(object):
 
     if self._expectations_repo:
       logging.info(
-          'Updating expected GM results in %s from SVN repo %s ...' % (
-              self._expectations_dir, EXPECTATIONS_SVN_REPO))
+          'Updating expected GM results in %s ...' % EXPECTATIONS_DIR)
       self._expectations_repo.Update('.')
 
     logging.info(
           ('Parsing results from actuals in %s and expectations in %s, '
           + 'and generating pixel diffs (may take a while) ...') % (
-          self._actuals_dir, self._expectations_dir))
+          self._actuals_dir, EXPECTATIONS_DIR))
     self.results = results.Results(
         actuals_root=self._actuals_dir,
-        expected_root=self._expectations_dir,
+        expected_root=EXPECTATIONS_DIR,
         generated_images_root=GENERATED_IMAGES_ROOT)
 
   def _result_reloader(self):
@@ -434,28 +432,6 @@ def main():
                     default=DEFAULT_ACTUALS_DIR)
   parser.add_argument('--editable', action='store_true',
                       help=('Allow HTTP clients to submit new baselines.'))
-  # Deprecated the --expectations-dir option, because once our GM expectations
-  # are maintained within git we will no longer be able to check out and update
-  # them in isolation (in SVN you can update a single directory subtree within
-  # a checkout, but you cannot do that with git).
-  #
-  # In a git world, we will force the user to refer to expectations
-  # within the same checkout as this tool (at the relative path
-  # ../../expectations/gm ).  If they specify the --reload option, we will
-  # periodically run "git pull" on the entire Skia checkout, which will update
-  # the GM expectations along with everything else (such as this script).
-  #
-  # We can still allow --actuals-dir to be specified, though, because the
-  # actual results will continue to be maintained in the skia-autogen
-  # SVN repository.
-  parser.add_argument('--deprecated-expectations-dir',
-                    help=('DEPRECATED due to our transition from SVN to git '
-                          '(formerly known as --expectations-dir).  '
-                          'If you still need this option, contact '
-                          'epoger@google.com as soon as possible.  WAS: '
-                          'Directory under which to find GM expectations; '
-                          'defaults to %(default)s'),
-                    default=DEFAULT_EXPECTATIONS_DIR)
   parser.add_argument('--export', action='store_true',
                       help=('Instead of only allowing access from HTTP clients '
                             'on localhost, allow HTTP clients on other hosts '
@@ -468,16 +444,14 @@ def main():
                       default=DEFAULT_PORT)
   parser.add_argument('--reload', type=int,
                       help=('How often (a period in seconds) to update the '
-                            'results.  If specified, both '
-                            'DEPRECATED_EXPECTATIONS_DIR and '
-                            'ACTUAL_DIR will be updated.  '
+                            'results.  If specified, both expected and actual '
+                            'results will be updated.  '
                             'By default, we do not reload at all, and you '
                             'must restart the server to pick up new data.'),
                       default=0)
   args = parser.parse_args()
   global _SERVER
   _SERVER = Server(actuals_dir=args.actuals_dir,
-                   expectations_dir=args.deprecated_expectations_dir,
                    port=args.port, export=args.export, editable=args.editable,
                    reload_seconds=args.reload)
   _SERVER.run()
