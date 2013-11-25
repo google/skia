@@ -12,6 +12,7 @@
 #include "SkReduceOrder.h"
 #include "Test.h"
 
+#if 0 // disable test until stroke reduction is supported
 static bool controls_inside(const SkDCubic& cubic) {
     return between(cubic[0].fX, cubic[1].fX, cubic[3].fX)
             && between(cubic[0].fX, cubic[2].fX, cubic[3].fX)
@@ -40,7 +41,6 @@ static bool tiny(const SkDCubic& cubic) {
             && approximately_equal(cubic[maxY].fY, cubic[minY].fY);
 }
 
-#if 0 // disable test until stroke reduction is supported
 static void find_tight_bounds(const SkDCubic& cubic, SkDRect& bounds) {
     SkDCubicPair cubicPair = cubic.chopAt(0.5);
     if (!tiny(cubicPair.first()) && !controls_inside(cubicPair.first())) {
