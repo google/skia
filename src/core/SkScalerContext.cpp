@@ -523,10 +523,54 @@ static void pack4xHToLCD32(const SkBitmap& src, const SkMask& dst,
     }
 }
 
+static inline int convert_8_to_1(unsigned byte) {
+    SkASSERT(byte <= 0xFF);
+    return byte >> 7;
+}
+
+static uint8_t pack_8_to_1(const uint8_t alpha[8]) {
+    unsigned bits = 0;
+    for (int i = 0; i < 8; ++i) {
+        bits |= convert_8_to_1(alpha[i]);
+        bits <<= 1;
+    }
+    return SkToU8(bits);
+}
+
+static void packA8ToA1(const SkMask& mask, const uint8_t* src, size_t srcRB) {
+    const int height = mask.fBounds.height();
+    const int width = mask.fBounds.width();
+    const int octs = width >> 3;
+    const int leftOverBits = width & 7;
+
+    uint8_t* dst = mask.fImage;
+    const int dstPad = mask.fRowBytes - SkAlign8(width);
+    SkASSERT(dstPad >= 0);
+
+    const int srcPad = srcRB - width;
+    SkASSERT(srcPad >= 0);
+
+    for (int y = 0; y < height; ++y) {
+        for (int i = 0; i < octs; ++i) {
+            *dst++ = pack_8_to_1(src);
+            src += 8;
+        }
+        if (leftOverBits > 0) {
+            unsigned bits = 0;
+            int shift = 7;
+            for (int i = 0; i < leftOverBits; ++i, --shift) {
+                bits |= convert_8_to_1(*src++ >> 7) << shift;
+            }
+            *dst++ = bits;
+        }
+        src += srcPad;
+        dst += dstPad;
+    }
+}
+
 static void generateMask(const SkMask& mask, const SkPath& path,
                          const SkMaskGamma::PreBlend& maskPreBlend) {
-    SkBitmap::Config config;
-    SkPaint     paint;
+    SkPaint paint;
 
     int srcW = mask.fBounds.width();
     int srcH = mask.fBounds.height();
@@ -538,27 +582,25 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft),
                         -SkIntToScalar(mask.fBounds.fTop));
 
-    if (SkMask::kBW_Format == mask.fFormat) {
-        config = SkBitmap::kA1_Config;
-        paint.setAntiAlias(false);
-    } else {
-        config = SkBitmap::kA8_Config;
-        paint.setAntiAlias(true);
-        switch (mask.fFormat) {
-            case SkMask::kA8_Format:
-                break;
-            case SkMask::kLCD16_Format:
-            case SkMask::kLCD32_Format:
-                // TODO: trigger off LCD orientation
-                dstW = 4*dstW - 8;
-                matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft + 1),
-                                    -SkIntToScalar(mask.fBounds.fTop));
-                matrix.postScale(SkIntToScalar(4), SK_Scalar1);
-                dstRB = 0;  // signals we need a copy
-                break;
-            default:
-                SkDEBUGFAIL("unexpected mask format");
-        }
+    SkBitmap::Config config = SkBitmap::kA8_Config;
+    paint.setAntiAlias(SkMask::kBW_Format != mask.fFormat);
+    switch (mask.fFormat) {
+        case SkMask::kBW_Format:
+            dstRB = 0;  // signals we need a copy
+            break;
+        case SkMask::kA8_Format:
+            break;
+        case SkMask::kLCD16_Format:
+        case SkMask::kLCD32_Format:
+            // TODO: trigger off LCD orientation
+            dstW = 4*dstW - 8;
+            matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft + 1),
+                                -SkIntToScalar(mask.fBounds.fTop));
+            matrix.postScale(SkIntToScalar(4), SK_Scalar1);
+            dstRB = 0;  // signals we need a copy
+            break;
+        default:
+            SkDEBUGFAIL("unexpected mask format");
     }
 
     SkRasterClip clip;
@@ -587,6 +629,9 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     draw.drawPath(path, paint);
 
     switch (mask.fFormat) {
+        case SkMask::kBW_Format:
+            packA8ToA1(mask, bm.getAddr8(0, 0), bm.rowBytes());
+            break;
         case SkMask::kA8_Format:
             if (maskPreBlend.isApplicable()) {
                 applyLUTToA8Mask(mask, maskPreBlend.fG);

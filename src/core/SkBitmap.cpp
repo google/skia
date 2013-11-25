@@ -161,7 +161,6 @@ int SkBitmap::ComputeBytesPerPixel(SkBitmap::Config config) {
     int bpp;
     switch (config) {
         case kNo_Config:
-        case kA1_Config:
             bpp = 0;   // not applicable
             break;
         case kA8_Config:
@@ -193,11 +192,6 @@ size_t SkBitmap::ComputeRowBytes(Config c, int width) {
 
     switch (c) {
         case kNo_Config:
-            break;
-        case kA1_Config:
-            rowBytes.set(width);
-            rowBytes.add(7);
-            rowBytes.shiftRight(3);
             break;
         case kA8_Config:
         case kIndex8_Config:
@@ -275,7 +269,6 @@ static bool validate_alphaType(SkBitmap::Config config, SkAlphaType alphaType,
         case SkBitmap::kNo_Config:
             alphaType = kIgnore_SkAlphaType;
             break;
-        case SkBitmap::kA1_Config:
         case SkBitmap::kA8_Config:
             if (kUnpremul_SkAlphaType == alphaType) {
                 alphaType = kPremul_SkAlphaType;
@@ -291,6 +284,8 @@ static bool validate_alphaType(SkBitmap::Config config, SkAlphaType alphaType,
         case SkBitmap::kRGB_565_Config:
             alphaType = kOpaque_SkAlphaType;
             break;
+        default:
+            return false;
     }
     if (canonical) {
         *canonical = alphaType;
@@ -606,8 +601,6 @@ void* SkBitmap::getAddr(int x, int y) const {
             case SkBitmap::kIndex8_Config:
                 base += x;
                 break;
-            case SkBitmap::kA1_Config:
-                base += x >> 3;
                 break;
             default:
                 SkDEBUGFAIL("Can't return addr for config");
@@ -623,15 +616,6 @@ SkColor SkBitmap::getColor(int x, int y) const {
     SkASSERT((unsigned)y < (unsigned)this->height());
 
     switch (this->config()) {
-        case SkBitmap::kA1_Config: {
-            uint8_t* addr = this->getAddr1(x, y);
-            uint8_t mask = 1 << (7  - (x % 8));
-            if (addr[0] & mask) {
-                return SK_ColorBLACK;
-            } else {
-                return 0;
-            }
-        }
         case SkBitmap::kA8_Config: {
             uint8_t* addr = this->getAddr8(x, y);
             return SkColorSetA(0, addr[0]);
@@ -654,6 +638,7 @@ SkColor SkBitmap::getColor(int x, int y) const {
             return SkUnPreMultiply::PMColorToColor(addr[0]);
         }
         case kNo_Config:
+        default:
             SkASSERT(false);
             return 0;
     }
@@ -671,9 +656,6 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
     const int width = bm.width();
 
     switch (bm.config()) {
-        case SkBitmap::kA1_Config: {
-            // TODO
-        } break;
         case SkBitmap::kA8_Config: {
             unsigned a = 0xFF;
             for (int y = 0; y < height; ++y) {
@@ -779,38 +761,6 @@ void SkBitmap::internalErase(const SkIRect& area,
     }
 
     switch (fConfig) {
-        case kA1_Config: {
-            uint8_t* p = this->getAddr1(area.fLeft, area.fTop);
-            const int left = area.fLeft >> 3;
-            const int right = area.fRight >> 3;
-
-            int middle = right - left - 1;
-
-            uint8_t leftMask = 0xFF >> (area.fLeft & 7);
-            uint8_t rightMask = ~(0xFF >> (area.fRight & 7));
-            if (left == right) {
-                leftMask &= rightMask;
-                rightMask = 0;
-            }
-
-            a = (a >> 7) ? 0xFF : 0;
-            while (--height >= 0) {
-                uint8_t* startP = p;
-
-                *p = (*p & ~leftMask) | (a & leftMask);
-                p++;
-                if (middle > 0) {
-                    memset(p, a, middle);
-                    p += middle;
-                }
-                if (rightMask) {
-                    *p = (*p & ~rightMask) | (a & rightMask);
-                }
-
-                p = startP + rowBytes;
-            }
-            break;
-        }
         case kA8_Config: {
             uint8_t* p = this->getAddr8(area.fLeft, area.fTop);
             while (--height >= 0) {
@@ -896,7 +846,6 @@ static size_t get_sub_offset(const SkBitmap& bm, int x, int y) {
             break;
 
         case SkBitmap::kNo_Config:
-        case SkBitmap::kA1_Config:
         default:
             return SUB_OFFSET_FAILURE;
     }
@@ -938,8 +887,6 @@ bool get_upper_left_from_offset(SkBitmap::Config config, size_t offset, size_t r
             break;
 
         case SkBitmap::kNo_Config:
-            // Fall through.
-        case SkBitmap::kA1_Config:
             // Fall through.
         default:
             return false;
@@ -1021,7 +968,6 @@ bool SkBitmap::canCopyTo(Config dstConfig) const {
         case kRGB_565_Config:
         case kARGB_8888_Config:
             break;
-        case kA1_Config:
         case kIndex8_Config:
             if (!sameConfigs) {
                 return false;
@@ -1032,12 +978,6 @@ bool SkBitmap::canCopyTo(Config dstConfig) const {
         default:
             return false;
     }
-
-    // do not copy src if srcConfig == kA1_Config while dstConfig != kA1_Config
-    if (this->config() == kA1_Config && !sameConfigs) {
-        return false;
-    }
-
     return true;
 }
 
@@ -1681,7 +1621,7 @@ void SkBitmap::validate() const {
 void SkBitmap::toString(SkString* str) const {
 
     static const char* gConfigNames[kConfigCount] = {
-        "NONE", "A1", "A8", "INDEX8", "565", "4444", "8888"
+        "NONE", "A8", "INDEX8", "565", "4444", "8888"
     };
 
     str->appendf("bitmap: ((%d, %d) %s", this->width(), this->height(),
