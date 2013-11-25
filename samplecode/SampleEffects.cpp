@@ -33,8 +33,8 @@ static void paint_proc2(SkPaint* paint) {
     paint->setMaskFilter(
             SkBlurMaskFilter::CreateEmboss(SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
                                            dir,
-                                           SkFloatToScalar(0.1f),
-                                           SkFloatToScalar(0.05f)))->unref();
+                                           0.1f,
+                                           0.05f))->unref();
 }
 
 static void paint_proc3(SkPaint* paint) {

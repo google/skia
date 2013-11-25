@@ -186,7 +186,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        static const SkScalar kHalfRectSize = SkFloatToScalar(0.75f);
+        static const SkScalar kHalfRectSize = 0.75f;
 
         SkPaint paint;
         this->setupPaint(&paint);

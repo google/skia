@@ -28,7 +28,7 @@ protected:
     }
 
     static SkImageFilter* make_brightness(float amount, SkImageFilter* input = NULL) {
-        SkScalar amount255 = SkScalarMul(SkFloatToScalar(amount), SkIntToScalar(255));
+        SkScalar amount255 = SkScalarMul(amount, SkIntToScalar(255));
         SkScalar matrix[20] = { 1, 0, 0, 0, amount255,
                                 0, 1, 0, 0, amount255,
                                 0, 0, 1, 0, amount255,
@@ -40,10 +40,10 @@ protected:
     static SkImageFilter* make_grayscale(SkImageFilter* input = NULL) {
         SkScalar matrix[20];
         memset(matrix, 0, 20 * sizeof(SkScalar));
-        matrix[0] = matrix[5] = matrix[10] = SkFloatToScalar(0.2126f);
-        matrix[1] = matrix[6] = matrix[11] = SkFloatToScalar(0.7152f);
-        matrix[2] = matrix[7] = matrix[12] = SkFloatToScalar(0.0722f);
-        matrix[18] = SkFloatToScalar(1.0f);
+        matrix[0] = matrix[5] = matrix[10] = 0.2126f;
+        matrix[1] = matrix[6] = matrix[11] = 0.7152f;
+        matrix[2] = matrix[7] = matrix[12] = 0.0722f;
+        matrix[18] = 1.0f;
         SkAutoTUnref<SkColorFilter> filter(new SkColorMatrixFilter(matrix));
         return SkColorFilterImageFilter::Create(filter, input);
     }

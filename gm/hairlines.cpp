@@ -95,13 +95,13 @@ protected:
         {
             SkPath* problem2 = &fPaths.push_back();
             problem2->moveTo(SkIntToScalar(5), SkIntToScalar(1));
-            problem2->lineTo(SkFloatToScalar(4.32787323f), SkFloatToScalar(1.67212653f));
-            problem2->cubicTo(SkFloatToScalar(2.75223875f), SkFloatToScalar(3.24776125f),
-                              SkFloatToScalar(3.00581908f), SkFloatToScalar(4.51236057f),
-                              SkFloatToScalar(3.7580452f), SkFloatToScalar(4.37367964f));
-            problem2->cubicTo(SkFloatToScalar(4.66472578f), SkFloatToScalar(3.888381f),
-                              SkFloatToScalar(5.f), SkFloatToScalar(2.875f),
-                              SkFloatToScalar(5.f), SkFloatToScalar(1.f));
+            problem2->lineTo(4.32787323f, 1.67212653f);
+            problem2->cubicTo(2.75223875f, 3.24776125f,
+                              3.00581908f, 4.51236057f,
+                              3.7580452f, 4.37367964f);
+            problem2->cubicTo(4.66472578f, 3.888381f,
+                              5.f, 2.875f,
+                              5.f, 1.f);
             problem2->close();
         }
 
@@ -137,8 +137,8 @@ protected:
         {
             // Arc example to test imperfect truncation bug (crbug.com/295626)
             static const SkScalar kRad = SkIntToScalar(2000);
-            static const SkScalar kStartAngle = SkFloatToScalar(262.59717f);
-            static const SkScalar kSweepAngle = SkScalarHalf(SkFloatToScalar(17.188717f));
+            static const SkScalar kStartAngle = 262.59717f;
+            static const SkScalar kSweepAngle = SkScalarHalf(17.188717f);
 
             SkPath* bug = &fPaths.push_back();
 

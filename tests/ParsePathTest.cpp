@@ -34,8 +34,8 @@ static struct {
     { "", { 0, 0, 0, 0 } },
     { "M0,0L10,10", { 0, 0, SkIntToScalar(10), SkIntToScalar(10) } },
     { "M-5.5,-0.5 Q 0 0 6,6.50",
-        { SkFloatToScalar(-5.5f), SkFloatToScalar(-0.5f),
-          SkFloatToScalar(6), SkFloatToScalar(6.5f) } }
+        { -5.5f, -0.5f,
+          6, 6.5f } }
 };
 
 static void TestParsePath(skiatest::Reporter* reporter) {
@@ -51,13 +51,13 @@ static void TestParsePath(skiatest::Reporter* reporter) {
     }
 
     SkRect r;
-    r.set(0, 0, SkFloatToScalar(10), SkFloatToScalar(10.5f));
+    r.set(0, 0, 10, 10.5f);
     SkPath p;
     p.addRect(r);
     test_to_from(reporter, p);
     p.addOval(r);
     test_to_from(reporter, p);
-    p.addRoundRect(r, SkFloatToScalar(4), SkFloatToScalar(4.5f));
+    p.addRoundRect(r, 4, 4.5f);
     test_to_from(reporter, p);
 }
 

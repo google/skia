@@ -30,8 +30,8 @@ namespace {
 
 const SkScalar gOneThird = SkScalarInvert(SkIntToScalar(3));
 const SkScalar gTwoThirds = SkScalarDiv(SkIntToScalar(2), SkIntToScalar(3));
-const SkScalar gOneHalf = SkFloatToScalar(0.5f);
-const SkScalar gOneQuarter = SkFloatToScalar(0.25f);
+const SkScalar gOneHalf = 0.5f;
+const SkScalar gOneQuarter = 0.25f;
 
 #if SK_SUPPORT_GPU
 void setUniformPoint3(const GrGLUniformManager& uman, UniformHandle uni, const SkPoint3& point) {
@@ -675,7 +675,7 @@ public:
        fS = target - location;
        fS.normalize();
        fCosOuterConeAngle = SkScalarCos(SkDegreesToRadians(cutoffAngle));
-       const SkScalar antiAliasThreshold = SkFloatToScalar(0.016f);
+       const SkScalar antiAliasThreshold = 0.016f;
        fCosInnerConeAngle = fCosOuterConeAngle + antiAliasThreshold;
        fConeScale = SkScalarInvert(antiAliasThreshold);
     }
@@ -791,8 +791,8 @@ private:
 
 // According to the spec, the specular term should be in the range [1, 128] :
 // http://www.w3.org/TR/SVG/filters.html#feSpecularLightingSpecularExponentAttribute
-const SkScalar SkSpotLight::kSpecularExponentMin = SkFloatToScalar(1.0f);
-const SkScalar SkSpotLight::kSpecularExponentMax = SkFloatToScalar(128.0f);
+const SkScalar SkSpotLight::kSpecularExponentMin = 1.0f;
+const SkScalar SkSpotLight::kSpecularExponentMax = 128.0f;
 
 ///////////////////////////////////////////////////////////////////////////////
 

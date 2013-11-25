@@ -32,8 +32,8 @@ public:
                      doPath ? "path" : "rect",
                      doAA ? "AA" : "BW");
 
-        fClipRect.set(SkFloatToScalar(10.5f), SkFloatToScalar(10.5f),
-                      SkFloatToScalar(50.5f), SkFloatToScalar(50.5f));
+        fClipRect.set(10.5f, 10.5f,
+                      50.5f, 50.5f);
         fClipPath.addRoundRect(fClipRect, SkIntToScalar(10), SkIntToScalar(10));
         fDrawRect.set(SkIntToScalar(0), SkIntToScalar(0),
                       SkIntToScalar(100), SkIntToScalar(100));

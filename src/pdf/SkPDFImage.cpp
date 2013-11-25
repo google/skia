@@ -556,9 +556,9 @@ SkPDFImage::SkPDFImage(SkStream* stream,
         SkASSERT(!isAlpha);
         SkAutoTUnref<SkPDFInt> zeroVal(new SkPDFInt(0));
         SkAutoTUnref<SkPDFScalar> scale5Val(
-                new SkPDFScalar(SkFloatToScalar(8.2258f)));  // 255/2^5-1
+                new SkPDFScalar(8.2258f));  // 255/2^5-1
         SkAutoTUnref<SkPDFScalar> scale6Val(
-                new SkPDFScalar(SkFloatToScalar(4.0476f)));  // 255/2^6-1
+                new SkPDFScalar(4.0476f));  // 255/2^6-1
         SkAutoTUnref<SkPDFArray> decodeValue(new SkPDFArray());
         decodeValue->reserve(6);
         decodeValue->append(zeroVal.get());

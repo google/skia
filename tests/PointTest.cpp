@@ -84,7 +84,7 @@ static float force_as_float(skiatest::Reporter* reporter, float value) {
 // test that we handle very large values correctly. i.e. that we can
 // successfully normalize something whose mag overflows a float.
 static void test_overflow(skiatest::Reporter* reporter) {
-    SkScalar bigFloat = get_value(reporter, SkFloatToScalar(3.4e38f));
+    SkScalar bigFloat = get_value(reporter, 3.4e38f);
     SkPoint pt = { bigFloat, bigFloat };
 
     SkScalar length = pt.length();
@@ -107,7 +107,7 @@ static void test_overflow(skiatest::Reporter* reporter) {
 // test that we handle very small values correctly. i.e. that we can
 // report failure if we try to normalize them.
 static void test_underflow(skiatest::Reporter* reporter) {
-    SkPoint pt = { SkFloatToScalar(1.0e-37f), SkFloatToScalar(1.0e-37f) };
+    SkPoint pt = { 1.0e-37f, 1.0e-37f };
     SkPoint copy = pt;
 
     REPORTER_ASSERT(reporter, 0 == SkPoint::Normalize(&pt));
@@ -127,7 +127,7 @@ DEF_TEST(Point, reporter) {
         SkScalar fLength;
     } gRec[] = {
         { SkIntToScalar(3), SkIntToScalar(4), SkIntToScalar(5) },
-        { SkFloatToScalar(0.6f), SkFloatToScalar(0.8f), SK_Scalar1 },
+        { 0.6f, 0.8f, SK_Scalar1 },
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {

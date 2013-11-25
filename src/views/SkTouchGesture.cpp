@@ -50,7 +50,7 @@ static void unit_axis_align(SkVector* unit) {
 
 void SkFlingState::reset(float sx, float sy) {
     fActive = true;
-    fDirection.set(SkFloatToScalar(sx), SkFloatToScalar(sy));
+    fDirection.set(sx, sy);
     fSpeed0 = SkPoint::Normalize(&fDirection);
     fSpeed0 = pin_max_fling(fSpeed0);
     fTime0 = getseconds();
@@ -82,7 +82,7 @@ bool SkFlingState::evaluateMatrix(SkMatrix* matrix) {
         tx = (float)sk_float_round2int(tx);
         ty = (float)sk_float_round2int(ty);
     }
-    matrix->setTranslate(SkFloatToScalar(tx), SkFloatToScalar(ty));
+    matrix->setTranslate(tx, ty);
 //    printf("---- evaluate (%g %g)\n", tx, ty);
 
     return true;
@@ -182,7 +182,7 @@ int SkTouchGesture::findRec(void* owner) const {
 }
 
 static SkScalar center(float pos0, float pos1) {
-    return SkFloatToScalar((pos0 + pos1) * 0.5f);
+    return (pos0 + pos1) * 0.5f;
 }
 
 static const float MAX_ZOOM_SCALE = 4;

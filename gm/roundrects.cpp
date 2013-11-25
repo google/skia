@@ -128,9 +128,9 @@ protected:
 
     SkColor genColor(SkRandom* rand) {
         SkScalar hsv[3];
-        hsv[0] = SkFloatToScalar(rand->nextRangeF(0.0f, 360.0f));
-        hsv[1] = SkFloatToScalar(rand->nextRangeF(0.75f, 1.0f));
-        hsv[2] = SkFloatToScalar(rand->nextRangeF(0.75f, 1.0f));
+        hsv[0] = rand->nextRangeF(0.0f, 360.0f);
+        hsv[1] = rand->nextRangeF(0.75f, 1.0f);
+        hsv[2] = rand->nextRangeF(0.75f, 1.0f);
 
         return SkHSVToColor(hsv);
     }

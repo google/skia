@@ -309,8 +309,8 @@ DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kSolid_Bl
 DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kOuter_BlurStyle);)
 DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kInner_BlurStyle);)
 
-static const SkScalar kBig = SkFloatToScalar(20);
-static const SkScalar kSmall = SkFloatToScalar(2);
+static const SkScalar kBig = 20;
+static const SkScalar kSmall = 2;
 
 // regular size rects, blurs should be small enough not to completely overlap.
 

@@ -262,7 +262,7 @@ protected:
         this->drawBG(canvas);
 
         SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorGREEN, SK_ColorRED };
-        SkScalar pos[] = { 0, SkFloatToScalar(0.01f), SkFloatToScalar(0.99f), SK_Scalar1 };
+        SkScalar pos[] = { 0, 0.01f, 0.99f, SK_Scalar1 };
         SkPoint c0;
         c0.iset(-80, 25);
         SkScalar r0 = SkIntToScalar(70);
@@ -343,9 +343,9 @@ protected:
         center.set(SkIntToScalar(dim.width())/2, SkIntToScalar(dim.height())/2);
         SkScalar radius = SkIntToScalar(dim.width())/2;
         const SkColor colors[] = { 0x7f7f7f7f, 0x7f7f7f7f, 0xb2000000 };
-        const SkScalar pos[] = { SkFloatToScalar(0.0f),
-                             SkFloatToScalar(0.35f),
-                             SkFloatToScalar(1.0f) };
+        const SkScalar pos[] = { 0.0f,
+                             0.35f,
+                             1.0f };
         SkShader* shader =
             SkGradientShader::CreateRadial(center, radius, colors,
                                            pos, SK_ARRAY_COUNT(pos),

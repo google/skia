@@ -263,7 +263,7 @@ protected:
         // 1on/1off 3x3 squares with phase of 1.5 - rects fast path
         canvas->save();
             canvas->translate(112, 110);
-            this->drawDashedLines(canvas, 100, SkFloatToScalar(1.5f), SkIntToScalar(3), 3, false);
+            this->drawDashedLines(canvas, 100, 1.5f, SkIntToScalar(3), 3, false);
         canvas->restore();
 
         // 1on/1off 1x1 circles with phase of 1 - no fast path yet

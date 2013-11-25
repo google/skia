@@ -20,7 +20,7 @@ class BicubicBench : public SkBenchmark {
 
 public:
     BicubicBench(float x, float y)
-        : fScale(SkSize::Make(SkFloatToScalar(x), SkFloatToScalar(y))) {
+        : fScale(SkSize::Make(x, y)) {
         fName.printf("bicubic_%gx%g",
                      SkScalarToFloat(fScale.fWidth), SkScalarToFloat(fScale.fHeight));
     }

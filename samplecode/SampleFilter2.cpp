@@ -72,7 +72,7 @@ protected:
         const SkScalar H = SkIntToScalar(fBitmaps[0].height() + 1);
         SkPaint paint;
 
-        const SkScalar scale = SkFloatToScalar(0.897917f);
+        const SkScalar scale = 0.897917f;
         canvas->scale(SK_Scalar1, scale);
 
         for (int k = 0; k < 2; k++) {

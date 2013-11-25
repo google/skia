@@ -745,7 +745,7 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
       fLastMarginContentEntry(NULL),
       fClipStack(NULL),
       fEncoder(NULL),
-      fRasterDpi(SkFloatToScalar(72.0f)) {
+      fRasterDpi(72.0f) {
     // Just report that PDF does not supports perspective in the
     // initial transform.
     NOT_IMPLEMENTED(initialTransform.hasPerspective(), true);
@@ -776,7 +776,7 @@ SkPDFDevice::SkPDFDevice(const SkISize& layerSize,
       fLastMarginContentEntry(NULL),
       fClipStack(NULL),
       fEncoder(NULL),
-      fRasterDpi(SkFloatToScalar(72.0f)) {
+      fRasterDpi(72.0f) {
     fInitialTransform.reset();
     this->init();
 }

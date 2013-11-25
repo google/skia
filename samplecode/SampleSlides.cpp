@@ -80,7 +80,7 @@ static void one_d_pe(SkPaint* paint) {
         path.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
     path.close();
     path.offset(SkIntToScalar(-6), 0);
-    scale(&path, SkFloatToScalar(1.5f));
+    scale(&path, 1.5f);
 
     paint->setPathEffect(new SkPath1DPathEffect(path, SkIntToScalar(21), 0,
                                 SkPath1DPathEffect::kRotate_Style))->unref();

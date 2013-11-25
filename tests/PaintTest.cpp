@@ -193,14 +193,14 @@ static void regression_cubic(skiatest::Reporter* reporter) {
     SkPath path, stroke;
     SkPaint paint;
 
-    path.moveTo(SkFloatToScalar(460.2881309415525f),
-                SkFloatToScalar(303.250847066498f));
-    path.cubicTo(SkFloatToScalar(463.36378422175284f),
-                 SkFloatToScalar(302.1169735073363f),
-                 SkFloatToScalar(456.32239330810046f),
-                 SkFloatToScalar(304.720354932878f),
-                 SkFloatToScalar(453.15255460013304f),
-                 SkFloatToScalar(305.788586869862f));
+    path.moveTo(460.2881309415525f,
+                303.250847066498f);
+    path.cubicTo(463.36378422175284f,
+                 302.1169735073363f,
+                 456.32239330810046f,
+                 304.720354932878f,
+                 453.15255460013304f,
+                 305.788586869862f);
 
     SkRect fillR, strokeR;
     fillR = path.getBounds();
@@ -225,13 +225,13 @@ static void regression_cubic(skiatest::Reporter* reporter) {
 static void regression_measureText(skiatest::Reporter* reporter) {
 
     SkPaint paint;
-    paint.setTextSize(SkFloatToScalar(12.0f));
+    paint.setTextSize(12.0f);
 
     SkRect r;
     r.setLTRB(SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN, SK_ScalarNaN);
 
     // test that the rect was reset
-    paint.measureText("", 0, &r, SkFloatToScalar(1.0f));
+    paint.measureText("", 0, &r, 1.0f);
     REPORTER_ASSERT(reporter, r.isEmpty());
 }
 

@@ -349,7 +349,7 @@ static void test_sigma_range(skiatest::Reporter* reporter, GrContextFactory* fac
     int groundTruthResult[kSize];
     int bruteForce1DResult[kSize];
 
-    SkScalar sigma = SkFloatToScalar(10.0f);
+    SkScalar sigma = 10.0f;
 
     for (int i = 0; i < 4; ++i, sigma /= 10) {
 

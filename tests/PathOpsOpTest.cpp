@@ -1151,19 +1151,19 @@ SkPathOp ops[] = {
 };
 
 static void rRect1(skiatest::Reporter* reporter) {
-    SkScalar xA = SkFloatToScalar(0.65f);
-    SkScalar xB = SkFloatToScalar(10.65f);
-    SkScalar xC = SkFloatToScalar(20.65f);
-    SkScalar xD = SkFloatToScalar(30.65f);
-    SkScalar xE = SkFloatToScalar(40.65f);
-    SkScalar xF = SkFloatToScalar(50.65f);
+    SkScalar xA = 0.65f;
+    SkScalar xB = 10.65f;
+    SkScalar xC = 20.65f;
+    SkScalar xD = 30.65f;
+    SkScalar xE = 40.65f;
+    SkScalar xF = 50.65f;
 
-    SkScalar yA = SkFloatToScalar(0.65f);
-    SkScalar yB = SkFloatToScalar(10.65f);
-    SkScalar yC = SkFloatToScalar(20.65f);
-    SkScalar yD = SkFloatToScalar(30.65f);
-    SkScalar yE = SkFloatToScalar(40.65f);
-    SkScalar yF = SkFloatToScalar(50.65f);
+    SkScalar yA = 0.65f;
+    SkScalar yB = 10.65f;
+    SkScalar yC = 20.65f;
+    SkScalar yD = 30.65f;
+    SkScalar yE = 40.65f;
+    SkScalar yF = 50.65f;
     SkPath paths[5];
     SkRect rects[5];
     rects[0].set(xB, yB, xE, yE);

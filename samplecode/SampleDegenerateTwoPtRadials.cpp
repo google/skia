@@ -14,7 +14,7 @@
 
 static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorMAGENTA };
-    SkScalar pos[] = { 0, SkFloatToScalar(0.25f), SkFloatToScalar(0.75f), SK_Scalar1 };
+    SkScalar pos[] = { 0, 0.25f, 0.75f, SK_Scalar1 };
 
     SkScalar l = rect.fLeft;
     SkScalar t = rect.fTop;

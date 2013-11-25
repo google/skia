@@ -22,10 +22,10 @@ namespace SkGpuBlurUtils {
 #define MAX_BLUR_SIGMA 4.0f
 
 static void scale_rect(SkRect* rect, float xScale, float yScale) {
-    rect->fLeft   = SkScalarMul(rect->fLeft,   SkFloatToScalar(xScale));
-    rect->fTop    = SkScalarMul(rect->fTop,    SkFloatToScalar(yScale));
-    rect->fRight  = SkScalarMul(rect->fRight,  SkFloatToScalar(xScale));
-    rect->fBottom = SkScalarMul(rect->fBottom, SkFloatToScalar(yScale));
+    rect->fLeft   = SkScalarMul(rect->fLeft,   xScale);
+    rect->fTop    = SkScalarMul(rect->fTop,    yScale);
+    rect->fRight  = SkScalarMul(rect->fRight,  xScale);
+    rect->fBottom = SkScalarMul(rect->fBottom, yScale);
 }
 
 static float adjust_sigma(float sigma, int *scaleFactor, int *radius) {

@@ -176,11 +176,11 @@ protected:
                               30 * SK_Scalar1, 0);
 
         // triangle where one edge is a degenerate quad
-        fPaths.push_back().moveTo(SkFloatToScalar(8.59375f), 45 * SK_Scalar1);
-        fPaths.back().quadTo(SkFloatToScalar(16.9921875f),   45 * SK_Scalar1,
-                             SkFloatToScalar(31.25f),        45 * SK_Scalar1);
+        fPaths.push_back().moveTo(8.59375f, 45 * SK_Scalar1);
+        fPaths.back().quadTo(16.9921875f,   45 * SK_Scalar1,
+                             31.25f,        45 * SK_Scalar1);
         fPaths.back().lineTo(100 * SK_Scalar1,              100 * SK_Scalar1);
-        fPaths.back().lineTo(SkFloatToScalar(8.59375f),      45 * SK_Scalar1);
+        fPaths.back().lineTo(8.59375f,      45 * SK_Scalar1);
 
         // triangle where one edge is a quad with a repeated point
         fPaths.push_back().moveTo(0, 25 * SK_Scalar1);
@@ -197,14 +197,14 @@ protected:
         // triangle where one edge is a quad with a nearly repeated point
         fPaths.push_back().moveTo(0, 25 * SK_Scalar1);
         fPaths.back().lineTo(50 * SK_Scalar1, 0);
-        fPaths.back().quadTo(50 * SK_Scalar1, SkFloatToScalar(49.95f),
+        fPaths.back().quadTo(50 * SK_Scalar1, 49.95f,
                              50 * SK_Scalar1, 50 * SK_Scalar1);
 
         // triangle where one edge is a cubic with a 3x nearly repeated point
         fPaths.push_back().moveTo(0, 25 * SK_Scalar1);
         fPaths.back().lineTo(50 * SK_Scalar1, 0);
-        fPaths.back().cubicTo(50 * SK_Scalar1, SkFloatToScalar(49.95f),
-                              50 * SK_Scalar1, SkFloatToScalar(49.97f),
+        fPaths.back().cubicTo(50 * SK_Scalar1, 49.95f,
+                              50 * SK_Scalar1, 49.97f,
                               50 * SK_Scalar1, 50 * SK_Scalar1);
 
         // triangle where there is a point degenerate cubic at one corner
@@ -253,7 +253,7 @@ protected:
 
         // small circle. This is listed last so that it has device coords far
         // from the origin (small area relative to x,y values).
-        fPaths.push_back().addCircle(0, 0, SkFloatToScalar(1.2f));
+        fPaths.push_back().addCircle(0, 0, 1.2f);
     }
 
     virtual void onDraw(SkCanvas* canvas) {

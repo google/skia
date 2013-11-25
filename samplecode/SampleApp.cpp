@@ -658,8 +658,8 @@ static bool curr_title(SkWindow* wind, SkString* title) {
 
 void SampleWindow::setZoomCenter(float x, float y)
 {
-    fZoomCenterX = SkFloatToScalar(x);
-    fZoomCenterY = SkFloatToScalar(y);
+    fZoomCenterX = x;
+    fZoomCenterY = y;
 }
 
 bool SampleWindow::zoomIn()
@@ -1549,7 +1549,7 @@ static SkBitmap::Config cycle_configs(SkBitmap::Config c) {
 }
 
 void SampleWindow::changeZoomLevel(float delta) {
-    fZoomLevel += SkFloatToScalar(delta);
+    fZoomLevel += delta;
     if (fZoomLevel > 0) {
         fZoomLevel = SkMinScalar(fZoomLevel, MAX_ZOOM_LEVEL);
         fZoomScale = fZoomLevel + SK_Scalar1;

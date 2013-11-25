@@ -56,7 +56,7 @@ protected:
             SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
         };
         SkISize kernelSize = SkISize::Make(3, 3);
-        SkScalar gain = SkFloatToScalar(0.3f), bias = SkIntToScalar(100);
+        SkScalar gain = 0.3f, bias = SkIntToScalar(100);
         SkPaint paint;
         SkAutoTUnref<SkImageFilter> filter(
             SkNEW_ARGS(SkMatrixConvolutionImageFilter, (kernelSize,

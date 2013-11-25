@@ -67,7 +67,7 @@ class SkBitmapFilter {
           for (int x = 0; x < SKBITMAP_FILTER_TABLE_SIZE; ++x) {
               float fx = ((float)x + .5f) * this->width() / SKBITMAP_FILTER_TABLE_SIZE;
               float filter_value = evaluate(fx);
-              *ftpScalar++ = SkFloatToScalar(filter_value);
+              *ftpScalar++ = filter_value;
               *ftp++ = SkFloatToFixed(filter_value);
           }
       }

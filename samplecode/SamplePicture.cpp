@@ -104,7 +104,7 @@ protected:
         SkPaint paint;
 
         canvas->save();
-        canvas->scale(SkFloatToScalar(0.5f), SkFloatToScalar(0.5f));
+        canvas->scale(0.5f, 0.5f);
         canvas->drawBitmap(fBitmap, 0, 0, NULL);
         canvas->restore();
 

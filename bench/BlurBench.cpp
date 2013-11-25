@@ -15,9 +15,9 @@
 #include "SkBlurMaskFilter.h"
 
 #define SMALL   SkIntToScalar(2)
-#define REAL    SkFloatToScalar(1.5f)
+#define REAL    1.5f
 #define BIG     SkIntToScalar(10)
-#define REALBIG SkFloatToScalar(100.5f)
+#define REALBIG 100.5f
 
 static const char* gStyleName[] = {
     "normal",

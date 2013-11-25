@@ -1696,7 +1696,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
      * With higher values lcd fringing is worse and the smoothing effect of
      * partial coverage is diminished.
      */
-    rec->setContrast(SkFloatToScalar(0.5f));
+    rec->setContrast(0.5f);
 #endif
 
     rec->fReservedAlign = 0;

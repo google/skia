@@ -100,10 +100,10 @@ protected:
             // device boundaries so we need to "undo" the effect of the
             // scale and translate
             SkRect bounds = SkRect::MakeLTRB(
-              SkFloatToScalar(4.0f/3.0f * -20),
-              SkFloatToScalar(4.0f/3.0f * -20),
-              SkFloatToScalar(4.0f/3.0f * (this->getISize().fWidth - 20)),
-              SkFloatToScalar(4.0f/3.0f * (this->getISize().fHeight - 20)));
+              4.0f/3.0f * -20,
+              4.0f/3.0f * -20,
+              4.0f/3.0f * (this->getISize().fWidth - 20),
+              4.0f/3.0f * (this->getISize().fHeight - 20));
 
             bounds.inset(SkIntToScalar(100), SkIntToScalar(100));
             SkPaint boundPaint;

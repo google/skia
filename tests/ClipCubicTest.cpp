@@ -44,8 +44,8 @@ static bool CurvesAreEqual(const SkPoint c0[4],
                            const SkPoint c1[4],
                            float tol) {
     for (int i = 0; i < 4; i++) {
-        if (SkScalarAbs(c0[i].fX - c1[i].fX) > SkFloatToScalar(tol) ||
-            SkScalarAbs(c0[i].fY - c1[i].fY) > SkFloatToScalar(tol)
+        if (SkScalarAbs(c0[i].fX - c1[i].fX) > tol ||
+            SkScalarAbs(c0[i].fY - c1[i].fY) > tol
         ) {
             PrintCurve("c0", c0);
             PrintCurve("c1", c1);
@@ -61,10 +61,10 @@ static SkPoint* SetCurve(float x0, float y0,
                          float x2, float y2,
                          float x3, float y3,
                          SkPoint crv[4]) {
-    crv[0].fX = SkFloatToScalar(x0);   crv[0].fY = SkFloatToScalar(y0);
-    crv[1].fX = SkFloatToScalar(x1);   crv[1].fY = SkFloatToScalar(y1);
-    crv[2].fX = SkFloatToScalar(x2);   crv[2].fY = SkFloatToScalar(y2);
-    crv[3].fX = SkFloatToScalar(x3);   crv[3].fY = SkFloatToScalar(y3);
+    crv[0].fX = x0;   crv[0].fY = y0;
+    crv[1].fX = x1;   crv[1].fY = y1;
+    crv[2].fX = x2;   crv[2].fY = y2;
+    crv[3].fX = x3;   crv[3].fY = y3;
     return crv;
 }
 
@@ -81,7 +81,7 @@ static void TestCubicClipping(skiatest::Reporter* reporter) {
     SkPoint clipped[4], shouldbe[4];
     SkIRect clipRect;
     bool success;
-    const float tol = SkFloatToScalar(1e-4f);
+    const float tol = 1e-4f;
 
     // Test no clip, with plenty of room.
     clipRect.set(-2, -2, 6, 14);

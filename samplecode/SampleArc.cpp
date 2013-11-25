@@ -25,7 +25,7 @@
 #include "SkParsePath.h"
 static void testparse() {
     SkRect r;
-    r.set(0, 0, SkFloatToScalar(10), SkFloatToScalar(10.5f));
+    r.set(0, 0, 10, 10.5f);
     SkPath p, p2;
     SkString str, str2;
 
@@ -123,7 +123,7 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         fSweep = SampleCode::GetAnimScalar(SkIntToScalar(360)/24,
                                            SkIntToScalar(360));
-//        fSweep = SkFloatToScalar(359.99f);
+//        fSweep = 359.99f;
 
         SkRect  r;
         SkPaint paint;

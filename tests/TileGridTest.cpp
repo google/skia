@@ -86,7 +86,7 @@ public:
         {
             SkBitmapDevice device(store);
             MockCanvas mockCanvas(&device);
-            mockCanvas.translate(SkFloatToScalar(-7.99f), SkFloatToScalar(-7.99f));
+            mockCanvas.translate(-7.99f, -7.99f);
             picture.draw(&mockCanvas);
             REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
             REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
@@ -95,7 +95,7 @@ public:
         {
             SkBitmapDevice device(store);
             MockCanvas mockCanvas(&device);
-            mockCanvas.translate(SkFloatToScalar(-9.5f), SkFloatToScalar(-9.5f));
+            mockCanvas.translate(-9.5f, -9.5f);
             picture.draw(&mockCanvas);
             REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
             REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
@@ -105,7 +105,7 @@ public:
         {
             SkBitmapDevice device(store);
             MockCanvas mockCanvas(&device);
-            mockCanvas.translate(SkFloatToScalar(-16.0f), SkFloatToScalar(-16.0f));
+            mockCanvas.translate(-16.0f, -16.0f);
             picture.draw(&mockCanvas);
             REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
             REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
@@ -114,7 +114,7 @@ public:
         {
             SkBitmapDevice device(store);
             MockCanvas mockCanvas(&device);
-            mockCanvas.translate(SkFloatToScalar(2.0f), SkFloatToScalar(0.0f));
+            mockCanvas.translate(2.0f, 0.0f);
             picture.draw(&mockCanvas);
             REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
             REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
@@ -122,7 +122,7 @@ public:
         {
             SkBitmapDevice device(store);
             MockCanvas mockCanvas(&device);
-            mockCanvas.translate(SkFloatToScalar(0.0f), SkFloatToScalar(2.0f));
+            mockCanvas.translate(0.0f, 2.0f);
             picture.draw(&mockCanvas);
             REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
             REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
@@ -130,7 +130,7 @@ public:
         {
             SkBitmapDevice device(store);
             MockCanvas mockCanvas(&device);
-            mockCanvas.translate(SkFloatToScalar(-22.0f), SkFloatToScalar(-16.0f));
+            mockCanvas.translate(-22.0f, -16.0f);
             picture.draw(&mockCanvas);
             REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
             REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
@@ -138,7 +138,7 @@ public:
         {
             SkBitmapDevice device(store);
             MockCanvas mockCanvas(&device);
-            mockCanvas.translate(SkFloatToScalar(-16.0f), SkFloatToScalar(-22.0f));
+            mockCanvas.translate(-16.0f, -22.0f);
             picture.draw(&mockCanvas);
             REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
             REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
@@ -211,7 +211,7 @@ public:
         {
             SkBitmapDevice device(tileBitmap);
             MockCanvas mockCanvas(&device);
-            mockCanvas.translate(SkFloatToScalar(-7.9f), SkFloatToScalar(-7.9f));
+            mockCanvas.translate(-7.9f, -7.9f);
             picture.draw(&mockCanvas);
             REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
             REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
@@ -220,7 +220,7 @@ public:
         {
             SkBitmapDevice device(tileBitmap);
             MockCanvas mockCanvas(&device);
-            mockCanvas.translate(SkFloatToScalar(-8.1f), SkFloatToScalar(-8.1f));
+            mockCanvas.translate(-8.1f, -8.1f);
             picture.draw(&mockCanvas);
             REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
             REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
@@ -232,7 +232,7 @@ public:
             // adjusted region, sitting right on top of the tile boundary.
             SkBitmapDevice device(tinyBitmap);
             MockCanvas mockCanvas(&device);
-            mockCanvas.translate(SkFloatToScalar(-8.0f), SkFloatToScalar(-8.0f));
+            mockCanvas.translate(-8.0f, -8.0f);
             picture.draw(&mockCanvas);
             // This test passes by not asserting. We do not validate the rects recorded
             // because the result is numerically unstable (floating point equality).

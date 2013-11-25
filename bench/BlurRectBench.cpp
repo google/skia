@@ -14,11 +14,11 @@
 #include "SkBlurMask.h"
 
 #define SMALL   SkIntToScalar(2)
-#define REAL    SkFloatToScalar(1.5f)
+#define REAL    1.5f
 static const SkScalar kMedium = SkIntToScalar(5);
 #define BIG     SkIntToScalar(10)
 static const SkScalar kMedBig = SkIntToScalar(20);
-#define REALBIG SkFloatToScalar(30.5f)
+#define REALBIG 30.5f
 
 class BlurRectBench: public SkBenchmark {
     int         fLoopCount;

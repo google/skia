@@ -55,7 +55,7 @@ static void Line2path_pixelCircle(SkPath* path, const char* line,
         if (GetBit(line,i)) {
             path->addCircle(i + SK_ScalarHalf,
                             lineIdx + SK_ScalarHalf,
-                            SkFloatToScalar(SQRT_2 / 2.0f));
+                            SQRT_2 / 2.0f);
         }
     }
 }

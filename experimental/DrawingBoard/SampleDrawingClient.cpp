@@ -44,7 +44,7 @@ public:
         fPalette->setVisibleP(true);
         this->attachChildToFront(fPalette);
         fPalette->unref();
-        fBrushSize = SkFloatToScalar(2.5);
+        fBrushSize = 2.5;
         fAA = false;
         fPaletteVisible = true;
         fSync = true;

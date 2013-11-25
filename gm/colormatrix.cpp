@@ -122,19 +122,19 @@ protected:
             setColorMatrix(&paint, matrix);
             canvas->drawBitmap(bmps[i], 240, 0, &paint);
 
-            matrix.setSaturation(SkFloatToScalar(0.0f));
+            matrix.setSaturation(0.0f);
             setColorMatrix(&paint, matrix);
             canvas->drawBitmap(bmps[i], 0, 80, &paint);
 
-            matrix.setSaturation(SkFloatToScalar(0.5f));
+            matrix.setSaturation(0.5f);
             setColorMatrix(&paint, matrix);
             canvas->drawBitmap(bmps[i], 80, 80, &paint);
 
-            matrix.setSaturation(SkFloatToScalar(1.0f));
+            matrix.setSaturation(1.0f);
             setColorMatrix(&paint, matrix);
             canvas->drawBitmap(bmps[i], 160, 80, &paint);
 
-            matrix.setSaturation(SkFloatToScalar(2.0f));
+            matrix.setSaturation(2.0f);
             setColorMatrix(&paint, matrix);
             canvas->drawBitmap(bmps[i], 240, 80, &paint);
 

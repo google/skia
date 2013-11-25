@@ -31,8 +31,8 @@ void highQualityFilter(ColorPacker pack, const SkBitmapProcState& s, int x, int 
 
     while (count-- > 0) {
         SkPoint srcPt;
-        s.fInvProc(s.fInvMatrix, SkFloatToScalar(x + 0.5f),
-                    SkFloatToScalar(y + 0.5f), &srcPt);
+        s.fInvProc(s.fInvMatrix, x + 0.5f,
+                    y + 0.5f, &srcPt);
         srcPt.fX -= SK_ScalarHalf;
         srcPt.fY -= SK_ScalarHalf;
 

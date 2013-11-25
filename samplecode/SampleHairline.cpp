@@ -39,8 +39,8 @@ static void test_chromium_9005() {
 
     SkCanvas canvas(bm);
 
-    SkPoint pt0 = { SkFloatToScalar(799.33374f), SkFloatToScalar(1.2360189f) };
-    SkPoint pt1 = { SkFloatToScalar(808.49969f), SkFloatToScalar(-7.4338055f) };
+    SkPoint pt0 = { 799.33374f, 1.2360189f };
+    SkPoint pt1 = { 808.49969f, -7.4338055f };
 
     SkPaint paint;
     paint.setAntiAlias(true);

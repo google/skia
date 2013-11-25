@@ -41,11 +41,11 @@ public:
             m1.reset();
 
             const SkScalar src1[] = {
-                0, 0, 0, SkFloatToScalar(427), SkFloatToScalar(316), SkFloatToScalar(427), SkFloatToScalar(316), 0
+                0, 0, 0, 427, 316, 427, 316, 0
             };
             const SkScalar dst1[] = {
-                SkFloatToScalar(158), SkFloatToScalar(177.5f), SkFloatToScalar(158), SkFloatToScalar(249.5f),
-                SkFloatToScalar(158), SkFloatToScalar(604.5f), SkFloatToScalar(158), SkFloatToScalar(-177.5f)
+                158, 177.5f, 158, 249.5f,
+                158, 604.5f, 158, -177.5f
             };
 
             (void) m2.setPolyToPoly((const SkPoint*)src1, (SkPoint*)dst1, 4);
@@ -112,7 +112,7 @@ protected:
         SkString str;
         str.appendS32(count);
         canvas->drawText(str.c_str(), str.size(),
-                         x, SkFloatToScalar(y),
+                         x, y,
                          *paint);
 
         canvas->restore();

@@ -53,7 +53,7 @@ void SkBBoxRecord::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
     // Note: The device coordinate outset in SkBBoxHierarchyRecord::handleBBox is currently
     // done in the recording coordinate space, which is wrong.
     // http://code.google.com/p/skia/issues/detail?id=1021
-    static const SkScalar kMinWidth = SkFloatToScalar(0.01f);
+    static const SkScalar kMinWidth = 0.01f;
     SkScalar halfStrokeWidth = SkMaxScalar(paint.getStrokeWidth(), kMinWidth) / 2;
     bbox.outset(halfStrokeWidth, halfStrokeWidth);
     if (this->transformBounds(bbox, &paint)) {

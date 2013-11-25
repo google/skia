@@ -80,8 +80,8 @@ static void test_drawText(skiatest::Reporter* reporter) {
 
     for (float offsetY = 0.0f; offsetY < 1.0f; offsetY += (1.0f / 16.0f)) {
         for (float offsetX = 0.0f; offsetX < 1.0f; offsetX += (1.0f / 16.0f)) {
-            SkPoint point = SkPoint::Make(SkFloatToScalar(25.0f + offsetX),
-                                          SkFloatToScalar(25.0f + offsetY));
+            SkPoint point = SkPoint::Make(25.0f + offsetX,
+                                          25.0f + offsetY);
 
             for (int align = 0; align < SkPaint::kAlignCount; ++align) {
                 paint.setTextAlign(static_cast<SkPaint::Align>(align));

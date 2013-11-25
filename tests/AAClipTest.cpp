@@ -386,10 +386,10 @@ static void test_regressions() {
     {
         SkAAClip clip;
         SkRect r;
-        r.fLeft = SkFloatToScalar(129.892181f);
-        r.fTop = SkFloatToScalar(10.3999996f);
-        r.fRight = SkFloatToScalar(130.892181f);
-        r.fBottom = SkFloatToScalar(20.3999996f);
+        r.fLeft = 129.892181f;
+        r.fTop = 10.3999996f;
+        r.fRight = 130.892181f;
+        r.fBottom = 20.3999996f;
         clip.setRect(r, true);
     }
 }

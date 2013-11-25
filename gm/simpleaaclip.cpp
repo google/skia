@@ -53,10 +53,10 @@ public:
     : fGeomType(geomType) {
 
         // offset the rects a bit so we get anti-aliasing in the rect case
-        fBase.set(SkFloatToScalar(100.65f),
-                  SkFloatToScalar(100.65f),
-                  SkFloatToScalar(150.65f),
-                  SkFloatToScalar(150.65f));
+        fBase.set(100.65f,
+                  100.65f,
+                  150.65f,
+                  150.65f);
         fRect = fBase;
         fRect.inset(5, 5);
         fRect.offset(25, 25);

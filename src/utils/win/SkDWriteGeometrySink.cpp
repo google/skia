@@ -65,7 +65,7 @@ void STDMETHODCALLTYPE SkDWriteGeometrySink::SetSegmentFlags(D2D1_PATH_SEGMENT v
 }
 
 void STDMETHODCALLTYPE SkDWriteGeometrySink::BeginFigure(D2D1_POINT_2F startPoint, D2D1_FIGURE_BEGIN figureBegin) {
-    fPath->moveTo(SkFloatToScalar(startPoint.x), SkFloatToScalar(startPoint.y));
+    fPath->moveTo(startPoint.x, startPoint.y);
     if (figureBegin == D2D1_FIGURE_BEGIN_HOLLOW) {
         SkDEBUGFAIL("Invalid D2D1_FIGURE_BEGIN value.");
     }
@@ -73,7 +73,7 @@ void STDMETHODCALLTYPE SkDWriteGeometrySink::BeginFigure(D2D1_POINT_2F startPoin
 
 void STDMETHODCALLTYPE SkDWriteGeometrySink::AddLines(const D2D1_POINT_2F *points, UINT pointsCount) {
     for (const D2D1_POINT_2F *end = &points[pointsCount]; points < end; ++points) {
-        fPath->lineTo(SkFloatToScalar(points->x), SkFloatToScalar(points->y));
+        fPath->lineTo(points->x, points->y);
     }
 }
 
@@ -121,12 +121,12 @@ void STDMETHODCALLTYPE SkDWriteGeometrySink::AddBeziers(const D2D1_BEZIER_SEGMEN
                         { beziers->point3.x, beziers->point3.y }, };
         Quadratic quadratic;
         if (check_quadratic(cubic, quadratic)) {
-            fPath->quadTo(SkFloatToScalar(quadratic[1].x), SkFloatToScalar(quadratic[1].y),
-                          SkFloatToScalar(quadratic[2].x), SkFloatToScalar(quadratic[2].y));
+            fPath->quadTo(quadratic[1].x, quadratic[1].y,
+                          quadratic[2].x, quadratic[2].y);
         } else {
-            fPath->cubicTo(SkFloatToScalar(beziers->point1.x), SkFloatToScalar(beziers->point1.y),
-                           SkFloatToScalar(beziers->point2.x), SkFloatToScalar(beziers->point2.y),
-                           SkFloatToScalar(beziers->point3.x), SkFloatToScalar(beziers->point3.y));
+            fPath->cubicTo(beziers->point1.x, beziers->point1.y,
+                           beziers->point2.x, beziers->point2.y,
+                           beziers->point3.x, beziers->point3.y);
         }
         prevPt = beziers->point3;
     }

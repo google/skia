@@ -198,7 +198,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
         // so we only keep High quality if the scale is greater than this.
         //
         // Since we're dealing with the inverse, we compare against its inverse.
-        const SkScalar bicubicLimit = SkFloatToScalar(4.0f);
+        const SkScalar bicubicLimit = 4.0f;
         const SkScalar bicubicLimitSqd = bicubicLimit * bicubicLimit;
         if (scaleSqd < bicubicLimitSqd) {  // use bicubic scanline
             return false;

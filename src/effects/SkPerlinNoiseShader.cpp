@@ -45,7 +45,7 @@ inline int checkNoise(int noiseValue, int limitValue, int newValue) {
 }
 
 inline SkScalar smoothCurve(SkScalar t) {
-    static const SkScalar SK_Scalar3 = SkFloatToScalar(3.0f);
+    static const SkScalar SK_Scalar3 = 3.0f;
 
     // returns t * t * (3 - 2 * t)
     return SkScalarMul(SkScalarSquare(t), SK_Scalar3 - 2 * t);
@@ -165,7 +165,7 @@ public:
         }
 
         // Half of the largest possible value for 16 bit unsigned int
-        static const SkScalar gHalfMax16bits = SkFloatToScalar(32767.5f);
+        static const SkScalar gHalfMax16bits = 32767.5f;
 
         // Compute gradients from permutated noise data
         for (int channel = 0; channel < 4; ++channel) {
@@ -729,10 +729,10 @@ GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
     bool     stitchTiles = random->nextBool();
     SkScalar seed = SkIntToScalar(random->nextU());
     SkISize  tileSize = SkISize::Make(random->nextRangeU(4, 4096), random->nextRangeU(4, 4096));
-    SkScalar baseFrequencyX = random->nextRangeScalar(SkFloatToScalar(0.01f),
-                                                      SkFloatToScalar(0.99f));
-    SkScalar baseFrequencyY = random->nextRangeScalar(SkFloatToScalar(0.01f),
-                                                      SkFloatToScalar(0.99f));
+    SkScalar baseFrequencyX = random->nextRangeScalar(0.01f,
+                                                      0.99f);
+    SkScalar baseFrequencyY = random->nextRangeScalar(0.01f,
+                                                      0.99f);
 
     SkShader* shader = random->nextBool() ?
         SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves, seed,

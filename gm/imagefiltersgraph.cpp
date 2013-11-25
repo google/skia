@@ -140,7 +140,7 @@ protected:
             SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
                                     0, SK_Scalar1, 0, 0, 0,
                                     0, 0, SK_Scalar1, 0, 0,
-                                    0, 0, 0, SkFloatToScalar(0.5f), 0 };
+                                    0, 0, 0, 0.5f, 0 };
 
             SkAutoTUnref<SkColorFilter> matrixFilter(new SkColorMatrixFilter(matrix));
             SkAutoTUnref<SkImageFilter> colorMorph(SkColorFilterImageFilter::Create(matrixFilter, morph));
@@ -156,7 +156,7 @@ protected:
             SkScalar matrix[20] = { SK_Scalar1, 0, 0, 0, 0,
                                     0, SK_Scalar1, 0, 0, 0,
                                     0, 0, SK_Scalar1, 0, 0,
-                                    0, 0, 0, SkFloatToScalar(0.5f), 0 };
+                                    0, 0, 0, 0.5f, 0 };
             SkColorMatrixFilter matrixCF(matrix);
             SkAutoTUnref<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Create(&matrixCF));
             SimpleOffsetFilter offsetFilter(SkIntToScalar(10), SkIntToScalar(10), matrixFilter);

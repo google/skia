@@ -490,7 +490,7 @@ static SkPdfResult DrawText(SkPdfContext* pdfContext,
 
     // TODO(edisonn): implement font scaler
 //    if (fCurFont && fCurFont->GetFontScale() != 0) {
-//        paint.setTextScaleX(SkFloatToScalar(fCurFont->GetFontScale() / 100.0));
+//        paint.setTextScaleX(fCurFont->GetFontScale() / 100.0);
 //    }
 
     pdfContext->fGraphicsState.applyGraphicsState(&paint, false);

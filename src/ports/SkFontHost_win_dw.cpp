@@ -1378,10 +1378,10 @@ void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
         SkTScopedComPtr<IDWriteRenderingParams> defaultRenderingParams;
         if (SUCCEEDED(factory->CreateRenderingParams(&defaultRenderingParams))) {
             float gamma = defaultRenderingParams->GetGamma();
-            rec->setDeviceGamma(SkFloatToScalar(gamma));
-            rec->setPaintGamma(SkFloatToScalar(gamma));
+            rec->setDeviceGamma(gamma);
+            rec->setPaintGamma(gamma);
 
-            rec->setContrast(SkFloatToScalar(defaultRenderingParams->GetEnhancedContrast()));
+            rec->setContrast(defaultRenderingParams->GetEnhancedContrast());
         }
     }
 #endif

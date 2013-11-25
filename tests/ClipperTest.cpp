@@ -22,8 +22,8 @@ static void test_hairclipping(skiatest::Reporter* reporter) {
 
     SkCanvas canvas(bm);
     canvas.clipRect(SkRect::MakeWH(SkIntToScalar(4), SkIntToScalar(2)));
-    canvas.drawLine(SkFloatToScalar(1.5f), SkFloatToScalar(1.5f),
-                    SkFloatToScalar(3.5f), SkFloatToScalar(3.5f), paint);
+    canvas.drawLine(1.5f, 1.5f,
+                    3.5f, 3.5f, paint);
 
     /**
      *  We had a bug where we misinterpreted the bottom of the clip, and
@@ -52,10 +52,10 @@ static void test_edgeclipper() {
     SkEdgeClipper clipper;
 
     const SkPoint pts[] = {
-        { SkFloatToScalar(3.0995476e+010f),  SkFloatToScalar(42.929779f) },
-        { SkFloatToScalar(-3.0995163e+010f), SkFloatToScalar(51.050385f) },
-        { SkFloatToScalar(-3.0995157e+010f), SkFloatToScalar(51.050392f) },
-        { SkFloatToScalar(-3.0995134e+010f), SkFloatToScalar(51.050400f) },
+        { 3.0995476e+010f,  42.929779f },
+        { -3.0995163e+010f, 51.050385f },
+        { -3.0995157e+010f, 51.050392f },
+        { -3.0995134e+010f, 51.050400f },
     };
 
     const SkRect clip = { 0, 0, SkIntToScalar(300), SkIntToScalar(200) };

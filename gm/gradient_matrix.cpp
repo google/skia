@@ -24,7 +24,7 @@ static const SkColor gColors[] = {
 };
 
 // These annoying defines are necessary, because the only other alternative
-// is to use SkIntToScalar(...) or SkFloatToScalar(...) everywhere.
+// is to use SkIntToScalar(...) everywhere.
 static const SkScalar sZero = 0;
 static const SkScalar sHalf = SK_ScalarHalf;
 static const SkScalar sOne = SK_Scalar1;

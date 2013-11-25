@@ -9,8 +9,8 @@
 #include "SkMatrix.h"
 #include "SkRRect.h"
 
-static const SkScalar kWidth = SkFloatToScalar(100.0f);
-static const SkScalar kHeight = SkFloatToScalar(100.0f);
+static const SkScalar kWidth = 100.0f;
+static const SkScalar kHeight = 100.0f;
 
 static void test_inset(skiatest::Reporter* reporter) {
     SkRRect rr, rr2;
@@ -510,7 +510,7 @@ static void test_transform_helper(skiatest::Reporter* reporter, const SkRRect& o
 
     // Scale in both directions.
     SkScalar xScale = SkIntToScalar(3);
-    SkScalar yScale = SkFloatToScalar(3.2f);
+    SkScalar yScale = 3.2f;
     matrix.reset();
     matrix.setScaleX(xScale);
     matrix.setScaleY(yScale);

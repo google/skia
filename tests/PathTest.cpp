@@ -833,7 +833,7 @@ static void test_direction(skiatest::Reporter* reporter) {
     // triangle with one point really far from the origin.
     path.reset();
     // the first point is roughly 1.05e10, 1.05e10
-    path.moveTo(SkFloatToScalar(SkBits2Float(0x501c7652)), SkFloatToScalar(SkBits2Float(0x501c7652)));
+    path.moveTo(SkBits2Float(0x501c7652), SkBits2Float(0x501c7652));
     path.lineTo(110 * SK_Scalar1, -10 * SK_Scalar1);
     path.lineTo(-10 * SK_Scalar1, 60 * SK_Scalar1);
     check_direction(reporter, path, SkPath::kCCW_Direction);
@@ -1274,10 +1274,10 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
         {kBaseRect, true, true, false, false},
 
         // rect well inside of kBaseRect
-        {SkRect::MakeLTRB(kBaseRect.fLeft + SkFloatToScalar(0.25f)*kBaseRect.width(),
-                          kBaseRect.fTop + SkFloatToScalar(0.25f)*kBaseRect.height(),
-                          kBaseRect.fRight - SkFloatToScalar(0.25f)*kBaseRect.width(),
-                          kBaseRect.fBottom - SkFloatToScalar(0.25f)*kBaseRect.height()),
+        {SkRect::MakeLTRB(kBaseRect.fLeft + 0.25f*kBaseRect.width(),
+                          kBaseRect.fTop + 0.25f*kBaseRect.height(),
+                          kBaseRect.fRight - 0.25f*kBaseRect.width(),
+                          kBaseRect.fBottom - 0.25f*kBaseRect.height()),
                           true, true, true, true},
 
         // rects with edges off by one from kBaseRect's edges
@@ -1382,7 +1382,7 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
             // Slightly non-convex shape, shouldn't contain any rects.
             path.reset();
             path.moveTo(0, 0);
-            path.lineTo(SkIntToScalar(50), SkFloatToScalar(0.05f));
+            path.lineTo(SkIntToScalar(50), 0.05f);
             path.lineTo(SkIntToScalar(100), 0);
             path.lineTo(SkIntToScalar(100), SkIntToScalar(100));
             path.lineTo(0, SkIntToScalar(100));
@@ -2962,13 +2962,13 @@ static void test_arcTo(skiatest::Reporter* reporter) {
     p.arcTo(oval, 360, 0, false);
     check_path_is_move_and_reset(reporter, &p, oval.fRight, oval.centerY());
     for (float sweep = 359, delta = 0.5f; sweep != (float) (sweep + delta); ) {
-        p.arcTo(oval, 0, SkFloatToScalar(sweep), false);
+        p.arcTo(oval, 0, sweep, false);
         REPORTER_ASSERT(reporter, p.getBounds() == oval);
         sweep += delta;
         delta /= 2;
     }
     for (float sweep = 361, delta = 0.5f; sweep != (float) (sweep - delta);) {
-        p.arcTo(oval, 0, SkFloatToScalar(sweep), false);
+        p.arcTo(oval, 0, sweep, false);
         REPORTER_ASSERT(reporter, p.getBounds() == oval);
         sweep -= delta;
         delta /= 2;

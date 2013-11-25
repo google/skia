@@ -18,7 +18,7 @@ class SkWStream;
 
 /** SK_ScalarDefaultDPI is 72 DPI.
 */
-#define SK_ScalarDefaultRasterDPI           SkFloatToScalar(72.0f)
+#define SK_ScalarDefaultRasterDPI           72.0f
 
 /**
  *  High-level API for creating a document-based canvas. To use..

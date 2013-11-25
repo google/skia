@@ -176,7 +176,7 @@ static bool is_between_unsorted(SkScalar value,
 static void sect_with_horizontal_test_for_pin_results() {
     const SkPoint pts[] = {
         { -540000,    -720000 },
-        { SkFloatToScalar(-9.10000017e-05f), SkFloatToScalar(9.99999996e-13f) }
+        { -9.10000017e-05f, 9.99999996e-13f }
     };
     float x = sect_with_horizontal(pts, 0);
     SkASSERT(is_between_unsorted(x, pts[0].fX, pts[1].fX));

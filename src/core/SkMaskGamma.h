@@ -35,9 +35,9 @@ public:
         SkScalar r = luminance.toLuma(gamma, SkIntToScalar(SkColorGetR(c)) / 255);
         SkScalar g = luminance.toLuma(gamma, SkIntToScalar(SkColorGetG(c)) / 255);
         SkScalar b = luminance.toLuma(gamma, SkIntToScalar(SkColorGetB(c)) / 255);
-        SkScalar luma = r * SkFloatToScalar(SK_LUM_COEFF_R) +
-                        g * SkFloatToScalar(SK_LUM_COEFF_G) +
-                        b * SkFloatToScalar(SK_LUM_COEFF_B);
+        SkScalar luma = r * SK_LUM_COEFF_R +
+                        g * SK_LUM_COEFF_G +
+                        b * SK_LUM_COEFF_B;
         SkASSERT(luma <= SK_Scalar1);
         return SkScalarRoundToInt(luminance.fromLuma(gamma, luma) * 255);
     }

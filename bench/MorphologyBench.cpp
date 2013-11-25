@@ -14,7 +14,7 @@
 #include "SkMorphologyImageFilter.h"
 
 #define SMALL   SkIntToScalar(2)
-#define REAL    SkFloatToScalar(1.5f)
+#define REAL    1.5f
 #define BIG     SkIntToScalar(10)
 
 enum MorphologyType {

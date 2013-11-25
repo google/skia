@@ -120,13 +120,13 @@ static void test_treatAsSprite(skiatest::Reporter* reporter) {
 
     size.set(500, 600);
 
-    const SkScalar tooMuchSubpixel = SkFloatToScalar(100.1f);
+    const SkScalar tooMuchSubpixel = 100.1f;
     mat.setTranslate(tooMuchSubpixel, 0);
     REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, bilerBits));
     mat.setTranslate(0, tooMuchSubpixel);
     REPORTER_ASSERT(reporter, !treat_as_sprite(mat, size, bilerBits));
 
-    const SkScalar tinySubPixel = SkFloatToScalar(100.02f);
+    const SkScalar tinySubPixel = 100.02f;
     mat.setTranslate(tinySubPixel, 0);
     REPORTER_ASSERT(reporter, treat_as_sprite(mat, size, bilerBits));
     mat.setTranslate(0, tinySubPixel);
@@ -181,12 +181,12 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
     SkMatrix matrix;
 
     SkCanvas c(dev);
-    matrix.setAll(SkFloatToScalar(-119.34097f),
-                  SkFloatToScalar(-43.436558f),
-                  SkFloatToScalar(93489.945f),
-                  SkFloatToScalar(43.436558f),
-                  SkFloatToScalar(-119.34097f),
-                  SkFloatToScalar(123.98426f),
+    matrix.setAll(-119.34097f,
+                  -43.436558f,
+                  93489.945f,
+                  43.436558f,
+                  -119.34097f,
+                  123.98426f,
                   0, 0, SK_Scalar1);
     c.concat(matrix);
 
@@ -197,11 +197,11 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
 
     SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
-    matrix.setAll(SkFloatToScalar(0.0078740157f),
+    matrix.setAll(0.0078740157f,
                   0,
                   SkIntToScalar(249),
                   0,
-                  SkFloatToScalar(0.0078740157f),
+                  0.0078740157f,
                   SkIntToScalar(239),
                   0, 0, SK_Scalar1);
     s->setLocalMatrix(matrix);

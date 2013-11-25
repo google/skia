@@ -80,7 +80,7 @@ static float make_number(bool positiveOnly) {
 }
 
 static SkScalar make_scalar(bool positiveOnly = false) {
-    return SkFloatToScalar(make_number(positiveOnly));
+    return make_number(positiveOnly);
 }
 
 static SkRect make_rect(int offset = 1) {

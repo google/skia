@@ -1134,9 +1134,9 @@ bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4], bool*
     // instead of down
     if (cubic[3].fY > cubic[0].fY) {
         upper_t = SK_Scalar1;
-        lower_t = SkFloatToScalar(0);
+        lower_t = 0;
     } else {
-        upper_t = SkFloatToScalar(0);
+        upper_t = 0;
         lower_t = SK_Scalar1;
     }
     do {

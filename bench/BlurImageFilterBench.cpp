@@ -18,8 +18,8 @@
 #define FILTER_HEIGHT_SMALL 32
 #define FILTER_WIDTH_LARGE  256
 #define FILTER_HEIGHT_LARGE 256
-#define BLUR_SIGMA_SMALL    SkFloatToScalar(1.0f)
-#define BLUR_SIGMA_LARGE    SkFloatToScalar(10.0f)
+#define BLUR_SIGMA_SMALL    1.0f
+#define BLUR_SIGMA_LARGE    10.0f
 
 class BlurImageFilterBench : public SkBenchmark {
 public:

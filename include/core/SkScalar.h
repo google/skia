@@ -78,7 +78,9 @@
     #define SkScalarToFixed(x)      SkFloatToFixed(x)
 
     #define SkScalarToFloat(n)      (n)
+#ifndef SK_SCALAR_TO_FLOAT_EXCLUDED
     #define SkFloatToScalar(n)      (n)
+#endif
 
     #define SkScalarToDouble(n)      (double)(n)
     #define SkDoubleToScalar(n)      (float)(n)
@@ -198,7 +200,9 @@
     #define SkFixedToScalar(x)      (x)
     #define SkScalarToFixed(x)      (x)
     #define SkScalarToFloat(n)  SkFixedToFloat(n)
+#ifndef SK_SCALAR_TO_FLOAT_EXCLUDED
     #define SkFloatToScalar(n)  SkFloatToFixed(n)
+#endif
 
     #define SkScalarToDouble(n) SkFixedToDouble(n)
     #define SkDoubleToScalar(n) SkDoubleToFixed(n)

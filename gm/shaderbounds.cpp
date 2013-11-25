@@ -41,7 +41,7 @@ protected:
 
     virtual SkMatrix onGetInitialTransform() const SK_OVERRIDE {
         SkMatrix result;
-        SkScalar scale = SkFloatToScalar(0.8f);
+        SkScalar scale = 0.8f;
         result.setScale(scale, scale);
         result.postTranslate(SkIntToScalar(7), SkIntToScalar(23));
         return result;
@@ -54,7 +54,7 @@ protected:
                                         SkIntToScalar(240)));
 
         SkMatrix canvasScale;
-        SkScalar scale = SkFloatToScalar(0.7f);
+        SkScalar scale = 0.7f;
         canvasScale.setScale(scale, scale);
         canvas->concat(canvasScale);
 
@@ -74,9 +74,9 @@ protected:
     }
 
     SkShader* MakeShader(int width, int height, bool background) {
-        SkScalar scale = SkFloatToScalar(0.5f);
+        SkScalar scale = 0.5f;
         if (background) {
-            scale = SkFloatToScalar(0.6f);
+            scale = 0.6f;
         }
         SkScalar shaderWidth = SkScalarDiv(SkIntToScalar(width), scale);
         SkScalar shaderHeight = SkScalarDiv(SkIntToScalar(height), scale);

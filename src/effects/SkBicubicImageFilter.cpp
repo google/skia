@@ -115,7 +115,7 @@ bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
     src.getBounds(&srcRect);
     SkMatrix inverse;
     inverse.setRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
-    inverse.postTranslate(SkFloatToScalar(-0.5f), SkFloatToScalar(-0.5f));
+    inverse.postTranslate(-0.5f, -0.5f);
 
     for (int y = dstIRect.fTop; y < dstIRect.fBottom; ++y) {
         SkPMColor* dptr = result->getAddr32(dstIRect.fLeft, y);

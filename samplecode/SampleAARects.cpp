@@ -85,95 +85,95 @@ protected:
                     paints[p].setAlpha(a > 1 ? 0x80 : 0xff);
 
                     canvas->save();
-                        rect = SkRect::MakeLTRB(SkFloatToScalar(0.f),
-                                                SkFloatToScalar(0.f),
-                                                SkFloatToScalar(40.f),
-                                                SkFloatToScalar(40.f));
+                        rect = SkRect::MakeLTRB(0.f,
+                                                0.f,
+                                                40.f,
+                                                40.f);
                         canvas->drawRect(rect, paints[p]);
                         canvas->translate(dx, 0);
 
-                        rect = SkRect::MakeLTRB(SkFloatToScalar(0.5f),
-                                                SkFloatToScalar(0.5f),
-                                                SkFloatToScalar(40.5f),
-                                                SkFloatToScalar(40.5f));
+                        rect = SkRect::MakeLTRB(0.5f,
+                                                0.5f,
+                                                40.5f,
+                                                40.5f);
                         canvas->drawRect(rect, paints[p]);
                         canvas->translate(dx, 0);
 
-                        rect = SkRect::MakeLTRB(SkFloatToScalar(0.5f),
-                                                SkFloatToScalar(0.5f),
-                                                SkFloatToScalar(40.f),
-                                                SkFloatToScalar(40.f));
+                        rect = SkRect::MakeLTRB(0.5f,
+                                                0.5f,
+                                                40.f,
+                                                40.f);
                         canvas->drawRect(rect, paints[p]);
                         canvas->translate(dx, 0);
 
-                        rect = SkRect::MakeLTRB(SkFloatToScalar(0.75f),
-                                                SkFloatToScalar(0.75f),
-                                                SkFloatToScalar(40.75f),
-                                                SkFloatToScalar(40.75f));
+                        rect = SkRect::MakeLTRB(0.75f,
+                                                0.75f,
+                                                40.75f,
+                                                40.75f);
                         canvas->drawRect(rect, paints[p]);
                         canvas->translate(dx, 0);
 
                         canvas->save();
-                            canvas->translate(SkFloatToScalar(.33f), SkFloatToScalar(.67f));
-                            rect = SkRect::MakeLTRB(SkFloatToScalar(0.0f),
-                                                    SkFloatToScalar(0.0f),
-                                                    SkFloatToScalar(40.0f),
-                                                    SkFloatToScalar(40.0f));
+                            canvas->translate(.33f, .67f);
+                            rect = SkRect::MakeLTRB(0.0f,
+                                                    0.0f,
+                                                    40.0f,
+                                                    40.0f);
                             canvas->drawRect(rect, paints[p]);
                         canvas->restore();
                         canvas->translate(dx, 0);
 
                         canvas->save();
-                            matrix.setRotate(SkFloatToScalar(45.f));
+                            matrix.setRotate(45.f);
                             canvas->concat(matrix);
-                            canvas->translate(SkFloatToScalar(20.0f / sqrtf(2.f)),
-                                                SkFloatToScalar(20.0f / sqrtf(2.f)));
-                            rect = SkRect::MakeLTRB(SkFloatToScalar(-20.0f),
-                                                    SkFloatToScalar(-20.0f),
-                                                    SkFloatToScalar(20.0f),
-                                                    SkFloatToScalar(20.0f));
+                            canvas->translate(20.0f / sqrtf(2.f),
+                                                20.0f / sqrtf(2.f));
+                            rect = SkRect::MakeLTRB(-20.0f,
+                                                    -20.0f,
+                                                    20.0f,
+                                                    20.0f);
                             canvas->drawRect(rect, paints[p]);
                         canvas->restore();
                         canvas->translate(dx, 0);
 
                         canvas->save();
-                            canvas->rotate(SkFloatToScalar(90.f));
-                            rect = SkRect::MakeLTRB(SkFloatToScalar(0.0f),
-                                                    SkFloatToScalar(0.0f),
-                                                    SkFloatToScalar(40.0f),
-                                                    SkFloatToScalar(-40.0f));
+                            canvas->rotate(90.f);
+                            rect = SkRect::MakeLTRB(0.0f,
+                                                    0.0f,
+                                                    40.0f,
+                                                    -40.0f);
                             canvas->drawRect(rect, paints[p]);
                         canvas->restore();
                         canvas->translate(dx, 0);
 
                         canvas->save();
-                            canvas->rotate(SkFloatToScalar(90.f));
-                            rect = SkRect::MakeLTRB(SkFloatToScalar(0.5f),
-                                                    SkFloatToScalar(0.5f),
-                                                    SkFloatToScalar(40.5f),
-                                                    SkFloatToScalar(-40.5f));
+                            canvas->rotate(90.f);
+                            rect = SkRect::MakeLTRB(0.5f,
+                                                    0.5f,
+                                                    40.5f,
+                                                    -40.5f);
                             canvas->drawRect(rect, paints[p]);
                         canvas->restore();
                         canvas->translate(dx, 0);
 
                         canvas->save();
-                            matrix.setScale(SkFloatToScalar(-1.f), SkFloatToScalar(-1.f));
+                            matrix.setScale(-1.f, -1.f);
                             canvas->concat(matrix);
-                            rect = SkRect::MakeLTRB(SkFloatToScalar(0.5f),
-                                                    SkFloatToScalar(0.5f),
-                                                    SkFloatToScalar(-40.5f),
-                                                    SkFloatToScalar(-40.5f));
+                            rect = SkRect::MakeLTRB(0.5f,
+                                                    0.5f,
+                                                    -40.5f,
+                                                    -40.5f);
                             canvas->drawRect(rect, paints[p]);
                         canvas->restore();
                         canvas->translate(dx, 0);
 
                         canvas->save();
-                            matrix.setScale(SkFloatToScalar(2.1f), SkFloatToScalar(4.1f));
+                            matrix.setScale(2.1f, 4.1f);
                             canvas->concat(matrix);
-                            rect = SkRect::MakeLTRB(SkFloatToScalar(0.1f),
-                                                    SkFloatToScalar(0.1f),
-                                                    SkFloatToScalar(19.1f),
-                                                    SkFloatToScalar(9.1f));
+                            rect = SkRect::MakeLTRB(0.1f,
+                                                    0.1f,
+                                                    19.1f,
+                                                    9.1f);
                             canvas->drawRect(rect, paints[p]);
                         canvas->restore();
                         canvas->translate(dx, 0);

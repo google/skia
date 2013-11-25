@@ -111,7 +111,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        canvas->scale(SkFloatToScalar(1.5f), SkFloatToScalar(1.5f));
+        canvas->scale(1.5f, 1.5f);
 
         const int blurRadii[] = { 1, 3, 6, 10 };
         const int cornerRadii[] = { 1, 3, 6, 10 };

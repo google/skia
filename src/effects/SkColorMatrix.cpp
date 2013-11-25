@@ -108,9 +108,9 @@ static void setrow(SkScalar row[], SkScalar r, SkScalar g, SkScalar b) {
     row[2] = b;
 }
 
-static const SkScalar kHueR = SkFloatToScalar(0.213f);
-static const SkScalar kHueG = SkFloatToScalar(0.715f);
-static const SkScalar kHueB = SkFloatToScalar(0.072f);
+static const SkScalar kHueR = 0.213f;
+static const SkScalar kHueG = 0.715f;
+static const SkScalar kHueB = 0.072f;
 
 void SkColorMatrix::setSaturation(SkScalar sat) {
     memset(fMat, 0, sizeof(fMat));
@@ -125,17 +125,17 @@ void SkColorMatrix::setSaturation(SkScalar sat) {
     fMat[18] = SK_Scalar1;
 }
 
-static const SkScalar kR2Y = SkFloatToScalar(0.299f);
-static const SkScalar kG2Y = SkFloatToScalar(0.587f);
-static const SkScalar kB2Y = SkFloatToScalar(0.114f);
+static const SkScalar kR2Y = 0.299f;
+static const SkScalar kG2Y = 0.587f;
+static const SkScalar kB2Y = 0.114f;
 
-static const SkScalar kR2U = SkFloatToScalar(-0.16874f);
-static const SkScalar kG2U = SkFloatToScalar(-0.33126f);
-static const SkScalar kB2U = SkFloatToScalar(0.5f);
+static const SkScalar kR2U = -0.16874f;
+static const SkScalar kG2U = -0.33126f;
+static const SkScalar kB2U = 0.5f;
 
-static const SkScalar kR2V = SkFloatToScalar(0.5f);
-static const SkScalar kG2V = SkFloatToScalar(-0.41869f);
-static const SkScalar kB2V = SkFloatToScalar(-0.08131f);
+static const SkScalar kR2V = 0.5f;
+static const SkScalar kG2V = -0.41869f;
+static const SkScalar kB2V = -0.08131f;
 
 void SkColorMatrix::setRGB2YUV() {
     memset(fMat, 0, sizeof(fMat));
@@ -146,10 +146,10 @@ void SkColorMatrix::setRGB2YUV() {
     fMat[18] = SK_Scalar1;
 }
 
-static const SkScalar kV2R = SkFloatToScalar(1.402f);
-static const SkScalar kU2G = SkFloatToScalar(-0.34414f);
-static const SkScalar kV2G = SkFloatToScalar(-0.71414f);
-static const SkScalar kU2B = SkFloatToScalar(1.772f);
+static const SkScalar kV2R = 1.402f;
+static const SkScalar kU2G = -0.34414f;
+static const SkScalar kV2G = -0.71414f;
+static const SkScalar kU2B = 1.772f;
 
 void SkColorMatrix::setYUV2RGB() {
     memset(fMat, 0, sizeof(fMat));

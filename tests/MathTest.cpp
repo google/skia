@@ -144,7 +144,7 @@ static void test_blend31() {
 
                 float f = float_blend(src, dst, a / 31.f);
                 int r1 = (int)f;
-                int r2 = SkScalarRoundToInt(SkFloatToScalar(f));
+                int r2 = SkScalarRoundToInt(f);
 
                 if (r0 != r1 && r0 != r2) {
                     SkDebugf("src:%d dst:%d a:%d result:%d float:%g\n",
@@ -168,7 +168,7 @@ static void test_blend(skiatest::Reporter* reporter) {
             for (int a = 0; a <= 255; a++) {
                 int r0 = SkAlphaBlend255(src, dst, a);
                 float f1 = float_blend(src, dst, a / 255.f);
-                int r1 = SkScalarRoundToInt(SkFloatToScalar(f1));
+                int r1 = SkScalarRoundToInt(f1);
 
                 if (r0 != r1) {
                     float diff = sk_float_abs(f1 - r1);

@@ -33,8 +33,8 @@ const SkMatrix& TestMatrix(SkRandom* random) {
         gMatrices[3].postTranslate(SkIntToScalar(66), SkIntToScalar(-33));
         gMatrices[3].postScale(SkIntToScalar(2), SK_ScalarHalf);
         gMatrices[4].setRotate(SkIntToScalar(215));
-        gMatrices[4].set(SkMatrix::kMPersp0, SkFloatToScalar(0.00013f));
-        gMatrices[4].set(SkMatrix::kMPersp1, SkFloatToScalar(-0.000039f));
+        gMatrices[4].set(SkMatrix::kMPersp0, 0.00013f);
+        gMatrices[4].set(SkMatrix::kMPersp1, -0.000039f);
         gOnce = true;
     }
     return gMatrices[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gMatrices)))];

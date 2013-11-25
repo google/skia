@@ -34,7 +34,7 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
 }
 
 static const int MAX_POINTS_PER_CURVE = 1 << 10;
-static const SkScalar gMinCurveTol = SkFloatToScalar(0.0001f);
+static const SkScalar gMinCurveTol = 0.0001f;
 
 uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
                                           SkScalar tol) {
@@ -250,7 +250,7 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
         m.postConcat(UVpts);
 
         // The matrix should not have perspective.
-        SkDEBUGCODE(static const SkScalar gTOL = SkFloatToScalar(1.f / 100.f));
+        SkDEBUGCODE(static const SkScalar gTOL = 1.f / 100.f);
         SkASSERT(SkScalarAbs(m.get(SkMatrix::kMPersp0)) < gTOL);
         SkASSERT(SkScalarAbs(m.get(SkMatrix::kMPersp1)) < gTOL);
 

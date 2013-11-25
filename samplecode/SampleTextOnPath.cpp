@@ -22,29 +22,29 @@ static void textStrokePath(SkCanvas* canvas) {
     canvas->save();
     canvas->scale(SkIntToScalar(250),SkIntToScalar(250));
 
-    rect.set(SkFloatToScalar(0.0f),  SkFloatToScalar(0.21f),
-             SkFloatToScalar(0.78f), SkFloatToScalar(0.99f));
+    rect.set(0.0f,  0.21f,
+             0.78f, 0.99f);
 
     path.addArc(rect, SkIntToScalar(280), SkIntToScalar(350));
 
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setColor(0xFFFF0000);
-    paint.setTextSize(SkFloatToScalar(0.085f));
-    paint.setStrokeWidth(SkFloatToScalar(.005f));
+    paint.setTextSize(0.085f);
+    paint.setStrokeWidth(.005f);
 
     canvas->drawPath(path, paint);
 
     paint.setLooper(new SkBlurDrawLooper(SK_ColorBLACK,
-                                         SkBlurMask::ConvertRadiusToSigma(SkFloatToScalar(0.002f)),
-                                         SkFloatToScalar(0.0f),
-                                         SkFloatToScalar(0.0f)))->unref();
+                                         SkBlurMask::ConvertRadiusToSigma(0.002f),
+                                         0.0f,
+                                         0.0f))->unref();
 
     const char* text = "DRAWING STROKED TEXT WITH A BLUR ON A PATH";
     size_t      len = strlen(text);
 
     canvas->drawTextOnPathHV(text, len, path, 0,
-                             SkFloatToScalar(-0.025f), paint);
+                             -0.025f, paint);
     canvas->restore();
 }
 

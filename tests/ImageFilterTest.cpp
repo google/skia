@@ -58,7 +58,7 @@ public:
     }
 
     static SkImageFilter* make_scale(float amount, SkImageFilter* input = NULL) {
-        SkScalar s = SkFloatToScalar(amount);
+        SkScalar s = amount;
         SkScalar matrix[20] = { s, 0, 0, 0, 0,
                                 0, s, 0, 0, 0,
                                 0, 0, s, 0, 0,
@@ -70,10 +70,10 @@ public:
     static SkImageFilter* make_grayscale(SkImageFilter* input = NULL, const SkImageFilter::CropRect* cropRect = NULL) {
         SkScalar matrix[20];
         memset(matrix, 0, 20 * sizeof(SkScalar));
-        matrix[0] = matrix[5] = matrix[10] = SkFloatToScalar(0.2126f);
-        matrix[1] = matrix[6] = matrix[11] = SkFloatToScalar(0.7152f);
-        matrix[2] = matrix[7] = matrix[12] = SkFloatToScalar(0.0722f);
-        matrix[18] = SkFloatToScalar(1.0f);
+        matrix[0] = matrix[5] = matrix[10] = 0.2126f;
+        matrix[1] = matrix[6] = matrix[11] = 0.7152f;
+        matrix[2] = matrix[7] = matrix[12] = 0.0722f;
+        matrix[18] = 1.0f;
         SkAutoTUnref<SkColorFilter> filter(new SkColorMatrixFilter(matrix));
         return SkColorFilterImageFilter::Create(filter, input, cropRect);
     }
@@ -128,12 +128,12 @@ public:
                 // 2 ) location and target at same value
                 SkPoint3 target(location.fX, location.fY, location.fZ);
                 // 3 ) large negative specular exponent value
-                SkScalar specularExponent = SkFloatToScalar(-1000);
+                SkScalar specularExponent = -1000;
 
                 SkAutoTUnref<SkImageFilter> bmSrc(new SkBitmapSource(bitmap));
                 SkPaint paint;
                 paint.setImageFilter(SkLightingImageFilter::CreateSpotLitSpecular(
-                        location, target, specularExponent, SkFloatToScalar(180),
+                        location, target, specularExponent, 180,
                         0xFFFFFFFF, SK_Scalar1, SK_Scalar1, SK_Scalar1,
                         bmSrc))->unref();
                 SkCanvas canvas(result);
@@ -144,7 +144,7 @@ public:
 
             {
                 // This tests for scale bringing width to 0
-                SkSize scale = SkSize::Make(SkFloatToScalar(-0.001f), SK_Scalar1);
+                SkSize scale = SkSize::Make(-0.001f, SK_Scalar1);
                 SkAutoTUnref<SkImageFilter> bmSrc(new SkBitmapSource(bitmap));
                 SkAutoTUnref<SkBicubicImageFilter> bicubic(
                     SkBicubicImageFilter::CreateMitchell(scale, bmSrc));

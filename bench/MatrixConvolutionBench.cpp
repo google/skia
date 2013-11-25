@@ -21,7 +21,7 @@ public:
             SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
             SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
         };
-        SkScalar gain = SkFloatToScalar(0.3f), bias = SkIntToScalar(100);
+        SkScalar gain = 0.3f, bias = SkIntToScalar(100);
         SkIPoint target = SkIPoint::Make(1, 1);
         fFilter = new SkMatrixConvolutionImageFilter(kernelSize, kernel, gain, bias, target, tileMode, convolveAlpha);
     }

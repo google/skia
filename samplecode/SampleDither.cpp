@@ -55,7 +55,7 @@ static void draw_sweep(SkCanvas* c, int width, int height, SkScalar angle) {
         SkScalar y = r.centerY();
         SkScalar radius = r.width() / 2;
         SkScalar thickness = p.getStrokeWidth();
-        SkScalar sweep = SkFloatToScalar(360.0f);
+        SkScalar sweep = 360.0f;
         SkPath path;
 
         path.moveTo(x + radius, y);

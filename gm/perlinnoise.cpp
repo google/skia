@@ -72,7 +72,7 @@ protected:
         test(canvas, 100, 300, SkPerlinNoiseShader::kFractalNoise_Type,
              0.1f, 0.1f, 3, 4, false);
 
-        canvas->scale(SkFloatToScalar(0.75f), SkFloatToScalar(1.0f));
+        canvas->scale(0.75f, 1.0f);
 
         test(canvas,   0, 400, SkPerlinNoiseShader::kFractalNoise_Type,
              0.1f, 0.1f, 2, 0, false);
