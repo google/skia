@@ -40,6 +40,7 @@ static bool tiny(const SkDCubic& cubic) {
             && approximately_equal(cubic[maxY].fY, cubic[minY].fY);
 }
 
+#if 0 // disable test until stroke reduction is supported
 static void find_tight_bounds(const SkDCubic& cubic, SkDRect& bounds) {
     SkDCubicPair cubicPair = cubic.chopAt(0.5);
     if (!tiny(cubicPair.first()) && !controls_inside(cubicPair.first())) {
@@ -55,6 +56,7 @@ static void find_tight_bounds(const SkDCubic& cubic, SkDRect& bounds) {
         bounds.add(cubicPair.second()[3]);
     }
 }
+#endif
 
 static void PathOpsReduceOrderCubicTest(skiatest::Reporter* reporter) {
     size_t index;
