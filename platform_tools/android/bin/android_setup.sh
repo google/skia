@@ -209,7 +209,7 @@ setup_device() {
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=0"
       ANDROID_ARCH="arm"
       ;;
-    arm_v7_thumb)
+    arm_v7_thumb | nvidia_logan)
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon_optional=1 arm_version=7 arm_thumb=1"
       ANDROID_ARCH="arm"
       ;;
