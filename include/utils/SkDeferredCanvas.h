@@ -25,7 +25,7 @@ class SkSurface;
 */
 class SK_API SkDeferredCanvas : public SkCanvas {
 public:
-    class NotificationClient;
+    class SK_API NotificationClient;
 
     /** Construct a canvas with the specified surface to draw into.
         This factory must be used for newImageSnapshot to work.
