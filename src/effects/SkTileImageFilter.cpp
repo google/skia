@@ -54,7 +54,8 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src, const S
     return true;
 }
 
-SkTileImageFilter::SkTileImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+SkTileImageFilter::SkTileImageFilter(SkFlattenableReadBuffer& buffer)
+  : INHERITED(1, buffer) {
     buffer.readRect(&fSrcRect);
     buffer.readRect(&fDstRect);
     buffer.validate(SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));

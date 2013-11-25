@@ -40,7 +40,8 @@ SkBicubicImageFilter* SkBicubicImageFilter::CreateMitchell(const SkSize& scale,
     return SkNEW_ARGS(SkBicubicImageFilter, (scale, gMitchellCoefficients, input));
 }
 
-SkBicubicImageFilter::SkBicubicImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+SkBicubicImageFilter::SkBicubicImageFilter(SkFlattenableReadBuffer& buffer)
+  : INHERITED(1, buffer) {
     SkDEBUGCODE(bool success =) buffer.readScalarArray(fCoefficients, 16);
     SkASSERT(success);
     fScale.fWidth = buffer.readScalar();

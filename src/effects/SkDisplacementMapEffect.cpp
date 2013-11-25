@@ -161,7 +161,7 @@ SkDisplacementMapEffect::~SkDisplacementMapEffect() {
 }
 
 SkDisplacementMapEffect::SkDisplacementMapEffect(SkFlattenableReadBuffer& buffer)
-  : INHERITED(buffer)
+  : INHERITED(2, buffer)
 {
     fXChannelSelector = (SkDisplacementMapEffect::ChannelSelectorType) buffer.readInt();
     fYChannelSelector = (SkDisplacementMapEffect::ChannelSelectorType) buffer.readInt();

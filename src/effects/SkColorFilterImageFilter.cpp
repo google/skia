@@ -82,7 +82,8 @@ SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,
     SkSafeRef(cf);
 }
 
-SkColorFilterImageFilter::SkColorFilterImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+SkColorFilterImageFilter::SkColorFilterImageFilter(SkFlattenableReadBuffer& buffer)
+  : INHERITED(1, buffer) {
     fColorFilter = buffer.readColorFilter();
 }
 

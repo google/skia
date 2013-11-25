@@ -21,7 +21,7 @@
 #endif
 
 SkMorphologyImageFilter::SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer)
-  : INHERITED(buffer) {
+  : INHERITED(1, buffer) {
     fRadius.fWidth = buffer.readInt();
     fRadius.fHeight = buffer.readInt();
     buffer.validate((fRadius.fWidth >= 0) &&

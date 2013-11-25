@@ -53,20 +53,27 @@ SkImageFilter::~SkImageFilter() {
     delete[] fInputs;
 }
 
-SkImageFilter::SkImageFilter(SkFlattenableReadBuffer& buffer)
-    : fInputCount(buffer.readInt()), fInputs(new SkImageFilter*[fInputCount]) {
-    for (int i = 0; i < fInputCount; i++) {
-        if (buffer.readBool()) {
-            fInputs[i] = buffer.readImageFilter();
-        } else {
-            fInputs[i] = NULL;
+SkImageFilter::SkImageFilter(int maxInputCount, SkFlattenableReadBuffer& buffer) {
+    fInputCount = buffer.readInt();
+    if (buffer.validate((fInputCount >= 0) && (fInputCount <= maxInputCount))) {
+        fInputs = new SkImageFilter*[fInputCount];
+        for (int i = 0; i < fInputCount; i++) {
+            if (buffer.readBool()) {
+                fInputs[i] = buffer.readImageFilter();
+            } else {
+                fInputs[i] = NULL;
+            }
         }
+        SkRect rect;
+        buffer.readRect(&rect);
+        if (buffer.validate(SkIsValidRect(rect))) {
+            uint32_t flags = buffer.readUInt();
+            fCropRect = CropRect(rect, flags);
+        }
+    } else {
+        fInputCount = 0;
+        fInputs = NULL;
     }
-    SkRect rect;
-    buffer.readRect(&rect);
-    uint32_t flags = buffer.readUInt();
-    fCropRect = CropRect(rect, flags);
-    buffer.validate(SkIsValidRect(rect));
 }
 
 void SkImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {

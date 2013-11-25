@@ -887,7 +887,7 @@ SkLightingImageFilter::~SkLightingImageFilter() {
 }
 
 SkLightingImageFilter::SkLightingImageFilter(SkFlattenableReadBuffer& buffer)
-  : INHERITED(buffer) {
+  : INHERITED(1, buffer) {
     fLight = SkLight::UnflattenLight(buffer);
     fSurfaceScale = buffer.readScalar();
     buffer.validate(SkScalarIsFinite(fSurfaceScale));
@@ -903,7 +903,9 @@ void SkLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
 
 SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar kd, SkImageFilter* input, const CropRect* cropRect = NULL)
   : SkLightingImageFilter(light, surfaceScale, input, cropRect),
-    fKD(kd)
+    // According to the spec, kd can be any non-negative number :
+    // http://www.w3.org/TR/SVG/filters.html#feDiffuseLightingElement
+    fKD(kd < 0 ? 0 : kd)
 {
 }
 
@@ -911,7 +913,7 @@ SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkFlattenableReadBuff
   : INHERITED(buffer)
 {
     fKD = buffer.readScalar();
-    buffer.validate(SkScalarIsFinite(fKD));
+    buffer.validate(SkScalarIsFinite(fKD) && (fKD >= 0));
 }
 
 void SkDiffuseLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
@@ -985,7 +987,9 @@ bool SkDiffuseLightingImageFilter::asNewEffect(GrEffectRef** effect, GrTexture* 
 
 SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkLight* light, SkScalar surfaceScale, SkScalar ks, SkScalar shininess, SkImageFilter* input, const CropRect* cropRect)
   : SkLightingImageFilter(light, surfaceScale, input, cropRect),
-    fKS(ks),
+    // According to the spec, ks can be any non-negative number :
+    // http://www.w3.org/TR/SVG/filters.html#feSpecularLightingElement
+    fKS(ks < 0 ? 0 : ks),
     fShininess(shininess)
 {
 }
@@ -995,7 +999,7 @@ SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkFlattenableReadBu
 {
     fKS = buffer.readScalar();
     fShininess = buffer.readScalar();
-    buffer.validate(SkScalarIsFinite(fKS) &&
+    buffer.validate(SkScalarIsFinite(fKS) && (fKS >= 0) &&
                     SkScalarIsFinite(fShininess));
 }
 

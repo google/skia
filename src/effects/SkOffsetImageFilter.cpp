@@ -79,7 +79,8 @@ SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter
     fOffset.set(dx, dy);
 }
 
-SkOffsetImageFilter::SkOffsetImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+SkOffsetImageFilter::SkOffsetImageFilter(SkFlattenableReadBuffer& buffer)
+  : INHERITED(1, buffer) {
     buffer.readPoint(&fOffset);
     buffer.validate(SkScalarIsFinite(fOffset.fX) &&
                     SkScalarIsFinite(fOffset.fY));

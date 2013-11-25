@@ -17,7 +17,7 @@
 #endif
 
 SkBlurImageFilter::SkBlurImageFilter(SkFlattenableReadBuffer& buffer)
-  : INHERITED(buffer) {
+  : INHERITED(1, buffer) {
     fSigma.fWidth = buffer.readScalar();
     fSigma.fHeight = buffer.readScalar();
     buffer.validate(SkScalarIsFinite(fSigma.fWidth) &&

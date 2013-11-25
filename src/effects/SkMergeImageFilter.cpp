@@ -11,6 +11,9 @@
 #include "SkFlattenableBuffers.h"
 #include "SkValidationUtils.h"
 
+// Use 65535 as an arbitrary large number of inputs that this image filter should never overflow
+static const int kMaxInputs = 65535;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMergeImageFilter::initAllocModes() {
@@ -53,6 +56,7 @@ SkMergeImageFilter::SkMergeImageFilter(SkImageFilter* first, SkImageFilter* seco
 SkMergeImageFilter::SkMergeImageFilter(SkImageFilter* filters[], int count,
                                        const SkXfermode::Mode modes[],
                                        const CropRect* cropRect) : INHERITED(count, filters, cropRect) {
+    SkASSERT(count <= kMaxInputs);
     this->initModes(modes);
 }
 
@@ -156,7 +160,8 @@ void SkMergeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     }
 }
 
-SkMergeImageFilter::SkMergeImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+SkMergeImageFilter::SkMergeImageFilter(SkFlattenableReadBuffer& buffer)
+  : INHERITED(kMaxInputs, buffer) {
     bool hasModes = buffer.readBool();
     if (hasModes) {
         this->initAllocModes();

@@ -8,12 +8,12 @@
 #include "SkBitmapSource.h"
 
 SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap)
-  : INHERITED(0),
+  : INHERITED(0, 0),
     fBitmap(bitmap) {
 }
 
 SkBitmapSource::SkBitmapSource(SkFlattenableReadBuffer& buffer)
-  : INHERITED(buffer) {
+  : INHERITED(0, buffer) {
     fBitmap.unflatten(buffer);
 }
 

@@ -58,7 +58,7 @@ public:
 
 protected:
     explicit SimpleOffsetFilter(SkFlattenableReadBuffer& buffer)
-    : SkImageFilter(buffer) {
+    : SkImageFilter(1, buffer) {
         fDX = buffer.readScalar();
         fDY = buffer.readScalar();
     }

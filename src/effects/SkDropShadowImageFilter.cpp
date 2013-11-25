@@ -23,8 +23,8 @@ SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkSca
 {
 }
 
-SkDropShadowImageFilter::SkDropShadowImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer)
-{
+SkDropShadowImageFilter::SkDropShadowImageFilter(SkFlattenableReadBuffer& buffer)
+ : INHERITED(1, buffer) {
     fDx = buffer.readScalar();
     fDy = buffer.readScalar();
     fSigma = buffer.readScalar();

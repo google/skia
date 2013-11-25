@@ -58,7 +58,7 @@ SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(
 }
 
 SkMatrixConvolutionImageFilter::SkMatrixConvolutionImageFilter(SkFlattenableReadBuffer& buffer)
-    : INHERITED(buffer) {
+    : INHERITED(1, buffer) {
     // We need to be able to read at most SK_MaxS32 bytes, so divide that
     // by the size of a scalar to know how many scalars we can read.
     static const int32_t kMaxSize = SK_MaxS32 / sizeof(SkScalar);

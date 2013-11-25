@@ -35,7 +35,7 @@ SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, const CropRect* cr
 }
 
 SkRectShaderImageFilter::SkRectShaderImageFilter(SkFlattenableReadBuffer& buffer)
-  : INHERITED(buffer) {
+  : INHERITED(1, buffer) {
     fShader = buffer.readShader();
 }
 

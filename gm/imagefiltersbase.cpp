@@ -27,7 +27,8 @@ protected:
         return false;
     }
 
-    FailImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    FailImageFilter(SkFlattenableReadBuffer& buffer)
+      : INHERITED(1, buffer) {}
 
 private:
     typedef SkImageFilter INHERITED;
@@ -50,7 +51,8 @@ protected:
         return true;
     }
 
-    IdentityImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    IdentityImageFilter(SkFlattenableReadBuffer& buffer)
+      : INHERITED(1, buffer) {}
 
 private:
     typedef SkImageFilter INHERITED;

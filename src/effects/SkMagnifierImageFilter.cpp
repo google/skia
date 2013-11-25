@@ -232,7 +232,7 @@ void GrMagnifierEffect::getConstantColorComponents(GrColor* color, uint32_t* val
 
 ////////////////////////////////////////////////////////////////////////////////
 SkMagnifierImageFilter::SkMagnifierImageFilter(SkFlattenableReadBuffer& buffer)
-  : INHERITED(buffer) {
+  : INHERITED(1, buffer) {
     float x = buffer.readScalar();
     float y = buffer.readScalar();
     float width = buffer.readScalar();

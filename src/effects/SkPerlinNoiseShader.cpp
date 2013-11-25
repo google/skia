@@ -51,6 +51,11 @@ inline SkScalar smoothCurve(SkScalar t) {
     return SkScalarMul(SkScalarSquare(t), SK_Scalar3 - 2 * t);
 }
 
+bool perlin_noise_type_is_valid(SkPerlinNoiseShader::Type type) {
+    return (SkPerlinNoiseShader::kFractalNoise_Type == type) ||
+           (SkPerlinNoiseShader::kTurbulence_Type == type);
+}
+
 } // end namespace
 
 struct SkPerlinNoiseShader::StitchData {
@@ -279,7 +284,7 @@ SkPerlinNoiseShader::SkPerlinNoiseShader(SkPerlinNoiseShader::Type type,
   : fType(type)
   , fBaseFrequencyX(baseFrequencyX)
   , fBaseFrequencyY(baseFrequencyY)
-  , fNumOctaves(numOctaves & 0xFF /*[0,255] octaves allowed*/)
+  , fNumOctaves(numOctaves > 255 ? 255 : numOctaves/*[0,255] octaves allowed*/)
   , fSeed(seed)
   , fStitchTiles((tileSize != NULL) && !tileSize->isEmpty())
   , fPaintingData(NULL)
@@ -301,6 +306,8 @@ SkPerlinNoiseShader::SkPerlinNoiseShader(SkFlattenableReadBuffer& buffer) :
     fTileSize.fHeight = buffer.readInt();
     setTileSize(fTileSize);
     fMatrix.reset();
+    buffer.validate(perlin_noise_type_is_valid(fType) &&
+                    (fNumOctaves >= 0) && (fNumOctaves <= 255));
 }
 
 SkPerlinNoiseShader::~SkPerlinNoiseShader() {

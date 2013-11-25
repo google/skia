@@ -1622,19 +1622,21 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
     this->setConfig(config, width, height, rowBytes, alphaType);
 
     int reftype = buffer.readInt();
-    switch (reftype) {
-        case SERIALIZE_PIXELTYPE_REF_DATA: {
-            size_t offset = buffer.readUInt();
-            SkPixelRef* pr = buffer.readPixelRef();
-            SkSafeUnref(this->setPixelRef(pr, offset));
-            break;
+    if (buffer.validate((SERIALIZE_PIXELTYPE_REF_DATA == reftype) ||
+                        (SERIALIZE_PIXELTYPE_NONE == reftype))) {
+        switch (reftype) {
+            case SERIALIZE_PIXELTYPE_REF_DATA: {
+                size_t offset = buffer.readUInt();
+                SkPixelRef* pr = buffer.readPixelRef();
+                SkSafeUnref(this->setPixelRef(pr, offset));
+                break;
+            }
+            case SERIALIZE_PIXELTYPE_NONE:
+                break;
+            default:
+                SkDEBUGFAIL("unrecognized pixeltype in serialized data");
+                sk_throw();
         }
-        case SERIALIZE_PIXELTYPE_NONE:
-            break;
-        default:
-            buffer.validate(false);
-            SkDEBUGFAIL("unrecognized pixeltype in serialized data");
-            sk_throw();
     }
 }
 

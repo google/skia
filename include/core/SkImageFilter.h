@@ -156,7 +156,7 @@ protected:
 
     virtual ~SkImageFilter();
 
-    explicit SkImageFilter(SkFlattenableReadBuffer& rb);
+    explicit SkImageFilter(int maxInputCount, SkFlattenableReadBuffer& rb);
 
     virtual void flatten(SkFlattenableWriteBuffer& wb) const SK_OVERRIDE;
 
