@@ -59,9 +59,8 @@ static void PathOpsCubicQuadIntersectionTest(skiatest::Reporter* reporter) {
         SkASSERT(ValidQuad(quad));
         SkReduceOrder reduce1;
         SkReduceOrder reduce2;
-        int order1 = reduce1.reduce(cubic, SkReduceOrder::kNo_Quadratics,
-                SkReduceOrder::kFill_Style);
-        int order2 = reduce2.reduce(quad, SkReduceOrder::kFill_Style);
+        int order1 = reduce1.reduce(cubic, SkReduceOrder::kNo_Quadratics);
+        int order2 = reduce2.reduce(quad);
         if (order1 != 4) {
             SkDebugf("[%d] cubic order=%d\n", iIndex, order1);
             REPORTER_ASSERT(reporter, 0);

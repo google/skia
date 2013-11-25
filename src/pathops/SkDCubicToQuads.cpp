@@ -118,7 +118,7 @@ static void addTs(const SkDCubic& cubic, double precision, double start, double 
 // it would still take the prechopped cubic for reduce order and find cubic inflections
 void SkDCubic::toQuadraticTs(double precision, SkTArray<double, true>* ts) const {
     SkReduceOrder reducer;
-    int order = reducer.reduce(*this, SkReduceOrder::kAllow_Quadratics, SkReduceOrder::kFill_Style);
+    int order = reducer.reduce(*this, SkReduceOrder::kAllow_Quadratics);
     if (order < 3) {
         return;
     }
@@ -153,13 +153,11 @@ void SkDCubic::toQuadraticTs(double precision, SkTArray<double, true>* ts) const
     SkDCubicPair pair;
     if (inflections == 1) {
         pair = chopAt(inflectT[0]);
-        int orderP1 = reducer.reduce(pair.first(), SkReduceOrder::kNo_Quadratics,
-                SkReduceOrder::kFill_Style);
+        int orderP1 = reducer.reduce(pair.first(), SkReduceOrder::kNo_Quadratics);
         if (orderP1 < 2) {
             --inflections;
         } else {
-            int orderP2 = reducer.reduce(pair.second(), SkReduceOrder::kNo_Quadratics,
-                    SkReduceOrder::kFill_Style);
+            int orderP2 = reducer.reduce(pair.second(), SkReduceOrder::kNo_Quadratics);
             if (orderP2 < 2) {
                 --inflections;
             }

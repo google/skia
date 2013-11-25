@@ -30,7 +30,7 @@ static int quadPart(const SkDCubic& cubic, double tStart, double tEnd, SkReduceO
     SkDQuad quad = part.toQuad();
     // FIXME: should reduceOrder be looser in this use case if quartic is going to blow up on an
     // extremely shallow quadratic?
-    int order = reducer->reduce(quad, SkReduceOrder::kFill_Style);
+    int order = reducer->reduce(quad);
 #if DEBUG_QUAD_PART
     SkDebugf("%s cubic=(%1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g %1.9g,%1.9g)"
             " t=(%1.9g,%1.9g)\n", __FUNCTION__, cubic[0].fX, cubic[0].fY,

@@ -49,8 +49,7 @@ static void testOne(skiatest::Reporter* reporter, int iIndex) {
     SkASSERT(ValidLine(line));
     SkReduceOrder reduce1;
     SkReduceOrder reduce2;
-    int order1 = reduce1.reduce(cubic, SkReduceOrder::kNo_Quadratics,
-            SkReduceOrder::kFill_Style);
+    int order1 = reduce1.reduce(cubic, SkReduceOrder::kNo_Quadratics);
     int order2 = reduce2.reduce(line);
     if (order1 < 4) {
         SkDebugf("[%d] cubic order=%d\n", iIndex, order1);

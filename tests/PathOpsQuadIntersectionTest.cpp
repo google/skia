@@ -19,8 +19,8 @@ static void standardTestCases(skiatest::Reporter* reporter) {
         const SkDQuad& quad2 = quadraticTests[index][1];
         SkASSERT(ValidQuad(quad2));
         SkReduceOrder reduce1, reduce2;
-        int order1 = reduce1.reduce(quad1, SkReduceOrder::kFill_Style);
-        int order2 = reduce2.reduce(quad2, SkReduceOrder::kFill_Style);
+        int order1 = reduce1.reduce(quad1);
+        int order2 = reduce2.reduce(quad2);
         if (order1 < 3) {
             if (showSkipped) {
                 SkDebugf("[%d] quad1 order=%d\n", static_cast<int>(index), order1);

@@ -109,7 +109,7 @@ static void PathOpsQuadLineIntersectionTest(skiatest::Reporter* reporter) {
         const SkDLine& line = lineQuadTests[index].line;
         SkASSERT(ValidLine(line));
         SkReduceOrder reducer1, reducer2;
-        int order1 = reducer1.reduce(quad, SkReduceOrder::kFill_Style);
+        int order1 = reducer1.reduce(quad);
         int order2 = reducer2.reduce(line);
         if (order1 < 3) {
             SkDebugf("%s [%d] quad order=%d\n", __FUNCTION__, iIndex, order1);

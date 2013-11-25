@@ -183,7 +183,6 @@ public:
         return result;
     }
 
-    // OPTIMIZATION: mark as debugging only if used solely by tests
     double t(int tIndex) const {
         return fTs[tIndex].fT;
     }
@@ -212,13 +211,11 @@ public:
         return fTs[tIndex].fWindValue;
     }
 
+#if defined(SK_DEBUG) || DEBUG_WINDING
     SkScalar xAtT(int index) const {
         return xAtT(&fTs[index]);
     }
-
-    SkScalar xAtT(const SkOpSpan* span) const {
-        return xyAtT(span).fX;
-    }
+#endif
 
     const SkPoint& xyAtT(const SkOpSpan* span) const {
         return span->fPt;
@@ -228,13 +225,11 @@ public:
         return xyAtT(&fTs[index]);
     }
 
+#if defined(SK_DEBUG) || DEBUG_WINDING
     SkScalar yAtT(int index) const {
         return yAtT(&fTs[index]);
     }
-
-    SkScalar yAtT(const SkOpSpan* span) const {
-        return xyAtT(span).fY;
-    }
+#endif
 
     bool activeAngle(int index, int* done, SkTArray<SkOpAngle, true>* angles);
     SkPoint activeLeftTop(bool onlySortable, int* firstT) const;
@@ -403,6 +398,15 @@ private:
     static bool UseInnerWindingReverse(int outerWinding, int innerWinding);
     SkOpSpan* verifyOneWinding(const char* funName, int tIndex);
     SkOpSpan* verifyOneWindingU(const char* funName, int tIndex);
+
+    SkScalar xAtT(const SkOpSpan* span) const {
+        return xyAtT(span).fX;
+    }
+
+    SkScalar yAtT(const SkOpSpan* span) const {
+        return xyAtT(span).fY;
+    }
+
     void zeroSpan(SkOpSpan* span);
 
 #if DEBUG_SWAP_TOP

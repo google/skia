@@ -19,10 +19,8 @@ static void standardTestCases(skiatest::Reporter* reporter) {
         const SkDCubic& cubic1 = tests[index][0];
         const SkDCubic& cubic2 = tests[index][1];
         SkReduceOrder reduce1, reduce2;
-        int order1 = reduce1.reduce(cubic1, SkReduceOrder::kNo_Quadratics,
-            SkReduceOrder::kFill_Style);
-        int order2 = reduce2.reduce(cubic2, SkReduceOrder::kNo_Quadratics,
-            SkReduceOrder::kFill_Style);
+        int order1 = reduce1.reduce(cubic1, SkReduceOrder::kNo_Quadratics);
+        int order2 = reduce2.reduce(cubic2, SkReduceOrder::kNo_Quadratics);
         const bool showSkipped = false;
         if (order1 < 4) {
             if (showSkipped) {

@@ -21,7 +21,7 @@ static void oneOffTest(skiatest::Reporter* reporter) {
     for (size_t index = 0; index < testSetCount; ++index) {
         const SkDQuad& quad = testSet[index];
         SkReduceOrder reducer;
-        SkDEBUGCODE(int result = ) reducer.reduce(quad, SkReduceOrder::kFill_Style);
+        SkDEBUGCODE(int result = ) reducer.reduce(quad);
         SkASSERT(result == 3);
     }
 }
@@ -48,14 +48,14 @@ static void standardTestCases(skiatest::Reporter* reporter) {
 
     for (index = firstQuadraticLineTest; index < quadraticLines_count; ++index) {
         const SkDQuad& quad = quadraticLines[index];
-        order = reducer.reduce(quad, SkReduceOrder::kFill_Style);
+        order = reducer.reduce(quad);
         if (order != 2) {
             SkDebugf("[%d] line quad order=%d\n", (int) index, order);
         }
     }
     for (index = firstQuadraticModLineTest; index < quadraticModEpsilonLines_count; ++index) {
         const SkDQuad& quad = quadraticModEpsilonLines[index];
-        order = reducer.reduce(quad, SkReduceOrder::kFill_Style);
+        order = reducer.reduce(quad);
         if (order != 3) {
             SkDebugf("[%d] line mod quad order=%d\n", (int) index, order);
         }
