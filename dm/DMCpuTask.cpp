@@ -3,6 +3,7 @@
 #include "DMPipeTask.h"
 #include "DMReplayTask.h"
 #include "DMSerializeTask.h"
+#include "DMTileGridTask.h"
 #include "DMUtil.h"
 #include "DMWriteTask.h"
 
@@ -37,11 +38,10 @@ void CpuTask::draw() {
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, false, false);
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, true, false);
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, true, true);
-
     SPAWN(ReplayTask, fGMFactory(NULL), bitmap, false);
     SPAWN(ReplayTask, fGMFactory(NULL), bitmap, true);
-
     SPAWN(SerializeTask, fGMFactory(NULL), bitmap);
+    SPAWN(TileGridTask, fGMFactory(NULL), bitmap, SkISize::Make(16,16));
 
     SPAWN(WriteTask, bitmap);
 #undef SPAWN

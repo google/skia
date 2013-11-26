@@ -27,6 +27,7 @@
             '../dm/DMSerializeTask.cpp',
             '../dm/DMTask.cpp',
             '../dm/DMTaskRunner.cpp',
+            '../dm/DMTileGridTask.cpp',
             '../dm/DMUtil.cpp',
             '../dm/DMWriteTask.cpp',
             '../gm/gm.cpp',
