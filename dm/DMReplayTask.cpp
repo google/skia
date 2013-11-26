@@ -5,8 +5,8 @@
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
 
-DEFINE_bool(replay, false, "If true, run picture replay tests.");
-DEFINE_bool(rtree,  false, "If true, run picture replay tests with an rtree.");
+DEFINE_bool(replay, true, "If true, run picture replay tests.");
+DEFINE_bool(rtree,  true, "If true, run picture replay tests with an rtree.");
 
 namespace DM {
 

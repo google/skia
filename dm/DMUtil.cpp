@@ -15,18 +15,9 @@ SkString Png(SkString s) {
     return s;
 }
 
-bool MeetsExpectations(const skiagm::Expectations& expectations, const SkBitmap bitmap) {
-    if (expectations.ignoreFailure() || expectations.empty()) {
-        return true;
-    }
-    const skiagm::GmResultDigest digest(bitmap);
-    return expectations.match(digest);
-}
-
 void RecordPicture(skiagm::GM* gm, SkPicture* picture, uint32_t recordFlags) {
-    SkCanvas* canvas = picture->beginRecording(SkScalarCeilToInt(gm->width()),
-                                               SkScalarCeilToInt(gm->height()),
-                                               recordFlags);
+    const SkISize size = gm->getISize();
+    SkCanvas* canvas = picture->beginRecording(size.width(), size.height(), recordFlags);
     canvas->concat(gm->getInitialTransform());
     gm->draw(canvas);
     canvas->flush();
@@ -34,7 +25,8 @@ void RecordPicture(skiagm::GM* gm, SkPicture* picture, uint32_t recordFlags) {
 }
 
 void SetupBitmap(const SkBitmap::Config config, skiagm::GM* gm, SkBitmap* bitmap) {
-    bitmap->setConfig(config, SkScalarCeilToInt(gm->width()), SkScalarCeilToInt(gm->height()));
+    const SkISize size = gm->getISize();
+    bitmap->setConfig(config, size.width(), size.height());
     bitmap->allocPixels();
     bitmap->eraseColor(0x00000000);
 }

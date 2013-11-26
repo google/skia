@@ -6,7 +6,7 @@
 #include "SkPicture.h"
 #include "SkPixelRef.h"
 
-DEFINE_bool(serialize, false, "If true, run picture serialization tests.");
+DEFINE_bool(serialize, true, "If true, run picture serialization tests.");
 
 namespace DM {
 

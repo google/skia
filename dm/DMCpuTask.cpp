@@ -1,4 +1,5 @@
 #include "DMCpuTask.h"
+#include "DMChecksumTask.h"
 #include "DMPipeTask.h"
 #include "DMReplayTask.h"
 #include "DMSerializeTask.h"
@@ -30,19 +31,20 @@ void CpuTask::draw() {
     fGM->draw(&canvas);
     canvas.flush();
 
-    if (!MeetsExpectations(fExpectations, bitmap)) {
-        this->fail();
-    }
+#define SPAWN(ChildTask, ...) this->spawnChild(SkNEW_ARGS(ChildTask, (*this, __VA_ARGS__)))
+    SPAWN(ChecksumTask, fExpectations, bitmap);
 
-    this->spawnChild(SkNEW_ARGS(PipeTask, (*this, fGMFactory(NULL), bitmap, false, false)));
-    this->spawnChild(SkNEW_ARGS(PipeTask, (*this, fGMFactory(NULL), bitmap, true, false)));
-    this->spawnChild(SkNEW_ARGS(PipeTask, (*this, fGMFactory(NULL), bitmap, true, true)));
+    SPAWN(PipeTask, fGMFactory(NULL), bitmap, false, false);
+    SPAWN(PipeTask, fGMFactory(NULL), bitmap, true, false);
+    SPAWN(PipeTask, fGMFactory(NULL), bitmap, true, true);
 
-    this->spawnChild(SkNEW_ARGS(ReplayTask, (*this, fGMFactory(NULL), bitmap, true)));
-    this->spawnChild(SkNEW_ARGS(ReplayTask, (*this, fGMFactory(NULL), bitmap, false)));
+    SPAWN(ReplayTask, fGMFactory(NULL), bitmap, false);
+    SPAWN(ReplayTask, fGMFactory(NULL), bitmap, true);
 
-    this->spawnChild(SkNEW_ARGS(SerializeTask, (*this, fGMFactory(NULL), bitmap)));
-    this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
+    SPAWN(SerializeTask, fGMFactory(NULL), bitmap);
+
+    SPAWN(WriteTask, bitmap);
+#undef SPAWN
 }
 
 bool CpuTask::shouldSkip() const {

@@ -1,5 +1,5 @@
-#ifndef DMComparisonTask_DEFINED
-#define DMComparisonTask_DEFINED
+#ifndef DMChecksumTask_DEFINED
+#define DMChecksumTask_DEFINED
 
 #include "DMTask.h"
 #include "SkBitmap.h"
@@ -8,12 +8,11 @@
 
 namespace DM {
 
-// We use ComparisonTask to move CPU-bound comparison work of GpuTasks back to
-// the main thread pool, where we probably have more threads available.
-
-class ComparisonTask : public Task {
+// ChecksumTask compares an SkBitmap against some Expectations.
+// Moving this off the GPU threadpool is a nice (~30%) runtime win.
+class ChecksumTask : public Task {
 public:
-    ComparisonTask(const Task& parent, skiagm::Expectations, SkBitmap);
+    ChecksumTask(const Task& parent, skiagm::Expectations, SkBitmap);
 
     virtual void draw() SK_OVERRIDE;
     virtual bool usesGpu() const SK_OVERRIDE { return false; }
@@ -28,4 +27,4 @@ private:
 
 }  // namespace DM
 
-#endif  // DMComparisonTask_DEFINED
+#endif  // DMChecksumTask_DEFINED
