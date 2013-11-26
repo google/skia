@@ -4789,13 +4789,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3224501961775566147
+          15826989673456070846
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "colortype_pdf-mac.png": {
       "allowed-digests": [
