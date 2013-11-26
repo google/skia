@@ -50,6 +50,7 @@
     '../gm/downsamplebitmap.cpp',
     '../gm/drawbitmaprect.cpp',
     '../gm/drawlooper.cpp',
+    '../gm/dropshadowimagefilter.cpp',
     '../gm/extractbitmap.cpp',
     '../gm/emptypath.cpp',
     '../gm/fatpathfill.cpp',
