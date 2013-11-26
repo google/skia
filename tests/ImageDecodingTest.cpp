@@ -148,7 +148,7 @@ public:
         // the list is that each one is different, so we can test
         // to make sure the correct config is chosen.
         const SkBitmap::Config configs[] = {
-            SkBitmap::kA1_Config,
+            SkBitmap::kA8_Config,
             SkBitmap::kA8_Config,
             SkBitmap::kIndex8_Config,
             SkBitmap::kRGB_565_Config,

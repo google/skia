@@ -94,9 +94,6 @@ void SkTransparentShader::shadeSpan(int x, int y, SkPMColor span[], int count) {
             }
             break;
         }
-        case SkBitmap::kA1_Config:
-            SkDEBUGFAIL("kA1_Config umimplemented at this time");
-            break;
         default:    // to avoid warnings
             break;
     }

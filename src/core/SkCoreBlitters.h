@@ -162,22 +162,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkA1_Blitter : public SkRasterBlitter {
-public:
-    SkA1_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
-
-private:
-    uint8_t fSrcA;
-
-    // illegal
-    SkA1_Blitter& operator=(const SkA1_Blitter&);
-
-    typedef SkRasterBlitter INHERITED;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 /*  These return the correct subclass of blitter for their device config.
 
     Currently, they make the following assumptions about the state of the

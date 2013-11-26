@@ -14,7 +14,7 @@
 
 // these are in the same order as the SkBitmap::Config enum
 static const char* gConfigName[] = {
-    "None", "A1", "A8", "Index8", "565", "4444", "8888", "RLE_Index8"
+    "None", "A8", "Index8", "565", "4444", "8888"
 };
 
 /** Returns -1 on success, else the x coord of the first bad pixel, return its
