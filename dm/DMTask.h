@@ -18,7 +18,7 @@ class TaskRunner;
 class Task : public SkRunnable {
 public:
     Task(Reporter* reporter, TaskRunner* taskRunner);
-    Task(const Task& that);
+    Task(const Task& parent);
     virtual ~Task();
 
     void run() SK_OVERRIDE;
@@ -28,6 +28,10 @@ public:
     virtual bool shouldSkip() const = 0;
     virtual SkString name() const = 0;
 
+    // Returns the number of parents above this task.
+    // Top-level tasks return 0, their children 1, and so on.
+    int depth() const { return fDepth; }
+
 protected:
     void spawnChild(Task* task);
     void fail();
@@ -36,6 +40,7 @@ private:
     // Both unowned.
     Reporter* fReporter;
     TaskRunner* fTaskRunner;
+    int fDepth;
 
     typedef SkRunnable INHERITED;
 };
