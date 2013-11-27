@@ -531,8 +531,8 @@ static inline int convert_8_to_1(unsigned byte) {
 static uint8_t pack_8_to_1(const uint8_t alpha[8]) {
     unsigned bits = 0;
     for (int i = 0; i < 8; ++i) {
-        bits |= convert_8_to_1(alpha[i]);
         bits <<= 1;
+        bits |= convert_8_to_1(alpha[i]);
     }
     return SkToU8(bits);
 }
@@ -544,7 +544,7 @@ static void packA8ToA1(const SkMask& mask, const uint8_t* src, size_t srcRB) {
     const int leftOverBits = width & 7;
 
     uint8_t* dst = mask.fImage;
-    const int dstPad = mask.fRowBytes - SkAlign8(width);
+    const int dstPad = mask.fRowBytes - SkAlign8(width)/8;
     SkASSERT(dstPad >= 0);
 
     const int srcPad = srcRB - width;
