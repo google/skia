@@ -63,3 +63,22 @@ static void TestImageCache(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("ImageCache", TestImageCacheClass, TestImageCache)
+
+DEF_TEST(ImageCache_doubleAdd, r) {
+    // Adding the same key twice should be safe.
+    SkScaledImageCache cache(1024);
+
+    SkBitmap original;
+    original.setConfig(SkBitmap::kARGB_8888_Config, 40, 40);
+    original.allocPixels();
+
+    SkBitmap scaled;
+    scaled.setConfig(SkBitmap::kARGB_8888_Config, 20, 20);
+    scaled.allocPixels();
+
+    SkScaledImageCache::ID* id1 = cache.addAndLock(original, 0.5f, 0.5f, scaled);
+    SkScaledImageCache::ID* id2 = cache.addAndLock(original, 0.5f, 0.5f, scaled);
+    // We don't really care if id1 == id2 as long as unlocking both works.
+    cache.unlock(id1);
+    cache.unlock(id2);
+}
