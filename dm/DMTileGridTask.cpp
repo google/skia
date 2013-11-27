@@ -49,8 +49,8 @@ void TileGridTask::draw() {
         for (int x = 0; x < tiles_needed(full.width(), tile.width()); x++) {
             SkAutoCanvasRestore ar(&tileCanvas, true/*also save now*/);
 
-            const SkScalar xOffset = x * tile.width(),
-                           yOffset = y * tile.height();
+            const SkScalar xOffset = SkIntToScalar(x * tile.width()),
+                           yOffset = SkIntToScalar(y * tile.height());
             SkMatrix matrix = tileCanvas.getTotalMatrix();
             matrix.postTranslate(-xOffset, -yOffset);
             tileCanvas.setMatrix(matrix);
