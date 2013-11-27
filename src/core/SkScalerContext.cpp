@@ -352,16 +352,16 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             glyph->fHeight  = SkToU16(ir.height());
 
             if (glyph->fWidth > 0) {
-            switch (fRec.fMaskFormat) {
-            case SkMask::kLCD16_Format:
-            case SkMask::kLCD32_Format:
-                glyph->fWidth += 2;
-                glyph->fLeft -= 1;
-                break;
-            default:
-                break;
+                switch (fRec.fMaskFormat) {
+                case SkMask::kLCD16_Format:
+                case SkMask::kLCD32_Format:
+                    glyph->fWidth += 2;
+                    glyph->fLeft -= 1;
+                    break;
+                default:
+                    break;
+                }
             }
-    }
         }
     }
 
