@@ -105,7 +105,6 @@ protected:
     virtual SkTypeface* onCreateFromStream(SkStream*, int ttcIndex) = 0;
     virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) = 0;
 
-    // TODO: make this pure-virtual once all ports know about it
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
                                                unsigned styleBits) = 0;
 private:
