@@ -252,4 +252,3 @@ void SkBlitLCD16Row_neon(SkPMColor dst[], const uint16_t src[],
         dst[i] = SkBlendLCD16(colA, colR, colG, colB, dst[i], src[i]);
     }
 }
-
