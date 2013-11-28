@@ -16,8 +16,10 @@
 
 /**
  *  Key needs
- *      static bool EQ(const Entry&, const HashKey&);
- *      static bool LT(const Entry&, const HashKey&);
+ *      static bool Equals(const Entry&, const Key&);
+ *      static bool LessThan(const Entry&, const Key&);
+ *      static bool Equals(const Entry&, const Entry&); for SK_DEBUG if GrTHashTable::validate() is called
+ *      static bool LessThan(const Entry&, const Entry&); for SK_DEBUG if GrTHashTable::validate() is called
  *      uint32_t getHash() const;
  *
  *  Allows duplicate key entries but on find you may get
@@ -90,7 +92,7 @@ int GrTHashTable<T, Key, kHashBits>::searchArray(const Key& key) const {
     int low = 0;
     while (high > low) {
         int index = (low + high) >> 1;
-        if (Key::LT(*array[index], key)) {
+        if (Key::LessThan(*array[index], key)) {
             low = index + 1;
         } else {
             high = index;
@@ -98,15 +100,15 @@ int GrTHashTable<T, Key, kHashBits>::searchArray(const Key& key) const {
     }
 
     // check if we found it
-    if (Key::EQ(*array[high], key)) {
+    if (Key::Equals(*array[high], key)) {
         // above search should have found the first occurrence if there
         // are multiple.
-        SkASSERT(0 == high || Key::LT(*array[high - 1], key));
+        SkASSERT(0 == high || Key::LessThan(*array[high - 1], key));
         return high;
     }
 
     // now return the ~ of where we should insert it
-    if (Key::LT(*array[high], key)) {
+    if (Key::LessThan(*array[high], key)) {
         high += 1;
     }
     return ~high;
@@ -119,7 +121,7 @@ T* GrTHashTable<T, Key, kHashBits>::find(const Key& key, Filter filter) const {
     int hashIndex = hash2Index(key.getHash());
     T* elem = fHash[hashIndex];
 
-    if (NULL != elem && Key::EQ(*elem, key) && filter(elem)) {
+    if (NULL != elem && Key::Equals(*elem, key) && filter(elem)) {
         return elem;
     }
 
@@ -133,9 +135,9 @@ T* GrTHashTable<T, Key, kHashBits>::find(const Key& key, Filter filter) const {
 
     // above search should have found the first occurrence if there
     // are multiple.
-    SkASSERT(0 == index || Key::LT(*array[index - 1], key));
+    SkASSERT(0 == index || Key::LessThan(*array[index - 1], key));
 
-    for ( ; index < count() && Key::EQ(*array[index], key); ++index) {
+    for ( ; index < count() && Key::Equals(*array[index], key); ++index) {
         if (filter(fSorted[index])) {
             // update the hash
             fHash[hashIndex] = fSorted[index];
@@ -192,8 +194,8 @@ template <typename T, typename Key, size_t kHashBits>
 void GrTHashTable<T, Key, kHashBits>::validate() const {
     int count = fSorted.count();
     for (int i = 1; i < count; i++) {
-        SkASSERT(Key::LT(*fSorted[i - 1], *fSorted[i]) ||
-                 Key::EQ(*fSorted[i - 1], *fSorted[i]));
+        SkASSERT(Key::LessThan(*fSorted[i - 1], *fSorted[i]) ||
+                 Key::Equals(*fSorted[i - 1], *fSorted[i]));
     }
 }
 

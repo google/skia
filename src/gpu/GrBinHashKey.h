@@ -13,35 +13,17 @@
 #include "GrTypes.h"
 
 /**
- *  Hash function class that can take a data chunk of any predetermined length. The hash function
- *  used is the One-at-a-Time Hash (http://burtleburtle.net/bob/hash/doobs.html).
- *
- *  Keys are computed from ENTRY objects. ENTRY must be fully ordered by a member:
- *      int compare(const GrTBinHashKey<ENTRY, ..>& k);
- *  which returns negative if the ENTRY < k, 0 if it equals k, and positive if k < the ENTRY.
- *  Additionally, ENTRY must be flattenable into the key using setKeyData.
- *
- *  This class satisfies the requirements to be a key for a GrTHashTable.
+ *  GrBinHashKey is a hash key class that can take a data chunk of any predetermined
+ *  length. The hash function used is the One-at-a-Time Hash
+ *  (http://burtleburtle.net/bob/hash/doobs.html).
  */
-template<typename ENTRY, size_t KEY_SIZE>
-class GrTBinHashKey {
+template<size_t KEY_SIZE>
+class GrBinHashKey {
 public:
     enum { kKeySize = KEY_SIZE };
 
-    GrTBinHashKey() {
+    GrBinHashKey() {
         this->reset();
-    }
-
-    GrTBinHashKey(const GrTBinHashKey<ENTRY, KEY_SIZE>& other) {
-        *this = other;
-    }
-
-    GrTBinHashKey<ENTRY, KEY_SIZE>& operator=(const GrTBinHashKey<ENTRY, KEY_SIZE>& other) {
-        memcpy(this, &other, sizeof(*this));
-        return *this;
-    }
-
-    ~GrTBinHashKey() {
     }
 
     void reset() {
@@ -52,39 +34,49 @@ public:
     }
 
     void setKeyData(const uint32_t* SK_RESTRICT data) {
-        SkASSERT(GrIsALIGN4(KEY_SIZE));
+        SK_COMPILE_ASSERT(KEY_SIZE % 4 == 0, key_size_mismatch);
         memcpy(&fData, data, KEY_SIZE);
 
         uint32_t hash = 0;
         size_t len = KEY_SIZE;
         while (len >= 4) {
             hash += *data++;
-            hash += (fHash << 10);
+            hash += (hash << 10);
             hash ^= (hash >> 6);
             len -= 4;
         }
-        hash += (fHash << 3);
-        hash ^= (fHash >> 11);
-        hash += (fHash << 15);
+        hash += (hash << 3);
+        hash ^= (hash >> 11);
+        hash += (hash << 15);
 #ifdef SK_DEBUG
         fIsValid = true;
 #endif
         fHash = hash;
     }
 
-    int compare(const GrTBinHashKey<ENTRY, KEY_SIZE>& key) const {
+    bool operator==(const GrBinHashKey<KEY_SIZE>& key) const {
         SkASSERT(fIsValid && key.fIsValid);
-        return memcmp(fData, key.fData, KEY_SIZE);
+        if (fHash != key.fHash) {
+            return false;
+        }
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fData); ++i) {
+            if (fData[i] != key.fData[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    static bool EQ(const ENTRY& entry, const GrTBinHashKey<ENTRY, KEY_SIZE>& key) {
-        SkASSERT(key.fIsValid);
-        return 0 == entry.compare(key);
-    }
-
-    static bool LT(const ENTRY& entry, const GrTBinHashKey<ENTRY, KEY_SIZE>& key) {
-        SkASSERT(key.fIsValid);
-        return entry.compare(key) < 0;
+    bool operator<(const GrBinHashKey<KEY_SIZE>& key) const {
+        SkASSERT(fIsValid && key.fIsValid);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fData); ++i) {
+            if (fData[i] < key.fData[i]) {
+                return true;
+            } else if (fData[i] > key.fData[i]) {
+                return false;
+            }
+        }
+        return false;
     }
 
     uint32_t getHash() const {
@@ -94,12 +86,12 @@ public:
 
     const uint8_t* getData() const {
         SkASSERT(fIsValid);
-        return fData;
+        return reinterpret_cast<const uint8_t*>(fData);
     }
 
 private:
     uint32_t            fHash;
-    uint8_t             fData[KEY_SIZE];  // Buffer for key storage
+    uint32_t            fData[KEY_SIZE / sizeof(uint32_t)];  // Buffer for key storage.
 
 #ifdef SK_DEBUG
 public:

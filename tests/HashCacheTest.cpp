@@ -39,21 +39,18 @@ public:
 
     uint32_t getHash() const { return fKey; }
 
-    static bool LT(const HashElement& entry, const HashKey& key) {
+    static bool LessThan(const HashElement& entry, const HashKey& key) {
         return entry.fKey < key.fKey;
     }
-    static bool EQ(const HashElement& entry, const HashKey& key) {
+    static bool Equals(const HashElement& entry, const HashKey& key) {
         return entry.fKey == key.fKey;
     }
 
 #ifdef SK_DEBUG
-    static uint32_t GetHash(const HashElement& entry) {
-        return entry.fKey;
-    }
-    static bool LT(const HashElement& a, const HashElement& b) {
+    static bool LessThan(const HashElement& a, const HashElement& b) {
         return a.fKey < b.fKey;
     }
-    static bool EQ(const HashElement& a, const HashElement& b) {
+    static bool Equals(const HashElement& a, const HashElement& b) {
         return a.fKey == b.fKey;
     }
 #endif
