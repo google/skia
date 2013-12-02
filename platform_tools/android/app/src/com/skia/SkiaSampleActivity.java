@@ -43,11 +43,6 @@ public class SkiaSampleActivity extends Activity
 
         try {
             System.loadLibrary("skia_android");
-        } catch (UnsatisfiedLinkError e) {
-            // This might be because skia was linked to SampleApp statically.
-        }
-
-        try {
             System.loadLibrary("SampleApp");
 
             LinearLayout holder = (LinearLayout) findViewById(R.id.holder);

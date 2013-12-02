@@ -12,7 +12,7 @@ void Reporter::updateStatusLine() const {
     }
 
     SkString status;
-    status.printf("\r\033[K%d tasks left", this->started() - this->finished());
+    status.printf("\r\033[K%d / %d", this->finished(), this->started());
     const int failed = this->failed();
     if (failed > 0) {
         status.appendf(", %d failed", failed);

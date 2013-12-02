@@ -126,6 +126,7 @@
       '<(skia_src_path)/gpu/GrTextureAccess.cpp',
       '<(skia_src_path)/gpu/GrTHashTable.h',
       '<(skia_src_path)/gpu/GrVertexBuffer.h',
+      '<(skia_src_path)/gpu/gr_unittests.cpp',
 
       '<(skia_src_path)/gpu/effects/Gr1DKernelEffect.h',
       '<(skia_src_path)/gpu/effects/GrConfigConversionEffect.cpp',

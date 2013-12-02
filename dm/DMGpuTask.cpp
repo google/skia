@@ -1,6 +1,6 @@
 #include "DMGpuTask.h"
 
-#include "DMChecksumTask.h"
+#include "DMComparisonTask.h"
 #include "DMUtil.h"
 #include "DMWriteTask.h"
 #include "SkCommandLineFlags.h"
@@ -60,7 +60,9 @@ void GpuTask::draw() {
     gr->printCacheStats();
 #endif
 
-    this->spawnChild(SkNEW_ARGS(ChecksumTask, (*this, fExpectations, bitmap)));
+    // We offload checksum comparison to the main CPU threadpool.
+    // This cuts run time by about 30%.
+    this->spawnChild(SkNEW_ARGS(ComparisonTask, (*this, fExpectations, bitmap)));
     this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
 }
 

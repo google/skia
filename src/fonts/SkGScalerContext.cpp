@@ -176,8 +176,6 @@ SkScalerContext* SkGTypeface::onCreateScalerContext(
 
 void SkGTypeface::onFilterRec(SkScalerContextRec* rec) const {
     fProxy->filterRec(rec);
-    rec->setHinting(SkPaint::kNo_Hinting);
-    rec->fMaskFormat = SkMask::kARGB32_Format;
 }
 
 SkAdvancedTypefaceMetrics* SkGTypeface::onGetAdvancedTypefaceMetrics(

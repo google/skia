@@ -49,7 +49,7 @@ static uint32_t compute_hash(const uint32_t data[], int count) {
     return hash;
 }
 
-struct SkScaledImageCache::Key {
+struct Key {
     Key(uint32_t genID,
         SkScalar scaleX,
         SkScalar scaleY,
@@ -129,24 +129,22 @@ struct SkScaledImageCache::Rec {
 #include "SkTDynamicHash.h"
 
 namespace { // can't use static functions w/ template parameters
-const SkScaledImageCache::Key& key_from_rec(const SkScaledImageCache::Rec& rec) {
+const Key& key_from_rec(const SkScaledImageCache::Rec& rec) {
     return rec.fKey;
 }
 
-uint32_t hash_from_key(const SkScaledImageCache::Key& key) {
+uint32_t hash_from_key(const Key& key) {
     return key.fHash;
 }
 
-bool eq_rec_key(const SkScaledImageCache::Rec& rec, const SkScaledImageCache::Key& key) {
+bool eq_rec_key(const SkScaledImageCache::Rec& rec, const Key& key) {
     return rec.fKey == key;
 }
 }
 
 class SkScaledImageCache::Hash : public SkTDynamicHash<SkScaledImageCache::Rec,
-                                                       SkScaledImageCache::Key,
-                                                       key_from_rec,
-                                                       hash_from_key,
-                                                       eq_rec_key> {};
+                                   Key, key_from_rec, hash_from_key,
+                                   eq_rec_key> {};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -189,22 +187,17 @@ SkScaledImageCache::~SkScaledImageCache() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
+/**
+   This private method is the fully general record finder. All other
+   record finders should call this funtion. */
 SkScaledImageCache::Rec* SkScaledImageCache::findAndLock(uint32_t genID,
                                                         SkScalar scaleX,
                                                         SkScalar scaleY,
                                                         const SkIRect& bounds) {
-    const Key key(genID, scaleX, scaleY, bounds);
-    return this->findAndLock(key);
-}
-
-/**
-   This private method is the fully general record finder. All other
-   record finders should call this function or the one above. */
-SkScaledImageCache::Rec* SkScaledImageCache::findAndLock(const SkScaledImageCache::Key& key) {
-    if (key.fBounds.isEmpty()) {
+    if (bounds.isEmpty()) {
         return NULL;
     }
+    Key key(genID, scaleX, scaleY, bounds);
 #ifdef USE_HASH
     Rec* rec = fHash->find(key);
 #else
@@ -282,14 +275,8 @@ SkScaledImageCache::ID* SkScaledImageCache::findAndLockMip(const SkBitmap& orig,
 /**
    This private method is the fully general record adder. All other
    record adders should call this funtion. */
-SkScaledImageCache::ID* SkScaledImageCache::addAndLock(SkScaledImageCache::Rec* rec) {
+void SkScaledImageCache::addAndLock(SkScaledImageCache::Rec* rec) {
     SkASSERT(rec);
-    // See if we already have this key (racy inserts, etc.)
-    Rec* existing = this->findAndLock(rec->fKey);
-    if (existing != NULL) {
-        return rec_to_id(existing);
-    }
-
     this->addToHead(rec);
     SkASSERT(1 == rec->fLockCount);
 #ifdef USE_HASH
@@ -298,7 +285,6 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLock(SkScaledImageCache::Rec* 
 #endif
     // We may (now) be overbudget, so see if we need to purge something.
     this->purgeAsNeeded();
-    return rec_to_id(rec);
 }
 
 SkScaledImageCache::ID* SkScaledImageCache::addAndLock(uint32_t genID,
@@ -307,7 +293,8 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLock(uint32_t genID,
                                                        const SkBitmap& bitmap) {
     Key key(genID, SK_Scalar1, SK_Scalar1, SkIRect::MakeWH(width, height));
     Rec* rec = SkNEW_ARGS(Rec, (key, bitmap));
-    return this->addAndLock(rec);
+    this->addAndLock(rec);
+    return rec_to_id(rec);
 }
 
 SkScaledImageCache::ID* SkScaledImageCache::addAndLock(const SkBitmap& orig,
@@ -324,7 +311,8 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLock(const SkBitmap& orig,
     }
     Key key(orig.getGenerationID(), scaleX, scaleY, bounds);
     Rec* rec = SkNEW_ARGS(Rec, (key, scaled));
-    return this->addAndLock(rec);
+    this->addAndLock(rec);
+    return rec_to_id(rec);
 }
 
 SkScaledImageCache::ID* SkScaledImageCache::addAndLockMip(const SkBitmap& orig,
@@ -335,7 +323,8 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLockMip(const SkBitmap& orig,
     }
     Key key(orig.getGenerationID(), 0, 0, bounds);
     Rec* rec = SkNEW_ARGS(Rec, (key, mip));
-    return this->addAndLock(rec);
+    this->addAndLock(rec);
+    return rec_to_id(rec);
 }
 
 void SkScaledImageCache::unlock(SkScaledImageCache::ID* id) {

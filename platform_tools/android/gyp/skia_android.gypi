@@ -30,16 +30,9 @@
         # still build.
         {
           'destination': '<(PRODUCT_DIR)/android/libs/<(android_arch)',
-          'conditions': [
-            [ 'skia_shared_lib', {
-              'files': [
-                '<(SHARED_LIB_DIR)/libSampleApp.so',
-                '<(SHARED_LIB_DIR)/libskia_android.so',
-              ]}, {
-              'files': [
-                '<(SHARED_LIB_DIR)/libSampleApp.so',
-             ]}
-           ],
+          'files': [
+            '<(SHARED_LIB_DIR)/libSampleApp.so',
+            '<(SHARED_LIB_DIR)/libskia_android.so',
           ],
         },
       ],

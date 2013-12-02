@@ -11,7 +11,6 @@
 #define SkString_DEFINED
 
 #include "SkScalar.h"
-#include "SkTArray.h"
 
 #include <stdarg.h>
 
@@ -244,8 +243,5 @@ SkString SkStringPrintf(const char* format, ...);
 template <> inline void SkTSwap(SkString& a, SkString& b) {
     a.swap(b);
 }
-
-// Split str on any characters in delimiters into out.  (Think, strtok with a sane API.)
-void SkStrSplit(const char* str, const char* delimiters, SkTArray<SkString>* out);
 
 #endif

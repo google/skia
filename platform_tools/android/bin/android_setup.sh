@@ -161,9 +161,7 @@ setup_device() {
   DEFINES="${DEFINES} host_os=$(uname -s | sed -e 's/Linux/linux/;s/Darwin/mac/')"
   DEFINES="${DEFINES} skia_os=android"
   DEFINES="${DEFINES} android_base=${SCRIPT_DIR}/.."
-  if [[ "$GYP_DEFINES" != *skia_shared_lib=* ]]; then
-      DEFINES="${DEFINES} skia_shared_lib=1"
-  fi
+  DEFINES="${DEFINES} skia_shared_lib=1"
 
   # Setup the build variation depending on the target device
   TARGET_DEVICE="$1"

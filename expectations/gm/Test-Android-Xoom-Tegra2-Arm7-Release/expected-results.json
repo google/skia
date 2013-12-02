@@ -2485,28 +2485,37 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7322753158848112633
+          2407516010050573816
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
     }, 
     "colortype_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13587257461703619696
+          5735401648209592903
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
     }, 
     "colortype_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10584626711301986223
+          16722577663537717052
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1759
+      ], 
+      "reviewed-by-human": false
     }, 
     "complexclip2_565.png": {
       "allowed-digests": [

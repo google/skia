@@ -136,15 +136,12 @@ private:
 
     // Hash table entry for atlases
     class AtlasEntry;
-    class AtlasHashKey : public GrBinHashKey<sizeof(GrTextureStripAtlas::Desc)> {
-    public:
-        static bool Equals(const AtlasEntry& entry, const AtlasHashKey& key);
-        static bool LessThan(const AtlasEntry& entry, const AtlasHashKey& key);
-    };
+    typedef GrTBinHashKey<AtlasEntry, sizeof(GrTextureStripAtlas::Desc)> AtlasHashKey;
     class AtlasEntry : public ::SkNoncopyable {
     public:
         AtlasEntry() : fAtlas(NULL) {}
         ~AtlasEntry() { SkDELETE(fAtlas); }
+        int compare(const AtlasHashKey& key) const { return fKey.compare(key); }
         AtlasHashKey fKey;
         GrTextureStripAtlas* fAtlas;
     };
@@ -180,15 +177,5 @@ private:
     // A list of pointers to AtlasRows that currently contain cached images, sorted by key
     SkTDArray<AtlasRow*> fKeyTable;
 };
-
-inline bool GrTextureStripAtlas::AtlasHashKey::Equals(const AtlasEntry& entry,
-                                                      const AtlasHashKey& key) {
-    return entry.fKey == key;
-}
-
-inline bool GrTextureStripAtlas::AtlasHashKey::LessThan(const AtlasEntry& entry,
-                                                        const AtlasHashKey& key) {
-    return entry.fKey < key;
-}
 
 #endif

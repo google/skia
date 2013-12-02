@@ -28,10 +28,7 @@ then
 fi
 
 adb_push_if_needed "${SKIA_OUT}/${configuration}/skia_launcher" /data/local/tmp
-if [ -f "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" ]; then
-    # Does not exist for builds with static skia.
-    adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" /data/local/tmp
-fi
+adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" /data/local/tmp
 adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so" /data/local/tmp
 
 STATUS_FILENAME="/data/local/tmp/.skia_tmp_$(date +%s%N)"

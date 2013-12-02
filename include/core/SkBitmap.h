@@ -42,6 +42,12 @@ public:
 
     enum Config {
         kNo_Config,         //!< bitmap has not been configured
+        /**
+         *  1-bit per pixel, (0 is transparent, 1 is opaque)
+         *  Valid as a destination (target of a canvas), but not valid as a src.
+         *  i.e. you can draw into a 1-bit bitmap, but you cannot draw from one.
+         */
+        kA1_Config,
         kA8_Config,         //!< 8-bits per pixel, with only alpha specified (0 is transparent, 0xFF is opaque)
         kIndex8_Config,     //!< 8-bits per pixel, using SkColorTable to specify the colors
         kRGB_565_Config,    //!< 16-bits per pixel, (see SkColorPriv.h for packing)
@@ -483,6 +489,14 @@ public:
      */
     inline uint8_t* getAddr8(int x, int y) const;
 
+    /** Returns the address of the byte containing the pixel specified by x,y
+     *  for 1bit pixels.
+     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  and that the config is 1-bit, however none of these checks are performed
+     *  in the release build.
+     */
+    inline uint8_t* getAddr1(int x, int y) const;
+
     /** Returns the color corresponding to the pixel specified by x,y for
      *  colortable based bitmaps.
      *  In debug build, this asserts that the pixels are allocated and locked,
@@ -802,6 +816,14 @@ inline SkPMColor SkBitmap::getIndex8Color(int x, int y) const {
     SkASSERT((unsigned)x < fWidth && (unsigned)y < fHeight);
     SkASSERT(fColorTable);
     return (*fColorTable)[*((const uint8_t*)fPixels + y * fRowBytes + x)];
+}
+
+// returns the address of the byte that contains the x coordinate
+inline uint8_t* SkBitmap::getAddr1(int x, int y) const {
+    SkASSERT(fPixels);
+    SkASSERT(fConfig == kA1_Config);
+    SkASSERT((unsigned)x < fWidth && (unsigned)y < fHeight);
+    return (uint8_t*)fPixels + y * fRowBytes + (x >> 3);
 }
 
 #endif

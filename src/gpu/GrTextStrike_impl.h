@@ -19,10 +19,10 @@ public:
 
     intptr_t getHash() const { return fFontScalerKey->getHash(); }
 
-    static bool LessThan(const GrTextStrike& strike, const Key& key) {
+    static bool LT(const GrTextStrike& strike, const Key& key) {
         return *strike.getFontScalerKey() < *key.fFontScalerKey;
     }
-    static bool Equals(const GrTextStrike& strike, const Key& key) {
+    static bool EQ(const GrTextStrike& strike, const Key& key) {
         return *strike.getFontScalerKey() == *key.fFontScalerKey;
     }
 
@@ -88,10 +88,10 @@ public:
 
     uint32_t getHash() const { return fPackedID; }
 
-    static bool LessThan(const GrGlyph& glyph, const Key& key) {
+    static bool LT(const GrGlyph& glyph, const Key& key) {
         return glyph.fPackedID < key.fPackedID;
     }
-    static bool Equals(const GrGlyph& glyph, const Key& key) {
+    static bool EQ(const GrGlyph& glyph, const Key& key) {
         return glyph.fPackedID == key.fPackedID;
     }
 

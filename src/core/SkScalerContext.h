@@ -202,57 +202,16 @@ protected:
     Rec         fRec;
     unsigned    fBaseGlyphCount;
 
-    /** Generates the contents of glyph.fAdvanceX and glyph.fAdvanceY.
-     *  May call getMetrics if that would be just as fast.
-     */
-    virtual void generateAdvance(SkGlyph* glyph) = 0;
-
-    /** Generates the contents of glyph.fWidth, fHeight, fTop, fLeft,
-     *  as well as fAdvanceX and fAdvanceY if not already set.
-     *
-     *  TODO: fMaskFormat is set by getMetrics later; cannot be set here.
-     */
-    virtual void generateMetrics(SkGlyph* glyph) = 0;
-
-    /** Generates the contents of glyph.fImage.
-     *  When called, glyph.fImage will be pointing to a pre-allocated,
-     *  uninitialized region of memory of size glyph.computeImageSize().
-     *  This method may change glyph.fMaskFormat if the new image size is
-     *  less than or equal to the old image size.
-     *
-     *  Because glyph.computeImageSize() will determine the size of fImage,
-     *  generateMetrics will be called before generateImage.
-     */
-    virtual void generateImage(const SkGlyph& glyph) = 0;
-
-    /** Sets the passed path to the glyph outline.
-     *  If this cannot be done the path is set to empty;
-     *  this is indistinguishable from a glyph with an empty path.
-     *  This does not set glyph.fPath.
-     *
-     *  TODO: path is always glyph.fPath, no reason to pass separately.
-     */
-    virtual void generatePath(const SkGlyph& glyph, SkPath* path) = 0;
-
-    /** Retrieves font metrics.
-     *  TODO: there is now a vertical bit, no need for two parameters.
-     */
+    virtual unsigned generateGlyphCount() = 0;
+    virtual uint16_t generateCharToGlyph(SkUnichar) = 0;
+    virtual void generateAdvance(SkGlyph*) = 0;
+    virtual void generateMetrics(SkGlyph*) = 0;
+    virtual void generateImage(const SkGlyph&) = 0;
+    virtual void generatePath(const SkGlyph&, SkPath*) = 0;
     virtual void generateFontMetrics(SkPaint::FontMetrics* mX,
                                      SkPaint::FontMetrics* mY) = 0;
-
-    /** Returns the number of glyphs in the font. */
-    virtual unsigned generateGlyphCount() = 0;
-
-    /** Returns the glyph id for the given unichar.
-     *  If there is no 1:1 mapping from the unichar to a glyph id, returns 0.
-     */
-    virtual uint16_t generateCharToGlyph(SkUnichar unichar) = 0;
-
-    /** Returns the unichar for the given glyph id.
-     *  If there is no 1:1 mapping from the glyph id to a unichar, returns 0.
-     *  The default implementation always returns 0, indicating failure.
-     */
-    virtual SkUnichar generateGlyphToChar(uint16_t glyphId);
+    // default impl returns 0, indicating failure.
+    virtual SkUnichar generateGlyphToChar(uint16_t);
 
     void forceGenerateImageFromPath() { fGenerateImageFromPath = true; }
 

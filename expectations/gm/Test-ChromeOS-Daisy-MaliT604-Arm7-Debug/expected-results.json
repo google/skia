@@ -1900,19 +1900,25 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4723751871359287410
+          7633944210736451677
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "colortype_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16275740961157987318
+          2594983628740042115
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1578
+      ], 
+      "reviewed-by-human": false
     }, 
     "complexclip2_565.png": {
       "allowed-digests": [

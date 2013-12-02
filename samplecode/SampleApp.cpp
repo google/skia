@@ -1537,6 +1537,7 @@ void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
 
 static SkBitmap::Config gConfigCycle[] = {
     SkBitmap::kNo_Config,           // none -> none
+    SkBitmap::kNo_Config,           // a1 -> none
     SkBitmap::kNo_Config,           // a8 -> none
     SkBitmap::kNo_Config,           // index8 -> none
     SkBitmap::kARGB_4444_Config,    // 565 -> 4444
@@ -2073,6 +2074,7 @@ void SampleWindow::loadView(SkView* view) {
 
 static const char* gConfigNames[] = {
     "unknown config",
+    "A1",
     "A8",
     "Index8",
     "565",

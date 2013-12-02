@@ -211,6 +211,8 @@ private:
     SkTDArray<SkGlyph*> fGlyphArray;
     SkChunkAlloc        fGlyphAlloc;
 
+    int fMetricsCount, fAdvanceCount;
+
     struct CharGlyphRec {
         uint32_t    fID;    // unichar + subpixel
         SkGlyph*    fGlyph;

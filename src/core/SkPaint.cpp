@@ -2005,7 +2005,11 @@ enum FlatFlags {
 };
 
 // The size of a flat paint's POD fields
-static const uint32_t kPODPaintSize =   5 * sizeof(SkScalar) +
+// Include an SkScalar for hinting scale factor whether it is
+// supported or not so that an SKP is valid whether it was
+// created with support or not.
+
+static const uint32_t kPODPaintSize =   6 * sizeof(SkScalar) +
                                         1 * sizeof(SkColor) +
                                         1 * sizeof(uint16_t) +
                                         6 * sizeof(uint8_t);
@@ -2042,6 +2046,8 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         ptr = write_scalar(ptr, this->getTextSize());
         ptr = write_scalar(ptr, this->getTextScaleX());
         ptr = write_scalar(ptr, this->getTextSkewX());
+        // Dummy value for obsolete hinting scale factor.  TODO: remove with next picture version
+        ptr = write_scalar(ptr, SK_Scalar1);
         ptr = write_scalar(ptr, this->getStrokeWidth());
         ptr = write_scalar(ptr, this->getStrokeMiter());
         *ptr++ = this->getColor();
@@ -2058,6 +2064,8 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         buffer.writeScalar(fTextSize);
         buffer.writeScalar(fTextScaleX);
         buffer.writeScalar(fTextSkewX);
+        // Dummy value for obsolete hinting scale factor.  TODO: remove with next picture version
+        buffer.writeScalar(SK_Scalar1);
         buffer.writeScalar(fWidth);
         buffer.writeScalar(fMiterLimit);
         buffer.writeColor(fColor);
@@ -2112,6 +2120,8 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
         this->setTextSize(read_scalar(pod));
         this->setTextScaleX(read_scalar(pod));
         this->setTextSkewX(read_scalar(pod));
+        // Skip the hinting scalar factor, which is not supported.
+        read_scalar(pod);
         this->setStrokeWidth(read_scalar(pod));
         this->setStrokeMiter(read_scalar(pod));
         this->setColor(*pod++);

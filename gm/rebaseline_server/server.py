@@ -19,10 +19,8 @@ import posixpath
 import re
 import shutil
 import socket
-import subprocess
 import sys
 import thread
-import threading
 import time
 import urlparse
 
@@ -44,6 +42,8 @@ import results
 
 ACTUALS_SVN_REPO = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 PATHSPLIT_RE = re.compile('/([^/]+)/(.+)')
+TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.realpath(__file__))))
 EXPECTATIONS_DIR = os.path.join(TRUNK_DIRECTORY, 'expectations', 'gm')
 GENERATED_IMAGES_ROOT = os.path.join(PARENT_DIRECTORY, 'static',
                                      'generated-images')
@@ -67,29 +67,6 @@ _HTTP_HEADER_CONTENT_TYPE = 'Content-Type'
 
 _SERVER = None   # This gets filled in by main()
 
-
-def _run_command(args, directory):
-  """Runs a command and returns stdout as a single string.
-
-  Args:
-    args: the command to run, as a list of arguments
-    directory: directory within which to run the command
-
-  Returns: stdout, as a string
-
-  Raises an Exception if the command failed (exited with nonzero return code).
-  """
-  logging.debug('_run_command: %s in directory %s' % (args, directory))
-  proc = subprocess.Popen(args, cwd=directory,
-                          stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE)
-  (stdout, stderr) = proc.communicate()
-  if proc.returncode is not 0:
-    raise Exception('command "%s" failed in dir "%s": %s' %
-                    (args, directory, stderr))
-  return stdout
-
-
 def _get_routable_ip_address():
   """Returns routable IP address of this host (the IP address of its network
      interface that would be used for most traffic, not its localhost
@@ -99,7 +76,6 @@ def _get_routable_ip_address():
   host = sock.getsockname()[0]
   sock.close()
   return host
-
 
 def _create_svn_checkout(dir_path, repo_url):
   """Creates local checkout of an SVN repository at the specified directory
@@ -144,87 +120,69 @@ class Server(object):
     self._actuals_repo = _create_svn_checkout(
         dir_path=actuals_dir, repo_url=ACTUALS_SVN_REPO)
 
-    # Reentrant lock that must be held whenever updating EITHER of:
-    # 1. self._results
-    # 2. the expected or actual results on local disk
-    self.results_rlock = threading.RLock()
-    # self._results will be filled in by calls to update_results()
-    self._results = None
+    # We only update the expectations dir if the server was run with a
+    # nonzero --reload argument; otherwise, we expect the user to maintain
+    # her own expectations as she sees fit.
+    #
+    # TODO(epoger): Use git instead of svn to update the expectations dir, since
+    # the Skia repo is moving to git.
+    # When we make that change, we will have to update the entire workspace,
+    # not just the expectations dir, because git only operates on the repo
+    # as a whole.
+    # And since Skia uses depot_tools to manage its dependencies, we will have
+    # to run "gclient sync" rather than a raw "git pull".
+    if reload_seconds:
+      self._expectations_repo = svn.Svn(EXPECTATIONS_DIR)
+    else:
+      self._expectations_repo = None
 
-  @property
-  def results(self):
-    """ Returns the most recently generated results, or None if update_results()
-    has not been called yet. """
-    return self._results
-
-  @property
   def is_exported(self):
     """ Returns true iff HTTP clients on other hosts are allowed to access
     this server. """
     return self._export
 
-  @property
   def is_editable(self):
     """ Returns true iff HTTP clients are allowed to submit new baselines. """
     return self._editable
 
-  @property
   def reload_seconds(self):
     """ Returns the result reload period in seconds, or 0 if we don't reload
     results. """
     return self._reload_seconds
 
   def update_results(self):
-    """ Create or update self._results, based on the expectations in
+    """ Create or update self.results, based on the expectations in
     EXPECTATIONS_DIR and the latest actuals from skia-autogen.
-
-    We hold self.results_rlock while we do this, to guarantee that no other
-    thread attempts to update either self._results or the underlying files at
-    the same time.
     """
-    with self.results_rlock:
-      logging.info('Updating actual GM results in %s from SVN repo %s ...' % (
-          self._actuals_dir, ACTUALS_SVN_REPO))
-      self._actuals_repo.Update('.')
+    logging.info('Updating actual GM results in %s from SVN repo %s ...' % (
+        self._actuals_dir, ACTUALS_SVN_REPO))
+    self._actuals_repo.Update('.')
 
-      # We only update the expectations dir if the server was run with a
-      # nonzero --reload argument; otherwise, we expect the user to maintain
-      # her own expectations as she sees fit.
-      #
-      # Because the Skia repo is moving from SVN to git, and git does not
-      # support updating a single directory tree, we have to update the entire
-      # repo checkout.
-      #
-      # Because Skia uses depot_tools, we have to update using "gclient sync"
-      # instead of raw git (or SVN) update.  Happily, this will work whether
-      # the checkout was created using git or SVN.
-      if self._reload_seconds:
-        logging.info(
-            'Updating expected GM results in %s by syncing Skia repo ...' %
-            EXPECTATIONS_DIR)
-        _run_command(['gclient', 'sync'], TRUNK_DIRECTORY)
-
+    if self._expectations_repo:
       logging.info(
+          'Updating expected GM results in %s ...' % EXPECTATIONS_DIR)
+      self._expectations_repo.Update('.')
+
+    logging.info(
           ('Parsing results from actuals in %s and expectations in %s, '
-           + 'and generating pixel diffs (may take a while) ...') % (
-               self._actuals_dir, EXPECTATIONS_DIR))
-      self._results = results.Results(
-          actuals_root=self._actuals_dir,
-          expected_root=EXPECTATIONS_DIR,
-          generated_images_root=GENERATED_IMAGES_ROOT)
+          + 'and generating pixel diffs (may take a while) ...') % (
+          self._actuals_dir, EXPECTATIONS_DIR))
+    self.results = results.Results(
+        actuals_root=self._actuals_dir,
+        expected_root=EXPECTATIONS_DIR,
+        generated_images_root=GENERATED_IMAGES_ROOT)
 
   def _result_reloader(self):
-    """ Reload results at the appropriate interval.  This never exits, so it
-    should be run in its own thread.
+    """ If --reload argument was specified, reload results at the appropriate
+    interval.
     """
-    while True:
+    while self._reload_seconds:
       time.sleep(self._reload_seconds)
       self.update_results()
 
   def run(self):
     self.update_results()
-    if self._reload_seconds:
-      thread.start_new_thread(self._result_reloader, ())
+    thread.start_new_thread(self._result_reloader, ())
 
     if self._export:
       server_address = ('', self._port)
@@ -298,9 +256,9 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         # We only return these timestamps if the --reload argument was passed;
         # otherwise, we have no idea when the expectations were last updated
         # (we allow the user to maintain her own expectations as she sees fit).
-        'timeUpdated': time_updated if _SERVER.reload_seconds else None,
+        'timeUpdated': time_updated if _SERVER.reload_seconds() else None,
         'timeNextUpdateAvailable': (
-            (time_updated+_SERVER.reload_seconds) if _SERVER.reload_seconds
+            (time_updated+_SERVER.reload_seconds()) if _SERVER.reload_seconds()
             else None),
 
         # The type we passed to get_results_of_type()
@@ -311,10 +269,10 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         'dataHash': str(hash(repr(response_dict['testData']))),
 
         # Whether the server will accept edits back.
-        'isEditable': _SERVER.is_editable,
+        'isEditable': _SERVER.is_editable(),
 
         # Whether the service is accessible from other hosts.
-        'isExported': _SERVER.is_exported,
+        'isExported': _SERVER.is_exported(),
       }
       self.send_json_dict(response_dict)
     except:
@@ -385,7 +343,7 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     Raises an Exception if there were any problems.
     """
-    if not _SERVER.is_editable:
+    if not _SERVER.is_editable():
       raise Exception('this server is not running in --editable mode')
 
     content_type = self.headers[_HTTP_HEADER_CONTENT_TYPE]
@@ -399,23 +357,22 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     logging.debug('do_POST_edits: received new GM expectations data [%s]' %
                   data)
 
-    # Update the results on disk with the information we received from the
-    # client.
-    # We must hold _SERVER.results_rlock while we do this, to guarantee that
-    # no other thread updates expectations (from the Skia repo) while we are
-    # updating them (using the info we received from the client).
-    with _SERVER.results_rlock:
-      oldResultsType = data['oldResultsType']
-      oldResults = _SERVER.results.get_results_of_type(oldResultsType)
-      oldResultsHash = str(hash(repr(oldResults['testData'])))
-      if oldResultsHash != data['oldResultsHash']:
-        raise Exception('results of type "%s" changed while the client was '
-                        'making modifications. The client should reload the '
-                        'results and submit the modifications again.' %
-                        oldResultsType)
-      _SERVER.results.edit_expectations(data['modifications'])
-      # Read the updated results back from disk.
-      _SERVER.update_results()
+    # Since we must make multiple calls to the Results object, grab a
+    # reference to it in case it is updated to point at a new Results
+    # object within another thread.
+    results_obj = _SERVER.results
+    oldResultsType = data['oldResultsType']
+    oldResults = results_obj.get_results_of_type(oldResultsType)
+    oldResultsHash = str(hash(repr(oldResults['testData'])))
+    if oldResultsHash != data['oldResultsHash']:
+      raise Exception('results of type "%s" changed while the client was '
+                      'making modifications. The client should reload the '
+                      'results and submit the modifications again.' %
+                      oldResultsType)
+    results_obj.edit_expectations(data['modifications'])
+
+    # Now that the edits have been committed, update results to reflect them.
+    _SERVER.update_results()
 
   def redirect_to(self, url):
     """ Redirect the HTTP client to a different url.
@@ -488,8 +445,7 @@ def main():
   parser.add_argument('--reload', type=int,
                       help=('How often (a period in seconds) to update the '
                             'results.  If specified, both expected and actual '
-                            'results will be updated by running "gclient sync" '
-                            'on your Skia checkout as a whole.  '
+                            'results will be updated.  '
                             'By default, we do not reload at all, and you '
                             'must restart the server to pick up new data.'),
                       default=0)
@@ -499,7 +455,6 @@ def main():
                    port=args.port, export=args.export, editable=args.editable,
                    reload_seconds=args.reload)
   _SERVER.run()
-
 
 if __name__ == '__main__':
   main()

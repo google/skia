@@ -83,7 +83,6 @@
         '../tests/GradientTest.cpp',
         '../tests/GrMemoryPoolTest.cpp',
         '../tests/GrSurfaceTest.cpp',
-        '../tests/GrUnitTests.cpp',
         '../tests/HashCacheTest.cpp',
         '../tests/ImageCacheTest.cpp',
         '../tests/ImageDecodingTest.cpp',

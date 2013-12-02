@@ -4,29 +4,8 @@
   'conditions': [
     [ 'skia_angle', {
       'target_defaults': {
-        'include_dirs': [
-          '$(DXSDK_DIR)/Include',
-        ],
-        'msvs_settings': {
-          'VCLinkerTool': {
-            'conditions': [
-              [ 'skia_arch_width == 32 ', {
-                'AdditionalLibraryDirectories': [
-                  '$(DXSDK_DIR)/Lib/x86',
-                ],
-              },{
-                'AdditionalLibraryDirectories': [
-                  '$(DXSDK_DIR)/Lib/x64',
-                ],
-              }],
-            ],
-          },
-        },
         'defines': [
           'NOMINMAX',
-        ],
-        'defines/': [
-          ['exclude', 'ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES'],
         ],
       },
       'variables': {

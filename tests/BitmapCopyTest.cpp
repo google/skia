@@ -15,7 +15,7 @@ static const char* boolStr(bool value) {
 
 // these are in the same order as the SkBitmap::Config enum
 static const char* gConfigName[] = {
-    "None", "A8", "Index8", "565", "4444", "8888"
+    "None", "A1", "A8", "Index8", "565", "4444", "8888", "RLE_Index8"
 };
 
 static void report_opaqueness(skiatest::Reporter* reporter, const SkBitmap& src,
@@ -57,6 +57,10 @@ static void init_src(const SkBitmap& bitmap) {
     if (bitmap.getPixels()) {
         if (bitmap.getColorTable()) {
             sk_bzero(bitmap.getPixels(), bitmap.getSize());
+        } else if (SkBitmap::kA1_Config == bitmap.config()) {
+            // The A1 config can have uninitialized bits at the
+            // end of each row if eraseColor is used
+            memset(bitmap.getPixels(), 0xff, bitmap.getSafeSize());
         } else {
             bitmap.eraseColor(SK_ColorWHITE);
         }
@@ -88,7 +92,7 @@ struct Pair {
 static uint32_t getPixel(int x, int y, const SkBitmap& bm) {
     uint32_t val = 0;
     uint16_t val16;
-    uint8_t val8;
+    uint8_t val8, shift;
     SkAutoLockPixels lock(bm);
     const void* rawAddr = bm.getAddr(x,y);
 
@@ -106,6 +110,11 @@ static uint32_t getPixel(int x, int y, const SkBitmap& bm) {
             memcpy(&val8, rawAddr, sizeof(uint8_t));
             val = val8;
             break;
+        case SkBitmap::kA1_Config:
+            memcpy(&val8, rawAddr, sizeof(uint8_t));
+            shift = x % 8;
+            val = (val8 >> shift) & 0x1 ;
+            break;
         default:
             break;
     }
@@ -117,7 +126,7 @@ static uint32_t getPixel(int x, int y, const SkBitmap& bm) {
 // converted to, but at present uint32_t can handle all formats.
 static void setPixel(int x, int y, uint32_t val, SkBitmap& bm) {
     uint16_t val16;
-    uint8_t val8;
+    uint8_t val8, shift;
     SkAutoLockPixels lock(bm);
     void* rawAddr = bm.getAddr(x,y);
 
@@ -135,6 +144,15 @@ static void setPixel(int x, int y, uint32_t val, SkBitmap& bm) {
             val8 = val & 0xFF;
             memcpy(rawAddr, &val8, sizeof(uint8_t));
             break;
+        case SkBitmap::kA1_Config:
+            shift = x % 8; // We assume we're in the right byte.
+            memcpy(&val8, rawAddr, sizeof(uint8_t));
+            if (val & 0x1) // Turn bit on.
+                val8 |= (0x1 << shift);
+            else // Turn bit off.
+                val8 &= ~(0x1 << shift);
+            memcpy(rawAddr, &val8, sizeof(uint8_t));
+            break;
         default:
             // Ignore.
             break;
@@ -146,6 +164,7 @@ static void setPixel(int x, int y, uint32_t val, SkBitmap& bm) {
 static const char* getSkConfigName(const SkBitmap& bm) {
     switch (bm.config()) {
         case SkBitmap::kNo_Config: return "SkBitmap::kNo_Config";
+        case SkBitmap::kA1_Config: return "SkBitmap::kA1_Config";
         case SkBitmap::kA8_Config: return "SkBitmap::kA8_Config";
         case SkBitmap::kIndex8_Config: return "SkBitmap::kIndex8_Config";
         case SkBitmap::kRGB_565_Config: return "SkBitmap::kRGB_565_Config";
@@ -206,12 +225,13 @@ static void writeCoordPixels(SkBitmap& bm, const Coordinates& coords) {
 
 static void TestBitmapCopy(skiatest::Reporter* reporter) {
     static const Pair gPairs[] = {
-        { SkBitmap::kNo_Config,         "0000000"  },
-        { SkBitmap::kA8_Config,         "0101010"  },
-        { SkBitmap::kIndex8_Config,     "0111010"  },
-        { SkBitmap::kRGB_565_Config,    "0101010"  },
-        { SkBitmap::kARGB_4444_Config,  "0101110"  },
-        { SkBitmap::kARGB_8888_Config,  "0101110"  },
+        { SkBitmap::kNo_Config,         "00000000"  },
+        { SkBitmap::kA1_Config,         "01000000"  },
+        { SkBitmap::kA8_Config,         "00101010"  },
+        { SkBitmap::kIndex8_Config,     "00111010"  },
+        { SkBitmap::kRGB_565_Config,    "00101010"  },
+        { SkBitmap::kARGB_4444_Config,  "00101110"  },
+        { SkBitmap::kARGB_8888_Config,  "00101110"  },
     };
 
     static const bool isExtracted[] = {
@@ -355,6 +375,12 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 case SkBitmap::kNo_Config:
                     break;
 
+                case SkBitmap::kA1_Config:
+                    if (safeSize.fHi != 0x470DE ||
+                        safeSize.fLo != 0x4DF82000)
+                        sizeFail = true;
+                    break;
+
                 case SkBitmap::kA8_Config:
                 case SkBitmap::kIndex8_Config:
                     if (safeSize.fHi != 0x2386F2 ||
@@ -385,8 +411,21 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 reporter->reportFailed(str);
             }
 
-            int subW = 2;
-            int subH = 2;
+            int subW, subH;
+            // Set sizes to be height = 2 to force the last row of the
+            // source to be used, thus verifying correct operation if
+            // the bitmap is an extracted subset.
+            if (gPairs[i].fConfig == SkBitmap::kA1_Config) {
+                // If one-bit per pixel, use 9 pixels to force more than
+                // one byte per row.
+                subW = 9;
+                subH = 2;
+            } else {
+                // All other configurations are at least one byte per pixel,
+                // and different configs will test copying different numbers
+                // of bytes.
+                subW = subH = 2;
+            }
 
             // Create bitmap to act as source for copies and subsets.
             SkBitmap src, subset;
@@ -410,7 +449,12 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 // The extractedSubset() test case allows us to test copy-
                 // ing when src and dst mave possibly different strides.
                 SkIRect r;
-                r.set(1, 0, 1 + subW, subH); // 2x2 extracted bitmap
+                if (gPairs[i].fConfig == SkBitmap::kA1_Config)
+                    // This config seems to need byte-alignment of
+                    // extracted subset bits.
+                    r.set(0, 0, subW, subH);
+                else
+                    r.set(1, 0, 1 + subW, subH); // 2x2 extracted bitmap
 
                 srcReady = src.extractSubset(&subset, r);
             } else {

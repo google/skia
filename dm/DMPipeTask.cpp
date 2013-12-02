@@ -6,7 +6,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkGPipe.h"
 
-DEFINE_bool(pipe, true, "If true, check several pipe variants against the reference bitmap.");
+DEFINE_bool(pipe, false, "If true, check several pipe variants against the reference bitmap.");
 
 namespace DM {
 

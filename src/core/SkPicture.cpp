@@ -266,17 +266,8 @@ void SkPicture::draw(SkCanvas* surface, SkDrawPictureCallback* callback) {
 
 #include "SkStream.h"
 
-static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'c', 't' };
-
 bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     if (NULL == stream) {
-        return false;
-    }
-
-    // Check magic bytes.
-    char magic[sizeof(kMagic)];
-    stream->read(magic, sizeof(kMagic));
-    if (0 != memcmp(magic, kMagic, sizeof(kMagic))) {
         return false;
     }
 
@@ -349,10 +340,6 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     if (8 == sizeof(void*)) {
         info.fFlags |= SkPictInfo::kPtrIs64Bit_Flag;
     }
-
-    // Write 8 magic bytes to ID this file format.
-    SkASSERT(sizeof(kMagic) == 8);
-    stream->write(kMagic, sizeof(kMagic));
 
     stream->write(&info, sizeof(info));
     if (playback) {
