@@ -32,8 +32,6 @@
 
 // TODO(edisonn): #ifdef these ones, as they are used only for debugging.
 extern "C" SkPdfContext* gPdfContext;
-extern "C" SkBitmap* gDumpBitmap;
-extern "C" SkCanvas* gDumpCanvas;
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -207,33 +205,21 @@ public:
 // TODO(edisonn): this will not work in chrome! Find another solution!
 StringsInit gStringsInit;
 
-// TODO(edisonn): Document PdfTokenLooper and subclasses.
-class PdfMainLooper : public PdfTokenLooper {
-public:
-    PdfMainLooper(PdfTokenLooper* parent,
-                  SkPdfNativeTokenizer* tokenizer,
-                  SkPdfContext* pdfContext,
-                  SkCanvas* canvas)
-        : PdfTokenLooper(parent, tokenizer, pdfContext, canvas) {}
-
-    virtual SkPdfResult consumeToken(PdfToken& token);
-    virtual void loop();
-};
-
-class PdfInlineImageLooper : public PdfTokenLooper {
+// TODO(edisonn): Document SkPdfTokenLooper and subclasses.
+class PdfInlineImageLooper : public SkPdfTokenLooper {
 public:
     PdfInlineImageLooper()
-        : PdfTokenLooper(NULL, NULL, NULL, NULL) {}
+        : SkPdfTokenLooper(NULL, NULL, NULL, NULL) {}
 
     virtual SkPdfResult consumeToken(PdfToken& token);
     virtual void loop();
     SkPdfResult done();
 };
 
-class PdfCompatibilitySectionLooper : public PdfTokenLooper {
+class PdfCompatibilitySectionLooper : public SkPdfTokenLooper {
 public:
     PdfCompatibilitySectionLooper()
-        : PdfTokenLooper(NULL, NULL, NULL, NULL) {}
+        : SkPdfTokenLooper(NULL, NULL, NULL, NULL) {}
 
     virtual SkPdfResult consumeToken(PdfToken& token);
     virtual void loop();
@@ -310,146 +296,6 @@ SkMatrix SkMatrixFromPdfArray(SkPdfArray* pdfArray) {
 
 // TODO(edisonn): debug code, used to analyze rendering when we find bugs.
 extern "C" SkPdfNativeDoc* gDoc;
-SkBitmap* gDumpBitmap = NULL;
-SkCanvas* gDumpCanvas = NULL;
-char gLastKeyword[100] = "";
-int gLastOpKeyword = -1;
-int gReadOp = 0;
-
-#ifdef PDF_TRACE_DIFF_IN_PNG
-char allOpWithVisualEffects[100] = ",S,s,f,F,f*,B,B*,b,b*,n,Tj,TJ,\',\",d0,d1,sh,EI,Do,EX,";
-static bool hasVisualEffect(const char* pdfOp) {
-    return true;
-    if (*pdfOp == '\0') return false;
-
-    char markedPdfOp[100] = ",";
-    strcat(markedPdfOp, pdfOp);
-    strcat(markedPdfOp, ",");
-
-    return (strstr(allOpWithVisualEffects, markedPdfOp) != NULL);
-}
-#endif  // PDF_TRACE_DIFF_IN_PNG
-
-// TODO(edisonn): Pass SkPdfContext and SkCanvasd only with the define for instrumentation.
-static bool readToken(SkPdfNativeTokenizer* fTokenizer, PdfToken* token) {
-    bool ret = fTokenizer->readToken(token);
-
-    gReadOp++;
-    gLastOpKeyword++;
-#ifdef PDF_TRACE_DIFF_IN_PNG
-    // TODO(edisonn): this code is used to make a step by step history of all the draw operations
-    // so we could find the step where something is wrong.
-    if (gLastKeyword[0] && hasVisualEffect(gLastKeyword)) {
-        gDumpCanvas->flush();
-
-        SkBitmap bitmap;
-        setup_bitmap(&bitmap, gDumpBitmap->width(), gDumpBitmap->height());
-
-        memcpy(bitmap.getPixels(), gDumpBitmap->getPixels(), gDumpBitmap->getSize());
-
-        SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (bitmap)));
-        SkCanvas canvas(device);
-
-        // draw context stuff here
-        SkPaint blueBorder;
-        blueBorder.setColor(SK_ColorBLUE);
-        blueBorder.setStyle(SkPaint::kStroke_Style);
-        blueBorder.setTextSize(SkDoubleToScalar(20));
-
-        SkString str;
-
-        const SkClipStack* clipStack = gDumpCanvas->getClipStack();
-        if (clipStack) {
-            SkClipStack::Iter iter(*clipStack, SkClipStack::Iter::kBottom_IterStart);
-            const SkClipStack::Element* elem;
-            double y = 0;
-            int total = 0;
-            while ((elem = iter.next()) != NULL) {
-                total++;
-                y += 30;
-
-                switch (elem->getType()) {
-                    case SkClipStack::Element::kRect_Type:
-                        canvas.drawRect(elem->getRect(), blueBorder);
-                        canvas.drawText("Rect Clip", strlen("Rect Clip"),
-                                        SkDoubleToScalar(10), SkDoubleToScalar(y), blueBorder);
-                        break;
-                    case SkClipStack::Element::kPath_Type:
-                        canvas.drawPath(elem->getPath(), blueBorder);
-                        canvas.drawText("Path Clip", strlen("Path Clip"),
-                                        SkDoubleToScalar(10), SkDoubleToScalar(y), blueBorder);
-                        break;
-                    case SkClipStack::Element::kEmpty_Type:
-                        canvas.drawText("Empty Clip!!!", strlen("Empty Clip!!!"),
-                                        SkDoubleToScalar(10), SkDoubleToScalar(y), blueBorder);
-                        break;
-                    default:
-                        canvas.drawText("Unkown Clip!!!", strlen("Unkown Clip!!!"),
-                                        SkDoubleToScalar(10), SkDoubleToScalar(y), blueBorder);
-                        break;
-                }
-            }
-
-            y += 30;
-            str.printf("Number of clips in stack: %i", total);
-            canvas.drawText(str.c_str(), str.size(),
-                            SkDoubleToScalar(10), SkDoubleToScalar(y), blueBorder);
-        }
-
-        const SkRegion& clipRegion = gDumpCanvas->getTotalClip();
-        SkPath clipPath;
-        if (clipRegion.getBoundaryPath(&clipPath)) {
-            SkPaint redBorder;
-            redBorder.setColor(SK_ColorRED);
-            redBorder.setStyle(SkPaint::kStroke_Style);
-            canvas.drawPath(clipPath, redBorder);
-        }
-
-        canvas.flush();
-
-        SkString out;
-
-        // TODO(edisonn): overlay on top of image inf about the clip , grafic state, the stack
-
-        out.appendf("/tmp/log_step_by_step/step-%i-%s.png",
-                    gLastOpKeyword, gLastKeyword);
-        SkImageEncoder::EncodeFile(out.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
-    }
-
-    if (ret && token->fType == kKeyword_TokenType &&
-            token->fKeyword && token->fKeywordLength > 0 && token->fKeywordLength < 100) {
-        strncpy(gLastKeyword, token->fKeyword, token->fKeywordLength);
-        gLastKeyword[token->fKeywordLength] = '\0';
-    } else {
-        gLastKeyword[0] = '\0';
-    }
-#endif
-
-    return ret;
-}
-
-// Signature for all the operations available in pdf.
-typedef SkPdfResult (*PdfOperatorRenderer)(SkPdfContext*, SkCanvas*, PdfTokenLooper**);
-
-// Map of string to function pointer for all known draw operations.
-SkTDict<PdfOperatorRenderer> gPdfOps(100);
-
-// Temp code to measure what operands fail.
-template <typename T> class SkTDictWithDefaultConstructor : public SkTDict<T> {
-public:
-    SkTDictWithDefaultConstructor() : SkTDict<T>(10) {}
-};
-
-SkTDictWithDefaultConstructor<int> gRenderStats[kCount_SkPdfResult];
-
-const char* gRenderStatsNames[kCount_SkPdfResult] = {
-    "Success",
-    "Partially implemented",
-    "Not yet implemented",
-    "Ignore Error",
-    "Error",
-    "Unsupported/Unknown"
-};
 
 static SkPdfResult DrawText(SkPdfContext* pdfContext,
                    const SkPdfNativeObject* _str,
@@ -501,10 +347,10 @@ static SkPdfResult DrawText(SkPdfContext* pdfContext,
 }
 
 // TODO(edisonn): create header files with declarations!
-SkPdfResult PdfOp_q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper);
-SkPdfResult PdfOp_Q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper);
-SkPdfResult PdfOp_Tw(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper);
-SkPdfResult PdfOp_Tc(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper);
+SkPdfResult PdfOp_q(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper);
+SkPdfResult PdfOp_Q(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper);
+SkPdfResult PdfOp_Tw(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper);
+SkPdfResult PdfOp_Tc(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper);
 
 // TODO(edisonn): perf!!!
 static SkColorTable* getGrayColortable() {
@@ -866,13 +712,7 @@ static SkPdfResult doXObject_Form(SkPdfContext* pdfContext, SkCanvas* canvas,
 
     SkPdfStream* stream = (SkPdfStream*)skobj;
 
-    SkPdfNativeTokenizer* tokenizer =
-            pdfContext->fPdfDoc->tokenizerOfStream(stream, pdfContext->fTmpPageAllocator);
-    if (tokenizer != NULL) {
-        PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
-        looper.loop();
-        delete tokenizer;
-    }
+    pdfContext->parseStream(stream, canvas);
 
     if (skobj->has_Group()) {
         canvas->restore();
@@ -921,13 +761,7 @@ static SkPdfResult doXObject_Pattern(SkPdfContext* pdfContext, SkCanvas* canvas,
 
     SkPdfStream* stream = (SkPdfStream*)skobj;
 
-    SkPdfNativeTokenizer* tokenizer =
-            pdfContext->fPdfDoc->tokenizerOfStream(stream, pdfContext->fTmpPageAllocator);
-    if (tokenizer != NULL) {
-        PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
-        looper.loop();
-        delete tokenizer;
-    }
+    pdfContext->parseStream(stream, canvas);
 
     PdfOp_Q(pdfContext, canvas, NULL);
     return kPartial_SkPdfResult;
@@ -971,13 +805,7 @@ SkPdfResult doType3Char(SkPdfContext* pdfContext, SkCanvas* canvas, const SkPdfN
 
     SkPdfStream* stream = (SkPdfStream*)skobj;
 
-    SkPdfNativeTokenizer* tokenizer =
-            pdfContext->fPdfDoc->tokenizerOfStream(stream, pdfContext->fTmpPageAllocator);
-    if (tokenizer != NULL) {
-        PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
-        looper.loop();
-        delete tokenizer;
-    }
+    pdfContext->parseStream(stream, canvas);
 
     PdfOp_Q(pdfContext, canvas, NULL);
 
@@ -1080,28 +908,21 @@ static SkPdfResult doPage(SkPdfContext* pdfContext, SkCanvas* canvas,
         canvas->save();
     }
 
-
-    SkPdfNativeTokenizer* tokenizer =
-            pdfContext->fPdfDoc->tokenizerOfStream(stream, pdfContext->fTmpPageAllocator);
-    if (tokenizer != NULL) {
-        PdfMainLooper looper(NULL, tokenizer, pdfContext, canvas);
-        looper.loop();
-        delete tokenizer;
-    }
+    pdfContext->parseStream(stream, canvas);
 
     canvas->restore();
     PdfOp_Q(pdfContext, canvas, NULL);
     return kPartial_SkPdfResult;
 }
 
-SkPdfResult PdfOp_q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+SkPdfResult PdfOp_q(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     pdfContext->fStateStack.push(pdfContext->fGraphicsState);
     canvas->save();
     pdfContext->fObjectStack.nest();
     return kOK_SkPdfResult;
 }
 
-SkPdfResult PdfOp_Q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+SkPdfResult PdfOp_Q(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     if (pdfContext->fStateStack.count() > 0) {
         pdfContext->fGraphicsState = pdfContext->fStateStack.top();
         pdfContext->fStateStack.pop();
@@ -1123,7 +944,7 @@ SkPdfResult PdfOp_Q(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper**
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_cm(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_cm(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("cm", pdfContext, 6);
     POP_NUMBER(pdfContext, f);
     POP_NUMBER(pdfContext, e);
@@ -1164,7 +985,7 @@ static SkPdfResult PdfOp_cm(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //leading TL Set the text leading, Tl
 //, to leading, which is a number expressed in unscaled text
 //space units. Text leading is used only by the T*, ', and " operators. Initial value: 0.
-static SkPdfResult PdfOp_TL(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_TL(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("TL", pdfContext, 1);
     POP_NUMBER(pdfContext, ty);
     CHECK_PARAMETERS();
@@ -1174,7 +995,7 @@ static SkPdfResult PdfOp_TL(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_Td(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_Td(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("Td", pdfContext, 2);
     POP_NUMBER(pdfContext, ty);
     POP_NUMBER(pdfContext, tx);
@@ -1189,7 +1010,7 @@ static SkPdfResult PdfOp_Td(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     return kPartial_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_TD(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_TD(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("TD", pdfContext, 2)
     POP_NUMBER(pdfContext, ty);
     POP_NUMBER(pdfContext, tx);
@@ -1212,7 +1033,7 @@ static SkPdfResult PdfOp_TD(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     return ret;
 }
 
-static SkPdfResult PdfOp_Tm(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_Tm(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("Tm", pdfContext, 6);
     POP_NUMBER(pdfContext, f);
     POP_NUMBER(pdfContext, e);
@@ -1248,7 +1069,7 @@ static SkPdfResult PdfOp_Tm(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //0 Tl Td
 //where Tl is the current leading parameter in the text state
 static SkPdfResult PdfOp_T_star(SkPdfContext* pdfContext, SkCanvas* canvas,
-                                PdfTokenLooper** looper) {
+                                SkPdfTokenLooper** looper) {
     SkPdfReal* zero = pdfContext->fPdfDoc->createReal(0.0);
     SkPdfReal* tl = pdfContext->fPdfDoc->createReal(pdfContext->fGraphicsState.fTextLeading);
 
@@ -1260,7 +1081,7 @@ static SkPdfResult PdfOp_T_star(SkPdfContext* pdfContext, SkCanvas* canvas,
     return ret;
 }
 
-static SkPdfResult PdfOp_m(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_m(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     if (pdfContext->fGraphicsState.fPathClosed) {
         pdfContext->fGraphicsState.fPath.reset();
         pdfContext->fGraphicsState.fPathClosed = false;
@@ -1280,7 +1101,7 @@ static SkPdfResult PdfOp_m(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_l(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_l(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     if (pdfContext->fGraphicsState.fPathClosed) {
         pdfContext->fGraphicsState.fPath.reset();
         pdfContext->fGraphicsState.fPathClosed = false;
@@ -1300,7 +1121,7 @@ static SkPdfResult PdfOp_l(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_c(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_c(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     if (pdfContext->fGraphicsState.fPathClosed) {
         pdfContext->fGraphicsState.fPath.reset();
         pdfContext->fGraphicsState.fPathClosed = false;
@@ -1325,7 +1146,7 @@ static SkPdfResult PdfOp_c(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_v(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_v(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     if (pdfContext->fGraphicsState.fPathClosed) {
         pdfContext->fGraphicsState.fPath.reset();
         pdfContext->fGraphicsState.fPathClosed = false;
@@ -1351,7 +1172,7 @@ static SkPdfResult PdfOp_v(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_y(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_y(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     if (pdfContext->fGraphicsState.fPathClosed) {
         pdfContext->fGraphicsState.fPath.reset();
         pdfContext->fGraphicsState.fPathClosed = false;
@@ -1377,7 +1198,7 @@ static SkPdfResult PdfOp_y(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_re(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_re(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     if (pdfContext->fGraphicsState.fPathClosed) {
         pdfContext->fGraphicsState.fPath.reset();
         pdfContext->fGraphicsState.fPathClosed = false;
@@ -1401,7 +1222,7 @@ static SkPdfResult PdfOp_re(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_h(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_h(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     pdfContext->fGraphicsState.fPath.close();
     return kOK_SkPdfResult;
 }
@@ -1551,46 +1372,46 @@ static SkPdfResult PdfOp_fillAndStroke(SkPdfContext* pdfContext, SkCanvas* canva
 
 }
 
-static SkPdfResult PdfOp_S(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_S(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_fillAndStroke(pdfContext, canvas, false, true, false, false);
 }
 
-static SkPdfResult PdfOp_s(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_s(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_fillAndStroke(pdfContext, canvas, false, true, true, false);
 }
 
-static SkPdfResult PdfOp_F(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_F(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_fillAndStroke(pdfContext, canvas, true, false, false, false);
 }
 
-static SkPdfResult PdfOp_f(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_f(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_fillAndStroke(pdfContext, canvas, true, false, false, false);
 }
 
 static SkPdfResult PdfOp_f_star(SkPdfContext* pdfContext, SkCanvas* canvas,
-                                PdfTokenLooper** looper) {
+                                SkPdfTokenLooper** looper) {
     return PdfOp_fillAndStroke(pdfContext, canvas, true, false, false, true);
 }
 
-static SkPdfResult PdfOp_B(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_B(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_fillAndStroke(pdfContext, canvas, true, true, false, false);
 }
 
 static SkPdfResult PdfOp_B_star(SkPdfContext* pdfContext, SkCanvas* canvas,
-                                PdfTokenLooper** looper) {
+                                SkPdfTokenLooper** looper) {
     return PdfOp_fillAndStroke(pdfContext, canvas, true, true, false, true);
 }
 
-static SkPdfResult PdfOp_b(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_b(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_fillAndStroke(pdfContext, canvas, true, true, true, false);
 }
 
 static SkPdfResult PdfOp_b_star(SkPdfContext* pdfContext, SkCanvas* canvas,
-                                PdfTokenLooper** looper) {
+                                SkPdfTokenLooper** looper) {
     return PdfOp_fillAndStroke(pdfContext, canvas, true, true, true, true);
 }
 
-static SkPdfResult PdfOp_n(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_n(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     canvas->setMatrix(pdfContext->fGraphicsState.fCTM);
     if (pdfContext->fGraphicsState.fHasClipPathToApply) {
 #ifndef PDF_DEBUG_NO_CLIPING
@@ -1605,7 +1426,7 @@ static SkPdfResult PdfOp_n(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_BT(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_BT(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     pdfContext->fGraphicsState.fTextBlock   = true;
     SkMatrix matrix = pdfContext->fGraphicsState.fCTM;
     matrix.preScale(SkDoubleToScalar(1), SkDoubleToScalar(-1));
@@ -1615,7 +1436,7 @@ static SkPdfResult PdfOp_BT(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     return kPartial_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_ET(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_ET(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     if (!pdfContext->fGraphicsState.fTextBlock) {
         SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingBT_SkPdfIssue, "ET without BT", NULL,
                     pdfContext);
@@ -1668,7 +1489,7 @@ static SkPdfResult skpdfGraphicsStateApplyFontCore(SkPdfContext* pdfContext,
 //font resource in the Fontsubdictionary of the current resource dictionary; size is
 //a number representing a scale factor. There is no initial value for either font or
 //size; they must be speciﬁed explicitly using Tf before any text is shown.
-static SkPdfResult PdfOp_Tf(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_Tf(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("Tf", pdfContext, 2);
     POP_NUMBER(pdfContext, fontSize);
     POP_NAME(pdfContext, fontName);
@@ -1677,7 +1498,7 @@ static SkPdfResult PdfOp_Tf(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     return skpdfGraphicsStateApplyFontCore(pdfContext, fontName, fontSize);
 }
 
-static SkPdfResult PdfOp_Tj(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_Tj(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("Tj", pdfContext, 1);
     POP_STRING(pdfContext, str);
     CHECK_PARAMETERS();
@@ -1695,7 +1516,7 @@ static SkPdfResult PdfOp_Tj(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 static SkPdfResult PdfOp_quote(SkPdfContext* pdfContext, SkCanvas* canvas,
-                               PdfTokenLooper** looper) {
+                               SkPdfTokenLooper** looper) {
     if (!pdfContext->fGraphicsState.fTextBlock) {
         // TODO(edisonn): try to recover and draw it any way?
         SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingBT_SkPdfIssue,
@@ -1709,7 +1530,7 @@ static SkPdfResult PdfOp_quote(SkPdfContext* pdfContext, SkCanvas* canvas,
 }
 
 static SkPdfResult PdfOp_doublequote(SkPdfContext* pdfContext, SkCanvas* canvas,
-                                     PdfTokenLooper** looper) {
+                                     SkPdfTokenLooper** looper) {
     if (!pdfContext->fGraphicsState.fTextBlock) {
         // TODO(edisonn): try to recover and draw it any way?
         SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kMissingBT_SkPdfIssue,
@@ -1735,7 +1556,7 @@ static SkPdfResult PdfOp_doublequote(SkPdfContext* pdfContext, SkCanvas* canvas,
     return kPartial_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_TJ(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_TJ(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("Tf", pdfContext, 1);
     POP_ARRAY(pdfContext, array);
     CHECK_PARAMETERS();
@@ -1849,11 +1670,11 @@ static SkPdfResult PdfOp_CS_cs(SkPdfContext* pdfContext, SkCanvas* canvas,
     return kPartial_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_CS(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_CS(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_CS_cs(pdfContext, canvas, &pdfContext->fGraphicsState.fStroking);
 }
 
-static SkPdfResult PdfOp_cs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_cs(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_CS_cs(pdfContext, canvas, &pdfContext->fGraphicsState.fNonStroking);
 }
 
@@ -1896,11 +1717,11 @@ static SkPdfResult PdfOp_SC_sc(SkPdfContext* pdfContext, SkCanvas* canvas,
     return kPartial_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_SC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_SC(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_SC_sc(pdfContext, canvas, &pdfContext->fGraphicsState.fStroking);
 }
 
-static SkPdfResult PdfOp_sc(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_sc(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_SC_sc(pdfContext, canvas, &pdfContext->fGraphicsState.fNonStroking);
 }
 
@@ -1929,11 +1750,11 @@ static SkPdfResult PdfOp_SCN_scn(SkPdfContext* pdfContext, SkCanvas* canvas,
     return kPartial_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_SCN(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_SCN(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_SCN_scn(pdfContext, canvas, &pdfContext->fGraphicsState.fStroking);
 }
 
-static SkPdfResult PdfOp_scn(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_scn(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_SCN_scn(pdfContext, canvas, &pdfContext->fGraphicsState.fNonStroking);
 }
 
@@ -1954,11 +1775,11 @@ static SkPdfResult PdfOp_G_g(SkPdfContext* pdfContext, SkCanvas* canvas,
     return kPartial_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_G(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_G(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_G_g(pdfContext, canvas, &pdfContext->fGraphicsState.fStroking);
 }
 
-static SkPdfResult PdfOp_g(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_g(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_G_g(pdfContext, canvas, &pdfContext->fGraphicsState.fNonStroking);
 }
 
@@ -1975,11 +1796,11 @@ static SkPdfResult PdfOp_RG_rg(SkPdfContext* pdfContext, SkCanvas* canvas,
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_RG(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_RG(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_RG_rg(pdfContext, canvas, &pdfContext->fGraphicsState.fStroking);
 }
 
-static SkPdfResult PdfOp_rg(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_rg(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_RG_rg(pdfContext, canvas, &pdfContext->fGraphicsState.fNonStroking);
 }
 
@@ -2003,15 +1824,15 @@ static SkPdfResult PdfOp_K_k(SkPdfContext* pdfContext, SkCanvas* canvas,
     return kNYI_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_K(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_K(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_K_k(pdfContext, canvas, &pdfContext->fGraphicsState.fStroking);
 }
 
-static SkPdfResult PdfOp_k(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_k(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     return PdfOp_K_k(pdfContext, canvas, &pdfContext->fGraphicsState.fNonStroking);
 }
 
-static SkPdfResult PdfOp_W(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_W(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     pdfContext->fGraphicsState.fClipPath = pdfContext->fGraphicsState.fPath;
     pdfContext->fGraphicsState.fHasClipPathToApply = true;
 
@@ -2019,7 +1840,7 @@ static SkPdfResult PdfOp_W(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 }
 
 static SkPdfResult PdfOp_W_star(SkPdfContext* pdfContext, SkCanvas* canvas,
-                                PdfTokenLooper** looper) {
+                                SkPdfTokenLooper** looper) {
     pdfContext->fGraphicsState.fClipPath = pdfContext->fGraphicsState.fPath;
 
     pdfContext->fGraphicsState.fClipPath.setFillType(SkPath::kEvenOdd_FillType);
@@ -2028,12 +1849,12 @@ static SkPdfResult PdfOp_W_star(SkPdfContext* pdfContext, SkCanvas* canvas,
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_BX(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_BX(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     *looper = new PdfCompatibilitySectionLooper();
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_EX(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_EX(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kNullObject_SkPdfIssue,
                 "EX operator should not be called, it is handled in a looper, "
                         "unless the file is corrupted, we should assert",
@@ -2042,12 +1863,12 @@ static SkPdfResult PdfOp_EX(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     return kIgnoreError_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_BI(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_BI(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     *looper = new PdfInlineImageLooper();
     return kOK_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_ID(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_ID(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kNullObject_SkPdfIssue,
                 "ID operator should not be called, it is habdled in a looper, "
                         "unless the file is corrupted, we should assert",
@@ -2055,7 +1876,7 @@ static SkPdfResult PdfOp_ID(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
     return kIgnoreError_SkPdfResult;
 }
 
-static SkPdfResult PdfOp_EI(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_EI(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kNullObject_SkPdfIssue,
                 "EI operator should not be called, it is habdled in a looper, "
                         "unless the file is corrupted, we should assert",
@@ -2220,7 +2041,7 @@ static void skpdfGraphicsStateApplyFont(SkPdfContext* pdfContext, SkPdfArray* fo
 
 
 //lineWidth w Set the line width in the graphics state (see “Line Width” on page 152).
-static SkPdfResult PdfOp_w(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_w(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("w", pdfContext, 1);
     POP_NUMBER(pdfContext, lw);
     CHECK_PARAMETERS();
@@ -2229,7 +2050,7 @@ static SkPdfResult PdfOp_w(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 }
 
 //lineCap J Set the line cap style in the graphics state (see “Line Cap Style” on page 153).
-static SkPdfResult PdfOp_J(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_J(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     // TODO(edisonn): round/ceil to int?
     EXPECT_OPERANDS("J", pdfContext, 1);
     POP_NUMBER(pdfContext, lc);
@@ -2239,7 +2060,7 @@ static SkPdfResult PdfOp_J(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 }
 
 //lineJoin j Set the line join style in the graphics state (see “Line Join Style” on page 153).
-static SkPdfResult PdfOp_j(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_j(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     // TODO(edisonn): round/ceil to int?
     EXPECT_OPERANDS("j", pdfContext, 1);
     POP_NUMBER(pdfContext, lj);
@@ -2249,7 +2070,7 @@ static SkPdfResult PdfOp_j(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 }
 
 //miterLimit M Set the miter limit in the graphics state (see “Miter Limit” on page 153).
-static SkPdfResult PdfOp_M(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_M(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("M", pdfContext, 1);
     POP_NUMBER(pdfContext, ml);
     CHECK_PARAMETERS();
@@ -2258,7 +2079,7 @@ static SkPdfResult PdfOp_M(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 
 //dashArray dashPhase d Set the line dash pattern in the graphics state (see “Line Dash Pattern” on
 //page 155).
-static SkPdfResult PdfOp_d(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_d(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("d", pdfContext, 2);
     POP_OBJ(pdfContext, phase);
     POP_ARRAY(pdfContext, array);
@@ -2269,7 +2090,7 @@ static SkPdfResult PdfOp_d(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenL
 
 //intent ri (PDF 1.1) Set the color rendering intent in the graphics state (see “Rendering Intents”
 // on page 197).
-static SkPdfResult PdfOp_ri(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_ri(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     pdfContext->fObjectStack.pop();
 
     SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "render intent NYI", NULL,
@@ -2281,7 +2102,7 @@ static SkPdfResult PdfOp_ri(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //ﬂatness i Set the ﬂatness tolerance in the graphics state (see Section 6.5.1, “Flatness
 //Tolerance”). ﬂatness is a number in the range 0 to 100; a value of 0 speci-
 //ﬁes the output device’s default ﬂatness tolerance.
-static SkPdfResult PdfOp_i(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_i(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("i", pdfContext, 1);
     POP_NUMBER(pdfContext, flatness);
     CHECK_PARAMETERS();
@@ -2438,7 +2259,7 @@ static void skpdfGraphicsStateApplyAIS(SkPdfContext* pdfContext, bool alphaSourc
 //dictName gs (PDF 1.2) Set the speciﬁed parameters in the graphics state. dictName is
 //the name of a graphics state parameter dictionary in the ExtGState subdictionary of the current
 //resource dictionary (see the next section).
-static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("gs", pdfContext, 1);
     POP_NAME(pdfContext, name);
     CHECK_PARAMETERS();
@@ -2540,7 +2361,7 @@ static SkPdfResult PdfOp_gs(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //, to charSpace, which is a number expressed in unscaled text space units.
 //  Character spacing is used by the Tj, TJ, and ' operators.
 //Initial value: 0.
-SkPdfResult PdfOp_Tc(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+SkPdfResult PdfOp_Tc(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("Tc", pdfContext, 1);
     POP_NUMBER(pdfContext, charSpace);
     CHECK_PARAMETERS();
@@ -2555,7 +2376,7 @@ SkPdfResult PdfOp_Tc(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper*
 //, to wordSpace, which is a number expressed in unscaled
 //text space units. Word spacing is used by the Tj, TJ, and ' operators. Initial
 //value: 0.
-SkPdfResult PdfOp_Tw(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+SkPdfResult PdfOp_Tw(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("Tw", pdfContext, 1);
     POP_NUMBER(pdfContext, wordSpace);
     CHECK_PARAMETERS();
@@ -2568,7 +2389,7 @@ SkPdfResult PdfOp_Tw(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper*
 //scale Tz Set the horizontal scaling, Th
 //, to (scale ˜ 100). scale is a number specifying the
 //percentage of the normal width. Initial value: 100 (normal width).
-static SkPdfResult PdfOp_Tz(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_Tz(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("Tz", pdfContext, 1);
     POP_NUMBER(pdfContext, scale);
     CHECK_PARAMETERS();
@@ -2584,7 +2405,7 @@ static SkPdfResult PdfOp_Tz(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
 //render Tr Set the text rendering mode, T
 //mode, to render, which is an integer. Initial value: 0.
-static SkPdfResult PdfOp_Tr(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_Tr(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("Tr", pdfContext, 1);
     POP_INTEGER(pdfContext, mode);
     CHECK_PARAMETERS();
@@ -2599,7 +2420,7 @@ static SkPdfResult PdfOp_Tr(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 //rise Ts Set the text rise, Trise, to rise, which is a number expressed in unscaled text space
 //units. Initial value: 0.
-static SkPdfResult PdfOp_Ts(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_Ts(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("Ts", pdfContext, 1);
     POP_NUMBER(pdfContext, rise);
     CHECK_PARAMETERS();
@@ -2614,7 +2435,7 @@ static SkPdfResult PdfOp_Ts(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 //wx wy d0
-static SkPdfResult PdfOp_d0(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_d0(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("d0", pdfContext, 2);
     POP_NUMBER(pdfContext, wy);
     POP_NUMBER(pdfContext, wx);
@@ -2636,7 +2457,7 @@ static SkPdfResult PdfOp_d0(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 //wx wy llx lly urx ury d1
-static SkPdfResult PdfOp_d1(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_d1(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("d1", pdfContext, 6);
     POP_NUMBER(pdfContext, ury);
     POP_NUMBER(pdfContext, urx);
@@ -2655,7 +2476,7 @@ static SkPdfResult PdfOp_d1(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 //name sh
-static SkPdfResult PdfOp_sh(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_sh(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("sh", pdfContext, 1);
     POP_NAME(pdfContext, name);
     CHECK_PARAMETERS();
@@ -2670,7 +2491,7 @@ static SkPdfResult PdfOp_sh(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 }
 
 //name Do
-static SkPdfResult PdfOp_Do(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_Do(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("Do", pdfContext, 1);
     POP_NAME(pdfContext, name);
     CHECK_PARAMETERS();
@@ -2691,7 +2512,7 @@ static SkPdfResult PdfOp_Do(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
 //tag MP Designate a marked-content point. tag is a name object indicating the role or
 //signiﬁcance of the point.
-static SkPdfResult PdfOp_MP(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_MP(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("MP", pdfContext, 1);
     POP_OBJ(pdfContext, tag);
     CHECK_PARAMETERS();
@@ -2711,7 +2532,7 @@ static SkPdfResult PdfOp_MP(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 //either an inline dictionary containing the property list or a name object
 //associated with it in the Properties subdictionary of the current resource
 //dictionary (see Section 9.5.1, “Property Lists”).
-static SkPdfResult PdfOp_DP(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_DP(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("DP", pdfContext, 2);
     POP_OBJ(pdfContext, properties);
     POP_OBJ(pdfContext, tag);
@@ -2735,7 +2556,7 @@ static SkPdfResult PdfOp_DP(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToken
 
 //tag BMC Begin a marked-content sequence terminated by a balancing EMC operator.
 //tag is a name object indicating the role or signiﬁcance of the sequence.
-static SkPdfResult PdfOp_BMC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_BMC(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("BMC", pdfContext, 1);
     POP_OBJ(pdfContext, tag);
     CHECK_PARAMETERS();
@@ -2755,7 +2576,7 @@ static SkPdfResult PdfOp_BMC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToke
 // sequence; propertiesis either an inline dictionary containing the
 //property list or a name object associated with it in the Properties subdictionary of the current
 //resource dictionary (see Section 9.5.1, “Property Lists”).
-static SkPdfResult PdfOp_BDC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_BDC(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     EXPECT_OPERANDS("BDC", pdfContext, 2);
     POP_OBJ(pdfContext, properties);
     POP_OBJ(pdfContext, tag);
@@ -2778,10 +2599,14 @@ static SkPdfResult PdfOp_BDC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfToke
 }
 
 //— EMC End a marked-content sequence begun by a BMC or BDC operator.
-static SkPdfResult PdfOp_EMC(SkPdfContext* pdfContext, SkCanvas* canvas, PdfTokenLooper** looper) {
+static SkPdfResult PdfOp_EMC(SkPdfContext* pdfContext, SkCanvas* canvas, SkPdfTokenLooper** looper) {
     SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, "EMC NYI", NULL, NULL);
     return kNYI_SkPdfResult;
 }
+
+#include "SkPdfOps.h"
+
+SkTDict<PdfOperatorRenderer> gPdfOps(100);
 
 static void initPdfOperatorRenderes() {
     static bool gInitialized = false;
@@ -2890,67 +2715,6 @@ public:
 
 InitPdfOps gInitPdfOps;
 
-void reportPdfRenderStats() {
-    for (int i = 0 ; i < kCount_SkPdfResult; i++) {
-        SkTDict<int>::Iter iter(gRenderStats[i]);
-        const char* key;
-        int value = 0;
-        while ((key = iter.next(&value)) != NULL) {
-            printf("%s: %s -> count %i\n", gRenderStatsNames[i], key, value);
-        }
-    }
-}
-
-SkPdfResult PdfMainLooper::consumeToken(PdfToken& token) {
-    if (token.fType == kKeyword_TokenType && token.fKeywordLength < 256)
-    {
-        PdfOperatorRenderer pdfOperatorRenderer = NULL;
-        if (gPdfOps.find(token.fKeyword, token.fKeywordLength, &pdfOperatorRenderer) &&
-                    pdfOperatorRenderer) {
-            PdfTokenLooper* childLooper = NULL;
-            // Main work is done by pdfOperatorRenderer(...)
-            SkPdfResult result = pdfOperatorRenderer(fPdfContext, fCanvas, &childLooper);
-
-            int cnt = 0;
-            gRenderStats[result].find(token.fKeyword, token.fKeywordLength, &cnt);
-            gRenderStats[result].set(token.fKeyword, token.fKeywordLength, cnt + 1);
-
-            if (childLooper) {
-                childLooper->setUp(this);
-                childLooper->loop();
-                delete childLooper;
-            }
-        } else {
-            int cnt = 0;
-            gRenderStats[kUnsupported_SkPdfResult].find(token.fKeyword,
-                                                        token.fKeywordLength,
-                                                        &cnt);
-            gRenderStats[kUnsupported_SkPdfResult].set(token.fKeyword,
-                                                       token.fKeywordLength,
-                                                       cnt + 1);
-        }
-    }
-    else if (token.fType == kObject_TokenType)
-    {
-        fPdfContext->fObjectStack.push( token.fObject );
-    }
-    else {
-        // TODO(edisonn): store the keyword as a object, so we can track the location in file,
-        //                and report where the error was triggered
-        SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue, token.fKeyword, NULL,
-                    fPdfContext);
-        return kIgnoreError_SkPdfResult;
-    }
-    return kOK_SkPdfResult;
-}
-
-void PdfMainLooper::loop() {
-    PdfToken token;
-    while (readToken(fTokenizer, &token)) {
-        consumeToken(token);
-    }
-}
-
 SkPdfResult PdfInlineImageLooper::consumeToken(PdfToken& token) {
     SkASSERT(false);
     return kIgnoreError_SkPdfResult;
@@ -2974,7 +2738,7 @@ void PdfCompatibilitySectionLooper::loop() {
     PdfToken token;
     while (readToken(fTokenizer, &token)) {
         if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "BX") == 0) {
-            PdfTokenLooper* looper = new PdfCompatibilitySectionLooper();
+            SkPdfTokenLooper* looper = new PdfCompatibilitySectionLooper();
             looper->setUp(this);
             looper->loop();
             delete looper;

@@ -82,19 +82,9 @@ public:
     // returns the page's mediabox i points - the page physical boundaries.
     SkRect MediaBox(int page);
 
-    // Returns a tokenizer of a page. The passed allocator will be used to allocate objects that
-    // are parsed. It should be destroyed after the tokenizer.
-    SkPdfNativeTokenizer* tokenizerOfPage(int n, SkPdfAllocator* allocator);
-
     // Returns a tokenizer of a pdf stream. The passed allocator will be used to allocate objects
     // that are parsed. It should be destroyed after the tokenizer.
     SkPdfNativeTokenizer* tokenizerOfStream(SkPdfNativeObject* stream, SkPdfAllocator* allocator);
-
-    // Returns a tokenizer of a memory buffer. The passed allocator will be used to allocate objects
-    // that are parsed. It should be destroyed after the tokenizer.
-    SkPdfNativeTokenizer* tokenizerOfBuffer(const unsigned char* buffer, size_t len,
-                                            SkPdfAllocator* allocator);
-
 
     //returns objects that are references and can be queried.
     size_t objects() const;

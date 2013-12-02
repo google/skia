@@ -18,6 +18,7 @@
         '../experimental/PdfViewer/src/SkPdfContext.cpp',
         '../experimental/PdfViewer/src/SkPdfRenderer.cpp',
         '../experimental/PdfViewer/src/SkTDStackNester.h',
+        '../experimental/PdfViewer/src/SkPdfTokenLooper.cpp',
 
         '../experimental/PdfViewer/SkPdfGraphicsState.cpp',
         '../experimental/PdfViewer/SkPdfFont.cpp',

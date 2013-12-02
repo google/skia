@@ -9,26 +9,40 @@
 #define SkPdfContext_DEFINED
 
 #include "SkMatrix.h"
-#include "SkTDStackNester.h"
 #include "SkPdfGraphicsState.h"
+#include "SkPdfNativeTokenizer.h"
+#include "SkTDStackNester.h"
+#include "SkTypes.h"
 
-class SkPdfAllocator;
+class SkCanvas;
 class SkPdfNativeDoc;
 class SkPdfNativeObject;
 
-/** \class SkPdfContext
- *   The context of the drawing. The document we draw from, the current stack of objects, ...
+/**
+ *   The context of the drawing. The document we draw from, the current stack of
+ *   objects, ...
  */
-class SkPdfContext {
+class SkPdfContext : public SkNoncopyable {
 public:
+    // FIXME (scroggo): Add functions for accessing these.
     SkTDStackNester<SkPdfNativeObject*>  fObjectStack;
     SkTDStackNester<SkPdfGraphicsState>  fStateStack;
     SkPdfGraphicsState              fGraphicsState;
     SkPdfNativeDoc*                 fPdfDoc;
-    SkPdfAllocator*                 fTmpPageAllocator;
     SkMatrix                        fOriginalMatrix;
 
-    SkPdfContext(SkPdfNativeDoc* doc);
-    ~SkPdfContext();
+    // Does not take ownership of the doc.
+    explicit SkPdfContext(SkPdfNativeDoc* doc);
+
+    /**
+     *  Parse the stream and draw its commands to the canvas.
+     *  FIXME (scroggo): May not be the best place for this, but leaving here
+     *  for now, since it uses SkPdfContext's members.
+     */
+    void parseStream(SkPdfNativeObject* stream, SkCanvas* canvas);
+
+private:
+    // FIXME (scroggo): Is this the right place for the allocator?
+    SkPdfAllocator fTmpPageAllocator;
 };
 #endif // SkPdfContext_DEFINED

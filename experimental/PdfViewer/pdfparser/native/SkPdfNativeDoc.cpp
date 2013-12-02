@@ -479,16 +479,6 @@ SkRect SkPdfNativeDoc::MediaBox(int page) {
     return SkRect::MakeEmpty();
 }
 
-SkPdfNativeTokenizer* SkPdfNativeDoc::tokenizerOfPage(int page, SkPdfAllocator* allocator) {
-    if (fPages[page]->isContentsAStream(this)) {
-        return tokenizerOfStream(fPages[page]->getContentsAsStream(this), allocator);
-    } else {
-        // TODO(edisonn): NYI, we need to concatenate all streams in the array or
-        // make the tokenizer smart so we don't allocate new memory.
-        return NULL;
-    }
-}
-
 SkPdfNativeTokenizer* SkPdfNativeDoc::tokenizerOfStream(SkPdfNativeObject* stream,
                                                         SkPdfAllocator* allocator) {
     if (stream == NULL) {
@@ -496,11 +486,6 @@ SkPdfNativeTokenizer* SkPdfNativeDoc::tokenizerOfStream(SkPdfNativeObject* strea
     }
 
     return new SkPdfNativeTokenizer(stream, allocator, this);
-}
-
-SkPdfNativeTokenizer* SkPdfNativeDoc::tokenizerOfBuffer(const unsigned char* buffer, size_t len,
-                                                        SkPdfAllocator* allocator) {
-    return new SkPdfNativeTokenizer(buffer, len, allocator, this);
 }
 
 size_t SkPdfNativeDoc::objects() const {
