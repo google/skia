@@ -632,7 +632,7 @@ void SkNEONProcCoeffXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
                 SkPMColor dstC = dst[i];
                 SkPMColor C = proc(src[i], dstC);
                 if (a != 0xFF) {
-                    C = SkFourByteInterp(C, dstC, a);
+                    C = SkFourByteInterp_neon(C, dstC, a);
                 }
                 dst[i] = C;
             }
@@ -700,7 +700,7 @@ void SkNEONProcCoeffXfermode::xfer16(uint16_t* SK_RESTRICT dst,
                 SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
                 SkPMColor C = proc(src[i], dstC);
                 if (0xFF != a) {
-                    C = SkFourByteInterp(C, dstC, a);
+                    C = SkFourByteInterp_neon(C, dstC, a);
                 }
                 dst[i] = SkPixel32ToPixel16_ToU16(C);
             }
