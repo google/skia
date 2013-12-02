@@ -33,6 +33,7 @@
         '../bench/ChromeBench.cpp',
         '../bench/CmapBench.cpp',
         '../bench/ColorFilterBench.cpp',
+        '../bench/ColorPrivBench.cpp',
         '../bench/CoverageBench.cpp',
         '../bench/DashBench.cpp',
         '../bench/DecodeBench.cpp',
