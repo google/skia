@@ -35,7 +35,7 @@ void SkCanvasStack::pushCanvas(SkCanvas* canvas, const SkIPoint& origin) {
             localBounds.offset(origin - fCanvasData[i-1].origin);
 
             fCanvasData[i-1].requiredClip.op(localBounds, SkRegion::kDifference_Op);
-            fList[i-i]->clipRegion(fCanvasData[i-1].requiredClip);
+            fList[i-1]->clipRegion(fCanvasData[i-1].requiredClip);
         }
     }
     SkASSERT(fList.count() == fCanvasData.count());
