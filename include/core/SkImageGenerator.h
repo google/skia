@@ -37,6 +37,9 @@ public:
      *  Return some information about the image, allowing the owner of
      *  this object to allocate pixels.
      *
+     *  Repeated calls to this function should give the same results,
+     *  allowing the PixelRef to be immutable.
+     *
      *  @return false if anything goes wrong.
      */
     virtual bool getInfo(SkImageInfo* info) = 0;
@@ -45,6 +48,9 @@ public:
      *  Decode into the given pixels, a block of memory of size at
      *  least (info.fHeight - 1) * rowBytes + (info.fWidth *
      *  bytesPerPixel)
+     *
+     *  Repeated calls to this function should give the same results,
+     *  allowing the PixelRef to be immutable.
      *
      *  @param info A description of the format (config, size)
      *         expected by the caller.  This can simply be identical

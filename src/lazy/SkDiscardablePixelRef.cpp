@@ -20,6 +20,9 @@ SkDiscardablePixelRef::SkDiscardablePixelRef(SkImageGenerator* generator,
     SkASSERT(fGenerator != NULL);
     SkASSERT(fSize > 0);
     SkASSERT(fRowBytes > 0);
+    // The SkImageGenerator contract requires fGenerator to always
+    // decode the same image on each call to getPixels().
+    this->setImmutable();
 }
 
 SkDiscardablePixelRef::~SkDiscardablePixelRef() {
