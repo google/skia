@@ -559,7 +559,7 @@ static void packA8ToA1(const SkMask& mask, const uint8_t* src, size_t srcRB) {
             unsigned bits = 0;
             int shift = 7;
             for (int i = 0; i < leftOverBits; ++i, --shift) {
-                bits |= convert_8_to_1(*src++ >> 7) << shift;
+                bits |= convert_8_to_1(*src++) << shift;
             }
             *dst++ = bits;
         }
