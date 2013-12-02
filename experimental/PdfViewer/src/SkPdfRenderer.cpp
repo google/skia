@@ -1635,7 +1635,7 @@ static SkPdfResult PdfOp_CS_cs(SkPdfContext* pdfContext, SkCanvas* canvas,
         if (colorSpace->isName()) {
             colorOperator->fColorSpace = colorSpace->strRef();
         } else if (colorSpace->isArray()) {
-            int cnt = colorSpace->size();
+            size_t cnt = colorSpace->size();
             if (cnt == 0) {
                 SkPdfReport(kIgnoreError_SkPdfIssueSeverity, kIncostistentSizes_SkPdfIssue,
                             "color space has length 0", colorSpace, pdfContext);
@@ -1938,7 +1938,7 @@ static SkPdfResult skpdfGraphicsStateApplyD(SkPdfContext* pdfContext, SkPdfArray
         return kIgnoreError_SkPdfResult;
     }
 
-    int cnt = intervals->size();
+    int cnt = (int) intervals->size();
     if (cnt >= 256) {
         // TODO(edisonn): alloc memory
         SkPdfReport(kCodeWarning_SkPdfIssueSeverity, kNYI_SkPdfIssue,
@@ -2180,7 +2180,7 @@ static void skpdfGraphicsStateApplyBM_array(SkPdfContext* pdfContext, SkPdfArray
     }
 
     SkXfermode::Mode modes[256];
-    int cnt = blendModes->size();
+    int cnt = (int) blendModes->size();
     for (int i = 0; i < cnt; i++) {
         SkPdfNativeObject* name = blendModes->objAtAIndex(i);
         if (!name || !name->isName()) {

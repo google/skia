@@ -54,7 +54,7 @@ struct SkUnencodedText {
 public:
     SkUnencodedText(const SkPdfString* obj) {
         text = (void*)obj->c_str();
-        len = obj->lenstr();
+        len = (int) obj->lenstr();
     }
 };
 
@@ -272,7 +272,7 @@ public:
 
         unsigned long ch4 = ch;
         char utf8[10];
-        int len = SkUTF8_FromUnichar(ch4, utf8);
+        size_t len = SkUTF8_FromUnichar((SkUnichar) ch4, utf8);
 
         canvas->drawText(utf8, len, SkDoubleToScalar(0), SkDoubleToScalar(0), *paint);
 

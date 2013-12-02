@@ -379,7 +379,7 @@ SkPdfNativeObject* SkPdfNativeDoc::readObject(int id/*, int expectedGeneration*/
     const unsigned char* current = fFileContent + startOffset;
     const unsigned char* end = fFileContent + fContentLength;
 
-    SkPdfNativeTokenizer tokenizer(current, end - current, fAllocator, this);
+    SkPdfNativeTokenizer tokenizer(current, (int) (end - current), fAllocator, this);
 
     SkPdfNativeObject idObj;
     SkPdfNativeObject generationObj;
@@ -439,7 +439,7 @@ void SkPdfNativeDoc::fillPages(SkPdfPageTreeNodeDictionary* tree) {
         return;
     }
 
-    int cnt = kids->size();
+    int cnt = (int) kids->size();
     for (int i = 0; i < cnt; i++) {
         SkPdfNativeObject* obj = resolveReference(kids->objAtAIndex(i));
         if (fMapper->mapPageObjectDictionary(obj) != kPageObjectDictionary_SkPdfNativeObjectType) {

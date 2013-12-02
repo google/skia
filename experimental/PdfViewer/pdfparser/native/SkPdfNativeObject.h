@@ -1240,7 +1240,7 @@ public:
                     while ((key = iter.next(&obj)) != NULL) {
                         appendSpaces(&str, level + 2);
                         str.appendf("/%s %s\n", key,
-                                    obj->toString(0, level + strlen(key) + 4).c_str());
+                                    obj->toString(0, level + (int) strlen(key) + 4).c_str());
                     }
                     appendSpaces(&str, level);
                     str.append(">>");

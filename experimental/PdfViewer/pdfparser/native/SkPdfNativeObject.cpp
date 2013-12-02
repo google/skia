@@ -91,7 +91,7 @@ bool SkPdfNativeObject::filterStream() {
         applyFilter(filterName.c_str());
     } else if (stream->isFilterAArray(NULL)) {
         const SkPdfArray* filters = stream->getFilterAsArray(NULL);
-        int cnt = filters->size();
+        int cnt = (int) filters->size();
         for (int i = cnt - 1; i >= 0; i--) {
             const SkPdfNativeObject* filterName = filters->objAtAIndex(i);
             if (filterName != NULL && filterName->isName()) {

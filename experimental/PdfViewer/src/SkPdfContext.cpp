@@ -74,7 +74,7 @@ void reportPdfRenderStats() {
         const char* key;
         int value = 0;
         while ((key = iter.next(&value)) != NULL) {
-            printf("%s: %s -> count %i\n", gRenderStatsNames[i], key, value);
+            SkDebugf("%s: %s -> count %i\n", gRenderStatsNames[i], key, value);
         }
     }
 }
