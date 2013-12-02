@@ -39,6 +39,22 @@ public:
         SkDEBUGCODE(if (!fOwnFirstBlock) {*((char*)initialBlock+fBlockSize-1)='a';} );
     }
 
+    /*
+     * Set first block of memory to write into.  Must be called before any other methods.
+     * This requires that you have passed NULL in the constructor.
+     *
+     * @param   initialBlock    optional memory to use for the first block.
+     *                          Must be at least itemSize*itemsPerBlock sized.
+     *                          Caller is responsible for freeing this memory.
+     */
+    void setInitialBlock(void* initialBlock) {
+        SkASSERT(0 == fCount);
+        SkASSERT(1 == fBlocks.count());
+        SkASSERT(NULL == fBlocks.back());
+        fOwnFirstBlock = false;
+        fBlocks.back() = initialBlock;
+    }
+
     /**
      * Adds an item and returns pointer to it.
      *
@@ -145,9 +161,6 @@ public:
      * Create an allocator
      *
      * @param   itemsPerBlock   the number of items to allocate at once
-     * @param   initialBlock    optional memory to use for the first block.
-     *                          Must be at least size(T)*itemsPerBlock sized.
-     *                          Caller is responsible for freeing this memory.
      */
     explicit GrTAllocator(int itemsPerBlock)
         : fAllocator(sizeof(T), itemsPerBlock, NULL) {}
@@ -223,8 +236,15 @@ public:
     }
 
 protected:
-    GrTAllocator(int itemsPerBlock, void* initialBlock)
-        : fAllocator(sizeof(T), itemsPerBlock, initialBlock) {
+    /*
+     * Set first block of memory to write into.  Must be called before any other methods.
+     *
+     * @param   initialBlock    optional memory to use for the first block.
+     *                          Must be at least size(T)*itemsPerBlock sized.
+     *                          Caller is responsible for freeing this memory.
+     */
+    void setInitialBlock(void* initialBlock) {
+        fAllocator.setInitialBlock(initialBlock);
     }
 
 private:
@@ -237,7 +257,8 @@ private:
     typedef GrTAllocator<T> INHERITED;
 
 public:
-    GrSTAllocator() : INHERITED(N, fStorage.get()) {
+    GrSTAllocator() : INHERITED(N) {
+        this->setInitialBlock(fStorage.get());
     }
 
 private:
