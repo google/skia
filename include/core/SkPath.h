@@ -151,7 +151,7 @@ public:
      *              optimization for performance and so some paths that are in
      *              fact ovals can report false.
      */
-    bool isOval(SkRect* rect) const;
+    bool isOval(SkRect* rect) const { return fPathRef->isOval(rect); }
 
     /** Clear any lines and curves from the path, making it empty. This frees up
         internal storage associated with those segments.
@@ -938,8 +938,8 @@ private:
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
         // rename to kUnused_SerializationShift
         kOldIsFinite_SerializationShift = 25,    // 1 bit
+        kOldIsOval_SerializationShift = 24,    // requires 1 bit
 #endif
-        kIsOval_SerializationShift = 24,    // requires 1 bit
         kConvexity_SerializationShift = 16, // requires 8 bits
         kFillType_SerializationShift = 8,   // requires 8 bits
         kSegmentMask_SerializationShift = 0 // requires 4 bits
@@ -952,7 +952,6 @@ private:
     uint8_t             fSegmentMask;
     mutable uint8_t     fConvexity;
     mutable uint8_t     fDirection;
-    mutable SkBool8     fIsOval;
 #ifdef SK_BUILD_FOR_ANDROID
     const SkPath*       fSourcePath;
 #endif
