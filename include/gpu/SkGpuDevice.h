@@ -197,14 +197,16 @@ private:
                             const SkRect&,
                             const GrTextureParams& params,
                             const SkPaint& paint,
-                            SkCanvas::DrawBitmapRectFlags flags);
+                            SkCanvas::DrawBitmapRectFlags flags,
+                            bool bicubic);
     void drawTiledBitmap(const SkBitmap& bitmap,
                          const SkRect& srcRect,
                          const SkIRect& clippedSrcRect,
                          const GrTextureParams& params,
                          const SkPaint& paint,
                          SkCanvas::DrawBitmapRectFlags flags,
-                         int tileSize);
+                         int tileSize,
+                         bool bicubic);
 
     /**
      * Returns non-initialized instance.

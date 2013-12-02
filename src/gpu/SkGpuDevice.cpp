@@ -7,6 +7,7 @@
 
 #include "SkGpuDevice.h"
 
+#include "effects/GrBicubicEffect.h"
 #include "effects/GrTextureDomainEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 
@@ -1057,22 +1058,29 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
                            SkCanvas::kNone_DrawBitmapRectFlag);
 }
 
-// This method outsets 'iRect' by 1 all around and then clamps its extents to
+// This method outsets 'iRect' by 'outset' all around and then clamps its extents to
 // 'clamp'. 'offset' is adjusted to remain positioned over the top-left corner
 // of 'iRect' for all possible outsets/clamps.
-static inline void clamped_unit_outset_with_offset(SkIRect* iRect, SkPoint* offset,
-                                                   const SkIRect& clamp) {
-    iRect->outset(1, 1);
+static inline void clamped_outset_with_offset(SkIRect* iRect,
+                                              int outset,
+                                              SkPoint* offset,
+                                              const SkIRect& clamp) {
+    iRect->outset(outset, outset);
 
-    if (iRect->fLeft < clamp.fLeft) {
+    int leftClampDelta = clamp.fLeft - iRect->fLeft;
+    if (leftClampDelta > 0) {
+        offset->fX -= outset - leftClampDelta;
         iRect->fLeft = clamp.fLeft;
     } else {
-        offset->fX -= SK_Scalar1;
+        offset->fX -= outset;
     }
-    if (iRect->fTop < clamp.fTop) {
+
+    int topClampDelta = clamp.fTop - iRect->fTop;
+    if (topClampDelta > 0) {
+        offset->fY -= outset - topClampDelta;
         iRect->fTop = clamp.fTop;
     } else {
-        offset->fY -= SK_Scalar1;
+        offset->fY -= outset;
     }
 
     if (iRect->fRight > clamp.fRight) {
@@ -1092,10 +1100,17 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     CHECK_SHOULD_DRAW(draw, false);
 
     SkRect srcRect;
+    // If there is no src rect, or the src rect contains the entire bitmap then we're effectively
+    // in the (easier) bleed case, so update flags.
     if (NULL == srcRectPtr) {
         srcRect.set(0, 0, SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height()));
+        flags = (SkCanvas::DrawBitmapRectFlags) (flags | SkCanvas::kBleed_DrawBitmapRectFlag);
     } else {
         srcRect = *srcRectPtr;
+        if (srcRect.fLeft <= 0 && srcRect.fTop <= 0 &&
+            srcRect.fRight >= bitmap.width() && srcRect.fBottom >= bitmap.height()) {
+            flags = (SkCanvas::DrawBitmapRectFlags) (flags | SkCanvas::kBleed_DrawBitmapRectFlag);
+        }
     }
 
     if (paint.getMaskFilter()){
@@ -1148,47 +1163,59 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     GrTextureParams params;
     SkPaint::FilterLevel paintFilterLevel = paint.getFilterLevel();
     GrTextureParams::FilterMode textureFilterMode;
+
+    int tileFilterPad;
+    bool doBicubic = false;
+
     switch(paintFilterLevel) {
         case SkPaint::kNone_FilterLevel:
+            tileFilterPad = 0;
             textureFilterMode = GrTextureParams::kNone_FilterMode;
             break;
         case SkPaint::kLow_FilterLevel:
+            tileFilterPad = 1;
             textureFilterMode = GrTextureParams::kBilerp_FilterMode;
             break;
         case SkPaint::kMedium_FilterLevel:
+            tileFilterPad = 1;
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
         case SkPaint::kHigh_FilterLevel:
-            // Fall back to mips for now
-            textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+            if (flags & SkCanvas::kBleed_DrawBitmapRectFlag) {
+                // We will install an effect that does the filtering in the shader.
+                textureFilterMode = GrTextureParams::kNone_FilterMode;
+                tileFilterPad = GrBicubicEffect::kFilterTexelPad;
+                doBicubic = true;
+            } else {
+                // We don't yet support doing bicubic filtering with an interior clamp. Fall back
+                // to MIPs
+                textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+                tileFilterPad = 1;
+            }
             break;
         default:
             SkErrorInternals::SetError( kInvalidPaint_SkError,
                                         "Sorry, I don't understand the filtering "
                                         "mode you asked for.  Falling back to "
                                         "MIPMaps.");
+            tileFilterPad = 1;
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
-
     }
 
     params.setFilterMode(textureFilterMode);
 
-    int maxTileSize = fContext->getMaxTextureSize();
-    if (SkPaint::kNone_FilterLevel != paint.getFilterLevel()) {
-        // We may need a skosh more room if we have to bump out the tile
-        // by 1 pixel all around
-        maxTileSize -= 2;
-    }
+    int maxTileSize = fContext->getMaxTextureSize() - 2 * tileFilterPad;
     int tileSize;
 
     SkIRect clippedSrcRect;
     if (this->shouldTileBitmap(bitmap, params, srcRectPtr, maxTileSize, &tileSize,
                                &clippedSrcRect)) {
-        this->drawTiledBitmap(bitmap, srcRect, clippedSrcRect, params, paint, flags, tileSize);
+        this->drawTiledBitmap(bitmap, srcRect, clippedSrcRect, params, paint, flags, tileSize,
+                              doBicubic);
     } else {
         // take the simple case
-        this->internalDrawBitmap(bitmap, srcRect, params, paint, flags);
+        this->internalDrawBitmap(bitmap, srcRect, params, paint, flags, doBicubic);
     }
 }
 
@@ -1200,7 +1227,8 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                                   const GrTextureParams& params,
                                   const SkPaint& paint,
                                   SkCanvas::DrawBitmapRectFlags flags,
-                                  int tileSize) {
+                                  int tileSize,
+                                  bool bicubic) {
     SkRect clippedSrcRect = SkRect::Make(clippedSrcIRect);
 
     int nx = bitmap.width() / tileSize;
@@ -1227,7 +1255,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
             SkPoint offset = SkPoint::Make(SkIntToScalar(iTileR.fLeft),
                                            SkIntToScalar(iTileR.fTop));
 
-            if (SkPaint::kNone_FilterLevel != paint.getFilterLevel()) {
+            if (SkPaint::kNone_FilterLevel != paint.getFilterLevel() || bicubic) {
                 SkIRect iClampRect;
 
                 if (SkCanvas::kBleed_DrawBitmapRectFlag & flags) {
@@ -1235,13 +1263,15 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                     // but stay within the bitmap bounds
                     iClampRect = SkIRect::MakeWH(bitmap.width(), bitmap.height());
                 } else {
+                    SkASSERT(!bicubic); // Bicubic is not supported with non-bleed yet.
+
                     // In texture-domain/clamp mode we only want to expand the
                     // tile on edges interior to "srcRect" (i.e., we want to
                     // not bleed across the original clamped edges)
                     srcRect.roundOut(&iClampRect);
                 }
-
-                clamped_unit_outset_with_offset(&iTileR, &offset, iClampRect);
+                int outset = bicubic ? GrBicubicEffect::kFilterTexelPad : 1;
+                clamped_outset_with_offset(&iTileR, outset, &offset, iClampRect);
             }
 
             if (bitmap.extractSubset(&tmpB, iTileR)) {
@@ -1251,7 +1281,7 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
                 tmpM.setTranslate(offset.fX, offset.fY);
                 GrContext::AutoMatrix am;
                 am.setPreConcat(fContext, tmpM);
-                this->internalDrawBitmap(tmpB, tileR, params, paint, flags);
+                this->internalDrawBitmap(tmpB, tileR, params, paint, flags, bicubic);
             }
         }
     }
@@ -1310,7 +1340,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                      const SkRect& srcRect,
                                      const GrTextureParams& params,
                                      const SkPaint& paint,
-                                     SkCanvas::DrawBitmapRectFlags flags) {
+                                     SkCanvas::DrawBitmapRectFlags flags,
+                                     bool bicubic) {
     SkASSERT(bitmap.width() <= fContext->getMaxTextureSize() &&
              bitmap.height() <= fContext->getMaxTextureSize());
 
@@ -1332,6 +1363,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     bool needsTextureDomain = false;
     if (!(flags & SkCanvas::kBleed_DrawBitmapRectFlag) &&
         params.filterMode() != GrTextureParams::kNone_FilterMode) {
+        SkASSERT(!bicubic);
         // Need texture domain if drawing a sub rect.
         needsTextureDomain = srcRect.width() < bitmap.width() ||
                              srcRect.height() < bitmap.height();
@@ -1376,6 +1408,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                                    textureDomain,
                                                    GrTextureDomainEffect::kClamp_WrapMode,
                                                    params.filterMode()));
+    } else if (bicubic) {
+        effect.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), params));
     } else {
         effect.reset(GrSimpleTextureEffect::Create(texture, SkMatrix::I(), params));
     }

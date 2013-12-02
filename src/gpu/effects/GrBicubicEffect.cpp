@@ -73,8 +73,14 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
                             "\tvec4 c = coefficients * ts;\n"
                             "\treturn c.x * c0 + c.y * c1 + c.z * c2 + c.w * c3;\n",
                             &cubicBlendName);
-    builder->fsCodeAppendf("\tvec2 coord = %s - %s * vec2(0.5, 0.5);\n", coords2D.c_str(), imgInc);
-    builder->fsCodeAppendf("\tvec2 f = fract(coord / %s);\n", imgInc);
+    builder->fsCodeAppendf("\tvec2 coord = %s - %s * vec2(0.5);\n", coords2D.c_str(), imgInc);
+    // We unnormalize the coord in order to determine our fractional offset (f) within the texel
+    // We then snap coord to a texel center and renormalize. The snap prevents cases where the
+    // starting coords are near a texel boundary and accumulations of imgInc would cause us to skip/
+    // double hit a texel.
+    builder->fsCodeAppendf("\tcoord /= %s;\n", imgInc);
+    builder->fsCodeAppend("\tvec2 f = fract(coord);\n");
+    builder->fsCodeAppendf("\tcoord = (coord - f + vec2(0.5)) * %s;\n", imgInc);
     for (int y = 0; y < 4; ++y) {
         for (int x = 0; x < 4; ++x) {
             SkString coord;

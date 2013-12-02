@@ -17,6 +17,10 @@ class GrGLBicubicEffect;
 
 class GrBicubicEffect : public GrSingleTextureEffect {
 public:
+    enum {
+        kFilterTexelPad = 2, // Given a src rect in texels to be filtered, this number of
+                             // surrounding texels are needed by the kernel in x and y.
+    };
     virtual ~GrBicubicEffect();
 
     static const char* Name() { return "Bicubic"; }
