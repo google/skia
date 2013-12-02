@@ -516,6 +516,8 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
                                                       ft_sfnt_head)) != NULL) {
             info->fEmSize = ttHeader->Units_Per_EM;
         }
+    } else {
+        info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
     }
 
     info->fStyle = 0;
