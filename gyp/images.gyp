@@ -84,7 +84,7 @@
           ],
           'link_settings': {
             'libraries': [
-              'windowscodecs.lib',
+              '-lwindowscodecs.lib',
             ],
           },
         },{ #else if skia_os != win

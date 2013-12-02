@@ -25,8 +25,8 @@
         [ 'skia_os == "win"', {
           'link_settings': {
             'libraries': [
-              'T2Embed.lib',
-              'FontSub.lib',
+              '-lt2embed.lib',
+              '-lfontsub.lib',
             ],
           },
         },{ #else if 'skia_os != "win"'
