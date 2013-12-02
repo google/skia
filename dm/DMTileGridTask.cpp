@@ -71,6 +71,9 @@ bool TileGridTask::shouldSkip() const {
     if (fGM->getFlags() & skiagm::GM::kSkipPicture_Flag) {
         return true;
     }
+    if (fGM->getFlags() & skiagm::GM::kSkipTiled_Flag) {
+        return true;
+    }
     return !FLAGS_tileGrid;
 }
 
