@@ -23,9 +23,6 @@
         '<(skia_src_path)/gpu/GrTest.cpp',
         '<(skia_src_path)/gpu/GrTest.h',
       ],
-      'defines': [
-        'GR_IMPLEMENTATION=1',
-      ],
     },
   ],
 }
