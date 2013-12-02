@@ -172,7 +172,7 @@ submit_try %s--bot <buildername> [<buildername> ...]
     if arg == '-h' or arg == '--help':
       Error()
     elif arg == '-l' or arg == '--list_bots':
-      format_args = ['\n  '.join(trybots)] + ALL_ALIASES
+      format_args = ['\n  '.join(sorted(trybots))] + ALL_ALIASES
       print (
 """
 submit_try: Available builders:\n  %s
