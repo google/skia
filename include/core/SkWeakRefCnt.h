@@ -23,7 +23,7 @@
     getRefCnt() > 1.
 
     In addition to strong ownership, an owner may instead obtain a weak
-    reference by calling weak_ref(). A call to weak_ref() must be balanced my a
+    reference by calling weak_ref(). A call to weak_ref() must be balanced by a
     call to weak_unref(). To obtain a strong reference from a weak reference,
     call try_ref(). If try_ref() returns true, the owner's pointer is now also
     a strong reference on which unref() must be called. Note that this does not
@@ -122,7 +122,7 @@ public:
             // so our destructor won't complain
             fWeakCnt = 1;
 #endif
-            SkRefCnt::internal_dispose();
+            this->INHERITED::internal_dispose();
         }
     }
 
