@@ -14,14 +14,16 @@
 
 class PdfMainLooper : public SkPdfTokenLooper {
 public:
-    PdfMainLooper(SkPdfTokenLooper* parent,
-                  SkPdfNativeTokenizer* tokenizer,
+    PdfMainLooper(SkPdfNativeTokenizer* tokenizer,
                   SkPdfContext* pdfContext,
                   SkCanvas* canvas)
-        : SkPdfTokenLooper(parent, tokenizer, pdfContext, canvas) {}
+        : INHERITED(tokenizer, pdfContext, canvas) {}
 
-    virtual SkPdfResult consumeToken(PdfToken& token);
-    virtual void loop();
+    virtual SkPdfResult consumeToken(PdfToken& token) SK_OVERRIDE;
+    virtual void loop() SK_OVERRIDE;
+
+private:
+    typedef SkPdfTokenLooper INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,7 +40,7 @@ void SkPdfContext::parseStream(SkPdfNativeObject* stream, SkCanvas* canvas) {
         // Nothing to parse.
         return;
     }
-    PdfMainLooper looper(NULL, tokenizer, this, canvas);
+    PdfMainLooper looper(tokenizer, this, canvas);
     looper.loop();
     // FIXME (scroggo): Will restructure to put tokenizer on the stack.
     delete tokenizer;
@@ -87,19 +89,12 @@ SkPdfResult PdfMainLooper::consumeToken(PdfToken& token) {
         PdfOperatorRenderer pdfOperatorRenderer = NULL;
         if (gPdfOps.find(token.fKeyword, token.fKeywordLength, &pdfOperatorRenderer) &&
                     pdfOperatorRenderer) {
-            SkPdfTokenLooper* childLooper = NULL;
             // Main work is done by pdfOperatorRenderer(...)
-            SkPdfResult result = pdfOperatorRenderer(fPdfContext, fCanvas, &childLooper);
+            SkPdfResult result = pdfOperatorRenderer(fPdfContext, fCanvas, this);
 
             int cnt = 0;
             gRenderStats[result].find(token.fKeyword, token.fKeywordLength, &cnt);
             gRenderStats[result].set(token.fKeyword, token.fKeywordLength, cnt + 1);
-            if (childLooper) {
-                // FIXME (scroggo): Auto delete this.
-                childLooper->setUp(this);
-                childLooper->loop();
-                delete childLooper;
-            }
         } else {
             int cnt = 0;
             gRenderStats[kUnsupported_SkPdfResult].find(token.fKeyword,
