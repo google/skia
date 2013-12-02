@@ -47,8 +47,8 @@ perlinnoise
 bleed
 downsamplebitmap_image_high_mandrill_512.png
 filterbitmap_image_mandrill_512.png
-xfilterbitmap_image_mandrill_256.png
 filterbitmap_image_mandrill_256.png
+filterbitmap_image_mandrill_128.png
 filterbitmap_image_mandrill_64.png
 filterbitmap_image_mandrill_32.png
 filterbitmap_image_mandrill_16.png
