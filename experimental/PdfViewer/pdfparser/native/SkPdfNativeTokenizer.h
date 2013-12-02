@@ -165,7 +165,10 @@ public:
     virtual ~SkPdfNativeTokenizer();
 
     // Reads one token. Returns false if there are no more tokens.
-    bool readToken(PdfToken* token);
+    // If writeDiff is true, and a token was read, create a PNG highlighting
+    // the difference caused by this command in /tmp/log_step_by_step.
+    // If PDF_TRACE_DIFF_IN_PNG is not defined, writeDiff does nothing.
+    bool readToken(PdfToken* token, bool writeDiff = false);
 
     // Put back a token to be read in the nextToken read. Only one token is allowed to be put
     // back. Must not necesaarely be the last token read.

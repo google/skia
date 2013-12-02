@@ -126,10 +126,7 @@ SkPdfResult PdfMainLooper::consumeToken(PdfToken& token) {
 
 void PdfMainLooper::loop() {
     PdfToken token;
-    // readToken defined in SkPdfTokenLooper.h
-    // FIXME (scroggo): Remove readToken (which just calls fTokenizer->readToken, plus draws
-    // some debugging info with PDF_DIFF_TRACE_IN_PNG)
-    while (readToken(fTokenizer, &token)) {
+    while (fTokenizer->readToken(&token, true)) {
         this->consumeToken(token);
     }
 }

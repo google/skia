@@ -42,10 +42,4 @@ public:
     }
 };
 
-// Calls SkPdfNativeTokenizer::readToken, and also does debugging help.
-// TODO(edisonn): Pass SkPdfContext and SkCanvas only with the define for instrumentation.
-// FIXME (scroggo): This calls tokenizer->readToken(). The rest of its functionality should
-// be moved to a debugging file.
-bool readToken(SkPdfNativeTokenizer*, PdfToken*);
-
 #endif // SkPdfTokenLooper_DEFINED

@@ -2736,7 +2736,7 @@ void PdfCompatibilitySectionLooper::loop() {
     PdfOp_q(fPdfContext, fCanvas, NULL);
 
     PdfToken token;
-    while (readToken(fTokenizer, &token)) {
+    while (fTokenizer->readToken(&token)) {
         if (token.fType == kKeyword_TokenType && strcmp(token.fKeyword, "BX") == 0) {
             SkPdfTokenLooper* looper = new PdfCompatibilitySectionLooper();
             looper->setUp(this);

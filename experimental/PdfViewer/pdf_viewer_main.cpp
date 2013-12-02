@@ -13,6 +13,7 @@
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
+#include "SkPdfConfig.h"
 #include "SkPdfRenderer.h"
 #include "SkPicture.h"
 #include "SkStream.h"
@@ -122,8 +123,10 @@ static void setup_bitmap(SkBitmap* bitmap, int width, int height, SkColor color)
  * @param page -1 means there is only one page (0), and render in a file without page extension
  */
 
+#ifdef PDF_TRACE_DIFF_IN_PNG
 extern "C" SkBitmap* gDumpBitmap;
 extern "C" SkCanvas* gDumpCanvas;
+#endif
 
 #if SK_SUPPORT_GPU
 GrContextFactory gContextFactory;
@@ -192,9 +195,10 @@ static bool render_page(const SkString& outputDir,
         }
         SkCanvas canvas(device);
 
+#ifdef PDF_TRACE_DIFF_IN_PNG
         gDumpBitmap = &bitmap;
-
         gDumpCanvas = &canvas;
+#endif
         renderer.renderPage(page < 0 ? 0 : page, &canvas, rect);
 
         SkString outputPath;

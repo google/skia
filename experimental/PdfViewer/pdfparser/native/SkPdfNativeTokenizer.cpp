@@ -6,6 +6,7 @@
  */
 
 #include "SkPdfConfig.h"
+#include "SkPdfDiffEncoder.h"
 #include "SkPdfNativeObject.h"
 #include "SkPdfNativeTokenizer.h"
 #include "SkPdfUtils.h"
@@ -940,6 +941,7 @@ bool SkPdfNativeTokenizer::readTokenCore(PdfToken* token) {
 
     fUncompressedStream = skipPdfWhiteSpaces(fUncompressedStream, fUncompressedStreamEnd);
     if (fUncompressedStream >= fUncompressedStreamEnd) {
+        fEmpty = true;
         return false;
     }
 
@@ -985,26 +987,33 @@ void SkPdfNativeTokenizer::PutBack(PdfToken token) {
 #endif
 }
 
-bool SkPdfNativeTokenizer::readToken(PdfToken* token) {
+bool SkPdfNativeTokenizer::readToken(PdfToken* token, bool writeDiff) {
     if (fHasPutBack) {
         *token = fPutBack;
         fHasPutBack = false;
 #ifdef PDF_TRACE_READ_TOKEN
-    printf("READ_BACK %s %s\n", token->fType == kKeyword_TokenType ? "Keyword" : "Object",
-           token->fKeyword ? SkString(token->fKeyword, token->fKeywordLength).c_str() :
-                             token->fObject->toString().c_str());
+        printf("READ_BACK %s %s\n", token->fType == kKeyword_TokenType ? "Keyword" : "Object",
+               token->fKeyword ? SkString(token->fKeyword, token->fKeywordLength).c_str() :
+                                 token->fObject->toString().c_str());
 #endif
+        if (writeDiff) {
+            SkPdfDiffEncoder::WriteToFile(token);
+        }
         return true;
     }
 
     if (fEmpty) {
 #ifdef PDF_TRACE_READ_TOKEN
-    printf("EMPTY TOKENIZER\n");
+        printf("EMPTY TOKENIZER\n");
 #endif
         return false;
     }
 
-    return readTokenCore(token);
+    const bool result = readTokenCore(token);
+    if (result && writeDiff) {
+        SkPdfDiffEncoder::WriteToFile(token);
+    }
+    return result;
 }
 
 #define DECLARE_PDF_NAME(longName) SkPdfName longName((char*)#longName)
