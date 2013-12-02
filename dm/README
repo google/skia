@@ -7,7 +7,6 @@ Current approximate list of missing features:
   --writePicturePath
 
   --deferred
-  --tiledGrid
 
 
 DM's design is based around Tasks and a TaskRunner.

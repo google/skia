@@ -6,6 +6,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
+#include "SkString.h"
 #include "gm.h"
 
 #include "DMReporter.h"
@@ -38,19 +39,6 @@ DEFINE_string(config, "8888 gpu",
         "Options: 565 8888 gpu msaa4 msaa16 gpunull gpudebug angle mesa"); // TODO(mtklein): pdf
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
-
-// Split str on any characters in delimiters into out.  (Think, strtok with a sane API.)
-static void split(const char* str, const char* delimiters, SkTArray<SkString>* out) {
-    const char* end = str + strlen(str);
-    while (str != end) {
-        // Find a token.
-        const size_t len = strcspn(str, delimiters);
-        out->push_back().set(str, len);
-        str += len;
-        // Skip any delimiters.
-        str += strspn(str, delimiters);
-    }
-}
 
 // "FooBar" -> "foobar".  Obviously, ASCII only.
 static SkString lowercase(SkString s) {
@@ -134,7 +122,7 @@ int tool_main(int argc, char** argv) {
     GM::SetResourcePath(FLAGS_resources[0]);
     SkTArray<SkString> configs;
     for (int i = 0; i < FLAGS_config.count(); i++) {
-        split(FLAGS_config[i], ", ", &configs);
+        SkStrSplit(FLAGS_config[i], ", ", &configs);
     }
 
     SkTDArray<GMRegistry::Factory> gms;

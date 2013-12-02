@@ -26,9 +26,9 @@ SkString* SkObjectParser::BitmapToString(const SkBitmap& bitmap) {
     mBitmap->appendS32(bitmap.height());
 
     const char* gConfigStrings[] = {
-        "None", "A1", "A8", "Index8", "RGB565", "ARGB4444", "ARGB8888"
+        "None", "A8", "Index8", "RGB565", "ARGB4444", "ARGB8888"
     };
-    SkASSERT(SkBitmap::kConfigCount == 7);
+    SkASSERT(SkBitmap::kConfigCount == SK_ARRAY_COUNT(gConfigStrings));
 
     mBitmap->append(" Config: ");
     mBitmap->append(gConfigStrings[bitmap.config()]);

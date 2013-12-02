@@ -634,5 +634,17 @@ SkString SkStringPrintf(const char* format, ...) {
     return formattedOutput;
 }
 
+void SkStrSplit(const char* str, const char* delimiters, SkTArray<SkString>* out) {
+    const char* end = str + strlen(str);
+    while (str != end) {
+        // Find a token.
+        const size_t len = strcspn(str, delimiters);
+        out->push_back().set(str, len);
+        str += len;
+        // Skip any delimiters.
+        str += strspn(str, delimiters);
+    }
+}
+
 #undef VSNPRINTF
 #undef SNPRINTF

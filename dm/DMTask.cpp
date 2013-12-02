@@ -8,14 +8,15 @@
 namespace DM {
 
 Task::Task(Reporter* reporter, TaskRunner* taskRunner)
-    : fReporter(reporter), fTaskRunner(taskRunner) {
+    : fReporter(reporter), fTaskRunner(taskRunner), fDepth(0) {
     fReporter->start();
 }
 
-Task::Task(const Task& that)
-    : INHERITED(that)
-    , fReporter(that.fReporter)
-    , fTaskRunner(that.fTaskRunner) {
+Task::Task(const Task& parent)
+    : INHERITED(parent)
+    , fReporter(parent.fReporter)
+    , fTaskRunner(parent.fTaskRunner)
+    , fDepth(parent.depth()+1) {
     fReporter->start();
 }
 

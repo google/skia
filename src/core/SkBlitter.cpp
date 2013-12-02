@@ -945,11 +945,6 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
 
 
     switch (device.config()) {
-        case SkBitmap::kA1_Config:
-            SK_PLACEMENT_NEW_ARGS(blitter, SkA1_Blitter,
-                                  storage, storageSize, (device, *paint));
-            break;
-
         case SkBitmap::kA8_Config:
             if (drawCoverage) {
                 SkASSERT(NULL == shader);

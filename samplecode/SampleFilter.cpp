@@ -67,7 +67,6 @@ static SkScalar draw_set(SkCanvas* c, const SkBitmap& bm, SkScalar x, SkPaint* p
 
 static const char* gConfigNames[] = {
     "unknown config",
-    "A1",
     "A8",
     "Index8",
     "565",

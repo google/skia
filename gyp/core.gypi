@@ -44,7 +44,6 @@
         '<(skia_src_path)/core/SkBlitRow_D32.cpp',
         '<(skia_src_path)/core/SkBlitter.h',
         '<(skia_src_path)/core/SkBlitter.cpp',
-        '<(skia_src_path)/core/SkBlitter_A1.cpp',
         '<(skia_src_path)/core/SkBlitter_A8.cpp',
         '<(skia_src_path)/core/SkBlitter_ARGB32.cpp',
         '<(skia_src_path)/core/SkBlitter_RGB16.cpp',

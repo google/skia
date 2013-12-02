@@ -1900,11 +1900,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10175733445319554072
+          4055619075226987340
         ]
-      ], 
-      "bugs": [
-        1578
       ], 
       "reviewed-by-human": false
     }, 
@@ -1912,11 +1909,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2036989462359391258
+          4557992853592297566
         ]
-      ], 
-      "bugs": [
-        1578
       ], 
       "reviewed-by-human": false
     }, 

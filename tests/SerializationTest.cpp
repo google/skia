@@ -173,37 +173,43 @@ static void Tests(skiatest::Reporter* reporter) {
 
     // Test rrect serialization
     {
+        // SkRRect does not initialize anything.
+        // An uninitialized SkRRect can be serialized,
+        // but will branch on uninitialized data when deserialized.
         SkRRect rrect;
+        SkRect rect = SkRect::MakeXYWH(1, 2, 20, 30);
+        SkVector corners[4] = { {1, 2}, {2, 3}, {3,4}, {4,5} };
+        rrect.setRectRadii(rect, corners);
         TestAlignment(&rrect, reporter);
     }
 
     // Test readByteArray
     {
-        unsigned char data[kArraySize] = {0};
+        unsigned char data[kArraySize] = { 1, 2, 3 };
         TestArraySerialization(data, reporter);
     }
 
     // Test readColorArray
     {
-        SkColor data[kArraySize];
+        SkColor data[kArraySize] = { SK_ColorBLACK, SK_ColorWHITE, SK_ColorRED };
         TestArraySerialization(data, reporter);
     }
 
     // Test readIntArray
     {
-        int32_t data[kArraySize];
+        int32_t data[kArraySize] = { 1, 2, 4, 8 };
         TestArraySerialization(data, reporter);
     }
 
     // Test readPointArray
     {
-        SkPoint data[kArraySize];
+        SkPoint data[kArraySize] = { {6, 7}, {42, 128} };
         TestArraySerialization(data, reporter);
     }
 
     // Test readScalarArray
     {
-        SkScalar data[kArraySize];
+        SkScalar data[kArraySize] = { SK_Scalar1, SK_ScalarHalf, SK_ScalarMax };
         TestArraySerialization(data, reporter);
     }
 }

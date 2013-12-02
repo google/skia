@@ -54,7 +54,7 @@ public:
     }
 
     GrResourceKey() {
-        fKey.fHashedKey.reset();
+        fKey.reset();
     }
 
     void reset(const GrCacheID& id, ResourceType type, ResourceFlags flags) {
@@ -63,41 +63,34 @@ public:
 
     //!< returns hash value [0..kHashMask] for the key
     int getHash() const {
-        return fKey.fHashedKey.getHash() & kHashMask;
+        return fKey.getHash() & kHashMask;
     }
 
     bool isScratch() const {
         return ScratchDomain() ==
-            *reinterpret_cast<const GrCacheID::Domain*>(fKey.fHashedKey.getData() +
+            *reinterpret_cast<const GrCacheID::Domain*>(fKey.getData() +
                                                         kCacheIDDomainOffset);
     }
 
     ResourceType getResourceType() const {
-        return *reinterpret_cast<const ResourceType*>(fKey.fHashedKey.getData() +
+        return *reinterpret_cast<const ResourceType*>(fKey.getData() +
                                                       kResourceTypeOffset);
     }
 
     ResourceFlags getResourceFlags() const {
-        return *reinterpret_cast<const ResourceFlags*>(fKey.fHashedKey.getData() +
+        return *reinterpret_cast<const ResourceFlags*>(fKey.getData() +
                                                        kResourceFlagsOffset);
     }
 
-    int compare(const GrResourceKey& other) const {
-        return fKey.fHashedKey.compare(other.fKey.fHashedKey);
-    }
+    bool operator==(const GrResourceKey& other) const { return fKey == other.fKey; }
+    bool operator<(const GrResourceKey& other) const { return fKey < other.fKey; }
 
-    static bool LT(const GrResourceKey& a, const GrResourceKey& b) {
-        return a.compare(b) < 0;
-    }
-
-    static bool EQ(const GrResourceKey& a, const GrResourceKey& b) {
-        return 0 == a.compare(b);
-    }
-
-    inline static bool LT(const GrResourceEntry& entry, const GrResourceKey& key);
-    inline static bool EQ(const GrResourceEntry& entry, const GrResourceKey& key);
-    inline static bool LT(const GrResourceEntry& a, const GrResourceEntry& b);
-    inline static bool EQ(const GrResourceEntry& a, const GrResourceEntry& b);
+    static bool LessThan(const GrResourceEntry& entry, const GrResourceKey& key);
+    static bool Equals(const GrResourceEntry& entry, const GrResourceKey& key);
+#ifdef SK_DEBUG
+    static bool LessThan(const GrResourceEntry& a, const GrResourceEntry& b);
+    static bool Equals(const GrResourceEntry& a, const GrResourceEntry& b);
+#endif
 
 private:
     enum {
@@ -125,21 +118,9 @@ private:
         memcpy(k + kResourceTypeOffset, &type, sizeof(ResourceType));
         memcpy(k + kResourceFlagsOffset, &flags, sizeof(ResourceFlags));
         memset(k + kPadOffset, 0, kPadSize);
-        fKey.fHashedKey.setKeyData(keyData.fKey32);
+        fKey.setKeyData(keyData.fKey32);
     }
-
-    struct Key;
-    typedef GrTBinHashKey<Key, kKeySize> HashedKey;
-
-    struct Key {
-        int compare(const HashedKey& hashedKey) const {
-            return fHashedKey.compare(hashedKey);
-        }
-
-        HashedKey fHashedKey;
-    };
-
-    Key fKey;
+    GrBinHashKey<kKeySize> fKey;
 };
 
 // The cache listens for these messages to purge junk resources proactively.
@@ -174,21 +155,23 @@ private:
     friend class GrDLinkedList;
 };
 
-bool GrResourceKey::LT(const GrResourceEntry& entry, const GrResourceKey& key) {
-    return LT(entry.key(), key);
+inline bool GrResourceKey::LessThan(const GrResourceEntry& entry, const GrResourceKey& key) {
+    return entry.key() < key;
 }
 
-bool GrResourceKey::EQ(const GrResourceEntry& entry, const GrResourceKey& key) {
-    return EQ(entry.key(), key);
+inline bool GrResourceKey::Equals(const GrResourceEntry& entry, const GrResourceKey& key) {
+    return entry.key() == key;
 }
 
-bool GrResourceKey::LT(const GrResourceEntry& a, const GrResourceEntry& b) {
-    return LT(a.key(), b.key());
+#ifdef SK_DEBUG
+inline bool GrResourceKey::LessThan(const GrResourceEntry& a, const GrResourceEntry& b) {
+    return a.key() < b.key();
 }
 
-bool GrResourceKey::EQ(const GrResourceEntry& a, const GrResourceEntry& b) {
-    return EQ(a.key(), b.key());
+inline bool GrResourceKey::Equals(const GrResourceEntry& a, const GrResourceEntry& b) {
+    return a.key() == b.key();
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

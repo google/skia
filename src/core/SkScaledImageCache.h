@@ -126,6 +126,7 @@ public:
 
 public:
     struct Rec;
+    struct Key;
 private:
     Rec*    fHead;
     Rec*    fTail;
@@ -139,7 +140,8 @@ private:
 
     Rec* findAndLock(uint32_t generationID, SkScalar sx, SkScalar sy,
                      const SkIRect& bounds);
-    void addAndLock(Rec* rec);
+    Rec* findAndLock(const Key& key);
+    ID* addAndLock(Rec* rec);
 
     void purgeAsNeeded();
 

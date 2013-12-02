@@ -192,3 +192,16 @@ static void TestString(skiatest::Reporter* reporter) {
 
 #include "TestClassDef.h"
 DEFINE_TESTCLASS("String", StringTestClass, TestString)
+
+DEF_TEST(String_SkStrSplit, r) {
+    SkTArray<SkString> results;
+
+    SkStrSplit("a-_b_c-dee--f-_-_-g-", "-_", &results);
+    REPORTER_ASSERT(r, results.count() == 6);
+    REPORTER_ASSERT(r, results[0].equals("a"));
+    REPORTER_ASSERT(r, results[1].equals("b"));
+    REPORTER_ASSERT(r, results[2].equals("c"));
+    REPORTER_ASSERT(r, results[3].equals("dee"));
+    REPORTER_ASSERT(r, results[4].equals("f"));
+    REPORTER_ASSERT(r, results[5].equals("g"));
+}

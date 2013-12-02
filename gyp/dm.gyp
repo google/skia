@@ -18,7 +18,7 @@
         'includes': [ 'gmslides.gypi' ],
         'sources': [
             '../dm/DM.cpp',
-            '../dm/DMComparisonTask.cpp',
+            '../dm/DMChecksumTask.cpp',
             '../dm/DMCpuTask.cpp',
             '../dm/DMGpuTask.cpp',
             '../dm/DMPipeTask.cpp',
@@ -27,6 +27,7 @@
             '../dm/DMSerializeTask.cpp',
             '../dm/DMTask.cpp',
             '../dm/DMTaskRunner.cpp',
+            '../dm/DMTileGridTask.cpp',
             '../dm/DMUtil.cpp',
             '../dm/DMWriteTask.cpp',
             '../gm/gm.cpp',

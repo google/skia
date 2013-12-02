@@ -1276,6 +1276,7 @@ void GrGpuGL::onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) {
             return;
         }
     }
+
     this->flushRenderTarget(rect);
     GrAutoTRestore<ScissorState> asr(&fScissorState);
     fScissorState.fEnabled = (NULL != rect);
@@ -1522,10 +1523,16 @@ void GrGpuGL::flushRenderTarget(const SkIRect* bound) {
     if (fHWBoundRenderTarget != rt) {
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, rt->renderFBOID()));
 #ifdef SK_DEBUG
-        GrGLenum status;
-        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-        if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-            GrPrintf("GrGpuGL::flushRenderTarget glCheckFramebufferStatus %x\n", status);
+        // don't do this check in Chromium -- this is causing
+        // lots of repeated command buffer flushes when the compositor is
+        // rendering with Ganesh, which is really slow; even too slow for
+        // Debug mode.
+        if (!this->glContext().info().isChromium()) {
+            GrGLenum status;
+            GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+            if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
+                GrPrintf("GrGpuGL::flushRenderTarget glCheckFramebufferStatus %x\n", status);
+            }
         }
 #endif
         fHWBoundRenderTarget = rt;

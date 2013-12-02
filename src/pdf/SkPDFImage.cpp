@@ -36,7 +36,6 @@ static size_t get_uncompressed_size(const SkBitmap& bitmap,
             return srcRect.width() * 3 * srcRect.height();
         case SkBitmap::kARGB_8888_Config:
             return srcRect.width() * 3 * srcRect.height();
-        case SkBitmap::kA1_Config:
         case SkBitmap::kA8_Config:
             return 1;
         default:
@@ -166,48 +165,6 @@ static SkStream* extract_argb8888_data(const SkBitmap& bitmap,
     return stream;
 }
 
-static SkStream* extract_a1_alpha(const SkBitmap& bitmap,
-                                  const SkIRect& srcRect,
-                                  bool* isOpaque,
-                                  bool* isTransparent) {
-    const int alphaRowBytes = (srcRect.width() + 7) / 8;
-    SkStream* stream = SkNEW_ARGS(SkMemoryStream,
-                                  (alphaRowBytes * srcRect.height()));
-    uint8_t* alphaDst = (uint8_t*)stream->getMemoryBase();
-
-    int offset1 = srcRect.fLeft % 8;
-    int offset2 = 8 - offset1;
-
-    for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
-        uint8_t* src = bitmap.getAddr1(0, y);
-        // This may read up to one byte after src, but the
-        // potentially invalid bits are never used for computation.
-        for (int x = srcRect.fLeft; x < srcRect.fRight; x += 8)  {
-            if (offset1) {
-                alphaDst[0] = src[x / 8] << offset1 |
-                    src[x / 8 + 1] >> offset2;
-            } else {
-                alphaDst[0] = src[x / 8];
-            }
-            if (x + 7 < srcRect.fRight) {
-                *isOpaque &= alphaDst[0] == SK_AlphaOPAQUE;
-                *isTransparent &= alphaDst[0] == SK_AlphaTRANSPARENT;
-            }
-            alphaDst++;
-        }
-        // Calculate the mask of bits we're interested in within the
-        // last byte of alphaDst.
-        // width mod 8  == 1 -> 0x80 ... width mod 8 == 7 -> 0xFE
-        uint8_t mask = ~((1 << (8 - (srcRect.width() % 8))) - 1);
-        if (srcRect.width() % 8) {
-            *isOpaque &= (alphaDst[-1] & mask) == (SK_AlphaOPAQUE & mask);
-            *isTransparent &=
-                    (alphaDst[-1] & mask) == (SK_AlphaTRANSPARENT & mask);
-        }
-    }
-    return stream;
-}
-
 static SkStream* extract_a8_alpha(const SkBitmap& bitmap,
                                   const SkIRect& srcRect,
                                   bool* isOpaque,
@@ -282,14 +239,6 @@ static SkStream* extract_image_data(const SkBitmap& bitmap,
         case SkBitmap::kARGB_8888_Config:
             stream = extract_argb8888_data(bitmap, srcRect, extractAlpha,
                                            &isOpaque, &transparent);
-            break;
-        case SkBitmap::kA1_Config:
-            if (!extractAlpha) {
-                stream = create_black_image();
-            } else {
-                stream = extract_a1_alpha(bitmap, srcRect,
-                                          &isOpaque, &transparent);
-            }
             break;
         case SkBitmap::kA8_Config:
             if (!extractAlpha) {
@@ -574,8 +523,7 @@ SkPDFImage::SkPDFImage(SkStream* stream,
     insertName("Type", "XObject");
     insertName("Subtype", "Image");
 
-    bool alphaOnly = (config == SkBitmap::kA1_Config ||
-                      config == SkBitmap::kA8_Config);
+    bool alphaOnly = (config == SkBitmap::kA8_Config);
 
     if (!isAlpha && alphaOnly) {
         // For alpha only images, we stretch a single pixel of black for
@@ -601,8 +549,6 @@ SkPDFImage::SkPDFImage(SkStream* stream,
     int bitsPerComp = 8;
     if (config == SkBitmap::kARGB_4444_Config) {
         bitsPerComp = 4;
-    } else if (isAlpha && config == SkBitmap::kA1_Config) {
-        bitsPerComp = 1;
     }
     insertInt("BitsPerComponent", bitsPerComp);
 

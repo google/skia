@@ -186,7 +186,7 @@ public:
             src: 32/24,   no-alpha  -> 4
             src: 32/24,   yes-alpha -> 5
      */
-    void setPrefConfigTable(const SkBitmap::Config pref[6]);
+    void setPrefConfigTable(const SkBitmap::Config pref[5]);
 
     /**
      *  Optional table describing the caller's preferred config based on
