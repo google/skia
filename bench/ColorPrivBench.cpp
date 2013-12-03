@@ -28,7 +28,7 @@ public:
         const SkPMColor src = 0xAB998877, dst = 0x66334455;
         volatile SkPMColor junk = 0;
         for (int i = 0; i < 10*this->getLoops(); ++i) {
-            for (size_t j = 0; j <= SK_ARRAY_COUNT(fScales); j++) {
+            for (size_t j = 0; j <= 256; j++) {
                 const unsigned scale = fScales[j];
                 if (kFast && kScale) {
                     junk ^= SkFastFourByteInterp(src, dst, scale);
