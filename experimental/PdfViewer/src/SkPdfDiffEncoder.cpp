@@ -128,4 +128,3 @@ void SkPdfDiffEncoder::WriteToFile(PdfToken* token) {
     }
 #endif
 }
-
