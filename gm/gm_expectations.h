@@ -11,22 +11,12 @@
 #include "SkBitmap.h"
 #include "SkBitmapHasher.h"
 #include "SkData.h"
+#include "SkJSONCPP.h"
 #include "SkOSFile.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTArray.h"
 
-#ifdef SK_BUILD_FOR_WIN
-    // json includes xlocale which generates warning 4530 because we're compiling without
-    // exceptions; see https://code.google.com/p/skia/issues/detail?id=1067
-    #pragma warning(push)
-    #pragma warning(disable : 4530)
-#endif
-#include "json/reader.h"
-#include "json/value.h"
-#ifdef SK_BUILD_FOR_WIN
-    #pragma warning(pop)
-#endif
 
 namespace skiagm {
 

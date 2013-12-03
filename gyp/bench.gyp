@@ -17,6 +17,7 @@
         'skia_lib.gyp:skia_lib',
         'bench_timer',
         'flags.gyp:flags',
+        'jsoncpp.gyp:jsoncpp',
       ],
       'sources': [
         '../bench/AAClipBench.cpp',

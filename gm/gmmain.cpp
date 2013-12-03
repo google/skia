@@ -30,6 +30,7 @@
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
+#include "SkJSONCPP.h"
 #include "SkOSFile.h"
 #include "SkPDFRasterizer.h"
 #include "SkPicture.h"
@@ -49,17 +50,6 @@ static const bool kDebugOnly = false;
 #endif
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
-
-#ifdef SK_BUILD_FOR_WIN
-    // json includes xlocale which generates warning 4530 because we're compiling without
-    // exceptions; see https://code.google.com/p/skia/issues/detail?id=1067
-    #pragma warning(push)
-    #pragma warning(disable : 4530)
-#endif
-#include "json/value.h"
-#ifdef SK_BUILD_FOR_WIN
-    #pragma warning(pop)
-#endif
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"

@@ -6,6 +6,7 @@
  */
 
 #include "BenchTimer.h"
+#include "ResultsWriter.h"
 #include "SkBenchLogger.h"
 #include "SkBenchmark.h"
 #include "SkBitmapDevice.h"
@@ -275,6 +276,7 @@ DEFINE_double(error, 0.01,
 DEFINE_string(timeFormat, "%9.2f", "Format to print results, in milliseconds per 1000 loops.");
 DEFINE_bool2(verbose, v, false, "Print more.");
 DEFINE_string2(resourcePath, i, NULL, "directory for test resources.");
+DEFINE_string(outResultsFile, "", "If given, the results will be written to the file in JSON format.");
 
 // Has this bench converged?  First arguments are milliseconds / loop iteration,
 // last is overall runtime in milliseconds.
@@ -296,11 +298,22 @@ int tool_main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
     // First, parse some flags.
-
     SkBenchLogger logger;
     if (FLAGS_logFile.count()) {
         logger.SetLogFile(FLAGS_logFile[0]);
     }
+
+    LoggerResultsWriter logWriter(logger, FLAGS_timeFormat[0]);
+    MultiResultsWriter writer;
+    writer.add(&logWriter);
+    SkAutoTDelete<JSONResultsWriter> jsonWriter;
+    if (FLAGS_outResultsFile.count()) {
+        jsonWriter.reset(SkNEW(JSONResultsWriter(FLAGS_outResultsFile[0])));
+        writer.add(jsonWriter.get());
+    }
+    // Instantiate after all the writers have been added to writer so that we
+    // call close() before their destructors are called on the way out.
+    CallEnd<MultiResultsWriter> ender(writer);
 
     const uint8_t alpha = FLAGS_forceBlend ? 0x80 : 0xFF;
     SkTriState::State dither = SkTriState::kDefault;
@@ -384,36 +397,39 @@ int tool_main(int argc, char** argv) {
         logger.logError("bench was built in Debug mode, so we're going to hide the times."
                         "  It's for your own good!\n");
     }
-    SkString str("skia bench:");
-    str.appendf(" mode=%s", FLAGS_mode[0]);
-    str.appendf(" alpha=0x%02X antialias=%d filter=%d dither=%s",
-                alpha, FLAGS_forceAA, FLAGS_forceFilter, SkTriState::Name[dither]);
-    str.appendf(" rotate=%d scale=%d clip=%d", FLAGS_rotate, FLAGS_scale, FLAGS_clip);
+    writer.option("mode", FLAGS_mode[0]);
+    writer.option("alpha", SkStringPrintf("0x%02X", alpha).c_str());
+    writer.option("antialias", SkStringPrintf("%d", FLAGS_forceAA).c_str());
+    writer.option("filter", SkStringPrintf("%d", FLAGS_forceFilter).c_str());
+    writer.option("dither",  SkTriState::Name[dither]);
+
+    writer.option("rotate", SkStringPrintf("%d", FLAGS_rotate).c_str());
+    writer.option("scale", SkStringPrintf("%d", FLAGS_scale).c_str());
+    writer.option("clip", SkStringPrintf("%d", FLAGS_clip).c_str());
 
 #if defined(SK_SCALAR_IS_FIXED)
-    str.append(" scalar=fixed");
+    writer.option("scalar", "fixed");
 #else
-    str.append(" scalar=float");
+    writer.option("scalar", "float");
 #endif
 
 #if defined(SK_BUILD_FOR_WIN32)
-    str.append(" system=WIN32");
+    writer.option("system", "WIN32");
 #elif defined(SK_BUILD_FOR_MAC)
-    str.append(" system=MAC");
+    writer.option("system", "MAC");
 #elif defined(SK_BUILD_FOR_ANDROID)
-    str.append(" system=ANDROID");
+    writer.option("system", "ANDROID");
 #elif defined(SK_BUILD_FOR_UNIX)
-    str.append(" system=UNIX");
+    writer.option("system", "UNIX");
 #else
-    str.append(" system=other");
+    writer.option("system", "other");
 #endif
 
 #if defined(SK_DEBUG)
-    str.append(" DEBUG");
+    writer.option("build", "DEBUG");
+#else
+    writer.option("build", "RELEASE");
 #endif
-    str.append("\n");
-    logger.logProgress(str);
-
 
     // Set texture cache limits if non-default.
     for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); ++i) {
@@ -440,21 +456,9 @@ int tool_main(int argc, char** argv) {
 #endif
     }
 
-    // Find the longest name of the benches we're going to run to make the output pretty.
-    Iter names;
-    SkBenchmark* bench;
-    size_t longestName = 0;
-    while ((bench = names.next()) != NULL) {
-        SkAutoTUnref<SkBenchmark> benchUnref(bench);
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getName())) {
-            continue;
-        }
-        const size_t length = strlen(bench->getName());
-        longestName = length > longestName ? length : longestName;
-    }
-
     // Run each bench in each configuration it supports and we asked for.
     Iter iter;
+    SkBenchmark* bench;
     while ((bench = iter.next()) != NULL) {
         SkAutoTUnref<SkBenchmark> benchUnref(bench);
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getName())) {
@@ -537,10 +541,7 @@ int tool_main(int argc, char** argv) {
 
             if (!loggedBenchName) {
                 loggedBenchName = true;
-                SkString str;
-                str.printf("running bench [%3d %3d] %*s ",
-                           dim.fX, dim.fY, (int)longestName, bench->getName());
-                logger.logProgress(str);
+                writer.bench(bench->getName(), dim.fX, dim.fY);
             }
 
 #if SK_SUPPORT_GPU
@@ -679,18 +680,12 @@ int tool_main(int argc, char** argv) {
                 {'g', "gmsecs", normalize * timer.fGpu},
             };
 
-            SkString result;
-            result.appendf("   %s:", config.name);
+            writer.config(config.name);
             for (size_t i = 0; i < SK_ARRAY_COUNT(times); i++) {
                 if (strchr(FLAGS_timers[0], times[i].shortName) && times[i].ms > 0) {
-                    result.appendf(" %s = ", times[i].longName);
-                    result.appendf(FLAGS_timeFormat[0], times[i].ms);
+                    writer.timer(times[i].longName, times[i].ms);
                 }
             }
-            logger.logProgress(result);
-        }
-        if (loggedBenchName) {
-            logger.logProgress("\n");
         }
     }
 #if SK_SUPPORT_GPU
