@@ -82,7 +82,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
         paint.setFilterLevel(fDoFilter ? SkPaint::kLow_FilterLevel
@@ -103,7 +103,7 @@ protected:
         SkPaint bgPaint;
         bgPaint.setColor(SK_ColorWHITE);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             if (fDoTrans) {
                 canvas->drawRect(r, bgPaint);
             }

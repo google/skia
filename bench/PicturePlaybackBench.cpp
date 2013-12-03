@@ -35,7 +35,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
 
         SkPicture picture;
 
@@ -43,9 +43,9 @@ protected:
         recordCanvas(pCanvas);
         picture.endRecording();
 
-        const SkPoint translateDelta = getTranslateDelta(this->getLoops());
+        const SkPoint translateDelta = getTranslateDelta(loops);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             picture.draw(canvas);
             canvas->translate(translateDelta.fX, translateDelta.fY);
         }

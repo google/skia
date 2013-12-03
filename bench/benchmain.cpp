@@ -520,7 +520,7 @@ int tool_main(int argc, char** argv) {
                         canvas.reset(SkRef(recordTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
                         break;
                     case kPictureRecord_BenchMode:
-                        bench->draw(recordFrom.beginRecording(dim.fX, dim.fY, kRecordFlags));
+                        bench->draw(1, recordFrom.beginRecording(dim.fX, dim.fY, kRecordFlags));
                         recordFrom.endRecording();
                         canvas.reset(SkRef(recordTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
                         break;
@@ -592,18 +592,19 @@ int tool_main(int argc, char** argv) {
                     // Save and restore around each call to draw() to guarantee a pristine canvas.
                     SkAutoCanvasRestore saveRestore(canvas, true/*also save*/);
 
+                    int loops;
                     if (frameIntervalComputed && loopCount > loopsPerFrame) {
-                        bench->setLoops(loopsPerFrame);
+                        loops = loopsPerFrame;
                         loopCount -= loopsPerFrame;
                     } else {
-                        bench->setLoops(loopCount);
+                        loops = loopCount;
                         loopCount = 0;
                     }
 
                     if (benchMode == kPictureRecord_BenchMode) {
                         recordFrom.draw(canvas);
                     } else {
-                        bench->draw(canvas);
+                        bench->draw(loops, canvas);
                     }
 
                     if (kDeferredSilent_BenchMode == benchMode) {

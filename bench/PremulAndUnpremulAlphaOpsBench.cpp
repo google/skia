@@ -25,7 +25,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         canvas->clear(SK_ColorBLACK);
         SkISize size = canvas->getDeviceSize();
 
@@ -45,7 +45,7 @@ protected:
         bmp2.setConfig(SkBitmap::kARGB_8888_Config, size.width(),
                        size.height());
 
-        for (int loop = 0; loop < this->getLoops(); ++loop) {
+        for (int loop = 0; loop < loops; ++loop) {
             // Unpremul -> Premul
             canvas->writePixels(bmp1, 0, 0, fUnPremulConfig);
             // Premul -> Unpremul

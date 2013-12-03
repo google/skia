@@ -39,7 +39,7 @@ public:
                               SkScalarCeilToInt(fRRect.rect().height()));
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkLayerDrawLooper* looper = new SkLayerDrawLooper;
         {
             SkLayerDrawLooper::LayerInfo info;
@@ -72,7 +72,7 @@ public:
         loopedPaint.setAntiAlias(true);
         loopedPaint.setColor(SK_ColorCYAN);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->drawRect(fRRect.rect(), dullPaint);
             canvas->drawRRect(fRRect, loopedPaint);
         }

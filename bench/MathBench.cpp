@@ -46,8 +46,8 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas*) {
-        int n = this->getLoops() * this->mulLoopCount();
+    virtual void onDraw(const int loops, SkCanvas*) {
+        int n = loops * this->mulLoopCount();
         for (int i = 0; i < n; i++) {
             this->performTest(fDst, fSrc, kBuffer);
         }
@@ -290,20 +290,20 @@ public:
     }
 
 protected:
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         IsFiniteProc proc = fProc;
         const float* data = fData;
         // do this so the compiler won't throw away the function call
         int counter = 0;
 
         if (proc) {
-            for (int j = 0; j < this->getLoops(); ++j) {
+            for (int j = 0; j < loops; ++j) {
                 for (int i = 0; i < N - 4; ++i) {
                     counter += proc(&data[i]);
                 }
             }
         } else {
-            for (int j = 0; j < this->getLoops(); ++j) {
+            for (int j = 0; j < loops; ++j) {
                 for (int i = 0; i < N - 4; ++i) {
                     const SkRect* r = reinterpret_cast<const SkRect*>(&data[i]);
                     if (false) { // avoid bit rot, suppress warning
@@ -360,20 +360,20 @@ public:
     virtual void process(float) {}
 
 protected:
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         SkRandom rand;
         float accum = 0;
         const float* data = fData;
 
         if (fFast) {
-            for (int j = 0; j < this->getLoops(); ++j) {
+            for (int j = 0; j < loops; ++j) {
                 for (int i = 0; i < ARRAY; ++i) {
                     accum += fast_floor(data[i]);
                 }
                 this->process(accum);
             }
         } else {
-            for (int j = 0; j < this->getLoops(); ++j) {
+            for (int j = 0; j < loops; ++j) {
                 for (int i = 0; i < ARRAY; ++i) {
                     accum += sk_float_floor(data[i]);
                 }
@@ -422,18 +422,18 @@ public:
     virtual void process(int) {}
 
 protected:
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         int accum = 0;
 
         if (fUsePortable) {
-            for (int j = 0; j < this->getLoops(); ++j) {
+            for (int j = 0; j < loops; ++j) {
                 for (int i = 0; i < ARRAY; ++i) {
                     accum += SkCLZ_portable(fData[i]);
                 }
                 this->process(accum);
             }
         } else {
-            for (int j = 0; j < this->getLoops(); ++j) {
+            for (int j = 0; j < loops; ++j) {
                 for (int i = 0; i < ARRAY; ++i) {
                     accum += SkCLZ(fData[i]);
                 }
@@ -478,10 +478,10 @@ public:
     virtual void process(int) {}
 
 protected:
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         int accum = 0;
 
-        for (int j = 0; j < this->getLoops(); ++j) {
+        for (int j = 0; j < loops; ++j) {
             for (int i = 0; i < ARRAY; ++i) {
                 accum += fVec[i].normalize();
             }
@@ -511,8 +511,8 @@ public:
 
     FixedMathBench()  {
         SkRandom rand;
-        for (int i = 0; i < this->getLoops(); ++i) {
-            fData[i%N] = rand.nextSScalar1();
+        for (int i = 0; i < N; ++i) {
+            fData[i] = rand.nextSScalar1();
         }
 
     }
@@ -522,8 +522,8 @@ public:
     }
 
 protected:
-    virtual void onDraw(SkCanvas*) {
-        for (int j = 0; j < this->getLoops(); ++j) {
+    virtual void onDraw(const int loops, SkCanvas*) {
+        for (int j = 0; j < loops; ++j) {
             for (int i = 0; i < N - 4; ++i) {
                 fResult[i] = SkFloatToFixed(fData[i]);
             }
@@ -562,10 +562,10 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         volatile T a = 0, b = 0;
         T div = 0, mod = 0;
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             if ((T)i == 0) continue;  // Small T will wrap around.
             SkTDivMod((T)(i+1), (T)i, &div, &mod);
             a ^= div;

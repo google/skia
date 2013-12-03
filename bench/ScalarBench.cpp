@@ -31,8 +31,8 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        for (int i = 0; i < this->getLoops(); i++) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
+        for (int i = 0; i < loops; i++) {
             this->performTest();
         }
     }
@@ -157,9 +157,9 @@ protected:
         return "rect_bounds";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r;
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             r.set(fPts, PTS);
         }
     }

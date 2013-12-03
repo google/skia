@@ -41,7 +41,7 @@ protected:
         return "grmemorypool_stack";
     }
 
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         SkRandom r;
         enum {
             kMaxObjects = 4 * (1 << 10),
@@ -51,11 +51,11 @@ protected:
         // We delete if a random [-1, 1] fixed pt is < the thresh. Otherwise,
         // we allocate. We start allocate-biased and ping-pong to delete-biased
         SkFixed delThresh = -SK_FixedHalf;
-        const int kSwitchThreshPeriod = this->getLoops() / (2 * kMaxObjects);
+        const int kSwitchThreshPeriod = loops / (2 * kMaxObjects);
         int s = 0;
 
         int count = 0;
-        for (int i = 0; i < this->getLoops(); i++, ++s) {
+        for (int i = 0; i < loops; i++, ++s) {
             if (kSwitchThreshPeriod == s) {
                 delThresh = -delThresh;
                 s = 0;
@@ -93,14 +93,14 @@ protected:
         return "grmemorypool_random";
     }
 
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         SkRandom r;
         enum {
             kMaxObjects = 4 * (1 << 10),
         };
         SkAutoTDelete<A> objects[kMaxObjects];
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             uint32_t idx = r.nextRangeU(0, kMaxObjects-1);
             if (NULL == objects[idx].get()) {
                 objects[idx].reset(new A);
@@ -131,10 +131,10 @@ protected:
         return "grmemorypool_queue";
     }
 
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         SkRandom r;
         A* objects[M];
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             uint32_t count = r.nextRangeU(0, M-1);
             for (uint32_t i = 0; i < count; i++) {
                 objects[i] = new A;

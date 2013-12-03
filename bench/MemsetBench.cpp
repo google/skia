@@ -47,8 +47,8 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        for (int i = 0; i < loops; ++i) {
             this->performTest();
         }
     }

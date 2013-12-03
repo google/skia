@@ -49,7 +49,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
 
@@ -63,7 +63,7 @@ protected:
             path.transform(m);
         }
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->drawPath(path, paint);
         }
     }

@@ -72,12 +72,12 @@ protected:
         return isSmall() ? "colorfilter_dim_bright_small" : "colorfilter_dim_bright_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             for (float brightness = -1.0f; brightness <= 1.0f; brightness += 0.4f) {
                 SkAutoTUnref<SkImageFilter> dim(make_brightness(-brightness));
                 SkAutoTUnref<SkImageFilter> bright(make_brightness(brightness, dim));
@@ -102,11 +102,11 @@ protected:
         return isSmall() ? "colorfilter_bright_gray_small" : "colorfilter_bright_gray_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkAutoTUnref<SkImageFilter> brightness(make_brightness(0.9f));
             SkAutoTUnref<SkImageFilter> grayscale(make_grayscale(brightness));
             paint.setImageFilter(grayscale);
@@ -129,11 +129,11 @@ protected:
         return isSmall() ? "colorfilter_gray_bright_small" : "colorfilter_gray_bright_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkAutoTUnref<SkImageFilter> grayscale(make_grayscale());
             SkAutoTUnref<SkImageFilter> brightness(make_brightness(0.9f, grayscale));
             paint.setImageFilter(brightness);
@@ -156,11 +156,11 @@ protected:
         return isSmall() ? "colorfilter_blue_bright_small" : "colorfilter_blue_bright_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkAutoTUnref<SkImageFilter> blue(make_mode_blue());
             SkAutoTUnref<SkImageFilter> brightness(make_brightness(1.0f, blue));
             paint.setImageFilter(brightness);
@@ -183,11 +183,11 @@ protected:
         return isSmall() ? "colorfilter_bright_blue_small" : "colorfilter_bright_blue_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkAutoTUnref<SkImageFilter> brightness(make_brightness(1.0f));
             SkAutoTUnref<SkImageFilter> blue(make_mode_blue(brightness));
             paint.setImageFilter(blue);
@@ -210,11 +210,11 @@ protected:
         return isSmall() ? "colorfilter_bright_small" : "colorfilter_bright_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkAutoTUnref<SkImageFilter> brightness(make_brightness(1.0f));
             paint.setImageFilter(brightness);
             canvas->drawRect(r, paint);
@@ -236,11 +236,11 @@ protected:
         return isSmall() ? "colorfilter_blue_small" : "colorfilter_blue_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkAutoTUnref<SkImageFilter> blue(make_mode_blue());
             paint.setImageFilter(blue);
             canvas->drawRect(r, paint);
@@ -262,11 +262,11 @@ protected:
         return isSmall() ? "colorfilter_gray_small" : "colorfilter_gray_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkAutoTUnref<SkImageFilter> grayscale(make_grayscale());
             paint.setImageFilter(grayscale);
             canvas->drawRect(r, paint);
@@ -288,11 +288,11 @@ protected:
         return isSmall() ? "table_colorfilter_small" : "table_colorfilter_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkAutoTUnref<SkColorFilter> table_filter(make_table_filter());
             paint.setColorFilter(table_filter);
             canvas->drawRect(r, paint);
@@ -326,12 +326,12 @@ protected:
         return isSmall() ? "luma_colorfilter_small" : "luma_colorfilter_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRect r = getFilterRect();
         SkPaint paint;
         paint.setColor(SK_ColorRED);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkAutoTUnref<SkColorFilter> luma_filter(SkLumaColorFilter::Create());
             paint.setColorFilter(luma_filter);
             canvas->drawRect(r, paint);

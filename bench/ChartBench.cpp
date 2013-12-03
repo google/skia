@@ -102,7 +102,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         bool sizeChanged = false;
         if (canvas->getDeviceSize() != fSize) {
             fSize = canvas->getDeviceSize();
@@ -122,7 +122,7 @@ protected:
             }
         }
 
-        for (int frame = 0; frame < this->getLoops(); ++frame) {
+        for (int frame = 0; frame < loops; ++frame) {
 
             canvas->clear(0xFFE0F0E0);
 

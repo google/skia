@@ -21,9 +21,9 @@ protected:
         return "perlinnoise";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        this->test(canvas, 0, 0, SkPerlinNoiseShader::kFractalNoise_Type,
-             0.1f, 0.1f, 3, 0, false);
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        this->test(loops, canvas, 0, 0, SkPerlinNoiseShader::kFractalNoise_Type,
+                   0.1f, 0.1f, 3, 0, false);
     }
 
 private:
@@ -38,7 +38,7 @@ private:
         canvas->restore();
     }
 
-    void test(SkCanvas* canvas, int x, int y, SkPerlinNoiseShader::Type type,
+    void test(const int loops, SkCanvas* canvas, int x, int y, SkPerlinNoiseShader::Type type,
               float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
               bool stitchTiles) {
         SkShader* shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
@@ -49,7 +49,7 @@ private:
         SkPaint paint;
         paint.setShader(shader)->unref();
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             this->drawClippedRect(canvas, x, y, paint);
         }
     }

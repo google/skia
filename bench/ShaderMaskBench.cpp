@@ -56,7 +56,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         const SkIPoint dim = this->getSize();
         SkRandom rand;
 
@@ -71,14 +71,14 @@ protected:
         const SkScalar y0 = SkIntToScalar(-10);
 
         paint.setTextSize(SkIntToScalar(12));
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
             SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
             canvas->drawText(fText.c_str(), fText.size(), x, y, paint);
         }
 
         paint.setTextSize(SkIntToScalar(48));
-        for (int i = 0; i < this->getLoops() / 4 ; i++) {
+        for (int i = 0; i < loops / 4 ; i++) {
             SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
             SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
             canvas->drawText(fText.c_str(), fText.size(), x, y, paint);

@@ -78,13 +78,13 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         fRec.fCanvas = canvas;
         this->setupPaint(&fRec.fPaint);
         fRec.fPaint.setStyle(SkPaint::kStroke_Style);
         fRec.fPaint.setStrokeJoin(fJoin);
         fRec.fPaint.setStrokeWidth(5);
-        fProc(&fRec, this->getLoops());
+        fProc(&fRec, loops);
     }
 
 private:

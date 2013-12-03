@@ -50,13 +50,13 @@ public:
     DictionaryRecordBench() : INHERITED("dictionaries") {}
 
 protected:
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         SkAutoTDelete<SkPicture> picture;
         SkCanvas* canvas = NULL;
 
-        const SkPoint translateDelta = getTranslateDelta(this->getLoops());
+        const SkPoint translateDelta = getTranslateDelta(loops);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             if (0 == i % kMaxLoopsPerCanvas) {
                 picture.reset(SkNEW(SkPicture));
                 canvas = picture->beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
@@ -117,12 +117,12 @@ public:
     UniquePaintDictionaryRecordBench() : INHERITED("unique_paint_dictionary") { }
 
 protected:
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         SkRandom rand;
         SkPaint paint;
         SkAutoTDelete<SkPicture> picture;
         SkCanvas* canvas = NULL;
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             if (0 == i % kMaxLoopsPerCanvas) {
                 picture.reset(SkNEW(SkPicture));
                 canvas = picture->beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
@@ -157,10 +157,10 @@ public:
         ObjCount = 100,  // number of unique paint objects
     };
 protected:
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         SkPicture picture;
         SkCanvas* canvas = picture.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->drawPaint(fPaint[i % ObjCount]);
         }
     }

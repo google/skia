@@ -203,14 +203,14 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkPaint paint;
         this->setupPaint(&paint);
 
         paint.setShader(fShader);
 
         SkRect r = { 0, 0, SkIntToScalar(W), SkIntToScalar(H) };
-        for (int i = 0; i < this->getLoops() * kRepeat; i++) {
+        for (int i = 0; i < loops * kRepeat; i++) {
             switch (fGeomType) {
                case kRect_GeomType:
                    canvas->drawRect(r, paint);
@@ -273,7 +273,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkPaint paint;
         this->setupPaint(&paint);
 
@@ -283,7 +283,7 @@ protected:
             { SkIntToScalar(100), SkIntToScalar(100) },
         };
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             const int gray = i % 256;
             const int alpha = fHasAlpha ? gray : 0xFF;
             SkColor colors[] = {

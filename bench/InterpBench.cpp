@@ -35,8 +35,8 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas*) {
-        int n = this->getLoops() * this->mulLoopCount();
+    virtual void onDraw(const int loops, SkCanvas*) {
+        int n = loops * this->mulLoopCount();
         for (int i = 0; i < n; i++) {
             this->performTest(fDst, fFx, fDx, kBuffer);
         }

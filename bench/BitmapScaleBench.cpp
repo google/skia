@@ -69,13 +69,13 @@ protected:
         fMatrix.setScale( scale(), scale() );
     }
 
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         SkPaint paint;
         this->setupPaint(&paint);
 
         preBenchSetup();
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             doScaleImage();
         }
     }

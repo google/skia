@@ -20,12 +20,12 @@ public:
     LightingBaseBench(bool small) : fIsSmall(small) { }
 
 protected:
-    void draw(SkCanvas* canvas, SkImageFilter* imageFilter) const {
+    void draw(const int loops, SkCanvas* canvas, SkImageFilter* imageFilter) const {
         SkRect r = fIsSmall ? SkRect::MakeWH(FILTER_WIDTH_SMALL, FILTER_HEIGHT_SMALL) :
                               SkRect::MakeWH(FILTER_WIDTH_LARGE, FILTER_HEIGHT_LARGE);
         SkPaint paint;
         paint.setImageFilter(imageFilter)->unref();
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->drawRect(r, paint);
         }
     }
@@ -105,9 +105,11 @@ protected:
         return fIsSmall ? "lightingpointlitdiffuse_small" : "lightingpointlitdiffuse_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        draw(canvas, SkLightingImageFilter::CreatePointLitDiffuse(getPointLocation(), getWhite(),
-            getSurfaceScale(), getKd()));
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        draw(loops, canvas, SkLightingImageFilter::CreatePointLitDiffuse(getPointLocation(),
+                                                                         getWhite(),
+                                                                         getSurfaceScale(),
+                                                                         getKd()));
     }
 
 private:
@@ -124,9 +126,11 @@ protected:
         return fIsSmall ? "lightingdistantlitdiffuse_small" : "lightingdistantlitdiffuse_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        draw(canvas, SkLightingImageFilter::CreateDistantLitDiffuse(getDistantDirection(),
-            getWhite(), getSurfaceScale(), getKd()));
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        draw(loops, canvas, SkLightingImageFilter::CreateDistantLitDiffuse(getDistantDirection(),
+                                                                           getWhite(),
+                                                                           getSurfaceScale(),
+                                                                           getKd()));
     }
 
 private:
@@ -143,10 +147,14 @@ protected:
         return fIsSmall ? "lightingspotlitdiffuse_small" : "lightingspotlitdiffuse_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        draw(canvas, SkLightingImageFilter::CreateSpotLitDiffuse(getSpotLocation(),
-            getSpotTarget(), getSpotExponent(), getCutoffAngle(), getWhite(), getSurfaceScale(),
-            getKd()));
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        draw(loops, canvas, SkLightingImageFilter::CreateSpotLitDiffuse(getSpotLocation(),
+                                                                        getSpotTarget(),
+                                                                        getSpotExponent(),
+                                                                        getCutoffAngle(),
+                                                                        getWhite(),
+                                                                        getSurfaceScale(),
+                                                                        getKd()));
     }
 
 private:
@@ -163,9 +171,12 @@ protected:
         return fIsSmall ? "lightingpointlitspecular_small" : "lightingpointlitspecular_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        draw(canvas, SkLightingImageFilter::CreatePointLitSpecular(getPointLocation(), getWhite(),
-            getSurfaceScale(), getKs(), getShininess()));
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        draw(loops, canvas, SkLightingImageFilter::CreatePointLitSpecular(getPointLocation(),
+                                                                          getWhite(),
+                                                                          getSurfaceScale(),
+                                                                          getKs(),
+                                                                          getShininess()));
     }
 
 private:
@@ -182,9 +193,12 @@ protected:
         return fIsSmall ? "lightingdistantlitspecular_small" : "lightingdistantlitspecular_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        draw(canvas, SkLightingImageFilter::CreateDistantLitSpecular(getDistantDirection(),
-            getWhite(), getSurfaceScale(), getKs(), getShininess()));
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        draw(loops, canvas, SkLightingImageFilter::CreateDistantLitSpecular(getDistantDirection(),
+                                                                            getWhite(),
+                                                                            getSurfaceScale(),
+                                                                            getKs(),
+                                                                            getShininess()));
     }
 
 private:
@@ -201,10 +215,15 @@ protected:
         return fIsSmall ? "lightingspotlitspecular_small" : "lightingspotlitspecular_large";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        draw(canvas, SkLightingImageFilter::CreateSpotLitSpecular(getSpotLocation(),
-            getSpotTarget(), getSpotExponent(), getCutoffAngle(), getWhite(), getSurfaceScale(),
-            getKs(), getShininess()));
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        draw(loops, canvas, SkLightingImageFilter::CreateSpotLitSpecular(getSpotLocation(),
+                                                                         getSpotTarget(),
+                                                                         getSpotExponent(),
+                                                                         getCutoffAngle(),
+                                                                         getWhite(),
+                                                                         getSurfaceScale(),
+                                                                         getKs(),
+                                                                         getShininess()));
     }
 
 private:

@@ -122,9 +122,9 @@ protected:
         gRec[fType].fProc(fUnsorted.get());
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         SkAutoTMalloc<int> sorted(N);
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             memcpy(sorted.get(), fUnsorted.get(), N*sizeof(int));
             fSortProc(sorted.get());
 #ifdef SK_DEBUG

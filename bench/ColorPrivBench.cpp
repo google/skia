@@ -24,10 +24,10 @@ public:
 
     virtual const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         const SkPMColor src = 0xAB998877, dst = 0x66334455;
         volatile SkPMColor junk = 0;
-        for (int i = 0; i < 10*this->getLoops(); ++i) {
+        for (int i = 0; i < 10*loops; ++i) {
             for (size_t j = 0; j <= 256; j++) {
                 const unsigned scale = fScales[j];
                 if (kFast && kScale) {

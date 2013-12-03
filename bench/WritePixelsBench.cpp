@@ -46,7 +46,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkISize size = canvas->getDeviceSize();
 
         canvas->clear(0xFFFF0000);
@@ -55,7 +55,7 @@ protected:
         bmp.setConfig(SkBitmap::kARGB_8888_Config, size.width(), size.height());
         canvas->readPixels(&bmp, 0, 0);
 
-        for (int loop = 0; loop < this->getLoops(); ++loop) {
+        for (int loop = 0; loop < loops; ++loop) {
             canvas->writePixels(bmp, 0, 0, fConfig);
         }
     }

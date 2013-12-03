@@ -67,7 +67,8 @@ public:
     // before the initial draw.
     void preDraw();
 
-    void draw(SkCanvas*);
+    // Bench framework can tune loops to be large enough for stable timing.
+    void draw(const int loops, SkCanvas*);
 
     // Call after draw, allows the benchmark to do cleanup work outside of the
     // timer. When a benchmark is repeatedly drawn, this is only called once
@@ -104,15 +105,6 @@ public:
         fClearMask = clearMask;
     }
 
-    // The bench framework calls this to control the runtime of a bench.
-    void setLoops(int loops) {
-        fLoops = loops;
-    }
-
-    // Each bench should do its main work in a loop like this:
-    //   for (int i = 0; i < this->getLoops(); i++) { <work here> }
-    int getLoops() const { return fLoops; }
-
     static void SetResourcePath(const char* resPath) { gResourcePath.set(resPath); }
 
     static SkString& GetResourcePath() { return gResourcePath; }
@@ -122,7 +114,9 @@ protected:
 
     virtual const char* onGetName() = 0;
     virtual void onPreDraw() {}
-    virtual void onDraw(SkCanvas*) = 0;
+    // Each bench should do its main work in a loop like this:
+    //   for (int i = 0; i < loops; i++) { <work here> }
+    virtual void onDraw(const int loops, SkCanvas*) = 0;
     virtual void onPostDraw() {}
 
     virtual SkIPoint onGetSize();
@@ -133,7 +127,6 @@ private:
     bool    fForceFilter;
     SkTriState::State  fDither;
     uint32_t    fOrMask, fClearMask;
-    int fLoops;
     static  SkString gResourcePath;
 
     typedef SkRefCnt INHERITED;

@@ -77,11 +77,11 @@ public:
 
 protected:
     virtual const char* onGetName() { return fName.c_str(); }
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkPaint paint;
         this->setupPaint(&paint);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->drawVertices(SkCanvas::kTriangles_VertexMode, PTS,
                                  fPts, NULL, fColors, NULL, fIdx, IDX, paint);
         }

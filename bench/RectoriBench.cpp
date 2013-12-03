@@ -24,10 +24,10 @@ protected:
         return "rectori";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRandom Random;
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkScalar blurSigma = Random.nextRangeScalar(1.5f, 25.0f);
             SkScalar size = Random.nextRangeScalar(20*blurSigma, 50*blurSigma);
 

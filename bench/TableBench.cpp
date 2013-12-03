@@ -33,14 +33,14 @@ protected:
         return "tablebench";
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkPaint cellPaint;
         cellPaint.setColor(0xFFFFFFF);
 
         SkPaint borderPaint;
         borderPaint.setColor(0xFFCCCCCC);
 
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             for (int row = 0; row < kNumRows; ++row) {
                 for (int col = 0; col < kNumCols; ++col) {
                     SkRect cell = SkRect::MakeLTRB(col * kCellWidth,

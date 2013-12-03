@@ -61,7 +61,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         this->setupPaint(&paint);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -82,7 +82,7 @@ protected:
             canvas->clipRect(r);
         }
 
-        this->handlePath(canvas, path, paint, this->getLoops());
+        this->handlePath(canvas, path, paint, loops);
     }
 
     virtual void handlePath(SkCanvas* canvas, const SkPath& path,
@@ -194,9 +194,9 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         SkPath dst;
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
 
             fPE->filterPath(&dst, fPath, &rec, NULL);
@@ -232,13 +232,13 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         this->setupPaint(&paint);
         paint.setStrokeWidth(fStrokeWidth);
         paint.setStrokeCap(fIsRound ? SkPaint::kRound_Cap : SkPaint::kSquare_Cap);
         paint.setPathEffect(fPE);
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             canvas->drawLine(10 * SK_Scalar1, 10 * SK_Scalar1,
                              640 * SK_Scalar1, 10 * SK_Scalar1, paint);
         }
@@ -271,7 +271,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint p;
         this->setupPaint(&p);
         p.setColor(SK_ColorBLACK);
@@ -285,7 +285,7 @@ protected:
             { SkIntToScalar(640), 0 }
         };
 
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             pts[0].fY = pts[1].fY = SkIntToScalar(i % 480);
             canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p);
         }
@@ -357,14 +357,14 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint p;
         this->setupPaint(&p);
         p.setStyle(SkPaint::kStroke_Style);
         p.setStrokeWidth(fStrokeWidth);
         p.setPathEffect(fPathEffect);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->drawPoints(SkCanvas::kLines_PointMode, 2, fPts, p);
         }
     }

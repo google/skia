@@ -72,7 +72,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         if (!fValid) {
 #ifdef SK_DEBUG
             SkDebugf("stream was invalid: %s\n", fFilename.c_str());
@@ -81,7 +81,7 @@ protected:
         }
         // Decode a bunch of times
         SkBitmap bm;
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             SkDEBUGCODE(bool success =) fDecoder->decode(&fStream, &bm,
                                                          SkImageDecoder::kDecodePixels_Mode);
 #ifdef SK_DEBUG

@@ -42,7 +42,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         this->setupPaint(&paint);
 
@@ -50,7 +50,7 @@ protected:
         paint.setAntiAlias(fDoAA);
         paint.setStrokeWidth(fStrokeWidth);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->drawPoints(SkCanvas::kLines_PointMode, PTS, fPts, paint);
         }
     }

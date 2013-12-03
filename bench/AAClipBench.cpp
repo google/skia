@@ -43,12 +43,12 @@ public:
 
 protected:
     virtual const char* onGetName() { return fName.c_str(); }
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
 
         SkPaint paint;
         this->setupPaint(&paint);
 
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             // jostle the clip regions each time to prevent caching
             fClipRect.offset((i % 2) == 0 ? SkIntToScalar(10) : SkIntToScalar(-10), 0);
             fClipPath.reset();
@@ -158,9 +158,9 @@ protected:
             canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
 
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             SkPoint offset = SkPoint::Make(0, 0);
             this->recurse(canvas, 0, offset);
         }
@@ -195,11 +195,11 @@ public:
 
 protected:
     virtual const char* onGetName() { return fName.c_str(); }
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         SkPaint paint;
         this->setupPaint(&paint);
 
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             SkAAClip clip;
             if (fDoPath) {
                 clip.setPath(fPath, &fRegion, fDoAA);
@@ -230,8 +230,8 @@ public:
 
 protected:
     virtual const char* onGetName() { return "aaclip_setregion"; }
-    virtual void onDraw(SkCanvas*) {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas*) {
+        for (int i = 0; i < loops; ++i) {
             SkAAClip clip;
             clip.setRegion(fRegion);
         }

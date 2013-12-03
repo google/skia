@@ -27,7 +27,7 @@ public:
 
 protected:
     virtual const char* onGetName() { return fName.c_str(); }
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkPaint paint;
         this->setupPaint(&paint);
         paint.setLCDRenderText(fDoLCD);
@@ -35,7 +35,7 @@ protected:
         bool prev = gSkSuppressFontCachePurgeSpew;
         gSkSuppressFontCachePurgeSpew = true;
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             // this is critical - we want to time the creation process, so we
             // explicitly flush our cache before each run
             SkGraphics::PurgeFontCache();

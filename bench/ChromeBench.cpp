@@ -461,14 +461,14 @@ public:
 protected:
 
     virtual const char* onGetName() { return "chrome_scrollGmail"; }
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkDEBUGCODE(this->validateBounds(canvas));
         SkPaint paint;
         this->setupPaint(&paint);
         for (int i = 0; i < N; i++) {
             SkRect current;
             setRectangle(current, i);
-            for (int j = 0; j < this->getLoops() * gmailScrollingRectSpec[i*3]; j++) {
+            for (int j = 0; j < loops * gmailScrollingRectSpec[i*3]; j++) {
                 canvas->drawRect(current, paint);
             }
         }

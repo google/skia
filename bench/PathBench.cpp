@@ -50,7 +50,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
 
@@ -62,7 +62,7 @@ protected:
             path.transform(m);
         }
 
-        int count = this->getLoops();
+        int count = loops;
         if (fFlags & kBig_Flag) {
             count >>= 2;
         }
@@ -330,8 +330,8 @@ protected:
         fPaths.reset(kPathCnt);
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+        for (int i = 0; i < loops; ++i) {
             this->makePath(&fPaths[i & (kPathCnt - 1)]);
         }
         this->restartMakingPaths();
@@ -370,8 +370,8 @@ protected:
         }
         this->finishedMakingPaths();
     }
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+        for (int i = 0; i < loops; ++i) {
             int idx = i & (kPathCnt - 1);
             fCopies[idx] = fPaths[idx];
         }
@@ -414,13 +414,13 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         if (fInPlace) {
-            for (int i = 0; i < this->getLoops(); ++i) {
+            for (int i = 0; i < loops; ++i) {
                 fPaths[i & (kPathCnt - 1)].transform(fMatrix);
             }
         } else {
-            for (int i = 0; i < this->getLoops(); ++i) {
+            for (int i = 0; i < loops; ++i) {
                 int idx = i & (kPathCnt - 1);
                 fPaths[idx].transform(fMatrix, &fTransformed[idx]);
             }
@@ -466,8 +466,8 @@ protected:
         this->finishedMakingPaths();
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+        for (int i = 0; i < loops; ++i) {
             int idx = i & (kPathCnt - 1);
             fParity ^= (fPaths[idx] == fCopies[idx & ~0x1]);
         }
@@ -535,38 +535,38 @@ protected:
         this->finishedMakingPaths();
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         switch (fType) {
             case kAdd_AddType:
-                for (int i = 0; i < this->getLoops(); ++i) {
+                for (int i = 0; i < loops; ++i) {
                     int idx = i & (kPathCnt - 1);
                     SkPath result = fPaths0[idx];
                     result.addPath(fPaths1[idx]);
                 }
                 break;
             case kAddTrans_AddType:
-                for (int i = 0; i < this->getLoops(); ++i) {
+                for (int i = 0; i < loops; ++i) {
                     int idx = i & (kPathCnt - 1);
                     SkPath result = fPaths0[idx];
                     result.addPath(fPaths1[idx], 2 * SK_Scalar1, 5 * SK_Scalar1);
                 }
                 break;
             case kAddMatrix_AddType:
-                for (int i = 0; i < this->getLoops(); ++i) {
+                for (int i = 0; i < loops; ++i) {
                     int idx = i & (kPathCnt - 1);
                     SkPath result = fPaths0[idx];
                     result.addPath(fPaths1[idx], fMatrix);
                 }
                 break;
             case kReverseAdd_AddType:
-                for (int i = 0; i < this->getLoops(); ++i) {
+                for (int i = 0; i < loops; ++i) {
                     int idx = i & (kPathCnt - 1);
                     SkPath result = fPaths0[idx];
                     result.reverseAddPath(fPaths1[idx]);
                 }
                 break;
             case kReversePathTo_AddType:
-                for (int i = 0; i < this->getLoops(); ++i) {
+                for (int i = 0; i < loops; ++i) {
                     int idx = i & (kPathCnt - 1);
                     SkPath result = fPaths0[idx];
                     result.reversePathTo(fPaths1[idx]);
@@ -608,7 +608,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
 
         paint.setColor(SK_ColorBLACK);
@@ -621,7 +621,7 @@ protected:
 
         SkRect r;
 
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             SkScalar radius = rand.nextUScalar1() * 3;
             r.fLeft = rand.nextUScalar1() * 300;
             r.fTop =  rand.nextUScalar1() * 300;
@@ -714,11 +714,11 @@ protected:
         SkASSERT(path->isConvex());
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRandom rand;
         SkRect r;
 
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             SkPaint paint;
             paint.setColor(0xff000000 | rand.nextU());
             paint.setAntiAlias(true);
@@ -788,8 +788,8 @@ private:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+        for (int i = 0; i < loops; ++i) {
             const SkRect& rect = fQueryRects[i % kQueryRectCnt];
             fParity = fParity != fPath.conservativelyContainsRect(rect);
         }
@@ -851,9 +851,9 @@ private:
         return "ratquad-chop-0.5";
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         SkConic dst[2];
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             fRQ.chopAt(0.5f, dst);
         }
     }
@@ -876,9 +876,9 @@ private:
         return "ratquad-chop-half";
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         SkConic dst[2];
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             fRQ.chop(dst);
         }
     }
@@ -931,9 +931,9 @@ protected:
         return "conic-compute-error";
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         SkVector err;
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             for (int j = 0; j < CONICS; ++j) {
                 fConics[j].computeAsQuadError(&err);
             }
@@ -953,8 +953,8 @@ protected:
         return "conic-asQuadTol";
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+        for (int i = 0; i < loops; ++i) {
             for (int j = 0; j < CONICS; ++j) {
                 fConics[j].asQuadTol(SK_ScalarHalf);
             }
@@ -974,8 +974,8 @@ protected:
         return "conic-quadPow2";
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
+        for (int i = 0; i < loops; ++i) {
             for (int j = 0; j < CONICS; ++j) {
                 fConics[j].computeQuadPOW2(SK_ScalarHalf);
             }

@@ -49,13 +49,13 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         if (fDrawCoverage) {
-            for (int i = 0; i < this->getLoops(); ++i) {
+            for (int i = 0; i < loops; ++i) {
                 fDraw.drawPathCoverage(fPath, fPaint);
             }
         } else {
-            for (int i = 0; i < this->getLoops(); ++i) {
+            for (int i = 0; i < loops; ++i) {
                 fDraw.drawPath(fPath, fPaint);
             }
         }

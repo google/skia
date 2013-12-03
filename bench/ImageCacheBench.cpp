@@ -38,14 +38,14 @@ protected:
         return "imagecache";
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         if (fCache.getBytesUsed() == 0) {
             this->populateCache();
         }
 
         SkBitmap tmp;
         // search for a miss (-1 scale)
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             (void)fCache.findAndLock(fBM, -1, -1, &tmp);
         }
     }

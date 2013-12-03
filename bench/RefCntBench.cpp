@@ -25,8 +25,8 @@ protected:
         return "ref_cnt_stack";
     }
 
-    virtual void onDraw(SkCanvas*) {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas*) {
+        for (int i = 0; i < loops; ++i) {
             SkRefCnt ref;
             for (int j = 0; j < M; ++j) {
                 ref.ref();
@@ -63,9 +63,9 @@ protected:
         return "ref_cnt_heap";
     }
 
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         char memory[sizeof(PlacedRefCnt)];
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             PlacedRefCnt* ref = new (memory) PlacedRefCnt();
             for (int j = 0; j < M; ++j) {
                 ref->ref();
@@ -90,8 +90,8 @@ protected:
         return "ref_cnt_new";
     }
 
-    virtual void onDraw(SkCanvas*) {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas*) {
+        for (int i = 0; i < loops; ++i) {
             SkRefCnt* ref = new SkRefCnt();
             for (int j = 0; j < M; ++j) {
                 ref->ref();
@@ -118,8 +118,8 @@ protected:
         return "ref_cnt_stack_weak";
     }
 
-    virtual void onDraw(SkCanvas*) {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas*) {
+        for (int i = 0; i < loops; ++i) {
             SkWeakRefCnt ref;
             for (int j = 0; j < M; ++j) {
                 ref.ref();
@@ -149,9 +149,9 @@ protected:
         return "ref_cnt_heap_weak";
     }
 
-    virtual void onDraw(SkCanvas*) {
+    virtual void onDraw(const int loops, SkCanvas*) {
         char memory[sizeof(PlacedWeakRefCnt)];
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             PlacedWeakRefCnt* ref = new (memory) PlacedWeakRefCnt();
             for (int j = 0; j < M; ++j) {
                 ref->ref();
@@ -176,8 +176,8 @@ protected:
         return "ref_cnt_new_weak";
     }
 
-    virtual void onDraw(SkCanvas*) {
-        for (int i = 0; i < this->getLoops(); ++i) {
+    virtual void onDraw(const int loops, SkCanvas*) {
+        for (int i = 0; i < loops; ++i) {
             SkWeakRefCnt* ref = new SkWeakRefCnt();
             for (int j = 0; j < M; ++j) {
                 ref->ref();

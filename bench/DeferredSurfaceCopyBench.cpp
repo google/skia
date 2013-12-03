@@ -31,7 +31,7 @@ protected:
             "DeferredSurfaceCopy_nonDiscardable";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         // The canvas is not actually used for this test except to provide
         // configuration information: gpu, multisampling, size, etc?
         SkImageInfo info;
@@ -55,7 +55,7 @@ protected:
         SkAutoTUnref<SkDeferredCanvas> drawingCanvas(SkDeferredCanvas::Create(surface));
         surface->unref();
 
-        for (int iteration = 0; iteration < this->getLoops(); iteration++) {
+        for (int iteration = 0; iteration < loops; iteration++) {
             drawingCanvas->clear(0);
             SkAutoTUnref<SkImage> image(drawingCanvas->newImageSnapshot());
             SkPaint paint;

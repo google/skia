@@ -52,9 +52,9 @@ public:
 protected:
     virtual const char* onGetName() { return fName.c_str(); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
 
-        for (int i = 0; i < this->getLoops(); ++i){
+        for (int i = 0; i < loops; ++i){
             //create a random 16x16 bitmap
             fillRandomBits(H * STRIDE, (char*) &bits);
 

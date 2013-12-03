@@ -183,10 +183,10 @@ protected:
         return "grresourcecache_add";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         GrGpu* gpu = canvas->getGrContext()->getGpu();
 
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             GrResourceCache cache(CACHE_SIZE_COUNT, CACHE_SIZE_BYTES);
             populate_cache(&cache, gpu, DUPLICATE_COUNT);
             populate_cache(&cache, gpu, RESOURCE_COUNT);
@@ -219,13 +219,13 @@ protected:
         return "grresourcecache_find";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         GrGpu* gpu = canvas->getGrContext()->getGpu();
         GrResourceCache cache(CACHE_SIZE_COUNT, CACHE_SIZE_BYTES);
         populate_cache(&cache, gpu, DUPLICATE_COUNT);
         populate_cache(&cache, gpu, RESOURCE_COUNT);
 
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             for (int k = 0; k < RESOURCE_COUNT; ++k) {
                 check_cache_contents_or_die(&cache, k);
             }

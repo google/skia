@@ -24,7 +24,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkBaseDevice *device = canvas->getDevice()->createCompatibleDevice(
             SkBitmap::kARGB_8888_Config, CANVAS_WIDTH, CANVAS_HEIGHT, false);
 
@@ -32,13 +32,13 @@ protected:
         device->unref();
 
         initDeferredCanvas(deferredCanvas);
-        drawInDeferredCanvas(deferredCanvas);
+        drawInDeferredCanvas(loops, deferredCanvas);
         finalizeDeferredCanvas(deferredCanvas);
         deferredCanvas->flush();
     }
 
     virtual void initDeferredCanvas(SkDeferredCanvas* canvas) = 0;
-    virtual void drawInDeferredCanvas(SkDeferredCanvas* canvas) = 0;
+    virtual void drawInDeferredCanvas(const int loops, SkDeferredCanvas* canvas) = 0;
     virtual void finalizeDeferredCanvas(SkDeferredCanvas* canvas) = 0;
 
     SkString fName;
@@ -76,11 +76,11 @@ protected:
         canvas->setNotificationClient(&fNotificationClient);
     }
 
-    virtual void drawInDeferredCanvas(SkDeferredCanvas* canvas) SK_OVERRIDE {
+    virtual void drawInDeferredCanvas(const int loops, SkDeferredCanvas* canvas) SK_OVERRIDE {
         SkRect rect;
         rect.setXYWH(0, 0, 10, 10);
         SkPaint paint;
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->save(SkCanvas::kMatrixClip_SaveFlag);
             canvas->translate(SkIntToScalar(i * 27 % CANVAS_WIDTH), SkIntToScalar(i * 13 % CANVAS_HEIGHT));
             canvas->drawRect(rect, paint);

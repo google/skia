@@ -21,11 +21,11 @@ protected:
         return "writer";
     }
 
-    virtual void onDraw(SkCanvas*) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         static const char gStr[] = "abcdefghimjklmnopqrstuvwxyz";
         static const size_t gLen = strlen(gStr);
         SkWriter32 writer(256 * 4);
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             for (size_t j = 0; j <= gLen; j++) {
                 writer.writeString(gStr, j);
             }

@@ -130,7 +130,7 @@ protected:
         fBitmap.setIsVolatile(fIsVolatile);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkIPoint dim = this->getSize();
         SkRandom rand;
 
@@ -141,7 +141,7 @@ protected:
         const SkScalar x0 = SkIntToScalar(-bitmap.width() / 2);
         const SkScalar y0 = SkIntToScalar(-bitmap.height() / 2);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
             SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
 
@@ -221,7 +221,7 @@ protected:
         return fFullName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkISize dim = canvas->getDeviceSize();
         if (fFlags & kScale_Flag) {
             const SkScalar x = SkIntToScalar(dim.fWidth) / 2;
@@ -240,7 +240,7 @@ protected:
             canvas->rotate(SkIntToScalar(35));
             canvas->translate(-x, -y);
         }
-        INHERITED::onDraw(canvas);
+        INHERITED::onDraw(loops, canvas);
     }
 
     virtual void setupPaint(SkPaint* paint) SK_OVERRIDE {

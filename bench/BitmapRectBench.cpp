@@ -87,7 +87,7 @@ protected:
     }
 
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRandom rand;
 
         SkPaint paint;
@@ -95,7 +95,7 @@ protected:
         paint.setFilterLevel(fFilterLevel);
         paint.setAlpha(fAlpha);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->drawBitmapRectToRect(fBitmap, &fSrcR, fDstR, &paint);
         }
     }

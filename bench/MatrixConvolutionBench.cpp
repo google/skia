@@ -35,12 +35,12 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkPaint paint;
         this->setupPaint(&paint);
         paint.setAntiAlias(true);
         SkRandom rand;
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             SkRect r = SkRect::MakeWH(rand.nextUScalar1() * 400,
                                       rand.nextUScalar1() * 400);
             paint.setImageFilter(fFilter);

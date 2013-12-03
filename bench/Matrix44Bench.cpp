@@ -30,8 +30,8 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas*) {
-        for (int i = 0; i < this->getLoops(); i++) {
+    virtual void onDraw(const int loops, SkCanvas*) {
+        for (int i = 0; i < loops; i++) {
             this->performTest();
         }
     }

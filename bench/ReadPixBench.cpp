@@ -24,7 +24,7 @@ protected:
         return "readpix";
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         canvas->clear(SK_ColorBLACK);
 
         SkISize size = canvas->getDeviceSize();
@@ -45,7 +45,7 @@ protected:
 
         bitmap.setConfig(SkBitmap::kARGB_8888_Config, kWindowSize, kWindowSize);
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             for (int x = 0; x < kNumStepsX; ++x) {
                 for (int y = 0; y < kNumStepsY; ++y) {
                     canvas->readPixels(&bitmap, x * offX, y * offY);

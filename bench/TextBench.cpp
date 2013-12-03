@@ -91,7 +91,7 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         const SkIPoint dim = this->getSize();
         SkRandom rand;
 
@@ -111,7 +111,7 @@ protected:
             canvas->translate(SK_Scalar1, SK_Scalar1);
         }
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             if (fDoPos) {
                 canvas->drawPosText(fText.c_str(), fText.size(), fPos, paint);
             } else {

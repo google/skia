@@ -62,13 +62,13 @@ protected:
     }
 
     virtual const char* onGetName() { return computeName("rects"); }
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkPaint paint;
         if (fStroke > 0) {
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(SkIntToScalar(fStroke));
         }
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             paint.setColor(fColors[i % N]);
             this->setupPaint(&paint);
             this->drawThisRect(canvas, fRects[i % N], paint);
@@ -141,7 +141,7 @@ public:
     }
 
 protected:
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkScalar gSizes[] = {
             SkIntToScalar(7), 0
         };
@@ -155,7 +155,7 @@ protected:
         SkPaint paint;
         paint.setStrokeCap(SkPaint::kRound_Cap);
 
-        for (int loop = 0; loop < this->getLoops(); loop++) {
+        for (int loop = 0; loop < loops; loop++) {
             for (size_t i = 0; i < sizes; i++) {
                 paint.setStrokeWidth(gSizes[i]);
                 this->setupPaint(&paint);
@@ -185,7 +185,7 @@ protected:
         return "aarects";
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         static const SkScalar kHalfRectSize = 0.75f;
 
         SkPaint paint;
@@ -195,7 +195,7 @@ protected:
         SkRect r = { -kHalfRectSize, -kHalfRectSize, kHalfRectSize, kHalfRectSize };
         int rot = 0;
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             // Draw small aa rects in a grid across the screen
             for (SkScalar y = kHalfRectSize+SK_Scalar1; y < H; y += 2*kHalfRectSize+2) {
                 for (SkScalar x = kHalfRectSize+SK_Scalar1; x < W; x += 2*kHalfRectSize+2) {
@@ -243,7 +243,7 @@ public:
     }
 
 protected:
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkScalar gSizes[] = {
             SkIntToScalar(13), SkIntToScalar(24)
         };
@@ -269,7 +269,7 @@ protected:
                                               SkShader::kClamp_TileMode);
             paint.setShader(s)->unref();
         }
-        for (int loop = 0; loop < this->getLoops(); loop++) {
+        for (int loop = 0; loop < loops; loop++) {
             for (size_t i = 0; i < sizes; i++) {
                 switch (_type) {
                     case kMaskOpaque:

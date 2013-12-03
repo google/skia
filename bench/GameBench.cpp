@@ -86,7 +86,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkRandom scaleRand;
         SkRandom transRand;
         SkRandom rotRand;
@@ -143,7 +143,7 @@ protected:
                                                   SkShader::kClamp_TileMode,
                                                   SkShader::kClamp_TileMode))->unref();
 
-        for (int i = 0; i < this->getLoops(); ++i, ++fNumSaved) {
+        for (int i = 0; i < loops; ++i, ++fNumSaved) {
             if (0 == i % kNumBeforeClear) {
                 if (kPartial_Clear == fClear) {
                     for (int j = 0; j < fNumSaved; ++j) {

@@ -106,9 +106,9 @@ public:
 protected:
     virtual const char* onGetName() { return fName.c_str(); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) {
         Proc proc = fProc;
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             proc(fA, fB);
         }
     }

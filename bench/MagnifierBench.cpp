@@ -33,7 +33,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         const int w = fIsSmall ? FILTER_WIDTH_SMALL : FILTER_WIDTH_LARGE;
         const int h = fIsSmall ? FILTER_HEIGHT_SMALL : FILTER_HEIGHT_LARGE;
         SkPaint paint;
@@ -44,7 +44,7 @@ protected:
                                  SkIntToScalar(w / 2),
                                  SkIntToScalar(h / 2)), 100))->unref();
 
-        for (int i = 0; i < this->getLoops(); i++) {
+        for (int i = 0; i < loops; i++) {
             canvas->drawBitmap(fCheckerboard, 0, 0, &paint);
         }
     }

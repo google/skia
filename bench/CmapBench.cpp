@@ -85,8 +85,8 @@ protected:
         return fName.c_str();
     }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        fProc(this->getLoops(), fPaint, fText, sizeof(fText), NGLYPHS);
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        fProc(loops, fPaint, fText, sizeof(fText), NGLYPHS);
     }
 
 private:

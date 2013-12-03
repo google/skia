@@ -31,10 +31,10 @@ public:
 protected:
     virtual const char* onGetName() SK_OVERRIDE { return fName.c_str(); }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkISize size = canvas->getDeviceSize();
         SkRandom random;
-        for (int i = 0; i < this->getLoops(); ++i) {
+        for (int i = 0; i < loops; ++i) {
             SkPaint paint;
             paint.setXfermode(fXfermode.get());
             paint.setColor(random.nextU());
@@ -70,8 +70,8 @@ public:
 protected:
     virtual const char* onGetName() SK_OVERRIDE { return "xfermode_create"; }
 
-    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        for (int outer = 0; outer < this->getLoops() * 10; ++outer) {
+    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
+        for (int outer = 0; outer < loops * 10; ++outer) {
             for (int i = 0; i <= SkXfermode::kLastMode; ++i) {
                 SkXfermode* xfer = SkXfermode::Create(SkXfermode::Mode(i));
                 SkSafeUnref(xfer);

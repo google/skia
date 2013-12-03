@@ -22,7 +22,6 @@ SkBenchmark::SkBenchmark() {
     fForceFilter = false;
     fDither = SkTriState::kDefault;
     fOrMask = fClearMask = 0;
-    fLoops = 1;
 }
 
 const char* SkBenchmark::getName() {
@@ -37,8 +36,8 @@ void SkBenchmark::preDraw() {
     this->onPreDraw();
 }
 
-void SkBenchmark::draw(SkCanvas* canvas) {
-    this->onDraw(canvas);
+void SkBenchmark::draw(const int loops, SkCanvas* canvas) {
+    this->onDraw(loops, canvas);
 }
 
 void SkBenchmark::postDraw() {
