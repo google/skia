@@ -26,6 +26,7 @@ SkPathRef::Editor::Editor(SkAutoTUnref<SkPathRef>* pathRef,
     }
     fPathRef = *pathRef;
     fPathRef->fGenerationID = 0;
+    fPathRef->fIsOval = false;
     SkDEBUGCODE(sk_atomic_inc(&fPathRef->fEditorsAttached);)
 }
 
@@ -100,28 +101,35 @@ void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
         (*dst)->fBoundsIsDirty = true;
     }
 
+    // It's an oval only if it stays a rect.
+    (*dst)->fIsOval = src.fIsOval && matrix.rectStaysRect();
+
     SkDEBUGCODE((*dst)->validate();)
 }
 
 SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
                                    , bool newFormat, int32_t oldPacked
 #endif
     ) {
     SkPathRef* ref = SkNEW(SkPathRef);
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
+    bool isOval;
+
+    int32_t packed;
+    if (!buffer->readS32(&packed)) {
+        SkDELETE(ref);
+        return NULL;
+    }
+
+    ref->fIsFinite = (packed >> kIsFinite_SerializationShift) & 1;
+
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
     if (newFormat) {
 #endif
-        int32_t packed;
-        if (!buffer->readS32(&packed)) {
-            SkDELETE(ref);
-            return NULL;
-        }
-
-        ref->fIsFinite = (packed >> kIsFinite_SerializationShift) & 1;
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
+        isOval  = (packed >> kIsOval_SerializationShift) & 1;
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
     } else {
-        ref->fIsFinite = (oldPacked >> SkPath::kOldIsFinite_SerializationShift) & 1;
+        isOval  = (oldPacked >> SkPath::kOldIsOval_SerializationShift) & 1;
     }
 #endif
 
@@ -147,6 +155,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer
         return NULL;
     }
     ref->fBoundsIsDirty = false;
+    ref->fIsOval = isOval;
     return ref;
 }
 
@@ -159,6 +168,7 @@ void SkPathRef::Rewind(SkAutoTUnref<SkPathRef>* pathRef) {
         (*pathRef)->fFreeSpace = (*pathRef)->currSize();
         (*pathRef)->fGenerationID = 0;
         (*pathRef)->fConicWeights.rewind();
+        (*pathRef)->fIsOval = false;
         SkDEBUGCODE((*pathRef)->validate();)
     } else {
         int oldVCnt = (*pathRef)->countVerbs();
@@ -216,7 +226,8 @@ void SkPathRef::writeToBuffer(SkWBuffer* buffer) {
     // and fIsFinite are computed.
     const SkRect& bounds = this->getBounds();
 
-    int32_t packed = ((fIsFinite & 1) << kIsFinite_SerializationShift);
+    int32_t packed = ((fIsFinite & 1) << kIsFinite_SerializationShift) |
+                     ((fIsOval & 1) << kIsOval_SerializationShift);
     buffer->write32(packed);
 
     // TODO: write gen ID here. Problem: We don't know if we're cross process or not from
@@ -258,15 +269,18 @@ void SkPathRef::copy(const SkPathRef& ref,
         fBounds = ref.fBounds;
         fIsFinite = ref.fIsFinite;
     }
+    fIsOval = ref.fIsOval;
     SkDEBUGCODE(this->validate();)
 }
 
 SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb) {
     SkDEBUGCODE(this->validate();)
     int pCnt;
+    bool dirtyAfterEdit = true;
     switch (verb) {
         case SkPath::kMove_Verb:
             pCnt = 1;
+            dirtyAfterEdit = false;
             break;
         case SkPath::kLine_Verb:
             pCnt = 1;
@@ -281,12 +295,14 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb) {
             break;
         case SkPath::kClose_Verb:
             pCnt = 0;
+            dirtyAfterEdit = false;
             break;
         case SkPath::kDone_Verb:
             SkDEBUGFAIL("growForVerb called for kDone");
             // fall through
         default:
             SkDEBUGFAIL("default is not reached");
+            dirtyAfterEdit = false;
             pCnt = 0;
     }
     size_t space = sizeof(uint8_t) + pCnt * sizeof (SkPoint);
@@ -297,6 +313,9 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb) {
     fPointCnt += pCnt;
     fFreeSpace -= space;
     fBoundsIsDirty = true;  // this also invalidates fIsFinite
+    if (dirtyAfterEdit) {
+        fIsOval = false;
+    }
     SkDEBUGCODE(this->validate();)
     return ret;
 }

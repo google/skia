@@ -23,7 +23,7 @@ class SkWBuffer;
  * Holds the path verbs and points. It is versioned by a generation ID. None of its public methods
  * modify the contents. To modify or append to the verbs/points wrap the SkPathRef in an
  * SkPathRef::Editor object. Installing the editor resets the generation ID. It also performs
- * copy-on-write if the SkPathRef is shared by multipls SkPaths. The caller passes the Editor's
+ * copy-on-write if the SkPathRef is shared by multiple SkPaths. The caller passes the Editor's
  * constructor a SkAutoTUnref, which may be updated to point to a new SkPathRef after the editor's
  * constructor returns.
  *
@@ -100,6 +100,8 @@ public:
          */
         SkPathRef* pathRef() { return fPathRef; }
 
+        void setIsOval(bool isOval) { fPathRef->setIsOval(isOval); }
+
     private:
         SkPathRef* fPathRef;
     };
@@ -119,6 +121,24 @@ public:
             this->computeBounds();
         }
         return SkToBool(fIsFinite);
+    }
+
+    /** Returns true if the path is an oval.
+     *
+     * @param rect      returns the bounding rect of this oval. It's a circle
+     *                  if the height and width are the same.
+     *
+     * @return true if this path is an oval.
+     *              Tracking whether a path is an oval is considered an
+     *              optimization for performance and so some paths that are in
+     *              fact ovals can report false.
+     */
+    bool isOval(SkRect* rect) const { 
+        if (fIsOval && NULL != rect) {
+            *rect = getBounds();
+        }
+
+        return SkToBool(fIsOval);
     }
 
     bool hasComputedBounds() const {
@@ -152,7 +172,7 @@ public:
                                       const SkMatrix& matrix);
 
     static SkPathRef* CreateFromBuffer(SkRBuffer* buffer
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
         , bool newFormat, int32_t oldPacked
 #endif
         );
@@ -237,6 +257,7 @@ public:
 private:
     enum SerializationOffsets {
         kIsFinite_SerializationShift = 25,  // requires 1 bit
+        kIsOval_SerializationShift = 24,    // requires 1 bit
     };
 
     SkPathRef() {
@@ -247,6 +268,7 @@ private:
         fPoints = NULL;
         fFreeSpace = 0;
         fGenerationID = kEmptyGenID;
+        fIsOval = false;
         SkDEBUGCODE(fEditorsAttached = 0;)
         SkDEBUGCODE(this->validate();)
     }
@@ -288,6 +310,8 @@ private:
         SkDEBUGCODE(this->validate();)
         fBoundsIsDirty = true;      // this also invalidates fIsFinite
         fGenerationID = 0;
+
+        fIsOval = false;
 
         size_t newSize = sizeof(uint8_t) * verbCount + sizeof(SkPoint) * pointCount;
         size_t newReserve = sizeof(uint8_t) * reserveVerbs + sizeof(SkPoint) * reservePoints;
@@ -394,6 +418,8 @@ private:
      */
     static void CreateEmptyImpl(SkPathRef** empty);
 
+    void setIsOval(bool isOval) { fIsOval = isOval; }
+
     enum {
         kMinSize = 256,
     };
@@ -401,6 +427,7 @@ private:
     mutable SkRect      fBounds;
     mutable uint8_t     fBoundsIsDirty;
     mutable SkBool8     fIsFinite;    // only meaningful if bounds are valid
+    mutable SkBool8     fIsOval;
 
     SkPoint*            fPoints; // points to begining of the allocation
     uint8_t*            fVerbs; // points just past the end of the allocation (verbs grow backwards)
