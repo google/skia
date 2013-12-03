@@ -479,15 +479,6 @@ SkRect SkPdfNativeDoc::MediaBox(int page) {
     return SkRect::MakeEmpty();
 }
 
-SkPdfNativeTokenizer* SkPdfNativeDoc::tokenizerOfStream(SkPdfNativeObject* stream,
-                                                        SkPdfAllocator* allocator) {
-    if (stream == NULL) {
-        return NULL;
-    }
-
-    return new SkPdfNativeTokenizer(stream, allocator, this);
-}
-
 size_t SkPdfNativeDoc::objects() const {
     return fObjects.count();
 }

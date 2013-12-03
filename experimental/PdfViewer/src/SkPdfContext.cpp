@@ -35,15 +35,14 @@ SkPdfContext::SkPdfContext(SkPdfNativeDoc* doc)
 }
 
 void SkPdfContext::parseStream(SkPdfNativeObject* stream, SkCanvas* canvas) {
-    SkPdfNativeTokenizer* tokenizer = fPdfDoc->tokenizerOfStream(stream, &fTmpPageAllocator);
-    if (NULL == tokenizer) {
+    if (NULL == stream) {
         // Nothing to parse.
         return;
     }
-    PdfMainLooper looper(tokenizer, this, canvas);
+
+    SkPdfNativeTokenizer tokenizer(stream, &fTmpPageAllocator, fPdfDoc);
+    PdfMainLooper looper(&tokenizer, this, canvas);
     looper.loop();
-    // FIXME (scroggo): Will restructure to put tokenizer on the stack.
-    delete tokenizer;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

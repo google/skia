@@ -336,7 +336,7 @@ SkPdfToUnicode::SkPdfToUnicode(SkPdfNativeDoc* parsed, SkPdfStream* stream) : fP
     if (stream) {
         // Since font will be cached, the font has to sit in the per doc allocator, not to be
         // freed after the page is done drawing.
-        SkPdfNativeTokenizer* tokenizer = fParsed->tokenizerOfStream(stream, parsed->allocator());
+        SkPdfNativeTokenizer tokenizer(stream, parsed->allocator(), parsed);
         PdfToken token;
 
         fCMapEncoding = new unsigned short[256 * 256];
@@ -352,16 +352,16 @@ SkPdfToUnicode::SkPdfToUnicode(SkPdfNativeDoc* parsed, SkPdfStream* stream) : fP
         //<0000> <005E> <0020>
         //<005F> <0061> [<00660066> <00660069> <00660066006C>]
 
-        while (tokenizer->readToken(&token)) {
+        while (tokenizer.readToken(&token)) {
 
             if (tokenIsKeyword(token, "begincodespacerange")) {
-                while (tokenizer->readToken(&token) &&
+                while (tokenizer.readToken(&token) &&
                        !tokenIsKeyword(token, "endcodespacerange")) {
-//                    tokenizer->PutBack(token);
-//                    tokenizer->readToken(&token);
+//                    tokenizer.PutBack(token);
+//                    tokenizer.readToken(&token);
                     // TODO(edisonn): check token type! ignore/report errors.
                     int start = skstoi(token.fObject);
-                    tokenizer->readToken(&token);
+                    tokenizer.readToken(&token);
                     int end = skstoi(token.fObject);
                     for (int i = start; i <= end; i++) {
                         fCMapEncodingFlag[i] |= 1;
@@ -370,11 +370,11 @@ SkPdfToUnicode::SkPdfToUnicode(SkPdfNativeDoc* parsed, SkPdfStream* stream) : fP
             }
 
             if (tokenIsKeyword(token, "beginbfchar")) {
-                while (tokenizer->readToken(&token) && !tokenIsKeyword(token, "endbfchar")) {
-//                    tokenizer->PutBack(token);
-//                    tokenizer->readToken(&token);
+                while (tokenizer.readToken(&token) && !tokenIsKeyword(token, "endbfchar")) {
+//                    tokenizer.PutBack(token);
+//                    tokenizer.readToken(&token);
                     int from = skstoi(token.fObject);
-                    tokenizer->readToken(&token);
+                    tokenizer.readToken(&token);
                     int to = skstoi(token.fObject);
 
                     fCMapEncodingFlag[from] |= 2;
@@ -383,21 +383,21 @@ SkPdfToUnicode::SkPdfToUnicode(SkPdfNativeDoc* parsed, SkPdfStream* stream) : fP
             }
 
             if (tokenIsKeyword(token, "beginbfrange")) {
-                while (tokenizer->readToken(&token) && !tokenIsKeyword(token, "endbfrange")) {
-//                    tokenizer->PutBack(token);
-//                    tokenizer->readToken(&token);
+                while (tokenizer.readToken(&token) && !tokenIsKeyword(token, "endbfrange")) {
+//                    tokenizer.PutBack(token);
+//                    tokenizer.readToken(&token);
                     int start = skstoi(token.fObject);
-                    tokenizer->readToken(&token);
+                    tokenizer.readToken(&token);
                     int end = skstoi(token.fObject);
 
 
-                    tokenizer->readToken(&token); // [ or just an array directly?
+                    tokenizer.readToken(&token); // [ or just an array directly?
                     // do not putback, we will reuse the read. See next commented read.
-//                    tokenizer->PutBack(token);
+//                    tokenizer.PutBack(token);
 
                     // TODO(edisonn): read spec: any string or only hex string?
                     if (token.fType == kObject_TokenType && token.fObject->isAnyString()) {
-//                        tokenizer->readToken(&token);
+//                        tokenizer.readToken(&token);
                         int value = skstoi(token.fObject);
 
                         for (int i = start; i <= end; i++) {
@@ -409,14 +409,14 @@ SkPdfToUnicode::SkPdfToUnicode(SkPdfNativeDoc* parsed, SkPdfStream* stream) : fP
 
                         // read one string
                     } else if (token.fType == kObject_TokenType && token.fObject->isArray()) {
-//                        tokenizer->readToken(&token);
+//                        tokenizer.readToken(&token);
                         // read array
                         for (unsigned int i = 0; i < token.fObject->size(); i++) {
                             fCMapEncodingFlag[start + i] |= 2;
                             fCMapEncoding[start + i] = skstoi((*token.fObject)[i]);
                         }
                     } else {
-                        tokenizer->PutBack(token);
+                        tokenizer.PutBack(token);
                     }
                 }
             }
