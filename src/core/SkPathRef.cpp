@@ -63,13 +63,19 @@ void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
         return;
     }
 
-    bool dstUnique = (*dst)->unique();
-    if (!dstUnique) {
+    if (!(*dst)->unique()) {
         dst->reset(SkNEW(SkPathRef));
+    }
+
+    if (*dst != &src) {
         (*dst)->resetToSize(src.fVerbCnt, src.fPointCnt, src.fConicWeights.count());
         memcpy((*dst)->verbsMemWritable(), src.verbsMemBegin(), src.fVerbCnt * sizeof(uint8_t));
         (*dst)->fConicWeights = src.fConicWeights;
     }
+
+    SkASSERT((*dst)->countPoints() == src.countPoints());
+    SkASSERT((*dst)->countVerbs() == src.countVerbs());
+    SkASSERT((*dst)->fConicWeights.count() == src.fConicWeights.count());
 
     // Need to check this here in case (&src == dst)
     bool canXformBounds = !src.fBoundsIsDirty && matrix.rectStaysRect() && src.countPoints() > 1;

@@ -1913,7 +1913,7 @@ static void test_flattening(skiatest::Reporter* reporter) {
 }
 
 static void test_transform(skiatest::Reporter* reporter) {
-    SkPath p, p1;
+    SkPath p;
 
 #define CONIC_PERSPECTIVE_BUG_FIXED 0
     static const SkPoint pts[] = {
@@ -1926,6 +1926,7 @@ static void test_transform(skiatest::Reporter* reporter) {
 #endif
     };
     const int kPtCount = SK_ARRAY_COUNT(pts);
+
     p.moveTo(pts[0]);
     p.lineTo(pts[1]);
     p.quadTo(pts[2], pts[3]);
@@ -1934,43 +1935,85 @@ static void test_transform(skiatest::Reporter* reporter) {
     p.conicTo(pts[4], pts[5], 0.5f);
 #endif
     p.close();
-    SkMatrix matrix;
-    matrix.reset();
-    p.transform(matrix, &p1);
-    REPORTER_ASSERT(reporter, p == p1);
 
-    matrix.setScale(SK_Scalar1 * 2, SK_Scalar1 * 3);
-    p.transform(matrix, &p1);
-    SkPoint pts1[kPtCount];
-    int count = p1.getPoints(pts1, kPtCount);
-    REPORTER_ASSERT(reporter, kPtCount == count);
-    for (int i = 0; i < count; ++i) {
-        SkPoint newPt = SkPoint::Make(pts[i].fX * 2, pts[i].fY * 3);
-        REPORTER_ASSERT(reporter, newPt == pts1[i]);
+    {
+        SkMatrix matrix;
+        matrix.reset();
+        SkPath p1;
+        p.transform(matrix, &p1);
+        REPORTER_ASSERT(reporter, p == p1);
     }
-    matrix.reset();
-    matrix.setPerspX(SkScalarToPersp(4));
-    p.transform(matrix, &p1);
-    REPORTER_ASSERT(reporter, matrix.invert(&matrix));
-    p1.transform(matrix, NULL);
-    SkRect pBounds = p.getBounds();
-    SkRect p1Bounds = p1.getBounds();
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fLeft, p1Bounds.fLeft));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fTop, p1Bounds.fTop));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fRight, p1Bounds.fRight));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fBottom, p1Bounds.fBottom));
 
-    matrix.reset();
+
+    {
+        SkMatrix matrix;
+        matrix.setScale(SK_Scalar1 * 2, SK_Scalar1 * 3);
+
+        SkPath p1;      // Leave p1 non-unique (i.e., the empty path)
+
+        p.transform(matrix, &p1); 
+        SkPoint pts1[kPtCount];
+        int count = p1.getPoints(pts1, kPtCount); 
+        REPORTER_ASSERT(reporter, kPtCount == count);
+        for (int i = 0; i < count; ++i) {
+            SkPoint newPt = SkPoint::Make(pts[i].fX * 2, pts[i].fY * 3);
+            REPORTER_ASSERT(reporter, newPt == pts1[i]);
+        }
+    }
+
+    {
+        SkMatrix matrix;
+        matrix.reset();
+        matrix.setPerspX(SkScalarToPersp(4));
+
+        SkPath p1;
+        p1.moveTo(SkPoint::Make(0, 0));
+
+        p.transform(matrix, &p1);
+        REPORTER_ASSERT(reporter, matrix.invert(&matrix));
+        p1.transform(matrix, NULL);
+        SkRect pBounds = p.getBounds();
+        SkRect p1Bounds = p1.getBounds();
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fLeft, p1Bounds.fLeft));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fTop, p1Bounds.fTop));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fRight, p1Bounds.fRight));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fBottom, p1Bounds.fBottom));
+    }
+
     p.reset();
     p.addCircle(0, 0, 1, SkPath::kCW_Direction);
-    p.transform(matrix, &p1);
-    REPORTER_ASSERT(reporter, p1.cheapIsDirection(SkPath::kCW_Direction));
-    matrix.setScaleX(-1);
-    p.transform(matrix, &p1);
-    REPORTER_ASSERT(reporter, p1.cheapIsDirection(SkPath::kCCW_Direction));
-    matrix.setAll(1, 1, 0, 1, 1, 0, 0, 0, 1);
-    p.transform(matrix, &p1);
-    REPORTER_ASSERT(reporter, p1.cheapIsDirection(SkPath::kUnknown_Direction));
+
+    {
+        SkMatrix matrix;
+        matrix.reset();
+        SkPath p1;
+        p1.moveTo(SkPoint::Make(0, 0));
+
+        p.transform(matrix, &p1);
+        REPORTER_ASSERT(reporter, p1.cheapIsDirection(SkPath::kCW_Direction));
+    }
+
+
+    {
+        SkMatrix matrix;
+        matrix.reset();
+        matrix.setScaleX(-1);
+        SkPath p1;
+        p1.moveTo(SkPoint::Make(0, 0)); // Make p1 unique (i.e., not empty path)
+
+        p.transform(matrix, &p1);
+        REPORTER_ASSERT(reporter, p1.cheapIsDirection(SkPath::kCCW_Direction));
+    }
+
+    {
+        SkMatrix matrix;
+        matrix.setAll(1, 1, 0, 1, 1, 0, 0, 0, 1);
+        SkPath p1;
+        p1.moveTo(SkPoint::Make(0, 0)); // Make p1 unique (i.e., not empty path)
+
+        p.transform(matrix, &p1);
+        REPORTER_ASSERT(reporter, p1.cheapIsDirection(SkPath::kUnknown_Direction));
+    }
 }
 
 static void test_zero_length_paths(skiatest::Reporter* reporter) {
