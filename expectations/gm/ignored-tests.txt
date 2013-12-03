@@ -62,3 +62,6 @@ downsamplebitmap_text_high_72.00pt
 filterbitmap_text_3.00pt
 filterbitmap_text_7.00pt
 filterbitmap_text_10.00pt
+
+# Added by jvanverth in https://codereview.chromium.org/99993002/
+colortype_gpu

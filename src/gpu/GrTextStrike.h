@@ -108,6 +108,15 @@ public:
     void dump() const;
 #endif
 
+    enum AtlasType {
+        kA8_AtlasType,   //!< 1-byte per pixel
+        k565_AtlasType,  //!< 2-bytes per pixel
+        k8888_AtlasType, //!< 4-bytes per pixel
+
+        kLast_AtlasType = k8888_AtlasType
+    };
+    static const int kAtlasCount = kLast_AtlasType + 1;
+
 private:
     friend class GrFontPurgeListener;
 
@@ -118,7 +127,7 @@ private:
     GrTextStrike* fTail;
 
     GrGpu*      fGpu;
-    GrAtlasMgr* fAtlasMgr[kMaskFormatCount];
+    GrAtlasMgr* fAtlasMgr[kAtlasCount];
 
     GrTextStrike* generateStrike(GrFontScaler*, const Key&);
     inline void detachStrikeFromList(GrTextStrike*);

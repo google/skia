@@ -28,7 +28,7 @@ static int g_PurgeCount = 0;
 
 GrFontCache::GrFontCache(GrGpu* gpu) : fGpu(gpu) {
     gpu->ref();
-    for (int i = 0; i < kMaskFormatCount; ++i) {
+    for (int i = 0; i < kAtlasCount; ++i) {
         fAtlasMgr[i] = NULL;
     }
 
@@ -37,7 +37,7 @@ GrFontCache::GrFontCache(GrGpu* gpu) : fGpu(gpu) {
 
 GrFontCache::~GrFontCache() {
     fCache.deleteAll();
-    for (int i = 0; i < kMaskFormatCount; ++i) {
+    for (int i = 0; i < kAtlasCount; ++i) {
         delete fAtlasMgr[i];
     }
     fGpu->unref();
@@ -47,28 +47,40 @@ GrFontCache::~GrFontCache() {
 }
 
 static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format) {
-    switch (format) {
-        case kA8_GrMaskFormat:
-            return kAlpha_8_GrPixelConfig;
-        case kA565_GrMaskFormat:
-            return kRGB_565_GrPixelConfig;
-        case kA888_GrMaskFormat:
-            return kSkia8888_GrPixelConfig;
-        default:
-            SkDEBUGFAIL("unknown maskformat");
-    }
-    return kUnknown_GrPixelConfig;
+    static const GrPixelConfig sPixelConfigs[] = { 
+        kAlpha_8_GrPixelConfig, 
+        kRGB_565_GrPixelConfig, 
+        kSkia8888_GrPixelConfig,
+        kSkia8888_GrPixelConfig
+    };
+    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(sPixelConfigs) == kMaskFormatCount, array_size_mismatch);
+
+    return sPixelConfigs[format];
+}
+
+static int mask_format_to_atlas_index(GrMaskFormat format) {
+    static const int sAtlasIndices[] = { 
+        GrFontCache::kA8_AtlasType, 
+        GrFontCache::k565_AtlasType, 
+        GrFontCache::k8888_AtlasType, 
+        GrFontCache::k8888_AtlasType 
+    };
+    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(sAtlasIndices) == kMaskFormatCount, array_size_mismatch);
+
+    SkASSERT(sAtlasIndices[format] < GrFontCache::kAtlasCount);
+    return sAtlasIndices[format];
 }
 
 GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
                                           const Key& key) {
     GrMaskFormat format = scaler->getMaskFormat();
     GrPixelConfig config = mask_format_to_pixel_config(format);
-    if (NULL == fAtlasMgr[format]) {
-        fAtlasMgr[format] = SkNEW_ARGS(GrAtlasMgr, (fGpu, config));
+    int atlasIndex = mask_format_to_atlas_index(format);
+    if (NULL == fAtlasMgr[atlasIndex]) {
+        fAtlasMgr[atlasIndex] = SkNEW_ARGS(GrAtlasMgr, (fGpu, config));
     }
     GrTextStrike* strike = SkNEW_ARGS(GrTextStrike,
-                                      (this, scaler->getKey(), format, fAtlasMgr[format]));
+                                      (this, scaler->getKey(), format, fAtlasMgr[atlasIndex]));
     fCache.insert(key, strike);
 
     if (fHead) {
@@ -86,7 +98,7 @@ GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
 
 void GrFontCache::freeAll() {
     fCache.deleteAll();
-    for (int i = 0; i < kMaskFormatCount; ++i) {
+    for (int i = 0; i < kAtlasCount; ++i) {
         delete fAtlasMgr[i];
         fAtlasMgr[i] = NULL;
     }
@@ -177,7 +189,7 @@ void GrFontCache::validate() const {
 #ifdef SK_DEVELOPER
 void GrFontCache::dump() const {
     static int gDumpCount = 0;
-    for (int i = 0; i < kMaskFormatCount; ++i) {
+    for (int i = 0; i < kAtlasCount; ++i) {
         if (NULL != fAtlasMgr[i]) {
             GrTexture* texture = fAtlasMgr[i]->getTexture();
             if (NULL != texture) {

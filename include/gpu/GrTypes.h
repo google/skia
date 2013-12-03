@@ -238,8 +238,9 @@ enum GrMaskFormat {
     kA8_GrMaskFormat,    //!< 1-byte per pixel
     kA565_GrMaskFormat,  //!< 2-bytes per pixel
     kA888_GrMaskFormat,  //!< 4-bytes per pixel
+    kARGB_GrMaskFormat,  //!< 4-bytes per pixel, color format
 
-    kLast_GrMaskFormat = kA888_GrMaskFormat
+    kLast_GrMaskFormat = kARGB_GrMaskFormat
 };
 static const int kMaskFormatCount = kLast_GrMaskFormat + 1;
 
@@ -247,11 +248,15 @@ static const int kMaskFormatCount = kLast_GrMaskFormat + 1;
  *  Return the number of bytes-per-pixel for the specified mask format.
  */
 static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
-    SkASSERT((unsigned)format <= 2);
+    SkASSERT((unsigned)format <= 3);
     // kA8   (0) -> 1
     // kA565 (1) -> 2
     // kA888 (2) -> 4
-    return 1 << (int)format;
+    // kARGB (3) -> 4    
+    static const int sBytesPerPixel[] = { 1, 2, 4, 4 };
+    SK_COMPILE_ASSERT(SK_ARRAY_COUNT(sBytesPerPixel) == kMaskFormatCount, array_size_mismatch);
+
+    return sBytesPerPixel[(int) format];
 }
 
 /**

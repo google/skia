@@ -85,10 +85,10 @@ GrMaskFormat SkGrFontScaler::getMaskFormat() {
             return kA8_GrMaskFormat;
         case SkMask::kLCD16_Format:
             return kA565_GrMaskFormat;
-        // TODO: properly support kARGB32_Format.
-        case SkMask::kARGB32_Format:
         case SkMask::kLCD32_Format:
             return kA888_GrMaskFormat;
+        case SkMask::kARGB32_Format:
+            return kARGB_GrMaskFormat;
         default:
             SkDEBUGFAIL("unsupported SkMask::Format");
             return kA8_GrMaskFormat;
@@ -174,8 +174,8 @@ bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
                 expand_bits(rgba8888, bits, width, height, dstRB, srcRB);
                 break;
             }
-           default:
-             GrCrash("Unknown GrMaskFormat");
+            default:
+                GrCrash("Invalid GrMaskFormat");
         }
     } else if (srcRB == dstRB) {
         memcpy(dst, src, dstRB * height);
