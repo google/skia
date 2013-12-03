@@ -303,8 +303,9 @@ static inline SkPMColor SkUnsplay(uint32_t ag, uint32_t rb) {
  */
 static inline SkPMColor SkUnsplay(uint64_t agrb) {
     const uint32_t mask = 0xFF00FF00;
-    return ((agrb & mask) >> 8) |  // 0x00RR00BB
-           ((agrb >> 32) & mask);  // 0xAARRGGBB
+    return SkPMColor(
+        ((agrb & mask) >> 8) |   // 0x00RR00BB
+        ((agrb >> 32) & mask));  // 0xAARRGGBB
 }
 
 static inline SkPMColor SkFastFourByteInterp256_32(SkPMColor src, SkPMColor dst, unsigned scale) {

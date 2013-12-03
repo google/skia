@@ -15,7 +15,7 @@ DEF_TEST(Splay, r) {
     ASSERT(SkUnsplay(ag << 8, rb << 8) == color);
 
     const uint64_t agrb = SkSplay(color);
-    ASSERT(agrb == 0x00A100C300B200D4);
+    ASSERT(agrb == 0x00A100C300B200D4ULL);
     ASSERT(SkUnsplay(agrb<<8) == color);
 }
 
