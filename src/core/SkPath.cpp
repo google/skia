@@ -42,6 +42,22 @@ static bool is_degenerate(const SkPath& path) {
     return SkPath::kDone_Verb == iter.next(pts);
 }
 
+class SkAutoDisableOvalCheck {
+public:
+    SkAutoDisableOvalCheck(SkPath* path) : fPath(path) {
+        fSaved = fPath->fIsOval;
+    }
+
+    ~SkAutoDisableOvalCheck() {
+        fPath->fIsOval = fSaved;
+    }
+
+private:
+    SkPath* fPath;
+    bool    fSaved;
+};
+#define SkAutoDisableOvalCheck(...) SK_REQUIRE_LOCAL_VAR(SkAutoDisableOvalCheck)
+
 class SkAutoDisableDirectionCheck {
 public:
     SkAutoDisableDirectionCheck(SkPath* path) : fPath(path) {
@@ -68,7 +84,7 @@ private:
 
     It also notes if the path was originally degenerate, and if so, sets
     isConvex to true. Thus it can only be used if the contour being added is
-    convex.
+    convex (which is always true since we only allow the addition of rects).
  */
 class SkAutoPathBoundsUpdate {
 public:
@@ -148,6 +164,7 @@ void SkPath::resetFields() {
     fSegmentMask = 0;
     fConvexity = kUnknown_Convexity;
     fDirection = kUnknown_Direction;
+    fIsOval = false;
 
     // We don't touch Android's fSourcePath.  It's used to track texture garbage collection, so we
     // don't want to muck with it if it's been set to something non-NULL.
@@ -187,6 +204,7 @@ void SkPath::copyFields(const SkPath& that) {
     fSegmentMask     = that.fSegmentMask;
     fConvexity       = that.fConvexity;
     fDirection       = that.fDirection;
+    fIsOval          = that.fIsOval;
 }
 
 bool operator==(const SkPath& a, const SkPath& b) {
@@ -212,6 +230,7 @@ void SkPath::swap(SkPath& that) {
         SkTSwap<uint8_t>(fSegmentMask, that.fSegmentMask);
         SkTSwap<uint8_t>(fConvexity, that.fConvexity);
         SkTSwap<uint8_t>(fDirection, that.fDirection);
+        SkTSwap<SkBool8>(fIsOval, that.fIsOval);
 #ifdef SK_BUILD_FOR_ANDROID
         SkTSwap<const SkPath*>(fSourcePath, that.fSourcePath);
 #endif
@@ -612,6 +631,7 @@ void SkPath::setLastPt(SkScalar x, SkScalar y) {
     if (count == 0) {
         this->moveTo(x, y);
     } else {
+        fIsOval = false;
         SkPathRef::Editor ed(&fPathRef);
         ed.atPoint(count-1)->set(x, y);
     }
@@ -630,6 +650,7 @@ void SkPath::setConvexity(Convexity c) {
     do {                                 \
         fConvexity = kUnknown_Convexity; \
         fDirection = kUnknown_Direction; \
+        fIsOval = false;                 \
     } while (0)
 
 void SkPath::incReserve(U16CPU inc) {
@@ -1242,13 +1263,14 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
        We can't simply check isEmpty() in this case, as additional
        moveTo() would mark the path non empty.
      */
-    bool isOval = hasOnlyMoveTos();
-    if (isOval) {
+    fIsOval = hasOnlyMoveTos();
+    if (fIsOval) {
         fDirection = dir;
     } else {
         fDirection = kUnknown_Direction;
     }
 
+    SkAutoDisableOvalCheck adoc(this);
     SkAutoDisableDirectionCheck addc(this);
 
     SkAutoPathBoundsUpdate apbu(this, oval);
@@ -1296,10 +1318,14 @@ void SkPath::addOval(const SkRect& oval, Direction dir) {
         this->quadTo(      R, cy - sy,       R, cy     );
     }
     this->close();
+}
 
-    SkPathRef::Editor ed(&fPathRef);
+bool SkPath::isOval(SkRect* rect) const {
+    if (fIsOval && rect) {
+        *rect = getBounds();
+    }
 
-    ed.setIsOval(isOval);
+    return fIsOval;
 }
 
 void SkPath::addCircle(SkScalar x, SkScalar y, SkScalar r, Direction dir) {
@@ -1433,6 +1459,8 @@ void SkPath::addPath(const SkPath& path, SkScalar dx, SkScalar dy) {
 void SkPath::addPath(const SkPath& path, const SkMatrix& matrix) {
     SkPathRef::Editor(&fPathRef, path.countVerbs(), path.countPoints());
 
+    fIsOval = false;
+
     RawIter iter(path);
     SkPoint pts[4];
     Verb    verb;
@@ -1497,6 +1525,8 @@ void SkPath::reversePathTo(const SkPath& path) {
 
     SkPathRef::Editor(&fPathRef, vcount, path.countPoints());
 
+    fIsOval = false;
+
     const uint8_t*  verbs = path.fPathRef->verbs();
     const SkPoint*  pts = path.fPathRef->points();
     const SkScalar* conicWeights = path.fPathRef->conicWeights();
@@ -1543,6 +1573,8 @@ void SkPath::reverseAddPath(const SkPath& src) {
     const uint8_t* verbs = src.fPathRef->verbsMemBegin(); // points at the last verb
     const uint8_t* verbsEnd = src.fPathRef->verbs(); // points just past the first verb
     const SkScalar* conicWeights = src.fPathRef->conicWeightsEnd();
+
+    fIsOval = false;
 
     bool needMove = true;
     bool needClose = false;
@@ -1692,6 +1724,9 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
                 dst->fDirection = kUnknown_Direction;
             }
         }
+
+        // It's an oval only if it stays a rect.
+        dst->fIsOval = fIsOval && matrix.rectStaysRect();
 
         SkDEBUGCODE(dst->validate();)
     }
@@ -2045,7 +2080,8 @@ size_t SkPath::writeToMemory(void* storage) const {
 
     SkWBuffer   buffer(storage);
 
-    int32_t packed = (fConvexity << kConvexity_SerializationShift) |
+    int32_t packed = ((fIsOval & 1) << kIsOval_SerializationShift) |
+                     (fConvexity << kConvexity_SerializationShift) |
                      (fFillType << kFillType_SerializationShift) |
                      (fSegmentMask << kSegmentMask_SerializationShift) |
                      (fDirection << kDirection_SerializationShift)
@@ -2070,6 +2106,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
         return 0;
     }
 
+    fIsOval = (packed >> kIsOval_SerializationShift) & 1;
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
     fFillType = (packed >> kFillType_SerializationShift) & 0xFF;
     fSegmentMask = (packed >> kSegmentMask_SerializationShift) & 0xF;
