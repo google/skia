@@ -269,34 +269,82 @@ static inline SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst,
 }
 
 /**
- * 32b optimized version; currently appears to be 10% faster even on 64b
- * architectures than an equivalent 64b version and 30% faster than
- * SkFourByteInterp(). Third parameter controls blending of the first two:
- *   (src, dst, 0) returns dst
- *   (src, dst, 256) returns src
- * ** Does not match the results of SkFourByteInterp256() because we use
- * a more accurate scale computation!
- * TODO: migrate Skia function to using an accurate 255->266 alpha
- * conversion.
+ * 0xAARRGGBB -> 0x00AA00GG, 0x00RR00BB
  */
-static inline SkPMColor SkFastFourByteInterp256(SkPMColor src,
-                                                SkPMColor dst,
-                                                unsigned scale) {
-    SkASSERT(scale <= 256);
-
-    // Reorders ARGB to AG-RB in order to reduce the number of operations.
-    const uint32_t mask = 0xFF00FF;
-    uint32_t src_rb = src & mask;
-    uint32_t src_ag = (src >> 8) & mask;
-    uint32_t dst_rb = dst & mask;
-    uint32_t dst_ag = (dst >> 8) & mask;
-
-    uint32_t ret_rb = src_rb * scale + (256 - scale) * dst_rb;
-    uint32_t ret_ag = src_ag * scale + (256 - scale) * dst_ag;
-
-    return (ret_ag & ~mask) | ((ret_rb & ~mask) >> 8);
+static inline void SkSplay(SkPMColor color, uint32_t* ag, uint32_t* rb) {
+    const uint32_t mask = 0x00FF00FF;
+    *ag = (color >> 8) & mask;
+    *rb = color & mask;
 }
 
+/**
+ * 0xAARRGGBB -> 0x00AA00GG00RR00BB
+ * (note, ARGB -> AGRB)
+ */
+static inline uint64_t SkSplay(SkPMColor color) {
+    const uint32_t mask = 0x00FF00FF;
+    uint64_t agrb = (color >> 8) & mask;  // 0x0000000000AA00GG
+    agrb <<= 32;                          // 0x00AA00GG00000000
+    agrb |= color & mask;                 // 0x00AA00GG00RR00BB
+    return agrb;
+}
+
+/**
+ * 0xAAxxGGxx, 0xRRxxBBxx-> 0xAARRGGBB
+ */
+static inline SkPMColor SkUnsplay(uint32_t ag, uint32_t rb) {
+    const uint32_t mask = 0xFF00FF00;
+    return (ag & mask) | ((rb & mask) >> 8);
+}
+
+/**
+ * 0xAAxxGGxxRRxxBBxx -> 0xAARRGGBB
+ * (note, AGRB -> ARGB)
+ */
+static inline SkPMColor SkUnsplay(uint64_t agrb) {
+    const uint32_t mask = 0xFF00FF00;
+    return ((agrb & mask) >> 8) |  // 0x00RR00BB
+           ((agrb >> 32) & mask);  // 0xAARRGGBB
+}
+
+static inline SkPMColor SkFastFourByteInterp256_32(SkPMColor src, SkPMColor dst, unsigned scale) {
+    SkASSERT(scale <= 256);
+
+    // Two 8-bit blends per two 32-bit registers, with space to make sure the math doesn't collide.
+    uint32_t src_ag, src_rb, dst_ag, dst_rb;
+    SkSplay(src, &src_ag, &src_rb);
+    SkSplay(dst, &dst_ag, &dst_rb);
+
+    const uint32_t ret_ag = src_ag * scale + (256 - scale) * dst_ag;
+    const uint32_t ret_rb = src_rb * scale + (256 - scale) * dst_rb;
+
+    return SkUnsplay(ret_ag, ret_rb);
+}
+
+static inline SkPMColor SkFastFourByteInterp256_64(SkPMColor src, SkPMColor dst, unsigned scale) {
+    SkASSERT(scale <= 256);
+    // Four 8-bit blends in one 64-bit register, with space to make sure the math doesn't collide.
+    return SkUnsplay(SkSplay(src) * scale + (256-scale) * SkSplay(dst));
+}
+
+// TODO(mtklein): Replace slow versions with fast versions, using scale + (scale>>7) everywhere.
+
+/**
+ * Same as SkFourByteInterp256, but faster.
+ */
+static inline SkPMColor SkFastFourByteInterp256(SkPMColor src, SkPMColor dst, unsigned scale) {
+    // On a 64-bit machine, _64 is about 10% faster than _32, but ~40% slower on a 32-bit machine.
+    if (sizeof(void*) == 4) {
+        return SkFastFourByteInterp256_32(src, dst, scale);
+    } else {
+        return SkFastFourByteInterp256_64(src, dst, scale);
+    }
+}
+
+/**
+ * Nearly the same as SkFourByteInterp, but faster and a touch more accurate, due to better
+ * srcWeight scaling to [0, 256].
+ */
 static inline SkPMColor SkFastFourByteInterp(SkPMColor src,
                                              SkPMColor dst,
                                              U8CPU srcWeight) {

@@ -50,6 +50,7 @@
         '../tests/ClipStackTest.cpp',
         '../tests/ClipperTest.cpp',
         '../tests/ColorFilterTest.cpp',
+        '../tests/ColorPrivTest.cpp',
         '../tests/ColorTest.cpp',
         '../tests/DataRefTest.cpp',
         '../tests/DeferredCanvasTest.cpp',
