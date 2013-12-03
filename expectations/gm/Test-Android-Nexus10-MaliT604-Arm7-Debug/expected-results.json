@@ -3232,19 +3232,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17182697123061500145
+          13430579085704011533
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "colortype_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17182697123061500145
+          13430579085704011533
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_565.png": {
       "allowed-digests": [

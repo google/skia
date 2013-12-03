@@ -3523,10 +3523,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16744651928576717976
+          17128498486631460526
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "colortype_pdf-poppler.png": {
       "allowed-digests": [
