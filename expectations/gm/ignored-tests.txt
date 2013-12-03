@@ -65,6 +65,7 @@ filterbitmap_text_7.00pt
 filterbitmap_text_10.00pt
 
 # Added by jvanverth in https://codereview.chromium.org/99993002/
+colortype_msaa4
 colortype_gpu
 
 # Added by vandebo in https://codereview.chromium.org/92453002/
