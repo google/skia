@@ -1875,11 +1875,12 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
     return entry;
 }
 
-void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
+void SkPDFDevice::finishContentEntry(SkXfermode::Mode xfermode,
                                      SkPDFFormXObject* dst,
                                      SkPath* shape) {
     if (xfermode != SkXfermode::kClear_Mode       &&
             xfermode != SkXfermode::kSrc_Mode     &&
+            xfermode != SkXfermode::kDstOver_Mode &&
             xfermode != SkXfermode::kSrcIn_Mode   &&
             xfermode != SkXfermode::kDstIn_Mode   &&
             xfermode != SkXfermode::kSrcOut_Mode  &&
@@ -1888,6 +1889,18 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
             xfermode != SkXfermode::kDstATop_Mode &&
             xfermode != SkXfermode::kModulate_Mode) {
         SkASSERT(!dst);
+        return;
+    }
+    if (xfermode == SkXfermode::kDstOver_Mode) {
+        SkASSERT(!dst);
+        ContentEntry* firstContentEntry = getContentEntries()->get();
+        if (firstContentEntry->fContent.getOffset() == 0) {
+            // For DstOver, an empty content entry was inserted before the rest
+            // of the content entries. If nothing was drawn, it needs to be
+            // removed.
+            SkAutoTDelete<ContentEntry>* contentEntries = getContentEntries();
+            contentEntries->reset(firstContentEntry->fNext.detach());
+        }
         return;
     }
     if (!dst) {
@@ -1904,16 +1917,31 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
     SkClipStack clipStack = contentEntries->fState.fClipStack;
     SkRegion clipRegion = contentEntries->fState.fClipRegion;
 
+    SkMatrix identity;
+    identity.reset();
+    SkPaint stockPaint;
+
     SkAutoTUnref<SkPDFFormXObject> srcFormXObject;
     if (isContentEmpty()) {
-        SkASSERT(xfermode == SkXfermode::kClear_Mode);
+        // If nothing was drawn and there's no shape, then the draw was a
+        // no-op, but dst needs to be restored for that to be true.
+        // If there is shape, then an empty source with Src, SrcIn, SrcOut,
+        // DstIn, DstAtop or Modulate reduces to Clear and DstOut or SrcAtop
+        // reduces to Dst.
+        if (shape == NULL || xfermode == SkXfermode::kDstOut_Mode ||
+                xfermode == SkXfermode::kSrcATop_Mode) {
+            ScopedContentEntry content(this, &clipStack, clipRegion, identity,
+                                       stockPaint);
+            SkPDFUtils::DrawFormXObject(this->addXObjectResource(dst),
+                                        &content.entry()->fContent);
+            return;
+        } else {
+            xfermode = SkXfermode::kClear_Mode;
+        }
     } else {
         SkASSERT(!fContentEntries->fNext.get());
         srcFormXObject.reset(createFormXObjectFromDevice());
     }
-
-    SkMatrix identity;
-    identity.reset();
 
     // TODO(vandebo) srcFormXObject may contain alpha, but here we want it
     // without alpha.
@@ -1946,16 +1974,7 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
                                 clipRegion, SkXfermode::kSrcOver_Mode, true);
     }
 
-    SkPaint stockPaint;
-
-    if (xfermode == SkXfermode::kSrcATop_Mode) {
-        ScopedContentEntry content(this, &clipStack, clipRegion, identity,
-                                   stockPaint);
-        if (content.entry()) {
-            SkPDFUtils::DrawFormXObject(this->addXObjectResource(dst),
-                                        &content.entry()->fContent);
-        }
-    } else if (xfermode == SkXfermode::kClear_Mode || !srcFormXObject.get()) {
+    if (xfermode == SkXfermode::kClear_Mode) {
         return;
     } else if (xfermode == SkXfermode::kSrc_Mode ||
             xfermode == SkXfermode::kDstATop_Mode) {
@@ -1968,6 +1987,13 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
         }
         if (xfermode == SkXfermode::kSrc_Mode) {
             return;
+        }
+    } else if (xfermode == SkXfermode::kSrcATop_Mode) {
+        ScopedContentEntry content(this, &clipStack, clipRegion, identity,
+                                   stockPaint);
+        if (content.entry()) {
+            SkPDFUtils::DrawFormXObject(this->addXObjectResource(dst),
+                                        &content.entry()->fContent);
         }
     }
 

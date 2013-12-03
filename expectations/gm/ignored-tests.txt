@@ -45,6 +45,7 @@ perlinnoise
 
 # Added by bsalomon in support of adding HQ filter to GPU device drawBitmap
 bleed
+
 downsamplebitmap_image_high_mandrill_512.png
 filterbitmap_image_mandrill_512.png
 filterbitmap_image_mandrill_256.png
@@ -65,3 +66,6 @@ filterbitmap_text_10.00pt
 
 # Added by jvanverth in https://codereview.chromium.org/99993002/
 colortype_gpu
+
+# Added by vandebo in https://codereview.chromium.org/92453002/
+xfermodes

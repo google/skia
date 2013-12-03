@@ -12,7 +12,8 @@
 
 namespace skiagm {
 
-static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst) {
+static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
+                         SkBitmap* transparent) {
     src->setConfig(SkBitmap::kARGB_8888_Config, w, h);
     src->allocPixels();
     src->eraseColor(SK_ColorTRANSPARENT);
@@ -41,6 +42,10 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst) {
         r.set(ww/3, hh/3, ww*19/20, hh*19/20);
         c.drawRect(r, p);
     }
+
+    transparent->setConfig(SkBitmap::kARGB_8888_Config, w, h);
+    transparent->allocPixels();
+    transparent->eraseColor(SK_ColorTRANSPARENT);
 }
 
 static uint16_t gData[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
@@ -59,13 +64,15 @@ class XfermodesGM : public GM {
      kQuarterClear_SrcType                 = 0x10,
      //! kQuarterClear_SrcType in a layer.
      kQuarterClearInLayer_SrcType          = 0x20,
+     //! A W/2xH/2 transparent image.
+     kSmallTransparentImage_SrcType        = 0x40,
 
-     kAll_SrcType                          = 0x3F, //!< All the source types.
+     kAll_SrcType                          = 0x7F, //!< All the source types.
      kBasic_SrcType                        = 0x03, //!< Just basic source types.
     };
 
     SkBitmap    fBG;
-    SkBitmap    fSrcB, fDstB;
+    SkBitmap    fSrcB, fDstB, fTransparent;
 
     /* The srcType argument indicates what to draw for the source part. Skia
      * uses the implied shape of the drawing command and these modes
@@ -81,6 +88,10 @@ class XfermodesGM : public GM {
         canvas->drawBitmapMatrix(fSrcB, m, &p);
         p.setXfermode(mode);
         switch (srcType) {
+            case kSmallTransparentImage_SrcType:
+                m.postScale(SK_ScalarHalf, SK_ScalarHalf, x, y);
+                canvas->drawBitmapMatrix(fTransparent, m, &p);
+                break;
             case kQuarterClearInLayer_SrcType: {
                 SkRect bounds = SkRect::MakeXYWH(x, y, SkIntToScalar(W),
                                                  SkIntToScalar(H));
@@ -132,7 +143,7 @@ class XfermodesGM : public GM {
         fBG.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4, kOpaque_SkAlphaType);
         fBG.setPixels(gData);
 
-        make_bitmaps(W, H, &fSrcB, &fDstB);
+        make_bitmaps(W, H, &fSrcB, &fDstB, &fTransparent);
     }
 
 public:
@@ -146,7 +157,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(1590, 640);
+        return make_isize(1990, 640);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
