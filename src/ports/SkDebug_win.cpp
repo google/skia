@@ -14,7 +14,7 @@ static const size_t kBufferSize = 2048;
 
 #include <stdarg.h>
 #include <stdio.h>
-#include <Windows.h>
+#include <windows.h>
 
 void SkDebugf(const char format[], ...) {
     char    buffer[kBufferSize + 1];

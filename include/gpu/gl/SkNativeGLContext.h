@@ -19,7 +19,7 @@
     #include <X11/Xlib.h>
     #include <GL/glx.h>
 #elif defined(SK_BUILD_FOR_WIN32)
-    #include <Windows.h>
+    #include <windows.h>
     #include <GL/GL.h>
 #endif
 

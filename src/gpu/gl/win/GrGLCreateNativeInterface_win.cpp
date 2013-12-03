@@ -11,7 +11,7 @@
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include <windows.h>
 
 /*
  * Windows makes the GL funcs all be __stdcall instead of __cdecl :(

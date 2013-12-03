@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 //#include <pthread.h>
-#include <Windows.h>
+#include <windows.h>
 
 typedef char* SZ;
 

@@ -11,7 +11,7 @@
 #ifdef SK_USE_POSIX_THREADS
 #include <pthread.h>
 #elif defined(SK_BUILD_FOR_WIN32)
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 /**
