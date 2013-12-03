@@ -932,16 +932,11 @@ public:
 private:
     enum SerializationOffsets {
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-        kNewFormat2_SerializationShift = 29, // requires 1 bit
+        kNewFormat_SerializationShift = 29, // requires 1 bit
 #endif
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
-        kNewFormat_SerializationShift = 28, // requires 1 bit
-#endif
+        kUnused1_SerializationShift = 28,    // 1 free bit
         kDirection_SerializationShift = 26, // requires 2 bits
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
-        // rename to kUnused_SerializationShift
-        kOldIsFinite_SerializationShift = 25,    // 1 bit
-#endif
+        kUnused2_SerializationShift = 25,    // 1 free bit
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
         kOldIsOval_SerializationShift = 24,    // requires 1 bit
 #endif

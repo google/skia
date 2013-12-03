@@ -220,14 +220,8 @@ protected:
     // V14: Add flags word to PathRef serialization
     // V15: Remove A1 bitmpa config (and renumber remaining configs)
     // V16: Move SkPath's isOval flag to SkPathRef
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO
-    static const uint32_t PRIOR_PRIOR_PICTURE_VERSION = 12;  // TODO: remove when .skps regenerated
-#endif
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
-    static const uint32_t PRIOR_PICTURE_VERSION2 = 13;  // TODO: remove when .skps regenerated
-#endif
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-    static const uint32_t PRIOR_PICTURE_VERSION3 = 15;  // TODO: remove when .skps regenerated
+    static const uint32_t PRIOR_PICTURE_VERSION = 15;  // TODO: remove when .skps regenerated
 #endif
     static const uint32_t PICTURE_VERSION = 16;
 

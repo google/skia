@@ -2049,11 +2049,8 @@ size_t SkPath::writeToMemory(void* storage) const {
                      (fFillType << kFillType_SerializationShift) |
                      (fSegmentMask << kSegmentMask_SerializationShift) |
                      (fDirection << kDirection_SerializationShift)
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V14_AND_ALL_OTHER_INSTANCES_TOO
-                     | (0x1 << kNewFormat_SerializationShift)
-#endif
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-                     | (0x1 << kNewFormat2_SerializationShift)
+                     | (0x1 << kNewFormat_SerializationShift)
 #endif
                      ;
 
@@ -2078,7 +2075,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     fSegmentMask = (packed >> kSegmentMask_SerializationShift) & 0xF;
     fDirection = (packed >> kDirection_SerializationShift) & 0x3;
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-    bool newFormat = (packed >> kNewFormat2_SerializationShift) & 1;
+    bool newFormat = (packed >> kNewFormat_SerializationShift) & 1;
 #endif
 
     SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer

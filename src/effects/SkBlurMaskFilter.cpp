@@ -483,18 +483,10 @@ void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
 
 SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkFlattenableReadBuffer& buffer)
         : SkMaskFilter(buffer) {
-    fSigma = buffer.readScalar();
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V13_AND_ALL_OTHER_INSTANCES_TOO
-    // Fixing this must be done in two stages. When the skps are recaptured in V13,
-    // remove the ConvertRadiusToSigma but retain the absolute value.
-    // At the same time, switch the code in flatten to write a positive value.
-    // When the skps are captured in V14 the absolute value can be removed.
-    if (fSigma > 0) {
-        fSigma = SkBlurMask::ConvertRadiusToSigma(fSigma);
-    } else {
-        fSigma = -fSigma;
-    }
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
+    // TODO: when the skps are recaptured at > v15 the SkScalarAbs can be removed
 #endif
+    fSigma = SkScalarAbs(buffer.readScalar());
     fBlurStyle = (SkBlurMaskFilter::BlurStyle)buffer.readInt();
     fBlurFlags = buffer.readUInt() & SkBlurMaskFilter::kAll_BlurFlag;
     SkASSERT(fSigma >= 0);
@@ -503,7 +495,7 @@ SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkFlattenableReadBuffer& buffer)
 
 void SkBlurMaskFilterImpl::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeScalar(-fSigma);
+    buffer.writeScalar(fSigma);
     buffer.writeInt(fBlurStyle);
     buffer.writeUInt(fBlurFlags);
 }
