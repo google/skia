@@ -227,7 +227,7 @@ public:
     void validate() const {
         SkASSERT(!fHead == !fTail);
         Iter iter;
-        for (T* item = iter.init(*this, Iter::kHead_IterStart); NULL != (item = iter.next()); ) {
+        for (T* item = iter.init(*this, Iter::kHead_IterStart); NULL != item; item = iter.next()) {
             SkASSERT(this->isInList(item));
             if (NULL == item->fPrev) {
                 SkASSERT(fHead == item);
