@@ -2503,10 +2503,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10584626711301986223
+          2018976939296494306
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_565.png": {
       "allowed-digests": [
