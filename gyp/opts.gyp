@@ -79,7 +79,6 @@
             '../src/opts/SkBlitMask_opts_arm.cpp',
             '../src/opts/SkBlitRow_opts_arm.cpp',
             '../src/opts/SkBlitRow_opts_arm.h',
-            '../src/opts/SkBlurImage_opts_none.cpp',
             '../src/opts/SkXfermode_opts_arm.cpp',
           ],
           'conditions': [
@@ -179,6 +178,7 @@
         '../src/opts/SkBitmapProcState_matrix_repeat_neon.h',
         '../src/opts/SkBlitMask_opts_arm_neon.cpp',
         '../src/opts/SkBlitRow_opts_arm_neon.cpp',
+        '../src/opts/SkBlurImage_opts_neon.cpp',
         '../src/opts/SkMorphology_opts_neon.cpp',
         '../src/opts/SkXfermode_opts_arm_neon.cpp',
       ],
