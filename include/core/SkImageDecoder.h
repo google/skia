@@ -159,36 +159,6 @@ public:
     Chooser* setChooser(Chooser*);
 
     /**
-        @Deprecated. Use the struct version instead.
-
-        This optional table describes the caller's preferred config based on
-        information about the src data. For this table, the src attributes are
-        described in terms of depth (index (8), 16, 32/24) and if there is
-        per-pixel alpha. These inputs combine to create an index into the
-        pref[] table, which contains the caller's preferred config for that
-        input, or kNo_Config if there is no preference.
-
-        To specify no preference, call setPrefConfigTable(NULL), which is
-        the default.
-
-        Note, it is still at the discretion of the codec as to what output
-        config is actually returned, as it may not be able to support the
-        caller's preference.
-
-        Here is how the index into the table is computed from the src:
-            depth [8, 16, 32/24] -> 0, 2, 4
-            alpha [no, yes] -> 0, 1
-        The two index values are OR'd together.
-            src: 8-index, no-alpha  -> 0
-            src: 8-index, yes-alpha -> 1
-            src: 16bit,   no-alpha  -> 2    // e.g. 565
-            src: 16bit,   yes-alpha -> 3    // e.g. 1555
-            src: 32/24,   no-alpha  -> 4
-            src: 32/24,   yes-alpha -> 5
-     */
-    void setPrefConfigTable(const SkBitmap::Config pref[6]);
-
-    /**
      *  Optional table describing the caller's preferred config based on
      *  information about the src data. Each field should be set to the
      *  preferred config for a src described in the name of the field. The

@@ -143,19 +143,6 @@ bool SkImageDecoder::allocPixelRef(SkBitmap* bitmap,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkImageDecoder::setPrefConfigTable(const SkBitmap::Config pref[6]) {
-    if (NULL == pref) {
-        fUsePrefTable = false;
-    } else {
-        fUsePrefTable = true;
-        fPrefTable.fPrefFor_8Index_NoAlpha_src = pref[0];
-        fPrefTable.fPrefFor_8Index_YesAlpha_src = pref[1];
-        fPrefTable.fPrefFor_8Gray_src = SkBitmap::kNo_Config;
-        fPrefTable.fPrefFor_8bpc_NoAlpha_src = pref[4];
-        fPrefTable.fPrefFor_8bpc_YesAlpha_src = pref[5];
-    }
-}
-
 void SkImageDecoder::setPrefConfigTable(const PrefConfigTable& prefTable) {
     fUsePrefTable = true;
     fPrefTable = prefTable;
