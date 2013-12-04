@@ -187,8 +187,6 @@ int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths,
 }
 
 void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
-    // can't make this static, no cons :(
-    SkMatrix UVpts;
 #ifndef SK_SCALAR_IS_FLOAT
     GrCrash("Expected scalar is float.");
 #endif
@@ -197,18 +195,23 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
     // We know M * control_pts = [0  1/2 1]
     //                           [0  0   1]
     //                           [1  1   1]
+    // And control_pts = [x0 x1 x2]
+    //                   [y0 y1 y2]
+    //                   [1  1  1 ]
     // We invert the control pt matrix and post concat to both sides to get M.
-    UVpts.setAll(0,   SK_ScalarHalf,  SK_Scalar1,
-                 0,               0,  SK_Scalar1,
-                 SkScalarToPersp(SK_Scalar1),
-                 SkScalarToPersp(SK_Scalar1),
-                 SkScalarToPersp(SK_Scalar1));
-    m.setAll(qPts[0].fX, qPts[1].fX, qPts[2].fX,
-             qPts[0].fY, qPts[1].fY, qPts[2].fY,
-             SkScalarToPersp(SK_Scalar1),
-             SkScalarToPersp(SK_Scalar1),
-             SkScalarToPersp(SK_Scalar1));
-    if (!m.invert(&m)) {
+    // Using the known form of the control point matrix and the result, we can
+    // optimize and improve precision.
+
+    double x0 = qPts[0].fX;
+    double y0 = qPts[0].fY;
+    double x1 = qPts[1].fX;
+    double y1 = qPts[1].fY;
+    double x2 = qPts[2].fX;
+    double y2 = qPts[2].fY;
+    double det = x0*y1 - y0*x1 + x2*y0 - y2*x0 + x1*y2 - y1*x2;
+
+    if (!sk_float_isfinite(det) 
+        || SkScalarNearlyZero((float)det, SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
         // The quad is degenerate. Hopefully this is rare. Find the pts that are
         // farthest apart to compute a line (unless it is really a pt).
         SkScalar maxD = qPts[0].distanceToSqd(qPts[1]);
@@ -247,7 +250,35 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
             fM[3] = 0; fM[4] = 0; fM[5] = 100.f;
         }
     } else {
-        m.postConcat(UVpts);
+        double scale = 1.0/det;
+
+        // compute adjugate matrix
+        double a0, a1, a2, a3, a4, a5, a6, a7, a8;
+        a0 = y1-y2;
+        a1 = x2-x1;
+        a2 = x1*y2-x2*y1;
+
+        a3 = y2-y0;
+        a4 = x0-x2;
+        a5 = x2*y0-x0*y2;
+
+        a6 = y0-y1;
+        a7 = x1-x0;
+        a8 = x0*y1-x1*y0;
+
+        // this performs the uv_pts*adjugate(control_pts) multiply, 
+        // then does the scale by 1/det afterwards to improve precision
+        m[SkMatrix::kMScaleX] = (float)((0.5*a3 + a6)*scale);
+        m[SkMatrix::kMSkewX]  = (float)((0.5*a4 + a7)*scale);
+        m[SkMatrix::kMTransX] = (float)((0.5*a5 + a8)*scale);
+
+        m[SkMatrix::kMSkewY]  = (float)(a6*scale);
+        m[SkMatrix::kMScaleY] = (float)(a7*scale);
+        m[SkMatrix::kMTransY] = (float)(a8*scale);
+
+        m[SkMatrix::kMPersp0] = (float)((a0 + a3 + a6)*scale);
+        m[SkMatrix::kMPersp1] = (float)((a1 + a4 + a7)*scale);
+        m[SkMatrix::kMPersp2] = (float)((a2 + a5 + a8)*scale);
 
         // The matrix should not have perspective.
         SkDEBUGCODE(static const SkScalar gTOL = 1.f / 100.f);
