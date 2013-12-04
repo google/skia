@@ -133,7 +133,7 @@ public:
      *              optimization for performance and so some paths that are in
      *              fact ovals can report false.
      */
-    bool isOval(SkRect* rect) const { 
+    bool isOval(SkRect* rect) const {
         if (fIsOval && NULL != rect) {
             *rect = getBounds();
         }

@@ -1951,9 +1951,9 @@ static void test_transform(skiatest::Reporter* reporter) {
 
         SkPath p1;      // Leave p1 non-unique (i.e., the empty path)
 
-        p.transform(matrix, &p1); 
+        p.transform(matrix, &p1);
         SkPoint pts1[kPtCount];
-        int count = p1.getPoints(pts1, kPtCount); 
+        int count = p1.getPoints(pts1, kPtCount);
         REPORTER_ASSERT(reporter, kPtCount == count);
         for (int i = 0; i < count; ++i) {
             SkPoint newPt = SkPoint::Make(pts[i].fX * 2, pts[i].fY * 3);

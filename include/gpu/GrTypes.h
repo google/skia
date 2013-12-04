@@ -252,7 +252,7 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
     // kA8   (0) -> 1
     // kA565 (1) -> 2
     // kA888 (2) -> 4
-    // kARGB (3) -> 4    
+    // kARGB (3) -> 4
     static const int sBytesPerPixel[] = { 1, 2, 4, 4 };
     SK_COMPILE_ASSERT(SK_ARRAY_COUNT(sBytesPerPixel) == kMaskFormatCount, array_size_mismatch);
 
