@@ -271,7 +271,7 @@ static inline SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst,
 /**
  * 0xAARRGGBB -> 0x00AA00GG, 0x00RR00BB
  */
-static inline void SkSplay(SkPMColor color, uint32_t* ag, uint32_t* rb) {
+static inline void SkSplay(uint32_t color, uint32_t* ag, uint32_t* rb) {
     const uint32_t mask = 0x00FF00FF;
     *ag = (color >> 8) & mask;
     *rb = color & mask;
@@ -281,7 +281,7 @@ static inline void SkSplay(SkPMColor color, uint32_t* ag, uint32_t* rb) {
  * 0xAARRGGBB -> 0x00AA00GG00RR00BB
  * (note, ARGB -> AGRB)
  */
-static inline uint64_t SkSplay(SkPMColor color) {
+static inline uint64_t SkSplay(uint32_t color) {
     const uint32_t mask = 0x00FF00FF;
     uint64_t agrb = (color >> 8) & mask;  // 0x0000000000AA00GG
     agrb <<= 32;                          // 0x00AA00GG00000000
@@ -292,7 +292,7 @@ static inline uint64_t SkSplay(SkPMColor color) {
 /**
  * 0xAAxxGGxx, 0xRRxxBBxx-> 0xAARRGGBB
  */
-static inline SkPMColor SkUnsplay(uint32_t ag, uint32_t rb) {
+static inline uint32_t SkUnsplay(uint32_t ag, uint32_t rb) {
     const uint32_t mask = 0xFF00FF00;
     return (ag & mask) | ((rb & mask) >> 8);
 }
@@ -301,7 +301,7 @@ static inline SkPMColor SkUnsplay(uint32_t ag, uint32_t rb) {
  * 0xAAxxGGxxRRxxBBxx -> 0xAARRGGBB
  * (note, AGRB -> ARGB)
  */
-static inline SkPMColor SkUnsplay(uint64_t agrb) {
+static inline uint32_t SkUnsplay(uint64_t agrb) {
     const uint32_t mask = 0xFF00FF00;
     return SkPMColor(
         ((agrb & mask) >> 8) |   // 0x00RR00BB
