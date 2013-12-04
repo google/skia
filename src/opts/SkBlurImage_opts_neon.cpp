@@ -92,10 +92,10 @@ void SkBoxBlur_NEON(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
 
 } // namespace
 
-bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
-                               SkBoxBlurProc* boxBlurY,
-                               SkBoxBlurProc* boxBlurXY,
-                               SkBoxBlurProc* boxBlurYX) {
+bool SkBoxBlurGetPlatformProcs_NEON(SkBoxBlurProc* boxBlurX,
+                                    SkBoxBlurProc* boxBlurY,
+                                    SkBoxBlurProc* boxBlurXY,
+                                    SkBoxBlurProc* boxBlurYX) {
     *boxBlurX = SkBoxBlur_NEON<kX, kX>;
     *boxBlurY = SkBoxBlur_NEON<kY, kY>;
     *boxBlurXY = SkBoxBlur_NEON<kX, kY>;

@@ -19,6 +19,7 @@
 #include "SkUtilsArm.h"
 #include "SkMorphology_opts.h"
 #include "SkMorphology_opts_neon.h"
+#include "SkBlurImage_opts_neon.h"
 
 #if defined(SK_CPU_LENDIAN) && !SK_ARM_NEON_IS_NONE
 extern "C" void memset16_neon(uint16_t dst[], uint16_t value, int count);
@@ -89,5 +90,21 @@ SkMorphologyProc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {
         default:
             return NULL;
     }
+#endif
+}
+
+bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
+                               SkBoxBlurProc* boxBlurY,
+                               SkBoxBlurProc* boxBlurXY,
+                               SkBoxBlurProc* boxBlurYX) {
+#if SK_ARM_NEON_IS_NONE
+    return NULL;
+#else
+#if SK_ARM_NEON_IS_DYNAMIC
+    if (!sk_cpu_arm_has_neon()) {
+        return NULL;
+    }
+#endif
+    return SkBoxBlurGetPlatformProcs_NEON(boxBlurX, boxBlurY, boxBlurXY, boxBlurYX);
 #endif
 }
