@@ -85,3 +85,9 @@ complexclip_aa_layer_gpu
 complexclip_bw_layer_gpu
 complexclip_aa_gpu
 complexclip_bw_gpu
+complexclip2_path_aa_gpu
+rrect_clip_aa_gpu
+pathopsskpclip_gpu
+strokes3_gpu
+bezier_quad_effects_msaa4 
+pathopsskpclip_gpu
