@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,73 +5,77 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkPostConfig_DEFINED
 #define SkPostConfig_DEFINED
 
 #if defined(SK_BUILD_FOR_WIN32) || defined(SK_BUILD_FOR_WINCE)
-    #define SK_BUILD_FOR_WIN
+#  define SK_BUILD_FOR_WIN
 #endif
 
 #if defined(SK_DEBUG) && defined(SK_RELEASE)
-    #error "cannot define both SK_DEBUG and SK_RELEASE"
+#  error "cannot define both SK_DEBUG and SK_RELEASE"
 #elif !defined(SK_DEBUG) && !defined(SK_RELEASE)
-    #error "must define either SK_DEBUG or SK_RELEASE"
+#  error "must define either SK_DEBUG or SK_RELEASE"
 #endif
 
-#if defined SK_SUPPORT_UNITTEST && !defined(SK_DEBUG)
-    #error "can't have unittests without debug"
+#if defined(SK_SUPPORT_UNITTEST) && !defined(SK_DEBUG)
+#  error "can't have unittests without debug"
 #endif
 
 #if defined(SK_SCALAR_IS_FIXED) && defined(SK_SCALAR_IS_FLOAT)
-    #error "cannot define both SK_SCALAR_IS_FIXED and SK_SCALAR_IS_FLOAT"
+#  error "cannot define both SK_SCALAR_IS_FIXED and SK_SCALAR_IS_FLOAT"
 #elif !defined(SK_SCALAR_IS_FIXED) && !defined(SK_SCALAR_IS_FLOAT)
-    #define SK_SCALAR_IS_FLOAT
+#  define SK_SCALAR_IS_FLOAT
 #endif
 
+/**
+ * Matrix calculations may be float or double.
+ * The default is double, as that is faster given our impl uses doubles
+ * for intermediate calculations.
+ */
 #if defined(SK_MSCALAR_IS_DOUBLE) && defined(SK_MSCALAR_IS_FLOAT)
-    #error "cannot define both SK_MSCALAR_IS_DOUBLE and SK_MSCALAR_IS_FLOAT"
+#  error "cannot define both SK_MSCALAR_IS_DOUBLE and SK_MSCALAR_IS_FLOAT"
 #elif !defined(SK_MSCALAR_IS_DOUBLE) && !defined(SK_MSCALAR_IS_FLOAT)
-    // default is double, as that is faster given our impl uses doubles
-    // for intermediate calculations.
-    #define SK_MSCALAR_IS_DOUBLE
+#  define SK_MSCALAR_IS_DOUBLE
 #endif
 
 #if defined(SK_CPU_LENDIAN) && defined(SK_CPU_BENDIAN)
-    #error "cannot define both SK_CPU_LENDIAN and SK_CPU_BENDIAN"
+#  error "cannot define both SK_CPU_LENDIAN and SK_CPU_BENDIAN"
 #elif !defined(SK_CPU_LENDIAN) && !defined(SK_CPU_BENDIAN)
-    #error "must define either SK_CPU_LENDIAN or SK_CPU_BENDIAN"
+#  error "must define either SK_CPU_LENDIAN or SK_CPU_BENDIAN"
 #endif
 
-// ensure the port has defined all of these, or none of them
+/**
+ * Ensure the port has defined all of SK_X32_SHIFT, or none of them.
+ */
 #ifdef SK_A32_SHIFT
-    #if !defined(SK_R32_SHIFT) || !defined(SK_G32_SHIFT) || !defined(SK_B32_SHIFT)
-        #error "all or none of the 32bit SHIFT amounts must be defined"
-    #endif
+#  if !defined(SK_R32_SHIFT) || !defined(SK_G32_SHIFT) || !defined(SK_B32_SHIFT)
+#    error "all or none of the 32bit SHIFT amounts must be defined"
+#  endif
 #else
-    #if defined(SK_R32_SHIFT) || defined(SK_G32_SHIFT) || defined(SK_B32_SHIFT)
-        #error "all or none of the 32bit SHIFT amounts must be defined"
-    #endif
+#  if defined(SK_R32_SHIFT) || defined(SK_G32_SHIFT) || defined(SK_B32_SHIFT)
+#    error "all or none of the 32bit SHIFT amounts must be defined"
+#  endif
 #endif
 
 #if !defined(SK_HAS_COMPILER_FEATURE)
-    #if defined(__has_feature)
-        #define SK_HAS_COMPILER_FEATURE(x) __has_feature(x)
-    #else
-        #define SK_HAS_COMPILER_FEATURE(x) 0
-    #endif
+#  if defined(__has_feature)
+#    define SK_HAS_COMPILER_FEATURE(x) __has_feature(x)
+#  else
+#    define SK_HAS_COMPILER_FEATURE(x) 0
+#  endif
 #endif
 
 #if !defined(SK_ATTRIBUTE)
-    #if defined(__clang__) || defined(__GNUC__)
-        #define SK_ATTRIBUTE(attr) __attribute__((attr))
-    #else
-        #define SK_ATTRIBUTE(attr)
-    #endif
+#  if defined(__clang__) || defined(__GNUC__)
+#    define SK_ATTRIBUTE(attr) __attribute__((attr))
+#  else
+#    define SK_ATTRIBUTE(attr)
+#  endif
 #endif
 
 #if !defined(SK_SUPPORT_GPU)
-    #define SK_SUPPORT_GPU 1
+#  define SK_SUPPORT_GPU 1
 #endif
 
 /**
@@ -83,127 +86,129 @@
  * executed only if the non-returning function was *not* called.
  */
 #if !defined(SkNO_RETURN_HINT)
-    #if SK_HAS_COMPILER_FEATURE(attribute_analyzer_noreturn)
-        static inline void SkNO_RETURN_HINT() __attribute__((analyzer_noreturn));
-        static inline void SkNO_RETURN_HINT() {}
-    #else
-        #define SkNO_RETURN_HINT() do {} while (false)
-    #endif
+#  if SK_HAS_COMPILER_FEATURE(attribute_analyzer_noreturn)
+     static inline void SkNO_RETURN_HINT() __attribute__((analyzer_noreturn));
+     static inline void SkNO_RETURN_HINT() {}
+#  else
+#    define SkNO_RETURN_HINT() do {} while (false)
+#  endif
 #endif
 
 #if defined(SK_ZLIB_INCLUDE) && defined(SK_SYSTEM_ZLIB)
-    #error "cannot define both SK_ZLIB_INCLUDE and SK_SYSTEM_ZLIB"
+#  error "cannot define both SK_ZLIB_INCLUDE and SK_SYSTEM_ZLIB"
 #elif defined(SK_ZLIB_INCLUDE) || defined(SK_SYSTEM_ZLIB)
-    #define SK_HAS_ZLIB
+#  define SK_HAS_ZLIB
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef SkNEW
-    #define SkNEW(type_name)                (new type_name)
-    #define SkNEW_ARGS(type_name, args)     (new type_name args)
-    #define SkNEW_ARRAY(type_name, count)   (new type_name[(count)])
-    #define SkNEW_PLACEMENT(buf, type_name) (new (buf) type_name)
-    #define SkNEW_PLACEMENT_ARGS(buf, type_name, args) \
-                                            (new (buf) type_name args)
-    #define SkDELETE(obj)                   (delete (obj))
-    #define SkDELETE_ARRAY(array)           (delete[] (array))
+#  define SkNEW(type_name)                           (new type_name)
+#  define SkNEW_ARGS(type_name, args)                (new type_name args)
+#  define SkNEW_ARRAY(type_name, count)              (new type_name[(count)])
+#  define SkNEW_PLACEMENT(buf, type_name)            (new (buf) type_name)
+#  define SkNEW_PLACEMENT_ARGS(buf, type_name, args) (new (buf) type_name args)
+#  define SkDELETE(obj)                              (delete (obj))
+#  define SkDELETE_ARRAY(array)                      (delete[] (array))
 #endif
 
 #ifndef SK_CRASH
-#if 1   // set to 0 for infinite loop, which can help connecting gdb
-    #define SK_CRASH() do { SkNO_RETURN_HINT(); *(int *)(uintptr_t)0xbbadbeef = 0; } while (false)
-#else
-    #define SK_CRASH() do { SkNO_RETURN_HINT(); } while (true)
-#endif
+#  if 1   // set to 0 for infinite loop, which can help connecting gdb
+#    define SK_CRASH() do { SkNO_RETURN_HINT(); *(int *)(uintptr_t)0xbbadbeef = 0; } while (false)
+#  else
+#    define SK_CRASH() do { SkNO_RETURN_HINT(); } while (true)
+#  endif
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// SK_ENABLE_INST_COUNT defaults to 1 in DEBUG and 0 in RELEASE
+/**
+ * SK_ENABLE_INST_COUNT controlls printing how many reference counted objects
+ * are still held on exit.
+ * Defaults to 1 in DEBUG and 0 in RELEASE.
+ * FIXME: currently always 0, since it fails if multiple threads run at once
+ * (see skbug.com/1219 ).
+ */
 #ifndef SK_ENABLE_INST_COUNT
-    #ifdef SK_DEBUG
-        // FIXME: fails if multiple threads run at once (see skbug.com/1219 )
-        #define SK_ENABLE_INST_COUNT 0
-    #else
-        #define SK_ENABLE_INST_COUNT 0
-    #endif
+#  ifdef SK_DEBUG
+#    define SK_ENABLE_INST_COUNT 0
+#  else
+#    define SK_ENABLE_INST_COUNT 0
+#  endif
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #if defined(SK_SOFTWARE_FLOAT) && defined(SK_SCALAR_IS_FLOAT)
-    // if this is defined, we convert floats to 2scompliment ints for compares
-    #ifndef SK_SCALAR_SLOW_COMPARES
-        #define SK_SCALAR_SLOW_COMPARES
-    #endif
-    #ifndef SK_USE_FLOATBITS
-        #define SK_USE_FLOATBITS
-    #endif
+   // if this is defined, we convert floats to 2s compliment ints for compares.
+#  ifndef SK_SCALAR_SLOW_COMPARES
+#    define SK_SCALAR_SLOW_COMPARES
+#  endif
+#  ifndef SK_USE_FLOATBITS
+#    define SK_USE_FLOATBITS
+#  endif
 #endif
 
 #ifdef SK_BUILD_FOR_WIN
-    // we want lean_and_mean when we include windows.h
-    #ifndef WIN32_LEAN_AND_MEAN
-        #define WIN32_LEAN_AND_MEAN
-        #define WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
-    #endif
-    #ifndef NOMINMAX
-        #define NOMINMAX
-        #define NOMINMAX_WAS_LOCALLY_DEFINED
-    #endif
-
-    #include <windows.h>
-
-    #ifdef WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
-        #undef WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
-        #undef WIN32_LEAN_AND_MEAN
-    #endif
-
-    #ifdef NOMINMAX_WAS_LOCALLY_DEFINED
-        #undef NOMINMAX_WAS_LOCALLY_DEFINED
-        #undef NOMINMAX
-    #endif
-
-    #ifndef SK_DEBUGBREAK
-        #define SK_DEBUGBREAK(cond)     do { if (!(cond)) { SkNO_RETURN_HINT(); __debugbreak(); }} while (false)
-    #endif
-
-    #ifndef SK_A32_SHIFT
-        #define SK_A32_SHIFT 24
-        #define SK_R32_SHIFT 16
-        #define SK_G32_SHIFT 8
-        #define SK_B32_SHIFT 0
-    #endif
-
+#  ifndef WIN32_LEAN_AND_MEAN
+#    define WIN32_LEAN_AND_MEAN
+#    define WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
+#  endif
+#  ifndef NOMINMAX
+#    define NOMINMAX
+#    define NOMINMAX_WAS_LOCALLY_DEFINED
+#  endif
+#
+#  include <windows.h>
+#
+#  ifdef WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
+#    undef WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
+#    undef WIN32_LEAN_AND_MEAN
+#  endif
+#  ifdef NOMINMAX_WAS_LOCALLY_DEFINED
+#    undef NOMINMAX_WAS_LOCALLY_DEFINED
+#    undef NOMINMAX
+#  endif
+#
+#  ifndef SK_DEBUGBREAK
+#    define SK_DEBUGBREAK(p) do { if (!(p)) { SkNO_RETURN_HINT(); __debugbreak(); }} while (false)
+#  endif
+#
+#  ifndef SK_A32_SHIFT
+#    define SK_A32_SHIFT 24
+#    define SK_R32_SHIFT 16
+#    define SK_G32_SHIFT 8
+#    define SK_B32_SHIFT 0
+#  endif
+#
 #else
-    #ifdef SK_DEBUG
-        #include <stdio.h>
-        #ifndef SK_DEBUGBREAK
-            #define SK_DEBUGBREAK(cond) do { if (cond) break; \
+#  ifdef SK_DEBUG
+#    include <stdio.h>
+#    ifndef SK_DEBUGBREAK
+#      define SK_DEBUGBREAK(cond) do { if (cond) break; \
                 SkDebugf("%s:%d: failed assertion \"%s\"\n", \
                 __FILE__, __LINE__, #cond); SK_CRASH(); } while (false)
-        #endif
-    #endif
+#    endif
+#  endif
 #endif
 
-/*
+/**
  *  We check to see if the SHIFT value has already been defined.
  *  if not, we define it ourself to some default values. We default to OpenGL
  *  order (in memory: r,g,b,a)
  */
 #ifndef SK_A32_SHIFT
-    #ifdef SK_CPU_BENDIAN
-        #define SK_R32_SHIFT    24
-        #define SK_G32_SHIFT    16
-        #define SK_B32_SHIFT    8
-        #define SK_A32_SHIFT    0
-    #else
-        #define SK_R32_SHIFT    0
-        #define SK_G32_SHIFT    8
-        #define SK_B32_SHIFT    16
-        #define SK_A32_SHIFT    24
-    #endif
+#  ifdef SK_CPU_BENDIAN
+#    define SK_R32_SHIFT    24
+#    define SK_G32_SHIFT    16
+#    define SK_B32_SHIFT    8
+#    define SK_A32_SHIFT    0
+#  else
+#    define SK_R32_SHIFT    0
+#    define SK_G32_SHIFT    8
+#    define SK_B32_SHIFT    16
+#    define SK_A32_SHIFT    24
+#  endif
 #endif
 
 /**
@@ -223,166 +228,121 @@
  * SK_PMCOLOR_BYTE_ORDER(A,B,G,R) will be true on a big endian machine.
  */
 #ifdef SK_CPU_BENDIAN
-    #define SK_PMCOLOR_BYTE_ORDER(C0, C1, C2, C3)     \
+#  define SK_PMCOLOR_BYTE_ORDER(C0, C1, C2, C3)     \
         (SK_ ## C3 ## 32_SHIFT == 0  &&             \
          SK_ ## C2 ## 32_SHIFT == 8  &&             \
          SK_ ## C1 ## 32_SHIFT == 16 &&             \
          SK_ ## C0 ## 32_SHIFT == 24)
 #else
-    #define SK_PMCOLOR_BYTE_ORDER(C0, C1, C2, C3)     \
+#  define SK_PMCOLOR_BYTE_ORDER(C0, C1, C2, C3)     \
         (SK_ ## C0 ## 32_SHIFT == 0  &&             \
          SK_ ## C1 ## 32_SHIFT == 8  &&             \
          SK_ ## C2 ## 32_SHIFT == 16 &&             \
          SK_ ## C3 ## 32_SHIFT == 24)
 #endif
 
-//  stdlib macros
-
-#if 0
-#if !defined(strlen) && defined(SK_DEBUG)
-    extern size_t sk_strlen(const char*);
-    #define strlen(s)   sk_strlen(s)
-#endif
-#ifndef sk_strcpy
-    #define sk_strcpy(dst, src)     strcpy(dst, src)
-#endif
-#ifndef sk_strchr
-    #define sk_strchr(s, c)         strchr(s, c)
-#endif
-#ifndef sk_strrchr
-    #define sk_strrchr(s, c)        strrchr(s, c)
-#endif
-#ifndef sk_strcmp
-    #define sk_strcmp(s, t)         strcmp(s, t)
-#endif
-#ifndef sk_strncmp
-    #define sk_strncmp(s, t, n)     strncmp(s, t, n)
-#endif
-#ifndef sk_memcpy
-    #define sk_memcpy(dst, src, n)  memcpy(dst, src, n)
-#endif
-#ifndef memmove
-    #define memmove(dst, src, n)    memmove(dst, src, n)
-#endif
-#ifndef sk_memset
-    #define sk_memset(dst, val, n)  memset(dst, val, n)
-#endif
-#ifndef sk_memcmp
-    #define sk_memcmp(s, t, n)      memcmp(s, t, n)
-#endif
-
-#define sk_strequal(s, t)           (!sk_strcmp(s, t))
-#define sk_strnequal(s, t, n)       (!sk_strncmp(s, t, n))
-#endif
-
 //////////////////////////////////////////////////////////////////////
 
 #if defined(SK_BUILD_FOR_WIN32) || defined(SK_BUILD_FOR_MAC)
-    #ifndef SkLONGLONG
-        #ifdef SK_BUILD_FOR_WIN32
-            #define SkLONGLONG  __int64
-        #else
-            #define SkLONGLONG  long long
-        #endif
-    #endif
+#  ifndef SkLONGLONG
+#    ifdef SK_BUILD_FOR_WIN32
+#      define SkLONGLONG __int64
+#    else
+#      define SkLONGLONG long long
+#    endif
+#  endif
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef SK_BUILD_FOR_WINCE
-#include <string.h>
-#include <stdlib.h>
+#  include <string.h>
+#  include <stdlib.h>
 #else
-#define _CMNINTRIN_DECLARE_ONLY
-#include "cmnintrin.h"
+#  define _CMNINTRIN_DECLARE_ONLY
+#  include "cmnintrin.h"
 #endif
 
 #if defined SK_DEBUG && defined SK_BUILD_FOR_WIN32
-//#define _CRTDBG_MAP_ALLOC
-#ifdef free
-#undef free
-#endif
-#include <crtdbg.h>
-#undef free
-
-#ifdef SK_DEBUGx
-#if defined(SK_SIMULATE_FAILED_MALLOC) && defined(__cplusplus)
-    void * operator new(
-        size_t cb,
-        int nBlockUse,
-        const char * szFileName,
-        int nLine,
-        int foo
-        );
-    void * operator new[](
-        size_t cb,
-        int nBlockUse,
-        const char * szFileName,
-        int nLine,
-        int foo
-        );
-    void operator delete(
-        void *pUserData,
-        int, const char*, int, int
-        );
-    void operator delete(
-        void *pUserData
-        );
-    void operator delete[]( void * p );
-    #define DEBUG_CLIENTBLOCK   new( _CLIENT_BLOCK, __FILE__, __LINE__, 0)
-#else
-    #define DEBUG_CLIENTBLOCK   new( _CLIENT_BLOCK, __FILE__, __LINE__)
-#endif
-    #define new DEBUG_CLIENTBLOCK
-#else
-#define DEBUG_CLIENTBLOCK
-#endif // _DEBUG
-
-
-#endif
-
+#  ifdef free
+#    undef free
+#  endif
+#  include <crtdbg.h>
+#  undef free
+#
+#  ifdef SK_DEBUGx
+#    if defined(SK_SIMULATE_FAILED_MALLOC) && defined(__cplusplus)
+       void * operator new(
+           size_t cb,
+           int nBlockUse,
+           const char * szFileName,
+           int nLine,
+           int foo
+           );
+       void * operator new[](
+           size_t cb,
+           int nBlockUse,
+           const char * szFileName,
+           int nLine,
+           int foo
+           );
+       void operator delete(
+           void *pUserData,
+           int, const char*, int, int
+           );
+       void operator delete(
+           void *pUserData
+           );
+       void operator delete[]( void * p );
+#      define DEBUG_CLIENTBLOCK   new( _CLIENT_BLOCK, __FILE__, __LINE__, 0)
+#    else
+#      define DEBUG_CLIENTBLOCK   new( _CLIENT_BLOCK, __FILE__, __LINE__)
+#    endif
+#    define new DEBUG_CLIENTBLOCK
+#  else
+#    define DEBUG_CLIENTBLOCK
+#  endif
 #endif
 
 //////////////////////////////////////////////////////////////////////
 
 #ifndef SK_OVERRIDE
-    #if defined(_MSC_VER)
-        #define SK_OVERRIDE override
-    #elif defined(__clang__)
-        // Clang defaults to C++03 and warns about using override. Squelch that. Intentionally no
-        // push/pop here so all users of SK_OVERRIDE ignore the warning too. This is like passing
-        // -Wno-c++11-extensions, except that GCC won't die (because it won't see this pragma).
-        #pragma clang diagnostic ignored "-Wc++11-extensions"
-
-        #if __has_feature(cxx_override_control)
-            // Some documentation suggests we should be using __attribute__((override)),
-            // but it doesn't work.
-            #define SK_OVERRIDE override
-        #elif defined(__has_extension)
-            #if __has_extension(cxx_override_control)
-                #define SK_OVERRIDE override
-            #endif
-        #endif
-    #endif
-    #ifndef SK_OVERRIDE
-        #define SK_OVERRIDE
-    #endif
+#  if defined(_MSC_VER)
+#    define SK_OVERRIDE override
+#  elif defined(__clang__)
+     // Using __attribute__((override)) on clang does not appear to always work.
+     // Clang defaults to C++03 and warns about using override. Squelch that. Intentionally no
+     // push/pop here so all users of SK_OVERRIDE ignore the warning too. This is like passing
+     // -Wno-c++11-extensions, except that GCC won't die (because it won't see this pragma).
+#    pragma clang diagnostic ignored "-Wc++11-extensions"
+#
+#    if __has_feature(cxx_override_control)
+#      define SK_OVERRIDE override
+#    elif defined(__has_extension) && __has_extension(cxx_override_control)
+#      define SK_OVERRIDE override
+#    endif
+#  endif
+#  ifndef SK_OVERRIDE
+#    define SK_OVERRIDE
+#  endif
 #endif
 
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(SK_UNUSED)
-    #define SK_UNUSED SK_ATTRIBUTE(unused)
+#  define SK_UNUSED SK_ATTRIBUTE(unused)
 #endif
 
 #if !defined(SK_ATTR_DEPRECATED)
-    // we ignore msg for now...
-    #define SK_ATTR_DEPRECATED(msg) SK_ATTRIBUTE(deprecated)
+   // FIXME: we ignore msg for now...
+#  define SK_ATTR_DEPRECATED(msg) SK_ATTRIBUTE(deprecated)
 #endif
 
-// If your judgment is better than the compiler's (i.e. you've profiled it),
-// you can use SK_ALWAYS_INLINE to force inlining. E.g.
-//     inline void someMethod() { ... }             // may not be inlined
-//     SK_ALWAYS_INLINE void someMethod() { ... }   // should always be inlined
+/**
+ * If your judgment is better than the compiler's (i.e. you've profiled it),
+ * you can use SK_ALWAYS_INLINE to force inlining. E.g.
+ *     inline void someMethod() { ... }             // may not be inlined
+ *     SK_ALWAYS_INLINE void someMethod() { ... }   // should always be inlined
+ */
 #if !defined(SK_ALWAYS_INLINE)
 #  if defined(SK_BUILD_FOR_WIN)
 #    define SK_ALWAYS_INLINE __forceinline
@@ -394,34 +354,37 @@
 //////////////////////////////////////////////////////////////////////
 
 #if defined(__clang__) || defined(__GNUC__)
-#define SK_PREFETCH(ptr) __builtin_prefetch(ptr)
-#define SK_WRITE_PREFETCH(ptr) __builtin_prefetch(ptr, 1)
+#  define SK_PREFETCH(ptr) __builtin_prefetch(ptr)
+#  define SK_WRITE_PREFETCH(ptr) __builtin_prefetch(ptr, 1)
 #else
-#define SK_PREFETCH(ptr)
-#define SK_WRITE_PREFETCH(ptr)
+#  define SK_PREFETCH(ptr)
+#  define SK_WRITE_PREFETCH(ptr)
 #endif
 
 //////////////////////////////////////////////////////////////////////
+
 #ifndef SK_PRINTF_LIKE
-#if defined(__clang__) || defined(__GNUC__)
-#define SK_PRINTF_LIKE(A, B) __attribute__((format(printf, (A), (B))))
-#else
-#define SK_PRINTF_LIKE(A, B)
-#endif
+#  if defined(__clang__) || defined(__GNUC__)
+#    define SK_PRINTF_LIKE(A, B) __attribute__((format(printf, (A), (B))))
+#  else
+#    define SK_PRINTF_LIKE(A, B)
+#  endif
 #endif
 
 //////////////////////////////////////////////////////////////////////
 
 #ifndef SK_SIZE_T_SPECIFIER
-#if defined(_MSC_VER)
-#define SK_SIZE_T_SPECIFIER "%Iu"
-#else
-#define SK_SIZE_T_SPECIFIER "%zu"
-#endif
+#  if defined(_MSC_VER)
+#    define SK_SIZE_T_SPECIFIER "%Iu"
+#  else
+#    define SK_SIZE_T_SPECIFIER "%zu"
+#  endif
 #endif
 
 //////////////////////////////////////////////////////////////////////
 
 #ifndef SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-#define SK_ALLOW_STATIC_GLOBAL_INITIALIZERS 1
+#  define SK_ALLOW_STATIC_GLOBAL_INITIALIZERS 1
 #endif
+
+#endif // SkPostConfig_DEFINED
