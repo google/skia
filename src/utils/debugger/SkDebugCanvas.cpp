@@ -22,18 +22,15 @@ static SkBitmap make_noconfig_bm(int width, int height) {
 
 SkDebugCanvas::SkDebugCanvas(int width, int height)
         : INHERITED(make_noconfig_bm(width, height))
+        , fWidth(width)
+        , fHeight(height)
+        , fFilter(false)
+        , fIndex(0)
         , fOverdrawViz(false)
         , fOverdrawFilter(NULL)
         , fOverrideTexFiltering(false)
         , fTexOverrideFilter(NULL)
         , fOutstandingSaveCount(0) {
-    // TODO(chudy): Free up memory from all draw commands in destructor.
-    fWidth = width;
-    fHeight = height;
-    // do we need fBm anywhere?
-    fBm.setConfig(SkBitmap::kNo_Config, fWidth, fHeight);
-    fFilter = false;
-    fIndex = 0;
     fUserMatrix.reset();
 
     // SkPicturePlayback uses the base-class' quickReject calls to cull clipped
@@ -58,6 +55,7 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
 SkDebugCanvas::~SkDebugCanvas() {
     fCommandVector.deleteAll();
     SkSafeUnref(fOverdrawFilter);
+    SkSafeUnref(fTexOverrideFilter);
 }
 
 void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
@@ -65,14 +63,9 @@ void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
 }
 
 void SkDebugCanvas::draw(SkCanvas* canvas) {
-    if(!fCommandVector.isEmpty()) {
-        for (int i = 0; i < fCommandVector.count(); i++) {
-            if (fCommandVector[i]->isVisible()) {
-                fCommandVector[i]->execute(canvas);
-            }
-        }
+    if (!fCommandVector.isEmpty()) {
+        drawTo(canvas, fCommandVector.count() - 1);
     }
-    fIndex = fCommandVector.count() - 1;
 }
 
 void SkDebugCanvas::applyUserTransform(SkCanvas* canvas) {
@@ -177,18 +170,19 @@ private:
 void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     SkASSERT(!fCommandVector.isEmpty());
     SkASSERT(index < fCommandVector.count());
-    int i;
+    int i = 0;
 
     // This only works assuming the canvas and device are the same ones that
     // were previously drawn into because they need to preserve all saves
     // and restores.
-    if (fIndex < index) {
+    // The visibility filter also requires a full re-draw - otherwise we can
+    // end up drawing the filter repeatedly.
+    if (fIndex < index && !fFilter) {
         i = fIndex + 1;
     } else {
         for (int j = 0; j < fOutstandingSaveCount; j++) {
             canvas->restore();
         }
-        i = 0;
         canvas->clear(SK_ColorTRANSPARENT);
         canvas->resetMatrix();
         SkRect rect = SkRect::MakeWH(SkIntToScalar(fWidth),

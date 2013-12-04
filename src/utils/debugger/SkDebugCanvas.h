@@ -42,15 +42,6 @@ public:
     void draw(SkCanvas* canvas);
 
     /**
-        Executes the draw calls in the specified range.
-        @param canvas  The canvas being drawn to
-        @param i  The beginning of the range
-        @param j  The end of the range
-        TODO(chudy): Implement
-     */
-    void drawRange(SkCanvas* canvas, int i, int j);
-
-    /**
         Executes the draw calls up to the specified index.
         @param canvas  The canvas being drawn to
         @param index  The index of the final command being executed
@@ -244,9 +235,8 @@ public:
 
 private:
     SkTDArray<SkDrawCommand*> fCommandVector;
-    int fHeight;
     int fWidth;
-    SkBitmap fBm;
+    int fHeight;
     bool fFilter;
     int fIndex;
     SkMatrix fUserMatrix;
