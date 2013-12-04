@@ -5,8 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmapDevice.h"
+#include "SkBitmapSource.h"
+#include "SkCanvas.h"
+#include "SkMallocPixelRef.h"
 #include "SkOrderedWriteBuffer.h"
 #include "SkValidatingReadBuffer.h"
+#include "SkXfermodeImageFilter.h"
 #include "Test.h"
 
 static const uint32_t kArraySize = 64;
@@ -22,6 +27,13 @@ static void TestAlignment(T* testObj, skiatest::Reporter* reporter) {
 }
 
 template<typename T> struct SerializationUtils {
+    // Generic case for flattenables
+    static void Write(SkOrderedWriteBuffer& writer, const T* flattenable) {
+        writer.writeFlattenable(flattenable);
+    }
+    static void Read(SkValidatingReadBuffer& reader, T** flattenable) {
+        *flattenable = (T*)reader.readFlattenable(T::GetFlattenableType());
+    }
 };
 
 template<> struct SerializationUtils<SkMatrix> {
@@ -127,6 +139,45 @@ static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
 }
 
 template<typename T>
+static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
+                                       skiatest::Reporter* reporter) {
+    SkOrderedWriteBuffer writer(1024);
+    writer.setFlags(SkOrderedWriteBuffer::kValidation_Flag);
+    SerializationUtils<T>::Write(writer, testObj);
+    size_t bytesWritten = writer.bytesWritten();
+    REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
+
+    unsigned char dataWritten[1024];
+    writer.writeToMemory(dataWritten);
+
+    // Make sure this fails when it should (test with smaller size, but still multiple of 4)
+    SkValidatingReadBuffer buffer(dataWritten, bytesWritten - 4);
+    T* obj = NULL;
+    SerializationUtils<T>::Read(buffer, &obj);
+    REPORTER_ASSERT(reporter, !buffer.validate(true));
+    REPORTER_ASSERT(reporter, NULL == obj);
+
+    // Make sure this succeeds when it should
+    SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
+    const unsigned char* peekBefore = static_cast<const unsigned char*>(buffer2.skip(0));
+    T* obj2 = NULL;
+    SerializationUtils<T>::Read(buffer2, &obj2);
+    const unsigned char* peekAfter = static_cast<const unsigned char*>(buffer2.skip(0));
+    if (shouldSucceed) {
+        // This should have succeeded, since there are enough bytes to read this
+        REPORTER_ASSERT(reporter, buffer2.validate(true));
+        REPORTER_ASSERT(reporter, static_cast<size_t>(peekAfter - peekBefore) == bytesWritten);
+        REPORTER_ASSERT(reporter, NULL != obj2);
+    } else {
+        // If the deserialization was supposed to fail, make sure it did
+        REPORTER_ASSERT(reporter, !buffer.validate(true));
+        REPORTER_ASSERT(reporter, NULL == obj2);
+    }
+
+    return obj2; // Return object to perform further validity tests on it
+}
+
+template<typename T>
 static void TestArraySerialization(T* data, skiatest::Reporter* reporter) {
     SkOrderedWriteBuffer writer(1024);
     writer.setFlags(SkOrderedWriteBuffer::kValidation_Flag);
@@ -150,6 +201,35 @@ static void TestArraySerialization(T* data, skiatest::Reporter* reporter) {
     success = SerializationUtils<T>::Read(buffer2, dataRead, kArraySize);
     // This should have succeeded, since there are enough bytes to read this
     REPORTER_ASSERT(reporter, success);
+}
+
+static void TestBitmapSerialization(const SkBitmap& validBitmap,
+                                    const SkBitmap& invalidBitmap,
+                                    bool shouldSucceed,
+                                    skiatest::Reporter* reporter) {
+    SkBitmapSource validBitmapSource(validBitmap);
+    SkBitmapSource invalidBitmapSource(invalidBitmap);
+    SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
+    SkXfermodeImageFilter xfermodeImageFilter(mode, &invalidBitmapSource, &validBitmapSource);
+
+    SkAutoTUnref<SkImageFilter> deserializedFilter(
+        TestFlattenableSerialization<SkImageFilter>(
+            &xfermodeImageFilter, shouldSucceed, reporter));
+
+    // Try to render a small bitmap using the invalid deserialized filter
+    // to make sure we don't crash while trying to render it
+    if (shouldSucceed) {
+        SkBitmap bitmap;
+        bitmap.setConfig(SkBitmap::kARGB_8888_Config, 24, 24);
+        bitmap.allocPixels();
+        SkBitmapDevice device(bitmap);
+        SkCanvas canvas(&device);
+        canvas.clear(0x00000000);
+        SkPaint paint;
+        paint.setImageFilter(deserializedFilter);
+        canvas.clipRect(SkRect::MakeXYWH(0, 0, SkIntToScalar(24), SkIntToScalar(24)));
+        canvas.drawBitmap(bitmap, 0, 0, &paint);
+    }
 }
 
 static void Tests(skiatest::Reporter* reporter) {
@@ -211,6 +291,29 @@ static void Tests(skiatest::Reporter* reporter) {
     {
         SkScalar data[kArraySize] = { SK_Scalar1, SK_ScalarHalf, SK_ScalarMax };
         TestArraySerialization(data, reporter);
+    }
+
+    // Test invalid deserializations
+    {
+        SkBitmap validBitmap;
+        validBitmap.setConfig(SkBitmap::kARGB_8888_Config, 256, 256);
+
+        // Create a bitmap with a really large height
+        SkBitmap invalidBitmap;
+        invalidBitmap.setConfig(SkBitmap::kARGB_8888_Config, 256, 1000000000);
+
+        // The deserialization should succeed, and the rendering shouldn't crash,
+        // even when the device fails to initialize, due to its size
+        TestBitmapSerialization(validBitmap, invalidBitmap, true, reporter);
+
+        // Create a bitmap with a pixel ref too small
+        SkBitmap invalidBitmap2;
+        invalidBitmap2.setConfig(SkBitmap::kARGB_8888_Config, 256, 256);
+        invalidBitmap2.setPixelRef(SkNEW_ARGS(SkMallocPixelRef,
+            (NULL, 256, NULL)))->unref();
+        
+        // The deserialization should detect the pixel ref being too small and fail
+        TestBitmapSerialization(validBitmap, invalidBitmap2, false, reporter);
     }
 }
 

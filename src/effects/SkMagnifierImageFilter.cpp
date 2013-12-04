@@ -240,7 +240,9 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(SkFlattenableReadBuffer& buffer)
     fSrcRect = SkRect::MakeXYWH(x, y, width, height);
     fInset = buffer.readScalar();
 
-    buffer.validate(SkIsValidRect(fSrcRect) && SkScalarIsFinite(fInset));
+    buffer.validate(SkScalarIsFinite(fInset) && SkIsValidRect(fSrcRect) &&
+                    // Negative numbers in src rect are not supported
+                    (fSrcRect.fLeft >= 0) && (fSrcRect.fTop >= 0));
 }
 
 // FIXME:  implement single-input semantics
@@ -283,7 +285,9 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
     SkASSERT(fSrcRect.width() < src.width());
     SkASSERT(fSrcRect.height() < src.height());
 
-    if (src.config() != SkBitmap::kARGB_8888_Config) {
+    if ((src.config() != SkBitmap::kARGB_8888_Config) ||
+        (fSrcRect.width() >= src.width()) ||
+        (fSrcRect.height() >= src.height())) {
       return false;
     }
 
@@ -293,13 +297,17 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
       return false;
     }
 
+    dst->setConfig(src.config(), src.width(), src.height());
+    dst->allocPixels();
+    if (!dst->getPixels()) {
+        return false;
+    }
+
     SkScalar inv_inset = fInset > 0 ? SkScalarInvert(fInset) : SK_Scalar1;
 
     SkScalar inv_x_zoom = fSrcRect.width() / src.width();
     SkScalar inv_y_zoom = fSrcRect.height() / src.height();
 
-    dst->setConfig(src.config(), src.width(), src.height());
-    dst->allocPixels();
     SkColor* sptr = src.getAddr32(0, 0);
     SkColor* dptr = dst->getAddr32(0, 0);
     int width = src.width(), height = src.height();
@@ -332,8 +340,8 @@ bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
             SkScalar y_interp = SkScalarMul(weight, (fSrcRect.y() + y * inv_y_zoom)) +
                            (SK_Scalar1 - weight) * y;
 
-            int x_val = SkMin32(SkScalarFloorToInt(x_interp), width - 1);
-            int y_val = SkMin32(SkScalarFloorToInt(y_interp), height - 1);
+            int x_val = SkPin32(SkScalarFloorToInt(x_interp), 0, width - 1);
+            int y_val = SkPin32(SkScalarFloorToInt(y_interp), 0, height - 1);
 
             *dptr = sptr[y_val * width + x_val];
             dptr++;

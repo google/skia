@@ -257,6 +257,16 @@ protected:
     // default impl returns NULL.
     virtual SkData* onRefEncodedData();
 
+    /**
+     *  Returns the size (in bytes) of the internally allocated memory.
+     *  This should be implemented in all serializable SkPixelRef derived classes.
+     *  SkBitmap::fPixelRefOffset + SkBitmap::getSafeSize() should never overflow this value,
+     *  otherwise the rendering code may attempt to read memory out of bounds.
+     *
+     *  @return default impl returns 0.
+     */
+    virtual size_t getAllocatedSizeInBytes() const;
+
     /** Return the mutex associated with this pixelref. This value is assigned
         in the constructor, and cannot change during the lifetime of the object.
     */

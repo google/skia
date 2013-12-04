@@ -22,6 +22,7 @@ public:
 protected:
     virtual void* onLockPixels(SkColorTable**) SK_OVERRIDE;
     virtual void onUnlockPixels() SK_OVERRIDE;
+    virtual size_t getAllocatedSizeInBytes() const SK_OVERRIDE;
 
     SkDataPixelRef(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;

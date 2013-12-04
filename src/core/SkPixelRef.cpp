@@ -247,6 +247,10 @@ SkData* SkPixelRef::onRefEncodedData() {
     return NULL;
 }
 
+size_t SkPixelRef::getAllocatedSizeInBytes() const {
+    return 0;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_BUILD_FOR_ANDROID

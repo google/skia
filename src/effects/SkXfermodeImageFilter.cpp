@@ -72,6 +72,9 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
     foregroundOffset.fY -= bounds.top();
 
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
+    if (NULL == device.get()) {
+        return false;
+    }
     SkCanvas canvas(device);
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);

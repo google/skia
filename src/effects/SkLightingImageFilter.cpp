@@ -814,6 +814,7 @@ void SkLight::flattenLight(SkFlattenableWriteBuffer& buffer) const {
         case SkLight::kSpot_LightType:    return SkNEW_ARGS(SkSpotLight, (buffer));
         default:
             SkDEBUGFAIL("Unknown LightType.");
+            buffer.validate(false);
             return NULL;
     }
 }
@@ -952,6 +953,9 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
 
     dst->setConfig(src.config(), bounds.width(), bounds.height());
     dst->allocPixels();
+    if (!dst->getPixels()) {
+        return false;
+    }
 
     SkAutoTUnref<SkLight> transformedLight(light()->transform(ctm));
 
@@ -1040,6 +1044,9 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
 
     dst->setConfig(src.config(), bounds.width(), bounds.height());
     dst->allocPixels();
+    if (!dst->getPixels()) {
+        return false;
+    }
 
     SpecularLightingType lightingType(fKS, fShininess);
     SkAutoTUnref<SkLight> transformedLight(light()->transform(ctm));

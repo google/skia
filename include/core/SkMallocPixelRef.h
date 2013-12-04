@@ -24,8 +24,6 @@ public:
     SkMallocPixelRef(void* addr, size_t size, SkColorTable* ctable, bool ownPixels = true);
     virtual ~SkMallocPixelRef();
 
-    //! Return the allocation size for the pixels
-    size_t getSize() const { return fSize; }
     void* getAddr() const { return fStorage; }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMallocPixelRef)
@@ -37,6 +35,9 @@ protected:
 
     SkMallocPixelRef(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+
+    // Returns the allocation size for the pixels
+    virtual size_t getAllocatedSizeInBytes() const SK_OVERRIDE { return fSize; }
 
 private:
     void*           fStorage;

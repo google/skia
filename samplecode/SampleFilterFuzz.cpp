@@ -25,10 +25,13 @@
 #include "SkPerlinNoiseShader.h"
 #include "SkRandom.h"
 #include "SkRectShaderImageFilter.h"
+#include "SkTileImageFilter.h"
 #include "SkView.h"
 #include "SkXfermodeImageFilter.h"
+#include <stdio.h>
+#include <time.h>
 
-static const uint32_t kSeed = 1;
+static const uint32_t kSeed = (uint32_t)(time(NULL));
 static SkRandom gRand(kSeed);
 static bool return_large = false;
 static bool return_undef = false;
@@ -83,9 +86,9 @@ static SkScalar make_scalar(bool positiveOnly = false) {
     return make_number(positiveOnly);
 }
 
-static SkRect make_rect(int offset = 1) {
-    return SkRect::MakeWH(SkIntToScalar(R(static_cast<float>(kBitmapSize))+offset),
-                          SkIntToScalar(R(static_cast<float>(kBitmapSize))+offset));
+static SkRect make_rect() {
+    return SkRect::MakeWH(SkIntToScalar(R(static_cast<float>(kBitmapSize))),
+                          SkIntToScalar(R(static_cast<float>(kBitmapSize))));
 }
 
 static SkXfermode::Mode make_xfermode() {
@@ -163,7 +166,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
 
     enum { BICUBIC, MERGE, COLOR, BLUR, MAGNIFIER, XFERMODE, OFFSET, COMPOSE,
            DISTANT_LIGHT, POINT_LIGHT, SPOT_LIGHT, NOISE, DROP_SHADOW,
-           MORPHOLOGY, BITMAP, DISPLACE, NUM_FILTERS };
+           MORPHOLOGY, BITMAP, DISPLACE, TILE, NUM_FILTERS };
 
     switch (R(NUM_FILTERS)) {
     case BICUBIC:
@@ -185,7 +188,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         filter = new SkBlurImageFilter(make_scalar(true), make_scalar(true), make_image_filter());
         break;
     case MAGNIFIER:
-        filter = new SkMagnifierImageFilter(make_rect(0), make_scalar(true));
+        filter = new SkMagnifierImageFilter(make_rect(), make_scalar(true));
         break;
     case XFERMODE:
     {
@@ -256,6 +259,9 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
                      make_channel_selector_type(), make_scalar(),
                      make_image_filter(false), make_image_filter());
         break;
+    case TILE:
+        filter = new SkTileImageFilter(make_rect(), make_rect(), make_image_filter(false));
+        break;
     default:
         break;
     }
@@ -270,14 +276,27 @@ static SkImageFilter* make_serialized_image_filter() {
 #ifdef SK_ADD_RANDOM_BIT_FLIPS
     unsigned char* p = const_cast<unsigned char*>(ptr);
     for (size_t i = 0; i < len; ++i, ++p) {
-        if ((R(1000) == 1)) { // 0.1% of the time, flip a bit
-            *p ^= (1 << R(8));
+        if (R(250) == 1) { // 0.4% of the time, flip a bit or byte
+            if (R(10) == 1) { // Then 10% of the time, change a whole byte
+                switch(R(3)) {
+                case 0:
+                    *p ^= 0xFF; // Flip entire byte
+                    break;
+                case 1:
+                    *p = 0xFF; // Set all bits to 1
+                    break;
+                case 2:
+                    *p = 0x00; // Set all bits to 0
+                    break;
+                }
+            } else {
+                *p ^= (1 << R(8));
+            }
         }
     }
 #endif // SK_ADD_RANDOM_BIT_FLIPS
     SkFlattenable* flattenable = SkValidatingDeserializeFlattenable(ptr, len,
                                     SkImageFilter::GetFlattenableType());
-    SkASSERT(NULL != flattenable);
     return static_cast<SkImageFilter*>(flattenable);
 }
 
@@ -290,8 +309,18 @@ static void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& pai
 }
 
 static void do_fuzz(SkCanvas* canvas) {
+#ifdef SK_FUZZER_IS_VERBOSE
+    static uint32_t filterId = 0;
+    if (0 == filterId) {
+        printf("Fuzzing with %u\n", kSeed);
+    }
+    printf("Filter no %u\r", filterId);
+    fflush(stdout);
+    filterId++;
+#endif
+
     SkPaint paint;
-    paint.setImageFilter(make_serialized_image_filter())->unref();
+    SkSafeUnref(paint.setImageFilter(make_serialized_image_filter()));
     drawClippedBitmap(canvas, 0, 0, paint);
 }
 

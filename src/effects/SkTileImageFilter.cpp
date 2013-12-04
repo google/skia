@@ -38,6 +38,9 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src, const S
     }
 
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(w, h));
+    if (NULL == device.get()) {
+        return false;
+    }
     SkIRect bounds;
     source.getBounds(&bounds);
     SkCanvas canvas(device);

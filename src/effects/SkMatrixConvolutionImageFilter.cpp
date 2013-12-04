@@ -279,6 +279,9 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
 
     result->setConfig(src.config(), bounds.width(), bounds.height());
     result->allocPixels();
+    if (!result->getPixels()) {
+        return false;
+    }
 
     SkIRect interior = SkIRect::MakeXYWH(bounds.left() + fTarget.fX,
                                          bounds.top() + fTarget.fY,

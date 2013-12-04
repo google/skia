@@ -159,6 +159,10 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     dst->setConfig(src.config(), srcBounds.width(), srcBounds.height());
     dst->getBounds(&dstBounds);
     dst->allocPixels();
+    if (!dst->getPixels()) {
+        return false;
+    }
+
     int kernelSizeX, kernelSizeX3, lowOffsetX, highOffsetX;
     int kernelSizeY, kernelSizeY3, lowOffsetY, highOffsetY;
     getBox3Params(fSigma.width(), &kernelSizeX, &kernelSizeX3, &lowOffsetX, &highOffsetX);

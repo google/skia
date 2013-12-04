@@ -27,6 +27,10 @@ void SkDataPixelRef::onUnlockPixels() {
     // nothing to do
 }
 
+size_t SkDataPixelRef::getAllocatedSizeInBytes() const {
+    return fData ? fData->size() : 0;
+}
+
 void SkDataPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeDataAsByteArray(fData);

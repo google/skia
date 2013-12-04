@@ -1560,6 +1560,7 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
                     SkIsValidConfig(config) && validate_alphaType(config, alphaType));
 
     this->setConfig(config, width, height, rowBytes, alphaType);
+    buffer.validate(fRowBytes >= (fWidth * fBytesPerPixel));
 
     int reftype = buffer.readInt();
     if (buffer.validate((SERIALIZE_PIXELTYPE_REF_DATA == reftype) ||
@@ -1568,6 +1569,10 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
             case SERIALIZE_PIXELTYPE_REF_DATA: {
                 size_t offset = buffer.readUInt();
                 SkPixelRef* pr = buffer.readPixelRef();
+                if (!buffer.validate((NULL == pr) ||
+                       (pr->getAllocatedSizeInBytes() >= (offset + this->getSafeSize())))) {
+                    offset = 0;
+                }
                 SkSafeUnref(this->setPixelRef(pr, offset));
                 break;
             }

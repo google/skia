@@ -188,6 +188,9 @@ bool SkErodeImageFilter::onFilterImage(Proxy* proxy,
 
     dst->setConfig(src.config(), bounds.width(), bounds.height());
     dst->allocPixels();
+    if (!dst->getPixels()) {
+        return false;
+    }
 
     int width = radius().width();
     int height = radius().height();
@@ -247,6 +250,9 @@ bool SkDilateImageFilter::onFilterImage(Proxy* proxy,
 
     dst->setConfig(src.config(), bounds.width(), bounds.height());
     dst->allocPixels();
+    if (!dst->getPixels()) {
+        return false;
+    }
 
     int width = radius().width();
     int height = radius().height();
