@@ -98,11 +98,11 @@ bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
                                SkBoxBlurProc* boxBlurXY,
                                SkBoxBlurProc* boxBlurYX) {
 #if SK_ARM_NEON_IS_NONE
-    return NULL;
+    return false;
 #else
 #if SK_ARM_NEON_IS_DYNAMIC
     if (!sk_cpu_arm_has_neon()) {
-        return NULL;
+        return false;
     }
 #endif
     return SkBoxBlurGetPlatformProcs_NEON(boxBlurX, boxBlurY, boxBlurXY, boxBlurYX);
