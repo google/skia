@@ -88,19 +88,7 @@ GrContext* GrContext::Create(GrBackend backend, GrBackendContext backendContext)
     }
 }
 
-namespace {
-void* CreateThreadInstanceCount() {
-    return SkNEW_ARGS(int, (0));
-}
-void DeleteThreadInstanceCount(void* v) {
-    delete reinterpret_cast<int*>(v);
-}
-#define THREAD_INSTANCE_COUNT \
-    (*reinterpret_cast<int*>(SkTLS::Get(CreateThreadInstanceCount, DeleteThreadInstanceCount)))
-}
-
 GrContext::GrContext() {
-    ++THREAD_INSTANCE_COUNT;
     fDrawState = NULL;
     fGpu = NULL;
     fClip = NULL;
@@ -148,10 +136,6 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
     return true;
 }
 
-int GrContext::GetThreadInstanceCount() {
-    return THREAD_INSTANCE_COUNT;
-}
-
 GrContext::~GrContext() {
     if (NULL == fGpu) {
         return;
@@ -181,8 +165,6 @@ GrContext::~GrContext() {
     SkSafeUnref(fPathRendererChain);
     SkSafeUnref(fSoftwarePathRenderer);
     fDrawState->unref();
-
-    --THREAD_INSTANCE_COUNT;
 }
 
 void GrContext::contextLost() {

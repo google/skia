@@ -50,11 +50,6 @@ public:
      */
     static GrContext* Create(GrBackend, GrBackendContext);
 
-    /**
-     * Returns the number of GrContext instances for the current thread.
-     */
-    static int GetThreadInstanceCount();
-
     virtual ~GrContext();
 
     /**
