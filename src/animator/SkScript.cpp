@@ -1532,11 +1532,11 @@ bool SkScriptEngine::ConvertTo(SkScriptEngine* engine, SkDisplayTypes toType, Sk
             SkString* strPtr = new SkString();
             SkASSERT(engine);
             engine->track(strPtr);
-            if (type == SkType_Int)
+            if (type == SkType_Int) {
                 strPtr->appendS32(operand.fS32);
-            else if (type == SkType_Displayable)
+            } else if (type == SkType_Displayable) {
                 SkASSERT(0); // must call through instance version instead of static version
-            else {
+            } else {
                 if (type != SkType_Float) {
                     success = false;
                     break;

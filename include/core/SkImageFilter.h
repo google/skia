@@ -156,7 +156,14 @@ protected:
 
     virtual ~SkImageFilter();
 
-    explicit SkImageFilter(int maxInputCount, SkFlattenableReadBuffer& rb);
+    /**
+     *  Constructs a new SkImageFilter read from an SkFlattenableReadBuffer object.
+     *
+     *  @param inputCount    The exact number of inputs expected for this SkImageFilter object.
+     *                       -1 can be used if the filter accepts any number of inputs.
+     *  @param rb            SkFlattenableReadBuffer object from which the SkImageFilter is read.
+     */
+    explicit SkImageFilter(int inputCount, SkFlattenableReadBuffer& rb);
 
     virtual void flatten(SkFlattenableWriteBuffer& wb) const SK_OVERRIDE;
 

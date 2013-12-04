@@ -53,9 +53,9 @@ SkImageFilter::~SkImageFilter() {
     delete[] fInputs;
 }
 
-SkImageFilter::SkImageFilter(int maxInputCount, SkFlattenableReadBuffer& buffer) {
+SkImageFilter::SkImageFilter(int inputCount, SkFlattenableReadBuffer& buffer) {
     fInputCount = buffer.readInt();
-    if (buffer.validate((fInputCount >= 0) && (fInputCount <= maxInputCount))) {
+    if (buffer.validate((fInputCount >= 0) && ((inputCount < 0) || (fInputCount == inputCount)))) {
         fInputs = new SkImageFilter*[fInputCount];
         for (int i = 0; i < fInputCount; i++) {
             if (buffer.readBool()) {
