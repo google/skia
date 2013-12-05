@@ -64,30 +64,3 @@ filterbitmap_text_3.00pt
 filterbitmap_text_7.00pt
 filterbitmap_text_10.00pt
 
-# Added by jvanverth in https://codereview.chromium.org/102683002/
-mixed_xfermodes_gpu
-rrect_gpu
-rrect_aa_gpu
-shadertext3_gpu
-shadertext2_gpu
-patheffect_gpu
-path-reverse_gpu
-bezier_quad_effects_gpu
-hairlines_gpu
-getpostextpath_gpu
-dashcubics_gpu
-convexpaths_gpu
-roundrects_gpu
-strokerect_gpu
-rects_gpu
-simpleaaclip_path_gpu
-complexclip_aa_layer_gpu
-complexclip_bw_layer_gpu
-complexclip_aa_gpu
-complexclip_bw_gpu
-complexclip2_path_aa_gpu
-rrect_clip_aa_gpu
-pathopsskpclip_gpu
-strokes3_gpu
-bezier_quad_effects_msaa4 
-pathopsskpclip_gpu

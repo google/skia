@@ -337,7 +337,8 @@
           "bitmap-64bitMD5", 
           11968163364924591512
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "bicubicfilter_565.png": {
       "allowed-digests": [
