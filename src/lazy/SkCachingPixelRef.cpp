@@ -8,66 +8,71 @@
 #include "SkCachingPixelRef.h"
 #include "SkScaledImageCache.h"
 
-SkCachingPixelRef::SkCachingPixelRef()
-    : fErrorInDecoding(false)
-    , fScaledCacheId(NULL) {
-    memset(&fInfo, 0xFF, sizeof(fInfo));
+
+bool SkCachingPixelRef::Install(SkImageGenerator* generator,
+                                SkBitmap* dst) {
+    SkImageInfo info;
+    SkASSERT(generator != NULL);
+    SkASSERT(dst != NULL);
+    if ((NULL == generator)
+        || !(generator->getInfo(&info))
+        || !dst->setConfig(info, 0)) {
+        SkDELETE(generator);
+        return false;
+    }
+    SkAutoTUnref<SkCachingPixelRef> ref(SkNEW_ARGS(SkCachingPixelRef,
+                                                   (generator,
+                                                    info,
+                                                    dst->rowBytes())));
+    dst->setPixelRef(ref);
+    return true;
+}
+
+SkCachingPixelRef::SkCachingPixelRef(SkImageGenerator* generator,
+                                     const SkImageInfo& info,
+                                     size_t rowBytes)
+    : fImageGenerator(generator)
+    , fErrorInDecoding(false)
+    , fScaledCacheId(NULL)
+    , fInfo(info)
+    , fRowBytes(rowBytes) {
+    SkASSERT(fImageGenerator != NULL);
 }
 SkCachingPixelRef::~SkCachingPixelRef() {
+    SkDELETE(fImageGenerator);
     SkASSERT(NULL == fScaledCacheId);
     // Assert always unlock before unref.
 }
 
-bool SkCachingPixelRef::getInfo(SkImageInfo* info) {
-    SkASSERT(info != NULL);
-    if (fErrorInDecoding) {
-        return false;  // Don't try again.
-    }
-    if (fInfo.fWidth < 0) {
-        SkImageInfo tmp;
-        if (!this->onDecodeInfo(&tmp)) {
-            fErrorInDecoding = true;
-            return false;
-        }
-        SkASSERT(tmp.fWidth >= 0);
-        fInfo = tmp;
-    }
-    *info = fInfo;
-    return true;
-}
-
-bool SkCachingPixelRef::configure(SkBitmap* bitmap) {
-    SkASSERT(bitmap != NULL);
-    SkImageInfo info;
-    if (!this->getInfo(&info)) {
-        return false;
-    }
-    return bitmap->setConfig(info, 0);
-}
-
 void* SkCachingPixelRef::onLockPixels(SkColorTable** colorTable) {
     (void)colorTable;
-    SkImageInfo info;
-    if (!this->getInfo(&info)) {
-        return NULL;
+    if (fErrorInDecoding) {
+        return NULL;  // don't try again.
     }
     SkBitmap bitmap;
-
+    SkASSERT(NULL == fScaledCacheId);
     fScaledCacheId = SkScaledImageCache::FindAndLock(this->getGenerationID(),
-                                                     info.fWidth,
-                                                     info.fHeight,
+                                                     fInfo.fWidth,
+                                                     fInfo.fHeight,
                                                      &bitmap);
     if (NULL == fScaledCacheId) {
         // Cache has been purged, must re-decode.
-        if (!this->onDecodeInto(0, &bitmap)) {
+        if ((!bitmap.setConfig(fInfo, fRowBytes)) || !bitmap.allocPixels()) {
+            fErrorInDecoding = true;
+            return NULL;
+        }
+        SkAutoLockPixels autoLockPixels(bitmap);
+        if (!fImageGenerator->getPixels(fInfo, bitmap.getPixels(), fRowBytes)) {
+            fErrorInDecoding = true;
             return NULL;
         }
         fScaledCacheId = SkScaledImageCache::AddAndLock(this->getGenerationID(),
-                                                        info.fWidth,
-                                                        info.fHeight,
+                                                        fInfo.fWidth,
+                                                        fInfo.fHeight,
                                                         bitmap);
         SkASSERT(fScaledCacheId != NULL);
     }
+
     // Now bitmap should contain a concrete PixelRef of the decoded
     // image.
     SkAutoLockPixels autoLockPixels(bitmap);
@@ -92,20 +97,3 @@ void SkCachingPixelRef::onUnlockPixels() {
     }
 }
 
-bool SkCachingPixelRef::onDecodeInto(int pow2, SkBitmap* bitmap) {
-    SkASSERT(bitmap != NULL);
-    SkBitmap tmp;
-    SkImageInfo info;
-    // TODO(halcanary) - Enable SkCachingPixelRef to use a custom
-    // allocator. `tmp.allocPixels(fAllocator, NULL)`
-    if (!(this->configure(&tmp) && tmp.allocPixels())) {
-        return false;
-    }
-    SkAssertResult(this->getInfo(&info));  // since configure() succeeded.
-    if (!this->onDecodePixels(info, tmp.getPixels(), tmp.rowBytes())) {
-        fErrorInDecoding = true;
-        return false;
-    }
-    *bitmap = tmp;
-    return true;
-}
