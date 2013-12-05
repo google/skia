@@ -7,7 +7,6 @@
  */
 
 #include "SkBitmap.h"
-#include "SkBitmapFactory.h"
 #include "SkImage.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -85,7 +84,7 @@ SkBitmap::Allocator* SkImageDecoder::setAllocator(SkBitmap::Allocator*) {
 void SkImageDecoder::setSampleSize(int) {}
 
 bool SkImageDecoder::DecodeMemoryToTarget(const void*, size_t, SkImageInfo*,
-                                          const SkBitmapFactory::Target*) {
+                                          const SkImageDecoder::Target*) {
     return false;
 }
 
