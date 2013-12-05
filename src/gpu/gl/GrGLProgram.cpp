@@ -17,8 +17,6 @@
 #include "GrGLSL.h"
 #include "SkXfermode.h"
 
-SK_DEFINE_INST_COUNT(GrGLProgram)
-
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(fGpu->glInterface(), R, X)
 

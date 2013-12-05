@@ -43,5 +43,6 @@ private:
     int findRec(ID) const;
 #endif
     void removeRec(ID);
+    typedef SkImageCache INHERITED;
 };
 #endif // SkPurgeableImageCache_DEFINED

@@ -10,8 +10,6 @@
 
 const char* SkTriState::Name[] = { "default", "true", "false" };
 
-SK_DEFINE_INST_COUNT(SkBenchmark)
-
 template BenchRegistry* BenchRegistry::gHead;
 
 SkString SkBenchmark::gResourcePath;

@@ -12,8 +12,6 @@
 #include "GrMemoryPool.h"
 #include "SkTLS.h"
 
-SK_DEFINE_INST_COUNT(GrEffect)
-
 #if SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 SkTArray<GrEffectTestFactory*, true>* GrEffectTestFactory::GetFactories() {
     static SkTArray<GrEffectTestFactory*, true> gFactories;
@@ -60,8 +58,6 @@ private:
 int32_t GrBackendEffectFactory::fCurrEffectClassID = GrBackendEffectFactory::kIllegalEffectClassID;
 
 ///////////////////////////////////////////////////////////////////////////////
-
-SK_DEFINE_INST_COUNT(GrEffectRef)
 
 GrEffectRef::~GrEffectRef() {
     SkASSERT(this->unique());

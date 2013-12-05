@@ -16,8 +16,6 @@ static inline void join_no_empty_check(const SkIRect& joinWith, SkIRect* out);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SK_DEFINE_INST_COUNT(SkRTree)
-
 SkRTree* SkRTree::Create(int minChildren, int maxChildren, SkScalar aspectRatio,
             bool sortWhenBulkLoading) {
     if (minChildren < maxChildren && (maxChildren + 1) / 2 >= minChildren &&

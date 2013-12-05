@@ -13,7 +13,6 @@
     #include "SkTSearch.h"
 #endif
 
-SK_DEFINE_INST_COUNT(SkPurgeableImageCache)
 SK_DECLARE_STATIC_MUTEX(gPurgeableImageMutex);
 
 SkImageCache* SkPurgeableImageCache::Create() {

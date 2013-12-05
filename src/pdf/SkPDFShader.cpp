@@ -499,6 +499,7 @@ private:
 };
 
 class SkPDFFunctionShader : public SkPDFDict, public SkPDFShader {
+    SK_DECLARE_INST_COUNT(SkPDFFunctionShader)
 public:
     explicit SkPDFFunctionShader(SkPDFShader::State* state);
     virtual ~SkPDFFunctionShader() {
@@ -524,6 +525,7 @@ private:
     SkAutoTDelete<const SkPDFShader::State> fState;
 
     SkPDFStream* makePSFunction(const SkString& psCode, SkPDFArray* domain);
+    typedef SkPDFDict INHERITED;
 };
 
 /**

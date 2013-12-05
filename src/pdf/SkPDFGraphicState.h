@@ -27,6 +27,7 @@ class SkPDFFormXObject;
 
 */
 class SkPDFGraphicState : public SkPDFDict {
+    SK_DECLARE_INST_COUNT(SkPDFGraphicState)
 public:
     enum SkPDFSMaskMode {
         kAlpha_SMaskMode,
@@ -104,6 +105,7 @@ private:
     static SkPDFObject* GetInvertFunction();
 
     static int Find(const SkPaint& paint);
+    typedef SkPDFDict INHERITED;
 };
 
 #endif

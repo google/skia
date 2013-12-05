@@ -9,8 +9,6 @@
 #include "SkPictureStateTree.h"
 #include "SkCanvas.h"
 
-SK_DEFINE_INST_COUNT(SkPictureStateTree)
-
 SkPictureStateTree::SkPictureStateTree()
     : fAlloc(2048)
     , fRoot(NULL)

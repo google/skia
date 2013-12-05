@@ -8,8 +8,6 @@
 #include "SkData.h"
 #include "SkDataTable.h"
 
-SK_DEFINE_INST_COUNT(SkDataTable)
-
 static void malloc_freeproc(void* context) {
     sk_free(context);
 }

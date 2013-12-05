@@ -10,8 +10,6 @@
 #include "SkOSFile.h"
 #include "SkOnce.h"
 
-SK_DEFINE_INST_COUNT(SkData)
-
 SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context) {
     fPtr = ptr;
     fSize = size;

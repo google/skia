@@ -8,8 +8,6 @@
 #include "gl/SkGLContextHelper.h"
 #include "GrGLUtil.h"
 
-SK_DEFINE_INST_COUNT(SkGLContextHelper)
-
 SkGLContextHelper::SkGLContextHelper()
     : fFBO(0)
     , fColorBufferID(0)

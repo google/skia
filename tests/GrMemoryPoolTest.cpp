@@ -67,7 +67,7 @@ private:
     static SkAutoTDelete<GrMemoryPool> gPool;
     char fChar;
 };
-SK_DEFINE_INST_COUNT(A);
+
 SkAutoTDelete<GrMemoryPool> A::gPool;
 
 class B : public A {

@@ -19,8 +19,6 @@
 #include "SkXfermode_opts_arm_neon.h"
 #endif
 
-SK_DEFINE_INST_COUNT(SkXfermode)
-
 #define SkAlphaMulAlpha(a, b)   SkMulDiv255Round(a, b)
 
 #if 0

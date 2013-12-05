@@ -21,8 +21,6 @@
 #include "SkGrPixelRef.h"
 #endif
 
-SK_DEFINE_INST_COUNT(SkMaskFilter)
-
 bool SkMaskFilter::filterMask(SkMask*, const SkMask&, const SkMatrix&,
                               SkIPoint*) const {
     return false;

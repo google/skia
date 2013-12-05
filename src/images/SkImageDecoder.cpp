@@ -14,10 +14,6 @@
 #include "SkTemplates.h"
 #include "SkCanvas.h"
 
-SK_DEFINE_INST_COUNT(SkImageDecoder::Peeker)
-SK_DEFINE_INST_COUNT(SkImageDecoder::Chooser)
-SK_DEFINE_INST_COUNT(SkImageDecoderFactory)
-
 static SkBitmap::Config gDeviceConfig = SkBitmap::kNo_Config;
 
 SkBitmap::Config SkImageDecoder::GetDeviceConfig()

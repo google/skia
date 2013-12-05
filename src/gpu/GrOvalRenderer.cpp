@@ -22,8 +22,6 @@
 
 #include "effects/GrVertexEffect.h"
 
-SK_DEFINE_INST_COUNT(GrOvalRenderer)
-
 namespace {
 
 struct CircleVertex {

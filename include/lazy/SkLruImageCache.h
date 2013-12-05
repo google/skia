@@ -86,6 +86,7 @@ private:
      *  Remove a set of CachedPixels. Mutex must be locked before calling.
      */
     void removePixels(CachedPixels*);
+    typedef SkImageCache INHERITED;
 };
 
 #endif // SkLruImageCache_DEFINED

@@ -9,8 +9,6 @@
 #include "SkImagePriv.h"
 #include "SkCanvas.h"
 
-SK_DEFINE_INST_COUNT(SkSurface)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface_Base::SkSurface_Base(int width, int height) : INHERITED(width, height) {

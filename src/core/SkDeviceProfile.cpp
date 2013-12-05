@@ -9,8 +9,6 @@
 #include "SkDeviceProfile.h"
 #include "SkThread.h"
 
-SK_DEFINE_INST_COUNT(SkDeviceProfile)
-
 #define DEFAULT_GAMMAEXP        2.2f
 #define DEFAULT_CONTRASTSCALE   0.5f
 #define DEFAULT_LCDCONFIG       SkDeviceProfile::kNone_LCDConfig

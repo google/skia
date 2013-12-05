@@ -8,8 +8,6 @@
 #include "SkFlattenable.h"
 #include "SkPtrRecorder.h"
 
-SK_DEFINE_INST_COUNT(SkFlattenable)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkFlattenable::flatten(SkFlattenableWriteBuffer&) const

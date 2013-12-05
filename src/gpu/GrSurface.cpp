@@ -11,8 +11,6 @@
 #include "SkImageEncoder.h"
 #include <stdio.h>
 
-SK_DEFINE_INST_COUNT(GrSurface)
-
 bool GrSurface::savePixels(const char* filename) {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, this->width(), this->height());

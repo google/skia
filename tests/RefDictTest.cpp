@@ -15,8 +15,6 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-SK_DEFINE_INST_COUNT(TestRC)
-
 static void TestRefDict(skiatest::Reporter* reporter) {
     TestRC    data0, data1;
     SkRefDict dict;

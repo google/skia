@@ -71,9 +71,6 @@ private:
     typedef GrResource INHERITED;
 };
 
-SK_DEFINE_INST_COUNT(StencilResource)
-SK_DEFINE_INST_COUNT(TextureResource)
-
 static void get_stencil(int i, int* w, int* h, int* s) {
     *w = i % 1024;
     *h = i * 2 % 1024;

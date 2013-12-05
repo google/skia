@@ -25,8 +25,6 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-SK_DEFINE_INST_COUNT(RefClass)
-
 static void test_autounref(skiatest::Reporter* reporter) {
     RefClass obj(0);
     REPORTER_ASSERT(reporter, 1 == obj.getRefCnt());

@@ -28,8 +28,6 @@ private:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(ListElement);
 };
 
-SK_DEFINE_INST_COUNT(ListElement);
-
 static void check_list(const SkTInternalLList<ListElement>& list,
                        skiatest::Reporter* reporter,
                        bool empty,

@@ -549,8 +549,6 @@ private:
     SkPoint3 fColor;
 };
 
-SK_DEFINE_INST_COUNT(SkLight)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkDistantLight : public SkLight {

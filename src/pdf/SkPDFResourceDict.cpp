@@ -8,8 +8,6 @@
 #include "SkPDFResourceDict.h"
 #include "SkPostConfig.h"
 
-SK_DEFINE_INST_COUNT(SkPDFResourceDict)
-
 // Sanity check that the values of enum SkPDFResourceType correspond to the
 // expected values as defined in the arrays below.
 // If these are failing, you may need to update the resource_type_prefixes

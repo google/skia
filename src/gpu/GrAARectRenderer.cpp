@@ -13,8 +13,6 @@
 #include "SkColorPriv.h"
 #include "effects/GrVertexEffect.h"
 
-SK_DEFINE_INST_COUNT(GrAARectRenderer)
-
 ///////////////////////////////////////////////////////////////////////////////
 class GrGLAlignedRectEffect;
 

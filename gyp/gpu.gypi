@@ -70,7 +70,6 @@
       '<(skia_src_path)/gpu/GrDrawTarget.h',
       '<(skia_src_path)/gpu/GrDrawTargetCaps.h',
       '<(skia_src_path)/gpu/GrEffect.cpp',
-      '<(skia_src_path)/gpu/GrGeometryBuffer.cpp',
       '<(skia_src_path)/gpu/GrGeometryBuffer.h',
       '<(skia_src_path)/gpu/GrClipMaskCache.h',
       '<(skia_src_path)/gpu/GrClipMaskCache.cpp',

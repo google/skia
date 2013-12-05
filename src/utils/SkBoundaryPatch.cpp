@@ -7,8 +7,6 @@
  */
 #include "SkBoundaryPatch.h"
 
-SK_DEFINE_INST_COUNT(SkBoundary)
-
 SkBoundaryPatch::SkBoundaryPatch() : fBoundary(NULL) {}
 
 SkBoundaryPatch::~SkBoundaryPatch() {

@@ -10,8 +10,6 @@
 #include "SkPath.h"
 #include "SkPathRef.h"
 
-SK_DEFINE_INST_COUNT(SkPathRef);
-
 //////////////////////////////////////////////////////////////////////////////
 SkPathRef::Editor::Editor(SkAutoTUnref<SkPathRef>* pathRef,
                           int incReserveVerbs,

@@ -31,8 +31,6 @@ private:
     typedef SkSurface_Base INHERITED;
 };
 
-SK_DEFINE_INST_COUNT(SkSurface_Gpu)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface_Gpu::SkSurface_Gpu(GrContext* ctx, const SkImageInfo& info,

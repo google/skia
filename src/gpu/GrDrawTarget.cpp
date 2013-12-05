@@ -18,8 +18,6 @@
 
 #include "SkStrokeRec.h"
 
-SK_DEFINE_INST_COUNT(GrDrawTarget)
-
 ////////////////////////////////////////////////////////////////////////////////
 
 GrDrawTarget::DrawInfo& GrDrawTarget::DrawInfo::operator =(const DrawInfo& di) {
@@ -961,8 +959,6 @@ void GrDrawTarget::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* d
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-SK_DEFINE_INST_COUNT(GrDrawTargetCaps)
 
 void GrDrawTargetCaps::reset() {
     f8BitPaletteSupport = false;

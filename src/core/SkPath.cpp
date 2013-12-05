@@ -15,8 +15,6 @@
 #include "SkRRect.h"
 #include "SkThread.h"
 
-SK_DEFINE_INST_COUNT(SkPath);
-
 // This value is just made-up for now. When count is 4, calling memset was much
 // slower than just writing the loop. This seems odd, and hopefully in the
 // future this we appear to have been a fluke...

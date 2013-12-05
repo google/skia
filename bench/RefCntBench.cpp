@@ -50,8 +50,6 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-SK_DEFINE_INST_COUNT(PlacedRefCnt)
-
 class RefCntBench_Heap : public SkBenchmark {
 public:
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {

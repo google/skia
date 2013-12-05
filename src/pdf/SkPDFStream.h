@@ -25,6 +25,7 @@ class SkPDFCatalog;
     is feasible.
 */
 class SkPDFStream : public SkPDFDict {
+    SK_DECLARE_INST_COUNT(SkPDFStream)
 public:
     /** Create a PDF stream. A Length entry is automatically added to the
      *  stream dictionary. The stream may be retained (stream->ref() may be

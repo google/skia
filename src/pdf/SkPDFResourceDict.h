@@ -95,6 +95,7 @@ private:
     SkTSet<SkPDFObject*> fResources;
 
     SkTDArray<SkPDFDict*> fTypes;
+    typedef SkPDFDict INHERITED;
 };
 
 #endif

@@ -30,10 +30,6 @@
 #include "GrRenderTarget.h"
 #endif
 
-SK_DEFINE_INST_COUNT(SkBounder)
-SK_DEFINE_INST_COUNT(SkCanvas)
-SK_DEFINE_INST_COUNT(SkDrawFilter)
-
 // experimental for faster tiled drawing...
 //#define SK_ENABLE_CLIP_QUICKREJECT
 

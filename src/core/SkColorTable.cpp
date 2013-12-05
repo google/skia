@@ -12,8 +12,6 @@
 #include "SkStream.h"
 #include "SkTemplates.h"
 
-SK_DEFINE_INST_COUNT(SkColorTable)
-
 // As copy constructor is hidden in the class hierarchy, we need to call
 // default constructor explicitly to suppress a compiler warning.
 SkColorTable::SkColorTable(const SkColorTable& src) : INHERITED() {

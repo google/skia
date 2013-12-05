@@ -12,8 +12,6 @@
 #include "GrGpu.h"
 #include "GrResourceCache.h"
 
-SK_DEFINE_INST_COUNT(GrStencilBuffer)
-
 void GrStencilBuffer::transferToCache() {
     SkASSERT(NULL == this->getCacheEntry());
 

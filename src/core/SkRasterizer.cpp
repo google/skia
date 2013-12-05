@@ -12,8 +12,6 @@
 #include "SkMaskFilter.h"
 #include "SkPath.h"
 
-SK_DEFINE_INST_COUNT(SkRasterizer)
-
 bool SkRasterizer::rasterize(const SkPath& fillPath, const SkMatrix& matrix,
                              const SkIRect* clipBounds, SkMaskFilter* filter,
                              SkMask* mask, SkMask::CreateMode mode) const {

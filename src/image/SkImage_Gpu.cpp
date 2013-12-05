@@ -36,8 +36,6 @@ private:
     typedef SkImage_Base INHERITED;
 };
 
-SK_DEFINE_INST_COUNT(SkImage_Gpu)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImage_Gpu::SkImage_Gpu(const SkBitmap& bitmap)

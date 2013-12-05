@@ -9,9 +9,6 @@
 #include "SkFlattenableBuffers.h"
 #include "SkThread.h"
 
-SK_DEFINE_INST_COUNT(SkPixelRef)
-
-
 #ifdef SK_USE_POSIX_THREADS
 
     static SkBaseMutex gPixelRefMutexRing[] = {

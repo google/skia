@@ -25,6 +25,7 @@ class SkWStream;
     tree and points to the content of the page.
 */
 class SkPDFPage : public SkPDFDict {
+    SK_DECLARE_INST_COUNT(SkPDFPage)
 public:
     /** Create a PDF page with the passed PDF device.  The device need not
      *  have content on it yet.
@@ -102,6 +103,7 @@ private:
 
     // Once the content is finalized, put it into a stream for output.
     SkAutoTUnref<SkPDFStream> fContentStream;
+    typedef SkPDFDict INHERITED;
 };
 
 #endif

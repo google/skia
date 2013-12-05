@@ -15,8 +15,6 @@
 #include "GrRenderTarget.h"
 #include "GrResourceCache.h"
 
-SK_DEFINE_INST_COUNT(GrTexture)
-
 GrTexture::~GrTexture() {
     if (NULL != fRenderTarget.get()) {
         fRenderTarget.get()->owningTextureDestroyed();

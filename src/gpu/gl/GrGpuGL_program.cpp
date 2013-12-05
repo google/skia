@@ -27,8 +27,6 @@ struct GrGpuGL::ProgramCache::Entry {
     unsigned int                fLRUStamp;
 };
 
-SK_DEFINE_INST_COUNT(GrGpuGL::ProgramCache::Entry);
-
 struct GrGpuGL::ProgramCache::ProgDescLess {
     bool operator() (const GrGLProgramDesc& desc, const Entry* entry) {
         SkASSERT(NULL != entry->fProgram.get());

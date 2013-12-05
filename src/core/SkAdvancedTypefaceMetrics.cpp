@@ -10,8 +10,6 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkTypes.h"
 
-SK_DEFINE_INST_COUNT(SkAdvancedTypefaceMetrics)
-
 #if defined(SK_BUILD_FOR_WIN)
 #include <dwrite.h>
 #endif

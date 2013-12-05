@@ -12,8 +12,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SK_DEFINE_INST_COUNT(SkPathEffect)
-
 void SkPathEffect::computeFastBounds(SkRect* dst, const SkRect& src) const {
     *dst = src;
 }

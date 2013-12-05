@@ -7,8 +7,6 @@
 
 #include "GrPath.h"
 
-SK_DEFINE_INST_COUNT(GrPath)
-
 GrResourceKey GrPath::ComputeKey(const SkPath& path, const SkStrokeRec& stroke) {
     static const GrResourceKey::ResourceType gPathResourceType = GrResourceKey::GenerateResourceType();
     static const GrCacheID::Domain gPathDomain = GrCacheID::GenerateDomain();

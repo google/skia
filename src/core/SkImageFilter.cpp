@@ -17,8 +17,6 @@
 #include "SkImageFilterUtils.h"
 #endif
 
-SK_DEFINE_INST_COUNT(SkImageFilter)
-
 SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect)
   : fInputCount(inputCount),
     fInputs(new SkImageFilter*[inputCount]),

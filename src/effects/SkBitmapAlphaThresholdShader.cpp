@@ -34,8 +34,6 @@ private:
     typedef SkShader INHERITED;
 };
 
-SK_DEFINE_INST_COUNT(BATShader)
-
 SkShader* SkBitmapAlphaThresholdShader::Create(const SkBitmap& bitmap,
                                                const SkRegion& region,
                                                U8CPU threshold) {

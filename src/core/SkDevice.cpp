@@ -9,8 +9,6 @@
 #include "SkDevice.h"
 #include "SkMetaData.h"
 
-SK_DEFINE_INST_COUNT(SkBaseDevice)
-
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
     const SkCanvas::Config8888 SkBaseDevice::kPMColorAlias = SkCanvas::kBGRA_Premul_Config8888;
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)

@@ -11,8 +11,6 @@
 #include "SkFlattenableBuffers.h"
 #include <new>
 
-SK_DEFINE_INST_COUNT(SkPathHeap)
-
 #define kPathCount  64
 
 SkPathHeap::SkPathHeap() : fHeap(kPathCount * sizeof(SkPath)) {

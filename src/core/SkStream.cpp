@@ -13,15 +13,6 @@
 #include "SkString.h"
 #include "SkOSFile.h"
 
-SK_DEFINE_INST_COUNT(SkStream)
-SK_DEFINE_INST_COUNT(SkWStream)
-SK_DEFINE_INST_COUNT(SkFILEStream)
-SK_DEFINE_INST_COUNT(SkMemoryStream)
-SK_DEFINE_INST_COUNT(SkFILEWStream)
-SK_DEFINE_INST_COUNT(SkMemoryWStream)
-SK_DEFINE_INST_COUNT(SkDynamicMemoryWStream)
-SK_DEFINE_INST_COUNT(SkDebugWStream)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 

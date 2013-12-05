@@ -11,8 +11,6 @@
 #include "SkRasterClip.h"
 #include "SkShader.h"
 
-SK_DEFINE_INST_COUNT(SkBitmapDevice)
-
 #define CHECK_FOR_ANNOTATION(paint) \
     do { if (paint.getAnnotation()) { return; } } while (0)
 

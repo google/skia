@@ -11,8 +11,6 @@
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
-SK_DEFINE_INST_COUNT(GrGLCaps)
-
 GrGLCaps::GrGLCaps() {
     this->reset();
 }

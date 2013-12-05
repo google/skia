@@ -786,8 +786,6 @@ private:
     typedef GrGLInterface INHERITED;
 };
 
-SK_DEFINE_INST_COUNT(GrDebugGLInterface)
-
 ////////////////////////////////////////////////////////////////////////////////
 const GrGLInterface* GrGLCreateDebugInterface() {
     GrGLInterface* interface = SkNEW(GrDebugGLInterface);

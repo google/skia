@@ -24,8 +24,6 @@
 #include "SkPackBits.h"
 #include <new>
 
-SK_DEFINE_INST_COUNT(SkBitmap::Allocator)
-
 static bool isPos32Bits(const Sk64& value) {
     return !value.isNeg() && value.is32();
 }

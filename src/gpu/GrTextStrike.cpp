@@ -16,9 +16,6 @@
 #include "edtaa3.h"
 #endif
 
-SK_DEFINE_INST_COUNT(GrFontScaler)
-SK_DEFINE_INST_COUNT(GrKey)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #define FONT_CACHE_STATS 0

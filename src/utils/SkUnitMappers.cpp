@@ -8,8 +8,6 @@
 #include "SkUnitMappers.h"
 #include "SkFlattenableBuffers.h"
 
-SK_DEFINE_INST_COUNT(SkUnitMapper)
-
 SkDiscreteMapper::SkDiscreteMapper(int segments) {
     if (segments < 2) {
         fSegments = 0;

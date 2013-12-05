@@ -11,8 +11,6 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 
-SK_DEFINE_INST_COUNT(SkTypeface)
-
 //#define TRACE_LIFECYCLE
 
 #ifdef TRACE_LIFECYCLE
