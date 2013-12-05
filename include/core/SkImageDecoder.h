@@ -11,7 +11,6 @@
 #define SkImageDecoder_DEFINED
 
 #include "SkBitmap.h"
-#include "SkBitmapFactory.h"
 #include "SkImage.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
@@ -336,6 +335,21 @@ public:
     }
 
     /**
+     *  Struct containing information about a pixel destination.
+     */
+    struct Target {
+        /**
+         *  Pre-allocated memory.
+         */
+        void*  fAddr;
+
+        /**
+         *  Rowbytes of the allocated memory.
+         */
+        size_t fRowBytes;
+    };
+
+    /**
      *  Decode memory.
      *  @param info Output parameter. Returns info about the encoded image.
      *  @param target Contains the address of pixel memory to decode into
@@ -360,7 +374,7 @@ public:
      *  </code>
      */
     static bool DecodeMemoryToTarget(const void* buffer, size_t size, SkImageInfo* info,
-                                     const SkBitmapFactory::Target* target);
+                                     const Target* target);
 
     /** Decode the image stored in the specified SkStreamRewindable, and store the result
         in bitmap. Return true for success or false on failure.

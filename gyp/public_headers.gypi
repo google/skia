@@ -297,10 +297,6 @@
       'views/SkOSWindow_Unix.h',
       'views/SkWidget.h',
       'views/SkOSWindow_Win.h',
-      'lazy/SkBitmapFactory.h',
-      'lazy/SkImageCache.h',
-      'lazy/SkPurgeableImageCache.h',
-      'lazy/SkLruImageCache.h',
     ],
   },
 }

@@ -38,6 +38,7 @@
         '../src/images/bmpdecoderhelper.h',
 
         '../src/images/SkDecodingImageGenerator.cpp',
+        '../src/images/SkDecodingImageGenerator.h',
         '../src/images/SkForceLinking.cpp',
         '../src/images/SkImageDecoder.cpp',
         '../src/images/SkImageDecoder_FactoryDefault.cpp',

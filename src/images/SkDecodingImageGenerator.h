@@ -8,6 +8,7 @@
 #ifndef SkDecodingImageGenerator_DEFINED
 #define SkDecodingImageGenerator_DEFINED
 
+#include "SkDiscardableMemory.h"
 #include "SkImageGenerator.h"
 
 class SkBitmap;
@@ -36,8 +37,21 @@ public:
     /**
      *  Install the SkData into the destination bitmap, using a new
      *  SkDiscardablePixelRef and a new SkDecodingImageGenerator.
+     *
+     *  @param data Contains the encoded image data that will be used
+     *  by the SkDecodingImageGenerator.  Will be ref()ed.
+     *
+     *  @param destination Upon success, this bitmap will be
+     *  configured and have a pixelref installed.
+     *
+     *  @param factory If not NULL, this object will be used as a
+     *  source of discardable memory when decoding.  If NULL, then
+     *  SkDiscardableMemory::Create() will be called.
+     *
+     *  @return true iff successful.
      */
-    static bool Install(SkData* data, SkBitmap* destination);
+    static bool Install(SkData* data, SkBitmap* destination,
+                        SkDiscardableMemory::Factory* factory = NULL);
 
 private:
     SkData* fData;

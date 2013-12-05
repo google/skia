@@ -6,11 +6,12 @@
  */
 
 #include "gm.h"
-#include "SkBitmapFactory.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkDecodingImageGenerator.h"
+#include "SkDiscardableMemoryPool.h"
+#include "SkDiscardablePixelRef.h"
 #include "SkImageDecoder.h"
-#include "SkLruImageCache.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
 
@@ -28,20 +29,14 @@ protected:
         // Copyright-free file from http://openclipart.org/detail/29213/paper-plane-by-ddoo
         SkString filename = SkOSPath::SkPathJoin(INHERITED::gResourcePath.c_str(),
                                                  "plane.png");
-
-        SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(filename.c_str()));
-        if (NULL != stream.get()) {
-            stream->rewind();
-            size_t length = stream->getLength();
-            void* buffer = sk_malloc_throw(length);
-            stream->read(buffer, length);
-            SkAutoDataUnref data(SkData::NewFromMalloc(buffer, length));
-            SkBitmapFactory factory(&SkImageDecoder::DecodeMemoryToTarget);
+        SkAutoDataUnref data(SkData::NewFromFileName(filename.c_str()));
+        if (NULL != data.get()) {
             // Create a cache which will boot the pixels out anytime the
             // bitmap is unlocked.
-            SkAutoTUnref<SkLruImageCache> cache(SkNEW_ARGS(SkLruImageCache, (1)));
-            factory.setImageCache(cache);
-            factory.installPixelRef(data, &fBitmap);
+            SkAutoTUnref<SkDiscardableMemoryPool> pool(
+                SkNEW_ARGS(SkDiscardableMemoryPool, (1)));
+            SkAssertResult(SkDecodingImageGenerator::Install(data,
+                                                             &fBitmap, pool));
         }
     }
 

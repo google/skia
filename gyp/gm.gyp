@@ -29,6 +29,8 @@
       'type': 'executable',
       'include_dirs' : [
         '../src/core',
+        '../src/images',
+        '../src/lazy',
         '../src/effects',
         '../src/pipe/utils/',
         '../src/utils/',

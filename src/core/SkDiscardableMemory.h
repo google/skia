@@ -8,6 +8,7 @@
 #ifndef SkDiscardableMemory_DEFINED
 #define SkDiscardableMemory_DEFINED
 
+#include "SkRefCnt.h"
 #include "SkTypes.h"
 
 /**
@@ -15,13 +16,23 @@
  *  embedder.
  */
 class SK_API SkDiscardableMemory {
-
 public:
     /**
      *  Factory method that creates, initializes and locks an SkDiscardableMemory
      *  object. If either of these steps fails, a NULL pointer will be returned.
      */
     static SkDiscardableMemory* Create(size_t bytes);
+
+    /**
+     *  Factory class that creates, initializes and locks an SkDiscardableMemory
+     *  object. If either of these steps fails, a NULL pointer will be returned.
+     */
+    class Factory : public SkRefCnt {
+    public:
+        virtual SkDiscardableMemory* create(size_t bytes) = 0;
+    private:
+        typedef SkRefCnt INHERITED;
+    };
 
     /** Must not be called while locked.
      */

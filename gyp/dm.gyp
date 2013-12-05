@@ -9,6 +9,8 @@
         'include_dirs': [
             '../dm',
             '../gm',
+            '../src/images',
+            '../src/lazy',
             '../src/core',
             '../src/effects',
             '../src/pipe/utils/',

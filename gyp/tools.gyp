@@ -211,6 +211,9 @@
         '../tools/render_pictures_main.cpp',
       ],
       'include_dirs': [
+        '../src/core',
+        '../src/images',
+        '../src/lazy',
         '../src/pipe/utils/',
       ],
       'dependencies': [
@@ -232,6 +235,7 @@
         '../tools/PictureBenchmark.cpp',
       ],
       'include_dirs': [
+        '../src/core/',
         '../bench',
         '../src/lazy/',
       ],
@@ -258,7 +262,9 @@
         '../src/pipe/utils/SamplePipeControllers.cpp',
       ],
       'include_dirs': [
-        '../src/core/',
+        '../src/core',
+        '../src/images',
+        '../src/lazy',
         '../src/pipe/utils/',
         '../src/utils/',
       ],

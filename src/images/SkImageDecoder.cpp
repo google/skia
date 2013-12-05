@@ -387,7 +387,7 @@ static bool decode_pixels_to_8888(SkImageDecoder* decoder, SkStream* stream,
 
 bool SkImageDecoder::DecodeMemoryToTarget(const void* buffer, size_t size,
                                           SkImageInfo* info,
-                                          const SkBitmapFactory::Target* target) {
+                                          const SkImageDecoder::Target* target) {
     // FIXME: Just to get this working, implement in terms of existing
     // ImageDecoder calls.
     SkBitmap bm;

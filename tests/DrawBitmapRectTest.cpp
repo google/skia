@@ -9,41 +9,47 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkDiscardableMemoryPool.h"
+#include "SkDiscardablePixelRef.h"
 #include "SkPaint.h"
 #include "SkShader.h"
 #include "SkSurface.h"
 #include "SkRandom.h"
 #include "SkMatrixUtils.h"
 
-#include "SkLazyPixelRef.h"
-#include "SkLruImageCache.h"
-
+namespace {
 // A BitmapFactory that always fails when asked to return pixels.
-static bool FailureDecoder(const void* data, size_t length, SkImageInfo* info,
-                           const SkBitmapFactory::Target* target) {
-    if (info) {
-        info->fWidth = info->fHeight = 100;
-        info->fColorType = kRGBA_8888_SkColorType;
+class FailureImageGenerator : public SkImageGenerator {
+public:
+    FailureImageGenerator() { }
+    virtual ~FailureImageGenerator() { }
+    virtual bool getInfo(SkImageInfo* info) {
+        info->fWidth = 100;
+        info->fHeight = 100;
+        info->fColorType = kPMColor_SkColorType;
         info->fAlphaType = kPremul_SkAlphaType;
+        return true;
     }
-    // this will deliberately return false if they are asking us to decode
-    // into pixels.
-    return NULL == target;
-}
+    virtual bool getPixels(const SkImageInfo& info,
+                           void* pixels,
+                           size_t rowBytes) SK_OVERRIDE {
+        // this will deliberately return false if they are asking us
+        // to decode into pixels.
+        return false;
+    }
+};
+}  // namespace
 
 // crbug.com/295895
 // Crashing in skia when a pixelref fails in lockPixels
 //
 static void test_faulty_pixelref(skiatest::Reporter* reporter) {
     // need a cache, but don't expect to use it, so the budget is not critical
-    SkLruImageCache cache(10 * 1000);
-    // construct a garbage data represent "bad" encoded data.
-    SkAutoDataUnref data(SkData::NewFromMalloc(malloc(1000), 1000));
-    SkAutoTUnref<SkPixelRef> pr(new SkLazyPixelRef(data, FailureDecoder, &cache));
-
+    SkAutoTUnref<SkDiscardableMemoryPool> pool(SkNEW_ARGS(SkDiscardableMemoryPool,
+                                                          (10 * 1000, NULL)));
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
-    bm.setPixelRef(pr);
+    bool installSuccess = SkDiscardablePixelRef::Install(SkNEW(FailureImageGenerator), &bm, pool);
+    REPORTER_ASSERT(reporter, installSuccess);
     // now our bitmap has a pixelref, but we know it will fail to lock
 
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(200, 200));

@@ -12,6 +12,8 @@
       'include_dirs' : [
         '../src/core',
         '../src/effects', #needed for BlurMask.h
+        '../src/images',
+        '../src/lazy',
         '../gm',       # needed to pull gm.h
         '../samplecode', # To pull SampleApp.h and SampleCode.h
         '../src/pipe/utils', # For TiledPipeController

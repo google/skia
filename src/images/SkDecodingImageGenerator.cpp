@@ -6,8 +6,6 @@
  */
 
 #include "SkDecodingImageGenerator.h"
-
-#include "SkBitmapFactory.h"
 #include "SkData.h"
 #include "SkDiscardablePixelRef.h"
 #include "SkImageDecoder.h"
@@ -23,6 +21,7 @@ SkDecodingImageGenerator::~SkDecodingImageGenerator() {
 }
 
 SkData* SkDecodingImageGenerator::refEncodedData() {
+    // This functionality is used in `gm --serialize`
     fData->ref();
     return fData;
 }
@@ -38,15 +37,16 @@ bool SkDecodingImageGenerator::getPixels(const SkImageInfo& info,
                                          void* pixels,
                                          size_t rowBytes) {
     SkASSERT(pixels != NULL);
-    SkBitmapFactory::Target target = {pixels, rowBytes};
+    SkImageDecoder::Target target = {pixels, rowBytes};
     SkImageInfo tmpInfo = info;
     return SkImageDecoder::DecodeMemoryToTarget(fData->data(),
                                                 fData->size(),
                                                 &tmpInfo, &target);
 }
-bool SkDecodingImageGenerator::Install(SkData* data, SkBitmap* dst) {
+bool SkDecodingImageGenerator::Install(SkData* data, SkBitmap* dst,
+                                       SkDiscardableMemory::Factory* factory) {
     SkASSERT(data != NULL);
     SkASSERT(dst != NULL);
     SkImageGenerator* gen(SkNEW_ARGS(SkDecodingImageGenerator, (data)));
-    return SkDiscardablePixelRef::Install(gen, dst);
+    return SkDiscardablePixelRef::Install(gen, dst, factory);
 }
