@@ -28,24 +28,7 @@ public:
 
     RectBench(int shift, int stroke = 0)
         : fShift(shift)
-        , fStroke(stroke) {
-        SkRandom rand;
-        const SkScalar offset = SK_Scalar1/3;
-        for (int i = 0; i < N; i++) {
-            int x = rand.nextU() % W;
-            int y = rand.nextU() % H;
-            int w = rand.nextU() % W;
-            int h = rand.nextU() % H;
-            w >>= shift;
-            h >>= shift;
-            x -= w/2;
-            y -= h/2;
-            fRects[i].set(SkIntToScalar(x), SkIntToScalar(y),
-                          SkIntToScalar(x+w), SkIntToScalar(y+h));
-            fRects[i].offset(offset, offset);
-            fColors[i] = rand.nextU() | 0xFF808080;
-        }
-    }
+        , fStroke(stroke) {}
 
     SkString fName;
     const char* computeName(const char root[]) {
@@ -62,6 +45,26 @@ protected:
     }
 
     virtual const char* onGetName() { return computeName("rects"); }
+
+    virtual void onPreDraw() {
+        SkRandom rand;
+        const SkScalar offset = SK_Scalar1/3;
+        for (int i = 0; i < N; i++) {
+            int x = rand.nextU() % W;
+            int y = rand.nextU() % H;
+            int w = rand.nextU() % W;
+            int h = rand.nextU() % H;
+            w >>= fShift;
+            h >>= fShift;
+            x -= w/2;
+            y -= h/2;
+            fRects[i].set(SkIntToScalar(x), SkIntToScalar(y),
+                          SkIntToScalar(x+w), SkIntToScalar(y+h));
+            fRects[i].offset(offset, offset);
+            fColors[i] = rand.nextU() | 0xFF808080;
+        }
+    }
+
     virtual void onDraw(const int loops, SkCanvas* canvas) {
         SkPaint paint;
         if (fStroke > 0) {
