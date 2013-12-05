@@ -9,7 +9,6 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
-#include "SkForceLinking.h"
 #include "SkImageDecoder.h"
 #include "SkImagePriv.h"
 #include "SkLazyPixelRef.h"
@@ -19,8 +18,6 @@
 
 #include "Test.h"
 #include "TestClassDef.h"
-
-__SK_FORCE_IMAGE_DECODER_LINKING;
 
 /**
  * Fill this bitmap with some color.
@@ -168,7 +165,7 @@ static void test_three_encodings(skiatest::Reporter* reporter,
 /**
  *  This checks to see that a SkLazyPixelRef works as advertised.
  */
-bool install_skLazyPixelRef(SkData* encoded, SkBitmap* dst) {
+static bool install_skLazyPixelRef(SkData* encoded, SkBitmap* dst) {
     static const SkBitmapFactory::DecodeProc decoder =
         &(SkImageDecoder::DecodeMemoryToTarget);
     return simple_bitmap_factory(decoder, encoded, dst);
@@ -181,7 +178,7 @@ DEF_TEST(LazyPixelRef, reporter) {
 /**
  *  This checks to see that a SkCachingPixelRef works as advertised.
  */
-bool install_skCachingPixelRef(SkData* encoded, SkBitmap* dst) {
+static bool install_skCachingPixelRef(SkData* encoded, SkBitmap* dst) {
     return SkCachingPixelRef::Install(
         SkNEW_ARGS(SkDecodingImageGenerator, (encoded)), dst);
 }
