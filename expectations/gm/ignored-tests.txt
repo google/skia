@@ -33,19 +33,26 @@
 ## gpu config of gradtext GM test
 #gradtext_gpu
 
+
+
+
 # Added by epoger for https://code.google.com/p/skia/issues/detail?id=1657
 # ('Poppler random failures'): ignore any Poppler failures, for now
 pdf-poppler
 
 # Added by yunchao in https://codereview.chromium.org/54213002
+# https://code.google.com/p/skia/issues/detail?id=1882 ('rects GM results need rebaselining')
 rects
 
 # Added by sugoi in https://codereview.chromium.org/59173005
+# https://code.google.com/p/skia/issues/detail?id=1881 ('perlinnoise GM results need rebaselining')
 perlinnoise
 
 # Added by bsalomon in support of adding HQ filter to GPU device drawBitmap
+# https://code.google.com/p/skia/issues/detail?id=1880 ('bleed GM results need rebaselining')
 bleed
 
+# https://code.google.com/p/skia/issues/detail?id=1879 ('*filterbitmap_* GM results need rebaselining')
 downsamplebitmap_image_high_mandrill_512.png
 filterbitmap_image_mandrill_512.png
 filterbitmap_image_mandrill_256.png
