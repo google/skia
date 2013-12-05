@@ -62,6 +62,10 @@ MIME_TYPE_MAP = {'': 'application/octet-stream',
 DEFAULT_ACTUALS_DIR = '.gm-actuals'
 DEFAULT_PORT = 8888
 
+# How often (in seconds) clients should reload while waiting for initial
+# results to load.
+RELOAD_INTERVAL_UNTIL_READY = 10
+
 _HTTP_HEADER_CONTENT_LENGTH = 'Content-Length'
 _HTTP_HEADER_CONTENT_TYPE = 'Content-Type'
 
@@ -213,18 +217,24 @@ class Server(object):
           expected_root=EXPECTATIONS_DIR,
           generated_images_root=GENERATED_IMAGES_ROOT)
 
-  def _result_reloader(self):
-    """ Reload results at the appropriate interval.  This never exits, so it
-    should be run in its own thread.
+  def _result_loader(self, reload_seconds=0):
+    """ Call self.update_results(), either once or periodically.
+
+    Params:
+      reload_seconds: integer; if nonzero, reload results at this interval
+          (in which case, this method will never return!)
     """
-    while True:
-      time.sleep(self._reload_seconds)
-      self.update_results()
+    self.update_results()
+    logging.info('Initial results loaded. Ready for requests on %s' % self._url)
+    if reload_seconds:
+      while True:
+        time.sleep(reload_seconds)
+        self.update_results()
 
   def run(self):
-    self.update_results()
-    if self._reload_seconds:
-      thread.start_new_thread(self._result_reloader, ())
+    arg_tuple = (self._reload_seconds,)  # start_new_thread needs a tuple,
+                                         # even though it holds just one param
+    thread.start_new_thread(self._result_loader, arg_tuple)
 
     if self._export:
       server_address = ('', self._port)
@@ -237,8 +247,8 @@ class Server(object):
       host = '127.0.0.1'
       server_address = (host, self._port)
     http_server = BaseHTTPServer.HTTPServer(server_address, HTTPRequestHandler)
-    logging.info('Ready for requests on http://%s:%d' % (
-        host, http_server.server_port))
+    self._url = 'http://%s:%d' % (host, http_server.server_port)
+    logging.info('Listening for requests on %s' % self._url)
     http_server.serve_forever()
 
 
@@ -287,10 +297,34 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       # HTTPServer, and then it could be available to the handler via
       # the handler's .server instance variable.
       results_obj = _SERVER.results
-      response_dict = results_obj.get_results_of_type(type)
-      time_updated = results_obj.get_timestamp()
+      if results_obj:
+        response_dict = self.package_results(results_obj, type)
+      else:
+        now = int(time.time())
+        response_dict = {
+            'header': {
+                'resultsStillLoading': True,
+                'timeUpdated': now,
+                'timeNextUpdateAvailable': now + RELOAD_INTERVAL_UNTIL_READY,
+            },
+        }
+      self.send_json_dict(response_dict)
+    except:
+      self.send_error(404)
+      raise
 
-      response_dict['header'] = {
+  def package_results(self, results_obj, type):
+    """ Given a nonempty "results" object, package it as a response_dict
+    as needed within do_GET_results.
+
+    Args:
+      results_obj: nonempty "results" object
+      type: string indicating which set of results to return;
+            must be one of the results.RESULTS_* constants
+    """
+    response_dict = results_obj.get_results_of_type(type)
+    time_updated = results_obj.get_timestamp()
+    response_dict['header'] = {
         # Timestamps:
         # 1. when this data was last updated
         # 2. when the caller should check back for new data (if ever)
@@ -315,11 +349,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # Whether the service is accessible from other hosts.
         'isExported': _SERVER.is_exported,
-      }
-      self.send_json_dict(response_dict)
-    except:
-      self.send_error(404)
-      raise
+    }
+    return response_dict
 
   def do_GET_static(self, path):
     """ Handle a GET request for a file under the 'static' directory.

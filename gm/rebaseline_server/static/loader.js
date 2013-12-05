@@ -40,7 +40,7 @@ Loader.filter(
 
 Loader.controller(
   'Loader.Controller',
-    function($scope, $http, $filter, $location) {
+    function($scope, $http, $filter, $location, $timeout) {
     $scope.windowTitle = "Loading GM Results...";
     var resultsToLoad = $location.search().resultsToLoad;
     $scope.loadingMessage = "Loading results of type '" + resultsToLoad +
@@ -53,66 +53,75 @@ Loader.controller(
      */
     $http.get("/results/" + resultsToLoad).success(
       function(data, status, header, config) {
-        $scope.loadingMessage = "Processing data, please wait...";
+        if (data.header.resultsStillLoading) {
+          $scope.loadingMessage =
+              "Server is still loading initial results; will retry at " +
+              $scope.localTimeString(data.header.timeNextUpdateAvailable);
+          $timeout(
+              function(){location.reload();},
+              (data.header.timeNextUpdateAvailable * 1000) - new Date().getTime());
+        } else {
+          $scope.loadingMessage = "Processing data, please wait...";
 
-        $scope.header = data.header;
-        $scope.categories = data.categories;
-        $scope.testData = data.testData;
-        $scope.sortColumn = 'weightedDiffMeasure';
-        $scope.showTodos = false;
+          $scope.header = data.header;
+          $scope.categories = data.categories;
+          $scope.testData = data.testData;
+          $scope.sortColumn = 'weightedDiffMeasure';
+          $scope.showTodos = false;
 
-        $scope.showSubmitAdvancedSettings = false;
-        $scope.submitAdvancedSettings = {};
-        $scope.submitAdvancedSettings['reviewed-by-human'] = true;
-        $scope.submitAdvancedSettings['ignore-failure'] = false;
-        $scope.submitAdvancedSettings['bug'] = '';
+          $scope.showSubmitAdvancedSettings = false;
+          $scope.submitAdvancedSettings = {};
+          $scope.submitAdvancedSettings['reviewed-by-human'] = true;
+          $scope.submitAdvancedSettings['ignore-failure'] = false;
+          $scope.submitAdvancedSettings['bug'] = '';
 
-        // Create the list of tabs (lists into which the user can file each
-        // test).  This may vary, depending on isEditable.
-        $scope.tabs = [
-          'Unfiled', 'Hidden'
-        ];
-        if (data.header.isEditable) {
-          $scope.tabs = $scope.tabs.concat(
-              ['Pending Approval']);
+          // Create the list of tabs (lists into which the user can file each
+          // test).  This may vary, depending on isEditable.
+          $scope.tabs = [
+            'Unfiled', 'Hidden'
+          ];
+          if (data.header.isEditable) {
+            $scope.tabs = $scope.tabs.concat(
+                ['Pending Approval']);
+          }
+          $scope.defaultTab = $scope.tabs[0];
+          $scope.viewingTab = $scope.defaultTab;
+
+          // Track the number of results on each tab.
+          $scope.numResultsPerTab = {};
+          for (var i = 0; i < $scope.tabs.length; i++) {
+            $scope.numResultsPerTab[$scope.tabs[i]] = 0;
+          }
+          $scope.numResultsPerTab[$scope.defaultTab] = $scope.testData.length;
+
+          // Add index and tab fields to all records.
+          for (var i = 0; i < $scope.testData.length; i++) {
+            $scope.testData[i].index = i;
+            $scope.testData[i].tab = $scope.defaultTab;
+          }
+
+          // Arrays within which the user can toggle individual elements.
+          $scope.selectedItems = [];
+
+          // Sets within which the user can toggle individual elements.
+          $scope.hiddenResultTypes = {
+            'failure-ignored': true,
+            'no-comparison': true,
+            'succeeded': true,
+          };
+          $scope.allResultTypes = Object.keys(data.categories['resultType']);
+          $scope.hiddenConfigs = {};
+          $scope.allConfigs = Object.keys(data.categories['config']);
+
+          // Associative array of partial string matches per category.
+          $scope.categoryValueMatch = {};
+          $scope.categoryValueMatch.builder = "";
+          $scope.categoryValueMatch.test = "";
+
+          $scope.updateResults();
+          $scope.loadingMessage = "";
+          $scope.windowTitle = "Current GM Results";
         }
-        $scope.defaultTab = $scope.tabs[0];
-        $scope.viewingTab = $scope.defaultTab;
-
-        // Track the number of results on each tab.
-        $scope.numResultsPerTab = {};
-        for (var i = 0; i < $scope.tabs.length; i++) {
-          $scope.numResultsPerTab[$scope.tabs[i]] = 0;
-        }
-        $scope.numResultsPerTab[$scope.defaultTab] = $scope.testData.length;
-
-        // Add index and tab fields to all records.
-        for (var i = 0; i < $scope.testData.length; i++) {
-          $scope.testData[i].index = i;
-          $scope.testData[i].tab = $scope.defaultTab;
-        }
-
-        // Arrays within which the user can toggle individual elements.
-        $scope.selectedItems = [];
-
-        // Sets within which the user can toggle individual elements.
-        $scope.hiddenResultTypes = {
-          'failure-ignored': true,
-          'no-comparison': true,
-          'succeeded': true,
-        };
-        $scope.allResultTypes = Object.keys(data.categories['resultType']);
-        $scope.hiddenConfigs = {};
-        $scope.allConfigs = Object.keys(data.categories['config']);
-
-        // Associative array of partial string matches per category.
-        $scope.categoryValueMatch = {};
-        $scope.categoryValueMatch.builder = "";
-        $scope.categoryValueMatch.test = "";
-
-        $scope.updateResults();
-        $scope.loadingMessage = "";
-        $scope.windowTitle = "Current GM Results";
       }
     ).error(
       function(data, status, header, config) {
