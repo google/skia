@@ -22,6 +22,7 @@
           'dependencies': [
             'debugger.gyp:debugger',
             'pdfviewer.gyp:pdfviewer',
+            #'v8.gyp:SkV8Example',
             ],
         }],
         # DM assumes you've got a GPU.
