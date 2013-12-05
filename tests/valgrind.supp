@@ -12,12 +12,6 @@
     fun:FcFontSetCreate
 }
 {
-    Mesa_glsl_parsing
-    Memcheck:Cond
-    fun:_ZN22_mesa_glsl_parse_stateC1EP10gl_contextjPv
-    obj:/usr/lib/x86_64-linux-gnu/dri/libglsl.so
-}
-{
     lib_png_inflate
     Memcheck:Cond
     fun:inflateReset2
@@ -39,40 +33,33 @@
     fun:FcPatternObjectAddWithBinding
 }
 {
-    Driver_bug_1
-    Memcheck:Value8
+    driver_bug_1
+    Memcheck:Param
+    ioctl(generic)
+    fun:ioctl
     ...
-    obj:/usr/lib/x86_64-linux-gnu/dri/swrast_dri.so
-    fun:lp_rast_triangle_3
+    obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
 }
 {
-    Driver_bug_2
-    Memcheck:Value8
-    ...
-    obj:/usr/lib/x86_64-linux-gnu/dri/swrast_dri.so
-    fun:lp_rast_triangle_2
+    driver_bug_2
+    Memcheck:Cond
+    obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
 }
 {
-    Driver_bug_3
-    Memcheck:Value8
-    obj:/usr/lib/x86_64-linux-gnu/dri/libdricore.so
-    fun:_mesa_readpixels
-    fun:_mesa_ReadnPixelsARB
-    fun:_mesa_ReadPixels
+    driver_bug_3
+    Memcheck:Addr8
+    fun:memcpy@GLIBC_2.2.5
+    obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
 }
 {
-    XOpenDisplay_Leak
-    Memcheck:Leak
-    fun:calloc
-    fun:_XConnectXCB
-    fun:XOpenDisplay
+    driver_bug_4
+    Memcheck:Addr2
+    fun:memcpy@GLIBC_2.2.5
+    obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
 }
 {
-    XOpenDisplay_Leak2
-    Memcheck:Leak
-    fun:calloc
-    fun:xcb_connect_to_fd
-    fun:xcb_connect_to_display_with_auth_info
-    fun:_XConnectXCB
-    fun:XOpenDisplay
+    driver_bug_5
+    Memcheck:Addr1
+    fun:memcpy@GLIBC_2.2.5
+    obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
 }
