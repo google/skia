@@ -28,6 +28,20 @@ DEF_TEST(SkOnce_Singlethreaded, r) {
     REPORTER_ASSERT(r, 5 == x);
 }
 
+struct AddFour { void operator()(int* x) { *x += 4; } };
+
+DEF_TEST(SkOnce_MiscFeatures, r) {
+    // Tests that we support functors and explicit SkOnceFlags.
+    int x = 0;
+
+    SkOnceFlag once = SK_ONCE_INIT;
+    SkOnce(&once, AddFour(), &x);
+    SkOnce(&once, AddFour(), &x);
+    SkOnce(&once, AddFour(), &x);
+
+    REPORTER_ASSERT(r, 4 == x);
+}
+
 static void add_six(int* x) {
     *x += 6;
 }

@@ -13,15 +13,15 @@
 // is particularly useful for lazy singleton initialization. E.g.
 //
 // static void set_up_my_singleton(Singleton** singleton) {
-//   *singleton = new Singleton(...);
+//     *singleton = new Singleton(...);
 // }
 // ...
 // const Singleton& GetSingleton() {
-//   static Singleton* singleton = NULL;
-//   SK_DECLARE_STATIC_ONCE(once);
-//   SkOnce(&once, set_up_my_singleton, &singleton);
-//   SkASSERT(NULL != singleton);
-//   return *singleton;
+//     static Singleton* singleton = NULL;
+//     SK_DECLARE_STATIC_ONCE(once);
+//     SkOnce(&once, set_up_my_singleton, &singleton);
+//     SkASSERT(NULL != singleton);
+//     return *singleton;
 // }
 //
 // OnceTest.cpp also should serve as a few other simple examples.
@@ -30,17 +30,17 @@
 #include "SkTypes.h"
 
 #ifdef SK_USE_POSIX_THREADS
-#define SK_DECLARE_STATIC_ONCE(name) \
-    static SkOnceFlag name = { false, { PTHREAD_MUTEX_INITIALIZER } }
+#  define SK_ONCE_INIT { false, { PTHREAD_MUTEX_INITIALIZER } }
 #else
-#define SK_DECLARE_STATIC_ONCE(name) \
-    static SkOnceFlag name = { false, SkBaseMutex() }
+#  define SK_ONCE_INIT { false, SkBaseMutex() }
 #endif
 
-struct SkOnceFlag;
+#define SK_DECLARE_STATIC_ONCE(name) static SkOnceFlag name = SK_ONCE_INIT
 
-template <typename Arg>
-inline void SkOnce(SkOnceFlag* once, void (*f)(Arg), Arg arg);
+struct SkOnceFlag;  // If manually created, initialize with SkOnceFlag once = SK_ONCE_INIT
+
+template <typename Func, typename Arg>
+inline void SkOnce(SkOnceFlag* once, Func f, Arg arg);
 
 //  ----------------------  Implementation details below here. -----------------------------
 
@@ -96,19 +96,19 @@ inline static void acquire_barrier() {
 // This is the guts of the code, called when we suspect the one-time code hasn't been run yet.
 // This should be rarely called, so we separate it from SkOnce and don't mark it as inline.
 // (We don't mind if this is an actual function call, but odds are it'll be inlined anyway.)
-template <typename Arg>
-static void sk_once_slow(SkOnceFlag* once, void (*f)(Arg), Arg arg) {
+template <typename Func, typename Arg>
+static void sk_once_slow(SkOnceFlag* once, Func f, Arg arg) {
     const SkAutoMutexAcquire lock(once->mutex);
     if (!once->done) {
         f(arg);
         // Also known as a store-store/load-store barrier, this makes sure that the writes
-        // done before here---in particular, those done by calling once(arg)---are observable
+        // done before here---in particular, those done by calling f(arg)---are observable
         // before the writes after the line, *done = true.
         //
         // In version control terms this is like saying, "check in the work up
-        // to and including once(arg), then check in *done=true as a subsequent change".
+        // to and including f(arg), then check in *done=true as a subsequent change".
         //
-        // We'll use this in the fast path to make sure once(arg)'s effects are
+        // We'll use this in the fast path to make sure f(arg)'s effects are
         // observable whenever we observe *done == true.
         release_barrier();
         once->done = true;
@@ -131,8 +131,8 @@ void AnnotateBenignRace(const char* file, int line, const volatile void* mem, co
 #endif
 
 // This is our fast path, called all the time.  We do really want it to be inlined.
-template <typename Arg>
-inline void SkOnce(SkOnceFlag* once, void (*f)(Arg), Arg arg) {
+template <typename Func, typename Arg>
+inline void SkOnce(SkOnceFlag* once, Func f, Arg arg) {
     ANNOTATE_BENIGN_RACE(&(once->done), "Don't worry TSAN, we're sure this is safe.");
     if (!once->done) {
         sk_once_slow(once, f, arg);

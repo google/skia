@@ -519,7 +519,7 @@ static void create_cache(SkScaledImageCache** cache) {
 static SkScaledImageCache* get_cache() {
     static SkScaledImageCache* gCache(NULL);
     SK_DECLARE_STATIC_ONCE(create_cache_once);
-    SkOnce<SkScaledImageCache**>(&create_cache_once, create_cache, &gCache);
+    SkOnce(&create_cache_once, create_cache, &gCache);
     SkASSERT(NULL != gCache);
     return gCache;
 }
