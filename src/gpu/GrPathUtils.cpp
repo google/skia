@@ -210,7 +210,7 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
     double y2 = qPts[2].fY;
     double det = x0*y1 - y0*x1 + x2*y0 - y2*x0 + x1*y2 - y1*x2;
 
-    if (!sk_float_isfinite(det) 
+    if (!sk_float_isfinite(det)
         || SkScalarNearlyZero((float)det, SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
         // The quad is degenerate. Hopefully this is rare. Find the pts that are
         // farthest apart to compute a line (unless it is really a pt).
@@ -266,7 +266,7 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
         a7 = x1-x0;
         a8 = x0*y1-x1*y0;
 
-        // this performs the uv_pts*adjugate(control_pts) multiply, 
+        // this performs the uv_pts*adjugate(control_pts) multiply,
         // then does the scale by 1/det afterwards to improve precision
         m[SkMatrix::kMScaleX] = (float)((0.5*a3 + a6)*scale);
         m[SkMatrix::kMSkewX]  = (float)((0.5*a4 + a7)*scale);

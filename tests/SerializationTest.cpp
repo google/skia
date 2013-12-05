@@ -311,7 +311,7 @@ static void Tests(skiatest::Reporter* reporter) {
         invalidBitmap2.setConfig(SkBitmap::kARGB_8888_Config, 256, 256);
         invalidBitmap2.setPixelRef(SkNEW_ARGS(SkMallocPixelRef,
             (NULL, 256, NULL)))->unref();
-        
+
         // The deserialization should detect the pixel ref being too small and fail
         TestBitmapSerialization(validBitmap, invalidBitmap2, false, reporter);
     }
