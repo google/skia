@@ -42,8 +42,8 @@ Loader.controller(
   'Loader.Controller',
     function($scope, $http, $filter, $location, $timeout) {
     $scope.windowTitle = "Loading GM Results...";
-    var resultsToLoad = $location.search().resultsToLoad;
-    $scope.loadingMessage = "Loading results of type '" + resultsToLoad +
+    $scope.resultsToLoad = $location.search().resultsToLoad;
+    $scope.loadingMessage = "Loading results of type '" + $scope.resultsToLoad +
         "', please wait...";
 
     /**
@@ -51,7 +51,7 @@ Loader.controller(
      * Once the dictionary is loaded, unhide the page elements so they can
      * render the data.
      */
-    $http.get("/results/" + resultsToLoad).success(
+    $http.get("/results/" + $scope.resultsToLoad).success(
       function(data, status, header, config) {
         if (data.header.resultsStillLoading) {
           $scope.loadingMessage =
@@ -118,6 +118,9 @@ Loader.controller(
           $scope.categoryValueMatch.builder = "";
           $scope.categoryValueMatch.test = "";
 
+          // If any defaults were overridden in the URL, get them now.
+          $scope.queryParameters.load();
+
           $scope.updateResults();
           $scope.loadingMessage = "";
           $scope.windowTitle = "Current GM Results";
@@ -126,7 +129,7 @@ Loader.controller(
     ).error(
       function(data, status, header, config) {
         $scope.loadingMessage = "Failed to load results of type '"
-            + resultsToLoad + "'";
+            + $scope.resultsToLoad + "'";
         $scope.windowTitle = "Failed to Load GM Results";
       }
     );
@@ -220,6 +223,93 @@ Loader.controller(
 
 
     //
+    // $scope.queryParameters:
+    // Transfer parameter values between $scope and the URL query string.
+    //
+    $scope.queryParameters = {};
+
+    // load and save functions for parameters of each type
+    // (load a parameter value into $scope from nameValuePairs,
+    //  save a parameter value from $scope into nameValuePairs)
+    $scope.queryParameters.copiers = {
+      'simple': {
+        'load': function(nameValuePairs, name) {
+          var value = nameValuePairs[name];
+          if (value) {
+            $scope[name] = value;
+          }
+        },
+        'save': function(nameValuePairs, name) {
+          nameValuePairs[name] = $scope[name];
+        }
+      },
+
+      'categoryValueMatch': {
+        'load': function(nameValuePairs, name) {
+          var value = nameValuePairs[name];
+          if (value) {
+            $scope.categoryValueMatch[name] = value;
+          }
+        },
+        'save': function(nameValuePairs, name) {
+          nameValuePairs[name] = $scope.categoryValueMatch[name];
+        }
+      },
+
+      'set': {
+        'load': function(nameValuePairs, name) {
+          var value = nameValuePairs[name];
+          if (value) {
+            var valueArray = value.split(',');
+            $scope[name] = {};
+            $scope.toggleValuesInSet(valueArray, $scope[name]);
+          }
+        },
+        'save': function(nameValuePairs, name) {
+          nameValuePairs[name] = Object.keys($scope[name]).join(',');
+        }
+      },
+
+    };
+
+    // parameter name -> copier objects to load/save parameter value
+    $scope.queryParameters.map = {
+      'resultsToLoad':       $scope.queryParameters.copiers.simple,
+      'displayLimitPending': $scope.queryParameters.copiers.simple,
+      'imageSizePending':    $scope.queryParameters.copiers.simple,
+      'sortColumn':          $scope.queryParameters.copiers.simple,
+
+      'builder': $scope.queryParameters.copiers.categoryValueMatch,
+      'test':    $scope.queryParameters.copiers.categoryValueMatch,
+
+      'hiddenResultTypes': $scope.queryParameters.copiers.set,
+      'hiddenConfigs':     $scope.queryParameters.copiers.set,
+    };
+
+    // Loads all parameters into $scope from the URL query string;
+    // any which are not found within the URL will keep their current value.
+    $scope.queryParameters.load = function() {
+      var nameValuePairs = $location.search();
+      angular.forEach($scope.queryParameters.map,
+                      function(copier, paramName) {
+                        copier.load(nameValuePairs, paramName);
+                      }
+                     );
+    };
+
+    // Saves all parameters from $scope into the URL query string.
+    $scope.queryParameters.save = function() {
+      var nameValuePairs = {};
+      angular.forEach($scope.queryParameters.map,
+                      function(copier, paramName) {
+                        copier.save(nameValuePairs, paramName);
+                      }
+                     );
+      $location.search(nameValuePairs);
+    };
+
+
+    //
     // updateResults() and friends.
     //
 
@@ -241,7 +331,9 @@ Loader.controller(
     }
 
     /**
-     * Update the displayed results, based on filters/settings.
+     * Update the displayed results, based on filters/settings,
+     * and call $scope.queryParameters.save() so that the new filter results
+     * can be bookmarked.
      */
     $scope.updateResults = function() {
       $scope.displayLimit = $scope.displayLimitPending;
@@ -284,6 +376,7 @@ Loader.controller(
       }
       $scope.imageSize = $scope.imageSizePending;
       $scope.setUpdatesPending(false);
+      $scope.queryParameters.save();
     }
 
     /**
