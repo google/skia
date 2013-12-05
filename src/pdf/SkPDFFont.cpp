@@ -875,9 +875,8 @@ SkPDFFont::SkPDFFont(SkAdvancedTypefaceMetrics* info, SkTypeface* typeface,
           fTypeface(ref_or_default(typeface)),
           fFirstGlyphID(1),
           fLastGlyphID(info ? info->fLastGlyphID : 0),
-          fFontInfo(info),
-          fDescriptor(relatedFontDescriptor) {
-    SkSafeRef(info);
+          fFontInfo(SkSafeRef(info)),
+          fDescriptor(SkSafeRef(relatedFontDescriptor)) {
     if (info == NULL) {
         fFontType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
     } else if (info->fMultiMaster) {
