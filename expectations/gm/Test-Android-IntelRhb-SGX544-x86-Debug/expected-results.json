@@ -5710,14 +5710,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17347426262780470818
+          12214505669158777008
         ]
       ], 
-      "bugs": [
-        1581
-      ], 
-      "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "imagefilterscropped_565.png": {
       "allowed-digests": [
