@@ -23,6 +23,15 @@
         'link_settings': {
           'libraries': [
 
+#            'd:/src/v8/build/Debug/lib/v8_base.ia32.lib',
+#            'd:/src/v8/build/Debug/lib/v8_snapshot.lib',
+
+#            'd:/src/v8/build/Debug/lib/icuuc.lib',
+#            'd:/src/v8/build/Debug/lib/icui18n.lib',
+
+#            'Ws2_32.lib',
+#            'Winmm.lib',
+
             '-lpthread',
             '-lrt',
             '../../../v8/out/native/obj.target/tools/gyp/libv8_base.x64.a',
