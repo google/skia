@@ -13,13 +13,13 @@ ALGORITHM_MEDIAN = 'med'
 ALGORITHM_MINIMUM = 'min'
 ALGORITHM_25TH_PERCENTILE = '25th'
 
-# Regular expressions used throughout
+# Regular expressions used throughout.
 PER_SETTING_RE = '([^\s=]+)(?:=(\S+))?'
 SETTINGS_RE = 'skia bench:((?:\s+' + PER_SETTING_RE + ')*)'
 BENCH_RE = 'running bench (?:\[\d+ \d+\] )?\s*(\S+)'
 TIME_RE = '(?:(\w*)msecs = )?\s*((?:\d+\.\d+)(?:,\s*\d+\.\d+)*)'
 # non-per-tile benches have configs that don't end with ']' or '>'
-CONFIG_RE = '(\S+[^\]>]): ((?:' + TIME_RE + '\s+)+)'
+CONFIG_RE = '(\S+[^\]>]):\s+((?:' + TIME_RE + '\s+)+)'
 # per-tile bench lines are in the following format. Note that there are
 # non-averaged bench numbers in separate lines, which we ignore now due to
 # their inaccuracy.
@@ -141,6 +141,8 @@ def _ParseAndStoreTimes(config_re_compiled, is_per_tile, line, bench,
             layout_dic.setdefault(bench, {}).setdefault(
                 current_config, {}).setdefault(current_time_type, tile_layout)
 
+# TODO(bensong): switch to reading JSON output when available. This way we don't
+# need the RE complexities.
 def parse(settings, lines, representation=None):
     """Parses bench output into a useful data structure.
 
