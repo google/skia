@@ -194,7 +194,7 @@ private:
     SkMSec fMeasureFPS_Time;
     SkMSec fMeasureFPS_StartTime;
     bool fMagnify;
-    SkISize fTileCount;
+    int fTilingMode;
 
 
     SkOSMenu::TriState fPipeState;  // Mixed uses a tiled pipe
@@ -215,7 +215,6 @@ private:
     SkOSMenu::TriState fFilterState;
     SkOSMenu::TriState fSubpixelState;
     int fHintingState;
-    SkOSMenu::TriState fTilingState;
     unsigned   fFlipAxis;
 
     int fMSAASampleCount;

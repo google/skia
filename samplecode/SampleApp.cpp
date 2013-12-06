@@ -637,6 +637,35 @@ namespace skiagm {
 
 //////////////////////////////////////////////////////////////////////////////
 
+enum TilingMode {
+    kNo_Tiling,
+    kAbs_128x128_Tiling,
+    kAbs_256x256_Tiling,
+    kRel_4x4_Tiling,
+    kRel_1x16_Tiling,
+    kRel_16x1_Tiling,
+
+    kLast_TilingMode_Enum
+};
+
+struct TilingInfo {
+    const char* label;
+    SkScalar    w, h;
+};
+
+static struct TilingInfo gTilingInfo[] = {
+    { "No tiling", SK_Scalar1        , SK_Scalar1         }, // kNo_Tiling
+    { "128x128"  , SkIntToScalar(128), SkIntToScalar(128) }, // kAbs_128x128_Tiling
+    { "256x256"  , SkIntToScalar(256), SkIntToScalar(256) }, // kAbs_256x256_Tiling
+    { "1/4x1/4"  , SK_Scalar1 / 4    , SK_Scalar1 / 4     }, // kRel_4x4_Tiling
+    { "1/1x1/16" , SK_Scalar1        , SK_Scalar1 / 16    }, // kRel_1x16_Tiling
+    { "1/16x1/1" , SK_Scalar1 / 16   , SK_Scalar1         }, // kRel_16x1_Tiling
+};
+SK_COMPILE_ASSERT((SK_ARRAY_COUNT(gTilingInfo) == kLast_TilingMode_Enum),
+                  Incomplete_tiling_labels);
+
+//////////////////////////////////////////////////////////////////////////////
+
 static SkView* curr_view(SkWindow* wind) {
     SkView::F2BIter iter(wind);
     return iter.next();
@@ -838,8 +867,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fPerspAnimTime = 0;
     fRequestGrabImage = false;
     fPipeState = SkOSMenu::kOffState;
-    fTilingState = SkOSMenu::kOffState;
-    fTileCount.set(1, 1);
+    fTilingMode = kNo_Tiling;
     fMeasureFPS = false;
     fLCDState = SkOSMenu::kMixedState;
     fAAState = SkOSMenu::kMixedState;
@@ -898,7 +926,14 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
                                                   fPipeState);
     fAppMenu->assignKeyEquivalentToItem(fUsePipeMenuItemID, 'P');
 
-    itemID = fAppMenu->appendTriState("Tiling", "Tiling", sinkID, fTilingState);
+    itemID =fAppMenu->appendList("Tiling", "Tiling", sinkID, fTilingMode,
+                                 gTilingInfo[kNo_Tiling].label,
+                                 gTilingInfo[kAbs_128x128_Tiling].label,
+                                 gTilingInfo[kAbs_256x256_Tiling].label,
+                                 gTilingInfo[kRel_4x4_Tiling].label,
+                                 gTilingInfo[kRel_1x16_Tiling].label,
+                                 gTilingInfo[kRel_16x1_Tiling].label,
+                                 NULL);
     fAppMenu->assignKeyEquivalentToItem(itemID, 't');
 
     itemID = fAppMenu->appendSwitch("Slide Show", "Slide Show" , sinkID, false);
@@ -1163,24 +1198,33 @@ void SampleWindow::draw(SkCanvas* canvas) {
         if (bitmap_diff(canvas, orig, &diff)) {
         }
     } else {
-        const SkScalar cw = SkScalarDiv(this->width(), SkIntToScalar(fTileCount.width()));
-        const SkScalar ch = SkScalarDiv(this->height(), SkIntToScalar(fTileCount.height()));
+        SkSize tile;
+        SkASSERT((TilingMode)fTilingMode < kLast_TilingMode_Enum);
+        struct TilingInfo* info = gTilingInfo + fTilingMode;
+        tile.set(info->w > SK_Scalar1 ? info->w : width() * info->w,
+                 info->h > SK_Scalar1 ? info->h : height() * info->h);
 
-        for (int y = 0; y < fTileCount.height(); ++y) {
-            for (int x = 0; x < fTileCount.width(); ++x) {
+        for (SkScalar y = 0; y < height(); y += tile.height()) {
+            for (SkScalar x = 0; x < width(); x += tile.width()) {
                 SkAutoCanvasRestore acr(canvas, true);
-                canvas->clipRect(SkRect::MakeXYWH(x * cw, y * ch, cw, ch));
+                canvas->clipRect(SkRect::MakeXYWH(x, y,
+                                                  tile.width(),
+                                                  tile.height()));
                 this->INHERITED::draw(canvas);
             }
         }
 
-        if (!fTileCount.equals(1, 1)) {
+        if (fTilingMode != kNo_Tiling) {
             SkPaint paint;
             paint.setColor(0x60FF00FF);
             paint.setStyle(SkPaint::kStroke_Style);
-            for (int y = 0; y < fTileCount.height(); ++y) {
-                for (int x = 0; x < fTileCount.width(); ++x) {
-                    canvas->drawRect(SkRect::MakeXYWH(x * cw, y * ch, cw, ch), paint);
+
+            for (SkScalar y = 0; y < height(); y += tile.height()) {
+                for (SkScalar x = 0; x < width(); x += tile.width()) {
+                    canvas->drawRect(SkRect::MakeXYWH(x, y,
+                                                      tile.width(),
+                                                      tile.height()),
+                                     paint);
                 }
             }
         }
@@ -1679,17 +1723,6 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         this->inval(NULL);
         return true;
     }
-    if (SkOSMenu::FindTriState(evt, "Tiling", &fTilingState)) {
-        int nx = 1, ny = 1;
-        switch (fTilingState) {
-            case SkOSMenu::kOffState:   nx = 1; ny = 1; break;
-            case SkOSMenu::kMixedState: nx = 1; ny = 16; break;
-            case SkOSMenu::kOnState:    nx = 4; ny = 4; break;
-        }
-        fTileCount.set(nx, ny);
-        this->inval(NULL);
-        return true;
-    }
     if (SkOSMenu::FindSwitchState(evt, "Slide Show", NULL)) {
         this->toggleSlideshow();
         return true;
@@ -1703,7 +1736,8 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         SkOSMenu::FindSwitchState(evt, "Zoomer", &fShowZoomer) ||
         SkOSMenu::FindSwitchState(evt, "Magnify", &fMagnify) ||
         SkOSMenu::FindListIndex(evt, "Transition-Next", &fTransitionNext) ||
-        SkOSMenu::FindListIndex(evt, "Transition-Prev", &fTransitionPrev)) {
+        SkOSMenu::FindListIndex(evt, "Transition-Prev", &fTransitionPrev) ||
+        SkOSMenu::FindListIndex(evt, "Tiling", &fTilingMode)) {
         this->inval(NULL);
         this->updateTitle();
         return true;
@@ -2119,6 +2153,9 @@ void SampleWindow::updateTitle() {
     title.prepend(" ");
     title.prepend(configToString(this->getBitmap().config()));
 
+    if (fTilingMode != kNo_Tiling) {
+        title.prependf("<T: %s> ", gTilingInfo[fTilingMode].label);
+    }
     if (fAnimating) {
         title.prepend("<A> ");
     }
