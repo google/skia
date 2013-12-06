@@ -48,18 +48,30 @@
 {
     driver_bug_3
     Memcheck:Addr8
-    fun:memcpy@GLIBC_2.2.5
+    ...
     obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
 }
 {
     driver_bug_4
-    Memcheck:Addr2
-    fun:memcpy@GLIBC_2.2.5
+    Memcheck:Addr4
+    ...
     obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
 }
 {
     driver_bug_5
+    Memcheck:Addr2
+    ...
+    obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
+}
+{
+    driver_bug_6
     Memcheck:Addr1
-    fun:memcpy@GLIBC_2.2.5
+    ...
+    obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
+}
+{
+    driver_bug_7
+    Memcheck:Leak
+    fun:malloc
     obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
 }
