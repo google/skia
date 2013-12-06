@@ -26,4 +26,10 @@ private:
     typedef SkProcCoeffXfermode INHERITED;
 };
 
+extern SkPMColor srcatop_modeproc_neon(SkPMColor src, SkPMColor dst);
+extern SkPMColor dstatop_modeproc_neon(SkPMColor src, SkPMColor dst);
+extern SkPMColor xor_modeproc_neon(SkPMColor src, SkPMColor dst);
+extern SkPMColor plus_modeproc_neon(SkPMColor src, SkPMColor dst);
+extern SkPMColor modulate_modeproc_neon(SkPMColor src, SkPMColor dst);
+
 #endif //#ifdef SkXfermode_opts_arm_neon_DEFINED

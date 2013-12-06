@@ -93,6 +93,133 @@ static inline uint8x8_t clamp_div255round_simd8_32(int32x4_t val1, int32x4_t val
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// 1 pixel modeprocs
+////////////////////////////////////////////////////////////////////////////////
+
+//  kSrcATop_Mode,  //!< [Da, Sc * Da + (1 - Sa) * Dc]
+SkPMColor srcatop_modeproc_neon(SkPMColor src, SkPMColor dst) {
+    unsigned sa = SkGetPackedA32(src);
+    unsigned da = SkGetPackedA32(dst);
+    unsigned isa = 255 - sa;
+
+    uint8x8_t vda, visa, vsrc, vdst;
+
+    vda = vdup_n_u8(da);
+    visa = vdup_n_u8(isa);
+
+    uint16x8_t vsrc_wide, vdst_wide;
+    vsrc_wide = vmull_u8(vda, vreinterpret_u8_u32(vdup_n_u32(src)));
+    vdst_wide = vmull_u8(visa, vreinterpret_u8_u32(vdup_n_u32(dst)));
+
+    vsrc_wide += vdupq_n_u16(128);
+    vsrc_wide += vshrq_n_u16(vsrc_wide, 8);
+
+    vdst_wide += vdupq_n_u16(128);
+    vdst_wide += vshrq_n_u16(vdst_wide, 8);
+
+    vsrc = vshrn_n_u16(vsrc_wide, 8);
+    vdst = vshrn_n_u16(vdst_wide, 8);
+
+    vsrc += vdst;
+    vsrc = vset_lane_u8(da, vsrc, 3);
+
+    return vget_lane_u32(vreinterpret_u32_u8(vsrc), 0);
+}
+
+//  kDstATop_Mode,  //!< [Sa, Sa * Dc + Sc * (1 - Da)]
+SkPMColor dstatop_modeproc_neon(SkPMColor src, SkPMColor dst) {
+    unsigned sa = SkGetPackedA32(src);
+    unsigned da = SkGetPackedA32(dst);
+    unsigned ida = 255 - da;
+
+    uint8x8_t vsa, vida, vsrc, vdst;
+
+    vsa = vdup_n_u8(sa);
+    vida = vdup_n_u8(ida);
+
+    uint16x8_t vsrc_wide, vdst_wide;
+    vsrc_wide = vmull_u8(vida, vreinterpret_u8_u32(vdup_n_u32(src)));
+    vdst_wide = vmull_u8(vsa, vreinterpret_u8_u32(vdup_n_u32(dst)));
+
+    vsrc_wide += vdupq_n_u16(128);
+    vsrc_wide += vshrq_n_u16(vsrc_wide, 8);
+
+    vdst_wide += vdupq_n_u16(128);
+    vdst_wide += vshrq_n_u16(vdst_wide, 8);
+
+    vsrc = vshrn_n_u16(vsrc_wide, 8);
+    vdst = vshrn_n_u16(vdst_wide, 8);
+
+    vsrc += vdst;
+    vsrc = vset_lane_u8(sa, vsrc, 3);
+
+    return vget_lane_u32(vreinterpret_u32_u8(vsrc), 0);
+}
+
+//  kXor_Mode   [Sa + Da - 2 * Sa * Da, Sc * (1 - Da) + (1 - Sa) * Dc]
+SkPMColor xor_modeproc_neon(SkPMColor src, SkPMColor dst) {
+    unsigned sa = SkGetPackedA32(src);
+    unsigned da = SkGetPackedA32(dst);
+    unsigned ret_alpha = sa + da - (SkAlphaMulAlpha(sa, da) << 1);
+    unsigned isa = 255 - sa;
+    unsigned ida = 255 - da;
+
+    uint8x8_t vsrc, vdst, visa, vida;
+    uint16x8_t vsrc_wide, vdst_wide;
+
+    visa = vdup_n_u8(isa);
+    vida = vdup_n_u8(ida);
+    vsrc = vreinterpret_u8_u32(vdup_n_u32(src));
+    vdst = vreinterpret_u8_u32(vdup_n_u32(dst));
+
+    vsrc_wide = vmull_u8(vsrc, vida);
+    vdst_wide = vmull_u8(vdst, visa);
+
+    vsrc_wide += vdupq_n_u16(128);
+    vsrc_wide += vshrq_n_u16(vsrc_wide, 8);
+
+    vdst_wide += vdupq_n_u16(128);
+    vdst_wide += vshrq_n_u16(vdst_wide, 8);
+
+    vsrc = vshrn_n_u16(vsrc_wide, 8);
+    vdst = vshrn_n_u16(vdst_wide, 8);
+
+    vsrc += vdst;
+
+    vsrc = vset_lane_u8(ret_alpha, vsrc, 3);
+
+    return vget_lane_u32(vreinterpret_u32_u8(vsrc), 0);
+}
+
+// kPlus_Mode
+SkPMColor plus_modeproc_neon(SkPMColor src, SkPMColor dst) {
+    uint8x8_t vsrc, vdst;
+    vsrc = vreinterpret_u8_u32(vdup_n_u32(src));
+    vdst = vreinterpret_u8_u32(vdup_n_u32(dst));
+    vsrc = vqadd_u8(vsrc, vdst);
+
+    return vget_lane_u32(vreinterpret_u32_u8(vsrc), 0);
+}
+
+// kModulate_Mode
+SkPMColor modulate_modeproc_neon(SkPMColor src, SkPMColor dst) {
+    uint8x8_t vsrc, vdst, vres;
+    uint16x8_t vres_wide;
+
+    vsrc = vreinterpret_u8_u32(vdup_n_u32(src));
+    vdst = vreinterpret_u8_u32(vdup_n_u32(dst));
+
+    vres_wide = vmull_u8(vsrc, vdst);
+
+    vres_wide += vdupq_n_u16(128);
+    vres_wide += vshrq_n_u16(vres_wide, 8);
+
+    vres = vshrn_n_u16(vres_wide, 8);
+
+    return vget_lane_u32(vreinterpret_u32_u8(vres), 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // 8 pixels modeprocs
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -755,6 +882,45 @@ SK_COMPILE_ASSERT(
     mode_count_arm
 );
 
+SkXfermodeProc gNEONXfermodeProcs1[] = {
+    NULL, // kClear_Mode
+    NULL, // kSrc_Mode
+    NULL, // kDst_Mode
+    NULL, // kSrcOver_Mode
+    NULL, // kDstOver_Mode
+    NULL, // kSrcIn_Mode
+    NULL, // kDstIn_Mode
+    NULL, // kSrcOut_Mode
+    NULL, // kDstOut_Mode
+    srcatop_modeproc_neon,
+    dstatop_modeproc_neon,
+    xor_modeproc_neon,
+    plus_modeproc_neon,
+    modulate_modeproc_neon,
+    NULL, // kScreen_Mode
+
+    NULL, // kOverlay_Mode
+    NULL, // kDarken_Mode
+    NULL, // kLighten_Mode
+    NULL, // kColorDodge_Mode
+    NULL, // kColorBurn_Mode
+    NULL, // kHardLight_Mode
+    NULL, // kSoftLight_Mode
+    NULL, // kDifference_Mode
+    NULL, // kExclusion_Mode
+    NULL, // kMultiply_Mode
+
+    NULL, // kHue_Mode
+    NULL, // kSaturation_Mode
+    NULL, // kColor_Mode
+    NULL, // kLuminosity_Mode
+};
+
+SK_COMPILE_ASSERT(
+    SK_ARRAY_COUNT(gNEONXfermodeProcs1) == SkXfermode::kLastMode + 1,
+    mode1_count_arm
+);
+
 SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl_neon(const ProcCoeff& rec,
                                                          SkXfermode::Mode mode) {
 
@@ -764,4 +930,8 @@ SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl_neon(const ProcCoeff& rec,
         return SkNEW_ARGS(SkNEONProcCoeffXfermode, (rec, mode, procSIMD));
     }
     return NULL;
+}
+
+SkXfermodeProc SkPlatformXfermodeProcFactory_impl_neon(SkXfermode::Mode mode) {
+    return gNEONXfermodeProcs1[mode];
 }
