@@ -72,19 +72,9 @@ protected:
     void drawClippedBitmap(SkCanvas* canvas, const SkBitmap& bitmap, const SkPaint& paint,
                            SkScalar x, SkScalar y) {
         canvas->save();
-        canvas->translate(x, y);
-        canvas->clipRect(SkRect::MakeXYWH(0, 0,
+        canvas->clipRect(SkRect::MakeXYWH(x, y,
             SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height())));
-        canvas->drawBitmap(bitmap, 0, 0, &paint);
-        canvas->restore();
-    }
-
-    void drawClippedPaint(SkCanvas* canvas, const SkRect& rect, const SkPaint& paint,
-                          SkScalar x, SkScalar y) {
-        canvas->save();
-        canvas->translate(x, y);
-        canvas->clipRect(rect);
-        canvas->drawPaint(paint);
+        canvas->drawBitmap(bitmap, x, y, &paint);
         canvas->restore();
     }
 
@@ -166,8 +156,6 @@ protected:
             x = 0;
             y += fBitmap.height() + MARGIN;
         }
-        SkRect clipRect = SkRect::MakeWH(SkIntToScalar(fBitmap.width() + 4),
-                                         SkIntToScalar(fBitmap.height() + 4));
         // Test offsets on SrcMode (uses fixed-function blend)
         SkAutoTUnref<SkImageFilter> foreground(SkNEW_ARGS(SkBitmapSource, (fBitmap)));
         SkAutoTUnref<SkImageFilter> offsetForeground(SkNEW_ARGS(SkOffsetImageFilter,
@@ -178,8 +166,13 @@ protected:
         filter.reset(SkNEW_ARGS(SkXfermodeImageFilter,
             (mode, offsetBackground, offsetForeground)));
         paint.setImageFilter(filter);
-        drawClippedPaint(canvas, clipRect, paint, 
-                         SkIntToScalar(x), SkIntToScalar(y));
+        canvas->save();
+        canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x),
+                                          SkIntToScalar(y),
+                                          SkIntToScalar(fBitmap.width() + 4),
+                                          SkIntToScalar(fBitmap.height() + 4)));
+        canvas->drawPaint(paint);
+        canvas->restore();
         x += fBitmap.width() + MARGIN;
         if (x + fBitmap.width() > WIDTH) {
             x = 0;
@@ -189,8 +182,13 @@ protected:
         mode.reset(SkXfermode::Create(SkXfermode::kDarken_Mode));
         filter.reset(SkNEW_ARGS(SkXfermodeImageFilter, (mode, offsetBackground, offsetForeground)));
         paint.setImageFilter(filter);
-        drawClippedPaint(canvas, clipRect, paint, 
-                         SkIntToScalar(x), SkIntToScalar(y));
+        canvas->save();
+        canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x),
+                                          SkIntToScalar(y),
+                                          SkIntToScalar(fBitmap.width() + 4),
+                                          SkIntToScalar(fBitmap.height() + 4)));
+        canvas->drawPaint(paint);
+        canvas->restore();
         x += fBitmap.width() + MARGIN;
         if (x + fBitmap.width() > WIDTH) {
             x = 0;
@@ -205,8 +203,8 @@ protected:
                                      { 10,  10,  10,  10},
                                      {-10, -10,  -6,  -6}};
         for (size_t i = 0; i < nbSamples; ++i) {
-            SkIRect cropRect = SkIRect::MakeXYWH(offsets[i][0],
-                                                 offsets[i][1],
+            SkIRect cropRect = SkIRect::MakeXYWH(x + offsets[i][0],
+                                                 y + offsets[i][1],
                                                  fBitmap.width()  + offsets[i][2],
                                                  fBitmap.height() + offsets[i][3]);
             SkImageFilter::CropRect rect(SkRect::Make(cropRect));
@@ -214,8 +212,13 @@ protected:
             filter.reset(SkNEW_ARGS(SkXfermodeImageFilter,
                                     (mode, offsetBackground, offsetForeground, &rect)));
             paint.setImageFilter(filter);
-            drawClippedPaint(canvas, clipRect, paint, 
-                             SkIntToScalar(x), SkIntToScalar(y));
+            canvas->save();
+            canvas->clipRect(SkRect::MakeXYWH(SkIntToScalar(x),
+                                              SkIntToScalar(y),
+                                              SkIntToScalar(fBitmap.width() + 4),
+                                              SkIntToScalar(fBitmap.height() + 4)));
+            canvas->drawPaint(paint);
+            canvas->restore();
             x += fBitmap.width() + MARGIN;
             if (x + fBitmap.width() > WIDTH) {
                 x = 0;

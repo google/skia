@@ -14,7 +14,6 @@
 class SK_API SkBitmapSource : public SkImageFilter {
 public:
     explicit SkBitmapSource(const SkBitmap& bitmap);
-    SkBitmapSource(const SkBitmap& bitmap, const SkRect& srcRect, const SkRect& dstRect);
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapSource)
 
@@ -26,7 +25,6 @@ protected:
 
 private:
     SkBitmap fBitmap;
-    SkRect   fSrcRect, fDstRect;
     typedef SkImageFilter INHERITED;
 };
 
