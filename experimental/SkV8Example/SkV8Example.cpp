@@ -31,19 +31,78 @@ void application_term() {
     SkGraphics::Term();
 }
 
-SkV8ExampleWindow::SkV8ExampleWindow(void* hwnd)
-    : INHERITED(hwnd) {
+// Extracts a C string from a V8 Utf8Value.
+const char* ToCString(const v8::String::Utf8Value& value) {
+  return *value ? *value : "<string conversion failed>";
+}
 
+// Slight modification to an original function found in the V8 sample shell.cc.
+void reportException(Isolate* isolate, TryCatch* try_catch) {
+  HandleScope handle_scope(isolate);
+  String::Utf8Value exception(try_catch->Exception());
+  const char* exception_string = ToCString(exception);
+  Handle<Message> message = try_catch->Message();
+  if (message.IsEmpty()) {
+    // V8 didn't provide any extra information about this error; just
+    // print the exception.
+    fprintf(stderr, "%s\n", exception_string);
+  } else {
+    // Print (filename):(line number): (message).
+    String::Utf8Value filename(message->GetScriptResourceName());
+    const char* filename_string = ToCString(filename);
+    int linenum = message->GetLineNumber();
+    fprintf(stderr, "%s:%i: %s\n", filename_string, linenum, exception_string);
+    // Print line of source code.
+    String::Utf8Value sourceline(message->GetSourceLine());
+    const char* sourceline_string = ToCString(sourceline);
+    fprintf(stderr, "%s\n", sourceline_string);
+    // Print wavy underline.
+    int start = message->GetStartColumn();
+    for (int i = 0; i < start; i++) {
+      fprintf(stderr, " ");
+    }
+    int end = message->GetEndColumn();
+    for (int i = start; i < end; i++) {
+      fprintf(stderr, "^");
+    }
+    fprintf(stderr, "\n");
+    String::Utf8Value stack_trace(try_catch->StackTrace());
+    if (stack_trace.length() > 0) {
+      const char* stack_trace_string = ToCString(stack_trace);
+      fprintf(stderr, "%s\n", stack_trace_string);
+    }
+  }
+}
+
+SkV8ExampleWindow::SkV8ExampleWindow(void* hwnd,
+                     Isolate* isolate,
+                     Handle<Context> context,
+                     Handle<Script> script)
+    : INHERITED(hwnd)
+    , fIsolate(isolate)
+{
+    // Convert the Handle<> objects into Persistent<> objects using Reset().
+    fContext.Reset(isolate, context);
+    fScript.Reset(isolate, script);
+
+    fRotationAngle = SkIntToScalar(0);
     this->setConfig(SkBitmap::kARGB_8888_Config);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 }
 
+// Simple global for the Draw function.
+SkCanvas* gCanvas = NULL;
 
-void SkV8ExampleWindow::onDraw(SkCanvas* canvas) {
-  printf("Draw\n");
 
-  canvas->drawColor(SK_ColorWHITE);
+// Draw is called from within V8 when the Javascript function draw() is called.
+void Draw(const v8::FunctionCallbackInfo<v8::Value>& args) {
+  if (NULL == gCanvas) {
+    printf("Can't Draw Now.\n");
+    return;
+  }
+
+  gCanvas->drawColor(SK_ColorWHITE);
   SkPaint paint;
   paint.setColor(SK_ColorRED);
 
@@ -52,10 +111,63 @@ void SkV8ExampleWindow::onDraw(SkCanvas* canvas) {
     SkIntToScalar(10), SkIntToScalar(10),
     SkIntToScalar(128), SkIntToScalar(128)
   };
-  canvas->drawRect(rect, paint);
+  gCanvas->drawRect(rect, paint);
+}
+
+void SkV8ExampleWindow::onDraw(SkCanvas* canvas) {
+  printf("Draw\n");
+
+  gCanvas = canvas;
+  canvas->save();
+  fRotationAngle += SkDoubleToScalar(0.2);
+  if (fRotationAngle > SkDoubleToScalar(360.0)) {
+    fRotationAngle -= SkDoubleToScalar(360.0);
+  }
+  canvas->rotate(fRotationAngle);
+
+  // Create a Handle scope for temporary references.
+  HandleScope handle_scope(fIsolate);
+
+  // Create a local context from our persistent context.
+  Local<Context> context =
+            Local<Context>::New(fIsolate, fContext);
+
+  // Enter the context so all operations take place within it.
+  Context::Scope context_scope(context);
+
+  TryCatch try_catch;
+
+  // Create a local script from our persistent script.
+  Local<Script> script =
+            Local<Script>::New(fIsolate, fScript);
+
+  // Run the script.
+  Handle<Value> result = script->Run();
+
+  if (result.IsEmpty()) {
+    SkASSERT(try_catch.HasCaught());
+    // Print errors that happened during execution.
+    reportException(fIsolate, &try_catch);
+  } else {
+    SkASSERT(!try_catch.HasCaught());
+    if (!result->IsUndefined()) {
+      // If all went well and the result wasn't undefined then print
+      // the returned value.
+      String::Utf8Value str(result);
+      const char* cstr = ToCString(str);
+      printf("%s\n", cstr);
+    }
+  }
+
+  canvas->restore();
+
+  // Trigger an invalidation which should trigger another redraw to simulate
+  // animation.
+  this->inval(NULL);
 
   INHERITED::onDraw(canvas);
 }
+
 
 #ifdef SK_BUILD_FOR_WIN
 void SkV8ExampleWindow::onHandleInval(const SkIRect& rect) {
@@ -68,41 +180,54 @@ void SkV8ExampleWindow::onHandleInval(const SkIRect& rect) {
 }
 #endif
 
+// Creates a new execution environment containing the built-in
+// function draw().
+Handle<Context> createRootContext(Isolate* isolate) {
+  // Create a template for the global object.
+  Handle<ObjectTemplate> global = ObjectTemplate::New();
+  // Bind the global 'draw' function to the C++ Draw callback.
+  global->Set(String::NewFromUtf8(isolate, "draw"),
+              FunctionTemplate::New(Draw));
+
+  return Context::New(isolate, NULL, global);
+}
 
 SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
   printf("Started\n");
 
   // Get the default Isolate created at startup.
   Isolate* isolate = Isolate::GetCurrent();
+  printf("Isolate\n");
 
   // Create a stack-allocated handle scope.
   HandleScope handle_scope(isolate);
 
+  printf("Before create context\n");
   // Create a new context.
-  Handle<Context> context = Context::New(isolate);
+  //
+  Handle<Context> context = createRootContext(isolate);
 
-  // Here's how you could create a Persistent handle to the context, if needed.
-  Persistent<Context> persistent_context(isolate, context);
-
-  // Enter the created context for compiling and
-  // running the hello world script.
+  // Enter the scope so all operations take place in the scope.
   Context::Scope context_scope(context);
 
-  // Create a string containing the JavaScript source code.
-  Handle<String> source = String::New("'Hello' + ', World!'");
+  v8::TryCatch try_catch;
 
   // Compile the source code.
+  Handle<String> source = String::NewFromUtf8(isolate, "draw();");
+  printf("Before Compile\n");
   Handle<Script> script = Script::Compile(source);
+  printf("After Compile\n");
 
-  // Run the script to get the result.
-  Handle<Value> result = script->Run();
+  // Try running it now. It won't have a valid context, but shouldn't fail.
+  script->Run();
 
-  // The persistent handle needs to be eventually disposed.
-  persistent_context.Dispose();
+  if (script.IsEmpty()) {
+    // Print errors that happened during compilation.
+    reportException(isolate, &try_catch);
+    exit(1);
+  }
+  printf("After Exception.\n");
 
-  // Convert the result to an ASCII string and print it.
-  String::AsciiValue ascii(result);
-  printf("%s\n", *ascii);
-
-    return new SkV8ExampleWindow(hwnd);
+  // SkV8ExampleWindow will make persistent handles to hold the context and script.
+  return new SkV8ExampleWindow(hwnd, isolate, context, script);
 }
