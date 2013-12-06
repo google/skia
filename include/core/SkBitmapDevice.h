@@ -258,6 +258,8 @@ private:
 
     friend class SkSurface_Raster;
 
+    void init(SkBitmap::Config config, int width, int height, bool isOpaque);
+
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
     // any clip information.

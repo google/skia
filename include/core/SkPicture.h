@@ -220,10 +220,11 @@ protected:
     // V14: Add flags word to PathRef serialization
     // V15: Remove A1 bitmpa config (and renumber remaining configs)
     // V16: Move SkPath's isOval flag to SkPathRef
+    // V17: Changes to PixelRef to store SkImageInfo
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
     static const uint32_t PRIOR_PICTURE_VERSION = 15;  // TODO: remove when .skps regenerated
 #endif
-    static const uint32_t PICTURE_VERSION = 16;
+    static const uint32_t PICTURE_VERSION = 17;
 
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived

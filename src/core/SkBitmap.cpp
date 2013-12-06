@@ -361,6 +361,47 @@ void SkBitmap::updatePixelsFromRef() const {
     }
 }
 
+static bool config_to_colorType(SkBitmap::Config config, SkColorType* ctOut) {
+    SkColorType ct;
+    switch (config) {
+        case SkBitmap::kNo_Config:
+            return false;
+        case SkBitmap::kA8_Config:
+            ct = kAlpha_8_SkColorType;
+            break;
+        case SkBitmap::kIndex8_Config:
+            ct = kIndex8_SkColorType;
+            break;
+        case SkBitmap::kRGB_565_Config:
+            ct = kRGB_565_SkColorType;
+            break;
+        case SkBitmap::kARGB_4444_Config:
+            ct = kARGB_4444_SkColorType;
+            break;
+        case SkBitmap::kARGB_8888_Config:
+            ct = kPMColor_SkColorType;
+            break;
+    }
+    if (ctOut) {
+        *ctOut = ct;
+    }
+    return true;
+}
+
+bool SkBitmap::asImageInfo(SkImageInfo* info) const {
+    SkColorType ct;
+    if (!config_to_colorType(this->config(), &ct)) {
+        return false;
+    }
+    if (info) {
+        info->fWidth = fWidth;
+        info->fHeight = fHeight;
+        info->fAlphaType = this->alphaType();
+        info->fColorType = ct;
+    }
+    return true;
+}
+
 SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, size_t offset) {
     // do this first, we that we never have a non-zero offset with a null ref
     if (NULL == pr) {
@@ -411,10 +452,20 @@ void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
         return;
     }
 
-    Sk64 size = this->getSize64();
-    SkASSERT(!size.isNeg() && size.is32());
+    SkImageInfo info;
+    if (!this->asImageInfo(&info)) {
+        this->setPixelRef(NULL, 0);
+        return;
+    }
 
-    this->setPixelRef(new SkMallocPixelRef(p, size.get32(), ctable, false))->unref();
+    SkPixelRef* pr = SkMallocPixelRef::NewDirect(info, p, fRowBytes, ctable);
+    if (NULL == pr) {
+        this->setPixelRef(NULL, 0);
+        return;
+    }
+
+    this->setPixelRef(pr)->unref();
+
     // since we're already allocated, we lockPixels right away
     this->lockPixels();
     SkDEBUGCODE(this->validate();)
@@ -479,17 +530,19 @@ GrTexture* SkBitmap::getTexture() const {
  */
 bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst,
                                             SkColorTable* ctable) {
-    Sk64 size = dst->getSize64();
-    if (size.isNeg() || !size.is32()) {
+    SkImageInfo info;
+    if (!dst->asImageInfo(&info)) {
+//        SkDebugf("unsupported config for info %d\n", dst->config());
+        return false;
+    }
+    
+    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, dst->rowBytes(),
+                                                   ctable);
+    if (NULL == pr) {
         return false;
     }
 
-    void* addr = sk_malloc_flags(size.get32(), 0);  // returns NULL on failure
-    if (NULL == addr) {
-        return false;
-    }
-
-    dst->setPixelRef(new SkMallocPixelRef(addr, size.get32(), ctable))->unref();
+    dst->setPixelRef(pr, 0)->unref();
     // since we're already allocated, we lockPixels right away
     dst->lockPixels();
     return true;
@@ -1592,6 +1645,28 @@ SkBitmap::RLEPixels::RLEPixels(int width, int height) {
 
 SkBitmap::RLEPixels::~RLEPixels() {
     sk_free(fYPtrs);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkImageInfo::unflatten(SkFlattenableReadBuffer& buffer) {
+    fWidth = buffer.read32();
+    fHeight = buffer.read32();
+
+    uint32_t packed = buffer.read32();
+    SkASSERT(0 == (packed >> 16));
+    fAlphaType = (SkAlphaType)((packed >> 8) & 0xFF);
+    fColorType = (SkColorType)((packed >> 0) & 0xFF);
+}
+
+void SkImageInfo::flatten(SkFlattenableWriteBuffer& buffer) const {
+    buffer.write32(fWidth);
+    buffer.write32(fHeight);
+
+    SkASSERT(0 == (fAlphaType & ~0xFF));
+    SkASSERT(0 == (fColorType & ~0xFF));
+    uint32_t packed = (fAlphaType << 8) | fColorType;
+    buffer.write32(packed);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

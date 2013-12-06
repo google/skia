@@ -44,12 +44,19 @@ public:
 // Crashing in skia when a pixelref fails in lockPixels
 //
 static void test_faulty_pixelref(skiatest::Reporter* reporter) {
+    SkImageInfo info;
+    info.fWidth = 100;
+    info.fHeight = 100;
+    info.fColorType = kPMColor_SkColorType;
+    info.fAlphaType = kPremul_SkAlphaType;
+
     // need a cache, but don't expect to use it, so the budget is not critical
     SkAutoTUnref<SkDiscardableMemoryPool> pool(SkNEW_ARGS(SkDiscardableMemoryPool,
                                                           (10 * 1000, NULL)));
     SkBitmap bm;
     bool installSuccess = SkDiscardablePixelRef::Install(SkNEW(FailureImageGenerator), &bm, pool);
     REPORTER_ASSERT(reporter, installSuccess);
+
     // now our bitmap has a pixelref, but we know it will fail to lock
 
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(200, 200));
