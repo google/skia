@@ -9,18 +9,25 @@
 #include "SkData.h"
 #include "SkFlattenableBuffers.h"
 
-SkDataPixelRef::SkDataPixelRef(SkData* data) : fData(data) {
+SkDataPixelRef::SkDataPixelRef(const SkImageInfo& info,
+                               SkData* data, size_t rowBytes)
+    : INHERITED(info)
+    , fData(data)
+    , fRB(rowBytes) 
+{
     fData->ref();
-    this->setPreLocked(const_cast<void*>(fData->data()), NULL);
+    this->setPreLocked(const_cast<void*>(fData->data()), rowBytes, NULL);
 }
 
 SkDataPixelRef::~SkDataPixelRef() {
     fData->unref();
 }
 
-void* SkDataPixelRef::onLockPixels(SkColorTable** ct) {
-    *ct = NULL;
-    return const_cast<void*>(fData->data());
+bool SkDataPixelRef::onNewLockPixels(LockRec* rec) {
+    rec->fPixels = const_cast<void*>(fData->data());
+    rec->fColorTable = NULL;
+    rec->fRowBytes = fRB;
+    return true;
 }
 
 void SkDataPixelRef::onUnlockPixels() {
@@ -33,11 +40,15 @@ size_t SkDataPixelRef::getAllocatedSizeInBytes() const {
 
 void SkDataPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
+    
     buffer.writeDataAsByteArray(fData);
+    buffer.write32(fRB);
 }
 
 SkDataPixelRef::SkDataPixelRef(SkFlattenableReadBuffer& buffer)
-        : INHERITED(buffer, NULL) {
+    : INHERITED(buffer, NULL)
+{
     fData = buffer.readByteArrayAsData();
-    this->setPreLocked(const_cast<void*>(fData->data()), NULL);
+    fRB = buffer.read32();
+    this->setPreLocked(const_cast<void*>(fData->data()), fRB, NULL);
 }

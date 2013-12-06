@@ -258,3 +258,33 @@ GrPixelConfig SkBitmapConfig2GrPixelConfig(SkBitmap::Config config) {
             return kUnknown_GrPixelConfig;
     }
 }
+
+bool GrPixelConfig2ColorType(GrPixelConfig config, SkColorType* ctOut) {
+    SkColorType ct;
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+            ct = kAlpha_8_SkColorType;
+            break;
+        case kIndex_8_GrPixelConfig:
+            ct = kIndex8_SkColorType;
+            break;
+        case kRGB_565_GrPixelConfig:
+            ct = kRGB_565_SkColorType;
+            break;
+        case kRGBA_4444_GrPixelConfig:
+            ct = kARGB_4444_SkColorType;
+            break;
+        case kRGBA_8888_GrPixelConfig:
+            ct = kRGBA_8888_SkColorType;
+            break;
+        case kBGRA_8888_GrPixelConfig:
+            ct = kBGRA_8888_SkColorType;
+            break;
+        default:
+            return false;
+    }
+    if (ctOut) {
+        *ctOut = ct;
+    }
+    return true;
+}

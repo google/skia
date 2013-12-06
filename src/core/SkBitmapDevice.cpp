@@ -24,31 +24,30 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkDeviceProperties&
     , fBitmap(bitmap) {
 }
 
-SkBitmapDevice::SkBitmapDevice(SkBitmap::Config config, int width, int height, bool isOpaque) {
+void SkBitmapDevice::init(SkBitmap::Config config, int width, int height, bool isOpaque) {
     fBitmap.setConfig(config, width, height, 0, isOpaque ?
                       kOpaque_SkAlphaType : kPremul_SkAlphaType);
-    if (!fBitmap.allocPixels()) {
-        fBitmap.setConfig(config, 0, 0, 0, isOpaque ?
-                          kOpaque_SkAlphaType : kPremul_SkAlphaType);
+    
+    if (SkBitmap::kNo_Config != config) {
+        if (!fBitmap.allocPixels()) {
+            // indicate failure by zeroing our bitmap
+            fBitmap.setConfig(config, 0, 0, 0, isOpaque ?
+                              kOpaque_SkAlphaType : kPremul_SkAlphaType);
+        } else if (!isOpaque) {
+            fBitmap.eraseColor(SK_ColorTRANSPARENT);
+        }
     }
-    if (!isOpaque) {
-        fBitmap.eraseColor(SK_ColorTRANSPARENT);
-    }
+}
+
+SkBitmapDevice::SkBitmapDevice(SkBitmap::Config config, int width, int height, bool isOpaque) {
+    this->init(config, width, height, isOpaque);
 }
 
 SkBitmapDevice::SkBitmapDevice(SkBitmap::Config config, int width, int height, bool isOpaque,
                                const SkDeviceProperties& deviceProperties)
-    : SkBaseDevice(deviceProperties) {
-
-    fBitmap.setConfig(config, width, height, 0, isOpaque ?
-                      kOpaque_SkAlphaType : kPremul_SkAlphaType);
-    if (!fBitmap.allocPixels()) {
-        fBitmap.setConfig(config, 0, 0, 0, isOpaque ?
-                          kOpaque_SkAlphaType : kPremul_SkAlphaType);
-    }
-    if (!isOpaque) {
-        fBitmap.eraseColor(SK_ColorTRANSPARENT);
-    }
+    : SkBaseDevice(deviceProperties)
+{
+    this->init(config, width, height, isOpaque);
 }
 
 SkBitmapDevice::~SkBitmapDevice() {
