@@ -309,4 +309,3 @@ DEF_TEST(DiscardableAndCachingPixelRef, reporter) {
     // test that here (on platforms where it is availible).
 }
 ////////////////////////////////////////////////////////////////////////////////
-

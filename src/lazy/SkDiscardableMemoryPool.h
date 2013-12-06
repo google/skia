@@ -68,4 +68,3 @@ SkDiscardableMemoryPool* SkGetGlobalDiscardableMemoryPool();
 #endif
 
 #endif  // SkDiscardableMemoryPool_DEFINED
-

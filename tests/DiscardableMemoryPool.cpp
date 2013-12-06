@@ -34,4 +34,3 @@ DEF_TEST(DiscardableMemoryPool, reporter) {
     REPORTER_ASSERT(reporter, !dm2->lock());
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
 }
-

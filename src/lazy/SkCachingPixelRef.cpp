@@ -96,4 +96,3 @@ void SkCachingPixelRef::onUnlockPixels() {
         fScaledCacheId = NULL;
     }
 }
-
