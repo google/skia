@@ -40,7 +40,7 @@ public:
 
 protected:
     virtual ~SkCachingPixelRef();
-    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
+    virtual void* onLockPixels(SkColorTable** colorTable) SK_OVERRIDE;
     virtual void onUnlockPixels() SK_OVERRIDE;
     virtual bool onLockPixelsAreWritable() const SK_OVERRIDE { return false; }
 
@@ -58,12 +58,12 @@ private:
     SkImageGenerator* const fImageGenerator;
     bool                    fErrorInDecoding;
     void*                   fScaledCacheId;
+    const SkImageInfo       fInfo;
     const size_t            fRowBytes;
 
     SkCachingPixelRef(SkImageGenerator* imageGenerator,
                       const SkImageInfo& info,
                       size_t rowBytes);
-
     typedef SkPixelRef INHERITED;
 };
 

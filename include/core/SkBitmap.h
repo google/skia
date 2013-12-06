@@ -250,13 +250,6 @@ public:
 
     bool setConfig(const SkImageInfo& info, size_t rowBytes = 0);
 
-    /**
-     *  If the bitmap's config can be represented as SkImageInfo, return true,
-     *  and if info is not-null, set it to the bitmap's info. If it cannot be
-     *  represented as SkImageInfo, return false and ignore the info parameter.
-     */
-    bool asImageInfo(SkImageInfo* info) const;
-
     /** Use this to assign a new pixel address for an existing bitmap. This
         will automatically release any pixelref previously installed. Only call
         this if you are handling ownership/lifetime of the pixel memory.

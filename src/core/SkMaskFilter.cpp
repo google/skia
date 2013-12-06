@@ -349,14 +349,10 @@ bool SkMaskFilter::filterMaskGPU(GrContext* context,
     if (!result) {
         return false;
     }
-    SkAutoUnref aur(dst);
 
-    SkImageInfo info;
     resultBM->setConfig(srcBM.config(), dst->width(), dst->height());
-    if (resultBM->asImageInfo(&info)) {
-        return false;
-    }
-    resultBM->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, dst)))->unref();
+    resultBM->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (dst)))->unref();
+    dst->unref();
     return true;
 }
 
