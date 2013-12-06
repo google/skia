@@ -57,7 +57,7 @@ public:
 #endif
 
     explicit SkPixelRef(const SkImageInfo&);
-    explicit SkPixelRef(const SkImageInfo&, SkBaseMutex* mutex);
+    SkPixelRef(const SkImageInfo&, SkBaseMutex* mutex);
     virtual ~SkPixelRef();
 
     /** Return the pixel memory returned from lockPixels, or null if the
