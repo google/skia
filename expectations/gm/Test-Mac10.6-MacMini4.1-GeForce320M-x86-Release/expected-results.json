@@ -1012,7 +1012,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1581802764826035601
+          2166959127886361457
         ]
       ], 
       "bugs": [
@@ -8394,13 +8394,12 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9749250844822835346
+          6001294768641918463
         ]
       ], 
       "bugs": [
         1578
       ], 
-      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "gradients_mesa.png": {
@@ -10073,7 +10072,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          73449649865599504
+          2664237379710013683
         ]
       ], 
       "bugs": [
@@ -11290,7 +11289,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8200248415639515464
+          5393787589671924237
         ]
       ], 
       "bugs": [
