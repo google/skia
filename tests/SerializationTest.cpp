@@ -123,7 +123,7 @@ static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
     SkValidatingReadBuffer buffer(dataWritten, bytesWritten - 4);
     T obj;
     SerializationUtils<T>::Read(buffer, &obj);
-    REPORTER_ASSERT(reporter, !buffer.validate(true));
+    REPORTER_ASSERT(reporter, !buffer.isValid());
 
     // Make sure this succeeds when it should
     SkValidatingReadBuffer buffer2(dataWritten, bytesWritten);
@@ -132,7 +132,7 @@ static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
     SerializationUtils<T>::Read(buffer2, &obj2);
     const unsigned char* peekAfter = static_cast<const unsigned char*>(buffer2.skip(0));
     // This should have succeeded, since there are enough bytes to read this
-    REPORTER_ASSERT(reporter, buffer2.validate(true));
+    REPORTER_ASSERT(reporter, buffer2.isValid());
     REPORTER_ASSERT(reporter, static_cast<size_t>(peekAfter - peekBefore) == bytesWritten);
 
     TestAlignment(testObj, reporter);
@@ -154,7 +154,7 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
     SkValidatingReadBuffer buffer(dataWritten, bytesWritten - 4);
     T* obj = NULL;
     SerializationUtils<T>::Read(buffer, &obj);
-    REPORTER_ASSERT(reporter, !buffer.validate(true));
+    REPORTER_ASSERT(reporter, !buffer.isValid());
     REPORTER_ASSERT(reporter, NULL == obj);
 
     // Make sure this succeeds when it should
@@ -165,12 +165,12 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
     const unsigned char* peekAfter = static_cast<const unsigned char*>(buffer2.skip(0));
     if (shouldSucceed) {
         // This should have succeeded, since there are enough bytes to read this
-        REPORTER_ASSERT(reporter, buffer2.validate(true));
+        REPORTER_ASSERT(reporter, buffer2.isValid());
         REPORTER_ASSERT(reporter, static_cast<size_t>(peekAfter - peekBefore) == bytesWritten);
         REPORTER_ASSERT(reporter, NULL != obj2);
     } else {
         // If the deserialization was supposed to fail, make sure it did
-        REPORTER_ASSERT(reporter, !buffer.validate(true));
+        REPORTER_ASSERT(reporter, !buffer.isValid());
         REPORTER_ASSERT(reporter, NULL == obj2);
     }
 

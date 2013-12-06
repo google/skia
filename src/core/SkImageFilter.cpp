@@ -61,10 +61,14 @@ SkImageFilter::SkImageFilter(int inputCount, SkFlattenableReadBuffer& buffer) {
             } else {
                 fInputs[i] = NULL;
             }
+            if (!buffer.isValid()) {
+                fInputCount = i; // Do not use fInputs past that point in the destructor
+                break;
+            }
         }
         SkRect rect;
         buffer.readRect(&rect);
-        if (buffer.validate(SkIsValidRect(rect))) {
+        if (buffer.isValid() && buffer.validate(SkIsValidRect(rect))) {
             uint32_t flags = buffer.readUInt();
             fCropRect = CropRect(rect, flags);
         }

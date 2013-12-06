@@ -154,6 +154,12 @@ public:
       */
     virtual bool validate(bool isValid);
 
+    /** This function returns true by default
+      * If isValidating() is true, it will return false if the internal error flag is set.
+      * Otherwise, it will return true.
+      */
+    virtual bool isValid() const { return true; }
+
 private:
     template <typename T> T* readFlattenableT();
     uint32_t fFlags;

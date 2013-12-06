@@ -101,8 +101,10 @@ protected:
     SkModeColorFilter(SkFlattenableReadBuffer& buffer) {
         fColor = buffer.readColor();
         fMode = (SkXfermode::Mode)buffer.readUInt();
-        this->updateCache();
-        buffer.validate(SkIsValidMode(fMode));
+        if (buffer.isValid()) {
+            this->updateCache();
+            buffer.validate(SkIsValidMode(fMode));
+        }
     }
 
 private:

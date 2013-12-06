@@ -1557,8 +1557,11 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
     buffer.validate((width >= 0) && (height >= 0) && (rowBytes >= 0) &&
                     SkIsValidConfig(config) && validate_alphaType(config, alphaType));
 
-    this->setConfig(config, width, height, rowBytes, alphaType);
-    buffer.validate(fRowBytes >= (fWidth * fBytesPerPixel));
+    bool configIsValid = this->setConfig(config, width, height, rowBytes, alphaType);
+    // Note : Using (fRowBytes >= (fWidth * fBytesPerPixel)) in the following test can create false
+    //        positives if the multiplication causes an integer overflow. Use the division instead.
+    buffer.validate(configIsValid && (fBytesPerPixel > 0) &&
+                    ((fRowBytes / fBytesPerPixel) >= fWidth));
 
     int reftype = buffer.readInt();
     if (buffer.validate((SERIALIZE_PIXELTYPE_REF_DATA == reftype) ||

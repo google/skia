@@ -29,6 +29,10 @@ bool SkValidatingReadBuffer::validate(bool isValid) {
     return !fError;
 }
 
+bool SkValidatingReadBuffer::isValid() const {
+    return !fError;
+}
+
 void SkValidatingReadBuffer::setMemory(const void* data, size_t size) {
     this->validate(IsPtrAlign4(data) && (SkAlign4(size) == size));
     if (!fError) {

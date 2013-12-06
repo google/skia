@@ -165,9 +165,10 @@ SkMergeImageFilter::SkMergeImageFilter(SkFlattenableReadBuffer& buffer)
         int nbInputs = countInputs();
         size_t size = nbInputs * sizeof(fModes[0]);
         SkASSERT(buffer.getArrayCount() == size);
-        buffer.readByteArray(fModes, size);
-        for (int i = 0; i < nbInputs; ++i) {
-            buffer.validate(SkIsValidMode((SkXfermode::Mode)fModes[i]));
+        if (buffer.readByteArray(fModes, size)) {
+            for (int i = 0; i < nbInputs; ++i) {
+                buffer.validate(SkIsValidMode((SkXfermode::Mode)fModes[i]));
+            }
         }
     } else {
         fModes = 0;

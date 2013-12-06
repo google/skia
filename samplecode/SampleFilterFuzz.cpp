@@ -31,6 +31,9 @@
 #include <stdio.h>
 #include <time.h>
 
+//#define SK_ADD_RANDOM_BIT_FLIPS
+//#define SK_FUZZER_IS_VERBOSE
+
 static const uint32_t kSeed = (uint32_t)(time(NULL));
 static SkRandom gRand(kSeed);
 static bool return_large = false;

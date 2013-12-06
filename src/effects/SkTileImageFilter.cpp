@@ -61,7 +61,7 @@ SkTileImageFilter::SkTileImageFilter(SkFlattenableReadBuffer& buffer)
   : INHERITED(1, buffer) {
     buffer.readRect(&fSrcRect);
     buffer.readRect(&fDstRect);
-    buffer.validate(SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
+    buffer.validate(buffer.isValid() && SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
 }
 
 void SkTileImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
