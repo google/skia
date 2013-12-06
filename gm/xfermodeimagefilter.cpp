@@ -178,7 +178,8 @@ protected:
         filter.reset(SkNEW_ARGS(SkXfermodeImageFilter,
             (mode, offsetBackground, offsetForeground)));
         paint.setImageFilter(filter);
-        drawClippedPaint(canvas, clipRect, paint, x, y);
+        drawClippedPaint(canvas, clipRect, paint, 
+                         SkIntToScalar(x), SkIntToScalar(y));
         x += fBitmap.width() + MARGIN;
         if (x + fBitmap.width() > WIDTH) {
             x = 0;
@@ -188,7 +189,8 @@ protected:
         mode.reset(SkXfermode::Create(SkXfermode::kDarken_Mode));
         filter.reset(SkNEW_ARGS(SkXfermodeImageFilter, (mode, offsetBackground, offsetForeground)));
         paint.setImageFilter(filter);
-        drawClippedPaint(canvas, clipRect, paint, x, y);
+        drawClippedPaint(canvas, clipRect, paint, 
+                         SkIntToScalar(x), SkIntToScalar(y));
         x += fBitmap.width() + MARGIN;
         if (x + fBitmap.width() > WIDTH) {
             x = 0;
@@ -212,7 +214,8 @@ protected:
             filter.reset(SkNEW_ARGS(SkXfermodeImageFilter,
                                     (mode, offsetBackground, offsetForeground, &rect)));
             paint.setImageFilter(filter);
-            drawClippedPaint(canvas, clipRect, paint, x, y);
+            drawClippedPaint(canvas, clipRect, paint, 
+                             SkIntToScalar(x), SkIntToScalar(y));
             x += fBitmap.width() + MARGIN;
             if (x + fBitmap.width() > WIDTH) {
                 x = 0;
