@@ -9614,9 +9614,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          440153242910186760
+          11796168768666107089
         ]
-      ]
+      ], 
+      "bugs": [
+        1884
+      ], 
+      "reviewed-by-human": false
     }, 
     "hairmodes_565.png": {
       "allowed-digests": [
@@ -11183,9 +11187,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9012404952550964565
+          16949958527435192032
         ]
-      ]
+      ], 
+      "bugs": [
+        1884
+      ], 
+      "reviewed-by-human": false
     }, 
     "optimizations_565.png": {
       "allowed-digests": [
@@ -14596,9 +14604,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9012404952550964565
+          16949958527435192032
         ]
-      ]
+      ], 
+      "bugs": [
+        1884
+      ], 
+      "reviewed-by-human": false
     }, 
     "tilemode_bitmap_565.png": {
       "allowed-digests": [

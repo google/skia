@@ -11553,14 +11553,12 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15460442698959226201
+          89955054876118556
         ]
       ], 
       "bugs": [
-        1578, 
-        1692
+        1884
       ], 
-      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "shadertext3_565.png": {

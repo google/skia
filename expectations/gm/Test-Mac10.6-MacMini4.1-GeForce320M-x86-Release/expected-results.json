@@ -5921,13 +5921,12 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11854000393508106916
+          7328078564697065691
         ]
       ], 
       "bugs": [
-        1578
+        1884
       ], 
-      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "drawbitmaprect_565.png": {
@@ -12637,11 +12636,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8678062996600544499
+          9431727042483531891
         ]
       ], 
       "bugs": [
-        1578
+        1884
       ], 
       "reviewed-by-human": false
     }, 
@@ -12850,11 +12849,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10823722518852356136
+          6316118216701943272
         ]
       ], 
       "bugs": [
-        1578
+        1884
       ], 
       "reviewed-by-human": false
     }, 

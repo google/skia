@@ -11225,9 +11225,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9412526815382676568
+          1456763503178662789
         ]
-      ]
+      ], 
+      "bugs": [
+        1884
+      ], 
+      "reviewed-by-human": false
     }, 
     "optimizations_565.png": {
       "allowed-digests": [
@@ -14584,9 +14588,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9412526815382676568
+          1456763503178662789
         ]
-      ]
+      ], 
+      "bugs": [
+        1884
+      ], 
+      "reviewed-by-human": false
     }, 
     "tilemode_bitmap_565.png": {
       "allowed-digests": [

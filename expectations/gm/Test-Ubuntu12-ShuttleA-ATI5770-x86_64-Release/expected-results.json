@@ -7130,9 +7130,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          440153242910186760
+          977372539310569340
         ]
-      ]
+      ], 
+      "bugs": [
+        1884
+      ], 
+      "reviewed-by-human": false
     }, 
     "hairmodes_565.png": {
       "allowed-digests": [
@@ -8109,13 +8113,12 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15089079208206756723
+          8105244313511109574
         ]
       ], 
       "bugs": [
-        1657
+        1884
       ], 
-      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "nested_aa_565.png": {
@@ -8305,9 +8308,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9393509788836718967
+          8979301951565713226
         ]
-      ]
+      ], 
+      "bugs": [
+        1884
+      ], 
+      "reviewed-by-human": false
     }, 
     "optimizations_565.png": {
       "allowed-digests": [
@@ -10748,9 +10755,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9393509788836718967
+          8979301951565713226
         ]
-      ]
+      ], 
+      "bugs": [
+        1884
+      ], 
+      "reviewed-by-human": false
     }, 
     "tilemode_bitmap_565.png": {
       "allowed-digests": [
