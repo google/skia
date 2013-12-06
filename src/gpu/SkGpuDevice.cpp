@@ -155,6 +155,20 @@ static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
     return bitmap;
 }
 
+/*
+ *  Calling SkBitmapDevice with individual params asks it to allocate pixel memory.
+ *  We never want that, so we always need to call it with a bitmap argument
+ *  (which says take my allocate (or lack thereof)).
+ *
+ *  This is a REALLY good reason to finish the clean-up of SkBaseDevice, and have
+ *  SkGpuDevice inherit from that instead of SkBitmapDevice.
+ */
+static SkBitmap make_bitmap(SkBitmap::Config config, int width, int height, bool isOpaque) {
+    SkBitmap bm;
+    bm.setConfig(config, width, height, isOpaque);
+    return bm;
+}
+
 SkGpuDevice* SkGpuDevice::Create(GrSurface* surface) {
     SkASSERT(NULL != surface);
     if (NULL == surface->asRenderTarget() || NULL == surface->getContext()) {
@@ -210,7 +224,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                          int width,
                          int height,
                          int sampleCount)
-    : SkBitmapDevice(config, width, height, false /*isOpaque*/) {
+    : SkBitmapDevice(make_bitmap(config, width, height, false /*isOpaque*/)) {
 
     fDrawProcs = NULL;
 
