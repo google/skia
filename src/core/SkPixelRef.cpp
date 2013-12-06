@@ -82,6 +82,28 @@ void SkPixelRef::setMutex(SkBaseMutex* mutex) {
 // just need a > 0 value, so pick a funny one to aid in debugging
 #define SKPIXELREF_PRELOCKED_LOCKCOUNT     123456789
 
+SkPixelRef::SkPixelRef(const SkImageInfo&, SkBaseMutex* mutex) {
+    this->setMutex(mutex);
+    fPixels = NULL;
+    fColorTable = NULL; // we do not track ownership of this
+    fLockCount = 0;
+    this->needsNewGenID();
+    fIsImmutable = false;
+    fPreLocked = false;
+}
+
+SkPixelRef::SkPixelRef(const SkImageInfo&) {
+    this->setMutex(NULL);
+    fPixels = NULL;
+    fColorTable = NULL; // we do not track ownership of this
+    fLockCount = 0;
+    this->needsNewGenID();
+    fIsImmutable = false;
+    fPreLocked = false;
+}
+
+#ifdef SK_SUPPORT_LEGACY_PIXELREF_CONSTRUCTOR
+// THIS GUY IS DEPRECATED -- don't use me!
 SkPixelRef::SkPixelRef(SkBaseMutex* mutex) {
     this->setMutex(mutex);
     fPixels = NULL;
@@ -91,6 +113,7 @@ SkPixelRef::SkPixelRef(SkBaseMutex* mutex) {
     fIsImmutable = false;
     fPreLocked = false;
 }
+#endif
 
 SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex)
         : INHERITED(buffer) {
