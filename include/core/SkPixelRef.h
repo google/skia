@@ -14,10 +14,7 @@
 #include "SkRefCnt.h"
 #include "SkString.h"
 #include "SkFlattenable.h"
-#include "SkImageInfo.h"
 #include "SkTDArray.h"
-
-#define SK_SUPPORT_LEGACY_ONLOCKPIXELS
 
 #ifdef SK_DEBUG
     /**
@@ -52,35 +49,18 @@ class SK_API SkPixelRef : public SkFlattenable {
 public:
     SK_DECLARE_INST_COUNT(SkPixelRef)
 
-    explicit SkPixelRef(const SkImageInfo&);
-    SkPixelRef(const SkImageInfo&, SkBaseMutex* mutex);
+    explicit SkPixelRef(SkBaseMutex* mutex = NULL);
     virtual ~SkPixelRef();
-
-    const SkImageInfo& info() const {
-        return fInfo;
-    }
 
     /** Return the pixel memory returned from lockPixels, or null if the
         lockCount is 0.
     */
-    void* pixels() const { return fRec.fPixels; }
+    void* pixels() const { return fPixels; }
 
     /** Return the current colorTable (if any) if pixels are locked, or null.
     */
-    SkColorTable* colorTable() const { return fRec.fColorTable; }
+    SkColorTable* colorTable() const { return fColorTable; }
 
-    /**
-     *  To access the actual pixels of a pixelref, it must be "locked".
-     *  Calling lockPixels returns a LockRec struct (on success).
-     */
-    struct LockRec {
-        void*           fPixels;
-        SkColorTable*   fColorTable;
-        size_t          fRowBytes;
-        
-        void zero() { sk_bzero(this, sizeof(*this)); }
-    };
-    
     /**
      *  Returns true if the lockcount > 0
      */
@@ -88,19 +68,10 @@ public:
 
     SkDEBUGCODE(int getLockCount() const { return fLockCount; })
 
-    /**
-     *  Call to access the pixel memory. Return true on success. Balance this
-     *  with a call to unlockPixels().
-     */
-    bool lockPixels();
-
-    /**
-     *  Call to access the pixel memory. On success, return true and fill out
-     *  the specified rec. On failure, return false and ignore the rec parameter.
-     *  Balance this with a call to unlockPixels().
-     */
-    bool lockPixels(LockRec* rec);
-
+    /** Call to access the pixel memory, which is returned. Balance with a call
+        to unlockPixels().
+    */
+    void lockPixels();
     /** Call to balanace a previous call to lockPixels(). Returns the pixels
         (or null) after the unlock. NOTE: lock calls can be nested, but the
         matching number of unlock calls must be made in order to free the
@@ -257,28 +228,14 @@ public:
     void addGenIDChangeListener(GenIDChangeListener* listener);
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_ONLOCKPIXELS
-    virtual void* onLockPixels(SkColorTable**);
-    virtual bool onNewLockPixels(LockRec*);
-#else
-    /**
-     *  On success, returns true and fills out the LockRec for the pixels. On
-     *  failure returns false and ignores the LockRec parameter.
-     *
-     *  The caller will have already acquired a mutex for thread safety, so this
-     *  method need not do that.
-     */
-    virtual bool onNewLockPixels(LockRec*) = 0;
-#endif
-
-    /**
-     *  Balancing the previous successful call to onNewLockPixels. The locked
-     *  pixel address will no longer be referenced, so the subclass is free to
-     *  move or discard that memory.
-     *
-     *  The caller will have already acquired a mutex for thread safety, so this
-     *  method need not do that.
-     */
+    /** Called when the lockCount goes from 0 to 1. The caller will have already
+        acquire a mutex for thread safety, so this method need not do that.
+    */
+    virtual void* onLockPixels(SkColorTable**) = 0;
+    /** Called when the lock count goes from 1 to 0. The caller will have
+        already acquire a mutex for thread safety, so this method need not do
+        that.
+    */
     virtual void onUnlockPixels() = 0;
 
     /** Default impl returns true */
@@ -322,14 +279,12 @@ protected:
     // only call from constructor. Flags this to always be locked, removing
     // the need to grab the mutex and call onLockPixels/onUnlockPixels.
     // Performance tweak to avoid those calls (esp. in multi-thread use case).
-    void setPreLocked(void*, size_t rowBytes, SkColorTable*);
+    void setPreLocked(void* pixels, SkColorTable* ctable);
 
 private:
     SkBaseMutex*    fMutex; // must remain in scope for the life of this object
-    SkImageInfo     fInfo;
-    
-    // LockRec is only valid if we're in a locked state (isLocked())
-    LockRec         fRec;
+    void*           fPixels;
+    SkColorTable*   fColorTable;    // we do not track ownership, subclass does
     int             fLockCount;
 
     mutable uint32_t fGenerationID;

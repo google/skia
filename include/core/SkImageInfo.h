@@ -10,9 +10,6 @@
 
 #include "SkTypes.h"
 
-class SkFlattenableWriteBuffer;
-class SkFlattenableReadBuffer;
-
 /**
  *  Describes how to interpret the alpha compoent of a pixel.
  */
@@ -66,7 +63,6 @@ static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
 enum SkColorType {
     kAlpha_8_SkColorType,
     kRGB_565_SkColorType,
-    kARGB_4444_SkColorType,
     kRGBA_8888_SkColorType,
     kBGRA_8888_SkColorType,
     kIndex8_SkColorType,
@@ -86,7 +82,6 @@ static int SkColorTypeBytesPerPixel(SkColorType ct) {
     static const uint8_t gSize[] = {
         1,  // Alpha_8
         2,  // RGB_565
-        2,  // ARGB_4444
         4,  // RGBA_8888
         4,  // BGRA_8888
         1,  // kIndex_8
@@ -117,25 +112,11 @@ struct SkImageInfo {
         return SkColorTypeBytesPerPixel(fColorType);
     }
 
-    size_t minRowBytes() const {
-        return fWidth * this->bytesPerPixel();
-    }
-
     bool operator==(const SkImageInfo& other) const {
         return 0 == memcmp(this, &other, sizeof(other));
     }
     bool operator!=(const SkImageInfo& other) const {
         return 0 != memcmp(this, &other, sizeof(other));
-    }
-
-    void unflatten(SkFlattenableReadBuffer&);
-    void flatten(SkFlattenableWriteBuffer&) const;
-
-    size_t getSafeSize(size_t rowBytes) const {
-        if (0 == fHeight) {
-            return 0;
-        }
-        return (fHeight - 1) * rowBytes + fWidth * this->bytesPerPixel();
     }
 };
 

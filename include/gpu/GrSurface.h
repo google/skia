@@ -15,7 +15,6 @@
 
 class GrTexture;
 class GrRenderTarget;
-struct SkImageInfo;
 
 class GrSurface : public GrResource {
 public:
@@ -58,8 +57,6 @@ public:
      * Return the descriptor describing the surface
      */
     const GrTextureDesc& desc() const { return fDesc; }
-
-    void asImageInfo(SkImageInfo*) const;
 
     /**
      * @return the texture associated with the surface, may be NULL.

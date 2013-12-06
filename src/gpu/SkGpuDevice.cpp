@@ -200,10 +200,7 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     if (NULL == surface) {
         surface = fRenderTarget;
     }
-
-    SkImageInfo info;
-    surface->asImageInfo(&info);
-    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, surface, cached));
+    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (surface, cached));
 
     this->setPixelRef(pr, 0)->unref();
 }
@@ -213,8 +210,8 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                          int width,
                          int height,
                          int sampleCount)
-    : SkBitmapDevice(config, width, height, false /*isOpaque*/)
-{
+    : SkBitmapDevice(config, width, height, false /*isOpaque*/) {
+
     fDrawProcs = NULL;
 
     fContext = context;
@@ -234,14 +231,6 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     desc.fConfig = SkBitmapConfig2GrPixelConfig(config);
     desc.fSampleCnt = sampleCount;
 
-    SkImageInfo info;
-    if (!GrPixelConfig2ColorType(desc.fConfig, &info.fColorType)) {
-        sk_throw();
-    }
-    info.fWidth = width;
-    info.fHeight = height;
-    info.fAlphaType = kPremul_SkAlphaType;
-        
     SkAutoTUnref<GrTexture> texture(fContext->createUncachedTexture(desc, NULL, 0));
 
     if (NULL != texture) {
@@ -251,7 +240,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
         SkASSERT(NULL != fRenderTarget);
 
         // wrap the bitmap with a pixelref to expose our texture
-        SkGrPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, texture));
+        SkGrPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (texture));
         this->setPixelRef(pr, 0)->unref();
     } else {
         GrPrintf("--- failed to create gpu-offscreen [%d %d]\n",
@@ -837,12 +826,11 @@ bool create_mask_GPU(GrContext* context,
 }
 
 SkBitmap wrap_texture(GrTexture* texture) {
-    SkImageInfo info;
-    texture->asImageInfo(&info);
-
     SkBitmap result;
-    result.setConfig(info);
-    result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
+    bool dummy;
+    SkBitmap::Config config = grConfig2skConfig(texture->config(), &dummy);
+    result.setConfig(config, texture->width(), texture->height());
+    result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (texture)))->unref();
     return result;
 }
 
