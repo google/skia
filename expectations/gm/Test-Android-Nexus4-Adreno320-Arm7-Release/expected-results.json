@@ -5567,9 +5567,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4653135433130781818
+          9727645049729731146
         ]
       ], 
+      "bugs": [
+        1888
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "perlinnoise_565.png": {
@@ -5909,9 +5913,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7902201343537102377
+          10145541844672784873
         ]
       ], 
+      "bugs": [
+        1888
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "rrect_clip_bw_565.png": {
@@ -6435,12 +6443,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6492759999839586343
+          8692142146675316598
         ]
       ], 
       "bugs": [
-        1780
+        1888
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "spritebitmap_565.png": {
