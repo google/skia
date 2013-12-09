@@ -11,7 +11,7 @@
 
 #if SK_SUPPORT_GPU
 #include "effects/GrConvolutionEffect.h"
-#include "effects/GrTextureDomainEffect.h"
+#include "effects/GrTextureDomain.h"
 #include "GrContext.h"
 #endif
 
@@ -173,7 +173,7 @@ GrTexture* GaussianBlur(GrContext* context,
                 srcTexture,
                 matrix,
                 domain,
-                GrTextureDomainEffect::kDecal_WrapMode,
+                GrTextureDomain::kDecal_Mode,
                 GrTextureParams::kBilerp_FilterMode));
             paint.addColorEffect(effect);
         } else {

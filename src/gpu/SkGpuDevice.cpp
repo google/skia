@@ -8,7 +8,7 @@
 #include "SkGpuDevice.h"
 
 #include "effects/GrBicubicEffect.h"
-#include "effects/GrTextureDomainEffect.h"
+#include "effects/GrTextureDomain.h"
 #include "effects/GrSimpleTextureEffect.h"
 
 #include "GrContext.h"
@@ -1420,7 +1420,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
         effect.reset(GrTextureDomainEffect::Create(texture,
                                                    SkMatrix::I(),
                                                    textureDomain,
-                                                   GrTextureDomainEffect::kClamp_WrapMode,
+                                                   GrTextureDomain::kClamp_Mode,
                                                    params.filterMode()));
     } else if (bicubic) {
         effect.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), params));

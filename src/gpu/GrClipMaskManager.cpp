@@ -17,7 +17,7 @@
 #include "GrRenderTarget.h"
 #include "GrStencilBuffer.h"
 #include "GrSWMaskHelper.h"
-#include "effects/GrTextureDomainEffect.h"
+#include "effects/GrTextureDomain.h"
 #include "SkRasterClip.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
@@ -52,8 +52,8 @@ void setup_drawstate_aaclip(GrGpu* gpu,
     drawState->addCoverageEffect(
         GrTextureDomainEffect::Create(result,
                                       mat,
-                                      GrTextureDomainEffect::MakeTexelDomain(result, domainTexels),
-                                      GrTextureDomainEffect::kDecal_WrapMode,
+                                      GrTextureDomain::MakeTexelDomain(result, domainTexels),
+                                      GrTextureDomain::kDecal_Mode,
                                       GrTextureParams::kNone_FilterMode,
                                       kPosition_GrCoordSet))->unref();
 }
@@ -365,8 +365,8 @@ void GrClipMaskManager::mergeMask(GrTexture* dstMask,
     drawState->addColorEffect(
         GrTextureDomainEffect::Create(srcMask,
                                       sampleM,
-                                      GrTextureDomainEffect::MakeTexelDomain(srcMask, srcBound),
-                                      GrTextureDomainEffect::kDecal_WrapMode,
+                                      GrTextureDomain::MakeTexelDomain(srcMask, srcBound),
+                                      GrTextureDomain::kDecal_Mode,
                                       GrTextureParams::kNone_FilterMode))->unref();
     fGpu->drawSimpleRect(SkRect::Make(dstBound), NULL);
 }

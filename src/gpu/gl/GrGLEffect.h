@@ -40,6 +40,7 @@ class GrGLEffect {
 public:
     typedef GrBackendEffectFactory::EffectKey EffectKey;
     typedef GrGLProgramEffects::TransformedCoordsArray TransformedCoordsArray;
+    typedef GrGLProgramEffects::TextureSampler TextureSampler;
     typedef GrGLProgramEffects::TextureSamplerArray TextureSamplerArray;
 
     enum {

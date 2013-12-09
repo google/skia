@@ -208,6 +208,25 @@ public:
 
     const GrGLContextInfo& ctxInfo() const;
 
+    /**
+     * Helper for begining and ending a block in the fragment code. TODO: Make GrGLShaderBuilder
+     * aware of all blocks and turn single \t's into the correct number of tabs (or spaces) so that
+     * our shaders print pretty without effect writers tracking indentation.
+     */
+    class FSBlock {
+    public:
+        FSBlock(GrGLShaderBuilder* builder) : fBuilder(builder) {
+            SkASSERT(NULL != builder);
+            fBuilder->fsCodeAppend("\t{\n");
+        }
+
+        ~FSBlock() {
+            fBuilder->fsCodeAppend("\t}\n");
+        }
+    private:
+        GrGLShaderBuilder* fBuilder;
+    };
+
 protected:
     GrGpuGL* gpu() const { return fGpu; }
 
