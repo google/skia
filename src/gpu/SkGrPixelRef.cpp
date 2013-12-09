@@ -117,6 +117,23 @@ SkGrPixelRef::SkGrPixelRef(GrSurface* surface, bool transferCacheLock) {
     SkSafeRef(surface);
 }
 
+SkGrPixelRef::SkGrPixelRef(const SkImageInfo&, GrSurface* surface, bool transferCacheLock) {
+    // TODO: figure out if this is responsible for Chrome canvas errors
+#if 0
+    // The GrTexture has a ref to the GrRenderTarget but not vice versa.
+    // If the GrTexture exists take a ref to that (rather than the render
+    // target)
+    fSurface = surface->asTexture();
+#else
+    fSurface = NULL;
+#endif
+    if (NULL == fSurface) {
+        fSurface = surface;
+    }
+    fUnlock = transferCacheLock;
+    SkSafeRef(surface);
+}
+
 SkGrPixelRef::~SkGrPixelRef() {
     if (fUnlock) {
         GrContext* context = fSurface->getContext();

@@ -47,7 +47,8 @@ public:
      * cache and would like the pixel ref to unlock it in its destructor then transferCacheLock
      * should be set to true.
      */
-    SkGrPixelRef(GrSurface* surface, bool transferCacheLock = false);
+    SkGrPixelRef(GrSurface*, bool transferCacheLock = false);
+    SkGrPixelRef(const SkImageInfo&, GrSurface*, bool transferCacheLock = false);
     virtual ~SkGrPixelRef();
 
     // override from SkPixelRef
