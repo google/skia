@@ -75,3 +75,15 @@
     fun:malloc
     obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
 }
+{
+    driver_bug_8
+    Memcheck:Overlap
+    fun:strcpy
+    obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
+}
+{
+    driver_bug_9
+    Memcheck:Leak
+    fun:calloc
+    obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
+}
