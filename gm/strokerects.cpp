@@ -20,9 +20,9 @@ namespace skiagm {
 static const SkScalar SW = SkIntToScalar(W);
 static const SkScalar SH = SkIntToScalar(H);
 
-class StrokeRectGM : public GM {
+class StrokeRectsGM : public GM {
 public:
-    StrokeRectGM() {}
+    StrokeRectsGM() {}
 
 protected:
     virtual SkString onShortName() {
@@ -77,7 +77,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new StrokeRectGM; }
+static GM* MyFactory(void*) { return new StrokeRectsGM; }
 static GMRegistry reg(MyFactory);
 
 }
