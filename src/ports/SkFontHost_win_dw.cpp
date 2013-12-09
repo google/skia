@@ -92,7 +92,7 @@ static void create_dwrite_factory(IDWriteFactory** factory) {
 
     HRVM(dWriteCreateFactoryProc(DWRITE_FACTORY_TYPE_SHARED,
                                  __uuidof(IDWriteFactory),
-                                 reinterpret_cast<IUnknown**>(&factory)),
+                                 reinterpret_cast<IUnknown**>(factory)),
          "Could not create DirectWrite factory.");
 }
 
