@@ -1194,8 +1194,10 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
             tileFilterPad = 1;
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
-        case SkPaint::kHigh_FilterLevel:
-            if (flags & SkCanvas::kBleed_DrawBitmapRectFlag) {
+        case SkPaint::kHigh_FilterLevel: {
+            // Minification can look bad with the bicubic effect.
+            if (fContext->getMatrix().getMinStretch() >= SK_Scalar1 &&
+                (flags & SkCanvas::kBleed_DrawBitmapRectFlag)) {
                 // We will install an effect that does the filtering in the shader.
                 textureFilterMode = GrTextureParams::kNone_FilterMode;
                 tileFilterPad = GrBicubicEffect::kFilterTexelPad;
@@ -1207,6 +1209,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                 tileFilterPad = 1;
             }
             break;
+        }
         default:
             SkErrorInternals::SetError( kInvalidPaint_SkError,
                                         "Sorry, I don't understand the filtering "

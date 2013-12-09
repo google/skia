@@ -574,6 +574,14 @@ public:
     SkDEVCODE(void toString(SkString*) const;)
 
     /**
+     * Calculates the minimum stretching factor of the matrix. If the matrix has
+     * perspective -1 is returned.
+     *
+     * @return minumum strecthing factor
+     */
+    SkScalar getMinStretch() const;
+
+    /**
      * Calculates the maximum stretching factor of the matrix. If the matrix has
      * perspective -1 is returned.
      *

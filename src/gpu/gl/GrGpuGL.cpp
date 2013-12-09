@@ -552,7 +552,12 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     SkAutoSMalloc<128 * 128> tempStorage;
 
     // paletted textures cannot be partially updated
-    bool useTexStorage = isNewTexture &&
+    // We currently lazily create MIPMAPs when the we see a draw with
+    // GrTextureParams::kMipMap_FilterMode. Using texture storage requires that the
+    // MIP levels are all created when the texture is created. So for now we don't use
+    // texture storage.
+    bool useTexStorage = false &&
+                         isNewTexture &&
                          desc.fConfig != kIndex_8_GrPixelConfig &&
                          this->glCaps().texStorageSupport();
 
@@ -638,8 +643,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
         desc.fWidth == width && desc.fHeight == height) {
         CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
         if (useTexStorage) {
-            // We never resize  or change formats of textures. We don't use
-            // mipmaps currently.
+            // We never resize  or change formats of textures.
             GL_ALLOC_CALL(this->glInterface(),
                           TexStorage2D(GR_GL_TEXTURE_2D,
                                        1, // levels

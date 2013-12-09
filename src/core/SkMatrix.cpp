@@ -1857,45 +1857,71 @@ bool SkMatrix::setPolyToPoly(const SkPoint src[], const SkPoint dst[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkScalar SkMatrix::getMaxStretch() const {
-    TypeMask mask = this->getType();
+enum MinOrMax {
+    kMin_MinOrMax,
+    kMax_MinOrMax
+};
 
-    if (this->hasPerspective()) {
+template <MinOrMax MIN_OR_MAX> SkScalar get_stretch_factor(SkMatrix::TypeMask typeMask,
+                                                           const SkScalar m[9]) {
+    if (typeMask & SkMatrix::kPerspective_Mask) {
         return -SK_Scalar1;
     }
-    if (this->isIdentity()) {
+    if (SkMatrix::kIdentity_Mask == typeMask) {
         return SK_Scalar1;
     }
-    if (!(mask & kAffine_Mask)) {
-        return SkMaxScalar(SkScalarAbs(fMat[kMScaleX]),
-                           SkScalarAbs(fMat[kMScaleY]));
+    if (!(typeMask & SkMatrix::kAffine_Mask)) {
+        if (kMin_MinOrMax == MIN_OR_MAX) {
+             return SkMinScalar(SkScalarAbs(m[SkMatrix::kMScaleX]),
+                                SkScalarAbs(m[SkMatrix::kMScaleY]));
+        } else {
+             return SkMaxScalar(SkScalarAbs(m[SkMatrix::kMScaleX]),
+                                SkScalarAbs(m[SkMatrix::kMScaleY]));
+        }
     }
     // ignore the translation part of the matrix, just look at 2x2 portion.
-    // compute singular values, take largest abs value.
+    // compute singular values, take largest or smallest abs value.
     // [a b; b c] = A^T*A
-    SkScalar a = SkScalarMul(fMat[kMScaleX], fMat[kMScaleX]) +
-                 SkScalarMul(fMat[kMSkewY],  fMat[kMSkewY]);
-    SkScalar b = SkScalarMul(fMat[kMScaleX], fMat[kMSkewX]) +
-                 SkScalarMul(fMat[kMScaleY], fMat[kMSkewY]);
-    SkScalar c = SkScalarMul(fMat[kMSkewX],  fMat[kMSkewX]) +
-                 SkScalarMul(fMat[kMScaleY], fMat[kMScaleY]);
+    SkScalar a = SkScalarMul(m[SkMatrix::kMScaleX], m[SkMatrix::kMScaleX]) +
+                 SkScalarMul(m[SkMatrix::kMSkewY],  m[SkMatrix::kMSkewY]);
+    SkScalar b = SkScalarMul(m[SkMatrix::kMScaleX], m[SkMatrix::kMSkewX]) +
+                 SkScalarMul(m[SkMatrix::kMScaleY], m[SkMatrix::kMSkewY]);
+    SkScalar c = SkScalarMul(m[SkMatrix::kMSkewX],  m[SkMatrix::kMSkewX]) +
+                 SkScalarMul(m[SkMatrix::kMScaleY], m[SkMatrix::kMScaleY]);
     // eigenvalues of A^T*A are the squared singular values of A.
     // characteristic equation is det((A^T*A) - l*I) = 0
     // l^2 - (a + c)l + (ac-b^2)
     // solve using quadratic equation (divisor is non-zero since l^2 has 1 coeff
-    // and roots are guaraunteed to be pos and real).
-    SkScalar largerRoot;
+    // and roots are guaranteed to be pos and real).
+    SkScalar chosenRoot;
     SkScalar bSqd = SkScalarMul(b,b);
     // if upper left 2x2 is orthogonal save some math
     if (bSqd <= SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
-        largerRoot = SkMaxScalar(a, c);
+        if (kMin_MinOrMax == MIN_OR_MAX) {
+            chosenRoot = SkMinScalar(a, c);
+        } else {
+            chosenRoot = SkMaxScalar(a, c);
+        }
     } else {
         SkScalar aminusc = a - c;
         SkScalar apluscdiv2 = SkScalarHalf(a + c);
         SkScalar x = SkScalarHalf(SkScalarSqrt(SkScalarMul(aminusc, aminusc) + 4 * bSqd));
-        largerRoot = apluscdiv2 + x;
+        if (kMin_MinOrMax == MIN_OR_MAX) {
+            chosenRoot = apluscdiv2 - x;
+        } else {
+            chosenRoot = apluscdiv2 + x;
+        }
     }
-    return SkScalarSqrt(largerRoot);
+    SkASSERT(chosenRoot >= 0);
+    return SkScalarSqrt(chosenRoot);
+}
+
+SkScalar SkMatrix::getMinStretch() const {
+    return get_stretch_factor<kMin_MinOrMax>(this->getType(), fMat);
+}
+
+SkScalar SkMatrix::getMaxStretch() const {
+    return get_stretch_factor<kMax_MinOrMax>(this->getType(), fMat);
 }
 
 static void reset_identity_matrix(SkMatrix* identity) {

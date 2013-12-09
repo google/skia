@@ -358,13 +358,12 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
     SkMatrix matrix;
     matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
 
-    if (this->hasLocalMatrix()) {
-        SkMatrix inverse;
-        if (!this->getLocalMatrix().invert(&inverse)) {
-            return NULL;
-        }
-        matrix.preConcat(inverse);
+    SkMatrix inverse;
+    if (!this->getLocalMatrix().invert(&inverse)) {
+        return NULL;
     }
+    matrix.preConcat(inverse);
+
     SkShader::TileMode tm[] = {
         (TileMode)fState.fTileModeX,
         (TileMode)fState.fTileModeY,
@@ -384,9 +383,21 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
         case SkPaint::kHigh_FilterLevel:
-            // fall back to no filtering here; we will install another
-            // shader that will do the HQ filtering.
-            textureFilterMode = GrTextureParams::kNone_FilterMode;
+            // Minification can look bad with the bicubic effect. This is an overly aggressive
+            // check for MIP fallbacks. It doesn't consider the fact that minification in the local
+            // matrix could be offset by the view matrix and vice versa. We also don't know whether
+            // the draw has explicit local coords (e.g. drawVertices) where the scale factor is
+            // unknown and varies.
+            if (context->getMatrix().getMinStretch() >= SK_Scalar1 &&
+                this->getLocalMatrix().getMaxStretch() <= SK_Scalar1) {
+                // fall back to no filtering here; we will install another
+                // shader that will do the HQ filtering.
+                textureFilterMode = GrTextureParams::kNone_FilterMode;
+            } else {
+                // Fall back to mip-mapping.
+                paintFilterLevel = SkPaint::kMedium_FilterLevel;
+                textureFilterMode = GrTextureParams::kMipMap_FilterMode;
+            }
             break;
         default:
             SkErrorInternals::SetError( kInvalidPaint_SkError,
