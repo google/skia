@@ -14,13 +14,16 @@ SkBitmap::Config SkImageInfoToBitmapConfig(const SkImageInfo& info) {
         case kAlpha_8_SkColorType:
             return SkBitmap::kA8_Config;
 
+        case kARGB_4444_SkColorType:
+            return SkBitmap::kARGB_4444_Config;
+            
         case kRGB_565_SkColorType:
             return SkBitmap::kRGB_565_Config;
-
+            
         case kPMColor_SkColorType:
             return SkBitmap::kARGB_8888_Config;
 
-        case kIndex8_SkColorType:
+        case kIndex_8_SkColorType:
             return SkBitmap::kIndex8_Config;
 
         default:
@@ -30,52 +33,9 @@ SkBitmap::Config SkImageInfoToBitmapConfig(const SkImageInfo& info) {
     return SkBitmap::kNo_Config;
 }
 
-int SkImageBytesPerPixel(SkColorType ct) {
-    static const uint8_t gColorTypeBytesPerPixel[] = {
-        1,  // kAlpha_8_SkColorType
-        2,  // kRGB_565_SkColorType
-        4,  // kRGBA_8888_SkColorType
-        4,  // kBGRA_8888_SkColorType
-        4,  // kPMColor_SkColorType
-        1,  // kIndex8_SkColorType
-    };
-
-    SkASSERT((size_t)ct < SK_ARRAY_COUNT(gColorTypeBytesPerPixel));
-    return gColorTypeBytesPerPixel[ct];
-}
-
-bool SkBitmapToImageInfo(const SkBitmap& bm, SkImageInfo* info) {
-    switch (bm.config()) {
-        case SkBitmap::kA8_Config:
-            info->fColorType = kAlpha_8_SkColorType;
-            break;
-
-        case SkBitmap::kIndex8_Config:
-            info->fColorType = kIndex8_SkColorType;
-            break;
-
-        case SkBitmap::kRGB_565_Config:
-            info->fColorType = kRGB_565_SkColorType;
-            break;
-
-        case SkBitmap::kARGB_8888_Config:
-            info->fColorType = kPMColor_SkColorType;
-            break;
-
-        default:
-            return false;
-    }
-
-    info->fWidth = bm.width();
-    info->fHeight = bm.height();
-    info->fAlphaType = bm.isOpaque() ? kOpaque_SkAlphaType :
-                                       kPremul_SkAlphaType;
-    return true;
-}
-
 SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef) {
     SkImageInfo info;
-    if (!SkBitmapToImageInfo(bm, &info)) {
+    if (!bm.asImageInfo(&info)) {
         return NULL;
     }
 

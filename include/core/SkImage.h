@@ -41,6 +41,7 @@ public:
     typedef SkColorType ColorType;
 
     static const SkColorType kAlpha_8_ColorType     = kAlpha_8_SkColorType;
+    static const SkColorType kARGB_4444_ColorType   = kARGB_4444_SkColorType;
     static const SkColorType kRGB_565_ColorType     = kRGB_565_SkColorType;
     static const SkColorType kRGBA_8888_ColorType   = kRGBA_8888_SkColorType;
     static const SkColorType kBGRA_8888_ColorType   = kBGRA_8888_SkColorType;

@@ -361,6 +361,48 @@ void SkBitmap::updatePixelsFromRef() const {
     }
 }
 
+static bool config_to_colorType(SkBitmap::Config config, SkColorType* ctOut) {
+    SkColorType ct;
+    switch (config) {
+        case SkBitmap::kA8_Config:
+            ct = kAlpha_8_SkColorType;
+            break;
+        case SkBitmap::kIndex8_Config:
+            ct = kIndex_8_SkColorType;
+            break;
+        case SkBitmap::kRGB_565_Config:
+            ct = kRGB_565_SkColorType;
+            break;
+        case SkBitmap::kARGB_4444_Config:
+            ct = kARGB_4444_SkColorType;
+            break;
+        case SkBitmap::kARGB_8888_Config:
+            ct = kPMColor_SkColorType;
+            break;
+        case SkBitmap::kNo_Config:
+        default:
+            return false;
+    }
+    if (ctOut) {
+        *ctOut = ct;
+    }
+    return true;
+}
+
+bool SkBitmap::asImageInfo(SkImageInfo* info) const {
+    SkColorType ct;
+    if (!config_to_colorType(this->config(), &ct)) {
+        return false;
+    }
+    if (info) {
+        info->fWidth = fWidth;
+        info->fHeight = fHeight;
+        info->fAlphaType = this->alphaType();
+        info->fColorType = ct;
+    }
+    return true;
+}
+
 SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, size_t offset) {
     // do this first, we that we never have a non-zero offset with a null ref
     if (NULL == pr) {

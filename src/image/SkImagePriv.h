@@ -15,10 +15,6 @@ class SkPicture;
 
 extern SkBitmap::Config SkImageInfoToBitmapConfig(const SkImageInfo&);
 
-extern int SkImageBytesPerPixel(SkColorType);
-
-extern bool SkBitmapToImageInfo(const SkBitmap&, SkImageInfo*);
-
 // Call this if you explicitly want to use/share this pixelRef in the image
 extern SkImage* SkNewImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
                                        size_t rowBytes);
@@ -48,8 +44,7 @@ extern void SkImagePrivDrawPicture(SkCanvas*, SkPicture*,
 extern SkImage* SkNewImageFromPicture(const SkPicture*);
 
 static inline size_t SkImageMinRowBytes(const SkImageInfo& info) {
-    size_t rb = info.fWidth * SkImageBytesPerPixel(info.fColorType);
-    return SkAlign4(rb);
+    return SkAlign4(info.minRowBytes());
 }
 
 // Given an image created from SkNewImageFromBitmap, return its pixelref. This

@@ -60,6 +60,10 @@ public:
     SkPixelRef(const SkImageInfo&, SkBaseMutex* mutex);
     virtual ~SkPixelRef();
 
+    const SkImageInfo& info() const {
+        return fInfo;
+    }
+
     /** Return the pixel memory returned from lockPixels, or null if the
         lockCount is 0.
     */
@@ -291,6 +295,8 @@ protected:
 
 private:
     SkBaseMutex*    fMutex; // must remain in scope for the life of this object
+    SkImageInfo     fInfo;
+
     void*           fPixels;
     SkColorTable*   fColorTable;    // we do not track ownership, subclass does
     int             fLockCount;

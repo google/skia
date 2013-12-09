@@ -119,11 +119,9 @@ bool SkDecodingImageGenerator::getInfo(SkImageInfo* info) {
     if (bitmap.config() == SkBitmap::kNo_Config) {
         return false;
     }
-    if (!SkBitmapToImageInfo(bitmap, &fInfo)) {
+    if (!bitmap.asImageInfo(&fInfo)) {
         // We can't use bitmap.config() as is.
-        // Must be kARGB_4444_Config.
         if (!bitmap.canCopyTo(SkBitmap::kARGB_8888_Config)) {
-            // kARGB_4444_Config can copy to kARGB_8888.
             SkDEBUGFAIL("!bitmap->canCopyTo(SkBitmap::kARGB_8888_Config)");
             return false;
         }
