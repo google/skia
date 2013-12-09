@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 
+class SkDiscardableMemory;
 class SkMipMap;
 
 /**
@@ -25,6 +26,12 @@ class SkMipMap;
 class SkScaledImageCache {
 public:
     struct ID;
+
+    /**
+     *  Returns a locked/pinned SkDiscardableMemory instance for the specified
+     *  number of bytes, or NULL on failure.
+     */
+    typedef SkDiscardableMemory* (*DiscardableFactory)(size_t bytes);
 
     /*
      *  The following static methods are thread-safe wrappers around a global
@@ -57,9 +64,27 @@ public:
     static size_t GetByteLimit();
     static size_t SetByteLimit(size_t newLimit);
 
+    static SkBitmap::Allocator* GetAllocator();
+
     ///////////////////////////////////////////////////////////////////////////
 
+    /**
+     *  Construct the cache to call DiscardableFactory when it
+     *  allocates memory for the pixels. In this mode, the cache has
+     *  not explicit budget, and so methods like getBytesUsed() and
+     *  getByteLimit() will return 0, and setByteLimit will ignore its argument
+     *  and return 0.
+     */
+    SkScaledImageCache(DiscardableFactory);
+
+    /**
+     *  Construct the cache, allocating memory with malloc, and respect the
+     *  byteLimit, purging automatically when a new image is added to the cache
+     *  that pushes the total bytesUsed over the limit. Note: The limit can be
+     *  changed at runtime with setByteLimit.
+     */
     SkScaledImageCache(size_t byteLimit);
+
     ~SkScaledImageCache();
 
     /**
@@ -124,6 +149,8 @@ public:
      */
     size_t setByteLimit(size_t newLimit);
 
+    SkBitmap::Allocator* allocator() const { return fAllocator; };
+
 public:
     struct Rec;
     struct Key;
@@ -133,6 +160,10 @@ private:
 
     class Hash;
     Hash*   fHash;
+
+    DiscardableFactory  fDiscardableFactory;
+    // the allocator is NULL or one that matches discardables
+    SkBitmap::Allocator* fAllocator;
 
     size_t  fBytesUsed;
     size_t  fByteLimit;
@@ -149,6 +180,9 @@ private:
     void moveToHead(Rec*);
     void addToHead(Rec*);
     void detach(Rec*);
+
+    void init();    // called by constructors
+
 #ifdef SK_DEBUG
     void validate() const;
 #else

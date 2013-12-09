@@ -147,7 +147,8 @@ bool SkBitmapProcState::possiblyScaleImage() {
                                         SkBitmapScaler::RESIZE_BEST,
                                         dest_width,
                                         dest_height,
-                                        simd)) {
+                                        simd,
+                                        SkScaledImageCache::GetAllocator())) {
                 // we failed to create fScaledBitmap, so just return and let
                 // the scanline proc handle it.
                 return false;
