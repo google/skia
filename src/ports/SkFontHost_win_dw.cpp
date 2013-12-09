@@ -21,6 +21,7 @@
 #include "SkGlyph.h"
 #include "SkHRESULT.h"
 #include "SkMaskGamma.h"
+#include "SkOnce.h"
 #include "SkOTTable_head.h"
 #include "SkOTTable_hhea.h"
 #include "SkOTTable_OS_2.h"
@@ -44,6 +45,7 @@ static bool isLCD(const SkScalerContext::Rec& rec) {
 /** Prefer to use this type to prevent template proliferation. */
 typedef SkAutoSTMalloc<16, WCHAR> SkSMallocWCHAR;
 
+/** Converts a utf8 string to a WCHAR string. */
 static HRESULT cstring_to_wchar(const char* skname, SkSMallocWCHAR* name) {
     int wlen = MultiByteToWideChar(CP_UTF8, 0, skname, -1, NULL, 0);
     if (0 == wlen) {
@@ -58,6 +60,7 @@ static HRESULT cstring_to_wchar(const char* skname, SkSMallocWCHAR* name) {
     return S_OK;
 }
 
+/** Converts a WCHAR string to a utf8 string. */
 static HRESULT wchar_to_skstring(WCHAR* name, SkString* skname) {
     int len = WideCharToMultiByte(CP_UTF8, 0, name, -1, NULL, 0, NULL, NULL);
     if (0 == len) {
@@ -70,6 +73,35 @@ static HRESULT wchar_to_skstring(WCHAR* name, SkString* skname) {
         HRM(HRESULT_FROM_WIN32(GetLastError()), "Could not convert utf-8 to wchar.");
     }
     return S_OK;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static void create_dwrite_factory(IDWriteFactory** factory) {
+    typedef decltype(DWriteCreateFactory)* DWriteCreateFactoryProc;
+    DWriteCreateFactoryProc dWriteCreateFactoryProc = reinterpret_cast<DWriteCreateFactoryProc>(
+        GetProcAddress(LoadLibraryW(L"dwrite.dll"), "DWriteCreateFactory"));
+
+    if (!dWriteCreateFactoryProc) {
+        HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
+        if (!IS_ERROR(hr)) {
+            hr = ERROR_PROC_NOT_FOUND;
+        }
+        HRVM(hr, "Could not get DWriteCreateFactory proc.");
+    }
+
+    HRVM(dWriteCreateFactoryProc(DWRITE_FACTORY_TYPE_SHARED,
+                                 __uuidof(IDWriteFactory),
+                                 reinterpret_cast<IUnknown**>(&factory)),
+         "Could not create DirectWrite factory.");
+}
+
+static IDWriteFactory* get_dwrite_factory() {
+    static IDWriteFactory* gDWriteFactory = NULL;
+    SK_DECLARE_STATIC_ONCE(once);
+    SkOnce(&once, create_dwrite_factory, &gDWriteFactory);
+
+    return gDWriteFactory;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -173,40 +205,9 @@ private:
     SkTDArray<uint8_t> fBits;
 };
 
-static HRESULT get_dwrite_factory(IDWriteFactory** factory) {
-    static IDWriteFactory* gDWriteFactory = NULL;
-
-    if (gDWriteFactory != NULL) {
-        *factory = gDWriteFactory;
-        return S_OK;
-    }
-
-    typedef decltype(DWriteCreateFactory)* DWriteCreateFactoryProc;
-    DWriteCreateFactoryProc dWriteCreateFactoryProc =
-        reinterpret_cast<DWriteCreateFactoryProc>(
-            GetProcAddress(LoadLibraryW(L"dwrite.dll"), "DWriteCreateFactory")
-        )
-    ;
-    if (!dWriteCreateFactoryProc) {
-        HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
-        if (!IS_ERROR(hr)) {
-            hr = ERROR_PROC_NOT_FOUND;
-        }
-        return hr;
-    }
-
-    HRM(dWriteCreateFactoryProc(DWRITE_FACTORY_TYPE_SHARED,
-                                __uuidof(IDWriteFactory),
-                                reinterpret_cast<IUnknown**>(&gDWriteFactory)),
-        "Could not create DirectWrite factory.");
-
-    *factory = gDWriteFactory;
-    return S_OK;
-}
-
 const void* DWriteOffscreen::draw(const SkGlyph& glyph, bool isBW) {
-    IDWriteFactory* factory;
-    HRNM(get_dwrite_factory(&factory), "Could not get factory.");
+    IDWriteFactory* factory = get_dwrite_factory();
+    SkASSERT(factory != NULL);
 
     if (fWidth < glyph.fWidth || fHeight < glyph.fHeight) {
         fWidth = SkMax32(fWidth, glyph.fWidth);
@@ -553,8 +554,8 @@ public:
     ~DWriteFontTypeface() {
         if (fDWriteFontCollectionLoader.get() == NULL) return;
 
-        IDWriteFactory* factory;
-        HRVM(get_dwrite_factory(&factory), "Could not get factory.");
+        IDWriteFactory* factory = get_dwrite_factory();
+        SkASSERT(factory != NULL);
         HRV(factory->UnregisterFontCollectionLoader(fDWriteFontCollectionLoader.get()));
         HRV(factory->UnregisterFontFileLoader(fDWriteFontFileLoader.get()));
     }
@@ -806,8 +807,8 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
     run.isSideways = FALSE;
     run.glyphOffsets = &offset;
 
-    IDWriteFactory* factory;
-    HRVM(get_dwrite_factory(&factory), "Could not get factory.");
+    IDWriteFactory* factory = get_dwrite_factory();
+    SkASSERT(factory != NULL);
 
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
     DWRITE_RENDERING_MODE renderingMode;
@@ -1272,8 +1273,10 @@ private:
 };
 
 static SkTypeface* create_from_stream(SkStream* stream, int ttcIndex) {
-    IDWriteFactory* factory;
-    HRN(get_dwrite_factory(&factory));
+    IDWriteFactory* factory = get_dwrite_factory();
+    if (NULL == factory) {
+        return NULL;
+    }
 
     SkTScopedComPtr<StreamFontFileLoader> fontFileLoader;
     HRN(StreamFontFileLoader::Create(stream, &fontFileLoader));
@@ -1373,8 +1376,8 @@ void DWriteFontTypeface::onFilterRec(SkScalerContext::Rec* rec) const {
     rec->setHinting(h);
 
 #if SK_FONT_HOST_USE_SYSTEM_SETTINGS
-    IDWriteFactory* factory;
-    if (SUCCEEDED(get_dwrite_factory(&factory))) {
+    IDWriteFactory* factory = get_dwrite_factory();
+    if (factory != NULL) {
         SkTScopedComPtr<IDWriteRenderingParams> defaultRenderingParams;
         if (SUCCEEDED(factory->CreateRenderingParams(&defaultRenderingParams))) {
             float gamma = defaultRenderingParams->GetGamma();
@@ -1880,8 +1883,10 @@ static HRESULT GetGetUserDefaultLocaleNameProc(GetUserDefaultLocaleNameProc* pro
 }
 
 SkFontMgr* SkFontMgr_New_DirectWrite() {
-    IDWriteFactory* factory;
-    HRNM(get_dwrite_factory(&factory), "Could not get factory.");
+    IDWriteFactory* factory = get_dwrite_factory();
+    if (NULL == factory) {
+        return NULL;
+    }
 
     SkTScopedComPtr<IDWriteFontCollection> sysFontCollection;
     HRNM(factory->GetSystemFontCollection(&sysFontCollection, FALSE),
