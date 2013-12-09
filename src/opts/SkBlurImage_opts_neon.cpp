@@ -21,16 +21,14 @@ enum BlurDirection {
 
 /**
  * Helper function to spread the components of a 32-bit integer into the
- * lower 8 bits of each 32-bit element of a NEON register.
+ * lower 8 bits of each 16-bit element of a NEON register.
  */
 
-inline uint32x4_t expand(uint32_t a) {
+static inline uint16x4_t expand(uint32_t a) {
     // ( ARGB ) -> ( ARGB ARGB ) -> ( A R G B A R G B )
     uint8x8_t v8 = vreinterpret_u8_u32(vdup_n_u32(a));
     // ( A R G B A R G B ) -> ( 0A 0R 0G 0B 0A 0R 0G 0B ) -> ( 0A 0R 0G 0B )
-    const uint16x4_t v16 = vget_low_u16(vmovl_u8(v8));
-    // ( 0A 0R 0G 0B ) -> ( 000A 000R 000G 000B )
-    return vmovl_u16(v16);
+    return vget_low_u16(vmovl_u8(v8));
 }
 
 template<BlurDirection srcDirection, BlurDirection dstDirection>
@@ -48,7 +46,7 @@ void SkBoxBlur_NEON(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
         uint32x4_t sum = vdupq_n_u32(0);
         const SkPMColor* p = src;
         for (int i = 0; i < rightBorder; ++i) {
-            sum = vaddq_u32(sum, expand(*p));
+            sum = vaddw_u16(sum, expand(*p));
             p += srcStrideX;
         }
 
@@ -58,26 +56,25 @@ void SkBoxBlur_NEON(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
             // ( half+sumA*scale half+sumR*scale half+sumG*scale half+sumB*scale )
             uint32x4_t result = vmlaq_u32(half, sum, scale);
 
-            // Shift down to lower 8 bits of each element.
-            // ( AAAA RRRR GGGG BBBB ) -> ( 000A 000R 000G 000B )
-            result = vshrq_n_u32(result, 24);
+            // Saturated conversion to 16-bit.
+            // ( AAAA RRRR GGGG BBBB ) -> ( 0A 0R 0G 0B )
+            uint16x4_t result16 = vqshrn_n_u32(result, 16);
 
-            // ( 000A 000R 000G 000B ) -> ( 0A 0R 0G 0B )
-            uint16x4_t result16 = vqmovn_u32(result);
-
+            // Saturated conversion to 8-bit.
             // ( 0A 0R 0G 0B ) -> ( 0A 0R 0G 0B 0A 0R 0G 0B ) -> ( A R G B A R G B )
-            uint8x8_t result8 = vqmovn_u16(vcombine_u16(result16, result16));
+            uint8x8_t result8 = vqshrn_n_u16(vcombine_u16(result16, result16), 8);
 
             // ( A R G B A R G B ) -> ( ARGB ARGB ) -> ( ARGB )
             // Store low 32 bits to destination.
             vst1_lane_u32(dptr, vreinterpret_u32_u8(result8), 0);
+
             if (x >= leftOffset) {
                 const SkPMColor* l = sptr - leftOffset * srcStrideX;
-                sum = vsubq_u32(sum, expand(*l));
+                sum = vsubw_u16(sum, expand(*l));
             }
             if (x + rightOffset + 1 < width) {
                 const SkPMColor* r = sptr + (rightOffset + 1) * srcStrideX;
-                sum = vaddq_u32(sum, expand(*r));
+                sum = vaddw_u16(sum, expand(*r));
             }
             sptr += srcStrideX;
             if (srcDirection == kY) {
