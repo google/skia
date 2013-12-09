@@ -1076,7 +1076,7 @@ public:
                 if (!(gm->getFlags() & GM::kSkipPDFRasterization_Flag)) {
                     for (int i = 0; i < pdfRasterizers.count(); i++) {
                         SkBitmap pdfBitmap;
-                        SkASSERT(documentStream->rewind());
+                        documentStream->rewind();
                         bool success = (*pdfRasterizers[i]->fRasterizerFunction)(
                                 documentStream.get(), &pdfBitmap);
                         if (!success) {
