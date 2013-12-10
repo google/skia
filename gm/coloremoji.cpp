@@ -50,7 +50,6 @@ protected:
 
         SkPaint paint;
         paint.setTypeface(fTypeface);
-        paint.setEmbeddedBitmapText(true);
 
         const char* text = "hamburgerfons";
 

@@ -330,11 +330,13 @@ bool IsFallbackFontAllowed(const std::string& family) {
 }
 
 static bool valid_pattern(FcPattern* pattern) {
+#ifdef SK_FONT_CONFIG_ONLY_ALLOW_SCALABLE_FONTS
     FcBool is_scalable;
     if (FcPatternGetBool(pattern, FC_SCALABLE, 0, &is_scalable) != FcResultMatch
         || !is_scalable) {
         return false;
     }
+#endif
 
     // fontconfig can also return fonts which are unreadable
     const char* c_filename = get_name(pattern, FC_FILE);
