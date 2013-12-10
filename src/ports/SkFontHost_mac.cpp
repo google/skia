@@ -2103,13 +2103,7 @@ static SkTypeface* createFromDesc(CFStringRef cfFamilyName,
         return face;
     }
 
-    AutoCFRelease<CFDictionaryRef> fontFamilyNameDictionary(
-        CFDictionaryCreate(kCFAllocatorDefault,
-                           (const void**)&kCTFontFamilyNameAttribute, (const void**)&cfFamilyName,
-                           1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
-    AutoCFRelease<CTFontDescriptorRef> fontDescriptor(
-        CTFontDescriptorCreateWithAttributes(fontFamilyNameDictionary));
-    AutoCFRelease<CTFontRef> ctNamed(CTFontCreateWithFontDescriptor(fontDescriptor, 0, NULL));
+    AutoCFRelease<CTFontRef> ctNamed(CTFontCreateWithName(cfFamilyName, 1, NULL));
     CTFontRef ctFont = CTFontCreateCopyWithAttributes(ctNamed, 1, NULL, desc);
     if (NULL == ctFont) {
         return NULL;
