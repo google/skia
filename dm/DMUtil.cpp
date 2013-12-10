@@ -10,11 +10,6 @@ SkString UnderJoin(const char* a, const char* b) {
     return s;
 }
 
-SkString Png(SkString s) {
-    s.appendf(".png");
-    return s;
-}
-
 void RecordPicture(skiagm::GM* gm, SkPicture* picture, uint32_t recordFlags) {
     const SkISize size = gm->getISize();
     SkCanvas* canvas = picture->beginRecording(size.width(), size.height(), recordFlags);

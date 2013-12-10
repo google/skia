@@ -1,6 +1,6 @@
 #include "DMGpuTask.h"
 
-#include "DMChecksumTask.h"
+#include "DMExpectationsTask.h"
 #include "DMUtil.h"
 #include "DMWriteTask.h"
 #include "SkCommandLineFlags.h"
@@ -12,7 +12,7 @@ namespace DM {
 GpuTask::GpuTask(const char* name,
                  Reporter* reporter,
                  TaskRunner* taskRunner,
-                 const skiagm::ExpectationsSource& expectations,
+                 const Expectations& expectations,
                  skiagm::GMRegistry::Factory gmFactory,
                  SkBitmap::Config config,
                  GrContextFactory::GLContextType contextType,
@@ -20,7 +20,7 @@ GpuTask::GpuTask(const char* name,
     : Task(reporter, taskRunner)
     , fGM(gmFactory(NULL))
     , fName(UnderJoin(fGM->shortName(), name))
-    , fExpectations(expectations.get(Png(fName).c_str()))
+    , fExpectations(expectations)
     , fConfig(config)
     , fContextType(contextType)
     , fSampleCount(sampleCount)
@@ -60,7 +60,7 @@ void GpuTask::draw() {
     gr->printCacheStats();
 #endif
 
-    this->spawnChild(SkNEW_ARGS(ChecksumTask, (*this, fExpectations, bitmap)));
+    this->spawnChild(SkNEW_ARGS(ExpectationsTask, (*this, fExpectations, bitmap)));
     this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
 }
 

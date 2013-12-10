@@ -1,5 +1,5 @@
 #include "DMCpuTask.h"
-#include "DMChecksumTask.h"
+#include "DMExpectationsTask.h"
 #include "DMPipeTask.h"
 #include "DMReplayTask.h"
 #include "DMSerializeTask.h"
@@ -12,14 +12,14 @@ namespace DM {
 CpuTask::CpuTask(const char* name,
                  Reporter* reporter,
                  TaskRunner* taskRunner,
-                 const skiagm::ExpectationsSource& expectations,
+                 const Expectations& expectations,
                  skiagm::GMRegistry::Factory gmFactory,
                  SkBitmap::Config config)
     : Task(reporter, taskRunner)
     , fGMFactory(gmFactory)
     , fGM(fGMFactory(NULL))
     , fName(UnderJoin(fGM->shortName(), name))
-    , fExpectations(expectations.get(Png(fName).c_str()))
+    , fExpectations(expectations)
     , fConfig(config)
     {}
 
@@ -33,7 +33,7 @@ void CpuTask::draw() {
     canvas.flush();
 
 #define SPAWN(ChildTask, ...) this->spawnChild(SkNEW_ARGS(ChildTask, (*this, __VA_ARGS__)))
-    SPAWN(ChecksumTask, fExpectations, bitmap);
+    SPAWN(ExpectationsTask, fExpectations, bitmap);
 
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, false, false);
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, true, false);

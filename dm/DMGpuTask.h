@@ -1,6 +1,7 @@
 #ifndef DMGpuTask_DEFINED
 #define DMGpuTask_DEFINED
 
+#include "DMExpectations.h"
 #include "DMReporter.h"
 #include "DMTask.h"
 #include "DMTaskRunner.h"
@@ -9,7 +10,6 @@
 #include "SkString.h"
 #include "SkTemplates.h"
 #include "gm.h"
-#include "gm_expectations.h"
 
 // This is the main entry point for drawing GMs with the GPU.
 
@@ -20,7 +20,7 @@ public:
     GpuTask(const char* name,
             Reporter*,
             TaskRunner*,
-            const skiagm::ExpectationsSource&,
+            const Expectations&,
             skiagm::GMRegistry::Factory,
             SkBitmap::Config,
             GrContextFactory::GLContextType,
@@ -34,7 +34,7 @@ public:
 private:
     SkAutoTDelete<skiagm::GM> fGM;
     const SkString fName;
-    const skiagm::Expectations fExpectations;
+    const Expectations& fExpectations;
     const SkBitmap::Config fConfig;
     const GrContextFactory::GLContextType fContextType;
     const int fSampleCount;

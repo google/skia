@@ -1,18 +1,18 @@
-#ifndef DMChecksumTask_DEFINED
-#define DMChecksumTask_DEFINED
+#ifndef DMExpectationsTask_DEFINED
+#define DMExpectationsTask_DEFINED
 
+#include "DMExpectations.h"
 #include "DMTask.h"
 #include "SkBitmap.h"
 #include "SkString.h"
-#include "gm_expectations.h"
 
 namespace DM {
 
-// ChecksumTask compares an SkBitmap against some Expectations.
+// ExpectationsTask compares an SkBitmap against some Expectations.
 // Moving this off the GPU threadpool is a nice (~30%) runtime win.
-class ChecksumTask : public Task {
+class ExpectationsTask : public Task {
 public:
-    ChecksumTask(const Task& parent, skiagm::Expectations, SkBitmap);
+    ExpectationsTask(const Task& parent, const Expectations&, SkBitmap);
 
     virtual void draw() SK_OVERRIDE;
     virtual bool usesGpu() const SK_OVERRIDE { return false; }
@@ -21,10 +21,10 @@ public:
 
 private:
     const SkString fName;
-    const skiagm::Expectations fExpectations;
+    const Expectations& fExpectations;
     const SkBitmap fBitmap;
 };
 
 }  // namespace DM
 
-#endif  // DMChecksumTask_DEFINED
+#endif  // DMExpectationsTask_DEFINED

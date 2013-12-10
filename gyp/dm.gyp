@@ -20,8 +20,8 @@
         'includes': [ 'gmslides.gypi' ],
         'sources': [
             '../dm/DM.cpp',
-            '../dm/DMChecksumTask.cpp',
             '../dm/DMCpuTask.cpp',
+            '../dm/DMExpectationsTask.cpp',
             '../dm/DMGpuTask.cpp',
             '../dm/DMPipeTask.cpp',
             '../dm/DMReplayTask.cpp',
