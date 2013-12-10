@@ -19,6 +19,7 @@
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkShader.h"
+#include "SkTileGridPicture.h"
 #include "SkUtils.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
@@ -31,12 +32,81 @@
 #include "SkXMLParser.h"
 
 class PictFileView : public SampleView {
-    SkString    fFilename;
-    SkPicture*  fPicture;
-    SkPicture*  fBBoxPicture;
-    bool        fUseBBox;
+public:
+    PictFileView(const char name[] = NULL)
+        : fFilename(name)
+        , fBBox(kNo_BBoxType)
+        , fTileSize(SkSize::Make(0, 0)) {
+        for (unsigned i = 0; i < kBBoxTypeCount; ++i) {
+            fPictures[i] = NULL;
+        }
+    }
 
-    static SkPicture* LoadPicture(const char path[], bool useBBox) {
+    virtual ~PictFileView() {
+        for (unsigned i = 0; i < kBBoxTypeCount; ++i) {
+            SkSafeUnref(fPictures[i]);
+        }
+    }
+
+    virtual void onTileSizeChanged(const SkSize &tileSize) SK_OVERRIDE {
+        if (tileSize != fTileSize) {
+            fTileSize = tileSize;
+            SkSafeSetNull(fPictures[kTileGrid_BBoxType]);
+        }
+    }
+
+protected:
+    // overrides from SkEventSink
+    virtual bool onQuery(SkEvent* evt) SK_OVERRIDE {
+        if (SampleCode::TitleQ(*evt)) {
+            SkString name("P:");
+            const char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
+            name.append(basename ? basename+1: fFilename.c_str());
+            if (fBBox != kNo_BBoxType) {
+                name.append(fBBox == kRTree_BBoxType ? " <bbox: R>" : " <bbox: T>");
+            }
+            SampleCode::TitleR(evt, name.c_str());
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
+    }
+
+    virtual bool onEvent(const SkEvent& evt) SK_OVERRIDE {
+        if (evt.isType("PictFileView::toggleBBox")) {
+            fBBox = (BBoxType)((fBBox + 1) % kBBoxTypeCount);
+            return true;
+        }
+        return this->INHERITED::onEvent(evt);
+    }
+
+    virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
+        SkASSERT(fBBox < kBBoxTypeCount);
+        SkPicture** picture = fPictures + fBBox;
+
+        if (!*picture) {
+            *picture = LoadPicture(fFilename.c_str(), fBBox);
+        }
+        if (*picture) {
+            canvas->drawPicture(**picture);
+        }
+    }
+
+private:
+    enum BBoxType {
+        kNo_BBoxType,
+        kRTree_BBoxType,
+        kTileGrid_BBoxType,
+
+        kLast_BBoxType = kTileGrid_BBoxType
+    };
+    static const unsigned kBBoxTypeCount = kLast_BBoxType + 1;
+
+    SkString    fFilename;
+    SkPicture*  fPictures[kBBoxTypeCount];
+    BBoxType    fBBox;
+    SkSize      fTileSize;
+
+    SkPicture* LoadPicture(const char path[], BBoxType bbox) {
         SkPicture* pic = NULL;
 
         SkBitmap bm;
@@ -71,67 +141,41 @@ class PictFileView : public SampleView {
             }
         }
 
-        if (useBBox) {
-            SkPicture* bboxPicture = SkNEW(SkPicture);
+        if (!pic) {
+            return NULL;
+        }
+
+        SkPicture* bboxPicture = NULL;
+        switch (bbox) {
+        case kNo_BBoxType:
+            // no bbox playback necessary
+            break;
+        case kRTree_BBoxType:
+            bboxPicture = SkNEW(SkPicture);
+            break;
+        case kTileGrid_BBoxType: {
+            SkASSERT(!fTileSize.isEmpty());
+            SkTileGridPicture::TileGridInfo gridInfo;
+            gridInfo.fMargin = SkISize::Make(0, 0);
+            gridInfo.fOffset = SkIPoint::Make(0, 0);
+            gridInfo.fTileInterval = fTileSize.toRound();
+            bboxPicture = SkNEW_ARGS(SkTileGridPicture, (pic->width(), pic->height(), gridInfo));
+        } break;
+        default:
+            SkASSERT(false);
+        }
+
+        if (bboxPicture) {
             pic->draw(bboxPicture->beginRecording(pic->width(), pic->height(),
-                    SkPicture::kOptimizeForClippedPlayback_RecordingFlag));
+                      SkPicture::kOptimizeForClippedPlayback_RecordingFlag));
             bboxPicture->endRecording();
             SkDELETE(pic);
             return bboxPicture;
-
-        } else {
-            return pic;
         }
+
+        return pic;
     }
 
-public:
-    PictFileView(const char name[] = NULL) : fFilename(name) {
-        fPicture = NULL;
-        fBBoxPicture = NULL;
-        fUseBBox = false;
-    }
-
-    virtual ~PictFileView() {
-        SkSafeUnref(fPicture);
-        SkSafeUnref(fBBoxPicture);
-    }
-
-protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SkString name("P:");
-            const char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
-            name.append(basename ? basename+1: fFilename.c_str());
-            if (fUseBBox) {
-                name.append(" <bbox>");
-            }
-            SampleCode::TitleR(evt, name.c_str());
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
-    }
-
-    virtual bool onEvent(const SkEvent& evt) {
-        if (evt.isType("PictFileView::toggleBBox")) {
-            fUseBBox = !fUseBBox;
-            return true;
-        }
-        return this->INHERITED::onEvent(evt);
-    }
-
-    virtual void onDrawContent(SkCanvas* canvas) {
-        SkPicture** picture = fUseBBox ? &fBBoxPicture : &fPicture;
-
-        if (!*picture) {
-            *picture = LoadPicture(fFilename.c_str(), fUseBBox);
-        }
-        if (*picture) {
-            canvas->drawPicture(**picture);
-        }
-    }
-
-private:
     typedef SampleView INHERITED;
 };
 

@@ -671,7 +671,7 @@ struct TilingInfo {
     SkScalar    w, h;
 };
 
-static struct TilingInfo gTilingInfo[] = {
+static const struct TilingInfo gTilingInfo[] = {
     { "No tiling", SK_Scalar1        , SK_Scalar1         }, // kNo_Tiling
     { "128x128"  , SkIntToScalar(128), SkIntToScalar(128) }, // kAbs_128x128_Tiling
     { "256x256"  , SkIntToScalar(256), SkIntToScalar(256) }, // kAbs_256x256_Tiling
@@ -682,6 +682,12 @@ static struct TilingInfo gTilingInfo[] = {
 SK_COMPILE_ASSERT((SK_ARRAY_COUNT(gTilingInfo) == kLast_TilingMode_Enum),
                   Incomplete_tiling_labels);
 
+SkSize SampleWindow::tileSize() const {
+    SkASSERT((TilingMode)fTilingMode < kLast_TilingMode_Enum);
+    const struct TilingInfo* info = gTilingInfo + fTilingMode;
+    return SkSize::Make(info->w > SK_Scalar1 ? info->w : this->width() * info->w,
+                        info->h > SK_Scalar1 ? info->h : this->height() * info->h);
+}
 //////////////////////////////////////////////////////////////////////////////
 
 static SkView* curr_view(SkWindow* wind) {
@@ -1222,11 +1228,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
         if (bitmap_diff(canvas, orig, &diff)) {
         }
     } else {
-        SkSize tile;
-        SkASSERT((TilingMode)fTilingMode < kLast_TilingMode_Enum);
-        struct TilingInfo* info = gTilingInfo + fTilingMode;
-        tile.set(info->w > SK_Scalar1 ? info->w : width() * info->w,
-                 info->h > SK_Scalar1 ? info->h : height() * info->h);
+        SkSize tile = this->tileSize();
 
         for (SkScalar y = 0; y < height(); y += tile.height()) {
             for (SkScalar x = 0; x < width(); x += tile.width()) {
@@ -1760,8 +1762,15 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         SkOSMenu::FindSwitchState(evt, "Zoomer", &fShowZoomer) ||
         SkOSMenu::FindSwitchState(evt, "Magnify", &fMagnify) ||
         SkOSMenu::FindListIndex(evt, "Transition-Next", &fTransitionNext) ||
-        SkOSMenu::FindListIndex(evt, "Transition-Prev", &fTransitionPrev) ||
-        SkOSMenu::FindListIndex(evt, "Tiling", &fTilingMode)) {
+        SkOSMenu::FindListIndex(evt, "Transition-Prev", &fTransitionPrev)) {
+        this->inval(NULL);
+        this->updateTitle();
+        return true;
+    }
+    if (SkOSMenu::FindListIndex(evt, "Tiling", &fTilingMode)) {
+        if (SampleView::IsSampleView(curr_view(this))) {
+            ((SampleView*)curr_view(this))->onTileSizeChanged(this->tileSize());
+        }
         this->inval(NULL);
         this->updateTitle();
         return true;
@@ -2121,8 +2130,11 @@ void SampleWindow::loadView(SkView* view) {
     fSlideMenu->reset();
 
     (void)SampleView::SetUsePipe(view, fPipeState);
-    if (SampleView::IsSampleView(view))
-        ((SampleView*)view)->requestMenu(fSlideMenu);
+    if (SampleView::IsSampleView(view)) {
+        SampleView* sampleView = (SampleView*)view;
+        sampleView->requestMenu(fSlideMenu);
+        sampleView->onTileSizeChanged(this->tileSize());
+    }
     this->onUpdateMenu(fSlideMenu);
     this->updateTitle();
 }
@@ -2275,6 +2287,10 @@ void SampleWindow::onSizeChange() {
 #endif
     this->updateTitle();    // to refresh our config
     fDevManager->windowSizeChanged(this);
+
+    if (fTilingMode != kNo_Tiling && SampleView::IsSampleView(view)) {
+        ((SampleView*)view)->onTileSizeChanged(this->tileSize());
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

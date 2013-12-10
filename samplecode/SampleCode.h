@@ -129,6 +129,8 @@ public:
      */
     virtual void requestMenu(SkOSMenu* menu) {}
 
+    virtual void onTileSizeChanged(const SkSize& tileSize) {}
+
 protected:
     virtual void onDrawBackground(SkCanvas*);
     virtual void onDrawContent(SkCanvas*) = 0;

@@ -243,6 +243,7 @@ private:
     void installDrawFilter(SkCanvas*);
     int findByTitle(const char*);
     void listTitles();
+    SkSize tileSize() const;
 
     typedef SkOSWindow INHERITED;
 };
