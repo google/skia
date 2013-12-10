@@ -17,7 +17,6 @@
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
-// TODO(halcanary) Use this flag when ashmem-backed discardable memory lands.
 DEFINE_bool(useVolatileCache, false, "Use a volatile cache for deferred image decoding pixels. "
             "Only meaningful if --deferImageDecoding is set to true and the platform has an "
             "implementation.");
@@ -39,9 +38,11 @@ bool sk_tools::LazyDecodeBitmap(const void* src,
         return false;
     }
     SkDiscardableMemory::Factory* pool = NULL;
-    if (info.fWidth * info.fHeight > 32 * 1024) {
+    if ((!FLAGS_useVolatileCache) || (info.fWidth * info.fHeight < 32 * 1024)) {
         // how to do switching with SkDiscardableMemory.
         pool = SkGetGlobalDiscardableMemoryPool();
+        // Only meaningful if platform has a default discardable
+        // memory implementation that differs from the global DM pool.
     }
     return SkDiscardablePixelRef::Install(gen.detach(), dst, pool);
 }

@@ -16,6 +16,12 @@ extern "C" {
 
 int ashmem_create_region(const char *name, size_t size);
 int ashmem_set_prot_region(int fd, int prot);
+
+/**
+ *   @return ASHMEM_NOT_PURGED if the memory was not purged.
+ *           ASHMEM_WAS_PURGED if the memory was purged.
+ *           -1 on error.
+ */
 int ashmem_pin_region(int fd, size_t offset, size_t len);
 int ashmem_unpin_region(int fd, size_t offset, size_t len);
 int ashmem_get_size_region(int fd);

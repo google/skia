@@ -56,6 +56,7 @@
         '../tests/DequeTest.cpp',
         '../tests/DeviceLooperTest.cpp',
         '../tests/DiscardableMemoryPool.cpp',
+        '../tests/DiscardableMemoryTest.cpp',
         '../tests/DocumentTest.cpp',
         '../tests/DrawBitmapRectTest.cpp',
         '../tests/DrawPathTest.cpp',

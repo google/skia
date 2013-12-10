@@ -300,12 +300,12 @@ DEF_TEST(DiscardableAndCachingPixelRef, reporter) {
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
 
     SkDiscardableMemoryPool* globalPool = SkGetGlobalDiscardableMemoryPool();
+    // Only acts differently from NULL on a platform that has a
+    // default discardable memory implementation that differs from the
+    // global DM pool.
     CheckPixelRef(TestImageGenerator::kFailGetPixels_TestType,
                   reporter, kSkDiscardable_PixelRefType, globalPool);
     CheckPixelRef(TestImageGenerator::kSucceedGetPixels_TestType,
                   reporter, kSkDiscardable_PixelRefType, globalPool);
-
-    // TODO(halcanary): When ashmem-backed SkDiscardableMemory lands,
-    // test that here (on platforms where it is availible).
 }
 ////////////////////////////////////////////////////////////////////////////////
