@@ -133,6 +133,15 @@
             'GR_ANDROID_PATH_RENDERING=1',
           ],
         }],
+        [ 'skia_chrome_utils', {
+          'sources': [
+            '../experimental/ChromeUtils/SkBorder.cpp',
+            '../experimental/ChromeUtils/SkBorder.h',
+          ],
+          'defines': [
+            'GR_CHROME_UTILS=1',
+          ],
+        }],
         [ 'skia_distancefield_fonts', {
           'sources': [
             '<(skia_include_path)/gpu/GrDistanceFieldTextContext.h',
