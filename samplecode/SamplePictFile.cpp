@@ -99,7 +99,7 @@ private:
 
         kLast_BBoxType = kTileGrid_BBoxType
     };
-    static const unsigned kBBoxTypeCount = kLast_BBoxType + 1;
+    static const int kBBoxTypeCount = kLast_BBoxType + 1;
 
     SkString    fFilename;
     SkPicture*  fPictures[kBBoxTypeCount];
