@@ -35,15 +35,21 @@ public:
         kCFF_Font,
         kTrueType_Font,
         kOther_Font,
-        kNotEmbeddable_Font
     };
     // The type of the underlying font program.  This field determines which
-    // of the following fields are valid.  If it is kOther_Font or
-    // kNotEmbeddable_Font, the per glyph information will never be populated.
+    // of the following fields are valid.  If it is kOther_Font the per glyph
+    // information will never be populated.
     FontType fType;
 
-    // fMultiMaster may be true for Type1_Font or CFF_Font.
-    bool fMultiMaster;
+    enum FontFlags {
+        kEmpty_FontFlag          = 0x0,  //!<No flags set
+        kMultiMaster_FontFlag    = 0x1,  //!<May be true for Type1 or CFF fonts.
+        kNotEmbeddable_FontFlag  = 0x2,  //!<May not be embedded.
+        kNotSubsettable_FontFlag = 0x4,  //!<May not be subset.
+    };
+    // Global font flags.
+    FontFlags fFlags;
+
     uint16_t fLastGlyphID; // The last valid glyph ID in the font.
     uint16_t fEmSize;  // The size of the em box (defines font units).
 

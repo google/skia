@@ -23,6 +23,7 @@
         '../include/xml',
         '../src/core',
         '../src/opts',
+        '../src/sfnt',
         '../src/image',
       ],
       'sources': [

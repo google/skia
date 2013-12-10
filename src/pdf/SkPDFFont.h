@@ -99,6 +99,14 @@ public:
      */
     virtual bool multiByteGlyphs() const = 0;
 
+    /** Returns true if the machine readable licensing bits allow embedding.
+     */
+    bool canEmbed() const;
+
+    /** Returns true if the machine readable licensing bits allow subsetting.
+     */
+    bool canSubset() const;
+
     /** Return true if this font has an encoding for the passed glyph id.
      */
     bool hasGlyph(uint16_t glyphID);
@@ -121,8 +129,7 @@ public:
      *  @param typeface  The typeface to find.
      *  @param glyphID   Specify which section of a large font is of interest.
      */
-    static SkPDFFont* GetFontResource(SkTypeface* typeface,
-                                             uint16_t glyphID);
+    static SkPDFFont* GetFontResource(SkTypeface* typeface, uint16_t glyphID);
 
     /** Subset the font based on usage set. Returns a SkPDFFont instance with
      *  subset.
@@ -188,8 +195,6 @@ private:
     // this will be a subset if the font has more than 255 glyphs.
     uint16_t fFirstGlyphID;
     uint16_t fLastGlyphID;
-    // The font info is only kept around after construction for large
-    // Type1 (non CID) fonts that need multiple "fonts" to access all glyphs.
     SkAutoTUnref<SkAdvancedTypefaceMetrics> fFontInfo;
     SkTDArray<SkPDFObject*> fResources;
     SkAutoTUnref<SkPDFDict> fDescriptor;
