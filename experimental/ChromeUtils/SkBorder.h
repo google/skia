@@ -101,7 +101,4 @@ private:
     uint32_t             fFlags;
 };
 
-
-
-
 #endif
