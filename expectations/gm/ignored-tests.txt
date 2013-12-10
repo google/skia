@@ -75,3 +75,7 @@ filterbitmap_text_10.00pt
 clipped-bitmap-shaders-clamp-hq_gpu
 clipped-bitmap-shaders-mirror-hq_gpu
 clipped-bitmap-shaders-tile-hq_gpu
+clipped-bitmap-shaders-clamp-hq_angle
+clipped-bitmap-shaders-mirror-hq_angle
+clipped-bitmap-shaders-tile-hq_angle
+
