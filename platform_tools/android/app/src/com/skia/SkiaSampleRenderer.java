@@ -9,14 +9,17 @@ package com.skia;
 
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
+import android.util.Log;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.opengles.GL11;
 
 public class SkiaSampleRenderer implements GLSurfaceView.Renderer {
 
     private final SkiaSampleView mSampleView;
     private Handler mHandler = new Handler();
+    private int mMSAASampleCount;
 
     SkiaSampleRenderer(SkiaSampleView view) {
         mSampleView = view;
@@ -34,9 +37,24 @@ public class SkiaSampleRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        if (gl instanceof GL11) {
+            int value[] = new int[1];
+            ((GL11) gl).glGetIntegerv(GL11.GL_SAMPLES, value, 0);
+            if (value[0] == 1) {
+                mMSAASampleCount = 0;
+            } else {
+                mMSAASampleCount = value[0];
+            }
+        }
+
         gl.glClearStencil(0);
         gl.glClear(GL10.GL_STENCIL_BUFFER_BIT);
-        init((SkiaSampleActivity)mSampleView.getContext());
+        init((SkiaSampleActivity)mSampleView.getContext(), mMSAASampleCount);
+    }
+
+    // Called by JNI and the view.
+    synchronized public int getMSAASampleCount() {
+        return mMSAASampleCount;
     }
 
     // Called by JNI
@@ -71,7 +89,7 @@ public class SkiaSampleRenderer implements GLSurfaceView.Renderer {
         mSampleView.requestRender();
     }
 
-    native void init(SkiaSampleActivity activity);
+    native void init(SkiaSampleActivity activity, int msaaSampleCount);
     native void term();
     native void draw();
     native void updateSize(int w, int h);

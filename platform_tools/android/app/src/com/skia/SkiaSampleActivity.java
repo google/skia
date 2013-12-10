@@ -11,6 +11,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -38,7 +39,6 @@ public class SkiaSampleActivity extends Activity
 
         setContentView(R.layout.layout);
         mTitle = (TextView) findViewById(R.id.title_view);
-        mSampleView = new SkiaSampleView(this);
         mSlideList = new ArrayAdapter<String>(this, android.R.layout.simple_expandable_list_item_1);
 
         try {
@@ -50,16 +50,26 @@ public class SkiaSampleActivity extends Activity
         try {
             System.loadLibrary("SampleApp");
 
-            LinearLayout holder = (LinearLayout) findViewById(R.id.holder);
-            holder.addView(mSampleView, new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT));
+            createSampleView(false, 0);
 
             setupActionBar();
-
         } catch (UnsatisfiedLinkError e) {
             mTitle.setText("ERROR: native library could not be loaded");
         }
+    }
+
+    private void createSampleView(boolean useOpenGLAPI, int msaaSampleCount) {
+        if (mSampleView != null) {
+            ViewGroup viewGroup = (ViewGroup) mSampleView.getParent();
+            viewGroup.removeView(mSampleView);
+            mSampleView.terminate();
+        }
+
+        mSampleView = new SkiaSampleView(this, useOpenGLAPI, msaaSampleCount);
+        LinearLayout holder = (LinearLayout) findViewById(R.id.holder);
+        holder.addView(mSampleView, new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     private void setupActionBar() {
@@ -81,7 +91,7 @@ public class SkiaSampleActivity extends Activity
     @Override
     protected void onResume () {
         super.onResume();
-        if (mSampleView.getWidth() > 0 && mSampleView.getHeight() > 0) {
+        if (mSampleView != null && mSampleView.getWidth() > 0 && mSampleView.getHeight() > 0) {
             //TODO try mSampleView.requestRender() instead
             mSampleView.inval();
         }
@@ -89,7 +99,9 @@ public class SkiaSampleActivity extends Activity
 
     @Override
     public void onDestroy() {
-        mSampleView.terminate();
+        if (mSampleView != null) {
+            mSampleView.terminate();
+        }
         super.onDestroy();
     }
 
@@ -100,7 +112,38 @@ public class SkiaSampleActivity extends Activity
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (mSampleView != null) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                ((MenuItem) menu.findItem(R.id.glcontext_menu))
+                    .setEnabled(false);
+
+            } else {
+                boolean usesOpenGLAPI = mSampleView.getUsesOpenGLAPI();
+                boolean isMSAA4 = mSampleView.getMSAASampleCount() == 4;
+
+                ((MenuItem) menu.findItem(R.id.glcontext_opengles))
+                    .setChecked(!usesOpenGLAPI && !isMSAA4);
+
+                ((MenuItem) menu.findItem(R.id.glcontext_msaa4_opengles))
+                    .setChecked(!usesOpenGLAPI && isMSAA4);
+
+                ((MenuItem) menu.findItem(R.id.glcontext_opengl))
+                    .setChecked(usesOpenGLAPI && !isMSAA4);
+
+                ((MenuItem) menu.findItem(R.id.glcontext_msaa4_opengl))
+                    .setChecked(usesOpenGLAPI && isMSAA4);
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (mSampleView == null) {
+            return false;
+        }
+
         switch (item.getItemId()) {
         case R.id.overview:
             mSampleView.showOverview();
@@ -129,6 +172,14 @@ public class SkiaSampleActivity extends Activity
         case R.id.save_to_pdf:
             mSampleView.saveToPDF();
             return true;
+        case R.id.glcontext_opengles:
+            return setOpenGLContextSettings(false, 0);
+        case R.id.glcontext_msaa4_opengles:
+            return setOpenGLContextSettings(false, 4);
+        case R.id.glcontext_opengl:
+            return setOpenGLContextSettings(true, 0);
+        case R.id.glcontext_msaa4_opengl:
+            return setOpenGLContextSettings(true, 4);
         default:
             return false;
         }
@@ -202,5 +253,17 @@ public class SkiaSampleActivity extends Activity
                 manager.addCompletedDownload(title, desc, true, mimeType, path, length, true);
             }
         }.start();
+    }
+
+    private boolean setOpenGLContextSettings(boolean requestedOpenGLAPI, int requestedSampleCount) {
+        if (mSampleView != null &&
+                mSampleView.getMSAASampleCount() == requestedSampleCount &&
+                mSampleView.getUsesOpenGLAPI() == requestedOpenGLAPI) {
+            return true;
+        }
+
+        createSampleView(requestedOpenGLAPI, requestedSampleCount);
+
+        return true;
     }
 }

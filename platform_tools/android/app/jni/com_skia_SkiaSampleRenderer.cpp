@@ -44,11 +44,13 @@ struct WindowGlue {
     jmethodID m_inval;
     jmethodID m_queueSkEvent;
     jmethodID m_startTimer;
+    jmethodID m_getMSAASampleCount;
     WindowGlue() {
         m_obj = NULL;
         m_inval = NULL;
         m_queueSkEvent = NULL;
         m_startTimer = NULL;
+        m_getMSAASampleCount = NULL;
     }
 } gWindowGlue;
 
@@ -57,6 +59,23 @@ SampleWindow* gWindow;
 ///////////////////////////////////////////
 ///////////// SkOSWindow impl /////////////
 ///////////////////////////////////////////
+
+bool SkOSWindow::attach(SkBackEndTypes /* attachType */, int /*msaaSampleCount*/, AttachmentInfo* info)
+{
+    JNIEnv* env = gActivityGlue.m_env;
+    if (!env || !gWindowGlue.m_getMSAASampleCount || !gWindowGlue.m_obj) {
+        return false;
+    }
+    if (env->IsSameObject(gWindowGlue.m_obj, NULL)) {
+        SkDebugf("ERROR: The JNI WeakRef to the Window is invalid");
+        return false;
+    }
+    info->fSampleCount = env->CallIntMethod(gWindowGlue.m_obj, gWindowGlue.m_getMSAASampleCount);
+
+    // This is the value requested in SkiaSampleView.java.
+    info->fStencilBits = 8;
+    return true;
+}
 
 void SkOSWindow::onSetTitle(const char title[])
 {
@@ -155,7 +174,7 @@ static jmethodID GetJMethod(JNIEnv* env, jclass clazz, const char name[],
 }
 
 JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_init(JNIEnv* env,
-        jobject thiz, jobject jsampleActivity)
+        jobject thiz, jobject jsampleActivity, jint msaaSampleCount)
 {
     // setup jni hooks to the java activity
     gActivityGlue.m_env = env;
@@ -173,12 +192,25 @@ JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_init(JNIEnv* env,
     gWindowGlue.m_inval = GetJMethod(env, clazz, "requestRender", "()V");
     gWindowGlue.m_queueSkEvent = GetJMethod(env, clazz, "queueSkEvent", "()V");
     gWindowGlue.m_startTimer = GetJMethod(env, clazz, "startTimer", "(I)V");
+    gWindowGlue.m_getMSAASampleCount = GetJMethod(env, clazz, "getMSAASampleCount", "()I");
     env->DeleteLocalRef(clazz);
 
     application_init();
+    SkTArray<const char*> args;
+
+    args.push_back("SampleApp");
     // TODO: push ability to select skp dir into the UI
-    const char* argv[] = { "SampleApp", "--pictureDir", "/sdcard/skiabot/skia_skp" };
-    gWindow = new SampleWindow(NULL, sizeof(argv)/sizeof(char*), const_cast<char**>(argv), NULL);
+    args.push_back("--pictureDir");
+    args.push_back("/sdcard/skiabot/skia_skp");
+
+    SkString msaaSampleCountString;
+    if (msaaSampleCount > 0) {
+        args.push_back("--msaa");
+        msaaSampleCountString.appendS32(static_cast<uint32_t>(msaaSampleCount));
+        args.push_back(msaaSampleCountString.c_str());
+    }
+
+    gWindow = new SampleWindow(NULL, args.count(), const_cast<char**>(args.begin()), NULL);
 
     // send the list of slides up to the activity
     const int slideCount = gWindow->sampleCount();

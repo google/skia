@@ -7,21 +7,36 @@
 
 package com.skia;
 
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLDisplay;
+import javax.microedition.khronos.opengles.GL10;
+
 import android.content.Context;
+import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.view.MotionEvent;
 
 public class SkiaSampleView extends GLSurfaceView {
 
     private final SkiaSampleRenderer mSampleRenderer;
+    private boolean mRequestedOpenGLAPI; // true == use (desktop) OpenGL. false == use OpenGL ES.
+    private int mRequestedMSAASampleCount;
 
-    public SkiaSampleView(Context ctx) {
+    public SkiaSampleView(Context ctx, boolean useOpenGL, int msaaSampleCount) {
         super(ctx);
 
         mSampleRenderer = new SkiaSampleRenderer(this);
+        mRequestedMSAASampleCount = msaaSampleCount;
 
         setEGLContextClientVersion(2);
-        setEGLConfigChooser(8,8,8,8,0,8);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            setEGLConfigChooser(8, 8, 8, 8, 0, 8);
+        } else {
+            mRequestedOpenGLAPI = useOpenGL;
+            setEGLConfigChooser(new SampleViewEGLConfigChooser());
+        }
         setRenderer(mSampleRenderer);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
@@ -161,5 +176,121 @@ public class SkiaSampleView extends GLSurfaceView {
                 mSampleRenderer.saveToPDF();
             }
         });
+    }
+
+    public boolean getUsesOpenGLAPI() {
+        return mRequestedOpenGLAPI;
+    }
+
+    public int getMSAASampleCount() {
+        return mSampleRenderer.getMSAASampleCount();
+    }
+
+    private class SampleViewEGLConfigChooser implements GLSurfaceView.EGLConfigChooser {
+        private int[] mValue;
+
+        @Override
+        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
+            mValue = new int[1];
+
+            int glAPIToTry;
+
+            if (mRequestedOpenGLAPI) {
+                glAPIToTry = EGL14.EGL_OPENGL_API;
+            } else {
+                glAPIToTry = EGL14.EGL_OPENGL_ES_API;
+            }
+
+            int numConfigs = 0;
+            int[] configSpec = null;
+
+            do {
+                EGL14.eglBindAPI(glAPIToTry);
+
+                int renderableType;
+                if (glAPIToTry == EGL14.EGL_OPENGL_API) {
+                    renderableType = EGL14.EGL_OPENGL_ES2_BIT;
+
+                    // If this API does not work, try ES next.
+                    glAPIToTry = EGL14.EGL_OPENGL_ES_API;
+                } else {
+                    renderableType = EGL14.EGL_OPENGL_BIT;
+                }
+
+
+                if (mRequestedMSAASampleCount > 0) {
+                    configSpec = new int[] {
+                        EGL10.EGL_RED_SIZE, 8,
+                        EGL10.EGL_GREEN_SIZE, 8,
+                        EGL10.EGL_BLUE_SIZE, 8,
+                        EGL10.EGL_ALPHA_SIZE, 8,
+                        EGL10.EGL_DEPTH_SIZE, 0,
+                        EGL10.EGL_STENCIL_SIZE, 8,
+                        EGL10.EGL_RENDERABLE_TYPE, renderableType,
+                        EGL10.EGL_SAMPLE_BUFFERS, 1,
+                        EGL10.EGL_SAMPLES, mRequestedMSAASampleCount,
+                        EGL10.EGL_NONE
+                    };
+
+                    if (!egl.eglChooseConfig(display, configSpec, null, 0, mValue)) {
+                        throw new IllegalArgumentException("Could not get MSAA context count");
+                    }
+
+                    numConfigs = mValue[0];
+                }
+
+                if (numConfigs <= 0) {
+                    // Try without multisampling.
+                    configSpec = new int[] {
+                        EGL10.EGL_RED_SIZE, 8,
+                        EGL10.EGL_GREEN_SIZE, 8,
+                        EGL10.EGL_BLUE_SIZE, 8,
+                        EGL10.EGL_ALPHA_SIZE, 8,
+                        EGL10.EGL_DEPTH_SIZE, 0,
+                        EGL10.EGL_STENCIL_SIZE, 8,
+                        EGL10.EGL_RENDERABLE_TYPE, renderableType,
+                        EGL10.EGL_NONE
+                    };
+
+                    if (!egl.eglChooseConfig(display, configSpec, null, 0, mValue)) {
+                        throw new IllegalArgumentException("Could not get non-MSAA context count");
+                    }
+                    numConfigs = mValue[0];
+                }
+
+            } while (glAPIToTry != EGL14.EGL_OPENGL_ES_API && numConfigs == 0);
+
+            if (numConfigs <= 0) {
+                throw new IllegalArgumentException("No configs match configSpec");
+            }
+
+            // Get all matching configurations.
+            EGLConfig[] configs = new EGLConfig[numConfigs];
+            if (!egl.eglChooseConfig(display, configSpec, configs, numConfigs, mValue)) {
+                throw new IllegalArgumentException("Could not get config data");
+            }
+
+            for (int i = 0; i < configs.length; ++i) {
+                EGLConfig config = configs[i];
+                if (findConfigAttrib(egl, display, config , EGL10.EGL_RED_SIZE, 0) == 8 &&
+                        findConfigAttrib(egl, display, config, EGL10.EGL_BLUE_SIZE, 0) == 8 &&
+                        findConfigAttrib(egl, display, config, EGL10.EGL_GREEN_SIZE, 0) == 8 &&
+                        findConfigAttrib(egl, display, config, EGL10.EGL_ALPHA_SIZE, 0) == 8 &&
+                        findConfigAttrib(egl, display, config, EGL10.EGL_STENCIL_SIZE, 0) == 8) {
+                    return config;
+                }
+            }
+
+            throw new IllegalArgumentException("Could not find suitable EGL config");
+        }
+
+        private int findConfigAttrib(EGL10 egl, EGLDisplay display,
+                EGLConfig config, int attribute, int defaultValue) {
+            if (egl.eglGetConfigAttrib(display, config, attribute, mValue)) {
+                return mValue[0];
+            }
+            return defaultValue;
+        }
+
     }
 }

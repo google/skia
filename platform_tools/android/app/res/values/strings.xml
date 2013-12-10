@@ -10,4 +10,9 @@
     <string name="save_to_pdf">Save to PDF</string>
     <string name="save_failed">Save Failed</string>
     <string name="file_saved">%s saved!</string>
+    <string name="glcontext_menu">Set OpenGL Context Type</string>
+    <string name="glcontext_opengles">OpenGL ES</string>
+    <string name="glcontext_msaa4_opengles">OpenGL ES, MSAA4</string>
+    <string name="glcontext_opengl">OpenGL</string>
+    <string name="glcontext_msaa4_opengl">OpenGL, MSAA4</string>
 </resources>
