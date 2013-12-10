@@ -212,9 +212,9 @@ private:
 
     SkOSMenu::TriState fLCDState;
     SkOSMenu::TriState fAAState;
-    SkOSMenu::TriState fFilterState;
     SkOSMenu::TriState fSubpixelState;
     int fHintingState;
+    int fFilterLevelIndex;
     unsigned   fFlipAxis;
 
     int fMSAASampleCount;

@@ -488,12 +488,31 @@ static HintingState gHintingStates[] = {
     {SkPaint::kFull_Hinting, "Full", "Hf " },
 };
 
+struct FilterLevelState {
+    SkPaint::FilterLevel    fLevel;
+    const char*             fName;
+    const char*             fLabel;
+};
+static FilterLevelState gFilterLevelStates[] = {
+    { SkPaint::kNone_FilterLevel,   "Mixed",    NULL    },
+    { SkPaint::kNone_FilterLevel,   "None",     "F0 "   },
+    { SkPaint::kLow_FilterLevel,    "Low",      "F1 "   },
+    { SkPaint::kMedium_FilterLevel, "Medium",   "F2 "   },
+    { SkPaint::kHigh_FilterLevel,   "High",     "F3 "   },
+};
+
 class FlagsDrawFilter : public SkDrawFilter {
 public:
-    FlagsDrawFilter(SkOSMenu::TriState lcd, SkOSMenu::TriState aa, SkOSMenu::TriState filter,
-                    SkOSMenu::TriState subpixel, int hinting)
-        : fLCDState(lcd), fAAState(aa), fFilterState(filter), fSubpixelState(subpixel)
-        , fHintingState(hinting) {}
+    FlagsDrawFilter(SkOSMenu::TriState lcd, SkOSMenu::TriState aa,
+                    SkOSMenu::TriState subpixel, int hinting, int filterlevel)
+        : fLCDState(lcd)
+        , fAAState(aa)
+        , fSubpixelState(subpixel)
+        , fHintingState(hinting)
+        , fFilterLevelIndex(filterlevel)
+    {
+        SkASSERT((unsigned)filterlevel < SK_ARRAY_COUNT(gFilterLevelStates));
+    }
 
     virtual bool filter(SkPaint* paint, Type t) {
         if (kText_Type == t && SkOSMenu::kMixedState != fLCDState) {
@@ -502,9 +521,8 @@ public:
         if (SkOSMenu::kMixedState != fAAState) {
             paint->setAntiAlias(SkOSMenu::kOnState == fAAState);
         }
-        if (SkOSMenu::kMixedState != fFilterState) {
-            paint->setFilterLevel(SkOSMenu::kOnState == fFilterState ?
-                                  SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
+        if (0 != fFilterLevelIndex) {
+            paint->setFilterLevel(gFilterLevelStates[fFilterLevelIndex].fLevel);
         }
         if (SkOSMenu::kMixedState != fSubpixelState) {
             paint->setSubpixelText(SkOSMenu::kOnState == fSubpixelState);
@@ -518,9 +536,9 @@ public:
 private:
     SkOSMenu::TriState  fLCDState;
     SkOSMenu::TriState  fAAState;
-    SkOSMenu::TriState  fFilterState;
     SkOSMenu::TriState  fSubpixelState;
     int fHintingState;
+    int fFilterLevelIndex;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -871,9 +889,9 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fMeasureFPS = false;
     fLCDState = SkOSMenu::kMixedState;
     fAAState = SkOSMenu::kMixedState;
-    fFilterState = SkOSMenu::kMixedState;
     fSubpixelState = SkOSMenu::kMixedState;
     fHintingState = 0;
+    fFilterLevelIndex = 0;
     fFlipAxis = 0;
     fScrollTestX = fScrollTestY = 0;
 
@@ -909,7 +927,13 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fAppMenu->assignKeyEquivalentToItem(itemID, 'b');
     itemID = fAppMenu->appendTriState("LCD", "LCD", sinkID, fLCDState);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'l');
-    itemID = fAppMenu->appendTriState("Filter", "Filter", sinkID, fFilterState);
+    itemID = fAppMenu->appendList("FilterLevel", "FilterLevel", sinkID, fFilterLevelIndex,
+                                  gFilterLevelStates[0].fName,
+                                  gFilterLevelStates[1].fName,
+                                  gFilterLevelStates[2].fName,
+                                  gFilterLevelStates[3].fName,
+                                  gFilterLevelStates[4].fName,
+                                  NULL);
     fAppMenu->assignKeyEquivalentToItem(itemID, 'n');
     itemID = fAppMenu->appendTriState("Subpixel", "Subpixel", sinkID, fSubpixelState);
     fAppMenu->assignKeyEquivalentToItem(itemID, 's');
@@ -1674,8 +1698,8 @@ void SampleWindow::showOverview() {
 }
 
 void SampleWindow::installDrawFilter(SkCanvas* canvas) {
-    canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState, fFilterState, fSubpixelState,
-                                              fHintingState))->unref();
+    canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState, fSubpixelState,
+                                              fHintingState, fFilterLevelIndex))->unref();
 }
 
 void SampleWindow::postAnimatingEvent() {
@@ -1729,7 +1753,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
     }
     if (SkOSMenu::FindTriState(evt, "AA", &fAAState) ||
         SkOSMenu::FindTriState(evt, "LCD", &fLCDState) ||
-        SkOSMenu::FindTriState(evt, "Filter", &fFilterState) ||
+        SkOSMenu::FindListIndex(evt, "FilterLevel", &fFilterLevelIndex) ||
         SkOSMenu::FindTriState(evt, "Subpixel", &fSubpixelState) ||
         SkOSMenu::FindListIndex(evt, "Hinting", &fHintingState) ||
         SkOSMenu::FindSwitchState(evt, "Clip", &fUseClip) ||
@@ -2171,7 +2195,7 @@ void SampleWindow::updateTitle() {
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));
     title.prepend(trystate_str(fAAState, "AA ", "aa "));
-    title.prepend(trystate_str(fFilterState, "N ", "n "));
+    title.prepend(gFilterLevelStates[fFilterLevelIndex].fLabel);
     title.prepend(trystate_str(fSubpixelState, "S ", "s "));
     title.prepend(fFlipAxis & kFlipAxis_X ? "X " : NULL);
     title.prepend(fFlipAxis & kFlipAxis_Y ? "Y " : NULL);
