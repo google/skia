@@ -419,7 +419,7 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
 
     GrEffectRef* effect = NULL;
     if (paintFilterLevel == SkPaint::kHigh_FilterLevel) {
-        effect = GrBicubicEffect::Create(texture, matrix, params);
+        effect = GrBicubicEffect::Create(texture, matrix, tm);
     } else {
         effect = GrSimpleTextureEffect::Create(texture, matrix, params);
     }

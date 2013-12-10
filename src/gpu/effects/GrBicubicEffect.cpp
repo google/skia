@@ -106,23 +106,10 @@ void GrGLBicubicEffect::setData(const GrGLUniformManager& uman,
 }
 
 GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
-                                 const SkScalar coefficients[16])
-  : INHERITED(texture, MakeDivByTextureWHMatrix(texture)) {
-    for (int y = 0; y < 4; y++) {
-        for (int x = 0; x < 4; x++) {
-            // Convert from row-major scalars to column-major floats.
-            fCoefficients[x * 4 + y] = SkScalarToFloat(coefficients[y * 4 + x]);
-        }
-    }
-    this->setWillNotUseInputColor();
-}
-
-GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  const SkScalar coefficients[16],
                                  const SkMatrix &matrix,
-                                 const GrTextureParams &params,
-                                 GrCoordSet coordSet)
-  : INHERITED(texture, matrix, params, coordSet) {
+                                 const SkShader::TileMode tileModes[2])
+  : INHERITED(texture, matrix, GrTextureParams(tileModes, GrTextureParams::kNone_FilterMode)) {
     for (int y = 0; y < 4; y++) {
         for (int x = 0; x < 4; x++) {
             // Convert from row-major scalars to column-major floats.

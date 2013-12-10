@@ -1426,7 +1426,9 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                                    GrTextureDomain::kClamp_Mode,
                                                    params.filterMode()));
     } else if (bicubic) {
-        effect.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), params));
+        SkASSERT(GrTextureParams::kNone_FilterMode == params.filterMode());
+        SkShader::TileMode tileModes[2] = { params.getTileModeX(), params.getTileModeY() };
+        effect.reset(GrBicubicEffect::Create(texture, SkMatrix::I(), tileModes));
     } else {
         effect.reset(GrSimpleTextureEffect::Create(texture, SkMatrix::I(), params));
     }

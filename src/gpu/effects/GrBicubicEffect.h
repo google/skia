@@ -31,34 +31,44 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
-    static GrEffectRef* Create(GrTexture* tex, const SkScalar coefficients[16]) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrBicubicEffect, (tex, coefficients)));
-        return CreateEffectRef(effect);
-    }
-
-    static GrEffectRef* Create(GrTexture* tex, const SkScalar coefficients[16],
-                               const SkMatrix& matrix,
-                               const GrTextureParams& p,
-                               GrCoordSet coordSet = kLocal_GrCoordSet) {
-        AutoEffectUnref effect(SkNEW_ARGS(GrBicubicEffect, (tex, coefficients, matrix, p, coordSet)));
-        return CreateEffectRef(effect);
-    }
-
+    /**
+     * Create a simple Mitchell filter effect.
+     */
     static GrEffectRef* Create(GrTexture* tex) {
         return Create(tex, gMitchellCoefficients);
     }
 
+    /**
+     * Create a simple filter effect with custom bicubic coefficients.
+     */
+    static GrEffectRef* Create(GrTexture* tex, const SkScalar coefficients[16]) {
+        const SkShader::TileMode tm[] = { SkShader::kClamp_TileMode, SkShader::kClamp_TileMode };
+        return Create(tex, coefficients, MakeDivByTextureWHMatrix(tex), tm);
+    }
+
+    /**
+     * Create a Mitchell filter effect with specified texture matrix and x/y tile modes.
+     */
     static GrEffectRef* Create(GrTexture* tex,
                                const SkMatrix& matrix,
-                               const GrTextureParams& p,
-                               GrCoordSet coordSet = kLocal_GrCoordSet) {
-        return Create(tex, gMitchellCoefficients, matrix, p, coordSet);
+                               SkShader::TileMode tileModes[2]) {
+        return Create(tex, gMitchellCoefficients, matrix, tileModes);
+    }
+
+    /**
+     * The most general Create method. This allows specification of the bicubic coefficients, the
+     * texture matrix, and the x/y tilemodes.
+     */
+    static GrEffectRef* Create(GrTexture* tex, const SkScalar coefficients[16],
+                               const SkMatrix& matrix,
+                               const SkShader::TileMode tileModes[2]) {
+        AutoEffectUnref effect(SkNEW_ARGS(GrBicubicEffect, (tex, coefficients, matrix, tileModes)));
+        return CreateEffectRef(effect);
     }
 
 private:
-    GrBicubicEffect(GrTexture*, const SkScalar coefficients[16]);
     GrBicubicEffect(GrTexture*, const SkScalar coefficients[16],
-                    const SkMatrix &matrix, const GrTextureParams &p, GrCoordSet coordSet);
+                    const SkMatrix &matrix, const SkShader::TileMode tileModes[2]);
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
     float    fCoefficients[16];
 

@@ -36,7 +36,7 @@ public:
         this->reset(tileXAndY, filterMode);
     }
 
-    GrTextureParams(SkShader::TileMode tileModes[2], FilterMode filterMode) {
+    GrTextureParams(const SkShader::TileMode tileModes[2], FilterMode filterMode) {
         this->reset(tileModes, filterMode);
     }
 
@@ -60,7 +60,7 @@ public:
         fFilterMode = filterMode;
     }
 
-    void reset(SkShader::TileMode tileModes[2], FilterMode filterMode) {
+    void reset(const SkShader::TileMode tileModes[2], FilterMode filterMode) {
         fTileModes[0] = tileModes[0];
         fTileModes[1] = tileModes[1];
         fFilterMode = filterMode;
