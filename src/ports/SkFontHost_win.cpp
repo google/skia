@@ -1861,7 +1861,7 @@ SkAdvancedTypefaceMetrics* LogFontTypeface::onGetAdvancedTypefaceMetrics(
     if (otm.otmfsType & 0x1) {
         info->fFlags = SkTBitOr<SkAdvancedTypefaceMetrics::FontFlags>(
                 info->fFlags,
-                SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag)
+                SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag);
     }
 
     if (perGlyphInfo & SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo) {
