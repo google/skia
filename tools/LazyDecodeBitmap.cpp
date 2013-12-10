@@ -10,7 +10,7 @@
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
 #include "SkDiscardableMemoryPool.h"
-#include "SkDiscardablePixelRef.h"
+#include "SkImageGenerator.h"
 #include "SkForceLinking.h"
 
 #include "SkCommandLineFlags.h"
@@ -44,5 +44,5 @@ bool sk_tools::LazyDecodeBitmap(const void* src,
         // Only meaningful if platform has a default discardable
         // memory implementation that differs from the global DM pool.
     }
-    return SkDiscardablePixelRef::Install(gen.detach(), dst, pool);
+    return SkInstallDiscardablePixelRef(gen.detach(), dst, pool);
 }

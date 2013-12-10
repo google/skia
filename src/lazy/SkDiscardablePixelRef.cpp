@@ -7,6 +7,7 @@
 
 #include "SkDiscardablePixelRef.h"
 #include "SkDiscardableMemory.h"
+#include "SkImageGenerator.h"
 
 SkDiscardablePixelRef::SkDiscardablePixelRef(SkImageGenerator* generator,
                                              const SkImageInfo& info,
@@ -62,17 +63,21 @@ void SkDiscardablePixelRef::onUnlockPixels() {
     }
 }
 
-bool SkDiscardablePixelRef::Install(SkImageGenerator* generator,
-                                    SkBitmap* dst,
-                                    SkDiscardableMemory::Factory* factory) {
+bool SkInstallDiscardablePixelRef(SkImageGenerator* generator,
+                                  SkBitmap* dst,
+                                  SkDiscardableMemory::Factory* factory) {
     SkImageInfo info;
     SkASSERT(generator != NULL);
     if ((NULL == generator)
         || (!generator->getInfo(&info))
-        || (!dst->setConfig(info, 0))
-        || (0 == dst->getSize())) {  // dst->getSize=0 Probably a bad config
+        || (!dst->setConfig(info, 0))) {
         SkDELETE(generator);
         return false;
+    }
+    SkASSERT(dst->config() != SkBitmap::kNo_Config);
+    if (dst->empty()) { // Use a normal pixelref.
+        SkDELETE(generator);  // Do not need this anymore.
+        return dst->allocPixels(NULL, NULL);
     }
     SkAutoTUnref<SkDiscardablePixelRef> ref(SkNEW_ARGS(SkDiscardablePixelRef,
                                                    (generator, info,

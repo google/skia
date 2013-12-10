@@ -10,7 +10,7 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDiscardableMemoryPool.h"
-#include "SkDiscardablePixelRef.h"
+#include "SkImageGenerator.h"
 #include "SkPaint.h"
 #include "SkShader.h"
 #include "SkSurface.h"
@@ -48,7 +48,7 @@ static void test_faulty_pixelref(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkDiscardableMemoryPool> pool(SkNEW_ARGS(SkDiscardableMemoryPool,
                                                           (10 * 1000, NULL)));
     SkBitmap bm;
-    bool installSuccess = SkDiscardablePixelRef::Install(SkNEW(FailureImageGenerator), &bm, pool);
+    bool installSuccess = SkInstallDiscardablePixelRef(SkNEW(FailureImageGenerator), &bm, pool);
     REPORTER_ASSERT(reporter, installSuccess);
     // now our bitmap has a pixelref, but we know it will fail to lock
 

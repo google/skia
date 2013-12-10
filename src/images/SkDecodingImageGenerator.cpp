@@ -7,8 +7,8 @@
 
 #include "SkDecodingImageGenerator.h"
 #include "SkData.h"
-#include "SkDiscardablePixelRef.h"
 #include "SkImageDecoder.h"
+#include "SkImageGenerator.h"
 #include "SkImagePriv.h"
 #include "SkStream.h"
 
@@ -191,7 +191,7 @@ bool SkDecodingImageGenerator::Install(SkData* data, SkBitmap* dst,
     SkASSERT(data != NULL);
     SkASSERT(dst != NULL);
     SkImageGenerator* gen(SkNEW_ARGS(SkDecodingImageGenerator, (data)));
-    return SkDiscardablePixelRef::Install(gen, dst, factory);
+    return SkInstallDiscardablePixelRef(gen, dst, factory);
 }
 
 bool SkDecodingImageGenerator::Install(SkStreamRewindable* stream,
@@ -204,5 +204,5 @@ bool SkDecodingImageGenerator::Install(SkStreamRewindable* stream,
         return false;
     }
     SkImageGenerator* gen(SkNEW_ARGS(SkDecodingImageGenerator, (stream)));
-    return SkDiscardablePixelRef::Install(gen, dst, factory);
+    return SkInstallDiscardablePixelRef(gen, dst, factory);
 }

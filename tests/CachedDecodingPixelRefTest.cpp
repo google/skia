@@ -9,7 +9,6 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
-#include "SkDiscardablePixelRef.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkImageDecoder.h"
 #include "SkCachingPixelRef.h"
@@ -257,7 +256,7 @@ void CheckPixelRef(TestImageGenerator::TestType type,
         // Ignore factory; use global SkScaledImageCache.
         success = SkCachingPixelRef::Install(gen.detach(), &lazy);
     } else {
-        success = SkDiscardablePixelRef::Install(gen.detach(), &lazy, factory);
+        success = SkInstallDiscardablePixelRef(gen.detach(), &lazy, factory);
     }
     REPORTER_ASSERT(reporter, success
                     == (TestImageGenerator::kFailGetInfo_TestType != type));
