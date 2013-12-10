@@ -840,6 +840,24 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "bitmapshaders_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14816370732421230660
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "bitmapshaders_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2770977120663775609
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "bleed_565.png": {
       "allowed-digests": [
         [
