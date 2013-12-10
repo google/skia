@@ -37,13 +37,13 @@ public:
         : fFilename(name)
         , fBBox(kNo_BBoxType)
         , fTileSize(SkSize::Make(0, 0)) {
-        for (unsigned i = 0; i < kBBoxTypeCount; ++i) {
+        for (int i = 0; i < kBBoxTypeCount; ++i) {
             fPictures[i] = NULL;
         }
     }
 
     virtual ~PictFileView() {
-        for (unsigned i = 0; i < kBBoxTypeCount; ++i) {
+        for (int i = 0; i < kBBoxTypeCount; ++i) {
             SkSafeUnref(fPictures[i]);
         }
     }
