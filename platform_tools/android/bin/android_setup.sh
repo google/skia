@@ -223,6 +223,11 @@ setup_device() {
       DEFINES="${DEFINES} skia_arch_type=arm arm_neon=0 arm_thumb=1"
       ANDROID_ARCH="arm"
       ;;
+    mips)
+      DEFINES="${DEFINES} skia_arch_type=mips skia_arch_width=32"
+      DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
+      ANDROID_ARCH="mips"
+      ;;
     x86)
       DEFINES="${DEFINES} skia_arch_type=x86 skia_arch_width=32"
       DEFINES="${DEFINES} skia_resource_cache_mb_limit=32"
