@@ -257,7 +257,7 @@ public:
     }
 
     virtual bool allocPixelRef(SkBitmap*, SkColorTable*) SK_OVERRIDE;
-    
+
 private:
     SkScaledImageCache::DiscardableFactory fFactory;
 };
@@ -509,7 +509,7 @@ void SkScaledImageCache::purgeAsNeeded() {
 
     size_t bytesUsed = fBytesUsed;
     int    countUsed = fCount;
-    
+
     Rec* rec = fTail;
     while (rec) {
         if (bytesUsed < byteLimit && countUsed < countLimit) {

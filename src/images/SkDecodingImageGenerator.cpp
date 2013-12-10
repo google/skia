@@ -206,4 +206,3 @@ bool SkDecodingImageGenerator::Install(SkStreamRewindable* stream,
     SkImageGenerator* gen(SkNEW_ARGS(SkDecodingImageGenerator, (stream)));
     return SkDiscardablePixelRef::Install(gen, dst, factory);
 }
-

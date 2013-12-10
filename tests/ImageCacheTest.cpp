@@ -20,21 +20,21 @@ static const int DIM = 256;
 static void test_cache(skiatest::Reporter* reporter, SkScaledImageCache& cache,
                        bool testPurge) {
     SkScaledImageCache::ID* id;
-    
+
     SkBitmap bm[COUNT];
-    
+
     SkScalar scale = 2;
     for (int i = 0; i < COUNT; ++i) {
         SkBitmap tmp;
-        
+
         make_bm(&bm[i], DIM, DIM);
         id = cache.findAndLock(bm[i], scale, scale, &tmp);
         REPORTER_ASSERT(reporter, NULL == id);
-        
+
         make_bm(&tmp, DIM, DIM);
         id = cache.addAndLock(bm[i], scale, scale, tmp);
         REPORTER_ASSERT(reporter, NULL != id);
-        
+
         SkBitmap tmp2;
         SkScaledImageCache::ID* id2 = cache.findAndLock(bm[i], scale, scale,
                                                         &tmp2);
@@ -43,17 +43,17 @@ static void test_cache(skiatest::Reporter* reporter, SkScaledImageCache& cache,
         REPORTER_ASSERT(reporter, tmp.width() == tmp2.width());
         REPORTER_ASSERT(reporter, tmp.height() == tmp2.height());
         cache.unlock(id2);
-        
+
         cache.unlock(id);
     }
-    
+
     if (testPurge) {
         // stress test, should trigger purges
         for (size_t i = 0; i < COUNT * 100; ++i) {
             scale += 1;
-            
+
             SkBitmap tmp;
-            
+
             make_bm(&tmp, DIM, DIM);
             id = cache.addAndLock(bm[0], scale, scale, tmp);
             REPORTER_ASSERT(reporter, NULL != id);

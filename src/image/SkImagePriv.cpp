@@ -16,10 +16,10 @@ SkBitmap::Config SkImageInfoToBitmapConfig(const SkImageInfo& info) {
 
         case kARGB_4444_SkColorType:
             return SkBitmap::kARGB_4444_Config;
-            
+
         case kRGB_565_SkColorType:
             return SkBitmap::kRGB_565_Config;
-            
+
         case kPMColor_SkColorType:
             return SkBitmap::kARGB_8888_Config;
 
