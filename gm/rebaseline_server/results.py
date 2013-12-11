@@ -238,7 +238,7 @@ class Results(object):
         if builder.endswith('-Trybot'):
           continue
         per_builder_dict = meta_dict.get(builder)
-        if per_builder_dict:
+        if per_builder_dict is not None:
           fullpath = os.path.join(dirpath, matching_filename)
           gm_json.WriteToFile(per_builder_dict, fullpath)
           actual_builders_written.append(builder)
