@@ -84,8 +84,10 @@ SkImage* SkImage_Raster::NewEmpty() {
 
 SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes)
         : INHERITED(info.fWidth, info.fHeight) {
-    fBitmap.setConfig(info, rowBytes);
-    fBitmap.setPixelRef(SkNEW_ARGS(SkDataPixelRef, (info, data, rowBytes)))->unref();
+    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
+
+    fBitmap.setConfig(config, info.fWidth, info.fHeight, rowBytes, info.fAlphaType);
+    fBitmap.setPixelRef(SkNEW_ARGS(SkDataPixelRef, (data)))->unref();
     fBitmap.setImmutable();
 }
 
