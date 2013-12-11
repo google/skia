@@ -409,8 +409,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         // platform-specific one might succeed, so it might be premature here
         // to fall back to bilerp.  This needs thought.
 
-        SkASSERT(fInvType > SkMatrix::kTranslate_Mask);
-
         if (!this->setBitmapFilterProcs()) {
             fFilterLevel = SkPaint::kLow_FilterLevel;
         }
