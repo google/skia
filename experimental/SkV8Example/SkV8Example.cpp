@@ -19,6 +19,7 @@ using namespace v8;
 #include "SkDraw.h"
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
+#include "SkScalar.h"
 
 
 void application_init() {
@@ -79,36 +80,82 @@ SkV8ExampleWindow::SkV8ExampleWindow(void* hwnd, JsCanvas* canvas)
     : INHERITED(hwnd)
     , fJsCanvas(canvas)
 {
-    fRotationAngle = SkIntToScalar(0);
     this->setConfig(SkBitmap::kARGB_8888_Config);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 }
 
-JsCanvas* JsCanvas::unwrap(Handle<Object> obj) {
+JsCanvas* JsCanvas::Unwrap(Handle<Object> obj) {
     Handle<External> field = Handle<External>::Cast(obj->GetInternalField(0));
     void* ptr = field->Value();
     return static_cast<JsCanvas*>(ptr);
 }
 
-void JsCanvas::inval(const v8::FunctionCallbackInfo<Value>& args) {
-    unwrap(args.This())->fWindow->inval(NULL);
+void JsCanvas::Inval(const v8::FunctionCallbackInfo<Value>& args) {
+    Unwrap(args.This())->fWindow->inval(NULL);
 }
 
-void JsCanvas::drawRect(const v8::FunctionCallbackInfo<Value>& args) {
-    SkCanvas* canvas = unwrap(args.This())->fCanvas;
+void JsCanvas::FillRect(const v8::FunctionCallbackInfo<Value>& args) {
+    JsCanvas* jsCanvas = Unwrap(args.This());
+    SkCanvas* canvas = jsCanvas->fCanvas;
 
-    canvas->drawColor(SK_ColorWHITE);
+    if (args.Length() != 4) {
+        args.GetIsolate()->ThrowException(
+                v8::String::NewFromUtf8(
+                        args.GetIsolate(), "Error: 4 arguments required."));
+        return;
+    }
+    // TODO(jcgregorio) Really figure out the conversion from JS numbers to
+    // SkScalars. Maybe test if int first? Not sure of the performance impact.
+    double x = args[0]->NumberValue();
+    double y = args[1]->NumberValue();
+    double w = args[2]->NumberValue();
+    double h = args[3]->NumberValue();
 
-    // Draw a rectangle with red paint.
-    SkPaint paint;
-    paint.setColor(SK_ColorRED);
     SkRect rect = {
-        SkIntToScalar(10), SkIntToScalar(10),
-        SkIntToScalar(128), SkIntToScalar(128)
+        SkDoubleToScalar(x),
+        SkDoubleToScalar(y),
+        SkDoubleToScalar(x) + SkDoubleToScalar(w),
+        SkDoubleToScalar(y) + SkDoubleToScalar(h)
     };
-    canvas->drawRect(rect, paint);
+    canvas->drawRect(rect, jsCanvas->fFillStyle);
 }
+
+void JsCanvas::GetFillStyle(Local<String> name,
+                            const PropertyCallbackInfo<Value>& info) {
+    JsCanvas* jsCanvas = Unwrap(info.This());
+    SkColor color = jsCanvas->fFillStyle.getColor();
+    char buf[8];
+    sprintf(buf, "#%02X%02X%02X", SkColorGetR(color), SkColorGetG(color),
+            SkColorGetB(color));
+
+    info.GetReturnValue().Set(String::NewFromUtf8(info.GetIsolate(), buf));
+}
+
+void JsCanvas::SetFillStyle(Local<String> name, Local<Value> value,
+                            const PropertyCallbackInfo<void>& info) {
+    JsCanvas* jsCanvas = Unwrap(info.This());
+    Local<String> s = value->ToString();
+    if (s->Length() != 7) {
+        info.GetIsolate()->ThrowException(
+                v8::String::NewFromUtf8(
+                        info.GetIsolate(), "Invalid fill style format."));
+        return;
+    }
+    char buf[8];
+    s->WriteUtf8(buf, sizeof(buf));
+
+    if (buf[0] != '#') {
+        info.GetIsolate()->ThrowException(
+                v8::String::NewFromUtf8(
+                        info.GetIsolate(), "Invalid fill style format."));
+        return;
+    }
+
+    long color = strtol(buf+1, NULL, 16);
+    jsCanvas->fFillStyle.setColor(SkColorSetA(SkColor(color), SK_AlphaOPAQUE));
+}
+
 
 Persistent<ObjectTemplate> JsCanvas::fCanvasTemplate;
 
@@ -121,14 +168,19 @@ Handle<ObjectTemplate> JsCanvas::makeCanvasTemplate() {
     result->SetInternalFieldCount(1);
 
     // Add accessors for each of the fields of the canvas object.
+    result->SetAccessor(
+      String::NewFromUtf8(fIsolate, "fillStyle", String::kInternalizedString),
+      GetFillStyle, SetFillStyle);
+
+    // Add methods.
     result->Set(
             String::NewFromUtf8(
-                    fIsolate, "drawRect", String::kInternalizedString),
-            FunctionTemplate::New(drawRect));
+                    fIsolate, "fillRect", String::kInternalizedString),
+            FunctionTemplate::New(FillRect));
     result->Set(
             String::NewFromUtf8(
                     fIsolate, "inval", String::kInternalizedString),
-            FunctionTemplate::New(inval));
+            FunctionTemplate::New(Inval));
 
     // Return the result through the current handle scope.
     return handleScope.Escape(result);
@@ -214,13 +266,7 @@ void JsCanvas::onDraw(SkCanvas* canvas, SkOSWindow* window) {
 void SkV8ExampleWindow::onDraw(SkCanvas* canvas) {
 
     canvas->save();
-
-    fRotationAngle += SkDoubleToScalar(0.2);
-    if (fRotationAngle > SkDoubleToScalar(360.0)) {
-        fRotationAngle -= SkDoubleToScalar(360.0);
-    }
-
-    canvas->rotate(fRotationAngle);
+    canvas->drawColor(SK_ColorWHITE);
 
     // Now jump into JS and call the onDraw(canvas) method defined there.
     fJsCanvas->onDraw(canvas, this);
@@ -310,6 +356,7 @@ bool JsCanvas::initialize(const char script[]) {
     Handle<Value> fn_val = context->Global()->Get(fn_name);
 
     if (!fn_val->IsFunction()) {
+        printf("Not a function.\n");
         return false;
     }
 
@@ -332,10 +379,17 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     Isolate* isolate = Isolate::GetCurrent();
 
     JsCanvas* jsCanvas = new JsCanvas(isolate);
-    const char* script = "function onDraw(canvas){"
-            "canvas.drawRect();"
-            "canvas.inval();"
-            "};";
+    const char* script =
+"var onDraw = function(){                                        \n"
+"  var tick = 0;                                                 \n"
+"  function f(canvas) {                                          \n"
+"    tick += 0.001;                                              \n"
+"    canvas.fillStyle = '#00FF00';                               \n"
+"    canvas.fillRect(20, 20, 100, Math.abs(Math.cos(tick)*100)); \n"
+"    canvas.inval();                                             \n"
+"  };                                                            \n"
+"  return f;                                                     \n"
+"}();                                                            \n";
     if (!jsCanvas->initialize(script)) {
         printf("Failed to initialize.\n");
         exit(1);

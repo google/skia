@@ -13,6 +13,7 @@
 #include <v8.h>
 
 #include "SkWindow.h"
+#include "SkPaint.h"
 
 using namespace v8;
 
@@ -32,7 +33,6 @@ protected:
 
 private:
     typedef SkOSWindow INHERITED;
-    SkScalar fRotationAngle;
     JsCanvas* fJsCanvas;
 };
 
@@ -41,17 +41,19 @@ private:
 // that's used to bridge from C++ to JS. Should be used in JS as:
 //
 //  function onDraw(canvas) {
-//   canvas.drawRect();
-//   canvas.inval();
+//    canvas.fillStyle="#FF0000";
+//    canvas.fillRect(x, y, w, h);
+//    canvas.inval();
 //  }
-//
 class JsCanvas {
 public:
     JsCanvas(Isolate* isolate)
             : fIsolate(isolate)
             , fCanvas(NULL)
             , fWindow(NULL)
-    {}
+    {
+        fFillStyle.setColor(SK_ColorRED);
+    }
     ~JsCanvas();
 
     // Parse the script.
@@ -61,14 +63,20 @@ public:
     void onDraw(SkCanvas* canvas, SkOSWindow* window);
 
 private:
-    // Implementation of the canvas.drawRect() JS function.
-    static void drawRect(const v8::FunctionCallbackInfo<Value>& args);
+    // Implementation of the canvas.fillStyle field.
+    static void GetFillStyle(Local<String> name,
+                             const PropertyCallbackInfo<Value>& info);
+    static void SetFillStyle(Local<String> name, Local<Value> value,
+                             const PropertyCallbackInfo<void>& info);
+
+    // Implementation of the canvas.fillRect() JS function.
+    static void FillRect(const v8::FunctionCallbackInfo<Value>& args);
 
     // Implementation of the canvas.inval() JS function.
-    static void inval(const v8::FunctionCallbackInfo<Value>& args);
+    static void Inval(const v8::FunctionCallbackInfo<Value>& args);
 
     // Get the pointer out of obj.
-    static JsCanvas* unwrap(Handle<Object> obj);
+    static JsCanvas* Unwrap(Handle<Object> obj);
 
     // Create a template for JS object associated with JsCanvas, called lazily
     // by Wrap() and the results are stored in fCanvasTemplate;
@@ -81,6 +89,8 @@ private:
 
     // Only valid when inside OnDraw().
     SkCanvas* fCanvas;
+
+    SkPaint fFillStyle;
 
     // Only valid when inside OnDraw().
     SkOSWindow* fWindow;
