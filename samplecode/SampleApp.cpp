@@ -99,7 +99,7 @@ static SampleWindow* gSampleWindow;
 
 static bool gShowGMBounds;
 
-static void postEventToSink(SkEvent* evt, SkEventSink* sink) {
+static void post_event_to_sink(SkEvent* evt, SkEventSink* sink) {
     evt->setTargetID(sink->getSinkID())->post();
 }
 
@@ -1024,7 +1024,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     // to implement, or the caller may need us to have returned from the
     // constructor first. Hence we post an event to ourselves.
 //    this->updateTitle();
-    postEventToSink(new SkEvent(gUpdateWindowTitleEvtName), this);
+    post_event_to_sink(new SkEvent(gUpdateWindowTitleEvtName), this);
 }
 
 SampleWindow::~SampleWindow() {
@@ -1831,8 +1831,6 @@ static void cleanup_for_filename(SkString* name) {
 }
 #endif
 
-//extern bool gIgnoreFastBlurRect;
-
 bool SampleWindow::onHandleChar(SkUnichar uni) {
     {
         SkView* view = curr_view(this);
@@ -1875,18 +1873,13 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
     }
 
     switch (uni) {
-        case 'b':
-            {
-            postEventToSink(SkNEW_ARGS(SkEvent, ("PictFileView::toggleBBox")), curr_view(this));
-            this->updateTitle();
-            this->inval(NULL);
-            break;
-            }
         case 'B':
-//            gIgnoreFastBlurRect = !gIgnoreFastBlurRect;
+            post_event_to_sink(SkNEW_ARGS(SkEvent, ("PictFileView::toggleBBox")), curr_view(this));
+            // Cannot call updateTitle() synchronously, because the toggleBBox event is still in
+            // the queue.
+            post_event_to_sink(SkNEW_ARGS(SkEvent, (gUpdateWindowTitleEvtName)), this);
             this->inval(NULL);
             break;
-
         case 'f':
             // only
             toggleFPS();
@@ -1897,7 +1890,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
         case 'G':
             gShowGMBounds = !gShowGMBounds;
-            postEventToSink(GMSampleView::NewShowSizeEvt(gShowGMBounds),
+            post_event_to_sink(GMSampleView::NewShowSizeEvt(gShowGMBounds),
                             curr_view(this));
             this->inval(NULL);
             break;
