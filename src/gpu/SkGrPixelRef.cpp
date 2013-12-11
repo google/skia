@@ -18,24 +18,29 @@
 // to avoid deadlock with the default one provided by SkPixelRef.
 SK_DECLARE_STATIC_MUTEX(gROLockPixelsPixelRefMutex);
 
-SkROLockPixelsPixelRef::SkROLockPixelsPixelRef() : INHERITED(&gROLockPixelsPixelRefMutex) {
+SkROLockPixelsPixelRef::SkROLockPixelsPixelRef(const SkImageInfo& info)
+    : INHERITED(info, &gROLockPixelsPixelRefMutex) {
 }
 
 SkROLockPixelsPixelRef::~SkROLockPixelsPixelRef() {
 }
 
-void* SkROLockPixelsPixelRef::onLockPixels(SkColorTable** ctable) {
-    if (ctable) {
-        *ctable = NULL;
-    }
+bool SkROLockPixelsPixelRef::onNewLockPixels(LockRec* rec) {
     fBitmap.reset();
 //    SkDebugf("---------- calling readpixels in support of lockpixels\n");
     if (!this->onReadPixels(&fBitmap, NULL)) {
         SkDebugf("SkROLockPixelsPixelRef::onLockPixels failed!\n");
-        return NULL;
+        return false;
     }
     fBitmap.lockPixels();
-    return fBitmap.getPixels();
+    if (NULL == fBitmap.getPixels()) {
+        return false;
+    }
+
+    rec->fPixels = fBitmap.getPixels();
+    rec->fColorTable = NULL;
+    rec->fRowBytes = fBitmap.rowBytes();
+    return true;
 }
 
 void SkROLockPixelsPixelRef::onUnlockPixels() {
@@ -76,6 +81,14 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkBitmap::Config 
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
     desc.fConfig = SkBitmapConfig2GrPixelConfig(dstConfig);
 
+    SkImageInfo info;
+    if (!GrPixelConfig2ColorType(desc.fConfig, &info.fColorType)) {
+        return NULL;
+    }
+    info.fWidth = desc.fWidth;
+    info.fHeight = desc.fHeight;
+    info.fAlphaType = kPremul_SkAlphaType;
+    
     GrTexture* dst = context->createUncachedTexture(desc, NULL, 0);
     if (NULL == dst) {
         return NULL;
@@ -93,31 +106,17 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkBitmap::Config 
     dst->releaseRenderTarget();
 #endif
 
-    SkGrPixelRef* pixelRef = SkNEW_ARGS(SkGrPixelRef, (dst));
+    SkGrPixelRef* pixelRef = SkNEW_ARGS(SkGrPixelRef, (info, dst));
     SkSafeUnref(dst);
     return pixelRef;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGrPixelRef::SkGrPixelRef(GrSurface* surface, bool transferCacheLock) {
-    // TODO: figure out if this is responsible for Chrome canvas errors
-#if 0
-    // The GrTexture has a ref to the GrRenderTarget but not vice versa.
-    // If the GrTexture exists take a ref to that (rather than the render
-    // target)
-    fSurface = surface->asTexture();
-#else
-    fSurface = NULL;
-#endif
-    if (NULL == fSurface) {
-        fSurface = surface;
-    }
-    fUnlock = transferCacheLock;
-    SkSafeRef(surface);
-}
-
-SkGrPixelRef::SkGrPixelRef(const SkImageInfo&, GrSurface* surface, bool transferCacheLock) {
+SkGrPixelRef::SkGrPixelRef(const SkImageInfo& info, GrSurface* surface,
+                           bool transferCacheLock)
+    : INHERITED(info)
+{
     // TODO: figure out if this is responsible for Chrome canvas errors
 #if 0
     // The GrTexture has a ref to the GrRenderTarget but not vice versa.
