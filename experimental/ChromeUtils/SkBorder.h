@@ -19,34 +19,34 @@
 class SkBorder {
 public:
     enum BorderStyle {
-        /** 
+        /**
         */
         kNone_BorderStyle,
-        /** 
+        /**
         */
         kHidden_BorderStyle,
-        /** 
+        /**
         */
         kDotted_BorderStyle,
-        /** 
+        /**
         */
         kDashed_BorderStyle,
-        /** 
+        /**
         */
         kSolid_BorderStyle,
-        /** 
+        /**
         */
         kDouble_BorderStyle,
-        /** 
+        /**
         */
         kGroove_BorderStyle,
-        /** 
+        /**
         */
         kRidge_BorderStyle,
-        /** 
+        /**
         */
         kInset_BorderStyle,
-        /** 
+        /**
         */
         kOutset_BorderStyle,
     };

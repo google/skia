@@ -18,8 +18,8 @@ SkBorder::SkBorder(SkPaint& p, SkScalar width, BorderStyle style)
 }
 
 SkBorder::SkBorder(const SkPaint paints[4],
-                   const SkScalar widths[4], 
-                   const BorderStyle styles[4]) 
+                   const SkScalar widths[4],
+                   const BorderStyle styles[4])
     : fFlags(0) {
     for (int i = 0; i < 4; ++i) {
         fPaints[i] = paints[i];
@@ -28,4 +28,3 @@ SkBorder::SkBorder(const SkPaint paints[4],
     memcpy(fWidths, widths, sizeof(fWidths));
     memcpy(fStyles, styles, sizeof(fStyles));
 }
-

@@ -111,4 +111,3 @@ SkDiscardableMemory* SkDiscardableMemory::Create(size_t bytes) {
 
     return SkNEW_ARGS(SkAshmemDiscardableMemory, (fd, addr, size));
 }
-

@@ -31,4 +31,3 @@ DEF_TEST(DiscardableMemory, reporter) {
     REPORTER_ASSERT(reporter, 0 == memcmp(ptr, testString, len));
     dm->unlock();
 }
-
