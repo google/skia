@@ -169,6 +169,8 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
         Data advance = kInvalidAdvance;
         if (gId < lastIndex) {
             // Get glyph id only when subset is NULL, or the id is in subset.
+            SkASSERT(!subsetGlyphIDs || (subsetIndex < subsetGlyphIDsLength &&
+                    static_cast<uint32_t>(gId) <= subsetGlyphIDs[subsetIndex]));
             if (!subsetGlyphIDs ||
                 (subsetIndex < subsetGlyphIDsLength &&
                  static_cast<uint32_t>(gId) == subsetGlyphIDs[subsetIndex])) {

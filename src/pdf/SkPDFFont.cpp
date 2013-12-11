@@ -1156,8 +1156,11 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
     if (fontInfo()->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
         // Generate glyph id array.
         SkTDArray<uint32_t> glyphIDs;
-        glyphIDs.push(0);  // Always include glyph 0.
         if (subset) {
+            // Always include glyph 0.
+            if (!subset->has(0)) {
+                glyphIDs.push(0);
+            }
             subset->exportTo(&glyphIDs);
         }
 
@@ -1165,7 +1168,7 @@ bool SkPDFCIDFont::populate(const SkPDFGlyphSet* subset) {
         info = SkAdvancedTypefaceMetrics::kGlyphNames_PerGlyphInfo;
         info = SkTBitOr<SkAdvancedTypefaceMetrics::PerGlyphInfo>(
                   info, SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo);
-        uint32_t* glyphs = (glyphIDs.count() == 1) ? NULL : glyphIDs.begin();
+        uint32_t* glyphs = (glyphIDs.count() == 0) ? NULL : glyphIDs.begin();
         uint32_t glyphsCount = glyphs ? glyphIDs.count() : 0;
         SkAutoTUnref<SkAdvancedTypefaceMetrics> fontMetrics(
             typeface()->getAdvancedTypefaceMetrics(info, glyphs, glyphsCount));
