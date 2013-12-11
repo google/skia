@@ -19,8 +19,7 @@ public:
 
 protected:
     ~SkDiscardablePixelRef();
-
-    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
+    virtual void* onLockPixels(SkColorTable**) SK_OVERRIDE;
     virtual void onUnlockPixels() SK_OVERRIDE;
     virtual bool onLockPixelsAreWritable() const SK_OVERRIDE { return false; }
 
@@ -31,6 +30,8 @@ protected:
 private:
     SkImageGenerator* const fGenerator;
     SkDiscardableMemory::Factory* const fDMFactory;
+    const SkImageInfo fInfo;
+    const size_t fSize;  // size of memory to be allocated
     const size_t fRowBytes;
     // These const members should not change over the life of the
     // PixelRef, since the SkBitmap doesn't expect them to change.
@@ -40,14 +41,12 @@ private:
     /* Takes ownership of SkImageGenerator. */
     SkDiscardablePixelRef(SkImageGenerator* generator,
                           const SkImageInfo& info,
+                          size_t size,
                           size_t rowBytes,
                           SkDiscardableMemory::Factory* factory);
-
     friend bool SkInstallDiscardablePixelRef(SkImageGenerator*,
                                              SkBitmap*,
                                              SkDiscardableMemory::Factory*);
-
     typedef SkPixelRef INHERITED;
 };
-
 #endif  // SkDiscardablePixelRef_DEFINED

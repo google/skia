@@ -31,10 +31,10 @@ static size_t roundToPageSize(size_t size) {
     return newsize;
 }
 
-SkImageRef_ashmem::SkImageRef_ashmem(const SkImageInfo& info,
-                                     SkStreamRewindable* stream,
-                                     int sampleSize)
-        : SkImageRef(info, stream, sampleSize) {
+SkImageRef_ashmem::SkImageRef_ashmem(SkStreamRewindable* stream,
+                                             SkBitmap::Config config,
+                                             int sampleSize)
+        : SkImageRef(stream, config, sampleSize) {
 
     fRec.fFD = -1;
     fRec.fAddr = NULL;

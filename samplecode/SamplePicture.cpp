@@ -40,9 +40,7 @@ static SkBitmap load_bitmap() {
 
         if (SkImageDecoder::DecodeStream(stream, &bm, SkBitmap::kNo_Config,
                                          SkImageDecoder::kDecodeBounds_Mode)) {
-            SkImageInfo info;
-            bm.asImageInfo(&info);
-            SkPixelRef* pr = new SkImageRef_GlobalPool(info, stream, 1);
+            SkPixelRef* pr = new SkImageRef_GlobalPool(stream, bm.config(), 1);
             bm.setPixelRef(pr)->unref();
         }
     }
