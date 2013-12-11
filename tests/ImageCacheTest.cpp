@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2013 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -23,12 +23,15 @@ static void test_cache(skiatest::Reporter* reporter, SkScaledImageCache& cache,
 
     SkBitmap bm[COUNT];
 
-    SkScalar scale = 2;
+    const SkScalar scale = 2;
+    for (int i = 0; i < COUNT; ++i) {
+        make_bm(&bm[i], DIM, DIM);
+    }
+    
     for (int i = 0; i < COUNT; ++i) {
         SkBitmap tmp;
 
-        make_bm(&bm[i], DIM, DIM);
-        id = cache.findAndLock(bm[i], scale, scale, &tmp);
+        SkScaledImageCache::ID* id = cache.findAndLock(bm[i], scale, scale, &tmp);
         REPORTER_ASSERT(reporter, NULL == id);
 
         make_bm(&tmp, DIM, DIM);
@@ -49,24 +52,50 @@ static void test_cache(skiatest::Reporter* reporter, SkScaledImageCache& cache,
 
     if (testPurge) {
         // stress test, should trigger purges
+        float incScale = 2;
         for (size_t i = 0; i < COUNT * 100; ++i) {
-            scale += 1;
+            incScale += 1;
 
             SkBitmap tmp;
-
             make_bm(&tmp, DIM, DIM);
-            id = cache.addAndLock(bm[0], scale, scale, tmp);
+
+            SkScaledImageCache::ID* id = cache.addAndLock(bm[0], incScale,
+                                                          incScale, tmp);
             REPORTER_ASSERT(reporter, NULL != id);
             cache.unlock(id);
         }
     }
+
+    // test the originals after all that purging
+    for (int i = 0; i < COUNT; ++i) {
+        SkBitmap tmp;
+        id = cache.findAndLock(bm[i], scale, scale, &tmp);
+        if (id) {
+            cache.unlock(id);
+        }
+    }
+
     cache.setByteLimit(0);
 }
 
+#include "SkDiscardableMemoryPool.h"
+
+static SkDiscardableMemoryPool* gPool;
+static SkDiscardableMemory* pool_factory(size_t bytes) {
+    return gPool->create(bytes);
+}
+
 static void TestImageCache(skiatest::Reporter* reporter) {
+    static const size_t defLimit = DIM * DIM * 4 * COUNT + 1024;    // 1K slop
+
     {
-        static const size_t defLimit = DIM * DIM * 4 * COUNT + 1024;    // 1K slop
         SkScaledImageCache cache(defLimit);
+        test_cache(reporter, cache, true);
+    }
+    {
+        SkDiscardableMemoryPool pool(defLimit);
+        gPool = &pool;
+        SkScaledImageCache cache(pool_factory);
         test_cache(reporter, cache, true);
     }
     {
