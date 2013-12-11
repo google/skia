@@ -15,14 +15,8 @@
 #include "SkGr.h"
 
 bool SkImageFilterUtils::WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result) {
-    SkImageInfo info;
-    info.fWidth = width;
-    info.fHeight = height;
-    info.fColorType = kPMColor_SkColorType;
-    info.fAlphaType = kPremul_SkAlphaType;
-
-    result->setConfig(info);
-    result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
+    result->setConfig(SkBitmap::kARGB_8888_Config, width, height);
+    result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (texture)))->unref();
     return true;
 }
 
@@ -42,12 +36,8 @@ bool SkImageFilterUtils::GetInputResultGPU(SkImageFilter* filter, SkImageFilter:
     } else {
         if (filter->filterImage(proxy, src, ctm, result, offset)) {
             if (!result->getTexture()) {
-                SkImageInfo info;
-                if (!result->asImageInfo(&info)) {
-                    return false;
-                }
                 GrTexture* resultTex = GrLockAndRefCachedBitmapTexture(context, *result, NULL);
-                result->setPixelRef(new SkGrPixelRef(info, resultTex))->unref();
+                result->setPixelRef(new SkGrPixelRef(resultTex))->unref();
                 GrUnlockAndUnrefCachedBitmapTexture(resultTex);
             }
             return true;
