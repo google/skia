@@ -205,6 +205,14 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
     if (!this->applyCropRect(&bounds, ctm)) {
         return false;
     }
+    SkIRect displBounds;
+    displ.getBounds(&displBounds);
+    if (!this->applyCropRect(&displBounds, ctm)) {
+        return false;
+    }
+    if (!bounds.intersect(displBounds)) {
+        return false;
+    }
 
     dst->setConfig(color.config(), bounds.width(), bounds.height());
     dst->allocPixels();
@@ -336,6 +344,14 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     SkIRect bounds;
     src.getBounds(&bounds);
     if (!this->applyCropRect(&bounds, ctm)) {
+        return false;
+    }
+    SkIRect displBounds;
+    displacementBM.getBounds(&displBounds);
+    if (!this->applyCropRect(&displBounds, ctm)) {
+        return false;
+    }
+    if (!bounds.intersect(displBounds)) {
         return false;
     }
     SkRect srcRect = SkRect::Make(bounds);
