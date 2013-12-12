@@ -239,9 +239,18 @@ void* SkOneShotDiscardablePixelRef::onLockPixels(SkColorTable** ctable) {
         return fDM->data();
     }
 
-    SkASSERT(!fIsLocked);
-    fIsLocked = fDM->lock();
-    return fIsLocked ? fDM->data() : NULL;
+    // A previous call to onUnlock may have deleted our DM, so check for that
+    if (NULL == fDM) {
+        return NULL;
+    }
+
+    if (!fDM->lock()) {
+        // since it failed, we delete it now, to free-up the resource
+        delete fDM;
+        fDM = NULL;
+        return NULL;
+    }
+    return fDM->data();
 }
 
 void SkOneShotDiscardablePixelRef::onUnlockPixels() {
@@ -613,6 +622,8 @@ void SkScaledImageCache::addToHead(Rec* rec) {
     this->validate();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 #ifdef SK_DEBUG
 void SkScaledImageCache::validate() const {
     if (NULL == fHead) {
@@ -657,6 +668,21 @@ void SkScaledImageCache::validate() const {
     SkASSERT(0 == used);
 }
 #endif
+
+void SkScaledImageCache::dump() const {
+    this->validate();
+
+    const Rec* rec = fHead;
+    int locked = 0;
+    while (rec) {
+        locked += rec->fLockCount > 0;
+        rec = rec->fNext;
+    }
+
+    SkDebugf("SkScaledImageCache: count=%d bytes=%d locked=%d %s\n",
+             fCount, fBytesUsed, locked,
+             fDiscardableFactory ? "discardable" : "malloc");
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -730,7 +756,9 @@ SkScaledImageCache::ID* SkScaledImageCache::AddAndLockMip(const SkBitmap& orig,
 
 void SkScaledImageCache::Unlock(SkScaledImageCache::ID* id) {
     SkAutoMutexAcquire am(gMutex);
-    return get_cache()->unlock(id);
+    get_cache()->unlock(id);
+
+//    get_cache()->dump();
 }
 
 size_t SkScaledImageCache::GetBytesUsed() {
@@ -751,6 +779,11 @@ size_t SkScaledImageCache::SetByteLimit(size_t newLimit) {
 SkBitmap::Allocator* SkScaledImageCache::GetAllocator() {
     SkAutoMutexAcquire am(gMutex);
     return get_cache()->allocator();
+}
+
+void SkScaledImageCache::Dump() {
+    SkAutoMutexAcquire am(gMutex);
+    get_cache()->dump();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

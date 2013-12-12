@@ -301,6 +301,8 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
         convolveProcs, true);
 
     *resultPtr = result;
+    resultPtr->lockPixels();
+    SkASSERT(NULL != resultPtr->getPixels());
     return true;
 }
 

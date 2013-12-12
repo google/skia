@@ -106,11 +106,33 @@ static SkScalar effective_matrix_scale_sqrd(const SkMatrix& mat) {
     return SkMaxScalar(v1.lengthSqd(), v2.lengthSqd());
 }
 
+class AutoScaledCacheUnlocker {
+public:
+    AutoScaledCacheUnlocker(SkScaledImageCache::ID** idPtr) : fIDPtr(idPtr) {}
+    ~AutoScaledCacheUnlocker() {
+        if (fIDPtr && *fIDPtr) {
+            SkScaledImageCache::Unlock(*fIDPtr);
+            *fIDPtr = NULL;
+        }
+    }
+
+    // forgets the ID, so it won't call Unlock
+    void release() {
+        fIDPtr = NULL;
+    }
+
+private:
+    SkScaledImageCache::ID** fIDPtr;
+};
+#define AutoScaledCacheUnlocker(...) SK_REQUIRE_LOCAL_VAR(AutoScaledCacheUnlocker)
+
 // TODO -- we may want to pass the clip into this function so we only scale
 // the portion of the image that we're going to need.  This will complicate
 // the interface to the cache, but might be well worth it.
 
 bool SkBitmapProcState::possiblyScaleImage() {
+    AutoScaledCacheUnlocker unlocker(&fScaledCacheID);
+
     SkASSERT(NULL == fBitmap);
     SkASSERT(NULL == fScaledCacheID);
 
@@ -132,6 +154,17 @@ bool SkBitmapProcState::possiblyScaleImage() {
         fScaledCacheID = SkScaledImageCache::FindAndLock(fOrigBitmap,
                                                          invScaleX, invScaleY,
                                                          &fScaledBitmap);
+        if (fScaledCacheID) {
+            fScaledBitmap.lockPixels();
+            if (!fScaledBitmap.getPixels()) {
+                fScaledBitmap.unlockPixels();
+                // found a purged entry (discardablememory?), release it
+                SkScaledImageCache::Unlock(fScaledCacheID);
+                fScaledCacheID = NULL;
+                // fall through to rebuild
+            }
+        }
+
         if (NULL == fScaledCacheID) {
             int dest_width  = SkScalarCeilToInt(fOrigBitmap.width() / invScaleX);
             int dest_height = SkScalarCeilToInt(fOrigBitmap.height() / invScaleY);
@@ -154,18 +187,19 @@ bool SkBitmapProcState::possiblyScaleImage() {
                 return false;
 
             }
+            SkASSERT(NULL != fScaledBitmap.getPixels());
             fScaledCacheID = SkScaledImageCache::AddAndLock(fOrigBitmap,
                                                             invScaleX,
                                                             invScaleY,
                                                             fScaledBitmap);
-        }
-        fScaledBitmap.lockPixels(); // wonder if Resize() should have locked this
-        if (!fScaledBitmap.getPixels()) {
-            // TODO: find out how this can happen, and add a unittest to exercise
-            // inspired by BUG=chromium:295895
-            return false;
+            if (!fScaledCacheID) {
+                fScaledBitmap.reset();
+                return false;
+            }
+            SkASSERT(NULL != fScaledBitmap.getPixels());
         }
 
+        SkASSERT(NULL != fScaledBitmap.getPixels());
         fBitmap = &fScaledBitmap;
 
         // set the inv matrix type to translate-only;
@@ -174,6 +208,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
 
         // no need for any further filtering; we just did it!
         fFilterLevel = SkPaint::kNone_FilterLevel;
+        unlocker.release();
         return true;
     }
 
@@ -248,6 +283,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
                 fScaledBitmap.setPixels(level.fPixels);
                 fBitmap = &fScaledBitmap;
                 fFilterLevel = SkPaint::kLow_FilterLevel;
+                unlocker.release();
                 return true;
             }
         }
@@ -273,15 +309,34 @@ static bool get_locked_pixels(const SkBitmap& src, int pow2, SkBitmap* dst) {
 }
 
 bool SkBitmapProcState::lockBaseBitmap() {
+    AutoScaledCacheUnlocker unlocker(&fScaledCacheID);
+
     SkPixelRef* pr = fOrigBitmap.pixelRef();
+
+    SkASSERT(NULL == fScaledCacheID);
 
     if (pr->isLocked() || !pr->implementsDecodeInto()) {
         // fast-case, no need to look in our cache
         fScaledBitmap = fOrigBitmap;
+        fScaledBitmap.lockPixels();
+        if (NULL == fScaledBitmap.getPixels()) {
+            return false;
+        }
     } else {
         fScaledCacheID = SkScaledImageCache::FindAndLock(fOrigBitmap,
                                                          SK_Scalar1, SK_Scalar1,
                                                          &fScaledBitmap);
+        if (fScaledCacheID) {
+            fScaledBitmap.lockPixels();
+            if (!fScaledBitmap.getPixels()) {
+                fScaledBitmap.unlockPixels();
+                // found a purged entry (discardablememory?), release it
+                SkScaledImageCache::Unlock(fScaledCacheID);
+                fScaledCacheID = NULL;
+                // fall through to rebuild
+            }
+        }
+
         if (NULL == fScaledCacheID) {
             if (!get_locked_pixels(fOrigBitmap, 0, &fScaledBitmap)) {
                 return false;
@@ -299,13 +354,8 @@ bool SkBitmapProcState::lockBaseBitmap() {
             }
         }
     }
-    fScaledBitmap.lockPixels(); // just 'cause the cache made a copy :(
-    if (!fScaledBitmap.getPixels()) {
-        // TODO: find out how this can happen, and add a unittest to exercise
-        // inspired by BUG=chromium:295895
-        return false;
-    }
     fBitmap = &fScaledBitmap;
+    unlocker.release();
     return true;
 }
 
@@ -333,6 +383,8 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fBitmap = NULL;
     fInvMatrix = inv;
     fFilterLevel = paint.getFilterLevel();
+
+    SkASSERT(NULL == fScaledCacheID);
 
     // possiblyScaleImage will look to see if it can rescale the image as a
     // preprocess; either by scaling up to the target size, or by selecting

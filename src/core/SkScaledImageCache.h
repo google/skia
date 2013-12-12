@@ -66,6 +66,11 @@ public:
 
     static SkBitmap::Allocator* GetAllocator();
 
+    /**
+     *  Call SkDebugf() with diagnostic information about the state of the cache
+     */
+    static void Dump();
+
     ///////////////////////////////////////////////////////////////////////////
 
     /**
@@ -151,6 +156,11 @@ public:
 
     SkBitmap::Allocator* allocator() const { return fAllocator; };
 
+    /**
+     *  Call SkDebugf() with diagnostic information about the state of the cache
+     */
+    void dump() const;
+
 public:
     struct Rec;
     struct Key;
@@ -174,6 +184,7 @@ private:
     Rec* findAndLock(const Key& key);
     ID* addAndLock(Rec* rec);
 
+    void purgeRec(Rec*);
     void purgeAsNeeded();
 
     // linklist management
