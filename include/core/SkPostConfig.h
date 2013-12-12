@@ -126,12 +126,10 @@
  * SK_ENABLE_INST_COUNT controlls printing how many reference counted objects
  * are still held on exit.
  * Defaults to 1 in DEBUG and 0 in RELEASE.
- * FIXME: currently always 0, since it fails if multiple threads run at once
- * (see skbug.com/1219 ).
  */
 #ifndef SK_ENABLE_INST_COUNT
 #  ifdef SK_DEBUG
-#    define SK_ENABLE_INST_COUNT 0
+#    define SK_ENABLE_INST_COUNT 1
 #  else
 #    define SK_ENABLE_INST_COUNT 0
 #  endif
