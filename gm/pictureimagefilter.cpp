@@ -72,6 +72,15 @@ protected:
         }
     }
 
+    // SkPictureImageFilter doesn't support serialization yet.
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipPicture_Flag            |
+               kSkipPipe_Flag               |
+               kSkipPipeCrossProcess_Flag   |
+               kSkipTiled_Flag              |
+               kSkipScaledReplay_Flag;
+    }
+
 private:
     SkPicture fPicture;
     typedef GM INHERITED;
