@@ -13,7 +13,7 @@ deps = {
   "third_party/externals/angle" : "https://chromium.googlesource.com/external/angleproject.git",
   "third_party/externals/fontconfig" : "https://skia.googlesource.com/third_party/fontconfig.git@2.10.93",
   "third_party/externals/freetype" : "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",
-  "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@d0176c0a2a9e558662905c328c3aa93fd25bbf12",
+  "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@78b26f7b947d6ab9a58b27253ec5a88b306db45e",
   "third_party/externals/iconv" : "https://skia.googlesource.com/third_party/libiconv.git@v1.14",
   "third_party/externals/libjpeg" : "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git@82ce8a6d4ebe12a177c0c3597192f2b4f09e81c3",
   "third_party/externals/jsoncpp" : "https://chromium.googlesource.com/external/jsoncpp/jsoncpp.git@ab1e40f3bce061ea6f9bdc60351d6cde2a4f872b",
