@@ -9,9 +9,9 @@
 #include "SkRandom.h"
 #include "SkTArray.h"
 
-class SkDoOnce : SkNoncopyable {
+class SkOnce : SkNoncopyable {
 public:
-    SkDoOnce() { fDidOnce = false; }
+    SkOnce() { fDidOnce = false; }
 
     bool needToDo() const { return !fDidOnce; }
     bool alreadyDone() const { return fDidOnce; }
@@ -27,7 +27,7 @@ private:
 namespace skiagm {
 
 class ConvexPathsGM : public GM {
-    SkDoOnce fOnce;
+    SkOnce fOnce;
 public:
     ConvexPathsGM() {
         this->setBGColor(0xFF000000);

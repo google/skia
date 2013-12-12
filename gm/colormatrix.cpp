@@ -12,9 +12,9 @@
 #define WIDTH 500
 #define HEIGHT 500
 
-class SkDoOnce {
+class SkOnce {
 public:
-    SkDoOnce() : fOnce(false) {};
+    SkOnce() : fOnce(false) {};
 
     bool once() const {
         if (fOnce) {
@@ -39,7 +39,7 @@ static void setArray(SkPaint* paint, const SkScalar array[]) {
 namespace skiagm {
 
 class ColorMatrixGM : public GM {
-    SkDoOnce fOnce;
+    SkOnce fOnce;
     void init() {
         if (fOnce.once()) {
             fSolidBitmap = this->createSolidBitmap(64, 64);
