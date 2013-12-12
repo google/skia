@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkMatrix44.h"
 
 static bool nearly_equal_double(double a, double b) {
@@ -528,7 +529,7 @@ static void test_3x3_conversion(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, nearly_equal_scalar(vec4transformed[3], vec4transformed2[3]));
 }
 
-static void TestMatrix44(skiatest::Reporter* reporter) {
+DEF_TEST(Matrix44, reporter) {
     SkMatrix44 mat(SkMatrix44::kUninitialized_Constructor);
     SkMatrix44 inverse(SkMatrix44::kUninitialized_Constructor);
     SkMatrix44 iden1(SkMatrix44::kUninitialized_Constructor);
@@ -634,6 +635,3 @@ static void TestMatrix44(skiatest::Reporter* reporter) {
     test_map2(reporter);
     test_3x3_conversion(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Matrix44", Matrix44TestClass, TestMatrix44)

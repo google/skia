@@ -1,16 +1,17 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
-#include "SkPath.h"
-#include "SkLineClipper.h"
-#include "SkEdgeClipper.h"
 
+#include "Test.h"
+#include "TestClassDef.h"
 #include "SkCanvas.h"
+#include "SkEdgeClipper.h"
+#include "SkLineClipper.h"
+#include "SkPath.h"
+
 static void test_hairclipping(skiatest::Reporter* reporter) {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 4, 4);
@@ -144,11 +145,8 @@ static void test_intersectline(skiatest::Reporter* reporter) {
 
 }
 
-static void TestClipper(skiatest::Reporter* reporter) {
+DEF_TEST(Clipper, reporter) {
     test_intersectline(reporter);
     test_edgeclipper();
     test_hairclipping(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Clipper", TestClipperClass, TestClipper)

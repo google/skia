@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkRandom.h"
 #include "SkTInternalLList.h"
 #include "SkTLList.h"
@@ -310,10 +311,7 @@ static void TestTLList(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_llists(skiatest::Reporter* reporter) {
+DEF_TEST(LList, reporter) {
     TestTInternalLList(reporter);
     TestTLList(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("LList", TestLListClass, test_llists)

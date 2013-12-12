@@ -6,11 +6,12 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkRect.h"
 #include "SkRandom.h"
 
-static void TestGetColor(skiatest::Reporter* reporter) {
+DEF_TEST(GetColor, reporter) {
     static const struct Rec {
         SkBitmap::Config    fConfig;
         SkColor             fInColor;
@@ -45,6 +46,3 @@ static void TestGetColor(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, c == gRec[i].fOutColor);
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("GetColor", TestGetColorClass, TestGetColor)

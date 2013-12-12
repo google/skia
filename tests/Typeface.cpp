@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -7,9 +6,10 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkTypeface.h"
 
-static void TestDefaultTypeface(skiatest::Reporter* reporter) {
+DEF_TEST(Typeface, reporter) {
 
     SkAutoTUnref<SkTypeface> t1(SkTypeface::CreateFromName(NULL, SkTypeface::kNormal));
     SkAutoTUnref<SkTypeface> t2(SkTypeface::RefDefault(SkTypeface::kNormal));
@@ -25,6 +25,3 @@ static void TestDefaultTypeface(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, NULL == t3.get());
 #endif
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Typeface", TypefaceTestClass, TestDefaultTypeface)

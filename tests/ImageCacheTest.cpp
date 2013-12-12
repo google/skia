@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkDiscardableMemory.h"
 #include "SkScaledImageCache.h"
 
@@ -85,7 +86,7 @@ static SkDiscardableMemory* pool_factory(size_t bytes) {
     return gPool->create(bytes);
 }
 
-static void TestImageCache(skiatest::Reporter* reporter) {
+DEF_TEST(ImageCache, reporter) {
     static const size_t defLimit = DIM * DIM * 4 * COUNT + 1024;    // 1K slop
 
     {
@@ -103,9 +104,6 @@ static void TestImageCache(skiatest::Reporter* reporter) {
         test_cache(reporter, cache, false);
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("ImageCache", TestImageCacheClass, TestImageCache)
 
 DEF_TEST(ImageCache_doubleAdd, r) {
     // Adding the same key twice should be safe.

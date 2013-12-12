@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
 #include "SkMatrixUtils.h"
@@ -689,7 +690,7 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
 
 }
 
-static void TestMatrix(skiatest::Reporter* reporter) {
+DEF_TEST(Matrix, reporter) {
     SkMatrix    mat, inverse, iden1, iden2;
 
     mat.reset();
@@ -812,6 +813,3 @@ static void TestMatrix(skiatest::Reporter* reporter) {
     test_matrix_decomposition(reporter);
     test_matrix_homogeneous(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Matrix", MatrixTestClass, TestMatrix)

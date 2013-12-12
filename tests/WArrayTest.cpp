@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 
 // Include the implementation so we can make an appropriate template instance.
 #include "SkAdvancedTypefaceMetrics.h"
@@ -173,7 +174,7 @@ class TestWData {
     }
 };
 
-static void TestWArray(skiatest::Reporter* reporter) {
+DEF_TEST(WArray, reporter) {
     TestWData(reporter, data1, SK_ARRAY_COUNT(data1), NULL, 0, expected1);
     TestWData(reporter, data2, SK_ARRAY_COUNT(data2), NULL, 0, expected2);
     TestWData(reporter, data3, SK_ARRAY_COUNT(data3), NULL, 0, expected3);
@@ -205,6 +206,3 @@ static void TestWArray(skiatest::Reporter* reporter) {
     TestWData(reporter, data14, SK_ARRAY_COUNT(data14), subset14,
               SK_ARRAY_COUNT(subset14), expectedSubset14);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("WArray", WArrayTest, TestWArray)

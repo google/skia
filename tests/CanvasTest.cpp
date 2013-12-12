@@ -63,6 +63,7 @@
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 class Canvas2CanvasClipVisitor : public SkCanvas::ClipVisitor {
 public:
@@ -901,7 +902,7 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter,
     }
 }
 
-static void TestCanvas(skiatest::Reporter* reporter) {
+DEF_TEST(Canvas, reporter) {
     // Init global here because bitmap pixels cannot be alocated during
     // static initialization
     kTestBitmap = testBitmap();
@@ -918,6 +919,3 @@ static void TestCanvas(skiatest::Reporter* reporter) {
     // Explicitly call reset(), so we don't leak the pixels (since kTestBitmap is a global)
     kTestBitmap.reset();
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Canvas", TestCanvasClass, TestCanvas)

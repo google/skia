@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkRandom.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
@@ -187,11 +188,8 @@ static void TestNullData() {
 
 }
 
-static void TestStreams(skiatest::Reporter* reporter) {
+DEF_TEST(Stream, reporter) {
     TestWStream(reporter);
     TestPackedUInt(reporter);
     TestNullData();
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Stream", StreamTestClass, TestStreams)

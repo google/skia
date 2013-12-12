@@ -5,13 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkForceLinking.h"
 #include "SkImageDecoder.h"
 #include "SkImage.h"
 #include "SkStream.h"
-#include "Test.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -417,7 +418,7 @@ static const int goodJpegImageHeight = 128;
   Jpeg files which have been mangled somehow.  We want to display as
   much of the jpeg as possible.
 */
-static void TestJpeg(skiatest::Reporter* reporter) {
+DEF_TEST(Jpeg, reporter) {
     size_t len = sizeof(goodJpegImage) / 2;
     // I am explicitly not putting the entire image into the
     // DecodeMemory.  This simulates a network error.
@@ -447,6 +448,3 @@ static void TestJpeg(skiatest::Reporter* reporter) {
     SkASSERT(writeSuccess);
     #endif
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("JpegTest", JpegTestClass, TestJpeg)

@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+#include "TestClassDef.h"
 #include "SkCanvas.h"
 #include "SkDrawLooper.h"
-#include "Test.h"
 
 /*
  *  Subclass of looper that just draws once, with an offset in X.
@@ -76,9 +77,6 @@ static void test_drawBitmap(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0xFFFFFFFF == *dst.getAddr32(5, 5));
 }
 
-static void test(skiatest::Reporter* reporter) {
+DEF_TEST(QuickReject, reporter) {
     test_drawBitmap(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("QuickReject", QuickRejectClass, test)

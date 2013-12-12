@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkRect.h"
 
@@ -204,7 +205,7 @@ static void writeCoordPixels(SkBitmap& bm, const Coordinates& coords) {
         setPixel(coords[i]->fX, coords[i]->fY, i, bm);
 }
 
-static void TestBitmapCopy(skiatest::Reporter* reporter) {
+DEF_TEST(BitmapCopy, reporter) {
     static const Pair gPairs[] = {
         { SkBitmap::kNo_Config,         "0000000"  },
         { SkBitmap::kA8_Config,         "0101010"  },
@@ -550,6 +551,3 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
         } // for (size_t copyCase ...
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("BitmapCopy", TestBitmapCopyClass, TestBitmapCopy)

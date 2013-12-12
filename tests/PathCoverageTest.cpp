@@ -1,14 +1,15 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "Test.h"
+#include "TestClassDef.h"
 #include "SkMath.h"
 #include "SkPoint.h"
 #include "SkScalar.h"
-#include "Test.h"
 
 /*
    Duplicates lots of code from gpu/src/GrPathUtils.cpp
@@ -160,10 +161,7 @@ static void TestQuadPointCount(skiatest::Reporter* reporter) {
     one_d_pe(gRibbon, SK_ARRAY_COUNT(gRibbon), reporter);
 }
 
-static void TestPathCoverage(skiatest::Reporter* reporter) {
+DEF_TEST(PathCoverage, reporter) {
     TestQuadPointCount(reporter);
 
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("PathCoverage", PathCoverageTestClass, TestPathCoverage)

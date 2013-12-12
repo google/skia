@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -6,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
@@ -15,7 +16,6 @@
 #include "SkPictureFlat.h"
 #include "SkShader.h"
 #include "SkXfermode.h"
-#include "Test.h"
 
 static void flattenFlattenableProc(SkOrderedWriteBuffer& buffer,
                                    const void* obj) {
@@ -48,7 +48,7 @@ static void testCreate(skiatest::Reporter* reporter, const void* obj,
     REPORTER_ASSERT(reporter, *data1 == *data2);
 }
 
-static void Tests(skiatest::Reporter* reporter) {
+DEF_TEST(FlatData, reporter) {
     // Test flattening SkShader
     SkPoint points[2];
     points[0].set(0, 0);
@@ -85,5 +85,3 @@ static void Tests(skiatest::Reporter* reporter) {
     testCreate(reporter, xfer, &flattenFlattenableProc);
 }
 
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("FlatData", FlatDataClass, Tests)

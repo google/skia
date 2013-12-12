@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -3179,7 +3180,7 @@ public:
     }
 };
 
-static void TestPath(skiatest::Reporter* reporter) {
+DEF_TEST(Path, reporter) {
     SkTSize<SkScalar>::Make(3,4);
 
     SkPath  p, empty;
@@ -3298,6 +3299,3 @@ static void TestPath(skiatest::Reporter* reporter) {
     test_contains(reporter);
     PathTest_Private::TestPathTo(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Path", PathTestClass, TestPath)

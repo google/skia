@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+#include "TestClassDef.h"
 #include "SkString.h"
 #include "SkOSFile.h"
-#include "Test.h"
 
 /**
  *  Test SkPathJoin and SkBasename.
@@ -50,7 +51,7 @@ static void test_dir_with_file(skiatest::Reporter* reporter, SkString dir,
     REPORTER_ASSERT(reporter, basename.equals(filename));
 }
 
-static void test_os_path_utils_tests(skiatest::Reporter* reporter) {
+DEF_TEST(OSPath, reporter) {
     SkString dir("dir");
     SkString filename("file");
     test_dir_with_file(reporter, dir, filename);
@@ -83,6 +84,3 @@ static void test_os_path_utils_tests(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, emptyPath.size() == 1);
     REPORTER_ASSERT(reporter, emptyPath.contains(SkPATH_SEPARATOR));
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("OSPath", OSPathTestClass, test_os_path_utils_tests)

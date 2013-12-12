@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkMatrix.h"
 #include "SkRRect.h"
 
@@ -553,7 +554,7 @@ static void test_round_rect_transform(skiatest::Reporter* reporter) {
     }
 }
 
-static void TestRoundRect(skiatest::Reporter* reporter) {
+DEF_TEST(RoundRect, reporter) {
     test_round_rect_basic(reporter);
     test_round_rect_rects(reporter);
     test_round_rect_ovals(reporter);
@@ -563,6 +564,3 @@ static void TestRoundRect(skiatest::Reporter* reporter) {
     test_round_rect_contains_rect(reporter);
     test_round_rect_transform(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("RoundRect", TestRoundRectClass, TestRoundRect)

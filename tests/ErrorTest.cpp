@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkError.h"
 #include "SkPath.h"
 #include "SkRect.h"
@@ -27,7 +28,7 @@ static void cb(SkError err, void *context) {
     REPORTER_ASSERT( context_ptr->fReporter, (*(context_ptr->fIntPointer) == 0xdeadbeef) );
 }
 
-static void ErrorTest(skiatest::Reporter* reporter) {
+DEF_TEST(Error, reporter) {
     SkError err;
 
     unsigned int test_value = 0xdeadbeef;
@@ -59,6 +60,3 @@ static void ErrorTest(skiatest::Reporter* reporter) {
     CHECK(kInvalidArgument_SkError);
     CHECK(kNoError_SkError);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Error", ErrorTestClass, ErrorTest)

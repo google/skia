@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
@@ -305,7 +306,7 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, filteredPath.isEmpty());
 }
 
-static void TestDrawPath(skiatest::Reporter* reporter) {
+DEF_TEST(DrawPath, reporter) {
     test_giantaa();
     test_bug533();
     test_bigcubic();
@@ -319,6 +320,3 @@ static void TestDrawPath(skiatest::Reporter* reporter) {
     test_crbug_165432(reporter);
     test_big_aa_rect(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("DrawPath", TestDrawPathClass, TestDrawPath)

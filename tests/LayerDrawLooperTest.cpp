@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
@@ -145,11 +146,8 @@ static void test_mixed(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !looper->next(&canvas, &paint));
 }
 
-static void TestLayerDrawLooper(skiatest::Reporter* reporter) {
+DEF_TEST(LayerDrawLooper, reporter) {
     test_frontToBack(reporter);
     test_backToFront(reporter);
     test_mixed(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("LayerDrawLooper", TestLayerDrawLooperClass, TestLayerDrawLooper)

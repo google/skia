@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkRandom.h"
 #include "SkTSort.h"
 
@@ -32,7 +33,7 @@ static void check_sort(skiatest::Reporter* reporter, const char label[],
     }
 }
 
-static void TestSort(skiatest::Reporter* reporter) {
+DEF_TEST(Sort, reporter) {
     /** An array of random numbers to be sorted. */
     int randomArray[500];
     /** The reference sort of the random numbers. */
@@ -61,6 +62,3 @@ static void TestSort(skiatest::Reporter* reporter) {
 }
 
 // need tests for SkStrSearch
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Sort", SortTestClass, TestSort)

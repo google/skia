@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkRegion.h"
 #include "SkRandom.h"
 
@@ -222,7 +223,7 @@ static bool test_rects(const SkIRect rect[], int count) {
     return true;
 }
 
-static void TestRegion(skiatest::Reporter* reporter) {
+DEF_TEST(Region, reporter) {
     const SkIRect r2[] = {
         { 0, 0, 1, 1 },
         { 2, 2, 3, 3 },
@@ -254,6 +255,3 @@ static void TestRegion(skiatest::Reporter* reporter) {
     test_empties(reporter);
     test_fromchrome(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Region", RegionTestClass, TestRegion)

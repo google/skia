@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkMetaData.h"
 
 static void test_ptrs(skiatest::Reporter* reporter) {
@@ -34,7 +35,7 @@ static void test_ptrs(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == ref.getRefCnt());
 }
 
-static void TestMetaData(skiatest::Reporter* reporter) {
+DEF_TEST(MetaData, reporter) {
     SkMetaData  m1;
 
     REPORTER_ASSERT(reporter, !m1.findS32("int"));
@@ -114,6 +115,3 @@ static void TestMetaData(skiatest::Reporter* reporter) {
 
     test_ptrs(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("MetaData", TestMetaDataClass, TestMetaData)

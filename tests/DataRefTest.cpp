@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkData.h"
 #include "SkDataTable.h"
 #include "SkOrderedReadBuffer.h"
@@ -133,7 +134,7 @@ static void test_globaltable(skiatest::Reporter* reporter) {
     }
 }
 
-static void TestDataTable(skiatest::Reporter* reporter) {
+DEF_TEST(DataTable, reporter) {
     test_emptytable(reporter);
     test_simpletable(reporter);
     test_vartable(reporter);
@@ -206,7 +207,7 @@ static void test_files(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r2->data()), s, 26) == 0);
 }
 
-static void TestData(skiatest::Reporter* reporter) {
+DEF_TEST(Data, reporter) {
     const char* str = "We the people, in order to form a more perfect union.";
     const int N = 10;
 
@@ -234,7 +235,3 @@ static void TestData(skiatest::Reporter* reporter) {
     test_cstring(reporter);
     test_files(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Data", DataTestClass, TestData)
-DEFINE_TESTCLASS("DataTable", DataTableTestClass, TestDataTable)

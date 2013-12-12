@@ -6,7 +6,7 @@
  */
 
 #include "Test.h"
-
+#include "TestClassDef.h"
 #include "SkCommandLineFlags.h"
 #include "SkFontMgr.h"
 #include "SkTypeface.h"
@@ -77,10 +77,7 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
 
 DEFINE_bool(verboseFontMgr, false, "run verbose fontmgr tests.");
 
-static void TestFontMgr(skiatest::Reporter* reporter) {
+DEF_TEST(FontMgr, reporter) {
     test_fontiter(reporter, FLAGS_verboseFontMgr);
     test_alias_names(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("FontMgr", FontMgrClass, TestFontMgr)

@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+#include "TestClassDef.h"
 #include "SkFrontBufferedStream.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTypes.h"
-#include "Test.h"
 
 static void test_read(skiatest::Reporter* reporter, SkStream* bufferedStream,
                       const void* expectations, size_t bytesToRead) {
@@ -150,12 +151,9 @@ static void test_buffers(skiatest::Reporter* reporter, size_t bufferSize) {
     test_read_beyond_buffer(reporter, bufferSize);
 }
 
-static void TestStreams(skiatest::Reporter* reporter) {
+DEF_TEST(FrontBufferedStream, reporter) {
     // Test 6 and 64, which are used by Android, as well as another arbitrary length.
     test_buffers(reporter, 6);
     test_buffers(reporter, 15);
     test_buffers(reporter, 64);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("FrontBufferedStream", FrontBufferedStreamTestClass, TestStreams)

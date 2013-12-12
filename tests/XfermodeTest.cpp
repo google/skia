@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkColor.h"
 #include "SkXfermode.h"
 
@@ -63,10 +64,7 @@ static void test_IsMode(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_xfermodes(skiatest::Reporter* reporter) {
+DEF_TEST(Xfermode, reporter) {
     test_asMode(reporter);
     test_IsMode(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Xfermode", XfermodeTestClass, test_xfermodes)

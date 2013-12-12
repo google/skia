@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 The Android Open Source Project
  *
@@ -6,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkData.h"
 #include "SkPDFTypes.h"
 #include "SkPDFFont.h"
@@ -32,7 +31,7 @@ void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
                           uint16_t firstGlypthID,
                           uint16_t lastGlypthID);
 
-static void TestToUnicode(skiatest::Reporter* reporter) {
+DEF_TEST(ToUnicode, reporter) {
     SkTDArray<SkUnichar> glyphToUnicode;
     SkTDArray<uint16_t> glyphsInSubset;
     SkPDFGlyphSet subset;
@@ -180,6 +179,3 @@ endbfrange\n";
     REPORTER_ASSERT(reporter, stream_equals(buffer2, 0, expectedResult2,
                                             buffer2.getOffset()));
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("ToUnicode", ToUnicodeTestClass, TestToUnicode)

@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkAnnotation.h"
 #include "SkData.h"
 #include "SkCanvas.h"
@@ -24,7 +25,7 @@ static bool ContainsString(const char* data, size_t dataSize, const char* needle
     return false;
 }
 
-static void test_nodraw(skiatest::Reporter* reporter) {
+DEF_TEST(Annotation_NoDraw, reporter) {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
     bm.allocPixels();
@@ -45,7 +46,7 @@ struct testCase {
     bool expectAnnotations;
 };
 
-static void test_pdf_link_annotations(skiatest::Reporter* reporter) {
+DEF_TEST(Annotation_PdfLink, reporter) {
     SkISize size = SkISize::Make(612, 792);
     SkMatrix initialTransform;
     initialTransform.reset();
@@ -73,7 +74,7 @@ static void test_pdf_link_annotations(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_named_destination_annotations(skiatest::Reporter* reporter) {
+DEF_TEST(Annotation_NamedDestination, reporter) {
     SkISize size = SkISize::Make(612, 792);
     SkMatrix initialTransform;
     initialTransform.reset();
@@ -94,12 +95,3 @@ static void test_named_destination_annotations(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter,
         ContainsString(rawOutput, out->size(), "/example "));
 }
-
-static void TestAnnotation(skiatest::Reporter* reporter) {
-    test_nodraw(reporter);
-    test_pdf_link_annotations(reporter);
-    test_named_destination_annotations(reporter);
-}
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Annotation", AnnotationClass, TestAnnotation)

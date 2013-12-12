@@ -11,13 +11,14 @@
     (!defined(SK_BUILD_FOR_IOS)) &&             \
     (!defined(SK_BUILD_FOR_MAC))
 
+#include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkForceLinking.h"
-#include "SkImageDecoder.h"
 #include "SkImage.h"
+#include "SkImageDecoder.h"
 #include "SkStream.h"
-#include "Test.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -147,7 +148,7 @@ static void test_gif_data_short(skiatest::Reporter* r,
   GIF files which have been mangled somehow.  We want to display as
   much of the GIF as possible.
 */
-static void TestGif(skiatest::Reporter* reporter) {
+DEF_TEST(Gif, reporter) {
     // test perfectly good images.
     test_gif_data(reporter, static_cast<void *>(gifData), sizeof(gifData));
     test_interlaced_gif_data(reporter, static_cast<void *>(interlacedGif),
@@ -203,8 +204,5 @@ static void TestGif(skiatest::Reporter* reporter) {
                              100);  // 100 is missing a few bytes
     // "libgif warning [interlace DGifGetLine]"
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("GifTest", GifTestClass, TestGif)
 
 #endif  // !(SK_BUILD_FOR_WIN32||SK_BUILD_FOR_IOS||SK_BUILD_FOR_MAC)

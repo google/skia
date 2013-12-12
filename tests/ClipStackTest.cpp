@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #if SK_SUPPORT_GPU
     #include "GrReducedClip.h"
 #endif
@@ -14,7 +15,6 @@
 #include "SkRandom.h"
 #include "SkRect.h"
 #include "SkRegion.h"
-
 
 static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     SkClipStack s;
@@ -1159,9 +1159,8 @@ static void test_reduced_clip_stack_no_aa_crash(skiatest::Reporter* reporter) {
 }
 
 #endif
-///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static void TestClipStack(skiatest::Reporter* reporter) {
+DEF_TEST(ClipStack, reporter) {
     SkClipStack stack;
 
     REPORTER_ASSERT(reporter, 0 == stack.getSaveCount());
@@ -1210,6 +1209,3 @@ static void TestClipStack(skiatest::Reporter* reporter) {
     test_reduced_clip_stack_no_aa_crash(reporter);
 #endif
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("ClipStack", TestClipStackClass, TestClipStack)

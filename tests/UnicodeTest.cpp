@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkPaint.h"
 #include "SkUtils.h"
 
@@ -77,10 +78,7 @@ static void test_textencodings(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !memcmp(glyphs8, glyphs32, count8 * sizeof(uint16_t)));
 }
 
-static void TestUnicode(skiatest::Reporter* reporter) {
+DEF_TEST(Unicode, reporter) {
     test_uvs(reporter);
     test_textencodings(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Unicode", TestUnicodeClass, TestUnicode)

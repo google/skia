@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmapDevice.h"
 #include "SkColorShader.h"
 #include "SkEmptyShader.h"
@@ -192,9 +193,7 @@ static void TestGradientShaders(skiatest::Reporter* reporter) {
     }
 }
 
-static void TestGradients(skiatest::Reporter* reporter) {
+DEF_TEST(Gradient, reporter) {
     TestGradientShaders(reporter);
     TestConstantGradient(reporter);
 }
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Gradients", TestGradientsClass, TestGradients)

@@ -1,12 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
 
+#include "Test.h"
+#include "TestClassDef.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkCubicClipper.h"
@@ -69,7 +69,7 @@ static SkPoint* SetCurve(float x0, float y0,
 }
 
 
-static void TestCubicClipping(skiatest::Reporter* reporter) {
+DEF_TEST(ClipCubic, reporter) {
     static SkPoint crv[4] = {
         { SkIntToScalar(0), SkIntToScalar(0)  },
         { SkIntToScalar(2), SkIntToScalar(3)  },
@@ -163,9 +163,3 @@ static void TestCubicClipping(skiatest::Reporter* reporter) {
 
     test_giantClip();
 }
-
-
-
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("CubicClipper", CubicClippingTestClass, TestCubicClipping)

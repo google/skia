@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -7,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkRandom.h"
 #include "SkRTree.h"
 #include "SkTSort.h"
@@ -139,7 +139,7 @@ static void rtree_test_main(SkRTree* rtree, skiatest::Reporter* reporter) {
     }
 }
 
-static void test_rtree(skiatest::Reporter* reporter) {
+DEF_TEST(RTree, reporter) {
     SkRTree* rtree = SkRTree::Create(MIN_CHILDREN, MAX_CHILDREN);
     SkAutoUnref au(rtree);
     rtree_test_main(rtree, reporter);
@@ -149,7 +149,3 @@ static void test_rtree(skiatest::Reporter* reporter) {
     SkAutoUnref auo(unsortedRtree);
     rtree_test_main(unsortedRtree, reporter);
 }
-
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("RTree", RTreeTestClass, test_rtree)

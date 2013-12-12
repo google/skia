@@ -4,7 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkMD5.h"
 
 static bool digests_equal(const SkMD5::Digest& expectedDigest, const SkMD5::Digest& computedDigest) {
@@ -58,11 +60,8 @@ static struct MD5Test {
     { "12345678901234567890123456789012345678901234567890123456789012345678901234567890", {{ 0x57, 0xed, 0xf4, 0xa2, 0x2b, 0xe3, 0xc9, 0x55, 0xac, 0x49, 0xda, 0x2e, 0x21, 0x07, 0xb6, 0x7a }} },
 };
 
-static void TestMD5(skiatest::Reporter* reporter) {
+DEF_TEST(MD5, reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(md5_tests); ++i) {
         md5_test(md5_tests[i].message, md5_tests[i].digest, reporter);
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("MD5", MD5TestClass, TestMD5)

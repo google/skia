@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 // This is a GPU-backend specific test
 #if SK_SUPPORT_GPU
 #include "GrMemoryPool.h"
@@ -182,7 +183,7 @@ struct Rec {
     int fValue;
 };
 
-static void test_memory_pool(skiatest::Reporter* reporter) {
+DEF_TEST(GrMemoryPool, reporter) {
     // prealloc and min alloc sizes for the pool
     static const size_t gSizes[][2] = {
         {0, 0},
@@ -238,8 +239,5 @@ static void test_memory_pool(skiatest::Reporter* reporter) {
         }
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("GrMemoryPool", GrMemoryPoolClass, test_memory_pool)
 
 #endif

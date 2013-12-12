@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkLayerDrawLooper.h"
@@ -235,7 +236,7 @@ static void regression_measureText(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, r.isEmpty());
 }
 
-static void TestPaint(skiatest::Reporter* reporter) {
+DEF_TEST(Paint, reporter) {
     // TODO add general paint tests
     test_copy(reporter);
 
@@ -251,6 +252,3 @@ static void TestPaint(skiatest::Reporter* reporter) {
        test_cmap(reporter);
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Paint", TestPaintClass, TestPaint)

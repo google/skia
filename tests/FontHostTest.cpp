@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkPaint.h"
 #include "SkFontStream.h"
 #include "SkOSFile.h"
@@ -305,13 +306,10 @@ static void test_advances(skiatest::Reporter* reporter) {
     }
 }
 
-static void TestFontHost(skiatest::Reporter* reporter) {
+DEF_TEST(FontHost, reporter) {
     test_tables(reporter);
     test_fontstream(reporter);
     test_advances(reporter);
 }
 
 // need tests for SkStrSearch
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("FontHost", FontHostTestClass, TestFontHost)

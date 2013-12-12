@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
@@ -32,7 +33,7 @@ static SkColorFilter* reincarnate_colorfilter(SkFlattenable* obj) {
 
 #define ILLEGAL_MODE    ((SkXfermode::Mode)-1)
 
-static void test_asColorMode(skiatest::Reporter* reporter) {
+DEF_TEST(ColorFilter, reporter) {
     SkRandom rand;
 
     for (int mode = 0; mode <= SkXfermode::kLastMode; mode++) {
@@ -93,7 +94,7 @@ static void test_asColorMode(skiatest::Reporter* reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void test_lumaColorFilter(skiatest::Reporter* reporter) {
+DEF_TEST(LumaColorFilter, reporter) {
     SkPMColor in, out;
     SkAutoTUnref<SkColorFilter> lf(SkLumaColorFilter::Create());
 
@@ -125,7 +126,3 @@ static void test_lumaColorFilter(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, SkGetPackedB32(out) == 0);
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("ColorFilter", ColorFilterTestClass, test_asColorMode)
-DEFINE_TESTCLASS("LumaColorFilter", LumaColorFilterTestClass, test_lumaColorFilter)

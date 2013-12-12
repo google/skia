@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -7,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkRandom.h"
 #include "SkTSort.h"
 
@@ -178,7 +178,7 @@ static void test_range(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, chi_square_test(bins, 10000));
 }
 
-static void TestRandom(skiatest::Reporter* reporter) {
+DEF_TEST(Random, reporter) {
     // check uniform distributions of each byte in 32-bit word
     test_random_byte(reporter, 0);
     test_random_byte(reporter, 8);
@@ -191,6 +191,3 @@ static void TestRandom(skiatest::Reporter* reporter) {
 
     test_range(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Random", RandomTestClass, TestRandom)

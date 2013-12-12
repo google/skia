@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRect.h"
@@ -55,9 +56,6 @@ static void test_strokerect(skiatest::Reporter* reporter) {
     }
 }
 
-static void TestStroke(skiatest::Reporter* reporter) {
+DEF_TEST(Stroke, reporter) {
     test_strokerect(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Stroke", TestStrokeClass, TestStroke)

@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkRandom.h"
 #include "SkRect.h"
 
@@ -57,7 +58,7 @@ static void check_invalid(skiatest::Reporter* reporter,
 
 // Tests that isFinite() will reject any rect with +/-inf values
 // as one of its coordinates.
-static void TestInfRect(skiatest::Reporter* reporter) {
+DEF_TEST(InfRect, reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     float inf = 1 / make_zero();    // infinity
     float nan = inf * 0;
@@ -86,6 +87,3 @@ static void TestInfRect(skiatest::Reporter* reporter) {
 }
 
 // need tests for SkStrSearch
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("InfRect", InfRectTestClass, TestInfRect)

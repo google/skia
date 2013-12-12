@@ -4,7 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkSHA1.h"
 
 static bool digests_equal(const SkSHA1::Digest& expectedDigest, const SkSHA1::Digest& computedDigest) {
@@ -45,11 +47,8 @@ static void sha1_test(const SHA1Test& test, skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, digests_equal(test.digest, digest));
 }
 
-static void TestSHA1(skiatest::Reporter* reporter) {
+DEF_TEST(SHA1, reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(sha1_tests); ++i) {
         sha1_test(sha1_tests[i], reporter);
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("SHA1", SHA1TestClass, TestSHA1)

@@ -1,17 +1,19 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
+#include "SkColorPriv.h"
+#include "SkEndian.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "SkMathPriv.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
-#include "SkColorPriv.h"
 
 static void test_clz(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 32 == SkCLZ(0));
@@ -430,7 +432,7 @@ static void test_copysign(skiatest::Reporter* reporter) {
     }
 }
 
-static void TestMath(skiatest::Reporter* reporter) {
+DEF_TEST(Math, reporter) {
     int         i;
     int32_t     x;
     SkRandom    rand;
@@ -646,19 +648,12 @@ static void TestMath(skiatest::Reporter* reporter) {
     test_clz(reporter);
 }
 
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Math", MathTestClass, TestMath)
-
-///////////////////////////////////////////////////////////////////////////////
-
-#include "SkEndian.h"
-
 template <typename T> struct PairRec {
     T   fYin;
     T   fYang;
 };
 
-static void TestEndian(skiatest::Reporter* reporter) {
+DEF_TEST(TestEndian, reporter) {
     static const PairRec<uint16_t> g16[] = {
         { 0x0,      0x0     },
         { 0xFFFF,   0xFFFF  },
@@ -689,8 +684,6 @@ static void TestEndian(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, g64[i].fYang == SkEndianSwap64(g64[i].fYin));
     }
 }
-
-DEFINE_TESTCLASS("Endian", EndianTestClass, TestEndian)
 
 template <typename T>
 static void test_divmod(skiatest::Reporter* r) {

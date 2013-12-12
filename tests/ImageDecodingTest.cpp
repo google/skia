@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
@@ -19,7 +21,6 @@
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "Test.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -228,14 +229,10 @@ extern void test_row_proc_choice();
 
 #endif // SK_DEBUG
 
-static void test_imageDecodingTests(skiatest::Reporter* reporter) {
+DEF_TEST(ImageDecoding, reporter) {
     test_unpremul(reporter);
 #ifdef SK_DEBUG
     test_stream_life();
     test_row_proc_choice();
 #endif
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("ImageDecoding", ImageDecodingTestClass,
-                 test_imageDecodingTests)

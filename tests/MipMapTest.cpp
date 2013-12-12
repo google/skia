@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkMipMap.h"
 #include "SkBitmap.h"
 #include "SkRandom.h"
@@ -20,7 +21,7 @@ static void make_bitmap(SkBitmap* bm, SkRandom& rand) {
     bm->eraseColor(SK_ColorWHITE);
 }
 
-static void TestMipMap(skiatest::Reporter* reporter) {
+DEF_TEST(MipMap, reporter) {
     SkBitmap bm;
     SkRandom rand;
 
@@ -54,6 +55,3 @@ static void TestMipMap(skiatest::Reporter* reporter) {
         }
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("MipMap", MipMapTestClass, TestMipMap)

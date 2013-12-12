@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkFloatingPoint.h"
 #include "SkMath.h"
 #include "SkPoint.h"
@@ -187,9 +188,6 @@ static void test_isfinite(skiatest::Reporter* reporter) {
 #pragma warning ( pop )
 #endif
 
-static void TestScalar(skiatest::Reporter* reporter) {
+DEF_TEST(Scalar, reporter) {
     test_isfinite(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Scalar", TestScalarClass, TestScalar)

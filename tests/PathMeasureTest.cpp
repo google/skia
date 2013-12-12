@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkPathMeasure.h"
 
 static void test_small_segment3() {
@@ -79,7 +80,7 @@ static void test_small_segment() {
 #endif
 }
 
-static void TestPathMeasure(skiatest::Reporter* reporter) {
+DEF_TEST(PathMeasure, reporter) {
     SkPath  path;
 
     path.moveTo(0, 0);
@@ -207,6 +208,3 @@ static void TestPathMeasure(skiatest::Reporter* reporter) {
     test_small_segment2();
     test_small_segment3();
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("PathMeasure", PathMeasureTestClass, TestPathMeasure)

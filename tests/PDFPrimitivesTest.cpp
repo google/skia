@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 The Android Open Source Project
  *
@@ -7,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
@@ -346,7 +346,7 @@ static void test_issue1083() {
     doc.emitPDF(&stream);
 }
 
-static void TestPDFPrimitives(skiatest::Reporter* reporter) {
+DEF_TEST(PDFPrimitives, reporter) {
     SkAutoTUnref<SkPDFInt> int42(new SkPDFInt(42));
     SimpleCheckObjectOutput(reporter, int42.get(), "42");
 
@@ -432,6 +432,3 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
 
     TestImages(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("PDFPrimitives", PDFPrimitivesTestClass, TestPDFPrimitives)

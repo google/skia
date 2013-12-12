@@ -5,14 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SkRTConf.h"
 #include "Test.h"
+#include "TestClassDef.h"
+#include "SkRTConf.h"
 
-static void test_runUnitTests(skiatest::Reporter* reporter) {
+DEF_TEST(UnitTest, reporter) {
 #ifdef SK_SUPPORT_UNITTEST
     SkRTConfRegistry::UnitTest();
 #endif
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("UnitTest", UnitTestTestClass, test_runUnitTests)

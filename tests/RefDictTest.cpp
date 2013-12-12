@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkRefDict.h"
 
 class TestRC : public SkRefCnt {
@@ -15,7 +16,7 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-static void TestRefDict(skiatest::Reporter* reporter) {
+DEF_TEST(RefDict, reporter) {
     TestRC    data0, data1;
     SkRefDict dict;
 
@@ -72,6 +73,3 @@ static void TestRefDict(skiatest::Reporter* reporter) {
     // be sure d's destructor lowered data0's owner count back to 1
     REPORTER_ASSERT(reporter, 1 == data0.getRefCnt());
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("RefDict", RefDictTestClass, TestRefDict)

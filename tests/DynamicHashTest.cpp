@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkTDynamicHash.h"
 
 namespace {
@@ -139,12 +140,9 @@ static void test_remove(skiatest::Reporter* reporter) {
     ASSERT(hash.find(5)->value == 3.0);
 }
 
-static void test_dynamic_hash(skiatest::Reporter* reporter) {
+DEF_TEST(DynamicHash, reporter) {
     test_growth(reporter);
     test_add(reporter);
     test_lookup(reporter);
     test_remove(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("DynamicHash", DynamicHashTestClass, test_dynamic_hash);

@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkDeviceLooper.h"
 #include "SkRasterClip.h"
 
@@ -133,10 +134,7 @@ static void test_complex(skiatest::Reporter* reporter) {
     }
 }
 
-static void TestDeviceLooper(skiatest::Reporter* reporter) {
+DEF_TEST(DeviceLooper, reporter) {
     test_simple(reporter);
     test_complex(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("DeviceLooper", DeviceLooperClass, TestDeviceLooper)

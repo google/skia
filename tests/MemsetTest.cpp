@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkChunkAlloc.h"
 #include "SkUtils.h"
 
@@ -115,12 +116,9 @@ static void test_32(skiatest::Reporter* reporter) {
  *  For performance considerations, implementations may take different paths
  *  depending on the alignment of the dst, and/or the size of the count.
  */
-static void TestMemset(skiatest::Reporter* reporter) {
+DEF_TEST(Memset, reporter) {
     test_16(reporter);
     test_32(reporter);
 
     test_chunkalloc(reporter);
-};
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Memset", TestMemsetClass, TestMemset)
+}

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-
-
+#include "Test.h"
+#include "TestClassDef.h"
 #include "SkRandom.h"
 #include "SkReader32.h"
 #include "SkWriter32.h"
-#include "Test.h"
 
 static void check_contents(skiatest::Reporter* reporter, const SkWriter32& writer,
                            const void* expected, size_t size) {
@@ -188,7 +186,7 @@ static void testWritePad(skiatest::Reporter* reporter, SkWriter32* writer) {
     }
 }
 
-static void Tests(skiatest::Reporter* reporter) {
+DEF_TEST(Writer32, reporter) {
     // dynamic allocator
     {
         SkWriter32 writer(256 * 4);
@@ -252,6 +250,3 @@ static void Tests(skiatest::Reporter* reporter) {
     test_ptr(reporter);
     test_rewind(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Writer32", Writer32Class, Tests)

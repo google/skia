@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -7,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkCanvasStateUtils.h"
@@ -227,14 +227,9 @@ static void test_soft_clips(skiatest::Reporter* reporter) {
     SkClearLastError();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-static void test_canvas_state_utils(skiatest::Reporter* reporter) {
+DEF_TEST(CanvasState, reporter) {
     test_complex_layers(reporter);
     test_complex_clips(reporter);
     test_draw_filters(reporter);
     test_soft_clips(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("CanvasState", TestCanvasStateClass, test_canvas_state_utils)

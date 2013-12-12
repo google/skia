@@ -4,17 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkTypes.h"
 
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
 #include "SkRect.h"
-
-///////////////////////////////////////////////////////////////////////////////
+#include "SkTypes.h"
 
 static const SkColor bgColor = SK_ColorWHITE;
 
@@ -62,8 +61,7 @@ static bool compare(const SkBitmap& ref, const SkIRect& iref,
     return true;
 }
 
-static void test_drawText(skiatest::Reporter* reporter) {
-
+DEF_TEST(DrawText, reporter) {
     SkPaint paint;
     paint.setColor(SK_ColorGRAY);
     paint.setTextSize(SkIntToScalar(20));
@@ -110,6 +108,3 @@ static void test_drawText(skiatest::Reporter* reporter) {
         }
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("DrawText_DrawPosText", DrawTextTestClass, test_drawText)

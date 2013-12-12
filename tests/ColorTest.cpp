@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
@@ -76,12 +77,9 @@ static inline void test_fast_interp(skiatest::Reporter* reporter) {
     }
 }
 
-static void TestColor(skiatest::Reporter* reporter) {
+DEF_TEST(Color, reporter) {
     test_premul(reporter);
     //test_interp(reporter);
     test_fast_interp(reporter);
-//    test_565blend();
+    //test_565blend();
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Color", ColorTestClass, TestColor)

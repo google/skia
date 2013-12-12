@@ -6,7 +6,7 @@
  */
 
 #include "Test.h"
-
+#include "TestClassDef.h"
 #include "SkCommandLineFlags.h"
 #include "SkFontMgr.h"
 #include "SkOTTable_name.h"
@@ -218,10 +218,7 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
 
 DEFINE_bool(verboseFontNames, false, "verbose FontNames test.");
 
-static void TestFontNames(skiatest::Reporter* reporter) {
+DEF_TEST(FontNames, reporter) {
     test_synthetic(reporter, FLAGS_verboseFontNames);
     test_systemfonts(reporter, FLAGS_verboseFontNames);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("FontNames", FontNamesTestClass, TestFontNames)

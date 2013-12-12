@@ -4,7 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -651,7 +653,7 @@ static void test_hierarchical(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, parentWBWB.willPlayBackBitmaps()); // 2
 }
 
-static void TestPicture(skiatest::Reporter* reporter) {
+DEF_TEST(Picture, reporter) {
 #ifdef SK_DEBUG
     test_deleting_empty_playback();
     test_serializing_empty_picture();
@@ -666,6 +668,3 @@ static void TestPicture(skiatest::Reporter* reporter) {
     test_clip_expansion(reporter);
     test_hierarchical(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("Pictures", PictureTestClass, TestPicture)

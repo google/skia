@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "Test.h"
+#include "TestClassDef.h"
 
 // This is a GR test
 #if SK_SUPPORT_GPU
@@ -59,9 +59,7 @@ protected:
     int fKey;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-static void TestHashCache(skiatest::Reporter* reporter) {
-
+DEF_TEST(HashCache, reporter) {
     GrTHashTable<HashElement, HashKey, 4> cache;
 
     HashElement negHashElements[10] = {
@@ -153,9 +151,5 @@ static void TestHashCache(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, NULL == found);
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("HashCache", HashCacheTestClass, TestHashCache)
 
 #endif

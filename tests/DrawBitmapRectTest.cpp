@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
@@ -308,7 +309,7 @@ static void create(SkBitmap* bm, SkBitmap::Config config, SkColor color) {
     bm->eraseColor(color);
 }
 
-static void TestDrawBitmapRect(skiatest::Reporter* reporter) {
+DEF_TEST(DrawBitmapRect, reporter) {
     SkBitmap src, dst;
 
     create(&src, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
@@ -330,6 +331,3 @@ static void TestDrawBitmapRect(skiatest::Reporter* reporter) {
     test_treatAsSprite(reporter);
     test_faulty_pixelref(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("DrawBitmapRect", TestDrawBitmapRectClass, TestDrawBitmapRect)

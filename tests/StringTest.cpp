@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkString.h"
 #include <stdarg.h>
 #include <stdio.h>
@@ -32,9 +33,7 @@ static void printfAnalog(char* buffer, int size, const char format[], ...) {
     ARGS_TO_BUFFER(format, buffer, size);
 }
 
-
-
-static void TestString(skiatest::Reporter* reporter) {
+DEF_TEST(String, reporter) {
     SkString    a;
     SkString    b((size_t)0);
     SkString    c("");
@@ -189,9 +188,6 @@ static void TestString(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, buffer[20] == 'a');
 
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS("String", StringTestClass, TestString)
 
 DEF_TEST(String_SkStrSplit, r) {
     SkTArray<SkString> results;
