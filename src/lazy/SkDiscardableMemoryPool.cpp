@@ -47,19 +47,23 @@ SkPoolDiscardableMemory::SkPoolDiscardableMemory(SkDiscardableMemoryPool* pool,
 }
 
 SkPoolDiscardableMemory::~SkPoolDiscardableMemory() {
+    SkASSERT(!fLocked); // contract for SkDiscardableMemory
     fPool->free(this);
     fPool->unref();
 }
 
 bool SkPoolDiscardableMemory::lock() {
+    SkASSERT(!fLocked); // contract for SkDiscardableMemory
     return fPool->lock(this);
 }
 
 void* SkPoolDiscardableMemory::data() {
-    return fLocked ? fPointer : NULL;
+    SkASSERT(fLocked); // contract for SkDiscardableMemory
+    return fPointer;
 }
 
 void SkPoolDiscardableMemory::unlock() {
+    SkASSERT(fLocked); // contract for SkDiscardableMemory
     fPool->unlock(this);
 }
 

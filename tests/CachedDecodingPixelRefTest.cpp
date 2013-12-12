@@ -268,12 +268,25 @@ void CheckPixelRef(TestImageGenerator::TestType type,
     }
 }
 }  // namespace
+
+// new/lock/delete is an odd pattern for a pixelref, but it needs to not assert
+static void test_newlockdelete(skiatest::Reporter* reporter) {
+    SkBitmap bm;
+    SkImageGenerator* ig = new TestImageGenerator(
+                                 TestImageGenerator::kSucceedGetPixels_TestType,
+                                 reporter);
+    SkInstallDiscardablePixelRef(ig, &bm, NULL);
+    bm.pixelRef()->lockPixels();
+}
+
 /**
  *  This tests the basic functionality of SkDiscardablePixelRef with a
  *  basic SkImageGenerator implementation and several
  *  SkDiscardableMemory::Factory choices.
  */
 DEF_TEST(DiscardableAndCachingPixelRef, reporter) {
+    test_newlockdelete(reporter);
+
     CheckPixelRef(TestImageGenerator::kFailGetInfo_TestType,
                   reporter, kSkCaching_PixelRefType, NULL);
     CheckPixelRef(TestImageGenerator::kFailGetPixels_TestType,

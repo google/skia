@@ -30,6 +30,9 @@ SkDiscardablePixelRef::SkDiscardablePixelRef(SkImageGenerator* generator,
 }
 
 SkDiscardablePixelRef::~SkDiscardablePixelRef() {
+    if (this->isLocked()) {
+        fDiscardableMemory->unlock();
+    }
     SkDELETE(fDiscardableMemory);
     SkSafeUnref(fDMFactory);
     SkDELETE(fGenerator);
