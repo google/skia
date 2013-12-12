@@ -15,11 +15,6 @@
 #include "SkRRect.h"
 #include "SkThread.h"
 
-// This value is just made-up for now. When count is 4, calling memset was much
-// slower than just writing the loop. This seems odd, and hopefully in the
-// future this we appear to have been a fluke...
-#define MIN_COUNT_FOR_MEMSET_TO_BE_FAST 16
-
 ////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -143,7 +138,6 @@ void SkPath::resetFields() {
     //fPathRef is assumed to have been emptied by the caller.
     fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
     fFillType = kWinding_FillType;
-    fSegmentMask = 0;
     fConvexity = kUnknown_Convexity;
     fDirection = kUnknown_Direction;
 
@@ -182,7 +176,6 @@ void SkPath::copyFields(const SkPath& that) {
     //fPathRef is assumed to have been set by the caller.
     fLastMoveToIndex = that.fLastMoveToIndex;
     fFillType        = that.fFillType;
-    fSegmentMask     = that.fSegmentMask;
     fConvexity       = that.fConvexity;
     fDirection       = that.fDirection;
 }
@@ -190,14 +183,8 @@ void SkPath::copyFields(const SkPath& that) {
 bool operator==(const SkPath& a, const SkPath& b) {
     // note: don't need to look at isConvex or bounds, since just comparing the
     // raw data is sufficient.
-
-    // We explicitly check fSegmentMask as a quick-reject. We could skip it,
-    // since it is only a cache of info in the fVerbs, but its a fast way to
-    // notice a difference
-
     return &a == &b ||
-        (a.fFillType == b.fFillType && a.fSegmentMask == b.fSegmentMask &&
-         *a.fPathRef.get() == *b.fPathRef.get());
+        (a.fFillType == b.fFillType && *a.fPathRef.get() == *b.fPathRef.get());
 }
 
 void SkPath::swap(SkPath& that) {
@@ -207,7 +194,6 @@ void SkPath::swap(SkPath& that) {
         fPathRef.swap(&that.fPathRef);
         SkTSwap<int>(fLastMoveToIndex, that.fLastMoveToIndex);
         SkTSwap<uint8_t>(fFillType, that.fFillType);
-        SkTSwap<uint8_t>(fSegmentMask, that.fSegmentMask);
         SkTSwap<uint8_t>(fConvexity, that.fConvexity);
         SkTSwap<uint8_t>(fDirection, that.fDirection);
 #ifdef SK_BUILD_FOR_ANDROID
@@ -674,7 +660,6 @@ void SkPath::lineTo(SkScalar x, SkScalar y) {
 
     SkPathRef::Editor ed(&fPathRef);
     ed.growForVerb(kLine_Verb)->set(x, y);
-    fSegmentMask |= kLine_SegmentMask;
 
     DIRTY_AFTER_EDIT;
 }
@@ -695,7 +680,6 @@ void SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     SkPoint* pts = ed.growForVerb(kQuad_Verb);
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
-    fSegmentMask |= kQuad_SegmentMask;
 
     DIRTY_AFTER_EDIT;
 }
@@ -723,10 +707,9 @@ void SkPath::conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
         this->injectMoveToIfNeeded();
 
         SkPathRef::Editor ed(&fPathRef);
-        SkPoint* pts = ed.growForConic(w);
+        SkPoint* pts = ed.growForVerb(kConic_Verb, w);
         pts[0].set(x1, y1);
         pts[1].set(x2, y2);
-        fSegmentMask |= kConic_SegmentMask;
 
         DIRTY_AFTER_EDIT;
     }
@@ -751,7 +734,6 @@ void SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
     pts[2].set(x3, y3);
-    fSegmentMask |= kCubic_SegmentMask;
 
     DIRTY_AFTER_EDIT;
 }
@@ -838,29 +820,19 @@ void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
         return;
     }
 
-    SkPathRef::Editor ed(&fPathRef);
-    fLastMoveToIndex = ed.pathRef()->countPoints();
-    uint8_t* vb;
-    SkPoint* p;
-    // +close makes room for the extra kClose_Verb
-    ed.grow(count + close, count, &vb, &p);
+    fLastMoveToIndex = fPathRef->countPoints();
 
-    memcpy(p, pts, count * sizeof(SkPoint));
-    vb[~0] = kMove_Verb;
+    // +close makes room for the extra kClose_Verb
+    SkPathRef::Editor ed(&fPathRef, count+close, count);
+
+    ed.growForVerb(kMove_Verb)->set(pts[0].fX, pts[0].fY);
     if (count > 1) {
-        // cast to unsigned, so if MIN_COUNT_FOR_MEMSET_TO_BE_FAST is defined to
-        // be 0, the compiler will remove the test/branch entirely.
-        if ((unsigned)count >= MIN_COUNT_FOR_MEMSET_TO_BE_FAST) {
-            memset(vb - count, kLine_Verb, count - 1);
-        } else {
-            for (int i = 1; i < count; ++i) {
-                vb[~i] = kLine_Verb;
-            }
-        }
-        fSegmentMask |= kLine_SegmentMask;
+        SkPoint* p = ed.growForRepeatedVerb(kLine_Verb, count - 1);
+        memcpy(p, &pts[1], (count-1) * sizeof(SkPoint));
     }
+
     if (close) {
-        vb[~count] = kClose_Verb;
+        ed.growForVerb(kClose_Verb);
     }
 
     DIRTY_AFTER_EDIT;
@@ -1343,11 +1315,21 @@ void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle
     SkPoint pts[kSkBuildQuadArcStorage];
     int count = build_arc_points(oval, startAngle, sweepAngle, pts);
 
-    this->incReserve(count);
-    this->moveTo(pts[0]);
-    for (int i = 1; i < count; i += 2) {
-        this->quadTo(pts[i], pts[i+1]);
+    SkDEBUGCODE(this->validate();)
+    SkASSERT(count & 1);
+
+    fLastMoveToIndex = fPathRef->countPoints();
+
+    SkPathRef::Editor ed(&fPathRef, 1+(count-1)/2, count);
+
+    ed.growForVerb(kMove_Verb)->set(pts[0].fX, pts[0].fY);
+    if (count > 1) {
+        SkPoint* p = ed.growForRepeatedVerb(kQuad_Verb, (count-1)/2);
+        memcpy(p, &pts[1], (count-1) * sizeof(SkPoint));
     }
+
+    DIRTY_AFTER_EDIT;
+    SkDEBUGCODE(this->validate();)
 }
 
 /*
@@ -1671,7 +1653,6 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
 
         if (this != dst) {
             dst->fFillType = fFillType;
-            dst->fSegmentMask = fSegmentMask;
             dst->fConvexity = fConvexity;
         }
 
@@ -2045,7 +2026,6 @@ size_t SkPath::writeToMemory(void* storage) const {
 
     int32_t packed = (fConvexity << kConvexity_SerializationShift) |
                      (fFillType << kFillType_SerializationShift) |
-                     (fSegmentMask << kSegmentMask_SerializationShift) |
                      (fDirection << kDirection_SerializationShift)
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
                      | (0x1 << kNewFormat_SerializationShift)
@@ -2070,7 +2050,6 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
 
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
     fFillType = (packed >> kFillType_SerializationShift) & 0xFF;
-    fSegmentMask = (packed >> kSegmentMask_SerializationShift) & 0xF;
     fDirection = (packed >> kDirection_SerializationShift) & 0x3;
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
     bool newFormat = (packed >> kNewFormat_SerializationShift) & 1;
@@ -2201,34 +2180,6 @@ void SkPath::validate() const {
             }
         }
     }
-
-    uint32_t mask = 0;
-    const uint8_t* verbs = const_cast<const SkPathRef*>(fPathRef.get())->verbs();
-    for (int i = 0; i < fPathRef->countVerbs(); i++) {
-        switch (verbs[~i]) {
-            case kLine_Verb:
-                mask |= kLine_SegmentMask;
-                break;
-            case kQuad_Verb:
-                mask |= kQuad_SegmentMask;
-                break;
-            case kConic_Verb:
-                mask |= kConic_SegmentMask;
-                break;
-            case kCubic_Verb:
-                mask |= kCubic_SegmentMask;
-            case kMove_Verb:  // these verbs aren't included in the segment mask.
-            case kClose_Verb:
-                break;
-            case kDone_Verb:
-                SkDEBUGFAIL("Done verb shouldn't be recorded.");
-                break;
-            default:
-                SkDEBUGFAIL("Unknown Verb");
-                break;
-        }
-    }
-    SkASSERT(mask == fSegmentMask);
 #endif // SK_DEBUG_PATH
 }
 #endif // SK_DEBUG

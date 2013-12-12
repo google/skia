@@ -62,30 +62,24 @@ public:
         /**
          * Adds the verb and allocates space for the number of points indicated by the verb. The
          * return value is a pointer to where the points for the verb should be written.
+         * 'weight' is only used if 'verb' is kConic_Verb
          */
-        SkPoint* growForVerb(int /*SkPath::Verb*/ verb) {
+        SkPoint* growForVerb(int /*SkPath::Verb*/ verb, SkScalar weight = 0) {
             SkDEBUGCODE(fPathRef->validate();)
-            return fPathRef->growForVerb(verb);
+            return fPathRef->growForVerb(verb, weight);
         }
 
-        SkPoint* growForConic(SkScalar w);
-
         /**
-         * Allocates space for additional verbs and points and returns pointers to the new verbs and
-         * points. verbs will point one beyond the first new verb (index it using [~<i>]). pts points
-         * at the first new point (indexed normally [<i>]).
+         * Allocates space for multiple instances of a particular verb and the
+         * requisite points & weights.
+         * The return pointer points at the first new point (indexed normally [<i>]).
+         * If 'verb' is kConic_Verb, 'weights' will return a pointer to the
+         * space for the conic weights (indexed normally). 
          */
-        void grow(int newVerbs, int newPts, uint8_t** verbs, SkPoint** pts) {
-            SkASSERT(NULL != verbs);
-            SkASSERT(NULL != pts);
-            SkDEBUGCODE(fPathRef->validate();)
-            int oldVerbCnt = fPathRef->fVerbCnt;
-            int oldPointCnt = fPathRef->fPointCnt;
-            SkASSERT(verbs && pts);
-            fPathRef->grow(newVerbs, newPts);
-            *verbs = fPathRef->fVerbs - oldVerbCnt;
-            *pts = fPathRef->fPoints + oldPointCnt;
-            SkDEBUGCODE(fPathRef->validate();)
+        SkPoint* growForRepeatedVerb(int /*SkPath::Verb*/ verb, 
+                                     int numVbs, 
+                                     SkScalar** weights = NULL) { 
+            return fPathRef->growForRepeatedVerb(verb, numVbs, weights); 
         }
 
         /**
@@ -122,6 +116,13 @@ public:
         }
         return SkToBool(fIsFinite);
     }
+
+    /**
+     *  Returns a mask, where each bit corresponding to a SegmentMask is
+     *  set if the path contains 1 or more segments of that type.
+     *  Returns 0 for an empty path (no segments).
+     */
+    uint32_t getSegmentMasks() const { return fSegmentMask; }
 
     /** Returns true if the path is an oval.
      *
@@ -199,6 +200,7 @@ public:
 
     int countPoints() const { SkDEBUGCODE(this->validate();) return fPointCnt; }
     int countVerbs() const { SkDEBUGCODE(this->validate();) return fVerbCnt; }
+    int countWeights() const { SkDEBUGCODE(this->validate();) return fConicWeights.count(); }
 
     /**
      * Returns a pointer one beyond the first logical verb (last verb in memory order).
@@ -226,7 +228,7 @@ public:
     /**
      * Convenience methods for getting to a verb or point by index.
      */
-    uint8_t atVerb(int index) {
+    uint8_t atVerb(int index) const {
         SkASSERT((unsigned) index < (unsigned) fVerbCnt);
         return this->verbs()[~index];
     }
@@ -240,12 +242,12 @@ public:
     /**
      * Writes the path points and verbs to a buffer.
      */
-    void writeToBuffer(SkWBuffer* buffer);
+    void writeToBuffer(SkWBuffer* buffer) const;
 
     /**
      * Gets the number of bytes that would be written in writeBuffer()
      */
-    uint32_t writeSize();
+    uint32_t writeSize() const;
 
     /**
      * Gets an ID that uniquely identifies the contents of the path ref. If two path refs have the
@@ -258,6 +260,7 @@ private:
     enum SerializationOffsets {
         kIsFinite_SerializationShift = 25,  // requires 1 bit
         kIsOval_SerializationShift = 24,    // requires 1 bit
+        kSegmentMask_SerializationShift = 0 // requires 4 bits
     };
 
     SkPathRef() {
@@ -268,6 +271,7 @@ private:
         fPoints = NULL;
         fFreeSpace = 0;
         fGenerationID = kEmptyGenID;
+        fSegmentMask = 0;
         fIsOval = false;
         SkDEBUGCODE(fEditorsAttached = 0;)
         SkDEBUGCODE(this->validate();)
@@ -311,6 +315,7 @@ private:
         fBoundsIsDirty = true;      // this also invalidates fIsFinite
         fGenerationID = 0;
 
+        fSegmentMask = 0;
         fIsOval = false;
 
         size_t newSize = sizeof(uint8_t) * verbCount + sizeof(SkPoint) * pointCount;
@@ -340,26 +345,19 @@ private:
     }
 
     /**
-     * Increases the verb count by newVerbs and the point count be newPoints. New verbs and points
-     * are uninitialized.
+     * Increases the verb count by numVbs and point count by the required amount. 
+     * The new points are uninitialized. All the new verbs are set to the specified 
+     * verb. If 'verb' is kConic_Verb, 'weights' will return a pointer to the
+     * uninitialized conic weights.
      */
-    void grow(int newVerbs, int newPoints) {
-        SkDEBUGCODE(this->validate();)
-        size_t space = newVerbs * sizeof(uint8_t) + newPoints * sizeof (SkPoint);
-        this->makeSpace(space);
-        fVerbCnt += newVerbs;
-        fPointCnt += newPoints;
-        fFreeSpace -= space;
-        fBoundsIsDirty = true;  // this also invalidates fIsFinite
-        SkDEBUGCODE(this->validate();)
-    }
+    SkPoint* growForRepeatedVerb(int /*SkPath::Verb*/ verb, int numVbs, SkScalar** weights);
 
     /**
      * Increases the verb count 1, records the new verb, and creates room for the requisite number
      * of additional points. A pointer to the first point is returned. Any new points are
      * uninitialized.
      */
-    SkPoint* growForVerb(int /*SkPath::Verb*/ verb);
+    SkPoint* growForVerb(int /*SkPath::Verb*/ verb, SkScalar weight);
 
     /**
      * Ensures that the free space available in the path ref is >= size. The verb and point counts
@@ -425,6 +423,7 @@ private:
     };
 
     mutable SkRect      fBounds;
+    uint8_t             fSegmentMask;
     mutable uint8_t     fBoundsIsDirty;
     mutable SkBool8     fIsFinite;    // only meaningful if bounds are valid
     mutable SkBool8     fIsOval;

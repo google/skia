@@ -3138,6 +3138,78 @@ static void test_contains(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_pathref(skiatest::Reporter* reporter) {
+    static const int kRepeatCnt = 10;
+
+    SkPathRef* pathRef = SkPathRef::CreateEmpty();
+    SkAutoTUnref<SkPathRef> pathRef2(SkPathRef::CreateEmpty());
+    SkMatrix mat;
+
+    mat.setTranslate(10, 10);
+
+    SkPathRef::CreateTransformedCopy(&pathRef2, *pathRef, mat);
+
+    SkPathRef::Editor ed(&pathRef2);
+
+    {
+        ed.growForRepeatedVerb(SkPath::kMove_Verb, kRepeatCnt);
+        REPORTER_ASSERT(reporter, kRepeatCnt == pathRef2->countVerbs());
+        REPORTER_ASSERT(reporter, kRepeatCnt == pathRef2->countPoints());
+        REPORTER_ASSERT(reporter, 0 == pathRef2->getSegmentMasks());
+        for (int i = 0; i < kRepeatCnt; ++i) {
+            REPORTER_ASSERT(reporter, SkPath::kMove_Verb == pathRef2->atVerb(i));
+        }
+        ed.resetToSize(0, 0, 0);
+    }
+
+    {
+        ed.growForRepeatedVerb(SkPath::kLine_Verb, kRepeatCnt);
+        REPORTER_ASSERT(reporter, kRepeatCnt == pathRef2->countVerbs());
+        REPORTER_ASSERT(reporter, kRepeatCnt == pathRef2->countPoints());
+        REPORTER_ASSERT(reporter, SkPath::kLine_SegmentMask == pathRef2->getSegmentMasks());
+        for (int i = 0; i < kRepeatCnt; ++i) {
+            REPORTER_ASSERT(reporter, SkPath::kLine_Verb == pathRef2->atVerb(i));
+        }
+        ed.resetToSize(0, 0, 0);
+    }
+
+    {
+        ed.growForRepeatedVerb(SkPath::kQuad_Verb, kRepeatCnt);
+        REPORTER_ASSERT(reporter, kRepeatCnt == pathRef2->countVerbs());
+        REPORTER_ASSERT(reporter, 2*kRepeatCnt == pathRef2->countPoints());
+        REPORTER_ASSERT(reporter, SkPath::kQuad_SegmentMask == pathRef2->getSegmentMasks());
+        for (int i = 0; i < kRepeatCnt; ++i) {
+            REPORTER_ASSERT(reporter, SkPath::kQuad_Verb == pathRef2->atVerb(i));
+        }
+        ed.resetToSize(0, 0, 0);
+    }
+
+    {
+        SkScalar* weights = NULL;
+        ed.growForRepeatedVerb(SkPath::kConic_Verb, kRepeatCnt, &weights);
+        REPORTER_ASSERT(reporter, kRepeatCnt == pathRef2->countVerbs());
+        REPORTER_ASSERT(reporter, 2*kRepeatCnt == pathRef2->countPoints());
+        REPORTER_ASSERT(reporter, kRepeatCnt == pathRef2->countWeights());
+        REPORTER_ASSERT(reporter, SkPath::kConic_SegmentMask == pathRef2->getSegmentMasks());
+        REPORTER_ASSERT(reporter, NULL != weights);
+        for (int i = 0; i < kRepeatCnt; ++i) {
+            REPORTER_ASSERT(reporter, SkPath::kConic_Verb == pathRef2->atVerb(i));
+        }
+        ed.resetToSize(0, 0, 0);
+    }
+
+    {
+        ed.growForRepeatedVerb(SkPath::kCubic_Verb, kRepeatCnt);
+        REPORTER_ASSERT(reporter, kRepeatCnt == pathRef2->countVerbs());
+        REPORTER_ASSERT(reporter, 3*kRepeatCnt == pathRef2->countPoints());
+        REPORTER_ASSERT(reporter, SkPath::kCubic_SegmentMask == pathRef2->getSegmentMasks());
+        for (int i = 0; i < kRepeatCnt; ++i) {
+            REPORTER_ASSERT(reporter, SkPath::kCubic_Verb == pathRef2->atVerb(i));
+        }
+        ed.resetToSize(0, 0, 0);
+    }
+}
+
 static void test_operatorEqual(skiatest::Reporter* reporter) {
     SkPath a;
     SkPath b;
@@ -3297,5 +3369,6 @@ DEF_TEST(Path, reporter) {
     test_conicTo_special_case(reporter);
     test_get_point(reporter);
     test_contains(reporter);
+    test_pathref(reporter);
     PathTest_Private::TestPathTo(reporter);
 }

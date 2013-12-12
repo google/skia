@@ -83,7 +83,7 @@ public:
      */
     void toggleInverseFillType() {
         fFillType ^= 2;
-     }
+    }
 
     enum Convexity {
         kUnknown_Convexity,
@@ -446,8 +446,8 @@ public:
         @param dy3   The amount to add to the y-coordinate of the last point on
                      this contour, to specify the end point of a cubic curve
     */
-    void    rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
-                     SkScalar x3, SkScalar y3);
+    void rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
+                  SkScalar x3, SkScalar y3);
 
     /** Append the specified arc to the path as a new contour. If the start of
         the path is different from the path's current last point, then an
@@ -461,8 +461,8 @@ public:
                           treated mod 360.
         @param forceMoveTo If true, always begin a new contour with the arc
     */
-    void    arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
-                  bool forceMoveTo);
+    void arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
+               bool forceMoveTo);
 
     /** Append a line and arc to the current path. This is the same as the
         PostScript call "arct".
@@ -778,7 +778,7 @@ public:
      *  set if the path contains 1 or more segments of that type.
      *  Returns 0 for an empty path (no segments).
      */
-    uint32_t getSegmentMasks() const { return fSegmentMask; }
+    uint32_t getSegmentMasks() const { return fPathRef->getSegmentMasks(); }
 
     enum Verb {
         kMove_Verb,     //!< iter.next returns 1 point
@@ -942,14 +942,15 @@ private:
 #endif
         kConvexity_SerializationShift = 16, // requires 8 bits
         kFillType_SerializationShift = 8,   // requires 8 bits
-        kSegmentMask_SerializationShift = 0 // requires 4 bits
+#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
+        kOldSegmentMask_SerializationShift = 0 // requires 4 bits
+#endif
     };
 
     SkAutoTUnref<SkPathRef> fPathRef;
 
     int                 fLastMoveToIndex;
     uint8_t             fFillType;
-    uint8_t             fSegmentMask;
     mutable uint8_t     fConvexity;
     mutable uint8_t     fDirection;
 #ifdef SK_BUILD_FOR_ANDROID

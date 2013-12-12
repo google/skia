@@ -28,13 +28,6 @@ SkPathRef::Editor::Editor(SkAutoTUnref<SkPathRef>* pathRef,
     SkDEBUGCODE(sk_atomic_inc(&fPathRef->fEditorsAttached);)
 }
 
-SkPoint* SkPathRef::Editor::growForConic(SkScalar w) {
-    SkDEBUGCODE(fPathRef->validate();)
-    SkPoint* pts = fPathRef->growForVerb(SkPath::kConic_Verb);
-    *fPathRef->fConicWeights.append() = w;
-    return pts;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 void SkPathRef::CreateEmptyImpl(SkPathRef** empty) {
     *empty = SkNEW(SkPathRef);
@@ -105,6 +98,8 @@ void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
         (*dst)->fBoundsIsDirty = true;
     }
 
+    (*dst)->fSegmentMask = src.fSegmentMask;
+
     // It's an oval only if it stays a rect.
     (*dst)->fIsOval = src.fIsOval && matrix.rectStaysRect();
 
@@ -118,6 +113,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer
     ) {
     SkPathRef* ref = SkNEW(SkPathRef);
     bool isOval;
+    uint8_t segmentMask;
 
     int32_t packed;
     if (!buffer->readS32(&packed)) {
@@ -130,9 +126,11 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
     if (newFormat) {
 #endif
+        segmentMask = (packed >> kSegmentMask_SerializationShift) & 0xF;
         isOval  = (packed >> kIsOval_SerializationShift) & 1;
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
     } else {
+        segmentMask = (oldPacked >> SkPath::kOldSegmentMask_SerializationShift) & 0xF;
         isOval  = (oldPacked >> SkPath::kOldIsOval_SerializationShift) & 1;
     }
 #endif
@@ -159,6 +157,9 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer
         return NULL;
     }
     ref->fBoundsIsDirty = false;
+
+    // resetToSize clears fSegmentMask and fIsOval
+    ref->fSegmentMask = segmentMask;
     ref->fIsOval = isOval;
     return ref;
 }
@@ -172,6 +173,7 @@ void SkPathRef::Rewind(SkAutoTUnref<SkPathRef>* pathRef) {
         (*pathRef)->fFreeSpace = (*pathRef)->currSize();
         (*pathRef)->fGenerationID = 0;
         (*pathRef)->fConicWeights.rewind();
+        (*pathRef)->fSegmentMask = 0;
         (*pathRef)->fIsOval = false;
         SkDEBUGCODE((*pathRef)->validate();)
     } else {
@@ -185,6 +187,14 @@ void SkPathRef::Rewind(SkAutoTUnref<SkPathRef>* pathRef) {
 bool SkPathRef::operator== (const SkPathRef& ref) const {
     SkDEBUGCODE(this->validate();)
     SkDEBUGCODE(ref.validate();)
+
+    // We explicitly check fSegmentMask as a quick-reject. We could skip it,
+    // since it is only a cache of info in the fVerbs, but its a fast way to
+    // notice a difference
+    if (fSegmentMask != ref.fSegmentMask) {
+        return false;
+    }
+
     bool genIDMatch = fGenerationID && fGenerationID == ref.fGenerationID;
 #ifdef SK_RELEASE
     if (genIDMatch) {
@@ -222,7 +232,7 @@ bool SkPathRef::operator== (const SkPathRef& ref) const {
     return true;
 }
 
-void SkPathRef::writeToBuffer(SkWBuffer* buffer) {
+void SkPathRef::writeToBuffer(SkWBuffer* buffer) const {
     SkDEBUGCODE(this->validate();)
     SkDEBUGCODE(size_t beforePos = buffer->pos();)
 
@@ -231,7 +241,8 @@ void SkPathRef::writeToBuffer(SkWBuffer* buffer) {
     const SkRect& bounds = this->getBounds();
 
     int32_t packed = ((fIsFinite & 1) << kIsFinite_SerializationShift) |
-                     ((fIsOval & 1) << kIsOval_SerializationShift);
+                     ((fIsOval & 1) << kIsOval_SerializationShift) |
+                     (fSegmentMask << kSegmentMask_SerializationShift);
     buffer->write32(packed);
 
     // TODO: write gen ID here. Problem: We don't know if we're cross process or not from
@@ -248,7 +259,7 @@ void SkPathRef::writeToBuffer(SkWBuffer* buffer) {
     SkASSERT(buffer->pos() - beforePos == (size_t) this->writeSize());
 }
 
-uint32_t SkPathRef::writeSize() {
+uint32_t SkPathRef::writeSize() const {
     return uint32_t(5 * sizeof(uint32_t) +
                     fVerbCnt * sizeof(uint8_t) +
                     fPointCnt * sizeof(SkPoint) +
@@ -273,11 +284,91 @@ void SkPathRef::copy(const SkPathRef& ref,
         fBounds = ref.fBounds;
         fIsFinite = ref.fIsFinite;
     }
+    fSegmentMask = ref.fSegmentMask;
     fIsOval = ref.fIsOval;
     SkDEBUGCODE(this->validate();)
 }
 
-SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb) {
+SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb, 
+                                        int numVbs, 
+                                        SkScalar** weights) {
+    // This value is just made-up for now. When count is 4, calling memset was much
+    // slower than just writing the loop. This seems odd, and hopefully in the
+    // future this will appear to have been a fluke...
+    static const unsigned int kMIN_COUNT_FOR_MEMSET_TO_BE_FAST = 16;
+
+    SkDEBUGCODE(this->validate();)
+    int pCnt;
+    bool dirtyAfterEdit = true;
+    switch (verb) {
+        case SkPath::kMove_Verb:
+            pCnt = numVbs;
+            dirtyAfterEdit = false;
+            break;
+        case SkPath::kLine_Verb:
+            fSegmentMask |= SkPath::kLine_SegmentMask;
+            pCnt = numVbs;
+            break;
+        case SkPath::kQuad_Verb:
+            fSegmentMask |= SkPath::kQuad_SegmentMask;
+            pCnt = 2 * numVbs;
+            break;
+        case SkPath::kConic_Verb:
+            fSegmentMask |= SkPath::kConic_SegmentMask;
+            pCnt = 2 * numVbs;
+            break;
+        case SkPath::kCubic_Verb:
+            fSegmentMask |= SkPath::kCubic_SegmentMask;
+            pCnt = 3 * numVbs;
+            break;
+        case SkPath::kClose_Verb:
+            SkDEBUGFAIL("growForRepeatedVerb called for kClose_Verb");
+            pCnt = 0;
+            dirtyAfterEdit = false;
+            break;
+        case SkPath::kDone_Verb:
+            SkDEBUGFAIL("growForRepeatedVerb called for kDone");
+            // fall through
+        default:
+            SkDEBUGFAIL("default should not be reached");
+            pCnt = 0;
+            dirtyAfterEdit = false;
+    }
+
+    size_t space = numVbs * sizeof(uint8_t) + pCnt * sizeof (SkPoint);
+    this->makeSpace(space);
+
+    SkPoint* ret = fPoints + fPointCnt;
+    uint8_t* vb = fVerbs - fVerbCnt;
+
+    // cast to unsigned, so if kMIN_COUNT_FOR_MEMSET_TO_BE_FAST is defined to
+    // be 0, the compiler will remove the test/branch entirely.
+    if ((unsigned)numVbs >= kMIN_COUNT_FOR_MEMSET_TO_BE_FAST) {
+        memset(vb - numVbs, verb, numVbs);
+    } else {
+        for (int i = 0; i < numVbs; ++i) {
+            vb[~i] = verb;
+        }
+    }
+
+    fVerbCnt += numVbs;
+    fPointCnt += pCnt;
+    fFreeSpace -= space;
+    fBoundsIsDirty = true;  // this also invalidates fIsFinite
+    if (dirtyAfterEdit) {
+        fIsOval = false;
+    }
+
+    if (SkPath::kConic_Verb == verb) {
+        SkASSERT(NULL != weights);
+        *weights = fConicWeights.append(numVbs);
+    }
+
+    SkDEBUGCODE(this->validate();)
+    return ret;
+}
+
+SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
     SkDEBUGCODE(this->validate();)
     int pCnt;
     bool dirtyAfterEdit = true;
@@ -287,14 +378,19 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb) {
             dirtyAfterEdit = false;
             break;
         case SkPath::kLine_Verb:
+            fSegmentMask |= SkPath::kLine_SegmentMask;
             pCnt = 1;
             break;
         case SkPath::kQuad_Verb:
-            // fall through
+            fSegmentMask |= SkPath::kQuad_SegmentMask;
+            pCnt = 2;
+            break;
         case SkPath::kConic_Verb:
+            fSegmentMask |= SkPath::kConic_SegmentMask;
             pCnt = 2;
             break;
         case SkPath::kCubic_Verb:
+            fSegmentMask |= SkPath::kCubic_SegmentMask;
             pCnt = 3;
             break;
         case SkPath::kClose_Verb:
@@ -320,6 +416,11 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb) {
     if (dirtyAfterEdit) {
         fIsOval = false;
     }
+
+    if (SkPath::kConic_Verb == verb) {
+        *fConicWeights.append() = weight;
+    }
+
     SkDEBUGCODE(this->validate();)
     return ret;
 }
@@ -369,5 +470,36 @@ void SkPathRef::validate() const {
         }
         SkASSERT(SkToBool(fIsFinite) == isFinite);
     }
+
+#ifdef SK_DEBUG_PATH
+    uint32_t mask = 0;
+    for (int i = 0; i < fVerbCnt; ++i) {
+        switch (fVerbs[~i]) {
+            case SkPath::kMove_Verb:
+                break;
+            case SkPath::kLine_Verb:
+                mask |= SkPath::kLine_SegmentMask;
+                break;
+            case SkPath::kQuad_Verb:
+                mask |= SkPath::kQuad_SegmentMask;
+                break;
+            case SkPath::kConic_Verb:
+                mask |= SkPath::kConic_SegmentMask;
+                break;
+            case SkPath::kCubic_Verb:
+                mask |= SkPath::kCubic_SegmentMask;
+                break;
+            case SkPath::kClose_Verb:
+                break;
+            case SkPath::kDone_Verb:
+                SkDEBUGFAIL("Done verb shouldn't be recorded.");
+                break;
+            default:
+                SkDEBUGFAIL("Unknown Verb");
+                break;
+        }
+    }
+    SkASSERT(mask == fSegmentMask);
+#endif // SK_DEBUG_PATH
 }
 #endif
