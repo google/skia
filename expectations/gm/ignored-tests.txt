@@ -75,3 +75,5 @@ clipped-bitmap-shaders-clamp-hq_angle
 clipped-bitmap-shaders-mirror-hq_angle
 clipped-bitmap-shaders-tile-hq_angle
 
+# Added by senorblanco to accomodate bounds fixes for SkXfermodeImageFilter in https://codereview.chromium.org/112683004.
+xfermodeimagefilter
