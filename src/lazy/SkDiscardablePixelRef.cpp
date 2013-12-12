@@ -58,7 +58,9 @@ void* SkDiscardablePixelRef::onLockPixels(SkColorTable**) {
     return pixels;
 }
 void SkDiscardablePixelRef::onUnlockPixels() {
-    fDiscardableMemory->unlock();
+    if (fDiscardableMemory != NULL) {
+        fDiscardableMemory->unlock();
+    }
 }
 
 bool SkInstallDiscardablePixelRef(SkImageGenerator* generator,

@@ -90,7 +90,9 @@ void* SkCachingPixelRef::onLockPixels(SkColorTable** colorTable) {
 }
 
 void SkCachingPixelRef::onUnlockPixels() {
-    SkASSERT(fScaledCacheId != NULL);
-    SkScaledImageCache::Unlock( static_cast<SkScaledImageCache::ID*>(fScaledCacheId));
-    fScaledCacheId = NULL;
+    if (fScaledCacheId != NULL) {
+        SkScaledImageCache::Unlock(
+            static_cast<SkScaledImageCache::ID*>(fScaledCacheId));
+        fScaledCacheId = NULL;
+    }
 }
