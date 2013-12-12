@@ -48,7 +48,6 @@
     '<(skia_src_path)/effects/SkOffsetImageFilter.cpp',
     '<(skia_src_path)/effects/SkPaintFlagsDrawFilter.cpp',
     '<(skia_src_path)/effects/SkPerlinNoiseShader.cpp',
-    '<(skia_src_path)/effects/SkPictureImageFilter.cpp',
     '<(skia_src_path)/effects/SkPixelXorXfermode.cpp',
     '<(skia_src_path)/effects/SkPorterDuff.cpp',
     '<(skia_src_path)/effects/SkRectShaderImageFilter.cpp',
