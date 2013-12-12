@@ -20,12 +20,14 @@ directive('imgCompare', function() {
           var ctx = canvas.getContext('2d');
 
           var magnifyContent = false;
+          var maskCanvas = false;
 
           // When the type attribute changes, load the image and then render
           attrs.$observe('type', function(value) {
               switch(value) {
                 case "alphaMask":
                     image.src = scope.record.differencePath;
+                    maskCanvas = true;
                     break;
                 case "baseline":
                     image.src = scope.record.baselinePath;
@@ -55,9 +57,27 @@ directive('imgCompare', function() {
                   canvas.width = image.width * scope.imgScaleFactor;
                   canvas.height = image.height * scope.imgScaleFactor;
 
+                  // update the size for non-alphaMask canvas when loading baseline image
+                  if (!scope.maskSizeUpdated) {
+                      if (!maskCanvas) {
+                          scope.updateMaskCanvasSize({width: canvas.width, height: canvas.height});
+                      }
+                      scope.maskCanvasSizeUpdated(true);
+                  }
+
                   // render the image onto the canvas
                   scope.renderImage();
               }
+          });
+
+          // when updatedMaskSize changes, update mask canvas size.
+          scope.$watch('updatedMaskSize', function(updatedSize) {
+              if (!maskCanvas) {
+                  return;
+              }
+
+              canvas.width = updatedSize.width;
+              canvas.height = updatedSize.height;
           });
 
           // When the magnify attribute changes, render the magnified rect at
@@ -166,6 +186,8 @@ function ImageController($scope, $http, $location, $timeout, $parse) {
   $scope.imgScaleFactor = 1.0;
   $scope.magnifierOn = false;
   $scope.magnifyCenter = undefined;
+  $scope.updatedMaskSize = undefined;
+  $scope.maskSizeUpdated = false;
 
   $scope.setImgScaleFactor = function(scaleFactor) {
     $scope.imgScaleFactor = scaleFactor;
@@ -177,6 +199,14 @@ function ImageController($scope, $http, $location, $timeout, $parse) {
 
   $scope.setMagnifyCenter = function(magnifyCenter) {
       $scope.magnifyCenter = magnifyCenter;
+  }
+
+  $scope.updateMaskCanvasSize = function(updatedSize) {
+      $scope.updatedMaskSize = updatedSize;
+  }
+
+  $scope.maskCanvasSizeUpdated = function(flag) {
+      $scope.maskSizeUpdated = flag;
   }
 }
 
