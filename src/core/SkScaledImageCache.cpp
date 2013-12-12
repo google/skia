@@ -209,7 +209,6 @@ private:
     SkDiscardableMemory* fDM;
     size_t               fRB;
     bool                 fFirstTime;
-    bool                 fIsLocked;
 
     typedef SkPixelRef INHERITED;
 };
@@ -225,7 +224,6 @@ SkOneShotDiscardablePixelRef::SkOneShotDiscardablePixelRef(const SkImageInfo& in
 
     SkASSERT(dm->data());
     fFirstTime = true;
-    fIsLocked = false;
 }
 
 SkOneShotDiscardablePixelRef::~SkOneShotDiscardablePixelRef() {
@@ -235,21 +233,16 @@ SkOneShotDiscardablePixelRef::~SkOneShotDiscardablePixelRef() {
 void* SkOneShotDiscardablePixelRef::onLockPixels(SkColorTable** ctable) {
     if (fFirstTime) {
         // we're already locked
+        SkASSERT(fDM->data());
         fFirstTime = false;
         return fDM->data();
     }
-
-    SkASSERT(!fIsLocked);
-    fIsLocked = fDM->lock();
-    return fIsLocked ? fDM->data() : NULL;
+    return fDM->lock() ? fDM->data() : NULL;
 }
 
 void SkOneShotDiscardablePixelRef::onUnlockPixels() {
     SkASSERT(!fFirstTime);
-    if (fIsLocked) {
-        fIsLocked = false;
-        fDM->unlock();
-    }
+    fDM->unlock();
 }
 
 size_t SkOneShotDiscardablePixelRef::getAllocatedSizeInBytes() const {
