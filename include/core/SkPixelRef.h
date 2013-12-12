@@ -295,6 +295,8 @@ protected:
 
 private:
     SkBaseMutex*    fMutex; // must remain in scope for the life of this object
+    // FIXME: fInfo should be const once we remove old constructor that does
+    // not set it.
     SkImageInfo     fInfo;
 
     void*           fPixels;
