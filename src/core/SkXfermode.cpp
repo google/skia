@@ -468,16 +468,18 @@ static inline void clipColor(int* r, int* g, int* b, int a) {
     int L = Lum(*r, *g, *b);
     int n = minimum(*r, *g, *b);
     int x = maximum(*r, *g, *b);
-    if(n < 0) {
-       *r = L + SkMulDiv(*r - L, L, L - n);
-       *g = L + SkMulDiv(*g - L, L, L - n);
-       *b = L + SkMulDiv(*b - L, L, L - n);
+    int denom;
+    if ((n < 0) && (denom = L - n)) { // Compute denom and make sure it's non zero
+       *r = L + SkMulDiv(*r - L, L, denom);
+       *g = L + SkMulDiv(*g - L, L, denom);
+       *b = L + SkMulDiv(*b - L, L, denom);
     }
 
-    if (x > a) {
-       *r = L + SkMulDiv(*r - L, a - L, x - L);
-       *g = L + SkMulDiv(*g - L, a - L, x - L);
-       *b = L + SkMulDiv(*b - L, a - L, x - L);
+    if ((x > a) && (denom = x - L)) { // Compute denom and make sure it's non zero
+       int numer = a - L;
+       *r = L + SkMulDiv(*r - L, numer, denom);
+       *g = L + SkMulDiv(*g - L, numer, denom);
+       *b = L + SkMulDiv(*b - L, numer, denom);
     }
 }
 
