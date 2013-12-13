@@ -24,7 +24,7 @@ DEF_TEST(Bitmap, reporter) {
             if (setConf) {
                 REPORTER_ASSERT(reporter, bm.allocPixels(NULL));
             }
-            REPORTER_ASSERT(reporter, (width & height) != bm.empty());
+            REPORTER_ASSERT(reporter, SkToBool(width & height) != bm.empty());
         }
     }
 }
