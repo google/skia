@@ -155,9 +155,19 @@ SkSurface* SkSurface::NewRaster(const SkImageInfo& info) {
         return NULL;
     }
 
-    SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewAllocate(info, 0, NULL));
-    if (NULL == pr.get()) {
+    static const size_t kMaxTotalSize = SK_MaxS32;
+    size_t rowBytes = SkImageMinRowBytes(info);
+    uint64_t size64 = (uint64_t)info.fHeight * rowBytes;
+    if (size64 > kMaxTotalSize) {
         return NULL;
     }
-    return SkNEW_ARGS(SkSurface_Raster, (info, pr, info.minRowBytes()));
+
+    size_t size = (size_t)size64;
+    void* pixels = sk_malloc_throw(size);
+    if (NULL == pixels) {
+        return NULL;
+    }
+
+    SkAutoTUnref<SkPixelRef> pr(SkNEW_ARGS(SkMallocPixelRef, (pixels, size, NULL, true)));
+    return SkNEW_ARGS(SkSurface_Raster, (info, pr, rowBytes));
 }

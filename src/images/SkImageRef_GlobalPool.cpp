@@ -24,10 +24,10 @@ static SkImageRefPool* GetGlobalPool() {
     return gPool;
 }
 
-SkImageRef_GlobalPool::SkImageRef_GlobalPool(const SkImageInfo& info,
-                                             SkStreamRewindable* stream,
+SkImageRef_GlobalPool::SkImageRef_GlobalPool(SkStreamRewindable* stream,
+                                             SkBitmap::Config config,
                                              int sampleSize)
-        : SkImageRef(info, stream, sampleSize, &gGlobalPoolMutex) {
+        : SkImageRef(stream, config, sampleSize, &gGlobalPoolMutex) {
     SkASSERT(&gGlobalPoolMutex == this->mutex());
     SkAutoMutexAcquire ac(gGlobalPoolMutex);
     GetGlobalPool()->addToHead(this);

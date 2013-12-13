@@ -513,14 +513,13 @@ const uint16_t* SkGradientShaderBase::getCache16() const {
 
 const SkPMColor* SkGradientShaderBase::getCache32() const {
     if (fCache32 == NULL) {
-        SkImageInfo info;
-        info.fWidth = kCache32Count;
-        info.fHeight = 4;   // for our 4 dither rows
-        info.fAlphaType = kPremul_SkAlphaType;
-        info.fColorType = kPMColor_SkColorType;
+        // double the count for dither entries
+        const int entryCount = kCache32Count * 4;
+        const size_t allocSize = sizeof(SkPMColor) * entryCount;
 
         if (NULL == fCache32PixelRef) {
-            fCache32PixelRef = SkMallocPixelRef::NewAllocate(info, 0, NULL);
+            fCache32PixelRef = SkNEW_ARGS(SkMallocPixelRef,
+                                          (NULL, allocSize, NULL));
         }
         fCache32 = (SkPMColor*)fCache32PixelRef->getAddr();
         if (fColorCount == 2) {
@@ -542,7 +541,8 @@ const SkPMColor* SkGradientShaderBase::getCache32() const {
         }
 
         if (fMapper) {
-            SkMallocPixelRef* newPR = SkMallocPixelRef::NewAllocate(info, 0, NULL);
+            SkMallocPixelRef* newPR = SkNEW_ARGS(SkMallocPixelRef,
+                                                 (NULL, allocSize, NULL));
             SkPMColor* linear = fCache32;           // just computed linear data
             SkPMColor* mapped = (SkPMColor*)newPR->getAddr();    // storage for mapped data
             SkUnitMapper* map = fMapper;
