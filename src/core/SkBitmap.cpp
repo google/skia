@@ -298,7 +298,7 @@ bool SkBitmap::setConfig(Config config, int width, int height, size_t rowBytes,
     }
     if (rowBytes == 0) {
         rowBytes = SkBitmap::ComputeRowBytes(config, width);
-        if (0 == rowBytes && kNo_Config != config) {
+        if (0 == rowBytes && kNo_Config != config && width > 0) {
             goto BAD_CONFIG;
         }
     }

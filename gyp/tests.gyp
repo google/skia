@@ -32,6 +32,7 @@
         '../tests/AnnotationTest.cpp',
         '../tests/ARGBImageEncoderTest.cpp',
         '../tests/AtomicTest.cpp',
+        '../tests/BitmapTest.cpp',
         '../tests/BitmapCopyTest.cpp',
         '../tests/BitmapGetColorTest.cpp',
         '../tests/BitmapHasherTest.cpp',
