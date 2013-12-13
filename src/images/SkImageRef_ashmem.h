@@ -19,7 +19,7 @@ struct SkAshmemRec {
 
 class SkImageRef_ashmem : public SkImageRef {
 public:
-    SkImageRef_ashmem(SkStreamRewindable*, SkBitmap::Config, int sampleSize = 1);
+    SkImageRef_ashmem(const SkImageInfo&, SkStreamRewindable*, int sampleSize = 1);
     virtual ~SkImageRef_ashmem();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkImageRef_ashmem)

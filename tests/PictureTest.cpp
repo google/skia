@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkData.h"
+#include "SkDecodingImageGenerator.h"
 #include "SkError.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
@@ -337,32 +338,6 @@ static void test_bad_bitmap() {
 }
 #endif
 
-#include "SkData.h"
-#include "SkImageRef_GlobalPool.h"
-// Class to test SkPixelRef::onRefEncodedData, since there are currently no implementations in skia.
-class SkDataImageRef : public SkImageRef_GlobalPool {
-
-public:
-    SkDataImageRef(SkMemoryStream* stream)
-        : SkImageRef_GlobalPool(stream, SkBitmap::kNo_Config) {
-        SkASSERT(stream != NULL);
-        fData = stream->copyToData();
-        this->setImmutable();
-    }
-
-    ~SkDataImageRef() {
-        fData->unref();
-    }
-
-    virtual SkData* onRefEncodedData() SK_OVERRIDE {
-        fData->ref();
-        return fData;
-    }
-
-private:
-    SkData* fData;
-};
-
 #include "SkImageEncoder.h"
 
 static SkData* encode_bitmap_to_data(size_t* offset, const SkBitmap& bm) {
@@ -404,14 +379,10 @@ static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
         return;
     }
     SkAutoDataUnref data(wStream.copyToData());
-    SkMemoryStream memStream;
-    memStream.setData(data);
 
-    // Use the encoded bitmap as the data for an image ref.
     SkBitmap bm;
-    SkAutoTUnref<SkDataImageRef> imageRef(SkNEW_ARGS(SkDataImageRef, (&memStream)));
-    imageRef->getInfo(&bm);
-    bm.setPixelRef(imageRef);
+    bool installSuccess = SkDecodingImageGenerator::Install(data, &bm);
+    REPORTER_ASSERT(reporter, installSuccess);
 
     // Write both bitmaps to pictures, and ensure that the resulting data streams are the same.
     // Flattening original will follow the old path of performing an encode, while flattening bm

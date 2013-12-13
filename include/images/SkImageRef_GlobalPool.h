@@ -15,7 +15,7 @@
 class SkImageRef_GlobalPool : public SkImageRef {
 public:
     // if pool is null, use the global pool
-    SkImageRef_GlobalPool(SkStreamRewindable*, SkBitmap::Config,
+    SkImageRef_GlobalPool(const SkImageInfo&, SkStreamRewindable*,
                           int sampleSize = 1);
     virtual ~SkImageRef_GlobalPool();
 

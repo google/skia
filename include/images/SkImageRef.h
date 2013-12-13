@@ -34,7 +34,7 @@ public:
         @param config The preferred config of the decoded bitmap.
         @param sampleSize Requested sampleSize for decoding. Defaults to 1.
     */
-    SkImageRef(SkStreamRewindable*, SkBitmap::Config config, int sampleSize = 1,
+    SkImageRef(const SkImageInfo&, SkStreamRewindable*, int sampleSize = 1,
                SkBaseMutex* mutex = NULL);
     virtual ~SkImageRef();
 
@@ -72,9 +72,9 @@ protected:
         When these are called, we will have already acquired the mutex!
      */
 
-    virtual void* onLockPixels(SkColorTable**);
+    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
     // override this in your subclass to clean up when we're unlocking pixels
-    virtual void onUnlockPixels() {}
+    virtual void onUnlockPixels() SK_OVERRIDE {}
 
     SkImageRef(SkFlattenableReadBuffer&, SkBaseMutex* mutex = NULL);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
@@ -89,7 +89,6 @@ private:
 
     SkImageDecoderFactory*  fFactory;    // may be null
     SkStreamRewindable*     fStream;
-    SkBitmap::Config        fConfig;
     int                     fSampleSize;
     bool                    fDoDither;
     bool                    fErrorInDecoding;
