@@ -8,6 +8,7 @@
 #include "PictureRenderer.h"
 #include "picture_utils.h"
 #include "SamplePipeControllers.h"
+#include "SkBitmapHasher.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDevice.h"
@@ -39,6 +40,39 @@ enum {
     kDefaultTileWidth = 256,
     kDefaultTileHeight = 256
 };
+
+/* TODO(epoger): These constants are already maintained in 2 other places:
+ * gm/gm_json.py and gm/gm_expectations.cpp.  We shouldn't add yet a third place.
+ * Figure out a way to share the definitions instead.
+ */
+const static char kJsonKey_ActualResults[]   = "actual-results";
+const static char kJsonKey_ActualResults_Failed[]        = "failed";
+const static char kJsonKey_ActualResults_FailureIgnored[]= "failure-ignored";
+const static char kJsonKey_ActualResults_NoComparison[]  = "no-comparison";
+const static char kJsonKey_ActualResults_Succeeded[]     = "succeeded";
+const static char kJsonKey_ExpectedResults[] = "expected-results";
+const static char kJsonKey_ExpectedResults_AllowedDigests[] = "allowed-digests";
+const static char kJsonKey_ExpectedResults_IgnoreFailure[]  = "ignore-failure";
+const static char kJsonKey_Hashtype_Bitmap_64bitMD5[]  = "bitmap-64bitMD5";
+
+void ImageResultsSummary::add(const char *testName, const SkBitmap& bitmap) {
+    uint64_t hash;
+    SkAssertResult(SkBitmapHasher::ComputeDigest(bitmap, &hash));
+    Json::Value jsonTypeValuePair;
+    jsonTypeValuePair.append(Json::Value(kJsonKey_Hashtype_Bitmap_64bitMD5));
+    jsonTypeValuePair.append(Json::UInt64(hash));
+    fActualResultsNoComparison[testName] = jsonTypeValuePair;
+}
+
+void ImageResultsSummary::writeToFile(const char *filename) {
+    Json::Value actualResults;
+    actualResults[kJsonKey_ActualResults_NoComparison] = fActualResultsNoComparison;
+    Json::Value root;
+    root[kJsonKey_ActualResults] = actualResults;
+    std::string jsonStdString = root.toStyledString();
+    SkFILEWStream stream(filename);
+    stream.write(jsonStdString.c_str(), jsonStdString.length());
+}
 
 void PictureRenderer::init(SkPicture* pict) {
     SkASSERT(NULL == fPicture);
@@ -217,13 +251,27 @@ uint32_t PictureRenderer::recordFlags() {
  * @param canvas Must be non-null. Canvas to be written to a file.
  * @param path Path for the file to be written. Should have no extension; write() will append
  *             an appropriate one. Passed in by value so it can be modified.
+ * @param jsonSummaryPtr If not null, add image results to this summary.
  * @return bool True if the Canvas is written to a file.
+ *
+ * TODO(epoger): Right now, all canvases must pass through this function in order to be appended
+ * to the ImageResultsSummary.  We need some way to add bitmaps to the ImageResultsSummary
+ * even if --writePath has not been specified (and thus this function is not called).
+ *
+ * One fix would be to pass in these path elements separately, and allow this function to be
+ * called even if --writePath was not specified...
+ *  const char *outputDir   // NULL if we don't want to write image files to disk
+ *  const char *filename    // name we use within JSON summary, and as the filename within outputDir
  */
-static bool write(SkCanvas* canvas, SkString path) {
+static bool write(SkCanvas* canvas, const SkString* path, ImageResultsSummary *jsonSummaryPtr) {
     SkASSERT(canvas != NULL);
     if (NULL == canvas) {
         return false;
     }
+
+    SkASSERT(path != NULL);  // TODO(epoger): we want to remove this constraint, as noted above
+    SkString fullPathname(*path);
+    fullPathname.append(".png");
 
     SkBitmap bitmap;
     SkISize size = canvas->getDeviceSize();
@@ -232,22 +280,33 @@ static bool write(SkCanvas* canvas, SkString path) {
     canvas->readPixels(&bitmap, 0, 0);
     sk_tools::force_all_opaque(bitmap);
 
-    // Since path is passed in by value, it is okay to modify it.
-    path.append(".png");
-    return SkImageEncoder::EncodeFile(path.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
+    if (NULL != jsonSummaryPtr) {
+        // EPOGER: This is a hacky way of constructing the filename associated with the
+        // image checksum; we assume that outputDir is not NULL, and we remove outputDir
+        // from fullPathname.
+        //
+        // EPOGER: what about including the config type within hashFilename?  That way,
+        // we could combine results of different config types without conflicting filenames.
+        SkString hashFilename;
+        sk_tools::get_basename(&hashFilename, fullPathname);
+        jsonSummaryPtr->add(hashFilename.c_str(), bitmap);
+    }
+
+    return SkImageEncoder::EncodeFile(fullPathname.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
 }
 
 /**
- * If path is non NULL, append number to it, and call write(SkCanvas*, SkString) to write the
+ * If path is non NULL, append number to it, and call write() to write the
  * provided canvas to a file. Returns true if path is NULL or if write() succeeds.
  */
-static bool writeAppendNumber(SkCanvas* canvas, const SkString* path, int number) {
+static bool writeAppendNumber(SkCanvas* canvas, const SkString* path, int number,
+                              ImageResultsSummary *jsonSummaryPtr) {
     if (NULL == path) {
         return true;
     }
     SkString pathWithNumber(*path);
     pathWithNumber.appendf("%i", number);
-    return write(canvas, pathWithNumber);
+    return write(canvas, &pathWithNumber, jsonSummaryPtr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -309,7 +368,7 @@ bool PipePictureRenderer::render(const SkString* path, SkBitmap** out) {
     writer.endRecording();
     fCanvas->flush();
     if (NULL != path) {
-        return write(fCanvas, *path);
+        return write(fCanvas, path, fJsonSummaryPtr);
     }
     if (NULL != out) {
         *out = SkNEW(SkBitmap);
@@ -340,7 +399,7 @@ bool SimplePictureRenderer::render(const SkString* path, SkBitmap** out) {
     fCanvas->drawPicture(*fPicture);
     fCanvas->flush();
     if (NULL != path) {
-        return write(fCanvas, *path);
+        return write(fCanvas, path, fJsonSummaryPtr);
     }
 
     if (NULL != out) {
@@ -506,11 +565,22 @@ static void DrawTileToCanvas(SkCanvas* canvas, const SkRect& tileRect, T* playba
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-static void bitmapCopySubset(const SkBitmap& src, SkBitmap* dst, int xDst,
-                             int yDst) {
-    for (int y = 0; y <src.height() && y + yDst < dst->height() ; y++) {
-        for (int x = 0; x < src.width() && x + xDst < dst->width() ; x++) {
-            *dst->getAddr32(xDst + x, yDst + y) = *src.getAddr32(x, y);
+/**
+ * Copies the entirety of the src bitmap (typically a tile) into a portion of the dst bitmap.
+ * If the src bitmap is too large to fit within the dst bitmap after the x and y
+ * offsets have been applied, any excess will be ignored (so only the top-left portion of the
+ * src bitmap will be copied).
+ *
+ * @param src source bitmap
+ * @param dst destination bitmap
+ * @param xOffset x-offset within destination bitmap
+ * @param yOffset y-offset within destination bitmap
+ */
+static void bitmapCopyAtOffset(const SkBitmap& src, SkBitmap* dst,
+                               int xOffset, int yOffset) {
+    for (int y = 0; y <src.height() && y + yOffset < dst->height() ; y++) {
+        for (int x = 0; x < src.width() && x + xOffset < dst->width() ; x++) {
+            *dst->getAddr32(xOffset + x, yOffset + y) = *src.getAddr32(x, y);
         }
     }
 }
@@ -545,12 +615,13 @@ bool TiledPictureRenderer::render(const SkString* path, SkBitmap** out) {
     for (int i = 0; i < fTileRects.count(); ++i) {
         DrawTileToCanvas(fCanvas, fTileRects[i], fPicture);
         if (NULL != path) {
-            success &= writeAppendNumber(fCanvas, path, i);
+            success &= writeAppendNumber(fCanvas, path, i, fJsonSummaryPtr);
         }
         if (NULL != out) {
             if (fCanvas->readPixels(&bitmap, 0, 0)) {
-                bitmapCopySubset(bitmap, *out, SkScalarFloorToInt(fTileRects[i].left()),
-                                 SkScalarFloorToInt(fTileRects[i].top()));
+                // Add this tile to the entire bitmap.
+                bitmapCopyAtOffset(bitmap, *out, SkScalarFloorToInt(fTileRects[i].left()),
+                                   SkScalarFloorToInt(fTileRects[i].top()));
             } else {
                 success = false;
             }
@@ -603,7 +674,7 @@ class CloneData : public SkRunnable {
 
 public:
     CloneData(SkPicture* clone, SkCanvas* canvas, SkTDArray<SkRect>& rects, int start, int end,
-              SkRunnable* done)
+              SkRunnable* done, ImageResultsSummary* jsonSummaryPtr)
         : fClone(clone)
         , fCanvas(canvas)
         , fPath(NULL)
@@ -611,7 +682,8 @@ public:
         , fStart(start)
         , fEnd(end)
         , fSuccess(NULL)
-        , fDone(done) {
+        , fDone(done)
+        , fJsonSummaryPtr(jsonSummaryPtr) {
         SkASSERT(fDone != NULL);
     }
 
@@ -626,7 +698,7 @@ public:
 
         for (int i = fStart; i < fEnd; i++) {
             DrawTileToCanvas(fCanvas, fRects[i], fClone);
-            if (fPath != NULL && !writeAppendNumber(fCanvas, fPath, i)
+            if ((fPath != NULL) && !writeAppendNumber(fCanvas, fPath, i, fJsonSummaryPtr)
                 && fSuccess != NULL) {
                 *fSuccess = false;
                 // If one tile fails to write to a file, do not continue drawing the rest.
@@ -635,8 +707,8 @@ public:
             if (fBitmap != NULL) {
                 if (fCanvas->readPixels(&bitmap, 0, 0)) {
                     SkAutoLockPixels alp(*fBitmap);
-                    bitmapCopySubset(bitmap, fBitmap, SkScalarFloorToInt(fRects[i].left()),
-                                     SkScalarFloorToInt(fRects[i].top()));
+                    bitmapCopyAtOffset(bitmap, fBitmap, SkScalarFloorToInt(fRects[i].left()),
+                                       SkScalarFloorToInt(fRects[i].top()));
                 } else {
                     *fSuccess = false;
                     // If one tile fails to read pixels, do not continue drawing the rest.
@@ -669,6 +741,7 @@ private:
                                     // and only set to false upon failure to write to a PNG.
     SkRunnable*        fDone;
     SkBitmap*          fBitmap;
+    ImageResultsSummary* fJsonSummaryPtr;
 };
 
 MultiCorePictureRenderer::MultiCorePictureRenderer(int threadCount)
@@ -704,7 +777,8 @@ void MultiCorePictureRenderer::init(SkPicture *pict) {
         const int start = i * chunkSize;
         const int end = SkMin32(start + chunkSize, fTileRects.count());
         fCloneData[i] = SkNEW_ARGS(CloneData,
-                                   (pic, fCanvasPool[i], fTileRects, start, end, &fCountdown));
+                                   (pic, fCanvasPool[i], fTileRects, start, end, &fCountdown,
+                                    fJsonSummaryPtr));
     }
 }
 

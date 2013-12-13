@@ -11,6 +11,7 @@
 #include "SkCanvas.h"
 #include "SkCountdown.h"
 #include "SkDrawFilter.h"
+#include "SkJSONCPP.h"
 #include "SkMath.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
@@ -36,6 +37,30 @@ class SkThread;
 namespace sk_tools {
 
 class TiledPictureRenderer;
+
+/**
+ * Class for collecting image results (checksums) as we go.
+ */
+class ImageResultsSummary {
+public:
+    /**
+     * Adds this bitmap's hash to the summary of results.
+     *
+     * @param testName name of the test
+     * @param bitmap bitmap to store the hash of
+     */
+    void add(const char *testName, const SkBitmap& bitmap);
+
+    /**
+     * Writes the summary (as constructed so far) to a file.
+     *
+     * @param filename path to write the summary to
+     */
+    void writeToFile(const char *filename);
+
+private:
+    Json::Value fActualResultsNoComparison;
+};
 
 class PictureRenderer : public SkRefCnt {
 
@@ -183,6 +208,10 @@ public:
         fGridInfo.fTileInterval.set(width, height);
     }
 
+    void setJsonSummaryPtr(ImageResultsSummary* jsonSummaryPtr) {
+        fJsonSummaryPtr = jsonSummaryPtr;
+    }
+
     bool isUsingBitmapDevice() {
         return kBitmap_DeviceType == fDeviceType;
     }
@@ -266,6 +295,7 @@ public:
 
     PictureRenderer()
         : fPicture(NULL)
+        , fJsonSummaryPtr(NULL)
         , fDeviceType(kBitmap_DeviceType)
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
         , fScaleFactor(SK_Scalar1)
@@ -290,6 +320,7 @@ public:
 protected:
     SkAutoTUnref<SkCanvas> fCanvas;
     SkPicture*             fPicture;
+    ImageResultsSummary*   fJsonSummaryPtr;
     SkDeviceTypes          fDeviceType;
     BBoxHierarchyType      fBBoxHierarchyType;
     DrawFilterFlags        fDrawFilters[SkDrawFilter::kTypeCount];
