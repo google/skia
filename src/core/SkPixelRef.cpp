@@ -182,6 +182,10 @@ void SkPixelRef::lockPixels() {
 
         if (1 == ++fLockCount) {
             fPixels = this->onLockPixels(&fColorTable);
+            // If onLockPixels failed, it will return NULL
+            if (NULL == fPixels) {
+                fColorTable = NULL;
+            }
         }
     }
 }
@@ -194,9 +198,14 @@ void SkPixelRef::unlockPixels() {
 
         SkASSERT(fLockCount > 0);
         if (0 == --fLockCount) {
-            this->onUnlockPixels();
-            fPixels = NULL;
-            fColorTable = NULL;
+            // don't call onUnlockPixels unless onLockPixels succeeded
+            if (fPixels) {
+                this->onUnlockPixels();
+                fPixels = NULL;
+                fColorTable = NULL;
+            } else {
+                SkASSERT(NULL == fColorTable);
+            }
         }
     }
 }

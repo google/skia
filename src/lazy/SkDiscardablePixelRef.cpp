@@ -56,14 +56,15 @@ void* SkDiscardablePixelRef::onLockPixels(SkColorTable**) {
     }
     void* pixels = fDiscardableMemory->data();
     if (!fGenerator->getPixels(fInfo, pixels, fRowBytes)) {
-        return NULL;  // TODO(halcanary) Find out correct thing to do.
+        fDiscardableMemory->unlock();
+        SkDELETE(fDiscardableMemory);
+        fDiscardableMemory = NULL;
+        return NULL;
     }
     return pixels;
 }
 void SkDiscardablePixelRef::onUnlockPixels() {
-    if (fDiscardableMemory != NULL) {
-        fDiscardableMemory->unlock();
-    }
+    fDiscardableMemory->unlock();
 }
 
 bool SkInstallDiscardablePixelRef(SkImageGenerator* generator,
