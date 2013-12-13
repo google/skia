@@ -49,12 +49,17 @@ public:
         /**
          * Returns the array of points.
          */
-        SkPoint* points() { return fPathRef->fPoints; }
+        SkPoint* points() { return fPathRef->getPoints(); }
+        const SkPoint* points() const { return fPathRef->points(); }
 
         /**
          * Gets the ith point. Shortcut for this->points() + i
          */
         SkPoint* atPoint(int i) {
+            SkASSERT((unsigned) i < (unsigned) fPathRef->fPointCnt);
+            return this->points() + i;
+        };
+        const SkPoint* atPoint(int i) const {
             SkASSERT((unsigned) i < (unsigned) fPathRef->fPointCnt);
             return this->points() + i;
         };
@@ -89,12 +94,15 @@ public:
         void resetToSize(int newVerbCnt, int newPointCnt, int newConicCount) {
             fPathRef->resetToSize(newVerbCnt, newPointCnt, newConicCount);
         }
+
         /**
          * Gets the path ref that is wrapped in the Editor.
          */
         SkPathRef* pathRef() { return fPathRef; }
 
         void setIsOval(bool isOval) { fPathRef->setIsOval(isOval); }
+
+        void setBounds(const SkRect& rect) { fPathRef->setBounds(rect); }
 
     private:
         SkPathRef* fPathRef;
@@ -156,13 +164,6 @@ public:
             this->computeBounds();
         }
         return fBounds;
-    }
-
-    void setBounds(const SkRect& rect) {
-        SkASSERT(rect.fLeft <= rect.fRight && rect.fTop <= rect.fBottom);
-        fBounds = rect;
-        fBoundsIsDirty = false;
-        fIsFinite = fBounds.isFinite();
     }
 
     /**
@@ -299,6 +300,13 @@ private:
         fBoundsIsDirty = false;
     }
 
+    void setBounds(const SkRect& rect) {
+        SkASSERT(rect.fLeft <= rect.fRight && rect.fTop <= rect.fBottom);
+        fBounds = rect;
+        fBoundsIsDirty = false;
+        fIsFinite = fBounds.isFinite();
+    }
+
     /** Makes additional room but does not change the counts or change the genID */
     void incReserve(int additionalVerbs, int additionalPoints) {
         SkDEBUGCODE(this->validate();)
@@ -418,6 +426,12 @@ private:
 
     void setIsOval(bool isOval) { fIsOval = isOval; }
 
+    SkPoint* getPoints() { 
+        SkDEBUGCODE(this->validate();) 
+        fIsOval = false;
+        return fPoints; 
+    }
+
     enum {
         kMinSize = 256,
     };
@@ -441,6 +455,7 @@ private:
     mutable uint32_t    fGenerationID;
     SkDEBUGCODE(int32_t fEditorsAttached;) // assert that only one editor in use at any time.
 
+    friend class PathRefTest_Private;
     typedef SkRefCnt INHERITED;
 };
 

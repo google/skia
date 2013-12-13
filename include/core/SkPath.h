@@ -1005,7 +1005,9 @@ private:
 
     // 'rect' needs to be sorted
     void setBounds(const SkRect& rect) {
-        fPathRef->setBounds(rect);
+        SkPathRef::Editor ed(&fPathRef);
+
+        ed.setBounds(rect);
     }
 
 #ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO

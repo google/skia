@@ -24,7 +24,6 @@ SkPathRef::Editor::Editor(SkAutoTUnref<SkPathRef>* pathRef,
     }
     fPathRef = *pathRef;
     fPathRef->fGenerationID = 0;
-    fPathRef->fIsOval = false;
     SkDEBUGCODE(sk_atomic_inc(&fPathRef->fEditorsAttached);)
 }
 
