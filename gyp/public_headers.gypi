@@ -218,7 +218,6 @@
       'core/SkStrokeRec.h',
       'core/SkImageDecoder.h',
       'core/SkTime.h',
-      'core/SkScalarCompare.h',
       'core/SkPathMeasure.h',
       'core/SkMaskFilter.h',
       'core/SkBounder.h',
