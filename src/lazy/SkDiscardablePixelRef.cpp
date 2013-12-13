@@ -63,7 +63,7 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
         fDiscardableMemory->unlock();
         SkDELETE(fDiscardableMemory);
         fDiscardableMemory = NULL;
-        return NULL;
+        return false;
     }
 
     rec->fPixels = pixels;
