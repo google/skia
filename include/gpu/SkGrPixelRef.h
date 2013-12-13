@@ -1,12 +1,9 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 
 #ifndef SkGrPixelRef_DEFINED
 #define SkGrPixelRef_DEFINED
@@ -23,7 +20,7 @@
  */
 class SK_API SkROLockPixelsPixelRef : public SkPixelRef {
 public:
-    SkROLockPixelsPixelRef();
+    SkROLockPixelsPixelRef(const SkImageInfo&);
     virtual ~SkROLockPixelsPixelRef();
 
 protected:
@@ -47,7 +44,6 @@ public:
      * cache and would like the pixel ref to unlock it in its destructor then transferCacheLock
      * should be set to true.
      */
-    SkGrPixelRef(GrSurface*, bool transferCacheLock = false);
     SkGrPixelRef(const SkImageInfo&, GrSurface*, bool transferCacheLock = false);
     virtual ~SkGrPixelRef();
 

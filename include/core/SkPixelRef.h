@@ -16,7 +16,7 @@
 #include "SkFlattenable.h"
 #include "SkTDArray.h"
 
-#define SK_SUPPORT_LEGACY_PIXELREF_CONSTRUCTOR
+//#define SK_SUPPORT_LEGACY_PIXELREF_CONSTRUCTOR
 
 #ifdef SK_DEBUG
     /**

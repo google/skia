@@ -149,6 +149,7 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
     REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
 
     unsigned char dataWritten[1024];
+    SkASSERT(bytesWritten <= sizeof(dataWritten));
     writer.writeToMemory(dataWritten);
 
     // Make sure this fails when it should (test with smaller size, but still multiple of 4)
@@ -308,10 +309,22 @@ DEF_TEST(Serialization, reporter) {
         TestBitmapSerialization(validBitmap, invalidBitmap, true, reporter);
 
         // Create a bitmap with a pixel ref too small
+        SkImageInfo info;
+        info.fWidth = 256;
+        info.fHeight = 256;
+        info.fColorType = kPMColor_SkColorType;
+        info.fAlphaType = kPremul_SkAlphaType;
+
         SkBitmap invalidBitmap2;
-        invalidBitmap2.setConfig(SkBitmap::kARGB_8888_Config, 256, 256);
-        invalidBitmap2.setPixelRef(SkNEW_ARGS(SkMallocPixelRef,
-            (NULL, 256, NULL)))->unref();
+        invalidBitmap2.setConfig(info);
+        
+        // Hack to force invalid, by making the pixelref smaller than its
+        // owning bitmap.
+        info.fWidth = 32;
+        info.fHeight = 1;
+        
+        invalidBitmap2.setPixelRef(SkMallocPixelRef::NewAllocate(
+                        info, invalidBitmap2.rowBytes(), NULL))->unref();
 
         // The deserialization should detect the pixel ref being too small and fail
         TestBitmapSerialization(validBitmap, invalidBitmap2, false, reporter);

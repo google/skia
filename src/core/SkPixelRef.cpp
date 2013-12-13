@@ -122,6 +122,7 @@ SkPixelRef::SkPixelRef(SkBaseMutex* mutex) {
 SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex)
         : INHERITED(buffer) {
     this->setMutex(mutex);
+    fInfo.unflatten(buffer);
     fPixels = NULL;
     fColorTable = NULL; // we do not track ownership of this
     fLockCount = 0;
@@ -160,6 +161,7 @@ void SkPixelRef::setPreLocked(void* pixels, SkColorTable* ctable) {
 
 void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
+    fInfo.flatten(buffer);
     buffer.writeBool(fIsImmutable);
     // We write the gen ID into the picture for within-process recording. This
     // is safe since the same genID will never refer to two different sets of

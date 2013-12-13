@@ -14,7 +14,7 @@ class SkData;
 
 class SkDataPixelRef : public SkPixelRef {
 public:
-            SkDataPixelRef(SkData* data);
+            SkDataPixelRef(const SkImageInfo&, SkData* data);
     virtual ~SkDataPixelRef();
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDataPixelRef)

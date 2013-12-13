@@ -9,7 +9,10 @@
 #include "SkData.h"
 #include "SkFlattenableBuffers.h"
 
-SkDataPixelRef::SkDataPixelRef(SkData* data) : fData(data) {
+SkDataPixelRef::SkDataPixelRef(const SkImageInfo& info, SkData* data)
+    : INHERITED(info)
+    , fData(data)
+{
     fData->ref();
     this->setPreLocked(const_cast<void*>(fData->data()), NULL);
 }

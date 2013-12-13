@@ -58,12 +58,10 @@ private:
     SkImageGenerator* const fImageGenerator;
     bool                    fErrorInDecoding;
     void*                   fScaledCacheId;
-    const SkImageInfo       fInfo;
     const size_t            fRowBytes;
 
-    SkCachingPixelRef(SkImageGenerator* imageGenerator,
-                      const SkImageInfo& info,
-                      size_t rowBytes);
+    SkCachingPixelRef(const SkImageInfo&, SkImageGenerator*, size_t rowBytes);
+
     typedef SkPixelRef INHERITED;
 };
 

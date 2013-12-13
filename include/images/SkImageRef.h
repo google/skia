@@ -34,7 +34,7 @@ public:
         @param config The preferred config of the decoded bitmap.
         @param sampleSize Requested sampleSize for decoding. Defaults to 1.
     */
-    SkImageRef(SkStreamRewindable*, SkBitmap::Config config, int sampleSize = 1,
+    SkImageRef(const SkImageInfo&, SkStreamRewindable*, int sampleSize = 1,
                SkBaseMutex* mutex = NULL);
     virtual ~SkImageRef();
 
@@ -89,7 +89,6 @@ private:
 
     SkImageDecoderFactory*  fFactory;    // may be null
     SkStreamRewindable*     fStream;
-    SkBitmap::Config        fConfig;
     int                     fSampleSize;
     bool                    fDoDither;
     bool                    fErrorInDecoding;

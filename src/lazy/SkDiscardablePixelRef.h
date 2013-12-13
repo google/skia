@@ -30,8 +30,6 @@ protected:
 private:
     SkImageGenerator* const fGenerator;
     SkDiscardableMemory::Factory* const fDMFactory;
-    const SkImageInfo fInfo;
-    const size_t fSize;  // size of memory to be allocated
     const size_t fRowBytes;
     // These const members should not change over the life of the
     // PixelRef, since the SkBitmap doesn't expect them to change.
@@ -39,9 +37,7 @@ private:
     SkDiscardableMemory* fDiscardableMemory;
 
     /* Takes ownership of SkImageGenerator. */
-    SkDiscardablePixelRef(SkImageGenerator* generator,
-                          const SkImageInfo& info,
-                          size_t size,
+    SkDiscardablePixelRef(const SkImageInfo&, SkImageGenerator*,
                           size_t rowBytes,
                           SkDiscardableMemory::Factory* factory);
     friend bool SkInstallDiscardablePixelRef(SkImageGenerator*,
