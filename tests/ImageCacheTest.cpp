@@ -28,7 +28,7 @@ static void test_cache(skiatest::Reporter* reporter, SkScaledImageCache& cache,
     for (int i = 0; i < COUNT; ++i) {
         make_bm(&bm[i], DIM, DIM);
     }
-    
+
     for (int i = 0; i < COUNT; ++i) {
         SkBitmap tmp;
 

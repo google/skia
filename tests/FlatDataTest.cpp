@@ -84,4 +84,3 @@ DEF_TEST(FlatData, reporter) {
     SkAutoUnref aurxf(xfer);
     testCreate(reporter, xfer, &flattenFlattenableProc);
 }
-
