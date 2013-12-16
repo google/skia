@@ -284,13 +284,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7357685257622579155
+          9345454686226166633
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bigmatrix_565.png": {
       "allowed-digests": [
