@@ -226,9 +226,13 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
                 }
 
                 // This case can only be reached if extractSubset was called, so
-                // the recorded width and height must be smaller than (or equal to
+                // the recorded width and height must be smaller than or equal to
                 // the encoded width and height.
-                SkASSERT(width <= bitmap->width() && height <= bitmap->height());
+                // FIXME (scroggo): This assert assumes that our decoder and the
+                // sources encoder agree on the width and height which may not
+                // always be the case. Removing until it can be investigated
+                // further.
+                //SkASSERT(width <= bitmap->width() && height <= bitmap->height());
 
                 SkBitmap subsetBm;
                 SkIRect subset = SkIRect::MakeXYWH(xOffset, yOffset, width, height);
