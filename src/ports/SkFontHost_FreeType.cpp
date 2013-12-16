@@ -213,6 +213,7 @@ private:
     FT_Error setupSize();
     void getBBoxForCurrentGlyph(SkGlyph* glyph, FT_BBox* bbox,
                                 bool snapToPixelBoundary = false);
+    bool getCBoxForLetter(char letter, FT_BBox* bbox);
     // Caller must lock gFTMutex before calling this function.
     void updateGlyphIfLCD(SkGlyph* glyph);
 };
@@ -431,7 +432,8 @@ static bool GetLetterCBox(FT_Face face, char letter, FT_BBox* bbox) {
     const FT_UInt glyph_id = FT_Get_Char_Index(face, letter);
     if (!glyph_id)
         return false;
-    FT_Load_Glyph(face, glyph_id, FT_LOAD_NO_SCALE);
+    if (FT_Load_Glyph(face, glyph_id, FT_LOAD_NO_SCALE) != 0)
+        return false;
     FT_Outline_Get_CBox(&face->glyph->outline, bbox);
     return true;
 }
@@ -582,8 +584,10 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
             info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
         else if (serif_style >= 9 && serif_style <= 12)
             info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
-    } else if ((os2_table =
-                (TT_OS2*)FT_Get_Sfnt_Table(face, ft_sfnt_os2)) != NULL) {
+    } else if (((os2_table = (TT_OS2*)FT_Get_Sfnt_Table(face, ft_sfnt_os2)) != NULL) &&
+               // sCapHeight is available only when version 2 or later.
+               os2_table->version != 0xFFFF &&
+               os2_table->version >= 2) {
         info->fCapHeight = os2_table->sCapHeight;
     } else {
         // Figure out a good guess for CapHeight: average the height of M and X.
@@ -1126,6 +1130,20 @@ void SkScalerContext_FreeType::getBBoxForCurrentGlyph(SkGlyph* glyph,
     }
 }
 
+bool SkScalerContext_FreeType::getCBoxForLetter(char letter, FT_BBox* bbox) {
+    const FT_UInt glyph_id = FT_Get_Char_Index(fFace, letter);
+    if (!glyph_id)
+        return false;
+    if (FT_Load_Glyph(fFace, glyph_id, fLoadGlyphFlags) != 0)
+        return false;
+    if ((fRec.fFlags & kEmbolden_Flag) &&
+        !(fFace->style_flags & FT_STYLE_FLAG_BOLD)) {
+        emboldenOutline(fFace, &fFace->glyph->outline);
+    }
+    FT_Outline_Get_CBox(&fFace->glyph->outline, bbox);
+    return true;
+}
+
 void SkScalerContext_FreeType::updateGlyphIfLCD(SkGlyph* glyph) {
     if (isLCD(fRec)) {
         if (fLCDIsVert) {
@@ -1358,10 +1376,14 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     // use the os/2 table as a source of reasonable defaults.
     SkScalar x_height = 0.0f;
     SkScalar avgCharWidth = 0.0f;
+    SkScalar cap_height = 0.0f;
     TT_OS2* os2 = (TT_OS2*) FT_Get_Sfnt_Table(face, ft_sfnt_os2);
     if (os2) {
         x_height = scaleX * SkIntToScalar(os2->sxHeight) / upem;
         avgCharWidth = SkIntToScalar(os2->xAvgCharWidth) / upem;
+        if (os2->version != 0xFFFF && os2->version >= 2) {
+            cap_height = scaleX * SkIntToScalar(os2->sCapHeight) / upem;
+        }
     }
 
     // pull from format-specific metrics as needed
@@ -1374,17 +1396,17 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         xmax = SkIntToScalar(face->bbox.xMax) / upem;
         ymin = -SkIntToScalar(face->bbox.yMin) / upem;
         ymax = -SkIntToScalar(face->bbox.yMax) / upem;
-        // we may be able to synthesize x_height from outline
+        // we may be able to synthesize x_height and cap_height from outline
         if (!x_height) {
-            const FT_UInt x_glyph = FT_Get_Char_Index(fFace, 'x');
-            if (x_glyph) {
-                FT_BBox bbox;
-                FT_Load_Glyph(fFace, x_glyph, fLoadGlyphFlags);
-                if ((fRec.fFlags & kEmbolden_Flag) && !(fFace->style_flags & FT_STYLE_FLAG_BOLD)) {
-                    emboldenOutline(fFace, &fFace->glyph->outline);
-                }
-                FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
+            FT_BBox bbox;
+            if (getCBoxForLetter('x', &bbox)) {
                 x_height = SkIntToScalar(bbox.yMax) / 64.0f;
+            }
+        }
+        if (!cap_height) {
+            FT_BBox bbox;
+            if (getCBoxForLetter('H', &bbox)) {
+                cap_height = SkIntToScalar(bbox.yMax) / 64.0f;
             }
         }
     } else if (fStrikeIndex != -1) { // bitmap strike metrics
@@ -1398,12 +1420,6 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         xmax = SkIntToScalar(face->available_sizes[fStrikeIndex].width) / xppem;
         ymin = descent + leading;
         ymax = ascent - descent;
-        if (!x_height) {
-            x_height = -ascent;
-        }
-        if (!avgCharWidth) {
-            avgCharWidth = xmax - xmin;
-        }
     } else {
         goto ERROR;
     }
@@ -1414,6 +1430,9 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     }
     if (!avgCharWidth) {
         avgCharWidth = xmax - xmin;
+    }
+    if (!cap_height) {
+      cap_height = -ascent;
     }
 
     // disallow negative linespacing
@@ -1431,6 +1450,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         mx->fXMin = xmin;
         mx->fXMax = xmax;
         mx->fXHeight = x_height;
+        mx->fCapHeight = cap_height;
     }
     if (my) {
         my->fTop = ymax * myy;
@@ -1442,6 +1462,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         my->fXMin = xmin;
         my->fXMax = xmax;
         my->fXHeight = x_height;
+        my->fCapHeight = cap_height;
     }
 }
 

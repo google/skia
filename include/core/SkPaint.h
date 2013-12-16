@@ -740,7 +740,8 @@ public:
         SkScalar    fMaxCharWidth;  //!< the max charactor width (>= 0)
         SkScalar    fXMin;      //!< The minimum bounding box x value for all glyphs
         SkScalar    fXMax;      //!< The maximum bounding box x value for all glyphs
-        SkScalar    fXHeight;   //!< the height of an 'x' in px, or 0 if no 'x' in face
+        SkScalar    fXHeight;   //!< The height of an 'x' in px, or 0 if no 'x' in face
+        SkScalar    fCapHeight;  //!< The cap height (> 0), or 0 if cannot be determined.
     };
 
     /** Return the recommend spacing between lines (which will be
