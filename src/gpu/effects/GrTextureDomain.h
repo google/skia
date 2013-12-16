@@ -31,6 +31,12 @@ public:
     };
     static const int kModeCount = kLastMode + 1;
 
+    static const GrTextureDomain& IgnoredDomain() {
+        static const SkRect gDummyRect = {0, 0, 0, 0};
+        static const GrTextureDomain gDomain(gDummyRect, kIgnore_Mode);
+        return gDomain;
+    }
+
     /**
      * @param index     Pass a value >= 0 if using multiple texture domains in the same effect.
      *                  It is used to keep inserted variables from causing name collisions.

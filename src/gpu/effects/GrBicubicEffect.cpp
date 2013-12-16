@@ -14,6 +14,7 @@ class GrGLBicubicEffect : public GrGLEffect {
 public:
     GrGLBicubicEffect(const GrBackendEffectFactory& factory,
                       const GrDrawEffect&);
+
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
                           EffectKey,
@@ -24,11 +25,17 @@ public:
 
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
 
+    static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
+        const GrTextureDomain& domain = drawEffect.castEffect<GrBicubicEffect>().domain();
+        return GrTextureDomain::GLDomain::DomainKey(domain);
+    }
+
 private:
     typedef GrGLUniformManager::UniformHandle        UniformHandle;
 
-    UniformHandle       fCoefficientsUni;
-    UniformHandle       fImageIncrementUni;
+    UniformHandle               fCoefficientsUni;
+    UniformHandle               fImageIncrementUni;
+    GrTextureDomain::GLDomain   fDomain;
 
     typedef GrGLEffect INHERITED;
 };
@@ -38,13 +45,13 @@ GrGLBicubicEffect::GrGLBicubicEffect(const GrBackendEffectFactory& factory, cons
 }
 
 void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
-                                 const GrDrawEffect&,
+                                 const GrDrawEffect& drawEffect,
                                  EffectKey key,
                                  const char* outputColor,
                                  const char* inputColor,
                                  const TransformedCoordsArray& coords,
                                  const TextureSamplerArray& samplers) {
-    sk_ignore_unused_variable(inputColor);
+    const GrTextureDomain& domain = drawEffect.castEffect<GrBicubicEffect>().domain();
 
     SkString coords2D = builder->ensureFSCoords2D(coords, 0);
     fCoefficientsUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
@@ -81,42 +88,60 @@ void GrGLBicubicEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\tcoord /= %s;\n", imgInc);
     builder->fsCodeAppend("\tvec2 f = fract(coord);\n");
     builder->fsCodeAppendf("\tcoord = (coord - f + vec2(0.5)) * %s;\n", imgInc);
+    builder->fsCodeAppend("\tvec4 rowColors[4];\n");
     for (int y = 0; y < 4; ++y) {
         for (int x = 0; x < 4; ++x) {
             SkString coord;
             coord.printf("coord + %s * vec2(%d, %d)", imgInc, x - 1, y - 1);
-            builder->fsCodeAppendf("\tvec4 s%d%d = ", x, y);
-            builder->fsAppendTextureLookup(samplers[0], coord.c_str());
-            builder->fsCodeAppend(";\n");
+            SkString sampleVar;
+            sampleVar.printf("rowColors[%d]", x);
+            fDomain.sampleTexture(builder, domain, sampleVar.c_str(), coord, samplers[0]);
         }
-        builder->fsCodeAppendf("\tvec4 s%d = %s(%s, f.x, s0%d, s1%d, s2%d, s3%d);\n", y, cubicBlendName.c_str(), coeff, y, y, y, y);
+        builder->fsCodeAppendf("\tvec4 s%d = %s(%s, f.x, rowColors[0], rowColors[1], rowColors[2], rowColors[3]);\n", y, cubicBlendName.c_str(), coeff);
     }
-    builder->fsCodeAppendf("\t%s = %s(%s, f.y, s0, s1, s2, s3);\n", outputColor, cubicBlendName.c_str(), coeff);
+    SkString bicubicColor;
+    bicubicColor.printf("%s(%s, f.y, s0, s1, s2, s3)", cubicBlendName.c_str(), coeff);
+    builder->fsCodeAppendf("\t%s = %s;\n", outputColor, (GrGLSLExpr4(bicubicColor.c_str()) * GrGLSLExpr4(inputColor)).c_str());
 }
 
 void GrGLBicubicEffect::setData(const GrGLUniformManager& uman,
                                 const GrDrawEffect& drawEffect) {
     const GrBicubicEffect& effect = drawEffect.castEffect<GrBicubicEffect>();
-    GrTexture& texture = *effect.texture(0);
+    const GrTexture& texture = *effect.texture(0);
     float imageIncrement[2];
     imageIncrement[0] = 1.0f / texture.width();
     imageIncrement[1] = 1.0f / texture.height();
     uman.set2fv(fImageIncrementUni, 1, imageIncrement);
     uman.setMatrix4f(fCoefficientsUni, effect.coefficients());
+    fDomain.setData(uman, effect.domain(), texture.origin());
+}
+
+static inline void convert_row_major_scalar_coeffs_to_column_major_floats(float dst[16],
+                                                                          const SkScalar src[16]) {
+    for (int y = 0; y < 4; y++) {
+        for (int x = 0; x < 4; x++) {
+            dst[x * 4 + y] = SkScalarToFloat(src[y * 4 + x]);
+        }
+    }
 }
 
 GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
                                  const SkScalar coefficients[16],
                                  const SkMatrix &matrix,
                                  const SkShader::TileMode tileModes[2])
-  : INHERITED(texture, matrix, GrTextureParams(tileModes, GrTextureParams::kNone_FilterMode)) {
-    for (int y = 0; y < 4; y++) {
-        for (int x = 0; x < 4; x++) {
-            // Convert from row-major scalars to column-major floats.
-            fCoefficients[x * 4 + y] = SkScalarToFloat(coefficients[y * 4 + x]);
-        }
-    }
-    this->setWillNotUseInputColor();
+  : INHERITED(texture, matrix, GrTextureParams(tileModes, GrTextureParams::kNone_FilterMode))
+  , fDomain(GrTextureDomain::IgnoredDomain()) {
+    convert_row_major_scalar_coeffs_to_column_major_floats(fCoefficients, coefficients);
+}
+
+GrBicubicEffect::GrBicubicEffect(GrTexture* texture,
+                                 const SkScalar coefficients[16],
+                                 const SkMatrix &matrix,
+                                 const SkRect& domain)
+  : INHERITED(texture, matrix, GrTextureParams(SkShader::kClamp_TileMode,
+                                               GrTextureParams::kNone_FilterMode))
+  , fDomain(domain, GrTextureDomain::kClamp_Mode) {
+    convert_row_major_scalar_coeffs_to_column_major_floats(fCoefficients, coefficients);
 }
 
 GrBicubicEffect::~GrBicubicEffect() {
@@ -133,7 +158,7 @@ bool GrBicubicEffect::onIsEqual(const GrEffect& sBase) const {
 }
 
 void GrBicubicEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
-    // FIXME:  Perhaps we can do better.
+    // FIXME: Perhaps we can do better.
     *validFlags = 0;
     return;
 }
