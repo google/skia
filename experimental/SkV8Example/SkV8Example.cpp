@@ -16,11 +16,15 @@ using namespace v8;
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLInterface.h"
 #include "SkApplication.h"
+#include "SkCommandLineFlags.h"
+#include "SkData.h"
 #include "SkDraw.h"
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkScalar.h"
 
+
+DEFINE_string2(infile, i, NULL, "Name of file to load JS from.\n");
 
 void application_init() {
     SkGraphics::Init();
@@ -375,25 +379,32 @@ bool JsCanvas::initialize(const char script[]) {
 SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     printf("Started\n");
 
+    SkCommandLineFlags::Parse(argc, argv);
+
     // Get the default Isolate created at startup.
     Isolate* isolate = Isolate::GetCurrent();
 
     JsCanvas* jsCanvas = new JsCanvas(isolate);
+
     const char* script =
-"var onDraw = function(){                                        \n"
-"  var tick = 0;                                                 \n"
-"  function f(canvas) {                                          \n"
-"    tick += 0.001;                                              \n"
-"    canvas.fillStyle = '#00FF00';                               \n"
-"    canvas.fillRect(20, 20, 100, Math.abs(Math.cos(tick)*100)); \n"
-"    canvas.inval();                                             \n"
-"  };                                                            \n"
-"  return f;                                                     \n"
-"}();                                                            \n";
+"function onDraw(canvas) {              \n"
+"    canvas.fillStyle = '#00FF00';      \n"
+"    canvas.fillRect(20, 20, 100, 100); \n"
+"    canvas.inval();                    \n"
+"}                                      \n";
+
+    SkAutoTUnref<SkData> data;
+    if (FLAGS_infile.count()) {
+        data.reset(SkData::NewFromFileName(FLAGS_infile[0]));
+        script = static_cast<const char*>(data->data());
+    }
+    if (NULL == script) {
+        printf("Could not load file: %s.\n", FLAGS_infile[0]);
+        exit(1);
+    }
     if (!jsCanvas->initialize(script)) {
         printf("Failed to initialize.\n");
         exit(1);
     }
-
     return new SkV8ExampleWindow(hwnd, jsCanvas);
 }

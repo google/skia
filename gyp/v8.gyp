@@ -18,6 +18,7 @@
          'skia_lib.gyp:skia_lib',
          'views.gyp:views',
          'xml.gyp:xml',
+         'flags.gyp:flags',
        ],
 
         'link_settings': {
