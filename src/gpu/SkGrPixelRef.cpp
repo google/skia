@@ -82,7 +82,7 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkBitmap::Config 
     info.fWidth = desc.fWidth;
     info.fHeight = desc.fHeight;
     info.fAlphaType = kPremul_SkAlphaType;
-    
+
     GrTexture* dst = context->createUncachedTexture(desc, NULL, 0);
     if (NULL == dst) {
         return NULL;

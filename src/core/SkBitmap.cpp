@@ -536,7 +536,7 @@ bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst,
 //        SkDebugf("unsupported config for info %d\n", dst->config());
         return false;
     }
-    
+
     SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, dst->rowBytes(),
                                                    ctable);
     if (NULL == pr) {

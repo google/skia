@@ -17,7 +17,7 @@ static bool is_valid(const SkImageInfo& info, SkColorTable* ctable) {
     {
         return false;
     }
-    
+
     // these seem like good checks, but currently we have (at least) tests
     // that expect the pixelref to succeed even when there is a mismatch
     // with colortables. fix?
@@ -98,7 +98,7 @@ SkMallocPixelRef::SkMallocPixelRef(const SkImageInfo& info, void* storage,
     fCTable = ctable;
     fRB = rowBytes;
     SkSafeRef(ctable);
-    
+
     this->setPreLocked(fStorage, fCTable);
 }
 

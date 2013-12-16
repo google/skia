@@ -44,7 +44,7 @@ public:
      */
     static SkMallocPixelRef* NewAllocate(const SkImageInfo& info,
                                          size_t rowBytes, SkColorTable*);
-    
+
     void* getAddr() const { return fStorage; }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMallocPixelRef)

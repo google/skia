@@ -317,12 +317,12 @@ DEF_TEST(Serialization, reporter) {
 
         SkBitmap invalidBitmap2;
         invalidBitmap2.setConfig(info);
-        
+
         // Hack to force invalid, by making the pixelref smaller than its
         // owning bitmap.
         info.fWidth = 32;
         info.fHeight = 1;
-        
+
         invalidBitmap2.setPixelRef(SkMallocPixelRef::NewAllocate(
                         info, invalidBitmap2.rowBytes(), NULL))->unref();
 

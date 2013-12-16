@@ -79,12 +79,12 @@ public:
          * requisite points & weights.
          * The return pointer points at the first new point (indexed normally [<i>]).
          * If 'verb' is kConic_Verb, 'weights' will return a pointer to the
-         * space for the conic weights (indexed normally). 
+         * space for the conic weights (indexed normally).
          */
-        SkPoint* growForRepeatedVerb(int /*SkPath::Verb*/ verb, 
-                                     int numVbs, 
-                                     SkScalar** weights = NULL) { 
-            return fPathRef->growForRepeatedVerb(verb, numVbs, weights); 
+        SkPoint* growForRepeatedVerb(int /*SkPath::Verb*/ verb,
+                                     int numVbs,
+                                     SkScalar** weights = NULL) {
+            return fPathRef->growForRepeatedVerb(verb, numVbs, weights);
         }
 
         /**
@@ -353,8 +353,8 @@ private:
     }
 
     /**
-     * Increases the verb count by numVbs and point count by the required amount. 
-     * The new points are uninitialized. All the new verbs are set to the specified 
+     * Increases the verb count by numVbs and point count by the required amount.
+     * The new points are uninitialized. All the new verbs are set to the specified
      * verb. If 'verb' is kConic_Verb, 'weights' will return a pointer to the
      * uninitialized conic weights.
      */
@@ -426,10 +426,10 @@ private:
 
     void setIsOval(bool isOval) { fIsOval = isOval; }
 
-    SkPoint* getPoints() { 
-        SkDEBUGCODE(this->validate();) 
+    SkPoint* getPoints() {
+        SkDEBUGCODE(this->validate();)
         fIsOval = false;
-        return fPoints; 
+        return fPoints;
     }
 
     enum {

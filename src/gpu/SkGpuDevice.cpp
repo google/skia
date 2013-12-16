@@ -255,7 +255,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     info.fWidth = width;
     info.fHeight = height;
     info.fAlphaType = kPremul_SkAlphaType;
-        
+
     SkAutoTUnref<GrTexture> texture(fContext->createUncachedTexture(desc, NULL, 0));
 
     if (NULL != texture) {

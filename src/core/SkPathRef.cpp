@@ -288,8 +288,8 @@ void SkPathRef::copy(const SkPathRef& ref,
     SkDEBUGCODE(this->validate();)
 }
 
-SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb, 
-                                        int numVbs, 
+SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
+                                        int numVbs,
                                         SkScalar** weights) {
     // This value is just made-up for now. When count is 4, calling memset was much
     // slower than just writing the loop. This seems odd, and hopefully in the
