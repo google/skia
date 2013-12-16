@@ -292,6 +292,27 @@ void SkV8ExampleWindow::onHandleInval(const SkIRect& rect) {
 }
 #endif
 
+
+// The callback that is invoked by v8 whenever the JavaScript 'print'
+// function is called.  Prints its arguments on stdout separated by
+// spaces and ending with a newline.
+void Print(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    bool first = true;
+    HandleScope handle_scope(args.GetIsolate());
+    for (int i = 0; i < args.Length(); i++) {
+        if (first) {
+            first = false;
+        } else {
+            printf(" ");
+        }
+        v8::String::Utf8Value str(args[i]);
+        printf("%s", ToCString(str));
+    }
+    printf("\n");
+    fflush(stdout);
+}
+
+
 // Creates a new execution environment containing the built-in
 // function draw().
 Handle<Context> createRootContext(Isolate* isolate) {
@@ -300,6 +321,9 @@ Handle<Context> createRootContext(Isolate* isolate) {
 
   // This is where we would inject any globals into the root Context
   // using global->Set(...)
+
+  global->Set(v8::String::NewFromUtf8(isolate, "print"),
+              v8::FunctionTemplate::New(Print));
 
   return Context::New(isolate, NULL, global);
 }
