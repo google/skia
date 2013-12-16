@@ -196,7 +196,7 @@ inline bool SkFixedNearlyZero(SkFixed x, SkFixed tolerance = SK_FixedNearlyZero)
     */
     inline SkFixed SkFloatToFixed_arm(float x)
     {
-        register int32_t y, z;
+        int32_t y, z;
         asm("movs    %1, %3, lsl #1         \n"
             "mov     %2, #0x8E              \n"
             "sub     %1, %2, %1, lsr #24    \n"
@@ -213,7 +213,7 @@ inline bool SkFixedNearlyZero(SkFixed x, SkFixed tolerance = SK_FixedNearlyZero)
     }
     inline SkFixed SkFixedMul_arm(SkFixed x, SkFixed y)
     {
-        register int32_t t;
+        int32_t t;
         asm("smull  %0, %2, %1, %3          \n"
             "mov    %0, %0, lsr #16         \n"
             "orr    %0, %0, %2, lsl #16     \n"
@@ -225,7 +225,7 @@ inline bool SkFixedNearlyZero(SkFixed x, SkFixed tolerance = SK_FixedNearlyZero)
     }
     inline SkFixed SkFixedMulAdd_arm(SkFixed x, SkFixed y, SkFixed a)
     {
-        register int32_t t;
+        int32_t t;
         asm("smull  %0, %3, %1, %4          \n"
             "add    %0, %2, %0, lsr #16     \n"
             "add    %0, %0, %3, lsl #16     \n"
@@ -237,7 +237,7 @@ inline bool SkFixedNearlyZero(SkFixed x, SkFixed tolerance = SK_FixedNearlyZero)
     }
     inline SkFixed SkFractMul_arm(SkFixed x, SkFixed y)
     {
-        register int32_t t;
+        int32_t t;
         asm("smull  %0, %2, %1, %3          \n"
             "mov    %0, %0, lsr #30         \n"
             "orr    %0, %0, %2, lsl #2      \n"
