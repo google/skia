@@ -139,16 +139,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if defined(SK_SOFTWARE_FLOAT) && defined(SK_SCALAR_IS_FLOAT)
-   // if this is defined, we convert floats to 2s compliment ints for compares.
-#  ifndef SK_SCALAR_SLOW_COMPARES
-#    define SK_SCALAR_SLOW_COMPARES
-#  endif
-#  ifndef SK_USE_FLOATBITS
-#    define SK_USE_FLOATBITS
-#  endif
-#endif
-
 #ifdef SK_BUILD_FOR_WIN
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN

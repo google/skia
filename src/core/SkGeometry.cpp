@@ -799,8 +799,6 @@ template <typename T> void bubble_sort(T array[], int count)
             }
 }
 
-#include "SkFP.h"
-
 // newton refinement
 #if 0
 static SkScalar refine_cubic_root(const SkFP coeff[4], SkScalar root)
@@ -897,6 +895,10 @@ static void test_collaps_duplicates() {
 #pragma warning ( disable : 4702 )
 #endif
 
+static SkScalar SkScalarCubeRoot(SkScalar x) {
+    return sk_float_pow(x, 0.3333333f);
+}
+
 /*  Solve coeff(t) == 0, returning the number of roots that
     lie withing 0 < t < 1.
     coeff[0]t^3 + coeff[1]t^2 + coeff[2]t + coeff[3]
@@ -904,44 +906,35 @@ static void test_collaps_duplicates() {
     Eliminates repeated roots (so that all tValues are distinct, and are always
     in increasing order.
 */
-static int solve_cubic_polynomial(const SkFP coeff[4], SkScalar tValues[3])
+static int solve_cubic_polynomial(const SkScalar coeff[4], SkScalar tValues[3])
 {
-#ifndef SK_SCALAR_IS_FLOAT
-    return 0;   // this is not yet implemented for software float
-#endif
-
     if (SkScalarNearlyZero(coeff[0]))   // we're just a quadratic
     {
         return SkFindUnitQuadRoots(coeff[1], coeff[2], coeff[3], tValues);
     }
 
-    SkFP    a, b, c, Q, R;
+    SkScalar a, b, c, Q, R;
 
     {
         SkASSERT(coeff[0] != 0);
 
-        SkFP inva = SkFPInvert(coeff[0]);
-        a = SkFPMul(coeff[1], inva);
-        b = SkFPMul(coeff[2], inva);
-        c = SkFPMul(coeff[3], inva);
+        SkScalar inva = SkScalarInvert(coeff[0]);
+        a = coeff[1] * inva;
+        b = coeff[2] * inva;
+        c = coeff[3] * inva;
     }
-    Q = SkFPDivInt(SkFPSub(SkFPMul(a,a), SkFPMulInt(b, 3)), 9);
-//  R = (2*a*a*a - 9*a*b + 27*c) / 54;
-    R = SkFPMulInt(SkFPMul(SkFPMul(a, a), a), 2);
-    R = SkFPSub(R, SkFPMulInt(SkFPMul(a, b), 9));
-    R = SkFPAdd(R, SkFPMulInt(c, 27));
-    R = SkFPDivInt(R, 54);
+    Q = (a*a - b*3) / 9;
+    R = (2*a*a*a - 9*a*b + 27*c) / 54;
 
-    SkFP Q3 = SkFPMul(SkFPMul(Q, Q), Q);
-    SkFP R2MinusQ3 = SkFPSub(SkFPMul(R,R), Q3);
-    SkFP adiv3 = SkFPDivInt(a, 3);
+    SkScalar Q3 = Q * Q * Q;
+    SkScalar R2MinusQ3 = R * R - Q3;
+    SkScalar adiv3 = a / 3;
 
     SkScalar*   roots = tValues;
     SkScalar    r;
 
-    if (SkFPLT(R2MinusQ3, 0))   // we have 3 real roots
+    if (R2MinusQ3 < 0)   // we have 3 real roots
     {
-#ifdef SK_SCALAR_IS_FLOAT
         float theta = sk_float_acos(R / sk_float_sqrt(Q3));
         float neg2RootQ = -2 * sk_float_sqrt(Q);
 
@@ -965,18 +958,17 @@ static int solve_cubic_polynomial(const SkFP coeff[4], SkScalar tValues[3])
         bubble_sort(tValues, count);
         count = collaps_duplicates(tValues, count);
         roots = tValues + count;    // so we compute the proper count below
-#endif
     }
     else                // we have 1 real root
     {
-        SkFP A = SkFPAdd(SkFPAbs(R), SkFPSqrt(R2MinusQ3));
-        A = SkFPCubeRoot(A);
-        if (SkFPGT(R, 0))
-            A = SkFPNeg(A);
+        SkScalar A = SkScalarAbs(R) + SkScalarSqrt(R2MinusQ3);
+        A = SkScalarCubeRoot(A);
+        if (R > 0)
+            A = -A;
 
         if (A != 0)
-            A = SkFPAdd(A, SkFPDiv(Q, A));
-        r = SkFPToScalar(SkFPSub(A, adiv3));
+            A += Q / A;
+        r = A - adiv3;
         if (is_unit_interval(r))
             *roots++ = r;
     }
@@ -995,21 +987,16 @@ static int solve_cubic_polynomial(const SkFP coeff[4], SkScalar tValues[3])
 
     F' dot F'' -> CCt^3 + 3BCt^2 + (2BB + CA)t + AB
 */
-static void formulate_F1DotF2(const SkScalar src[], SkFP coeff[4])
+static void formulate_F1DotF2(const SkScalar src[], SkScalar coeff[4])
 {
     SkScalar    a = src[2] - src[0];
     SkScalar    b = src[4] - 2 * src[2] + src[0];
     SkScalar    c = src[6] + 3 * (src[2] - src[4]) - src[0];
 
-    SkFP    A = SkScalarToFP(a);
-    SkFP    B = SkScalarToFP(b);
-    SkFP    C = SkScalarToFP(c);
-
-    coeff[0] = SkFPMul(C, C);
-    coeff[1] = SkFPMulInt(SkFPMul(B, C), 3);
-    coeff[2] = SkFPMulInt(SkFPMul(B, B), 2);
-    coeff[2] = SkFPAdd(coeff[2], SkFPMul(C, A));
-    coeff[3] = SkFPMul(A, B);
+    coeff[0] = c * c;
+    coeff[1] = 3 * b * c;
+    coeff[2] = 2 * b * b + c * a;
+    coeff[3] = a * b;
 }
 
 // EXPERIMENTAL: can set this to zero to accept all t-values 0 < t < 1
@@ -1029,14 +1016,14 @@ static void formulate_F1DotF2(const SkScalar src[], SkFP coeff[4])
 */
 int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3])
 {
-    SkFP    coeffX[4], coeffY[4];
-    int     i;
+    SkScalar coeffX[4], coeffY[4];
+    int      i;
 
     formulate_F1DotF2(&src[0].fX, coeffX);
     formulate_F1DotF2(&src[0].fY, coeffY);
 
     for (i = 0; i < 4; i++)
-        coeffX[i] = SkFPAdd(coeffX[i],coeffY[i]);
+        coeffX[i] += coeffY[i];
 
     SkScalar    t[3];
     int         count = solve_cubic_polynomial(coeffX, t);

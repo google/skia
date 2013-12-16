@@ -78,24 +78,6 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     if (count <= 0) {
         sk_bzero(this, sizeof(SkRect));
     } else {
-#ifdef SK_SCALAR_SLOW_COMPARES
-        int32_t    l, t, r, b;
-
-        l = r = SkScalarAs2sCompliment(pts[0].fX);
-        t = b = SkScalarAs2sCompliment(pts[0].fY);
-
-        for (int i = 1; i < count; i++) {
-            int32_t x = SkScalarAs2sCompliment(pts[i].fX);
-            int32_t y = SkScalarAs2sCompliment(pts[i].fY);
-
-            if (x < l) l = x; else if (x > r) r = x;
-            if (y < t) t = y; else if (y > b) b = y;
-        }
-        this->set(Sk2sComplimentAsScalar(l),
-                  Sk2sComplimentAsScalar(t),
-                  Sk2sComplimentAsScalar(r),
-                  Sk2sComplimentAsScalar(b));
-#else
         SkScalar    l, t, r, b;
 
         l = r = pts[0].fX;
@@ -116,15 +98,12 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
             if (y < t) t = y; MINMAX_ELSE if (y > b) b = y;
         }
 
-#ifdef SK_SCALAR_IS_FLOAT
         SkASSERT(!accum || !SkScalarIsFinite(accum));
         if (accum) {
             l = t = r = b = 0;
             isFinite = false;
         }
-#endif
         this->set(l, t, r, b);
-#endif
     }
 
     return isFinite;
