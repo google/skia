@@ -157,8 +157,8 @@ class Server(object):
 
   @property
   def results(self):
-    """ Returns the most recently generated results, or None if update_results()
-    has not been called yet. """
+    """ Returns the most recently generated results, or None if we don't have
+    any valid results (update_results() has not completed yet). """
     return self._results
 
   @property
@@ -178,15 +178,22 @@ class Server(object):
     results. """
     return self._reload_seconds
 
-  def update_results(self):
+  def update_results(self, invalidate=False):
     """ Create or update self._results, based on the expectations in
     EXPECTATIONS_DIR and the latest actuals from skia-autogen.
 
     We hold self.results_rlock while we do this, to guarantee that no other
     thread attempts to update either self._results or the underlying files at
     the same time.
+
+    Args:
+      invalidate: if True, invalidate self._results immediately upon entry;
+                  otherwise, we will let readers see those results until we
+                  replace them
     """
     with self.results_rlock:
+      if invalidate:
+        self._results = None
       logging.info('Updating actual GM results in %s from SVN repo %s ...' % (
           self._actuals_dir, ACTUALS_SVN_REPO))
       self._actuals_repo.Update('.')
@@ -445,8 +452,11 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                         'results and submit the modifications again.' %
                         oldResultsType)
       _SERVER.results.edit_expectations(data['modifications'])
-      # Read the updated results back from disk.
-      _SERVER.update_results()
+
+    # Read the updated results back from disk.
+    # We can do this in a separate thread; we should return our success message
+    # to the UI as soon as possible.
+    thread.start_new_thread(_SERVER.update_results, (True,))
 
   def redirect_to(self, url):
     """ Redirect the HTTP client to a different url.

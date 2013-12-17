@@ -55,7 +55,7 @@ Loader.controller(
       function(data, status, header, config) {
         if (data.header.resultsStillLoading) {
           $scope.loadingMessage =
-              "Server is still loading initial results; will retry at " +
+              "Server is still loading results; will retry at " +
               $scope.localTimeString(data.header.timeNextUpdateAvailable);
           $timeout(
               function(){location.reload();},
@@ -508,9 +508,13 @@ Loader.controller(
         alert("New baselines submitted successfully!\n\n" +
             "You still need to commit the updated expectations files on " +
             "the server side to the Skia repo.\n\n" +
-            "Also: in order to see the complete updated data, or to submit " +
-            "more baselines, you will need to reload your client.");
-        $scope.submitPending = false;
+            "When you click OK, your web UI will reload; after that " +
+            "completes, you will see the updated data (once the server has " +
+            "finished loading the update results into memory!) and you can " +
+            "submit more baselines if you want.");
+        // I don't know why, but if I just call reload() here it doesn't work.
+        // Making a timer call it fixes the problem.
+        $timeout(function(){location.reload();}, 1);
       }).error(function(data, status, headers, config) {
         alert("There was an error submitting your baselines.\n\n" +
             "Please see server-side log for details.");
