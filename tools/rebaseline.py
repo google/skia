@@ -89,6 +89,15 @@ TEST_BUILDERS = [
     'Test-Win7-ShuttleA-HD2000-x86-Release-DirectWrite',
     'Test-Win7-ShuttleA-HD2000-x86_64-Debug',
     'Test-Win7-ShuttleA-HD2000-x86_64-Release',
+    'Test-Win8-ShuttleA-GTX660-x86-Debug',
+    'Test-Win8-ShuttleA-GTX660-x86-Release',
+    'Test-Win8-ShuttleA-GTX660-x86-Release-NVPR',
+    'Test-Win8-ShuttleA-GTX660-x86_64-Debug',
+    'Test-Win8-ShuttleA-GTX660-x86_64-Release',
+    'Test-Win8-ShuttleA-HD7770-x86-Debug',
+    'Test-Win8-ShuttleA-HD7770-x86-Release',
+    'Test-Win8-ShuttleA-HD7770-x86_64-Debug',
+    'Test-Win8-ShuttleA-HD7770-x86_64-Release',
 ]
 
 # TODO: Get this from builder_name_schema in buildbot.
