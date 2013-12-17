@@ -6659,13 +6659,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16067751190926788705
+          1158302867151309928
         ]
       ], 
-      "bugs": [
-        1603
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "selftest1_565.png": {
       "allowed-digests": [
