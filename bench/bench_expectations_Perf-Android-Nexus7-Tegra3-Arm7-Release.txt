@@ -543,7 +543,7 @@ desk_sfgate.skp_tile_256x256_multi_4_threads_,Perf-Android-Nexus7-Tegra3-Arm7-Re
 desk_techcrunch.skp_tile_256x256_multi_4_threads_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,189.63,160.67,218.59
 desk_tigersvg.skp_tile_256x256_multi_4_threads_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,81.05,62.95,99.16
 desk_twitter.skp_tile_256x256_multi_4_threads_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,198.83,168.95,228.71
-desk_weather.skp_tile_256x256_multi_4_threads_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,138.9,115.01,162.79
+desk_weather.skp_tile_256x256_multi_4_threads_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,152.77,120.01,177.79
 desk_wordpress.skp_tile_256x256_multi_4_threads_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,642.34,568.11,716.57
 desk_wowwiki.skp_tile_256x256_multi_4_threads_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,1103.41,983.07,1223.75
 desk_yahooanswers.skp_tile_256x256_multi_4_threads_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,54.31,38.88,69.74
