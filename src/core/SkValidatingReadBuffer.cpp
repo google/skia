@@ -228,6 +228,10 @@ SkTypeface* SkValidatingReadBuffer::readTypeface() {
     return NULL;
 }
 
+bool SkValidatingReadBuffer::validateAvailable(size_t size) {
+    return this->validate((size <= SK_MaxU32) && fReader.isAvailable(static_cast<uint32_t>(size)));
+}
+
 SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type) {
     SkString name;
     this->readString(&name);

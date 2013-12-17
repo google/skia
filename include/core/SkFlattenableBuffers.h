@@ -139,8 +139,13 @@ public:
 
     SkData* readByteArrayAsData() {
         size_t len = this->getArrayCount();
-        void* buffer = sk_malloc_throw(len);
-        (void)this->readByteArray(buffer, len);
+        void* buffer = NULL;
+        if (this->validateAvailable(len)) {
+            buffer = sk_malloc_throw(len);
+            (void)this->readByteArray(buffer, len);
+        } else {
+            len = 0;
+        }
         return SkData::NewFromMalloc(buffer, len);
     }
 
@@ -159,6 +164,14 @@ public:
       * Otherwise, it will return true.
       */
     virtual bool isValid() const { return true; }
+
+    /** This function returns true by default
+      * If isValidating() is true, it will return whether there's
+      * at least "size" memory left to read in the stream.
+      *
+      * @param size amount of memory that should still be available
+      */
+    virtual bool validateAvailable(size_t size) { return true; }
 
 private:
     template <typename T> T* readFlattenableT();

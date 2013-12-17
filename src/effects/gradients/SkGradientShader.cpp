@@ -154,8 +154,13 @@ SkGradientShaderBase::SkGradientShaderBase(SkFlattenableReadBuffer& buffer) : IN
 
     int colorCount = fColorCount = buffer.getArrayCount();
     if (colorCount > kColorStorageCount) {
-        size_t size = sizeof(SkColor) + sizeof(SkPMColor) + sizeof(Rec);
-        fOrigColors = (SkColor*)sk_malloc_throw(size * colorCount);
+        size_t allocSize = (sizeof(SkColor) + sizeof(SkPMColor) + sizeof(Rec)) * colorCount;
+        if (buffer.validateAvailable(allocSize)) {
+            fOrigColors = reinterpret_cast<SkColor*>(sk_malloc_throw(allocSize));
+        } else {
+            fOrigColors =  NULL;
+            colorCount = fColorCount = 0;
+        }
     } else {
         fOrigColors = fStorage;
     }

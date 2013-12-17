@@ -111,8 +111,10 @@ static SkDisplacementMapEffect::ChannelSelectorType make_channel_selector_type()
 }
 
 static void make_g_bitmap(SkBitmap& bitmap) {
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, kBitmapSize, kBitmapSize);
-    bitmap.allocPixels();
+    bitmap.setConfig((SkBitmap::Config)R(SkBitmap::kConfigCount), kBitmapSize, kBitmapSize);
+    while (!bitmap.allocPixels()) {
+        bitmap.setConfig((SkBitmap::Config)R(SkBitmap::kConfigCount), kBitmapSize, kBitmapSize);
+    }
     SkBitmapDevice device(bitmap);
     SkCanvas canvas(&device);
     canvas.clear(0x00000000);
@@ -126,8 +128,10 @@ static void make_g_bitmap(SkBitmap& bitmap) {
 }
 
 static void make_checkerboard_bitmap(SkBitmap& bitmap) {
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, kBitmapSize, kBitmapSize);
-    bitmap.allocPixels();
+    bitmap.setConfig((SkBitmap::Config)R(SkBitmap::kConfigCount), kBitmapSize, kBitmapSize);
+    while (!bitmap.allocPixels()) {
+        bitmap.setConfig((SkBitmap::Config)R(SkBitmap::kConfigCount), kBitmapSize, kBitmapSize);
+    }
     SkBitmapDevice device(bitmap);
     SkCanvas canvas(&device);
     canvas.clear(0x00000000);
@@ -312,18 +316,24 @@ static void drawClippedBitmap(SkCanvas* canvas, int x, int y, const SkPaint& pai
 }
 
 static void do_fuzz(SkCanvas* canvas) {
+    SkImageFilter* filter = make_serialized_image_filter();
+
 #ifdef SK_FUZZER_IS_VERBOSE
-    static uint32_t filterId = 0;
-    if (0 == filterId) {
+    static uint32_t numFilters = 0;
+    static uint32_t numValidFilters = 0;
+    if (0 == numFilters) {
         printf("Fuzzing with %u\n", kSeed);
     }
-    printf("Filter no %u\r", filterId);
+    numFilters++;
+    if (NULL != filter) {
+        numValidFilters++;
+    }
+    printf("Filter no : %u. Valid filters so far : %u\r", numFilters, numValidFilters);
     fflush(stdout);
-    filterId++;
 #endif
 
     SkPaint paint;
-    SkSafeUnref(paint.setImageFilter(make_serialized_image_filter()));
+    SkSafeUnref(paint.setImageFilter(filter));
     drawClippedBitmap(canvas, 0, 0, paint);
 }
 

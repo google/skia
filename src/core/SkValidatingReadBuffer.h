@@ -63,6 +63,8 @@ public:
     virtual bool validate(bool isValid) SK_OVERRIDE;
     virtual bool isValid() const SK_OVERRIDE;
 
+    virtual bool validateAvailable(size_t size) SK_OVERRIDE;
+
 private:
     bool readArray(void* value, size_t size, size_t elementSize);
 

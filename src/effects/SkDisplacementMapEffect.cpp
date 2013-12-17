@@ -188,7 +188,7 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
     SkImageFilter* displacementInput = getDisplacementInput();
     SkASSERT(NULL != displacementInput);
     if ((colorInput && !colorInput->filterImage(proxy, src, ctm, &color, offset)) ||
-        !displacementInput->filterImage(proxy, src, ctm, &displ, offset)) {
+        !displacementInput || !displacementInput->filterImage(proxy, src, ctm, &displ, offset)) {
         return false;
     }
     if ((displ.config() != SkBitmap::kARGB_8888_Config) ||

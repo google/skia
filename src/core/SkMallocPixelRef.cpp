@@ -143,8 +143,13 @@ SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer)
 {
     fRB = buffer.read32();
     size_t size = this->info().getSafeSize(fRB);
-    fStorage = sk_malloc_throw(size);
-    buffer.readByteArray(fStorage, size);
+    if (buffer.validateAvailable(size)) {
+        fStorage = sk_malloc_throw(size);
+        buffer.readByteArray(fStorage, size);
+    } else {
+        fStorage = NULL;
+    }
+
     if (buffer.readBool()) {
         fCTable = SkNEW_ARGS(SkColorTable, (buffer));
     } else {
