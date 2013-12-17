@@ -171,8 +171,8 @@ public:
             
             glBindFramebuffer(GL_FRAMEBUFFER, fLayerFBO);
             GrBackendRenderTargetDesc desc;
-            desc.fWidth = SkScalarRound(win->width());
-            desc.fHeight = SkScalarRound(win->height());
+            desc.fWidth = SkScalarRoundToInt(win->width());
+            desc.fHeight = SkScalarRoundToInt(win->height());
             desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fRenderTargetHandle = fLayerFBO;
             desc.fSampleCnt = info.fSampleCount;
