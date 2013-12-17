@@ -56,7 +56,7 @@ template <typename T> void push_obj(lua_State* L, const T& obj) {
 }
 
 template <typename T> void push_ref(lua_State* L, T* ref) {
-    *(T**)lua_newuserdata(L, sizeof(T*)) = SkRef(ref);
+    *(T**)lua_newuserdata(L, sizeof(T*)) = SkSafeRef(ref);
     luaL_getmetatable(L, get_mtname<T>());
     lua_setmetatable(L, -2);
 }
@@ -974,7 +974,7 @@ static const struct luaL_Reg gSkImage_Methods[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 static int ltypeface_gc(lua_State* L) {
-    get_ref<SkTypeface>(L, 1)->unref();
+    SkSafeUnref(get_ref<SkTypeface>(L, 1));
     return 0;
 }
 
