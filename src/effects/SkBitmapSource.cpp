@@ -31,7 +31,7 @@ SkBitmapSource::SkBitmapSource(SkFlattenableReadBuffer& buffer)
     fBitmap.unflatten(buffer);
     buffer.readRect(&fSrcRect);
     buffer.readRect(&fDstRect);
-    buffer.validate(SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
+    buffer.validate(buffer.isValid() && SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
 }
 
 void SkBitmapSource::flatten(SkFlattenableWriteBuffer& buffer) const {
