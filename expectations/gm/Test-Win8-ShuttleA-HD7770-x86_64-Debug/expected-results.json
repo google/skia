@@ -1064,8 +1064,9 @@
         ]
       ], 
       "bugs": [
-        1935
+        1934
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "bleed_8888.png": {
@@ -1076,8 +1077,9 @@
         ]
       ], 
       "bugs": [
-        1935
+        1934
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "bleed_gpu.png": {

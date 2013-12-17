@@ -1153,17 +1153,27 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5004478543740101868
+          12603906777983327221
         ]
-      ]
+      ], 
+      "bugs": [
+        1934
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "bleed_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14764138263757444362
+          7262724475945764033
         ]
-      ]
+      ], 
+      "bugs": [
+        1934
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "bleed_angle.png": {
       "allowed-digests": [

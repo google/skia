@@ -1063,24 +1063,26 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5004478543740101868
+          17914388286169301147
         ]
       ], 
       "bugs": [
-        1578
+        1934
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "bleed_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14764138263757444362
+          10217691861117143800
         ]
       ], 
       "bugs": [
-        1578
+        1934
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "bleed_gpu.png": {
