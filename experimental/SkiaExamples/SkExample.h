@@ -23,6 +23,8 @@ class SkExample : public SkNoncopyable {
 public:
     SkExample(SkExampleWindow* window) : fWindow(window) {}
 
+    virtual ~SkExample() {}
+
     // Your class should override this method to do its thing.
     virtual void draw(SkCanvas* canvas) = 0;
 
