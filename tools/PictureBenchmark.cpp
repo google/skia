@@ -170,30 +170,49 @@ void PictureBenchmark::run(SkPicture* pict) {
             this->logProgress(longRunningResult.c_str());
         }
     } else {
-        SkAutoTDelete<BenchTimer> timer(this->setupTimer());
-        TimerData timerData(fRepeats);
+        SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer());
+        TimerData longRunningTimerData(1);
+        SkAutoTDelete<BenchTimer> perRunTimer(this->setupTimer(false));
+        TimerData perRunTimerData(fRepeats);
+
+        longRunningTimer->start();
         for (int i = 0; i < fRepeats; ++i) {
             fRenderer->setup();
 
-            timer->start();
+            perRunTimer->start();
             fRenderer->render(NULL);
-            timer->truncatedEnd();
+            perRunTimer->truncatedEnd();
+            fRenderer->resetState(false);
+            perRunTimer->end();
 
-            // Finishes gl context
-            fRenderer->resetState(true);
-            timer->end();
-
-            SkAssertResult(timerData.appendTimes(timer.get()));
+            SkAssertResult(perRunTimerData.appendTimes(perRunTimer.get()));
         }
+        longRunningTimer->truncatedEnd();
+        fRenderer->resetState(true);
+        longRunningTimer->end();
+        SkAssertResult(longRunningTimerData.appendTimes(longRunningTimer.get()));
 
         SkString configName = fRenderer->getConfigName();
 
-        SkString result = timerData.getResult(timeFormat.c_str(),
-                                              fTimerResult,
-                                              configName.c_str(),
-                                              timerTypes);
+        // Beware - since the per-run-timer doesn't ever include a glFinish it can
+        // report a lower time then the long-running-timer
+#if 0
+        SkString result = perRunTimerData.getResult(timeFormat.c_str(),
+                                                    fTimerResult,
+                                                    configName.c_str(),
+                                                    timerTypes);
+        result.append("\n");
+
+        this->logProgress(result.c_str());
+#else
+        SkString result = longRunningTimerData.getResult(timeFormat.c_str(), 
+                                                         fTimerResult, 
+                                                         configName.c_str(), 
+                                                         timerTypes, 
+                                                         fRepeats);
         result.append("\n");
         this->logProgress(result.c_str());
+#endif
     }
 
     fRenderer->end();
