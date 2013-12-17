@@ -40,10 +40,6 @@
 # https://code.google.com/p/skia/issues/detail?id=1882 ('rects GM results need rebaselining')
 rects
 
-# Added by bsalomon in support of adding HQ filter to GPU device drawBitmap
-# https://code.google.com/p/skia/issues/detail?id=1880 ('bleed GM results need rebaselining')
-bleed
-
 # https://code.google.com/p/skia/issues/detail?id=1879 ('*filterbitmap_* GM results need rebaselining')
 downsamplebitmap_image_high_mandrill_512.png
 filterbitmap_image_mandrill_512.png
