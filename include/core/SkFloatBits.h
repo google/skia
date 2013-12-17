@@ -127,12 +127,7 @@ static inline int32_t SkFloatToIntCeil(float x) {
 
 //  Scalar wrappers for float-bit routines
 
-#ifdef SK_SCALAR_IS_FLOAT
-    #define SkScalarAs2sCompliment(x)    SkFloatAs2sCompliment(x)
-    #define Sk2sComplimentAsScalar(x)    Sk2sComplimentAsFloat(x)
-#else
-    #define SkScalarAs2sCompliment(x)    (x)
-    #define Sk2sComplimentAsScalar(x)    (x)
-#endif
+#define SkScalarAs2sCompliment(x)    SkFloatAs2sCompliment(x)
+#define Sk2sComplimentAsScalar(x)    Sk2sComplimentAsFloat(x)
 
 #endif

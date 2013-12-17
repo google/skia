@@ -28,7 +28,6 @@ static SkScalar sect_with_horizontal(const SkPoint src[2], SkScalar Y) {
     if (SkScalarNearlyZero(dy)) {
         return SkScalarAve(src[0].fX, src[1].fX);
     } else {
-#ifdef SK_SCALAR_IS_FLOAT
         // need the extra precision so we don't compute a value that exceeds
         // our original limits
         double X0 = src[0].fX;
@@ -41,10 +40,6 @@ static SkScalar sect_with_horizontal(const SkPoint src[2], SkScalar Y) {
         // when the doubles were added and subtracted, so we have to pin the
         // answer :(
         return (float)pin_unsorted(result, X0, X1);
-#else
-        return src[0].fX + SkScalarMulDiv(Y - src[0].fY, src[1].fX - src[0].fX,
-                                          dy);
-#endif
     }
 }
 
@@ -54,7 +49,6 @@ static SkScalar sect_with_vertical(const SkPoint src[2], SkScalar X) {
     if (SkScalarNearlyZero(dx)) {
         return SkScalarAve(src[0].fY, src[1].fY);
     } else {
-#ifdef SK_SCALAR_IS_FLOAT
         // need the extra precision so we don't compute a value that exceeds
         // our original limits
         double X0 = src[0].fX;
@@ -63,10 +57,6 @@ static SkScalar sect_with_vertical(const SkPoint src[2], SkScalar X) {
         double Y1 = src[1].fY;
         double result = Y0 + ((double)X - X0) * (Y1 - Y0) / (X1 - X0);
         return (float)result;
-#else
-        return src[0].fY + SkScalarMulDiv(X - src[0].fX, src[1].fY - src[0].fY,
-                                          dx);
-#endif
     }
 }
 
@@ -167,7 +157,6 @@ static bool is_between_unsorted(SkScalar value,
 }
 #endif
 
-#ifdef SK_SCALAR_IS_FLOAT
 #ifdef SK_DEBUG
 // This is an example of why we need to pin the result computed in
 // sect_with_horizontal. If we didn't explicitly pin, is_between_unsorted would
@@ -182,11 +171,9 @@ static void sect_with_horizontal_test_for_pin_results() {
     SkASSERT(is_between_unsorted(x, pts[0].fX, pts[1].fX));
 }
 #endif
-#endif
 
 int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
                             SkPoint lines[]) {
-#ifdef SK_SCALAR_IS_FLOAT
 #ifdef SK_DEBUG
     {
         static bool gOnce;
@@ -195,7 +182,6 @@ int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
             gOnce = true;
         }
     }
-#endif
 #endif
 
     int index0, index1;

@@ -1274,13 +1274,8 @@ bool SkScriptEngine2::ValueToString(const SkScriptValue2& value, SkString* strin
 #if defined(SK_SUPPORT_UNITTEST)
 
 #define testInt(expression) { #expression, SkOperand2::kS32, expression, 0, NULL }
-#ifdef SK_SCALAR_IS_FLOAT
 #define testScalar(expression) { #expression, SkOperand2::kScalar, 0, (float) (expression), NULL }
 #define testRemainder(exp1, exp2) { #exp1 "%" #exp2, SkOperand2::kScalar, 0, fmodf((float) exp1, (float) exp2), NULL }
-#else
-#define testScalar(expression) { #expression, SkOperand2::kScalar, 0, (int) ((expression) * 65536.0f), NULL }
-#define testRemainder(exp1, exp2) { #exp1 "%" #exp2, SkOperand2::kScalar, 0, (int) (fmod(exp1, exp2)  * 65536.0f), NULL }
-#endif
 #define testTrue(expression) { #expression, SkOperand2::kS32, 1, 0, NULL }
 #define testFalse(expression) { #expression, SkOperand2::kS32, 0, 0, NULL }
 

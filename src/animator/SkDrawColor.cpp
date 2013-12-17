@@ -226,11 +226,7 @@ bool SkDrawColor::setProperty(int index, SkScriptValue& value) {
     switch (index) {
         case SK_PROPERTY(alpha):
             uint8_t alpha;
-        #ifdef SK_SCALAR_IS_FLOAT
             alpha = scalar == SK_Scalar1 ? 255 : SkToU8((U8CPU) (scalar * 256));
-        #else
-            alpha = SkToU8((scalar - (scalar >= SK_ScalarHalf)) >> 8);
-        #endif
             color = SkColorSetARGB(alpha, SkColorGetR(color),
                 SkColorGetG(color), SkColorGetB(color));
             break;

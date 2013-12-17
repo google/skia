@@ -31,19 +31,8 @@ public:
 
     static void FillIRect(const SkIRect&, const SkRasterClip&, SkBlitter*);
     static void FillXRect(const SkXRect&, const SkRasterClip&, SkBlitter*);
-#ifdef SK_SCALAR_IS_FIXED
-    static void FillRect(const SkRect& rect, const SkRasterClip& clip,
-                         SkBlitter* blitter) {
-        SkScan::FillXRect(*(const SkXRect*)&rect, clip, blitter);
-    }
-    static void AntiFillRect(const SkRect& rect, const SkRasterClip& clip,
-                             SkBlitter* blitter) {
-        SkScan::AntiFillXRect(*(const SkXRect*)&rect, clip, blitter);
-    }
-#else
     static void FillRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void AntiFillRect(const SkRect&, const SkRasterClip&, SkBlitter*);
-#endif
     static void AntiFillXRect(const SkXRect&, const SkRasterClip&, SkBlitter*);
     static void FillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void AntiFillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
@@ -67,19 +56,8 @@ private:
 
     static void FillIRect(const SkIRect&, const SkRegion* clip, SkBlitter*);
     static void FillXRect(const SkXRect&, const SkRegion* clip, SkBlitter*);
-#ifdef SK_SCALAR_IS_FIXED
-    static void FillRect(const SkRect& rect, const SkRegion* clip,
-                         SkBlitter* blitter) {
-        SkScan::FillXRect(*(const SkXRect*)&rect, clip, blitter);
-    }
-    static void AntiFillRect(const SkRect& rect, const SkRegion* clip,
-                             SkBlitter* blitter) {
-        SkScan::AntiFillXRect(*(const SkXRect*)&rect, clip, blitter);
-    }
-#else
     static void FillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
     static void AntiFillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
-#endif
     static void AntiFillXRect(const SkXRect&, const SkRegion*, SkBlitter*);
     static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
     static void AntiFillPath(const SkPath&, const SkRegion& clip, SkBlitter*,

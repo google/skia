@@ -68,32 +68,18 @@ bool SkXRayCrossesLine(const SkXRay& pt, const SkPoint pts[2], bool* ambiguous) 
     involving integer multiplies by 2 or 3, but fewer calls to SkScalarMul.
     May also introduce overflow of fixed when we compute our setup.
 */
-#ifdef SK_SCALAR_IS_FIXED
-    #define DIRECT_EVAL_OF_POLYNOMIALS
-#endif
+//    #define DIRECT_EVAL_OF_POLYNOMIALS
 
 ////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SCALAR_IS_FIXED
-    static int is_not_monotonic(int a, int b, int c, int d)
-    {
-        return (((a - b) | (b - c) | (c - d)) & ((b - a) | (c - b) | (d - c))) >> 31;
+static int is_not_monotonic(float a, float b, float c) {
+    float ab = a - b;
+    float bc = b - c;
+    if (ab < 0) {
+        bc = -bc;
     }
-
-    static int is_not_monotonic(int a, int b, int c)
-    {
-        return (((a - b) | (b - c)) & ((b - a) | (c - b))) >> 31;
-    }
-#else
-    static int is_not_monotonic(float a, float b, float c)
-    {
-        float ab = a - b;
-        float bc = b - c;
-        if (ab < 0)
-            bc = -bc;
-        return ab == 0 || bc < 0;
-    }
-#endif
+    return ab == 0 || bc < 0;
+}
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -141,23 +127,11 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2])
 
     SkScalar* r = roots;
 
-#ifdef SK_SCALAR_IS_FLOAT
     float R = B*B - 4*A*C;
     if (R < 0 || SkScalarIsNaN(R)) {  // complex roots
         return 0;
     }
     R = sk_float_sqrt(R);
-#else
-    Sk64    RR, tmp;
-
-    RR.setMul(B,B);
-    tmp.setMul(A,C);
-    tmp.shiftLeft(2);
-    RR.sub(tmp);
-    if (RR.isNeg())
-        return 0;
-    SkFixed R = RR.getSqrt();
-#endif
 
     SkScalar Q = (B < 0) ? -(B-R)/2 : -(B+R)/2;
     r += valid_unit_divide(Q, A, r);
@@ -172,25 +146,8 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2])
     return (int)(r - roots);
 }
 
-#ifdef SK_SCALAR_IS_FIXED
-/** Trim A/B/C down so that they are all <= 32bits
-    and then call SkFindUnitQuadRoots()
-*/
-static int Sk64FindFixedQuadRoots(const Sk64& A, const Sk64& B, const Sk64& C, SkFixed roots[2])
-{
-    int na = A.shiftToMake32();
-    int nb = B.shiftToMake32();
-    int nc = C.shiftToMake32();
-
-    int shift = SkMax32(na, SkMax32(nb, nc));
-    SkASSERT(shift >= 0);
-
-    return SkFindUnitQuadRoots(A.getShiftRight(shift), B.getShiftRight(shift), C.getShiftRight(shift), roots);
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 static SkScalar eval_quad(const SkScalar src[], SkScalar t)
 {
@@ -297,11 +254,7 @@ int SkFindQuadExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar tValue[1])
     /*  At + B == 0
         t = -B / A
     */
-#ifdef SK_SCALAR_IS_FIXED
-    return is_not_monotonic(a, b, c) && valid_unit_divide(a - b, a - b - b + c, tValue);
-#else
     return valid_unit_divide(a - b, a - b - b + c, tValue);
-#endif
 }
 
 static inline void flatten_double_quad_extrema(SkScalar coords[14])
@@ -401,31 +354,7 @@ float SkFindQuadMaxCurvature(const SkPoint src[3]) {
     SkScalar    By = src[0].fY - src[1].fY - src[1].fY + src[2].fY;
     SkScalar    t = 0;  // 0 means don't chop
 
-#ifdef SK_SCALAR_IS_FLOAT
     (void)valid_unit_divide(-(Ax * Bx + Ay * By), Bx * Bx + By * By, &t);
-#else
-    // !!! should I use SkFloat here? seems like it
-    Sk64    numer, denom, tmp;
-
-    numer.setMul(Ax, -Bx);
-    tmp.setMul(Ay, -By);
-    numer.add(tmp);
-
-    if (numer.isPos())  // do nothing if numer <= 0
-    {
-        denom.setMul(Bx, Bx);
-        tmp.setMul(By, By);
-        denom.add(tmp);
-        SkASSERT(!denom.isNeg());
-        if (numer < denom)
-        {
-            t = numer.getFixedDiv(denom);
-            SkASSERT(t >= 0 && t <= SK_Fixed1);     // assert that we're numerically stable (ha!)
-            if ((unsigned)t >= SK_Fixed1)           // runtime check for numerical stability
-                t = 0;  // ignore the chop
-        }
-    }
-#endif
     return t;
 }
 
@@ -441,11 +370,7 @@ int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5])
     }
 }
 
-#ifdef SK_SCALAR_IS_FLOAT
-    #define SK_ScalarTwoThirds  (0.666666666f)
-#else
-    #define SK_ScalarTwoThirds  ((SkFixed)(43691))
-#endif
+#define SK_ScalarTwoThirds  (0.666666666f)
 
 void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]) {
     const SkScalar scale = SK_ScalarTwoThirds;
@@ -553,11 +478,6 @@ void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* loc, SkVector* tan
 */
 int SkFindCubicExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar d, SkScalar tValues[2])
 {
-#ifdef SK_SCALAR_IS_FIXED
-    if (!is_not_monotonic(a, b, c, d))
-        return 0;
-#endif
-
     // we divide A,B,C by 3 to simplify
     SkScalar A = d - a + 3*(b - c);
     SkScalar B = 2*(a - b - b + c);
@@ -747,29 +667,8 @@ int SkFindCubicInflections(const SkPoint src[4], SkScalar tValues[])
     SkScalar    By = src[2].fY - 2 * src[1].fY + src[0].fY;
     SkScalar    Cx = src[3].fX + 3 * (src[1].fX - src[2].fX) - src[0].fX;
     SkScalar    Cy = src[3].fY + 3 * (src[1].fY - src[2].fY) - src[0].fY;
-    int         count;
 
-#ifdef SK_SCALAR_IS_FLOAT
-    count = SkFindUnitQuadRoots(Bx*Cy - By*Cx, Ax*Cy - Ay*Cx, Ax*By - Ay*Bx, tValues);
-#else
-    Sk64    A, B, C, tmp;
-
-    A.setMul(Bx, Cy);
-    tmp.setMul(By, Cx);
-    A.sub(tmp);
-
-    B.setMul(Ax, Cy);
-    tmp.setMul(Ay, Cx);
-    B.sub(tmp);
-
-    C.setMul(Ax, By);
-    tmp.setMul(Ay, Bx);
-    C.sub(tmp);
-
-    count = Sk64FindFixedQuadRoots(A, B, C, tValues);
-#endif
-
-    return count;
+    return SkFindUnitQuadRoots(Bx*Cy - By*Cx, Ax*Cy - Ay*Cx, Ax*By - Ay*Bx, tValues);
 }
 
 int SkChopCubicAtInflections(const SkPoint src[], SkPoint dst[10])
@@ -889,10 +788,6 @@ static void test_collaps_duplicates() {
         }
     }
 }
-#endif
-
-#if defined _WIN32 && _MSC_VER >= 1300  && defined SK_SCALAR_IS_FIXED // disable warning : unreachable code if building fixed point for windows desktop
-#pragma warning ( disable : 4702 )
 #endif
 
 static SkScalar SkScalarCubeRoot(SkScalar x) {

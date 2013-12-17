@@ -328,14 +328,11 @@ static void unittest_fastfloat(skiatest::Reporter* reporter) {
     }
 }
 
-#ifdef SK_SCALAR_IS_FLOAT
 static float make_zero() {
     return sk_float_sin(0);
 }
-#endif
 
 static void unittest_isfinite(skiatest::Reporter* reporter) {
-#ifdef SK_SCALAR_IS_FLOAT
     float nan = sk_float_asin(2);
     float inf = 1.0f / make_zero();
     float big = 3.40282e+038f;
@@ -344,10 +341,6 @@ static void unittest_isfinite(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(-inf));
     REPORTER_ASSERT(reporter, !SkScalarIsFinite(inf));
     REPORTER_ASSERT(reporter, !SkScalarIsFinite(-inf));
-#else
-    SkFixed nan = SK_FixedNaN;
-    SkFixed big = SK_FixedMax;
-#endif
 
     REPORTER_ASSERT(reporter,  SkScalarIsNaN(nan));
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(big));
@@ -607,37 +600,7 @@ DEF_TEST(Math, reporter) {
         REPORTER_ASSERT(reporter, xr == check || xr == check-1);
     }
 
-#if !defined(SK_SCALAR_IS_FLOAT)
-    {
-        SkFixed s, c;
-        s = SkFixedSinCos(0, &c);
-        REPORTER_ASSERT(reporter, s == 0);
-        REPORTER_ASSERT(reporter, c == SK_Fixed1);
-    }
-
-    int maxDiff = 0;
-    for (i = 0; i < 1000; i++) {
-        SkFixed rads = rand.nextS() >> 10;
-        double frads = SkFixedToFloat(rads);
-
-        SkFixed s, c;
-        s = SkScalarSinCos(rads, &c);
-
-        double fs = sin(frads);
-        double fc = cos(frads);
-
-        SkFixed is = SkFloatToFixed(fs);
-        SkFixed ic = SkFloatToFixed(fc);
-
-        maxDiff = SkMax32(maxDiff, SkAbs32(is - s));
-        maxDiff = SkMax32(maxDiff, SkAbs32(ic - c));
-    }
-    SkDebugf("SinCos: maximum error = %d\n", maxDiff);
-#endif
-
-#ifdef SK_SCALAR_IS_FLOAT
     test_blend(reporter);
-#endif
 
     if (false) test_floor(reporter);
 

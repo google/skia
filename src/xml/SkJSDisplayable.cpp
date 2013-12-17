@@ -277,11 +277,7 @@ JSBool SkJSDisplayable::GetProperty(JSContext *cx, JSObject *obj, jsval id,
             if (SkScalarFraction(scalar) == 0)
                 *vp = INT_TO_JSVAL(SkScalarFloor(scalar));
             else
-#ifdef SK_SCALAR_IS_FLOAT
             *vp = DOUBLE_TO_JSVAL(scalar);
-#else
-            *vp = DOUBLE_TO_JSVAL(scalar / 65536.0f );
-#endif
             break;
         case SkType_String:
             str = JS_NewStringCopyN(cx, string->c_str(), string->size());
@@ -323,11 +319,7 @@ JSBool SkJSDisplayable::SetProperty(JSContext *cx, JSObject *obj, jsval id, jsva
                 scalar = SkIntToScalar(JSVAL_TO_INT(value));
             else {
                 SkASSERT(JSVAL_IS_DOUBLE(value));
-#ifdef SK_SCALAR_IS_FLOAT
                 scalar = (float) *(double*) JSVAL_TO_DOUBLE(value);
-#else
-                scalar = (SkFixed)  (*(double*)JSVAL_TO_DOUBLE(value) * 65536.0);
-#endif
             }
             break;
         case SkType_String:

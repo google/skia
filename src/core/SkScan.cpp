@@ -53,8 +53,6 @@ void SkScan::FillXRect(const SkXRect& xr, const SkRegion* clip,
     SkScan::FillIRect(r, clip, blitter);
 }
 
-#ifdef SK_SCALAR_IS_FLOAT
-
 void SkScan::FillRect(const SkRect& r, const SkRegion* clip,
                        SkBlitter* blitter) {
     SkIRect ir;
@@ -62,8 +60,6 @@ void SkScan::FillRect(const SkRect& r, const SkRegion* clip,
     r.round(&ir);
     SkScan::FillIRect(ir, clip, blitter);
 }
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -97,8 +93,6 @@ void SkScan::FillXRect(const SkXRect& xr, const SkRasterClip& clip,
     FillXRect(xr, &wrapper.getRgn(), wrapper.getBlitter());
 }
 
-#ifdef SK_SCALAR_IS_FLOAT
-
 void SkScan::FillRect(const SkRect& r, const SkRasterClip& clip,
                       SkBlitter* blitter) {
     if (clip.isEmpty() || r.isEmpty()) {
@@ -113,5 +107,3 @@ void SkScan::FillRect(const SkRect& r, const SkRasterClip& clip,
     SkAAClipBlitterWrapper wrapper(clip, blitter);
     FillRect(r, &wrapper.getRgn(), wrapper.getBlitter());
 }
-
-#endif

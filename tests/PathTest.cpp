@@ -830,7 +830,6 @@ static void test_direction(skiatest::Reporter* reporter) {
     path.addCircle(0, 0, SkIntToScalar(2), SkPath::kCCW_Direction);
     check_direction(reporter, path, SkPath::kCCW_Direction);
 
-#ifdef SK_SCALAR_IS_FLOAT
     // triangle with one point really far from the origin.
     path.reset();
     // the first point is roughly 1.05e10, 1.05e10
@@ -838,7 +837,6 @@ static void test_direction(skiatest::Reporter* reporter) {
     path.lineTo(110 * SK_Scalar1, -10 * SK_Scalar1);
     path.lineTo(-10 * SK_Scalar1, 60 * SK_Scalar1);
     check_direction(reporter, path, SkPath::kCCW_Direction);
-#endif
 
     path.reset();
     path.conicTo(20, 0, 20, 20, 0.5f);

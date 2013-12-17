@@ -338,9 +338,9 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     info.fWidth = fWidth;
     info.fHeight = fHeight;
     info.fFlags = SkPictInfo::kCrossProcess_Flag;
-#ifdef SK_SCALAR_IS_FLOAT
+    // TODO: remove this flag, since we're always float (now)
     info.fFlags |= SkPictInfo::kScalarIsFloat_Flag;
-#endif
+
     if (8 == sizeof(void*)) {
         info.fFlags |= SkPictInfo::kPtrIs64Bit_Flag;
     }

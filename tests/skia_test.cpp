@@ -196,11 +196,6 @@ int tool_main(int argc, char** argv) {
 #else
         header.append(" SK_RELEASE");
 #endif
-#ifdef SK_SCALAR_IS_FIXED
-        header.append(" SK_SCALAR_IS_FIXED");
-#else
-        header.append(" SK_SCALAR_IS_FLOAT");
-#endif
         header.appendf(" skia_arch_width=%d", (int)sizeof(void*) * 8);
         SkDebugf("%s\n", header.c_str());
     }

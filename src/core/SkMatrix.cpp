@@ -11,15 +11,11 @@
 #include "SkOnce.h"
 #include "SkString.h"
 
-#ifdef SK_SCALAR_IS_FLOAT
-    #define kMatrix22Elem   SK_Scalar1
+#define kMatrix22Elem   SK_Scalar1
 
-    static inline float SkDoubleToFloat(double x) {
-        return static_cast<float>(x);
-    }
-#else
-    #define kMatrix22Elem   SK_Fract1
-#endif
+static inline float SkDoubleToFloat(double x) {
+    return static_cast<float>(x);
+}
 
 /*      [scale-x    skew-x      trans-x]   [X]   [X']
         [skew-y     scale-y     trans-y] * [Y] = [Y']
@@ -45,13 +41,7 @@ enum {
     kRectStaysRect_Shift
 };
 
-#ifdef SK_SCALAR_IS_FLOAT
-    static const int32_t kScalar1Int = 0x3f800000;
-#else
-    #define scalarAsInt(x)  (x)
-    static const int32_t kScalar1Int = (1 << 16);
-    static const int32_t kPersp1Int  = (1 << 30);
-#endif
+static const int32_t kScalar1Int = 0x3f800000;
 
 uint8_t SkMatrix::computePerspectiveTypeMask() const {
     // Benchmarking suggests that replacing this set of SkScalarAs2sCompliment
@@ -133,8 +123,6 @@ uint8_t SkMatrix::computeTypeMask() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SCALAR_IS_FLOAT
-
 bool operator==(const SkMatrix& a, const SkMatrix& b) {
     const SkScalar* SK_RESTRICT ma = a.fMat;
     const SkScalar* SK_RESTRICT mb = b.fMat;
@@ -143,8 +131,6 @@ bool operator==(const SkMatrix& a, const SkMatrix& b) {
             ma[3] == mb[3] && ma[4] == mb[4] && ma[5] == mb[5] &&
             ma[6] == mb[6] && ma[7] == mb[7] && ma[8] == mb[8];
 }
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -612,71 +598,22 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SCALAR_IS_FLOAT
-    static inline int fixmuladdmul(float a, float b, float c, float d,
-                                   float* result) {
-        *result = SkDoubleToFloat((double)a * b + (double)c * d);
-        return true;
-    }
-
-    static inline bool rowcol3(const float row[], const float col[],
+static inline int fixmuladdmul(float a, float b, float c, float d,
                                float* result) {
-        *result = row[0] * col[0] + row[1] * col[3] + row[2] * col[6];
-        return true;
-    }
+    *result = SkDoubleToFloat((double)a * b + (double)c * d);
+    return true;
+}
 
-    static inline int negifaddoverflows(float& result, float a, float b) {
-        result = a + b;
-        return 0;
-    }
-#else
-    static inline bool fixmuladdmul(SkFixed a, SkFixed b, SkFixed c, SkFixed d,
-                                    SkFixed* result) {
-        Sk64    tmp1, tmp2;
-        tmp1.setMul(a, b);
-        tmp2.setMul(c, d);
-        tmp1.add(tmp2);
-        if (tmp1.isFixed()) {
-            *result = tmp1.getFixed();
-            return true;
-        }
-        return false;
-    }
+static inline bool rowcol3(const float row[], const float col[],
+                           float* result) {
+    *result = row[0] * col[0] + row[1] * col[3] + row[2] * col[6];
+    return true;
+}
 
-    static inline SkFixed fracmuladdmul(SkFixed a, SkFract b, SkFixed c,
-                                        SkFract d) {
-        Sk64 tmp1, tmp2;
-        tmp1.setMul(a, b);
-        tmp2.setMul(c, d);
-        tmp1.add(tmp2);
-        return tmp1.getFract();
-    }
-
-    static inline bool rowcol3(const SkFixed row[], const SkFixed col[],
-                               SkFixed* result) {
-        Sk64 tmp1, tmp2;
-
-        tmp1.setMul(row[0], col[0]);    // N * fixed
-        tmp2.setMul(row[1], col[3]);    // N * fixed
-        tmp1.add(tmp2);
-
-        tmp2.setMul(row[2], col[6]);    // N * fract
-        tmp2.roundRight(14);            // make it fixed
-        tmp1.add(tmp2);
-
-        if (tmp1.isFixed()) {
-            *result = tmp1.getFixed();
-            return true;
-        }
-        return false;
-    }
-
-    static inline int negifaddoverflows(SkFixed& result, SkFixed a, SkFixed b) {
-        SkFixed c = a + b;
-        result = c;
-        return (c ^ a) & (c ^ b);
-    }
-#endif
+static inline int negifaddoverflows(float& result, float a, float b) {
+    result = a + b;
+    return 0;
+}
 
 static void normalize_perspective(SkScalar mat[9]) {
     if (SkScalarAbs(mat[SkMatrix::kMPersp2]) > kMatrix22Elem) {
@@ -793,88 +730,38 @@ bool SkMatrix::postConcat(const SkMatrix& mat) {
     precision may be most important (here and matrix concat). Hence to avoid
     bitmap blitting artifacts when walking the inverse, we use doubles for
     the intermediate math, even though we know that is more expensive.
-    The fixed counter part is us using Sk64 for temp calculations.
  */
 
-#ifdef SK_SCALAR_IS_FLOAT
-    typedef double SkDetScalar;
-    #define SkPerspMul(a, b)            SkScalarMul(a, b)
-    #define SkScalarMulShift(a, b, s)   SkDoubleToFloat((a) * (b))
-    static double sk_inv_determinant(const float mat[9], int isPerspective,
-                                    int* /* (only used in Fixed case) */) {
-        double det;
+typedef double SkDetScalar;
+#define SkPerspMul(a, b)            SkScalarMul(a, b)
+#define SkScalarMulShift(a, b, s)   SkDoubleToFloat((a) * (b))
+static double sk_inv_determinant(const float mat[9], int isPerspective,
+                                int* /* (only used in Fixed case) */) {
+    double det;
 
-        if (isPerspective) {
-            det =   mat[SkMatrix::kMScaleX] * ((double)mat[SkMatrix::kMScaleY] * mat[SkMatrix::kMPersp2] - (double)mat[SkMatrix::kMTransY] * mat[SkMatrix::kMPersp1]) +
-                    mat[SkMatrix::kMSkewX] * ((double)mat[SkMatrix::kMTransY] * mat[SkMatrix::kMPersp0] - (double)mat[SkMatrix::kMSkewY] * mat[SkMatrix::kMPersp2]) +
-                    mat[SkMatrix::kMTransX] * ((double)mat[SkMatrix::kMSkewY] * mat[SkMatrix::kMPersp1] - (double)mat[SkMatrix::kMScaleY] * mat[SkMatrix::kMPersp0]);
-        } else {
-            det =   (double)mat[SkMatrix::kMScaleX] * mat[SkMatrix::kMScaleY] - (double)mat[SkMatrix::kMSkewX] * mat[SkMatrix::kMSkewY];
-        }
-
-        // Since the determinant is on the order of the cube of the matrix members,
-        // compare to the cube of the default nearly-zero constant (although an
-        // estimate of the condition number would be better if it wasn't so expensive).
-        if (SkScalarNearlyZero((float)det, SK_ScalarNearlyZero * SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
-            return 0;
-        }
-        return 1.0 / det;
-    }
-    // we declar a,b,c,d to all be doubles, because we want to perform
-    // double-precision muls and subtract, even though the original values are
-    // from the matrix, which are floats.
-    static float inline mul_diff_scale(double a, double b, double c, double d,
-                                       double scale) {
-        return SkDoubleToFloat((a * b - c * d) * scale);
-    }
-#else
-    typedef SkFixed SkDetScalar;
-    #define SkPerspMul(a, b)            SkFractMul(a, b)
-    #define SkScalarMulShift(a, b, s)   SkMulShift(a, b, s)
-    static void set_muladdmul(Sk64* dst, int32_t a, int32_t b, int32_t c,
-                              int32_t d) {
-        Sk64 tmp;
-        dst->setMul(a, b);
-        tmp.setMul(c, d);
-        dst->add(tmp);
+    if (isPerspective) {
+        det =   mat[SkMatrix::kMScaleX] * ((double)mat[SkMatrix::kMScaleY] * mat[SkMatrix::kMPersp2] - (double)mat[SkMatrix::kMTransY] * mat[SkMatrix::kMPersp1]) +
+                mat[SkMatrix::kMSkewX] * ((double)mat[SkMatrix::kMTransY] * mat[SkMatrix::kMPersp0] - (double)mat[SkMatrix::kMSkewY] * mat[SkMatrix::kMPersp2]) +
+                mat[SkMatrix::kMTransX] * ((double)mat[SkMatrix::kMSkewY] * mat[SkMatrix::kMPersp1] - (double)mat[SkMatrix::kMScaleY] * mat[SkMatrix::kMPersp0]);
+    } else {
+        det =   (double)mat[SkMatrix::kMScaleX] * mat[SkMatrix::kMScaleY] - (double)mat[SkMatrix::kMSkewX] * mat[SkMatrix::kMSkewY];
     }
 
-    static SkFixed sk_inv_determinant(const SkFixed mat[9], int isPerspective,
-                                      int* shift) {
-        Sk64    tmp1, tmp2;
-
-        if (isPerspective) {
-            tmp1.setMul(mat[SkMatrix::kMScaleX], fracmuladdmul(mat[SkMatrix::kMScaleY], mat[SkMatrix::kMPersp2], -mat[SkMatrix::kMTransY], mat[SkMatrix::kMPersp1]));
-            tmp2.setMul(mat[SkMatrix::kMSkewX], fracmuladdmul(mat[SkMatrix::kMTransY], mat[SkMatrix::kMPersp0], -mat[SkMatrix::kMSkewY], mat[SkMatrix::kMPersp2]));
-            tmp1.add(tmp2);
-            tmp2.setMul(mat[SkMatrix::kMTransX], fracmuladdmul(mat[SkMatrix::kMSkewY], mat[SkMatrix::kMPersp1], -mat[SkMatrix::kMScaleY], mat[SkMatrix::kMPersp0]));
-            tmp1.add(tmp2);
-        } else {
-            tmp1.setMul(mat[SkMatrix::kMScaleX], mat[SkMatrix::kMScaleY]);
-            tmp2.setMul(mat[SkMatrix::kMSkewX], mat[SkMatrix::kMSkewY]);
-            tmp1.sub(tmp2);
-        }
-
-        int s = tmp1.getClzAbs();
-        *shift = s;
-
-        SkFixed denom;
-        if (s <= 32) {
-            denom = tmp1.getShiftRight(33 - s);
-        } else {
-            denom = (int32_t)tmp1.fLo << (s - 33);
-        }
-
-        if (denom == 0) {
-            return 0;
-        }
-        /** This could perhaps be a special fractdiv function, since both of its
-            arguments are known to have bit 31 clear and bit 30 set (when they
-            are made positive), thus eliminating the need for calling clz()
-        */
-        return SkFractDiv(SK_Fract1, denom);
+    // Since the determinant is on the order of the cube of the matrix members,
+    // compare to the cube of the default nearly-zero constant (although an
+    // estimate of the condition number would be better if it wasn't so expensive).
+    if (SkScalarNearlyZero((float)det, SK_ScalarNearlyZero * SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
+        return 0;
     }
-#endif
+    return 1.0 / det;
+}
+// we declar a,b,c,d to all be doubles, because we want to perform
+// double-precision muls and subtract, even though the original values are
+// from the matrix, which are floats.
+static float inline mul_diff_scale(double a, double b, double c, double d,
+                                   double scale) {
+    return SkDoubleToFloat((a * b - c * d) * scale);
+}
 
 void SkMatrix::SetAffineIdentity(SkScalar affine[6]) {
     affine[kAScaleX] = SK_Scalar1;
@@ -1955,14 +1842,8 @@ void SkMatrix::dump() const {
 
 void SkMatrix::toString(SkString* str) const {
     str->appendf("[%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f][%8.4f %8.4f %8.4f]",
-#ifdef SK_SCALAR_IS_FLOAT
              fMat[0], fMat[1], fMat[2], fMat[3], fMat[4], fMat[5],
              fMat[6], fMat[7], fMat[8]);
-#else
-    SkFixedToFloat(fMat[0]), SkFixedToFloat(fMat[1]), SkFixedToFloat(fMat[2]),
-    SkFixedToFloat(fMat[3]), SkFixedToFloat(fMat[4]), SkFixedToFloat(fMat[5]),
-    SkFractToFloat(fMat[6]), SkFractToFloat(fMat[7]), SkFractToFloat(fMat[8]));
-#endif
 }
 #endif
 

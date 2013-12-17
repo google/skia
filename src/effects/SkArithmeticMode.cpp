@@ -184,25 +184,12 @@ void SkArithmeticMode_scalar::toString(SkString* str) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool fitsInBits(SkScalar x, int bits) {
-#ifdef SK_SCALAR_IS_FIXED
-    x = SkAbs32(x);
-    x += 1 << 7;
-    x >>= 8;
-    return x < (1 << (bits - 1));
-#else
     return SkScalarAbs(x) < (1 << (bits - 1));
-#endif
 }
 
 #if 0 // UNUSED
 static int32_t toDot8(SkScalar x) {
-#ifdef SK_SCALAR_IS_FIXED
-    x += 1 << 7;
-    x >>= 8;
-    return x;
-#else
     return (int32_t)(x * 256);
-#endif
 }
 #endif
 

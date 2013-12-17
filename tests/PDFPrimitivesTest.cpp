@@ -353,7 +353,6 @@ DEF_TEST(PDFPrimitives, reporter) {
     SkAutoTUnref<SkPDFScalar> realHalf(new SkPDFScalar(SK_ScalarHalf));
     SimpleCheckObjectOutput(reporter, realHalf.get(), "0.5");
 
-#if defined(SK_SCALAR_IS_FLOAT)
     SkAutoTUnref<SkPDFScalar> bigScalar(new SkPDFScalar(110999.75f));
 #if !defined(SK_ALLOW_LARGE_PDF_SCALARS)
     SimpleCheckObjectOutput(reporter, bigScalar.get(), "111000");
@@ -365,7 +364,6 @@ DEF_TEST(PDFPrimitives, reporter) {
 
     SkAutoTUnref<SkPDFScalar> smallestScalar(new SkPDFScalar(1.0/65536));
     SimpleCheckObjectOutput(reporter, smallestScalar.get(), "0.00001526");
-#endif
 #endif
 
     SkAutoTUnref<SkPDFString> stringSimple(

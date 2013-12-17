@@ -201,7 +201,7 @@ const char* SkParse::FindMSec(const char str[], SkMSec* value)
 const char* SkParse::FindScalar(const char str[], SkScalar* value) {
     SkASSERT(str);
     str = skip_ws(str);
-#ifdef SK_SCALAR_IS_FLOAT
+
     char* stop;
     float v = (float)strtod(str, &stop);
     if (str == stop) {
@@ -211,49 +211,6 @@ const char* SkParse::FindScalar(const char str[], SkScalar* value) {
         *value = v;
     }
     return stop;
-#else
-    int sign = 0;
-    if (*str == '-')
-    {
-        sign = -1;
-        str += 1;
-    }
-
-    if (!is_digit(*str) && *str != '.')
-        return NULL;
-
-    int n = 0;
-    while (is_digit(*str))
-    {
-        n = 10*n + *str - '0';
-        if (n > 0x7FFF)
-            return NULL;
-        str += 1;
-    }
-    n <<= 16;
-
-    if (*str == '.')
-    {
-        static const int gFractions[] = { (1 << 24)  / 10, (1 << 24)  / 100, (1 << 24)  / 1000,
-            (1 << 24)  / 10000, (1 << 24)  / 100000 };
-        str += 1;
-        int d = 0;
-        const int* fraction = gFractions;
-        const int* end = &fraction[SK_ARRAY_COUNT(gFractions)];
-        while (is_digit(*str) && fraction < end)
-            d += (*str++ - '0') * *fraction++;
-        d += 0x80; // round
-        n += d >> 8;
-    }
-    while (is_digit(*str))
-        str += 1;
-    if (value)
-    {
-        n = (n ^ sign) - sign;  // apply the sign
-        *value = SkFixedToScalar(n);
-    }
-#endif
-    return str;
 }
 
 const char* SkParse::FindScalars(const char str[], SkScalar value[], int count)

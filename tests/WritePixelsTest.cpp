@@ -297,7 +297,7 @@ struct CanvasConfig {
 static const CanvasConfig gCanvasConfigs[] = {
     {kRaster_DevType, true},
     {kRaster_DevType, false},
-#if SK_SUPPORT_GPU && defined(SK_SCALAR_IS_FLOAT)
+#if SK_SUPPORT_GPU
     {kGpu_BottomLeft_DevType, true}, // row bytes has no meaning on gpu devices
     {kGpu_TopLeft_DevType, true}, // row bytes has no meaning on gpu devices
 #endif

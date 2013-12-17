@@ -90,7 +90,6 @@
         '../samplecode/SampleMipMap.cpp',
         '../samplecode/SampleMovie.cpp',
         '../samplecode/SampleOvalTest.cpp',
-        '../samplecode/SampleOverflow.cpp',
         '../samplecode/SamplePatch.cpp',
         '../samplecode/SamplePath.cpp',
         '../samplecode/SamplePathClip.cpp',

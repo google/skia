@@ -14,12 +14,7 @@
 
 // HB_Fixed is a 26.6 fixed point format.
 static inline HB_Fixed SkScalarToHarfbuzzFixed(SkScalar value) {
-#ifdef SK_SCALAR_IS_FLOAT
     return static_cast<HB_Fixed>(value * 64);
-#else
-    // convert .16 to .6
-    return value >> (16 - 6);
-#endif
 }
 
 static HB_Bool stringToGlyphs(HB_Font hbFont, const HB_UChar16* characters,

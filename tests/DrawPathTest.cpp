@@ -181,7 +181,6 @@ static void test_inversepathwithclip() {
 }
 
 static void test_bug533() {
-#ifdef SK_SCALAR_IS_FLOAT
     /*
         http://code.google.com/p/skia/issues/detail?id=533
         This particular test/bug only applies to the float case, where the
@@ -196,7 +195,6 @@ static void test_bug533() {
 
     SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
     canvas.get()->drawPath(path, paint);
-#endif
 }
 
 static void test_crbug_140642() {
@@ -215,14 +213,11 @@ static void test_crbug_140642() {
            stroke-dashoffset="-248.135982067">
      */
 
-#ifdef SK_SCALAR_IS_FLOAT
     const SkScalar vals[] = { 27734, 35660, 2157846850.0f, 247 };
     SkDashPathEffect dontAssert(vals, 4, -248.135982067f);
-#endif
 }
 
 static void test_crbug_124652() {
-#ifdef SK_SCALAR_IS_FLOAT
     /*
         http://code.google.com/p/chromium/issues/detail?id=124652
         This particular test/bug only applies to the float case, where
@@ -231,11 +226,9 @@ static void test_crbug_124652() {
     SkScalar intervals[2] = {837099584, 33450};
     SkAutoTUnref<SkDashPathEffect> dash(
         new SkDashPathEffect(intervals, 2, -10, false));
-#endif
 }
 
 static void test_bigcubic() {
-#ifdef SK_SCALAR_IS_FLOAT
     SkPath path;
     path.moveTo(64, 3);
     path.cubicTo(-329936, -100000000, -329936, 100000000, 1153, 330003);
@@ -245,7 +238,6 @@ static void test_bigcubic() {
 
     SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
     canvas.get()->drawPath(path, paint);
-#endif
 }
 
 // we used to assert if the bounds of the device (clip) was larger than 32K

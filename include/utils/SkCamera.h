@@ -19,17 +19,10 @@
 
 class SkCanvas;
 
-#ifdef SK_SCALAR_IS_FIXED
-    typedef SkFract SkUnitScalar;
-    #define SK_UnitScalar1          SK_Fract1
-    #define SkUnitScalarMul(a, b)   SkFractMul(a, b)
-    #define SkUnitScalarDiv(a, b)   SkFractDiv(a, b)
-#else
-    typedef float   SkUnitScalar;
-    #define SK_UnitScalar1          SK_Scalar1
-    #define SkUnitScalarMul(a, b)   SkScalarMul(a, b)
-    #define SkUnitScalarDiv(a, b)   SkScalarDiv(a, b)
-#endif
+typedef float   SkUnitScalar;
+#define SK_UnitScalar1          SK_Scalar1
+#define SkUnitScalarMul(a, b)   SkScalarMul(a, b)
+#define SkUnitScalarDiv(a, b)   SkScalarDiv(a, b)
 
 struct SkUnit3D {
     SkUnitScalar    fX, fY, fZ;

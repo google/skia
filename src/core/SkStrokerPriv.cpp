@@ -153,11 +153,7 @@ static void RoundJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
     }
 }
 
-#ifdef SK_SCALAR_IS_FLOAT
-    #define kOneOverSqrt2   (0.707106781f)
-#else
-    #define kOneOverSqrt2   (46341)
-#endif
+#define kOneOverSqrt2   (0.707106781f)
 
 static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnitNormal,
                         const SkPoint& pivot, const SkVector& afterUnitNormal,

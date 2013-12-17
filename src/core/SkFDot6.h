@@ -39,13 +39,8 @@ inline SkFixed SkFDot6ToFixed(SkFDot6 x) {
     return x << 10;
 }
 
-#ifdef SK_SCALAR_IS_FLOAT
-    #define SkScalarToFDot6(x)  (SkFDot6)((x) * 64)
-    #define SkFDot6ToScalar(x)  ((SkScalar)(x) * 0.015625f)
-#else
-    #define SkScalarToFDot6(x)  ((x) >> 10)
-    #define SkFDot6ToScalar(x)  ((x) << 10)
-#endif
+#define SkScalarToFDot6(x)  (SkFDot6)((x) * 64)
+#define SkFDot6ToScalar(x)  ((SkScalar)(x) * 0.015625f)
 
 inline SkFixed SkFDot6Div(SkFDot6 a, SkFDot6 b) {
     SkASSERT(b != 0);

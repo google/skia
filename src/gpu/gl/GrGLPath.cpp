@@ -87,9 +87,6 @@ static const bool kIsWrapped = false; // The constructor creates the GL path obj
 
 GrGLPath::GrGLPath(GrGpuGL* gpu, const SkPath& path, const SkStrokeRec& stroke)
     : INHERITED(gpu, kIsWrapped, path, stroke) {
-#ifndef SK_SCALAR_IS_FLOAT
-    GrCrash("Assumes scalar is float.");
-#endif
     SkASSERT(!path.isEmpty());
 
     GL_CALL_RET(fPathID, GenPaths(1));

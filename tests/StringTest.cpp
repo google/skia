@@ -157,7 +157,6 @@ DEF_TEST(String, reporter) {
         { SK_Scalar1,   "1" },
         { -SK_Scalar1,  "-1" },
         { SK_Scalar1/2, "0.5" },
-#ifdef SK_SCALAR_IS_FLOAT
   #ifdef SK_BUILD_FOR_WIN
         { 3.4028234e38f,   "3.4028235e+038" },
         { -3.4028234e38f, "-3.4028235e+038" },
@@ -165,7 +164,6 @@ DEF_TEST(String, reporter) {
         { 3.4028234e38f,   "3.4028235e+38" },
         { -3.4028234e38f, "-3.4028235e+38" },
   #endif
-#endif
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
         a.reset();

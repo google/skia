@@ -23,12 +23,7 @@ enum {
 
 static inline SkScalar tValue2Scalar(int t) {
     SkASSERT((unsigned)t <= kMaxTValue);
-
-#ifdef SK_SCALAR_IS_FLOAT
     return t * 3.05185e-5f; // t / 32767
-#else
-    return (t + (t >> 14)) << 1;
-#endif
 }
 
 SkScalar SkPathMeasure::Segment::getScalarT() const {

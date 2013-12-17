@@ -22,12 +22,6 @@
 #  error "can't have unittests without debug"
 #endif
 
-#if defined(SK_SCALAR_IS_FIXED) && defined(SK_SCALAR_IS_FLOAT)
-#  error "cannot define both SK_SCALAR_IS_FIXED and SK_SCALAR_IS_FLOAT"
-#elif !defined(SK_SCALAR_IS_FIXED) && !defined(SK_SCALAR_IS_FLOAT)
-#  define SK_SCALAR_IS_FLOAT
-#endif
-
 /**
  * Matrix calculations may be float or double.
  * The default is double, as that is faster given our impl uses doubles

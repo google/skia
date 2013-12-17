@@ -10,29 +10,14 @@
 // FIXME: needs to be in a header
 bool SkSetPoly3To3_A(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3]);
 
-#ifdef SK_SCALAR_IS_FIXED
-    typedef int64_t SkDScalar;
+typedef double SkDScalar;
 
-    static SkScalar SkDScalar_toScalar(SkDScalar value) {
-        SkDScalar result = (value + (1 << 15)) >> 16;
-        int top = result >> 31;
-        SkASSERT(top == 0 || top == -1);
-        return (SkScalar)result;
-    }
-    static SkScalar divide(SkDScalar numer, SkDScalar denom) {
-        denom >>= 16;
-        return numer / denom;
-    }
-#else
-    typedef double SkDScalar;
-
-    static SkScalar SkDScalar_toScalar(SkDScalar value) {
-        return static_cast<float>(value);
-    }
-    static SkScalar divide(SkDScalar numer, SkDScalar denom) {
-        return static_cast<float>(numer / denom);
-    }
-#endif
+static SkScalar SkDScalar_toScalar(SkDScalar value) {
+    return static_cast<float>(value);
+}
+static SkScalar divide(SkDScalar numer, SkDScalar denom) {
+    return static_cast<float>(numer / denom);
+}
 
 static SkDScalar SkDScalar_setMul(SkScalar a, SkScalar b) {
     return (SkDScalar) ((SkDScalar) a * b);

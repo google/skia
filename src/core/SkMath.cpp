@@ -12,11 +12,9 @@
 #include "Sk64.h"
 #include "SkScalar.h"
 
-#ifdef SK_SCALAR_IS_FLOAT
-    const uint32_t gIEEENotANumber = 0x7FFFFFFF;
-    const uint32_t gIEEEInfinity = 0x7F800000;
-    const uint32_t gIEEENegativeInfinity = 0xFF800000;
-#endif
+const uint32_t gIEEENotANumber = 0x7FFFFFFF;
+const uint32_t gIEEEInfinity = 0x7F800000;
+const uint32_t gIEEENegativeInfinity = 0xFF800000;
 
 #define sub_shift(zeros, x, n)  \
     zeros -= n;                 \
@@ -376,7 +374,6 @@ SkFixed SkFixedMean(SkFixed a, SkFixed b) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SCALAR_IS_FLOAT
 float SkScalarSinCos(float radians, float* cosValue) {
     float sinValue = sk_float_sin(radians);
 
@@ -392,7 +389,6 @@ float SkScalarSinCos(float radians, float* cosValue) {
     }
     return sinValue;
 }
-#endif
 
 #define INTERP_SINTABLE
 #define BUILD_TABLE_AT_RUNTIMEx

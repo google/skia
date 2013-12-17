@@ -140,12 +140,6 @@ void SkPDFScalar::Append(SkScalar value, SkWStream* stream) {
     // When using floats that are outside the whole value range, we can use
     // integers instead.
 
-
-#if defined(SK_SCALAR_IS_FIXED)
-    stream->writeScalarAsText(value);
-    return;
-#endif  // SK_SCALAR_IS_FIXED
-
 #if !defined(SK_ALLOW_LARGE_PDF_SCALARS)
     if (value > 32767 || value < -32767) {
         stream->writeDecAsText(SkScalarRound(value));
@@ -158,7 +152,7 @@ void SkPDFScalar::Append(SkScalar value, SkWStream* stream) {
     return;
 #endif  // !SK_ALLOW_LARGE_PDF_SCALARS
 
-#if defined(SK_SCALAR_IS_FLOAT) && defined(SK_ALLOW_LARGE_PDF_SCALARS)
+#if defined(SK_ALLOW_LARGE_PDF_SCALARS)
     // Floats have 24bits of significance, so anything outside that range is
     // no more precise than an int. (Plus PDF doesn't support scientific
     // notation, so this clamps to SK_Max/MinS32).
@@ -185,7 +179,7 @@ void SkPDFScalar::Append(SkScalar value, SkWStream* stream) {
     }
     stream->writeText(buffer);
     return;
-#endif  // SK_SCALAR_IS_FLOAT && SK_ALLOW_LARGE_PDF_SCALARS
+#endif  // SK_ALLOW_LARGE_PDF_SCALARS
 }
 
 SkPDFString::SkPDFString(const char value[])

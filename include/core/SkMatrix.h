@@ -14,15 +14,10 @@
 
 class SkString;
 
-#ifdef SK_SCALAR_IS_FLOAT
-    typedef SkScalar SkPersp;
-    #define SkScalarToPersp(x) (x)
-    #define SkPerspToScalar(x) (x)
-#else
-    typedef SkFract SkPersp;
-    #define SkScalarToPersp(x) SkFixedToFract(x)
-    #define SkPerspToScalar(x) SkFractToFixed(x)
-#endif
+// TODO: can we remove these 3 (need to check chrome/android)
+typedef SkScalar SkPersp;
+#define SkScalarToPersp(x) (x)
+#define SkPerspToScalar(x) (x)
 
 /** \class SkMatrix
 
@@ -543,13 +538,7 @@ public:
         return 0 == memcmp(fMat, m.fMat, sizeof(fMat));
     }
 
-#ifdef SK_SCALAR_IS_FIXED
-    friend bool operator==(const SkMatrix& a, const SkMatrix& b) {
-        return a.cheapEqualTo(b);
-    }
-#else
     friend bool operator==(const SkMatrix& a, const SkMatrix& b);
-#endif
     friend bool operator!=(const SkMatrix& a, const SkMatrix& b) {
         return !(a == b);
     }

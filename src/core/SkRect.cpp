@@ -55,21 +55,6 @@ void SkRect::toQuad(SkPoint quad[4]) const {
     quad[3].set(fLeft, fBottom);
 }
 
-#ifdef SK_SCALAR_IS_FLOAT
-    #define SkFLOATCODE(code)   code
-#else
-    #define SkFLOATCODE(code)
-#endif
-
-// For float compares (at least on x86, by removing the else from the min/max
-// computation, we get MAXSS and MINSS instructions, and no branches.
-// Fixed point has no such opportunity (afaik), so we leave the else in that case
-#ifdef SK_SCALAR_IS_FLOAT
-    #define MINMAX_ELSE
-#else
-    #define MINMAX_ELSE else
-#endif
-
 bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     SkASSERT((pts && count > 0) || count == 0);
 
@@ -85,17 +70,22 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
 
         // If all of the points are finite, accum should stay 0. If we encounter
         // a NaN or infinity, then accum should become NaN.
-        SkFLOATCODE(float accum = 0;)
-        SkFLOATCODE(accum *= l; accum *= t;)
+        float accum = 0;
+        accum *= l; accum *= t;
 
         for (int i = 1; i < count; i++) {
             SkScalar x = pts[i].fX;
             SkScalar y = pts[i].fY;
 
-            SkFLOATCODE(accum *= x; accum *= y;)
+            accum *= x; accum *= y;
 
-            if (x < l) l = x; MINMAX_ELSE if (x > r) r = x;
-            if (y < t) t = y; MINMAX_ELSE if (y > b) b = y;
+            // we use if instead of if/else, so we can generate min/max
+            // float instructions (at least on SSE)
+            if (x < l) l = x;
+            if (x > r) r = x;
+
+            if (y < t) t = y;
+            if (y > b) b = y;
         }
 
         SkASSERT(!accum || !SkScalarIsFinite(accum));

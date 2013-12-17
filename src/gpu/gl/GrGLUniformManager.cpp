@@ -233,7 +233,6 @@ void GrGLUniformManager::setMatrix4fv(UniformHandle u,
 }
 
 void GrGLUniformManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
-//    GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
     GrGLfloat mt[] = {
         matrix.get(SkMatrix::kMScaleX),
         matrix.get(SkMatrix::kMSkewY),

@@ -14,20 +14,12 @@
 #include "SkUnitMapper.h"
 
 static SkScalar SkUnitToScalar(U16CPU x) {
-#ifdef SK_SCALAR_IS_FLOAT
     return x / 65535.0f;
-#else
-    return x + (x >> 8);
-#endif
 }
 
 static U16CPU SkScalarToUnit(SkScalar x) {
     SkScalar pin =  SkScalarPin(x, 0, SK_Scalar1);
-#ifdef SK_SCALAR_IS_FLOAT
     return (int) (pin * 65535.0f);
-#else
-    return pin - (pin >= 32768);
-#endif
 }
 
 class SkDrawGradientUnitMapper : public SkUnitMapper {

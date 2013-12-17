@@ -16,12 +16,10 @@
 // reconstruct the edges of the circle.
 // see bug# 1504910
 static void test_circlebounds(SkCanvas*) {
-#ifdef SK_SCALAR_IS_FLOAT
     SkRect r = { 1.39999998f, 1, 21.3999996f, 21 };
     SkPath p;
     p.addOval(r);
     SkASSERT(r == p.getBounds());
-#endif
 }
 
 class CircleView : public SampleView {

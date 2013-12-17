@@ -407,12 +407,6 @@ int tool_main(int argc, char** argv) {
     writer.option("scale", SkStringPrintf("%d", FLAGS_scale).c_str());
     writer.option("clip", SkStringPrintf("%d", FLAGS_clip).c_str());
 
-#if defined(SK_SCALAR_IS_FIXED)
-    writer.option("scalar", "fixed");
-#else
-    writer.option("scalar", "float");
-#endif
-
 #if defined(SK_BUILD_FOR_WIN32)
     writer.option("system", "WIN32");
 #elif defined(SK_BUILD_FOR_MAC)

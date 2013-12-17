@@ -1010,16 +1010,9 @@ static void set_bounds(const SkGlyph& g, SkRect* bounds) {
 // we don't overflow along the way
 typedef int64_t Sk48Dot16;
 
-#ifdef SK_SCALAR_IS_FLOAT
-    static inline float Sk48Dot16ToScalar(Sk48Dot16 x) {
-        return (float) (x * 1.5258789e-5);   // x * (1 / 65536.0f)
-    }
-#else
-    static inline SkFixed Sk48Dot16ToScalar(Sk48Dot16 x) {
-        // just return the low 32bits
-        return static_cast<SkFixed>(x);
-    }
-#endif
+static inline float Sk48Dot16ToScalar(Sk48Dot16 x) {
+    return (float) (x * 1.5258789e-5);   // x * (1 / 65536.0f)
+}
 
 static void join_bounds_x(const SkGlyph& g, SkRect* bounds, Sk48Dot16 dx) {
     SkScalar sx = Sk48Dot16ToScalar(dx);
@@ -1556,13 +1549,8 @@ static bool tooBigForLCD(const SkScalerContext::Rec& rec) {
  *  typically returns the same looking resuts for tiny changes in the matrix.
  */
 static SkScalar sk_relax(SkScalar x) {
-#ifdef SK_SCALAR_IS_FLOAT
     int n = sk_float_round2int(x * 1024);
     return n / 1024.0f;
-#else
-    // round to the nearest 10 fractional bits
-    return (x + (1 << 5)) & ~(1024 - 1);
-#endif
 }
 
 void SkScalerContext::MakeRec(const SkPaint& paint,

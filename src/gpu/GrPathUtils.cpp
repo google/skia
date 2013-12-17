@@ -187,9 +187,6 @@ int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths,
 }
 
 void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
-#ifndef SK_SCALAR_IS_FLOAT
-    GrCrash("Expected scalar is float.");
-#endif
     SkMatrix m;
     // We want M such that M * xy_pt = uv_pt
     // We know M * control_pts = [0  1/2 1]

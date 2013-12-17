@@ -1650,13 +1650,8 @@ bool SkScriptEngine::ValueToString(SkScriptValue value, SkString* string) {
 #define DEF_STRING_ANSWER   NULL
 
 #define testInt(expression) { #expression, SkType_Int, expression, DEF_SCALAR_ANSWER, DEF_STRING_ANSWER }
-#ifdef SK_SCALAR_IS_FLOAT
     #define testScalar(expression) { #expression, SkType_Float, 0, (float) expression, DEF_STRING_ANSWER }
     #define testRemainder(exp1, exp2) { #exp1 "%" #exp2, SkType_Float, 0, sk_float_mod(exp1, exp2), DEF_STRING_ANSWER }
-#else
-    #define testScalar(expression) { #expression, SkType_Float, 0, (int) ((expression) * 65536.0f), DEF_STRING_ANSWER }
-    #define testRemainder(exp1, exp2) { #exp1 "%" #exp2, SkType_Float, 0, (int) (sk_float_mod(exp1, exp2)  * 65536.0f), DEF_STRING_ANSWER }
-#endif
 #define testTrue(expression) { #expression, SkType_Int, 1, DEF_SCALAR_ANSWER, DEF_STRING_ANSWER }
 #define testFalse(expression) { #expression, SkType_Int, 0, DEF_SCALAR_ANSWER, DEF_STRING_ANSWER }
 

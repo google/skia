@@ -10,7 +10,6 @@
 #include "SkPathMeasure.h"
 
 static void test_small_segment3() {
-#ifdef SK_SCALAR_IS_FLOAT
     SkPath path;
     const SkPoint pts[] = {
         { 0, 0 },
@@ -25,11 +24,9 @@ static void test_small_segment3() {
 
     SkPathMeasure meas(path, false);
     meas.getLength();
-#endif
 }
 
 static void test_small_segment2() {
-#ifdef SK_SCALAR_IS_FLOAT
     SkPath path;
     const SkPoint pts[] = {
         { 0, 0 },
@@ -43,11 +40,9 @@ static void test_small_segment2() {
     }
     SkPathMeasure meas(path, false);
     meas.getLength();
-#endif
 }
 
 static void test_small_segment() {
-#ifdef SK_SCALAR_IS_FLOAT
     SkPath path;
     const SkPoint pts[] = {
         { 100000, 100000},
@@ -77,7 +72,6 @@ static void test_small_segment() {
         because distance >>> d.
      */
     meas.getLength();
-#endif
 }
 
 DEF_TEST(PathMeasure, reporter) {

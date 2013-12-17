@@ -241,7 +241,6 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
  *  memory allocation limit).
  */
 static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
-#ifdef SK_SCALAR_IS_FLOAT
     static const struct {
         int fWidth;
         int fHeight;
@@ -258,7 +257,6 @@ static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
                                 gTests[i].fWidth, gTests[i].fHeight,
                                 gTests[i].fExpectedToDraw);
     }
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////

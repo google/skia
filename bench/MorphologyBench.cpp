@@ -84,9 +84,6 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-// Fixed point can be 100x slower than float on these tests, causing
-// bench to timeout.
-#ifndef SK_SCALAR_IS_FIXED
 DEF_BENCH( return new MorphologyBench(SMALL, kErode_MT); )
 DEF_BENCH( return new MorphologyBench(SMALL, kDilate_MT); )
 
@@ -97,4 +94,3 @@ DEF_BENCH( return new MorphologyBench(REAL, kErode_MT); )
 DEF_BENCH( return new MorphologyBench(REAL, kDilate_MT); )
 
 DEF_BENCH( return new MorphologyBench(0, kErode_MT); )
-#endif

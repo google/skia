@@ -155,11 +155,7 @@ void SkInterpolator::reset(int elemCount, int frameCount) {
 #define SK_Fixed2Third      (SK_Fixed1*2/3)
 
 static const SkScalar gIdentityBlend[4] = {
-#ifdef SK_SCALAR_IS_FLOAT
     0.33333333f, 0.33333333f, 0.66666667f, 0.66666667f
-#else
-    SK_Fixed1Third, SK_Fixed1Third, SK_Fixed2Third, SK_Fixed2Third
-#endif
 };
 
 bool SkInterpolator::setKeyFrame(int index, SkMSec time,

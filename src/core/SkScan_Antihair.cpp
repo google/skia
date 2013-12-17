@@ -602,7 +602,6 @@ void SkScan::AntiHairLineRgn(const SkPoint& pt0, const SkPoint& pt1,
 
     SkPoint pts[2] = { pt0, pt1 };
 
-#ifdef SK_SCALAR_IS_FLOAT
     // We have to pre-clip the line to fit in a SkFixed, so we just chop
     // the line. TODO find a way to actually draw beyond that range.
     {
@@ -613,7 +612,6 @@ void SkScan::AntiHairLineRgn(const SkPoint& pt0, const SkPoint& pt1,
             return;
         }
     }
-#endif
 
     if (clip) {
         SkRect clipBounds;
@@ -828,8 +826,6 @@ void SkScan::AntiFillXRect(const SkXRect& xr, const SkRasterClip& clip,
     }
 }
 
-#ifdef SK_SCALAR_IS_FLOAT
-
 /*  This guy takes a float-rect, but with the key improvement that it has
     already been clipped, so we know that it is safe to convert it into a
     XRect (fixedpoint), as it won't overflow.
@@ -888,8 +884,6 @@ void SkScan::AntiFillRect(const SkRect& r, const SkRasterClip& clip,
     }
 }
 
-#endif // SK_SCALAR_IS_FLOAT
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #define SkAlphaMulRound(a, b)   SkMulDiv255Round(a, b)
@@ -902,11 +896,7 @@ static void fillcheckrect(int L, int T, int R, int B, SkBlitter* blitter) {
 }
 
 static inline FDot8 SkScalarToFDot8(SkScalar x) {
-#ifdef SK_SCALAR_IS_FLOAT
     return (int)(x * 256);
-#else
-    return x >> 8;
-#endif
 }
 
 static inline int FDot8Floor(FDot8 x) {

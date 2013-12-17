@@ -31,11 +31,7 @@ static bool chopMonoCubicAtY(SkPoint pts[4], SkScalar y, SkScalar* t) {
     // Initial guess.
     // TODO(turk): Check for zero denominator? Shouldn't happen unless the curve
     // is not only monotonic but degenerate.
-#ifdef SK_SCALAR_IS_FLOAT
     SkScalar t1 = ycrv[0] / (ycrv[0] - ycrv[3]);
-#else  // !SK_SCALAR_IS_FLOAT
-    SkScalar t1 = SkDivBits(ycrv[0], ycrv[0] - ycrv[3], 16);
-#endif  // !SK_SCALAR_IS_FLOAT
 
     // Newton's iterations.
     const SkScalar tol = SK_Scalar1 / 16384;  // This leaves 2 fixed noise bits.
@@ -53,11 +49,7 @@ static bool chopMonoCubicAtY(SkPoint pts[4], SkScalar y, SkScalar* t) {
         SkScalar y0123 = SkScalarInterp(y012, y123, t0);
         SkScalar yder  = (y123 - y012) * 3;
         // TODO(turk): check for yder==0: horizontal.
-#ifdef SK_SCALAR_IS_FLOAT
         t1 -= y0123 / yder;
-#else  // !SK_SCALAR_IS_FLOAT
-        t1 -= SkDivBits(y0123, yder, 16);
-#endif  // !SK_SCALAR_IS_FLOAT
         converged = SkScalarAbs(t1 - t0) <= tol;  // NaN-safe
         ++iters;
     } while (!converged && (iters < maxiters));

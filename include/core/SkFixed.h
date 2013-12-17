@@ -282,10 +282,6 @@ typedef int64_t SkFixed48;
 #define SkFixed48ToFixed(x)     ((SkFixed)((x) >> 32))
 #define SkFloatToFixed48(x)     ((SkFixed48)((x) * (65536.0f * 65536.0f * 65536.0f)))
 
-#ifdef SK_SCALAR_IS_FLOAT
-    #define SkScalarToFixed48(x)    SkFloatToFixed48(x)
-#else
-    #define SkScalarToFixed48(x)    SkFixedToFixed48(x)
-#endif
+#define SkScalarToFixed48(x)    SkFloatToFixed48(x)
 
 #endif

@@ -24,14 +24,7 @@ static bool nearly_equal_mscalar(SkMScalar a, SkMScalar b) {
 }
 
 static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
-    // Note that we get more compounded error for multiple operations when
-    // SK_SCALAR_IS_FIXED.
-#ifdef SK_SCALAR_IS_FLOAT
     const SkScalar tolerance = SK_Scalar1 / 200000;
-#else
-    const SkScalar tolerance = SK_Scalar1 / 1024;
-#endif
-
     return SkScalarAbs(a - b) <= tolerance;
 }
 

@@ -300,19 +300,10 @@ int num_quad_subdivs(const SkPoint p[3]) {
         // = log4(d*d/tol*tol)/2
         // = log2(d*d/tol*tol)
 
-#ifdef SK_SCALAR_IS_FLOAT
         // +1 since we're ignoring the mantissa contribution.
         int log = get_float_exp(dsqd/(gSubdivTol*gSubdivTol)) + 1;
         log = GrMin(GrMax(0, log), kMaxSub);
         return log;
-#else
-        SkScalar log = SkScalarLog(
-                          SkScalarDiv(dsqd,
-                                      SkScalarMul(gSubdivTol, gSubdivTol)));
-        static const SkScalar conv = SkScalarInvert(SkScalarLog(2));
-        log = SkScalarMul(log, conv);
-        return  GrMin(GrMax(0, SkScalarCeilToInt(log)),kMaxSub);
-#endif
     }
 }
 

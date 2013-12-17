@@ -91,12 +91,6 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(SK_SCALAR_IS_FLOAT) && !defined(SK_SCALAR_IS_FIXED)
-    #define SK_SCALAR_IS_FLOAT
-#endif
-
-//////////////////////////////////////////////////////////////////////
-
 #if !defined(SK_CPU_BENDIAN) && !defined(SK_CPU_LENDIAN)
     #if defined (__ppc__) || defined(__PPC__) || defined(__ppc64__) \
         || defined(__PPC64__)

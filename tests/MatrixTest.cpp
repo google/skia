@@ -13,14 +13,7 @@
 #include "SkRandom.h"
 
 static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
-    // Note that we get more compounded error for multiple operations when
-    // SK_SCALAR_IS_FIXED.
-#ifdef SK_SCALAR_IS_FLOAT
     const SkScalar tolerance = SK_Scalar1 / 200000;
-#else
-    const SkScalar tolerance = SK_Scalar1 / 1024;
-#endif
-
     return SkScalarAbs(a - b) <= tolerance;
 }
 
@@ -40,7 +33,6 @@ static bool are_equal(skiatest::Reporter* reporter,
     bool equal = a == b;
     bool cheapEqual = a.cheapEqualTo(b);
     if (equal != cheapEqual) {
-#ifdef SK_SCALAR_IS_FLOAT
         if (equal) {
             bool foundZeroSignDiff = false;
             for (int i = 0; i < 9; ++i) {
@@ -70,9 +62,6 @@ static bool are_equal(skiatest::Reporter* reporter,
             }
             REPORTER_ASSERT(reporter, foundNaN);
         }
-#else
-        REPORTER_ASSERT(reporter, false);
-#endif
     }
     return equal;
 }
@@ -299,16 +288,6 @@ static void test_matrix_is_similarity(skiatest::Reporter* reporter) {
     mat.setPerspY(SkScalarToPersp(SK_Scalar1 / 2));
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
 
-#ifdef SK_SCALAR_IS_FLOAT
-    /* We bypass the following tests for SK_SCALAR_IS_FIXED build.
-     * The long discussion can be found in this issue:
-     *     http://codereview.appspot.com/5999050/
-     * In short, we haven't found a perfect way to fix the precision
-     * issue, i.e. the way we use tolerance in isSimilarityTransformation
-     * is incorrect. The situation becomes worse in fixed build, so
-     * we disabled rotation related tests for fixed build.
-     */
-
     // rotate
     for (int angle = 0; angle < 360; ++angle) {
         mat.reset();
@@ -340,7 +319,6 @@ static void test_matrix_is_similarity(skiatest::Reporter* reporter) {
     mat.setRotate(SkIntToScalar(30));
     mat.postScale(SkIntToScalar(3), SkIntToScalar(2));
     REPORTER_ASSERT(reporter, !mat.isSimilarity());
-#endif
 
     // all zero
     mat.setAll(0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -800,12 +778,7 @@ DEF_TEST(Matrix, reporter) {
     mat.reset();
     mat.set(SkMatrix::kMSkewX, SK_ScalarNaN);
     mat2.set(SkMatrix::kMSkewX, SK_ScalarNaN);
-    // fixed pt doesn't have the property that NaN does not equal itself.
-#ifdef SK_SCALAR_IS_FIXED
-    REPORTER_ASSERT(reporter, are_equal(reporter, mat, mat2));
-#else
     REPORTER_ASSERT(reporter, !are_equal(reporter, mat, mat2));
-#endif
 
     test_matrix_min_max_stretch(reporter);
     test_matrix_is_similarity(reporter);

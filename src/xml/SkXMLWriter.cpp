@@ -309,9 +309,7 @@ void SkXMLStreamWriter::UnitTest()
     w.addAttribute("hello", "world");
     w.addS32Attribute("dec", 42);
     w.addHexAttribute("hex", 0x42, 3);
-#ifdef SK_SCALAR_IS_FLOAT
     w.addScalarAttribute("scalar", -4.2f);
-#endif
     w.startElement("elem1");
         w.endElement();
         w.startElement("elem1");

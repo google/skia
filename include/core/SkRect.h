@@ -436,7 +436,6 @@ struct SK_API SkRect {
      *  returns false.
      */
     bool isFinite() const {
-#ifdef SK_SCALAR_IS_FLOAT
         float accum = 0;
         accum *= fLeft;
         accum *= fTop;
@@ -449,13 +448,6 @@ struct SK_API SkRect {
         // value==value will be true iff value is not NaN
         // TODO: is it faster to say !accum or accum==accum?
         return accum == accum;
-#else
-        // use bit-or for speed, since we don't care about short-circuting the
-        // tests, and we expect the common case will be that we need to check all.
-        int isNaN = (SK_FixedNaN == fLeft)  | (SK_FixedNaN == fTop) |
-                    (SK_FixedNaN == fRight) | (SK_FixedNaN == fBottom);
-        return !isNaN;
-#endif
     }
 
     SkScalar    x() const { return fLeft; }

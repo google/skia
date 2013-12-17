@@ -10,11 +10,9 @@
 #include "SkRandom.h"
 #include "SkRect.h"
 
-#ifdef SK_SCALAR_IS_FLOAT
 static float make_zero() {
     return sk_float_sin(0);
 }
-#endif
 
 struct RectCenter {
     SkIRect  fRect;
@@ -59,14 +57,9 @@ static void check_invalid(skiatest::Reporter* reporter,
 // Tests that isFinite() will reject any rect with +/-inf values
 // as one of its coordinates.
 DEF_TEST(InfRect, reporter) {
-#ifdef SK_SCALAR_IS_FLOAT
     float inf = 1 / make_zero();    // infinity
     float nan = inf * 0;
     SkASSERT(!(nan == nan));
-#else
-    SkFixed inf = SK_FixedNaN;
-    SkFixed nan = SK_FixedNaN;
-#endif
     SkScalar small = SkIntToScalar(10);
     SkScalar big = SkIntToScalar(100);
 
