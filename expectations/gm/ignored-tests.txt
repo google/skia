@@ -72,3 +72,6 @@ xfermodeimagefilter
 
 # Added by sugoi in https://codereview.chromium.org/101623007
 displacement
+
+# Added by vandebo while fixing Chromium bug 328009. Expanding xfermodes gm.
+xfermodes
