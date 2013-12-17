@@ -619,13 +619,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5763712908858712624
+          16421245776926696589
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "blurquickreject_565.png": {
       "allowed-digests": [

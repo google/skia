@@ -750,17 +750,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7849440510376198041
+          14498535783408835095
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "bleed_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4131801314644610345
+          1453071759531302319
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "blend_gpu.png": {
       "allowed-digests": [

@@ -588,9 +588,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5763712908858712624
+          14585687569066230878
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "blurquickreject_565.png": {
       "allowed-digests": [
