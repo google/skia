@@ -277,7 +277,7 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
                 scale = SkScalarDiv(length, fIntervalLength);
             } else {
                 SkScalar div = SkScalarDiv(length, fIntervalLength);
-                int n = SkScalarFloor(div);
+                int n = SkScalarFloorToInt(div);
                 scale = SkScalarDiv(length, n * fIntervalLength);
             }
         }

@@ -140,7 +140,7 @@ protected:
 
         SkPaint paint;
         paint.setColor(fColor);
-        paint.setAlpha(SkScalarRound(opacity * 255));
+        paint.setAlpha(SkScalarRoundToInt(opacity * 255));
 
         canvas->drawRect(r, paint);
     }

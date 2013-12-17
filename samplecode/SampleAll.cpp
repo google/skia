@@ -451,7 +451,7 @@ protected:
         canvas->drawBitmap(fBug, left, top, &paint);
         canvas->translate(SkIntToScalar(30), 0);
         canvas->drawSprite(fTb,
-            SkScalarRound(canvas->getTotalMatrix().getTranslateX()),
+            SkScalarRoundToInt(canvas->getTotalMatrix().getTranslateX()),
             spriteOffset + 10, &paint);
 
         canvas->translate(-SkIntToScalar(30), SkIntToScalar(30));

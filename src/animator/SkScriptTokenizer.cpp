@@ -984,7 +984,7 @@ void SkScriptEngine2::processLogicalOp(Op op) {
                 SkScriptValue2 value;
                 fValueStack.pop(&value);
                 SkASSERT(value.fType == SkOperand2::kS32 || value.fType == SkOperand2::kScalar); // !!! add error handling (although, could permit strings eventually)
-                int index = value.fType == SkOperand2::kScalar ? SkScalarFloor(value.fOperand.fScalar) :
+                int index = value.fType == SkOperand2::kScalar ? SkScalarFloorToInt(value.fOperand.fScalar) :
                     value.fOperand.fS32;
                 SkScriptValue2 arrayValue;
                 fValueStack.pop(&arrayValue);
@@ -1200,7 +1200,7 @@ bool SkScriptEngine2::ConvertTo(SkScriptEngine2* engine, SkOperand2::OpType toTy
     switch (toType) {
         case SkOperand2::kS32:
             if (type == SkOperand2::kScalar)
-                operand.fS32 = SkScalarFloor(operand.fScalar);
+                operand.fS32 = SkScalarFloorToInt(operand.fScalar);
             else {
                 SkASSERT(type == SkOperand2::kString);
                 success = SkParse::FindS32(operand.fString->c_str(), &operand.fS32) != NULL;

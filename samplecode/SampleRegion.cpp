@@ -396,7 +396,8 @@ protected:
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
                                               unsigned modi) SK_OVERRIDE {
-        return fRect.contains(SkScalarRound(x), SkScalarRound(y)) ? new Click(this) : NULL;
+        return fRect.contains(SkScalarRoundToInt(x),
+                              SkScalarRoundToInt(y)) ? new Click(this) : NULL;
     }
 
     virtual bool onClick(Click* click) {

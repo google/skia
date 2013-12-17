@@ -34,8 +34,8 @@ protected:
 
         if (true) {
             SkBitmap mask;
-            int w = SkScalarRound(r.width());
-            int h = SkScalarRound(r.height());
+            int w = SkScalarRoundToInt(r.width());
+            int h = SkScalarRoundToInt(r.height());
             mask.setConfig(SkBitmap::kARGB_8888_Config, w, h);
             mask.allocPixels();
             mask.eraseColor(SK_ColorTRANSPARENT);

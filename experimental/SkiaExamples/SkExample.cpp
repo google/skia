@@ -93,8 +93,8 @@ bool SkExampleWindow::setupBackend(DeviceType type) {
 
 void SkExampleWindow::setupRenderTarget() {
     GrBackendRenderTargetDesc desc;
-    desc.fWidth = SkScalarRound(width());
-    desc.fHeight = SkScalarRound(height());
+    desc.fWidth = SkScalarRoundToInt(width());
+    desc.fHeight = SkScalarRoundToInt(height());
     desc.fConfig = kSkia8888_GrPixelConfig;
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
     desc.fSampleCnt = fAttachmentInfo.fSampleCount;

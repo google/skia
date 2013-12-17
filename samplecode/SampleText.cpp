@@ -176,7 +176,7 @@ void SkPowerMode::init(SkScalar e) {
      //   printf(" %d %g", i, x);
         x = powf(x, ee);
      //   printf(" %g", x);
-        int xx = SkScalarRound(x * 255);
+        int xx = SkScalarRoundToInt(x * 255);
      //   printf(" %d\n", xx);
         fTable[i] = SkToU8(xx);
     }

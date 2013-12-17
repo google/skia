@@ -155,7 +155,7 @@ void SkDisplayMath::executeFunction(SkDisplayable* target, int index,
             scalarResult = SkScalarATan2(input, parameters[1].fOperand.fScalar);
             break;
         case SK_FUNCTION(ceil):
-            scalarResult = SkIntToScalar(SkScalarCeil(input));
+            scalarResult = SkScalarCeilToScalar(input);
             break;
         case SK_FUNCTION(cos):
             scalarResult = SkScalarCos(input);
@@ -164,7 +164,7 @@ void SkDisplayMath::executeFunction(SkDisplayable* target, int index,
             scalarResult = SkScalarExp(input);
             break;
         case SK_FUNCTION(floor):
-            scalarResult = SkIntToScalar(SkScalarFloor(input));
+            scalarResult = SkScalarFloorToScalar(input);
             break;
         case SK_FUNCTION(log):
             scalarResult = SkScalarLog(input);
@@ -193,7 +193,7 @@ void SkDisplayMath::executeFunction(SkDisplayable* target, int index,
             scalarResult = fRandom.nextUScalar1();
             break;
         case SK_FUNCTION(round):
-            scalarResult = SkIntToScalar(SkScalarRound(input));
+            scalarResult = SkScalarRoundToScalar(input);
             break;
         case SK_FUNCTION(sin):
             scalarResult = SkScalarSin(input);

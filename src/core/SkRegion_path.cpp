@@ -290,8 +290,8 @@ static int count_path_runtype_values(const SkPath& path, int* itop, int* ibot) {
     }
     SkASSERT(top <= bot);
 
-    *itop = SkScalarRound(top);
-    *ibot = SkScalarRound(bot);
+    *itop = SkScalarRoundToInt(top);
+    *ibot = SkScalarRoundToInt(bot);
     return maxEdges;
 }
 

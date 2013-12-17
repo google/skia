@@ -58,7 +58,7 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         fTime += SampleCode::GetAnimSecondsDelta();
         SkScalar delta = fTime / 15.f;
-        int intPart = SkScalarFloor(delta);
+        int intPart = SkScalarFloorToInt(delta);
         delta = delta - SK_Scalar1 * intPart;
         if (intPart % 2) {
             delta = SK_Scalar1 - delta;

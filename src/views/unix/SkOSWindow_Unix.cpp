@@ -330,7 +330,8 @@ bool SkOSWindow::attach(SkBackEndTypes, int msaaSampleCount, AttachmentInfo* inf
                    fUnixWindow.fWin,
                    fUnixWindow.fGLContext);
     glViewport(0, 0,
-               SkScalarRound(this->width()), SkScalarRound(this->height()));
+               SkScalarRoundToInt(this->width()),
+               SkScalarRoundToInt(this->height()));
     glClearColor(0, 0, 0, 0);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

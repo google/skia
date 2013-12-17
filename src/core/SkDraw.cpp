@@ -399,8 +399,8 @@ static void bw_pt_rect_32_hair_proc(const PtProcRec& rec,
 static void bw_pt_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
                             int count, SkBlitter* blitter) {
     for (int i = 0; i < count; i++) {
-        int x = SkScalarFloor(devPts[i].fX);
-        int y = SkScalarFloor(devPts[i].fY);
+        int x = SkScalarFloorToInt(devPts[i].fX);
+        int y = SkScalarFloorToInt(devPts[i].fY);
         if (rec.fClip->contains(x, y)) {
             blitter->blitH(x, y, 1);
         }
@@ -1195,8 +1195,8 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
     SkASSERT(bitmap.config() == SkBitmap::kA8_Config);
 
     if (just_translate(*fMatrix, bitmap)) {
-        int ix = SkScalarRound(fMatrix->getTranslateX());
-        int iy = SkScalarRound(fMatrix->getTranslateY());
+        int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
+        int iy = SkScalarRoundToInt(fMatrix->getTranslateY());
 
         SkAutoLockPixels alp(bitmap);
         if (!bitmap.readyToDraw()) {
@@ -1318,8 +1318,8 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
 
     if (fBounder && just_translate(matrix, bitmap)) {
         SkIRect ir;
-        int32_t ix = SkScalarRound(matrix.getTranslateX());
-        int32_t iy = SkScalarRound(matrix.getTranslateY());
+        int32_t ix = SkScalarRoundToInt(matrix.getTranslateX());
+        int32_t iy = SkScalarRoundToInt(matrix.getTranslateY());
         ir.set(ix, iy, ix + bitmap.width(), iy + bitmap.height());
         if (!fBounder->doIRect(ir)) {
             return;
@@ -1336,8 +1336,8 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         if (!bitmap.readyToDraw()) {
             return;
         }
-        int ix = SkScalarRound(matrix.getTranslateX());
-        int iy = SkScalarRound(matrix.getTranslateY());
+        int ix = SkScalarRoundToInt(matrix.getTranslateX());
+        int iy = SkScalarRoundToInt(matrix.getTranslateY());
         if (clipHandlesSprite(*fRC, ix, iy, bitmap)) {
             uint32_t    storage[kBlitterStorageLongCount];
             SkBlitter*  blitter = SkBlitter::ChooseSprite(*fBitmap, paint, bitmap,
@@ -2741,16 +2741,16 @@ bool SkBounder::doHairline(const SkPoint& pt0, const SkPoint& pt1,
     if (v0 > v1) {
         SkTSwap<SkScalar>(v0, v1);
     }
-    r.fLeft     = SkScalarFloor(v0);
-    r.fRight    = SkScalarCeil(v1);
+    r.fLeft     = SkScalarFloorToInt(v0);
+    r.fRight    = SkScalarCeilToInt(v1);
 
     v0 = pt0.fY;
     v1 = pt1.fY;
     if (v0 > v1) {
         SkTSwap<SkScalar>(v0, v1);
     }
-    r.fTop      = SkScalarFloor(v0);
-    r.fBottom   = SkScalarCeil(v1);
+    r.fTop      = SkScalarFloorToInt(v0);
+    r.fBottom   = SkScalarCeilToInt(v1);
 
     if (paint.isAntiAlias()) {
         r.inset(-1, -1);

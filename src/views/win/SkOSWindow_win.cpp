@@ -361,7 +361,9 @@ bool SkOSWindow::attachGL(int msaaSampleCount, AttachmentInfo* info) {
             info->fSampleCount = 0;
         }
 
-        glViewport(0, 0, SkScalarRound(this->width()), SkScalarRound(this->height()));
+        glViewport(0, 0,
+                   SkScalarRoundToInt(this->width()),
+                   SkScalarRoundToInt(this->height()));
         return true;
     }
     return false;
@@ -500,8 +502,9 @@ bool SkOSWindow::attachANGLE(int msaaSampleCount, AttachmentInfo* info) {
         SkAutoTUnref<const GrGLInterface> intf(GrGLCreateANGLEInterface());
 
         if (intf ) {
-            ANGLE_GL_CALL(intf, Viewport(0, 0, SkScalarRound(this->width()),
-                                      SkScalarRound(this->height())));
+            ANGLE_GL_CALL(intf, Viewport(0, 0,
+                                         SkScalarRoundToInt(this->width()),
+                                         SkScalarRoundToInt(this->height())));
         }
         return true;
     }

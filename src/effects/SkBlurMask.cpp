@@ -404,7 +404,7 @@ static int boxBlurInterp(const uint8_t* src, int src_y_stride, uint8_t* dst,
 
 static void get_adjusted_radii(SkScalar passRadius, int *loRadius, int *hiRadius)
 {
-    *loRadius = *hiRadius = SkScalarCeil(passRadius);
+    *loRadius = *hiRadius = SkScalarCeilToInt(passRadius);
     if (SkIntToScalar(*hiRadius) - passRadius > 0.5f) {
         *loRadius = *hiRadius - 1;
     }
@@ -512,8 +512,8 @@ bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
     // to approximate a Gaussian blur
     int passCount = (kHigh_Quality == quality) ? 3 : 1;
 
-    int rx = SkScalarCeil(passRadius);
-    int outerWeight = 255 - SkScalarRound((SkIntToScalar(rx) - passRadius) * 255);
+    int rx = SkScalarCeilToInt(passRadius);
+    int outerWeight = 255 - SkScalarRoundToInt((SkIntToScalar(rx) - passRadius) * 255);
 
     SkASSERT(rx >= 0);
     SkASSERT((unsigned)outerWeight <= 255);
@@ -865,7 +865,7 @@ bool SkBlurMask::BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
 
     float variance = sigma * sigma;
 
-    int windowSize = SkScalarCeil(sigma*6);
+    int windowSize = SkScalarCeilToInt(sigma*6);
     // round window size up to nearest odd number
     windowSize |= 1;
 

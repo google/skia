@@ -96,7 +96,7 @@ void SkPaint_Inflate(SkPaint* paint, const SkDOM& dom, const SkDOM::Node* node)
     if (dom.findScalar(node, "opacity", &x))
     {
         x = SkMaxScalar(0, SkMinScalar(x, SK_Scalar1));
-        paint->setAlpha(SkScalarRound(x * 255));
+        paint->setAlpha(SkScalarRoundToInt(x * 255));
     }
 
     int    index = dom.findList(node, "text-anchor", "left,center,right");

@@ -41,7 +41,7 @@ public:
         if (SkScalarFraction(rad) != 0) {
             fName.printf("morph_%.2f_%s", SkScalarToFloat(rad), name);
         } else {
-            fName.printf("morph_%d_%s", SkScalarRound(rad), name);
+            fName.printf("morph_%d_%s", SkScalarRoundToInt(rad), name);
         }
     }
 

@@ -27,8 +27,8 @@ static const uint32_t MAX_POINTS_PER_CURVE = 1 << MAX_COEFF_SHIFT;
 // For determining the maximum possible number of points to use in
 // drawing a quadratic, we want to err on the high side.
 static inline int cheap_distance(SkScalar dx, SkScalar dy) {
-    int idx = SkAbs32(SkScalarRound(dx));
-    int idy = SkAbs32(SkScalarRound(dy));
+    int idx = SkAbs32(SkScalarRoundToInt(dx));
+    int idy = SkAbs32(SkScalarRoundToInt(dy));
     if (idx > idy) {
         idx += idy >> 1;
     } else {
@@ -79,7 +79,7 @@ static uint32_t quadraticPointCount_EC(const SkPoint points[], SkScalar tol) {
 
 static uint32_t quadraticPointCount_CE(const SkPoint points[]) {
     SkScalar distance = compute_distance(points);
-    return estimate_pointCount(SkScalarRound(distance));
+    return estimate_pointCount(SkScalarRoundToInt(distance));
 }
 
 static uint32_t quadraticPointCount_CC(const SkPoint points[], SkScalar tol) {

@@ -78,8 +78,8 @@ void SkGLWidget::paintGL() {
 
 GrBackendRenderTargetDesc SkGLWidget::getDesc(int w, int h) {
     GrBackendRenderTargetDesc desc;
-    desc.fWidth = SkScalarRound(this->width());
-    desc.fHeight = SkScalarRound(this->height());
+    desc.fWidth = SkScalarRoundToInt(this->width());
+    desc.fHeight = SkScalarRoundToInt(this->height());
     desc.fConfig = kSkia8888_GrPixelConfig;
     GR_GL_GetIntegerv(fCurIntf, GR_GL_SAMPLES, &desc.fSampleCnt);
     GR_GL_GetIntegerv(fCurIntf, GR_GL_STENCIL_BITS, &desc.fStencilBits);

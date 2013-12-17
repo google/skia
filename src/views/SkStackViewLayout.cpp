@@ -167,11 +167,11 @@ void SkStackViewLayout::onLayoutChildren(SkView* parent)
     while ((child = iter.next()) != NULL)
     {
         if (fRound)
-            pos = SkIntToScalar(SkScalarRound(pos));
+            pos = SkScalarRoundToScalar(pos);
         (child->*mainLocP)(pos);
         SkScalar crossLoc = crossStartM + gAlignProcs[fAlign]((child->*crossGetSizeP)(), crossLimit);
         if (fRound)
-            crossLoc = SkIntToScalar(SkScalarRound(crossLoc));
+            crossLoc = SkScalarRoundToScalar(crossLoc);
         (child->*crossLocP)(crossLoc);
 
         if (crossSetSizeP)

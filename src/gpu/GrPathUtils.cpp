@@ -51,7 +51,7 @@ uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
         // subdivide x = log4(d/tol) times. x subdivisions creates 2^(x)
         // points.
         // 2^(log4(x)) = sqrt(x);
-        int temp = SkScalarCeil(SkScalarSqrt(SkScalarDiv(d, tol)));
+        int temp = SkScalarCeilToInt(SkScalarSqrt(SkScalarDiv(d, tol)));
         int pow2 = GrNextPow2(temp);
         // Because of NaNs & INFs we can wind up with a degenerate temp
         // such that pow2 comes out negative. Also, our point generator
@@ -102,7 +102,7 @@ uint32_t GrPathUtils::cubicPointCount(const GrPoint points[],
     if (d <= tol) {
         return 1;
     } else {
-        int temp = SkScalarCeil(SkScalarSqrt(SkScalarDiv(d, tol)));
+        int temp = SkScalarCeilToInt(SkScalarSqrt(SkScalarDiv(d, tol)));
         int pow2 = GrNextPow2(temp);
         // Because of NaNs & INFs we can wind up with a degenerate temp
         // such that pow2 comes out negative. Also, our point generator

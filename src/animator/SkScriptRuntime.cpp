@@ -210,7 +210,7 @@ bool SkScriptRuntime::executeTokens(unsigned char* opCode) {
                 return false;
             break;
         case SkScriptEngine2::kScalarToInt:
-            operand[0].fS32 = SkScalarFloor(operand[0].fScalar);
+            operand[0].fS32 = SkScalarFloorToInt(operand[0].fScalar);
             break;
         // arithmetic ops
         case SkScriptEngine2::kAddInt:

@@ -62,6 +62,6 @@ bool SkSnapshot::draw(SkAnimateMaker& maker) {
         name.append(".png");
     encoder->encodeFile(name.c_str(),
                         maker.fCanvas->getDevice()->accessBitmap(false),
-                        SkScalarFloor(quality));
+                        SkScalarFloorToInt(quality));
     return false;
 }

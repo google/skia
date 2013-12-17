@@ -81,8 +81,8 @@ int tool_main(int argc, char** argv) {
     SkScalar width = paint.measureText(text.c_str(), text.size());
     SkScalar spacing = paint.getFontSpacing();
 
-    int w = SkScalarRound(width) + 30;
-    int h = SkScalarRound(spacing) + 30;
+    int w = SkScalarRoundToInt(width) + 30;
+    int h = SkScalarRoundToInt(spacing) + 30;
 
     static const struct {
         bool (*fProc)(int w, int h, const char path[], const char text[],

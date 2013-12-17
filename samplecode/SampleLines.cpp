@@ -99,7 +99,7 @@ protected:
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) SK_OVERRIDE {
-        fAlpha = SkScalarRound(y);
+        fAlpha = SkScalarRoundToInt(y);
         this->inval(NULL);
         return NULL;
     }

@@ -988,8 +988,8 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     SkMatrix unflip;
     unflip.setTranslate(0, SkScalarRoundToScalar(deviceBounds.height()));
     unflip.preScale(SK_Scalar1, -SK_Scalar1);
-    SkISize size = SkISize::Make(SkScalarRound(deviceBounds.width()),
-                                 SkScalarRound(deviceBounds.height()));
+    SkISize size = SkISize::Make(SkScalarRoundToInt(deviceBounds.width()),
+                                 SkScalarRoundToInt(deviceBounds.height()));
     // TODO(edisonn): should we pass here the DCT encoder of the destination device?
     // TODO(edisonn): NYI Perspective, use SkPDFDeviceFlattener.
     SkPDFDevice pattern(size, size, unflip);

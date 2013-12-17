@@ -82,8 +82,8 @@ protected:
                 for (int i = 0; i < fBitmapCount; i++) {
                     SkScalar x = (k * fBitmapCount + j) * W;
                     SkScalar y = i * H;
-                    x = SkIntToScalar(SkScalarRound(x));
-                    y = SkIntToScalar(SkScalarRound(y));
+                    x = SkScalarRoundToScalar(x);
+                    y = SkScalarRoundToScalar(y);
                     canvas->drawBitmap(fBitmaps[i], x, y, &paint);
                     if (i == 0) {
                         SkPaint p;

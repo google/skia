@@ -90,19 +90,19 @@ struct SkSize : public SkTSize<SkScalar> {
 
     SkISize toRound() const {
         SkISize s;
-        s.set(SkScalarRound(fWidth), SkScalarRound(fHeight));
+        s.set(SkScalarRoundToInt(fWidth), SkScalarRoundToInt(fHeight));
         return s;
     }
 
     SkISize toCeil() const {
         SkISize s;
-        s.set(SkScalarCeil(fWidth), SkScalarCeil(fHeight));
+        s.set(SkScalarCeilToInt(fWidth), SkScalarCeilToInt(fHeight));
         return s;
     }
 
     SkISize toFloor() const {
         SkISize s;
-        s.set(SkScalarFloor(fWidth), SkScalarFloor(fHeight));
+        s.set(SkScalarFloorToInt(fWidth), SkScalarFloorToInt(fHeight));
         return s;
     }
 };

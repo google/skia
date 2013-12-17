@@ -142,7 +142,7 @@ void SkPDFScalar::Append(SkScalar value, SkWStream* stream) {
 
 #if !defined(SK_ALLOW_LARGE_PDF_SCALARS)
     if (value > 32767 || value < -32767) {
-        stream->writeDecAsText(SkScalarRound(value));
+        stream->writeDecAsText(SkScalarRoundToInt(value));
         return;
     }
 

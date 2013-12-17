@@ -200,8 +200,8 @@ static int compute_int_quad_dist(const SkPoint pts[3]) {
     dx = SkScalarAbs(dx);
     dy = SkScalarAbs(dy);
     // convert to whole pixel values (use ceiling to be conservative)
-    int idx = SkScalarCeil(dx);
-    int idy = SkScalarCeil(dy);
+    int idx = SkScalarCeilToInt(dx);
+    int idy = SkScalarCeilToInt(dy);
     // use the cheap approx for distance
     if (idx > idy) {
         return idx + (idy >> 1);

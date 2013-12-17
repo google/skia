@@ -288,10 +288,10 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
         // Note: the left edge is handled slightly differently below. We
         // are a bit more generous in the rounding since we don't want to
         // risk missing the left pixels when fLeft is very close to .5
-        fFiniteBound.set(SkIntToScalar(SkScalarFloorToInt(fFiniteBound.fLeft+0.45f)),
-                         SkIntToScalar(SkScalarRound(fFiniteBound.fTop)),
-                         SkIntToScalar(SkScalarRound(fFiniteBound.fRight)),
-                         SkIntToScalar(SkScalarRound(fFiniteBound.fBottom)));
+        fFiniteBound.set(SkScalarFloorToScalar(fFiniteBound.fLeft+0.45f),
+                         SkScalarRoundToScalar(fFiniteBound.fTop),
+                         SkScalarRoundToScalar(fFiniteBound.fRight),
+                         SkScalarRoundToScalar(fFiniteBound.fBottom));
     }
 
     // Now determine the previous Element's bound information taking into

@@ -163,8 +163,10 @@ void SkAnimateBase::packARGB(SkScalar array[], int count, SkTDOperandArray* conv
 {
     SkASSERT(count == 4);
     converted->setCount(1);
-    SkColor color = SkColorSetARGB(SkScalarRound(array[0]), SkScalarRound(array[1]),
-        SkScalarRound(array[2]), SkScalarRound(array[3]));
+    SkColor color = SkColorSetARGB(SkScalarRoundToInt(array[0]),
+                                   SkScalarRoundToInt(array[1]),
+                                   SkScalarRoundToInt(array[2]),
+                                   SkScalarRoundToInt(array[3]));
     (*converted)[0].fS32 = color;
 }
 

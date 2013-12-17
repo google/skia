@@ -69,7 +69,7 @@ static SkColor HSV_to_RGB(SkColor color, HSV_Choice choice, SkScalar hsv) {
         red = green = blue = value;
     else {
         //SkScalar fraction = SkScalarMod(hue, 60 * SK_Scalar1);
-        int sextant = SkScalarFloor(hue / 60);
+        int sextant = SkScalarFloorToInt(hue / 60);
         SkScalar fraction = hue / 60 - SkIntToScalar(sextant);
         SkScalar p = SkScalarMul(value , SK_Scalar1 - saturation);
         SkScalar q = SkScalarMul(value, SK_Scalar1 - SkScalarMul(saturation, fraction));
@@ -85,8 +85,8 @@ static SkColor HSV_to_RGB(SkColor color, HSV_Choice choice, SkScalar hsv) {
         }
     }
     //used to say SkToU8((U8CPU) red) etc
-    return SkColorSetARGB(SkColorGetA(color), SkScalarRound(red),
-        SkScalarRound(green), SkScalarRound(blue));
+    return SkColorSetARGB(SkColorGetA(color), SkScalarRoundToInt(red),
+                          SkScalarRoundToInt(green), SkScalarRoundToInt(blue));
 }
 
 #if defined _WIN32 && _MSC_VER >= 1300

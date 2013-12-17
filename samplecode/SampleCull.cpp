@@ -79,10 +79,12 @@ FINISHED:
         for (;;)
             switch (iter.next(pts)) {
             case SkPath::kMove_Verb:
-                array[n++].set(SkScalarRound(pts[0].fX), SkScalarRound(pts[0].fY));
+                array[n++].set(SkScalarRoundToInt(pts[0].fX),
+                               SkScalarRoundToInt(pts[0].fY));
                 break;
             case SkPath::kLine_Verb:
-                array[n++].set(SkScalarRound(pts[1].fX), SkScalarRound(pts[1].fY));
+                array[n++].set(SkScalarRoundToInt(pts[1].fX),
+                               SkScalarRoundToInt(pts[1].fY));
                 break;
             case SkPath::kDone_Verb:
                 goto FINISHED2;

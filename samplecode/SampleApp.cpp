@@ -306,8 +306,8 @@ public:
             win->attach(fBackend, fMSAASampleCount, &attachmentInfo);
 
             GrBackendRenderTargetDesc desc;
-            desc.fWidth = SkScalarRound(win->width());
-            desc.fHeight = SkScalarRound(win->height());
+            desc.fWidth = SkScalarRoundToInt(win->width());
+            desc.fHeight = SkScalarRoundToInt(win->height());
             desc.fConfig = kSkia8888_GrPixelConfig;
             desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
             desc.fSampleCnt = attachmentInfo.fSampleCount;
@@ -1314,8 +1314,8 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
         int count = canvas->save();
         canvas->resetMatrix();
         // Ensure the mouse position is on screen.
-        int width = SkScalarRound(this->width());
-        int height = SkScalarRound(this->height());
+        int width = SkScalarRoundToInt(this->width());
+        int height = SkScalarRoundToInt(this->height());
         if (fMouseX >= width) fMouseX = width - 1;
         else if (fMouseX < 0) fMouseX = 0;
         if (fMouseY >= height) fMouseY = height - 1;
@@ -2039,8 +2039,8 @@ bool SampleWindow::onDispatchClick(int x, int y, Click::State state,
     if (Click::kMoved_State == state) {
         updatePointer(x, y);
     }
-    int w = SkScalarRound(this->width());
-    int h = SkScalarRound(this->height());
+    int w = SkScalarRoundToInt(this->width());
+    int h = SkScalarRoundToInt(this->height());
 
     // check for the resize-box
     if (w - x < 16 && h - y < 16) {

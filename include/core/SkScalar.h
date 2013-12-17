@@ -11,6 +11,8 @@
 #include "SkFixed.h"
 #include "SkFloatingPoint.h"
 
+//#define SK_SUPPORT_DEPRECATED_SCALARROUND
+
 typedef float   SkScalar;
 
 /** SK_Scalar1 is defined to be 1.0 represented as an SkScalar
@@ -108,13 +110,13 @@ inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 #define SkScalarMulAdd(a, b, c) ((float)(a) * (b) + (c))
 /** Returns the product of a SkScalar and an int rounded to the nearest integer value
 */
-#define SkScalarMulRound(a, b) SkScalarRound((float)(a) * (b))
+#define SkScalarMulRound(a, b) SkScalarRoundToInt((float)(a) * (b))
 /** Returns the product of a SkScalar and an int promoted to the next larger int
 */
-#define SkScalarMulCeil(a, b) SkScalarCeil((float)(a) * (b))
+#define SkScalarMulCeil(a, b) SkScalarCeilToInt((float)(a) * (b))
 /** Returns the product of a SkScalar and an int truncated to the next smaller int
 */
-#define SkScalarMulFloor(a, b) SkScalarFloor((float)(a) * (b))
+#define SkScalarMulFloor(a, b) SkScalarFloorToInt((float)(a) * (b))
 /** Returns the quotient of two SkScalars (a/b)
 */
 #define SkScalarDiv(a, b)       ((float)(a) / (b))
@@ -168,9 +170,11 @@ static inline bool SkScalarIsInt(SkScalar x) {
 }
 
 // DEPRECATED : use ToInt or ToScalar variant
-#define SkScalarFloor(x)    SkScalarFloorToInt(x)
-#define SkScalarCeil(x)     SkScalarCeilToInt(x)
-#define SkScalarRound(x)    SkScalarRoundToInt(x)
+#ifdef SK_SUPPORT_DEPRECATED_SCALARROUND
+#   define SkScalarFloor(x)    SkScalarFloorToInt(x)
+#   define SkScalarCeil(x)     SkScalarCeilToInt(x)
+#   define SkScalarRound(x)    SkScalarRoundToInt(x)
+#endif
 
 /**
  *  Returns -1 || 0 || 1 depending on the sign of value:

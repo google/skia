@@ -43,7 +43,7 @@ public:
         if (SkScalarFraction(rad) != 0) {
             fName.printf("blur_%.2f_%s_%s", SkScalarToFloat(rad), name, quality);
         } else {
-            fName.printf("blur_%d_%s_%s", SkScalarRound(rad), name, quality);
+            fName.printf("blur_%d_%s_%s", SkScalarRoundToInt(rad), name, quality);
         }
     }
 

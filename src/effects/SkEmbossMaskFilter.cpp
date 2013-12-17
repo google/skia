@@ -89,7 +89,7 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
 
     dst->fFormat = SkMask::k3D_Format;
     if (margin) {
-        margin->set(SkScalarCeil(3*sigma), SkScalarCeil(3*sigma));
+        margin->set(SkScalarCeilToInt(3*sigma), SkScalarCeilToInt(3*sigma));
     }
 
     if (src.fImage == NULL) {

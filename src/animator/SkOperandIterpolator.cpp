@@ -81,7 +81,7 @@ SkInterpolatorBase::Result SkOperandInterpolator::timeToValues(SkMSec time, SkOp
                 for (int i = fElemCount - 1; i >= 0; --i) {
                     int32_t a = prevSrc[i].fS32;
                     int32_t b = nextSrc[i].fS32;
-                    values[i].fS32 = a + SkScalarRound((b - a) * T);
+                    values[i].fS32 = a + SkScalarRoundToInt((b - a) * T);
                 }
             } else
                 memcpy(values, prevSrc, sizeof(SkOperand) * fElemCount);

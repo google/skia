@@ -1157,7 +1157,7 @@ noMatch:
                 }
                 SkOperand indexOperand;
                 fOperandStack.pop(&indexOperand);
-                int index = indexType == kScalar ? SkScalarFloor(indexOperand.fScalar) :
+                int index = indexType == kScalar ? SkScalarFloorToInt(indexOperand.fScalar) :
                     indexOperand.fS32;
                 SkOpType arrayType;
                 fTypeStack.pop(&arrayType);
@@ -1324,7 +1324,7 @@ bool SkScriptEngine::processOp() {
                 type1 = kScalar;
             }
             if (type1 == kScalar && (attributes->fLeftType == kInt || type2 == kInt)) {
-                operand1.fS32 = SkScalarFloor(operand1.fScalar);
+                operand1.fS32 = SkScalarFloorToInt(operand1.fScalar);
                 type1 = kInt;
             }
         }
@@ -1339,7 +1339,7 @@ bool SkScriptEngine::processOp() {
             type2 = kScalar;
         }
         if (type2 == kScalar && (attributes->fRightType == kInt || type1 == kInt)) {
-            operand2.fS32 = SkScalarFloor(operand2.fScalar);
+            operand2.fS32 = SkScalarFloorToInt(operand2.fScalar);
             type2 = kInt;
         }
     }
@@ -1503,7 +1503,7 @@ bool SkScriptEngine::ConvertTo(SkScriptEngine* engine, SkDisplayTypes toType, Sk
             if (type == SkType_Boolean)
                 break;
             if (type == SkType_Float)
-                operand.fS32 = SkScalarFloor(operand.fScalar);
+                operand.fS32 = SkScalarFloorToInt(operand.fScalar);
             else {
                 if (type != SkType_String) {
                     success = false;

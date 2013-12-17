@@ -347,11 +347,11 @@ bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths) {
     larger.join(bounds2);
     SkBitmap bits;
     char out[256];
-    int bitWidth = SkScalarCeil(larger.width()) + 2;
+    int bitWidth = SkScalarCeilToInt(larger.width()) + 2;
     if (bitWidth * 2 + 1 >= (int) sizeof(out)) {
         return false;
     }
-    int bitHeight = SkScalarCeil(larger.height()) + 2;
+    int bitHeight = SkScalarCeilToInt(larger.height()) + 2;
     if (bitHeight >= (int) sizeof(out)) {
         return false;
     }

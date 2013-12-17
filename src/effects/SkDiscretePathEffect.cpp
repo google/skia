@@ -30,7 +30,7 @@ bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
     bool doFill = rec->isFillStyle();
 
     SkPathMeasure   meas(src, doFill);
-    uint32_t        seed = SkScalarRound(meas.getLength());
+    uint32_t        seed = SkScalarRoundToInt(meas.getLength());
     SkLCGRandom     rand(seed ^ ((seed << 16) | (seed >> 16)));
     SkScalar        scale = fPerterb;
     SkPoint         p;
@@ -42,7 +42,7 @@ bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
         if (fSegLength * (2 + doFill) > length) {
             meas.getSegment(0, length, dst, true);  // to short for us to mangle
         } else {
-            int         n = SkScalarRound(SkScalarDiv(length, fSegLength));
+            int         n = SkScalarRoundToInt(length / fSegLength);
             SkScalar    delta = length / n;
             SkScalar    distance = 0;
 
