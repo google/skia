@@ -73,11 +73,11 @@ SkString TimerData::getResult(const char* doubleFormat,
 
     for (int i = 0; i < numTimings; ++i) {
         if (kPerIter_Result == result) {
-            wallStr.appendf(doubleFormat, fWallTimes[i]);
-            truncWallStr.appendf(doubleFormat, fTruncatedWallTimes[i]);
-            cpuStr.appendf(doubleFormat, fCpuTimes[i]);
-            truncCpuStr.appendf(doubleFormat, fTruncatedCpuTimes[i]);
-            gpuStr.appendf(doubleFormat, fGpuTimes[i]);
+            wallStr.appendf(doubleFormat, fWallTimes[i] / itersPerTiming);
+            truncWallStr.appendf(doubleFormat, fTruncatedWallTimes[i] / itersPerTiming);
+            cpuStr.appendf(doubleFormat, fCpuTimes[i] / itersPerTiming);
+            truncCpuStr.appendf(doubleFormat, fTruncatedCpuTimes[i] / itersPerTiming);
+            gpuStr.appendf(doubleFormat, fGpuTimes[i] / itersPerTiming);
 
             if (i != numTimings - 1) {
                 static const char kSep[] = ", ";
