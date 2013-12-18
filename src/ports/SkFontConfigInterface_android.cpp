@@ -781,8 +781,6 @@ SkTypeface* SkGetTypefaceForGlyphID(uint16_t glyphID, const SkTypeface* origType
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 struct HB_UnicodeMapping {
-    // TODO: when the WebView no longer needs harfbuzz_old, remove
-    HB_Script script_old;
     hb_script_t script;
     const SkUnichar unicode;
 };
@@ -803,49 +801,37 @@ struct HB_UnicodeMapping {
 #define HB_Script_Unknown HB_ScriptCount
 
 static HB_UnicodeMapping HB_UnicodeMappingArray[] = {
-    {HB_Script_Armenian,   HB_SCRIPT_ARMENIAN,    0x0531},
-    {HB_Script_Hebrew,     HB_SCRIPT_HEBREW,      0x0591},
-    {HB_Script_Arabic,     HB_SCRIPT_ARABIC,      0x0600},
-    {HB_Script_Syriac,     HB_SCRIPT_SYRIAC,      0x0710},
-    {HB_Script_Thaana,     HB_SCRIPT_THAANA,      0x0780},
-    {HB_Script_Nko,        HB_SCRIPT_NKO,         0x07C0},
-    {HB_Script_Devanagari, HB_SCRIPT_DEVANAGARI,  0x0901},
-    {HB_Script_Bengali,    HB_SCRIPT_BENGALI,     0x0981},
-    {HB_Script_Gurmukhi,   HB_SCRIPT_GURMUKHI,    0x0A10},
-    {HB_Script_Gujarati,   HB_SCRIPT_GUJARATI,    0x0A90},
-    {HB_Script_Oriya,      HB_SCRIPT_ORIYA,       0x0B10},
-    {HB_Script_Tamil,      HB_SCRIPT_TAMIL,       0x0B82},
-    {HB_Script_Telugu,     HB_SCRIPT_TELUGU,      0x0C10},
-    {HB_Script_Kannada,    HB_SCRIPT_KANNADA,     0x0C90},
-    {HB_Script_Malayalam,  HB_SCRIPT_MALAYALAM,   0x0D10},
-    {HB_Script_Sinhala,    HB_SCRIPT_SINHALA,     0x0D90},
-    {HB_Script_Thai,       HB_SCRIPT_THAI,        0x0E01},
-    {HB_Script_Lao,        HB_SCRIPT_LAO,         0x0E81},
-    {HB_Script_Tibetan,    HB_SCRIPT_TIBETAN,     0x0F00},
-    {HB_Script_Myanmar,    HB_SCRIPT_MYANMAR,     0x1000},
-    {HB_Script_Georgian,   HB_SCRIPT_GEORGIAN,    0x10A0},
-    {HB_Script_Unknown,    HB_SCRIPT_ETHIOPIC,    0x1200},
-    {HB_Script_Unknown,    HB_SCRIPT_CHEROKEE,    0x13A0},
-    {HB_Script_Ogham,      HB_SCRIPT_OGHAM,       0x1680},
-    {HB_Script_Runic,      HB_SCRIPT_RUNIC,       0x16A0},
-    {HB_Script_Khmer,      HB_SCRIPT_KHMER,       0x1780},
-    {HB_Script_Unknown,    HB_SCRIPT_TAI_LE,      0x1950},
-    {HB_Script_Unknown,    HB_SCRIPT_NEW_TAI_LUE, 0x1980},
-    {HB_Script_Unknown,    HB_SCRIPT_TAI_THAM,    0x1A20},
-    {HB_Script_Unknown,    HB_SCRIPT_CHAM,        0xAA00},
+    {HB_SCRIPT_ARMENIAN,    0x0531},
+    {HB_SCRIPT_HEBREW,      0x0591},
+    {HB_SCRIPT_ARABIC,      0x0600},
+    {HB_SCRIPT_SYRIAC,      0x0710},
+    {HB_SCRIPT_THAANA,      0x0780},
+    {HB_SCRIPT_NKO,         0x07C0},
+    {HB_SCRIPT_DEVANAGARI,  0x0901},
+    {HB_SCRIPT_BENGALI,     0x0981},
+    {HB_SCRIPT_GURMUKHI,    0x0A10},
+    {HB_SCRIPT_GUJARATI,    0x0A90},
+    {HB_SCRIPT_ORIYA,       0x0B10},
+    {HB_SCRIPT_TAMIL,       0x0B82},
+    {HB_SCRIPT_TELUGU,      0x0C10},
+    {HB_SCRIPT_KANNADA,     0x0C90},
+    {HB_SCRIPT_MALAYALAM,   0x0D10},
+    {HB_SCRIPT_SINHALA,     0x0D90},
+    {HB_SCRIPT_THAI,        0x0E01},
+    {HB_SCRIPT_LAO,         0x0E81},
+    {HB_SCRIPT_TIBETAN,     0x0F00},
+    {HB_SCRIPT_MYANMAR,     0x1000},
+    {HB_SCRIPT_GEORGIAN,    0x10A0},
+    {HB_SCRIPT_ETHIOPIC,    0x1200},
+    {HB_SCRIPT_CHEROKEE,    0x13A0},
+    {HB_SCRIPT_OGHAM,       0x1680},
+    {HB_SCRIPT_RUNIC,       0x16A0},
+    {HB_SCRIPT_KHMER,       0x1780},
+    {HB_SCRIPT_TAI_LE,      0x1950},
+    {HB_SCRIPT_NEW_TAI_LUE, 0x1980},
+    {HB_SCRIPT_TAI_THAM,    0x1A20},
+    {HB_SCRIPT_CHAM,        0xAA00},
 };
-
-static hb_script_t getHBScriptFromHBScriptOld(HB_Script script_old) {
-    hb_script_t script = HB_SCRIPT_INVALID;
-    int numSupportedFonts = sizeof(HB_UnicodeMappingArray) / sizeof(HB_UnicodeMapping);
-    for (int i = 0; i < numSupportedFonts; i++) {
-        if (script_old == HB_UnicodeMappingArray[i].script_old) {
-            script = HB_UnicodeMappingArray[i].script;
-            break;
-        }
-    }
-    return script;
-}
 
 // returns 0 for "Not Found"
 static SkUnichar getUnicodeFromHBScript(hb_script_t script) {
@@ -884,8 +870,8 @@ static int typefaceLookupCompare(const TypefaceLookupStruct& first,
     return 0;
 }
 
-SkTypeface* SkCreateTypefaceForScriptNG(hb_script_t script, SkTypeface::Style style,
-                                        SkPaintOptionsAndroid::FontVariant fontVariant) {
+SkTypeface* SkCreateTypefaceForScript(hb_script_t script, SkTypeface::Style style,
+                                      SkPaintOptionsAndroid::FontVariant fontVariant) {
     SkAutoMutexAcquire ac(gTypefaceTableMutex);
 
     TypefaceLookupStruct key;
@@ -918,11 +904,6 @@ SkTypeface* SkCreateTypefaceForScriptNG(hb_script_t script, SkTypeface::Style st
 
     // we ref(), the caller is expected to unref when they are done
     return SkSafeRef(retTypeface);
-}
-
-SkTypeface* SkCreateTypefaceForScript(HB_Script script, SkTypeface::Style style,
-                                      SkPaintOptionsAndroid::FontVariant fontVariant) {
-    return SkCreateTypefaceForScriptNG(getHBScriptFromHBScriptOld(script), style, fontVariant);
 }
 
 #endif

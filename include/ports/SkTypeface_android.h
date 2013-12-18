@@ -90,7 +90,6 @@ SkTypeface* SkGetTypefaceForGlyphID(uint16_t glyphID, const SkTypeface* origType
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 #include "SkPaintOptionsAndroid.h"
-#include "../harfbuzz/src/harfbuzz-shaper.h"
 #include "../harfbuzz_ng/src/hb.h"
 
 /**
@@ -102,10 +101,7 @@ SkTypeface* SkGetTypefaceForGlyphID(uint16_t glyphID, const SkTypeface* origType
  *  @return          reference to the matching typeface. Caller must call
  *                   unref() when they are done.
  */
-SK_API SkTypeface* SkCreateTypefaceForScriptNG(hb_script_t script, SkTypeface::Style style,
-        SkPaintOptionsAndroid::FontVariant fontVariant = SkPaintOptionsAndroid::kDefault_Variant);
-
-SK_API SkTypeface* SkCreateTypefaceForScript(HB_Script script, SkTypeface::Style style,
+SK_API SkTypeface* SkCreateTypefaceForScript(hb_script_t script, SkTypeface::Style style,
         SkPaintOptionsAndroid::FontVariant fontVariant = SkPaintOptionsAndroid::kDefault_Variant);
 
 #endif // #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
