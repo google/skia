@@ -476,6 +476,61 @@ static int lpaint_setAntiAlias(lua_State* L) {
     return 0;
 }
 
+static int lpaint_isDither(lua_State* L) {
+    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isDither());
+    return 1;
+}
+
+static int lpaint_isUnderlineText(lua_State* L) {
+    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isUnderlineText());
+    return 1;
+}
+
+static int lpaint_isStrikeThruText(lua_State* L) {
+    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isStrikeThruText());
+    return 1;
+}
+
+static int lpaint_isFakeBoldText(lua_State* L) {
+    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isFakeBoldText());
+    return 1;
+}
+
+static int lpaint_isLinearText(lua_State* L) {
+    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isLinearText());
+    return 1;
+}
+
+static int lpaint_isSubpixelText(lua_State* L) {
+    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isSubpixelText());
+    return 1;
+}
+
+static int lpaint_isDevKernText(lua_State* L) {
+    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isDevKernText());
+    return 1;
+}
+
+static int lpaint_isLCDRenderText(lua_State* L) {
+    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isLCDRenderText());
+    return 1;
+}
+
+static int lpaint_isEmbeddedBitmapText(lua_State* L) {
+    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isEmbeddedBitmapText());
+    return 1;
+}
+
+static int lpaint_isAutohinted(lua_State* L) {
+    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isAutohinted());
+    return 1;
+}
+
+static int lpaint_isVerticalText(lua_State* L) {
+    lua_pushboolean(L, get_obj<SkPaint>(L, 1)->isVerticalText());
+    return 1;
+}
+
 static int lpaint_getColor(lua_State* L) {
     SkLua(L).pushColor(get_obj<SkPaint>(L, 1)->getColor());
     return 1;
@@ -488,6 +543,16 @@ static int lpaint_setColor(lua_State* L) {
 
 static int lpaint_getTextSize(lua_State* L) {
     SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getTextSize());
+    return 1;
+}
+
+static int lpaint_getTextScaleX(lua_State* L) {
+    SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getTextScaleX());
+    return 1;
+}
+
+static int lpaint_getTextSkewX(lua_State* L) {
+    SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getTextSkewX());
     return 1;
 }
 
@@ -504,6 +569,11 @@ static int lpaint_getTypeface(lua_State* L) {
 static int lpaint_setTypeface(lua_State* L) {
     get_obj<SkPaint>(L, 1)->setTypeface(get_ref<SkTypeface>(L, 2));
     return 0;
+}
+
+static int lpaint_getHinting(lua_State* L) {
+    SkLua(L).pushU32(get_obj<SkPaint>(L, 1)->getHinting());
+    return 1;
 }
 
 static int lpaint_getFontID(lua_State* L) {
@@ -564,6 +634,21 @@ static int lpaint_setStroke(lua_State* L) {
     return 0;
 }
 
+static int lpaint_getStrokeCap(lua_State* L) {
+    SkLua(L).pushU32(get_obj<SkPaint>(L, 1)->getStrokeCap());
+    return 1;
+}
+
+static int lpaint_getStrokeJoin(lua_State* L) {
+    SkLua(L).pushU32(get_obj<SkPaint>(L, 1)->getStrokeJoin());
+    return 1;
+}
+
+static int lpaint_getTextEncoding(lua_State* L) {
+    SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getTextEncoding());
+    return 1;
+}
+
 static int lpaint_getStrokeWidth(lua_State* L) {
     SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getStrokeWidth());
     return 1;
@@ -572,6 +657,11 @@ static int lpaint_getStrokeWidth(lua_State* L) {
 static int lpaint_setStrokeWidth(lua_State* L) {
     get_obj<SkPaint>(L, 1)->setStrokeWidth(lua2scalar(L, 2));
     return 0;
+}
+
+static int lpaint_getStrokeMiter(lua_State* L) {
+    SkLua(L).pushScalar(get_obj<SkPaint>(L, 1)->getStrokeMiter());
+    return 1;
 }
 
 static int lpaint_measureText(lua_State* L) {
@@ -643,19 +733,37 @@ static int lpaint_gc(lua_State* L) {
 static const struct luaL_Reg gSkPaint_Methods[] = {
     { "isAntiAlias", lpaint_isAntiAlias },
     { "setAntiAlias", lpaint_setAntiAlias },
+    { "isDither", lpaint_isDither },
+    { "isUnderlineText", lpaint_isUnderlineText },
+    { "isStrikeThruText", lpaint_isStrikeThruText },
+    { "isFakeBoldText", lpaint_isFakeBoldText },
+    { "isLinearText", lpaint_isLinearText },
+    { "isSubpixelText", lpaint_isSubpixelText },
+    { "isDevKernText", lpaint_isDevKernText },
+    { "isLCDRenderText", lpaint_isLCDRenderText },
+    { "isEmbeddedBitmapText", lpaint_isEmbeddedBitmapText },
+    { "isAutohinted", lpaint_isAutohinted },
+    { "isVerticalText", lpaint_isVerticalText },
     { "getColor", lpaint_getColor },
     { "setColor", lpaint_setColor },
     { "getTextSize", lpaint_getTextSize },
     { "setTextSize", lpaint_setTextSize },
+    { "getTextScaleX", lpaint_getTextScaleX },
+    { "getTextSkewX", lpaint_getTextSkewX },
     { "getTypeface", lpaint_getTypeface },
     { "setTypeface", lpaint_setTypeface },
+    { "getHinting", lpaint_getHinting },
     { "getFontID", lpaint_getFontID },
     { "getTextAlign", lpaint_getTextAlign },
     { "setTextAlign", lpaint_setTextAlign },
     { "getStroke", lpaint_getStroke },
     { "setStroke", lpaint_setStroke },
+    { "getStrokeCap", lpaint_getStrokeCap },
+    { "getStrokeJoin", lpaint_getStrokeJoin },
+    { "getTextEncoding", lpaint_getTextEncoding },
     { "getStrokeWidth", lpaint_getStrokeWidth },
     { "setStrokeWidth", lpaint_setStrokeWidth },
+    { "getStrokeMiter", lpaint_getStrokeMiter },
     { "measureText", lpaint_measureText },
     { "getFontMetrics", lpaint_getFontMetrics },
     { "getEffects", lpaint_getEffects },
