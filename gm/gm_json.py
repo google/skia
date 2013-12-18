@@ -12,6 +12,7 @@ __author__ = 'Elliot Poger'
 
 
 # system-level imports
+import io
 import json
 import os
 
@@ -124,6 +125,10 @@ def LoadFromFile(file_path):
   return LoadFromString(file_contents)
 
 def WriteToFile(json_dict, file_path):
-  """Writes the JSON summary in json_dict out to file_path."""
-  with open(file_path, 'w') as outfile:
-    json.dump(json_dict, outfile, sort_keys=True, indent=2)
+  """Writes the JSON summary in json_dict out to file_path.
+
+  The file is written Unix-style (each line ends with just LF, not CRLF);
+  see https://code.google.com/p/skia/issues/detail?id=1815 for reasons."""
+  with io.open(file_path, mode='w', newline='', encoding='utf-8') as outfile:
+    outfile.write(unicode(json.dumps(json_dict, outfile, sort_keys=True,
+                                     indent=2)))
