@@ -148,6 +148,12 @@ public:
     void resetState(bool callFinish);
 
     /**
+     * Remove all decoded textures from the CPU caches and all uploaded textures
+     * from the GPU.
+     */
+    void purgeTextures();
+
+    /**
      * Set the backend type. Returns true on success and false on failure.
      */
     bool setDeviceType(SkDeviceTypes deviceType) {

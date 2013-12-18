@@ -9,6 +9,7 @@
 #include "GrTest.h"
 
 #include "GrGpu.h"
+#include "GrResourceCache.h"
 
 void GrTestTarget::init(GrContext* ctx, GrDrawTarget* target) {
     SkASSERT(!fContext);
@@ -34,4 +35,8 @@ void GrContext::getTestTarget(GrTestTarget* tar) {
 
 void GrContext::setMaxTextureSizeOverride(int maxTextureSizeOverride) {
     fMaxTextureSizeOverride = maxTextureSizeOverride;
+}
+
+void GrContext::purgeAllUnlockedResources() {
+    fTextureCache->purgeAllUnlocked();
 }

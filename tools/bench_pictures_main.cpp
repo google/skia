@@ -41,6 +41,8 @@ DECLARE_string(readPath);
 DEFINE_int32(repeat, 1, "Set the number of times to repeat each test.");
 DEFINE_bool(timeIndividualTiles, false, "Report times for drawing individual tiles, rather than "
             "times for drawing the whole page. Requires tiled rendering.");
+DEFINE_bool(purgeDecodedTex, false, "Purge decoded and GPU-uploaded textures "
+            "after each iteration.");
 DEFINE_string(timers, "c", "[wcgWC]*: Display wall, cpu, gpu, truncated wall or truncated cpu time"
               " for each picture.");
 DEFINE_bool(trackDeferredCaching, false, "Only meaningful with --deferImageDecoding and "
@@ -337,6 +339,8 @@ static void setup_benchmark(sk_tools::PictureBenchmark* benchmark) {
         }
         benchmark->setTimeIndividualTiles(true);
     }
+
+    benchmark->setPurgeDecodedTex(FLAGS_purgeDecodedTex);
 
     if (FLAGS_readPath.count() < 1) {
         gLogger.logError(".skp files or directories are required.\n");

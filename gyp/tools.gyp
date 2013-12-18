@@ -287,6 +287,9 @@
             'include_dirs' : [
               '../src/gpu',
             ],
+            'dependencies': [
+              'gputest.gyp:skgputest',
+            ],
           },
         ],
       ],

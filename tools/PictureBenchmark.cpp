@@ -22,6 +22,7 @@ PictureBenchmark::PictureBenchmark()
 , fTimerResult(TimerData::kAvg_Result)
 , fTimerTypes(0)
 , fTimeIndividualTiles(false)
+, fPurgeDecodedTex(false)
 {}
 
 PictureBenchmark::~PictureBenchmark() {
@@ -78,6 +79,10 @@ void PictureBenchmark::run(SkPicture* pict) {
     fRenderer->setup();
     fRenderer->render(NULL);
     fRenderer->resetState(true);
+
+    if (fPurgeDecodedTex) {
+        fRenderer->purgeTextures();
+    }
 
     bool usingGpu = false;
 #if SK_SUPPORT_GPU
@@ -140,6 +145,10 @@ void PictureBenchmark::run(SkPicture* pict) {
                 tiledRenderer->resetState(false);
                 perTileTimer->end();
                 SkAssertResult(perTileTimerData.appendTimes(perTileTimer.get()));
+
+                if (fPurgeDecodedTex) {
+                    fRenderer->purgeTextures();
+                }
             }
             longRunningTimer->truncatedEnd();
             tiledRenderer->resetState(true);
@@ -160,7 +169,9 @@ void PictureBenchmark::run(SkPicture* pict) {
 #if 0
             this->logProgress(result.c_str());
 #endif
-
+            if (fPurgeDecodedTex) {
+                configName.append(" <withPurging>");
+            }
             configName.append(" <averaged>");
             SkString longRunningResult = longRunningTimerData.getResult(
                 tiledRenderer->getNormalTimeFormat().c_str(),
@@ -186,6 +197,10 @@ void PictureBenchmark::run(SkPicture* pict) {
             perRunTimer->end();
 
             SkAssertResult(perRunTimerData.appendTimes(perRunTimer.get()));
+
+            if (fPurgeDecodedTex) {
+                fRenderer->purgeTextures();
+            }
         }
         longRunningTimer->truncatedEnd();
         fRenderer->resetState(true);
@@ -193,6 +208,9 @@ void PictureBenchmark::run(SkPicture* pict) {
         SkAssertResult(longRunningTimerData.appendTimes(longRunningTimer.get()));
 
         SkString configName = fRenderer->getConfigName();
+        if (fPurgeDecodedTex) {
+            configName.append(" <withPurging>");
+        }
 
         // Beware - since the per-run-timer doesn't ever include a glFinish it can
         // report a lower time then the long-running-timer

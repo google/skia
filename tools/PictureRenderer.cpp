@@ -12,6 +12,7 @@
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDevice.h"
+#include "SkDiscardableMemoryPool.h"
 #include "SkGPipe.h"
 #if SK_SUPPORT_GPU
 #include "gl/GrGLDefines.h"
@@ -243,6 +244,25 @@ void PictureRenderer::resetState(bool callFinish) {
     if (callFinish) {
         SK_GL(*glContext, Finish());
     }
+#endif
+}
+
+void PictureRenderer::purgeTextures() {
+    SkDiscardableMemoryPool* pool = SkGetGlobalDiscardableMemoryPool();
+
+    pool->dumpPool();
+
+#if SK_SUPPORT_GPU
+    SkGLContextHelper* glContext = this->getGLContext();
+    if (NULL == glContext) {
+        SkASSERT(kBitmap_DeviceType == fDeviceType);
+        return;
+    }
+
+    // resetState should've already done this
+    fGrContext->flush();
+
+    fGrContext->purgeAllUnlockedResources();
 #endif
 }
 

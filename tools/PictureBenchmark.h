@@ -41,8 +41,10 @@ public:
      * TiledPictureRenderer.
      */
     void setTimeIndividualTiles(bool indiv) { fTimeIndividualTiles = indiv; }
+    bool timeIndividualTiles() const { return fTimeIndividualTiles; }
 
-    bool timeIndividualTiles() { return fTimeIndividualTiles; }
+    void setPurgeDecodedTex(bool purgeDecodedTex) { fPurgeDecodedTex = purgeDecodedTex; }
+    bool purgeDecodedText() const { return fPurgeDecodedTex; }
 
     PictureRenderer* setRenderer(PictureRenderer*);
 
@@ -59,6 +61,7 @@ private:
     TimerData::Result fTimerResult;
     uint32_t          fTimerTypes; // bitfield of TimerData::TimerFlags values
     bool              fTimeIndividualTiles;
+    bool              fPurgeDecodedTex;
 
     void logProgress(const char msg[]);
 

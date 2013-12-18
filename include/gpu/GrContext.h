@@ -210,6 +210,13 @@ public:
     void purgeCache();
 
     /**
+     * Purge all the unlocked resources from the cache.
+     * This entry point is mainly meant for timing texture uploads
+     * and is not defined in normal builds of Skia.
+     */
+    void purgeAllUnlockedResources();
+
+    /**
      * Creates a texture that is outside the cache. Does not count against
      * cache's budget.
      */
