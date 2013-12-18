@@ -69,6 +69,3 @@ clipped-bitmap-shaders-tile-hq_angle
 
 # Added by senorblanco to accomodate bounds fixes for SkXfermodeImageFilter in https://codereview.chromium.org/112683004.
 xfermodeimagefilter
-
-# Added by vandebo while fixing Chromium bug 328009. Expanding xfermodes gm.
-xfermodes
