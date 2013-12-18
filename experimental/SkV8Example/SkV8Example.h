@@ -19,6 +19,7 @@ using namespace v8;
 
 class SkCanvas;
 class JsCanvas;
+class Global;
 
 class SkV8ExampleWindow : public SkOSWindow {
 public:
@@ -43,24 +44,22 @@ private:
 //  function onDraw(canvas) {
 //    canvas.fillStyle="#FF0000";
 //    canvas.fillRect(x, y, w, h);
-//    canvas.inval();
 //  }
 class JsCanvas {
 public:
-    JsCanvas(Isolate* isolate)
-            : fIsolate(isolate)
+    JsCanvas(Global* global)
+            : fGlobal(global)
             , fCanvas(NULL)
-            , fWindow(NULL)
     {
         fFillStyle.setColor(SK_ColorRED);
     }
     ~JsCanvas();
 
     // Parse the script.
-    bool initialize(const char script[]);
+    bool initialize();
 
     // Call this with the SkCanvas you want onDraw to draw on.
-    void onDraw(SkCanvas* canvas, SkOSWindow* window);
+    void onDraw(SkCanvas* canvas);
 
 private:
     // Implementation of the canvas.fillStyle field.
@@ -72,9 +71,6 @@ private:
     // Implementation of the canvas.fillRect() JS function.
     static void FillRect(const v8::FunctionCallbackInfo<Value>& args);
 
-    // Implementation of the canvas.inval() JS function.
-    static void Inval(const v8::FunctionCallbackInfo<Value>& args);
-
     // Get the pointer out of obj.
     static JsCanvas* Unwrap(Handle<Object> obj);
 
@@ -85,18 +81,12 @@ private:
     // Wrap the 'this' pointer into an Object. Can be retrieved via Unwrap.
     Handle<Object> wrap();
 
-    Isolate* fIsolate;
+    Global* fGlobal;
 
     // Only valid when inside OnDraw().
     SkCanvas* fCanvas;
 
     SkPaint fFillStyle;
-
-    // Only valid when inside OnDraw().
-    SkOSWindow* fWindow;
-
-    // The context that the script will be parsed into.
-    Persistent<Context> fContext;
 
     // A handle to the onDraw function defined in the script.
     Persistent<Function> fOnDraw;

@@ -13,6 +13,8 @@
        'sources': [
          '../experimental/SkV8Example/SkV8Example.h',
          '../experimental/SkV8Example/SkV8Example.cpp',
+         '../experimental/SkV8Example/Global.h',
+         '../experimental/SkV8Example/Global.cpp',
        ],
        'dependencies': [
          'skia_lib.gyp:skia_lib',
