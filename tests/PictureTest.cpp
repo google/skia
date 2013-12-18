@@ -13,8 +13,6 @@
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
 #include "SkError.h"
-#include "SkImageEncoder.h"
-#include "SkImageGenerator.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureUtils.h"
@@ -340,6 +338,8 @@ static void test_bad_bitmap() {
 }
 #endif
 
+#include "SkImageEncoder.h"
+
 static SkData* encode_bitmap_to_data(size_t* offset, const SkBitmap& bm) {
     *offset = 0;
     return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
@@ -381,8 +381,7 @@ static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
     SkAutoDataUnref data(wStream.copyToData());
 
     SkBitmap bm;
-    bool installSuccess = SkInstallDiscardablePixelRef(
-         SkDecodingImageGenerator::Create(data, SkDecodingImageGenerator::Options()), &bm, NULL);
+    bool installSuccess = SkDecodingImageGenerator::Install(data, &bm);
     REPORTER_ASSERT(reporter, installSuccess);
 
     // Write both bitmaps to pictures, and ensure that the resulting data streams are the same.

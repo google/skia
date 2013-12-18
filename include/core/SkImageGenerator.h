@@ -21,8 +21,6 @@ class SkImageGenerator;
  *  the generator.  If it succeeds, it will modify destination
  *  bitmap.
  *
- *  If generator is NULL, will safely return false.
- *
  *  If this fails or when the SkDiscardablePixelRef that is
  *  installed into destination is destroyed, it will call
  *  SkDELETE() on the generator.  Therefore, generator should be

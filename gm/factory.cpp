@@ -12,7 +12,6 @@
 #include "SkDiscardableMemoryPool.h"
 #include "SkDiscardablePixelRef.h"
 #include "SkImageDecoder.h"
-#include "SkImageGenerator.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
 
@@ -36,10 +35,8 @@ protected:
             // bitmap is unlocked.
             SkAutoTUnref<SkDiscardableMemoryPool> pool(
                 SkNEW_ARGS(SkDiscardableMemoryPool, (1)));
-            SkAssertResult(SkInstallDiscardablePixelRef(
-                SkDecodingImageGenerator::Create(
-                    data, SkDecodingImageGenerator::Options()),
-                &fBitmap, pool));
+            SkAssertResult(SkDecodingImageGenerator::Install(data,
+                                                             &fBitmap, pool));
         }
     }
 
@@ -71,4 +68,4 @@ private:
 static GM* MyFactory(void*) { return new FactoryGM; }
 static GMRegistry reg(MyFactory);
 
-}  // namespace skiagm
+}

@@ -31,11 +31,10 @@ bool sk_tools::LazyDecodeBitmap(const void* src,
         return false;
     }
 
-    SkAutoTDelete<SkImageGenerator> gen(
-        SkDecodingImageGenerator::Create(
-            data, SkDecodingImageGenerator::Options()));
+    SkAutoTDelete<SkImageGenerator> gen(SkNEW_ARGS(SkDecodingImageGenerator,
+                                                   (data)));
     SkImageInfo info;
-    if ((NULL == gen.get()) || !gen->getInfo(&info)) {
+    if (!gen->getInfo(&info)) {
         return false;
     }
     SkDiscardableMemory::Factory* pool = NULL;

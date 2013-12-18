@@ -8,134 +8,113 @@
 #ifndef SkDecodingImageGenerator_DEFINED
 #define SkDecodingImageGenerator_DEFINED
 
-#include "SkBitmap.h"
+#include "SkDiscardableMemory.h"
 #include "SkImageGenerator.h"
+#include "SkImageInfo.h"
 
-class SkData;
+class SkBitmap;
 class SkStreamRewindable;
 
 /**
- *  An implementation of SkImageGenerator that calls into
- *  SkImageDecoder.
+ * Calls into SkImageDecoder::DecodeMemoryToTarget to implement a
+ * SkImageGenerator
  */
 class SkDecodingImageGenerator : public SkImageGenerator {
 public:
-    virtual ~SkDecodingImageGenerator();
-    virtual SkData* refEncodedData() SK_OVERRIDE;
-    // This implementaion of getInfo() always returns true.
-    virtual bool getInfo(SkImageInfo* info) SK_OVERRIDE;
-    virtual bool getPixels(const SkImageInfo& info,
-                           void* pixels,
-                           size_t rowBytes) SK_OVERRIDE;
-    /**
-     *  These options will be passed on to the image decoder.  The
-     *  defaults are sensible.
-     *
-     *  @param fSampleSize If set to > 1, tells the decoder to return a
-     *         smaller than original bitmap, sampling 1 pixel for
-     *         every size pixels. e.g. if sample size is set to 3,
-     *         then the returned bitmap will be 1/3 as wide and high,
-     *         and will contain 1/9 as many pixels as the original.
-     *         Note: this is a hint, and the codec may choose to
-     *         ignore this, or only approximate the sample size.
-     *
-     *  @param fDitherImage Set to true if the the decoder should try to
-     *         dither the resulting image when decoding to a smaller
-     *         color-space.  The default is true.
-     *
-     *  @param fRequestedColorType If not given, then use whichever
-     *         config the decoder wants.  Else try to use this color
-     *         type.  If the decoder won't support this color type,
-     *         SkDecodingImageGenerator::Create will return
-     *         NULL. kIndex_8_SkColorType is not supported.
+    /*
+     *  The constructor will take a reference to the SkData.  The
+     *  destructor will unref() it.
      */
-    struct Options {
-        Options()
-            : fSampleSize(1)
-            , fDitherImage(true)
-            , fUseRequestedColorType(false)
-            , fRequestedColorType() { }
-        Options(int sampleSize, bool dither)
-            : fSampleSize(sampleSize)
-            , fDitherImage(dither)
-            , fUseRequestedColorType(false)
-            , fRequestedColorType() { }
-        Options(int sampleSize, bool dither, SkColorType colorType)
-            : fSampleSize(sampleSize)
-            , fDitherImage(dither)
-            , fUseRequestedColorType(true)
-            , fRequestedColorType(colorType) { }
-        const int         fSampleSize;
-        const bool        fDitherImage;
-        const bool        fUseRequestedColorType;
-        const SkColorType fRequestedColorType;
-    };
+    explicit SkDecodingImageGenerator(SkData* data);
 
-    /**
-     *  These two functions return a SkImageGenerator that calls into
-     *  SkImageDecoder.  They return NULL on failure.
+    /*
+     *  The SkData version of this constructor is preferred.  If the
+     *  stream has an underlying SkData (such as a SkMemoryStream)
+     *  pass that in.
      *
-     *  The SkData version of this function is preferred.  If the stream
-     *  has an underlying SkData (such as a SkMemoryStream) pass that in.
-     *
-     *  This object will unref the stream when done or on failure.  Since
-     *  streams have internal state (position), the caller should not pass
-     *  a shared stream in.  Pass either a new duplicated stream in or
-     *  transfer ownership of the stream.  This factory asserts
+     *  This object will unref the stream when done.  Since streams
+     *  have internal state (position), the caller should not pass a
+     *  shared stream in.  Pass either a new duplicated stream in or
+     *  transfer ownership of the stream.  In the latter case, be sure
+     *  that there are no other consumers of the stream who will
+     *  modify the stream's position.  This constructor asserts
      *  stream->unique().
      *
      *  For example:
      *    SkStreamRewindable* stream;
      *    ...
      *    SkImageGenerator* gen
-     *        = SkDecodingImageGenerator::Create(
-     *            stream->duplicate(), SkDecodingImageGenerator::Options());
+     *        = SkNEW_ARGS(SkDecodingImageGenerator,
+     *                     (stream->duplicate()));
      *    ...
      *    SkDELETE(gen);
-     *
-     *  @param Options (see above)
-     *
-     *  @return NULL on failure, a new SkImageGenerator on success.
      */
-    static SkImageGenerator* Create(SkStreamRewindable* stream,
-                                    const Options& opt);
+    explicit SkDecodingImageGenerator(SkStreamRewindable* stream);
+
+    virtual ~SkDecodingImageGenerator();
+
+    virtual SkData* refEncodedData() SK_OVERRIDE;
+
+    virtual bool getInfo(SkImageInfo* info) SK_OVERRIDE;
+
+    virtual bool getPixels(const SkImageInfo& info,
+                           void* pixels,
+                           size_t rowBytes) SK_OVERRIDE;
 
     /**
-     *  @param data Contains the encoded image data that will be used by
-     *         the SkDecodingImageGenerator.  Will be ref()ed by the
-     *         SkImageGenerator constructor and and unref()ed on deletion.
+     *  Install the SkData into the destination bitmap, using a new
+     *  SkDiscardablePixelRef and a new SkDecodingImageGenerator.
+     *
+     *  @param data Contains the encoded image data that will be used
+     *  by the SkDecodingImageGenerator.  Will be ref()ed.
+     *
+     *  @param destination Upon success, this bitmap will be
+     *  configured and have a pixelref installed.
+     *
+     *  @param factory If not NULL, this object will be used as a
+     *  source of discardable memory when decoding.  If NULL, then
+     *  SkDiscardableMemory::Create() will be called.
+     *
+     *  @return true iff successful.
      */
-    static SkImageGenerator* Create(SkData* data, const Options& opt);
+    static bool Install(SkData* data, SkBitmap* destination,
+                        SkDiscardableMemory::Factory* factory = NULL);
+    /**
+     *  Install the stream into the destination bitmap, using a new
+     *  SkDiscardablePixelRef and a new SkDecodingImageGenerator.
+     *
+     *  The SkData version of this function is preferred.  If the
+     *  stream has an underlying SkData (such as a SkMemoryStream)
+     *  pass that in.
+     *
+     *  @param stream The source of encoded data that will be passed
+     *  to the decoder.  The installed SkDecodingImageGenerator will
+     *  unref the stream when done.  If false is returned, this
+     *  function will perform the unref.  Since streams have internal
+     *  state (position), the caller should not pass a shared stream
+     *  in.  Pass either a new duplicated stream in or transfer
+     *  ownership of the stream.  In the latter case, be sure that
+     *  there are no other consumers of the stream who will modify the
+     *  stream's position.  This function will fail if
+     *  (!stream->unique()).
+     *
+     *  @param destination Upon success, this bitmap will be
+     *  configured and have a pixelref installed.
+     *
+     *  @param factory If not NULL, this object will be used as a
+     *  source of discardable memory when decoding.  If NULL, then
+     *  SkDiscardableMemory::Create() will be called.
+     *
+     *  @return true iff successful.
+     */
+    static bool Install(SkStreamRewindable* stream, SkBitmap* destination,
+                        SkDiscardableMemory::Factory* factory = NULL);
 
 private:
-    SkData*                fData;
-    SkStreamRewindable*    fStream;
-    const SkImageInfo      fInfo;
-    const int              fSampleSize;
-    const bool             fDitherImage;
-    const SkBitmap::Config fRequestedConfig;
-    SkDecodingImageGenerator(SkData* data,
-                             SkStreamRewindable* stream,
-                             const SkImageInfo& info,
-                             int sampleSize,
-                             bool ditherImage,
-                             SkBitmap::Config requestedConfig);
-    static SkImageGenerator* Create(SkData*, SkStreamRewindable*,
-                                    const Options&);
-    typedef SkImageGenerator INHERITED;
+    SkData*             fData;
+    SkStreamRewindable* fStream;
+    SkImageInfo         fInfo;
+    bool                fHasInfo;
+    bool                fDoCopyTo;
 };
-
-//  // Example of most basic use case:
-//
-//  bool install_data(SkData* data, SkBitmap* dst) {
-//     return SkInstallDiscardablePixelRef(
-//         SkDecodingImageGenerator::Create(
-//             data, SkDecodingImageGenerator::Options()), dst, NULL);
-//  }
-//  bool install_stream(SkStreamRewindable* stream, SkBitmap* dst) {
-//     return SkInstallDiscardablePixelRef(
-//         SkDecodingImageGenerator::Create(
-//             stream, SkDecodingImageGenerator::Options()), dst, NULL);
-//  }
-
 #endif  // SkDecodingImageGenerator_DEFINED

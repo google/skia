@@ -146,14 +146,11 @@ static void test_three_encodings(skiatest::Reporter* reporter,
 ////////////////////////////////////////////////////////////////////////////////
 static bool install_skCachingPixelRef(SkData* encoded, SkBitmap* dst) {
     return SkCachingPixelRef::Install(
-        SkDecodingImageGenerator::Create(
-            encoded, SkDecodingImageGenerator::Options()), dst);
+        SkNEW_ARGS(SkDecodingImageGenerator, (encoded)), dst);
 }
 static bool install_skDiscardablePixelRef(SkData* encoded, SkBitmap* dst) {
     // Use system-default discardable memory.
-    return SkInstallDiscardablePixelRef(
-        SkDecodingImageGenerator::Create(
-            encoded, SkDecodingImageGenerator::Options()), dst, NULL);
+    return SkDecodingImageGenerator::Install(encoded, dst, NULL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -216,12 +213,10 @@ public:
         }
         return true;
     }
-
 private:
     const TestType fType;
     skiatest::Reporter* const fReporter;
 };
-
 void CheckTestImageGeneratorBitmap(skiatest::Reporter* reporter,
                                    const SkBitmap& bm) {
     REPORTER_ASSERT(reporter, TestImageGenerator::Width() == bm.width());
