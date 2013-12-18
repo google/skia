@@ -254,7 +254,6 @@ DEFINE_GPUTESTCLASS("GLPrograms", GLProgramsTestClass, GLProgramsTest)
 #include "SkLightingImageFilter.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkColorMatrixFilter.h"
-#include "SkBitmapAlphaThresholdShader.h"
 
 void forceLinking();
 
@@ -267,7 +266,6 @@ void forceLinking() {
                                      SkMatrix::I());
     SkScalar matrix[20];
     SkColorMatrixFilter cmf(matrix);
-    SkBitmapAlphaThresholdShader::Create(SkBitmap(), SkRegion(), 0x80);
 }
 
 #endif
