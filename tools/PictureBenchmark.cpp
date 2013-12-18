@@ -205,10 +205,10 @@ void PictureBenchmark::run(SkPicture* pict) {
 
         this->logProgress(result.c_str());
 #else
-        SkString result = longRunningTimerData.getResult(timeFormat.c_str(), 
-                                                         fTimerResult, 
-                                                         configName.c_str(), 
-                                                         timerTypes, 
+        SkString result = longRunningTimerData.getResult(timeFormat.c_str(),
+                                                         fTimerResult,
+                                                         configName.c_str(),
+                                                         timerTypes,
                                                          fRepeats);
         result.append("\n");
         this->logProgress(result.c_str());
