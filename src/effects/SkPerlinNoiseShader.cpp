@@ -203,10 +203,10 @@ public:
         // When stitching tiled turbulence, the frequencies must be adjusted
         // so that the tile borders will be continuous.
         if (fBaseFrequency.fX) {
-            SkScalar lowFrequencx = SkScalarDiv(
-                SkScalarMulFloor(tileWidth, fBaseFrequency.fX), tileWidth);
-            SkScalar highFrequencx = SkScalarDiv(
-                SkScalarMulCeil(tileWidth, fBaseFrequency.fX), tileWidth);
+            SkScalar lowFrequencx =
+                SkScalarFloorToScalar(tileWidth * fBaseFrequency.fX) / tileWidth;
+            SkScalar highFrequencx =
+                SkScalarCeilToScalar(tileWidth * fBaseFrequency.fX) / tileWidth;
             // BaseFrequency should be non-negative according to the standard.
             if (SkScalarDiv(fBaseFrequency.fX, lowFrequencx) <
                 SkScalarDiv(highFrequencx, fBaseFrequency.fX)) {
@@ -216,10 +216,10 @@ public:
             }
         }
         if (fBaseFrequency.fY) {
-            SkScalar lowFrequency = SkScalarDiv(
-                SkScalarMulFloor(tileHeight, fBaseFrequency.fY), tileHeight);
-            SkScalar highFrequency = SkScalarDiv(
-                SkScalarMulCeil(tileHeight, fBaseFrequency.fY), tileHeight);
+            SkScalar lowFrequency =
+                SkScalarFloorToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
+            SkScalar highFrequency =
+                SkScalarCeilToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
             if (SkScalarDiv(fBaseFrequency.fY, lowFrequency) <
                 SkScalarDiv(highFrequency, fBaseFrequency.fY)) {
                 fBaseFrequency.fY = lowFrequency;
@@ -229,10 +229,10 @@ public:
         }
         // Set up TurbulenceInitial stitch values.
         fStitchDataInit.fWidth  =
-            SkScalarMulRound(tileWidth, fBaseFrequency.fX);
+            SkScalarRoundToInt(tileWidth * fBaseFrequency.fX);
         fStitchDataInit.fWrapX  = kPerlinNoise + fStitchDataInit.fWidth;
         fStitchDataInit.fHeight =
-            SkScalarMulRound(tileHeight, fBaseFrequency.fY);
+            SkScalarRoundToInt(tileHeight * fBaseFrequency.fY);
         fStitchDataInit.fWrapY  = kPerlinNoise + fStitchDataInit.fHeight;
     }
 

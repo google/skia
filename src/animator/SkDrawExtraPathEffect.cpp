@@ -112,7 +112,7 @@ protected:
             SkApply* apply = (SkApply*) fDraw->addPath;
             apply->refresh(*fMaker);
             apply->activate(*fMaker);
-            apply->interpolate(*fMaker, SkScalarMulRound(distance, 1000));
+            apply->interpolate(*fMaker, SkScalarRoundToInt(distance * 1000));
             drawPath = (SkDrawPath*) apply->getScope();
         }
         SkMatrix m;
@@ -125,7 +125,7 @@ protected:
                 SkApply* apply = (SkApply*) fDraw->addMatrix;
                 apply->refresh(*fMaker);
                 apply->activate(*fMaker);
-                apply->interpolate(*fMaker, SkScalarMulRound(distance, 1000));
+                apply->interpolate(*fMaker, SkScalarRoundToInt(distance * 1000));
                 matrix = (SkDrawMatrix*) apply->getScope();
             }
             if (matrix) {

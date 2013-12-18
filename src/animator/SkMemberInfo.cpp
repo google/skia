@@ -303,7 +303,7 @@ scriptCommon: {
                     return false;
             }
             if (type == SkType_MSec)
-                scriptValue.fOperand.fMSec = SkScalarMulRound(scriptValue.fOperand.fScalar, 1000);
+                scriptValue.fOperand.fMSec = SkScalarRoundToInt(scriptValue.fOperand.fScalar * 1000);
             scriptValue.fType = type;
         break;
         noScriptString:

@@ -77,11 +77,11 @@ SkInterpolatorBase::Result SkInterpolatorBase::timeToT(SkMSec time, SkScalar* T,
         this->getDuration(&startTime, &endTime);
         SkMSec totalTime = endTime - startTime;
         SkMSec offsetTime = time - startTime;
-        endTime = SkScalarMulFloor(fRepeat, totalTime);
+        endTime = SkScalarFloorToInt(fRepeat * totalTime);
         if (offsetTime >= endTime) {
             SkScalar fraction = SkScalarFraction(fRepeat);
             offsetTime = fraction == 0 && fRepeat > 0 ? totalTime :
-                (SkMSec) SkScalarMulFloor(fraction, totalTime);
+                (SkMSec) SkScalarFloorToInt(fraction * totalTime);
             result = kFreezeEnd_Result;
         } else {
             int mirror = fFlags & kMirror;
