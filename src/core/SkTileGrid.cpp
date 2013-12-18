@@ -30,6 +30,10 @@ SkTileGrid::~SkTileGrid() {
     SkDELETE_ARRAY(fTileData);
 }
 
+int SkTileGrid::tileCount(int x, int y) {
+    return this->tile(x, y).count();
+}
+
 SkTDArray<void *>& SkTileGrid::tile(int x, int y) {
     return fTileData[y * fXTileCount + x];
 }

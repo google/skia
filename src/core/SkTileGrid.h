@@ -69,6 +69,9 @@ public:
     enum {
         kTileFinished = -1,
     };
+
+    int tileCount(int x, int y);  // For testing only.
+
 private:
     SkTDArray<void*>& tile(int x, int y);
 
@@ -79,7 +82,6 @@ private:
     SkIRect fGridBounds;
     SkTileGridNextDatumFunctionPtr fNextDatumFunction;
 
-    friend class TileGridTest;
     typedef SkBBoxHierarchy INHERITED;
 };
 
