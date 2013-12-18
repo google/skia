@@ -34,6 +34,12 @@
 #include "SkThreadUtils.h"
 #include "SkTypes.h"
 
+static inline SkScalar scalar_log2(SkScalar x) {
+    static const SkScalar log2_conversion_factor = SkScalarDiv(1, SkScalarLog(2));
+    
+    return SkScalarLog(x) * log2_conversion_factor;
+}
+
 namespace sk_tools {
 
 enum {
@@ -512,7 +518,7 @@ void TiledPictureRenderer::setupPowerOf2Tiles() {
         rounded_value = width - (width % fTileMinPowerOf2Width) + fTileMinPowerOf2Width;
     }
 
-    int num_bits = SkScalarCeilToInt(SkScalarLog2(SkIntToScalar(width)));
+    int num_bits = SkScalarCeilToInt(scalar_log2(SkIntToScalar(width)));
     int largest_possible_tile_size = 1 << num_bits;
 
     fTilesX = fTilesY = 0;
