@@ -35,8 +35,13 @@ typedef float GrGLclampf;
 typedef double GrGLdouble;
 typedef double GrGLclampd;
 typedef void GrGLvoid;
-typedef long GrGLintptr;
-typedef long GrGLsizeiptr;
+#ifdef _WIN64
+typedef signed long long int GrGLintptr;
+typedef signed long long int GrGLsizeiptr;
+#else
+typedef signed long int GrGLintptr;
+typedef signed long int GrGLsizeiptr;
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
