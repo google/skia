@@ -6,6 +6,8 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
+#include "SkData.h"
+#include "SkDecodingImageGenerator.h"
 #include "SkDumpCanvas.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -13,6 +15,7 @@
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
+#include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkRandom.h"
@@ -24,27 +27,20 @@
 #include "SkTime.h"
 #include "SkTypeface.h"
 #include "SkXfermode.h"
-
 #include "SkStream.h"
 #include "SkXMLParser.h"
 
-///////////////////////////////////////////////////////////////////////////////
+#include "gm.h"
 
-#include "SkImageRef_GlobalPool.h"
+///////////////////////////////////////////////////////////////////////////////
 
 static SkBitmap load_bitmap() {
     SkBitmap bm;
-    SkStreamAsset* stream = SkStream::NewFromFile("/skimages/sesame_street_ensemble-hp.jpg");
-    if (stream) {
-        SkAutoUnref aur(stream);
-
-        if (SkImageDecoder::DecodeStream(stream, &bm, SkBitmap::kNo_Config,
-                                         SkImageDecoder::kDecodeBounds_Mode)) {
-            SkImageInfo info;
-            bm.asImageInfo(&info);
-            SkPixelRef* pr = new SkImageRef_GlobalPool(info, stream, 1);
-            bm.setPixelRef(pr)->unref();
-        }
+    SkString directory = skiagm::GM::GetResourcePath();
+    SkString path = SkOSPath::SkPathJoin(directory.c_str(), "mandrill_512.png");
+    SkAutoDataUnref data(SkData::NewFromFileName(path.c_str()));
+    if (data.get() != NULL) {
+        SkDecodingImageGenerator::Install(data.get(), &bm);
     }
     return bm;
 }
@@ -61,8 +57,7 @@ static void drawCircle(SkCanvas* canvas, int r, SkColor color) {
 class PictureView : public SampleView {
     SkBitmap fBitmap;
 public:
-        PictureView() {
-        SkImageRef_GlobalPool::SetRAMBudget(16 * 1024);
+    PictureView() {
 
         fBitmap = load_bitmap();
 
