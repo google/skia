@@ -26,8 +26,8 @@ namespace {
 
 template <typename Color, typename ColorPacker>
 void highQualityFilter(ColorPacker pack, const SkBitmapProcState& s, int x, int y, Color* SK_RESTRICT colors, int count) {
-    const int maxX = s.fBitmap->width() - 1;
-    const int maxY = s.fBitmap->height() - 1;
+    const int maxX = s.fBitmap->width();
+    const int maxY = s.fBitmap->height();
 
     while (count-- > 0) {
         SkPoint srcPt;
