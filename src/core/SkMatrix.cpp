@@ -1177,7 +1177,8 @@ SkScalar SkMatrix::mapRadius(SkScalar radius) const {
     SkScalar d0 = vec[0].length();
     SkScalar d1 = vec[1].length();
 
-    return SkScalarMean(d0, d1);
+    // return geometric mean
+    return SkScalarSqrt(d0 * d1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

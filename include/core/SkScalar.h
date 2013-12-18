@@ -139,9 +139,6 @@ inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 /** Returns the average of two SkScalars (a+b)/2
 */
 #define SkScalarAve(a, b)       (((a) + (b)) * 0.5f)
-/** Returns the geometric mean of two SkScalars
-*/
-#define SkScalarMean(a, b)      sk_float_sqrt((float)(a) * (b))
 /** Returns one half of the specified SkScalar
 */
 #define SkScalarHalf(a)         ((a) * 0.5f)
