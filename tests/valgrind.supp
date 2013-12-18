@@ -87,3 +87,41 @@
     fun:calloc
     obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
 }
+# the gpu_issue_* suppressions suppress issues that cannot be reproduced
+# locally. 
+{
+    gpu_issue_1
+    Memcheck:Addr2
+    fun:_ZNK5GrGpu18getQuadIndexBufferEv
+}
+{
+    gpu_issue_2
+    Memcheck:Addr2
+    fun:_ZN24GrAAHairLinePathRenderer6CreateEP9GrContext
+}
+{
+    gpu_issue_3
+    Memcheck:Addr2
+    fun:_ZN16GrAARectRenderer21aaFillRectIndexBufferEP5GrGpu
+}
+{
+    gpu_issue_4
+    Memcheck:Addr8
+    fun:_ZN24GrAAHairLinePathRenderer14createLineGeomERK6SkPathP12GrDrawTargetRK8SkTArrayI7SkPointLb1EEiPNS3_19AutoReleaseGeometryEP6SkRect
+}
+{
+    gpu_issue_5
+    Memcheck:Addr8
+    fun:_ZN21GrDefaultPathRenderer10createGeomERK6SkPathRK11SkStrokeRecfP12GrDrawTargetP15GrPrimitiveTypePiSA_PNS6_19AutoReleaseGeometryE
+}
+{
+    gpu_issue_6
+    Memcheck:Addr8
+    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
+}
+{
+    gpu_issue_7
+    Memcheck:Addr4
+    fun:_ZNK7SkPoint24distanceToLineBetweenSqdERKS_S1_PNS_4SideE
+    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
+}
