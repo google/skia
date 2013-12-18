@@ -186,4 +186,13 @@
  */
 //#define SK_PDF_USE_PATHOPS
 
+/* Skia uses these defines as the target of include preprocessor directives.
+ * The header files pointed to by these defines provide declarations and
+ * possibly inline implementations of threading primitives.
+ *
+ * See SkThread.h for documentation on what these includes must contain.
+ */
+//#define SK_ATOMICS_PLATFORM_H "SkAtomics_xxx.h"
+//#define SK_MUTEX_PLATFORM_H "SkMutex_xxx.h"
+
 #endif

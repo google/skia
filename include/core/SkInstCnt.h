@@ -21,7 +21,7 @@
 
 #if SK_ENABLE_INST_COUNT
 #include "SkTArray.h"
-#include "SkThread_platform.h"
+#include "SkThread.h"
 
 extern bool gPrintInstCount;
 

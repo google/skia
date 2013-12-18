@@ -10,7 +10,7 @@
 
 #include "GrTypes.h"
 #include "SkTemplates.h"
-#include "SkThread_platform.h"
+#include "SkThread.h"
 #include "SkTypes.h"
 
 /** Given a GrEffect of a particular type, creates the corresponding graphics-backend-specific

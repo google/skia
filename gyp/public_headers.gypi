@@ -227,7 +227,6 @@
       'core/SkChecksum.h',
       'core/SkMath.h',
       'core/SkDrawLooper.h',
-      'core/SkThread_platform.h',
       'core/SkFlattenableBuffers.h',
       'core/SkTemplates.h',
       'core/SkMask.h',

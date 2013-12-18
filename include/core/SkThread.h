@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,30 +5,67 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkThread_DEFINED
 #define SkThread_DEFINED
 
 #include "SkTypes.h"
-#include "SkThread_platform.h"
 
-/****** SkThread_platform needs to define the following...
+// SK_ATOMICS_PLATFORM_H must provide inline implementations for the following declarations.
 
-int32_t sk_atomic_inc(int32_t*);
-int32_t sk_atomic_add(int32_t*, int32_t);
-int32_t sk_atomic_dec(int32_t*);
-int32_t sk_atomic_conditional_inc(int32_t*);
+/** Atomically adds one to the int referenced by addr and returns the previous value.
+ *  No additional memory barrier is required; this must act as a compiler barrier.
+ */
+static int32_t sk_atomic_inc(int32_t* addr);
 
-class SkMutex {
+/** Atomically adds inc to the int referenced by addr and returns the previous value.
+ *  No additional memory barrier is required; this must act as a compiler barrier.
+ */
+static int32_t sk_atomic_add(int32_t* addr, int32_t inc);
+
+/** Atomically subtracts one from the int referenced by addr and returns the previous value.
+ *  This must act as a release (SL/S) memory barrier and as a compiler barrier.
+ */
+static int32_t sk_atomic_dec(int32_t* addr);
+
+/** Atomically adds one to the int referenced by addr iff the referenced int was not 0
+ *  and returns the previous value.
+ *  No additional memory barrier is required; this must act as a compiler barrier.
+ */
+static int32_t sk_atomic_conditional_inc(int32_t* addr);
+
+/** If sk_atomic_dec does not act as an acquire (L/SL) barrier,
+ *  this must act as an acquire (L/SL) memory barrier and as a compiler barrier.
+ */
+static void sk_membar_acquire__after_atomic_dec();
+
+/** If sk_atomic_conditional_inc does not act as an acquire (L/SL) barrier,
+ *  this must act as an acquire (L/SL) memory barrier and as a compiler barrier.
+ */
+static void sk_membar_acquire__after_atomic_conditional_inc();
+
+#include SK_ATOMICS_PLATFORM_H
+
+
+/** SK_MUTEX_PLATFORM_H must provide the following (or equivalent) declarations.
+
+class SkBaseMutex {
+public:
+    void acquire();
+    void release();
+};
+
+class SkMutex : SkBaseMutex {
 public:
     SkMutex();
     ~SkMutex();
-
-    void    acquire();
-    void    release();
 };
 
-****************/
+#define SK_DECLARE_STATIC_MUTEX(name) static SkBaseMutex name = ...
+#define SK_DECLARE_GLOBAL_MUTEX(name) SkBaseMutex name = ...
+*/
+
+#include SK_MUTEX_PLATFORM_H
+
 
 class SkAutoMutexAcquire : SkNoncopyable {
 public:
@@ -38,22 +74,20 @@ public:
         mutex.acquire();
     }
 
-    SkAutoMutexAcquire(SkBaseMutex* mutex) : fMutex(mutex) {
+    explicit SkAutoMutexAcquire(SkBaseMutex* mutex) : fMutex(mutex) {
         if (mutex) {
             mutex->acquire();
         }
     }
 
-    /** If the mutex has not been release, release it now.
-    */
+    /** If the mutex has not been released, release it now. */
     ~SkAutoMutexAcquire() {
         if (fMutex) {
             fMutex->release();
         }
     }
 
-    /** If the mutex has not been release, release it now.
-    */
+    /** If the mutex has not been released, release it now. */
     void release() {
         if (fMutex) {
             fMutex->release();
