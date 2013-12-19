@@ -174,7 +174,7 @@ class ImageDiffDB(object):
             expected_image_locator=expected_image_locator,
             actual_image_url=actual_image_url,
             actual_image_locator=actual_image_locator)
-      except:
+      except Exception:
         logging.exception('got exception while creating new DiffRecord')
         return
       self._diff_dict[key] = new_diff_record
