@@ -17,11 +17,20 @@ class GrTextStrike;
  */
 class GrDistanceFieldTextContext : public GrTextContext {
 public:
-    GrDistanceFieldTextContext(GrContext*, const GrPaint&, SkColor, SkScalar textRatio);
+    GrDistanceFieldTextContext(GrContext*, const GrPaint&, const SkPaint&);
     virtual ~GrDistanceFieldTextContext();
 
     virtual void drawPackedGlyph(GrGlyph::PackedID, GrFixed left, GrFixed top,
                                  GrFontScaler*) SK_OVERRIDE;
+
+    void drawText(const char text[], size_t byteLength,
+                  SkScalar x, SkScalar y, SkGlyphCache*, GrFontScaler*);
+    void drawPosText(const char text[], size_t byteLength,
+                     const SkScalar pos[], SkScalar constY,
+                     int scalarsPerPosition,
+                     SkGlyphCache* cache, GrFontScaler* fontScaler);
+
+    const SkPaint& getSkPaint() { return fSkPaint; }
 
 private:
     GrTextStrike*           fStrike;
@@ -36,7 +45,7 @@ private:
         kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
     };
 
-    SkColor                 fSkPaintColor;
+    SkPaint                 fSkPaint;
     SkPoint*                fVertices;
     int32_t                 fMaxVertices;
     GrTexture*              fCurrTexture;

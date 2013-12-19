@@ -57,22 +57,6 @@ struct SkDraw1Glyph {
 
 struct SkDrawProcs {
     SkDraw1Glyph::Proc  fD1GProc;
-#if SK_DISTANCEFIELD_FONTS
-    uint32_t            fFlags;
-
-    enum Flags {
-        /**
-         * Disable baked glyph transforms
-         */
-        kSkipBakedGlyphTransform_Flag = 0x1,
-        /**
-         * Scale glyphs to get different point sizes
-         */
-        kUseScaledGlyphs_Flag         = 0x2,
-    };
-
-    static const int kBaseDFFontSize = 32;
-#endif
 };
 
 bool SkDrawTreatAAStrokeAsHairline(SkScalar strokeWidth, const SkMatrix&,

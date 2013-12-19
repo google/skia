@@ -107,11 +107,12 @@ public:
     static RectType ComputeRectType(const SkPaint&, const SkMatrix&,
                                     SkPoint* strokeSize);
 
-    void    drawText_asPaths(const char text[], size_t byteLength,
-                             SkScalar x, SkScalar y, const SkPaint&) const;
-    void    drawPosText_asPaths(const char text[], size_t byteLength,
-                                const SkScalar pos[], SkScalar constY,
-                                int scalarsPerPosition, const SkPaint&) const;
+    static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&);
+    void        drawText_asPaths(const char text[], size_t byteLength,
+                                 SkScalar x, SkScalar y, const SkPaint&) const;
+    void        drawPosText_asPaths(const char text[], size_t byteLength,
+                                    const SkScalar pos[], SkScalar constY,
+                                    int scalarsPerPosition, const SkPaint&) const;
 
 private:
     void    drawDevMask(const SkMask& mask, const SkPaint&) const;
@@ -130,8 +131,6 @@ private:
      */
     bool SK_WARN_UNUSED_RESULT
     computeConservativeLocalClipBounds(SkRect* bounds) const;
-
-    static bool ShouldDrawTextAsPaths(const SkPaint&, const SkMatrix&);
 
 public:
     const SkBitmap* fBitmap;        // required
