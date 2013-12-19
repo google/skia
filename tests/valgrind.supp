@@ -12,6 +12,12 @@
     fun:FcFontSetCreate
 }
 {
+    FcFontSetAdd_Leak
+    Memcheck:Leak
+    fun:realloc
+    fun:FcFontSetAdd
+}
+{
     lib_png_inflate
     Memcheck:Cond
     fun:inflateReset2
@@ -123,5 +129,25 @@
     gpu_issue_7
     Memcheck:Addr4
     fun:_ZNK7SkPoint24distanceToLineBetweenSqdERKS_S1_PNS_4SideE
+    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
+}
+{
+    gpu_issue_8
+    Memcheck:Addr4
+    fun:_ZN24GrAAHairLinePathRenderer14createLineGeomERK6SkPathP12GrDrawTargetRK8SkTArrayI7SkPointLb1EEiPNS3_19AutoReleaseGeometryEP6SkRect
+}
+{
+    gpu_issue_9
+    Memcheck:Addr2
+    fun:_ZN21GrDefaultPathRenderer10createGeomERK6SkPathRK11SkStrokeRecfP12GrDrawTargetP15GrPrimitiveTypePiSA_PNS6_19AutoReleaseGeometryE
+}
+{
+    gpu_issue_10
+    Memcheck:Addr4
+    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
+}
+{
+    gpu_issue_11
+    Memcheck:Addr2
     fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
 }
