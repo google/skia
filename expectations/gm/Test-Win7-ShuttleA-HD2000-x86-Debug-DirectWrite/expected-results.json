@@ -4657,13 +4657,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1503976714167724830
+          9728138740685428331
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_high_mandrill_512.png_pdf-poppler.png": {
       "allowed-digests": [
