@@ -217,19 +217,6 @@ download_bench_rawdata $PLATFORM $REVISION "$BENCHDATA_FILE_SUFFIXES_YES_INDIVID
 benchalert_test $PLATFORM $REVISION
 
 #
-# Run self test for skimage ...
-#
-
-COMMAND="python tools/tests/skimage_self_test.py"
-echo "$COMMAND"
-$COMMAND
-ret=$?
-if [ $ret -ne 0 ]; then
-    echo "skimage self tests failed."
-    exit 1
-fi
-
-#
 # Test rebaseline.py ...
 #
 
@@ -246,6 +233,25 @@ rebaseline_test "$REBASELINE_INPUT/json1" "--actuals-base-url $REBASELINE_INPUT/
 JSONDIFF_INPUT=tools/tests/jsondiff/input
 JSONDIFF_OUTPUT=tools/tests/jsondiff/output
 jsondiff_test "$JSONDIFF_INPUT/old.json $JSONDIFF_INPUT/new.json" "$JSONDIFF_OUTPUT/old-vs-new"
+
+
+#
+# Launch all the self-tests which have been written in Python.
+#
+# TODO: Over time, we should move all of our tests into Python, and delete
+# the bash tests above.
+# See https://code.google.com/p/skia/issues/detail?id=677
+# ('make tools/tests/run.sh work cross-platform')
+#
+
+COMMAND="python tools/tests/run_all.py"
+echo "$COMMAND"
+$COMMAND
+ret=$?
+if [ $ret -ne 0 ]; then
+    echo "failure in Python self-tests; see stack trace above"
+    exit 1
+fi
 
 
 echo "All tests passed."
