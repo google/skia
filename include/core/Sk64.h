@@ -17,8 +17,16 @@
     Sk64 is a 64-bit math package that does not require long long support from the compiler.
 */
 struct SK_API Sk64 {
+private:
     int32_t  fHi;   //!< the high 32 bits of the number (including sign)
     uint32_t fLo;   //!< the low 32 bits of the number
+
+public:
+    int32_t hi() const { return fHi; }
+    uint32_t lo() const { return fLo; }
+
+    int64_t as64() const { return ((int64_t)fHi << 32) | fLo; }
+    int64_t getLongLong() const { return this->as64(); }
 
     /** Returns non-zero if the Sk64 can be represented as a signed 32 bit integer
     */
@@ -169,9 +177,8 @@ struct SK_API Sk64 {
         return a.fHi > b.fHi || (a.fHi == b.fHi && a.fLo >= b.fLo);
     }
 
-#ifdef SkLONGLONG
-    SkLONGLONG getLongLong() const;
-#endif
+    // Private to unittests. Parameter is (skiatest::Reporter*)
+    static void UnitTestWithReporter(void* skiatest_reporter);
 };
 
 #endif

@@ -227,13 +227,13 @@
 
 //////////////////////////////////////////////////////////////////////
 
+// TODO: rebaseline as needed so we can remove this flag entirely.
+//  - all platforms have int64_t now
+//  - we have slightly different fixed math results because of this check
+//    since we don't define this for linux/android
 #if defined(SK_BUILD_FOR_WIN32) || defined(SK_BUILD_FOR_MAC)
 #  ifndef SkLONGLONG
-#    ifdef SK_BUILD_FOR_WIN32
-#      define SkLONGLONG __int64
-#    else
-#      define SkLONGLONG long long
-#    endif
+#    define SkLONGLONG int64_t
 #  endif
 #endif
 

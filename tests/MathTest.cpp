@@ -188,7 +188,6 @@ static void test_blend(skiatest::Reporter* reporter) {
     }
 }
 
-#if defined(SkLONGLONG)
 static int symmetric_fixmul(int a, int b) {
     int sa = SkExtractSign(a);
     int sb = SkExtractSign(b);
@@ -196,19 +195,9 @@ static int symmetric_fixmul(int a, int b) {
     a = SkApplySign(a, sa);
     b = SkApplySign(b, sb);
 
-#if 1
-    int c = (int)(((SkLONGLONG)a * b) >> 16);
-
+    int c = (int)(((int64_t)a * b) >> 16);
     return SkApplySign(c, sa ^ sb);
-#else
-    SkLONGLONG ab = (SkLONGLONG)a * b;
-    if (sa ^ sb) {
-        ab = -ab;
-    }
-    return ab >> 16;
-#endif
 }
-#endif
 
 static void check_length(skiatest::Reporter* reporter,
                          const SkPoint& p, SkScalar targetLen) {
@@ -492,12 +481,11 @@ DEF_TEST(Math, reporter) {
     unittest_fastfloat(reporter);
     unittest_isfinite(reporter);
 
-#ifdef SkLONGLONG
     for (i = 0; i < 10000; i++) {
         SkFixed numer = rand.nextS();
         SkFixed denom = rand.nextS();
         SkFixed result = SkFixedDiv(numer, denom);
-        SkLONGLONG check = ((SkLONGLONG)numer << 16) / denom;
+        int64_t check = ((int64_t)numer << 16) / denom;
 
         (void)SkCLZ(numer);
         (void)SkCLZ(denom);
@@ -522,7 +510,6 @@ DEF_TEST(Math, reporter) {
         r2 = SkFixedSquare(numer);
         REPORTER_ASSERT(reporter, result == r2);
     }
-#endif
 
     test_blend(reporter);
 

@@ -88,12 +88,6 @@
 //#define SK_UINT8_BITFIELD_LENDIAN
 
 
-/*  Some compilers don't support long long for 64bit integers. If yours does
-    not, define this to the appropriate type.
- */
-//#define SkLONGLONG int64_t
-
-
 /*  To write debug messages to a console, skia will call SkDebugf(...) following
     printf conventions (e.g. const char* format, ...). If you want to redirect
     this to something other than printf, define yours here
