@@ -59,13 +59,5 @@ filterbitmap_text_3.00pt
 filterbitmap_text_7.00pt
 filterbitmap_text_10.00pt
 
-# Waiting for bots to finish processing https://skia.googlesource.com/skia.git/+/cea9abb001b07eaf4340a78db708bfac9e8c68c2
-clipped-bitmap-shaders-clamp-hq_gpu
-clipped-bitmap-shaders-mirror-hq_gpu
-clipped-bitmap-shaders-tile-hq_gpu
-clipped-bitmap-shaders-clamp-hq_angle
-clipped-bitmap-shaders-mirror-hq_angle
-clipped-bitmap-shaders-tile-hq_angle
-
 # Added by sugoi for added test in https://codereview.chromium.org/104853005
 displacement

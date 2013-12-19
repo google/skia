@@ -2392,6 +2392,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "clipped-bitmap-shaders-clamp-hq_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5000282312660607550
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "clipped-bitmap-shaders-clamp_565.png": {
       "allowed-digests": [
         [
@@ -2428,6 +2437,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "clipped-bitmap-shaders-mirror-hq_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18066226042033064966
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "clipped-bitmap-shaders-mirror_565.png": {
       "allowed-digests": [
         [
@@ -2463,6 +2481,15 @@
         1759
       ], 
       "reviewed-by-human": false
+    }, 
+    "clipped-bitmap-shaders-tile-hq_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17436695901683300479
+        ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "clipped-bitmap-shaders-tile_565.png": {
       "allowed-digests": [
