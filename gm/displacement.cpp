@@ -183,6 +183,7 @@ protected:
              40.0f, displ, NULL, &cropRect)))->unref();
         drawClippedBitmap(canvas, 400, 300, paint);
 
+        // Tests for images of different sizes
         displ.reset(SkNEW_ARGS(SkBitmapSource, (fSmall)));
         paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
             (SkDisplacementMapEffect::kR_ChannelSelectorType,
@@ -207,6 +208,15 @@ protected:
              SkDisplacementMapEffect::kA_ChannelSelectorType,
              40.0f, displ)))->unref();
         drawClippedBitmap(canvas, 300, 400, paint);
+
+        // Test for no given displacement input. In this case, both displacement
+        // and color should use the same bitmap, given to SkCanvas::drawBitmap()
+        // as an input argument.
+        paint.setImageFilter(SkNEW_ARGS(SkDisplacementMapEffect,
+            (SkDisplacementMapEffect::kG_ChannelSelectorType,
+             SkDisplacementMapEffect::kA_ChannelSelectorType,
+             40.0f, NULL)))->unref();
+        drawClippedBitmap(canvas, 400, 400, paint);
     }
 
 private:

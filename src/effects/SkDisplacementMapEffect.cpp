@@ -183,12 +183,11 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
                                             const SkMatrix& ctm,
                                             SkBitmap* dst,
                                             SkIPoint* offset) {
-    SkBitmap displ, color = src;
+    SkBitmap displ = src, color = src;
     SkImageFilter* colorInput = getColorInput();
     SkImageFilter* displacementInput = getDisplacementInput();
-    SkASSERT(NULL != displacementInput);
     if ((colorInput && !colorInput->filterImage(proxy, src, ctm, &color, offset)) ||
-        !displacementInput || !displacementInput->filterImage(proxy, src, ctm, &displ, offset)) {
+        (displacementInput && !displacementInput->filterImage(proxy, src, ctm, &displ, offset))) {
         return false;
     }
     if ((displ.config() != SkBitmap::kARGB_8888_Config) ||

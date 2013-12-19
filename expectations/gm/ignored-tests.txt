@@ -66,3 +66,6 @@ clipped-bitmap-shaders-tile-hq_gpu
 clipped-bitmap-shaders-clamp-hq_angle
 clipped-bitmap-shaders-mirror-hq_angle
 clipped-bitmap-shaders-tile-hq_angle
+
+# Added by sugoi for added test in https://codereview.chromium.org/104853005
+displacement
