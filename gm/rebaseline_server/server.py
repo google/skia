@@ -215,10 +215,6 @@ class Server(object):
             EXPECTATIONS_DIR)
         _run_command(['gclient', 'sync'], TRUNK_DIRECTORY)
 
-      logging.info(
-          ('Parsing results from actuals in %s and expectations in %s, '
-           + 'and generating pixel diffs (may take a while) ...') % (
-               self._actuals_dir, EXPECTATIONS_DIR))
       self._results = results.Results(
           actuals_root=self._actuals_dir,
           expected_root=EXPECTATIONS_DIR,
@@ -507,7 +503,9 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 def main():
-  logging.basicConfig(level=logging.INFO)
+  logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+                      datefmt='%m/%d/%Y %H:%M:%S',
+                      level=logging.INFO)
   parser = argparse.ArgumentParser()
   parser.add_argument('--actuals-dir',
                     help=('Directory into which we will check out the latest '

@@ -64,11 +64,14 @@ class Results(object):
       generated_images_root: directory within which to create all pixel diffs;
           if this directory does not yet exist, it will be created
     """
+    time_start = int(time.time())
     self._image_diff_db = imagediffdb.ImageDiffDB(generated_images_root)
     self._actuals_root = actuals_root
     self._expected_root = expected_root
     self._load_actual_and_expected()
     self._timestamp = int(time.time())
+    logging.info('Results complete; took %d seconds.' %
+                 (self._timestamp - time_start))
 
   def get_timestamp(self):
     """Return the time at which this object was created, in seconds past epoch
@@ -288,7 +291,11 @@ class Results(object):
     files within self._actuals_root and self._expected_root),
     and stores them in self._results.
     """
+    logging.info('Reading actual-results JSON files from %s...' %
+                 self._actuals_root)
     actual_builder_dicts = Results._read_dicts_from_root(self._actuals_root)
+    logging.info('Reading expected-results JSON files from %s...' %
+                 self._expected_root)
     expected_builder_dicts = Results._read_dicts_from_root(self._expected_root)
 
     categories_all = {}
@@ -310,7 +317,13 @@ class Results(object):
 
     data_all = []
     data_failures = []
-    for builder in sorted(actual_builder_dicts.keys()):
+    builders = sorted(actual_builder_dicts.keys())
+    num_builders = len(builders)
+    builder_num = 0
+    for builder in builders:
+      builder_num += 1
+      logging.info('Generating pixel diffs for builder #%d of %d, "%s"...' %
+                   (builder_num, num_builders, builder))
       actual_results_for_this_builder = (
           actual_builder_dicts[builder][gm_json.JSONKEY_ACTUALRESULTS])
       for result_type in sorted(actual_results_for_this_builder.keys()):
