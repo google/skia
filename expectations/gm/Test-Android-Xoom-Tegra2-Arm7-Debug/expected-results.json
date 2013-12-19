@@ -3364,13 +3364,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9579743923378926908
+          12594265632012724270
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_none_mandrill_512.png_565.png": {
       "allowed-digests": [
