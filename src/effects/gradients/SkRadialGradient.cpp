@@ -12,7 +12,7 @@
 #define kSQRT_TABLE_BITS    11
 #define kSQRT_TABLE_SIZE    (1 << kSQRT_TABLE_BITS)
 
-#if defined(SK_BUILD_FOR_WIN32) && defined(SK_DEBUG)
+#if 0
 
 #include <stdio.h>
 
