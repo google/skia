@@ -2028,11 +2028,14 @@ void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
         GR_GL_LINEAR,
         GR_GL_LINEAR
     };
-    newTexParams.fMinFilter = glMinFilterModes[params.filterMode()];
-    newTexParams.fMagFilter = glMagFilterModes[params.filterMode()];
+    GrTextureParams::FilterMode filterMode = params.filterMode();
+    if (!this->caps()->mipMapSupport() && GrTextureParams::kMipMap_FilterMode == filterMode) {
+        filterMode = GrTextureParams::kBilerp_FilterMode;
+    }
+    newTexParams.fMinFilter = glMinFilterModes[filterMode];
+    newTexParams.fMagFilter = glMagFilterModes[filterMode];
 
-    if (params.filterMode() == GrTextureParams::kMipMap_FilterMode &&
-        texture->mipMapsAreDirty()) {
+    if (GrTextureParams::kMipMap_FilterMode == filterMode && texture->mipMapsAreDirty()) {
 //        GL_CALL(Hint(GR_GL_GENERATE_MIPMAP_HINT,GR_GL_NICEST));
         GL_CALL(GenerateMipmap(GR_GL_TEXTURE_2D));
         texture->dirtyMipMaps(false);

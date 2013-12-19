@@ -285,17 +285,20 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     }
 
     if (kDesktop_GrGLBinding == binding) {
-        if (ctxInfo.version() >= GR_GL_VER(2,0) ||
-            ctxInfo.hasExtension("GL_ARB_texture_non_power_of_two")) {
-            fNPOTTextureTileSupport = true;
-        } else {
-            fNPOTTextureTileSupport = false;
-        }
+        SkASSERT(ctxInfo.version() >= GR_GL_VER(2,0) ||
+                 ctxInfo.hasExtension("GL_ARB_texture_non_power_of_two"));
+        fNPOTTextureTileSupport = true;
+        fMipMapSupport = true;
     } else {
         // Unextended ES2 supports NPOT textures with clamp_to_edge and non-mip filters only
         // ES3 has no limitations.
         fNPOTTextureTileSupport = ctxInfo.version() >= GR_GL_VER(3,0) ||
                                   ctxInfo.hasExtension("GL_OES_texture_npot");
+        // ES2 supports MIP mapping for POT textures but our caps don't allow for limited MIP
+        // support. The OES extension or ES 3.0 allow for MIPS on NPOT textures. So, apparently,
+        // does the undocumented GL_IMG_texture_npot extension. This extension does not seem to
+        // to alllow arbitrary wrap modes, however.
+        fMipMapSupport = fNPOTTextureTileSupport || ctxInfo.hasExtension("GL_IMG_texture_npot");
     }
 
     fHWAALineSupport = (kDesktop_GrGLBinding == binding);

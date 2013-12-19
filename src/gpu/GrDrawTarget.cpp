@@ -962,6 +962,7 @@ void GrDrawTarget::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* d
 
 void GrDrawTargetCaps::reset() {
     f8BitPaletteSupport = false;
+    fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
     fTwoSidedStencilSupport = false;
     fStencilWrapOpsSupport = false;
@@ -983,6 +984,7 @@ void GrDrawTargetCaps::reset() {
 
 GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     f8BitPaletteSupport = other.f8BitPaletteSupport;
+    fMipMapSupport = other.fMipMapSupport;
     fNPOTTextureTileSupport = other.fNPOTTextureTileSupport;
     fTwoSidedStencilSupport = other.fTwoSidedStencilSupport;
     fStencilWrapOpsSupport = other.fStencilWrapOpsSupport;
@@ -1008,6 +1010,7 @@ SkString GrDrawTargetCaps::dump() const {
     SkString r;
     static const char* gNY[] = {"NO", "YES"};
     r.appendf("8 Bit Palette Support       : %s\n", gNY[f8BitPaletteSupport]);
+    r.appendf("MIP Map Support             : %s\n", gNY[fMipMapSupport]);
     r.appendf("NPOT Texture Tile Support   : %s\n", gNY[fNPOTTextureTileSupport]);
     r.appendf("Two Sided Stencil Support   : %s\n", gNY[fTwoSidedStencilSupport]);
     r.appendf("Stencil Wrap Ops  Support   : %s\n", gNY[fStencilWrapOpsSupport]);
