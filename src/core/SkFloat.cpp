@@ -272,7 +272,7 @@ int SkFloat::Cmp(int32_t packed_a, int32_t packed_b)
 
 void SkFloat::UnitTest()
 {
-#ifdef SK_SUPPORT_UNITTEST
+#if 0 // def SK_SUPPORT_UNITTEST
     SkFloat a, b, c, d;
     int     n;
 
