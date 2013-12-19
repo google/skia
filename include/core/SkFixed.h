@@ -118,11 +118,11 @@ static inline SkFixed SkFixedCos(SkFixed radians) {
 #ifdef SkLONGLONG
     inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b)
     {
-        return (SkFixed)((int64_t)a * b >> 16);
+        return (SkFixed)((SkLONGLONG)a * b >> 16);
     }
     inline SkFixed SkFixedSquare_longlong(SkFixed value)
     {
-        return (SkFixed)((int64_t)value * value >> 16);
+        return (SkFixed)((SkLONGLONG)value * value >> 16);
     }
     #define SkFixedMul(a,b)     SkFixedMul_longlong(a,b)
     #define SkFixedSquare(a)    SkFixedSquare_longlong(a)

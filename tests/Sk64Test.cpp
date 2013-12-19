@@ -25,9 +25,14 @@ static void bool_table_test(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, a.getSign() == table.sign);
 }
 
-void Sk64::UnitTestWithReporter(void* reporterParam) {
-    skiatest::Reporter* reporter = (skiatest::Reporter*)reporterParam;
+#ifdef SkLONGLONG
+    static SkLONGLONG asLL(const Sk64& a)
+    {
+        return ((SkLONGLONG)a.fHi << 32) | a.fLo;
+    }
+#endif
 
+DEF_TEST(Sk64Test, reporter) {
     enum BoolTests {
         kZero_BoolTest,
         kPos_BoolTest,
@@ -91,7 +96,9 @@ void Sk64::UnitTestWithReporter(void* reporterParam) {
         REPORTER_ASSERT(reporter, c.get32() == aa - bb);
     }
 
-    for (i = 0; i < 1000; i++) {
+#ifdef SkLONGLONG
+    for (i = 0; i < 1000; i++)
+    {
         rand.next64(&a); //a.fHi >>= 1; // avoid overflow
         rand.next64(&b); //b.fHi >>= 1; // avoid overflow
 
@@ -106,8 +113,8 @@ void Sk64::UnitTestWithReporter(void* reporterParam) {
             b.fHi = 0;
         }
 
-        int64_t aa = a.as64();
-        int64_t bb = b.as64();
+        SkLONGLONG aa = asLL(a);
+        SkLONGLONG bb = asLL(b);
 
         REPORTER_ASSERT(reporter, (a < b) == (aa < bb));
         REPORTER_ASSERT(reporter, (a <= b) == (aa <= bb));
@@ -117,31 +124,31 @@ void Sk64::UnitTestWithReporter(void* reporterParam) {
         REPORTER_ASSERT(reporter, (a != b) == (aa != bb));
 
         c = a; c.add(b);
-        REPORTER_ASSERT(reporter, c.as64() == aa + bb);
+        REPORTER_ASSERT(reporter, asLL(c) == aa + bb);
         c = a; c.sub(b);
-        REPORTER_ASSERT(reporter, c.as64() == aa - bb);
+        REPORTER_ASSERT(reporter, asLL(c) == aa - bb);
         c = a; c.rsub(b);
-        REPORTER_ASSERT(reporter, c.as64() == bb - aa);
+        REPORTER_ASSERT(reporter, asLL(c) == bb - aa);
         c = a; c.negate();
-        REPORTER_ASSERT(reporter, c.as64() == -aa);
+        REPORTER_ASSERT(reporter, asLL(c) == -aa);
 
         int bits = rand.nextU() & 63;
         c = a; c.shiftLeft(bits);
-        REPORTER_ASSERT(reporter, c.as64() == (aa << bits));
+        REPORTER_ASSERT(reporter, asLL(c) == (aa << bits));
         c = a; c.shiftRight(bits);
-        REPORTER_ASSERT(reporter, c.as64() == (aa >> bits));
+        REPORTER_ASSERT(reporter, asLL(c) == (aa >> bits));
         c = a; c.roundRight(bits);
 
-        int64_t tmp;
+        SkLONGLONG tmp;
 
         tmp = aa;
         if (bits > 0)
-            tmp += (int64_t)1 << (bits - 1);
-        REPORTER_ASSERT(reporter, c.as64() == (tmp >> bits));
+            tmp += (SkLONGLONG)1 << (bits - 1);
+        REPORTER_ASSERT(reporter, asLL(c) == (tmp >> bits));
 
         c.setMul(a.fHi, b.fHi);
-        tmp = (int64_t)a.fHi * b.fHi;
-        REPORTER_ASSERT(reporter, c.as64() == tmp);
+        tmp = (SkLONGLONG)a.fHi * b.fHi;
+        REPORTER_ASSERT(reporter, asLL(c) == tmp);
     }
 
 
@@ -153,11 +160,11 @@ void Sk64::UnitTestWithReporter(void* reporterParam) {
         while (denom == 0)
             denom = rand.nextS();
         wide.setMul(rand.nextS(), rand.nextS());
-        int64_t check = wide.getLongLong();
+        SkLONGLONG check = wide.getLongLong();
 
         wide.div(denom, Sk64::kTrunc_DivOption);
         check /= denom;
-        int64_t w = wide.getLongLong();
+        SkLONGLONG w = wide.getLongLong();
 
         REPORTER_ASSERT(reporter, check == w);
 
@@ -168,8 +175,5 @@ void Sk64::UnitTestWithReporter(void* reporterParam) {
         int diff = denom - ck;
         REPORTER_ASSERT(reporter, SkAbs32(diff) <= 1);
     }
-}
-
-DEF_TEST(Sk64Test, reporter) {
-    Sk64::UnitTestWithReporter(reporter);
+#endif
 }

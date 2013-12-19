@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -5,11 +6,15 @@
  * found in the LICENSE file.
  */
 
+
+
+
 //  Inspired by Rob Johnson's most excellent QuickDraw GX sample code
 
 #ifndef SkCamera_DEFINED
 #define SkCamera_DEFINED
 
+#include "Sk64.h"
 #include "SkMatrix.h"
 
 class SkCanvas;
