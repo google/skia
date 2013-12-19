@@ -6,7 +6,6 @@
  */
 
 #include "SkMathPriv.h"
-#include "SkCordic.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "Sk64.h"
@@ -54,63 +53,8 @@ int32_t SkMulDiv(int32_t numer1, int32_t numer2, int32_t denom) {
     return tmp.get32();
 }
 
-int32_t SkMulShift(int32_t a, int32_t b, unsigned shift) {
-    int sign = SkExtractSign(a ^ b);
-
-    if (shift > 63) {
-        return sign;
-    }
-
-    a = SkAbs32(a);
-    b = SkAbs32(b);
-
-    uint32_t ah = a >> 16;
-    uint32_t al = a & 0xFFFF;
-    uint32_t bh = b >> 16;
-    uint32_t bl = b & 0xFFFF;
-
-    uint32_t A = ah * bh;
-    uint32_t B = ah * bl + al * bh;
-    uint32_t C = al * bl;
-
-    /*  [  A  ]
-           [  B  ]
-              [  C  ]
-    */
-    uint32_t lo = C + (B << 16);
-    int32_t  hi = A + (B >> 16) + (lo < C);
-
-    if (sign < 0) {
-        hi = -hi - Sk32ToBool(lo);
-        lo = 0 - lo;
-    }
-
-    if (shift == 0) {
-#ifdef SK_DEBUGx
-        SkASSERT(((int32_t)lo >> 31) == hi);
-#endif
-        return lo;
-    } else if (shift >= 32) {
-        return hi >> (shift - 32);
-    } else {
-#ifdef SK_DEBUGx
-        int32_t tmp = hi >> shift;
-        SkASSERT(tmp == 0 || tmp == -1);
-#endif
-        // we want (hi << (32 - shift)) | (lo >> shift) but rounded
-        int roundBit = (lo >> (shift - 1)) & 1;
-        return ((hi << (32 - shift)) | (lo >> shift)) + roundBit;
-    }
-}
-
 SkFixed SkFixedMul_portable(SkFixed a, SkFixed b) {
-#if 0
-    Sk64    tmp;
-
-    tmp.setMul(a, b);
-    tmp.shiftRight(16);
-    return tmp.fLo;
-#elif defined(SkLONGLONG)
+#if defined(SkLONGLONG)
     return static_cast<SkFixed>((SkLONGLONG)a * b >> 16);
 #else
     int sa = SkExtractSign(a);
@@ -128,103 +72,6 @@ SkFixed SkFixedMul_portable(SkFixed a, SkFixed b) {
 
     return SkApplySign(R, sa ^ sb);
 #endif
-}
-
-SkFract SkFractMul_portable(SkFract a, SkFract b) {
-#if 0
-    Sk64 tmp;
-    tmp.setMul(a, b);
-    return tmp.getFract();
-#elif defined(SkLONGLONG)
-    return static_cast<SkFract>((SkLONGLONG)a * b >> 30);
-#else
-    int sa = SkExtractSign(a);
-    int sb = SkExtractSign(b);
-    // now make them positive
-    a = SkApplySign(a, sa);
-    b = SkApplySign(b, sb);
-
-    uint32_t ah = a >> 16;
-    uint32_t al = a & 0xFFFF;
-    uint32_t bh = b >> 16;
-    uint32_t bl = b & 0xFFFF;
-
-    uint32_t A = ah * bh;
-    uint32_t B = ah * bl + al * bh;
-    uint32_t C = al * bl;
-
-    /*  [  A  ]
-           [  B  ]
-              [  C  ]
-    */
-    uint32_t Lo = C + (B << 16);
-    uint32_t Hi = A + (B >>16) + (Lo < C);
-
-    SkASSERT((Hi >> 29) == 0);  // else overflow
-
-    int32_t R = (Hi << 2) + (Lo >> 30);
-
-    return SkApplySign(R, sa ^ sb);
-#endif
-}
-
-int SkFixedMulCommon(SkFixed a, int b, int bias) {
-    // this function only works if b is 16bits
-    SkASSERT(b == (int16_t)b);
-    SkASSERT(b >= 0);
-
-    int sa = SkExtractSign(a);
-    a = SkApplySign(a, sa);
-    uint32_t ah = a >> 16;
-    uint32_t al = a & 0xFFFF;
-    uint32_t R = ah * b + ((al * b + bias) >> 16);
-    return SkApplySign(R, sa);
-}
-
-#ifdef SK_DEBUGx
-    #define TEST_FASTINVERT
-#endif
-
-SkFixed SkFixedFastInvert(SkFixed x) {
-/*  Adapted (stolen) from gglRecip()
-*/
-
-    if (x == SK_Fixed1) {
-        return SK_Fixed1;
-    }
-
-    int      sign = SkExtractSign(x);
-    uint32_t a = SkApplySign(x, sign);
-
-    if (a <= 2) {
-        return SkApplySign(SK_MaxS32, sign);
-    }
-
-#ifdef TEST_FASTINVERT
-    SkFixed orig = a;
-    uint32_t slow = SkFixedDiv(SK_Fixed1, a);
-#endif
-
-    // normalize a
-    int lz = SkCLZ(a);
-    a = a << lz >> 16;
-
-    // compute 1/a approximation (0.5 <= a < 1.0)
-    uint32_t r = 0x17400 - a;      // (2.90625 (~2.914) - 2*a) >> 1
-
-    // Newton-Raphson iteration:
-    // x = r*(2 - a*r) = ((r/2)*(1 - a*r/2))*4
-    r = ( (0x10000 - ((a*r)>>16)) * r ) >> 15;
-    r = ( (0x10000 - ((a*r)>>16)) * r ) >> (30 - lz);
-
-#ifdef TEST_FASTINVERT
-    SkDebugf("SkFixedFastInvert(%x %g) = %x %g Slow[%x %g]\n",
-                orig, orig/65536.,
-                r, r/65536.,
-                slow, slow/65536.);
-#endif
-
-    return SkApplySign(r, sign);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -295,26 +142,6 @@ int32_t SkDivBits(int32_t numer, int32_t denom, int shift_bias) {
     return SkApplySign(result, sign);
 }
 
-/*  mod(float numer, float denom) seems to always return the sign
-    of the numer, so that's what we do too
-*/
-SkFixed SkFixedMod(SkFixed numer, SkFixed denom) {
-    int sn = SkExtractSign(numer);
-    int sd = SkExtractSign(denom);
-
-    numer = SkApplySign(numer, sn);
-    denom = SkApplySign(denom, sd);
-
-    if (numer < denom) {
-        return SkApplySign(numer, sn);
-    } else if (numer == denom) {
-        return 0;
-    } else {
-        SkFixed div = SkFixedDiv(numer, denom);
-        return SkApplySign(SkFixedMul(denom, div & 0xFFFF), sn);
-    }
-}
-
 /* www.worldserver.com/turk/computergraphics/FixedSqrt.pdf
 */
 int32_t SkSqrtBits(int32_t x, int count) {
@@ -338,38 +165,6 @@ int32_t SkSqrtBits(int32_t x, int count) {
     } while (--count >= 0);
 
     return root;
-}
-
-int32_t SkCubeRootBits(int32_t value, int bits) {
-    SkASSERT(bits > 0);
-
-    int sign = SkExtractSign(value);
-    value = SkApplySign(value, sign);
-
-    uint32_t root = 0;
-    uint32_t curr = (uint32_t)value >> 30;
-    value <<= 2;
-
-    do {
-        root <<= 1;
-        uint32_t guess = root * root + root;
-        guess = (guess << 1) + guess;   // guess *= 3
-        if (guess < curr) {
-            curr -= guess + 1;
-            root |= 1;
-        }
-        curr = (curr << 3) | ((uint32_t)value >> 29);
-        value <<= 3;
-    } while (--bits);
-
-    return SkApplySign(root, sign);
-}
-
-SkFixed SkFixedMean(SkFixed a, SkFixed b) {
-    Sk64 tmp;
-
-    tmp.setMul(a, b);
-    return tmp.getSqrt();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -503,11 +298,3 @@ SkFixed SkFixedSinCos(SkFixed radians, SkFixed* cosValuePtr) {
     return sinValue;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-SkFixed SkFixedTan(SkFixed radians) { return SkCordicTan(radians); }
-SkFixed SkFixedASin(SkFixed x) { return SkCordicASin(x); }
-SkFixed SkFixedACos(SkFixed x) { return SkCordicACos(x); }
-SkFixed SkFixedATan2(SkFixed y, SkFixed x) { return SkCordicATan2(y, x); }
-SkFixed SkFixedExp(SkFixed x) { return SkCordicExp(x); }
-SkFixed SkFixedLog(SkFixed x) { return SkCordicLog(x); }

@@ -28,7 +28,7 @@ protected:
 
 private:
     int     fSegments;
-    SkFract fScale;    // computed from fSegments
+    int32_t fScale;    // computed from fSegments
 
     typedef SkUnitMapper INHERITED;
 };

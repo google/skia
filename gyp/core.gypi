@@ -59,8 +59,6 @@
         '<(skia_src_path)/core/SkConfig8888.h',
         '<(skia_src_path)/core/SkConvolver.cpp',
         '<(skia_src_path)/core/SkConvolver.h',
-        '<(skia_src_path)/core/SkCordic.cpp',
-        '<(skia_src_path)/core/SkCordic.h',
         '<(skia_src_path)/core/SkCoreBlitters.h',
         '<(skia_src_path)/core/SkCubicClipper.cpp',
         '<(skia_src_path)/core/SkCubicClipper.h',

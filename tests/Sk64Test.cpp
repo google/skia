@@ -174,28 +174,6 @@ DEF_TEST(Sk64Test, reporter) {
         int32_t ck = (int32_t)sqrt((double)wide.getLongLong());
         int diff = denom - ck;
         REPORTER_ASSERT(reporter, SkAbs32(diff) <= 1);
-
-        wide.setMul(rand.nextS(), rand.nextS());
-        Sk64    dwide;
-        dwide.setMul(rand.nextS(), rand.nextS());
-        SkFixed fixdiv = wide.getFixedDiv(dwide);
-        double dnumer = (double)wide.getLongLong();
-        double ddenom = (double)dwide.getLongLong();
-        double ddiv = dnumer / ddenom;
-        SkFixed dfixdiv;
-        if (ddiv >= (double)SK_MaxS32 / (double)SK_Fixed1)
-            dfixdiv = SK_MaxS32;
-        else if (ddiv <= -(double)SK_MaxS32 / (double)SK_Fixed1)
-            dfixdiv = SK_MinS32;
-        else
-            dfixdiv = SkFloatToFixed(dnumer / ddenom);
-        diff = fixdiv - dfixdiv;
-
-        if (SkAbs32(diff) > 1) {
-            SkDebugf(" %d === numer %g denom %g div %g xdiv %x fxdiv %x\n",
-                     i, dnumer, ddenom, ddiv, dfixdiv, fixdiv);
-        }
-        REPORTER_ASSERT(reporter, SkAbs32(diff) <= 1);
     }
 #endif
 }

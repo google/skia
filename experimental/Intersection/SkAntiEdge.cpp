@@ -7,6 +7,14 @@
 #include "SkAntiEdge.h"
 #include "SkPoint.h"
 
+/** Returns the signed fraction of a SkFixed
+ */
+static inline SkFixed SkFixedFraction(SkFixed x)
+{
+    SkFixed mask = x >> 31 << 16;
+    return (x & 0xFFFF) | mask;
+}
+
 void SkAntiEdge::pointOnLine(SkFixed x, SkFixed y) {
     float x0 = SkFixedToFloat(x);
     float y0 = SkFixedToFloat(y);

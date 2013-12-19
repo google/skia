@@ -1217,11 +1217,11 @@ void dumpMatrix(const SkMatrix& matrix) const {
     SkScalar perspX = matrix.getPerspX();
     if (perspX != defaultMatrix.getPerspX())
         bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
-            "{kPerspX, %g}, ", SkFractToFloat(perspX));
+            "{kPerspX, %g}, ", perspX);
     SkScalar perspY = matrix.getPerspY();
     if (perspY != defaultMatrix.getPerspY())
         bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
-            "{kPerspY, %g}, ", SkFractToFloat(perspY));
+            "{kPerspY, %g}, ", perspY);
     SkDebugf("%s{0}};\n", pBuffer);
 }
 

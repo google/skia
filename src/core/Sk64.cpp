@@ -133,19 +133,14 @@ void Sk64::abs()
     }
 }
 
+#if 0
 SkBool Sk64::isFixed() const
 {
     Sk64 tmp = *this;
     tmp.roundRight(16);
     return tmp.is32();
 }
-
-SkFract Sk64::getFract() const
-{
-    Sk64 tmp = *this;
-    tmp.roundRight(30);
-    return tmp.get32();
-}
+#endif
 
 void Sk64::sub(const Sk64& a)
 {
@@ -298,48 +293,3 @@ int32_t Sk64::getSqrt() const
         return value | fLo;
     }
 #endif
-
-SkFixed Sk64::getFixedDiv(const Sk64& denom) const
-{
-    Sk64    N = *this;
-    Sk64    D = denom;
-    int32_t sign = SkExtractSign(N.fHi ^ D.fHi);
-    SkFixed result;
-
-    N.abs();
-    D.abs();
-
-    // need to knock D down to just 31 bits
-    // either by rounding it to the right, or shifting N to the left
-    // then we can just call 64/32 div
-
-    int nclz = N.fHi ? SkCLZ(N.fHi) : 32;
-    int dclz = D.fHi ? SkCLZ(D.fHi) : (33 - (D.fLo >> 31));
-
-    int shiftN = nclz - 1;
-    SkASSERT(shiftN >= 0);
-    int shiftD = 33 - dclz;
-    SkASSERT(shiftD >= 0);
-
-    if (shiftD + shiftN < 16)
-        shiftD = 16 - shiftN;
-    else
-        shiftN = 16 - shiftD;
-
-    D.roundRight(shiftD);
-    if (D.isZero())
-        result = SK_MaxS32;
-    else
-    {
-        if (shiftN >= 0)
-            N.shiftLeft(shiftN);
-        else
-            N.roundRight(-shiftN);
-        N.div(D.get32(), Sk64::kTrunc_DivOption);
-        if (N.is32())
-            result = N.get32();
-        else
-            result = SK_MaxS32;
-    }
-    return SkApplySign(result, sign);
-}

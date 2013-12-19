@@ -427,7 +427,6 @@ static void test_copysign(skiatest::Reporter* reporter) {
 
 DEF_TEST(Math, reporter) {
     int         i;
-    int32_t     x;
     SkRandom    rand;
 
     // these should assert
@@ -457,30 +456,6 @@ DEF_TEST(Math, reporter) {
     {
         SkScalar x = SK_ScalarNaN;
         REPORTER_ASSERT(reporter, SkScalarIsNaN(x));
-    }
-
-    for (i = 1; i <= 10; i++) {
-        x = SkCubeRootBits(i*i*i, 11);
-        REPORTER_ASSERT(reporter, x == i);
-    }
-
-    x = SkFixedSqrt(SK_Fixed1);
-    REPORTER_ASSERT(reporter, x == SK_Fixed1);
-    x = SkFixedSqrt(SK_Fixed1/4);
-    REPORTER_ASSERT(reporter, x == SK_Fixed1/2);
-    x = SkFixedSqrt(SK_Fixed1*4);
-    REPORTER_ASSERT(reporter, x == SK_Fixed1*2);
-
-    x = SkFractSqrt(SK_Fract1);
-    REPORTER_ASSERT(reporter, x == SK_Fract1);
-    x = SkFractSqrt(SK_Fract1/4);
-    REPORTER_ASSERT(reporter, x == SK_Fract1/2);
-    x = SkFractSqrt(SK_Fract1/16);
-    REPORTER_ASSERT(reporter, x == SK_Fract1/4);
-
-    for (i = 1; i < 100; i++) {
-        x = SkFixedSqrt(SK_Fixed1 * i * i);
-        REPORTER_ASSERT(reporter, x == SK_Fixed1 * i);
     }
 
     for (i = 0; i < 1000; i++) {
@@ -535,17 +510,6 @@ DEF_TEST(Math, reporter) {
         }
         REPORTER_ASSERT(reporter, result == (int32_t)check);
 
-        result = SkFractDiv(numer, denom);
-        check = ((SkLONGLONG)numer << 30) / denom;
-
-        REPORTER_ASSERT(reporter, result != (SkFixed)SK_NaN32);
-        if (check > SK_MaxS32) {
-            check = SK_MaxS32;
-        } else if (check < -SK_MaxS32) {
-            check = SK_MinS32;
-        }
-        REPORTER_ASSERT(reporter, result == (int32_t)check);
-
         // make them <= 2^24, so we don't overflow in fixmul
         numer = numer << 8 >> 8;
         denom = denom << 8 >> 8;
@@ -557,48 +521,8 @@ DEF_TEST(Math, reporter) {
         result = SkFixedMul(numer, numer);
         r2 = SkFixedSquare(numer);
         REPORTER_ASSERT(reporter, result == r2);
-
-        if (numer >= 0 && denom >= 0) {
-            SkFixed mean = SkFixedMean(numer, denom);
-            float prod = SkFixedToFloat(numer) * SkFixedToFloat(denom);
-            float fm = sk_float_sqrt(sk_float_abs(prod));
-            SkFixed mean2 = SkFloatToFixed(fm);
-            int diff = SkAbs32(mean - mean2);
-            REPORTER_ASSERT(reporter, diff <= 1);
-        }
-
-        {
-            SkFixed mod = SkFixedMod(numer, denom);
-            float n = SkFixedToFloat(numer);
-            float d = SkFixedToFloat(denom);
-            float m = sk_float_mod(n, d);
-            // ensure the same sign
-            REPORTER_ASSERT(reporter, mod == 0 || (mod < 0) == (m < 0));
-            int diff = SkAbs32(mod - SkFloatToFixed(m));
-            REPORTER_ASSERT(reporter, (diff >> 7) == 0);
-        }
     }
 #endif
-
-    for (i = 0; i < 10000; i++) {
-        SkFract x = rand.nextU() >> 1;
-        double xx = (double)x / SK_Fract1;
-        SkFract xr = SkFractSqrt(x);
-        SkFract check = SkFloatToFract(sqrt(xx));
-        REPORTER_ASSERT(reporter, xr == check ||
-                                  xr == check-1 ||
-                                  xr == check+1);
-
-        xr = SkFixedSqrt(x);
-        xx = (double)x / SK_Fixed1;
-        check = SkFloatToFixed(sqrt(xx));
-        REPORTER_ASSERT(reporter, xr == check || xr == check-1);
-
-        xr = SkSqrt32(x);
-        xx = (double)x;
-        check = (int32_t)sqrt(xx);
-        REPORTER_ASSERT(reporter, xr == check || xr == check-1);
-    }
 
     test_blend(reporter);
 

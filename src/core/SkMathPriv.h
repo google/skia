@@ -39,16 +39,6 @@ static inline unsigned SkClampUMax(unsigned value, unsigned max) {
     return value;
 }
 
-/** Computes the 64bit product of a * b, and then shifts the answer down by
- shift bits, returning the low 32bits. shift must be [0..63]
- e.g. to perform a fixedmul, call SkMulShift(a, b, 16)
- */
-int32_t SkMulShift(int32_t a, int32_t b, unsigned shift);
-
-/** Return the integer cube root of value, with a bias of bitBias
- */
-int32_t SkCubeRootBits(int32_t value, int bitBias);
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /** Return a*b/255, truncating away any fractional bits. Only valid if both

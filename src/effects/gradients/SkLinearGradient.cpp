@@ -377,6 +377,10 @@ void shadeSpan16_linear_repeat(TileProc proc, SkFixed dx, SkFixed fx,
 }
 }
 
+static bool fixed_nearly_zero(SkFixed x) {
+    return SkAbs32(x) < (SK_Fixed1 >> 12);
+}
+
 void SkLinearGradient::shadeSpan16(int x, int y,
                                   uint16_t* SK_RESTRICT dstC, int count) {
     SkASSERT(count > 0);
@@ -402,7 +406,7 @@ void SkLinearGradient::shadeSpan16(int x, int y,
         }
 
         LinearShade16Proc shadeProc = shadeSpan16_linear_repeat;
-        if (SkFixedNearlyZero(dx)) {
+        if (fixed_nearly_zero(dx)) {
             shadeProc = shadeSpan16_linear_vertical;
         } else if (SkShader::kClamp_TileMode == fTileMode) {
             shadeProc = shadeSpan16_linear_clamp;

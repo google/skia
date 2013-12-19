@@ -20,12 +20,10 @@ public:
 //  void    setShift(int value, int shift) { fPacked = SetShift(value, shift); }
     void    setInt(int value) { fPacked = SetShift(value, 0); }
     void    setFixed(SkFixed value) { fPacked = SetShift(value, -16); }
-    void    setFract(SkFract value) { fPacked = SetShift(value, -30); }
 
 //  int     getShift(int shift) const { return GetShift(fPacked, shift); }
     int     getInt() const { return GetShift(fPacked, 0); }
     SkFixed getFixed() const { return GetShift(fPacked, -16); }
-    SkFract getFract() const { return GetShift(fPacked, -30); }
 
     void    abs() { fPacked = Abs(fPacked); }
     void    negate() { fPacked = Neg(fPacked); }
