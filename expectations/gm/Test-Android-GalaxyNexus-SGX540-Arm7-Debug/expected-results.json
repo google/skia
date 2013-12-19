@@ -5724,13 +5724,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7183890193444585102
+          7219934305765304429
         ]
       ], 
-      "bugs": [
-        1656
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "scaled_tilemodes_npot_msaa4.png": {
       "allowed-digests": [
