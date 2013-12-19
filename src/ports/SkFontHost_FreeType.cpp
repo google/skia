@@ -602,6 +602,9 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
             info->fCapHeight = m_bbox.yMax - m_bbox.yMin;
         } else if (!got_m && got_x) {
             info->fCapHeight = x_bbox.yMax - x_bbox.yMin;
+        } else {
+            // Last resort, use the ascent.
+            info->fCapHeight = info->fAscent;
         }
     }
 
