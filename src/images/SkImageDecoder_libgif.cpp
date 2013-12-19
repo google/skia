@@ -185,6 +185,49 @@ static bool skip_src_rows(GifFileType* gif, uint8_t* dst, int width, int rowsToS
     return true;
 }
 
+/**
+ *  GIFs with fewer then 256 color entries will sometimes index out of
+ *  bounds of the color table (this is malformed, but libgif does not
+ *  check sicne it is rare).  This function checks for this error and
+ *  fixes it.  This makes the output image consistantly deterministic.
+ */
+static void sanitize_indexed_bitmap(SkBitmap* bm) {
+    if ((SkBitmap::kIndex8_Config == bm->config()) && !(bm->empty())) {
+        SkAutoLockPixels alp(*bm);
+        if (NULL != bm->getPixels()) {
+            SkColorTable* ct = bm->getColorTable();  // Index8 must have it.
+            SkASSERT(ct != NULL);
+            uint32_t count = ct->count();
+            SkASSERT(count > 0);
+            SkASSERT(count <= 0x100);
+            if (count != 0x100) {  // Full colortables can't go wrong.
+                // Count is a power of 2; asserted elsewhere.
+                uint8_t byteMask = (~(count - 1));
+                bool warning = false;
+                uint8_t* addr = static_cast<uint8_t*>(bm->getPixels());
+                int height = bm->height();
+                int width = bm->width();
+                size_t rowBytes = bm->rowBytes();
+                while (--height >= 0) {
+                    uint8_t* ptr = addr;
+                    int x = width;
+                    while (--x >= 0) {
+                        if (0 != ((*ptr) & byteMask)) {
+                            warning = true;
+                            *ptr = 0;
+                        }
+                        ++ptr;
+                    }
+                    addr += rowBytes;
+                }
+                if (warning) {
+                    gif_warning(*bm, "Index out of bounds.");
+                }
+            }
+        }
+    }
+}
+
 bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
 #if GIFLIB_MAJOR < 5
     GifFileType* gif = DGifOpen(sk_stream, DecodeCallBackProc);
@@ -289,6 +332,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                 const ColorMapObject* cmap = find_colormap(gif);
                 SkAlphaType alphaType = kOpaque_SkAlphaType;
                 if (cmap != NULL) {
+                    SkASSERT(cmap->ColorCount == (1 << (cmap->BitsPerPixel)));
                     colorCount = cmap->ColorCount;
                     if (colorCount > 256) {
                         colorCount = 256;  // our kIndex8 can't support more
@@ -410,6 +454,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                 SkASSERT(read <= innerHeight);
                 skip_src_rows(gif, scanline, innerWidth, innerHeight - read);
             }
+            sanitize_indexed_bitmap(bm);
             return true;
             } break;
 
@@ -454,6 +499,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
         }
     } while (recType != TERMINATE_RECORD_TYPE);
 
+    sanitize_indexed_bitmap(bm);
     return true;
 }
 
