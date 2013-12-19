@@ -645,7 +645,7 @@ static int lpaint_getStrokeJoin(lua_State* L) {
 }
 
 static int lpaint_getTextEncoding(lua_State* L) {
-    SkLua(L).pushScalar(static_cast<SkScalar>(get_obj<SkPaint>(L, 1)->getTextEncoding()));
+    SkLua(L).pushU32(get_obj<SkPaint>(L, 1)->getTextEncoding());
     return 1;
 }
 
