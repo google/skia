@@ -358,20 +358,20 @@ DEF_TEST(BitmapCopy, reporter) {
 
                 case SkBitmap::kA8_Config:
                 case SkBitmap::kIndex8_Config:
-                    if (safeSize.as64() != 0x2386F26FC10000) {
+                    if (safeSize.as64() != 0x2386F26FC10000LL) {
                         sizeFail = true;
                     }
                     break;
 
                 case SkBitmap::kRGB_565_Config:
                 case SkBitmap::kARGB_4444_Config:
-                    if (safeSize.as64() != 0x470DE4DF820000) {
+                    if (safeSize.as64() != 0x470DE4DF820000LL) {
                         sizeFail = true;
                     }
                     break;
 
                 case SkBitmap::kARGB_8888_Config:
-                    if (safeSize.as64() != 0x8E1BC9BF040000) {
+                    if (safeSize.as64() != 0x8E1BC9BF040000LL) {
                         sizeFail = true;
                     }
                     break;
