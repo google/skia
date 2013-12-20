@@ -1,4 +1,4 @@
-
+﻿
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -216,6 +216,9 @@ private:
     bool getCBoxForLetter(char letter, FT_BBox* bbox);
     // Caller must lock gFTMutex before calling this function.
     void updateGlyphIfLCD(SkGlyph* glyph);
+    // Caller must lock gFTMutex before calling this function.
+    // update FreeType2 glyph slot with glyph emboldened
+    void emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph);
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1139,10 +1142,7 @@ bool SkScalerContext_FreeType::getCBoxForLetter(char letter, FT_BBox* bbox) {
         return false;
     if (FT_Load_Glyph(fFace, glyph_id, fLoadGlyphFlags) != 0)
         return false;
-    if ((fRec.fFlags & kEmbolden_Flag) &&
-        !(fFace->style_flags & FT_STYLE_FLAG_BOLD)) {
-        emboldenOutline(fFace, &fFace->glyph->outline);
-    }
+    emboldenIfNeeded(fFace, fFace->glyph);
     FT_Outline_Get_CBox(&fFace->glyph->outline, bbox);
     return true;
 }
@@ -1192,6 +1192,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         glyph->zeroMetrics();
         return;
     }
+    emboldenIfNeeded(fFace, fFace->glyph);
 
     switch ( fFace->glyph->format ) {
       case FT_GLYPH_FORMAT_OUTLINE:
@@ -1201,10 +1202,6 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
             glyph->fTop = 0;
             glyph->fLeft = 0;
         } else {
-            if (fRec.fFlags & kEmbolden_Flag && !(fFace->style_flags & FT_STYLE_FLAG_BOLD)) {
-                emboldenOutline(fFace, &fFace->glyph->outline);
-            }
-
             FT_BBox bbox;
             getBBoxForCurrentGlyph(glyph, &bbox, true);
 
@@ -1218,11 +1215,6 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         break;
 
       case FT_GLYPH_FORMAT_BITMAP:
-        if (fRec.fFlags & kEmbolden_Flag) {
-            FT_GlyphSlot_Own_Bitmap(fFace->glyph);
-            FT_Bitmap_Embolden(gFTLibrary, &fFace->glyph->bitmap, kBitmapEmboldenStrength, 0);
-        }
-
         if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
             FT_Vector vector;
             vector.x = fFace->glyph->metrics.vertBearingX - fFace->glyph->metrics.horiBearingX;
@@ -1301,6 +1293,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
         return;
     }
 
+    emboldenIfNeeded(fFace, fFace->glyph);
     generateGlyphImage(fFace, glyph);
 }
 
@@ -1328,6 +1321,7 @@ void SkScalerContext_FreeType::generatePath(const SkGlyph& glyph,
         path->reset();
         return;
     }
+    emboldenIfNeeded(fFace, fFace->glyph);
 
     generateGlyphPath(fFace, path);
 
@@ -1466,6 +1460,25 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         my->fXMax = xmax;
         my->fXHeight = x_height;
         my->fCapHeight = cap_height;
+    }
+}
+
+void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph)
+{
+    if (fRec.fFlags & SkScalerContext::kEmbolden_Flag) {
+        switch ( glyph->format ) {
+            case FT_GLYPH_FORMAT_OUTLINE:
+                FT_Pos strength;
+                strength = FT_MulFix(face->units_per_EM, face->size->metrics.y_scale) / 24;
+                FT_Outline_Embolden(&glyph->outline, strength);
+                break;
+            case FT_GLYPH_FORMAT_BITMAP:
+                FT_GlyphSlot_Own_Bitmap(glyph);
+                FT_Bitmap_Embolden(glyph->library, &glyph->bitmap, kBitmapEmboldenStrength, 0);
+                break;
+            default:
+                SkDEBUGFAIL("unknown glyph format");
+        }
     }
 }
 
