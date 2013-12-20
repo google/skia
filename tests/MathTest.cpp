@@ -188,28 +188,6 @@ static void test_blend(skiatest::Reporter* reporter) {
     }
 }
 
-#if defined(SkLONGLONG)
-static int symmetric_fixmul(int a, int b) {
-    int sa = SkExtractSign(a);
-    int sb = SkExtractSign(b);
-
-    a = SkApplySign(a, sa);
-    b = SkApplySign(b, sb);
-
-#if 1
-    int c = (int)(((SkLONGLONG)a * b) >> 16);
-
-    return SkApplySign(c, sa ^ sb);
-#else
-    SkLONGLONG ab = (SkLONGLONG)a * b;
-    if (sa ^ sb) {
-        ab = -ab;
-    }
-    return ab >> 16;
-#endif
-}
-#endif
-
 static void check_length(skiatest::Reporter* reporter,
                          const SkPoint& p, SkScalar targetLen) {
     float x = SkScalarToFloat(p.fX);
@@ -492,12 +470,11 @@ DEF_TEST(Math, reporter) {
     unittest_fastfloat(reporter);
     unittest_isfinite(reporter);
 
-#ifdef SkLONGLONG
     for (i = 0; i < 10000; i++) {
         SkFixed numer = rand.nextS();
         SkFixed denom = rand.nextS();
         SkFixed result = SkFixedDiv(numer, denom);
-        SkLONGLONG check = ((SkLONGLONG)numer << 16) / denom;
+        int64_t check = ((int64_t)numer << 16) / denom;
 
         (void)SkCLZ(numer);
         (void)SkCLZ(denom);
@@ -509,20 +486,7 @@ DEF_TEST(Math, reporter) {
             check = SK_MinS32;
         }
         REPORTER_ASSERT(reporter, result == (int32_t)check);
-
-        // make them <= 2^24, so we don't overflow in fixmul
-        numer = numer << 8 >> 8;
-        denom = denom << 8 >> 8;
-
-        result = SkFixedMul(numer, denom);
-        SkFixed r2 = symmetric_fixmul(numer, denom);
-        //        SkASSERT(result == r2);
-
-        result = SkFixedMul(numer, numer);
-        r2 = SkFixedSquare(numer);
-        REPORTER_ASSERT(reporter, result == r2);
     }
-#endif
 
     test_blend(reporter);
 

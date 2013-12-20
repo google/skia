@@ -86,17 +86,6 @@ typedef int32_t             SkFixed;
 #define SkFixedAve(a, b)    (((a) + (b)) >> 1)
 
 SkFixed SkFixedMul_portable(SkFixed, SkFixed);
-inline SkFixed SkFixedSquare_portable(SkFixed value)
-{
-    uint32_t a = SkAbs32(value);
-    uint32_t ah = a >> 16;
-    uint32_t al = a & 0xFFFF;
-    SkFixed result = ah * a + al * ah + (al * al >> 16);
-    if (result >= 0)
-        return result;
-    else // Overflow.
-        return SK_FixedMax;
-}
 
 #define SkFixedDiv(numer, denom)    SkDivBits(numer, denom, 16)
 
@@ -118,14 +107,9 @@ static inline SkFixed SkFixedCos(SkFixed radians) {
 #ifdef SkLONGLONG
     inline SkFixed SkFixedMul_longlong(SkFixed a, SkFixed b)
     {
-        return (SkFixed)((SkLONGLONG)a * b >> 16);
-    }
-    inline SkFixed SkFixedSquare_longlong(SkFixed value)
-    {
-        return (SkFixed)((SkLONGLONG)value * value >> 16);
+        return (SkFixed)((int64_t)a * b >> 16);
     }
     #define SkFixedMul(a,b)     SkFixedMul_longlong(a,b)
-    #define SkFixedSquare(a)    SkFixedSquare_longlong(a)
 #endif
 
 #if defined(SK_CPU_ARM)

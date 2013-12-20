@@ -55,7 +55,7 @@ int32_t SkMulDiv(int32_t numer1, int32_t numer2, int32_t denom) {
 
 SkFixed SkFixedMul_portable(SkFixed a, SkFixed b) {
 #if defined(SkLONGLONG)
-    return static_cast<SkFixed>((SkLONGLONG)a * b >> 16);
+    return static_cast<SkFixed>((int64_t)a * b >> 16);
 #else
     int sa = SkExtractSign(a);
     int sb = SkExtractSign(b);
