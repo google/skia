@@ -391,7 +391,7 @@ void GrDistanceFieldTextContext::drawPosText(const char text[], size_t byteLengt
             if (glyph.fWidth) {
                 SkScalar x = pos[0];
                 SkScalar y = scalarsPerPosition == 1 ? constY : pos[1];
-                
+
                 this->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
                                                     glyph.getSubYFixed()),
@@ -405,4 +405,3 @@ void GrDistanceFieldTextContext::drawPosText(const char text[], size_t byteLengt
         }
     }
 }
-

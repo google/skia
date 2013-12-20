@@ -297,4 +297,3 @@ SkFixed SkFixedSinCos(SkFixed radians, SkFixed* cosValuePtr) {
     }
     return sinValue;
 }
-

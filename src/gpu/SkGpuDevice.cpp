@@ -1821,7 +1821,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
         SkAutoGlyphCache    autoCache(context.getSkPaint(), &this->fLeakyProperties, NULL);
         SkGlyphCache*       cache = autoCache.getCache();
         GrFontScaler*       fontScaler = get_gr_font_scaler(cache);
-        
+
         context.drawPosText((const char *)text, byteLength, pos, constY, scalarsPerPos,
                             cache, fontScaler);
 #endif
