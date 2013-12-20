@@ -39,6 +39,7 @@ protected:
 
     void generateGlyphImage(FT_Face face, const SkGlyph& glyph);
     void generateGlyphPath(FT_Face face, SkPath* path);
+    void emboldenOutline(FT_Face face, FT_Outline* outline);
 
 private:
     typedef SkScalerContext INHERITED;

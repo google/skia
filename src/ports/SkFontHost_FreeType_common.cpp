@@ -344,6 +344,11 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face, const SkGly
             FT_BBox     bbox;
             FT_Bitmap   target;
 
+            if (fRec.fFlags & SkScalerContext::kEmbolden_Flag &&
+                !(face->style_flags & FT_STYLE_FLAG_BOLD)) {
+                emboldenOutline(face, outline);
+            }
+
             int dx = 0, dy = 0;
             if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
                 dx = SkFixedToFDot6(glyph.getSubXFixed());
@@ -542,6 +547,10 @@ static int cubic_proc(const FT_Vector* pt0, const FT_Vector* pt1,
 void SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face,
                                                       SkPath* path)
 {
+    if (fRec.fFlags & SkScalerContext::kEmbolden_Flag) {
+        emboldenOutline(face, &face->glyph->outline);
+    }
+
     FT_Outline_Funcs    funcs;
 
     funcs.move_to   = move_proc;
@@ -559,4 +568,12 @@ void SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face,
     }
 
     path->close();
+}
+
+void SkScalerContext_FreeType_Base::emboldenOutline(FT_Face face, FT_Outline* outline)
+{
+    FT_Pos strength;
+    strength = FT_MulFix(face->units_per_EM, face->size->metrics.y_scale)
+               / 24;
+    FT_Outline_Embolden(outline, strength);
 }
