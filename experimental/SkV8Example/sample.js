@@ -13,8 +13,7 @@ var onDraw = function(){
 
 function onTimeout() {
   inval();
-  print("Got a timeout!");
-  setTimeout(onTimeout, 33);
+  print(setTimeout(onTimeout, 33));
 }
 
 setTimeout(onTimeout, 33);

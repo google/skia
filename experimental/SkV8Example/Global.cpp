@@ -19,6 +19,16 @@ static const char* to_cstring(const v8::String::Utf8Value& value) {
     return *value ? *value : "<string conversion failed>";
 }
 
+int32_t Global::getNextTimerID() {
+    do {
+        fLastTimerID++;
+        if (fLastTimerID < 0) {
+            fLastTimerID = 0;
+        }
+    } while (fTimeouts.find(fLastTimerID) != fTimeouts.end());
+    return fLastTimerID;
+}
+
 // Slight modification to an original function found in the V8 sample shell.cc.
 void Global::reportException(TryCatch* tryCatch) {
     HandleScope handleScope(fIsolate);
@@ -91,9 +101,6 @@ void Global::Print(const v8::FunctionCallbackInfo<v8::Value>& args) {
 // function is called.
 //
 // JS: setTimeout(on_timeout, 500);
-//
-// TODO(jcgregorio) Currently only handles one timeout, should support any
-// number.
 void Global::SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& args) {
     if (args.Length() != 2) {
         args.GetIsolate()->ThrowException(
@@ -108,14 +115,19 @@ void Global::SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& args) {
         return;
     }
     Handle<Function> timeoutFn = Handle<Function>::Cast(args[0]);
-    gGlobal->fTimeout.Reset(args.GetIsolate(), timeoutFn);
 
     double delay = args[1]->NumberValue();
+    int32_t id = gGlobal->getNextTimerID();
+
+    gGlobal->fTimeouts[id].Reset(gGlobal->fIsolate, timeoutFn);
 
     // Create an SkEvent and add it with the right delay.
-    (new SkEvent())->setTargetProc(Global::TimeOutProc)->postDelay(delay);
+    SkEvent* evt = new SkEvent();
+    evt->setTargetProc(Global::TimeOutProc);
+    evt->setFast32(id);
+    evt->postDelay(delay);
 
-    // TODO(jcgregorio) Return the ID as the return value.
+    args.GetReturnValue().Set(Integer::New(id));
 }
 
 // Callback function for SkEvents used to implement timeouts.
@@ -132,10 +144,17 @@ bool Global::TimeOutProc(const SkEvent& evt) {
     // Set up an exception handler before calling the Process function.
     TryCatch tryCatch;
 
+    int32_t id = evt.getFast32();
+    if (gGlobal->fTimeouts.find(gGlobal->fLastTimerID) == gGlobal->fTimeouts.end()) {
+        printf("Not a valid timer ID.\n");
+        return true;
+    }
+
     const int argc = 0;
     Local<Function> onTimeout =
-            Local<Function>::New(gGlobal->getIsolate(), gGlobal->fTimeout);
+            Local<Function>::New(gGlobal->getIsolate(), gGlobal->fTimeouts[id]);
     Handle<Value> result = onTimeout->Call(context->Global(), argc, NULL);
+    gGlobal->fTimeouts.erase(id);
 
     // Handle any exceptions or output.
     if (result.IsEmpty()) {
@@ -214,16 +233,6 @@ bool Global::parseScript(const char script[]) {
         // Print errors that happened during execution.
         this->reportException(&tryCatch);
         return false;
-    } else {
-        SkASSERT(!tryCatch.HasCaught());
-        if (!result->IsUndefined()) {
-            // If all went well and the result wasn't undefined then print
-            // the returned value.
-            String::Utf8Value str(result);
-            const char* cstr = to_cstring(str);
-            printf("%s\n", cstr);
-            return false;
-        }
     }
 
     // Also make the context persistent.

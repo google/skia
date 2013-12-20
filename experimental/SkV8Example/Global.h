@@ -10,6 +10,8 @@
 #ifndef SkV8Example_Global_DEFINED
 #define SkV8Example_Global_DEFINED
 
+#include <map>
+
 #include <v8.h>
 
 using namespace v8;
@@ -19,6 +21,8 @@ using namespace v8;
 
 class SkOSWindow;
 
+typedef Persistent<Function, CopyablePersistentTraits<Function> > CopyablePersistentFn;
+
 // Provides the global isolate and context for our V8 instance.
 // Also implements all the global level functions.
 class Global : SkNoncopyable  {
@@ -26,6 +30,7 @@ public:
     Global(Isolate* isolate)
         : fIsolate(isolate)
         , fWindow(NULL)
+        , fLastTimerID(0)
     {
         gGlobal = this;
     }
@@ -53,6 +58,7 @@ public:
 
 private:
     Handle<Context> createRootContext();
+    int32_t getNextTimerID();
 
     static bool TimeOutProc(const SkEvent& evt);
 
@@ -67,8 +73,11 @@ private:
     SkOSWindow*         fWindow;
     static Global*      gGlobal;
 
-    // Handle to the function to call when the timeout triggers.
-    Persistent<Function> fTimeout;
+    // Handle to the functions to call when a timeout triggers as indexed by id.
+    std::map<int32_t, CopyablePersistentFn > fTimeouts;
+
+    // Last timer ID generated.
+    int32_t fLastTimerID;
 };
 
 #endif

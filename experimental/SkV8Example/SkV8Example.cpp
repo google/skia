@@ -310,6 +310,7 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     }
 
     if (!global->parseScript(script)) {
+        printf("Failed to parse file: %s.\n", FLAGS_infile[0]);
         exit(1);
     }
 
