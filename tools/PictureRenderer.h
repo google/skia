@@ -234,6 +234,9 @@ public:
         if (!fViewport.isEmpty()) {
             config.appendf("_viewport_%ix%i", fViewport.width(), fViewport.height());
         }
+        if (fScaleFactor != SK_Scalar1) {
+            config.appendf("_scalar_%f", SkScalarToFloat(fScaleFactor));
+        }
         if (kRTree_BBoxHierarchyType == fBBoxHierarchyType) {
             config.append("_rtree");
         } else if (kTileGrid_BBoxHierarchyType == fBBoxHierarchyType) {
