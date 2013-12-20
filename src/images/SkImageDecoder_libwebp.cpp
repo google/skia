@@ -173,7 +173,13 @@ static WEBP_CSP_MODE webp_decode_mode(const SkBitmap* decodedBitmap, bool premul
     SkBitmap::Config config = decodedBitmap->config();
 
     if (config == SkBitmap::kARGB_8888_Config) {
-        mode = premultiply ? MODE_rgbA : MODE_RGBA;
+        #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
+            mode = premultiply ? MODE_bgrA : MODE_BGRA;
+        #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
+            mode = premultiply ? MODE_rgbA : MODE_RGBA;
+        #else
+            #error "Skia uses BGRA or RGBA byte order"
+        #endif
     } else if (config == SkBitmap::kARGB_4444_Config) {
         mode = premultiply ? MODE_rgbA_4444 : MODE_RGBA_4444;
     } else if (config == SkBitmap::kRGB_565_Config) {
