@@ -284,4 +284,3 @@ int32_t Sk64::getSqrt() const
 
     return root;
 }
-
