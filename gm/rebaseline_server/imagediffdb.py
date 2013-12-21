@@ -20,9 +20,9 @@ except ImportError:
   raise ImportError('Requires PIL to be installed; see '
                     + 'http://www.pythonware.com/products/pil/')
 
-IMAGE_SUFFIX = '.png'
+DEFAULT_IMAGE_SUFFIX = '.png'
+DEFAULT_IMAGES_SUBDIR = 'images'
 
-IMAGES_SUBDIR = 'images'
 DIFFS_SUBDIR = 'diffs'
 WHITEDIFFS_SUBDIR = 'whitediffs'
 
@@ -34,7 +34,10 @@ class DiffRecord(object):
 
   def __init__(self, storage_root,
                expected_image_url, expected_image_locator,
-               actual_image_url, actual_image_locator):
+               actual_image_url, actual_image_locator,
+               expected_images_subdir=DEFAULT_IMAGES_SUBDIR,
+               actual_images_subdir=DEFAULT_IMAGES_SUBDIR,
+               image_suffix=DEFAULT_IMAGE_SUFFIX):
     """Download this pair of images (unless we already have them on local disk),
     and prepare a DiffRecord for them.
 
@@ -54,15 +57,21 @@ class DiffRecord(object):
       actual_image_locator: a unique ID string under which we will store the
           actual image within storage_root (probably including a checksum to
           guarantee uniqueness)
+      expected_images_subdir: the subdirectory expected images are stored in.
+      actual_images_subdir: the subdirectory actual images are stored in.
+      image_suffix: the suffix of images.
     """
     # Download the expected/actual images, if we don't have them already.
+    # TODO(rmistry): Add a parameter that makes _download_and_open_image raise
+    # an exception if images are not found locally (instead of trying to
+    # download them).
     expected_image = _download_and_open_image(
-        os.path.join(storage_root, IMAGES_SUBDIR,
-                     str(expected_image_locator) + IMAGE_SUFFIX),
+        os.path.join(storage_root, expected_images_subdir,
+                     str(expected_image_locator) + image_suffix),
         expected_image_url)
     actual_image = _download_and_open_image(
-        os.path.join(storage_root, IMAGES_SUBDIR,
-                     str(actual_image_locator) + IMAGE_SUFFIX),
+        os.path.join(storage_root, actual_images_subdir,
+                     str(actual_image_locator) + image_suffix),
         actual_image_url)
 
     # Generate the diff image (absolute diff at each pixel) and
@@ -92,7 +101,7 @@ class DiffRecord(object):
     diff_image_locator = _get_difference_locator(
         expected_image_locator=expected_image_locator,
         actual_image_locator=actual_image_locator)
-    basename = str(diff_image_locator) + IMAGE_SUFFIX
+    basename = str(diff_image_locator) + image_suffix
     _save_image(diff_image, os.path.join(
         storage_root, DIFFS_SUBDIR, basename))
     _save_image(whitediff_image, os.path.join(
