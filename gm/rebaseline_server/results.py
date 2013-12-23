@@ -10,6 +10,7 @@ Repackage expected/actual GM results as needed by our HTML rebaseline viewer.
 """
 
 # System-level imports
+import argparse
 import fnmatch
 import json
 import logging
@@ -25,7 +26,8 @@ import time
 # written out by the GM tool.
 # Make sure that the 'gm' dir is in the PYTHONPATH, but add it at the *end*
 # so any dirs that are already in the PYTHONPATH will be preferred.
-GM_DIRECTORY = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+PARENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+GM_DIRECTORY = os.path.dirname(PARENT_DIRECTORY)
 if GM_DIRECTORY not in sys.path:
   sys.path.append(GM_DIRECTORY)
 import gm_json
@@ -496,3 +498,31 @@ class Results(object):
     for category_value in category_values:
       if not category_dict[category_name].get(category_value):
         category_dict[category_name][category_value] = 0
+
+
+def main():
+  logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+                      datefmt='%m/%d/%Y %H:%M:%S',
+                      level=logging.INFO)
+  parser = argparse.ArgumentParser()
+  parser.add_argument(
+      '--actuals', required=True,
+      help='Directory containing all actual-result JSON files')
+  parser.add_argument(
+      '--expectations', required=True,
+      help='Directory containing all expected-result JSON files')
+  parser.add_argument(
+      '--outfile', required=True,
+      help='File to write result summary into, in JSON format')
+  parser.add_argument(
+      '--workdir', default='.workdir',
+      help='Directory within which to download images and generate diffs')
+  args = parser.parse_args()
+  results = Results(actuals_root=args.actuals,
+                    expected_root=args.expectations,
+                    generated_images_root=args.workdir)
+  gm_json.WriteToFile(results.get_results_of_type(RESULTS_ALL), args.outfile)
+
+
+if __name__ == '__main__':
+  main()
