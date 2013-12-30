@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
+#include "SkRandom.h"
 
 static SkShader* make_shader(int w, int h) {
     const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
@@ -103,6 +104,10 @@ protected:
         }
     }
 
+    virtual uint32_t onGetFlags() const {
+        return 0;//kSkipPipe_Flag | kSkipPicture_Flag;
+    }
+    
 private:
     typedef skiagm::GM INHERITED;
 };
