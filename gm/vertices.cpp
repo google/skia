@@ -83,7 +83,7 @@ protected:
             SkXfermode::kDst_Mode,
             SkXfermode::kModulate_Mode,
         };
-    
+
         SkPaint paint;
         paint.setShader(fShader);
 
@@ -107,7 +107,7 @@ protected:
     virtual uint32_t onGetFlags() const {
         return kSkipPipe_Flag | kSkipPicture_Flag;
     }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };
