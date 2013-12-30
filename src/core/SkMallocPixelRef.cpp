@@ -64,12 +64,13 @@ SkMallocPixelRef* SkMallocPixelRef::NewAllocate(const SkImageInfo& info,
         rowBytes = minRB;
     }
 
-    int64_t bigSize = (int64_t)info.fHeight * rowBytes;
-    if (!sk_64_isS32(bigSize)) {
+    Sk64 bigSize;
+    bigSize.setMul(info.fHeight, rowBytes);
+    if (!bigSize.is32()) {
         return NULL;
     }
 
-    size_t size = sk_64_asS32(bigSize);
+    size_t size = bigSize.get32();
     void* addr = sk_malloc_flags(size, 0);
     if (NULL == addr) {
         return NULL;

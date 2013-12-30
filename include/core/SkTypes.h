@@ -1,9 +1,11 @@
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 
 #ifndef SkTypes_DEFINED
 #define SkTypes_DEFINED
@@ -12,8 +14,6 @@
 #include "SkUserConfig.h"
 #include "SkPostConfig.h"
 #include <stdint.h>
-
-//#define SK_SUPPORT_LEGACY_SK64
 
 /** \file SkTypes.h
 */

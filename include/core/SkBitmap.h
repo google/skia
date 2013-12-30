@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -5,18 +6,16 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef SkBitmap_DEFINED
 #define SkBitmap_DEFINED
 
+#include "Sk64.h"
 #include "SkColor.h"
 #include "SkColorTable.h"
 #include "SkImageInfo.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
-
-#ifdef SK_SUPPORT_LEGACY_SK64
-    #include "Sk64.h"
-#endif
 
 struct SkIRect;
 struct SkRect;
@@ -150,37 +149,19 @@ public:
     */
     size_t getSafeSize() const ;
 
-    /**
-     *  Return the full size of the bitmap, in bytes.
-     */
-    int64_t computeSize64() const {
-        return sk_64_mul(fHeight, fRowBytes);
-    }
-
-    /**
-     *  Return the number of bytes from the pointer returned by getPixels()
-     *  to the end of the allocated space in the buffer. This may be smaller
-     *  than computeSize64() if there is any rowbytes padding beyond the width.
-     */
-    int64_t computeSafeSize64() const {
-        return ComputeSafeSize64((Config)fConfig, fWidth, fHeight, fRowBytes);
-    }
-
-#ifdef SK_SUPPORT_LEGACY_SK64
-    SK_ATTR_DEPRECATED("use getSize64()")
+    /** Return the byte size of the pixels, based on the height and rowBytes.
+        This routine is slightly slower than getSize(), but does not truncate
+        the answer to 32bits.
+    */
     Sk64 getSize64() const {
         Sk64 size;
-        size.set64(this->computeSize64());
+        size.setMul(fHeight, fRowBytes);
         return size;
     }
 
-    SK_ATTR_DEPRECATED("use getSafeSize64()")
-    Sk64 getSafeSize64() const {
-        Sk64 size;
-        size.set64(this->computeSafeSize64());
-        return size;
-    }
-#endif
+    /** Same as getSafeSize(), but does not truncate the answer to 32bits.
+    */
+    Sk64 getSafeSize64() const ;
 
     /** Returns true if this bitmap is marked as immutable, meaning that the
         contents of its pixels will not change for the lifetime of the bitmap.
@@ -236,7 +217,7 @@ public:
         return ComputeBytesPerPixel(c) >> 1;
     }
 
-    static int64_t ComputeSize64(Config, int width, int height);
+    static Sk64 ComputeSize64(Config, int width, int height);
     static size_t ComputeSize(Config, int width, int height);
 
     /**
@@ -697,10 +678,10 @@ private:
 
     /* Internal computations for safe size.
     */
-    static int64_t ComputeSafeSize64(Config   config,
-                                     uint32_t width,
-                                     uint32_t height,
-                                     size_t   rowBytes);
+    static Sk64 ComputeSafeSize64(Config   config,
+                                  uint32_t width,
+                                  uint32_t height,
+                                  size_t   rowBytes);
     static size_t ComputeSafeSize(Config   config,
                                   uint32_t width,
                                   uint32_t height,

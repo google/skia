@@ -24,6 +24,10 @@
 #include "SkPackBits.h"
 #include <new>
 
+static bool isPos32Bits(const Sk64& value) {
+    return !value.isNeg() && value.is32();
+}
+
 struct MipLevel {
     void*       fPixels;
     uint32_t    fRowBytes;
@@ -40,12 +44,14 @@ struct SkBitmap::MipMap : SkNoncopyable {
         if (levelCount < 0) {
             return NULL;
         }
-        int64_t size = (levelCount + 1) * sizeof(MipLevel);
-        size += sizeof(MipMap) + pixelSize;
-        if (!sk_64_isS32(size)) {
+        Sk64 size;
+        size.setMul(levelCount + 1, sizeof(MipLevel));
+        size.add(sizeof(MipMap));
+        size.add(SkToS32(pixelSize));
+        if (!isPos32Bits(size)) {
             return NULL;
         }
-        MipMap* mm = (MipMap*)sk_malloc_throw(sk_64_asS32(size));
+        MipMap* mm = (MipMap*)sk_malloc_throw(size.get32());
         mm->fRefCnt = 1;
         mm->fLevelCount = levelCount;
         return mm;
@@ -179,49 +185,58 @@ size_t SkBitmap::ComputeRowBytes(Config c, int width) {
         return 0;
     }
 
-    int64_t rowBytes = 0;
+    Sk64 rowBytes;
+    rowBytes.setZero();
 
     switch (c) {
         case kNo_Config:
             break;
         case kA8_Config:
         case kIndex8_Config:
-            rowBytes = width;
+            rowBytes.set(width);
             break;
         case kRGB_565_Config:
         case kARGB_4444_Config:
-            rowBytes = width << 1;
+            rowBytes.set(width);
+            rowBytes.shiftLeft(1);
             break;
         case kARGB_8888_Config:
-            rowBytes = width << 2;
+            rowBytes.set(width);
+            rowBytes.shiftLeft(2);
             break;
         default:
             SkDEBUGFAIL("unknown config");
             break;
     }
-    return sk_64_isS32(rowBytes) ? sk_64_asS32(rowBytes) : 0;
+    return isPos32Bits(rowBytes) ? rowBytes.get32() : 0;
 }
 
-int64_t SkBitmap::ComputeSize64(Config config, int width, int height) {
-    int64_t rowBytes = sk_64_mul(ComputeBytesPerPixel(config), width);
-    return rowBytes * height;
+Sk64 SkBitmap::ComputeSize64(Config c, int width, int height) {
+    Sk64 size;
+    size.setMul(SkToS32(SkBitmap::ComputeRowBytes(c, width)), height);
+    return size;
 }
 
 size_t SkBitmap::ComputeSize(Config c, int width, int height) {
-    int64_t size = SkBitmap::ComputeSize64(c, width, height);
-    return sk_64_isS32(size) ? sk_64_asS32(size) : 0;
+    Sk64 size = SkBitmap::ComputeSize64(c, width, height);
+    return isPos32Bits(size) ? size.get32() : 0;
 }
 
-int64_t SkBitmap::ComputeSafeSize64(Config config,
-                                    uint32_t width,
-                                    uint32_t height,
-                                    size_t rowBytes) {
-    int64_t safeSize = 0;
+Sk64 SkBitmap::ComputeSafeSize64(Config config,
+                                 uint32_t width,
+                                 uint32_t height,
+                                 size_t rowBytes) {
+    Sk64 safeSize;
+    safeSize.setZero();
     if (height > 0) {
-        int64_t lastRow = sk_64_mul(ComputeBytesPerPixel(config), width);
-        safeSize = sk_64_mul(height - 1, rowBytes) + lastRow;
+        // TODO: Handle the case where the return value from
+        // ComputeRowBytes is more than 31 bits.
+        safeSize.set(SkToS32(ComputeRowBytes(config, width)));
+        Sk64 sizeAllButLastRow;
+        sizeAllButLastRow.setMul(height - 1, SkToS32(rowBytes));
+        safeSize.add(sizeAllButLastRow);
     }
-    SkASSERT(safeSize >= 0);
+    SkASSERT(!safeSize.isNeg());
     return safeSize;
 }
 
@@ -229,13 +244,8 @@ size_t SkBitmap::ComputeSafeSize(Config config,
                                  uint32_t width,
                                  uint32_t height,
                                  size_t rowBytes) {
-    int64_t safeSize = ComputeSafeSize64(config, width, height, rowBytes);
-    int32_t safeSize32 = (int32_t)safeSize;
-    
-    if (safeSize32 != safeSize) {
-        safeSize32 = 0;
-    }
-    return safeSize32;
+    Sk64 safeSize = ComputeSafeSize64(config, width, height, rowBytes);
+    return (safeSize.is32() ? safeSize.get32() : 0);
 }
 
 void SkBitmap::getBounds(SkRect* bounds) const {
@@ -546,6 +556,10 @@ size_t SkBitmap::getSafeSize() const {
     // faster. The computation is meant to be identical.
     return (fHeight ? ((fHeight - 1) * fRowBytes) +
             ComputeRowBytes(this->config(), fWidth): 0);
+}
+
+Sk64 SkBitmap::getSafeSize64() const {
+    return ComputeSafeSize64(this->config(), fWidth, fHeight, fRowBytes);
 }
 
 bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,

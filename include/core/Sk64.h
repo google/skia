@@ -1,9 +1,11 @@
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 
 #ifndef Sk64_DEFINED
 #define Sk64_DEFINED
@@ -25,11 +27,6 @@ public:
 
     int64_t as64() const { return ((int64_t)fHi << 32) | fLo; }
     int64_t getLongLong() const { return this->as64(); }
-
-    void set64(int64_t value) {
-        fHi = (int32_t)(value >> 32);
-        fLo = (uint32_t)value;
-    }
 
     /** Returns non-zero if the Sk64 can be represented as a signed 32 bit integer
     */

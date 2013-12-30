@@ -80,12 +80,13 @@ static bool webp_parse_header(SkStream* stream, int* width, int* height, int* al
 
     // sanity check for image size that's about to be decoded.
     {
-        int64_t size = sk_64_mul(*width, *height);
-        if (!sk_64_isS32(size)) {
+        Sk64 size;
+        size.setMul(*width, *height);
+        if (size.isNeg() || !size.is32()) {
             return false;
         }
         // now check that if we are 4-bytes per pixel, we also don't overflow
-        if (sk_64_asS32(size) > (0x7FFFFFFF >> 2)) {
+        if (size.get32() > (0x7FFFFFFF >> 2)) {
             return false;
         }
     }

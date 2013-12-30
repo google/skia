@@ -10,11 +10,8 @@
 #ifndef SkRandom_DEFINED
 #define SkRandom_DEFINED
 
+#include "Sk64.h"
 #include "SkScalar.h"
-
-#ifdef SK_SUPPORT_LEGACY_SK64
-    #include "Sk64.h"
-#endif
 
 /** \class SkLCGRandom
 
@@ -126,21 +123,13 @@ public:
         return this->nextUScalar1() <= fractionTrue;
     }
 
-    /**
-     *  Return the next pseudo random number as a signed 64bit value.
-     */
-    int64_t next64() {
-        int64_t hi = this->nextS();
-        return (hi << 32) | this->nextU();
-    }
-
-#ifdef SK_SUPPORT_LEGACY_SK64
-    SK_ATTR_DEPRECATED("use next64()")
+    /** Return the next pseudo random number as a signed 64bit value.
+    */
     void next64(Sk64* a) {
         SkASSERT(a);
         a->set(this->nextS(), this->nextU());
     }
-#endif
+
     /**
      *  Return the current seed. This allows the caller to later reset to the
      *  same seed (using setSeed) so it can generate the same sequence.
@@ -287,21 +276,12 @@ public:
         return this->nextUScalar1() <= fractionTrue;
     }
 
-    /**
-     *  Return the next pseudo random number as a signed 64bit value.
+    /** Return the next pseudo random number as a signed 64bit value.
      */
-    int64_t next64() {
-        int64_t hi = this->nextS();
-        return (hi << 32) | this->nextU();
-    }
-    
-#ifdef SK_SUPPORT_LEGACY_SK64
-    SK_ATTR_DEPRECATED("use next64()")
     void next64(Sk64* a) {
         SkASSERT(a);
         a->set(this->nextS(), this->nextU());
     }
-#endif
 
     /** Reset the random object.
      */
