@@ -1025,6 +1025,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                                       matrix, paint);
             } break;
             case DRAW_VERTICES: {
+                SkAutoTUnref<SkXfermode> xfer;
                 const SkPaint& paint = *getPaint(reader);
                 DrawVertexFlags flags = (DrawVertexFlags)reader.readInt();
                 SkCanvas::VertexMode vmode = (SkCanvas::VertexMode)reader.readInt();
@@ -1048,7 +1049,14 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                     indices = (const uint16_t*)reader.skip(
                                                     iCount * sizeof(uint16_t));
                 }
-                canvas.drawVertices(vmode, vCount, verts, texs, colors, NULL,
+                if (flags & DRAW_VERTICES_HAS_XFER) {
+                    int mode = reader.readInt();
+                    if (mode < 0 || mode > SkXfermode::kLastMode) {
+                        mode = SkXfermode::kModulate_Mode;
+                    }
+                    xfer.reset(SkXfermode::Create((SkXfermode::Mode)mode));
+                }
+                canvas.drawVertices(vmode, vCount, verts, texs, colors, xfer,
                                     indices, iCount, paint);
             } break;
             case RESTORE:

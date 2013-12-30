@@ -928,9 +928,9 @@ void SkGPipeCanvas::drawPicture(SkPicture& picture) {
     this->INHERITED::drawPicture(picture);
 }
 
-void SkGPipeCanvas::drawVertices(VertexMode mode, int vertexCount,
+void SkGPipeCanvas::drawVertices(VertexMode vmode, int vertexCount,
                                  const SkPoint vertices[], const SkPoint texs[],
-                                 const SkColor colors[], SkXfermode*,
+                                 const SkColor colors[], SkXfermode* xfer,
                                  const uint16_t indices[], int indexCount,
                                  const SkPaint& paint) {
     if (0 == vertexCount) {
@@ -953,10 +953,14 @@ void SkGPipeCanvas::drawVertices(VertexMode mode, int vertexCount,
         flags |= kDrawVertices_HasIndices_DrawOpFlag;
         size += 4 + SkAlign4(indexCount * sizeof(uint16_t));
     }
+    if (xfer && !SkXfermode::IsMode(xfer, SkXfermode::kModulate_Mode)) {
+        flags |= kDrawVertices_HasXfermode_DrawOpFlag;
+        size += sizeof(int32_t);    // mode enum
+    }
 
     if (this->needOpBytes(size)) {
         this->writeOp(kDrawVertices_DrawOp, flags, 0);
-        fWriter.write32(mode);
+        fWriter.write32(vmode);
         fWriter.write32(vertexCount);
         fWriter.write(vertices, vertexCount * sizeof(SkPoint));
         if (texs) {
@@ -965,9 +969,11 @@ void SkGPipeCanvas::drawVertices(VertexMode mode, int vertexCount,
         if (colors) {
             fWriter.write(colors, vertexCount * sizeof(SkColor));
         }
-
-        // TODO: flatten xfermode
-
+        if (flags & kDrawVertices_HasXfermode_DrawOpFlag) {
+            SkXfermode::Mode mode = SkXfermode::kModulate_Mode;
+            (void)xfer->asMode(&mode);
+            fWriter.write32(mode);
+        }
         if (indices && indexCount > 0) {
             fWriter.write32(indexCount);
             fWriter.writePad(indices, indexCount * sizeof(uint16_t));

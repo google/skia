@@ -143,7 +143,7 @@
     '../gm/tinybitmap.cpp',
     '../gm/twopointradial.cpp',
     '../gm/typeface.cpp',
-#    '../gm/vertices.cpp',
+    '../gm/vertices.cpp',
     '../gm/verttext.cpp',
     '../gm/verttext2.cpp',
     '../gm/verylargebitmap.cpp',

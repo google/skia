@@ -10,12 +10,14 @@
 #include "SkGradientShader.h"
 #include "SkRandom.h"
 
-static SkShader* make_shader(int w, int h) {
-    const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
-    const SkPoint center = { SkScalarHalf(w), SkScalarHalf(h) };
-    const SkScalar radius = w / 2;
+static SkShader* make_shader(SkScalar w, SkScalar h) {
+    const SkColor colors[] = {
+        SK_ColorRED, SK_ColorCYAN, SK_ColorGREEN, SK_ColorWHITE,
+        SK_ColorMAGENTA, SK_ColorBLUE, SK_ColorYELLOW,
+    };
+    const SkPoint pts[] = { { w/4, 0 }, { 3*w/4, h } };
 
-    return SkGradientShader::CreateRadial(center, radius, colors, NULL,
+    return SkGradientShader::CreateLinear(pts, colors, NULL,
                                           SK_ARRAY_COUNT(colors),
                                           SkShader::kMirror_TileMode);
 }
@@ -36,12 +38,15 @@ public:
 
 protected:
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
-        fPts[0].set(0, 0);      fPts[1].set(100, 10);   fPts[2].set(200, 0);
-        fPts[3].set(10, 100);   fPts[4].set(100, 100);  fPts[5].set(190, 100);
-        fPts[6].set(0, 200);    fPts[7].set(100, 190);  fPts[8].set(200, 200);
+        const SkScalar X = 150;
+        const SkScalar Y = 150;
 
-        int w = 200;
-        int h = 200;
+        fPts[0].set(0, 0);      fPts[1].set(X/2, 10);   fPts[2].set(X, 0);
+        fPts[3].set(10, Y/2);   fPts[4].set(X/2, Y/2);  fPts[5].set(X-10, Y/2);
+        fPts[6].set(0, Y);    fPts[7].set(X/2, Y-10);  fPts[8].set(X, Y);
+
+        const SkScalar w = 200;
+        const SkScalar h = 200;
 
         fTexs[0].set(0, 0);     fTexs[1].set(w/2, 0);   fTexs[2].set(w, 0);
         fTexs[3].set(0, h/2);   fTexs[4].set(w/2, h/2); fTexs[5].set(w, h/2);
@@ -51,7 +56,7 @@ protected:
 
         SkRandom rand;
         for (size_t i = 0; i < SK_ARRAY_COUNT(fColors); ++i) {
-            fColors[i] = rand.nextU() | 0xFF202020;
+            fColors[i] = rand.nextU() | 0xFF000000;
         }
     }
 
@@ -60,10 +65,11 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(800, 800);
+        return SkISize::Make(600, 600);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        // start with the center of a 3x3 grid
         static const uint16_t fan[] = {
             4,
             0, 1, 2, 5, 8, 7, 6, 3, 0
@@ -96,17 +102,19 @@ protected:
                                      SK_ARRAY_COUNT(fPts), fPts,
                                      rec[i].fTexs, rec[i].fColors,
                                      xfer, fan, SK_ARRAY_COUNT(fan), paint);
-                canvas->translate(250, 0);
+                canvas->translate(200, 0);
             }
             canvas->restore();
-            canvas->translate(0, 250);
+            canvas->translate(0, 200);
             xfer->unref();
         }
     }
 
+#if 0
     virtual uint32_t onGetFlags() const {
         return kSkipPipe_Flag | kSkipPicture_Flag;
     }
+#endif
 
 private:
     typedef skiagm::GM INHERITED;

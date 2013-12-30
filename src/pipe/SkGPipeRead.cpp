@@ -409,7 +409,7 @@ static void drawVertices_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                             SkGPipeState* state) {
     unsigned flags = DrawOp_unpackFlags(op32);
 
-    SkCanvas::VertexMode mode = (SkCanvas::VertexMode)reader->readU32();
+    SkCanvas::VertexMode vmode = (SkCanvas::VertexMode)reader->readU32();
     int vertexCount = reader->readU32();
     const SkPoint* verts = skip<SkPoint>(reader, vertexCount);
 
@@ -423,8 +423,11 @@ static void drawVertices_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
         colors = skip<SkColor>(reader, vertexCount);
     }
 
-    // TODO: flatten/unflatten xfermodes
-    SkXfermode* xfer = NULL;
+    SkAutoTUnref<SkXfermode> xfer;
+    if (flags & kDrawVertices_HasXfermode_DrawOpFlag) {
+        SkXfermode::Mode mode = (SkXfermode::Mode)reader->readU32();
+        xfer.reset(SkXfermode::Create(mode));
+    }
 
     int indexCount = 0;
     const uint16_t* indices = NULL;
@@ -433,7 +436,7 @@ static void drawVertices_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
         indices = skipAlign<uint16_t>(reader, indexCount);
     }
     if (state->shouldDraw()) {
-        canvas->drawVertices(mode, vertexCount, verts, texs, colors, xfer,
+        canvas->drawVertices(vmode, vertexCount, verts, texs, colors, xfer,
                              indices, indexCount, state->paint());
     }
 }

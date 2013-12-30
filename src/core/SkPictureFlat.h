@@ -77,7 +77,8 @@ static const int kDRAW_BITMAP_FLAVOR = LAST_DRAWTYPE_ENUM+1;
 enum DrawVertexFlags {
     DRAW_VERTICES_HAS_TEXS    = 0x01,
     DRAW_VERTICES_HAS_COLORS  = 0x02,
-    DRAW_VERTICES_HAS_INDICES = 0x04
+    DRAW_VERTICES_HAS_INDICES = 0x04,
+    DRAW_VERTICES_HAS_XFER    = 0x08,
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1341,7 +1341,7 @@ void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
     if (d.fClip->isEmpty()) {
         return;
     }
-    NOT_IMPLEMENTED("drawVerticies", true);
+    // TODO: implement drawVertices
 }
 
 void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,

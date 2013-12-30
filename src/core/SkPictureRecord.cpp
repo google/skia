@@ -1189,7 +1189,7 @@ void SkPictureRecord::drawPicture(SkPicture& picture) {
 
 void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
                           const SkPoint vertices[], const SkPoint texs[],
-                          const SkColor colors[], SkXfermode*,
+                          const SkColor colors[], SkXfermode* xfer,
                           const uint16_t indices[], int indexCount,
                           const SkPaint& paint) {
     uint32_t flags = 0;
@@ -1201,6 +1201,12 @@ void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
     }
     if (indexCount > 0) {
         flags |= DRAW_VERTICES_HAS_INDICES;
+    }
+    if (NULL != xfer) {
+        SkXfermode::Mode mode;
+        if (xfer->asMode(&mode) && SkXfermode::kModulate_Mode != mode) {
+            flags |= DRAW_VERTICES_HAS_XFER;
+        }
     }
 
     // op + paint index + flags + vmode + vCount + vertices
@@ -1214,6 +1220,9 @@ void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
     if (flags & DRAW_VERTICES_HAS_INDICES) {
         // + num indices + indices
         size += 1 * kUInt32Size + SkAlign4(indexCount * sizeof(uint16_t));
+    }
+    if (flags & DRAW_VERTICES_HAS_XFER) {
+        size += kUInt32Size;    // mode enum
     }
 
     size_t initialOffset = this->addDraw(DRAW_VERTICES, &size);
@@ -1232,6 +1241,11 @@ void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
     if (flags & DRAW_VERTICES_HAS_INDICES) {
         addInt(indexCount);
         fWriter.writePad(indices, indexCount * sizeof(uint16_t));
+    }
+    if (flags & DRAW_VERTICES_HAS_XFER) {
+        SkXfermode::Mode mode = SkXfermode::kModulate_Mode;
+        (void)xfer->asMode(&mode);
+        addInt(mode);
     }
     this->validate(initialOffset, size);
 }

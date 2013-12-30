@@ -142,6 +142,7 @@ enum {
     kDrawVertices_HasTexs_DrawOpFlag     = 1 << 0,
     kDrawVertices_HasColors_DrawOpFlag   = 1 << 1,
     kDrawVertices_HasIndices_DrawOpFlag  = 1 << 2,
+    kDrawVertices_HasXfermode_DrawOpFlag = 1 << 3,
 };
 enum {
     kDrawBitmap_HasPaint_DrawOpFlag   = 1 << 0,
