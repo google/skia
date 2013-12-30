@@ -105,7 +105,7 @@ protected:
     }
 
     virtual uint32_t onGetFlags() const {
-        return 0;//kSkipPipe_Flag | kSkipPicture_Flag;
+        return kSkipPipe_Flag | kSkipPicture_Flag;
     }
     
 private:
