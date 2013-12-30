@@ -35,6 +35,32 @@ int32_t SkSqrtBits(int32_t value, int bitBias);
  */
 #define SkSqrt32(n)         SkSqrtBits(n, 15)
 
+// 64bit -> 32bit utilities
+
+/**
+ *  Return true iff the 64bit value can exactly be represented in signed 32bits
+ */
+static inline bool sk_64_isS32(int64_t value) {
+    return (int32_t)value == value;
+}
+
+/**
+ *  Return the 64bit argument as signed 32bits, asserting in debug that the arg
+ *  exactly fits in signed 32bits. In the release build, no checks are preformed
+ *  and the return value if the arg does not fit is undefined.
+ */
+static inline int32_t sk_64_asS32(int64_t value) {
+    SkASSERT(sk_64_isS32(value));
+    return (int32_t)value;
+}
+
+// Handy util that can be passed two ints, and will automatically promote to
+// 64bits before the multiply, so the caller doesn't have to remember to cast
+// e.g. (int64_t)a * b;
+static inline int64_t sk_64_mul(int64_t a, int64_t b) {
+    return a * b;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 //! Returns the number of leading zero bits (0...32)
