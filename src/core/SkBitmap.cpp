@@ -190,10 +190,14 @@ size_t SkBitmap::ComputeRowBytes(Config c, int width) {
             break;
         case kRGB_565_Config:
         case kARGB_4444_Config:
-            rowBytes = width << 1;
+            // assign and then shift, so we don't overflow int
+            rowBytes = width;
+            rowBytes <<= 1;
             break;
         case kARGB_8888_Config:
-            rowBytes = width << 2;
+            // assign and then shift, so we don't overflow int
+            rowBytes = width;
+            rowBytes <<= 2;
             break;
         default:
             SkDEBUGFAIL("unknown config");
