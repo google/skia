@@ -2529,7 +2529,6 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
             if (releaseMode) {
                 xmode->unref();
             }
-            shader = compose;
         }
     }
 
