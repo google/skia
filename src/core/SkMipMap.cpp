@@ -109,21 +109,15 @@ static void downsampleby2_proc4444(SkBitmap* dst, int x, int y,
     *dst->getAddr16(x >> 1, y >> 1) = (uint16_t)collaps4444(c >> 2);
 }
 
-static bool isPos32Bits(const Sk64& value) {
-    return !value.isNeg() && value.is32();
-}
-
 SkMipMap::Level* SkMipMap::AllocLevels(int levelCount, size_t pixelSize) {
     if (levelCount < 0) {
         return NULL;
     }
-    Sk64 size;
-    size.setMul(levelCount + 1, sizeof(Level));
-    size.add(SkToS32(pixelSize));
-    if (!isPos32Bits(size)) {
+    int64_t size = sk_64_mul(levelCount + 1, sizeof(Level)) + pixelSize;
+    if (!sk_64_isS32(size)) {
         return NULL;
     }
-    return (Level*)sk_malloc_throw(size.get32());
+    return (Level*)sk_malloc_throw(sk_64_asS32(size));
 }
 
 SkMipMap* SkMipMap::Build(const SkBitmap& src) {

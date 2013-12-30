@@ -343,8 +343,8 @@ DEF_TEST(BitmapCopy, reporter) {
             SkBitmap tstSafeSize;
             tstSafeSize.setConfig(gPairs[i].fConfig, 100000000U,
                                   100000000U);
-            Sk64 safeSize = tstSafeSize.getSafeSize64();
-            if (safeSize.isNeg()) {
+            int64_t safeSize = tstSafeSize.computeSafeSize64();
+            if (safeSize < 0) {
                 SkString str;
                 str.printf("getSafeSize64() negative: %s",
                     getSkConfigName(tstSafeSize));
@@ -358,20 +358,20 @@ DEF_TEST(BitmapCopy, reporter) {
 
                 case SkBitmap::kA8_Config:
                 case SkBitmap::kIndex8_Config:
-                    if (safeSize.as64() != 0x2386F26FC10000LL) {
+                    if (safeSize != 0x2386F26FC10000LL) {
                         sizeFail = true;
                     }
                     break;
 
                 case SkBitmap::kRGB_565_Config:
                 case SkBitmap::kARGB_4444_Config:
-                    if (safeSize.as64() != 0x470DE4DF820000LL) {
+                    if (safeSize != 0x470DE4DF820000LL) {
                         sizeFail = true;
                     }
                     break;
 
                 case SkBitmap::kARGB_8888_Config:
-                    if (safeSize.as64() != 0x8E1BC9BF040000LL) {
+                    if (safeSize != 0x8E1BC9BF040000LL) {
                         sizeFail = true;
                     }
                     break;
@@ -381,7 +381,7 @@ DEF_TEST(BitmapCopy, reporter) {
             }
             if (sizeFail) {
                 SkString str;
-                str.printf("getSafeSize64() wrong size: %s",
+                str.printf("computeSafeSize64() wrong size: %s",
                     getSkConfigName(tstSafeSize));
                 reporter->reportFailed(str);
             }

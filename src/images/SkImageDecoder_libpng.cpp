@@ -607,13 +607,9 @@ bool SkPNGImageDecoder::getBitmapConfig(png_structp png_ptr, png_infop info_ptr,
 
     // sanity check for size
     {
-        Sk64 size;
-        size.setMul(origWidth, origHeight);
-        if (size.isNeg() || !size.is32()) {
-            return false;
-        }
+        int64_t size = sk_64_mul(origWidth, origHeight);
         // now check that if we are 4-bytes per pixel, we also don't overflow
-        if (size.get32() > (0x7FFFFFFF >> 2)) {
+        if (size < 0 || size > (0x7FFFFFFF >> 2)) {
             return false;
         }
     }

@@ -7,6 +7,7 @@
 
 #include "Test.h"
 #include "TestClassDef.h"
+#include "Sk64.h"
 #include "SkRandom.h"
 #include <math.h>
 
@@ -92,8 +93,8 @@ void Sk64::UnitTestWithReporter(void* reporterParam) {
     }
 
     for (i = 0; i < 1000; i++) {
-        rand.next64(&a); //a.fHi >>= 1; // avoid overflow
-        rand.next64(&b); //b.fHi >>= 1; // avoid overflow
+        a.set64(rand.next64());
+        b.set64(rand.next64());
 
         if (!(i & 3))   // want to explicitly test these cases
         {
