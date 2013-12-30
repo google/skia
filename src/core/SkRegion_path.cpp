@@ -15,6 +15,7 @@
 
 class SkRgnBuilder : public SkBlitter {
 public:
+    SkRgnBuilder();
     virtual ~SkRgnBuilder();
 
     // returns true if it could allocate the working storage needed
@@ -97,6 +98,10 @@ private:
         return false;
     }
 };
+
+SkRgnBuilder::SkRgnBuilder()
+    : fStorage(NULL) {
+}
 
 SkRgnBuilder::~SkRgnBuilder() {
     sk_free(fStorage);
