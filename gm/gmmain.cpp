@@ -1444,7 +1444,7 @@ DEFINE_bool(replay, false, "Exercise the SkPicture replay test pass.");
 #if SK_SUPPORT_GPU
 DEFINE_bool(resetGpuContext, false, "Reset the GrContext prior to running each GM.");
 #endif
-DEFINE_string2(resourcePath, i, "", "Directory that stores image resources.");
+DEFINE_string2(resourcePath, i, "resources", "Directory that stores image resources.");
 DEFINE_bool(rtree, false, "Exercise the R-Tree variant of SkPicture test pass.");
 DEFINE_bool(serialize, false, "Exercise the SkPicture serialization & deserialization test pass.");
 DEFINE_bool(simulatePipePlaybackFailure, false, "Simulate a rendering failure in pipe mode only.");

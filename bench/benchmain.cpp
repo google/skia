@@ -275,7 +275,7 @@ DEFINE_double(error, 0.01,
               "Ratio of subsequent bench measurements must drop within 1±error to converge.");
 DEFINE_string(timeFormat, "%9.2f", "Format to print results, in milliseconds per 1000 loops.");
 DEFINE_bool2(verbose, v, false, "Print more.");
-DEFINE_string2(resourcePath, i, NULL, "directory for test resources.");
+DEFINE_string2(resourcePath, i, "resources", "directory for test resources.");
 DEFINE_string(outResultsFile, "", "If given, the results will be written to the file in JSON format.");
 
 // Has this bench converged?  First arguments are milliseconds / loop iteration,
