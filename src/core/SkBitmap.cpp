@@ -235,7 +235,7 @@ size_t SkBitmap::ComputeSafeSize(Config config,
                                  size_t rowBytes) {
     int64_t safeSize = ComputeSafeSize64(config, width, height, rowBytes);
     int32_t safeSize32 = (int32_t)safeSize;
-    
+
     if (safeSize32 != safeSize) {
         safeSize32 = 0;
     }

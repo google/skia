@@ -294,7 +294,7 @@ public:
         int64_t hi = this->nextS();
         return (hi << 32) | this->nextU();
     }
-    
+
 #ifdef SK_SUPPORT_LEGACY_SK64
     SK_ATTR_DEPRECATED("use next64()")
     void next64(Sk64* a) {
