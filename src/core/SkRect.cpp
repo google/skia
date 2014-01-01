@@ -118,6 +118,22 @@ bool SkRect::intersect(const SkRect& r) {
     return this->intersect(r.fLeft, r.fTop, r.fRight, r.fBottom);
 }
 
+bool SkRect::intersect2(const SkRect& r) {
+    SkASSERT(&r);
+    SkScalar L = SkMaxScalar(fLeft, r.fLeft);
+    SkScalar R = SkMinScalar(fRight, r.fRight);
+    if (L >= R) {
+        return false;
+    }
+    SkScalar T = SkMaxScalar(fTop, r.fTop);
+    SkScalar B = SkMinScalar(fBottom, r.fBottom);
+    if (T >= B) {
+        return false;
+    }
+    this->set(L, T, R, B);
+    return true;
+}
+
 bool SkRect::intersect(const SkRect& a, const SkRect& b) {
     SkASSERT(&a && &b);
 

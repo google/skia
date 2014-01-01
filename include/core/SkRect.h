@@ -625,6 +625,7 @@ struct SK_API SkRect {
         If either rectangle is empty, do nothing and return false.
     */
     bool intersect(const SkRect& r);
+    bool intersect2(const SkRect& r);
 
     /** If this rectangle intersects the rectangle specified by left, top, right, bottom,
         return true and set this rectangle to that intersection, otherwise return false
