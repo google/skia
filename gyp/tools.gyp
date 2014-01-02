@@ -13,17 +13,18 @@
       'target_name': 'tools',
       'type': 'none',
       'dependencies': [
+        'bbh_shootout',
         'bench_pictures',
         'filter',
-        'lua_pictures',
-        'bbh_shootout',
         'lua_app',
+        'lua_pictures',
         'pinspect',
         'render_pdfs',
         'render_pictures',
         'skdiff',
-        'skpdiff',
         'skhello',
+        'skpdiff',
+        'skpmaker',
         'skimage',
         'test_image_decoder',
       ],
@@ -107,6 +108,20 @@
             '../tools/skpdiff/SkDifferentPixelsMetric_cpu.cpp',
           ],
         }],
+      ],
+    },
+    {
+      'target_name': 'skpmaker',
+      'type': 'executable',
+      'sources': [
+        '../tools/skpmaker.cpp',
+      ],
+      'include_dirs': [
+        '../src/core',
+      ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'skia_lib.gyp:skia_lib',
       ],
     },
     {
