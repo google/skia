@@ -10,6 +10,7 @@
 #include "SkPathOpsQuad.h"
 #include "SkReduceOrder.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 static struct lineCubic {
     SkDCubic cubic;
@@ -50,7 +51,7 @@ static struct lineCubic {
 
 static const size_t quadCubicTests_count = SK_ARRAY_COUNT(quadCubicTests);
 
-static void PathOpsCubicQuadIntersectionTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsCubicQuadIntersection, reporter) {
     for (size_t index = 0; index < quadCubicTests_count; ++index) {
         int iIndex = static_cast<int>(index);
         const SkDCubic& cubic = quadCubicTests[index].cubic;
@@ -95,6 +96,3 @@ static void PathOpsCubicQuadIntersectionTest(skiatest::Reporter* reporter) {
         reporter->bumpTestCount();
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsCubicQuadIntersectionTest)

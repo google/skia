@@ -7,6 +7,7 @@
 #include "PathOpsTestCommon.h"
 #include "SkPathOpsBounds.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 static const SkRect sectTests[][2] = {
     {{2, 0, 4, 1}, {4, 0, 6, 1}},
@@ -46,7 +47,7 @@ static const SkRect notReallyEmpty[] = {
 
 static const size_t notEmptyTestsCount = SK_ARRAY_COUNT(notReallyEmpty);
 
-static void PathOpsBoundsTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsBounds, reporter) {
     for (size_t index = 0; index < sectTestsCount; ++index) {
         const SkPathOpsBounds& bounds1 = static_cast<const SkPathOpsBounds&>(sectTests[index][0]);
         SkASSERT(ValidBounds(bounds1));
@@ -108,6 +109,3 @@ static void PathOpsBoundsTest(skiatest::Reporter* reporter) {
     (bounds.*SetCurveBounds[3])(curvePts);
     REPORTER_ASSERT(reporter, bounds == expected);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsBoundsTest)

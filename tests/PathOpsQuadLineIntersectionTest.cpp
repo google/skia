@@ -11,6 +11,7 @@
 #include "SkPathOpsQuad.h"
 #include "SkReduceOrder.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 static struct lineQuad {
     SkDQuad quad;
@@ -97,11 +98,11 @@ static void testOneOffs(skiatest::Reporter* reporter) {
     }
 }
 
-static void PathOpsQuadLineIntersectionOneOffTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsQuadLineIntersectionOneOff, reporter) {
     testOneOffs(reporter);
 }
 
-static void PathOpsQuadLineIntersectionTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsQuadLineIntersection, reporter) {
     for (size_t index = 0; index < lineQuadTests_count; ++index) {
         int iIndex = static_cast<int>(index);
         const SkDQuad& quad = lineQuadTests[index].quad;
@@ -147,8 +148,3 @@ static void PathOpsQuadLineIntersectionTest(skiatest::Reporter* reporter) {
         }
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsQuadLineIntersectionTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsQuadLineIntersectionOneOffTest)

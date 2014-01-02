@@ -10,25 +10,26 @@
 
     e.g.
     #include "TestClassDef.h"
-    DEFINE_TESTCLASS_SHORT(MyTestFunction)
 
-    where MyTestFunction is declared as:
-
-    static void MyTestFunction(skiatest::Reporter* reporter) {
+    DEF_TEST(some_test_name, r) {
+        ...
+        REPORTER_ASSERT(r, x == 15);
     }
 */
 
-#define DEFINE_TESTCLASS_SHORT(function)                                                 \
-    namespace skiatest {                                                                 \
-        class function##Class : public Test {                                            \
-        public:                                                                          \
-            static Test* Factory(void*) { return SkNEW(function##Class); }               \
-        protected:                                                                       \
-            virtual void onGetName(SkString* name) SK_OVERRIDE { name->set(#function); } \
-            virtual void onRun(Reporter* reporter) SK_OVERRIDE { function(reporter); }   \
-        };                                                                               \
-        static TestRegistry gReg_##function##Class(function##Class::Factory);            \
-    }
+#define DEF_TEST(name, reporter)                                                     \
+    static void name(skiatest::Reporter* reporter);                                  \
+    namespace skiatest {                                                             \
+        class name##Class : public Test {                                            \
+        public:                                                                      \
+            static Test* Factory(void*) { return SkNEW(name##Class); }               \
+        protected:                                                                   \
+            virtual void onGetName(SkString* name) SK_OVERRIDE { name->set(#name); } \
+            virtual void onRun(Reporter* reporter) SK_OVERRIDE { name(reporter); }   \
+        };                                                                           \
+        static TestRegistry gReg_##name##Class(name##Class::Factory);                \
+    }                                                                                \
+    static void name(skiatest::Reporter* reporter)
 
 #define DEFINE_GPUTESTCLASS(uiname, classname, function)                                \
     namespace skiatest {                                                                \
@@ -43,15 +44,3 @@
         };                                                                              \
         static TestRegistry gReg_##classname(classname::Factory);                       \
     }
-
-
-// Yet shorter way to define a test.  E.g.
-//
-// DEF_TEST(some_test_name, r) {
-//   ...
-//   REPORTER_ASSERT(r, x == 15);
-// }
-#define DEF_TEST(name, reporter) \
-    static void name(skiatest::Reporter* reporter); \
-    DEFINE_TESTCLASS_SHORT(name) \
-    static void name(skiatest::Reporter* reporter)

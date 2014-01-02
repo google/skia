@@ -7,6 +7,7 @@
 #include "PathOpsTestCommon.h"
 #include "SkPathOpsPoint.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 static const SkDPoint tests[] = {
     {0, 0},
@@ -20,7 +21,7 @@ static const SkDPoint tests[] = {
 
 static const size_t tests_count = SK_ARRAY_COUNT(tests);
 
-static void PathOpsDVectorTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsDVector, reporter) {
     for (size_t index = 0; index < tests_count - 1; ++index) {
         SkDVector v1 = tests[index + 1] - tests[index];
         SkASSERT(ValidVector(v1));
@@ -48,6 +49,3 @@ static void PathOpsDVectorTest(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, v1Cross == 0);
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsDVectorTest)

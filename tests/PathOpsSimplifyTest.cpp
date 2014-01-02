@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "PathOpsExtendedTest.h"
+#include "TestClassDef.h"
 
 #define TEST(name) { name, #name }
 
@@ -4337,7 +4338,7 @@ static bool runSubTestsFirst = false;
 static bool runReverse = false;
 static void (*stopTest)(skiatest::Reporter* ) = 0;
 
-static void PathOpsSimplifyTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsSimplify, reporter) {
 #ifdef SK_DEBUG
     SkPathOpsDebug::gMaxWindSum = 4;
     SkPathOpsDebug::gMaxWindValue = 4;
@@ -4354,6 +4355,3 @@ static void PathOpsSimplifyTest(skiatest::Reporter* reporter) {
     SkPathOpsDebug::gMaxWindValue = SK_MaxS32;
 #endif
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsSimplifyTest)

@@ -6,6 +6,7 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
+#include "TestClassDef.h"
 
 static void testSimplifyQuadralateralsMain(PathOpsThreadState* data)
 {
@@ -75,7 +76,7 @@ static void testSimplifyQuadralateralsMain(PathOpsThreadState* data)
     }
 }
 
-static void PathOpsSimplifyQuadralateralsThreadedTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsSimplifyQuadralateralsThreaded, reporter) {
     int threadCount = initializeTests(reporter, "testQuadralaterals");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 16; ++a) {
@@ -92,6 +93,3 @@ static void PathOpsSimplifyQuadralateralsThreadedTest(skiatest::Reporter* report
 finish:
     testRunner.render();
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsSimplifyQuadralateralsThreadedTest)

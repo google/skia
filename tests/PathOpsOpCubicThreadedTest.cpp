@@ -6,9 +6,9 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
+#include "TestClassDef.h"
 
-static void testOpCubicsMain(PathOpsThreadState* data)
-{
+static void testOpCubicsMain(PathOpsThreadState* data) {
 #if DEBUG_SHOW_TEST_NAME
     strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
 #endif
@@ -67,8 +67,7 @@ static void testOpCubicsMain(PathOpsThreadState* data)
     }
 }
 
-static void PathOpsOpCubicsThreadedTest(skiatest::Reporter* reporter)
-{
+DEF_TEST(PathOpsOpCubicsThreaded, reporter) {
     int threadCount = initializeTests(reporter, "cubicOp");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 6; ++a) {  // outermost
@@ -85,6 +84,3 @@ static void PathOpsOpCubicsThreadedTest(skiatest::Reporter* reporter)
 finish:
     testRunner.render();
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsOpCubicsThreadedTest)

@@ -22,7 +22,7 @@ static size_t Reconstruct(const SkPaint& src, SkPaint* dst) {
     return size;
 }
 
-static void android_options_serialization(skiatest::Reporter* reporter) {
+DEF_TEST(AndroidOptionsSerialization, reporter) {
     // We want to make sure that Android's paint options survive a flatten/unflatten round trip.
     // These are all non-default options.
     SkPaintOptionsAndroid options;
@@ -38,9 +38,8 @@ static void android_options_serialization(skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, options == reconstructed.getPaintOptionsAndroid());
 }
-DEFINE_TESTCLASS_SHORT(android_options_serialization);
 
-static void android_options_serialization_reverse(skiatest::Reporter* reporter) {
+DEF_TEST(AndroidOptionsSerializationReverse, reporter) {
     // Opposite test of above: make sure the serialized default values of a paint overwrite
     // non-default values on the paint we're unflattening into.
     const SkPaint defaultOptions;
@@ -58,9 +57,8 @@ static void android_options_serialization_reverse(skiatest::Reporter* reporter) 
             defaultOptions.getPaintOptionsAndroid() ==
             nonDefaultOptions.getPaintOptionsAndroid());
 }
-DEFINE_TESTCLASS_SHORT(android_options_serialization_reverse);
 
-static void android_options_size(skiatest::Reporter* reporter) {
+DEF_TEST(AndroidOptionsSize, reporter) {
     // A paint with default android options should serialize to something smaller than
     // a paint with non-default android options.
 
@@ -76,6 +74,5 @@ static void android_options_size(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter,
                     Reconstruct(defaultOptions, &dummy) < Reconstruct(nonDefaultOptions, &dummy));
 }
-DEFINE_TESTCLASS_SHORT(android_options_size);
 
 #endif  // SK_BUILD_FOR_ANDROID

@@ -8,6 +8,7 @@
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 static const SkPoint nonFinitePts[] = {
     { SK_ScalarInfinity, 0 },
@@ -91,7 +92,7 @@ static void dontFailOne(skiatest::Reporter* reporter, int index) {
     reporter->bumpTestCount();
 }
 
-static void PathOpsSimplifyFailTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsSimplifyFail, reporter) {
     for (int index = 0; index < (int) (13 * nonFinitePtsCount * finitePtsCount); ++index) {
         failOne(reporter, index);
     }
@@ -100,19 +101,12 @@ static void PathOpsSimplifyFailTest(skiatest::Reporter* reporter) {
     }
 }
 
-static void PathOpsSimplifyFailOneTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsSimplifyFailOne, reporter) {
     int index = 0;
     failOne(reporter, index);
 }
 
-static void PathOpsSimplifyDontFailOneTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsSimplifyDontFailOne, reporter) {
     int index = 6;
     dontFailOne(reporter, index);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsSimplifyFailTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsSimplifyFailOneTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsSimplifyDontFailOneTest)

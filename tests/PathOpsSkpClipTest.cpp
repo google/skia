@@ -18,6 +18,7 @@
 #include "SkThreadPool.h"
 #include "SkTime.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 #ifdef SK_BUILD_FOR_WIN
     #define PATH_SLASH "\\"
@@ -612,7 +613,7 @@ static void encodeFound(skiatest::Reporter* reporter, TestState& state) {
     }
 }
 
-static void PathOpsSkpClipTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsSkpClip, reporter) {
     if (!initTest()) {
         return;
     }
@@ -635,7 +636,7 @@ static void testSkpClipMain(TestState* data) {
         (void) doOneDir(data);
 }
 
-static void PathOpsSkpClipThreadedTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsSkpClipThreaded, reporter) {
     if (!initTest()) {
         return;
     }
@@ -661,7 +662,7 @@ static void PathOpsSkpClipThreadedTest(skiatest::Reporter* reporter) {
     encodeFound(reporter, state);
 }
 
-static void PathOpsSkpClipOneOffTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsSkpClipOneOff, reporter) {
     if (!initTest()) {
         return;
     }
@@ -677,10 +678,3 @@ static void PathOpsSkpClipOneOffTest(skiatest::Reporter* reporter) {
     state.fTestStep = kEncodeFiles;
     state.testOne();
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsSkpClipTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsSkpClipOneOffTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsSkpClipThreadedTest)

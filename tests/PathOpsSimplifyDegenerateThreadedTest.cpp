@@ -6,6 +6,7 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
+#include "TestClassDef.h"
 
 static void testSimplifyDegeneratesMain(PathOpsThreadState* data) {
     SkASSERT(data);
@@ -67,7 +68,7 @@ static void testSimplifyDegeneratesMain(PathOpsThreadState* data) {
     }
 }
 
-static void PathOpsSimplifyDegeneratesThreadedTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsSimplifyDegeneratesThreaded, reporter) {
     int threadCount = initializeTests(reporter, "testDegenerates");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 16; ++a) {
@@ -90,6 +91,3 @@ static void PathOpsSimplifyDegeneratesThreadedTest(skiatest::Reporter* reporter)
 finish:
     testRunner.render();
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsSimplifyDegeneratesThreadedTest)

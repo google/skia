@@ -10,6 +10,7 @@
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
 #include "SkReduceOrder.h"
+#include "TestClassDef.h"
 
 static int doIntersect(SkIntersections& intersections, const SkDQuad& quad, const SkDLine& line,
                        bool& flipped) {
@@ -111,8 +112,7 @@ static void testQuadLineIntersectMain(PathOpsThreadState* data)
     }
 }
 
-static void PathOpsQuadLineIntersectionThreadedTest(skiatest::Reporter* reporter)
-{
+DEF_TEST(PathOpsQuadLineIntersectionThreaded, reporter) {
     int threadCount = initializeTests(reporter, "testQuadLineIntersect");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 16; ++a) {
@@ -127,6 +127,3 @@ static void PathOpsQuadLineIntersectionThreadedTest(skiatest::Reporter* reporter
 finish:
     testRunner.render();
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsQuadLineIntersectionThreadedTest)

@@ -6,6 +6,7 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
+#include "TestClassDef.h"
 
 // four rects, of four sizes
 // for 3 smaller sizes, tall, wide
@@ -73,7 +74,7 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
     }
 }
 
-static void PathOpsRectsThreadedTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsRectsThreaded, reporter) {
     int threadCount = initializeTests(reporter, "testOp");
     PathOpsThreadedTestRunner testRunner(reporter, threadCount);
     for (int a = 0; a < 6; ++a) {  // outermost
@@ -90,6 +91,3 @@ static void PathOpsRectsThreadedTest(skiatest::Reporter* reporter) {
 finish:
     testRunner.render();
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsRectsThreadedTest)

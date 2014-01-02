@@ -10,6 +10,7 @@
 #include "SkPathOpsRect.h"
 #include "SkReduceOrder.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 static void standardTestCases(skiatest::Reporter* reporter) {
     bool showSkipped = false;
@@ -283,7 +284,7 @@ static void oneOffTest1(skiatest::Reporter* reporter, size_t outer, size_t inner
     }
 }
 
-static void PathOpsQuadIntersectionOneOffTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsQuadIntersectionOneOff, reporter) {
     oneOffTest1(reporter, 0, 1);
 }
 
@@ -332,7 +333,7 @@ static void coincidentTest(skiatest::Reporter* reporter) {
     }
 }
 
-static void PathOpsQuadIntersectionCoincidenceOneOffTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsQuadIntersectionCoincidenceOneOff, reporter) {
     coincidentTestOne(reporter, 0, 1);
 }
 
@@ -499,18 +500,10 @@ static void QuadraticIntersection_IntersectionFinder() {
     intersectionFinder(0, 1);
 }
 
-static void PathOpsQuadIntersectionTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsQuadIntersection, reporter) {
     oneOffTests(reporter);
     coincidentTest(reporter);
     standardTestCases(reporter);
     if (false) QuadraticIntersection_IntersectionFinder();
     if (false) QuadraticIntersection_PointFinder();
 }
-
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsQuadIntersectionTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsQuadIntersectionOneOffTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsQuadIntersectionCoincidenceOneOffTest)

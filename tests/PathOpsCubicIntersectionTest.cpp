@@ -10,6 +10,7 @@
 #include "SkPathOpsRect.h"
 #include "SkReduceOrder.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 const int firstCubicIntersectionTest = 9;
 
@@ -618,19 +619,19 @@ static void cubicIntersectionCoinTest(skiatest::Reporter* reporter) {
     }
 }
 
-static void PathOpsCubicCoinOneOffTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsCubicCoinOneOff, reporter) {
     coinOneOff(reporter, 0);
 }
 
-static void PathOpsCubicIntersectionOneOffTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsCubicIntersectionOneOff, reporter) {
     newOneOff(reporter, 0, 1);
 }
 
-static void PathOpsCubicSelfOneOffTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsCubicSelfOneOff, reporter) {
     selfOneOff(reporter, 0);
 }
 
-static void PathOpsCubicIntersectionTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsCubicIntersection, reporter) {
     oneOffTests(reporter);
     cubicIntersectionSelfTest(reporter);
     cubicIntersectionCoinTest(reporter);
@@ -638,12 +639,3 @@ static void PathOpsCubicIntersectionTest(skiatest::Reporter* reporter) {
     if (false) CubicIntersection_IntersectionFinder();
     if (false) CubicIntersection_RandTest(reporter);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsCubicIntersectionTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsCubicIntersectionOneOffTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsCubicSelfOneOffTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsCubicCoinOneOffTest)

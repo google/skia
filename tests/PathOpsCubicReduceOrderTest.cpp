@@ -11,6 +11,7 @@
 #include "SkPathOpsRect.h"
 #include "SkReduceOrder.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 #if 0 // disable test until stroke reduction is supported
 static bool controls_inside(const SkDCubic& cubic) {
@@ -58,7 +59,7 @@ static void find_tight_bounds(const SkDCubic& cubic, SkDRect& bounds) {
 }
 #endif
 
-static void PathOpsReduceOrderCubicTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsReduceOrderCubic, reporter) {
     size_t index;
     SkReduceOrder reducer;
     int order;
@@ -240,7 +241,3 @@ static void PathOpsReduceOrderCubicTest(skiatest::Reporter* reporter) {
     }
 #endif
 }
-
-#include "TestClassDef.h"
-
-DEFINE_TESTCLASS_SHORT(PathOpsReduceOrderCubicTest)

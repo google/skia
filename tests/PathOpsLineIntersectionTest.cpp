@@ -8,6 +8,7 @@
 #include "SkIntersections.h"
 #include "SkPathOpsLine.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 // FIXME: add tests for intersecting, non-intersecting, degenerate, coincident
 static const SkDLine tests[][2] = {
@@ -178,7 +179,7 @@ static void testOneCoincident(skiatest::Reporter* reporter, const SkDLine& line1
     reporter->bumpTestCount();
 }
 
-static void PathOpsLineIntersectionTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsLineIntersection, reporter) {
     size_t index;
     for (index = 0; index < coincidentTests_count; ++index) {
         const SkDLine& line1 = coincidentTests[index][0];
@@ -201,24 +202,17 @@ static void PathOpsLineIntersectionTest(skiatest::Reporter* reporter) {
     }
 }
 
-static void PathOpsLineIntersectionOneOffTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsLineIntersectionOneOff, reporter) {
     int index = 0;
     SkASSERT(index < (int) tests_count);
     testOne(reporter, tests[index][0], tests[index][1]);
     testOne(reporter, tests[1][0], tests[1][1]);
 }
 
-static void PathOpsLineIntersectionOneCoincidentTest(skiatest::Reporter* reporter) {
+DEF_TEST(PathOpsLineIntersectionOneCoincident, reporter) {
     int index = 0;
     SkASSERT(index < (int) coincidentTests_count);
     const SkDLine& line1 = coincidentTests[index][0];
     const SkDLine& line2 = coincidentTests[index][1];
     testOneCoincident(reporter, line1, line2);
 }
-
-#include "TestClassDef.h"
-DEFINE_TESTCLASS_SHORT(PathOpsLineIntersectionTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsLineIntersectionOneOffTest)
-
-DEFINE_TESTCLASS_SHORT(PathOpsLineIntersectionOneCoincidentTest)
