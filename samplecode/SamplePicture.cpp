@@ -40,7 +40,8 @@ static SkBitmap load_bitmap() {
     SkString path = SkOSPath::SkPathJoin(directory.c_str(), "mandrill_512.png");
     SkAutoDataUnref data(SkData::NewFromFileName(path.c_str()));
     if (data.get() != NULL) {
-        SkDecodingImageGenerator::Install(data.get(), &bm);
+        SkInstallDiscardablePixelRef(SkDecodingImageGenerator::Create(
+            data, SkDecodingImageGenerator::Options()), &bm, NULL);
     }
     return bm;
 }
