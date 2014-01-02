@@ -132,10 +132,10 @@ public:
                rand.nextSScalar1(), rand.nextSScalar1());
         r->sort();
     }
-    
+
     RectSectBench(bool newWay) : fNewWay(newWay) {
         fName.printf("rect_intersect_%s", newWay ? "new" : "old");
-        
+
         SkRandom rand;
         for (int i = 0; i < N; i++) {
             RandRect(&fArray0[i], rand);
@@ -149,7 +149,7 @@ public:
 
 protected:
     virtual const char* onGetName() { return fName.c_str(); }
-    
+
     virtual void onDraw(const int loops, SkCanvas* canvas) {
         for (int i = 0; i < loops; ++i) {
             if (fNewWay) {
@@ -165,7 +165,7 @@ protected:
             }
         }
     }
-    
+
 private:
     typedef SkBenchmark INHERITED;
 };
