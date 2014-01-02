@@ -96,6 +96,7 @@
         '../tests/LListTest.cpp',
         '../tests/LayerDrawLooperTest.cpp',
         '../tests/MD5Test.cpp',
+        '../tests/MallocPixelRefTest.cpp',
         '../tests/MathTest.cpp',
         '../tests/MatrixTest.cpp',
         '../tests/Matrix44Test.cpp',

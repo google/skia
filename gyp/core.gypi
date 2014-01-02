@@ -199,7 +199,6 @@
 
         '<(skia_src_path)/doc/SkDocument.cpp',
 
-        '<(skia_src_path)/image/SkDataPixelRef.cpp',
         '<(skia_src_path)/image/SkImage.cpp',
         '<(skia_src_path)/image/SkImagePriv.cpp',
         '<(skia_src_path)/image/SkImage_Codec.cpp',
