@@ -16,18 +16,12 @@
 #include "Test.h"
 #include "TestClassDef.h"
 
-class FlatDictionary : public SkFlatDictionary<SkShader> {
-
-public:
-    FlatDictionary(SkFlatController* controller)
-    : SkFlatDictionary<SkShader>(controller) {
-        fFlattenProc = &flattenFlattenableProc;
-        // No need for an unflattenProc
-    }
-    static void flattenFlattenableProc(SkOrderedWriteBuffer& buffer, const void* obj) {
-        buffer.writeFlattenable((SkFlattenable*)obj);
+struct SkShaderTraits {
+    static void flatten(SkOrderedWriteBuffer& buffer, const SkShader& shader) {
+        buffer.writeFlattenable(&shader);
     }
 };
+typedef SkFlatDictionary<SkShader, SkShaderTraits> FlatDictionary;
 
 class SkBitmapHeapTester {
 

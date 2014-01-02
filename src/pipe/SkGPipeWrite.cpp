@@ -150,20 +150,13 @@ const SkFlatData* FlattenableHeap::flatToReplace() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class FlatDictionary : public SkFlatDictionary<SkFlattenable> {
-public:
-    FlatDictionary(FlattenableHeap* heap)
-            : SkFlatDictionary<SkFlattenable>(heap) {
-        fFlattenProc = &flattenFlattenableProc;
-        // No need to define fUnflattenProc since the writer will never
-        // unflatten the data.
+struct SkFlattenableTraits {
+    static void flatten(SkOrderedWriteBuffer& buffer, const SkFlattenable& flattenable) {
+        buffer.writeFlattenable(&flattenable);
     }
-    static void flattenFlattenableProc(SkOrderedWriteBuffer& buffer,
-                                       const void* obj) {
-        buffer.writeFlattenable((SkFlattenable*)obj);
-    }
-
+    // No need to define unflatten if we never call it.
 };
+typedef SkFlatDictionary<SkFlattenable, SkFlattenableTraits> FlatDictionary;
 
 ///////////////////////////////////////////////////////////////////////////////
 
