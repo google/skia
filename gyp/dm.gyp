@@ -16,6 +16,7 @@
             '../src/pipe/utils/',
             '../src/utils',
             '../src/utils/debugger',
+            '../tools',
         ],
         'includes': [ 'gmslides.gypi' ],
         'sources': [

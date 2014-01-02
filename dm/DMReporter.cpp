@@ -1,6 +1,7 @@
 #include "DMReporter.h"
 
 #include "SkCommandLineFlags.h"
+#include "OverwriteLine.h"
 
 DEFINE_bool(quiet, false, "If true, don't print status updates.");
 
@@ -12,7 +13,7 @@ void Reporter::updateStatusLine() const {
     }
 
     SkString status;
-    status.printf("\r\033[K%d tasks left", this->started() - this->finished());
+    status.printf("%s%d tasks left", kSkOverwriteLine, this->started() - this->finished());
     const int failed = this->failed();
     if (failed > 0) {
         status.appendf(", %d failed", failed);
