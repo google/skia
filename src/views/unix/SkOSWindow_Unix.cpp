@@ -172,6 +172,13 @@ static unsigned getModi(const XEvent& evt) {
 static SkMSec gTimerDelay;
 
 static bool MyXNextEventWithDelay(Display* dsp, XEvent* evt) {
+    // Check for pending events before entering the select loop. There might
+    // be events in the in-memory queue but not processed yet.
+    if (XPending(dsp)) {
+        XNextEvent(dsp, evt);
+        return true;
+    }
+
     SkMSec ms = gTimerDelay;
     if (ms > 0) {
         int x11_fd = ConnectionNumber(dsp);
