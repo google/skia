@@ -1456,10 +1456,6 @@ bool SkCanvas::quickReject(const SkPath& path) const {
     return path.isEmpty() || this->quickReject(path.getBounds());
 }
 
-static inline int pinIntForScalar(int x) {
-    return x;
-}
-
 bool SkCanvas::getClipBounds(SkRect* bounds) const {
     SkIRect ibounds;
     if (!getClipDeviceBounds(&ibounds)) {
