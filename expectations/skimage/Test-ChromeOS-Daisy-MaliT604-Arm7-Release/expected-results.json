@@ -32,37 +32,37 @@
       },
       "5-sm-webp-[123,39,267,118]_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 18011233246476807273 ]
+            [ "bitmap-64bitMD5", 8305989916569023174 ]
          ],
          "ignore-failure" : false
       },
       "5-sm-webp-[125,106,235,142]_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 9324466631412288337 ]
+            [ "bitmap-64bitMD5", 9624100960294255012 ]
          ],
          "ignore-failure" : false
       },
       "5-sm-webp-[175,57,192,180]_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 135767088431175109 ]
+            [ "bitmap-64bitMD5", 2516216405763465877 ]
          ],
          "ignore-failure" : false
       },
       "5-sm-webp-[9,135,53,181]_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 5017108803724601919 ]
+            [ "bitmap-64bitMD5", 10900471035558488354 ]
          ],
          "ignore-failure" : false
       },
       "5-sm-webp-[96,203,108,205]_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 10231391424980785778 ]
+            [ "bitmap-64bitMD5", 17942269483021635879 ]
          ],
          "ignore-failure" : false
       },
       "5-sm-webp_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 2589463703907036000 ]
+            [ "bitmap-64bitMD5", 11012800850215976675 ]
          ],
          "ignore-failure" : false
       },
@@ -176,37 +176,37 @@
       },
       "webp-test-webp-[108,270,416,348]_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 3740932442878252554 ]
+            [ "bitmap-64bitMD5", 11199126684650393979 ]
          ],
          "ignore-failure" : false
       },
       "webp-test-webp-[123,263,587,394]_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 10835597063600410174 ]
+            [ "bitmap-64bitMD5", 16263897892077508819 ]
          ],
          "ignore-failure" : false
       },
       "webp-test-webp-[192,90,495,267]_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 9578338457220896989 ]
+            [ "bitmap-64bitMD5", 18306831335099361730 ]
          ],
          "ignore-failure" : false
       },
       "webp-test-webp-[329,61,373,380]_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 16643537272464513553 ]
+            [ "bitmap-64bitMD5", 14953310006143786464 ]
          ],
          "ignore-failure" : false
       },
       "webp-test-webp-[445,116,555,172]_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 9125901837418213325 ]
+            [ "bitmap-64bitMD5", 1478691171816983364 ]
          ],
          "ignore-failure" : false
       },
       "webp-test-webp_8888.png" : {
          "allowed-digests" : [
-            [ "bitmap-64bitMD5", 2946264152433674804 ]
+            [ "bitmap-64bitMD5", 7996831545507232176 ]
          ],
          "ignore-failure" : false
       }
