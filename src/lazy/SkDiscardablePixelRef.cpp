@@ -36,15 +36,18 @@ SkDiscardablePixelRef::~SkDiscardablePixelRef() {
     SkDELETE(fGenerator);
 }
 
-void* SkDiscardablePixelRef::onLockPixels(SkColorTable**) {
+bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
     if (fDiscardableMemory != NULL) {
         if (fDiscardableMemory->lock()) {
-            return fDiscardableMemory->data();
+            rec->fPixels = fDiscardableMemory->data();
+            rec->fColorTable = NULL;
+            rec->fRowBytes = fRowBytes;
+            return true;
         }
         SkDELETE(fDiscardableMemory);
         fDiscardableMemory = NULL;
     }
-
+    
     const size_t size = this->info().getSafeSize(fRowBytes);
 
     if (fDMFactory != NULL) {
@@ -53,17 +56,23 @@ void* SkDiscardablePixelRef::onLockPixels(SkColorTable**) {
         fDiscardableMemory = SkDiscardableMemory::Create(size);
     }
     if (NULL == fDiscardableMemory) {
-        return NULL;  // Memory allocation failed.
+        return false;  // Memory allocation failed.
     }
+
     void* pixels = fDiscardableMemory->data();
     if (!fGenerator->getPixels(this->info(), pixels, fRowBytes)) {
         fDiscardableMemory->unlock();
         SkDELETE(fDiscardableMemory);
         fDiscardableMemory = NULL;
-        return NULL;
+        return false;
     }
-    return pixels;
+
+    rec->fPixels = pixels;
+    rec->fColorTable = NULL;
+    rec->fRowBytes = fRowBytes;
+    return true;
 }
+
 void SkDiscardablePixelRef::onUnlockPixels() {
     fDiscardableMemory->unlock();
 }
