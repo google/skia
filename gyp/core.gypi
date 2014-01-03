@@ -268,6 +268,7 @@
         '<(skia_include_path)/core/SkPicture.h',
         '<(skia_include_path)/core/SkPixelRef.h',
         '<(skia_include_path)/core/SkPoint.h',
+        '<(skia_include_path)/core/SkPreConfig.h',
         '<(skia_include_path)/core/SkRasterizer.h',
         '<(skia_include_path)/core/SkReader32.h',
         '<(skia_include_path)/core/SkRect.h',
