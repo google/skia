@@ -402,6 +402,31 @@ SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, size_t offset) {
     if (NULL == pr) {
         offset = 0;
     }
+#ifdef SK_DEBUG
+    else {
+        SkImageInfo info;
+        if (this->asImageInfo(&info)) {
+            const SkImageInfo& prInfo = pr->info();
+            SkASSERT(info.fWidth <= prInfo.fWidth);
+            SkASSERT(info.fHeight <= prInfo.fHeight);
+            SkASSERT(info.fColorType == prInfo.fColorType);
+            switch (prInfo.fAlphaType) {
+                case kIgnore_SkAlphaType:
+                    SkASSERT(fAlphaType == kIgnore_SkAlphaType);
+                    break;
+                case kOpaque_SkAlphaType:
+                case kPremul_SkAlphaType:
+                    SkASSERT(info.fAlphaType == kOpaque_SkAlphaType ||
+                             info.fAlphaType == kPremul_SkAlphaType);
+                    break;
+                case kUnpremul_SkAlphaType:
+                    SkASSERT(info.fAlphaType == kOpaque_SkAlphaType ||
+                             info.fAlphaType == kUnpremul_SkAlphaType);
+                    break;
+            }
+        }
+    }
+#endif
 
     if (fPixelRef != pr || fPixelRefOffset != offset) {
         if (fPixelRef != pr) {
