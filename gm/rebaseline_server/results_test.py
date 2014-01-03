@@ -13,12 +13,12 @@ on the housekeeper bot, but first make sure it works properly after having been
 checked out (from both git and svn)
 
 TODO(epoger): Create a command to update the expected results (in
-OUTPUT_DIR_EXPECTATIONS) when appropriate.  For now, you should:
-1. examine the results in OUTPUT_DIR and make sure they are ok
-2. rm -rf OUTPUT_DIR_EXPECTATIONS
-3. mv OUTPUT_DIR OUTPUT_DIR_EXPECTATIONS
+OUTPUT_DIR_EXPECTED) when appropriate.  For now, you should:
+1. examine the results in OUTPUT_DIR_ACTUAL and make sure they are ok
+2. rm -rf OUTPUT_DIR_EXPECTED
+3. mv OUTPUT_DIR_ACTUAL OUTPUT_DIR_EXPECTED
 Although, if you're using an SVN checkout, this will blow away .svn directories
-within OUTPUT_DIR_EXPECTATIONS, which wouldn't be good...
+within OUTPUT_DIR_EXPECTED, which wouldn't be good...
 
 """
 
@@ -35,26 +35,55 @@ import gm_json  # must import results first, so that gm_json will be in sys.path
 
 PARENT_DIR = os.path.dirname(os.path.realpath(__file__))
 INPUT_DIR = os.path.join(PARENT_DIR, 'tests', 'inputs')
-OUTPUT_DIR = os.path.join(PARENT_DIR, 'tests', 'outputs', 'actual')
-OUTPUT_DIR_EXPECTATIONS = os.path.join(
-    PARENT_DIR, 'tests', 'outputs', 'expected')
+OUTPUT_DIR_ACTUAL   = os.path.join(PARENT_DIR, 'tests', 'outputs', 'actual')
+OUTPUT_DIR_EXPECTED = os.path.join(PARENT_DIR, 'tests', 'outputs', 'expected')
+
 
 class ResultsTest(unittest.TestCase):
 
   def setUp(self):
-    self._tempdir = tempfile.mkdtemp()
+    self._temp_dir = tempfile.mkdtemp()
+    self._output_dir_actual   = os.path.join(OUTPUT_DIR_ACTUAL, self.id())
+    self._output_dir_expected = os.path.join(OUTPUT_DIR_EXPECTED, self.id())
+    create_empty_dir(self._output_dir_actual)
 
   def tearDown(self):
-    shutil.rmtree(self._tempdir)
+    shutil.rmtree(self._temp_dir)
+    different_files = find_different_files(self._output_dir_actual,
+                                           self._output_dir_expected)
+    # Maybe we should move this assert elsewhere?  It's unusual to see an
+    # assert within tearDown(), but my thinking was:
+    # 1. Every test case will have some collection of output files that need to
+    #    be validated.
+    # 2. So put that validation within tearDown(), which will be called after
+    #    every test case!
+    #
+    # I have confirmed that the test really does fail if this assert is
+    # triggered.
+    #
+    # Ravi notes: if somebody later comes along and adds cleanup code below the
+    # assert, then if tests fail, the artifacts will not be cleaned up.
+    assert (not different_files), \
+      ('found differing files between actual dir %s and expected dir %s: %s' %
+       (self._output_dir_actual, self._output_dir_expected, different_files))
 
   def test_gm(self):
     """Process results of a GM run with the Results object."""
     results_obj = results.Results(
         actuals_root=os.path.join(INPUT_DIR, 'gm-actuals'),
         expected_root=os.path.join(INPUT_DIR, 'gm-expectations'),
-        generated_images_root=self._tempdir)
+        generated_images_root=self._temp_dir)
     gm_json.WriteToFile(results_obj.get_results_of_type(results.RESULTS_ALL),
-                        os.path.join(OUTPUT_DIR, 'gm.json'))
+                        os.path.join(self._output_dir_actual, 'gm.json'))
+
+
+def create_empty_dir(path):
+  """Create an empty directory at the given path."""
+  if os.path.isdir(path):
+    shutil.rmtree(path)
+  elif os.path.lexists(path):
+    os.remove(path)
+  os.makedirs(path)
 
 
 def find_different_files(dir1, dir2, ignore_subtree_names=None):
@@ -86,12 +115,8 @@ def find_different_files(dir1, dir2, ignore_subtree_names=None):
 
 
 def main():
-  if not os.path.isdir(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
   suite = unittest.TestLoader().loadTestsFromTestCase(ResultsTest)
   unittest.TextTestRunner(verbosity=2).run(suite)
-  different_files = find_different_files(OUTPUT_DIR, OUTPUT_DIR_EXPECTATIONS)
-  assert (not different_files), 'found differing files: %s' % different_files
 
 
 if __name__ == '__main__':
