@@ -113,4 +113,3 @@ DEF_TEST(MallocPixelRef, reporter) {
             static_cast<const void*>(dataPtr->bytes() + 4) == pr->pixels());
     }
 }
-

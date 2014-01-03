@@ -311,7 +311,7 @@ DEF_TEST(WebP, reporter) {
     }
     SkAutoLockPixels alp(bm);
 
-    bool rightSize = ((kExpectedWidth == bm.width()) 
+    bool rightSize = ((kExpectedWidth == bm.width())
                       && (kExpectedHeight == bm.height()));
     REPORTER_ASSERT(reporter, rightSize);
     if (rightSize) {
@@ -578,4 +578,3 @@ DEF_TEST(ImageDecoderOptions, reporter) {
     }
 }
 ////////////////////////////////////////////////////////////////////////////////
-

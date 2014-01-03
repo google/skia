@@ -89,4 +89,3 @@ SkNamedFactorySet* SkFlatController::setNamedFactorySet(SkNamedFactorySet* set) 
     SkRefCnt_SafeAssign(fFactorySet, set);
     return set;
 }
-
