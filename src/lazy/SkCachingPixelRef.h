@@ -40,7 +40,7 @@ public:
 
 protected:
     virtual ~SkCachingPixelRef();
-    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
+    virtual void* onLockPixels(SkColorTable** colorTable) SK_OVERRIDE;
     virtual void onUnlockPixels() SK_OVERRIDE;
     virtual bool onLockPixelsAreWritable() const SK_OVERRIDE { return false; }
 

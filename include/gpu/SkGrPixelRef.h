@@ -24,9 +24,10 @@ public:
     virtual ~SkROLockPixelsPixelRef();
 
 protected:
-    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
-    virtual void onUnlockPixels() SK_OVERRIDE;
-    virtual bool onLockPixelsAreWritable() const SK_OVERRIDE;   // return false;
+    // override from SkPixelRef
+    virtual void* onLockPixels(SkColorTable** ptr);
+    virtual void onUnlockPixels();
+    virtual bool onLockPixelsAreWritable() const;   // return false;
 
 private:
     SkBitmap    fBitmap;
