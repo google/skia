@@ -57,14 +57,16 @@ void SkDropShadowImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const
     buffer.writeColor(fColor);
 }
 
-bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source, const SkMatrix& matrix, SkBitmap* result, SkIPoint* loc)
+bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source, const SkMatrix& matrix, SkBitmap* result, SkIPoint* offset)
 {
     SkBitmap src = source;
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, loc))
+    SkIPoint srcOffset = SkIPoint::Make(0, 0);
+    if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, &srcOffset))
         return false;
 
     SkIRect bounds;
     src.getBounds(&bounds);
+    bounds.offset(srcOffset);
     if (!this->applyCropRect(&bounds, matrix)) {
         return false;
     }
@@ -85,7 +87,7 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
     canvas.drawBitmap(src, fDx, fDy, &paint);
     canvas.drawBitmap(src, 0, 0);
     *result = device->accessBitmap(false);
-    loc->fX += bounds.fLeft;
-    loc->fY += bounds.fTop;
+    offset->fX = bounds.fLeft;
+    offset->fY = bounds.fTop;
     return true;
 }

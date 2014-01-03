@@ -16,7 +16,7 @@ bool SkComposeImageFilter::onFilterImage(Proxy* proxy,
                                          const SkBitmap& src,
                                          const SkMatrix& ctm,
                                          SkBitmap* result,
-                                         SkIPoint* loc) {
+                                         SkIPoint* offset) {
     SkImageFilter* outer = getInput(0);
     SkImageFilter* inner = getInput(1);
 
@@ -25,12 +25,12 @@ bool SkComposeImageFilter::onFilterImage(Proxy* proxy,
     }
 
     if (!outer || !inner) {
-        return (outer ? outer : inner)->filterImage(proxy, src, ctm, result, loc);
+        return (outer ? outer : inner)->filterImage(proxy, src, ctm, result, offset);
     }
 
     SkBitmap tmp;
-    return inner->filterImage(proxy, src, ctm, &tmp, loc) &&
-           outer->filterImage(proxy, tmp, ctm, result, loc);
+    return inner->filterImage(proxy, src, ctm, &tmp, offset) &&
+           outer->filterImage(proxy, tmp, ctm, result, offset);
 }
 
 bool SkComposeImageFilter::onFilterBounds(const SkIRect& src,

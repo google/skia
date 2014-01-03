@@ -60,3 +60,6 @@ filterbitmap_text_10.00pt
 
 # Added by sugoi for added test in https://codereview.chromium.org/104853005
 displacement
+
+# Added by senorblanco for new test case in https://codereview.chromium.org/112803004/
+imagefiltersgraph

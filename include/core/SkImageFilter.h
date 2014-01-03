@@ -71,7 +71,7 @@ public:
      *  The matrix is the current matrix on the canvas.
      *
      *  Offset is the amount to translate the resulting image relative to the
-     *  src when it is drawn.
+     *  src when it is drawn. This is an out-param.
      *
      *  If the result image cannot be created, return false, in which case both
      *  the result and offset parameters will be ignored by the caller.
@@ -167,7 +167,22 @@ protected:
 
     virtual void flatten(SkFlattenableWriteBuffer& wb) const SK_OVERRIDE;
 
-    // Default impl returns false
+    /**
+     *  This is the virtual which should be overridden by the derived class
+     *  to perform image filtering.
+     *
+     *  src is the original primitive bitmap. If the filter has a connected
+     *  input, it should recurse on that input and use that in place of src.
+     *
+     *  The matrix is the current matrix on the canvas.
+     *
+     *  Offset is the amount to translate the resulting image relative to the
+     *  src when it is drawn. This is an out-param.
+     *
+     *  If the result image cannot be created, this should false, in which
+     *  case both the result and offset parameters will be ignored by the
+     *  caller.
+     */
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset);
     // Default impl copies src into dst and returns true

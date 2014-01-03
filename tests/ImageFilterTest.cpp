@@ -15,7 +15,16 @@
 #include "SkColorMatrixFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkDeviceImageFilterProxy.h"
+#include "SkBlurImageFilter.h"
+#include "SkDisplacementMapEffect.h"
+#include "SkDropShadowImageFilter.h"
 #include "SkLightingImageFilter.h"
+#include "SkMergeImageFilter.h"
+#include "SkMorphologyImageFilter.h"
+#include "SkMatrixConvolutionImageFilter.h"
+#include "SkOffsetImageFilter.h"
+#include "SkTileImageFilter.h"
+#include "SkXfermodeImageFilter.h"
 #include "SkRect.h"
 
 static const int kBitmapSize = 4;
@@ -146,6 +155,66 @@ DEF_TEST(ImageFilter, reporter) {
             // An empty input should early return and return false
             REPORTER_ASSERT(reporter,
                             !bicubic->filterImage(&proxy, bitmap, SkMatrix::I(), &result, &loc));
+        }
+    }
+
+    {
+        // Check that all filters offset to their absolute crop rect,
+        // unaffected by the input crop rect.
+        // Tests pass by not asserting.
+        SkBitmap bitmap, temp;
+        bitmap.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+        temp.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+        bitmap.allocPixels();
+        temp.allocPixels();
+        bitmap.eraseARGB(0, 0, 0, 0);
+        SkBitmapDevice device(temp);
+        SkDeviceImageFilterProxy proxy(&device);
+
+        SkImageFilter::CropRect inputCropRect(SkRect::MakeXYWH(8, 13, 80, 80));
+        SkImageFilter::CropRect cropRect(SkRect::MakeXYWH(20, 30, 60, 60));
+        SkAutoTUnref<SkImageFilter> input(make_grayscale(NULL, &inputCropRect));
+
+        SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode));
+        SkPoint3 location(0, 0, SK_Scalar1);
+        SkPoint3 target(SK_Scalar1, SK_Scalar1, SK_Scalar1);
+        SkScalar kernel[9] = {
+            SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
+            SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
+            SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
+        };
+        SkISize kernelSize = SkISize::Make(3, 3);
+        SkScalar gain = SK_Scalar1, bias = 0;
+
+        SkImageFilter* filters[] = {
+            SkColorFilterImageFilter::Create(cf.get(), input.get(), &cropRect),
+            new SkDisplacementMapEffect(SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                        SkDisplacementMapEffect::kB_ChannelSelectorType,
+                                        40.0f, input.get(), input.get(), &cropRect),
+            new SkBlurImageFilter(SK_Scalar1, SK_Scalar1, input.get(), &cropRect),
+            new SkDropShadowImageFilter(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_ColorGREEN, input.get(), &cropRect),
+            SkLightingImageFilter::CreatePointLitDiffuse(location, SK_ColorGREEN, 0, 0, input.get(), &cropRect),
+            SkLightingImageFilter::CreatePointLitSpecular(location, SK_ColorGREEN, 0, 0, 0, input.get(), &cropRect),
+            new SkMatrixConvolutionImageFilter(kernelSize, kernel, gain, bias, SkIPoint::Make(1, 1), SkMatrixConvolutionImageFilter::kRepeat_TileMode, false, input.get(), &cropRect),
+            new SkMergeImageFilter(input.get(), input.get(), SkXfermode::kSrcOver_Mode, &cropRect),
+            new SkOffsetImageFilter(SK_Scalar1, SK_Scalar1, input.get(), &cropRect),
+            new SkOffsetImageFilter(SK_Scalar1, SK_Scalar1, input.get(), &cropRect),
+            new SkDilateImageFilter(3, 2, input.get(), &cropRect),
+            new SkErodeImageFilter(2, 3, input.get(), &cropRect),
+            new SkTileImageFilter(inputCropRect.rect(), cropRect.rect(), input.get()),
+            new SkXfermodeImageFilter(SkXfermode::Create(SkXfermode::kSrcOver_Mode), input.get(), input.get(), &cropRect),
+        };
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+            SkImageFilter* filter = filters[i];
+            SkBitmap result;
+            SkIPoint offset;
+            REPORTER_ASSERT(reporter, filter->filterImage(&proxy, bitmap, SkMatrix::I(), &result, &offset));
+            REPORTER_ASSERT(reporter, offset.fX == 20 && offset.fY == 30);
+        }
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+            SkSafeUnref(filters[i]);
         }
     }
 }

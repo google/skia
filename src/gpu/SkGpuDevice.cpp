@@ -1494,11 +1494,11 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     SkAutoCachedTexture act(this, bitmap, NULL, &texture);
 
     SkImageFilter* filter = paint.getImageFilter();
-    SkIPoint offset = SkIPoint::Make(left, top);
     // This bitmap will own the filtered result as a texture.
     SkBitmap filteredBitmap;
 
     if (NULL != filter) {
+        SkIPoint offset = SkIPoint::Make(0, 0);
         SkMatrix matrix(*draw.fMatrix);
         matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
         if (filter_texture(this, fContext, texture, filter, w, h, matrix, &filteredBitmap,
@@ -1506,6 +1506,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
             texture = (GrTexture*) filteredBitmap.getTexture();
             w = filteredBitmap.width();
             h = filteredBitmap.height();
+            left += offset.x();
+            top += offset.y();
         } else {
             return;
         }
@@ -1519,8 +1521,8 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     }
 
     fContext->drawRectToRect(grPaint,
-                             SkRect::MakeXYWH(SkIntToScalar(offset.fX),
-                                              SkIntToScalar(offset.fY),
+                             SkRect::MakeXYWH(SkIntToScalar(left),
+                                              SkIntToScalar(top),
                                               SkIntToScalar(w),
                                               SkIntToScalar(h)),
                              SkRect::MakeXYWH(0,

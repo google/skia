@@ -98,7 +98,7 @@ bool SkMergeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
 
 bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                        const SkMatrix& ctm,
-                                       SkBitmap* result, SkIPoint* loc) {
+                                       SkBitmap* result, SkIPoint* offset) {
     if (countInputs() < 1) {
         return false;
     }
@@ -142,8 +142,8 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
         canvas.drawSprite(*srcPtr, pos.x() - x0, pos.y() - y0, &paint);
     }
 
-    loc->fX += bounds.left();
-    loc->fY += bounds.top();
+    offset->fX = bounds.left();
+    offset->fY = bounds.top();
     *result = dst->accessBitmap(false);
     return true;
 }

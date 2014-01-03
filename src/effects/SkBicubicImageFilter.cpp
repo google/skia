@@ -84,9 +84,10 @@ bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
                                          const SkBitmap& source,
                                          const SkMatrix& matrix,
                                          SkBitmap* result,
-                                         SkIPoint* loc) {
+                                         SkIPoint* offset) {
     SkBitmap src = source;
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, loc)) {
+    SkIPoint srcOffset = SkIPoint::Make(0, 0);
+    if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, &srcOffset)) {
         return false;
     }
 
@@ -114,6 +115,7 @@ bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
 
     SkRect srcRect;
     src.getBounds(&srcRect);
+    srcRect.offset(SkPoint::Make(SkIntToScalar(srcOffset.fX), SkIntToScalar(srcOffset.fY)));
     SkMatrix inverse;
     inverse.setRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
     inverse.postTranslate(-0.5f, -0.5f);
@@ -158,6 +160,8 @@ bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
             *dptr++ = cubicBlend(fCoefficients, fracty, s0, s1, s2, s3);
         }
     }
+    offset->fX = dstIRect.fLeft;
+    offset->fY = dstIRect.fTop;
     return true;
 }
 

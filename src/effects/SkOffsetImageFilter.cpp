@@ -16,32 +16,33 @@
 bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
                                         const SkMatrix& matrix,
                                         SkBitmap* result,
-                                        SkIPoint* loc) {
+                                        SkIPoint* offset) {
     SkImageFilter* input = getInput(0);
     SkBitmap src = source;
+    SkIPoint srcOffset = SkIPoint::Make(0, 0);
 #ifdef SK_DISABLE_OFFSETIMAGEFILTER_OPTIMIZATION
     if (false) {
 #else
     if (!cropRectIsSet()) {
 #endif
-        if (input && !input->filterImage(proxy, source, matrix, &src, loc)) {
+        if (input && !input->filterImage(proxy, source, matrix, &src, &srcOffset)) {
             return false;
         }
 
         SkVector vec;
         matrix.mapVectors(&vec, &fOffset, 1);
 
-        loc->fX += SkScalarRoundToInt(vec.fX);
-        loc->fY += SkScalarRoundToInt(vec.fY);
+        offset->fX = srcOffset.fX + SkScalarRoundToInt(vec.fX);
+        offset->fY = srcOffset.fY + SkScalarRoundToInt(vec.fY);
         *result = src;
     } else {
-        SkIPoint srcOffset = SkIPoint::Make(0, 0);
         if (input && !input->filterImage(proxy, source, matrix, &src, &srcOffset)) {
             return false;
         }
 
         SkIRect bounds;
         src.getBounds(&bounds);
+        bounds.offset(srcOffset);
 
         if (!applyCropRect(&bounds, matrix)) {
             return false;
@@ -54,10 +55,12 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
         SkCanvas canvas(device);
         SkPaint paint;
         paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-        canvas.drawBitmap(src, fOffset.fX - bounds.left(), fOffset.fY - bounds.top(), &paint);
+        canvas.translate(SkIntToScalar(srcOffset.fX - bounds.fLeft),
+                         SkIntToScalar(srcOffset.fY - bounds.fTop));
+        canvas.drawBitmap(src, fOffset.x(), fOffset.y(), &paint);
         *result = device->accessBitmap(false);
-        loc->fX += bounds.left();
-        loc->fY += bounds.top();
+        offset->fX = bounds.fLeft;
+        offset->fY = bounds.fTop;
     }
     return true;
 }

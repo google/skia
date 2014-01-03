@@ -88,8 +88,8 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
     paint.setColor(SK_ColorTRANSPARENT);
     canvas.drawPaint(paint);
     *dst = device->accessBitmap(false);
-    offset->fX += bounds.left();
-    offset->fY += bounds.top();
+    offset->fX = bounds.left();
+    offset->fY = bounds.top();
     return true;
 }
 
@@ -157,8 +157,8 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
         foregroundPaint.addColorTextureEffect(foregroundTex, foregroundMatrix);
         context->drawRect(foregroundPaint, srcRect);
     }
-    offset->fX += backgroundOffset.fX;
-    offset->fY += backgroundOffset.fY;
+    offset->fX = backgroundOffset.fX;
+    offset->fY = backgroundOffset.fY;
     return SkImageFilterUtils::WrapTexture(dst, src.width(), src.height(), result);
 }
 

@@ -35,6 +35,7 @@ bool SkImageFilterUtils::GetInputResultGPU(SkImageFilter* filter, SkImageFilter:
     GrContext* context = src.getTexture()->getContext();
     GrContext::AutoWideOpenIdentityDraw awoid(context, NULL);
     if (!filter) {
+        offset->fX = offset->fY = 0;
         *result = src;
         return true;
     } else if (filter->canFilterImageGPU()) {

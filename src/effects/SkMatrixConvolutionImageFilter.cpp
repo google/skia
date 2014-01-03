@@ -252,9 +252,10 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
                                                    const SkBitmap& source,
                                                    const SkMatrix& matrix,
                                                    SkBitmap* result,
-                                                   SkIPoint* loc) {
+                                                   SkIPoint* offset) {
     SkBitmap src = source;
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, loc)) {
+    SkIPoint srcOffset = SkIPoint::Make(0, 0);
+    if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, &srcOffset)) {
         return false;
     }
 
@@ -264,6 +265,7 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
 
     SkIRect bounds;
     src.getBounds(&bounds);
+    bounds.offset(srcOffset);
     if (!this->applyCropRect(&bounds, matrix)) {
         return false;
     }
@@ -283,6 +285,9 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
+    offset->fX = bounds.fLeft;
+    offset->fY = bounds.fTop;
+    bounds.offset(-srcOffset);
     SkIRect interior = SkIRect::MakeXYWH(bounds.left() + fTarget.fX,
                                          bounds.top() + fTarget.fY,
                                          bounds.width() - fKernelSize.fWidth + 1,
@@ -299,8 +304,6 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
     filterInteriorPixels(src, result, interior, bounds);
     filterBorderPixels(src, result, right, bounds);
     filterBorderPixels(src, result, bottom, bounds);
-    loc->fX += bounds.fLeft;
-    loc->fY += bounds.fTop;
     return true;
 }
 

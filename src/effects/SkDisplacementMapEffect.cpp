@@ -221,8 +221,8 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
 
     computeDisplacement(fXChannelSelector, fYChannelSelector, fScale, dst, &displ, &color, bounds);
 
-    offset->fX += bounds.left();
-    offset->fY += bounds.top();
+    offset->fX = bounds.left();
+    offset->fY = bounds.top();
     return true;
 }
 
@@ -356,8 +356,8 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     SkRect srcRect = SkRect::Make(bounds);
     SkRect dstRect = SkRect::MakeWH(srcRect.width(), srcRect.height());
     context->drawRectToRect(paint, dstRect, srcRect);
-    offset->fX += bounds.left();
-    offset->fY += bounds.top();
+    offset->fX = bounds.left();
+    offset->fY = bounds.top();
     return SkImageFilterUtils::WrapTexture(dst, bounds.width(), bounds.height(), result);
 }
 

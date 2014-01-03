@@ -49,6 +49,7 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const SkMatrix
     if (fSrcRect == bounds && dstRect == bounds) {
         // No regions cropped out or resized; return entire bitmap.
         *result = fBitmap;
+        offset->fX = offset->fY = 0;
         return true;
     }
     SkIRect dstIRect;
@@ -73,7 +74,7 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const SkMatrix
     canvas.drawBitmapRectToRect(fBitmap, &fSrcRect, dstRect, &paint);
 
     *result = device.get()->accessBitmap(false);
-    offset->fX += dstIRect.fLeft;
-    offset->fY += dstIRect.fTop;
+    offset->fX = dstIRect.fLeft;
+    offset->fY = dstIRect.fTop;
     return true;
 }

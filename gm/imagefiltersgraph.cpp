@@ -182,6 +182,25 @@ protected:
             drawClippedBitmap(canvas, fBitmap, paint);
             canvas->translate(SkIntToScalar(100), 0);
         }
+        {
+            // Test that crop offsets are absolute, not relative to the parent's crop rect.
+            SkAutoTUnref<SkColorFilter> cf1(SkColorFilter::CreateModeFilter(SK_ColorBLUE,
+                                                                            SkXfermode::kSrcIn_Mode));
+            SkAutoTUnref<SkColorFilter> cf2(SkColorFilter::CreateModeFilter(SK_ColorGREEN,
+                                                                            SkXfermode::kSrcIn_Mode));
+            SkImageFilter::CropRect outerRect(SkRect::MakeXYWH(SkIntToScalar(10), SkIntToScalar(10),
+                                                               SkIntToScalar(80), SkIntToScalar(80)));
+            SkImageFilter::CropRect innerRect(SkRect::MakeXYWH(SkIntToScalar(20), SkIntToScalar(20),
+                                                               SkIntToScalar(60), SkIntToScalar(60)));
+            SkAutoTUnref<SkImageFilter> color1(SkColorFilterImageFilter::Create(cf1, NULL, &outerRect));
+            SkAutoTUnref<SkImageFilter> color2(SkColorFilterImageFilter::Create(cf2, color1, &innerRect));
+
+            SkPaint paint;
+            paint.setImageFilter(color2);
+            paint.setColor(0xFFFF0000);
+            canvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), paint);
+            canvas->translate(SkIntToScalar(100), 0);
+        }
     }
 
 private:

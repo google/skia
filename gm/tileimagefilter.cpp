@@ -31,7 +31,7 @@ protected:
         fBitmap.allocPixels();
         SkBitmapDevice device(fBitmap);
         SkCanvas canvas(&device);
-        canvas.clear(0x00000000);
+        canvas.clear(0xFF000000);
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setColor(0xD000D000);
@@ -67,16 +67,6 @@ protected:
         return make_isize(WIDTH, HEIGHT);
     }
 
-    void drawClippedBitmap(SkCanvas* canvas, const SkBitmap& bitmap, const SkPaint& paint,
-                           SkScalar x, SkScalar y) {
-        canvas->save();
-        canvas->translate(x, y);
-        canvas->clipRect(SkRect::MakeXYWH(0, 0,
-            SkIntToScalar(bitmap.width()), SkIntToScalar(bitmap.height())));
-        canvas->drawBitmap(bitmap, 0, 0, &paint);
-        canvas->restore();
-    }
-
     virtual void onDraw(SkCanvas* canvas) {
         if (!fInitialized) {
             make_bitmap();
@@ -95,13 +85,16 @@ protected:
                                               SkIntToScalar(bitmap->height()/(i+1)));
             SkRect dstRect = SkRect::MakeXYWH(SkIntToScalar(i * 8),
                                               SkIntToScalar(i * 4),
-                                              SkIntToScalar(bitmap->width() - i * 4),
-                                              SkIntToScalar(bitmap->height()) - i * 8);
+                                              SkIntToScalar(bitmap->width() - i * 12),
+                                              SkIntToScalar(bitmap->height()) - i * 12);
             SkAutoTUnref<SkImageFilter> tileInput(SkNEW_ARGS(SkBitmapSource, (*bitmap)));
             SkAutoTUnref<SkImageFilter> filter(SkNEW_ARGS(
                 SkTileImageFilter, (srcRect, dstRect, tileInput)));
+            canvas->save();
+            canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
             paint.setImageFilter(filter);
-            drawClippedBitmap(canvas, *bitmap, paint, SkIntToScalar(x), SkIntToScalar(y));
+            canvas->drawBitmap(fBitmap, 0, 0, &paint);
+            canvas->restore();
             x += bitmap->width() + MARGIN;
             if (x + bitmap->width() > WIDTH) {
                 x = 0;

@@ -93,15 +93,15 @@ void SkImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
 
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
                                 const SkMatrix& ctm,
-                                SkBitmap* result, SkIPoint* loc) {
+                                SkBitmap* result, SkIPoint* offset) {
     SkASSERT(result);
-    SkASSERT(loc);
+    SkASSERT(offset);
     /*
      *  Give the proxy first shot at the filter. If it returns false, ask
      *  the filter to do it.
      */
-    return (proxy && proxy->filterImage(this, src, ctm, result, loc)) ||
-           this->onFilterImage(proxy, src, ctm, result, loc);
+    return (proxy && proxy->filterImage(this, src, ctm, result, offset)) ||
+           this->onFilterImage(proxy, src, ctm, result, offset);
 }
 
 bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,

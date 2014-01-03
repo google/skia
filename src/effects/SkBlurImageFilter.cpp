@@ -137,7 +137,8 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
                                       const SkBitmap& source, const SkMatrix& ctm,
                                       SkBitmap* dst, SkIPoint* offset) {
     SkBitmap src = source;
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctm, &src, offset)) {
+    SkIPoint srcOffset = SkIPoint::Make(0, 0);
+    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctm, &src, &srcOffset)) {
         return false;
     }
 
@@ -152,6 +153,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
 
     SkIRect srcBounds, dstBounds;
     src.getBounds(&srcBounds);
+    srcBounds.offset(srcOffset);
     if (!this->applyCropRect(&srcBounds, ctm)) {
         return false;
     }
@@ -174,6 +176,8 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
 
     if (kernelSizeX == 0 && kernelSizeY == 0) {
         src.copyTo(dst, dst->config());
+        offset->fX = srcBounds.fLeft;
+        offset->fY = srcBounds.fTop;
         return true;
     }
 
@@ -183,6 +187,9 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
+    offset->fX = srcBounds.fLeft;
+    offset->fY = srcBounds.fTop;
+    srcBounds.offset(-srcOffset);
     const SkPMColor* s = src.getAddr32(srcBounds.left(), srcBounds.top());
     SkPMColor* t = temp.getAddr32(0, 0);
     SkPMColor* d = dst->getAddr32(0, 0);
@@ -212,8 +219,6 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         boxBlurX(d,  h,  t, kernelSizeY,  highOffsetY, lowOffsetY,  h, w);
         boxBlurXY(t, h,  d, kernelSizeY3, highOffsetY, highOffsetY, h, w);
     }
-    offset->fX += srcBounds.fLeft;
-    offset->fY += srcBounds.fTop;
     return true;
 }
 
@@ -237,8 +242,8 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
                                                              true,
                                                              fSigma.width(),
                                                              fSigma.height()));
-    offset->fX += rect.fLeft;
-    offset->fY += rect.fTop;
+    offset->fX = rect.fLeft;
+    offset->fY = rect.fTop;
     return SkImageFilterUtils::WrapTexture(tex, rect.width(), rect.height(), result);
 #else
     SkDEBUGFAIL("Should not call in GPU-less build");

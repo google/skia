@@ -927,7 +927,8 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
                                                  SkIPoint* offset) {
     SkImageFilter* input = getInput(0);
     SkBitmap src = source;
-    if (input && !input->filterImage(proxy, source, ctm, &src, offset)) {
+    SkIPoint srcOffset = SkIPoint::Make(0, 0);
+    if (input && !input->filterImage(proxy, source, ctm, &src, &srcOffset)) {
         return false;
     }
 
@@ -941,6 +942,7 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
 
     SkIRect bounds;
     src.getBounds(&bounds);
+    bounds.offset(srcOffset);
     if (!this->applyCropRect(&bounds, ctm)) {
         return false;
     }
@@ -958,6 +960,9 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
     SkAutoTUnref<SkLight> transformedLight(light()->transform(ctm));
 
     DiffuseLightingType lightingType(fKD);
+    offset->fX = bounds.left();
+    offset->fY = bounds.top();
+    bounds.offset(-srcOffset);
     switch (transformedLight->type()) {
         case SkLight::kDistant_LightType:
             lightBitmap<DiffuseLightingType, SkDistantLight>(lightingType, transformedLight, src, dst, surfaceScale(), bounds);
@@ -970,8 +975,6 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
             break;
     }
 
-    offset->fX += bounds.left();
-    offset->fY += bounds.top();
     return true;
 }
 
@@ -1018,7 +1021,8 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
                                                   SkIPoint* offset) {
     SkImageFilter* input = getInput(0);
     SkBitmap src = source;
-    if (input && !input->filterImage(proxy, source, ctm, &src, offset)) {
+    SkIPoint srcOffset = SkIPoint::Make(0, 0);
+    if (input && !input->filterImage(proxy, source, ctm, &src, &srcOffset)) {
         return false;
     }
 
@@ -1032,6 +1036,7 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
 
     SkIRect bounds;
     src.getBounds(&bounds);
+    bounds.offset(srcOffset);
     if (!this->applyCropRect(&bounds, ctm)) {
         return false;
     }
@@ -1047,6 +1052,9 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SpecularLightingType lightingType(fKS, fShininess);
+    offset->fX = bounds.left();
+    offset->fY = bounds.top();
+    bounds.offset(-srcOffset);
     SkAutoTUnref<SkLight> transformedLight(light()->transform(ctm));
     switch (transformedLight->type()) {
         case SkLight::kDistant_LightType:
@@ -1059,8 +1067,6 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
             lightBitmap<SpecularLightingType, SkSpotLight>(lightingType, transformedLight, src, dst, surfaceScale(), bounds);
             break;
     }
-    offset->fX += bounds.left();
-    offset->fY += bounds.top();
     return true;
 }
 
