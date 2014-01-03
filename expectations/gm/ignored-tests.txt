@@ -63,4 +63,4 @@ displacement
 
 # Added by senorblanco for new test case in https://codereview.chromium.org/112803004/
 imagefiltersgraph
-tileimagefilter_pdf-poppler
+tileimagefilter_pdf
