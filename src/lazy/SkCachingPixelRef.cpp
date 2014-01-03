@@ -8,7 +8,6 @@
 #include "SkCachingPixelRef.h"
 #include "SkScaledImageCache.h"
 
-
 bool SkCachingPixelRef::Install(SkImageGenerator* generator,
                                 SkBitmap* dst) {
     SkImageInfo info;
@@ -41,12 +40,12 @@ SkCachingPixelRef::~SkCachingPixelRef() {
     // Assert always unlock before unref.
 }
 
-void* SkCachingPixelRef::onLockPixels(SkColorTable**) {
-    const SkImageInfo& info = this->info();
-
+bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
     if (fErrorInDecoding) {
-        return NULL;  // don't try again.
+        return false;  // don't try again.
     }
+    
+    const SkImageInfo& info = this->info();
     SkBitmap bitmap;
     SkASSERT(NULL == fScaledCacheId);
     fScaledCacheId = SkScaledImageCache::FindAndLock(this->getGenerationID(),
@@ -57,12 +56,12 @@ void* SkCachingPixelRef::onLockPixels(SkColorTable**) {
         // Cache has been purged, must re-decode.
         if ((!bitmap.setConfig(info, fRowBytes)) || !bitmap.allocPixels()) {
             fErrorInDecoding = true;
-            return NULL;
+            return false;
         }
         SkAutoLockPixels autoLockPixels(bitmap);
         if (!fImageGenerator->getPixels(info, bitmap.getPixels(), fRowBytes)) {
             fErrorInDecoding = true;
-            return NULL;
+            return false;
         }
         fScaledCacheId = SkScaledImageCache::AddAndLock(this->getGenerationID(),
                                                         info.fWidth,
@@ -76,6 +75,7 @@ void* SkCachingPixelRef::onLockPixels(SkColorTable**) {
     SkAutoLockPixels autoLockPixels(bitmap);
     void* pixels = bitmap.getPixels();
     SkASSERT(pixels != NULL);
+    
     // At this point, the autoLockPixels will unlockPixels()
     // to remove bitmap's lock on the pixels.  We will then
     // destroy bitmap.  The *only* guarantee that this pointer
@@ -84,7 +84,10 @@ void* SkCachingPixelRef::onLockPixels(SkColorTable**) {
     // bitmap (SkScaledImageCache::Rec.fBitmap) that holds a
     // reference to the concrete PixelRef while this record is
     // locked.
-    return pixels;
+    rec->fPixels = pixels;
+    rec->fColorTable = NULL;
+    rec->fRowBytes = bitmap.rowBytes();
+    return true;
 }
 
 void SkCachingPixelRef::onUnlockPixels() {
