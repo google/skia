@@ -167,10 +167,10 @@ void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
 
 bool SkPixelRef::lockPixels(LockRec* rec) {
     SkASSERT(!fPreLocked || SKPIXELREF_PRELOCKED_LOCKCOUNT == fLockCount);
-    
+
     if (!fPreLocked) {
         SkAutoMutexAcquire  ac(*fMutex);
-        
+
         if (1 == ++fLockCount) {
             SkASSERT(fRec.isZero());
 

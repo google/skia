@@ -174,7 +174,7 @@ SkMallocPixelRef::SkMallocPixelRef(const SkImageInfo& info, void* storage,
     fCTable = ctable;
     fRB = rowBytes;
     SkSafeRef(ctable);
-    
+
     this->setPreLocked(fStorage, fRB, fCTable);
 }
 

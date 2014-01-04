@@ -47,7 +47,7 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
         SkDELETE(fDiscardableMemory);
         fDiscardableMemory = NULL;
     }
-    
+
     const size_t size = this->info().getSafeSize(fRowBytes);
 
     if (fDMFactory != NULL) {

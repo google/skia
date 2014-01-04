@@ -44,7 +44,7 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
     if (fErrorInDecoding) {
         return false;  // don't try again.
     }
-    
+
     const SkImageInfo& info = this->info();
     SkBitmap bitmap;
     SkASSERT(NULL == fScaledCacheId);
@@ -75,7 +75,7 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
     SkAutoLockPixels autoLockPixels(bitmap);
     void* pixels = bitmap.getPixels();
     SkASSERT(pixels != NULL);
-    
+
     // At this point, the autoLockPixels will unlockPixels()
     // to remove bitmap's lock on the pixels.  We will then
     // destroy bitmap.  The *only* guarantee that this pointer

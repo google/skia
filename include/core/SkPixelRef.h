@@ -77,14 +77,14 @@ public:
         void*           fPixels;
         SkColorTable*   fColorTable;
         size_t          fRowBytes;
-        
+
         void zero() { sk_bzero(this, sizeof(*this)); }
 
         bool isZero() const {
             return NULL == fPixels && NULL == fColorTable && 0 == fRowBytes;
         }
     };
-    
+
     /**
      *  Returns true if the lockcount > 0
      */
