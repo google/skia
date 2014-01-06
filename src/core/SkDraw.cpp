@@ -1496,8 +1496,8 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
 static void D1G_NoBounder_RectClip(const SkDraw1Glyph& state,
                                    SkFixed fx, SkFixed fy,
                                    const SkGlyph& glyph) {
-    int left = SkFixedFloor(fx);
-    int top = SkFixedFloor(fy);
+    int left = SkFixedFloorToInt(fx);
+    int top = SkFixedFloorToInt(fy);
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
     SkASSERT(NULL == state.fBounder);
     SkASSERT((NULL == state.fClip && state.fAAClip) ||
@@ -1540,8 +1540,8 @@ static void D1G_NoBounder_RectClip(const SkDraw1Glyph& state,
 static void D1G_NoBounder_RgnClip(const SkDraw1Glyph& state,
                                   SkFixed fx, SkFixed fy,
                                   const SkGlyph& glyph) {
-    int left = SkFixedFloor(fx);
-    int top = SkFixedFloor(fy);
+    int left = SkFixedFloorToInt(fx);
+    int top = SkFixedFloorToInt(fy);
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
     SkASSERT(!state.fClip->isRect());
     SkASSERT(NULL == state.fBounder);
@@ -1577,8 +1577,8 @@ static void D1G_NoBounder_RgnClip(const SkDraw1Glyph& state,
 static void D1G_Bounder(const SkDraw1Glyph& state,
                         SkFixed fx, SkFixed fy,
                         const SkGlyph& glyph) {
-    int left = SkFixedFloor(fx);
-    int top = SkFixedFloor(fy);
+    int left = SkFixedFloorToInt(fx);
+    int top = SkFixedFloorToInt(fy);
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
 
     SkMask  mask;
@@ -1618,8 +1618,8 @@ static void D1G_Bounder(const SkDraw1Glyph& state,
 static void D1G_Bounder_AAClip(const SkDraw1Glyph& state,
                                SkFixed fx, SkFixed fy,
                                const SkGlyph& glyph) {
-    int left = SkFixedFloor(fx);
-    int top = SkFixedFloor(fy);
+    int left = SkFixedFloorToInt(fx);
+    int top = SkFixedFloorToInt(fy);
     SkIRect bounds;
     bounds.set(left, top, left + glyph.fWidth, top + glyph.fHeight);
 

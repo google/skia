@@ -466,11 +466,11 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
             // now test if our Y values are completely inside the clip
             int top, bottom;
             if (slope >= 0) { // T2B
-                top = SkFixedFloor(fstart - SK_FixedHalf);
-                bottom = SkFixedCeil(fstart + (istop - istart - 1) * slope + SK_FixedHalf);
+                top = SkFixedFloorToInt(fstart - SK_FixedHalf);
+                bottom = SkFixedCeilToInt(fstart + (istop - istart - 1) * slope + SK_FixedHalf);
             } else {           // B2T
-                bottom = SkFixedCeil(fstart + SK_FixedHalf);
-                top = SkFixedFloor(fstart + (istop - istart - 1) * slope - SK_FixedHalf);
+                bottom = SkFixedCeilToInt(fstart + SK_FixedHalf);
+                top = SkFixedFloorToInt(fstart + (istop - istart - 1) * slope - SK_FixedHalf);
             }
 #ifdef OUTSET_BEFORE_CLIP_TEST
             top -= 1;
@@ -542,11 +542,11 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
             // now test if our X values are completely inside the clip
             int left, right;
             if (slope >= 0) { // L2R
-                left = SkFixedFloor(fstart - SK_FixedHalf);
-                right = SkFixedCeil(fstart + (istop - istart - 1) * slope + SK_FixedHalf);
+                left = SkFixedFloorToInt(fstart - SK_FixedHalf);
+                right = SkFixedCeilToInt(fstart + (istop - istart - 1) * slope + SK_FixedHalf);
             } else {           // R2L
-                right = SkFixedCeil(fstart + SK_FixedHalf);
-                left = SkFixedFloor(fstart + (istop - istart - 1) * slope - SK_FixedHalf);
+                right = SkFixedCeilToInt(fstart + SK_FixedHalf);
+                left = SkFixedFloorToInt(fstart + (istop - istart - 1) * slope - SK_FixedHalf);
             }
 #ifdef OUTSET_BEFORE_CLIP_TEST
             left -= 1;

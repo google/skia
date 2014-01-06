@@ -162,7 +162,7 @@ char* SkStrAppendFixed(char string[], SkFixed x) {
         static const uint16_t   gTens[] = { 1000, 100, 10, 1 };
         const uint16_t*         tens = gTens;
 
-        x = SkFixedRound(frac * 10000);
+        x = SkFixedRoundToInt(frac * 10000);
         SkASSERT(x <= 10000);
         if (x == 10000) {
             x -= 1;

@@ -97,20 +97,20 @@ static inline void XRect_set(SkXRect* xr, const SkRect& src) {
 /** Round the SkXRect coordinates, and store the result in the SkIRect.
 */
 static inline void XRect_round(const SkXRect& xr, SkIRect* dst) {
-    dst->fLeft = SkFixedRound(xr.fLeft);
-    dst->fTop = SkFixedRound(xr.fTop);
-    dst->fRight = SkFixedRound(xr.fRight);
-    dst->fBottom = SkFixedRound(xr.fBottom);
+    dst->fLeft = SkFixedRoundToInt(xr.fLeft);
+    dst->fTop = SkFixedRoundToInt(xr.fTop);
+    dst->fRight = SkFixedRoundToInt(xr.fRight);
+    dst->fBottom = SkFixedRoundToInt(xr.fBottom);
 }
 
 /** Round the SkXRect coordinates out (i.e. use floor for left/top, and ceiling
     for right/bottom), and store the result in the SkIRect.
 */
 static inline void XRect_roundOut(const SkXRect& xr, SkIRect* dst) {
-    dst->fLeft = SkFixedFloor(xr.fLeft);
-    dst->fTop = SkFixedFloor(xr.fTop);
-    dst->fRight = SkFixedCeil(xr.fRight);
-    dst->fBottom = SkFixedCeil(xr.fBottom);
+    dst->fLeft = SkFixedFloorToInt(xr.fLeft);
+    dst->fTop = SkFixedFloorToInt(xr.fTop);
+    dst->fRight = SkFixedCeilToInt(xr.fRight);
+    dst->fBottom = SkFixedCeilToInt(xr.fBottom);
 }
 
 #endif

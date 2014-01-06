@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,11 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkFixed_DEFINED
 #define SkFixed_DEFINED
 
 #include "SkTypes.h"
+
+//#define SK_SUPPORTED_DEPRECATED_FIXEDROUND
 
 /** \file SkFixed.h
 
@@ -77,10 +77,11 @@ typedef int32_t             SkFixed;
 #define SkFixedCeilToFixed(x)   (((x) + SK_Fixed1 - 1) & 0xFFFF0000)
 #define SkFixedFloorToFixed(x)  ((x) & 0xFFFF0000)
 
-// DEPRECATED
-#define SkFixedFloor(x)     SkFixedFloorToInt(x)
-#define SkFixedCeil(x)      SkFixedCeilToInt(x)
-#define SkFixedRound(x)     SkFixedRoundToInt(x)
+#ifdef SK_SUPPORTED_DEPRECATED_FIXEDROUND
+#   define SkFixedFloor(x)     SkFixedFloorToInt(x)
+#   define SkFixedCeil(x)      SkFixedCeilToInt(x)
+#   define SkFixedRound(x)     SkFixedRoundToInt(x)
+#endif
 
 #define SkFixedAbs(x)       SkAbs32(x)
 #define SkFixedAve(a, b)    (((a) + (b)) >> 1)
