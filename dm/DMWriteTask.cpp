@@ -5,6 +5,7 @@
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkString.h"
+#include "SkUnPreMultiply.h"
 
 DEFINE_string2(writePath, w, "", "If set, write GMs here as .pngs.");
 
@@ -89,22 +90,63 @@ static SkString path_to_expected_image(const char* root, const Task& task) {
 }
 
 bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
+    // PNG is stored unpremultiplied, and going from premul to unpremul to premul is lossy.  To
+    // skirt this problem, we decode the PNG into an unpremul bitmap, convert our bitmap to unpremul
+    // if needed, and compare those.  Each image goes once from premul to unpremul, never back.
     const SkString path = path_to_expected_image(fRoot, task);
 
-    SkBitmap expected;
-    if (SkImageDecoder::DecodeFile(path.c_str(), &expected)) {
-        if (expected.config() != bitmap.config()) {
-            SkBitmap converted;
-            SkAssertResult(expected.copyTo(&converted, bitmap.config()));
-            expected.swap(converted);
-        }
-        SkASSERT(expected.config() == bitmap.config());
-        return BitmapsEqual(expected, bitmap);
+    SkAutoTUnref<SkStreamRewindable> stream(SkStream::NewFromFile(path.c_str()));
+    if (NULL == stream.get()) {
+        SkDebugf("Could not read %s.\n", path.c_str());
+        return false;
     }
 
-    // Couldn't read the file, etc.
-    SkDebugf("Problem decoding %s to SkBitmap.\n", path.c_str());
-    return false;
+    SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
+    if (NULL == decoder.get()) {
+        SkDebugf("Could not find a decoder for %s.\n", path.c_str());
+        return false;
+    }
+
+    SkImageInfo info;
+    SkAssertResult(bitmap.asImageInfo(&info));
+
+    SkBitmap expected;
+    expected.setConfig(info);
+    expected.allocPixels();
+
+    // expected will be unpremultiplied.
+    decoder->setRequireUnpremultipliedColors(true);
+    if (!decoder->decode(stream, &expected, SkImageDecoder::kDecodePixels_Mode)) {
+        SkDebugf("Could not decode %s.\n", path.c_str());
+        return false;
+    }
+
+    // We always seem to decode to 8888.  This puts 565 back in 565.
+    if (expected.config() != bitmap.config()) {
+        SkBitmap converted;
+        SkAssertResult(expected.copyTo(&converted, bitmap.config()));
+        expected.swap(converted);
+    }
+    SkASSERT(expected.config() == bitmap.config());
+
+    // Manually unpremultiply 8888 bitmaps to match expected.
+    // Their pixels are shared, concurrently even, so we must copy them.
+    if (info.fColorType == kPMColor_SkColorType) {
+        SkBitmap unpremul;
+        unpremul.setConfig(info);
+        unpremul.allocPixels();
+
+        SkAutoLockPixels lockSrc(bitmap), lockDst(unpremul);
+        const SkPMColor* src = (SkPMColor*)bitmap.getPixels();
+        SkColor* dst = (SkColor*)unpremul.getPixels();
+
+        for (size_t i = 0; i < bitmap.getSize()/4; i++) {
+            dst[i] = SkUnPreMultiply::PMColorToColor(src[i]);
+        }
+        bitmap.swap(unpremul);
+    }
+
+    return BitmapsEqual(expected, bitmap);
 }
 
 }  // namespace DM
