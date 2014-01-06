@@ -18,7 +18,6 @@
 #include "SkRefCnt.h"
 #include "SkPath.h"
 #include "SkRegion.h"
-#include "SkScalarCompare.h"
 #include "SkXfermode.h"
 
 class SkBounder;
@@ -455,14 +454,13 @@ public:
                      not intersect the current clip)
     */
     bool quickRejectY(SkScalar top, SkScalar bottom) const {
-        SkASSERT(SkScalarToCompareType(top) <= SkScalarToCompareType(bottom));
-        const SkRectCompareType& clipR = this->getLocalClipBoundsCompareType();
+        SkASSERT(top <= bottom);
+        const SkRect& clipR = this->getLocalClipBounds();
         // In the case where the clip is empty and we are provided with a
         // negative top and positive bottom parameter then this test will return
         // false even though it will be clipped. We have chosen to exclude that
         // check as it is rare and would result double the comparisons.
-        return SkScalarToCompareType(top) >= clipR.fBottom
-            || SkScalarToCompareType(bottom) <= clipR.fTop;
+        return top >= clipR.fBottom || bottom <= clipR.fTop;
     }
 
     /** Return the bounds of the current clip (in local coordinates) in the
@@ -1100,20 +1098,20 @@ private:
     /*  These maintain a cache of the clip bounds in local coordinates,
         (converted to 2s-compliment if floats are slow).
      */
-    mutable SkRectCompareType fLocalBoundsCompareType;
-    mutable bool              fLocalBoundsCompareTypeDirty;
+    mutable SkRect fCachedLocalClipBounds;
+    mutable bool   fCachedLocalClipBoundsDirty;
     bool fAllowSoftClip;
     bool fAllowSimplifyClip;
 
-    const SkRectCompareType& getLocalClipBoundsCompareType() const {
-        if (fLocalBoundsCompareTypeDirty) {
-            this->computeLocalClipBoundsCompareType();
-            fLocalBoundsCompareTypeDirty = false;
+    const SkRect& getLocalClipBounds() const {
+        if (fCachedLocalClipBoundsDirty) {
+            if (!this->getClipBounds(&fCachedLocalClipBounds)) {
+                fCachedLocalClipBounds.setEmpty();
+            }
+            fCachedLocalClipBoundsDirty = false;
         }
-        return fLocalBoundsCompareType;
+        return fCachedLocalClipBounds;
     }
-    void computeLocalClipBoundsCompareType() const;
-
 
     class AutoValidateClip : ::SkNoncopyable {
     public:
