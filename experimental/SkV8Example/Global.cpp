@@ -190,6 +190,17 @@ Handle<Context> Global::createRootContext() {
   return Context::New(fIsolate, NULL, global);
 }
 
+void Global::initialize() {
+    // Create a stack-allocated handle scope.
+    HandleScope handleScope(fIsolate);
+
+    // Create a new context.
+    Handle<Context> context = this->createRootContext();
+
+    // Make the context persistent.
+    fContext.Reset(fIsolate, context);
+}
+
 
 // Creates the root context, parses the script into it, then stores the
 // context in a global.
@@ -201,10 +212,8 @@ bool Global::parseScript(const char script[]) {
     // Create a stack-allocated handle scope.
     HandleScope handleScope(fIsolate);
 
-    printf("Before create context\n");
-
-    // Create a new context.
-    Handle<Context> context = this->createRootContext();
+    // Get the global context.
+    Handle<Context> context = this->getContext();
 
     // Enter the scope so all operations take place in the scope.
     Context::Scope contextScope(context);
@@ -213,16 +222,13 @@ bool Global::parseScript(const char script[]) {
 
     // Compile the source code.
     Handle<String> source = String::NewFromUtf8(fIsolate, script);
-    printf("Before Compile\n");
     Handle<Script> compiledScript = Script::Compile(source);
-    printf("After Compile\n");
 
     if (compiledScript.IsEmpty()) {
         // Print errors that happened during compilation.
         this->reportException(&tryCatch);
         return false;
     }
-    printf("After Exception.\n");
 
     // Try running it now to create the onDraw function.
     Handle<Value> result = compiledScript->Run();
@@ -235,7 +241,5 @@ bool Global::parseScript(const char script[]) {
         return false;
     }
 
-    // Also make the context persistent.
-    fContext.Reset(fIsolate, context);
     return true;
 }

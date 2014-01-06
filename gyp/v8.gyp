@@ -15,6 +15,10 @@
          '../experimental/SkV8Example/SkV8Example.cpp',
          '../experimental/SkV8Example/Global.h',
          '../experimental/SkV8Example/Global.cpp',
+         '../experimental/SkV8Example/Path.h',
+         '../experimental/SkV8Example/Path.cpp',
+         '../experimental/SkV8Example/JsContext.h',
+         '../experimental/SkV8Example/JsContext.cpp',
        ],
        'dependencies': [
          'skia_lib.gyp:skia_lib',

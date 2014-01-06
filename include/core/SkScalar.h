@@ -140,6 +140,7 @@ inline SkScalar SkScalarSquare(SkScalar x) { return x * x; }
 #define SK_ScalarRoot2Over2     0.707106781f
 
 #define SkDegreesToRadians(degrees) ((degrees) * (SK_ScalarPI / 180))
+#define SkRadiansToDegrees(radians) ((radians) * (180 / SK_ScalarPI))
 float SkScalarSinCos(SkScalar radians, SkScalar* cosValue);
 #define SkScalarSin(radians)    (float)sk_float_sin(radians)
 #define SkScalarCos(radians)    (float)sk_float_cos(radians)

@@ -3,10 +3,10 @@
  */
 var onDraw = function(){
   var tick = 0;
-  function f(canvas) {
+  function f(context) {
     tick += 0.1;
-    canvas.fillStyle = '#0000ff';
-    canvas.fillRect(100, 100, Math.sin(tick)*100, Math.cos(tick)*100);
+    context.fillStyle = '#0000ff';
+    context.fillRect(100, 100, Math.sin(tick)*100, Math.cos(tick)*100);
   };
   return f;
 }();

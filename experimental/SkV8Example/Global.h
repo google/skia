@@ -33,6 +33,7 @@ public:
         , fLastTimerID(0)
     {
         gGlobal = this;
+        this->initialize();
     }
     virtual ~Global() {}
 
@@ -57,6 +58,7 @@ public:
     void reportException(TryCatch* tryCatch);
 
 private:
+    void initialize();
     Handle<Context> createRootContext();
     int32_t getNextTimerID();
 
