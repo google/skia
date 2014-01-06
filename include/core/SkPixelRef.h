@@ -305,7 +305,7 @@ protected:
     // only call from constructor. Flags this to always be locked, removing
     // the need to grab the mutex and call onLockPixels/onUnlockPixels.
     // Performance tweak to avoid those calls (esp. in multi-thread use case).
-    void setPreLocked(void* pixels, SkColorTable* ctable);
+    void setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctable);
 
 private:
     SkBaseMutex*    fMutex; // must remain in scope for the life of this object

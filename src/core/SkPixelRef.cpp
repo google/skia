@@ -138,7 +138,8 @@ void SkPixelRef::cloneGenID(const SkPixelRef& that) {
     that.fUniqueGenerationID = false;
 }
 
-void SkPixelRef::setPreLocked(void* pixels, SkColorTable* ctable) {
+// rowBytes will be respected when we land the onNewLockPixels CL
+void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctable) {
 #ifndef SK_IGNORE_PIXELREF_SETPRELOCKED
     // only call me in your constructor, otherwise fLockCount tracking can get
     // out of sync.
