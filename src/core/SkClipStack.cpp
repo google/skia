@@ -406,6 +406,9 @@ SkClipStack& SkClipStack::operator=(const SkClipStack& b) {
 }
 
 bool SkClipStack::operator==(const SkClipStack& b) const {
+    if (this->getTopmostGenID() == b.getTopmostGenID()) {
+        return true;
+    }
     if (fSaveCount != b.fSaveCount ||
         fDeque.count() != b.fDeque.count()) {
         return false;
