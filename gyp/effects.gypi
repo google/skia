@@ -9,6 +9,7 @@
   'sources': [
     '<(skia_src_path)/effects/Sk1DPathEffect.cpp',
     '<(skia_src_path)/effects/Sk2DPathEffect.cpp',
+    '<(skia_src_path)/effects/SkAlphaThresholdFilter.cpp',
     '<(skia_src_path)/effects/SkArithmeticMode.cpp',
     '<(skia_src_path)/effects/SkAvoidXfermode.cpp',
     '<(skia_src_path)/effects/SkBicubicImageFilter.cpp',
@@ -80,6 +81,7 @@
     '<(skia_include_path)/effects/Sk1DPathEffect.h',
     '<(skia_include_path)/effects/Sk2DPathEffect.h',
     '<(skia_include_path)/effects/SkXfermodeImageFilter.h',
+    '<(skia_include_path)/effects/SkAlphaThresholdFilter.h',
     '<(skia_include_path)/effects/SkArithmeticMode.h',
     '<(skia_include_path)/effects/SkAvoidXfermode.h',
     '<(skia_include_path)/effects/SkBitmapSource.h',

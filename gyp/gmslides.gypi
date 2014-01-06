@@ -73,6 +73,7 @@
     '../gm/hairlines.cpp',
     '../gm/hairmodes.cpp',
     '../gm/hittestpath.cpp',
+    '../gm/imagealphathreshold.cpp',
     '../gm/imageblur.cpp',
     '../gm/imagemagnifier.cpp',
     '../gm/inversepaths.cpp',

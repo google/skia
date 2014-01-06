@@ -251,6 +251,7 @@ DEFINE_GPUTESTCLASS("GLPrograms", GLProgramsTestClass, GLProgramsTest)
 // in the unit that could pass pointers to functions from the unit out to other translation units!
 // We force some of the effects that would otherwise be discarded to link here.
 
+#include "SkAlphaThresholdFilter.h"
 #include "SkLightingImageFilter.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkColorMatrixFilter.h"
@@ -259,6 +260,7 @@ void forceLinking();
 
 void forceLinking() {
     SkLightingImageFilter::CreateDistantLitDiffuse(SkPoint3(0,0,0), 0, 0, 0);
+    SkAlphaThresholdFilter::Create(SkRegion(), .5, .5);
     SkMagnifierImageFilter mag(SkRect::MakeWH(SK_Scalar1, SK_Scalar1), SK_Scalar1);
     GrConfigConversionEffect::Create(NULL,
                                      false,

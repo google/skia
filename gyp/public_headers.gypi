@@ -72,6 +72,7 @@
       'effects/SkMorphologyImageFilter.h',
       'effects/Sk2DPathEffect.h',
       'effects/SkXfermodeImageFilter.h',
+      'effects/SkAlphaThresholdFilter.h',
       'effects/SkArithmeticMode.h',
       'effects/SkMergeImageFilter.h',
       'effects/SkPerlinNoiseShader.h',
