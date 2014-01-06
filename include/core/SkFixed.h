@@ -10,8 +10,6 @@
 
 #include "SkTypes.h"
 
-//#define SK_SUPPORTED_DEPRECATED_FIXEDROUND
-
 /** \file SkFixed.h
 
     Types and macros for 16.16 fixed point
@@ -76,12 +74,6 @@ typedef int32_t             SkFixed;
 #define SkFixedRoundToFixed(x)  (((x) + SK_FixedHalf) & 0xFFFF0000)
 #define SkFixedCeilToFixed(x)   (((x) + SK_Fixed1 - 1) & 0xFFFF0000)
 #define SkFixedFloorToFixed(x)  ((x) & 0xFFFF0000)
-
-#ifdef SK_SUPPORTED_DEPRECATED_FIXEDROUND
-#   define SkFixedFloor(x)     SkFixedFloorToInt(x)
-#   define SkFixedCeil(x)      SkFixedCeilToInt(x)
-#   define SkFixedRound(x)     SkFixedRoundToInt(x)
-#endif
 
 #define SkFixedAbs(x)       SkAbs32(x)
 #define SkFixedAve(a, b)    (((a) + (b)) >> 1)
