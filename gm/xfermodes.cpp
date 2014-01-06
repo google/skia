@@ -66,8 +66,10 @@ class XfermodesGM : public GM {
      kQuarterClearInLayer_SrcType          = 0x20,
      //! A W/2xH/2 transparent image.
      kSmallTransparentImage_SrcType        = 0x40,
+     //! kRectangleImage_SrcType drawn directly with a mask.
+     kRectangleWithMask_SrcType            = 0x80,
 
-     kAll_SrcType                          = 0x7F, //!< All the source types.
+     kAll_SrcType                          = 0xFF, //!< All the source types.
      kBasic_SrcType                        = 0x03, //!< Just basic source types.
     };
 
@@ -111,6 +113,15 @@ class XfermodesGM : public GM {
                 r = SkRect::MakeXYWH(x, y + halfH, SkIntToScalar(W), halfH);
                 canvas->drawRect(r, p);
                 break;
+            }
+            case kRectangleWithMask_SrcType: {
+                canvas->save(SkCanvas::kClip_SaveFlag);
+                restoreNeeded = true;
+                SkScalar w = SkIntToScalar(W);
+                SkScalar h = SkIntToScalar(H);
+                SkRect r = SkRect::MakeXYWH(x, y + h / 4, w, h * 23 / 60);
+                canvas->clipRect(r);
+                // Fall through.
             }
             case kRectangle_SrcType: {
                 SkScalar w = SkIntToScalar(W);
