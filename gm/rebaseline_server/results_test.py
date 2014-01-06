@@ -8,10 +8,6 @@ found in the LICENSE file.
 
 Test results.py
 
-TODO(epoger): Launch this (and other unittests within this dir) automatically
-on the housekeeper bot, but first make sure it works properly after having been
-checked out (from both git and svn)
-
 TODO(epoger): Create a command to update the expected results (in
 OUTPUT_DIR_EXPECTED) when appropriate.  For now, you should:
 1. examine the results in OUTPUT_DIR_ACTUAL and make sure they are ok
@@ -66,6 +62,10 @@ class ResultsTest(unittest.TestCase):
     assert (not different_files), \
       ('found differing files between actual dir %s and expected dir %s: %s' %
        (self._output_dir_actual, self._output_dir_expected, different_files))
+
+  def shortDescription(self):
+    """Tell unittest framework to not print docstrings for test cases."""
+    return None
 
   def test_gm(self):
     """Process results of a GM run with the Results object."""
