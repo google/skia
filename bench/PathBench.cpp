@@ -327,27 +327,24 @@ protected:
 
     virtual void onPreDraw() SK_OVERRIDE {
         this->createData(10, 100);
-        fPaths.reset(kPathCnt);
     }
 
     virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         for (int i = 0; i < loops; ++i) {
-            this->makePath(&fPaths[i & (kPathCnt - 1)]);
+            if (i % 1000 == 0) {
+                fPath.reset();  // PathRef memory can grow without bound otherwise.
+            }
+            this->makePath(&fPath);
         }
         this->restartMakingPaths();
     }
 
     virtual void onPostDraw() SK_OVERRIDE {
         this->finishedMakingPaths();
-        fPaths.reset(0);
     }
 
 private:
-    enum {
-        // must be a pow 2
-        kPathCnt = 1 << 5,
-    };
-    SkAutoTArray<SkPath> fPaths;
+    SkPath fPath;
 
     typedef RandomPathBench INHERITED;
 };
