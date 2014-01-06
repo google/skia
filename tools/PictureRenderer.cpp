@@ -53,13 +53,7 @@ enum {
  * Figure out a way to share the definitions instead.
  */
 const static char kJsonKey_ActualResults[]   = "actual-results";
-const static char kJsonKey_ActualResults_Failed[]        = "failed";
-const static char kJsonKey_ActualResults_FailureIgnored[]= "failure-ignored";
 const static char kJsonKey_ActualResults_NoComparison[]  = "no-comparison";
-const static char kJsonKey_ActualResults_Succeeded[]     = "succeeded";
-const static char kJsonKey_ExpectedResults[] = "expected-results";
-const static char kJsonKey_ExpectedResults_AllowedDigests[] = "allowed-digests";
-const static char kJsonKey_ExpectedResults_IgnoreFailure[]  = "ignore-failure";
 const static char kJsonKey_Hashtype_Bitmap_64bitMD5[]  = "bitmap-64bitMD5";
 
 void ImageResultsSummary::add(const char *testName, const SkBitmap& bitmap) {
