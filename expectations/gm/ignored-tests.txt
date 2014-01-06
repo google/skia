@@ -33,16 +33,9 @@
 ## gpu config of gradtext GM test
 #gradtext_gpu
 
-
-
-
 # Added by yunchao in https://codereview.chromium.org/54213002
 # https://code.google.com/p/skia/issues/detail?id=1882 ('rects GM results need rebaselining')
 rects
-
-# https://code.google.com/p/skia/issues/detail?id=1879 ('*filterbitmap_* GM results need rebaselining')
-downsamplebitmap_checkerboard_high_512_256
-downsamplebitmap_text_high_72.00pt
 
 # Added by sugoi for added test in https://codereview.chromium.org/104853005
 displacement
