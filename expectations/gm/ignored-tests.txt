@@ -42,11 +42,6 @@ rects
 
 # https://code.google.com/p/skia/issues/detail?id=1879 ('*filterbitmap_* GM results need rebaselining')
 downsamplebitmap_checkerboard_high_512_256
-filterbitmap_checkerboard_192_192
-filterbitmap_checkerboard_32_32
-filterbitmap_checkerboard_32_8
-filterbitmap_checkerboard_32_2
-filterbitmap_checkerboard_4_4
 downsamplebitmap_text_high_72.00pt
 filterbitmap_text_3.00pt
 filterbitmap_text_7.00pt
