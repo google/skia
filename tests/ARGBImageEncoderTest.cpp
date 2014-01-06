@@ -5,30 +5,20 @@
  * found in the LICENSE file.
  */
 
-/** Tests for ARGBImageEncoder. */
+#include "SkImageEncoder.h"
 
-#include "Test.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
-#include "SkImageEncoder.h"
 #include "SkStream.h"
-
-namespace skiatest {
-
-class BitmapTransformerTestClass : public Test {
-public:
-    static Test* Factory(void*) { return SkNEW(BitmapTransformerTestClass); }
-protected:
-    virtual void onGetName(SkString* name) SK_OVERRIDE { name->set("ARGBImageEncoder"); }
-    virtual void onRun(Reporter* reporter) SK_OVERRIDE;
-};
+#include "Test.h"
+#include "TestClassDef.h"
 
 static SkBitmap::Config configs[] = {
-        SkBitmap::kRGB_565_Config,
-        SkBitmap::kARGB_8888_Config,
+    SkBitmap::kRGB_565_Config,
+    SkBitmap::kARGB_8888_Config,
 };
 
-void BitmapTransformerTestClass::onRun(Reporter* reporter) {
+DEF_TEST(ARGBImageEncoder, reporter) {
     // Bytes we expect to get:
     const int kWidth = 3;
     const int kHeight = 5;
@@ -70,8 +60,4 @@ void BitmapTransformerTestClass::onRun(Reporter* reporter) {
         REPORTER_ASSERT(reporter, bufferSize == sizeof(comparisonBuffer));
         REPORTER_ASSERT(reporter, memcmp(pixelBuffer, comparisonBuffer, bufferSize) == 0);
     }
-}
-
-static TestRegistry gReg(BitmapTransformerTestClass::Factory);
-
 }
