@@ -199,13 +199,11 @@ public:
     SK_DECLARE_UNFLATTENABLE_OBJECT()
 
 protected:
-    virtual void* onLockPixels(SkColorTable**) SK_OVERRIDE;
+    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
     virtual void onUnlockPixels() SK_OVERRIDE;
     virtual size_t getAllocatedSizeInBytes() const SK_OVERRIDE;
 
 private:
-    SkImageInfo fInfo;  // remove when SkPixelRef gets this in baseclass
-
     SkDiscardableMemory* fDM;
     size_t               fRB;
     bool                 fFirstTime;
@@ -220,8 +218,6 @@ SkOneShotDiscardablePixelRef::SkOneShotDiscardablePixelRef(const SkImageInfo& in
     , fDM(dm)
     , fRB(rowBytes)
 {
-    fInfo = info;   // remove this redundant field when SkPixelRef has info
-
     SkASSERT(dm->data());
     fFirstTime = true;
 }
@@ -230,26 +226,31 @@ SkOneShotDiscardablePixelRef::~SkOneShotDiscardablePixelRef() {
     SkDELETE(fDM);
 }
 
-void* SkOneShotDiscardablePixelRef::onLockPixels(SkColorTable** ctable) {
+bool SkOneShotDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
     if (fFirstTime) {
         // we're already locked
         SkASSERT(fDM->data());
         fFirstTime = false;
-        return fDM->data();
+        goto SUCCESS;
     }
 
     // A previous call to onUnlock may have deleted our DM, so check for that
     if (NULL == fDM) {
-        return NULL;
+        return false;
     }
 
     if (!fDM->lock()) {
         // since it failed, we delete it now, to free-up the resource
         delete fDM;
         fDM = NULL;
-        return NULL;
+        return false;
     }
-    return fDM->data();
+
+SUCCESS:
+    rec->fPixels = fDM->data();
+    rec->fColorTable = NULL;
+    rec->fRowBytes = fRB;
+    return true;
 }
 
 void SkOneShotDiscardablePixelRef::onUnlockPixels() {
@@ -258,7 +259,7 @@ void SkOneShotDiscardablePixelRef::onUnlockPixels() {
 }
 
 size_t SkOneShotDiscardablePixelRef::getAllocatedSizeInBytes() const {
-    return fInfo.fHeight * fRB;
+    return this->info().getSafeSize(fRB);
 }
 
 class SkScaledImageCacheDiscardableAllocator : public SkBitmap::Allocator {

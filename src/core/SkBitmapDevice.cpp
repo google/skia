@@ -27,7 +27,7 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkDeviceProperties&
 void SkBitmapDevice::init(SkBitmap::Config config, int width, int height, bool isOpaque) {
     fBitmap.setConfig(config, width, height, 0, isOpaque ?
                       kOpaque_SkAlphaType : kPremul_SkAlphaType);
-    
+
     if (SkBitmap::kNo_Config != config) {
         if (!fBitmap.allocPixels()) {
             // indicate failure by zeroing our bitmap
@@ -45,7 +45,7 @@ SkBitmapDevice::SkBitmapDevice(SkBitmap::Config config, int width, int height, b
 
 SkBitmapDevice::SkBitmapDevice(SkBitmap::Config config, int width, int height, bool isOpaque,
                                const SkDeviceProperties& deviceProperties)
-: SkBaseDevice(deviceProperties)
+    : SkBaseDevice(deviceProperties)
 {
     this->init(config, width, height, isOpaque);
 }

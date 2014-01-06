@@ -28,7 +28,8 @@ public:
 
 protected:
     ~SkDiscardablePixelRef();
-    virtual void* onLockPixels(SkColorTable**) SK_OVERRIDE;
+
+    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
     virtual void onUnlockPixels() SK_OVERRIDE;
     virtual bool onLockPixelsAreWritable() const SK_OVERRIDE { return false; }
 
@@ -49,9 +50,12 @@ private:
     SkDiscardablePixelRef(const SkImageInfo&, SkImageGenerator*,
                           size_t rowBytes,
                           SkDiscardableMemory::Factory* factory);
+
     friend bool SkInstallDiscardablePixelRef(SkImageGenerator*,
                                              SkBitmap*,
                                              SkDiscardableMemory::Factory*);
+
     typedef SkPixelRef INHERITED;
 };
+
 #endif  // SkDiscardablePixelRef_DEFINED

@@ -32,11 +32,9 @@ public:
 
     /**
      *  Return a new SkMallocPixelRef, automatically allocating storage for the
-     *  pixels.
-     *
-     *  If rowBytes is 0, an optimal value will be chosen automatically.
-     *  If rowBytes is > 0, then it will be used, unless it is invald for the
-     *  specified info, in which case NULL will be returned (failure).
+     *  pixels. If rowBytes are 0, an optimal value will be chosen automatically.
+     *  If rowBytes is > 0, then it will be respected, or NULL will be returned
+     *  if rowBytes is invalid for the specified info.
      *
      *  This pixelref will ref() the specified colortable (if not NULL).
      *
@@ -90,7 +88,7 @@ protected:
     SkMallocPixelRef(SkFlattenableReadBuffer& buffer);
     virtual ~SkMallocPixelRef();
 
-    virtual void* onLockPixels(SkColorTable**) SK_OVERRIDE;
+    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
     virtual void onUnlockPixels() SK_OVERRIDE;
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
     virtual size_t getAllocatedSizeInBytes() const SK_OVERRIDE;

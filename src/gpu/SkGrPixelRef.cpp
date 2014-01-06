@@ -23,18 +23,22 @@ SkROLockPixelsPixelRef::SkROLockPixelsPixelRef(const SkImageInfo& info)
 
 SkROLockPixelsPixelRef::~SkROLockPixelsPixelRef() {}
 
-void* SkROLockPixelsPixelRef::onLockPixels(SkColorTable** ctable) {
-    if (ctable) {
-        *ctable = NULL;
-    }
+bool SkROLockPixelsPixelRef::onNewLockPixels(LockRec* rec) {
     fBitmap.reset();
 //    SkDebugf("---------- calling readpixels in support of lockpixels\n");
     if (!this->onReadPixels(&fBitmap, NULL)) {
         SkDebugf("SkROLockPixelsPixelRef::onLockPixels failed!\n");
-        return NULL;
+        return false;
     }
     fBitmap.lockPixels();
-    return fBitmap.getPixels();
+    if (NULL == fBitmap.getPixels()) {
+        return false;
+    }
+
+    rec->fPixels = fBitmap.getPixels();
+    rec->fColorTable = NULL;
+    rec->fRowBytes = fBitmap.rowBytes();
+    return true;
 }
 
 void SkROLockPixelsPixelRef::onUnlockPixels() {

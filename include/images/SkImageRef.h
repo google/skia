@@ -72,9 +72,9 @@ protected:
         When these are called, we will have already acquired the mutex!
      */
 
-    virtual void* onLockPixels(SkColorTable**);
+    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
     // override this in your subclass to clean up when we're unlocking pixels
-    virtual void onUnlockPixels() {}
+    virtual void onUnlockPixels() SK_OVERRIDE {}
 
     SkImageRef(SkFlattenableReadBuffer&, SkBaseMutex* mutex = NULL);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;

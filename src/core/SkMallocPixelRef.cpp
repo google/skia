@@ -186,9 +186,11 @@ SkMallocPixelRef::~SkMallocPixelRef() {
     }
 }
 
-void* SkMallocPixelRef::onLockPixels(SkColorTable** ctable) {
-    *ctable = fCTable;
-    return fStorage;
+bool SkMallocPixelRef::onNewLockPixels(LockRec* rec) {
+    rec->fPixels = fStorage;
+    rec->fRowBytes = fRB;
+    rec->fColorTable = fCTable;
+    return true;
 }
 
 void SkMallocPixelRef::onUnlockPixels() {
