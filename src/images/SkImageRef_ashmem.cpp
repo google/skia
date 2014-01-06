@@ -159,7 +159,7 @@ bool SkImageRef_ashmem::onDecode(SkImageDecoder* codec, SkStreamRewindable* stre
     }
 }
 
-bool SkImageRef_ashmem::onNewLockPixels(LockRec* rec) {
+void* SkImageRef_ashmem::onLockPixels(SkColorTable** ct) {
     SkASSERT(fBitmap.getPixels() == NULL);
     SkASSERT(fBitmap.getColorTable() == NULL);
 
@@ -185,13 +185,17 @@ bool SkImageRef_ashmem::onNewLockPixels(LockRec* rec) {
 #endif
         } else {
             SkDebugf("===== ashmem pin_region(%d) returned %d\n", fRec.fFD, pin);
-            return false;
+            // return null result for failure
+            if (ct) {
+                *ct = NULL;
+            }
+            return NULL;
         }
     } else {
         // no FD, will create an ashmem region in allocator
     }
 
-    return this->INHERITED::onNewLockPixels(rec);
+    return this->INHERITED::onLockPixels(ct);
 }
 
 void SkImageRef_ashmem::onUnlockPixels() {

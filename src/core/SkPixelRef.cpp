@@ -82,19 +82,20 @@ void SkPixelRef::setMutex(SkBaseMutex* mutex) {
 // just need a > 0 value, so pick a funny one to aid in debugging
 #define SKPIXELREF_PRELOCKED_LOCKCOUNT     123456789
 
-SkPixelRef::SkPixelRef(const SkImageInfo& info) : fInfo(info) {
-    this->setMutex(NULL);
-    fRec.zero();
+SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex) : fInfo(info) {
+    this->setMutex(mutex);
+    fPixels = NULL;
+    fColorTable = NULL; // we do not track ownership of this
     fLockCount = 0;
     this->needsNewGenID();
     fIsImmutable = false;
     fPreLocked = false;
 }
 
-
-SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex) : fInfo(info) {
-    this->setMutex(mutex);
-    fRec.zero();
+SkPixelRef::SkPixelRef(const SkImageInfo& info) : fInfo(info) {
+    this->setMutex(NULL);
+    fPixels = NULL;
+    fColorTable = NULL; // we do not track ownership of this
     fLockCount = 0;
     this->needsNewGenID();
     fIsImmutable = false;
@@ -112,7 +113,8 @@ SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex)
         , fInfo(read_info(buffer))
 {
     this->setMutex(mutex);
-    fRec.zero();
+    fPixels = NULL;
+    fColorTable = NULL; // we do not track ownership of this
     fLockCount = 0;
     fIsImmutable = buffer.readBool();
     fGenerationID = buffer.readUInt();
@@ -136,13 +138,12 @@ void SkPixelRef::cloneGenID(const SkPixelRef& that) {
     that.fUniqueGenerationID = false;
 }
 
-void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctable) {
+void SkPixelRef::setPreLocked(void* pixels, SkColorTable* ctable) {
 #ifndef SK_IGNORE_PIXELREF_SETPRELOCKED
     // only call me in your constructor, otherwise fLockCount tracking can get
     // out of sync.
-    fRec.fPixels = pixels;
-    fRec.fColorTable = ctable;
-    fRec.fRowBytes = rowBytes;
+    fPixels = pixels;
+    fColorTable = ctable;
     fLockCount = SKPIXELREF_PRELOCKED_LOCKCOUNT;
     fPreLocked = true;
 #endif
@@ -165,30 +166,20 @@ void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     }
 }
 
-bool SkPixelRef::lockPixels(LockRec* rec) {
+void SkPixelRef::lockPixels() {
     SkASSERT(!fPreLocked || SKPIXELREF_PRELOCKED_LOCKCOUNT == fLockCount);
 
     if (!fPreLocked) {
         SkAutoMutexAcquire  ac(*fMutex);
 
         if (1 == ++fLockCount) {
-            SkASSERT(fRec.isZero());
-
-            LockRec rec;
-            if (!this->onNewLockPixels(&rec)) {
-                return false;
+            fPixels = this->onLockPixels(&fColorTable);
+            // If onLockPixels failed, it will return NULL
+            if (NULL == fPixels) {
+                fColorTable = NULL;
             }
-            SkASSERT(!rec.isZero());    // else why did onNewLock return true?
-            fRec = rec;
         }
     }
-    *rec = fRec;
-    return true;
-}
-
-bool SkPixelRef::lockPixels() {
-    LockRec rec;
-    return this->lockPixels(&rec);
 }
 
 void SkPixelRef::unlockPixels() {
@@ -200,11 +191,12 @@ void SkPixelRef::unlockPixels() {
         SkASSERT(fLockCount > 0);
         if (0 == --fLockCount) {
             // don't call onUnlockPixels unless onLockPixels succeeded
-            if (fRec.fPixels) {
+            if (fPixels) {
                 this->onUnlockPixels();
-                fRec.zero();
+                fPixels = NULL;
+                fColorTable = NULL;
             } else {
-                SkASSERT(fRec.isZero());
+                SkASSERT(NULL == fColorTable);
             }
         }
     }
@@ -283,29 +275,6 @@ SkData* SkPixelRef::onRefEncodedData() {
 size_t SkPixelRef::getAllocatedSizeInBytes() const {
     return 0;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_SUPPORT_LEGACY_ONLOCKPIXELS
-
-void* SkPixelRef::onLockPixels(SkColorTable** ctable) {
-    return NULL;
-}
-
-bool SkPixelRef::onNewLockPixels(LockRec* rec) {
-    SkColorTable* ctable;
-    void* pixels = this->onLockPixels(&ctable);
-    if (!pixels) {
-        return false;
-    }
-
-    rec->fPixels = pixels;
-    rec->fColorTable = ctable;
-    rec->fRowBytes = 0; // callers don't currently need this (thank goodness)
-    return true;
-}
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

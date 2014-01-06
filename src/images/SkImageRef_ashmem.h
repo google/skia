@@ -32,8 +32,8 @@ protected:
                           SkBitmap* bitmap, SkBitmap::Config config,
                           SkImageDecoder::Mode mode);
 
-    virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
-    virtual void onUnlockPixels() SK_OVERRIDE;
+    virtual void* onLockPixels(SkColorTable**);
+    virtual void onUnlockPixels();
 
 private:
     void closeFD();

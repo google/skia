@@ -36,13 +36,10 @@ SkDiscardablePixelRef::~SkDiscardablePixelRef() {
     SkDELETE(fGenerator);
 }
 
-bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
+void* SkDiscardablePixelRef::onLockPixels(SkColorTable**) {
     if (fDiscardableMemory != NULL) {
         if (fDiscardableMemory->lock()) {
-            rec->fPixels = fDiscardableMemory->data();
-            rec->fColorTable = NULL;
-            rec->fRowBytes = fRowBytes;
-            return true;
+            return fDiscardableMemory->data();
         }
         SkDELETE(fDiscardableMemory);
         fDiscardableMemory = NULL;
@@ -56,23 +53,17 @@ bool SkDiscardablePixelRef::onNewLockPixels(LockRec* rec) {
         fDiscardableMemory = SkDiscardableMemory::Create(size);
     }
     if (NULL == fDiscardableMemory) {
-        return false;  // Memory allocation failed.
+        return NULL;  // Memory allocation failed.
     }
-
     void* pixels = fDiscardableMemory->data();
     if (!fGenerator->getPixels(this->info(), pixels, fRowBytes)) {
         fDiscardableMemory->unlock();
         SkDELETE(fDiscardableMemory);
         fDiscardableMemory = NULL;
-        return false;
+        return NULL;
     }
-
-    rec->fPixels = pixels;
-    rec->fColorTable = NULL;
-    rec->fRowBytes = fRowBytes;
-    return true;
+    return pixels;
 }
-
 void SkDiscardablePixelRef::onUnlockPixels() {
     fDiscardableMemory->unlock();
 }

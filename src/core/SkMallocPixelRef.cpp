@@ -152,7 +152,7 @@ SkMallocPixelRef::SkMallocPixelRef(const SkImageInfo& info, void* storage,
     fRB = rowBytes;
     SkSafeRef(ctable);
 
-    this->setPreLocked(fStorage, fRB, fCTable);
+    this->setPreLocked(fStorage, fCTable);
 }
 
 SkMallocPixelRef::SkMallocPixelRef(const SkImageInfo& info, void* storage,
@@ -175,7 +175,7 @@ SkMallocPixelRef::SkMallocPixelRef(const SkImageInfo& info, void* storage,
     fRB = rowBytes;
     SkSafeRef(ctable);
 
-    this->setPreLocked(fStorage, fRB, fCTable);
+    this->setPreLocked(fStorage, fCTable);
 }
 
 
@@ -186,11 +186,9 @@ SkMallocPixelRef::~SkMallocPixelRef() {
     }
 }
 
-bool SkMallocPixelRef::onNewLockPixels(LockRec* rec) {
-    rec->fPixels = fStorage;
-    rec->fRowBytes = fRB;
-    rec->fColorTable = fCTable;
-    return true;
+void* SkMallocPixelRef::onLockPixels(SkColorTable** ctable) {
+    *ctable = fCTable;
+    return fStorage;
 }
 
 void SkMallocPixelRef::onUnlockPixels() {
@@ -236,5 +234,5 @@ SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer)
         fCTable = NULL;
     }
 
-    this->setPreLocked(fStorage, fRB, fCTable);
+    this->setPreLocked(fStorage, fCTable);
 }

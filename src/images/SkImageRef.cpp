@@ -15,12 +15,12 @@
 
 //#define DUMP_IMAGEREF_LIFECYCLE
 
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImageRef::SkImageRef(const SkImageInfo& info, SkStreamRewindable* stream,
                        int sampleSize, SkBaseMutex* mutex)
-        : INHERITED(info, mutex), fErrorInDecoding(false)
-{
+        : SkPixelRef(info, mutex), fErrorInDecoding(false) {
     SkASSERT(stream);
     stream->ref();
     fStream = stream;
@@ -39,7 +39,7 @@ SkImageRef::~SkImageRef() {
 
 #ifdef DUMP_IMAGEREF_LIFECYCLE
     SkDebugf("delete ImageRef %p [%d] data=%d\n",
-              this, this->info().fColorType, (int)fStream->getLength());
+              this, fConfig, (int)fStream->getLength());
 #endif
 
     fStream->unref();
@@ -134,18 +134,15 @@ bool SkImageRef::prepareBitmap(SkImageDecoder::Mode mode) {
     return false;
 }
 
-bool SkImageRef::onNewLockPixels(LockRec* rec) {
+void* SkImageRef::onLockPixels(SkColorTable** ct) {
     if (NULL == fBitmap.getPixels()) {
         (void)this->prepareBitmap(SkImageDecoder::kDecodePixels_Mode);
     }
 
-    if (NULL == fBitmap.getPixels()) {
-        return false;
+    if (ct) {
+        *ct = fBitmap.getColorTable();
     }
-    rec->fPixels = fBitmap.getPixels();
-    rec->fColorTable = NULL;
-    rec->fRowBytes = fBitmap.rowBytes();
-    return true;
+    return fBitmap.getPixels();
 }
 
 size_t SkImageRef::ramUsed() const {
