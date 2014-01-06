@@ -25,14 +25,18 @@ DEFINE_string(bbh, "none", "bbhType [width height]: Set the bounding box hierarc
               "playbackCreation.");
 // Although this config does not support all the same options as gm, the names should be kept
 // consistent.
-#if SK_ANGLE
-// ANGLE assumes GPU
-DEFINE_string(config, "8888", "[8888|gpu|msaa4|msaa16|angle]: Use the corresponding config.");
-#elif SK_SUPPORT_GPU
-DEFINE_string(config, "8888", "[8888|gpu|msaa4|msaa16]: Use the corresponding config.");
-#else
-DEFINE_string(config, "8888", "[8888]: Use the corresponding config.");
+DEFINE_string(config, "8888", "["
+              "8888"
+#if SK_SUPPORT_GPU
+              "|gpu|msaa4|msaa16"
 #endif
+#if SK_ANGLE
+              "|angle"
+#endif
+#if SK_MESA
+              "|mesa"
+#endif
+              "]: Use the corresponding config.");
 
 DEFINE_bool(deferImageDecoding, false, "Defer decoding until drawing images. "
             "Has no effect if the provided skp does not have its images encoded.");
@@ -281,6 +285,15 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
             deviceType = sk_tools::PictureRenderer::kAngle_DeviceType;
             if (FLAGS_multi > 1) {
                 error.printf("Angle not compatible with multithreaded tiling.\n");
+                return NULL;
+            }
+        }
+#endif
+#if SK_MESA
+        else if (0 == strcmp(FLAGS_config[0], "mesa")) {
+            deviceType = sk_tools::PictureRenderer::kMesa_DeviceType;
+            if (FLAGS_multi > 1) {
+                error.printf("Mesa not compatible with multithreaded tiling.\n");
                 return NULL;
             }
         }

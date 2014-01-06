@@ -69,6 +69,9 @@ public:
 #if SK_ANGLE
         kAngle_DeviceType,
 #endif
+#if SK_MESA
+        kMesa_DeviceType,
+#endif
         kBitmap_DeviceType,
 #if SK_SUPPORT_GPU
         kGPU_DeviceType,
@@ -177,6 +180,11 @@ public:
                 glContextType = GrContextFactory::kANGLE_GLContextType;
                 break;
 #endif
+#if SK_MESA
+            case kMesa_DeviceType:
+                glContextType = GrContextFactory::kMESA_GLContextType;
+                break;
+#endif
 #endif
             default:
                 // Invalid device type.
@@ -256,6 +264,11 @@ public:
                 config.append("_angle");
                 break;
 #endif
+#if SK_MESA
+            case kMesa_DeviceType:
+                config.append("_mesa");
+                break;
+#endif
             default:
                 // Assume that no extra info means bitmap.
                 break;
@@ -272,6 +285,10 @@ public:
                 // fall through
 #if SK_ANGLE
             case kAngle_DeviceType:
+                // fall through
+#endif
+#if SK_MESA
+            case kMesa_DeviceType:
 #endif
                 return true;
             default:
@@ -289,6 +306,11 @@ public:
 #if SK_ANGLE
             case kAngle_DeviceType:
                 glContextType = GrContextFactory::kANGLE_GLContextType;
+                break;
+#endif
+#if SK_MESA
+            case kMesa_DeviceType:
+                glContextType = GrContextFactory::kMESA_GLContextType;
                 break;
 #endif
             default:
