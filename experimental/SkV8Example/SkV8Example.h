@@ -12,6 +12,10 @@
 
 #include "SkWindow.h"
 
+class GrContext;
+class GrGLInterface;
+class GrRenderTarget;
+
 class JsContext;
 
 class SkV8ExampleWindow : public SkOSWindow {
@@ -20,14 +24,27 @@ public:
 
 protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void onSizeChange() SK_OVERRIDE;
+
+#if SK_SUPPORT_GPU
+    virtual SkCanvas* createCanvas() SK_OVERRIDE;
+#endif
 
 #ifdef SK_BUILD_FOR_WIN
     virtual void onHandleInval(const SkIRect&) SK_OVERRIDE;
 #endif
 
+    void windowSizeChanged();
+
 private:
     typedef SkOSWindow INHERITED;
     JsContext* fJsContext;
+
+#if SK_SUPPORT_GPU
+    GrContext*              fCurContext;
+    const GrGLInterface*    fCurIntf;
+    GrRenderTarget*         fCurRenderTarget;
+#endif
 };
 
 #endif

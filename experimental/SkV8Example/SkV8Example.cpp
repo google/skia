@@ -18,6 +18,8 @@ using namespace v8;
 #include "gl/GrGLUtil.h"
 #include "gl/GrGLDefines.h"
 #include "gl/GrGLInterface.h"
+#include "GrRenderTarget.h"
+#include "GrContext.h"
 #include "SkApplication.h"
 #include "SkCommandLineFlags.h"
 #include "SkData.h"
@@ -28,6 +30,7 @@ using namespace v8;
 
 
 DEFINE_string2(infile, i, NULL, "Name of file to load JS from.\n");
+DEFINE_bool(gpu, true, "Use the GPU for rendering.");
 
 void application_init() {
     SkGraphics::Init();
@@ -39,14 +42,78 @@ void application_term() {
     SkGraphics::Term();
 }
 
-
 SkV8ExampleWindow::SkV8ExampleWindow(void* hwnd, JsContext* context)
     : INHERITED(hwnd)
     , fJsContext(context)
+#if SK_SUPPORT_GPU
+    , fCurContext(NULL)
+    , fCurIntf(NULL)
+    , fCurRenderTarget(NULL)
+#endif
 {
     this->setConfig(SkBitmap::kARGB_8888_Config);
     this->setVisibleP(true);
     this->setClipToBounds(false);
+
+#if SK_SUPPORT_GPU
+    this->windowSizeChanged();
+#endif
+}
+
+#if SK_SUPPORT_GPU
+void SkV8ExampleWindow::windowSizeChanged() {
+    if (FLAGS_gpu) {
+        SkOSWindow::AttachmentInfo attachmentInfo;
+        bool result = this->attach(
+                SkOSWindow::kNativeGL_BackEndType, 0, &attachmentInfo);
+        if (!result) {
+            printf("Failed to attach.");
+            exit(1);
+        }
+
+        fCurIntf = GrGLCreateNativeInterface();
+        fCurContext = GrContext::Create(
+                kOpenGL_GrBackend, (GrBackendContext) fCurIntf);
+        if (NULL == fCurIntf || NULL == fCurContext) {
+            printf("Failed to initialize GL.");
+            exit(1);
+        }
+
+        GrBackendRenderTargetDesc desc;
+        desc.fWidth = SkScalarRoundToInt(this->width());
+        desc.fHeight = SkScalarRoundToInt(this->height());
+        desc.fConfig = kSkia8888_GrPixelConfig;
+        desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+        desc.fSampleCnt = attachmentInfo.fSampleCount;
+        desc.fStencilBits = attachmentInfo.fStencilBits;
+        GrGLint buffer;
+        GR_GL_GetIntegerv(fCurIntf, GR_GL_FRAMEBUFFER_BINDING, &buffer);
+        desc.fRenderTargetHandle = buffer;
+
+        SkSafeUnref(fCurRenderTarget);
+        fCurRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
+    }
+}
+#endif
+
+#if SK_SUPPORT_GPU
+SkCanvas* SkV8ExampleWindow::createCanvas() {
+    if (FLAGS_gpu) {
+        SkAutoTUnref<SkBaseDevice> device(
+                new SkGpuDevice(fCurContext, fCurRenderTarget));
+        return new SkCanvas(device);
+    } else {
+        return this->INHERITED::createCanvas();
+    }
+}
+#endif
+
+void SkV8ExampleWindow::onSizeChange() {
+    this->INHERITED::onSizeChange();
+
+#if SK_SUPPORT_GPU
+    this->windowSizeChanged();
+#endif
 }
 
 void SkV8ExampleWindow::onDraw(SkCanvas* canvas) {
@@ -59,9 +126,15 @@ void SkV8ExampleWindow::onDraw(SkCanvas* canvas) {
 
     canvas->restore();
 
-    INHERITED::onDraw(canvas);
-}
+    this->INHERITED::onDraw(canvas);
 
+#if SK_SUPPORT_GPU
+    if (FLAGS_gpu) {
+        fCurContext->flush();
+        this->present();
+    }
+#endif
+}
 
 #ifdef SK_BUILD_FOR_WIN
 void SkV8ExampleWindow::onHandleInval(const SkIRect& rect) {
@@ -114,5 +187,6 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     }
     SkV8ExampleWindow* win = new SkV8ExampleWindow(hwnd, jsContext);
     global->setWindow(win);
+
     return win;
 }
