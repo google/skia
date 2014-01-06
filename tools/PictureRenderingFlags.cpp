@@ -23,19 +23,28 @@ DEFINE_string(bbh, "none", "bbhType [width height]: Set the bounding box hierarc
               "'grid', width and height must be specified. 'grid' can "
               "only be used with modes tile, record, and "
               "playbackCreation.");
+
+
+#if SK_SUPPORT_GPU
+#define GPU_CONFIG_STRING "|gpu|msaa4|msaa16"
+#else
+#define GPU_CONFIG_STRING ""
+#endif
+#if SK_ANGLE
+#define ANGLE_CONFIG_STRING "|angle"
+#else
+#define ANGLE_CONFIG_STRING ""
+#endif
+#if SK_MESA
+#define MESA_CONFIG_STRING "|mesa"
+#else
+#define MESA_CONFIG_STRING ""
+#endif
+
 // Although this config does not support all the same options as gm, the names should be kept
 // consistent.
 DEFINE_string(config, "8888", "["
-              "8888"
-#if SK_SUPPORT_GPU
-              "|gpu|msaa4|msaa16"
-#endif
-#if SK_ANGLE
-              "|angle"
-#endif
-#if SK_MESA
-              "|mesa"
-#endif
+              "8888" GPU_CONFIG_STRING ANGLE_CONFIG_STRING MESA_CONFIG_STRING
               "]: Use the corresponding config.");
 
 DEFINE_bool(deferImageDecoding, false, "Defer decoding until drawing images. "
