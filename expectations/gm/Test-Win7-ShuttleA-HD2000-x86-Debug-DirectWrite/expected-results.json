@@ -5608,12 +5608,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1927310655351769469
+          18151285181604935806
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_16.png_565.png": {
@@ -5647,12 +5645,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3839747123012665825
+          7096762157070022778
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_256.png_565.png": {
@@ -5686,12 +5682,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12289549291038324002
+          15118912166828841078
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_32.png_565.png": {
@@ -5725,12 +5719,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3005060272187674694
+          11324987060954080537
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_512.png_565.png": {
@@ -5764,12 +5756,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1866160515636785656
+          13858594519782999967
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_64.png_565.png": {
@@ -5803,12 +5793,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7054065765090828569
+          4012798572929329761
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_text_10.00pt_565.png": {
