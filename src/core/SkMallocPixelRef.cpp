@@ -142,7 +142,7 @@ SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer)
     , fOwnPixels(true)
 {
     fRB = buffer.read32();
-    size_t size = this->info().getSafeSize(fRB);
+    size_t size = buffer.isValid() ? this->info().getSafeSize(fRB) : 0;
     fStorage = sk_malloc_throw(size);
     buffer.readByteArray(fStorage, size);
     if (buffer.readBool()) {
