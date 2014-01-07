@@ -308,18 +308,18 @@ bool SkAlphaThresholdFilterImpl::onFilterImage(Proxy*, const SkBitmap& src,
     SkASSERT(src.config() == SkBitmap::kARGB_8888_Config);
 
     if (src.config() != SkBitmap::kARGB_8888_Config) {
-      return false;
+        return false;
     }
 
     SkMatrix localInverse;
     if (!matrix.invert(&localInverse)) {
-        return NULL;
+        return false;
     }
 
     SkAutoLockPixels alp(src);
     SkASSERT(src.getPixels());
     if (!src.getPixels() || src.width() <= 0 || src.height() <= 0) {
-      return false;
+        return false;
     }
 
     dst->setConfig(src.config(), src.width(), src.height());
@@ -328,8 +328,8 @@ bool SkAlphaThresholdFilterImpl::onFilterImage(Proxy*, const SkBitmap& src,
         return false;
     }
 
-    U8CPU innerThreshold = fInnerThreshold * 0xFF;
-    U8CPU outerThreshold = fOuterThreshold * 0xFF;
+    U8CPU innerThreshold = (U8CPU)(fInnerThreshold * 0xFF);
+    U8CPU outerThreshold = (U8CPU)(fOuterThreshold * 0xFF);
     SkColor* sptr = src.getAddr32(0, 0);
     SkColor* dptr = dst->getAddr32(0, 0);
     int width = src.width(), height = src.height();
@@ -338,25 +338,25 @@ bool SkAlphaThresholdFilterImpl::onFilterImage(Proxy*, const SkBitmap& src,
             const SkColor& source = sptr[y * width + x];
             SkColor output_color(source);
             SkPoint position;
-            localInverse.mapXY(x, y, &position);
-            if (fRegion.contains(position.x(), position.y())) {
+            localInverse.mapXY((SkScalar)x, (SkScalar)y, &position);
+            if (fRegion.contains((int32_t)position.x(), (int32_t)position.y())) {
                 if (SkColorGetA(source) < innerThreshold) {
                     U8CPU alpha = SkColorGetA(source);
                     if (alpha == 0)
                         alpha = 1;
                     float scale = (float)innerThreshold / alpha;
                     output_color = SkColorSetARGB(innerThreshold,
-                                                  SkColorGetR(source) * scale,
-                                                  SkColorGetG(source) * scale,
-                                                  SkColorGetB(source) * scale);
+                                                  (U8CPU)(SkColorGetR(source) * scale),
+                                                  (U8CPU)(SkColorGetG(source) * scale),
+                                                  (U8CPU)(SkColorGetB(source) * scale));
                 }
             } else {
                 if (SkColorGetA(source) > outerThreshold) {
                     float scale = (float)outerThreshold / SkColorGetA(source);
                     output_color = SkColorSetARGB(outerThreshold,
-                                                  SkColorGetR(source) * scale,
-                                                  SkColorGetG(source) * scale,
-                                                  SkColorGetB(source) * scale);
+                                                  (U8CPU)(SkColorGetR(source) * scale),
+                                                  (U8CPU)(SkColorGetG(source) * scale),
+                                                  (U8CPU)(SkColorGetB(source) * scale));
                 }
             }
             dptr[y * dst->width() + x] = output_color;

@@ -43,7 +43,7 @@ protected:
         SkMatrix matrix;
         matrix.reset();
         matrix.setTranslate(WIDTH * .1f, HEIGHT * .1f);
-        matrix.postScale(.8, .8);
+        matrix.postScale(.8f, .8f);
 
         canvas->concat(matrix);
 
