@@ -22,7 +22,11 @@ public:
 
 protected:
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
-        return this->INHERITED::onGetFlags() | GM::kSkipTiled_Flag;
+        return this->INHERITED::onGetFlags() |
+               GM::kSkipTiled_Flag |
+               GM::kSkipPicture_Flag |
+               GM::kSkipPipe_Flag | 
+               GM::kSkipPipeCrossProcess_Flag;
     }
 
     virtual SkString onShortName() SK_OVERRIDE {
