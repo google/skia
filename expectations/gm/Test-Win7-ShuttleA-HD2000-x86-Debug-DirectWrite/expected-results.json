@@ -5413,12 +5413,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14199114143110052993
+          13004909597247281563
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_checkerboard_32_2_565.png": {
@@ -5452,12 +5450,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13869326896548536312
+          18444539834437971943
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_checkerboard_32_32_565.png": {
@@ -5491,12 +5487,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4075616322670456035
+          10947750880182249988
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_checkerboard_32_8_565.png": {
@@ -5530,12 +5524,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15358045633896345106
+          3205779391809712145
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_checkerboard_4_4_565.png": {
@@ -5569,12 +5561,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6469355008067410964
+          10295529840226518047
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_image_mandrill_128.png_565.png": {
@@ -5830,12 +5820,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16953332692713376641
+          8629744734657098749
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_text_3.00pt_565.png": {
@@ -5869,12 +5857,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4270719817117209914
+          1272477634966785591
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_text_7.00pt_565.png": {
@@ -5908,12 +5894,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9500118196132032899
+          5207871101105304379
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "fontcache_gpu.png": {

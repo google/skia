@@ -6846,12 +6846,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15571916950499272429
+          3062262466139888680
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_text_3.00pt_565.png": {
@@ -6885,12 +6883,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17016064325492544459
+          8208928372640705358
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "filterbitmap_text_7.00pt_565.png": {
@@ -6924,12 +6920,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14186606048215145707
+          361129233014901667
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "fontcache_gpu.png": {
