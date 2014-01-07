@@ -32,7 +32,12 @@ public:
             : fGlobal(global)
             , fCanvas(NULL)
     {
-        fFillStyle.setColor(SK_ColorRED);
+        fFillStyle.setColor(SK_ColorBLACK);
+        fFillStyle.setAntiAlias(true);
+        fFillStyle.setStyle(SkPaint::kFill_Style);
+        fStrokeStyle.setColor(SK_ColorBLACK);
+        fStrokeStyle.setAntiAlias(true);
+        fStrokeStyle.setStyle(SkPaint::kStroke_Style);
     }
     ~JsContext();
 
@@ -43,29 +48,34 @@ public:
     void onDraw(SkCanvas* canvas);
 
 private:
-    // Implementation of the context.fillStyle field.
+    static void GetStyle(Local<String> name,
+                         const PropertyCallbackInfo<Value>& info,
+                         const SkPaint& style);
+    static void SetStyle(Local<String> name, Local<Value> value,
+                         const PropertyCallbackInfo<void>& info,
+                         SkPaint& style);
+    // JS Attributes
     static void GetFillStyle(Local<String> name,
-                             const PropertyCallbackInfo<Value>& info);
+                         const PropertyCallbackInfo<Value>& info);
     static void SetFillStyle(Local<String> name, Local<Value> value,
-                             const PropertyCallbackInfo<void>& info);
+                         const PropertyCallbackInfo<void>& info);
+    static void GetStrokeStyle(Local<String> name,
+                         const PropertyCallbackInfo<Value>& info);
+    static void SetStrokeStyle(Local<String> name, Local<Value> value,
+                         const PropertyCallbackInfo<void>& info);
     static void GetWidth(Local<String> name,
                          const PropertyCallbackInfo<Value>& info);
     static void GetHeight(Local<String> name,
                           const PropertyCallbackInfo<Value>& info);
 
-    // Implementation of the context.fillRect() JS function.
+    // JS Methods
     static void FillRect(const v8::FunctionCallbackInfo<Value>& args);
-
-    // Implementation of the context.stroke(Path path) JS function.
     static void Stroke(const v8::FunctionCallbackInfo<Value>& args);
-
-    // Implementation of the context.fill(Path path) JS function.
     static void Fill(const v8::FunctionCallbackInfo<Value>& args);
-
-    // Implementation of the context.translate(dx, dy) JS function.
+    static void Rotate(const v8::FunctionCallbackInfo<Value>& args);
+    static void Save(const v8::FunctionCallbackInfo<Value>& args);
+    static void Restore(const v8::FunctionCallbackInfo<Value>& args);
     static void Translate(const v8::FunctionCallbackInfo<Value>& args);
-
-    // Implementation of the context.resetTransform() JS function.
     static void ResetTransform(const v8::FunctionCallbackInfo<Value>& args);
 
     // Get the pointer out of obj.
@@ -84,6 +94,7 @@ private:
     SkCanvas* fCanvas;
 
     SkPaint fFillStyle;
+    SkPaint fStrokeStyle;
 
     // A handle to the onDraw function defined in the script.
     Persistent<Function> fOnDraw;

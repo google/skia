@@ -11,7 +11,7 @@ var onDraw = function(){
     function f(context) {
         context.translate(10, 10);
         for (var i=0; i<256; i++) {
-            context.fillStyle = '#0000' + toHex(i);
+            context.strokeStyle = '#0000' + toHex(i);
             context.stroke(p);
             context.translate(1, 0);
         }
@@ -19,7 +19,6 @@ var onDraw = function(){
         print(context.width, context.height);
         context.resetTransform();
         context.fillRect(context.width/2, context.height/2, 20, 20);
-
     };
     return f;
 }();

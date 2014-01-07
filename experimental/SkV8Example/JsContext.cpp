@@ -52,8 +52,35 @@ void JsContext::FillRect(const v8::FunctionCallbackInfo<Value>& args) {
         SkDoubleToScalar(x) + SkDoubleToScalar(w),
         SkDoubleToScalar(y) + SkDoubleToScalar(h)
     };
-    jsContext->fFillStyle.setStyle(SkPaint::kFill_Style);
     canvas->drawRect(rect, jsContext->fFillStyle);
+}
+
+void JsContext::Save(const v8::FunctionCallbackInfo<Value>& args) {
+    JsContext* jsContext = Unwrap(args.This());
+    SkCanvas* canvas = jsContext->fCanvas;
+
+    canvas->save();
+}
+
+void JsContext::Restore(const v8::FunctionCallbackInfo<Value>& args) {
+    JsContext* jsContext = Unwrap(args.This());
+    SkCanvas* canvas = jsContext->fCanvas;
+
+    canvas->restore();
+}
+
+void JsContext::Rotate(const v8::FunctionCallbackInfo<Value>& args) {
+    JsContext* jsContext = Unwrap(args.This());
+    SkCanvas* canvas = jsContext->fCanvas;
+
+    if (args.Length() != 1) {
+        args.GetIsolate()->ThrowException(
+                v8::String::NewFromUtf8(
+                        args.GetIsolate(), "Error: 1 arguments required."));
+        return;
+    }
+    double angle = args[0]->NumberValue();
+    canvas->rotate(SkRadiansToDegrees(angle));
 }
 
 void JsContext::Translate(const v8::FunctionCallbackInfo<Value>& args) {
@@ -94,10 +121,8 @@ void JsContext::Stroke(const v8::FunctionCallbackInfo<Value>& args) {
     void* ptr = field->Value();
     Path* path = static_cast<Path*>(ptr);
 
-    jsContext->fFillStyle.setStyle(SkPaint::kStroke_Style);
-    canvas->drawPath(path->getSkPath(), jsContext->fFillStyle);
+    canvas->drawPath(path->getSkPath(), jsContext->fStrokeStyle);
 }
-
 
 void JsContext::Fill(const v8::FunctionCallbackInfo<Value>& args) {
     JsContext* jsContext = Unwrap(args.This());
@@ -115,25 +140,23 @@ void JsContext::Fill(const v8::FunctionCallbackInfo<Value>& args) {
     void* ptr = field->Value();
     Path* path = static_cast<Path*>(ptr);
 
-    jsContext->fFillStyle.setStyle(SkPaint::kFill_Style);
     canvas->drawPath(path->getSkPath(), jsContext->fFillStyle);
 }
 
-
-void JsContext::GetFillStyle(Local<String> name,
-                            const PropertyCallbackInfo<Value>& info) {
-    JsContext* jsContext = Unwrap(info.This());
-    SkColor color = jsContext->fFillStyle.getColor();
+void JsContext::GetStyle(Local<String> name,
+                         const PropertyCallbackInfo<Value>& info,
+                         const SkPaint& style) {
     char buf[8];
+    SkColor color = style.getColor();
     sprintf(buf, "#%02X%02X%02X", SkColorGetR(color), SkColorGetG(color),
             SkColorGetB(color));
 
     info.GetReturnValue().Set(String::NewFromUtf8(info.GetIsolate(), buf));
 }
 
-void JsContext::SetFillStyle(Local<String> name, Local<Value> value,
-                            const PropertyCallbackInfo<void>& info) {
-    JsContext* jsContext = Unwrap(info.This());
+void JsContext::SetStyle(Local<String> name, Local<Value> value,
+                         const PropertyCallbackInfo<void>& info,
+                         SkPaint& style) {
     Local<String> s = value->ToString();
     if (s->Length() != 7) {
         info.GetIsolate()->ThrowException(
@@ -152,7 +175,31 @@ void JsContext::SetFillStyle(Local<String> name, Local<Value> value,
     }
 
     long color = strtol(buf+1, NULL, 16);
-    jsContext->fFillStyle.setColor(SkColorSetA(SkColor(color), SK_AlphaOPAQUE));
+    style.setColor(SkColorSetA(SkColor(color), SK_AlphaOPAQUE));
+}
+
+void JsContext::GetFillStyle(Local<String> name,
+                             const PropertyCallbackInfo<Value>& info) {
+    JsContext* jsContext = Unwrap(info.This());
+    GetStyle(name, info, jsContext->fFillStyle);
+}
+
+void JsContext::GetStrokeStyle(Local<String> name,
+                               const PropertyCallbackInfo<Value>& info) {
+    JsContext* jsContext = Unwrap(info.This());
+    GetStyle(name, info, jsContext->fStrokeStyle);
+}
+
+void JsContext::SetFillStyle(Local<String> name, Local<Value> value,
+                            const PropertyCallbackInfo<void>& info) {
+    JsContext* jsContext = Unwrap(info.This());
+    SetStyle(name, value, info, jsContext->fFillStyle);
+}
+
+void JsContext::SetStrokeStyle(Local<String> name, Local<Value> value,
+                               const PropertyCallbackInfo<void>& info) {
+    JsContext* jsContext = Unwrap(info.This());
+    SetStyle(name, value, info, jsContext->fStrokeStyle);
 }
 
 
@@ -175,6 +222,12 @@ void JsContext::GetHeight(Local<String> name,
 
 Persistent<ObjectTemplate> JsContext::gContextTemplate;
 
+#define ADD_METHOD(name, fn) \
+    result->Set(String::NewFromUtf8( \
+            fGlobal->getIsolate(), name, \
+            String::kInternalizedString), \
+                FunctionTemplate::New(fn))
+
 Handle<ObjectTemplate> JsContext::makeContextTemplate() {
     EscapableHandleScope handleScope(fGlobal->getIsolate());
 
@@ -188,6 +241,9 @@ Handle<ObjectTemplate> JsContext::makeContextTemplate() {
             fGlobal->getIsolate(), "fillStyle", String::kInternalizedString),
                         GetFillStyle, SetFillStyle);
     result->SetAccessor(String::NewFromUtf8(
+            fGlobal->getIsolate(), "strokeStyle", String::kInternalizedString),
+                        GetStrokeStyle, SetStrokeStyle);
+    result->SetAccessor(String::NewFromUtf8(
             fGlobal->getIsolate(), "width", String::kInternalizedString),
                         GetWidth);
     result->SetAccessor(String::NewFromUtf8(
@@ -195,31 +251,14 @@ Handle<ObjectTemplate> JsContext::makeContextTemplate() {
                         GetHeight);
 
     // Add methods.
-    result->Set(
-            String::NewFromUtf8(
-                    fGlobal->getIsolate(), "fillRect",
-                    String::kInternalizedString),
-            FunctionTemplate::New(FillRect));
-    result->Set(
-            String::NewFromUtf8(
-                    fGlobal->getIsolate(), "stroke",
-                    String::kInternalizedString),
-            FunctionTemplate::New(Stroke));
-    result->Set(
-            String::NewFromUtf8(
-                    fGlobal->getIsolate(), "fill",
-                    String::kInternalizedString),
-            FunctionTemplate::New(Fill));
-    result->Set(
-            String::NewFromUtf8(
-                    fGlobal->getIsolate(), "translate",
-                    String::kInternalizedString),
-            FunctionTemplate::New(Translate));
-    result->Set(
-            String::NewFromUtf8(
-                    fGlobal->getIsolate(), "resetTransform",
-                    String::kInternalizedString),
-            FunctionTemplate::New(ResetTransform));
+    ADD_METHOD("fillRect", FillRect);
+    ADD_METHOD("stroke", Stroke);
+    ADD_METHOD("fill", Fill);
+    ADD_METHOD("rotate", Rotate);
+    ADD_METHOD("save", Save);
+    ADD_METHOD("restore", Restore);
+    ADD_METHOD("translate", Translate);
+    ADD_METHOD("resetTransform", ResetTransform);
 
     // Return the result through the current handle scope.
     return handleScope.Escape(result);
