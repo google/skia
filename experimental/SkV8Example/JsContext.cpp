@@ -333,4 +333,3 @@ bool JsContext::initialize() {
 
     return true;
 }
-

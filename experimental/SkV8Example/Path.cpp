@@ -189,4 +189,3 @@ void Path::Rect(const v8::FunctionCallbackInfo<Value>& args) {
     Path* path = Unwrap(args);
     path->fSkPath.addRect(rect);
 }
-
