@@ -47,6 +47,7 @@
         '../include/utils/SkMatrix44.h',
         '../include/utils/SkMeshUtils.h',
         '../include/utils/SkNinePatch.h',
+        '../include/utils/SkNoSaveLayerCanvas.h',
         '../include/utils/SkNWayCanvas.h',
         '../include/utils/SkNullCanvas.h',
         '../include/utils/SkParse.h',

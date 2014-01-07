@@ -8,6 +8,7 @@
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkNoSaveLayerCanvas.h"
 #include "SkPictureUtils.h"
 #include "SkPixelRef.h"
 #include "SkRRect.h"
@@ -64,7 +65,7 @@ public:
     }
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE { return NULL; }
     virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) SK_OVERRIDE {
-        return true;
+        return false;
     }
     // TODO: allow this call to return failure, or move to SkBitmapDevice only.
     virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE {
@@ -199,45 +200,6 @@ private:
     typedef SkBaseDevice INHERITED;
 };
 
-class NoSaveLayerCanvas : public SkCanvas {
-public:
-    NoSaveLayerCanvas(SkBaseDevice* device) : INHERITED(device) {}
-
-    // turn saveLayer() into save() for speed, should not affect correctness.
-    virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
-                          SaveFlags flags) SK_OVERRIDE {
-
-        // Like SkPictureRecord, we don't want to create layers, but we do need
-        // to respect the save and (possibly) its rect-clip.
-
-        int count = this->INHERITED::save(flags);
-        if (bounds) {
-            this->INHERITED::clipRectBounds(bounds, flags, NULL);
-        }
-        return count;
-    }
-
-    // disable aa for speed
-    virtual bool clipRect(const SkRect& rect, SkRegion::Op op,
-                          bool doAA) SK_OVERRIDE {
-        return this->INHERITED::clipRect(rect, op, false);
-    }
-
-    // for speed, just respect the bounds, and disable AA. May give us a few
-    // false positives and negatives.
-    virtual bool clipPath(const SkPath& path, SkRegion::Op op,
-                          bool doAA) SK_OVERRIDE {
-        return this->updateClipConservativelyUsingBounds(path.getBounds(), op, path.isInverseFillType());
-    }
-    virtual bool clipRRect(const SkRRect& rrect, SkRegion::Op op,
-                           bool doAA) SK_OVERRIDE {
-        return this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, false);
-    }
-
-private:
-    typedef SkCanvas INHERITED;
-};
-
 SkData* SkPictureUtils::GatherPixelRefs(SkPicture* pict, const SkRect& area) {
     if (NULL == pict) {
         return NULL;
@@ -254,7 +216,7 @@ SkData* SkPictureUtils::GatherPixelRefs(SkPicture* pict, const SkRect& area) {
     PixelRefSet prset(&array);
 
     GatherPixelRefDevice device(pict->width(), pict->height(), &prset);
-    NoSaveLayerCanvas canvas(&device);
+    SkNoSaveLayerCanvas canvas(&device);
 
     canvas.clipRect(area, SkRegion::kIntersect_Op, false);
     canvas.drawPicture(*pict);
