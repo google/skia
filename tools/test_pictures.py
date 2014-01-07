@@ -1,13 +1,15 @@
 '''
-Compares the rendererings of serialized SkPictures to expected images.
-
-Launch with --help to see more information.
-
-
 Copyright 2012 Google Inc.
 
 Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file.
+
+Compares the rendererings of serialized SkPictures to expected images.
+
+Launch with --help to see more information.
+
+TODO(epoger): Combine with overlapping tools/tests/render_pictures_test.py .
+See https://code.google.com/p/skia/issues/detail?id=1943#c2
 '''
 # common Python modules
 import os
