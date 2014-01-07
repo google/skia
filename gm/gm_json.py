@@ -91,7 +91,7 @@ SKIMAGE_ACTUALS_BASE_URL = (
 SKIMAGE_EXPECTATIONS_ROOT = os.path.join('expectations', 'skimage')
 
 # Pattern used to assemble each image's filename
-IMAGE_FILENAME_PATTERN = '(\S+)_(\S+)\.png'  # matches (testname, config)
+IMAGE_FILENAME_PATTERN = '(.+)_(.+)\.png'  # matches (testname, config)
 
 def CreateGmActualUrl(test_name, hash_type, hash_digest,
                       gm_actuals_root_url=GM_ACTUALS_ROOT_HTTP_URL):
