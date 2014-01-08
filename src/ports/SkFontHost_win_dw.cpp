@@ -1789,7 +1789,7 @@ SkTypeface* SkFontMgr_DirectWrite::onLegacyCreateTypeface(const char familyName[
     DWRITE_FONT_WEIGHT weight = (styleBits & SkTypeface::kBold)
                               ? DWRITE_FONT_WEIGHT_BOLD
                               : DWRITE_FONT_WEIGHT_NORMAL;
-    DWRITE_FONT_STRETCH stretch = DWRITE_FONT_STRETCH_UNDEFINED;
+    DWRITE_FONT_STRETCH stretch = DWRITE_FONT_STRETCH_NORMAL;
     DWRITE_FONT_STYLE italic = (styleBits & SkTypeface::kItalic)
                              ? DWRITE_FONT_STYLE_ITALIC
                              : DWRITE_FONT_STYLE_NORMAL;
