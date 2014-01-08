@@ -16,6 +16,11 @@ SkSurface_Base::SkSurface_Base(int width, int height) : INHERITED(width, height)
     fCachedImage = NULL;
 }
 
+SkSurface_Base::SkSurface_Base(const SkImageInfo& info) : INHERITED(info) {
+    fCachedCanvas = NULL;
+    fCachedImage = NULL;
+}
+
 SkSurface_Base::~SkSurface_Base() {
     // in case the canvas outsurvives us, we null the callback
     if (fCachedCanvas) {
@@ -73,8 +78,17 @@ static SkSurface_Base* asSB(SkSurface* surface) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface::SkSurface(int width, int height) : fWidth(width), fHeight(height) {
-    SkASSERT(width >= 0);
-    SkASSERT(height >= 0);
+    SkASSERT(fWidth >= 0);
+    SkASSERT(fHeight >= 0);
+    fGenerationID = 0;
+}
+
+SkSurface::SkSurface(const SkImageInfo& info)
+    : fWidth(info.fWidth)
+    , fHeight(info.fHeight)
+{
+    SkASSERT(fWidth >= 0);
+    SkASSERT(fHeight >= 0);
     fGenerationID = 0;
 }
 

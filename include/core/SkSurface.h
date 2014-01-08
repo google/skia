@@ -153,6 +153,7 @@ public:
 
 protected:
     SkSurface(int width, int height);
+    SkSurface(const SkImageInfo&);
 
     // called by subclass if their contents have changed
     void dirtyGenerationID() {

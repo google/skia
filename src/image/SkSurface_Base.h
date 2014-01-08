@@ -14,6 +14,7 @@
 class SkSurface_Base : public SkSurface {
 public:
     SkSurface_Base(int width, int height);
+    explicit SkSurface_Base(const SkImageInfo&);
     virtual ~SkSurface_Base();
 
     /**

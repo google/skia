@@ -18,7 +18,7 @@ public:
     static bool Valid(const SkImageInfo&, size_t rb = kIgnoreRowBytesValue);
 
     SkSurface_Raster(const SkImageInfo&, void*, size_t rb);
-    SkSurface_Raster(const SkImageInfo&, SkPixelRef*, size_t rb);
+    SkSurface_Raster(SkPixelRef*);
 
     virtual SkCanvas* onNewCanvas() SK_OVERRIDE;
     virtual SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE;
@@ -39,24 +39,20 @@ private:
 bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
     static const size_t kMaxTotalSize = SK_MaxS32;
 
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
-
     int shift = 0;
-    switch (config) {
-        case SkBitmap::kA8_Config:
+    switch (info.fColorType) {
+        case kAlpha_8_SkColorType:
             shift = 0;
             break;
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             shift = 1;
             break;
-        case SkBitmap::kARGB_8888_Config:
+        case kPMColor_SkColorType:
             shift = 2;
             break;
         default:
             return false;
     }
-
-    // TODO: examine colorspace
 
     if (kIgnoreRowBytesValue == rowBytes) {
         return true;
@@ -72,7 +68,7 @@ bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
         return false;
     }
 
-    uint64_t size = (uint64_t)info.fHeight * rowBytes;
+    uint64_t size = sk_64_mul(info.fHeight, rowBytes);
     if (size > kMaxTotalSize) {
         return false;
     }
@@ -81,21 +77,23 @@ bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
 }
 
 SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, void* pixels, size_t rb)
-        : INHERITED(info.fWidth, info.fHeight) {
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
-    fBitmap.setConfig(config, info.fWidth, info.fHeight, rb, info.fAlphaType);
+    : INHERITED(info)
+{
+    fBitmap.setConfig(info, rb);
     fBitmap.setPixels(pixels);
     fWeOwnThePixels = false;    // We are "Direct"
 }
 
-SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, SkPixelRef* pr, size_t rb)
-        : INHERITED(info.fWidth, info.fHeight) {
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
-    fBitmap.setConfig(config, info.fWidth, info.fHeight, rb, info.fAlphaType);
+SkSurface_Raster::SkSurface_Raster(SkPixelRef* pr)
+    : INHERITED(pr->info().fWidth, pr->info().fHeight)
+{
+    const SkImageInfo& info = pr->info();
+
+    fBitmap.setConfig(info, info.minRowBytes());
     fBitmap.setPixelRef(pr);
     fWeOwnThePixels = true;
 
-    if (!SkAlphaTypeIsOpaque(info.fAlphaType)) {
+    if (!info.isOpaque()) {
         fBitmap.eraseColor(SK_ColorTRANSPARENT);
     }
 }
@@ -159,5 +157,5 @@ SkSurface* SkSurface::NewRaster(const SkImageInfo& info) {
     if (NULL == pr.get()) {
         return NULL;
     }
-    return SkNEW_ARGS(SkSurface_Raster, (info, pr, info.minRowBytes()));
+    return SkNEW_ARGS(SkSurface_Raster, (pr));
 }
