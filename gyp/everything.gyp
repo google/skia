@@ -25,10 +25,6 @@
             #'v8.gyp:SkV8Example',
             ],
         }],
-        # DM assumes you've got a GPU.
-        ['skia_gpu == 1', {
-          'dependencies': [ 'dm.gyp:dm' ],
-        }],
       ],
     },
   ],
