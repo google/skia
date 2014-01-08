@@ -87,7 +87,7 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes)
     fBitmap.setConfig(info, rowBytes);
     SkAutoTUnref<SkPixelRef> ref(
         SkMallocPixelRef::NewWithData(info, rowBytes, NULL, data, 0));
-    fBitmap.setPixelRef(ref, 0);
+    fBitmap.setPixelRef(ref);
     fBitmap.setImmutable();
 }
 

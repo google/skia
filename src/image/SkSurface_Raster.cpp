@@ -123,7 +123,7 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
     if (SkBitmapImageGetPixelRef(this->getCachedImage()) == fBitmap.pixelRef()) {
         SkASSERT(fWeOwnThePixels);
         if (kDiscard_ContentChangeMode == mode) {
-            fBitmap.setPixelRef(NULL, 0);
+            fBitmap.setPixelRef(NULL);
             fBitmap.allocPixels();
         } else {
             SkBitmap prev(fBitmap);

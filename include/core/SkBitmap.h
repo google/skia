@@ -347,18 +347,41 @@ public:
     */
     bool allocPixels(Allocator* allocator, SkColorTable* ctable);
 
-    /** Return the current pixelref object, if any
-    */
+    /**
+     *  Return the current pixelref object or NULL if there is none. This does
+     *  not affect the refcount of the pixelref.
+     */
     SkPixelRef* pixelRef() const { return fPixelRef; }
-    /** Return the offset into the pixelref, if any. Will return 0 if there is
-        no pixelref installed.
-    */
-    size_t pixelRefOffset() const { return fPixelRefOffset; }
-    /** Assign a pixelref and optional offset. Pixelrefs are reference counted,
-        so the existing one (if any) will be unref'd and the new one will be
-        ref'd.
-    */
-    SkPixelRef* setPixelRef(SkPixelRef* pr, size_t offset = 0);
+
+    /**
+     *  A bitmap can reference a subset of a pixelref's pixels. That means the
+     *  bitmap's width/height can be <= the dimensions of the pixelref. The
+     *  pixelref origin is the x,y location within the pixelref's pixels for
+     *  the bitmap's top/left corner. To be valid the following must be true:
+     *
+     *  origin_x + bitmap_width  <= pixelref_width
+     *  origin_y + bitmap_height <= pixelref_height
+     *
+     *  pixelRefOrigin() returns this origin, or (0,0) if there is no pixelRef.
+     */
+    SkIPoint pixelRefOrigin() const { return fPixelRefOrigin; }
+
+    /**
+     *  Assign a pixelref and origin to the bitmap. Pixelrefs are reference,
+     *  so the existing one (if any) will be unref'd and the new one will be
+     *  ref'd. (x,y) specify the offset within the pixelref's pixels for the
+     *  top/left corner of the bitmap. For a bitmap that encompases the entire
+     *  pixels of the pixelref, these will be (0,0).
+     */
+    SkPixelRef* setPixelRef(SkPixelRef* pr, int dx, int dy);
+
+    SkPixelRef* setPixelRef(SkPixelRef* pr, const SkIPoint& origin) {
+        return this->setPixelRef(pr, origin.fX, origin.fY);
+    }
+    
+    SkPixelRef* setPixelRef(SkPixelRef* pr) {
+        return this->setPixelRef(pr, 0, 0);
+    }
 
     /** Call this to ensure that the bitmap points to the current pixel address
         in the pixelref. Balance it with a call to unlockPixels(). These calls
@@ -665,12 +688,13 @@ private:
     mutable MipMap* fMipMap;
 
     mutable SkPixelRef* fPixelRef;
-    mutable size_t      fPixelRefOffset;
     mutable int         fPixelLockCount;
     // either user-specified (in which case it is not treated as mutable)
     // or a cache of the returned value from fPixelRef->lockPixels()
     mutable void*       fPixels;
     mutable SkColorTable* fColorTable;    // only meaningful for kIndex8
+
+    SkIPoint    fPixelRefOrigin;
 
     enum Flags {
         kImageIsOpaque_Flag     = 0x01,

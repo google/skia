@@ -220,14 +220,14 @@ private:
     struct LookupEntry {
         LookupEntry(const SkBitmap& bm)
         : fGenerationId(bm.getGenerationID())
-        , fPixelOffset(bm.pixelRefOffset())
+        , fPixelOrigin(bm.pixelRefOrigin())
         , fWidth(bm.width())
         , fHeight(bm.height())
         , fMoreRecentlyUsed(NULL)
         , fLessRecentlyUsed(NULL){}
 
         const uint32_t fGenerationId; // SkPixelRef GenerationID.
-        const size_t   fPixelOffset;
+        const SkIPoint fPixelOrigin;
         const uint32_t fWidth;
         const uint32_t fHeight;
 

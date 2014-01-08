@@ -1011,21 +1011,9 @@ public:
         return pict;
     }
 
-    static SkData* bitmap_encoder(size_t* pixelRefOffset, const SkBitmap& bm) {
-        SkPixelRef* pr = bm.pixelRef();
-        if (pr != NULL) {
-            SkData* data = pr->refEncodedData();
-            if (data != NULL) {
-                *pixelRefOffset = bm.pixelRefOffset();
-                return data;
-            }
-        }
-        return NULL;
-    }
-
     static SkPicture* stream_to_new_picture(const SkPicture& src) {
         SkDynamicMemoryWStream storage;
-        src.serialize(&storage, &bitmap_encoder);
+        src.serialize(&storage, NULL);
         SkAutoTUnref<SkStreamAsset> pictReadback(storage.detachAsStream());
         SkPicture* retval = SkPicture::CreateFromStream(pictReadback,
                                                         &SkImageDecoder::DecodeMemory);
@@ -1474,7 +1462,7 @@ DEFINE_int32(pdfRasterDpi, 72, "Scale at which at which the non suported "
              "features in PDF are rasterized. Must be be in range 0-10000. "
              "Default is 72. N = 0 will disable rasterizing features like "
              "text shadows or perspective bitmaps.");
-static SkData* encode_to_dct_data(size_t* pixelRefOffset, const SkBitmap& bitmap) {
+static SkData* encode_to_dct_data(size_t*, const SkBitmap& bitmap) {
     // Filter output of warnings that JPEG is not available for the image.
     if (bitmap.width() >= 65500 || bitmap.height() >= 65500) return NULL;
     if (FLAGS_pdfJpegQuality == -1) return NULL;
@@ -1492,12 +1480,10 @@ static SkData* encode_to_dct_data(size_t* pixelRefOffset, const SkBitmap& bitmap
     if (pr != NULL) {
         SkData* data = pr->refEncodedData();
         if (data != NULL) {
-            *pixelRefOffset = bm.pixelRefOffset();
             return data;
         }
     }
 
-    *pixelRefOffset = 0;
     return SkImageEncoder::EncodeData(bm,
                                       SkImageEncoder::kJPEG_Type,
                                       FLAGS_pdfJpegQuality);

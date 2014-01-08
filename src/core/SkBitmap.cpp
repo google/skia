@@ -129,7 +129,7 @@ SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
 void SkBitmap::swap(SkBitmap& other) {
     SkTSwap(fColorTable, other.fColorTable);
     SkTSwap(fPixelRef, other.fPixelRef);
-    SkTSwap(fPixelRefOffset, other.fPixelRefOffset);
+    SkTSwap(fPixelRefOrigin, other.fPixelRefOrigin);
     SkTSwap(fPixelLockCount, other.fPixelLockCount);
     SkTSwap(fMipMap, other.fMipMap);
     SkTSwap(fPixels, other.fPixels);
@@ -340,7 +340,9 @@ void SkBitmap::updatePixelsFromRef() const {
 
             void* p = fPixelRef->pixels();
             if (NULL != p) {
-                p = (char*)p + fPixelRefOffset;
+                p = (char*)p
+                    + fPixelRef->rowBytes() * fPixelRefOrigin.fY
+                    + fPixelRefOrigin.fX * fBytesPerPixel;
             }
             fPixels = p;
             SkRefCnt_SafeAssign(fColorTable, fPixelRef->colorTable());
@@ -397,13 +399,9 @@ bool SkBitmap::asImageInfo(SkImageInfo* info) const {
     return true;
 }
 
-SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, size_t offset) {
-    // do this first, we that we never have a non-zero offset with a null ref
-    if (NULL == pr) {
-        offset = 0;
-    }
+SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
 #ifdef SK_DEBUG
-    else {
+    if (pr) {
         SkImageInfo info;
         if (this->asImageInfo(&info)) {
             const SkImageInfo& prInfo = pr->info();
@@ -428,7 +426,16 @@ SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, size_t offset) {
     }
 #endif
 
-    if (fPixelRef != pr || fPixelRefOffset != offset) {
+    if (pr) {
+        const SkImageInfo& info = pr->info();
+        fPixelRefOrigin.set(SkPin32(dx, 0, info.fWidth),
+                            SkPin32(dy, 0, info.fHeight));
+    } else {
+        // ignore dx,dy if there is no pixelref
+        fPixelRefOrigin.setZero();
+    }
+
+    if (fPixelRef != pr) {
         if (fPixelRef != pr) {
             this->freePixels();
             SkASSERT(NULL == fPixelRef);
@@ -436,7 +443,6 @@ SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, size_t offset) {
             SkSafeRef(pr);
             fPixelRef = pr;
         }
-        fPixelRefOffset = offset;
         this->updatePixelsFromRef();
     }
 
@@ -468,19 +474,19 @@ bool SkBitmap::lockPixelsAreWritable() const {
 
 void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
     if (NULL == p) {
-        this->setPixelRef(NULL, 0);
+        this->setPixelRef(NULL);
         return;
     }
 
     SkImageInfo info;
     if (!this->asImageInfo(&info)) {
-        this->setPixelRef(NULL, 0);
+        this->setPixelRef(NULL);
         return;
     }
 
     SkPixelRef* pr = SkMallocPixelRef::NewDirect(info, p, fRowBytes, ctable);
     if (NULL == pr) {
-        this->setPixelRef(NULL, 0);
+        this->setPixelRef(NULL);
         return;
     }
 
@@ -515,7 +521,7 @@ void SkBitmap::freePixels() {
         }
         fPixelRef->unref();
         fPixelRef = NULL;
-        fPixelRefOffset = 0;
+        fPixelRefOrigin.setZero();
     }
     fPixelLockCount = 0;
     fPixels = NULL;
@@ -562,7 +568,7 @@ bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst,
         return false;
     }
 
-    dst->setPixelRef(pr, 0)->unref();
+    dst->setPixelRef(pr)->unref();
     // since we're already allocated, we lockPixels right away
     dst->lockPixels();
     return true;
@@ -887,84 +893,6 @@ void SkBitmap::eraseArea(const SkIRect& rect, SkColor c) const {
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
-#define SUB_OFFSET_FAILURE  ((size_t)-1)
-
-/**
- *  Based on the Config and rowBytes() of bm, return the offset into an SkPixelRef of the pixel at
- *  (x, y).
- *  Note that the SkPixelRef does not need to be set yet. deepCopyTo takes advantage of this fact.
- *  Also note that (x, y) may be outside the range of (0 - width(), 0 - height()), so long as it is
- *  within the bounds of the SkPixelRef being used.
- */
-static size_t get_sub_offset(const SkBitmap& bm, int x, int y) {
-    switch (bm.config()) {
-        case SkBitmap::kA8_Config:
-        case SkBitmap:: kIndex8_Config:
-            // x is fine as is for the calculation
-            break;
-
-        case SkBitmap::kRGB_565_Config:
-        case SkBitmap::kARGB_4444_Config:
-            x <<= 1;
-            break;
-
-        case SkBitmap::kARGB_8888_Config:
-            x <<= 2;
-            break;
-
-        case SkBitmap::kNo_Config:
-        default:
-            return SUB_OFFSET_FAILURE;
-    }
-    return y * bm.rowBytes() + x;
-}
-
-/**
- *  Using the pixelRefOffset(), rowBytes(), and Config of bm, determine the (x, y) coordinate of the
- *  upper left corner of bm relative to its SkPixelRef.
- *  x and y must be non-NULL.
- */
-bool get_upper_left_from_offset(SkBitmap::Config config, size_t offset, size_t rowBytes,
-                                   int32_t* x, int32_t* y);
-bool get_upper_left_from_offset(SkBitmap::Config config, size_t offset, size_t rowBytes,
-                                   int32_t* x, int32_t* y) {
-    SkASSERT(x != NULL && y != NULL);
-    if (0 == offset) {
-        *x = *y = 0;
-        return true;
-    }
-    // Use integer division to find the correct y position.
-    // The remainder will be the x position, after we reverse get_sub_offset.
-    SkTDivMod(offset, rowBytes, y, x);
-    switch (config) {
-        case SkBitmap::kA8_Config:
-            // Fall through.
-        case SkBitmap::kIndex8_Config:
-            // x is unmodified
-            break;
-
-        case SkBitmap::kRGB_565_Config:
-            // Fall through.
-        case SkBitmap::kARGB_4444_Config:
-            *x >>= 1;
-            break;
-
-        case SkBitmap::kARGB_8888_Config:
-            *x >>= 2;
-            break;
-
-        case SkBitmap::kNo_Config:
-            // Fall through.
-        default:
-            return false;
-    }
-    return true;
-}
-
-static bool get_upper_left_from_offset(const SkBitmap& bm, int32_t* x, int32_t* y) {
-    return get_upper_left_from_offset(bm.config(), bm.pixelRefOffset(), bm.rowBytes(), x, y);
-}
-
 bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkDEBUGCODE(this->validate();)
 
@@ -998,19 +926,17 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkASSERT(static_cast<unsigned>(r.fLeft) < static_cast<unsigned>(this->width()));
     SkASSERT(static_cast<unsigned>(r.fTop) < static_cast<unsigned>(this->height()));
 
-    size_t offset = get_sub_offset(*this, r.fLeft, r.fTop);
-    if (SUB_OFFSET_FAILURE == offset) {
-        return false;   // config not supported
-    }
-
     SkBitmap dst;
     dst.setConfig(this->config(), r.width(), r.height(), this->rowBytes(),
                   this->alphaType());
     dst.setIsVolatile(this->isVolatile());
 
     if (fPixelRef) {
+        SkIPoint origin = fPixelRefOrigin;
+        origin.fX += r.fLeft;
+        origin.fY += r.fTop;
         // share the pixelref with a custom offset
-        dst.setPixelRef(fPixelRef, fPixelRefOffset + offset);
+        dst.setPixelRef(fPixelRef, origin);
     }
     SkDEBUGCODE(dst.validate();)
 
@@ -1059,26 +985,23 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
 
     if (fPixelRef) {
         SkIRect subset;
-        if (get_upper_left_from_offset(*this, &subset.fLeft, &subset.fTop)) {
-            subset.fRight = subset.fLeft + fWidth;
-            subset.fBottom = subset.fTop + fHeight;
-            if (fPixelRef->readPixels(&tmpSrc, &subset)) {
-                SkASSERT(tmpSrc.width() == this->width());
-                SkASSERT(tmpSrc.height() == this->height());
+        subset.setXYWH(fPixelRefOrigin.fX, fPixelRefOrigin.fY, fWidth, fHeight);
+        if (fPixelRef->readPixels(&tmpSrc, &subset)) {
+            SkASSERT(tmpSrc.width() == this->width());
+            SkASSERT(tmpSrc.height() == this->height());
 
-                // did we get lucky and we can just return tmpSrc?
-                if (tmpSrc.config() == dstConfig && NULL == alloc) {
-                    dst->swap(tmpSrc);
-                    if (dst->pixelRef() && this->config() == dstConfig) {
-                        // TODO(scroggo): fix issue 1742
-                        dst->pixelRef()->cloneGenID(*fPixelRef);
-                    }
-                    return true;
+            // did we get lucky and we can just return tmpSrc?
+            if (tmpSrc.config() == dstConfig && NULL == alloc) {
+                dst->swap(tmpSrc);
+                if (dst->pixelRef() && this->config() == dstConfig) {
+                    // TODO(scroggo): fix issue 1742
+                    dst->pixelRef()->cloneGenID(*fPixelRef);
                 }
-
-                // fall through to the raster case
-                src = &tmpSrc;
+                return true;
             }
+
+            // fall through to the raster case
+            src = &tmpSrc;
         }
     }
 
@@ -1176,24 +1099,7 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
                 rowBytes = 0;
             }
             dst->setConfig(dstConfig, fWidth, fHeight, rowBytes);
-
-            size_t pixelRefOffset;
-            if (0 == fPixelRefOffset || dstConfig == fConfig) {
-                // Use the same offset as the original.
-                pixelRefOffset = fPixelRefOffset;
-            } else {
-                // Find the correct offset in the new config. This needs to be done after calling
-                // setConfig so dst's fConfig and fRowBytes have been set properly.
-                int32_t x, y;
-                if (!get_upper_left_from_offset(*this, &x, &y)) {
-                    return false;
-                }
-                pixelRefOffset = get_sub_offset(*dst, x, y);
-                if (SUB_OFFSET_FAILURE == pixelRefOffset) {
-                    return false;
-                }
-            }
-            dst->setPixelRef(pixelRef, pixelRefOffset)->unref();
+            dst->setPixelRef(pixelRef, fPixelRefOrigin)->unref();
             return true;
         }
     }
@@ -1604,7 +1510,8 @@ void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
     if (fPixelRef) {
         if (fPixelRef->getFactory()) {
             buffer.writeInt(SERIALIZE_PIXELTYPE_REF_DATA);
-            buffer.writeUInt(SkToU32(fPixelRefOffset));
+            buffer.writeInt(fPixelRefOrigin.fX);
+            buffer.writeInt(fPixelRefOrigin.fY);
             buffer.writeFlattenable(fPixelRef);
             return;
         }
@@ -1637,13 +1544,16 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
                         (SERIALIZE_PIXELTYPE_NONE == reftype))) {
         switch (reftype) {
             case SERIALIZE_PIXELTYPE_REF_DATA: {
-                size_t offset = buffer.readUInt();
+                SkIPoint origin;
+                origin.fX = buffer.readInt();
+                origin.fY = buffer.readInt();
+                size_t offset = origin.fY * rowBytes + origin.fX * fBytesPerPixel;
                 SkPixelRef* pr = buffer.readPixelRef();
                 if (!buffer.validate((NULL == pr) ||
                        (pr->getAllocatedSizeInBytes() >= (offset + this->getSafeSize())))) {
-                    offset = 0;
+                    origin.setZero();
                 }
-                SkSafeUnref(this->setPixelRef(pr, offset));
+                SkSafeUnref(this->setPixelRef(pr, origin));
                 break;
             }
             case SERIALIZE_PIXELTYPE_NONE:

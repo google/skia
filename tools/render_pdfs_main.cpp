@@ -82,7 +82,8 @@ static bool replace_filename_extension(SkString* path,
 }
 
 int gJpegQuality = 100;
-static SkData* encode_to_dct_data(size_t* pixelRefOffset, const SkBitmap& bitmap) {
+// the size_t* parameter is deprecated, so we ignore it
+static SkData* encode_to_dct_data(size_t*, const SkBitmap& bitmap) {
     if (gJpegQuality == -1) {
         return NULL;
     }
@@ -96,16 +97,6 @@ static SkData* encode_to_dct_data(size_t* pixelRefOffset, const SkBitmap& bitmap
     bm = copy;
 #endif
 
-    SkPixelRef* pr = bm.pixelRef();
-    if (pr != NULL) {
-        SkData* data = pr->refEncodedData();
-        if (data != NULL) {
-            *pixelRefOffset = bm.pixelRefOffset();
-            return data;
-        }
-    }
-
-    *pixelRefOffset = 0;
     return SkImageEncoder::EncodeData(bm,
                                       SkImageEncoder::kJPEG_Type,
                                       gJpegQuality);

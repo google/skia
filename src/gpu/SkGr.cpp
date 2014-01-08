@@ -65,18 +65,19 @@ static void generate_bitmap_cache_id(const SkBitmap& bitmap, GrCacheID* id) {
     // Our id includes the offset, width, and height so that bitmaps created by extractSubset()
     // are unique.
     uint32_t genID = bitmap.getGenerationID();
-    size_t offset = bitmap.pixelRefOffset();
-    int16_t width = static_cast<int16_t>(bitmap.width());
-    int16_t height = static_cast<int16_t>(bitmap.height());
+    SkIPoint origin = bitmap.pixelRefOrigin();
+    int16_t width = SkToS16(bitmap.width());
+    int16_t height = SkToS16(bitmap.height());
 
     GrCacheID::Key key;
-    memcpy(key.fData8, &genID, 4);
-    memcpy(key.fData8 + 4, &width, 2);
-    memcpy(key.fData8 + 6, &height, 2);
-    memcpy(key.fData8 + 8, &offset, sizeof(size_t));
-    static const size_t kKeyDataSize = 8 + sizeof(size_t);
+    memcpy(key.fData8 +  0, &genID,     4);
+    memcpy(key.fData8 +  4, &origin.fX, 4);
+    memcpy(key.fData8 +  8, &origin.fY, 4);
+    memcpy(key.fData8 + 12, &width,     2);
+    memcpy(key.fData8 + 14, &height,    2);
+    static const size_t kKeyDataSize = 16;
     memset(key.fData8 + kKeyDataSize, 0, sizeof(key) - kKeyDataSize);
-    GR_STATIC_ASSERT(sizeof(key) >= 8 + sizeof(size_t));
+    GR_STATIC_ASSERT(sizeof(key) >= kKeyDataSize);
     static const GrCacheID::Domain gBitmapTextureDomain = GrCacheID::GenerateDomain();
     id->reset(gBitmapTextureDomain, key);
 }

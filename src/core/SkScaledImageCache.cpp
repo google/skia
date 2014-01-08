@@ -369,10 +369,8 @@ static SkIRect get_bounds_from_bitmap(const SkBitmap& bm) {
     if (!(bm.pixelRef())) {
         return SkIRect::MakeEmpty();
     }
-    size_t x, y;
-    SkTDivMod(bm.pixelRefOffset(), bm.rowBytes(), &y, &x);
-    x >>= bm.shiftPerPixel();
-    return SkIRect::MakeXYWH(x, y, bm.width(), bm.height());
+    SkIPoint origin = bm.pixelRefOrigin();
+    return SkIRect::MakeXYWH(origin.fX, origin.fY, bm.width(), bm.height());
 }
 
 

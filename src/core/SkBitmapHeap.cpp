@@ -35,15 +35,23 @@ void SkBitmapHeapEntry::addReferences(int count) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static bool operator<(const SkIPoint& a, const SkIPoint& b) {
+    return *(const int64_t*)&a < *(const int64_t*)&b;
+}
+
+static bool operator>(const SkIPoint& a, const SkIPoint& b) {
+    return *(const int64_t*)&a > *(const int64_t*)&b;
+}
+
 bool SkBitmapHeap::LookupEntry::Less(const SkBitmapHeap::LookupEntry& a,
                                      const SkBitmapHeap::LookupEntry& b) {
     if (a.fGenerationId < b.fGenerationId) {
         return true;
     } else if (a.fGenerationId > b.fGenerationId) {
         return false;
-    } else if (a.fPixelOffset < b.fPixelOffset) {
+    } else if (a.fPixelOrigin < b.fPixelOrigin) {
         return true;
-    } else if (a.fPixelOffset > b.fPixelOffset) {
+    } else if (a.fPixelOrigin > b.fPixelOrigin) {
         return false;
     } else if (a.fWidth < b.fWidth) {
         return true;

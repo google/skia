@@ -9,6 +9,7 @@
 #include "SkOrderedWriteBuffer.h"
 #include "SkBitmap.h"
 #include "SkData.h"
+#include "SkPixelRef.h"
 #include "SkPtrRecorder.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -143,9 +144,13 @@ bool SkOrderedWriteBuffer::writeToStream(SkWStream* stream) {
     return fWriter.writeToStream(stream);
 }
 
-// Defined in SkBitmap.cpp
-bool get_upper_left_from_offset(SkBitmap::Config config, size_t offset, size_t rowBytes,
-                            int32_t* x, int32_t* y);
+static void write_encoded_bitmap(SkOrderedWriteBuffer* buffer, SkData* data,
+                                 const SkIPoint& origin) {
+    buffer->writeUInt(SkToU32(data->size()));
+    buffer->getWriter32()->writePad(data->data(), data->size());
+    buffer->write32(origin.fX);
+    buffer->write32(origin.fY);
+}
 
 void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     // Record the width and height. This way if readBitmap fails a dummy bitmap can be drawn at the
@@ -179,27 +184,29 @@ void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
         fWriter.write32(bitmap.getGenerationID());
         return;
     }
-    if (fBitmapEncoder != NULL) {
-        SkASSERT(NULL == fBitmapHeap);
-        size_t offset = 0;
-        SkAutoDataUnref data(fBitmapEncoder(&offset, bitmap));
+
+    // see if the pixelref already has an encoded version
+    if (bitmap.pixelRef()) {
+        SkAutoDataUnref data(bitmap.pixelRef()->refEncodedData());
         if (data.get() != NULL) {
-            // Write the length to indicate that the bitmap was encoded successfully, followed
-            // by the actual data.
-            this->writeUInt(SkToU32(data->size()));
-            fWriter.writePad(data->data(), data->size());
-            // Store the coordinate of the offset, rather than fPixelRefOffset, which may be
-            // different depending on the decoder.
-            int32_t x, y;
-            if (0 == offset || !get_upper_left_from_offset(bitmap.config(), offset,
-                                                           bitmap.rowBytes(), &x, &y)) {
-                x = y = 0;
-            }
-            this->write32(x);
-            this->write32(y);
+            write_encoded_bitmap(this, data, bitmap.pixelRefOrigin());
             return;
         }
     }
+
+    // see if the caller wants to manually encode
+    if (fBitmapEncoder != NULL) {
+        SkASSERT(NULL == fBitmapHeap);
+        size_t offset = 0;  // this parameter is deprecated/ignored
+        // if we have to "encode" the bitmap, then we assume there is no
+        // offset to share, since we are effectively creating a new pixelref
+        SkAutoDataUnref data(fBitmapEncoder(&offset, bitmap));
+        if (data.get() != NULL) {
+            write_encoded_bitmap(this, data, SkIPoint::Make(0, 0));
+            return;
+        }
+    }
+
     // Bitmap was not encoded. Record a zero, implying that the reader need not decode.
     this->writeUInt(0);
     bitmap.flatten(*this);

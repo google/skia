@@ -340,16 +340,8 @@ SkCanvas* RecordPictureRenderer::setupCanvas(int width, int height) {
     return NULL;
 }
 
-static SkData* encode_bitmap_to_data(size_t* offset, const SkBitmap& bm) {
-    SkPixelRef* pr = bm.pixelRef();
-    if (pr != NULL) {
-        SkData* data = pr->refEncodedData();
-        if (data != NULL) {
-            *offset = bm.pixelRefOffset();
-            return data;
-        }
-    }
-    *offset = 0;
+// the size_t* parameter is deprecated, so we ignore it
+static SkData* encode_bitmap_to_data(size_t*, const SkBitmap& bm) {
     return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
 }
 

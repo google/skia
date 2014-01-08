@@ -199,8 +199,8 @@ protected:
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
     // just for subclasses, to assign a custom pixelref
-    SkPixelRef* setPixelRef(SkPixelRef* pr, size_t offset) {
-        fBitmap.setPixelRef(pr, offset);
+    SkPixelRef* setPixelRef(SkPixelRef* pr) {
+        fBitmap.setPixelRef(pr);
         return pr;
     }
 

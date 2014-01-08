@@ -219,7 +219,7 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     surface->asImageInfo(&info);
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, surface, cached));
 
-    this->setPixelRef(pr, 0)->unref();
+    this->setPixelRef(pr)->unref();
 }
 
 SkGpuDevice::SkGpuDevice(GrContext* context,
@@ -266,7 +266,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
 
         // wrap the bitmap with a pixelref to expose our texture
         SkGrPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, texture));
-        this->setPixelRef(pr, 0)->unref();
+        this->setPixelRef(pr)->unref();
     } else {
         GrPrintf("--- failed to create gpu-offscreen [%d %d]\n",
                  width, height);

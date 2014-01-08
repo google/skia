@@ -69,6 +69,8 @@ public:
     */
     SkColorTable* colorTable() const { return fRec.fColorTable; }
 
+    size_t rowBytes() const { return fRec.fRowBytes; }
+
     /**
      *  To access the actual pixels of a pixelref, it must be "locked".
      *  Calling lockPixels returns a LockRec struct (on success).

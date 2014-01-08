@@ -340,8 +340,7 @@ static void test_bad_bitmap() {
 }
 #endif
 
-static SkData* encode_bitmap_to_data(size_t* offset, const SkBitmap& bm) {
-    *offset = 0;
+static SkData* encode_bitmap_to_data(size_t*, const SkBitmap& bm) {
     return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
 }
 
