@@ -110,13 +110,6 @@ protected:
         }
     }
 
-#if 1
-    virtual uint32_t onGetFlags() const {
-        // https://code.google.com/p/skia/issues/detail?id=1956
-        return kSkipGPU_Flag;
-    }
-#endif
-
 private:
     typedef skiagm::GM INHERITED;
 };
