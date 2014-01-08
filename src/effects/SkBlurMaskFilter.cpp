@@ -38,9 +38,10 @@ public:
                                   const SkMatrix& ctm,
                                   SkRect* maskRect) const SK_OVERRIDE;
     virtual bool filterMaskGPU(GrTexture* src,
+                               const SkMatrix& ctm,
                                const SkRect& maskRect,
                                GrTexture** result,
-                               bool canOverwriteSrc) const;
+                               bool canOverwriteSrc) const SK_OVERRIDE;
 #endif
 
     virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
@@ -540,6 +541,7 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRect& srcBounds,
 }
 
 bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
+                                         const SkMatrix& matrix,
                                          const SkRect& maskRect,
                                          GrTexture** result,
                                          bool canOverwriteSrc) const {
@@ -549,6 +551,7 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
 
     GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
 
+    // FIXME: This isn't the right matrix.
     SkScalar xformedSigma = this->computeXformedSigma(context->getMatrix());
     SkASSERT(xformedSigma > 0);
 

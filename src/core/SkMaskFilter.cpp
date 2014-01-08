@@ -298,7 +298,7 @@ SkMaskFilter::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
 }
 
 #if SK_SUPPORT_GPU
-bool SkMaskFilter::asNewEffect(GrEffectRef** effect, GrTexture*) const {
+bool SkMaskFilter::asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix&) const {
     return false;
 }
 
@@ -309,58 +309,9 @@ bool SkMaskFilter::canFilterMaskGPU(const SkRect& devBounds,
     return false;
 }
 
-bool SkMaskFilter::filterMaskGPU(GrContext* context,
-                                 const SkBitmap& srcBM,
-                                 const SkRect& maskRect,
-                                 SkBitmap* resultBM) const {
-    SkAutoTUnref<GrTexture> src;
-    bool canOverwriteSrc = false;
-    if (NULL == srcBM.getTexture()) {
-        GrTextureDesc desc;
-        // Needs to be a render target to be overwritten in filterMaskGPU
-        desc.fFlags     = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
-        desc.fConfig    = SkBitmapConfig2GrPixelConfig(srcBM.config());
-        desc.fWidth     = srcBM.width();
-        desc.fHeight    = srcBM.height();
-
-        // TODO: right now this is exact to guard against out of bounds reads
-        // by the filter code. More thought needs to be devoted to the
-        // "filterMaskGPU" contract and then enforced (i.e., clamp the code
-        // in "filterMaskGPU" so it never samples beyond maskRect)
-        GrAutoScratchTexture ast(context, desc, GrContext::kExact_ScratchTexMatch);
-        if (NULL == ast.texture()) {
-            return false;
-        }
-
-        SkAutoLockPixels alp(srcBM);
-        ast.texture()->writePixels(0, 0, srcBM.width(), srcBM.height(),
-                                   desc.fConfig,
-                                   srcBM.getPixels(), srcBM.rowBytes());
-
-        src.reset(ast.detach());
-        canOverwriteSrc = true;
-    } else {
-        src.reset((GrTexture*) srcBM.getTexture());
-        src.get()->ref();
-    }
-    GrTexture* dst;
-
-    bool result = this->filterMaskGPU(src, maskRect, &dst, canOverwriteSrc);
-    if (!result) {
-        return false;
-    }
-    SkAutoUnref aur(dst);
-
-    SkImageInfo info;
-    resultBM->setConfig(srcBM.config(), dst->width(), dst->height());
-    if (!resultBM->asImageInfo(&info)) {
-        return false;
-    }
-    resultBM->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, dst)))->unref();
-    return true;
-}
 
 bool SkMaskFilter::filterMaskGPU(GrTexture* src,
+                                 const SkMatrix& ctm,
                                  const SkRect& maskRect,
                                  GrTexture** result,
                                  bool canOverwriteSrc) const {

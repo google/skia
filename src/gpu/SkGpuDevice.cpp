@@ -939,7 +939,9 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                                 grPaint.isAntiAlias(), &mask)) {
                 GrTexture* filtered;
 
-                if (paint.getMaskFilter()->filterMaskGPU(mask.texture(), maskRect, &filtered, true)) {
+                if (paint.getMaskFilter()->filterMaskGPU(mask.texture(),
+                                                         fContext->getMatrix(), maskRect,
+                                                         &filtered, true)) {
                     // filterMaskGPU gives us ownership of a ref to the result
                     SkAutoTUnref<GrTexture> atu(filtered);
 
