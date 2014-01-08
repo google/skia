@@ -4893,12 +4893,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14705914106196865811
+          8031155171940322416
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "downsamplebitmap_checkerboard_high_512_256_pdf-poppler.png": {
