@@ -19,7 +19,7 @@ public:
     SkNoSaveLayerCanvas(SkBaseDevice* device) : INHERITED(device) {}
 
     // turn saveLayer() into save() for speed, should not affect correctness.
-    virtual int saveLayer(const SkRect* bounds, 
+    virtual int saveLayer(const SkRect* bounds,
                           const SkPaint* paint,
                           SaveFlags flags) SK_OVERRIDE {
 
@@ -33,7 +33,7 @@ public:
     }
 
     // disable aa for speed
-    virtual bool clipRect(const SkRect& rect, 
+    virtual bool clipRect(const SkRect& rect,
                           SkRegion::Op op,
                           bool doAA) SK_OVERRIDE {
         return this->INHERITED::clipRect(rect, op, false);
@@ -41,13 +41,13 @@ public:
 
     // for speed, just respect the bounds, and disable AA. May give us a few
     // false positives and negatives.
-    virtual bool clipPath(const SkPath& path, 
+    virtual bool clipPath(const SkPath& path,
                           SkRegion::Op op,
                           bool doAA) SK_OVERRIDE {
-        return this->updateClipConservativelyUsingBounds(path.getBounds(), op, 
+        return this->updateClipConservativelyUsingBounds(path.getBounds(), op,
                                                          path.isInverseFillType());
     }
-    virtual bool clipRRect(const SkRRect& rrect, 
+    virtual bool clipRRect(const SkRRect& rrect,
                            SkRegion::Op op,
                            bool doAA) SK_OVERRIDE {
         return this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, false);

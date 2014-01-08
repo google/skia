@@ -25,7 +25,7 @@ protected:
         return this->INHERITED::onGetFlags() |
                GM::kSkipTiled_Flag |
                GM::kSkipPicture_Flag |
-               GM::kSkipPipe_Flag | 
+               GM::kSkipPipe_Flag |
                GM::kSkipPipeCrossProcess_Flag;
     }
 
