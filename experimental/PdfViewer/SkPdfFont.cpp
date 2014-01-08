@@ -329,7 +329,7 @@ static int skstoi(const SkPdfNativeObject* str) {
                                       token.fKeywordLength==sizeof(keyword)-1 && \
                                       strncmp(token.fKeyword, keyword, sizeof(keyword)-1) == 0)
 
-SkPdfToUnicode::SkPdfToUnicode(SkPdfNativeDoc* parsed, SkPdfStream* stream) : fParsed(parsed) {
+SkPdfToUnicode::SkPdfToUnicode(SkPdfNativeDoc* parsed, SkPdfStream* stream) {
     fCMapEncoding = NULL;
     fCMapEncodingFlag = NULL;
 

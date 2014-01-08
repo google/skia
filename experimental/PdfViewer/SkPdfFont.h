@@ -85,7 +85,6 @@ public:
 SkTDict<SkPdfEncoding*>& getStandardEncodings();
 
 class SkPdfToUnicode {
-    SkPdfNativeDoc* fParsed;
     // TODO(edisonn): hide public members
 public:
     unsigned short* fCMapEncoding;
