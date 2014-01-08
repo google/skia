@@ -942,10 +942,10 @@ void GrContext::drawVertices(const GrPaint& paint,
                              int indexCount) {
     SK_TRACE_EVENT0("GrContext::drawVertices");
 
-    GrDrawTarget::AutoReleaseGeometry geo;
-
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
+    GrDrawTarget::AutoReleaseGeometry geo; // must be inside AutoCheckFlush scope
+
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
 
     GrDrawState* drawState = target->drawState();
