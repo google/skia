@@ -15,7 +15,8 @@ Global* Path::gGlobal = NULL;
 void Path::ConstructPath(const v8::FunctionCallbackInfo<Value>& args) {
     HandleScope handleScope(gGlobal->getIsolate());
     Path* path = new Path();
-    args.This()->SetInternalField(0, External::New(path));
+    args.This()->SetInternalField(
+            0, External::New(gGlobal->getIsolate(), path));
 }
 
 #define ADD_METHOD(name, fn) \
@@ -23,7 +24,7 @@ void Path::ConstructPath(const v8::FunctionCallbackInfo<Value>& args) {
             String::NewFromUtf8( \
                     global->getIsolate(), name, \
                     String::kInternalizedString), \
-            FunctionTemplate::New(fn))
+            FunctionTemplate::New(global->getIsolate(), fn))
 
 // Install the constructor in the global scope so Paths can be constructed
 // in JS.
@@ -39,7 +40,7 @@ void Path::AddToGlobal(Global* global) {
     Context::Scope contextScope(context);
 
     Local<FunctionTemplate> constructor = FunctionTemplate::New(
-            Path::ConstructPath);
+            gGlobal->getIsolate(), Path::ConstructPath);
     constructor->InstanceTemplate()->SetInternalFieldCount(1);
 
     ADD_METHOD("close", ClosePath);
@@ -50,7 +51,8 @@ void Path::AddToGlobal(Global* global) {
     ADD_METHOD("arc", Arc);
     ADD_METHOD("rect", Rect);
 
-    context->Global()->Set(String::New("Path"), constructor->GetFunction());
+    context->Global()->Set(String::NewFromUtf8(
+            gGlobal->getIsolate(), "Path"), constructor->GetFunction());
 }
 
 Path* Path::Unwrap(const v8::FunctionCallbackInfo<Value>& args) {

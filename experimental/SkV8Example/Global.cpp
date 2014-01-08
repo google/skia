@@ -127,7 +127,7 @@ void Global::SetTimeout(const v8::FunctionCallbackInfo<v8::Value>& args) {
     evt->setFast32(id);
     evt->postDelay(delay);
 
-    args.GetReturnValue().Set(Integer::New(id));
+    args.GetReturnValue().Set(Integer::New(gGlobal->fIsolate, id));
 }
 
 // Callback function for SkEvents used to implement timeouts.
@@ -180,11 +180,11 @@ Handle<Context> Global::createRootContext() {
   Handle<ObjectTemplate> global = ObjectTemplate::New();
 
   global->Set(v8::String::NewFromUtf8(fIsolate, "print"),
-              v8::FunctionTemplate::New(Global::Print));
+              v8::FunctionTemplate::New(fIsolate, Global::Print));
   global->Set(v8::String::NewFromUtf8(fIsolate, "setTimeout"),
-              v8::FunctionTemplate::New(Global::SetTimeout));
+              v8::FunctionTemplate::New(fIsolate, Global::SetTimeout));
   global->Set(v8::String::NewFromUtf8(fIsolate, "inval"),
-              v8::FunctionTemplate::New(Global::Inval));
+              v8::FunctionTemplate::New(fIsolate, Global::Inval));
 
 
   return Context::New(fIsolate, NULL, global);

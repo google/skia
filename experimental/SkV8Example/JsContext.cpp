@@ -208,7 +208,8 @@ void JsContext::GetWidth(Local<String> name,
     JsContext* jsContext = Unwrap(info.This());
     SkISize size = jsContext->fCanvas->getDeviceSize();
 
-    info.GetReturnValue().Set(Int32::New(size.fWidth));
+    info.GetReturnValue().Set(
+            Int32::New(jsContext->fGlobal->getIsolate(), size.fWidth));
 }
 
 void JsContext::GetHeight(Local<String> name,
@@ -216,7 +217,8 @@ void JsContext::GetHeight(Local<String> name,
     JsContext* jsContext = Unwrap(info.This());
     SkISize size = jsContext->fCanvas->getDeviceSize();
 
-    info.GetReturnValue().Set(Int32::New(size.fHeight));
+    info.GetReturnValue().Set(
+            Int32::New(jsContext->fGlobal->getIsolate(), size.fHeight));
 }
 
 
@@ -226,7 +228,7 @@ Persistent<ObjectTemplate> JsContext::gContextTemplate;
     result->Set(String::NewFromUtf8( \
             fGlobal->getIsolate(), name, \
             String::kInternalizedString), \
-                FunctionTemplate::New(fn))
+                FunctionTemplate::New(fGlobal->getIsolate(), fn))
 
 Handle<ObjectTemplate> JsContext::makeContextTemplate() {
     EscapableHandleScope handleScope(fGlobal->getIsolate());
