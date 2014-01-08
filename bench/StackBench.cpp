@@ -12,7 +12,6 @@
 #include "SkDeque.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
-#include <vector>
 
 // This file has several benchmarks using various data structures to do stack-like things:
 //   - push
@@ -79,16 +78,6 @@ BENCH(TDArray_Serial) {
     }
 }
 
-BENCH(vector_Serial) {
-    std::vector<int> s;
-    for (int i = 0; i < K; i++) s.push_back(i);
-
-    volatile int junk = 0;
-    for (int j = 0; j < loops; j++) {
-        for (size_t i = 0; i < s.size(); i++) junk += s[i];
-    }
-}
-
 // Add K items, then randomly access them many times.
 
 BENCH(TArray_RandomAccess) {
@@ -105,17 +94,6 @@ BENCH(TArray_RandomAccess) {
 BENCH(TDArray_RandomAccess) {
     SkTDArray<int> s;
     for (int i = 0; i < K; i++) s.push(i);
-
-    SkRandom rand;
-    volatile int junk = 0;
-    for (int i = 0; i < K*loops; i++) {
-        junk += s[rand.nextULessThan(K)];
-    }
-}
-
-BENCH(vector_RandomAccess) {
-    std::vector<int> s;
-    for (int i = 0; i < K; i++) s.push_back(i);
 
     SkRandom rand;
     volatile int junk = 0;
@@ -144,11 +122,6 @@ BENCH(TArray_Push) {
 BENCH(TDArray_Push) {
     SkTDArray<int> s;
     for (int i = 0; i < K*loops; i++) s.push(i);
-}
-
-BENCH(vector_Push) {
-    std::vector<int> s;
-    for (int i = 0; i < K*loops; i++) s.push_back(i);
 }
 
 // Push then immediately pop many times.
@@ -185,14 +158,6 @@ BENCH(TDArray_PushPop) {
     }
 }
 
-BENCH(vector_PushPop) {
-    std::vector<int> s;
-    for (int i = 0; i < K*loops; i++) {
-        s.push_back(i);
-        s.pop_back();
-    }
-}
-
 // Push many items, then pop them all.
 
 BENCH(Deque_PushAllPopAll) {
@@ -211,10 +176,4 @@ BENCH(TDArray_PushAllPopAll) {
     SkTDArray<int> s;
     for (int i = 0; i < K*loops; i++) s.push(i);
     for (int i = 0; i < K*loops; i++) s.pop();
-}
-
-BENCH(vector_PushAllPopAll) {
-    std::vector<int> s;
-    for (int i = 0; i < K*loops; i++) s.push_back(i);
-    for (int i = 0; i < K*loops; i++) s.pop_back();
 }
