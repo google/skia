@@ -17,9 +17,11 @@ import httplib
 import json
 import os
 import re
+import shutil
 import subprocess
 import svn
 import sys
+import tempfile
 
 import buildbot_globals
 
@@ -270,17 +272,34 @@ def SubmitTryRequest(args, is_svn=True):
           proc.communicate()[0]))
     print proc.communicate()[0]
   else:
-    # First, find depot_tools. This is needed to import trychange.
-    sys.path.append(FindDepotTools())
-    import trychange
-    try_args = ['--use_svn',
-                '--svn_repo', GetTryRepo(),
-                '--root', GetCheckoutRoot(is_svn),
-                '--bot', botlist,
-                '--patchlevel', '0']
-    if args.revision:
-      try_args.extend(['-r', args.revision])
-    trychange.TryChange(try_args, None, False)
+    # Create the diff file.
+    cmd = ['git.bat' if os.name == 'nt' else 'git', 'diff', 'origin/master']
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if proc.wait() != 0:
+      raise Exception('Failed to capture git diff!')
+
+    temp_dir = tempfile.mkdtemp()
+    try:
+      diff_file = os.path.join(temp_dir, 'patch.diff')
+      with open(diff_file, 'wb') as f:
+        f.write(proc.communicate()[0])
+  
+      # Find depot_tools. This is needed to import trychange.
+      sys.path.append(FindDepotTools())
+      import trychange
+      try_args = ['--use_svn',
+                  '--svn_repo', GetTryRepo(),
+                  '--root', GetCheckoutRoot(is_svn),
+                  '--bot', botlist,
+                  '--diff', diff_file,
+                  ]
+      if args.revision:
+        try_args.extend(['-r', args.revision])
+
+      # Submit the try request.
+      trychange.TryChange(try_args, None, False)
+    finally:
+      shutil.rmtree(temp_dir)
 
 
 def main():
