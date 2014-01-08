@@ -44,6 +44,12 @@ static inline __attribute__((always_inline)) int32_t sk_atomic_conditional_inc(i
     }
 }
 
+static inline __attribute__((always_inline)) bool sk_atomic_cas(int32_t* addr,
+                                                                int32_t before,
+                                                                int32_t after) {
+    return __sync_bool_compare_and_swap(addr, before, after);
+}
+
 static inline __attribute__((always_inline)) void sk_membar_acquire__after_atomic_conditional_inc() { }
 
 #endif

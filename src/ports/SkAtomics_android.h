@@ -36,6 +36,13 @@ static inline __attribute__((always_inline)) int32_t sk_atomic_conditional_inc(i
     }
 }
 
+static inline __attribute___((always_inline)) bool sk_atomic_cas(int32_t* addr,
+                                                                 int32_t before,
+                                                                 int32_t after) {
+    // android_atomic_release_cas returns 0 for success (if *addr == before and it wrote after).
+    return android_atomic_release_cas(before, after, addr) == 0;
+}
+
 static inline __attribute__((always_inline)) void sk_membar_acquire__after_atomic_conditional_inc() {
     //HACK: Android is actually using full memory barriers.
     //      Should this change, uncomment below.

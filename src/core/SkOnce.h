@@ -29,12 +29,7 @@
 #include "SkThread.h"
 #include "SkTypes.h"
 
-#ifdef SK_USE_POSIX_THREADS
-#  define SK_ONCE_INIT { false, { PTHREAD_MUTEX_INITIALIZER } }
-#else
-#  define SK_ONCE_INIT { false, SkBaseMutex() }
-#endif
-
+#define SK_ONCE_INIT { false, { 0, SkDEBUGCODE(0) } }
 #define SK_DECLARE_STATIC_ONCE(name) static SkOnceFlag name = SK_ONCE_INIT
 
 struct SkOnceFlag;  // If manually created, initialize with SkOnceFlag once = SK_ONCE_INIT
@@ -46,13 +41,13 @@ inline void SkOnce(SkOnceFlag* once, Func f, Arg arg);
 
 struct SkOnceFlag {
     bool done;
-    SkBaseMutex mutex;
+    SkSpinlock lock;
 };
 
 // TODO(bungeman, mtklein): move all these *barrier* functions to SkThread when refactoring lands.
 
 #ifdef SK_BUILD_FOR_WIN
-#include <intrin.h>
+#  include <intrin.h>
 inline static void compiler_barrier() {
     _ReadWriteBarrier();
 }
@@ -64,11 +59,11 @@ inline static void compiler_barrier() {
 
 inline static void full_barrier_on_arm() {
 #ifdef SK_CPU_ARM
-#if SK_ARM_ARCH >= 7
+#  if SK_ARM_ARCH >= 7
     asm volatile("dmb" : : : "memory");
-#else
+#  else
     asm volatile("mcr p15, 0, %0, c7, c10, 5" : : "r" (0) : "memory");
-#endif
+#  endif
 #endif
 }
 
@@ -98,7 +93,7 @@ inline static void acquire_barrier() {
 // (We don't mind if this is an actual function call, but odds are it'll be inlined anyway.)
 template <typename Func, typename Arg>
 static void sk_once_slow(SkOnceFlag* once, Func f, Arg arg) {
-    const SkAutoMutexAcquire lock(once->mutex);
+    const SkAutoSpinlock lock(&once->lock);
     if (!once->done) {
         f(arg);
         // Also known as a store-store/load-store barrier, this makes sure that the writes
