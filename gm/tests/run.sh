@@ -105,10 +105,10 @@ function gm_test {
   # 1. Image file encoding may vary by platform
   # 2. https://code.google.com/p/chromium/issues/detail?id=169600
   #    ('gcl/upload.py fail to upload binary files to rietveld')
-  for IMAGEFILE in $(find $ACTUAL_OUTPUT_DIR -name *.png); do
+  for IMAGEFILE in $(find $ACTUAL_OUTPUT_DIR -name \*.png); do
     echo "[contents of $IMAGEFILE]" >$IMAGEFILE
   done
-  for IMAGEFILE in $(find $ACTUAL_OUTPUT_DIR -name *.pdf); do
+  for IMAGEFILE in $(find $ACTUAL_OUTPUT_DIR -name \*.pdf); do
     echo "[contents of $IMAGEFILE]" >$IMAGEFILE
   done
 
