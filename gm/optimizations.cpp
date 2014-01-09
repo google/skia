@@ -311,6 +311,14 @@ public:
     static const int kHeight = 800;
 
 protected:
+    uint32_t onGetFlags() const SK_OVERRIDE {
+        // One optimization changes the color drawn slightly in a 565 target.
+        // We've decided it's innocuous, so we disable this GM when targeting 565.
+        // Revisit this if we get finer-grained control: it'd be nice to keep drawing directly.
+        // For more, see skia:1994.
+        return skiagm::GM::kSkip565_Flag;
+    }
+
     SkString onShortName() {
         return SkString("optimizations");
     }
