@@ -378,7 +378,7 @@ public:
     SkPixelRef* setPixelRef(SkPixelRef* pr, const SkIPoint& origin) {
         return this->setPixelRef(pr, origin.fX, origin.fY);
     }
-    
+
     SkPixelRef* setPixelRef(SkPixelRef* pr) {
         return this->setPixelRef(pr, 0, 0);
     }
