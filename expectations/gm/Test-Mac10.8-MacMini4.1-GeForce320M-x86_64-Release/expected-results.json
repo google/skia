@@ -12277,15 +12277,6 @@
       ], 
       "ignore-failure": false
     }, 
-    "shadertext2_pdf-native.png": {
-      "allowed-digests": [
-        [
-          "bitmap-64bitMD5", 
-          6028713510025816385
-        ]
-      ], 
-      "reviewed-by-human": true
-    }, 
     "shadertext2_pdf-poppler.png": {
       "allowed-digests": [
         [
@@ -12339,15 +12330,6 @@
         ]
       ], 
       "ignore-failure": false
-    }, 
-    "shadertext3_pdf-native.png": {
-      "allowed-digests": [
-        [
-          "bitmap-64bitMD5", 
-          9362821307127451325
-        ]
-      ], 
-      "reviewed-by-human": true
     }, 
     "shadertext3_pdf-poppler.png": {
       "allowed-digests": [
@@ -12408,15 +12390,6 @@
         1578
       ], 
       "reviewed-by-human": false
-    }, 
-    "shadertext_pdf-native.png": {
-      "allowed-digests": [
-        [
-          "bitmap-64bitMD5", 
-          11576482093640129802
-        ]
-      ], 
-      "reviewed-by-human": true
     }, 
     "shadertext_pdf-poppler.png": {
       "allowed-digests": [
