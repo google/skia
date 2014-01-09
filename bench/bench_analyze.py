@@ -55,10 +55,10 @@ INPUT_URL_TEMPLATE = ('http://chromium-skia-gm.commondatastorage.googleapis.com'
 
 # Output HTML elements and templates.
 HTML_HEAD = ('<html><head><title>Skia Bench Expected Ranges</title>'
-             '<script type="text/javascript" src="https://skia.googlecode.com/'
-             'svn/buildbot/dygraph-combined.js"></script></head><body>Please '
-             'adjust values as appropriate and update benches to monitor in '
-             'bench/bench_expectations.txt.<br><br>')
+             '<script type="text/javascript" src="https://raw.github.com/google'
+             '/skia-buildbot/master/dygraph-combined.js"></script></head><body>'
+             'Please adjust values as appropriate and update benches to monitor'
+             ' in bench/bench_expectations.txt.<br><br>')
 HTML_SUFFIX = '</body></html>'
 GRAPH_PREFIX = ('<br>%s<br><div id="%s" style="width:400px;height:200px"></div>'
                 '<script type="text/javascript">g%s=new Dygraph('

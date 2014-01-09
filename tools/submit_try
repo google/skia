@@ -44,10 +44,6 @@ SKIA_BUILD_MASTER_PORT = str(buildbot_globals.Get('public_external_port'))
 # All try builders have this suffix.
 TRYBOT_SUFFIX = '-Trybot'
 
-# Location of the codereview.settings file in the Skia repo.
-SKIA_URL = 'skia.googlecode.com'
-CODEREVIEW_SETTINGS = '/svn/codereview.settings'
-
 # String for matching the svn url of the try server inside codereview.settings.
 TRYSERVER_SVN_URL = 'TRYSERVER_SVN_URL: '
 
@@ -94,16 +90,15 @@ def GetCheckoutRoot(is_svn=True):
 
 
 def GetTryRepo():
-  """ Determine the TRYSERVER_SVN_URL from the codereview.settings file in the
-  Skia repo. """
-  connection = httplib.HTTPConnection(SKIA_URL)
-  connection.request('GET', CODEREVIEW_SETTINGS)
-  content = connection.getresponse().read()
-  for line in content.split('\n'):
-    if line.startswith(TRYSERVER_SVN_URL):
-      return line[len(TRYSERVER_SVN_URL):].rstrip()
+  """Determine the TRYSERVER_SVN_URL from the codereview.settings file."""
+  codereview_settings_file = os.path.join(os.path.dirname(__file__), os.pardir,
+                                          'codereview.settings')
+  with open(codereview_settings_file) as f:
+    for line in f:
+      if line.startswith(TRYSERVER_SVN_URL):
+        return line[len(TRYSERVER_SVN_URL):].rstrip()
   raise Exception('Couldn\'t determine the TRYSERVER_SVN_URL. Make sure it is '
-                  'defined in the %s file.' % CODEREVIEW_SETTINGS)
+                  'defined in the %s file.' % codereview_settings_file)
 
 
 def RetrieveTrybotList(json_filename):

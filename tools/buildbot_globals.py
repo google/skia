@@ -8,14 +8,21 @@
 Provides read access to buildbot's global_variables.json .
 """
 
+
+from contextlib import closing
+
+import HTMLParser
 import json
 import svn
+import sys
+import urllib2
+
 
 _global_vars = None
 
 
-GLOBAL_VARS_JSON_URL = (
-    'http://skia.googlecode.com/svn/buildbot/site_config/global_variables.json')
+GLOBAL_VARS_JSON_URL = ('https://skia.googlesource.com/buildbot/+'
+                        '/master/site_config/global_variables.json')
 
 
 class GlobalVarsRetrievalError(Exception):
@@ -38,13 +45,44 @@ class NoSuchGlobalVariable(KeyError):
   pass
 
 
+def retrieve_from_googlesource(url):
+  """Retrieve the given file from GoogleSource's HTTP interface, trimming the
+  extraneous HTML. Intended to be a GoogleSource equivalent of "svn cat".
+
+  This just returns the unescaped contents of the first <pre> tag which matches
+  our expectations for GoogleSource's HTTP interface. If that interface changes,
+  this function will almost surely break.
+
+  Args:
+      url: string; the URL of the file to retrieve.
+  Returns:
+      The contents of the file in GoogleSource, stripped of the extra HTML from
+          the HTML interface.
+  """
+  with closing(urllib2.urlopen(url)) as f:
+    contents = f.read()
+    pre_open = '<pre class="git-blob prettyprint linenums lang-json">'
+    pre_close = '</pre>'
+    start_index = contents.find(pre_open)
+    end_index = contents.find(pre_close)
+    parser = HTMLParser.HTMLParser()
+    return parser.unescape(contents[start_index + len(pre_open):end_index])
+
+
 def Get(var_name):
-  '''Return the value associated with this name in global_variables.json.
-  Raises NoSuchGlobalVariable if there is no variable with that name.'''
+  """Return the value associated with this name in global_variables.json.
+  
+  Args:
+      var_name: string; the variable to look up.
+  Returns:
+      The value of the variable.
+  Raises:
+      NoSuchGlobalVariable if there is no variable with that name.
+  """
   global _global_vars
   if not _global_vars:
     try:
-      global_vars_text = svn.Cat(GLOBAL_VARS_JSON_URL)
+      global_vars_text = retrieve_from_googlesource(GLOBAL_VARS_JSON_URL)
     except Exception:
       raise GlobalVarsRetrievalError('Failed to retrieve %s.' %
                                      GLOBAL_VARS_JSON_URL)
@@ -56,3 +94,7 @@ def Get(var_name):
     return _global_vars[var_name]['value']
   except KeyError:
     raise NoSuchGlobalVariable(var_name)
+
+
+if __name__ == '__main__':
+  print Get(sys.argv[1])

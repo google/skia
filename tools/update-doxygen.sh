@@ -31,10 +31,13 @@ DOXYGEN_COMMIT=${DOXYGEN_COMMIT:-true}
 mkdir -p $DOXYGEN_TEMPDIR
 cd $DOXYGEN_TEMPDIR
 
-if [ -d "trunk" ]; then
-  svn update --accept theirs-full trunk
+if [ -d "skia" ]; then
+  pushd skia
+  git pull
+  git checkout origin/master
+  popd
 else
-  svn checkout http://skia.googlecode.com/svn/trunk  # read-only
+  git clone https://skia.googlesource.com/skia.git
 fi
 if [ -d "docs" ]; then
   svn update --accept theirs-full docs
@@ -50,11 +53,11 @@ else
 fi
 
 if [ ! -f "docs/static_footer.txt" ]; then
-  cp trunk/tools/doxygen_footer.txt docs/static_footer.txt
+  cp skia/tools/doxygen_footer.txt docs/static_footer.txt
 fi
 
 # Run Doxygen.
-cd trunk
+cd skia
 doxygen Doxyfile
 ret_code=$?
 if [ $ret_code != 0 ]; then
