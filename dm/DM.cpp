@@ -35,7 +35,7 @@ DEFINE_string(match, "",  "[~][^]substring[$] [...] of GM name to run.\n"
                           "^ and $ requires an exact match\n"
                           "If a GM does not match any list entry,\n"
                           "it is skipped unless some list entry starts with ~");
-DEFINE_string(config, "8888 gpu",
+DEFINE_string(config, "565 8888 gpu",
         "Options: 565 8888 gpu msaa4 msaa16 gpunull gpudebug angle mesa"); // TODO(mtklein): pdf
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
