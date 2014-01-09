@@ -30,22 +30,9 @@
 #  undef NOMINMAX
 #endif
 
-// TODO: this exists because SK_DECLARE_STATIC_ONCE in methods is currently
-// relying on a compiler bug which allows the '=' to work.
-// All use of SK_DECLARE_STATIC_ONCE in methods is unsafe, and must be removed.
-// To find these cases, make SkMutex's copy and assignement private directly.
-class SkNoncopyableMutex {
-public:
-    SkNoncopyableMutex() { }
-
-private:
-    SkNoncopyableMutex(const SkNoncopyableMutex&);
-    SkNoncopyableMutex& operator=(const SkNoncopyableMutex&);
-};
-
 // On Windows, SkBaseMutex and SkMutex are the same thing,
 // we can't easily get rid of static initializers.
-class SkMutex : SkNoncopyableMutex {
+class SkMutex {
 public:
     SkMutex() {
         InitializeCriticalSection(&fStorage);
@@ -64,6 +51,9 @@ public:
     }
 
 private:
+    SkMutex(const SkMutex&);
+    SkMutex& operator=(const SkMutex&);
+
     CRITICAL_SECTION fStorage;
 };
 
