@@ -311,6 +311,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     fPathRenderingSupport = GR_GL_USE_NV_PATH_RENDERING &&
                             ctxInfo.hasExtension("GL_NV_path_rendering");
+    SkASSERT(!fPathRenderingSupport || fFixedFunctionSupport);
 
     fDstReadInShaderSupport = kNone_FBFetchType != fFBFetchType;
 
