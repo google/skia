@@ -35,7 +35,7 @@ static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
     }
 }
 
-void make_checkerboard(SkBitmap* bm, int w, int h, bool immutable) {
+static void make_checkerboard(SkBitmap* bm, int w, int h, bool immutable) {
     SkASSERT(w % 2 == 0);
     SkASSERT(h % 2 == 0);
     bm->setConfig(SkBitmap::kA8_Config, w, h);
