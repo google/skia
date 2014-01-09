@@ -1,10 +1,6 @@
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Manually added template defines */
-#define FC_CACHEDIR "@FC_CACHEDIR@"
-#define FONTCONFIG_PATH "@FONTCONFIG_PATH@"
-
 /* Define if building universal (internal helper macro) */
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
@@ -15,7 +11,7 @@
 /* #undef ENABLE_LIBXML2 */
 
 /* Additional font directories */
-#define FC_ADD_FONTS "/System/Library/Fonts,/Library/Fonts"
+#define FC_ADD_FONTS "yes"
 
 /* Architecture prefix to use for cache file names */
 /* #undef FC_ARCHITECTURE */
