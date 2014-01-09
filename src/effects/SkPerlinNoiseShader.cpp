@@ -124,8 +124,9 @@ public:
     {
         static const SkScalar gInvBlockSizef = SkScalarInvert(SkIntToScalar(kBlockSize));
 
+        // According to the SVG spec, we must truncate (not round) the seed value.
+        fSeed = SkScalarTruncToInt(seed);
         // The seed value clamp to the range [1, kRandMaximum - 1].
-        fSeed = SkScalarRoundToInt(seed);
         if (fSeed <= 0) {
             fSeed = -(fSeed % (kRandMaximum - 1)) + 1;
         }
