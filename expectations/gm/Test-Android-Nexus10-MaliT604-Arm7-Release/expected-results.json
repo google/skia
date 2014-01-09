@@ -6936,7 +6936,11 @@
           7557385998901775585
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        2005
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "imagemagnifier_565.png": {
       "allowed-digests": [
