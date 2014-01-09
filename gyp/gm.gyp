@@ -73,7 +73,7 @@
             'pdfviewer_lib.gyp:pdfviewer_lib',
           ],
         }],
-        ['skia_os in ["linux", "mac", "win"]', {
+        ['skia_poppler_enabled', {
           'dependencies': [
             'poppler.gyp:libpoppler-cpp-gpl',
           ],

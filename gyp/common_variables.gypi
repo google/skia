@@ -57,6 +57,11 @@
         }, {
           'os_posix%': 1,
         }],
+        [ 'skia_os in ["linux", "win", "mac"]', {
+          'skia_poppler_enabled%': 1,
+        }, {
+          'skia_poppler_enabled%': 0,
+        }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'skia_arch_width%': 64,
         }, {
@@ -146,6 +151,7 @@
     'skia_resource_cache_mb_limit%': '<(skia_resource_cache_mb_limit)',
     'skia_resource_cache_count_limit%': '<(skia_resource_cache_count_limit)',
     'skia_angle%': '<(skia_angle)',
+    'skia_poppler_enabled%': '<(skia_poppler_enabled)',
     'skia_arch_width%': '<(skia_arch_width)',
     'skia_arch_type%': '<(skia_arch_type)',
     'skia_chrome_utils%': '<(skia_chrome_utils)',

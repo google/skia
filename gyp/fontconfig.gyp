@@ -13,13 +13,31 @@
   'targets': [
     {
       'target_name': 'fontconfig',
+      'type': 'none',
+      'dependencies': [
+        'libfontconfig',
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          '../third_party/externals/fontconfig',
+        ],
+      },
+      'conditions': [
+        ['skia_os == "mac"', {
+          'dependencies': [
+            'fontconfig_setup',
+          ],
+        }],
+      ],
+    },
+    {
+      'target_name': 'libfontconfig',
       'type': 'static_library',
       'dependencies': [
         'freetype.gyp:freetype_poppler',
       ],
       'include_dirs' : [
         '../third_party/externals/fontconfig',
-
         '../third_party/fontconfig/config',
         '../third_party/fontconfig/config/src',
       ],
@@ -66,12 +84,12 @@
       'conditions': [
         ['skia_os == "mac"', {
           'include_dirs': [
+            '<(SHARED_INTERMEDIATE_DIR)/fontconfig_config',
             '../third_party/fontconfig/config/mac',
             '../third_party/fontconfig/config/mac/src',
           ],
-          'defines': [
-            'FC_CACHEDIR',
-            'FONTCONFIG_PATH',
+          'dependencies': [
+            'fontconfig_config_template',
           ],
           'libraries': [
             '$(SDKROOT)/usr/lib/libexpat.dylib',
@@ -96,5 +114,86 @@
         }],
       ],
     },
+  ],
+  'conditions': [
+    ['skia_os == "mac"', {
+      'variables': {
+        'cachedir': '<(PRODUCT_DIR)/fontconfig/cache',
+        'configdir': '<(PRODUCT_DIR)/fontconfig/etc',
+      },
+      'targets': [
+        {
+          'target_name': 'fontconfig_config_template',
+          'type': 'none',
+          'actions': [{
+            'action_name': 'fontconfig_config_template',
+            'message': 'Generating fontconfig header',
+            'inputs': [
+              '../third_party/fontconfig/process-template.py',
+              '../third_party/fontconfig/config/mac/config.h.template',
+            ],
+            'outputs': [
+              '<(SHARED_INTERMEDIATE_DIR)/fontconfig_config/config.h',
+            ],
+            'action': [
+              'python', '../third_party/fontconfig/process-template.py',
+              '-i', '../third_party/fontconfig/config/mac/config.h.template',
+              '-o', '<@(_outputs)',
+              '-p', '@FC_CACHEDIR@', '<(cachedir)',
+              '-p', '@FONTCONFIG_PATH@', '<(configdir)',
+            ],
+          }],
+        }, {
+          'target_name': 'fontconfig_setup',
+          'type': 'none',
+          'dependencies': [
+            'fc-cache',
+          ],
+          'actions': [{
+            'action_name': 'fontconfig_config_file',
+            'message': 'Generating font.conf',
+            'inputs': [
+              '../third_party/fontconfig/process-template.py',
+              '../third_party/externals/fontconfig/fonts.conf.in',
+            ],
+            'outputs': [ '<(configdir)/fonts.conf', ],
+            'action': [
+              'python', '../third_party/fontconfig/process-template.py',
+              '-i', '../third_party/externals/fontconfig/fonts.conf.in',
+              '-o', '<(configdir)/fonts.conf',
+              '-p', '@FC_CACHEDIR@', '<(cachedir)',
+              '-k', '@FC_DEFAULT_FONTS@', '/System/Library/Fonts',
+              '-k', '@FC_FONTPATH@', '<dir>/Library/Fonts</dir>',
+              '-p', '@CONFIGDIR@', '<(configdir)/conf.d',
+              '-k', '@PACKAGE@', 'fontconfig',
+              '-k', '@VERSION@', '2.10.93',
+            ],
+          }, {
+            'action_name': 'populate_fontconfig_cache',
+            'message':
+              'Generating fontconfig cache (this will take a few minutes).',
+            'inputs': [
+              '<(PRODUCT_DIR)/fc-cache',
+              '<(configdir)/fonts.conf',
+            ],
+            'outputs': [ '<(cachedir)/CACHEDIR.TAG', ],
+            'action': [ '<(PRODUCT_DIR)/fc-cache', '-s', '-f', '-v', ],
+          }],
+        },
+        {
+          'target_name': 'fc-cache',
+          'type': 'executable',
+          'dependencies': [
+            'libfontconfig',
+          ],
+          'libraries':[
+            '$(SDKROOT)/usr/lib/libexpat.dylib',
+          ],
+          'sources': [
+            '../third_party/externals/fontconfig/fc-cache/fc-cache.c',
+          ],
+        },
+      ],
+    }],
   ],
 }
