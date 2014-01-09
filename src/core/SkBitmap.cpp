@@ -341,7 +341,7 @@ void SkBitmap::updatePixelsFromRef() const {
             void* p = fPixelRef->pixels();
             if (NULL != p) {
                 p = (char*)p
-                    + fPixelRef->rowBytes() * fPixelRefOrigin.fY
+                    + fPixelRefOrigin.fY * fRowBytes
                     + fPixelRefOrigin.fX * fBytesPerPixel;
             }
             fPixels = p;
