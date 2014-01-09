@@ -8,6 +8,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost.h"
+#include "SkOnce.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
@@ -69,24 +70,32 @@ protected:
     }
 };
 
-SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
-    // we keep a reference to this guy for all time, since if we return its
-    // fontID, the font cache may later on ask to resolve that back into a
-    // typeface object.
-    static const uint32_t FONT_STYLE_COUNT = 4;
-    static SkTypeface* gDefaultTypefaces[FONT_STYLE_COUNT];
-    SkASSERT((unsigned)style < FONT_STYLE_COUNT);
+static SkTypeface* gDefaultTypefaces[] = { NULL, NULL, NULL, NULL };
+static const size_t FONT_STYLE_COUNT = SK_ARRAY_COUNT(gDefaultTypefaces);
+static SkOnceFlag gDefaultTypefaceOnce[FONT_STYLE_COUNT] = {
+    SK_ONCE_INIT, SK_ONCE_INIT, SK_ONCE_INIT, SK_ONCE_INIT
+};
+template <uintmax_t N> struct SkTIsPow2 {
+    static const bool value = (N & (N - 1)) == 0;
+};
+SK_COMPILE_ASSERT(SkTIsPow2<FONT_STYLE_COUNT>::value, FONT_STYLE_COUNT_not_power_of_2);
 
-    // mask off any other bits to avoid a crash in SK_RELEASE
-    style = (Style)(style & 0x03);
-
+void SkTypeface::create_default_typeface(Style style) {
     if (NULL == gDefaultTypefaces[style]) {
         gDefaultTypefaces[style] = SkFontHost::CreateTypeface(NULL, NULL, style);
     }
     if (NULL == gDefaultTypefaces[style]) {
         gDefaultTypefaces[style] = SkNEW(SkEmptyTypeface);
     }
+}
 
+SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
+    SkASSERT((size_t)style < FONT_STYLE_COUNT);
+
+    // mask off any other bits to avoid a crash in SK_RELEASE
+    style = (Style)(style & (FONT_STYLE_COUNT - 1));
+
+    SkOnce(&gDefaultTypefaceOnce[style], SkTypeface::create_default_typeface, style);
     return gDefaultTypefaces[style];
 }
 

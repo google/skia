@@ -334,6 +334,8 @@ protected:
                                   size_t length, void* data) const = 0;
 
 private:
+    static void create_default_typeface(Style style);
+
     SkFontID    fUniqueID;
     Style       fStyle;
     bool        fIsFixedPitch;
