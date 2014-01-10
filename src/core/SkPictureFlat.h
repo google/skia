@@ -392,7 +392,6 @@ public:
         // TODO(mtklein): There's no reason to have the index start from 1.  Clean this up.
         // index 0 is always empty since it is used as a signal that find failed
         fIndexedData.push(NULL);
-        fNextIndex = 1;
     }
 
     ~SkFlatDictionary() {
@@ -400,9 +399,8 @@ public:
     }
 
     int count() const {
-        SkASSERT(fIndexedData.count() == fNextIndex);
-        SkASSERT(fHash.count() == fNextIndex - 1);
-        return fNextIndex - 1;
+        SkASSERT(fHash.count() == fIndexedData.count() - 1);
+        return fHash.count();
     }
 
     // For testing only.  Index is zero-based.
@@ -450,11 +448,11 @@ public:
             return flat;
         }
 
-        // findAndReturnMutableFlat gave us index (fNextIndex-1), but we'll use the old one.
-        fIndexedData.remove(flat->index());
-        fNextIndex--;
+        // findAndReturnMutableFlat put flat at the back.  Swap it into found->index() instead.
+        SkASSERT(flat->index() == this->count());
         flat->setIndex(found->index());
-        fIndexedData[flat->index()] = flat;
+        fIndexedData.removeShuffle(found->index());
+        SkASSERT(flat == fIndexedData[found->index()]);
 
         // findAndReturnMutableFlat already called fHash.add(), so we just clean up the old entry.
         fHash.remove(*found);
@@ -538,15 +536,15 @@ private:
     // As findAndReturnFlat, but returns a mutable pointer for internal use.
     SkFlatData* findAndReturnMutableFlat(const T& element) {
         // Only valid until the next call to resetScratch().
-        const SkFlatData& scratch = this->resetScratch(element, fNextIndex);
+        const SkFlatData& scratch = this->resetScratch(element, this->count()+1);
 
         SkFlatData* candidate = fHash.find(scratch);
         if (candidate != NULL) return candidate;
 
         SkFlatData* detached = this->detachScratch();
         fHash.add(detached);
-        *fIndexedData.insert(fNextIndex) = detached;
-        fNextIndex++;
+        *fIndexedData.append() = detached;
+        SkASSERT(fIndexedData.top()->index() == this->count());
         return detached;
     }
 
@@ -606,9 +604,6 @@ private:
     SkFlatData* fScratch;  // Owned, lazily allocated, must be freed with sk_free.
     SkOrderedWriteBuffer fWriteBuffer;
     bool fReady;
-
-    // We map between SkFlatData and a 1-based integer index.
-    int fNextIndex;
 
     // For index -> SkFlatData.  fIndexedData[0] is always NULL.
     SkTDArray<const SkFlatData*> fIndexedData;
