@@ -39,6 +39,7 @@ public:
     static void BezierCurveTo(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Arc(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Rect(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void Oval(const v8::FunctionCallbackInfo<v8::Value>& args);
 private:
     SkPath fSkPath;
 

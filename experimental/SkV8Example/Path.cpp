@@ -43,13 +43,14 @@ void Path::AddToGlobal(Global* global) {
             gGlobal->getIsolate(), Path::ConstructPath);
     constructor->InstanceTemplate()->SetInternalFieldCount(1);
 
-    ADD_METHOD("close", ClosePath);
+    ADD_METHOD("closePath", ClosePath);
     ADD_METHOD("moveTo", MoveTo);
     ADD_METHOD("lineTo", LineTo);
     ADD_METHOD("quadraticCurveTo", QuadraticCurveTo);
     ADD_METHOD("bezierCurveTo", BezierCurveTo);
     ADD_METHOD("arc", Arc);
     ADD_METHOD("rect", Rect);
+    ADD_METHOD("oval", Oval);
 
     context->Global()->Set(String::NewFromUtf8(
             gGlobal->getIsolate(), "Path"), constructor->GetFunction());
@@ -190,4 +191,30 @@ void Path::Rect(const v8::FunctionCallbackInfo<Value>& args) {
     };
     Path* path = Unwrap(args);
     path->fSkPath.addRect(rect);
+}
+
+void Path::Oval(const v8::FunctionCallbackInfo<Value>& args) {
+    if (args.Length() != 4 && args.Length() != 5) {
+        args.GetIsolate()->ThrowException(
+                v8::String::NewFromUtf8(
+                        args.GetIsolate(), "Error: 4 or 5 args required."));
+        return;
+    }
+    double x          = args[0]->NumberValue();
+    double y          = args[1]->NumberValue();
+    double radiusX    = args[2]->NumberValue();
+    double radiusY    = args[3]->NumberValue();
+    SkPath::Direction dir = SkPath::kCW_Direction;
+    if (args.Length() == 5 && !args[4]->BooleanValue()) {
+        dir = SkPath::kCCW_Direction;
+    }
+    Path* path = Unwrap(args);
+    SkRect rect = {
+        SkDoubleToScalar(x-radiusX),
+        SkDoubleToScalar(y-radiusX),
+        SkDoubleToScalar(x+radiusY),
+        SkDoubleToScalar(y+radiusY)
+    };
+
+    path->fSkPath.addOval(rect, dir);
 }

@@ -156,12 +156,28 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
     Isolate* isolate = Isolate::GetCurrent();
     Global* global = new Global(isolate);
 
+
+    // Set up things to look like a browser by creating
+    // a console object that invokes our print function.
+    const char* startupScript =
+            "function Console() {};                   \n"
+            "Console.prototype.log = function() {     \n"
+            "  var args = Array.prototype.slice.call(arguments).join(' '); \n"
+            "  print(args);                      \n"
+            "};                                       \n"
+            "console = new Console();                 \n";
+
+    if (!global->parseScript(startupScript)) {
+        printf("Failed to parse startup script: %s.\n", FLAGS_infile[0]);
+        exit(1);
+    }
+
     const char* script =
-"function onDraw(canvas) {              \n"
-"    canvas.fillStyle = '#00FF00';      \n"
-"    canvas.fillRect(20, 20, 100, 100); \n"
-"    canvas.inval();                    \n"
-"}                                      \n";
+            "function onDraw(canvas) {              \n"
+            "    canvas.fillStyle = '#00FF00';      \n"
+            "    canvas.fillRect(20, 20, 100, 100); \n"
+            "    canvas.inval();                    \n"
+            "}                                      \n";
 
     SkAutoTUnref<SkData> data;
     if (FLAGS_infile.count()) {
@@ -178,6 +194,7 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
         printf("Failed to parse file: %s.\n", FLAGS_infile[0]);
         exit(1);
     }
+
 
     JsContext* jsContext = new JsContext(global);
 

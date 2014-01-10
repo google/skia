@@ -1,45 +1,78 @@
+var IS_SKV8 = typeof document == "undefined";
+var HAS_PATH = typeof Path != "undefined";
+
 var NumTeeth = 24;
 var NumGears = 60;
 var DeltaTheta = Math.PI/90;
 var FaceColors = ["#000099", "#006600", "#990000", "#EEEE00"];
 var SideColors = ["#0000FF", "#009900", "#FF0000", "#CCCC00"];
 
-function gearPath(r) {
-  var outer = r;
-  var inner = 0.7 * r;
+function makeGear(pathLike, r) {
   var dT = Math.PI*2/NumTeeth;
   var dTq = dT/4;
-  p = new Path();
-  p.moveTo(Math.sin(-2*dTq)*outer, Math.cos(-2*dTq)*outer);
+  var outer = r;
+  var inner = 0.7 * r;
+  pathLike.moveTo(Math.sin(-2*dTq)*outer, Math.cos(-2*dTq)*outer);
   for (var i=0; i<NumTeeth; i+=2) {
-    p.lineTo(Math.sin(dT*i-dTq)*outer, Math.cos(dT*i-dTq)*outer);
-    p.lineTo(Math.sin(dT*i+dTq)*inner, Math.cos(dT*i+dTq)*inner);
-    p.lineTo(Math.sin(dT*(i+1)-dTq)*inner, Math.cos(dT*(i+1)-dTq)*inner);
-    p.lineTo(Math.sin(dT*(i+1)+dTq)*outer, Math.cos(dT*(i+1)+dTq)*outer);
+    pathLike.lineTo(Math.sin(dT*i-dTq)*outer, Math.cos(dT*i-dTq)*outer);
+    pathLike.lineTo(Math.sin(dT*i+dTq)*inner, Math.cos(dT*i+dTq)*inner);
+    pathLike.lineTo(Math.sin(dT*(i+1)-dTq)*inner, Math.cos(dT*(i+1)-dTq)*inner);
+    pathLike.lineTo(Math.sin(dT*(i+1)+dTq)*outer, Math.cos(dT*(i+1)+dTq)*outer);
   }
-  p.close();
-  return p;
 }
 
-function draw3DGear(ctx, angle, faceColor, sideColor, path) {
-  ctx.strokeStyle = sideColor;
-  ctx.fillStyle = faceColor;
+function gearPath(r) {
+  if (HAS_PATH) {
+    p = new Path();
+    makeGear(p, r)
+    p.closePath();
+    return p;
+  } else {
+    return null;
+  }
+}
+
+function strokeGear(ctx, gear) {
+  if (HAS_PATH) {
+    ctx.stroke(gear.path);
+  } else {
+    ctx.beginPath();
+    makeGear(ctx, gear.r);
+    ctx.closePath();
+    ctx.stroke();
+  }
+}
+
+function fillGear(ctx) {
+  if (HAS_PATH) {
+    ctx.fill(gear.path);
+  } else {
+    ctx.beginPath();
+    makeGear(ctx, gear.r);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function draw3DGear(ctx, angle, gear) {
+  ctx.strokeStyle = gear.sideColor;
+  ctx.fillStyle = gear.faceColor;
   ctx.rotate(angle);
-  ctx.stroke(path);
+  strokeGear(ctx, gear);
   for (var i=0; i < 20; i++) {
     ctx.rotate(-angle);
     ctx.translate(0.707, 0.707);
     ctx.rotate(angle);
-    ctx.stroke(path);
+    strokeGear(ctx, gear);
   }
-  ctx.fill(path)
+  fillGear(ctx, gear);
   ctx.rotate(-angle);
 }
 
-function draw3DGearAt(ctx, x, y, angle, path, faceColor, sideColor) {
+function draw3DGearAt(ctx, angle, gear) {
   ctx.save();
-  ctx.translate(x, y);
-  draw3DGear(ctx, angle, faceColor, sideColor, path);
+  ctx.translate(gear.x, gear.y);
+  draw3DGear(ctx, angle, gear);
   ctx.restore();
 }
 
@@ -50,10 +83,12 @@ var onDraw = function() {
 
   for (var i=0; i<NumGears; i++) {
     color = Math.floor(Math.random()*FaceColors.length);
+    r = Math.random()*100+5;
     gears.push({
         x: Math.random()*500,
         y: Math.random()*500,
-        path: gearPath(Math.random()*100+5),
+        path: gearPath(r),
+        r: r,
         faceColor: FaceColors[color],
         sideColor: SideColors[color]
     });
@@ -68,16 +103,18 @@ var onDraw = function() {
     }
 
     for (var i=0; i < gears.length; i++) {
-      draw3DGearAt(ctx, gears[i].x,  gears[i].y, rotation, gears[i].path,
-          gears[i].faceColor, gears[i].sideColor);
+      gear = gears[i];
+      draw3DGearAt(ctx, rotation, gear);
     }
 
     ticks++;
-    inval();
+    if (IS_SKV8) {
+      inval();
+    }
   };
 
   function fps() {
-    print(ticks);
+    console.log(ticks);
     ticks = 0;
     setTimeout(fps, 1000);
   };
@@ -86,3 +123,16 @@ var onDraw = function() {
 
   return draw;
 }();
+
+if (!IS_SKV8) {
+  window.onload = function(){
+    var canvas = document.getElementById("gears");
+    var ctx = canvas.getContext("2d");
+    function drawCallback() {
+      onDraw(ctx);
+      setTimeout(drawCallback, 1);
+    }
+    setTimeout(drawCallback, 1);
+  }
+}
+
