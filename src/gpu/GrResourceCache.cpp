@@ -312,8 +312,8 @@ void GrResourceCache::purgeInvalidated() {
         //
         // This is complicated and confusing.  May try this in the future.  For
         // now, these resources are just LRU'd as if we never got the message.
-        GrResourceEntry* entry;
-        while ((entry= fCache.find(invalidated[i].key, GrTFindUnreffedFunctor()))) {
+        GrResourceEntry* entry = fCache.find(invalidated[i].key, GrTFindUnreffedFunctor());
+        if (entry) {
             this->deleteResource(entry);
         }
     }
