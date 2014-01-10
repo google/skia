@@ -577,8 +577,8 @@ class GitBranchCLUpload(object):
         if self._stash:
             vsp.check_call([git, 'stash', 'save'])
         try:
-            self._original_branch = vsp.strip_output(
-                [git, 'symbolic-ref', '--short', 'HEAD'])
+            full_branch = vsp.strip_output([git, 'symbolic-ref', 'HEAD'])
+            self._original_branch = full_branch.split('/')[-1]
         except (subprocess.CalledProcessError,):
             self._original_branch = vsp.strip_output(
                 [git, 'rev-parse', 'HEAD'])
@@ -588,7 +588,7 @@ class GitBranchCLUpload(object):
 
         if branch_exists(self._branch_name):
             vsp.check_call([git, 'checkout', '-q', 'master'])
-            vsp.check_call([git, 'branch', '-q', '-D', self._branch_name])
+            vsp.check_call([git, 'branch', '-D', self._branch_name])
 
         vsp.check_call(
             [git, 'checkout', '-q', '-b', self._branch_name, 'origin/master'])
@@ -632,7 +632,7 @@ class GitBranchCLUpload(object):
         vsp.check_call([git, 'checkout', '-q', self._original_branch])
 
         if self._config.default_branch_name == self._branch_name:
-            vsp.check_call([git, 'branch', '-q', '-D', self._branch_name])
+            vsp.check_call([git, 'branch', '-D', self._branch_name])
         if self._stash:
             vsp.check_call([git, 'stash', 'pop'])
 
