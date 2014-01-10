@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkConfig8888.h"
-#include "SkBitmapDevice.h"
+#include "Test.h"
+#include "TestClassDef.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
@@ -36,7 +37,7 @@ static const SkCanvas::Config8888 gUnpremulConfigs[] = {
     SkCanvas::kRGBA_Unpremul_Config8888,
 };
 
-static void PremulAlphaRoundTripTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(PremulAlphaRoundTrip, reporter, factory) {
     SkAutoTUnref<SkBaseDevice> device;
     for (int dtype = 0; dtype < 2; ++dtype) {
 
@@ -110,6 +111,3 @@ static void PremulAlphaRoundTripTest(skiatest::Reporter* reporter, GrContextFact
         }
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("PremulAlphaRoundTripTest", PremulAlphaRoundTripTestClass, PremulAlphaRoundTripTest)

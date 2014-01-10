@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -6,19 +5,17 @@
  * found in the LICENSE file.
  */
 
-// This is a GPU-backend specific test.
-
-#include "SkTypes.h"
-
 #if SK_SUPPORT_GPU
 
-#include "Test.h"
 #include "GrContext.h"
 #include "GrContextFactory.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
+#include "SkTypes.h"
+#include "Test.h"
+#include "TestClassDef.h"
 
-static void GrSurfaceIsSameTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(GrSurfaceTest, reporter, factory) {
     GrContext* context = factory->get(GrContextFactory::kNull_GLContextType);
     if (NULL != context) {
         GrTextureDesc desc;
@@ -61,8 +58,5 @@ static void GrSurfaceIsSameTest(skiatest::Reporter* reporter, GrContextFactory* 
         externalTexRT->unref();
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("GrSurfaceIsSame", GrSurfaceIsSameTestClass, GrSurfaceIsSameTest)
 
 #endif

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-
-
 #include "Test.h"
+#include "TestClassDef.h"
+
 // This is a GPU-backend specific test
 #if SK_SUPPORT_GPU
 
 #include "GrContextFactory.h"
 
-static void GLInterfaceValidationTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(GLInterfaceValidation, reporter, factory) {
     for (int i = 0; i <= GrContextFactory::kLastGLContextType; ++i) {
         GrContextFactory::GLContextType glCtxType = (GrContextFactory::GLContextType)i;
         // this forces the factory to make the context if it hasn't yet
@@ -33,11 +32,5 @@ static void GLInterfaceValidationTest(skiatest::Reporter* reporter, GrContextFac
         }
     }
 }
-
-
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("GLInterfaceValidation",
-                    GLInterfaceValidationTestClass,
-                    GLInterfaceValidationTest)
 
 #endif

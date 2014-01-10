@@ -5,12 +5,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkMath.h"
 #include "SkPaint.h"
+#include "Test.h"
+#include "TestClassDef.h"
+
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
 #include "SkGpuDevice.h"
@@ -383,12 +385,7 @@ static void test_sigma_range(skiatest::Reporter* reporter, GrContextFactory* fac
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-static void test_blur(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(Blur, reporter, factory) {
     test_blur_drawing(reporter);
     test_sigma_range(reporter, factory);
 }
-
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("BlurMaskFilter", BlurTestClass, test_blur)

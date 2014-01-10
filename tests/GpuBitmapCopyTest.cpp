@@ -18,6 +18,7 @@
 #include "SkPixelRef.h"
 #include "SkRect.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 static const char* boolStr(bool value) {
     return value ? "true" : "false";
@@ -98,7 +99,7 @@ static void TestIndividualCopy(skiatest::Reporter* reporter, const SkBitmap::Con
 
 // Stripped down version of TestBitmapCopy that checks basic fields (width, height, config, genID)
 // to ensure that they were copied properly.
-static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(GpuBitmapCopy, reporter, factory) {
 #ifdef SK_BUILD_FOR_ANDROID // https://code.google.com/p/skia/issues/detail?id=753
     return;
 #endif
@@ -187,8 +188,5 @@ static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContextFactory* fa
         } // for (size_t i = ...
     } // GrContextFactory::GLContextType
 }
-
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("GpuBitmapCopy", TestGpuBitmapCopyClass, TestGpuBitmapCopy)
 
 #endif

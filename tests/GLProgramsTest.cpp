@@ -21,6 +21,7 @@
 #include "SkChecksum.h"
 #include "SkRandom.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 void GrGLProgramDesc::setRandom(SkRandom* random,
                                 const GrGpuGL* gpu,
@@ -226,7 +227,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
     return true;
 }
 
-static void GLProgramsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(GLPrograms, reporter, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
         GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(type));
         if (NULL != context) {
@@ -242,9 +243,6 @@ static void GLProgramsTest(skiatest::Reporter* reporter, GrContextFactory* facto
         }
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("GLPrograms", GLProgramsTestClass, GLProgramsTest)
 
 // This is evil evil evil. The linker may throw away whole translation units as dead code if it
 // thinks none of the functions are called. It will do this even if there are static initializers

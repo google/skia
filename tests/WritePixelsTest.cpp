@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
 #include "SkRegion.h"
+#include "Test.h"
+#include "TestClassDef.h"
+
 #if SK_SUPPORT_GPU
 #include "SkGpuDevice.h"
 #include "GrContextFactory.h"
@@ -358,7 +360,7 @@ static bool setupBitmap(SkBitmap* bitmap,
     return true;
 }
 
-static void WritePixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(WritePixels, reporter, factory) {
     SkCanvas canvas;
 
     const SkIRect testRects[] = {
@@ -469,6 +471,3 @@ static void WritePixelsTest(skiatest::Reporter* reporter, GrContextFactory* fact
         }
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("WritePixels", WritePixelsTestClass, WritePixelsTest)

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "Test.h"
+#include "TestClassDef.h"
 // This is a GR test
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
@@ -220,8 +220,7 @@ static void test_cache(skiatest::Reporter* reporter, GrContext* context) {
 #endif
 }
 
-////////////////////////////////////////////////////////////////////////////////
-static void TestClipCache(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(ClipCache, reporter, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
         GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
         if (!GrContextFactory::IsRenderingGLContext(glType)) {
@@ -236,9 +235,5 @@ static void TestClipCache(skiatest::Reporter* reporter, GrContextFactory* factor
         test_clip_bounds(reporter, context);
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("ClipCache", ClipCacheTestClass, TestClipCache)
 
 #endif

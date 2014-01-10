@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-
-// This is a GPU test
 #if SK_SUPPORT_GPU
+
 #include "GrContextFactory.h"
 #include "SkGpuDevice.h"
+#include "Test.h"
+#include "TestClassDef.h"
 
 static const int gWidth = 640;
 static const int gHeight = 480;
@@ -58,8 +58,7 @@ static void test_cache(skiatest::Reporter* reporter,
     context->setTextureCacheLimits(oldMaxNum, oldMaxBytes);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-static void TestResourceCache(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(ResourceCache, reporter, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
         GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
         if (!GrContextFactory::IsRenderingGLContext(glType)) {
@@ -83,9 +82,5 @@ static void TestResourceCache(skiatest::Reporter* reporter, GrContextFactory* fa
         test_cache(reporter, context, &canvas);
     }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("ResourceCache", ResourceCacheTestClass, TestResourceCache)
 
 #endif

@@ -5,12 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
 #include "SkRegion.h"
+#include "Test.h"
+#include "TestClassDef.h"
+
 #if SK_SUPPORT_GPU
 #include "SkGpuDevice.h"
 #include "GrContextFactory.h"
@@ -251,7 +253,7 @@ static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init) 
     }
 }
 
-static void ReadPixelsTest(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(ReadPixels, reporter, factory) {
     const SkIRect testRects[] = {
         // entire thing
         DEV_RECT,
@@ -406,6 +408,3 @@ static void ReadPixelsTest(skiatest::Reporter* reporter, GrContextFactory* facto
         }
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("ReadPixels", ReadPixelsTestClass, ReadPixelsTest)

@@ -1,14 +1,15 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkCanvas.h"
 #include "SkRRect.h"
 #include "SkSurface.h"
 #include "Test.h"
+#include "TestClassDef.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
@@ -231,7 +232,7 @@ static void TestSurfaceNoCanvas(skiatest::Reporter* reporter,
 
 }
 
-static void TestSurface(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(Surface, reporter, factory) {
     TestSurfaceCopyOnWrite(reporter, kRaster_SurfaceType, NULL);
     TestSurfaceCopyOnWrite(reporter, kPicture_SurfaceType, NULL);
     TestSurfaceWritableAfterSnapshotRelease(reporter, kRaster_SurfaceType, NULL);
@@ -254,6 +255,3 @@ static void TestSurface(skiatest::Reporter* reporter, GrContextFactory* factory)
     }
 #endif
 }
-
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("Surface", SurfaceTestClass, TestSurface)

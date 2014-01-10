@@ -12,10 +12,9 @@
 #include "GrContextFactory.h"
 #include "GrEffect.h"
 #include "SkColorFilter.h"
-#include "Test.h"
 #include "SkGr.h"
-
-namespace {
+#include "Test.h"
+#include "TestClassDef.h"
 
 static GrColor filterColor(const GrColor& color, uint32_t flags)  {
     uint32_t mask = 0;
@@ -110,7 +109,7 @@ static void test_getConstantColorComponents(skiatest::Reporter* reporter, GrCont
     }
 }
 
-static void TestGpuColorFilter(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(GpuColorFilter, reporter, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
         GrContextFactory::GLContextType glType = static_cast<GrContextFactory::GLContextType>(type);
 
@@ -122,10 +121,5 @@ static void TestGpuColorFilter(skiatest::Reporter* reporter, GrContextFactory* f
         test_getConstantColorComponents(reporter, grContext);
     }
 }
-
-}
-
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("GpuColorFilter", TestGpuColorFilterClass, TestGpuColorFilter)
 
 #endif

@@ -1,11 +1,12 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "Test.h"
+#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkBitmapDevice.h"
 #include "SkBitmapProcShader.h"
@@ -832,7 +833,7 @@ static void TestDeferredCanvasCreateCompatibleDevice(skiatest::Reporter* reporte
     REPORTER_ASSERT(reporter, notificationCounter.fStorageAllocatedChangedCount == 1);
 }
 
-static void TestDeferredCanvas(skiatest::Reporter* reporter, GrContextFactory* factory) {
+DEF_GPUTEST(DeferredCanvas, reporter, factory) {
     TestDeferredCanvasBitmapAccess(reporter);
     TestDeferredCanvasFlush(reporter);
     TestDeferredCanvasFreshFrame(reporter);
@@ -850,6 +851,3 @@ static void TestDeferredCanvas(skiatest::Reporter* reporter, GrContextFactory* f
         TestDeferredCanvasSetSurface(reporter, factory);
     }
 }
-
-#include "TestClassDef.h"
-DEFINE_GPUTESTCLASS("DeferredCanvas", TestDeferredCanvasClass, TestDeferredCanvas)
