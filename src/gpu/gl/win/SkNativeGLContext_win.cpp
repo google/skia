@@ -88,7 +88,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
 
     // We don't want the core profile when using NV path rendering (since
     // NV path rendering relies on fixed function calls)
-    if (!(fGlRenderContext = SkCreateWGLContext(fDeviceContext, 0, 
+    if (!(fGlRenderContext = SkCreateWGLContext(fDeviceContext, 0,
                                                 !GR_GL_USE_NV_PATH_RENDERING))) {
         SkDebugf("Could not create rendering context.\n");
         this->destroyGLContext();

@@ -67,7 +67,7 @@ static void init_paint(SkPaint* paint, const SkBitmap &bm) {
 
 typedef void (*DrawBitmapProc)(SkCanvas*, const SkBitmap&, const SkBitmap&, const SkPoint&);
 
-static void drawpaint_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawpaint_proc(SkCanvas* canvas, const SkBitmap& bm,
                            const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
@@ -75,24 +75,24 @@ static void drawpaint_proc(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawPaint(paint);
 }
 
-static void drawpoints_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawpoints_proc(SkCanvas* canvas, const SkBitmap& bm,
                             const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
 
     // draw a slightly inset rect
     SkPoint points[5] = {
-        { pos.fX + 1, pos.fY + 1 }, 
-        { pos.fX + bm.width() - 2, pos.fY + 1 }, 
-        { pos.fX + bm.width() - 2, pos.fY + bm.height() - 2 }, 
-        { pos.fX + 1, pos.fY + bm.height() - 2 }, 
-        { pos.fX + 1, pos.fY + 1 }, 
+        { pos.fX + 1, pos.fY + 1 },
+        { pos.fX + bm.width() - 2, pos.fY + 1 },
+        { pos.fX + bm.width() - 2, pos.fY + bm.height() - 2 },
+        { pos.fX + 1, pos.fY + bm.height() - 2 },
+        { pos.fX + 1, pos.fY + 1 },
     };
 
     canvas->drawPoints(SkCanvas::kPolygon_PointMode, 5, points, paint);
 }
 
-static void drawrect_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawrect_proc(SkCanvas* canvas, const SkBitmap& bm,
                           const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
@@ -103,7 +103,7 @@ static void drawrect_proc(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawRect(r, paint);
 }
 
-static void drawoval_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawoval_proc(SkCanvas* canvas, const SkBitmap& bm,
                           const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
@@ -114,11 +114,11 @@ static void drawoval_proc(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawOval(r, paint);
 }
 
-static void drawrrect_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawrrect_proc(SkCanvas* canvas, const SkBitmap& bm,
                            const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
-    
+
     SkRect r = { 0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) };
     r.offset(pos.fX, pos.fY);
 
@@ -127,7 +127,7 @@ static void drawrrect_proc(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawRRect(rr, paint);
 }
 
-static void drawpath_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawpath_proc(SkCanvas* canvas, const SkBitmap& bm,
                           const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
@@ -141,12 +141,12 @@ static void drawpath_proc(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawPath(path, paint);
 }
 
-static void drawbitmap_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawbitmap_proc(SkCanvas* canvas, const SkBitmap& bm,
                             const SkBitmap& altBM, const SkPoint& pos) {
     canvas->drawBitmap(bm, pos.fX, pos.fY, NULL);
 }
 
-static void drawbitmap_withshader_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawbitmap_withshader_proc(SkCanvas* canvas, const SkBitmap& bm,
                                        const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
@@ -155,7 +155,7 @@ static void drawbitmap_withshader_proc(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawBitmap(altBM, pos.fX, pos.fY, &paint);
 }
 
-static void drawsprite_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawsprite_proc(SkCanvas* canvas, const SkBitmap& bm,
                             const SkBitmap& altBM, const SkPoint& pos) {
     const SkMatrix& ctm = canvas->getTotalMatrix();
 
@@ -168,7 +168,7 @@ static void drawsprite_proc(SkCanvas* canvas, const SkBitmap& bm,
 #if 0
 // Although specifiable, this case doesn't seem to make sense (i.e., the
 // bitmap in the shader is never used).
-static void drawsprite_withshader_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawsprite_withshader_proc(SkCanvas* canvas, const SkBitmap& bm,
                                        const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
@@ -182,7 +182,7 @@ static void drawsprite_withshader_proc(SkCanvas* canvas, const SkBitmap& bm,
 }
 #endif
 
-static void drawbitmaprect_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawbitmaprect_proc(SkCanvas* canvas, const SkBitmap& bm,
                                 const SkBitmap& altBM, const SkPoint& pos) {
     SkRect r = { 0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) };
 
@@ -190,9 +190,9 @@ static void drawbitmaprect_proc(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawBitmapRectToRect(bm, NULL, r, NULL);
 }
 
-static void drawbitmaprect_withshader_proc(SkCanvas* canvas, 
-                                           const SkBitmap& bm, 
-                                           const SkBitmap& altBM, 
+static void drawbitmaprect_withshader_proc(SkCanvas* canvas,
+                                           const SkBitmap& bm,
+                                           const SkBitmap& altBM,
                                            const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
@@ -204,7 +204,7 @@ static void drawbitmaprect_withshader_proc(SkCanvas* canvas,
     canvas->drawBitmapRectToRect(altBM, NULL, r, &paint);
 }
 
-static void drawtext_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawtext_proc(SkCanvas* canvas, const SkBitmap& bm,
                           const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
@@ -213,7 +213,7 @@ static void drawtext_proc(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawText("0", 1, pos.fX, pos.fY+bm.width(), paint);
 }
 
-static void drawpostext_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawpostext_proc(SkCanvas* canvas, const SkBitmap& bm,
                              const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
@@ -223,7 +223,7 @@ static void drawpostext_proc(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawPosText("O", 1, &point, paint);
 }
 
-static void drawtextonpath_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawtextonpath_proc(SkCanvas* canvas, const SkBitmap& bm,
                                 const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
 
@@ -237,24 +237,24 @@ static void drawtextonpath_proc(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawTextOnPath("O", 1, path, NULL, paint);
 }
 
-static void drawverts_proc(SkCanvas* canvas, const SkBitmap& bm, 
+static void drawverts_proc(SkCanvas* canvas, const SkBitmap& bm,
                            const SkBitmap& altBM, const SkPoint& pos) {
     SkPaint paint;
     init_paint(&paint, bm);
 
-    SkPoint verts[4] = { 
-        { pos.fX+1, pos.fY+1 }, 
-        { pos.fX + bm.width()-1, pos.fY+1 }, 
-        { pos.fX + bm.width()-1, pos.fY + bm.height()-1 }, 
-        { pos.fX+1, pos.fY + bm.height()-1 } 
+    SkPoint verts[4] = {
+        { pos.fX+1, pos.fY+1 },
+        { pos.fX + bm.width()-1, pos.fY+1 },
+        { pos.fX + bm.width()-1, pos.fY + bm.height()-1 },
+        { pos.fX+1, pos.fY + bm.height()-1 }
     };
-    SkPoint texs[4] = { { 0, 0 }, 
-                        { SkIntToScalar(bm.width()), 0 }, 
-                        { SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) }, 
+    SkPoint texs[4] = { { 0, 0 },
+                        { SkIntToScalar(bm.width()), 0 },
+                        { SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) },
                         { 0, SkIntToScalar(bm.height()) } };
     uint16_t indices[6] = { 0, 1, 2, 0, 2, 3 };
 
-    canvas->drawVertices(SkCanvas::kTriangles_VertexMode, 4, verts, texs, NULL, NULL, 
+    canvas->drawVertices(SkCanvas::kTriangles_VertexMode, 4, verts, texs, NULL, NULL,
                          indices, 6, paint);
 }
 
@@ -310,8 +310,8 @@ static bool find(SkPixelRef const * const * array, SkPixelRef const * ref, int c
     return find_index<const SkPixelRef*>(array, ref, count) >= 0;
 }
 
-// Look at each pixel that is inside 'subset', and if its color appears in 
-// colors[], find the corresponding value in refs[] and append that ref into 
+// Look at each pixel that is inside 'subset', and if its color appears in
+// colors[], find the corresponding value in refs[] and append that ref into
 // array, skipping duplicates of the same value.
 // Note that gathering pixelRefs from rendered colors suffers from the problem
 // that multiple simultaneous textures (e.g., A8 for alpha and 8888 for color)
@@ -377,15 +377,15 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
         { 0, 0 }, { W, 0 }, { 0, H }, { W, H }
     };
 
-    // Our convention is that the color components contain an encoding of 
-    // the index of their corresponding bitmap/pixelref. (0,0,0,0) is 
+    // Our convention is that the color components contain an encoding of
+    // the index of their corresponding bitmap/pixelref. (0,0,0,0) is
     // reserved for the background
     for (int i = 0; i < N; ++i) {
-        make_bm(&bm[i], IW, IH, 
-                SkColorSetARGB(0xFF, 
-                               gColorScale*i+gColorOffset, 
-                               gColorScale*i+gColorOffset, 
-                               gColorScale*i+gColorOffset), 
+        make_bm(&bm[i], IW, IH,
+                SkColorSetARGB(0xFF,
+                               gColorScale*i+gColorOffset,
+                               gColorScale*i+gColorOffset,
+                               gColorScale*i+gColorOffset),
                 true);
         refs[i] = bm[i].pixelRef();
     }
@@ -403,13 +403,13 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
             drawoval_proc,
             drawrrect_proc,
             drawpath_proc,
-            drawbitmap_proc, 
+            drawbitmap_proc,
             drawbitmap_withshader_proc,
             drawsprite_proc,
 #if 0
             drawsprite_withshader_proc,
 #endif
-            drawbitmaprect_proc, 
+            drawbitmaprect_proc,
             drawbitmaprect_withshader_proc,
             drawtext_proc,
             drawpostext_proc,
@@ -437,7 +437,7 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
                 if (1 == count) {
                     REPORTER_ASSERT(reporter, gatheredRefs[0] == refs[i]);
                 } else if (2 == count) {
-                    REPORTER_ASSERT(reporter, 
+                    REPORTER_ASSERT(reporter,
                         (gatheredRefs[0] == refs[i] && gatheredRefs[1] == refs[i+N]) ||
                         (gatheredRefs[1] == refs[i] && gatheredRefs[0] == refs[i+N]));
                 }
