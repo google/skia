@@ -13,8 +13,6 @@
 #include "SkPostConfig.h"
 #include <stdint.h>
 
-//#define SK_SUPPORT_LEGACY_SK64
-
 /** \file SkTypes.h
 */
 

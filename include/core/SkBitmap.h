@@ -14,10 +14,6 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
-#ifdef SK_SUPPORT_LEGACY_SK64
-    #include "Sk64.h"
-#endif
-
 struct SkIRect;
 struct SkRect;
 class SkPaint;
@@ -165,22 +161,6 @@ public:
     int64_t computeSafeSize64() const {
         return ComputeSafeSize64((Config)fConfig, fWidth, fHeight, fRowBytes);
     }
-
-#ifdef SK_SUPPORT_LEGACY_SK64
-    SK_ATTR_DEPRECATED("use getSize64()")
-    Sk64 getSize64() const {
-        Sk64 size;
-        size.set64(this->computeSize64());
-        return size;
-    }
-
-    SK_ATTR_DEPRECATED("use getSafeSize64()")
-    Sk64 getSafeSize64() const {
-        Sk64 size;
-        size.set64(this->computeSafeSize64());
-        return size;
-    }
-#endif
 
     /** Returns true if this bitmap is marked as immutable, meaning that the
         contents of its pixels will not change for the lifetime of the bitmap.

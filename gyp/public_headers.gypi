@@ -196,7 +196,6 @@
       'core/SkFloatBits.h',
       'core/SkDeque.h',
       'core/SkTRegistry.h',
-      'core/Sk64.h',
       'core/SkTLazy.h',
       'core/SkComposeShader.h',
       'core/SkUtils.h',

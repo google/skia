@@ -12,10 +12,6 @@
 
 #include "SkScalar.h"
 
-#ifdef SK_SUPPORT_LEGACY_SK64
-    #include "Sk64.h"
-#endif
-
 /** \class SkLCGRandom
 
     Utility class that implements pseudo random 32bit numbers using a fast
@@ -134,13 +130,6 @@ public:
         return (hi << 32) | this->nextU();
     }
 
-#ifdef SK_SUPPORT_LEGACY_SK64
-    SK_ATTR_DEPRECATED("use next64()")
-    void next64(Sk64* a) {
-        SkASSERT(a);
-        a->set(this->nextS(), this->nextU());
-    }
-#endif
     /**
      *  Return the current seed. This allows the caller to later reset to the
      *  same seed (using setSeed) so it can generate the same sequence.
@@ -294,14 +283,6 @@ public:
         int64_t hi = this->nextS();
         return (hi << 32) | this->nextU();
     }
-
-#ifdef SK_SUPPORT_LEGACY_SK64
-    SK_ATTR_DEPRECATED("use next64()")
-    void next64(Sk64* a) {
-        SkASSERT(a);
-        a->set(this->nextS(), this->nextU());
-    }
-#endif
 
     /** Reset the random object.
      */
