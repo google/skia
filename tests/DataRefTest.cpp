@@ -186,9 +186,7 @@ static void test_files(skiatest::Reporter* reporter) {
     {
         SkFILEWStream writer(path.c_str());
         if (!writer.isValid()) {
-            SkString msg;
-            msg.printf("Failed to create tmp file %s\n", path.c_str());
-            reporter->reportFailed(msg);
+            ERRORF(reporter, "Failed to create tmp file %s\n", path.c_str());
             return;
         }
         writer.write(s, 26);

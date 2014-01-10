@@ -10,17 +10,6 @@
 #include "SkPath.h"
 #include "SkCanvas.h"
 
-static void appendStr(SkString* str, const SkPaint& paint) {
-    str->appendf(" style[%d] cap[%d] join[%d] antialias[%d]",
-                 paint.getStyle(), paint.getStrokeCap(),
-                 paint.getStrokeJoin(), paint.isAntiAlias());
-}
-
-static void appendStr(SkString* str, const SkPath& path) {
-    str->appendf(" filltype[%d] ptcount[%d]",
-                 path.getFillType(), path.countPoints());
-}
-
 #define DIMENSION   32
 
 static void drawAndTest(skiatest::Reporter* reporter, const SkPath& path,
@@ -52,16 +41,16 @@ static void drawAndTest(skiatest::Reporter* reporter, const SkPath& path,
     bool success = shouldDraw ? (~0U == andValue) : (0 == orValue);
 
     if (!success) {
-        SkString str;
+        const char* str;
         if (shouldDraw) {
-            str.set("Path expected to draw everywhere, but didn't. ");
+            str = "Path expected to draw everywhere, but didn't. ";
         } else {
-            str.set("Path expected to draw nowhere, but did. ");
+            str = "Path expected to draw nowhere, but did. ";
         }
-        appendStr(&str, paint);
-        appendStr(&str, path);
-        reporter->reportFailed(str);
-
+        ERRORF(reporter, "%s style[%d] cap[%d] join[%d] antialias[%d]"
+               " filltype[%d] ptcount[%d]", str, paint.getStyle(),
+               paint.getStrokeCap(), paint.getStrokeJoin(),
+               paint.isAntiAlias(), path.getFillType(), path.countPoints());
 // uncomment this if you want to step in to see the failure
 //        canvas.drawPath(path, p);
     }

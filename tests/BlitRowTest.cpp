@@ -89,10 +89,8 @@ static bool check_color(const SkBitmap& bm, SkPMColor expect32,
         uint32_t bad;
         int x = proc(bm.getAddr(0, y), bm.width(), expect, &bad);
         if (x >= 0) {
-            SkString str;
-            str.printf("BlitRow config=%s [%d %d] expected %x got %x",
-                       gConfigName[bm.config()], x, y, expect, bad);
-            reporter->reportFailed(str);
+            ERRORF(reporter, "BlitRow config=%s [%d %d] expected %x got %x",
+                   gConfigName[bm.config()], x, y, expect, bad);
             return false;
         }
     }
@@ -252,10 +250,10 @@ static void test_diagonal(skiatest::Reporter* reporter) {
                     }
 
                     if (memcmp(dstBM0.getPixels(), dstBM1.getPixels(), dstBM0.getSize())) {
-                        SkString str;
-                        str.printf("Diagonal config=%s bg=0x%x dither=%d alpha=0x%x src=0x%x",
-                                   gConfigName[gDstConfig[i]], bgColor, dither, alpha, c);
-                        reporter->reportFailed(str);
+                        ERRORF(reporter, "Diagonal config=%s bg=0x%x dither=%d"
+                               " alpha=0x%x src=0x%x",
+                               gConfigName[gDstConfig[i]], bgColor, dither,
+                               alpha, c);
                     }
                 }
             }

@@ -150,21 +150,18 @@ static void TestGpuBitmapCopy(skiatest::Reporter* reporter, GrContextFactory* fa
                 bool success = src.deepCopyTo(&dst, gPairs[j].fConfig);
                 bool expected = gPairs[i].fValid[j] != '0';
                 if (success != expected) {
-                    SkString str;
-                    str.printf("SkBitmap::deepCopyTo from %s to %s. expected %s returned %s",
-                               gConfigName[i], gConfigName[j], boolStr(expected),
-                               boolStr(success));
-                    reporter->reportFailed(str);
+                    ERRORF(reporter, "SkBitmap::deepCopyTo from %s to %s. "
+                           "expected %s returned %s", gConfigName[i],
+                           gConfigName[j], boolStr(expected),
+                           boolStr(success));
                 }
 
                 bool canSucceed = src.canCopyTo(gPairs[j].fConfig);
                 if (success != canSucceed) {
-                    SkString str;
-                    str.printf("SkBitmap::deepCopyTo from %s to %s returned %s,"
-                               "but canCopyTo returned %s",
-                               gConfigName[i], gConfigName[j], boolStr(success),
-                               boolStr(canSucceed));
-                    reporter->reportFailed(str);
+                    ERRORF(reporter, "SkBitmap::deepCopyTo from %s to %s "
+                           "returned %s, but canCopyTo returned %s",
+                           gConfigName[i], gConfigName[j], boolStr(success),
+                           boolStr(canSucceed));
                 }
 
                 TestIndividualCopy(reporter, gPairs[j].fConfig, success, src, dst);

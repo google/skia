@@ -225,10 +225,8 @@ static bool equal_float_native_skia(float x, uint32_t ni, uint32_t si) {
 static void assert_float_equal(skiatest::Reporter* reporter, const char op[],
                                float x, uint32_t ni, uint32_t si) {
     if (!equal_float_native_skia(x, ni, si)) {
-        SkString desc;
-        uint32_t xi = SkFloat2Bits(x);
-        desc.printf("%s float %g bits %x native %x skia %x\n", op, x, xi, ni, si);
-        reporter->reportFailed(desc);
+        ERRORF(reporter, "%s float %g bits %x native %x skia %x\n",
+               op, x, SkFloat2Bits(x), ni, si);
     }
 }
 

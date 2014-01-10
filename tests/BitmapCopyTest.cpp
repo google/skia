@@ -21,11 +21,9 @@ static const char* gConfigName[] = {
 
 static void report_opaqueness(skiatest::Reporter* reporter, const SkBitmap& src,
                               const SkBitmap& dst) {
-    SkString str;
-    str.printf("src %s opaque:%d, dst %s opaque:%d",
-               gConfigName[src.config()], src.isOpaque(),
-               gConfigName[dst.config()], dst.isOpaque());
-    reporter->reportFailed(str);
+    ERRORF(reporter, "src %s opaque:%d, dst %s opaque:%d",
+           gConfigName[src.config()], src.isOpaque(),
+           gConfigName[dst.config()], dst.isOpaque());
 }
 
 static bool canHaveAlpha(SkBitmap::Config config) {
@@ -192,10 +190,7 @@ static void reportCopyVerification(const SkBitmap& bm1, const SkBitmap& bm2,
     }
 
     if (!success) {
-        SkString str;
-        str.printf("%s [config = %s]",
-                   msg, getSkConfigName(bm1));
-        reporter->reportFailed(str);
+        ERRORF(reporter, "%s [config = %s]", msg, getSkConfigName(bm1));
     }
 }
 
@@ -247,20 +242,16 @@ DEF_TEST(BitmapCopy, reporter) {
             bool success = srcPremul.copyTo(&dst, gPairs[j].fConfig);
             bool expected = gPairs[i].fValid[j] != '0';
             if (success != expected) {
-                SkString str;
-                str.printf("SkBitmap::copyTo from %s to %s. expected %s returned %s",
-                           gConfigName[i], gConfigName[j], boolStr(expected),
-                           boolStr(success));
-                reporter->reportFailed(str);
+                ERRORF(reporter, "SkBitmap::copyTo from %s to %s. expected %s "
+                       "returned %s", gConfigName[i], gConfigName[j],
+                       boolStr(expected), boolStr(success));
             }
 
             bool canSucceed = srcPremul.canCopyTo(gPairs[j].fConfig);
             if (success != canSucceed) {
-                SkString str;
-                str.printf("SkBitmap::copyTo from %s to %s. returned %s canCopyTo %s",
-                           gConfigName[i], gConfigName[j], boolStr(success),
-                           boolStr(canSucceed));
-                reporter->reportFailed(str);
+                ERRORF(reporter, "SkBitmap::copyTo from %s to %s. returned %s "
+                       "canCopyTo %s", gConfigName[i], gConfigName[j],
+                       boolStr(success), boolStr(canSucceed));
             }
 
             if (success) {
@@ -345,10 +336,8 @@ DEF_TEST(BitmapCopy, reporter) {
                                   100000000U);
             int64_t safeSize = tstSafeSize.computeSafeSize64();
             if (safeSize < 0) {
-                SkString str;
-                str.printf("getSafeSize64() negative: %s",
-                    getSkConfigName(tstSafeSize));
-                reporter->reportFailed(str);
+                ERRORF(reporter, "getSafeSize64() negative: %s",
+                       getSkConfigName(tstSafeSize));
             }
             bool sizeFail = false;
             // Compare against hand-computed values.
@@ -380,10 +369,8 @@ DEF_TEST(BitmapCopy, reporter) {
                     break;
             }
             if (sizeFail) {
-                SkString str;
-                str.printf("computeSafeSize64() wrong size: %s",
-                    getSkConfigName(tstSafeSize));
-                reporter->reportFailed(str);
+                ERRORF(reporter, "computeSafeSize64() wrong size: %s",
+                       getSkConfigName(tstSafeSize));
             }
 
             int subW = 2;

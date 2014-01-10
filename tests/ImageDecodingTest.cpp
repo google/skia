@@ -410,6 +410,23 @@ static inline const char* SkColorType_to_string(SkColorType colorType) {
     }
 }
 
+static inline const char* options_colorType(
+        const SkDecodingImageGenerator::Options& opts) {
+    if (opts.fUseRequestedColorType) {
+        return SkColorType_to_string(opts.fRequestedColorType);
+    } else {
+        return "(none)";
+    }
+}
+
+static inline const char* yn(bool value) {
+    if (value) {
+        return "yes";
+    } else {
+        return "no";
+    }
+}
+
 /**
  * Given either a SkStream or a SkData, try to decode the encoded
  * image using the specified options and report errors.
@@ -443,13 +460,9 @@ static void test_options(skiatest::Reporter* reporter,
         }
         // If we get here, it's a failure and we will need more
         // information about why it failed.
-        reporter->reportFailed(SkStringPrintf(
-            "Bounds decode failed "
-            "[sampleSize=%d dither=%s colorType=%s %s] %s:%d",
-            opts.fSampleSize, (opts.fDitherImage ? "yes" : "no"),
-            (opts.fUseRequestedColorType
-             ? SkColorType_to_string(opts.fRequestedColorType) : "(none)"),
-            path.c_str(), __FILE__, __LINE__));
+        ERRORF(reporter, "Bounds decode failed [sampleSize=%d dither=%s "
+               "colorType=%s %s]", opts.fSampleSize, yn(opts.fDitherImage),
+               options_colorType(opts), path.c_str());
         return;
     }
     #if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_UNIX)
@@ -463,13 +476,9 @@ static void test_options(skiatest::Reporter* reporter,
     #endif  // SK_BUILD_FOR_ANDROID || SK_BUILD_FOR_UNIX
     SkAutoLockPixels alp(bm);
     if (bm.getPixels() == NULL) {
-        reporter->reportFailed(SkStringPrintf(
-            "Pixel decode failed "
-            "[sampleSize=%d dither=%s colorType=%s %s] %s:%d",
-            opts.fSampleSize, (opts.fDitherImage ? "yes" : "no"),
-            (opts.fUseRequestedColorType
-             ? SkColorType_to_string(opts.fRequestedColorType) : "(none)"),
-            path.c_str(), __FILE__, __LINE__));
+        ERRORF(reporter, "Pixel decode failed [sampleSize=%d dither=%s "
+               "colorType=%s %s]", opts.fSampleSize, yn(opts.fDitherImage),
+               options_colorType(opts), path.c_str());
         return;
     }
 
@@ -496,14 +505,11 @@ static void test_options(skiatest::Reporter* reporter,
             }
         }
         if (pixelErrors != 0) {
-            reporter->reportFailed(SkStringPrintf(
-                "Pixel-level mismatch (%d of %d) [sampleSize=%d "
-                "dither=%s colorType=%s %s] %s:%d",
-                pixelErrors, kExpectedHeight * kExpectedWidth,
-                opts.fSampleSize, (opts.fDitherImage ? "yes" : "no"),
-                (opts.fUseRequestedColorType
-                 ? SkColorType_to_string(opts.fRequestedColorType)
-                 : "(none)"), path.c_str(), __FILE__, __LINE__));
+            ERRORF(reporter, "Pixel-level mismatch (%d of %d) "
+                   "[sampleSize=%d dither=%s colorType=%s %s]",
+                   pixelErrors, kExpectedHeight * kExpectedWidth,
+                   opts.fSampleSize, yn(opts.fDitherImage),
+                   options_colorType(opts), path.c_str());
         }
     }
 }

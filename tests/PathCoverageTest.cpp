@@ -137,14 +137,11 @@ static bool one_d_pe(const int* array, const unsigned int count,
             (estimatedCount <= 2 * computedCount);
 
         if (!isAccurate) {
-            SkString errorDescription;
-            errorDescription.printf(
-                "Curve from %.2f %.2f through %.2f %.2f to %.2f %.2f "
-                "computes %d, estimates %d\n",
-                path[0].fX, path[0].fY, path[1].fX, path[1].fY,
-                path[2].fX, path[2].fY, computedCount, estimatedCount);
+            ERRORF(reporter, "Curve from %.2f %.2f through %.2f %.2f to "
+                   "%.2f %.2f computes %d, estimates %d\n",
+                   path[0].fX, path[0].fY, path[1].fX, path[1].fY,
+                   path[2].fX, path[2].fY, computedCount, estimatedCount);
             numErrors++;
-            reporter->reportFailed(errorDescription);
         }
     }
 

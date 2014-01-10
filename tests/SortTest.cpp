@@ -26,9 +26,8 @@ static void check_sort(skiatest::Reporter* reporter, const char label[],
                        const int array[], const int reference[], int n) {
     for (int j = 0; j < n; ++j) {
         if (array[j] != reference[j]) {
-            SkString str;
-            str.printf("%sSort [%d] failed %d %d", label, n, array[j], reference[j]);
-            reporter->reportFailed(str);
+            ERRORF(reporter, "%sSort [%d] failed %d %d",
+                   label, n, array[j], reference[j]);
         }
     }
 }

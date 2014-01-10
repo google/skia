@@ -89,23 +89,31 @@ namespace skiatest {
     typedef SkTRegistry<Test*(*)(void*)> TestRegistry;
 }
 
-#define REPORTER_ASSERT(r, cond)                                        \
-    do {                                                                \
-        if (!(cond)) {                                                  \
-            SkString desc;                                              \
-            desc.printf("%s:%d: %s", __FILE__, __LINE__, #cond);        \
-            r->reportFailed(desc);                                      \
-        }                                                               \
+#define REPORTER_ASSERT(r, cond)                                 \
+    do {                                                         \
+        if (!(cond)) {                                           \
+            SkString desc;                                       \
+            desc.printf("%s:%d\t%s", __FILE__, __LINE__, #cond); \
+            r->reportFailed(desc);                               \
+        }                                                        \
     } while(0)
 
-#define REPORTER_ASSERT_MESSAGE(r, cond, message)                            \
-    do {                                                                     \
-        if (!(cond)) {                                                       \
-            SkString desc;                                                   \
-            desc.printf("%s %s:%d: %s", message, __FILE__, __LINE__, #cond); \
-            r->reportFailed(desc);                                           \
-        }                                                                    \
+#define REPORTER_ASSERT_MESSAGE(r, cond, message)            \
+    do {                                                     \
+        if (!(cond)) {                                       \
+            SkString desc;                                   \
+            desc.printf("%s:%d\t%s: %s", __FILE__, __LINE__, \
+                        message, #cond);                     \
+            r->reportFailed(desc);                           \
+        }                                                    \
     } while(0)
 
+#define ERRORF(reporter, ...)                       \
+    do {                                            \
+        SkString desc;                              \
+        desc.printf("%s:%d\t", __FILE__, __LINE__); \
+        desc.appendf(__VA_ARGS__) ;                 \
+        (reporter)->reportFailed(desc);             \
+    } while(0)
 
 #endif
