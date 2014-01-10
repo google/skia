@@ -57,7 +57,7 @@
         }, {
           'os_posix%': 1,
         }],
-        [ 'skia_os in ["linux", "win", "mac"]', {
+        [ 'skia_os in ["linux", "win"]', {
           'skia_poppler_enabled%': 1,
         }, {
           'skia_poppler_enabled%': 0,
