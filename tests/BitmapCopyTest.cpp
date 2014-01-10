@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -200,44 +199,103 @@ static void writeCoordPixels(SkBitmap& bm, const Coordinates& coords) {
         setPixel(coords[i]->fX, coords[i]->fY, i, bm);
 }
 
-DEF_TEST(BitmapCopy, reporter) {
-    static const Pair gPairs[] = {
-        { SkBitmap::kNo_Config,         "0000000"  },
-        { SkBitmap::kA8_Config,         "0101010"  },
-        { SkBitmap::kIndex8_Config,     "0111010"  },
-        { SkBitmap::kRGB_565_Config,    "0101010"  },
-        { SkBitmap::kARGB_4444_Config,  "0101110"  },
-        { SkBitmap::kARGB_8888_Config,  "0101110"  },
-    };
+static const Pair gPairs[] = {
+    { SkBitmap::kNo_Config,         "0000000"  },
+    { SkBitmap::kA8_Config,         "0101010"  },
+    { SkBitmap::kIndex8_Config,     "0111010"  },
+    { SkBitmap::kRGB_565_Config,    "0101010"  },
+    { SkBitmap::kARGB_4444_Config,  "0101110"  },
+    { SkBitmap::kARGB_8888_Config,  "0101110"  },
+};
 
+static const int W = 20;
+static const int H = 33;
+
+static void setup_src_bitmaps(SkBitmap* srcOpaque, SkBitmap* srcPremul,
+                              SkBitmap::Config config) {
+    SkColorTable* ctOpaque = NULL;
+    SkColorTable* ctPremul = NULL;
+
+    srcOpaque->setConfig(config, W, H, 0, kOpaque_SkAlphaType);
+    srcPremul->setConfig(config, W, H, 0, kPremul_SkAlphaType);
+    if (SkBitmap::kIndex8_Config == config) {
+        ctOpaque = init_ctable(kOpaque_SkAlphaType);
+        ctPremul = init_ctable(kPremul_SkAlphaType);
+    }
+    srcOpaque->allocPixels(ctOpaque);
+    srcPremul->allocPixels(ctPremul);
+    SkSafeUnref(ctOpaque);
+    SkSafeUnref(ctPremul);
+    init_src(*srcOpaque);
+    init_src(*srcPremul);
+}
+
+DEF_TEST(BitmapCopy_extractSubset, reporter) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
+        SkBitmap srcOpaque, srcPremul;
+        setup_src_bitmaps(&srcOpaque, &srcPremul, gPairs[i].fConfig);
+
+        SkBitmap bitmap(srcOpaque);
+        SkBitmap subset;
+        SkIRect r;
+        // Extract a subset which has the same width as the original. This
+        // catches a bug where we cloned the genID incorrectly.
+        r.set(0, 1, W, 3);
+        bitmap.setIsVolatile(true);
+        if (bitmap.extractSubset(&subset, r)) {
+            REPORTER_ASSERT(reporter, subset.width() == W);
+            REPORTER_ASSERT(reporter, subset.height() == 2);
+            REPORTER_ASSERT(reporter, subset.alphaType() == bitmap.alphaType());
+            REPORTER_ASSERT(reporter, subset.isVolatile() == true);
+
+            // Test copying an extracted subset.
+            for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
+                SkBitmap copy;
+                bool success = subset.copyTo(&copy, gPairs[j].fConfig);
+                if (!success) {
+                    // Skip checking that success matches fValid, which is redundant
+                    // with the code below.
+                    REPORTER_ASSERT(reporter, gPairs[i].fConfig != gPairs[j].fConfig);
+                    continue;
+                }
+
+                // When performing a copy of an extracted subset, the gen id should
+                // change.
+                REPORTER_ASSERT(reporter, copy.getGenerationID() != subset.getGenerationID());
+
+                REPORTER_ASSERT(reporter, copy.width() == W);
+                REPORTER_ASSERT(reporter, copy.height() == 2);
+
+                if (gPairs[i].fConfig == gPairs[j].fConfig) {
+                    SkAutoLockPixels alp0(subset);
+                    SkAutoLockPixels alp1(copy);
+                    // they should both have, or both not-have, a colortable
+                    bool hasCT = subset.getColorTable() != NULL;
+                    REPORTER_ASSERT(reporter, (copy.getColorTable() != NULL) == hasCT);
+                }
+            }
+        }
+
+        bitmap = srcPremul;
+        bitmap.setIsVolatile(false);
+        if (bitmap.extractSubset(&subset, r)) {
+            REPORTER_ASSERT(reporter, subset.alphaType() == bitmap.alphaType());
+            REPORTER_ASSERT(reporter, subset.isVolatile() == false);
+        }
+    }
+}
+
+DEF_TEST(BitmapCopy, reporter) {
     static const bool isExtracted[] = {
         false, true
     };
 
-    const int W = 20;
-    const int H = 33;
-
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
+        SkBitmap srcOpaque, srcPremul;
+        setup_src_bitmaps(&srcOpaque, &srcPremul, gPairs[i].fConfig);
+
         for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
-            SkBitmap srcOpaque, srcPremul, dst;
-
-            {
-                SkColorTable* ctOpaque = NULL;
-                SkColorTable* ctPremul = NULL;
-
-                srcOpaque.setConfig(gPairs[i].fConfig, W, H, 0, kOpaque_SkAlphaType);
-                srcPremul.setConfig(gPairs[i].fConfig, W, H, 0, kPremul_SkAlphaType);
-                if (SkBitmap::kIndex8_Config == gPairs[i].fConfig) {
-                    ctOpaque = init_ctable(kOpaque_SkAlphaType);
-                    ctPremul = init_ctable(kPremul_SkAlphaType);
-                }
-                srcOpaque.allocPixels(ctOpaque);
-                srcPremul.allocPixels(ctPremul);
-                SkSafeUnref(ctOpaque);
-                SkSafeUnref(ctPremul);
-            }
-            init_src(srcOpaque);
-            init_src(srcPremul);
+            SkBitmap dst;
 
             bool success = srcPremul.copyTo(&dst, gPairs[j].fConfig);
             bool expected = gPairs[i].fValid[j] != '0';
@@ -272,44 +330,6 @@ DEF_TEST(BitmapCopy, reporter) {
                     REPORTER_ASSERT(reporter, srcPremul.getGenerationID() == dst.getGenerationID());
                 } else {
                     REPORTER_ASSERT(reporter, srcPremul.getGenerationID() != dst.getGenerationID());
-                }
-                // test extractSubset
-                {
-                    SkBitmap bitmap(srcOpaque);
-                    SkBitmap subset;
-                    SkIRect r;
-                    r.set(1, 1, 2, 2);
-                    bitmap.setIsVolatile(true);
-                    if (bitmap.extractSubset(&subset, r)) {
-                        REPORTER_ASSERT(reporter, subset.width() == 1);
-                        REPORTER_ASSERT(reporter, subset.height() == 1);
-                        REPORTER_ASSERT(reporter,
-                                        subset.alphaType() == bitmap.alphaType());
-                        REPORTER_ASSERT(reporter,
-                                        subset.isVolatile() == true);
-
-                        SkBitmap copy;
-                        REPORTER_ASSERT(reporter,
-                                        subset.copyTo(&copy, subset.config()));
-                        REPORTER_ASSERT(reporter, copy.width() == 1);
-                        REPORTER_ASSERT(reporter, copy.height() == 1);
-                        REPORTER_ASSERT(reporter, copy.rowBytes() <= 4);
-
-                        SkAutoLockPixels alp0(subset);
-                        SkAutoLockPixels alp1(copy);
-                        // they should both have, or both not-have, a colortable
-                        bool hasCT = subset.getColorTable() != NULL;
-                        REPORTER_ASSERT(reporter,
-                                    (copy.getColorTable() != NULL) == hasCT);
-                    }
-                    bitmap = srcPremul;
-                    bitmap.setIsVolatile(false);
-                    if (bitmap.extractSubset(&subset, r)) {
-                        REPORTER_ASSERT(reporter,
-                                        subset.alphaType() == bitmap.alphaType());
-                        REPORTER_ASSERT(reporter,
-                                        subset.isVolatile() == false);
-                    }
                 }
             } else {
                 // dst should be unchanged from its initial state
