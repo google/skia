@@ -389,9 +389,6 @@ public:
      */
     void reset() {
         fIndexedData.rewind();
-        // TODO(mtklein): There's no reason to have the index start from 1.  Clean this up.
-        // index 0 is always empty since it is used as a signal that find failed
-        fIndexedData.push(NULL);
     }
 
     ~SkFlatDictionary() {
@@ -399,13 +396,13 @@ public:
     }
 
     int count() const {
-        SkASSERT(fHash.count() == fIndexedData.count() - 1);
+        SkASSERT(fHash.count() == fIndexedData.count());
         return fHash.count();
     }
 
     // For testing only.  Index is zero-based.
     const SkFlatData* operator[](int index) {
-        return fIndexedData[index+1];
+        return fIndexedData[index];
     }
 
     /**
@@ -449,10 +446,11 @@ public:
         }
 
         // findAndReturnMutableFlat put flat at the back.  Swap it into found->index() instead.
+        // indices in SkFlatData are 1-based, while fIndexedData is 0-based.  Watch out!
         SkASSERT(flat->index() == this->count());
         flat->setIndex(found->index());
-        fIndexedData.removeShuffle(found->index());
-        SkASSERT(flat == fIndexedData[found->index()]);
+        fIndexedData.removeShuffle(found->index()-1);
+        SkASSERT(flat == fIndexedData[found->index()-1]);
 
         // findAndReturnMutableFlat already called fHash.add(), so we just clean up the old entry.
         fHash.remove(*found);
@@ -474,7 +472,7 @@ public:
         }
         SkTRefArray<T>* array = SkTRefArray<T>::Create(count);
         for (int i = 0; i < count; i++) {
-            this->unflatten(&array->writableAt(i), fIndexedData[i+1]);
+            this->unflatten(&array->writableAt(i), fIndexedData[i]);
         }
         return array;
     }
@@ -484,7 +482,8 @@ public:
      * Caller takes ownership of the result.
      */
     T* unflatten(int index) const {
-        const SkFlatData* element = fIndexedData[index];
+        // index is 1-based, while fIndexedData is 0-based.
+        const SkFlatData* element = fIndexedData[index-1];
         SkASSERT(index == element->index());
 
         T* dst = new T;
@@ -605,7 +604,7 @@ private:
     SkOrderedWriteBuffer fWriteBuffer;
     bool fReady;
 
-    // For index -> SkFlatData.  fIndexedData[0] is always NULL.
+    // For index -> SkFlatData.  0-based, while all indices in the API are 1-based.  Careful!
     SkTDArray<const SkFlatData*> fIndexedData;
 
     // For SkFlatData -> cached SkFlatData, which has index().
