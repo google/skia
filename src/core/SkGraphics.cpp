@@ -55,8 +55,10 @@ void SkGraphics::Init() {
 #ifdef SK_DEVELOPER
     skRTConfRegistry().possiblyDumpFile();
     skRTConfRegistry().validate();
-    SkDebugf("Non-default runtime configuration options:\n");
-    skRTConfRegistry().printNonDefault( );
+    if (skRTConfRegistry().hasNonDefault()) {
+        SkDebugf("Non-default runtime configuration options:\n");
+        skRTConfRegistry().printNonDefault();
+    }
 #endif
 
 #ifdef BUILD_EMBOSS_TABLE

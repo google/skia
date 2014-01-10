@@ -105,6 +105,17 @@ void SkRTConfRegistry::printAll(const char *fname) const {
     delete o;
 }
 
+bool SkRTConfRegistry::hasNonDefault() const {
+    ConfMap::Iter iter(fConfs);
+    SkTDArray<SkRTConfBase *> *confArray;
+    while (iter.next(&confArray)) {
+        if (!confArray->getAt(0)->isDefault()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void SkRTConfRegistry::printNonDefault(const char *fname) const {
     SkWStream *o;
 

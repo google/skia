@@ -75,6 +75,7 @@ class SkRTConfRegistry {
 public:
     SkRTConfRegistry();
     void printAll(const char *fname = NULL) const;
+    bool hasNonDefault() const;
     void printNonDefault(const char *fname = NULL) const;
     const char *configFileLocation() const;
     void possiblyDumpFile() const;
