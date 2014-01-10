@@ -46,9 +46,6 @@ static void test_unitsPerEm(skiatest::Reporter* reporter, SkTypeface* face) {
 
     if (tableUPEM >= 0) {
         REPORTER_ASSERT(reporter, tableUPEM == nativeUPEM);
-    } else {
-        // not sure this is a bug, but lets report it for now as info.
-        SkDebugf("--- typeface returned 0 upem [%X]\n", face->uniqueID());
     }
 }
 
@@ -68,9 +65,6 @@ static void test_countGlyphs(skiatest::Reporter* reporter, SkTypeface* face) {
 
     if (tableGlyphs >= 0) {
         REPORTER_ASSERT(reporter, tableGlyphs == nativeGlyphs);
-    } else {
-        // not sure this is a bug, but lets report it for now as info.
-        SkDebugf("--- typeface returned 0 glyphs [%X]\n", face->uniqueID());
     }
 }
 
