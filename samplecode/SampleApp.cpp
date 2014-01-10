@@ -815,7 +815,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
         SkTQSort(fSamples.begin(), fSamples.end() ? fSamples.end() - 1 : NULL, compareSampleTitle);
     }
 
-    const char* resourcePath = NULL;
+    const char* resourcePath = "resources";  // same default as tests
     fMSAASampleCount = 0;
 
     const char* const commandName = argv[0];

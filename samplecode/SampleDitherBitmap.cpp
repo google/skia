@@ -37,7 +37,7 @@ static void draw_gradient(SkCanvas* canvas) {
     draw_rect(canvas, r, p);
 }
 
-static void test_pathregion() {
+static bool test_pathregion() {
     SkPath path;
     SkRegion region;
     path.moveTo(25071800.f, -141823808.f);
@@ -49,8 +49,7 @@ static void test_pathregion() {
     SkIRect bounds;
     path.getBounds().round(&bounds);
     SkRegion clip(bounds);
-    bool result = region.setPath(path, clip); // <-- !! DOWN !!
-    SkDebugf("----- result %d\n", result);
+    return region.setPath(path, clip); // <-- !! DOWN !!
 }
 
 static SkBitmap make_bitmap() {
@@ -79,9 +78,10 @@ static SkBitmap make_bitmap() {
 class DitherBitmapView : public SampleView {
     SkBitmap    fBM8;
     SkBitmap    fBM32;
+    bool        fResult;
 public:
     DitherBitmapView() {
-        test_pathregion();
+        fResult = test_pathregion();
         fBM8 = make_bitmap();
         fBM8.copyTo(&fBM32, SkBitmap::kARGB_8888_Config);
 
@@ -138,6 +138,14 @@ protected:
 
         canvas->translate(0, SkIntToScalar(fBM8.height() *3));
         draw_gradient(canvas);
+
+        char resultTrue[] = "SkRegion::setPath returned true";
+        char resultFalse[] = "SkRegion::setPath returned false";
+        SkPaint p;
+        if (fResult)
+            canvas->drawText(resultTrue, sizeof(resultTrue) - 1, 0, 50, p);
+        else
+            canvas->drawText(resultFalse, sizeof(resultFalse) - 1, 0, 50, p);
     }
 
 private:
