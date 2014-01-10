@@ -57,58 +57,62 @@ static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& 
 
 typedef void (*PaintProc)(SkPaint*, SkScalar width);
 
-static const char* gBlurStyle2Name[] = {
-    "normal",
-    "solid",
-    "outer",
-    "inner"
-};
-
 class BlurRectGM : public skiagm::GM {
-      SkAutoTUnref<SkMaskFilter> fMaskFilter;
+      SkAutoTUnref<SkMaskFilter> fMaskFilters[SkBlurMaskFilter::kBlurStyleCount];
       SkString  fName;
-      PaintProc fPProc;
       SkAlpha   fAlpha;
 public:
-    BlurRectGM(const char name[], PaintProc pproc, U8CPU alpha,
-               SkBlurMaskFilter::BlurStyle bs)
-               : fMaskFilter(SkBlurMaskFilter::Create(bs,
-                             SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(STROKE_WIDTH/2)),
-                             SkBlurMaskFilter::kHighQuality_BlurFlag))
-               , fName(name)
-               , fPProc(pproc)
-               , fAlpha(SkToU8(alpha)) {
-        fName.appendf("_%s", gBlurStyle2Name[bs]);
+    BlurRectGM(const char name[], U8CPU alpha)
+        : fName(name)
+        , fAlpha(SkToU8(alpha)) {
     }
 
 protected:
+    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        for (int i = 0; i < SkBlurMaskFilter::kBlurStyleCount; ++i) {
+            fMaskFilters[i].reset(SkBlurMaskFilter::Create((SkBlurMaskFilter::BlurStyle) i,
+                                  SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(STROKE_WIDTH/2)),
+                                  SkBlurMaskFilter::kHighQuality_BlurFlag));
+        }
+    }
+
     virtual SkString onShortName() {
         return fName;
     }
 
     virtual SkISize onISize() {
-        return SkISize::Make(640, 480);
+        return SkISize::Make(440, 820);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
         canvas->translate(STROKE_WIDTH*3/2, STROKE_WIDTH*3/2);
 
-        SkRect  r = { 0, 0, 250, 120 };
+        SkRect  r = { 0, 0, 100, 50 };
+        SkScalar scales[] = { SK_Scalar1, 0.6f };
 
-        SkPaint paint;
-        paint.setMaskFilter(fMaskFilter);
-        if (fPProc) {
-            fPProc(&paint, r.width());
+        for (size_t s = 0; s < SK_ARRAY_COUNT(scales); ++s) {
+            canvas->save();
+            for (size_t f = 0; f < SK_ARRAY_COUNT(fMaskFilters); ++f) {
+                SkPaint paint;
+                paint.setMaskFilter(fMaskFilters[f]);
+                paint.setAlpha(fAlpha);
+
+                static const Proc procs[] = {
+                    fill_rect, draw_donut, draw_donut_skewed
+                };
+
+                canvas->save();
+                canvas->scale(scales[s], scales[s]);
+                this->drawProcs(canvas, r, paint, false, procs, SK_ARRAY_COUNT(procs));
+                canvas->translate(r.width() * 4/3, 0);
+                this->drawProcs(canvas, r, paint, true, procs, SK_ARRAY_COUNT(procs));
+                canvas->restore();
+
+                canvas->translate(0, SK_ARRAY_COUNT(procs) * r.height() * 4/3 * scales[s]);
+            }
+            canvas->restore();
+            canvas->translate(2 * r.width() * 4/3 * scales[s], 0);
         }
-        paint.setAlpha(fAlpha);
-
-        static const Proc procs[] = {
-            fill_rect, draw_donut, draw_donut_skewed
-        };
-
-        this->drawProcs(canvas, r, paint, false, procs, SK_ARRAY_COUNT(procs));
-        canvas->translate(r.width() * 4/3, 0);
-        this->drawProcs(canvas, r, paint, true, procs, SK_ARRAY_COUNT(procs));
     }
 
     virtual uint32_t onGetFlags() const { return kSkipPipe_Flag; }
@@ -304,10 +308,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kNormal_BlurStyle);)
-DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kSolid_BlurStyle);)
-DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kOuter_BlurStyle);)
-DEF_GM(return new BlurRectGM("blurrect", NULL, 0xFF, SkBlurMaskFilter::kInner_BlurStyle);)
+DEF_GM(return new BlurRectGM("blurrects", 0xFF);)
 
 static const SkScalar kBig = 20;
 static const SkScalar kSmall = 2;
