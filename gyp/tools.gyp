@@ -15,6 +15,7 @@
       'dependencies': [
         'bbh_shootout',
         'bench_pictures',
+        'bench_record',
         'filter',
         'lua_app',
         'lua_pictures',
@@ -260,6 +261,16 @@
         'skia_lib.gyp:skia_lib',
         'tools.gyp:picture_utils',
         'tools.gyp:picture_renderer',
+      ],
+    },
+    {
+      'target_name': 'bench_record',
+      'type': 'executable',
+      'sources': ['../tools/bench_record.cpp'],
+      'include_dirs': [ '../src/core/' ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'skia_lib.gyp:skia_lib',
       ],
     },
     {
