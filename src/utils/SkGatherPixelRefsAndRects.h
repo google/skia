@@ -222,14 +222,11 @@ protected:
         // Similar to SkDraw asserts.
         SkASSERT(scalarsPerPos == 1 || scalarsPerPos == 2);
 
+        SkScalar y = scalarsPerPos == 1 ? constY : constY + pos[1];
+
         SkPoint min, max;
-        if (1 == scalarsPerPos) {
-            min.set(pos[0], constY);
-            max.set(pos[0], constY);
-        } else if (2 == scalarsPerPos) {
-            min.set(pos[0], constY + pos[1]);
-            max.set(pos[0], constY + pos[1]);
-        }
+        min.set(pos[0], y);
+        max.set(pos[0], y);
 
         for (size_t i = 1; i < len; ++i) {
             SkScalar x = pos[i * scalarsPerPos];
