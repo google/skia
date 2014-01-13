@@ -12411,28 +12411,28 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8537349251170466267
+          8304629145373604760
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "rects_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8768242891680984439
+          4452188589632355207
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "rects_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4940315842301367764
+          11339980900210544915
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "rects_mesa.png": {
       "allowed-digests": [
@@ -12447,10 +12447,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12527069561328171171
+          263081333122246486
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "rects_pdf-poppler.png": {
       "allowed-digests": [

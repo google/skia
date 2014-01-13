@@ -8845,28 +8845,28 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9485989772889952388
+          11839371522520661517
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "rects_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9228687840939077483
+          7079265752628901270
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "rects_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9478190265748967534
+          13600145299430258584
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "rects_pdf-poppler.png": {
       "allowed-digests": [

@@ -12864,13 +12864,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3113577749575900
+          11164911073747288105
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "rects_pdf-poppler.png": {
       "allowed-digests": [

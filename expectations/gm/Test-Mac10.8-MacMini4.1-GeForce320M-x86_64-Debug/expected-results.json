@@ -11993,49 +11993,37 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8537349251170466267
+          8304629145373604760
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "rects_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8768242891680984439
+          4452188589632355207
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "rects_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4940315842301367764
+          11339980900210544915
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "rects_pdf-mac.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14273757312822537864
+          12646944129593088494
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "rects_pdf-poppler.png": {
       "allowed-digests": [

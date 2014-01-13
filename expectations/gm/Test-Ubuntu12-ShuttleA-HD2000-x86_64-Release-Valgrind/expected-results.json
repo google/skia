@@ -7176,25 +7176,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9485989772889952388
+          11839371522520661517
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "rects_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9228687840939077483
+          7079265752628901270
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "rects_pdf-poppler.png": {
       "allowed-digests": [

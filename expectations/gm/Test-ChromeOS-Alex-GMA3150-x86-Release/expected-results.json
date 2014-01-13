@@ -4832,25 +4832,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14869900129777657205
+          1097877542064832374
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "rects_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14325618834507519953
+          17158160125339839443
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "roundrects_565.png": {
       "allowed-digests": [

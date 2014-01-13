@@ -6184,28 +6184,28 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8537349251170466267
+          8304629145373604760
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "rects_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8768242891680984439
+          4452188589632355207
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "rects_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8877452011158167375
+          16827157429119454558
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "roundrects_565.png": {
       "allowed-digests": [
