@@ -404,11 +404,11 @@ static void gather_from_image(const SkBitmap& bm, SkPixelRef* const refs[],
     }
 }
 
-void gather_from_analytic(const SkPoint pos[], SkScalar w, SkScalar h,
-                          const SkTDArray<SkPixelRef*> analytic[], 
-                          int count, 
-                          SkTDArray<SkPixelRef*>* result, 
-                          const SkRect& subset) {
+static void gather_from_analytic(const SkPoint pos[], SkScalar w, SkScalar h,
+                                 const SkTDArray<SkPixelRef*> analytic[], 
+                                 int count, 
+                                 SkTDArray<SkPixelRef*>* result, 
+                                 const SkRect& subset) {
     for (int i = 0; i < count; ++i) {
         SkRect rect = SkRect::MakeXYWH(pos[i].fX, pos[i].fY, w, h);
 
