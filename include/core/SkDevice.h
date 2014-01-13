@@ -283,11 +283,6 @@ protected:
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) = 0;
 
-    // DEPRECATED -- will remove this once the subclass stop overriding it
-    virtual void drawPosTextOnPath(const SkDraw&, const void* text, size_t len,
-                                   const SkPoint pos[], const SkPaint&,
-                                   const SkPath&, const SkMatrix*) {}
-
     /**
      *  On success (returns true), copy the device pixels into the bitmap.
      *  On failure, the bitmap parameter is left unchanged and false is
