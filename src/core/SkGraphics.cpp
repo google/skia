@@ -9,7 +9,6 @@
 
 #include "SkGraphics.h"
 
-#include "Sk64.h"
 #include "SkBlitter.h"
 #include "SkCanvas.h"
 #include "SkFloat.h"

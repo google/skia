@@ -8,7 +8,6 @@
 #include "SkMathPriv.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
-#include "Sk64.h"
 #include "SkScalar.h"
 
 const uint32_t gIEEENotANumber = 0x7FFFFFFF;
@@ -47,10 +46,8 @@ int SkCLZ_portable(uint32_t x) {
 int32_t SkMulDiv(int32_t numer1, int32_t numer2, int32_t denom) {
     SkASSERT(denom);
 
-    Sk64 tmp;
-    tmp.setMul(numer1, numer2);
-    tmp.div(denom, Sk64::kTrunc_DivOption);
-    return tmp.get32();
+    int64_t tmp = sk_64_mul(numer1, numer2) / denom;
+    return sk_64_asS32(tmp);
 }
 
 SkFixed SkFixedMul_portable(SkFixed a, SkFixed b) {

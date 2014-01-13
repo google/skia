@@ -156,15 +156,9 @@ int32_t SkFloat::Add(int32_t packed_a, int32_t packed_b)
     return SkFloat::SetShift(value_a + value_b, exp - EXP_BIAS);
 }
 
-#include "Sk64.h"
-
-static inline int32_t mul24(int32_t a, int32_t b)
-{
-    Sk64 tmp;
-
-    tmp.setMul(a, b);
-    tmp.roundRight(24);
-    return tmp.get32();
+static inline int32_t mul24(int32_t a, int32_t b) {
+    int64_t tmp = (sk_64_mul(a, b) + (1 << 23)) >> 24;
+    return sk_64_asS32(tmp);
 }
 
 int32_t SkFloat::Mul(int32_t packed_a, int32_t packed_b)

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,9 +5,7 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkGeometry.h"
-#include "Sk64.h"
 #include "SkMatrix.h"
 
 bool SkXRayCrossesLine(const SkXRay& pt, const SkPoint pts[2], bool* ambiguous) {

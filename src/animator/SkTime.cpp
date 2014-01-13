@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkTime.h"
 
@@ -15,10 +13,8 @@
 SkMSec gForceTickCount = (SkMSec) -1;
 #endif
 
-void SkTime::GetDateTime(DateTime* t)
-{
-    if (t)
-    {
+void SkTime::GetDateTime(DateTime* t) {
+    if (t) {
         SYSTEMTIME  syst;
 
         ::GetLocalTime(&syst);
@@ -32,11 +28,11 @@ void SkTime::GetDateTime(DateTime* t)
     }
 }
 
-SkMSec SkTime::GetMSecs()
-{
+SkMSec SkTime::GetMSecs() {
 #ifdef SK_DEBUG
-    if (gForceTickCount != (SkMSec) -1)
+    if (gForceTickCount != (SkMSec) -1) {
         return gForceTickCount;
+    }
 #endif
     return ::GetTickCount();
 }
@@ -45,10 +41,8 @@ SkMSec SkTime::GetMSecs()
 
 #include <time.h>
 
-void SkTime::GetDateTime(DateTime* t)
-{
-    if (t)
-    {
+void SkTime::GetDateTime(DateTime* t) {
+    if (t) {
         tm      syst;
         time_t  tm;
 
@@ -64,17 +58,13 @@ void SkTime::GetDateTime(DateTime* t)
     }
 }
 
-#include "Sk64.h"
-
-SkMSec SkTime::GetMSecs()
-{
+SkMSec SkTime::GetMSecs() {
     UnsignedWide    wide;
-    Sk64            s;
-
     ::Microseconds(&wide);
-    s.set(wide.hi, wide.lo);
-    s.div(1000, Sk64::kRound_DivOption);
-    return s.get32();
+
+    int64_t s = ((int64_t)wide.hi << 32) | wide.lo;
+    s = (s + 500) / 1000;   // rounded divide
+    return (SkMSec)s;
 }
 
 #endif

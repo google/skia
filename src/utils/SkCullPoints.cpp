@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,20 +5,13 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkCullPoints.h"
-#include "Sk64.h"
 
 static bool cross_product_is_neg(const SkIPoint& v, int dx, int dy) {
 #if 0
     return v.fX * dy - v.fY * dx < 0;
 #else
-    Sk64   tmp0, tmp1;
-
-    tmp0.setMul(v.fX, dy);
-    tmp1.setMul(dx, v.fY);
-    tmp0.sub(tmp1);
-    return tmp0.isNeg() != 0;
+    return sk_64_mul(v.fX, dy) < sk_64_mul(dx, v.fY);
 #endif
 }
 

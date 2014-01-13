@@ -6,7 +6,6 @@
  */
 
 #include "SkMatrix.h"
-#include "Sk64.h"
 #include "SkFloatBits.h"
 #include "SkOnce.h"
 #include "SkString.h"

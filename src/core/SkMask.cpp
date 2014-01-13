@@ -5,18 +5,15 @@
  * found in the LICENSE file.
  */
 
-
-#include "Sk64.h"
 #include "SkMask.h"
 
 /** returns the product if it is positive and fits in 31 bits. Otherwise this
     returns 0.
  */
 static int32_t safeMul32(int32_t a, int32_t b) {
-    Sk64 size;
-    size.setMul(a, b);
-    if (size.is32() && size.isPos()) {
-        return size.get32();
+    int64_t size = sk_64_mul(a, b);
+    if (size > 0 && sk_64_isS32(size)) {
+        return sk_64_asS32(size);
     }
     return 0;
 }

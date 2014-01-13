@@ -17,7 +17,7 @@
 #include "SkImageInfo.h"
 #include "SkTDArray.h"
 
-//#define SK_SUPPORT_LEGACY_ONLOCKPIXELS
+//#define xed
 
 #ifdef SK_DEBUG
     /**

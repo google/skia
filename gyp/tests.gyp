@@ -138,7 +138,6 @@
         '../tests/SerializationTest.cpp',
         '../tests/ShaderImageFilterTest.cpp',
         '../tests/ShaderOpacityTest.cpp',
-        '../tests/Sk64Test.cpp',
         '../tests/skia_test.cpp',
         '../tests/SortTest.cpp',
         '../tests/SrcOverTest.cpp',
