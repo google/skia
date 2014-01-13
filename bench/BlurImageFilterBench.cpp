@@ -20,6 +20,7 @@
 #define FILTER_HEIGHT_LARGE 256
 #define BLUR_SIGMA_SMALL    1.0f
 #define BLUR_SIGMA_LARGE    10.0f
+#define BLUR_SIGMA_HUGE     80.0f
 
 class BlurImageFilterBench : public SkBenchmark {
 public:
@@ -92,3 +93,5 @@ DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_SMALL, BLUR_SIGMA_SMALL, tr
 DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_SMALL, BLUR_SIGMA_SMALL, false);)
 DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_LARGE, BLUR_SIGMA_LARGE, true);)
 DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_LARGE, BLUR_SIGMA_LARGE, false);)
+DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_HUGE, BLUR_SIGMA_HUGE, true);)
+DEF_BENCH(return new BlurImageFilterBench(BLUR_SIGMA_HUGE, BLUR_SIGMA_HUGE, false);)

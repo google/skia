@@ -39,3 +39,12 @@ rects
 
 # Added by sugoi for added test in https://codereview.chromium.org/104853005
 displacement
+
+# Added by zheng.xu as part of https://codereview.chromium.org/105893003
+# blur related GM results need rebaslining
+imageblur
+imagefiltersbase
+imagefilterscropped
+imagefiltersgraph
+spritebitmap
+testimagefilters
