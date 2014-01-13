@@ -23,7 +23,7 @@ static void set_to_one_proc(void*, void* context) {
  */
 DEF_TEST(MallocPixelRef, reporter) {
     REPORTER_ASSERT(reporter, true);
-    SkImageInfo info = {10, 13, kPMColor_SkColorType, kPremul_SkAlphaType};
+    SkImageInfo info = SkImageInfo::MakeN32Premul(10, 13);
     {
         SkAutoTUnref<SkMallocPixelRef> pr(
             SkMallocPixelRef::NewAllocate(info, info.minRowBytes() - 1, NULL));

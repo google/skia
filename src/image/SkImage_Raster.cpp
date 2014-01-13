@@ -58,7 +58,7 @@ public:
     virtual bool getROPixels(SkBitmap*) const SK_OVERRIDE;
 
     // exposed for SkSurface_Raster via SkNewImageFromPixelRef
-    SkImage_Raster(const SkImageInfo&, SkPixelRef*, size_t rowBytes);
+    SkImage_Raster(SkPixelRef*);
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
@@ -84,18 +84,16 @@ SkImage* SkImage_Raster::NewEmpty() {
 
 SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes)
         : INHERITED(info.fWidth, info.fHeight) {
-    fBitmap.setConfig(info, rowBytes);
     SkAutoTUnref<SkPixelRef> ref(
         SkMallocPixelRef::NewWithData(info, rowBytes, NULL, data, 0));
-    fBitmap.setPixelRef(ref);
+    fBitmap.installPixelRef(ref);
     fBitmap.setImmutable();
 }
 
-SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes)
-    : INHERITED(info.fWidth, info.fHeight)
+SkImage_Raster::SkImage_Raster(SkPixelRef* pr)
+    : INHERITED(pr->info())
 {
-    fBitmap.setConfig(info, rowBytes);
-    fBitmap.setPixelRef(pr);
+    fBitmap.installPixelRef(pr);
 }
 
 SkImage_Raster::~SkImage_Raster() {}
@@ -155,9 +153,8 @@ SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* pixelData, size
     return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes));
 }
 
-SkImage* SkNewImageFromPixelRef(const SkImageInfo& info, SkPixelRef* pr,
-                                size_t rowBytes) {
-    return SkNEW_ARGS(SkImage_Raster, (info, pr, rowBytes));
+SkImage* SkNewImageFromPixelRef(SkPixelRef* pr) {
+    return SkNEW_ARGS(SkImage_Raster, (pr));
 }
 
 SkPixelRef* SkBitmapImageGetPixelRef(SkImage* image) {
