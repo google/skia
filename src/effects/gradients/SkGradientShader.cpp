@@ -583,8 +583,7 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap) const {
     if (fMapper) {
         // force our cahce32pixelref to be built
         (void)this->getCache32();
-        bitmap->setConfig(SkBitmap::kARGB_8888_Config, kCache32Count, 1);
-        bitmap->setPixelRef(fCache32PixelRef);
+        bitmap->installPixelRef(fCache32PixelRef);
         return;
     }
 
@@ -624,8 +623,7 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap) const {
     if (!gCache->find(storage.get(), size, bitmap)) {
         // force our cahce32pixelref to be built
         (void)this->getCache32();
-        bitmap->setConfig(SkBitmap::kARGB_8888_Config, kCache32Count, 1);
-        bitmap->setPixelRef(fCache32PixelRef);
+        bitmap->installPixelRef(fCache32PixelRef);
 
         gCache->add(storage.get(), size, *bitmap);
     }

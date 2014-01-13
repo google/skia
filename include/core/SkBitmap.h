@@ -268,6 +268,16 @@ public:
     */
     void setPixels(void* p, SkColorTable* ctable = NULL);
 
+    /**
+     *  Install the specified pixelref into the bitmap, with an optional rect
+     *  for referencing a subset of the pixels in the pixelref. This sets the
+     *  config/width/height/alphatype of the bitmap to match the pixelref.
+     *
+     *  The subset rect, if not null, is intersected with the bounds of the
+     *  pixelref (taken from its SkImageInfo).
+     */
+    SkPixelRef* installPixelRef(SkPixelRef*, const SkIRect* subset = NULL);
+
     /** Copies the bitmap's pixels to the location pointed at by dst and returns
         true if possible, returns false otherwise.
 

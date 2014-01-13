@@ -333,6 +333,30 @@ bool SkBitmap::setAlphaType(SkAlphaType alphaType) {
     return true;
 }
 
+SkPixelRef* SkBitmap::installPixelRef(SkPixelRef* pr, const SkIRect* subset) {
+    if (NULL == pr) {
+        this->reset();
+        return NULL;
+    }
+
+    const SkImageInfo& info = pr->info();
+
+    fConfig = SkColorTypeToBitmapConfig(info.fColorType);
+    fAlphaType = info.fAlphaType;
+    fBytesPerPixel = info.bytesPerPixel();
+    // not known until we're locked
+    fRowBytes = 0;
+    
+    SkIRect bounds = { 0, 0, info.fWidth, info.fHeight };
+    if (subset && !bounds.intersect(*subset)) {
+        bounds.setEmpty();
+    }
+
+    fWidth = bounds.width();
+    fHeight = bounds.height();
+    return this->setPixelRef(pr, bounds.left(), bounds.top());
+}
+
 void SkBitmap::updatePixelsFromRef() const {
     if (NULL != fPixelRef) {
         if (fPixelLockCount > 0) {
