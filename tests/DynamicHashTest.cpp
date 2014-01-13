@@ -23,7 +23,6 @@ bool AreEqual(const Entry& entry, const int& key) { return entry.key == key; }
 class Hash : public SkTDynamicHash<Entry, int, GetKey, GetHash, AreEqual> {
 public:
     Hash() : INHERITED() {}
-    Hash(int capacity) : INHERITED(capacity) {}
 
     // Promote protected methods to public for this test.
     int capacity() const { return this->INHERITED::capacity(); }
@@ -44,8 +43,8 @@ static void test_growth(skiatest::Reporter* reporter) {
     Entry d = { 4, 5.0 };
     Entry e = { 5, 6.0 };
 
-    Hash hash(4);
-    ASSERT(hash.capacity() == 4);
+    Hash hash;
+    ASSERT(hash.capacity() == 0);
 
     hash.add(&a);
     ASSERT(hash.capacity() == 4);
@@ -78,8 +77,7 @@ static void test_add(skiatest::Reporter* reporter) {
 }
 
 static void test_lookup(skiatest::Reporter* reporter) {
-    Hash hash(4);
-    ASSERT(hash.capacity() == 4);
+    Hash hash;
 
     // These collide.
     Entry a = { 1, 2.0 };
@@ -114,8 +112,7 @@ static void test_lookup(skiatest::Reporter* reporter) {
 }
 
 static void test_remove(skiatest::Reporter* reporter) {
-    Hash hash(4);
-    ASSERT(hash.capacity() == 4);
+    Hash hash;
 
     // These collide.
     Entry a = { 1, 2.0 };

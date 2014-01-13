@@ -16,13 +16,10 @@ template <typename T,
           const Key& (GetKey)(const T&),
           uint32_t (Hash)(const Key&),
           bool (Equal)(const T&, const Key&),
-          int kGrowPercent   = 75,  // Larger -> more memory efficient, but slower.
-          int kShrinkPercent = 25>
+          int kGrowPercent = 75>  // Larger -> more memory efficient, but slower.
 class SkTDynamicHash {
-    static const int kMinCapacity = 4;  // Smallest capacity we allow.
 public:
-    SkTDynamicHash(int initialCapacity=64/sizeof(T*)) {
-        this->reset(SkNextPow2(initialCapacity > kMinCapacity ? initialCapacity : kMinCapacity));
+    SkTDynamicHash() : fCount(0), fDeleted(0), fCapacity(0), fArray(NULL) {
         SkASSERT(this->validate());
     }
 
@@ -45,7 +42,7 @@ public:
             }
             index = this->nextIndex(index, round);
         }
-        SkASSERT(0); //  find: should be unreachable
+        SkASSERT(fCapacity == 0);
         return NULL;
     }
 
@@ -62,8 +59,6 @@ public:
     void remove(const Key& key) {
         SkASSERT(NULL != this->find(key));
         this->innerRemove(key);
-        SkASSERT(this->validate());
-        this->maybeShrink();
         SkASSERT(this->validate());
     }
 
@@ -82,8 +77,8 @@ protected:
             }
             index = this->nextIndex(index, round);
         }
-        SkASSERT(0); // countCollisions: should be unreachable
-        return -1;
+        SkASSERT(fCapacity == 0);
+        return 0;
     }
 
 private:
@@ -91,23 +86,11 @@ private:
     static T* Empty()   { return reinterpret_cast<T*>(0); }  // i.e. NULL
     static T* Deleted() { return reinterpret_cast<T*>(1); }  // Also an invalid pointer.
 
-    static T** AllocArray(int capacity) {
-        return (T**)sk_calloc_throw(sizeof(T*) * capacity);  // All cells == Empty().
-    }
-
-    void reset(int capacity) {
-        fCount = 0;
-        fDeleted = 0;
-        fCapacity = capacity;
-        fArray = AllocArray(fCapacity);
-    }
-
     bool validate() const {
         #define SKTDYNAMICHASH_CHECK(x) SkASSERT((x)); if (!(x)) return false
 
         // Is capacity sane?
         SKTDYNAMICHASH_CHECK(SkIsPow2(fCapacity));
-        SKTDYNAMICHASH_CHECK(fCapacity >= kMinCapacity);
 
         // Is fCount correct?
         int count = 0;
@@ -168,7 +151,7 @@ private:
             }
             index = this->nextIndex(index, round);
         }
-        SkASSERT(0); // add: should be unreachable
+        SkASSERT(fCapacity == 0);
     }
 
     void innerRemove(const Key& key) {
@@ -184,37 +167,31 @@ private:
             }
             index = this->nextIndex(index, round);
         }
-        SkASSERT(0); // innerRemove: should be unreachable
+        SkASSERT(fCapacity == 0);
     }
 
     void maybeGrow() {
-        if (fCount + fDeleted + 1 > (fCapacity * kGrowPercent) / 100) {
-            resize(fCapacity * 2);
-        }
-    }
-
-    void maybeShrink() {
-        if (fCount < (fCapacity * kShrinkPercent) / 100 && fCapacity / 2 > kMinCapacity) {
-            resize(fCapacity / 2);
+        if (100 * (fCount + fDeleted + 1) > fCapacity * kGrowPercent) {
+            this->resize(fCapacity > 0 ? fCapacity * 2 : 4);
         }
     }
 
     void resize(int newCapacity) {
         SkDEBUGCODE(int oldCount = fCount;)
         int oldCapacity = fCapacity;
-        T** oldArray = fArray;
+        SkAutoTMalloc<T*> oldArray(fArray);
 
-        reset(newCapacity);
+        fCount = fDeleted = 0;
+        fCapacity = newCapacity;
+        fArray = (T**)sk_calloc_throw(sizeof(T*) * fCapacity);
 
         for (int i = 0; i < oldCapacity; i++) {
             T* entry = oldArray[i];
             if (Empty() != entry && Deleted() != entry) {
-                this->add(entry);
+                this->innerAdd(entry);
             }
         }
         SkASSERT(oldCount == fCount);
-
-        sk_free(oldArray);
     }
 
     // fCapacity is always a power of 2, so this masks the correct low bits to index into our hash.
