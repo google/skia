@@ -37,27 +37,6 @@ class SK_API SkImage : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkImage)
 
-#ifdef SK_SUPPORT_LEGACY_COLORTYPE
-    typedef SkColorType ColorType;
-
-    static const SkColorType kAlpha_8_ColorType     = kAlpha_8_SkColorType;
-    static const SkColorType kARGB_4444_ColorType   = kARGB_4444_SkColorType;
-    static const SkColorType kRGB_565_ColorType     = kRGB_565_SkColorType;
-    static const SkColorType kRGBA_8888_ColorType   = kRGBA_8888_SkColorType;
-    static const SkColorType kBGRA_8888_ColorType   = kBGRA_8888_SkColorType;
-    static const SkColorType kPMColor_ColorType     = kPMColor_SkColorType;
-    static const SkColorType kLastEnum_ColorType    = kLastEnum_SkColorType;
-#endif
-
-#ifdef SK_SUPPORT_LEGACY_ALPHATYPE
-    typedef SkAlphaType AlphaType;
-
-    static const SkAlphaType kIgnore_AlphaType   = kIgnore_SkAlphaType;
-    static const SkAlphaType kOpaque_AlphaType   = kOpaque_SkAlphaType;
-    static const SkAlphaType kPremul_AlphaType   = kPremul_SkAlphaType;
-    static const SkAlphaType kUnpremul_AlphaType = kUnpremul_SkAlphaType;
-#endif
-
     typedef SkImageInfo Info;
 
     static SkImage* NewRasterCopy(const Info&, const void* pixels, size_t rowBytes);
