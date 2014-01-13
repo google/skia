@@ -7,7 +7,7 @@ GM: reading resources from resources
 GM: drawing... selftest1 [300 200]
 GM: Ran 1 GMs
 GM: ... over  2 configs ["8888", "565"]
-GM: ...  and  0 modes   []
+GM: ...  and  1 modes   [""]
 GM: ... so there should be a total of 2 tests.
 GM: Ran 2 tests: NoGpuContext=0 IntentionallySkipped=0 RenderModeMismatch=0 GeneratePdfFailed=0 ExpectationsMismatch=0 MissingExpectations=2 WritingReferenceImage=0
 GM: [*] 0 NoGpuContext:

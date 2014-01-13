@@ -318,8 +318,8 @@ public:
             // and changing that now may affect other parts of our code.
             if (modeAsString.startsWith("-")) {
                 modeAsString.remove(0, 1);
-                modes.push_back(modeAsString);
             }
+            modes.push_back(modeAsString);
         }
     }
 
@@ -333,6 +333,27 @@ public:
             }
         }
         return false;
+    }
+
+    /**
+     * Calls RecordTestResults to record that we skipped a test.
+     *
+     * Depending on the backend, this may mean that we skipped a single rendermode, or all
+     * rendermodes; see http://skbug.com/1994 and https://codereview.chromium.org/129203002/
+     */
+    void RecordSkippedTest(const SkString& shortNamePlusConfig,
+                           const char renderModeDescriptor [], Backend backend) {
+        if (kRaster_Backend == backend) {
+            // Skipping a test on kRaster_Backend means that we will skip ALL renderModes
+            // (as opposed to other backends, on which we only run the default renderMode).
+            //
+            // We cannot call RecordTestResults yet, because we won't know the full set of
+            // renderModes until we have run all tests.
+            fTestsSkippedOnAllRenderModes.push_back(shortNamePlusConfig);
+        } else {
+            this->RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
+                                    renderModeDescriptor);
+        }
     }
 
     /**
@@ -1240,6 +1261,7 @@ public:
 
     // collection of tests that have failed with each ErrorType
     SkTArray<SkString> fFailedTests[kLast_ErrorType+1];
+    SkTArray<SkString> fTestsSkippedOnAllRenderModes;
     int fTestsRun;
     SkTDict<int> fRenderModesEncountered;
 
@@ -1515,127 +1537,6 @@ template <typename T> void appendUnique(SkTDArray<T>* array, const T& value) {
 }
 
 /**
- * Run this test in a number of different configs (8888, 565, PDF,
- * etc.), confirming that the resulting bitmaps match expectations
- * (which may be different for each config).
- *
- * Returns all errors encountered while doing so.
- */
-ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
-                                      const SkTDArray<size_t> &configs,
-                                      const SkTDArray<const PDFRasterizerData*> &pdfRasterizers,
-                                      GrContextFactory *grFactory);
-ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
-                                      const SkTDArray<size_t> &configs,
-                                      const SkTDArray<const PDFRasterizerData*> &pdfRasterizers,
-                                      GrContextFactory *grFactory) {
-    const char renderModeDescriptor[] = "";
-    ErrorCombination errorsForAllConfigs;
-    uint32_t gmFlags = gm->getFlags();
-
-    for (int i = 0; i < configs.count(); i++) {
-        ConfigData config = gRec[configs[i]];
-        const SkString shortNamePlusConfig = gmmain.make_shortname_plus_config(gm->shortName(),
-                                                                               config.fName);
-
-        // Skip any tests that we don't even need to try.
-        // If any of these were skipped on a per-GM basis, record them as
-        // kIntentionallySkipped.
-        if (kPDF_Backend == config.fBackend) {
-            if (gmFlags & GM::kSkipPDF_Flag) {
-                gmmain.RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
-                                         renderModeDescriptor);
-                errorsForAllConfigs.add(kIntentionallySkipped_ErrorType);
-                continue;
-            }
-        }
-        if ((gmFlags & GM::kSkip565_Flag) &&
-            (kRaster_Backend == config.fBackend) &&
-            (SkBitmap::kRGB_565_Config == config.fConfig)) {
-            gmmain.RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
-                                     renderModeDescriptor);
-            errorsForAllConfigs.add(kIntentionallySkipped_ErrorType);
-            continue;
-        }
-        if (((gmFlags & GM::kSkipGPU_Flag) && kGPU_Backend == config.fBackend) ||
-            ((gmFlags & GM::kGPUOnly_Flag) && kGPU_Backend != config.fBackend)) {
-            gmmain.RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
-                                     renderModeDescriptor);
-            errorsForAllConfigs.add(kIntentionallySkipped_ErrorType);
-            continue;
-        }
-
-        // Now we know that we want to run this test and record its
-        // success or failure.
-        ErrorCombination errorsForThisConfig;
-        GrSurface* gpuTarget = NULL;
-#if SK_SUPPORT_GPU
-        SkAutoTUnref<GrSurface> auGpuTarget;
-        if ((errorsForThisConfig.isEmpty()) && (kGPU_Backend == config.fBackend)) {
-            if (FLAGS_resetGpuContext) {
-                grFactory->destroyContexts();
-            }
-            GrContext* gr = grFactory->get(config.fGLContextType);
-            bool grSuccess = false;
-            if (gr) {
-                // create a render target to back the device
-                GrTextureDesc desc;
-                desc.fConfig = kSkia8888_GrPixelConfig;
-                desc.fFlags = kRenderTarget_GrTextureFlagBit;
-                desc.fWidth = gm->getISize().width();
-                desc.fHeight = gm->getISize().height();
-                desc.fSampleCnt = config.fSampleCnt;
-                auGpuTarget.reset(gr->createUncachedTexture(desc, NULL, 0));
-                if (NULL != auGpuTarget) {
-                    gpuTarget = auGpuTarget;
-                    grSuccess = true;
-                    // Set the user specified cache limits if non-default.
-                    size_t bytes;
-                    int count;
-                    gr->getTextureCacheLimits(&count, &bytes);
-                    if (DEFAULT_CACHE_VALUE != gGpuCacheSizeBytes) {
-                        bytes = static_cast<size_t>(gGpuCacheSizeBytes);
-                    }
-                    if (DEFAULT_CACHE_VALUE != gGpuCacheSizeCount) {
-                        count = gGpuCacheSizeCount;
-                    }
-                    gr->setTextureCacheLimits(count, bytes);
-                }
-            }
-            if (!grSuccess) {
-                errorsForThisConfig.add(kNoGpuContext_ErrorType);
-            }
-        }
-#endif
-
-        SkBitmap comparisonBitmap;
-
-        const char* writePath;
-        if (FLAGS_writePath.count() == 1) {
-            writePath = FLAGS_writePath[0];
-        } else {
-            writePath = NULL;
-        }
-
-        if (errorsForThisConfig.isEmpty()) {
-            errorsForThisConfig.add(gmmain.test_drawing(gm, config, pdfRasterizers,
-                                                        writePath, gpuTarget,
-                                                        &comparisonBitmap));
-            gmmain.RecordTestResults(errorsForThisConfig, shortNamePlusConfig, "");
-        }
-
-        if (FLAGS_deferred && errorsForThisConfig.isEmpty() &&
-            (kGPU_Backend == config.fBackend || kRaster_Backend == config.fBackend)) {
-            errorsForThisConfig.add(gmmain.test_deferred_drawing(gm, config, comparisonBitmap,
-                                                                 gpuTarget));
-        }
-
-        errorsForAllConfigs.add(errorsForThisConfig);
-    }
-    return errorsForAllConfigs;
-}
-
-/**
  * Run this test in a number of different drawing modes (pipe,
  * deferred, tiled, etc.), confirming that the resulting bitmaps all
  * *exactly* match comparisonBitmap.
@@ -1767,6 +1668,139 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
     }
     return errorsForAllModes;
 }
+
+
+/**
+ * Run this test in a number of different configs (8888, 565, PDF,
+ * etc.), confirming that the resulting bitmaps match expectations
+ * (which may be different for each config).
+ *
+ * Returns all errors encountered while doing so.
+ */
+ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
+                                      const SkTDArray<size_t> &configs,
+                                      const SkTDArray<const PDFRasterizerData*> &pdfRasterizers,
+                                      const SkTDArray<SkScalar> &tileGridReplayScales,
+                                      GrContextFactory *grFactory);
+ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
+                                      const SkTDArray<size_t> &configs,
+                                      const SkTDArray<const PDFRasterizerData*> &pdfRasterizers,
+                                      const SkTDArray<SkScalar> &tileGridReplayScales,
+                                      GrContextFactory *grFactory) {
+    const char renderModeDescriptor[] = "";
+    ErrorCombination errorsForAllConfigs;
+    uint32_t gmFlags = gm->getFlags();
+
+    for (int i = 0; i < configs.count(); i++) {
+        ConfigData config = gRec[configs[i]];
+        const SkString shortNamePlusConfig = gmmain.make_shortname_plus_config(gm->shortName(),
+                                                                               config.fName);
+
+        // Skip any tests that we don't even need to try.
+        // If any of these were skipped on a per-GM basis, record them as
+        // kIntentionallySkipped.
+        if (kPDF_Backend == config.fBackend) {
+            if (gmFlags & GM::kSkipPDF_Flag) {
+                gmmain.RecordSkippedTest(shortNamePlusConfig,
+                                         renderModeDescriptor,
+                                         config.fBackend);
+                errorsForAllConfigs.add(kIntentionallySkipped_ErrorType);
+                continue;
+            }
+        }
+        if ((gmFlags & GM::kSkip565_Flag) &&
+            (kRaster_Backend == config.fBackend) &&
+            (SkBitmap::kRGB_565_Config == config.fConfig)) {
+            gmmain.RecordSkippedTest(shortNamePlusConfig,
+                                     renderModeDescriptor,
+                                     config.fBackend);
+            errorsForAllConfigs.add(kIntentionallySkipped_ErrorType);
+            continue;
+        }
+        if (((gmFlags & GM::kSkipGPU_Flag) && kGPU_Backend == config.fBackend) ||
+            ((gmFlags & GM::kGPUOnly_Flag) && kGPU_Backend != config.fBackend)) {
+            gmmain.RecordSkippedTest(shortNamePlusConfig,
+                                     renderModeDescriptor,
+                                     config.fBackend);
+            errorsForAllConfigs.add(kIntentionallySkipped_ErrorType);
+            continue;
+        }
+
+        // Now we know that we want to run this test and record its
+        // success or failure.
+        ErrorCombination errorsForThisConfig;
+        GrSurface* gpuTarget = NULL;
+#if SK_SUPPORT_GPU
+        SkAutoTUnref<GrSurface> auGpuTarget;
+        if ((errorsForThisConfig.isEmpty()) && (kGPU_Backend == config.fBackend)) {
+            if (FLAGS_resetGpuContext) {
+                grFactory->destroyContexts();
+            }
+            GrContext* gr = grFactory->get(config.fGLContextType);
+            bool grSuccess = false;
+            if (gr) {
+                // create a render target to back the device
+                GrTextureDesc desc;
+                desc.fConfig = kSkia8888_GrPixelConfig;
+                desc.fFlags = kRenderTarget_GrTextureFlagBit;
+                desc.fWidth = gm->getISize().width();
+                desc.fHeight = gm->getISize().height();
+                desc.fSampleCnt = config.fSampleCnt;
+                auGpuTarget.reset(gr->createUncachedTexture(desc, NULL, 0));
+                if (NULL != auGpuTarget) {
+                    gpuTarget = auGpuTarget;
+                    grSuccess = true;
+                    // Set the user specified cache limits if non-default.
+                    size_t bytes;
+                    int count;
+                    gr->getTextureCacheLimits(&count, &bytes);
+                    if (DEFAULT_CACHE_VALUE != gGpuCacheSizeBytes) {
+                        bytes = static_cast<size_t>(gGpuCacheSizeBytes);
+                    }
+                    if (DEFAULT_CACHE_VALUE != gGpuCacheSizeCount) {
+                        count = gGpuCacheSizeCount;
+                    }
+                    gr->setTextureCacheLimits(count, bytes);
+                }
+            }
+            if (!grSuccess) {
+                errorsForThisConfig.add(kNoGpuContext_ErrorType);
+            }
+        }
+#endif
+
+        SkBitmap comparisonBitmap;
+
+        const char* writePath;
+        if (FLAGS_writePath.count() == 1) {
+            writePath = FLAGS_writePath[0];
+        } else {
+            writePath = NULL;
+        }
+
+        if (errorsForThisConfig.isEmpty()) {
+            errorsForThisConfig.add(gmmain.test_drawing(gm, config, pdfRasterizers,
+                                                        writePath, gpuTarget,
+                                                        &comparisonBitmap));
+            gmmain.RecordTestResults(errorsForThisConfig, shortNamePlusConfig, "");
+        }
+
+        // TODO: run only if gmmain.test_drawing succeeded.
+        if (kRaster_Backend == config.fBackend) {
+            run_multiple_modes(gmmain, gm, config, comparisonBitmap, tileGridReplayScales);
+        }
+
+        if (FLAGS_deferred && errorsForThisConfig.isEmpty() &&
+            (kGPU_Backend == config.fBackend || kRaster_Backend == config.fBackend)) {
+            errorsForThisConfig.add(gmmain.test_deferred_drawing(gm, config, comparisonBitmap,
+                                                                 gpuTarget));
+        }
+
+        errorsForAllConfigs.add(errorsForThisConfig);
+    }
+    return errorsForAllConfigs;
+}
+
 
 /**
  * Read individual lines from a file, pushing them into the given array.
@@ -2285,32 +2319,48 @@ int tool_main(int argc, char** argv) {
         gm_fprintf(stdout, "%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
                    size.width(), size.height());
 
-        run_multiple_configs(gmmain, gm, configs, pdfRasterizers, grFactory);
-
-        SkBitmap comparisonBitmap;
-        const ConfigData compareConfig =
-            { SkBitmap::kARGB_8888_Config, kRaster_Backend, kDontCare_GLContextType, 0, kRW_ConfigFlag, "comparison", false };
-        gmmain.generate_image(gm, compareConfig, NULL, &comparisonBitmap, false);
-
-        // TODO(epoger): only run this if gmmain.generate_image() succeeded?
-        // Otherwise, what are we comparing against?
-        run_multiple_modes(gmmain, gm, compareConfig, comparisonBitmap, tileGridReplayScales);
+        run_multiple_configs(gmmain, gm, configs, pdfRasterizers, tileGridReplayScales, grFactory);
     }
 
     SkTArray<SkString> modes;
     gmmain.GetRenderModesEncountered(modes);
+    int modeCount = modes.count();
+
+    // Now that we have run all the tests and thus know the full set of renderModes that we
+    // tried to run, we can call RecordTestResults() to record the cases in which we skipped
+    // ALL renderModes.
+    // See http://skbug.com/1994 and https://codereview.chromium.org/129203002/
+    int testCount = gmmain.fTestsSkippedOnAllRenderModes.count();
+    for (int testNum = 0; testNum < testCount; ++testNum) {
+        const SkString &shortNamePlusConfig = gmmain.fTestsSkippedOnAllRenderModes[testNum];
+        for (int modeNum = 0; modeNum < modeCount; ++modeNum) {
+            gmmain.RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
+                                     modes[modeNum].c_str());
+        }
+    }
+
     bool reportError = false;
     if (gmmain.NumSignificantErrors() > 0) {
         reportError = true;
     }
-    int expectedNumberOfTests = gmsRun * (configs.count() + modes.count());
+
+    // We test every GM against every config, and for every raster config also test every mode.
+    int rasterConfigs = 0;
+    for (int i = 0; i < configs.count(); i++) {
+        if (gRec[configs[i]].fBackend == kRaster_Backend) {
+            rasterConfigs++;
+        }
+    }
+    // For raster configs, we run all renderModes; for non-raster configs, just default renderMode
+    const int expectedNumberOfTests = rasterConfigs * gmsRun * modeCount
+                                    + (configs.count() - rasterConfigs) * gmsRun;
 
     // Output summary to stdout.
     if (FLAGS_verbose) {
         gm_fprintf(stdout, "Ran %d GMs\n", gmsRun);
         gm_fprintf(stdout, "... over %2d configs [%s]\n", configs.count(),
                    list_all_config_names(configs).c_str());
-        gm_fprintf(stdout, "...  and %2d modes   [%s]\n", modes.count(), list_all(modes).c_str());
+        gm_fprintf(stdout, "...  and %2d modes   [%s]\n", modeCount, list_all(modes).c_str());
         gm_fprintf(stdout, "... so there should be a total of %d tests.\n", expectedNumberOfTests);
     }
     gmmain.ListErrors(FLAGS_verbose);

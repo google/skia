@@ -1,2 +1,2 @@
-GM: FAILED to write bitmap: gm/tests/outputs/pipe-playback-failure/output-actual/mismatchPath/comparison/selftest1-pipe.png
-GM: ---- comparison/selftest1-pipe.png: 60000 (of 60000) differing pixels, max per-channel mismatch R=135 G=246 B=135 A=0
+GM: ---- 8888/selftest1-pipe.png: 60000 (of 60000) differing pixels, max per-channel mismatch R=135 G=246 B=135 A=0
+GM: ---- 565/selftest1-pipe.png: not computing max per-channel pixel mismatch because non-8888
