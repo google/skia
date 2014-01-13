@@ -37,6 +37,9 @@
 # https://code.google.com/p/skia/issues/detail?id=1882 ('rects GM results need rebaselining')
 rects
 
+# Added for skbug.com/1998 by bsalomon. Will require rebaselining when changes are complete.
+bleed
+
 # Added by sugoi for added test in https://codereview.chromium.org/104853005
 displacement
 

@@ -177,7 +177,7 @@ private:
     void drawBitmapCommon(const SkDraw&,
                           const SkBitmap& bitmap,
                           const SkRect* srcRectPtr,
-                          const SkMatrix&,
+                          const SkSize* dstSizePtr,      // ignored iff srcRectPtr == NULL
                           const SkPaint&,
                           SkCanvas::DrawBitmapRectFlags flags);
 
