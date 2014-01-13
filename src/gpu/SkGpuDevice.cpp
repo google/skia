@@ -922,6 +922,10 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                                                     draw.fClip->getBounds(),
                                                     fContext->getMatrix(),
                                                     &maskRect)) {
+            // The context's matrix may change while creating the mask, so save the CTM here to
+            // pass to filterMaskGPU.
+            const SkMatrix ctm = fContext->getMatrix();
+
             SkIRect finalIRect;
             maskRect.roundOut(&finalIRect);
             if (draw.fClip->quickReject(finalIRect)) {
@@ -940,8 +944,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                 GrTexture* filtered;
 
                 if (paint.getMaskFilter()->filterMaskGPU(mask.texture(),
-                                                         fContext->getMatrix(), maskRect,
-                                                         &filtered, true)) {
+                                                         ctm, maskRect, &filtered, true)) {
                     // filterMaskGPU gives us ownership of a ref to the result
                     SkAutoTUnref<GrTexture> atu(filtered);
 

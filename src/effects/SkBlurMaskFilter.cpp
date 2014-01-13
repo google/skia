@@ -541,7 +541,7 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRect& srcBounds,
 }
 
 bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
-                                         const SkMatrix& matrix,
+                                         const SkMatrix& ctm,
                                          const SkRect& maskRect,
                                          GrTexture** result,
                                          bool canOverwriteSrc) const {
@@ -551,8 +551,7 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
 
     GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
 
-    // FIXME: This isn't the right matrix.
-    SkScalar xformedSigma = this->computeXformedSigma(context->getMatrix());
+    SkScalar xformedSigma = this->computeXformedSigma(ctm);
     SkASSERT(xformedSigma > 0);
 
     // If we're doing a normal blur, we can clobber the pathTexture in the
