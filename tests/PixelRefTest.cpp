@@ -51,7 +51,7 @@ private:
 }  // namespace
 
 DEF_TEST(PixelRef_GenIDChange, r) {
-    SkImageInfo info = SkImageInfo::MakePMPremul(10, 10);
+    SkImageInfo info = { 10, 10, kPMColor_SkColorType, kPremul_SkAlphaType };
 
     SkAutoTUnref<SkPixelRef> pixelRef(SkMallocPixelRef::NewAllocate(info, 0, NULL));
 

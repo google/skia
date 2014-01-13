@@ -85,12 +85,15 @@ SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, void* pixels, size_t
 }
 
 SkSurface_Raster::SkSurface_Raster(SkPixelRef* pr)
-    : INHERITED(pr->info())
+    : INHERITED(pr->info().fWidth, pr->info().fHeight)
 {
-    fBitmap.installPixelRef(pr);
+    const SkImageInfo& info = pr->info();
+
+    fBitmap.setConfig(info, info.minRowBytes());
+    fBitmap.setPixelRef(pr);
     fWeOwnThePixels = true;
 
-    if (!pr->info().isOpaque()) {
+    if (!info.isOpaque()) {
         fBitmap.eraseColor(SK_ColorTRANSPARENT);
     }
 }

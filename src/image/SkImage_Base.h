@@ -13,7 +13,6 @@
 class SkImage_Base : public SkImage {
 public:
     SkImage_Base(int width, int height) : INHERITED(width, height) {}
-    SkImage_Base(const SkImageInfo& info) : INHERITED(info.fWidth, info.fHeight) {}
 
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) = 0;
     virtual void onDrawRectToRect(SkCanvas*, const SkRect* src,

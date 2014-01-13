@@ -74,7 +74,7 @@ SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef) {
 
     SkImage* image = NULL;
     if (canSharePixelRef || bm.isImmutable()) {
-        image = SkNewImageFromPixelRef(bm.pixelRef());
+        image = SkNewImageFromPixelRef(info, bm.pixelRef(), bm.rowBytes());
     } else {
         bm.lockPixels();
         if (bm.getPixels()) {
