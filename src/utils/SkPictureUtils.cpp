@@ -50,6 +50,8 @@ static void nothing_to_do() {}
  */
 class GatherPixelRefDevice : public SkBaseDevice {
 public:
+    SK_DECLARE_INST_COUNT(GatherPixelRefDevice)
+
     GatherPixelRefDevice(int width, int height, PixelRefSet* prset) {
         fSize.set(width, height);
         fEmptyBitmap.setConfig(SkBitmap::kNo_Config, width, height);

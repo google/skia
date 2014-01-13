@@ -65,35 +65,42 @@ static void init_paint(SkPaint* paint, const SkBitmap &bm) {
     paint->setShader(shader)->unref();
 }
 
-typedef void (*DrawBitmapProc)(SkCanvas*, const SkBitmap&, const SkBitmap&, const SkPoint&);
+typedef void (*DrawBitmapProc)(SkCanvas*, const SkBitmap&, 
+                               const SkBitmap&, const SkPoint&,
+                               SkTDArray<SkPixelRef*>* usedPixRefs);
 
 static void drawpaint_proc(SkCanvas* canvas, const SkBitmap& bm,
-                           const SkBitmap& altBM, const SkPoint& pos) {
+                           const SkBitmap& altBM, const SkPoint& pos,
+                           SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
 
     canvas->drawPaint(paint);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 static void drawpoints_proc(SkCanvas* canvas, const SkBitmap& bm,
-                            const SkBitmap& altBM, const SkPoint& pos) {
+                            const SkBitmap& altBM, const SkPoint& pos,
+                            SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
 
-    // draw a slightly inset rect
+    // draw a rect
     SkPoint points[5] = {
-        { pos.fX + 1, pos.fY + 1 },
-        { pos.fX + bm.width() - 2, pos.fY + 1 },
-        { pos.fX + bm.width() - 2, pos.fY + bm.height() - 2 },
-        { pos.fX + 1, pos.fY + bm.height() - 2 },
-        { pos.fX + 1, pos.fY + 1 },
+        { pos.fX, pos.fY }, 
+        { pos.fX + bm.width() - 1, pos.fY }, 
+        { pos.fX + bm.width() - 1, pos.fY + bm.height() - 1 }, 
+        { pos.fX, pos.fY + bm.height() - 1 }, 
+        { pos.fX, pos.fY }, 
     };
 
     canvas->drawPoints(SkCanvas::kPolygon_PointMode, 5, points, paint);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 static void drawrect_proc(SkCanvas* canvas, const SkBitmap& bm,
-                          const SkBitmap& altBM, const SkPoint& pos) {
+                          const SkBitmap& altBM, const SkPoint& pos,
+                          SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
 
@@ -101,10 +108,12 @@ static void drawrect_proc(SkCanvas* canvas, const SkBitmap& bm,
     r.offset(pos.fX, pos.fY);
 
     canvas->drawRect(r, paint);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 static void drawoval_proc(SkCanvas* canvas, const SkBitmap& bm,
-                          const SkBitmap& altBM, const SkPoint& pos) {
+                          const SkBitmap& altBM, const SkPoint& pos,
+                          SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
 
@@ -112,10 +121,12 @@ static void drawoval_proc(SkCanvas* canvas, const SkBitmap& bm,
     r.offset(pos.fX, pos.fY);
 
     canvas->drawOval(r, paint);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 static void drawrrect_proc(SkCanvas* canvas, const SkBitmap& bm,
-                           const SkBitmap& altBM, const SkPoint& pos) {
+                           const SkBitmap& altBM, const SkPoint& pos,
+                           SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
 
@@ -125,10 +136,12 @@ static void drawrrect_proc(SkCanvas* canvas, const SkBitmap& bm,
     SkRRect rr;
     rr.setRectXY(r, SkIntToScalar(bm.width())/4, SkIntToScalar(bm.height())/4);
     canvas->drawRRect(rr, paint);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 static void drawpath_proc(SkCanvas* canvas, const SkBitmap& bm,
-                          const SkBitmap& altBM, const SkPoint& pos) {
+                          const SkBitmap& altBM, const SkPoint& pos,
+                          SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
 
@@ -139,37 +152,46 @@ static void drawpath_proc(SkCanvas* canvas, const SkBitmap& bm,
     path.offset(pos.fX, pos.fY);
 
     canvas->drawPath(path, paint);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 static void drawbitmap_proc(SkCanvas* canvas, const SkBitmap& bm,
-                            const SkBitmap& altBM, const SkPoint& pos) {
+                            const SkBitmap& altBM, const SkPoint& pos,
+                            SkTDArray<SkPixelRef*>* usedPixRefs) {
     canvas->drawBitmap(bm, pos.fX, pos.fY, NULL);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 static void drawbitmap_withshader_proc(SkCanvas* canvas, const SkBitmap& bm,
-                                       const SkBitmap& altBM, const SkPoint& pos) {
+                                       const SkBitmap& altBM, const SkPoint& pos,
+                                       SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
 
     // The bitmap in the paint is ignored unless we're drawing an A8 bitmap
     canvas->drawBitmap(altBM, pos.fX, pos.fY, &paint);
+    *usedPixRefs->append() = bm.pixelRef();
+    *usedPixRefs->append() = altBM.pixelRef();
 }
 
 static void drawsprite_proc(SkCanvas* canvas, const SkBitmap& bm,
-                            const SkBitmap& altBM, const SkPoint& pos) {
+                            const SkBitmap& altBM, const SkPoint& pos,
+                            SkTDArray<SkPixelRef*>* usedPixRefs) {
     const SkMatrix& ctm = canvas->getTotalMatrix();
 
     SkPoint p(pos);
     ctm.mapPoints(&p, 1);
 
     canvas->drawSprite(bm, (int)p.fX, (int)p.fY, NULL);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 #if 0
 // Although specifiable, this case doesn't seem to make sense (i.e., the
 // bitmap in the shader is never used).
 static void drawsprite_withshader_proc(SkCanvas* canvas, const SkBitmap& bm,
-                                       const SkBitmap& altBM, const SkPoint& pos) {
+                                       const SkBitmap& altBM, const SkPoint& pos,
+                                       SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
 
@@ -179,21 +201,26 @@ static void drawsprite_withshader_proc(SkCanvas* canvas, const SkBitmap& bm,
     ctm.mapPoints(&p, 1);
 
     canvas->drawSprite(altBM, (int)p.fX, (int)p.fY, &paint);
+    *usedPixRefs->append() = bm.pixelRef();
+    *usedPixRefs->append() = altBM.pixelRef();
 }
 #endif
 
 static void drawbitmaprect_proc(SkCanvas* canvas, const SkBitmap& bm,
-                                const SkBitmap& altBM, const SkPoint& pos) {
+                                const SkBitmap& altBM, const SkPoint& pos,
+                                SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkRect r = { 0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) };
 
     r.offset(pos.fX, pos.fY);
     canvas->drawBitmapRectToRect(bm, NULL, r, NULL);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 static void drawbitmaprect_withshader_proc(SkCanvas* canvas,
                                            const SkBitmap& bm,
                                            const SkBitmap& altBM,
-                                           const SkPoint& pos) {
+                                           const SkPoint& pos,
+                                           SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
 
@@ -202,29 +229,36 @@ static void drawbitmaprect_withshader_proc(SkCanvas* canvas,
 
     // The bitmap in the paint is ignored unless we're drawing an A8 bitmap
     canvas->drawBitmapRectToRect(altBM, NULL, r, &paint);
+    *usedPixRefs->append() = bm.pixelRef();
+    *usedPixRefs->append() = altBM.pixelRef();
 }
 
 static void drawtext_proc(SkCanvas* canvas, const SkBitmap& bm,
-                          const SkBitmap& altBM, const SkPoint& pos) {
+                          const SkBitmap& altBM, const SkPoint& pos,
+                          SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
     paint.setTextSize(SkIntToScalar(1.5*bm.width()));
 
     canvas->drawText("0", 1, pos.fX, pos.fY+bm.width(), paint);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 static void drawpostext_proc(SkCanvas* canvas, const SkBitmap& bm,
-                             const SkBitmap& altBM, const SkPoint& pos) {
+                             const SkBitmap& altBM, const SkPoint& pos,
+                             SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
     paint.setTextSize(SkIntToScalar(1.5*bm.width()));
 
     SkPoint point = { pos.fX, pos.fY + bm.height() };
     canvas->drawPosText("O", 1, &point, paint);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 static void drawtextonpath_proc(SkCanvas* canvas, const SkBitmap& bm,
-                                const SkBitmap& altBM, const SkPoint& pos) {
+                                const SkBitmap& altBM, const SkPoint& pos,
+                                SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
 
     init_paint(&paint, bm);
@@ -235,18 +269,20 @@ static void drawtextonpath_proc(SkCanvas* canvas, const SkBitmap& bm,
     path.offset(pos.fX, pos.fY+bm.height());
 
     canvas->drawTextOnPath("O", 1, path, NULL, paint);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 static void drawverts_proc(SkCanvas* canvas, const SkBitmap& bm,
-                           const SkBitmap& altBM, const SkPoint& pos) {
+                           const SkBitmap& altBM, const SkPoint& pos,
+                           SkTDArray<SkPixelRef*>* usedPixRefs) {
     SkPaint paint;
     init_paint(&paint, bm);
 
-    SkPoint verts[4] = {
-        { pos.fX+1, pos.fY+1 },
-        { pos.fX + bm.width()-1, pos.fY+1 },
-        { pos.fX + bm.width()-1, pos.fY + bm.height()-1 },
-        { pos.fX+1, pos.fY + bm.height()-1 }
+    SkPoint verts[4] = { 
+        { pos.fX, pos.fY }, 
+        { pos.fX + bm.width(), pos.fY }, 
+        { pos.fX + bm.width(), pos.fY + bm.height() }, 
+        { pos.fX, pos.fY + bm.height() } 
     };
     SkPoint texs[4] = { { 0, 0 },
                         { SkIntToScalar(bm.width()), 0 },
@@ -256,20 +292,25 @@ static void drawverts_proc(SkCanvas* canvas, const SkBitmap& bm,
 
     canvas->drawVertices(SkCanvas::kTriangles_VertexMode, 4, verts, texs, NULL, NULL,
                          indices, 6, paint);
+    *usedPixRefs->append() = bm.pixelRef();
 }
 
 // Return a picture with the bitmaps drawn at the specified positions.
-static SkPicture* record_bitmaps(const SkBitmap bm[], const SkPoint pos[],
-                                 int count, DrawBitmapProc proc) {
+static SkPicture* record_bitmaps(const SkBitmap bm[], 
+                                 const SkPoint pos[],
+                                 SkTDArray<SkPixelRef*> analytic[],
+                                 int count, 
+                                 DrawBitmapProc proc) {
     SkPicture* pic = new SkPicture;
     SkCanvas* canvas = pic->beginRecording(1000, 1000);
     for (int i = 0; i < count; ++i) {
+        analytic[i].rewind();
         canvas->save();
         SkRect clipRect = SkRect::MakeXYWH(pos[i].fX, pos[i].fY,
                                            SkIntToScalar(bm[i].width()),
                                            SkIntToScalar(bm[i].height()));
         canvas->clipRect(clipRect, SkRegion::kIntersect_Op);
-        proc(canvas, bm[i], bm[count+i], pos[i]);
+        proc(canvas, bm[i], bm[count+i], pos[i], &analytic[i]);
         canvas->restore();
     }
     pic->endRecording();
@@ -363,6 +404,62 @@ static void gather_from_image(const SkBitmap& bm, SkPixelRef* const refs[],
     }
 }
 
+void gather_from_analytic(const SkPoint pos[], SkScalar w, SkScalar h,
+                          const SkTDArray<SkPixelRef*> analytic[], 
+                          int count, 
+                          SkTDArray<SkPixelRef*>* result, 
+                          const SkRect& subset) {
+    for (int i = 0; i < count; ++i) {
+        SkRect rect = SkRect::MakeXYWH(pos[i].fX, pos[i].fY, w, h);
+
+        if (SkRect::Intersects(subset, rect)) {
+            result->append(analytic[i].count(), analytic[i].begin());
+        }
+    }
+}
+
+static const DrawBitmapProc gProcs[] = {
+        drawpaint_proc,
+        drawpoints_proc,
+        drawrect_proc,
+        drawoval_proc,
+        drawrrect_proc,
+        drawpath_proc,
+        drawbitmap_proc, 
+        drawbitmap_withshader_proc,
+        drawsprite_proc,
+#if 0
+        drawsprite_withshader_proc,
+#endif
+        drawbitmaprect_proc, 
+        drawbitmaprect_withshader_proc,
+        drawtext_proc,
+        drawpostext_proc,
+        drawtextonpath_proc,
+        drawverts_proc,
+};
+
+static void create_textures(SkBitmap* bm, SkPixelRef** refs, int num, int w, int h) {
+    // Our convention is that the color components contain an encoding of 
+    // the index of their corresponding bitmap/pixelref. (0,0,0,0) is 
+    // reserved for the background
+    for (int i = 0; i < num; ++i) {
+        make_bm(&bm[i], w, h, 
+                SkColorSetARGB(0xFF, 
+                               gColorScale*i+gColorOffset, 
+                               gColorScale*i+gColorOffset, 
+                               gColorScale*i+gColorOffset), 
+                true);
+        refs[i] = bm[i].pixelRef();
+    }
+
+    // The A8 alternate bitmaps are all BW checkerboards
+    for (int i = 0; i < num; ++i) {
+        make_checkerboard(&bm[num+i], w, h, true);
+        refs[num+i] = bm[num+i].pixelRef();
+    }
+}
+
 static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
     const int IW = 32;
     const int IH = IW;
@@ -372,58 +469,21 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
     static const int N = 4;
     SkBitmap bm[2*N];
     SkPixelRef* refs[2*N];
+    SkTDArray<SkPixelRef*> analytic[N];
 
     const SkPoint pos[N] = {
         { 0, 0 }, { W, 0 }, { 0, H }, { W, H }
     };
 
-    // Our convention is that the color components contain an encoding of
-    // the index of their corresponding bitmap/pixelref. (0,0,0,0) is
-    // reserved for the background
-    for (int i = 0; i < N; ++i) {
-        make_bm(&bm[i], IW, IH,
-                SkColorSetARGB(0xFF,
-                               gColorScale*i+gColorOffset,
-                               gColorScale*i+gColorOffset,
-                               gColorScale*i+gColorOffset),
-                true);
-        refs[i] = bm[i].pixelRef();
-    }
-
-    // The A8 alternate bitmaps are all BW checkerboards
-    for (int i = 0; i < N; ++i) {
-        make_checkerboard(&bm[N+i], IW, IH, true);
-        refs[N+i] = bm[N+i].pixelRef();
-    }
-
-    static const DrawBitmapProc procs[] = {
-            drawpaint_proc,
-            drawpoints_proc,
-            drawrect_proc,
-            drawoval_proc,
-            drawrrect_proc,
-            drawpath_proc,
-            drawbitmap_proc,
-            drawbitmap_withshader_proc,
-            drawsprite_proc,
-#if 0
-            drawsprite_withshader_proc,
-#endif
-            drawbitmaprect_proc,
-            drawbitmaprect_withshader_proc,
-            drawtext_proc,
-            drawpostext_proc,
-            drawtextonpath_proc,
-            drawverts_proc,
-    };
+    create_textures(bm, refs, N, IW, IH);
 
     SkRandom rand;
-    for (size_t k = 0; k < SK_ARRAY_COUNT(procs); ++k) {
-        SkAutoTUnref<SkPicture> pic(record_bitmaps(bm, pos, N, procs[k]));
+    for (size_t k = 0; k < SK_ARRAY_COUNT(gProcs); ++k) {
+        SkAutoTUnref<SkPicture> pic(record_bitmaps(bm, pos, analytic, N, gProcs[k]));
 
         REPORTER_ASSERT(reporter, pic->willPlayBackBitmaps() || N == 0);
         // quick check for a small piece of each quadrant, which should just
-        // contain 1 bitmap.
+        // contain 1 or 2 bitmaps.
         for (size_t  i = 0; i < SK_ARRAY_COUNT(pos); ++i) {
             SkRect r;
             r.set(2, 2, W - 2, H - 2);
@@ -453,7 +513,11 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
             SkRect r;
             rand_rect(&r, rand, 2*W, 2*H);
 
-            SkTDArray<SkPixelRef*> array;
+            SkTDArray<SkPixelRef*> fromImage;
+            gather_from_image(image, refs, N, &fromImage, r);
+
+            SkTDArray<SkPixelRef*> fromAnalytic;
+            gather_from_analytic(pos, W, H, analytic, N, &fromAnalytic, r);
 
             SkData* data = SkPictureUtils::GatherPixelRefs(pic, r);
             size_t dataSize = data ? data->size() : 0;
@@ -462,18 +526,22 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
             SkPixelRef** gatherRefs = data ? (SkPixelRef**)(data->data()) : NULL;
             SkAutoDataUnref adu(data);
 
-            gather_from_image(image, refs, N, &array, r);
+            // Everything that we saw drawn should appear in the analytic list
+            // but the analytic list may contain some pixelRefs that were not
+            // seen in the image (e.g., A8 textures used as masks)
+            for (int i = 0; i < fromImage.count(); ++i) {
+                REPORTER_ASSERT(reporter, -1 != fromAnalytic.find(fromImage[i]));
+            }
 
             /*
              *  GatherPixelRefs is conservative, so it can return more bitmaps
-             *  that we actually can see (usually because of conservative bounds
-             *  inflation for antialiasing). Thus our check here is only that
-             *  Gather didn't miss any that we actually saw. Even that isn't
+             *  than are strictly required. Thus our check here is only that
+             *  Gather didn't miss any that we actually needed. Even that isn't
              *  a strict requirement on Gather, which is meant to be quick and
              *  only mostly-correct, but at the moment this test should work.
              */
-            for (int i = 0; i < array.count(); ++i) {
-                bool found = find(gatherRefs, array[i], gatherCount);
+            for (int i = 0; i < fromAnalytic.count(); ++i) {
+                bool found = find(gatherRefs, fromAnalytic[i], gatherCount);
                 REPORTER_ASSERT(reporter, found);
 #if 0
                 // enable this block of code to debug failures, as it will rerun
@@ -483,6 +551,89 @@ static void test_gatherpixelrefs(skiatest::Reporter* reporter) {
                     size_t dataSize = data ? data->size() : 0;
                 }
 #endif
+            }
+        }
+    }
+}
+
+static void test_gatherpixelrefsandrects(skiatest::Reporter* reporter) {
+    const int IW = 32;
+    const int IH = IW;
+    const SkScalar W = SkIntToScalar(IW);
+    const SkScalar H = W;
+
+    static const int N = 4;
+    SkBitmap bm[2*N];
+    SkPixelRef* refs[2*N];
+    SkTDArray<SkPixelRef*> analytic[N];
+
+    const SkPoint pos[N] = {
+        { 0, 0 }, { W, 0 }, { 0, H }, { W, H }
+    };
+
+    create_textures(bm, refs, N, IW, IH);
+
+    SkRandom rand;
+    for (size_t k = 0; k < SK_ARRAY_COUNT(gProcs); ++k) {
+        SkAutoTUnref<SkPicture> pic(record_bitmaps(bm, pos, analytic, N, gProcs[k]));
+
+        REPORTER_ASSERT(reporter, pic->willPlayBackBitmaps() || N == 0);
+
+        SkAutoTUnref<SkPictureUtils::SkPixelRefContainer> prCont(
+                                new SkPictureUtils::SkPixelRefsAndRectsList);
+
+        SkPictureUtils::GatherPixelRefsAndRects(pic, prCont);
+
+        // quick check for a small piece of each quadrant, which should just
+        // contain 1 or 2 bitmaps.
+        for (size_t  i = 0; i < SK_ARRAY_COUNT(pos); ++i) {
+            SkRect r;
+            r.set(2, 2, W - 2, H - 2);
+            r.offset(pos[i].fX, pos[i].fY);
+
+            SkTDArray<SkPixelRef*> gatheredRefs;
+            prCont->query(r, &gatheredRefs);
+
+            int count = gatheredRefs.count();
+            REPORTER_ASSERT(reporter, 1 == count || 2 == count);
+            if (1 == count) {
+                REPORTER_ASSERT(reporter, gatheredRefs[0] == refs[i]);
+            } else if (2 == count) {
+                REPORTER_ASSERT(reporter, 
+                    (gatheredRefs[0] == refs[i] && gatheredRefs[1] == refs[i+N]) ||
+                    (gatheredRefs[1] == refs[i] && gatheredRefs[0] == refs[i+N]));
+            }
+        }
+
+        SkBitmap image;
+        draw(pic, 2*IW, 2*IH, &image);
+
+        // Test a bunch of random (mostly) rects, and compare the gather results
+        // with the analytic results and the pixel refs seen in a rendering.
+        for (int j = 0; j < 100; ++j) {
+            SkRect r;
+            rand_rect(&r, rand, 2*W, 2*H);
+
+            SkTDArray<SkPixelRef*> fromImage;
+            gather_from_image(image, refs, N, &fromImage, r);
+
+            SkTDArray<SkPixelRef*> fromAnalytic;
+            gather_from_analytic(pos, W, H, analytic, N, &fromAnalytic, r);
+
+            SkTDArray<SkPixelRef*> gatheredRefs;
+            prCont->query(r, &gatheredRefs);
+
+            // Everything that we saw drawn should appear in the analytic list
+            // but the analytic list may contain some pixelRefs that were not
+            // seen in the image (e.g., A8 textures used as masks)
+            for (int i = 0; i < fromImage.count(); ++i) {
+                REPORTER_ASSERT(reporter, -1 != fromAnalytic.find(fromImage[i]));
+            }
+
+            // Everything in the analytic list should appear in the gathered
+            // list. 
+            for (int i = 0; i < fromAnalytic.count(); ++i) {
+                REPORTER_ASSERT(reporter, -1 != gatheredRefs.find(fromAnalytic[i]));
             }
         }
     }
@@ -875,6 +1026,7 @@ DEF_TEST(Picture, reporter) {
 #endif
     test_peephole();
     test_gatherpixelrefs(reporter);
+    test_gatherpixelrefsandrects(reporter);
     test_bitmap_with_encoded_data(reporter);
     test_clone_empty(reporter);
     test_clip_bound_opt(reporter);
