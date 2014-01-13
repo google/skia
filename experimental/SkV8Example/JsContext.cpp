@@ -158,13 +158,14 @@ void JsContext::SetStyle(Local<String> name, Local<Value> value,
                          const PropertyCallbackInfo<void>& info,
                          SkPaint& style) {
     Local<String> s = value->ToString();
-    if (s->Length() != 7) {
+    if (s->Length() != 7 && s->Length() != 9) {
         info.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
-                        info.GetIsolate(), "Invalid fill style format."));
+                        info.GetIsolate(),
+                        "Invalid fill style format length."));
         return;
     }
-    char buf[8];
+    char buf[10];
     s->WriteUtf8(buf, sizeof(buf));
 
     if (buf[0] != '#') {
@@ -174,8 +175,14 @@ void JsContext::SetStyle(Local<String> name, Local<Value> value,
         return;
     }
 
+    // Colors can be RRGGBBAA, but SkColor uses ARGB.
     long color = strtol(buf+1, NULL, 16);
-    style.setColor(SkColorSetA(SkColor(color), SK_AlphaOPAQUE));
+    uint32_t alpha = SK_AlphaOPAQUE;
+    if (s->Length() == 9) {
+        alpha = color & 0xFF;
+        color >>= 8;
+    }
+    style.setColor(SkColorSetA(SkColor(color), alpha));
 }
 
 void JsContext::GetFillStyle(Local<String> name,
