@@ -12,13 +12,15 @@ bool SkCachingPixelRef::Install(SkImageGenerator* generator,
                                 SkBitmap* dst) {
     SkImageInfo info;
     SkASSERT(dst != NULL);
-    if (!generator || !generator->getInfo(&info)) {
+    if ((NULL == generator)
+        || !(generator->getInfo(&info))
+        || !dst->setConfig(info, 0)) {
         SkDELETE(generator);
         return false;
     }
     SkAutoTUnref<SkCachingPixelRef> ref(SkNEW_ARGS(SkCachingPixelRef,
                                            (info, generator, dst->rowBytes())));
-    dst->installPixelRef(ref);
+    dst->setPixelRef(ref);
     return true;
 }
 

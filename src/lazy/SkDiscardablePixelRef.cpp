@@ -94,6 +94,6 @@ bool SkInstallDiscardablePixelRef(SkImageGenerator* generator,
     SkAutoTUnref<SkDiscardablePixelRef> ref(
         SkNEW_ARGS(SkDiscardablePixelRef,
                    (info, autoGenerator.detach(), dst->rowBytes(), factory)));
-    dst->installPixelRef(ref);
+    dst->setPixelRef(ref);
     return true;
 }

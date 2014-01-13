@@ -293,10 +293,14 @@ bool SkScaledImageCacheDiscardableAllocator::allocPixelRef(SkBitmap* bitmap,
         return false;
     }
 
-    SkImageInfo info = SkImageInfo::MakeN32(bitmap->width(), bitmap->height(),
-                                            bitmap->alphaType());
+    SkImageInfo info = {
+        bitmap->width(),
+        bitmap->height(),
+        kPMColor_SkColorType,
+        bitmap->alphaType()
+    };
 
-    bitmap->installPixelRef(SkNEW_ARGS(SkOneShotDiscardablePixelRef,
+    bitmap->setPixelRef(SkNEW_ARGS(SkOneShotDiscardablePixelRef,
                                    (info, dm, bitmap->rowBytes())))->unref();
     bitmap->lockPixels();
     return bitmap->readyToDraw();
