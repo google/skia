@@ -155,9 +155,7 @@ static void setup_MC_state(SkMCState* state, const SkMatrix& matrix, const SkReg
      * and some more common complex clips (e.g. a clipRect with a sub-rect
      * clipped out of its interior) without needing to malloc any additional memory.
      */
-    const int clipBufferSize = 4 * sizeof(ClipRect);
-    char clipBuffer[clipBufferSize];
-    SkWriter32 clipWriter(sizeof(ClipRect), clipBuffer, clipBufferSize);
+    SkSWriter32<4*sizeof(ClipRect)> clipWriter;
 
     if (!clip.isEmpty()) {
         // only returns the b/w clip so aa clips fail
@@ -201,9 +199,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
      * some view systems (e.g. Android) that a few non-clipped layers are present
      * and we will not need to malloc any additional memory in those cases.
      */
-    const int layerBufferSize = 3 * sizeof(SkCanvasLayerState);
-    char layerBuffer[layerBufferSize];
-    SkWriter32 layerWriter(sizeof(SkCanvasLayerState), layerBuffer, layerBufferSize);
+    SkSWriter32<3*sizeof(SkCanvasLayerState)> layerWriter;
     int layerCount = 0;
     for (SkCanvas::LayerIter layer(canvas, true/*skipEmptyClips*/); !layer.done(); layer.next()) {
 

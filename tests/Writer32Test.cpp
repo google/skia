@@ -24,13 +24,13 @@ static void test_reserve(skiatest::Reporter* reporter) {
     // There used to be a bug where we'd assert your first reservation had to
     // fit in external storage if you used it.  This would crash in debug mode.
     uint8_t storage[4];
-    SkWriter32 writer(0, storage, sizeof(storage));
+    SkWriter32 writer(storage, sizeof(storage));
     writer.reserve(40);
 }
 
 static void test_string_null(skiatest::Reporter* reporter) {
     uint8_t storage[8];
-    SkWriter32 writer(0, storage, sizeof(storage));
+    SkWriter32 writer(storage, sizeof(storage));
 
     // Can we write NULL?
     writer.writeString(NULL);
@@ -39,7 +39,7 @@ static void test_string_null(skiatest::Reporter* reporter) {
 }
 
 static void test_rewind(skiatest::Reporter* reporter) {
-    SkSWriter32<32> writer(32);
+    SkSWriter32<32> writer;
     int32_t array[3] = { 1, 2, 4 };
 
     REPORTER_ASSERT(reporter, 0 == writer.bytesWritten());
@@ -58,7 +58,7 @@ static void test_rewind(skiatest::Reporter* reporter) {
     // test rewinding past allocated chunks. This used to crash because we
     // didn't truncate our link-list after freeing trailing blocks
     {
-        SkWriter32 writer(64);
+        SkWriter32 writer;
         for (int i = 0; i < 100; ++i) {
             writer.writeInt(i);
         }
@@ -71,7 +71,7 @@ static void test_rewind(skiatest::Reporter* reporter) {
 }
 
 static void test_ptr(skiatest::Reporter* reporter) {
-    SkSWriter32<32> writer(32);
+    SkSWriter32<32> writer;
 
     void* p0 = reporter;
     void* p1 = &writer;
@@ -186,65 +186,59 @@ static void testWritePad(skiatest::Reporter* reporter, SkWriter32* writer) {
     }
 }
 
-DEF_TEST(Writer32, reporter) {
-    // dynamic allocator
-    {
-        SkWriter32 writer(256 * 4);
-        test1(reporter, &writer);
+DEF_TEST(Writer32_dynamic, reporter) {
+    SkWriter32 writer;
+    test1(reporter, &writer);
 
-        writer.reset();
-        test2(reporter, &writer);
+    writer.reset();
+    test2(reporter, &writer);
 
-        writer.reset();
-        testWritePad(reporter, &writer);
-    }
+    writer.reset();
+    testWritePad(reporter, &writer);
+}
 
-    // storage-block
-    {
-        SkWriter32 writer(0);
-        uint32_t storage[256];
-        writer.reset(storage, sizeof(storage));
-        // These three writes are small enough to fit in storage.
-        test1(reporter, &writer);
-        REPORTER_ASSERT(reporter, writer.wroteOnlyToStorage());
+DEF_TEST(Writer32_contiguous, reporter) {
+    uint32_t storage[256];
+    SkWriter32 writer;
+    writer.reset(storage, sizeof(storage));
+    // This write is small enough to fit in storage, so it's contiguous.
+    test1(reporter, &writer);
+    REPORTER_ASSERT(reporter, writer.contiguousArray() != NULL);
 
-        writer.reset(storage, sizeof(storage));
-        test2(reporter, &writer);
-        REPORTER_ASSERT(reporter, writer.wroteOnlyToStorage());
+    // This write is too big for the 32 byte storage block we provide.
+    writer.reset(storage, 32);
+    test2(reporter, &writer);
+    // Some data is in storage, some in writer's internal storage.
+    REPORTER_ASSERT(reporter, writer.contiguousArray() == NULL);
 
-        writer.reset(storage, sizeof(storage));
-        testWritePad(reporter, &writer);
-        REPORTER_ASSERT(reporter, writer.wroteOnlyToStorage());
+    writer.reset();
+    test2(reporter, &writer);
+    // There is no external storage.  All the data is in internal storage,
+    // so we can always read it contiguously.
+    REPORTER_ASSERT(reporter, writer.contiguousArray() != NULL);
+}
 
-        // Try overflowing the storage-block.
-        uint32_t smallStorage[8];
-        writer.reset(smallStorage, sizeof(smallStorage));
-        test2(reporter, &writer);
-        REPORTER_ASSERT(reporter, !writer.wroteOnlyToStorage());
-    }
+DEF_TEST(Writer32_small, reporter) {
+    SkSWriter32<8 * sizeof(intptr_t)> writer;
+    test1(reporter, &writer);
+    writer.reset(); // should just rewind our storage
+    test2(reporter, &writer);
 
-    // small storage
-    {
-        SkSWriter32<8 * sizeof(intptr_t)> writer(100);
-        test1(reporter, &writer);
-        writer.reset(); // should just rewind our storage
-        test2(reporter, &writer);
+    writer.reset();
+    testWritePad(reporter, &writer);
+}
 
-        writer.reset();
-        testWritePad(reporter, &writer);
-    }
+DEF_TEST(Writer32_large, reporter) {
+    SkSWriter32<1024 * sizeof(intptr_t)> writer;
+    test1(reporter, &writer);
+    writer.reset(); // should just rewind our storage
+    test2(reporter, &writer);
 
-    // large storage
-    {
-        SkSWriter32<1024 * sizeof(intptr_t)> writer(100);
-        test1(reporter, &writer);
-        writer.reset(); // should just rewind our storage
-        test2(reporter, &writer);
+    writer.reset();
+    testWritePad(reporter, &writer);
+}
 
-        writer.reset();
-        testWritePad(reporter, &writer);
-    }
-
+DEF_TEST(Writer32_misc, reporter) {
     test_reserve(reporter);
     test_string_null(reporter);
     test_ptr(reporter);

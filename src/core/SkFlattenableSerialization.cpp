@@ -12,7 +12,7 @@
 #include "SkOrderedWriteBuffer.h"
 
 SkData* SkValidatingSerializeFlattenable(SkFlattenable* flattenable) {
-    SkOrderedWriteBuffer writer(1024);
+    SkOrderedWriteBuffer writer;
     writer.setFlags(SkOrderedWriteBuffer::kValidation_Flag);
     writer.writeFlattenable(flattenable);
     uint32_t size = writer.bytesWritten();

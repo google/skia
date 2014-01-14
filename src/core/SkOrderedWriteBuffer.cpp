@@ -14,21 +14,20 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 
-SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize)
+SkOrderedWriteBuffer::SkOrderedWriteBuffer()
     : INHERITED()
     , fFactorySet(NULL)
     , fNamedFactorySet(NULL)
-    , fWriter(minSize)
     , fBitmapHeap(NULL)
     , fTFSet(NULL)
     , fBitmapEncoder(NULL) {
 }
 
-SkOrderedWriteBuffer::SkOrderedWriteBuffer(size_t minSize, void* storage, size_t storageSize)
+SkOrderedWriteBuffer::SkOrderedWriteBuffer(void* storage, size_t storageSize)
     : INHERITED()
     , fFactorySet(NULL)
     , fNamedFactorySet(NULL)
-    , fWriter(minSize, storage, storageSize)
+    , fWriter(storage, storageSize)
     , fBitmapHeap(NULL)
     , fTFSet(NULL)
     , fBitmapEncoder(NULL) {

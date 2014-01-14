@@ -111,7 +111,7 @@ template<> struct SerializationUtils<SkScalar> {
 
 template<typename T>
 static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
-    SkOrderedWriteBuffer writer(1024);
+    SkOrderedWriteBuffer writer;
     writer.setFlags(SkOrderedWriteBuffer::kValidation_Flag);
     SerializationUtils<T>::Write(writer, testObj);
     size_t bytesWritten = writer.bytesWritten();
@@ -142,7 +142,7 @@ static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
 template<typename T>
 static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
                                        skiatest::Reporter* reporter) {
-    SkOrderedWriteBuffer writer(1024);
+    SkOrderedWriteBuffer writer;
     writer.setFlags(SkOrderedWriteBuffer::kValidation_Flag);
     SerializationUtils<T>::Write(writer, testObj);
     size_t bytesWritten = writer.bytesWritten();
@@ -181,7 +181,7 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
 
 template<typename T>
 static void TestArraySerialization(T* data, skiatest::Reporter* reporter) {
-    SkOrderedWriteBuffer writer(1024);
+    SkOrderedWriteBuffer writer;
     writer.setFlags(SkOrderedWriteBuffer::kValidation_Flag);
     SerializationUtils<T>::Write(writer, data, kArraySize);
     size_t bytesWritten = writer.bytesWritten();

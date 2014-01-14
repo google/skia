@@ -1815,9 +1815,7 @@ void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
     SkMaskFilter*   mf = this->getMaskFilter();
     SkRasterizer*   ra = this->getRasterizer();
 
-    SkOrderedWriteBuffer    peBuffer(MIN_SIZE_FOR_EFFECT_BUFFER);
-    SkOrderedWriteBuffer    mfBuffer(MIN_SIZE_FOR_EFFECT_BUFFER);
-    SkOrderedWriteBuffer    raBuffer(MIN_SIZE_FOR_EFFECT_BUFFER);
+    SkOrderedWriteBuffer    peBuffer, mfBuffer, raBuffer;
 
     if (pe) {
         peBuffer.writeFlattenable(pe);
@@ -1845,7 +1843,7 @@ void SkPaint::descriptorProc(const SkDeviceProperties* deviceProperties,
     }
 
 #ifdef SK_BUILD_FOR_ANDROID
-    SkOrderedWriteBuffer androidBuffer(128);
+    SkOrderedWriteBuffer androidBuffer;
     fPaintOptionsAndroid.flatten(androidBuffer);
     descSize += androidBuffer.size();
     entryCount += 1;

@@ -370,7 +370,7 @@ void SkGPipeCanvas::flattenFactoryNames() {
 
 bool SkGPipeCanvas::shuttleBitmap(const SkBitmap& bm, int32_t slot) {
     SkASSERT(shouldFlattenBitmaps(fFlags));
-    SkOrderedWriteBuffer buffer(1024);
+    SkOrderedWriteBuffer buffer;
     buffer.setNamedFactoryRecorder(fFactorySet);
     buffer.writeBitmap(bm);
     this->flattenFactoryNames();
@@ -1146,7 +1146,7 @@ void SkGPipeCanvas::writePaint(const SkPaint& paint) {
                 this->writeOp(kSetAnnotation_DrawOp, 0, 0);
             }
         } else {
-            SkOrderedWriteBuffer buffer(1024);
+            SkOrderedWriteBuffer buffer;
             paint.getAnnotation()->writeToBuffer(buffer);
             const size_t size = buffer.bytesWritten();
             if (this->needOpBytes(size)) {

@@ -9,7 +9,7 @@
 #include "TestClassDef.h"
 
 static size_t Reconstruct(const SkPaint& src, SkPaint* dst) {
-    SkOrderedWriteBuffer writer(64 /*arbitrary*/);
+    SkOrderedWriteBuffer writer;
     src.flatten(writer);
 
     const size_t size = writer.bytesWritten();

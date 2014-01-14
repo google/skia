@@ -147,7 +147,7 @@ SkScalerContext* SkScalerContext::allocNextContext() const {
     SkAutoTUnref<SkTypeface> aur(newFace);
     uint32_t newFontID = newFace->uniqueID();
 
-    SkOrderedWriteBuffer androidBuffer(128);
+    SkOrderedWriteBuffer androidBuffer;
     fPaintOptionsAndroid.flatten(androidBuffer);
 
     SkAutoDescriptor    ad(sizeof(fRec) + androidBuffer.size() + SkDescriptor::ComputeOverhead(2));

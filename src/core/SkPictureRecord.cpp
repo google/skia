@@ -13,7 +13,6 @@
 #include "SkDevice.h"
 #include "SkPictureStateTree.h"
 
-#define MIN_WRITER_SIZE 16384
 #define HEAP_BLOCK_SIZE 4096
 
 enum {
@@ -36,7 +35,6 @@ SkPictureRecord::SkPictureRecord(uint32_t flags, SkBaseDevice* device) :
         fMatrices(&fFlattenableHeap),
         fPaints(&fFlattenableHeap),
         fRegions(&fFlattenableHeap),
-        fWriter(MIN_WRITER_SIZE),
         fRecordFlags(flags) {
 #ifdef SK_DEBUG_SIZE
     fPointBytes = fRectBytes = fTextBytes = 0;

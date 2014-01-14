@@ -17,7 +17,7 @@
 #include "SkOrderedWriteBuffer.h"
 
 static SkColorFilter* reincarnate_colorfilter(SkFlattenable* obj) {
-    SkOrderedWriteBuffer wb(1024);
+    SkOrderedWriteBuffer wb;
     wb.writeFlattenable(obj);
 
     size_t size = wb.size();

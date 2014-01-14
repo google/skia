@@ -1838,7 +1838,7 @@ static void test_isNestedRects(skiatest::Reporter* reporter) {
 
 static void write_and_read_back(skiatest::Reporter* reporter,
                                 const SkPath& p) {
-    SkWriter32 writer(100);
+    SkWriter32 writer;
     writer.writePath(p);
     size_t size = writer.bytesWritten();
     SkAutoMalloc storage(size);
