@@ -13,6 +13,7 @@ from contextlib import closing
 
 import HTMLParser
 import json
+import re
 import svn
 import sys
 import urllib2
@@ -61,12 +62,13 @@ def retrieve_from_googlesource(url):
   """
   with closing(urllib2.urlopen(url)) as f:
     contents = f.read()
-    pre_open = '<pre class="git-blob prettyprint linenums lang-json">'
+    pre_open = '<pre class="git-blob prettyprint linenums lang-(\w+)">'
     pre_close = '</pre>'
-    start_index = contents.find(pre_open)
+    matched_tag = re.search(pre_open, contents).group()
+    start_index = contents.find(matched_tag)
     end_index = contents.find(pre_close)
     parser = HTMLParser.HTMLParser()
-    return parser.unescape(contents[start_index + len(pre_open):end_index])
+    return parser.unescape(contents[start_index + len(matched_tag):end_index])
 
 
 def Get(var_name):

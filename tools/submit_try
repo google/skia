@@ -35,13 +35,13 @@ CQ_BUILDERS = 'cq'
 # Alias which can be used to specify a regex to choose builders.
 REGEX = 'regex'
 
-ALL_ALIASES = [ALL_BUILDERS, COMPILE_BUILDERS, CQ_BUILDERS, REGEX]
+ALL_ALIASES = [ALL_BUILDERS, COMPILE_BUILDERS, REGEX, CQ_BUILDERS]
 
 GIT = 'git.bat' if os.name == 'nt' else 'git'
 
-# Contact information for the build master.
-SKIA_BUILD_MASTER_HOST = str(buildbot_globals.Get('public_master_host'))
-SKIA_BUILD_MASTER_PORT = str(buildbot_globals.Get('public_external_port'))
+# URL of the slaves.cfg file in the Skia buildbot sources.
+SLAVES_CFG_URL = ('https://skia.googlesource.com/buildbot/+/master/'
+                  'master/slaves.cfg')
 
 # All try builders have this suffix.
 TRYBOT_SUFFIX = '-Trybot'
@@ -103,27 +103,34 @@ def GetTryRepo():
                   'defined in the %s file.' % codereview_settings_file)
 
 
-def RetrieveTrybotList(json_filename):
-  """ Retrieve the list of known trybots from the build master, stripping
-  TRYBOT_SUFFIX from the name. """
-  trybots = []
-  connection = httplib.HTTPConnection(SKIA_BUILD_MASTER_HOST,  
-                                      SKIA_BUILD_MASTER_PORT)
-  connection.request('GET', '/json/%s' % json_filename)
-  response = connection.getresponse()  
-  builders = json.load(response)
+def RetrieveTrybotList():
+  """Retrieve the list of known trybots from the checked-in buildbot
+  configuration."""
+  # Retrieve the slaves.cfg file from the repository.
+  slaves_cfg_text = buildbot_globals.retrieve_from_googlesource(SLAVES_CFG_URL)
 
-  for builder in builders:
-    if builder.endswith(TRYBOT_SUFFIX):
-      trybots.append(builder[:-len(TRYBOT_SUFFIX)])
-  return trybots
+  # Execute the slaves.cfg file to obtain the list of slaves.
+  vars = {}
+  exec(slaves_cfg_text, vars)
+  slaves_cfg = vars['slaves']
+
+  # Pull the list of known builders from the slaves list.
+  trybots = set()
+  for slave in slaves_cfg:
+    for builder in slave['builder']:
+      if not builder.endswith(TRYBOT_SUFFIX):
+        trybots.add(builder)
+
+  return list(trybots), vars['cq_trybots']
 
 
-def ValidateArgs(argv, trybots, is_svn=True):
+def ValidateArgs(argv, trybots, cq_trybots, is_svn=True):
   """ Parse and validate command-line arguments. If the arguments are valid,
   returns a tuple of (<changelist name>, <list of trybots>).
 
-  trybots: A list of the known try builders.
+  trybots: list of strings; A list of the known try builders.
+  cq_trybots: list of strings; Trybots who get run by the commit queue.
+  is_svn: bool; whether or not we're in an svn checkout.
   """
 
   class CollectedArgs(object):
@@ -171,7 +178,9 @@ submit_try %s--bot <buildername> [<buildername> ...]
     if arg == '-h' or arg == '--help':
       Error()
     elif arg == '-l' or arg == '--list_bots':
-      format_args = ['\n  '.join(sorted(trybots))] + ALL_ALIASES
+      format_args = ['\n  '.join(sorted(trybots))] + \
+                    ALL_ALIASES + \
+                    ['\n    '.join(sorted(cq_trybots))]
       print (
 """
 submit_try: Available builders:\n  %s
@@ -179,8 +188,8 @@ submit_try: Available builders:\n  %s
 Can also use the following aliases to run on groups of builders-
   %s: Will run against all trybots.
   %s: Will run against all compile trybots.
-  %s: Will run against the same trybots as the commit queue.
   %s: You will be prompted to enter a regex to select builders with.
+  %s: Will run against the same trybots as the commit queue:\n    %s
 
 """ % tuple(format_args))
       sys.exit(0)
@@ -208,7 +217,7 @@ Can also use the following aliases to run on groups of builders-
             elif bot == COMPILE_BUILDERS:
               using_bots = [t for t in trybots if t.startswith('Build')]
             elif bot == CQ_BUILDERS:
-              using_bots = RetrieveTrybotList(json_filename='cqtrybots')
+              using_bots = cq_trybots
             elif bot == REGEX:
               while True:
                 regex = raw_input("Enter your trybot regex: ")
@@ -303,13 +312,14 @@ def SubmitTryRequest(args, is_svn=True):
 
 def main():
   # Retrieve the list of active try builders from the build master.
-  trybots = RetrieveTrybotList(json_filename='trybots')
+  trybots, cq_trybots = RetrieveTrybotList()
 
   # Determine if we're in an SVN checkout.
   is_svn = os.path.isdir('.svn')
 
   # Parse and validate the command-line arguments.
-  args = ValidateArgs(sys.argv[1:], trybots=trybots, is_svn=is_svn)
+  args = ValidateArgs(sys.argv[1:], trybots=trybots, cq_trybots=cq_trybots,
+                      is_svn=is_svn)
 
   # Submit the try request.
   SubmitTryRequest(args, is_svn=is_svn)
