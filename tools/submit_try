@@ -37,6 +37,8 @@ REGEX = 'regex'
 
 ALL_ALIASES = [ALL_BUILDERS, COMPILE_BUILDERS, CQ_BUILDERS, REGEX]
 
+GIT = 'git.bat' if os.name == 'nt' else 'git'
+
 # Contact information for the build master.
 SKIA_BUILD_MASTER_HOST = str(buildbot_globals.Get('public_master_host'))
 SKIA_BUILD_MASTER_PORT = str(buildbot_globals.Get('public_external_port'))
@@ -267,8 +269,13 @@ def SubmitTryRequest(args, is_svn=True):
           proc.communicate()[0]))
     print proc.communicate()[0]
   else:
-    # Create the diff file.
-    cmd = ['git.bat' if os.name == 'nt' else 'git', 'diff', 'origin/master']
+    # Find depot_tools. This is needed to import git_cl and trychange.
+    sys.path.append(FindDepotTools())
+    import git_cl
+    import trychange
+
+    cmd = [GIT, 'diff', git_cl.Changelist().GetUpstreamBranch(),
+           '--no-ext-diff']
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if proc.wait() != 0:
       raise Exception('Failed to capture git diff!')
@@ -279,9 +286,6 @@ def SubmitTryRequest(args, is_svn=True):
       with open(diff_file, 'wb') as f:
         f.write(proc.communicate()[0])
   
-      # Find depot_tools. This is needed to import trychange.
-      sys.path.append(FindDepotTools())
-      import trychange
       try_args = ['--use_svn',
                   '--svn_repo', GetTryRepo(),
                   '--root', GetCheckoutRoot(is_svn),
