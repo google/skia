@@ -454,19 +454,27 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1844781142419806112
+          17126169944686441995
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1934
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "bleed_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          749193672577578009
+          13873798873199505957
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1934
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "blurquickreject_565.png": {
       "allowed-digests": [

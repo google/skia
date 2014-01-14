@@ -595,28 +595,40 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12797119769503552075
+          571716736153958636
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1934
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "bleed_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3372709705477961694
+          14683267657409160253
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1934
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "bleed_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3567942015568388334
+          16421245776926696589
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        1938
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "blurquickreject_565.png": {
       "allowed-digests": [
