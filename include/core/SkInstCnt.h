@@ -20,7 +20,6 @@
 #include "SkTypes.h"
 
 #if SK_ENABLE_INST_COUNT
-#include "SkOnce.h"
 #include "SkTArray.h"
 #include "SkThread.h"
 
@@ -39,14 +38,15 @@ extern bool gPrintInstCount;
 #define SK_DECLARE_INST_COUNT_INTERNAL(className, initStep)                 \
     class SkInstanceCountHelper {                                           \
     public:                                                                 \
+        typedef int (*PFCheckInstCnt)(int level, bool cleanUp);             \
         SkInstanceCountHelper() {                                           \
-            SK_DECLARE_STATIC_ONCE(once);                                   \
-            SkOnce(&once, init, 0);                                         \
+            static bool gInited;                                            \
+            if (!gInited) {                                                 \
+                initStep                                                    \
+                GetChildren() = new SkTArray<PFCheckInstCnt>;               \
+                gInited = true;                                             \
+            }                                                               \
             sk_atomic_inc(GetInstanceCountPtr());                           \
-        }                                                                   \
-                                                                            \
-        static void init(int) {                                             \
-            initStep                                                        \
         }                                                                   \
                                                                             \
         SkInstanceCountHelper(const SkInstanceCountHelper&) {               \
@@ -62,14 +62,9 @@ extern bool gPrintInstCount;
             return &gInstanceCount;                                         \
         }                                                                   \
                                                                             \
-        static SkTArray<int (*)(int, bool)>*& GetChildren() {               \
-            static SkTArray<int (*)(int, bool)>* gChildren;                 \
+        static SkTArray<PFCheckInstCnt>*& GetChildren() {                   \
+            static SkTArray<PFCheckInstCnt>* gChildren;                     \
             return gChildren;                                               \
-        }                                                                   \
-                                                                            \
-        static SkBaseMutex& GetChildrenMutex() {                            \
-            SK_DECLARE_STATIC_MUTEX(childrenMutex);                         \
-            return childrenMutex;                                           \
         }                                                                   \
                                                                             \
     } fInstanceCountHelper;                                                 \
@@ -91,7 +86,7 @@ extern bool gPrintInstCount;
         if (NULL == SkInstanceCountHelper::GetChildren()) {                 \
             return GetInstanceCount();                                      \
         }                                                                   \
-        SkTArray<int (*)(int, bool)>* children = \
+        SkTArray<int (*)(int, bool)>* children =                            \
             SkInstanceCountHelper::GetChildren();                           \
         int childCount = children->count();                                 \
         int count = GetInstanceCount();                                     \
@@ -110,12 +105,8 @@ extern bool gPrintInstCount;
     }                                                                       \
                                                                             \
     static void AddInstChild(int (*childCheckInstCnt)(int, bool)) {         \
-        if (CheckInstanceCount != childCheckInstCnt) {                      \
-            SkAutoMutexAcquire ama(SkInstanceCountHelper::GetChildrenMutex()); \
-            if (NULL == SkInstanceCountHelper::GetChildren()) {             \
-                SkInstanceCountHelper::GetChildren() =                      \
-                    new SkTArray<int (*)(int, bool)>;                       \
-            }                                                               \
+        if (CheckInstanceCount != childCheckInstCnt &&                      \
+            NULL != SkInstanceCountHelper::GetChildren()) {                 \
             SkInstanceCountHelper::GetChildren()->push_back(childCheckInstCnt); \
         }                                                                   \
     }
