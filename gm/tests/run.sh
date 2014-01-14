@@ -120,6 +120,17 @@ function gm_test {
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
+# Swap contents of two files at paths $1 and $2.
+function swap_files {
+  if [ $# != 2 ]; then
+    echo "swap_files requires exactly 2 parameters, got $#"
+    exit 1
+  fi
+  mv "$1" "$1.tmp"
+  mv "$2" "$1"
+  mv "$1.tmp" "$2"
+}
+
 # Create input dir (at path $1) with expectations (both image and json)
 # that gm will match or mismatch as appropriate.
 #
@@ -157,10 +168,10 @@ function create_inputs_dir {
 
   THIS_IMAGE_DIR=$IMAGES_DIR/different-pixels
   mkdir -p $THIS_IMAGE_DIR
-  $GM_BINARY --hierarchy --match selftest2 $CONFIGS -w $THIS_IMAGE_DIR
-  mv $THIS_IMAGE_DIR/8888/selftest2.png $THIS_IMAGE_DIR/8888/selftest1.png
-  mv $THIS_IMAGE_DIR/565/selftest2.png  $THIS_IMAGE_DIR/565/selftest1.png
-  $GM_BINARY --hierarchy --match selftest1 $CONFIGS -r $THIS_IMAGE_DIR \
+  $GM_BINARY --hierarchy --match selftest $CONFIGS -w $THIS_IMAGE_DIR
+  swap_files $THIS_IMAGE_DIR/8888/selftest2.png $THIS_IMAGE_DIR/8888/selftest1.png
+  swap_files $THIS_IMAGE_DIR/565/selftest2.png  $THIS_IMAGE_DIR/565/selftest1.png
+  $GM_BINARY --hierarchy --match selftest $CONFIGS -r $THIS_IMAGE_DIR \
     --writeJsonSummaryPath $JSON_DIR/different-pixels.json
 
   # Create another JSON expectations file which is identical to
@@ -183,9 +194,11 @@ function create_inputs_dir {
 
   echo "# Comment line" >$GM_IGNORE_FAILURES_FILE
   echo "" >>$GM_IGNORE_FAILURES_FILE
-  echo "# ignore any test runs whose filename contains '8888/selfte'" >>$GM_IGNORE_FAILURES_FILE
-  echo "#   (in other words, config is 8888 and test name starts with 'selfte')" >>$GM_IGNORE_FAILURES_FILE
-  echo "8888/selfte" >>$GM_IGNORE_FAILURES_FILE
+  echo "# ignore any runs of the 'selftest1' test" >>$GM_IGNORE_FAILURES_FILE
+  echo "selftest1" >>$GM_IGNORE_FAILURES_FILE
+  echo "" >>$GM_IGNORE_FAILURES_FILE
+  echo "# make sure we don't do partial matches (should NOT ignore 'selftest2' runs)" >>$GM_IGNORE_FAILURES_FILE
+  echo "selftest" >>$GM_IGNORE_FAILURES_FILE
 }
 
 GM_TESTDIR=gm/tests
@@ -209,16 +222,18 @@ gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/images/d
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/compared-against-different-pixels-json"
 
 # Exercise --ignoreFailuresFile flag.
-gm_test "--verbose --hierarchy --match selftest1 --ignoreFailuresFile $GM_IGNORE_FAILURES_FILE $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/ignoring-one-test"
+# This should run two GM tests: selftest1 and selftest2.
+# Failures in selftest1 should be ignored, but failures in selftest2 should not.
+gm_test "--verbose --hierarchy --match selftest --ignoreFailuresFile $GM_IGNORE_FAILURES_FILE $CONFIGS -r $GM_INPUTS/json/different-pixels.json" "$GM_OUTPUTS/ignoring-one-test"
 
 # Compare different pixels, but with a SUBSET of the expectations marked as
 # ignore-failure.
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r $GM_INPUTS/json/different-pixels-ignore-some-failures.json" "$GM_OUTPUTS/ignoring-some-failures"
 
 # Compare generated image against an empty "expected image" dir.
-# Even the tests that have been marked as ignore-failure should show up as
-# no-comparison.
-gm_test "--verbose --hierarchy --match selftest1 --ignoreFailuresFile $GM_IGNORE_FAILURES_FILE $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
+# Even the tests that have been marked as ignore-failure (selftest1) should
+# show up as no-comparison.
+gm_test "--verbose --hierarchy --match selftest --ignoreFailuresFile $GM_IGNORE_FAILURES_FILE $CONFIGS -r $GM_INPUTS/images/empty-dir" "$GM_OUTPUTS/compared-against-empty-dir"
 
 # Compare generated image against a nonexistent "expected image" dir.
 gm_test "--verbose --hierarchy --match selftest1 $CONFIGS -r ../path/to/nowhere" "$GM_OUTPUTS/compared-against-nonexistent-dir"

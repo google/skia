@@ -326,9 +326,9 @@ public:
     /**
      * Returns true if failures on this test should be ignored.
      */
-    bool ShouldIgnoreTest(const SkString &name) const {
-        for (int i = 0; i < fIgnorableTestSubstrings.count(); i++) {
-            if (name.contains(fIgnorableTestSubstrings[i].c_str())) {
+    bool ShouldIgnoreTest(const char *name) const {
+        for (int i = 0; i < fIgnorableTestNames.count(); i++) {
+            if (fIgnorableTestNames[i].equals(name)) {
                 return true;
             }
         }
@@ -918,9 +918,6 @@ public:
     ErrorCombination compare_test_results_to_stored_expectations(
         GM* gm, const ConfigData& gRec, const char* configName,
         const BitmapAndDigest* actualBitmapAndDigest) {
-
-        SkString shortNamePlusConfig = make_shortname_plus_config(gm->shortName(), configName);
-
         ErrorCombination errors;
 
         if (NULL == actualBitmapAndDigest) {
@@ -937,7 +934,7 @@ public:
             errors.add(ErrorCombination(kIntentionallySkipped_ErrorType));
         } else {
             ExpectationsSource *expectationsSource = this->fExpectationsSource.get();
-            SkString nameWithExtension(shortNamePlusConfig);
+            SkString nameWithExtension = make_shortname_plus_config(gm->shortName(), configName);
             nameWithExtension.append(".");
             nameWithExtension.append(kPNG_FileExtension);
 
@@ -956,7 +953,7 @@ public:
                  * See comments above complete_bitmap() for more detail.
                  */
                 Expectations expectations = expectationsSource->get(nameWithExtension.c_str());
-                if (this->ShouldIgnoreTest(shortNamePlusConfig)) {
+                if (this->ShouldIgnoreTest(gm->shortName())) {
                     expectations.setIgnoreFailure(true);
                 }
                 errors.add(compare_to_expectations(expectations, *actualBitmapAndDigest,
@@ -1254,7 +1251,7 @@ public:
 
     bool fUseFileHierarchy, fWriteChecksumBasedFilenames;
     ErrorCombination fIgnorableErrorTypes;
-    SkTArray<SkString> fIgnorableTestSubstrings;
+    SkTArray<SkString> fIgnorableTestNames;
 
     const char* fMismatchPath;
     const char* fMissingExpectationsPath;
@@ -2074,11 +2071,11 @@ static bool parse_flags_ignore_error_types(ErrorCombination* outErrorTypes) {
 }
 
 /**
- * Replace contents of ignoreTestSubstrings with a list of testname/config substrings, indicating
+ * Replace contents of ignoreTestNames with a list of test names, indicating
  * which tests' failures should be ignored.
  */
-static bool parse_flags_ignore_tests(SkTArray<SkString> &ignoreTestSubstrings) {
-    ignoreTestSubstrings.reset();
+static bool parse_flags_ignore_tests(SkTArray<SkString> &ignoreTestNames) {
+    ignoreTestNames.reset();
 
     // Parse --ignoreFailuresFile
     for (int i = 0; i < FLAGS_ignoreFailuresFile.count(); i++) {
@@ -2091,7 +2088,7 @@ static bool parse_flags_ignore_tests(SkTArray<SkString> &ignoreTestSubstrings) {
                 if (thisLine.isEmpty() || thisLine.startsWith('#')) {
                     // skip this line
                 } else {
-                    ignoreTestSubstrings.push_back(thisLine);
+                    ignoreTestNames.push_back(thisLine);
                 }
             }
         }
@@ -2231,7 +2228,7 @@ int tool_main(int argc, char** argv) {
 
     if (!parse_flags_modulo(&moduloRemainder, &moduloDivisor) ||
         !parse_flags_ignore_error_types(&gmmain.fIgnorableErrorTypes) ||
-        !parse_flags_ignore_tests(gmmain.fIgnorableTestSubstrings) ||
+        !parse_flags_ignore_tests(gmmain.fIgnorableTestNames) ||
 #if SK_SUPPORT_GPU
         !parse_flags_gpu_cache(&gGpuCacheSizeBytes, &gGpuCacheSizeCount) ||
 #endif

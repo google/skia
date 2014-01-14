@@ -1,4 +1,4 @@
-# Failures of any GM tests/configs listed in this file will be ignored [1], as
+# Failures of any GM tests listed in this file will be ignored [1], as
 # if they had been marked "ignore-failure": true in the per-builder
 # expected-results.json files.
 #
@@ -9,6 +9,9 @@
 # as status "failure-ignored") and remove the line you added to this file.
 # If there are any lingering failures that need to be suppressed (ignored), you
 # MUST move those suppressions into the per-builder expected-results.json files.
+#
+# The test name must match exactly (no partial string matches).
+# See http://skbug.com/2022
 #
 # Any lines starting with '#' are comments and will be ignored.
 # Other than that, each line must either be whitespace or list just one test.
@@ -25,13 +28,10 @@
 
 # EXAMPLES: (remove the first '#' on each line)
 #
-## Added by edisonn as part of https://codereview.chromium.org/23851037/
-#gradients
-#
 ## Added by epoger as part of MADE-UP BUG
 ## https://code.google.com/p/skia/issues/detail?id=123456 : ignoring failures on
-## gpu config of gradtext GM test
-#gradtext_gpu
+## gradtext GM test
+#gradtext
 
 # Added for skbug.com/1998 by bsalomon. Will require rebaselining when changes are complete.
 bleed
