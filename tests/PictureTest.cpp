@@ -65,7 +65,7 @@ static void init_paint(SkPaint* paint, const SkBitmap &bm) {
     paint->setShader(shader)->unref();
 }
 
-typedef void (*DrawBitmapProc)(SkCanvas*, const SkBitmap&, 
+typedef void (*DrawBitmapProc)(SkCanvas*, const SkBitmap&,
                                const SkBitmap&, const SkPoint&,
                                SkTDArray<SkPixelRef*>* usedPixRefs);
 
@@ -87,11 +87,11 @@ static void drawpoints_proc(SkCanvas* canvas, const SkBitmap& bm,
 
     // draw a rect
     SkPoint points[5] = {
-        { pos.fX, pos.fY }, 
-        { pos.fX + bm.width() - 1, pos.fY }, 
-        { pos.fX + bm.width() - 1, pos.fY + bm.height() - 1 }, 
-        { pos.fX, pos.fY + bm.height() - 1 }, 
-        { pos.fX, pos.fY }, 
+        { pos.fX, pos.fY },
+        { pos.fX + bm.width() - 1, pos.fY },
+        { pos.fX + bm.width() - 1, pos.fY + bm.height() - 1 },
+        { pos.fX, pos.fY + bm.height() - 1 },
+        { pos.fX, pos.fY },
     };
 
     canvas->drawPoints(SkCanvas::kPolygon_PointMode, 5, points, paint);
@@ -278,11 +278,11 @@ static void drawverts_proc(SkCanvas* canvas, const SkBitmap& bm,
     SkPaint paint;
     init_paint(&paint, bm);
 
-    SkPoint verts[4] = { 
-        { pos.fX, pos.fY }, 
-        { pos.fX + bm.width(), pos.fY }, 
-        { pos.fX + bm.width(), pos.fY + bm.height() }, 
-        { pos.fX, pos.fY + bm.height() } 
+    SkPoint verts[4] = {
+        { pos.fX, pos.fY },
+        { pos.fX + bm.width(), pos.fY },
+        { pos.fX + bm.width(), pos.fY + bm.height() },
+        { pos.fX, pos.fY + bm.height() }
     };
     SkPoint texs[4] = { { 0, 0 },
                         { SkIntToScalar(bm.width()), 0 },
@@ -296,10 +296,10 @@ static void drawverts_proc(SkCanvas* canvas, const SkBitmap& bm,
 }
 
 // Return a picture with the bitmaps drawn at the specified positions.
-static SkPicture* record_bitmaps(const SkBitmap bm[], 
+static SkPicture* record_bitmaps(const SkBitmap bm[],
                                  const SkPoint pos[],
                                  SkTDArray<SkPixelRef*> analytic[],
-                                 int count, 
+                                 int count,
                                  DrawBitmapProc proc) {
     SkPicture* pic = new SkPicture;
     SkCanvas* canvas = pic->beginRecording(1000, 1000);
@@ -405,9 +405,9 @@ static void gather_from_image(const SkBitmap& bm, SkPixelRef* const refs[],
 }
 
 static void gather_from_analytic(const SkPoint pos[], SkScalar w, SkScalar h,
-                                 const SkTDArray<SkPixelRef*> analytic[], 
-                                 int count, 
-                                 SkTDArray<SkPixelRef*>* result, 
+                                 const SkTDArray<SkPixelRef*> analytic[],
+                                 int count,
+                                 SkTDArray<SkPixelRef*>* result,
                                  const SkRect& subset) {
     for (int i = 0; i < count; ++i) {
         SkRect rect = SkRect::MakeXYWH(pos[i].fX, pos[i].fY, w, h);
@@ -425,13 +425,13 @@ static const DrawBitmapProc gProcs[] = {
         drawoval_proc,
         drawrrect_proc,
         drawpath_proc,
-        drawbitmap_proc, 
+        drawbitmap_proc,
         drawbitmap_withshader_proc,
         drawsprite_proc,
 #if 0
         drawsprite_withshader_proc,
 #endif
-        drawbitmaprect_proc, 
+        drawbitmaprect_proc,
         drawbitmaprect_withshader_proc,
         drawtext_proc,
         drawpostext_proc,
@@ -440,15 +440,15 @@ static const DrawBitmapProc gProcs[] = {
 };
 
 static void create_textures(SkBitmap* bm, SkPixelRef** refs, int num, int w, int h) {
-    // Our convention is that the color components contain an encoding of 
-    // the index of their corresponding bitmap/pixelref. (0,0,0,0) is 
+    // Our convention is that the color components contain an encoding of
+    // the index of their corresponding bitmap/pixelref. (0,0,0,0) is
     // reserved for the background
     for (int i = 0; i < num; ++i) {
-        make_bm(&bm[i], w, h, 
-                SkColorSetARGB(0xFF, 
-                               gColorScale*i+gColorOffset, 
-                               gColorScale*i+gColorOffset, 
-                               gColorScale*i+gColorOffset), 
+        make_bm(&bm[i], w, h,
+                SkColorSetARGB(0xFF,
+                               gColorScale*i+gColorOffset,
+                               gColorScale*i+gColorOffset,
+                               gColorScale*i+gColorOffset),
                 true);
         refs[i] = bm[i].pixelRef();
     }
@@ -599,7 +599,7 @@ static void test_gatherpixelrefsandrects(skiatest::Reporter* reporter) {
             if (1 == count) {
                 REPORTER_ASSERT(reporter, gatheredRefs[0] == refs[i]);
             } else if (2 == count) {
-                REPORTER_ASSERT(reporter, 
+                REPORTER_ASSERT(reporter,
                     (gatheredRefs[0] == refs[i] && gatheredRefs[1] == refs[i+N]) ||
                     (gatheredRefs[1] == refs[i] && gatheredRefs[0] == refs[i+N]));
             }
@@ -631,7 +631,7 @@ static void test_gatherpixelrefsandrects(skiatest::Reporter* reporter) {
             }
 
             // Everything in the analytic list should appear in the gathered
-            // list. 
+            // list.
             for (int i = 0; i < fromAnalytic.count(); ++i) {
                 REPORTER_ASSERT(reporter, -1 != gatheredRefs.find(fromAnalytic[i]));
             }

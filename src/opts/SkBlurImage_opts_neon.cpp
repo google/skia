@@ -83,11 +83,11 @@ void SkDoubleRowBoxBlur_NEON(const SkPMColor** src, int srcStride, SkPMColor** d
             store_2_pixels<dstDirection>(resultPixels, dptr, width);
 
             if (x >= leftOffset) {
-                sum = vsubw_u8(sum, 
+                sum = vsubw_u8(sum,
                     load_2_pixels<srcDirection>(sptr - leftOffset * srcStrideX, srcStride));
             }
             if (x + rightOffset + 1 < width) {
-                sum = vaddw_u8(sum, 
+                sum = vaddw_u8(sum,
                     load_2_pixels<srcDirection>(sptr + (rightOffset + 1) * srcStrideX, srcStride));
             }
             sptr += srcStrideX;

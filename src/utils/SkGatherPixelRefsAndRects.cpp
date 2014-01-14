@@ -18,7 +18,7 @@ void SkPictureUtils::GatherPixelRefsAndRects(SkPicture* pict,
     SkGatherPixelRefsAndRectsDevice device(pict->width(), pict->height(), prCont);
     SkNoSaveLayerCanvas canvas(&device);
 
-    canvas.clipRect(SkRect::MakeWH(SkIntToScalar(pict->width()), 
+    canvas.clipRect(SkRect::MakeWH(SkIntToScalar(pict->width()),
                                    SkIntToScalar(pict->height())),
                     SkRegion::kIntersect_Op, false);
     canvas.drawPicture(*pict);

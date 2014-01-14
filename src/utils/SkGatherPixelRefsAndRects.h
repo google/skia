@@ -23,7 +23,7 @@ class SkGatherPixelRefsAndRectsDevice : public SkBaseDevice {
 public:
     SK_DECLARE_INST_COUNT(SkGatherPixelRefsAndRectsDevice)
 
-    SkGatherPixelRefsAndRectsDevice(int width, int height, 
+    SkGatherPixelRefsAndRectsDevice(int width, int height,
                                     SkPictureUtils::SkPixelRefContainer* prCont) {
         fSize.set(width, height);
         fPRCont = prCont;
@@ -118,7 +118,7 @@ protected:
         SkRect pathBounds = path.getBounds();
         if (NULL != prePathMatrix) {
             prePathMatrix->mapRect(&pathBounds);
-        } 
+        }
 
         this->drawRect(draw, pathBounds, paint);
     }
@@ -127,7 +127,7 @@ protected:
         SkMatrix totMatrix;
         totMatrix.setConcat(*draw.fMatrix, matrix);
 
-        SkRect bitmapRect = SkRect::MakeWH(SkIntToScalar(bitmap.width()), 
+        SkRect bitmapRect = SkRect::MakeWH(SkIntToScalar(bitmap.width()),
                                            SkIntToScalar(bitmap.height()));
         SkRect mappedRect;
         totMatrix.mapRect(&mappedRect, bitmapRect);
@@ -144,7 +144,7 @@ protected:
         SkMatrix matrix;
         matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
 
-        SkRect bitmapRect = SkRect::MakeWH(SkIntToScalar(bitmap.width()), 
+        SkRect bitmapRect = SkRect::MakeWH(SkIntToScalar(bitmap.width()),
                                            SkIntToScalar(bitmap.height()));
         SkRect mappedRect;
         matrix.mapRect(&mappedRect, bitmapRect);
@@ -159,7 +159,7 @@ protected:
                                 const SkRect* srcOrNull, const SkRect& dst,
                                 const SkPaint& paint,
                                 SkCanvas::DrawBitmapRectFlags flags) SK_OVERRIDE {
-        SkRect bitmapRect = SkRect::MakeWH(SkIntToScalar(bitmap.width()), 
+        SkRect bitmapRect = SkRect::MakeWH(SkIntToScalar(bitmap.width()),
                                            SkIntToScalar(bitmap.height()));
         SkMatrix matrix;
         matrix.setRectToRect(bitmapRect, dst, SkMatrix::kFill_ScaleToFit);
@@ -281,7 +281,7 @@ protected:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) SK_OVERRIDE {
-        this->drawPoints(draw, SkCanvas::kPolygon_PointMode, vertexCount, verts, paint);                                    
+        this->drawPoints(draw, SkCanvas::kPolygon_PointMode, vertexCount, verts, paint);
     }
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) SK_OVERRIDE {
@@ -347,4 +347,3 @@ private:
 };
 
 #endif // SkGatherPixelRefsAndRects_DEFINED
-
