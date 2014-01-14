@@ -111,7 +111,6 @@
     '../gm/polygons.cpp',
     '../gm/quadpaths.cpp',
     '../gm/rects.cpp',
-    '../gm/resizeimagefilter.cpp',
     '../gm/rrect.cpp',
     '../gm/rrects.cpp',
     '../gm/roundrects.cpp',
