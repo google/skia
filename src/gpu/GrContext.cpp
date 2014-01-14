@@ -1134,7 +1134,7 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
 }
 
 void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath& path,
-                                 const SkStrokeRec& stroke) {
+                                 const SkStrokeRec& origStroke) {
     SkASSERT(!path.isEmpty());
 
     // An Assumption here is that path renderer would use some form of tweaking
@@ -1151,18 +1151,18 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
                            GrPathRendererChain::kColor_DrawType;
 
     const SkPath* pathPtr = &path;
-    SkPath tmpPath;
-    SkStrokeRec strokeRec(stroke);
+    SkTLazy<SkPath> tmpPath;
+    SkTCopyOnFirstWrite<SkStrokeRec> stroke(origStroke);
 
     // Try a 1st time without stroking the path and without allowing the SW renderer
-    GrPathRenderer* pr = this->getPathRenderer(*pathPtr, strokeRec, target, false, type);
+    GrPathRenderer* pr = this->getPathRenderer(*pathPtr, *stroke, target, false, type);
 
     if (NULL == pr) {
-        if (!GrPathRenderer::IsStrokeHairlineOrEquivalent(strokeRec, this->getMatrix(), NULL)) {
+        if (!GrPathRenderer::IsStrokeHairlineOrEquivalent(*stroke, this->getMatrix(), NULL)) {
             // It didn't work the 1st time, so try again with the stroked path
-            if (strokeRec.applyToPath(&tmpPath, *pathPtr)) {
-                pathPtr = &tmpPath;
-                strokeRec.setFillStyle();
+            if (stroke->applyToPath(tmpPath.init(), *pathPtr)) {
+                pathPtr = tmpPath.get();
+                stroke.writable()->setFillStyle();
                 if (pathPtr->isEmpty()) {
                     return;
                 }
@@ -1170,7 +1170,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
         }
 
         // This time, allow SW renderer
-        pr = this->getPathRenderer(*pathPtr, strokeRec, target, true, type);
+        pr = this->getPathRenderer(*pathPtr, *stroke, target, true, type);
     }
 
     if (NULL == pr) {
@@ -1180,7 +1180,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
         return;
     }
 
-    pr->drawPath(*pathPtr, strokeRec, target, useCoverageAA);
+    pr->drawPath(*pathPtr, *stroke, target, useCoverageAA);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -877,13 +877,14 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     // where the original path can in fact be modified in place (even though
     // its parameter type is const).
     SkPath* pathPtr = const_cast<SkPath*>(&origSrcPath);
-    SkPath  tmpPath, effectPath;
+    SkTLazy<SkPath> tmpPath;
+    SkTLazy<SkPath> effectPath;
 
     if (prePathMatrix) {
         SkPath* result = pathPtr;
 
         if (!pathIsMutable) {
-            result = &tmpPath;
+            result = tmpPath.init();
             pathIsMutable = true;
         }
         // should I push prePathMatrix on our MV stack temporarily, instead
@@ -897,22 +898,24 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     SkStrokeRec stroke(paint);
     SkPathEffect* pathEffect = paint.getPathEffect();
     const SkRect* cullRect = NULL;  // TODO: what is our bounds?
-    if (pathEffect && pathEffect->filterPath(&effectPath, *pathPtr, &stroke,
+    if (pathEffect && pathEffect->filterPath(effectPath.init(), *pathPtr, &stroke,
                                              cullRect)) {
-        pathPtr = &effectPath;
+        pathPtr = effectPath.get();
+        pathIsMutable = true;
     }
 
     if (paint.getMaskFilter()) {
         if (!stroke.isHairlineStyle()) {
-            if (stroke.applyToPath(&tmpPath, *pathPtr)) {
-                pathPtr = &tmpPath;
+            SkPath* strokedPath = pathIsMutable ? pathPtr : tmpPath.init();
+            if (stroke.applyToPath(strokedPath, *pathPtr)) {
+                pathPtr = strokedPath;
                 pathIsMutable = true;
                 stroke.setFillStyle();
             }
         }
 
         // avoid possibly allocating a new path in transform if we can
-        SkPath* devPathPtr = pathIsMutable ? pathPtr : &tmpPath;
+        SkPath* devPathPtr = pathIsMutable ? pathPtr : tmpPath.init();
 
         // transform the path into device space
         pathPtr->transform(fContext->getMatrix(), devPathPtr);
