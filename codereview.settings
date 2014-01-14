@@ -2,4 +2,5 @@
 CODE_REVIEW_SERVER: codereview.chromium.org
 VIEW_VC: http://code.google.com/p/skia/source/detail?r=
 CC_LIST: skia-review@googlegroups.com
+BUG_PREFIX: skia:
 TRYSERVER_SVN_URL: https://skia-try.googlecode.com/svn
