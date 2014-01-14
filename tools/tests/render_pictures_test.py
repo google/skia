@@ -7,10 +7,6 @@ Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file.
 
 Test the render_pictures binary.
-
-TODO(epoger): Combine with overlapping tools/test_rendering.py and
-tools/test_pictures.py .
-See https://code.google.com/p/skia/issues/detail?id=1943#c2
 """
 
 # System-level imports

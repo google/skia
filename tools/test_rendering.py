@@ -6,7 +6,8 @@ found in the LICENSE file.
 
 Compares the rendererings of serialized SkPictures to expected result.
 
-TODO(epoger): Combine with overlapping tools/tests/render_pictures_test.py .
+TODO(epoger): We believe this script is no longer used, so we have disabled it
+and will remove it on 1 Feb 2014 if nobody objects.
 See https://code.google.com/p/skia/issues/detail?id=1943#c2
 '''
 # common Python modules
@@ -24,11 +25,18 @@ by input with the files in expectedDir. Note, files in directoriers are
 expected to end with .skp.
 '''
 
+def _DieBecauseDeprecated():
+    print ('We believe this script is no longer used, so we have disabled it '
+           'and will remove it on 1 Feb 2014 if nobody objects. See '
+           'https://code.google.com/p/skia/issues/detail?id=1943#c2')
+    sys.exit(-1)
+
 def RunCommand(command):
     """Run a command.
 
     @param command the command as a single string
     """
+    _DieBecauseDeprecated()
     print 'running command [%s]...' % command
     os.system(command)
 
@@ -39,6 +47,7 @@ def FindPathToProgram(program):
 
     @param program the name of the program that is being looked for
     """
+    _DieBecauseDeprecated()
     trunk_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                               os.pardir))
     possible_paths = [os.path.join(trunk_path, 'out', 'Release', program),
@@ -62,6 +71,7 @@ def RenderSkps(inputs, render_dir, render_app, args):
     @param inputs the location(s) to read the serlialized SkPictures
     @param render_dir the location to write out the rendered images
     """
+    _DieBecauseDeprecated()
     renderer_path = FindPathToProgram(render_app)
     inputs_as_string = " ".join(inputs)
     command = '%s %s %s' % (renderer_path, inputs_as_string, render_dir)
@@ -81,6 +91,7 @@ def DiffRenderings(expected_dir, comparison_dir, diff_dir):
            baseline
     @param diff_dir the location to write out the diff results
     """
+    _DieBecauseDeprecated()
     skdiff_path = FindPathToProgram('skdiff')
     RunCommand('%s %s %s %s %s' %
                (skdiff_path, expected_dir, comparison_dir, diff_dir,
@@ -96,6 +107,7 @@ def Cleanup(render_dir_option, diff_dir_option, render_dir, diff_dir):
     @param render_dir the directory where the rendered images were written
     @param diff_dir the directory where the diff results were written
     """
+    _DieBecauseDeprecated()
     if (not render_dir_option):
         if (os.path.isdir(render_dir)):
             shutil.rmtree(render_dir)
@@ -105,6 +117,7 @@ def Cleanup(render_dir_option, diff_dir_option, render_dir, diff_dir):
 
 def TestRenderSkps(inputs, expected_dir, render_dir_option, diff_dir_option,
                    render_app, render_args):
+    _DieBecauseDeprecated()
     if (render_dir_option):
         render_dir = render_dir_option
     else:

@@ -8,7 +8,8 @@ Compares the rendererings of serialized SkPictures to expected images.
 
 Launch with --help to see more information.
 
-TODO(epoger): Combine with overlapping tools/tests/render_pictures_test.py .
+TODO(epoger): We believe this tool is no longer used, so we have disabled it
+and will remove it on 1 Feb 2014 if nobody objects.
 See https://code.google.com/p/skia/issues/detail?id=1943#c2
 '''
 # common Python modules
@@ -60,6 +61,11 @@ def Main(args):
 
     @param The commandline argument list
     """
+    print ('We believe this tool is no longer used, so we have disabled it '
+           'and will remove it on 1 Feb 2014 if nobody objects. See '
+           'https://code.google.com/p/skia/issues/detail?id=1943#c2')
+    sys.exit(-1)
+
     parser = optparse.OptionParser(USAGE_STRING % '%prog' + HELP_STRING)
     parser.add_option('--render_dir', dest='render_dir',
                     help = ("specify the location to output the rendered files."
