@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkLayerDrawLooper.h"

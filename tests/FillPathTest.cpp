@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkRegion.h"
 #include "SkPath.h"
 #include "SkScan.h"

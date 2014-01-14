@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkCommandLineFlags.h"
 #include "SkFontMgr.h"
 #include "SkTypeface.h"

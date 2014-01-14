@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkPathMeasure.h"
 
 static void test_small_segment3() {

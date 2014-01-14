@@ -11,7 +11,6 @@
 #include "SkMathPriv.h"
 #include "SkRegion.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 #if SK_SUPPORT_GPU
 #include "SkGpuDevice.h"

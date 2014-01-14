@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkDeviceLooper.h"
 #include "SkRasterClip.h"
 

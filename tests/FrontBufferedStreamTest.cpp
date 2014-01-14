@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkFrontBufferedStream.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"

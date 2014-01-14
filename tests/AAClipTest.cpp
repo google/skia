@@ -394,7 +394,6 @@ static void test_regressions() {
     }
 }
 
-#include "TestClassDef.h"
 DEF_TEST(AAClip, reporter) {
     test_empty(reporter);
     test_path_bounds(reporter);

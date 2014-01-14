@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkData.h"
 #include "SkDataTable.h"
 #include "SkOrderedReadBuffer.h"

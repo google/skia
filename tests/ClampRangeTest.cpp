@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "gradients/SkClampRange.h"
 #include "SkRandom.h"
 

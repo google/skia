@@ -8,7 +8,6 @@
 #include "SkBitmap.h"
 
 #include "Test.h"
-#include "TestClassDef.h"
 
 static void test_bigwidth(skiatest::Reporter* reporter) {
     SkBitmap bm;

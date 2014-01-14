@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkReader32.h"
 
 static void assert_eof(skiatest::Reporter* reporter, const SkReader32& reader) {

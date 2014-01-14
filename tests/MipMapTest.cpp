@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkMipMap.h"
 #include "SkBitmap.h"
 #include "SkRandom.h"

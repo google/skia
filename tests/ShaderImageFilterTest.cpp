@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkCanvas.h"
 #include "SkShader.h"
 #include "SkRectShaderImageFilter.h"

@@ -14,7 +14,6 @@
 #include "SkColorFilter.h"
 #include "SkGr.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static GrColor filterColor(const GrColor& color, uint32_t flags)  {
     uint32_t mask = 0;

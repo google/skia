@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 // This is a GR test
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"

@@ -7,7 +7,6 @@
 #include "SkDiscardableMemoryPool.h"
 
 #include "Test.h"
-#include "TestClassDef.h"
 
 DEF_TEST(DiscardableMemoryPool, reporter) {
     SkAutoTUnref<SkDiscardableMemoryPool> pool(

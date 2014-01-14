@@ -9,7 +9,6 @@
 #include "SkPathOpsQuad.h"
 #include "SkRRect.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const SkDQuad tests[] = {
     {{{1, 1}, {2, 1}, {0, 2}}},

@@ -9,7 +9,6 @@
 
 #include "GrContextFactory.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 DEF_GPUTEST(GrContextFactoryTest, reporter, factory) {
     // Reset in case some other test has been using it first.

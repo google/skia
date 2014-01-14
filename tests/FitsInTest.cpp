@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkTypes.h"
 #include "SkTFitsIn.h"
 

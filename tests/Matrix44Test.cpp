@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkMatrix44.h"
 
 static bool nearly_equal_double(double a, double b) {

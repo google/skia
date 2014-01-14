@@ -14,7 +14,6 @@
 #include "SkRefCnt.h"
 #include "SkShader.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 struct SkShaderTraits {
     static void flatten(SkOrderedWriteBuffer& buffer, const SkShader& shader) {

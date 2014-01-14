@@ -13,7 +13,6 @@
 #include "GrTexture.h"
 #include "SkTypes.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 DEF_GPUTEST(GrSurfaceTest, reporter, factory) {
     GrContext* context = factory->get(GrContextFactory::kNull_GLContextType);

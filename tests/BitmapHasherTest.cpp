@@ -10,7 +10,6 @@
 #include "SkBitmap.h"
 #include "SkColor.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 // Word size that is large enough to hold results of any checksum type.
 typedef uint64_t checksum_result;

@@ -6,7 +6,6 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
-#include "TestClassDef.h"
 
 // four rects, of four sizes
 // for 3 smaller sizes, tall, wide

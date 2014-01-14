@@ -8,7 +8,6 @@
 #include "SkData.h"
 #include "SkMallocPixelRef.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static void delete_uint8_proc(void* ptr, void*) {
     delete[] static_cast<uint8_t*>(ptr);

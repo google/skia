@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkBitSet.h"
 
 DEF_TEST(BitSet, reporter) {

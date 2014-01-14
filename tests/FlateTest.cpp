@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkData.h"
 #include "SkFlate.h"
 #include "SkStream.h"

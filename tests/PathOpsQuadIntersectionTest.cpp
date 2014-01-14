@@ -10,7 +10,6 @@
 #include "SkPathOpsRect.h"
 #include "SkReduceOrder.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static void standardTestCases(skiatest::Reporter* reporter) {
     bool showSkipped = false;

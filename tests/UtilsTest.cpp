@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkRandom.h"
 #include "SkRefCnt.h"
 #include "SkTSearch.h"

@@ -7,7 +7,6 @@
 #include "PathOpsTestCommon.h"
 #include "SkLineParameters.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 // tests to verify that distance calculations are coded correctly
 static const SkDCubic tests[] = {

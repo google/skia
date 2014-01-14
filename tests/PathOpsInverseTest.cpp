@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 #include "PathOpsExtendedTest.h"
-#include "TestClassDef.h"
 
 DEF_TEST(PathOpsInverse, reporter) {
     SkPath one, two;

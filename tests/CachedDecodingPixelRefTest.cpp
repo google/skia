@@ -17,7 +17,6 @@
 #include "SkUtils.h"
 
 #include "Test.h"
-#include "TestClassDef.h"
 
 /**
  * Fill this bitmap with some color.

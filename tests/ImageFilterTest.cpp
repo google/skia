@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkBicubicImageFilter.h"
 #include "SkBitmap.h"
 #include "SkBitmapDevice.h"

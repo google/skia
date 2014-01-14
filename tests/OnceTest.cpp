@@ -8,7 +8,6 @@
 #include "SkOnce.h"
 #include "SkThreadPool.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static void add_five(int* x) {
     *x += 5;

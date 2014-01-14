@@ -8,7 +8,6 @@
 #include "SkIntersections.h"
 #include "SkPathOpsLine.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 // FIXME: add tests for intersecting, non-intersecting, degenerate, coincident
 static const SkDLine tests[][2] = {

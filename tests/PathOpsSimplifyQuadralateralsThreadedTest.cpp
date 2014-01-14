@@ -6,7 +6,6 @@
  */
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
-#include "TestClassDef.h"
 
 static void testSimplifyQuadralateralsMain(PathOpsThreadState* data)
 {

@@ -13,7 +13,6 @@
 #include "GrGpu.h"
 #include "GrDrawTargetCaps.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static void test_print(skiatest::Reporter*, const GrDrawTargetCaps* caps) {
     // This used to assert.

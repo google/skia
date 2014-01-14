@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkRTConf.h"
 
 DEF_TEST(UnitTest, reporter) {

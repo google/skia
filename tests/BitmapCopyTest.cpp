@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkRect.h"
 

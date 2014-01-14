@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkFloatingPoint.h"
 #include "SkMath.h"
 #include "SkPoint.h"

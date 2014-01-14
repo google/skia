@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkDiscardableMemory.h"
 #include "SkScaledImageCache.h"
 

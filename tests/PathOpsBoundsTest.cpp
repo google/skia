@@ -7,7 +7,6 @@
 #include "PathOpsTestCommon.h"
 #include "SkPathOpsBounds.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const SkRect sectTests[][2] = {
     {{2, 0, 4, 1}, {4, 0, 6, 1}},

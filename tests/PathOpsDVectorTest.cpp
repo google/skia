@@ -7,7 +7,6 @@
 #include "PathOpsTestCommon.h"
 #include "SkPathOpsPoint.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const SkDPoint tests[] = {
     {0, 0},

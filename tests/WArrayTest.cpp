@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 
 // Include the implementation so we can make an appropriate template instance.
 #include "SkAdvancedTypefaceMetrics.h"

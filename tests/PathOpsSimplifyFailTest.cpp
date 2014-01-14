@@ -8,7 +8,6 @@
 #include "SkPath.h"
 #include "SkPoint.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const SkPoint nonFinitePts[] = {
     { SK_ScalarInfinity, 0 },

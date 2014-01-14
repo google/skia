@@ -17,7 +17,6 @@
 #include "SkRect.h"
 #include "SkRRect.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static void test_drawPathEmpty(skiatest::Reporter*, SkCanvas* canvas) {
     // Filling an empty path should not crash.

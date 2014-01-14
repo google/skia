@@ -1,5 +1,4 @@
 #include "Test.h"
-#include "TestClassDef.h"
 
 #include "SkCanvas.h"
 #include "SkDocument.h"

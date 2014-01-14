@@ -7,7 +7,6 @@
 #include "PathOpsTestCommon.h"
 #include "SkPathOpsTriangle.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const SkDTriangle tests[] = {
     {{{2, 0}, {3, 1}, {2, 2}}},

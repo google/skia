@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkPackBits.h"
 
 static const uint16_t gTest0[] = { 0, 0, 1, 1 };

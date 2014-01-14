@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
 #include "SkTLS.h"

@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkMD5.h"
 
 static bool digests_equal(const SkMD5::Digest& expectedDigest, const SkMD5::Digest& computedDigest) {

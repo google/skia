@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkGeometry.h"
 
 static bool nearly_equal(const SkPoint& a, const SkPoint& b) {

@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "picture_utils.h"
 #include "SkString.h"
 

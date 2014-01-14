@@ -87,7 +87,26 @@ namespace skiatest {
     };
 
     typedef SkTRegistry<Test*(*)(void*)> TestRegistry;
-}
+}  // namespace skiatest
+
+/*
+    Use the following macros to make use of the skiatest classes, e.g.
+
+    #include "Test.h"
+
+    DEF_TEST(TestName, reporter) {
+        ...
+        REPORTER_ASSERT(reporter, x == 15);
+        ...
+        REPORTER_ASSERT_MESSAGE(reporter, x == 15, "x should be 15");
+        ...
+        if (x != 15) {
+            ERRORF(reporter, "x should be 15, but is %d", x);
+            return;
+        }
+        ...
+    }
+*/
 
 #define REPORTER_ASSERT(r, cond)                                 \
     do {                                                         \
@@ -115,5 +134,39 @@ namespace skiatest {
         desc.appendf(__VA_ARGS__) ;                 \
         (reporter)->reportFailed(desc);             \
     } while(0)
+
+#define DEF_TEST(name, reporter)                                   \
+    static void name(skiatest::Reporter*);                         \
+    namespace skiatest {                                           \
+    class name##Class : public Test {                              \
+    public:                                                        \
+        static Test* Factory(void*) { return SkNEW(name##Class); } \
+    protected:                                                     \
+        virtual void onGetName(SkString* name) SK_OVERRIDE {       \
+            name->set(#name);                                      \
+        }                                                          \
+        virtual void onRun(Reporter* r) SK_OVERRIDE { name(r); }   \
+    };                                                             \
+    static TestRegistry gReg_##name##Class(name##Class::Factory);  \
+    }                                                              \
+    static void name(skiatest::Reporter* reporter)
+
+#define DEF_GPUTEST(name, reporter, factory)                       \
+    static void name(skiatest::Reporter*, GrContextFactory*);      \
+    namespace skiatest {                                           \
+    class name##Class : public GpuTest {                           \
+    public:                                                        \
+        static Test* Factory(void*) { return SkNEW(name##Class); } \
+    protected:                                                     \
+        virtual void onGetName(SkString* name) SK_OVERRIDE {       \
+            name->set(#name);                                      \
+        }                                                          \
+        virtual void onRun(Reporter* r) SK_OVERRIDE {              \
+            name(r, GetGrContextFactory());                        \
+        }                                                          \
+    };                                                             \
+    static TestRegistry gReg_##name##Class(name##Class::Factory);  \
+    }                                                              \
+    static void name(skiatest::Reporter* reporter, GrContextFactory* factory)
 
 #endif

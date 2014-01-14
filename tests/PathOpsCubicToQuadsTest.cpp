@@ -12,7 +12,6 @@
 #include "SkPathOpsRect.h"
 #include "SkReduceOrder.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static void test(skiatest::Reporter* reporter, const SkDCubic* cubics, const char* name,
                  int firstTest, size_t testCount) {

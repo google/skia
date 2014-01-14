@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkBitmapDevice.h"
 #include "SkColorShader.h"
 #include "SkEmptyShader.h"

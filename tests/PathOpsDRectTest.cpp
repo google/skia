@@ -10,7 +10,6 @@
 #include "SkPathOpsQuad.h"
 #include "SkPathOpsRect.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const SkDLine lineTests[] = {
     {{{2, 1}, {2, 1}}},

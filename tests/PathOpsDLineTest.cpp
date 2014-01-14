@@ -7,7 +7,6 @@
 #include "PathOpsTestCommon.h"
 #include "SkPathOpsLine.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const SkDLine tests[] = {
     {{{2, 1}, {2, 1}}},

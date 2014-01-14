@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkParsePath.h"
 
 static void test_to_from(skiatest::Reporter* reporter, const SkPath& path) {

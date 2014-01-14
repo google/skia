@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkRefDict.h"
 
 class TestRC : public SkRefCnt {

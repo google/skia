@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkTSet.h"
 
 // Tests the SkTSet<T> class template.

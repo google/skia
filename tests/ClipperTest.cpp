@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkCanvas.h"
 #include "SkEdgeClipper.h"
 #include "SkLineClipper.h"

@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkTypeface.h"
 
 DEF_TEST(Typeface, reporter) {

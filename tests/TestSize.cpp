@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkSize.h"
 
 static void TestISize(skiatest::Reporter* reporter) {

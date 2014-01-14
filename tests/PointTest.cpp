@@ -117,7 +117,6 @@ static void test_underflow(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, pt == copy);  // pt is unchanged
 }
 
-#include "TestClassDef.h"
 DEF_TEST(Point, reporter) {
     test_casts(reporter);
 

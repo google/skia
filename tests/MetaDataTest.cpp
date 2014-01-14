@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkMetaData.h"
 
 static void test_ptrs(skiatest::Reporter* reporter) {

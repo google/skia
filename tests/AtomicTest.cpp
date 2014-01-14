@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkThread.h"
 #include "SkThreadUtils.h"
 #include "SkTypes.h"

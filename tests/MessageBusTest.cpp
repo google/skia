@@ -7,7 +7,6 @@
 
 #include "SkMessageBus.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 namespace {
 

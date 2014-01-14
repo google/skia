@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
 #include "SkMatrixUtils.h"

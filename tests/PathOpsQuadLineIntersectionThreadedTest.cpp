@@ -10,7 +10,6 @@
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
 #include "SkReduceOrder.h"
-#include "TestClassDef.h"
 
 static int doIntersect(SkIntersections& intersections, const SkDQuad& quad, const SkDLine& line,
                        bool& flipped) {

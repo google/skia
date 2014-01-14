@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkRandom.h"
 #include "SkReader32.h"
 #include "SkWriter32.h"

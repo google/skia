@@ -8,7 +8,6 @@
 #include "SkOpSegment.h"
 #include "SkTArray.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const SkPoint cubics[][4] = {
 /* 0 */    {{0, 1}, {2, 6}, {4, 2}, {5, 3}},

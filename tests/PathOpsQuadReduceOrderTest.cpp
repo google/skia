@@ -9,7 +9,6 @@
 #include "SkPathOpsRect.h"
 #include "SkReduceOrder.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const SkDQuad testSet[] = {
     {{{1, 1}, {2, 2}, {1, 1.000003}}},

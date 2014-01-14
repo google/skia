@@ -10,7 +10,6 @@
 #include "GrContextFactory.h"
 #include "SkGpuDevice.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const int gWidth = 640;
 static const int gHeight = 480;

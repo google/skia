@@ -8,7 +8,6 @@
 #include "SkChecksum.h"
 #include "SkRandom.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 
 // Murmur3 has an optional third seed argument, so we wrap it to fit a uniform type.

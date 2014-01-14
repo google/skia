@@ -7,7 +7,6 @@
 #include "SkDQuadImplicit.h"
 #include "SkPathOpsQuad.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static bool point_on_parameterized_curve(const SkDQuad& quad, const SkDPoint& point) {
     SkDQuadImplicit q(quad);

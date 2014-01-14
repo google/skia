@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkString.h"
 #include <stdarg.h>
 #include <stdio.h>

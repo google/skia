@@ -11,7 +11,6 @@
 #include "SkPathOpsRect.h"
 #include "SkReduceOrder.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 #if 0 // disable test until stroke reduction is supported
 static bool controls_inside(const SkDCubic& cubic) {

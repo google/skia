@@ -1,5 +1,4 @@
 #include "Test.h"
-#include "TestClassDef.h"
 
 DEF_TEST(memory_calloc, reporter) {
     const size_t kNum = 200;

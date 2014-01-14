@@ -18,7 +18,6 @@
 #include "SkThreadPool.h"
 #include "SkTime.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 #ifdef SK_BUILD_FOR_WIN
     #define PATH_SLASH "\\"

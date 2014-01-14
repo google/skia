@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkSHA1.h"
 
 static bool digests_equal(const SkSHA1::Digest& expectedDigest, const SkSHA1::Digest& computedDigest) {

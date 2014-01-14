@@ -12,7 +12,6 @@
     (!defined(SK_BUILD_FOR_MAC))
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkForceLinking.h"

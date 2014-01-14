@@ -63,7 +63,6 @@
 #include "SkStream.h"
 #include "SkTDArray.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 class Canvas2CanvasClipVisitor : public SkCanvas::ClipVisitor {
 public:

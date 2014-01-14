@@ -11,7 +11,6 @@
 #include "SkPathOpsQuad.h"
 #include "SkReduceOrder.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static struct lineQuad {
     SkDQuad quad;

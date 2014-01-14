@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 #include "SkColorPriv.h"
 #include "SkEndian.h"
 #include "SkFloatBits.h"

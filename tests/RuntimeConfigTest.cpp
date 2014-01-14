@@ -6,7 +6,6 @@
  */
 #include "SkRTConf.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 SK_CONF_DECLARE(int, c_RTConfTestVariable,
                 "test.utils.rtconf.testVariable", 1,

@@ -11,7 +11,6 @@
 #include "GrContextFactory.h"
 #include "SkGpuDevice.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const int X_SIZE = 12;
 static const int Y_SIZE = 12;

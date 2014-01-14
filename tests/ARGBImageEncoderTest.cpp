@@ -11,7 +11,6 @@
 #include "SkCanvas.h"
 #include "SkStream.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static SkBitmap::Config configs[] = {
     SkBitmap::kRGB_565_Config,

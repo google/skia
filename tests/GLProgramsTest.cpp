@@ -21,7 +21,6 @@
 #include "SkChecksum.h"
 #include "SkRandom.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 void GrGLProgramDesc::setRandom(SkRandom* random,
                                 const GrGpuGL* gpu,

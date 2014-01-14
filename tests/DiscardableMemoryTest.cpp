@@ -8,7 +8,6 @@
 #include "SkDiscardableMemory.h"
 
 #include "Test.h"
-#include "TestClassDef.h"
 
 DEF_TEST(DiscardableMemory, reporter) {
     const char testString[] = "HELLO, WORLD!";

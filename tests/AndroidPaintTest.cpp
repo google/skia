@@ -6,7 +6,6 @@
 #include "SkOrderedWriteBuffer.h"
 #include "SkPaint.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static size_t Reconstruct(const SkPaint& src, SkPaint* dst) {
     SkOrderedWriteBuffer writer;

@@ -7,7 +7,6 @@
 #include "PathOpsTestCommon.h"
 #include "SkPathOpsCubic.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const SkDCubic tests[] = {
     {{{2, 0}, {3, 1}, {2, 2}, {1, 1}}},

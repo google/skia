@@ -18,7 +18,6 @@
 #include "SkPixelRef.h"
 #include "SkRect.h"
 #include "Test.h"
-#include "TestClassDef.h"
 
 static const char* boolStr(bool value) {
     return value ? "true" : "false";

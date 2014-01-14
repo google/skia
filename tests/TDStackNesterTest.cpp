@@ -8,7 +8,6 @@
 #include "SkTDStackNester.h"
 
 #include "Test.h"
-#include "TestClassDef.h"
 
 /**
  *  Test SkTDStackNester<int>::push(). Pushes the current count onto the stack,

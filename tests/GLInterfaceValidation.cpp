@@ -6,7 +6,6 @@
  */
 
 #include "Test.h"
-#include "TestClassDef.h"
 
 // This is a GPU-backend specific test
 #if SK_SUPPORT_GPU
