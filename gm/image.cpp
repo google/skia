@@ -178,9 +178,7 @@ protected:
         // since we draw into this directly, we need to start fresh
         sk_bzero(fBuffer, fBufferSize);
 
-        SkImageInfo info = {
-            W, H, kPMColor_SkColorType, kPremul_SkAlphaType
-        };
+        SkImageInfo info = SkImageInfo::MakeN32Premul(W, H);
         SkAutoTUnref<SkSurface> surf0(SkSurface::NewRasterDirect(info, fBuffer, RB));
         SkAutoTUnref<SkSurface> surf1(SkSurface::NewRaster(info));
         SkAutoTUnref<SkSurface> surf2(SkSurface::NewPicture(info.fWidth, info.fHeight));

@@ -9,6 +9,7 @@
 #define SkImageInfo_DEFINED
 
 #include "SkTypes.h"
+#include "SkSize.h"
 
 class SkFlattenableWriteBuffer;
 class SkFlattenableReadBuffer;
@@ -109,6 +110,55 @@ struct SkImageInfo {
     SkColorType fColorType;
     SkAlphaType fAlphaType;
 
+    static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at) {
+        SkASSERT(width >= 0);
+        SkASSERT(height >= 0);
+        SkImageInfo info = {
+            width, height, ct, at
+        };
+        return info;
+    }
+
+    /**
+     *  Sets colortype to the native ARGB32 type.
+     */
+    static SkImageInfo MakeN32(int width, int height, SkAlphaType at) {
+        SkASSERT(width >= 0);
+        SkASSERT(height >= 0);
+        SkImageInfo info = {
+            width, height, kPMColor_SkColorType, at
+        };
+        return info;
+    }
+
+    /**
+     *  Sets colortype to the native ARGB32 type, and the alphatype to premul.
+     */
+    static SkImageInfo MakeN32Premul(int width, int height) {
+        SkASSERT(width >= 0);
+        SkASSERT(height >= 0);
+        SkImageInfo info = {
+            width, height, kPMColor_SkColorType, kPremul_SkAlphaType
+        };
+        return info;
+    }
+    
+    /**
+     *  Sets colortype to the native ARGB32 type, and the alphatype to premul.
+     */
+    static SkImageInfo MakeN32Premul(const SkISize& size) {
+        return MakeN32Premul(size.width(), size.height());
+    }
+    
+    static SkImageInfo MakeA8(int width, int height) {
+        SkASSERT(width >= 0);
+        SkASSERT(height >= 0);
+        SkImageInfo info = {
+            width, height, kAlpha_8_SkColorType, kPremul_SkAlphaType
+        };
+        return info;
+    }
+    
     bool isOpaque() const {
         return SkAlphaTypeIsOpaque(fAlphaType);
     }

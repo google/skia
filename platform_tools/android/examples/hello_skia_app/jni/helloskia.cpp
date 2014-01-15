@@ -26,9 +26,7 @@ JNIEXPORT void JNICALL Java_com_example_HelloSkiaActivity_drawIntoBitmap(JNIEnv*
     AndroidBitmap_getInfo(env, dstBitmap, &dstInfo);
     AndroidBitmap_lockPixels(env, dstBitmap, &dstPixels);
 
-    SkImageInfo info = {
-        dstInfo.width, dstInfo.height, kPMColor_SkColorType, kPremul_SkAlphaType
-    };
+    SkImageInfo info = SkImageInfo::MakeN32Premul(dstInfo.width, dstInfo.height);
 
     // Create a surface from the given bitmap
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterDirect(info, dstPixels, dstInfo.stride));

@@ -15,12 +15,7 @@
 #include "SkGr.h"
 
 bool SkImageFilterUtils::WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result) {
-    SkImageInfo info = {
-        width,
-        height,
-        kPMColor_SkColorType,
-        kPremul_SkAlphaType,
-    };
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
     result->setConfig(info);
     result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
     return true;
