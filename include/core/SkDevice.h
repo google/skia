@@ -211,9 +211,7 @@ protected:
      */
     virtual void clear(SkColor color) = 0;
 
-    /**
-     * Deprecated name for clear.
-     */
+    SK_ATTR_DEPRECATED("use clear() instead")
     void eraseColor(SkColor eraseColor) { this->clear(eraseColor); }
 
     /** These are called inside the per-device-layer loop for each draw call.

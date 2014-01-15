@@ -288,10 +288,7 @@ public:
      */
     bool decodeSubset(SkBitmap* bm, const SkIRect& subset, SkBitmap::Config pref);
 
-    /**
-     *  @Deprecated
-     *  Use decodeSubset instead.
-     */
+    SK_ATTR_DEPRECATED("use decodeSubset() instead")
     bool decodeRegion(SkBitmap* bitmap, const SkIRect& rect, SkBitmap::Config pref) {
         return this->decodeSubset(bitmap, rect, pref);
     }
