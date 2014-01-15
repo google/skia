@@ -4,7 +4,7 @@
 .gclient*
 *.pyc
 gyp/build/
-out/
+out
 third_party/externals/
 xcodebuild/
 TAGS
