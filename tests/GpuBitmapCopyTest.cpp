@@ -40,22 +40,20 @@ struct Pair {
  *  @param success True if the copy succeeded.
  *  @param src A GPU-backed SkBitmap that had copyTo or deepCopyTo called on it.
  *  @param dst SkBitmap that was copied to.
- *  @param deepCopy True if deepCopyTo was used; false if copyTo was used.
+ *  @param expectSameGenID Whether the genIDs should be the same if success is true.
  */
 static void TestIndividualCopy(skiatest::Reporter* reporter, const SkBitmap::Config desiredConfig,
                                const bool success, const SkBitmap& src, const SkBitmap& dst,
-                               const bool deepCopy = true) {
+                               const bool expectSameGenID) {
     if (success) {
         REPORTER_ASSERT(reporter, src.width() == dst.width());
         REPORTER_ASSERT(reporter, src.height() == dst.height());
         REPORTER_ASSERT(reporter, dst.config() == desiredConfig);
         if (src.config() == dst.config()) {
-            // FIXME: When calling copyTo (so deepCopy is false here), sometimes we copy the pixels
-            // exactly, in which case the IDs should be the same, but sometimes we do a bitmap draw,
-            // in which case the IDs should not be the same. Is there any way to determine which is
-            // the case at this point?
-            if (deepCopy) {
+            if (expectSameGenID) {
                 REPORTER_ASSERT(reporter, src.getGenerationID() == dst.getGenerationID());
+            } else {
+                REPORTER_ASSERT(reporter, src.getGenerationID() != dst.getGenerationID());
             }
             REPORTER_ASSERT(reporter, src.pixelRef() != NULL && dst.pixelRef() != NULL);
 
@@ -63,11 +61,17 @@ static void TestIndividualCopy(skiatest::Reporter* reporter, const SkBitmap::Con
             SkBitmap srcReadBack, dstReadBack;
             {
                 SkASSERT(src.getTexture() != NULL);
-                bool readBack = src.pixelRef()->readPixels(&srcReadBack);
+                const SkIPoint origin = src.pixelRefOrigin();
+                const SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY,
+                                                         src.width(), src.height());
+                bool readBack = src.pixelRef()->readPixels(&srcReadBack, &subset);
                 REPORTER_ASSERT(reporter, readBack);
             }
             if (dst.getTexture() != NULL) {
-                bool readBack = dst.pixelRef()->readPixels(&dstReadBack);
+                const SkIPoint origin = dst.pixelRefOrigin();
+                const SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY,
+                                                         dst.width(), dst.height());
+                bool readBack = dst.pixelRef()->readPixels(&dstReadBack, &subset);
                 REPORTER_ASSERT(reporter, readBack);
             } else {
                 // If dst is not a texture, do a copy instead, to the same config as srcReadBack.
@@ -164,7 +168,7 @@ DEF_GPUTEST(GpuBitmapCopy, reporter, factory) {
                            boolStr(canSucceed));
                 }
 
-                TestIndividualCopy(reporter, gPairs[j].fConfig, success, src, dst);
+                TestIndividualCopy(reporter, gPairs[j].fConfig, success, src, dst, true);
 
                 // Test copying the subset bitmap, using both copyTo and deepCopyTo.
                 if (extracted) {
@@ -173,7 +177,7 @@ DEF_GPUTEST(GpuBitmapCopy, reporter, factory) {
                     REPORTER_ASSERT(reporter, success == expected);
                     REPORTER_ASSERT(reporter, success == canSucceed);
                     TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy,
-                                       false);
+                                       true);
 
                     // Reset the bitmap so that a failed copyTo will leave it in the expected state.
                     subsetCopy.reset();
@@ -181,6 +185,32 @@ DEF_GPUTEST(GpuBitmapCopy, reporter, factory) {
                     REPORTER_ASSERT(reporter, success == expected);
                     REPORTER_ASSERT(reporter, success == canSucceed);
                     TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy,
+                                       true);
+
+                    // Now set a bitmap to be a subset that will share the same pixelref.
+                    // This allows testing another case of cloning the genID. When calling copyTo
+                    // on a bitmap representing a subset of its pixelref, the resulting pixelref
+                    // should not share the genID, since we only copied the subset.
+                    SkBitmap trueSubset;
+                    // FIXME: Once https://codereview.chromium.org/109023008/ lands, call
+                    // trueSubset.installPixelRef(src.pixelRef(), subset);
+                    trueSubset.setConfig(gPairs[i].fConfig, W/2, H/2);
+                    trueSubset.setPixelRef(src.pixelRef(), W/2, H/2);
+
+                    subsetCopy.reset();
+                    success = trueSubset.copyTo(&subsetCopy, gPairs[j].fConfig);
+                    REPORTER_ASSERT(reporter, success == expected);
+                    REPORTER_ASSERT(reporter, success == canSucceed);
+                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, trueSubset, subsetCopy,
+                                       false);
+
+                    // deepCopyTo copies the entire pixelref, even if the bitmap only represents
+                    // a subset. Therefore, the result should share the same genID.
+                    subsetCopy.reset();
+                    success = trueSubset.deepCopyTo(&subsetCopy, gPairs[j].fConfig);
+                    REPORTER_ASSERT(reporter, success == expected);
+                    REPORTER_ASSERT(reporter, success == canSucceed);
+                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, trueSubset, subsetCopy,
                                        true);
                 }
             } // for (size_t j = ...

@@ -993,8 +993,8 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
             // did we get lucky and we can just return tmpSrc?
             if (tmpSrc.config() == dstConfig && NULL == alloc) {
                 dst->swap(tmpSrc);
-                if (dst->pixelRef() && this->config() == dstConfig) {
-                    // TODO(scroggo): fix issue 1742
+                // If the result is an exact copy, clone the gen ID.
+                if (dst->pixelRef() && dst->pixelRef()->info() == fPixelRef->info()) {
                     dst->pixelRef()->cloneGenID(*fPixelRef);
                 }
                 return true;
@@ -1010,6 +1010,9 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     if (!src->readyToDraw()) {
         return false;
     }
+
+    // The only way to be readyToDraw is if fPixelRef is non NULL.
+    SkASSERT(fPixelRef != NULL);
 
     SkBitmap tmpDst;
     tmpDst.setConfig(dstConfig, src->width(), src->height(), 0,
@@ -1028,14 +1031,31 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
         return false;
     }
 
+    // pixelRef must be non NULL or tmpDst.readyToDraw() would have
+    // returned false.
+    SkASSERT(tmpDst.pixelRef() != NULL);
+
     /* do memcpy for the same configs cases, else use drawing
     */
     if (src->config() == dstConfig) {
         if (tmpDst.getSize() == src->getSize()) {
             memcpy(tmpDst.getPixels(), src->getPixels(), src->getSafeSize());
             SkPixelRef* pixelRef = tmpDst.pixelRef();
-            if (NULL != pixelRef && NULL != fPixelRef) {
-                // TODO(scroggo): fix issue 1742
+
+            // In order to reach this point, we know that the width, config and
+            // rowbytes of the SkPixelRefs are the same, but it is possible for
+            // the heights to differ, if this SkBitmap's height is a subset of
+            // fPixelRef. Only if the SkPixelRefs' heights match are we
+            // guaranteed that this is an exact copy, meaning we should clone
+            // the genID.
+            if (pixelRef->info().fHeight == fPixelRef->info().fHeight) {
+                // TODO: what to do if the two infos match, BUT
+                // fPixelRef is premul and pixelRef is opaque?
+                // skipping assert for now
+                // https://code.google.com/p/skia/issues/detail?id=2012
+//                SkASSERT(pixelRef->info() == fPixelRef->info());
+                SkASSERT(pixelRef->info().fWidth == fPixelRef->info().fWidth);
+                SkASSERT(pixelRef->info().fColorType == fPixelRef->info().fColorType);
                 pixelRef->cloneGenID(*fPixelRef);
             }
         } else {
@@ -1090,7 +1110,9 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
         if (pixelRef) {
             uint32_t rowBytes;
             if (dstConfig == fConfig) {
-                // TODO(scroggo): fix issue 1742
+                // Since there is no subset to pass to deepCopy, and deepCopy
+                // succeeded, the new pixel ref must be identical.
+                SkASSERT(fPixelRef->info() == pixelRef->info());
                 pixelRef->cloneGenID(*fPixelRef);
                 // Use the same rowBytes as the original.
                 rowBytes = fRowBytes;
