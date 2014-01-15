@@ -1438,16 +1438,8 @@ static void test_isRect_open_close(skiatest::Reporter* reporter) {
     bool isClosed;
 
     path.moveTo(0, 0); path.lineTo(1, 0); path.lineTo(1, 1); path.lineTo(0, 1);
-
-    if (false) {
-        // I think these should pass, but isRect() doesn't behave
-        // this way... yet
-        REPORTER_ASSERT(reporter, path.isRect(NULL, NULL));
-        REPORTER_ASSERT(reporter, path.isRect(&isClosed, NULL));
-        REPORTER_ASSERT(reporter, !isClosed);
-    }
-
     path.close();
+
     REPORTER_ASSERT(reporter, path.isRect(NULL, NULL));
     REPORTER_ASSERT(reporter, path.isRect(&isClosed, NULL));
     REPORTER_ASSERT(reporter, isClosed);
@@ -1488,9 +1480,16 @@ static void test_isRect(skiatest::Reporter* reporter) {
     SkPoint fa[] = {{1, 0}, {8, 0}, {8, 8}, {0, 8}, {0, -1}, {1, -1}}; // non colinear gap
     SkPoint fb[] = {{1, 0}, {8, 0}, {8, 8}, {0, 8}, {0, 1}}; // falls short
 
-    // failing, no close
-    SkPoint c1[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}}; // close doesn't match
-    SkPoint c2[] = {{0, 0}, {1, 0}, {1, 2}, {0, 2}, {0, 1}}; // ditto
+    // no close, but we should detect them as fillably the same as a rect
+    SkPoint c1[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+    SkPoint c2[] = {{0, 0}, {1, 0}, {1, 2}, {0, 2}, {0, 1}};
+    SkPoint c3[] = {{0, 0}, {1, 0}, {1, 2}, {0, 2}, {0, 1}, {0, 0}}; // hit the start
+
+    // like c2, but we double-back on ourselves
+    SkPoint d1[] = {{0, 0}, {1, 0}, {1, 2}, {0, 2}, {0, 1}, {0, 2}};
+    // like c2, but we overshoot the start point
+    SkPoint d2[] = {{0, 0}, {1, 0}, {1, 2}, {0, 2}, {0, -1}};
+    SkPoint d3[] = {{0, 0}, {1, 0}, {1, 2}, {0, 2}, {0, -1}, {0, 0}};
 
     struct IsRectTest {
         SkPoint *fPoints;
@@ -1526,8 +1525,13 @@ static void test_isRect(skiatest::Reporter* reporter) {
         { fa, SK_ARRAY_COUNT(fa), true, false },
         { fb, SK_ARRAY_COUNT(fb), true, false },
 
-        { c1, SK_ARRAY_COUNT(c1), false, false },
-        { c2, SK_ARRAY_COUNT(c2), false, false },
+        { c1, SK_ARRAY_COUNT(c1), false, true },
+        { c2, SK_ARRAY_COUNT(c2), false, true },
+        { c3, SK_ARRAY_COUNT(c3), false, true },
+
+        { d1, SK_ARRAY_COUNT(d1), false, false },
+        { d2, SK_ARRAY_COUNT(d2), false, false },
+        { d3, SK_ARRAY_COUNT(d3), false, false },
     };
 
     const size_t testCount = SK_ARRAY_COUNT(tests);
@@ -3246,7 +3250,7 @@ public:
     }
 };
 
-DEF_TEST(Path, reporter) {
+DEF_TEST(Paths, reporter) {
     SkTSize<SkScalar>::Make(3,4);
 
     SkPath  p, empty;
