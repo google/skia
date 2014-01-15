@@ -1,6 +1,7 @@
 #include "DMWriteTask.h"
 
 #include "DMUtil.h"
+#include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -136,12 +137,17 @@ bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
         unpremul.setConfig(info);
         unpremul.allocPixels();
 
+        // Unpremultiply without changing native byte order.
         SkAutoLockPixels lockSrc(bitmap), lockDst(unpremul);
         const SkPMColor* src = (SkPMColor*)bitmap.getPixels();
-        SkColor* dst = (SkColor*)unpremul.getPixels();
-
+        uint32_t* dst = (uint32_t*)unpremul.getPixels();
         for (size_t i = 0; i < bitmap.getSize()/4; i++) {
-            dst[i] = SkUnPreMultiply::PMColorToColor(src[i]);
+            const U8CPU a = SkGetPackedA32(src[i]);
+            const SkUnPreMultiply::Scale s = SkUnPreMultiply::GetScale(a);
+            dst[i] = SkPackARGB32NoCheck(a,
+                                         SkUnPreMultiply::ApplyScale(s, SkGetPackedR32(src[i])),
+                                         SkUnPreMultiply::ApplyScale(s, SkGetPackedG32(src[i])),
+                                         SkUnPreMultiply::ApplyScale(s, SkGetPackedB32(src[i])));
         }
         bitmap.swap(unpremul);
     }
