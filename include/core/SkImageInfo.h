@@ -142,14 +142,14 @@ struct SkImageInfo {
         };
         return info;
     }
-    
+
     /**
      *  Sets colortype to the native ARGB32 type, and the alphatype to premul.
      */
     static SkImageInfo MakeN32Premul(const SkISize& size) {
         return MakeN32Premul(size.width(), size.height());
     }
-    
+
     static SkImageInfo MakeA8(int width, int height) {
         SkASSERT(width >= 0);
         SkASSERT(height >= 0);
@@ -158,7 +158,7 @@ struct SkImageInfo {
         };
         return info;
     }
-    
+
     bool isOpaque() const {
         return SkAlphaTypeIsOpaque(fAlphaType);
     }
