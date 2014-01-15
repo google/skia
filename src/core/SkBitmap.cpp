@@ -1613,16 +1613,19 @@ void SkBitmap::validate() const {
     SkASSERT(NULL == fColorTable || (unsigned)fColorTable->getRefCnt() < 10000);
     SkASSERT((uint8_t)ComputeBytesPerPixel((Config)fConfig) == fBytesPerPixel);
 
-#if 0   // these asserts are not thread-correct, so disable for now
-    if (fPixelRef) {
-        if (fPixelLockCount > 0) {
-            SkASSERT(fPixelRef->isLocked());
-        } else {
-            SkASSERT(NULL == fPixels);
-            SkASSERT(NULL == fColorTable);
-        }
+    if (fPixels) {
+        SkASSERT(fPixelRef);
+        SkASSERT(fPixelLockCount > 0);
+        SkASSERT(fPixelRef->isLocked());
+        SkASSERT(fPixelRef->rowBytes() == fRowBytes);
+        SkASSERT(fPixelRefOrigin.fX >= 0);
+        SkASSERT(fPixelRefOrigin.fY >= 0);
+        SkASSERT(fPixelRef->info().fWidth >= (int)fWidth + fPixelRefOrigin.fX);
+        SkASSERT(fPixelRef->info().fHeight >= (int)fHeight + fPixelRefOrigin.fY);
+        SkASSERT(fPixelRef->rowBytes() >= fWidth * fBytesPerPixel);
+    } else {
+        SkASSERT(NULL == fColorTable);
     }
-#endif
 }
 #endif
 
