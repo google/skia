@@ -8,14 +8,11 @@
 #include "SkMessageBus.h"
 #include "Test.h"
 
-namespace {
-
 struct TestMessage {
     int x;
     float y;
 };
-
-}  // namespace
+DECLARE_SKMESSAGEBUS_MESSAGE(TestMessage)
 
 DEF_TEST(MessageBus, r) {
     // Register two inboxes to receive all TestMessages.

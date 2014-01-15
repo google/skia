@@ -11,6 +11,7 @@
 #include "GrResourceCache.h"
 #include "GrResource.h"
 
+DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceInvalidatedMessage);
 
 GrResourceKey::ResourceType GrResourceKey::GenerateResourceType() {
     static int32_t gNextType = 0;
@@ -312,8 +313,7 @@ void GrResourceCache::purgeInvalidated() {
         //
         // This is complicated and confusing.  May try this in the future.  For
         // now, these resources are just LRU'd as if we never got the message.
-        GrResourceEntry* entry = fCache.find(invalidated[i].key, GrTFindUnreffedFunctor());
-        if (entry) {
+        while (GrResourceEntry* entry = fCache.find(invalidated[i].key, GrTFindUnreffedFunctor())) {
             this->deleteResource(entry);
         }
     }
