@@ -17,20 +17,25 @@
 
 // Flags used by this file, alphabetically:
 DEFINE_int32(blue, 128, "Value of blue color channel in image, 0-255.");
+DEFINE_int32(border, 4, "Width of the black border around the image.");
 DEFINE_int32(green, 128, "Value of green color channel in image, 0-255.");
 DEFINE_int32(height, 200, "Height of canvas to create.");
 DEFINE_int32(red, 128, "Value of red color channel in image, 0-255.");
 DEFINE_int32(width, 300, "Width of canvas to create.");
 DEFINE_string(writePath, "", "Filepath to write the SKP into.");
 
-static void skpmaker(int width, int height, SkColor color,
+static void skpmaker(int width, int height, int border, SkColor color,
                      const char *writePath) {
     SkPicture pict;
     SkCanvas* canvas = pict.beginRecording(width, height);
     SkPaint paint;
     paint.setStyle(SkPaint::kFill_Style);
-    paint.setColor(color);
+    paint.setColor(SK_ColorBLACK);
     canvas->drawRectCoords(0, 0, SkIntToScalar(width), SkIntToScalar(height), paint);
+    paint.setColor(color);
+    canvas->drawRectCoords(SkIntToScalar(border), SkIntToScalar(border),
+                           SkIntToScalar(width - border*2), SkIntToScalar(height - border*2),
+                           paint);
     pict.endRecording();
     SkFILEWStream stream(writePath);
     pict.serialize(&stream);
@@ -68,7 +73,7 @@ int tool_main(int argc, char** argv) {
     }
 
     SkColor color = SkColorSetRGB(FLAGS_red, FLAGS_green, FLAGS_blue);
-    skpmaker(FLAGS_width, FLAGS_height, color, FLAGS_writePath[0]);
+    skpmaker(FLAGS_width, FLAGS_height, FLAGS_border, color, FLAGS_writePath[0]);
     return 0;
 }
 

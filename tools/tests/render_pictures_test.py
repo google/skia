@@ -40,10 +40,11 @@ class RenderPicturesTest(base_unittest.TestCase):
     expected_summary_dict = {
         "actual-results" : {
             "no-comparison" : {
-                "input.png" : [ "bitmap-64bitMD5", 12793741875005523433 ]
-                }
+                # Manually verified: 640x400 red image with black border
+                "input.png" : [ "bitmap-64bitMD5", 11092453015575919668 ]
             }
         }
+    }
     self._assert_json_contents(output_json_path, expected_summary_dict)
 
   def test_tiled_no_comparison(self):
