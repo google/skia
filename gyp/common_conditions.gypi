@@ -300,9 +300,6 @@
 
     [ 'skia_os == "mac"',
       {
-        'variables': {
-          'mac_sdk%': '<!(python <(DEPTH)/tools/find_mac_sdk.py 10.6)',
-        },
         'defines': [
           'SK_BUILD_FOR_MAC',
         ],
@@ -324,14 +321,7 @@
                 '-Wall',
                 '-Wextra',
                 '-Wno-unused-parameter',
-              ],
-            },
-          }],
-# This old compiler is really bad at figuring out when things are uninitialized, so ignore it.
-          [ '<(mac_sdk)==10.6', {
-            'xcode_settings': {
-              'OTHER_CPLUSPLUSFLAGS': [
-                '-Wno-uninitialized',
+                '-Wno-uninitialized',  # Disabled because we think GCC 4.2 is bad at this.
               ],
             },
           }],
@@ -358,13 +348,7 @@
         },
         'xcode_settings': {
           'GCC_SYMBOLS_PRIVATE_EXTERN': 'NO',
-          'conditions': [
-            [ 'skia_osx_sdkroot==""', {
-              'SDKROOT': 'macosx<(mac_sdk)',  # -isysroot
-            }, {
-              'SDKROOT': '<(skia_osx_sdkroot)',  # -isysroot
-            }],
-           ],
+          'MACOSX_DEPLOYMENT_TARGET': '10.6', # -mmacos-version-min, passed in environment to ld.
 # trying to get this to work, but it needs clang I think...
 #          'WARNING_CFLAGS': '-Wexit-time-destructors',
           'CLANG_WARN_CXX0X_EXTENSIONS': 'NO',

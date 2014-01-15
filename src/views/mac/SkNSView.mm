@@ -11,6 +11,7 @@
 #include "SkCGUtils.h"
 #include "SkEvent.h"
 SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
+#include <OpenGL/gl.h>
 
 //#define FORCE_REDRAW
 // Can be dropped when we no longer support 10.6.
