@@ -1134,6 +1134,30 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "bitmapsource_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16936969780468971111
+        ]
+      ]
+    }, 
+    "bitmapsource_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12413552857813015811
+        ]
+      ]
+    }, 
+    "bitmapsource_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11548583425151143809
+        ]
+      ]
+    }, 
     "bleed_565.png": {
       "allowed-digests": [
         [
@@ -6786,6 +6810,38 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "dropshadowimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2582685482379904897
+        ]
+      ]
+    }, 
+    "dropshadowimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5200829404421093224
+        ]
+      ]
+    }, 
+    "dropshadowimagefilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17349329531560834598
+        ]
+      ]
+    }, 
+    "dropshadowimagefilter_pdf-mac.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8528744705610733725
+        ]
+      ]
+    }, 
     "emptypath_565.png": {
       "allowed-digests": [
         [
@@ -11639,6 +11695,30 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "pictureimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8811101511829617883
+        ]
+      ]
+    }, 
+    "pictureimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8153565158743318328
+        ]
+      ]
+    }, 
+    "pictureimagefilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8153565158743318328
+        ]
+      ]
+    }, 
     "points_565.png": {
       "allowed-digests": [
         [
@@ -12045,6 +12125,30 @@
         1578
       ], 
       "reviewed-by-human": false
+    }, 
+    "resizeimagefilter_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16061468794312122510
+        ]
+      ]
+    }, 
+    "resizeimagefilter_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13576043681950934704
+        ]
+      ]
+    }, 
+    "resizeimagefilter_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3985523225564204304
+        ]
+      ]
     }, 
     "roundrects_565.png": {
       "allowed-digests": [
