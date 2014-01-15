@@ -180,6 +180,26 @@ class Results(object):
     return self._results[type]
 
   @staticmethod
+  def _ignore_builder(builder):
+    """Returns True if we should ignore expectations and actuals for a builder.
+
+    This allows us to ignore builders for which we don't maintain expectations
+    (trybots, Valgrind, ASAN, TSAN), and avoid problems like
+    https://code.google.com/p/skia/issues/detail?id=2036 ('rebaseline_server
+    produces error when trying to add baselines for ASAN/TSAN builders')
+
+    Args:
+      builder: name of this builder, as a string
+
+    Returns:
+      True if we should ignore expectations and actuals for this builder.
+    """
+    return (builder.endswith('-Trybot') or
+            ('Valgrind' in builder) or
+            ('TSAN' in builder) or
+            ('ASAN' in builder))
+
+  @staticmethod
   def _read_dicts_from_root(root, pattern='*.json'):
     """Read all JSON dictionaries within a directory tree.
 
@@ -200,9 +220,7 @@ class Results(object):
     for dirpath, dirnames, filenames in os.walk(root):
       for matching_filename in fnmatch.filter(filenames, pattern):
         builder = os.path.basename(dirpath)
-        # If we are reading from the collection of actual results, skip over
-        # the Trybot results (we don't maintain baselines for them).
-        if builder.endswith('-Trybot'):
+        if Results._ignore_builder(builder):
           continue
         fullpath = os.path.join(dirpath, matching_filename)
         meta_dict[builder] = gm_json.LoadFromFile(fullpath)
@@ -236,11 +254,7 @@ class Results(object):
     for dirpath, dirnames, filenames in os.walk(root):
       for matching_filename in fnmatch.filter(filenames, pattern):
         builder = os.path.basename(dirpath)
-        # We should never encounter Trybot *expectations*, but if we are
-        # writing into the actual-results dir, skip the Trybot actuals.
-        # (I don't know why we would ever write into the actual-results dir,
-        # though.)
-        if builder.endswith('-Trybot'):
+        if Results._ignore_builder(builder):
           continue
         per_builder_dict = meta_dict.get(builder)
         if per_builder_dict is not None:
