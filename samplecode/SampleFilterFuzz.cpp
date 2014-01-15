@@ -251,15 +251,20 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
                      make_scalar(true), make_color(), make_image_filter());
         break;
     case MORPHOLOGY:
-        if (R(2) == 1)
+        if (R(2) == 1) {
             filter = new SkDilateImageFilter(R(static_cast<float>(kBitmapSize)),
                 R(static_cast<float>(kBitmapSize)), make_image_filter());
-        else
+        } else {
             filter = new SkErodeImageFilter(R(static_cast<float>(kBitmapSize)),
                 R(static_cast<float>(kBitmapSize)), make_image_filter());
+        }
         break;
     case BITMAP:
-        filter = new SkBitmapSource(make_bitmap());
+        if (R(2) == 1) {
+            filter = new SkBitmapSource(make_bitmap(), make_rect(), make_rect());
+        } else {
+            filter = new SkBitmapSource(make_bitmap());
+        }
         break;
     case DISPLACE:
         filter = new SkDisplacementMapEffect(make_channel_selector_type(),
