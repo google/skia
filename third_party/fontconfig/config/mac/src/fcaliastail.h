@@ -420,6 +420,8 @@ extern __typeof (FcStrSetDel) FcStrSetDel __attribute((alias("IA__FcStrSetDel"),
 extern __typeof (FcStrSetDestroy) FcStrSetDestroy __attribute((alias("IA__FcStrSetDestroy"), visibility("default")));
 # undef FcStrListCreate
 extern __typeof (FcStrListCreate) FcStrListCreate __attribute((alias("IA__FcStrListCreate"), visibility("default")));
+# undef FcStrListFirst
+extern __typeof (FcStrListFirst) FcStrListFirst __attribute((alias("IA__FcStrListFirst"), visibility("default")));
 # undef FcStrListNext
 extern __typeof (FcStrListNext) FcStrListNext __attribute((alias("IA__FcStrListNext"), visibility("default")));
 # undef FcStrListDone

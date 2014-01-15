@@ -22,9 +22,9 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
-/* total size: 909 unique leaves: 617 */
+/* total size: 911 unique leaves: 617 */
 
-#define LEAF0       (243 * sizeof (FcLangCharSet))
+#define LEAF0       (244 * sizeof (FcLangCharSet))
 #define OFF0        (LEAF0 + 617 * sizeof (FcCharLeaf))
 #define NUM0        (OFF0 + 667 * sizeof (uintptr_t))
 #define SET(n)      (n * sizeof (FcLangCharSet) + offsetof (FcLangCharSet, charset))
@@ -36,12 +36,12 @@
 #define fcLangCharSetIndicesInv (fcLangData.langIndicesInv)
 
 static const struct {
-    FcLangCharSet  langCharSets[243];
+    FcLangCharSet  langCharSets[244];
     FcCharLeaf     leaves[617];
     uintptr_t      leaf_offsets[667];
     FcChar16       numbers[667];
-    FcChar8        langIndices[243];
-    FcChar8        langIndicesInv[243];
+    FcChar8        langIndices[244];
+    FcChar8        langIndicesInv[244];
 } fcLangData = {
 {
     { "aa",  { FC_REF_CONSTANT, 1, OFF(0,0), NUM(0,0) } }, /* 0 */
@@ -212,81 +212,82 @@ static const struct {
     { "ps-pk",  { FC_REF_CONSTANT, 1, OFF(165,343), NUM(165,343) } }, /* 165 */
     { "pt",  { FC_REF_CONSTANT, 1, OFF(166,344), NUM(166,344) } }, /* 166 */
     { "qu",  { FC_REF_CONSTANT, 2, OFF(167,345), NUM(167,345) } }, /* 167 */
-    { "rm",  { FC_REF_CONSTANT, 1, OFF(168,347), NUM(168,347) } }, /* 168 */
-    { "rn",  { FC_REF_CONSTANT, 1, OFF(169,87), NUM(169,87) } }, /* 169 */
-    { "ro",  { FC_REF_CONSTANT, 3, OFF(170,348), NUM(170,348) } }, /* 170 */
-    { "ru",  { FC_REF_CONSTANT, 1, OFF(171,279), NUM(171,279) } }, /* 171 */
-    { "rw",  { FC_REF_CONSTANT, 1, OFF(172,87), NUM(172,87) } }, /* 172 */
-    { "sa",  { FC_REF_CONSTANT, 1, OFF(173,30), NUM(173,30) } }, /* 173 */
-    { "sah",  { FC_REF_CONSTANT, 1, OFF(174,351), NUM(174,351) } }, /* 174 */
-    { "sat",  { FC_REF_CONSTANT, 1, OFF(175,352), NUM(175,352) } }, /* 175 */
-    { "sc",  { FC_REF_CONSTANT, 1, OFF(176,353), NUM(176,353) } }, /* 176 */
-    { "sco",  { FC_REF_CONSTANT, 3, OFF(177,354), NUM(177,354) } }, /* 177 */
-    { "sd",  { FC_REF_CONSTANT, 1, OFF(178,357), NUM(178,357) } }, /* 178 */
-    { "se",  { FC_REF_CONSTANT, 2, OFF(179,358), NUM(179,358) } }, /* 179 */
-    { "sel",  { FC_REF_CONSTANT, 1, OFF(180,279), NUM(180,279) } }, /* 180 */
-    { "sg",  { FC_REF_CONSTANT, 1, OFF(181,360), NUM(181,360) } }, /* 181 */
-    { "sh",  { FC_REF_CONSTANT, 3, OFF(182,361), NUM(182,361) } }, /* 182 */
-    { "shs",  { FC_REF_CONSTANT, 2, OFF(183,364), NUM(183,364) } }, /* 183 */
-    { "si",  { FC_REF_CONSTANT, 1, OFF(184,366), NUM(184,366) } }, /* 184 */
-    { "sid",  { FC_REF_CONSTANT, 2, OFF(185,367), NUM(185,367) } }, /* 185 */
-    { "sk",  { FC_REF_CONSTANT, 2, OFF(186,369), NUM(186,369) } }, /* 186 */
-    { "sl",  { FC_REF_CONSTANT, 2, OFF(187,42), NUM(187,42) } }, /* 187 */
-    { "sm",  { FC_REF_CONSTANT, 2, OFF(188,371), NUM(188,371) } }, /* 188 */
-    { "sma",  { FC_REF_CONSTANT, 1, OFF(189,373), NUM(189,373) } }, /* 189 */
-    { "smj",  { FC_REF_CONSTANT, 1, OFF(190,374), NUM(190,374) } }, /* 190 */
-    { "smn",  { FC_REF_CONSTANT, 2, OFF(191,375), NUM(191,375) } }, /* 191 */
-    { "sms",  { FC_REF_CONSTANT, 3, OFF(192,377), NUM(192,377) } }, /* 192 */
-    { "sn",  { FC_REF_CONSTANT, 1, OFF(193,87), NUM(193,87) } }, /* 193 */
-    { "so",  { FC_REF_CONSTANT, 1, OFF(194,87), NUM(194,87) } }, /* 194 */
-    { "sq",  { FC_REF_CONSTANT, 1, OFF(195,380), NUM(195,380) } }, /* 195 */
-    { "sr",  { FC_REF_CONSTANT, 1, OFF(196,381), NUM(196,381) } }, /* 196 */
-    { "ss",  { FC_REF_CONSTANT, 1, OFF(197,87), NUM(197,87) } }, /* 197 */
-    { "st",  { FC_REF_CONSTANT, 1, OFF(198,87), NUM(198,87) } }, /* 198 */
-    { "su",  { FC_REF_CONSTANT, 1, OFF(199,118), NUM(199,118) } }, /* 199 */
-    { "sv",  { FC_REF_CONSTANT, 1, OFF(200,382), NUM(200,382) } }, /* 200 */
-    { "sw",  { FC_REF_CONSTANT, 1, OFF(201,87), NUM(201,87) } }, /* 201 */
-    { "syr",  { FC_REF_CONSTANT, 1, OFF(202,383), NUM(202,383) } }, /* 202 */
-    { "ta",  { FC_REF_CONSTANT, 1, OFF(203,384), NUM(203,384) } }, /* 203 */
-    { "te",  { FC_REF_CONSTANT, 1, OFF(204,385), NUM(204,385) } }, /* 204 */
-    { "tg",  { FC_REF_CONSTANT, 1, OFF(205,386), NUM(205,386) } }, /* 205 */
-    { "th",  { FC_REF_CONSTANT, 1, OFF(206,387), NUM(206,387) } }, /* 206 */
-    { "ti-er",  { FC_REF_CONSTANT, 2, OFF(207,45), NUM(207,45) } }, /* 207 */
-    { "ti-et",  { FC_REF_CONSTANT, 2, OFF(208,367), NUM(208,367) } }, /* 208 */
-    { "tig",  { FC_REF_CONSTANT, 2, OFF(209,388), NUM(209,388) } }, /* 209 */
-    { "tk",  { FC_REF_CONSTANT, 2, OFF(210,390), NUM(210,390) } }, /* 210 */
-    { "tl",  { FC_REF_CONSTANT, 1, OFF(211,86), NUM(211,86) } }, /* 211 */
-    { "tn",  { FC_REF_CONSTANT, 2, OFF(212,326), NUM(212,326) } }, /* 212 */
-    { "to",  { FC_REF_CONSTANT, 2, OFF(213,371), NUM(213,371) } }, /* 213 */
-    { "tr",  { FC_REF_CONSTANT, 2, OFF(214,392), NUM(214,392) } }, /* 214 */
-    { "ts",  { FC_REF_CONSTANT, 1, OFF(215,87), NUM(215,87) } }, /* 215 */
-    { "tt",  { FC_REF_CONSTANT, 1, OFF(216,394), NUM(216,394) } }, /* 216 */
-    { "tw",  { FC_REF_CONSTANT, 5, OFF(217,4), NUM(217,4) } }, /* 217 */
-    { "ty",  { FC_REF_CONSTANT, 3, OFF(218,395), NUM(218,395) } }, /* 218 */
-    { "tyv",  { FC_REF_CONSTANT, 1, OFF(219,284), NUM(219,284) } }, /* 219 */
-    { "ug",  { FC_REF_CONSTANT, 1, OFF(220,398), NUM(220,398) } }, /* 220 */
-    { "uk",  { FC_REF_CONSTANT, 1, OFF(221,399), NUM(221,399) } }, /* 221 */
-    { "ur",  { FC_REF_CONSTANT, 1, OFF(222,287), NUM(222,287) } }, /* 222 */
-    { "uz",  { FC_REF_CONSTANT, 1, OFF(223,87), NUM(223,87) } }, /* 223 */
-    { "ve",  { FC_REF_CONSTANT, 2, OFF(224,400), NUM(224,400) } }, /* 224 */
-    { "vi",  { FC_REF_CONSTANT, 4, OFF(225,402), NUM(225,402) } }, /* 225 */
-    { "vo",  { FC_REF_CONSTANT, 1, OFF(226,406), NUM(226,406) } }, /* 226 */
-    { "vot",  { FC_REF_CONSTANT, 2, OFF(227,407), NUM(227,407) } }, /* 227 */
-    { "wa",  { FC_REF_CONSTANT, 1, OFF(228,409), NUM(228,409) } }, /* 228 */
-    { "wal",  { FC_REF_CONSTANT, 2, OFF(229,367), NUM(229,367) } }, /* 229 */
-    { "wen",  { FC_REF_CONSTANT, 2, OFF(230,410), NUM(230,410) } }, /* 230 */
-    { "wo",  { FC_REF_CONSTANT, 2, OFF(231,412), NUM(231,412) } }, /* 231 */
-    { "xh",  { FC_REF_CONSTANT, 1, OFF(232,87), NUM(232,87) } }, /* 232 */
-    { "yap",  { FC_REF_CONSTANT, 1, OFF(233,414), NUM(233,414) } }, /* 233 */
-    { "yi",  { FC_REF_CONSTANT, 1, OFF(234,108), NUM(234,108) } }, /* 234 */
-    { "yo",  { FC_REF_CONSTANT, 4, OFF(235,415), NUM(235,415) } }, /* 235 */
-    { "za",  { FC_REF_CONSTANT, 1, OFF(236,87), NUM(236,87) } }, /* 236 */
-    { "zh-cn",  { FC_REF_CONSTANT, 82, OFF(237,419), NUM(237,419) } }, /* 237 */
-    { "zh-hk",  { FC_REF_CONSTANT, 83, OFF(238,501), NUM(238,501) } }, /* 238 */
-    { "zh-mo",  { FC_REF_CONSTANT, 83, OFF(239,501), NUM(239,501) } }, /* 239 */
-    { "zh-sg",  { FC_REF_CONSTANT, 82, OFF(240,419), NUM(240,419) } }, /* 240 */
-    { "zh-tw",  { FC_REF_CONSTANT, 83, OFF(241,584), NUM(241,584) } }, /* 241 */
-    { "zu",  { FC_REF_CONSTANT, 1, OFF(242,87), NUM(242,87) } }, /* 242 */
+    { "quz",  { FC_REF_CONSTANT, 2, OFF(168,345), NUM(168,345) } }, /* 168 */
+    { "rm",  { FC_REF_CONSTANT, 1, OFF(169,347), NUM(169,347) } }, /* 169 */
+    { "rn",  { FC_REF_CONSTANT, 1, OFF(170,87), NUM(170,87) } }, /* 170 */
+    { "ro",  { FC_REF_CONSTANT, 3, OFF(171,348), NUM(171,348) } }, /* 171 */
+    { "ru",  { FC_REF_CONSTANT, 1, OFF(172,279), NUM(172,279) } }, /* 172 */
+    { "rw",  { FC_REF_CONSTANT, 1, OFF(173,87), NUM(173,87) } }, /* 173 */
+    { "sa",  { FC_REF_CONSTANT, 1, OFF(174,30), NUM(174,30) } }, /* 174 */
+    { "sah",  { FC_REF_CONSTANT, 1, OFF(175,351), NUM(175,351) } }, /* 175 */
+    { "sat",  { FC_REF_CONSTANT, 1, OFF(176,352), NUM(176,352) } }, /* 176 */
+    { "sc",  { FC_REF_CONSTANT, 1, OFF(177,353), NUM(177,353) } }, /* 177 */
+    { "sco",  { FC_REF_CONSTANT, 3, OFF(178,354), NUM(178,354) } }, /* 178 */
+    { "sd",  { FC_REF_CONSTANT, 1, OFF(179,357), NUM(179,357) } }, /* 179 */
+    { "se",  { FC_REF_CONSTANT, 2, OFF(180,358), NUM(180,358) } }, /* 180 */
+    { "sel",  { FC_REF_CONSTANT, 1, OFF(181,279), NUM(181,279) } }, /* 181 */
+    { "sg",  { FC_REF_CONSTANT, 1, OFF(182,360), NUM(182,360) } }, /* 182 */
+    { "sh",  { FC_REF_CONSTANT, 3, OFF(183,361), NUM(183,361) } }, /* 183 */
+    { "shs",  { FC_REF_CONSTANT, 2, OFF(184,364), NUM(184,364) } }, /* 184 */
+    { "si",  { FC_REF_CONSTANT, 1, OFF(185,366), NUM(185,366) } }, /* 185 */
+    { "sid",  { FC_REF_CONSTANT, 2, OFF(186,367), NUM(186,367) } }, /* 186 */
+    { "sk",  { FC_REF_CONSTANT, 2, OFF(187,369), NUM(187,369) } }, /* 187 */
+    { "sl",  { FC_REF_CONSTANT, 2, OFF(188,42), NUM(188,42) } }, /* 188 */
+    { "sm",  { FC_REF_CONSTANT, 2, OFF(189,371), NUM(189,371) } }, /* 189 */
+    { "sma",  { FC_REF_CONSTANT, 1, OFF(190,373), NUM(190,373) } }, /* 190 */
+    { "smj",  { FC_REF_CONSTANT, 1, OFF(191,374), NUM(191,374) } }, /* 191 */
+    { "smn",  { FC_REF_CONSTANT, 2, OFF(192,375), NUM(192,375) } }, /* 192 */
+    { "sms",  { FC_REF_CONSTANT, 3, OFF(193,377), NUM(193,377) } }, /* 193 */
+    { "sn",  { FC_REF_CONSTANT, 1, OFF(194,87), NUM(194,87) } }, /* 194 */
+    { "so",  { FC_REF_CONSTANT, 1, OFF(195,87), NUM(195,87) } }, /* 195 */
+    { "sq",  { FC_REF_CONSTANT, 1, OFF(196,380), NUM(196,380) } }, /* 196 */
+    { "sr",  { FC_REF_CONSTANT, 1, OFF(197,381), NUM(197,381) } }, /* 197 */
+    { "ss",  { FC_REF_CONSTANT, 1, OFF(198,87), NUM(198,87) } }, /* 198 */
+    { "st",  { FC_REF_CONSTANT, 1, OFF(199,87), NUM(199,87) } }, /* 199 */
+    { "su",  { FC_REF_CONSTANT, 1, OFF(200,118), NUM(200,118) } }, /* 200 */
+    { "sv",  { FC_REF_CONSTANT, 1, OFF(201,382), NUM(201,382) } }, /* 201 */
+    { "sw",  { FC_REF_CONSTANT, 1, OFF(202,87), NUM(202,87) } }, /* 202 */
+    { "syr",  { FC_REF_CONSTANT, 1, OFF(203,383), NUM(203,383) } }, /* 203 */
+    { "ta",  { FC_REF_CONSTANT, 1, OFF(204,384), NUM(204,384) } }, /* 204 */
+    { "te",  { FC_REF_CONSTANT, 1, OFF(205,385), NUM(205,385) } }, /* 205 */
+    { "tg",  { FC_REF_CONSTANT, 1, OFF(206,386), NUM(206,386) } }, /* 206 */
+    { "th",  { FC_REF_CONSTANT, 1, OFF(207,387), NUM(207,387) } }, /* 207 */
+    { "ti-er",  { FC_REF_CONSTANT, 2, OFF(208,45), NUM(208,45) } }, /* 208 */
+    { "ti-et",  { FC_REF_CONSTANT, 2, OFF(209,367), NUM(209,367) } }, /* 209 */
+    { "tig",  { FC_REF_CONSTANT, 2, OFF(210,388), NUM(210,388) } }, /* 210 */
+    { "tk",  { FC_REF_CONSTANT, 2, OFF(211,390), NUM(211,390) } }, /* 211 */
+    { "tl",  { FC_REF_CONSTANT, 1, OFF(212,86), NUM(212,86) } }, /* 212 */
+    { "tn",  { FC_REF_CONSTANT, 2, OFF(213,326), NUM(213,326) } }, /* 213 */
+    { "to",  { FC_REF_CONSTANT, 2, OFF(214,371), NUM(214,371) } }, /* 214 */
+    { "tr",  { FC_REF_CONSTANT, 2, OFF(215,392), NUM(215,392) } }, /* 215 */
+    { "ts",  { FC_REF_CONSTANT, 1, OFF(216,87), NUM(216,87) } }, /* 216 */
+    { "tt",  { FC_REF_CONSTANT, 1, OFF(217,394), NUM(217,394) } }, /* 217 */
+    { "tw",  { FC_REF_CONSTANT, 5, OFF(218,4), NUM(218,4) } }, /* 218 */
+    { "ty",  { FC_REF_CONSTANT, 3, OFF(219,395), NUM(219,395) } }, /* 219 */
+    { "tyv",  { FC_REF_CONSTANT, 1, OFF(220,284), NUM(220,284) } }, /* 220 */
+    { "ug",  { FC_REF_CONSTANT, 1, OFF(221,398), NUM(221,398) } }, /* 221 */
+    { "uk",  { FC_REF_CONSTANT, 1, OFF(222,399), NUM(222,399) } }, /* 222 */
+    { "ur",  { FC_REF_CONSTANT, 1, OFF(223,287), NUM(223,287) } }, /* 223 */
+    { "uz",  { FC_REF_CONSTANT, 1, OFF(224,87), NUM(224,87) } }, /* 224 */
+    { "ve",  { FC_REF_CONSTANT, 2, OFF(225,400), NUM(225,400) } }, /* 225 */
+    { "vi",  { FC_REF_CONSTANT, 4, OFF(226,402), NUM(226,402) } }, /* 226 */
+    { "vo",  { FC_REF_CONSTANT, 1, OFF(227,406), NUM(227,406) } }, /* 227 */
+    { "vot",  { FC_REF_CONSTANT, 2, OFF(228,407), NUM(228,407) } }, /* 228 */
+    { "wa",  { FC_REF_CONSTANT, 1, OFF(229,409), NUM(229,409) } }, /* 229 */
+    { "wal",  { FC_REF_CONSTANT, 2, OFF(230,367), NUM(230,367) } }, /* 230 */
+    { "wen",  { FC_REF_CONSTANT, 2, OFF(231,410), NUM(231,410) } }, /* 231 */
+    { "wo",  { FC_REF_CONSTANT, 2, OFF(232,412), NUM(232,412) } }, /* 232 */
+    { "xh",  { FC_REF_CONSTANT, 1, OFF(233,87), NUM(233,87) } }, /* 233 */
+    { "yap",  { FC_REF_CONSTANT, 1, OFF(234,414), NUM(234,414) } }, /* 234 */
+    { "yi",  { FC_REF_CONSTANT, 1, OFF(235,108), NUM(235,108) } }, /* 235 */
+    { "yo",  { FC_REF_CONSTANT, 4, OFF(236,415), NUM(236,415) } }, /* 236 */
+    { "za",  { FC_REF_CONSTANT, 1, OFF(237,87), NUM(237,87) } }, /* 237 */
+    { "zh-cn",  { FC_REF_CONSTANT, 82, OFF(238,419), NUM(238,419) } }, /* 238 */
+    { "zh-hk",  { FC_REF_CONSTANT, 83, OFF(239,501), NUM(239,501) } }, /* 239 */
+    { "zh-mo",  { FC_REF_CONSTANT, 83, OFF(240,501), NUM(240,501) } }, /* 240 */
+    { "zh-sg",  { FC_REF_CONSTANT, 82, OFF(241,419), NUM(241,419) } }, /* 241 */
+    { "zh-tw",  { FC_REF_CONSTANT, 83, OFF(242,584), NUM(242,584) } }, /* 242 */
+    { "zu",  { FC_REF_CONSTANT, 1, OFF(243,87), NUM(243,87) } }, /* 243 */
 },
 {
     { { /* 0 */
@@ -3659,7 +3660,7 @@ static const struct {
     19, /* bn */
     20, /* bo */
     21, /* br */
-    239, /* brx */
+    240, /* brx */
     22, /* bs */
     23, /* bua */
     194, /* byn */
@@ -3677,7 +3678,7 @@ static const struct {
     33, /* cy */
     34, /* da */
     35, /* de */
-    241, /* doi */
+    242, /* doi */
     197, /* dv */
     36, /* dz */
     198, /* ee */
@@ -3751,7 +3752,7 @@ static const struct {
     212, /* kwm */
     91, /* ky */
     92, /* la */
-    237, /* lah */
+    238, /* lah */
     93, /* lb */
     94, /* lez */
     213, /* lg */
@@ -3768,7 +3769,7 @@ static const struct {
     103, /* ml */
     104, /* mn_cn */
     216, /* mn_mn */
-    242, /* mni */
+    243, /* mni */
     105, /* mo */
     106, /* mr */
     217, /* ms */
@@ -3782,7 +3783,7 @@ static const struct {
     112, /* nl */
     113, /* nn */
     114, /* no */
-    238, /* nqo */
+    239, /* nqo */
     115, /* nr */
     116, /* nso */
     220, /* nv */
@@ -3801,24 +3802,25 @@ static const struct {
     125, /* ps_pk */
     126, /* pt */
     225, /* qu */
+    226, /* quz */
     127, /* rm */
-    226, /* rn */
+    227, /* rn */
     128, /* ro */
     129, /* ru */
-    227, /* rw */
+    228, /* rw */
     130, /* sa */
     131, /* sah */
-    240, /* sat */
-    228, /* sc */
+    241, /* sat */
+    229, /* sc */
     132, /* sco */
-    229, /* sd */
+    230, /* sd */
     133, /* se */
     134, /* sel */
-    230, /* sg */
+    231, /* sg */
     135, /* sh */
     136, /* shs */
     137, /* si */
-    231, /* sid */
+    232, /* sid */
     138, /* sk */
     139, /* sl */
     140, /* sm */
@@ -3826,13 +3828,13 @@ static const struct {
     142, /* smj */
     143, /* smn */
     144, /* sms */
-    232, /* sn */
+    233, /* sn */
     145, /* so */
     146, /* sq */
     147, /* sr */
     148, /* ss */
     149, /* st */
-    233, /* su */
+    234, /* su */
     150, /* sv */
     151, /* sw */
     152, /* syr */
@@ -3851,7 +3853,7 @@ static const struct {
     165, /* ts */
     166, /* tt */
     167, /* tw */
-    234, /* ty */
+    235, /* ty */
     168, /* tyv */
     169, /* ug */
     170, /* uk */
@@ -3862,14 +3864,14 @@ static const struct {
     175, /* vo */
     176, /* vot */
     177, /* wa */
-    235, /* wal */
+    236, /* wal */
     178, /* wen */
     179, /* wo */
     180, /* xh */
     181, /* yap */
     182, /* yi */
     183, /* yo */
-    236, /* za */
+    237, /* za */
     184, /* zh_cn */
     185, /* zh_hk */
     186, /* zh_mo */
@@ -4005,69 +4007,69 @@ static const struct {
     164, /* ps_af */
     165, /* ps_pk */
     166, /* pt */
-    168, /* rm */
-    170, /* ro */
-    171, /* ru */
-    173, /* sa */
-    174, /* sah */
-    177, /* sco */
-    179, /* se */
-    180, /* sel */
-    182, /* sh */
-    183, /* shs */
-    184, /* si */
-    186, /* sk */
-    187, /* sl */
-    188, /* sm */
-    189, /* sma */
-    190, /* smj */
-    191, /* smn */
-    192, /* sms */
-    194, /* so */
-    195, /* sq */
-    196, /* sr */
-    197, /* ss */
-    198, /* st */
-    200, /* sv */
-    201, /* sw */
-    202, /* syr */
-    203, /* ta */
-    204, /* te */
-    205, /* tg */
-    206, /* th */
-    207, /* ti_er */
-    208, /* ti_et */
-    209, /* tig */
-    210, /* tk */
-    211, /* tl */
-    212, /* tn */
-    213, /* to */
-    214, /* tr */
-    215, /* ts */
-    216, /* tt */
-    217, /* tw */
-    219, /* tyv */
-    220, /* ug */
-    221, /* uk */
-    222, /* ur */
-    223, /* uz */
-    224, /* ve */
-    225, /* vi */
-    226, /* vo */
-    227, /* vot */
-    228, /* wa */
-    230, /* wen */
-    231, /* wo */
-    232, /* xh */
-    233, /* yap */
-    234, /* yi */
-    235, /* yo */
-    237, /* zh_cn */
-    238, /* zh_hk */
-    239, /* zh_mo */
-    240, /* zh_sg */
-    241, /* zh_tw */
-    242, /* zu */
+    169, /* rm */
+    171, /* ro */
+    172, /* ru */
+    174, /* sa */
+    175, /* sah */
+    178, /* sco */
+    180, /* se */
+    181, /* sel */
+    183, /* sh */
+    184, /* shs */
+    185, /* si */
+    187, /* sk */
+    188, /* sl */
+    189, /* sm */
+    190, /* sma */
+    191, /* smj */
+    192, /* smn */
+    193, /* sms */
+    195, /* so */
+    196, /* sq */
+    197, /* sr */
+    198, /* ss */
+    199, /* st */
+    201, /* sv */
+    202, /* sw */
+    203, /* syr */
+    204, /* ta */
+    205, /* te */
+    206, /* tg */
+    207, /* th */
+    208, /* ti_er */
+    209, /* ti_et */
+    210, /* tig */
+    211, /* tk */
+    212, /* tl */
+    213, /* tn */
+    214, /* to */
+    215, /* tr */
+    216, /* ts */
+    217, /* tt */
+    218, /* tw */
+    220, /* tyv */
+    221, /* ug */
+    222, /* uk */
+    223, /* ur */
+    224, /* uz */
+    225, /* ve */
+    226, /* vi */
+    227, /* vo */
+    228, /* vot */
+    229, /* wa */
+    231, /* wen */
+    232, /* wo */
+    233, /* xh */
+    234, /* yap */
+    235, /* yi */
+    236, /* yo */
+    238, /* zh_cn */
+    239, /* zh_hk */
+    240, /* zh_mo */
+    241, /* zh_sg */
+    242, /* zh_tw */
+    243, /* zu */
     3, /* ak */
     5, /* an */
     15, /* ber_dz */
@@ -4104,27 +4106,28 @@ static const struct {
     161, /* pap_an */
     162, /* pap_aw */
     167, /* qu */
-    169, /* rn */
-    172, /* rw */
-    176, /* sc */
-    178, /* sd */
-    181, /* sg */
-    185, /* sid */
-    193, /* sn */
-    199, /* su */
-    218, /* ty */
-    229, /* wal */
-    236, /* za */
+    168, /* quz */
+    170, /* rn */
+    173, /* rw */
+    177, /* sc */
+    179, /* sd */
+    182, /* sg */
+    186, /* sid */
+    194, /* sn */
+    200, /* su */
+    219, /* ty */
+    230, /* wal */
+    237, /* za */
     118, /* lah */
     149, /* nqo */
     26, /* brx */
-    175, /* sat */
+    176, /* sat */
     44, /* doi */
     135, /* mni */
 }
 };
 
-#define NUM_LANG_CHAR_SET	243
+#define NUM_LANG_CHAR_SET	244
 #define NUM_LANG_SET_MAP	8
 
 static const FcChar32 fcLangCountrySets[][NUM_LANG_SET_MAP] = {
@@ -4159,15 +4162,15 @@ static const FcLangCharSetRange  fcLangCharSetRanges[] = {
     { 141, 153 }, /* n */
     { 154, 158 }, /* o */
     { 159, 166 }, /* p */
-    { 167, 167 }, /* q */
-    { 168, 172 }, /* r */
-    { 173, 202 }, /* s */
-    { 203, 219 }, /* t */
-    { 220, 223 }, /* u */
-    { 224, 227 }, /* v */
-    { 228, 231 }, /* w */
-    { 232, 232 }, /* x */
-    { 233, 235 }, /* y */
-    { 236, 242 }, /* z */
+    { 167, 168 }, /* q */
+    { 169, 173 }, /* r */
+    { 174, 203 }, /* s */
+    { 204, 220 }, /* t */
+    { 221, 224 }, /* u */
+    { 225, 228 }, /* v */
+    { 229, 232 }, /* w */
+    { 233, 233 }, /* x */
+    { 234, 236 }, /* y */
+    { 237, 243 }, /* z */
 };
 

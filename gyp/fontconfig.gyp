@@ -166,7 +166,7 @@
               '-k', '@FC_FONTPATH@', '<dir>/Library/Fonts</dir>',
               '-p', '@CONFIGDIR@', '<(configdir)/conf.d',
               '-k', '@PACKAGE@', 'fontconfig',
-              '-k', '@VERSION@', '2.10.93',
+              '-k', '@VERSION@', '2.11.0',
             ],
           }, {
             'action_name': 'populate_fontconfig_cache',

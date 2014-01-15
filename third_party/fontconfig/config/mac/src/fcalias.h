@@ -376,6 +376,8 @@ extern __typeof (FcStrSetDestroy) IA__FcStrSetDestroy __attribute((visibility("h
 #define FcStrSetDestroy IA__FcStrSetDestroy
 extern __typeof (FcStrListCreate) IA__FcStrListCreate __attribute((visibility("hidden")));
 #define FcStrListCreate IA__FcStrListCreate
+extern __typeof (FcStrListFirst) IA__FcStrListFirst __attribute((visibility("hidden")));
+#define FcStrListFirst IA__FcStrListFirst
 extern __typeof (FcStrListNext) IA__FcStrListNext __attribute((visibility("hidden")));
 #define FcStrListNext IA__FcStrListNext
 extern __typeof (FcStrListDone) IA__FcStrListDone __attribute((visibility("hidden")));

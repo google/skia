@@ -32,6 +32,12 @@
 #    define W_OK 0x02
 #endif
 
+#ifdef __WIN64
+#define SIZEOF_VOID_P 4
+#else
+#define SIZEOF_VOID_P 8
+#endif
+
 #define snprintf _snprintf
 /* Font configuration directory */
 #define CONFDIR "c:/windows/etc"

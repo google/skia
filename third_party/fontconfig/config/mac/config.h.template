@@ -153,6 +153,13 @@
 /* Define to 1 if you have the `regfree' function. */
 #define HAVE_REGFREE 1
 
+/* Define to 1 if you have the 'scandir' function. */
+#define HAVE_SCANDIR 1
+
+/* Define to 1 if you have the 'scandir' function with int (* compar)(const
+   void *, const void *) */
+/* #undef HAVE_SCANDIR_VOID_P */
+
 /* Define to 1 if you have the <sched.h> header file. */
 /* #undef HAVE_SCHED_H */
 
@@ -241,13 +248,13 @@
 #define PACKAGE "fontconfig"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "https://bugs.freedesktop.org/enger_bug.cgi?product=fontconfig"
+#define PACKAGE_BUGREPORT "https://bugs.freedesktop.org/enter_bug.cgi?product=fontconfig"
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "fontconfig"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "fontconfig 2.10.93"
+#define PACKAGE_STRING "fontconfig 2.11.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "fontconfig"
@@ -256,7 +263,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.10.93"
+#define PACKAGE_VERSION "2.11.0"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -312,7 +319,7 @@
 
 
 /* Version number of package */
-#define VERSION "2.10.93"
+#define VERSION "2.11.0"
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
