@@ -10286,6 +10286,42 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "imageblur_large_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4226630467910529300
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "imageblur_large_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12452053619376016299
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "imageblur_large_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16779099165243068656
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "imageblur_large_msaa16.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17787149374925820248
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "imageblur_msaa16.png": {
       "allowed-digests": [
         [

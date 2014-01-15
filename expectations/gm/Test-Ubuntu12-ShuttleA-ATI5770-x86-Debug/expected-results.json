@@ -7151,6 +7151,33 @@
       ], 
       "ignore-failure": false
     }, 
+    "imageblur_large_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13312632982531895190
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "imageblur_large_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3156027606278416155
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "imageblur_large_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12899816043134142793
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "imageblur_pdf-poppler.png": {
       "allowed-digests": [
         [

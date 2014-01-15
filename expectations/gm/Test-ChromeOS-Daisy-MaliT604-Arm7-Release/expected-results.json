@@ -3914,6 +3914,24 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "imageblur_large_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          794106598962262083
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "imageblur_large_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15790978631895302994
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "imagefiltersbase_565.png": {
       "allowed-digests": [
         [

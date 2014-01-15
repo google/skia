@@ -9690,6 +9690,33 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "imageblur_large_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14487484157722112195
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "imageblur_large_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2087300399622913879
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "imageblur_large_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9110837364457068096
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "imageblur_pdf-mac.png": {
       "allowed-digests": [
         [
