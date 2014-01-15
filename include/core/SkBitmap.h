@@ -669,8 +669,7 @@ private:
 
     mutable SkPixelRef* fPixelRef;
     mutable int         fPixelLockCount;
-    // either user-specified (in which case it is not treated as mutable)
-    // or a cache of the returned value from fPixelRef->lockPixels()
+    // These are just caches from the locked pixelref
     mutable void*       fPixels;
     mutable SkColorTable* fColorTable;    // only meaningful for kIndex8
 

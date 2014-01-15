@@ -101,15 +101,7 @@ SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
         // we reset our locks if we get blown away
         fPixelLockCount = 0;
 
-        /*  The src could be in 3 states
-            1. no pixelref, in which case we just copy/ref the pixels/ctable
-            2. unlocked pixelref, pixels/ctable should be null
-            3. locked pixelref, we should lock the ref again ourselves
-        */
-        if (NULL == fPixelRef) {
-            // leave fPixels as it is
-            SkSafeRef(fColorTable); // ref the user's ctable if present
-        } else {    // we have a pixelref, so pixels/ctable reflect it
+        if (fPixelRef) {
             // ignore the values from the memcpy
             fPixels = NULL;
             fColorTable = NULL;
@@ -345,14 +337,11 @@ void SkBitmap::updatePixelsFromRef() const {
                     + fPixelRefOrigin.fX * fBytesPerPixel;
             }
             fPixels = p;
-            SkRefCnt_SafeAssign(fColorTable, fPixelRef->colorTable());
+            fColorTable = fPixelRef->colorTable();
         } else {
             SkASSERT(0 == fPixelLockCount);
             fPixels = NULL;
-            if (fColorTable) {
-                fColorTable->unref();
-                fColorTable = NULL;
-            }
+            fColorTable = NULL;
         }
     }
 }
@@ -510,11 +499,6 @@ void SkBitmap::freePixels() {
     // if we're gonna free the pixels, we certainly need to free the mipmap
     this->freeMipMap();
 
-    if (fColorTable) {
-        fColorTable->unref();
-        fColorTable = NULL;
-    }
-
     if (NULL != fPixelRef) {
         if (fPixelLockCount > 0) {
             fPixelRef->unlockPixels();
@@ -525,6 +509,7 @@ void SkBitmap::freePixels() {
     }
     fPixelLockCount = 0;
     fPixels = NULL;
+    fColorTable = NULL;
 }
 
 void SkBitmap::freeMipMap() {
@@ -1610,7 +1595,6 @@ void SkBitmap::validate() const {
 #endif
     SkASSERT(fFlags <= allFlags);
     SkASSERT(fPixelLockCount >= 0);
-    SkASSERT(NULL == fColorTable || (unsigned)fColorTable->getRefCnt() < 10000);
     SkASSERT((uint8_t)ComputeBytesPerPixel((Config)fConfig) == fBytesPerPixel);
 
     if (fPixels) {
