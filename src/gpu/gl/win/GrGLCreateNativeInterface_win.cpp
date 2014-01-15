@@ -41,10 +41,6 @@ private:
 };
 
 const GrGLInterface* GrGLCreateNativeInterface() {
-    // wglGetProcAddress requires a context.
-    // GL Function pointers retrieved in one context may not be valid in another
-    // context. For that reason we create a new GrGLInterface each time we're
-    // called.
     AutoLibraryUnload alu("opengl32.dll");
     if (NULL == alu.get()) {
         return NULL;
@@ -75,7 +71,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             // We must have array and element_array buffer objects.
             return NULL;
         }
-        GrGLInterface* interface = new GrGLInterface();
+        GrGLInterface* interface = SkNEW(GrGLInterface);
 
         // Functions that are part of GL 1.1 will return NULL in
         // wglGetProcAddress

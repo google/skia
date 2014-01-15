@@ -41,7 +41,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             return NULL;
         }
 
-        GrGLInterface* interface = new GrGLInterface();
+        GrGLInterface* interface = SkNEW(GrGLInterface());
 
         interface->fActiveTexture = glActiveTexture;
         GR_GL_GET_PROC(AttachShader);

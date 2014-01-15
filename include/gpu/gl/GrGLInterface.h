@@ -37,17 +37,12 @@ static const GrGLBinding kES2_GrGLBinding = kES_GrGLBinding;
  * Rather than depend on platform-specific GL headers and libraries, we require
  * the client to provide a struct of GL function pointers. This struct can be
  * specified per-GrContext as a parameter to GrContext::Create. If NULL is
- * passed to Create then the "default" GL interface is used. If the default is
+ * passed to Create then a "default" GL interface is created. If the default is
  * also NULL GrContext creation will fail.
  *
  * The default interface is returned by GrGLDefaultInterface. This function's
  * implementation is platform-specific. Several have been provided, along with
- * an implementation that simply returns NULL. It is implementation-specific
- * whether the same GrGLInterface is returned or whether a new one is created
- * at each call. Some platforms may not be able to use a single GrGLInterface
- * because extension function ptrs vary across contexts. Note that GrGLInterface
- * is ref-counted. So if the same object is returned by multiple calls to
- * GrGLDefaultInterface, each should bump the ref count.
+ * an implementation that simply returns NULL.
  *
  * By defining GR_GL_PER_GL_CALL_IFACE_CALLBACK to 1 the client can specify a
  * callback function that will be called prior to each GL function call. See
@@ -60,9 +55,8 @@ const GrGLInterface* GrGLDefaultInterface();
 
 /**
  * Creates a GrGLInterface for a "native" GL context (e.g. WGL on windows,
- * GLX on linux, AGL on Mac). On platforms that have context-specific function
- * pointers for GL extensions (e.g. windows) the returned interface is only
- * valid for the context that was current at creation.
+ * GLX on linux, AGL on Mac). The interface is only valid for the GL context
+ * that is current when the interface is created.
  */
 const GrGLInterface* GrGLCreateNativeInterface();
 

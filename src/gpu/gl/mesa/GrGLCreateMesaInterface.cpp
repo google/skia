@@ -41,7 +41,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
             // We must have array and element_array buffer objects.
             return NULL;
         }
-        GrGLInterface* interface = new GrGLInterface();
+        GrGLInterface* interface = SkNEW(GrGLInterface());
 
         GR_GL_GET_PROC(ActiveTexture);
         GR_GL_GET_PROC(BeginQuery);
