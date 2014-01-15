@@ -137,17 +137,11 @@ bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
         unpremul.setConfig(info);
         unpremul.allocPixels();
 
-        // Unpremultiply without changing native byte order.
         SkAutoLockPixels lockSrc(bitmap), lockDst(unpremul);
         const SkPMColor* src = (SkPMColor*)bitmap.getPixels();
         uint32_t* dst = (uint32_t*)unpremul.getPixels();
         for (size_t i = 0; i < bitmap.getSize()/4; i++) {
-            const U8CPU a = SkGetPackedA32(src[i]);
-            const SkUnPreMultiply::Scale s = SkUnPreMultiply::GetScale(a);
-            dst[i] = SkPackARGB32NoCheck(a,
-                                         SkUnPreMultiply::ApplyScale(s, SkGetPackedR32(src[i])),
-                                         SkUnPreMultiply::ApplyScale(s, SkGetPackedG32(src[i])),
-                                         SkUnPreMultiply::ApplyScale(s, SkGetPackedB32(src[i])));
+            dst[i] = SkUnPreMultiply::UnPreMultiplyPreservingByteOrder(src[i]);
         }
         bitmap.swap(unpremul);
     }

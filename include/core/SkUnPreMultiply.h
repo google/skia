@@ -49,6 +49,8 @@ public:
 
     static SkColor PMColorToColor(SkPMColor c);
 
+    static uint32_t UnPreMultiplyPreservingByteOrder(SkPMColor c);
+
 private:
     static const uint32_t gTable[256];
 };
