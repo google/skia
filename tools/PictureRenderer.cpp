@@ -178,6 +178,11 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
     }
     setUpFilter(canvas, fDrawFilters);
     this->scaleToScaleFactor(canvas);
+
+    // Pictures often lie about their extent (i.e., claim to be 100x100 but
+    // only ever draw to 90x100). Clear here so the undrawn portion will have
+    // a consistent color
+    canvas->clear(SK_ColorTRANSPARENT);
     return canvas;
 }
 
