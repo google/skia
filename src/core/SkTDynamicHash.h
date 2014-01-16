@@ -8,8 +8,9 @@
 #ifndef SkTDynamicHash_DEFINED
 #define SkTDynamicHash_DEFINED
 
-#include "SkTypes.h"
 #include "SkMath.h"
+#include "SkTemplates.h"
+#include "SkTypes.h"
 
 template <typename T,
           typename Key,
