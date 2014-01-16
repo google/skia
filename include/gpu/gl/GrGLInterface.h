@@ -23,8 +23,10 @@ enum GrGLStandard {
     kGLES_GrGLStandard,
 };
 
-// Temporary alias until Chromium can be updated.
+// Temporary aliases until Chromium can be updated.
+typedef GrGLStandard GrGLBinding;
 static const GrGLStandard kES2_GrGLBinding = kGLES_GrGLStandard;
+static const GrGLStandard kDesktop_GrGLBinding = kGL_GrGLStandard;
 
 ////////////////////////////////////////////////////////////////////////////////
 
