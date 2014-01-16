@@ -384,7 +384,7 @@ FIXME: If the API passes fill-only, return true if the filled stroke
  thus:
     two directions are opposites iff (dirA ^ dirB) == 0x2
     two directions are perpendicular iff (dirA ^ dirB) == 0x1
- 
+
  */
 static int rect_make_dir(SkScalar dx, SkScalar dy) {
     return ((0 != dx) << 0) | ((dx > 0 || dy > 0) << 1);
