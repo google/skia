@@ -328,25 +328,6 @@ bool GrGLInterface::validate() const {
             }
         }
     } else {
-#if GR_GL_IGNORE_ES3_MSAA
-        if (extensions.has("GL_CHROMIUM_framebuffer_multisample")) {
-            if (NULL == fRenderbufferStorageMultisample ||
-                NULL == fBlitFramebuffer) {
-                return false;
-            }
-        } else if (extensions.has("GL_APPLE_framebuffer_multisample")) {
-            if (NULL == fRenderbufferStorageMultisample ||
-                NULL == fResolveMultisampleFramebuffer) {
-                return false;
-            }
-        } else if (extensions.has("GL_IMG_multisampled_render_to_texture") ||
-                   extensions.has("GL_EXT_multisampled_render_to_texture")) {
-            if (NULL == fRenderbufferStorageMultisample ||
-                NULL == fFramebufferTexture2DMultisample) {
-                return false;
-            }
-        }
-#else
         if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_CHROMIUM_framebuffer_multisample")) {
             if (NULL == fRenderbufferStorageMultisample ||
                 NULL == fBlitFramebuffer) {
@@ -366,7 +347,6 @@ bool GrGLInterface::validate() const {
                 return false;
             }
         }
-#endif
     }
 
     // On ES buffer mapping is an extension. On Desktop

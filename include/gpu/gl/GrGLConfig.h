@@ -170,15 +170,6 @@
     #define GR_GL_USE_NEW_SHADER_SOURCE_SIGNATURE       0
 #endif
 
-// We now have a separate GrGLInterface function pointer entry for the IMG/EXT version of
-// glRenderbufferStorageMultisampled. However, Chrome is setting the one we now use for
-// ES3 MSAA to point to the IMG/EXT function. This macro exists to make Skia ignore the
-// ES3 MSAA and instead use the IMG/EXT version with the old function pointer entry. It will
-// be removed as soon as Chrome is updated to set the new function pointer.
-#if !defined(GR_GL_IGNORE_ES3_MSAA)
-    #define GR_GL_IGNORE_ES3_MSAA 0
-#endif
-
 /**
  * There is a strange bug that occurs on Macs with NVIDIA GPUs. We don't
  * fully understand it. When (element) array buffers are continually

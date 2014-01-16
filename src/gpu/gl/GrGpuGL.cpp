@@ -714,13 +714,6 @@ static bool renderbuffer_storage_msaa(GrGLContext& ctx,
                                       int width, int height) {
     CLEAR_ERROR_BEFORE_ALLOC(ctx.interface());
     SkASSERT(GrGLCaps::kNone_MSFBOType != ctx.caps()->msFBOType());
-#if GR_GL_IGNORE_ES3_MSAA
-        GL_ALLOC_CALL(ctx.interface(),
-                      RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
-                                                     sampleCount,
-                                                     format,
-                                                     width, height));
-#else
     switch (ctx.caps()->msFBOType()) {
         case GrGLCaps::kDesktop_ARB_MSFBOType:
         case GrGLCaps::kDesktop_EXT_MSFBOType:
@@ -750,7 +743,6 @@ static bool renderbuffer_storage_msaa(GrGLContext& ctx,
             GrCrash("Shouldn't be here if we don't support multisampled renderbuffers.");
             break;
     }
-#endif
     return (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.interface()));;
 }
 

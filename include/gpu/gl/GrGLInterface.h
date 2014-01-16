@@ -220,7 +220,6 @@ public:
     GLPtr<GrGLReadPixelsProc> fReadPixels;
     GLPtr<GrGLRenderbufferStorageProc> fRenderbufferStorage;
 
-#if !GR_GL_IGNORE_ES3_MSAA
     //  On OpenGL ES there are multiple incompatible extensions that add support for MSAA
     //  and ES3 adds MSAA support to the standard. On an ES3 driver we may still use the
     //  older extensions for performance reasons or due to ES3 driver bugs. We want the function
@@ -239,7 +238,7 @@ public:
     GLPtr<GrGLRenderbufferStorageMultisampleProc> fRenderbufferStorageMultisampleES2EXT;
     //  GL_APPLE_framebuffer_multisample
     GLPtr<GrGLRenderbufferStorageMultisampleProc> fRenderbufferStorageMultisampleES2APPLE;
-#endif
+
     //  This is used to store the pointer for GL_ARB/EXT/ANGLE/CHROMIUM_framebuffer_multisample or
     //  the standard function in ES3+ or GL 3.0+.
     GLPtr<GrGLRenderbufferStorageMultisampleProc> fRenderbufferStorageMultisample;

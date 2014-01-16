@@ -465,7 +465,7 @@ void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterfa
             fMSFBOType = kES_EXT_MsToTexture_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_IMG_multisampled_render_to_texture")) {
             fMSFBOType = kES_IMG_MsToTexture_MSFBOType;
-        } else if (!GR_GL_IGNORE_ES3_MSAA && ctxInfo.version() >= GR_GL_VER(3,0)) {
+        } else if (ctxInfo.version() >= GR_GL_VER(3,0)) {
             fMSFBOType = GrGLCaps::kES_3_0_MSFBOType;
         } else if (ctxInfo.hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
             // chrome's extension is equivalent to the EXT msaa
