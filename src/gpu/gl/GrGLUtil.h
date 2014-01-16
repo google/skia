@@ -78,7 +78,7 @@ enum GrGLRenderer {
 
 // these variants assume caller already has a string from glGetString()
 GrGLVersion GrGLGetVersionFromString(const char* versionString);
-GrGLBinding GrGLGetBindingInUseFromString(const char* versionString);
+GrGLStandard GrGLGetStandardInUseFromString(const char* versionString);
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
 bool GrGLIsMesaFromVersionString(const char* versionString);
 GrGLVendor GrGLGetVendorFromString(const char* vendorString);
@@ -86,7 +86,6 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString);
 bool GrGLIsChromiumFromRendererString(const char* rendererString);
 
 // these variants call glGetString()
-GrGLBinding GrGLGetBindingInUse(const GrGLInterface*);
 GrGLVersion GrGLGetVersion(const GrGLInterface*);
 GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
 GrGLVendor GrGLGetVendor(const GrGLInterface*);

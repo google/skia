@@ -14,22 +14,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Classifies GL contexts (currently as Desktop vs. ES2). This is a bitfield.
- * A GrGLInterface (defined below) may support multiple bindings.
+ * Classifies GL contexts by which standard they implement (currently as Desktop
+ * vs. ES).
  */
-enum GrGLBinding {
-    kNone_GrGLBinding = 0x0,
-
-    kDesktop_GrGLBinding = 0x01,
-    kES_GrGLBinding = 0x02,  // ES2+ only
-
-    // for iteration of GrGLBindings
-    kFirstGrGLBinding = kDesktop_GrGLBinding,
-    kLastGrGLBinding = kES_GrGLBinding
+enum GrGLStandard {
+    kNone_GrGLStandard,
+    kGL_GrGLStandard,
+    kGLES_GrGLStandard,
 };
 
 // Temporary alias until Chromium can be updated.
-static const GrGLBinding kES2_GrGLBinding = kES_GrGLBinding;
+static const GrGLStandard kES2_GrGLBinding = kGLES_GrGLStandard;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -121,15 +116,16 @@ public:
 
     GrGLInterface();
 
-    // Validates that the GrGLInterface supports a binding. This means that
-    // the GrGLinterface advertises the binding in fBindingsExported and all
-    // the necessary function pointers have been initialized. The interface is
-    // validated for the current OpenGL context.
-    bool validate(GrGLBinding binding) const;
+    // Validates that the GrGLInterface supports its advertised standard. This means the necessary
+    // function pointers have been initialized for both the GL version and any advertised
+    // extensions.
+    bool validate() const;
 
-    // Indicator variable specifying the type of GL implementation
-    // exported:  GLES2 and/or Desktop.
-    GrGLBinding fBindingsExported;
+    // Indicates the type of GL implementation
+    union {
+        GrGLStandard fStandard;
+        GrGLStandard fBindingsExported; // Legacy name, will be remove when Chromium is updated.
+    };
 
     GLPtr<GrGLActiveTextureProc> fActiveTexture;
     GLPtr<GrGLAttachShaderProc> fAttachShader;

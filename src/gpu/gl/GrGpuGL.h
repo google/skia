@@ -35,7 +35,7 @@ public:
 
     const GrGLInterface* glInterface() const { return fGLContext.interface(); }
     const GrGLContextInfo& ctxInfo() const { return fGLContext.info(); }
-    GrGLBinding glBinding() const { return fGLContext.info().binding(); }
+    GrGLStandard glStandard() const { return fGLContext.info().standard(); }
     GrGLVersion glVersion() const { return fGLContext.info().version(); }
     GrGLSLGeneration glslGeneration() const { return fGLContext.info().glslGeneration(); }
 

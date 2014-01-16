@@ -19,16 +19,18 @@
  */
 class GrGLExtensions {
 public:
-    bool init(GrGLBinding binding, const GrGLInterface* iface) {
-        SkASSERT(binding & iface->fBindingsExported);
-        return this->init(binding, iface->fGetString, iface->fGetStringi, iface->fGetIntegerv);
+    bool init(const GrGLInterface* iface) {
+        return this->init(iface->fStandard,
+                          iface->fGetString,
+                          iface->fGetStringi,
+                          iface->fGetIntegerv);
     }
     /**
      * We sometimes need to use this class without having yet created a GrGLInterface. This version
      * of init expects that getString is always non-NULL while getIntegerv and getStringi are non-
      * NULL if on desktop GL with version 3.0 or higher. Otherwise it will fail.
      */
-    bool init(GrGLBinding binding,
+    bool init(GrGLStandard standard,
               GrGLGetStringProc getString,
               GrGLGetStringiProc getStringi,
               GrGLGetIntegervProc getIntegerv);

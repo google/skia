@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 GrGLContextInfo& GrGLContextInfo::operator= (const GrGLContextInfo& ctxInfo) {
-    fBindingInUse = ctxInfo.fBindingInUse;
+    fStandard = ctxInfo.fStandard;
     fGLVersion = ctxInfo.fGLVersion;
     fGLSLGeneration = ctxInfo.fGLSLGeneration;
     fVendor = ctxInfo.fVendor;
@@ -34,14 +34,11 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
         GR_GL_CALL_RET(interface, rendererUByte, GetString(GR_GL_RENDERER));
         const char* renderer = reinterpret_cast<const char*>(rendererUByte);
 
-        GrGLBinding binding = GrGLGetBindingInUseFromString(ver);
-
-        if (0 != binding && interface->validate(binding) && fExtensions.init(binding, interface)) {
-            fBindingInUse = binding;
+        if (interface->validate() && fExtensions.init(interface)) {
 
             fGLVersion = GrGLGetVersionFromString(ver);
 
-            fGLSLGeneration = GrGetGLSLGeneration(fBindingInUse, interface);
+            fGLSLGeneration = GrGetGLSLGeneration(interface);
 
             fVendor = GrGLGetVendor(interface);
 
@@ -52,6 +49,8 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
             fIsChromium = GrGLIsChromiumFromRendererString(renderer);
 
             fGLCaps->init(*this, interface);
+
+            fStandard = interface->fStandard;
             return true;
         }
     }
@@ -59,11 +58,11 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
 }
 
 bool GrGLContextInfo::isInitialized() const {
-    return kNone_GrGLBinding != fBindingInUse;
+    return kNone_GrGLStandard != fStandard;
 }
 
 void GrGLContextInfo::reset() {
-    fBindingInUse = kNone_GrGLBinding;
+    fStandard = kNone_GrGLStandard;
     fGLVersion = GR_GL_VER(0, 0);
     fGLSLGeneration = static_cast<GrGLSLGeneration>(0);
     fVendor = kOther_GrGLVendor;

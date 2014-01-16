@@ -95,18 +95,18 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         return;
     }
 
-    GrGLBinding binding = ctxInfo.binding();
+    GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
     /**************************************************************************
      * Caps specific to GrGLCaps
      **************************************************************************/
 
-    if (kES_GrGLBinding == binding) {
+    if (kGLES_GrGLStandard == standard) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS,
                           &fMaxFragmentUniformVectors);
     } else {
-        SkASSERT(kDesktop_GrGLBinding == binding);
+        SkASSERT(kGL_GrGLStandard == standard);
         GrGLint max;
         GR_GL_GetIntegerv(gli, GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max);
         fMaxFragmentUniformVectors = max / 4;
@@ -125,7 +125,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttributes);
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &fMaxFragmentTextureUnits);
 
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == standard) {
         fRGBA8RenderbufferSupport = true;
     } else {
         fRGBA8RenderbufferSupport = version >= GR_GL_VER(3,0) ||
@@ -133,7 +133,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                                     ctxInfo.hasExtension("GL_ARM_rgba8");
     }
 
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == standard) {
         fBGRAFormatSupport = version >= GR_GL_VER(1,2) ||
                              ctxInfo.hasExtension("GL_EXT_bgra");
     } else {
@@ -147,14 +147,14 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                  kSkia8888_GrPixelConfig != kBGRA_8888_GrPixelConfig);
     }
 
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == standard) {
         fTextureSwizzleSupport = version >= GR_GL_VER(3,3) ||
                                  ctxInfo.hasExtension("GL_ARB_texture_swizzle");
     } else {
         fTextureSwizzleSupport = version >= GR_GL_VER(3,0);
     }
 
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == standard) {
         fUnpackRowLengthSupport = true;
         fUnpackFlipYSupport = false;
         fPackRowLengthSupport = true;
@@ -169,10 +169,10 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
             ctxInfo.hasExtension("GL_ANGLE_pack_reverse_row_order");
     }
 
-    fTextureUsageSupport = (kES_GrGLBinding == binding) &&
+    fTextureUsageSupport = (kGLES_GrGLStandard == standard) &&
                             ctxInfo.hasExtension("GL_ANGLE_texture_usage");
 
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == standard) {
         // The EXT version can apply to either GL or GLES.
         fTexStorageSupport = version >= GR_GL_VER(4,2) ||
                              ctxInfo.hasExtension("GL_ARB_texture_storage") ||
@@ -186,7 +186,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     // ARB_texture_rg is part of OpenGL 3.0, but mesa doesn't support it if
     // it doesn't have ARB_texture_rg extension.
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == standard) {
         if (ctxInfo.isMesa()) {
             fTextureRedSupport = ctxInfo.hasExtension("GL_ARB_texture_rg");
         } else {
@@ -198,13 +198,13 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                               ctxInfo.hasExtension("GL_EXT_texture_rg");
     }
 
-    fImagingSupport = kDesktop_GrGLBinding == binding &&
+    fImagingSupport = kGL_GrGLStandard == standard &&
                       ctxInfo.hasExtension("GL_ARB_imaging");
 
     // ES 2 only guarantees RGBA/uchar + one other format/type combo for
     // ReadPixels. The other format has to checked at run-time since it
     // can change based on which render target is bound
-    fTwoFormatLimit = kES_GrGLBinding == binding;
+    fTwoFormatLimit = kGLES_GrGLStandard == standard;
 
     // Known issue on at least some Intel platforms:
     // http://code.google.com/p/skia/issues/detail?id=946
@@ -228,7 +228,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fFullClearIsFree = true;
     }
 
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == standard) {
         fVertexArrayObjectSupport = version >= GR_GL_VER(3, 0) ||
                                     ctxInfo.hasExtension("GL_ARB_vertex_array_object");
     } else {
@@ -236,7 +236,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                                     ctxInfo.hasExtension("GL_OES_vertex_array_object");
     }
 
-    if (kES_GrGLBinding == binding) {
+    if (kGLES_GrGLStandard == standard) {
         if (ctxInfo.hasExtension("GL_EXT_shader_framebuffer_fetch")) {
             fFBFetchType = kEXT_FBFetchType;
         } else if (ctxInfo.hasExtension("GL_NV_shader_framebuffer_fetch")) {
@@ -263,7 +263,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         }
     }
 
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == standard) {
         // we could also look for GL_ATI_separate_stencil extension or
         // GL_EXT_stencil_two_side but they use different function signatures
         // than GL2.0+ (and than each other).
@@ -277,14 +277,14 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fStencilWrapOpsSupport = true;
     }
 
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == standard) {
         fBufferLockSupport = true; // we require VBO support and the desktop VBO extension includes
                                    // glMapBuffer.
     } else {
         fBufferLockSupport = ctxInfo.hasExtension("GL_OES_mapbuffer");
     }
 
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == standard) {
         SkASSERT(ctxInfo.version() >= GR_GL_VER(2,0) ||
                  ctxInfo.hasExtension("GL_ARB_texture_non_power_of_two"));
         fNPOTTextureTileSupport = true;
@@ -301,7 +301,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fMipMapSupport = fNPOTTextureTileSupport || ctxInfo.hasExtension("GL_IMG_texture_npot");
     }
 
-    fHWAALineSupport = (kDesktop_GrGLBinding == binding);
+    fHWAALineSupport = (kGL_GrGLStandard == standard);
 
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureSize);
     GR_GL_GetIntegerv(gli, GR_GL_MAX_RENDERBUFFER_SIZE, &fMaxRenderTargetSize);
@@ -320,7 +320,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
                             kQualcomm_GrGLVendor != ctxInfo.vendor();
 
     // Enable supported shader-related caps
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == standard) {
         fDualSourceBlendingSupport = ctxInfo.version() >= GR_GL_VER(3,3) ||
                                      ctxInfo.hasExtension("GL_ARB_blend_func_extended");
         fShaderDerivativeSupport = true;
@@ -375,7 +375,7 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
         kYes_MSAA = 1,
     };
 
-    if (kDesktop_GrGLBinding == ctxInfo.binding()) {
+    if (kGL_GrGLStandard == ctxInfo.standard()) {
         // Post 3.0 we will get R8
         // Prior to 3.0 we will get ALPHA8 (with GL_ARB_framebuffer_object)
         if (ctxInfo.version() >= GR_GL_VER(3,0) ||
@@ -389,7 +389,7 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
         fConfigRenderSupport[kAlpha_8_GrPixelConfig][kYes_MSAA] = fTextureRedSupport;
     }
 
-    if (kDesktop_GrGLBinding != ctxInfo.binding()) {
+    if (kGL_GrGLStandard != ctxInfo.standard()) {
         // only available in ES
         fConfigRenderSupport[kRGB_565_GrPixelConfig][kNo_MSAA] = true;
         fConfigRenderSupport[kRGB_565_GrPixelConfig][kYes_MSAA] = true;
@@ -458,7 +458,7 @@ bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
 void GrGLCaps::initFSAASupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     fMSFBOType = kNone_MSFBOType;
-    if (kDesktop_GrGLBinding != ctxInfo.binding()) {
+    if (kGL_GrGLStandard != ctxInfo.standard()) {
         // We prefer the EXT/IMG extension over ES3 MSAA because we've observed
         // ES3 driver bugs on at least one device with a tiled GPU (N10).
         if (ctxInfo.hasExtension("GL_EXT_multisampled_render_to_texture")) {
@@ -506,7 +506,7 @@ void GrGLCaps::initStencilFormats(const GrGLContextInfo& ctxInfo) {
     //  gS     = {GR_GL_STENCIL_INDEX,    kUnknownBitCount, kUnknownBitCount, false},
         gDS    = {GR_GL_DEPTH_STENCIL,    kUnknownBitCount, kUnknownBitCount, true };
 
-    if (kDesktop_GrGLBinding == ctxInfo.binding()) {
+    if (kGL_GrGLStandard == ctxInfo.standard()) {
         bool supportsPackedDS =
             ctxInfo.version() >= GR_GL_VER(3,0) ||
             ctxInfo.hasExtension("GL_EXT_packed_depth_stencil") ||

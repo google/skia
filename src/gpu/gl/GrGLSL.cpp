@@ -9,10 +9,10 @@
 #include "GrGLShaderVar.h"
 #include "SkString.h"
 
-GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding, const GrGLInterface* gl) {
+GrGLSLGeneration GrGetGLSLGeneration(const GrGLInterface* gl) {
     GrGLSLVersion ver = GrGLGetGLSLVersion(gl);
-    switch (binding) {
-        case kDesktop_GrGLBinding:
+    switch (gl->fStandard) {
+        case kGL_GrGLStandard:
             SkASSERT(ver >= GR_GLSL_VER(1,10));
             if (ver >= GR_GLSL_VER(1,50)) {
                 return k150_GrGLSLGeneration;
@@ -23,12 +23,12 @@ GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding, const GrGLInterface* g
             } else {
                 return k110_GrGLSLGeneration;
             }
-        case kES_GrGLBinding:
+        case kGLES_GrGLStandard:
             // version 1.00 of ES GLSL based on ver 1.20 of desktop GLSL
             SkASSERT(ver >= GR_GL_VER(1,00));
             return k110_GrGLSLGeneration;
         default:
-            GrCrash("Unknown GL Binding");
+            GrCrash("Unknown GL Standard");
             return k110_GrGLSLGeneration; // suppress warning
     }
 }
@@ -36,22 +36,22 @@ GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding, const GrGLInterface* g
 const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
     switch (info.glslGeneration()) {
         case k110_GrGLSLGeneration:
-            if (kES_GrGLBinding == info.binding()) {
+            if (kGLES_GrGLStandard == info.standard()) {
                 // ES2s shader language is based on version 1.20 but is version
                 // 1.00 of the ES language.
                 return "#version 100\n";
             } else {
-                SkASSERT(kDesktop_GrGLBinding == info.binding());
+                SkASSERT(kGL_GrGLStandard == info.standard());
                 return "#version 110\n";
             }
         case k130_GrGLSLGeneration:
-            SkASSERT(kDesktop_GrGLBinding == info.binding());
+            SkASSERT(kGL_GrGLStandard == info.standard());
             return "#version 130\n";
         case k140_GrGLSLGeneration:
-            SkASSERT(kDesktop_GrGLBinding == info.binding());
+            SkASSERT(kGL_GrGLStandard == info.standard());
             return "#version 140\n";
         case k150_GrGLSLGeneration:
-            SkASSERT(kDesktop_GrGLBinding == info.binding());
+            SkASSERT(kGL_GrGLStandard == info.standard());
             if (info.caps()->isCoreProfile()) {
                 return "#version 150\n";
             } else {

@@ -61,7 +61,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GrGLGetStringiProc glGetStringi = (GrGLGetStringiProc)  wglGetProcAddress("glGetStringi");
 
         GrGLExtensions extensions;
-        if (!extensions.init(kDesktop_GrGLBinding, glGetString, glGetStringi, glGetIntegerv)) {
+        if (!extensions.init(kGL_GrGLStandard, glGetString, glGetStringi, glGetIntegerv)) {
             return NULL;
         }
         const char* versionString = (const char*) glGetString(GR_GL_VERSION);
@@ -307,7 +307,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             WGL_SET_PROC_SUFFIX(PointAlongPath, NV);
         }
 
-        interface->fBindingsExported = kDesktop_GrGLBinding;
+        interface->fStandard = kGL_GrGLStandard;
 
         return interface;
     } else {

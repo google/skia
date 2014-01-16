@@ -266,7 +266,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
     if (!glInterface.get()) {
         GrGLInterface* interface = SkNEW(GrGLInterface);
         glInterface.reset(interface);
-        interface->fBindingsExported = kDesktop_GrGLBinding;
+        interface->fStandard = kGL_GrGLStandard;
         interface->fActiveTexture = nullGLActiveTexture;
         interface->fAttachShader = nullGLAttachShader;
         interface->fBeginQuery = nullGLBeginQuery;

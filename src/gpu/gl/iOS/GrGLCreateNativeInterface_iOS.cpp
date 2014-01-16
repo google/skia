@@ -142,7 +142,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     interface->fGenVertexArrays = glGenVertexArraysOES;
 #endif
 
-    interface->fBindingsExported = kES_GrGLBinding;
+    interface->fStandard = kGLES_GrGLStandard;
 
     return interface;
 }

@@ -40,8 +40,7 @@ enum GrGLSLGeneration {
 /**
  * Gets the most recent GLSL Generation compatible with the OpenGL context.
  */
-GrGLSLGeneration GrGetGLSLGeneration(GrGLBinding binding,
-                                     const GrGLInterface* gl);
+GrGLSLGeneration GrGetGLSLGeneration(const GrGLInterface* gl);
 
 /**
  * Returns a string to include at the beginning of a shader to declare the GLSL

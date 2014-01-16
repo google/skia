@@ -51,12 +51,12 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     const char* verStr = (const char*) glGetString(GR_GL_VERSION);
     GrGLVersion ver = GrGLGetVersionFromString(verStr);
     GrGLExtensions extensions;
-    if (!extensions.init(kDesktop_GrGLBinding, glGetString, glGetStringi, glGetIntegerv)) {
+    if (!extensions.init(kGL_GrGLStandard, glGetString, glGetStringi, glGetIntegerv)) {
         return NULL;
     }
 
     GrGLInterface* interface = SkNEW(GrGLInterface);
-    interface->fBindingsExported = kDesktop_GrGLBinding;
+    interface->fStandard = kGL_GrGLStandard;
 
     GET_PROC(ActiveTexture);
     GET_PROC(AttachShader);

@@ -65,19 +65,19 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
         const EGLint* fContextAttribs;
         EGLenum fAPI;
         EGLint  fRenderableTypeBit;
-        GrGLBinding fBinding;
+        GrGLStandard fStandard;
     } kAPIs[] = {
         {   // OpenGL
             kEGLContextAttribsForOpenGL,
             EGL_OPENGL_API,
             EGL_OPENGL_BIT,
-            kDesktop_GrGLBinding
+            kGL_GrGLStandard
         },
         {   // OpenGL ES. This seems to work for both ES2 and 3 (when available).
             kEGLContextAttribsForOpenGLES,
             EGL_OPENGL_ES_API,
             EGL_OPENGL_ES2_BIT,
-            kES_GrGLBinding
+            kGLES_GrGLStandard
         },
     };
 
@@ -150,7 +150,7 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
             continue;
         }
 
-        if (!interface->validate(kAPIs[api].fBinding)) {
+        if (!interface->validate()) {
             interface->unref();
             interface = NULL;
             this->destroyGLContext();

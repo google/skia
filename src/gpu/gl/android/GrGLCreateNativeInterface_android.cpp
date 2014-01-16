@@ -24,7 +24,7 @@ static const GrGLInterface* create_es_interface(GrGLVersion version,
     }
 
     GrGLInterface* interface = SkNEW(GrGLInterface);
-    interface->fBindingsExported = kES_GrGLBinding;
+    interface->fStandard = kGLES_GrGLStandard;
 
     interface->fActiveTexture = glActiveTexture;
     interface->fAttachShader = glAttachShader;
@@ -222,7 +222,7 @@ static const GrGLInterface* create_desktop_interface(GrGLVersion version,
     }
 
     GrGLInterface* interface = SkNEW(GrGLInterface);
-    interface->fBindingsExported = kDesktop_GrGLBinding;
+    interface->fStandard = kGL_GrGLStandard;
 
     interface->fActiveTexture = (GrGLActiveTextureProc) eglGetProcAddress("glActiveTexture");
     interface->fAttachShader = (GrGLAttachShaderProc) eglGetProcAddress("glAttachShader");
@@ -417,16 +417,16 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 
     const char* verStr = reinterpret_cast<const char*>(glGetString(GR_GL_VERSION));
     GrGLVersion version = GrGLGetVersionFromString(verStr);
-    GrGLBinding binding = GrGLGetBindingInUseFromString(verStr);
+    GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
 
     GrGLExtensions extensions;
-    if (!extensions.init(binding, glGetString, getStringi, glGetIntegerv)) {
+    if (!extensions.init(standard, glGetString, getStringi, glGetIntegerv)) {
         return NULL;
     }
 
-    if (kES_GrGLBinding == binding) {
+    if (kGLES_GrGLStandard == standard) {
         return create_es_interface(version, extensions);
-    } else if (kDesktop_GrGLBinding == binding) {
+    } else if (kGL_GrGLStandard == standard) {
         return create_desktop_interface(version, extensions);
     } else {
         return NULL;

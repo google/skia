@@ -34,7 +34,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
     }
 
     GrGLInterface* interface = SkNEW(GrGLInterface);
-    interface->fBindingsExported = kES_GrGLBinding;
+    interface->fStandard = kGLES_GrGLStandard;
 
     GET_PROC(ActiveTexture);
     GET_PROC(AttachShader);

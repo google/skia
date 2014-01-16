@@ -18,7 +18,7 @@ inline bool extension_compare(const SkString& a, const SkString& b) {
 }
 }
 
-bool GrGLExtensions::init(GrGLBinding binding,
+bool GrGLExtensions::init(GrGLStandard standard,
                           GrGLGetStringProc getString,
                           GrGLGetStringiProc getStringi,
                           GrGLGetIntegervProc getIntegerv) {

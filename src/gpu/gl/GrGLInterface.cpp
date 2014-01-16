@@ -19,7 +19,7 @@ void GrGLDefaultInterfaceCallback(const GrGLInterface*) {}
 #endif
 
 GrGLInterface::GrGLInterface() {
-    fBindingsExported = kNone_GrGLBinding;
+    fStandard = kNone_GrGLStandard;
 
 #if GR_GL_PER_GL_FUNC_CALLBACK
     fCallback = GrGLDefaultInterfaceCallback;
@@ -27,18 +27,14 @@ GrGLInterface::GrGLInterface() {
 #endif
 }
 
-bool GrGLInterface::validate(GrGLBinding binding) const {
+bool GrGLInterface::validate() const {
 
-    // kNone must be 0 so that the check we're about to do can never succeed if
-    // binding == kNone.
-    GR_STATIC_ASSERT(kNone_GrGLBinding == 0);
-
-    if (0 == (binding & fBindingsExported)) {
+    if (kNone_GrGLStandard == fStandard) {
         return false;
     }
 
     GrGLExtensions extensions;
-    if (!extensions.init(binding, this)) {
+    if (!extensions.init(this)) {
         return false;
     }
 
@@ -141,7 +137,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     GrGLVersion glVer = GrGLGetVersion(this);
 
     bool isCoreProfile = false;
-    if (kDesktop_GrGLBinding == binding && glVer >= GR_GL_VER(3,2)) {
+    if (kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,2)) {
         GrGLint profileMask;
         GR_GL_GetIntegerv(this, GR_GL_CONTEXT_PROFILE_MASK, &profileMask);
         isCoreProfile = SkToBool(profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT);
@@ -154,13 +150,13 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     // these functions are part of ES2, we assume they are available
     // On the desktop we assume they are available if the extension
     // is present or GL version is high enough.
-    if (kES_GrGLBinding == binding) {
+    if (kGLES_GrGLStandard == fStandard) {
         if (NULL == fStencilFuncSeparate ||
             NULL == fStencilMaskSeparate ||
             NULL == fStencilOpSeparate) {
             return false;
         }
-    } else if (kDesktop_GrGLBinding == binding) {
+    } else if (kGL_GrGLStandard == fStandard) {
 
         if (glVer >= GR_GL_VER(2,0)) {
             if (NULL == fStencilFuncSeparate ||
@@ -272,7 +268,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     }
 
     // optional function on desktop before 1.3
-    if (kDesktop_GrGLBinding != binding ||
+    if (kGL_GrGLStandard != fStandard ||
         (glVer >= GR_GL_VER(1,3)) ||
         extensions.has("GL_ARB_texture_compression")) {
         if (NULL == fCompressedTexImage2D) {
@@ -281,7 +277,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     }
 
     // part of desktop GL, but not ES
-    if (kDesktop_GrGLBinding == binding &&
+    if (kGL_GrGLStandard == fStandard &&
         (NULL == fGetTexLevelParameteriv ||
          NULL == fDrawBuffer ||
          NULL == fReadBuffer)) {
@@ -290,7 +286,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
 
     // GL_EXT_texture_storage is part of desktop 4.2
     // There is a desktop ARB extension and an ES+desktop EXT extension
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(4,2) ||
             extensions.has("GL_ARB_texture_storage") ||
             extensions.has("GL_EXT_texture_storage")) {
@@ -314,7 +310,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     }
 
     // FBO MSAA
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == fStandard) {
         // GL 3.0 and the ARB extension have multisample + blit
         if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {
             if (NULL == fRenderbufferStorageMultisample ||
@@ -376,7 +372,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     // On ES buffer mapping is an extension. On Desktop
     // buffer mapping was part of original VBO extension
     // which we require.
-    if (kDesktop_GrGLBinding == binding || extensions.has("GL_OES_mapbuffer")) {
+    if (kGL_GrGLStandard == fStandard || extensions.has("GL_OES_mapbuffer")) {
         if (NULL == fMapBuffer ||
             NULL == fUnmapBuffer) {
             return false;
@@ -384,7 +380,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
     }
 
     // Dual source blending
-    if (kDesktop_GrGLBinding == binding &&
+    if (kGL_GrGLStandard == fStandard &&
         (glVer >= GR_GL_VER(3,3) || extensions.has("GL_ARB_blend_func_extended"))) {
         if (NULL == fBindFragDataLocationIndexed) {
             return false;
@@ -398,7 +394,7 @@ bool GrGLInterface::validate(GrGLBinding binding) const {
         }
     }
 
-    if (kDesktop_GrGLBinding == binding) {
+    if (kGL_GrGLStandard == fStandard) {
         if (glVer >= GR_GL_VER(3, 0) || extensions.has("GL_ARB_vertex_array_object")) {
             if (NULL == fBindVertexArray ||
                 NULL == fDeleteVertexArrays ||

@@ -203,7 +203,7 @@ bool GrGpuGL::canWriteTexturePixels(const GrTexture* texture, GrPixelConfig srcC
     if (kIndex_8_GrPixelConfig == srcConfig || kIndex_8_GrPixelConfig == texture->config()) {
         return false;
     }
-    if (srcConfig != texture->config() && kES_GrGLBinding == this->glBinding()) {
+    if (srcConfig != texture->config() && kGLES_GrGLStandard == this->glStandard()) {
         // In general ES2 requires the internal format of the texture and the format of the src
         // pixels to match. However, It may or may not be possible to upload BGRA data to a RGBA
         // texture. It depends upon which extension added BGRA. The Apple extension allows it
@@ -235,7 +235,7 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
         fHWDrawFace = GrDrawState::kInvalid_DrawFace;
         fHWDitherEnabled = kUnknown_TriState;
 
-        if (kDesktop_GrGLBinding == this->glBinding()) {
+        if (kGL_GrGLStandard == this->glStandard()) {
             // Desktop-only state that we never change
             if (!this->glCaps().isCoreProfile()) {
                 GL_CALL(Disable(GR_GL_POINT_SMOOTH));
@@ -561,7 +561,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
                          desc.fConfig != kIndex_8_GrPixelConfig &&
                          this->glCaps().texStorageSupport();
 
-    if (useTexStorage && kDesktop_GrGLBinding == this->glBinding()) {
+    if (useTexStorage && kGL_GrGLStandard == this->glStandard()) {
         // 565 is not a sized internal format on desktop GL. So on desktop with
         // 565 we always use an unsized internal format to let the system pick
         // the best sized format to convert the 565 data to. Since TexStorage
@@ -787,7 +787,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
             !desc->fMSColorRenderbufferID ||
             !this->configToGLFormats(desc->fConfig,
                                      // ES2 and ES3 require sized internal formats for rb storage.
-                                     kES_GrGLBinding == this->glBinding(),
+                                     kGLES_GrGLStandard == this->glStandard(),
                                      &msColorFormat,
                                      NULL,
                                      NULL)) {
@@ -1868,7 +1868,7 @@ void GrGpuGL::flushAAState(DrawType type) {
 #endif
 
     const GrRenderTarget* rt = this->getDrawState().getRenderTarget();
-    if (kDesktop_GrGLBinding == this->glBinding()) {
+    if (kGL_GrGLStandard == this->glStandard()) {
         // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
         // smooth lines.
         // we prefer smooth lines over multisampled lines
@@ -2075,7 +2075,7 @@ void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
                           oldTexParams.fSwizzleRGBA,
                           sizeof(newTexParams.fSwizzleRGBA)))) {
         this->setTextureUnit(unitIdx);
-        if (this->glBinding() == kES_GrGLBinding) {
+        if (this->glStandard() == kGLES_GrGLStandard) {
             // ES3 added swizzle support but not GL_TEXTURE_SWIZZLE_RGBA.
             const GrGLenum* swizzle = newTexParams.fSwizzleRGBA;
             GL_CALL(TexParameteri(GR_GL_TEXTURE_2D, GR_GL_TEXTURE_SWIZZLE_R, swizzle[0]));
@@ -2334,7 +2334,7 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
             *internalFormat = GR_GL_RGB;
             *externalFormat = GR_GL_RGB;
             if (getSizedInternalFormat) {
-                if (this->glBinding() == kDesktop_GrGLBinding) {
+                if (this->glStandard() == kGL_GrGLStandard) {
                     return false;
                 } else {
                     *internalFormat = GR_GL_RGB565;
@@ -2445,7 +2445,7 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
     // Table 3.9 of the ES2 spec indicates the supported formats with CopyTexSubImage
     // and BGRA isn't in the spec. There doesn't appear to be any extension that adds it. Perhaps
     // many drivers would allow it to work, but ANGLE does not.
-    if (kES_GrGLBinding == gpu->glBinding() && gpu->glCaps().bgraIsInternalFormat() &&
+    if (kGLES_GrGLStandard == gpu->glStandard() && gpu->glCaps().bgraIsInternalFormat() &&
         (kBGRA_8888_GrPixelConfig == dst->config() || kBGRA_8888_GrPixelConfig == src->config())) {
         return false;
     }
@@ -2508,7 +2508,7 @@ inline GrGLuint bind_surface_as_fbo(const GrGLInterface* gl,
 
 void GrGpuGL::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) {
     // Check for format issues with glCopyTexSubImage2D
-    if (kES_GrGLBinding == this->glBinding() && this->glCaps().bgraIsInternalFormat() &&
+    if (kGLES_GrGLStandard == this->glStandard() && this->glCaps().bgraIsInternalFormat() &&
         kBGRA_8888_GrPixelConfig == src->config()) {
         // glCopyTexSubImage2D doesn't work with this config. We'll want to make it a render target
         // in order to call glBlitFramebuffer or to copy to it by rendering.

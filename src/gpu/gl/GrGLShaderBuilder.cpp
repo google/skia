@@ -181,7 +181,7 @@ bool GrGLShaderBuilder::enableFeature(GLSLFeature feature) {
             if (!fGpu->glCaps().shaderDerivativeSupport()) {
                 return false;
             }
-            if (kES_GrGLBinding == fGpu->glBinding()) {
+            if (kGLES_GrGLStandard == fGpu->glStandard()) {
                 this->addFSFeature(1 << kStandardDerivatives_GLSLFeature,
                                    "GL_OES_standard_derivatives");
             }
@@ -471,10 +471,10 @@ void GrGLShaderBuilder::fsEmitFunction(GrSLType returnType,
 namespace {
 
 inline void append_default_precision_qualifier(GrGLShaderVar::Precision p,
-                                               GrGLBinding binding,
+                                               GrGLStandard standard,
                                                SkString* str) {
     // Desktop GLSL has added precision qualifiers but they don't do anything.
-    if (kES_GrGLBinding == binding) {
+    if (kGLES_GrGLStandard == standard) {
         switch (p) {
             case GrGLShaderVar::kHigh_Precision:
                 str->append("precision highp float;\n");
@@ -689,7 +689,7 @@ bool GrGLShaderBuilder::compileAndAttachShaders(GrGLuint programId) const {
     SkString fragShaderSrc(GrGetGLSLVersionDecl(this->ctxInfo()));
     fragShaderSrc.append(fFSExtensions);
     append_default_precision_qualifier(kDefaultFragmentPrecision,
-                                       fGpu->glBinding(),
+                                       fGpu->glStandard(),
                                        &fragShaderSrc);
     this->appendUniformDecls(kFragment_Visibility, &fragShaderSrc);
     this->appendDecls(fFSInputs, &fragShaderSrc);

@@ -790,7 +790,7 @@ private:
 const GrGLInterface* GrGLCreateDebugInterface() {
     GrGLInterface* interface = SkNEW(GrDebugGLInterface);
 
-    interface->fBindingsExported = kDesktop_GrGLBinding;
+    interface->fStandard = kGL_GrGLStandard;
     interface->fActiveTexture = debugGLActiveTexture;
     interface->fAttachShader = debugGLAttachShader;
     interface->fBeginQuery = debugGLBeginQuery;

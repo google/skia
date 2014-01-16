@@ -30,7 +30,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
             (GrGLGetIntegervProc) OSMesaGetProcAddress("glGetIntegerv");
 
         GrGLExtensions extensions;
-        if (!extensions.init(kDesktop_GrGLBinding, getString, getStringi, getIntegerv)) {
+        if (!extensions.init(kGL_GrGLStandard, getString, getStringi, getIntegerv)) {
             return NULL;
         }
 
@@ -220,7 +220,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
             return NULL;
         }
         GR_GL_GET_PROC(BindFragDataLocationIndexed);
-        interface->fBindingsExported = kDesktop_GrGLBinding;
+        interface->fStandard = kGL_GrGLStandard;
         return interface;
     } else {
         return NULL;

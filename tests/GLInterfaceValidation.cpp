@@ -21,13 +21,7 @@ DEF_GPUTEST(GLInterfaceValidation, reporter, factory) {
         REPORTER_ASSERT(reporter, NULL != glCtxHelper);
         if (NULL != glCtxHelper) {
             const GrGLInterface* interface = glCtxHelper->gl();
-            for (GrGLBinding binding = kFirstGrGLBinding;
-                 binding <= kLastGrGLBinding;
-                 binding = static_cast<GrGLBinding>(binding << 1)) {
-                if (interface->fBindingsExported & binding) {
-                    REPORTER_ASSERT(reporter, interface->validate(binding));
-                }
-            }
+            REPORTER_ASSERT(reporter, interface->validate());
         }
     }
 }

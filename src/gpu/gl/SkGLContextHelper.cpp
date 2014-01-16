@@ -37,9 +37,7 @@ bool SkGLContextHelper::init(int width, int height) {
     if (fGL) {
         const GrGLubyte* temp;
 
-        GrGLBinding bindingInUse = GrGLGetBindingInUse(this->gl());
-
-        if (!fGL->validate(bindingInUse) || !fExtensions.init(bindingInUse, fGL)) {
+        if (!fGL->validate() || !fExtensions.init(fGL)) {
             fGL = NULL;
             this->destroyGLContext();
             return false;
@@ -59,7 +57,7 @@ bool SkGLContextHelper::init(int width, int height) {
         SK_GL(*this, BindFramebuffer(GR_GL_FRAMEBUFFER, fFBO));
         SK_GL(*this, GenRenderbuffers(1, &fColorBufferID));
         SK_GL(*this, BindRenderbuffer(GR_GL_RENDERBUFFER, fColorBufferID));
-        if (kES_GrGLBinding == bindingInUse) {
+        if (kGLES_GrGLStandard == this->gl()->fStandard) {
             SK_GL(*this, RenderbufferStorage(GR_GL_RENDERBUFFER,
                                              GR_GL_RGBA8,
                                              width, height));
@@ -79,7 +77,7 @@ bool SkGLContextHelper::init(int width, int height) {
         // in binding a packed format an FBO. However, we can't rely on packed
         // depth stencil being available.
         bool supportsPackedDepthStencil;
-        if (kES_GrGLBinding == bindingInUse) {
+        if (kGLES_GrGLStandard == this->gl()->fStandard) {
             supportsPackedDepthStencil = version >= GR_GL_VER(3,0) ||
                                          this->hasExtension("GL_OES_packed_depth_stencil");
         } else {
@@ -91,7 +89,7 @@ bool SkGLContextHelper::init(int width, int height) {
         if (supportsPackedDepthStencil) {
             // ES2 requires sized internal formats for RenderbufferStorage
             // On Desktop we let the driver decide.
-            GrGLenum format = kES_GrGLBinding == bindingInUse ?
+            GrGLenum format = kGLES_GrGLStandard == this->gl()->fStandard ?
                                     GR_GL_DEPTH24_STENCIL8 :
                                     GR_GL_DEPTH_STENCIL;
             SK_GL(*this, RenderbufferStorage(GR_GL_RENDERBUFFER,
@@ -102,9 +100,8 @@ bool SkGLContextHelper::init(int width, int height) {
                                                  GR_GL_RENDERBUFFER,
                                                  fDepthStencilBufferID));
         } else {
-            GrGLenum format = kES_GrGLBinding == bindingInUse ?
-                                    GR_GL_STENCIL_INDEX8 :
-                                    GR_GL_STENCIL_INDEX;
+            GrGLenum format = kGLES_GrGLStandard == this->gl()->fStandard ? GR_GL_STENCIL_INDEX8 :
+                                                                          GR_GL_STENCIL_INDEX;
             SK_GL(*this, RenderbufferStorage(GR_GL_RENDERBUFFER,
                                              format,
                                              width, height));

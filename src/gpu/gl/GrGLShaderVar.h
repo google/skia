@@ -267,7 +267,7 @@ public:
                                           ctxInfo.glslGeneration()));
            out->append(" ");
         }
-        out->append(PrecisionString(fPrecision, ctxInfo.binding()));
+        out->append(PrecisionString(fPrecision, ctxInfo.standard()));
         GrSLType effectiveType = this->getType();
         if (this->isArray()) {
             if (this->isUnsizedArray()) {
@@ -302,9 +302,9 @@ public:
                      fUseUniformFloatArrays ? "" : ".x");
     }
 
-    static const char* PrecisionString(Precision p, GrGLBinding binding) {
+    static const char* PrecisionString(Precision p, GrGLStandard standard) {
         // Desktop GLSL has added precision qualifiers but they don't do anything.
-        if (kES_GrGLBinding == binding) {
+        if (kGLES_GrGLStandard == standard) {
             switch (p) {
                 case kLow_Precision:
                     return "lowp ";

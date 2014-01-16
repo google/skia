@@ -19,7 +19,7 @@
 
 /**
  * Encapsulates information about an OpenGL context including the OpenGL
- * version, the GrGLBinding type of the context, and GLSL version.
+ * version, the GrGLStandard type of the context, and GLSL version.
  */
 class GrGLContextInfo {
 public:
@@ -43,7 +43,7 @@ public:
     bool initialize(const GrGLInterface* interface);
     bool isInitialized() const;
 
-    GrGLBinding binding() const { return fBindingInUse; }
+    GrGLStandard standard() const { return fStandard; }
     GrGLVersion version() const { return fGLVersion; }
     GrGLSLGeneration glslGeneration() const { return fGLSLGeneration; }
     GrGLVendor vendor() const { return fVendor; }
@@ -75,7 +75,7 @@ public:
 
 private:
 
-    GrGLBinding             fBindingInUse;
+    GrGLStandard            fStandard;
     GrGLVersion             fGLVersion;
     GrGLSLGeneration        fGLSLGeneration;
     GrGLVendor              fVendor;
