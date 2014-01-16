@@ -8,16 +8,17 @@
 #include "GrGLContext.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-GrGLContextInfo& GrGLContextInfo::operator= (const GrGLContextInfo& ctxInfo) {
-    fStandard = ctxInfo.fStandard;
-    fGLVersion = ctxInfo.fGLVersion;
-    fGLSLGeneration = ctxInfo.fGLSLGeneration;
-    fVendor = ctxInfo.fVendor;
-    fRenderer = ctxInfo.fRenderer;
-    fExtensions = ctxInfo.fExtensions;
-    fIsMesa = ctxInfo.fIsMesa;
-    fIsChromium = ctxInfo.fIsChromium;
-    *fGLCaps = *ctxInfo.fGLCaps.get();
+
+GrGLContextInfo& GrGLContextInfo::operator= (const GrGLContextInfo& that) {
+    fInterface.reset(SkSafeRef(that.fInterface.get()));
+    fGLVersion      = that.fGLVersion;
+    fGLSLGeneration = that.fGLSLGeneration;
+    fVendor         = that.fVendor;
+    fRenderer       = that.fRenderer;
+    fExtensions     = that.fExtensions;
+    fIsMesa         = that.fIsMesa;
+    fIsChromium     = that.fIsChromium;
+    *fGLCaps        = *that.fGLCaps.get();
     return *this;
 }
 
@@ -48,8 +49,8 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
 
             fIsChromium = GrGLIsChromiumFromRendererString(renderer);
 
-            // This must be done before calling GrGLCaps::init()
-            fStandard = interface->fStandard;
+            // This must occur before caps init.
+            fInterface.reset(SkRef(interface));
 
             fGLCaps->init(*this, interface);
 
@@ -60,11 +61,11 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
 }
 
 bool GrGLContextInfo::isInitialized() const {
-    return kNone_GrGLStandard != fStandard;
+    return NULL != fInterface.get();
 }
 
 void GrGLContextInfo::reset() {
-    fStandard = kNone_GrGLStandard;
+    fInterface.reset(NULL);
     fGLVersion = GR_GL_VER(0, 0);
     fGLSLGeneration = static_cast<GrGLSLGeneration>(0);
     fVendor = kOther_GrGLVendor;
@@ -73,35 +74,4 @@ void GrGLContextInfo::reset() {
     fIsChromium = false;
     fExtensions.reset();
     fGLCaps->reset();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-GrGLContext::GrGLContext(const GrGLInterface* interface) {
-    fInterface = NULL;
-    this->initialize(interface);
-}
-
-GrGLContext::GrGLContext(const GrGLContext& ctx) {
-    fInterface = NULL;
-    *this = ctx;
-}
-
-GrGLContext& GrGLContext::operator = (const GrGLContext& ctx) {
-    SkRefCnt_SafeAssign(fInterface, ctx.fInterface);
-    fInfo = ctx.fInfo;
-    return *this;
-}
-
-void GrGLContext::reset() {
-    SkSafeSetNull(fInterface);
-    fInfo.reset();
-}
-
-bool GrGLContext::initialize(const GrGLInterface* interface) {
-    if (fInfo.initialize(interface)) {
-        fInterface = interface;
-        interface->ref();
-        return true;
-    }
-    return false;
 }

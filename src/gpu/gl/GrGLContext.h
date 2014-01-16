@@ -31,10 +31,12 @@ public:
         this->reset();
     }
 
-    /**
-     * Copies a GrGLContextInfo
-     */
-    GrGLContextInfo& operator= (const GrGLContextInfo& ctxInfo);
+    GrGLContextInfo(const GrGLContextInfo& that) {
+        fGLCaps.reset(SkNEW(GrGLCaps));
+        *this = that;
+    }
+
+    GrGLContextInfo& operator= (const GrGLContextInfo&);
 
     /**
      * Initializes a GrGLContextInfo from a GrGLInterface and the currently
@@ -43,7 +45,7 @@ public:
     bool initialize(const GrGLInterface* interface);
     bool isInitialized() const;
 
-    GrGLStandard standard() const { return fStandard; }
+    GrGLStandard standard() const { return fInterface->fStandard; }
     GrGLVersion version() const { return fGLVersion; }
     GrGLSLGeneration glslGeneration() const { return fGLSLGeneration; }
     GrGLVendor vendor() const { return fVendor; }
@@ -59,7 +61,7 @@ public:
     const GrGLExtensions& extensions() const { return fExtensions; }
 
     /**
-     * Shortcut for extensions().has(ext);
+     * Shortcut for extensions().has(ext)
      */
     bool hasExtension(const char* ext) const {
         if (!this->isInitialized()) {
@@ -73,64 +75,42 @@ public:
      */
     void reset();
 
-private:
-
-    GrGLStandard            fStandard;
-    GrGLVersion             fGLVersion;
-    GrGLSLGeneration        fGLSLGeneration;
-    GrGLVendor              fVendor;
-    GrGLRenderer            fRenderer;
-    GrGLExtensions          fExtensions;
-    bool                    fIsMesa;
-    bool                    fIsChromium;
-    SkAutoTUnref<GrGLCaps>  fGLCaps;
+protected:
+    SkAutoTUnref<const GrGLInterface>   fInterface;
+    GrGLVersion                         fGLVersion;
+    GrGLSLGeneration                    fGLSLGeneration;
+    GrGLVendor                          fVendor;
+    GrGLRenderer                        fRenderer;
+    GrGLExtensions                      fExtensions;
+    bool                                fIsMesa;
+    bool                                fIsChromium;
+    SkAutoTUnref<GrGLCaps>              fGLCaps;
 };
 
 /**
- * Encapsulates the GrGLInterface used to make GL calls plus information
- * about the context (via GrGLContextInfo).
+ * Extension of GrGLContextInfo that also provides access to GrGLInterface.
  */
-class GrGLContext {
+class GrGLContext : public GrGLContextInfo {
 public:
-    /**
-     * Default constructor
-     */
-    GrGLContext() { this->reset(); }
-
     /**
      * Creates a GrGLContext from a GrGLInterface and the currently
      * bound OpenGL context accessible by the GrGLInterface.
      */
-    explicit GrGLContext(const GrGLInterface* interface);
+    explicit GrGLContext(const GrGLInterface* interface) {
+        this->initialize(interface);
+    }
 
-    /**
-     * Copies a GrGLContext
-     */
-    GrGLContext(const GrGLContext& ctx);
+    GrGLContext(const GrGLContext& that) : INHERITED(that) {}
 
-    ~GrGLContext() { SkSafeUnref(fInterface); }
+    GrGLContext& operator= (const GrGLContext& that) {
+        this->INHERITED::operator=(that);
+        return *this;
+    }
 
-    /**
-     * Copies a GrGLContext
-     */
-    GrGLContext& operator= (const GrGLContext& ctx);
-
-    /**
-     * Initializes a GrGLContext from a GrGLInterface and the currently
-     * bound OpenGL context accessible by the GrGLInterface.
-     */
-    bool initialize(const GrGLInterface* interface);
-    bool isInitialized() const { return fInfo.isInitialized(); }
-
-    const GrGLInterface* interface() const { return fInterface; }
-    const GrGLContextInfo& info() const { return fInfo; }
-    GrGLContextInfo& info() { return fInfo; }
+    const GrGLInterface* interface() const { return fInterface.get(); }
 
 private:
-    void reset();
-
-    const GrGLInterface* fInterface;
-    GrGLContextInfo      fInfo;
+    typedef GrGLContextInfo INHERITED;
 };
 
 #endif

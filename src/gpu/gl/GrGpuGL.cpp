@@ -118,10 +118,10 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
 
     SkASSERT(ctx.isInitialized());
 
-    fCaps.reset(SkRef(ctx.info().caps()));
+    fCaps.reset(SkRef(ctx.caps()));
 
-    fHWBoundTextures.reset(ctx.info().caps()->maxFragmentTextureUnits());
-    fHWTexGenSettings.reset(ctx.info().caps()->maxFixedFunctionTextureCoords());
+    fHWBoundTextures.reset(this->glCaps().maxFragmentTextureUnits());
+    fHWTexGenSettings.reset(this->glCaps().maxFixedFunctionTextureCoords());
 
     GrGLClearErr(fGLContext.interface());
 
@@ -138,9 +138,9 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
         GrPrintf("------ RENDERER %s\n", renderer);
         GrPrintf("------ VERSION %s\n",  version);
         GrPrintf("------ EXTENSIONS\n");
-        ctx.info().extensions().print();
+        ctx.extensions().print();
         GrPrintf("\n");
-        GrPrintf(ctx.info().caps()->dump().c_str());
+        GrPrintf(this->glCaps().dump().c_str());
     }
 
     fProgramCache = SkNEW_ARGS(ProgramCache, (this));
@@ -175,7 +175,7 @@ GrPixelConfig GrGpuGL::preferredReadPixelsConfig(GrPixelConfig readConfig,
                                                  GrPixelConfig surfaceConfig) const {
     if (GR_GL_RGBA_8888_PIXEL_OPS_SLOW && kRGBA_8888_GrPixelConfig == readConfig) {
         return kBGRA_8888_GrPixelConfig;
-    } else if (fGLContext.info().isMesa() &&
+    } else if (this->glContext().isMesa() &&
                GrBytesPerPixel(readConfig) == 4 &&
                GrPixelConfigSwapRAndB(readConfig) == surfaceConfig) {
         // Mesa 3D takes a slow path on when reading back  BGRA from an RGBA surface and vice-versa.
@@ -713,7 +713,7 @@ static bool renderbuffer_storage_msaa(GrGLContext& ctx,
                                       GrGLenum format,
                                       int width, int height) {
     CLEAR_ERROR_BEFORE_ALLOC(ctx.interface());
-    SkASSERT(GrGLCaps::kNone_MSFBOType != ctx.info().caps()->msFBOType());
+    SkASSERT(GrGLCaps::kNone_MSFBOType != ctx.caps()->msFBOType());
 #if GR_GL_IGNORE_ES3_MSAA
         GL_ALLOC_CALL(ctx.interface(),
                       RenderbufferStorageMultisample(GR_GL_RENDERBUFFER,
@@ -721,7 +721,7 @@ static bool renderbuffer_storage_msaa(GrGLContext& ctx,
                                                      format,
                                                      width, height));
 #else
-    switch (ctx.info().caps()->msFBOType()) {
+    switch (ctx.caps()->msFBOType()) {
         case GrGLCaps::kDesktop_ARB_MSFBOType:
         case GrGLCaps::kDesktop_EXT_MSFBOType:
         case GrGLCaps::kES_3_0_MSFBOType:
@@ -820,7 +820,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 goto FAILED;
             }
-            fGLContext.info().caps()->markConfigAsValidColorAttachment(desc->fConfig);
+            fGLContext.caps()->markConfigAsValidColorAttachment(desc->fConfig);
         }
     }
     GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, desc->fTexFBOID));
@@ -842,7 +842,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
             goto FAILED;
         }
-        fGLContext.info().caps()->markConfigAsValidColorAttachment(desc->fConfig);
+        fGLContext.caps()->markConfigAsValidColorAttachment(desc->fConfig);
     }
 
     return true;
@@ -1138,7 +1138,7 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb, GrRenderTar
                 }
                 return false;
             } else {
-                fGLContext.info().caps()->markColorConfigAndStencilFormatAsVerified(
+                fGLContext.caps()->markColorConfigAndStencilFormatAsVerified(
                     rt->config(),
                     glsb->format());
             }
@@ -1531,7 +1531,7 @@ void GrGpuGL::flushRenderTarget(const SkIRect* bound) {
         // lots of repeated command buffer flushes when the compositor is
         // rendering with Ganesh, which is really slow; even too slow for
         // Debug mode.
-        if (!this->glContext().info().isChromium()) {
+        if (!this->glContext().isChromium()) {
             GrGLenum status;
             GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {

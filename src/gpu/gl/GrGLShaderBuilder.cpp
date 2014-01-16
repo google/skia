@@ -649,7 +649,7 @@ static bool attach_shader(const GrGLContext& glCtx,
     GR_GL_CALL(gli, CompileShader(shaderId));
 
     // Calling GetShaderiv in Chromium is quite expensive. Assume success in release builds.
-    bool checkCompiled = !glCtx.info().isChromium();
+    bool checkCompiled = !glCtx.isChromium();
 #ifdef SK_DEBUG
     checkCompiled = true;
 #endif

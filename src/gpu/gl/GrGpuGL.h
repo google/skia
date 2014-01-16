@@ -34,10 +34,11 @@ public:
     const GrGLContext& glContext() const { return fGLContext; }
 
     const GrGLInterface* glInterface() const { return fGLContext.interface(); }
-    const GrGLContextInfo& ctxInfo() const { return fGLContext.info(); }
-    GrGLStandard glStandard() const { return fGLContext.info().standard(); }
-    GrGLVersion glVersion() const { return fGLContext.info().version(); }
-    GrGLSLGeneration glslGeneration() const { return fGLContext.info().glslGeneration(); }
+    const GrGLContextInfo& ctxInfo() const { return fGLContext; }
+    GrGLStandard glStandard() const { return fGLContext.standard(); }
+    GrGLVersion glVersion() const { return fGLContext.version(); }
+    GrGLSLGeneration glslGeneration() const { return fGLContext.glslGeneration(); }
+    const GrGLCaps& glCaps() const { return *fGLContext.caps(); }
 
     // Used by GrGLProgram and GrGLTexGenProgramEffects to configure OpenGL state.
     void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
@@ -76,8 +77,6 @@ public:
     virtual void initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) SK_OVERRIDE;
 
     virtual void abandonResources() SK_OVERRIDE;
-
-    const GrGLCaps& glCaps() const { return *fGLContext.info().caps(); }
 
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
@@ -177,7 +176,7 @@ private:
     // have been accounted for).
     void flushBlend(bool isLines, GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff);
 
-    bool hasExtension(const char* ext) const { return fGLContext.info().hasExtension(ext); }
+    bool hasExtension(const char* ext) const { return fGLContext.hasExtension(ext); }
 
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
