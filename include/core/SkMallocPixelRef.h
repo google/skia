@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
@@ -15,7 +14,7 @@
 /** We explicitly use the same allocator for our pixels that SkMask does,
     so that we can freely assign memory allocated by one class to the other.
 */
-class SkMallocPixelRef : public SkPixelRef {
+class SK_API SkMallocPixelRef : public SkPixelRef {
 public:
     /**
      *  Return a new SkMallocPixelRef with the provided pixel storage, rowBytes,
