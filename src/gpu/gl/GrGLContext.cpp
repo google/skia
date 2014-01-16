@@ -48,9 +48,11 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
 
             fIsChromium = GrGLIsChromiumFromRendererString(renderer);
 
+            // This must be done before calling GrGLCaps::init()
+            fStandard = interface->fStandard;
+
             fGLCaps->init(*this, interface);
 
-            fStandard = interface->fStandard;
             return true;
         }
     }
