@@ -23,6 +23,7 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPerlinNoiseShader.h"
+#include "SkPictureImageFilter.h"
 #include "SkRandom.h"
 #include "SkRectShaderImageFilter.h"
 #include "SkTileImageFilter.h"
@@ -173,7 +174,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
 
     enum { BICUBIC, MERGE, COLOR, BLUR, MAGNIFIER, XFERMODE, OFFSET, COMPOSE,
            DISTANT_LIGHT, POINT_LIGHT, SPOT_LIGHT, NOISE, DROP_SHADOW,
-           MORPHOLOGY, BITMAP, DISPLACE, TILE, NUM_FILTERS };
+           MORPHOLOGY, BITMAP, DISPLACE, TILE, PICTURE, NUM_FILTERS };
 
     switch (R(NUM_FILTERS)) {
     case BICUBIC:
@@ -273,6 +274,9 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         break;
     case TILE:
         filter = new SkTileImageFilter(make_rect(), make_rect(), make_image_filter(false));
+        break;
+    case PICTURE:
+        filter = new SkPictureImageFilter(NULL, make_rect());
         break;
     default:
         break;
