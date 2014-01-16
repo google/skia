@@ -97,6 +97,9 @@ var onDraw = function() {
   function draw(ctx) {
     ctx.resetTransform();
 
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, 499, 499);
+
     rotation += DeltaTheta;
     if (rotation >= Math.PI*2) {
       rotation = 0;
