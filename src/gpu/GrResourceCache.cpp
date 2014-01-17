@@ -428,9 +428,6 @@ void GrResourceCache::validate() const {
     SkASSERT(fClientDetachedCount <= fEntryCount);
     SkASSERT((fEntryCount - fClientDetachedCount) == fCache.count());
 
-    fCache.validate();
-
-
     EntryList::Iter iter;
 
     // check that the exclusively held entries are okay

@@ -130,6 +130,52 @@ static void test_purge_invalidated(skiatest::Reporter* reporter, GrContext* cont
     REPORTER_ASSERT(reporter, 0 == TestResource::alive());
 }
 
+static void test_cache_delete_on_destruction(skiatest::Reporter* reporter,
+                                             GrContext* context) {
+    GrCacheID::Domain domain = GrCacheID::GenerateDomain();
+    GrCacheID::Key keyData;
+    keyData.fData64[0] = 5;
+    keyData.fData64[1] = 0;
+    GrResourceKey::ResourceType t = GrResourceKey::GenerateResourceType();
+
+    GrResourceKey key(GrCacheID(domain, keyData), t, 0);
+
+    {
+        {
+            GrResourceCache cache(3, 30000);
+            TestResource* a = new TestResource(context->getGpu());
+            TestResource* b = new TestResource(context->getGpu());
+            cache.addResource(key, a);
+            cache.addResource(key, b);
+
+            a->setDeleteWhenDestroyed(&cache, b);
+            b->setDeleteWhenDestroyed(&cache, a);
+
+            a->unref();
+            b->unref();
+            REPORTER_ASSERT(reporter, 2 == TestResource::alive());
+        }
+        REPORTER_ASSERT(reporter, 0 == TestResource::alive());
+    }
+    {
+        GrResourceCache cache(3, 30000);
+        TestResource* a = new TestResource(context->getGpu());
+        TestResource* b = new TestResource(context->getGpu());
+        cache.addResource(key, a);
+        cache.addResource(key, b);
+
+        a->setDeleteWhenDestroyed(&cache, b);
+        b->setDeleteWhenDestroyed(&cache, a);
+
+        a->unref();
+        b->unref();
+
+        cache.deleteResource(a->getCacheEntry());
+
+        REPORTER_ASSERT(reporter, 0 == TestResource::alive());
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 DEF_GPUTEST(ResourceCache, reporter, factory) {
     for (int type = 0; type < GrContextFactory::kLastGLContextType; ++type) {
@@ -154,6 +200,7 @@ DEF_GPUTEST(ResourceCache, reporter, factory) {
 
         test_cache(reporter, context, &canvas);
         test_purge_invalidated(reporter, context);
+        test_cache_delete_on_destruction(reporter, context);
     }
 }
 
