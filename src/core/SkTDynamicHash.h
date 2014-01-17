@@ -51,7 +51,6 @@ public:
     void add(T* newEntry) {
         SkASSERT(NULL == this->find(GetKey(*newEntry)));
         this->maybeGrow();
-        SkASSERT(this->validate());
         this->innerAdd(newEntry);
         SkASSERT(this->validate());
     }
@@ -89,48 +88,43 @@ private:
 
     bool validate() const {
         #define SKTDYNAMICHASH_CHECK(x) SkASSERT((x)); if (!(x)) return false
+        static const int kLarge = 50;  // Arbitrary, tweak to suit your patience.
 
+        // O(1) checks, always done.
         // Is capacity sane?
         SKTDYNAMICHASH_CHECK(SkIsPow2(fCapacity));
 
-        // Is fCount correct?
-        int count = 0;
-        for (int i = 0; i < fCapacity; i++) {
-            if (Empty() != fArray[i] && Deleted() != fArray[i]) {
-                count++;
+        // O(N) checks, skipped when very large.
+        if (fCount < kLarge * kLarge) {
+            // Are fCount and fDeleted correct, and are all elements findable?
+            int count = 0, deleted = 0;
+            for (int i = 0; i < fCapacity; i++) {
+                if (Deleted() == fArray[i]) {
+                    deleted++;
+                } else if (Empty() != fArray[i]) {
+                    count++;
+                    SKTDYNAMICHASH_CHECK(NULL != this->find(GetKey(*fArray[i])));
+                }
             }
-        }
-        SKTDYNAMICHASH_CHECK(count == fCount);
-
-        // Is fDeleted correct?
-        int deleted = 0;
-        for (int i = 0; i < fCapacity; i++) {
-            if (Deleted() == fArray[i]) {
-                deleted++;
-            }
-        }
-        SKTDYNAMICHASH_CHECK(deleted == fDeleted);
-
-        // Are all entries findable?
-        for (int i = 0; i < fCapacity; i++) {
-            if (Empty() == fArray[i] || Deleted() == fArray[i]) {
-                continue;
-            }
-            SKTDYNAMICHASH_CHECK(NULL != this->find(GetKey(*fArray[i])));
+            SKTDYNAMICHASH_CHECK(count == fCount);
+            SKTDYNAMICHASH_CHECK(deleted == fDeleted);
         }
 
-        // Are all entries unique?
-        for (int i = 0; i < fCapacity; i++) {
-            if (Empty() == fArray[i] || Deleted() == fArray[i]) {
-                continue;
-            }
-            for (int j = i+1; j < fCapacity; j++) {
-                if (Empty() == fArray[j] || Deleted() == fArray[j]) {
+        // O(N^2) checks, skipped when large.
+        if (fCount < kLarge) {
+            // Are all entries unique?
+            for (int i = 0; i < fCapacity; i++) {
+                if (Empty() == fArray[i] || Deleted() == fArray[i]) {
                     continue;
                 }
-                SKTDYNAMICHASH_CHECK(fArray[i] != fArray[j]);
-                SKTDYNAMICHASH_CHECK(!Equal(*fArray[i], GetKey(*fArray[j])));
-                SKTDYNAMICHASH_CHECK(!Equal(*fArray[j], GetKey(*fArray[i])));
+                for (int j = i+1; j < fCapacity; j++) {
+                    if (Empty() == fArray[j] || Deleted() == fArray[j]) {
+                        continue;
+                    }
+                    SKTDYNAMICHASH_CHECK(fArray[i] != fArray[j]);
+                    SKTDYNAMICHASH_CHECK(!Equal(*fArray[i], GetKey(*fArray[j])));
+                    SKTDYNAMICHASH_CHECK(!Equal(*fArray[j], GetKey(*fArray[i])));
+                }
             }
         }
         #undef SKTDYNAMICHASH_CHECK
