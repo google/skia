@@ -17,8 +17,8 @@
 
 #include <EGL/egl.h>
 
-static const GrGLInterface* create_es_interface(GrGLVersion version,
-                                                const GrGLExtensions& extensions) {
+static GrGLInterface* create_es_interface(GrGLVersion version,
+                                          const GrGLExtensions& extensions) {
     if (version < GR_GL_VER(2,0)) {
         return NULL;
     }
@@ -192,8 +192,8 @@ static const GrGLInterface* create_es_interface(GrGLVersion version,
     return interface;
 }
 
-static const GrGLInterface* create_desktop_interface(GrGLVersion version,
-                                                     const GrGLExtensions& extensions) {
+static GrGLInterface* create_desktop_interface(GrGLVersion version,
+                                               const GrGLExtensions& extensions) {
     // Currently this assumes a 4.4 context or later. Supporting lower GL versions would require
     // getting suffixed versions of pointers for supported extensions.
     if (version < GR_GL_VER(4,4)) {
@@ -403,11 +403,16 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         return NULL;
     }
 
+    GrGLInterface* interface = NULL;
     if (kGLES_GrGLStandard == standard) {
-        return create_es_interface(version, extensions);
+        interface = create_es_interface(version, extensions);
     } else if (kGL_GrGLStandard == standard) {
-        return create_desktop_interface(version, extensions);
-    } else {
-        return NULL;
+        interface = create_desktop_interface(version, extensions);
     }
+
+    if (NULL != interface) {
+        interface->fExtensions.swap(&extensions);
+    }
+
+    return interface;
 }

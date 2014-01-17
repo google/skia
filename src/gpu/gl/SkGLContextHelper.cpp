@@ -37,7 +37,7 @@ bool SkGLContextHelper::init(int width, int height) {
     if (fGL) {
         const GrGLubyte* temp;
 
-        if (!fGL->validate() || !fExtensions.init(fGL)) {
+        if (!fGL->validate()) {
             fGL = NULL;
             this->destroyGLContext();
             return false;

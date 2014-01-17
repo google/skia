@@ -6,8 +6,6 @@
  * found in the LICENSE file.
  */
 
-
-#include "gl/GrGLExtensions.h"
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
 #define WIN32_LEAN_AND_MEAN
@@ -308,6 +306,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         }
 
         interface->fStandard = kGL_GrGLStandard;
+        interface->fExtensions.swap(&extensions);
 
         return interface;
     } else {

@@ -138,7 +138,9 @@ GrGpuGL::GrGpuGL(const GrGLContext& ctx, GrContext* context)
         GrPrintf("------ RENDERER %s\n", renderer);
         GrPrintf("------ VERSION %s\n",  version);
         GrPrintf("------ EXTENSIONS\n");
-        ctx.extensions().print();
+#if 0  // TODO: Reenable this after GrGLInterface's extensions can be accessed safely.
+       ctx.extensions().print();
+#endif
         GrPrintf("\n");
         GrPrintf(this->glCaps().dump().c_str());
     }

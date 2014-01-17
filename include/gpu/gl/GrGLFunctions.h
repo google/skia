@@ -11,11 +11,28 @@
 
 #include "GrGLConfig.h"
 
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Classifies GL contexts by which standard they implement (currently as Desktop
+ * vs. ES).
+ */
+enum GrGLStandard {
+    kNone_GrGLStandard,
+    kGL_GrGLStandard,
+    kGLES_GrGLStandard,
+};
+
+// Temporary aliases until Chromium can be updated.
+typedef GrGLStandard GrGLBinding;
+static const GrGLStandard kES2_GrGLBinding = kGLES_GrGLStandard;
+static const GrGLStandard kDesktop_GrGLBinding = kGL_GrGLStandard;
+
+///////////////////////////////////////////////////////////////////////////////
+
 /**
  * Declares typedefs for all the GL functions used in GrGLInterface
  */
-
-///////////////////////////////////////////////////////////////////////////////
 
 typedef unsigned int GrGLenum;
 typedef unsigned char GrGLboolean;

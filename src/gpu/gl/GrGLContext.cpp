@@ -15,7 +15,6 @@ GrGLContextInfo& GrGLContextInfo::operator= (const GrGLContextInfo& that) {
     fGLSLGeneration = that.fGLSLGeneration;
     fVendor         = that.fVendor;
     fRenderer       = that.fRenderer;
-    fExtensions     = that.fExtensions;
     fIsMesa         = that.fIsMesa;
     fIsChromium     = that.fIsChromium;
     *fGLCaps        = *that.fGLCaps.get();
@@ -35,7 +34,7 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
         GR_GL_CALL_RET(interface, rendererUByte, GetString(GR_GL_RENDERER));
         const char* renderer = reinterpret_cast<const char*>(rendererUByte);
 
-        if (interface->validate() && fExtensions.init(interface)) {
+        if (interface->validate()) {
 
             fGLVersion = GrGLGetVersionFromString(ver);
 
@@ -72,6 +71,5 @@ void GrGLContextInfo::reset() {
     fRenderer = kOther_GrGLRenderer;
     fIsMesa = false;
     fIsChromium = false;
-    fExtensions.reset();
     fGLCaps->reset();
 }

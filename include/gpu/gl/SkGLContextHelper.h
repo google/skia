@@ -8,7 +8,6 @@
 #ifndef SkGLContextHelper_DEFINED
 #define SkGLContextHelper_DEFINED
 
-#include "GrGLExtensions.h"
 #include "GrGLInterface.h"
 
 /**
@@ -48,7 +47,7 @@ public:
 
     bool hasExtension(const char* extensionName) const {
         SkASSERT(NULL != fGL);
-        return fExtensions.has(extensionName);
+        return fGL->hasExtension(extensionName);
     }
 
 protected:
@@ -66,7 +65,6 @@ protected:
     virtual void destroyGLContext() = 0;
 
 private:
-    GrGLExtensions fExtensions;
     GrGLuint fFBO;
     GrGLuint fColorBufferID;
     GrGLuint fDepthStencilBufferID;

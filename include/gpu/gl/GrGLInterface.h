@@ -9,24 +9,8 @@
 #define GrGLInterface_DEFINED
 
 #include "GrGLFunctions.h"
+#include "GrGLExtensions.h"
 #include "SkRefCnt.h"
-
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Classifies GL contexts by which standard they implement (currently as Desktop
- * vs. ES).
- */
-enum GrGLStandard {
-    kNone_GrGLStandard,
-    kGL_GrGLStandard,
-    kGLES_GrGLStandard,
-};
-
-// Temporary aliases until Chromium can be updated.
-typedef GrGLStandard GrGLBinding;
-static const GrGLStandard kES2_GrGLBinding = kGLES_GrGLStandard;
-static const GrGLStandard kDesktop_GrGLBinding = kGL_GrGLStandard;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -128,6 +112,20 @@ public:
         GrGLStandard fStandard;
         GrGLStandard fBindingsExported; // Legacy name, will be remove when Chromium is updated.
     };
+
+    GrGLExtensions fExtensions;
+
+    // This wrapper and const hackery is necessary because the factories in Chromium do not yet
+    // initialize fExtensions.
+    bool hasExtension(const char ext[]) const {
+        if (!fExtensions.isInitialized()) {
+            GrGLExtensions* extensions = const_cast<GrGLExtensions*>(&fExtensions);
+            if (!extensions->init(fStandard, fGetString, fGetStringi, fGetIntegerv)) {
+                return false;
+            }
+        }
+        return fExtensions.has(ext);
+    }
 
     GLPtr<GrGLActiveTextureProc> fActiveTexture;
     GLPtr<GrGLAttachShaderProc> fAttachShader;

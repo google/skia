@@ -58,16 +58,11 @@ public:
     bool isChromium() const { return fIsChromium; }
     const GrGLCaps* caps() const { return fGLCaps.get(); }
     GrGLCaps* caps() { return fGLCaps; }
-    const GrGLExtensions& extensions() const { return fExtensions; }
-
-    /**
-     * Shortcut for extensions().has(ext)
-     */
     bool hasExtension(const char* ext) const {
         if (!this->isInitialized()) {
             return false;
         }
-        return fExtensions.has(ext);
+        return fInterface->hasExtension(ext);
     }
 
     /**
@@ -81,7 +76,6 @@ protected:
     GrGLSLGeneration                    fGLSLGeneration;
     GrGLVendor                          fVendor;
     GrGLRenderer                        fRenderer;
-    GrGLExtensions                      fExtensions;
     bool                                fIsMesa;
     bool                                fIsChromium;
     SkAutoTUnref<GrGLCaps>              fGLCaps;

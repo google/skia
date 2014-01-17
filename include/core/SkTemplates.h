@@ -143,6 +143,10 @@ public:
         return obj;
     }
 
+    void swap(SkAutoTDelete* that) {
+        SkTSwap(fObj, that->fObj);
+    }
+
 private:
     T*  fObj;
 };

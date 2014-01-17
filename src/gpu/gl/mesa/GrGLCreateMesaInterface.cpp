@@ -220,7 +220,10 @@ const GrGLInterface* GrGLCreateMesaInterface() {
             return NULL;
         }
         GR_GL_GET_PROC(BindFragDataLocationIndexed);
+
         interface->fStandard = kGL_GrGLStandard;
+        interface->fExtensions.swap(&extensions);
+
         return interface;
     } else {
         return NULL;

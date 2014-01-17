@@ -7,7 +7,6 @@
  */
 
 
-#include "gl/GrGLExtensions.h"
 #include "gl/GrGLInterface.h"
 #include "../GrGLUtil.h"
 
@@ -276,6 +275,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         }
 
         interface->fStandard = kGL_GrGLStandard;
+        interface->fExtensions.swap(&extensions);
 
         return interface;
     } else {

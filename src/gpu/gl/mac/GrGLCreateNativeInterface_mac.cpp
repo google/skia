@@ -8,7 +8,6 @@
 
 
 #include "gl/GrGLInterface.h"
-#include "gl/GrGLExtensions.h"
 #include "../GrGLUtil.h"
 
 #include <dlfcn.h>
@@ -241,5 +240,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         // ARB extension doesn't use the ARB suffix on the function name
         GET_PROC(BindFragDataLocationIndexed);
     }
+
+    interface->fExtensions.swap(&extensions);
     return interface;
 }

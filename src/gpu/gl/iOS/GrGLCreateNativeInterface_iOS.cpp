@@ -143,6 +143,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 #endif
 
     interface->fStandard = kGLES_GrGLStandard;
-
+    interface->fExtensions.init(kGLES_GrGLStandard, glGetString, NULL, glGetIntegerv);
     return interface;
 }

@@ -409,7 +409,7 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
         // The GL_EXT_texture_format_BGRA8888 extension does not add BGRA to the list of
         // configs that are color-renderable and can be passed to glRenderBufferStorageMultisample.
         // Chromium may have an extension to allow BGRA renderbuffers to work on desktop platforms.
-        if (ctxInfo.extensions().has("GL_CHROMIUM_renderbuffer_format_BGRA8888")) {
+        if (ctxInfo.hasExtension("GL_CHROMIUM_renderbuffer_format_BGRA8888")) {
             fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kYes_MSAA] = true;
         } else {
             fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kYes_MSAA] =
