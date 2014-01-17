@@ -15,7 +15,7 @@
  * Provides a GrGLInterface struct of function pointers for the context.
  */
 
-class SkGLContextHelper : public SkRefCnt {
+class SK_API SkGLContextHelper : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkGLContextHelper)
 

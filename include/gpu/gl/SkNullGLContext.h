@@ -10,7 +10,7 @@
 
 #include "SkGLContextHelper.h"
 
-class SkNullGLContext : public SkGLContextHelper {
+class SK_API SkNullGLContext : public SkGLContextHelper {
 
 public:
     SkNullGLContext() {};
