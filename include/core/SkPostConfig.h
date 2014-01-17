@@ -120,12 +120,12 @@
  * SK_ENABLE_INST_COUNT controlls printing how many reference counted objects
  * are still held on exit.
  * Defaults to 1 in DEBUG and 0 in RELEASE.
- * FIXME: currently always 0, since it fails if multiple threads run at once
- * (see skbug.com/1219 ).
  */
 #ifndef SK_ENABLE_INST_COUNT
 #  ifdef SK_DEBUG
-#    define SK_ENABLE_INST_COUNT 0
+// Only enabled for static builds, because instance counting relies on static
+// variables in functions defined in header files.
+#    define SK_ENABLE_INST_COUNT !defined(SKIA_DLL)
 #  else
 #    define SK_ENABLE_INST_COUNT 0
 #  endif
