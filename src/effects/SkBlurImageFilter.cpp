@@ -165,10 +165,13 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
+    SkVector sigma, localSigma = SkVector::Make(fSigma.width(), fSigma.height());
+    ctm.mapVectors(&sigma, &localSigma, 1);
+
     int kernelSizeX, kernelSizeX3, lowOffsetX, highOffsetX;
     int kernelSizeY, kernelSizeY3, lowOffsetY, highOffsetY;
-    getBox3Params(fSigma.width(), &kernelSizeX, &kernelSizeX3, &lowOffsetX, &highOffsetX);
-    getBox3Params(fSigma.height(), &kernelSizeY, &kernelSizeY3, &lowOffsetY, &highOffsetY);
+    getBox3Params(sigma.x(), &kernelSizeX, &kernelSizeX3, &lowOffsetX, &highOffsetX);
+    getBox3Params(sigma.y(), &kernelSizeY, &kernelSizeY3, &lowOffsetY, &highOffsetY);
 
     if (kernelSizeX < 0 || kernelSizeY < 0) {
         return false;
@@ -235,13 +238,15 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
     if (!this->applyCropRect(&rect, ctm)) {
         return false;
     }
+    SkVector sigma, localSigma = SkVector::Make(fSigma.width(), fSigma.height());
+    ctm.mapVectors(&sigma, &localSigma, 1);
     SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(source->getContext(),
                                                              source,
                                                              false,
                                                              SkRect::Make(rect),
                                                              true,
-                                                             fSigma.width(),
-                                                             fSigma.height()));
+                                                             sigma.x(),
+                                                             sigma.y()));
     offset->fX = rect.fLeft;
     offset->fY = rect.fTop;
     return SkImageFilterUtils::WrapTexture(tex, rect.width(), rect.height(), result);

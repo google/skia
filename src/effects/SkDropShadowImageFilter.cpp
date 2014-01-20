@@ -77,14 +77,18 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
     }
     SkCanvas canvas(device.get());
 
-    SkAutoTUnref<SkImageFilter> blurFilter(new SkBlurImageFilter(fSigmaX, fSigmaY));
+    SkVector sigma, localSigma = SkVector::Make(fSigmaX, fSigmaY);
+    matrix.mapVectors(&sigma, &localSigma, 1);
+    SkAutoTUnref<SkImageFilter> blurFilter(new SkBlurImageFilter(sigma.fX, sigma.fY));
     SkAutoTUnref<SkColorFilter> colorFilter(SkColorFilter::CreateModeFilter(fColor, SkXfermode::kSrcIn_Mode));
     SkPaint paint;
     paint.setImageFilter(blurFilter.get());
     paint.setColorFilter(colorFilter.get());
     paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
+    SkVector offsetVec, localOffsetVec = SkVector::Make(fDx, fDy);
+    matrix.mapVectors(&offsetVec, &localOffsetVec, 1);
     canvas.translate(-SkIntToScalar(bounds.fLeft), -SkIntToScalar(bounds.fTop));
-    canvas.drawBitmap(src, fDx, fDy, &paint);
+    canvas.drawBitmap(src, offsetVec.fX, offsetVec.fY, &paint);
     canvas.drawBitmap(src, 0, 0);
     *result = device->accessBitmap(false);
     offset->fX = bounds.fLeft;
