@@ -348,7 +348,13 @@
         },
         'xcode_settings': {
           'GCC_SYMBOLS_PRIVATE_EXTERN': 'NO',
-          'MACOSX_DEPLOYMENT_TARGET': '10.6', # -mmacos-version-min, passed in environment to ld.
+          'conditions': [
+            [ 'skia_osx_deployment_target==""', {
+              'MACOSX_DEPLOYMENT_TARGET': '10.6', # -mmacos-version-min, passed in environment to ld.
+            }, {
+              'MACOSX_DEPLOYMENT_TARGET': '<(skia_osx_deployment_target)',
+            }],
+          ],
 # trying to get this to work, but it needs clang I think...
 #          'WARNING_CFLAGS': '-Wexit-time-destructors',
           'CLANG_WARN_CXX0X_EXTENSIONS': 'NO',
