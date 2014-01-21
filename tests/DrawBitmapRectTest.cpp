@@ -17,13 +17,12 @@
 #include "SkRandom.h"
 #include "SkMatrixUtils.h"
 
-namespace {
 // A BitmapFactory that always fails when asked to return pixels.
 class FailureImageGenerator : public SkImageGenerator {
 public:
     FailureImageGenerator() { }
     virtual ~FailureImageGenerator() { }
-    virtual bool getInfo(SkImageInfo* info) {
+    virtual bool getInfo(SkImageInfo* info) SK_OVERRIDE {
         info->fWidth = 100;
         info->fHeight = 100;
         info->fColorType = kPMColor_SkColorType;
@@ -38,7 +37,6 @@ public:
         return false;
     }
 };
-}  // namespace
 
 // crbug.com/295895
 // Crashing in skia when a pixelref fails in lockPixels

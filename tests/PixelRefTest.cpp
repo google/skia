@@ -37,17 +37,13 @@ static void test_info(skiatest::Reporter* reporter) {
     }
 }
 
-namespace {
-
 class TestListener : public SkPixelRef::GenIDChangeListener {
 public:
     explicit TestListener(int* ptr) : fPtr(ptr) {}
-    void onChange() SK_OVERRIDE { (*fPtr)++; }
+    virtual void onChange() SK_OVERRIDE { (*fPtr)++; }
 private:
     int* fPtr;
 };
-
-}  // namespace
 
 DEF_TEST(PixelRef_GenIDChange, r) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);

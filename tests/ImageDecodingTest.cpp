@@ -240,12 +240,10 @@ DEF_TEST(ImageDecoding, reporter) {
 #endif
 }
 
-////////////////////////////////////////////////////////////////////////////////
-namespace {
 // expected output for 8x8 bitmap
-const int kExpectedWidth = 8;
-const int kExpectedHeight = 8;
-const SkColor kExpectedPixels[] = {
+static const int kExpectedWidth = 8;
+static const int kExpectedHeight = 8;
+static const SkColor kExpectedPixels[] = {
     0xffbba570, 0xff395f5d, 0xffe25c39, 0xff197666,
     0xff3cba27, 0xffdefcb0, 0xffc13874, 0xfffa0093,
     0xffbda60e, 0xffc01db6, 0xff2bd688, 0xff9362d4,
@@ -265,7 +263,6 @@ const SkColor kExpectedPixels[] = {
 };
 SK_COMPILE_ASSERT((kExpectedWidth * kExpectedHeight)
                   == SK_ARRAY_COUNT(kExpectedPixels), array_size_mismatch);
-}  // namespace
 
 DEF_TEST(WebP, reporter) {
     const unsigned char encodedWebP[] = {
@@ -582,4 +579,3 @@ DEF_TEST(ImageDecoderOptions, reporter) {
         }
     }
 }
-////////////////////////////////////////////////////////////////////////////////
