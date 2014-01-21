@@ -17,10 +17,9 @@
  * Otherwise, a springboard would be needed that hides the calling convention.
  */
 
-#define SET_PROC(F) interface->f ## F = (GrGL ## F ## Proc) GetProcAddress(alu.get(), "gl" #F);
-#define WGL_SET_PROC(F) interface->f ## F = (GrGL ## F ## Proc) wglGetProcAddress("gl" #F);
-#define WGL_SET_PROC_SUFFIX(F, S) interface->f ## F = \
-                                  (GrGL ## F ## Proc) wglGetProcAddress("gl" #F #S);
+#define SET_PROC(F) interface->fFunctions.f ## F = (GrGL ## F ## Proc) GetProcAddress(alu.get(), "gl" #F);
+#define WGL_SET_PROC(F) interface->fFunctions.f ## F = (GrGL ## F ## Proc) wglGetProcAddress("gl" #F);
+#define WGL_SET_PROC_SUFFIX(F, S) interface->fFunctions.f ## F = (GrGL ## F ## Proc) wglGetProcAddress("gl" #F #S);
 
 class AutoLibraryUnload {
 public:

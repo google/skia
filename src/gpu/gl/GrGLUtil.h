@@ -154,7 +154,7 @@ template<int MatrixSize> void GrGLGetMatrix(GrGLfloat* dest, const SkMatrix& src
 #define GR_GL_CALL_NOERRCHECK(IFACE, X)                         \
     do {                                                        \
         GR_GL_CALLBACK_IMPL(IFACE);                             \
-        (IFACE)->f##X;                                          \
+        (IFACE)->fFunctions.f##X;                               \
         GR_GL_LOG_CALLS_IMPL(X);                                \
     } while (false)
 
@@ -169,11 +169,11 @@ template<int MatrixSize> void GrGLGetMatrix(GrGLfloat* dest, const SkMatrix& src
 #define GR_GL_CALL_RET_NOERRCHECK(IFACE, RET, X)                \
     do {                                                        \
         GR_GL_CALLBACK_IMPL(IFACE);                             \
-        (RET) = (IFACE)->f##X;                                  \
+        (RET) = (IFACE)->fFunctions.f##X;                       \
         GR_GL_LOG_CALLS_IMPL(X);                                \
     } while (false)
 
 // call glGetError without doing a redundant error check or logging.
-#define GR_GL_GET_ERROR(IFACE) (IFACE)->fGetError()
+#define GR_GL_GET_ERROR(IFACE) (IFACE)->fFunctions.fGetError()
 
 #endif

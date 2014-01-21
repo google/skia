@@ -18,7 +18,7 @@
 #include "EGL/egl.h"
 
 #define GET_PROC(name)             \
-    interface->f ## name = (GrGL ## name ## Proc) GetProcAddress(ghANGLELib, "gl" #name);
+    interface->fFunctions.f ## name = (GrGL ## name ## Proc) GetProcAddress(ghANGLELib, "gl" #name);
 
 const GrGLInterface* GrGLCreateANGLEInterface() {
 
@@ -36,12 +36,14 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
     GrGLInterface* interface = SkNEW(GrGLInterface);
     interface->fStandard = kGLES_GrGLStandard;
 
+    GrGLInterface::Functions* functions = &interface->fFunctions;
+
     GET_PROC(ActiveTexture);
     GET_PROC(AttachShader);
     GET_PROC(BindAttribLocation);
     GET_PROC(BindBuffer);
     GET_PROC(BindTexture);
-    interface->fBindVertexArray =
+    functions->fBindVertexArray =
         (GrGLBindVertexArrayProc) eglGetProcAddress("glBindVertexArrayOES");
     GET_PROC(BlendColor);
     GET_PROC(BlendFunc);
@@ -61,7 +63,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
     GET_PROC(DeleteProgram);
     GET_PROC(DeleteShader);
     GET_PROC(DeleteTextures);
-    interface->fDeleteVertexArrays =
+    functions->fDeleteVertexArrays =
         (GrGLDeleteVertexArraysProc) eglGetProcAddress("glDeleteVertexArraysOES");
     GET_PROC(DepthMask);
     GET_PROC(Disable);
@@ -76,7 +78,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
     GET_PROC(GenBuffers);
     GET_PROC(GenerateMipmap);
     GET_PROC(GenTextures);
-    interface->fGenVertexArrays =
+    functions->fGenVertexArrays =
         (GrGLGenVertexArraysProc) eglGetProcAddress("glGenVertexArraysOES");
     GET_PROC(GetBufferParameteriv);
     GET_PROC(GetError);
@@ -106,7 +108,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
 #if GL_ARB_texture_storage
     GET_PROC(TexStorage2D);
 #elif GL_EXT_texture_storage
-    interface->fTexStorage2D = (GrGLTexStorage2DProc) eglGetProcAddress("glTexStorage2DEXT");
+    functions->fTexStorage2D = (GrGLTexStorage2DProc) eglGetProcAddress("glTexStorage2DEXT");
 #endif
     GET_PROC(Uniform1f);
     GET_PROC(Uniform1i);
@@ -148,7 +150,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
     GET_PROC(GetRenderbufferParameteriv);
     GET_PROC(RenderbufferStorage);
 
-    interface->fMapBuffer = (GrGLMapBufferProc) eglGetProcAddress("glMapBufferOES");
-    interface->fUnmapBuffer = (GrGLUnmapBufferProc) eglGetProcAddress("glUnmapBufferOES");
+    functions->fMapBuffer = (GrGLMapBufferProc) eglGetProcAddress("glMapBufferOES");
+    functions->fUnmapBuffer = (GrGLUnmapBufferProc) eglGetProcAddress("glUnmapBufferOES");
     return interface;
 }

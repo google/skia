@@ -16,7 +16,8 @@
                   (1 == arrayCount && GrGLShaderVar::kNonArray == uni.fArrayCount))
 
 GrGLUniformManager::GrGLUniformManager(GrGpuGL* gpu) : fGpu(gpu) {
-    fUsingBindUniform = fGpu->glInterface()->fBindUniformLocation != NULL;
+    // skbug.com/2056
+    fUsingBindUniform = fGpu->glInterface()->fFunctions.fBindUniformLocation != NULL;
 }
 
 GrGLUniformManager::UniformHandle GrGLUniformManager::appendUniform(GrSLType type, int arrayCount) {

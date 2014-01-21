@@ -38,8 +38,8 @@ static void* GetProcAddress(const char* name) {
     return dlsym(gLoader.handle(), name);
 }
 
-#define GET_PROC(name) (interface->f ## name = ((GrGL ## name ## Proc) GetProcAddress("gl" #name)))
-#define GET_PROC_SUFFIX(name, suffix) (interface->f ## name = ((GrGL ## name ## Proc) GetProcAddress("gl" #name #suffix)))
+#define GET_PROC(name) (interface->fFunctions.f ## name = ((GrGL ## name ## Proc) GetProcAddress("gl" #name)))
+#define GET_PROC_SUFFIX(name, suffix) (interface->fFunctions.f ## name = ((GrGL ## name ## Proc) GetProcAddress("gl" #name #suffix)))
 
 const GrGLInterface* GrGLCreateNativeInterface() {
 

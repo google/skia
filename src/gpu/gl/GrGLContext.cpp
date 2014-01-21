@@ -25,7 +25,7 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
     this->reset();
     // We haven't validated the GrGLInterface yet, so check for GetString
     // function pointer
-    if (interface->fGetString) {
+    if (interface->fFunctions.fGetString) {
         const GrGLubyte* verUByte;
         GR_GL_CALL_RET(interface, verUByte, GetString(GR_GL_VERSION));
         const char* ver = reinterpret_cast<const char*>(verUByte);

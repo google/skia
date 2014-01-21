@@ -21,7 +21,6 @@ struct GrGLInterface;
  */
 class GrGLExtensions : public SkNoncopyable {
 public:
-
     GrGLExtensions() : fInitialized(false), fStrings(SkNEW(SkTArray<SkString>)) {}
 
     void swap(GrGLExtensions* that) {

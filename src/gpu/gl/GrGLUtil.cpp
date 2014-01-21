@@ -11,7 +11,7 @@
 #include <stdio.h>
 
 void GrGLClearErr(const GrGLInterface* gl) {
-    while (GR_GL_NO_ERROR != gl->fGetError()) {}
+    while (GR_GL_NO_ERROR != gl->fFunctions.fGetError()) {}
 }
 
 namespace {

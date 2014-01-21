@@ -27,7 +27,7 @@
 
 #define ANGLE_GL_CALL(IFACE, X)                                 \
     do {                                                        \
-        (IFACE)->f##X;                                          \
+        (IFACE)->fFunctions.f##X;                               \
     } while (false)
 
 #endif

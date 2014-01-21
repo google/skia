@@ -15,9 +15,9 @@
 #include <GL/glext.h>
 #include <GL/glu.h>
 
-#define GR_GL_GET_PROC(F) interface->f ## F = (GrGL ## F ## Proc) \
+#define GR_GL_GET_PROC(F) interface->fFunctions.f ## F = (GrGL ## F ## Proc) \
         glXGetProcAddress(reinterpret_cast<const GLubyte*>("gl" #F));
-#define GR_GL_GET_PROC_SUFFIX(F, S) interface->f ## F = (GrGL ## F ## Proc) \
+#define GR_GL_GET_PROC_SUFFIX(F, S) interface->fFunctions.f ## F = (GrGL ## F ## Proc) \
         glXGetProcAddress(reinterpret_cast<const GLubyte*>("gl" #F #S));
 
 const GrGLInterface* GrGLCreateNativeInterface() {
@@ -41,15 +41,16 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         }
 
         GrGLInterface* interface = SkNEW(GrGLInterface());
+        GrGLInterface::Functions* functions = &interface->fFunctions;
 
-        interface->fActiveTexture = glActiveTexture;
+        functions->fActiveTexture = glActiveTexture;
         GR_GL_GET_PROC(AttachShader);
         GR_GL_GET_PROC(BindAttribLocation);
         GR_GL_GET_PROC(BindBuffer);
         GR_GL_GET_PROC(BindFragDataLocation);
         GR_GL_GET_PROC(BeginQuery);
-        interface->fBindTexture = glBindTexture;
-        interface->fBlendFunc = glBlendFunc;
+        functions->fBindTexture = glBindTexture;
+        functions->fBlendFunc = glBlendFunc;
 
         if (glVer >= GR_GL_VER(1,4) ||
             extensions.has("GL_ARB_imaging") ||
@@ -59,42 +60,42 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 
         GR_GL_GET_PROC(BufferData);
         GR_GL_GET_PROC(BufferSubData);
-        interface->fClear = glClear;
-        interface->fClearColor = glClearColor;
-        interface->fClearStencil = glClearStencil;
-        interface->fClientActiveTexture = glClientActiveTexture;
-        interface->fColorMask = glColorMask;
+        functions->fClear = glClear;
+        functions->fClearColor = glClearColor;
+        functions->fClearStencil = glClearStencil;
+        functions->fClientActiveTexture = glClientActiveTexture;
+        functions->fColorMask = glColorMask;
         GR_GL_GET_PROC(CompileShader);
-        interface->fCompressedTexImage2D = glCompressedTexImage2D;
-        interface->fCopyTexSubImage2D = glCopyTexSubImage2D;
+        functions->fCompressedTexImage2D = glCompressedTexImage2D;
+        functions->fCopyTexSubImage2D = glCopyTexSubImage2D;
         GR_GL_GET_PROC(CreateProgram);
         GR_GL_GET_PROC(CreateShader);
-        interface->fCullFace = glCullFace;
+        functions->fCullFace = glCullFace;
         GR_GL_GET_PROC(DeleteBuffers);
         GR_GL_GET_PROC(DeleteProgram);
         GR_GL_GET_PROC(DeleteQueries);
         GR_GL_GET_PROC(DeleteShader);
-        interface->fDeleteTextures = glDeleteTextures;
-        interface->fDepthMask = glDepthMask;
-        interface->fDisable = glDisable;
-        interface->fDisableClientState = glDisableClientState;
+        functions->fDeleteTextures = glDeleteTextures;
+        functions->fDepthMask = glDepthMask;
+        functions->fDisable = glDisable;
+        functions->fDisableClientState = glDisableClientState;
         GR_GL_GET_PROC(DisableVertexAttribArray);
-        interface->fDrawArrays = glDrawArrays;
-        interface->fDrawBuffer = glDrawBuffer;
+        functions->fDrawArrays = glDrawArrays;
+        functions->fDrawBuffer = glDrawBuffer;
         GR_GL_GET_PROC(DrawBuffers);
-        interface->fDrawElements = glDrawElements;
-        interface->fEnable = glEnable;
-        interface->fEnableClientState = glEnableClientState;
+        functions->fDrawElements = glDrawElements;
+        functions->fEnable = glEnable;
+        functions->fEnableClientState = glEnableClientState;
         GR_GL_GET_PROC(EnableVertexAttribArray);
         GR_GL_GET_PROC(EndQuery);
-        interface->fFinish = glFinish;
-        interface->fFlush = glFlush;
-        interface->fFrontFace = glFrontFace;
+        functions->fFinish = glFinish;
+        functions->fFlush = glFlush;
+        functions->fFrontFace = glFrontFace;
         GR_GL_GET_PROC(GenBuffers);
         GR_GL_GET_PROC(GenerateMipmap);
         GR_GL_GET_PROC(GetBufferParameteriv);
-        interface->fGetError = glGetError;
-        interface->fGetIntegerv = glGetIntegerv;
+        functions->fGetError = glGetError;
+        functions->fGetIntegerv = glGetIntegerv;
         GR_GL_GET_PROC(GetQueryObjectiv);
         GR_GL_GET_PROC(GetQueryObjectuiv);
         if (glVer >= GR_GL_VER(3,3) || extensions.has("GL_ARB_timer_query")) {
@@ -110,38 +111,38 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GR_GL_GET_PROC(GetProgramiv);
         GR_GL_GET_PROC(GetShaderInfoLog);
         GR_GL_GET_PROC(GetShaderiv);
-        interface->fGetString = glGetString;
+        functions->fGetString = glGetString;
         GR_GL_GET_PROC(GetStringi);
-        interface->fGetTexLevelParameteriv = glGetTexLevelParameteriv;
+        functions->fGetTexLevelParameteriv = glGetTexLevelParameteriv;
         GR_GL_GET_PROC(GenQueries);
-        interface->fGenTextures = glGenTextures;
+        functions->fGenTextures = glGenTextures;
         GR_GL_GET_PROC(GetUniformLocation);
-        interface->fLineWidth = glLineWidth;
+        functions->fLineWidth = glLineWidth;
         GR_GL_GET_PROC(LinkProgram);
         GR_GL_GET_PROC(MapBuffer);
-        interface->fPixelStorei = glPixelStorei;
-        interface->fReadBuffer = glReadBuffer;
-        interface->fReadPixels = glReadPixels;
-        interface->fScissor = glScissor;
+        functions->fPixelStorei = glPixelStorei;
+        functions->fReadBuffer = glReadBuffer;
+        functions->fReadPixels = glReadPixels;
+        functions->fScissor = glScissor;
         GR_GL_GET_PROC(ShaderSource);
-        interface->fStencilFunc = glStencilFunc;
+        functions->fStencilFunc = glStencilFunc;
         GR_GL_GET_PROC(StencilFuncSeparate);
-        interface->fStencilMask = glStencilMask;
+        functions->fStencilMask = glStencilMask;
         GR_GL_GET_PROC(StencilMaskSeparate);
-        interface->fStencilOp = glStencilOp;
+        functions->fStencilOp = glStencilOp;
         GR_GL_GET_PROC(StencilOpSeparate);
-        interface->fTexImage2D = glTexImage2D;
-        interface->fTexGenf = glTexGenf;
-        interface->fTexGenfv = glTexGenfv;
-        interface->fTexGeni = glTexGeni;
-        interface->fTexParameteri = glTexParameteri;
-        interface->fTexParameteriv = glTexParameteriv;
+        functions->fTexImage2D = glTexImage2D;
+        functions->fTexGenf = glTexGenf;
+        functions->fTexGenfv = glTexGenfv;
+        functions->fTexGeni = glTexGeni;
+        functions->fTexParameteri = glTexParameteri;
+        functions->fTexParameteriv = glTexParameteriv;
         if (glVer >= GR_GL_VER(4,2) || extensions.has("GL_ARB_texture_storage")) {
             GR_GL_GET_PROC(TexStorage2D);
         } else if (extensions.has("GL_EXT_texture_storage")) {
             GR_GL_GET_PROC_SUFFIX(TexStorage2D, EXT);
         }
-        interface->fTexSubImage2D = glTexSubImage2D;
+        functions->fTexSubImage2D = glTexSubImage2D;
         GR_GL_GET_PROC(Uniform1f);
         GR_GL_GET_PROC(Uniform1i);
         GR_GL_GET_PROC(Uniform1fv);
@@ -166,7 +167,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GR_GL_GET_PROC(VertexAttrib4fv);
         GR_GL_GET_PROC(VertexAttribPointer);
         GR_GL_GET_PROC(VertexPointer);
-        interface->fViewport = glViewport;
+        functions->fViewport = glViewport;
         GR_GL_GET_PROC(BindFragDataLocationIndexed);
 
         if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_vertex_array_object")) {

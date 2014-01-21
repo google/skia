@@ -13,9 +13,9 @@
 #define GL_GLEXT_PROTOTYPES
 #include "osmesa_wrapper.h"
 
-#define GR_GL_GET_PROC(F) interface->f ## F = (GrGL ## F ## Proc) \
+#define GR_GL_GET_PROC(F) interface->fFunctions.f ## F = (GrGL ## F ## Proc) \
         OSMesaGetProcAddress("gl" #F);
-#define GR_GL_GET_PROC_SUFFIX(F, S) interface->f ## F = (GrGL ## F ## Proc) \
+#define GR_GL_GET_PROC_SUFFIX(F, S) interface->fFunctions.f ## F = (GrGL ## F ## Proc) \
         OSMesaGetProcAddress("gl" #F #S);
 
 // We use OSMesaGetProcAddress for every gl function to avoid accidentally using
@@ -141,7 +141,7 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         GR_GL_GET_PROC(TexParameteri);
         GR_GL_GET_PROC(TexParameteriv);
         GR_GL_GET_PROC(TexStorage2D);
-        if (NULL == interface->fTexStorage2D) {
+        if (NULL == interface->fFunctions.fTexStorage2D) {
             GR_GL_GET_PROC_SUFFIX(TexStorage2D, EXT);
         }
         GR_GL_GET_PROC(TexSubImage2D);
