@@ -41,8 +41,6 @@ SkPictureRecord::SkPictureRecord(uint32_t flags, SkBaseDevice* device) :
     fPointWrites = fRectWrites = fTextWrites = 0;
 #endif
 
-    fRestoreOffsetStack.setReserve(32);
-
     fBitmapHeap = SkNEW(SkBitmapHeap);
     fFlattenableHeap.setBitmapStorage(fBitmapHeap);
     fPathHeap = NULL;   // lazy allocate
