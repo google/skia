@@ -1,3 +1,4 @@
+# Target for building freetype.
 {
   'targets': [
     {
