@@ -15,7 +15,7 @@
 const GrGLInterface* GrGLCreateNativeInterface() {
     GrGLInterface* interface = SkNEW(GrGLInterface);
 
-    GrGLInterface::Functions* functions = &interface->functions;
+    GrGLInterface::Functions* functions = &interface->fFunctions;
 
     functions->fActiveTexture = glActiveTexture;
     functions->fAttachShader = glAttachShader;
