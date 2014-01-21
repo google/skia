@@ -15,6 +15,8 @@
 const GrGLInterface* GrGLCreateNativeInterface() {
     GrGLInterface* interface = SkNEW(GrGLInterface);
 
+    GrGLInterface::Functions* functions = interface->functions;
+
     functions->fActiveTexture = glActiveTexture;
     functions->fAttachShader = glAttachShader;
     functions->fBindAttribLocation = glBindAttribLocation;
@@ -144,5 +146,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 
     interface->fStandard = kGLES_GrGLStandard;
     interface->fExtensions.init(kGLES_GrGLStandard, glGetString, NULL, glGetIntegerv);
+
     return interface;
 }
