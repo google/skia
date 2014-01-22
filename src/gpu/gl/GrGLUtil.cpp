@@ -75,6 +75,10 @@ bool get_gl_version_for_mesa(int mesaMajorVersion, int* major, int* minor) {
             *major = 3;
             *minor = 1;
             return true;
+        case 10:
+            *major = 3;
+            *minor = 3;
+            return true;
         default:
             return false;
     }
