@@ -28,8 +28,7 @@ SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
 GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
                                                        const GrPaint& grPaint,
                                                        const SkPaint& skPaint)
-                                                     : GrTextContext(context, grPaint),
-                                                       fSkPaint(skPaint) {
+                                                     : GrTextContext(context, grPaint, skPaint) {
     fStrike = NULL;
 
     fCurrTexture = NULL;

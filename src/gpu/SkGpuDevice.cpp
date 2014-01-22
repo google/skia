@@ -200,6 +200,12 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     fContext = context;
     fContext->ref();
 
+#if SK_DISTANCEFIELD_FONTS
+    fTextContextManager = SkNEW(GrTTextContextManager<GrDistanceFieldTextContext>);
+#else
+    fTextContextManager = SkNEW(GrTTextContextManager<GrBitmapTextContext>);
+#endif
+
     fRenderTarget = NULL;
     fNeedClear = false;
 
@@ -234,6 +240,12 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
 
     fContext = context;
     fContext->ref();
+
+#if SK_DISTANCEFIELD_FONTS
+    fTextContextManager = SkNEW(GrTTextContextManager<GrDistanceFieldTextContext>);
+#else
+    fTextContextManager = SkNEW(GrTTextContextManager<GrBitmapTextContext>);
+#endif
 
     fRenderTarget = NULL;
     fNeedClear = false;
@@ -279,6 +291,8 @@ SkGpuDevice::~SkGpuDevice() {
     if (fDrawProcs) {
         delete fDrawProcs;
     }
+    
+    delete fTextContextManager;
 
     // The GrContext takes a ref on the target. We don't want to cause the render
     // target to be unnecessarily kept alive.
@@ -1820,13 +1834,15 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
 
         SkDEBUGCODE(this->validate();)
 
-        GrDistanceFieldTextContext context(fContext, grPaint, paint);
+        SkAutoTDelete<GrTextContext> context(fTextContextManager->create(fContext, grPaint, paint));
+        GrDistanceFieldTextContext* dfContext =
+                                            static_cast<GrDistanceFieldTextContext*>(context.get());
 
-        SkAutoGlyphCache    autoCache(context.getSkPaint(), &this->fLeakyProperties, NULL);
+        SkAutoGlyphCache    autoCache(dfContext->getSkPaint(), &this->fLeakyProperties, NULL);
         SkGlyphCache*       cache = autoCache.getCache();
         GrFontScaler*       fontScaler = get_gr_font_scaler(cache);
 
-        context.drawText((const char *)text, byteLength, x, y, cache, fontScaler);
+        dfContext->drawText((const char *)text, byteLength, x, y, cache, fontScaler);
 #endif
     } else {
         SkDraw myDraw(draw);
@@ -1836,8 +1852,8 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
             return;
         }
 
-        GrBitmapTextContext context(fContext, grPaint, paint.getColor());
-        myDraw.fProcs = this->initDrawForText(&context);
+        SkAutoTDelete<GrTextContext> context(fTextContextManager->create(fContext, grPaint, paint));
+        myDraw.fProcs = this->initDrawForText(context.get());
         this->INHERITED::drawText(myDraw, text, byteLength, x, y, paint);
     }
 }
@@ -1861,13 +1877,15 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
 
         SkDEBUGCODE(this->validate();)
 
-        GrDistanceFieldTextContext context(fContext, grPaint, paint);
-
-        SkAutoGlyphCache    autoCache(context.getSkPaint(), &this->fLeakyProperties, NULL);
+        SkAutoTDelete<GrTextContext> context(fTextContextManager->create(fContext, grPaint, paint));
+        GrDistanceFieldTextContext* dfContext =
+                                            static_cast<GrDistanceFieldTextContext*>(context.get());
+        
+        SkAutoGlyphCache    autoCache(dfContext->getSkPaint(), &this->fLeakyProperties, NULL);
         SkGlyphCache*       cache = autoCache.getCache();
         GrFontScaler*       fontScaler = get_gr_font_scaler(cache);
-
-        context.drawPosText((const char *)text, byteLength, pos, constY, scalarsPerPos,
+        
+        dfContext->drawPosText((const char *)text, byteLength, pos, constY, scalarsPerPos,
                             cache, fontScaler);
 #endif
     } else {
@@ -1877,8 +1895,9 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
         if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
             return;
         }
-        GrBitmapTextContext context(fContext, grPaint, paint.getColor());
-        myDraw.fProcs = this->initDrawForText(&context);
+
+        SkAutoTDelete<GrTextContext> context(fTextContextManager->create(fContext, grPaint, paint));
+        myDraw.fProcs = this->initDrawForText(context.get());
         this->INHERITED::drawPosText(myDraw, text, byteLength, pos, constY,
                                         scalarsPerPos, paint);
     }

@@ -8,7 +8,8 @@
 
 #include "GrTextContext.h"
 
-GrTextContext::GrTextContext(GrContext* context, const GrPaint& paint) : fPaint(paint) {
+GrTextContext::GrTextContext(GrContext* context, const GrPaint& paint,
+                             const SkPaint& skPaint) : fPaint(paint), fSkPaint(skPaint) {
     fContext = context;
 
     const GrClipData* clipData = context->getClip();
