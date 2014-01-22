@@ -17,6 +17,9 @@ class GrTextStrike;
  */
 class GrDistanceFieldTextContext : public GrTextContext {
 public:
+    GrDistanceFieldTextContext(GrContext*, const GrPaint&, const SkPaint&);
+    virtual ~GrDistanceFieldTextContext();
+
     virtual void drawPackedGlyph(GrGlyph::PackedID, GrFixed left, GrFixed top,
                                  GrFontScaler*) SK_OVERRIDE;
 
@@ -30,10 +33,6 @@ public:
     const SkPaint& getSkPaint() { return fSkPaint; }
 
 private:
-    GrDistanceFieldTextContext(GrContext*, const GrPaint&, const SkPaint&);
-    virtual ~GrDistanceFieldTextContext();
-    friend class GrTTextContextManager<GrDistanceFieldTextContext>;
-
     GrTextStrike*           fStrike;
     SkScalar                fTextRatio;
 
@@ -46,6 +45,7 @@ private:
         kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
     };
 
+    SkPaint                 fSkPaint;
     SkPoint*                fVertices;
     int32_t                 fMaxVertices;
     GrTexture*              fCurrTexture;

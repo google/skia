@@ -16,10 +16,10 @@
 #include "SkBitmapDevice.h"
 #include "SkRegion.h"
 #include "GrContext.h"
-#include "GrTextContext.h"
 
 struct SkDrawProcs;
 struct GrSkDrawProcs;
+class GrTextContext;
 
 /**
  *  Subclass of SkBitmapDevice, which directs all drawing to the GrGpu owned by the
@@ -148,8 +148,6 @@ private:
     GrSkDrawProcs*  fDrawProcs;
 
     GrClipData      fClipData;
-
-    GrTextContextManager* fTextContextManager;
 
     // state for our render-target
     GrRenderTarget*     fRenderTarget;
