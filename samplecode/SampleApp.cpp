@@ -642,19 +642,6 @@ SkScalar SampleCode::GetAnimSinScalar(SkScalar amplitude,
     return SkScalarMul(amplitude, SkDoubleToScalar(sin(t))) + amplitude;
 }
 
-GrContext* SampleCode::GetGr() {
-    return gSampleWindow ? gSampleWindow->getGrContext() : NULL;
-}
-
-// some GMs rely on having a skiagm::GetGr function defined
-namespace skiagm {
-    // FIXME: this should be moved into a header
-    GrContext* GetGr();
-    GrContext* GetGr() { return SampleCode::GetGr(); }
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 enum TilingMode {
     kNo_Tiling,
     kAbs_128x128_Tiling,

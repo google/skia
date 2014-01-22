@@ -39,8 +39,6 @@ public:
     static SkScalar GetAnimSinScalar(SkScalar amplitude,
                                      SkScalar periodInSec,
                                      SkScalar phaseInSec = 0);
-
-    static GrContext* GetGr();
 };
 
 //////////////////////////////////////////////////////////////////////////////

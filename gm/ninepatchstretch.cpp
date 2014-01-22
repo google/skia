@@ -7,30 +7,14 @@
 
 #include "gm.h"
 
-#if SK_SUPPORT_GPU
-#include "SkGpuDevice.h"
-#else
-class GrContext;
-#endif
-
-static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
-    SkBaseDevice* dev;
-
+static void make_bitmap(SkBitmap* bitmap, SkIRect* center) {
     const int kFixed = 28;
     const int kStretchy = 8;
     const int kSize = 2*kFixed + kStretchy;
 
-#if SK_SUPPORT_GPU
-    if (ctx) {
-        dev = new SkGpuDevice(ctx, SkBitmap::kARGB_8888_Config, kSize, kSize);
-        *bitmap = dev->accessBitmap(false);
-    } else
-#endif
-    {
-        bitmap->setConfig(SkBitmap::kARGB_8888_Config, kSize, kSize);
-        bitmap->allocPixels();
-        dev = new SkBitmapDevice(*bitmap);
-    }
+    bitmap->setConfig(SkBitmap::kARGB_8888_Config, kSize, kSize);
+    bitmap->allocPixels();
+    SkBaseDevice* dev = new SkBitmapDevice(*bitmap);
 
     SkCanvas canvas(dev);
     dev->unref();
@@ -75,7 +59,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkBitmap bm;
         SkIRect center;
-        make_bitmap(&bm, NULL /*SampleCode::GetGr()*/, &center);
+        make_bitmap(&bm, &center);
 
         // amount of bm that should not be stretched (unless we have to)
         const SkScalar fixed = SkIntToScalar(bm.width() - center.width());
