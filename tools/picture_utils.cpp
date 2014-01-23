@@ -12,6 +12,14 @@
 #include "SkString.h"
 #include "SkStream.h"
 
+static bool is_path_seperator(const char chr) {
+#if defined(SK_BUILD_FOR_WIN)
+    return chr == '\\' || chr == '/';
+#else
+    return chr == '/';
+#endif
+}
+
 namespace sk_tools {
     void force_all_opaque(const SkBitmap& bitmap) {
         SkASSERT(NULL == bitmap.getTexture());
@@ -35,16 +43,6 @@ namespace sk_tools {
             path->append("/");
         }
         path->append(name);
-    }
-
-    namespace {
-        bool is_path_seperator(const char chr) {
-#if defined(SK_BUILD_FOR_WIN)
-            return chr == '\\' || chr == '/';
-#else
-            return chr == '/';
-#endif
-        }
     }
 
     void get_basename(SkString* basename, const SkString& path) {

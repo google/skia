@@ -11,9 +11,7 @@
 #include "SkPath.h"
 #include "SkStrokeRec.h"
 
-namespace {
-
-bool is_clockwise(const SkVector& before, const SkVector& after) {
+static bool is_clockwise(const SkVector& before, const SkVector& after) {
     return before.cross(after) > 0;
 }
 
@@ -23,9 +21,9 @@ enum IntersectionType {
     kOut_IntersectionType
 };
 
-IntersectionType intersection(const SkPoint& p1, const SkPoint& p2,
-                              const SkPoint& p3, const SkPoint& p4,
-                                    SkPoint& res) {
+static IntersectionType intersection(const SkPoint& p1, const SkPoint& p2,
+                                     const SkPoint& p3, const SkPoint& p4,
+                                     SkPoint& res) {
     // Store the values for fast access and easy
     // equations-to-code conversion
     SkScalar x1 = p1.x(), x2 = p2.x(), x3 = p3.x(), x4 = p4.x();
@@ -51,8 +49,6 @@ IntersectionType intersection(const SkPoint& p1, const SkPoint& p2,
             res.y() < GrMin(y3, y4) || res.y() > GrMax(y3, y4)) ?
             kOut_IntersectionType : kIn_IntersectionType;
 }
-
-} // namespace
 
 GrStrokePathRenderer::GrStrokePathRenderer() {
 }

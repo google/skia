@@ -219,7 +219,6 @@ static int MaxByteDiff(uint32_t v1, uint32_t v2) {
                    SkMax32(abs(getByte(v1, 2) - getByte(v2, 2)), abs(getByte(v1, 3) - getByte(v2, 3))));
 }
 
-namespace {
 class AutoRestoreBbhType {
 public:
     AutoRestoreBbhType() {
@@ -244,7 +243,6 @@ private:
     sk_tools::PictureRenderer* fRenderer;
     sk_tools::PictureRenderer::BBoxHierarchyType fSavedBbhType;
 };
-}
 
 /**
  * Render the SKP file(s) within inputPath, writing their bitmap images into outputDir.
