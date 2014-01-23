@@ -108,7 +108,6 @@
         '../samplecode/SampleSlides.cpp',
         '../samplecode/SampleStringArt.cpp',
         '../samplecode/SampleStrokePath.cpp',
-        '../samplecode/SampleTests.cpp',
         '../samplecode/SampleText.cpp',
         '../samplecode/SampleTextAlpha.cpp',
         '../samplecode/SampleTextBox.cpp',
@@ -146,7 +145,6 @@
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile
-        '../samplecode/SampleTests.cpp',   #includes unknown file SkShaderExtras.h
         '../samplecode/SampleWarp.cpp',
         '../samplecode/SampleFontCache.cpp',
       ],
