@@ -12,7 +12,6 @@
       'include_dirs': [
         '../include/effects',
         '../include/images',
-        '../include/lazy',
         '../include/pathops',
         '../include/pipe',
         '../include/utils',

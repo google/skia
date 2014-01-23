@@ -17,7 +17,6 @@
       ],
       'include_dirs': [
         '../include/images',
-        '../include/lazy',
         '../src/lazy',
         # for access to SkErrorInternals.h
         '../src/core/',
@@ -169,7 +168,6 @@
       'direct_dependent_settings': {
         'include_dirs': [
           '../include/images',
-          '../include/lazy',
         ],
       },
     },

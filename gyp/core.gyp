@@ -15,7 +15,6 @@
       'include_dirs': [
         '../include/config',
         '../include/core',
-        '../include/lazy',
         '../include/pathops',
         '../include/pipe',
         '../include/ports',
@@ -97,13 +96,10 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          'config',
           '../include/config',
           '../include/core',
-          '../include/lazy',
           '../include/pathops',
           '../include/pipe',
-          'ext',
         ],
         'conditions': [
           [ 'skia_os == "mac"', {
