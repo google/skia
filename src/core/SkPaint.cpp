@@ -1647,7 +1647,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         flags |= SkScalerContext::kSubpixelPositioning_Flag;
     }
     if (paint.isAutohinted()) {
-        flags |= SkScalerContext::kAutohinting_Flag;
+        flags |= SkScalerContext::kForceAutohinting_Flag;
     }
     if (paint.isVerticalText()) {
         flags |= SkScalerContext::kVertical_Flag;

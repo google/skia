@@ -915,13 +915,12 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
                 loadFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
                 break;
             case SkPaint::kNormal_Hinting:
-                if (fRec.fFlags & SkScalerContext::kAutohinting_Flag)
+                if (fRec.fFlags & SkScalerContext::kForceAutohinting_Flag) {
                     loadFlags = FT_LOAD_FORCE_AUTOHINT;
-                else
-                    loadFlags = FT_LOAD_NO_AUTOHINT;
+                }
                 break;
             case SkPaint::kFull_Hinting:
-                if (fRec.fFlags & SkScalerContext::kAutohinting_Flag) {
+                if (fRec.fFlags & SkScalerContext::kForceAutohinting_Flag) {
                     loadFlags = FT_LOAD_FORCE_AUTOHINT;
                     break;
                 }

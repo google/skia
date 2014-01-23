@@ -122,7 +122,7 @@ public:
         kEmbeddedBitmapText_Flag  = 0x0004,
         kEmbolden_Flag            = 0x0008,
         kSubpixelPositioning_Flag = 0x0010,
-        kAutohinting_Flag         = 0x0020,
+        kForceAutohinting_Flag    = 0x0020,  // Use auto instead of bytcode hinting if hinting.
         kVertical_Flag            = 0x0040,
 
         // together, these two flags resulting in a two bit value which matches

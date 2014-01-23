@@ -1832,7 +1832,7 @@ void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
     }
 
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag  |
-                                  SkScalerContext::kAutohinting_Flag  |
+                                  SkScalerContext::kForceAutohinting_Flag  |
                                   SkScalerContext::kLCD_BGROrder_Flag |
                                   SkScalerContext::kLCD_Vertical_Flag;
 
