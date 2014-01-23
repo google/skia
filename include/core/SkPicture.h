@@ -222,10 +222,8 @@ protected:
     // V16: Move SkPath's isOval flag to SkPathRef
     // V17: SkPixelRef now writes SkImageInfo
     // V18: SkBitmap now records x,y for its pixelref origin, instead of offset.
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-    static const uint32_t PRIOR_PICTURE_VERSION = 15;  // TODO: remove when .skps regenerated
-#endif
-    static const uint32_t PICTURE_VERSION = 18;
+    // V19: encode matrices and regions into the ops stream
+    static const uint32_t PICTURE_VERSION = 19;
 
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived

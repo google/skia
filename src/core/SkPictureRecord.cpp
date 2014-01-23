@@ -32,9 +32,7 @@ SkPictureRecord::SkPictureRecord(uint32_t flags, SkBaseDevice* device) :
         fBoundingHierarchy(NULL),
         fStateTree(NULL),
         fFlattenableHeap(HEAP_BLOCK_SIZE),
-        fMatrices(&fFlattenableHeap),
         fPaints(&fFlattenableHeap),
-        fRegions(&fFlattenableHeap),
         fRecordFlags(flags) {
 #ifdef SK_DEBUG_SIZE
     fPointBytes = fRectBytes = fTextBytes = 0;
@@ -659,8 +657,8 @@ bool SkPictureRecord::skew(SkScalar sx, SkScalar sy) {
 
 bool SkPictureRecord::concat(const SkMatrix& matrix) {
     this->validate(fWriter.bytesWritten(), 0);
-    // op + matrix index
-    uint32_t size = 2 * kUInt32Size;
+    // op + matrix
+    uint32_t size = kUInt32Size + matrix.writeToMemory(NULL);
     size_t initialOffset = this->addDraw(CONCAT, &size);
     addMatrix(matrix);
     this->validate(initialOffset, size);
@@ -669,8 +667,8 @@ bool SkPictureRecord::concat(const SkMatrix& matrix) {
 
 void SkPictureRecord::setMatrix(const SkMatrix& matrix) {
     this->validate(fWriter.bytesWritten(), 0);
-    // op + matrix index
-    uint32_t size = 2 * kUInt32Size;
+    // op + matrix
+    uint32_t size = kUInt32Size + matrix.writeToMemory(NULL);
     size_t initialOffset = this->addDraw(SET_MATRIX, &size);
     addMatrix(matrix);
     this->validate(initialOffset, size);
@@ -823,8 +821,8 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
 }
 
 bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {
-    // op + region index + clip params
-    uint32_t size = 3 * kUInt32Size;
+    // op + clip params + region
+    uint32_t size = 2 * kUInt32Size + region.writeToMemory(NULL);
     // recordRestoreOffsetPlaceholder doesn't always write an offset
     if (!fRestoreOffsetStack.isEmpty()) {
         // + restore offset
@@ -951,8 +949,8 @@ void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect*
 
 void SkPictureRecord::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
                                        const SkPaint* paint) {
-    // id + paint index + bitmap index + matrix index
-    uint32_t size = 4 * kUInt32Size;
+    // id + paint index + bitmap index + matrix
+    uint32_t size = 3 * kUInt32Size + matrix.writeToMemory(NULL);
     size_t initialOffset = this->addDraw(DRAW_BITMAP_MATRIX, &size);
     SkASSERT(initialOffset+getPaintOffset(DRAW_BITMAP_MATRIX, size) == fWriter.bytesWritten());
     addPaintPtr(paint);
@@ -1164,14 +1162,15 @@ void SkPictureRecord::drawPosTextHImpl(const void* text, size_t byteLength,
 void SkPictureRecord::drawTextOnPath(const void* text, size_t byteLength,
                             const SkPath& path, const SkMatrix* matrix,
                             const SkPaint& paint) {
-    // op + paint index + length + 'length' worth of data + path index + matrix index
-    uint32_t size = 3 * kUInt32Size + SkAlign4(byteLength) + 2 * kUInt32Size;
+    // op + paint index + length + 'length' worth of data + path index + matrix
+    const SkMatrix& m = matrix ? *matrix : SkMatrix::I();
+    uint32_t size = 3 * kUInt32Size + SkAlign4(byteLength) + kUInt32Size + m.writeToMemory(NULL);
     size_t initialOffset = this->addDraw(DRAW_TEXT_ON_PATH, &size);
     SkASSERT(initialOffset+getPaintOffset(DRAW_TEXT_ON_PATH, size) == fWriter.bytesWritten());
     addPaint(paint);
     addText(text, byteLength);
     addPath(path);
-    addMatrixPtr(matrix);
+    addMatrix(m);
     this->validate(initialOffset, size);
 }
 
@@ -1294,11 +1293,7 @@ void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
 }
 
 void SkPictureRecord::addMatrix(const SkMatrix& matrix) {
-    addMatrixPtr(&matrix);
-}
-
-void SkPictureRecord::addMatrixPtr(const SkMatrix* matrix) {
-    this->addInt(matrix ? fMatrices.find(*matrix) : 0);
+    fWriter.writeMatrix(matrix);
 }
 
 const SkFlatData* SkPictureRecord::getFlatPaintData(const SkPaint& paint) {
@@ -1385,7 +1380,7 @@ void SkPictureRecord::addRRect(const SkRRect& rrect) {
 }
 
 void SkPictureRecord::addRegion(const SkRegion& region) {
-    addInt(fRegions.find(region));
+    fWriter.writeRegion(region);
 }
 
 void SkPictureRecord::addText(const void* text, size_t byteLength) {

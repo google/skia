@@ -931,20 +931,14 @@ public:
 
 private:
     enum SerializationOffsets {
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-        kNewFormat_SerializationShift = 29, // requires 1 bit
-#endif
+        // 1 free bit at 29
         kUnused1_SerializationShift = 28,    // 1 free bit
         kDirection_SerializationShift = 26, // requires 2 bits
         kUnused2_SerializationShift = 25,    // 1 free bit
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-        kOldIsOval_SerializationShift = 24,    // requires 1 bit
-#endif
+        // 1 free bit at 24
         kConvexity_SerializationShift = 16, // requires 8 bits
         kFillType_SerializationShift = 8,   // requires 8 bits
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-        kOldSegmentMask_SerializationShift = 0 // requires 4 bits
-#endif
+        // 8 free bits at 0
     };
 
     SkAutoTUnref<SkPathRef> fPathRef;
@@ -1010,9 +1004,6 @@ private:
         ed.setBounds(rect);
     }
 
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-    friend class SkPathRef;     // just for SerializationOffsets
-#endif
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
     friend class SkAutoDisableDirectionCheck;

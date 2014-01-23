@@ -2058,11 +2058,7 @@ size_t SkPath::writeToMemory(void* storage) const {
 
     int32_t packed = (fConvexity << kConvexity_SerializationShift) |
                      (fFillType << kFillType_SerializationShift) |
-                     (fDirection << kDirection_SerializationShift)
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-                     | (0x1 << kNewFormat_SerializationShift)
-#endif
-                     ;
+                     (fDirection << kDirection_SerializationShift);
 
     buffer.write32(packed);
 
@@ -2083,15 +2079,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     fConvexity = (packed >> kConvexity_SerializationShift) & 0xFF;
     fFillType = (packed >> kFillType_SerializationShift) & 0xFF;
     fDirection = (packed >> kDirection_SerializationShift) & 0x3;
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-    bool newFormat = (packed >> kNewFormat_SerializationShift) & 1;
-#endif
-
-    SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-        , newFormat, packed
-#endif
-        );
+    SkPathRef* pathRef = SkPathRef::CreateFromBuffer(&buffer);
 
     size_t sizeRead = 0;
     if (buffer.isValid()) {

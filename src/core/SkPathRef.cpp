@@ -105,11 +105,7 @@ void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,
     SkDEBUGCODE((*dst)->validate();)
 }
 
-SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-                                   , bool newFormat, int32_t oldPacked
-#endif
-    ) {
+SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
     SkPathRef* ref = SkNEW(SkPathRef);
     bool isOval;
     uint8_t segmentMask;
@@ -121,18 +117,8 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer
     }
 
     ref->fIsFinite = (packed >> kIsFinite_SerializationShift) & 1;
-
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-    if (newFormat) {
-#endif
-        segmentMask = (packed >> kSegmentMask_SerializationShift) & 0xF;
-        isOval  = (packed >> kIsOval_SerializationShift) & 1;
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-    } else {
-        segmentMask = (oldPacked >> SkPath::kOldSegmentMask_SerializationShift) & 0xF;
-        isOval  = (oldPacked >> SkPath::kOldIsOval_SerializationShift) & 1;
-    }
-#endif
+    segmentMask = (packed >> kSegmentMask_SerializationShift) & 0xF;
+    isOval  = (packed >> kIsOval_SerializationShift) & 1;
 
     int32_t verbCount, pointCount, conicCount;
     if (!buffer->readU32(&(ref->fGenerationID)) ||

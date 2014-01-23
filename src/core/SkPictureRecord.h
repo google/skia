@@ -162,7 +162,6 @@ private:
 
     void addBitmap(const SkBitmap& bitmap);
     void addMatrix(const SkMatrix& matrix);
-    void addMatrixPtr(const SkMatrix* matrix);
     const SkFlatData* addPaint(const SkPaint& paint) { return this->addPaintPtr(&paint); }
     const SkFlatData* addPaintPtr(const SkPaint* paint);
     void addFlatPaint(const SkFlatData* flatPaint);
@@ -249,9 +248,7 @@ protected:
 private:
     SkChunkFlatController fFlattenableHeap;
 
-    SkMatrixDictionary fMatrices;
     SkPaintDictionary fPaints;
-    SkRegionDictionary fRegions;
 
     SkPathHeap* fPathHeap;  // reference counted
     SkWriter32 fWriter;

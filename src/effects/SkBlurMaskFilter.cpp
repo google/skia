@@ -484,10 +484,7 @@ void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
 
 SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkFlattenableReadBuffer& buffer)
         : SkMaskFilter(buffer) {
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-    // TODO: when the skps are recaptured at > v15 the SkScalarAbs can be removed
-#endif
-    fSigma = SkScalarAbs(buffer.readScalar());
+    fSigma = buffer.readScalar();
     fBlurStyle = (SkBlurMaskFilter::BlurStyle)buffer.readInt();
     fBlurFlags = buffer.readUInt() & SkBlurMaskFilter::kAll_BlurFlag;
     SkASSERT(fSigma >= 0);

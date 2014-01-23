@@ -109,12 +109,8 @@ private:
         return (*fBitmaps)[index];
     }
 
-    const SkMatrix* getMatrix(SkReader32& reader) {
-        int index = reader.readInt();
-        if (index == 0) {
-            return NULL;
-        }
-        return &(*fMatrices)[index - 1];
+    void getMatrix(SkReader32& reader, SkMatrix* matrix) {
+        reader.readMatrix(matrix);
     }
 
     const SkPath& getPath(SkReader32& reader) {
@@ -151,9 +147,8 @@ private:
         }
     }
 
-    const SkRegion& getRegion(SkReader32& reader) {
-        int index = reader.readInt();
-        return (*fRegions)[index - 1];
+    void getRegion(SkReader32& reader, SkRegion* region) {
+        reader.readRegion(region);
     }
 
     void getText(SkReader32& reader, TextContainer* text) {
@@ -169,7 +164,6 @@ public:
     int bitmaps(size_t* size);
     int paints(size_t* size);
     int paths(size_t* size);
-    int regions(size_t* size);
 #endif
 
 #ifdef SK_DEBUG_DUMP
@@ -210,9 +204,7 @@ private:
     SkAutoTUnref<SkPathHeap> fPathHeap;
 
     SkTRefArray<SkBitmap>* fBitmaps;
-    SkTRefArray<SkMatrix>* fMatrices;
     SkTRefArray<SkPaint>* fPaints;
-    SkTRefArray<SkRegion>* fRegions;
 
     SkData* fOpData;    // opcodes and parameters
 

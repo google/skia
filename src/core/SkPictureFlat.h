@@ -10,21 +10,16 @@
 
 //#define SK_DEBUG_SIZE
 
-#include "SkBitmap.h"
 #include "SkBitmapHeap.h"
 #include "SkChecksum.h"
 #include "SkChunkAlloc.h"
-#include "SkMatrix.h"
 #include "SkOrderedReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
 #include "SkPaint.h"
-#include "SkPath.h"
 #include "SkPicture.h"
 #include "SkPtrRecorder.h"
-#include "SkRegion.h"
 #include "SkTDynamicHash.h"
 #include "SkTRefArray.h"
-#include "SkTSearch.h"
 
 enum DrawType {
     UNUSED,
@@ -152,19 +147,17 @@ private:
 // SkFlatData:       is a simple indexable container for the flattened data
 //                   which is agnostic to the type of data is is indexing. It is
 //                   also responsible for flattening/unflattening objects but
-//                   details of that operation are hidden in the provided procs
+//                   details of that operation are hidden in the provided traits
 // SkFlatDictionary: is an abstract templated dictionary that maintains a
 //                   searchable set of SkFlatData objects of type T.
 // SkFlatController: is an interface provided to SkFlatDictionary which handles
 //                   allocation (and unallocation in some cases). It also holds
 //                   ref count recorders and the like.
 //
-// NOTE: any class that wishes to be used in conjunction with SkFlatDictionary
-// must subclass the dictionary and provide the necessary flattening procs.
-// The end of this header contains dictionary subclasses for some common classes
-// like SkBitmap, SkMatrix, SkPaint, and SkRegion. SkFlatController must also
-// be implemented, or SkChunkFlatController can be used to use an
-// SkChunkAllocator and never do replacements.
+// NOTE: any class that wishes to be used in conjunction with SkFlatDictionary must subclass the
+// dictionary and provide the necessary flattening traits.  SkFlatController must also be
+// implemented, or SkChunkFlatController can be used to use an SkChunkAllocator and never do
+// replacements.
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -573,32 +566,6 @@ private:
     SkTDynamicHash<SkFlatData, SkFlatData,
                    SkFlatData::Identity, SkFlatData::Hash, SkFlatData::Equal> fHash;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-// Some common dictionaries are defined here for both reference and convenience
-///////////////////////////////////////////////////////////////////////////////
-
-struct SkMatrixTraits {
-    static void flatten(SkOrderedWriteBuffer& buffer, const SkMatrix& matrix) {
-        buffer.getWriter32()->writeMatrix(matrix);
-    }
-    static void unflatten(SkOrderedReadBuffer& buffer, SkMatrix* matrix) {
-        buffer.getReader32()->readMatrix(matrix);
-    }
-};
-typedef SkFlatDictionary<SkMatrix, SkMatrixTraits> SkMatrixDictionary;
-
-
-struct SkRegionTraits {
-    static void flatten(SkOrderedWriteBuffer& buffer, const SkRegion& region) {
-        buffer.getWriter32()->writeRegion(region);
-    }
-    static void unflatten(SkOrderedReadBuffer& buffer, SkRegion* region) {
-        buffer.getReader32()->readRegion(region);
-    }
-};
-typedef SkFlatDictionary<SkRegion, SkRegionTraits> SkRegionDictionary;
-
 
 struct SkPaintTraits {
     static void flatten(SkOrderedWriteBuffer& buffer, const SkPaint& paint) {

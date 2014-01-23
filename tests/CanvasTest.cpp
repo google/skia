@@ -669,27 +669,11 @@ private:
             referenceRecord->fBitmapHeap->count() ==
             testRecord->fBitmapHeap->count(), testStep->assertMessage());
         REPORTER_ASSERT_MESSAGE(reporter,
-            referenceRecord->fMatrices.count() ==
-            testRecord->fMatrices.count(), testStep->assertMessage());
-        for (int i = 0; i < referenceRecord->fMatrices.count(); ++i) {
-            REPORTER_ASSERT_MESSAGE(reporter,
-                EQ(referenceRecord->fMatrices[i], testRecord->fMatrices[i]),
-                testStep->assertMessage());
-        }
-        REPORTER_ASSERT_MESSAGE(reporter,
             referenceRecord->fPaints.count() ==
             testRecord->fPaints.count(), testStep->assertMessage());
         for (int i = 0; i < referenceRecord->fPaints.count(); ++i) {
             REPORTER_ASSERT_MESSAGE(reporter,
                 EQ(referenceRecord->fPaints[i], testRecord->fPaints[i]),
-                                    testStep->assertMessage());
-        }
-        REPORTER_ASSERT_MESSAGE(reporter,
-            referenceRecord->fRegions.count() ==
-            testRecord->fRegions.count(), testStep->assertMessage());
-        for (int i = 0; i < referenceRecord->fRegions.count(); ++i) {
-            REPORTER_ASSERT_MESSAGE(reporter,
-                EQ(referenceRecord->fRegions[i], testRecord->fRegions[i]),
                                     testStep->assertMessage());
         }
         REPORTER_ASSERT_MESSAGE(reporter,

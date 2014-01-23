@@ -173,11 +173,7 @@ public:
                                       const SkPathRef& src,
                                       const SkMatrix& matrix);
 
-    static SkPathRef* CreateFromBuffer(SkRBuffer* buffer
-#ifndef DELETE_THIS_CODE_WHEN_SKPS_ARE_REBUILT_AT_V16_AND_ALL_OTHER_INSTANCES_TOO
-        , bool newFormat, int32_t oldPacked
-#endif
-        );
+    static SkPathRef* CreateFromBuffer(SkRBuffer* buffer);
 
     /**
      * Rollsback a path ref to zero verbs and points with the assumption that the path ref will be
