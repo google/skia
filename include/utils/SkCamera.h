@@ -14,27 +14,20 @@
 
 class SkCanvas;
 
-typedef float   SkUnitScalar;
-#define SK_UnitScalar1          SK_Scalar1
-#define SkUnitScalarMul(a, b)   SkScalarMul(a, b)
-#define SkUnitScalarDiv(a, b)   SkScalarDiv(a, b)
-
 struct SkUnit3D {
-    SkUnitScalar    fX, fY, fZ;
+    SkScalar fX, fY, fZ;
 
-    void set(SkUnitScalar x, SkUnitScalar y, SkUnitScalar z)
-    {
+    void set(SkScalar x, SkScalar y, SkScalar z) {
         fX = x; fY = y; fZ = z;
     }
-    static SkUnitScalar Dot(const SkUnit3D&, const SkUnit3D&);
+    static SkScalar Dot(const SkUnit3D&, const SkUnit3D&);
     static void Cross(const SkUnit3D&, const SkUnit3D&, SkUnit3D* cross);
 };
 
 struct SkPoint3D {
     SkScalar    fX, fY, fZ;
 
-    void set(SkScalar x, SkScalar y, SkScalar z)
-    {
+    void set(SkScalar x, SkScalar y, SkScalar z) {
         fX = x; fY = y; fZ = z;
     }
     SkScalar    normalize(SkUnit3D*) const;
@@ -46,8 +39,7 @@ struct SkMatrix3D {
 
     void reset();
 
-    void setRow(int row, SkScalar a, SkScalar b, SkScalar c, SkScalar d = 0)
-    {
+    void setRow(int row, SkScalar a, SkScalar b, SkScalar c, SkScalar d = 0) {
         SkASSERT((unsigned)row < 3);
         fMat[row][0] = a;
         fMat[row][1] = b;
@@ -69,12 +61,11 @@ struct SkMatrix3D {
     void mapPoint(const SkPoint3D& src, SkPoint3D* dst) const;
     void mapVector(const SkVector3D& src, SkVector3D* dst) const;
 
-    void mapPoint(SkPoint3D* v) const
-    {
+    void mapPoint(SkPoint3D* v) const {
         this->mapPoint(*v, v);
     }
-    void mapVector(SkVector3D* v) const
-    {
+
+    void mapVector(SkVector3D* v) const {
         this->mapVector(*v, v);
     }
 };
@@ -88,8 +79,7 @@ public:
 
     // dot a unit vector with the patch's normal
     SkScalar dotWith(SkScalar dx, SkScalar dy, SkScalar dz) const;
-    SkScalar dotWith(const SkVector3D& v) const
-    {
+    SkScalar dotWith(const SkVector3D& v) const {
         return this->dotWith(v.fX, v.fY, v.fZ);
     }
 

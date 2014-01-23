@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,13 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkCamera.h"
 
 static SkScalar SkScalarDotDiv(int count, const SkScalar a[], int step_a,
                                const SkScalar b[], int step_b,
                                SkScalar denom) {
-    float prod = 0;
+    SkScalar prod = 0;
     for (int i = 0; i < count; i++) {
         prod += a[0] * b[0];
         a += step_a;
@@ -23,7 +21,7 @@ static SkScalar SkScalarDotDiv(int count, const SkScalar a[], int step_a,
 
 static SkScalar SkScalarDot(int count, const SkScalar a[], int step_a,
                                        const SkScalar b[], int step_b) {
-    float prod = 0;
+    SkScalar prod = 0;
     for (int i = 0; i < count; i++) {
         prod += a[0] * b[0];
         a += step_a;
@@ -34,10 +32,10 @@ static SkScalar SkScalarDot(int count, const SkScalar a[], int step_a,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkUnitScalar SkPoint3D::normalize(SkUnit3D* unit) const {
-    float mag = sk_float_sqrt(fX*fX + fY*fY + fZ*fZ);
+SkScalar SkPoint3D::normalize(SkUnit3D* unit) const {
+    SkScalar mag = SkScalarSqrt(fX*fX + fY*fY + fZ*fZ);
     if (mag) {
-        float scale = 1.0f / mag;
+        SkScalar scale = SkScalarInvert(mag);
         unit->fX = fX * scale;
         unit->fY = fY * scale;
         unit->fZ = fZ * scale;
@@ -47,10 +45,8 @@ SkUnitScalar SkPoint3D::normalize(SkUnit3D* unit) const {
     return mag;
 }
 
-SkUnitScalar SkUnit3D::Dot(const SkUnit3D& a, const SkUnit3D& b) {
-    return  SkUnitScalarMul(a.fX, b.fX) +
-            SkUnitScalarMul(a.fY, b.fY) +
-            SkUnitScalarMul(a.fZ, b.fZ);
+SkScalar SkUnit3D::Dot(const SkUnit3D& a, const SkUnit3D& b) {
+    return a.fX * b.fX + a.fY * b.fY + a.fZ * b.fZ;
 }
 
 void SkUnit3D::Cross(const SkUnit3D& a, const SkUnit3D& b, SkUnit3D* cross) {
@@ -58,9 +54,9 @@ void SkUnit3D::Cross(const SkUnit3D& a, const SkUnit3D& b, SkUnit3D* cross) {
 
     // use x,y,z, in case &a == cross or &b == cross
 
-    SkScalar x = SkUnitScalarMul(a.fY, b.fZ) - SkUnitScalarMul(a.fZ, b.fY);
-    SkScalar y = SkUnitScalarMul(a.fZ, b.fX) - SkUnitScalarMul(a.fX, b.fY);
-    SkScalar z = SkUnitScalarMul(a.fX, b.fY) - SkUnitScalarMul(a.fY, b.fX);
+    SkScalar x = a.fY * b.fZ - a.fZ * b.fY;
+    SkScalar y = a.fZ * b.fX - a.fX * b.fY;
+    SkScalar z = a.fX * b.fY - a.fY * b.fX;
 
     cross->set(x, y, z);
 }
@@ -223,9 +219,9 @@ void SkCamera3D::doUpdate() const {
     {
         SkScalar dot = SkUnit3D::Dot(*SkTCast<const SkUnit3D*>(&fZenith), axis);
 
-        zenith.fX = fZenith.fX - SkUnitScalarMul(dot, axis.fX);
-        zenith.fY = fZenith.fY - SkUnitScalarMul(dot, axis.fY);
-        zenith.fZ = fZenith.fZ - SkUnitScalarMul(dot, axis.fZ);
+        zenith.fX = fZenith.fX - dot * axis.fX;
+        zenith.fY = fZenith.fY - dot * axis.fY;
+        zenith.fZ = fZenith.fZ - dot * axis.fZ;
 
         SkTCast<SkPoint3D*>(&zenith)->normalize(&zenith);
     }
@@ -238,12 +234,12 @@ void SkCamera3D::doUpdate() const {
         SkScalar y = fObserver.fY;
         SkScalar z = fObserver.fZ;
 
-        orien->set(SkMatrix::kMScaleX, SkUnitScalarMul(x, axis.fX) - SkUnitScalarMul(z, cross.fX));
-        orien->set(SkMatrix::kMSkewX,  SkUnitScalarMul(x, axis.fY) - SkUnitScalarMul(z, cross.fY));
-        orien->set(SkMatrix::kMTransX, SkUnitScalarMul(x, axis.fZ) - SkUnitScalarMul(z, cross.fZ));
-        orien->set(SkMatrix::kMSkewY,  SkUnitScalarMul(y, axis.fX) - SkUnitScalarMul(z, zenith.fX));
-        orien->set(SkMatrix::kMScaleY, SkUnitScalarMul(y, axis.fY) - SkUnitScalarMul(z, zenith.fY));
-        orien->set(SkMatrix::kMTransY, SkUnitScalarMul(y, axis.fZ) - SkUnitScalarMul(z, zenith.fZ));
+        orien->set(SkMatrix::kMScaleX, x * axis.fX - z * cross.fX);
+        orien->set(SkMatrix::kMSkewX,  x * axis.fY - z * cross.fY);
+        orien->set(SkMatrix::kMTransX, x * axis.fZ - z * cross.fZ);
+        orien->set(SkMatrix::kMSkewY,  y * axis.fX - z * zenith.fX);
+        orien->set(SkMatrix::kMScaleY, y * axis.fY - z * zenith.fY);
+        orien->set(SkMatrix::kMTransY, y * axis.fZ - z * zenith.fZ);
         orien->set(SkMatrix::kMPersp0, axis.fX);
         orien->set(SkMatrix::kMPersp1, axis.fY);
         orien->set(SkMatrix::kMPersp2, axis.fZ);
@@ -281,7 +277,7 @@ void SkCamera3D::patchToMatrix(const SkPatch3D& quilt, SkMatrix* matrix) const {
     patchPtr = (const SkScalar*)(const void*)&diff;
     matrix->set(SkMatrix::kMTransX, SkScalarDotDiv(3, patchPtr, 1, mapPtr, 1, dot));
     matrix->set(SkMatrix::kMTransY, SkScalarDotDiv(3, patchPtr, 1, mapPtr+3, 1, dot));
-    matrix->set(SkMatrix::kMPersp2, SK_UnitScalar1);
+    matrix->set(SkMatrix::kMPersp2, SK_Scalar1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

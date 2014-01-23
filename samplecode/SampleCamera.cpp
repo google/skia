@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -57,8 +57,7 @@ public:
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt))
-        {
+        if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Camera");
             return true;
         }
@@ -83,6 +82,7 @@ protected:
 
             paint.setAntiAlias(true);
             paint.setShader(fShaders[fShaderIndex]);
+            paint.setFilterLevel(SkPaint::kLow_FilterLevel);
             SkRect r = { -150, -150, 150, 150 };
             canvas->drawRoundRect(r, 30, 30, paint);
         }

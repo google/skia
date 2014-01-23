@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkRandom_DEFINED
 #define SkRandom_DEFINED
@@ -103,7 +101,7 @@ public:
         in the range [min..max).
     */
     SkScalar nextRangeScalar(SkScalar min, SkScalar max) {
-        return SkScalarMul(this->nextUScalar1(), (max - min)) + min;
+        return this->nextUScalar1() * (max - min) + min;
     }
 
     /** Return the next pseudo random number expressed as a SkScalar
@@ -257,7 +255,7 @@ public:
      in the range [min..max).
      */
     SkScalar nextRangeScalar(SkScalar min, SkScalar max) {
-        return SkScalarMul(this->nextUScalar1(), (max - min)) + min;
+        return this->nextUScalar1() * (max - min) + min;
     }
 
     /** Return the next pseudo random number expressed as a SkScalar
