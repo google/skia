@@ -7352,6 +7352,15 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "verttext2_8888-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14505566906974752673
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "verttext2_8888.png": {
       "allowed-digests": [
         [

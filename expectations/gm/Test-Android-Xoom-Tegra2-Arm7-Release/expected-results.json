@@ -2661,10 +2661,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18162873972189542222
+          14516786710892981089
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "complexclip_aa_8888.png": {
       "allowed-digests": [
@@ -2688,10 +2688,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11314973788178398480
+          12409087991696157632
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "complexclip_aa_layer_8888.png": {
       "allowed-digests": [
@@ -2715,10 +2715,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17558410328199110662
+          3887952608594844841
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "complexclip_bw_8888.png": {
       "allowed-digests": [
@@ -3039,10 +3039,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7854592166532020632
+          1228958925770375605
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "degeneratesegments_8888.png": {
       "allowed-digests": [
