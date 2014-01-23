@@ -1430,6 +1430,7 @@ DEFINE_string(ignoreErrorTypes, kDefaultIgnorableErrorTypes.asString(" ").c_str(
 DEFINE_string(ignoreFailuresFile, "", "Path to file containing a list of tests for which we "
               "should ignore failures.\n"
               "The file should list one test per line, except for comment lines starting with #");
+DEFINE_bool2(leaks, l, false, "show leaked ref cnt'd objects.");
 DEFINE_string(match, "", "[~][^]substring[$] [...] of test name to run.\n"
               "Multiple matches may be separated by spaces.\n"
               "~ causes a matching test to always be skipped\n"
@@ -2198,8 +2199,15 @@ static bool parse_flags_jpeg_quality() {
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
 
+    SkString usage;
+    usage.printf("Run the golden master tests.\n");
+    SkCommandLineFlags::SetUsage(usage.c_str());
+    SkCommandLineFlags::Parse(argc, argv);
+
 #if SK_ENABLE_INST_COUNT
-    gPrintInstCount = true;
+    if (FLAGS_leaks) {
+        gPrintInstCount = true;
+    }
 #endif
 
     SkGraphics::Init();
@@ -2208,11 +2216,6 @@ int tool_main(int argc, char** argv) {
 
     setSystemPreferences();
     GMMain gmmain;
-
-    SkString usage;
-    usage.printf("Run the golden master tests.\n");
-    SkCommandLineFlags::SetUsage(usage.c_str());
-    SkCommandLineFlags::Parse(argc, argv);
 
     SkTDArray<size_t> configs;
 

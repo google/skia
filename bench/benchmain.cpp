@@ -252,6 +252,7 @@ DEFINE_bool(forceBlend,     false,    "Force alpha blending?");
 DEFINE_int32(gpuCacheBytes, -1, "GPU cache size limit in bytes.  0 to disable cache.");
 DEFINE_int32(gpuCacheCount, -1, "GPU cache size limit in object count.  0 to disable cache.");
 
+DEFINE_bool2(leaks, l, false, "show leaked ref cnt'd objects.");
 DEFINE_string(match, "",  "[~][^]substring[$] [...] of test name to run.\n"
                           "Multiple matches may be separated by spaces.\n"
                           "~ causes a matching test to always be skipped\n"
@@ -291,11 +292,13 @@ static bool HasConverged(double prevPerLoop, double currPerLoop, double currRaw)
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
 #if SK_ENABLE_INST_COUNT
-    gPrintInstCount = true;
+    if (FLAGS_leaks) {
+        gPrintInstCount = true;
+    }
 #endif
     SkAutoGraphics ag;
-    SkCommandLineFlags::Parse(argc, argv);
 
     // First, parse some flags.
     SkBenchLogger logger;

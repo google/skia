@@ -32,6 +32,7 @@ DEFINE_string2(match, m, NULL, "[~][^]substring[$] [...] of test name to run.\n"
 DEFINE_string2(tmpDir, t, NULL, "tmp directory for tests to use.");
 DEFINE_string2(resourcePath, i, "resources", "directory for test resources.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
+DEFINE_bool2(leaks, l, false, "show leaked ref cnt'd objects.");
 DEFINE_bool2(single, z, false, "run tests on a single thread internally.");
 DEFINE_bool2(verbose, v, false, "enable verbose output.");
 DEFINE_int32(threads, SkThreadPool::kThreadPerCore,
@@ -129,7 +130,9 @@ int tool_main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
 
 #if SK_ENABLE_INST_COUNT
-    gPrintInstCount = true;
+    if (FLAGS_leaks) {
+        gPrintInstCount = true;
+    }
 #endif
 
     SkGraphics::Init();
