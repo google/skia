@@ -139,3 +139,4 @@ if (!IS_SKV8) {
   }
 }
 
+console.log("HAS_PATH: " + HAS_PATH);

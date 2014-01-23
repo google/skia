@@ -1,9 +1,10 @@
 var IS_SKV8 = typeof document == "undefined";
+var HAS_PATH = typeof Path != "undefined";
 
 function circlePath(r) {
-  if (IS_SKV8) {
+  if (HAS_PATH) {
     var p = new Path();
-    p.oval(0, 0, r, r);
+    p.arc(0, 0, r, 0, 2*Math.PI);
     p.closePath();
     return p;
   } else {
@@ -48,7 +49,7 @@ var onDraw = function() {
       if(p.y>(H+1)){
         p.y = 0;
       }
-      if (IS_SKV8) {
+      if (HAS_PATH) {
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.fill(p.path);
@@ -90,3 +91,5 @@ if (!IS_SKV8) {
     setTimeout(drawCallback, 1);
   }
 }
+
+console.log("HAS_PATH: " + HAS_PATH);
