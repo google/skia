@@ -1,0 +1,16 @@
+# Supressions for LSAN.
+#   tools/xsan_build address -C out/Debug
+#   ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=tools/lsan.supp out/Debug/$FOO
+
+# Ignore fontconfig leaks.
+leak:FcFontSet
+leak:FcPatternObject
+
+# It'd be really nice to supress these leaks in the Nvidia driver, but I can't figure it out.
+# Direct leak of 18072 byte(s) in 3 object(s) allocated from:
+#   #0 0x5ebb59 in calloc ~/llvm-3.4/projects/compiler-rt/lib/asan/asan_malloc_linux.cc:90
+#   #1 0x7f66af293b1e (/usr/lib/nvidia-current/libGL.so.1+0xbcb1e)
+
+# Skia leaks
+leak:SkRTConf
+leak:SkFontMgr
