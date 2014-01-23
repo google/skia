@@ -7,6 +7,6 @@
 
 #include "SkMorphology_opts.h"
 
-SkMorphologyImageFilter::Proc SkMorphologyGetPlatformProc(SkMorphologyProcType) {
+SkMorphologyProc SkMorphologyGetPlatformProc(SkMorphologyProcType) {
     return NULL;
 }

@@ -25,7 +25,6 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
-        'effects.gyp:*'
       ],
       'include_dirs': [
         '../src/core',
@@ -122,7 +121,6 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
-        'effects.gyp:*'
       ],
       'include_dirs': [
         '../src/core',
@@ -152,7 +150,6 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
-        'effects.gyp:*'
       ],
       'include_dirs': [
         '../src/core',

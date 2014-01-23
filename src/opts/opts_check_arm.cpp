@@ -69,7 +69,7 @@ SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
     return NULL;
 }
 
-SkMorphologyImageFilter::Proc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {
+SkMorphologyProc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {
 #if SK_ARM_NEON_IS_NONE
     return NULL;
 #else

@@ -9,7 +9,6 @@
 #ifndef SkMorphologyImageFilter_DEFINED
 #define SkMorphologyImageFilter_DEFINED
 
-#include "SkColor.h"
 #include "SkImageFilter.h"
 #include "SkSize.h"
 
@@ -17,27 +16,11 @@ class SK_API SkMorphologyImageFilter : public SkImageFilter {
 public:
     SkMorphologyImageFilter(int radiusX, int radiusY, SkImageFilter* input, const CropRect* cropRect);
 
-    /**
-     * All morphology procs have the same signature: src is the source buffer, dst the
-     * destination buffer, radius is the morphology radius, width and height are the bounds
-     * of the destination buffer (in pixels), and srcStride and dstStride are the
-     * number of pixels per row in each buffer. All buffers are 8888.
-     */
-
-    typedef void (*Proc)(const SkPMColor* src, SkPMColor* dst, int radius,
-                         int width, int height, int srcStride, int dstStride);
-
 protected:
-    bool filterImageGeneric(Proc procX, Proc procY,
-                            Proxy*, const SkBitmap& src, const SkMatrix&,
-                            SkBitmap* result, SkIPoint* offset);
     SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer);
     virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
     virtual bool canFilterImageGPU() const SK_OVERRIDE { return true; }
-    bool filterImageGPUGeneric(bool dilate, Proxy* proxy, const SkBitmap& src,
-                               const SkMatrix& ctm, SkBitmap* result,
-                               SkIPoint* offset);
 #endif
 
     SkISize    radius() const { return fRadius; }
