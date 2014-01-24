@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitSet.h"
+#include "Test.h"
 
 DEF_TEST(BitSet, reporter) {
     SkBitSet set0(65536);

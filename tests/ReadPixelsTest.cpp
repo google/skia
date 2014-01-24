@@ -13,8 +13,8 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "SkGpuDevice.h"
 #include "GrContextFactory.h"
+#include "SkGpuDevice.h"
 #endif
 
 static const int DEV_W = 100, DEV_H = 100;

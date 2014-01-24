@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
 #include "SkBitmap.h"
 #include "SkRect.h"
+#include "Test.h"
 
 static const char* boolStr(bool value) {
     return value ? "true" : "false";

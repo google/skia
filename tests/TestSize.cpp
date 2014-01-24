@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkSize.h"
+#include "Test.h"
 
 static void TestISize(skiatest::Reporter* reporter) {
     SkISize  a, b;

@@ -1,7 +1,7 @@
 #include "Test.h"
 
-#include "SkPixelRef.h"
 #include "SkMallocPixelRef.h"
+#include "SkPixelRef.h"
 
 static void test_info(skiatest::Reporter* reporter) {
     static const struct {

@@ -8,9 +8,9 @@
 #include "Test.h"
 // This is a GR test
 #if SK_SUPPORT_GPU
+#include "../../src/gpu/GrClipMaskManager.h"
 #include "GrContextFactory.h"
 #include "SkGpuDevice.h"
-#include "../../src/gpu/GrClipMaskManager.h"
 
 static const int X_SIZE = 12;
 static const int Y_SIZE = 12;

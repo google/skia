@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkChunkAlloc.h"
 #include "SkUtils.h"
+#include "Test.h"
 
 static void test_chunkalloc(skiatest::Reporter* reporter) {
     size_t min = 256;

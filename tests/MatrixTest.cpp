@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkMath.h"
 #include "SkMatrix.h"
 #include "SkMatrixUtils.h"
 #include "SkRandom.h"
+#include "Test.h"
 
 static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
     const SkScalar tolerance = SK_Scalar1 / 200000;

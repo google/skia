@@ -9,10 +9,10 @@
 // This is a GPU-backend specific test
 #if SK_SUPPORT_GPU
 #include "GrMemoryPool.h"
+#include "SkInstCnt.h"
 #include "SkRandom.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
-#include "SkInstCnt.h"
 
 // A is the top of an inheritance tree of classes that overload op new and
 // and delete to use a GrMemoryPool. The objects have values of different types

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkCanvas.h"
 #include "SkEdgeClipper.h"
 #include "SkLineClipper.h"
 #include "SkPath.h"
+#include "Test.h"
 
 static void test_hairclipping(skiatest::Reporter* reporter) {
     SkBitmap bm;

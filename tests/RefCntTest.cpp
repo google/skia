@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkRefCnt.h"
 #include "SkTRefArray.h"
 #include "SkThreadUtils.h"
 #include "SkTypes.h"
 #include "SkWeakRefCnt.h"
+#include "Test.h"
 
 class InstCounterClass {
 public:

@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -17,10 +16,11 @@
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureUtils.h"
-#include "SkRandom.h"
 #include "SkRRect.h"
+#include "SkRandom.h"
 #include "SkShader.h"
 #include "SkStream.h"
+#include "Test.h"
 
 static const int gColorScale = 30;
 static const int gColorOffset = 60;

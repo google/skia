@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkCanvas.h"
-#include "SkPaint.h"
 #include "SkCubicClipper.h"
 #include "SkGeometry.h"
+#include "SkPaint.h"
+#include "Test.h"
 
 // Currently the supersampler blitter uses int16_t for its index into an array
 // the width of the clip. Test that we don't crash/assert if we try to draw

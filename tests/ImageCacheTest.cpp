@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkDiscardableMemory.h"
 #include "SkScaledImageCache.h"
+#include "Test.h"
 
 static void make_bm(SkBitmap* bm, int w, int h) {
     bm->setConfig(SkBitmap::kARGB_8888_Config, w, h);

@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
+#include "../src/image/SkImagePriv.h"
+#include "../src/image/SkSurface_Base.h"
 #include "SkBitmap.h"
 #include "SkBitmapDevice.h"
 #include "SkBitmapProcShader.h"
 #include "SkDeferredCanvas.h"
 #include "SkGradientShader.h"
 #include "SkShader.h"
-#include "../src/image/SkSurface_Base.h"
-#include "../src/image/SkImagePriv.h"
+#include "Test.h"
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
 #else

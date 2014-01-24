@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkPackBits.h"
+#include "Test.h"
 
 static const uint16_t gTest0[] = { 0, 0, 1, 1 };
 static const uint16_t gTest1[] = { 1, 2, 3, 4, 5, 6 };

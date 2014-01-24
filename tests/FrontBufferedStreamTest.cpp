@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkFrontBufferedStream.h"
 #include "SkRefCnt.h"
 #include "SkStream.h"
 #include "SkTypes.h"
+#include "Test.h"
 
 static void test_read(skiatest::Reporter* reporter, SkStream* bufferedStream,
                       const void* expectations, size_t bytesToRead) {

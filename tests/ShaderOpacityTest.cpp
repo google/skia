@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkShader.h"
-#include "SkGradientShader.h"
 #include "SkColorShader.h"
+#include "SkGradientShader.h"
+#include "SkShader.h"
+#include "Test.h"
 
 static void test_bitmap(skiatest::Reporter* reporter) {
     SkBitmap bmp;

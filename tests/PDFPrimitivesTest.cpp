@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
@@ -19,6 +18,7 @@
 #include "SkScalar.h"
 #include "SkStream.h"
 #include "SkTypes.h"
+#include "Test.h"
 
 class SkPDFTestDict : public SkPDFDict {
 public:

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkRandom.h"
 #include "SkTSort.h"
+#include "Test.h"
 
 extern "C" {
     static int compare_int(const void* a, const void* b) {

@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmap.h"
-#include "SkRect.h"
 #include "SkRandom.h"
+#include "SkRect.h"
+#include "Test.h"
 
 DEF_TEST(GetColor, reporter) {
     static const struct Rec {

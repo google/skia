@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkParsePath.h"
+#include "Test.h"
 
 static void test_to_from(skiatest::Reporter* reporter, const SkPath& path) {
     SkString str, str2;

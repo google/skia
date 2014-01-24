@@ -11,13 +11,13 @@
     (!defined(SK_BUILD_FOR_IOS)) &&             \
     (!defined(SK_BUILD_FOR_MAC))
 
-#include "Test.h"
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkForceLinking.h"
 #include "SkImage.h"
 #include "SkImageDecoder.h"
 #include "SkStream.h"
+#include "Test.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 

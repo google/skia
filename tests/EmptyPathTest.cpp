@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkPath.h"
 #include "SkCanvas.h"
+#include "SkPath.h"
+#include "Test.h"
 
 #define DIMENSION   32
 

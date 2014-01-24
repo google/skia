@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkTileGrid.h"
 #include "SkTileGridPicture.h"
+#include "Test.h"
 
 enum Tile {
     kTopLeft_Tile = 0x1,

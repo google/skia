@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
@@ -24,6 +23,7 @@
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkString.h"
+#include "Test.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 

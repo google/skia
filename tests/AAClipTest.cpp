@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkAAClip.h"
 #include "SkCanvas.h"
 #include "SkMask.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "Test.h"
 
 static bool operator==(const SkMask& a, const SkMask& b) {
     if (a.fFormat != b.fFormat || a.fBounds != b.fBounds) {

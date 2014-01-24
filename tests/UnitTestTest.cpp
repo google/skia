@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkRTConf.h"
+#include "Test.h"
 
 DEF_TEST(UnitTest, reporter) {
 #ifdef SK_SUPPORT_UNITTEST

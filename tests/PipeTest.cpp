@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SamplePipeControllers.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGPipe.h"
 #include "SkPaint.h"
 #include "SkShader.h"
+#include "Test.h"
 
 // Ensures that the pipe gracefully handles drawing an invalid bitmap.
 static void testDrawingBadBitmap(SkCanvas* pipeCanvas) {

@@ -1,10 +1,10 @@
 // SkPaints only have an SkPaintOptionsAndroid if SK_BUILD_FOR_ANDROID is true.
 #ifdef SK_BUILD_FOR_ANDROID
 
-#include "SkPaintOptionsAndroid.h"
 #include "SkOrderedReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
 #include "SkPaint.h"
+#include "SkPaintOptionsAndroid.h"
 #include "Test.h"
 
 static size_t Reconstruct(const SkPaint& src, SkPaint* dst) {

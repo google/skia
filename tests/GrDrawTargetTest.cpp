@@ -10,8 +10,8 @@
 
 #include "GrContext.h"
 #include "GrContextFactory.h"
-#include "GrGpu.h"
 #include "GrDrawTargetCaps.h"
+#include "GrGpu.h"
 #include "Test.h"
 
 static void test_print(skiatest::Reporter*, const GrDrawTargetCaps* caps) {

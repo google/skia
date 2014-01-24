@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkPathUtils.h"
 #include "SkRandom.h"
 #include "SkTime.h"
+#include "Test.h"
 
 const int kNumIt = 100;
 

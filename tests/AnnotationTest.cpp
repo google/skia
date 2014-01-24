@@ -5,12 +5,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
 #include "SkAnnotation.h"
-#include "SkData.h"
 #include "SkCanvas.h"
+#include "SkData.h"
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
+#include "Test.h"
 
 /** Returns true if data (may contain null characters) contains needle (null
  *  terminated). */

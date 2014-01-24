@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "SkString.h"
 #include "Test.h"
 #include "picture_utils.h"
-#include "SkString.h"
 
 static void test_filepath_creation(skiatest::Reporter* reporter) {
     SkString result;

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkPaint.h"
+#include "SkEndian.h"
 #include "SkFontStream.h"
 #include "SkOSFile.h"
+#include "SkPaint.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
-#include "SkEndian.h"
+#include "Test.h"
 
 //#define DUMP_TABLES
 //#define DUMP_TTC_TABLES

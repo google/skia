@@ -13,8 +13,8 @@
 #include "Test.h"
 
 #if SK_SUPPORT_GPU
-#include "SkGpuDevice.h"
 #include "GrContextFactory.h"
+#include "SkGpuDevice.h"
 #else
 class GrContext;
 class GrContextFactory;

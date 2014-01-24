@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
@@ -15,6 +14,7 @@
 #include "SkPictureFlat.h"
 #include "SkShader.h"
 #include "SkXfermode.h"
+#include "Test.h"
 
 struct SkFlattenableTraits {
     static void flatten(SkOrderedWriteBuffer& buffer, const SkFlattenable& flattenable) {

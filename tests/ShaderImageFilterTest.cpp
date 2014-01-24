@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkCanvas.h"
-#include "SkShader.h"
-#include "SkRectShaderImageFilter.h"
 #include "SkGradientShader.h"
+#include "SkRectShaderImageFilter.h"
+#include "SkShader.h"
+#include "Test.h"
 
 DEF_TEST(ShaderImageFilter, reporter) {
     int w = 10, h = 10;

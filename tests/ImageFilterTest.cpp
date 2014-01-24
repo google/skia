@@ -5,26 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBicubicImageFilter.h"
 #include "SkBitmap.h"
 #include "SkBitmapDevice.h"
 #include "SkBitmapSource.h"
-#include "SkCanvas.h"
-#include "SkColorMatrixFilter.h"
-#include "SkColorFilterImageFilter.h"
-#include "SkDeviceImageFilterProxy.h"
 #include "SkBlurImageFilter.h"
+#include "SkCanvas.h"
+#include "SkColorFilterImageFilter.h"
+#include "SkColorMatrixFilter.h"
+#include "SkDeviceImageFilterProxy.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkLightingImageFilter.h"
+#include "SkMatrixConvolutionImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
-#include "SkMatrixConvolutionImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkRect.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
-#include "SkRect.h"
+#include "Test.h"
 
 static const int kBitmapSize = 4;
 

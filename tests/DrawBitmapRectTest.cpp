@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkImageGenerator.h"
+#include "SkMatrixUtils.h"
 #include "SkPaint.h"
+#include "SkRandom.h"
 #include "SkShader.h"
 #include "SkSurface.h"
-#include "SkRandom.h"
-#include "SkMatrixUtils.h"
+#include "Test.h"
 
 // A BitmapFactory that always fails when asked to return pixels.
 class FailureImageGenerator : public SkImageGenerator {

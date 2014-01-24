@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkData.h"
-#include "SkPDFTypes.h"
 #include "SkPDFFont.h"
+#include "SkPDFTypes.h"
 #include "SkStream.h"
+#include "Test.h"
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const char* buffer, size_t len) {

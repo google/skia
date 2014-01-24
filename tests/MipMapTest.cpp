@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkMipMap.h"
 #include "SkBitmap.h"
+#include "SkMipMap.h"
 #include "SkRandom.h"
+#include "Test.h"
 
 static void make_bitmap(SkBitmap* bm, SkRandom& rand) {
     // for now, Build needs a min size of 2, otherwise it will return NULL.

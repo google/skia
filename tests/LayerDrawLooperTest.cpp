@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmap.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
@@ -17,6 +16,7 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkXfermode.h"
+#include "Test.h"
 
 class FakeDevice : public SkBitmapDevice {
 public:

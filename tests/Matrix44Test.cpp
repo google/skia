@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkMatrix44.h"
+#include "Test.h"
 
 static bool nearly_equal_double(double a, double b) {
     const double tolerance = 1e-7;

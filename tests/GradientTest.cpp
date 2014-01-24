@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmapDevice.h"
 #include "SkColorShader.h"
 #include "SkEmptyShader.h"
 #include "SkGradientShader.h"
 #include "SkShader.h"
 #include "SkTemplates.h"
+#include "Test.h"
 
 struct GradRec {
     int             fColorCount;

@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkRect.h"
+#include "Test.h"
 
 // these are in the same order as the SkBitmap::Config enum
 static const char* gConfigName[] = {

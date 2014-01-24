@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkMetaData.h"
+#include "Test.h"
 
 static void test_ptrs(skiatest::Reporter* reporter) {
     SkRefCnt ref;

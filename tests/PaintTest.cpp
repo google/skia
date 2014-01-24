@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkLayerDrawLooper.h"
-#include "SkPath.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkRandom.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
+#include "Test.h"
 
 static size_t uni_to_utf8(const SkUnichar src[], void* dst, int count) {
     char* u8 = (char*)dst;

@@ -12,11 +12,11 @@
 
 #if SK_SUPPORT_GPU && SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 
-#include "gl/GrGpuGL.h"
 #include "GrBackendEffectFactory.h"
 #include "GrContextFactory.h"
 #include "GrDrawEffect.h"
 #include "effects/GrConfigConversionEffect.h"
+#include "gl/GrGpuGL.h"
 
 #include "SkChecksum.h"
 #include "SkRandom.h"
@@ -249,9 +249,9 @@ DEF_GPUTEST(GLPrograms, reporter, factory) {
 // We force some of the effects that would otherwise be discarded to link here.
 
 #include "SkAlphaThresholdFilter.h"
+#include "SkColorMatrixFilter.h"
 #include "SkLightingImageFilter.h"
 #include "SkMagnifierImageFilter.h"
-#include "SkColorMatrixFilter.h"
 
 void forceLinking();
 

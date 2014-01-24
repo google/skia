@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkCanvasStateUtils.h"
 #include "SkDrawFilter.h"
 #include "SkError.h"
 #include "SkPaint.h"
-#include "SkRect.h"
 #include "SkRRect.h"
+#include "SkRect.h"
+#include "Test.h"
 
 static void test_complex_layers(skiatest::Reporter* reporter) {
     const int WIDTH = 400;

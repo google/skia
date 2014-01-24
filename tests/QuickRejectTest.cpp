@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkCanvas.h"
 #include "SkDrawLooper.h"
+#include "Test.h"
 
 /*
  *  Subclass of looper that just draws once, with an offset in X.

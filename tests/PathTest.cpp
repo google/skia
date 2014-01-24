@@ -5,20 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
-#include "SkPath.h"
 #include "SkParse.h"
 #include "SkParsePath.h"
+#include "SkPath.h"
 #include "SkPathEffect.h"
+#include "SkRRect.h"
 #include "SkRandom.h"
 #include "SkReader32.h"
-#include "SkRRect.h"
 #include "SkSize.h"
 #include "SkSurface.h"
 #include "SkTypes.h"
 #include "SkWriter32.h"
+#include "Test.h"
 
 static void make_path0(SkPath* path) {
     // from  *  https://code.google.com/p/skia/issues/detail?id=1706

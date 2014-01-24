@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkRandom.h"
 #include "SkReader32.h"
 #include "SkWriter32.h"
+#include "Test.h"
 
 static void check_contents(skiatest::Reporter* reporter, const SkWriter32& writer,
                            const void* expected, size_t size) {

@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkMatrix.h"
 #include "SkRRect.h"
+#include "Test.h"
 
 static const SkScalar kWidth = 100.0f;
 static const SkScalar kHeight = 100.0f;

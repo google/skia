@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkSHA1.h"
+#include "Test.h"
 
 static bool digests_equal(const SkSHA1::Digest& expectedDigest, const SkSHA1::Digest& computedDigest) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(expectedDigest.data); ++i) {

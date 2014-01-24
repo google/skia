@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkRandom.h"
-#include "SkOSFile.h"
-#include "SkStream.h"
 #include "SkData.h"
+#include "SkOSFile.h"
+#include "SkRandom.h"
+#include "SkStream.h"
+#include "Test.h"
 
 #ifndef SK_BUILD_FOR_WIN
 #include <unistd.h>

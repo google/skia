@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "OverwriteLine.h"
 #include "SkCommandLineFlags.h"
 #include "SkGraphics.h"
 #include "SkOSFile.h"
@@ -13,7 +14,6 @@
 #include "SkThreadPool.h"
 #include "SkTime.h"
 #include "Test.h"
-#include "OverwriteLine.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"

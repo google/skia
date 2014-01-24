@@ -11,8 +11,8 @@
 #if SK_SUPPORT_GPU
 #include "GrBinHashKey.h"
 #include "GrDrawTarget.h"
-#include "SkMatrix.h"
 #include "GrRedBlackTree.h"
+#include "SkMatrix.h"
 
 // If we aren't inheriting these as #defines from elsewhere,
 // clang demands they be declared before we #include the template

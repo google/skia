@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
 #include "SkTLS.h"
 #include "SkThreadUtils.h"
+#include "Test.h"
 
 static void thread_main(void*) {
     SkGraphics::SetTLSFontCacheLimit(1 * 1024 * 1024);

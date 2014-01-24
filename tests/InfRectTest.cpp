@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkRandom.h"
 #include "SkRect.h"
+#include "Test.h"
 
 static float make_zero() {
     return sk_float_sin(0);

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkPathMeasure.h"
+#include "Test.h"
 
 static void test_small_segment3() {
     SkPath path;

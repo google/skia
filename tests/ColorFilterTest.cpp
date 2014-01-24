@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkColor.h"
-#include "SkColorPriv.h"
 #include "SkColorFilter.h"
+#include "SkColorPriv.h"
 #include "SkLumaColorFilter.h"
-#include "SkRandom.h"
-#include "SkXfermode.h"
 #include "SkOrderedReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
+#include "SkRandom.h"
+#include "SkXfermode.h"
+#include "Test.h"
 
 static SkColorFilter* reincarnate_colorfilter(SkFlattenable* obj) {
     SkOrderedWriteBuffer wb;

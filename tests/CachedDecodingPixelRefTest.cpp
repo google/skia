@@ -6,12 +6,12 @@
  */
 
 #include "SkBitmap.h"
+#include "SkCachingPixelRef.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkImageDecoder.h"
-#include "SkCachingPixelRef.h"
 #include "SkScaledImageCache.h"
 #include "SkStream.h"
 #include "SkUtils.h"

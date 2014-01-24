@@ -7,10 +7,10 @@
  */
 #include "Test.h"
 
+#include "SkError.h"
 #include "SkString.h"
 #include "SkTArray.h"
 #include "SkTime.h"
-#include "SkError.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"

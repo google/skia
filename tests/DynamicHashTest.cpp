@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkTDynamicHash.h"
+#include "Test.h"
 
 namespace {
 

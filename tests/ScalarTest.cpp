@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkFloatingPoint.h"
 #include "SkMath.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
 #include "SkRect.h"
+#include "Test.h"
 
 struct PointSet {
     const SkPoint* fPts;

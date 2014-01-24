@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkColorPriv.h"
 #include "SkXfermode.h"
+#include "Test.h"
 
 // our std SkAlpha255To256
 static int test_srcover0(unsigned dst, unsigned alpha) {

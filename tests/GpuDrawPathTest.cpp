@@ -14,8 +14,8 @@
 #include "SkColor.h"
 #include "SkGpuDevice.h"
 #include "SkPaint.h"
-#include "SkRect.h"
 #include "SkRRect.h"
+#include "SkRect.h"
 #include "Test.h"
 
 static void test_drawPathEmpty(skiatest::Reporter*, SkCanvas* canvas) {

@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkDashPathEffect.h"
 #include "SkSurface.h"
+#include "Test.h"
 
 static SkCanvas* create(SkBitmap::Config config, int w, int h, int rb,
                         void* addr = NULL) {

@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkColorPriv.h"
 #include "SkEndian.h"
 #include "SkFloatBits.h"
@@ -13,6 +12,7 @@
 #include "SkMathPriv.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
+#include "Test.h"
 
 static void test_clz(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 32 == SkCLZ(0));

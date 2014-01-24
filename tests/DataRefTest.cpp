@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkData.h"
 #include "SkDataTable.h"
+#include "SkOSFile.h"
 #include "SkOrderedReadBuffer.h"
 #include "SkOrderedWriteBuffer.h"
-#include "SkOSFile.h"
 #include "SkStream.h"
+#include "Test.h"
 
 static void test_is_equal(skiatest::Reporter* reporter,
                           const SkDataTable* a, const SkDataTable* b) {

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
 #include "SkRefDict.h"
+#include "Test.h"
 
 class TestRC : public SkRefCnt {
 public:
