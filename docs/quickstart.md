@@ -1,0 +1,35 @@
+Skia Quickstart Guide
+=====================
+
+This guide assumes you've got `gclient`, `git`, and `ninja` on your path.
+
+1. First, create a directory to hold Skia:
+    * `mkdir skia`
+    * `cd skia`
+2. Then checkout Skia:
+    * `gclient config --name . https://skia.googlesource.com/skia.git`
+    * `gclient sync`
+3. Create our Ninja build files from our Gyp meta-build files.  You only need
+   to rerun this when you sync or change a `.gyp` file.
+    * `GYP_GENERATORS=ninja ./gyp_skia`
+4. Now, let's build Skia.  There are a few options:
+    * `ninja -C out/Debug`: no optimization, asserts enabled
+    * `ninja -C out/Release`: optimization, asserts disabled
+    * `ninja -C out/Coverage`: no optimization, asserts enabled, code coverage generated
+5. Run some tests:
+    * `out/Debug/tests`: runs unit tests from tests/
+    * `out/Debug/dm`: runs golden master tests from gm/
+6. Make some changes:
+    * `git checkout -b my-new-feature origin/master`
+    * `vim src/...`
+    * `git commit -am "Changes for my new feature."`
+    * `vim tests/...`
+    * `git commit --amend -a`
+    * `ninja -C out/Debug && out/Debug/tests && out/Debug/dm && echo ok`
+7. Rebase your change onto the latest Skia code:
+    * `git pull --rebase`
+    * `ninja -C out/Debug && out/Debug/tests && out/Debug/dm && echo ok`
+8. Upload your change and send it out for review:
+    * `git cl upload -r my-skia-reviewer@google.com -s`
+    * `git cl web`
+9. Go through code review, get an LGTM, submit using the checkbox on the code review page.
