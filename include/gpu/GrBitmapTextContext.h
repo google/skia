@@ -17,13 +17,14 @@ class GrTextStrike;
  */
 class GrBitmapTextContext : public GrTextContext {
 public:
-    GrBitmapTextContext(GrContext*, const GrPaint&, SkColor);
-    virtual ~GrBitmapTextContext();
-
     virtual void drawPackedGlyph(GrGlyph::PackedID, GrFixed left, GrFixed top,
                          GrFontScaler*) SK_OVERRIDE;
 
 private:
+    GrBitmapTextContext(GrContext*, const GrPaint&, const SkPaint&);
+    virtual ~GrBitmapTextContext();
+    friend class GrTTextContextManager<GrBitmapTextContext>;
+
     GrContext::AutoMatrix  fAutoMatrix;
     GrTextStrike*          fStrike;
 
@@ -36,7 +37,6 @@ private:
         kDefaultRequestedVerts   = kDefaultRequestedGlyphs * 4,
     };
 
-    SkColor                 fSkPaintColor;
     SkPoint*                fVertices;
     int32_t                 fMaxVertices;
     GrTexture*              fCurrTexture;
