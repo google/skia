@@ -383,11 +383,11 @@ void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
     } else {
         for (int j = 0; j < 4; j++) {
             for (int i = 0; i < 4; i++) {
-                double value = 0;
+                SkMScalar value = 0;
                 for (int k = 0; k < 4; k++) {
-                    value += SkMScalarToDouble(a.fMat[k][i]) * b.fMat[j][k];
+                    value += a.fMat[k][i] * b.fMat[j][k];
                 }
-                *result++ = SkDoubleToMScalar(value);
+                *result++ = value;
             }
         }
     }
