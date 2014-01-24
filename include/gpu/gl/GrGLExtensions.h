@@ -19,17 +19,12 @@ struct GrGLInterface;
  * queried. It supports both glGetString- and glGetStringi-style extension string APIs and will
  * use the latter if it is available.
  */
-class GrGLExtensions {
+class GrGLExtensions : public SkNoncopyable {
 public:
     GrGLExtensions() : fInitialized(false), fStrings(SkNEW(SkTArray<SkString>)) {}
 
-    GrGLExtensions(const GrGLExtensions&);
-
-    GrGLExtensions& operator=(const GrGLExtensions&);
-
     void swap(GrGLExtensions* that) {
         fStrings.swap(&that->fStrings);
-        SkTSwap(fInitialized, that->fInitialized);
     }
 
     /**
@@ -47,12 +42,7 @@ public:
     /**
      * Queries whether an extension is present. This will fail if init() has not been called.
      */
-    bool has(const char[]) const;
-
-    /**
-     * Removes an extension if present. Returns true if the extension was present before the call.
-     */
-    bool remove(const char[]);
+    bool has(const char*) const;
 
     void reset() { fStrings->reset(); }
 

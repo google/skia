@@ -18,16 +18,6 @@ DEF_GPUTEST(GLInterfaceValidation, reporter, factory) {
         // this forces the factory to make the context if it hasn't yet
         factory->get(glCtxType);
         SkGLContextHelper* glCtxHelper = factory->getGLContext(glCtxType);
-
-        // We're supposed to fail the NVPR context type when we the native context that does not
-        // support the NVPR extension.
-        if (GrContextFactory::kNVPR_GLContextType == glCtxType &&
-            NULL != factory->getGLContext(GrContextFactory::kNative_GLContextType) &&
-            !factory->getGLContext(GrContextFactory::kNative_GLContextType)->hasExtension("GL_NV_path_rendering")) {
-            REPORTER_ASSERT(reporter, NULL == glCtxHelper);
-            continue;
-        }
-
         REPORTER_ASSERT(reporter, NULL != glCtxHelper);
         if (NULL != glCtxHelper) {
             const GrGLInterface* interface = glCtxHelper->gl();

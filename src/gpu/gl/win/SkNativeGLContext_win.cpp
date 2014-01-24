@@ -86,8 +86,10 @@ const GrGLInterface* SkNativeGLContext::createGLContext() {
         return NULL;
     }
 
-    // Requesting a Core profile would bar us from using NVPR. So we pass false.
-    if (!(fGlRenderContext = SkCreateWGLContext(fDeviceContext, 0, false))) {
+    // We don't want the core profile when using NV path rendering (since
+    // NV path rendering relies on fixed function calls)
+    if (!(fGlRenderContext = SkCreateWGLContext(fDeviceContext, 0,
+                                                !GR_GL_USE_NV_PATH_RENDERING))) {
         SkDebugf("Could not create rendering context.\n");
         this->destroyGLContext();
         return NULL;

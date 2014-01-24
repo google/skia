@@ -309,7 +309,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     // attachment, hence this min:
     fMaxRenderTargetSize = GrMin(fMaxTextureSize, fMaxRenderTargetSize);
 
-    fPathRenderingSupport = ctxInfo.hasExtension("GL_NV_path_rendering");
+    fPathRenderingSupport = GR_GL_USE_NV_PATH_RENDERING &&
+                            ctxInfo.hasExtension("GL_NV_path_rendering");
     SkASSERT(!fPathRenderingSupport || fFixedFunctionSupport);
 
     fDstReadInShaderSupport = kNone_FBFetchType != fFBFetchType;

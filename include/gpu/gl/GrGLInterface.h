@@ -72,11 +72,7 @@ typedef void (*GrGLInterfaceCallbackProc)(const GrGLInterface*);
 typedef intptr_t GrGLInterfaceCallbackData;
 #endif
 
-/** Function that returns a new interface identical to "interface" but without support for
-    GL_NV_path_rendering. */
-const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface);
-
-/**
+/*
  * GrContext uses the following interface to make all calls into OpenGL. When a
  * GrContext is created it is given a GrGLInterface. The interface's function
  * pointers must be valid for the OpenGL context associated with the GrContext.
@@ -115,8 +111,6 @@ public:
     SK_DECLARE_INST_COUNT(GrGLInterface)
 
     GrGLInterface();
-
-    static GrGLInterface* NewClone(const GrGLInterface*);
 
     // Validates that the GrGLInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for both the GL version and any advertised
@@ -363,6 +357,7 @@ public:
         GLPtr<GrGLGetPathLengthProc> fGetPathLength;
         GLPtr<GrGLPointAlongPathProc> fPointAlongPath;
     } fFunctions;
+
 
     // Temporary workaround aliases to keep Chromium GrGLInterface factories compiling until they
     // assign the members of fFunctions.

@@ -26,15 +26,12 @@
  * GrContexts backed by different types of GL contexts. It manages creating the
  * GL context and a GrContext that uses it. The GL/Gr contexts persist until the
  * factory is destroyed (though the caller can always grab a ref on the returned
- * Gr and GL contexts to make them outlive the factory).
+ * GrContext to make it outlive the factory).
  */
 class GrContextFactory : public SkNoncopyable {
 public:
     /**
-     * Types of GL contexts supported. For historical and testing reasons the native GrContext will
-     * not use "GL_NV_path_rendering" even when the driver supports it. There is a separate context
-     * type that does not remove NVPR support and which will fail when the driver does not support
-     * the extension.
+     * Types of GL contexts supported.
      */
     enum GLContextType {
       kNative_GLContextType,
@@ -44,9 +41,6 @@ public:
 #if SK_MESA
       kMESA_GLContextType,
 #endif
-      /** Similar to kNative but does not filter NVPR. It will fail if the GL driver does not
-          support NVPR */
-      kNVPR_GLContextType,
       kNull_GLContextType,
       kDebug_GLContextType,
 
@@ -79,8 +73,6 @@ public:
             case kMESA_GLContextType:
                 return "mesa";
 #endif
-            case kNVPR_GLContextType:
-                return "nvpr";
             case kDebug_GLContextType:
                 return "debug";
             default:
@@ -95,7 +87,6 @@ public:
 
     void destroyContexts() {
         for (int i = 0; i < fContexts.count(); ++i) {
-            fContexts[i].fGLContext->makeCurrent();
             fContexts[i].fGrContext->unref();
             fContexts[i].fGLContext->unref();
         }
@@ -116,7 +107,6 @@ public:
         SkAutoTUnref<SkGLContextHelper> glCtx;
         SkAutoTUnref<GrContext> grCtx;
         switch (type) {
-            case kNVPR_GLContextType: // fallthru
             case kNative_GLContextType:
                 glCtx.reset(SkNEW(SkNativeGLContext));
                 break;
@@ -144,22 +134,7 @@ public:
         if (!glCtx.get()->init(kBogusSize, kBogusSize)) {
             return NULL;
         }
-
-        // Ensure NVPR is available for the NVPR type and block it from other types.
-        SkAutoTUnref<const GrGLInterface> glInterface(SkRef(glCtx.get()->gl()));
-        if (kNVPR_GLContextType == type) {
-            if (!glInterface->hasExtension("GL_NV_path_rendering")) {
-                return NULL;
-            }
-        } else {
-            glInterface.reset(GrGLInterfaceRemoveNVPR(glInterface));
-            if (!glInterface) {
-                return NULL;
-            }
-        }
-
-        glCtx->makeCurrent();
-        GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(glInterface.get());
+        GrBackendContext p3dctx = reinterpret_cast<GrBackendContext>(glCtx.get()->gl());
         grCtx.reset(GrContext::Create(kOpenGL_GrBackend, p3dctx));
         if (!grCtx.get()) {
             return NULL;
