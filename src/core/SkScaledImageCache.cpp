@@ -683,21 +683,22 @@ void SkScaledImageCache::dump() const {
 #include "SkThread.h"
 
 SK_DECLARE_STATIC_MUTEX(gMutex);
+static SkScaledImageCache* gScaledImageCache = NULL;
+static void cleanup_gScaledImageCache() { SkDELETE(gScaledImageCache); }
 
-static void create_cache(SkScaledImageCache** cache) {
+static void create_cache(int) {
 #ifdef SK_USE_DISCARDABLE_SCALEDIMAGECACHE
-    *cache = SkNEW_ARGS(SkScaledImageCache, (SkDiscardableMemory::Create));
+    gScaledImageCache = SkNEW_ARGS(SkScaledImageCache, (SkDiscardableMemory::Create));
 #else
-    *cache = SkNEW_ARGS(SkScaledImageCache, (SK_DEFAULT_IMAGE_CACHE_LIMIT));
+    gScaledImageCache = SkNEW_ARGS(SkScaledImageCache, (SK_DEFAULT_IMAGE_CACHE_LIMIT));
 #endif
 }
 
 static SkScaledImageCache* get_cache() {
-    static SkScaledImageCache* gCache(NULL);
-    SK_DECLARE_STATIC_ONCE(create_cache_once);
-    SkOnce(&create_cache_once, create_cache, &gCache);
-    SkASSERT(NULL != gCache);
-    return gCache;
+    SK_DECLARE_STATIC_ONCE(once);
+    SkOnce(&once, create_cache, 0, cleanup_gScaledImageCache);
+    SkASSERT(NULL != gScaledImageCache);
+    return gScaledImageCache;
 }
 
 

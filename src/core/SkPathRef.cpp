@@ -28,15 +28,17 @@ SkPathRef::Editor::Editor(SkAutoTUnref<SkPathRef>* pathRef,
 }
 
 //////////////////////////////////////////////////////////////////////////////
-void SkPathRef::CreateEmptyImpl(SkPathRef** empty) {
-    *empty = SkNEW(SkPathRef);
-    (*empty)->computeBounds();  // Preemptively avoid a race to clear fBoundsIsDirty.
+static SkPathRef* gEmptyPathRef = NULL;
+static void cleanup_gEmptyPathRef() { gEmptyPathRef->unref(); }
+
+void SkPathRef::CreateEmptyImpl(int) {
+    gEmptyPathRef = SkNEW(SkPathRef);
+    gEmptyPathRef->computeBounds();  // Preemptively avoid a race to clear fBoundsIsDirty.
 }
 
 SkPathRef* SkPathRef::CreateEmpty() {
-    static SkPathRef* gEmptyPathRef;
     SK_DECLARE_STATIC_ONCE(once);
-    SkOnce(&once, SkPathRef::CreateEmptyImpl, &gEmptyPathRef);
+    SkOnce(&once, SkPathRef::CreateEmptyImpl, 0, cleanup_gEmptyPathRef);
     return SkRef(gEmptyPathRef);
 }
 

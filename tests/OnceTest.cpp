@@ -77,3 +77,15 @@ DEF_TEST(SkOnce_Multithreaded, r) {
     // Only one should have done the +=.
     REPORTER_ASSERT(r, 6 == x);
 }
+
+// Test that the atExit option works.
+static int gToDecrement = 1;
+static void noop(int) {}
+static void decrement() { gToDecrement--; }
+static void checkDecremented() { SkASSERT(gToDecrement == 0); }
+
+DEF_TEST(SkOnce_atExit, r) {
+    atexit(checkDecremented);
+    SK_DECLARE_STATIC_ONCE(once);
+    SkOnce(&once, noop, 0, decrement);
+}

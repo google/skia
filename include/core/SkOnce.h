@@ -25,6 +25,8 @@
 // }
 //
 // OnceTest.cpp also should serve as a few other simple examples.
+//
+// You may optionally pass SkOnce a second function to be called at exit for cleanup.
 
 #include "SkThread.h"
 #include "SkTypes.h"
@@ -35,7 +37,7 @@
 struct SkOnceFlag;  // If manually created, initialize with SkOnceFlag once = SK_ONCE_INIT
 
 template <typename Func, typename Arg>
-inline void SkOnce(SkOnceFlag* once, Func f, Arg arg);
+inline void SkOnce(SkOnceFlag* once, Func f, Arg arg, void(*atExit)() = NULL);
 
 //  ----------------------  Implementation details below here. -----------------------------
 
@@ -92,10 +94,13 @@ inline static void acquire_barrier() {
 // This should be rarely called, so we separate it from SkOnce and don't mark it as inline.
 // (We don't mind if this is an actual function call, but odds are it'll be inlined anyway.)
 template <typename Func, typename Arg>
-static void sk_once_slow(SkOnceFlag* once, Func f, Arg arg) {
+static void sk_once_slow(SkOnceFlag* once, Func f, Arg arg, void (*atExit)()) {
     const SkAutoSpinlock lock(&once->lock);
     if (!once->done) {
         f(arg);
+        if (atExit != NULL) {
+            atexit(atExit);
+        }
         // Also known as a store-store/load-store barrier, this makes sure that the writes
         // done before here---in particular, those done by calling f(arg)---are observable
         // before the writes after the line, *done = true.
@@ -127,10 +132,10 @@ void AnnotateBenignRace(const char* file, int line, const volatile void* mem, co
 
 // This is our fast path, called all the time.  We do really want it to be inlined.
 template <typename Func, typename Arg>
-inline void SkOnce(SkOnceFlag* once, Func f, Arg arg) {
+inline void SkOnce(SkOnceFlag* once, Func f, Arg arg, void(*atExit)()) {
     SK_ANNOTATE_BENIGN_RACE(&(once->done), "Don't worry TSAN, we're sure this is safe.");
     if (!once->done) {
-        sk_once_slow(once, f, arg);
+        sk_once_slow(once, f, arg, atExit);
     }
     // Also known as a load-load/load-store barrier, this acquire barrier makes
     // sure that anything we read from memory---in particular, memory written by

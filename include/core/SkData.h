@@ -137,7 +137,7 @@ private:
     virtual ~SkData();
 
     // Called the first time someone calls NewEmpty to initialize the singleton.
-    static void NewEmptyImpl(SkData**);
+    static void NewEmptyImpl(int/*unused*/);
 
     typedef SkRefCnt INHERITED;
 };
