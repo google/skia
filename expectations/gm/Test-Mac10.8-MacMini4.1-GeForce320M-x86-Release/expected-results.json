@@ -9282,6 +9282,38 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "imagefiltersscaled_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6111890140106396690
+        ]
+      ]
+    }, 
+    "imagefiltersscaled_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16907827272485668098
+        ]
+      ]
+    }, 
+    "imagefiltersscaled_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9198288737215650466
+        ]
+      ]
+    }, 
+    "imagefiltersscaled_pdf-mac.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6977097230779934778
+        ]
+      ]
+    }, 
     "imagemagnifier_565.png": {
       "allowed-digests": [
         [
