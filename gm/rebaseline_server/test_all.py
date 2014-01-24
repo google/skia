@@ -19,8 +19,10 @@ import unittest
 def main():
   suite = unittest.TestLoader().discover(os.path.dirname(__file__),
                                          pattern='*_test.py')
-  unittest.TextTestRunner(verbosity=2).run(suite)
-
+  results = unittest.TextTestRunner(verbosity=2).run(suite)
+  print repr(results)
+  if not results.wasSuccessful():
+    raise Exception('failed one or more unittests')
 
 if __name__ == '__main__':
   main()

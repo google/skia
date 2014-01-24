@@ -47,10 +47,11 @@ function compare_directories {
 # Run a command, and validate that it succeeds (returns 0).
 function assert_passes {
   COMMAND="$1"
-  OUTPUT=$($COMMAND 2>&1)
+  echo
+  echo "assert_passes $COMMAND ..."
+  $COMMAND
   if [ $? != 0 ]; then
     echo "This command was supposed to pass, but failed: [$COMMAND]"
-    echo $OUTPUT
     ENCOUNTERED_ANY_ERRORS=1
   fi
 }
@@ -58,10 +59,11 @@ function assert_passes {
 # Run a command, and validate that it fails (returns nonzero).
 function assert_fails {
   COMMAND="$1"
-  OUTPUT=$($COMMAND 2>&1)
+  echo
+  echo "assert_fails $COMMAND ..."
+  $COMMAND
   if [ $? == 0 ]; then
     echo "This command was supposed to fail, but passed: [$COMMAND]"
-    echo $OUTPUT
     ENCOUNTERED_ANY_ERRORS=1
   fi
 }
@@ -273,6 +275,9 @@ done
 for CASE in $FAILING_CASES; do
   assert_fails "python gm/display_json_results.py $GM_OUTPUTS/$CASE/$OUTPUT_EXPECTED_SUBDIR/json-summary.txt"
 done
+
+# Exercise all rebaseline_server unittests.
+assert_passes "python gm/rebaseline_server/test_all.py"
 
 if [ $ENCOUNTERED_ANY_ERRORS == 0 ]; then
   echo "All tests passed."
