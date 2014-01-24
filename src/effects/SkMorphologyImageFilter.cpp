@@ -84,28 +84,6 @@ static void erode(const SkPMColor* src, SkPMColor* dst,
     }
 }
 
-static void erodeX(const SkBitmap& src, SkBitmap* dst, int radiusX, const SkIRect& bounds)
-{
-    SkMorphologyProc erodeXProc = SkMorphologyGetPlatformProc(kErodeX_SkMorphologyProcType);
-    if (!erodeXProc) {
-        erodeXProc = erode<kX>;
-    }
-    erodeXProc(src.getAddr32(bounds.left(), bounds.top()), dst->getAddr32(0, 0),
-               radiusX, bounds.width(), bounds.height(),
-               src.rowBytesAsPixels(), dst->rowBytesAsPixels());
-}
-
-static void erodeY(const SkBitmap& src, SkBitmap* dst, int radiusY, const SkIRect& bounds)
-{
-    SkMorphologyProc erodeYProc = SkMorphologyGetPlatformProc(kErodeY_SkMorphologyProcType);
-    if (!erodeYProc) {
-        erodeYProc = erode<kY>;
-    }
-    erodeYProc(src.getAddr32(bounds.left(), bounds.top()), dst->getAddr32(0, 0),
-               radiusY, bounds.height(), bounds.width(),
-               src.rowBytesAsPixels(), dst->rowBytesAsPixels());
-}
-
 template<MorphDirection direction>
 static void dilate(const SkPMColor* src, SkPMColor* dst,
                    int radius, int width, int height,
@@ -144,167 +122,121 @@ static void dilate(const SkPMColor* src, SkPMColor* dst,
     }
 }
 
-static void dilateX(const SkBitmap& src, SkBitmap* dst, int radiusX, const SkIRect& bounds)
+static void callProcX(SkMorphologyImageFilter::Proc procX, const SkBitmap& src, SkBitmap* dst, int radiusX, const SkIRect& bounds)
 {
-    SkMorphologyProc dilateXProc = SkMorphologyGetPlatformProc(kDilateX_SkMorphologyProcType);
-    if (!dilateXProc) {
-        dilateXProc = dilate<kX>;
-    }
-    dilateXProc(src.getAddr32(bounds.left(), bounds.top()), dst->getAddr32(0, 0),
-                radiusX, bounds.width(), bounds.height(),
-                src.rowBytesAsPixels(), dst->rowBytesAsPixels());
+    procX(src.getAddr32(bounds.left(), bounds.top()), dst->getAddr32(0, 0),
+          radiusX, bounds.width(), bounds.height(),
+          src.rowBytesAsPixels(), dst->rowBytesAsPixels());
 }
 
-static void dilateY(const SkBitmap& src, SkBitmap* dst, int radiusY, const SkIRect& bounds)
+static void callProcY(SkMorphologyImageFilter::Proc procY, const SkBitmap& src, SkBitmap* dst, int radiusY, const SkIRect& bounds)
 {
-    SkMorphologyProc dilateYProc = SkMorphologyGetPlatformProc(kDilateY_SkMorphologyProcType);
-    if (!dilateYProc) {
-        dilateYProc = dilate<kY>;
+    procY(src.getAddr32(bounds.left(), bounds.top()), dst->getAddr32(0, 0),
+          radiusY, bounds.height(), bounds.width(),
+          src.rowBytesAsPixels(), dst->rowBytesAsPixels());
+}
+
+bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc procX,
+                                                 SkMorphologyImageFilter::Proc procY,
+                                                 Proxy* proxy,
+                                                 const SkBitmap& source,
+                                                 const SkMatrix& ctm,
+                                                 SkBitmap* dst,
+                                                 SkIPoint* offset) {
+    SkBitmap src = source;
+    SkIPoint srcOffset = SkIPoint::Make(0, 0);
+    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctm, &src, &srcOffset)) {
+        return false;
     }
-    dilateYProc(src.getAddr32(bounds.left(), bounds.top()), dst->getAddr32(0, 0),
-                radiusY, bounds.height(), bounds.width(),
-                src.rowBytesAsPixels(), dst->rowBytesAsPixels());
+
+    if (src.config() != SkBitmap::kARGB_8888_Config) {
+        return false;
+    }
+
+    SkIRect bounds;
+    src.getBounds(&bounds);
+    bounds.offset(srcOffset);
+    if (!this->applyCropRect(&bounds, ctm)) {
+        return false;
+    }
+
+    SkAutoLockPixels alp(src);
+    if (!src.getPixels()) {
+        return false;
+    }
+
+    dst->setConfig(src.config(), bounds.width(), bounds.height());
+    dst->allocPixels();
+    if (!dst->getPixels()) {
+        return false;
+    }
+
+    SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
+                                     SkIntToScalar(this->radius().height()));
+    ctm.mapVectors(&radius, 1);
+    int width = SkScalarFloorToInt(radius.fX);
+    int height = SkScalarFloorToInt(radius.fY);
+
+    if (width < 0 || height < 0) {
+        return false;
+    }
+
+    SkIRect srcBounds = bounds;
+    srcBounds.offset(-srcOffset);
+
+    if (width == 0 && height == 0) {
+        src.extractSubset(dst, srcBounds);
+        offset->fX = bounds.left();
+        offset->fY = bounds.top();
+        return true;
+    }
+
+    SkBitmap temp;
+    temp.setConfig(dst->config(), dst->width(), dst->height());
+    if (!temp.allocPixels()) {
+        return false;
+    }
+
+    if (width > 0 && height > 0) {
+        callProcX(procX, src, &temp, width, srcBounds);
+        SkIRect tmpBounds = SkIRect::MakeWH(srcBounds.width(), srcBounds.height());
+        callProcY(procY, temp, dst, height, tmpBounds);
+    } else if (width > 0) {
+        callProcX(procX, src, dst, width, srcBounds);
+    } else if (height > 0) {
+        callProcY(procY, src, dst, height, srcBounds);
+    }
+    offset->fX = bounds.left();
+    offset->fY = bounds.top();
+    return true;
 }
 
 bool SkErodeImageFilter::onFilterImage(Proxy* proxy,
                                        const SkBitmap& source, const SkMatrix& ctm,
                                        SkBitmap* dst, SkIPoint* offset) {
-    SkBitmap src = source;
-    SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctm, &src, &srcOffset)) {
-        return false;
+    Proc erodeXProc = SkMorphologyGetPlatformProc(kErodeX_SkMorphologyProcType);
+    if (!erodeXProc) {
+        erodeXProc = erode<kX>;
     }
-
-    if (src.config() != SkBitmap::kARGB_8888_Config) {
-        return false;
+    Proc erodeYProc = SkMorphologyGetPlatformProc(kErodeY_SkMorphologyProcType);
+    if (!erodeYProc) {
+        erodeYProc = erode<kY>;
     }
-
-    SkIRect bounds;
-    src.getBounds(&bounds);
-    bounds.offset(srcOffset);
-    if (!this->applyCropRect(&bounds, ctm)) {
-        return false;
-    }
-
-    SkAutoLockPixels alp(src);
-    if (!src.getPixels()) {
-        return false;
-    }
-
-    dst->setConfig(src.config(), bounds.width(), bounds.height());
-    dst->allocPixels();
-    if (!dst->getPixels()) {
-        return false;
-    }
-
-    SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
-                                     SkIntToScalar(this->radius().height()));
-    ctm.mapVectors(&radius, 1);
-    int width = SkScalarFloorToInt(radius.fX);
-    int height = SkScalarFloorToInt(radius.fY);
-
-    if (width < 0 || height < 0) {
-        return false;
-    }
-
-    SkIRect srcBounds = bounds;
-    srcBounds.offset(-srcOffset);
-
-    if (width == 0 && height == 0) {
-        src.extractSubset(dst, srcBounds);
-        offset->fX = bounds.left();
-        offset->fY = bounds.top();
-        return true;
-    }
-
-    SkBitmap temp;
-    temp.setConfig(dst->config(), dst->width(), dst->height());
-    if (!temp.allocPixels()) {
-        return false;
-    }
-
-    if (width > 0 && height > 0) {
-        erodeX(src, &temp, width, srcBounds);
-        SkIRect tmpBounds = SkIRect::MakeWH(srcBounds.width(), srcBounds.height());
-        erodeY(temp, dst, height, tmpBounds);
-    } else if (width > 0) {
-        erodeX(src, dst, width, srcBounds);
-    } else if (height > 0) {
-        erodeY(src, dst, height, srcBounds);
-    }
-    offset->fX = bounds.left();
-    offset->fY = bounds.top();
-    return true;
+    return this->filterImageGeneric(erodeXProc, erodeYProc, proxy, source, ctm, dst, offset);
 }
 
 bool SkDilateImageFilter::onFilterImage(Proxy* proxy,
                                         const SkBitmap& source, const SkMatrix& ctm,
                                         SkBitmap* dst, SkIPoint* offset) {
-    SkBitmap src = source;
-    SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctm, &src, &srcOffset)) {
-        return false;
+    Proc dilateXProc = SkMorphologyGetPlatformProc(kDilateX_SkMorphologyProcType);
+    if (!dilateXProc) {
+        dilateXProc = dilate<kX>;
     }
-    if (src.config() != SkBitmap::kARGB_8888_Config) {
-        return false;
+    Proc dilateYProc = SkMorphologyGetPlatformProc(kDilateY_SkMorphologyProcType);
+    if (!dilateYProc) {
+        dilateYProc = dilate<kY>;
     }
-
-    SkIRect bounds;
-    src.getBounds(&bounds);
-    bounds.offset(srcOffset);
-    if (!this->applyCropRect(&bounds, ctm)) {
-        return false;
-    }
-
-    SkAutoLockPixels alp(src);
-    if (!src.getPixels()) {
-        return false;
-    }
-
-    dst->setConfig(src.config(), bounds.width(), bounds.height());
-    dst->allocPixels();
-    if (!dst->getPixels()) {
-        return false;
-    }
-
-    SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
-                                     SkIntToScalar(this->radius().height()));
-    ctm.mapVectors(&radius, 1);
-    int width = SkScalarFloorToInt(radius.fX);
-    int height = SkScalarFloorToInt(radius.fY);
-
-    if (width < 0 || height < 0) {
-        return false;
-    }
-
-    SkIRect srcBounds = bounds;
-    srcBounds.offset(-srcOffset);
-
-    if (width == 0 && height == 0) {
-        src.extractSubset(dst, srcBounds);
-        offset->fX = bounds.left();
-        offset->fY = bounds.top();
-        return true;
-    }
-
-    SkBitmap temp;
-    temp.setConfig(dst->config(), dst->width(), dst->height());
-    if (!temp.allocPixels()) {
-        return false;
-    }
-
-    if (width > 0 && height > 0) {
-        dilateX(src, &temp, width, srcBounds);
-        SkIRect tmpBounds = SkIRect::MakeWH(srcBounds.width(), srcBounds.height());
-        dilateY(temp, dst, height, tmpBounds);
-    } else if (width > 0) {
-        dilateX(src, dst, width, srcBounds);
-    } else if (height > 0) {
-        dilateY(src, dst, height, srcBounds);
-    }
-    offset->fX = bounds.left();
-    offset->fY = bounds.top();
-    return true;
+    return this->filterImageGeneric(dilateXProc, dilateYProc, proxy, source, ctm, dst, offset);
 }
 
 #if SK_SUPPORT_GPU
@@ -579,8 +511,12 @@ bool apply_morphology(const SkBitmap& input,
 
 };
 
-bool SkDilateImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
-                                         SkBitmap* result, SkIPoint* offset) {
+bool SkMorphologyImageFilter::filterImageGPUGeneric(bool dilate,
+                                                    Proxy* proxy,
+                                                    const SkBitmap& src,
+                                                    const SkMatrix& ctm,
+                                                    SkBitmap* result,
+                                                    SkIPoint* offset) {
     SkBitmap input;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
     if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &input, &srcOffset)) {
@@ -611,7 +547,8 @@ bool SkDilateImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, cons
         return true;
     }
 
-    if (!apply_morphology(input, srcBounds, GrMorphologyEffect::kDilate_MorphologyType,
+    GrMorphologyEffect::MorphologyType type = dilate ? GrMorphologyEffect::kDilate_MorphologyType : GrMorphologyEffect::kErode_MorphologyType;
+    if (!apply_morphology(input, srcBounds, type,
                           SkISize::Make(width, height), result)) {
         return false;
     }
@@ -620,46 +557,14 @@ bool SkDilateImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, cons
     return true;
 }
 
+bool SkDilateImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+                                         SkBitmap* result, SkIPoint* offset) {
+    return this->filterImageGPUGeneric(true, proxy, src, ctm, result, offset);
+}
+
 bool SkErodeImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
                                         SkBitmap* result, SkIPoint* offset) {
-    SkBitmap input;
-    SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &input, &srcOffset)) {
-        return false;
-    }
-    SkIRect bounds;
-    input.getBounds(&bounds);
-    bounds.offset(srcOffset);
-    if (!this->applyCropRect(&bounds, ctm)) {
-        return false;
-    }
-    SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
-                                     SkIntToScalar(this->radius().height()));
-    ctm.mapVectors(&radius, 1);
-    int width = SkScalarFloorToInt(radius.fX);
-    int height = SkScalarFloorToInt(radius.fY);
-
-    if (width < 0 || height < 0) {
-        return false;
-    }
-
-    SkIRect srcBounds = bounds;
-    srcBounds.offset(-srcOffset);
-
-    if (width == 0 && height == 0) {
-        input.extractSubset(result, srcBounds);
-        offset->fX = bounds.left();
-        offset->fY = bounds.top();
-        return true;
-    }
-
-    if (!apply_morphology(input, srcBounds, GrMorphologyEffect::kErode_MorphologyType,
-        SkISize::Make(width, height), result)) {
-        return false;
-    }
-    offset->fX = bounds.left();
-    offset->fY = bounds.top();
-    return true;
+    return this->filterImageGPUGeneric(false, proxy, src, ctm, result, offset);
 }
 
 #endif

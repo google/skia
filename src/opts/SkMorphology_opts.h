@@ -5,17 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include <SkColor.h>
+#ifndef SkMorphology_opts_DEFINED
+#define SkMorphology_opts_DEFINED
 
-/**
- * All morphology procs have the same signature: src is the source buffer, dst the
- * destination buffer, radius is the morphology radius, width and height are the bounds
- * of the destination buffer (in pixels), and srcStride and dstStride are the
- * number of pixels per row in each buffer. All buffers are 8888.
- */
-
-typedef void (*SkMorphologyProc)(const SkPMColor* src, SkPMColor* dst, int radius,
-                                 int width, int height, int srcStride, int dstStride);
+#include <SkMorphologyImageFilter.h>
 
 enum SkMorphologyProcType {
     kDilateX_SkMorphologyProcType,
@@ -24,4 +17,6 @@ enum SkMorphologyProcType {
     kErodeY_SkMorphologyProcType
 };
 
-SkMorphologyProc SkMorphologyGetPlatformProc(SkMorphologyProcType type);
+SkMorphologyImageFilter::Proc SkMorphologyGetPlatformProc(SkMorphologyProcType type);
+
+#endif

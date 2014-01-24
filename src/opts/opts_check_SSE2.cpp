@@ -251,7 +251,7 @@ SkMemset32Proc SkMemset32GetPlatformProc() {
     }
 }
 
-SkMorphologyProc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {
+SkMorphologyImageFilter::Proc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {
     if (!cachedHasSSE2()) {
         return NULL;
     }
