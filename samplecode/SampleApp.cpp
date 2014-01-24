@@ -210,6 +210,7 @@ public:
         fMSAASampleCount = msaaSampleCount;
 
         SkASSERT(NULL == fCurIntf);
+        SkAutoTUnref<const GrGLInterface> glInterface;
         switch (win->getDeviceType()) {
             case kRaster_DeviceType:
                 // fallthrough
@@ -217,20 +218,24 @@ public:
                 // fallthrough
             case kGPU_DeviceType:
                 // all these guys use the native interface
-                fCurIntf = GrGLCreateNativeInterface();
+                glInterface.reset(GrGLCreateNativeInterface());
                 break;
 #if SK_ANGLE
             case kANGLE_DeviceType:
-                fCurIntf = GrGLCreateANGLEInterface();
+                glInterface.reset(GrGLCreateANGLEInterface());
                 break;
 #endif // SK_ANGLE
             case kNullGPU_DeviceType:
-                fCurIntf = GrGLCreateNullInterface();
+                glInterface.reset(GrGLCreateNullInterface());
                 break;
             default:
                 SkASSERT(false);
                 break;
         }
+
+        // Currently SampleApp does not use NVPR. TODO: Provide an NVPR device type that is skipped
+        // when the driver doesn't support NVPR.
+        fCurIntf = GrGLInterfaceRemoveNVPR(glInterface.get());
 
         SkASSERT(NULL == fCurContext);
         fCurContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf);
@@ -239,6 +244,8 @@ public:
             // We need some context and interface to see results
             SkSafeUnref(fCurContext);
             SkSafeUnref(fCurIntf);
+            fCurContext = NULL;
+            fCurIntf = NULL;
             SkDebugf("Failed to setup 3D");
 
             win->detach();

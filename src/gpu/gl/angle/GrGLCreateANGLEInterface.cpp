@@ -152,5 +152,10 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
 
     functions->fMapBuffer = (GrGLMapBufferProc) eglGetProcAddress("glMapBufferOES");
     functions->fUnmapBuffer = (GrGLUnmapBufferProc) eglGetProcAddress("glUnmapBufferOES");
+
+    interface->fExtensions.init(kGLES_GrGLStandard,
+                                interface->fFunctions.fGetString,
+                                interface->fFunctions.fGetStringi,
+                                interface->fFunctions.fGetIntegerv);
     return interface;
 }
