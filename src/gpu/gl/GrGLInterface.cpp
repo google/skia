@@ -18,6 +18,64 @@ void GrGLDefaultInterfaceCallback(const GrGLInterface*) {}
 }
 #endif
 
+const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
+    GrGLInterface* newInterface = GrGLInterface::NewClone(interface);
+
+    newInterface->fExtensions.remove("GL_NV_path_rendering");
+
+    newInterface->fPathCommands = NULL;
+    newInterface->fPathCoords = NULL;
+    newInterface->fPathSubCommands = NULL;
+    newInterface->fPathSubCoords = NULL;
+    newInterface->fPathString = NULL;
+    newInterface->fPathGlyphs = NULL;
+    newInterface->fPathGlyphRange = NULL;
+    newInterface->fWeightPaths = NULL;
+    newInterface->fCopyPath = NULL;
+    newInterface->fInterpolatePaths = NULL;
+    newInterface->fTransformPath = NULL;
+    newInterface->fPathParameteriv = NULL;
+    newInterface->fPathParameteri = NULL;
+    newInterface->fPathParameterfv = NULL;
+    newInterface->fPathParameterf = NULL;
+    newInterface->fPathDashArray = NULL;
+    newInterface->fGenPaths = NULL;
+    newInterface->fDeletePaths = NULL;
+    newInterface->fIsPath = NULL;
+    newInterface->fPathStencilFunc = NULL;
+    newInterface->fPathStencilDepthOffset = NULL;
+    newInterface->fStencilFillPath = NULL;
+    newInterface->fStencilStrokePath = NULL;
+    newInterface->fStencilFillPathInstanced = NULL;
+    newInterface->fStencilStrokePathInstanced = NULL;
+    newInterface->fPathCoverDepthFunc = NULL;
+    newInterface->fPathColorGen = NULL;
+    newInterface->fPathTexGen = NULL;
+    newInterface->fPathFogGen = NULL;
+    newInterface->fCoverFillPath = NULL;
+    newInterface->fCoverStrokePath = NULL;
+    newInterface->fCoverFillPathInstanced = NULL;
+    newInterface->fCoverStrokePathInstanced = NULL;
+    newInterface->fGetPathParameteriv = NULL;
+    newInterface->fGetPathParameterfv = NULL;
+    newInterface->fGetPathCommands = NULL;
+    newInterface->fGetPathCoords = NULL;
+    newInterface->fGetPathDashArray = NULL;
+    newInterface->fGetPathMetrics = NULL;
+    newInterface->fGetPathMetricRange = NULL;
+    newInterface->fGetPathSpacing = NULL;
+    newInterface->fGetPathColorGeniv = NULL;
+    newInterface->fGetPathColorGenfv = NULL;
+    newInterface->fGetPathTexGeniv = NULL;
+    newInterface->fGetPathTexGenfv = NULL;
+    newInterface->fIsPointInFillPath = NULL;
+    newInterface->fIsPointInStrokePath = NULL;
+    newInterface->fGetPathLength = NULL;
+    newInterface->fPointAlongPath = NULL;
+
+    return newInterface;
+}
+
 GrGLInterface::GrGLInterface()
     // TODO: Remove this madness ASAP.
     : fActiveTexture(&fFunctions.fActiveTexture)
@@ -205,14 +263,27 @@ GrGLInterface::GrGLInterface()
     , fIsPointInFillPath(&fFunctions.fIsPointInFillPath)
     , fIsPointInStrokePath(&fFunctions.fIsPointInStrokePath)
     , fGetPathLength(&fFunctions.fGetPathLength)
-    , fPointAlongPath(&fFunctions.fPointAlongPath)
-{
+    , fPointAlongPath(&fFunctions.fPointAlongPath) {
     fStandard = kNone_GrGLStandard;
 
 #if GR_GL_PER_GL_FUNC_CALLBACK
     fCallback = GrGLDefaultInterfaceCallback;
     fCallbackData = 0;
 #endif
+}
+
+GrGLInterface* GrGLInterface::NewClone(const GrGLInterface* interface) {
+    SkASSERT(NULL != interface);
+
+    GrGLInterface* clone = SkNEW(GrGLInterface);
+    clone->fStandard = interface->fStandard;
+    clone->fExtensions = interface->fExtensions;
+    clone->fFunctions = interface->fFunctions;
+#if GR_GL_PER_GL_FUNC_CALLBACK
+    clone->fCallback = interface->fCallback;
+    clone->fCallbackData = interface->fCallbackData;
+#endif
+    return clone;
 }
 
 bool GrGLInterface::validate() const {
@@ -405,7 +476,7 @@ bool GrGLInterface::validate() const {
                 return false;
             }
         }
-        if (false && fExtensions.has("GL_NV_path_rendering")) {
+        if (fExtensions.has("GL_NV_path_rendering")) {
             if (NULL == fFunctions.fPathCommands ||
                 NULL == fFunctions.fPathCoords ||
                 NULL == fFunctions.fPathSubCommands ||

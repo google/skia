@@ -12,10 +12,33 @@
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
-namespace {
+namespace { // This cannot be static because it is used as a template parameter.
 inline bool extension_compare(const SkString& a, const SkString& b) {
     return strcmp(a.c_str(), b.c_str()) < 0;
 }
+}
+
+// finds the index of ext in strings or a negative result if ext is not found.
+static int find_string(const SkTArray<SkString>& strings, const char ext[]) {
+    if (strings.empty()) {
+        return -1;
+    }
+    SkString extensionStr(ext);
+    int idx = SkTSearch<SkString, extension_compare>(&strings.front(),
+                                                     strings.count(),
+                                                     extensionStr,
+                                                     sizeof(SkString));
+    return idx;
+}
+
+GrGLExtensions::GrGLExtensions(const GrGLExtensions& that) : fStrings(SkNEW(SkTArray<SkString>)) {
+    *this = that;
+}
+
+GrGLExtensions& GrGLExtensions::operator=(const GrGLExtensions& that) {
+    *fStrings = *that.fStrings;
+    fInitialized = that.fInitialized;
+    return *this;
 }
 
 bool GrGLExtensions::init(GrGLStandard standard,
@@ -76,16 +99,25 @@ bool GrGLExtensions::init(GrGLStandard standard,
     return true;
 }
 
-bool GrGLExtensions::has(const char* ext) const {
-    if (fStrings->empty()) {
+bool GrGLExtensions::has(const char ext[]) const {
+    SkASSERT(fInitialized);
+    return find_string(*fStrings, ext) >= 0;
+}
+
+bool GrGLExtensions::remove(const char ext[]) {
+    SkASSERT(fInitialized);
+    int idx = find_string(*fStrings, ext);
+    if (idx >= 0) {
+        // This is not terribly effecient but we really only expect this function to be called at
+        // most a handful of times when our test programs start.
+        SkAutoTDelete< SkTArray<SkString> > oldStrings(fStrings.detach());
+        fStrings.reset(SkNEW(SkTArray<SkString>(oldStrings->count() - 1)));
+        fStrings->push_back_n(idx, &oldStrings->front());
+        fStrings->push_back_n(oldStrings->count() - idx - 1, &(*oldStrings)[idx] + 1);
+        return true;
+    } else {
         return false;
     }
-    SkString extensionStr(ext);
-    int idx = SkTSearch<SkString, extension_compare>(&fStrings->front(),
-                                                     fStrings->count(),
-                                                     extensionStr,
-                                                     sizeof(SkString));
-    return idx >= 0;
 }
 
 void GrGLExtensions::print(const char* sep) const {
