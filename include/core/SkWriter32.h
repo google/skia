@@ -44,7 +44,7 @@ public:
         SkASSERT(SkIsAlign4((uintptr_t)external));
         SkASSERT(SkIsAlign4(externalBytes));
         fExternal = (uint32_t*)external;
-        fExternalLimit = externalBytes/4;
+        fExternalLimit = SkToInt(externalBytes/4);
         fCount = 0;
         fInternal.rewind();
     }
@@ -64,7 +64,7 @@ public:
     // size MUST be multiple of 4
     uint32_t* reserve(size_t size) {
         SkASSERT(SkAlign4(size) == size);
-        const int count = size/4;
+        const int count = SkToInt(size/4);
 
         uint32_t* p;
         // Once we start writing to fInternal, we never write to fExternal again.
@@ -84,7 +84,7 @@ public:
     // address is only valid for 1 int.
     uint32_t* peek32(size_t offset) {
         SkASSERT(SkAlign4(offset) == offset);
-        const int count = offset/4;
+        const int count = SkToInt(offset/4);
         SkASSERT(count < fCount);
 
         if (count < this->externalCount()) {
@@ -220,7 +220,7 @@ public:
      */
     void rewindToOffset(size_t offset) {
         SkASSERT(SkAlign4(offset) == offset);
-        const int count = offset/4;
+        const int count = SkToInt(offset/4);
         if (count < this->externalCount()) {
             fInternal.setCount(0);
         } else {

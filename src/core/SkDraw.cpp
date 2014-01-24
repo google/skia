@@ -151,11 +151,11 @@ static void D_Clear_BitmapXferProc(void* pixels, size_t bytes, uint32_t) {
 static void D_Dst_BitmapXferProc(void*, size_t, uint32_t data) {}
 
 static void D32_Src_BitmapXferProc(void* pixels, size_t bytes, uint32_t data) {
-    sk_memset32((uint32_t*)pixels, data, bytes >> 2);
+    sk_memset32((uint32_t*)pixels, data, SkToInt(bytes >> 2));
 }
 
 static void D16_Src_BitmapXferProc(void* pixels, size_t bytes, uint32_t data) {
-    sk_memset16((uint16_t*)pixels, data, bytes >> 1);
+    sk_memset16((uint16_t*)pixels, data, SkToInt(bytes >> 1));
 }
 
 static void DA8_Src_BitmapXferProc(void* pixels, size_t bytes, uint32_t data) {
@@ -553,7 +553,7 @@ static bool bounder_points(SkBounder* bounder, SkCanvas::PointMode mode,
     SkRect bounds;
     SkScalar inset = paint.getStrokeWidth();
 
-    bounds.set(pts, count);
+    bounds.set(pts, SkToInt(count));
     bounds.inset(-inset, -inset);
     matrix.mapRect(&bounds);
 
@@ -610,14 +610,14 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
         const size_t backup = (SkCanvas::kPolygon_PointMode == mode);
 
         do {
-            size_t n = count;
+            int n = SkToInt(count);
             if (n > MAX_DEV_PTS) {
                 n = MAX_DEV_PTS;
             }
             matrix->mapPoints(devPts, pts, n);
             proc(rec, devPts, n, bltr);
             pts += n - backup;
-            SkASSERT(count >= n);
+            SkASSERT(SkToInt(count) >= n);
             count -= n;
             if (count > 0) {
                 count += backup;

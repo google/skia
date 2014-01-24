@@ -55,7 +55,7 @@ SkMallocPixelRef* SkMallocPixelRef::NewAllocate(const SkImageInfo& info,
         return NULL;
     }
 
-    int32_t minRB = info.minRowBytes();
+    int32_t minRB = SkToS32(info.minRowBytes());
     if (minRB < 0) {
         return NULL;    // allocation will be too large
     }
@@ -65,7 +65,7 @@ SkMallocPixelRef* SkMallocPixelRef::NewAllocate(const SkImageInfo& info,
 
     int32_t rowBytes;
     if (requestedRowBytes) {
-        rowBytes = requestedRowBytes;
+        rowBytes = SkToS32(requestedRowBytes);
     } else {
         rowBytes = minRB;
     }
@@ -204,7 +204,7 @@ size_t SkMallocPixelRef::getAllocatedSizeInBytes() const {
 void SkMallocPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
-    buffer.write32(fRB);
+    buffer.write32(SkToU32(fRB));
 
     // TODO: replace this bulk write with a chunky one that can trim off any
     // trailing bytes on each scanline (in case rowbytes > width*size)

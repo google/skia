@@ -560,10 +560,10 @@ size_t SkGlyphCache_Globals::internalPurge(size_t minBytesNeeded) {
     if (fTotalMemoryUsed > fCacheSizeLimit) {
         bytesNeeded = fTotalMemoryUsed - fCacheSizeLimit;
     }
-    bytesNeeded = SkMax32(bytesNeeded, minBytesNeeded);
+    bytesNeeded = SkTMax(bytesNeeded, minBytesNeeded);
     if (bytesNeeded) {
         // no small purges!
-        bytesNeeded = SkMax32(bytesNeeded, fTotalMemoryUsed >> 2);
+        bytesNeeded = SkTMax(bytesNeeded, fTotalMemoryUsed >> 2);
     }
 
     int countNeeded = 0;

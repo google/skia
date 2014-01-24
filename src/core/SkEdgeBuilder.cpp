@@ -150,7 +150,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip,
     }
     SkASSERT((char*)edge <= (char*)fEdgeList);
     SkASSERT(edgePtr - fEdgeList <= maxEdgeCount);
-    return edgePtr - fEdgeList;
+    return SkToInt(edgePtr - fEdgeList);
 }
 
 static void handle_quad(SkEdgeBuilder* builder, const SkPoint pts[3]) {

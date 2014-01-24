@@ -41,4 +41,9 @@ uint32_t SkToU32(uintmax_t x) {
     return (uint32_t)x;
 }
 
+int SkToInt(intmax_t x) {
+    SkASSERT((int)x == x);
+    return (int)x;
+}
+
 #endif

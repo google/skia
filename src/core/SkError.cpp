@@ -130,7 +130,7 @@ void SkErrorInternals::SetError(SkError code, const char *fmt, ...) {
     }
 
     sprintf( str, "%s: ", error_name );
-    int string_left = ERROR_STRING_LENGTH - strlen( str );
+    int string_left = SkToInt(ERROR_STRING_LENGTH - strlen(str));
     str += strlen(str);
 
     va_start( args, fmt );

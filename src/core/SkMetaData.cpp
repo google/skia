@@ -91,7 +91,7 @@ SkScalar* SkMetaData::setScalars(const char name[], int count, const SkScalar va
 
 void SkMetaData::setString(const char name[], const char value[])
 {
-    (void)this->set(name, value, sizeof(char), kString_Type, strlen(value) + 1);
+    (void)this->set(name, value, sizeof(char), kString_Type, SkToInt(strlen(value) + 1));
 }
 
 void SkMetaData::setPtr(const char name[], void* ptr, PtrProc proc) {
@@ -105,7 +105,7 @@ void SkMetaData::setBool(const char name[], bool value)
 }
 
 void SkMetaData::setData(const char name[], const void* data, size_t byteCount) {
-    (void)this->set(name, data, sizeof(char), kData_Type, byteCount);
+    (void)this->set(name, data, sizeof(char), kData_Type, SkToInt(byteCount));
 }
 
 void* SkMetaData::set(const char name[], const void* data, size_t dataSize, Type type, int count)

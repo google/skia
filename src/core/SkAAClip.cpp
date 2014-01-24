@@ -530,7 +530,7 @@ bool SkAAClip::trimTopBottom() {
     do {
         yoff -= 1;
     } while (row_is_all_zeros(base + yoff->fOffset, width));
-    skip = stop - yoff - 1;
+    skip = SkToInt(stop - yoff - 1);
     SkASSERT(skip >= 0 && skip < head->fRowCount);
     if (skip > 0) {
         // removing from the bottom is easier than from the top, as we don't
@@ -1033,7 +1033,7 @@ public:
             SkDEBUGCODE(prevY = row->fY);
 
             yoffset->fY = row->fY - adjustY;
-            yoffset->fOffset = data - baseData;
+            yoffset->fOffset = SkToU32(data - baseData);
             yoffset += 1;
 
             size_t n = row->fData->count();

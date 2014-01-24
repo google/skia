@@ -267,7 +267,7 @@ int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
             *r = tmp[index1];
         }
 
-        lineCount = r - result;
+        lineCount = SkToInt(r - result);
     }
 
     // Now copy the results into the caller's lines[] parameter
