@@ -164,10 +164,8 @@ void SkBitmapDevice::writePixels(const SkBitmap& bitmap,
             drawSprite = false;
         } else {
             // we convert to a temporary bitmap and draw that as a sprite
-            dstBmp.setConfig(SkBitmap::kARGB_8888_Config,
-                             spriteRect.width(),
-                             spriteRect.height());
-            if (!dstBmp.allocPixels()) {
+            if (!dstBmp.allocPixels(SkImageInfo::MakeN32Premul(spriteRect.width(),
+                                                               spriteRect.height()))) {
                 return;
             }
             drawSprite = true;

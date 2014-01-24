@@ -252,8 +252,7 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
         }
     }
     // Could not read the SkBitmap. Use a placeholder bitmap.
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-    bitmap->allocPixels();
+    bitmap->allocPixels(SkImageInfo::MakeN32Premul(width, height));
     bitmap->eraseColor(SK_ColorRED);
 }
 

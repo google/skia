@@ -952,8 +952,7 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
     }
 
     dst->setConfig(src.config(), bounds.width(), bounds.height());
-    dst->allocPixels();
-    if (!dst->getPixels()) {
+    if (!dst->allocPixels()) {
         return false;
     }
 

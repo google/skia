@@ -160,8 +160,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
 
     dst->setConfig(src.config(), srcBounds.width(), srcBounds.height());
     dst->getBounds(&dstBounds);
-    dst->allocPixels();
-    if (!dst->getPixels()) {
+    if (!dst->allocPixels()) {
         return false;
     }
 

@@ -99,8 +99,7 @@ bool GrSWMaskHelper::init(const SkIRect& resultBounds,
     SkIRect bounds = SkIRect::MakeWH(resultBounds.width(),
                                      resultBounds.height());
 
-    fBM.setConfig(SkBitmap::kA8_Config, bounds.fRight, bounds.fBottom);
-    if (!fBM.allocPixels()) {
+    if (!fBM.allocPixels(SkImageInfo::MakeA8(bounds.fRight, bounds.fBottom))) {
         return false;
     }
     sk_bzero(fBM.getPixels(), fBM.getSafeSize());

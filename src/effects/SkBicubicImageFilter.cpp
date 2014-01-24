@@ -108,8 +108,7 @@ bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
     result->setConfig(src.config(), dstIRect.width(), dstIRect.height());
-    result->allocPixels();
-    if (!result->getPixels()) {
+    if (!result->allocPixels()) {
         return false;
     }
 

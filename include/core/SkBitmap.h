@@ -18,6 +18,7 @@ struct SkIRect;
 struct SkRect;
 class SkPaint;
 class SkPixelRef;
+class SkPixelRefFactory;
 class SkRegion;
 class SkString;
 
@@ -249,6 +250,35 @@ public:
 
     bool setConfig(const SkImageInfo& info, size_t rowBytes = 0);
 
+    /**
+     *  Allocate a pixelref to match the specified image info. If the Factory
+     *  is non-null, call it to allcoate the pixelref. If the ImageInfo requires
+     *  a colortable, then ColorTable must be non-null, and will be ref'd.
+     *  On failure, the bitmap will be set to empty and return false.
+     */
+    bool allocPixels(const SkImageInfo&, SkPixelRefFactory*, SkColorTable*);
+    
+    /**
+     *  Allocate a pixelref to match the specified image info, using the default
+     *  allocator.
+     *  On success, the bitmap's pixels will be "locked", and return true.
+     *  On failure, the bitmap will be set to empty and return false.
+     */
+    bool allocPixels(const SkImageInfo& info) {
+        return this->allocPixels(info, NULL, NULL);
+    }
+    
+    /**
+     *  Install a pixelref that wraps the specified pixels and rowBytes, and
+     *  optional ReleaseProc and context. When the pixels are no longer
+     *  referenced, if ReleaseProc is not null, it will be called with the
+     *  pixels and context as parameters.
+     *  On failure, the bitmap will be set to empty and return false.
+     */
+    bool installPixels(const SkImageInfo&, void* pixels, size_t rowBytes,
+                       void (*ReleaseProc)(void* addr, void* context),
+                       void* context);
+    
     /**
      *  If the bitmap's config can be represented as SkImageInfo, return true,
      *  and if info is not-null, set it to the bitmap's info. If it cannot be
@@ -637,7 +667,7 @@ public:
     */
     class HeapAllocator : public Allocator {
     public:
-        virtual bool allocPixelRef(SkBitmap*, SkColorTable*);
+        virtual bool allocPixelRef(SkBitmap*, SkColorTable*) SK_OVERRIDE;
     };
 
     class RLEPixels {

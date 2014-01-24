@@ -74,8 +74,7 @@ void SkDebugCanvas::applyUserTransform(SkCanvas* canvas) {
 
 int SkDebugCanvas::getCommandAtPoint(int x, int y, int index) {
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
-    bitmap.allocPixels();
+    bitmap.allocPixels(SkImageInfo::MakeN32Premul(1, 1));
 
     SkCanvas canvas(bitmap);
     canvas.translate(SkIntToScalar(-x), SkIntToScalar(-y));

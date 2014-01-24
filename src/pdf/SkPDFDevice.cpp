@@ -2250,13 +2250,11 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
         // the image.  Avoiding alpha will reduce the pdf size and generation
         // CPU time some.
 
-        perspectiveBitmap.setConfig(
-                SkBitmap::kARGB_8888_Config,
-                SkScalarCeilToInt(
-                        physicalPerspectiveOutline.getBounds().width()),
-                SkScalarCeilToInt(
-                        physicalPerspectiveOutline.getBounds().height()));
-        perspectiveBitmap.allocPixels();
+        const int w = SkScalarCeilToInt(physicalPerspectiveOutline.getBounds().width());
+        const int h = SkScalarCeilToInt(physicalPerspectiveOutline.getBounds().height());
+        if (!perspectiveBitmap.allocPixels(SkImageInfo::MakeN32Premul(w, h))) {
+            return;
+        }
         perspectiveBitmap.eraseColor(SK_ColorTRANSPARENT);
 
         SkBitmapDevice device(perspectiveBitmap);

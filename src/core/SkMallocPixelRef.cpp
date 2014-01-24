@@ -238,3 +238,11 @@ SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer)
 
     this->setPreLocked(fStorage, fRB, fCTable);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkPixelRef* SkMallocPixelRef::PRFactory::create(const SkImageInfo& info,
+                                                SkColorTable* ctable) {
+    return SkMallocPixelRef::NewAllocate(info, info.minRowBytes(), ctable);
+}
+

@@ -241,8 +241,7 @@ public:
     {
         if (!fPermutationsBitmap) {
             fPermutationsBitmap = SkNEW(SkBitmap);
-            fPermutationsBitmap->setConfig(SkBitmap::kA8_Config, kBlockSize, 1);
-            fPermutationsBitmap->allocPixels();
+            fPermutationsBitmap->allocPixels(SkImageInfo::MakeA8(kBlockSize, 1));
             uint8_t* bitmapPixels = fPermutationsBitmap->getAddr8(0, 0);
             memcpy(bitmapPixels, fLatticeSelector, sizeof(uint8_t) * kBlockSize);
         }
@@ -253,8 +252,7 @@ public:
     {
         if (!fNoiseBitmap) {
             fNoiseBitmap = SkNEW(SkBitmap);
-            fNoiseBitmap->setConfig(SkBitmap::kARGB_8888_Config, kBlockSize, 4);
-            fNoiseBitmap->allocPixels();
+            fNoiseBitmap->allocPixels(SkImageInfo::MakeN32Premul(kBlockSize, 4));
             uint32_t* bitmapPixels = fNoiseBitmap->getAddr32(0, 0);
             memcpy(bitmapPixels, fNoise[0][0], sizeof(uint16_t) * kBlockSize * 4 * 2);
         }

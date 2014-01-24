@@ -89,7 +89,7 @@ bool SkInstallDiscardablePixelRef(SkImageGenerator* generator,
     }
     SkASSERT(dst->config() != SkBitmap::kNo_Config);
     if (dst->empty()) {  // Use a normal pixelref.
-        return dst->allocPixels(NULL, NULL);
+        return dst->allocPixels();
     }
     SkAutoTUnref<SkDiscardablePixelRef> ref(
         SkNEW_ARGS(SkDiscardablePixelRef,

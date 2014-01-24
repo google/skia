@@ -209,8 +209,9 @@ bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output) {
     int h = (int)CGRectGetHeight(bounds);
 
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    bitmap.allocPixels();
+    if (!bitmap.allocPixels(SkImageInfo::MakeN32Premul(w, h))) {
+        return false;
+    }
     bitmap.eraseColor(SK_ColorWHITE);
 
     size_t bitsPerComponent;

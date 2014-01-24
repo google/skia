@@ -323,8 +323,7 @@ bool SkAlphaThresholdFilterImpl::onFilterImage(Proxy*, const SkBitmap& src,
     }
 
     dst->setConfig(src.config(), src.width(), src.height());
-    dst->allocPixels();
-    if (!dst->getPixels()) {
+    if (!dst->allocPixels()) {
         return false;
     }
 

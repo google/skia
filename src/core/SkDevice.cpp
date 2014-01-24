@@ -92,9 +92,8 @@ bool SkBaseDevice::readPixels(SkBitmap* bitmap, int x, int y,
     SkBitmap tmp;
     SkBitmap* bmp;
     if (bitmap->isNull()) {
-        tmp.setConfig(SkBitmap::kARGB_8888_Config, bitmap->width(),
-                                                   bitmap->height());
-        if (!tmp.allocPixels()) {
+        if (!tmp.allocPixels(SkImageInfo::MakeN32Premul(bitmap->width(),
+                                                        bitmap->height()))) {
             return false;
         }
         bmp = &tmp;

@@ -23,8 +23,10 @@ void GrSurface::asImageInfo(SkImageInfo* info) const {
 
 bool GrSurface::savePixels(const char* filename) {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, this->width(), this->height());
-    bm.allocPixels();
+    if (!bm.allocPixels(SkImageInfo::MakeN32Premul(this->width(),
+                                                   this->height()))) {
+        return false;
+    }
 
     bool result = readPixels(0, 0, this->width(), this->height(), kSkia8888_GrPixelConfig,
                              bm.getPixels());
