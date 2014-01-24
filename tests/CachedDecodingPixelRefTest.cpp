@@ -142,6 +142,12 @@ static void test_three_encodings(skiatest::Reporter* reporter,
     }
 }
 
+static void purge_global_scaled_image_cache() {
+    size_t byteLimit = SkScaledImageCache::GetByteLimit();
+    SkScaledImageCache::SetByteLimit(0);
+    SkScaledImageCache::SetByteLimit(byteLimit);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 static bool install_skCachingPixelRef(SkData* encoded, SkBitmap* dst) {
     return SkCachingPixelRef::Install(
@@ -163,6 +169,7 @@ static bool install_skDiscardablePixelRef(SkData* encoded, SkBitmap* dst) {
  */
 DEF_TEST(DecodingImageGenerator, reporter) {
     test_three_encodings(reporter, install_skCachingPixelRef);
+    purge_global_scaled_image_cache();
     test_three_encodings(reporter, install_skDiscardablePixelRef);
 }
 
@@ -294,6 +301,8 @@ DEF_TEST(DiscardableAndCachingPixelRef, reporter) {
                    reporter, kSkCaching_PixelRefType, NULL);
     check_pixelref(TestImageGenerator::kSucceedGetPixels_TestType,
                    reporter, kSkCaching_PixelRefType, NULL);
+
+    purge_global_scaled_image_cache();
 
     check_pixelref(TestImageGenerator::kFailGetInfo_TestType,
                    reporter, kSkDiscardable_PixelRefType, NULL);

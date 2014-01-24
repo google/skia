@@ -20,6 +20,7 @@
  */
 class SK_API SkROLockPixelsPixelRef : public SkPixelRef {
 public:
+    SK_DECLARE_INST_COUNT(SkROLockPixelsPixelRef)
     SkROLockPixelsPixelRef(const SkImageInfo&);
     virtual ~SkROLockPixelsPixelRef();
 
@@ -38,6 +39,7 @@ private:
  */
 class SK_API SkGrPixelRef : public SkROLockPixelsPixelRef {
 public:
+    SK_DECLARE_INST_COUNT(SkGrPixelRef)
     /**
      * Constructs a pixel ref around a GrSurface. If the caller has locked the GrSurface in the
      * cache and would like the pixel ref to unlock it in its destructor then transferCacheLock
