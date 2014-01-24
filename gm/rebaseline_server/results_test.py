@@ -77,6 +77,10 @@ class ResultsTest(unittest.TestCase):
                         os.path.join(self._output_dir_actual, 'gm.json'))
 
 
+# TODO(epoger): create_empty_dir(), find_different_files(), etc. should be
+# extracted from this file to some common location, where they can be shared
+# with download_test.py and other users.
+
 def create_empty_dir(path):
   """Create an empty directory at the given path."""
   if os.path.isdir(path):

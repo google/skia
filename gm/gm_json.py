@@ -104,6 +104,8 @@ def CreateGmActualUrl(test_name, hash_type, hash_digest,
   hash_digest: the hash digest of the image to retrieve
   gm_actuals_root_url: root url where actual images are stored
   """
+  # TODO(epoger): Maybe use url_or_path.join() so that, for testing, this can
+  # return either a URL or a local filepath?
   return '%s/%s/%s/%s.png' % (gm_actuals_root_url, hash_type, test_name,
                               hash_digest)
 
