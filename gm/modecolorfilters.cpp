@@ -38,8 +38,7 @@ static SkShader* make_trans_black_shader() {
 // draws a background behind each test rect to see transparency
 static SkShader* make_bg_shader(int checkSize) {
     SkBitmap bmp;
-    bmp.setConfig(SkBitmap::kARGB_8888_Config, 2 * checkSize, 2 * checkSize);
-    bmp.allocPixels();
+    bmp.allocN32Pixels(2 * checkSize, 2 * checkSize);
     SkCanvas canvas(bmp);
     canvas.clear(0xFF800000);
     SkPaint paint;

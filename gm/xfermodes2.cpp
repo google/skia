@@ -93,9 +93,7 @@ private:
             SkPackARGB32(0xFF, 0x40, 0x40, 0x40)
         };
         SkBitmap bg;
-        bg.setConfig(SkBitmap::kARGB_8888_Config, 2, 2, 0, kOpaque_SkAlphaType);
-        bg.allocPixels();
-        SkAutoLockPixels bgAlp(bg);
+        bg.allocN32Pixels(2, 2, true);
         memcpy(bg.getPixels(), kCheckData, sizeof(kCheckData));
 
         fBG.reset(SkShader::CreateBitmapShader(bg,
@@ -106,9 +104,7 @@ private:
         fBG->setLocalMatrix(lm);
 
         SkBitmap dstBmp;
-        dstBmp.setConfig(SkBitmap::kARGB_8888_Config, kSize, kSize);
-        dstBmp.allocPixels();
-        SkAutoLockPixels dstAlp(dstBmp);
+        dstBmp.allocN32Pixels(kSize, kSize);
         SkPMColor* pixels = reinterpret_cast<SkPMColor*>(dstBmp.getPixels());
 
         for (int y = 0; y < kSize; ++y) {
@@ -122,9 +118,7 @@ private:
                                                 SkShader::kClamp_TileMode,
                                                 SkShader::kClamp_TileMode));
         SkBitmap srcBmp;
-        srcBmp.setConfig(SkBitmap::kARGB_8888_Config, kSize, kSize);
-        srcBmp.allocPixels();
-        SkAutoLockPixels srcAlp(srcBmp);
+        srcBmp.allocN32Pixels(kSize, kSize);
         pixels = reinterpret_cast<SkPMColor*>(srcBmp.getPixels());
 
         for (int x = 0; x < kSize; ++x) {

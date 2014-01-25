@@ -84,11 +84,8 @@ protected:
                                                     0xFFCCCCCC,
                                                     0xFFFFFFFF };
             SkBitmap bitmap;
-            bitmap.setConfig(SkBitmap::kARGB_8888_Config, 2, 2, 2 * sizeof(uint32_t));
-            bitmap.allocPixels();
-            bitmap.lockPixels();
+            bitmap.allocN32Pixels(2, 2);
             memcpy(bitmap.getPixels(), kCheckerPixelData, sizeof(kCheckerPixelData));
-            bitmap.unlockPixels();
             fBG.reset(SkShader::CreateBitmapShader(bitmap,
                                                    SkShader::kRepeat_TileMode,
                                                    SkShader::kRepeat_TileMode));

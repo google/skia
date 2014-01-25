@@ -14,8 +14,7 @@
 #include "SkShader.h"
 
 static void make_bitmap(SkBitmap* bitmap) {
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, 64, 64);
-    bitmap->allocPixels();
+    bitmap->allocN32Pixels(64, 64);
 
     SkCanvas canvas(*bitmap);
 
@@ -100,10 +99,7 @@ static void make_3x3_bitmap(SkBitmap* bitmap) {
     };
 
 
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, gXSize, gYSize);
-    bitmap->allocPixels();
-
-    SkAutoLockPixels lock(*bitmap);
+    bitmap->allocN32Pixels(gXSize, gYSize);
     for (int y = 0; y < gYSize; y++) {
         for (int x = 0; x < gXSize; x++) {
             *bitmap->getAddr32(x, y) = textureData[x][y];
@@ -157,10 +153,7 @@ static void make_big_bitmap(SkBitmap* bitmap) {
     static const int gYSize = 4096;
     static const int gBorderWidth = 10;
 
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, gXSize, gYSize);
-    bitmap->allocPixels();
-
-    SkAutoLockPixels lock(*bitmap);
+    bitmap->allocN32Pixels(gXSize, gYSize);
     for (int y = 0; y < gYSize; ++y) {
         for (int x = 0; x < gXSize; ++x) {
             if (x <= gBorderWidth || x >= gXSize-gBorderWidth ||

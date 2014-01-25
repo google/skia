@@ -16,8 +16,7 @@ namespace skiagm {
 static void create_bitmap(SkBitmap* bitmap) {
     const int W = 100;
     const int H = 100;
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, W, H);
-    bitmap->allocPixels();
+    bitmap->allocN32Pixels(W, H);
 
     SkCanvas canvas(*bitmap);
     canvas.drawColor(SK_ColorRED);

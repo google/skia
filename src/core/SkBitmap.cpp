@@ -549,6 +549,23 @@ bool SkBitmap::installPixels(const SkImageInfo& info, void* pixels, size_t rb,
     return true;
 }
 
+bool SkBitmap::allocConfigPixels(Config config, int width, int height,
+                                 bool isOpaque) {
+    SkColorType ct;
+    if (!config_to_colorType(config, &ct)) {
+        return false;
+    }
+    
+    SkAlphaType at = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
+    if (!validate_alphaType(config, at, &at)) {
+        return false;
+    }
+
+    return this->allocPixels(SkImageInfo::Make(width, height, ct, at));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkBitmap::freePixels() {
     // if we're gonna free the pixels, we certainly need to free the mipmap
     this->freeMipMap();

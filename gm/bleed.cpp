@@ -24,10 +24,7 @@ static void make_ringed_bitmap(SkBitmap* result, int width, int height) {
     static const SkPMColor kBlack = SkPreMultiplyColor(SK_ColorBLACK);
     static const SkPMColor kWhite = SkPreMultiplyColor(SK_ColorWHITE);
 
-    result->setConfig(SkBitmap::kARGB_8888_Config, width, height, 0,
-                      kOpaque_SkAlphaType);
-    result->allocPixels();
-    SkAutoLockPixels lock(*result);
+    result->allocN32Pixels(width, height, true);
 
     SkPMColor* scanline = result->getAddr32(0, 0);
     for (int x = 0; x < width; ++x) {

@@ -33,8 +33,7 @@ protected:
     }
 
     void make_checkerboard() {
-        fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config, 64, 64);
-        fCheckerboard.allocPixels();
+        fCheckerboard.allocN32Pixels(64, 64);
         SkBitmapDevice device(fCheckerboard);
         SkCanvas canvas(&device);
         canvas.clear(0x00000000);
@@ -59,8 +58,7 @@ protected:
         SkScalar x = SkIntToScalar(width / 2);
         SkScalar y = SkIntToScalar(height / 2);
         SkScalar radius = SkScalarMul(SkMinScalar(x, y), SkIntToScalar(4) / SkIntToScalar(5));
-        fGradientCircle.setConfig(SkBitmap::kARGB_8888_Config, width, height);
-        fGradientCircle.allocPixels();
+        fGradientCircle.allocN32Pixels(width, height);
         SkBitmapDevice device(fGradientCircle);
         SkCanvas canvas(&device);
         canvas.clear(0x00000000);

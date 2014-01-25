@@ -26,10 +26,7 @@ static void make_bitmap(int quarterWidth, int quarterHeight, SkBitmap *bitmap) {
     pAlphaGray.setColor(0x66888888);
 
     // Prepare bitmap, and a canvas that draws into it.
-    bitmap->reset();
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config,
-                      quarterWidth*4, quarterHeight*4);
-    bitmap->allocPixels();
+    bitmap->allocN32Pixels(quarterWidth*4, quarterHeight*4);
     SkCanvas canvas(*bitmap);
 
     SkScalar w = SkIntToScalar(quarterWidth);

@@ -12,8 +12,7 @@ static void make_bitmap(SkBitmap* bitmap, SkIRect* center) {
     const int kStretchy = 8;
     const int kSize = 2*kFixed + kStretchy;
 
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, kSize, kSize);
-    bitmap->allocPixels();
+    bitmap->allocN32Pixels(kSize, kSize);
     SkBaseDevice* dev = new SkBitmapDevice(*bitmap);
 
     SkCanvas canvas(dev);

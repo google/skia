@@ -27,8 +27,7 @@ class GiantBitmapGM : public skiagm::GM {
     const SkBitmap& getBitmap() {
         if (NULL == fBM) {
             fBM = new SkBitmap;
-            fBM->setConfig(SkBitmap::kARGB_8888_Config, W, H);
-            fBM->allocPixels();
+            fBM->allocN32Pixels(W, H);
             fBM->eraseColor(SK_ColorWHITE);
 
             const SkColor colors[] = {

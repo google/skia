@@ -35,8 +35,7 @@ public:
                 SkImageDecoder::kDecodePixels_Mode);
             SkDELETE(codec);
         } else {
-            fBM.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
-            fBM.allocPixels();
+            fBM.allocN32Pixels(1, 1);
             *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
         }
         fSize = fBM.height();
@@ -62,8 +61,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkBitmap dst;
-        dst.setConfig(SkBitmap::kARGB_8888_Config, fBM.width() * fScale, fBM.height() * fScale);
-        dst.allocPixels();
+        dst.allocN32Pixels(fBM.width() * fScale, fBM.height() * fScale);
         fBM.scale(&dst);
 
         canvas->drawBitmap(dst, 0, 0);

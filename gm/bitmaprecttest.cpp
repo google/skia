@@ -9,8 +9,7 @@
 #include "SkCanvas.h"
 
 static void make_bm(SkBitmap* bm) {
-    bm->setConfig(SkBitmap::kARGB_8888_Config, 60, 60);
-    bm->allocPixels();
+    bm->allocN32Pixels(60, 60);
     bm->eraseColor(0);
 
     SkCanvas canvas(*bm);

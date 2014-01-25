@@ -23,8 +23,7 @@ static const int PIXEL_SIZE_8888 = SLIDE_SIZE / 256;
 static const int PIXEL_SIZE_4444 = SLIDE_SIZE / 16;
 
 static void init_bitmap(SkBitmap::Config config, SkBitmap* bitmap) {
-    bitmap->setConfig(config, SLIDE_SIZE, SLIDE_SIZE);
-    bitmap->allocPixels();
+    bitmap->allocConfigPixels(config, SLIDE_SIZE, SLIDE_SIZE);
     bitmap->eraseColor(SK_ColorWHITE);
 }
 

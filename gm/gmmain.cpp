@@ -475,8 +475,7 @@ public:
      */
     static void setup_bitmap(const ConfigData& gRec, SkISize& size,
                              SkBitmap* bitmap) {
-        bitmap->setConfig(gRec.fConfig, size.width(), size.height());
-        bitmap->allocPixels();
+        bitmap->allocConfigPixels(gRec.fConfig, size.width(), size.height());
         bitmap->eraseColor(SK_ColorTRANSPARENT);
     }
 

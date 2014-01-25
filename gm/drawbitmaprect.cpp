@@ -16,8 +16,7 @@ namespace skiagm {
 
 static SkBitmap make_chessbm(int w, int h) {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config , w, h);
-    bm.allocPixels();
+    bm.allocN32Pixels(w, h);
 
     for (int y = 0; y < bm.height(); y++) {
         uint32_t* p = bm.getAddr32(0, y);
@@ -30,8 +29,7 @@ static SkBitmap make_chessbm(int w, int h) {
 }
 
 static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
-    bm->setConfig(config, w, h);
-    bm->allocPixels();
+    bm->allocConfigPixels(config, w, h);
     bm->eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas    canvas(*bm);

@@ -27,15 +27,12 @@ namespace skiagm {
 
 static SkBitmap create_bitmap() {
     SkBitmap bmp;
-    bmp.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
-    bmp.allocPixels();
-    bmp.lockPixels();
+    bmp.allocN32Pixels(2, 2);
     uint32_t* pixels = reinterpret_cast<uint32_t*>(bmp.getPixels());
     pixels[0] = SkPreMultiplyColor(SK_ColorRED);
     pixels[1] = SkPreMultiplyColor(SK_ColorGREEN);
     pixels[2] = SkPreMultiplyColor(SK_ColorBLACK);
     pixels[3] = SkPreMultiplyColor(SK_ColorBLUE);
-    bmp.unlockPixels();
 
     return bmp;
 }

@@ -14,8 +14,7 @@ namespace skiagm {
 
 static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
                          SkBitmap* transparent) {
-    src->setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    src->allocPixels();
+    src->allocN32Pixels(w, h);
     src->eraseColor(SK_ColorTRANSPARENT);
 
     SkPaint p;

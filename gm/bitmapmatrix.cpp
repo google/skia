@@ -107,8 +107,7 @@ private:
     void setupBitmap(SkBitmap* bm) {
         SkASSERT(bm);
         static const int SIZE = 64;
-        bm->setConfig(SkBitmap::kARGB_8888_Config, SIZE, SIZE);
-        bm->allocPixels();
+        bm->allocN32Pixels(SIZE, SIZE);
         SkCanvas canvas(*bm);
 
         SkPaint paint;

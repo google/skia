@@ -47,13 +47,7 @@ protected:
         static const int xSize = 16;
         static const int ySize = 16;
 
-        fTexture.setConfig(SkBitmap::kARGB_8888_Config,
-                           xSize,
-                           ySize,
-                           xSize*sizeof(SkColor));
-
-        fTexture.allocPixels();
-        fTexture.lockPixels();
+        fTexture.allocN32Pixels(xSize, ySize);
         SkPMColor* addr = fTexture.getAddr32(0, 0);
 
         for (int y = 0; y < ySize; ++y) {
@@ -68,8 +62,6 @@ protected:
                 }
             }
         }
-
-        fTexture.unlockPixels();
 
         fTextureCreated = true;
     }

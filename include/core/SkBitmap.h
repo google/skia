@@ -269,6 +269,20 @@ public:
     }
 
     /**
+     *  Legacy helper function, which creates an SkImageInfo from the specified
+     *  config and then calls allocPixels(info).
+     */
+    bool allocConfigPixels(Config, int width, int height, bool isOpaque = false);
+
+    bool allocN32Pixels(int width, int height, bool isOpaque = false) {
+        SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+        if (isOpaque) {
+            info.fAlphaType = kOpaque_SkAlphaType;
+        }
+        return this->allocPixels(info);
+    }
+
+    /**
      *  Install a pixelref that wraps the specified pixels and rowBytes, and
      *  optional ReleaseProc and context. When the pixels are no longer
      *  referenced, if ReleaseProc is not null, it will be called with the

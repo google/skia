@@ -17,8 +17,7 @@
 
 static SkBitmap make_bm() {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, WW, HH);
-    bm.allocPixels();
+    bm.allocN32Pixels(WW, HH);
     bm.eraseColor(SK_ColorTRANSPARENT);
     return bm;
 }

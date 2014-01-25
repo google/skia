@@ -11,8 +11,7 @@
 #include "SkPath.h"
 
 static void make_bm(SkBitmap* bm, int width, int height, SkColor colors[2]) {
-    bm->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-    bm->allocPixels();
+    bm->allocN32Pixels(width, height);
     SkCanvas canvas(*bm);
     SkPoint center = {SkIntToScalar(width)/2, SkIntToScalar(height)/2};
     SkScalar radius = 40;

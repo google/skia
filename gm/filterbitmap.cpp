@@ -115,8 +115,7 @@ class FilterBitmapTextGM: public FilterBitmapGM {
       }
 
       void makeBitmap() SK_OVERRIDE {
-          fBM.setConfig(SkBitmap::kARGB_8888_Config, int(fTextSize * 8), int(fTextSize * 6));
-          fBM.allocPixels();
+          fBM.allocN32Pixels(int(fTextSize * 8), int(fTextSize * 6));
           SkCanvas canvas(fBM);
           canvas.drawColor(SK_ColorWHITE);
 
@@ -155,9 +154,7 @@ class FilterBitmapCheckerboardGM: public FilterBitmapGM {
       }
 
       void makeBitmap() SK_OVERRIDE {
-          fBM.setConfig(SkBitmap::kARGB_8888_Config, fSize, fSize);
-          fBM.allocPixels();
-          SkAutoLockPixels lock(fBM);
+          fBM.allocN32Pixels(fSize, fSize);
           for (int y = 0; y < fSize; y ++) {
               for (int x = 0; x < fSize; x ++) {
                   SkPMColor* s = fBM.getAddr32(x, y);
@@ -207,8 +204,7 @@ class FilterBitmapImageGM: public FilterBitmapGM {
                   SkImageDecoder::kDecodePixels_Mode);
               SkDELETE(codec);
           } else {
-              fBM.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
-              fBM.allocPixels();
+              fBM.allocN32Pixels(1, 1);
               *(fBM.getAddr32(0,0)) = 0xFF0000FF; // red == bad
           }
           fSize = fBM.height();

@@ -395,10 +395,7 @@ private:
         static const unsigned int kCheckerboardWidth = 16;
         static const unsigned int kCheckerboardHeight = 16;
 
-        fCheckerboard.setConfig(SkBitmap::kARGB_8888_Config,
-                                kCheckerboardWidth, kCheckerboardHeight);
-        fCheckerboard.allocPixels();
-        SkAutoLockPixels lock(fCheckerboard);
+        fCheckerboard.allocN32Pixels(kCheckerboardWidth, kCheckerboardHeight);
         for (unsigned int y = 0; y < kCheckerboardHeight; y += 2) {
             SkPMColor* scanline = fCheckerboard.getAddr32(0, y);
             for (unsigned int x = 0; x < kCheckerboardWidth; x += 2) {

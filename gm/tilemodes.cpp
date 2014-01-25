@@ -20,8 +20,7 @@
 #include "SkBlurDrawLooper.h"
 
 static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
-    bm->setConfig(config, w, h);
-    bm->allocPixels();
+    bm->allocConfigPixels(config, w, h);
     bm->eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas    canvas(*bm);

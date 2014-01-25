@@ -124,8 +124,7 @@ static void test_grad(SkCanvas* canvas) {
 
 static SkCanvas* MakeCanvas(const SkIRect& bounds) {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(), bounds.height());
-    bm.allocPixels();
+    bm.allocN32Pixels(bounds.width(), bounds.height());
     bm.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas* canvas = new SkCanvas(bm);

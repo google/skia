@@ -36,8 +36,7 @@ protected:
 
     SkColor blend(SkColor one, SkColor two) {
         SkBitmap temp;
-        temp.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
-        temp.allocPixels();
+        temp.allocN32Pixels(1, 1);
         SkCanvas canvas(temp);
         canvas.drawColor(one);
         canvas.drawColor(two);

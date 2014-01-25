@@ -63,8 +63,7 @@ protected:
 
     SkBitmap createSolidBitmap(int width, int height) {
         SkBitmap bm;
-        bm.setConfig(SkBitmap::kARGB_8888_Config, width, height);
-        bm.allocPixels();
+        bm.allocN32Pixels(width, height);
         SkCanvas canvas(bm);
         canvas.clear(0x0);
         for (int y = 0; y < height; ++y) {
@@ -81,8 +80,7 @@ protected:
     // creates a bitmap with shades of transparent gray.
     SkBitmap createTransparentBitmap(int width, int height) {
         SkBitmap bm;
-        bm.setConfig(SkBitmap::kARGB_8888_Config, width, height);
-        bm.allocPixels();
+        bm.allocN32Pixels(width, height);
         SkCanvas canvas(bm);
         canvas.clear(0x0);
 

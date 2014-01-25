@@ -10,8 +10,7 @@
 #include "SkBlurImageFilter.h"
 
 static void make_bm(SkBitmap* bm) {
-    bm->setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
-    bm->allocPixels();
+    bm->allocN32Pixels(100, 100);
     bm->eraseColor(SK_ColorBLUE);
 
     SkCanvas canvas(*bm);

@@ -54,8 +54,7 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     r.roundOut(&bounds);
 
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(), bounds.height());
-    bm.allocPixels();
+    bm.allocN32Pixels(bounds.width(), bounds.height());
     bm.eraseColor(SK_ColorTRANSPARENT);
     SkCanvas c(bm);
     draw_path(&c, r, NULL);
@@ -74,8 +73,7 @@ static void draw_sprite(SkCanvas* canvas, const SkRect& r, SkImageFilter* imf) {
     r.roundOut(&bounds);
 
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(), bounds.height());
-    bm.allocPixels();
+    bm.allocN32Pixels(bounds.width(), bounds.height());
     bm.eraseColor(SK_ColorRED);
     SkCanvas c(bm);
 
