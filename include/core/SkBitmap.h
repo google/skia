@@ -257,7 +257,7 @@ public:
      *  On failure, the bitmap will be set to empty and return false.
      */
     bool allocPixels(const SkImageInfo&, SkPixelRefFactory*, SkColorTable*);
-    
+
     /**
      *  Allocate a pixelref to match the specified image info, using the default
      *  allocator.
@@ -267,7 +267,7 @@ public:
     bool allocPixels(const SkImageInfo& info) {
         return this->allocPixels(info, NULL, NULL);
     }
-    
+
     /**
      *  Install a pixelref that wraps the specified pixels and rowBytes, and
      *  optional ReleaseProc and context. When the pixels are no longer
@@ -278,7 +278,7 @@ public:
     bool installPixels(const SkImageInfo&, void* pixels, size_t rowBytes,
                        void (*ReleaseProc)(void* addr, void* context),
                        void* context);
-    
+
     /**
      *  If the bitmap's config can be represented as SkImageInfo, return true,
      *  and if info is not-null, set it to the bitmap's info. If it cannot be

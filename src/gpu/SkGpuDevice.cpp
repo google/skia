@@ -291,7 +291,7 @@ SkGpuDevice::~SkGpuDevice() {
     if (fDrawProcs) {
         delete fDrawProcs;
     }
-    
+
     delete fTextContextManager;
 
     // The GrContext takes a ref on the target. We don't want to cause the render
@@ -1880,11 +1880,11 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
         SkAutoTDelete<GrTextContext> context(fTextContextManager->create(fContext, grPaint, paint));
         GrDistanceFieldTextContext* dfContext =
                                             static_cast<GrDistanceFieldTextContext*>(context.get());
-        
+
         SkAutoGlyphCache    autoCache(dfContext->getSkPaint(), &this->fLeakyProperties, NULL);
         SkGlyphCache*       cache = autoCache.getCache();
         GrFontScaler*       fontScaler = get_gr_font_scaler(cache);
-        
+
         dfContext->drawPosText((const char *)text, byteLength, pos, constY, scalarsPerPos,
                             cache, fontScaler);
 #endif

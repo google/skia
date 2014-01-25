@@ -488,7 +488,7 @@ void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
 
 bool SkBitmap::allocPixels(Allocator* allocator, SkColorTable* ctable) {
     HeapAllocator stdalloc;
-    
+
     if (NULL == allocator) {
         allocator = &stdalloc;
     }
@@ -515,7 +515,7 @@ bool SkBitmap::allocPixels(const SkImageInfo& info, SkPixelRefFactory* factory,
     if (NULL == factory) {
         factory = &defaultFactory;
     }
-    
+
     SkPixelRef* pr = factory->create(info, ctable);
     if (NULL == pr) {
         return reset_return_false(this);

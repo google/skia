@@ -245,4 +245,3 @@ SkPixelRef* SkMallocPixelRef::PRFactory::create(const SkImageInfo& info,
                                                 SkColorTable* ctable) {
     return SkMallocPixelRef::NewAllocate(info, info.minRowBytes(), ctable);
 }
-

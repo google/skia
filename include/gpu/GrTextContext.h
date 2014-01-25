@@ -55,7 +55,7 @@ private:
     class ManagedTextContext : public TextContextClass {
     public:
         ~ManagedTextContext() {}
-        
+
         ManagedTextContext(GrContext* context,
                            const GrPaint& grPaint,
                            const SkPaint& skPaint,
@@ -77,7 +77,7 @@ private:
 
         GrTTextContextManager<TextContextClass>* fManager;
     };
-    
+
 public:
     GrTTextContextManager() {
         fAllocation = sk_malloc_throw(sizeof(ManagedTextContext));
