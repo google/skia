@@ -34,8 +34,6 @@ public:
 
     void    setConfig(SkBitmap::Config);
     void    resize(int width, int height, SkBitmap::Config config = SkBitmap::kNo_Config);
-    void    eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
-    void    eraseRGB(U8CPU r, U8CPU g, U8CPU b);
 
     bool    isDirty() const { return !fDirtyRgn.isEmpty(); }
     bool    update(SkIRect* updateArea);
