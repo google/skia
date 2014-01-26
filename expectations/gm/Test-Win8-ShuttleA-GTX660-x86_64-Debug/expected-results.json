@@ -10170,13 +10170,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12628353577974159869
+          1737623575586505528
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "hittestpath_pdf-poppler.png": {
       "allowed-digests": [
@@ -12502,25 +12499,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4693974556239318160
+          6768183713900650684
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "points_msaa16.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7554412870829720280
+          13830634201445141631
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "points_pdf-poppler.png": {
       "allowed-digests": [
