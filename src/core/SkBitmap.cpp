@@ -555,7 +555,7 @@ bool SkBitmap::allocConfigPixels(Config config, int width, int height,
     if (!config_to_colorType(config, &ct)) {
         return false;
     }
-    
+
     SkAlphaType at = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
     if (!validate_alphaType(config, at, &at)) {
         return false;
