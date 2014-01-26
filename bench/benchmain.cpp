@@ -197,6 +197,7 @@ static SkBaseDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
 GrContextFactory gContextFactory;
 typedef GrContextFactory::GLContextType GLContextType;
 static const GLContextType kNative = GrContextFactory::kNative_GLContextType;
+static const GLContextType kNVPR   = GrContextFactory::kNVPR_GLContextType;
 #if SK_ANGLE
 static const GLContextType kANGLE  = GrContextFactory::kANGLE_GLContextType;
 #endif
@@ -228,6 +229,8 @@ static const struct Config {
     { SkBitmap::kARGB_8888_Config, "GPU",          0, SkBenchmark::kGPU_Backend,          kNative, true},
     { SkBitmap::kARGB_8888_Config, "MSAA4",        4, SkBenchmark::kGPU_Backend,          kNative, false},
     { SkBitmap::kARGB_8888_Config, "MSAA16",      16, SkBenchmark::kGPU_Backend,          kNative, false},
+    { SkBitmap::kARGB_8888_Config, "NVPRMSAA4",    4, SkBenchmark::kGPU_Backend,          kNVPR,   true},
+    { SkBitmap::kARGB_8888_Config, "NVPRMSAA16",  16, SkBenchmark::kGPU_Backend,          kNVPR,   false},
 #if SK_ANGLE
     { SkBitmap::kARGB_8888_Config, "ANGLE",        0, SkBenchmark::kGPU_Backend,          kANGLE,  true},
 #endif // SK_ANGLE
