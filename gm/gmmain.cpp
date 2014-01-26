@@ -1290,6 +1290,8 @@ static const ConfigData gRec[] = {
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  0, kRW_ConfigFlag,    "gpu",          true },
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType, 16, kRW_ConfigFlag,    "msaa16",       false},
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNative_GLContextType,  4, kRW_ConfigFlag,    "msaa4",        false},
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNVPR_GLContextType,    4, kRW_ConfigFlag,    "nvprmsaa4",   true },
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kNVPR_GLContextType,   16, kRW_ConfigFlag,    "nvprmsaa16",  false},
     /* The gpudebug context does not generate meaningful images, so don't record
      * the images it generates!  We only run it to look for asserts. */
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    GrContextFactory::kDebug_GLContextType,   0, kNone_ConfigFlag,  "gpudebug",     kDebugOnly},
