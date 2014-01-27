@@ -671,7 +671,7 @@ static float gaussianIntegral(float x) {
     return 0.4375f + (-x3 / 6.0f - 3.0f * x2 * 0.25f - 1.125f * x);
 }
 
-/*  compute_profile allocates and fills in an array of floating
+/*  ComputeBlurProfile allocates and fills in an array of floating
     point values between 0 and 255 for the profile signature of
     a blurred half-plane with the given blur radius.  Since we're
     going to be doing screened multiplications (i.e., 1 - (1-x)(1-y))
@@ -682,11 +682,11 @@ static float gaussianIntegral(float x) {
     memory returned in profile_out.
 */
 
-static void compute_profile(SkScalar sigma, unsigned int **profile_out) {
+void SkBlurMask::ComputeBlurProfile(SkScalar sigma, uint8_t **profile_out) {
     int size = SkScalarCeilToInt(6*sigma);
 
     int center = size >> 1;
-    unsigned int *profile = SkNEW_ARRAY(unsigned int, size);
+    uint8_t *profile = SkNEW_ARRAY(uint8_t, size);
 
     float invr = 1.f/(2*sigma);
 
@@ -707,7 +707,7 @@ static void compute_profile(SkScalar sigma, unsigned int **profile_out) {
 // Implementation adapted from Michael Herf's approach:
 // http://stereopsis.com/shadowrect/
 
-static inline unsigned int profile_lookup( unsigned int *profile, int loc, int blurred_width, int sharp_width ) {
+uint8_t SkBlurMask::ProfileLookup(const uint8_t *profile, int loc, int blurred_width, int sharp_width) {
     int dx = SkAbs32(((loc << 1) + 1) - blurred_width) - sharp_width; // how far are we from the original edge?
     int ox = dx >> 1;
     if (ox < 0) {
@@ -715,6 +715,30 @@ static inline unsigned int profile_lookup( unsigned int *profile, int loc, int b
     }
 
     return profile[ox];
+}
+
+void SkBlurMask::ComputeBlurredScanline(uint8_t *pixels, const uint8_t *profile, 
+                                        unsigned int width, SkScalar sigma) {
+
+    unsigned int profile_size = SkScalarCeilToInt(6*sigma);
+    SkAutoTMalloc<uint8_t> horizontalScanline(width);
+
+    unsigned int sw = width - profile_size;
+    // nearest odd number less than the profile size represents the center
+    // of the (2x scaled) profile
+    int center = ( profile_size & ~1 ) - 1;
+
+    int w = sw - center;
+
+    for (unsigned int x = 0 ; x < width ; ++x) {
+       if (profile_size <= sw) {
+           pixels[x] = ProfileLookup(profile, x, width, w);
+       } else {
+           float span = float(sw)/(2*sigma);
+           float giX = 1.5f - (x+.5f)/(2*sigma);
+           pixels[x] = (uint8_t) (255 * (gaussianIntegral(giX) - gaussianIntegral(giX + span)));
+       }
+    }                                       
 }
 
 bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
@@ -757,10 +781,10 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
         }
         return true;
     }
-    unsigned int *profile = NULL;
+    uint8_t *profile = NULL;
 
-    compute_profile(sigma, &profile);
-    SkAutoTDeleteArray<unsigned int> ada(profile);
+    ComputeBlurProfile(sigma, &profile);
+    SkAutoTDeleteArray<uint8_t> ada(profile);
 
     size_t dstSize = dst->computeImageSize();
     if (0 == dstSize) {
@@ -774,39 +798,17 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
     int dstHeight = dst->fBounds.height();
     int dstWidth = dst->fBounds.width();
 
-    // nearest odd number less than the profile size represents the center
-    // of the (2x scaled) profile
-    int center = ( profile_size & ~1 ) - 1;
-
-    int w = sw - center;
-    int h = sh - center;
-
     uint8_t *outptr = dp;
 
     SkAutoTMalloc<uint8_t> horizontalScanline(dstWidth);
-
-    for (int x = 0 ; x < dstWidth ; ++x) {
-        if (profile_size <= sw) {
-            horizontalScanline[x] = profile_lookup(profile, x, dstWidth, w);
-        } else {
-            float span = float(sw)/(2*sigma);
-            float giX = 1.5f - (x+.5f)/(2*sigma);
-            horizontalScanline[x] = (uint8_t) (255 * (gaussianIntegral(giX) - gaussianIntegral(giX + span)));
-        }
-    }
+    SkAutoTMalloc<uint8_t> verticalScanline(dstHeight);
+    
+    ComputeBlurredScanline(horizontalScanline, profile, dstWidth, sigma);
+    ComputeBlurredScanline(verticalScanline, profile, dstHeight, sigma);
 
     for (int y = 0 ; y < dstHeight ; ++y) {
-        unsigned int profile_y;
-        if (profile_size <= sh) {
-            profile_y = profile_lookup(profile, y, dstHeight, h);
-        } else {
-            float span = float(sh)/(2*sigma);
-            float giY = 1.5f - (y+.5f)/(2*sigma);
-            profile_y = (uint8_t) (255 * (gaussianIntegral(giY) - gaussianIntegral(giY + span)));
-        }
-
         for (int x = 0 ; x < dstWidth ; x++) {
-            unsigned int maskval = SkMulDiv255Round(horizontalScanline[x], profile_y);
+            unsigned int maskval = SkMulDiv255Round(horizontalScanline[x], verticalScanline[y]);
             *(outptr++) = maskval;
         }
     }
