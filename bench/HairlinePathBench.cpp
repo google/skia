@@ -4,9 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "GrTest.h"
-#include "GrDrawTargetCaps.h"
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
@@ -173,20 +170,6 @@ public:
                          weight);
         }
     }
-
-    virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
-        GrContext* context = canvas->getGrContext();
-        // This is a workaround for skbug.com/2078. See also skbug.com/2033.
-        if (NULL != context) {
-            GrTestTarget tt;
-            context->getTestTarget(&tt);
-            if (tt.target()->caps()->pathRenderingSupport()) {
-                return;
-            }
-        }
-        INHERITED::onDraw(loops, canvas);
-    }
-
 private:
     typedef HairlinePathBench INHERITED;
 };
