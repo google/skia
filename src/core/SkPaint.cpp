@@ -2288,6 +2288,10 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
         this->getMaskFilter()->computeFastBounds(*storage, storage);
     }
 
+    if (this->getImageFilter()) {
+        this->getImageFilter()->computeFastBounds(*storage, storage);
+    }
+
     return *storage;
 }
 

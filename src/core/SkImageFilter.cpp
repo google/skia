@@ -111,6 +111,28 @@ bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
     return this->onFilterBounds(src, ctm, dst);
 }
 
+void SkImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
+    if (0 == fInputCount) {
+        *dst = src;
+        return;
+    }
+    if (this->getInput(0)) {
+        this->getInput(0)->computeFastBounds(src, dst);
+    } else {
+        *dst = src;
+    }
+    for (int i = 1; i < fInputCount; i++) {
+        SkImageFilter* input = this->getInput(i);
+        if (input) {
+            SkRect bounds;
+            input->computeFastBounds(src, &bounds);
+            dst->join(bounds);
+        } else {
+            dst->join(src);
+        }
+    }
+}
+
 bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const SkMatrix&,
                                   SkBitmap*, SkIPoint*) {
     return false;

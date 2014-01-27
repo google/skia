@@ -13,6 +13,7 @@ class SK_API SkDropShadowImageFilter : public SkImageFilter {
 public:
     SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigma, SkColor, SkImageFilter* input = NULL);
     SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor, SkImageFilter* input = NULL, const CropRect* cropRect = NULL);
+    virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDropShadowImageFilter)
 
 protected:

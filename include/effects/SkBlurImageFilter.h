@@ -17,6 +17,7 @@ public:
                       SkScalar sigmaY,
                       SkImageFilter* input = NULL,
                       const CropRect* cropRect = NULL);
+    virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilter)
 

@@ -17,6 +17,7 @@ class SK_API SkOffsetImageFilter : public SkImageFilter {
 public:
     SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter* input = NULL,
                         const CropRect* cropRect = NULL);
+    virtual void computeFastBounds(const SkRect& src, SkRect* dst) const SK_OVERRIDE;
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkOffsetImageFilter)
 
 protected:

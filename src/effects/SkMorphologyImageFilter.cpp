@@ -239,6 +239,15 @@ bool SkDilateImageFilter::onFilterImage(Proxy* proxy,
     return this->filterImageGeneric(dilateXProc, dilateYProc, proxy, source, ctm, dst, offset);
 }
 
+void SkMorphologyImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
+    if (getInput(0)) {
+        getInput(0)->computeFastBounds(src, dst);
+    } else {
+        *dst = src;
+    }
+    dst->outset(SkIntToScalar(fRadius.width()), SkIntToScalar(fRadius.height()));
+}
+
 #if SK_SUPPORT_GPU
 
 ///////////////////////////////////////////////////////////////////////////////

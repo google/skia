@@ -943,6 +943,7 @@ public:
             uintptr_t effects = reinterpret_cast<uintptr_t>(this->getLooper());
             effects |= reinterpret_cast<uintptr_t>(this->getMaskFilter());
             effects |= reinterpret_cast<uintptr_t>(this->getPathEffect());
+            effects |= reinterpret_cast<uintptr_t>(this->getImageFilter());
             if (!effects) {
                 return orig;
             }

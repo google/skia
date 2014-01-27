@@ -65,6 +65,15 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
     return true;
 }
 
+void SkOffsetImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
+    if (getInput(0)) {
+        getInput(0)->computeFastBounds(src, dst);
+    } else {
+        *dst = src;
+    }
+    dst->offset(fOffset.fX, fOffset.fY);
+}
+
 bool SkOffsetImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                          SkIRect* dst) {
     SkVector vec;

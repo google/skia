@@ -95,3 +95,18 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
     offset->fY = bounds.fTop;
     return true;
 }
+
+void SkDropShadowImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
+    if (getInput(0)) {
+        getInput(0)->computeFastBounds(src, dst);
+    } else {
+        *dst = src;
+    }
+
+    SkRect shadowBounds = *dst;
+    shadowBounds.offset(fDx, fDy);
+    shadowBounds.outset(SkScalarMul(fSigmaX, SkIntToScalar(3)),
+                        SkScalarMul(fSigmaY, SkIntToScalar(3)));
+    dst->join(shadowBounds);
+}
+

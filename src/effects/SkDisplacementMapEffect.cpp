@@ -246,6 +246,14 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
     return true;
 }
 
+void SkDisplacementMapEffect::computeFastBounds(const SkRect& src, SkRect* dst) const {
+    if (getColorInput()) {
+        getColorInput()->computeFastBounds(src, dst);
+    } else {
+        *dst = src;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU

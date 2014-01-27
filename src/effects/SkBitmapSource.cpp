@@ -78,3 +78,7 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const SkMatrix
     offset->fY = dstIRect.fTop;
     return true;
 }
+
+void SkBitmapSource::computeFastBounds(const SkRect&, SkRect* dst) const {
+    *dst = fDstRect;
+}

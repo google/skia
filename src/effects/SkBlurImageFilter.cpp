@@ -224,6 +224,17 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     return true;
 }
 
+
+void SkBlurImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
+    if (getInput(0)) {
+        getInput(0)->computeFastBounds(src, dst);
+    } else {
+        *dst = src;
+    }
+
+    dst->outset(SkScalarMul(fSigma.width(), SkIntToScalar(3)),
+                SkScalarMul(fSigma.height(), SkIntToScalar(3)));
+}
 bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
                                        SkBitmap* result, SkIPoint* offset) {
 #if SK_SUPPORT_GPU
