@@ -134,21 +134,6 @@ public:
      */
     static SkTypeface* Deserialize(SkStream*);
 
-    /** Retrieve detailed typeface metrics.  Used by the PDF backend.
-        @param perGlyphInfo Indicate what glyph specific information (advances,
-                            names, etc.) should be populated.
-        @param glyphIDs  For per-glyph info, specify subset of the font by
-                         giving glyph ids.  Each integer represents a glyph
-                         id.  Passing NULL means all glyphs in the font.
-        @param glyphIDsCount Number of elements in subsetGlyphIds. Ignored if
-                             glyphIDs is NULL.
-        @return The returned object has already been referenced.
-     */
-    SkAdvancedTypefaceMetrics* getAdvancedTypefaceMetrics(
-            SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
-            const uint32_t* glyphIDs = NULL,
-            uint32_t glyphIDsCount = 0) const;
-
     enum Encoding {
         kUTF8_Encoding,
         kUTF16_Encoding,
@@ -332,6 +317,26 @@ protected:
     virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const = 0;
+
+private:
+    friend class SkGTypeface;
+    friend class SkPDFFont;
+    friend class SkPDFCIDFont;
+
+    /** Retrieve detailed typeface metrics.  Used by the PDF backend.
+     @param perGlyphInfo Indicate what glyph specific information (advances,
+     names, etc.) should be populated.
+     @param glyphIDs  For per-glyph info, specify subset of the font by
+     giving glyph ids.  Each integer represents a glyph
+     id.  Passing NULL means all glyphs in the font.
+     @param glyphIDsCount Number of elements in subsetGlyphIds. Ignored if
+     glyphIDs is NULL.
+     @return The returned object has already been referenced.
+     */
+    SkAdvancedTypefaceMetrics* getAdvancedTypefaceMetrics(
+                          SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
+                          const uint32_t* glyphIDs = NULL,
+                          uint32_t glyphIDsCount = 0) const;
 
 private:
     static void create_default_typeface(Style style);
