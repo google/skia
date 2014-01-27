@@ -30,6 +30,30 @@ import sys
 import tempfile
 
 
+DEFAULT_BOTS_LIST = [
+    'android_clang_dbg',
+    'android_dbg',
+    'android_rel',
+    'cros_daisy',
+    'linux',
+    'linux_asan',
+    'linux_chromeos',
+    'linux_chromeos_asan',
+    'linux_gpu',
+    'linux_layout',
+    'linux_layout_rel',
+    'mac',
+    'mac_asan',
+    'mac_gpu',
+    'mac_layout',
+    'mac_layout_rel',
+    'win',
+    'win_gpu',
+    'win_layout',
+    'win_layout_rel',
+]
+
+
 class DepsRollConfig(object):
     """Contains configuration options for this module.
 
@@ -84,29 +108,6 @@ class DepsRollConfig(object):
 
         Called by the main() function.
         """
-        default_bots_list = [
-            'android_clang_dbg',
-            'android_dbg',
-            'android_rel',
-            'cros_daisy',
-            'linux',
-            'linux_asan',
-            'linux_chromeos',
-            'linux_chromeos_asan',
-            'linux_gpu',
-            'linux_layout',
-            'linux_layout_rel',
-            'mac',
-            'mac_asan',
-            'mac_gpu',
-            'mac_layout',
-            'mac_layout_rel',
-            'win',
-            'win_gpu',
-            'win_layout',
-            'win_layout_rel',
-            ]
-
         option_parser = optparse.OptionParser(usage=__doc__)
         # Anyone using this script on a regular basis should set the
         # CHROMIUM_CHECKOUT_PATH environment variable.
@@ -150,8 +151,8 @@ class DepsRollConfig(object):
         default_bots_help = (
             'Comma-separated list of bots, defaults to a list of %d bots.'
             '  To skip `git cl try`, set this to an empty string.'
-            % len(default_bots_list))
-        default_bots = ','.join(default_bots_list)
+            % len(DEFAULT_BOTS_LIST))
+        default_bots = ','.join(DEFAULT_BOTS_LIST)
         option_parser.add_option(
             '', '--bots', help=default_bots_help, default=default_bots)
 
