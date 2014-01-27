@@ -744,7 +744,9 @@ def roll_deps(config, revision, git_hash):
             'Old Skia revision: %s\n'
             'New Skia revision: %d\n'
             'Control CL: %s\n\n'
-            'This CL was created by Skia\'s roll_deps.py script.\n'
+            'This CL was created by Skia\'s roll_deps.py script.\n\n'
+            'Bypassing commit queue trybots:\n'
+            'NOTRY=true\n'
             % (revision, master_revision, master_hash[:8],
                old_revision, revision, control_url))
         codereview = GitBranchCLUpload(config, message, branch)
