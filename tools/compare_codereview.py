@@ -325,12 +325,15 @@ def main(control_url, roll_url, verbosity=1):
     # pylint: disable=I0011,R0914,R0912
     control = CodeReviewHTMLParser.parse(control_url)
     roll = CodeReviewHTMLParser.parse(roll_url)
-    if not (control and roll):
+    all_bots = set(control) & set(roll)  # Set intersection.
+    if not all_bots:
+        print >> sys.stderr, (
+            'Error:  control %s and roll %s have no common trybots.'
+            % (list(control), list(roll)))
         return
 
     control_name = '[control %s]' % control_url.split('/')[-1]
     roll_name = '[roll %s]' % roll_url.split('/')[-1]
-    all_bots = set(control) & set(roll)  # Set intersection.
 
     out = sys.stdout
     if verbosity > 0:
