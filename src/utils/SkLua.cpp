@@ -1029,7 +1029,7 @@ static int lrrect_type(lua_State* L) {
 }
 
 static int lrrect_radii(lua_State* L) {
-    int corner = lua_tointeger(L, 2);
+    int corner = SkToInt(lua_tointeger(L, 2));
     SkVector v;
     if (corner < 0 || corner > 3) {
         SkDebugf("bad corner index %d", corner);

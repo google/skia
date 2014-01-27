@@ -86,7 +86,7 @@ protected:
         SkPaint paint;
 
         int x = 0, y = 0;
-        for (size_t i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             SkBitmap* bitmap = (i & 0x01) ? &fCheckerboard : &fBitmap;
             SkIRect cropRect = SkIRect::MakeXYWH(i * 12,
                                                  i * 8,

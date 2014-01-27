@@ -149,7 +149,7 @@ static CGFloat CGRectGetWidth_inline(const CGRect& rect) {
 ///////////////////////////////////////////////////////////////////////////////
 
 static void sk_memset_rect32(uint32_t* ptr, uint32_t value,
-                             size_t width, size_t height, size_t rowBytes) {
+                             int width, int height, size_t rowBytes) {
     SkASSERT(width);
     SkASSERT(width * sizeof(uint32_t) <= rowBytes);
 
@@ -1441,7 +1441,7 @@ static SkTypeface* create_from_dataProvider(CGDataProviderRef provider) {
 // so the performance impact isn't too bad.
 static void populate_glyph_to_unicode_slow(CTFontRef ctFont, CFIndex glyphCount,
                                            SkTDArray<SkUnichar>* glyphToUnicode) {
-    glyphToUnicode->setCount(glyphCount);
+    glyphToUnicode->setCount(SkToInt(glyphCount));
     SkUnichar* out = glyphToUnicode->begin();
     sk_bzero(out, glyphCount * sizeof(SkUnichar));
     UniChar unichar = 0;
@@ -1485,7 +1485,7 @@ static void populate_glyph_to_unicode(CTFontRef ctFont, CFIndex glyphCount,
         length = 8192;
     }
     const UInt8* bits = CFDataGetBytePtr(bitmap);
-    glyphToUnicode->setCount(glyphCount);
+    glyphToUnicode->setCount(SkToInt(glyphCount));
     SkUnichar* out = glyphToUnicode->begin();
     sk_bzero(out, glyphCount * sizeof(SkUnichar));
     for (int i = 0; i < length; i++) {
@@ -1625,7 +1625,7 @@ SkAdvancedTypefaceMetrics* SkTypeface_Mac::onGetAdvancedTypefaceMetrics(
         } else {
             info->fGlyphWidths.reset(
                 skia_advanced_typeface_metrics_utils::getAdvanceData(ctFont.get(),
-                               glyphCount,
+                               SkToInt(glyphCount),
                                glyphIDs,
                                glyphIDsCount,
                                &getWidthAdvance));
@@ -1724,8 +1724,8 @@ SkStream* SkTypeface_Mac::onOpenStream(int* ttcIndex) const {
         entry->tag = SkEndian_SwapBE32(tableTags[tableIndex]);
         entry->checksum = SkEndian_SwapBE32(SkOTUtils::CalcTableChecksum((SK_OT_ULONG*)dataPtr,
                                                                          tableSize));
-        entry->offset = SkEndian_SwapBE32(dataPtr - dataStart);
-        entry->logicalLength = SkEndian_SwapBE32(tableSize);
+        entry->offset = SkEndian_SwapBE32(SkToU32(dataPtr - dataStart));
+        entry->logicalLength = SkEndian_SwapBE32(SkToU32(tableSize));
 
         dataPtr += (tableSize + 3) & ~3;
         ++entry;
@@ -1785,7 +1785,7 @@ int SkTypeface_Mac::onGetTableTags(SkFontTableTag tags[]) const {
     if (NULL == cfArray) {
         return 0;
     }
-    int count = CFArrayGetCount(cfArray);
+    int count = SkToInt(CFArrayGetCount(cfArray));
     if (tags) {
         for (int i = 0; i < count; ++i) {
             uintptr_t fontTag = reinterpret_cast<uintptr_t>(CFArrayGetValueAtIndex(cfArray, i));
@@ -1930,7 +1930,7 @@ int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
                 SkUnichar uni = SkUTF8_NextUnichar(&utf8);
                 utf16 += SkUTF16_FromUnichar(uni, utf16);
             }
-            srcCount = utf16 - src;
+            srcCount = SkToInt(utf16 - src);
             break;
         }
         case kUTF16_Encoding: {
@@ -1951,7 +1951,7 @@ int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
             for (int i = 0; i < glyphCount; ++i) {
                 utf16 += SkUTF16_FromUnichar(utf32[i], utf16);
             }
-            srcCount = utf16 - src;
+            srcCount = SkToInt(utf16 - src);
             break;
         }
     }
@@ -1999,7 +1999,7 @@ int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
 }
 
 int SkTypeface_Mac::onCountGlyphs() const {
-    return CTFontGetGlyphCount(fFontRef);
+    return SkToInt(CTFontGetGlyphCount(fFontRef));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2142,7 +2142,7 @@ public:
         if (NULL == fArray) {
             fArray = CFArrayCreate(NULL, NULL, 0, NULL);
         }
-        fCount = CFArrayGetCount(fArray);
+        fCount = SkToInt(CFArrayGetCount(fArray));
     }
 
     virtual ~SkFontStyleSet_Mac() {
@@ -2219,7 +2219,7 @@ class SkFontMgr_Mac : public SkFontMgr {
     void lazyInit() {
         if (NULL == fNames) {
             fNames = SkCTFontManagerCopyAvailableFontFamilyNames();
-            fCount = fNames ? CFArrayGetCount(fNames) : 0;
+            fCount = fNames ? SkToInt(CFArrayGetCount(fNames)) : 0;
         }
     }
 

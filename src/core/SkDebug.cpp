@@ -46,4 +46,9 @@ int SkToInt(intmax_t x) {
     return (int)x;
 }
 
+unsigned SkToUInt(uintmax_t x) {
+    SkASSERT((unsigned)x == x);
+    return (unsigned)x;
+}
+
 #endif

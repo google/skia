@@ -646,7 +646,7 @@ static void texteffect_slide(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorBLUE);
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++) {
-        apply_shader(&paint, i);
+        apply_shader(&paint, (int)i);
         canvas->drawText(str, len, x, y, paint);
         y += 80;
         if (i == 4) {

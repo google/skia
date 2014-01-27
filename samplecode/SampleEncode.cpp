@@ -112,7 +112,7 @@ public:
     SkBitmap*        fBitmaps;
     SkAutoDataUnref* fEncodedPNGs;
     SkAutoDataUnref* fEncodedJPEGs;
-    size_t           fBitmapCount;
+    int              fBitmapCount;
 
     EncodeView() {
     #if 1
@@ -120,7 +120,7 @@ public:
         fBitmaps = new SkBitmap[fBitmapCount];
         fEncodedPNGs = new SkAutoDataUnref[fBitmapCount];
         fEncodedJPEGs = new SkAutoDataUnref[fBitmapCount];
-        for (size_t i = 0; i < fBitmapCount; i++) {
+        for (int i = 0; i < fBitmapCount; i++) {
             make_image(&fBitmaps[i], gConfigs[i], i);
 
             for (size_t j = 0; j < SK_ARRAY_COUNT(gTypes); j++) {
@@ -181,7 +181,7 @@ protected:
         SkScalar x = 0, y = 0, maxX = 0;
         const int SPACER = 10;
 
-        for (size_t i = 0; i < fBitmapCount; i++) {
+        for (int i = 0; i < fBitmapCount; i++) {
             canvas->drawText(gConfigLabels[i], strlen(gConfigLabels[i]),
                              x + SkIntToScalar(fBitmaps[i].width()) / 2, 0,
                              paint);

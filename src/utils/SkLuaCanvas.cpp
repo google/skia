@@ -57,7 +57,8 @@ void AutoCallLua::pushEncodedText(SkPaint::TextEncoding enc, const void* text,
             this->pushString(str, "text");
         } break;
         case SkPaint::kGlyphID_TextEncoding:
-            this->pushArrayU16((const uint16_t*)text, length >> 1, "glyphs");
+            this->pushArrayU16((const uint16_t*)text, SkToInt(length >> 1),
+                               "glyphs");
             break;
         case SkPaint::kUTF32_TextEncoding:
             break;

@@ -61,7 +61,7 @@ bool doFlate(bool compress, SkStream* src, SkWStream* dst) {
         flateData.avail_in = 0;
     } else {
         flateData.next_in = input;
-        flateData.avail_in = inputLength;
+        flateData.avail_in = SkToUInt(inputLength);
     }
 
     rc = Z_OK;
@@ -83,7 +83,7 @@ bool doFlate(bool compress, SkStream* src, SkWStream* dst) {
             if (read == 0)
                 break;
             flateData.next_in = inputBuffer;
-            flateData.avail_in = read;
+            flateData.avail_in = SkToUInt(read);
         }
         if (compress)
             rc = deflate(&flateData, Z_NO_FLUSH);

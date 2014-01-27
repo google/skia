@@ -272,7 +272,7 @@ public:
         buffer.setFlags(controller->getWriteBufferFlags());
 
         Traits::flatten(buffer, obj);
-        uint32_t size = buffer.size();
+        size_t size = buffer.size();
         SkASSERT(SkIsAlign4(size));
 
         // Allocate enough memory to hold SkFlatData struct and the flat data itself.
@@ -282,7 +282,7 @@ public:
         // Put the serialized contents into the data section of the new allocation.
         buffer.writeToMemory(result->data());
         // Stamp the index, size and checksum in the header.
-        result->stampHeader(index, size);
+        result->stampHeader(index, SkToS32(size));
         return result;
     }
 

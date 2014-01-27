@@ -186,7 +186,7 @@ protected:
         canvas->save();
         for (size_t s = 0; s < SK_ARRAY_COUNT(shaders); s++) {
             canvas->save();
-            int i = 2*s;
+            size_t i = 2*s;
             canvas->translate(SkIntToScalar((i / testsPerCol) * colWidth),
                               SkIntToScalar((i % testsPerCol) * rowHeight));
             paint.setShader(shaders[s])->unref();

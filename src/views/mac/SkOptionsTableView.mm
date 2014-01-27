@@ -66,7 +66,7 @@
     int menuIndex = fMenus->find(const_cast<SkOSMenu *>(menu));
     if (menuIndex >= 0 && menuIndex < fMenus->count()) {
         NSUInteger first = 0;
-        for (NSInteger i = 0; i < menuIndex; ++i) {
+        for (int i = 0; i < menuIndex; ++i) {
             first += (*fMenus)[i]->getCount();
         }
         [fItems removeObjectsInRange:NSMakeRange(first, [fItems count] - first)];
@@ -148,7 +148,7 @@
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    int columnIndex = [tableView columnWithIdentifier:[tableColumn identifier]];
+    NSInteger columnIndex = [tableView columnWithIdentifier:[tableColumn identifier]];
     if (columnIndex == 0) {
         const SkOSMenu::Item* item = ((SkOptionItem*)[fItems objectAtIndex:row]).fItem;
         NSString* label = [NSString stringWithUTF8String:item->getLabel()];
@@ -163,7 +163,7 @@
 
 - (NSCell *)tableView:(NSTableView *)tableView dataCellForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     if (tableColumn) {
-        int columnIndex = [tableView columnWithIdentifier:[tableColumn identifier]];
+        NSInteger columnIndex = [tableView columnWithIdentifier:[tableColumn identifier]];
         if (columnIndex == 1)
             return [((SkOptionItem*)[fItems objectAtIndex:row]).fCell copy];
         else
@@ -173,7 +173,7 @@
 }
 
 - (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    int columnIndex = [tableView columnWithIdentifier:[tableColumn identifier]];
+    NSInteger columnIndex = [tableView columnWithIdentifier:[tableColumn identifier]];
     if (columnIndex == 1) {
         SkOptionItem* option = (SkOptionItem*)[self.fItems objectAtIndex:row];
         NSCell* storedCell = option.fCell;
@@ -207,7 +207,7 @@
 }
 
 - (void)tableView:(NSTableView *)tableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    int columnIndex = [tableView columnWithIdentifier:[tableColumn identifier]];
+    NSInteger columnIndex = [tableView columnWithIdentifier:[tableColumn identifier]];
     if (columnIndex == 1) {
         SkOptionItem* option = (SkOptionItem*)[self.fItems objectAtIndex:row];
         NSCell* cell = option.fCell;

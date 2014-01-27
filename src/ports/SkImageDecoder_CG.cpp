@@ -66,8 +66,8 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     }
     SkAutoTCallVProc<CGImage, CGImageRelease> arimage(image);
 
-    const int width = CGImageGetWidth(image);
-    const int height = CGImageGetHeight(image);
+    const int width = SkToInt(CGImageGetWidth(image));
+    const int height = SkToInt(CGImageGetHeight(image));
     bm->setConfig(SkBitmap::kARGB_8888_Config, width, height);
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;

@@ -27,8 +27,8 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        size_t width = kNumPolygons * kCellSize + 40;
-        size_t height = (kNumJoins * kNumStrokeWidths + kNumExtraStyles) * kCellSize + 40;
+        int width = kNumPolygons * kCellSize + 40;
+        int height = (kNumJoins * kNumStrokeWidths + kNumExtraStyles) * kCellSize + 40;
         return SkISize::Make(width, height);
     }
 

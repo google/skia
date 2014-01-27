@@ -74,11 +74,12 @@ static bool check_bitmap_margin(const SkBitmap& bm, int margin) {
             return false;
         }
         // left column
-        if (!check_zeros(bm.getAddr32(i, 0), bm.height(), rb >> 2)) {
+        if (!check_zeros(bm.getAddr32(i, 0), bm.height(), SkToInt(rb >> 2))) {
             return false;
         }
         int right = bm.width() - margin + i;
-        if (!check_zeros(bm.getAddr32(right, 0), bm.height(), rb >> 2)) {
+        if (!check_zeros(bm.getAddr32(right, 0), bm.height(),
+                         SkToInt(rb >> 2))) {
             return false;
         }
     }

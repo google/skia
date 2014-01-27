@@ -50,7 +50,7 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gFaces); i++) {
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(gFaces); i++) {
             this->drawWithFace(text, i, y, paint, canvas);
         }
         // Now go backwards

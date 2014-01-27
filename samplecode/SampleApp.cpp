@@ -128,7 +128,7 @@ static bool readTitleFromPrefs(SkString* title) {
         return false;
     }
 
-    int len = stream.getLength();
+    size_t len = stream.getLength();
     SkString data(len);
     stream.read(data.writable_str(), len);
     const char* s = data.c_str();

@@ -333,7 +333,7 @@ protected:
                                               unsigned modi) SK_OVERRIDE {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); ++i) {
             if (hittest(fPts[i], x, y)) {
-                return new MyClick(this, i);
+                return new MyClick(this, (int)i);
             }
         }
         return this->INHERITED::onFindClickHandler(x, y, modi);

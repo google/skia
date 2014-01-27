@@ -33,7 +33,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         // explicitly add spaces, to test a prev. bug
         const char* text = "Ham bur ge fons";
-        size_t len = strlen(text);
+        int len = SkToInt(strlen(text));
         SkPath path;
 
         SkPaint paint;
@@ -54,7 +54,7 @@ protected:
         SkLCGRandom rand;
         SkScalar x = SkIntToScalar(20);
         SkScalar y = SkIntToScalar(100);
-        for (size_t i = 0; i < len; ++i) {
+        for (int i = 0; i < len; ++i) {
             pos[i].set(x, y + rand.nextSScalar1() * 24);
             x += widths[i];
         }

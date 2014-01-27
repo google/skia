@@ -117,7 +117,7 @@ protected:
 
         canvas->translate(SkIntToScalar(8), SkIntToScalar(8));
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gFilterProc); ++i) {
+        for (int i = 0; i < (int)SK_ARRAY_COUNT(gFilterProc); ++i) {
             int ix = i % 4;
             int iy = i / 4;
 

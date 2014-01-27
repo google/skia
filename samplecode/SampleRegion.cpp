@@ -123,7 +123,7 @@ inline float roundf(float x) { return (x-floor(x))>0.5 ? ceil(x) : floor(x); }
 
 #ifdef SK_DEBUG
 static void make_rgn(SkRegion* rgn, int left, int top, int right, int bottom,
-                     size_t count, int32_t runs[]) {
+                     int count, int32_t runs[]) {
     SkIRect r;
     r.set(left, top, right, bottom);
 

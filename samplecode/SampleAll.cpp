@@ -336,10 +336,10 @@ protected:
         SkRect rect = {0, 0, SkIntToScalar(40), SkIntToScalar(40) };
         SkRect rect2 = {0, 0, SkIntToScalar(65), SkIntToScalar(20) };
         SkScalar left = 0, top = 0, x = 0, y = 0;
-        size_t index;
+        int index;
 
         char ascii[] = "ascii...";
-        size_t asciiLength = sizeof(ascii) - 1;
+        int asciiLength = sizeof(ascii) - 1;
         char utf8[] = "utf8" "\xe2\x80\xa6";
         short utf16[] = {'u', 't', 'f', '1', '6', 0x2026 };
         short utf16simple[] = {'u', 't', 'f', '1', '6', '!' };
@@ -602,7 +602,7 @@ SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
         SkString str("GOOGLE");
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++) {
-            apply_shader(&paint, i);
+            apply_shader(&paint, (int)i);
 
           //  paint.setMaskFilter(NULL);
           //  paint.setColor(SK_ColorBLACK);
