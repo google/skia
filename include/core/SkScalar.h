@@ -202,7 +202,7 @@ static inline bool SkScalarNearlyEqual(SkScalar x, SkScalar y,
 */
 static inline SkScalar SkScalarInterp(SkScalar A, SkScalar B, SkScalar t) {
     SkASSERT(t >= 0 && t <= SK_Scalar1);
-    return A + SkScalarMul(B - A, t);
+    return A + (B - A) * t;
 }
 
 /** Interpolate along the function described by (keys[length], values[length])
