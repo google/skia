@@ -321,7 +321,12 @@ bool SkBitmap::setAlphaType(SkAlphaType alphaType) {
     if (!validate_alphaType(this->config(), alphaType, &alphaType)) {
         return false;
     }
-    fAlphaType = SkToU8(alphaType);
+    if (fAlphaType != alphaType) {
+        fAlphaType = SkToU8(alphaType);
+        if (fPixelRef) {
+            fPixelRef->notifyPixelsChanged(alphaType);
+        }
+    }
     return true;
 }
 

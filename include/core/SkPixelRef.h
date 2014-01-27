@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2008 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkPixelRef_DEFINED
 #define SkPixelRef_DEFINED
@@ -128,11 +126,19 @@ public:
     */
     uint32_t getGenerationID() const;
 
-    /** Call this if you have changed the contents of the pixels. This will in-
-        turn cause a different generation ID value to be returned from
-        getGenerationID().
-    */
-    void notifyPixelsChanged();
+    /**
+     *  Call this if you have changed the contents of the pixels. This will in-
+     *  turn cause a different generation ID value to be returned from
+     *  getGenerationID().
+     *
+     *  If the alphatype has also changed, specify its new value as well. If
+     *  the new pixels' alphatype is the same, this can be called with no
+     *  parameter.
+     */
+    void notifyPixelsChanged(SkAlphaType);
+    void notifyPixelsChanged() {
+        this->notifyPixelsChanged(fInfo.fAlphaType);
+    }
 
     /** Returns true if this pixelref is marked as immutable, meaning that the
         contents of its pixels will not change for the lifetime of the pixelref.
@@ -333,6 +339,7 @@ protected:
 private:
     SkBaseMutex*    fMutex; // must remain in scope for the life of this object
 
+    // mostly const. fInfo.fAlpahType can be changed at runtime.
     const SkImageInfo fInfo;
 
     // LockRec is only valid if we're in a locked state (isLocked())

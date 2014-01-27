@@ -128,6 +128,13 @@ public:
      *  Set the bitmap's alphaType, returning true on success. If false is
      *  returned, then the specified new alphaType is incompatible with the
      *  Config, and the current alphaType is unchanged.
+     *
+     *  Note: this changes the alphatype for the underlying pixels, which means
+     *  that all bitmaps that might be sharing (subsets of) the pixels will
+     *  be affected. This is an expensive change for some backends (e.g. GPU)
+     *  since changing the alphatype can invalidate internal caches. Thus this
+     *  call should only be made if it is associated with real changes to the
+     *  pixel data.
      */
     bool setAlphaType(SkAlphaType);
 

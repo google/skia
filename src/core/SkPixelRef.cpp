@@ -254,12 +254,13 @@ void SkPixelRef::callGenIDChangeListeners() {
     fGenIDChangeListeners.deleteAll();
 }
 
-void SkPixelRef::notifyPixelsChanged() {
+void SkPixelRef::notifyPixelsChanged(SkAlphaType at) {
 #ifdef SK_DEBUG
     if (fIsImmutable) {
         SkDebugf("========== notifyPixelsChanged called on immutable pixelref");
     }
 #endif
+    *const_cast<SkAlphaType*>(&fInfo.fAlphaType) = at;
     this->callGenIDChangeListeners();
     this->needsNewGenID();
 }
