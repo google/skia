@@ -68,4 +68,9 @@ DEF_TEST(GrUnitTests_binHashKey, reporter) {
 }
 
 
+DEF_TEST(GrUnitTests_redBlackTree, reporter) {
+    // TODO(mtklein): unwrap this and use reporter.
+    GrRedBlackTree<int>::UnitTest();
+}
+
 #endif
