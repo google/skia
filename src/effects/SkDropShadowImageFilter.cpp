@@ -79,6 +79,8 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
 
     SkVector sigma, localSigma = SkVector::Make(fSigmaX, fSigmaY);
     matrix.mapVectors(&sigma, &localSigma, 1);
+    sigma.fX = SkMaxScalar(0, sigma.fX);
+    sigma.fY = SkMaxScalar(0, sigma.fY);
     SkAutoTUnref<SkImageFilter> blurFilter(new SkBlurImageFilter(sigma.fX, sigma.fY));
     SkAutoTUnref<SkColorFilter> colorFilter(SkColorFilter::CreateModeFilter(fColor, SkXfermode::kSrcIn_Mode));
     SkPaint paint;
