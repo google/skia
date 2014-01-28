@@ -131,10 +131,7 @@ public:
      *
      *  Note: this changes the alphatype for the underlying pixels, which means
      *  that all bitmaps that might be sharing (subsets of) the pixels will
-     *  be affected. This is an expensive change for some backends (e.g. GPU)
-     *  since changing the alphatype can invalidate internal caches. Thus this
-     *  call should only be made if it is associated with real changes to the
-     *  pixel data.
+     *  be affected.
      */
     bool setAlphaType(SkAlphaType);
 

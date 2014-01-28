@@ -324,7 +324,7 @@ bool SkBitmap::setAlphaType(SkAlphaType alphaType) {
     if (fAlphaType != alphaType) {
         fAlphaType = SkToU8(alphaType);
         if (fPixelRef) {
-            fPixelRef->notifyPixelsChanged(alphaType);
+            fPixelRef->changeAlphaType(alphaType);
         }
     }
     return true;
