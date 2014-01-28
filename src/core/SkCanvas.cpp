@@ -335,7 +335,8 @@ private:
 class AutoDrawLooper {
 public:
     AutoDrawLooper(SkCanvas* canvas, const SkPaint& paint,
-                   bool skipLayerForImageFilter = false) : fOrigPaint(paint) {
+                   bool skipLayerForImageFilter = false,
+                   const SkRect* bounds = NULL) : fOrigPaint(paint) {
         fCanvas = canvas;
         fLooper = paint.getLooper();
         fFilter = canvas->getDrawFilter();
@@ -347,8 +348,7 @@ public:
         if (!skipLayerForImageFilter && fOrigPaint.getImageFilter()) {
             SkPaint tmp;
             tmp.setImageFilter(fOrigPaint.getImageFilter());
-            // it would be nice if we had a guess at the bounds, instead of null
-            (void)canvas->internalSaveLayer(NULL, &tmp,
+            (void)canvas->internalSaveLayer(bounds, &tmp,
                                     SkCanvas::kARGB_ClipLayer_SaveFlag, true);
             // we'll clear the imageFilter for the actual draws in next(), so
             // it will only be applied during the restore().
@@ -471,9 +471,9 @@ private:
         SkAutoBounderCommit ac(fBounder);                           \
         SkDrawIter          iter(this);
 
-#define LOOPER_BEGIN(paint, type)                                   \
+#define LOOPER_BEGIN(paint, type, bounds)                           \
     this->predrawNotify();                                          \
-    AutoDrawLooper  looper(this, paint);                            \
+    AutoDrawLooper  looper(this, paint, false, bounds);             \
     while (looper.next(type)) {                                     \
         SkAutoBounderCommit ac(fBounder);                           \
         SkDrawIter          iter(this);
@@ -972,7 +972,15 @@ void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap,
     SkDEBUGCODE(bitmap.validate();)
     CHECK_LOCKCOUNT_BALANCE(bitmap);
 
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type)
+    SkRect storage;
+    const SkRect* bounds = NULL;
+    if (paint && paint->canComputeFastBounds()) {
+        bitmap.getBounds(&storage);
+        matrix.mapRect(&storage);
+        bounds = &paint->computeFastBounds(storage, &storage);
+    }
+
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
 
     while (iter.next()) {
         iter.fDevice->drawBitmap(iter, bitmap, matrix, looper.paint());
@@ -1572,7 +1580,7 @@ void SkCanvas::drawPaint(const SkPaint& paint) {
 void SkCanvas::internalDrawPaint(const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kPaint_Type)
+    LOOPER_BEGIN(paint, SkDrawFilter::kPaint_Type, NULL)
 
     while (iter.next()) {
         iter.fDevice->drawPaint(iter, looper.paint());
@@ -1589,23 +1597,24 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
 
     CHECK_SHADER_NOSETCONTEXT(paint);
 
+    SkRect r, storage;
+    const SkRect* bounds = NULL;
     if (paint.canComputeFastBounds()) {
-        SkRect r;
         // special-case 2 points (common for drawing a single line)
         if (2 == count) {
             r.set(pts[0], pts[1]);
         } else {
             r.set(pts, SkToInt(count));
         }
-        SkRect storage;
-        if (this->quickReject(paint.computeFastStrokeBounds(r, &storage))) {
+        bounds = &paint.computeFastStrokeBounds(r, &storage);
+        if (this->quickReject(*bounds)) {
             return;
         }
     }
 
     SkASSERT(pts != NULL);
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kPoint_Type)
+    LOOPER_BEGIN(paint, SkDrawFilter::kPoint_Type, bounds)
 
     while (iter.next()) {
         iter.fDevice->drawPoints(iter, mode, count, pts, looper.paint());
@@ -1617,14 +1626,16 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
 void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
+    SkRect storage;
+    const SkRect* bounds = NULL;
     if (paint.canComputeFastBounds()) {
-        SkRect storage;
-        if (this->quickReject(paint.computeFastBounds(r, &storage))) {
+        bounds = &paint.computeFastBounds(r, &storage);
+        if (this->quickReject(*bounds)) {
             return;
         }
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kRect_Type)
+    LOOPER_BEGIN(paint, SkDrawFilter::kRect_Type, bounds)
 
     while (iter.next()) {
         iter.fDevice->drawRect(iter, r, looper.paint());
@@ -1636,14 +1647,16 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
 void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
+    SkRect storage;
+    const SkRect* bounds = NULL;
     if (paint.canComputeFastBounds()) {
-        SkRect storage;
-        if (this->quickReject(paint.computeFastBounds(oval, &storage))) {
+        bounds = &paint.computeFastBounds(oval, &storage);
+        if (this->quickReject(*bounds)) {
             return;
         }
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kOval_Type)
+    LOOPER_BEGIN(paint, SkDrawFilter::kOval_Type, bounds)
 
     while (iter.next()) {
         iter.fDevice->drawOval(iter, oval, looper.paint());
@@ -1655,9 +1668,11 @@ void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
 void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
+    SkRect storage;
+    const SkRect* bounds = NULL;
     if (paint.canComputeFastBounds()) {
-        SkRect storage;
-        if (this->quickReject(paint.computeFastBounds(rrect.getBounds(), &storage))) {
+        bounds = &paint.computeFastBounds(rrect.getBounds(), &storage);
+        if (this->quickReject(*bounds)) {
             return;
         }
     }
@@ -1672,7 +1687,7 @@ void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         return;
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type)
+    LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type, bounds)
 
     while (iter.next()) {
         iter.fDevice->drawRRect(iter, rrect, looper.paint());
@@ -1689,10 +1704,12 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
         return;
     }
 
+    SkRect storage;
+    const SkRect* bounds = NULL;
     if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
-        SkRect storage;
-        const SkRect& bounds = path.getBounds();
-        if (this->quickReject(paint.computeFastBounds(bounds, &storage))) {
+        const SkRect& pathBounds = path.getBounds();
+        bounds = &paint.computeFastBounds(pathBounds, &storage);
+        if (this->quickReject(*bounds)) {
             return;
         }
     }
@@ -1703,7 +1720,7 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
         return;
     }
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type)
+    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, bounds)
 
     while (iter.next()) {
         iter.fDevice->drawPath(iter, path, looper.paint());
@@ -1745,9 +1762,9 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
 
     CHECK_LOCKCOUNT_BALANCE(bitmap);
 
+    SkRect storage;
+    const SkRect* bounds = &dst;
     if (NULL == paint || paint->canComputeFastBounds()) {
-        SkRect storage;
-        const SkRect* bounds = &dst;
         if (paint) {
             bounds = &paint->computeFastBounds(dst, &storage);
         }
@@ -1761,7 +1778,7 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
         paint = lazy.init();
     }
 
-    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type)
+    LOOPER_BEGIN(*paint, SkDrawFilter::kBitmap_Type, bounds)
 
     while (iter.next()) {
         iter.fDevice->drawBitmapRect(iter, bitmap, src, dst, looper.paint(), flags);
@@ -1955,7 +1972,7 @@ void SkCanvas::drawText(const void* text, size_t byteLength,
                         SkScalar x, SkScalar y, const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type)
+    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
 
     while (iter.next()) {
         SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
@@ -1971,7 +1988,7 @@ void SkCanvas::drawPosText(const void* text, size_t byteLength,
                            const SkPoint pos[], const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type)
+    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
 
     while (iter.next()) {
         SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
@@ -1987,7 +2004,7 @@ void SkCanvas::drawPosTextH(const void* text, size_t byteLength,
                             const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type)
+    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
 
     while (iter.next()) {
         SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
@@ -2003,7 +2020,7 @@ void SkCanvas::drawTextOnPath(const void* text, size_t byteLength,
                               const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type)
+    LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
 
     while (iter.next()) {
         iter.fDevice->drawTextOnPath(iter, text, byteLength, path,
@@ -2020,7 +2037,7 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount,
                             const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
-    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type)
+    LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type, NULL)
 
     while (iter.next()) {
         iter.fDevice->drawVertices(iter, vmode, vertexCount, verts, texs,

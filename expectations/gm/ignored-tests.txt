@@ -45,3 +45,13 @@ displacement
 # Will need rebaselining
 scaled_tilemodes_npot
 giantbitmap_repeat_bilerp_scale
+
+# Added by senorblanco for slight pixel changes in https://codereview.chromium.org/141433017/
+imagefiltersbase
+imagefilterscropped
+imagefiltersgraph
+imagefiltersscaled
+dropshadowimagefilter
+offsetimagefilter
+spritebitmap
+tileimagefilter
