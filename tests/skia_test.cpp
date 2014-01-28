@@ -34,7 +34,8 @@ DEFINE_string2(resourcePath, i, "resources", "directory for test resources.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
 DEFINE_bool2(leaks, l, false, "show leaked ref cnt'd objects.");
 DEFINE_bool2(single, z, false, "run tests on a single thread internally.");
-DEFINE_bool2(verbose, v, false, "enable verbose output.");
+DEFINE_bool2(verbose, v, false, "enable verbose output from the test driver.");
+DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.");
 DEFINE_int32(threads, SkThreadPool::kThreadPerCore,
              "Run threadsafe tests on a threadpool with this many threads.");
 
@@ -67,7 +68,7 @@ public:
 
     virtual bool allowExtendedTest() const SK_OVERRIDE { return FLAGS_extendedTest; }
     virtual bool allowThreaded()     const SK_OVERRIDE { return !FLAGS_single; }
-    virtual bool verbose()           const SK_OVERRIDE { return FLAGS_verbose; }
+    virtual bool verbose()           const SK_OVERRIDE { return FLAGS_veryVerbose; }
 
 protected:
     virtual void onReportFailed(const SkString& desc) SK_OVERRIDE {
