@@ -10,26 +10,140 @@
 #include "SkUtilsArm.h"
 #include "SkBitmapProcState_utils.h"
 
+#include <arm_neon.h>
+
 extern const SkBitmapProcState::MatrixProc ClampX_ClampY_Procs_neon[];
 extern const SkBitmapProcState::MatrixProc RepeatX_RepeatY_Procs_neon[];
 
 static void decal_nofilter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 static void decal_filter_scale_neon(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 
-#define MAKENAME(suffix)        ClampX_ClampY ## suffix ## _neon
-#define TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
-#define TILEY_PROCF(fy, max)    SkClampMax((fy) >> 16, max)
-#define TILEX_LOW_BITS(fx, max) (((fx) >> 12) & 0xF)
-#define TILEY_LOW_BITS(fy, max) (((fy) >> 12) & 0xF)
-#define CHECK_FOR_DECAL
-#include "SkBitmapProcState_matrix_clamp_neon.h"
+// TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
+static inline int16x8_t sbpsm_clamp_tile8(int32x4_t low, int32x4_t high, unsigned max) {
+    int16x8_t res;
 
-#define MAKENAME(suffix)        RepeatX_RepeatY ## suffix ## _neon
-#define TILEX_PROCF(fx, max)    SK_USHIFT16(((fx) & 0xFFFF) * ((max) + 1))
-#define TILEY_PROCF(fy, max)    SK_USHIFT16(((fy) & 0xFFFF) * ((max) + 1))
-#define TILEX_LOW_BITS(fx, max) ((((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
-#define TILEY_LOW_BITS(fy, max) ((((fy) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
-#include "SkBitmapProcState_matrix_repeat_neon.h"
+    // get the hi 16s of all those 32s
+    res = vuzpq_s16(vreinterpretq_s16_s32(low), vreinterpretq_s16_s32(high)).val[1];
+
+    // clamp
+    res = vmaxq_s16(res, vdupq_n_s16(0));
+    res = vminq_s16(res, vdupq_n_s16(max));
+
+    return res;
+}
+
+// TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
+static inline int32x4_t sbpsm_clamp_tile4(int32x4_t f, unsigned max) {
+    int32x4_t res;
+
+    // get the hi 16s of all those 32s
+    res = vshrq_n_s32(f, 16);
+
+    // clamp
+    res = vmaxq_s32(res, vdupq_n_s32(0));
+    res = vminq_s32(res, vdupq_n_s32(max));
+
+    return res;
+}
+
+// TILEY_LOW_BITS(fy, max)         (((fy) >> 12) & 0xF)
+static inline int32x4_t sbpsm_clamp_tile4_low_bits(int32x4_t fx) {
+    int32x4_t ret;
+
+    ret = vshrq_n_s32(fx, 12);
+
+    /* We don't need the mask below because the caller will
+     * overwrite the non-masked bits
+     */
+    //ret = vandq_s32(ret, vdupq_n_s32(0xF));
+
+    return ret;
+}
+
+// TILEX_PROCF(fx, max) (((fx)&0xFFFF)*((max)+1)>> 16)
+static inline int16x8_t sbpsm_repeat_tile8(int32x4_t low, int32x4_t high, unsigned max) {
+    uint16x8_t res;
+    uint32x4_t tmpl, tmph;
+
+    // get the lower 16 bits
+    res = vuzpq_u16(vreinterpretq_u16_s32(low), vreinterpretq_u16_s32(high)).val[0];
+
+    // bare multiplication, not SkFixedMul
+    tmpl = vmull_u16(vget_low_u16(res), vdup_n_u16(max+1));
+    tmph = vmull_u16(vget_high_u16(res), vdup_n_u16(max+1));
+
+    // extraction of the 16 upper bits
+    res = vuzpq_u16(vreinterpretq_u16_u32(tmpl), vreinterpretq_u16_u32(tmph)).val[1];
+
+    return vreinterpretq_s16_u16(res);
+}
+
+// TILEX_PROCF(fx, max) (((fx)&0xFFFF)*((max)+1)>> 16)
+static inline int32x4_t sbpsm_repeat_tile4(int32x4_t f, unsigned max) {
+    uint16x4_t res;
+    uint32x4_t tmp;
+
+    // get the lower 16 bits
+    res = vmovn_u32(vreinterpretq_u32_s32(f));
+
+    // bare multiplication, not SkFixedMul
+    tmp = vmull_u16(res, vdup_n_u16(max+1));
+
+    // extraction of the 16 upper bits
+    tmp = vshrq_n_u32(tmp, 16);
+
+    return vreinterpretq_s32_u32(tmp);
+}
+
+// TILEX_LOW_BITS(fx, max)         ((((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+static inline int32x4_t sbpsm_repeat_tile4_low_bits(int32x4_t fx, unsigned max) {
+    uint16x4_t res;
+    uint32x4_t tmp;
+    int32x4_t ret;
+
+    // get the lower 16 bits
+    res = vmovn_u32(vreinterpretq_u32_s32(fx));
+
+    // bare multiplication, not SkFixedMul
+    tmp = vmull_u16(res, vdup_n_u16(max + 1));
+
+    // shift and mask
+    ret = vshrq_n_s32(vreinterpretq_s32_u32(tmp), 12);
+
+    /* We don't need the mask below because the caller will
+     * overwrite the non-masked bits
+     */
+    //ret = vandq_s32(ret, vdupq_n_s32(0xF));
+
+    return ret;
+}
+
+#define MAKENAME(suffix)                ClampX_ClampY ## suffix ## _neon
+#define TILEX_PROCF(fx, max)            SkClampMax((fx) >> 16, max)
+#define TILEY_PROCF(fy, max)            SkClampMax((fy) >> 16, max)
+#define TILEX_PROCF_NEON8(l, h, max)    sbpsm_clamp_tile8(l, h, max)
+#define TILEY_PROCF_NEON8(l, h, max)    sbpsm_clamp_tile8(l, h, max)
+#define TILEX_PROCF_NEON4(fx, max)      sbpsm_clamp_tile4(fx, max)
+#define TILEY_PROCF_NEON4(fy, max)      sbpsm_clamp_tile4(fy, max)
+#define TILEX_LOW_BITS(fx, max)         (((fx) >> 12) & 0xF)
+#define TILEY_LOW_BITS(fy, max)         (((fy) >> 12) & 0xF)
+#define TILEX_LOW_BITS_NEON4(fx, max)   sbpsm_clamp_tile4_low_bits(fx)
+#define TILEY_LOW_BITS_NEON4(fy, max)   sbpsm_clamp_tile4_low_bits(fy)
+#define CHECK_FOR_DECAL
+#include "SkBitmapProcState_matrix_neon.h"
+
+#define MAKENAME(suffix)                RepeatX_RepeatY ## suffix ## _neon
+#define TILEX_PROCF(fx, max)            SK_USHIFT16(((fx) & 0xFFFF) * ((max) + 1))
+#define TILEY_PROCF(fy, max)            SK_USHIFT16(((fy) & 0xFFFF) * ((max) + 1))
+#define TILEX_PROCF_NEON8(l, h, max)    sbpsm_repeat_tile8(l, h, max)
+#define TILEY_PROCF_NEON8(l, h, max)    sbpsm_repeat_tile8(l, h, max)
+#define TILEX_PROCF_NEON4(fx, max)      sbpsm_repeat_tile4(fx, max)
+#define TILEY_PROCF_NEON4(fy, max)      sbpsm_repeat_tile4(fy, max)
+#define TILEX_LOW_BITS(fx, max)         ((((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+#define TILEY_LOW_BITS(fy, max)         ((((fy) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+#define TILEX_LOW_BITS_NEON4(fx, max)   sbpsm_repeat_tile4_low_bits(fx, max)
+#define TILEY_LOW_BITS_NEON4(fy, max)   sbpsm_repeat_tile4_low_bits(fy, max)
+#include "SkBitmapProcState_matrix_neon.h"
 
 
 
