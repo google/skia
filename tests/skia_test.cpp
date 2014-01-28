@@ -35,6 +35,8 @@ DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
 DEFINE_bool2(leaks, l, false, "show leaked ref cnt'd objects.");
 DEFINE_bool2(single, z, false, "run tests on a single thread internally.");
 DEFINE_bool2(verbose, v, false, "enable verbose output.");
+DEFINE_bool(cpu, true, "whether or not to run CPU tests.");
+DEFINE_bool(gpu, true, "whether or not to run GPU tests.");
 DEFINE_int32(threads, SkThreadPool::kThreadPerCore,
              "Run threadsafe tests on a threadpool with this many threads.");
 
@@ -124,6 +126,19 @@ private:
     int32_t* fFailCount;
 };
 
+static bool should_run(const char* testName, bool isGPUTest) {
+    if (SkCommandLineFlags::ShouldSkip(FLAGS_match, testName)) {
+        return false;
+    }
+    if (!FLAGS_cpu && !isGPUTest) {
+        return false;
+    }
+    if (!FLAGS_gpu && isGPUTest) {
+        return false;
+    }
+    return true;
+}
+
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("");
@@ -171,8 +186,7 @@ int tool_main(int argc, char** argv) {
     Iter iter;
     while ((test = iter.next(NULL/*reporter not needed*/)) != NULL) {
         SkAutoTDelete<Test> owned(test);
-
-        if(!SkCommandLineFlags::ShouldSkip(FLAGS_match, test->getName())) {
+        if (should_run(test->getName(), test->isGPUTest())) {
             toRun++;
         }
         total++;
@@ -189,9 +203,9 @@ int tool_main(int argc, char** argv) {
     DebugfReporter reporter(toRun);
     for (int i = 0; i < total; i++) {
         SkAutoTDelete<Test> test(iter.next(&reporter));
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test->getName())) {
+        if (!should_run(test->getName(), test->isGPUTest())) {
             ++skipCount;
-        } else if (!test->isThreadsafe()) {
+        } else if (!test->isGPUTest()) {
             unsafeTests.push_back() = test.detach();
         } else {
             threadpool.add(SkNEW_ARGS(SkTestRunnable, (test.detach(), &failCount)));
