@@ -933,7 +933,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
         // transform the path into device space
         pathPtr->transform(fContext->getMatrix(), devPathPtr);
-        
+
         SkRect maskRect;
         if (paint.getMaskFilter()->canFilterMaskGPU(devPathPtr->getBounds(),
                                                     draw.fClip->getBounds(),
@@ -951,13 +951,6 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
             }
             if (NULL != draw.fBounder && !draw.fBounder->doIRect(finalIRect)) {
                 // nothing to draw
-                return;
-            }
-            
-            if (paint.getMaskFilter()->directFilterMaskGPU(fContext, &grPaint,
-                                                           SkStrokeRec(paint), *devPathPtr)) {
-                // the mask filter was able to draw itself directly, so there's nothing
-                // left to do.
                 return;
             }
 

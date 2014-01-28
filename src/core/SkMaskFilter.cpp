@@ -309,13 +309,6 @@ bool SkMaskFilter::canFilterMaskGPU(const SkRect& devBounds,
     return false;
 }
 
- bool SkMaskFilter::directFilterMaskGPU(GrContext* context,
-                                        GrPaint* grp,
-                                        const SkStrokeRec& strokeRec,
-                                        const SkPath& path) const {
-    return false;
-}
-
 
 bool SkMaskFilter::filterMaskGPU(GrTexture* src,
                                  const SkMatrix& ctm,
