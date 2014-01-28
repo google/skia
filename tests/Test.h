@@ -64,7 +64,7 @@ namespace skiatest {
 
         static SkString GetResourcePath();
 
-        virtual bool isGPUTest() const { return false; }
+        virtual bool isThreadsafe() const { return true; }
 
     protected:
         virtual void onGetName(SkString*) = 0;
@@ -82,7 +82,7 @@ namespace skiatest {
         GpuTest() : Test() {}
         static GrContextFactory* GetGrContextFactory();
         static void DestroyContexts();
-        virtual bool isGPUTest() const { return true; }
+        virtual bool isThreadsafe() const { return false; }
     private:
     };
 
