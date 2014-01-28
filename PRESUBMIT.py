@@ -20,6 +20,7 @@ PUBLIC_API_OWNERS = (
     'reed@google.com',
     'bsalomon@chromium.org',
     'bsalomon@google.com',
+    'rmistry@google.com',  # For emergency reverts only.
 )
 
 
