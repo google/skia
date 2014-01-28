@@ -1336,9 +1336,8 @@ struct SkP3D {
     }
 };
 
-// we just return the middle 3 points, since the first and last are dups of src
-//
-static void p3d_interp(const SkScalar src[3], SkScalar dst[3], SkScalar t) {
+// We only interpolate one dimension at a time (the first, at +0, +3, +6).
+static void p3d_interp(const SkScalar src[7], SkScalar dst[7], SkScalar t) {
     SkScalar ab = SkScalarInterp(src[0], src[3], t);
     SkScalar bc = SkScalarInterp(src[3], src[6], t);
     dst[0] = ab;
