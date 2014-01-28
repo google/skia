@@ -13,6 +13,7 @@
 #include "GrIndexBuffer.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
+#include "SkGpuDevice.h"
 #include "SkPath.h"
 #include "SkRTConf.h"
 #include "SkStrokeRec.h"
@@ -25,10 +26,11 @@ static const int kBaseDFFontSize = 32;
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
-GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
+GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context, 
                                                        const GrPaint& grPaint,
-                                                       const SkPaint& skPaint)
-                                                     : GrTextContext(context, grPaint, skPaint) {
+                                                       const SkPaint& skPaint, 
+                                                       const SkDeviceProperties& properties)
+                                            : GrTextContext(context, grPaint, skPaint, properties) {
     fStrike = NULL;
 
     fCurrTexture = NULL;
@@ -283,19 +285,23 @@ HAS_ATLAS:
 }
 
 void GrDistanceFieldTextContext::drawText(const char text[], size_t byteLength,
-                                          SkScalar x, SkScalar y, SkGlyphCache* cache,
-                                          GrFontScaler* fontScaler) {
+                                          SkScalar x, SkScalar y) {
     SkASSERT(byteLength == 0 || text != NULL);
 
-    // nothing to draw
-    if (text == NULL || byteLength == 0 /* no raster clip? || fRC->isEmpty()*/) {
+    // nothing to draw or can't draw
+    if (text == NULL || byteLength == 0 /* no raster clip? || fRC->isEmpty()*/
+        || fSkPaint.getRasterizer()) {
         return;
     }
-
+    
     SkScalar sizeRatio = fTextRatio;
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
+    SkAutoGlyphCache    autoCache(fSkPaint, &fDeviceProperties, NULL);
+    SkGlyphCache*       cache = autoCache.getCache();
+    GrFontScaler*       fontScaler = GetGrFontScaler(cache);
+    
     // need to measure first
     // TODO - generate positions and pre-load cache as well?
     const char* stop = text + byteLength;
@@ -348,19 +354,23 @@ void GrDistanceFieldTextContext::drawText(const char text[], size_t byteLength,
 
 void GrDistanceFieldTextContext::drawPosText(const char text[], size_t byteLength,
                                              const SkScalar pos[], SkScalar constY,
-                                             int scalarsPerPosition,
-                                             SkGlyphCache* cache, GrFontScaler* fontScaler) {
+                                             int scalarsPerPosition) {
 
     SkASSERT(byteLength == 0 || text != NULL);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
     // nothing to draw
-    if (text == NULL || byteLength == 0 /* no raster clip? || fRC->isEmpty()*/) {
+    if (text == NULL || byteLength == 0 /* no raster clip? || fRC->isEmpty()*/
+        || fSkPaint.getRasterizer()) {
         return;
     }
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
+    SkAutoGlyphCache    autoCache(fSkPaint, &fDeviceProperties, NULL);
+    SkGlyphCache*       cache = autoCache.getCache();
+    GrFontScaler*       fontScaler = GetGrFontScaler(cache);
+    
     const char*        stop = text + byteLength;
 
     if (SkPaint::kLeft_Align == fSkPaint.getTextAlign()) {

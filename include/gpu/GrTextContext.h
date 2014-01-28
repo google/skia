@@ -8,9 +8,10 @@
 #ifndef GrTextContext_DEFINED
 #define GrTextContext_DEFINED
 
-#include "GrContext.h"
+#include "GrPoint.h"
 #include "GrGlyph.h"
 #include "GrPaint.h"
+#include "SkDeviceProperties.h"
 
 #include "SkPostConfig.h"
 
@@ -24,18 +25,25 @@ class GrFontScaler;
 class GrTextContext {
 public:
     virtual ~GrTextContext() {}
-    virtual void drawPackedGlyph(GrGlyph::PackedID, GrFixed left, GrFixed top,
-                                 GrFontScaler*) = 0;
+    virtual void drawText(const char text[], size_t byteLength, SkScalar x, SkScalar y) = 0;
+    virtual void drawPosText(const char text[], size_t byteLength,
+                             const SkScalar pos[], SkScalar constY,
+                             int scalarsPerPosition) = 0;
 
 protected:
-    GrTextContext(GrContext*, const GrPaint&, const SkPaint&);
+    GrTextContext(GrContext*, const GrPaint&, const SkPaint&, const SkDeviceProperties&);
 
-    GrPaint                fPaint;
-    SkPaint                fSkPaint;
-    GrContext*             fContext;
-    GrDrawTarget*          fDrawTarget;
+    static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);
+    static void MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
+                            const char text[], size_t byteLength, SkVector* stopVector);
+    
+    GrContext*         fContext;
+    GrPaint            fPaint;
+    SkPaint            fSkPaint;
+    SkDeviceProperties fDeviceProperties;
+    GrDrawTarget*      fDrawTarget;
 
-    SkIRect                fClipRect;
+    SkIRect            fClipRect;
 };
 
 /*
@@ -45,8 +53,8 @@ protected:
 class GrTextContextManager {
 public:
     virtual ~GrTextContextManager() {}
-    virtual GrTextContext* create(GrContext* context, const GrPaint& grPaint,
-                                  const SkPaint& skPaint) = 0;
+    virtual GrTextContext* create(GrContext* grContext, const GrPaint& grPaint,
+                                  const SkPaint& skPaint, const SkDeviceProperties& props) = 0;
 };
 
 template <class TextContextClass>
@@ -54,13 +62,14 @@ class GrTTextContextManager : public GrTextContextManager {
 private:
     class ManagedTextContext : public TextContextClass {
     public:
-        ~ManagedTextContext() {}
+        virtual ~ManagedTextContext() {}
 
-        ManagedTextContext(GrContext* context,
+        ManagedTextContext(GrContext* grContext,
                            const GrPaint& grPaint,
                            const SkPaint& skPaint,
+                           const SkDeviceProperties& properties,
                            GrTTextContextManager<TextContextClass>* manager) :
-        TextContextClass(context, grPaint, skPaint) {
+                          TextContextClass(grContext, grPaint, skPaint, properties) {
             fManager = manager;
         }
 
@@ -84,17 +93,19 @@ public:
         fUsed = false;
     }
 
-    ~GrTTextContextManager() {
+    virtual ~GrTTextContextManager() {
         SkASSERT(!fUsed);
         sk_free(fAllocation);
     }
 
-    GrTextContext* create(GrContext* context, const GrPaint& grPaint,
-                          const SkPaint& skPaint) {
+    virtual GrTextContext* create(GrContext* grContext, const GrPaint& grPaint,
+                                  const SkPaint& skPaint, const SkDeviceProperties& properties) 
+                                 SK_OVERRIDE {
         // add check for usePath here?
         SkASSERT(!fUsed);
         ManagedTextContext* obj = SkNEW_PLACEMENT_ARGS(fAllocation, ManagedTextContext,
-                                                       (context, grPaint, skPaint, this));
+                                                       (grContext, grPaint, skPaint, properties,
+                                                        this));
         fUsed = true;
         return obj;
     }

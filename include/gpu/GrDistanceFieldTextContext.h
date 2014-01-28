@@ -17,26 +17,21 @@ class GrTextStrike;
  */
 class GrDistanceFieldTextContext : public GrTextContext {
 public:
-    virtual void drawPackedGlyph(GrGlyph::PackedID, GrFixed left, GrFixed top,
-                                 GrFontScaler*) SK_OVERRIDE;
-
-    void drawText(const char text[], size_t byteLength,
-                  SkScalar x, SkScalar y, SkGlyphCache*, GrFontScaler*);
-    void drawPosText(const char text[], size_t byteLength,
-                     const SkScalar pos[], SkScalar constY,
-                     int scalarsPerPosition,
-                     SkGlyphCache* cache, GrFontScaler* fontScaler);
-
-    const SkPaint& getSkPaint() { return fSkPaint; }
+    virtual void drawText(const char text[], size_t byteLength, SkScalar x, SkScalar y) SK_OVERRIDE;
+    virtual void drawPosText(const char text[], size_t byteLength,
+                             const SkScalar pos[], SkScalar constY,
+                             int scalarsPerPosition) SK_OVERRIDE;
 
 private:
-    GrDistanceFieldTextContext(GrContext*, const GrPaint&, const SkPaint&);
+    GrDistanceFieldTextContext(GrContext*, const GrPaint&, const SkPaint&, 
+                               const SkDeviceProperties&);
     virtual ~GrDistanceFieldTextContext();
     friend class GrTTextContextManager<GrDistanceFieldTextContext>;
 
     GrTextStrike*           fStrike;
     SkScalar                fTextRatio;
 
+    void drawPackedGlyph(GrGlyph::PackedID, GrFixed left, GrFixed top, GrFontScaler*);
     void flushGlyphs();                 // automatically called by destructor
 
     enum {

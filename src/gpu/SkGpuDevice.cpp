@@ -1766,58 +1766,6 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void GlyphCacheAuxProc(void* data) {
-    GrFontScaler* scaler = (GrFontScaler*)data;
-    SkSafeUnref(scaler);
-}
-
-static GrFontScaler* get_gr_font_scaler(SkGlyphCache* cache) {
-    void* auxData;
-    GrFontScaler* scaler = NULL;
-    if (cache->getAuxProcData(GlyphCacheAuxProc, &auxData)) {
-        scaler = (GrFontScaler*)auxData;
-    }
-    if (NULL == scaler) {
-        scaler = SkNEW_ARGS(SkGrFontScaler, (cache));
-        cache->setAuxProc(GlyphCacheAuxProc, scaler);
-    }
-    return scaler;
-}
-
-static void SkGPU_Draw1Glyph(const SkDraw1Glyph& state,
-                             SkFixed fx, SkFixed fy,
-                             const SkGlyph& glyph) {
-    SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
-
-    GrSkDrawProcs* procs = static_cast<GrSkDrawProcs*>(state.fDraw->fProcs);
-
-    if (NULL == procs->fFontScaler) {
-        procs->fFontScaler = get_gr_font_scaler(state.fCache);
-    }
-
-    procs->fTextContext->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(),
-                                                       glyph.getSubXFixed(),
-                                                       glyph.getSubYFixed()),
-                                         SkFixedFloorToFixed(fx),
-                                         SkFixedFloorToFixed(fy),
-                                         procs->fFontScaler);
-}
-
-SkDrawProcs* SkGpuDevice::initDrawForText(GrTextContext* context) {
-
-    // deferred allocation
-    if (NULL == fDrawProcs) {
-        fDrawProcs = SkNEW(GrSkDrawProcs);
-        fDrawProcs->fD1GProc = SkGPU_Draw1Glyph;
-        fDrawProcs->fContext = fContext;
-    }
-
-    // init our (and GL's) state
-    fDrawProcs->fTextContext = context;
-    fDrawProcs->fFontScaler = NULL;
-    return fDrawProcs;
-}
-
 void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
                           size_t byteLength, SkScalar x, SkScalar y,
                           const SkPaint& paint) {
@@ -1825,8 +1773,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
 
     if (SkDraw::ShouldDrawTextAsPaths(paint, fContext->getMatrix())) {
         draw.drawText_asPaths((const char*)text, byteLength, x, y, paint);
-#if SK_DISTANCEFIELD_FONTS
-    } else if (!paint.getRasterizer()) {
+    } else {
         GrPaint grPaint;
         if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
             return;
@@ -1834,27 +1781,10 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
 
         SkDEBUGCODE(this->validate();)
 
-        SkAutoTDelete<GrTextContext> context(fTextContextManager->create(fContext, grPaint, paint));
-        GrDistanceFieldTextContext* dfContext =
-                                            static_cast<GrDistanceFieldTextContext*>(context.get());
-
-        SkAutoGlyphCache    autoCache(dfContext->getSkPaint(), &this->fLeakyProperties, NULL);
-        SkGlyphCache*       cache = autoCache.getCache();
-        GrFontScaler*       fontScaler = get_gr_font_scaler(cache);
-
-        dfContext->drawText((const char *)text, byteLength, x, y, cache, fontScaler);
-#endif
-    } else {
-        SkDraw myDraw(draw);
-
-        GrPaint grPaint;
-        if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
-            return;
-        }
-
-        SkAutoTDelete<GrTextContext> context(fTextContextManager->create(fContext, grPaint, paint));
-        myDraw.fProcs = this->initDrawForText(context.get());
-        this->INHERITED::drawText(myDraw, text, byteLength, x, y, paint);
+        SkAutoTDelete<GrTextContext> ctx(fTextContextManager->create(this->context(), 
+                                                                     grPaint, paint,
+                                                                     this->getDeviceProperties()));
+        ctx->drawText((const char *)text, byteLength, x, y);
     }
 }
 
@@ -1868,8 +1798,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
         // this guy will just call our drawPath()
         draw.drawPosText_asPaths((const char*)text, byteLength, pos, constY,
                          scalarsPerPos, paint);
-#if SK_DISTANCEFIELD_FONTS
-    } else if (!paint.getRasterizer()) {
+    } else {
         GrPaint grPaint;
         if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
             return;
@@ -1877,29 +1806,10 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
 
         SkDEBUGCODE(this->validate();)
 
-        SkAutoTDelete<GrTextContext> context(fTextContextManager->create(fContext, grPaint, paint));
-        GrDistanceFieldTextContext* dfContext =
-                                            static_cast<GrDistanceFieldTextContext*>(context.get());
-
-        SkAutoGlyphCache    autoCache(dfContext->getSkPaint(), &this->fLeakyProperties, NULL);
-        SkGlyphCache*       cache = autoCache.getCache();
-        GrFontScaler*       fontScaler = get_gr_font_scaler(cache);
-
-        dfContext->drawPosText((const char *)text, byteLength, pos, constY, scalarsPerPos,
-                            cache, fontScaler);
-#endif
-    } else {
-        SkDraw myDraw(draw);
-
-        GrPaint grPaint;
-        if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
-            return;
-        }
-
-        SkAutoTDelete<GrTextContext> context(fTextContextManager->create(fContext, grPaint, paint));
-        myDraw.fProcs = this->initDrawForText(context.get());
-        this->INHERITED::drawPosText(myDraw, text, byteLength, pos, constY,
-                                        scalarsPerPos, paint);
+        SkAutoTDelete<GrTextContext> ctx(fTextContextManager->create(this->context(), 
+                                                                     grPaint, paint,
+                                                                     this->getDeviceProperties()));
+        ctx->drawPosText((const char *)text, byteLength, pos, constY, scalarsPerPos);
     }
 }
 
