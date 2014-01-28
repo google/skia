@@ -127,6 +127,11 @@ SkGrPixelRef::SkGrPixelRef(const SkImageInfo& info, GrSurface* surface,
     }
     fUnlock = transferCacheLock;
     SkSafeRef(surface);
+
+    if (fSurface) {
+        SkASSERT(info.fWidth <= fSurface->width());
+        SkASSERT(info.fHeight <= fSurface->height());
+    }
 }
 
 SkGrPixelRef::~SkGrPixelRef() {
@@ -174,9 +179,9 @@ bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
         height = subset->height();
     } else {
         left = 0;
-        width = fSurface->width();
+        width = this->info().fWidth;
         top = 0;
-        height = fSurface->height();
+        height = this->info().fHeight;
     }
     if (!dst->allocPixels(SkImageInfo::MakeN32Premul(width, height))) {
         SkDebugf("SkGrPixelRef::onReadPixels failed to alloc bitmap for result!\n");
