@@ -109,4 +109,3 @@ void SkDropShadowImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) 
                         SkScalarMul(fSigmaY, SkIntToScalar(3)));
     dst->join(shadowBounds);
 }
-
