@@ -37,6 +37,3 @@
 bleed
 blurrects
 simpleblurroundrect
-
-# Added by sugoi for added test in https://codereview.chromium.org/104853005
-displacement
