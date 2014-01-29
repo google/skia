@@ -36,7 +36,7 @@ protected:
     static GrFontScaler* GetGrFontScaler(SkGlyphCache* cache);
     static void MeasureText(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
                             const char text[], size_t byteLength, SkVector* stopVector);
-    
+
     GrContext*         fContext;
     GrPaint            fPaint;
     SkPaint            fSkPaint;
@@ -99,7 +99,7 @@ public:
     }
 
     virtual GrTextContext* create(GrContext* grContext, const GrPaint& grPaint,
-                                  const SkPaint& skPaint, const SkDeviceProperties& properties) 
+                                  const SkPaint& skPaint, const SkDeviceProperties& properties)
                                  SK_OVERRIDE {
         // add check for usePath here?
         SkASSERT(!fUsed);

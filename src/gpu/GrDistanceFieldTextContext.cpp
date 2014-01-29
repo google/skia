@@ -26,9 +26,9 @@ static const int kBaseDFFontSize = 32;
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
-GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context, 
+GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
                                                        const GrPaint& grPaint,
-                                                       const SkPaint& skPaint, 
+                                                       const SkPaint& skPaint,
                                                        const SkDeviceProperties& properties)
                                             : GrTextContext(context, grPaint, skPaint, properties) {
     fStrike = NULL;
@@ -293,7 +293,7 @@ void GrDistanceFieldTextContext::drawText(const char text[], size_t byteLength,
         || fSkPaint.getRasterizer()) {
         return;
     }
-    
+
     SkScalar sizeRatio = fTextRatio;
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
@@ -301,7 +301,7 @@ void GrDistanceFieldTextContext::drawText(const char text[], size_t byteLength,
     SkAutoGlyphCache    autoCache(fSkPaint, &fDeviceProperties, NULL);
     SkGlyphCache*       cache = autoCache.getCache();
     GrFontScaler*       fontScaler = GetGrFontScaler(cache);
-    
+
     // need to measure first
     // TODO - generate positions and pre-load cache as well?
     const char* stop = text + byteLength;
@@ -370,7 +370,7 @@ void GrDistanceFieldTextContext::drawPosText(const char text[], size_t byteLengt
     SkAutoGlyphCache    autoCache(fSkPaint, &fDeviceProperties, NULL);
     SkGlyphCache*       cache = autoCache.getCache();
     GrFontScaler*       fontScaler = GetGrFontScaler(cache);
-    
+
     const char*        stop = text + byteLength;
 
     if (SkPaint::kLeft_Align == fSkPaint.getTextAlign()) {

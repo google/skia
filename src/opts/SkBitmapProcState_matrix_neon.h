@@ -501,4 +501,3 @@ const SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
 
 #undef TILEX_LOW_BITS
 #undef TILEY_LOW_BITS
-

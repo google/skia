@@ -1781,7 +1781,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
 
         SkDEBUGCODE(this->validate();)
 
-        SkAutoTDelete<GrTextContext> ctx(fTextContextManager->create(this->context(), 
+        SkAutoTDelete<GrTextContext> ctx(fTextContextManager->create(this->context(),
                                                                      grPaint, paint,
                                                                      this->getDeviceProperties()));
         ctx->drawText((const char *)text, byteLength, x, y);
@@ -1806,7 +1806,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
 
         SkDEBUGCODE(this->validate();)
 
-        SkAutoTDelete<GrTextContext> ctx(fTextContextManager->create(this->context(), 
+        SkAutoTDelete<GrTextContext> ctx(fTextContextManager->create(this->context(),
                                                                      grPaint, paint,
                                                                      this->getDeviceProperties()));
         ctx->drawPosText((const char *)text, byteLength, pos, constY, scalarsPerPos);

@@ -28,9 +28,9 @@ static const int kGlyphCoordsAttributeIndex = 1;
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
-GrBitmapTextContext::GrBitmapTextContext(GrContext* context, 
+GrBitmapTextContext::GrBitmapTextContext(GrContext* context,
                                          const GrPaint& grPaint,
-                                         const SkPaint& skPaint, 
+                                         const SkPaint& skPaint,
                                          const SkDeviceProperties& properties)
                                        : GrTextContext(context, grPaint, skPaint, properties) {
     fStrike = NULL;
@@ -175,10 +175,10 @@ void GrBitmapTextContext::drawText(const char text[], size_t byteLength,
 
     SkFixed fx = SkScalarToFixed(x) + halfSampleX;
     SkFixed fy = SkScalarToFixed(y) + halfSampleY;
-    
+
     GrContext::AutoMatrix  autoMatrix;
     autoMatrix.setIdentity(fContext, &fPaint);
-    
+
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
 

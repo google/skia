@@ -23,7 +23,7 @@ public:
                              int scalarsPerPosition) SK_OVERRIDE;
 
 private:
-    GrDistanceFieldTextContext(GrContext*, const GrPaint&, const SkPaint&, 
+    GrDistanceFieldTextContext(GrContext*, const GrPaint&, const SkPaint&,
                                const SkDeviceProperties&);
     virtual ~GrDistanceFieldTextContext();
     friend class GrTTextContextManager<GrDistanceFieldTextContext>;
