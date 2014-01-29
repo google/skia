@@ -3854,19 +3854,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8227734820754620843
+          1966552287977766325
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "giantbitmap_repeat_bilerp_scale_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11021884726574795651
+          11041158342580812665
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "giantbitmap_repeat_bilerp_scale_gpu.png": {
       "allowed-digests": [
@@ -5665,7 +5665,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9162197287615168775
+          16215270999919172840
         ]
       ], 
       "reviewed-by-human": true
@@ -5674,7 +5674,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17508656898294586230
+          9564498152911686429
         ]
       ], 
       "reviewed-by-human": true
