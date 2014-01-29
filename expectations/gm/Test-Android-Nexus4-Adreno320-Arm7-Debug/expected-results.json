@@ -3254,7 +3254,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18398123925047342170
+          16680507190904691751
         ]
       ]
     }, 
@@ -3262,7 +3262,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          991640198575440299
+          8090640047570711952
         ]
       ]
     }, 
@@ -3270,7 +3270,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3168232272189534985
+          2445700369103439100
         ]
       ]
     }, 
@@ -4821,7 +4821,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9016022286984404607
+          17139612216301869294
         ]
       ], 
       "reviewed-by-human": true
@@ -4830,7 +4830,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15585179528101079312
+          13920167381067056533
         ]
       ], 
       "reviewed-by-human": true
@@ -4839,7 +4839,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13966337025390225276
+          2231023169440697354
         ]
       ], 
       "bugs": [
@@ -4851,7 +4851,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15073749481207332549
+          7542811853548128868
         ]
       ], 
       "reviewed-by-human": true
@@ -4860,7 +4860,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15260405540450063550
+          16895822524434410068
         ]
       ], 
       "reviewed-by-human": true
@@ -4869,7 +4869,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2225889285651825666
+          14614669819341764252
         ]
       ], 
       "bugs": [
@@ -4881,7 +4881,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14150773451901402341
+          5127407755163615831
         ]
       ], 
       "reviewed-by-human": true
@@ -4890,7 +4890,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4862268844794764053
+          8335932876498939389
         ]
       ], 
       "reviewed-by-human": true
@@ -4899,7 +4899,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1900314827253792783
+          2918237822256242298
         ]
       ], 
       "bugs": [
@@ -5479,7 +5479,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13098007693276018555
+          3676121376680130088
         ]
       ], 
       "bugs": [
@@ -5491,7 +5491,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5850459679494702608
+          5794918513835379528
         ]
       ], 
       "bugs": [
@@ -5503,7 +5503,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17576733748100839467
+          15374977910515073218
         ]
       ], 
       "bugs": [
@@ -6686,7 +6686,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1220854268623181534
+          13191469520101609257
         ]
       ], 
       "reviewed-by-human": true
@@ -6695,7 +6695,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10661725550913677712
+          6860279612325800412
         ]
       ], 
       "reviewed-by-human": true
@@ -6704,7 +6704,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7566101666495693097
+          3795681182846307899
         ]
       ], 
       "bugs": [
@@ -7103,7 +7103,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13363142967562868479
+          8413838685193151037
         ]
       ], 
       "bugs": [
@@ -7115,7 +7115,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          451915708011076936
+          1580164480705537097
         ]
       ], 
       "bugs": [
@@ -7127,7 +7127,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2501484540906851223
+          3920171017256395347
         ]
       ], 
       "bugs": [
