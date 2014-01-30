@@ -125,8 +125,6 @@ public:
      */
     void remove(const Iter& iter) { deleteAtNode(iter.fN); }
 
-    static void UnitTest();
-
 private:
     enum Color {
         kRed_Color,
