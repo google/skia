@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+// This is a GPU-backend specific test
+#if SK_SUPPORT_GPU
+
 #include "GrRedBlackTree.h"
 #include "SkRandom.h"
 #include "Test.h"
@@ -178,3 +181,5 @@ DEF_TEST(GrRedBlackTreeTest, reporter) {
     // test reset on empty tree.
     tree.reset();
 }
+
+#endif
