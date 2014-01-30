@@ -211,7 +211,7 @@ desk_booking.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Ar
 desk_carsvg.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,318.33,239.66,397.00
 desk_chalkboard.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,481.54,370.23,592.85
 desk_css3gradients.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,9.98,-7.02,26.98
-desk_ebay.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,43.5,19.80,67.20
+desk_ebay.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,43.5,14.00,67.20
 desk_espn.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,31.14,9.91,52.37
 desk_facebook.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,193.42,139.74,247.10
 desk_gmailthread.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,36.62,14.30,58.94
@@ -233,7 +233,7 @@ desk_weather.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Ar
 desk_wordpress.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,16.26,-1.99,34.51
 desk_wowwiki.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,50.39,25.31,75.47
 desk_yahooanswers.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,54.05,28.24,79.86
-desk_yahoogames.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,25.26,5.21,45.31
+desk_yahoogames.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,25.26,5.00,45.31
 desk_yahoosports.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,0.74,-14.41,15.89
 desk_youtube.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,129.57,88.66,170.48
 desk_youtubetvbrowse.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,0.6,-14.52,15.72
@@ -400,7 +400,7 @@ desk_booking.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nex
 desk_carsvg.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,407.77,311.22,504.32
 desk_chalkboard.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,452.13,346.70,557.56
 desk_css3gradients.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,9.3,-7.56,26.16
-desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,43.73,19.98,67.48
+desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,43.73,15.00,67.48
 desk_espn.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,31.15,9.92,52.38
 desk_facebook.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,170.29,121.23,219.35
 desk_gmailthread.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,49.67,24.74,74.60
@@ -422,7 +422,7 @@ desk_weather.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nex
 desk_wordpress.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,11.42,-5.86,28.70
 desk_wowwiki.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,62.78,35.22,90.34
 desk_yahooanswers.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,57.76,31.21,84.31
-desk_yahoogames.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,27.74,7.19,48.29
+desk_yahoogames.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,27.74,6.00,48.29
 desk_yahoosports.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,0.8,-14.36,15.96
 desk_youtube.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,83.67,51.94,115.40
 desk_youtubetvbrowse.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,0.62,-14.50,15.74

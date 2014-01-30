@@ -211,7 +211,7 @@ desk_booking.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-
 desk_carsvg.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,153.92,108.14,199.70
 desk_chalkboard.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,641.39,498.11,784.67
 desk_css3gradients.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,11.17,-6.06,28.40
-desk_ebay.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,72.49,42.99,101.99
+desk_ebay.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,72.49,23.00,101.99
 desk_espn.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,29.72,8.78,50.66
 desk_facebook.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,53.5,27.80,79.20
 desk_gmailthread.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,14.84,-3.13,32.81
@@ -337,7 +337,7 @@ desk_booking.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nex
 desk_carsvg.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,166.19,117.95,214.43
 desk_chalkboard.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,621.45,482.16,760.74
 desk_css3gradients.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,11.9,-5.48,29.28
-desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,74.9,44.92,104.88
+desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,74.9,24.00,104.88
 desk_espn.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,29.4,8.52,50.28
 desk_facebook.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,62.12,34.70,89.54
 desk_gmailthread.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,24,4.20,43.80
