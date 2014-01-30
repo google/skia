@@ -139,7 +139,7 @@
         }],
         [ 'skia_distancefield_fonts', {
           'sources': [
-            '<(skia_include_path)/gpu/GrDistanceFieldTextContext.h',
+            '<(skia_src_path)/gpu/GrDistanceFieldTextContext.h',
             '<(skia_src_path)/gpu/GrDistanceFieldTextContext.cpp',
             '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.cpp',
             '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.h',
