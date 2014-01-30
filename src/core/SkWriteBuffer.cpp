@@ -14,8 +14,8 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 
-SkWriteBuffer::SkWriteBuffer()
-    : fFlags(0)
+SkWriteBuffer::SkWriteBuffer(uint32_t flags)
+    : fFlags(flags)
     , fFactorySet(NULL)
     , fNamedFactorySet(NULL)
     , fBitmapHeap(NULL)
@@ -23,8 +23,8 @@ SkWriteBuffer::SkWriteBuffer()
     , fBitmapEncoder(NULL) {
 }
 
-SkWriteBuffer::SkWriteBuffer(void* storage, size_t storageSize)
-    : fFlags(0)
+SkWriteBuffer::SkWriteBuffer(void* storage, size_t storageSize, uint32_t flags)
+    : fFlags(flags)
     , fFactorySet(NULL)
     , fNamedFactorySet(NULL)
     , fWriter(storage, storageSize)

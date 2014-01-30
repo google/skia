@@ -12,8 +12,7 @@
 #include "SkWriteBuffer.h"
 
 SkData* SkValidatingSerializeFlattenable(SkFlattenable* flattenable) {
-    SkWriteBuffer writer;
-    writer.setFlags(SkWriteBuffer::kValidation_Flag);
+    SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
     writer.writeFlattenable(flattenable);
     uint32_t size = writer.bytesWritten();
     void* data = sk_malloc_throw(size);

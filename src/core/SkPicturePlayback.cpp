@@ -411,8 +411,7 @@ void SkPicturePlayback::serialize(SkWStream* stream,
         SkRefCntSet  typefaceSet;
         SkFactorySet factSet;
 
-        SkWriteBuffer buffer;
-        buffer.setFlags(SkWriteBuffer::kCrossProcess_Flag);
+        SkWriteBuffer buffer(SkWriteBuffer::kCrossProcess_Flag);
         buffer.setTypefaceRecorder(&typefaceSet);
         buffer.setFactoryRecorder(&factSet);
         buffer.setBitmapEncoder(encoder);

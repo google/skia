@@ -110,8 +110,7 @@ template<> struct SerializationUtils<SkScalar> {
 
 template<typename T>
 static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
-    SkWriteBuffer writer;
-    writer.setFlags(SkWriteBuffer::kValidation_Flag);
+    SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
     SerializationUtils<T>::Write(writer, testObj);
     size_t bytesWritten = writer.bytesWritten();
     REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
@@ -141,8 +140,7 @@ static void TestObjectSerialization(T* testObj, skiatest::Reporter* reporter) {
 template<typename T>
 static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
                                        skiatest::Reporter* reporter) {
-    SkWriteBuffer writer;
-    writer.setFlags(SkWriteBuffer::kValidation_Flag);
+    SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
     SerializationUtils<T>::Write(writer, testObj);
     size_t bytesWritten = writer.bytesWritten();
     REPORTER_ASSERT(reporter, SkAlign4(bytesWritten) == bytesWritten);
@@ -180,8 +178,7 @@ static T* TestFlattenableSerialization(T* testObj, bool shouldSucceed,
 
 template<typename T>
 static void TestArraySerialization(T* data, skiatest::Reporter* reporter) {
-    SkWriteBuffer writer;
-    writer.setFlags(SkWriteBuffer::kValidation_Flag);
+    SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
     SerializationUtils<T>::Write(writer, data, kArraySize);
     size_t bytesWritten = writer.bytesWritten();
     // This should write the length (in 4 bytes) and the array

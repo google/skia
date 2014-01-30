@@ -71,11 +71,11 @@ static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
 class FlattenableHeap : public SkFlatController {
 public:
     FlattenableHeap(int numFlatsToKeep, SkNamedFactorySet* fset, bool isCrossProcess)
-    : fNumFlatsToKeep(numFlatsToKeep) {
+    : INHERITED(isCrossProcess ? SkWriteBuffer::kCrossProcess_Flag : 0)
+    , fNumFlatsToKeep(numFlatsToKeep) {
         SkASSERT((isCrossProcess && fset != NULL) || (!isCrossProcess && NULL == fset));
         if (isCrossProcess) {
             this->setNamedFactorySet(fset);
-            this->setWriteBufferFlags(SkWriteBuffer::kCrossProcess_Flag);
         }
     }
 
@@ -109,6 +109,8 @@ private:
     SkTDArray<int>   fFlatsThatMustBeKept;
     SkTDArray<void*> fPointers;
     const int        fNumFlatsToKeep;
+
+    typedef SkFlatController INHERITED;
 };
 
 void FlattenableHeap::unalloc(void* ptr) {

@@ -24,18 +24,15 @@ class SkRefCntSet;
 
 class SkWriteBuffer {
 public:
-    SkWriteBuffer();
-    SkWriteBuffer(void* initialStorage, size_t storageSize);
-    ~SkWriteBuffer();
-
     enum Flags {
         kCrossProcess_Flag  = 1 << 0,
         kValidation_Flag    = 1 << 1,
     };
-    void setFlags(uint32_t flags) { fFlags = flags; }
-    uint32_t getFlags() const { return fFlags; }
 
-    bool isValidating() const { return SkToBool(fFlags & kValidation_Flag); }
+    SkWriteBuffer(uint32_t flags = 0);
+    SkWriteBuffer(void* initialStorage, size_t storageSize, uint32_t flags = 0);
+    ~SkWriteBuffer();
+
     bool isCrossProcess() const {
         return this->isValidating() || SkToBool(fFlags & kCrossProcess_Flag);
     }
@@ -107,7 +104,9 @@ public:
     void setBitmapEncoder(SkPicture::EncodeBitmap bitmapEncoder);
 
 private:
-    uint32_t fFlags;
+    bool isValidating() const { return SkToBool(fFlags & kValidation_Flag); }
+
+    const uint32_t fFlags;
     SkFactorySet* fFactorySet;
     SkNamedFactorySet* fNamedFactorySet;
     SkWriter32 fWriter;

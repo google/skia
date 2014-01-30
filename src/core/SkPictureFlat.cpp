@@ -60,12 +60,12 @@ SkRefCnt* SkTypefacePlayback::set(int index, SkRefCnt* obj) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFlatController::SkFlatController()
+SkFlatController::SkFlatController(uint32_t writeBufferFlags)
 : fBitmapHeap(NULL)
 , fTypefaceSet(NULL)
 , fTypefacePlayback(NULL)
 , fFactorySet(NULL)
-, fWriteBufferFlags(0) {}
+, fWriteBufferFlags(writeBufferFlags) {}
 
 SkFlatController::~SkFlatController() {
     SkSafeUnref(fBitmapHeap);
