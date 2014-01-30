@@ -6935,10 +6935,12 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10788096090624148694
+          15383821975272591239
         ]
       ], 
-      "ignore-failure": false
+      "bugs": [
+        2106
+      ]
     }, 
     "imagefiltersgraph_msaa4.png": {
       "allowed-digests": [
