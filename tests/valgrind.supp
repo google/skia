@@ -93,6 +93,12 @@
     fun:calloc
     obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
 }
+{
+    driver_bug_10
+    Memcheck:Leak
+    fun:malloc
+    obj:/usr/lib/fglrx/fglrx-libGL.so.1.2
+}
 # the gpu_issue_* suppressions suppress issues that cannot be reproduced
 # locally. 
 {
