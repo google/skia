@@ -15,6 +15,7 @@
 #include "SkPaint.h"
 
 class GrContext;
+class GrPaint;
 class SkBitmap;
 class SkBlitter;
 class SkBounder;
@@ -22,6 +23,7 @@ class SkMatrix;
 class SkPath;
 class SkRasterClip;
 class SkRRect;
+class SkStrokeRec;
 
 /** \class SkMaskFilter
 
@@ -92,6 +94,15 @@ public:
                                   const SkIRect& clipBounds,
                                   const SkMatrix& ctm,
                                   SkRect* maskRect) const;
+
+    /**
+     *  Try to directly render the mask filter into the target.  Returns
+     *  true if drawing was successful.
+     */
+    virtual bool directFilterMaskGPU(GrContext* context,
+                                     GrPaint* grp,
+                                     const SkStrokeRec& strokeRec,
+                                     const SkPath& path) const;
 
     /**
      * This function is used to implement filters that require an explicit src mask. It should only
