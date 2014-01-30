@@ -17,21 +17,25 @@ class GrTextStrike;
  */
 class GrBitmapTextContext : public GrTextContext {
 public:
-    GrBitmapTextContext(GrContext*, const GrPaint&, const SkPaint&, const SkDeviceProperties&);
+    GrBitmapTextContext(GrContext*, const SkDeviceProperties&);
     virtual ~GrBitmapTextContext();
 
-    virtual void drawText(const char text[], size_t byteLength, SkScalar x, SkScalar y) SK_OVERRIDE;
-    virtual void drawPosText(const char text[], size_t byteLength,
+    virtual void drawText(const GrPaint&, const SkPaint&, const char text[], size_t byteLength, 
+                          SkScalar x, SkScalar y) SK_OVERRIDE;
+    virtual void drawPosText(const GrPaint&, const SkPaint&, 
+                             const char text[], size_t byteLength,
                              const SkScalar pos[], SkScalar constY,
                              int scalarsPerPosition) SK_OVERRIDE;
 
-    static bool CanDraw(const SkPaint& paint, const SkMatrix& ctm);
+    virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
     
 private:
     GrTextStrike*          fStrike;
 
+    void init(const GrPaint&, const SkPaint&);
     void drawPackedGlyph(GrGlyph::PackedID, GrFixed left, GrFixed top, GrFontScaler*);
     void flushGlyphs();                 // automatically called by destructor
+    void finish();
 
     enum {
         kMinRequestedGlyphs      = 1,

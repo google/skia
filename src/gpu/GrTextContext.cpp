@@ -12,24 +12,27 @@
 #include "SkGlyphCache.h"
 #include "SkGr.h"
 
-GrTextContext::GrTextContext(GrContext* context, const GrPaint& paint,
-                             const SkPaint& skPaint, const SkDeviceProperties& properties) :
-                            fContext(context), fPaint(paint), fSkPaint(skPaint),
-                            fDeviceProperties(properties) {
+GrTextContext::GrTextContext(GrContext* context, const SkDeviceProperties& properties) :
+                            fContext(context), fDeviceProperties(properties), fDrawTarget(NULL) {
+}
 
-    const GrClipData* clipData = context->getClip();
+void GrTextContext::init(const GrPaint& grPaint, const SkPaint& skPaint) {
+    const GrClipData* clipData = fContext->getClip();
 
     SkRect devConservativeBound;
     clipData->fClipStack->getConservativeBounds(
                                      -clipData->fOrigin.fX,
                                      -clipData->fOrigin.fY,
-                                     context->getRenderTarget()->width(),
-                                     context->getRenderTarget()->height(),
+                                     fContext->getRenderTarget()->width(),
+                                     fContext->getRenderTarget()->height(),
                                      &devConservativeBound);
 
     devConservativeBound.roundOut(&fClipRect);
 
-    fDrawTarget = context->getTextTarget();
+    fDrawTarget = fContext->getTextTarget();
+
+    fPaint = grPaint;
+    fSkPaint = skPaint;
 }
 
 //*** change to output positions?

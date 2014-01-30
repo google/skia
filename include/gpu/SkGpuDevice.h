@@ -20,7 +20,7 @@
 struct SkDrawProcs;
 struct GrSkDrawProcs;
 
-class GrTextContextManager;
+class GrTextContext;
 
 /**
  *  Subclass of SkBitmapDevice, which directs all drawing to the GrGpu owned by the
@@ -150,7 +150,8 @@ private:
 
     GrClipData      fClipData;
 
-    GrTextContextManager* fTextContextManager;
+    GrTextContext*  fMainTextContext;
+    GrTextContext*  fFallbackTextContext;
 
     // state for our render-target
     GrRenderTarget*     fRenderTarget;

@@ -27,17 +27,9 @@ static const int kBaseDFFontSize = 32;
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
-bool GrDistanceFieldTextContext::CanDraw(const SkPaint& paint, const SkMatrix& ctm) {
-    return !paint.getRasterizer() && !paint.getMaskFilter() &&
-           paint.getStyle() == SkPaint::kFill_Style &&
-           !SkDraw::ShouldDrawTextAsPaths(paint, ctm);
-}
-
 GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
-                                                       const GrPaint& grPaint,
-                                                       const SkPaint& skPaint,
                                                        const SkDeviceProperties& properties)
-                                            : GrTextContext(context, grPaint, skPaint, properties) {
+                                                    : GrTextContext(context, properties) {
     fStrike = NULL;
 
     fCurrTexture = NULL;
@@ -45,17 +37,16 @@ GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
 
     fVertices = NULL;
     fMaxVertices = 0;
-
-    fTextRatio = fSkPaint.getTextSize()/kBaseDFFontSize;
-
-    fSkPaint.setTextSize(SkIntToScalar(kBaseDFFontSize));
-    fSkPaint.setLCDRenderText(false);
-    fSkPaint.setAutohinted(false);
-    fSkPaint.setSubpixelText(false);
 }
 
 GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
     this->flushGlyphs();
+}
+
+bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint) {
+    return !paint.getRasterizer() && !paint.getMaskFilter() &&
+           paint.getStyle() == SkPaint::kFill_Style &&
+           !SkDraw::ShouldDrawTextAsPaths(paint, fContext->getMatrix());
 }
 
 static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
@@ -291,7 +282,33 @@ HAS_ATLAS:
     fCurrVertex += 4;
 }
 
-void GrDistanceFieldTextContext::drawText(const char text[], size_t byteLength,
+inline void GrDistanceFieldTextContext::init(const GrPaint& paint, const SkPaint& skPaint) {
+    GrTextContext::init(paint, skPaint);
+
+    fStrike = NULL;
+
+    fCurrTexture = NULL;
+    fCurrVertex = 0;
+
+    fVertices = NULL;
+    fMaxVertices = 0;
+
+    fTextRatio = fSkPaint.getTextSize()/kBaseDFFontSize;
+         
+    fSkPaint.setTextSize(SkIntToScalar(kBaseDFFontSize));
+    fSkPaint.setLCDRenderText(false);
+    fSkPaint.setAutohinted(false);
+    fSkPaint.setSubpixelText(false);
+}
+
+inline void GrDistanceFieldTextContext::finish() {
+    flushGlyphs();
+
+    GrTextContext::finish();
+}
+
+void GrDistanceFieldTextContext::drawText(const GrPaint& paint, const SkPaint& skPaint,
+                                          const char text[], size_t byteLength,
                                           SkScalar x, SkScalar y) {
     SkASSERT(byteLength == 0 || text != NULL);
 
@@ -300,6 +317,8 @@ void GrDistanceFieldTextContext::drawText(const char text[], size_t byteLength,
         || fSkPaint.getRasterizer()) {
         return;
     }
+
+    this->init(paint, skPaint);
 
     SkScalar sizeRatio = fTextRatio;
 
@@ -357,9 +376,12 @@ void GrDistanceFieldTextContext::drawText(const char text[], size_t byteLength,
         fx += SkFixedMul_portable(glyph.fAdvanceX, fixedScale);
         fy += SkFixedMul_portable(glyph.fAdvanceY, fixedScale);
     }
+
+    this->finish();
 }
 
-void GrDistanceFieldTextContext::drawPosText(const char text[], size_t byteLength,
+void GrDistanceFieldTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPaint,
+                                             const char text[], size_t byteLength,
                                              const SkScalar pos[], SkScalar constY,
                                              int scalarsPerPosition) {
 
@@ -367,10 +389,11 @@ void GrDistanceFieldTextContext::drawPosText(const char text[], size_t byteLengt
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
     // nothing to draw
-    if (text == NULL || byteLength == 0 /* no raster clip? || fRC->isEmpty()*/
-        || fSkPaint.getRasterizer()) {
+    if (text == NULL || byteLength == 0 /* no raster clip? || fRC->isEmpty()*/) {
         return;
     }
+
+    this->init(paint, skPaint);
 
     SkDrawCacheProc glyphCacheProc = fSkPaint.getDrawCacheProc();
 
@@ -420,4 +443,6 @@ void GrDistanceFieldTextContext::drawPosText(const char text[], size_t byteLengt
             pos += scalarsPerPosition;
         }
     }
+
+    this->finish();
 }
