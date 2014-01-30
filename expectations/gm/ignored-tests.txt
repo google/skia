@@ -35,22 +35,4 @@
 
 # Added for skbug.com/1998 by bsalomon. Will require rebaselining when changes are complete.
 simpleblurroundrect
-
-# Added by humper temporarily for rebaselining to avoid making tree red
-
-megalooper_0x0
-megalooper_1x4
-megalooper_4x1
-blurquickreject
 bleed
-blurrect_5_100_20_normal_fast
-blurrect_25_100_20_normal_fast
-blurrect_5_100_20_outer_fast
-blurrects
-blurrect_25_100_20_outer_fast
-blurrect_25_100_20_inner_fast
-blurrect_5_5_20_normal_fast
-blurrect_5_5_20_outer_fast
-blurrect_5_100_20_inner_fast
-blurrect_5_5_20_inner_fast
-rects
