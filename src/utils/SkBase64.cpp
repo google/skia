@@ -162,24 +162,3 @@ SkBase64::Error SkBase64::decode(const char* src, size_t len) {
     decode(src, len, true);
     return kNoError;
 }
-
-#ifdef SK_SUPPORT_UNITTEST
-void SkBase64::UnitTest() {
-    signed char all[256];
-    for (int index = 0; index < 256; index++)
-        all[index] = (signed char) (index + 1);
-    for (int offset = 0; offset < 6; offset++) {
-        size_t length = 256 - offset;
-        size_t encodeLength = Encode(all + offset, length, NULL);
-        char* src = (char*)sk_malloc_throw(encodeLength + 1);
-        Encode(all + offset, length, src);
-        src[encodeLength] = '\0';
-        SkBase64 tryMe;
-        tryMe.decode(src, encodeLength);
-        SkASSERT(length == tryMe.fLength);
-        SkASSERT(strcmp((const char*) (all + offset), tryMe.fData) == 0);
-        sk_free(src);
-        delete[] tryMe.fData;
-    }
-}
-#endif

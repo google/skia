@@ -1,0 +1,28 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#include "SkBase64.h"
+
+#include "Test.h"
+
+DEF_TEST(SkBase64Test, reporter) {
+    char all[256];
+    for (int index = 0; index < 256; index++) {
+        all[index] = (signed char) (index + 1);
+    }
+
+    for (int offset = 0; offset < 6; offset++) {
+        size_t length = 256 - offset;
+        size_t encodeLength = SkBase64::Encode(all + offset, length, NULL);
+        SkAutoTMalloc<char> src(encodeLength + 1);
+        SkBase64::Encode(all + offset, length, src.get());
+        SkBase64 tryMe;
+        tryMe.decode(src.get(), encodeLength);
+        REPORTER_ASSERT(reporter, (strcmp((const char*) (all + offset), tryMe.getData()) == 0));
+        delete[] tryMe.getData();
+    }
+}
