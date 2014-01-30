@@ -1,0 +1,172 @@
+
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+// This test only works with the GPU backend.
+
+#include "gm.h"
+
+#if SK_SUPPORT_GPU
+
+#include "GrContext.h"
+#include "GrPathUtils.h"
+#include "GrTest.h"
+#include "SkColorPriv.h"
+#include "SkDevice.h"
+#include "SkGeometry.h"
+#include "SkTLList.h"
+
+#include "effects/GrConvexPolyEffect.h"
+
+namespace {
+extern const GrVertexAttrib kAttribs[] = {
+    {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding},
+};
+}
+
+namespace skiagm {
+/**
+ * This GM directly exercises a GrEffect that draws convex polygons.
+ */
+class ConvexPolyEffect : public GM {
+public:
+    ConvexPolyEffect() {
+        this->setBGColor(0xFFFFFFFF);
+    }
+
+protected:
+    virtual SkString onShortName() SK_OVERRIDE {
+        return SkString("convex_poly_effect");
+    }
+
+    virtual SkISize onISize() SK_OVERRIDE {
+        return make_isize(475, 530);
+    }
+
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        // This is a GPU-specific GM.
+        return kGPUOnly_Flag;
+    }
+    
+    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        SkPath tri;
+        tri.moveTo(5.f, 5.f);
+        tri.lineTo(100.f, 20.f);
+        tri.lineTo(15.f, 100.f);
+        
+        fPaths.addToTail(tri);
+        fPaths.addToTail(SkPath())->reverseAddPath(tri);
+        
+        tri.close();
+        fPaths.addToTail(tri);
+        
+        SkPath ngon;
+        static const SkScalar kRadius = 50.f;
+        const SkPoint center = { kRadius, kRadius };
+        for (int i = 0; i < GrConvexPolyEffect::kMaxEdges; ++i) {
+            SkScalar angle = 2 * SK_ScalarPI * i / GrConvexPolyEffect::kMaxEdges;
+            SkPoint point;
+            point.fY = SkScalarSinCos(angle, &point.fX);
+            point.scale(kRadius);
+            point = center + point;
+            if (0 == i) {
+                ngon.moveTo(point);
+            } else {
+                ngon.lineTo(point);
+            }
+        }
+        
+        fPaths.addToTail(ngon);
+        SkMatrix scaleM;
+        scaleM.setScale(1.1f, 0.4f);
+        ngon.transform(scaleM);
+        fPaths.addToTail(ngon);
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkBaseDevice* device = canvas->getTopDevice();
+        GrRenderTarget* rt = device->accessRenderTarget();
+        if (NULL == rt) {
+            return;
+        }
+        GrContext* context = rt->getContext();
+        if (NULL == context) {
+            return;
+        }
+
+        const SkPath* path;
+        SkScalar y = 0;
+        for (SkTLList<SkPath>::Iter iter(fPaths, SkTLList<SkPath>::Iter::kHead_IterStart);
+             NULL != (path = iter.get());
+             iter.next()) {
+            SkScalar x = 0;
+
+            for (int et = 0; et < GrConvexPolyEffect::kEdgeTypeCnt; ++et) {
+                GrTestTarget tt;
+                context->getTestTarget(&tt);
+                if (NULL == tt.target()) {
+                    SkDEBUGFAIL("Couldn't get Gr test target.");
+                    return;
+                }
+                GrDrawState* drawState = tt.target()->drawState();
+                drawState->setVertexAttribs<kAttribs>(SK_ARRAY_COUNT(kAttribs));
+                
+                SkMatrix m;
+                SkPath p;
+                m.setTranslate(x, y);
+                path->transform(m, &p);
+                
+                GrConvexPolyEffect::EdgeType edgeType = (GrConvexPolyEffect::EdgeType) et;
+                SkAutoTUnref<GrEffectRef> effect(GrConvexPolyEffect::Create(edgeType, p));
+                if (!effect) {
+                    SkDEBUGFAIL("Couldn't create convex poly effect.");
+                    return;
+                }
+                drawState->addCoverageEffect(effect, 1);
+                drawState->setIdentityViewMatrix();
+                drawState->setRenderTarget(rt);
+                drawState->setColor(0xff000000);
+                
+                SkPoint verts[4];
+                SkRect bounds = p.getBounds();
+                // Make sure any artifacts around the exterior of path are visible by using overly
+                // conservative bounding geometry.
+                bounds.outset(5.f, 5.f);
+                bounds.toQuad(verts);
+
+                tt.target()->setVertexSourceToArray(verts, 4);
+                tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
+                tt.target()->drawIndexed(kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
+                
+                x += path->getBounds().width() + 10.f;
+            }
+            
+            // Draw AA and non AA paths using normal API for reference.
+            canvas->save();
+            canvas->translate(x, y);
+            SkPaint paint;
+            canvas->drawPath(*path, paint);
+            canvas->translate(path->getBounds().width() + 10.f, 0);
+            paint.setAntiAlias(true);
+            canvas->drawPath(*path, paint);
+            canvas->restore();
+            
+            y += path->getBounds().height() + 20.f;
+        }
+    }
+
+private:
+    SkTLList<SkPath> fPaths;
+
+    typedef GM INHERITED;
+};
+
+DEF_GM( return SkNEW(ConvexPolyEffect); )
+
+}
+
+#endif

@@ -39,6 +39,7 @@
     '../gm/composeshader.cpp',
     #'../gm/conicpaths.cpp',
     '../gm/convexpaths.cpp',
+    '../gm/convexpolyeffect.cpp',
     '../gm/copyTo4444.cpp',
     '../gm/cubicpaths.cpp',
     '../gm/cmykjpeg.cpp',

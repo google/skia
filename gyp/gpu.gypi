@@ -133,6 +133,8 @@
       '<(skia_src_path)/gpu/effects/GrBezierEffect.h',
       '<(skia_src_path)/gpu/effects/GrConvolutionEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrConvolutionEffect.h',
+      '<(skia_src_path)/gpu/effects/GrConvexPolyEffect.cpp',
+      '<(skia_src_path)/gpu/effects/GrConvexPolyEffect.h',
       '<(skia_src_path)/gpu/effects/GrBicubicEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrBicubicEffect.h',
       '<(skia_src_path)/gpu/effects/GrCustomCoordsTextureEffect.cpp',

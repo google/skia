@@ -23,10 +23,12 @@
 
 // Position & KLM line eq values. These are the vertex attributes for Bezier curves. The last value
 // of the Vec4f is ignored.
+namespace {
 extern const GrVertexAttrib kAttribs[] = {
     {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding},
     {kVec4f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
 };
+}
 
 static inline SkScalar eval_line(const SkPoint& p, const SkScalar lineEq[3], SkScalar sign) {
     return sign * (lineEq[0] * p.fX + lineEq[1] * p.fY + lineEq[2]);
