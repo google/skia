@@ -16,6 +16,9 @@ This script:
 - creates a whitespace-only commit and uploads that to to Rietveld.
 - returns the Chromium tree to its previous state.
 
+To specify the location of the git executable, set the GIT_EXECUTABLE
+environment variable.
+
 Usage:
   %prog -c CHROMIUM_PATH -r REVISION [OPTIONAL_OPTIONS]
 """
@@ -28,6 +31,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+
+import git_utils
+import misc_utils
 
 
 DEFAULT_BOTS_LIST = [
@@ -74,15 +80,16 @@ class DepsRollConfig(object):
         self.revision_format = (
             'git-svn-id: http://skia.googlecode.com/svn/trunk@%d ')
 
+        self.git = git_utils.git_executable()
+
         if not options:
             options = DepsRollConfig.GetOptionParser()
         # pylint: disable=I0011,E1103
         self.verbose = options.verbose
-        self.vsp = VerboseSubprocess(self.verbose)
+        self.vsp = misc_utils.VerboseSubprocess(self.verbose)
         self.save_branches = not options.delete_branches
         self.search_depth = options.search_depth
         self.chromium_path = options.chromium_path
-        self.git = options.git_path
         self.skip_cl_upload = options.skip_cl_upload
         # Split and remove empty strigns from the bot list.
         self.cl_bot_list = [bot for bot in options.bots.split(',') if bot]
@@ -94,7 +101,7 @@ class DepsRollConfig(object):
             # 'bsalomon@google.com',
             # 'robertphillips@google.com',
             ])
-        self.cc_list =  ','.join([
+        self.cc_list = ','.join([
             # 'skia-team@google.com',
             ])
 
@@ -135,9 +142,6 @@ class DepsRollConfig(object):
             '', '--search_depth', type='int', default=100,
             help='How far back to look for the revision.')
         option_parser.add_option(
-            '', '--git_path', help='Git executable, defaults to "git".',
-            default='git')
-        option_parser.add_option(
             '', '--delete_branches', help='Delete the temporary branches',
             action='store_true', dest='delete_branches', default=False)
         option_parser.add_option(
@@ -145,7 +149,7 @@ class DepsRollConfig(object):
             action='store_true', dest='verbose', default=False)
         option_parser.add_option(
             '', '--skip_cl_upload', help='Skip the cl upload step; useful'
-            ' for testing or with --save_branches.',
+            ' for testing.',
             action='store_true', default=False)
 
         default_bots_help = (
@@ -159,237 +163,9 @@ class DepsRollConfig(object):
         return option_parser
 
 
-def test_git_executable(git_executable):
-    """Test the git executable.
-
-    Args:
-        git_executable: git executable path.
-    Returns:
-        True if test is successful.
-    """
-    with open(os.devnull, 'w') as devnull:
-        try:
-            subprocess.call([git_executable, '--version'], stdout=devnull)
-        except (OSError,):
-            return False
-    return True
-
-
 class DepsRollError(Exception):
     """Exceptions specific to this module."""
     pass
-
-
-class VerboseSubprocess(object):
-    """Call subprocess methods, but print out command before executing.
-
-    Attributes:
-        verbose: (boolean) should we print out the command or not.  If
-                 not, this is the same as calling the subprocess method
-        quiet: (boolean) suppress stdout on check_call and call.
-        prefix: (string) When verbose, what to print before each command.
-    """
-
-    def __init__(self, verbose):
-        self.verbose = verbose
-        self.quiet = not verbose
-        self.prefix = '~~$ '
-
-    @staticmethod
-    def _fix(string):
-        """Quote and escape a string if necessary."""
-        if ' ' in string or '\n' in string:
-            string = '"%s"' % string.replace('\n', '\\n')
-        return string
-
-    @staticmethod
-    def print_subprocess_args(prefix, *args, **kwargs):
-        """Print out args in a human-readable manner."""
-        if 'cwd' in kwargs:
-            print '%scd %s' % (prefix, kwargs['cwd'])
-        print prefix + ' '.join(VerboseSubprocess._fix(arg) for arg in args[0])
-        if 'cwd' in kwargs:
-            print '%scd -' % prefix
-
-    def check_call(self, *args, **kwargs):
-        """Wrapper for subprocess.check_call().
-
-        Args:
-            *args: to be passed to subprocess.check_call()
-            **kwargs: to be passed to subprocess.check_call()
-        Returns:
-            Whatever subprocess.check_call() returns.
-        Raises:
-            OSError or subprocess.CalledProcessError: raised by check_call.
-        """
-        if self.verbose:
-            self.print_subprocess_args(self.prefix, *args, **kwargs)
-        if self.quiet:
-            with open(os.devnull, 'w') as devnull:
-                return subprocess.check_call(*args, stdout=devnull, **kwargs)
-        else:
-            return subprocess.check_call(*args, **kwargs)
-
-    def call(self, *args, **kwargs):
-        """Wrapper for subprocess.check().
-
-        Args:
-            *args: to be passed to subprocess.check_call()
-            **kwargs: to be passed to subprocess.check_call()
-        Returns:
-            Whatever subprocess.call() returns.
-        Raises:
-            OSError or subprocess.CalledProcessError: raised by call.
-        """
-        if self.verbose:
-            self.print_subprocess_args(self.prefix, *args, **kwargs)
-        if self.quiet:
-            with open(os.devnull, 'w') as devnull:
-                return subprocess.call(*args, stdout=devnull, **kwargs)
-        else:
-            return subprocess.call(*args, **kwargs)
-
-    def check_output(self, *args, **kwargs):
-        """Wrapper for subprocess.check_output().
-
-        Args:
-            *args: to be passed to subprocess.check_output()
-            **kwargs: to be passed to subprocess.check_output()
-        Returns:
-            Whatever subprocess.check_output() returns.
-        Raises:
-            OSError or subprocess.CalledProcessError: raised by check_output.
-        """
-        if self.verbose:
-            self.print_subprocess_args(self.prefix, *args, **kwargs)
-        return subprocess.check_output(*args, **kwargs)
-
-    def strip_output(self, *args, **kwargs):
-        """Wrap subprocess.check_output and str.strip().
-
-        Pass the given arguments into subprocess.check_output() and return
-        the results, after stripping any excess whitespace.
-
-        Args:
-            *args: to be passed to subprocess.check_output()
-            **kwargs: to be passed to subprocess.check_output()
-
-        Returns:
-            The output of the process as a string without leading or
-            trailing whitespace.
-        Raises:
-            OSError or subprocess.CalledProcessError: raised by check_output.
-        """
-        if self.verbose:
-            self.print_subprocess_args(self.prefix, *args, **kwargs)
-        return str(subprocess.check_output(*args, **kwargs)).strip()
-
-    def popen(self, *args, **kwargs):
-        """Wrapper for subprocess.Popen().
-
-        Args:
-            *args: to be passed to subprocess.Popen()
-            **kwargs: to be passed to subprocess.Popen()
-        Returns:
-            The output of subprocess.Popen()
-        Raises:
-            OSError or subprocess.CalledProcessError: raised by Popen.
-        """
-        if self.verbose:
-            self.print_subprocess_args(self.prefix, *args, **kwargs)
-        return subprocess.Popen(*args, **kwargs)
-
-
-class ChangeDir(object):
-    """Use with a with-statement to temporarily change directories."""
-    # pylint: disable=I0011,R0903
-
-    def __init__(self, directory, verbose=False):
-        self._directory = directory
-        self._verbose = verbose
-
-    def __enter__(self):
-        if self._verbose:
-            print '~~$ cd %s' % self._directory
-        cwd = os.getcwd()
-        os.chdir(self._directory)
-        self._directory = cwd
-
-    def __exit__(self, etype, value, traceback):
-        if self._verbose:
-            print '~~$ cd %s' % self._directory
-        os.chdir(self._directory)
-
-
-class ReSearch(object):
-    """A collection of static methods for regexing things."""
-
-    @staticmethod
-    def search_within_stream(input_stream, pattern, default=None):
-        """Search for regular expression in a file-like object.
-
-        Opens a file for reading and searches line by line for a match to
-        the regex and returns the parenthesized group named return for the
-        first match.  Does not search across newlines.
-
-        For example:
-            pattern = '^root(:[^:]*){4}:(?P<return>[^:]*)'
-            with open('/etc/passwd', 'r') as stream:
-                return search_within_file(stream, pattern)
-        should return root's home directory (/root on my system).
-
-        Args:
-            input_stream: file-like object to be read
-            pattern: (string) to be passed to re.compile
-            default: what to return if no match
-
-        Returns:
-            A string or whatever default is
-        """
-        pattern_object = re.compile(pattern)
-        for line in input_stream:
-            match = pattern_object.search(line)
-            if match:
-                return match.group('return')
-        return default
-
-    @staticmethod
-    def search_within_string(input_string, pattern, default=None):
-        """Search for regular expression in a string.
-
-        Args:
-            input_string: (string) to be searched
-            pattern: (string) to be passed to re.compile
-            default: what to return if no match
-
-        Returns:
-            A string or whatever default is
-        """
-        match = re.search(pattern, input_string)
-        return match.group('return') if match else default
-
-    @staticmethod
-    def search_within_output(verbose, pattern, default, *args, **kwargs):
-        """Search for regular expression in a process output.
-
-        Does not search across newlines.
-
-        Args:
-            verbose: (boolean) shoule we call
-                     VerboseSubprocess.print_subprocess_args?
-            pattern: (string) to be passed to re.compile
-            default: what to return if no match
-            *args: to be passed to subprocess.Popen()
-            **kwargs: to be passed to subprocess.Popen()
-
-        Returns:
-            A string or whatever default is
-        """
-        if verbose:
-            VerboseSubprocess.print_subprocess_args(
-                '~~$ ', *args, **kwargs)
-        proc = subprocess.Popen(*args, stdout=subprocess.PIPE, **kwargs)
-        return ReSearch.search_within_stream(proc.stdout, pattern, default)
 
 
 def get_svn_revision(config, commit):
@@ -397,7 +173,7 @@ def get_svn_revision(config, commit):
     svn_format = (
         '(git-svn-id: [^@ ]+@|SVN changes up to revision |'
         'LKGR w/ DEPS up to revision )(?P<return>[0-9]+)')
-    svn_revision = ReSearch.search_within_output(
+    svn_revision = misc_utils.ReSearch.search_within_output(
         config.verbose, svn_format, None,
         [config.git, 'log', '-n', '1', '--format=format:%B', commit])
     if not svn_revision:
@@ -423,11 +199,12 @@ class SkiaGitCheckout(object):
         skia_dir = None
         self._original_cwd = os.getcwd()
         if config.skia_git_checkout_path:
-            skia_dir = config.skia_git_checkout_path
-            ## Update origin/master if needed.
-            if self._config.verbose:
-                print '~~$', 'cd', skia_dir
-            os.chdir(skia_dir)
+            if config.skia_git_checkout_path != os.curdir:
+                skia_dir = config.skia_git_checkout_path
+                ## Update origin/master if needed.
+                if self._config.verbose:
+                    print '~~$', 'cd', skia_dir
+                os.chdir(skia_dir)
             config.vsp.check_call([git, 'fetch', '-q', 'origin'])
             self._use_temp = None
         else:
@@ -443,9 +220,10 @@ class SkiaGitCheckout(object):
                 raise error
 
     def __exit__(self, etype, value, traceback):
-        if self._config.verbose:
-            print '~~$', 'cd', self._original_cwd
-        os.chdir(self._original_cwd)
+        if self._config.skia_git_checkout_path != os.curdir:
+            if self._config.verbose:
+                print '~~$', 'cd', self._original_cwd
+            os.chdir(self._original_cwd)
         if self._use_temp:
             shutil.rmtree(self._use_temp)
 
@@ -528,129 +306,6 @@ def revision_and_hash_from_partial(config, partial_hash):
     return revision, git_hash
 
 
-class GitBranchCLUpload(object):
-    """Class to manage git branches and git-cl-upload.
-
-    This class allows one to create a new branch in a repository based
-    off of origin/master, make changes to the tree inside the
-    with-block, upload that new branch to Rietveld, restore the original
-    tree state, and delete the local copy of the new branch.
-
-    See roll_deps() for an example of use.
-
-    Constructor Args:
-        config: (roll_deps.DepsRollConfig) object containing options.
-        message: (string) the commit message, can be multiline.
-        set_brach_name: (string or none) if not None, the name of the
-            branch to use.  If None, then use a temporary branch that
-            will be deleted.
-
-    Attributes:
-        issue: a string describing the codereview issue, after __exit__
-            has been called, othrwise, None.
-
-    Raises:
-        OSError: failed to execute git or git-cl.
-        subprocess.CalledProcessError: git returned unexpected status.
-    """
-    # pylint: disable=I0011,R0903,R0902
-
-    def __init__(self, config, message, set_branch_name):
-        self._message = message
-        self._file_list = []
-        self._branch_name = set_branch_name
-        self._stash = None
-        self._original_branch = None
-        self._config = config
-        self.issue = None
-
-    def stage_for_commit(self, *paths):
-        """Calls `git add ...` on each argument.
-
-        Args:
-            *paths: (list of strings) list of filenames to pass to `git add`.
-        """
-        self._file_list.extend(paths)
-
-    def __enter__(self):
-        git = self._config.git
-        vsp = self._config.vsp
-        def branch_exists(branch):
-            """Return true iff branch exists."""
-            return 0 == vsp.call([git, 'show-ref', '--quiet', branch])
-        def has_diff():
-            """Return true iff repository has uncommited changes."""
-            return bool(vsp.call([git, 'diff', '--quiet', 'HEAD']))
-
-        self._stash = has_diff()
-        if self._stash:
-            vsp.check_call([git, 'stash', 'save'])
-        try:
-            full_branch = vsp.strip_output([git, 'symbolic-ref', 'HEAD'])
-            self._original_branch = full_branch.split('/')[-1]
-        except (subprocess.CalledProcessError,):
-            self._original_branch = vsp.strip_output(
-                [git, 'rev-parse', 'HEAD'])
-
-        if not self._branch_name:
-            self._branch_name = self._config.default_branch_name
-
-        if branch_exists(self._branch_name):
-            vsp.check_call([git, 'checkout', '-q', 'master'])
-            vsp.check_call([git, 'branch', '-D', self._branch_name])
-
-        vsp.check_call(
-            [git, 'checkout', '-q', '-b', self._branch_name, 'origin/master'])
-
-    def __exit__(self, etype, value, traceback):
-        # pylint: disable=I0011,R0912
-        git = self._config.git
-        vsp = self._config.vsp
-        svn_info = str(get_svn_revision(self._config, 'HEAD'))
-
-        for filename in self._file_list:
-            assert os.path.exists(filename)
-            vsp.check_call([git, 'add', filename])
-        vsp.check_call([git, 'commit', '-q', '-m', self._message])
-
-        git_cl = [git, 'cl', 'upload', '-f',
-                  '--bypass-hooks', '--bypass-watchlists']
-        if self._config.cc_list:
-            git_cl.append('--cc=%s' % self._config.cc_list)
-        if self._config.reviewers_list:
-            git_cl.append('--reviewers=%s' % self._config.reviewers_list)
-
-        git_try = [git, 'cl', 'try', '--revision', svn_info]
-        git_try.extend([arg for bot in self._config.cl_bot_list
-                        for arg in ('-b', bot)])
-
-        if self._config.skip_cl_upload:
-            print 'You should call:'
-            print '    cd %s' % os.getcwd()
-            VerboseSubprocess.print_subprocess_args(
-                '    ', [git, 'checkout', self._branch_name])
-            VerboseSubprocess.print_subprocess_args('    ', git_cl)
-            if self._config.cl_bot_list:
-                VerboseSubprocess.print_subprocess_args('    ', git_try)
-            print
-            self.issue = ''
-        else:
-            vsp.check_call(git_cl)
-            self.issue = vsp.strip_output([git, 'cl', 'issue'])
-            if self._config.cl_bot_list:
-                vsp.check_call(git_try)
-
-        # deal with the aftermath of failed executions of this script.
-        if self._config.default_branch_name == self._original_branch:
-            self._original_branch = 'master'
-        vsp.check_call([git, 'checkout', '-q', self._original_branch])
-
-        if self._config.default_branch_name == self._branch_name:
-            vsp.check_call([git, 'branch', '-D', self._branch_name])
-        if self._stash:
-            vsp.check_call([git, 'stash', 'pop'])
-
-
 def change_skia_deps(revision, git_hash, depspath):
     """Update the DEPS file.
 
@@ -680,6 +335,59 @@ def change_skia_deps(revision, git_hash, depspath):
     shutil.move(temp_file.name, depspath)
 
 
+def git_cl_uploader(config, message, file_list):
+    """Create a commit in the current git branch; upload via git-cl.
+
+    Assumes that you are already on the branch you want to be on.
+
+    Args:
+        config: (roll_deps.DepsRollConfig) object containing options.
+        message: (string) the commit message, can be multiline.
+        file_list: (list of strings) list of filenames to pass to `git add`.
+
+    Returns:
+        The output of `git cl issue`, if not config.skip_cl_upload, else ''.
+    """
+
+    git, vsp = config.git, config.vsp
+    svn_info = str(get_svn_revision(config, 'HEAD'))
+
+    for filename in file_list:
+        assert os.path.exists(filename)
+        vsp.check_call([git, 'add', filename])
+
+    vsp.check_call([git, 'commit', '-q', '-m', message])
+
+    git_cl = [git, 'cl', 'upload', '-f',
+              '--bypass-hooks', '--bypass-watchlists']
+    if config.cc_list:
+        git_cl.append('--cc=%s' % config.cc_list)
+    if config.reviewers_list:
+        git_cl.append('--reviewers=%s' % config.reviewers_list)
+
+    git_try = [git, 'cl', 'try', '--revision', svn_info]
+    git_try.extend([arg for bot in config.cl_bot_list for arg in ('-b', bot)])
+
+    branch_name = git_utils.git_branch_name(vsp.verbose)
+
+    if config.skip_cl_upload:
+        space = '   '
+        print 'You should call:'
+        print '%scd %s' % (space, os.getcwd())
+        misc_utils.print_subprocess_args(space, [git, 'checkout', branch_name])
+        misc_utils.print_subprocess_args(space, git_cl)
+        if config.cl_bot_list:
+            misc_utils.print_subprocess_args(space, git_try)
+        print
+        return ''
+    else:
+        vsp.check_call(git_cl)
+        issue = vsp.strip_output([git, 'cl', 'issue'])
+        if config.cl_bot_list:
+            vsp.check_call(git_try)
+        return issue
+
+
 def roll_deps(config, revision, git_hash):
     """Upload changed DEPS and a whitespace change.
 
@@ -699,10 +407,10 @@ def roll_deps(config, revision, git_hash):
     """
 
     git = config.git
-    with ChangeDir(config.chromium_path, config.verbose):
+    with misc_utils.ChangeDir(config.chromium_path, config.verbose):
         config.vsp.check_call([git, 'fetch', '-q', 'origin'])
 
-        old_revision = ReSearch.search_within_output(
+        old_revision = misc_utils.ReSearch.search_within_output(
             config.verbose, '"skia_revision": "(?P<return>[0-9]+)",', None,
             [git, 'show', 'origin/master:DEPS'])
         assert old_revision
@@ -714,30 +422,34 @@ def roll_deps(config, revision, git_hash):
             [git, 'show-ref', 'origin/master', '--hash'])
         master_revision = get_svn_revision(config, 'origin/master')
 
-        branch = None
-
         # master_hash[8] gives each whitespace CL a unique name.
+        if config.save_branches:
+            branch = 'control_%s' % master_hash[:8]
+        else:
+            branch = None
         message = ('whitespace change %s\n\n'
                    'Chromium base revision: %d / %s\n\n'
                    'This CL was created by Skia\'s roll_deps.py script.\n'
                   ) % (master_hash[:8], master_revision, master_hash[:8])
-        if config.save_branches:
-            branch = 'control_%s' % master_hash[:8]
+        with git_utils.ChangeGitBranch(branch, 'origin/master',
+                                       config.verbose):
+            branch = git_utils.git_branch_name(config.vsp.verbose)
 
-        codereview = GitBranchCLUpload(config, message, branch)
-        with codereview:
             with open('build/whitespace_file.txt', 'a') as output_stream:
                 output_stream.write('\nCONTROL\n')
-            codereview.stage_for_commit('build/whitespace_file.txt')
-        whitespace_cl = codereview.issue
-        if branch:
-            whitespace_cl = '%s\n    branch: %s' % (whitespace_cl, branch)
 
-        control_url = ReSearch.search_within_string(
-            codereview.issue, '(?P<return>https?://[^) ]+)', '?')
+            whitespace_cl = git_cl_uploader(
+                config, message, ['build/whitespace_file.txt'])
+
+            control_url = misc_utils.ReSearch.search_within_string(
+                whitespace_cl, '(?P<return>https?://[^) ]+)', '?')
+            if config.save_branches:
+                whitespace_cl = '%s\n    branch: %s' % (whitespace_cl, branch)
 
         if config.save_branches:
             branch = 'roll_%d_%s' % (revision, master_hash[:8])
+        else:
+            branch = None
         message = (
             'roll skia DEPS to %d\n\n'
             'Chromium base revision: %d / %s\n'
@@ -749,13 +461,14 @@ def roll_deps(config, revision, git_hash):
             'NOTRY=true\n'
             % (revision, master_revision, master_hash[:8],
                old_revision, revision, control_url))
-        codereview = GitBranchCLUpload(config, message, branch)
-        with codereview:
+        with git_utils.ChangeGitBranch(branch, 'origin/master',
+                                       config.verbose):
+            branch = git_utils.git_branch_name(config.vsp.verbose)
+
             change_skia_deps(revision, git_hash, 'DEPS')
-            codereview.stage_for_commit('DEPS')
-        deps_cl = codereview.issue
-        if branch:
-            deps_cl = '%s\n    branch: %s' % (deps_cl, branch)
+            deps_cl = git_cl_uploader(config, message, ['DEPS'])
+            if config.save_branches:
+                deps_cl = '%s\n    branch: %s' % (deps_cl, branch)
 
         return deps_cl, whitespace_cl
 
@@ -814,7 +527,8 @@ def main(args):
         option_parser.error('Must specify chromium_path.')
     if not os.path.isdir(options.chromium_path):
         option_parser.error('chromium_path must be a directory.')
-    if not test_git_executable(options.git_path):
+
+    if not git_utils.git_executable():
         option_parser.error('Invalid git executable.')
 
     config = DepsRollConfig(options)
