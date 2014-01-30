@@ -13,6 +13,7 @@
 #include "GrIndexBuffer.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
+#include "SkDraw.h"
 #include "SkGpuDevice.h"
 #include "SkPath.h"
 #include "SkRTConf.h"
@@ -25,6 +26,12 @@ static const int kBaseDFFontSize = 32;
 
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
+
+bool GrDistanceFieldTextContext::CanDraw(const SkPaint& paint, const SkMatrix& ctm) {
+    return !paint.getRasterizer() && !paint.getMaskFilter() &&
+           paint.getStyle() == SkPaint::kFill_Style &&
+           !SkDraw::ShouldDrawTextAsPaths(paint, ctm);
+}
 
 GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
                                                        const GrPaint& grPaint,

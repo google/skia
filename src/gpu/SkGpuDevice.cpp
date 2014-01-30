@@ -1771,9 +1771,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
                           const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw, false);
 
-    if (SkDraw::ShouldDrawTextAsPaths(paint, fContext->getMatrix())) {
-        draw.drawText_asPaths((const char*)text, byteLength, x, y, paint);
-    } else {
+    if (fTextContextManager->canDraw(paint, fContext->getMatrix())) {
         GrPaint grPaint;
         if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
             return;
@@ -1785,6 +1783,20 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
                                                                      grPaint, paint,
                                                                      this->getDeviceProperties()));
         ctx->drawText((const char *)text, byteLength, x, y);
+    } else if (GrBitmapTextContext::CanDraw(paint, fContext->getMatrix())) {
+        GrPaint grPaint;
+        if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
+            return;
+        }
+
+        SkDEBUGCODE(this->validate();)
+
+        GrBitmapTextContext textContext(this->context(), grPaint, paint,
+                                        this->getDeviceProperties());
+        textContext.drawText((const char *)text, byteLength, x, y);
+    } else {
+        // this guy will just call our drawPath()
+        draw.drawText_asPaths((const char*)text, byteLength, x, y, paint);
     }
 }
 
@@ -1794,11 +1806,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
                              const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw, false);
 
-    if (SkDraw::ShouldDrawTextAsPaths(paint, fContext->getMatrix())) {
-        // this guy will just call our drawPath()
-        draw.drawPosText_asPaths((const char*)text, byteLength, pos, constY,
-                         scalarsPerPos, paint);
-    } else {
+    if (fTextContextManager->canDraw(paint, fContext->getMatrix())) {
         GrPaint grPaint;
         if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
             return;
@@ -1810,6 +1818,20 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
                                                                      grPaint, paint,
                                                                      this->getDeviceProperties()));
         ctx->drawPosText((const char *)text, byteLength, pos, constY, scalarsPerPos);
+    } else if (GrBitmapTextContext::CanDraw(paint, fContext->getMatrix())) {
+        GrPaint grPaint;
+        if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
+            return;
+        }
+        
+        SkDEBUGCODE(this->validate();)
+        
+        GrBitmapTextContext textContext(this->context(), grPaint, paint,
+                                        this->getDeviceProperties());
+        textContext.drawPosText((const char *)text, byteLength, pos, constY, scalarsPerPos);
+    } else {
+        draw.drawPosText_asPaths((const char*)text, byteLength, pos, constY,
+                                 scalarsPerPos, paint);
     }
 }
 

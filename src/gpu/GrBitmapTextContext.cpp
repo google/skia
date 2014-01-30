@@ -19,6 +19,7 @@
 #include "effects/GrCustomCoordsTextureEffect.h"
 
 #include "SkAutoKern.h"
+#include "SkDraw.h"
 #include "SkGlyphCache.h"
 #include "SkGpuDevice.h"
 #include "SkGr.h"
@@ -27,6 +28,10 @@ static const int kGlyphCoordsAttributeIndex = 1;
 
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
+
+bool GrBitmapTextContext::CanDraw(const SkPaint& paint, const SkMatrix& ctm) {
+    return !SkDraw::ShouldDrawTextAsPaths(paint, ctm);
+}
 
 GrBitmapTextContext::GrBitmapTextContext(GrContext* context,
                                          const GrPaint& grPaint,

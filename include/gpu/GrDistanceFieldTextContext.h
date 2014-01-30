@@ -21,6 +21,8 @@ public:
     virtual void drawPosText(const char text[], size_t byteLength,
                              const SkScalar pos[], SkScalar constY,
                              int scalarsPerPosition) SK_OVERRIDE;
+    
+    static bool CanDraw(const SkPaint& paint, const SkMatrix& ctm);
 
 private:
     GrDistanceFieldTextContext(GrContext*, const GrPaint&, const SkPaint&,

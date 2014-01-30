@@ -29,7 +29,7 @@ public:
     virtual void drawPosText(const char text[], size_t byteLength,
                              const SkScalar pos[], SkScalar constY,
                              int scalarsPerPosition) = 0;
-
+    
 protected:
     GrTextContext(GrContext*, const GrPaint&, const SkPaint&, const SkDeviceProperties&);
 
@@ -55,6 +55,7 @@ public:
     virtual ~GrTextContextManager() {}
     virtual GrTextContext* create(GrContext* grContext, const GrPaint& grPaint,
                                   const SkPaint& skPaint, const SkDeviceProperties& props) = 0;
+    virtual bool canDraw(const SkPaint& paint, const SkMatrix& ctm) = 0;
 };
 
 template <class TextContextClass>
@@ -108,6 +109,10 @@ public:
                                                         this));
         fUsed = true;
         return obj;
+    }
+
+    virtual bool canDraw(const SkPaint& paint, const SkMatrix& ctm) SK_OVERRIDE {
+        return TextContextClass::CanDraw(paint, ctm);
     }
 
 private:

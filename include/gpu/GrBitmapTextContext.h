@@ -17,16 +17,17 @@ class GrTextStrike;
  */
 class GrBitmapTextContext : public GrTextContext {
 public:
+    GrBitmapTextContext(GrContext*, const GrPaint&, const SkPaint&, const SkDeviceProperties&);
+    virtual ~GrBitmapTextContext();
+
     virtual void drawText(const char text[], size_t byteLength, SkScalar x, SkScalar y) SK_OVERRIDE;
     virtual void drawPosText(const char text[], size_t byteLength,
                              const SkScalar pos[], SkScalar constY,
                              int scalarsPerPosition) SK_OVERRIDE;
 
+    static bool CanDraw(const SkPaint& paint, const SkMatrix& ctm);
+    
 private:
-    GrBitmapTextContext(GrContext*, const GrPaint&, const SkPaint&, const SkDeviceProperties&);
-    virtual ~GrBitmapTextContext();
-    friend class GrTTextContextManager<GrBitmapTextContext>;
-
     GrTextStrike*          fStrike;
 
     void drawPackedGlyph(GrGlyph::PackedID, GrFixed left, GrFixed top, GrFontScaler*);
