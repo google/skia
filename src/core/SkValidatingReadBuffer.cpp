@@ -14,7 +14,7 @@
 SkValidatingReadBuffer::SkValidatingReadBuffer(const void* data, size_t size) :
     fError(false) {
     this->setMemory(data, size);
-    this->setFlags(SkFlattenableReadBuffer::kValidation_Flag);
+    this->setFlags(SkReadBuffer::kValidation_Flag);
 }
 
 SkValidatingReadBuffer::~SkValidatingReadBuffer() {

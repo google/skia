@@ -9,7 +9,8 @@
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkXfermode.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -32,12 +33,12 @@ SkXfermodeImageFilter::~SkXfermodeImageFilter() {
     SkSafeUnref(fMode);
 }
 
-SkXfermodeImageFilter::SkXfermodeImageFilter(SkFlattenableReadBuffer& buffer)
+SkXfermodeImageFilter::SkXfermodeImageFilter(SkReadBuffer& buffer)
   : INHERITED(2, buffer) {
     fMode = buffer.readXfermode();
 }
 
-void SkXfermodeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkXfermodeImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fMode);
 }

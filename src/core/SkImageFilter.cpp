@@ -8,7 +8,8 @@
 #include "SkImageFilter.h"
 
 #include "SkBitmap.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkRect.h"
 #include "SkValidationUtils.h"
 #if SK_SUPPORT_GPU
@@ -51,7 +52,7 @@ SkImageFilter::~SkImageFilter() {
     delete[] fInputs;
 }
 
-SkImageFilter::SkImageFilter(int inputCount, SkFlattenableReadBuffer& buffer) {
+SkImageFilter::SkImageFilter(int inputCount, SkReadBuffer& buffer) {
     fInputCount = buffer.readInt();
     if (buffer.validate((fInputCount >= 0) && ((inputCount < 0) || (fInputCount == inputCount)))) {
         fInputs = new SkImageFilter*[fInputCount];
@@ -78,7 +79,7 @@ SkImageFilter::SkImageFilter(int inputCount, SkFlattenableReadBuffer& buffer) {
     }
 }
 
-void SkImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(fInputCount);
     for (int i = 0; i < fInputCount; i++) {
         SkImageFilter* input = getInput(i);

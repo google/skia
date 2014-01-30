@@ -137,7 +137,7 @@ public:
 
 protected:
     // empty for now, but lets get our subclass to remember to init us for the future
-    SkMaskFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    SkMaskFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
     enum FilterReturn {
         kFalse_FilterReturn,

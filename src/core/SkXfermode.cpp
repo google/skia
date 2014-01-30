@@ -10,7 +10,8 @@
 #include "SkXfermode.h"
 #include "SkXfermode_proccoeff.h"
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkMathPriv.h"
 #include "SkString.h"
 #include "SkUtilsArm.h"
@@ -860,7 +861,7 @@ void SkProcXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
     }
 }
 
-SkProcXfermode::SkProcXfermode(SkFlattenableReadBuffer& buffer)
+SkProcXfermode::SkProcXfermode(SkReadBuffer& buffer)
         : SkXfermode(buffer) {
     fProc = NULL;
     if (!buffer.isCrossProcess()) {
@@ -868,7 +869,7 @@ SkProcXfermode::SkProcXfermode(SkFlattenableReadBuffer& buffer)
     }
 }
 
-void SkProcXfermode::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkProcXfermode::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     if (!buffer.isCrossProcess()) {
         buffer.writeFunctionPtr((void*)fProc);
@@ -1343,7 +1344,7 @@ GrEffectRef* XferEffect::TestCreate(SkRandom* rand,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-SkProcCoeffXfermode::SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+SkProcCoeffXfermode::SkProcCoeffXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {
     uint32_t mode32 = buffer.read32() % SK_ARRAY_COUNT(gProcCoeffs);
     if (mode32 >= SK_ARRAY_COUNT(gProcCoeffs)) {
         // out of range, just set to something harmless
@@ -1394,7 +1395,7 @@ bool SkProcCoeffXfermode::asNewEffect(GrEffectRef** effect,
 }
 #endif
 
-void SkProcCoeffXfermode::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkProcCoeffXfermode::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.write32(fMode);
 }
@@ -1452,7 +1453,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkClearXfermode)
 
 private:
-    SkClearXfermode(SkFlattenableReadBuffer& buffer)
+    SkClearXfermode(SkReadBuffer& buffer)
         : SkProcCoeffXfermode(buffer) {}
 
     typedef SkProcCoeffXfermode INHERITED;
@@ -1514,7 +1515,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSrcXfermode)
 
 private:
-    SkSrcXfermode(SkFlattenableReadBuffer& buffer)
+    SkSrcXfermode(SkReadBuffer& buffer)
         : SkProcCoeffXfermode(buffer) {}
 
     typedef SkProcCoeffXfermode INHERITED;
@@ -1580,7 +1581,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstInXfermode)
 
 private:
-    SkDstInXfermode(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    SkDstInXfermode(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
     typedef SkProcCoeffXfermode INHERITED;
 };
@@ -1623,7 +1624,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstOutXfermode)
 
 private:
-    SkDstOutXfermode(SkFlattenableReadBuffer& buffer)
+    SkDstOutXfermode(SkReadBuffer& buffer)
         : INHERITED(buffer) {}
 
     typedef SkProcCoeffXfermode INHERITED;

@@ -8,7 +8,8 @@
 #include "gm.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkLayerRasterizer.h"
 
 static void r0(SkLayerRasterizer* rast, SkPaint& p) {

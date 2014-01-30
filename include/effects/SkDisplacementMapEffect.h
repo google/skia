@@ -46,8 +46,8 @@ public:
 #endif
 
 protected:
-    explicit SkDisplacementMapEffect(SkFlattenableReadBuffer& buffer);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    explicit SkDisplacementMapEffect(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     ChannelSelectorType fXChannelSelector;

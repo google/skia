@@ -8,7 +8,8 @@
 #include "SkBitmapSource.h"
 #include "SkDevice.h"
 #include "SkCanvas.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
 SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap)
@@ -26,7 +27,7 @@ SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap, const SkRect& srcRect, co
     fDstRect(dstRect) {
 }
 
-SkBitmapSource::SkBitmapSource(SkFlattenableReadBuffer& buffer)
+SkBitmapSource::SkBitmapSource(SkReadBuffer& buffer)
   : INHERITED(0, buffer) {
     fBitmap.unflatten(buffer);
     buffer.readRect(&fSrcRect);
@@ -34,7 +35,7 @@ SkBitmapSource::SkBitmapSource(SkFlattenableReadBuffer& buffer)
     buffer.validate(buffer.isValid() && SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
 }
 
-void SkBitmapSource::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkBitmapSource::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     fBitmap.flatten(buffer);
     buffer.writeRect(fSrcRect);

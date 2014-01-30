@@ -12,7 +12,8 @@
 #include "SkCanvas.h"
 #include "SkColorMatrixFilter.h"
 #include "SkDevice.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 
 SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigma, SkColor color, SkImageFilter* input)
     : INHERITED(input)
@@ -34,7 +35,7 @@ SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkSca
 {
 }
 
-SkDropShadowImageFilter::SkDropShadowImageFilter(SkFlattenableReadBuffer& buffer)
+SkDropShadowImageFilter::SkDropShadowImageFilter(SkReadBuffer& buffer)
  : INHERITED(1, buffer) {
     fDx = buffer.readScalar();
     fDy = buffer.readScalar();
@@ -47,7 +48,7 @@ SkDropShadowImageFilter::SkDropShadowImageFilter(SkFlattenableReadBuffer& buffer
                     SkScalarIsFinite(fSigmaY));
 }
 
-void SkDropShadowImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const
+void SkDropShadowImageFilter::flatten(SkWriteBuffer& buffer) const
 {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fDx);

@@ -32,8 +32,8 @@ protected:
     bool filterImageGeneric(Proc procX, Proc procY,
                             Proxy*, const SkBitmap& src, const SkMatrix&,
                             SkBitmap* result, SkIPoint* offset);
-    SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkMorphologyImageFilter(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
     virtual bool canFilterImageGPU() const SK_OVERRIDE { return true; }
     bool filterImageGPUGeneric(bool dilate, Proxy* proxy, const SkBitmap& src,
@@ -65,7 +65,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDilateImageFilter)
 
 protected:
-    SkDilateImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    SkDilateImageFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     typedef SkMorphologyImageFilter INHERITED;
@@ -88,7 +88,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkErodeImageFilter)
 
 protected:
-    SkErodeImageFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    SkErodeImageFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     typedef SkMorphologyImageFilter INHERITED;

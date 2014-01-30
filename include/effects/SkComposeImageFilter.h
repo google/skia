@@ -18,7 +18,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeImageFilter)
 
 protected:
-    explicit SkComposeImageFilter(SkFlattenableReadBuffer& buffer);
+    explicit SkComposeImageFilter(SkReadBuffer& buffer);
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;

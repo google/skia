@@ -7,7 +7,8 @@
 
 #include "SkColorFilter.h"
 
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkShader.h"
 #include "SkUnPreMultiply.h"
 #include "SkString.h"

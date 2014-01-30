@@ -109,7 +109,7 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkPathEffect)
 
 protected:
-    SkPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    SkPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     // illegal
@@ -131,8 +131,8 @@ public:
     virtual ~SkPairPathEffect();
 
 protected:
-    SkPairPathEffect(SkFlattenableReadBuffer&);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkPairPathEffect(SkReadBuffer&);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // these are visible to our subclasses
     SkPathEffect* fPE0, *fPE1;
@@ -162,7 +162,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
 
 protected:
-    SkComposePathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    SkComposePathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     // illegal
@@ -193,7 +193,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
 
 protected:
-    SkSumPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    SkSumPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     // illegal

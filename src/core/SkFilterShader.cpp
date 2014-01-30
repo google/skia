@@ -8,7 +8,8 @@
 #include "SkFilterShader.h"
 
 #include "SkColorFilter.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkShader.h"
 #include "SkString.h"
 
@@ -20,7 +21,7 @@ SkFilterShader::SkFilterShader(SkShader* shader, SkColorFilter* filter) {
     filter->ref();
 }
 
-SkFilterShader::SkFilterShader(SkFlattenableReadBuffer& buffer)
+SkFilterShader::SkFilterShader(SkReadBuffer& buffer)
     : INHERITED(buffer) {
     fShader = buffer.readShader();
     fFilter = buffer.readColorFilter();
@@ -31,7 +32,7 @@ SkFilterShader::~SkFilterShader() {
     fShader->unref();
 }
 
-void SkFilterShader::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkFilterShader::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fShader);
     buffer.writeFlattenable(fFilter);

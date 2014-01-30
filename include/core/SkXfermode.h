@@ -218,7 +218,7 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkXfermode)
 
 protected:
-    SkXfermode(SkFlattenableReadBuffer& rb) : SkFlattenable(rb) {}
+    SkXfermode(SkReadBuffer& rb) : SkFlattenable(rb) {}
 
     /** The default implementation of xfer32/xfer16/xferA8 in turn call this
         method, 1 color at a time (upscaled to a SkPMColor). The default
@@ -264,8 +264,8 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcXfermode)
 
 protected:
-    SkProcXfermode(SkFlattenableReadBuffer&);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkProcXfermode(SkReadBuffer&);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // allow subclasses to update this after we unflatten
     void setProc(SkXfermodeProc proc) {

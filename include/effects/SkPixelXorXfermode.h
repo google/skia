@@ -23,8 +23,8 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPixelXorXfermode)
 
 protected:
-    SkPixelXorXfermode(SkFlattenableReadBuffer& rb);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkPixelXorXfermode(SkReadBuffer& rb);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // override from SkXfermode
     virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst) const;

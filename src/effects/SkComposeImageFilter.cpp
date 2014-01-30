@@ -7,7 +7,8 @@
 
 #include "SkBitmap.h"
 #include "SkComposeImageFilter.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 
 SkComposeImageFilter::~SkComposeImageFilter() {
 }
@@ -52,6 +53,6 @@ bool SkComposeImageFilter::onFilterBounds(const SkIRect& src,
            outer->filterBounds(tmp, ctm, dst);
 }
 
-SkComposeImageFilter::SkComposeImageFilter(SkFlattenableReadBuffer& buffer)
+SkComposeImageFilter::SkComposeImageFilter(SkReadBuffer& buffer)
   : INHERITED(2, buffer) {
 }

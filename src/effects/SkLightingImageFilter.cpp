@@ -8,9 +8,10 @@
 #include "SkLightingImageFilter.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
-#include "SkOrderedReadBuffer.h"
-#include "SkOrderedWriteBuffer.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
@@ -243,7 +244,7 @@ template <class LightingType, class LightType> void lightBitmap(const LightingTy
     }
 }
 
-SkPoint3 readPoint3(SkFlattenableReadBuffer& buffer) {
+SkPoint3 readPoint3(SkReadBuffer& buffer) {
     SkPoint3 point;
     point.fX = buffer.readScalar();
     point.fY = buffer.readScalar();
@@ -254,7 +255,7 @@ SkPoint3 readPoint3(SkFlattenableReadBuffer& buffer) {
     return point;
 };
 
-void writePoint3(const SkPoint3& point, SkFlattenableWriteBuffer& buffer) {
+void writePoint3(const SkPoint3& point, SkWriteBuffer& buffer) {
     buffer.writeScalar(point.fX);
     buffer.writeScalar(point.fY);
     buffer.writeScalar(point.fZ);
@@ -268,8 +269,8 @@ public:
     SkScalar kd() const { return fKD; }
 
 protected:
-    explicit SkDiffuseLightingImageFilter(SkFlattenableReadBuffer& buffer);
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE;
+    explicit SkDiffuseLightingImageFilter(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
 #if SK_SUPPORT_GPU
@@ -290,8 +291,8 @@ public:
     SkScalar shininess() const { return fShininess; }
 
 protected:
-    explicit SkSpecularLightingImageFilter(SkFlattenableReadBuffer& buffer);
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE;
+    explicit SkSpecularLightingImageFilter(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
 #if SK_SUPPORT_GPU
@@ -527,8 +528,8 @@ public:
     virtual SkLight* transform(const SkMatrix& matrix) const = 0;
 
     // Defined below SkLight's subclasses.
-    void flattenLight(SkFlattenableWriteBuffer& buffer) const;
-    static SkLight* UnflattenLight(SkFlattenableReadBuffer& buffer);
+    void flattenLight(SkWriteBuffer& buffer) const;
+    static SkLight* UnflattenLight(SkReadBuffer& buffer);
 
 protected:
     SkLight(SkColor color)
@@ -537,11 +538,11 @@ protected:
                SkIntToScalar(SkColorGetB(color))) {}
     SkLight(const SkPoint3& color)
       : fColor(color) {}
-    SkLight(SkFlattenableReadBuffer& buffer) {
+    SkLight(SkReadBuffer& buffer) {
         fColor = readPoint3(buffer);
     }
 
-    virtual void onFlattenLight(SkFlattenableWriteBuffer& buffer) const = 0;
+    virtual void onFlattenLight(SkWriteBuffer& buffer) const = 0;
 
 
 private:
@@ -583,7 +584,7 @@ public:
                fDirection == o.fDirection;
     }
 
-    SkDistantLight(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+    SkDistantLight(SkReadBuffer& buffer) : INHERITED(buffer) {
         fDirection = readPoint3(buffer);
     }
 
@@ -594,7 +595,7 @@ protected:
     virtual SkLight* transform(const SkMatrix& matrix) const {
         return new SkDistantLight(direction(), color());
     }
-    virtual void onFlattenLight(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+    virtual void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
         writePoint3(fDirection, buffer);
     }
 
@@ -644,14 +645,14 @@ public:
         return new SkPointLight(location, color());
     }
 
-    SkPointLight(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+    SkPointLight(SkReadBuffer& buffer) : INHERITED(buffer) {
         fLocation = readPoint3(buffer);
     }
 
 protected:
     SkPointLight(const SkPoint3& location, const SkPoint3& color)
      : INHERITED(color), fLocation(location) {}
-    virtual void onFlattenLight(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+    virtual void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
         writePoint3(fLocation, buffer);
     }
 
@@ -725,7 +726,7 @@ public:
     SkScalar coneScale() const { return fConeScale; }
     const SkPoint3& s() const { return fS; }
 
-    SkSpotLight(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+    SkSpotLight(SkReadBuffer& buffer) : INHERITED(buffer) {
         fLocation = readPoint3(buffer);
         fTarget = readPoint3(buffer);
         fSpecularExponent = buffer.readScalar();
@@ -750,7 +751,7 @@ protected:
        fS(s)
     {
     }
-    virtual void onFlattenLight(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+    virtual void onFlattenLight(SkWriteBuffer& buffer) const SK_OVERRIDE {
         writePoint3(fLocation, buffer);
         writePoint3(fTarget, buffer);
         buffer.writeScalar(fSpecularExponent);
@@ -794,14 +795,14 @@ const SkScalar SkSpotLight::kSpecularExponentMax = 128.0f;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkLight::flattenLight(SkFlattenableWriteBuffer& buffer) const {
+void SkLight::flattenLight(SkWriteBuffer& buffer) const {
     // Write type first, then baseclass, then subclass.
     buffer.writeInt(this->type());
     writePoint3(fColor, buffer);
     this->onFlattenLight(buffer);
 }
 
-/*static*/ SkLight* SkLight::UnflattenLight(SkFlattenableReadBuffer& buffer) {
+/*static*/ SkLight* SkLight::UnflattenLight(SkReadBuffer& buffer) {
     // Read type first.
     const SkLight::LightType type = (SkLight::LightType)buffer.readInt();
     switch (type) {
@@ -885,14 +886,14 @@ SkLightingImageFilter::~SkLightingImageFilter() {
     SkSafeUnref(fLight);
 }
 
-SkLightingImageFilter::SkLightingImageFilter(SkFlattenableReadBuffer& buffer)
+SkLightingImageFilter::SkLightingImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fLight = SkLight::UnflattenLight(buffer);
     fSurfaceScale = buffer.readScalar();
     buffer.validate(SkScalarIsFinite(fSurfaceScale));
 }
 
-void SkLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     fLight->flattenLight(buffer);
     buffer.writeScalar(fSurfaceScale);
@@ -908,14 +909,14 @@ SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkLight* light, SkSca
 {
 }
 
-SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkFlattenableReadBuffer& buffer)
+SkDiffuseLightingImageFilter::SkDiffuseLightingImageFilter(SkReadBuffer& buffer)
   : INHERITED(buffer)
 {
     fKD = buffer.readScalar();
     buffer.validate(SkScalarIsFinite(fKD) && (fKD >= 0));
 }
 
-void SkDiffuseLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkDiffuseLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fKD);
 }
@@ -998,7 +999,7 @@ SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkLight* light, SkS
 {
 }
 
-SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkFlattenableReadBuffer& buffer)
+SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkReadBuffer& buffer)
   : INHERITED(buffer)
 {
     fKS = buffer.readScalar();
@@ -1007,7 +1008,7 @@ SkSpecularLightingImageFilter::SkSpecularLightingImageFilter(SkFlattenableReadBu
                     SkScalarIsFinite(fShininess));
 }
 
-void SkSpecularLightingImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkSpecularLightingImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fKS);
     buffer.writeScalar(fShininess);

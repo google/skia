@@ -91,12 +91,12 @@ protected:
     // The ownPixels version of this constructor is deprecated.
     SkMallocPixelRef(const SkImageInfo&, void* addr, size_t rb, SkColorTable*,
                      bool ownPixels);
-    SkMallocPixelRef(SkFlattenableReadBuffer& buffer);
+    SkMallocPixelRef(SkReadBuffer& buffer);
     virtual ~SkMallocPixelRef();
 
     virtual bool onNewLockPixels(LockRec*) SK_OVERRIDE;
     virtual void onUnlockPixels() SK_OVERRIDE;
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     virtual size_t getAllocatedSizeInBytes() const SK_OVERRIDE;
 
 private:

@@ -9,7 +9,8 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkShader.h"
 
 SkRectShaderImageFilter* SkRectShaderImageFilter::Create(SkShader* s, const SkRect& rect) {
@@ -34,12 +35,12 @@ SkRectShaderImageFilter::SkRectShaderImageFilter(SkShader* s, const CropRect* cr
     s->ref();
 }
 
-SkRectShaderImageFilter::SkRectShaderImageFilter(SkFlattenableReadBuffer& buffer)
+SkRectShaderImageFilter::SkRectShaderImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fShader = buffer.readShader();
 }
 
-void SkRectShaderImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkRectShaderImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeFlattenable(fShader);

@@ -8,7 +8,8 @@
 #include "SkDither.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkColorFilter.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkShader.h"
 #include "SkUnPreMultiply.h"
 #include "SkString.h"
@@ -293,7 +294,7 @@ SkPerlinNoiseShader::SkPerlinNoiseShader(SkPerlinNoiseShader::Type type,
     fMatrix.reset();
 }
 
-SkPerlinNoiseShader::SkPerlinNoiseShader(SkFlattenableReadBuffer& buffer) :
+SkPerlinNoiseShader::SkPerlinNoiseShader(SkReadBuffer& buffer) :
         INHERITED(buffer), fPaintingData(NULL) {
     fType           = (SkPerlinNoiseShader::Type) buffer.readInt();
     fBaseFrequencyX = buffer.readScalar();
@@ -314,7 +315,7 @@ SkPerlinNoiseShader::~SkPerlinNoiseShader() {
     SkDELETE(fPaintingData);
 }
 
-void SkPerlinNoiseShader::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkPerlinNoiseShader::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeInt((int) fType);
     buffer.writeScalar(fBaseFrequencyX);

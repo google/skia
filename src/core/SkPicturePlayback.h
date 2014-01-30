@@ -14,7 +14,7 @@
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkMatrix.h"
-#include "SkOrderedReadBuffer.h"
+#include "SkReadBuffer.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPathHeap.h"
@@ -192,8 +192,8 @@ public:
 private:    // these help us with reading/writing
     bool parseStreamTag(SkStream*, const SkPictInfo&, uint32_t tag, size_t size,
                         SkPicture::InstallPixelRefProc);
-    bool parseBufferTag(SkOrderedReadBuffer&, uint32_t tag, size_t size);
-    void flattenToBuffer(SkOrderedWriteBuffer&) const;
+    bool parseBufferTag(SkReadBuffer&, uint32_t tag, size_t size);
+    void flattenToBuffer(SkWriteBuffer&) const;
 
 private:
     // Only used by getBitmap() if the passed in index is SkBitmapHeap::INVALID_SLOT. This empty

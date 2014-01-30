@@ -7,7 +7,8 @@
 
 #include "SkImageRef_ashmem.h"
 #include "SkImageDecoder.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkThread.h"
 
 #include "android/ashmem.h"
@@ -210,12 +211,12 @@ void SkImageRef_ashmem::onUnlockPixels() {
     fBitmap.setPixels(NULL, NULL);
 }
 
-void SkImageRef_ashmem::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkImageRef_ashmem::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeString(getURI());
 }
 
-SkImageRef_ashmem::SkImageRef_ashmem(SkFlattenableReadBuffer& buffer)
+SkImageRef_ashmem::SkImageRef_ashmem(SkReadBuffer& buffer)
         : INHERITED(buffer) {
     fRec.fFD = -1;
     fRec.fAddr = NULL;

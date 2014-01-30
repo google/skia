@@ -28,8 +28,8 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkRadialGradient)
 
 protected:
-    SkRadialGradient(SkFlattenableReadBuffer& buffer);
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE;
+    SkRadialGradient(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 
 private:
     typedef SkGradientShaderBase INHERITED;

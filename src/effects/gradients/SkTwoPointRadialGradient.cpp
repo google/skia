@@ -334,7 +334,7 @@ void SkTwoPointRadialGradient::toString(SkString* str) const {
 #endif
 
 SkTwoPointRadialGradient::SkTwoPointRadialGradient(
-    SkFlattenableReadBuffer& buffer)
+    SkReadBuffer& buffer)
     : INHERITED(buffer),
       fCenter1(buffer.readPoint()),
       fCenter2(buffer.readPoint()),
@@ -344,7 +344,7 @@ SkTwoPointRadialGradient::SkTwoPointRadialGradient(
 };
 
 void SkTwoPointRadialGradient::flatten(
-    SkFlattenableWriteBuffer& buffer) const {
+    SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writePoint(fCenter1);
     buffer.writePoint(fCenter2);

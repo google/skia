@@ -8,8 +8,8 @@
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkTypeface.h"
-#include "SkOrderedReadBuffer.h"
-#include "SkOrderedWriteBuffer.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include <new>
 #include "SkBBoxHierarchy.h"
 #include "SkPictureStateTree.h"
@@ -322,7 +322,7 @@ bool SkPicturePlayback::containsBitmaps() const {
 
 #include "SkStream.h"
 
-static void writeTagSize(SkOrderedWriteBuffer& buffer, uint32_t tag,
+static void writeTagSize(SkWriteBuffer& buffer, uint32_t tag,
                          uint32_t size) {
     buffer.writeUInt(tag);
     buffer.writeUInt(size);
@@ -370,7 +370,7 @@ static void writeTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
     }
 }
 
-void SkPicturePlayback::flattenToBuffer(SkOrderedWriteBuffer& buffer) const {
+void SkPicturePlayback::flattenToBuffer(SkWriteBuffer& buffer) const {
     int i, n;
 
     if ((n = SafeCount(fBitmaps)) > 0) {
@@ -411,8 +411,8 @@ void SkPicturePlayback::serialize(SkWStream* stream,
         SkRefCntSet  typefaceSet;
         SkFactorySet factSet;
 
-        SkOrderedWriteBuffer buffer;
-        buffer.setFlags(SkFlattenableWriteBuffer::kCrossProcess_Flag);
+        SkWriteBuffer buffer;
+        buffer.setFlags(SkWriteBuffer::kCrossProcess_Flag);
         buffer.setTypefaceRecorder(&typefaceSet);
         buffer.setFactoryRecorder(&factSet);
         buffer.setBitmapEncoder(encoder);
@@ -425,7 +425,7 @@ void SkPicturePlayback::serialize(SkWStream* stream,
         writeFactories(stream, factSet);
         writeTypefaces(stream, typefaceSet);
 
-        writeTagSize(stream, PICT_BUFFER_SIZE_TAG, buffer.size());
+        writeTagSize(stream, PICT_BUFFER_SIZE_TAG, buffer.bytesWritten());
         buffer.writeToStream(stream);
     }
 
@@ -435,7 +435,7 @@ void SkPicturePlayback::serialize(SkWStream* stream,
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- *  Return the corresponding SkFlattenableReadBuffer flags, given a set of
+ *  Return the corresponding SkReadBuffer flags, given a set of
  *  SkPictInfo flags.
  */
 static uint32_t pictInfoFlagsToReadBufferFlags(uint32_t pictInfoFlags) {
@@ -443,9 +443,9 @@ static uint32_t pictInfoFlagsToReadBufferFlags(uint32_t pictInfoFlags) {
         uint32_t    fSrc;
         uint32_t    fDst;
     } gSD[] = {
-        { SkPictInfo::kCrossProcess_Flag,   SkFlattenableReadBuffer::kCrossProcess_Flag },
-        { SkPictInfo::kScalarIsFloat_Flag,  SkFlattenableReadBuffer::kScalarIsFloat_Flag },
-        { SkPictInfo::kPtrIs64Bit_Flag,     SkFlattenableReadBuffer::kPtrIs64Bit_Flag },
+        { SkPictInfo::kCrossProcess_Flag,   SkReadBuffer::kCrossProcess_Flag },
+        { SkPictInfo::kScalarIsFloat_Flag,  SkReadBuffer::kScalarIsFloat_Flag },
+        { SkPictInfo::kPtrIs64Bit_Flag,     SkReadBuffer::kPtrIs64Bit_Flag },
     };
 
     uint32_t rbMask = 0;
@@ -534,7 +534,7 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
                 return false;
             }
 
-            SkOrderedReadBuffer buffer(storage.get(), size);
+            SkReadBuffer buffer(storage.get(), size);
             buffer.setFlags(pictInfoFlagsToReadBufferFlags(info.fFlags));
 
             fFactoryPlayback->setupBuffer(buffer);
@@ -554,7 +554,7 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
     return true;    // success
 }
 
-bool SkPicturePlayback::parseBufferTag(SkOrderedReadBuffer& buffer,
+bool SkPicturePlayback::parseBufferTag(SkReadBuffer& buffer,
                                        uint32_t tag, size_t size) {
     switch (tag) {
         case PICT_BITMAP_BUFFER_TAG: {

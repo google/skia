@@ -13,15 +13,15 @@
 #include "SkTDArray.h"
 
 class SkPath;
-class SkFlattenableReadBuffer;
-class SkFlattenableWriteBuffer;
+class SkReadBuffer;
+class SkWriteBuffer;
 
 class SkPathHeap : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkPathHeap)
 
     SkPathHeap();
-    SkPathHeap(SkFlattenableReadBuffer&);
+    SkPathHeap(SkReadBuffer&);
     virtual ~SkPathHeap();
 
     /** Copy the path into the heap, and return the new total number of paths.
@@ -36,7 +36,7 @@ public:
         return *fPaths[index];
     }
 
-    void flatten(SkFlattenableWriteBuffer&) const;
+    void flatten(SkWriteBuffer&) const;
 
 private:
     // we store the paths in the heap (placement new)

@@ -6,7 +6,8 @@
  */
 
 #include "SkDisplacementMapEffect.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkUnPreMultiply.h"
 #include "SkColorPriv.h"
 #if SK_SUPPORT_GPU
@@ -172,7 +173,7 @@ SkDisplacementMapEffect::SkDisplacementMapEffect(ChannelSelectorType xChannelSel
 SkDisplacementMapEffect::~SkDisplacementMapEffect() {
 }
 
-SkDisplacementMapEffect::SkDisplacementMapEffect(SkFlattenableReadBuffer& buffer)
+SkDisplacementMapEffect::SkDisplacementMapEffect(SkReadBuffer& buffer)
   : INHERITED(2, buffer)
 {
     fXChannelSelector = (SkDisplacementMapEffect::ChannelSelectorType) buffer.readInt();
@@ -183,7 +184,7 @@ SkDisplacementMapEffect::SkDisplacementMapEffect(SkFlattenableReadBuffer& buffer
                     SkScalarIsFinite(fScale));
 }
 
-void SkDisplacementMapEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkDisplacementMapEffect::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeInt((int) fXChannelSelector);
     buffer.writeInt((int) fYChannelSelector);

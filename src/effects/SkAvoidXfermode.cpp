@@ -7,7 +7,8 @@
 
 #include "SkAvoidXfermode.h"
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkString.h"
 
 SkAvoidXfermode::SkAvoidXfermode(SkColor opColor, U8CPU tolerance, Mode mode) {
@@ -20,14 +21,14 @@ SkAvoidXfermode::SkAvoidXfermode(SkColor opColor, U8CPU tolerance, Mode mode) {
     fMode = mode;
 }
 
-SkAvoidXfermode::SkAvoidXfermode(SkFlattenableReadBuffer& buffer)
+SkAvoidXfermode::SkAvoidXfermode(SkReadBuffer& buffer)
     : INHERITED(buffer) {
     fOpColor = buffer.readColor();
     fDistMul = buffer.readUInt();
     fMode = (Mode)buffer.readUInt();
 }
 
-void SkAvoidXfermode::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkAvoidXfermode::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeColor(fOpColor);

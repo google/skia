@@ -239,13 +239,13 @@ SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
     return kRadial_GradientType;
 }
 
-SkRadialGradient::SkRadialGradient(SkFlattenableReadBuffer& buffer)
+SkRadialGradient::SkRadialGradient(SkReadBuffer& buffer)
     : INHERITED(buffer),
       fCenter(buffer.readPoint()),
       fRadius(buffer.readScalar()) {
 }
 
-void SkRadialGradient::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writePoint(fCenter);
     buffer.writeScalar(fRadius);

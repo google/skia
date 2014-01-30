@@ -328,8 +328,8 @@ protected:
     SkBaseMutex* mutex() const { return fMutex; }
 
     // serialization
-    SkPixelRef(SkFlattenableReadBuffer&, SkBaseMutex*);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkPixelRef(SkReadBuffer&, SkBaseMutex*);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // only call from constructor. Flags this to always be locked, removing
     // the need to grab the mutex and call onLockPixels/onUnlockPixels.

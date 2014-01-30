@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkOrderedWriteBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkPixelRef.h"
@@ -14,8 +14,8 @@
 #include "SkStream.h"
 #include "SkTypeface.h"
 
-SkOrderedWriteBuffer::SkOrderedWriteBuffer()
-    : INHERITED()
+SkWriteBuffer::SkWriteBuffer()
+    : fFlags(0)
     , fFactorySet(NULL)
     , fNamedFactorySet(NULL)
     , fBitmapHeap(NULL)
@@ -23,8 +23,8 @@ SkOrderedWriteBuffer::SkOrderedWriteBuffer()
     , fBitmapEncoder(NULL) {
 }
 
-SkOrderedWriteBuffer::SkOrderedWriteBuffer(void* storage, size_t storageSize)
-    : INHERITED()
+SkWriteBuffer::SkWriteBuffer(void* storage, size_t storageSize)
+    : fFlags(0)
     , fFactorySet(NULL)
     , fNamedFactorySet(NULL)
     , fWriter(storage, storageSize)
@@ -33,57 +33,57 @@ SkOrderedWriteBuffer::SkOrderedWriteBuffer(void* storage, size_t storageSize)
     , fBitmapEncoder(NULL) {
 }
 
-SkOrderedWriteBuffer::~SkOrderedWriteBuffer() {
+SkWriteBuffer::~SkWriteBuffer() {
     SkSafeUnref(fFactorySet);
     SkSafeUnref(fNamedFactorySet);
     SkSafeUnref(fBitmapHeap);
     SkSafeUnref(fTFSet);
 }
 
-void SkOrderedWriteBuffer::writeByteArray(const void* data, size_t size) {
+void SkWriteBuffer::writeByteArray(const void* data, size_t size) {
     fWriter.write32(size);
     fWriter.writePad(data, size);
 }
 
-void SkOrderedWriteBuffer::writeBool(bool value) {
+void SkWriteBuffer::writeBool(bool value) {
     fWriter.writeBool(value);
 }
 
-void SkOrderedWriteBuffer::writeFixed(SkFixed value) {
+void SkWriteBuffer::writeFixed(SkFixed value) {
     fWriter.write32(value);
 }
 
-void SkOrderedWriteBuffer::writeScalar(SkScalar value) {
+void SkWriteBuffer::writeScalar(SkScalar value) {
     fWriter.writeScalar(value);
 }
 
-void SkOrderedWriteBuffer::writeScalarArray(const SkScalar* value, uint32_t count) {
+void SkWriteBuffer::writeScalarArray(const SkScalar* value, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(value, count * sizeof(SkScalar));
 }
 
-void SkOrderedWriteBuffer::writeInt(int32_t value) {
+void SkWriteBuffer::writeInt(int32_t value) {
     fWriter.write32(value);
 }
 
-void SkOrderedWriteBuffer::writeIntArray(const int32_t* value, uint32_t count) {
+void SkWriteBuffer::writeIntArray(const int32_t* value, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(value, count * sizeof(int32_t));
 }
 
-void SkOrderedWriteBuffer::writeUInt(uint32_t value) {
+void SkWriteBuffer::writeUInt(uint32_t value) {
     fWriter.write32(value);
 }
 
-void SkOrderedWriteBuffer::write32(int32_t value) {
+void SkWriteBuffer::write32(int32_t value) {
     fWriter.write32(value);
 }
 
-void SkOrderedWriteBuffer::writeString(const char* value) {
+void SkWriteBuffer::writeString(const char* value) {
     fWriter.writeString(value);
 }
 
-void SkOrderedWriteBuffer::writeEncodedString(const void* value, size_t byteLength,
+void SkWriteBuffer::writeEncodedString(const void* value, size_t byteLength,
                                               SkPaint::TextEncoding encoding) {
     fWriter.writeInt(encoding);
     fWriter.writeInt(byteLength);
@@ -91,46 +91,46 @@ void SkOrderedWriteBuffer::writeEncodedString(const void* value, size_t byteLeng
 }
 
 
-void SkOrderedWriteBuffer::writeColor(const SkColor& color) {
+void SkWriteBuffer::writeColor(const SkColor& color) {
     fWriter.write32(color);
 }
 
-void SkOrderedWriteBuffer::writeColorArray(const SkColor* color, uint32_t count) {
+void SkWriteBuffer::writeColorArray(const SkColor* color, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(color, count * sizeof(SkColor));
 }
 
-void SkOrderedWriteBuffer::writePoint(const SkPoint& point) {
+void SkWriteBuffer::writePoint(const SkPoint& point) {
     fWriter.writeScalar(point.fX);
     fWriter.writeScalar(point.fY);
 }
 
-void SkOrderedWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
+void SkWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(point, count * sizeof(SkPoint));
 }
 
-void SkOrderedWriteBuffer::writeMatrix(const SkMatrix& matrix) {
+void SkWriteBuffer::writeMatrix(const SkMatrix& matrix) {
     fWriter.writeMatrix(matrix);
 }
 
-void SkOrderedWriteBuffer::writeIRect(const SkIRect& rect) {
+void SkWriteBuffer::writeIRect(const SkIRect& rect) {
     fWriter.write(&rect, sizeof(SkIRect));
 }
 
-void SkOrderedWriteBuffer::writeRect(const SkRect& rect) {
+void SkWriteBuffer::writeRect(const SkRect& rect) {
     fWriter.writeRect(rect);
 }
 
-void SkOrderedWriteBuffer::writeRegion(const SkRegion& region) {
+void SkWriteBuffer::writeRegion(const SkRegion& region) {
     fWriter.writeRegion(region);
 }
 
-void SkOrderedWriteBuffer::writePath(const SkPath& path) {
+void SkWriteBuffer::writePath(const SkPath& path) {
     fWriter.writePath(path);
 }
 
-size_t SkOrderedWriteBuffer::writeStream(SkStream* stream, size_t length) {
+size_t SkWriteBuffer::writeStream(SkStream* stream, size_t length) {
     fWriter.write32(length);
     size_t bytesWritten = fWriter.readFromStream(stream, length);
     if (bytesWritten < length) {
@@ -139,11 +139,11 @@ size_t SkOrderedWriteBuffer::writeStream(SkStream* stream, size_t length) {
     return bytesWritten;
 }
 
-bool SkOrderedWriteBuffer::writeToStream(SkWStream* stream) {
+bool SkWriteBuffer::writeToStream(SkWStream* stream) {
     return fWriter.writeToStream(stream);
 }
 
-static void write_encoded_bitmap(SkOrderedWriteBuffer* buffer, SkData* data,
+static void write_encoded_bitmap(SkWriteBuffer* buffer, SkData* data,
                                  const SkIPoint& origin) {
     buffer->writeUInt(SkToU32(data->size()));
     buffer->getWriter32()->writePad(data->data(), data->size());
@@ -151,7 +151,7 @@ static void write_encoded_bitmap(SkOrderedWriteBuffer* buffer, SkData* data,
     buffer->write32(origin.fY);
 }
 
-void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
+void SkWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     // Record the width and height. This way if readBitmap fails a dummy bitmap can be drawn at the
     // right size.
     this->writeInt(bitmap.width());
@@ -211,7 +211,7 @@ void SkOrderedWriteBuffer::writeBitmap(const SkBitmap& bitmap) {
     bitmap.flatten(*this);
 }
 
-void SkOrderedWriteBuffer::writeTypeface(SkTypeface* obj) {
+void SkWriteBuffer::writeTypeface(SkTypeface* obj) {
     if (NULL == obj || NULL == fTFSet) {
         fWriter.write32(0);
     } else {
@@ -219,7 +219,7 @@ void SkOrderedWriteBuffer::writeTypeface(SkTypeface* obj) {
     }
 }
 
-SkFactorySet* SkOrderedWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
+SkFactorySet* SkWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
     SkRefCnt_SafeAssign(fFactorySet, rec);
     if (fNamedFactorySet != NULL) {
         fNamedFactorySet->unref();
@@ -228,7 +228,7 @@ SkFactorySet* SkOrderedWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
     return rec;
 }
 
-SkNamedFactorySet* SkOrderedWriteBuffer::setNamedFactoryRecorder(SkNamedFactorySet* rec) {
+SkNamedFactorySet* SkWriteBuffer::setNamedFactoryRecorder(SkNamedFactorySet* rec) {
     SkRefCnt_SafeAssign(fNamedFactorySet, rec);
     if (fFactorySet != NULL) {
         fFactorySet->unref();
@@ -237,12 +237,12 @@ SkNamedFactorySet* SkOrderedWriteBuffer::setNamedFactoryRecorder(SkNamedFactoryS
     return rec;
 }
 
-SkRefCntSet* SkOrderedWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
+SkRefCntSet* SkWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
     SkRefCnt_SafeAssign(fTFSet, rec);
     return rec;
 }
 
-void SkOrderedWriteBuffer::setBitmapHeap(SkBitmapHeap* bitmapHeap) {
+void SkWriteBuffer::setBitmapHeap(SkBitmapHeap* bitmapHeap) {
     SkRefCnt_SafeAssign(fBitmapHeap, bitmapHeap);
     if (bitmapHeap != NULL) {
         SkASSERT(NULL == fBitmapEncoder);
@@ -250,7 +250,7 @@ void SkOrderedWriteBuffer::setBitmapHeap(SkBitmapHeap* bitmapHeap) {
     }
 }
 
-void SkOrderedWriteBuffer::setBitmapEncoder(SkPicture::EncodeBitmap bitmapEncoder) {
+void SkWriteBuffer::setBitmapEncoder(SkPicture::EncodeBitmap bitmapEncoder) {
     fBitmapEncoder = bitmapEncoder;
     if (bitmapEncoder != NULL) {
         SkASSERT(NULL == fBitmapHeap);
@@ -259,7 +259,7 @@ void SkOrderedWriteBuffer::setBitmapEncoder(SkPicture::EncodeBitmap bitmapEncode
     }
 }
 
-void SkOrderedWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
+void SkWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
     /*
      *  If we have a factoryset, then the first 32bits tell us...
      *       0: failure to write the flattenable
@@ -318,7 +318,7 @@ void SkOrderedWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
     // record the current size, so we can subtract after the object writes.
     uint32_t offset = fWriter.bytesWritten();
     // now flatten the object
-    flattenObject(flattenable, *this);
+    flattenable->flatten(*this);
     uint32_t objSize = fWriter.bytesWritten() - offset;
     // record the obj's size
     *fWriter.peek32(offset - sizeof(uint32_t)) = objSize;

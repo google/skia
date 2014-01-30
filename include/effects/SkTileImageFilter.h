@@ -28,9 +28,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTileImageFilter)
 
 protected:
-    explicit SkTileImageFilter(SkFlattenableReadBuffer& buffer);
+    explicit SkTileImageFilter(SkReadBuffer& buffer);
 
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE;
+    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 
 private:
     SkRect fSrcRect;

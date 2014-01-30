@@ -8,7 +8,8 @@
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
 #include "SkRegion.h"
@@ -89,12 +90,12 @@ protected:
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
-    Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+    Dot2DPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
         fRadius = buffer.readScalar();
         fPts = NULL;
     }
 
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fRadius);
     }
@@ -118,7 +119,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(InverseFillPE)
 
 protected:
-    InverseFillPE(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    InverseFillPE(SkReadBuffer& buffer) : INHERITED(buffer) {}
 private:
 
     typedef SkPathEffect INHERITED;

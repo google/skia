@@ -8,11 +8,23 @@
 
 #include "SkBitmap.h"
 #include "SkErrorInternals.h"
-#include "SkOrderedReadBuffer.h"
+#include "SkReadBuffer.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
-SkOrderedReadBuffer::SkOrderedReadBuffer() : INHERITED() {
+static uint32_t default_flags() {
+    uint32_t flags = 0;
+#ifdef SK_SCALAR_IS_FLOAT
+    flags |= SkReadBuffer::kScalarIsFloat_Flag;
+#endif
+    if (8 == sizeof(void*)) {
+        flags |= SkReadBuffer::kPtrIs64Bit_Flag;
+    }
+    return flags;
+}
+
+SkReadBuffer::SkReadBuffer() {
+    fFlags = default_flags();
     fMemoryPtr = NULL;
 
     fBitmapStorage = NULL;
@@ -28,7 +40,8 @@ SkOrderedReadBuffer::SkOrderedReadBuffer() : INHERITED() {
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
 }
 
-SkOrderedReadBuffer::SkOrderedReadBuffer(const void* data, size_t size) : INHERITED()  {
+SkReadBuffer::SkReadBuffer(const void* data, size_t size) {
+    fFlags = default_flags();
     fReader.setMemory(data, size);
     fMemoryPtr = NULL;
 
@@ -45,7 +58,8 @@ SkOrderedReadBuffer::SkOrderedReadBuffer(const void* data, size_t size) : INHERI
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
 }
 
-SkOrderedReadBuffer::SkOrderedReadBuffer(SkStream* stream) {
+SkReadBuffer::SkReadBuffer(SkStream* stream) {
+    fFlags = default_flags();
     const size_t length = stream->getLength();
     fMemoryPtr = sk_malloc_throw(length);
     stream->read(fMemoryPtr, length);
@@ -64,46 +78,46 @@ SkOrderedReadBuffer::SkOrderedReadBuffer(SkStream* stream) {
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
 }
 
-SkOrderedReadBuffer::~SkOrderedReadBuffer() {
+SkReadBuffer::~SkReadBuffer() {
     sk_free(fMemoryPtr);
     SkSafeUnref(fBitmapStorage);
 }
 
-bool SkOrderedReadBuffer::readBool() {
+bool SkReadBuffer::readBool() {
     return fReader.readBool();
 }
 
-SkColor SkOrderedReadBuffer::readColor() {
+SkColor SkReadBuffer::readColor() {
     return fReader.readInt();
 }
 
-SkFixed SkOrderedReadBuffer::readFixed() {
+SkFixed SkReadBuffer::readFixed() {
     return fReader.readS32();
 }
 
-int32_t SkOrderedReadBuffer::readInt() {
+int32_t SkReadBuffer::readInt() {
     return fReader.readInt();
 }
 
-SkScalar SkOrderedReadBuffer::readScalar() {
+SkScalar SkReadBuffer::readScalar() {
     return fReader.readScalar();
 }
 
-uint32_t SkOrderedReadBuffer::readUInt() {
+uint32_t SkReadBuffer::readUInt() {
     return fReader.readU32();
 }
 
-int32_t SkOrderedReadBuffer::read32() {
+int32_t SkReadBuffer::read32() {
     return fReader.readInt();
 }
 
-void SkOrderedReadBuffer::readString(SkString* string) {
+void SkReadBuffer::readString(SkString* string) {
     size_t len;
     const char* strContents = fReader.readString(&len);
     string->set(strContents, len);
 }
 
-void* SkOrderedReadBuffer::readEncodedString(size_t* length, SkPaint::TextEncoding encoding) {
+void* SkReadBuffer::readEncodedString(size_t* length, SkPaint::TextEncoding encoding) {
     SkDEBUGCODE(int32_t encodingType = ) fReader.readInt();
     SkASSERT(encodingType == encoding);
     *length =  fReader.readInt();
@@ -112,32 +126,32 @@ void* SkOrderedReadBuffer::readEncodedString(size_t* length, SkPaint::TextEncodi
     return data;
 }
 
-void SkOrderedReadBuffer::readPoint(SkPoint* point) {
+void SkReadBuffer::readPoint(SkPoint* point) {
     point->fX = fReader.readScalar();
     point->fY = fReader.readScalar();
 }
 
-void SkOrderedReadBuffer::readMatrix(SkMatrix* matrix) {
+void SkReadBuffer::readMatrix(SkMatrix* matrix) {
     fReader.readMatrix(matrix);
 }
 
-void SkOrderedReadBuffer::readIRect(SkIRect* rect) {
+void SkReadBuffer::readIRect(SkIRect* rect) {
     memcpy(rect, fReader.skip(sizeof(SkIRect)), sizeof(SkIRect));
 }
 
-void SkOrderedReadBuffer::readRect(SkRect* rect) {
+void SkReadBuffer::readRect(SkRect* rect) {
     memcpy(rect, fReader.skip(sizeof(SkRect)), sizeof(SkRect));
 }
 
-void SkOrderedReadBuffer::readRegion(SkRegion* region) {
+void SkReadBuffer::readRegion(SkRegion* region) {
     fReader.readRegion(region);
 }
 
-void SkOrderedReadBuffer::readPath(SkPath* path) {
+void SkReadBuffer::readPath(SkPath* path) {
     fReader.readPath(path);
 }
 
-bool SkOrderedReadBuffer::readArray(void* value, size_t size, size_t elementSize) {
+bool SkReadBuffer::readArray(void* value, size_t size, size_t elementSize) {
     const size_t count = this->getArrayCount();
     if (count == size) {
         (void)fReader.skip(sizeof(uint32_t)); // Skip array count
@@ -150,31 +164,31 @@ bool SkOrderedReadBuffer::readArray(void* value, size_t size, size_t elementSize
     return false;
 }
 
-bool SkOrderedReadBuffer::readByteArray(void* value, size_t size) {
+bool SkReadBuffer::readByteArray(void* value, size_t size) {
     return readArray(static_cast<unsigned char*>(value), size, sizeof(unsigned char));
 }
 
-bool SkOrderedReadBuffer::readColorArray(SkColor* colors, size_t size) {
+bool SkReadBuffer::readColorArray(SkColor* colors, size_t size) {
     return readArray(colors, size, sizeof(SkColor));
 }
 
-bool SkOrderedReadBuffer::readIntArray(int32_t* values, size_t size) {
+bool SkReadBuffer::readIntArray(int32_t* values, size_t size) {
     return readArray(values, size, sizeof(int32_t));
 }
 
-bool SkOrderedReadBuffer::readPointArray(SkPoint* points, size_t size) {
+bool SkReadBuffer::readPointArray(SkPoint* points, size_t size) {
     return readArray(points, size, sizeof(SkPoint));
 }
 
-bool SkOrderedReadBuffer::readScalarArray(SkScalar* values, size_t size) {
+bool SkReadBuffer::readScalarArray(SkScalar* values, size_t size) {
     return readArray(values, size, sizeof(SkScalar));
 }
 
-uint32_t SkOrderedReadBuffer::getArrayCount() {
+uint32_t SkReadBuffer::getArrayCount() {
     return *(uint32_t*)fReader.peek();
 }
 
-void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
+void SkReadBuffer::readBitmap(SkBitmap* bitmap) {
     const int width = this->readInt();
     const int height = this->readInt();
     // The writer stored a boolean value to determine whether an SkBitmapHeap was used during
@@ -183,7 +197,7 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
         // An SkBitmapHeap was used for writing. Read the index from the stream and find the
         // corresponding SkBitmap in fBitmapStorage.
         const uint32_t index = fReader.readU32();
-        fReader.readU32(); // bitmap generation ID (see SkOrderedWriteBuffer::writeBitmap)
+        fReader.readU32(); // bitmap generation ID (see SkWriteBuffer::writeBitmap)
         if (fBitmapStorage) {
             *bitmap = *fBitmapStorage->getBitmap(index);
             fBitmapStorage->releaseRef(index);
@@ -191,9 +205,9 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
         } else {
             // The bitmap was stored in a heap, but there is no way to access it. Set an error and
             // fall through to use a place holder bitmap.
-            SkErrorInternals::SetError(kParseError_SkError, "SkOrderedWriteBuffer::writeBitmap "
+            SkErrorInternals::SetError(kParseError_SkError, "SkWriteBuffer::writeBitmap "
                                        "stored the SkBitmap in an SkBitmapHeap, but "
-                                       "SkOrderedReadBuffer has no SkBitmapHeapReader to "
+                                       "SkReadBuffer has no SkBitmapHeapReader to "
                                        "retrieve the SkBitmap.");
         }
     } else {
@@ -212,7 +226,7 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
                 if (bitmap->width() == width && bitmap->height() == height) {
 #ifdef DEBUG_NON_DETERMINISTIC_ASSERT
                     if (0 != xOffset || 0 != yOffset) {
-                        SkDebugf("SkOrderedReadBuffer::readBitmap: heights match,"
+                        SkDebugf("SkReadBuffer::readBitmap: heights match,"
                                  " but offset is not zero. \nInfo about the bitmap:"
                                  "\n\tIndex: %d\n\tDimensions: [%d %d]\n\tEncoded"
                                  " data size: %d\n\tOffset: (%d, %d)\n",
@@ -256,7 +270,7 @@ void SkOrderedReadBuffer::readBitmap(SkBitmap* bitmap) {
     bitmap->eraseColor(SK_ColorRED);
 }
 
-SkTypeface* SkOrderedReadBuffer::readTypeface() {
+SkTypeface* SkReadBuffer::readTypeface() {
 
     uint32_t index = fReader.readU32();
     if (0 == index || index > (unsigned)fTFCount) {
@@ -270,7 +284,7 @@ SkTypeface* SkOrderedReadBuffer::readTypeface() {
     }
 }
 
-SkFlattenable* SkOrderedReadBuffer::readFlattenable(SkFlattenable::Type ft) {
+SkFlattenable* SkReadBuffer::readFlattenable(SkFlattenable::Type ft) {
     //
     // TODO: confirm that ft matches the factory we decide to use
     //

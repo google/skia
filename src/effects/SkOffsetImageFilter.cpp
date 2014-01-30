@@ -9,7 +9,8 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 
@@ -84,7 +85,7 @@ bool SkOffsetImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm
     return true;
 }
 
-void SkOffsetImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkOffsetImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writePoint(fOffset);
 }
@@ -94,7 +95,7 @@ SkOffsetImageFilter::SkOffsetImageFilter(SkScalar dx, SkScalar dy, SkImageFilter
     fOffset.set(dx, dy);
 }
 
-SkOffsetImageFilter::SkOffsetImageFilter(SkFlattenableReadBuffer& buffer)
+SkOffsetImageFilter::SkOffsetImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     buffer.readPoint(&fOffset);
     buffer.validate(SkScalarIsFinite(fOffset.fX) &&

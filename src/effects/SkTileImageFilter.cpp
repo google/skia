@@ -9,7 +9,8 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkShader.h"
@@ -73,14 +74,14 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src, const S
     return true;
 }
 
-SkTileImageFilter::SkTileImageFilter(SkFlattenableReadBuffer& buffer)
+SkTileImageFilter::SkTileImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     buffer.readRect(&fSrcRect);
     buffer.readRect(&fDstRect);
     buffer.validate(buffer.isValid() && SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
 }
 
-void SkTileImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkTileImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeRect(fSrcRect);
     buffer.writeRect(fDstRect);

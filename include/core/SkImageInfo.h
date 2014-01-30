@@ -11,8 +11,8 @@
 #include "SkTypes.h"
 #include "SkSize.h"
 
-class SkFlattenableWriteBuffer;
-class SkFlattenableReadBuffer;
+class SkWriteBuffer;
+class SkReadBuffer;
 
 /**
  *  Describes how to interpret the alpha compoent of a pixel.
@@ -178,8 +178,8 @@ struct SkImageInfo {
         return 0 != memcmp(this, &other, sizeof(other));
     }
 
-    void unflatten(SkFlattenableReadBuffer&);
-    void flatten(SkFlattenableWriteBuffer&) const;
+    void unflatten(SkReadBuffer&);
+    void flatten(SkWriteBuffer&) const;
 
     size_t getSafeSize(size_t rowBytes) const {
         if (0 == fHeight) {

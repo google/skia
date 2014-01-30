@@ -8,7 +8,8 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkRect.h"
 #include "SkMorphology_opts.h"
 #if SK_SUPPORT_GPU
@@ -20,7 +21,7 @@
 #include "SkImageFilterUtils.h"
 #endif
 
-SkMorphologyImageFilter::SkMorphologyImageFilter(SkFlattenableReadBuffer& buffer)
+SkMorphologyImageFilter::SkMorphologyImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fRadius.fWidth = buffer.readInt();
     fRadius.fHeight = buffer.readInt();
@@ -36,7 +37,7 @@ SkMorphologyImageFilter::SkMorphologyImageFilter(int radiusX,
 }
 
 
-void SkMorphologyImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkMorphologyImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeInt(fRadius.fWidth);
     buffer.writeInt(fRadius.fHeight);

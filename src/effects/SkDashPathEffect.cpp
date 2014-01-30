@@ -8,7 +8,8 @@
 
 
 #include "SkDashPathEffect.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkPathMeasure.h"
 
 static inline int is_even(int x) {
@@ -532,7 +533,7 @@ SkFlattenable::Factory SkDashPathEffect::getFactory() const {
     return fInitialDashLength < 0 ? NULL : CreateProc;
 }
 
-void SkDashPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkDashPathEffect::flatten(SkWriteBuffer& buffer) const {
     SkASSERT(fInitialDashLength >= 0);
 
     this->INHERITED::flatten(buffer);
@@ -543,11 +544,11 @@ void SkDashPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeScalarArray(fIntervals, fCount);
 }
 
-SkFlattenable* SkDashPathEffect::CreateProc(SkFlattenableReadBuffer& buffer) {
+SkFlattenable* SkDashPathEffect::CreateProc(SkReadBuffer& buffer) {
     return SkNEW_ARGS(SkDashPathEffect, (buffer));
 }
 
-SkDashPathEffect::SkDashPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
     fInitialDashIndex = buffer.readInt();
     fInitialDashLength = buffer.readScalar();
     fIntervalLength = buffer.readScalar();

@@ -14,8 +14,8 @@
 #include "SkImagePriv.h"
 #include "SkMallocPixelRef.h"
 #include "SkMask.h"
-#include "SkOrderedReadBuffer.h"
-#include "SkOrderedWriteBuffer.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkPixelRef.h"
 #include "SkThread.h"
 #include "SkUnPreMultiply.h"
@@ -1583,7 +1583,7 @@ enum {
     SERIALIZE_PIXELTYPE_REF_DATA
 };
 
-void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkBitmap::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(fWidth);
     buffer.writeInt(fHeight);
     buffer.writeInt(fRowBytes);
@@ -1605,7 +1605,7 @@ void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
     }
 }
 
-void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
+void SkBitmap::unflatten(SkReadBuffer& buffer) {
     this->reset();
 
     int width = buffer.readInt();

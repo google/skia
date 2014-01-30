@@ -10,7 +10,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkFlattenable::flatten(SkFlattenableWriteBuffer&) const
+void SkFlattenable::flatten(SkWriteBuffer&) const
 {
     /*  we don't write anything at the moment, but this allows our subclasses
         to not know that, since we want them to always call INHERITED::flatten()

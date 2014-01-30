@@ -9,7 +9,8 @@
 
 #include "SkLayerRasterizer.h"
 #include "SkDraw.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkMask.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
@@ -143,7 +144,7 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
     return true;
 }
 
-SkLayerRasterizer::SkLayerRasterizer(SkFlattenableReadBuffer& buffer)
+SkLayerRasterizer::SkLayerRasterizer(SkReadBuffer& buffer)
     : SkRasterizer(buffer), fLayers(sizeof(SkLayerRasterizer_Rec)) {
     int count = buffer.readInt();
 
@@ -156,7 +157,7 @@ SkLayerRasterizer::SkLayerRasterizer(SkFlattenableReadBuffer& buffer)
     }
 }
 
-void SkLayerRasterizer::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkLayerRasterizer::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeInt(fLayers.count());

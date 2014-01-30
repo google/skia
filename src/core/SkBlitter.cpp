@@ -12,7 +12,8 @@
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkFilterShader.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkMask.h"
 #include "SkMaskFilter.h"
 #include "SkTemplatesPriv.h"
@@ -682,13 +683,13 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Sk3DShader)
 
 protected:
-    Sk3DShader(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+    Sk3DShader(SkReadBuffer& buffer) : INHERITED(buffer) {
         fProxy = buffer.readShader();
         fPMColor = buffer.readColor();
         fMask = NULL;
     }
 
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeFlattenable(fProxy);
         buffer.writeColor(fPMColor);

@@ -10,7 +10,8 @@
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 
@@ -22,14 +23,14 @@ SkResizeImageFilter::SkResizeImageFilter(SkScalar sx, SkScalar sy, SkPaint::Filt
     fFilterLevel(filterLevel) {
 }
 
-SkResizeImageFilter::SkResizeImageFilter(SkFlattenableReadBuffer& buffer)
+SkResizeImageFilter::SkResizeImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fSx = buffer.readScalar();
     fSy = buffer.readScalar();
     fFilterLevel = static_cast<SkPaint::FilterLevel>(buffer.readInt());
 }
 
-void SkResizeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkResizeImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fSx);
     buffer.writeScalar(fSy);

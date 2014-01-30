@@ -7,7 +7,8 @@
 
 #include "SkAnnotation.h"
 #include "SkData.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkPoint.h"
 #include "SkStream.h"
 
@@ -28,12 +29,12 @@ SkData* SkAnnotation::find(const char key[]) const {
     return fKey.equals(key) ? fData : NULL;
 }
 
-SkAnnotation::SkAnnotation(SkFlattenableReadBuffer& buffer) {
+SkAnnotation::SkAnnotation(SkReadBuffer& buffer) {
     buffer.readString(&fKey);
     fData = buffer.readByteArrayAsData();
 }
 
-void SkAnnotation::writeToBuffer(SkFlattenableWriteBuffer& buffer) const {
+void SkAnnotation::writeToBuffer(SkWriteBuffer& buffer) const {
     buffer.writeString(fKey.c_str());
     buffer.writeDataAsByteArray(fData);
 }

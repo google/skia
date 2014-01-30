@@ -8,8 +8,8 @@
 #include "SkData.h"
 #include "SkDataTable.h"
 #include "SkOSFile.h"
-#include "SkOrderedReadBuffer.h"
-#include "SkOrderedWriteBuffer.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkStream.h"
 #include "Test.h"
 

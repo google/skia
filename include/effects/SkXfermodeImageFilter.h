@@ -40,8 +40,8 @@ public:
 #endif
 
 protected:
-    explicit SkXfermodeImageFilter(SkFlattenableReadBuffer& buffer);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    explicit SkXfermodeImageFilter(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkXfermode* fMode;

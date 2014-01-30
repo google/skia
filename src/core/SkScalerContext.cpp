@@ -15,8 +15,8 @@
 #include "SkGlyph.h"
 #include "SkMaskFilter.h"
 #include "SkMaskGamma.h"
-#include "SkOrderedReadBuffer.h"
-#include "SkOrderedWriteBuffer.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
 #include "SkRasterClip.h"
@@ -73,7 +73,7 @@ static SkFlattenable* load_flattenable(const SkDescriptor* desc, uint32_t tag,
     const void*     data = desc->findEntry(tag, &len);
 
     if (data) {
-        SkOrderedReadBuffer   buffer(data, len);
+        SkReadBuffer buffer(data, len);
         obj = buffer.readFlattenable(ft);
         SkASSERT(buffer.offset() == buffer.size());
     }
@@ -118,7 +118,7 @@ SkScalerContext::SkScalerContext(SkTypeface* typeface, const SkDescriptor* desc)
     uint32_t len;
     const void* data = desc->findEntry(kAndroidOpts_SkDescriptorTag, &len);
     if (data) {
-        SkOrderedReadBuffer buffer(data, len);
+        SkReadBuffer buffer(data, len);
         fPaintOptionsAndroid.unflatten(buffer);
         SkASSERT(buffer.offset() == buffer.size());
     }
@@ -147,10 +147,11 @@ SkScalerContext* SkScalerContext::allocNextContext() const {
     SkAutoTUnref<SkTypeface> aur(newFace);
     uint32_t newFontID = newFace->uniqueID();
 
-    SkOrderedWriteBuffer androidBuffer;
+    SkWriteBuffer androidBuffer;
     fPaintOptionsAndroid.flatten(androidBuffer);
 
-    SkAutoDescriptor    ad(sizeof(fRec) + androidBuffer.size() + SkDescriptor::ComputeOverhead(2));
+    SkAutoDescriptor    ad(sizeof(fRec) + androidBuffer.bytesWritten()
+                           + SkDescriptor::ComputeOverhead(2));
     SkDescriptor*       desc = ad.getDesc();
 
     desc->init();
@@ -158,7 +159,7 @@ SkScalerContext* SkScalerContext::allocNextContext() const {
     (SkScalerContext::Rec*)desc->addEntry(kRec_SkDescriptorTag,
                                           sizeof(fRec), &fRec);
     androidBuffer.writeToMemory(desc->addEntry(kAndroidOpts_SkDescriptorTag,
-                                               androidBuffer.size(), NULL));
+                                               androidBuffer.bytesWritten(), NULL));
 
     newRec->fFontID = newFontID;
     desc->computeChecksum();

@@ -44,11 +44,11 @@ SkLumaColorFilter::SkLumaColorFilter()
     : INHERITED() {
 }
 
-SkLumaColorFilter::SkLumaColorFilter(SkFlattenableReadBuffer& buffer)
+SkLumaColorFilter::SkLumaColorFilter(SkReadBuffer& buffer)
     : INHERITED(buffer) {
 }
 
-void SkLumaColorFilter::flatten(SkFlattenableWriteBuffer&) const {
+void SkLumaColorFilter::flatten(SkWriteBuffer&) const {
 }
 
 #ifdef SK_DEVELOPER

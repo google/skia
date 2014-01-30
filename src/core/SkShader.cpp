@@ -8,7 +8,8 @@
 
 #include "SkScalar.h"
 #include "SkShader.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkPaint.h"
 #include "SkMallocPixelRef.h"
 
@@ -17,7 +18,7 @@ SkShader::SkShader() {
     SkDEBUGCODE(fInSetContext = false;)
 }
 
-SkShader::SkShader(SkFlattenableReadBuffer& buffer)
+SkShader::SkShader(SkReadBuffer& buffer)
         : INHERITED(buffer) {
     if (buffer.readBool()) {
         buffer.readMatrix(&fLocalMatrix);
@@ -32,7 +33,7 @@ SkShader::~SkShader() {
     SkASSERT(!fInSetContext);
 }
 
-void SkShader::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkShader::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     bool hasLocalM = this->hasLocalMatrix();
     buffer.writeBool(hasLocalM);
@@ -213,7 +214,7 @@ bool SkColorShader::isOpaque() const {
     return SkColorGetA(fColor) == 255;
 }
 
-SkColorShader::SkColorShader(SkFlattenableReadBuffer& b) : INHERITED(b) {
+SkColorShader::SkColorShader(SkReadBuffer& b) : INHERITED(b) {
     fFlags = 0; // computed in setContext
 
     fInheritColor = b.readBool();
@@ -223,7 +224,7 @@ SkColorShader::SkColorShader(SkFlattenableReadBuffer& b) : INHERITED(b) {
     fColor = b.readColor();
 }
 
-void SkColorShader::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkColorShader::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeBool(fInheritColor);
     if (fInheritColor) {

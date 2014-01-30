@@ -19,7 +19,8 @@
 #include "SkDashPathEffect.h"
 #include "SkDiscretePathEffect.h"
 #include "SkEmbossMaskFilter.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkGradientShader.h"
 #include "SkImageDecoder.h"
 #include "SkLayerRasterizer.h"
@@ -171,10 +172,10 @@ protected:
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
-    Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+    Dot2DPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
         fRadius = buffer.readScalar();
     }
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fRadius);
     }

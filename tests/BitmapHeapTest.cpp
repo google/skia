@@ -9,14 +9,14 @@
 #include "SkBitmapHeap.h"
 #include "SkColor.h"
 #include "SkFlattenable.h"
-#include "SkOrderedWriteBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkPictureFlat.h"
 #include "SkRefCnt.h"
 #include "SkShader.h"
 #include "Test.h"
 
 struct SkShaderTraits {
-    static void flatten(SkOrderedWriteBuffer& buffer, const SkShader& shader) {
+    static void flatten(SkWriteBuffer& buffer, const SkShader& shader) {
         buffer.writeFlattenable(&shader);
     }
 };

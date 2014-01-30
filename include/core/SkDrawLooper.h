@@ -68,7 +68,7 @@ public:
 
 protected:
     SkDrawLooper() {}
-    SkDrawLooper(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    SkDrawLooper(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     typedef SkFlattenable INHERITED;

@@ -11,7 +11,8 @@
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkColorShader.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkXfermode.h"
 #include "SkString.h"
 
@@ -25,7 +26,7 @@ SkComposeShader::SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode) {
     SkSafeRef(mode);
 }
 
-SkComposeShader::SkComposeShader(SkFlattenableReadBuffer& buffer) :
+SkComposeShader::SkComposeShader(SkReadBuffer& buffer) :
     INHERITED(buffer) {
     fShaderA = buffer.readShader();
     if (NULL == fShaderA) {
@@ -61,7 +62,7 @@ private:
 };
 #define SkAutoAlphaRestore(...) SK_REQUIRE_LOCAL_VAR(SkAutoAlphaRestore)
 
-void SkComposeShader::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fShaderA);
     buffer.writeFlattenable(fShaderB);

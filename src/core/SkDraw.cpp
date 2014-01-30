@@ -2382,7 +2382,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTriColorShader)
 
 protected:
-    SkTriColorShader(SkFlattenableReadBuffer& buffer) : SkShader(buffer) {}
+    SkTriColorShader(SkReadBuffer& buffer) : SkShader(buffer) {}
 
 private:
     SkMatrix    fDstToUnit;

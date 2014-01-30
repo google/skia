@@ -42,12 +42,12 @@ SkShader::GradientType SkSweepGradient::asAGradient(GradientInfo* info) const {
     return kSweep_GradientType;
 }
 
-SkSweepGradient::SkSweepGradient(SkFlattenableReadBuffer& buffer)
+SkSweepGradient::SkSweepGradient(SkReadBuffer& buffer)
     : INHERITED(buffer),
       fCenter(buffer.readPoint()) {
 }
 
-void SkSweepGradient::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writePoint(fCenter);
 }

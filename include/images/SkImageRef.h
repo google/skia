@@ -76,8 +76,8 @@ protected:
     // override this in your subclass to clean up when we're unlocking pixels
     virtual void onUnlockPixels() SK_OVERRIDE {}
 
-    SkImageRef(SkFlattenableReadBuffer&, SkBaseMutex* mutex = NULL);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkImageRef(SkReadBuffer&, SkBaseMutex* mutex = NULL);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     SkBitmap fBitmap;
 

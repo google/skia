@@ -12,8 +12,8 @@
 
 #include "SkRefCnt.h"
 
-class SkFlattenableReadBuffer;
-class SkFlattenableWriteBuffer;
+class SkReadBuffer;
+class SkWriteBuffer;
 
 #define SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(flattenable) \
         SkFlattenable::Registrar(#flattenable, flattenable::CreateProc, \
@@ -32,7 +32,7 @@ class SkFlattenableWriteBuffer;
 
 #define SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(flattenable) \
     virtual Factory getFactory() const SK_OVERRIDE { return CreateProc; } \
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { \
+    static SkFlattenable* CreateProc(SkReadBuffer& buffer) { \
         return SkNEW_ARGS(flattenable, (buffer)); \
     }
 
@@ -67,7 +67,7 @@ public:
 
     SK_DECLARE_INST_COUNT(SkFlattenable)
 
-    typedef SkFlattenable* (*Factory)(SkFlattenableReadBuffer&);
+    typedef SkFlattenable* (*Factory)(SkReadBuffer&);
 
     SkFlattenable() {}
 
@@ -94,19 +94,19 @@ public:
         }
     };
 
-protected:
-    SkFlattenable(SkFlattenableReadBuffer&) {}
     /** Override this to write data specific to your subclass into the buffer,
      being sure to call your super-class' version first. This data will later
      be passed to your Factory function, returned by getFactory().
      */
-    virtual void flatten(SkFlattenableWriteBuffer&) const;
+    virtual void flatten(SkWriteBuffer&) const;
+
+protected:
+    SkFlattenable(SkReadBuffer&) {}
 
 private:
     static void InitializeFlattenablesIfNeeded();
 
     friend class SkGraphics;
-    friend class SkFlattenableWriteBuffer;
 
     typedef SkRefCnt INHERITED;
 };

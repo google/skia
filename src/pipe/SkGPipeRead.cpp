@@ -20,7 +20,7 @@
 #include "SkDrawLooper.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
-#include "SkOrderedReadBuffer.h"
+#include "SkReadBuffer.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
 #include "SkRRect.h"
@@ -105,7 +105,7 @@ public:
         return fFlags;
     }
 
-    void setReader(SkOrderedReadBuffer* reader) {
+    void setReader(SkReadBuffer* reader) {
         fReader = reader;
         this->updateReader();
     }
@@ -156,7 +156,7 @@ public:
     }
 
     /**
-     * Override of SkBitmapHeapReader, so that SkOrderedReadBuffer can use
+     * Override of SkBitmapHeapReader, so that SkReadBuffer can use
      * these SkBitmaps for bitmap shaders. Used only in cross process mode
      * without a shared heap.
      */
@@ -203,7 +203,7 @@ private:
         }
         bool crossProcess = SkToBool(fFlags & SkGPipeWriter::kCrossProcess_Flag);
         fReader->setFlags(SkSetClearMask(fReader->getFlags(), crossProcess,
-                                         SkFlattenableReadBuffer::kCrossProcess_Flag));
+                                         SkReadBuffer::kCrossProcess_Flag));
         if (crossProcess) {
             fReader->setFactoryArray(&fFactoryArray);
         } else {
@@ -216,7 +216,7 @@ private:
             fReader->setBitmapStorage(fSharedHeap);
         }
     }
-    SkOrderedReadBuffer*      fReader;
+    SkReadBuffer*             fReader;
     SkPaint                   fPaint;
     SkTDArray<SkFlattenable*> fFlatArray;
     SkTDArray<SkTypeface*>    fTypefaces;
@@ -696,7 +696,7 @@ static void annotation_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
 
     const size_t size = DrawOp_unpackData(op32);
     if (size > 0) {
-        SkOrderedReadBuffer buffer(reader->skip(size), size);
+        SkReadBuffer buffer(reader->skip(size), size);
         p->setAnnotation(SkNEW_ARGS(SkAnnotation, (buffer)))->unref();
         SkASSERT(buffer.offset() == size);
     } else {
@@ -857,7 +857,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
     SkASSERT(SK_ARRAY_COUNT(gReadTable) == (kDone_DrawOp + 1));
 
     const ReadProc* table = gReadTable;
-    SkOrderedReadBuffer reader(data, length);
+    SkReadBuffer reader(data, length);
     reader.setBitmapDecoder(fProc);
     SkCanvas* canvas = fCanvas;
     Status status = kEOF_Status;

@@ -8,7 +8,8 @@
 #include "SkBitmap.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -231,7 +232,7 @@ void GrMagnifierEffect::getConstantColorComponents(GrColor* color, uint32_t* val
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-SkMagnifierImageFilter::SkMagnifierImageFilter(SkFlattenableReadBuffer& buffer)
+SkMagnifierImageFilter::SkMagnifierImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     float x = buffer.readScalar();
     float y = buffer.readScalar();
@@ -269,7 +270,7 @@ bool SkMagnifierImageFilter::asNewEffect(GrEffectRef** effect, GrTexture* textur
 }
 #endif
 
-void SkMagnifierImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fSrcRect.x());
     buffer.writeScalar(fSrcRect.y());

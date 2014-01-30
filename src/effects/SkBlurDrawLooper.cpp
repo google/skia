@@ -10,7 +10,8 @@
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkString.h"
@@ -63,7 +64,7 @@ void SkBlurDrawLooper::init(SkScalar sigma, SkScalar dx, SkScalar dy,
     }
 }
 
-SkBlurDrawLooper::SkBlurDrawLooper(SkFlattenableReadBuffer& buffer)
+SkBlurDrawLooper::SkBlurDrawLooper(SkReadBuffer& buffer)
 : INHERITED(buffer) {
 
     fDx = buffer.readScalar();
@@ -79,7 +80,7 @@ SkBlurDrawLooper::~SkBlurDrawLooper() {
     SkSafeUnref(fColorFilter);
 }
 
-void SkBlurDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkBlurDrawLooper::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fDx);
     buffer.writeScalar(fDy);

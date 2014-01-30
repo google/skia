@@ -8,7 +8,8 @@
 #include "SkPictureImageFilter.h"
 #include "SkDevice.h"
 #include "SkCanvas.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
 SkPictureImageFilter::SkPictureImageFilter(SkPicture* picture)
@@ -30,14 +31,14 @@ SkPictureImageFilter::~SkPictureImageFilter() {
     SkSafeUnref(fPicture);
 }
 
-SkPictureImageFilter::SkPictureImageFilter(SkFlattenableReadBuffer& buffer)
+SkPictureImageFilter::SkPictureImageFilter(SkReadBuffer& buffer)
   : INHERITED(0, buffer),
     fPicture(NULL) {
     // FIXME: unflatten picture here.
     buffer.readRect(&fRect);
 }
 
-void SkPictureImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     // FIXME: flatten picture here.
     buffer.writeRect(fRect);

@@ -49,11 +49,11 @@ public:
 
     virtual Factory getFactory() const SK_OVERRIDE;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+    static SkFlattenable* CreateProc(SkReadBuffer&);
 
 protected:
-    SkDashPathEffect(SkFlattenableReadBuffer&);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkDashPathEffect(SkReadBuffer&);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkScalar*   fIntervals;

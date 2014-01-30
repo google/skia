@@ -2,7 +2,8 @@
 #define SkXfermode_proccoeff_DEFINED
 
 #include "SkXfermode.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 
 struct ProcCoeff {
     SkXfermodeProc      fProc;
@@ -35,9 +36,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
 
 protected:
-    SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer);
+    SkProcCoeffXfermode(SkReadBuffer& buffer);
 
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE;
+    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 
     Mode getMode() const {
         return fMode;

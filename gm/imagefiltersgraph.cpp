@@ -13,7 +13,8 @@
 #include "SkColorFilter.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkColorMatrixFilter.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOnce.h"
@@ -57,13 +58,13 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SimpleOffsetFilter);
 
 protected:
-    explicit SimpleOffsetFilter(SkFlattenableReadBuffer& buffer)
+    explicit SimpleOffsetFilter(SkReadBuffer& buffer)
     : SkImageFilter(1, buffer) {
         fDX = buffer.readScalar();
         fDY = buffer.readScalar();
     }
 
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         this->SkImageFilter::flatten(buffer);
         buffer.writeScalar(fDX);
         buffer.writeScalar(fDY);

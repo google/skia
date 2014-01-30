@@ -34,7 +34,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkEmptyShader)
 
 protected:
-    SkEmptyShader(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    SkEmptyShader(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     typedef SkShader INHERITED;

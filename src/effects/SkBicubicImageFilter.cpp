@@ -8,7 +8,8 @@
 #include "SkBicubicImageFilter.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
 #include "SkUnPreMultiply.h"
@@ -40,7 +41,7 @@ SkBicubicImageFilter* SkBicubicImageFilter::CreateMitchell(const SkSize& scale,
     return SkNEW_ARGS(SkBicubicImageFilter, (scale, gMitchellCoefficients, input));
 }
 
-SkBicubicImageFilter::SkBicubicImageFilter(SkFlattenableReadBuffer& buffer)
+SkBicubicImageFilter::SkBicubicImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     SkDEBUGCODE(bool success =) buffer.readScalarArray(fCoefficients, 16);
     SkASSERT(success);
@@ -52,7 +53,7 @@ SkBicubicImageFilter::SkBicubicImageFilter(SkFlattenableReadBuffer& buffer)
                     (fScale.fHeight >= 0));
 }
 
-void SkBicubicImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkBicubicImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalarArray(fCoefficients, 16);
     buffer.writeScalar(fScale.fWidth);

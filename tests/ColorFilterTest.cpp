@@ -9,22 +9,22 @@
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkLumaColorFilter.h"
-#include "SkOrderedReadBuffer.h"
-#include "SkOrderedWriteBuffer.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkRandom.h"
 #include "SkXfermode.h"
 #include "Test.h"
 
 static SkColorFilter* reincarnate_colorfilter(SkFlattenable* obj) {
-    SkOrderedWriteBuffer wb;
+    SkWriteBuffer wb;
     wb.writeFlattenable(obj);
 
-    size_t size = wb.size();
+    size_t size = wb.bytesWritten();
     SkAutoSMalloc<1024> storage(size);
     // make a copy into storage
     wb.writeToMemory(storage.get());
 
-    SkOrderedReadBuffer rb(storage.get(), size);
+    SkReadBuffer rb(storage.get(), size);
     return rb.readColorFilter();
 }
 

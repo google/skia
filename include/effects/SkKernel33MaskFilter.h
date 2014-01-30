@@ -24,8 +24,8 @@ public:
     SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
 
 protected:
-    SkKernel33ProcMaskFilter(SkFlattenableReadBuffer& rb);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkKernel33ProcMaskFilter(SkReadBuffer& rb);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     int fPercent256;
@@ -53,8 +53,8 @@ private:
     int fKernel[3][3];
     int fShift;
 
-    SkKernel33MaskFilter(SkFlattenableReadBuffer& rb);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkKernel33MaskFilter(SkReadBuffer& rb);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     typedef SkKernel33ProcMaskFilter INHERITED;
 };

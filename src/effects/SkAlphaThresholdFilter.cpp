@@ -7,7 +7,8 @@
 
 #include "SkAlphaThresholdFilter.h"
 #include "SkBitmap.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkRegion.h"
 
 class SK_API SkAlphaThresholdFilterImpl : public SkImageFilter {
@@ -17,8 +18,8 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkAlphaThresholdFilterImpl)
 
 protected:
-    explicit SkAlphaThresholdFilterImpl(SkFlattenableReadBuffer& buffer);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    explicit SkAlphaThresholdFilterImpl(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
@@ -230,7 +231,7 @@ void AlphaThresholdEffect::getConstantColorComponents(GrColor* color, uint32_t* 
 
 #endif
 
-SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(SkFlattenableReadBuffer& buffer)
+SkAlphaThresholdFilterImpl::SkAlphaThresholdFilterImpl(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fInnerThreshold = buffer.readScalar();
     fOuterThreshold = buffer.readScalar();
@@ -295,7 +296,7 @@ bool SkAlphaThresholdFilterImpl::asNewEffect(GrEffectRef** effect, GrTexture* te
 }
 #endif
 
-void SkAlphaThresholdFilterImpl::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkAlphaThresholdFilterImpl::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fInnerThreshold);
     buffer.writeScalar(fOuterThreshold);

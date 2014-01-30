@@ -24,8 +24,8 @@ class SkAutoGlyphCache;
 class SkColorFilter;
 class SkDescriptor;
 struct SkDeviceProperties;
-class SkFlattenableReadBuffer;
-class SkFlattenableWriteBuffer;
+class SkReadBuffer;
+class SkWriteBuffer;
 struct SkGlyph;
 struct SkRect;
 class SkGlyphCache;
@@ -72,8 +72,8 @@ public:
         return !(a == b);
     }
 
-    void flatten(SkFlattenableWriteBuffer&) const;
-    void unflatten(SkFlattenableReadBuffer&);
+    void flatten(SkWriteBuffer&) const;
+    void unflatten(SkReadBuffer&);
 
     /** Restores the paint to its initial settings.
     */

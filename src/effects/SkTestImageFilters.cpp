@@ -2,7 +2,8 @@
 #include "SkTestImageFilters.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 
 // Simple helper canvas that "takes ownership" of the provided device, so that
 // when this canvas goes out of scope, so will its device. Could be replaced
@@ -70,13 +71,13 @@ bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     return true;
 }
 
-void SkDownSampleImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkDownSampleImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeScalar(fScale);
 }
 
-SkDownSampleImageFilter::SkDownSampleImageFilter(SkFlattenableReadBuffer& buffer)
+SkDownSampleImageFilter::SkDownSampleImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fScale = buffer.readScalar();
     buffer.validate(SkScalarIsFinite(fScale));

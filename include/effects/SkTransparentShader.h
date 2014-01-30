@@ -29,7 +29,7 @@ private:
     const SkBitmap* fDevice;
     uint8_t         fAlpha;
 
-    SkTransparentShader(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
+    SkTransparentShader(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
     typedef SkShader INHERITED;
 };

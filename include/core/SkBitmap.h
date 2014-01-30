@@ -658,8 +658,8 @@ public:
         buffers as they can optimize the recording process and avoid recording
         duplicate bitmaps and pixelRefs.
      */
-    void flatten(SkFlattenableWriteBuffer&) const;
-    void unflatten(SkFlattenableReadBuffer&);
+    void flatten(SkWriteBuffer&) const;
+    void unflatten(SkReadBuffer&);
 
     SkDEBUGCODE(void validate() const;)
 

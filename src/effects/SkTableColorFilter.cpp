@@ -2,7 +2,8 @@
 #include "SkBitmap.h"
 #include "SkTableColorFilter.h"
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkUnPreMultiply.h"
 #include "SkString.h"
 
@@ -60,8 +61,8 @@ public:
     };
 
 protected:
-    SkTable_ColorFilter(SkFlattenableReadBuffer& buffer);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkTable_ColorFilter(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     mutable const SkBitmap* fBitmap; // lazily allocated
@@ -166,7 +167,7 @@ static const uint8_t gCountNibBits[] = {
 
 #include "SkPackBits.h"
 
-void SkTable_ColorFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkTable_ColorFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     uint8_t storage[5*256];
@@ -180,7 +181,7 @@ void SkTable_ColorFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writeByteArray(storage, size);
 }
 
-SkTable_ColorFilter::SkTable_ColorFilter(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+SkTable_ColorFilter::SkTable_ColorFilter(SkReadBuffer& buffer) : INHERITED(buffer) {
     fBitmap = NULL;
 
     uint8_t storage[5*256];

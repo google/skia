@@ -8,7 +8,8 @@
 #include "SkBitmap.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkGpuBlurUtils.h"
 #include "SkBlurImage_opts.h"
 #if SK_SUPPORT_GPU
@@ -16,7 +17,7 @@
 #include "SkImageFilterUtils.h"
 #endif
 
-SkBlurImageFilter::SkBlurImageFilter(SkFlattenableReadBuffer& buffer)
+SkBlurImageFilter::SkBlurImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fSigma.fWidth = buffer.readScalar();
     fSigma.fHeight = buffer.readScalar();
@@ -34,7 +35,7 @@ SkBlurImageFilter::SkBlurImageFilter(SkScalar sigmaX,
     SkASSERT(sigmaX >= 0 && sigmaY >= 0);
 }
 
-void SkBlurImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkBlurImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fSigma.fWidth);
     buffer.writeScalar(fSigma.fHeight);

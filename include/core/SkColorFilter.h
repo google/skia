@@ -135,7 +135,7 @@ public:
 
 protected:
     SkColorFilter() {}
-    SkColorFilter(SkFlattenableReadBuffer& rb) : INHERITED(rb) {}
+    SkColorFilter(SkReadBuffer& rb) : INHERITED(rb) {}
 
 private:
     typedef SkFlattenable INHERITED;

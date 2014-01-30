@@ -11,7 +11,8 @@
 #include "SkColorMatrixFilter.h"
 #include "SkDevice.h"
 #include "SkColorFilter.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 
 namespace {
 
@@ -82,12 +83,12 @@ SkColorFilterImageFilter::SkColorFilterImageFilter(SkColorFilter* cf,
     SkSafeRef(cf);
 }
 
-SkColorFilterImageFilter::SkColorFilterImageFilter(SkFlattenableReadBuffer& buffer)
+SkColorFilterImageFilter::SkColorFilterImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fColorFilter = buffer.readColorFilter();
 }
 
-void SkColorFilterImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkColorFilterImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeFlattenable(fColorFilter);

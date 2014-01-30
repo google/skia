@@ -41,8 +41,8 @@ protected:
     const SkMatrix& getMatrix() const { return fMatrix; }
 
     // protected so that subclasses can call this during unflattening
-    Sk2DPathEffect(SkFlattenableReadBuffer&);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    Sk2DPathEffect(SkReadBuffer&);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkMatrix    fMatrix, fInverse;
@@ -69,9 +69,9 @@ public:
 protected:
     virtual void nextSpan(int u, int v, int ucount, SkPath*) const SK_OVERRIDE;
 
-    SkLine2DPathEffect(SkFlattenableReadBuffer&);
+    SkLine2DPathEffect(SkReadBuffer&);
 
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkScalar fWidth;
@@ -90,8 +90,8 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPath2DPathEffect)
 
 protected:
-    SkPath2DPathEffect(SkFlattenableReadBuffer& buffer);
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkPath2DPathEffect(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual void next(const SkPoint&, int u, int v, SkPath*) const SK_OVERRIDE;
 

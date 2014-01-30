@@ -64,7 +64,7 @@ void SkImageRef_GlobalPool::onUnlockPixels() {
     GetGlobalPool()->canLosePixels(this);
 }
 
-SkImageRef_GlobalPool::SkImageRef_GlobalPool(SkFlattenableReadBuffer& buffer)
+SkImageRef_GlobalPool::SkImageRef_GlobalPool(SkReadBuffer& buffer)
         : INHERITED(buffer, &gGlobalPoolMutex) {
     SkASSERT(&gGlobalPoolMutex == this->mutex());
     SkAutoMutexAcquire ac(gGlobalPoolMutex);

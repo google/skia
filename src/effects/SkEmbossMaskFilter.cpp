@@ -11,7 +11,8 @@
 #include "SkBlurMaskFilter.h"
 #include "SkBlurMask.h"
 #include "SkEmbossMask.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkString.h"
 
 static inline int pin2byte(int n) {
@@ -129,7 +130,7 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src,
     return true;
 }
 
-SkEmbossMaskFilter::SkEmbossMaskFilter(SkFlattenableReadBuffer& buffer)
+SkEmbossMaskFilter::SkEmbossMaskFilter(SkReadBuffer& buffer)
         : SkMaskFilter(buffer) {
     SkASSERT(buffer.getArrayCount() == sizeof(Light));
     buffer.readByteArray(&fLight, sizeof(Light));
@@ -137,7 +138,7 @@ SkEmbossMaskFilter::SkEmbossMaskFilter(SkFlattenableReadBuffer& buffer)
     fBlurSigma = buffer.readScalar();
 }
 
-void SkEmbossMaskFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkEmbossMaskFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     Light tmpLight = fLight;

@@ -8,7 +8,8 @@
 
 
 #include "Sk1DPathEffect.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkPathMeasure.h"
 
 bool Sk1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
@@ -146,7 +147,7 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
     }
 }
 
-SkPath1DPathEffect::SkPath1DPathEffect(SkFlattenableReadBuffer& buffer) {
+SkPath1DPathEffect::SkPath1DPathEffect(SkReadBuffer& buffer) {
     fAdvance = buffer.readScalar();
     if (fAdvance > 0) {
         buffer.readPath(&fPath);
@@ -164,7 +165,7 @@ SkScalar SkPath1DPathEffect::begin(SkScalar contourLength) const {
     return fInitialOffset;
 }
 
-void SkPath1DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkPath1DPathEffect::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fAdvance);
     if (fAdvance > 0) {

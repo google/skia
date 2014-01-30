@@ -10,14 +10,15 @@
 
 #include "SkRefCnt.h"
 #include "SkBitmapHeap.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkReader32.h"
 
 class SkBitmap;
 
-class SkValidatingReadBuffer : public SkFlattenableReadBuffer {
+class SkValidatingReadBuffer : public SkReadBuffer {
 public:
     SkValidatingReadBuffer(const void* data, size_t size);
     virtual ~SkValidatingReadBuffer();
@@ -77,7 +78,7 @@ private:
     SkReader32 fReader;
     bool fError;
 
-    typedef SkFlattenableReadBuffer INHERITED;
+    typedef SkReadBuffer INHERITED;
 };
 
 #endif // SkValidatingReadBuffer_DEFINED

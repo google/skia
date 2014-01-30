@@ -8,7 +8,8 @@
 #include "SkMergeImageFilter.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkValidationUtils.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -148,7 +149,7 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     return true;
 }
 
-void SkMergeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkMergeImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeBool(fModes != NULL);
@@ -157,7 +158,7 @@ void SkMergeImageFilter::flatten(SkFlattenableWriteBuffer& buffer) const {
     }
 }
 
-SkMergeImageFilter::SkMergeImageFilter(SkFlattenableReadBuffer& buffer)
+SkMergeImageFilter::SkMergeImageFilter(SkReadBuffer& buffer)
   : INHERITED(-1, buffer) {
     bool hasModes = buffer.readBool();
     if (hasModes) {

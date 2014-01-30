@@ -75,8 +75,8 @@ public:
         SkDEBUGCODE(f16BitCacheLockCount -= 1);
     }
 
-    explicit SkColorTable(SkFlattenableReadBuffer&);
-    void writeToBuffer(SkFlattenableWriteBuffer&) const;
+    explicit SkColorTable(SkReadBuffer&);
+    void writeToBuffer(SkWriteBuffer&) const;
 
 private:
     SkPMColor*  fColors;

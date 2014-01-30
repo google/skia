@@ -27,7 +27,7 @@ protected:
         return false;
     }
 
-    FailImageFilter(SkFlattenableReadBuffer& buffer)
+    FailImageFilter(SkReadBuffer& buffer)
       : INHERITED(1, buffer) {}
 
 private:
@@ -51,7 +51,7 @@ protected:
         return true;
     }
 
-    IdentityImageFilter(SkFlattenableReadBuffer& buffer)
+    IdentityImageFilter(SkReadBuffer& buffer)
       : INHERITED(1, buffer) {}
 
 private:

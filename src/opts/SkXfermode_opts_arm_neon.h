@@ -18,7 +18,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkNEONProcCoeffXfermode)
 
 private:
-    SkNEONProcCoeffXfermode(SkFlattenableReadBuffer& buffer);
+    SkNEONProcCoeffXfermode(SkReadBuffer& buffer);
 
     // void* is used to avoid pulling arm_neon.h in the core and having to build
     // it with -mfpu=neon.

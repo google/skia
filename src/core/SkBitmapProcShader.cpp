@@ -6,7 +6,8 @@
  * found in the LICENSE file.
  */
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkPixelRef.h"
 #include "SkErrorInternals.h"
 #include "SkBitmapProcShader.h"
@@ -38,7 +39,7 @@ SkBitmapProcShader::SkBitmapProcShader(const SkBitmap& src,
     fFlags = 0; // computed in setContext
 }
 
-SkBitmapProcShader::SkBitmapProcShader(SkFlattenableReadBuffer& buffer)
+SkBitmapProcShader::SkBitmapProcShader(SkReadBuffer& buffer)
         : INHERITED(buffer) {
     buffer.readBitmap(&fRawBitmap);
     fRawBitmap.setImmutable();
@@ -63,7 +64,7 @@ SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture,
     return kDefault_BitmapType;
 }
 
-void SkBitmapProcShader::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkBitmapProcShader::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeBitmap(fRawBitmap);

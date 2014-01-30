@@ -690,7 +690,7 @@ typedef uint8x8x4_t (*SkXfermodeProcSIMD)(uint8x8x4_t src, uint8x8x4_t dst);
 
 extern SkXfermodeProcSIMD gNEONXfermodeProcs[];
 
-SkNEONProcCoeffXfermode::SkNEONProcCoeffXfermode(SkFlattenableReadBuffer& buffer)
+SkNEONProcCoeffXfermode::SkNEONProcCoeffXfermode(SkReadBuffer& buffer)
         : INHERITED(buffer) {
     fProcSIMD = reinterpret_cast<void*>(gNEONXfermodeProcs[this->getMode()]);
 }

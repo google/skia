@@ -1,21 +1,21 @@
 // SkPaints only have an SkPaintOptionsAndroid if SK_BUILD_FOR_ANDROID is true.
 #ifdef SK_BUILD_FOR_ANDROID
 
-#include "SkOrderedReadBuffer.h"
-#include "SkOrderedWriteBuffer.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkPaint.h"
 #include "SkPaintOptionsAndroid.h"
 #include "Test.h"
 
 static size_t Reconstruct(const SkPaint& src, SkPaint* dst) {
-    SkOrderedWriteBuffer writer;
+    SkWriteBuffer writer;
     src.flatten(writer);
 
     const size_t size = writer.bytesWritten();
     SkAutoMalloc bytes(size);
     writer.writeToMemory(bytes.get());
 
-    SkOrderedReadBuffer reader(bytes.get(), size);
+    SkReadBuffer reader(bytes.get(), size);
     dst->unflatten(reader);
 
     return size;

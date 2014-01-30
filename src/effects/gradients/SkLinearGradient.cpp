@@ -59,13 +59,13 @@ SkLinearGradient::SkLinearGradient(const SkPoint pts[2], const Descriptor& desc)
     pts_to_unit_matrix(pts, &fPtsToUnit);
 }
 
-SkLinearGradient::SkLinearGradient(SkFlattenableReadBuffer& buffer)
+SkLinearGradient::SkLinearGradient(SkReadBuffer& buffer)
     : INHERITED(buffer)
     , fStart(buffer.readPoint())
     , fEnd(buffer.readPoint()) {
 }
 
-void SkLinearGradient::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writePoint(fStart);
     buffer.writePoint(fEnd);

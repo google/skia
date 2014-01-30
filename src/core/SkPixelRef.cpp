@@ -6,7 +6,8 @@
  * found in the LICENSE file.
  */
 #include "SkPixelRef.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkThread.h"
 
 #ifdef SK_USE_POSIX_THREADS
@@ -101,13 +102,13 @@ SkPixelRef::SkPixelRef(const SkImageInfo& info, SkBaseMutex* mutex) : fInfo(info
     fPreLocked = false;
 }
 
-static SkImageInfo read_info(SkFlattenableReadBuffer& buffer) {
+static SkImageInfo read_info(SkReadBuffer& buffer) {
     SkImageInfo info;
     info.unflatten(buffer);
     return info;
 }
 
-SkPixelRef::SkPixelRef(SkFlattenableReadBuffer& buffer, SkBaseMutex* mutex)
+SkPixelRef::SkPixelRef(SkReadBuffer& buffer, SkBaseMutex* mutex)
         : INHERITED(buffer)
         , fInfo(read_info(buffer))
 {
@@ -148,7 +149,7 @@ void SkPixelRef::setPreLocked(void* pixels, size_t rowBytes, SkColorTable* ctabl
 #endif
 }
 
-void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkPixelRef::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     fInfo.flatten(buffer);
     buffer.writeBool(fIsImmutable);

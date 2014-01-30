@@ -363,8 +363,8 @@ protected:
     const SkMatrix&     getTotalInverse() const { return fTotalInverse; }
     MatrixClass         getInverseClass() const { return (MatrixClass)fTotalInverseClass; }
 
-    SkShader(SkFlattenableReadBuffer& );
-    virtual void flatten(SkFlattenableWriteBuffer&) const SK_OVERRIDE;
+    SkShader(SkReadBuffer& );
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 private:
     SkMatrix            fLocalMatrix;
     SkMatrix            fTotalInverse;

@@ -169,8 +169,8 @@ public:
 
     /**
      *  Function to encode an SkBitmap to an SkData. A function with this
-     *  signature can be passed to serialize() and SkOrderedWriteBuffer.
-     *  Returning NULL will tell the SkOrderedWriteBuffer to use
+     *  signature can be passed to serialize() and SkWriteBuffer.
+     *  Returning NULL will tell the SkWriteBuffer to use
      *  SkBitmap::flatten() to store the bitmap.
      *
      *  @param pixelRefOffset DEPRECATED -- caller assumes it will return 0.

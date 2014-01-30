@@ -143,7 +143,7 @@ static uint32_t unpack_flags(uint32_t packed) {
     return packed >> 4;
 }
 
-SkGradientShaderBase::SkGradientShaderBase(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+SkGradientShaderBase::SkGradientShaderBase(SkReadBuffer& buffer) : INHERITED(buffer) {
     fCacheAlpha = 256;
 
     fMapper = buffer.readUnitMapper();
@@ -205,7 +205,7 @@ void SkGradientShaderBase::initCommon() {
     fColorsAreOpaque = colorAlpha == 0xFF;
 }
 
-void SkGradientShaderBase::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fMapper);
     buffer.writeColorArray(fOrigColors, fColorCount);

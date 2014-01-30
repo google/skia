@@ -8,7 +8,8 @@
 
 
 #include "SkDiscretePathEffect.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkPathMeasure.h"
 #include "SkRandom.h"
 
@@ -70,13 +71,13 @@ bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
     return true;
 }
 
-void SkDiscretePathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkDiscretePathEffect::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fSegLength);
     buffer.writeScalar(fPerterb);
 }
 
-SkDiscretePathEffect::SkDiscretePathEffect(SkFlattenableReadBuffer& buffer) {
+SkDiscretePathEffect::SkDiscretePathEffect(SkReadBuffer& buffer) {
     fSegLength = buffer.readScalar();
     fPerterb = buffer.readScalar();
 }

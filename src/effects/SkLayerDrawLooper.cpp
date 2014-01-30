@@ -7,7 +7,8 @@
  */
 #include "SkCanvas.h"
 #include "SkColor.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkLayerDrawLooper.h"
 #include "SkString.h"
 #include "SkStringUtils.h"
@@ -191,7 +192,7 @@ bool SkLayerDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkLayerDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
 #ifdef SK_DEBUG
@@ -220,7 +221,7 @@ void SkLayerDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) const {
     }
 }
 
-SkLayerDrawLooper::SkLayerDrawLooper(SkFlattenableReadBuffer& buffer)
+SkLayerDrawLooper::SkLayerDrawLooper(SkReadBuffer& buffer)
         : INHERITED(buffer),
           fRecs(NULL),
           fTopRec(NULL),

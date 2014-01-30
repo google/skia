@@ -10,7 +10,8 @@
 #include "SkCornerPathEffect.h"
 #include "SkPath.h"
 #include "SkPoint.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 
 SkCornerPathEffect::SkCornerPathEffect(SkScalar radius) : fRadius(radius) {}
 SkCornerPathEffect::~SkCornerPathEffect() {}
@@ -127,11 +128,11 @@ DONE:
     return true;
 }
 
-void SkCornerPathEffect::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkCornerPathEffect::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fRadius);
 }
 
-SkCornerPathEffect::SkCornerPathEffect(SkFlattenableReadBuffer& buffer) {
+SkCornerPathEffect::SkCornerPathEffect(SkReadBuffer& buffer) {
     fRadius = buffer.readScalar();
 }

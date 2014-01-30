@@ -310,7 +310,7 @@ SkShader::GradientType SkTwoPointConicalGradient::asAGradient(
 }
 
 SkTwoPointConicalGradient::SkTwoPointConicalGradient(
-    SkFlattenableReadBuffer& buffer)
+    SkReadBuffer& buffer)
     : INHERITED(buffer),
     fCenter1(buffer.readPoint()),
     fCenter2(buffer.readPoint()),
@@ -320,7 +320,7 @@ SkTwoPointConicalGradient::SkTwoPointConicalGradient(
 };
 
 void SkTwoPointConicalGradient::flatten(
-    SkFlattenableWriteBuffer& buffer) const {
+    SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
     buffer.writePoint(fCenter1);
     buffer.writePoint(fCenter2);

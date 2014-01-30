@@ -160,15 +160,15 @@ protected:
     virtual ~SkImageFilter();
 
     /**
-     *  Constructs a new SkImageFilter read from an SkFlattenableReadBuffer object.
+     *  Constructs a new SkImageFilter read from an SkReadBuffer object.
      *
      *  @param inputCount    The exact number of inputs expected for this SkImageFilter object.
      *                       -1 can be used if the filter accepts any number of inputs.
-     *  @param rb            SkFlattenableReadBuffer object from which the SkImageFilter is read.
+     *  @param rb            SkReadBuffer object from which the SkImageFilter is read.
      */
-    explicit SkImageFilter(int inputCount, SkFlattenableReadBuffer& rb);
+    explicit SkImageFilter(int inputCount, SkReadBuffer& rb);
 
-    virtual void flatten(SkFlattenableWriteBuffer& wb) const SK_OVERRIDE;
+    virtual void flatten(SkWriteBuffer& wb) const SK_OVERRIDE;
 
     /**
      *  This is the virtual which should be overridden by the derived class

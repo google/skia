@@ -7,7 +7,8 @@
 
 #include "SkMallocPixelRef.h"
 #include "SkBitmap.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 
 // assumes ptr was allocated via sk_malloc
 static void sk_free_releaseproc(void* ptr, void*) {
@@ -201,7 +202,7 @@ size_t SkMallocPixelRef::getAllocatedSizeInBytes() const {
     return this->info().getSafeSize(fRB);
 }
 
-void SkMallocPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkMallocPixelRef::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.write32(SkToU32(fRB));
@@ -216,7 +217,7 @@ void SkMallocPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     }
 }
 
-SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer)
+SkMallocPixelRef::SkMallocPixelRef(SkReadBuffer& buffer)
     : INHERITED(buffer, NULL)
     , fReleaseProc(sk_free_releaseproc)
     , fReleaseProcContext(NULL)

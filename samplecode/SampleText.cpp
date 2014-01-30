@@ -8,7 +8,8 @@
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -59,7 +60,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(ReduceNoise)
 
 private:
-    ReduceNoise(SkFlattenableReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
+    ReduceNoise(SkReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
 
     typedef SkKernel33ProcMaskFilter INHERITED;
 };
@@ -91,7 +92,7 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Darken)
 
 private:
-    Darken(SkFlattenableReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
+    Darken(SkReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
 
     typedef SkKernel33ProcMaskFilter INHERITED;
 };
@@ -143,7 +144,7 @@ public:
     virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const SK_OVERRIDE;
 
-    typedef SkFlattenable* (*Factory)(SkFlattenableReadBuffer&);
+    typedef SkFlattenable* (*Factory)(SkReadBuffer&);
 
     SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPowerMode)
@@ -153,11 +154,11 @@ private:
     uint8_t fTable[256];    // cache
 
     void init(SkScalar exponent);
-    SkPowerMode(SkFlattenableReadBuffer& b) : INHERITED(b) {
+    SkPowerMode(SkReadBuffer& b) : INHERITED(b) {
         // read the exponent
         this->init(SkFixedToScalar(b.readFixed()));
     }
-    virtual void flatten(SkFlattenableWriteBuffer& b) const SK_OVERRIDE {
+    virtual void flatten(SkWriteBuffer& b) const SK_OVERRIDE {
         this->INHERITED::flatten(b);
         b.writeFixed(SkScalarToFixed(fExp));
     }

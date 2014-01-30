@@ -7,7 +7,8 @@
 
 #include "SkArithmeticMode.h"
 #include "SkColorPriv.h"
-#include "SkFlattenableBuffers.h"
+#include "SkReadBuffer.h"
+#include "SkWriteBuffer.h"
 #include "SkString.h"
 #include "SkUnPreMultiply.h"
 #if SK_SUPPORT_GPU
@@ -40,14 +41,14 @@ public:
 #endif
 
 private:
-    SkArithmeticMode_scalar(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {
+    SkArithmeticMode_scalar(SkReadBuffer& buffer) : INHERITED(buffer) {
         fK[0] = buffer.readScalar();
         fK[1] = buffer.readScalar();
         fK[2] = buffer.readScalar();
         fK[3] = buffer.readScalar();
     }
 
-    virtual void flatten(SkFlattenableWriteBuffer& buffer) const SK_OVERRIDE {
+    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         INHERITED::flatten(buffer);
         buffer.writeScalar(fK[0]);
         buffer.writeScalar(fK[1]);
