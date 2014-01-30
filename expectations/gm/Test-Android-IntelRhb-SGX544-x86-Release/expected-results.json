@@ -5423,10 +5423,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6040743215512872190
+          14477383615146133607
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        2085
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "imageblur_large_565.png": {
       "allowed-digests": [
