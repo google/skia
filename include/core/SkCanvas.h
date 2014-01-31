@@ -49,7 +49,18 @@ class SK_API SkCanvas : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkCanvas)
 
+    /**
+     *  Creates an empty canvas with no backing device/pixels, and zero
+     *  dimensions.
+     */
     SkCanvas();
+
+    /**
+     *  Creates a canvas of the specified dimensions, but explicitly not backed
+     *  by any device/pixels. Typically this use used by subclasses who handle
+     *  the draw calls in some other way.
+     */
+    SkCanvas(int width, int height);
 
     /** Construct a canvas with the specified device to draw into.
 

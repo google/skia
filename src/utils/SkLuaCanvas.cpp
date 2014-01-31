@@ -73,14 +73,8 @@ void SkLuaCanvas::pushThis() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkBitmap make_bm(int width, int height) {
-    SkBitmap bm;
-    bm.setConfig(SkBitmap::kNo_Config, width, height);
-    return bm;
-}
-
 SkLuaCanvas::SkLuaCanvas(int width, int height, lua_State* L, const char func[])
-    : INHERITED(make_bm(width, height))
+    : INHERITED(width, height)
     , fL(L)
     , fFunc(func) {
 }

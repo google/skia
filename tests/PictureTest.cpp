@@ -922,8 +922,8 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
  */
 class ClipCountingCanvas : public SkCanvas {
 public:
-    explicit ClipCountingCanvas(SkBaseDevice* device)
-        : SkCanvas(device)
+    explicit ClipCountingCanvas(int width, int height)
+        : INHERITED(width, height)
         , fClipCount(0){
     }
 
@@ -965,8 +965,7 @@ static void test_clip_expansion(skiatest::Reporter* reporter) {
     p.setColor(SK_ColorBLUE);
     canvas->drawPaint(p);
 
-    SkBitmapDevice testDevice(SkBitmap::kNo_Config, 10, 10);
-    ClipCountingCanvas testCanvas(&testDevice);
+    ClipCountingCanvas testCanvas(10, 10);
     picture.draw(&testCanvas);
 
     // Both clips should be present on playback.

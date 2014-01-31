@@ -14,14 +14,8 @@
 #include "SkDevice.h"
 #include "SkXfermode.h"
 
-static SkBitmap make_noconfig_bm(int width, int height) {
-    SkBitmap bm;
-    bm.setConfig(SkBitmap::kNo_Config, width, height);
-    return bm;
-}
-
 SkDebugCanvas::SkDebugCanvas(int width, int height)
-        : INHERITED(make_noconfig_bm(width, height))
+        : INHERITED(width, height)
         , fWidth(width)
         , fHeight(height)
         , fFilter(false)
