@@ -44,13 +44,27 @@ SkRTConfRegistry::SkRTConfRegistry(): fConfs(100) {
             continue;
         }
 
-        SkString* key = new SkString(keyptr);
-        SkString* val = new SkString(valptr);
+        SkString* key = SkNEW_ARGS(SkString,(keyptr));
+        SkString* val = SkNEW_ARGS(SkString,(valptr));
 
         fConfigFileKeys.append(1, &key);
         fConfigFileValues.append(1, &val);
     }
     sk_fclose(fp);
+}
+
+SkRTConfRegistry::~SkRTConfRegistry() {
+    ConfMap::Iter iter(fConfs);
+    SkTDArray<SkRTConfBase *> *confArray;
+
+    while (iter.next(&confArray)) {
+        delete confArray;
+    }
+
+    for (int i = 0 ; i < fConfigFileKeys.count() ; i++) {
+        SkDELETE(fConfigFileKeys[i]);
+        SkDELETE(fConfigFileValues[i]);
+    }
 }
 
 const char *SkRTConfRegistry::configFileLocation() const {
