@@ -79,19 +79,9 @@ public:
         return p;
     }
 
-    // return the address of the 4byte int at the specified offset (which must
-    // be a multiple of 4. This does not allocate any new space, so the returned
-    // address is only valid for 1 int.
-    uint32_t* peek32(size_t offset) {
-        SkASSERT(SkAlign4(offset) == offset);
-        const int count = SkToInt(offset/4);
-        SkASSERT(count < fCount);
-
-        if (count < this->externalCount()) {
-            return fExternal + count;
-        }
-        return &fInternal[count - this->externalCount()];
-    }
+    // Read or write 4 bytes at offset, which must be a multiple of 4 <= size().
+    uint32_t read32At(size_t offset) { return this->atOffset(offset); }
+    void write32At(size_t offset, uint32_t val) { this->atOffset(offset) = val; }
 
     bool writeBool(bool value) {
         this->write32(value);
@@ -215,8 +205,7 @@ public:
 
     /**
      *  Move the cursor back to offset bytes from the beginning.
-     *  This has the same restrictions as peek32: offset must be <= size() and
-     *  offset must be a multiple of 4.
+     *  offset must be a multiple of 4 no greater than size().
      */
     void rewindToOffset(size_t offset) {
         SkASSERT(SkAlign4(offset) == offset);
@@ -249,6 +238,18 @@ public:
     }
 
 private:
+    uint32_t& atOffset(size_t offset) {
+        SkASSERT(SkAlign4(offset) == offset);
+        const int count = SkToInt(offset/4);
+        SkASSERT(count < fCount);
+
+        if (count < this->externalCount()) {
+            return fExternal[count];
+        }
+        return fInternal[count - this->externalCount()];
+    }
+
+
     // Number of uint32_t written into fExternal.  <= fExternalLimit.
     int externalCount() const { return fCount - fInternal.count(); }
 

@@ -102,8 +102,7 @@ static void test1(skiatest::Reporter* reporter, SkWriter32* writer) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(data); ++i) {
         REPORTER_ASSERT(reporter, i*4 == writer->bytesWritten());
         writer->write32(data[i]);
-        uint32_t* addr = writer->peek32(i * 4);
-        REPORTER_ASSERT(reporter, data[i] == *addr);
+        REPORTER_ASSERT(reporter, data[i] == writer->read32At(i*4));
     }
 
     char buffer[sizeof(data)];
