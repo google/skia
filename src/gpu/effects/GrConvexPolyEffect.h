@@ -27,7 +27,7 @@ public:
     enum EdgeType {
         kFillNoAA_EdgeType,
         kFillAA_EdgeType,
-        
+
         kLastEdgeType = kFillAA_EdgeType,
     };
 

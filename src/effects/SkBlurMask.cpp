@@ -717,7 +717,7 @@ uint8_t SkBlurMask::ProfileLookup(const uint8_t *profile, int loc, int blurred_w
     return profile[ox];
 }
 
-void SkBlurMask::ComputeBlurredScanline(uint8_t *pixels, const uint8_t *profile, 
+void SkBlurMask::ComputeBlurredScanline(uint8_t *pixels, const uint8_t *profile,
                                         unsigned int width, SkScalar sigma) {
 
     unsigned int profile_size = SkScalarCeilToInt(6*sigma);
@@ -738,7 +738,7 @@ void SkBlurMask::ComputeBlurredScanline(uint8_t *pixels, const uint8_t *profile,
            float giX = 1.5f - (x+.5f)/(2*sigma);
            pixels[x] = (uint8_t) (255 * (gaussianIntegral(giX) - gaussianIntegral(giX + span)));
        }
-    }                                       
+    }
 }
 
 bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
@@ -802,7 +802,7 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
 
     SkAutoTMalloc<uint8_t> horizontalScanline(dstWidth);
     SkAutoTMalloc<uint8_t> verticalScanline(dstHeight);
-    
+
     ComputeBlurredScanline(horizontalScanline, profile, dstWidth, sigma);
     ComputeBlurredScanline(verticalScanline, profile, dstHeight, sigma);
 

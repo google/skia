@@ -25,7 +25,7 @@ class GrFontScaler;
 class GrTextContext {
 public:
     virtual ~GrTextContext() {}
-    virtual void drawText(const GrPaint&, const SkPaint&, const char text[], size_t byteLength, 
+    virtual void drawText(const GrPaint&, const SkPaint&, const char text[], size_t byteLength,
                           SkScalar x, SkScalar y) = 0;
     virtual void drawPosText(const GrPaint&, const SkPaint&,
                              const char text[], size_t byteLength,
@@ -33,7 +33,7 @@ public:
                              int scalarsPerPosition) = 0;
 
     virtual bool canDraw(const SkPaint& paint) = 0;
-    
+
 protected:
     GrTextContext(GrContext*, const SkDeviceProperties&);
 

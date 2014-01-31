@@ -133,7 +133,7 @@ inline void GrBitmapTextContext::finish() {
     GrTextContext::finish();
 }
 
-void GrBitmapTextContext::drawText(const GrPaint& paint, const SkPaint& skPaint, 
+void GrBitmapTextContext::drawText(const GrPaint& paint, const SkPaint& skPaint,
                                    const char text[], size_t byteLength,
                                    SkScalar x, SkScalar y) {
     SkASSERT(byteLength == 0 || text != NULL);
@@ -316,7 +316,7 @@ BitmapTextMapState::Proc BitmapTextMapState::pickProc(int scalarsPerPosition) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrBitmapTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPaint, 
+void GrBitmapTextContext::drawPosText(const GrPaint& paint, const SkPaint& skPaint,
                                       const char text[], size_t byteLength,
                                       const SkScalar pos[], SkScalar constY,
                                       int scalarsPerPosition) {

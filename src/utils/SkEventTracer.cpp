@@ -9,7 +9,7 @@
 #include "SkOnce.h"
 
 class SkDefaultEventTracer: public SkEventTracer {
-    virtual SkEventTracer::Handle 
+    virtual SkEventTracer::Handle
         addTraceEvent(char phase,
                       const uint8_t* categoryEnabledFlag,
                       const char* name,
@@ -19,10 +19,10 @@ class SkDefaultEventTracer: public SkEventTracer {
                       const uint8_t* argTypes,
                       const uint64_t* argValues,
                       uint8_t flags) SK_OVERRIDE { return 0; }
-    
-    virtual void 
-        updateTraceEventDuration(const uint8_t* categoryEnabledFlag, 
-                                 const char* name, 
+
+    virtual void
+        updateTraceEventDuration(const uint8_t* categoryEnabledFlag,
+                                 const char* name,
                                  SkEventTracer::Handle) SK_OVERRIDE {};
 
     virtual const uint8_t* getCategoryGroupEnabled(const char* name) SK_OVERRIDE {

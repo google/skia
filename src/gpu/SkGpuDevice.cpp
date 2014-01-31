@@ -938,7 +938,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
         // transform the path into device space
         pathPtr->transform(fContext->getMatrix(), devPathPtr);
-        
+
         SkRect maskRect;
         if (paint.getMaskFilter()->canFilterMaskGPU(devPathPtr->getBounds(),
                                                     draw.fClip->getBounds(),
@@ -958,7 +958,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                 // nothing to draw
                 return;
             }
-            
+
             if (paint.getMaskFilter()->directFilterMaskGPU(fContext, &grPaint,
                                                            SkStrokeRec(paint), *devPathPtr)) {
                 // the mask filter was able to draw itself directly, so there's nothing
@@ -1821,17 +1821,17 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
 
         SkDEBUGCODE(this->validate();)
 
-        fMainTextContext->drawPosText(grPaint, paint, (const char *)text, byteLength, pos, 
+        fMainTextContext->drawPosText(grPaint, paint, (const char *)text, byteLength, pos,
                                       constY, scalarsPerPos);
     } else if (fFallbackTextContext && fFallbackTextContext->canDraw(paint)) {
         GrPaint grPaint;
         if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
             return;
         }
-        
+
         SkDEBUGCODE(this->validate();)
-        
-        fFallbackTextContext->drawPosText(grPaint, paint, (const char *)text, byteLength, pos, 
+
+        fFallbackTextContext->drawPosText(grPaint, paint, (const char *)text, byteLength, pos,
                                           constY, scalarsPerPos);
     } else {
         draw.drawPosText_asPaths((const char*)text, byteLength, pos, constY,

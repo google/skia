@@ -182,4 +182,3 @@ GrEffectRef* GrConvexPolyEffect::TestCreate(SkRandom* random,
 
     return GrConvexPolyEffect::Create(edgeType, count, edges);
 }
-

@@ -294,7 +294,7 @@ inline void GrDistanceFieldTextContext::init(const GrPaint& paint, const SkPaint
     fMaxVertices = 0;
 
     fTextRatio = fSkPaint.getTextSize()/kBaseDFFontSize;
-         
+
     fSkPaint.setTextSize(SkIntToScalar(kBaseDFFontSize));
     fSkPaint.setLCDRenderText(false);
     fSkPaint.setAutohinted(false);

@@ -20,13 +20,13 @@ public:
     GrDistanceFieldTextContext(GrContext*, const SkDeviceProperties&);
     virtual ~GrDistanceFieldTextContext();
 
-    virtual void drawText(const GrPaint&, const SkPaint&, const char text[], size_t byteLength, 
+    virtual void drawText(const GrPaint&, const SkPaint&, const char text[], size_t byteLength,
                           SkScalar x, SkScalar y) SK_OVERRIDE;
-    virtual void drawPosText(const GrPaint&, const SkPaint&, 
+    virtual void drawPosText(const GrPaint&, const SkPaint&,
                              const char text[], size_t byteLength,
                              const SkScalar pos[], SkScalar constY,
                              int scalarsPerPosition) SK_OVERRIDE;
-    
+
     virtual bool canDraw(const SkPaint& paint) SK_OVERRIDE;
 
 private:

@@ -10,7 +10,7 @@
 
 // The class in this header defines the interface between Skia's internal
 // tracing macros and an external entity (e.g., Chrome) that will consume them.
-// Such an entity should subclass SkEventTracer and provide an instance of 
+// Such an entity should subclass SkEventTracer and provide an instance of
 // that event to SkEventTracer::SetInstance.
 
 // If you're looking for the tracing macros to instrument Skia itself, those
@@ -26,10 +26,10 @@ class SK_API SkEventTracer {
 public:
 
     typedef uint32_t Handle;
-    
+
     static SkEventTracer* GetInstance();
 
-    static void SetInstance(SkEventTracer* tracer) { 
+    static void SetInstance(SkEventTracer* tracer) {
         SkDELETE(SkEventTracer::gInstance);
         SkEventTracer::gInstance = tracer;
     }
@@ -52,8 +52,8 @@ public:
     virtual const unsigned char* getCategoryGroupEnabled(const char* name) = 0;
     virtual const char* getCategoryGroupName(
       const uint8_t* category_group_enabled) = 0;
-    
-    virtual SkEventTracer::Handle 
+
+    virtual SkEventTracer::Handle
         addTraceEvent(char phase,
                       const uint8_t* categoryEnabledFlag,
                       const char* name,
@@ -63,10 +63,10 @@ public:
                       const uint8_t* argTypes,
                       const uint64_t* argValues,
                       uint8_t flags) = 0;
-    
-    virtual void 
-        updateTraceEventDuration(const uint8_t* categoryEnabledFlag, 
-                                 const char* name, 
+
+    virtual void
+        updateTraceEventDuration(const uint8_t* categoryEnabledFlag,
+                                 const char* name,
                                  SkEventTracer::Handle) = 0;
 private:
     static SkEventTracer *gInstance;

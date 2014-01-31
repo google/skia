@@ -525,36 +525,36 @@ public:
     /**
      * Create a simple filter effect with custom bicubic coefficients.
      */
-    static GrEffectRef* Create(GrContext *context, const SkRect& rect, 
+    static GrEffectRef* Create(GrContext *context, const SkRect& rect,
                                float sigma) {
         GrTexture *horizontalScanline, *verticalScanline;
-        bool createdScanlines = CreateScanlineTextures(context, sigma, 
+        bool createdScanlines = CreateScanlineTextures(context, sigma,
                                                        SkScalarCeilToInt(rect.width()),
                                                        SkScalarCeilToInt(rect.height()),
                                                        &horizontalScanline, &verticalScanline);
         if (!createdScanlines) {
             return NULL;
         }
-        AutoEffectUnref effect(SkNEW_ARGS(GrRectBlurEffect, (rect, sigma, 
+        AutoEffectUnref effect(SkNEW_ARGS(GrRectBlurEffect, (rect, sigma,
                                                              horizontalScanline, verticalScanline)));
-        return CreateEffectRef(effect);    
+        return CreateEffectRef(effect);
     }
-    
+
     unsigned int getWidth() const { return fWidth; }
     unsigned int getHeight() const { return fHeight; }
     float getSigma() const { return fSigma; }
     const GrCoordTransform& getTransform() const { return fTransform; }
 
 private:
-    GrRectBlurEffect(const SkRect& rect, float sigma, 
+    GrRectBlurEffect(const SkRect& rect, float sigma,
                      GrTexture *horizontal_scanline, GrTexture *vertical_scanline);
     virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
-    
+
     static bool CreateScanlineTextures(GrContext *context, float sigma,
                                        unsigned int width, unsigned int height,
                                        GrTexture **horizontalScanline,
                                        GrTexture **verticalScanline);
-    
+
     unsigned int fWidth, fHeight;
     float fSigma;
     GrTextureAccess  fHorizontalScanlineAccess;
@@ -600,22 +600,22 @@ void GrGLRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
                                  const char* inputColor,
                                  const TransformedCoordsArray& coords,
                                  const TextureSamplerArray& samplers) {
-    
+
     SkString texture_coords = builder->ensureFSCoords2D(coords, 0);
-    
+
     if (inputColor) {
         builder->fsCodeAppendf("\tvec4 src=%s;\n", inputColor);
     } else {
         builder->fsCodeAppendf("\tvec4 src=vec4(1)\n;");
     }
-    
+
     builder->fsCodeAppendf("\tvec4 horiz = ");
     builder->fsAppendTextureLookup( samplers[0], texture_coords.c_str() );
     builder->fsCodeAppendf(";\n");
     builder->fsCodeAppendf("\tvec4 vert = ");
     builder->fsAppendTextureLookup( samplers[1], texture_coords.c_str() );
     builder->fsCodeAppendf(";\n");
-    
+
     builder->fsCodeAppendf("\tfloat final = (horiz*vert).r;\n");
     builder->fsCodeAppendf("\t%s = final*src;\n", outputColor);
 }
@@ -630,13 +630,13 @@ bool GrRectBlurEffect::CreateScanlineTextures(GrContext *context, float sigma,
                                               GrTexture **verticalScanline) {
     GrTextureParams params;
     GrTextureDesc texDesc;
-    
+
     unsigned int profile_size = SkScalarFloorToInt(6*sigma);
-    
+
     texDesc.fWidth = width;
     texDesc.fHeight = 1;
     texDesc.fConfig = kAlpha_8_GrPixelConfig;
-    
+
     static const GrCacheID::Domain gBlurProfileDomain = GrCacheID::GenerateDomain();
     GrCacheID::Key key;
     memset(&key, 0, sizeof(key));
@@ -644,58 +644,58 @@ bool GrRectBlurEffect::CreateScanlineTextures(GrContext *context, float sigma,
     key.fData32[1] = width;
     key.fData32[2] = 1;
     GrCacheID horizontalCacheID(gBlurProfileDomain, key);
-    
+
     uint8_t *profile = NULL;
     SkAutoTDeleteArray<uint8_t> ada(NULL);
-    
+
     *horizontalScanline = context->findAndRefTexture(texDesc, horizontalCacheID, &params);
-    
+
     if (NULL == *horizontalScanline) {
-    
+
         SkBlurMask::ComputeBlurProfile(sigma, &profile);
         ada.reset(profile);
-        
+
         SkAutoTMalloc<uint8_t> horizontalPixels(width);
         SkBlurMask::ComputeBlurredScanline(horizontalPixels, profile, width, sigma);
-    
-        *horizontalScanline = context->createTexture(&params, texDesc, horizontalCacheID, 
+
+        *horizontalScanline = context->createTexture(&params, texDesc, horizontalCacheID,
                                                      horizontalPixels, 0);
-                                                     
+
         if (NULL == *horizontalScanline) {
             return false;
         }
     }
-    
+
     texDesc.fWidth = 1;
     texDesc.fHeight = height;
     key.fData32[1] = 1;
     key.fData32[2] = height;
     GrCacheID verticalCacheID(gBlurProfileDomain, key);
-    
+
     *verticalScanline = context->findAndRefTexture(texDesc, verticalCacheID, &params);
     if (NULL == *verticalScanline) {
         if (NULL == profile) {
             SkBlurMask::ComputeBlurProfile(sigma, &profile);
             ada.reset(profile);
         }
-        
+
         SkAutoTMalloc<uint8_t> verticalPixels(height);
         SkBlurMask::ComputeBlurredScanline(verticalPixels, profile, height, sigma);
-    
-        *verticalScanline = context->createTexture(&params, texDesc, verticalCacheID, 
+
+        *verticalScanline = context->createTexture(&params, texDesc, verticalCacheID,
                                                    verticalPixels, 0);
-                                                     
+
         if (NULL == *verticalScanline) {
             return false;
         }
-        
+
     }
     return true;
 }
 
 GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma,
                                    GrTexture *horizontal_scanline, GrTexture *vertical_scanline)
-  : INHERITED(), 
+  : INHERITED(),
     fWidth(horizontal_scanline->width()),
     fHeight(vertical_scanline->width()),
     fSigma(sigma),
@@ -704,8 +704,8 @@ GrRectBlurEffect::GrRectBlurEffect(const SkRect& rect, float sigma,
     SkMatrix mat;
     mat.setRectToRect(rect, SkRect::MakeWH(1,1), SkMatrix::kFill_ScaleToFit);
     fTransform.reset(kLocal_GrCoordSet, mat);
-    this->addTextureAccess(&fHorizontalScanlineAccess);  
-    this->addTextureAccess(&fVerticalScanlineAccess);  
+    this->addTextureAccess(&fHorizontalScanlineAccess);
+    this->addTextureAccess(&fVerticalScanlineAccess);
     this->addCoordTransform(&fTransform);
 }
 
@@ -749,20 +749,20 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     if (fBlurStyle != SkBlurMaskFilter::kNormal_BlurStyle) {
         return false;
     }
-    
+
     SkRect rect;
     if (!path.isRect(&rect)) {
         return false;
     }
-    
+
     if (!strokeRec.isFillStyle()) {
         return false;
     }
-    
+
     SkMatrix ctm = context->getMatrix();
     SkScalar xformedSigma = this->computeXformedSigma(ctm);
     rect.outset(3*xformedSigma, 3*xformedSigma);
-    
+
     SkAutoTUnref<GrEffectRef> effect(GrRectBlurEffect::Create(
             context, rect, xformedSigma));
     if (!effect) {
@@ -776,7 +776,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
 
 
     grp->addCoverageEffect(effect);
-    
+
     context->drawRect(*grp, rect);
     return true;
 }
