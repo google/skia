@@ -886,33 +886,25 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17126169944686441995
+          1844781142419806112
         ]
       ], 
-      "bugs": [
-        1934
-      ], 
-      "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bleed_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13873798873199505957
+          749193672577578009
         ]
       ], 
-      "bugs": [
-        1934
-      ], 
-      "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bleed_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7381643477945903717
+          12565834805233572786
         ]
       ], 
       "reviewed-by-human": true
@@ -10072,6 +10064,33 @@
         1578
       ], 
       "reviewed-by-human": false
+    }, 
+    "simpleblurroundrect_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17747608655683918196
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "simpleblurroundrect_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17507178227199183279
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "simpleblurroundrect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13777914846975305440
+        ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "skbug1719_565.png": {
       "allowed-digests": [
