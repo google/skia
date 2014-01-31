@@ -687,7 +687,7 @@ bool GrRectBlurEffect::CreateScanlineTextures(GrContext *context, float sigma,
                                                    verticalPixels, 0);
 
         if (NULL == *verticalScanline) {
-            (*horizontalScanline)->unref();
+            SkSafeSetNull(*horizontalScanline);
             return false;
         }
 
