@@ -527,17 +527,18 @@ public:
      */
     static GrEffectRef* Create(GrContext *context, const SkRect& rect,
                                float sigma) {
-        GrTexture *horizontalScanline, *verticalScanline;
+        GrTexture *horizontalScanline = NULL, *verticalScanline = NULL;
         bool createdScanlines = CreateScanlineTextures(context, sigma,
                                                        SkScalarCeilToInt(rect.width()),
                                                        SkScalarCeilToInt(rect.height()),
                                                        &horizontalScanline, &verticalScanline);
-        if (!createdScanlines) {
+         SkAutoTUnref<GrTexture> hunref(horizontalScanline), vunref(verticalScanline);
+         if (!createdScanlines) {
             return NULL;
         }
         AutoEffectUnref effect(SkNEW_ARGS(GrRectBlurEffect, (rect, sigma,
                                                              horizontalScanline, verticalScanline)));
-        return CreateEffectRef(effect);
+        return CreateEffectRef(effect);    
     }
 
     unsigned int getWidth() const { return fWidth; }
@@ -686,6 +687,7 @@ bool GrRectBlurEffect::CreateScanlineTextures(GrContext *context, float sigma,
                                                    verticalPixels, 0);
 
         if (NULL == *verticalScanline) {
+            (*horizontalScanline)->unref();
             return false;
         }
 
