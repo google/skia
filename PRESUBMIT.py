@@ -10,8 +10,11 @@ for more details about the presubmit API built into gcl.
 """
 
 import os
+import re
 import sys
 
+
+REVERT_CL_SUBJECT_PREFIX = 'Revert '
 
 SKIA_TREE_STATUS_URL = 'http://skia-tree-status.appspot.com'
 
@@ -20,7 +23,6 @@ PUBLIC_API_OWNERS = (
     'reed@google.com',
     'bsalomon@chromium.org',
     'bsalomon@google.com',
-    'rmistry@google.com',  # For emergency reverts only.
 )
 
 
@@ -127,6 +129,9 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
   if issue and input_api.rietveld:
     issue_properties = input_api.rietveld.get_issue_properties(
         issue=int(issue), messages=True)
+    if re.match(REVERT_CL_SUBJECT_PREFIX, issue_properties['subject'], re.I):
+      # It is a revert CL, ignore the public api owners check.
+      return results
     if issue_properties['owner_email'] in PUBLIC_API_OWNERS:
       # An owner created the CL that is an automatic LGTM.
       lgtm_from_owner = True
@@ -139,7 +144,7 @@ def _CheckLGTMsForPublicAPI(input_api, output_api):
           # Found an lgtm in a message from an owner.
           lgtm_from_owner = True
           break;
-       
+
   if not lgtm_from_owner:
     results.append(
         output_api.PresubmitError(
