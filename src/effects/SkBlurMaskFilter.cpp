@@ -646,13 +646,14 @@ bool GrRectBlurEffect::CreateScanlineTextures(GrContext *context, float sigma,
     GrCacheID horizontalCacheID(gBlurProfileDomain, key);
     
     uint8_t *profile = NULL;
-    SkAutoTDeleteArray<uint8_t> ada(profile);
+    SkAutoTDeleteArray<uint8_t> ada(NULL);
     
     *horizontalScanline = context->findAndRefTexture(texDesc, horizontalCacheID, &params);
     
     if (NULL == *horizontalScanline) {
     
         SkBlurMask::ComputeBlurProfile(sigma, &profile);
+        ada.reset(profile);
         
         SkAutoTMalloc<uint8_t> horizontalPixels(width);
         SkBlurMask::ComputeBlurredScanline(horizontalPixels, profile, width, sigma);
@@ -675,6 +676,7 @@ bool GrRectBlurEffect::CreateScanlineTextures(GrContext *context, float sigma,
     if (NULL == *verticalScanline) {
         if (NULL == profile) {
             SkBlurMask::ComputeBlurProfile(sigma, &profile);
+            ada.reset(profile);
         }
         
         SkAutoTMalloc<uint8_t> verticalPixels(height);
