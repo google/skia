@@ -1,47 +1,18 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "Test.h"
 
 // This is a GPU-backend specific test
 #if SK_SUPPORT_GPU
+
 #include "GrBinHashKey.h"
-#include "GrDrawTarget.h"
-#include "GrRedBlackTree.h"
-#include "SkMatrix.h"
 
-// If we aren't inheriting these as #defines from elsewhere,
-// clang demands they be declared before we #include the template
-// that relies on them.
-static bool LT(const int& elem, int value) {
-    return elem < value;
-}
-static bool EQ(const int& elem, int value) {
-    return elem == value;
-}
-#include "GrTBSearch.h"
+#include "Test.h"
 
-
-DEF_TEST(GrUnitTests_bsearch, reporter) {
-    const int array[] = {
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99
-    };
-
-    for (int n = 0; n < static_cast<int>(GR_ARRAY_COUNT(array)); ++n) {
-        for (int i = 0; i < n; i++) {
-            int index = GrTBSearch<int, int>(array, n, array[i]);
-            REPORTER_ASSERT(reporter, index == (int) i);
-            index = GrTBSearch<int, int>(array, n, -array[i]);
-            REPORTER_ASSERT(reporter, index < 0);
-        }
-    }
-}
-
-DEF_TEST(GrUnitTests_binHashKey, reporter) {
+DEF_TEST(GrBinHashKeyTest, reporter) {
     const char* testStringA_ = "abcdABCD";
     const char* testStringB_ = "abcdBBCD";
     const uint32_t* testStringA = reinterpret_cast<const uint32_t*>(testStringA_);
@@ -66,6 +37,5 @@ DEF_TEST(GrUnitTests_binHashKey, reporter) {
     REPORTER_ASSERT(reporter, keyA < keyB);
     REPORTER_ASSERT(reporter, keyA.getHash() != keyB.getHash());
 }
-
 
 #endif

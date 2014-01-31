@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2010 Google Inc.
  *
@@ -6,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrTBSearch_DEFINED
 #define GrTBSearch_DEFINED
+
+#include "SkTypes.h"
 
 template <typename ELEM, typename KEY>
 int GrTBSearch(const ELEM array[], int count, KEY target) {
