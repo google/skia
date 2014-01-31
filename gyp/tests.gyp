@@ -152,6 +152,7 @@
         '../tests/Test.h',
         '../tests/TestSize.cpp',
         '../tests/TileGridTest.cpp',
+        '../tests/TracingTest.cpp',
         '../tests/ToUnicode.cpp',
         '../tests/Typeface.cpp',
         '../tests/UnicodeTest.cpp',

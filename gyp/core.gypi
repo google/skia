@@ -183,6 +183,7 @@
         '<(skia_src_path)/core/SkTileGridPicture.cpp',
         '<(skia_src_path)/core/SkTLList.h',
         '<(skia_src_path)/core/SkTLS.cpp',
+        '<(skia_src_path)/core/SkTraceEvent.h',
         '<(skia_src_path)/core/SkTSearch.cpp',
         '<(skia_src_path)/core/SkTSort.h',
         '<(skia_src_path)/core/SkTypeface.cpp',
