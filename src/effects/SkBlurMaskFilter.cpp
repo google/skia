@@ -538,7 +538,7 @@ public:
         }
         AutoEffectUnref effect(SkNEW_ARGS(GrRectBlurEffect, (rect, sigma,
                                                              horizontalScanline, verticalScanline)));
-        return CreateEffectRef(effect);    
+        return CreateEffectRef(effect);
     }
 
     unsigned int getWidth() const { return fWidth; }
