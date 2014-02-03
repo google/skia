@@ -212,7 +212,7 @@ static void test_crop_rects(SkBaseDevice* device, skiatest::Reporter* reporter) 
         SkBitmap result;
         SkIPoint offset;
         SkString str;
-        str.printf("filter %ld", i);
+        str.printf("filter %zd", i);
         REPORTER_ASSERT_MESSAGE(reporter, filter->filterImage(&proxy, bitmap, SkMatrix::I(), &result, &offset), str.c_str());
         REPORTER_ASSERT_MESSAGE(reporter, offset.fX == 20 && offset.fY == 30, str.c_str());
     }
