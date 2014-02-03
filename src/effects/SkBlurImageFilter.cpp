@@ -240,17 +240,22 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
                                        SkBitmap* result, SkIPoint* offset) {
 #if SK_SUPPORT_GPU
     SkBitmap input;
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &input, offset)) {
+    SkIPoint srcOffset = SkIPoint::Make(0, 0);
+    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &input, &srcOffset)) {
         return false;
     }
     GrTexture* source = input.getTexture();
     SkIRect rect;
     src.getBounds(&rect);
+    rect.offset(srcOffset);
     if (!this->applyCropRect(&rect, ctm)) {
         return false;
     }
     SkVector sigma, localSigma = SkVector::Make(fSigma.width(), fSigma.height());
     ctm.mapVectors(&sigma, &localSigma, 1);
+    offset->fX = rect.fLeft;
+    offset->fY = rect.fTop;
+    rect.offset(-srcOffset);
     SkAutoTUnref<GrTexture> tex(SkGpuBlurUtils::GaussianBlur(source->getContext(),
                                                              source,
                                                              false,
@@ -258,8 +263,6 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
                                                              true,
                                                              sigma.x(),
                                                              sigma.y()));
-    offset->fX = rect.fLeft;
-    offset->fY = rect.fTop;
     return SkImageFilterUtils::WrapTexture(tex, rect.width(), rect.height(), result);
 #else
     SkDEBUGFAIL("Should not call in GPU-less build");

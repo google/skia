@@ -148,12 +148,14 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMa
 #if SK_SUPPORT_GPU
     SkBitmap input;
     SkASSERT(fInputCount == 1);
-    if (!SkImageFilterUtils::GetInputResultGPU(this->getInput(0), proxy, src, ctm, &input, offset)) {
+    SkIPoint srcOffset = SkIPoint::Make(0, 0);
+    if (!SkImageFilterUtils::GetInputResultGPU(this->getInput(0), proxy, src, ctm, &input, &srcOffset)) {
         return false;
     }
     GrTexture* srcTexture = input.getTexture();
     SkIRect bounds;
     src.getBounds(&bounds);
+    bounds.offset(srcOffset);
     if (!this->applyCropRect(&bounds, ctm)) {
         return false;
     }
@@ -173,6 +175,9 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMa
     GrContext::AutoRenderTarget art(context, dst.texture()->asRenderTarget());
     GrContext::AutoClip acs(context, dstRect);
     GrEffectRef* effect;
+    offset->fX = bounds.left();
+    offset->fY = bounds.top();
+    bounds.offset(-srcOffset);
     SkMatrix matrix(ctm);
     matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
     this->asNewEffect(&effect, srcTexture, matrix, bounds);
@@ -184,8 +189,6 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMa
 
     SkAutoTUnref<GrTexture> resultTex(dst.detach());
     SkImageFilterUtils::WrapTexture(resultTex, bounds.width(), bounds.height(), result);
-    offset->fX += bounds.left();
-    offset->fY += bounds.top();
     return true;
 #else
     return false;
