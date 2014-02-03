@@ -49,6 +49,8 @@ namespace skiagm {
             kSkipPDFRasterization_Flag  = 1 << 8,
 
             kGPUOnly_Flag               = 1 << 9,
+
+            kAsBench_Flag               = 1 << 10, // Run the GM as a benchmark in the bench tool
         };
 
         void draw(SkCanvas*);

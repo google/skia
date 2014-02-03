@@ -23,16 +23,6 @@
         'gmslides.gypi',
       ],
       'sources': [
-        '../src/utils/debugger/SkDrawCommand.h',
-        '../src/utils/debugger/SkDrawCommand.cpp',
-        '../src/utils/debugger/SkDebugCanvas.h',
-        '../src/utils/debugger/SkDebugCanvas.cpp',
-        '../src/utils/debugger/SkObjectParser.h',
-        '../src/utils/debugger/SkObjectParser.cpp',
-
-        '../gm/gm.cpp',
-        '../gm/gm.h',
-
         '../samplecode/GMSampleView.h',
         '../samplecode/ClockFaceView.cpp',
         '../samplecode/OverView.cpp',

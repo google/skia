@@ -13,9 +13,13 @@
 #include "SkString.h"
 #include "SkTRegistry.h"
 
-#define DEF_BENCH(code) \
-static SkBenchmark* SK_MACRO_APPEND_LINE(F_)() { code; } \
-static BenchRegistry SK_MACRO_APPEND_LINE(R_)(SK_MACRO_APPEND_LINE(F_));
+#define DEF_BENCH(code)                                                 \
+namespace {                                                             \
+class SK_MACRO_APPEND_LINE(F_CLASS) : public SkBenchmarkFactory {       \
+    virtual SkBenchmark* operator()() const SK_OVERRIDE { code; }       \
+} SK_MACRO_APPEND_LINE(g_F_);                                           \
+BenchRegistry SK_MACRO_APPEND_LINE(g_R_)(&SK_MACRO_APPEND_LINE(g_F_));  \
+}
 
 /*
  *  With the above macros, you can register benches as follows (at the bottom
@@ -132,6 +136,13 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-typedef SkTRegistry<SkBenchmark*(*)()> BenchRegistry;
+class SkBenchmarkFactory : public SkRefCnt {
+public:
+    // Creates a new SkBenchmark that is owned by the caller on each call.
+    virtual SkBenchmark* operator()() const = 0;
+    virtual ~SkBenchmarkFactory() {}
+};
+
+typedef SkTRegistry<SkBenchmarkFactory*> BenchRegistry;
 
 #endif

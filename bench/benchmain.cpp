@@ -14,6 +14,7 @@
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkDeferredCanvas.h"
+#include "SkGMBench.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkOSFile.h"
@@ -31,6 +32,52 @@ class GrContext;
 #endif // SK_SUPPORT_GPU
 
 #include <limits>
+
+// Note that ~SkTDArray is not virtual. This inherits privately to bar using this as a SkTDArray*.
+class RefCntArray : private SkTDArray<SkRefCnt*> {
+public:
+    SkRefCnt** append() { return this->INHERITED::append(); }
+    ~RefCntArray() { this->unrefAll(); }
+private:
+    typedef SkTDArray<SkRefCnt*> INHERITED;
+};
+
+class GMBenchFactory : public SkBenchmarkFactory {
+public:
+    GMBenchFactory(const skiagm::GMRegistry* gmreg)
+    : fGMFactory(gmreg->factory()) {
+        fSelfRegistry = SkNEW_ARGS(BenchRegistry, (this));
+    }
+
+    virtual ~GMBenchFactory() { SkDELETE(fSelfRegistry); }
+
+    virtual SkBenchmark* operator()() const SK_OVERRIDE {
+        skiagm::GM* gm = fGMFactory(NULL);
+        return SkNEW_ARGS(SkGMBench, (gm));
+    }
+
+private:
+    skiagm::GMRegistry::Factory fGMFactory;
+    BenchRegistry*              fSelfRegistry;
+};
+
+static void register_gm_benches() {
+    static bool gOnce;
+    static RefCntArray gGMBenchFactories;
+
+    if (!gOnce) {
+        const skiagm::GMRegistry* gmreg = skiagm::GMRegistry::Head();
+        while (gmreg) {
+            skiagm::GM* gm = gmreg->factory()(NULL);
+            if (NULL != gm  && skiagm::GM::kAsBench_Flag & gm->getFlags()) {
+                *gGMBenchFactories.append() = SkNEW_ARGS(GMBenchFactory, (gmreg));
+            }
+            SkDELETE(gm);
+            gmreg = gmreg->next();
+        }
+        gOnce = true;
+    }
+}
 
 enum BenchMode {
     kNormal_BenchMode,
@@ -63,7 +110,7 @@ public:
         if (fBench) {
             BenchRegistry::Factory f = fBench->factory();
             fBench = fBench->next();
-            return f();
+            return (*f)();
         }
         return NULL;
     }
@@ -295,6 +342,7 @@ static bool HasConverged(double prevPerLoop, double currPerLoop, double currRaw)
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
+    register_gm_benches();
     SkCommandLineFlags::Parse(argc, argv);
 #if SK_ENABLE_INST_COUNT
     if (FLAGS_leaks) {

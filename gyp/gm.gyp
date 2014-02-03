@@ -30,29 +30,19 @@
       'include_dirs' : [
         '../src/core',
         '../src/images',
-        '../src/lazy',
         '../src/effects',
         '../src/pipe/utils/',
         '../src/utils/',
-        '../src/utils/debugger',
       ],
       'includes': [
         'gmslides.gypi',
       ],
       'sources': [
-        '../gm/gm.cpp',
         '../gm/gmmain.cpp',
         '../gm/system_preferences_default.cpp',
 
         '../src/pipe/utils/SamplePipeControllers.h',
         '../src/pipe/utils/SamplePipeControllers.cpp',
-
-        '../src/utils/debugger/SkDrawCommand.h',
-        '../src/utils/debugger/SkDrawCommand.cpp',
-        '../src/utils/debugger/SkDebugCanvas.h',
-        '../src/utils/debugger/SkDebugCanvas.cpp',
-        '../src/utils/debugger/SkObjectParser.h',
-        '../src/utils/debugger/SkObjectParser.cpp',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',

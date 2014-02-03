@@ -1,6 +1,17 @@
 # include this gypi to include all the golden master slides.
 {
+  'include_dirs': [
+    '../gm',
+    # include dirs needed by particular GMs
+    '../src/utils/debugger',
+    '../src/images',
+    '../src/lazy',
+  ],
   'sources': [
+    # base class for GMs
+    '../gm/gm.cpp',
+    '../gm/gm.h',
+
     '../gm/aaclip.cpp',
     '../gm/aarectmodes.cpp',
     '../gm/alphagradients.cpp',
@@ -156,5 +167,14 @@
     '../gm/xfermodes.cpp',
     '../gm/xfermodes2.cpp',
     '../gm/xfermodes3.cpp',
+
+    # Files needed by particular GMs
+    '../src/utils/debugger/SkDrawCommand.h',
+    '../src/utils/debugger/SkDrawCommand.cpp',
+    '../src/utils/debugger/SkDebugCanvas.h',
+    '../src/utils/debugger/SkDebugCanvas.cpp',
+    '../src/utils/debugger/SkObjectParser.h',
+    '../src/utils/debugger/SkObjectParser.cpp',
+
   ],
 }

@@ -182,6 +182,10 @@ protected:
         }
     }
 
+    virtual uint32_t onGetFlags() const {
+        return kAsBench_Flag;
+    }
+
 private:
     SkTLList<SkPath> fPaths;
     SkBitmap         fBmp;
