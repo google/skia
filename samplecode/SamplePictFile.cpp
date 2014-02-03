@@ -94,7 +94,7 @@ protected:
     }
 
     virtual void onDrawContent(SkCanvas* canvas) SK_OVERRIDE {
-        SkASSERT(fBBox < kBBoxTypeCount);
+        SkASSERT(static_cast<int>(fBBox) < kBBoxTypeCount);
         SkPicture** picture = fPictures + fBBox;
 
         if (!*picture) {
