@@ -30,7 +30,7 @@ class SkDefaultEventTracer: public SkEventTracer {
         return &no;
     };
     virtual const char* getCategoryGroupName(
-      const uint8_t* category_group_enabled) SK_OVERRIDE {
+      const uint8_t* categoryEnabledFlag) SK_OVERRIDE {
         static const char* dummy = "dummy";
         return dummy;
     };

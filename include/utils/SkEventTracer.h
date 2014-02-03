@@ -25,7 +25,7 @@
 class SK_API SkEventTracer {
 public:
 
-    typedef uint32_t Handle;
+    typedef uint64_t Handle;
 
     static SkEventTracer* GetInstance();
 
@@ -51,7 +51,7 @@ public:
 
     virtual const uint8_t* getCategoryGroupEnabled(const char* name) = 0;
     virtual const char* getCategoryGroupName(
-      const uint8_t* category_group_enabled) = 0;
+      const uint8_t* categoryEnabledFlag) = 0;
 
     virtual SkEventTracer::Handle
         addTraceEvent(char phase,
