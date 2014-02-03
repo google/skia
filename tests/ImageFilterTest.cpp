@@ -230,8 +230,10 @@ DEF_TEST(ImageFilterCropRect, reporter) {
     test_crop_rects(&device, reporter);
 }
 
+#if SK_SUPPORT_GPU
 DEF_GPUTEST(ImageFilterCropRectGPU, reporter, factory) {
     GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
     SkGpuDevice device(context, SkBitmap::kARGB_8888_Config, 100, 100);
     test_crop_rects(&device, reporter);
 }
+#endif
