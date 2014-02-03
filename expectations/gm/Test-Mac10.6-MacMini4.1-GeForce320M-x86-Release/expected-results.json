@@ -8871,10 +8871,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12173981160217007054
+          16288575357432656900
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "imagefiltersgraph_mesa.png": {
       "allowed-digests": [
