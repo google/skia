@@ -38,8 +38,10 @@ class SkDefaultEventTracer: public SkEventTracer {
 
 SkEventTracer *SkEventTracer::gInstance;
 
-static void intiailize_default_tracer(int) {
-    SkEventTracer::SetInstance(SkNEW(SkDefaultEventTracer));
+static void intialiize_default_tracer(void *current_instance) {
+    if (NULL == current_instance) {
+        SkEventTracer::SetInstance(SkNEW(SkDefaultEventTracer));
+    }
 }
 
 static void cleanup_tracer() {
@@ -49,7 +51,10 @@ static void cleanup_tracer() {
 
 SkEventTracer* SkEventTracer::GetInstance() {
     SK_DECLARE_STATIC_ONCE(once);
-    SkOnce(&once, intiailize_default_tracer, 0, cleanup_tracer);
+    SkOnce(&once,
+           intialiize_default_tracer,
+           SkEventTracer::gInstance,
+           cleanup_tracer);
     SkASSERT(NULL != SkEventTracer::gInstance);
     return SkEventTracer::gInstance;
 }
