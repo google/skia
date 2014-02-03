@@ -18,6 +18,7 @@
 #include "GrStencilBuffer.h"
 #include "GrSWMaskHelper.h"
 #include "effects/GrTextureDomain.h"
+#include "effects/GrConvexPolyEffect.h"
 #include "SkRasterClip.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
@@ -153,9 +154,33 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
         return true;
     }
 
-#if GR_AA_CLIP
-    // TODO: catch isRect && requiresAA and use clip planes if available rather than a mask.
+    // If there is only one clip element and it is a convex polygon we just install an effect that
+    // clips against the edges.
+    if (1 == elements.count() && SkClipStack::Element::kPath_Type == elements.tail()->getType() &&
+        SkRegion::kReplace_Op == elements.tail()->getOp()) {
+        const SkPath& p = elements.tail()->getPath();
+        bool isAA = GR_AA_CLIP && elements.tail()->isAA();
+        SkAutoTUnref<GrEffectRef> effect;
+        if (rt->isMultisampled()) {
+            // A coverage effect for AA clipping won't play nicely with MSAA.
+            if (!isAA) {
+                effect.reset(GrConvexPolyEffect::Create(GrConvexPolyEffect::kFillNoAA_EdgeType, p));
+            }
+        } else {
+            GrConvexPolyEffect::EdgeType type = isAA ? GrConvexPolyEffect::kFillAA_EdgeType :
+                                                       GrConvexPolyEffect::kFillNoAA_EdgeType;
+            effect.reset(GrConvexPolyEffect::Create(type, p));
+        }
+        if (effect) {
+            are->set(fGpu->drawState());
+            fGpu->drawState()->addCoverageEffect(effect);
+            fGpu->disableScissor();
+            this->setGpuStencil();
+            return true;
+        }
+    }
 
+#if GR_AA_CLIP
     // If MSAA is enabled we can do everything in the stencil buffer.
     if (0 == rt->numSamples() && requiresAA) {
         GrTexture* result = NULL;
