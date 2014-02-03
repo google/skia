@@ -32,6 +32,3 @@
 ## https://code.google.com/p/skia/issues/detail?id=123456 : ignoring failures on
 ## gradtext GM test
 #gradtext
-
-# Added by bsalomon for skbug.com/2051, https://codereview.chromium.org/151523005
-filltypes_persp
