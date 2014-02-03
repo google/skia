@@ -54,7 +54,7 @@ if [ -z "$ANDROID_SDK_ROOT" ]; then
 fi
 
 # ant is required to be installed on your system and in your PATH
-ant -version &> /dev/null
+which ant &> /dev/null
 if [[ "$?" != "0" ]]; then
   echo "ERROR: Unable to find ant. Please install it before proceeding."
   exit 1
