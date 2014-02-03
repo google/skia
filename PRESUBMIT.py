@@ -9,9 +9,11 @@ See http://dev.chromium.org/developers/how-tos/depottools/presubmit-scripts
 for more details about the presubmit API built into gcl.
 """
 
+import fnmatch
 import os
 import re
 import sys
+import traceback
 
 
 REVERT_CL_SUBJECT_PREFIX = 'Revert '
@@ -24,6 +26,8 @@ PUBLIC_API_OWNERS = (
     'bsalomon@chromium.org',
     'bsalomon@google.com',
 )
+
+AUTHORS_FILE_NAME = 'AUTHORS'
 
 
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
@@ -106,6 +110,48 @@ def _CheckTreeStatus(input_api, output_api, json_url):
   return tree_status_results
 
 
+def _CheckOwnerIsInAuthorsFile(input_api, output_api):
+  results = []
+  issue = input_api.change.issue
+  if issue and input_api.rietveld:
+    issue_properties = input_api.rietveld.get_issue_properties( 
+        issue=int(issue), messages=False)
+    owner_email = issue_properties['owner_email']
+
+    try:
+      authors_content = ''
+      for line in open(AUTHORS_FILE_NAME):
+        if not line.startswith('#'):
+          authors_content += line
+      email_fnmatches = re.findall('<(.*)>', authors_content)
+      for email_fnmatch in email_fnmatches:
+        if fnmatch.fnmatch(owner_email, email_fnmatch):
+          # Found a match, the user is in the AUTHORS file break out of the loop
+          break
+      else:
+        # TODO(rmistry): Remove the below CLA messaging once a CLA checker has
+        # been added to the CQ.
+        results.append(
+          output_api.PresubmitError(
+            'The email %s is not in Skia\'s AUTHORS file.\n'
+            'Issue owner, this CL must include an addition to the Skia AUTHORS '
+            'file.\n'
+            'Googler reviewers, please check that the AUTHORS entry '
+            'corresponds to an email address in http://goto/cla-signers. If it '
+            'does not then ask the issue owner to sign the CLA at '
+            'https://developers.google.com/open-source/cla/individual '
+            '(individual) or '
+            'https://developers.google.com/open-source/cla/corporate '
+            '(corporate).'
+            % owner_email)) 
+    except IOError:
+      # Do not fail if authors file cannot be found.
+      traceback.print_exc()
+      input_api.logging.error('AUTHORS file not found!')
+
+  return results
+
+
 def _CheckLGTMsForPublicAPI(input_api, output_api):
   """Check LGTMs for public API changes.
 
@@ -168,4 +214,5 @@ def CheckChangeOnCommit(input_api, output_api):
       _CheckTreeStatus(input_api, output_api, json_url=(
           SKIA_TREE_STATUS_URL + '/banner-status?format=json')))
   results.extend(_CheckLGTMsForPublicAPI(input_api, output_api))
+  results.extend(_CheckOwnerIsInAuthorsFile(input_api, output_api))
   return results
