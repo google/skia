@@ -32,6 +32,7 @@
         '../tests/AndroidPaintTest.cpp',
         '../tests/AnnotationTest.cpp',
         '../tests/AtomicTest.cpp',
+        '../tests/BBoxHierarchyTest.cpp',
         '../tests/BitSetTest.cpp',
         '../tests/BitmapCopyTest.cpp',
         '../tests/BitmapGetColorTest.cpp',

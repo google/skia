@@ -15,6 +15,7 @@
 #include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPicture.h"
+#include "SkQuadTreePicture.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkShader.h"
@@ -61,8 +62,22 @@ protected:
             SkString name("P:");
             const char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
             name.append(basename ? basename+1: fFilename.c_str());
-            if (fBBox != kNo_BBoxType) {
-                name.append(fBBox == kRTree_BBoxType ? " <bbox: R>" : " <bbox: T>");
+            switch (fBBox) {
+            case kNo_BBoxType:
+                // No name appended
+                break;
+            case kRTree_BBoxType:
+                name.append(" <bbox: R>");
+                break;
+            case kQuadTree_BBoxType:
+                name.append(" <bbox: Q>");
+                break;
+            case kTileGrid_BBoxType:
+                name.append(" <bbox: T>");
+                break;
+            default:
+                SkASSERT(false);
+                break;
             }
             SampleCode::TitleR(evt, name.c_str());
             return true;
@@ -93,6 +108,7 @@ protected:
 private:
     enum BBoxType {
         kNo_BBoxType,
+        kQuadTree_BBoxType,
         kRTree_BBoxType,
         kTileGrid_BBoxType,
 
@@ -151,6 +167,10 @@ private:
             break;
         case kRTree_BBoxType:
             bboxPicture = SkNEW(SkPicture);
+            break;
+        case kQuadTree_BBoxType:
+            bboxPicture = SkNEW_ARGS(SkQuadTreePicture,
+                (SkIRect::MakeWH(pic->width(), pic->height())));
             break;
         case kTileGrid_BBoxType: {
             SkASSERT(!fTileSize.isEmpty());

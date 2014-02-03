@@ -63,6 +63,8 @@ public:
      */
     virtual int getCount() const SK_OVERRIDE;
 
+    virtual int getDepth() const SK_OVERRIDE { return -1; }
+
     virtual void rewindInserts() SK_OVERRIDE;
 
     // Used by search() and in SkTileGridHelper implementations

@@ -25,6 +25,8 @@
 #include "SkPicture.h"
 #include "SkPictureUtils.h"
 #include "SkPixelRef.h"
+#include "SkQuadTree.h"
+#include "SkQuadTreePicture.h"
 #include "SkRTree.h"
 #include "SkScalar.h"
 #include "SkStream.h"
@@ -895,6 +897,9 @@ SkPicture* PictureRenderer::createPicture() {
     switch (fBBoxHierarchyType) {
         case kNone_BBoxHierarchyType:
             return SkNEW(SkPicture);
+        case kQuadTree_BBoxHierarchyType:
+            return SkNEW_ARGS(SkQuadTreePicture, (SkIRect::MakeWH(fPicture->width(),
+                fPicture->height())));
         case kRTree_BBoxHierarchyType:
             return SkNEW(RTreePicture);
         case kTileGrid_BBoxHierarchyType:

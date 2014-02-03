@@ -67,26 +67,32 @@ public:
      *  @param bounds The corresponding bounding box
      *  @param defer Can this insert be deferred? (this may be ignored)
      */
-    virtual void insert(void* data, const SkIRect& bounds, bool defer = false);
+    virtual void insert(void* data, const SkIRect& bounds, bool defer = false) SK_OVERRIDE;
 
     /**
      * If any inserts have been deferred, this will add them into the tree
      */
-    virtual void flushDeferredInserts();
+    virtual void flushDeferredInserts() SK_OVERRIDE;
 
     /**
      * Given a query rectangle, populates the passed-in array with the elements it intersects
      */
-    virtual void search(const SkIRect& query, SkTDArray<void*>* results);
+    virtual void search(const SkIRect& query, SkTDArray<void*>* results) SK_OVERRIDE;
 
-    virtual void clear();
+    virtual void clear() SK_OVERRIDE;
     bool isEmpty() const { return 0 == fCount; }
-    int getDepth() const { return this->isEmpty() ? 0 : fRoot.fChild.subtree->fLevel + 1; }
+
+    /**
+     * Gets the depth of the tree structure
+     */
+    virtual int getDepth() const SK_OVERRIDE {
+        return this->isEmpty() ? 0 : fRoot.fChild.subtree->fLevel + 1;
+    }
 
     /**
      * This gets the insertion count (rather than the node count)
      */
-    virtual int getCount() const { return fCount; }
+    virtual int getCount() const SK_OVERRIDE { return fCount; }
 
     virtual void rewindInserts() SK_OVERRIDE;
 

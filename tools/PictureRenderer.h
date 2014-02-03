@@ -80,6 +80,7 @@ public:
 
     enum BBoxHierarchyType {
         kNone_BBoxHierarchyType = 0,
+        kQuadTree_BBoxHierarchyType,
         kRTree_BBoxHierarchyType,
         kTileGrid_BBoxHierarchyType,
     };
@@ -247,6 +248,8 @@ public:
         }
         if (kRTree_BBoxHierarchyType == fBBoxHierarchyType) {
             config.append("_rtree");
+        } else if (kQuadTree_BBoxHierarchyType == fBBoxHierarchyType) {
+            config.append("_quadtree");
         } else if (kTileGrid_BBoxHierarchyType == fBBoxHierarchyType) {
             config.append("_grid");
         }
