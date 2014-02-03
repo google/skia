@@ -23,7 +23,7 @@ class SkDefaultEventTracer: public SkEventTracer {
     virtual void
         updateTraceEventDuration(const uint8_t* categoryEnabledFlag,
                                  const char* name,
-                                 SkEventTracer::Handle) SK_OVERRIDE {};
+                                 SkEventTracer::Handle handle) SK_OVERRIDE {};
 
     virtual const uint8_t* getCategoryGroupEnabled(const char* name) SK_OVERRIDE {
         static uint8_t no = 0;

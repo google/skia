@@ -49,7 +49,7 @@ public:
         kEnabledForEventCallback_CategoryGroupEnabledFlags = 1 << 2,
     };
 
-    virtual const unsigned char* getCategoryGroupEnabled(const char* name) = 0;
+    virtual const uint8_t* getCategoryGroupEnabled(const char* name) = 0;
     virtual const char* getCategoryGroupName(
       const uint8_t* category_group_enabled) = 0;
 
@@ -67,7 +67,7 @@ public:
     virtual void
         updateTraceEventDuration(const uint8_t* categoryEnabledFlag,
                                  const char* name,
-                                 SkEventTracer::Handle) = 0;
+                                 SkEventTracer::Handle handle) = 0;
 private:
     static SkEventTracer *gInstance;
 };
