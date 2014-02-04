@@ -12,12 +12,8 @@
         'libwebp.gyp:libwebp',
         'utils.gyp:utils',
       ],
-      'conditions': [
-        [ 'skia_android_framework == 0', {
-          'export_dependent_settings': [
-            'libjpeg.gyp:*',
-          ],
-        }],
+      'export_dependent_settings': [
+        'libjpeg.gyp:*',
       ],
       'include_dirs': [
         '../include/images',
@@ -46,26 +42,16 @@
         '../src/images/SkImageDecoder.cpp',
         '../src/images/SkImageDecoder_FactoryDefault.cpp',
         '../src/images/SkImageDecoder_FactoryRegistrar.cpp',
-
         # If decoders are added/removed to/from (all/individual)
         # platform(s), be sure to update SkForceLinking.cpp
         # so the right decoders will be forced to link.
-
-        # IMPORTANT: The build order of the SkImageDecoder_*.cpp files
-        # defines the order image decoders are tested when decoding a
-        # stream. The last decoder is the first one tested, so the .cpp
-        # files should be in listed in order from the least likely to be
-        # used, to the most likely (jpeg and png should be the last two
-        # for instance.) As a result, they are deliberately not in
-        # alphabetical order.
-        '../src/images/SkImageDecoder_wbmp.cpp',
         '../src/images/SkImageDecoder_libbmp.cpp',
         '../src/images/SkImageDecoder_libgif.cpp',
         '../src/images/SkImageDecoder_libico.cpp',
-        '../src/images/SkImageDecoder_libwebp.cpp',
         '../src/images/SkImageDecoder_libjpeg.cpp',
         '../src/images/SkImageDecoder_libpng.cpp',
-
+        '../src/images/SkImageDecoder_libwebp.cpp',
+        '../src/images/SkImageDecoder_wbmp.cpp',
         '../src/images/SkImageEncoder.cpp',
         '../src/images/SkImageEncoder_Factory.cpp',
         '../src/images/SkImageEncoder_argb.cpp',
@@ -154,12 +140,8 @@
              'android_deps.gyp:gif',
              'android_deps.gyp:png',
           ],
-          'conditions': [
-            [ 'skia_android_framework == 0', {
-              'export_dependent_settings': [
-                'android_deps.gyp:png'
-              ],
-            }],
+          'export_dependent_settings': [
+            'android_deps.gyp:png'
           ],
         },{ #else if skia_os != android
           'sources!': [

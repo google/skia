@@ -88,30 +88,25 @@
           ],
         },
       ],
-      [ 'skia_android_framework==0', {
-        # These defines are not used for skia_android_framework, where we build
-        # one makefile and allow someone to add SK_DEBUG etc for their own
-        # debugging purposes.
-        'configurations': {
-          'Debug': {
-            'defines': [
-              'SK_DEBUG',
-              'SK_DEVELOPER=1',
-            ],
-          },
-          'Release': {
-            'defines': [
-              'SK_RELEASE',
-            ],
-          },
-          'Release_Developer': {
-            'inherit_from': ['Release'],
-            'defines': [
-              'SK_DEVELOPER=1',
-            ],
-          },
-        },
-      }],
     ],
+    'configurations': {
+      'Debug': {
+        'defines': [
+          'SK_DEBUG',
+          'SK_DEVELOPER=1',
+        ],
+      },
+      'Release': {
+        'defines': [
+          'SK_RELEASE',
+        ],
+      },
+      'Release_Developer': {
+        'inherit_from': ['Release'],
+        'defines': [
+          'SK_DEVELOPER=1',
+        ],
+      },
+    },
   }, # end 'target_defaults'
 }

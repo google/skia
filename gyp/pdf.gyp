@@ -1,4 +1,3 @@
-# This file builds the PDF backend.
 {
   'targets': [
     {
@@ -23,20 +22,6 @@
         'pdf.gypi', # Makes the gypi appear in IDEs (but does not modify the build).
 
         '../src/doc/SkDocument_PDF.cpp', # Chromium does use this file
-      ],
-      'conditions': [
-        [ 'skia_android_framework', {
-            # Add SFTNLY support for PDF (which in turns depends on ICU)
-            'include_dirs': [
-              'external/sfntly/cpp/src',
-            ],
-            'libraries': [
-              'libsfntly.a',
-              '-licuuc',
-              '-licui18n',
-            ],
-          }
-        ],
       ],
       # This section makes all targets that depend on this target
       # #define SK_SUPPORT_PDF and have access to the pdf header files.

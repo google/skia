@@ -14,68 +14,7 @@
 # This is due to the fact that we cannot use variables in an includes as the
 # variable expansion step for gyp happens after the includes are processed.
 {
-  'conditions': [
-    [ 'skia_android_framework == 0',
-      {
-        'includes': [
-          '../platform_tools/android/gyp/dependencies.gypi',
-        ],
-      }, { # else skia_android_framework
-        'cflags': [
-          '-Wno-error'
-        ],
-        'targets': [
-          {
-            'target_name': 'expat',
-            'type': 'none',
-            'direct_dependent_settings': {
-              'libraries' : [
-                '-lexpat',
-              ],
-            },
-          },
-          {
-            'target_name': 'gif',
-            'type': 'none',
-            'direct_dependent_settings': {
-              'libraries' : [
-                'libgif.a',
-              ],
-              'include_dirs': [
-                'external/giflib',
-              ],
-            },
-          },
-          {
-            'target_name': 'png',
-            'type': 'none',
-            'direct_dependent_settings': {
-              'libraries' : [
-                '-lpng',
-              ],
-              'include_dirs': [
-                'external/libpng',
-              ],
-            },
-          },
-          {
-            'target_name': 'jpeg',
-            'type': 'none',
-            'direct_dependent_settings': {
-              'libraries' : [
-                '-ljpeg',
-              ],
-              'include_dirs': [
-                'external/jpeg',
-              ],
-            },
-          },
-          {
-            'target_name': 'cpu_features',
-            'type': 'none',
-          },
-        ],
-      }
-    ],
+  'includes': [
+    '../platform_tools/android/gyp/dependencies.gypi',
   ],
 }

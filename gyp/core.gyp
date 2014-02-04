@@ -80,12 +80,6 @@
             'android_deps.gyp:cpu_features',
           ],
         }],
-        [ 'skia_android_framework', {
-            'libraries': [
-              # Required for SkAtomics_android.h
-              '-lcutils',
-            ],
-        }],
         [ 'skia_arch_type == "arm"', {
           # The code in SkUtilsArm.cpp can be used on an ARM-based Linux system, not only Android.
           'sources': [
