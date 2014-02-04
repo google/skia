@@ -6,6 +6,7 @@
   <title ng-bind="windowTitle"></title>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
   <script src="loader.js"></script>
+  <script src="diff_viewer.js"></script>
   <link rel="stylesheet" href="view.css">
 </head>
 
@@ -212,7 +213,7 @@
         </tr>
       </table> <!-- results header -->
       </td></tr><tr><td>
-      <table border="1"> <!-- results -->
+      <table border="1" ng-app="diff_viewer"> <!-- results -->
         <tr>
           <!-- Most column headers are displayed in a common fashion... -->
           <th ng-repeat="categoryName in ['resultType', 'builder', 'test', 'config']">
@@ -275,7 +276,7 @@
              This is made a bit tricky by the fact that AngularJS expressions
              do not allow control flow statements.  See
              http://docs.angularjs.org/guide/expression -->
-        <tr ng-repeat="result in limitedTestData">
+        <tr ng-repeat="result in limitedTestData" ng-controller="ImageController">
           <td ng-click="(viewingTab != defaultTab) || showOnlyResultType(result.resultType)">
             {{result.resultType}}
           </td>
@@ -296,27 +297,34 @@
 
           <!-- expected image -->
           <td valign="top" width="{{imageSize}}">
-            <a class="image-link" target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png">
-              <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png"/>
-            </a>
+            <br/>
+            <a href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png" target="_blank">View Image</a><br/>
+            <img-compare type="baseline"
+                         src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png" />
+
           </td>
 
           <!-- actual image -->
           <td valign="top" width="{{imageSize}}">
-            <a class="image-link" target="_blank" href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png">
-              <img width="{{imageSize}}" src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png"/>
-            </a>
+            <br/>
+            <a href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png" target="_blank">View Image</a><br/>
+            <img-compare type="test"
+                         src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png" />
+
           </td>
 
           <!-- whitediffs: every differing pixel shown in white -->
           <td valign="top" width="{{imageSize}}">
             <div ng-hide="result.expectedHashDigest == result.actualHashDigest"
                  title="{{result.numDifferingPixels | number:0}} of {{(100 * result.numDifferingPixels / result.percentDifferingPixels) | number:0}} pixels ({{result.percentDifferingPixels.toFixed(4)}}%) differ from expectation.">
-              <a class="image-link" target="_blank" href="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png">
-                <img width="{{imageSize}}" src="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png"/>
-              </a><br>
+
               {{result.percentDifferingPixels.toFixed(4)}}%
               ({{result.numDifferingPixels}})
+              <br/>
+              <a href="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png" target="_blank">View Image</a><br/>
+              <img-compare type="differingPixelsInWhite"
+                           src="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png" />
+
             </div>
             <div ng-hide="result.expectedHashDigest != result.actualHashDigest"
                  style="text-align:center">
@@ -328,11 +336,18 @@
           <td valign="top" width="{{imageSize}}">
             <div ng-hide="result.expectedHashDigest == result.actualHashDigest"
                  title="Weighted difference measure is {{result.weightedDiffMeasure.toFixed(4)}}%.  Maximum difference per channel: R={{result.maxDiffPerChannel[0]}}, G={{result.maxDiffPerChannel[1]}}, B={{result.maxDiffPerChannel[2]}}">
-              <a class="image-link" target="_blank" href="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png">
-                <img width="{{imageSize}}" src="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png"/>
-              </a><br>
+
               {{result.weightedDiffMeasure.toFixed(4)}}%
               {{result.maxDiffPerChannel}}
+              <br/>
+              <a href="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png" target="_blank">View Image</a><br/>
+              <img-compare type="differencePerPixel"
+                           src="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png"
+                           ng-mousedown="MagnifyDraw($event, true)"
+                           ng-mousemove="MagnifyDraw($event, false)"
+                           ng-mouseup="MagnifyEnd($event)"
+                           ng-mouseleave="MagnifyEnd($event)" />
+
             </div>
             <div ng-hide="result.expectedHashDigest != result.actualHashDigest"
                  style="text-align:center">

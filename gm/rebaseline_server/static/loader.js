@@ -5,7 +5,7 @@
  */
 var Loader = angular.module(
     'Loader',
-    []
+    ['diff_viewer']
 );
 
 
