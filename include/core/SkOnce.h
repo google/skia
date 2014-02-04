@@ -28,6 +28,7 @@
 //
 // You may optionally pass SkOnce a second function to be called at exit for cleanup.
 
+#include "SkDynamicAnnotations.h"
 #include "SkThread.h"
 #include "SkTypes.h"
 
@@ -115,26 +116,10 @@ static void sk_once_slow(SkOnceFlag* once, Func f, Arg arg, void (*atExit)()) {
     }
 }
 
-// We nabbed this code from the dynamic_annotations library, and in their honor
-// we check the same define.  If you find yourself wanting more than just
-// SK_ANNOTATE_BENIGN_RACE, it might make sense to pull that in as a dependency
-// rather than continue to reproduce it here.
-
-#if DYNAMIC_ANNOTATIONS_ENABLED
-// TSAN provides this hook to supress a known-safe apparent race.
-extern "C" {
-void AnnotateBenignRace(const char* file, int line, const volatile void* mem, const char* desc);
-}
-#define SK_ANNOTATE_BENIGN_RACE(mem, desc) AnnotateBenignRace(__FILE__, __LINE__, mem, desc)
-#else
-#define SK_ANNOTATE_BENIGN_RACE(mem, desc)
-#endif
-
 // This is our fast path, called all the time.  We do really want it to be inlined.
 template <typename Func, typename Arg>
 inline void SkOnce(SkOnceFlag* once, Func f, Arg arg, void(*atExit)()) {
-    SK_ANNOTATE_BENIGN_RACE(&(once->done), "Don't worry TSAN, we're sure this is safe.");
-    if (!once->done) {
+    if (!SK_ANNOTATE_UNPROTECTED_READ(once->done)) {
         sk_once_slow(once, f, arg, atExit);
     }
     // Also known as a load-load/load-store barrier, this acquire barrier makes
