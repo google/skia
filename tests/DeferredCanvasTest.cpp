@@ -44,7 +44,7 @@ static SkPMColor read_pixel(SkSurface* surface, int x, int y) {
 
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    surface->draw(&canvas, -x, -y, &paint);
+    surface->draw(&canvas, -SkIntToScalar(x), -SkIntToScalar(y), &paint);
     return pixel;
 }
 
