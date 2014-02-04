@@ -43,7 +43,7 @@ void SkBBoxRecord::drawPath(const SkPath& path, const SkPaint& paint) {
 void SkBBoxRecord::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                               const SkPaint& paint) {
     SkRect bbox;
-    bbox.set(pts, count);
+    bbox.set(pts, SkToInt(count));
     // Small min width value, just to ensure hairline point bounding boxes aren't empty.
     // Even though we know hairline primitives are drawn one pixel wide, we do not use a
     // minimum of 1 because the playback scale factor is unknown at record time. Later

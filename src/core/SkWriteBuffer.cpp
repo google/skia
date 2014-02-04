@@ -41,7 +41,7 @@ SkWriteBuffer::~SkWriteBuffer() {
 }
 
 void SkWriteBuffer::writeByteArray(const void* data, size_t size) {
-    fWriter.write32(size);
+    fWriter.write32(SkToU32(size));
     fWriter.writePad(data, size);
 }
 
@@ -86,7 +86,7 @@ void SkWriteBuffer::writeString(const char* value) {
 void SkWriteBuffer::writeEncodedString(const void* value, size_t byteLength,
                                               SkPaint::TextEncoding encoding) {
     fWriter.writeInt(encoding);
-    fWriter.writeInt(byteLength);
+    fWriter.writeInt(SkToU32(byteLength));
     fWriter.write(value, byteLength);
 }
 
@@ -131,7 +131,7 @@ void SkWriteBuffer::writePath(const SkPath& path) {
 }
 
 size_t SkWriteBuffer::writeStream(SkStream* stream, size_t length) {
-    fWriter.write32(length);
+    fWriter.write32(SkToU32(length));
     size_t bytesWritten = fWriter.readFromStream(stream, length);
     if (bytesWritten < length) {
         fWriter.reservePad(length - bytesWritten);
@@ -316,10 +316,10 @@ void SkWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
     // make room for the size of the flattened object
     (void)fWriter.reserve(sizeof(uint32_t));
     // record the current size, so we can subtract after the object writes.
-    uint32_t offset = fWriter.bytesWritten();
+    size_t offset = fWriter.bytesWritten();
     // now flatten the object
     flattenable->flatten(*this);
-    uint32_t objSize = fWriter.bytesWritten() - offset;
+    size_t objSize = fWriter.bytesWritten() - offset;
     // record the obj's size
-    fWriter.write32At(offset - sizeof(uint32_t), objSize);
+    fWriter.write32At(offset - sizeof(uint32_t), SkToU32(objSize));
 }

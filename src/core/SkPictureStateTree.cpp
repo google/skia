@@ -27,10 +27,10 @@ SkPictureStateTree::SkPictureStateTree()
 SkPictureStateTree::~SkPictureStateTree() {
 }
 
-SkPictureStateTree::Draw* SkPictureStateTree::appendDraw(uint32_t offset) {
+SkPictureStateTree::Draw* SkPictureStateTree::appendDraw(size_t offset) {
     Draw* draw = static_cast<Draw*>(fAlloc.allocThrow(sizeof(Draw)));
     *draw = fCurrentState;
-    draw->fOffset = offset;
+    draw->fOffset = SkToU32(offset);
     return draw;
 }
 
@@ -39,7 +39,7 @@ void SkPictureStateTree::appendSave() {
     fCurrentState.fNode->fFlags |= Node::kSave_Flag;
 }
 
-void SkPictureStateTree::appendSaveLayer(uint32_t offset) {
+void SkPictureStateTree::appendSaveLayer(size_t offset) {
     *static_cast<Draw*>(fStateStack.push_back()) = fCurrentState;
     this->appendNode(offset);
     fCurrentState.fNode->fFlags |= Node::kSaveLayer_Flag;
@@ -69,7 +69,7 @@ void SkPictureStateTree::appendTransform(const SkMatrix& trans) {
     fCurrentState.fMatrix = m;
 }
 
-void SkPictureStateTree::appendClip(uint32_t offset) {
+void SkPictureStateTree::appendClip(size_t offset) {
     this->appendNode(offset);
 }
 
@@ -78,9 +78,9 @@ SkPictureStateTree::Iterator SkPictureStateTree::getIterator(const SkTDArray<voi
     return Iterator(draws, canvas, &fRoot);
 }
 
-void SkPictureStateTree::appendNode(uint32_t offset) {
+void SkPictureStateTree::appendNode(size_t offset) {
     Node* n = static_cast<Node*>(fAlloc.allocThrow(sizeof(Node)));
-    n->fOffset = offset;
+    n->fOffset = SkToU32(offset);
     n->fFlags = 0;
     n->fParent = fCurrentState.fNode;
     n->fLevel = fCurrentState.fNode->fLevel + 1;

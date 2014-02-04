@@ -14,7 +14,7 @@
 SkData* SkValidatingSerializeFlattenable(SkFlattenable* flattenable) {
     SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
     writer.writeFlattenable(flattenable);
-    uint32_t size = writer.bytesWritten();
+    size_t size = writer.bytesWritten();
     void* data = sk_malloc_throw(size);
     writer.writeToMemory(data);
     return SkData::NewFromMalloc(data, size);

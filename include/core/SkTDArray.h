@@ -239,7 +239,7 @@ public:
 
         while (iter > stop) {
             if (*--iter == elem) {
-                return iter - stop;
+                return SkToInt(iter - stop);
             }
         }
         return -1;

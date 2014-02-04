@@ -128,9 +128,27 @@ static void make_g_bitmap(SkBitmap& bitmap) {
                     SkIntToScalar(kBitmapSize/4), paint);
 }
 
+static bool valid_for_raster_canvas(const SkBitmap& bm) {
+    SkImageInfo info;
+    if (!bm.asImageInfo(&info)) {
+        return false;
+    }
+    switch (info.fColorType) {
+        case kAlpha_8_SkColorType:
+        case kRGB_565_SkColorType:
+            return true;
+        case kPMColor_SkColorType:
+            return kPremul_SkAlphaType == info.fAlphaType ||
+                   kOpaque_SkAlphaType == info.fAlphaType;
+        default:
+            break;
+    }
+    return false;
+}
+
 static void make_checkerboard_bitmap(SkBitmap& bitmap) {
     bitmap.setConfig((SkBitmap::Config)R(SkBitmap::kConfigCount), kBitmapSize, kBitmapSize);
-    while (!bitmap.allocPixels()) {
+    while (valid_for_raster_canvas(bitmap) && !bitmap.allocPixels()) {
         bitmap.setConfig((SkBitmap::Config)R(SkBitmap::kConfigCount), kBitmapSize, kBitmapSize);
     }
     SkBitmapDevice device(bitmap);
