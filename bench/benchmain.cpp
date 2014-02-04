@@ -603,7 +603,7 @@ int tool_main(int argc, char** argv) {
 
                 if ((benchMode == kRecord_BenchMode || benchMode == kPictureRecord_BenchMode)) {
                     // Clear the recorded commands so that they do not accumulate.
-                    canvas.reset(recordTo.beginRecording(dim.fX, dim.fY, kRecordFlags));
+                    canvas.reset(SkRef(recordTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
                 }
 
                 timer.start();
