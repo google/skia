@@ -174,7 +174,7 @@ GrEffectRef* GrConvexPolyEffect::TestCreate(SkRandom* random,
                                             const GrDrawTargetCaps& caps,
                                             GrTexture*[]) {
     EdgeType edgeType = static_cast<EdgeType>(random->nextULessThan(kEdgeTypeCnt));
-    int count = random->nextULessThan(kMaxEdges + 1);
+    int count = random->nextULessThan(kMaxEdges) + 1;
     SkScalar edges[kMaxEdges * 3];
     for (int i = 0; i < 3 * count; ++i) {
         edges[i] = random->nextSScalar1();

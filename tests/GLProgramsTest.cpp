@@ -173,6 +173,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
                                                                             this->getContext(),
                                                                             *this->caps(),
                                                                             dummyTextures));
+            SkASSERT(effect);
             int numAttribs = (*effect)->numVertexAttribs();
 
             // If adding this effect would exceed the max attrib count then generate a
