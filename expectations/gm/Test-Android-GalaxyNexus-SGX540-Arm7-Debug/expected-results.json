@@ -6314,10 +6314,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2736593828543197285
+          3695033638604474475
         ]
       ], 
-      "ignore-failure": false
+      "bugs": [
+        2109
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "texteffects_565.png": {
       "allowed-digests": [
