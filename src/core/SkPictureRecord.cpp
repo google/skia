@@ -585,7 +585,6 @@ void SkPictureRecord::restore() {
         fFirstSavedLayerIndex = kNoSavedLayerIndex;
     }
 
-    uint32_t initialOffset, size;
     size_t opt = 0;
     if (!(fRecordFlags & SkPicture::kDisableRecordOptimizations_RecordingFlag)) {
         for (opt = 0; opt < SK_ARRAY_COUNT(gPictureRecordOpts); ++opt) {
@@ -595,8 +594,6 @@ void SkPictureRecord::restore() {
             }
             if ((*gPictureRecordOpts[opt].fProc)(&fWriter, fRestoreOffsetStack.top(), &fPaints)) {
                 // Some optimization fired so don't add the RESTORE
-                size = 0;
-                initialOffset = fWriter.bytesWritten();
                 apply_optimization_to_bbh(gPictureRecordOpts[opt].fType,
                                           fStateTree, fBoundingHierarchy);
                 break;
