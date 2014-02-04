@@ -38,6 +38,7 @@
 #include "SkScalar.h"
 #include "SkStream.h"
 #include "SkString.h"
+#include "SkSurface.h"
 #include "SkTArray.h"
 #include "SkTDict.h"
 #include "SkTileGridPicture.h"
@@ -559,26 +560,31 @@ public:
                                            bool deferred) {
         SkISize size (gm->getISize());
         setup_bitmap(gRec, size, bitmap);
+        SkImageInfo info;
+        bitmap->asImageInfo(&info);
 
+        SkAutoTUnref<SkSurface> surface;
         SkAutoTUnref<SkCanvas> canvas;
 
         if (gRec.fBackend == kRaster_Backend) {
-            SkAutoTUnref<SkBaseDevice> device(SkNEW_ARGS(SkBitmapDevice, (*bitmap)));
+            surface.reset(SkSurface::NewRasterDirect(info,
+                                                     bitmap->getPixels(),
+                                                     bitmap->rowBytes()));
             if (deferred) {
-                canvas.reset(SkDeferredCanvas::Create(device));
+                canvas.reset(SkDeferredCanvas::Create(surface));
             } else {
-                canvas.reset(SkNEW_ARGS(SkCanvas, (device)));
+                canvas.reset(SkRef(surface->getCanvas()));
             }
             invokeGM(gm, canvas, false, deferred);
             canvas->flush();
         }
 #if SK_SUPPORT_GPU
         else {  // GPU
-            SkAutoTUnref<SkBaseDevice> device(SkGpuDevice::Create(gpuTarget));
+            surface.reset(SkSurface::NewRenderTargetDirect(gpuTarget->asRenderTarget()));
             if (deferred) {
-                canvas.reset(SkDeferredCanvas::Create(device));
+                canvas.reset(SkDeferredCanvas::Create(surface));
             } else {
-                canvas.reset(SkNEW_ARGS(SkCanvas, (device)));
+                canvas.reset(SkRef(surface->getCanvas()));
             }
             invokeGM(gm, canvas, false, deferred);
             // the device is as large as the current rendertarget, so
