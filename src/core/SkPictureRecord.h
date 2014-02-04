@@ -108,9 +108,8 @@ public:
 
 private:
     void handleOptimization(int opt);
-    void recordRestoreOffsetPlaceholder(SkRegion::Op);
-    void fillRestoreOffsetPlaceholdersForCurrentStackLevel(
-        uint32_t restoreOffset);
+    int recordRestoreOffsetPlaceholder(SkRegion::Op);
+    void fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t restoreOffset);
 
     SkTDArray<int32_t> fRestoreOffsetStack;
     int fFirstSavedLayerIndex;
@@ -236,6 +235,20 @@ protected:
     void drawPosTextHImpl(const void* text, size_t byteLength,
                           const SkScalar xpos[], SkScalar constY,
                           const SkPaint& paint, const SkFlatData* flatPaintData);
+
+    int addPathToHeap(const SkPath& path);  // does not write to ops stream
+
+    // These entry points allow the writing of matrices, clips, saves & 
+    // restores to be deferred (e.g., if the MC state is being collapsed and
+    // only written out as needed).
+    void recordConcat(const SkMatrix& matrix);
+    int recordClipRect(const SkRect& rect, SkRegion::Op op, bool doAA);
+    int recordClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA);
+    int recordClipPath(int pathID, SkRegion::Op op, bool doAA);
+    int recordClipRegion(const SkRegion& region, SkRegion::Op op);
+    void recordSave(SaveFlags flags);
+    void recordSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags);
+    void recordRestore();
 
     // These are set to NULL in our constructor, but may be changed by
     // subclasses, in which case they will be SkSafeUnref'd in our destructor.
