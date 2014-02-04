@@ -45,13 +45,21 @@
         # We set it automatically based on 'OS' (the host OS), but allow the
         # user to override it via GYP_DEFINES if they like.
         'skia_os%': '<(OS)',
+
+        'skia_android_framework%': 0,
       },
 
       # Re-define all variables defined within the level-3 'variables' dict,
       # so that siblings of the level-2 'variables' dict can see them.
-      'skia_os%': '<(skia_os)',
+      # (skia_os will depend on skia_android_framework.)
+      'skia_android_framework%': '<(skia_android_framework)',
 
       'conditions': [
+        [ 'skia_android_framework == 1', {
+          'skia_os%': 'android',
+        }, {
+          'skia_os%': '<(skia_os)',
+        }],
         [ 'skia_os == "win"', {
           'os_posix%': 0,
         }, {
@@ -109,7 +117,8 @@
 
     'conditions': [
       [ 'skia_os == "win" and skia_arch_width == 32 or '
-        'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android"] or '
+        'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android"] '
+            'and skia_android_framework == 0 or '
         'skia_os == "mac" and skia_arch_width == 32', {
         'skia_warnings_as_errors%': 1,
       }, {
@@ -145,6 +154,7 @@
     'skia_scalar%': '<(skia_scalar)',
     'skia_mesa%': '<(skia_mesa)',
     'skia_stroke_path_rendering%': '<(skia_stroke_path_rendering)',
+    'skia_android_framework%': '<(skia_android_framework)',
     'skia_android_path_rendering%': '<(skia_android_path_rendering)',
     'skia_resource_cache_mb_limit%': '<(skia_resource_cache_mb_limit)',
     'skia_resource_cache_count_limit%': '<(skia_resource_cache_count_limit)',

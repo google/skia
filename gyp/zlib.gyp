@@ -1,3 +1,4 @@
+# Target for including zlib.
 {
   'targets': [
     {
@@ -30,7 +31,16 @@
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "android", "nacl"]', {
           'link_settings': { 'libraries': [ '-lz', ], },
-          'defines': [ 'SK_ZLIB_INCLUDE=<zlib.h>', ],
+          'conditions': [
+            [ 'skia_android_framework==0', {
+              'defines': [ 'SK_ZLIB_INCLUDE=<zlib.h>', ],
+            }],
+          ],
+        }],
+        [ 'skia_android_framework', {
+          'include_dirs': [
+            'external/zlib',
+          ],
         }],
       ],
     },

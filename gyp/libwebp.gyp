@@ -4,7 +4,13 @@
 
 {
   'variables': {
-    'use_system_libwebp%': 0,
+    'conditions':[
+      ['skia_android_framework == 1', {
+        'use_system_libwebp': 1,
+      }, {
+        'use_system_libwebp%': 0,
+      }],
+    ],
   },
   'conditions': [
     ['use_system_libwebp==0', {
@@ -156,20 +162,36 @@
         },
       ],
     }, {
+      # use_system_libwep == 1
       'targets': [
         {
           'target_name': 'libwebp',
           'type': 'none',
-          'direct_dependent_settings': {
-            'defines': [
-              'ENABLE_WEBP',
+          'conditions': [
+            [ 'skia_android_framework', {
+              'direct_dependent_settings': {
+                'libraries': [
+                  'libwebp-decode.a',
+                  'libwebp-encode.a',
+                ],
+              'include_dirs': [
+                'external/webp/include',
+              ],
+              },
+            }, { # skia_android_framework == 0
+              'direct_dependent_settings': {
+                'defines': [
+                  'ENABLE_WEBP',
+                ],
+                },
+                'link_settings': {
+                  'libraries': [
+                    '-lwebp',
+                  ],
+                },
+              },
             ],
-          },
-          'link_settings': {
-            'libraries': [
-              '-lwebp',
-            ],
-          },
+          ],
         }
       ],
     }],
