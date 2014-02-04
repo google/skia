@@ -13,6 +13,7 @@
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
+#include "SkData.h"
 #include "SkDeferredCanvas.h"
 #include "SkGMBench.h"
 #include "SkGraphics.h"
@@ -20,6 +21,7 @@
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkString.h"
+#include "SkSurface.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -94,14 +96,6 @@ static const char kDefaultsConfigStr[] = "defaults";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void erase(SkBitmap& bm) {
-    if (bm.config() == SkBitmap::kA8_Config) {
-        bm.eraseColor(SK_ColorTRANSPARENT);
-    } else {
-        bm.eraseColor(SK_ColorWHITE);
-    }
-}
-
 class Iter {
 public:
     Iter() : fBench(BenchRegistry::Head()) {}
@@ -148,22 +142,10 @@ static void make_filename(const char name[], SkString* path) {
 }
 
 static void saveFile(const char name[], const char config[], const char dir[],
-                     const SkBitmap& bm) {
-    SkBitmap copy;
-    if (!bm.copyTo(&copy, SkBitmap::kARGB_8888_Config)) {
+                     const SkImage* image) {
+    SkAutoTUnref<SkData> data(image->encode(SkImageEncoder::kPNG_Type, 100));
+    if (NULL == data.get()) {
         return;
-    }
-
-    if (bm.config() == SkBitmap::kA8_Config) {
-        // turn alpha into gray-scale
-        size_t size = copy.getSize() >> 2;
-        SkPMColor* p = copy.getAddr32(0, 0);
-        for (size_t i = 0; i < size; i++) {
-            int c = (*p >> SK_A32_SHIFT) & 0xFF;
-            c = 255 - c;
-            c |= (c << 24) | (c << 16) | (c << 8);
-            *p++ = c | (SK_A32_MASK << SK_A32_SHIFT);
-        }
     }
 
     SkString filename;
@@ -171,7 +153,9 @@ static void saveFile(const char name[], const char config[], const char dir[],
     filename.appendf("_%s.png", config);
     SkString path = SkOSPath::SkPathJoin(dir, filename.c_str());
     ::remove(path.c_str());
-    SkImageEncoder::EncodeFile(path.c_str(), copy, SkImageEncoder::kPNG_Type, 100);
+
+    SkFILEWStream   stream(filename.c_str());
+    stream.write(data->data(), data->size());
 }
 
 static void performClip(SkCanvas* canvas, int w, int h) {
@@ -205,31 +189,21 @@ static void performScale(SkCanvas* canvas, int w, int h) {
     canvas->translate(-x, -y);
 }
 
-static SkBaseDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
-                                 SkBenchmark::Backend backend, int sampleCount, GrContext* context) {
-    SkBaseDevice* device = NULL;
-    SkBitmap bitmap;
-    bitmap.setConfig(config, size.fX, size.fY);
+static SkSurface* make_surface(SkColorType colorType, const SkIPoint& size,
+                               SkBenchmark::Backend backend, int sampleCount,
+                               GrContext* context) {
+    SkSurface* surface = NULL;
+    SkImageInfo info = SkImageInfo::Make(size.fX, size.fY, colorType,
+                                         kPremul_SkAlphaType);
 
     switch (backend) {
         case SkBenchmark::kRaster_Backend:
-            bitmap.allocPixels();
-            erase(bitmap);
-            device = SkNEW_ARGS(SkBitmapDevice, (bitmap));
+            surface = SkSurface::NewRaster(info);
+            surface->getCanvas()->clear(SK_ColorWHITE);
             break;
 #if SK_SUPPORT_GPU
         case SkBenchmark::kGPU_Backend: {
-            GrTextureDesc desc;
-            desc.fConfig = kSkia8888_GrPixelConfig;
-            desc.fFlags = kRenderTarget_GrTextureFlagBit;
-            desc.fWidth = size.fX;
-            desc.fHeight = size.fY;
-            desc.fSampleCnt = sampleCount;
-            SkAutoTUnref<GrTexture> texture(context->createUncachedTexture(desc, NULL, 0));
-            if (!texture) {
-                return NULL;
-            }
-            device = SkNEW_ARGS(SkGpuDevice, (context, texture.get()));
+            surface = SkSurface::NewRenderTarget(context, info, sampleCount);
             break;
         }
 #endif
@@ -237,7 +211,7 @@ static SkBaseDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
         default:
             SkDEBUGFAIL("unsupported");
     }
-    return device;
+    return surface;
 }
 
 #if SK_SUPPORT_GPU
@@ -262,27 +236,27 @@ static const bool kIsDebug = false;
 #endif
 
 static const struct Config {
-    SkBitmap::Config    config;
+    SkColorType         fColorType;
     const char*         name;
     int                 sampleCount;
     SkBenchmark::Backend backend;
     GLContextType       contextType;
     bool                runByDefault;
 } gConfigs[] = {
-    { SkBitmap::kNo_Config,        "NONRENDERING", 0, SkBenchmark::kNonRendering_Backend, kNative, true},
-    { SkBitmap::kARGB_8888_Config, "8888",         0, SkBenchmark::kRaster_Backend,       kNative, true},
-    { SkBitmap::kRGB_565_Config,   "565",          0, SkBenchmark::kRaster_Backend,       kNative, true},
+    { kPMColor_SkColorType, "NONRENDERING", 0, SkBenchmark::kNonRendering_Backend, kNative, true},
+    { kPMColor_SkColorType, "8888",         0, SkBenchmark::kRaster_Backend,       kNative, true},
+    { kRGB_565_SkColorType, "565",          0, SkBenchmark::kRaster_Backend,       kNative, true},
 #if SK_SUPPORT_GPU
-    { SkBitmap::kARGB_8888_Config, "GPU",          0, SkBenchmark::kGPU_Backend,          kNative, true},
-    { SkBitmap::kARGB_8888_Config, "MSAA4",        4, SkBenchmark::kGPU_Backend,          kNative, false},
-    { SkBitmap::kARGB_8888_Config, "MSAA16",      16, SkBenchmark::kGPU_Backend,          kNative, false},
-    { SkBitmap::kARGB_8888_Config, "NVPRMSAA4",    4, SkBenchmark::kGPU_Backend,          kNVPR,   true},
-    { SkBitmap::kARGB_8888_Config, "NVPRMSAA16",  16, SkBenchmark::kGPU_Backend,          kNVPR,   false},
+    { kPMColor_SkColorType, "GPU",          0, SkBenchmark::kGPU_Backend,          kNative, true},
+    { kPMColor_SkColorType, "MSAA4",        4, SkBenchmark::kGPU_Backend,          kNative, false},
+    { kPMColor_SkColorType, "MSAA16",      16, SkBenchmark::kGPU_Backend,          kNative, false},
+    { kPMColor_SkColorType, "NVPRMSAA4",    4, SkBenchmark::kGPU_Backend,          kNVPR,   true},
+    { kPMColor_SkColorType, "NVPRMSAA16",  16, SkBenchmark::kGPU_Backend,          kNVPR,   false},
 #if SK_ANGLE
-    { SkBitmap::kARGB_8888_Config, "ANGLE",        0, SkBenchmark::kGPU_Backend,          kANGLE,  true},
+    { kPMColor_SkColorType, "ANGLE",        0, SkBenchmark::kGPU_Backend,          kANGLE,  true},
 #endif // SK_ANGLE
-    { SkBitmap::kARGB_8888_Config, "Debug",        0, SkBenchmark::kGPU_Backend,          kDebug,  kIsDebug},
-    { SkBitmap::kARGB_8888_Config, "NULLGPU",      0, SkBenchmark::kGPU_Backend,          kNull,   true},
+    { kPMColor_SkColorType, "Debug",        0, SkBenchmark::kGPU_Backend,          kDebug,  kIsDebug},
+    { kPMColor_SkColorType, "NULLGPU",      0, SkBenchmark::kGPU_Backend,          kNull,   true},
 #endif // SK_SUPPORT_GPU
 };
 
@@ -539,7 +513,7 @@ int tool_main(int argc, char** argv) {
                 glContext = gContextFactory.getGLContext(config.contextType);
             }
 #endif
-            SkAutoTUnref<SkBaseDevice> device;
+
             SkAutoTUnref<SkCanvas> canvas;
             SkPicture recordFrom, recordTo;
             const SkIPoint dim = bench->getSize();
@@ -547,13 +521,14 @@ int tool_main(int argc, char** argv) {
             const SkPicture::RecordingFlags kRecordFlags =
                 SkPicture::kUsePathBoundsForClip_RecordingFlag;
 
+            SkAutoTUnref<SkSurface> surface;
             if (SkBenchmark::kNonRendering_Backend != config.backend) {
-                device.reset(make_device(config.config,
-                                         dim,
-                                         config.backend,
-                                         config.sampleCount,
-                                         context));
-                if (!device.get()) {
+                surface.reset(make_surface(config.fColorType,
+                                           dim,
+                                           config.backend,
+                                           config.sampleCount,
+                                           context));
+                if (!surface.get()) {
                     logger.logError(SkStringPrintf(
                         "Device creation failure for config %s. Will skip.\n", config.name));
                     continue;
@@ -562,7 +537,7 @@ int tool_main(int argc, char** argv) {
                 switch(benchMode) {
                     case kDeferredSilent_BenchMode:
                     case kDeferred_BenchMode:
-                        canvas.reset(SkDeferredCanvas::Create(device.get()));
+                        canvas.reset(SkDeferredCanvas::Create(surface.get()));
                         break;
                     case kRecord_BenchMode:
                         canvas.reset(SkRef(recordTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
@@ -573,7 +548,7 @@ int tool_main(int argc, char** argv) {
                         canvas.reset(SkRef(recordTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
                         break;
                     case kNormal_BenchMode:
-                        canvas.reset(new SkCanvas(device.get()));
+                        canvas.reset(SkRef(surface->getCanvas()));
                         break;
                     default:
                         SkASSERT(false);
@@ -708,10 +683,11 @@ int tool_main(int argc, char** argv) {
             if (FLAGS_verbose) { SkDebugf("\n"); }
 
             if (FLAGS_outDir.count() && SkBenchmark::kNonRendering_Backend != config.backend) {
-                saveFile(bench->getName(),
-                         config.name,
-                         FLAGS_outDir[0],
-                         device->accessBitmap(false));
+                SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
+                if (image.get()) {
+                    saveFile(bench->getName(), config.name, FLAGS_outDir[0],
+                             image);
+                }
             }
 
             if (kIsDebug) {
