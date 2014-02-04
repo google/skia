@@ -59,9 +59,7 @@ public:
     SkMetaData& getMetaData();
 
     enum Capabilities {
-        kGL_Capability     = 0x1,  //!< mask indicating GL support
-        kVector_Capability = 0x2,  //!< mask indicating a vector representation
-        kAll_Capabilities  = 0x3
+        kVector_Capability = 0x1,  //!< mask indicating a vector representation
     };
     virtual uint32_t getDeviceCapabilities() = 0;
 
