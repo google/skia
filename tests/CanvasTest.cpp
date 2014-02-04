@@ -61,6 +61,7 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkStream.h"
+#include "SkSurface.h"
 #include "SkTDArray.h"
 #include "Test.h"
 
@@ -138,6 +139,12 @@ static void createBitmap(SkBitmap* bm, SkBitmap::Config config, SkColor color) {
     bm->setConfig(config, kWidth, kHeight);
     bm->allocPixels();
     bm->eraseColor(color);
+}
+
+static SkSurface* createSurface(SkColor color) {
+    SkSurface* surface = SkSurface::NewRasterPMColor(kWidth, kHeight);
+    surface->getCanvas()->clear(color);
+    return surface;
 }
 
 class CanvasTestStep;
@@ -749,10 +756,9 @@ public:
         CanvasTestStep* testStep,
         const SkCanvas& referenceCanvas, bool silent) {
 
-        SkBitmap deferredStore;
-        createBitmap(&deferredStore, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
-        SkBitmapDevice deferredDevice(deferredStore);
-        SkAutoTUnref<SkDeferredCanvas> deferredCanvas(SkDeferredCanvas::Create(&deferredDevice));
+        SkAutoTUnref<SkSurface> surface(createSurface(0xFFFFFFFF));
+        SkAutoTUnref<SkDeferredCanvas> deferredCanvas(SkDeferredCanvas::Create(surface.get()));
+
         testStep->setAssertMessageFormat(kDeferredDrawAssertMessageFormat);
         testStep->draw(deferredCanvas, reporter);
         testStep->setAssertMessageFormat(kDeferredPreFlushAssertMessageFormat);

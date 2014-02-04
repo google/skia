@@ -25,6 +25,7 @@ protected:
     }
 
     virtual void onDraw(const int loops, SkCanvas* canvas) {
+#if 0   // what specifically are we interested in timing here?
         SkBaseDevice *device = canvas->getDevice()->createCompatibleDevice(
             SkBitmap::kARGB_8888_Config, CANVAS_WIDTH, CANVAS_HEIGHT, false);
 
@@ -35,6 +36,7 @@ protected:
         drawInDeferredCanvas(loops, deferredCanvas);
         finalizeDeferredCanvas(deferredCanvas);
         deferredCanvas->flush();
+#endif
     }
 
     virtual void initDeferredCanvas(SkDeferredCanvas* canvas) = 0;
