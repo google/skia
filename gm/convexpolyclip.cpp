@@ -83,7 +83,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(435, 440);
+        return make_isize(435, 540);
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
@@ -92,7 +92,7 @@ protected:
         tri.lineTo(100.f, 20.f);
         tri.lineTo(15.f, 100.f);
 
-        fPaths.addToTail(tri);
+        fClips.addToTail()->setPath(tri);
 
         SkPath hexagon;
         static const SkScalar kRadius = 45.f;
@@ -109,12 +109,14 @@ protected:
                 hexagon.lineTo(point);
             }
         }
-        fPaths.addToTail(hexagon);
+        fClips.addToTail()->setPath(hexagon);
 
         SkMatrix scaleM;
         scaleM.setScale(1.1f, 0.4f, kRadius, kRadius);
         hexagon.transform(scaleM);
-        fPaths.addToTail(hexagon);
+        fClips.addToTail()->setPath(hexagon);
+
+        fClips.addToTail()->setRect(SkRect::MakeXYWH(8.3f, 11.6f, 78.2f, 72.6f));
 
         SkPath rotRect;
         SkRect rect = SkRect::MakeLTRB(10.f, 12.f, 80.f, 86.f);
@@ -122,13 +124,12 @@ protected:
         SkMatrix rotM;
         rotM.setRotate(23.f, rect.centerX(), rect.centerY());
         rotRect.transform(rotM);
-        fPaths.addToTail(rotRect);
-
+        fClips.addToTail()->setPath(rotRect);
+        
         fBmp = make_bmp(100, 100);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        const SkPath* path;
         SkScalar y = 0;
         static const SkScalar kMargin = 10.f;
 
@@ -139,14 +140,15 @@ protected:
                                         SkIntToScalar(size.fHeight));
         canvas->drawBitmapRectToRect(fBmp, NULL, dstRect, &bgPaint);
 
-        for (SkTLList<SkPath>::Iter iter(fPaths, SkTLList<SkPath>::Iter::kHead_IterStart);
-             NULL != (path = iter.get());
+        for (SkTLList<Clip>::Iter iter(fClips, SkTLList<Clip>::Iter::kHead_IterStart);
+             NULL != iter.get();
              iter.next()) {
+            const Clip* clip = iter.get();
             SkScalar x = 0;
             for (int aa = 0; aa < 2; ++aa) {
                 canvas->save();
                 canvas->translate(x, y);
-                canvas->clipPath(*path, SkRegion::kIntersect_Op, SkToBool(aa));
+                clip->setOnCanvas(canvas, SkRegion::kIntersect_Op, SkToBool(aa));
                 canvas->drawBitmap(fBmp, 0, 0);
                 canvas->restore();
                 x += fBmp.width() + kMargin;
@@ -166,10 +168,10 @@ protected:
 
                 canvas->save();
                 canvas->translate(x, y);
-                SkPath closedClipPath = *path;
-                closedClipPath.close();
+                SkPath closedClipPath;
+                clip->asClosedPath(&closedClipPath);
                 canvas->drawPath(closedClipPath, clipOutlinePaint);
-                canvas->clipPath(*path, SkRegion::kIntersect_Op, SkToBool(aa));
+                clip->setOnCanvas(canvas, SkRegion::kIntersect_Op, SkToBool(aa));
                 canvas->scale(1.f, 1.8f);
                 canvas->drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1,
                                  0, 1.5f * txtPaint.getTextSize(),
@@ -187,7 +189,66 @@ protected:
     }
 
 private:
-    SkTLList<SkPath> fPaths;
+    class Clip {
+    public:
+        enum ClipType {
+            kNone_ClipType,
+            kPath_ClipType,
+            kRect_ClipType
+        };
+
+        Clip () : fClipType(kNone_ClipType) {}
+        
+        void setOnCanvas(SkCanvas* canvas, SkRegion::Op op, bool aa) const {
+            switch (fClipType) {
+                case kPath_ClipType:
+                    canvas->clipPath(fPath, op, aa);
+                    break;
+                case kRect_ClipType:
+                    canvas->clipRect(fRect, op, aa);
+                    break;
+                case kNone_ClipType:
+                    SkDEBUGFAIL("Uninitialized Clip.");
+                    break;
+            }
+        }
+        
+        void asClosedPath(SkPath* path) const {
+            switch (fClipType) {
+                case kPath_ClipType:
+                    *path = fPath;
+                    path->close();
+                    break;
+                case kRect_ClipType:
+                    path->reset();
+                    path->addRect(fRect);
+                    break;
+                case kNone_ClipType:
+                    SkDEBUGFAIL("Uninitialized Clip.");
+                    break;
+            }
+        }
+        
+        void setPath(const SkPath& path) {
+            fClipType = kPath_ClipType;
+            fPath = path;
+        }
+        
+        void setRect(const SkRect& rect) {
+            fClipType = kRect_ClipType;
+            fRect = rect;
+            fPath.reset();
+        }
+        
+        ClipType getType() const { return fClipType; }
+        
+    private:
+        ClipType fClipType;
+        SkPath fPath;
+        SkRect fRect;
+    };
+    
+    SkTLList<Clip>   fClips;
     SkBitmap         fBmp;
 
     typedef GM INHERITED;

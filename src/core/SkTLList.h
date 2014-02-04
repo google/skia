@@ -75,11 +75,29 @@ public:
         return reinterpret_cast<T*>(node->fObj);
     }
 
+    T* addToHead() {
+        this->validate();
+        Node* node = this->createNode();
+        fList.addToHead(node);
+        SkNEW_PLACEMENT(node->fObj, T);
+        this->validate();
+        return reinterpret_cast<T*>(node->fObj);
+    }
+
     T* addToTail(const T& t) {
         this->validate();
         Node* node = this->createNode();
         fList.addToTail(node);
         SkNEW_PLACEMENT_ARGS(node->fObj, T, (t));
+        this->validate();
+        return reinterpret_cast<T*>(node->fObj);
+    }
+
+    T* addToTail() {
+        this->validate();
+        Node* node = this->createNode();
+        fList.addToTail(node);
+        SkNEW_PLACEMENT(node->fObj, T);
         this->validate();
         return reinterpret_cast<T*>(node->fObj);
     }
