@@ -184,40 +184,30 @@ class SkFontMgr_fontconfig : public SkFontMgr {
     SkAutoTUnref<SkFontConfigInterface> fFCI;
     SkDataTable* fFamilyNames;
 
-    void init() {
-        if (!fFamilyNames) {
-            fFamilyNames = fFCI->getFamilyNames();
-        }
-    }
 
 public:
     SkFontMgr_fontconfig(SkFontConfigInterface* fci)
         : fFCI(fci)
-        , fFamilyNames(NULL) {}
+        , fFamilyNames(fFCI->getFamilyNames()) {}
 
     virtual ~SkFontMgr_fontconfig() {
         SkSafeUnref(fFamilyNames);
     }
 
 protected:
-    virtual int onCountFamilies() {
-        this->init();
+    virtual int onCountFamilies() const SK_OVERRIDE {
         return fFamilyNames->count();
     }
 
-    virtual void onGetFamilyName(int index, SkString* familyName) {
-        this->init();
+    virtual void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
         familyName->set(fFamilyNames->atStr(index));
     }
 
-    virtual SkFontStyleSet* onCreateStyleSet(int index) {
-        this->init();
+    virtual SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
         return this->onMatchFamily(fFamilyNames->atStr(index));
     }
 
-    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) {
-        this->init();
-
+    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
         FcPattern* pattern = FcPatternCreate();
 
         FcPatternAddString(pattern, FC_FAMILY, (FcChar8*)familyName);
@@ -261,13 +251,13 @@ protected:
     }
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle&) { return NULL; }
+                                           const SkFontStyle&) const SK_OVERRIDE { return NULL; }
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
-                                         const SkFontStyle&) { return NULL; }
+                                         const SkFontStyle&) const SK_OVERRIDE { return NULL; }
 
-    virtual SkTypeface* onCreateFromData(SkData*, int ttcIndex) { return NULL; }
+    virtual SkTypeface* onCreateFromData(SkData*, int ttcIndex) const SK_OVERRIDE { return NULL; }
 
-    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) {
+    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
         const size_t length = stream->getLength();
         if (!length) {
             return NULL;
@@ -287,13 +277,13 @@ protected:
         return face;
     }
 
-    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) {
+    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
         return stream.get() ? this->createFromStream(stream, ttcIndex) : NULL;
     }
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) SK_OVERRIDE {
+                                               unsigned styleBits) const SK_OVERRIDE {
         return FontConfigTypeface::LegacyCreateTypeface(NULL, familyName,
                                                   (SkTypeface::Style)styleBits);
     }

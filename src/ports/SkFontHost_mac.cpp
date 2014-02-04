@@ -2208,19 +2208,12 @@ private:
 };
 
 class SkFontMgr_Mac : public SkFontMgr {
-    int         fCount;
     CFArrayRef  fNames;
+    int         fCount;
 
     CFStringRef stringAt(int index) const {
         SkASSERT((unsigned)index < (unsigned)fCount);
         return (CFStringRef)CFArrayGetValueAtIndex(fNames, index);
-    }
-
-    void lazyInit() {
-        if (NULL == fNames) {
-            fNames = SkCTFontManagerCopyAvailableFontFamilyNames();
-            fCount = fNames ? SkToInt(CFArrayGetCount(fNames)) : 0;
-        }
     }
 
     static SkFontStyleSet* CreateSet(CFStringRef cfFamilyName) {
@@ -2237,20 +2230,20 @@ class SkFontMgr_Mac : public SkFontMgr {
     }
 
 public:
-    SkFontMgr_Mac() : fCount(0), fNames(NULL) {}
+    SkFontMgr_Mac()
+        : fNames(SkCTFontManagerCopyAvailableFontFamilyNames())
+        , fCount(fNames ? SkToInt(CFArrayGetCount(fNames)) : 0) {}
 
     virtual ~SkFontMgr_Mac() {
         CFSafeRelease(fNames);
     }
 
 protected:
-    virtual int onCountFamilies() SK_OVERRIDE {
-        this->lazyInit();
+    virtual int onCountFamilies() const SK_OVERRIDE {
         return fCount;
     }
 
-    virtual void onGetFamilyName(int index, SkString* familyName) SK_OVERRIDE {
-        this->lazyInit();
+    virtual void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
         if ((unsigned)index < (unsigned)fCount) {
             CFStringToSkString(this->stringAt(index), familyName);
         } else {
@@ -2258,31 +2251,30 @@ protected:
         }
     }
 
-    virtual SkFontStyleSet* onCreateStyleSet(int index) SK_OVERRIDE {
-        this->lazyInit();
+    virtual SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
         if ((unsigned)index >= (unsigned)fCount) {
             return NULL;
         }
         return CreateSet(this->stringAt(index));
     }
 
-    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) SK_OVERRIDE {
+    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
         AutoCFRelease<CFStringRef> cfName(make_CFString(familyName));
         return CreateSet(cfName);
     }
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle&) SK_OVERRIDE {
+                                           const SkFontStyle&) const SK_OVERRIDE {
         return NULL;
     }
 
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
-                                         const SkFontStyle&) SK_OVERRIDE {
+                                         const SkFontStyle&) const SK_OVERRIDE {
         return NULL;
     }
 
     virtual SkTypeface* onCreateFromData(SkData* data,
-                                         int ttcIndex) SK_OVERRIDE {
+                                         int ttcIndex) const SK_OVERRIDE {
         AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromData(data));
         if (NULL == pr) {
             return NULL;
@@ -2291,7 +2283,7 @@ protected:
     }
 
     virtual SkTypeface* onCreateFromStream(SkStream* stream,
-                                           int ttcIndex) SK_OVERRIDE {
+                                           int ttcIndex) const SK_OVERRIDE {
         AutoCFRelease<CGDataProviderRef> pr(SkCreateDataProviderFromStream(stream));
         if (NULL == pr) {
             return NULL;
@@ -2300,7 +2292,7 @@ protected:
     }
 
     virtual SkTypeface* onCreateFromFile(const char path[],
-                                         int ttcIndex) SK_OVERRIDE {
+                                         int ttcIndex) const SK_OVERRIDE {
         AutoCFRelease<CGDataProviderRef> pr(CGDataProviderCreateWithFilename(path));
         if (NULL == pr) {
             return NULL;
@@ -2309,7 +2301,7 @@ protected:
     }
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) SK_OVERRIDE {
+                                               unsigned styleBits) const SK_OVERRIDE {
         return create_typeface(NULL, familyName, (SkTypeface::Style)styleBits);
     }
 };

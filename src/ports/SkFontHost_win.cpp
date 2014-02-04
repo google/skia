@@ -2561,21 +2561,21 @@ public:
     }
 
 protected:
-    virtual int onCountFamilies() SK_OVERRIDE {
+    virtual int onCountFamilies() const SK_OVERRIDE {
         return fLogFontArray.count();
     }
 
-    virtual void onGetFamilyName(int index, SkString* familyName) SK_OVERRIDE {
+    virtual void onGetFamilyName(int index, SkString* familyName) const SK_OVERRIDE {
         SkASSERT((unsigned)index < (unsigned)fLogFontArray.count());
         tchar_to_skstring(fLogFontArray[index].elfLogFont.lfFaceName, familyName);
     }
 
-    virtual SkFontStyleSet* onCreateStyleSet(int index) SK_OVERRIDE {
+    virtual SkFontStyleSet* onCreateStyleSet(int index) const SK_OVERRIDE {
         SkASSERT((unsigned)index < (unsigned)fLogFontArray.count());
         return SkNEW_ARGS(SkFontStyleSetGDI, (fLogFontArray[index].elfLogFont.lfFaceName));
     }
 
-    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) SK_OVERRIDE {
+    virtual SkFontStyleSet* onMatchFamily(const char familyName[]) const SK_OVERRIDE {
         if (NULL == familyName) {
             familyName = "";    // do we need this check???
         }
@@ -2585,38 +2585,38 @@ protected:
     }
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle& fontstyle) SK_OVERRIDE {
+                                           const SkFontStyle& fontstyle) const SK_OVERRIDE {
         // could be in base impl
         SkAutoTUnref<SkFontStyleSet> sset(this->matchFamily(familyName));
         return sset->matchStyle(fontstyle);
     }
 
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface* familyMember,
-                                         const SkFontStyle& fontstyle) SK_OVERRIDE {
+                                         const SkFontStyle& fontstyle) const SK_OVERRIDE {
         // could be in base impl
         SkString familyName;
         ((LogFontTypeface*)familyMember)->getFamilyName(&familyName);
         return this->matchFamilyStyle(familyName.c_str(), fontstyle);
     }
 
-    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) SK_OVERRIDE {
+    virtual SkTypeface* onCreateFromStream(SkStream* stream, int ttcIndex) const SK_OVERRIDE {
         return create_from_stream(stream);
     }
 
-    virtual SkTypeface* onCreateFromData(SkData* data, int ttcIndex) SK_OVERRIDE {
+    virtual SkTypeface* onCreateFromData(SkData* data, int ttcIndex) const SK_OVERRIDE {
         // could be in base impl
         SkAutoTUnref<SkStream> stream(SkNEW_ARGS(SkMemoryStream, (data)));
         return this->createFromStream(stream);
     }
 
-    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) SK_OVERRIDE {
+    virtual SkTypeface* onCreateFromFile(const char path[], int ttcIndex) const SK_OVERRIDE {
         // could be in base impl
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
         return this->createFromStream(stream);
     }
 
     virtual SkTypeface* onLegacyCreateTypeface(const char familyName[],
-                                               unsigned styleBits) SK_OVERRIDE {
+                                               unsigned styleBits) const SK_OVERRIDE {
         LOGFONT lf;
         if (NULL == familyName) {
             lf = get_default_font();
