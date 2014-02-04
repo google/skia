@@ -12,4 +12,3 @@
 SkBBoxHierarchy* SkQuadTreePicture::createBBoxHierarchy() const {
     return SkQuadTree::Create(fBounds);
 }
-

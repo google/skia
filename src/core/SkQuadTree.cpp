@@ -30,7 +30,7 @@ public:
     ~QuadTreeNode() {
         clear();
     }
-    
+
     void clear() {
         SkDELETE(fTopLeft);
         fTopLeft = NULL;
