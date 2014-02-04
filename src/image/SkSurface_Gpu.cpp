@@ -15,7 +15,7 @@ public:
     SK_DECLARE_INST_COUNT(SkSurface_Gpu)
 
     SkSurface_Gpu(GrContext*, const SkImageInfo&, int sampleCount);
-    SkSurface_Gpu(GrContext*, GrRenderTarget*);
+    SkSurface_Gpu(GrRenderTarget*);
     virtual ~SkSurface_Gpu();
 
     virtual SkCanvas* onNewCanvas() SK_OVERRIDE;
@@ -45,9 +45,9 @@ SkSurface_Gpu::SkSurface_Gpu(GrContext* ctx, const SkImageInfo& info,
     }
 }
 
-SkSurface_Gpu::SkSurface_Gpu(GrContext* ctx, GrRenderTarget* renderTarget)
+SkSurface_Gpu::SkSurface_Gpu(GrRenderTarget* renderTarget)
         : INHERITED(renderTarget->width(), renderTarget->height()) {
-    fDevice = SkNEW_ARGS(SkGpuDevice, (ctx, renderTarget));
+    fDevice = SkNEW_ARGS(SkGpuDevice, (renderTarget->getContext(), renderTarget));
 
     if (kRGB_565_GrPixelConfig != renderTarget->config()) {
         fDevice->clear(0x0);
@@ -102,14 +102,20 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkSurface* SkSurface::NewRenderTargetDirect(GrContext* ctx,
-                                            GrRenderTarget* target) {
-    if (NULL == ctx || NULL == target) {
+SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target) {
+    if (NULL == target) {
         return NULL;
     }
-
-    return SkNEW_ARGS(SkSurface_Gpu, (ctx, target));
+    return SkNEW_ARGS(SkSurface_Gpu, (target));
 }
+
+#ifdef SK_SUPPORT_LEGACY_NEWRENDERTARGETDIRECT
+SkSurface* SkSurface::NewRenderTargetDirect(GrContext* ctx,
+                                            GrRenderTarget* target) {
+    SkASSERT(target->getContext() == ctx);
+    return SkSurface::NewRenderTargetDirect(target);
+}
+#endif
 
 SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImageInfo& info, int sampleCount) {
     if (NULL == ctx) {
@@ -130,5 +136,5 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImageInfo& info, i
         return NULL;
     }
 
-    return SkNEW_ARGS(SkSurface_Gpu, (ctx, tex->asRenderTarget()));
+    return SkNEW_ARGS(SkSurface_Gpu, (tex->asRenderTarget()));
 }
