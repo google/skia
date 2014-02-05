@@ -16,11 +16,13 @@
 #include "SkDeviceImageFilterProxy.h"
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
+#include "SkFlattenableBuffers.h"
 #include "SkLightingImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkPicture.h"
 #include "SkRect.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
@@ -32,6 +34,40 @@
 #endif
 
 static const int kBitmapSize = 4;
+
+namespace {
+
+class MatrixTestImageFilter : public SkImageFilter {
+public:
+    MatrixTestImageFilter(skiatest::Reporter* reporter, const SkMatrix& expectedMatrix)
+      : SkImageFilter(0), fReporter(reporter), fExpectedMatrix(expectedMatrix) {
+    }
+
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix& ctm,
+                               SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
+        REPORTER_ASSERT(fReporter, ctm == fExpectedMatrix);
+        return true;
+    }
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(MatrixTestImageFilter)
+
+protected:
+    explicit MatrixTestImageFilter(SkReadBuffer& buffer) : SkImageFilter(0) {
+        fReporter = static_cast<skiatest::Reporter*>(buffer.readFunctionPtr());
+        buffer.readMatrix(&fExpectedMatrix);
+    }
+
+    virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
+        buffer.writeFunctionPtr(fReporter);
+        buffer.writeMatrix(fExpectedMatrix);
+    }
+
+private:
+    skiatest::Reporter* fReporter;
+    SkMatrix fExpectedMatrix;
+};
+
+}
 
 static void make_small_bitmap(SkBitmap& bitmap) {
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, kBitmapSize, kBitmapSize);
@@ -228,6 +264,39 @@ DEF_TEST(ImageFilterCropRect, reporter) {
     temp.allocPixels();
     SkBitmapDevice device(temp);
     test_crop_rects(&device, reporter);
+}
+
+DEF_TEST(ImageFilterMatrixTest, reporter) {
+    SkBitmap temp;
+    temp.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+    temp.allocPixels();
+    SkBitmapDevice device(temp);
+    SkCanvas canvas(&device);
+    canvas.scale(SkIntToScalar(2), SkIntToScalar(2));
+
+    SkMatrix expectedMatrix = canvas.getTotalMatrix();
+
+    SkPicture picture;
+    SkCanvas* recordingCanvas = picture.beginRecording(100, 100,
+        SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+
+    SkPaint paint;
+    SkAutoTUnref<MatrixTestImageFilter> imageFilter(
+        new MatrixTestImageFilter(reporter, expectedMatrix));
+    paint.setImageFilter(imageFilter.get());
+    SkCanvas::SaveFlags saveFlags = static_cast<SkCanvas::SaveFlags>(
+        SkCanvas::kHasAlphaLayer_SaveFlag | SkCanvas::kFullColorLayer_SaveFlag);
+    recordingCanvas->saveLayer(NULL, &paint, saveFlags);
+    SkPaint solidPaint;
+    solidPaint.setColor(0xFFFFFFFF);
+    recordingCanvas->save();
+    recordingCanvas->scale(SkIntToScalar(10), SkIntToScalar(10));
+    recordingCanvas->drawRect(SkRect::Make(SkIRect::MakeWH(100, 100)), solidPaint);
+    recordingCanvas->restore(); // scale
+    recordingCanvas->restore(); // saveLayer
+    picture.endRecording();
+
+    canvas.drawPicture(picture);
 }
 
 #if SK_SUPPORT_GPU
