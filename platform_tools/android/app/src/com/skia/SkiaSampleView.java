@@ -16,6 +16,7 @@ import android.content.Context;
 import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 
 public class SkiaSampleView extends GLSurfaceView {
@@ -187,36 +188,29 @@ public class SkiaSampleView extends GLSurfaceView {
     }
 
     private class SampleViewEGLConfigChooser implements GLSurfaceView.EGLConfigChooser {
-        private int[] mValue;
 
         @Override
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
-            mValue = new int[1];
-
-            int glAPIToTry;
-
-            if (mRequestedOpenGLAPI) {
-                glAPIToTry = EGL14.EGL_OPENGL_API;
-            } else {
-                glAPIToTry = EGL14.EGL_OPENGL_ES_API;
-            }
-
             int numConfigs = 0;
             int[] configSpec = null;
+            int[] value = new int[1];
+            
+            int[] validAPIs = new int[] {
+                EGL14.EGL_OPENGL_API,
+                EGL14.EGL_OPENGL_ES_API
+            };
+            int initialAPI = mRequestedOpenGLAPI ? 0 : 1;
+            
+            for (int i = initialAPI; i < validAPIs.length && numConfigs == 0; i++) {
+                int currentAPI = validAPIs[i];
+                EGL14.eglBindAPI(currentAPI);
 
-            do {
-                EGL14.eglBindAPI(glAPIToTry);
-
-                int renderableType;
-                if (glAPIToTry == EGL14.EGL_OPENGL_API) {
+                // setup the renderableType which will only be included in the
+                // spec if we are attempting to get access to the OpenGL APIs.
+                int renderableType = EGL14.EGL_OPENGL_BIT;
+                if (currentAPI == EGL14.EGL_OPENGL_API) {
                     renderableType = EGL14.EGL_OPENGL_ES2_BIT;
-
-                    // If this API does not work, try ES next.
-                    glAPIToTry = EGL14.EGL_OPENGL_ES_API;
-                } else {
-                    renderableType = EGL14.EGL_OPENGL_BIT;
                 }
-
 
                 if (mRequestedMSAASampleCount > 0) {
                     configSpec = new int[] {
@@ -226,17 +220,25 @@ public class SkiaSampleView extends GLSurfaceView {
                         EGL10.EGL_ALPHA_SIZE, 8,
                         EGL10.EGL_DEPTH_SIZE, 0,
                         EGL10.EGL_STENCIL_SIZE, 8,
-                        EGL10.EGL_RENDERABLE_TYPE, renderableType,
                         EGL10.EGL_SAMPLE_BUFFERS, 1,
                         EGL10.EGL_SAMPLES, mRequestedMSAASampleCount,
+                        EGL10.EGL_RENDERABLE_TYPE, renderableType,
                         EGL10.EGL_NONE
                     };
 
-                    if (!egl.eglChooseConfig(display, configSpec, null, 0, mValue)) {
-                        throw new IllegalArgumentException("Could not get MSAA context count");
+                    // EGL_RENDERABLE_TYPE is only needed when attempting to use
+                    // the OpenGL API (not ES) and causes many EGL drivers to fail
+                    // with a BAD_ATTRIBUTE error.
+                    if (!mRequestedOpenGLAPI) {
+                      configSpec[16] = EGL10.EGL_NONE;
+                      Log.i("Skia", "spec: " + configSpec);
+                    }
+                    
+                    if (!egl.eglChooseConfig(display, configSpec, null, 0, value)) {
+                        Log.i("Skia", "Could not get MSAA context count: " + mRequestedMSAASampleCount);
                     }
 
-                    numConfigs = mValue[0];
+                    numConfigs = value[0];
                 }
 
                 if (numConfigs <= 0) {
@@ -251,14 +253,21 @@ public class SkiaSampleView extends GLSurfaceView {
                         EGL10.EGL_RENDERABLE_TYPE, renderableType,
                         EGL10.EGL_NONE
                     };
-
-                    if (!egl.eglChooseConfig(display, configSpec, null, 0, mValue)) {
-                        throw new IllegalArgumentException("Could not get non-MSAA context count");
+                    
+                    // EGL_RENDERABLE_TYPE is only needed when attempting to use
+                    // the OpenGL API (not ES) and causes many EGL drivers to fail
+                    // with a BAD_ATTRIBUTE error.
+                    if (!mRequestedOpenGLAPI) {
+                      configSpec[12] = EGL10.EGL_NONE;
+                      Log.i("Skia", "spec: " + configSpec);
                     }
-                    numConfigs = mValue[0];
-                }
 
-            } while (glAPIToTry != EGL14.EGL_OPENGL_ES_API && numConfigs == 0);
+                    if (!egl.eglChooseConfig(display, configSpec, null, 0, value)) {
+                      Log.i("Skia", "Could not get non-MSAA context count");
+                    }
+                    numConfigs = value[0];
+                }
+            }
 
             if (numConfigs <= 0) {
                 throw new IllegalArgumentException("No configs match configSpec");
@@ -266,7 +275,7 @@ public class SkiaSampleView extends GLSurfaceView {
 
             // Get all matching configurations.
             EGLConfig[] configs = new EGLConfig[numConfigs];
-            if (!egl.eglChooseConfig(display, configSpec, configs, numConfigs, mValue)) {
+            if (!egl.eglChooseConfig(display, configSpec, configs, numConfigs, value)) {
                 throw new IllegalArgumentException("Could not get config data");
             }
 
@@ -286,8 +295,9 @@ public class SkiaSampleView extends GLSurfaceView {
 
         private int findConfigAttrib(EGL10 egl, EGLDisplay display,
                 EGLConfig config, int attribute, int defaultValue) {
-            if (egl.eglGetConfigAttrib(display, config, attribute, mValue)) {
-                return mValue[0];
+            int[] value = new int[1];
+            if (egl.eglGetConfigAttrib(display, config, attribute, value)) {
+                return value[0];
             }
             return defaultValue;
         }
