@@ -66,12 +66,12 @@ public:
      *  "replayed" into that canvas.
      */
     static SkSurface* NewPicture(int width, int height);
-    
+
     /**
      *  Return a new surface using the specified render target.
      */
     static SkSurface* NewRenderTargetDirect(GrRenderTarget*);
-    
+
 #ifdef SK_SUPPORT_LEGACY_NEWRENDERTARGETDIRECT
     /**
      *  DEPRECATED -- call the single argument version (just rendertarget)

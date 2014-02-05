@@ -125,7 +125,7 @@ protected:
         rotM.setRotate(23.f, rect.centerX(), rect.centerY());
         rotRect.transform(rotM);
         fClips.addToTail()->setPath(rotRect);
-        
+
         fBmp = make_bmp(100, 100);
     }
 
@@ -198,7 +198,7 @@ private:
         };
 
         Clip () : fClipType(kNone_ClipType) {}
-        
+
         void setOnCanvas(SkCanvas* canvas, SkRegion::Op op, bool aa) const {
             switch (fClipType) {
                 case kPath_ClipType:
@@ -212,7 +212,7 @@ private:
                     break;
             }
         }
-        
+
         void asClosedPath(SkPath* path) const {
             switch (fClipType) {
                 case kPath_ClipType:
@@ -228,26 +228,26 @@ private:
                     break;
             }
         }
-        
+
         void setPath(const SkPath& path) {
             fClipType = kPath_ClipType;
             fPath = path;
         }
-        
+
         void setRect(const SkRect& rect) {
             fClipType = kRect_ClipType;
             fRect = rect;
             fPath.reset();
         }
-        
+
         ClipType getType() const { return fClipType; }
-        
+
     private:
         ClipType fClipType;
         SkPath fPath;
         SkRect fRect;
     };
-    
+
     SkTLList<Clip>   fClips;
     SkBitmap         fBmp;
 

@@ -238,7 +238,7 @@ protected:
 
     int addPathToHeap(const SkPath& path);  // does not write to ops stream
 
-    // These entry points allow the writing of matrices, clips, saves & 
+    // These entry points allow the writing of matrices, clips, saves &
     // restores to be deferred (e.g., if the MC state is being collapsed and
     // only written out as needed).
     void recordConcat(const SkMatrix& matrix);

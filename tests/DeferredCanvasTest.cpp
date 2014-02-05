@@ -53,7 +53,7 @@ static void TestDeferredCanvasBitmapAccess(skiatest::Reporter* reporter) {
 
     SkAutoTUnref<SkSurface> surface(createSurface(0xFFFFFFFF));
     SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
-    
+
     canvas->clear(0x00000000);
 
     // verify that the clear() was deferred
@@ -499,22 +499,22 @@ private:
 static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(100, 100));
     SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
-    
+
     NotificationCounter notificationCounter;
     canvas->setNotificationClient(&notificationCounter);
-    
+
     canvas->setMaxRecordingStorage(160000);
-    
+
     SkBitmap sourceImage;
     // 100 by 100 image, takes 40,000 bytes in memory
     sourceImage.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
     sourceImage.allocPixels();
-    
+
     for (int i = 0; i < 5; i++) {
         sourceImage.notifyPixelsChanged(); // to force re-serialization
         canvas->drawBitmap(sourceImage, 0, 0, NULL);
     }
-    
+
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fFlushedDrawCommandsCount);
 }
 
