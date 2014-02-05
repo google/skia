@@ -70,7 +70,6 @@ function assert_fails {
 
 # Run gm...
 # - with the arguments in $1
-# - writing stdout into $2/$OUTPUT_ACTUAL_SUBDIR/stdout
 # - writing json summary into $2/$OUTPUT_ACTUAL_SUBDIR/json-summary.txt
 # - writing return value into $2/$OUTPUT_ACTUAL_SUBDIR/return_value
 # Then compare all of those against $2/$OUTPUT_EXPECTED_SUBDIR .
@@ -89,19 +88,8 @@ function gm_test {
 
   COMMAND="$GM_BINARY $GM_ARGS --writeJsonSummaryPath $JSON_SUMMARY_FILE --writePath $ACTUAL_OUTPUT_DIR/writePath --mismatchPath $ACTUAL_OUTPUT_DIR/mismatchPath --missingExpectationsPath $ACTUAL_OUTPUT_DIR/missingExpectationsPath"
 
-  echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
-  $COMMAND >$ACTUAL_OUTPUT_DIR/stdout 2>$ACTUAL_OUTPUT_DIR/stderr
+  $COMMAND
   echo $? >$ACTUAL_OUTPUT_DIR/return_value
-
-  # Only compare selected lines in the stdout, to ignore any spurious lines
-  # as noted in http://code.google.com/p/skia/issues/detail?id=1068 .
-  #
-  # TODO(epoger): This is still hacky... we need to rewrite this script in
-  # Python soon, and make stuff like this more maintainable.
-  grep ^GM: $ACTUAL_OUTPUT_DIR/stdout >$ACTUAL_OUTPUT_DIR/stdout-tmp
-  mv $ACTUAL_OUTPUT_DIR/stdout-tmp $ACTUAL_OUTPUT_DIR/stdout
-  grep ^GM: $ACTUAL_OUTPUT_DIR/stderr >$ACTUAL_OUTPUT_DIR/stderr-tmp
-  mv $ACTUAL_OUTPUT_DIR/stderr-tmp $ACTUAL_OUTPUT_DIR/stderr
 
   # Replace image file contents with just the filename, for two reasons:
   # 1. Image file encoding may vary by platform
@@ -279,9 +267,11 @@ done
 # Exercise all rebaseline_server unittests.
 assert_passes "python gm/rebaseline_server/test_all.py"
 
+echo
 if [ $ENCOUNTERED_ANY_ERRORS == 0 ]; then
   echo "All tests passed."
   exit 0
 else
+  echo "Some tests failed."
   exit 1
 fi

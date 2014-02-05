@@ -1,2 +1,0 @@
-GM: ---- 8888/selftest1.png: 60000 (of 60000) differing pixels, max per-channel mismatch R=0 G=111 B=103 A=0
-GM: ---- 565/selftest1.png: not computing max per-channel pixel mismatch because non-8888
