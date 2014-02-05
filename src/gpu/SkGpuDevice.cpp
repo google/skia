@@ -27,6 +27,7 @@
 #include "SkPathEffect.h"
 #include "SkRRect.h"
 #include "SkStroke.h"
+#include "SkSurface.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkErrorInternals.h"
@@ -1911,6 +1912,10 @@ SkBaseDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
         GrPrintf("---- failed to create compatible device texture [%d %d]\n", width, height);
         return NULL;
     }
+}
+
+SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info) {
+    return SkSurface::NewRenderTarget(fContext, info, fRenderTarget->numSamples());
 }
 
 SkGpuDevice::SkGpuDevice(GrContext* context,

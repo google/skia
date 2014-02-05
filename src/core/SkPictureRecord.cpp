@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkPictureRecord.h"
 #include "SkTSearch.h"
 #include "SkPixelRef.h"
@@ -12,6 +12,7 @@
 #include "SkBBoxHierarchy.h"
 #include "SkDevice.h"
 #include "SkPictureStateTree.h"
+#include "SkSurface.h"
 
 #define HEAP_BLOCK_SIZE 4096
 
@@ -1315,6 +1316,10 @@ void SkPictureRecord::endCommentGroup() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+SkSurface* SkPictureRecord::onNewSurface(const SkImageInfo& info) {
+    return SkSurface::NewPicture(info.fWidth, info.fHeight);
+}
 
 void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
     const int index = fBitmapHeap->insert(bitmap);

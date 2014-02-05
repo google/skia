@@ -173,6 +173,8 @@ public:
     virtual void writePixels(const SkBitmap& bitmap, int x, int y,
                                 SkCanvas::Config8888 config8888) SK_OVERRIDE;
 
+    virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
+
 protected:
     virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE;
     virtual bool onReadPixels(const SkBitmap& bitmap,
@@ -493,6 +495,10 @@ SkBaseDevice* DeferredDevice::onCreateCompatibleDevice(
     // And connecting a DeferredDevice to non-deferred canvas can result
     // in unpredictable behavior.
     return immediateDevice()->createCompatibleDevice(config, width, height, isOpaque);
+}
+
+SkSurface* DeferredDevice::newSurface(const SkImageInfo& info) {
+    return this->immediateDevice()->newSurface(info);
 }
 
 bool DeferredDevice::onReadPixels(

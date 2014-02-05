@@ -825,14 +825,14 @@ static void TestDeferredCanvasCreateCompatibleDevice(skiatest::Reporter* reporte
     NotificationCounter notificationCounter;
     canvas->setNotificationClient(&notificationCounter);
 
-    SkAutoTUnref<SkBaseDevice> secondaryDevice(canvas->createCompatibleDevice(
-        SkBitmap::kARGB_8888_Config, 10, 10, false));
-    SkCanvas secondaryCanvas(secondaryDevice.get());
+    SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
+    SkAutoTUnref<SkSurface> secondarySurface(canvas->newSurface(info));
+
     SkRect rect = SkRect::MakeWH(5, 5);
     SkPaint paint;
     // After spawning a compatible canvas:
     // 1) Verify that secondary canvas is usable and does not report to the notification client.
-    secondaryCanvas.drawRect(rect, paint);
+    surface->getCanvas()->drawRect(rect, paint);
     REPORTER_ASSERT(reporter, notificationCounter.fStorageAllocatedChangedCount == 0);
     // 2) Verify that original canvas is usable and still reports to the notification client.
     canvas->drawRect(rect, paint);

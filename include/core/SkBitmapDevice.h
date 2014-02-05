@@ -277,6 +277,8 @@ private:
      */
     virtual void flush() SK_OVERRIDE {}
 
+    virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
+
     SkBitmap    fBitmap;
 
     typedef SkBaseDevice INHERITED;

@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #ifndef SkCanvas_DEFINED
 #define SkCanvas_DEFINED
@@ -20,6 +18,8 @@
 #include "SkRegion.h"
 #include "SkXfermode.h"
 
+//#define SK_SUPPORT_LEGACY_CANVAS_CREATECOMPATIBLEDEVICE
+
 class SkBounder;
 class SkBaseDevice;
 class SkDraw;
@@ -27,6 +27,7 @@ class SkDrawFilter;
 class SkMetaData;
 class SkPicture;
 class SkRRect;
+class SkSurface;
 class SkSurface_Base;
 class GrContext;
 
@@ -112,6 +113,7 @@ public:
      */
     SkBaseDevice* getTopDevice(bool updateMatrixClip = false) const;
 
+#ifdef SK_SUPPORT_LEGACY_CANVAS_CREATECOMPATIBLEDEVICE
     /**
      *  Shortcut for getDevice()->createCompatibleDevice(...).
      *  If getDevice() == NULL, this method does nothing, and returns NULL.
@@ -119,6 +121,13 @@ public:
     SkBaseDevice* createCompatibleDevice(SkBitmap::Config config,
                                          int width, int height,
                                          bool isOpaque);
+#endif
+
+    /**
+     *  Create a new surface matching the specified info, one that attempts to
+     *  be maximally compatible when used with this canvas.
+     */
+    SkSurface* newSurface(const SkImageInfo&);
 
     /**
      * Return the GPU context of the device that is associated with the canvas.
@@ -1019,6 +1028,9 @@ public:
     };
 
 protected:
+    // default impl defers to getDevice()->newSurface(info)
+    virtual SkSurface* onNewSurface(const SkImageInfo&);
+
     // Returns the canvas to be used by DrawIter. Default implementation
     // returns this. Subclasses that encapsulate an indirect canvas may
     // need to overload this method. The impl must keep track of this, as it

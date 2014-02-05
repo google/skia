@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -18,6 +17,7 @@
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
+
 SkBaseDevice::SkBaseDevice()
     : fLeakyProperties(SkDeviceProperties::MakeDefault())
 #ifdef SK_DEBUG
@@ -115,3 +115,5 @@ bool SkBaseDevice::readPixels(SkBitmap* bitmap, int x, int y,
     }
     return result;
 }
+
+SkSurface* SkBaseDevice::newSurface(const SkImageInfo&) { return NULL; }

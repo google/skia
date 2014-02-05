@@ -832,6 +832,26 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
     return this->internalSaveLayer(bounds, paint, flags, false);
 }
 
+static SkBaseDevice* createCompatibleDevice(SkCanvas* canvas,
+                                            SkBitmap::Config config,
+                                            int width, int height,
+                                            bool isOpaque) {
+    SkBaseDevice* device = canvas->getDevice();
+    if (device) {
+        return device->createCompatibleDevice(config, width, height, isOpaque);
+    } else {
+        return NULL;
+    }
+}
+
+#ifdef SK_SUPPORT_LEGACY_CANVAS_CREATECOMPATIBLEDEVICE
+SkBaseDevice* SkCanvas::createCompatibleDevice(SkBitmap::Config config,
+                                               int width, int height,
+                                               bool isOpaque) {
+    return createCompatibleDevice(this, config, width, height, isOpaque);
+}
+#endif
+
 int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
                                 SaveFlags flags, bool justForImageFilter) {
     // do this before we create the layer. We don't call the public save() since
@@ -864,8 +884,8 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
 
     SkBaseDevice* device;
     if (paint && paint->getImageFilter()) {
-        device = this->createCompatibleDevice(config, ir.width(), ir.height(),
-                                              isOpaque);
+        device = createCompatibleDevice(this, config, ir.width(), ir.height(),
+                                        isOpaque);
     } else {
         device = this->createLayerDevice(config, ir.width(), ir.height(),
                                          isOpaque);
@@ -962,6 +982,15 @@ void SkCanvas::restoreToCount(int count) {
 
 bool SkCanvas::isDrawingToLayer() const {
     return fSaveLayerCount > 0;
+}
+
+SkSurface* SkCanvas::newSurface(const SkImageInfo& info) {
+    return this->onNewSurface(info);
+}
+
+SkSurface* SkCanvas::onNewSurface(const SkImageInfo& info) {
+    SkBaseDevice* dev = this->getDevice();
+    return dev ? dev->newSurface(info) : NULL;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1543,17 +1572,6 @@ SkBaseDevice* SkCanvas::createLayerDevice(SkBitmap::Config config,
     if (device) {
         return device->createCompatibleDeviceForSaveLayer(config, width, height,
                                                           isOpaque);
-    } else {
-        return NULL;
-    }
-}
-
-SkBaseDevice* SkCanvas::createCompatibleDevice(SkBitmap::Config config,
-                                           int width, int height,
-                                           bool isOpaque) {
-    SkBaseDevice* device = this->getDevice();
-    if (device) {
-        return device->createCompatibleDevice(config, width, height, isOpaque);
     } else {
         return NULL;
     }

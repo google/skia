@@ -35,3 +35,8 @@
 
 # Added by bsalomon for skbug.com/2051, https://codereview.chromium.org/151523005
 filltypespersp
+
+# Need to rebaseline all platforms, as the content was changed to remove
+# deprecated calling pattern.
+# https://codereview.chromium.org/154163002/
+extractbitmap
