@@ -22,7 +22,7 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
-                               SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
     virtual bool asNewEffect(GrEffectRef** effect, GrTexture* texture,
                              const SkMatrix& matrix, const SkIRect& bounds) const SK_OVERRIDE;
@@ -305,7 +305,7 @@ void SkAlphaThresholdFilterImpl::flatten(SkWriteBuffer& buffer) const {
 
 bool SkAlphaThresholdFilterImpl::onFilterImage(Proxy*, const SkBitmap& src,
                                                const SkMatrix& matrix, SkBitmap* dst,
-                                               SkIPoint* offset) {
+                                               SkIPoint* offset) const {
     SkASSERT(src.config() == SkBitmap::kARGB_8888_Config);
 
     if (src.config() != SkBitmap::kARGB_8888_Config) {

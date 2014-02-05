@@ -2330,6 +2330,6 @@ bool SkPDFDevice::onReadPixels(const SkBitmap& bitmap, int x, int y,
     return false;
 }
 
-bool SkPDFDevice::allowImageFilter(SkImageFilter*) {
+bool SkPDFDevice::allowImageFilter(const SkImageFilter*) {
     return false;
 }

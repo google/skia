@@ -23,7 +23,7 @@ public:
 
 bool SkDownSampleImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                             const SkMatrix&,
-                                            SkBitmap* result, SkIPoint*) {
+                                            SkBitmap* result, SkIPoint*) const {
     SkScalar scale = fScale;
     if (scale > SK_Scalar1 || scale <= 0) {
         return false;

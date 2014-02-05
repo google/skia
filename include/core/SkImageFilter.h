@@ -55,10 +55,10 @@ public:
 
         virtual SkBaseDevice* createDevice(int width, int height) = 0;
         // returns true if the proxy can handle this filter natively
-        virtual bool canHandleImageFilter(SkImageFilter*) = 0;
+        virtual bool canHandleImageFilter(const SkImageFilter*) = 0;
         // returns true if the proxy handled the filter itself. if this returns
         // false then the filter's code will be called.
-        virtual bool filterImage(SkImageFilter*, const SkBitmap& src,
+        virtual bool filterImage(const SkImageFilter*, const SkBitmap& src,
                                  const SkMatrix& ctm,
                                  SkBitmap* result, SkIPoint* offset) = 0;
     };
@@ -77,7 +77,7 @@ public:
      *  the result and offset parameters will be ignored by the caller.
      */
     bool filterImage(Proxy*, const SkBitmap& src, const SkMatrix& ctm,
-                     SkBitmap* result, SkIPoint* offset);
+                     SkBitmap* result, SkIPoint* offset) const;
 
     /**
      *  Given the src bounds of an image, this returns the bounds of the result
@@ -105,7 +105,7 @@ public:
      *  single-pass processing using asNewEffect().
      */
     virtual bool filterImageGPU(Proxy*, const SkBitmap& src, const SkMatrix& ctm,
-                                SkBitmap* result, SkIPoint* offset);
+                                SkBitmap* result, SkIPoint* offset) const;
 
     /**
      *  Returns whether this image filter is a color filter and puts the color filter into the
@@ -187,7 +187,7 @@ protected:
      *  caller.
      */
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
-                               SkBitmap* result, SkIPoint* offset);
+                               SkBitmap* result, SkIPoint* offset) const;
     // Given the bounds of the destination rect to be filled in device
     // coordinates (first parameter), and the CTM, compute (conservatively)
     // which rect of the source image would be required (third parameter).

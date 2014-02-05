@@ -18,10 +18,10 @@ public:
         return fDevice->createCompatibleDevice(SkBitmap::kARGB_8888_Config,
                                                w, h, false);
     }
-    virtual bool canHandleImageFilter(SkImageFilter* filter) SK_OVERRIDE {
+    virtual bool canHandleImageFilter(const SkImageFilter* filter) SK_OVERRIDE {
         return fDevice->canHandleImageFilter(filter);
     }
-    virtual bool filterImage(SkImageFilter* filter, const SkBitmap& src,
+    virtual bool filterImage(const SkImageFilter* filter, const SkBitmap& src,
                              const SkMatrix& ctm,
                              SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
         return fDevice->filterImage(filter, src, ctm, result, offset);

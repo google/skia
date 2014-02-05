@@ -21,7 +21,7 @@ bool SkImageFilterUtils::WrapTexture(GrTexture* texture, int width, int height, 
     return true;
 }
 
-bool SkImageFilterUtils::GetInputResultGPU(SkImageFilter* filter, SkImageFilter::Proxy* proxy,
+bool SkImageFilterUtils::GetInputResultGPU(const SkImageFilter* filter, SkImageFilter::Proxy* proxy,
                                            const SkBitmap& src, const SkMatrix& ctm,
                                            SkBitmap* result, SkIPoint* offset) {
     // Ensure that GrContext calls under filterImage and filterImageGPU below will see an identity

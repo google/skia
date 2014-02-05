@@ -39,12 +39,12 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
-                               SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
     virtual bool canFilterImageGPU() const SK_OVERRIDE { return true; }
     virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
-                                SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #endif
 
 private:

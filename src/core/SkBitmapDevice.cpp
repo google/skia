@@ -95,17 +95,17 @@ const SkBitmap& SkBitmapDevice::onAccessBitmap() {
     return fBitmap;
 }
 
-bool SkBitmapDevice::canHandleImageFilter(SkImageFilter*) {
+bool SkBitmapDevice::canHandleImageFilter(const SkImageFilter*) {
     return false;
 }
 
-bool SkBitmapDevice::filterImage(SkImageFilter* filter, const SkBitmap& src,
+bool SkBitmapDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
                                  const SkMatrix& ctm, SkBitmap* result,
                                  SkIPoint* offset) {
     return false;
 }
 
-bool SkBitmapDevice::allowImageFilter(SkImageFilter*) {
+bool SkBitmapDevice::allowImageFilter(const SkImageFilter*) {
     return true;
 }
 

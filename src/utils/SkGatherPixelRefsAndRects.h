@@ -299,9 +299,9 @@ protected:
     }
     virtual void lockPixels() SK_OVERRIDE { NothingToDo(); }
     virtual void unlockPixels() SK_OVERRIDE { NothingToDo(); }
-    virtual bool allowImageFilter(SkImageFilter*) SK_OVERRIDE { return false; }
-    virtual bool canHandleImageFilter(SkImageFilter*) SK_OVERRIDE { return false; }
-    virtual bool filterImage(SkImageFilter*, const SkBitmap&, const SkMatrix&,
+    virtual bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE { return false; }
+    virtual bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE { return false; }
+    virtual bool filterImage(const SkImageFilter*, const SkBitmap&, const SkMatrix&,
                              SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
         return false;
     }

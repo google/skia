@@ -143,7 +143,7 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
                                                  const SkBitmap& source,
                                                  const SkMatrix& ctm,
                                                  SkBitmap* dst,
-                                                 SkIPoint* offset) {
+                                                 SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
     if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctm, &src, &srcOffset)) {
@@ -214,7 +214,7 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
 
 bool SkErodeImageFilter::onFilterImage(Proxy* proxy,
                                        const SkBitmap& source, const SkMatrix& ctm,
-                                       SkBitmap* dst, SkIPoint* offset) {
+                                       SkBitmap* dst, SkIPoint* offset) const {
     Proc erodeXProc = SkMorphologyGetPlatformProc(kErodeX_SkMorphologyProcType);
     if (!erodeXProc) {
         erodeXProc = erode<kX>;
@@ -228,7 +228,7 @@ bool SkErodeImageFilter::onFilterImage(Proxy* proxy,
 
 bool SkDilateImageFilter::onFilterImage(Proxy* proxy,
                                         const SkBitmap& source, const SkMatrix& ctm,
-                                        SkBitmap* dst, SkIPoint* offset) {
+                                        SkBitmap* dst, SkIPoint* offset) const {
     Proc dilateXProc = SkMorphologyGetPlatformProc(kDilateX_SkMorphologyProcType);
     if (!dilateXProc) {
         dilateXProc = dilate<kX>;
@@ -540,7 +540,7 @@ bool SkMorphologyImageFilter::filterImageGPUGeneric(bool dilate,
                                                     const SkBitmap& src,
                                                     const SkMatrix& ctm,
                                                     SkBitmap* result,
-                                                    SkIPoint* offset) {
+                                                    SkIPoint* offset) const {
     SkBitmap input;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
     if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &input, &srcOffset)) {
@@ -582,12 +582,12 @@ bool SkMorphologyImageFilter::filterImageGPUGeneric(bool dilate,
 }
 
 bool SkDilateImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
-                                         SkBitmap* result, SkIPoint* offset) {
+                                         SkBitmap* result, SkIPoint* offset) const {
     return this->filterImageGPUGeneric(true, proxy, src, ctm, result, offset);
 }
 
 bool SkErodeImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
-                                        SkBitmap* result, SkIPoint* offset) {
+                                        SkBitmap* result, SkIPoint* offset) const {
     return this->filterImageGPUGeneric(false, proxy, src, ctm, result, offset);
 }
 

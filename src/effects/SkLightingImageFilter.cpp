@@ -272,7 +272,7 @@ protected:
     explicit SkDiffuseLightingImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
-                               SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
     virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix, const SkIRect& bounds) const SK_OVERRIDE;
 #endif
@@ -294,7 +294,7 @@ protected:
     explicit SkSpecularLightingImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
-                               SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
     virtual bool asNewEffect(GrEffectRef** effect, GrTexture*, const SkMatrix& matrix, const SkIRect& bounds) const SK_OVERRIDE;
 #endif
@@ -925,7 +925,7 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
                                                  const SkBitmap& source,
                                                  const SkMatrix& ctm,
                                                  SkBitmap* dst,
-                                                 SkIPoint* offset) {
+                                                 SkIPoint* offset) const {
     SkImageFilter* input = getInput(0);
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
@@ -1018,7 +1018,7 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
                                                   const SkBitmap& source,
                                                   const SkMatrix& ctm,
                                                   SkBitmap* dst,
-                                                  SkIPoint* offset) {
+                                                  SkIPoint* offset) const {
     SkImageFilter* input = getInput(0);
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);

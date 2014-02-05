@@ -58,7 +58,7 @@ void SkDropShadowImageFilter::flatten(SkWriteBuffer& buffer) const
     buffer.writeColor(fColor);
 }
 
-bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source, const SkMatrix& matrix, SkBitmap* result, SkIPoint* offset)
+bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source, const SkMatrix& matrix, SkBitmap* result, SkIPoint* offset) const
 {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);

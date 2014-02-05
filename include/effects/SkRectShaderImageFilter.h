@@ -38,7 +38,7 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
-                               SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
 
 private:
     SkRectShaderImageFilter(SkShader* s, const CropRect* rect);

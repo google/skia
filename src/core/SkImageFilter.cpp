@@ -94,7 +94,7 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
                                 const SkMatrix& ctm,
-                                SkBitmap* result, SkIPoint* offset) {
+                                SkBitmap* result, SkIPoint* offset) const {
     SkASSERT(result);
     SkASSERT(offset);
     /*
@@ -135,7 +135,7 @@ void SkImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
 }
 
 bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const SkMatrix&,
-                                  SkBitmap*, SkIPoint*) {
+                                  SkBitmap*, SkIPoint*) const {
     return false;
 }
 
@@ -144,7 +144,7 @@ bool SkImageFilter::canFilterImageGPU() const {
 }
 
 bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
-                                   SkBitmap* result, SkIPoint* offset) {
+                                   SkBitmap* result, SkIPoint* offset) const {
 #if SK_SUPPORT_GPU
     SkBitmap input;
     SkASSERT(fInputCount == 1);

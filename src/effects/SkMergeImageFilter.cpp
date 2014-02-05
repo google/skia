@@ -67,7 +67,7 @@ SkMergeImageFilter::~SkMergeImageFilter() {
 
 bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                        const SkMatrix& ctm,
-                                       SkBitmap* result, SkIPoint* offset) {
+                                       SkBitmap* result, SkIPoint* offset) const {
     if (countInputs() < 1) {
         return false;
     }

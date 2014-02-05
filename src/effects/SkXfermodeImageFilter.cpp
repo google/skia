@@ -47,7 +47,7 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
                                             const SkBitmap& src,
                                             const SkMatrix& ctm,
                                             SkBitmap* dst,
-                                            SkIPoint* offset) {
+                                            SkIPoint* offset) const {
     SkBitmap background = src, foreground = src;
     SkImageFilter* backgroundInput = getInput(0);
     SkImageFilter* foregroundInput = getInput(1);
@@ -100,7 +100,7 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
                                            const SkBitmap& src,
                                            const SkMatrix& ctm,
                                            SkBitmap* result,
-                                           SkIPoint* offset) {
+                                           SkIPoint* offset) const {
     SkBitmap background;
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
     if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &background,

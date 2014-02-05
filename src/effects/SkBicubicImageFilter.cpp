@@ -85,7 +85,7 @@ bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
                                          const SkBitmap& source,
                                          const SkMatrix& matrix,
                                          SkBitmap* result,
-                                         SkIPoint* offset) {
+                                         SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
     if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, &srcOffset)) {
@@ -170,7 +170,7 @@ bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
 #if SK_SUPPORT_GPU
 
 bool SkBicubicImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
-                                          SkBitmap* result, SkIPoint* offset) {
+                                          SkBitmap* result, SkIPoint* offset) const {
     SkBitmap srcBM;
     if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &srcBM, offset)) {
         return false;

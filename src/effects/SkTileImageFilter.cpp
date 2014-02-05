@@ -17,7 +17,7 @@
 #include "SkValidationUtils.h"
 
 bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
-                                      SkBitmap* dst, SkIPoint* offset) {
+                                      SkBitmap* dst, SkIPoint* offset) const {
     SkBitmap source = src;
     SkImageFilter* input = getInput(0);
     SkIPoint srcOffset = SkIPoint::Make(0, 0);

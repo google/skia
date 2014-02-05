@@ -101,7 +101,7 @@ SkColorFilterImageFilter::~SkColorFilterImageFilter() {
 bool SkColorFilterImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
                                              const SkMatrix& matrix,
                                              SkBitmap* result,
-                                             SkIPoint* offset) {
+                                             SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
     if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, &srcOffset)) {

@@ -17,7 +17,7 @@
 bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
                                         const SkMatrix& matrix,
                                         SkBitmap* result,
-                                        SkIPoint* offset) {
+                                        SkIPoint* offset) const {
     SkImageFilter* input = getInput(0);
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);

@@ -29,7 +29,7 @@ public:
     : SkImageFilter(input), fDX(dx), fDY(dy) {}
 
     virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
-                               SkBitmap* dst, SkIPoint* offset) SK_OVERRIDE {
+                               SkBitmap* dst, SkIPoint* offset) const SK_OVERRIDE {
         SkBitmap source = src;
         SkImageFilter* input = getInput(0);
         SkIPoint srcOffset = SkIPoint::Make(0, 0);

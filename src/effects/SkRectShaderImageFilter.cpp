@@ -54,7 +54,7 @@ bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
                                             const SkBitmap& source,
                                             const SkMatrix& ctm,
                                             SkBitmap* result,
-                                            SkIPoint* offset) {
+                                            SkIPoint* offset) const {
     SkIRect bounds;
     source.getBounds(&bounds);
     if (!this->applyCropRect(&bounds, ctm)) {

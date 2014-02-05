@@ -152,7 +152,7 @@ template<class PixelFetcher, bool convolveAlpha>
 void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src,
                                                   SkBitmap* result,
                                                   const SkIRect& rect,
-                                                  const SkIRect& bounds) {
+                                                  const SkIRect& bounds) const {
     for (int y = rect.fTop; y < rect.fBottom; ++y) {
         SkPMColor* dptr = result->getAddr32(rect.fLeft - bounds.fLeft, y - bounds.fTop);
         for (int x = rect.fLeft; x < rect.fRight; ++x) {
@@ -192,7 +192,7 @@ template<class PixelFetcher>
 void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src,
                                                   SkBitmap* result,
                                                   const SkIRect& rect,
-                                                  const SkIRect& bounds) {
+                                                  const SkIRect& bounds) const {
     if (fConvolveAlpha) {
         filterPixels<PixelFetcher, true>(src, result, rect, bounds);
     } else {
@@ -203,14 +203,14 @@ void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src,
 void SkMatrixConvolutionImageFilter::filterInteriorPixels(const SkBitmap& src,
                                                           SkBitmap* result,
                                                           const SkIRect& rect,
-                                                          const SkIRect& bounds) {
+                                                          const SkIRect& bounds) const {
     filterPixels<UncheckedPixelFetcher>(src, result, rect, bounds);
 }
 
 void SkMatrixConvolutionImageFilter::filterBorderPixels(const SkBitmap& src,
                                                         SkBitmap* result,
                                                         const SkIRect& rect,
-                                                        const SkIRect& bounds) {
+                                                        const SkIRect& bounds) const {
     switch (fTileMode) {
         case kClamp_TileMode:
             filterPixels<ClampPixelFetcher>(src, result, rect, bounds);
@@ -253,7 +253,7 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
                                                    const SkBitmap& source,
                                                    const SkMatrix& matrix,
                                                    SkBitmap* result,
-                                                   SkIPoint* offset) {
+                                                   SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
     if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, &srcOffset)) {

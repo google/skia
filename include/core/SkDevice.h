@@ -341,7 +341,7 @@ protected:
      *  some subclasses that do not support pixel manipulations after drawing
      *  has occurred (e.g. printing). The default implementation returns true.
      */
-    virtual bool allowImageFilter(SkImageFilter*) = 0;
+    virtual bool allowImageFilter(const SkImageFilter*) = 0;
 
     /**
      *  Override and return true for filters that the device can handle
@@ -350,7 +350,7 @@ protected:
      *  Returning false means the SkCanvas will have apply the filter itself,
      *  and just pass the resulting image to the device.
      */
-    virtual bool canHandleImageFilter(SkImageFilter*) = 0;
+    virtual bool canHandleImageFilter(const SkImageFilter*) = 0;
 
     /**
      *  Related (but not required) to canHandleImageFilter, this method returns
@@ -359,7 +359,7 @@ protected:
      *  If the device does not recognize or support this filter,
      *  it just returns false and leaves result and offset unchanged.
      */
-    virtual bool filterImage(SkImageFilter*, const SkBitmap&, const SkMatrix&,
+    virtual bool filterImage(const SkImageFilter*, const SkBitmap&, const SkMatrix&,
                              SkBitmap* result, SkIPoint* offset) = 0;
 
     // This is equal kBGRA_Premul_Config8888 or kRGBA_Premul_Config8888 if

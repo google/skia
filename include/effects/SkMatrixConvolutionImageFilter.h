@@ -68,7 +68,7 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
-                               SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
+                               SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
     virtual bool asNewEffect(GrEffectRef** effect,
@@ -91,20 +91,20 @@ private:
     void filterPixels(const SkBitmap& src,
                       SkBitmap* result,
                       const SkIRect& rect,
-                      const SkIRect& bounds);
+                      const SkIRect& bounds) const;
     template <class PixelFetcher>
     void filterPixels(const SkBitmap& src,
                       SkBitmap* result,
                       const SkIRect& rect,
-                      const SkIRect& bounds);
+                      const SkIRect& bounds) const;
     void filterInteriorPixels(const SkBitmap& src,
                               SkBitmap* result,
                               const SkIRect& rect,
-                              const SkIRect& bounds);
+                              const SkIRect& bounds) const;
     void filterBorderPixels(const SkBitmap& src,
                             SkBitmap* result,
                             const SkIRect& rect,
-                            const SkIRect& bounds);
+                            const SkIRect& bounds) const;
 };
 
 #endif
