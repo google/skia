@@ -4519,10 +4519,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17407313805298369905
+          5541967782360980927
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "canvas-state_pdf-poppler.png": {
       "allowed-digests": [

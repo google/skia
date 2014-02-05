@@ -45,6 +45,15 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "canvas-state_nvprmsaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5541967782360980927
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "simpleblurroundrect_565.png": {
       "allowed-digests": [
         [
