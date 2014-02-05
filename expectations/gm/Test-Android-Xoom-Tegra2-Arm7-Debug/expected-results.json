@@ -1999,13 +1999,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5541967782360980927
+          12053060789113476808
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "chrome_gradtext1_565.png": {
       "allowed-digests": [
