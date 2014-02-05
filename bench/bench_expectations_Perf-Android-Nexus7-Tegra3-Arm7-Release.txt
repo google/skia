@@ -218,7 +218,7 @@ desk_gmailthread.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-A
 desk_googlehome.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,13.39,-4.29,31.07
 desk_googleplus.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,94,60.20,127.80
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,107.92,71.34,144.50
-desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,385.59,293.47,477.71
+desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,385.59,233.47,477.71
 desk_gws.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,33.66,11.93,55.39
 desk_linkedin.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,56.06,29.85,82.27
 desk_mapsvg.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,161.58,114.26,208.90
