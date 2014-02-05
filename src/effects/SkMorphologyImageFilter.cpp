@@ -249,6 +249,20 @@ void SkMorphologyImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) 
     dst->outset(SkIntToScalar(fRadius.width()), SkIntToScalar(fRadius.height()));
 }
 
+bool SkMorphologyImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                             SkIRect* dst) const {
+    SkIRect bounds = src;
+    if (getInput(0) && !getInput(0)->filterBounds(src, ctm, &bounds)) {
+        return false;
+    }
+    SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
+                                     SkIntToScalar(this->radius().height()));
+    ctm.mapVectors(&radius, 1);
+    bounds.outset(SkScalarCeilToInt(radius.x()), SkScalarCeilToInt(radius.y()));
+    *dst = bounds;
+    return true;
+}
+
 #if SK_SUPPORT_GPU
 
 ///////////////////////////////////////////////////////////////////////////////

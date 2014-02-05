@@ -1039,8 +1039,11 @@ protected:
 
     // Clip rectangle bounds. Called internally by saveLayer.
     // returns false if the entire rectangle is entirely clipped out
+    // If non-NULL, The imageFilter parameter will be used to expand the clip
+    // and offscreen bounds for any margin required by the filter DAG.
     bool clipRectBounds(const SkRect* bounds, SaveFlags flags,
-                        SkIRect* intersection);
+                        SkIRect* intersection,
+                        const SkImageFilter* imageFilter = NULL);
 
     // Called by child classes that override clipPath and clipRRect to only
     // track fast conservative clip bounds, rather than exact clips.

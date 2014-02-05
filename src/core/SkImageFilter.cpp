@@ -106,7 +106,7 @@ bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
 }
 
 bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                 SkIRect* dst) {
+                                 SkIRect* dst) const {
     SkASSERT(&src);
     SkASSERT(dst);
     return this->onFilterBounds(src, ctm, dst);
@@ -210,8 +210,28 @@ bool SkImageFilter::applyCropRect(SkIRect* rect, const SkMatrix& matrix) const {
 }
 
 bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                   SkIRect* dst) {
-    *dst = src;
+                                   SkIRect* dst) const {
+    if (fInputCount < 1) {
+        return false;
+    }
+
+    SkIRect bounds;
+    for (int i = 0; i < fInputCount; ++i) {
+        SkImageFilter* filter = this->getInput(i);
+        SkIRect rect = src;
+        if (filter && !filter->filterBounds(src, ctm, &rect)) {
+            return false;
+        }
+        if (0 == i) {
+            bounds = rect;
+        } else {
+            bounds.join(rect);
+        }
+    }
+
+    // don't modify dst until now, so we don't accidentally change it in the
+    // loop, but then return false on the next filter.
+    *dst = bounds;
     return true;
 }
 

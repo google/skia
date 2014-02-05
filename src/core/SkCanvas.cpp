@@ -791,10 +791,17 @@ static bool bounds_affects_clip(SkCanvas::SaveFlags flags) {
 }
 
 bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
-                               SkIRect* intersection) {
+                               SkIRect* intersection, const SkImageFilter* imageFilter) {
     SkIRect clipBounds;
+    SkRegion::Op op = SkRegion::kIntersect_Op;
     if (!this->getClipDeviceBounds(&clipBounds)) {
         return false;
+    }
+
+    if (imageFilter) {
+        imageFilter->filterBounds(clipBounds, *fMCRec->fMatrix, &clipBounds);
+        // Filters may grow the bounds beyond the device bounds.
+        op = SkRegion::kReplace_Op;
     }
     SkIRect ir;
     if (NULL != bounds) {
@@ -813,11 +820,11 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
         ir = clipBounds;
     }
 
-    fClipStack.clipDevRect(ir, SkRegion::kIntersect_Op);
+    fClipStack.clipDevRect(ir, op);
 
     // early exit if the clip is now empty
     if (bounds_affects_clip(flags) &&
-        !fMCRec->fRasterClip->op(ir, SkRegion::kIntersect_Op)) {
+        !fMCRec->fRasterClip->op(ir, op)) {
         return false;
     }
 
@@ -861,7 +868,7 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
     fDeviceCMDirty = true;
 
     SkIRect ir;
-    if (!this->clipRectBounds(bounds, flags, &ir)) {
+    if (!this->clipRectBounds(bounds, flags, &ir, paint ? paint->getImageFilter() : NULL)) {
         return count;
     }
 

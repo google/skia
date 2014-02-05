@@ -255,6 +255,15 @@ void SkDisplacementMapEffect::computeFastBounds(const SkRect& src, SkRect* dst) 
     }
 }
 
+bool SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                   SkIRect* dst) const {
+    if (getColorInput()) {
+        return getColorInput()->filterBounds(src, ctm, dst);
+    }
+    *dst = src;
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU

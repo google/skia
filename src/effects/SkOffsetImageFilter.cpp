@@ -72,16 +72,19 @@ void SkOffsetImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) cons
     } else {
         *dst = src;
     }
+    SkRect copy = *dst;
     dst->offset(fOffset.fX, fOffset.fY);
+    dst->join(copy);
 }
 
 bool SkOffsetImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                         SkIRect* dst) {
+                                         SkIRect* dst) const {
     SkVector vec;
     ctm.mapVectors(&vec, &fOffset, 1);
 
     *dst = src;
-    dst->offset(SkScalarRoundToInt(vec.fX), SkScalarRoundToInt(vec.fY));
+    dst->offset(-SkScalarCeilToInt(vec.fX), -SkScalarCeilToInt(vec.fY));
+    dst->join(src);
     return true;
 }
 

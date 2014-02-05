@@ -40,3 +40,17 @@ filltypespersp
 # deprecated calling pattern.
 # https://codereview.chromium.org/154163002/
 extractbitmap
+
+# Added by senorblanco as part of https://codereview.chromium.org/23011012/
+colorfilterimagefilter
+dropshadowimagefilter
+imageblur
+imageblur_large
+imagefiltersbase
+imagefilterscropped
+imagefiltersgraph
+imagefiltersscaled
+morphology
+offsetimagefilter
+spritebitmap
+xfermodeimagefilter

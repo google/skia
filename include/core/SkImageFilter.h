@@ -83,7 +83,7 @@ public:
      *  Given the src bounds of an image, this returns the bounds of the result
      *  image after the filter has been applied.
      */
-    bool filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst);
+    bool filterBounds(const SkIRect& src, const SkMatrix& ctm, SkIRect* dst) const;
 
     /**
      *  Returns true if the filter can be processed on the GPU.  This is most
@@ -188,8 +188,14 @@ protected:
      */
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset);
-    // Default impl copies src into dst and returns true
-    virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*);
+    // Given the bounds of the destination rect to be filled in device
+    // coordinates (first parameter), and the CTM, compute (conservatively)
+    // which rect of the source image would be required (third parameter).
+    // Used for clipping and temp-buffer allocations, so the result need not
+    // be exact, but should never be smaller than the real answer. The default
+    // implementation recursively unions all input bounds, or returns false if
+    // no inputs.
+    virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const;
 
     // Applies "matrix" to the crop rect, and sets "rect" to the intersection of
     // "rect" and the transformed crop rect. If there is no overlap, returns

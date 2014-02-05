@@ -65,38 +65,6 @@ SkMergeImageFilter::~SkMergeImageFilter() {
     }
 }
 
-bool SkMergeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
-                                        SkIRect* dst) {
-    if (countInputs() < 1) {
-        return false;
-    }
-
-    SkIRect totalBounds;
-
-    int inputCount = countInputs();
-    for (int i = 0; i < inputCount; ++i) {
-        SkImageFilter* filter = getInput(i);
-        SkIRect r;
-        if (filter) {
-            if (!filter->filterBounds(src, ctm, &r)) {
-                return false;
-            }
-        } else {
-            r = src;
-        }
-        if (0 == i) {
-            totalBounds = r;
-        } else {
-            totalBounds.join(r);
-        }
-    }
-
-    // don't modify dst until now, so we don't accidentally change it in the
-    // loop, but then return false on the next filter.
-    *dst = totalBounds;
-    return true;
-}
-
 bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
                                        const SkMatrix& ctm,
                                        SkBitmap* result, SkIPoint* offset) {

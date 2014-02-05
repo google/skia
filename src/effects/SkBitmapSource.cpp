@@ -83,3 +83,9 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const SkMatrix
 void SkBitmapSource::computeFastBounds(const SkRect&, SkRect* dst) const {
     *dst = fDstRect;
 }
+
+bool SkBitmapSource::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                    SkIRect* dst) const {
+    *dst = src;
+    return true;
+}

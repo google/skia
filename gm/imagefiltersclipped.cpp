@@ -18,15 +18,15 @@
 
 namespace skiagm {
 
-class ImageFiltersScaledGM : public GM {
+class ImageFiltersClippedGM : public GM {
 public:
-    ImageFiltersScaledGM() : fInitialized(false) {
+    ImageFiltersClippedGM() : fInitialized(false) {
         this->setBGColor(0x00000000);
     }
 
 protected:
     virtual SkString onShortName() {
-        return SkString("imagefiltersscaled");
+        return SkString("imagefiltersclipped");
     }
 
     virtual SkISize onISize() {
@@ -87,25 +87,17 @@ protected:
         SkAutoTUnref<SkImageFilter> checkerboard(new SkBitmapSource(fCheckerboard));
 
         SkImageFilter* filters[] = {
-            new SkBlurImageFilter(SkIntToScalar(4), SkIntToScalar(4)),
-            new SkDropShadowImageFilter(SkIntToScalar(5), SkIntToScalar(10), SkIntToScalar(3),
-                                        SK_ColorYELLOW),
+            new SkBlurImageFilter(SkIntToScalar(12), SkIntToScalar(12)),
+            new SkDropShadowImageFilter(SkIntToScalar(10), SkIntToScalar(10), SkIntToScalar(3),
+                                        SK_ColorGREEN),
             new SkDisplacementMapEffect(SkDisplacementMapEffect::kR_ChannelSelectorType,
                                         SkDisplacementMapEffect::kR_ChannelSelectorType,
                                         SkIntToScalar(12),
                                         gradient.get(),
                                         checkerboard.get()),
-            new SkDilateImageFilter(1, 1, checkerboard.get()),
-            new SkErodeImageFilter(1, 1, checkerboard.get()),
-            new SkOffsetImageFilter(SkIntToScalar(32), 0),
-        };
-
-        SkVector scales[] = {
-            SkVector::Make(SkScalarInvert(2), SkScalarInvert(2)),
-            SkVector::Make(SkIntToScalar(1), SkIntToScalar(1)),
-            SkVector::Make(SkIntToScalar(1), SkIntToScalar(2)),
-            SkVector::Make(SkIntToScalar(2), SkIntToScalar(1)),
-            SkVector::Make(SkIntToScalar(2), SkIntToScalar(2)),
+            new SkDilateImageFilter(2, 2, checkerboard.get()),
+            new SkErodeImageFilter(2, 2, checkerboard.get()),
+            new SkOffsetImageFilter(SkIntToScalar(-16), SkIntToScalar(32)),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
@@ -113,29 +105,26 @@ protected:
         SkRect bounds = r;
         bounds.outset(margin, margin);
 
-        for (size_t j = 0; j < SK_ARRAY_COUNT(scales); ++j) {
+        for (int xOffset = 0; xOffset < 80; xOffset += 16) {
             canvas->save();
+            bounds.fLeft = SkIntToScalar(xOffset);
             for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
                 SkPaint paint;
-                paint.setColor(SK_ColorBLUE);
+                paint.setColor(SK_ColorWHITE);
                 paint.setImageFilter(filters[i]);
                 paint.setAntiAlias(true);
                 canvas->save();
-                canvas->scale(scales[j].fX, scales[j].fY);
-                if (5 == i) {
-                    canvas->translate(SkIntToScalar(-32), 0);
+                canvas->clipRect(bounds);
+                if (i == 5) {
+                    canvas->translate(SkIntToScalar(16), SkIntToScalar(-32));
                 }
                 canvas->drawCircle(r.centerX(), r.centerY(),
                                    SkScalarDiv(r.width()*2, SkIntToScalar(5)), paint);
                 canvas->restore();
-                canvas->translate(r.width() * scales[j].fX + margin, 0);
+                canvas->translate(r.width() + margin, 0);
             }
             canvas->restore();
-            canvas->translate(0, r.height() * scales[j].fY + margin);
-        }
-
-        for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
-            filters[i]->unref();
+            canvas->translate(0, r.height() + margin);
         }
     }
 
@@ -148,7 +137,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ImageFiltersScaledGM; }
+static GM* MyFactory(void*) { return new ImageFiltersClippedGM; }
 static GMRegistry reg(MyFactory);
 
 }

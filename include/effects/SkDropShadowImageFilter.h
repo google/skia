@@ -20,6 +20,10 @@ protected:
     explicit SkDropShadowImageFilter(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& source, const SkMatrix&, SkBitmap* result, SkIPoint* loc) SK_OVERRIDE;
+    virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
+                                SkIRect* dst) const SK_OVERRIDE;
+
+
 
 private:
     SkScalar fDx, fDy, fSigmaX, fSigmaY;
