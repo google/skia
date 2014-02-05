@@ -37,6 +37,22 @@
             ],
           },
         }],
+        [ 'skia_android_framework', {
+            'include_dirs': [
+              'external/expat/lib',
+              'external/freetype/include',
+            ],
+            'libraries': [
+              '-lft2',
+            ],
+            # Remove these, and use the system's freetype instead.
+            'dependencies!': [
+              'freetype_static',
+            ],
+            'export_dependent_settings!': [
+              'freetype_static',
+            ]
+        }],
       ],
     },
     {

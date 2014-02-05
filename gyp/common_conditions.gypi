@@ -193,6 +193,28 @@
       },
     ],
 
+    ['skia_android_framework', {
+      'cflags': [
+        # Skia does not enforce this usage pattern so we disable it here to avoid
+        # unecessary log spew when building
+        '-Wno-unused-parameter',
+
+        # Android's -D_FORTIFY_SOURCE=2 extensions are incompatibile with SkString.
+        # Revert to -D_FORTIFY_SOURCE=1
+        '-U_FORTIFY_SOURCE',
+        '-D_FORTIFY_SOURCE=1',
+      ],
+      'defines': [
+        'DCT_IFAST_SUPPORTED',
+        # using freetype's embolden allows us to adjust fake bold settings at
+        # draw-time, at which point we know which SkTypeface is being drawn
+        'SK_USE_FREETYPE_EMBOLDEN',
+        # Android provides at least FreeType 2.4.0 at runtime.
+        'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020400',
+        # Skia should not use dlopen on Android.
+        'SK_CAN_USE_DLOPEN=0',
+      ],
+    }],
 
     [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos"]',
       {
@@ -452,6 +474,12 @@
           '-fuse-ld=gold',
         ],
         'conditions': [
+          [ 'skia_android_framework', {
+            'libraries!': [
+              '-lstdc++',
+              '-lm',
+            ],
+          }],
           [ 'skia_shared_lib', {
             'cflags': [
               '-fPIC',
