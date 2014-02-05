@@ -538,7 +538,7 @@ bool SkBitmap::allocPixels(const SkImageInfo& info, SkPixelRefFactory* factory,
 bool SkBitmap::installPixels(const SkImageInfo& info, void* pixels, size_t rb,
                              void (*releaseProc)(void* addr, void* context),
                              void* context) {
-    if (!this->setConfig(info)) {
+    if (!this->setConfig(info, rb)) {
         this->reset();
         return false;
     }
