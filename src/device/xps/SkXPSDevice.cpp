@@ -2453,6 +2453,6 @@ SkXPSDevice::SkXPSDevice(IXpsOMObjectFactory* xpsFactory)
          "Could not create canvas for layer.");
 }
 
-bool SkXPSDevice::allowImageFilter(SkImageFilter*) {
+bool SkXPSDevice::allowImageFilter(const SkImageFilter*) {
     return false;
 }
