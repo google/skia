@@ -44,7 +44,7 @@ public:
     }
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix& ctm,
-                               SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
+                               SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE {
         REPORTER_ASSERT(fReporter, ctm == fExpectedMatrix);
         return true;
     }
