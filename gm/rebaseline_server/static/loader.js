@@ -619,5 +619,41 @@ Loader.controller(
       return d.toString();
     }
 
+    /**
+     * Returns a hex color string (such as "#aabbcc") for the given RGB values.
+     *
+     * @param r (numeric): red channel value, 0-255
+     * @param g (numeric): green channel value, 0-255
+     * @param b (numeric): blue channel value, 0-255
+     */
+    $scope.hexColorString = function(r, g, b) {
+      var rString = r.toString(16);
+      if (r < 16) {
+        rString = "0" + rString;
+      }
+      var gString = g.toString(16);
+      if (g < 16) {
+        gString = "0" + gString;
+      }
+      var bString = b.toString(16);
+      if (b < 16) {
+        bString = "0" + bString;
+      }
+      return '#' + rString + gString + bString;
+    }
+
+    /**
+     * Returns a hex color string (such as "#aabbcc") for the given brightness.
+     *
+     * @param brightnessString (string): 0-255, 0 is completely black
+     *
+     * TODO(epoger): It might be nice to tint the color when it's not completely
+     * black or completely white.
+     */
+    $scope.brightnessStringToHexColor = function(brightnessString) {
+      var v = parseInt(brightnessString);
+      return $scope.hexColorString(v, v, v);
+    }
+
   }
 );

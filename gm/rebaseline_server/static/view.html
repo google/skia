@@ -264,6 +264,12 @@
                    ng-checked="(sortColumn == 'weightedDiffMeasure')"
                    ng-click="sortResultsBy('weightedDiffMeasure')">
             difference per pixel
+            <br>
+            <input type="range" ng-model="pixelDiffBgColorBrightness"
+                   ng-init="pixelDiffBgColorBrightness=64; pixelDiffBgColor=brightnessStringToHexColor(pixelDiffBgColorBrightness)"
+                   ng-change="pixelDiffBgColor=brightnessStringToHexColor(pixelDiffBgColorBrightness)"
+                   title="image background brightness"
+                   min="0" max="255"/>
           </th>
           <th>
             <!-- item-selection checkbox column -->
@@ -341,7 +347,8 @@
               {{result.maxDiffPerChannel}}
               <br/>
               <a href="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png" target="_blank">View Image</a><br/>
-              <img-compare type="differencePerPixel"
+              <img-compare ng-style="{backgroundColor: pixelDiffBgColor}"
+                           type="differencePerPixel"
                            src="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png"
                            ng-mousedown="MagnifyDraw($event, true)"
                            ng-mousemove="MagnifyDraw($event, false)"
