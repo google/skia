@@ -151,9 +151,6 @@ private:
                                                         // effects that read the fragment position.
                                                         // Otherwise, 0.
 
-        // should the FS discard if the coverage is zero (to avoid stencil manipulation)
-        SkBool8                     fDiscardIfZeroCoverage;
-
         ColorInput                  fColorInput : 8;
         ColorInput                  fCoverageInput : 8;
         CoverageOutput              fCoverageOutput : 8;

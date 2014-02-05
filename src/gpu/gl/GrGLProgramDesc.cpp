@@ -215,20 +215,13 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
 
     // Here we deal with whether/how we handle color and coverage separately.
 
-    // Set these defaults and then possibly change our mind if there is coverage.
-    header->fDiscardIfZeroCoverage = false;
+    // Set this default and then possibly change our mind if there is coverage.
     header->fCoverageOutput = kModulate_CoverageOutput;
 
     // If we do have coverage determine whether it matters.
     bool separateCoverageFromColor = false;
     if (!drawState.isCoverageDrawing() && !skipCoverage &&
         (drawState.numCoverageStages() > 0 || requiresCoverageAttrib)) {
-
-        // If we're stenciling then we want to discard samples that have zero coverage
-        if (drawState.getStencil().doesWrite()) {
-            header->fDiscardIfZeroCoverage = true;
-            separateCoverageFromColor = true;
-        }
 
         if (gpu->caps()->dualSourceBlendingSupport() &&
             !(blendOpts & (GrDrawState::kEmitCoverage_BlendOptFlag |

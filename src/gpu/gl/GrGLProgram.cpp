@@ -120,17 +120,6 @@ bool GrGLProgram::genProgram(GrGLShaderBuilder* builder,
                                       fDesc.numCoverageEffects(),
                                       &inCoverage));
 
-    // discard if coverage is zero
-    if (header.fDiscardIfZeroCoverage && !inCoverage.isOnes()) {
-        if (inCoverage.isZeros()) {
-            // This is unfortunate.
-            builder->fsCodeAppend("\tdiscard;\n");
-        } else {
-            builder->fsCodeAppendf("\tif (all(lessThanEqual(%s, vec4(0.0)))) {\n\t\tdiscard;\n\t}\n",
-                                   inCoverage.c_str());
-        }
-    }
-
     if (GrGLProgramDesc::CoverageOutputUsesSecondaryOutput(header.fCoverageOutput)) {
         const char* secondaryOutputName = builder->enableSecondaryOutput();
 

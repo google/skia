@@ -65,8 +65,6 @@ void GrGLProgramDesc::setRandom(SkRandom* random,
     header->fExperimentalGS = gpu->caps()->geometryShaderSupport() && random->nextBool();
 #endif
 
-    header->fDiscardIfZeroCoverage = random->nextBool();
-
     bool useLocalCoords = random->nextBool() && currAttribIndex < GrDrawState::kMaxVertexAttribCnt;
     header->fLocalCoordAttributeIndex = useLocalCoords ? currAttribIndex++ : -1;
 
