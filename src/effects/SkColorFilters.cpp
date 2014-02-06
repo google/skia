@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkBlitRow.h"
 #include "SkColorFilter.h"
@@ -15,6 +13,10 @@
 #include "SkUtils.h"
 #include "SkString.h"
 #include "SkValidationUtils.h"
+#include "SkColorMatrixFilter.h"
+
+#define SK_MAP_LIGHTINGCOLORFILTER_TO_COLORMATRIX
+
 
 #define ILLEGAL_XFERMODE_MODE   ((SkXfermode::Mode)-1)
 
@@ -539,6 +541,19 @@ SkColorFilter* SkColorFilter::CreateModeFilter(SkColor color,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_MAP_LIGHTINGCOLORFILTER_TO_COLORMATRIX
+
+static SkScalar byte_to_scale(U8CPU byte) {
+    if (0xFF == byte) {
+        // want to get this exact
+        return 1;
+    } else {
+        return byte * 0.00392156862745f;
+    }
+}
+
+#else
+
 static inline unsigned pin(unsigned value, unsigned max) {
     if (value > max) {
         value = max;
@@ -778,8 +793,6 @@ private:
     typedef SkLightingColorFilter INHERITED;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
 class SkSimpleColorFilter : public SkColorFilter {
 public:
     static SkFlattenable* CreateProc(SkReadBuffer& buffer) {
@@ -808,7 +821,21 @@ protected:
 
 };
 
+#endif  // SK_MAP_LIGHTINGCOLORFILTER_TO_COLORMATRIX
+
 SkColorFilter* SkColorFilter::CreateLightingFilter(SkColor mul, SkColor add) {
+#ifdef SK_MAP_LIGHTINGCOLORFILTER_TO_COLORMATRIX
+    SkColorMatrix matrix;
+    matrix.setScale(byte_to_scale(SkColorGetR(mul)),
+                    byte_to_scale(SkColorGetG(mul)),
+                    byte_to_scale(SkColorGetB(mul)),
+                    1);
+    matrix.postTranslate(SkIntToScalar(SkColorGetR(add)),
+                         SkIntToScalar(SkColorGetG(add)),
+                         SkIntToScalar(SkColorGetB(add)),
+                         0);
+    return SkNEW_ARGS(SkColorMatrixFilter, (matrix));
+#else
     mul &= 0x00FFFFFF;
     add &= 0x00FFFFFF;
 
@@ -836,16 +863,19 @@ SkColorFilter* SkColorFilter::CreateLightingFilter(SkColor mul, SkColor add) {
     }
 
     return SkNEW_ARGS(SkLightingColorFilter, (mul, add));
+#endif
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkModeColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Src_SkModeColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SrcOver_SkModeColorFilter)
+#ifndef SK_MAP_LIGHTINGCOLORFILTER_TO_COLORMATRIX
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter_JustAdd)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter_JustMul)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter_SingleMul)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLightingColorFilter_NoPin)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSimpleColorFilter)
+#endif
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END

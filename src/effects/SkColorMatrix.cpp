@@ -9,23 +9,26 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-#define kRScale     0
-#define kGScale     6
-#define kBScale     12
-#define kAScale     18
-
 void SkColorMatrix::setIdentity() {
     memset(fMat, 0, sizeof(fMat));
-    fMat[kRScale] = fMat[kGScale] = fMat[kBScale] = fMat[kAScale] = SK_Scalar1;
+    fMat[kR_Scale] = fMat[kG_Scale] = fMat[kB_Scale] = fMat[kA_Scale] = 1;
 }
 
 void SkColorMatrix::setScale(SkScalar rScale, SkScalar gScale, SkScalar bScale,
                              SkScalar aScale) {
     memset(fMat, 0, sizeof(fMat));
-    fMat[kRScale] = rScale;
-    fMat[kGScale] = gScale;
-    fMat[kBScale] = bScale;
-    fMat[kAScale] = aScale;
+    fMat[kR_Scale] = rScale;
+    fMat[kG_Scale] = gScale;
+    fMat[kB_Scale] = bScale;
+    fMat[kA_Scale] = aScale;
+}
+
+void SkColorMatrix::postTranslate(SkScalar dr, SkScalar dg, SkScalar db,
+                                  SkScalar da) {
+    fMat[kR_Trans] += dr;
+    fMat[kG_Trans] += dg;
+    fMat[kB_Trans] += db;
+    fMat[kA_Trans] += da;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -116,14 +119,14 @@ static const SkScalar kHueB = 0.072f;
 void SkColorMatrix::setSaturation(SkScalar sat) {
     memset(fMat, 0, sizeof(fMat));
 
-    const SkScalar R = SkScalarMul(kHueR, SK_Scalar1 - sat);
-    const SkScalar G = SkScalarMul(kHueG, SK_Scalar1 - sat);
-    const SkScalar B = SkScalarMul(kHueB, SK_Scalar1 - sat);
+    const SkScalar R = kHueR * (1 - sat);
+    const SkScalar G = kHueG * (1 - sat);
+    const SkScalar B = kHueB * (1 - sat);
 
     setrow(fMat +  0, R + sat, G, B);
     setrow(fMat +  5, R, G + sat, B);
     setrow(fMat + 10, R, G, B + sat);
-    fMat[18] = SK_Scalar1;
+    fMat[kA_Scale] = 1;
 }
 
 static const SkScalar kR2Y = 0.299f;
@@ -144,7 +147,7 @@ void SkColorMatrix::setRGB2YUV() {
     setrow(fMat +  0, kR2Y, kG2Y, kB2Y);
     setrow(fMat +  5, kR2U, kG2U, kB2U);
     setrow(fMat + 10, kR2V, kG2V, kB2V);
-    fMat[18] = SK_Scalar1;
+    fMat[kA_Scale] = 1;
 }
 
 static const SkScalar kV2R = 1.402f;
@@ -155,8 +158,8 @@ static const SkScalar kU2B = 1.772f;
 void SkColorMatrix::setYUV2RGB() {
     memset(fMat, 0, sizeof(fMat));
 
-    setrow(fMat +  0, SK_Scalar1, 0, kV2R);
-    setrow(fMat +  5, SK_Scalar1, kU2G, kV2G);
-    setrow(fMat + 10, SK_Scalar1, kU2B, 0);
-    fMat[18] = SK_Scalar1;
+    setrow(fMat +  0, 1, 0, kV2R);
+    setrow(fMat +  5, 1, kU2G, kV2G);
+    setrow(fMat + 10, 1, kU2B, 0);
+    fMat[kA_Scale] = 1;
 }

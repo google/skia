@@ -76,9 +76,9 @@ static void ScaleAdd(const SkColorMatrixFilter::State& state,
     const int shift = state.fShift;
 
     // cast to (int) to keep the expression signed for the shift
-    result[0] = (array[0] * (int)r + array[4]) >> shift;
-    result[1] = (array[6] * (int)g + array[9]) >> shift;
-    result[2] = (array[12] * (int)b + array[14]) >> shift;
+    result[0] = (array[SkColorMatrix::kR_Scale] * (int)r + array[4]) >> shift;
+    result[1] = (array[SkColorMatrix::kG_Scale] * (int)g + array[9]) >> shift;
+    result[2] = (array[SkColorMatrix::kB_Scale] * (int)b + array[14]) >> shift;
     result[3] = a;
 }
 
@@ -88,9 +88,9 @@ static void ScaleAdd16(const SkColorMatrixFilter::State& state,
     const int32_t* SK_RESTRICT array = state.fArray;
 
     // cast to (int) to keep the expression signed for the shift
-    result[0] = (array[0] * (int)r + array[4]) >> 16;
-    result[1] = (array[6] * (int)g + array[9]) >> 16;
-    result[2] = (array[12] * (int)b + array[14]) >> 16;
+    result[0] = (array[SkColorMatrix::kR_Scale] * (int)r + array[4]) >> 16;
+    result[1] = (array[SkColorMatrix::kG_Scale] * (int)g + array[9]) >> 16;
+    result[2] = (array[SkColorMatrix::kB_Scale] * (int)b + array[14]) >> 16;
     result[3] = a;
 }
 
@@ -100,9 +100,9 @@ static void Add(const SkColorMatrixFilter::State& state,
     const int32_t* SK_RESTRICT array = state.fArray;
     const int shift = state.fShift;
 
-    result[0] = r + (array[4] >> shift);
-    result[1] = g + (array[9] >> shift);
-    result[2] = b + (array[14] >> shift);
+    result[0] = r + (array[SkColorMatrix::kR_Trans] >> shift);
+    result[1] = g + (array[SkColorMatrix::kG_Trans] >> shift);
+    result[2] = b + (array[SkColorMatrix::kB_Trans] >> shift);
     result[3] = a;
 }
 
@@ -111,9 +111,9 @@ static void Add16(const SkColorMatrixFilter::State& state,
                   int32_t* SK_RESTRICT result) {
     const int32_t* SK_RESTRICT array = state.fArray;
 
-    result[0] = r + (array[4] >> 16);
-    result[1] = g + (array[9] >> 16);
-    result[2] = b + (array[14] >> 16);
+    result[0] = r + (array[SkColorMatrix::kR_Trans] >> 16);
+    result[1] = g + (array[SkColorMatrix::kG_Trans] >> 16);
+    result[2] = b + (array[SkColorMatrix::kB_Trans] >> 16);
     result[3] = a;
 }
 
@@ -161,9 +161,9 @@ void SkColorMatrixFilter::initState(const SkScalar* SK_RESTRICT src) {
     } else {
         fFlags = kNO_ALPHA_FLAGS;
 
-        int32_t needsScale = (array[0] - one) |       // red axis
-                             (array[6] - one) |       // green axis
-                             (array[12] - one);       // blue axis
+        int32_t needsScale = (array[SkColorMatrix::kR_Scale] - one) |
+                             (array[SkColorMatrix::kG_Scale] - one) |
+                             (array[SkColorMatrix::kB_Scale] - one);
 
         int32_t needs3x3 =  array[1] | array[2] |     // red off-axis
                             array[5] | array[7] |     // green off-axis
@@ -173,7 +173,9 @@ void SkColorMatrixFilter::initState(const SkScalar* SK_RESTRICT src) {
             fProc = shiftIs16 ? AffineAdd16 : AffineAdd;
         } else if (needsScale) {
             fProc = shiftIs16 ? ScaleAdd16 : ScaleAdd;
-        } else if (array[4] | array[9] | array[14]) {   // needs add
+        } else if (array[SkColorMatrix::kR_Trans] |
+                   array[SkColorMatrix::kG_Trans] |
+                   array[SkColorMatrix::kB_Trans]) {
             fProc = shiftIs16 ? Add16 : Add;
         } else {
             fProc = NULL;   // identity
