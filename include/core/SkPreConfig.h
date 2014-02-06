@@ -127,10 +127,12 @@
 
 // Are we in VisualStudio?
 #ifndef SK_CPU_SSE_LEVEL
-    #if _M_IX86_FP == 1
-        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE1
-    #elif _M_IX86_FP >= 2
-        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE2
+    #if defined (_M_IX86_FP)
+        #if _M_IX86_FP == 1
+            #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE1
+        #elif _M_IX86_FP >= 2
+            #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE2
+        #endif
     #endif
 #endif
 
