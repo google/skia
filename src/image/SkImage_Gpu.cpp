@@ -23,10 +23,7 @@ public:
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*) SK_OVERRIDE;
     virtual void onDrawRectToRect(SkCanvas*, const SkRect* src, const SkRect& dst, const SkPaint*) SK_OVERRIDE;
     virtual GrTexture* onGetTexture() SK_OVERRIDE;
-    virtual bool getROPixels(SkBitmap*) const SK_OVERRIDE {
-        // TODO
-        return false;
-    }
+    virtual bool getROPixels(SkBitmap*) const SK_OVERRIDE;
 
     GrTexture* getTexture() { return fBitmap.getTexture(); }
 
@@ -59,6 +56,10 @@ void SkImage_Gpu::onDrawRectToRect(SkCanvas* canvas, const SkRect* src, const Sk
 
 GrTexture* SkImage_Gpu::onGetTexture() {
     return fBitmap.getTexture();
+}
+
+bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
+    return fBitmap.copyTo(dst, SkBitmap::kARGB_8888_Config);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

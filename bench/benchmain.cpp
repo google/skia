@@ -154,7 +154,7 @@ static void saveFile(const char name[], const char config[], const char dir[],
     SkString path = SkOSPath::SkPathJoin(dir, filename.c_str());
     ::remove(path.c_str());
 
-    SkFILEWStream   stream(filename.c_str());
+    SkFILEWStream   stream(path.c_str());
     stream.write(data->data(), data->size());
 }
 
