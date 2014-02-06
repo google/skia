@@ -17,6 +17,7 @@
         '../src/pdf',
         '../src/pipe/utils',
         '../src/utils',
+        '../src/utils/debugger',
         '../tools/',
 
         # Needed for TDStackNesterTest.
@@ -102,6 +103,7 @@
         '../tests/MallocPixelRefTest.cpp',
         '../tests/MathTest.cpp',
         '../tests/Matrix44Test.cpp',
+        '../tests/MatrixClipCollapseTest.cpp',
         '../tests/MatrixTest.cpp',
         '../tests/MemoryTest.cpp',
         '../tests/MemsetTest.cpp',
@@ -171,6 +173,14 @@
 
         # Needed for PipeTest.
         '../src/pipe/utils/SamplePipeControllers.cpp',
+
+        # Needed for MatrixClipCollapse test.
+        '../src/utils/debugger/SkDrawCommand.h',
+        '../src/utils/debugger/SkDrawCommand.cpp',
+        '../src/utils/debugger/SkDebugCanvas.h',
+        '../src/utils/debugger/SkDebugCanvas.cpp',
+        '../src/utils/debugger/SkObjectParser.h',
+        '../src/utils/debugger/SkObjectParser.cpp',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
