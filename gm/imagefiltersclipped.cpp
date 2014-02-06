@@ -126,6 +126,10 @@ protected:
             canvas->restore();
             canvas->translate(0, r.height() + margin);
         }
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+            SkSafeUnref(filters[i]);
+        }
     }
 
 private:
