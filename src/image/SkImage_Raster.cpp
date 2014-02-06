@@ -135,7 +135,7 @@ const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr,
                                          size_t* rowBytesPtr) const {
     SkImageInfo info;
     if (!fBitmap.asImageInfo(&info) || !fBitmap.getPixels()) {
-        return false;
+        return NULL;
     }
     *infoPtr = info;
     *rowBytesPtr = fBitmap.rowBytes();
