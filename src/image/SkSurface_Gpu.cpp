@@ -85,10 +85,10 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     // are we sharing our render target with the image?
     SkASSERT(NULL != this->getCachedImage());
     if (rt->asTexture() == SkTextureImageGetTexture(this->getCachedImage())) {
-        SkGpuDevice* newDevice = static_cast<SkGpuDevice*>(
-            fDevice->createCompatibleDevice(fDevice->config(), fDevice->width(),
-            fDevice->height(), fDevice->isOpaque()));
-        SkAutoTUnref<SkGpuDevice> aurd(newDevice);
+        SkAutoTUnref<SkGpuDevice> newDevice(SkNEW_ARGS(SkGpuDevice,
+            (fDevice->context(), fDevice->config(), fDevice->width(),
+             fDevice->height(), rt->numSamples())));
+
         if (kRetain_ContentChangeMode == mode) {
             fDevice->context()->copyTexture(rt->asTexture(),
                 reinterpret_cast<GrRenderTarget*>(newDevice->accessRenderTarget()));
@@ -96,7 +96,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
         SkASSERT(NULL != this->getCachedCanvas());
         SkASSERT(this->getCachedCanvas()->getDevice() == fDevice);
         this->getCachedCanvas()->setDevice(newDevice);
-        SkRefCnt_SafeAssign(fDevice, newDevice);
+        SkRefCnt_SafeAssign(fDevice, newDevice.get());
     }
 }
 
