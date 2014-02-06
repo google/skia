@@ -115,7 +115,7 @@
       </td>
       <td><table>
         <tr><td>
-          Image size
+          Image width
           <input type="text" ng-model="imageSizePending"
                  ng-init="imageSizePending=100"
                  ng-change="areUpdatesPending = true"
@@ -302,25 +302,23 @@
           </td>
 
           <!-- expected image -->
-          <td valign="top" width="{{imageSize}}">
-            <br/>
+          <td valign="bottom" width="{{imageSize}}">
             <a href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png" target="_blank">View Image</a><br/>
-            <img-compare type="baseline"
+            <img-compare type="baseline" width="{{imageSize}}"
                          src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png" />
 
           </td>
 
           <!-- actual image -->
-          <td valign="top" width="{{imageSize}}">
-            <br/>
+          <td valign="bottom" width="{{imageSize}}">
             <a href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png" target="_blank">View Image</a><br/>
-            <img-compare type="test"
+            <img-compare type="test" width="{{imageSize}}"
                          src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png" />
 
           </td>
 
           <!-- whitediffs: every differing pixel shown in white -->
-          <td valign="top" width="{{imageSize}}">
+          <td valign="bottom" width="{{imageSize}}">
             <div ng-hide="result.expectedHashDigest == result.actualHashDigest"
                  title="{{result.numDifferingPixels | number:0}} of {{(100 * result.numDifferingPixels / result.percentDifferingPixels) | number:0}} pixels ({{result.percentDifferingPixels.toFixed(4)}}%) differ from expectation.">
 
@@ -328,7 +326,7 @@
               ({{result.numDifferingPixels}})
               <br/>
               <a href="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png" target="_blank">View Image</a><br/>
-              <img-compare type="differingPixelsInWhite"
+              <img-compare type="differingPixelsInWhite" width="{{imageSize}}"
                            src="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png" />
 
             </div>
@@ -339,7 +337,7 @@
           </td>
 
           <!-- diffs: per-channel RGB deltas -->
-          <td valign="top" width="{{imageSize}}">
+          <td valign="bottom" width="{{imageSize}}">
             <div ng-hide="result.expectedHashDigest == result.actualHashDigest"
                  title="Weighted difference measure is {{result.weightedDiffMeasure.toFixed(4)}}%.  Maximum difference per channel: R={{result.maxDiffPerChannel[0]}}, G={{result.maxDiffPerChannel[1]}}, B={{result.maxDiffPerChannel[2]}}">
 
@@ -348,7 +346,7 @@
               <br/>
               <a href="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png" target="_blank">View Image</a><br/>
               <img-compare ng-style="{backgroundColor: pixelDiffBgColor}"
-                           type="differencePerPixel"
+                           type="differencePerPixel" width="{{imageSize}}"
                            src="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png"
                            ng-mousedown="MagnifyDraw($event, true)"
                            ng-mousemove="MagnifyDraw($event, false)"
