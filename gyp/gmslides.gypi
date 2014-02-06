@@ -43,6 +43,7 @@
     '../gm/clippedbitmapshaders.cpp',
     '../gm/coloremoji.cpp',
     '../gm/colorfilterimagefilter.cpp',
+    '../gm/colorfilters.cpp',
     '../gm/colormatrix.cpp',
     '../gm/colortype.cpp',
     '../gm/complexclip.cpp',
