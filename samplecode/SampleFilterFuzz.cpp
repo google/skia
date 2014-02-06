@@ -184,30 +184,6 @@ static const SkBitmap& make_bitmap() {
     return bitmap[R(2)];
 }
 
-#ifdef SK_ALLOW_PICTUREIMAGEFILTER_SERIALIZATION
-static void drawSomething(SkCanvas* canvas) {
-    SkPaint paint;
-
-    canvas->save();
-    canvas->scale(0.5f, 0.5f);
-    canvas->drawBitmap(make_bitmap(), 0, 0, NULL);
-    canvas->restore();
-
-    const char beforeStr[] = "before circle";
-    const char afterStr[] = "after circle";
-
-    paint.setAntiAlias(true);
-
-    paint.setColor(SK_ColorRED);
-    canvas->drawData(beforeStr, sizeof(beforeStr));
-    canvas->drawCircle(SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/3), paint);
-    canvas->drawData(afterStr, sizeof(afterStr));
-    paint.setColor(SK_ColorBLACK);
-    paint.setTextSize(SkIntToScalar(kBitmapSize/3));
-    canvas->drawText("Picture", 7, SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), paint);
-}
-#endif
-
 static SkImageFilter* make_image_filter(bool canBeNull = true) {
     SkImageFilter* filter = 0;
 
@@ -318,16 +294,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         filter = new SkTileImageFilter(make_rect(), make_rect(), make_image_filter(false));
         break;
     case PICTURE:
-    {
-        SkPicture* pict = NULL;
-#ifdef SK_ALLOW_PICTUREIMAGEFILTER_SERIALIZATION
-        pict = new SkPicture;
-        SkAutoUnref aur(pict);
-        drawSomething(pict->beginRecording(kBitmapSize, kBitmapSize));
-        pict->endRecording();
-#endif
-        filter = new SkPictureImageFilter(pict, make_rect());
-    }
+        filter = new SkPictureImageFilter(NULL, make_rect());
         break;
     default:
         break;

@@ -431,22 +431,6 @@ void SkPicturePlayback::serialize(SkWStream* stream,
     stream->write32(PICT_EOF_TAG);
 }
 
-void SkPicturePlayback::flatten(SkWriteBuffer& buffer) const {
-    writeTagSize(buffer, PICT_READER_TAG, fOpData->size());
-    buffer.writeByteArray(fOpData->bytes(), fOpData->size());
-
-    if (fPictureCount > 0) {
-        writeTagSize(buffer, PICT_PICTURE_TAG, fPictureCount);
-        for (int i = 0; i < fPictureCount; i++) {
-            fPictureRefs[i]->flatten(buffer);
-        }
-    }
-
-    // Write this picture playback's data into a writebuffer
-    this->flattenToBuffer(buffer);
-    buffer.write32(PICT_EOF_TAG);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -609,15 +593,6 @@ SkPicturePlayback* SkPicturePlayback::CreateFromStream(SkStream* stream,
     return playback.detach();
 }
 
-SkPicturePlayback* SkPicturePlayback::CreateFromBuffer(SkReadBuffer& buffer) {
-    SkAutoTDelete<SkPicturePlayback> playback(SkNEW(SkPicturePlayback));
-
-    if (!playback->parseBuffer(buffer)) {
-        return NULL;
-    }
-    return playback.detach();
-}
-
 bool SkPicturePlayback::parseStream(SkStream* stream, const SkPictInfo& info,
                                     SkPicture::InstallPixelRefProc proc) {
     for (;;) {
@@ -628,21 +603,6 @@ bool SkPicturePlayback::parseStream(SkStream* stream, const SkPictInfo& info,
 
         uint32_t size = stream->readU32();
         if (!this->parseStreamTag(stream, info, tag, size, proc)) {
-            return false; // we're invalid
-        }
-    }
-    return true;
-}
-
-bool SkPicturePlayback::parseBuffer(SkReadBuffer& buffer) {
-    for (;;) {
-        uint32_t tag = buffer.readUInt();
-        if (PICT_EOF_TAG == tag) {
-            break;
-        }
-
-        uint32_t size = buffer.readUInt();
-        if (!this->parseBufferTag(buffer, tag, size)) {
             return false; // we're invalid
         }
     }

@@ -28,13 +28,7 @@ public:
 
 protected:
     virtual ~SkPictureImageFilter();
-    /*  Constructs an SkPictureImageFilter object from an SkReadBuffer.
-     *  Note: If the SkPictureImageFilter object construction requires bitmap
-     *  decoding, the decoder must be set on the SkReadBuffer parameter by calling
-     *  SkReadBuffer::setBitmapDecoder() before calling this constructor.
-     *  @param SkReadBuffer Serialized picture data.
-     */
-    explicit SkPictureImageFilter(SkReadBuffer&);
+    explicit SkPictureImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
