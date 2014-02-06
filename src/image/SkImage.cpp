@@ -39,6 +39,41 @@ void SkImage::draw(SkCanvas* canvas, const SkRect* src, const SkRect& dst,
     as_IB(this)->onDrawRectToRect(canvas, src, dst, paint);
 }
 
+const void* SkImage::peekPixels(SkImageInfo* info, size_t* rowBytes) const {
+    SkImageInfo infoStorage;
+    size_t rowBytesStorage;
+    if (NULL == info) {
+        info = &infoStorage;
+    }
+    if (NULL == rowBytes) {
+        rowBytes = &rowBytesStorage;
+    }
+    return as_IB(this)->onPeekPixels(info, rowBytes);
+}
+
+bool SkImage::readPixels(SkBitmap* bitmap, const SkIRect* subset) const {
+    if (NULL == bitmap) {
+        return false;
+    }
+    
+    SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
+
+    // trim against the bitmap, if its already been allocated
+    if (bitmap->pixelRef()) {
+        bounds.fRight = SkMin32(bounds.fRight, bitmap->width());
+        bounds.fBottom = SkMin32(bounds.fBottom, bitmap->height());
+        if (bounds.isEmpty()) {
+            return false;
+        }
+    }
+
+    if (subset && !bounds.intersect(*subset)) {
+        // perhaps we could return true + empty-bitmap?
+        return false;
+    }
+    return as_IB(this)->onReadPixels(bitmap, bounds);
+}
+
 GrTexture* SkImage::getTexture() {
     return as_IB(this)->onGetTexture();
 }
@@ -50,3 +85,55 @@ SkData* SkImage::encode(SkImageEncoder::Type type, int quality) const {
     }
     return NULL;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+static bool raster_canvas_supports(const SkImageInfo& info) {
+    switch (info.fColorType) {
+        case kPMColor_SkColorType:
+            return kUnpremul_SkAlphaType != info.fAlphaType;
+        case kRGB_565_SkColorType:
+            return true;
+        case kAlpha_8_SkColorType:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+bool SkImage_Base::onReadPixels(SkBitmap* bitmap, const SkIRect& subset) const {
+    SkImageInfo info;
+
+    if (bitmap->pixelRef()) {
+        if (!bitmap->asImageInfo(&info)) {
+            return false;
+        }
+        if (!raster_canvas_supports(info)) {
+            return false;
+        }
+    } else {
+        SkImageInfo info = SkImageInfo::MakeN32Premul(subset.width(),
+                                                      subset.height());
+        SkBitmap tmp;
+        if (!tmp.allocPixels(info)) {
+            return false;
+        }
+        *bitmap = tmp;
+    }
+
+    SkRect srcR, dstR;
+    srcR.set(subset);
+    dstR = srcR;
+    dstR.offset(-dstR.left(), -dstR.top());
+    
+    SkCanvas canvas(*bitmap);
+
+    SkPaint paint;
+    paint.setXfermodeMode(SkXfermode::kClear_Mode);
+    canvas.drawRect(dstR, paint);
+
+    const_cast<SkImage_Base*>(this)->onDrawRectToRect(&canvas, &srcR, dstR, NULL);
+    return true;
+}
+

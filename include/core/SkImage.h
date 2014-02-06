@@ -76,6 +76,17 @@ public:
     void draw(SkCanvas*, const SkRect* src, const SkRect& dst, const SkPaint*);
 
     /**
+     *  If the image has direct access to its pixels (i.e. they are in local
+     *  RAM) return the (const) address of those pixels, and if not null, return
+     *  the ImageInfo and rowBytes. The returned address is only valid while
+     *  the image object is in scope.
+     *
+     *  On failure, returns NULL and the info and rowBytes parameters are
+     *  ignored.
+     */
+    const void* peekPixels(SkImageInfo* info, size_t* rowBytes) const;
+    
+    /**
      *  Encode the image's pixels and return the result as a new SkData, which
      *  the caller must manage (i.e. call unref() when they are done).
      *
@@ -103,6 +114,29 @@ private:
     static uint32_t NextUniqueID();
 
     typedef SkRefCnt INHERITED;
+
+    /**
+     *  Return a copy of the image's pixels, limiting them to the subset
+     *  rectangle's intersection wit the image bounds. If subset is NULL, then
+     *  the entire image will be considered.
+     *
+     *  If the bitmap's pixels have already been allocated, then readPixels()
+     *  will succeed only if it can support converting the image's pixels into
+     *  the bitmap's ColorType/AlphaType. Any pixels in the bitmap that do not
+     *  intersect with the image's bounds and the subset (if not null) will be
+     *  left untouched.
+     *
+     *  If the bitmap is initially empty/unallocated, then it will be allocated
+     *  using the default allocator, and the ColorType/AlphaType will be chosen
+     *  to most closely fit the image's configuration.
+     *
+     *  On failure, false will be returned, and bitmap will unmodified.
+     */
+    // On ice for now:
+    // - should it respect the particular colortype/alphatype of the src
+    // - should it have separate entrypoints for preallocated and not bitmaps?
+    // - isn't it enough to allow the caller to draw() the image into a canvas?
+    bool readPixels(SkBitmap* bitmap, const SkIRect* subset = NULL) const;
 };
 
 #endif
