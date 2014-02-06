@@ -133,7 +133,7 @@ SkImage* SkImage::NewRasterCopy(const SkImageInfo& info, const void* pixels, siz
 }
 
 
-SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* pixelData, size_t rowBytes) {
+SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* data, size_t rowBytes) {
     if (!SkImage_Raster::ValidArgs(info, rowBytes)) {
         return NULL;
     }
@@ -141,17 +141,16 @@ SkImage* SkImage::NewRasterData(const SkImageInfo& info, SkData* pixelData, size
         return SkImage_Raster::NewEmpty();
     }
     // check this after empty-check
-    if (NULL == pixelData) {
+    if (NULL == data) {
         return NULL;
     }
 
     // did they give us enough data?
     size_t size = info.fHeight * rowBytes;
-    if (pixelData->size() < size) {
+    if (data->size() < size) {
         return NULL;
     }
 
-    SkAutoDataUnref data(pixelData);
     return SkNEW_ARGS(SkImage_Raster, (info, data, rowBytes));
 }
 

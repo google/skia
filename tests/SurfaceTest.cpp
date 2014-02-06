@@ -48,6 +48,23 @@ static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context) {
     return NULL;
 }
 
+#include "SkData.h"
+
+static void test_image(skiatest::Reporter* reporter) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+    size_t rowBytes = info.minRowBytes();
+    size_t size = info.getSafeSize(rowBytes);
+    void* addr = sk_malloc_throw(size);
+    SkData* data = SkData::NewFromMalloc(addr, size);
+
+    REPORTER_ASSERT(reporter, 1 == data->getRefCnt());
+    SkImage* image = SkImage::NewRasterData(info, data, rowBytes);
+    REPORTER_ASSERT(reporter, 2 == data->getRefCnt());
+    image->unref();
+    REPORTER_ASSERT(reporter, 1 == data->getRefCnt());
+    data->unref();
+}
+
 static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType surfaceType,
                                    GrContext* context) {
     // Verify that the right canvas commands trigger a copy on write
@@ -232,6 +249,8 @@ static void TestSurfaceNoCanvas(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST(Surface, reporter, factory) {
+    test_image(reporter);
+
     TestSurfaceCopyOnWrite(reporter, kRaster_SurfaceType, NULL);
     TestSurfaceCopyOnWrite(reporter, kPicture_SurfaceType, NULL);
     TestSurfaceWritableAfterSnapshotRelease(reporter, kRaster_SurfaceType, NULL);
