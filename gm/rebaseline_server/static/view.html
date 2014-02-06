@@ -276,22 +276,61 @@
           </th>
         </tr>
 
-        <!-- For most columns... if the user clicks on the cell, and we are on
-             the default tab, update the filter to only show results with the
-             same value for this category.
-             This is made a bit tricky by the fact that AngularJS expressions
-             do not allow control flow statements.  See
-             http://docs.angularjs.org/guide/expression -->
         <tr ng-repeat="result in limitedTestData" ng-controller="ImageController">
-          <td ng-click="(viewingTab != defaultTab) || showOnlyResultType(result.resultType)">
+          <td>
             {{result.resultType}}
+            <br>
+            <button class="show-only-button"
+                    ng-hide="viewingTab != defaultTab"
+                    ng-click="showOnlyResultType(result.resultType)"
+                    title="show only results of type '{{result.resultType}}'">
+              show only
+            </button>
+            <br>
+            <button class="show-all-button"
+                    ng-hide="viewingTab != defaultTab"
+                    ng-disabled="0 == setSize(hiddenResultTypes)"
+                    ng-click="showAllResultTypes()"
+                    title="show results of all types">
+              show all
+            </button>
           </td>
-          <td ng-repeat="categoryName in ['builder', 'test']"
-              ng-click="(viewingTab != defaultTab) || setCategoryValueMatch(categoryName, result[categoryName])">
+          <td ng-repeat="categoryName in ['builder', 'test']">
             {{result[categoryName]}}
+            <br>
+            <button class="show-only-button"
+                    ng-hide="viewingTab != defaultTab"
+                    ng-disabled="result[categoryName] == categoryValueMatch[categoryName]"
+                    ng-click="setCategoryValueMatch(categoryName, result[categoryName])"
+                    title="show only results of {{categoryName}} '{{result[categoryName]}}'">
+              show only
+            </button>
+            <br>
+            <button class="show-all-button"
+                    ng-hide="viewingTab != defaultTab"
+                    ng-disabled="'' == categoryValueMatch[categoryName]"
+                    ng-click="setCategoryValueMatch(categoryName, '')"
+                    title="show results of all {{categoryName}}s">
+              show all
+            </button>
           </td>
-          <td ng-click="(viewingTab != defaultTab) || showOnlyConfig(result.config)">
+          <td>
             {{result.config}}
+            <br>
+            <button class="show-only-button"
+                    ng-hide="viewingTab != defaultTab"
+                    ng-click="showOnlyConfig(result.config)"
+                    title="show only results of config '{{result.config}}'">
+              show only
+            </button>
+            <br>
+            <button class="show-all-button"
+                    ng-hide="viewingTab != defaultTab"
+                    ng-disabled="0 == setSize(hiddenConfigs)"
+                    ng-click="showAllConfigs()"
+                    title="show results of all configs">
+              show all
+            </button>
           </td>
           <td>
             <a ng-repeat="bug in result['bugs']"

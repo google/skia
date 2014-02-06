@@ -417,6 +417,15 @@ Loader.controller(
     }
 
     /**
+     * Update $scope.hiddenResultTypes so that ALL resultTypes are showing,
+     * and update the visible results.
+     */
+    $scope.showAllResultTypes = function() {
+      $scope.hiddenResultTypes = {};
+      $scope.updateResults();
+    }
+
+    /**
      * Update $scope.hiddenConfigs so that ONLY this config is showing,
      * and update the visible results.
      *
@@ -426,6 +435,15 @@ Loader.controller(
       $scope.hiddenConfigs = {};
       $scope.toggleValuesInSet($scope.allConfigs, $scope.hiddenConfigs);
       $scope.toggleValueInSet(config, $scope.hiddenConfigs);
+      $scope.updateResults();
+    }
+
+    /**
+     * Update $scope.hiddenConfigs so that ALL configs are showing,
+     * and update the visible results.
+     */
+    $scope.showAllConfigs = function() {
+      $scope.hiddenConfigs = {};
       $scope.updateResults();
     }
 
@@ -530,6 +548,15 @@ Loader.controller(
     // possible.
     // TODO(epoger): move into a separate .js file?
     //
+
+    /**
+     * Returns the number of values present within set "set".
+     *
+     * @param set an Object which we use to mimic set semantics
+     */
+    $scope.setSize = function(set) {
+      return Object.keys(set).length;
+    }
 
     /**
      * Returns true if value "value" is present within set "set".

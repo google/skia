@@ -31,6 +31,13 @@
     font-size: 30px;
 }
 
+.show-only-button {
+    font-size: 8px;
+}
+.show-all-button {
+    font-size: 8px;
+}
+
 .image-link {
     text-decoration: none;
 }
