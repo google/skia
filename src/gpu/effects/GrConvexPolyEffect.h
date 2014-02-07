@@ -57,9 +57,10 @@ public:
 
     /**
      * Creates an effect that clips against the path. If the path is not a convex polygon, is
-     * inverse filled, or has too many edges, this will return NULL.
+     * inverse filled, or has too many edges, this will return NULL. If offset is non-NULL, then
+     * the path is translated by the vector.
      */
-    static GrEffectRef* Create(EdgeType, const SkPath&);
+    static GrEffectRef* Create(EdgeType, const SkPath&, const SkVector* offset= NULL);
 
     virtual ~GrConvexPolyEffect();
 

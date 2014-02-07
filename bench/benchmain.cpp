@@ -55,6 +55,7 @@ public:
 
     virtual SkBenchmark* operator()() const SK_OVERRIDE {
         skiagm::GM* gm = fGMFactory(NULL);
+        gm->setMode(skiagm::GM::kBench_Mode);
         return SkNEW_ARGS(SkGMBench, (gm));
     }
 

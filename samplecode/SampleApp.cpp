@@ -386,7 +386,9 @@ SkGMSampleViewFactory::SkGMSampleViewFactory(GMFactoryFunc func)
 }
 
 SkView* SkGMSampleViewFactory::operator() () const {
-    return new GMSampleView(fFunc(NULL));
+    skiagm::GM* gm = fFunc(NULL);
+    gm->setMode(skiagm::GM::kSample_Mode);
+    return new GMSampleView(gm);
 }
 
 SkViewRegister* SkViewRegister::gHead;

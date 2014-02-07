@@ -97,7 +97,7 @@ GrGLEffect::EffectKey GrGLConvexPolyEffect::GenKey(const GrDrawEffect& drawEffec
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrEffectRef* GrConvexPolyEffect::Create(EdgeType type, const SkPath& path) {
+GrEffectRef* GrConvexPolyEffect::Create(EdgeType type, const SkPath& path, const SkVector* offset) {
     if (path.getSegmentMasks() != SkPath::kLine_SegmentMask ||
         !path.isConvex() ||
         path.isInverseFillType()) {
@@ -114,6 +114,13 @@ GrEffectRef* GrConvexPolyEffect::Create(EdgeType type, const SkPath& path) {
     SkPath::Direction dir;
     SkAssertResult(path.cheapComputeDirection(&dir));
 
+    SkVector t;
+    if (NULL == offset) {
+        t.set(0, 0);
+    } else {
+        t = *offset;
+    }
+
     int count = path.getPoints(pts, kMaxEdges);
     int n = 0;
     for (int lastPt = count - 1, i = 0; i < count; lastPt = i++) {
@@ -127,7 +134,8 @@ GrEffectRef* GrConvexPolyEffect::Create(EdgeType type, const SkPath& path) {
                 edges[3 * n] = -v.fY;
                 edges[3 * n + 1] = v.fX;
             }
-            edges[3 * n + 2] = -(edges[3 * n] * pts[i].fX + edges[3 * n + 1] * pts[i].fY);
+            SkPoint p = pts[i] + t;
+            edges[3 * n + 2] = -(edges[3 * n] * p.fX + edges[3 * n + 1] * p.fY);
             ++n;
         }
     }

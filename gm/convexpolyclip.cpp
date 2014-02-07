@@ -83,7 +83,12 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(435, 540);
+        // When benchmarking the saveLayer set of draws is skipped.
+        int w = 435;
+        if (kBench_Mode != this->getMode()) {
+            w *= 2;
+        }
+        return make_isize(w, 540);
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
@@ -140,47 +145,70 @@ protected:
                                         SkIntToScalar(size.fHeight));
         canvas->drawBitmapRectToRect(fBmp, NULL, dstRect, &bgPaint);
 
-        for (SkTLList<Clip>::Iter iter(fClips, SkTLList<Clip>::Iter::kHead_IterStart);
-             NULL != iter.get();
-             iter.next()) {
-            const Clip* clip = iter.get();
-            SkScalar x = 0;
-            for (int aa = 0; aa < 2; ++aa) {
-                canvas->save();
-                canvas->translate(x, y);
-                clip->setOnCanvas(canvas, SkRegion::kIntersect_Op, SkToBool(aa));
-                canvas->drawBitmap(fBmp, 0, 0);
-                canvas->restore();
-                x += fBmp.width() + kMargin;
+        static const char kTxt[] = "Clip Me!";
+        SkPaint txtPaint;
+        txtPaint.setTextSize(23.f);
+        txtPaint.setAntiAlias(true);
+        txtPaint.setColor(SK_ColorDKGRAY);
+        SkScalar textW = txtPaint.measureText(kTxt, SK_ARRAY_COUNT(kTxt)-1);
+
+        SkScalar startX = 0;
+        int testLayers = kBench_Mode != this->getMode();
+        for (int doLayer = 0; doLayer <= testLayers; ++doLayer) {
+            for (SkTLList<Clip>::Iter iter(fClips, SkTLList<Clip>::Iter::kHead_IterStart);
+                 NULL != iter.get();
+                 iter.next()) {
+                const Clip* clip = iter.get();
+                SkScalar x = startX;
+                for (int aa = 0; aa < 2; ++aa) {
+                    if (doLayer) {
+                        SkRect bounds;
+                        clip->getBounds(&bounds);
+                        bounds.outset(2, 2);
+                        bounds.offset(x, y);
+                        canvas->saveLayer(&bounds, NULL);
+                    } else {
+                        canvas->save();
+                    }
+                    canvas->translate(x, y);
+                    clip->setOnCanvas(canvas, SkRegion::kIntersect_Op, SkToBool(aa));
+                    canvas->drawBitmap(fBmp, 0, 0);
+                    canvas->restore();
+                    x += fBmp.width() + kMargin;
+                }
+                for (int aa = 0; aa < 2; ++aa) {
+
+                    SkPaint clipOutlinePaint;
+                    clipOutlinePaint.setAntiAlias(true);
+                    clipOutlinePaint.setColor(0x50505050);
+                    clipOutlinePaint.setStyle(SkPaint::kStroke_Style);
+                    clipOutlinePaint.setStrokeWidth(0);
+
+                    if (doLayer) {
+                        SkRect bounds;
+                        clip->getBounds(&bounds);
+                        bounds.outset(2, 2);
+                        bounds.offset(x, y);
+                        canvas->saveLayer(&bounds, NULL);
+                    } else {
+                        canvas->save();
+                    }
+                    canvas->translate(x, y);
+                    SkPath closedClipPath;
+                    clip->asClosedPath(&closedClipPath);
+                    canvas->drawPath(closedClipPath, clipOutlinePaint);
+                    clip->setOnCanvas(canvas, SkRegion::kIntersect_Op, SkToBool(aa));
+                    canvas->scale(1.f, 1.8f);
+                    canvas->drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1,
+                                     0, 1.5f * txtPaint.getTextSize(),
+                                     txtPaint);
+                    canvas->restore();
+                    x += textW + 2 * kMargin;
+                }
+                y += fBmp.height() + kMargin;
             }
-            for (int aa = 0; aa < 2; ++aa) {
-                static const char kTxt[] = "Clip Me!";
-                SkPaint txtPaint;
-                txtPaint.setTextSize(23.f);
-                txtPaint.setAntiAlias(true);
-                txtPaint.setColor(SK_ColorDKGRAY);
-
-                SkPaint clipOutlinePaint;
-                clipOutlinePaint.setAntiAlias(true);
-                clipOutlinePaint.setColor(0x50505050);
-                clipOutlinePaint.setStyle(SkPaint::kStroke_Style);
-                clipOutlinePaint.setStrokeWidth(0);
-
-                canvas->save();
-                canvas->translate(x, y);
-                SkPath closedClipPath;
-                clip->asClosedPath(&closedClipPath);
-                canvas->drawPath(closedClipPath, clipOutlinePaint);
-                clip->setOnCanvas(canvas, SkRegion::kIntersect_Op, SkToBool(aa));
-                canvas->scale(1.f, 1.8f);
-                canvas->drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1,
-                                 0, 1.5f * txtPaint.getTextSize(),
-                                 txtPaint);
-                canvas->restore();
-                x += fBmp.width() + kMargin;
-            }
-
-            y += fBmp.height() + kMargin;
+            y = 0;
+            startX += 2 * fBmp.width() + SkScalarCeilToInt(2 * textW) + 6 * kMargin;
         }
     }
 
@@ -241,6 +269,20 @@ private:
         }
 
         ClipType getType() const { return fClipType; }
+
+        void getBounds(SkRect* bounds) const {
+            switch (fClipType) {
+                case kPath_ClipType:
+                    *bounds = fPath.getBounds();
+                    break;
+                case kRect_ClipType:
+                    *bounds = fRect;
+                    break;
+                case kNone_ClipType:
+                    SkDEBUGFAIL("Uninitialized Clip.");
+                    break;
+            }
+        }
 
     private:
         ClipType fClipType;
