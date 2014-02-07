@@ -227,6 +227,8 @@ GrGLRenderer GrGLGetRendererFromString(const char* rendererString) {
     if (NULL != rendererString) {
         if (0 == strcmp(rendererString, "NVIDIA Tegra 3")) {
             return kTegra3_GrGLRenderer;
+        } else if (0 == strcmp(rendererString, "NVIDIA Tegra")) {
+            return kTegra2_GrGLRenderer;
         }
     }
     return kOther_GrGLRenderer;

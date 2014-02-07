@@ -75,6 +75,10 @@ void GrGLConvexPolyEffect::emitCode(GrGLShaderBuilder* builder,
         }
     }
 
+    // Woe is me. See skbug.com/2149.
+    if (kTegra2_GrGLRenderer == builder->ctxInfo().renderer()) {
+        builder->fsCodeAppend("\t\tif (-1.0 == alpha) {\n\t\t\tdiscard;\n\t\t}\n");
+    }
     builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }

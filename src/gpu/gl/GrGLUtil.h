@@ -31,6 +31,7 @@ enum GrGLVendor {
 };
 
 enum GrGLRenderer {
+    kTegra2_GrGLRenderer,
     kTegra3_GrGLRenderer,
 
     kOther_GrGLRenderer
