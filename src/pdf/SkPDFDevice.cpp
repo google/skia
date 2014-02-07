@@ -232,15 +232,14 @@ GraphicStateEntry::GraphicStateEntry() : fColor(SK_ColorBLACK),
     fMatrix.reset();
 }
 
-bool GraphicStateEntry::compareInitialState(const GraphicStateEntry& b) {
-    return fColor == b.fColor &&
-           fShaderIndex == b.fShaderIndex &&
-           fGraphicStateIndex == b.fGraphicStateIndex &&
-           fMatrix == b.fMatrix &&
-           fClipStack == b.fClipStack &&
-               (fTextScaleX == 0 ||
-                b.fTextScaleX == 0 ||
-                (fTextScaleX == b.fTextScaleX && fTextFill == b.fTextFill));
+bool GraphicStateEntry::compareInitialState(const GraphicStateEntry& cur) {
+    return fColor == cur.fColor &&
+           fShaderIndex == cur.fShaderIndex &&
+           fGraphicStateIndex == cur.fGraphicStateIndex &&
+           fMatrix == cur.fMatrix &&
+           fClipStack == cur.fClipStack &&
+           (fTextScaleX == 0 ||
+               (fTextScaleX == cur.fTextScaleX && fTextFill == cur.fTextFill));
 }
 
 class GraphicStackState {
