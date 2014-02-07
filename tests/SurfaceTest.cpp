@@ -60,7 +60,7 @@ static void test_image(skiatest::Reporter* reporter) {
     size_t size = info.getSafeSize(rowBytes);
     void* addr = sk_malloc_throw(size);
     SkData* data = SkData::NewFromMalloc(addr, size);
-
+    
     REPORTER_ASSERT(reporter, 1 == data->getRefCnt());
     SkImage* image = SkImage::NewRasterData(info, data, rowBytes);
     REPORTER_ASSERT(reporter, 2 == data->getRefCnt());
@@ -124,7 +124,7 @@ static void test_imagepeek(skiatest::Reporter* reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         SkImageInfo info;
         size_t rowBytes;
-
+        
         SkAutoTUnref<SkImage> image(createImage(gRec[i].fType, NULL, color));
         if (!image.get()) {
             continue;   // gpu may not be enabled

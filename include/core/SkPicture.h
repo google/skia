@@ -68,16 +68,6 @@ public:
     static SkPicture* CreateFromStream(SkStream*,
                                        InstallPixelRefProc proc = &SkImageDecoder::DecodeMemory);
 
-    /**
-     *  Recreate a picture that was serialized into a buffer. If the creation requires bitmap
-     *  decoding, the decoder must be set on the SkReadBuffer parameter by calling
-     *  SkReadBuffer::setBitmapDecoder() before calling SkPicture::CreateFromBuffer().
-     *  @param SkReadBuffer Serialized picture data.
-     *  @return A new SkPicture representing the serialized data, or NULL if the buffer is
-     *          invalid.
-     */
-    static SkPicture* CreateFromBuffer(SkReadBuffer&);
-
     virtual ~SkPicture();
 
     /**
@@ -197,11 +187,6 @@ public:
     void serialize(SkWStream*, EncodeBitmap encoder = NULL) const;
 
     /**
-     *  Serialize to a buffer.
-     */
-    void flatten(SkWriteBuffer&) const;
-
-    /**
      * Returns true if any bitmaps may be produced when this SkPicture
      * is replayed.
      * Returns false if called while still recording.
@@ -238,8 +223,7 @@ protected:
     // V17: SkPixelRef now writes SkImageInfo
     // V18: SkBitmap now records x,y for its pixelref origin, instead of offset.
     // V19: encode matrices and regions into the ops stream
-    // V20: added bool to SkPictureImageFilter's serialization (to allow SkPicture serialization)
-    static const uint32_t PICTURE_VERSION = 20;
+    static const uint32_t PICTURE_VERSION = 19;
 
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived
@@ -261,10 +245,7 @@ protected:
     // will be ready to be parsed to create an SkPicturePlayback.
     // If false is returned, SkPictInfo is unmodified.
     static bool StreamIsSKP(SkStream*, SkPictInfo*);
-    static bool BufferIsSKP(SkReadBuffer&, SkPictInfo*);
 private:
-    void createHeader(void* header) const;
-
     friend class SkFlatPicture;
     friend class SkPicturePlayback;
 

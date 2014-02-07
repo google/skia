@@ -85,7 +85,7 @@ public:
      *  ignored.
      */
     const void* peekPixels(SkImageInfo* info, size_t* rowBytes) const;
-
+    
     /**
      *  Encode the image's pixels and return the result as a new SkData, which
      *  the caller must manage (i.e. call unref() when they are done).

@@ -55,7 +55,7 @@ bool SkImage::readPixels(SkBitmap* bitmap, const SkIRect* subset) const {
     if (NULL == bitmap) {
         return false;
     }
-
+    
     SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
 
     // trim against the bitmap, if its already been allocated
@@ -126,7 +126,7 @@ bool SkImage_Base::onReadPixels(SkBitmap* bitmap, const SkIRect& subset) const {
     srcR.set(subset);
     dstR = srcR;
     dstR.offset(-dstR.left(), -dstR.top());
-
+    
     SkCanvas canvas(*bitmap);
 
     SkPaint paint;
@@ -136,3 +136,4 @@ bool SkImage_Base::onReadPixels(SkBitmap* bitmap, const SkIRect& subset) const {
     const_cast<SkImage_Base*>(this)->onDrawRectToRect(&canvas, &srcR, dstR, NULL);
     return true;
 }
+
