@@ -11,8 +11,13 @@ for various unittests within this directory.
 """
 
 import os
-import subprocess
+import sys
 import unittest
+
+# Set the PYTHONPATH to include the tools directory.
+sys.path.append(
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir))
+import find_run_binary
 
 
 class TestCase(unittest.TestCase):
@@ -34,13 +39,7 @@ class TestCase(unittest.TestCase):
     Raises:
       Exception: the program exited with a nonzero return code.
     """
-    proc = subprocess.Popen(args,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
-    (stdout, stderr) = proc.communicate()
-    if proc.returncode is not 0:
-      raise Exception('command "%s" failed: %s' % (args, stderr))
-    return stdout
+    return find_run_binary.run_command(args)
 
   def find_path_to_program(self, program):
     """Returns path to an existing program binary.
@@ -54,19 +53,7 @@ class TestCase(unittest.TestCase):
     Raises:
       Exception: unable to find the program binary.
     """
-    trunk_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                              os.pardir, os.pardir))
-    possible_paths = [os.path.join(trunk_path, 'out', 'Release', program),
-                      os.path.join(trunk_path, 'out', 'Debug', program),
-                      os.path.join(trunk_path, 'out', 'Release',
-                                   program + '.exe'),
-                      os.path.join(trunk_path, 'out', 'Debug',
-                                   program + '.exe')]
-    for try_path in possible_paths:
-      if os.path.isfile(try_path):
-        return try_path
-    raise Exception('cannot find %s in paths %s; maybe you need to '
-                    'build %s?' % (program, possible_paths, program))
+    return find_run_binary.find_path_to_program(program)
 
 
 def main(test_case_class):
