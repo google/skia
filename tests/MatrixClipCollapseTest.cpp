@@ -20,7 +20,7 @@
 // Structure methods only directly emit save and restores but call the
 // ModelClip and Body helper methods to fill in the structure. Since they only
 // emit saves and restores the operations emitted by the structure methods will
-// be completely removed by the matrix/clip collapse. Note: every save in 
+// be completely removed by the matrix/clip collapse. Note: every save in
 // a structure method is followed by a call to a ModelClip helper.
 //
 // Body methods only directly emit draw ops and saveLayer/restore pairs but call
@@ -30,7 +30,7 @@
 // followed by a call to a ModelClip helper.
 //
 // The ModelClip methods output matrix and clip ops in various orders and
-// combinations. They contribute to the expected result by outputting the 
+// combinations. They contribute to the expected result by outputting the
 // expected matrix & clip ops. Note that, currently, the entire clip stack
 // is output for each MC state so the clip operations accumulate down the
 // save/restore stack.
@@ -41,7 +41,7 @@
 //        operations' offsets point to the correct follow-on operations. This
 //        could be difficult since there is no good way to communicate the
 //        offset stored in the SkPicture to the debugger's clip objects
-//   add comparison of rendered before & after images? 
+//   add comparison of rendered before & after images?
 //      - not sure if this would be useful since it somewhat duplicates the
 //        correctness test of running render_pictures in record mode and
 //        rendering before and after images. Additionally the matrix/clip collapse
@@ -131,14 +131,14 @@ enum DrawOpType {
 
 static const int kDrawOpTypeCount = kLast_DrawOpType + 1;
 
-typedef void (*PFEmitMC)(SkCanvas* canvas, MatType mat, ClipType clip, 
-                         DrawOpType draw, SkTDArray<DrawType>* expected, 
+typedef void (*PFEmitMC)(SkCanvas* canvas, MatType mat, ClipType clip,
+                         DrawOpType draw, SkTDArray<DrawType>* expected,
                          int accumulatedClips);
-typedef void (*PFEmitBody)(SkCanvas* canvas, PFEmitMC emitMC, MatType mat, 
-                           ClipType clip, DrawOpType draw, 
+typedef void (*PFEmitBody)(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
+                           ClipType clip, DrawOpType draw,
                            SkTDArray<DrawType>* expected, int accumulatedClips);
-typedef void (*PFEmitStruct)(SkCanvas* canvas, PFEmitMC emitMC, MatType mat, 
-                             ClipType clip, PFEmitBody emitBody, DrawOpType draw, 
+typedef void (*PFEmitStruct)(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
+                             ClipType clip, PFEmitBody emitBody, DrawOpType draw,
                              SkTDArray<DrawType>* expected);
 
 //////////////////////////////////////////////////////////////////////////////
@@ -261,7 +261,7 @@ static void add_mat(MatType mat, SkTDArray<DrawType>* expected) {
     case kSkew_MatType:         // fall thru
     case kRotate_MatType:       // fall thru
     case kConcat_MatType:       // fall thru
-    case kSetMatrix_MatType:    
+    case kSetMatrix_MatType:
         // TODO: this system currently converts a setMatrix to concat. If we wanted to
         // really preserve the setMatrix semantics we should keep it a setMatrix. I'm
         // not sure if this is a good idea though since this would keep things like pinch
@@ -271,7 +271,7 @@ static void add_mat(MatType mat, SkTDArray<DrawType>* expected) {
     default:
         SkASSERT(0);
     }
-} 
+}
 
 static void emit_draw(SkCanvas* canvas, DrawOpType draw, SkTDArray<DrawType>* expected) {
     switch (draw) {
@@ -315,8 +315,8 @@ static void emit_draw(SkCanvas* canvas, DrawOpType draw, SkTDArray<DrawType>* ex
 //  clip
 //  matrix
 // Simple case - the clip isn't effect by the matrix
-static void emit_clip_and_mat(SkCanvas* canvas, MatType mat, ClipType clip, 
-                              DrawOpType draw, SkTDArray<DrawType>* expected, 
+static void emit_clip_and_mat(SkCanvas* canvas, MatType mat, ClipType clip,
+                              DrawOpType draw, SkTDArray<DrawType>* expected,
                               int accumulatedClips) {
     if (kNone_DrawOpType == draw) {
         return;
@@ -336,8 +336,8 @@ static void emit_clip_and_mat(SkCanvas* canvas, MatType mat, ClipType clip,
 //  clip
 // Emitting the matrix first is more challenging since the matrix has to be
 // pushed across (i.e., applied to) the clip.
-static void emit_mat_and_clip(SkCanvas* canvas, MatType mat, ClipType clip, 
-                              DrawOpType draw, SkTDArray<DrawType>* expected, 
+static void emit_mat_and_clip(SkCanvas* canvas, MatType mat, ClipType clip,
+                              DrawOpType draw, SkTDArray<DrawType>* expected,
                               int accumulatedClips) {
     if (kNone_DrawOpType == draw) {
         return;
@@ -359,8 +359,8 @@ static void emit_mat_and_clip(SkCanvas* canvas, MatType mat, ClipType clip,
 //  matrix
 //  clip
 // This tests that the matrices and clips coalesce when collapsed
-static void emit_double_mat_and_clip(SkCanvas* canvas, MatType mat, ClipType clip, 
-                                     DrawOpType draw, SkTDArray<DrawType>* expected, 
+static void emit_double_mat_and_clip(SkCanvas* canvas, MatType mat, ClipType clip,
+                                     DrawOpType draw, SkTDArray<DrawType>* expected,
                                      int accumulatedClips) {
     if (kNone_DrawOpType == draw) {
         return;
@@ -390,7 +390,7 @@ static void emit_mat_clip_clip(SkCanvas* canvas, MatType mat, ClipType clip,
     if (kNone_DrawOpType == draw) {
         return;
     }
-    
+
     emit_mat(canvas, mat);
     emit_clip(canvas, clip);
     emit_clip(canvas, clip);
@@ -407,10 +407,10 @@ static void emit_mat_clip_clip(SkCanvas* canvas, MatType mat, ClipType clip,
 // Emit:
 //  matrix & clip calls
 //  draw op
-static void emit_body0(SkCanvas* canvas, PFEmitMC emitMC, MatType mat, 
+static void emit_body0(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
                        ClipType clip, DrawOpType draw,
                        SkTDArray<DrawType>* expected, int accumulatedClips) {
-    bool needsSaveRestore = kNone_DrawOpType != draw && 
+    bool needsSaveRestore = kNone_DrawOpType != draw &&
                             (kNone_MatType != mat || kNone_ClipType != clip);
 
     if (needsSaveRestore) {
@@ -428,10 +428,10 @@ static void emit_body0(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
 //  draw op
 //  matrix & clip calls
 //  draw op
-static void emit_body1(SkCanvas* canvas, PFEmitMC emitMC, MatType mat, 
+static void emit_body1(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
                        ClipType clip, DrawOpType draw,
                        SkTDArray<DrawType>* expected, int accumulatedClips) {
-    bool needsSaveRestore = kNone_DrawOpType != draw && 
+    bool needsSaveRestore = kNone_DrawOpType != draw &&
                             (kNone_MatType != mat || kNone_ClipType != clip);
 
     if (needsSaveRestore) {
@@ -456,10 +456,10 @@ static void emit_body1(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
 //      matrix & clip calls
 //      draw op
 //  Restore
-static void emit_body2(SkCanvas* canvas, PFEmitMC emitMC, MatType mat, 
+static void emit_body2(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
                        ClipType clip, DrawOpType draw,
                        SkTDArray<DrawType>* expected, int accumulatedClips) {
-    bool needsSaveRestore = kNone_DrawOpType != draw && 
+    bool needsSaveRestore = kNone_DrawOpType != draw &&
                             (kNone_MatType != mat || kNone_ClipType != clip);
 
     if (needsSaveRestore) {
@@ -492,13 +492,13 @@ static void emit_body2(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
 //      Restore
 //      matrix & clip calls (will be ignored)
 //  Restore
-static void emit_body3(SkCanvas* canvas, PFEmitMC emitMC, MatType mat, 
+static void emit_body3(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
                        ClipType clip, DrawOpType draw,
                        SkTDArray<DrawType>* expected, int accumulatedClips) {
-    bool needsSaveRestore = kNone_DrawOpType != draw && 
+    bool needsSaveRestore = kNone_DrawOpType != draw &&
                             (kNone_MatType != mat || kNone_ClipType != clip);
 
-    // This saveLayer will always be forced b.c. we currently can't tell 
+    // This saveLayer will always be forced b.c. we currently can't tell
     // ahead of time if it will be empty (see comment in SkMatrixClipStateMgr::save)
     *expected->append() = SAVE_LAYER;
 
@@ -536,7 +536,7 @@ static void emit_body3(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
 //      some body
 //  Restore
 // Note: the outer save/restore are provided by beginRecording/endRecording
-static void emit_struct0(SkCanvas* canvas, 
+static void emit_struct0(SkCanvas* canvas,
                          PFEmitMC emitMC, MatType mat, ClipType clip,
                          PFEmitBody emitBody, DrawOpType draw,
                          SkTDArray<DrawType>* expected) {
@@ -552,7 +552,7 @@ static void emit_struct0(SkCanvas* canvas,
 //      matrix & clip calls (will be ignored)
 //  Restore
 // Note: the outer save/restore are provided by beginRecording/endRecording
-static void emit_struct1(SkCanvas* canvas, 
+static void emit_struct1(SkCanvas* canvas,
                          PFEmitMC emitMC, MatType mat, ClipType clip,
                          PFEmitBody emitBody, DrawOpType draw,
                          SkTDArray<DrawType>* expected) {
@@ -575,7 +575,7 @@ static void emit_struct1(SkCanvas* canvas,
 //      matrix & clip calls (will be ignored)
 //  Restore
 // Note: the outer save/restore are provided by beginRecording/endRecording
-static void emit_struct2(SkCanvas* canvas, 
+static void emit_struct2(SkCanvas* canvas,
                          PFEmitMC emitMC, MatType mat, ClipType clip,
                          PFEmitBody emitBody, DrawOpType draw,
                          SkTDArray<DrawType>* expected) {
@@ -604,7 +604,7 @@ static void emit_struct2(SkCanvas* canvas,
 //      matrix & clip calls (will be ignored)
 //  Restore
 // Note: the outer save/restore are provided by beginRecording/endRecording
-static void emit_struct3(SkCanvas* canvas, 
+static void emit_struct3(SkCanvas* canvas,
                          PFEmitMC emitMC, MatType mat, ClipType clip,
                          PFEmitBody emitBody, DrawOpType draw,
                          SkTDArray<DrawType>* expected) {
@@ -649,7 +649,7 @@ static void print(const SkTDArray<DrawType>& expected, const SkTDArray<DrawType>
 static void test_collapse(skiatest::Reporter* reporter) {
     PFEmitStruct gStructure[] = { emit_struct0, emit_struct1, emit_struct2, emit_struct3 };
     PFEmitBody gBody[] = { emit_body0, emit_body1, emit_body2, emit_body3 };
-    PFEmitMC gMCs[] = { emit_clip_and_mat, emit_mat_and_clip, 
+    PFEmitMC gMCs[] = { emit_clip_and_mat, emit_mat_and_clip,
                         emit_double_mat_and_clip, emit_mat_clip_clip };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gStructure); ++i) {
@@ -672,12 +672,12 @@ static void test_collapse(skiatest::Reporter* reporter) {
 
                             // Note: beginRecording/endRecording add a save/restore pair
                             SkCanvas* canvas = picture.beginRecording(100, 100);
-                            (*gStructure[i])(canvas, 
-                                             gMCs[k], 
+                            (*gStructure[i])(canvas,
+                                             gMCs[k],
                                              (MatType) l,
                                              (ClipType) m,
-                                             gBody[j], 
-                                             (DrawOpType) n, 
+                                             gBody[j],
+                                             (DrawOpType) n,
                                              &expected);
                             picture.endRecording();
 

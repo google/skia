@@ -19,7 +19,7 @@ public:
         kG_Scale    = 6,
         kB_Scale    = 12,
         kA_Scale    = 18,
-        
+
         kR_Trans    = 4,
         kG_Trans    = 9,
         kB_Trans    = 14,

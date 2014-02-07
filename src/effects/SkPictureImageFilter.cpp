@@ -34,13 +34,27 @@ SkPictureImageFilter::~SkPictureImageFilter() {
 SkPictureImageFilter::SkPictureImageFilter(SkReadBuffer& buffer)
   : INHERITED(0, buffer),
     fPicture(NULL) {
-    // FIXME: unflatten picture here.
+#ifdef SK_ALLOW_PICTUREIMAGEFILTER_SERIALIZATION
+    if (buffer.readBool()) {
+        fPicture = SkPicture::CreateFromBuffer(buffer);
+    }
+#else
+    buffer.readBool();
+#endif
     buffer.readRect(&fRect);
 }
 
 void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    // FIXME: flatten picture here.
+#ifdef SK_ALLOW_PICTUREIMAGEFILTER_SERIALIZATION
+    bool hasPicture = (fPicture != NULL);
+    buffer.writeBool(hasPicture);
+    if (hasPicture) {
+        fPicture->flatten(buffer);
+    }
+#else
+    buffer.writeBool(false);
+#endif
     buffer.writeRect(fRect);
 }
 
