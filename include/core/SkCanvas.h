@@ -18,8 +18,6 @@
 #include "SkRegion.h"
 #include "SkXfermode.h"
 
-//#define SK_SUPPORT_LEGACY_CANVAS_CREATECOMPATIBLEDEVICE
-
 class SkBounder;
 class SkBaseDevice;
 class SkDraw;
@@ -112,16 +110,6 @@ public:
      *        sometimes.
      */
     SkBaseDevice* getTopDevice(bool updateMatrixClip = false) const;
-
-#ifdef SK_SUPPORT_LEGACY_CANVAS_CREATECOMPATIBLEDEVICE
-    /**
-     *  Shortcut for getDevice()->createCompatibleDevice(...).
-     *  If getDevice() == NULL, this method does nothing, and returns NULL.
-     */
-    SkBaseDevice* createCompatibleDevice(SkBitmap::Config config,
-                                         int width, int height,
-                                         bool isOpaque);
-#endif
 
     /**
      *  Create a new surface matching the specified info, one that attempts to

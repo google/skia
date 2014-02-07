@@ -851,14 +851,6 @@ static SkBaseDevice* createCompatibleDevice(SkCanvas* canvas,
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_CANVAS_CREATECOMPATIBLEDEVICE
-SkBaseDevice* SkCanvas::createCompatibleDevice(SkBitmap::Config config,
-                                               int width, int height,
-                                               bool isOpaque) {
-    return createCompatibleDevice(this, config, width, height, isOpaque);
-}
-#endif
-
 int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
                                 SaveFlags flags, bool justForImageFilter) {
     // do this before we create the layer. We don't call the public save() since
