@@ -64,12 +64,14 @@ public:
     explicit SkPicturePlayback(const SkPictureRecord& record, bool deepCopy = false);
     static SkPicturePlayback* CreateFromStream(SkStream*, const SkPictInfo&,
                                                SkPicture::InstallPixelRefProc);
+    static SkPicturePlayback* CreateFromBuffer(SkReadBuffer&);
 
     virtual ~SkPicturePlayback();
 
     void draw(SkCanvas& canvas, SkDrawPictureCallback*);
 
     void serialize(SkWStream*, SkPicture::EncodeBitmap) const;
+    void flatten(SkWriteBuffer&) const;
 
     void dumpSize() const;
 
@@ -84,6 +86,7 @@ public:
 protected:
     bool parseStream(SkStream*, const SkPictInfo&,
                      SkPicture::InstallPixelRefProc);
+    bool parseBuffer(SkReadBuffer& buffer);
 #ifdef SK_DEVELOPER
     virtual bool preDraw(int opIndex, int type);
     virtual void postDraw(int opIndex);
