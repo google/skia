@@ -297,7 +297,7 @@ bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
 bool SkPicture::BufferIsSKP(SkReadBuffer& buffer, SkPictInfo* pInfo) {
     // Check magic bytes.
     char magic[sizeof(kMagic)];
-    
+
     if (!buffer.readByteArray(magic, sizeof(kMagic)) ||
         (0 != memcmp(magic, kMagic, sizeof(kMagic)))) {
         return false;
