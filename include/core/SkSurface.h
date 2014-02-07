@@ -16,8 +16,6 @@ class SkPaint;
 class GrContext;
 class GrRenderTarget;
 
-//#define SK_SUPPORT_LEGACY_NEWRENDERTARGETDIRECT
-
 /**
  *  SkSurface represents the backend/results of drawing to a canvas. For raster
  *  drawing, the surface will be pixels, but (for example) when drawing into
@@ -71,14 +69,6 @@ public:
      *  Return a new surface using the specified render target.
      */
     static SkSurface* NewRenderTargetDirect(GrRenderTarget*);
-
-#ifdef SK_SUPPORT_LEGACY_NEWRENDERTARGETDIRECT
-    /**
-     *  DEPRECATED -- call the single argument version (just rendertarget)
-     *  Return a new surface using the specified render target.
-     */
-    static SkSurface* NewRenderTargetDirect(GrContext*, GrRenderTarget*);
-#endif
 
     /**
      *  Return a new surface whose contents will be drawn to an offscreen

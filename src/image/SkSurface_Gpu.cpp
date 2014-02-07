@@ -109,14 +109,6 @@ SkSurface* SkSurface::NewRenderTargetDirect(GrRenderTarget* target) {
     return SkNEW_ARGS(SkSurface_Gpu, (target));
 }
 
-#ifdef SK_SUPPORT_LEGACY_NEWRENDERTARGETDIRECT
-SkSurface* SkSurface::NewRenderTargetDirect(GrContext* ctx,
-                                            GrRenderTarget* target) {
-    SkASSERT(target->getContext() == ctx);
-    return SkSurface::NewRenderTargetDirect(target);
-}
-#endif
-
 SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImageInfo& info, int sampleCount) {
     if (NULL == ctx) {
         return NULL;
