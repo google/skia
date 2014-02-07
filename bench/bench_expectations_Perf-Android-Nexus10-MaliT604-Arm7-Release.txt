@@ -373,7 +373,7 @@ tabl_cuteoverload.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Ne
 tabl_deviantart.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,48.63,23.90,73.36
 tabl_digg.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,26.28,6.02,46.54
 tabl_engadget.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,26.87,6.50,47.24
-tabl_frantzen.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,57.3,30.84,122.56
+tabl_frantzen.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,57.3,30.84,224.42
 tabl_gamedeksiam.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,32.52,11.02,54.02
 tabl_gmail.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,5.71,-10.43,21.85
 tabl_googleblog.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,18.57,-0.14,37.28
