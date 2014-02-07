@@ -174,7 +174,9 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
         if (effect) {
             are->set(fGpu->drawState());
             fGpu->drawState()->addCoverageEffect(effect);
-            fGpu->disableScissor();
+            SkIRect scissorSpaceIBounds(clipSpaceIBounds);
+            scissorSpaceIBounds.offset(-clipDataIn->fOrigin);
+            fGpu->enableScissor(scissorSpaceIBounds);
             this->setGpuStencil();
             return true;
         }
