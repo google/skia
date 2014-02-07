@@ -185,7 +185,7 @@ tabl_cuteoverload.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-
 tabl_deviantart.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.72,-13.62,17.06
 tabl_digg.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2,-13.40,17.40
 tabl_engadget.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.67,-13.66,17.00
-tabl_frantzen.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.77,-11.98,19.52
+tabl_frantzen.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.77,-11.98,35.53
 tabl_gamedeksiam.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.71,-12.83,18.25
 tabl_gmail.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.8,-14.36,15.96
 tabl_googleblog.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.12,-14.10,16.34
@@ -219,7 +219,7 @@ desk_gmailthread.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI57
 desk_googlehome.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.05,-12.56,18.66
 desk_googleplus.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,6.59,-9.73,22.91
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,29.14,8.31,49.97
-desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,54.43,28.54,80.32
+desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,54.43,14.21,80.32
 desk_gws.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.54,-12.97,18.05
 desk_linkedin.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,4.71,-11.23,20.65
 desk_mapsvg.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,36.42,14.14,58.70
@@ -311,7 +311,7 @@ tabl_cuteoverload.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-S
 tabl_deviantart.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,4.09,-11.73,19.91
 tabl_digg.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.44,-12.25,19.13
 tabl_engadget.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.41,-13.07,17.89
-tabl_frantzen.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,5.2,-10.84,21.24
+tabl_frantzen.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,5.2,-10.84,38.27
 tabl_gamedeksiam.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,4.88,-11.10,20.86
 tabl_gmail.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.79,-14.37,15.95
 tabl_googleblog.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.57,-13.74,16.88
@@ -341,7 +341,7 @@ desk_css3gradients.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubunt
 desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.54,-12.97,18.05
 desk_espn.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,12.83,-4.74,30.40
 desk_facebook.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,8.73,-8.02,25.48
-desk_gmailthread.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.12,-13.30,17.54
+desk_gmailthread.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.12,-13.30,26.42
 desk_googlehome.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.48,-12.22,19.18
 desk_googleplus.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,5.28,-10.78,21.34
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,30.66,9.53,51.79
