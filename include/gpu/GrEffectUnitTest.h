@@ -67,7 +67,7 @@ private:
  */
 #define GR_DECLARE_EFFECT_TEST                                                      \
     static GrEffectTestFactory gTestFactory;                                        \
-    static GrEffectRef* TestCreate(SkRandom*,                                    \
+    static GrEffectRef* TestCreate(SkRandom*,                                       \
                                    GrContext*,                                      \
                                    const GrDrawTargetCaps&,                         \
                                    GrTexture* dummyTextures[2])
@@ -91,7 +91,7 @@ private:
 // The unit test relies on static initializers. Just declare the TestCreate function so that
 // its definitions will compile.
 #define GR_DECLARE_EFFECT_TEST                                                      \
-    static GrEffectRef* TestCreate(SkRandom*,                                    \
+    static GrEffectRef* TestCreate(SkRandom*,                                       \
                                    GrContext*,                                      \
                                    const GrDrawTargetCaps&,                         \
                                    GrTexture* dummyTextures[2])

@@ -44,7 +44,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(475, 530);
+        return make_isize(475, 800);
     }
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
@@ -85,6 +85,22 @@ protected:
         scaleM.setScale(1.1f, 0.4f);
         ngon.transform(scaleM);
         fPaths.addToTail(ngon);
+        
+        // integer edges
+        fRects.addToTail(SkRect::MakeLTRB(5.f, 1.f, 30.f, 25.f));
+        // half-integer edges
+        fRects.addToTail(SkRect::MakeLTRB(5.5f, 0.5f, 29.5f, 24.5f));
+        // vertically/horizontally thin rects that cover pixel centers
+        fRects.addToTail(SkRect::MakeLTRB(5.25f, 0.5f, 5.75f, 24.5f));
+        fRects.addToTail(SkRect::MakeLTRB(5.5f,  0.5f, 29.5f, 0.75f));
+        // vertically/horizontally thin rects that don't cover pixel centers
+        fRects.addToTail(SkRect::MakeLTRB(5.55f, 0.5f, 5.75f, 24.5f));
+        fRects.addToTail(SkRect::MakeLTRB(5.5f, .05f, 29.5f, .25f));
+        // small in x and y
+        fRects.addToTail(SkRect::MakeLTRB(5.05f, .55f, 5.45f, .85f));
+        // inverted in x and y
+        fRects.addToTail(SkRect::MakeLTRB(100.f, 50.5f, 5.f, 0.5f));
+
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
@@ -98,11 +114,11 @@ protected:
             return;
         }
 
-        const SkPath* path;
         SkScalar y = 0;
         for (SkTLList<SkPath>::Iter iter(fPaths, SkTLList<SkPath>::Iter::kHead_IterStart);
-             NULL != (path = iter.get());
+             NULL != iter.get();
              iter.next()) {
+            const SkPath* path = iter.get();
             SkScalar x = 0;
 
             for (int et = 0; et < GrConvexPolyEffect::kEdgeTypeCnt; ++et) {
@@ -142,7 +158,7 @@ protected:
                 tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
                 tt.target()->drawIndexed(kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
 
-                x += path->getBounds().width() + 10.f;
+                x += SkScalarCeilToScalar(path->getBounds().width() + 10.f);
             }
 
             // Draw AA and non AA paths using normal API for reference.
@@ -155,18 +171,69 @@ protected:
             canvas->drawPath(*path, paint);
             canvas->restore();
 
-            y += path->getBounds().height() + 20.f;
+            y += SkScalarCeilToScalar(path->getBounds().height() + 20.f);
+        }
+
+        // Draw rects. We only have specialized effect code for the AA case, so don't do non-AA.
+        for (SkTLList<SkRect>::Iter iter(fRects, SkTLList<SkRect>::Iter::kHead_IterStart);
+             NULL != iter.get();
+             iter.next()) {
+
+            SkScalar x = 0;
+
+            GrTestTarget tt;
+            context->getTestTarget(&tt);
+            if (NULL == tt.target()) {
+                SkDEBUGFAIL("Couldn't get Gr test target.");
+                return;
+            }
+
+            SkRect rect = *iter.get();
+            rect.offset(x, y);            
+            SkAutoTUnref<GrEffectRef> effect(GrConvexPolyEffect::CreateForAAFillRect(rect));
+            if (!effect) {
+                SkDEBUGFAIL("Couldn't create convex poly effect.");
+                return;
+            }
+
+            GrDrawState* drawState = tt.target()->drawState();
+            drawState->setVertexAttribs<kAttribs>(SK_ARRAY_COUNT(kAttribs));
+            drawState->addCoverageEffect(effect, 1);
+            drawState->setIdentityViewMatrix();
+            drawState->setRenderTarget(rt);
+            drawState->setColor(0xff000000);
+
+            SkPoint verts[4];
+            SkRect bounds = rect;
+            bounds.outset(5.f, 5.f);
+            bounds.toQuad(verts);
+
+            tt.target()->setVertexSourceToArray(verts, 4);
+            tt.target()->setIndexSourceToBuffer(context->getQuadIndexBuffer());
+            tt.target()->drawIndexed(kTriangleFan_GrPrimitiveType, 0, 0, 4, 6);
+
+            x += SkScalarCeilToScalar(rect.width() + 10.f);
+
+            // Draw AA rect using normal API for reference
+            canvas->save();
+            canvas->translate(x, y);
+            SkPaint paint;
+            paint.setAntiAlias(true);
+            canvas->drawRect(*iter.get(), paint);
+            canvas->restore();
+
+            y += SkScalarCeilToScalar(rect.height() + 20.f);
         }
     }
 
 private:
     SkTLList<SkPath> fPaths;
-
+    SkTLList<SkRect> fRects;
+    
     typedef GM INHERITED;
 };
 
 DEF_GM( return SkNEW(ConvexPolyEffect); )
-
 }
 
 #endif

@@ -62,6 +62,11 @@ public:
      */
     static GrEffectRef* Create(EdgeType, const SkPath&, const SkVector* offset= NULL);
 
+    /**
+     * Creates an effect that fills inside the rect with AA edges..
+     */
+    static GrEffectRef* CreateForAAFillRect(const SkRect&);
+
     virtual ~GrConvexPolyEffect();
 
     static const char* Name() { return "ConvexPoly"; }

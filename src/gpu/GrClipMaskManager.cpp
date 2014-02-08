@@ -156,25 +156,37 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
 
     // If there is only one clip element and it is a convex polygon we just install an effect that
     // clips against the edges.
-    if (1 == elements.count() && SkClipStack::Element::kPath_Type == elements.tail()->getType() &&
-        SkRegion::kReplace_Op == elements.tail()->getOp()) {
-        const SkPath& path = elements.tail()->getPath();
-        bool isAA = GR_AA_CLIP && elements.tail()->isAA();
+    if (1 == elements.count() && SkRegion::kReplace_Op == elements.tail()->getOp()) {
         SkAutoTUnref<GrEffectRef> effect;
-        if (rt->isMultisampled()) {
-            // A coverage effect for AA clipping won't play nicely with MSAA.
-            if (!isAA) {
+        if (SkClipStack::Element::kPath_Type == elements.tail()->getType()) {
+            const SkPath& path = elements.tail()->getPath();
+            bool isAA = GR_AA_CLIP && elements.tail()->isAA();
+            if (rt->isMultisampled()) {
+                // A coverage effect for AA clipping won't play nicely with MSAA.
+                if (!isAA) {
+                    SkVector offset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
+                                        SkIntToScalar(-clipDataIn->fOrigin.fY) };
+                    effect.reset(GrConvexPolyEffect::Create(GrConvexPolyEffect::kFillNoAA_EdgeType,
+                                                            path, &offset));
+                }
+            } else {
                 SkVector offset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
                                     SkIntToScalar(-clipDataIn->fOrigin.fY) };
-                effect.reset(GrConvexPolyEffect::Create(GrConvexPolyEffect::kFillNoAA_EdgeType,
-                                                        path, &offset));
+                GrConvexPolyEffect::EdgeType type = isAA ? GrConvexPolyEffect::kFillAA_EdgeType :
+                                                           GrConvexPolyEffect::kFillNoAA_EdgeType;
+                effect.reset(GrConvexPolyEffect::Create(type, path, &offset));
             }
-        } else {
+        } else if (GR_AA_CLIP && elements.tail()->isAA() && !rt->isMultisampled()) {
+            // We only handle AA/non-MSAA rects here. Coverage effect AA isn't MSAA friendly and
+            // non-AA rect clips are handled by the scissor.
+            SkASSERT(SkClipStack::Element::kRect_Type == elements.tail()->getType());
+            SkRect rect = elements.tail()->getRect();
             SkVector offset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
-                                SkIntToScalar(-clipDataIn->fOrigin.fY) };
-            GrConvexPolyEffect::EdgeType type = isAA ? GrConvexPolyEffect::kFillAA_EdgeType :
-                                                       GrConvexPolyEffect::kFillNoAA_EdgeType;
-            effect.reset(GrConvexPolyEffect::Create(type, path, &offset));
+                SkIntToScalar(-clipDataIn->fOrigin.fY) };
+            rect.offset(offset);
+            effect.reset(GrConvexPolyEffect::CreateForAAFillRect(rect));
+            // This should never fail.
+            SkASSERT(effect);
         }
         if (effect) {
             are->set(fGpu->drawState());
