@@ -85,7 +85,7 @@ protected:
         scaleM.setScale(1.1f, 0.4f);
         ngon.transform(scaleM);
         fPaths.addToTail(ngon);
-        
+
         // integer edges
         fRects.addToTail(SkRect::MakeLTRB(5.f, 1.f, 30.f, 25.f));
         // half-integer edges
@@ -189,7 +189,7 @@ protected:
             }
 
             SkRect rect = *iter.get();
-            rect.offset(x, y);            
+            rect.offset(x, y);
             SkAutoTUnref<GrEffectRef> effect(GrConvexPolyEffect::CreateForAAFillRect(rect));
             if (!effect) {
                 SkDEBUGFAIL("Couldn't create convex poly effect.");
@@ -229,7 +229,7 @@ protected:
 private:
     SkTLList<SkPath> fPaths;
     SkTLList<SkRect> fRects;
-    
+
     typedef GM INHERITED;
 };
 
