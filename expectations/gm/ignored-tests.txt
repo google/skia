@@ -33,15 +33,6 @@
 ## gradtext GM test
 #gradtext
 
-# Added by bsalomon for skbug.com/2051, https://codereview.chromium.org/151523005
-filltypespersp
-# Added by bsalomon for skbug.com/2051, https://codereview.chromium.org/140093004/
-complexclip2_rect_aa
-aaclip
-simpleaaclip_rect
-convex_poly_clip
-convex_poly_effect
-
 # Need to rebaseline all platforms, as the content was changed to remove
 # deprecated calling pattern.
 # https://codereview.chromium.org/154163002/

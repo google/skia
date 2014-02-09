@@ -94,22 +94,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7163810414113793867
+          7668721308322297039
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "aaclip_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11899819492385205974
+          12282367969054372284
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "aaclip_pdf-poppler.png": {
       "allowed-digests": [
@@ -4864,22 +4861,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1665772178289333989
+          579292443719151839
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_rect_aa_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15067374552336670050
+          4772242078776569964
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_rect_aa_pdf-poppler.png": {
       "allowed-digests": [
@@ -7063,7 +7057,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15516850164582258821
+          9828591029983786714
         ]
       ], 
       "reviewed-by-human": true
@@ -7072,7 +7066,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6714918024889195026
+          10209122015276604650
         ]
       ], 
       "reviewed-by-human": true
@@ -13199,22 +13193,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11863949126169208720
+          8616167896215121185
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "simpleaaclip_rect_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8359368558753034701
+          11284455358950344063
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "simpleaaclip_rect_pdf-poppler.png": {
       "allowed-digests": [

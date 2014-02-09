@@ -76,10 +76,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16052023405311819001
+          17132350126866973923
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "aaclip_pdf-poppler.png": {
       "allowed-digests": [
@@ -3696,10 +3696,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2556980473370212110
+          1826665969985068169
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "complexclip2_rect_aa_pdf-poppler.png": {
       "allowed-digests": [
@@ -10048,10 +10048,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9117209864268223130
+          1885848474468864641
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "simpleaaclip_rect_pdf-poppler.png": {
       "allowed-digests": [
