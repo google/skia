@@ -1148,16 +1148,18 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
 
     GrPathRendererChain::DrawType type =
         useCoverageAA ? GrPathRendererChain::kColorAntiAlias_DrawType :
-                           GrPathRendererChain::kColor_DrawType;
+                        GrPathRendererChain::kColor_DrawType;
 
     const SkPath* pathPtr = &path;
     SkTLazy<SkPath> tmpPath;
     SkTCopyOnFirstWrite<SkStrokeRec> stroke(origStroke);
 
     // Try a 1st time without stroking the path and without allowing the SW renderer
-    GrPathRenderer* pr = this->getPathRenderer(*pathPtr, *stroke, target, false, type);
+    GrPathRenderer::AutoClearPath acp(this->getPathRenderer(*pathPtr, *stroke, 
+                                      target, false, type,
+                                      pathPtr->getFillType()));
 
-    if (NULL == pr) {
+    if (NULL == acp.renderer()) {
         if (!GrPathRenderer::IsStrokeHairlineOrEquivalent(*stroke, this->getMatrix(), NULL)) {
             // It didn't work the 1st time, so try again with the stroked path
             if (stroke->applyToPath(tmpPath.init(), *pathPtr)) {
@@ -1170,17 +1172,18 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
         }
 
         // This time, allow SW renderer
-        pr = this->getPathRenderer(*pathPtr, *stroke, target, true, type);
+        acp.set(this->getPathRenderer(*pathPtr, *stroke, target, true, type,
+                                      pathPtr->getFillType()));
     }
 
-    if (NULL == pr) {
+    if (NULL == acp.renderer()) {
 #ifdef SK_DEBUG
         GrPrintf("Unable to find path renderer compatible with path.\n");
 #endif
         return;
     }
 
-    pr->drawPath(*pathPtr, *stroke, target, useCoverageAA);
+    acp->drawPath(*stroke, target, useCoverageAA);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1676,6 +1679,7 @@ GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
                                            const GrDrawTarget* target,
                                            bool allowSW,
                                            GrPathRendererChain::DrawType drawType,
+                                           SkPath::FillType fillType,
                                            GrPathRendererChain::StencilSupport* stencilSupport) {
 
     if (NULL == fPathRendererChain) {
@@ -1686,6 +1690,7 @@ GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
                                                              stroke,
                                                              target,
                                                              drawType,
+                                                             fillType,
                                                              stencilSupport);
 
     if (NULL == pr && allowSW) {
@@ -1693,6 +1698,7 @@ GrPathRenderer* GrContext::getPathRenderer(const SkPath& path,
             fSoftwarePathRenderer = SkNEW_ARGS(GrSoftwarePathRenderer, (this));
         }
         pr = fSoftwarePathRenderer;
+        pr->setPath(path, fillType);
     }
 
     return pr;

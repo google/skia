@@ -826,8 +826,7 @@ bool GrAAHairLinePathRenderer::createBezierGeom(
     return true;
 }
 
-bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
-                                           const SkStrokeRec& stroke,
+bool GrAAHairLinePathRenderer::canDrawPath(const SkStrokeRec& stroke,
                                            const GrDrawTarget* target,
                                            bool antiAlias) const {
     if (!antiAlias) {
@@ -840,7 +839,7 @@ bool GrAAHairLinePathRenderer::canDrawPath(const SkPath& path,
         return false;
     }
 
-    if (SkPath::kLine_SegmentMask == path.getSegmentMasks() ||
+    if (SkPath::kLine_SegmentMask == this->path().getSegmentMasks() ||
         target->caps()->shaderDerivativeSupport()) {
         return true;
     }
@@ -884,8 +883,7 @@ bool check_bounds(GrDrawState* drawState, const SkRect& devBounds, void* vertice
     return true;
 }
 
-bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
-                                          const SkStrokeRec& stroke,
+bool GrAAHairLinePathRenderer::onDrawPath(const SkStrokeRec& stroke,
                                           GrDrawTarget* target,
                                           bool antiAlias) {
     GrDrawState* drawState = target->drawState();
@@ -910,7 +908,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
     PREALLOC_PTARRAY(128) conics;
     IntArray qSubdivs;
     FloatArray cWeights;
-    quadCnt = generate_lines_and_quads(path, drawState->getViewMatrix(), devClipBounds,
+    quadCnt = generate_lines_and_quads(this->path(), drawState->getViewMatrix(), devClipBounds,
                                        &lines, &quads, &conics, &qSubdivs, &cWeights);
     lineCnt = lines.count() / 2;
     conicCnt = conics.count() / 3;
@@ -920,7 +918,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         GrDrawTarget::AutoReleaseGeometry arg;
         SkRect devBounds;
 
-        if (!this->createLineGeom(path,
+        if (!this->createLineGeom(this->path(),
                                   target,
                                   lines,
                                   lineCnt,
@@ -966,7 +964,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
         GrDrawTarget::AutoReleaseGeometry arg;
         SkRect devBounds;
 
-        if (!this->createBezierGeom(path,
+        if (!this->createBezierGeom(this->path(),
                                     target,
                                     quads,
                                     quadCnt,

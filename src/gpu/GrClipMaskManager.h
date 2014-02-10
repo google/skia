@@ -11,6 +11,7 @@
 #include "GrClipMaskCache.h"
 #include "GrContext.h"
 #include "GrDrawState.h"
+#include "GrPathRenderer.h"
 #include "GrReducedClip.h"
 #include "GrStencil.h"
 #include "GrTexture.h"
@@ -130,15 +131,18 @@ private:
 
     bool useSWOnlyPath(const GrReducedClip::ElementList& elements);
 
+    // Draws a filled clip path into the target alpha mask
+    bool drawFilledPath(GrTexture* target, GrPathRenderer* pathRenderer, bool isAA);
+
     // Draws a clip element into the target alpha mask. The caller should have already setup the
-    // desired blend operation. Optionally if the caller already selected a path renderer it can
-    // be passed. Otherwise the function will select one if the element is a path.
-    bool drawElement(GrTexture* target, const SkClipStack::Element*, GrPathRenderer* = NULL);
+    // desired blend operation.
+    bool drawElement(GrTexture* target, const SkClipStack::Element* element);
 
     // Determines whether it is possible to draw the element to both the stencil buffer and the
     // alpha mask simultaneously. If so and the element is a path a compatible path renderer is
     // also returned.
-    bool canStencilAndDrawElement(GrTexture* target, const SkClipStack::Element*, GrPathRenderer**);
+    bool canStencilAndDrawElement(GrTexture* target, const SkClipStack::Element*, 
+                                  GrPathRenderer::AutoClearPath* pr);
 
     void mergeMask(GrTexture* dstMask,
                    GrTexture* srcMask,

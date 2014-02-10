@@ -8,6 +8,7 @@
 #ifndef GrPathRendererChain_DEFINED
 #define GrPathRendererChain_DEFINED
 
+#include "SkPath.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 
@@ -59,6 +60,7 @@ public:
                                     const SkStrokeRec& rec,
                                     const GrDrawTarget* target,
                                     DrawType drawType,
+                                    SkPath::FillType fillType,
                                     StencilSupport* stencilSupport);
 
 private:
