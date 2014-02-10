@@ -195,7 +195,7 @@ private:
 static void test_length_combos(skiatest::Reporter* reporter, size_t bufferSize) {
     for (int hasLen = 0; hasLen <= 1; hasLen++) {
         for (int hasPos = 0; hasPos <= 1; hasPos++) {
-            LengthOptionalStream stream((bool) hasLen, (bool) hasPos);
+            LengthOptionalStream stream(SkToBool(hasLen), SkToBool(hasPos));
             SkAutoTUnref<SkStream> buffered(SkFrontBufferedStream::Create(&stream, bufferSize));
             test_hasLength(reporter, *buffered.get(), stream);
         }
