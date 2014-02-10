@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -18,7 +19,7 @@
 #include "SkMask.h"
 #include "SkMaskGamma.h"
 #include "SkOTUtils.h"
-#include "SkAdvancedTypefaceMetrics.h"
+#include "SkOnce.h"
 #include "SkScalerContext.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -160,17 +161,22 @@ static bool InitFreetype() {
     return true;
 }
 
+// Called while holding gFTMutex.
+static void determine_lcd_support(bool* lcdSupported) {
+    if (!gLCDSupportValid) {
+        // This will determine LCD support as a side effect.
+        InitFreetype();
+        FT_Done_FreeType(gFTLibrary);
+    }
+    SkASSERT(gLCDSupportValid);
+    *lcdSupported = gLCDSupport;
+}
+
 // Lazy, once, wrapper to ask the FreeType Library if it can support LCD text
 static bool is_lcd_supported() {
-    if (!gLCDSupportValid) {
-        SkAutoMutexAcquire  ac(gFTMutex);
-
-        if (!gLCDSupportValid) {
-            InitFreetype();
-            FT_Done_FreeType(gFTLibrary);
-        }
-    }
-    return gLCDSupport;
+    static bool lcdSupported = false;
+    SkOnce(&gLCDSupportValid, &gFTMutex, determine_lcd_support, &lcdSupported);
+    return lcdSupported;
 }
 
 class SkScalerContext_FreeType : public SkScalerContext_FreeType_Base {

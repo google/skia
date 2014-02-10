@@ -40,7 +40,31 @@ struct SkOnceFlag;  // If manually created, initialize with SkOnceFlag once = SK
 template <typename Func, typename Arg>
 inline void SkOnce(SkOnceFlag* once, Func f, Arg arg, void(*atExit)() = NULL);
 
+// If you've already got a lock and a flag to use, this variant lets you avoid an extra SkOnceFlag.
+template <typename Lock, typename Func, typename Arg>
+inline void SkOnce(bool* done, Lock* lock, Func f, Arg arg, void(*atExit)() = NULL);
+
 //  ----------------------  Implementation details below here. -----------------------------
+
+// This is POD and must be zero-initialized.
+struct SkSpinlock {
+    void acquire() {
+        SkASSERT(shouldBeZero == 0);
+        // No memory barrier needed, but sk_atomic_cas gives us at least release anyway.
+        while (!sk_atomic_cas(&thisIsPrivate, 0, 1)) {
+            // spin
+        }
+    }
+
+    void release() {
+        SkASSERT(shouldBeZero == 0);
+        // This requires a release memory barrier before storing, which sk_atomic_cas guarantees.
+        SkAssertResult(sk_atomic_cas(&thisIsPrivate, 1, 0));
+    }
+
+    int32_t thisIsPrivate;
+    SkDEBUGCODE(int32_t shouldBeZero;)
+};
 
 struct SkOnceFlag {
     bool done;
@@ -87,6 +111,16 @@ inline static void acquire_barrier() {
     full_barrier_on_arm();
 }
 
+// Works with SkSpinlock or SkMutex.
+template <typename Lock>
+class SkAutoLockAcquire {
+public:
+    explicit SkAutoLockAcquire(Lock* lock) : fLock(lock) { fLock->acquire(); }
+    ~SkAutoLockAcquire() { fLock->release(); }
+private:
+    Lock* fLock;
+};
+
 // We've pulled a pretty standard double-checked locking implementation apart
 // into its main fast path and a slow path that's called when we suspect the
 // one-time code hasn't run yet.
@@ -94,10 +128,10 @@ inline static void acquire_barrier() {
 // This is the guts of the code, called when we suspect the one-time code hasn't been run yet.
 // This should be rarely called, so we separate it from SkOnce and don't mark it as inline.
 // (We don't mind if this is an actual function call, but odds are it'll be inlined anyway.)
-template <typename Func, typename Arg>
-static void sk_once_slow(SkOnceFlag* once, Func f, Arg arg, void (*atExit)()) {
-    const SkAutoSpinlock lock(&once->lock);
-    if (!once->done) {
+template <typename Lock, typename Func, typename Arg>
+static void sk_once_slow(bool* done, Lock* lock, Func f, Arg arg, void (*atExit)()) {
+    const SkAutoLockAcquire<Lock> locked(lock);
+    if (!*done) {
         f(arg);
         if (atExit != NULL) {
             atexit(atExit);
@@ -112,15 +146,15 @@ static void sk_once_slow(SkOnceFlag* once, Func f, Arg arg, void (*atExit)()) {
         // We'll use this in the fast path to make sure f(arg)'s effects are
         // observable whenever we observe *done == true.
         release_barrier();
-        once->done = true;
+        *done = true;
     }
 }
 
 // This is our fast path, called all the time.  We do really want it to be inlined.
-template <typename Func, typename Arg>
-inline void SkOnce(SkOnceFlag* once, Func f, Arg arg, void(*atExit)()) {
-    if (!SK_ANNOTATE_UNPROTECTED_READ(once->done)) {
-        sk_once_slow(once, f, arg, atExit);
+template <typename Lock, typename Func, typename Arg>
+inline void SkOnce(bool* done, Lock* lock, Func f, Arg arg, void(*atExit)()) {
+    if (!SK_ANNOTATE_UNPROTECTED_READ(*done)) {
+        sk_once_slow(done, lock, f, arg, atExit);
     }
     // Also known as a load-load/load-store barrier, this acquire barrier makes
     // sure that anything we read from memory---in particular, memory written by
@@ -133,6 +167,11 @@ inline void SkOnce(SkOnceFlag* once, Func f, Arg arg, void(*atExit)()) {
     // happens after f(arg), so by syncing to once->done = true here we're
     // forcing ourselves to also wait until the effects of f(arg) are readble.
     acquire_barrier();
+}
+
+template <typename Func, typename Arg>
+inline void SkOnce(SkOnceFlag* once, Func f, Arg arg, void(*atExit)()) {
+    return SkOnce(&once->done, &once->lock, f, arg, atExit);
 }
 
 #undef SK_ANNOTATE_BENIGN_RACE

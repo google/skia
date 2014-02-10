@@ -51,35 +51,6 @@ static void sk_membar_acquire__after_atomic_conditional_inc();
 
 #include SK_ATOMICS_PLATFORM_H
 
-// This is POD and must be zero-initialized.
-struct SkSpinlock {
-    void acquire() {
-        SkASSERT(shouldBeZero == 0);
-        // No memory barrier needed, but sk_atomic_cas gives us at least release anyway.
-        while (!sk_atomic_cas(&thisIsPrivate, 0, 1)) {
-            // spin
-        }
-    }
-
-    void release() {
-        SkASSERT(shouldBeZero == 0);
-        // This requires a release memory barrier before storing, which sk_atomic_cas guarantees.
-        SkAssertResult(sk_atomic_cas(&thisIsPrivate, 1, 0));
-    }
-
-    int32_t thisIsPrivate;
-    SkDEBUGCODE(int32_t shouldBeZero;)
-};
-
-class SkAutoSpinlock : SkNoncopyable {
-public:
-    explicit SkAutoSpinlock(SkSpinlock* lock) : fLock(lock) { fLock->acquire(); }
-    ~SkAutoSpinlock() { fLock->release(); }
-private:
-    SkSpinlock* fLock;
-};
-#define SkAutoSpinlock(...) SK_REQUIRE_LOCAL_VAR(SkAutoSpinlock)
-
 /** SK_MUTEX_PLATFORM_H must provide the following (or equivalent) declarations.
 
 class SkBaseMutex {
