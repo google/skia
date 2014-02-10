@@ -1031,3 +1031,38 @@ DEF_TEST(Picture, reporter) {
     test_clip_expansion(reporter);
     test_hierarchical(reporter);
 }
+
+static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
+    const SkPaint paint;
+    const SkRect rect = { 5.0f, 5.0f, 8.0f, 8.0f };
+    const SkIRect irect =  { 2, 2, 3, 3 };
+
+    // Don't care what these record, as long as they're legal.
+    canvas->drawBitmap(bitmap, 0.0f, 0.0f, &paint);
+    canvas->drawBitmapRectToRect(bitmap, &rect, rect, &paint, SkCanvas::kNone_DrawBitmapRectFlag);
+    canvas->drawBitmapMatrix(bitmap, SkMatrix::I(), &paint);
+    canvas->drawBitmapNine(bitmap, irect, rect, &paint);
+    canvas->drawSprite(bitmap, 1, 1);
+}
+
+static void test_draw_bitmaps(SkCanvas* canvas) {
+    SkBitmap empty;
+    draw_bitmaps(empty, canvas);
+    empty.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
+    draw_bitmaps(empty, canvas);
+}
+
+DEF_TEST(Picture_EmptyBitmap, r) {
+    SkPicture picture;
+    test_draw_bitmaps(picture.beginRecording(10, 10));
+    picture.endRecording();
+}
+
+DEF_TEST(Canvas_EmptyBitmap, r) {
+    SkBitmap dst;
+    dst.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
+    dst.allocPixels();
+    SkCanvas canvas(dst);
+
+    test_draw_bitmaps(&canvas);
+}

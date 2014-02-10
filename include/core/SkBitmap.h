@@ -80,13 +80,19 @@ public:
     void swap(SkBitmap& other);
 
     /** Return true iff the bitmap has empty dimensions.
-    */
+     *  Hey!  Before you use this, see if you really want to know drawsNothing() instead.
+     */
     bool empty() const { return 0 == fWidth || 0 == fHeight; }
 
     /** Return true iff the bitmap has no pixelref. Note: this can return true even if the
-        dimensions of the bitmap are > 0 (see empty()).
-    */
+     *  dimensions of the bitmap are > 0 (see empty()).
+     *  Hey!  Before you use this, see if you really want to know drawsNothing() instead.
+     */
     bool isNull() const { return NULL == fPixelRef; }
+
+    /** Return true iff drawing this bitmap has no effect.
+     */
+    bool drawsNothing() const { return this->empty() || this->isNull(); }
 
     /** Return the config for the bitmap. */
     Config  config() const { return (Config)fConfig; }

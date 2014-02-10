@@ -994,14 +994,9 @@ SkSurface* SkCanvas::onNewSurface(const SkImageInfo& info) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-// can't draw it if its empty, or its too big for a fixed-point width or height
-static bool reject_bitmap(const SkBitmap& bitmap) {
-    return  bitmap.width() <= 0 || bitmap.height() <= 0;
-}
-
 void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap,
                                 const SkMatrix& matrix, const SkPaint* paint) {
-    if (reject_bitmap(bitmap)) {
+    if (bitmap.drawsNothing()) {
         return;
     }
 
@@ -1066,12 +1061,11 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
 
 void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
                           const SkPaint* paint) {
-    SkDEBUGCODE(bitmap.validate();)
-    CHECK_LOCKCOUNT_BALANCE(bitmap);
-
-    if (reject_bitmap(bitmap)) {
+    if (bitmap.drawsNothing()) {
         return;
     }
+    SkDEBUGCODE(bitmap.validate();)
+    CHECK_LOCKCOUNT_BALANCE(bitmap);
 
     SkPaint tmp;
     if (NULL == paint) {
@@ -1565,8 +1559,8 @@ const SkRegion& SkCanvas::getTotalClip() const {
 }
 
 SkBaseDevice* SkCanvas::createLayerDevice(SkBitmap::Config config,
-                                      int width, int height,
-                                      bool isOpaque) {
+                                          int width, int height,
+                                          bool isOpaque) {
     SkBaseDevice* device = this->getTopDevice();
     if (device) {
         return device->createCompatibleDeviceForSaveLayer(config, width, height,
@@ -1786,7 +1780,7 @@ void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
 void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src,
                                       const SkRect& dst, const SkPaint* paint,
                                       DrawBitmapRectFlags flags) {
-    if (bitmap.width() == 0 || bitmap.height() == 0 || dst.isEmpty()) {
+    if (bitmap.drawsNothing() || dst.isEmpty()) {
         return;
     }
 
@@ -1833,6 +1827,9 @@ void SkCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
 void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
                                       const SkIRect& center, const SkRect& dst,
                                       const SkPaint* paint) {
+    if (bitmap.drawsNothing()) {
+        return;
+    }
     if (NULL == paint || paint->canComputeFastBounds()) {
         SkRect storage;
         const SkRect* bounds = &dst;
