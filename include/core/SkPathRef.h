@@ -104,6 +104,13 @@ public:
 
         void setBounds(const SkRect& rect) { fPathRef->setBounds(rect); }
 
+        // In some cases we need to inject a leading moveTo before we add points
+        // for lineTo, quadTo, conicTo, cubicTo
+        // 
+        // SkPath path; path.lineTo(...);   <--- need a leading moveTo(0, 0)
+        // SkPath path; ... path.close(); path.lineTo(...) <-- need a moveTo(previous moveTo)
+        void injectMoveToIfNeeded() { fPathRef->injectMoveToIfNeeded(); }
+
     private:
         SkPathRef* fPathRef;
     };
@@ -254,6 +261,9 @@ public:
     uint32_t genID() const;
 
 private:
+    // flag to require a moveTo if we begin with something else, like lineTo etc.
+    static const int kINITIAL_LASTMOVETOINDEX_VALUE = ~0;
+
     enum SerializationOffsets {
         kIsFinite_SerializationShift = 25,  // requires 1 bit
         kIsOval_SerializationShift = 24,    // requires 1 bit
@@ -261,6 +271,7 @@ private:
     };
 
     SkPathRef() {
+        fLastMoveToIndex = kINITIAL_LASTMOVETOINDEX_VALUE;
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fPointCnt = 0;
         fVerbCnt = 0;
@@ -348,6 +359,8 @@ private:
         SkDEBUGCODE(this->validate();)
     }
 
+    void injectMoveToIfNeeded();
+
     /**
      * Increases the verb count by numVbs and point count by the required amount.
      * The new points are uninitialized. All the new verbs are set to the specified
@@ -433,6 +446,7 @@ private:
     };
 
     mutable SkRect      fBounds;
+    int                 fLastMoveToIndex;
     uint8_t             fSegmentMask;
     mutable uint8_t     fBoundsIsDirty;
     mutable SkBool8     fIsFinite;    // only meaningful if bounds are valid

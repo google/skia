@@ -122,9 +122,6 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-// flag to require a moveTo if we begin with something else, like lineTo etc.
-#define INITIAL_LASTMOVETOINDEX_VALUE   ~0
-
 SkPath::SkPath()
     : fPathRef(SkPathRef::CreateEmpty())
 #ifdef SK_BUILD_FOR_ANDROID
@@ -136,7 +133,6 @@ SkPath::SkPath()
 
 void SkPath::resetFields() {
     //fPathRef is assumed to have been emptied by the caller.
-    fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
     fFillType = kWinding_FillType;
     fConvexity = kUnknown_Convexity;
     fDirection = kUnknown_Direction;
@@ -174,7 +170,6 @@ SkPath& SkPath::operator=(const SkPath& that) {
 
 void SkPath::copyFields(const SkPath& that) {
     //fPathRef is assumed to have been set by the caller.
-    fLastMoveToIndex = that.fLastMoveToIndex;
     fFillType        = that.fFillType;
     fConvexity       = that.fConvexity;
     fDirection       = that.fDirection;
@@ -192,7 +187,6 @@ void SkPath::swap(SkPath& that) {
 
     if (this != &that) {
         fPathRef.swap(&that.fPathRef);
-        SkTSwap<int>(fLastMoveToIndex, that.fLastMoveToIndex);
         SkTSwap<uint8_t>(fFillType, that.fFillType);
         SkTSwap<uint8_t>(fConvexity, that.fConvexity);
         SkTSwap<uint8_t>(fDirection, that.fDirection);
@@ -667,9 +661,6 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
 
     SkPathRef::Editor ed(&fPathRef);
 
-    // remember our index
-    fLastMoveToIndex = fPathRef->countPoints();
-
     ed.growForVerb(kMove_Verb)->set(x, y);
 }
 
@@ -679,26 +670,11 @@ void SkPath::rMoveTo(SkScalar x, SkScalar y) {
     this->moveTo(pt.fX + x, pt.fY + y);
 }
 
-void SkPath::injectMoveToIfNeeded() {
-    if (fLastMoveToIndex < 0) {
-        SkScalar x, y;
-        if (fPathRef->countVerbs() == 0) {
-            x = y = 0;
-        } else {
-            const SkPoint& pt = fPathRef->atPoint(~fLastMoveToIndex);
-            x = pt.fX;
-            y = pt.fY;
-        }
-        this->moveTo(x, y);
-    }
-}
-
 void SkPath::lineTo(SkScalar x, SkScalar y) {
     SkDEBUGCODE(this->validate();)
 
-    this->injectMoveToIfNeeded();
-
     SkPathRef::Editor ed(&fPathRef);
+    ed.injectMoveToIfNeeded();
     ed.growForVerb(kLine_Verb)->set(x, y);
 
     DIRTY_AFTER_EDIT;
@@ -714,9 +690,8 @@ void SkPath::rLineTo(SkScalar x, SkScalar y) {
 void SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     SkDEBUGCODE(this->validate();)
 
-    this->injectMoveToIfNeeded();
-
     SkPathRef::Editor ed(&fPathRef);
+    ed.injectMoveToIfNeeded();
     SkPoint* pts = ed.growForVerb(kQuad_Verb);
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
@@ -744,9 +719,8 @@ void SkPath::conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     } else {
         SkDEBUGCODE(this->validate();)
 
-        this->injectMoveToIfNeeded();
-
         SkPathRef::Editor ed(&fPathRef);
+        ed.injectMoveToIfNeeded();
         SkPoint* pts = ed.growForVerb(kConic_Verb, w);
         pts[0].set(x1, y1);
         pts[1].set(x2, y2);
@@ -767,9 +741,8 @@ void SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
                      SkScalar x3, SkScalar y3) {
     SkDEBUGCODE(this->validate();)
 
-    this->injectMoveToIfNeeded();
-
     SkPathRef::Editor ed(&fPathRef);
+    ed.injectMoveToIfNeeded();
     SkPoint* pts = ed.growForVerb(kCubic_Verb);
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
@@ -810,15 +783,6 @@ void SkPath::close() {
                 break;
         }
     }
-
-    // signal that we need a moveTo to follow us (unless we're done)
-#if 0
-    if (fLastMoveToIndex >= 0) {
-        fLastMoveToIndex = ~fLastMoveToIndex;
-    }
-#else
-    fLastMoveToIndex ^= ~fLastMoveToIndex >> (8 * sizeof(fLastMoveToIndex) - 1);
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -859,8 +823,6 @@ void SkPath::addPoly(const SkPoint pts[], int count, bool close) {
     if (count <= 0) {
         return;
     }
-
-    fLastMoveToIndex = fPathRef->countPoints();
 
     // +close makes room for the extra kClose_Verb
     SkPathRef::Editor ed(&fPathRef, count+close, count);
@@ -1357,8 +1319,6 @@ void SkPath::addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle
 
     SkDEBUGCODE(this->validate();)
     SkASSERT(count & 1);
-
-    fLastMoveToIndex = fPathRef->countPoints();
 
     SkPathRef::Editor ed(&fPathRef, 1+(count-1)/2, count);
 

@@ -154,6 +154,7 @@ SkPathRef* SkPathRef::CreateFromBuffer(SkRBuffer* buffer) {
 void SkPathRef::Rewind(SkAutoTUnref<SkPathRef>* pathRef) {
     if ((*pathRef)->unique()) {
         SkDEBUGCODE((*pathRef)->validate();)
+        (*pathRef)->fLastMoveToIndex = kINITIAL_LASTMOVETOINDEX_VALUE;
         (*pathRef)->fBoundsIsDirty = true;  // this also invalidates fIsFinite
         (*pathRef)->fVerbCnt = 0;
         (*pathRef)->fPointCnt = 0;
@@ -276,6 +277,20 @@ void SkPathRef::copy(const SkPathRef& ref,
     SkDEBUGCODE(this->validate();)
 }
 
+void SkPathRef::injectMoveToIfNeeded() {
+    if (fLastMoveToIndex < 0) {
+        SkScalar x, y;
+        if (this->countVerbs() == 0) {
+            x = y = 0;
+        } else {
+            const SkPoint& pt = this->atPoint(~fLastMoveToIndex);
+            x = pt.fX;
+            y = pt.fY;
+        }
+        this->growForVerb(SkPath::kMove_Verb, 0)->set(x, y);
+    }
+}
+
 SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
                                         int numVbs,
                                         SkScalar** weights) {
@@ -284,11 +299,16 @@ SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
     // future this will appear to have been a fluke...
     static const unsigned int kMIN_COUNT_FOR_MEMSET_TO_BE_FAST = 16;
 
+    if (numVbs <= 0) {
+        return NULL;
+    }
+
     SkDEBUGCODE(this->validate();)
     int pCnt;
     bool dirtyAfterEdit = true;
     switch (verb) {
         case SkPath::kMove_Verb:
+            fLastMoveToIndex = fPointCnt + numVbs - 1;
             pCnt = numVbs;
             dirtyAfterEdit = false;
             break;
@@ -310,6 +330,8 @@ SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
             break;
         case SkPath::kClose_Verb:
             SkDEBUGFAIL("growForRepeatedVerb called for kClose_Verb");
+            // signal that we need a moveTo to follow us (unless we're done)
+            fLastMoveToIndex ^= ~fLastMoveToIndex >> (8 * sizeof(fLastMoveToIndex) - 1);
             pCnt = 0;
             dirtyAfterEdit = false;
             break;
@@ -361,6 +383,8 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
     bool dirtyAfterEdit = true;
     switch (verb) {
         case SkPath::kMove_Verb:
+            // remember our index
+            fLastMoveToIndex = fPointCnt;
             pCnt = 1;
             dirtyAfterEdit = false;
             break;
@@ -381,6 +405,8 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
             pCnt = 3;
             break;
         case SkPath::kClose_Verb:
+            // signal that we need a moveTo to follow us (unless we're done)
+            fLastMoveToIndex ^= ~fLastMoveToIndex >> (8 * sizeof(fLastMoveToIndex) - 1);
             pCnt = 0;
             dirtyAfterEdit = false;
             break;
@@ -460,23 +486,34 @@ void SkPathRef::validate() const {
 
 #ifdef SK_DEBUG_PATH
     uint32_t mask = 0;
+    int lastMoveToIndex = kINITIAL_LASTMOVETOINDEX_VALUE;
+    int pointCnt = 0;
     for (int i = 0; i < fVerbCnt; ++i) {
         switch (fVerbs[~i]) {
             case SkPath::kMove_Verb:
+                lastMoveToIndex = pointCnt;
+                ++pointCnt;
                 break;
             case SkPath::kLine_Verb:
                 mask |= SkPath::kLine_SegmentMask;
+                ++pointCnt;
                 break;
             case SkPath::kQuad_Verb:
                 mask |= SkPath::kQuad_SegmentMask;
+                pointCnt += 2;
                 break;
             case SkPath::kConic_Verb:
                 mask |= SkPath::kConic_SegmentMask;
+                pointCnt += 2;
                 break;
             case SkPath::kCubic_Verb:
                 mask |= SkPath::kCubic_SegmentMask;
+                pointCnt += 3;
                 break;
             case SkPath::kClose_Verb:
+                if (lastMoveToIndex >= 0) {
+                    lastMoveToIndex = ~lastMoveToIndex;
+                }
                 break;
             case SkPath::kDone_Verb:
                 SkDEBUGFAIL("Done verb shouldn't be recorded.");
@@ -487,6 +524,8 @@ void SkPathRef::validate() const {
         }
     }
     SkASSERT(mask == fSegmentMask);
+    SkASSERT(lastMoveToIndex == fLastMoveToIndex);
+    SkASSERT(pointCnt == fPointCnt);
 #endif // SK_DEBUG_PATH
 }
 #endif
