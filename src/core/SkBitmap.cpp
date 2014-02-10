@@ -1677,16 +1677,12 @@ void SkBitmap::validate() const {
         SkASSERT(fPixelRef);
         SkASSERT(fPixelLockCount > 0);
         SkASSERT(fPixelRef->isLocked());
-#if !defined(SK_SUPPORT_LEGACY_ONLOCKPIXELS)
         SkASSERT(fPixelRef->rowBytes() == fRowBytes);
-#endif
         SkASSERT(fPixelRefOrigin.fX >= 0);
         SkASSERT(fPixelRefOrigin.fY >= 0);
         SkASSERT(fPixelRef->info().fWidth >= (int)fWidth + fPixelRefOrigin.fX);
         SkASSERT(fPixelRef->info().fHeight >= (int)fHeight + fPixelRefOrigin.fY);
-#if !defined(SK_SUPPORT_LEGACY_ONLOCKPIXELS)
         SkASSERT(fPixelRef->rowBytes() >= fWidth * fBytesPerPixel);
-#endif
     } else {
         SkASSERT(NULL == fColorTable);
     }

@@ -269,10 +269,6 @@ public:
     void addGenIDChangeListener(GenIDChangeListener* listener);
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_ONLOCKPIXELS
-    virtual void* onLockPixels(SkColorTable**);
-    virtual bool onNewLockPixels(LockRec*);
-#else
     /**
      *  On success, returns true and fills out the LockRec for the pixels. On
      *  failure returns false and ignores the LockRec parameter.
@@ -281,7 +277,6 @@ protected:
      *  method need not do that.
      */
     virtual bool onNewLockPixels(LockRec*) = 0;
-#endif
 
     /**
      *  Balancing the previous successful call to onNewLockPixels. The locked

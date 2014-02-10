@@ -291,29 +291,6 @@ size_t SkPixelRef::getAllocatedSizeInBytes() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_ONLOCKPIXELS
-
-void* SkPixelRef::onLockPixels(SkColorTable** ctable) {
-    return NULL;
-}
-
-bool SkPixelRef::onNewLockPixels(LockRec* rec) {
-    SkColorTable* ctable = NULL;    // for legacy clients who forget to set this
-    void* pixels = this->onLockPixels(&ctable);
-    if (!pixels) {
-        return false;
-    }
-
-    rec->fPixels = pixels;
-    rec->fColorTable = ctable;
-    rec->fRowBytes = 0; // callers don't currently need this (thank goodness)
-    return true;
-}
-
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
 #ifdef SK_BUILD_FOR_ANDROID
 void SkPixelRef::globalRef(void* data) {
     this->ref();
