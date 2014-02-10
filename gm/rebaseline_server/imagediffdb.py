@@ -12,6 +12,7 @@ Calulate differences between image pairs, and store them in a database.
 import contextlib
 import logging
 import os
+import re
 import shutil
 import urllib
 try:
@@ -22,6 +23,8 @@ except ImportError:
 
 DEFAULT_IMAGE_SUFFIX = '.png'
 DEFAULT_IMAGES_SUBDIR = 'images'
+
+DISALLOWED_FILEPATH_CHAR_REGEX = re.compile('[^\w\-]')
 
 DIFFS_SUBDIR = 'diffs'
 WHITEDIFFS_SUBDIR = 'whitediffs'
@@ -61,6 +64,9 @@ class DiffRecord(object):
       actual_images_subdir: the subdirectory actual images are stored in.
       image_suffix: the suffix of images.
     """
+    expected_image_locator = _sanitize_locator(expected_image_locator)
+    actual_image_locator = _sanitize_locator(actual_image_locator)
+
     # Download the expected/actual images, if we don't have them already.
     # TODO(rmistry): Add a parameter that makes _download_and_open_image raise
     # an exception if images are not found locally (instead of trying to
@@ -132,6 +138,16 @@ class DiffRecord(object):
     for each R/G/B channel, as a list."""
     return self._max_diff_per_channel
 
+  def as_dict(self):
+    """Returns a dictionary representation of this DiffRecord, as needed when
+    constructing the JSON representation."""
+    return {
+        'numDifferingPixels': self._num_pixels_differing,
+        'percentDifferingPixels': self.get_percent_pixels_differing(),
+        'weightedDiffMeasure': self.get_weighted_diff_measure(),
+        'maxDiffPerChannel': self._max_diff_per_channel,
+    }
+
 
 class ImageDiffDB(object):
   """ Calculates differences between image pairs, maintaining a database of
@@ -174,6 +190,8 @@ class ImageDiffDB(object):
           actual image within storage_root (probably including a checksum to
           guarantee uniqueness)
     """
+    expected_image_locator = _sanitize_locator(expected_image_locator)
+    actual_image_locator = _sanitize_locator(actual_image_locator)
     key = (expected_image_locator, actual_image_locator)
     if not key in self._diff_dict:
       try:
@@ -193,7 +211,8 @@ class ImageDiffDB(object):
 
     Raises a KeyError if we don't have a DiffRecord for this image pair.
     """
-    key = (expected_image_locator, actual_image_locator)
+    key = (_sanitize_locator(expected_image_locator),
+           _sanitize_locator(actual_image_locator))
     return self._diff_dict[key]
 
 
@@ -322,6 +341,15 @@ def _mkdir_unless_exists(path):
   if not os.path.isdir(path):
     os.makedirs(path)
 
+def _sanitize_locator(locator):
+  """Returns a sanitized version of a locator (one in which we know none of the
+  characters will have special meaning in filenames).
+
+  Args:
+    locator: string, or something that can be represented as a string
+  """
+  return DISALLOWED_FILEPATH_CHAR_REGEX.sub('_', str(locator))
+
 def _get_difference_locator(expected_image_locator, actual_image_locator):
   """Returns the locator string used to look up the diffs between expected_image
   and actual_image.
@@ -330,7 +358,8 @@ def _get_difference_locator(expected_image_locator, actual_image_locator):
     expected_image_locator: locator string pointing at expected image
     actual_image_locator: locator string pointing at actual image
 
-  Returns: locator where the diffs between expected and actual images can be
-      found
+  Returns: already-sanitized locator where the diffs between expected and
+      actual images can be found
   """
-  return "%s-vs-%s" % (expected_image_locator, actual_image_locator)
+  return "%s-vs-%s" % (_sanitize_locator(expected_image_locator),
+                       _sanitize_locator(actual_image_locator))
