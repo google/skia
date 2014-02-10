@@ -75,12 +75,14 @@
             'arm_neon_optional%': '<(arm_neon_optional>',
           },
           'sources': [
-            '../src/opts/opts_check_arm.cpp',
             '../src/opts/memset.arm.S',
             '../src/opts/SkBitmapProcState_opts_arm.cpp',
             '../src/opts/SkBlitMask_opts_arm.cpp',
             '../src/opts/SkBlitRow_opts_arm.cpp',
             '../src/opts/SkBlitRow_opts_arm.h',
+            '../src/opts/SkBlurImage_opts_arm.cpp',
+            '../src/opts/SkMorphology_opts_arm.cpp',
+            '../src/opts/SkUtils_opts_arm.cpp',
             '../src/opts/SkXfermode_opts_arm.cpp',
           ],
           'conditions': [
