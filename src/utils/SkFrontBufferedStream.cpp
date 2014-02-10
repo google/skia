@@ -24,14 +24,16 @@ public:
 
     virtual size_t getPosition() const SK_OVERRIDE { return fOffset; }
 
-    virtual bool hasLength() const SK_OVERRIDE;
+    virtual bool hasLength() const SK_OVERRIDE { return fHasLength; }
 
-    virtual size_t getLength() const SK_OVERRIDE;
+    virtual size_t getLength() const SK_OVERRIDE { return fLength; }
 
     virtual SkStreamRewindable* duplicate() const SK_OVERRIDE { return NULL; }
 
 private:
     SkAutoTUnref<SkStream>  fStream;
+    const bool              fHasLength;
+    const size_t            fLength;
     // Current offset into the stream. Always >= 0.
     size_t                  fOffset;
     // Amount that has been buffered by calls to read. Will always be less than
@@ -70,6 +72,8 @@ SkStreamRewindable* SkFrontBufferedStream::Create(SkStream* stream, size_t buffe
 
 FrontBufferedStream::FrontBufferedStream(SkStream* stream, size_t bufferSize)
     : fStream(SkRef(stream))
+    , fHasLength(stream->hasPosition() && stream->hasLength())
+    , fLength(stream->getLength() - stream->getPosition())
     , fOffset(0)
     , fBufferedSoFar(0)
     , fBufferSize(bufferSize)
@@ -92,14 +96,6 @@ bool FrontBufferedStream::rewind() {
         return true;
     }
     return false;
-}
-
-bool FrontBufferedStream::hasLength() const {
-    return fStream->hasLength();
-}
-
-size_t FrontBufferedStream::getLength() const {
-    return fStream->getLength();
 }
 
 size_t FrontBufferedStream::readFromBuffer(char* dst, size_t size) {
