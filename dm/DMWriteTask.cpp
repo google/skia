@@ -91,6 +91,11 @@ static SkString path_to_expected_image(const char* root, const Task& task) {
 }
 
 bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
+    if (!FLAGS_writePath.isEmpty() && 0 == strcmp(FLAGS_writePath[0], fRoot)) {
+        SkDebugf("We seem to be reading and writing %s concurrently.  This won't work.\n", fRoot);
+        return false;
+    }
+
     // PNG is stored unpremultiplied, and going from premul to unpremul to premul is lossy.  To
     // skirt this problem, we decode the PNG into an unpremul bitmap, convert our bitmap to unpremul
     // if needed, and compare those.  Each image goes once from premul to unpremul, never back.
