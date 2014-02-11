@@ -1403,14 +1403,14 @@ void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPath::addPath(const SkPath& path, SkScalar dx, SkScalar dy) {
+void SkPath::addPath(const SkPath& path, SkScalar dx, SkScalar dy, AddPathMode mode) {
     SkMatrix matrix;
 
     matrix.setTranslate(dx, dy);
-    this->addPath(path, matrix);
+    this->addPath(path, matrix, mode);
 }
 
-void SkPath::addPath(const SkPath& path, const SkMatrix& matrix) {
+void SkPath::addPath(const SkPath& path, const SkMatrix& matrix, AddPathMode mode) {
     SkPathRef::Editor(&fPathRef, path.countVerbs(), path.countPoints());
 
     RawIter iter(path);
@@ -1418,12 +1418,17 @@ void SkPath::addPath(const SkPath& path, const SkMatrix& matrix) {
     Verb    verb;
 
     SkMatrix::MapPtsProc proc = matrix.getMapPtsProc();
-
+    bool firstVerb = true;
     while ((verb = iter.next(pts)) != kDone_Verb) {
         switch (verb) {
             case kMove_Verb:
                 proc(matrix, &pts[0], &pts[0], 1);
-                this->moveTo(pts[0]);
+                if (firstVerb && mode == kExtend_AddPathMode && !isEmpty()) {
+                    injectMoveToIfNeeded(); // In case last contour is closed
+                    this->lineTo(pts[0]);
+                } else {
+                    this->moveTo(pts[0]);
+                }
                 break;
             case kLine_Verb:
                 proc(matrix, &pts[1], &pts[1], 1);
@@ -1447,6 +1452,7 @@ void SkPath::addPath(const SkPath& path, const SkMatrix& matrix) {
             default:
                 SkDEBUGFAIL("unknown verb");
         }
+        firstVerb = false;
     }
 }
 

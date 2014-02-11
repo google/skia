@@ -3060,6 +3060,68 @@ static void test_addPath(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, p.getBounds() == reverseExpected);
 }
 
+static void test_addPathMode(skiatest::Reporter* reporter, bool explicitMoveTo, bool extend) {
+    SkPath p, q;
+    if (explicitMoveTo) {
+        p.moveTo(1, 1);
+    }
+    p.lineTo(1, 2);
+    if (explicitMoveTo) {
+        q.moveTo(2, 1);
+    }
+    q.lineTo(2, 2);
+    p.addPath(q, extend ? SkPath::kExtend_AddPathMode : SkPath::kAppend_AddPathMode);
+    uint8_t verbs[4];
+    int verbcount = p.getVerbs(verbs, 4);
+    REPORTER_ASSERT(reporter, verbcount == 4);
+    REPORTER_ASSERT(reporter, verbs[0] == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, verbs[1] == SkPath::kLine_Verb);
+    REPORTER_ASSERT(reporter, verbs[2] == (extend ? SkPath::kLine_Verb : SkPath::kMove_Verb));
+    REPORTER_ASSERT(reporter, verbs[3] == SkPath::kLine_Verb);
+}
+
+static void test_extendClosedPath(skiatest::Reporter* reporter) {
+    SkPath p, q;
+    p.moveTo(1, 1);
+    p.lineTo(1, 2);
+    p.lineTo(2, 2);
+    p.close();
+    q.moveTo(2, 1);
+    q.lineTo(2, 3);
+    p.addPath(q, SkPath::kExtend_AddPathMode);
+    uint8_t verbs[7];
+    int verbcount = p.getVerbs(verbs, 7);
+    REPORTER_ASSERT(reporter, verbcount == 7);
+    REPORTER_ASSERT(reporter, verbs[0] == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, verbs[1] == SkPath::kLine_Verb);
+    REPORTER_ASSERT(reporter, verbs[2] == SkPath::kLine_Verb);
+    REPORTER_ASSERT(reporter, verbs[3] == SkPath::kClose_Verb);
+    REPORTER_ASSERT(reporter, verbs[4] == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, verbs[5] == SkPath::kLine_Verb);
+    REPORTER_ASSERT(reporter, verbs[6] == SkPath::kLine_Verb);
+
+    SkPoint pt;
+    REPORTER_ASSERT(reporter, p.getLastPt(&pt));
+    REPORTER_ASSERT(reporter, pt == SkPoint::Make(2, 3));
+    REPORTER_ASSERT(reporter, p.getPoint(3) == SkPoint::Make(1, 1));
+}
+
+static void test_addEmptyPath(skiatest::Reporter* reporter, SkPath::AddPathMode mode) {
+    SkPath p, q, r;
+    // case 1: dst is empty
+    p.moveTo(2, 1);
+    p.lineTo(2, 3);
+    q.addPath(p, mode);
+    REPORTER_ASSERT(reporter, q == p);
+    // case 2: src is empty
+    p.addPath(r, mode);
+    REPORTER_ASSERT(reporter, q == p);
+    // case 3: src and dst are empty
+    q.reset();
+    q.addPath(r, mode);
+    REPORTER_ASSERT(reporter, q.isEmpty());
+}    
+
 static void test_conicTo_special_case(skiatest::Reporter* reporter) {
     SkPath p;
     p.conicTo(1, 2, 3, 4, -1);
@@ -3377,6 +3439,13 @@ DEF_TEST(Paths, reporter) {
     test_arc(reporter);
     test_arcTo(reporter);
     test_addPath(reporter);
+    test_addPathMode(reporter, false, false);
+    test_addPathMode(reporter, true, false);
+    test_addPathMode(reporter, false, true);
+    test_addPathMode(reporter, true, true);
+    test_extendClosedPath(reporter);
+    test_addEmptyPath(reporter, SkPath::kExtend_AddPathMode);
+    test_addEmptyPath(reporter, SkPath::kAppend_AddPathMode);
     test_conicTo_special_case(reporter);
     test_get_point(reporter);
     test_contains(reporter);

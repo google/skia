@@ -702,25 +702,41 @@ public:
      */
     void addPoly(const SkPoint pts[], int count, bool close);
 
+    enum AddPathMode {
+        /** Source path contours are added as new contours.
+        */
+        kAppend_AddPathMode,
+        /** Path is added by extending the last contour of the destination path
+            with the first contour of the source path. If the last contour of
+            the destination path is closed, then it will not be extended. 
+            Instead, the start of source path will be extended by a straight
+            line to the end point of the destination path.
+        */
+        kExtend_AddPathMode  
+    };
+
     /** Add a copy of src to the path, offset by (dx,dy)
         @param src  The path to add as a new contour
         @param dx   The amount to translate the path in X as it is added
         @param dx   The amount to translate the path in Y as it is added
     */
-    void addPath(const SkPath& src, SkScalar dx, SkScalar dy);
+    void addPath(const SkPath& src, SkScalar dx, SkScalar dy,
+                 AddPathMode mode = kAppend_AddPathMode);
 
     /** Add a copy of src to the path
     */
-    void addPath(const SkPath& src) {
+    void addPath(const SkPath& src, AddPathMode mode = kAppend_AddPathMode) {
         SkMatrix m;
         m.reset();
-        this->addPath(src, m);
+        this->addPath(src, m, mode);
     }
 
     /** Add a copy of src to the path, transformed by matrix
         @param src  The path to add as a new contour
+        @param matrix  Transform applied to src
+        @param mode  Determines how path is added
     */
-    void addPath(const SkPath& src, const SkMatrix& matrix);
+    void addPath(const SkPath& src, const SkMatrix& matrix, AddPathMode mode = kAppend_AddPathMode);
 
     /**
      *  Same as addPath(), but reverses the src input
