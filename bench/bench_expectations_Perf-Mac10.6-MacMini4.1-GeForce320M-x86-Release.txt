@@ -266,7 +266,7 @@ tabl_slashdot.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce
 tabl_techmeme.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,4.05,-11.76,19.86
 tabl_ukwsj.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,9.65,-7.28,26.58
 tabl_vnexpress.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,6.05,-10.16,22.26
-tabl_worldjournal.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,140.85,97.68,184.02
+tabl_worldjournal.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,50.85,35.85,65.85
 desk_amazon.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,6.55,-9.76,22.86
 desk_baidu.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,3.45,-12.24,19.14
 desk_blogger.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,4.75,-11.20,20.70
