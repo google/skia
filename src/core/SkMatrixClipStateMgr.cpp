@@ -44,8 +44,10 @@ void SkMatrixClipStateMgr::WriteDeltaMat(SkPictureRecord* picRecord,
                                          const SkMatrix& current, 
                                          const SkMatrix& desired) {
     SkMatrix delta;
-    current.invert(&delta);
-    delta.preConcat(desired);
+    bool result = current.invert(&delta);
+    if (result) {
+        delta.preConcat(desired);
+    }
     picRecord->recordConcat(delta);
 }
 
@@ -103,7 +105,7 @@ void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::fillInSkips(SkWriter32* wr
             continue;
         }
         SkDEBUGCODE(uint32_t peek = writer->read32At(curClip.fOffset);)
-        SkASSERT(-1 == peek);
+//        SkASSERT(-1 == peek);
         writer->write32At(curClip.fOffset, restoreOffset);
         SkDEBUGCODE(curClip.fOffset = -1;)
     }
@@ -111,10 +113,10 @@ void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::fillInSkips(SkWriter32* wr
 
 SkMatrixClipStateMgr::SkMatrixClipStateMgr()
     : fPicRecord(NULL)
-    , fCurOpenStateID(kIdentityWideOpenStateID)
     , fMatrixClipStack(sizeof(MatrixClipState), 
                        fMatrixClipStackStorage, 
-                       sizeof(fMatrixClipStackStorage)) {
+                       sizeof(fMatrixClipStackStorage))
+    , fCurOpenStateID(kIdentityWideOpenStateID) {
     fCurMCState = (MatrixClipState*)fMatrixClipStack.push_back();
     new (fCurMCState) MatrixClipState(NULL, 0);    // balanced in restore()
 }
