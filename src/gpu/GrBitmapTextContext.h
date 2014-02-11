@@ -48,6 +48,7 @@ private:
     int32_t                 fMaxVertices;
     GrTexture*              fCurrTexture;
     int                     fCurrVertex;
+    SkRect                  fVertexBounds;
 };
 
 #endif

@@ -46,9 +46,12 @@ public:
     /**
      * Creates a clip mask if necessary as a stencil buffer or alpha texture
      * and sets the GrGpu's scissor and stencil state. If the return is false
-     * then the draw can be skipped.
+     * then the draw can be skipped. The AutoRestoreEffects is initialized by
+     * the manager when it must install additional effects to implement the
+     * clip. devBounds is optional but can help optimize clipping.
      */
-    bool setupClipping(const GrClipData* clipDataIn, GrDrawState::AutoRestoreEffects*);
+    bool setupClipping(const GrClipData* clipDataIn, GrDrawState::AutoRestoreEffects*,
+                       const SkRect* devBounds);
 
     void releaseResources();
 

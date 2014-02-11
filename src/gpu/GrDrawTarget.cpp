@@ -668,13 +668,10 @@ void GrDrawTarget::onDrawRect(const SkRect& rect,
             localMatrix->mapPointsWithStride(coords, vsize, 4);
         }
     }
-    SkTLazy<SkRect> bounds;
-    if (this->getDrawState().willEffectReadDstColor()) {
-        bounds.init();
-        this->getDrawState().getViewMatrix().mapRect(bounds.get(), rect);
-    }
+    SkRect bounds;
+    this->getDrawState().getViewMatrix().mapRect(&bounds, rect);
 
-    this->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4, bounds.getMaybeNull());
+    this->drawNonIndexed(kTriangleFan_GrPrimitiveType, 0, 4, &bounds);
 }
 
 void GrDrawTarget::clipWillBeSet(const GrClipData* clipData) {

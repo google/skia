@@ -359,7 +359,8 @@ protected:
     // prepares clip flushes gpu state before a draw
     bool setupClipAndFlushState(DrawType,
                                 const GrDeviceCoordTexture* dstCopy,
-                                GrDrawState::AutoRestoreEffects* are);
+                                GrDrawState::AutoRestoreEffects* are,
+                                const SkRect* devBounds);
 
     // Functions used to map clip-respecting stencil tests into normal
     // stencil funcs supported by GPUs.

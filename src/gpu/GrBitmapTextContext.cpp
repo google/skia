@@ -39,6 +39,8 @@ GrBitmapTextContext::GrBitmapTextContext(GrContext* context,
 
     fVertices = NULL;
     fMaxVertices = 0;
+
+    fVertexBounds.setLargestInverted();
 }
 
 GrBitmapTextContext::~GrBitmapTextContext() {
@@ -105,12 +107,13 @@ void GrBitmapTextContext::flushGlyphs() {
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
         fDrawTarget->drawIndexedInstances(kTriangles_GrPrimitiveType,
                                           nGlyphs,
-                                          4, 6);
+                                          4, 6, &fVertexBounds);
 
         fDrawTarget->resetVertexSource();
         fVertices = NULL;
         fMaxVertices = 0;
         fCurrVertex = 0;
+        fVertexBounds.setLargestInverted();
         SkSafeSetNull(fCurrTexture);
     }
 }
@@ -616,10 +619,15 @@ HAS_ATLAS:
     GrFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
     GrFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
 
-    fVertices[2*fCurrVertex].setRectFan(SkFixedToFloat(vx),
-                                        SkFixedToFloat(vy),
-                                        SkFixedToFloat(vx + width),
-                                        SkFixedToFloat(vy + height),
+    SkRect r;
+    r.fLeft = SkFixedToFloat(vx);
+    r.fTop = SkFixedToFloat(vy);
+    r.fRight = SkFixedToFloat(vx + width);
+    r.fBottom = SkFixedToFloat(vy + height);
+
+    fVertexBounds.growToInclude(r);
+
+    fVertices[2*fCurrVertex].setRectFan(r.fLeft, r.fTop, r.fRight, r.fBottom,
                                         2 * sizeof(SkPoint));
     fVertices[2*fCurrVertex+1].setRectFan(SkFixedToFloat(texture->normalizeFixedX(tx)),
                                           SkFixedToFloat(texture->normalizeFixedY(ty)),

@@ -110,7 +110,8 @@ bool GrClipMaskManager::useSWOnlyPath(const ElementList& elements) {
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
 bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
-                                      GrDrawState::AutoRestoreEffects* are) {
+                                      GrDrawState::AutoRestoreEffects* are,
+                                      const SkRect* devBounds) {
     fCurrClipMaskType = kNone_ClipMaskType;
 
     ElementList elements(16);
@@ -154,9 +155,20 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
         return true;
     }
 
-    // If there is only one clip element and it is a convex polygon we just install an effect that
-    // clips against the edges.
+    // If there is only one clip element we check whether the draw's bounds are contained
+    // fully within the clip. If not, we install an effect that handles the clip for some
+    // cases.
     if (1 == elements.count() && SkRegion::kReplace_Op == elements.tail()->getOp()) {
+        if (NULL != devBounds) {
+            SkRect boundsInClipSpace = *devBounds;
+            boundsInClipSpace.offset(SkIntToScalar(clipDataIn->fOrigin.fX),
+                                     SkIntToScalar(clipDataIn->fOrigin.fY));
+            if (elements.tail()->contains(boundsInClipSpace)) {
+                fGpu->disableScissor();
+                this->setGpuStencil();
+                return true;
+            }
+        }
         SkAutoTUnref<GrEffectRef> effect;
         if (SkClipStack::Element::kPath_Type == elements.tail()->getType()) {
             const SkPath& path = elements.tail()->getPath();
