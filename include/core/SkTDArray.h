@@ -101,6 +101,13 @@ public:
     int count() const { return fCount; }
 
     /**
+     *  Return the total number of elements allocated.
+     *  reserved() - count() gives you the number of elements you can add
+     *  without causing an allocation.
+     */
+    int reserved() const { return fReserve; }
+
+    /**
      *  return the number of bytes in the array: count * sizeof(T)
      */
     size_t bytes() const { return fCount * sizeof(T); }

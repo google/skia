@@ -66,3 +66,21 @@ size_t SkWriter32::WriteStringSize(const char* str, size_t len) {
     // add 1 since we also write a terminating 0
     return SkAlign4(lenBytes + len + 1);
 }
+
+void SkWriter32::growToAtLeast(size_t size) {
+    bool wasExternal = (fExternal != NULL) && (fData == fExternal);
+    // cause the buffer to grow
+    fInternal.setCount(size);
+    fData = fInternal.begin();
+    if (wasExternal) {
+        // we were external, so copy in the data
+        memcpy(fData, fExternal, fUsed);
+    }
+    // Find out the size the buffer grew to, it may be more than we asked for.
+    fCapacity = fInternal.reserved();
+    // Expand the array so all reserved space is "used", we maintain the
+    // amount we have written manually outside the array
+    fInternal.setCount(fCapacity);
+    SkASSERT(fInternal.count() == fCapacity);
+    SkASSERT(fInternal.reserved() == fCapacity);
+}
