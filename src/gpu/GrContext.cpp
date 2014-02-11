@@ -1155,7 +1155,7 @@ void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath&
     SkTCopyOnFirstWrite<SkStrokeRec> stroke(origStroke);
 
     // Try a 1st time without stroking the path and without allowing the SW renderer
-    GrPathRenderer::AutoClearPath acp(this->getPathRenderer(*pathPtr, *stroke,
+    GrPathRenderer::AutoClearPath acp(this->getPathRenderer(*pathPtr, *stroke, 
                                       target, false, type,
                                       pathPtr->getFillType()));
 

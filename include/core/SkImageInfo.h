@@ -8,7 +8,7 @@
 #ifndef SkImageInfo_DEFINED
 #define SkImageInfo_DEFINED
 
-#include "SkMath.h"
+#include "SkTypes.h"
 #include "SkSize.h"
 
 class SkWriteBuffer;
@@ -59,17 +59,12 @@ static inline bool SkAlphaTypeIsOpaque(SkAlphaType at) {
     return (unsigned)at <= kOpaque_SkAlphaType;
 }
 
-static inline bool SkAlphaTypeIsValid(unsigned value) {
-    return value <= kLastEnum_SkAlphaType;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
  *  Describes how to interpret the components of a pixel.
  */
 enum SkColorType {
-    kUnknown_SkColorType,
     kAlpha_8_SkColorType,
     kRGB_565_SkColorType,
     kARGB_4444_SkColorType,
@@ -90,7 +85,6 @@ enum SkColorType {
 
 static int SkColorTypeBytesPerPixel(SkColorType ct) {
     static const uint8_t gSize[] = {
-        0,  // Unknown
         1,  // Alpha_8
         2,  // RGB_565
         2,  // ARGB_4444
@@ -103,14 +97,6 @@ static int SkColorTypeBytesPerPixel(SkColorType ct) {
 
     SkASSERT((size_t)ct < SK_ARRAY_COUNT(gSize));
     return gSize[ct];
-}
-
-static inline size_t SkColorTypeMinRowBytes(SkColorType ct, int width) {
-    return width * SkColorTypeBytesPerPixel(ct);
-}
-
-static inline bool SkColorTypeIsValid(unsigned value) {
-    return value <= kLastEnum_SkColorType;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -173,29 +159,16 @@ struct SkImageInfo {
         return info;
     }
 
-    int width() const { return fWidth; }
-    int height() const { return fHeight; }
-    SkColorType colorType() const { return fColorType; }
-    SkAlphaType alphaType() const { return fAlphaType; }
-
-    bool isEmpty() const { return fWidth <= 0 || fHeight <= 0; }
-
     bool isOpaque() const {
         return SkAlphaTypeIsOpaque(fAlphaType);
     }
-
-    SkISize dimensions() const { return SkISize::Make(fWidth, fHeight); }
 
     int bytesPerPixel() const {
         return SkColorTypeBytesPerPixel(fColorType);
     }
 
-    uint64_t minRowBytes64() const {
-        return sk_64_mul(fWidth, this->bytesPerPixel());
-    }
-
     size_t minRowBytes() const {
-        return (size_t)this->minRowBytes64();
+        return fWidth * this->bytesPerPixel();
     }
 
     bool operator==(const SkImageInfo& other) const {
@@ -208,23 +181,12 @@ struct SkImageInfo {
     void unflatten(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const;
 
-    int64_t getSafeSize64(size_t rowBytes) const {
+    size_t getSafeSize(size_t rowBytes) const {
         if (0 == fHeight) {
             return 0;
         }
-        return sk_64_mul(fHeight - 1, rowBytes) + fWidth * this->bytesPerPixel();
+        return (fHeight - 1) * rowBytes + fWidth * this->bytesPerPixel();
     }
-
-    size_t getSafeSize(size_t rowBytes) const {
-        return (size_t)this->getSafeSize64(rowBytes);
-    }
-
-    bool validRowBytes(size_t rowBytes) const {
-        uint64_t rb = sk_64_mul(fWidth, this->bytesPerPixel());
-        return rowBytes >= rb;
-    }
-
-    SkDEBUGCODE(void validate() const;)
 };
 
 #endif

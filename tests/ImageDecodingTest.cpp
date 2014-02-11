@@ -333,7 +333,10 @@ static SkPixelRef* install_pixel_ref(SkBitmap* bitmap,
     SkASSERT(stream != NULL);
     SkASSERT(stream->rewind());
     SkASSERT(stream->unique());
-    SkColorType colorType = bitmap->colorType();
+    SkColorType colorType;
+    if (!SkBitmapConfigToColorType(bitmap->config(), &colorType)) {
+        return NULL;
+    }
     SkDecodingImageGenerator::Options opts(sampleSize, ditherImage, colorType);
     SkAutoTDelete<SkImageGenerator> gen(
         SkDecodingImageGenerator::Create(stream, opts));

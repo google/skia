@@ -15,7 +15,7 @@ class SkPicture;
 
 extern SkBitmap::Config SkImageInfoToBitmapConfig(const SkImageInfo&);
 extern SkBitmap::Config SkColorTypeToBitmapConfig(SkColorType);
-extern SkColorType SkBitmapConfigToColorType(SkBitmap::Config);
+extern bool SkBitmapConfigToColorType(SkBitmap::Config, SkColorType* ctOut);
 
 // Call this if you explicitly want to use/share this pixelRef in the image
 extern SkImage* SkNewImageFromPixelRef(const SkImageInfo&, SkPixelRef*,

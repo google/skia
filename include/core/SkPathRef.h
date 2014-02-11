@@ -106,7 +106,7 @@ public:
 
         // In some cases we need to inject a leading moveTo before we add points
         // for lineTo, quadTo, conicTo, cubicTo
-        //
+        // 
         // SkPath path; path.lineTo(...);   <--- need a leading moveTo(0, 0)
         // SkPath path; ... path.close(); path.lineTo(...) <-- need a moveTo(previous moveTo)
         void injectMoveToIfNeeded() { fPathRef->injectMoveToIfNeeded(); }

@@ -141,7 +141,7 @@ private:
     // Determines whether it is possible to draw the element to both the stencil buffer and the
     // alpha mask simultaneously. If so and the element is a path a compatible path renderer is
     // also returned.
-    bool canStencilAndDrawElement(GrTexture* target, const SkClipStack::Element*,
+    bool canStencilAndDrawElement(GrTexture* target, const SkClipStack::Element*, 
                                   GrPathRenderer::AutoClearPath* pr);
 
     void mergeMask(GrTexture* dstMask,

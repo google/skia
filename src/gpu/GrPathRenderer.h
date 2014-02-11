@@ -100,8 +100,8 @@ public:
     }
 
     /**
-     * Returns true if this path renderer is able to render the current path. Returning false
-     * allows the caller to fallback to another path renderer This function is called when
+     * Returns true if this path renderer is able to render the current path. Returning false 
+     * allows the caller to fallback to another path renderer This function is called when 
      * searching for a path renderer capable of rendering a path.
      *
      * @param stroke     The stroke information (width, join, cap)
@@ -114,8 +114,8 @@ public:
                              const GrDrawTarget* target,
                              bool antiAlias) const = 0;
     /**
-     * Draws the current path into the draw target. If getStencilSupport() would return
-     * kNoRestriction then the subclass must respect the stencil settings of the
+     * Draws the current path into the draw target. If getStencilSupport() would return 
+     * kNoRestriction then the subclass must respect the stencil settings of the 
      * target's draw state.
      *
      * @param stroke                the stroke information (width, join, cap)
@@ -134,7 +134,7 @@ public:
 
     /**
      * Draws the current path to the stencil buffer. Assume the writable stencil bits are already
-     * initialized to zero. The pixels inside the path will have non-zero stencil values
+     * initialized to zero. The pixels inside the path will have non-zero stencil values 
      * afterwards.
      *
      * @param stroke                the stroke information (width, join, cap)

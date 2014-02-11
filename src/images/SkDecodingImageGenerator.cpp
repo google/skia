@@ -275,6 +275,11 @@ SkImageGenerator* SkDecodingImageGenerator::Create(
         info.fHeight = bitmap.height();
         info.fColorType = opts.fRequestedColorType;
         info.fAlphaType = bitmap.alphaType();
+
+        // Sanity check.
+        SkDEBUGCODE(SkColorType tmp;)
+        SkASSERT(SkBitmapConfigToColorType(config, &tmp));
+        SkASSERT(tmp == opts.fRequestedColorType);
     }
     return SkNEW_ARGS(SkDecodingImageGenerator,
                       (data, autoStream.detach(), info,
