@@ -70,7 +70,7 @@ static bool path_needs_SW_renderer(GrContext* context,
     SkPath::FillType fillType = SkPath::ConvertToNonInverseFillType(origPath.getFillType());
 
     // the 'false' parameter disallows use of the SW path renderer
-    GrPathRenderer::AutoClearPath acp(context->getPathRenderer(origPath, stroke, gpu, 
+    GrPathRenderer::AutoClearPath acp(context->getPathRenderer(origPath, stroke, gpu,
                                                                false, type, fillType));
     return NULL == acp.renderer();
 }
@@ -310,7 +310,7 @@ void setup_boolean_blendcoeffs(GrDrawState* drawState, SkRegion::Op op) {
 
 ////////////////////////////////////////////////////////////////////////////////
 bool GrClipMaskManager::drawFilledPath(GrTexture* target,
-                                       GrPathRenderer* pathRenderer, 
+                                       GrPathRenderer* pathRenderer,
                                        bool isAA) {
     GrDrawState* drawState = fGpu->drawState();
 
@@ -349,7 +349,7 @@ bool GrClipMaskManager::drawElement(GrTexture* target,
                                      GrPathRendererChain::kColor_DrawType;
             SkPath::FillType fillType = element->getPath().getFillType();
             GrPathRenderer::AutoClearPath acp(this->getContext()->getPathRenderer(
-                                                  element->getPath(), 
+                                                  element->getPath(),
                                                   stroke, fGpu, false, type,
                                                   SkPath::ConvertToNonInverseFillType(fillType)));
             if (NULL == acp.renderer()) {
@@ -381,9 +381,9 @@ bool GrClipMaskManager::canStencilAndDrawElement(GrTexture* target,
                 GrPathRendererChain::kStencilAndColorAntiAlias_DrawType :
                 GrPathRendererChain::kStencilAndColor_DrawType;
             SkPath::FillType fillType = element->getPath().getFillType();
-            acp->set(this->getContext()->getPathRenderer(element->getPath(), 
+            acp->set(this->getContext()->getPathRenderer(element->getPath(),
                                                    stroke, fGpu, false, type,
-                                                   SkPath::ConvertToNonInverseFillType(fillType)));   
+                                                   SkPath::ConvertToNonInverseFillType(fillType)));
             return NULL != acp->renderer();
         }
         default:

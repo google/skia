@@ -87,12 +87,12 @@ public:
     int height() const { return fInfo.fHeight; }
     SkColorType colorType() const { return fInfo.fColorType; }
     SkAlphaType alphaType() const { return fInfo.fAlphaType; }
-    
+
     /** Return the number of bytes per pixel based on the config. If the config
      does not have at least 1 byte per (e.g. kA1_Config) then 0 is returned.
      */
     int bytesPerPixel() const { return fInfo.bytesPerPixel(); }
-    
+
     /** Return the rowbytes expressed as a number of pixels (like width and
      height). Note, for 1-byte per pixel configs like kA8_Config, this will
      return the same as rowBytes(). Is undefined for configs that are less

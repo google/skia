@@ -1691,4 +1691,3 @@ void SkImageInfo::validate() const {
     SkASSERT(SkAlphaTypeIsValid(fAlphaType));
 }
 #endif
-
