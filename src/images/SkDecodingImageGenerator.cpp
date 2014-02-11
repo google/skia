@@ -278,7 +278,6 @@ SkImageGenerator* SkDecodingImageGenerator::Create(
 
         // Sanity check.
         SkDEBUGCODE(SkColorType tmp;)
-        SkASSERT(SkBitmapConfigToColorType(config, &tmp));
         SkASSERT(tmp == opts.fRequestedColorType);
     }
     return SkNEW_ARGS(SkDecodingImageGenerator,
