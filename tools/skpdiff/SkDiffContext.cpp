@@ -108,7 +108,7 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
 
         if (!differ->diff(&baselineBitmap, &testBitmap, alphaMaskPending, &diffData.fResult)) {
             // if the diff failed record -1 as the result
-            diffData.fResult = -1;
+            diffData.fResult.result = -1;
             continue;
         }
 
