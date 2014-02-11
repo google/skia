@@ -226,13 +226,13 @@ bool SkPictureRecord::isDrawingToLayer() const {
  * Read the op code from 'offset' in 'writer' and extract the size too.
  */
 static DrawType peek_op_and_size(SkWriter32* writer, int32_t offset, uint32_t* size) {
-    uint32_t peek = writer->read32At(offset);
+    uint32_t peek = writer->readTAt<uint32_t>(offset);
 
     uint32_t op;
     UNPACK_8_24(peek, op, *size);
     if (MASK_24 == *size) {
         // size required its own slot right after the op code
-        *size = writer->read32At(offset+kUInt32Size);
+        *size = writer->readTAt<uint32_t>(offset + kUInt32Size);
     }
     return (DrawType) op;
 }
@@ -335,7 +335,7 @@ static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
     // back up to the save block
     // TODO: add a stack to track save*/restore offsets rather than searching backwards
     while (offset > 0) {
-        offset = writer->read32At(offset);
+        offset = writer->readTAt<uint32_t>(offset);
     }
 
     int pattern[] = { SAVE_LAYER, kDRAW_BITMAP_FLAVOR, /* RESTORE */ };
@@ -359,8 +359,8 @@ static bool remove_save_layer1(SkWriter32* writer, int32_t offset,
  * field alone so the NOOP can be skipped later.
  */
 static void convert_command_to_noop(SkWriter32* writer, uint32_t offset) {
-    uint32_t command = writer->read32At(offset);
-    writer->write32At(offset, (command & MASK_24) | (NOOP << 24));
+    uint32_t command = writer->readTAt<uint32_t>(offset);
+    writer->overwriteTAt(offset, (command & MASK_24) | (NOOP << 24));
 }
 
 /*
@@ -381,8 +381,8 @@ static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
     uint32_t slPaintOffset = getPaintOffset(SAVE_LAYER, saveLayerInfo.fSize);
 
     // we have a match, now we need to get the paints involved
-    uint32_t dbmPaintId = writer->read32At(dbmInfo.fOffset+dbmPaintOffset);
-    uint32_t saveLayerPaintId = writer->read32At(saveLayerInfo.fOffset+slPaintOffset);
+    uint32_t dbmPaintId = writer->readTAt<uint32_t>(dbmInfo.fOffset + dbmPaintOffset);
+    uint32_t saveLayerPaintId = writer->readTAt<uint32_t>(saveLayerInfo.fOffset + slPaintOffset);
 
     if (0 == saveLayerPaintId) {
         // In this case the saveLayer/restore isn't needed at all - just kill the saveLayer
@@ -395,7 +395,7 @@ static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
         // In this case just make the DBM* use the saveLayer's paint, kill the saveLayer
         // and signal the caller (by returning true) to not add the RESTORE op
         convert_command_to_noop(writer, saveLayerInfo.fOffset);
-        writer->write32At(dbmInfo.fOffset+dbmPaintOffset, saveLayerPaintId);
+        writer->overwriteTAt(dbmInfo.fOffset + dbmPaintOffset, saveLayerPaintId);
         return true;
     }
 
@@ -428,7 +428,7 @@ static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
 
     // kill the saveLayer and alter the DBMR2R's paint to be the modified one
     convert_command_to_noop(writer, saveLayerInfo.fOffset);
-    writer->write32At(dbmInfo.fOffset+dbmPaintOffset, data->index());
+    writer->overwriteTAt(dbmInfo.fOffset + dbmPaintOffset, data->index());
     return true;
 }
 
@@ -449,7 +449,7 @@ static bool remove_save_layer2(SkWriter32* writer, int32_t offset,
     // back up to the save block
     // TODO: add a stack to track save*/restore offsets rather than searching backwards
     while (offset > 0) {
-        offset = writer->read32At(offset);
+        offset = writer->readTAt<uint32_t>(offset);
     }
 
     int pattern[] = { SAVE_LAYER, SAVE, CLIP_RECT, kDRAW_BITMAP_FLAVOR, RESTORE, /* RESTORE */ };
@@ -486,7 +486,7 @@ static bool collapse_save_clip_restore(SkWriter32* writer, int32_t offset,
 
     // back up to the save block
     while (offset > 0) {
-        offset = writer->read32At(offset);
+        offset = writer->readTAt<uint32_t>(offset);
     }
 
     // now offset points to a save
@@ -501,7 +501,7 @@ static bool collapse_save_clip_restore(SkWriter32* writer, int32_t offset,
     SkASSERT(kSaveSize == opSize);
 
     // get the save flag (last 4-bytes of the space allocated for the opSize)
-    SkCanvas::SaveFlags saveFlags = (SkCanvas::SaveFlags) writer->read32At(offset+4);
+    SkCanvas::SaveFlags saveFlags = (SkCanvas::SaveFlags) writer->readTAt<uint32_t>(offset + 4);
     if (SkCanvas::kMatrixClip_SaveFlag != saveFlags) {
         // This function's optimization is only correct for kMatrixClip style saves.
         // TODO: set checkMatrix & checkClip booleans here and then check for the
@@ -769,8 +769,8 @@ void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t
 void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t restoreOffset) {
     int32_t offset = fRestoreOffsetStack.top();
     while (offset > 0) {
-        uint32_t peek = fWriter.read32At(offset);
-        fWriter.write32At(offset, restoreOffset);
+        uint32_t peek = fWriter.readTAt<uint32_t>(offset);
+        fWriter.overwriteTAt(offset, restoreOffset);
         offset = peek;
     }
 

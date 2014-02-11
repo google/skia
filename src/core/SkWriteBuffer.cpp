@@ -321,5 +321,5 @@ void SkWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
     flattenable->flatten(*this);
     size_t objSize = fWriter.bytesWritten() - offset;
     // record the obj's size
-    fWriter.write32At(offset - sizeof(uint32_t), SkToU32(objSize));
+    fWriter.overwriteTAt(offset - sizeof(uint32_t), SkToU32(objSize));
 }

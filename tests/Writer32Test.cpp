@@ -102,7 +102,7 @@ static void test1(skiatest::Reporter* reporter, SkWriter32* writer) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(data); ++i) {
         REPORTER_ASSERT(reporter, i*4 == writer->bytesWritten());
         writer->write32(data[i]);
-        REPORTER_ASSERT(reporter, data[i] == writer->read32At(i*4));
+        REPORTER_ASSERT(reporter, data[i] == writer->readTAt<uint32_t>(i * 4));
     }
 
     char buffer[sizeof(data)];
@@ -184,6 +184,43 @@ static void testWritePad(skiatest::Reporter* reporter, SkWriter32* writer) {
     }
 }
 
+static void testOverwriteT(skiatest::Reporter* reporter, SkWriter32* writer) {
+    const size_t padding = 64;
+
+    const uint32_t uint1 = 0x12345678;
+    const uint32_t uint2 = 0x98765432;
+    const SkScalar scalar1 = 1234.5678f;
+    const SkScalar scalar2 = 9876.5432f;
+    const SkRect rect1 = SkRect::MakeXYWH(1, 2, 3, 4);
+    const SkRect rect2 = SkRect::MakeXYWH(5, 6, 7, 8);
+
+    for (size_t i = 0; i < (padding / 4); ++i) {
+        writer->write32(0);
+    }
+
+    writer->write32(uint1);
+    writer->writeRect(rect1);
+    writer->writeScalar(scalar1);
+
+    for (size_t i = 0; i < (padding / 4); ++i) {
+        writer->write32(0);
+    }
+
+    REPORTER_ASSERT(reporter, writer->readTAt<uint32_t>(padding) == uint1);
+    REPORTER_ASSERT(reporter, writer->readTAt<SkRect>(padding + sizeof(uint32_t)) == rect1);
+    REPORTER_ASSERT(reporter, writer->readTAt<SkScalar>(
+                        padding + sizeof(uint32_t) + sizeof(SkRect)) == scalar1);
+
+    writer->overwriteTAt(padding, uint2);
+    writer->overwriteTAt(padding + sizeof(uint32_t), rect2);
+    writer->overwriteTAt(padding + sizeof(uint32_t) + sizeof(SkRect), scalar2);
+
+    REPORTER_ASSERT(reporter, writer->readTAt<uint32_t>(padding) == uint2);
+    REPORTER_ASSERT(reporter, writer->readTAt<SkRect>(padding + sizeof(uint32_t)) == rect2);
+    REPORTER_ASSERT(reporter, writer->readTAt<SkScalar>(
+                        padding + sizeof(uint32_t) + sizeof(SkRect)) == scalar2);
+}
+
 DEF_TEST(Writer32_dynamic, reporter) {
     SkWriter32 writer;
     test1(reporter, &writer);
@@ -193,6 +230,9 @@ DEF_TEST(Writer32_dynamic, reporter) {
 
     writer.reset();
     testWritePad(reporter, &writer);
+
+    writer.reset();
+    testOverwriteT(reporter, &writer);
 }
 
 DEF_TEST(Writer32_contiguous, reporter) {
@@ -216,6 +256,9 @@ DEF_TEST(Writer32_small, reporter) {
 
     writer.reset();
     testWritePad(reporter, &writer);
+
+    writer.reset();
+    testOverwriteT(reporter, &writer);
 }
 
 DEF_TEST(Writer32_large, reporter) {
@@ -226,6 +269,9 @@ DEF_TEST(Writer32_large, reporter) {
 
     writer.reset();
     testWritePad(reporter, &writer);
+
+    writer.reset();
+    testOverwriteT(reporter, &writer);
 }
 
 DEF_TEST(Writer32_misc, reporter) {

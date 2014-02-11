@@ -73,17 +73,26 @@ public:
         return (uint32_t*)(fData + offset);
     }
 
-    // Read or write 4 bytes at offset, which must be a multiple of 4 <= size().
-    uint32_t read32At(size_t offset) {
+    /**
+     *  Read a T record at offset, which must be a multiple of 4. Only legal if the record
+     *  was writtern atomically using the write methods below.
+     */
+    template<typename T>
+    const T& readTAt(size_t offset) const {
         SkASSERT(SkAlign4(offset) == offset);
         SkASSERT(offset < fUsed);
-        return *(uint32_t*)(fData + offset);
+        return *(T*)(fData + offset);
     }
 
-    void write32At(size_t offset, uint32_t val) {
+    /**
+     *  Overwrite a T record at offset, which must be a multiple of 4. Only legal if the record
+     *  was writtern atomically using the write methods below.
+     */
+    template<typename T>
+    void overwriteTAt(size_t offset, const T& value) {
         SkASSERT(SkAlign4(offset) == offset);
         SkASSERT(offset < fUsed);
-        *(uint32_t*)(fData + offset) = val;
+        *(T*)(fData + offset) = value;
     }
 
     bool writeBool(bool value) {
@@ -168,14 +177,11 @@ public:
      *  filled in with zeroes.
      */
     uint32_t* reservePad(size_t size) {
-        uint32_t* p = this->reserve(SkAlign4(size));
-        uint8_t* tail = (uint8_t*)p + size;
-        switch (SkAlign4(size) - size) {
-            default: SkDEBUGFAIL("SkAlign4(x) - x should always be 0, 1, 2, or 3.");
-            case 3: *tail++ = 0x00;  // fallthrough is intentional
-            case 2: *tail++ = 0x00;  // fallthrough is intentional
-            case 1: *tail++ = 0x00;
-            case 0: ;/*nothing to do*/
+        size_t alignedSize = SkAlign4(size);
+        uint32_t* p = this->reserve(alignedSize);
+        if (alignedSize != size) {
+            SkASSERT(alignedSize >= 4);
+            p[alignedSize / 4 - 1] = 0;
         }
         return p;
     }
