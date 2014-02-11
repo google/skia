@@ -854,8 +854,7 @@ public:
                     const SkStrokeRec& stroke,
                     const GrDrawTarget* target,
                     bool allowSW,
-                    GrPathRendererChain::DrawType drawType,
-                    SkPath::FillType fillType,
+                    GrPathRendererChain::DrawType drawType = GrPathRendererChain::kColor_DrawType,
                     GrPathRendererChain::StencilSupport* stencilSupport = NULL);
 
 

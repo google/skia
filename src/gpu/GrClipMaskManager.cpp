@@ -30,11 +30,12 @@ typedef SkClipStack::Element Element;
 using namespace GrReducedClip;
 
 ////////////////////////////////////////////////////////////////////////////////
+namespace {
 // set up the draw state to enable the aa clipping mask. Besides setting up the
 // stage matrix this also alters the vertex layout
-static void setup_drawstate_aaclip(GrGpu* gpu,
-                                   GrTexture* result,
-                                   const SkIRect &devBound) {
+void setup_drawstate_aaclip(GrGpu* gpu,
+                            GrTexture* result,
+                            const SkIRect &devBound) {
     GrDrawState* drawState = gpu->drawState();
     SkASSERT(drawState);
 
@@ -58,21 +59,24 @@ static void setup_drawstate_aaclip(GrGpu* gpu,
                                       kPosition_GrCoordSet))->unref();
 }
 
-static bool path_needs_SW_renderer(GrContext* context,
-                                   GrGpu* gpu,
-                                   const SkPath& origPath,
-                                   const SkStrokeRec& stroke,
-                                   bool doAA) {
+bool path_needs_SW_renderer(GrContext* context,
+                            GrGpu* gpu,
+                            const SkPath& origPath,
+                            const SkStrokeRec& stroke,
+                            bool doAA) {
+    // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
+    SkTCopyOnFirstWrite<SkPath> path(origPath);
+    if (path->isInverseFillType()) {
+        path.writable()->toggleInverseFillType();
+    }
+    // last (false) parameter disallows use of the SW path renderer
     GrPathRendererChain::DrawType type = doAA ?
                                          GrPathRendererChain::kColorAntiAlias_DrawType :
                                          GrPathRendererChain::kColor_DrawType;
-    // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
-    SkPath::FillType fillType = SkPath::ConvertToNonInverseFillType(origPath.getFillType());
 
-    // the 'false' parameter disallows use of the SW path renderer
-    GrPathRenderer::AutoClearPath acp(context->getPathRenderer(origPath, stroke, gpu, 
-                                                               false, type, fillType));
-    return NULL == acp.renderer();
+    return NULL == context->getPathRenderer(*path, stroke, gpu, false, type);
+}
+
 }
 
 /*
@@ -309,20 +313,9 @@ void setup_boolean_blendcoeffs(GrDrawState* drawState, SkRegion::Op op) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrClipMaskManager::drawFilledPath(GrTexture* target,
-                                       GrPathRenderer* pathRenderer, 
-                                       bool isAA) {
-    GrDrawState* drawState = fGpu->drawState();
-
-    drawState->setRenderTarget(target->asRenderTarget());
-
-    SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
-    pathRenderer->drawPath(stroke, fGpu, isAA);
-    return true;
-}
-
 bool GrClipMaskManager::drawElement(GrTexture* target,
-                                    const SkClipStack::Element* element) {
+                                    const SkClipStack::Element* element,
+                                    GrPathRenderer* pr) {
     GrDrawState* drawState = fGpu->drawState();
 
     drawState->setRenderTarget(target->asRenderTarget());
@@ -343,19 +336,21 @@ bool GrClipMaskManager::drawElement(GrTexture* target,
             }
             return true;
         case Element::kPath_Type: {
+            SkTCopyOnFirstWrite<SkPath> path(element->getPath());
+            if (path->isInverseFillType()) {
+                path.writable()->toggleInverseFillType();
+            }
             SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
-            GrPathRendererChain::DrawType type;
-            type = element->isAA() ? GrPathRendererChain::kColorAntiAlias_DrawType :
-                                     GrPathRendererChain::kColor_DrawType;
-            SkPath::FillType fillType = element->getPath().getFillType();
-            GrPathRenderer::AutoClearPath acp(this->getContext()->getPathRenderer(
-                                                  element->getPath(), 
-                                                  stroke, fGpu, false, type,
-                                                  SkPath::ConvertToNonInverseFillType(fillType)));
-            if (NULL == acp.renderer()) {
+            if (NULL == pr) {
+                GrPathRendererChain::DrawType type;
+                type = element->isAA() ? GrPathRendererChain::kColorAntiAlias_DrawType :
+                                         GrPathRendererChain::kColor_DrawType;
+                pr = this->getContext()->getPathRenderer(*path, stroke, fGpu, false, type);
+            }
+            if (NULL == pr) {
                 return false;
             }
-            acp->drawPath(stroke, fGpu, element->isAA());
+            pr->drawPath(element->getPath(), stroke, fGpu, element->isAA());
             break;
         }
         default:
@@ -368,7 +363,7 @@ bool GrClipMaskManager::drawElement(GrTexture* target,
 
 bool GrClipMaskManager::canStencilAndDrawElement(GrTexture* target,
                                                  const SkClipStack::Element* element,
-                                                 GrPathRenderer::AutoClearPath* acp) {
+                                                 GrPathRenderer** pr) {
     GrDrawState* drawState = fGpu->drawState();
     drawState->setRenderTarget(target->asRenderTarget());
 
@@ -376,15 +371,16 @@ bool GrClipMaskManager::canStencilAndDrawElement(GrTexture* target,
         case Element::kRect_Type:
             return true;
         case Element::kPath_Type: {
+            SkTCopyOnFirstWrite<SkPath> path(element->getPath());
+            if (path->isInverseFillType()) {
+                path.writable()->toggleInverseFillType();
+            }
             SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
             GrPathRendererChain::DrawType type = element->isAA() ?
                 GrPathRendererChain::kStencilAndColorAntiAlias_DrawType :
                 GrPathRendererChain::kStencilAndColor_DrawType;
-            SkPath::FillType fillType = element->getPath().getFillType();
-            acp->set(this->getContext()->getPathRenderer(element->getPath(), 
-                                                   stroke, fGpu, false, type,
-                                                   SkPath::ConvertToNonInverseFillType(fillType)));   
-            return NULL != acp->renderer();
+            *pr = this->getContext()->getPathRenderer(*path, stroke, fGpu, false, type);
+            return NULL != *pr;
         }
         default:
             // something is wrong if we're trying to draw an empty element.
@@ -529,8 +525,8 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
         bool invert = element->isInverseFilled();
 
         if (invert || SkRegion::kIntersect_Op == op || SkRegion::kReverseDifference_Op == op) {
-            GrPathRenderer::AutoClearPath acp;
-            bool useTemp = !this->canStencilAndDrawElement(result, element, &acp);
+            GrPathRenderer* pr = NULL;
+            bool useTemp = !this->canStencilAndDrawElement(result, element, &pr);
             GrTexture* dst;
             // This is the bounds of the clip element in the space of the alpha-mask. The temporary
             // mask buffer can be substantially larger than the actually clip stack element. We
@@ -577,13 +573,9 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
 
             drawState->setAlpha(invert ? 0x00 : 0xff);
 
-            if (NULL != acp.renderer()) {
-                this->drawFilledPath(dst, acp.renderer(), element->isAA());
-            } else {
-                if (!this->drawElement(dst, element)) {
-                    fAACache.reset();
-                    return NULL;
-                }
+            if (!this->drawElement(dst, element, pr)) {
+                fAACache.reset();
+                return NULL;
             }
 
             if (useTemp) {
@@ -609,7 +601,7 @@ GrTexture* GrClipMaskManager::createAlphaClipMask(int32_t elementsGenID,
                 drawState->disableStencil();
             }
         } else {
-            // all the remaining ops can just be directly drawn into the accumulation buffer
+            // all the remaining ops can just be directly draw into the accumulation buffer
             drawState->setAlpha(0xff);
             setup_boolean_blendcoeffs(drawState, op);
             this->drawElement(result, element);
@@ -695,22 +687,25 @@ bool GrClipMaskManager::createStencilClipMask(int32_t elementsGenID,
 
             SkRegion::Op op = element->getOp();
 
-            GrPathRenderer::AutoClearPath acp;
+            GrPathRenderer* pr = NULL;
+            SkTCopyOnFirstWrite<SkPath> clipPath;
             if (Element::kRect_Type == element->getType()) {
                 stencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
                 fillInverted = false;
             } else {
                 SkASSERT(Element::kPath_Type == element->getType());
-                fillInverted = element->getPath().isInverseFillType();
-                SkPath::FillType fill = element->getPath().getFillType();
-                acp.set(this->getContext()->getPathRenderer(element->getPath(),
+                clipPath.init(element->getPath());
+                fillInverted = clipPath->isInverseFillType();
+                if (fillInverted) {
+                    clipPath.writable()->toggleInverseFillType();
+                }
+                pr = this->getContext()->getPathRenderer(*clipPath,
                                                          stroke,
                                                          fGpu,
                                                          false,
                                                          GrPathRendererChain::kStencilOnly_DrawType,
-                                                         SkPath::ConvertToNonInverseFillType(fill),
-                                                         &stencilSupport));
-                if (NULL == acp.renderer()) {
+                                                         &stencilSupport);
+                if (NULL == pr) {
                     return false;
                 }
             }
@@ -746,12 +741,12 @@ bool GrClipMaskManager::createStencilClipMask(int32_t elementsGenID,
                     fGpu->drawSimpleRect(element->getRect(), NULL);
                 } else {
                     SkASSERT(Element::kPath_Type == element->getType());
-                    if (NULL != acp.renderer()) {
+                    if (!clipPath->isEmpty()) {
                         if (canRenderDirectToStencil) {
                             *drawState->stencil() = gDrawToStencil;
-                            acp->drawPath(stroke, fGpu, false);
+                            pr->drawPath(*clipPath, stroke, fGpu, false);
                         } else {
-                            acp->stencilPath(stroke, fGpu);
+                            pr->stencilPath(*clipPath, stroke, fGpu);
                         }
                     }
                 }
@@ -769,7 +764,7 @@ bool GrClipMaskManager::createStencilClipMask(int32_t elementsGenID,
                     } else {
                         SkASSERT(Element::kPath_Type == element->getType());
                         SET_RANDOM_COLOR
-                        acp->drawPath(stroke, fGpu, false);
+                        pr->drawPath(*clipPath, stroke, fGpu, false);
                     }
                 } else {
                     SET_RANDOM_COLOR

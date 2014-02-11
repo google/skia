@@ -605,11 +605,12 @@ GrEffectRef* QuadEdgeEffect::TestCreate(SkRandom* random,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrAAConvexPathRenderer::canDrawPath(const SkStrokeRec& stroke,
+bool GrAAConvexPathRenderer::canDrawPath(const SkPath& path,
+                                         const SkStrokeRec& stroke,
                                          const GrDrawTarget* target,
                                          bool antiAlias) const {
     return (target->caps()->shaderDerivativeSupport() && antiAlias &&
-            stroke.isFillStyle() && !this->path().isInverseFillType() && this->path().isConvex());
+            stroke.isFillStyle() && !path.isInverseFillType() && path.isConvex());
 }
 
 namespace {
@@ -622,11 +623,12 @@ extern const GrVertexAttrib gPathAttribs[] = {
 
 };
 
-bool GrAAConvexPathRenderer::onDrawPath(const SkStrokeRec&,
+bool GrAAConvexPathRenderer::onDrawPath(const SkPath& origPath,
+                                        const SkStrokeRec&,
                                         GrDrawTarget* target,
                                         bool antiAlias) {
 
-    const SkPath* path = &this->path();
+    const SkPath* path = &origPath;
     if (path->isEmpty()) {
         return true;
     }
@@ -643,7 +645,7 @@ bool GrAAConvexPathRenderer::onDrawPath(const SkStrokeRec&,
     // segment representation.
     SkPath tmpPath;
     if (viewMatrix.hasPerspective()) {
-        this->path().transform(viewMatrix, &tmpPath);
+        origPath.transform(viewMatrix, &tmpPath);
         path = &tmpPath;
         viewMatrix = SkMatrix::I();
     }

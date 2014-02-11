@@ -17,7 +17,8 @@ public:
 
     static GrPathRenderer* Create(GrContext* context);
 
-    virtual bool canDrawPath(const SkStrokeRec& stroke,
+    virtual bool canDrawPath(const SkPath& path,
+                             const SkStrokeRec& stroke,
                              const GrDrawTarget* target,
                              bool antiAlias) const SK_OVERRIDE;
 
@@ -26,7 +27,8 @@ public:
     typedef SkTArray<float, true> FloatArray;
 
 protected:
-    virtual bool onDrawPath(const SkStrokeRec& stroke,
+    virtual bool onDrawPath(const SkPath& path,
+                            const SkStrokeRec& stroke,
                             GrDrawTarget* target,
                             bool antiAlias) SK_OVERRIDE;
 

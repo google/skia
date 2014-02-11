@@ -163,9 +163,10 @@ static inline bool single_pass_path(const SkPath& path, const SkStrokeRec& strok
 }
 
 GrPathRenderer::StencilSupport GrDefaultPathRenderer::onGetStencilSupport(
+                                                            const SkPath& path,
                                                             const SkStrokeRec& stroke,
                                                             const GrDrawTarget*) const {
-    if (single_pass_path(this->path(), stroke)) {
+    if (single_pass_path(path, stroke)) {
         return GrPathRenderer::kNoRestriction_StencilSupport;
     } else {
         return GrPathRenderer::kStencilOnly_StencilSupport;
@@ -324,7 +325,8 @@ FINISHED:
     return true;
 }
 
-bool GrDefaultPathRenderer::internalDrawPath(const SkStrokeRec& origStroke,
+bool GrDefaultPathRenderer::internalDrawPath(const SkPath& path,
+                                             const SkStrokeRec& origStroke,
                                              GrDrawTarget* target,
                                              bool stencilOnly) {
 
@@ -344,13 +346,13 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkStrokeRec& origStroke,
     }
 
     SkScalar tol = SK_Scalar1;
-    tol = GrPathUtils::scaleToleranceToSrc(tol, viewM, this->path().getBounds());
+    tol = GrPathUtils::scaleToleranceToSrc(tol, viewM, path.getBounds());
 
     int vertexCnt;
     int indexCnt;
     GrPrimitiveType primType;
     GrDrawTarget::AutoReleaseGeometry arg;
-    if (!this->createGeom(this->path(),
+    if (!this->createGeom(path,
                           *stroke,
                           tol,
                           target,
@@ -384,7 +386,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkStrokeRec& origStroke,
         lastPassIsBounds = false;
         drawFace[0] = GrDrawState::kBoth_DrawFace;
     } else {
-        if (single_pass_path(this->path(), *stroke)) {
+        if (single_pass_path(path, *stroke)) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
@@ -394,7 +396,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkStrokeRec& origStroke,
             drawFace[0] = GrDrawState::kBoth_DrawFace;
             lastPassIsBounds = false;
         } else {
-            switch (this->path().getFillType()) {
+            switch (path.getFillType()) {
                 case SkPath::kInverseEvenOdd_FillType:
                     reverse = true;
                     // fallthrough
@@ -461,7 +463,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkStrokeRec& origStroke,
     }
 
     SkRect devBounds;
-    GetPathDevBounds(this->path(), drawState->getRenderTarget(), viewM, &devBounds);
+    GetPathDevBounds(path, drawState->getRenderTarget(), viewM, &devBounds);
 
     for (int p = 0; p < passCount; ++p) {
         drawState->setDrawFace(drawFace[p]);
@@ -488,7 +490,7 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkStrokeRec& origStroke,
                     avmr.setIdentity(drawState);
                 }
             } else {
-                bounds = this->path().getBounds();
+                bounds = path.getBounds();
             }
             GrDrawTarget::AutoGeometryAndStatePush agasp(target, GrDrawTarget::kPreserve_ASRInit);
             target->drawSimpleRect(bounds, NULL);
@@ -507,7 +509,8 @@ bool GrDefaultPathRenderer::internalDrawPath(const SkStrokeRec& origStroke,
     return true;
 }
 
-bool GrDefaultPathRenderer::canDrawPath(const SkStrokeRec& stroke,
+bool GrDefaultPathRenderer::canDrawPath(const SkPath& path,
+                                        const SkStrokeRec& stroke,
                                         const GrDrawTarget* target,
                                         bool antiAlias) const {
     // this class can draw any path with any fill but doesn't do any anti-aliasing.
@@ -517,15 +520,20 @@ bool GrDefaultPathRenderer::canDrawPath(const SkStrokeRec& stroke,
          IsStrokeHairlineOrEquivalent(stroke, target->getDrawState().getViewMatrix(), NULL));
 }
 
-bool GrDefaultPathRenderer::onDrawPath(const SkStrokeRec& stroke,
+bool GrDefaultPathRenderer::onDrawPath(const SkPath& path,
+                                       const SkStrokeRec& stroke,
                                        GrDrawTarget* target,
                                        bool antiAlias) {
-    return this->internalDrawPath(stroke, target, false);
+    return this->internalDrawPath(path,
+                                  stroke,
+                                  target,
+                                  false);
 }
 
-void GrDefaultPathRenderer::onStencilPath(const SkStrokeRec& stroke,
+void GrDefaultPathRenderer::onStencilPath(const SkPath& path,
+                                          const SkStrokeRec& stroke,
                                           GrDrawTarget* target) {
-    SkASSERT(SkPath::kInverseEvenOdd_FillType != this->path().getFillType());
-    SkASSERT(SkPath::kInverseWinding_FillType != this->path().getFillType());
-    this->internalDrawPath(stroke, target, true);
+    SkASSERT(SkPath::kInverseEvenOdd_FillType != path.getFillType());
+    SkASSERT(SkPath::kInverseWinding_FillType != path.getFillType());
+    this->internalDrawPath(path, stroke, target, true);
 }

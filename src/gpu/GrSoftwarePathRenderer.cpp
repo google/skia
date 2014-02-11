@@ -11,7 +11,8 @@
 #include "GrSWMaskHelper.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-bool GrSoftwarePathRenderer::canDrawPath(const SkStrokeRec&,
+bool GrSoftwarePathRenderer::canDrawPath(const SkPath&,
+                                         const SkStrokeRec&,
                                          const GrDrawTarget*,
                                          bool antiAlias) const {
     if (!antiAlias || NULL == fContext) {
@@ -28,6 +29,7 @@ bool GrSoftwarePathRenderer::canDrawPath(const SkStrokeRec&,
 }
 
 GrPathRenderer::StencilSupport GrSoftwarePathRenderer::onGetStencilSupport(
+    const SkPath&,
     const SkStrokeRec&,
     const GrDrawTarget*) const {
     return GrPathRenderer::kNoSupport_StencilSupport;
@@ -111,7 +113,8 @@ void draw_around_inv_path(GrDrawTarget* target,
 
 ////////////////////////////////////////////////////////////////////////////////
 // return true on success; false on failure
-bool GrSoftwarePathRenderer::onDrawPath(const SkStrokeRec& stroke,
+bool GrSoftwarePathRenderer::onDrawPath(const SkPath& path,
+                                        const SkStrokeRec& stroke,
                                         GrDrawTarget* target,
                                         bool antiAlias) {
 
@@ -124,16 +127,16 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkStrokeRec& stroke,
     SkMatrix vm = drawState->getViewMatrix();
 
     SkIRect devPathBounds, devClipBounds;
-    if (!get_path_and_clip_bounds(target, this->path(), vm,
+    if (!get_path_and_clip_bounds(target, path, vm,
                                   &devPathBounds, &devClipBounds)) {
-        if (this->path().isInverseFillType()) {
+        if (path.isInverseFillType()) {
             draw_around_inv_path(target, devClipBounds, devPathBounds);
         }
         return true;
     }
 
     SkAutoTUnref<GrTexture> texture(
-            GrSWMaskHelper::DrawPathMaskToTexture(fContext, this->path(), stroke,
+            GrSWMaskHelper::DrawPathMaskToTexture(fContext, path, stroke,
                                                   devPathBounds,
                                                   antiAlias, &vm));
     if (NULL == texture) {
@@ -142,7 +145,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const SkStrokeRec& stroke,
 
     GrSWMaskHelper::DrawToTargetWithPathMask(texture, target, devPathBounds);
 
-    if (this->path().isInverseFillType()) {
+    if (path.isInverseFillType()) {
         draw_around_inv_path(target, devClipBounds, devPathBounds);
     }
 
