@@ -10,28 +10,16 @@ Calulate differences between image pairs, and store them in a database.
 """
 
 import contextlib
-import csv
 import logging
 import os
 import re
 import shutil
-import sys
-import tempfile
 import urllib
 try:
   from PIL import Image, ImageChops
 except ImportError:
   raise ImportError('Requires PIL to be installed; see '
                     + 'http://www.pythonware.com/products/pil/')
-
-# Set the PYTHONPATH to include the tools directory.
-sys.path.append(
-    os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), os.pardir, os.pardir,
-                        'tools'))
-import find_run_binary
-
-SKPDIFF_BINARY_NAME = 'skpdiff'
 
 DEFAULT_IMAGE_SUFFIX = '.png'
 DEFAULT_IMAGES_SUBDIR = 'images'
@@ -111,27 +99,6 @@ class DiffRecord(object):
     whitediff_image = (graydiff_image.point(lambda p: p > 0 and VALUES_PER_BAND)
                                      .convert('1', dither=Image.NONE))
 
-    # Calculate the perceptual difference percentage.
-    skpdiff_csv_dir = tempfile.mkdtemp()
-    try:
-      skpdiff_csv_output = os.path.join(skpdiff_csv_dir, 'skpdiff-output.csv')
-      skpdiff_binary = find_run_binary.find_path_to_program(SKPDIFF_BINARY_NAME)
-      expected_img = os.path.join(storage_root, expected_images_subdir,
-                                  str(expected_image_locator) + image_suffix)
-      actual_img = os.path.join(storage_root, actual_images_subdir,
-                                str(actual_image_locator) + image_suffix)
-      find_run_binary.run_command(
-          [skpdiff_binary, '-p', expected_img, actual_img,
-           '--csv', skpdiff_csv_output, '-d', 'perceptual'])
-      with contextlib.closing(open(skpdiff_csv_output)) as csv_file:
-        for row in csv.DictReader(csv_file):
-          perceptual_similarity = float(row[' perceptual'].strip())
-          # skpdiff returns the perceptual similarity, convert it to get the
-          # perceptual difference percentage.
-          self._perceptual_difference = 100 - (perceptual_similarity * 100)
-    finally:
-      shutil.rmtree(skpdiff_csv_dir)
-
     # Final touches on diff_image: use whitediff_image as an alpha mask.
     # Unchanged pixels are transparent; differing pixels are opaque.
     diff_image.putalpha(whitediff_image)
@@ -160,10 +127,6 @@ class DiffRecord(object):
     0 and 100 (inclusive)."""
     return ((float(self._num_pixels_differing) * 100) /
             (self._width * self._height))
-
-  def get_perceptual_difference(self):
-    """Returns the perceptual difference percentage."""
-    return self._perceptual_difference
 
   def get_weighted_diff_measure(self):
     """Returns a weighted measure of image diffs, as a float between 0 and 100

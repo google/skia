@@ -432,7 +432,6 @@ class Results(object):
             results_for_this_test['numDifferingPixels'] = 0
             results_for_this_test['percentDifferingPixels'] = 0
             results_for_this_test['weightedDiffMeasure'] = 0
-            results_for_this_test['perceptualDifference'] = 0
             results_for_this_test['maxDiffPerChannel'] = 0
           else:
             try:
@@ -445,8 +444,6 @@ class Results(object):
                   diff_record.get_percent_pixels_differing())
               results_for_this_test['weightedDiffMeasure'] = (
                   diff_record.get_weighted_diff_measure())
-              results_for_this_test['perceptualDifference'] = (
-                  diff_record.get_perceptual_difference())
               results_for_this_test['maxDiffPerChannel'] = (
                   diff_record.get_max_diff_per_channel())
             except KeyError:

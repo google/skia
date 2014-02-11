@@ -263,7 +263,7 @@
                    value="weightedDiffMeasure"
                    ng-checked="(sortColumn == 'weightedDiffMeasure')"
                    ng-click="sortResultsBy('weightedDiffMeasure')">
-            perceptual difference
+            difference per pixel
             <br>
             <input type="range" ng-model="pixelDiffBgColorBrightness"
                    ng-init="pixelDiffBgColorBrightness=64; pixelDiffBgColor=brightnessStringToHexColor(pixelDiffBgColorBrightness)"
@@ -378,9 +378,9 @@
           <!-- diffs: per-channel RGB deltas -->
           <td valign="bottom" width="{{imageSize}}">
             <div ng-hide="result.expectedHashDigest == result.actualHashDigest"
-                 title="Perceptual difference measure is {{result.perceptualDifference.toFixed(4)}}%.  Maximum difference per channel: R={{result.maxDiffPerChannel[0]}}, G={{result.maxDiffPerChannel[1]}}, B={{result.maxDiffPerChannel[2]}}">
+                 title="Weighted difference measure is {{result.weightedDiffMeasure.toFixed(4)}}%.  Maximum difference per channel: R={{result.maxDiffPerChannel[0]}}, G={{result.maxDiffPerChannel[1]}}, B={{result.maxDiffPerChannel[2]}}">
 
-              {{result.perceptualDifference.toFixed(4)}}%
+              {{result.weightedDiffMeasure.toFixed(4)}}%
               {{result.maxDiffPerChannel}}
               <br/>
               <a href="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png" target="_blank">View Image</a><br/>
