@@ -107,8 +107,8 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
         diffData.fDiffName = differ->getName();
 
         if (!differ->diff(&baselineBitmap, &testBitmap, alphaMaskPending, &diffData.fResult)) {
-            // if the diff failed the remove its entry from the list
-            newRecord->fDiffs.pop_back();
+            // if the diff failed record -1 as the result
+            diffData.fResult = -1;
             continue;
         }
 
