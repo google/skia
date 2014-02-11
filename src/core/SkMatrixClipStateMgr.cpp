@@ -104,7 +104,7 @@ void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::fillInSkips(SkWriter32* wr
         if (-1 == curClip.fOffset) {
             continue;
         }
-        SkDEBUGCODE(uint32_t peek = writer->read32At(curClip.fOffset);)
+//        SkDEBUGCODE(uint32_t peek = writer->read32At(curClip.fOffset);)
 //        SkASSERT(-1 == peek);
         writer->write32At(curClip.fOffset, restoreOffset);
         SkDEBUGCODE(curClip.fOffset = -1;)
