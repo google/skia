@@ -263,7 +263,7 @@ bool SkBitmap::setConfig(const SkImageInfo& info, size_t rowBytes) {
         return reset_return_false(this);
     }
 
-    if (info.isEmpty()) {
+    if (info.width() < 0 || info.height() < 0) {
         return reset_return_false(this);
     }
 
