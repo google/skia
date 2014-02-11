@@ -67,7 +67,7 @@ public:
         size_t offset = fUsed;
         size_t totalRequired = fUsed + size;
         if (totalRequired > fCapacity) {
-            growToAtLeast(totalRequired);
+            this->growToAtLeast(totalRequired);
         }
         fUsed = totalRequired;
         return (uint32_t*)(fData + offset);
@@ -247,7 +247,9 @@ private:
  */
 template <size_t SIZE> class SkSWriter32 : public SkWriter32 {
 public:
-    SkSWriter32() : SkWriter32(fData.fStorage, SIZE) {}
+    SkSWriter32() { this->reset(); }
+
+    void reset() {this->INHERITED::reset(fData.fStorage, SIZE); }
 
 private:
     union {
@@ -255,6 +257,8 @@ private:
         double  fDoubleAlignment;
         char    fStorage[SIZE];
     } fData;
+
+    typedef SkWriter32 INHERITED;
 };
 
 #endif
