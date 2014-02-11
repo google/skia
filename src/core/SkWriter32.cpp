@@ -81,6 +81,6 @@ void SkWriter32::growToAtLeast(size_t size) {
     // Expand the array so all reserved space is "used", we maintain the
     // amount we have written manually outside the array
     fInternal.setCount(fCapacity);
-    SkASSERT(fInternal.count() == fCapacity);
-    SkASSERT(fInternal.reserved() == fCapacity);
+    SkASSERT(fInternal.count() == (int)fCapacity);
+    SkASSERT(fInternal.reserved() == (int)fCapacity);
 }

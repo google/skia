@@ -203,17 +203,9 @@ DEF_TEST(Writer32_contiguous, reporter) {
     test1(reporter, &writer);
     REPORTER_ASSERT(reporter, writer.contiguousArray() != NULL);
 
-    // This write is too big for the 32 byte storage block we provide.
-    writer.reset(storage, 32);
-    test2(reporter, &writer);
-    // Some data is in storage, some in writer's internal storage.
-    REPORTER_ASSERT(reporter, writer.contiguousArray() == NULL);
-
-    writer.reset();
-    test2(reporter, &writer);
-    // There is no external storage.  All the data is in internal storage,
-    // so we can always read it contiguously.
-    REPORTER_ASSERT(reporter, writer.contiguousArray() != NULL);
+    // Everything other aspect of contiguous/non-contiguous is an
+    // implementation detail, not part of the public contract for
+    // SkWriter32, and so not tested here.
 }
 
 DEF_TEST(Writer32_small, reporter) {
