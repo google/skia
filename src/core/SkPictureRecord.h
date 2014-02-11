@@ -10,6 +10,9 @@
 
 #include "SkCanvas.h"
 #include "SkFlattenable.h"
+#ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
+#include "SkMatrixClipStateMgr.h"
+#endif
 #include "SkPathHeap.h"
 #include "SkPicture.h"
 #include "SkPictureFlat.h"
@@ -111,11 +114,13 @@ private:
     int recordRestoreOffsetPlaceholder(SkRegion::Op);
     void fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t restoreOffset);
 
+#ifndef SK_COLLAPSE_MATRIX_CLIP_STATE
     SkTDArray<int32_t> fRestoreOffsetStack;
     int fFirstSavedLayerIndex;
     enum {
         kNoSavedLayerIndex = -1
     };
+#endif
 
     /*
      * Write the 'drawType' operation and chunk size to the skp. 'size'
@@ -250,7 +255,7 @@ protected:
     int recordClipRegion(const SkRegion& region, SkRegion::Op op);
     void recordSave(SaveFlags flags);
     void recordSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags);
-    void recordRestore();
+    void recordRestore(bool fillInSkips = true);
 
     // These are set to NULL in our constructor, but may be changed by
     // subclasses, in which case they will be SkSafeUnref'd in our destructor.
@@ -261,6 +266,9 @@ protected:
     SkBitmapHeap* fBitmapHeap;
 
 private:
+    friend class MatrixClipState; // for access to *Impl methods
+    friend class SkMatrixClipStateMgr; // for access to *Impl methods
+
     SkChunkFlatController fFlattenableHeap;
 
     SkPaintDictionary fPaints;
@@ -276,6 +284,10 @@ private:
 
     friend class SkPicturePlayback;
     friend class SkPictureTester; // for unit testing
+
+#ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
+    SkMatrixClipStateMgr fMCMgr;
+#endif
 
     typedef SkCanvas INHERITED;
 };

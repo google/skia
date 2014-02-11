@@ -52,7 +52,10 @@
 //        system is ready for prime time
 //   bench the recording times with/without matrix/clip collapsing
 
-#ifdef COLLAPSE_MATRIX_CLIP_STATE
+#ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
+
+// Enable/disable debugging helper code
+//#define TEST_COLLAPSE_MATRIX_CLIP_STATE 1
 
 // Extract the command ops from the input SkPicture
 static void gets_ops(SkPicture& input, SkTDArray<DrawType>* ops) {
@@ -623,7 +626,7 @@ static void emit_struct3(SkCanvas* canvas,
 
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef COLLAPSE_MATRIX_CLIP_STATE
+#ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
 static void print(const SkTDArray<DrawType>& expected, const SkTDArray<DrawType>& actual) {
     SkDebugf("\n\nexpected %d --- actual %d\n", expected.count(), actual.count());
     int max = SkMax32(expected.count(), actual.count());
@@ -658,7 +661,7 @@ static void test_collapse(skiatest::Reporter* reporter) {
                 for (int l = 0; l < kMatTypeCount; ++l) {
                     for (int m = 0; m < kClipTypeCount; ++m) {
                         for (int n = 0; n < kDrawOpTypeCount; ++n) {
-#ifdef COLLAPSE_MATRIX_CLIP_STATE
+#ifdef TEST_COLLAPSE_MATRIX_CLIP_STATE
                             static int testID = -1;
                             ++testID;
                             if (testID < -1) {
@@ -686,7 +689,7 @@ static void test_collapse(skiatest::Reporter* reporter) {
                             REPORTER_ASSERT(reporter, expected.count() == actual.count());
 
                             if (expected.count() != actual.count()) {
-#ifdef COLLAPSE_MATRIX_CLIP_STATE
+#ifdef TEST_COLLAPSE_MATRIX_CLIP_STATE
                                 print(expected, actual);
 #endif
                                 continue;
@@ -694,7 +697,7 @@ static void test_collapse(skiatest::Reporter* reporter) {
 
                             for (int i = 0; i < expected.count(); ++i) {
                                 REPORTER_ASSERT(reporter, expected[i] == actual[i]);
-#ifdef COLLAPSE_MATRIX_CLIP_STATE
+#ifdef TEST_COLLAPSE_MATRIX_CLIP_STATE
                                 if (expected[i] != actual[i]) {
                                     print(expected, actual);
                                 }
