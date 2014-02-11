@@ -259,7 +259,7 @@ bool SkBitmap::setConfig(const SkImageInfo& info, size_t rowBytes) {
     if ((int32_t)mrb != mrb) {
         return reset_return_false(this);
     }
-    if ((ssize_t)rowBytes != (int32_t)rowBytes) {
+    if ((int64_t)rowBytes != (int32_t)rowBytes) {
         return reset_return_false(this);
     }
 
