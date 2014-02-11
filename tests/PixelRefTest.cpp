@@ -30,7 +30,7 @@ static void test_info(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, success);
         success = bitmap.asImageInfo(&info);
         REPORTER_ASSERT(reporter, success == gRec[i].fExpectedSuccess);
-        if (gRec[i].fExpectedSuccess) {
+        if (success && gRec[i].fExpectedSuccess) {
             REPORTER_ASSERT(reporter, info.fAlphaType == gRec[i].fAlphaType);
             REPORTER_ASSERT(reporter, info.fColorType == gRec[i].fExpectedColorType);
         }

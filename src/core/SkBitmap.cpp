@@ -24,6 +24,11 @@
 #include "SkPackBits.h"
 #include <new>
 
+static bool reset_return_false(SkBitmap* bm) {
+    bm->reset();
+    return false;
+}
+
 struct MipLevel {
     void*       fPixels;
     uint32_t    fRowBytes;
@@ -125,13 +130,9 @@ void SkBitmap::swap(SkBitmap& other) {
     SkTSwap(fPixelLockCount, other.fPixelLockCount);
     SkTSwap(fMipMap, other.fMipMap);
     SkTSwap(fPixels, other.fPixels);
+    SkTSwap(fInfo, other.fInfo);
     SkTSwap(fRowBytes, other.fRowBytes);
-    SkTSwap(fWidth, other.fWidth);
-    SkTSwap(fHeight, other.fHeight);
-    SkTSwap(fConfig, other.fConfig);
-    SkTSwap(fAlphaType, other.fAlphaType);
     SkTSwap(fFlags, other.fFlags);
-    SkTSwap(fBytesPerPixel, other.fBytesPerPixel);
 
     SkDEBUGCODE(this->validate();)
 }
@@ -139,6 +140,10 @@ void SkBitmap::swap(SkBitmap& other) {
 void SkBitmap::reset() {
     this->freePixels();
     sk_bzero(this, sizeof(*this));
+}
+
+SkBitmap::Config SkBitmap::config() const {
+    return SkColorTypeToBitmapConfig(fInfo.colorType());
 }
 
 int SkBitmap::ComputeBytesPerPixel(SkBitmap::Config config) {
@@ -167,39 +172,12 @@ int SkBitmap::ComputeBytesPerPixel(SkBitmap::Config config) {
 }
 
 size_t SkBitmap::ComputeRowBytes(Config c, int width) {
-    if (width < 0) {
-        return 0;
-    }
-
-    int64_t rowBytes = 0;
-
-    switch (c) {
-        case kNo_Config:
-            break;
-        case kA8_Config:
-        case kIndex8_Config:
-            rowBytes = width;
-            break;
-        case kRGB_565_Config:
-        case kARGB_4444_Config:
-            // assign and then shift, so we don't overflow int
-            rowBytes = width;
-            rowBytes <<= 1;
-            break;
-        case kARGB_8888_Config:
-            // assign and then shift, so we don't overflow int
-            rowBytes = width;
-            rowBytes <<= 2;
-            break;
-        default:
-            SkDEBUGFAIL("unknown config");
-            break;
-    }
-    return sk_64_isS32(rowBytes) ? sk_64_asS32(rowBytes) : 0;
+    return SkColorTypeMinRowBytes(SkBitmapConfigToColorType(c), width);
 }
 
 int64_t SkBitmap::ComputeSize64(Config config, int width, int height) {
-    int64_t rowBytes = sk_64_mul(ComputeBytesPerPixel(config), width);
+    SkColorType ct = SkBitmapConfigToColorType(config);
+    int64_t rowBytes = sk_64_mul(SkColorTypeBytesPerPixel(ct), width);
     return rowBytes * height;
 }
 
@@ -212,13 +190,10 @@ int64_t SkBitmap::ComputeSafeSize64(Config config,
                                     uint32_t width,
                                     uint32_t height,
                                     size_t rowBytes) {
-    int64_t safeSize = 0;
-    if (height > 0) {
-        int64_t lastRow = sk_64_mul(ComputeBytesPerPixel(config), width);
-        safeSize = sk_64_mul(height - 1, rowBytes) + lastRow;
-    }
-    SkASSERT(safeSize >= 0);
-    return safeSize;
+    SkImageInfo info = SkImageInfo::Make(width, height,
+                                         SkBitmapConfigToColorType(config),
+                                         kPremul_SkAlphaType);
+    return info.getSafeSize64(rowBytes);
 }
 
 size_t SkBitmap::ComputeSafeSize(Config config,
@@ -237,35 +212,36 @@ size_t SkBitmap::ComputeSafeSize(Config config,
 void SkBitmap::getBounds(SkRect* bounds) const {
     SkASSERT(bounds);
     bounds->set(0, 0,
-                SkIntToScalar(fWidth), SkIntToScalar(fHeight));
+                SkIntToScalar(fInfo.fWidth), SkIntToScalar(fInfo.fHeight));
 }
 
 void SkBitmap::getBounds(SkIRect* bounds) const {
     SkASSERT(bounds);
-    bounds->set(0, 0, fWidth, fHeight);
+    bounds->set(0, 0, fInfo.fWidth, fInfo.fHeight);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool validate_alphaType(SkBitmap::Config config, SkAlphaType alphaType,
+static bool validate_alphaType(SkColorType colorType, SkAlphaType alphaType,
                                SkAlphaType* canonical = NULL) {
-    switch (config) {
-        case SkBitmap::kNo_Config:
+    switch (colorType) {
+        case kUnknown_SkColorType:
             alphaType = kIgnore_SkAlphaType;
             break;
-        case SkBitmap::kA8_Config:
+        case kAlpha_8_SkColorType:
             if (kUnpremul_SkAlphaType == alphaType) {
                 alphaType = kPremul_SkAlphaType;
             }
             // fall-through
-        case SkBitmap::kIndex8_Config:
-        case SkBitmap::kARGB_4444_Config:
-        case SkBitmap::kARGB_8888_Config:
+        case kIndex_8_SkColorType:
+        case kARGB_4444_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
             if (kIgnore_SkAlphaType == alphaType) {
                 return false;
             }
             break;
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             alphaType = kOpaque_SkAlphaType;
             break;
         default:
@@ -277,52 +253,48 @@ static bool validate_alphaType(SkBitmap::Config config, SkAlphaType alphaType,
     return true;
 }
 
-bool SkBitmap::setConfig(Config config, int width, int height, size_t rowBytes,
-                         SkAlphaType alphaType) {
-    if ((width | height) < 0) {
-        goto BAD_CONFIG;
+bool SkBitmap::setConfig(const SkImageInfo& info, size_t rowBytes) {
+    // require that rowBytes fit in 31bits
+    int64_t mrb = info.minRowBytes64();
+    if ((int32_t)mrb != mrb) {
+        return reset_return_false(this);
     }
-    if (rowBytes == 0) {
-        rowBytes = SkBitmap::ComputeRowBytes(config, width);
-        if (0 == rowBytes && kNo_Config != config && width > 0) {
-            goto BAD_CONFIG;
-        }
+    if ((int64_t)rowBytes != (int32_t)rowBytes) {
+        return reset_return_false(this);
     }
 
-    if (!validate_alphaType(config, alphaType, &alphaType)) {
-        goto BAD_CONFIG;
+    if (info.width() < 0 || info.height() < 0) {
+        return reset_return_false(this);
+    }
+
+    if (kUnknown_SkColorType == info.colorType()) {
+        rowBytes = 0;
+    } else if (0 == rowBytes) {
+        rowBytes = (size_t)mrb;
+    } else if (rowBytes < info.minRowBytes()) {
+        return reset_return_false(this);
     }
 
     this->freePixels();
 
-    fConfig     = SkToU8(config);
-    fAlphaType  = SkToU8(alphaType);
-    fWidth      = width;
-    fHeight     = height;
-    fRowBytes   = SkToU32(rowBytes);
-
-    fBytesPerPixel = (uint8_t)ComputeBytesPerPixel(config);
-
-    SkDEBUGCODE(this->validate();)
+    fInfo = info;
+    fRowBytes = SkToU32(rowBytes);
     return true;
-
-    // if we got here, we had an error, so we reset the bitmap to empty
-BAD_CONFIG:
-    this->reset();
-    return false;
 }
 
-bool SkBitmap::setConfig(const SkImageInfo& info, size_t rowBytes) {
-    return this->setConfig(SkImageInfoToBitmapConfig(info), info.fWidth,
-                           info.fHeight, rowBytes, info.fAlphaType);
+bool SkBitmap::setConfig(Config config, int width, int height, size_t rowBytes,
+                         SkAlphaType alphaType) {
+    SkColorType ct = SkBitmapConfigToColorType(config);
+    return this->setConfig(SkImageInfo::Make(width, height, ct, alphaType),
+                           rowBytes);
 }
 
 bool SkBitmap::setAlphaType(SkAlphaType alphaType) {
-    if (!validate_alphaType(this->config(), alphaType, &alphaType)) {
+    if (!validate_alphaType(fInfo.fColorType, alphaType, &alphaType)) {
         return false;
     }
-    if (fAlphaType != alphaType) {
-        fAlphaType = SkToU8(alphaType);
+    if (fInfo.fAlphaType != alphaType) {
+        fInfo.fAlphaType = alphaType;
         if (fPixelRef) {
             fPixelRef->changeAlphaType(alphaType);
         }
@@ -339,7 +311,7 @@ void SkBitmap::updatePixelsFromRef() const {
             if (NULL != p) {
                 p = (char*)p
                     + fPixelRefOrigin.fY * fRowBytes
-                    + fPixelRefOrigin.fX * fBytesPerPixel;
+                    + fPixelRefOrigin.fX * fInfo.bytesPerPixel();
             }
             fPixels = p;
             fColorTable = fPixelRef->colorTable();
@@ -379,20 +351,6 @@ static bool config_to_colorType(SkBitmap::Config config, SkColorType* ctOut) {
     return true;
 }
 
-bool SkBitmap::asImageInfo(SkImageInfo* info) const {
-    SkColorType ct;
-    if (!config_to_colorType(this->config(), &ct)) {
-        return false;
-    }
-    if (info) {
-        info->fWidth = fWidth;
-        info->fHeight = fHeight;
-        info->fAlphaType = this->alphaType();
-        info->fColorType = ct;
-    }
-    return true;
-}
-
 SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
 #ifdef SK_DEBUG
     if (pr) {
@@ -404,7 +362,7 @@ SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
             SkASSERT(info.fColorType == prInfo.fColorType);
             switch (prInfo.fAlphaType) {
                 case kIgnore_SkAlphaType:
-                    SkASSERT(fAlphaType == kIgnore_SkAlphaType);
+                    SkASSERT(fInfo.fAlphaType == kIgnore_SkAlphaType);
                     break;
                 case kOpaque_SkAlphaType:
                 case kPremul_SkAlphaType:
@@ -502,11 +460,6 @@ bool SkBitmap::allocPixels(Allocator* allocator, SkColorTable* ctable) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool reset_return_false(SkBitmap* bm) {
-    bm->reset();
-    return false;
-}
-
 bool SkBitmap::allocPixels(const SkImageInfo& info, SkPixelRefFactory* factory,
                            SkColorTable* ctable) {
     if (kIndex_8_SkColorType == info.fColorType && NULL == ctable) {
@@ -562,10 +515,6 @@ bool SkBitmap::allocConfigPixels(Config config, int width, int height,
     }
 
     SkAlphaType at = isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType;
-    if (!validate_alphaType(config, at, &at)) {
-        return false;
-    }
-
     return this->allocPixels(SkImageInfo::Make(width, height, ct, at));
 }
 
@@ -637,13 +586,6 @@ bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-size_t SkBitmap::getSafeSize() const {
-    // This is intended to be a size_t version of ComputeSafeSize64(), just
-    // faster. The computation is meant to be identical.
-    return (fHeight ? ((fHeight - 1) * fRowBytes) +
-            ComputeRowBytes(this->config(), fWidth): 0);
-}
-
 bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
                             size_t dstRowBytes, bool preserveDstPad) const {
 
@@ -651,9 +593,10 @@ bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
         dstRowBytes = fRowBytes;
     }
 
-    if (dstRowBytes < ComputeRowBytes(this->config(), fWidth) ||
-        dst == NULL || (getPixels() == NULL && pixelRef() == NULL))
+    if (dstRowBytes < fInfo.minRowBytes() ||
+        dst == NULL || (getPixels() == NULL && pixelRef() == NULL)) {
         return false;
+    }
 
     if (!preserveDstPad && static_cast<uint32_t>(dstRowBytes) == fRowBytes) {
         size_t safeSize = this->getSafeSize();
@@ -670,16 +613,15 @@ bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize,
         }
     } else {
         // If destination has different stride than us, then copy line by line.
-        if (ComputeSafeSize(this->config(), fWidth, fHeight, dstRowBytes) >
-            dstSize)
+        if (fInfo.getSafeSize(dstRowBytes) > dstSize) {
             return false;
-        else {
+        } else {
             // Just copy what we need on each line.
-            size_t rowBytes = ComputeRowBytes(this->config(), fWidth);
+            size_t rowBytes = fInfo.minRowBytes();
             SkAutoLockPixels lock(*this);
             const uint8_t* srcP = reinterpret_cast<const uint8_t*>(getPixels());
             uint8_t* dstP = reinterpret_cast<uint8_t*>(dst);
-            for (uint32_t row = 0; row < fHeight;
+            for (int row = 0; row < fInfo.fHeight;
                  row++, srcP += fRowBytes, dstP += dstRowBytes) {
                 memcpy(dstP, srcP, rowBytes);
             }
@@ -723,18 +665,18 @@ void* SkBitmap::getAddr(int x, int y) const {
     char* base = (char*)this->getPixels();
     if (base) {
         base += y * this->rowBytes();
-        switch (this->config()) {
-            case SkBitmap::kARGB_8888_Config:
+        switch (this->colorType()) {
+            case kRGBA_8888_SkColorType:
+            case kBGRA_8888_SkColorType:
                 base += x << 2;
                 break;
-            case SkBitmap::kARGB_4444_Config:
-            case SkBitmap::kRGB_565_Config:
+            case kARGB_4444_SkColorType:
+            case kRGB_565_SkColorType:
                 base += x << 1;
                 break;
-            case SkBitmap::kA8_Config:
-            case SkBitmap::kIndex8_Config:
+            case kAlpha_8_SkColorType:
+            case kIndex_8_SkColorType:
                 base += x;
-                break;
                 break;
             default:
                 SkDEBUGFAIL("Can't return addr for config");
@@ -873,8 +815,12 @@ void SkBitmap::internalErase(const SkIRect& area,
     }
 #endif
 
-    if (kNo_Config == fConfig || kIndex8_Config == fConfig) {
-        return;
+    switch (fInfo.colorType()) {
+        case kUnknown_SkColorType:
+        case kIndex_8_SkColorType:
+            return; // can't erase
+        default:
+            break;
     }
 
     SkAutoLockPixels alp(*this);
@@ -894,8 +840,8 @@ void SkBitmap::internalErase(const SkIRect& area,
         b = SkAlphaMul(b, a);
     }
 
-    switch (fConfig) {
-        case kA8_Config: {
+    switch (this->colorType()) {
+        case kAlpha_8_SkColorType: {
             uint8_t* p = this->getAddr8(area.fLeft, area.fTop);
             while (--height >= 0) {
                 memset(p, a, width);
@@ -903,12 +849,12 @@ void SkBitmap::internalErase(const SkIRect& area,
             }
             break;
         }
-        case kARGB_4444_Config:
-        case kRGB_565_Config: {
+        case kARGB_4444_SkColorType:
+        case kRGB_565_SkColorType: {
             uint16_t* p = this->getAddr16(area.fLeft, area.fTop);;
             uint16_t v;
 
-            if (kARGB_4444_Config == fConfig) {
+            if (kARGB_4444_SkColorType == this->colorType()) {
                 v = pack_8888_to_4444(a, r, g, b);
             } else {
                 v = SkPackRGB16(r >> (8 - SK_R16_BITS),
@@ -921,7 +867,9 @@ void SkBitmap::internalErase(const SkIRect& area,
             }
             break;
         }
-        case kARGB_8888_Config: {
+        case kPMColor_SkColorType: {
+            // what to do about BGRA or RGBA (which ever is != PMColor ?
+            // for now we don't support them.
             uint32_t* p = this->getAddr32(area.fLeft, area.fTop);
             uint32_t  v = SkPackARGB32(a, r, g, b);
 
@@ -931,6 +879,8 @@ void SkBitmap::internalErase(const SkIRect& area,
             }
             break;
         }
+        default:
+            return; // no change, so don't call notifyPixelsChanged()
     }
 
     this->notifyPixelsChanged();
@@ -1046,7 +996,8 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
 
     if (fPixelRef) {
         SkIRect subset;
-        subset.setXYWH(fPixelRefOrigin.fX, fPixelRefOrigin.fY, fWidth, fHeight);
+        subset.setXYWH(fPixelRefOrigin.fX, fPixelRefOrigin.fY,
+                       fInfo.width(), fInfo.height());
         if (fPixelRef->readPixels(&tmpSrc, &subset)) {
             SkASSERT(tmpSrc.width() == this->width());
             SkASSERT(tmpSrc.height() == this->height());
@@ -1160,6 +1111,8 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
 }
 
 bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
+    const SkColorType dstCT = SkBitmapConfigToColorType(dstConfig);
+
     if (!this->canCopyTo(dstConfig)) {
         return false;
     }
@@ -1170,7 +1123,7 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
         SkPixelRef* pixelRef = fPixelRef->deepCopy(dstConfig);
         if (pixelRef) {
             uint32_t rowBytes;
-            if (dstConfig == fConfig) {
+            if (this->colorType() == dstCT) {
                 // Since there is no subset to pass to deepCopy, and deepCopy
                 // succeeded, the new pixel ref must be identical.
                 SkASSERT(fPixelRef->info() == pixelRef->info());
@@ -1181,7 +1134,12 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
                 // With the new config, an appropriate fRowBytes will be computed by setConfig.
                 rowBytes = 0;
             }
-            dst->setConfig(dstConfig, fWidth, fHeight, rowBytes);
+
+            SkImageInfo info = fInfo;
+            info.fColorType = dstCT;
+            if (!dst->setConfig(info, rowBytes)) {
+                return false;
+            }
             dst->setPixelRef(pixelRef, fPixelRefOrigin)->unref();
             return true;
         }
@@ -1584,11 +1542,8 @@ enum {
 };
 
 void SkBitmap::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeInt(fWidth);
-    buffer.writeInt(fHeight);
+    fInfo.flatten(buffer);
     buffer.writeInt(fRowBytes);
-    buffer.writeInt(fConfig);
-    buffer.writeInt(fAlphaType);
 
     if (fPixelRef) {
         if (fPixelRef->getFactory()) {
@@ -1608,19 +1563,17 @@ void SkBitmap::flatten(SkWriteBuffer& buffer) const {
 void SkBitmap::unflatten(SkReadBuffer& buffer) {
     this->reset();
 
-    int width = buffer.readInt();
-    int height = buffer.readInt();
-    int rowBytes = buffer.readInt();
-    Config config = (Config)buffer.readInt();
-    SkAlphaType alphaType = (SkAlphaType)buffer.readInt();
-    buffer.validate((width >= 0) && (height >= 0) && (rowBytes >= 0) &&
-                    SkIsValidConfig(config) && validate_alphaType(config, alphaType));
+    SkImageInfo info;
+    info.unflatten(buffer);
+    size_t rowBytes = buffer.readInt();
+    buffer.validate((info.width() >= 0) && (info.height() >= 0) &&
+                    SkColorTypeIsValid(info.fColorType) &&
+                    SkAlphaTypeIsValid(info.fAlphaType) &&
+                    validate_alphaType(info.fColorType, info.fAlphaType) &&
+                    info.validRowBytes(rowBytes));
 
-    bool configIsValid = this->setConfig(config, width, height, rowBytes, alphaType);
-    // Note : Using (fRowBytes >= (fWidth * fBytesPerPixel)) in the following test can create false
-    //        positives if the multiplication causes an integer overflow. Use the division instead.
-    buffer.validate(configIsValid && (fBytesPerPixel > 0) &&
-                    ((fRowBytes / fBytesPerPixel) >= fWidth));
+    bool configIsValid = this->setConfig(info, rowBytes);
+    buffer.validate(configIsValid);
 
     int reftype = buffer.readInt();
     if (buffer.validate((SERIALIZE_PIXELTYPE_REF_DATA == reftype) ||
@@ -1630,7 +1583,7 @@ void SkBitmap::unflatten(SkReadBuffer& buffer) {
                 SkIPoint origin;
                 origin.fX = buffer.readInt();
                 origin.fY = buffer.readInt();
-                size_t offset = origin.fY * rowBytes + origin.fX * fBytesPerPixel;
+                size_t offset = origin.fY * rowBytes + origin.fX * info.bytesPerPixel();
                 SkPixelRef* pr = buffer.readPixelRef();
                 if (!buffer.validate((NULL == pr) ||
                        (pr->getAllocatedSizeInBytes() >= (offset + this->getSafeSize())))) {
@@ -1663,15 +1616,14 @@ SkBitmap::RLEPixels::~RLEPixels() {
 
 #ifdef SK_DEBUG
 void SkBitmap::validate() const {
-    SkASSERT(fConfig < kConfigCount);
-    SkASSERT(fRowBytes >= (unsigned)ComputeRowBytes((Config)fConfig, fWidth));
+    fInfo.validate();
+    SkASSERT(fInfo.validRowBytes(fRowBytes));
     uint8_t allFlags = kImageIsOpaque_Flag | kImageIsVolatile_Flag | kImageIsImmutable_Flag;
 #ifdef SK_BUILD_FOR_ANDROID
     allFlags |= kHasHardwareMipMap_Flag;
 #endif
     SkASSERT(fFlags <= allFlags);
     SkASSERT(fPixelLockCount >= 0);
-    SkASSERT((uint8_t)ComputeBytesPerPixel((Config)fConfig) == fBytesPerPixel);
 
     if (fPixels) {
         SkASSERT(fPixelRef);
@@ -1680,9 +1632,9 @@ void SkBitmap::validate() const {
         SkASSERT(fPixelRef->rowBytes() == fRowBytes);
         SkASSERT(fPixelRefOrigin.fX >= 0);
         SkASSERT(fPixelRefOrigin.fY >= 0);
-        SkASSERT(fPixelRef->info().fWidth >= (int)fWidth + fPixelRefOrigin.fX);
-        SkASSERT(fPixelRef->info().fHeight >= (int)fHeight + fPixelRefOrigin.fY);
-        SkASSERT(fPixelRef->rowBytes() >= fWidth * fBytesPerPixel);
+        SkASSERT(fPixelRef->info().width() >= (int)this->width() + fPixelRefOrigin.fX);
+        SkASSERT(fPixelRef->info().fHeight >= (int)this->height() + fPixelRefOrigin.fY);
+        SkASSERT(fPixelRef->rowBytes() >= fInfo.minRowBytes());
     } else {
         SkASSERT(NULL == fColorTable);
     }
@@ -1726,5 +1678,16 @@ void SkBitmap::toString(SkString* str) const {
     }
 
     str->append(")");
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_DEBUG
+void SkImageInfo::validate() const {
+    SkASSERT(fWidth >= 0);
+    SkASSERT(fHeight >= 0);
+    SkASSERT(SkColorTypeIsValid(fColorType));
+    SkASSERT(SkAlphaTypeIsValid(fAlphaType));
 }
 #endif
