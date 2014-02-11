@@ -129,13 +129,13 @@
 {
     gpu_issue_6
     Memcheck:Addr8
-    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
+    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK11SkStrokeRecP12GrDrawTargetb
 }
 {
     gpu_issue_7
     Memcheck:Addr4
     fun:_ZNK7SkPoint24distanceToLineBetweenSqdERKS_S1_PNS_4SideE
-    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
+    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK11SkStrokeRecP12GrDrawTargetb
 }
 {
     gpu_issue_8
@@ -150,10 +150,10 @@
 {
     gpu_issue_10
     Memcheck:Addr4
-    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
+    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK11SkStrokeRecP12GrDrawTargetb
 }
 {
     gpu_issue_11
     Memcheck:Addr2
-    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK6SkPathRK11SkStrokeRecP12GrDrawTargetb
+    fun:_ZN22GrAAConvexPathRenderer10onDrawPathERK11SkStrokeRecP12GrDrawTargetb
 }
