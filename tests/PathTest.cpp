@@ -1443,7 +1443,7 @@ static void test_isRect_open_close(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, path.isRect(NULL, NULL));
     REPORTER_ASSERT(reporter, path.isRect(&isClosed, NULL));
     REPORTER_ASSERT(reporter, isClosed);
-    REPORTER_ASSERT(reporter, SkPath::kFill_PathAsRect == path.asRect(NULL));
+    REPORTER_ASSERT(reporter, SkPath::kStroke_PathAsRect == path.asRect(NULL));
 }
 
 // Simple isRect test is inline TestPath, below.
@@ -1562,7 +1562,7 @@ static void test_isRect(skiatest::Reporter* reporter) {
             REPORTER_ASSERT(reporter, isClosed == tests[testIndex].fClose);
             REPORTER_ASSERT(reporter, direction == cheapDirection);
             direction = (SkPath::Direction) -1;
-            if (tests[testIndex].fClose) {
+            if (!tests[testIndex].fClose) {
                 REPORTER_ASSERT(reporter, SkPath::kFill_PathAsRect == path.asRect());
                 REPORTER_ASSERT(reporter, SkPath::kFill_PathAsRect == path.asRect(&direction));
             } else {

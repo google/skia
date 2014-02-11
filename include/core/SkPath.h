@@ -558,10 +558,10 @@ public:
     enum PathAsRect {
         /** The path can not draw the same as its bounds. */
         kNone_PathAsRect,
-        /** The path draws the same as its bounds when stroked or filled. */
-        kStroke_PathAsRect,
         /** The path draws the same as its bounds when filled. */
         kFill_PathAsRect,
+        /** The path draws the same as its bounds when stroked or filled. */
+        kStroke_PathAsRect,
     };
 
     /** Returns kFill_PathAsRect or kStroke_PathAsRect if drawing the path (either filled or
