@@ -125,8 +125,6 @@ struct SkImageInfo {
     SkAlphaType fAlphaType;
 
     static SkImageInfo Make(int width, int height, SkColorType ct, SkAlphaType at) {
-        SkASSERT(width >= 0);
-        SkASSERT(height >= 0);
         SkImageInfo info = {
             width, height, ct, at
         };
@@ -137,8 +135,6 @@ struct SkImageInfo {
      *  Sets colortype to the native ARGB32 type.
      */
     static SkImageInfo MakeN32(int width, int height, SkAlphaType at) {
-        SkASSERT(width >= 0);
-        SkASSERT(height >= 0);
         SkImageInfo info = {
             width, height, kPMColor_SkColorType, at
         };
@@ -149,8 +145,6 @@ struct SkImageInfo {
      *  Sets colortype to the native ARGB32 type, and the alphatype to premul.
      */
     static SkImageInfo MakeN32Premul(int width, int height) {
-        SkASSERT(width >= 0);
-        SkASSERT(height >= 0);
         SkImageInfo info = {
             width, height, kPMColor_SkColorType, kPremul_SkAlphaType
         };
@@ -165,8 +159,6 @@ struct SkImageInfo {
     }
 
     static SkImageInfo MakeA8(int width, int height) {
-        SkASSERT(width >= 0);
-        SkASSERT(height >= 0);
         SkImageInfo info = {
             width, height, kAlpha_8_SkColorType, kPremul_SkAlphaType
         };
