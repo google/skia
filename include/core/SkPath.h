@@ -708,11 +708,11 @@ public:
         kAppend_AddPathMode,
         /** Path is added by extending the last contour of the destination path
             with the first contour of the source path. If the last contour of
-            the destination path is closed, then it will not be extended. 
+            the destination path is closed, then it will not be extended.
             Instead, the start of source path will be extended by a straight
             line to the end point of the destination path.
         */
-        kExtend_AddPathMode  
+        kExtend_AddPathMode
     };
 
     /** Add a copy of src to the path, offset by (dx,dy)

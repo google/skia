@@ -46,7 +46,7 @@ class SkWriter32;
 
 // The SkMatrixClipStateMgr works by intercepting all the save*, restore, clip*,
 // and matrix calls sent to SkCanvas in order to track the current matrix/clip
-// state. All the other canvas calls get funnelled into a generic "call" entry 
+// state. All the other canvas calls get funnelled into a generic "call" entry
 // point that signals that a state block is required.
 class SkMatrixClipStateMgr {
 public:
@@ -64,9 +64,9 @@ public:
         public:
             ClipInfo() {}
 
-            bool clipRect(const SkRect& rect, 
-                          SkRegion::Op op, 
-                          bool doAA, 
+            bool clipRect(const SkRect& rect,
+                          SkRegion::Op op,
+                          bool doAA,
                           const SkMatrix& matrix) {
                 ClipOp& newClip = fClips.push_back();
                 newClip.fClipType = kRect_ClipType;
@@ -78,9 +78,9 @@ public:
                 return false;
             }
 
-            bool clipRRect(const SkRRect& rrect, 
-                           SkRegion::Op op, 
-                           bool doAA, 
+            bool clipRRect(const SkRRect& rrect,
+                           SkRegion::Op op,
+                           bool doAA,
                            const SkMatrix& matrix) {
                 ClipOp& newClip = fClips.push_back();
                 newClip.fClipType = kRRect_ClipType;
@@ -92,16 +92,16 @@ public:
                 return false;
             }
 
-            bool clipPath(SkPictureRecord* picRecord, 
-                          const SkPath& path, 
-                          SkRegion::Op op, 
-                          bool doAA, 
+            bool clipPath(SkPictureRecord* picRecord,
+                          const SkPath& path,
+                          SkRegion::Op op,
+                          bool doAA,
                           const SkMatrix& matrix);
-            bool clipRegion(SkPictureRecord* picRecord, 
-                            const SkRegion& region, 
-                            SkRegion::Op op, 
+            bool clipRegion(SkPictureRecord* picRecord,
+                            const SkRegion& region,
+                            SkRegion::Op op,
                             const SkMatrix& matrix);
-            void writeClip(SkMatrix* curMat, 
+            void writeClip(SkMatrix* curMat,
                            SkPictureRecord* picRecord,
                            bool* overrideFirstOp);
             void fillInSkips(SkWriter32* writer, int32_t restoreOffset);
@@ -161,7 +161,7 @@ public:
             typedef SkNoncopyable INHERITED;
         };
 
-        MatrixClipState(MatrixClipState* prev, int flags) 
+        MatrixClipState(MatrixClipState* prev, int flags)
 #ifdef SK_DEBUG
             : fPrev(prev)
 #endif
@@ -175,7 +175,7 @@ public:
 
                 // The identity/wide-open-clip state is current by default
                 fMCStateID = kIdentityWideOpenStateID;
-            } 
+            }
             else {
                 fLayerID = prev->fLayerID;
 
@@ -234,7 +234,7 @@ public:
     void init(SkPictureRecord* picRecord) {
         // Note: we're not taking a ref here. It is expected that the SkMatrixClipStateMgr
         // is owned by the SkPictureRecord object
-        fPicRecord = picRecord; 
+        fPicRecord = picRecord;
     }
 
     // TODO: need to override canvas' getSaveCount. Right now we pass the
@@ -335,7 +335,7 @@ protected:
     SkDEBUGCODE(void validate();)
 
     static void WriteDeltaMat(SkPictureRecord* picRecord,
-                              const SkMatrix& current, 
+                              const SkMatrix& current,
                               const SkMatrix& desired);
     static int32_t   NewMCStateID();
 };

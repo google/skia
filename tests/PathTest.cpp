@@ -3120,7 +3120,7 @@ static void test_addEmptyPath(skiatest::Reporter* reporter, SkPath::AddPathMode 
     q.reset();
     q.addPath(r, mode);
     REPORTER_ASSERT(reporter, q.isEmpty());
-}    
+}
 
 static void test_conicTo_special_case(skiatest::Reporter* reporter) {
     SkPath p;

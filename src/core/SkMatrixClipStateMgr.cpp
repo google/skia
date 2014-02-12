@@ -8,10 +8,10 @@
 #include "SkMatrixClipStateMgr.h"
 #include "SkPictureRecord.h"
 
-bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipPath(SkPictureRecord* picRecord, 
-                                                               const SkPath& path, 
-                                                               SkRegion::Op op, 
-                                                               bool doAA, 
+bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipPath(SkPictureRecord* picRecord,
+                                                               const SkPath& path,
+                                                               SkRegion::Op op,
+                                                               bool doAA,
                                                                const SkMatrix& matrix) {
     int pathID = picRecord->addPathToHeap(path);
 
@@ -25,11 +25,11 @@ bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipPath(SkPictureRecord* 
     return false;
 }
 
-bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipRegion(SkPictureRecord* picRecord, 
-                                                                 const SkRegion& region, 
-                                                                 SkRegion::Op op, 
+bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipRegion(SkPictureRecord* picRecord,
+                                                                 const SkRegion& region,
+                                                                 SkRegion::Op op,
                                                                  const SkMatrix& matrix) {
-    // TODO: add a region dictionary so we don't have to copy the region in here                                                                    
+    // TODO: add a region dictionary so we don't have to copy the region in here
     ClipOp& newClip = fClips.push_back();
     newClip.fClipType = kRegion_ClipType;
     newClip.fGeom.fRegion = SkNEW(SkRegion(region));
@@ -41,7 +41,7 @@ bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipRegion(SkPictureRecord
 }
 
 void SkMatrixClipStateMgr::WriteDeltaMat(SkPictureRecord* picRecord,
-                                         const SkMatrix& current, 
+                                         const SkMatrix& current,
                                          const SkMatrix& desired) {
     SkMatrix delta;
     bool result = current.invert(&delta);
@@ -53,8 +53,8 @@ void SkMatrixClipStateMgr::WriteDeltaMat(SkPictureRecord* picRecord,
 
 // Note: this only writes out the clips for the current save state. To get the
 // entire clip stack requires iterating of the entire matrix/clip stack.
-void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(SkMatrix* curMat, 
-                                                                SkPictureRecord* picRecord, 
+void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(SkMatrix* curMat,
+                                                                SkPictureRecord* picRecord,
                                                                 bool* overrideFirstOp) {
     for (int i = 0; i < fClips.count(); ++i) {
         ClipOp& curClip = fClips[i];
@@ -72,18 +72,18 @@ void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(SkMatrix* curMat
         // clip stack and should be resolved when that is fixed.
         SkMatrixClipStateMgr::WriteDeltaMat(picRecord, *curMat, curClip.fMatrix);
         *curMat = curClip.fMatrix;
-            
+
         switch (curClip.fClipType) {
         case kRect_ClipType:
-            curClip.fOffset = picRecord->recordClipRect(curClip.fGeom.fRRect.rect(), 
+            curClip.fOffset = picRecord->recordClipRect(curClip.fGeom.fRRect.rect(),
                                                         op, curClip.fDoAA);
             break;
         case kRRect_ClipType:
-            curClip.fOffset = picRecord->recordClipRRect(curClip.fGeom.fRRect, op, 
+            curClip.fOffset = picRecord->recordClipRRect(curClip.fGeom.fRRect, op,
                                                          curClip.fDoAA);
             break;
         case kPath_ClipType:
-            curClip.fOffset = picRecord->recordClipPath(curClip.fGeom.fPathID, op, 
+            curClip.fOffset = picRecord->recordClipPath(curClip.fGeom.fPathID, op,
                                                         curClip.fDoAA);
             break;
         case kRegion_ClipType:
@@ -96,7 +96,7 @@ void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(SkMatrix* curMat
 }
 
 // Fill in the skip offsets for all the clips written in the current block
-void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::fillInSkips(SkWriter32* writer, 
+void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::fillInSkips(SkWriter32* writer,
                                                                   int32_t restoreOffset) {
     for (int i = 0; i < fClips.count(); ++i) {
         ClipOp& curClip = fClips[i];
@@ -113,8 +113,8 @@ void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::fillInSkips(SkWriter32* wr
 
 SkMatrixClipStateMgr::SkMatrixClipStateMgr()
     : fPicRecord(NULL)
-    , fMatrixClipStack(sizeof(MatrixClipState), 
-                       fMatrixClipStackStorage, 
+    , fMatrixClipStack(sizeof(MatrixClipState),
+                       fMatrixClipStackStorage,
                        sizeof(fMatrixClipStackStorage))
     , fCurOpenStateID(kIdentityWideOpenStateID) {
     fCurMCState = (MatrixClipState*)fMatrixClipStack.push_back();
@@ -134,7 +134,7 @@ int SkMatrixClipStateMgr::save(SkCanvas::SaveFlags flags) {
     return fMatrixClipStack.count();
 }
 
-int SkMatrixClipStateMgr::saveLayer(const SkRect* bounds, const SkPaint* paint, 
+int SkMatrixClipStateMgr::saveLayer(const SkRect* bounds, const SkPaint* paint,
                                     SkCanvas::SaveFlags flags) {
     int result = this->save(flags);
     ++fCurMCState->fLayerID;
@@ -142,7 +142,7 @@ int SkMatrixClipStateMgr::saveLayer(const SkRect* bounds, const SkPaint* paint,
 
     fCurMCState->fSaveLayerBracketed = this->call(kOther_CallType);
     fCurMCState->fSaveLayerBaseStateID = fCurOpenStateID;
-    fPicRecord->recordSaveLayer(bounds, paint, 
+    fPicRecord->recordSaveLayer(bounds, paint,
                                 (SkCanvas::SaveFlags)(flags| SkCanvas::kMatrixClip_SaveFlag));
     return result;
 }
@@ -205,7 +205,7 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
     if (kIdentityWideOpenStateID != fCurOpenStateID) {
         fPicRecord->recordRestore();    // Close the open block
     }
-    
+
     // Install the required MC state as the active one
     fCurOpenStateID = fCurMCState->fMCStateID;
 
@@ -224,8 +224,8 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
 
     // write out matrix
     if (!fCurMCState->fMatrixInfo->fMatrix.isIdentity()) {
-        // TODO: writing out the delta matrix here is an artifact of the writing 
-        // out of the entire clip stack (with its matrices). Ultimately we will 
+        // TODO: writing out the delta matrix here is an artifact of the writing
+        // out of the entire clip stack (with its matrices). Ultimately we will
         // write out the CTM here when the clip state is collapsed to a single path.
         WriteDeltaMat(fPicRecord, curMat, fCurMCState->fMatrixInfo->fMatrix);
     }
