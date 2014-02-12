@@ -12,7 +12,7 @@ bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipPath(SkPictureRecord* 
                                                                const SkPath& path,
                                                                SkRegion::Op op,
                                                                bool doAA,
-                                                               const SkMatrix& matrix) {
+                                                               int matrixID) {
     int pathID = picRecord->addPathToHeap(path);
 
     ClipOp& newClip = fClips.push_back();
@@ -20,7 +20,7 @@ bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipPath(SkPictureRecord* 
     newClip.fGeom.fPathID = pathID;
     newClip.fOp = op;
     newClip.fDoAA = doAA;
-    newClip.fMatrix = matrix;
+    newClip.fMatrixID = matrixID;
     newClip.fOffset = kInvalidJumpOffset;
     return false;
 }
@@ -28,33 +28,34 @@ bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipPath(SkPictureRecord* 
 bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipRegion(SkPictureRecord* picRecord,
                                                                  const SkRegion& region,
                                                                  SkRegion::Op op,
-                                                                 const SkMatrix& matrix) {
+                                                                 int matrixID) {
     // TODO: add a region dictionary so we don't have to copy the region in here
     ClipOp& newClip = fClips.push_back();
     newClip.fClipType = kRegion_ClipType;
     newClip.fGeom.fRegion = SkNEW(SkRegion(region));
     newClip.fOp = op;
     newClip.fDoAA = true;      // not necessary but sanity preserving
-    newClip.fMatrix = matrix;
+    newClip.fMatrixID = matrixID;
     newClip.fOffset = kInvalidJumpOffset;
     return false;
 }
 
-void SkMatrixClipStateMgr::WriteDeltaMat(SkPictureRecord* picRecord,
-                                         const SkMatrix& current,
-                                         const SkMatrix& desired) {
+void SkMatrixClipStateMgr::writeDeltaMat(int currentMatID, int desiredMatID) {
+    const SkMatrix& current = this->lookupMat(currentMatID);
+    const SkMatrix& desired = this->lookupMat(desiredMatID);
+
     SkMatrix delta;
     bool result = current.invert(&delta);
     if (result) {
         delta.preConcat(desired);
     }
-    picRecord->recordConcat(delta);
+    fPicRecord->recordConcat(delta);
 }
 
 // Note: this only writes out the clips for the current save state. To get the
 // entire clip stack requires iterating of the entire matrix/clip stack.
-void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(SkMatrix* curMat,
-                                                                SkPictureRecord* picRecord,
+void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(int* curMatID, 
+                                                                SkMatrixClipStateMgr* mgr,
                                                                 bool* overrideFirstOp) {
     for (int i = 0; i < fClips.count(); ++i) {
         ClipOp& curClip = fClips[i];
@@ -65,29 +66,34 @@ void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(SkMatrix* curMat
             *overrideFirstOp = false;
         }
 
-        // TODO: re-add an internal matrix dictionary to not write out
-        // redundant matrices.
+        // TODO: use the matrix ID to skip writing the identity matrix
+        // over and over, i.e.:
+        //  if (*curMatID != curClip.fMatrixID) {
+        //      mgr->writeDeltaMat...
+        //      *curMatID...
+        //  }
+        // Right now this optimization would throw off the testing harness.
         // TODO: right now we're writing out the delta matrix from the prior
         // matrix state. This is a side-effect of writing out the entire
         // clip stack and should be resolved when that is fixed.
-        SkMatrixClipStateMgr::WriteDeltaMat(picRecord, *curMat, curClip.fMatrix);
-        *curMat = curClip.fMatrix;
+        mgr->writeDeltaMat(*curMatID, curClip.fMatrixID);
+        *curMatID = curClip.fMatrixID;
 
         switch (curClip.fClipType) {
         case kRect_ClipType:
-            curClip.fOffset = picRecord->recordClipRect(curClip.fGeom.fRRect.rect(),
-                                                        op, curClip.fDoAA);
+            curClip.fOffset = mgr->getPicRecord()->recordClipRect(curClip.fGeom.fRRect.rect(), 
+                                                                  op, curClip.fDoAA);
             break;
         case kRRect_ClipType:
-            curClip.fOffset = picRecord->recordClipRRect(curClip.fGeom.fRRect, op,
-                                                         curClip.fDoAA);
+            curClip.fOffset = mgr->getPicRecord()->recordClipRRect(curClip.fGeom.fRRect, op, 
+                                                                   curClip.fDoAA);
             break;
         case kPath_ClipType:
-            curClip.fOffset = picRecord->recordClipPath(curClip.fGeom.fPathID, op,
-                                                        curClip.fDoAA);
+            curClip.fOffset = mgr->getPicRecord()->recordClipPath(curClip.fGeom.fPathID, op, 
+                                                                  curClip.fDoAA);
             break;
         case kRegion_ClipType:
-            curClip.fOffset = picRecord->recordClipRegion(*curClip.fGeom.fRegion, op);
+            curClip.fOffset = mgr->getPicRecord()->recordClipRegion(*curClip.fGeom.fRegion, op);
             break;
         default:
             SkASSERT(0);
@@ -117,6 +123,10 @@ SkMatrixClipStateMgr::SkMatrixClipStateMgr()
                        fMatrixClipStackStorage,
                        sizeof(fMatrixClipStackStorage))
     , fCurOpenStateID(kIdentityWideOpenStateID) {
+
+    // The first slot in the matrix dictionary is reserved for the identity matrix
+    fMatrixDict.append()->reset();
+
     fCurMCState = (MatrixClipState*)fMatrixClipStack.push_back();
     new (fCurMCState) MatrixClipState(NULL, 0);    // balanced in restore()
 }
@@ -215,19 +225,19 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
     SkDeque::F2BIter iter(fMatrixClipStack);
     bool firstClip = true;
 
-    SkMatrix curMat = SkMatrix::I();
+    int curMatID = kIdentityMatID;
     for (const MatrixClipState* state = (const MatrixClipState*) iter.next();
          state != NULL;
          state = (const MatrixClipState*) iter.next()) {
-         state->fClipInfo->writeClip(&curMat, fPicRecord, &firstClip);
+         state->fClipInfo->writeClip(&curMatID, this, &firstClip);
     }
 
     // write out matrix
-    if (!fCurMCState->fMatrixInfo->fMatrix.isIdentity()) {
+    if (kIdentityMatID != fCurMCState->fMatrixInfo->getID(this)) {
         // TODO: writing out the delta matrix here is an artifact of the writing
         // out of the entire clip stack (with its matrices). Ultimately we will
         // write out the CTM here when the clip state is collapsed to a single path.
-        WriteDeltaMat(fPicRecord, curMat, fCurMCState->fMatrixInfo->fMatrix);
+        this->writeDeltaMat(curMatID, fCurMCState->fMatrixInfo->getID(this));
     }
 
     SkDEBUGCODE(this->validate();)
@@ -257,3 +267,12 @@ void SkMatrixClipStateMgr::validate() {
     }
 }
 #endif
+
+int SkMatrixClipStateMgr::addMatToDict(const SkMatrix& mat) {
+    if (mat.isIdentity()) {
+        return kIdentityMatID;
+    }
+
+    *fMatrixDict.append() = mat;
+    return fMatrixDict.count()-1;
+}
