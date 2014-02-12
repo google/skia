@@ -978,6 +978,7 @@ private:
 
     SkAutoTUnref<SkPathRef> fPathRef;
 
+    int                 fLastMoveToIndex;
     uint8_t             fFillType;
     mutable uint8_t     fConvexity;
     mutable uint8_t     fDirection;
@@ -1013,10 +1014,7 @@ private:
     //  SkPath path; path.lineTo(...);   <--- need a leading moveTo(0, 0)
     // SkPath path; ... path.close(); path.lineTo(...) <-- need a moveTo(previous moveTo)
     //
-    void injectMoveToIfNeeded() {
-        SkPathRef::Editor ed(&fPathRef);
-        ed.injectMoveToIfNeeded();
-    }
+    inline void injectMoveToIfNeeded();
 
     inline bool hasOnlyMoveTos() const;
 
