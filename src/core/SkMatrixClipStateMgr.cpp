@@ -15,28 +15,28 @@ bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipPath(SkPictureRecord* 
                                                                int matrixID) {
     int pathID = picRecord->addPathToHeap(path);
 
-    ClipOp& newClip = fClips.push_back();
-    newClip.fClipType = kPath_ClipType;
-    newClip.fGeom.fPathID = pathID;
-    newClip.fOp = op;
-    newClip.fDoAA = doAA;
-    newClip.fMatrixID = matrixID;
-    newClip.fOffset = kInvalidJumpOffset;
+    ClipOp* newClip = fClips.append();
+    newClip->fClipType = kPath_ClipType;
+    newClip->fGeom.fPathID = pathID;
+    newClip->fOp = op;
+    newClip->fDoAA = doAA;
+    newClip->fMatrixID = matrixID;
+    newClip->fOffset = kInvalidJumpOffset;
     return false;
 }
 
 bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipRegion(SkPictureRecord* picRecord,
-                                                                 const SkRegion& region,
+                                                                 int regionID,
                                                                  SkRegion::Op op,
                                                                  int matrixID) {
     // TODO: add a region dictionary so we don't have to copy the region in here
-    ClipOp& newClip = fClips.push_back();
-    newClip.fClipType = kRegion_ClipType;
-    newClip.fGeom.fRegion = SkNEW(SkRegion(region));
-    newClip.fOp = op;
-    newClip.fDoAA = true;      // not necessary but sanity preserving
-    newClip.fMatrixID = matrixID;
-    newClip.fOffset = kInvalidJumpOffset;
+    ClipOp* newClip = fClips.append();
+    newClip->fClipType = kRegion_ClipType;
+    newClip->fGeom.fRegionID = regionID;
+    newClip->fOp = op;
+    newClip->fDoAA = true;      // not necessary but sanity preserving
+    newClip->fMatrixID = matrixID;
+    newClip->fOffset = kInvalidJumpOffset;
     return false;
 }
 
@@ -92,9 +92,11 @@ void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(int* curMatID,
             curClip.fOffset = mgr->getPicRecord()->recordClipPath(curClip.fGeom.fPathID, op, 
                                                                   curClip.fDoAA);
             break;
-        case kRegion_ClipType:
-            curClip.fOffset = mgr->getPicRecord()->recordClipRegion(*curClip.fGeom.fRegion, op);
+        case kRegion_ClipType: {
+            const SkRegion* region = mgr->lookupRegion(curClip.fGeom.fRegionID);
+            curClip.fOffset = mgr->getPicRecord()->recordClipRegion(*region, op);
             break;
+        }
         default:
             SkASSERT(0);
         }
@@ -129,6 +131,12 @@ SkMatrixClipStateMgr::SkMatrixClipStateMgr()
 
     fCurMCState = (MatrixClipState*)fMatrixClipStack.push_back();
     new (fCurMCState) MatrixClipState(NULL, 0);    // balanced in restore()
+}
+
+SkMatrixClipStateMgr::~SkMatrixClipStateMgr() {
+    for (int i = 0; i < fRegionDict.count(); ++i) {
+        SkDELETE(fRegionDict[i]);
+    }
 }
 
 
@@ -267,6 +275,12 @@ void SkMatrixClipStateMgr::validate() {
     }
 }
 #endif
+
+int SkMatrixClipStateMgr::addRegionToDict(const SkRegion& region) {
+    int index = fRegionDict.count();
+    *fRegionDict.append() = SkNEW(SkRegion(region));
+    return index;
+}
 
 int SkMatrixClipStateMgr::addMatToDict(const SkMatrix& mat) {
     if (mat.isIdentity()) {

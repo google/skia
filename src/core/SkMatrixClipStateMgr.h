@@ -12,7 +12,6 @@
 #include "SkRegion.h"
 #include "SkRRect.h"
 #include "SkTypes.h"
-#include "SkTArray.h"
 #include "SkTDArray.h"
 
 class SkPictureRecord;
@@ -115,13 +114,13 @@ public:
                           SkRegion::Op op,
                           bool doAA,
                           int matrixID) {
-                ClipOp& newClip = fClips.push_back();
-                newClip.fClipType = kRect_ClipType;
-                newClip.fGeom.fRRect.setRect(rect);   // storing the clipRect in the RRect
-                newClip.fOp = op;
-                newClip.fDoAA = doAA;
-                newClip.fMatrixID = matrixID;
-                newClip.fOffset = kInvalidJumpOffset;
+                ClipOp* newClip = fClips.append();
+                newClip->fClipType = kRect_ClipType;
+                newClip->fGeom.fRRect.setRect(rect);   // storing the clipRect in the RRect
+                newClip->fOp = op;
+                newClip->fDoAA = doAA;
+                newClip->fMatrixID = matrixID;
+                newClip->fOffset = kInvalidJumpOffset;
                 return false;
             }
 
@@ -129,13 +128,13 @@ public:
                            SkRegion::Op op,
                            bool doAA,
                            int matrixID) {
-                ClipOp& newClip = fClips.push_back();
-                newClip.fClipType = kRRect_ClipType;
-                newClip.fGeom.fRRect = rrect;
-                newClip.fOp = op;
-                newClip.fDoAA = doAA;
-                newClip.fMatrixID = matrixID;
-                newClip.fOffset = kInvalidJumpOffset;
+                ClipOp* newClip = fClips.append();
+                newClip->fClipType = kRRect_ClipType;
+                newClip->fGeom.fRRect = rrect;
+                newClip->fOp = op;
+                newClip->fDoAA = doAA;
+                newClip->fMatrixID = matrixID;
+                newClip->fOffset = kInvalidJumpOffset;
                 return false;
             }
 
@@ -145,7 +144,7 @@ public:
                           bool doAA,
                           int matrixID);
             bool clipRegion(SkPictureRecord* picRecord,
-                            const SkRegion& region,
+                            int regionID,
                             SkRegion::Op op,
                             int matrixID);
             void writeClip(int* curMatID, 
@@ -173,22 +172,12 @@ public:
 
             class ClipOp {
             public:
-                ClipOp() {}
-                ~ClipOp() {
-                    if (kRegion_ClipType == fClipType) {
-                        SkDELETE(fGeom.fRegion);
-                    }
-                }
-
                 ClipType     fClipType;
 
                 union {
-                    SkRRect         fRRect;        // also stores clipRect
-                    int             fPathID;
-                    // TODO: add internal dictionary of regions
-                    // This parameter forces us to have a dtor and thus use
-                    // SkTArray rather then SkTDArray!
-                    const SkRegion* fRegion;
+                    SkRRect fRRect;        // also stores clipRect
+                    int     fPathID;
+                    int     fRegionID;
                 } fGeom;
 
                 bool         fDoAA;
@@ -202,7 +191,7 @@ public:
                 int32_t      fOffset;
             };
 
-            SkTArray<ClipOp> fClips;
+            SkTDArray<ClipOp> fClips;
 
             typedef SkNoncopyable INHERITED;
         };
@@ -276,6 +265,7 @@ public:
     };
 
     SkMatrixClipStateMgr();
+    ~SkMatrixClipStateMgr();
 
     void init(SkPictureRecord* picRecord) {
         // Note: we're not taking a ref here. It is expected that the SkMatrixClipStateMgr
@@ -350,7 +340,8 @@ public:
 
     bool clipRegion(const SkRegion& region, SkRegion::Op op) {
         this->call(SkMatrixClipStateMgr::kClip_CallType);
-        return fCurMCState->fClipInfo->clipRegion(fPicRecord, region, op,
+        int regionID = this->addRegionToDict(region);
+        return fCurMCState->fClipInfo->clipRegion(fPicRecord, regionID, op,
                                                   fCurMCState->fMatrixInfo->getID(this));
     }
 
@@ -384,6 +375,8 @@ protected:
     // use the same ID.
     SkTDArray<SkMatrix> fMatrixDict;
 
+    SkTDArray<SkRegion*> fRegionDict;
+
     // The MCStateID of the state currently in effect in the byte stream. 0 if none.
     int32_t          fCurOpenStateID;
 
@@ -391,6 +384,12 @@ protected:
 
     void writeDeltaMat(int currentMatID, int desiredMatID);
     static int32_t   NewMCStateID();
+
+    int addRegionToDict(const SkRegion& region);
+    const SkRegion* lookupRegion(int index) {
+        SkASSERT(index >= 0 && index < fRegionDict.count());
+        return fRegionDict[index];        
+    }
 
     // TODO: add stats to check if the dictionary really does
     // reduce the size of the SkPicture.
