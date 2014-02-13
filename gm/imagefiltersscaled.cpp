@@ -35,8 +35,7 @@ protected:
 
     void make_checkerboard() {
         fCheckerboard.allocN32Pixels(64, 64);
-        SkBitmapDevice device(fCheckerboard);
-        SkCanvas canvas(&device);
+        SkCanvas canvas(fCheckerboard);
         canvas.clear(0x00000000);
         SkPaint darkPaint;
         darkPaint.setColor(0xFF404040);
@@ -60,8 +59,7 @@ protected:
         SkScalar y = SkIntToScalar(height / 2);
         SkScalar radius = SkScalarMul(SkMinScalar(x, y), SkIntToScalar(4) / SkIntToScalar(5));
         fGradientCircle.allocN32Pixels(width, height);
-        SkBitmapDevice device(fGradientCircle);
-        SkCanvas canvas(&device);
+        SkCanvas canvas(fGradientCircle);
         canvas.clear(0x00000000);
         SkColor colors[2];
         colors[0] = SK_ColorWHITE;

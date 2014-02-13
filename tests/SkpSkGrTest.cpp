@@ -453,7 +453,11 @@ void TestResult::testOne() {
         SkGpuDevice grDevice(context, texture.get());
         SkCanvas grCanvas(&grDevice);
         drawPict(pic, &grCanvas, fScaleOversized ? scale : 1);
-        const SkBitmap& grBitmap = grDevice.accessBitmap(false);
+
+        SkBitmap grBitmap;
+        grBitmap.allocPixels(grCanvas.imageInfo());
+        grCanvas.readPixels(&grBitmap, 0, 0);
+        
         if (fTestStep == kCompareBits) {
             fPixelError = similarBits(grBitmap, bitmap);
             int skTime = timePict(pic, &skCanvas);

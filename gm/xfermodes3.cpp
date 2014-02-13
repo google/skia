@@ -168,8 +168,11 @@ private:
         if (NULL == layerCanvas) {
             canvas->restore();
         } else {
-            SkBitmap bitmap = layerCanvas->getDevice()->accessBitmap(false);
-            canvas->drawBitmap(bitmap, 0, 0);
+            SkAutoROCanvasPixels ropixels(layerCanvas);
+            SkBitmap bitmap;
+            if (ropixels.asROBitmap(&bitmap)) {
+                canvas->drawBitmap(bitmap, 0, 0);
+            }
         }
 
         r.inset(-SK_ScalarHalf, -SK_ScalarHalf);

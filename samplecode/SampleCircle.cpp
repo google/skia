@@ -71,12 +71,6 @@ protected:
         }
     }
 
-    static void blowup(SkCanvas* canvas, const SkIRect& src, const SkRect& dst) {
-        SkBaseDevice* device = canvas->getDevice();
-        const SkBitmap& bm = device->accessBitmap(false);
-        canvas->drawBitmapRect(bm, &src, dst, NULL);
-    }
-
     static void make_poly(SkPath* path, int n) {
         if (n <= 0) {
             return;

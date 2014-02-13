@@ -26,8 +26,7 @@ protected:
 
     void make_bitmap() {
         fBitmap.allocN32Pixels(100, 100);
-        SkBitmapDevice device(fBitmap);
-        SkCanvas canvas(&device);
+        SkCanvas canvas(fBitmap);
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -38,7 +37,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(WIDTH, HEIGHT);
+        return SkISize::Make(WIDTH, HEIGHT);
     }
 
     void drawClippedBitmap(SkCanvas* canvas, const SkPaint& paint, int x, int y) {

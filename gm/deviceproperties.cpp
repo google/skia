@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "SkBitmapDevice.h"
 #include "SkTypeface.h"
 
 namespace skiagm {

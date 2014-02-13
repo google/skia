@@ -992,6 +992,55 @@ SkSurface* SkCanvas::onNewSurface(const SkImageInfo& info) {
     return dev ? dev->newSurface(info) : NULL;
 }
 
+SkImageInfo SkCanvas::imageInfo() const {
+    SkBaseDevice* dev = this->getDevice();
+    if (dev) {
+        return dev->imageInfo();
+    } else {
+        // TODO: need a real unknown for alphatype it seems.
+        SkAlphaType unknownAlphaType = kIgnore_SkAlphaType;
+        return SkImageInfo::Make(0, 0, kUnknown_SkColorType, unknownAlphaType);
+    }
+}
+
+const void* SkCanvas::peekPixels(SkImageInfo* info, size_t* rowBytes) {
+    return this->onPeekPixels(info, rowBytes);
+}
+
+const void* SkCanvas::onPeekPixels(SkImageInfo* info, size_t* rowBytes) {
+    SkBaseDevice* dev = this->getDevice();
+    return dev ? dev->peekPixels(info, rowBytes) : NULL;
+}
+
+SkAutoROCanvasPixels::SkAutoROCanvasPixels(SkCanvas* canvas) {
+    fAddr = canvas->peekPixels(&fInfo, &fRowBytes);
+    if (NULL == fAddr) {
+        fInfo = canvas->imageInfo();
+        if (kUnknown_SkColorType == fInfo.colorType() ||
+            !fBitmap.allocPixels(fInfo))
+        {
+            return; // failure, fAddr is NULL
+        }
+        fBitmap.lockPixels();
+        if (!canvas->readPixels(&fBitmap, 0, 0)) {
+            return; // failure, fAddr is NULL
+        }
+        fAddr = fBitmap.getPixels();
+        fRowBytes = fBitmap.rowBytes();
+    }
+    SkASSERT(fAddr);    // success
+}
+
+bool SkAutoROCanvasPixels::asROBitmap(SkBitmap* bitmap) const {
+    if (fAddr) {
+        return bitmap->installPixels(fInfo, const_cast<void*>(fAddr), fRowBytes,
+                                     NULL, NULL);
+    } else {
+        bitmap->reset();
+        return false;
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap,

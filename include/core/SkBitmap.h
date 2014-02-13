@@ -897,4 +897,11 @@ inline SkPMColor SkBitmap::getIndex8Color(int x, int y) const {
     return (*fColorTable)[*((const uint8_t*)fPixels + y * fRowBytes + x)];
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// Helpers until we can fully deprecate SkBitmap::Config
+//
+extern SkBitmap::Config SkColorTypeToBitmapConfig(SkColorType);
+extern SkColorType SkBitmapConfigToColorType(SkBitmap::Config);
+
 #endif

@@ -13,10 +13,7 @@ static void make_bitmap(SkBitmap* bitmap, SkIRect* center) {
     const int kSize = 2*kFixed + kStretchy;
 
     bitmap->allocN32Pixels(kSize, kSize);
-    SkBaseDevice* dev = new SkBitmapDevice(*bitmap);
-
-    SkCanvas canvas(dev);
-    dev->unref();
+    SkCanvas canvas(*bitmap);
     canvas.clear(SK_ColorTRANSPARENT);
 
     SkRect r = SkRect::MakeWH(SkIntToScalar(kSize), SkIntToScalar(kSize));
