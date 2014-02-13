@@ -32,11 +32,11 @@ class ImagePairTest(unittest.TestCase):
     shutil.rmtree(self._temp_dir)
 
   def shortDescription(self):
-    """Tell unittest framework to not print docstrings for test cases."""
+    """Tells unittest framework to not print docstrings for test cases."""
     return None
 
   def test_endToEnd(self):
-    """Test ImagePair, using a real ImageDiffDB to download real images.
+    """Tests ImagePair, using a real ImageDiffDB to download real images.
 
     TODO(epoger): Either in addition to or instead of this end-to-end test,
     we should perform some tests using either:
@@ -65,7 +65,7 @@ class ImagePairTest(unittest.TestCase):
             },
             # expected output:
             {
-                'extraColumnValues': {
+                'extraColumns': {
                     'builder': 'MyBuilder',
                     'test': 'MyTest',
                 },
@@ -115,11 +115,11 @@ class ImagePairTest(unittest.TestCase):
                     'percentDifferingPixels': 100.00,
                     'weightedDiffMeasure': 66.66666666666667,
                 },
-                'expectationsData': {
+                'expectations': {
                     'bugs': [1001, 1002],
                     'ignoreFailure': True,
                 },
-                'extraColumnValues': {
+                'extraColumns': {
                     'builder': 'MyBuilder',
                     'test': 'MyTest',
                 },
