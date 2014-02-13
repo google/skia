@@ -51,6 +51,7 @@ void Path::AddToGlobal(Global* global) {
     ADD_METHOD("arc", Arc);
     ADD_METHOD("rect", Rect);
     ADD_METHOD("oval", Oval);
+    ADD_METHOD("conicTo", ConicTo);
 
     context->Global()->Set(String::NewFromUtf8(
             gGlobal->getIsolate(), "Path"), constructor->GetFunction());
@@ -217,4 +218,27 @@ void Path::Oval(const v8::FunctionCallbackInfo<Value>& args) {
     };
 
     path->fSkPath.addOval(rect, dir);
+}
+
+void Path::ConicTo(const v8::FunctionCallbackInfo<Value>& args) {
+    if (args.Length() != 5) {
+        args.GetIsolate()->ThrowException(
+                v8::String::NewFromUtf8(
+                        args.GetIsolate(), "Error: 5 args required."));
+        return;
+    }
+    double x1 = args[0]->NumberValue();
+    double y1 = args[1]->NumberValue();
+    double x2 = args[2]->NumberValue();
+    double y2 = args[3]->NumberValue();
+    double w  = args[4]->NumberValue();
+    Path* path = Unwrap(args);
+
+    path->fSkPath.conicTo(
+            SkDoubleToScalar(x1),
+            SkDoubleToScalar(y1),
+            SkDoubleToScalar(x2),
+            SkDoubleToScalar(y2),
+            SkDoubleToScalar(w)
+            );
 }
