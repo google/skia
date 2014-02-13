@@ -54,7 +54,7 @@ void SkMatrixClipStateMgr::writeDeltaMat(int currentMatID, int desiredMatID) {
 
 // Note: this only writes out the clips for the current save state. To get the
 // entire clip stack requires iterating of the entire matrix/clip stack.
-void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(int* curMatID, 
+void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(int* curMatID,
                                                                 SkMatrixClipStateMgr* mgr,
                                                                 bool* overrideFirstOp) {
     for (int i = 0; i < fClips.count(); ++i) {
@@ -81,15 +81,15 @@ void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(int* curMatID,
 
         switch (curClip.fClipType) {
         case kRect_ClipType:
-            curClip.fOffset = mgr->getPicRecord()->recordClipRect(curClip.fGeom.fRRect.rect(), 
+            curClip.fOffset = mgr->getPicRecord()->recordClipRect(curClip.fGeom.fRRect.rect(),
                                                                   op, curClip.fDoAA);
             break;
         case kRRect_ClipType:
-            curClip.fOffset = mgr->getPicRecord()->recordClipRRect(curClip.fGeom.fRRect, op, 
+            curClip.fOffset = mgr->getPicRecord()->recordClipRRect(curClip.fGeom.fRRect, op,
                                                                    curClip.fDoAA);
             break;
         case kPath_ClipType:
-            curClip.fOffset = mgr->getPicRecord()->recordClipPath(curClip.fGeom.fPathID, op, 
+            curClip.fOffset = mgr->getPicRecord()->recordClipPath(curClip.fGeom.fPathID, op,
                                                                   curClip.fDoAA);
             break;
         case kRegion_ClipType: {

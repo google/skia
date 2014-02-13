@@ -147,7 +147,7 @@ public:
                             int regionID,
                             SkRegion::Op op,
                             int matrixID);
-            void writeClip(int* curMatID, 
+            void writeClip(int* curMatID,
                            SkMatrixClipStateMgr* mgr,
                            bool* overrideFirstOp);
             void fillInSkips(SkWriter32* writer, int32_t restoreOffset);
@@ -370,8 +370,8 @@ protected:
 
     // This dictionary doesn't actually de-duplicate the matrices (except for the
     // identity matrix). It merely stores the matrices and allows them to be looked
-    // up by ID later. The de-duplication mainly falls upon the matrix/clip stack 
-    // which stores the ID so a revisited clip/matrix (via popping the stack) will 
+    // up by ID later. The de-duplication mainly falls upon the matrix/clip stack
+    // which stores the ID so a revisited clip/matrix (via popping the stack) will
     // use the same ID.
     SkTDArray<SkMatrix> fMatrixDict;
 
@@ -388,7 +388,7 @@ protected:
     int addRegionToDict(const SkRegion& region);
     const SkRegion* lookupRegion(int index) {
         SkASSERT(index >= 0 && index < fRegionDict.count());
-        return fRegionDict[index];        
+        return fRegionDict[index];
     }
 
     // TODO: add stats to check if the dictionary really does
