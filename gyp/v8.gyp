@@ -37,12 +37,12 @@
 
            '-lpthread',
            '-lrt',
-           '../third_party/externals/v8/out/native/obj.target/tools/gyp/libv8_base.x64.a',
-           '../third_party/externals/v8/out/native/obj.target/tools/gyp/libv8_snapshot.a',
-           '../third_party/externals/v8/out/native/obj.target/third_party/icu/libicudata.a',
-           '../third_party/externals/v8/out/native/obj.target/third_party/icu/libicui18n.a',
-           '../third_party/externals/v8/out/native/obj.target/third_party/icu/libicuuc.a',
-           '../third_party/externals/v8/out/native/obj.target/icudata/third_party/icu/linux/icudt46l_dat.o',
+           '../../third_party/externals/v8/out/native/obj.target/tools/gyp/libv8_base.x64.a',
+           '../../third_party/externals/v8/out/native/obj.target/tools/gyp/libv8_snapshot.a',
+           '../../third_party/externals/v8/out/native/obj.target/third_party/icu/libicudata.a',
+           '../../third_party/externals/v8/out/native/obj.target/third_party/icu/libicui18n.a',
+           '../../third_party/externals/v8/out/native/obj.target/third_party/icu/libicuuc.a',
+           '../../third_party/externals/v8/out/native/obj.target/icudata/third_party/icu/linux/icudt46l_dat.o',
            ],
        },
        'conditions' : [

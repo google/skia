@@ -9,7 +9,7 @@ before you can compile and run this sample:
 2. Run 'make dependencies' in third_pary/externals/v8.
 3. Run 'make native' in third_pary/externals/v8.
 4. Uncomment SkV8Example in gyp/everything.gyp.
-5. Run 'make -C out/ SkV8Example BUILDTYPE=Debugmake'
+5. Run 'ninja -C out/Debug SkV8Example'
 6. Run the sample as:
      ./out/Debug/SkV8Example --infile experimental/SkV8Example/speed.js
 
