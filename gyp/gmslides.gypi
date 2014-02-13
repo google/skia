@@ -121,6 +121,7 @@
     '../gm/pathopsinverse.cpp',
     '../gm/pathopsskpclip.cpp',
     '../gm/pathreverse.cpp',
+    '../gm/peekpixels.cpp',
     '../gm/perlinnoise.cpp',
     '../gm/pictureimagefilter.cpp',
     '../gm/points.cpp',

@@ -62,14 +62,14 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        SkScalar horizMargin(SkIntToScalar(10));
-        SkScalar vertMargin(SkIntToScalar(10));
+        SkScalar horizMargin = 10;
+        SkScalar vertMargin = 10;
 
-        SkBitmapDevice devTmp(SkBitmap::kARGB_8888_Config, 40, 40, false);
-        SkCanvas canvasTmp(&devTmp);
+        SkBitmap src;
+        src.allocN32Pixels(40, 40);
+        SkCanvas canvasTmp(src);
 
         draw_checks(&canvasTmp, 40, 40);
-        SkBitmap src = canvasTmp.getTopDevice()->accessBitmap(false);
 
         for (unsigned i = 0; i < NUM_CONFIGS; ++i) {
             if (!src.deepCopyTo(&fDst[i], gConfigs[i])) {

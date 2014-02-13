@@ -1128,8 +1128,9 @@ void SampleWindow::listTitles() {
 
 static SkBitmap capture_bitmap(SkCanvas* canvas) {
     SkBitmap bm;
-    const SkBitmap& src = canvas->getDevice()->accessBitmap(false);
-    src.copyTo(&bm, src.config());
+    if (bm.allocPixels(canvas->imageInfo())) {
+        canvas->readPixels(&bm, 0, 0);
+    }
     return bm;
 }
 

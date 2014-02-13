@@ -8,6 +8,7 @@
 #include "gm.h"
 
 #include "SkArithmeticMode.h"
+#include "SkDevice.h"
 #include "SkBitmapSource.h"
 #include "SkBlurImageFilter.h"
 #include "SkColorFilter.h"
@@ -93,8 +94,7 @@ protected:
 
     void make_bitmap() {
         fBitmap.allocN32Pixels(100, 100);
-        SkBitmapDevice device(fBitmap);
-        SkCanvas canvas(&device);
+        SkCanvas canvas(fBitmap);
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
