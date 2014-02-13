@@ -142,6 +142,15 @@
               '-Werror',
             ],
           }],
+          # For profiling; reveals some costs, exaggerates others (e.g. trivial setters & getters).
+          [ 'skia_disable_inlining', {
+            'cflags': [
+              '-fno-inline',
+              '-fno-default-inline',
+              '-finline-limit=0',
+              '-fno-omit-frame-pointer',
+            ],
+          }],
           [ 'skia_arch_type == "arm" and arm_thumb == 1', {
             'cflags': [
               '-mthumb',

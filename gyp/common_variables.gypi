@@ -175,6 +175,7 @@
     'ios_sdk_version%': '6.0',
     'skia_win_debuggers_path%': '<(skia_win_debuggers_path)',
     'skia_run_pdfviewer_in_gm%': 0,
+    'skia_disable_inlining%': 0,
 
     # These are referenced by our .gypi files that list files (e.g. core.gypi)
     #

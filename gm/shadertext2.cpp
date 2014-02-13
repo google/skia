@@ -149,7 +149,7 @@ protected:
         for (int s = 0; s < 2; ++s) {
             SkPaint& paint = s ? strokePaint : fillPaint;
 
-            SkScalar columnH;
+            SkScalar columnH = 0;
             for (int m = 0; m < matrices.count(); ++m) {
                 columnH = 0;
                 canvas->save();
