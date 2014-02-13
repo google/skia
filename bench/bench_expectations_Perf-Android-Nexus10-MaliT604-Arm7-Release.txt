@@ -358,6 +358,6 @@ tabl_pravda.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexu
 tabl_sahadan.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,135.02,133.55,136.54
 tabl_slashdot.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,56.29,55.27,57.48
 tabl_techmeme.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,4.85,4.22,5.52
-tabl_ukwsj.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,20.74,19.73,21.67
+tabl_ukwsj.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,20.74,18.73,22.67
 tabl_vnexpress.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,12.56,11.72,13.47
 tabl_worldjournal.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,254.58,252.27,256.78

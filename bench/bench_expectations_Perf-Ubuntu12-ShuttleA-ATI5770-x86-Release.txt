@@ -96,7 +96,7 @@ desk_forecastio.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI577
 desk_gmailthread.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,15.31,13.90,16.68
 desk_googlehome.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.77,2.39,5.64
 desk_googleplus.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,5.95,4.75,7.31
-desk_googlespreadsheet.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,21.16,20.44,21.92
+desk_googlespreadsheet.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,21.16,20.44,22.92
 desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,24.26,23.27,25.29
 desk_gws.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,4.37,3.31,5.66
 desk_jsfiddlebigcar.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.62,-0.06,1.26
