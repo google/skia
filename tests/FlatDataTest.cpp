@@ -68,8 +68,7 @@ DEF_TEST(FlatData, reporter) {
     // Test SkBitmap
     {
         SkBitmap bm;
-        bm.setConfig(SkBitmap::kARGB_8888_Config, 50, 50);
-        bm.allocPixels();
+        bm.allocN32Pixels(50, 50);
         SkCanvas canvas(bm);
         SkPaint paint;
         paint.setShader(shader);

@@ -22,8 +22,7 @@ static void test_cache(skiatest::Reporter* reporter,
     const SkIRect size = SkIRect::MakeWH(gWidth, gHeight);
 
     SkBitmap src;
-    src.setConfig(SkBitmap::kARGB_8888_Config, size.width(), size.height());
-    src.allocPixels();
+    src.allocN32Pixels(size.width(), size.height());
     src.eraseColor(SK_ColorBLACK);
     size_t srcSize = src.getSize();
 
@@ -39,8 +38,7 @@ static void test_cache(skiatest::Reporter* reporter,
     context->setTextureCacheLimits(1000, maxCacheSize);
 
     SkBitmap readback;
-    readback.setConfig(SkBitmap::kARGB_8888_Config, size.width(), size.height());
-    readback.allocPixels();
+    readback.allocN32Pixels(size.width(), size.height());
 
     for (int i = 0; i < 100; ++i) {
         canvas->drawBitmap(src, 0, 0);

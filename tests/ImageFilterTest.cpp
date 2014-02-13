@@ -70,10 +70,8 @@ private:
 }
 
 static void make_small_bitmap(SkBitmap& bitmap) {
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, kBitmapSize, kBitmapSize);
-    bitmap.allocPixels();
-    SkBitmapDevice device(bitmap);
-    SkCanvas canvas(&device);
+    bitmap.allocN32Pixels(kBitmapSize, kBitmapSize);
+    SkCanvas canvas(bitmap);
     canvas.clear(0x00000000);
     SkPaint darkPaint;
     darkPaint.setColor(0xFF804020);
@@ -159,8 +157,7 @@ DEF_TEST(ImageFilter, reporter) {
         // Tests pass by not asserting
         SkBitmap bitmap, result;
         make_small_bitmap(bitmap);
-        result.setConfig(SkBitmap::kARGB_8888_Config, kBitmapSize, kBitmapSize);
-        result.allocPixels();
+        result.allocN32Pixels(kBitmapSize, kBitmapSize);
 
         {
             // This tests for :
@@ -204,8 +201,7 @@ static void test_crop_rects(SkBaseDevice* device, skiatest::Reporter* reporter) 
     // unaffected by the input crop rect.
     // Tests pass by not asserting.
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
-    bitmap.allocPixels();
+    bitmap.allocN32Pixels(100, 100);
     bitmap.eraseARGB(0, 0, 0, 0);
     SkDeviceImageFilterProxy proxy(device);
 
@@ -260,16 +256,14 @@ static void test_crop_rects(SkBaseDevice* device, skiatest::Reporter* reporter) 
 
 DEF_TEST(ImageFilterCropRect, reporter) {
     SkBitmap temp;
-    temp.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
-    temp.allocPixels();
+    temp.allocN32Pixels(100, 100);
     SkBitmapDevice device(temp);
     test_crop_rects(&device, reporter);
 }
 
 DEF_TEST(ImageFilterMatrixTest, reporter) {
     SkBitmap temp;
-    temp.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
-    temp.allocPixels();
+    temp.allocN32Pixels(100, 100);
     SkBitmapDevice device(temp);
     SkCanvas canvas(&device);
     canvas.scale(SkIntToScalar(2), SkIntToScalar(2));

@@ -142,12 +142,10 @@ static void TestConstantGradient(skiatest::Reporter*) {
                                                             2,
                                                             SkShader::kClamp_TileMode));
     SkBitmap outBitmap;
-    outBitmap.setConfig(SkBitmap::kARGB_8888_Config, 10, 1);
-    outBitmap.allocPixels();
+    outBitmap.allocN32Pixels(10, 1);
     SkPaint paint;
     paint.setShader(s.get());
-    SkBitmapDevice device(outBitmap);
-    SkCanvas canvas(&device);
+    SkCanvas canvas(outBitmap);
     canvas.drawPaint(paint);
     SkAutoLockPixels alp(outBitmap);
     for (int i = 0; i < 10; i++) {

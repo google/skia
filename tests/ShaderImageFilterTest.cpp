@@ -17,13 +17,11 @@ DEF_TEST(ShaderImageFilter, reporter) {
 
     SkBitmap filterResult, shaderResult;
 
-    filterResult.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    filterResult.allocPixels();
+    filterResult.allocN32Pixels(w, h);
     SkCanvas canvasFilter(filterResult);
     canvasFilter.clear(0x00000000);
 
-    shaderResult.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    shaderResult.allocPixels();
+    shaderResult.allocN32Pixels(w, h);
     SkCanvas canvasShader(shaderResult);
     canvasShader.clear(0x00000000);
 

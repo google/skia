@@ -289,8 +289,7 @@ static void scaleMatrix(const SkPath& one, const SkPath& two, SkMatrix& scale) {
 static int pathsDrawTheSame(SkBitmap& bits, const SkPath& scaledOne, const SkPath& scaledTwo,
         int& error2x2) {
     if (bits.width() == 0) {
-        bits.setConfig(SkBitmap::kARGB_8888_Config, bitWidth * 2, bitHeight);
-        bits.allocPixels();
+        bits.allocN32Pixels(bitWidth * 2, bitHeight);
     }
     SkCanvas canvas(bits);
     canvas.drawColor(SK_ColorWHITE);
@@ -355,8 +354,7 @@ bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths) {
     if (bitHeight >= (int) sizeof(out)) {
         return false;
     }
-    bits.setConfig(SkBitmap::kARGB_8888_Config, bitWidth * 2, bitHeight);
-    bits.allocPixels();
+    bits.allocN32Pixels(bitWidth * 2, bitHeight);
     SkCanvas canvas(bits);
     canvas.drawColor(SK_ColorWHITE);
     SkPaint paint;

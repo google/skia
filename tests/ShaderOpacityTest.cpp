@@ -11,8 +11,10 @@
 #include "Test.h"
 
 static void test_bitmap(skiatest::Reporter* reporter) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);
+
     SkBitmap bmp;
-    bmp.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
+    bmp.setConfig(info);
 
     // test 1: bitmap without pixel data
     SkShader* shader = SkShader::CreateBitmapShader(bmp,
@@ -22,7 +24,7 @@ static void test_bitmap(skiatest::Reporter* reporter) {
     shader->unref();
 
     // From this point on, we have pixels
-    bmp.allocPixels();
+    bmp.allocPixels(info);
 
     // test 2: not opaque by default
     shader = SkShader::CreateBitmapShader(bmp,

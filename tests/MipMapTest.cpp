@@ -15,8 +15,7 @@ static void make_bitmap(SkBitmap* bm, SkRandom& rand) {
     // should fix that to support 1 X N, where N > 1 to return non-null.
     int w = 2 + rand.nextU() % 1000;
     int h = 2 + rand.nextU() % 1000;
-    bm->setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    bm->allocPixels();
+    bm->allocN32Pixels(w, h);
     bm->eraseColor(SK_ColorWHITE);
 }
 

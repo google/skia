@@ -403,10 +403,8 @@ void TestResult::testOne() {
         do {
             int dimX = (width + scale - 1) / scale;
             int dimY = (height + scale - 1) / scale;
-            oldBitmap.setConfig(SkBitmap::kARGB_8888_Config, dimX, dimY);
-            opBitmap.setConfig(SkBitmap::kARGB_8888_Config, dimX, dimY);
-            bool success = oldBitmap.allocPixels() && opBitmap.allocPixels();
-            if (success) {
+            if (oldBitmap.allocN32Pixels(dimX, dimY) &&
+                opBitmap.allocN32Pixels(dimX, dimY)) {
                 break;
             }
             SkDebugf("-%d-", scale);

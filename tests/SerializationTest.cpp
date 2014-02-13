@@ -218,10 +218,8 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
     // to make sure we don't crash while trying to render it
     if (shouldSucceed) {
         SkBitmap bitmap;
-        bitmap.setConfig(SkBitmap::kARGB_8888_Config, 24, 24);
-        bitmap.allocPixels();
-        SkBitmapDevice device(bitmap);
-        SkCanvas canvas(&device);
+        bitmap.allocN32Pixels(24, 24);
+        SkCanvas canvas(bitmap);
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setImageFilter(deserializedFilter);
@@ -293,40 +291,18 @@ DEF_TEST(Serialization, reporter) {
 
     // Test invalid deserializations
     {
+        SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+
         SkBitmap validBitmap;
-        validBitmap.setConfig(SkBitmap::kARGB_8888_Config, 256, 256);
+        validBitmap.setConfig(info);
 
         // Create a bitmap with a really large height
+        info.fHeight = 1000000000;
         SkBitmap invalidBitmap;
-        invalidBitmap.setConfig(SkBitmap::kARGB_8888_Config, 256, 1000000000);
+        invalidBitmap.setConfig(info);
 
         // The deserialization should succeed, and the rendering shouldn't crash,
         // even when the device fails to initialize, due to its size
         TestBitmapSerialization(validBitmap, invalidBitmap, true, reporter);
-
-        // we assert if the pixelref doesn't agree with the config, so skip this
-        // test (at least for now)
-#if 0
-        // Create a bitmap with a pixel ref too small
-        SkImageInfo info;
-        info.fWidth = 256;
-        info.fHeight = 256;
-        info.fColorType = kPMColor_SkColorType;
-        info.fAlphaType = kPremul_SkAlphaType;
-
-        SkBitmap invalidBitmap2;
-        invalidBitmap2.setConfig(info);
-
-        // Hack to force invalid, by making the pixelref smaller than its
-        // owning bitmap.
-        info.fWidth = 32;
-        info.fHeight = 1;
-
-        invalidBitmap2.setPixelRef(SkMallocPixelRef::NewAllocate(
-                        info, invalidBitmap2.rowBytes(), NULL))->unref();
-
-        // The deserialization should detect the pixel ref being too small and fail
-        TestBitmapSerialization(validBitmap, invalidBitmap2, false, reporter);
-#endif
     }
 }

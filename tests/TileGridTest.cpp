@@ -22,11 +22,9 @@ enum Tile {
 
 class MockCanvas : public SkCanvas {
 public:
-    MockCanvas(SkBaseDevice* device) : SkCanvas(device)
-    {}
+    MockCanvas(const SkBitmap& bm) : SkCanvas(bm) {}
 
-    virtual void drawRect(const SkRect& rect, const SkPaint&)
-    {
+    virtual void drawRect(const SkRect& rect, const SkPaint&) {
         // This capture occurs before quick reject.
         fRects.push(rect);
     }
@@ -70,20 +68,17 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
     picture.endRecording();
 
     SkBitmap store;
-    store.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
-    store.allocPixels();
+    store.allocN32Pixels(1, 1);
 
     // Test parts of top-left tile
     {
-        SkBitmapDevice device(store);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(store);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
-        SkBitmapDevice device(store);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(store);
         mockCanvas.translate(-7.99f, -7.99f);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
@@ -91,8 +86,7 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
     }
     // Corner overlap
     {
-        SkBitmapDevice device(store);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(store);
         mockCanvas.translate(-9.5f, -9.5f);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
@@ -101,8 +95,7 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
     }
     // Intersect bottom right tile, but does not overlap rect 2
     {
-        SkBitmapDevice device(store);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(store);
         mockCanvas.translate(-16.0f, -16.0f);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
@@ -110,32 +103,28 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
     }
     // Out of bounds queries, snap to border tiles
     {
-        SkBitmapDevice device(store);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(store);
         mockCanvas.translate(2.0f, 0.0f);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
-        SkBitmapDevice device(store);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(store);
         mockCanvas.translate(0.0f, 2.0f);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
-        SkBitmapDevice device(store);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(store);
         mockCanvas.translate(-22.0f, -16.0f);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
     }
     {
-        SkBitmapDevice device(store);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(store);
         mockCanvas.translate(-16.0f, -22.0f);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
@@ -168,28 +157,23 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
     picture.endRecording();
 
     SkBitmap tileBitmap;
-    tileBitmap.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
-    tileBitmap.allocPixels();
+    tileBitmap.allocN32Pixels(10, 10);
     SkBitmap moreThanATileBitmap;
-    moreThanATileBitmap.setConfig(SkBitmap::kARGB_8888_Config, 11, 11);
-    moreThanATileBitmap.allocPixels();
+    moreThanATileBitmap.allocN32Pixels(11, 11);
     SkBitmap tinyBitmap;
-    tinyBitmap.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
-    tinyBitmap.allocPixels();
+    tinyBitmap.allocN32Pixels(2, 2);
     // Test parts of top-left tile
     {
         // The offset should cancel the top and left borders of the top left tile
         // So a look-up at interval 0-10 should be grid aligned,
-        SkBitmapDevice device(tileBitmap);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(tileBitmap);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
         // Encroaching border by one pixel
-        SkBitmapDevice device(moreThanATileBitmap);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(moreThanATileBitmap);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
@@ -199,16 +183,14 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
         // Tile stride is 8 (tileWidth - 2 * border pixels
         // so translating by 8, should make query grid-aligned
         // with middle tile.
-        SkBitmapDevice device(tileBitmap);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(tileBitmap);
         mockCanvas.translate(SkIntToScalar(-8), SkIntToScalar(-8));
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
         REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
     }
     {
-        SkBitmapDevice device(tileBitmap);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(tileBitmap);
         mockCanvas.translate(-7.9f, -7.9f);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
@@ -216,8 +198,7 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
         REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[1]);
     }
     {
-        SkBitmapDevice device(tileBitmap);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(tileBitmap);
         mockCanvas.translate(-8.1f, -8.1f);
         picture.draw(&mockCanvas);
         REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
@@ -228,8 +209,7 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
         // Regression test for crbug.com/234688
         // Once the 2x2 device region is inset by margin, it yields an empty
         // adjusted region, sitting right on top of the tile boundary.
-        SkBitmapDevice device(tinyBitmap);
-        MockCanvas mockCanvas(&device);
+        MockCanvas mockCanvas(tinyBitmap);
         mockCanvas.translate(-8.0f, -8.0f);
         picture.draw(&mockCanvas);
         // This test passes by not asserting. We do not validate the rects recorded

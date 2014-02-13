@@ -26,8 +26,7 @@ static const int gColorScale = 30;
 static const int gColorOffset = 60;
 
 static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
-    bm->setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    bm->allocPixels();
+    bm->allocN32Pixels(w, h);
     bm->eraseColor(color);
     if (immutable) {
         bm->setImmutable();
@@ -37,8 +36,8 @@ static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
 static void make_checkerboard(SkBitmap* bm, int w, int h, bool immutable) {
     SkASSERT(w % 2 == 0);
     SkASSERT(h % 2 == 0);
-    bm->setConfig(SkBitmap::kA8_Config, w, h);
-    bm->allocPixels();
+    bm->allocPixels(SkImageInfo::Make(w, h, kAlpha_8_SkColorType,
+                                      kPremul_SkAlphaType));
     SkAutoLockPixels lock(*bm);
     for (int y = 0; y < h; y += 2) {
         uint8_t* s = bm->getAddr8(0, y);
@@ -721,7 +720,7 @@ static void test_bad_bitmap() {
     // This bitmap has a width and height but no pixels. As a result, attempting to record it will
     // fail.
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
+    bm.setConfig(SkImageInfo::MakeN32Premul(100, 100));
     SkPicture picture;
     SkCanvas* recordingCanvas = picture.beginRecording(100, 100);
     recordingCanvas->drawBitmap(bm, 0, 0);
@@ -1048,7 +1047,7 @@ static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
 static void test_draw_bitmaps(SkCanvas* canvas) {
     SkBitmap empty;
     draw_bitmaps(empty, canvas);
-    empty.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
+    empty.setConfig(SkImageInfo::MakeN32Premul(10, 10));
     draw_bitmaps(empty, canvas);
 }
 
@@ -1060,8 +1059,7 @@ DEF_TEST(Picture_EmptyBitmap, r) {
 
 DEF_TEST(Canvas_EmptyBitmap, r) {
     SkBitmap dst;
-    dst.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
-    dst.allocPixels();
+    dst.allocN32Pixels(10, 10);
     SkCanvas canvas(dst);
 
     test_draw_bitmaps(&canvas);

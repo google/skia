@@ -168,8 +168,7 @@ static void test_unpremul(skiatest::Reporter* reporter) {
 static SkMemoryStream* create_image_stream(SkImageEncoder::Type type) {
     SkBitmap bm;
     const int size = 50;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, size, size);
-    bm.allocPixels();
+    bm.allocN32Pixels(size, size);
     SkCanvas canvas(bm);
     SkPoint points[2] = {
         { SkIntToScalar(0), SkIntToScalar(0) },
@@ -363,7 +362,7 @@ DEF_TEST(ImprovedBitmapFactory, reporter) {
         SkStream::NewFromFile(path.c_str()));
     if (sk_exists(path.c_str())) {
         SkBitmap bm;
-        SkAssertResult(bm.setConfig(SkBitmap::kARGB_8888_Config, 1, 1));
+        SkAssertResult(bm.setConfig(SkImageInfo::MakeN32Premul(1, 1)));
         REPORTER_ASSERT(reporter,
             NULL != install_pixel_ref(&bm, stream.detach(), 1, true));
         SkAutoLockPixels alp(bm);

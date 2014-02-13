@@ -425,8 +425,7 @@ void TestResult::testOne() {
         do {
             dim.fX = (pWidth + scale - 1) / scale;
             dim.fY = (pHeight + scale - 1) / scale;
-            bitmap.setConfig(SkBitmap::kARGB_8888_Config, dim.fX, dim.fY);
-            bool success = bitmap.allocPixels();
+            bool success = bitmap.allocN32Pixels(, dim.fX, dim.fY);
             if (success) {
                 break;
             }

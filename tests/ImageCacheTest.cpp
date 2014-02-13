@@ -10,8 +10,7 @@
 #include "Test.h"
 
 static void make_bm(SkBitmap* bm, int w, int h) {
-    bm->setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    bm->allocPixels();
+    bm->allocN32Pixels(w, h);
 }
 
 static const int COUNT = 10;
@@ -109,12 +108,10 @@ DEF_TEST(ImageCache_doubleAdd, r) {
     SkScaledImageCache cache(1024);
 
     SkBitmap original;
-    original.setConfig(SkBitmap::kARGB_8888_Config, 40, 40);
-    original.allocPixels();
+    original.allocN32Pixels(40, 40);
 
     SkBitmap scaled;
-    scaled.setConfig(SkBitmap::kARGB_8888_Config, 20, 20);
-    scaled.allocPixels();
+    scaled.allocN32Pixels(20, 20);
 
     SkScaledImageCache::ID* id1 = cache.addAndLock(original, 0.5f, 0.5f, scaled);
     SkScaledImageCache::ID* id2 = cache.addAndLock(original, 0.5f, 0.5f, scaled);

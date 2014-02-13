@@ -243,8 +243,7 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
 
 // Create a bitmap that would be very eficiently compressed in a ZIP.
 static void setup_bitmap(SkBitmap* bitmap, int width, int height) {
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, width, height);
-    bitmap->allocPixels();
+    bitmap->allocN32Pixels(width, height);
     bitmap->eraseColor(SK_ColorWHITE);
 }
 

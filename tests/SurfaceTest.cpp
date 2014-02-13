@@ -178,8 +178,7 @@ static void TestSurfaceCopyOnWrite(skiatest::Reporter* reporter, SurfaceType sur
     const size_t testPointCount = 3;
 
     SkBitmap testBitmap;
-    testBitmap.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
-    testBitmap.allocPixels();
+    testBitmap.allocN32Pixels(10, 10);
     testBitmap.eraseColor(0);
 
     SkRRect testRRect;
