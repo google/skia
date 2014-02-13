@@ -27,7 +27,8 @@ protected:
 
     void make_bitmap() {
         fBitmap.allocN32Pixels(135, 135);
-        SkCanvas canvas(fBitmap);
+        SkBitmapDevice device(fBitmap);
+        SkCanvas canvas(&device);
         canvas.clear(0x0);
         SkPaint paint;
         paint.setAntiAlias(true);

@@ -77,12 +77,6 @@ public:
     }
 
     /**
-     *  Return ImageInfo for this device. If the canvas is not backed by pixels
-     *  (cpu or gpu), then the info's ColorType will be kUnknown_SkColorType.
-     */
-    virtual SkImageInfo imageInfo() const;
-
-    /**
      *  Return the bounds of the device in the coordinate space of the root
      *  canvas. The root device will have its top-left at 0,0, but other devices
      *  such as those associated with saveLayer may have a non-zero origin.
@@ -375,10 +369,7 @@ protected:
 protected:
     // default impl returns NULL
     virtual SkSurface* newSurface(const SkImageInfo&);
-    
-    // default impl returns NULL
-    virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes);
-    
+
     /**
      *  Leaky properties are those which the device should be applying but it isn't.
      *  These properties will be applied by the draw, when and as it can.

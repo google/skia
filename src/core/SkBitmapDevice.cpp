@@ -54,10 +54,6 @@ SkBitmapDevice::SkBitmapDevice(SkBitmap::Config config, int width, int height, b
 SkBitmapDevice::~SkBitmapDevice() {
 }
 
-SkImageInfo SkBitmapDevice::imageInfo() const {
-    return fBitmap.info();
-}
-
 void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     SkASSERT(bm.width() == fBitmap.width());
     SkASSERT(bm.height() == fBitmap.height());
@@ -388,16 +384,6 @@ void SkBitmapDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
 
 SkSurface* SkBitmapDevice::newSurface(const SkImageInfo& info) {
     return SkSurface::NewRaster(info);
-}
-
-const void* SkBitmapDevice::peekPixels(SkImageInfo* info, size_t* rowBytes) {
-    if (fBitmap.getPixels() && fBitmap.asImageInfo(info)) {
-        if (rowBytes) {
-            *rowBytes = fBitmap.rowBytes();
-        }
-        return fBitmap.getPixels();
-    }
-    return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

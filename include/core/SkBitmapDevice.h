@@ -82,8 +82,6 @@ public:
     */
     virtual SkBitmap::Config config() const SK_OVERRIDE { return fBitmap.config(); }
 
-    virtual SkImageInfo imageInfo() const SK_OVERRIDE;
-
     /**
      *  DEPRECATED: This will be made protected once WebKit stops using it.
      *              Instead use Canvas' writePixels method.
@@ -280,7 +278,6 @@ private:
     virtual void flush() SK_OVERRIDE {}
 
     virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
-    virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes) SK_OVERRIDE;
 
     SkBitmap    fBitmap;
 

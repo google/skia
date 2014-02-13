@@ -42,10 +42,10 @@ static void dump_layers(const char label[], SkCanvas* canvas) {
     SkCanvas::LayerIter iter(canvas, true);
     int index = 0;
     while (!iter.done()) {
-        SkImageInfo info = iter.device()->imageInfo();
+        const SkBitmap& bm = iter.device()->accessBitmap(false);
         const SkIRect& clip = iter.clip().getBounds();
         SkDebugf("Layer[%d] bitmap [%d %d] X=%d Y=%d clip=[%d %d %d %d] alpha=%d\n", index++,
-                 info.width(), info.height(), iter.x(), iter.y(),
+                 bm.width(), bm.height(), iter.x(), iter.y(),
                  clip.fLeft, clip.fTop, clip.fRight, clip.fBottom,
                  iter.paint().getAlpha());
         iter.next();

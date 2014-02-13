@@ -33,7 +33,8 @@ protected:
 
     void make_bitmap() {
         fBitmap.allocN32Pixels(80, 80);
-        SkCanvas canvas(fBitmap);
+        SkBitmapDevice device(fBitmap);
+        SkCanvas canvas(&device);
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -45,7 +46,8 @@ protected:
 
     void make_checkerboard(SkBitmap* bitmap, int w, int h) {
         bitmap->allocN32Pixels(w, h);
-        SkCanvas canvas(*bitmap);
+        SkBitmapDevice device(*bitmap);
+        SkCanvas canvas(&device);
         canvas.clear(0x00000000);
         SkPaint darkPaint;
         darkPaint.setColor(0xFF804020);

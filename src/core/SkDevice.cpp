@@ -65,12 +65,6 @@ SkMetaData& SkBaseDevice::getMetaData() {
     return *fMetaData;
 }
 
-// TODO: should make this guy pure-virtual.
-SkImageInfo SkBaseDevice::imageInfo() const {
-    return SkImageInfo::Make(this->width(), this->height(),
-                             kUnknown_SkColorType, kIgnore_SkAlphaType);
-}
-
 const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
     const SkBitmap& bitmap = this->onAccessBitmap();
     if (changePixels) {
@@ -123,5 +117,3 @@ bool SkBaseDevice::readPixels(SkBitmap* bitmap, int x, int y,
 }
 
 SkSurface* SkBaseDevice::newSurface(const SkImageInfo&) { return NULL; }
-
-const void* SkBaseDevice::peekPixels(SkImageInfo*, size_t*) { return NULL; }

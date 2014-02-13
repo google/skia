@@ -221,9 +221,6 @@ public:
 
 protected:
     virtual SkSurface* onNewSurface(const SkImageInfo&) SK_OVERRIDE;
-    const void* onPeekPixels(SkImageInfo*, size_t*) SK_OVERRIDE {
-        return NULL;
-    }
 
     // Return fontmetrics.fTop,fBottom in topbot[0,1], after they have been
     // tweaked by paint.computeFastBounds().

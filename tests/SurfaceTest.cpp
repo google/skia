@@ -22,37 +22,27 @@ class GrContext;
 
 enum SurfaceType {
     kRaster_SurfaceType,
-    kRasterDirect_SurfaceType,
     kGpu_SurfaceType,
     kPicture_SurfaceType
 };
 
-static const int gSurfaceSize = 10;
-static SkPMColor gSurfaceStorage[gSurfaceSize * gSurfaceSize];
-
-static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context,
-                                SkImageInfo* requestedInfo = NULL) {
-    static const SkImageInfo info = SkImageInfo::MakeN32Premul(gSurfaceSize,
-                                                               gSurfaceSize);
-
-    if (requestedInfo) {
-        *requestedInfo = info;
-    }
+static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context) {
+    static const SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
 
     switch (surfaceType) {
-        case kRaster_SurfaceType:
-            return SkSurface::NewRaster(info);
-        case kRasterDirect_SurfaceType:
-            return SkSurface::NewRasterDirect(info, gSurfaceStorage,
-                                              info.minRowBytes());
-        case kGpu_SurfaceType:
+    case kRaster_SurfaceType:
+        return SkSurface::NewRaster(info);
+    case kGpu_SurfaceType:
 #if SK_SUPPORT_GPU
-            return context ? SkSurface::NewRenderTarget(context, info) : NULL;
+        SkASSERT(NULL != context);
+        return SkSurface::NewRenderTarget(context, info);
+#else
+        SkASSERT(0);
 #endif
-            break;
-        case kPicture_SurfaceType:
-            return SkSurface::NewPicture(info.fWidth, info.fHeight);
+    case kPicture_SurfaceType:
+        return SkSurface::NewPicture(info.fWidth, info.fHeight);
     }
+    SkASSERT(0);
     return NULL;
 }
 
@@ -127,14 +117,14 @@ static void test_imagepeek(skiatest::Reporter* reporter) {
         { kPicture_ImageType,       false   },
         { kCodec_ImageType,         false   },
     };
-    
+
     const SkColor color = SK_ColorRED;
     const SkPMColor pmcolor = SkPreMultiplyColor(color);
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         SkImageInfo info;
         size_t rowBytes;
-        
+
         SkAutoTUnref<SkImage> image(createImage(gRec[i].fType, NULL, color));
         if (!image.get()) {
             continue;   // gpu may not be enabled
@@ -147,61 +137,9 @@ static void test_imagepeek(skiatest::Reporter* reporter) {
             REPORTER_ASSERT(reporter, 10 == info.fHeight);
             REPORTER_ASSERT(reporter, kPMColor_SkColorType == info.fColorType);
             REPORTER_ASSERT(reporter, kPremul_SkAlphaType == info.fAlphaType ||
-                            kOpaque_SkAlphaType == info.fAlphaType);
+                                      kOpaque_SkAlphaType == info.fAlphaType);
             REPORTER_ASSERT(reporter, info.minRowBytes() <= rowBytes);
             REPORTER_ASSERT(reporter, pmcolor == *(const SkPMColor*)addr);
-        }
-    }
-}
-
-static void test_canvaspeek(skiatest::Reporter* reporter,
-                            GrContextFactory* factory) {
-    static const struct {
-        SurfaceType fType;
-        bool        fPeekShouldSucceed;
-    } gRec[] = {
-        { kRaster_SurfaceType,          true    },
-        { kRasterDirect_SurfaceType,    true    },
-#if SK_SUPPORT_GPU
-        { kGpu_SurfaceType,             false   },
-#endif
-        { kPicture_SurfaceType,         false   },
-    };
-
-    const SkColor color = SK_ColorRED;
-    const SkPMColor pmcolor = SkPreMultiplyColor(color);
-
-    GrContext* context = NULL;
-#if SK_SUPPORT_GPU
-    context = factory->get(GrContextFactory::kNative_GLContextType);
-#endif
-
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
-        SkImageInfo info, requestInfo;
-        size_t rowBytes;
-
-        SkAutoTUnref<SkSurface> surface(createSurface(gRec[i].fType, context,
-                                                      &requestInfo));
-        surface->getCanvas()->clear(color);
-
-        const void* addr = surface->getCanvas()->peekPixels(&info, &rowBytes);
-        bool success = (NULL != addr);
-        REPORTER_ASSERT(reporter, gRec[i].fPeekShouldSucceed == success);
-
-        SkImageInfo info2;
-        size_t rb2;
-        const void* addr2 = surface->peekPixels(&info2, &rb2);
-
-        if (success) {
-            REPORTER_ASSERT(reporter, requestInfo == info);
-            REPORTER_ASSERT(reporter, requestInfo.minRowBytes() <= rowBytes);
-            REPORTER_ASSERT(reporter, pmcolor == *(const SkPMColor*)addr);
-
-            REPORTER_ASSERT(reporter, addr2 == addr);
-            REPORTER_ASSERT(reporter, info2 == info);
-            REPORTER_ASSERT(reporter, rb2 == rowBytes);
-        } else {
-            REPORTER_ASSERT(reporter, NULL == addr2);
         }
     }
 }
@@ -397,10 +335,7 @@ DEF_GPUTEST(Surface, reporter, factory) {
     TestSurfaceWritableAfterSnapshotRelease(reporter, kPicture_SurfaceType, NULL);
     TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kDiscard_ContentChangeMode);
     TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kRetain_ContentChangeMode);
-
     test_imagepeek(reporter);
-    test_canvaspeek(reporter, factory);
-
 #if SK_SUPPORT_GPU
     TestGetTexture(reporter, kRaster_SurfaceType, NULL);
     TestGetTexture(reporter, kPicture_SurfaceType, NULL);

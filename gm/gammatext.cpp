@@ -38,14 +38,14 @@ static bool setFont(SkPaint* paint, const char name[]) {
 #import <ApplicationServices/ApplicationServices.h>
 #define BITMAP_INFO_RGB     (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
 
-static CGContextRef makeCG(const SkImageInfo& info, const void* addr,
-                           size_t rowBytes) {
-    if (kPMColor_SkColorType != info.colorType() || NULL == addr) {
+static CGContextRef makeCG(const SkBitmap& bm) {
+    if (SkBitmap::kARGB_8888_Config != bm.config() ||
+        NULL == bm.getPixels()) {
         return NULL;
     }
     CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
-    CGContextRef cg = CGBitmapContextCreate((void*)addr, info.width(), info.height(),
-                                            8, rowBytes, space, BITMAP_INFO_RGB);
+    CGContextRef cg = CGBitmapContextCreate(bm.getPixels(), bm.width(), bm.height(),
+                                            8, bm.rowBytes(), space, BITMAP_INFO_RGB);
     CFRelease(space);
 
     CGContextSetAllowsFontSubpixelQuantization(cg, false);
@@ -143,15 +143,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
 #ifdef SK_BUILD_FOR_MAC
-        CGContextRef cg = 0;
-        {
-            SkImageInfo info;
-            size_t rowBytes;
-            const void* addr = canvas->peekPixels(&info, &rowBytes);
-            if (addr) {
-                cg = makeCG(info, addr, rowBytes);
-            }
-        }
+        CGContextRef cg = makeCG(canvas->getDevice()->accessBitmap(false));
 #endif
 
         drawGrad(canvas);
