@@ -18,7 +18,7 @@
 #include "SkRegion.h"
 #include "SkScalar.h"
 #include "SkStream.h"
-#include "SkTDArray.h"
+#include "SkTemplates.h"
 #include "SkTypes.h"
 
 class SkWriter32 : SkNoncopyable {
@@ -30,12 +30,7 @@ public:
      *  first time an allocation doesn't fit.  From then it will use dynamically allocated storage.
      *  This used to be optional behavior, but pipe now relies on it.
      */
-    SkWriter32(void* external = NULL, size_t externalBytes = 0)
-        : fData(0)
-        , fCapacity(0)
-        , fUsed(0)
-        , fExternal(0)
-    {
+    SkWriter32(void* external = NULL, size_t externalBytes = 0) {
         this->reset(external, externalBytes);
     }
 
@@ -238,11 +233,11 @@ public:
 private:
     void growToAtLeast(size_t size);
 
-    uint8_t* fData;                // Points to either fInternal or fExternal.
-    size_t fCapacity;              // Number of bytes we can write to fData.
-    size_t fUsed;                  // Number of bytes written.
-    void* fExternal;               // Unmanaged memory block.
-    SkTDArray<uint8_t> fInternal;  // Managed memory block.
+    uint8_t* fData;                    // Points to either fInternal or fExternal.
+    size_t fCapacity;                  // Number of bytes we can write to fData.
+    size_t fUsed;                      // Number of bytes written.
+    void* fExternal;                   // Unmanaged memory block.
+    SkAutoTMalloc<uint8_t> fInternal;  // Managed memory block.
 };
 
 /**

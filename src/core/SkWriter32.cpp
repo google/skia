@@ -63,17 +63,13 @@ size_t SkWriter32::WriteStringSize(const char* str, size_t len) {
     return SkAlign4(lenBytes + len + 1);
 }
 
-const size_t kMinBufferBytes = 4096;
-
 void SkWriter32::growToAtLeast(size_t size) {
     const bool wasExternal = (fExternal != NULL) && (fData == fExternal);
-    const size_t minCapacity = kMinBufferBytes +
-        SkTMax(size, fCapacity + (fCapacity >> 1));
 
-    // cause the buffer to grow
-    fInternal.setCountExact(minCapacity);
-    fData = fInternal.begin();
-    fCapacity = fInternal.reserved();
+    fCapacity = 4096 + SkTMax(size, fCapacity + (fCapacity / 2));
+    fInternal.realloc(fCapacity);
+    fData = fInternal.get();
+
     if (wasExternal) {
         // we were external, so copy in the data
         memcpy(fData, fExternal, fUsed);

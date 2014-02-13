@@ -158,24 +158,9 @@ public:
      *  It will never shrink the shrink the storage.
      */
     void setCount(int count) {
-        //  TODO(mtklein): eliminate this method, setCountExact -> setCount
         SkASSERT(count >= 0);
         if (count > fReserve) {
             this->resizeStorageToAtLeast(count);
-        }
-        fCount = count;
-    }
-
-    /**
-     *  Sets the number of elements in the array.
-     *  If the array does not have space for count elements, it will increase
-     *  the storage allocated to exactly the amount required, with no remaining
-     *  reserved space.
-     *  It will never shrink the shrink the storage.
-     */
-    void setCountExact(int count) {
-        if (count > fReserve) {
-            this->resizeStorageToExact(count);
         }
         fCount = count;
     }
@@ -383,22 +368,6 @@ private:
     }
 
     /**
-     *  This resizes the storage to *exactly* count elements, growing or
-     *  shrinking the allocation as needed. It does not ASSERT anything about
-     *  the previous allocation size, or about fCount.
-     *
-     *  note: does NOT modify fCount
-     */
-    void resizeStorageToExact(int count) {
-        SkASSERT(count >= 0);
-        fArray = (T*)sk_realloc_throw(fArray, count * sizeof(T));
-#ifdef SK_DEBUG
-        fData = (ArrayT*)fArray;
-#endif
-        fReserve = count;
-    }
-
-    /**
      *  Increase the storage allocation such that it can hold (fCount + extra)
      *  elements.
      *  It never shrinks the allocation, and it may increase the allocation by
@@ -408,9 +377,12 @@ private:
      */
     void resizeStorageToAtLeast(int count) {
         SkASSERT(count > fReserve);
-        int space = count + 4;
-        space += space>>2;
-        this->resizeStorageToExact(space);
+        fReserve = count + 4;
+        fReserve += fReserve / 4;
+        fArray = (T*)sk_realloc_throw(fArray, fReserve * sizeof(T));
+#ifdef SK_DEBUG
+        fData = (ArrayT*)fArray;
+#endif
     }
 };
 
