@@ -1,1 +1,56 @@
-{}
+{
+  "expected-results": {
+    "drawbitmaprect_565-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8441718207005165472
+        ]
+      ], 
+      "bugs": [
+        2167
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": true
+    }, 
+    "drawbitmaprect_8888-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15863642721945051381
+        ]
+      ], 
+      "bugs": [
+        2167
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": true
+    }, 
+    "shadertext3_565-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11108359647915562439
+        ]
+      ], 
+      "bugs": [
+        2167
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": true
+    }, 
+    "shadertext3_8888-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16681468235592223627
+        ]
+      ], 
+      "bugs": [
+        2167
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": true
+    }
+  }
+}
