@@ -680,6 +680,62 @@ static void rand_op(SkCanvas* canvas, SkRandom& rand) {
     }
 }
 
+static void set_canvas_to_save_count_4(SkCanvas* canvas) {
+    canvas->restoreToCount(1);
+    canvas->save();
+    canvas->save();
+    canvas->save();
+}
+
+static void test_unbalanced_save_restores(skiatest::Reporter* reporter) {
+    SkCanvas testCanvas(100, 100);
+    set_canvas_to_save_count_4(&testCanvas);
+
+    REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
+
+    SkPaint paint;
+    SkRect rect = SkRect::MakeLTRB(-10000000, -10000000, 10000000, 10000000);
+
+    SkPicture extra_save_picture;
+    extra_save_picture.beginRecording(100, 100);
+    extra_save_picture.getRecordingCanvas()->save();
+    extra_save_picture.getRecordingCanvas()->translate(10, 10);
+    extra_save_picture.getRecordingCanvas()->drawRect(rect, paint);
+    extra_save_picture.getRecordingCanvas()->save();
+    extra_save_picture.getRecordingCanvas()->translate(10, 10);
+    extra_save_picture.getRecordingCanvas()->drawRect(rect, paint);
+
+    testCanvas.drawPicture(extra_save_picture);
+    REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
+
+    set_canvas_to_save_count_4(&testCanvas);
+
+    SkPicture extra_restore_picture;
+    extra_restore_picture.beginRecording(100, 100);
+    extra_restore_picture.getRecordingCanvas()->save();
+    extra_restore_picture.getRecordingCanvas()->translate(10, 10);
+    extra_restore_picture.getRecordingCanvas()->drawRect(rect, paint);
+    extra_restore_picture.getRecordingCanvas()->save();
+    extra_restore_picture.getRecordingCanvas()->translate(10, 10);
+    extra_restore_picture.getRecordingCanvas()->drawRect(rect, paint);
+    extra_restore_picture.getRecordingCanvas()->restore();
+    extra_restore_picture.getRecordingCanvas()->restore();
+    extra_restore_picture.getRecordingCanvas()->restore();
+    extra_restore_picture.getRecordingCanvas()->restore();
+
+    testCanvas.drawPicture(extra_save_picture);
+    REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
+
+    SkPicture no_save_picture;
+    extra_restore_picture.beginRecording(100, 100);
+    extra_restore_picture.getRecordingCanvas()->translate(10, 10);
+    extra_restore_picture.getRecordingCanvas()->drawRect(rect, paint);
+
+    testCanvas.drawPicture(extra_save_picture);
+    REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
+    REPORTER_ASSERT(reporter, testCanvas.getTotalMatrix().isIdentity());
+}
+
 static void test_peephole() {
     SkRandom rand;
 
@@ -1021,6 +1077,7 @@ DEF_TEST(Picture, reporter) {
 #else
     test_bad_bitmap();
 #endif
+    test_unbalanced_save_restores(reporter);
     test_peephole();
     test_gatherpixelrefs(reporter);
     test_gatherpixelrefsandrects(reporter);

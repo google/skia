@@ -302,13 +302,15 @@ public:
     virtual void restore();
 
     /** Returns the number of matrix/clip states on the SkCanvas' private stack.
-        This will equal # save() calls - # restore() calls.
+        This will equal # save() calls - # restore() calls + 1. The save count on
+        a new canvas is 1.
     */
     int getSaveCount() const;
 
     /** Efficient way to pop any calls to save() that happened after the save
-        count reached saveCount. It is an error for saveCount to be less than
-        getSaveCount()
+        count reached saveCount. It is an error for saveCount to be greater than
+        getSaveCount(). To pop all the way back to the initial matrix/clip context
+        pass saveCount == 1.
         @param saveCount    The number of save() levels to restore from
     */
     void restoreToCount(int saveCount);
