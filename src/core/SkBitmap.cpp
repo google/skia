@@ -1566,11 +1566,13 @@ void SkBitmap::unflatten(SkReadBuffer& buffer) {
     SkImageInfo info;
     info.unflatten(buffer);
     size_t rowBytes = buffer.readInt();
-    buffer.validate((info.width() >= 0) && (info.height() >= 0) &&
-                    SkColorTypeIsValid(info.fColorType) &&
-                    SkAlphaTypeIsValid(info.fAlphaType) &&
-                    validate_alphaType(info.fColorType, info.fAlphaType) &&
-                    info.validRowBytes(rowBytes));
+    if (!buffer.validate((info.width() >= 0) && (info.height() >= 0) &&
+                         SkColorTypeIsValid(info.fColorType) &&
+                         SkAlphaTypeIsValid(info.fAlphaType) &&
+                         validate_alphaType(info.fColorType, info.fAlphaType) &&
+                         info.validRowBytes(rowBytes))) {
+        return;
+    }
 
     bool configIsValid = this->setConfig(info, rowBytes);
     buffer.validate(configIsValid);
