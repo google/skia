@@ -107,8 +107,7 @@ static SkPMColor convertConfig8888ToPMColor(SkCanvas::Config8888 config8888,
 static void fillCanvas(SkCanvas* canvas) {
     static SkBitmap bmp;
     if (bmp.isNull()) {
-        bmp.setConfig(SkBitmap::kARGB_8888_Config, DEV_W, DEV_H);
-        SkDEBUGCODE(bool alloc =) bmp.allocPixels();
+        SkDEBUGCODE(bool alloc =) bmp.allocN32Pixels(DEV_W, DEV_H);
         SkASSERT(alloc);
         SkAutoLockPixels alp(bmp);
         intptr_t pixels = reinterpret_cast<intptr_t>(bmp.getPixels());
@@ -230,9 +229,8 @@ static BitmapInit nextBMI(BitmapInit bmi) {
 }
 
 static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init) {
-    int w = rect.width();
-    int h = rect.height();
-    int rowBytes = 0;
+    SkImageInfo info = SkImageInfo::MakeN32Premul(rect.width(), rect.height());
+    size_t rowBytes = 0;
     bool alloc = true;
     switch (init) {
         case kNoPixels_BitmapInit:
@@ -240,15 +238,17 @@ static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init) 
         case kTight_BitmapInit:
             break;
         case kRowBytes_BitmapInit:
-            rowBytes = w * sizeof(SkPMColor) + 16 * sizeof(SkPMColor);
+            rowBytes = (info.width() + 16) * sizeof(SkPMColor);
             break;
         default:
             SkASSERT(0);
             break;
     }
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, w, h, rowBytes);
+    
     if (alloc) {
-        bitmap->allocPixels();
+        bitmap->allocPixels(info);
+    } else {
+        bitmap->setConfig(info, rowBytes);
     }
 }
 

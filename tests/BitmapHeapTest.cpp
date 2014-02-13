@@ -33,8 +33,7 @@ public:
 DEF_TEST(BitmapHeap, reporter) {
     // Create a bitmap shader.
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
-    bm.allocPixels();
+    bm.allocN32Pixels(2, 2);
     bm.eraseColor(SK_ColorRED);
     uint32_t* pixel = bm.getAddr32(1,0);
     *pixel = SK_ColorBLUE;

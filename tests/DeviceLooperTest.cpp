@@ -10,8 +10,8 @@
 #include "Test.h"
 
 static void make_bm(SkBitmap* bm, int w, int h) {
-    bm->setConfig(SkBitmap::kA8_Config, w, h);
-    bm->allocPixels();
+    bm->allocPixels(SkImageInfo::Make(w, h, kAlpha_8_SkColorType,
+                                      kPremul_SkAlphaType));
 }
 
 static bool equal(const SkRasterClip& a, const SkRasterClip& b) {

@@ -136,8 +136,7 @@ static uint32_t getBitmapColor(int x, int y, int w, SkCanvas::Config8888 config8
 static void fillCanvas(SkCanvas* canvas) {
     static SkBitmap bmp;
     if (bmp.isNull()) {
-        bmp.setConfig(SkBitmap::kARGB_8888_Config, DEV_W, DEV_H);
-        SkDEBUGCODE(bool alloc = ) bmp.allocPixels();
+        SkDEBUGCODE(bool alloc = ) bmp.allocN32Pixels(DEV_W, DEV_H);
         SkASSERT(alloc);
         SkAutoLockPixels alp(bmp);
         intptr_t pixels = reinterpret_cast<intptr_t>(bmp.getPixels());
@@ -304,13 +303,28 @@ static const CanvasConfig gCanvasConfigs[] = {
 #endif
 };
 
+#include "SkMallocPixelRef.h"
+
+// This is a tricky pattern, because we have to setConfig+rowBytes AND specify
+// a custom pixelRef (which also has to specify its rowBytes), so we have to be
+// sure that the two rowBytes match (and the infos match).
+//
+static bool allocRowBytes(SkBitmap* bm, const SkImageInfo& info, size_t rowBytes) {
+    if (!bm->setConfig(info, rowBytes)) {
+        return false;
+    }
+    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, rowBytes, NULL);
+    bm->setPixelRef(pr)->unref();
+    return true;
+}
+
 static SkBaseDevice* createDevice(const CanvasConfig& c, GrContext* grCtx) {
     switch (c.fDevType) {
         case kRaster_DevType: {
             SkBitmap bmp;
             size_t rowBytes = c.fTightRowBytes ? 0 : 4 * DEV_W + 100;
-            bmp.setConfig(SkBitmap::kARGB_8888_Config, DEV_W, DEV_H, rowBytes);
-            if (!bmp.allocPixels()) {
+            SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
+            if (!allocRowBytes(&bmp, info, rowBytes)) {
                 sk_throw();
                 return NULL;
             }
@@ -344,8 +358,8 @@ static bool setupBitmap(SkBitmap* bitmap,
                         int w, int h,
                         bool tightRowBytes) {
     size_t rowBytes = tightRowBytes ? 0 : 4 * w + 60;
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, w, h, rowBytes);
-    if (!bitmap->allocPixels()) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
+    if (!allocRowBytes(bitmap, info, rowBytes)) {
         return false;
     }
     SkAutoLockPixels alp(*bitmap);

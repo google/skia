@@ -84,7 +84,7 @@ static void test_clipVisitor(skiatest::Reporter* reporter, SkCanvas* canvas) {
     SkISize size = canvas->getDeviceSize();
 
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, size.width(), size.height());
+    bm.setConfig(SkImageInfo::MakeN32Premul(size.width(), size.height()));
     SkCanvas c(bm);
 
     Canvas2CanvasClipVisitor visitor(&c);
@@ -135,9 +135,8 @@ static const char* const kNWayIndirect2StateAssertMessageFormat =
 static const char* const kPdfAssertMessageFormat =
     "PDF sanity check failed %s";
 
-static void createBitmap(SkBitmap* bm, SkBitmap::Config config, SkColor color) {
-    bm->setConfig(config, kWidth, kHeight);
-    bm->allocPixels();
+static void createBitmap(SkBitmap* bm, SkColor color) {
+    bm->allocN32Pixels(kWidth, kHeight);
     bm->eraseColor(color);
 }
 
@@ -220,7 +219,7 @@ const SkPoint kTestPoints[3] = {
 const size_t kTestPointCount = 3;
 static SkBitmap testBitmap() {
     SkBitmap bitmap;
-    createBitmap(&bitmap, SkBitmap::kARGB_8888_Config, 0x05060708);
+    createBitmap(&bitmap, 0x05060708);
     return bitmap;
 }
 SkBitmap kTestBitmap; // cannot be created during static init
@@ -798,7 +797,7 @@ static void TestProxyCanvasStateConsistency(
     const SkCanvas& referenceCanvas) {
 
     SkBitmap indirectStore;
-    createBitmap(&indirectStore, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
+    createBitmap(&indirectStore, 0xFFFFFFFF);
     SkBitmapDevice indirectDevice(indirectStore);
     SkCanvas indirectCanvas(&indirectDevice);
     SkProxyCanvas proxyCanvas(&indirectCanvas);
@@ -821,12 +820,12 @@ static void TestNWayCanvasStateConsistency(
     const SkCanvas& referenceCanvas) {
 
     SkBitmap indirectStore1;
-    createBitmap(&indirectStore1, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
+    createBitmap(&indirectStore1, 0xFFFFFFFF);
     SkBitmapDevice indirectDevice1(indirectStore1);
     SkCanvas indirectCanvas1(&indirectDevice1);
 
     SkBitmap indirectStore2;
-    createBitmap(&indirectStore2, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
+    createBitmap(&indirectStore2, 0xFFFFFFFF);
     SkBitmapDevice indirectDevice2(indirectStore2);
     SkCanvas indirectCanvas2(&indirectDevice2);
 
@@ -859,7 +858,7 @@ static void TestNWayCanvasStateConsistency(
 static void TestOverrideStateConsistency(skiatest::Reporter* reporter,
                                          CanvasTestStep* testStep) {
     SkBitmap referenceStore;
-    createBitmap(&referenceStore, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
+    createBitmap(&referenceStore, 0xFFFFFFFF);
     SkBitmapDevice referenceDevice(referenceStore);
     SkCanvas referenceCanvas(&referenceDevice);
     testStep->setAssertMessageFormat(kCanvasDrawAssertMessageFormat);

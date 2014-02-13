@@ -27,9 +27,8 @@ static const int outset = 100;
 static const SkColor bgColor = SK_ColorWHITE;
 static const int strokeWidth = 4;
 
-static void create(SkBitmap* bm, SkIRect bound, SkBitmap::Config config) {
-    bm->setConfig(config, bound.width(), bound.height());
-    bm->allocPixels();
+static void create(SkBitmap* bm, const SkIRect& bound) {
+    bm->allocN32Pixels(bound.width(), bound.height());
 }
 
 static void drawBG(SkCanvas* canvas) {
@@ -126,7 +125,7 @@ static void test_blur_drawing(skiatest::Reporter* reporter) {
                 refBound.roundOut(&iref);
                 iref.inset(-outset, -outset);
                 SkBitmap refBitmap;
-                create(&refBitmap, iref, SkBitmap::kARGB_8888_Config);
+                create(&refBitmap, iref);
 
                 SkCanvas refCanvas(refBitmap);
                 refCanvas.translate(SkIntToScalar(-iref.fLeft),
@@ -137,7 +136,7 @@ static void test_blur_drawing(skiatest::Reporter* reporter) {
                 for (int view = 0; view < tests[test].viewLen; ++view) {
                     SkIRect itest = tests[test].views[view];
                     SkBitmap testBitmap;
-                    create(&testBitmap, itest, SkBitmap::kARGB_8888_Config);
+                    create(&testBitmap, itest);
 
                     SkCanvas testCanvas(testBitmap);
                     testCanvas.translate(SkIntToScalar(-itest.fLeft),
@@ -244,8 +243,7 @@ static void blur_path(SkCanvas* canvas, const SkPath& path,
 // Readback the blurred draw results from the canvas
 static void readback(SkCanvas* canvas, int* result, int resultCount) {
     SkBitmap readback;
-    readback.setConfig(SkBitmap::kARGB_8888_Config, resultCount, 30);
-    readback.allocPixels();
+    readback.allocN32Pixels(resultCount, 30);
 
     SkIRect readBackRect = { 0, 0, resultCount, 30 };
 
@@ -265,8 +263,7 @@ static void cpu_blur_path(const SkPath& path, SkScalar gaussianSigma,
                           int* result, int resultCount) {
 
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, resultCount, 30);
-    bitmap.allocPixels();
+    bitmap.allocN32Pixels(resultCount, 30);
     SkCanvas canvas(bitmap);
 
     blur_path(&canvas, path, gaussianSigma);

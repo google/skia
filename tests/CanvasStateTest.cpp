@@ -24,10 +24,10 @@ static void test_complex_layers(skiatest::Reporter* reporter) {
                                    SkIntToScalar(WIDTH-(2*SPACER)),
                                    SkIntToScalar((HEIGHT-(2*SPACER)) / 7));
 
-    const SkBitmap::Config configs[] = { SkBitmap::kRGB_565_Config,
-                                         SkBitmap::kARGB_8888_Config
+    const SkColorType colorTypes[] = {
+        kRGB_565_SkColorType, kPMColor_SkColorType
     };
-    const int configCount = sizeof(configs) / sizeof(SkBitmap::Config);
+    const int configCount = sizeof(colorTypes) / sizeof(SkBitmap::Config);
 
     const int layerAlpha[] = { 255, 255, 0 };
     const SkCanvas::SaveFlags flags[] = { SkCanvas::kARGB_NoClipLayer_SaveFlag,
@@ -40,8 +40,9 @@ static void test_complex_layers(skiatest::Reporter* reporter) {
     for (int i = 0; i < configCount; ++i) {
         SkBitmap bitmaps[2];
         for (int j = 0; j < 2; ++j) {
-            bitmaps[j].setConfig(configs[i], WIDTH, HEIGHT);
-            bitmaps[j].allocPixels();
+            bitmaps[j].allocPixels(SkImageInfo::Make(WIDTH, HEIGHT,
+                                                     colorTypes[i],
+                                                     kPremul_SkAlphaType));
 
             SkCanvas canvas(bitmaps[j]);
 
@@ -127,8 +128,7 @@ static void test_complex_clips(skiatest::Reporter* reporter) {
 
     SkBitmap bitmaps[2];
     for (int i = 0; i < 2; ++i) {
-        bitmaps[i].setConfig(SkBitmap::kARGB_8888_Config, WIDTH, HEIGHT);
-        bitmaps[i].allocPixels();
+        bitmaps[i].allocN32Pixels(WIDTH, HEIGHT);
 
         SkCanvas canvas(bitmaps[i]);
 

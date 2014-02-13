@@ -16,8 +16,7 @@
 // with a device/clip that is larger.
 static void test_giantClip() {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 64919, 1);
-    bm.allocPixels();
+    bm.allocN32Pixels(64919, 1);
     SkCanvas canvas(bm);
     canvas.clear(SK_ColorTRANSPARENT);
 

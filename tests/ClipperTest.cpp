@@ -13,8 +13,7 @@
 
 static void test_hairclipping(skiatest::Reporter* reporter) {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 4, 4);
-    bm.allocPixels();
+    bm.allocN32Pixels(4, 4);
     bm.eraseColor(SK_ColorWHITE);
 
     SkPaint paint;

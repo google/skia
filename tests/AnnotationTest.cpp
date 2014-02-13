@@ -26,8 +26,7 @@ static bool ContainsString(const char* data, size_t dataSize, const char* needle
 
 DEF_TEST(Annotation_NoDraw, reporter) {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
-    bm.allocPixels();
+    bm.allocN32Pixels(10, 10);
     bm.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(bm);

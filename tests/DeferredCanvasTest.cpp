@@ -24,9 +24,8 @@ class GrContextFactory;
 static const int gWidth = 2;
 static const int gHeight = 2;
 
-static void create(SkBitmap* bm, SkBitmap::Config config, SkColor color) {
-    bm->setConfig(config, gWidth, gHeight);
-    bm->allocPixels();
+static void create(SkBitmap* bm, SkColor color) {
+    bm->allocN32Pixels(gWidth, gHeight);
     bm->eraseColor(color);
 }
 
@@ -69,8 +68,7 @@ class MockSurface : public SkSurface_Base {
 public:
     MockSurface(int width, int height) : SkSurface_Base(width, height) {
         clearCounts();
-        fBitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
-        fBitmap.allocPixels();
+        fBitmap.allocN32Pixels(width, height);
     }
 
     virtual SkCanvas* onNewCanvas() SK_OVERRIDE {
@@ -107,8 +105,7 @@ static void TestDeferredCanvasWritePixelsToSurface(skiatest::Reporter* reporter)
     SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
 
     SkBitmap srcBitmap;
-    srcBitmap.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
-    srcBitmap.allocPixels();
+    srcBitmap.allocN32Pixels(10, 10);
     srcBitmap.eraseColor(SK_ColorGREEN);
     // Tests below depend on this bitmap being recognized as opaque
 
@@ -351,7 +348,7 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         SkBitmap bmp;
-        create(&bmp, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
+        create(&bmp, 0xFFFFFFFF);
         bmp.setAlphaType(kOpaque_SkAlphaType);
         SkShader* shader = SkShader::CreateBitmapShader(bmp,
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
@@ -389,7 +386,7 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         SkBitmap bmp;
-        create(&bmp, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
+        create(&bmp, 0xFFFFFFFF);
         bmp.setAlphaType(kPremul_SkAlphaType);
         SkShader* shader = SkShader::CreateBitmapShader(bmp,
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
@@ -507,8 +504,7 @@ static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
 
     SkBitmap sourceImage;
     // 100 by 100 image, takes 40,000 bytes in memory
-    sourceImage.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
-    sourceImage.allocPixels();
+    sourceImage.allocN32Pixels(100, 100);
 
     for (int i = 0; i < 5; i++) {
         sourceImage.notifyPixelsChanged(); // to force re-serialization
@@ -527,10 +523,8 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
 
     const int imageCount = 2;
     SkBitmap sourceImages[imageCount];
-    for (int i = 0; i < imageCount; i++)
-    {
-        sourceImages[i].setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
-        sourceImages[i].allocPixels();
+    for (int i = 0; i < imageCount; i++) {
+        sourceImages[i].allocN32Pixels(100, 100);
     }
 
     size_t bitmapSize = sourceImages[0].getSize();
@@ -629,8 +623,7 @@ static void TestDeferredCanvasBitmapShaderNoLeak(skiatest::Reporter* reporter) {
         for(int i = 0; i < nbIterations; ++i) {
             SkPaint paint;
             SkBitmap paintPattern;
-            paintPattern.setConfig(SkBitmap::kARGB_8888_Config, 10, 10);
-            paintPattern.allocPixels();
+            paintPattern.allocN32Pixels(10, 10);
             paint.setShader(SkNEW_ARGS(SkBitmapProcShader,
                 (paintPattern, SkShader::kClamp_TileMode, SkShader::kClamp_TileMode)))->unref();
             canvas->drawPaint(paint);
@@ -658,8 +651,7 @@ static void TestDeferredCanvasBitmapSizeThreshold(skiatest::Reporter* reporter) 
 
     SkBitmap sourceImage;
     // 100 by 100 image, takes 40,000 bytes in memory
-    sourceImage.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
-    sourceImage.allocPixels();
+    sourceImage.allocN32Pixels(100, 100);
 
     // 1 under : should not store the image
     {

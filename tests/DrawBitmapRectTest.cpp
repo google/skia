@@ -178,8 +178,7 @@ static void assert_ifDrawnTo(skiatest::Reporter* reporter,
 static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
                                     int width, int height, bool shouldBeDrawn) {
     SkBitmap dev;
-    dev.setConfig(SkBitmap::kARGB_8888_Config, 0x56F, 0x4f6);
-    dev.allocPixels();
+    dev.allocN32Pixels(0x56F, 0x4f6);
     dev.eraseColor(SK_ColorTRANSPARENT);  // necessary, so we know if we draw to it
 
     SkMatrix matrix;
@@ -195,8 +194,7 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
     c.concat(matrix);
 
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, width, height);
-    bm.allocPixels();
+    bm.allocN32Pixels(width, height);
     bm.eraseColor(SK_ColorRED);
 
     SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
@@ -260,8 +258,7 @@ static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
 
 static void test_nan_antihair() {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 20, 20);
-    bm.allocPixels();
+    bm.allocN32Pixels(20, 20);
 
     SkCanvas canvas(bm);
 
@@ -298,17 +295,16 @@ static bool check_for_all_zeros(const SkBitmap& bm) {
 static const int gWidth = 256;
 static const int gHeight = 256;
 
-static void create(SkBitmap* bm, SkBitmap::Config config, SkColor color) {
-    bm->setConfig(config, gWidth, gHeight);
-    bm->allocPixels();
+static void create(SkBitmap* bm, SkColor color) {
+    bm->allocN32Pixels(gWidth, gHeight);
     bm->eraseColor(color);
 }
 
 DEF_TEST(DrawBitmapRect, reporter) {
     SkBitmap src, dst;
 
-    create(&src, SkBitmap::kARGB_8888_Config, 0xFFFFFFFF);
-    create(&dst, SkBitmap::kARGB_8888_Config, 0);
+    create(&src, 0xFFFFFFFF);
+    create(&dst, 0);
 
     SkCanvas canvas(dst);
 

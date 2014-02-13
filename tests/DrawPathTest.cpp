@@ -11,20 +11,10 @@
 #include "SkSurface.h"
 #include "Test.h"
 
-static SkCanvas* create(SkBitmap::Config config, int w, int h, int rb,
-                        void* addr = NULL) {
-    SkBitmap bm;
-    bm.setConfig(config, w, h, rb);
-    if (addr) {
-        bm.setPixels(addr);
-    } else {
-        bm.allocPixels();
-    }
-    return new SkCanvas(bm);
-}
-
 static SkCanvas* new_canvas(int w, int h) {
-    return create(SkBitmap::kARGB_8888_Config, w, h, 0, NULL);
+    SkBitmap bm;
+    bm.allocN32Pixels(w, h);
+    return new SkCanvas(bm);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,8 +23,8 @@ static SkCanvas* new_canvas(int w, int h) {
 static void test_big_aa_rect(skiatest::Reporter* reporter) {
     SkBitmap output;
     SkPMColor pixel[1];
-    output.setConfig(SkBitmap::kARGB_8888_Config, 1, 1, 4);
-    output.setPixels(pixel);
+    output.installPixels(SkImageInfo::MakeN32Premul(1, 1),
+                         pixel, 4, NULL, NULL);
 
     SkSurface* surf = SkSurface::NewRasterPMColor(300, 33300);
     SkCanvas* canvas = surf->getCanvas();
@@ -125,8 +115,7 @@ static void test_crbug131181() {
 // stepper for the quadratic. Now we bias that value by 1/2 so we don't overflow
 static void test_crbug_140803() {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 2700, 30*1024);
-    bm.allocPixels();
+    bm.allocN32Pixels(2700, 30*1024);
     SkCanvas canvas(bm);
 
     SkPath path;

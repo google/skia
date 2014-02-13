@@ -12,9 +12,9 @@
 #include "SkRect.h"
 #include "Test.h"
 
-// these are in the same order as the SkBitmap::Config enum
+// these are in the same order as the SkColorType enum
 static const char* gConfigName[] = {
-    "None", "A8", "Index8", "565", "4444", "8888"
+    "Unknown", "Alpha8", "565", "4444", "RGBA", "BGRA", "Index8"
 };
 
 /** Returns -1 on success, else the x coord of the first bad pixel, return its
@@ -100,11 +100,9 @@ static bool check_color(const SkBitmap& bm, SkPMColor expect32,
 static void test_00_FF(skiatest::Reporter* reporter) {
     static const int W = 256;
 
-    static const SkBitmap::Config gDstConfig[] = {
-        SkBitmap::kARGB_8888_Config,
-        SkBitmap::kRGB_565_Config,
-//        SkBitmap::kARGB_4444_Config,
-//        SkBitmap::kA8_Config,
+    static const SkColorType gDstColorType[] = {
+        kPMColor_SkColorType,
+        kRGB_565_SkColorType,
     };
 
     static const struct {
@@ -123,13 +121,13 @@ static void test_00_FF(skiatest::Reporter* reporter) {
     SkPaint paint;
 
     SkBitmap srcBM;
-    srcBM.setConfig(SkBitmap::kARGB_8888_Config, W, 1);
-    srcBM.allocPixels();
+    srcBM.allocN32Pixels(W, 1);
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gDstConfig); i++) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gDstColorType); i++) {
+        SkImageInfo info = SkImageInfo::Make(W, 1, gDstColorType[i],
+                                             kPremul_SkAlphaType);
         SkBitmap dstBM;
-        dstBM.setConfig(gDstConfig[i], W, 1);
-        dstBM.allocPixels();
+        dstBM.allocPixels(info);
 
         SkCanvas canvas(dstBM);
         for (size_t j = 0; j < SK_ARRAY_COUNT(gSrcRec); j++) {
@@ -193,11 +191,9 @@ static void test_diagonal(skiatest::Reporter* reporter) {
     static const int W = 64;
     static const int H = W;
 
-    static const SkBitmap::Config gDstConfig[] = {
-        SkBitmap::kARGB_8888_Config,
-        SkBitmap::kRGB_565_Config,
-        //        SkBitmap::kARGB_4444_Config,
-        //        SkBitmap::kA8_Config,
+    static const SkColorType gDstColorType[] = {
+        kPMColor_SkColorType,
+        kRGB_565_SkColorType,
     };
 
     static const SkColor gDstBG[] = { 0, 0xFFFFFFFF };
@@ -205,20 +201,22 @@ static void test_diagonal(skiatest::Reporter* reporter) {
     SkPaint paint;
 
     SkBitmap srcBM;
-    srcBM.setConfig(SkBitmap::kARGB_8888_Config, W, H);
-    srcBM.allocPixels();
+    srcBM.allocN32Pixels(W, H);
     SkRect srcR = {
         0, 0, SkIntToScalar(srcBM.width()), SkIntToScalar(srcBM.height()) };
 
     // cons up a mesh to draw the bitmap with
     Mesh mesh(srcBM, &paint);
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gDstConfig); i++) {
+    SkImageInfo info = SkImageInfo::Make(W, H, kUnknown_SkColorType,
+                                         kPremul_SkAlphaType);
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gDstColorType); i++) {
+        info.fColorType = gDstColorType[i];
+
         SkBitmap dstBM0, dstBM1;
-        dstBM0.setConfig(gDstConfig[i], W, H);
-        dstBM1.setConfig(gDstConfig[i], W, H);
-        dstBM0.allocPixels();
-        dstBM1.allocPixels();
+        dstBM0.allocPixels(info);
+        dstBM1.allocPixels(info);
 
         SkCanvas canvas0(dstBM0);
         SkCanvas canvas1(dstBM1);
@@ -249,9 +247,9 @@ static void test_diagonal(skiatest::Reporter* reporter) {
                     }
 
                     if (memcmp(dstBM0.getPixels(), dstBM1.getPixels(), dstBM0.getSize())) {
-                        ERRORF(reporter, "Diagonal config=%s bg=0x%x dither=%d"
+                        ERRORF(reporter, "Diagonal colortype=%s bg=0x%x dither=%d"
                                " alpha=0x%x src=0x%x",
-                               gConfigName[gDstConfig[i]], bgColor, dither,
+                               gConfigName[gDstColorType[i]], bgColor, dither,
                                alpha, c);
                     }
                 }
