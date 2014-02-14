@@ -4796,10 +4796,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7975946827704425755
+          8148507965652627085
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "gradients_view_perspective_8888.png": {
       "allowed-digests": [
