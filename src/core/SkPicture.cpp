@@ -164,12 +164,7 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
 
         clone->fWidth = fWidth;
         clone->fHeight = fHeight;
-        clone->fRecord = NULL;
-
-        if (NULL != clone->fRecord) {
-            clone->fRecord->unref();
-            clone->fRecord = NULL;
-        }
+        SkSafeSetNull(clone->fRecord);
         SkDELETE(clone->fPlayback);
 
         /*  We want to copy the src's playback. However, if that hasn't been built
@@ -196,10 +191,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
         fPlayback = NULL;
     }
 
-    if (NULL != fRecord) {
-        fRecord->unref();
-        fRecord = NULL;
-    }
+    SkSafeSetNull(fRecord);
 
     SkBitmap bm;
     bm.setConfig(SkBitmap::kNo_Config, width, height);
@@ -246,8 +238,7 @@ void SkPicture::endRecording() {
         if (NULL != fRecord) {
             fRecord->endRecording();
             fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fRecord));
-            fRecord->unref();
-            fRecord = NULL;
+            SkSafeSetNull(fRecord);
         }
     }
     SkASSERT(NULL == fRecord);
