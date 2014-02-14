@@ -37,3 +37,8 @@
 # deprecated calling pattern.
 # https://codereview.chromium.org/154163002/
 extractbitmap
+
+# Need to rebaseline since SkBitmapSource was modified to use higher filter quality
+# https://codereview.chromium.org/163663002/
+bitmapsource
+imagefiltersscaled

@@ -71,7 +71,7 @@ bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const SkMatrix
     // None filtering when it's translate-only
     paint.setFilterLevel(
         fSrcRect.width() == dstRect.width() && fSrcRect.height() == dstRect.height() ?
-        SkPaint::kNone_FilterLevel : SkPaint::kMedium_FilterLevel);
+        SkPaint::kNone_FilterLevel : SkPaint::kHigh_FilterLevel);
     canvas.drawBitmapRectToRect(fBitmap, &fSrcRect, dstRect, &paint);
 
     *result = device.get()->accessBitmap(false);

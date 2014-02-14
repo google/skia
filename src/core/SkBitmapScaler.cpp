@@ -228,7 +228,11 @@ static SkBitmapScaler::ResizeMethod ResizeMethodToAlgorithmMethod(
         case SkBitmapScaler::RESIZE_BETTER:
             return SkBitmapScaler::RESIZE_HAMMING;
         default:
+#ifdef SK_HIGH_QUALITY_IS_LANCZOS
+            return SkBitmapScaler::RESIZE_LANCZOS3;
+#else
             return SkBitmapScaler::RESIZE_MITCHELL;
+#endif
     }
 }
 
