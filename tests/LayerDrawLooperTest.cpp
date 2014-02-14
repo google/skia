@@ -35,21 +35,22 @@ private:
 };
 
 static void test_frontToBack(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkLayerDrawLooper> looper(SkNEW(SkLayerDrawLooper));
+    SkLayerDrawLooper::Builder looperBuilder;
     SkLayerDrawLooper::LayerInfo layerInfo;
 
     // Add the front layer, with the defaults.
-    (void)looper->addLayer(layerInfo);
+    (void)looperBuilder.addLayer(layerInfo);
 
     // Add the back layer, with some layer info set.
     layerInfo.fOffset.set(10.0f, 20.0f);
     layerInfo.fPaintBits |= SkLayerDrawLooper::kXfermode_Bit;
-    SkPaint* layerPaint = looper->addLayer(layerInfo);
+    SkPaint* layerPaint = looperBuilder.addLayer(layerInfo);
     layerPaint->setXfermodeMode(SkXfermode::kSrc_Mode);
 
     FakeDevice device;
     SkCanvas canvas(&device);
     SkPaint paint;
+    SkAutoTUnref<SkLayerDrawLooper> looper(looperBuilder.detachLooper());
     looper->init(&canvas);
 
     // The back layer should come first.
@@ -72,21 +73,22 @@ static void test_frontToBack(skiatest::Reporter* reporter) {
 }
 
 static void test_backToFront(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkLayerDrawLooper> looper(SkNEW(SkLayerDrawLooper));
+    SkLayerDrawLooper::Builder looperBuilder;
     SkLayerDrawLooper::LayerInfo layerInfo;
 
     // Add the back layer, with the defaults.
-    (void)looper->addLayerOnTop(layerInfo);
+    (void)looperBuilder.addLayerOnTop(layerInfo);
 
     // Add the front layer, with some layer info set.
     layerInfo.fOffset.set(10.0f, 20.0f);
     layerInfo.fPaintBits |= SkLayerDrawLooper::kXfermode_Bit;
-    SkPaint* layerPaint = looper->addLayerOnTop(layerInfo);
+    SkPaint* layerPaint = looperBuilder.addLayerOnTop(layerInfo);
     layerPaint->setXfermodeMode(SkXfermode::kSrc_Mode);
 
     FakeDevice device;
     SkCanvas canvas(&device);
     SkPaint paint;
+    SkAutoTUnref<SkLayerDrawLooper> looper(looperBuilder.detachLooper());
     looper->init(&canvas);
 
     // The back layer should come first.
@@ -109,21 +111,22 @@ static void test_backToFront(skiatest::Reporter* reporter) {
 }
 
 static void test_mixed(skiatest::Reporter* reporter) {
-    SkAutoTUnref<SkLayerDrawLooper> looper(SkNEW(SkLayerDrawLooper));
+    SkLayerDrawLooper::Builder looperBuilder;
     SkLayerDrawLooper::LayerInfo layerInfo;
 
     // Add the back layer, with the defaults.
-    (void)looper->addLayer(layerInfo);
+    (void)looperBuilder.addLayer(layerInfo);
 
     // Add the front layer, with some layer info set.
     layerInfo.fOffset.set(10.0f, 20.0f);
     layerInfo.fPaintBits |= SkLayerDrawLooper::kXfermode_Bit;
-    SkPaint* layerPaint = looper->addLayerOnTop(layerInfo);
+    SkPaint* layerPaint = looperBuilder.addLayerOnTop(layerInfo);
     layerPaint->setXfermodeMode(SkXfermode::kSrc_Mode);
 
     FakeDevice device;
     SkCanvas canvas(&device);
     SkPaint paint;
+    SkAutoTUnref<SkLayerDrawLooper> looper(looperBuilder.detachLooper());
     looper->init(&canvas);
 
     // The back layer should come first.

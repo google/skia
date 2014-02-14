@@ -221,14 +221,10 @@ void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-SkLayerDrawLooper::SkLayerDrawLooper(SkReadBuffer& buffer)
-        : INHERITED(buffer),
-          fRecs(NULL),
-          fTopRec(NULL),
-          fCount(0),
-          fCurrRec(NULL) {
+SkFlattenable* SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     int count = buffer.readInt();
 
+    Builder builder;
     for (int i = 0; i < count; i++) {
         LayerInfo info;
         info.fFlagsMask = buffer.readInt();
@@ -236,13 +232,14 @@ SkLayerDrawLooper::SkLayerDrawLooper(SkReadBuffer& buffer)
         info.fColorMode = (SkXfermode::Mode)buffer.readInt();
         buffer.readPoint(&info.fOffset);
         info.fPostTranslate = buffer.readBool();
-        buffer.readPaint(this->addLayerOnTop(info));
+        buffer.readPaint(builder.addLayerOnTop(info));
     }
-    SkASSERT(count == fCount);
+    SkLayerDrawLooper* looper = builder.detachLooper();
+    SkASSERT(count == looper->fCount);
 
 #ifdef SK_DEBUG
     {
-        Rec* rec = fRecs;
+        Rec* rec = looper->fRecs;
         int n = 0;
         while (rec) {
             rec = rec->fNext;
@@ -251,6 +248,8 @@ SkLayerDrawLooper::SkLayerDrawLooper(SkReadBuffer& buffer)
         SkASSERT(count == n);
     }
 #endif
+
+    return looper;
 }
 
 #ifdef SK_DEVELOPER
@@ -347,3 +346,68 @@ void SkLayerDrawLooper::toString(SkString* str) const {
     }
 }
 #endif
+
+SkLayerDrawLooper::Builder::Builder()
+        : fRecs(NULL),
+          fTopRec(NULL),
+          fCount(0) {
+}
+
+SkLayerDrawLooper::Builder::~Builder() {
+    Rec* rec = fRecs;
+    while (rec) {
+        Rec* next = rec->fNext;
+        SkDELETE(rec);
+        rec = next;
+    }
+}
+
+SkPaint* SkLayerDrawLooper::Builder::addLayer(const LayerInfo& info) {
+    fCount += 1;
+
+    Rec* rec = SkNEW(Rec);
+    rec->fNext = fRecs;
+    rec->fInfo = info;
+    fRecs = rec;
+    if (NULL == fTopRec) {
+        fTopRec = rec;
+    }
+
+    return &rec->fPaint;
+}
+
+void SkLayerDrawLooper::Builder::addLayer(SkScalar dx, SkScalar dy) {
+    LayerInfo info;
+
+    info.fOffset.set(dx, dy);
+    (void)this->addLayer(info);
+}
+
+SkPaint* SkLayerDrawLooper::Builder::addLayerOnTop(const LayerInfo& info) {
+    fCount += 1;
+
+    Rec* rec = SkNEW(Rec);
+    rec->fNext = NULL;
+    rec->fInfo = info;
+    if (NULL == fRecs) {
+        fRecs = rec;
+    } else {
+        SkASSERT(NULL != fTopRec);
+        fTopRec->fNext = rec;
+    }
+    fTopRec = rec;
+
+    return &rec->fPaint;
+}
+
+SkLayerDrawLooper* SkLayerDrawLooper::Builder::detachLooper() {
+    SkLayerDrawLooper* looper = SkNEW(SkLayerDrawLooper);
+    looper->fCount = fCount;
+    looper->fRecs = fRecs;
+
+    fCount = 0;
+    fRecs = NULL;
+    fTopRec = NULL;
+
+    return looper;
+}

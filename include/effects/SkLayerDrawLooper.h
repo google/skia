@@ -107,10 +107,12 @@ public:
     virtual bool next(SkCanvas*, SkPaint* paint);
 
     SK_DEVELOPER_TO_STRING()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLayerDrawLooper)
+
+    /// Implements Flattenable.
+    virtual Factory getFactory() const SK_OVERRIDE { return CreateProc; }
+    static SkFlattenable* CreateProc(SkReadBuffer& buffer);
 
 protected:
-    SkLayerDrawLooper(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
@@ -134,6 +136,44 @@ private:
     };
 
     typedef SkDrawLooper INHERITED;
+
+public:
+    class SK_API Builder {
+    public:
+        Builder();
+        ~Builder();
+
+        /**
+         *  Call for each layer you want to add (from top to bottom).
+         *  This returns a paint you can modify, but that ptr is only valid until
+         *  the next call made to addLayer().
+         */
+        SkPaint* addLayer(const LayerInfo&);
+
+        /**
+         *  This layer will draw with the original paint, at the specified offset
+         */
+        void addLayer(SkScalar dx, SkScalar dy);
+
+        /**
+         *  This layer will with the original paint and no offset.
+         */
+        void addLayer() { this->addLayer(0, 0); }
+
+        /// Similar to addLayer, but adds a layer to the top.
+        SkPaint* addLayerOnTop(const LayerInfo&);
+
+        /**
+          * Pass list of layers on to newly built looper and return it. This will
+          * also reset the builder, so it can be used to build another looper.
+          */
+        SkLayerDrawLooper* detachLooper();
+
+    private:
+        Rec* fRecs;
+        Rec* fTopRec;
+        int  fCount;
+    };
 };
 
 #endif
