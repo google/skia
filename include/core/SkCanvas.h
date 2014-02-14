@@ -488,6 +488,20 @@ public:
     */
     bool quickRejectY(SkScalar top, SkScalar bottom) const {
         SkASSERT(top <= bottom);
+
+#ifndef SK_WILL_NEVER_DRAW_PERSPECTIVE_TEXT
+        // TODO: add a hasPerspective method similar to getLocalClipBounds. This
+        // would cache the SkMatrix::hasPerspective result. Alternatively, have
+        // the MC stack just set a hasPerspective boolean as it is updated.
+        if (this->getTotalMatrix().hasPerspective()) {
+            // TODO: consider implementing some half-plane test between the 
+            // two Y planes and the device-bounds (i.e., project the top and
+            // bottom Y planes and then determine if the clip bounds is completely
+            // outside either one).
+            return false;
+        }
+#endif
+
         const SkRect& clipR = this->getLocalClipBounds();
         // In the case where the clip is empty and we are provided with a
         // negative top and positive bottom parameter then this test will return
