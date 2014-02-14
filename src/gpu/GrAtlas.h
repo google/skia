@@ -99,6 +99,8 @@ public:
 
     bool isEmpty() { return NULL == fPlots; }
 
+    SkISize getSize() const;
+
 private:
     GrPlot*     fPlots;
     GrAtlasMgr* fAtlasMgr;

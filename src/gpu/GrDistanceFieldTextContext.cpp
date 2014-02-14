@@ -8,6 +8,7 @@
 #include "GrDistanceFieldTextContext.h"
 #include "GrAtlas.h"
 #include "GrDrawTarget.h"
+#include "GrDrawTargetCaps.h"
 #include "GrFontScaler.h"
 #include "SkGlyphCache.h"
 #include "GrIndexBuffer.h"
@@ -46,6 +47,7 @@ GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
 bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint) {
     return !paint.getRasterizer() && !paint.getMaskFilter() &&
            paint.getStyle() == SkPaint::kFill_Style &&
+           fContext->getTextTarget()->caps()->shaderDerivativeSupport() &&
            !SkDraw::ShouldDrawTextAsPaths(paint, fContext->getMatrix());
 }
 
@@ -72,8 +74,9 @@ void GrDistanceFieldTextContext::flushGlyphs() {
         GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
 
         // This effect could be stored with one of the cache objects (atlas?)
+        SkISize size = fStrike->getAtlasSize();
         drawState->addCoverageEffect(
-                                GrDistanceFieldTextureEffect::Create(fCurrTexture, params),
+                                GrDistanceFieldTextureEffect::Create(fCurrTexture, params, size),
                                 kGlyphCoordsAttributeIndex)->unref();
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
@@ -263,22 +266,23 @@ HAS_ATLAS:
     sy += dy;
     width *= scale;
     height *= scale;
-
+     
     GrFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
     GrFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
     GrFixed tw = SkIntToFixed(glyph->fBounds.width());
     GrFixed th = SkIntToFixed(glyph->fBounds.height());
 
+    static const size_t kVertexSize = 2 * sizeof(SkPoint);
     fVertices[2*fCurrVertex].setRectFan(sx,
                                         sy,
                                         sx + width,
                                         sy + height,
-                                        2 * sizeof(SkPoint));
+                                        kVertexSize);
     fVertices[2*fCurrVertex+1].setRectFan(SkFixedToFloat(texture->normalizeFixedX(tx)),
                                           SkFixedToFloat(texture->normalizeFixedY(ty)),
                                           SkFixedToFloat(texture->normalizeFixedX(tx + tw)),
                                           SkFixedToFloat(texture->normalizeFixedY(ty + th)),
-                                          2 * sizeof(SkPoint));
+                                          kVertexSize);
     fCurrVertex += 4;
 }
 

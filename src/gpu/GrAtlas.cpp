@@ -236,3 +236,7 @@ void GrAtlasMgr::freePlot(GrPlot* plot) {
 //    GrPrintf("~GrPlot %p [%d %d] %d\n", this, plot->fOffset.fX, plot->fOffset.fY, gCounter);
 #endif
 }
+
+SkISize GrAtlas::getSize() const {
+    return SkISize::Make(GR_ATLAS_TEXTURE_WIDTH, GR_ATLAS_TEXTURE_HEIGHT);
+}

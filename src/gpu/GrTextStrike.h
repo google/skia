@@ -39,6 +39,8 @@ public:
     inline GrGlyph* getGlyph(GrGlyph::PackedID, GrFontScaler*);
     bool getGlyphAtlas(GrGlyph*, GrFontScaler*);
 
+    SkISize getAtlasSize() const { return fAtlas.getSize(); }
+
     // testing
     int countGlyphs() const { return fCache.getArray().count(); }
     const GrGlyph* glyphAt(int index) const {
