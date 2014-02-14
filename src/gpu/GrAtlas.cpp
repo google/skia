@@ -35,8 +35,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define BORDER      1
-
 #ifdef SK_DEBUG
     static int gCounter;
 #endif
@@ -53,8 +51,8 @@ GrPlot::GrPlot() : fDrawToken(NULL, 0)
                  , fAtlasMgr(NULL)
                  , fBytesPerPixel(1)
 {
-    fRects = GrRectanizer::Factory(GR_ATLAS_WIDTH - BORDER,
-                                   GR_ATLAS_HEIGHT - BORDER);
+    fRects = GrRectanizer::Factory(GR_ATLAS_WIDTH,
+                                   GR_ATLAS_HEIGHT);
     fOffset.set(0, 0);
 }
 
@@ -74,41 +72,20 @@ static inline uint8_t* zero_fill(uint8_t* ptr, size_t count) {
 
 bool GrPlot::addSubImage(int width, int height, const void* image,
                           GrIPoint16* loc) {
-    if (!fRects->addRect(width + BORDER, height + BORDER, loc)) {
+    if (!fRects->addRect(width, height, loc)) {
         return false;
     }
 
     SkAutoSMalloc<1024> storage;
-    int dstW = width + 2*BORDER;
-    int dstH = height + 2*BORDER;
-    if (BORDER) {
-        const size_t dstRB = dstW * fBytesPerPixel;
-        uint8_t* dst = (uint8_t*)storage.reset(dstH * dstRB);
-        sk_bzero(dst, dstRB);                // zero top row
-        dst += dstRB;
-        for (int y = 0; y < height; y++) {
-            dst = zero_fill(dst, fBytesPerPixel);   // zero left edge
-            memcpy(dst, image, width * fBytesPerPixel);
-            dst += width * fBytesPerPixel;
-            dst = zero_fill(dst, fBytesPerPixel);   // zero right edge
-            image = (const void*)((const char*)image + width * fBytesPerPixel);
-        }
-        sk_bzero(dst, dstRB);                // zero bottom row
-        image = storage.get();
-    }
     adjust_for_offset(loc, fOffset);
     GrContext* context = fTexture->getContext();
     // We pass the flag that does not force a flush. We assume our caller is
     // smart and hasn't referenced the part of the texture we're about to update
     // since the last flush.
     context->writeTexturePixels(fTexture,
-                                loc->fX, loc->fY, dstW, dstH,
+                                loc->fX, loc->fY, width, height,
                                 fTexture->config(), image, 0,
                                 GrContext::kDontFlush_PixelOpsFlag);
-
-    // now tell the caller to skip the top/left BORDER
-    loc->fX += BORDER;
-    loc->fY += BORDER;
 
 #if FONT_CACHE_STATS
     ++g_UploadCount;
