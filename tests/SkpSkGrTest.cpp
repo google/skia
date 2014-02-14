@@ -457,7 +457,7 @@ void TestResult::testOne() {
         SkBitmap grBitmap;
         grBitmap.allocPixels(grCanvas.imageInfo());
         grCanvas.readPixels(&grBitmap, 0, 0);
-        
+
         if (fTestStep == kCompareBits) {
             fPixelError = similarBits(grBitmap, bitmap);
             int skTime = timePict(pic, &skCanvas);

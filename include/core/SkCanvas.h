@@ -1258,10 +1258,10 @@ public:
 
     // returns NULL on failure
     const void* addr() const { return fAddr; }
-    
+
     // undefined if addr() == NULL
     size_t rowBytes() const { return fRowBytes; }
-    
+
     // undefined if addr() == NULL
     const SkImageInfo& info() const { return fInfo; }
 

@@ -260,7 +260,7 @@ bool SkBitmap::setConfig(const SkImageInfo& origInfo, size_t rowBytes) {
                             &info.fAlphaType)) {
         return reset_return_false(this);
     }
-    
+
     // require that rowBytes fit in 31bits
     int64_t mrb = info.minRowBytes64();
     if ((int32_t)mrb != mrb) {

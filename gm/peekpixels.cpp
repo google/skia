@@ -37,10 +37,10 @@ protected:
         SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
         if (surface.get()) {
             SkCanvas* surfCanvas = surface->getCanvas();
-            
+
             draw_content(surfCanvas);
             SkBitmap bitmap;
-            
+
             // test peekPixels
             {
                 SkImageInfo info;
@@ -51,14 +51,14 @@ protected:
                     canvas->drawBitmap(bitmap, 0, 0, NULL);
                 }
             }
-            
+
             // test ROCanvasPixels
             canvas->translate(120, 0);
             SkAutoROCanvasPixels ropixels(surfCanvas);
             if (ropixels.asROBitmap(&bitmap)) {
                 canvas->drawBitmap(bitmap, 0, 0, NULL);
             }
-            
+
             // test Surface
             canvas->translate(120, 0);
             surface->draw(canvas, 0, 0, NULL);

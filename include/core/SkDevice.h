@@ -375,10 +375,10 @@ protected:
 protected:
     // default impl returns NULL
     virtual SkSurface* newSurface(const SkImageInfo&);
-    
+
     // default impl returns NULL
     virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes);
-    
+
     /**
      *  Leaky properties are those which the device should be applying but it isn't.
      *  These properties will be applied by the draw, when and as it can.

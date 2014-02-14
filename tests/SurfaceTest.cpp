@@ -127,14 +127,14 @@ static void test_imagepeek(skiatest::Reporter* reporter) {
         { kPicture_ImageType,       false   },
         { kCodec_ImageType,         false   },
     };
-    
+
     const SkColor color = SK_ColorRED;
     const SkPMColor pmcolor = SkPreMultiplyColor(color);
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
         SkImageInfo info;
         size_t rowBytes;
-        
+
         SkAutoTUnref<SkImage> image(createImage(gRec[i].fType, NULL, color));
         if (!image.get()) {
             continue;   // gpu may not be enabled

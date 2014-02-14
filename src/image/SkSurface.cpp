@@ -125,4 +125,3 @@ void SkSurface::draw(SkCanvas* canvas, SkScalar x, SkScalar y,
 const void* SkSurface::peekPixels(SkImageInfo* info, size_t* rowBytes) {
     return this->getCanvas()->peekPixels(info, rowBytes);
 }
-
