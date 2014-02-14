@@ -248,7 +248,7 @@ protected:
                               int effectCnt,
                               GrGLSLExpr4* inOutFSColor);
 
-    virtual bool compileAndAttachShaders(GrGLuint programId) const;
+    virtual bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const;
     virtual void bindProgramLocations(GrGLuint programId) const;
 
     void appendDecls(const VarArray&, SkString*) const;
@@ -422,7 +422,7 @@ public:
     }
 
 protected:
-    virtual bool compileAndAttachShaders(GrGLuint programId) const SK_OVERRIDE;
+    virtual bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const SK_OVERRIDE;
     virtual void bindProgramLocations(GrGLuint programId) const SK_OVERRIDE;
 
 private:
