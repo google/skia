@@ -213,7 +213,7 @@ GrGLVendor GrGLGetVendorFromString(const char* vendorString) {
         if (0 == strcmp(vendorString, "Imagination Technologies")) {
             return kImagination_GrGLVendor;
         }
-        if (0 == strcmp(vendorString, "Intel")) {
+        if (0 == strncmp(vendorString, "Intel ", 6) || 0 == strcmp(vendorString, "Intel")) {
             return kIntel_GrGLVendor;
         }
         if (0 == strcmp(vendorString, "Qualcomm")) {
