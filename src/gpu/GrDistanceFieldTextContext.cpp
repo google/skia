@@ -266,7 +266,7 @@ HAS_ATLAS:
     sy += dy;
     width *= scale;
     height *= scale;
-     
+
     GrFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
     GrFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
     GrFixed tw = SkIntToFixed(glyph->fBounds.width());

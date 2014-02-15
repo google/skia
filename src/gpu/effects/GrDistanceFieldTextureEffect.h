@@ -38,7 +38,7 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
-    GrDistanceFieldTextureEffect(GrTexture* texture, const GrTextureParams& params, 
+    GrDistanceFieldTextureEffect(GrTexture* texture, const GrTextureParams& params,
                                  const SkISize& textureSize);
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;

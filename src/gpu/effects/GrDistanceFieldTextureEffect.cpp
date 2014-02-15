@@ -13,14 +13,14 @@
 #include "GrTBackendEffectFactory.h"
 #include "GrTexture.h"
 
-// The distance field is constructed as unsigned char values, so that the zero value is at 128, 
-// and the range is [-4, 4 - 1/255). Hence our multiplier is 8 - 1/32 and zero threshold is 128/255.  
+// The distance field is constructed as unsigned char values, so that the zero value is at 128,
+// and the range is [-4, 4 - 1/255). Hence our multiplier is 8 - 1/32 and zero threshold is 128/255.
 #define MULTIPLIER "7.96875"
 #define THRESHOLD "0.50196078431"
 
 class GrGLDistanceFieldTextureEffect : public GrGLVertexEffect {
 public:
-    GrGLDistanceFieldTextureEffect(const GrBackendEffectFactory& factory, 
+    GrGLDistanceFieldTextureEffect(const GrBackendEffectFactory& factory,
                                    const GrDrawEffect& drawEffect)
         : INHERITED (factory)
         , fTextureSize(SkSize::Make(-1.f,-1.f)) {}
@@ -80,12 +80,12 @@ public:
     virtual void setData(const GrGLUniformManager& uman,
                          const GrDrawEffect& drawEffect) SK_OVERRIDE {
         SkASSERT(fTextureSizeUni.isValid());
-        const GrDistanceFieldTextureEffect& distanceFieldEffect = 
+        const GrDistanceFieldTextureEffect& distanceFieldEffect =
                                               drawEffect.castEffect<GrDistanceFieldTextureEffect>();
         if (distanceFieldEffect.getSize().width() != fTextureSize.width() ||
             distanceFieldEffect.getSize().height() != fTextureSize.height()) {
             fTextureSize = distanceFieldEffect.getSize();
-            uman.set2f(fTextureSizeUni, 
+            uman.set2f(fTextureSizeUni,
                        distanceFieldEffect.getSize().width(),
                        distanceFieldEffect.getSize().height());
         }

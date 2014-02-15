@@ -494,7 +494,7 @@ public:
         // would cache the SkMatrix::hasPerspective result. Alternatively, have
         // the MC stack just set a hasPerspective boolean as it is updated.
         if (this->getTotalMatrix().hasPerspective()) {
-            // TODO: consider implementing some half-plane test between the 
+            // TODO: consider implementing some half-plane test between the
             // two Y planes and the device-bounds (i.e., project the top and
             // bottom Y planes and then determine if the clip bounds is completely
             // outside either one).
