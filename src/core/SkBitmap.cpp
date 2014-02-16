@@ -511,6 +511,11 @@ bool SkBitmap::installPixels(const SkImageInfo& info, void* pixels, size_t rb,
     }
 
     this->setPixelRef(pr)->unref();
+
+    // since we're already allocated, we lockPixels right away
+    this->lockPixels();
+    SkASSERT(this->getPixels());
+    SkDEBUGCODE(this->validate();)
     return true;
 }
 
