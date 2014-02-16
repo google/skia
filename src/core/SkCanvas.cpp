@@ -1236,12 +1236,28 @@ bool SkCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
     if (rrect.isRect()) {
         // call the non-virtual version
         return this->SkCanvas::clipRect(rrect.getBounds(), op, doAA);
-    } else {
-        SkPath path;
-        path.addRRect(rrect);
-        // call the non-virtual version
-        return this->SkCanvas::clipPath(path, op, doAA);
     }
+
+    SkRRect transformedRRect;
+    if (rrect.transform(*fMCRec->fMatrix, &transformedRRect)) {
+        AutoValidateClip avc(this);
+
+        fDeviceCMDirty = true;
+        fCachedLocalClipBoundsDirty = true;
+        doAA &= fAllowSoftClip;
+
+        fClipStack.clipDevRRect(transformedRRect, op, doAA);
+
+        SkPath devPath;
+        devPath.addRRect(transformedRRect);
+
+        return clipPathHelper(this, fMCRec->fRasterClip, devPath, op, doAA);
+    }
+
+    SkPath path;
+    path.addRRect(rrect);
+    // call the non-virtual version
+    return this->SkCanvas::clipPath(path, op, doAA);
 }
 
 bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
