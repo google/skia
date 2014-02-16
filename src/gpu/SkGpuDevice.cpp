@@ -248,7 +248,7 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo
     if (!texture.get()) {
         return NULL;
     }
-    
+
     return SkNEW_ARGS(SkGpuDevice, (context, texture.get()));
 }
 
@@ -268,10 +268,10 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     : SkBitmapDevice(make_bitmap(config, width, height))
 {
     fDrawProcs = NULL;
-    
+
     fContext = context;
     fContext->ref();
-    
+
 #if SK_DISTANCEFIELD_FONTS
     fMainTextContext = SkNEW_ARGS(GrDistanceFieldTextContext, (fContext, fLeakyProperties));
     fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
@@ -279,21 +279,21 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     fMainTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
     fFallbackTextContext = NULL;
 #endif
-    
+
     fRenderTarget = NULL;
     fNeedClear = false;
-    
+
     if (config != SkBitmap::kRGB_565_Config) {
         config = SkBitmap::kARGB_8888_Config;
     }
-    
+
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = SkBitmapConfig2GrPixelConfig(config);
     desc.fSampleCnt = sampleCount;
-    
+
     SkImageInfo info;
     if (!GrPixelConfig2ColorType(desc.fConfig, &info.fColorType)) {
         sk_throw();
@@ -301,15 +301,15 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     info.fWidth = width;
     info.fHeight = height;
     info.fAlphaType = kPremul_SkAlphaType;
-    
+
     SkAutoTUnref<GrTexture> texture(fContext->createUncachedTexture(desc, NULL, 0));
-    
+
     if (NULL != texture) {
         fRenderTarget = texture->asRenderTarget();
         fRenderTarget->ref();
-        
+
         SkASSERT(NULL != fRenderTarget);
-        
+
         // wrap the bitmap with a pixelref to expose our texture
         SkGrPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, texture));
         this->setPixelRef(pr)->unref();

@@ -28,7 +28,7 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
         }
         return true;
     }
-    
+
     switch (info.alphaType()) {
         case kPremul_SkAlphaType:
         case kOpaque_SkAlphaType:
