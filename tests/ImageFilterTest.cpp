@@ -296,7 +296,9 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
 #if SK_SUPPORT_GPU
 DEF_GPUTEST(ImageFilterCropRectGPU, reporter, factory) {
     GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
-    SkGpuDevice device(context, SkBitmap::kARGB_8888_Config, 100, 100);
-    test_crop_rects(&device, reporter);
+    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
+                                                         SkImageInfo::MakeN32Premul(100, 100),
+                                                         0));
+    test_crop_rects(device, reporter);
 }
 #endif

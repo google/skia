@@ -4,7 +4,7 @@
 #include "DMUtil.h"
 #include "DMWriteTask.h"
 #include "SkCommandLineFlags.h"
-#include "SkGpuDevice.h"
+#include "SkSurface.h"
 #include "SkTLS.h"
 
 namespace DM {
@@ -14,14 +14,14 @@ GpuTask::GpuTask(const char* name,
                  TaskRunner* taskRunner,
                  const Expectations& expectations,
                  skiagm::GMRegistry::Factory gmFactory,
-                 SkBitmap::Config config,
+                 SkColorType colorType,
                  GrContextFactory::GLContextType contextType,
                  int sampleCount)
     : Task(reporter, taskRunner)
     , fGM(gmFactory(NULL))
     , fName(UnderJoin(fGM->shortName(), name))
     , fExpectations(expectations)
-    , fConfig(config)
+    , fColorType(colorType)
     , fContextType(contextType)
     , fSampleCount(sampleCount)
     {}
@@ -41,20 +41,19 @@ static GrContextFactory* get_gr_factory() {
 
 void GpuTask::draw() {
     GrContext* gr = get_gr_factory()->get(fContextType);  // Will be owned by device.
-    SkGpuDevice device(gr,
-                       fConfig,
-                       SkScalarCeilToInt(fGM->width()),
-                       SkScalarCeilToInt(fGM->height()),
-                       fSampleCount);
-    SkCanvas canvas(&device);
+    SkImageInfo info = SkImageInfo::Make(SkScalarCeilToInt(fGM->width()),
+                                         SkScalarCeilToInt(fGM->height()),
+                                         fColorType, kPremul_SkAlphaType);
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(gr, info, fSampleCount));
+    SkCanvas* canvas = surface->getCanvas();
 
-    canvas.concat(fGM->getInitialTransform());
-    fGM->draw(&canvas);
-    canvas.flush();
+    canvas->concat(fGM->getInitialTransform());
+    fGM->draw(canvas);
+    canvas->flush();
 
     SkBitmap bitmap;
-    bitmap.setConfig(fConfig, SkScalarCeilToInt(fGM->width()), SkScalarCeilToInt(fGM->height()));
-    canvas.readPixels(&bitmap, 0, 0);
+    bitmap.setConfig(info);
+    canvas->readPixels(&bitmap, 0, 0);
 
 #if GR_CACHE_STATS
     gr->printCacheStats();

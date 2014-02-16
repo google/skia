@@ -34,12 +34,12 @@ void TileGridTask::draw() {
     RecordPicture(fGM.get(), &recorded, SkPicture::kUsePathBoundsForClip_RecordingFlag);
 
     SkBitmap full;
-    SetupBitmap(fReference.config(), fGM.get(), &full);
+    SetupBitmap(fReference.colorType(), fGM.get(), &full);
     SkCanvas fullCanvas(full);
 
     SkBitmap tile;
-    tile.setConfig(fReference.config(), fTileSize.width(), fTileSize.height());
-    tile.allocPixels();
+    tile.allocPixels(SkImageInfo::Make(fTileSize.width(), fTileSize.height(),
+                                       fReference.colorType(), kPremul_SkAlphaType));
     SkCanvas tileCanvas(tile);
 
     SkPaint paint;

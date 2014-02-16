@@ -310,8 +310,8 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
         for (int glCtxType = 0; glCtxType < glCtxTypeCnt; ++glCtxType) {
             SkAutoTUnref<SkBaseDevice> device;
             if (0 == dtype) {
-                device.reset(new SkBitmapDevice(SkBitmap::kARGB_8888_Config,
-                                                DEV_W, DEV_H, false));
+                SkImageInfo info = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
+                device.reset(SkBitmapDevice::Create(info));
             } else {
 #if SK_SUPPORT_GPU
                 GrContextFactory::GLContextType type =

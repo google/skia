@@ -29,7 +29,7 @@ void SerializeTask::draw() {
     SkAutoTUnref<SkPicture> reconstructed(SkPicture::CreateFromStream(rStream));
 
     SkBitmap bitmap;
-    SetupBitmap(fReference.config(), fGM.get(), &bitmap);
+    SetupBitmap(fReference.colorType(), fGM.get(), &bitmap);
     DrawPicture(reconstructed, &bitmap);
     if (!BitmapsEqual(bitmap, fReference)) {
         this->fail();

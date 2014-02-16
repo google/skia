@@ -37,11 +37,21 @@ public:
 
     /**
      *  New device that will create an offscreen renderTarget based on the
+     *  ImageInfo and sampleCount. The device's storage will not
+     *  count against the GrContext's texture cache budget. The device's pixels
+     *  will be uninitialized. On failure, returns NULL.
+     */
+    static SkGpuDevice* Create(GrContext*, const SkImageInfo&, int sampleCount);
+
+#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
+    /**
+     *  New device that will create an offscreen renderTarget based on the
      *  config, width, height, and sampleCount. The device's storage will not
      *  count against the GrContext's texture cache budget. The device's pixels
      *  will be uninitialized. TODO: This can fail, replace with a factory function.
      */
     SkGpuDevice(GrContext*, SkBitmap::Config, int width, int height, int sampleCount = 0);
+#endif
 
     /**
      *  DEPRECATED -- need to make this private, call Create(surface)
@@ -163,11 +173,7 @@ private:
     // used by createCompatibleDevice
     SkGpuDevice(GrContext*, GrTexture* texture, bool needClear);
 
-    // override from SkBaseDevice
-    virtual SkBaseDevice* onCreateCompatibleDevice(SkBitmap::Config config,
-                                                   int width, int height,
-                                                   bool isOpaque,
-                                                   Usage usage) SK_OVERRIDE;
+    virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
 
     virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
 

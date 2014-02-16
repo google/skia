@@ -22,7 +22,7 @@ public:
             TaskRunner*,
             const Expectations&,
             skiagm::GMRegistry::Factory,
-            SkBitmap::Config);
+            SkColorType);
 
     virtual void draw() SK_OVERRIDE;
     virtual bool usesGpu() const SK_OVERRIDE { return false; }
@@ -34,7 +34,7 @@ private:
     SkAutoTDelete<skiagm::GM> fGM;
     const SkString fName;
     const Expectations& fExpectations;
-    const SkBitmap::Config fConfig;
+    const SkColorType fColorType;
 };
 
 }  // namespace DM

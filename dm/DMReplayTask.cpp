@@ -27,7 +27,7 @@ void ReplayTask::draw() {
     RecordPicture(fGM.get(), &recorded, flags);
 
     SkBitmap bitmap;
-    SetupBitmap(fReference.config(), fGM.get(), &bitmap);
+    SetupBitmap(fReference.colorType(), fGM.get(), &bitmap);
     DrawPicture(&recorded, &bitmap);
     if (!BitmapsEqual(bitmap, fReference)) {
         this->fail();

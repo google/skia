@@ -53,8 +53,8 @@ static void kick_off_tasks(const SkTDArray<GMRegistry::Factory>& gms,
                            const DM::Expectations& expectations,
                            DM::Reporter* reporter,
                            DM::TaskRunner* tasks) {
-    const SkBitmap::Config _565 = SkBitmap::kRGB_565_Config;
-    const SkBitmap::Config _8888 = SkBitmap::kARGB_8888_Config;
+    const SkColorType _565 = kRGB_565_SkColorType;
+    const SkColorType _8888 = kPMColor_SkColorType;
     const GrContextFactory::GLContextType native = GrContextFactory::kNative_GLContextType;
     const GrContextFactory::GLContextType null   = GrContextFactory::kNull_GLContextType;
     const GrContextFactory::GLContextType debug  = GrContextFactory::kDebug_GLContextType;

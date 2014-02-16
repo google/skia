@@ -172,13 +172,10 @@ protected:
     virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE {
         not_supported();
     }
-    virtual SkBaseDevice* onCreateCompatibleDevice(SkBitmap::Config config,
-                                                   int width, int height,
-                                                   bool isOpaque,
-                                                   Usage usage) SK_OVERRIDE {
+    virtual SkBaseDevice* onCreateDevice(const SkImageInfo& info, Usage usage) SK_OVERRIDE {
         // we expect to only get called via savelayer, in which case it is fine.
         SkASSERT(kSaveLayer_Usage == usage);
-        return SkNEW_ARGS(GatherPixelRefDevice, (width, height, fPRSet));
+        return SkNEW_ARGS(GatherPixelRefDevice, (info.width(), info.height(), fPRSet));
     }
     virtual void flush() SK_OVERRIDE {}
 

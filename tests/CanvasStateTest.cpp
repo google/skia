@@ -186,8 +186,9 @@ public:
 
 static void test_draw_filters(skiatest::Reporter* reporter) {
     TestDrawFilter drawFilter;
-    SkBitmapDevice device(SkBitmap::kARGB_8888_Config, 10, 10);
-    SkCanvas canvas(&device);
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(10, 10);
+    SkCanvas canvas(bitmap);
 
     canvas.setDrawFilter(&drawFilter);
 
@@ -209,8 +210,9 @@ static void test_draw_filters(skiatest::Reporter* reporter) {
 static void error_callback(SkError code, void* ctx) {}
 
 static void test_soft_clips(skiatest::Reporter* reporter) {
-    SkBitmapDevice device(SkBitmap::kARGB_8888_Config, 10, 10);
-    SkCanvas canvas(&device);
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(10, 10);
+    SkCanvas canvas(bitmap);
 
     SkRRect roundRect;
     roundRect.setOval(SkRect::MakeWH(5, 5));

@@ -14,18 +14,18 @@ CpuTask::CpuTask(const char* name,
                  TaskRunner* taskRunner,
                  const Expectations& expectations,
                  skiagm::GMRegistry::Factory gmFactory,
-                 SkBitmap::Config config)
+                 SkColorType colorType)
     : Task(reporter, taskRunner)
     , fGMFactory(gmFactory)
     , fGM(fGMFactory(NULL))
     , fName(UnderJoin(fGM->shortName(), name))
     , fExpectations(expectations)
-    , fConfig(config)
+    , fColorType(colorType)
     {}
 
 void CpuTask::draw() {
     SkBitmap bitmap;
-    SetupBitmap(fConfig, fGM.get(), &bitmap);
+    SetupBitmap(fColorType, fGM.get(), &bitmap);
 
     SkCanvas canvas(bitmap);
     canvas.concat(fGM->getInitialTransform());
@@ -48,7 +48,7 @@ void CpuTask::draw() {
 }
 
 bool CpuTask::shouldSkip() const {
-    if (SkBitmap::kRGB_565_Config == fConfig && (fGM->getFlags() & skiagm::GM::kSkip565_Flag)) {
+    if (kRGB_565_SkColorType == fColorType && (fGM->getFlags() & skiagm::GM::kSkip565_Flag)) {
         return true;
     }
     if (fGM->getFlags() & skiagm::GM::kGPUOnly_Flag) {

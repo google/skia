@@ -1124,8 +1124,7 @@ private:
     friend class SkDrawIter;    // needs setupDrawForLayerDevice()
     friend class AutoDrawLooper;
 
-    SkBaseDevice* createLayerDevice(SkBitmap::Config, int width, int height,
-                                    bool isOpaque);
+    SkBaseDevice* createLayerDevice(const SkImageInfo&);
 
     SkBaseDevice* init(SkBaseDevice*);
 

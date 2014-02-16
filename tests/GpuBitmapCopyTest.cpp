@@ -122,18 +122,32 @@ DEF_GPUTEST(GpuBitmapCopy, reporter, factory) {
             return;
         }
         static const Pair gPairs[] = {
-            { SkBitmap::kNo_Config,         "00"  },
-            { SkBitmap::kARGB_8888_Config,  "01"  },
+            // SkGpuDevice can no longer be Create()ed with kNo_Config
+            // (or kUnknown_SkColorType in the new world), hence much of this
+            // test will be skipped, since it was checking that calling
+            // copyTo or deepCopyTo with src or dst set to kUnknown/kNo would
+            // successfully fail.
+            //
+            // If we can declare that you can *never* create a texture with
+            // kUnknown, then perhaps we can remove this entire test...
+            //
+//            { SkBitmap::kNo_Config,         "00"  },
+//            { SkBitmap::kARGB_8888_Config,  "01"  },
+            { SkBitmap::kARGB_8888_Config,  "1"  },
         };
 
         const int W = 20;
         const int H = 33;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
+            SkImageInfo info = SkImageInfo::Make(W, H,
+                                                 SkBitmapConfigToColorType(gPairs[i].fConfig),
+                                                 kPremul_SkAlphaType);
             SkBitmap src, dst;
 
-            SkGpuDevice* device = SkNEW_ARGS(SkGpuDevice, (grContext, gPairs[i].fConfig, W, H));
-            SkAutoUnref aur(device);
+            SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(grContext, info, 0));
+            SkASSERT(device.get());
+
             src = device->accessBitmap(false);
             device->clear(SK_ColorWHITE);
 

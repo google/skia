@@ -30,6 +30,7 @@ public:
     */
     SkBitmapDevice(const SkBitmap& bitmap, const SkDeviceProperties& deviceProperties);
 
+#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
     /**
      *  Create a new raster device and have the pixels be automatically
      *  allocated. The rowBytes of the device will be computed automatically
@@ -61,8 +62,9 @@ public:
      */
     SkBitmapDevice(SkBitmap::Config config, int width, int height, bool isOpaque,
                    const SkDeviceProperties& deviceProperties);
-
-    virtual ~SkBitmapDevice();
+#endif
+    static SkBitmapDevice* Create(const SkImageInfo&,
+                                  const SkDeviceProperties* = NULL);
 
     virtual uint32_t getDeviceCapabilities() SK_OVERRIDE { return 0; }
 
@@ -185,7 +187,7 @@ protected:
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) SK_OVERRIDE;
     /** The SkBaseDevice passed will be an SkBaseDevice which was returned by a call to
-        onCreateCompatibleDevice on this device with kSaveLayer_Usage.
+        onCreateDevice on this device with kSaveLayer_Usage.
      */
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) SK_OVERRIDE;
@@ -260,20 +262,17 @@ private:
 
     friend class SkSurface_Raster;
 
-    void init(SkBitmap::Config config, int width, int height, bool isOpaque);
-
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
     // any clip information.
     virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE;
 
-    /**
-     * Subclasses should override this to implement createCompatibleDevice.
-     */
-    virtual SkBaseDevice* onCreateCompatibleDevice(SkBitmap::Config config,
-                                                   int width, int height,
-                                                   bool isOpaque,
-                                                   Usage usage) SK_OVERRIDE;
+#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
+    // in support of legacy constructors
+    void init(SkBitmap::Config config, int width, int height, bool isOpaque);
+#endif
+
+    virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
 
     /** Causes any deferred drawing to the device to be completed.
      */

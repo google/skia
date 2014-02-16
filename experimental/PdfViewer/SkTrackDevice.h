@@ -33,6 +33,7 @@ public:
         : SkBitmapDevice(bitmap, deviceProperties)
         , fTracker(NULL) {}
 
+#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
     SkTrackDevice(SkBitmap::Config config, int width, int height, bool isOpaque = false)
         : SkBitmapDevice(config, width, height, isOpaque)
         , fTracker(NULL) {}
@@ -41,6 +42,7 @@ public:
                   const SkDeviceProperties& deviceProperties)
         : SkBitmapDevice(config, width, height, isOpaque, deviceProperties)
         , fTracker(NULL) {}
+#endif
 
     virtual ~SkTrackDevice() {}
 

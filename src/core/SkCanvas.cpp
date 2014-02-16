@@ -746,46 +746,6 @@ int SkCanvas::save(SaveFlags flags) {
     return this->internalSave(flags);
 }
 
-#define C32MASK (1 << SkBitmap::kARGB_8888_Config)
-#define C16MASK (1 << SkBitmap::kRGB_565_Config)
-#define C8MASK  (1 << SkBitmap::kA8_Config)
-
-static SkBitmap::Config resolve_config(SkCanvas* canvas,
-                                       const SkIRect& bounds,
-                                       SkCanvas::SaveFlags flags,
-                                       bool* isOpaque) {
-    *isOpaque = (flags & SkCanvas::kHasAlphaLayer_SaveFlag) == 0;
-
-#if 0
-    // loop through and union all the configs we may draw into
-    uint32_t configMask = 0;
-    for (int i = canvas->countLayerDevices() - 1; i >= 0; --i)
-    {
-        SkBaseDevice* device = canvas->getLayerDevice(i);
-        if (device->intersects(bounds))
-            configMask |= 1 << device->config();
-    }
-
-    // if the caller wants alpha or fullcolor, we can't return 565
-    if (flags & (SkCanvas::kFullColorLayer_SaveFlag |
-                 SkCanvas::kHasAlphaLayer_SaveFlag))
-        configMask &= ~C16MASK;
-
-    switch (configMask) {
-    case C8MASK:    // if we only have A8, return that
-        return SkBitmap::kA8_Config;
-
-    case C16MASK:   // if we only have 565, return that
-        return SkBitmap::kRGB_565_Config;
-
-    default:
-        return SkBitmap::kARGB_8888_Config; // default answer
-    }
-#else
-    return SkBitmap::kARGB_8888_Config; // default answer
-#endif
-}
-
 static bool bounds_affects_clip(SkCanvas::SaveFlags flags) {
     return (flags & SkCanvas::kClipToLayer_SaveFlag) != 0;
 }
@@ -840,15 +800,9 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
 }
 
 static SkBaseDevice* createCompatibleDevice(SkCanvas* canvas,
-                                            SkBitmap::Config config,
-                                            int width, int height,
-                                            bool isOpaque) {
+                                            const SkImageInfo& info) {
     SkBaseDevice* device = canvas->getDevice();
-    if (device) {
-        return device->createCompatibleDevice(config, width, height, isOpaque);
-    } else {
-        return NULL;
-    }
+    return device ? device->createCompatibleDevice(info) : NULL;
 }
 
 int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
@@ -878,16 +832,15 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
         }
     }
 
-    bool isOpaque;
-    SkBitmap::Config config = resolve_config(this, ir, flags, &isOpaque);
+    bool isOpaque = !SkToBool(flags & kHasAlphaLayer_SaveFlag);
+    SkImageInfo info = SkImageInfo::MakeN32(ir.width(), ir.height(),
+                        isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
 
     SkBaseDevice* device;
     if (paint && paint->getImageFilter()) {
-        device = createCompatibleDevice(this, config, ir.width(), ir.height(),
-                                        isOpaque);
+        device = createCompatibleDevice(this, info);
     } else {
-        device = this->createLayerDevice(config, ir.width(), ir.height(),
-                                         isOpaque);
+        device = this->createLayerDevice(info);
     }
     if (NULL == device) {
         SkDebugf("Unable to create device for layer.");
@@ -1607,16 +1560,9 @@ const SkRegion& SkCanvas::getTotalClip() const {
     return fMCRec->fRasterClip->forceGetBW();
 }
 
-SkBaseDevice* SkCanvas::createLayerDevice(SkBitmap::Config config,
-                                          int width, int height,
-                                          bool isOpaque) {
+SkBaseDevice* SkCanvas::createLayerDevice(const SkImageInfo& info) {
     SkBaseDevice* device = this->getTopDevice();
-    if (device) {
-        return device->createCompatibleDeviceForSaveLayer(config, width, height,
-                                                          isOpaque);
-    } else {
-        return NULL;
-    }
+    return device ? device->createCompatibleDeviceForSaveLayer(info) : NULL;
 }
 
 GrContext* SkCanvas::getGrContext() {

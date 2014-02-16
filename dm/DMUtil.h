@@ -16,7 +16,7 @@ SkString UnderJoin(const char* a, const char* b);
 void RecordPicture(skiagm::GM* gm, SkPicture* picture, uint32_t recordFlags = 0);
 
 // Prepare bitmap to have gm draw into it with this config.
-void SetupBitmap(const SkBitmap::Config config, skiagm::GM* gm, SkBitmap* bitmap);
+void SetupBitmap(const SkColorType, skiagm::GM* gm, SkBitmap* bitmap);
 
 // Draw picture to bitmap.
 void DrawPicture(SkPicture* picture, SkBitmap* bitmap);

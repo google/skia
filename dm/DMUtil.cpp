@@ -19,10 +19,10 @@ void RecordPicture(skiagm::GM* gm, SkPicture* picture, uint32_t recordFlags) {
     picture->endRecording();
 }
 
-void SetupBitmap(const SkBitmap::Config config, skiagm::GM* gm, SkBitmap* bitmap) {
+void SetupBitmap(const SkColorType ct, skiagm::GM* gm, SkBitmap* bitmap) {
     const SkISize size = gm->getISize();
-    bitmap->setConfig(config, size.width(), size.height());
-    bitmap->allocPixels();
+    bitmap->allocPixels(SkImageInfo::Make(size.width(), size.height(),
+                                          ct, kPremul_SkAlphaType));
     bitmap->eraseColor(0x00000000);
 }
 

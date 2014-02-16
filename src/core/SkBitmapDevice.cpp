@@ -15,16 +15,60 @@
 #define CHECK_FOR_ANNOTATION(paint) \
     do { if (paint.getAnnotation()) { return; } } while (0)
 
-SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
-    : fBitmap(bitmap) {
-    SkASSERT(SkBitmap::kARGB_4444_Config != bitmap.config());
+static bool valid_for_bitmap_device(const SkImageInfo& info,
+                                    SkAlphaType* newAlphaType) {
+    if (info.width() < 0 || info.height() < 0) {
+        return false;
+    }
+
+    // TODO: can we stop supporting kUnknown in SkBitmkapDevice?
+    if (kUnknown_SkColorType == info.colorType()) {
+        if (newAlphaType) {
+            *newAlphaType = kIgnore_SkAlphaType;
+        }
+        return true;
+    }
+    
+    switch (info.alphaType()) {
+        case kPremul_SkAlphaType:
+        case kOpaque_SkAlphaType:
+            break;
+        default:
+            return false;
+    }
+
+    SkAlphaType canonicalAlphaType = info.alphaType();
+
+    switch (info.colorType()) {
+        case kAlpha_8_SkColorType:
+            break;
+        case kRGB_565_SkColorType:
+            canonicalAlphaType = kOpaque_SkAlphaType;
+            break;
+        case kPMColor_SkColorType:
+            break;
+        default:
+            return false;
+    }
+
+    if (newAlphaType) {
+        *newAlphaType = canonicalAlphaType;
+    }
+    return true;
+}
+
+SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap) : fBitmap(bitmap) {
+    SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
 }
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkDeviceProperties& deviceProperties)
     : SkBaseDevice(deviceProperties)
-    , fBitmap(bitmap) {
+    , fBitmap(bitmap)
+{
+    SkASSERT(valid_for_bitmap_device(bitmap.info(), NULL));
 }
 
+#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
 void SkBitmapDevice::init(SkBitmap::Config config, int width, int height, bool isOpaque) {
     fBitmap.setConfig(config, width, height, 0, isOpaque ?
                       kOpaque_SkAlphaType : kPremul_SkAlphaType);
@@ -50,8 +94,34 @@ SkBitmapDevice::SkBitmapDevice(SkBitmap::Config config, int width, int height, b
 {
     this->init(config, width, height, isOpaque);
 }
+#endif
+SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
+                                       const SkDeviceProperties* props) {
+    SkImageInfo info = origInfo;
+    if (!valid_for_bitmap_device(info, &info.fAlphaType)) {
+        return NULL;
+    }
 
-SkBitmapDevice::~SkBitmapDevice() {
+    SkBitmap bitmap;
+
+    if (kUnknown_SkColorType == info.colorType()) {
+        if (!bitmap.setConfig(info)) {
+            return NULL;
+        }
+    } else {
+        if (!bitmap.allocPixels(info)) {
+            return NULL;
+        }
+        if (!bitmap.info().isOpaque()) {
+            bitmap.eraseColor(SK_ColorTRANSPARENT);
+        }
+    }
+
+    if (props) {
+        return SkNEW_ARGS(SkBitmapDevice, (bitmap, *props));
+    } else {
+        return SkNEW_ARGS(SkBitmapDevice, (bitmap));
+    }
 }
 
 SkImageInfo SkBitmapDevice::imageInfo() const {
@@ -65,18 +135,8 @@ void SkBitmapDevice::replaceBitmapBackendForRasterSurface(const SkBitmap& bm) {
     fBitmap.lockPixels();
 }
 
-SkBaseDevice* SkBitmapDevice::onCreateCompatibleDevice(SkBitmap::Config config,
-                                                       int width, int height,
-                                                       bool isOpaque,
-                                                       Usage usage) {
-    SkBitmapDevice* device = SkNEW_ARGS(SkBitmapDevice,(config, width, height,
-                                        isOpaque, this->getDeviceProperties()));
-    // Check if allocation failed and delete device if it did fail
-    if ((device->width() != width) || (device->height() != height)) {
-        SkDELETE(device);
-        device = NULL;
-    }
-    return device;
+SkBaseDevice* SkBitmapDevice::onCreateDevice(const SkImageInfo& info, Usage usage) {
+    return SkBitmapDevice::Create(info, &this->getDeviceProperties());
 }
 
 void SkBitmapDevice::lockPixels() {

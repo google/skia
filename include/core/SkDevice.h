@@ -16,6 +16,8 @@
 #include "SkColor.h"
 #include "SkDeviceProperties.h"
 
+//#define SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
+
 class SkClipStack;
 class SkDraw;
 struct SkIRect;
@@ -41,6 +43,7 @@ public:
 
     virtual ~SkBaseDevice();
 
+#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
     /**
      *  Creates a device that is of the same type as this device (e.g. SW-raster,
      *  GPU, or PDF). The backing store for this device is created automatically
@@ -55,6 +58,8 @@ public:
     SkBaseDevice* createCompatibleDevice(SkBitmap::Config config,
                                          int width, int height,
                                          bool isOpaque);
+#endif
+    SkBaseDevice* createCompatibleDevice(const SkImageInfo&);
 
     SkMetaData& getMetaData();
 
@@ -279,7 +284,7 @@ protected:
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) = 0;
     /** The SkDevice passed will be an SkDevice which was returned by a call to
-        onCreateCompatibleDevice on this device with kSaveLayer_Usage.
+        onCreateDevice on this device with kSaveLayer_Usage.
      */
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) = 0;
@@ -406,17 +411,23 @@ private:
     // just called by SkCanvas when built as a layer
     void setOrigin(int x, int y) { fOrigin.set(x, y); }
     // just called by SkCanvas for saveLayer
-    SkBaseDevice* createCompatibleDeviceForSaveLayer(SkBitmap::Config config,
-                                                     int width, int height,
-                                                     bool isOpaque);
+    SkBaseDevice* createCompatibleDeviceForSaveLayer(const SkImageInfo&);
 
+#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
     /**
-     * Subclasses should override this to implement createCompatibleDevice.
+     * Justs exists during the period where clients still "override" this
+     *  signature. They are supported by our base-impl calling this old
+     *  signature from the new one (using ImageInfo).
      */
     virtual SkBaseDevice* onCreateCompatibleDevice(SkBitmap::Config config,
                                                    int width, int height,
-                                                   bool isOpaque,
-                                                   Usage usage) = 0;
+                                                   bool isOpaque, Usage) {
+        return NULL;
+    }
+#endif
+    virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) {
+        return NULL;
+    }
 
     /** Causes any deferred drawing to the device to be completed.
      */

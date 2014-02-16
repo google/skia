@@ -2418,11 +2418,7 @@ bool SkXPSDevice::onReadPixels(const SkBitmap& bitmap, int x, int y,
     return false;
 }
 
-SkBaseDevice* SkXPSDevice::onCreateCompatibleDevice(SkBitmap::Config config,
-                                                    int width, int height,
-                                                    bool isOpaque,
-                                                    Usage usage) {
-
+SkBaseDevice* SkXPSDevice::onCreateDevice(const SkImageInfo&, Usage) {
 //Conditional for bug compatibility with PDF device.
 #if 0
     if (SkBaseDevice::kGeneral_Usage == usage) {

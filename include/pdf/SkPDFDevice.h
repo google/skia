@@ -257,10 +257,7 @@ private:
                 const SkRegion& existingClipRegion);
 
     // override from SkBaseDevice
-    virtual SkBaseDevice* onCreateCompatibleDevice(SkBitmap::Config config,
-                                                   int width, int height,
-                                                   bool isOpaque,
-                                                   Usage usage) SK_OVERRIDE;
+    virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
 
     void init();
     void cleanUp(bool clearFontUsage);

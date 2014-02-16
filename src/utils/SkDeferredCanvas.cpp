@@ -168,10 +168,7 @@ public:
 
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
-    virtual SkBaseDevice* onCreateCompatibleDevice(SkBitmap::Config config,
-                                                   int width, int height,
-                                                   bool isOpaque,
-                                                   Usage usage) SK_OVERRIDE;
+    virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
 
     virtual void writePixels(const SkBitmap& bitmap, int x, int y,
                                 SkCanvas::Config8888 config8888) SK_OVERRIDE;
@@ -515,10 +512,7 @@ const SkBitmap& DeferredDevice::onAccessBitmap() {
     return immediateDevice()->accessBitmap(false);
 }
 
-SkBaseDevice* DeferredDevice::onCreateCompatibleDevice(
-    SkBitmap::Config config, int width, int height, bool isOpaque,
-    Usage usage) {
-
+SkBaseDevice* DeferredDevice::onCreateDevice(const SkImageInfo& info, Usage usage) {
     // Save layer usage not supported, and not required by SkDeferredCanvas.
     SkASSERT(usage != kSaveLayer_Usage);
     // Create a compatible non-deferred device.
@@ -526,7 +520,7 @@ SkBaseDevice* DeferredDevice::onCreateCompatibleDevice(
     // will not be used with a deferred canvas (there is no API for that).
     // And connecting a DeferredDevice to non-deferred canvas can result
     // in unpredictable behavior.
-    return immediateDevice()->createCompatibleDevice(config, width, height, isOpaque);
+    return immediateDevice()->createCompatibleDevice(info);
 }
 
 SkSurface* DeferredDevice::newSurface(const SkImageInfo& info) {

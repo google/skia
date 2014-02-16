@@ -157,20 +157,6 @@ static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
     return bitmap;
 }
 
-/*
- *  Calling SkBitmapDevice with individual params asks it to allocate pixel memory.
- *  We never want that, so we always need to call it with a bitmap argument
- *  (which says take my allocate (or lack thereof)).
- *
- *  This is a REALLY good reason to finish the clean-up of SkBaseDevice, and have
- *  SkGpuDevice inherit from that instead of SkBitmapDevice.
- */
-static SkBitmap make_bitmap(SkBitmap::Config config, int width, int height, bool isOpaque) {
-    SkBitmap bm;
-    bm.setConfig(config, width, height, isOpaque);
-    return bm;
-}
-
 SkGpuDevice* SkGpuDevice::Create(GrSurface* surface) {
     SkASSERT(NULL != surface);
     if (NULL == surface->asRenderTarget() || NULL == surface->getContext()) {
@@ -232,18 +218,60 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     this->setPixelRef(pr)->unref();
 }
 
+SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo,
+                                 int sampleCount) {
+    if (kUnknown_SkColorType == origInfo.colorType() ||
+        origInfo.width() < 0 || origInfo.height() < 0) {
+        return NULL;
+    }
+
+    SkImageInfo info = origInfo;
+    // TODO: perhas we can loosen this check now that colortype is more detailed
+    // e.g. can we support both RGBA and BGRA here?
+    if (kRGB_565_SkColorType == info.colorType()) {
+        info.fAlphaType = kOpaque_SkAlphaType;  // force this setting
+    } else {
+        info.fColorType = kPMColor_SkColorType;
+        if (kOpaque_SkAlphaType != info.alphaType()) {
+            info.fAlphaType = kPremul_SkAlphaType;  // force this setting
+        }
+    }
+
+    GrTextureDesc desc;
+    desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    desc.fWidth = info.width();
+    desc.fHeight = info.height();
+    desc.fConfig = SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType());
+    desc.fSampleCnt = sampleCount;
+
+    SkAutoTUnref<GrTexture> texture(context->createUncachedTexture(desc, NULL, 0));
+    if (!texture.get()) {
+        return NULL;
+    }
+    
+    return SkNEW_ARGS(SkGpuDevice, (context, texture.get()));
+}
+
+#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
+static SkBitmap make_bitmap(SkBitmap::Config config, int width, int height) {
+    SkBitmap bm;
+    bm.setConfig(SkImageInfo::Make(width, height,
+                                   SkBitmapConfigToColorType(config),
+                                   kPremul_SkAlphaType));
+    return bm;
+}
 SkGpuDevice::SkGpuDevice(GrContext* context,
                          SkBitmap::Config config,
                          int width,
                          int height,
                          int sampleCount)
-    : SkBitmapDevice(make_bitmap(config, width, height, false /*isOpaque*/))
+    : SkBitmapDevice(make_bitmap(config, width, height))
 {
     fDrawProcs = NULL;
-
+    
     fContext = context;
     fContext->ref();
-
+    
 #if SK_DISTANCEFIELD_FONTS
     fMainTextContext = SkNEW_ARGS(GrDistanceFieldTextContext, (fContext, fLeakyProperties));
     fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
@@ -251,21 +279,21 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     fMainTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
     fFallbackTextContext = NULL;
 #endif
-
+    
     fRenderTarget = NULL;
     fNeedClear = false;
-
+    
     if (config != SkBitmap::kRGB_565_Config) {
         config = SkBitmap::kARGB_8888_Config;
     }
-
+    
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
     desc.fWidth = width;
     desc.fHeight = height;
     desc.fConfig = SkBitmapConfig2GrPixelConfig(config);
     desc.fSampleCnt = sampleCount;
-
+    
     SkImageInfo info;
     if (!GrPixelConfig2ColorType(desc.fConfig, &info.fColorType)) {
         sk_throw();
@@ -273,15 +301,15 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     info.fWidth = width;
     info.fHeight = height;
     info.fAlphaType = kPremul_SkAlphaType;
-
+    
     SkAutoTUnref<GrTexture> texture(fContext->createUncachedTexture(desc, NULL, 0));
-
+    
     if (NULL != texture) {
         fRenderTarget = texture->asRenderTarget();
         fRenderTarget->ref();
-
+        
         SkASSERT(NULL != fRenderTarget);
-
+        
         // wrap the bitmap with a pixelref to expose our texture
         SkGrPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, texture));
         this->setPixelRef(pr)->unref();
@@ -291,6 +319,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
         SkASSERT(false);
     }
 }
+#endif
 
 SkGpuDevice::~SkGpuDevice() {
     if (fDrawProcs) {
@@ -1881,20 +1910,17 @@ void SkGpuDevice::flush() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkBaseDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
-                                                    int width, int height,
-                                                    bool isOpaque,
-                                                    Usage usage) {
+SkBaseDevice* SkGpuDevice::onCreateDevice(const SkImageInfo& info, Usage usage) {
     GrTextureDesc desc;
     desc.fConfig = fRenderTarget->config();
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
-    desc.fWidth = width;
-    desc.fHeight = height;
+    desc.fWidth = info.width();
+    desc.fHeight = info.height();
     desc.fSampleCnt = fRenderTarget->numSamples();
 
     SkAutoTUnref<GrTexture> texture;
     // Skia's convention is to only clear a device if it is non-opaque.
-    bool needClear = !isOpaque;
+    bool needClear = !info.isOpaque();
 
 #if CACHE_COMPATIBLE_DEVICE_TEXTURES
     // layers are never draw in repeat modes, so we can request an approx
@@ -1909,7 +1935,8 @@ SkBaseDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
     if (NULL != texture.get()) {
         return SkNEW_ARGS(SkGpuDevice,(fContext, texture, needClear));
     } else {
-        GrPrintf("---- failed to create compatible device texture [%d %d]\n", width, height);
+        GrPrintf("---- failed to create compatible device texture [%d %d]\n",
+                 info.width(), info.height());
         return NULL;
     }
 }
@@ -1924,7 +1951,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     : SkBitmapDevice(make_bitmap(context, texture->asRenderTarget())) {
 
     SkASSERT(texture && texture->asRenderTarget());
-    // This constructor is called from onCreateCompatibleDevice. It has locked the RT in the texture
+    // This constructor is called from onCreateDevice. It has locked the RT in the texture
     // cache. We pass true for the third argument so that it will get unlocked.
     this->initFromRenderTarget(context, texture->asRenderTarget(), true);
     fNeedClear = needClear;

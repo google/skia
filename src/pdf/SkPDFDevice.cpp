@@ -585,13 +585,10 @@ void GraphicStackState::updateDrawingState(const GraphicStateEntry& state) {
     }
 }
 
-SkBaseDevice* SkPDFDevice::onCreateCompatibleDevice(SkBitmap::Config config,
-                                                    int width, int height,
-                                                    bool isOpaque,
-                                                    Usage usage) {
+SkBaseDevice* SkPDFDevice::onCreateDevice(const SkImageInfo& info, Usage usage) {
     SkMatrix initialTransform;
     initialTransform.reset();
-    SkISize size = SkISize::Make(width, height);
+    SkISize size = SkISize::Make(info.width(), info.height());
     return SkNEW_ARGS(SkPDFDevice, (size, size, initialTransform));
 }
 

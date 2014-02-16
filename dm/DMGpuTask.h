@@ -22,7 +22,7 @@ public:
             TaskRunner*,
             const Expectations&,
             skiagm::GMRegistry::Factory,
-            SkBitmap::Config,
+            SkColorType,
             GrContextFactory::GLContextType,
             int sampleCount);
 
@@ -35,7 +35,7 @@ private:
     SkAutoTDelete<skiagm::GM> fGM;
     const SkString fName;
     const Expectations& fExpectations;
-    const SkBitmap::Config fConfig;
+    const SkColorType fColorType;
     const GrContextFactory::GLContextType fContextType;
     const int fSampleCount;
 };

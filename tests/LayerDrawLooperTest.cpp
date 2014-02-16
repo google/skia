@@ -18,9 +18,15 @@
 #include "SkXfermode.h"
 #include "Test.h"
 
+static SkBitmap make_bm(int w, int h) {
+    SkBitmap bm;
+    bm.allocN32Pixels(w, h);
+    return bm;
+}
+
 class FakeDevice : public SkBitmapDevice {
 public:
-    FakeDevice() : SkBitmapDevice(SkBitmap::kARGB_8888_Config, 100, 100, false) { }
+    FakeDevice() : SkBitmapDevice(make_bm(100, 100)) { }
 
     virtual void drawRect(const SkDraw& draw, const SkRect& r,
                           const SkPaint& paint) SK_OVERRIDE {

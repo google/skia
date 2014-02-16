@@ -14,7 +14,6 @@ class SkSurface_Gpu : public SkSurface_Base {
 public:
     SK_DECLARE_INST_COUNT(SkSurface_Gpu)
 
-    SkSurface_Gpu(GrContext*, const SkImageInfo&, int sampleCount);
     SkSurface_Gpu(GrRenderTarget*);
     virtual ~SkSurface_Gpu();
 
@@ -32,18 +31,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-SkSurface_Gpu::SkSurface_Gpu(GrContext* ctx, const SkImageInfo& info,
-                             int sampleCount)
-        : INHERITED(info.fWidth, info.fHeight) {
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
-
-    fDevice = SkNEW_ARGS(SkGpuDevice, (ctx, config, info.fWidth, info.fHeight, sampleCount));
-
-    if (!SkAlphaTypeIsOpaque(info.fAlphaType)) {
-        fDevice->clear(0x0);
-    }
-}
 
 SkSurface_Gpu::SkSurface_Gpu(GrRenderTarget* renderTarget)
         : INHERITED(renderTarget->width(), renderTarget->height()) {
@@ -85,9 +72,10 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     // are we sharing our render target with the image?
     SkASSERT(NULL != this->getCachedImage());
     if (rt->asTexture() == SkTextureImageGetTexture(this->getCachedImage())) {
-        SkAutoTUnref<SkGpuDevice> newDevice(SkNEW_ARGS(SkGpuDevice,
-            (fDevice->context(), fDevice->config(), fDevice->width(),
-             fDevice->height(), rt->numSamples())));
+        SkAutoTUnref<SkGpuDevice> newDevice(SkGpuDevice::Create(fDevice->context(),
+                                                     fDevice->imageInfo(),
+                                                     rt->numSamples()));
+        SkASSERT(newDevice.get());
 
         if (kRetain_ContentChangeMode == mode) {
             fDevice->context()->copyTexture(rt->asTexture(),
