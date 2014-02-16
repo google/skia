@@ -229,17 +229,7 @@ public:
 
         void initPath(int saveCount, const SkPath& path, SkRegion::Op op, bool doAA);
 
-        void setEmpty() {
-            fType = kEmpty_Type;
-            fFiniteBound.setEmpty();
-            fFiniteBoundType = kNormal_BoundsType;
-            fIsIntersectionOfRects = false;
-            fRect.setEmpty();
-            fRRect.setEmpty();
-            fPath.reset();
-            fGenID = kEmptyGenID;
-            SkDEBUGCODE(this->checkEmpty();)
-        }
+        void setEmpty();
 
         // All Element methods below are only used within SkClipStack.cpp
         inline void checkEmpty() const;

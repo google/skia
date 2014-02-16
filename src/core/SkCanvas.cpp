@@ -1417,13 +1417,6 @@ void SkCanvas::validateClip() const {
     const SkClipStack::Element* element;
     while ((element = iter.next()) != NULL) {
         switch (element->getType()) {
-            case SkClipStack::Element::kPath_Type:
-                clipPathHelper(this,
-                               &tmpClip,
-                               element->getPath(),
-                               element->getOp(),
-                               element->isAA());
-                break;
             case SkClipStack::Element::kRect_Type:
                 element->getRect().round(&ir);
                 tmpClip.op(ir, element->getOp());
@@ -1431,6 +1424,16 @@ void SkCanvas::validateClip() const {
             case SkClipStack::Element::kEmpty_Type:
                 tmpClip.setEmpty();
                 break;
+            default: {
+                SkPath path;
+                element->asPath(&path);
+                clipPathHelper(this,
+                               &tmpClip,
+                               path,
+                               element->getOp(),
+                               element->isAA());
+                break;
+            }
         }
     }
 

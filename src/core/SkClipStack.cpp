@@ -103,6 +103,18 @@ void SkClipStack::Element::asPath(SkPath* path) const {
     }
 }
 
+void SkClipStack::Element::setEmpty() {
+    fType = kEmpty_Type;
+    fFiniteBound.setEmpty();
+    fFiniteBoundType = kNormal_BoundsType;
+    fIsIntersectionOfRects = false;
+    fRect.setEmpty();
+    fRRect.setEmpty();
+    fPath.reset();
+    fGenID = kEmptyGenID;
+    SkDEBUGCODE(this->checkEmpty();)
+}
+
 void SkClipStack::Element::checkEmpty() const {
     SkASSERT(fFiniteBound.isEmpty());
     SkASSERT(kNormal_BoundsType == fFiniteBoundType);
