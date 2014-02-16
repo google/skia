@@ -442,39 +442,6 @@ static void SkGMRegistyToSampleRegistry() {
     }
 }
 
-#if 0
-#include <CoreFoundation/CoreFoundation.h>
-#include <CoreFoundation/CFURLAccess.h>
-
-static void testpdf() {
-    CFStringRef path = CFStringCreateWithCString(NULL, "/test.pdf",
-                                                 kCFStringEncodingUTF8);
-    CFURLRef url = CFURLCreateWithFileSystemPath(NULL, path,
-                                              kCFURLPOSIXPathStyle,
-                                              false);
-    CFRelease(path);
-    CGRect box = CGRectMake(0, 0, 8*72, 10*72);
-    CGContextRef cg = CGPDFContextCreateWithURL(url, &box, NULL);
-    CFRelease(url);
-
-    CGContextBeginPage(cg, &box);
-    CGRect r = CGRectMake(10, 10, 40 + 0.5, 50 + 0.5);
-    CGContextFillEllipseInRect(cg, r);
-    CGContextEndPage(cg);
-    CGContextRelease(cg);
-
-    if (false) {
-        SkBitmap bm;
-        bm.setConfig(SkBitmap::kA8_Config, 64, 64);
-        bm.allocPixels();
-        bm.eraseColor(SK_ColorTRANSPARENT);
-
-        SkCanvas canvas(bm);
-
-    }
-}
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 
 enum FlipAxisEnum {
@@ -991,8 +958,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fSlideMenu = new SkOSMenu;
     this->addMenu(fSlideMenu);
 
-//    this->setConfig(SkBitmap::kRGB_565_Config);
-    this->setConfig(SkBitmap::kARGB_8888_Config);
+    this->setColorType(kPMColor_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
@@ -1600,17 +1566,18 @@ void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
     canvas->setDrawFilter(NULL);
 }
 
-static SkBitmap::Config gConfigCycle[] = {
-    SkBitmap::kNo_Config,           // none -> none
-    SkBitmap::kNo_Config,           // a8 -> none
-    SkBitmap::kNo_Config,           // index8 -> none
-    SkBitmap::kARGB_4444_Config,    // 565 -> 4444
-    SkBitmap::kARGB_8888_Config,    // 4444 -> 8888
-    SkBitmap::kRGB_565_Config       // 8888 -> 565
+static SkColorType gColorTypeCycle[] = {
+    kUnknown_SkColorType,           // none -> none
+    kUnknown_SkColorType,           // a8 -> none
+    kARGB_4444_SkColorType,         // 565 -> 4444
+    kPMColor_SkColorType,           // 4444 -> 8888
+    kRGB_565_SkColorType,           // 8888 -> 565
+    kRGB_565_SkColorType,           // 8888 -> 565
+    kUnknown_SkColorType,           // index8 -> none
 };
 
-static SkBitmap::Config cycle_configs(SkBitmap::Config c) {
-    return gConfigCycle[c];
+static SkColorType cycle_configs(SkColorType c) {
+    return gColorTypeCycle[c];
 }
 
 void SampleWindow::changeZoomLevel(float delta) {
@@ -2007,7 +1974,7 @@ bool SampleWindow::onHandleKey(SkKey key) {
             if (USE_ARROWS_FOR_ZOOM) {
                 this->changeZoomLevel(-1.f / 32.f);
             } else {
-                this->setConfig(cycle_configs(this->getBitmap().config()));
+                this->setColorType(cycle_configs(this->getBitmap().colorType()));
                 this->updateTitle();
             }
             return true;

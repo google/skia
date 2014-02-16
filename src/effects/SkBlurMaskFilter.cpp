@@ -195,10 +195,9 @@ static bool draw_rrect_into_mask(const SkRRect rrect, SkMask* mask) {
     // FIXME: This code duplicates code in draw_rects_into_mask, below. Is there a
     // clean way to share more code?
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kA8_Config,
-                     mask->fBounds.width(), mask->fBounds.height(),
-                     mask->fRowBytes);
-    bitmap.setPixels(mask->fImage);
+    bitmap.installPixels(SkImageInfo::MakeA8(mask->fBounds.width(),
+                                             mask->fBounds.height()),
+                         mask->fImage, mask->fRowBytes, NULL, NULL);
 
     SkCanvas canvas(bitmap);
     canvas.translate(-SkIntToScalar(mask->fBounds.left()),
@@ -216,10 +215,11 @@ static bool draw_rects_into_mask(const SkRect rects[], int count, SkMask* mask) 
     }
 
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kA8_Config,
-                     mask->fBounds.width(), mask->fBounds.height(),
-                     mask->fRowBytes);
-    bitmap.setPixels(mask->fImage);
+    bitmap.installPixels(SkImageInfo::Make(mask->fBounds.width(),
+                                           mask->fBounds.height(),
+                                           kAlpha_8_SkColorType,
+                                           kPremul_SkAlphaType),
+                         mask->fImage, mask->fRowBytes, NULL, NULL);
 
     SkCanvas canvas(bitmap);
     canvas.translate(-SkIntToScalar(mask->fBounds.left()),

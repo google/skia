@@ -32,8 +32,8 @@ public:
 
     const SkBitmap& getBitmap() const { return fBitmap; }
 
-    void    setConfig(SkBitmap::Config);
-    void    resize(int width, int height, SkBitmap::Config config = SkBitmap::kNo_Config);
+    void    setColorType(SkColorType);
+    void    resize(int width, int height, SkColorType = kUnknown_SkColorType);
 
     bool    isDirty() const { return !fDirtyRgn.isEmpty(); }
     bool    update(SkIRect* updateArea);
@@ -81,7 +81,7 @@ protected:
     virtual bool onSetFocusView(SkView* focus);
 
 private:
-    SkBitmap::Config    fConfig;
+    SkColorType fColorType;
     SkBitmap    fBitmap;
     SkRegion    fDirtyRgn;
 

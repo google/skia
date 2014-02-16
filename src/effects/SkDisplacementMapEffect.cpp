@@ -204,8 +204,8 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
         (displInput && !displInput->filterImage(proxy, src, ctm, &displ, &displOffset))) {
         return false;
     }
-    if ((displ.config() != SkBitmap::kARGB_8888_Config) ||
-        (color.config() != SkBitmap::kARGB_8888_Config)) {
+    if ((displ.colorType() != kPMColor_SkColorType) ||
+        (color.colorType() != kPMColor_SkColorType)) {
         return false;
     }
 

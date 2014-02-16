@@ -57,7 +57,7 @@ SK_COMPILE_ASSERT(SK_SUPPORT_GPU, not_implemented_for_non_gpu_build);
         size = [self convertSizeToBacking:self.frame.size];
 #endif
         fWind->resize((int) size.width, (int) size.height,
-                      SkBitmap::kARGB_8888_Config);
+                      kPMColor_SkColorType);
     }
 }
 

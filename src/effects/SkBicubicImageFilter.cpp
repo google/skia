@@ -92,7 +92,7 @@ bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    if (src.config() != SkBitmap::kARGB_8888_Config) {
+    if (src.colorType() != kPMColor_SkColorType) {
         return false;
     }
 

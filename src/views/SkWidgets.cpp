@@ -507,7 +507,7 @@ bool SkBitmapView::getBitmap(SkBitmap* bitmap) const
 {
     if (bitmap)
         *bitmap = fBitmap;
-    return fBitmap.getConfig() != SkBitmap::kNo_Config;
+    return fBitmap.colorType() != kUnknown_SkColorType;
 }
 
 void SkBitmapView::setBitmap(const SkBitmap* bitmap, bool viewOwnsPixels)
@@ -534,7 +534,7 @@ bool SkBitmapView::loadBitmapFromFile(const char path[])
 
 void SkBitmapView::onDraw(SkCanvas* canvas)
 {
-    if (fBitmap.getConfig() != SkBitmap::kNo_Config &&
+    if (fBitmap.colorType() != kUnknown_SkColorType &&
         fBitmap.width() && fBitmap.height())
     {
         SkAutoCanvasRestore    restore(canvas, true);

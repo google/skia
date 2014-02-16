@@ -306,9 +306,9 @@ void SkAlphaThresholdFilterImpl::flatten(SkWriteBuffer& buffer) const {
 bool SkAlphaThresholdFilterImpl::onFilterImage(Proxy*, const SkBitmap& src,
                                                const SkMatrix& matrix, SkBitmap* dst,
                                                SkIPoint* offset) const {
-    SkASSERT(src.config() == SkBitmap::kARGB_8888_Config);
+    SkASSERT(src.colorType() == kPMColor_SkColorType);
 
-    if (src.config() != SkBitmap::kARGB_8888_Config) {
+    if (src.colorType() != kPMColor_SkColorType) {
         return false;
     }
 

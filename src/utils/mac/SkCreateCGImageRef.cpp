@@ -22,13 +22,19 @@ static bool getBitmapInfo(const SkBitmap& bm,
         *upscaleTo32 = false;
     }
 
-    switch (bm.config()) {
-        case SkBitmap::kRGB_565_Config:
+    switch (bm.colorType()) {
+        case kRGB_565_SkColorType:
+#if 0
+            // doesn't see quite right. Are they thinking 1555?
+            *bitsPerComponent = 5;
+            *info = kCGBitmapByteOrder16Little | kCGImageAlphaNone;
+            break;
+#endif
             if (upscaleTo32) {
                 *upscaleTo32 = true;
             }
             // fall through
-        case SkBitmap::kARGB_8888_Config:
+        case kPMColor_SkColorType:
             *bitsPerComponent = 8;
 #if SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
             *info = kCGBitmapByteOrder32Big;
@@ -60,14 +66,7 @@ This will probably not work.
             }
 #endif
             break;
-#if 0
-        case SkBitmap::kRGB_565_Config:
-            // doesn't see quite right. Are they thinking 1555?
-            *bitsPerComponent = 5;
-            *info = kCGBitmapByteOrder16Little | kCGImageAlphaNone;
-            break;
-#endif
-        case SkBitmap::kARGB_4444_Config:
+        case kARGB_4444_SkColorType:
             *bitsPerComponent = 4;
             *info = kCGBitmapByteOrder16Little;
             if (bm.isOpaque()) {

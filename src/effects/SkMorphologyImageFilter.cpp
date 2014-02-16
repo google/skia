@@ -150,7 +150,7 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
         return false;
     }
 
-    if (src.config() != SkBitmap::kARGB_8888_Config) {
+    if (src.colorType() != kPMColor_SkColorType) {
         return false;
     }
 
