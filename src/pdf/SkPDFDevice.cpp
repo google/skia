@@ -404,10 +404,8 @@ static bool get_clip_stack_path(const SkMatrix& transform,
             outClipPath->reset();
             outClipPath->setFillType(SkPath::kInverseWinding_FillType);
             continue;
-        } else if (SkClipStack::Element::kRect_Type == clipEntry->getType()) {
-            entryPath.addRect(clipEntry->getRect());
-        } else if (SkClipStack::Element::kPath_Type == clipEntry->getType()) {
-            entryPath = clipEntry->getPath();
+        } else {
+            clipEntry->asPath(&entryPath);
         }
         entryPath.transform(transform);
 

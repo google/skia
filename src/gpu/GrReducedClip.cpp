@@ -72,6 +72,8 @@ void ReduceClipStack(const SkClipStack& stack,
                *requiresAA = false;
             }
         } else if (isectRect.intersect(stackBounds, scalarQueryBounds)) {
+            // If the caller asked for tighter integer bounds we may be able to
+            // return kAllIn and give the bounds with no elements
             if (NULL != tighterBounds) {
                 isectRect.roundOut(tighterBounds);
                 SkRect scalarTighterBounds = SkRect::Make(*tighterBounds);
@@ -83,14 +85,14 @@ void ReduceClipStack(const SkClipStack& stack,
                     *initialState = kAllIn_InitialState;
                     return;
                 }
-                *initialState = kAllOut_InitialState;
-                // iior should only be true if aa/non-aa status matches among all elements.
-                SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
-                bool doAA = iter.prev()->isAA();
-                SkNEW_INSERT_AT_LLIST_HEAD(result, Element, (isectRect, SkRegion::kReplace_Op, doAA));
-                if (NULL != requiresAA) {
-                    *requiresAA = doAA;
-                }
+            }
+            *initialState = kAllOut_InitialState;
+            // iior should only be true if aa/non-aa status matches among all elements.
+            SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
+            bool doAA = iter.prev()->isAA();
+            SkNEW_INSERT_AT_LLIST_HEAD(result, Element, (isectRect, SkRegion::kReplace_Op, doAA));
+            if (NULL != requiresAA) {
+                *requiresAA = doAA;
             }
         } else {
             *initialState = kAllOut_InitialState;

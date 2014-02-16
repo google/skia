@@ -1004,6 +1004,7 @@ public:
     public:
         virtual ~ClipVisitor();
         virtual void clipRect(const SkRect&, SkRegion::Op, bool antialias) = 0;
+        virtual void clipRRect(const SkRRect&, SkRegion::Op, bool antialias) = 0;
         virtual void clipPath(const SkPath&, SkRegion::Op, bool antialias) = 0;
     };
 

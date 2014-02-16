@@ -1295,13 +1295,7 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
                 continue;
             }
             SkPath operand;
-            if (type == SkClipStack::Element::kRect_Type) {
-                operand.addRect(element->getRect());
-            } else if (type == SkClipStack::Element::kPath_Type) {
-                operand = element->getPath();
-            } else {
-                SkDEBUGFAIL("Unexpected type.");
-            }
+            element->asPath(&operand);
             SkRegion::Op elementOp = element->getOp();
             if (elementOp == SkRegion::kReplace_Op) {
                 devPath = operand;
@@ -1457,6 +1451,9 @@ void SkCanvas::replayClips(ClipVisitor* visitor) const {
         switch (element->getType()) {
             case SkClipStack::Element::kPath_Type:
                 visitor->clipPath(element->getPath(), element->getOp(), element->isAA());
+                break;
+            case SkClipStack::Element::kRRect_Type:
+                visitor->clipRRect(element->getRRect(), element->getOp(), element->isAA());
                 break;
             case SkClipStack::Element::kRect_Type:
                 visitor->clipRect(element->getRect(), element->getOp(), element->isAA());

@@ -130,6 +130,10 @@ public:
         fFailed |= antialias;
     }
 
+    virtual void clipRRect(const SkRRect& rrect, SkRegion::Op op, bool antialias) SK_OVERRIDE {
+        fFailed |= antialias;
+    }
+
     virtual void clipPath(const SkPath&, SkRegion::Op, bool antialias) SK_OVERRIDE {
         fFailed |= antialias;
     }

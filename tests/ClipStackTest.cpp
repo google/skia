@@ -58,7 +58,6 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     // Test that an equal, but not copied version is equal.
     s.save();
     REPORTER_ASSERT(reporter, 3 == s.getSaveCount());
-
     r = SkRect::MakeLTRB(14, 15, 16, 17);
     s.clipDevRect(r, SkRegion::kUnion_Op, doAA);
     REPORTER_ASSERT(reporter, s == copy);
@@ -68,23 +67,17 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 2 == s.getSaveCount());
     s.save();
     REPORTER_ASSERT(reporter, 3 == s.getSaveCount());
-
     r = SkRect::MakeLTRB(14, 15, 16, 17);
     s.clipDevRect(r, SkRegion::kIntersect_Op, doAA);
     REPORTER_ASSERT(reporter, s != copy);
 
-    // Test that different state (clip type) triggers not equal.
-    // NO LONGER VALID: if a path contains only a rect, we turn
-    // it into a bare rect for performance reasons (working
-    // around Chromium/JavaScript bad pattern).
-/*
+    // Test that version constructed with rect-path rather than a rect is still considered equal.
     s.restore();
     s.save();
     SkPath rp;
     rp.addRect(r);
     s.clipDevPath(rp, SkRegion::kUnion_Op, doAA);
-    REPORTER_ASSERT(reporter, s != copy);
-*/
+    REPORTER_ASSERT(reporter, s == copy);
 
     // Test that different rects triggers not equal.
     s.restore();
@@ -192,8 +185,7 @@ static void test_iterators(skiatest::Reporter* reporter) {
 }
 
 // Exercise the SkClipStack's getConservativeBounds computation
-static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
-
+static void test_bounds(skiatest::Reporter* reporter, SkClipStack::Element::Type primType) {
     static const int gNumCases = 20;
     static const SkRect gAnswerRectsBW[gNumCases] = {
         // A op B
@@ -238,17 +230,21 @@ static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
     rectA.iset(10, 10, 50, 50);
     rectB.iset(40, 40, 80, 80);
 
-    SkPath clipA, clipB;
+    SkRRect rrectA, rrectB;
+    rrectA.setOval(rectA);
+    rrectB.setRectXY(rectB, SkIntToScalar(1), SkIntToScalar(2));
 
-    clipA.addRoundRect(rectA, SkIntToScalar(5), SkIntToScalar(5));
-    clipB.addRoundRect(rectB, SkIntToScalar(5), SkIntToScalar(5));
+    SkPath pathA, pathB;
+
+    pathA.addRoundRect(rectA, SkIntToScalar(5), SkIntToScalar(5));
+    pathB.addRoundRect(rectB, SkIntToScalar(5), SkIntToScalar(5));
 
     SkClipStack stack;
     SkRect devClipBound;
     bool isIntersectionOfRects = false;
 
     int testCase = 0;
-    int numBitTests = useRects ? 1 : 4;
+    int numBitTests = SkClipStack::Element::kPath_Type == primType ? 4 : 1;
     for (int invBits = 0; invBits < numBitTests; ++invBits) {
         for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
 
@@ -256,17 +252,27 @@ static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
             bool doInvA = SkToBool(invBits & 1);
             bool doInvB = SkToBool(invBits & 2);
 
-            clipA.setFillType(doInvA ? SkPath::kInverseEvenOdd_FillType :
+            pathA.setFillType(doInvA ? SkPath::kInverseEvenOdd_FillType :
                                        SkPath::kEvenOdd_FillType);
-            clipB.setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
+            pathB.setFillType(doInvB ? SkPath::kInverseEvenOdd_FillType :
                                        SkPath::kEvenOdd_FillType);
 
-            if (useRects) {
-                stack.clipDevRect(rectA, SkRegion::kIntersect_Op, false);
-                stack.clipDevRect(rectB, gOps[op], false);
-            } else {
-                stack.clipDevPath(clipA, SkRegion::kIntersect_Op, false);
-                stack.clipDevPath(clipB, gOps[op], false);
+            switch (primType) {
+                case SkClipStack::Element::kEmpty_Type:
+                    SkDEBUGFAIL("Don't call this with kEmpty.");
+                    break;
+                case SkClipStack::Element::kRect_Type:
+                    stack.clipDevRect(rectA, SkRegion::kIntersect_Op, false);
+                    stack.clipDevRect(rectB, gOps[op], false);
+                    break;
+                case SkClipStack::Element::kRRect_Type:
+                    stack.clipDevRRect(rrectA, SkRegion::kIntersect_Op, false);
+                    stack.clipDevRRect(rrectB, gOps[op], false);
+                    break;
+                case SkClipStack::Element::kPath_Type:
+                    stack.clipDevPath(pathA, SkRegion::kIntersect_Op, false);
+                    stack.clipDevPath(pathB, gOps[op], false);
+                    break;
             }
 
             REPORTER_ASSERT(reporter, !stack.isWideOpen());
@@ -275,7 +281,7 @@ static void test_bounds(skiatest::Reporter* reporter, bool useRects) {
             stack.getConservativeBounds(0, 0, 100, 100, &devClipBound,
                                         &isIntersectionOfRects);
 
-            if (useRects) {
+            if (SkClipStack::Element::kRect_Type == primType) {
                 REPORTER_ASSERT(reporter, isIntersectionOfRects ==
                         (gOps[op] == SkRegion::kIntersect_Op));
             } else {
@@ -801,14 +807,18 @@ typedef void (*AddElementFunc) (const SkRect& rect,
                                 SkClipStack* stack);
 
 static void add_round_rect(const SkRect& rect, bool invert, SkRegion::Op op, SkClipStack* stack) {
-    SkPath path;
     SkScalar rx = rect.width() / 10;
     SkScalar ry = rect.height() / 20;
-    path.addRoundRect(rect, rx, ry);
     if (invert) {
+        SkPath path;
+        path.addRoundRect(rect, rx, ry);
         path.setFillType(SkPath::kInverseWinding_FillType);
+        stack->clipDevPath(path, op, false);
+    } else {
+        SkRRect rrect;
+        rrect.setRectXY(rect, rx, ry);
+        stack->clipDevRRect(rrect, op, false);
     }
-    stack->clipDevPath(path, op, false);
 };
 
 static void add_rect(const SkRect& rect, bool invert, SkRegion::Op op, SkClipStack* stack) {
@@ -836,6 +846,9 @@ static void add_elem_to_stack(const SkClipStack::Element& element, SkClipStack* 
         case SkClipStack::Element::kRect_Type:
             stack->clipDevRect(element.getRect(), element.getOp(), element.isAA());
             break;
+        case SkClipStack::Element::kRRect_Type:
+            stack->clipDevRRect(element.getRRect(), element.getOp(), element.isAA());
+            break;
         case SkClipStack::Element::kPath_Type:
             stack->clipDevPath(element.getPath(), element.getOp(), element.isAA());
             break;
@@ -851,21 +864,16 @@ static void add_elem_to_region(const SkClipStack::Element& element,
                                SkRegion* region) {
     SkRegion elemRegion;
     SkRegion boundsRgn(bounds);
+    SkPath path;
 
     switch (element.getType()) {
-        case SkClipStack::Element::kRect_Type: {
-            SkPath path;
-            path.addRect(element.getRect());
+        case SkClipStack::Element::kEmpty_Type:
+            elemRegion.setEmpty();
+            break;
+        default:
+            element.asPath(&path);
             elemRegion.setPath(path, boundsRgn);
             break;
-        }
-        case SkClipStack::Element::kPath_Type:
-            elemRegion.setPath(element.getPath(), boundsRgn);
-            break;
-        case SkClipStack::Element::kEmpty_Type:
-            //
-            region->setEmpty();
-            return;
     }
     region->op(elemRegion, element.getOp());
 }
@@ -938,6 +946,7 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
             SkRect rect = SkRect::MakeXYWH(xy.fX, xy.fY, size.fWidth, size.fHeight);
 
             bool invert = r.nextBiasedBool(kFractionInverted);
+
             kElementFuncs[r.nextULessThan(SK_ARRAY_COUNT(kElementFuncs))](rect, invert, op, &stack);
             if (doSave) {
                 stack.save();
@@ -996,8 +1005,9 @@ static void test_reduced_clip_stack(skiatest::Reporter* reporter) {
         while ((element = iter.next())) {
             add_elem_to_region(*element, inflatedIBounds, &reducedRegion);
         }
-
-        REPORTER_ASSERT(reporter, region == reducedRegion);
+        SkString testCase;
+        testCase.printf("Iteration %d", i);
+        REPORTER_ASSERT_MESSAGE(reporter, region == reducedRegion, testCase.c_str());
     }
 }
 
@@ -1194,8 +1204,9 @@ DEF_TEST(ClipStack, reporter) {
 
     test_assign_and_comparison(reporter);
     test_iterators(reporter);
-    test_bounds(reporter, true);        // once with rects
-    test_bounds(reporter, false);       // once with paths
+    test_bounds(reporter, SkClipStack::Element::kRect_Type);
+    test_bounds(reporter, SkClipStack::Element::kRRect_Type);
+    test_bounds(reporter, SkClipStack::Element::kPath_Type);
     test_isWideOpen(reporter);
     test_rect_merging(reporter);
     test_rect_replace(reporter);
