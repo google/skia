@@ -503,14 +503,13 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
                     emit_clip(NULL, &translatedClip, fContentStream);
                     break;
                 }
-                case SkClipStack::Element::kPath_Type: {
+                default: {
                     SkPath translatedPath;
-                    clipEntry->getPath().transform(transform, &translatedPath);
+                    clipEntry->asPath(&translatedPath);
+                    translatedPath.transform(transform, &translatedPath);
                     emit_clip(&translatedPath, NULL, fContentStream);
                     break;
                 }
-                default:
-                    SkASSERT(false);
             }
         }
     }
