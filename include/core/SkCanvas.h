@@ -635,8 +635,7 @@ public:
         @param rect     The rect to be drawn
         @param paint    The paint used to draw the rect
     */
-    void drawIRect(const SkIRect& rect, const SkPaint& paint)
-    {
+    void drawIRect(const SkIRect& rect, const SkPaint& paint) {
         SkRect r;
         r.set(rect);    // promotes the ints to scalars
         this->drawRect(r, paint);
