@@ -36,8 +36,6 @@ public:
     SkPictureRecord(uint32_t recordFlags, SkBaseDevice*);
     virtual ~SkPictureRecord();
 
-    virtual SkBaseDevice* setDevice(SkBaseDevice* device) SK_OVERRIDE;
-
     virtual int save(SaveFlags) SK_OVERRIDE;
     virtual int saveLayer(const SkRect* bounds, const SkPaint*, SaveFlags) SK_OVERRIDE;
     virtual void restore() SK_OVERRIDE;

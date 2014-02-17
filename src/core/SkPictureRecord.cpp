@@ -139,11 +139,6 @@ static inline uint32_t getPaintOffset(DrawType op, uint32_t opSize) {
     return gPaintOffsets[op] * sizeof(uint32_t) + overflow;
 }
 
-SkBaseDevice* SkPictureRecord::setDevice(SkBaseDevice* device) {
-    SkDEBUGFAIL("eeek, don't try to change the device on a recording canvas");
-    return this->INHERITED::setDevice(device);
-}
-
 int SkPictureRecord::save(SaveFlags flags) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE

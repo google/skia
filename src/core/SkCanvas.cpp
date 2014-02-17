@@ -501,7 +501,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device) {
 
     fSurfaceBase = NULL;
 
-    return this->setDevice(device);
+    return this->setRootDevice(device);
 }
 
 SkCanvas::SkCanvas()
@@ -602,7 +602,7 @@ SkBaseDevice* SkCanvas::getTopDevice(bool updateMatrixClip) const {
     return fMCRec->fTopLayer->fDevice;
 }
 
-SkBaseDevice* SkCanvas::setDevice(SkBaseDevice* device) {
+SkBaseDevice* SkCanvas::setRootDevice(SkBaseDevice* device) {
     // return root device
     SkDeque::F2BIter iter(fMCStack);
     MCRec*           rec = (MCRec*)iter.next();

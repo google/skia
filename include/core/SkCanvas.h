@@ -1085,17 +1085,6 @@ protected:
     // can perform copy-on-write or invalidate any cached images
     void predrawNotify();
 
-    /**
-     DEPRECATED -- need to remove when subclass stop relying on it.
-     Marked as 'protected' to avoid new clients using this before we can
-     completely remove it.
-
-     Specify a device for this canvas to draw into. If it is not null, its
-     reference count is incremented. If the canvas was already holding a
-     device, its reference count is decremented. The new device is returned.
-     */
-    virtual SkBaseDevice* setDevice(SkBaseDevice* device);
-
 private:
     class MCRec;
 
@@ -1128,6 +1117,16 @@ private:
     SkBaseDevice* createLayerDevice(const SkImageInfo&);
 
     SkBaseDevice* init(SkBaseDevice*);
+
+    /**
+     *  DEPRECATED
+     *
+     *  Specify a device for this canvas to draw into. If it is not null, its
+     *  reference count is incremented. If the canvas was already holding a
+     *  device, its reference count is decremented. The new device is returned.
+     */
+    SkBaseDevice* setRootDevice(SkBaseDevice* device);
+    
 
     // internal methods are not virtual, so they can safely be called by other
     // canvas apis, without confusing subclasses (like SkPictureRecording)

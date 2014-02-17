@@ -425,24 +425,19 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
                              SkWriter32* writer, uint32_t flags,
                              uint32_t width, uint32_t height)
-: fFactorySet(isCrossProcess(flags) ? SkNEW(SkNamedFactorySet) : NULL)
-, fWriter(*writer)
-, fFlags(flags)
-, fFlattenableHeap(FLATTENABLES_TO_KEEP, fFactorySet, isCrossProcess(flags))
-, fFlatDictionary(&fFlattenableHeap) {
+    : SkCanvas(width, height)
+    , fFactorySet(isCrossProcess(flags) ? SkNEW(SkNamedFactorySet) : NULL)
+    , fWriter(*writer)
+    , fFlags(flags)
+    , fFlattenableHeap(FLATTENABLES_TO_KEEP, fFactorySet, isCrossProcess(flags))
+    , fFlatDictionary(&fFlattenableHeap)
+{
     fController = controller;
     fDone = false;
     fBlockSize = 0; // need first block from controller
     fBytesNotified = 0;
     fFirstSaveLayerStackLevel = kNoSaveLayer;
     sk_bzero(fCurrFlatIndex, sizeof(fCurrFlatIndex));
-
-    // we need a device to limit our clip
-    // We don't allocate pixels for the bitmap
-    SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, width, height);
-    SkBaseDevice* device = SkNEW_ARGS(SkBitmapDevice, (bitmap));
-    this->setDevice(device)->unref();
 
     // Tell the reader the appropriate flags to use.
     if (this->needOpBytes()) {

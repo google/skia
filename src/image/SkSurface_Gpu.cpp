@@ -83,7 +83,7 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
         }
         SkASSERT(NULL != this->getCachedCanvas());
         SkASSERT(this->getCachedCanvas()->getDevice() == fDevice);
-        this->getCachedCanvas()->setDevice(newDevice);
+        this->getCachedCanvas()->setRootDevice(newDevice);
         SkRefCnt_SafeAssign(fDevice, newDevice.get());
     }
 }
