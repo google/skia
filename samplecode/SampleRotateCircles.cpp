@@ -108,8 +108,7 @@ protected:
         int h = w;
 
         SkBitmap bm;
-        bm.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-        bm.allocPixels();
+        bm.allocN32Pixels(w, h);
         bm.eraseColor(0);
 
         SkAutoLockPixels alp(bm);

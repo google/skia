@@ -125,10 +125,7 @@ protected:
             // Copy it to a bitmap which can be drawn, converting
             // to premultiplied:
             SkBitmap bm;
-            bm.setConfig(SkBitmap::kARGB_8888_Config, fBitmap.width(),
-                         fBitmap.height());
-            SkASSERT(fBitmap.config() == SkBitmap::kARGB_8888_Config);
-            if (!bm.allocPixels()) {
+            if (!bm.allocN32Pixels(fBitmap.width(), fBitmap.height())) {
                 SkString errMsg("allocPixels failed");
                 canvas->drawText(errMsg.c_str(), errMsg.size(), 0, height, paint);
                 return;

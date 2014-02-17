@@ -22,8 +22,7 @@ public:
     OvalTestView() {
         fSize.set(SK_Scalar1, SK_Scalar1);
 
-        fBitmap.setConfig(SkBitmap::kARGB_8888_Config, kILimit, kILimit);
-        fBitmap.allocPixels();
+        fBitmap.allocN32Pixels(kILimit, kILimit);
 
         fInsideColor = SkPreMultiplyColor(SK_ColorRED);
         fOutsideColor = SkPreMultiplyColor(SK_ColorGREEN);

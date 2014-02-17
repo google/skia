@@ -13,8 +13,7 @@
 
 static SkBitmap make_bitmap() {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config , 5, 5);
-    bm.allocPixels();
+    bm.allocN32Pixels(5, 5);
 
     for (int y = 0; y < bm.height(); y++) {
         uint32_t* p = bm.getAddr32(0, y);

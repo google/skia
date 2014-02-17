@@ -22,13 +22,14 @@
 #include "SkDither.h"
 
 static void make_bm(SkBitmap* bm) {
-    const SkColor colors[] = {
-        SK_ColorRED, SK_ColorGREEN,
-        SK_ColorBLUE, SK_ColorWHITE
+    const SkPMColor colors[] = {
+        SkPreMultiplyColor(SK_ColorRED), SkPreMultiplyColor(SK_ColorGREEN),
+        SkPreMultiplyColor(SK_ColorBLUE), SkPreMultiplyColor(SK_ColorWHITE)
     };
     SkColorTable* ctable = new SkColorTable(colors, 4);
-    bm->setConfig(SkBitmap::kIndex8_Config, 2, 2);
-    bm->allocPixels(ctable);
+    bm->allocPixels(SkImageInfo::Make(2, 2, kIndex_8_SkColorType,
+                                      kOpaque_SkAlphaType),
+                    NULL, ctable);
     ctable->unref();
 
     *bm->getAddr8(0, 0) = 0;
@@ -39,22 +40,8 @@ static void make_bm(SkBitmap* bm) {
 
 static SkScalar draw_bm(SkCanvas* canvas, const SkBitmap& bm,
                         SkScalar x, SkScalar y, SkPaint* paint) {
-#if 1
     canvas->drawBitmap(bm, x, y, paint);
     return SkIntToScalar(bm.width()) * 5/4;
-#else
-    SkAutoCanvasRestore acr(canvas, true);
-    canvas->translate(x, y);
-
-    SkScalar w = SkIntToScalar(bm.width());
-    SkScalar h = SkIntToScalar(bm.height());
-    SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode);
-    paint->setShader(s)->unref();
-    canvas->drawRect(SkRect::MakeWH(w, h), *paint);
-    paint->setShader(NULL);
-    return w * 5/4;
-#endif
 }
 
 static SkScalar draw_set(SkCanvas* c, const SkBitmap& bm, SkScalar x, SkPaint* p) {

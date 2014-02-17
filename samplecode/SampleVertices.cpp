@@ -28,10 +28,9 @@
 static SkShader* make_shader0(SkIPoint* size) {
     SkBitmap    bm;
     size->set(2, 2);
-    bm.setConfig(SkBitmap::kARGB_8888_Config, size->fX, size->fY);
     SkPMColor color0 = SkPreMultiplyARGB(0x80, 0x80, 0xff, 0x80);
     SkPMColor color1 = SkPreMultiplyARGB(0x40, 0xff, 0x00, 0xff);
-    bm.allocPixels();
+    bm.allocN32Pixels(size->fX, size->fY);
     bm.eraseColor(color0);
     bm.lockPixels();
     uint32_t* pixels = (uint32_t*) bm.getPixels();

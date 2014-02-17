@@ -686,8 +686,7 @@ public:
         fIndex = 0;
 
         SkBitmap bm;
-        bm.setConfig(SkBitmap::kARGB_8888_Config, 1024, 768);
-        bm.allocPixels();
+        bm.allocN32Pixels(1024, 768);
         SkCanvas canvas(bm);
         SkScalar s = SkIntToScalar(1024) / 640;
         canvas.scale(s, s);

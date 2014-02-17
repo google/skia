@@ -70,14 +70,8 @@ static void draw_sweep(SkCanvas* c, int width, int height, SkScalar angle) {
 }
 
 static void make_bm(SkBitmap* bm) {
-    bm->setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
-    bm->allocPixels();
-#if 0
-    bm->eraseColor(SK_ColorBLUE);
-    return;
-#else
+    bm->allocN32Pixels(100, 100);
     bm->eraseColor(SK_ColorTRANSPARENT);
-#endif
 
     SkCanvas c(*bm);
     draw_sweep(&c, bm->width(), bm->height(), 0);

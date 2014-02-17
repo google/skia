@@ -23,8 +23,9 @@ static SkBitmap make_bitmap() {
     SkBitmap bm;
     SkColorTable* ctable = new SkColorTable(c, 256);
 
-    bm.setConfig(SkBitmap::kIndex8_Config, 256, 256);
-    bm.allocPixels(ctable);
+    bm.allocPixels(SkImageInfo::Make(256, 256, kIndex_8_SkColorType,
+                                     kPremul_SkAlphaType),
+                   NULL, ctable);
     ctable->unref();
 
     bm.lockPixels();

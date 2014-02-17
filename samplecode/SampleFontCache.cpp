@@ -92,8 +92,9 @@ public:
             status = pthread_create(&fMThreads[i], NULL,  measure_proc, NULL);
             SkASSERT(0 == status);
 
-            fBitmaps[i].setConfig(SkBitmap::kRGB_565_Config, 320, 240);
-            fBitmaps[i].allocPixels();
+            fBitmaps[i].allocPixels(SkImageInfo::Make(320, 240,
+                                                      kRGB_565_SkColorType,
+                                                      kOpaque_SkAlphaType));
             status = pthread_create(&fDThreads[i], NULL,  draw_proc, &fBitmaps[i]);
             SkASSERT(0 == status);
         }

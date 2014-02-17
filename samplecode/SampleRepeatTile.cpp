@@ -14,8 +14,7 @@
 static void make_bitmap(SkBitmap* bm) {
     const int W = 100;
     const int H = 100;
-    bm->setConfig(SkBitmap::kARGB_8888_Config, W, H);
-    bm->allocPixels();
+    bm->allocN32Pixels(W, H);
 
     SkPaint paint;
     SkCanvas canvas(*bm);

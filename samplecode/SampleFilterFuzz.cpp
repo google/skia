@@ -111,13 +111,36 @@ static SkDisplacementMapEffect::ChannelSelectorType make_channel_selector_type()
     return static_cast<SkDisplacementMapEffect::ChannelSelectorType>(R(4)+1);
 }
 
-static void make_g_bitmap(SkBitmap& bitmap) {
-    bitmap.setConfig((SkBitmap::Config)R(SkBitmap::kConfigCount), kBitmapSize, kBitmapSize);
-    while (!bitmap.allocPixels()) {
-        bitmap.setConfig((SkBitmap::Config)R(SkBitmap::kConfigCount), kBitmapSize, kBitmapSize);
+static bool valid_for_raster_canvas(const SkImageInfo& info) {
+    switch (info.colorType()) {
+        case kAlpha_8_SkColorType:
+        case kRGB_565_SkColorType:
+            return true;
+        case kPMColor_SkColorType:
+            return kPremul_SkAlphaType == info.alphaType() ||
+                   kOpaque_SkAlphaType == info.alphaType();
+        default:
+            break;
     }
-    SkBitmapDevice device(bitmap);
-    SkCanvas canvas(&device);
+    return false;
+}
+
+static SkColorType rand_colortype() {
+    return (SkColorType)R(kLastEnum_SkColorType + 1);
+}
+
+static void rand_bitmap_for_canvas(SkBitmap* bitmap) {
+    SkImageInfo info;
+    do {
+        info = SkImageInfo::Make(kBitmapSize, kBitmapSize, rand_colortype(),
+                                 kPremul_SkAlphaType);
+    } while (!valid_for_raster_canvas(info) || !bitmap->allocPixels(info));
+}
+
+static void make_g_bitmap(SkBitmap& bitmap) {
+    rand_bitmap_for_canvas(&bitmap);
+
+    SkCanvas canvas(bitmap);
     canvas.clear(0x00000000);
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -128,31 +151,10 @@ static void make_g_bitmap(SkBitmap& bitmap) {
                     SkIntToScalar(kBitmapSize/4), paint);
 }
 
-static bool valid_for_raster_canvas(const SkBitmap& bm) {
-    SkImageInfo info;
-    if (!bm.asImageInfo(&info)) {
-        return false;
-    }
-    switch (info.fColorType) {
-        case kAlpha_8_SkColorType:
-        case kRGB_565_SkColorType:
-            return true;
-        case kPMColor_SkColorType:
-            return kPremul_SkAlphaType == info.fAlphaType ||
-                   kOpaque_SkAlphaType == info.fAlphaType;
-        default:
-            break;
-    }
-    return false;
-}
-
 static void make_checkerboard_bitmap(SkBitmap& bitmap) {
-    bitmap.setConfig((SkBitmap::Config)R(SkBitmap::kConfigCount), kBitmapSize, kBitmapSize);
-    while (valid_for_raster_canvas(bitmap) && !bitmap.allocPixels()) {
-        bitmap.setConfig((SkBitmap::Config)R(SkBitmap::kConfigCount), kBitmapSize, kBitmapSize);
-    }
-    SkBitmapDevice device(bitmap);
-    SkCanvas canvas(&device);
+    rand_bitmap_for_canvas(&bitmap);
+
+    SkCanvas canvas(bitmap);
     canvas.clear(0x00000000);
     SkPaint darkPaint;
     darkPaint.setColor(0xFF804020);

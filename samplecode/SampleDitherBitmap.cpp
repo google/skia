@@ -60,8 +60,9 @@ static SkBitmap make_bitmap() {
     SkColorTable* ctable = new SkColorTable(c, 256, kOpaque_SkAlphaType);
 
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kIndex8_Config, 256, 32);
-    bm.allocPixels(ctable);
+    bm.allocPixels(SkImageInfo::Make(256, 32, kIndex_8_SkColorType,
+                                     kPremul_SkAlphaType),
+                   NULL, ctable);
     ctable->unref();
 
     bm.lockPixels();
@@ -101,14 +102,6 @@ protected:
     static void setBitmapOpaque(SkBitmap* bm, bool isOpaque) {
         SkAutoLockPixels alp(*bm);  // needed for ctable
         bm->setAlphaType(isOpaque ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
-#if 0
-        SkColorTable* ctable = bm->getColorTable();
-        if (ctable) {
-            if (ctable->isOpaque() != isOpaque) {
-                // how do we change a colortable? don't want to
-            }
-        }
-#endif
     }
 
     static void draw2(SkCanvas* canvas, const SkBitmap& bm) {

@@ -36,8 +36,7 @@ protected:
             SkBitmap mask;
             int w = SkScalarRoundToInt(r.width());
             int h = SkScalarRoundToInt(r.height());
-            mask.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-            mask.allocPixels();
+            mask.allocN32Pixels(w, h);
             mask.eraseColor(SK_ColorTRANSPARENT);
             SkCanvas c(mask);
             SkRect bounds = r;

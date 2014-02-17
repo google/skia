@@ -20,8 +20,7 @@ static void test_strokerect(SkCanvas* canvas) {
     int height = 100;
 
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kA8_Config, width*2, height*2);
-    bitmap.allocPixels();
+    bitmap.allocPixels(SkImageInfo::MakeA8(width*2, height*2));
     bitmap.eraseColor(SK_ColorTRANSPARENT);
 
     SkScalar dx = 20;

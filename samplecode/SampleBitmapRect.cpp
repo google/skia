@@ -34,8 +34,7 @@ class GrContext;
 #define SCALAR_SIZE     SkIntToScalar(INT_SIZE)
 
 static void make_bitmap(SkBitmap* bitmap) {
-    bitmap->setConfig(SkBitmap::kARGB_8888_Config, INT_SIZE, INT_SIZE);
-    bitmap->allocPixels();
+    bitmap->allocN32Pixels(INT_SIZE, INT_SIZE);
     SkCanvas canvas(*bitmap);
 
     canvas.drawColor(SK_ColorRED);
@@ -164,8 +163,7 @@ static void make_big_bitmap(SkBitmap* bm) {
 
     const int BIG_W = SkScalarRoundToInt(paint.measureText(gText, strlen(gText)));
 
-    bm->setConfig(SkBitmap::kARGB_8888_Config, BIG_W, BIG_H);
-    bm->allocPixels();
+    bm->allocN32Pixels(BIG_W, BIG_H);
     bm->eraseColor(SK_ColorWHITE);
 
     SkCanvas canvas(*bm);

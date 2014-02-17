@@ -273,8 +273,8 @@ protected:
     }
 
     static void make_textstrip(SkBitmap* bm) {
-        bm->setConfig(SkBitmap::kRGB_565_Config, 200, 18);
-        bm->allocPixels();
+        bm->allocPixels(SkImageInfo::Make(200, 18, kRGB_565_SkColorType,
+                                          kOpaque_SkAlphaType));
         bm->eraseColor(SK_ColorWHITE);
 
         SkCanvas    canvas(*bm);

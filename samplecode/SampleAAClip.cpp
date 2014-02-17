@@ -46,9 +46,9 @@ static void drawClip(SkCanvas* canvas, const SkAAClip& clip) {
     clip.copyToMask(&mask);
     SkAutoMaskFreeImage amfi(mask.fImage);
 
-    bm.setConfig(SkBitmap::kA8_Config, mask.fBounds.width(),
-                 mask.fBounds.height(), mask.fRowBytes);
-    bm.setPixels(mask.fImage);
+    bm.installPixels(SkImageInfo::MakeA8(mask.fBounds.width(),
+                                         mask.fBounds.height()),
+                     mask.fImage, mask.fRowBytes, NULL, NULL);
 
     SkPaint paint;
     canvas->drawBitmap(bm,

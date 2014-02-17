@@ -24,9 +24,8 @@
 #include "SkBlurMask.h"
 #include "SkBlurDrawLooper.h"
 
-static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
-    bm->setConfig(config, w, h);
-    bm->allocPixels();
+static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
+    bm->allocPixels(SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
     bm->eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas    canvas(*bm);
@@ -55,9 +54,9 @@ static void setup(SkPaint* paint, const SkBitmap& bm, bool filter,
     paint->setFilterLevel(filter ? SkPaint::kLow_FilterLevel : SkPaint::kNone_FilterLevel);
 }
 
-static const SkBitmap::Config gConfigs[] = {
-    SkBitmap::kARGB_8888_Config,
-    SkBitmap::kRGB_565_Config,
+static const SkColorType gColorTypes[] = {
+    kPMColor_SkColorType,
+    kRGB_565_SkColorType,
 };
 static const int gWidth = 32;
 static const int gHeight = 32;
@@ -71,8 +70,8 @@ public:
                       SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
                       SkIntToScalar(2), SkIntToScalar(2)) {
         fTextPicture = new SkPicture();
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
-            makebm(&fTexture[i], gConfigs[i], gWidth, gHeight);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypes); i++) {
+            makebm(&fTexture[i], gColorTypes[i], gWidth, gHeight);
         }
     }
 
@@ -80,7 +79,7 @@ public:
         fTextPicture->unref();
     }
 
-    SkBitmap    fTexture[SK_ARRAY_COUNT(gConfigs)];
+    SkBitmap    fTexture[SK_ARRAY_COUNT(gColorTypes)];
 
 protected:
     // overrides from SkEventSink
@@ -131,7 +130,7 @@ protected:
 
         y += SkIntToScalar(16);
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypes); i++) {
             for (size_t j = 0; j < SK_ARRAY_COUNT(gFilters); j++) {
                 x = SkIntToScalar(10);
                 for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {

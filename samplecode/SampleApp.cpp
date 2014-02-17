@@ -1363,24 +1363,6 @@ void SampleWindow::onDraw(SkCanvas* canvas) {
 
 #include "SkColorPriv.h"
 
-#if 0 // UNUSED
-static void reverseRedAndBlue(const SkBitmap& bm) {
-    SkASSERT(bm.config() == SkBitmap::kARGB_8888_Config);
-    uint8_t* p = (uint8_t*)bm.getPixels();
-    uint8_t* stop = p + bm.getSize();
-    while (p < stop) {
-        // swap red/blue (to go from ARGB(int) to RGBA(memory) and premultiply
-        unsigned scale = SkAlpha255To256(p[3]);
-        unsigned r = p[2];
-        unsigned b = p[0];
-        p[0] = SkAlphaMul(r, scale);
-        p[1] = SkAlphaMul(p[1], scale);
-        p[2] = SkAlphaMul(b, scale);
-        p += 4;
-    }
-}
-#endif
-
 void SampleWindow::saveToPdf()
 {
     fSaveToPdf = true;
@@ -1576,7 +1558,7 @@ static SkColorType gColorTypeCycle[] = {
     kUnknown_SkColorType,           // index8 -> none
 };
 
-static SkColorType cycle_configs(SkColorType c) {
+static SkColorType cycle_colortypes(SkColorType c) {
     return gColorTypeCycle[c];
 }
 
@@ -1974,7 +1956,7 @@ bool SampleWindow::onHandleKey(SkKey key) {
             if (USE_ARROWS_FOR_ZOOM) {
                 this->changeZoomLevel(-1.f / 32.f);
             } else {
-                this->setColorType(cycle_configs(this->getBitmap().colorType()));
+                this->setColorType(cycle_colortypes(this->getBitmap().colorType()));
                 this->updateTitle();
             }
             return true;

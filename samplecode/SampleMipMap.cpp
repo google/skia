@@ -14,8 +14,7 @@
 
 static SkBitmap createBitmap(int n) {
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, n, n);
-    bitmap.allocPixels();
+    bitmap.allocN32Pixels(n, n);
     bitmap.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(bitmap);

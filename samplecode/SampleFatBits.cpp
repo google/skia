@@ -39,8 +39,7 @@ static SkShader* createChecker() {
 //    SkColor colors[] = { 0xFFFDFDFD, 0xFFF4F4F4 };
     SkColor colors[] = { 0xFFFFFFFF, 0xFFFFFFFF };
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
-    bm.allocPixels();
+    bm.allocN32Pixels(2, 2);
     bm.lockPixels();
     *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = SkPreMultiplyColor(colors[0]);
     *bm.getAddr32(0, 1) = *bm.getAddr32(1, 0) = SkPreMultiplyColor(colors[1]);

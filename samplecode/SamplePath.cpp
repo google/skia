@@ -73,8 +73,7 @@ static void test_cubic2() {
     }
 
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 300, 200);
-    bitmap.allocPixels();
+    bitmap.allocN32Pixels(300, 200);
 
     SkCanvas canvas(bitmap);
     SkPaint paint;

@@ -103,7 +103,7 @@ protected:
                         p.setTextSize(SkIntToScalar(18));
                         SkString s;
                         s.append(" depth=");
-                        s.appendS32(fBitmaps[i].config() == SkBitmap::kRGB_565_Config ? 16 : 32);
+                        s.appendS32(fBitmaps[i].colorType() == kRGB_565_SkColorType ? 16 : 32);
                         canvas->drawText(s.c_str(), s.size(), x + W + SkIntToScalar(4),
                                          y + H/2, p);
                     }

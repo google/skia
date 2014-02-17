@@ -33,8 +33,7 @@ static SkRandom gRand;
 
 static void test_chromium_9005() {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 800, 600);
-    bm.allocPixels();
+    bm.allocN32Pixels(800, 600);
 
     SkCanvas canvas(bm);
 
@@ -227,16 +226,13 @@ protected:
         }
 
         SkBitmap bm, bm2;
-        bm.setConfig(SkBitmap::kARGB_8888_Config,
-                     WIDTH + MARGIN*2,
-                     HEIGHT + MARGIN*2);
-        bm.allocPixels();
+        bm.allocN32Pixels(WIDTH + MARGIN*2, HEIGHT + MARGIN*2);
         // this will erase our margin, which we want to always stay 0
         bm.eraseColor(SK_ColorTRANSPARENT);
 
-        bm2.setConfig(SkBitmap::kARGB_8888_Config, WIDTH, HEIGHT,
-                      bm.rowBytes());
-        bm2.setPixels(bm.getAddr32(MARGIN, MARGIN));
+        bm2.installPixels(SkImageInfo::MakeN32Premul(WIDTH, HEIGHT),
+                          bm.getAddr32(MARGIN, MARGIN), bm.rowBytes(),
+                          NULL, NULL);
 
         SkCanvas c2(bm2);
         SkPaint paint;

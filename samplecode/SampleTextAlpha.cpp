@@ -29,7 +29,7 @@
 #include "SkStream.h"
 
 static void check_for_nonwhite(const SkBitmap& bm, int alpha) {
-    if (bm.config() != SkBitmap::kRGB_565_Config) {
+    if (bm.colorType() != kRGB_565_SkColorType) {
         return;
     }
 

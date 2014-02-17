@@ -88,8 +88,7 @@ static void test_5bits() {
 SkShader* createChecker();
 SkShader* createChecker() {
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
-    bm.allocPixels();
+    bm.allocN32Pixels(2, 2);
     bm.lockPixels();
     *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = SkPreMultiplyColor(0xFFFFFFFF);
     *bm.getAddr32(0, 1) = *bm.getAddr32(1, 0) = SkPreMultiplyColor(0xFFCCCCCC);
@@ -104,8 +103,7 @@ SkShader* createChecker() {
 
 static SkBitmap createBitmap(int n) {
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, n, n);
-    bitmap.allocPixels();
+    bitmap.allocN32Pixels(n, n);
     bitmap.eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(bitmap);
