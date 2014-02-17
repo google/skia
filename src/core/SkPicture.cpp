@@ -193,21 +193,19 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
 
     SkSafeSetNull(fRecord);
 
-    SkBitmap bm;
-    bm.setConfig(SkBitmap::kNo_Config, width, height);
-    SkAutoTUnref<SkBaseDevice> dev(SkNEW_ARGS(SkBitmapDevice, (bm)));
-
     // Must be set before calling createBBoxHierarchy
     fWidth = width;
     fHeight = height;
 
+    const SkISize size = SkISize::Make(width, height);
+
     if (recordingFlags & kOptimizeForClippedPlayback_RecordingFlag) {
         SkBBoxHierarchy* tree = this->createBBoxHierarchy();
         SkASSERT(NULL != tree);
-        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (recordingFlags, tree, dev));
+        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (size, recordingFlags, tree));
         tree->unref();
     } else {
-        fRecord = SkNEW_ARGS(SkPictureRecord, (recordingFlags, dev));
+        fRecord = SkNEW_ARGS(SkPictureRecord, (size, recordingFlags));
     }
     fRecord->beginRecording();
 

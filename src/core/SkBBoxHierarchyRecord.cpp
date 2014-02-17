@@ -9,10 +9,10 @@
 #include "SkBBoxHierarchyRecord.h"
 #include "SkPictureStateTree.h"
 
-SkBBoxHierarchyRecord::SkBBoxHierarchyRecord(uint32_t recordFlags,
-                                             SkBBoxHierarchy* h,
-                                             SkBaseDevice* device)
-    : INHERITED(recordFlags, device) {
+SkBBoxHierarchyRecord::SkBBoxHierarchyRecord(const SkISize& size,
+                                             uint32_t recordFlags,
+                                             SkBBoxHierarchy* h)
+    : INHERITED(size, recordFlags) {
     fStateTree = SkNEW(SkPictureStateTree);
     fBoundingHierarchy = h;
     fBoundingHierarchy->ref();
