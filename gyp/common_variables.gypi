@@ -57,8 +57,10 @@
       'conditions': [
         [ 'skia_android_framework == 1', {
           'skia_os%': 'android',
+          'skia_chrome_utils%': 0,
         }, {
           'skia_os%': '<(skia_os)',
+          'skia_chrome_utils%': 1,
         }],
         [ 'skia_os == "win"', {
           'os_posix%': 0,
@@ -99,7 +101,6 @@
       'skia_resource_cache_mb_limit%': 0,
       'skia_resource_cache_count_limit%': 0,
       'skia_angle%': 0,
-      'skia_chrome_utils%': 1,
       'skia_directwrite%': 0,
       'skia_gpu%': 1,
       'skia_osx_deployment_target%': '',

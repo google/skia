@@ -130,13 +130,18 @@
           '-Wpointer-arith',
 
           '-Wno-unused-parameter',
-          '-Wno-c++11-extensions',
         ],
         'cflags_cc': [
           '-fno-rtti',
           '-Wnon-virtual-dtor',
         ],
         'conditions': [
+          [ 'skia_android_framework==0', {
+            'cflags': [
+              # This flag is not supported by Android build system.
+              '-Wno-c++11-extensions',
+            ],
+          }],
           [ 'skia_warnings_as_errors', {
             'cflags': [
               '-Werror',
