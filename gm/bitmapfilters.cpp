@@ -20,8 +20,9 @@ static void make_bm(SkBitmap* bm) {
     }
     SkColorTable* ctable = new SkColorTable(colorsPM, 4);
 
-    bm->setConfig(SkBitmap::kIndex8_Config, 2, 2);
-    bm->allocPixels(ctable);
+    bm->allocPixels(SkImageInfo::Make(2, 2, kIndex_8_SkColorType,
+                                      kPremul_SkAlphaType),
+                    NULL, ctable);
     ctable->unref();
 
     *bm->getAddr8(0, 0) = 0;

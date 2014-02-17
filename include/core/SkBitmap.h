@@ -14,6 +14,7 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
+struct SkMask;
 struct SkIRect;
 struct SkRect;
 class SkPaint;
@@ -307,6 +308,22 @@ public:
     bool installPixels(const SkImageInfo&, void* pixels, size_t rowBytes,
                        void (*ReleaseProc)(void* addr, void* context),
                        void* context);
+    
+    /**
+     *  Call installPixels with no ReleaseProc specified. This means that the
+     *  caller must ensure that the specified pixels are valid for the lifetime
+     *  of the created bitmap (and its pixelRef).
+     */
+    bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
+        return this->installPixels(info, pixels, rowBytes, NULL, NULL);
+    }
+
+    /**
+     *  Calls installPixels() with the value in the SkMask. The caller must
+     *  ensure that the specified mask pixels are valid for the lifetime
+     *  of the created bitmap (and its pixelRef).
+     */
+    bool installMaskPixels(const SkMask&);
 
     /**
      *  DEPRECATED: call info().

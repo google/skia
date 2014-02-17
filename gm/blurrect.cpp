@@ -197,8 +197,7 @@ protected:
         SkAutoMaskFreeImage amfi(mask.fImage);
 
         SkBitmap bm;
-        bm.setConfig(SkBitmap::kA8_Config, mask.fBounds.width(), mask.fBounds.height());
-        bm.setPixels(mask.fImage);
+        bm.installMaskPixels(mask);
 
         center_x = (canvas_size.fWidth - mask.fBounds.width())/2;
         center_y = (canvas_size.fHeight - mask.fBounds.height())/2;

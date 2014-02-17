@@ -19,8 +19,8 @@
 #include "SkUnitMappers.h"
 #include "SkBlurDrawLooper.h"
 
-static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
-    bm->allocConfigPixels(config, w, h);
+static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
+    bm->allocPixels(SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType));
     bm->eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas    canvas(*bm);
@@ -49,9 +49,9 @@ static void setup(SkPaint* paint, const SkBitmap& bm, SkPaint::FilterLevel filte
     paint->setFilterLevel(filter_level);
 }
 
-static const SkBitmap::Config gConfigs[] = {
-    SkBitmap::kARGB_8888_Config,
-    SkBitmap::kRGB_565_Config,
+static const SkColorType gColorTypes[] = {
+    kPMColor_SkColorType,
+    kRGB_565_SkColorType,
 };
 
 class ScaledTilingGM : public skiagm::GM {
@@ -62,7 +62,7 @@ public:
             , fPowerOfTwoSize(powerOfTwoSize) {
     }
 
-    SkBitmap    fTexture[SK_ARRAY_COUNT(gConfigs)];
+    SkBitmap    fTexture[SK_ARRAY_COUNT(gColorTypes)];
 
 protected:
 
@@ -83,8 +83,8 @@ protected:
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
         int size = fPowerOfTwoSize ? kPOTSize : kNPOTSize;
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
-            makebm(&fTexture[i], gConfigs[i], size, size);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypes); i++) {
+            makebm(&fTexture[i], gColorTypes[i], size, size);
         }
     }
 
@@ -96,7 +96,7 @@ protected:
 
         SkRect r = { 0, 0, SkIntToScalar(size*2), SkIntToScalar(size*2) };
 
-        static const char* gConfigNames[] = { "8888" , "565", "4444" };
+        static const char* gColorTypeNames[] = { "8888" , "565", "4444" };
 
         static const SkPaint::FilterLevel           gFilterLevels[] =
             { SkPaint::kNone_FilterLevel,
@@ -129,7 +129,7 @@ protected:
 
         y = SkIntToScalar(40) / scale;
 
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypes); i++) {
             for (size_t j = 0; j < SK_ARRAY_COUNT(gFilterLevels); j++) {
                 x = SkIntToScalar(10)/scale;
                 for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
@@ -138,7 +138,7 @@ protected:
 #if 1 // Temporary change to regen bitmap before each draw. This may help tracking down an issue
       // on SGX where resizing NPOT textures to POT textures exhibits a driver bug.
                         if (!fPowerOfTwoSize) {
-                            makebm(&fTexture[i], gConfigs[i], size, size);
+                            makebm(&fTexture[i], gColorTypes[i], size, size);
                         }
 #endif
                         setup(&paint, fTexture[i], gFilterLevels[j], gModes[kx], gModes[ky]);
@@ -158,7 +158,7 @@ protected:
                     SkString str;
                     p.setAntiAlias(true);
                     p.setLooper(&fLooper);
-                    str.printf("%s, %s", gConfigNames[i], gFilterNames[j]);
+                    str.printf("%s, %s", gColorTypeNames[i], gFilterNames[j]);
                     canvas->drawText(str.c_str(), str.size(), scale*x, scale*(y + r.height() * 2 / 3), p);
                 }
 
@@ -177,7 +177,7 @@ static const int gHeight = 32;
 
 static SkShader* make_bm(SkShader::TileMode tx, SkShader::TileMode ty) {
     SkBitmap bm;
-    makebm(&bm, SkBitmap::kARGB_8888_Config, gWidth, gHeight);
+    makebm(&bm, kPMColor_SkColorType, gWidth, gHeight);
     return SkShader::CreateBitmapShader(bm, tx, ty);
 }
 

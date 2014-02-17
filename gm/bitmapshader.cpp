@@ -28,7 +28,7 @@ static void draw_mask(SkBitmap* bm) {
     SkPaint circlePaint;
     circlePaint.setColor(SK_ColorBLACK);
 
-    bm->allocConfigPixels(SkBitmap::kA8_Config, 20, 20);
+    bm->allocPixels(SkImageInfo::MakeA8(20, 20));
     bm->eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas canvas(*bm);

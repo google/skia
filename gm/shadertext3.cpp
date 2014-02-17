@@ -11,8 +11,8 @@
 
 namespace skiagm {
 
-static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
-    bm->allocConfigPixels(config, w, h);
+static void makebm(SkBitmap* bm, int w, int h) {
+    bm->allocN32Pixels(w, h);
     bm->eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas    canvas(*bm);
@@ -68,7 +68,7 @@ protected:
 
         static SkBitmap bmp;
         if (bmp.isNull()) {
-            makebm(&bmp, SkBitmap::kARGB_8888_Config, kPointSize / 4, kPointSize / 4);
+            makebm(&bmp, kPointSize / 4, kPointSize / 4);
         }
 
         SkPaint bmpPaint;

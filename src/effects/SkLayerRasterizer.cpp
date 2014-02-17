@@ -122,9 +122,7 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
         translatedMatrix.postTranslate(-SkIntToScalar(mask->fBounds.fLeft),
                                        -SkIntToScalar(mask->fBounds.fTop));
 
-        device.installPixels(SkImageInfo::MakeA8(mask->fBounds.width(),
-                                                 mask->fBounds.height()),
-                             mask->fImage, mask->fRowBytes, NULL, NULL);
+        device.installMaskPixels(*mask);
 
         draw.fBitmap    = &device;
         draw.fMatrix    = &drawMatrix;

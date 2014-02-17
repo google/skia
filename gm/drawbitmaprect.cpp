@@ -28,8 +28,8 @@ static SkBitmap make_chessbm(int w, int h) {
     return bm;
 }
 
-static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
-    bm->allocConfigPixels(config, w, h);
+static void makebm(SkBitmap* bm, int w, int h) {
+    bm->allocN32Pixels(w, h);
     bm->eraseColor(SK_ColorTRANSPARENT);
 
     SkCanvas    canvas(*bm);
@@ -89,9 +89,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         static const int kBmpSize = 2048;
         if (fLargeBitmap.isNull()) {
-            makebm(&fLargeBitmap,
-                   SkBitmap::kARGB_8888_Config,
-                   kBmpSize, kBmpSize);
+            makebm(&fLargeBitmap, kBmpSize, kBmpSize);
         }
         SkRect dstRect = { 0, 0, SkIntToScalar(64), SkIntToScalar(64)};
         static const int kMaxSrcRectSize = 1 << (SkNextLog2(kBmpSize) + 2);

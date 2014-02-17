@@ -265,16 +265,16 @@ public:
        otherwise on compare we may not get a perfect match.
     */
     static void force_all_opaque(const SkBitmap& bitmap) {
-        SkBitmap::Config config = bitmap.config();
-        switch (config) {
-        case SkBitmap::kARGB_8888_Config:
+        SkColorType colorType = bitmap.colorType();
+        switch (colorType) {
+        case kPMColor_SkColorType:
             force_all_opaque_8888(bitmap);
             break;
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             // nothing to do here; 565 bitmaps are inherently opaque
             break;
         default:
-            gm_fprintf(stderr, "unsupported bitmap config %d\n", config);
+            gm_fprintf(stderr, "unsupported bitmap colorType %d\n", colorType);
             DEBUGFAIL_SEE_STDERR;
         }
     }
@@ -590,8 +590,7 @@ public:
             // the device is as large as the current rendertarget, so
             // we explicitly only readback the amount we expect (in
             // size) overwrite our previous allocation
-            bitmap->setConfig(SkBitmap::kARGB_8888_Config, size.fWidth,
-                              size.fHeight);
+            bitmap->setConfig(SkImageInfo::MakeN32Premul(size.fWidth, size.fHeight));
             canvas->readPixels(bitmap, 0, 0);
         }
 #endif
@@ -741,8 +740,8 @@ public:
             return;
         }
 
-        if ((SkBitmap::kARGB_8888_Config != expectedBitmap.config()) ||
-            (SkBitmap::kARGB_8888_Config != actualBitmap.config())) {
+        if ((kPMColor_SkColorType != expectedBitmap.colorType()) ||
+            (kPMColor_SkColorType != actualBitmap.colorType())) {
             gm_fprintf(stderr, "---- %s: not computing max per-channel"
                        " pixel mismatch because non-8888\n", testName);
             return;

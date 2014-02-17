@@ -519,6 +519,16 @@ bool SkBitmap::installPixels(const SkImageInfo& info, void* pixels, size_t rb,
     return true;
 }
 
+bool SkBitmap::installMaskPixels(const SkMask& mask) {
+    if (SkMask::kA8_Format != mask.fFormat) {
+        this->reset();
+        return false;
+    }
+    return this->installPixels(SkImageInfo::MakeA8(mask.fBounds.width(),
+                                                   mask.fBounds.height()),
+                               mask.fImage, mask.fRowBytes);
+}
+
 bool SkBitmap::allocConfigPixels(Config config, int width, int height,
                                  bool isOpaque) {
     SkColorType ct;

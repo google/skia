@@ -31,8 +31,7 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
         c.drawOval(r, p);
     }
 
-    dst->setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    dst->allocPixels();
+    dst->allocN32Pixels(w, h);
     dst->eraseColor(SK_ColorTRANSPARENT);
 
     {
@@ -42,8 +41,7 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst,
         c.drawRect(r, p);
     }
 
-    transparent->setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    transparent->allocPixels();
+    transparent->allocN32Pixels(w, h);
     transparent->eraseColor(SK_ColorTRANSPARENT);
 }
 
@@ -150,8 +148,9 @@ class XfermodesGM : public GM {
     }
 
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
-        fBG.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4, kOpaque_SkAlphaType);
-        fBG.setPixels(gData);
+        fBG.installPixels(SkImageInfo::Make(2, 2, kARGB_4444_SkColorType,
+                                            kOpaque_SkAlphaType),
+                          gData, 4);
 
         make_bitmaps(W, H, &fSrcB, &fDstB, &fTransparent);
     }
