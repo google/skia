@@ -52,10 +52,7 @@ public:
      *  pixels in SkPMColor format.
      */
     static SkSurface* NewRasterPMColor(int width, int height) {
-        SkImageInfo info = {
-            width, height, kPMColor_SkColorType, kPremul_SkAlphaType
-        };
-        return NewRaster(info);
+        return NewRaster(SkImageInfo::MakeN32Premul(width, height));
     }
 
     /**

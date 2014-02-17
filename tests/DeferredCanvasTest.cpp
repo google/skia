@@ -692,12 +692,7 @@ static PixelPtr getSurfacePixelPtr(SkSurface* surface, bool useGpu) {
 }
 
 static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFactory* factory) {
-    SkImageInfo imageSpec = {
-        10,  // width
-        10,  // height
-        kPMColor_SkColorType,
-        kPremul_SkAlphaType
-    };
+    SkImageInfo imageSpec = SkImageInfo::MakeN32Premul(10, 10);
     SkSurface* surface;
     bool useGpu = NULL != factory;
 #if SK_SUPPORT_GPU
@@ -763,12 +758,7 @@ static void TestDeferredCanvasSurface(skiatest::Reporter* reporter, GrContextFac
 }
 
 static void TestDeferredCanvasSetSurface(skiatest::Reporter* reporter, GrContextFactory* factory) {
-    SkImageInfo imageSpec = {
-        10,  // width
-        10,  // height
-        kPMColor_SkColorType,
-        kPremul_SkAlphaType
-    };
+    SkImageInfo imageSpec = SkImageInfo::MakeN32Premul(10, 10);
     SkSurface* surface;
     SkSurface* alternateSurface;
     bool useGpu = NULL != factory;
