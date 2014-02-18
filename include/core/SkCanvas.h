@@ -1125,7 +1125,7 @@ private:
      *  device, its reference count is decremented. The new device is returned.
      */
     SkBaseDevice* setRootDevice(SkBaseDevice* device);
-    
+
 
     // internal methods are not virtual, so they can safely be called by other
     // canvas apis, without confusing subclasses (like SkPictureRecording)

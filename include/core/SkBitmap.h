@@ -308,7 +308,7 @@ public:
     bool installPixels(const SkImageInfo&, void* pixels, size_t rowBytes,
                        void (*ReleaseProc)(void* addr, void* context),
                        void* context);
-    
+
     /**
      *  Call installPixels with no ReleaseProc specified. This means that the
      *  caller must ensure that the specified pixels are valid for the lifetime
