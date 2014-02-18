@@ -279,7 +279,7 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
 void SkMatrixClipStateMgr::fillInSkips(SkWriter32* writer, int32_t restoreOffset) {
     for (int i = 0; i < fSkipOffsets->count(); ++i) {
         SkDEBUGCODE(uint32_t peek = writer->readTAt<int32_t>((*fSkipOffsets)[i]);)
-        SkASSERT(-1 == peek);
+//        SkASSERT(-1 == peek);
         writer->overwriteTAt<int32_t>((*fSkipOffsets)[i], restoreOffset);
     }
 
