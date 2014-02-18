@@ -120,7 +120,6 @@ public:
                 newClip->fOp = op;
                 newClip->fDoAA = doAA;
                 newClip->fMatrixID = matrixID;
-                newClip->fOffset = kInvalidJumpOffset;
                 return false;
             }
 
@@ -134,7 +133,6 @@ public:
                 newClip->fOp = op;
                 newClip->fDoAA = doAA;
                 newClip->fMatrixID = matrixID;
-                newClip->fOffset = kInvalidJumpOffset;
                 return false;
             }
 
@@ -147,19 +145,10 @@ public:
                             int regionID,
                             SkRegion::Op op,
                             int matrixID);
-            void writeClip(int* curMatID,
-                           SkMatrixClipStateMgr* mgr,
-                           bool* overrideFirstOp);
-            void fillInSkips(SkWriter32* writer, int32_t restoreOffset);
+            void writeClip(int* curMatID, SkMatrixClipStateMgr* mgr);
 
-#ifdef SK_DEBUG
-            void checkOffsetNotEqual(int32_t offset) {
-                for (int i = 0; i < fClips.count(); ++i) {
-                    ClipOp& curClip = fClips[i];
-                    SkASSERT(offset != curClip.fOffset);
-                }
-            }
-#endif
+            SkDEBUGCODE(int numClips() const { return fClips.count(); })
+
         private:
             enum ClipType {
                 kRect_ClipType,
@@ -167,8 +156,6 @@ public:
                 kPath_ClipType,
                 kRegion_ClipType
             };
-
-            static const int kInvalidJumpOffset = -1;
 
             class ClipOp {
             public:
@@ -185,10 +172,6 @@ public:
 
                 // The CTM in effect when this clip call was issued
                 int          fMatrixID;
-
-                // The offset of this clipOp's "jump-to-offset" location in the skp.
-                // -1 means the offset hasn't been written.
-                int32_t      fOffset;
             };
 
             SkTDArray<ClipOp> fClips;
@@ -249,7 +232,7 @@ public:
 
         // The next two fields are only valid when fIsSaveLayer is set.
         int32_t      fSaveLayerBaseStateID;
-        bool         fSaveLayerBracketed;
+        SkTDArray<int>* fSavedSkipOffsets;
 
 #ifdef SK_DEBUG
         MatrixClipState* fPrev; // debugging aid
@@ -347,17 +330,7 @@ public:
 
     bool call(CallType callType);
 
-    void fillInSkips(SkWriter32* writer, int32_t restoreOffset) {
-        // Since we write out the entire clip stack at each block start we
-        // need to update the skips for the entire stack each time too.
-        SkDeque::F2BIter iter(fMatrixClipStack);
-
-        for (const MatrixClipState* state = (const MatrixClipState*) iter.next();
-             state != NULL;
-             state = (const MatrixClipState*) iter.next()) {
-            state->fClipInfo->fillInSkips(writer, restoreOffset);
-        }
-    }
+    void fillInSkips(SkWriter32* writer, int32_t restoreOffset);
 
     void finish();
 
@@ -379,8 +352,22 @@ protected:
 
     // The MCStateID of the state currently in effect in the byte stream. 0 if none.
     int32_t          fCurOpenStateID;
+    // The skip offsets for the current open state. These are the locations in the 
+    // skp that must be filled in when the current open state is closed. These are
+    // here rather then distributed across the MatrixClipState's because saveLayers
+    // can cause MC states to be nested.
+    SkTDArray<int32_t>  *fSkipOffsets;
 
     SkDEBUGCODE(void validate();)
+
+    int MCStackPush(SkCanvas::SaveFlags flags);
+
+    void addClipOffset(int offset) {
+        SkASSERT(NULL != fSkipOffsets);
+        SkASSERT(kIdentityWideOpenStateID != fCurOpenStateID);
+
+        *fSkipOffsets->append() = offset;
+    }
 
     void writeDeltaMat(int currentMatID, int desiredMatID);
     static int32_t   NewMCStateID();
