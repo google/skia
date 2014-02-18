@@ -265,7 +265,7 @@ public:
         buffer.setTypefaceRecorder(controller->getTypefaceSet());
         buffer.setNamedFactoryRecorder(controller->getNamedFactorySet());
 
-        Traits::flatten(buffer, obj);
+        Traits::Flatten(buffer, obj);
         size_t size = buffer.bytesWritten();
         SkASSERT(SkIsAlign4(size));
 
@@ -294,7 +294,7 @@ public:
             facePlayback->setupBuffer(buffer);
         }
 
-        Traits::unflatten(buffer, result);
+        Traits::Unflatten(buffer, result);
         SkASSERT(fFlatSize == (int32_t)buffer.offset());
     }
 
@@ -516,7 +516,7 @@ private:
         // Layout of fScratch: [ SkFlatData header, 20 bytes ] [ data ..., 4-byte aligned ]
         fScratch.reset();
         fScratch.reserve(sizeof(SkFlatData));
-        Traits::flatten(fScratch, element);
+        Traits::Flatten(fScratch, element);
         const size_t dataSize = fScratch.bytesWritten() - sizeof(SkFlatData);
 
         // Reinterpret data in fScratch as an SkFlatData.
@@ -562,10 +562,10 @@ private:
 };
 
 struct SkPaintTraits {
-    static void flatten(SkWriteBuffer& buffer, const SkPaint& paint) {
+    static void Flatten(SkWriteBuffer& buffer, const SkPaint& paint) {
         paint.flatten(buffer);
     }
-    static void unflatten(SkReadBuffer& buffer, SkPaint* paint) {
+    static void Unflatten(SkReadBuffer& buffer, SkPaint* paint) {
         paint->unflatten(buffer);
     }
 };

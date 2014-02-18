@@ -16,7 +16,7 @@
 #include "Test.h"
 
 struct SkShaderTraits {
-    static void flatten(SkWriteBuffer& buffer, const SkShader& shader) {
+    static void Flatten(SkWriteBuffer& buffer, const SkShader& shader) {
         buffer.writeFlattenable(&shader);
     }
 };

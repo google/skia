@@ -153,7 +153,7 @@ const SkFlatData* FlattenableHeap::flatToReplace() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 struct SkFlattenableTraits {
-    static void flatten(SkWriteBuffer& buffer, const SkFlattenable& flattenable) {
+    static void Flatten(SkWriteBuffer& buffer, const SkFlattenable& flattenable) {
         buffer.writeFlattenable(&flattenable);
     }
     // No need to define unflatten if we never call it.

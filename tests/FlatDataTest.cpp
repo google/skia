@@ -17,12 +17,12 @@
 #include "Test.h"
 
 struct SkFlattenableTraits {
-    static void flatten(SkWriteBuffer& buffer, const SkFlattenable& flattenable) {
+    static void Flatten(SkWriteBuffer& buffer, const SkFlattenable& flattenable) {
         buffer.writeFlattenable(&flattenable);
     }
 };
 struct SkBitmapTraits {
-    static void flatten(SkWriteBuffer& buffer, const SkBitmap& bitmap) {
+    static void Flatten(SkWriteBuffer& buffer, const SkBitmap& bitmap) {
         bitmap.flatten(buffer);
     }
 };
