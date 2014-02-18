@@ -980,11 +980,6 @@ public:
 
     SkDEVCODE(void toString(SkString*) const;)
 
-    struct FlatteningTraits {
-        static void Flatten(SkWriteBuffer& buffer, const SkPaint& paint);
-        static void Unflatten(SkReadBuffer& buffer, SkPaint* paint);
-    };
-
 private:
     SkTypeface*     fTypeface;
     SkScalar        fTextSize;
@@ -1004,25 +999,15 @@ private:
     SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
-
-    union {
-        struct {
-            // all of these bitfields should add up to 32
-            unsigned        fFlags : 16;
-            unsigned        fTextAlign : 2;
-            unsigned        fCapType : 2;
-            unsigned        fJoinType : 2;
-            unsigned        fStyle : 2;
-            unsigned        fTextEncoding : 2;  // 3 values
-            unsigned        fHinting : 2;
-            //unsigned      fFreeBits : 4;
-        };
-        uint32_t fBitfields;
-    };
-    uint32_t getBitfields() const { return fBitfields; }
-    void setBitfields(uint32_t bitfields);
-
-    uint32_t fDirtyBits;
+    // all of these bitfields should add up to 32
+    unsigned        fFlags : 16;
+    unsigned        fTextAlign : 2;
+    unsigned        fCapType : 2;
+    unsigned        fJoinType : 2;
+    unsigned        fStyle : 2;
+    unsigned        fTextEncoding : 2;  // 3 values
+    unsigned        fHinting : 2;
+    //unsigned      fFreeBits : 4;
 
 
     SkDrawCacheProc    getDrawCacheProc() const;
