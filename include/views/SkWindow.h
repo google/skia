@@ -33,7 +33,7 @@ public:
     const SkBitmap& getBitmap() const { return fBitmap; }
 
     void    setColorType(SkColorType);
-    void    resize(int width, int height, SkColorType ct = kUnknown_SkColorType);
+    void    resize(int width, int height, SkColorType = kUnknown_SkColorType);
 
     bool    isDirty() const { return !fDirtyRgn.isEmpty(); }
     bool    update(SkIRect* updateArea);

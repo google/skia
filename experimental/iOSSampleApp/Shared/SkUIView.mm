@@ -29,8 +29,8 @@
 - (void)setUpWindow {
     if (NULL != fWind) {
         fWind->setVisibleP(true);
-        fWind->resize(self.frame.size.width, self.frame.size.height, 
-                      SkBitmap::kARGB_8888_Config);
+        fWind->resize(self.frame.size.width, self.frame.size.height,
+                      kPMColor_SkColorType);
     }
 }
 

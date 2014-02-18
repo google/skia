@@ -1,7 +1,5 @@
 #import "SkSampleUIView.h"
 
-//#define SKWIND_CONFIG       SkBitmap::kRGB_565_Config
-#define SKWIND_CONFIG       SkBitmap::kARGB_8888_Config
 #define SKGL_CONFIG         kEAGLColorFormatRGB565
 //#define SKGL_CONFIG         kEAGLColorFormatRGBA8
 
@@ -338,7 +336,8 @@ static FPSState gFPS;
         static char* kDummyArgv = const_cast<char*>("dummyExecutableName");
         fWind = new SampleWindow(self, 1, &kDummyArgv, fDevManager);
 
-        fWind->resize(self.frame.size.width, self.frame.size.height, SKWIND_CONFIG);
+        fWind->resize(self.frame.size.width, self.frame.size.height,
+                      kPMColor_SkColorType);
     }
     return self;
 }
