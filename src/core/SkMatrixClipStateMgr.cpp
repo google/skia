@@ -21,6 +21,7 @@ bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipPath(SkPictureRecord* 
     newClip->fOp = op;
     newClip->fDoAA = doAA;
     newClip->fMatrixID = matrixID;
+    newClip->fOffset = kInvalidJumpOffset;
     return false;
 }
 
@@ -35,6 +36,7 @@ bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipRegion(SkPictureRecord
     newClip->fOp = op;
     newClip->fDoAA = true;      // not necessary but sanity preserving
     newClip->fMatrixID = matrixID;
+    newClip->fOffset = kInvalidJumpOffset;
     return false;
 }
 
@@ -53,9 +55,16 @@ void SkMatrixClipStateMgr::writeDeltaMat(int currentMatID, int desiredMatID) {
 // Note: this only writes out the clips for the current save state. To get the
 // entire clip stack requires iterating of the entire matrix/clip stack.
 void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(int* curMatID,
-                                                                SkMatrixClipStateMgr* mgr) {
+                                                                SkMatrixClipStateMgr* mgr,
+                                                                bool* overrideFirstOp) {
     for (int i = 0; i < fClips.count(); ++i) {
         ClipOp& curClip = fClips[i];
+
+        SkRegion::Op op = curClip.fOp;
+        if (*overrideFirstOp) {
+            op = SkRegion::kReplace_Op;
+            *overrideFirstOp = false;
+        }
 
         // TODO: use the matrix ID to skip writing the identity matrix
         // over and over, i.e.:
@@ -70,31 +79,43 @@ void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(int* curMatID,
         mgr->writeDeltaMat(*curMatID, curClip.fMatrixID);
         *curMatID = curClip.fMatrixID;
 
-        int offset;
-
         switch (curClip.fClipType) {
         case kRect_ClipType:
-            offset = mgr->getPicRecord()->recordClipRect(curClip.fGeom.fRRect.rect(),
-                                                         curClip.fOp, curClip.fDoAA);
+            curClip.fOffset = mgr->getPicRecord()->recordClipRect(curClip.fGeom.fRRect.rect(),
+                                                                  op, curClip.fDoAA);
             break;
         case kRRect_ClipType:
-            offset = mgr->getPicRecord()->recordClipRRect(curClip.fGeom.fRRect, curClip.fOp,
-                                                         curClip.fDoAA);
+            curClip.fOffset = mgr->getPicRecord()->recordClipRRect(curClip.fGeom.fRRect, op,
+                                                                   curClip.fDoAA);
             break;
         case kPath_ClipType:
-            offset = mgr->getPicRecord()->recordClipPath(curClip.fGeom.fPathID, curClip.fOp,
-                                                         curClip.fDoAA);
+            curClip.fOffset = mgr->getPicRecord()->recordClipPath(curClip.fGeom.fPathID, op,
+                                                                  curClip.fDoAA);
             break;
         case kRegion_ClipType: {
             const SkRegion* region = mgr->lookupRegion(curClip.fGeom.fRegionID);
-            offset = mgr->getPicRecord()->recordClipRegion(*region, curClip.fOp);
+            curClip.fOffset = mgr->getPicRecord()->recordClipRegion(*region, op);
             break;
         }
         default:
             SkASSERT(0);
         }
+    }
+}
 
-        mgr->addClipOffset(offset);
+// Fill in the skip offsets for all the clips written in the current block
+void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::fillInSkips(SkWriter32* writer,
+                                                                  int32_t restoreOffset) {
+    for (int i = 0; i < fClips.count(); ++i) {
+        ClipOp& curClip = fClips[i];
+
+        if (-1 == curClip.fOffset) {
+            continue;
+        }
+//        SkDEBUGCODE(uint32_t peek = writer->read32At(curClip.fOffset);)
+//        SkASSERT(-1 == peek);
+        writer->overwriteTAt(curClip.fOffset, restoreOffset);
+        SkDEBUGCODE(curClip.fOffset = -1;)
     }
 }
 
@@ -104,8 +125,6 @@ SkMatrixClipStateMgr::SkMatrixClipStateMgr()
                        fMatrixClipStackStorage,
                        sizeof(fMatrixClipStackStorage))
     , fCurOpenStateID(kIdentityWideOpenStateID) {
-
-    fSkipOffsets = SkNEW(SkTDArray<int>);
 
     // The first slot in the matrix dictionary is reserved for the identity matrix
     fMatrixDict.append()->reset();
@@ -118,12 +137,12 @@ SkMatrixClipStateMgr::~SkMatrixClipStateMgr() {
     for (int i = 0; i < fRegionDict.count(); ++i) {
         SkDELETE(fRegionDict[i]);
     }
-
-    SkDELETE(fSkipOffsets);
 }
 
 
-int SkMatrixClipStateMgr::MCStackPush(SkCanvas::SaveFlags flags) {
+int SkMatrixClipStateMgr::save(SkCanvas::SaveFlags flags) {
+    SkDEBUGCODE(this->validate();)
+
     MatrixClipState* newTop = (MatrixClipState*)fMatrixClipStack.push_back();
     new (newTop) MatrixClipState(fCurMCState, flags); // balanced in restore()
     fCurMCState = newTop;
@@ -133,29 +152,14 @@ int SkMatrixClipStateMgr::MCStackPush(SkCanvas::SaveFlags flags) {
     return fMatrixClipStack.count();
 }
 
-int SkMatrixClipStateMgr::save(SkCanvas::SaveFlags flags) {
-    SkDEBUGCODE(this->validate();)
-
-    return this->MCStackPush(flags);
-}
-
 int SkMatrixClipStateMgr::saveLayer(const SkRect* bounds, const SkPaint* paint,
                                     SkCanvas::SaveFlags flags) {
-    // Since the saveLayer call draws something we need to potentially dump
-    // out the MC state
-    this->call(kOther_CallType);
-
-    int result = this->MCStackPush(flags);
+    int result = this->save(flags);
     ++fCurMCState->fLayerID;
     fCurMCState->fIsSaveLayer = true;
 
+    fCurMCState->fSaveLayerBracketed = this->call(kOther_CallType);
     fCurMCState->fSaveLayerBaseStateID = fCurOpenStateID;
-    fCurMCState->fSavedSkipOffsets = fSkipOffsets;
-
-    // TODO: recycle these rather then new & deleting them on every saveLayer/
-    // restore
-    fSkipOffsets = SkNEW(SkTDArray<int>);
-
     fPicRecord->recordSaveLayer(bounds, paint,
                                 (SkCanvas::SaveFlags)(flags| SkCanvas::kMatrixClip_SaveFlag));
     return result;
@@ -166,20 +170,21 @@ void SkMatrixClipStateMgr::restore() {
 
     if (fCurMCState->fIsSaveLayer) {
         if (fCurMCState->fSaveLayerBaseStateID != fCurOpenStateID) {
-            fPicRecord->recordRestore(); // Close the open block inside the saveLayer
+            fPicRecord->recordRestore(); // Close the open block
         }
         // The saveLayer's don't carry any matrix or clip state in the
         // new scheme so make sure the saveLayer's recordRestore doesn't
         // try to finalize them (i.e., fill in their skip offsets).
         fPicRecord->recordRestore(false); // close of saveLayer
 
-        fCurOpenStateID = fCurMCState->fSaveLayerBaseStateID;
+        // Close the Save that brackets the saveLayer. TODO: this doesn't handle
+        // the skip offsets correctly
+        if (fCurMCState->fSaveLayerBracketed) {
+            fPicRecord->recordRestore(false);
+        }
 
-        SkASSERT(0 == fSkipOffsets->count());
-        SkASSERT(NULL != fCurMCState->fSavedSkipOffsets);
-
-        SkDELETE(fSkipOffsets);
-        fSkipOffsets = fCurMCState->fSavedSkipOffsets;
+        // MC states can be allowed to fuse across saveLayer/restore boundaries
+        fCurOpenStateID = kIdentityWideOpenStateID;
     }
 
     fCurMCState->~MatrixClipState();       // balanced in save()
@@ -215,11 +220,7 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
         return false;
     }
 
-    if (kIdentityWideOpenStateID != fCurOpenStateID && 
-                  (!fCurMCState->fIsSaveLayer || 
-                   fCurMCState->fSaveLayerBaseStateID != fCurOpenStateID)) {
-        // Don't write a restore if the open state is one in which a saveLayer
-        // is nested. The save after the saveLayer's restore will close it.
+    if (kIdentityWideOpenStateID != fCurOpenStateID) {
         fPicRecord->recordRestore();    // Close the open block
     }
 
@@ -229,40 +230,17 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
     fPicRecord->recordSave(SkCanvas::kMatrixClip_SaveFlag);
 
     // write out clips
-    SkDeque::Iter iter(fMatrixClipStack, SkDeque::Iter::kBack_IterStart);
-    const MatrixClipState* state;
-    // Loop back across the MC states until the last saveLayer. The MC
-    // state in front of the saveLayer has already been written out.
-    for (state = (const MatrixClipState*) iter.prev();
+    SkDeque::F2BIter iter(fMatrixClipStack);
+    bool firstClip = true;
+
+    int curMatID = kIdentityMatID;
+    for (const MatrixClipState* state = (const MatrixClipState*) iter.next();
          state != NULL;
-         state = (const MatrixClipState*) iter.prev()) {
-        if (state->fIsSaveLayer) {
-            break;
-        }
-    }
-
-    if (NULL == state) {
-        // There was no saveLayer in the MC stack so we need to output them all
-        iter.reset(fMatrixClipStack, SkDeque::Iter::kFront_IterStart);
-        state = (const MatrixClipState*) iter.next();
-    } else {
-        // SkDeque's iterators actually return the previous location so we
-        // need to reverse and go forward one to get back on track.
-        iter.next(); 
-        SkDEBUGCODE(const MatrixClipState* test =) (const MatrixClipState*) iter.next(); 
-        SkASSERT(test == state);
-    }
-
-    int curMatID = NULL != state ? state->fMatrixInfo->getID(this) : kIdentityMatID;
-    for ( ; state != NULL; state = (const MatrixClipState*) iter.next()) {
-         state->fClipInfo->writeClip(&curMatID, this);
+         state = (const MatrixClipState*) iter.next()) {
+         state->fClipInfo->writeClip(&curMatID, this, &firstClip);
     }
 
     // write out matrix
-    // TODO: this test isn't quite right. It should be:
-    //   if (curMatID != fCurMCState->fMatrixInfo->getID(this)) {
-    // but right now the testing harness always expects a matrix if
-    // the matrices are non-I
     if (kIdentityMatID != fCurMCState->fMatrixInfo->getID(this)) {
         // TODO: writing out the delta matrix here is an artifact of the writing
         // out of the entire clip stack (with its matrices). Ultimately we will
@@ -275,17 +253,6 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
     return true;
 }
 
-// Fill in the skip offsets for all the clips written in the current block
-void SkMatrixClipStateMgr::fillInSkips(SkWriter32* writer, int32_t restoreOffset) {
-    for (int i = 0; i < fSkipOffsets->count(); ++i) {
-        SkDEBUGCODE(uint32_t peek = writer->readTAt<int32_t>((*fSkipOffsets)[i]);)
-//        SkASSERT(-1 == peek);
-        writer->overwriteTAt<int32_t>((*fSkipOffsets)[i], restoreOffset);
-    }
-
-    fSkipOffsets->rewind();
-}
-
 void SkMatrixClipStateMgr::finish() {
     if (kIdentityWideOpenStateID != fCurOpenStateID) {
         fPicRecord->recordRestore();    // Close the open block
@@ -295,23 +262,16 @@ void SkMatrixClipStateMgr::finish() {
 
 #ifdef SK_DEBUG
 void SkMatrixClipStateMgr::validate() {
-    if (fCurOpenStateID == fCurMCState->fMCStateID && 
-            (!fCurMCState->fIsSaveLayer || 
-             fCurOpenStateID != fCurMCState->fSaveLayerBaseStateID)) {
-        // The current state is the active one so it should have a skip
-        // offset for each clip
-        SkDeque::Iter iter(fMatrixClipStack, SkDeque::Iter::kBack_IterStart);
-        int clipCount = 0;
-        for (const MatrixClipState* state = (const MatrixClipState*) iter.prev();
-             state != NULL;
-             state = (const MatrixClipState*) iter.prev()) {
-             clipCount += state->fClipInfo->numClips();
-             if (state->fIsSaveLayer) {
-                 break;
-             }
-        }
+    if (fCurOpenStateID == fCurMCState->fMCStateID) {
+        // The current state is the active one so all its skip offsets should
+        // still be -1
+        SkDeque::F2BIter iter(fMatrixClipStack);
 
-        SkASSERT(fSkipOffsets->count() == clipCount);
+        for (const MatrixClipState* state = (const MatrixClipState*) iter.next();
+             state != NULL;
+             state = (const MatrixClipState*) iter.next()) {
+            state->fClipInfo->checkOffsetNotEqual(-1);
+        }
     }
 }
 #endif

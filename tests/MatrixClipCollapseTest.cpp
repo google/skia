@@ -129,14 +129,10 @@ enum DrawOpType {
     kDrawVertices_DrawOpType,
 #endif
 
-    kLastNonSaveLayer_DrawOpType = kRect_DrawOpType,
-
-    // saveLayer's have to handled apart from the other draw operations
-    // since they also alter the save/restore structure.
-    kSaveLayer_DrawOpType,
+    kLast_DrawOpType = kRect_DrawOpType
 };
 
-static const int kNonSaveLayerDrawOpTypeCount = kLastNonSaveLayer_DrawOpType + 1;
+static const int kDrawOpTypeCount = kLast_DrawOpType + 1;
 
 typedef void (*PFEmitMC)(SkCanvas* canvas, MatType mat, ClipType clip,
                          DrawOpType draw, SkTDArray<DrawType>* expected,
@@ -325,12 +321,12 @@ static void emit_draw(SkCanvas* canvas, DrawOpType draw, SkTDArray<DrawType>* ex
 static void emit_clip_and_mat(SkCanvas* canvas, MatType mat, ClipType clip,
                               DrawOpType draw, SkTDArray<DrawType>* expected,
                               int accumulatedClips) {
-    emit_clip(canvas, clip);
-    emit_mat(canvas, mat);
-
     if (kNone_DrawOpType == draw) {
         return;
     }
+
+    emit_clip(canvas, clip);
+    emit_mat(canvas, mat);
 
     for (int i = 0; i < accumulatedClips; ++i) {
         add_clip(clip, mat, expected);
@@ -346,12 +342,12 @@ static void emit_clip_and_mat(SkCanvas* canvas, MatType mat, ClipType clip,
 static void emit_mat_and_clip(SkCanvas* canvas, MatType mat, ClipType clip,
                               DrawOpType draw, SkTDArray<DrawType>* expected,
                               int accumulatedClips) {
-    emit_mat(canvas, mat);
-    emit_clip(canvas, clip);
-
     if (kNone_DrawOpType == draw) {
         return;
     }
+
+    emit_mat(canvas, mat);
+    emit_clip(canvas, clip);
 
     // the matrix & clip order will be reversed once collapsed!
     for (int i = 0; i < accumulatedClips; ++i) {
@@ -369,14 +365,14 @@ static void emit_mat_and_clip(SkCanvas* canvas, MatType mat, ClipType clip,
 static void emit_double_mat_and_clip(SkCanvas* canvas, MatType mat, ClipType clip,
                                      DrawOpType draw, SkTDArray<DrawType>* expected,
                                      int accumulatedClips) {
-    emit_mat(canvas, mat);
-    emit_clip(canvas, clip);
-    emit_mat(canvas, mat);
-    emit_clip(canvas, clip);
-
     if (kNone_DrawOpType == draw) {
         return;
     }
+
+    emit_mat(canvas, mat);
+    emit_clip(canvas, clip);
+    emit_mat(canvas, mat);
+    emit_clip(canvas, clip);
 
     for (int i = 0; i < accumulatedClips; ++i) {
         add_clip(clip, mat, expected);
@@ -394,13 +390,13 @@ static void emit_double_mat_and_clip(SkCanvas* canvas, MatType mat, ClipType cli
 static void emit_mat_clip_clip(SkCanvas* canvas, MatType mat, ClipType clip,
                                DrawOpType draw, SkTDArray<DrawType>* expected,
                                int accumulatedClips) {
-    emit_mat(canvas, mat);
-    emit_clip(canvas, clip);
-    emit_clip(canvas, clip);
-
     if (kNone_DrawOpType == draw) {
         return;
     }
+
+    emit_mat(canvas, mat);
+    emit_clip(canvas, clip);
+    emit_clip(canvas, clip);
 
     for (int i = 0; i < accumulatedClips; ++i) {
         add_clip(clip, mat, expected);
@@ -469,24 +465,22 @@ static void emit_body2(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
     bool needsSaveRestore = kNone_DrawOpType != draw &&
                             (kNone_MatType != mat || kNone_ClipType != clip);
 
-    if (kNone_MatType != mat || kNone_ClipType != clip) {
-        *expected->append() = SAVE;
+    if (needsSaveRestore) {
+        *expected->append() = SAVE_LAYER;
     }
-    (*emitMC)(canvas, mat, clip, kSaveLayer_DrawOpType, expected, accumulatedClips+1);
-    *expected->append() = SAVE_LAYER;
+    (*emitMC)(canvas, mat, clip, draw, NULL, 0); // these get fused into later ops
     // TODO: widen testing to exercise saveLayer's parameters
     canvas->saveLayer(NULL, NULL);
         if (needsSaveRestore) {
             *expected->append() = SAVE;
         }
-        (*emitMC)(canvas, mat, clip, draw, expected, 1);
+        (*emitMC)(canvas, mat, clip, draw, expected, accumulatedClips+2);
         emit_draw(canvas, draw, expected);
         if (needsSaveRestore) {
             *expected->append() = RESTORE;
         }
     canvas->restore();
-    *expected->append() = RESTORE;
-    if (kNone_MatType != mat || kNone_ClipType != clip) {
+    if (needsSaveRestore) {
         *expected->append() = RESTORE;
     }
 }
@@ -507,39 +501,35 @@ static void emit_body3(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
     bool needsSaveRestore = kNone_DrawOpType != draw &&
                             (kNone_MatType != mat || kNone_ClipType != clip);
 
-    if (kNone_MatType != mat || kNone_ClipType != clip) {
-        *expected->append() = SAVE;
-    }
-    (*emitMC)(canvas, mat, clip, kSaveLayer_DrawOpType, expected, accumulatedClips+1); 
+    // This saveLayer will always be forced b.c. we currently can't tell
+    // ahead of time if it will be empty (see comment in SkMatrixClipStateMgr::save)
     *expected->append() = SAVE_LAYER;
+
+    (*emitMC)(canvas, mat, clip, draw, NULL, 0); // these get fused into later ops
     // TODO: widen testing to exercise saveLayer's parameters
     canvas->saveLayer(NULL, NULL);
-        (*emitMC)(canvas, mat, clip, kSaveLayer_DrawOpType, expected, 1);
-        if (kNone_MatType != mat || kNone_ClipType != clip) {
-            *expected->append() = SAVE;
+        (*emitMC)(canvas, mat, clip, draw, NULL, 0); // these get fused into later ops
+        if (needsSaveRestore) {
+            *expected->append() = SAVE_LAYER;
         }
-        *expected->append() = SAVE_LAYER;
         // TODO: widen testing to exercise saveLayer's parameters
         canvas->saveLayer(NULL, NULL);
             if (needsSaveRestore) {
                 *expected->append() = SAVE;
             }
-            (*emitMC)(canvas, mat, clip, draw, expected, 1);
+            (*emitMC)(canvas, mat, clip, draw, expected, accumulatedClips+3);
             emit_draw(canvas, draw, expected);
             if (needsSaveRestore) {
                 *expected->append() = RESTORE;
             }
-        canvas->restore();             // for saveLayer
-        *expected->append() = RESTORE; // for saveLayer
-        if (kNone_MatType != mat || kNone_ClipType != clip) {
+        canvas->restore();
+        if (needsSaveRestore) {
             *expected->append() = RESTORE;
         }
     canvas->restore();
+
     // required to match forced SAVE_LAYER
     *expected->append() = RESTORE;
-    if (kNone_MatType != mat || kNone_ClipType != clip) {
-        *expected->append() = RESTORE;
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -670,14 +660,13 @@ static void test_collapse(skiatest::Reporter* reporter) {
             for (size_t k = 0; k < SK_ARRAY_COUNT(gMCs); ++k) {
                 for (int l = 0; l < kMatTypeCount; ++l) {
                     for (int m = 0; m < kClipTypeCount; ++m) {
-                        for (int n = 0; n < kNonSaveLayerDrawOpTypeCount; ++n) {
+                        for (int n = 0; n < kDrawOpTypeCount; ++n) {
 #ifdef TEST_COLLAPSE_MATRIX_CLIP_STATE
                             static int testID = -1;
                             ++testID;
                             if (testID < -1) {
                                 continue;
                             }
-                            SkDebugf("test: %d\n", testID);
 #endif
 
                             SkTDArray<DrawType> expected, actual;

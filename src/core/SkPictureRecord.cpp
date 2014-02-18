@@ -598,6 +598,7 @@ void SkPictureRecord::restore() {
         return;
     }
 
+    // TODO: don't write the restore to the op stream for normal saves
     fMCMgr.restore();
 #else
     // check for underflow
