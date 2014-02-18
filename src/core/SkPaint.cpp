@@ -35,6 +35,26 @@
 #include "SkTypeface.h"
 #include "SkXfermode.h"
 
+enum {
+    kColor_DirtyBit               = 1 <<  0,
+    kBitfields_DirtyBit           = 1 <<  1,
+    kTextSize_DirtyBit            = 1 <<  2,
+    kTextScaleX_DirtyBit          = 1 <<  3,
+    kTextSkewX_DirtyBit           = 1 <<  4,
+    kStrokeWidth_DirtyBit         = 1 <<  5,
+    kStrokeMiter_DirtyBit         = 1 <<  6,
+    kPathEffect_DirtyBit          = 1 <<  7,
+    kShader_DirtyBit              = 1 <<  8,
+    kXfermode_DirtyBit            = 1 <<  9,
+    kMaskFilter_DirtyBit          = 1 << 10,
+    kColorFilter_DirtyBit         = 1 << 11,
+    kRasterizer_DirtyBit          = 1 << 12,
+    kLooper_DirtyBit              = 1 << 13,
+    kImageFilter_DirtyBit         = 1 << 14,
+    kTypeface_DirtyBit            = 1 << 15,
+    kAnnotation_DirtyBit          = 1 << 16,
+    kPaintOptionsAndroid_DirtyBit = 1 << 17,
+};
 
 // define this to get a printf for out-of-range parameter in setters
 // e.g. setTextSize(-1)
@@ -55,8 +75,8 @@ SkPaint::SkPaint() {
     sk_bzero(this, sizeof(*this));
 
 #if 0   // not needed with the bzero call above
-    fTypeface   = NULL;
-    fTextSkewX  = 0;
+    fTypeface    = NULL;
+    fTextSkewX   = 0;
     fPathEffect  = NULL;
     fShader      = NULL;
     fXfermode    = NULL;
@@ -66,7 +86,8 @@ SkPaint::SkPaint() {
     fLooper      = NULL;
     fImageFilter = NULL;
     fAnnotation  = NULL;
-    fWidth      = 0;
+    fWidth       = 0;
+    fDirtyBits   = 0;
 #endif
 
     fTextSize   = SkPaintDefaults_TextSize;
@@ -198,6 +219,7 @@ void SkPaint::setPaintOptionsAndroid(const SkPaintOptionsAndroid& options) {
     if (options != fPaintOptionsAndroid) {
         fPaintOptionsAndroid = options;
         GEN_ID_INC;
+        fDirtyBits |= kPaintOptionsAndroid_DirtyBit;
     }
 }
 #endif
@@ -228,11 +250,13 @@ void SkPaint::setFilterLevel(FilterLevel level) {
 void SkPaint::setHinting(Hinting hintingLevel) {
     GEN_ID_INC_EVAL((unsigned) hintingLevel != fHinting);
     fHinting = hintingLevel;
+    fDirtyBits |= kBitfields_DirtyBit;
 }
 
 void SkPaint::setFlags(uint32_t flags) {
     GEN_ID_INC_EVAL(fFlags != flags);
     fFlags = flags;
+    fDirtyBits |= kBitfields_DirtyBit;
 }
 
 void SkPaint::setAntiAlias(bool doAA) {
@@ -287,6 +311,7 @@ void SkPaint::setStyle(Style style) {
     if ((unsigned)style < kStyleCount) {
         GEN_ID_INC_EVAL((unsigned)style != fStyle);
         fStyle = style;
+        fDirtyBits |= kBitfields_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStyle(%d) out of range\n", style);
@@ -297,6 +322,7 @@ void SkPaint::setStyle(Style style) {
 void SkPaint::setColor(SkColor color) {
     GEN_ID_INC_EVAL(color != fColor);
     fColor = color;
+    fDirtyBits |= kColor_DirtyBit;
 }
 
 void SkPaint::setAlpha(U8CPU a) {
@@ -312,6 +338,7 @@ void SkPaint::setStrokeWidth(SkScalar width) {
     if (width >= 0) {
         GEN_ID_INC_EVAL(width != fWidth);
         fWidth = width;
+        fDirtyBits |= kStrokeWidth_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStrokeWidth() called with negative value\n");
@@ -323,6 +350,7 @@ void SkPaint::setStrokeMiter(SkScalar limit) {
     if (limit >= 0) {
         GEN_ID_INC_EVAL(limit != fMiterLimit);
         fMiterLimit = limit;
+        fDirtyBits |= kStrokeMiter_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStrokeMiter() called with negative value\n");
@@ -334,6 +362,7 @@ void SkPaint::setStrokeCap(Cap ct) {
     if ((unsigned)ct < kCapCount) {
         GEN_ID_INC_EVAL((unsigned)ct != fCapType);
         fCapType = SkToU8(ct);
+        fDirtyBits |= kBitfields_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStrokeCap(%d) out of range\n", ct);
@@ -345,6 +374,7 @@ void SkPaint::setStrokeJoin(Join jt) {
     if ((unsigned)jt < kJoinCount) {
         GEN_ID_INC_EVAL((unsigned)jt != fJoinType);
         fJoinType = SkToU8(jt);
+        fDirtyBits |= kBitfields_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStrokeJoin(%d) out of range\n", jt);
@@ -358,6 +388,7 @@ void SkPaint::setTextAlign(Align align) {
     if ((unsigned)align < kAlignCount) {
         GEN_ID_INC_EVAL((unsigned)align != fTextAlign);
         fTextAlign = SkToU8(align);
+        fDirtyBits |= kBitfields_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setTextAlign(%d) out of range\n", align);
@@ -369,6 +400,7 @@ void SkPaint::setTextSize(SkScalar ts) {
     if (ts >= 0) {
         GEN_ID_INC_EVAL(ts != fTextSize);
         fTextSize = ts;
+        fDirtyBits |= kTextSize_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setTextSize() called with negative value\n");
@@ -379,17 +411,20 @@ void SkPaint::setTextSize(SkScalar ts) {
 void SkPaint::setTextScaleX(SkScalar scaleX) {
     GEN_ID_INC_EVAL(scaleX != fTextScaleX);
     fTextScaleX = scaleX;
+    fDirtyBits |= kTextScaleX_DirtyBit;
 }
 
 void SkPaint::setTextSkewX(SkScalar skewX) {
     GEN_ID_INC_EVAL(skewX != fTextSkewX);
     fTextSkewX = skewX;
+    fDirtyBits |= kTextSkewX_DirtyBit;
 }
 
 void SkPaint::setTextEncoding(TextEncoding encoding) {
     if ((unsigned)encoding <= kGlyphID_TextEncoding) {
         GEN_ID_INC_EVAL((unsigned)encoding != fTextEncoding);
         fTextEncoding = encoding;
+        fDirtyBits |= kBitfields_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setTextEncoding(%d) out of range\n", encoding);
@@ -399,33 +434,43 @@ void SkPaint::setTextEncoding(TextEncoding encoding) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// Returns dst with the given bitmask enabled or disabled, depending on value.
+inline static uint32_t set_mask(uint32_t dst, uint32_t bitmask, bool value) {
+    return value ? (dst | bitmask) : (dst & ~bitmask);
+}
+
 SkTypeface* SkPaint::setTypeface(SkTypeface* font) {
     SkRefCnt_SafeAssign(fTypeface, font);
     GEN_ID_INC;
+    fDirtyBits = set_mask(fDirtyBits, kTypeface_DirtyBit, font != NULL);
     return font;
 }
 
 SkRasterizer* SkPaint::setRasterizer(SkRasterizer* r) {
     SkRefCnt_SafeAssign(fRasterizer, r);
     GEN_ID_INC;
+    fDirtyBits = set_mask(fDirtyBits, kRasterizer_DirtyBit, r != NULL);
     return r;
 }
 
 SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
     SkRefCnt_SafeAssign(fLooper, looper);
     GEN_ID_INC;
+    fDirtyBits = set_mask(fDirtyBits, kLooper_DirtyBit, looper != NULL);
     return looper;
 }
 
 SkImageFilter* SkPaint::setImageFilter(SkImageFilter* imageFilter) {
     SkRefCnt_SafeAssign(fImageFilter, imageFilter);
     GEN_ID_INC;
+    fDirtyBits = set_mask(fDirtyBits, kImageFilter_DirtyBit, imageFilter != NULL);
     return imageFilter;
 }
 
 SkAnnotation* SkPaint::setAnnotation(SkAnnotation* annotation) {
     SkRefCnt_SafeAssign(fAnnotation, annotation);
     GEN_ID_INC;
+    fDirtyBits = set_mask(fDirtyBits, kAnnotation_DirtyBit, annotation != NULL);
     return annotation;
 }
 
@@ -2149,18 +2194,21 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
 SkShader* SkPaint::setShader(SkShader* shader) {
     GEN_ID_INC_EVAL(shader != fShader);
     SkRefCnt_SafeAssign(fShader, shader);
+    fDirtyBits = set_mask(fDirtyBits, kShader_DirtyBit, shader != NULL);
     return shader;
 }
 
 SkColorFilter* SkPaint::setColorFilter(SkColorFilter* filter) {
     GEN_ID_INC_EVAL(filter != fColorFilter);
     SkRefCnt_SafeAssign(fColorFilter, filter);
+    fDirtyBits = set_mask(fDirtyBits, kColorFilter_DirtyBit, filter != NULL);
     return filter;
 }
 
 SkXfermode* SkPaint::setXfermode(SkXfermode* mode) {
     GEN_ID_INC_EVAL(mode != fXfermode);
     SkRefCnt_SafeAssign(fXfermode, mode);
+    fDirtyBits = set_mask(fDirtyBits, kXfermode_DirtyBit, mode != NULL);
     return mode;
 }
 
@@ -2168,18 +2216,21 @@ SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
     SkSafeUnref(fXfermode);
     fXfermode = SkXfermode::Create(mode);
     GEN_ID_INC;
+    fDirtyBits = set_mask(fDirtyBits, kXfermode_DirtyBit, fXfermode != NULL);
     return fXfermode;
 }
 
 SkPathEffect* SkPaint::setPathEffect(SkPathEffect* effect) {
     GEN_ID_INC_EVAL(effect != fPathEffect);
     SkRefCnt_SafeAssign(fPathEffect, effect);
+    fDirtyBits = set_mask(fDirtyBits, kPathEffect_DirtyBit, effect != NULL);
     return effect;
 }
 
 SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter) {
     GEN_ID_INC_EVAL(filter != fMaskFilter);
     SkRefCnt_SafeAssign(fMaskFilter, filter);
+    fDirtyBits = set_mask(fDirtyBits, kMaskFilter_DirtyBit, filter != NULL);
     return filter;
 }
 
@@ -2549,4 +2600,92 @@ bool SkPaint::nothingToDraw() const {
         }
     }
     return false;
+}
+
+void SkPaint::setBitfields(uint32_t bitfields) {
+    fBitfields = bitfields;
+    fDirtyBits |= kBitfields_DirtyBit;
+}
+
+inline static unsigned popcount(uint8_t x) {
+    // As in Hacker's delight, adapted for just 8 bits.
+    x = (x & 0x55) + ((x >> 1) & 0x55);  // a b c d w x y z -> a+b c+d w+x y+z
+    x = (x & 0x33) + ((x >> 2) & 0x33);  // a+b c+d w+x y+z -> a+b+c+d w+x+y+z
+    x = (x & 0x0F) + ((x >> 4) & 0x0F);  // a+b+c+d w+x+y+z -> a+b+c+d+w+x+y+z
+    return x;
+}
+
+void SkPaint::FlatteningTraits::Flatten(SkWriteBuffer& buffer, const SkPaint& paint) {
+    const uint32_t dirty = paint.fDirtyBits;
+
+    // Each of the low 7 dirty bits corresponds to a 4-byte flat value, plus one for the dirty bits.
+    const size_t flatBytes = 4 * (popcount(dirty & 127) + 1);
+    SkASSERT(flatBytes <= 32);
+    uint32_t* u32 = buffer.reserve(flatBytes);
+    *u32++ = dirty;
+    if (dirty == 0) {
+        return;
+    }
+
+#define F(dst, field) if (dirty & k##field##_DirtyBit) *dst++ = paint.get##field()
+    F(u32, Color);
+    F(u32, Bitfields);
+    SkScalar* f32 = reinterpret_cast<SkScalar*>(u32);
+    F(f32, TextSize);
+    F(f32, TextScaleX);
+    F(f32, TextSkewX);
+    F(f32, StrokeWidth);
+    F(f32, StrokeMiter);
+#undef F
+#define F(field) if (dirty & k##field##_DirtyBit) buffer.writeFlattenable(paint.get##field())
+    F(PathEffect);
+    F(Shader);
+    F(Xfermode);
+    F(MaskFilter);
+    F(ColorFilter);
+    F(Rasterizer);
+    F(Looper);
+    F(ImageFilter);
+#undef F
+    if (dirty & kTypeface_DirtyBit) buffer.writeTypeface(paint.getTypeface());
+    if (dirty & kAnnotation_DirtyBit) paint.getAnnotation()->writeToBuffer(buffer);
+#ifdef SK_BUILD_FOR_ANDROID
+    if (dirty & kPaintOptionsAndroid_DirtyBit) paint.getPaintOptionsAndroid().flatten(buffer);
+#endif
+}
+
+void SkPaint::FlatteningTraits::Unflatten(SkReadBuffer& buffer, SkPaint* paint) {
+    const uint32_t dirty = buffer.readUInt();
+    if (dirty == 0) {
+        return;
+    }
+#define F(field, reader) if (dirty & k##field##_DirtyBit) paint->set##field(buffer.reader())
+    F(Color,       readUInt);
+    F(Bitfields,   readUInt);
+    F(TextSize,    readScalar);
+    F(TextScaleX,  readScalar);
+    F(TextSkewX,   readScalar);
+    F(StrokeWidth, readScalar);
+    F(StrokeMiter, readScalar);
+    F(PathEffect,  readPathEffect);
+    F(Shader,      readShader);
+    F(Xfermode,    readXfermode);
+    F(MaskFilter,  readMaskFilter);
+    F(ColorFilter, readColorFilter);
+    F(Rasterizer,  readRasterizer);
+    F(Looper,      readDrawLooper);
+    F(ImageFilter, readImageFilter);
+    F(Typeface,    readTypeface);
+#undef F
+    if (dirty & kAnnotation_DirtyBit) {
+        paint->setAnnotation(SkNEW_ARGS(SkAnnotation, (buffer)))->unref();
+    }
+#ifdef SK_BUILD_FOR_ANDROID
+    if (dirty & kPaintOptionsAndroid_DirtyBit) {
+        SkPaintOptionsAndroid options;
+        options.unflatten(buffer);
+        paint->setPaintOptionsAndroid(options);
+    }
+#endif
+    SkASSERT(dirty == paint->fDirtyBits);
 }

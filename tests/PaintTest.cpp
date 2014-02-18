@@ -11,8 +11,11 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "SkReadBuffer.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
+#include "SkWriteBuffer.h"
+#include "SkXfermode.h"
 #include "Test.h"
 
 static size_t uni_to_utf8(const SkUnichar src[], void* dst, int count) {
@@ -250,4 +253,40 @@ DEF_TEST(Paint, reporter) {
     if (false) {
        test_cmap(reporter);
     }
+}
+
+#define ASSERT(expr) REPORTER_ASSERT(r, expr)
+
+DEF_TEST(Paint_FlatteningTraits, r) {
+    SkPaint paint;
+    paint.setColor(0x00AABBCC);
+    paint.setTextScaleX(1.0f);  // Encoded despite being the default value.
+    paint.setTextSize(19);
+    paint.setXfermode(SkXfermode::Create(SkXfermode::kModulate_Mode));
+    paint.setLooper(NULL);  // Ignored.
+
+    SkWriteBuffer writer;
+    SkPaint::FlatteningTraits::Flatten(writer, paint);
+    ASSERT(writer.bytesWritten() == 48);
+
+    const uint32_t* written = writer.getWriter32()->contiguousArray();
+    SkASSERT(written != NULL);
+    ASSERT(*written == ((1<<0) | (1<<2) | (1<<3) | (1<<9)));  // Dirty bits for our 4.
+
+    SkReadBuffer reader(written, writer.bytesWritten());
+    SkPaint other;
+    SkPaint::FlatteningTraits::Unflatten(reader, &other);
+    ASSERT(reader.offset() == writer.bytesWritten());
+
+    // No matter the encoding, these must always hold.
+    ASSERT(other.getColor()      == paint.getColor());
+    ASSERT(other.getTextScaleX() == paint.getTextScaleX());
+    ASSERT(other.getTextSize()   == paint.getTextSize());
+    ASSERT(other.getLooper()     == paint.getLooper());
+
+    // We have to be a little looser and compare just the modes.  Pointers might not be the same.
+    SkXfermode::Mode otherMode, paintMode;
+    ASSERT(other.getXfermode()->asMode(&otherMode));
+    ASSERT(paint.getXfermode()->asMode(&paintMode));
+    ASSERT(otherMode == paintMode);
 }
