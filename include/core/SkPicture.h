@@ -239,6 +239,9 @@ protected:
     // V18: SkBitmap now records x,y for its pixelref origin, instead of offset.
     // V19: encode matrices and regions into the ops stream
     // V20: added bool to SkPictureImageFilter's serialization (to allow SkPicture serialization)
+
+    // Note: If the picture version needs to be increased then please follow the
+    // steps to generate new SKPs in (only accessible to Googlers): http://goo.gl/qATVcw
     static const uint32_t PICTURE_VERSION = 20;
 
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
