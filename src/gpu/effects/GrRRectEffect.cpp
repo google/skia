@@ -15,7 +15,7 @@
 
 // This effect only supports circular corner rrects where all corners have the same radius
 // which must be <= kRadiusMin.
-static const SkScalar kRadiusMin = 0.5;
+static const SkScalar kRadiusMin = 0.5f;
 
 //////////////////////////////////////////////////////////////////////////////
 class GrGLRRectEffect : public GrGLEffect {
