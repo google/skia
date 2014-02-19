@@ -9,7 +9,6 @@
 
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
-#include "gl/GrGLVertexEffect.h"
 #include "GrTBackendEffectFactory.h"
 
 #include "SkPath.h"

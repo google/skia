@@ -10,7 +10,6 @@
 
 #include "GrDrawTargetCaps.h"
 #include "GrEffect.h"
-#include "GrVertexEffect.h"
 
 class GrGLConvexPolyEffect;
 class SkPath;

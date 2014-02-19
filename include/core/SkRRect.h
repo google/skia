@@ -96,6 +96,9 @@ public:
     inline bool isRect() const { return kRect_Type == this->getType(); }
     inline bool isOval() const { return kOval_Type == this->getType(); }
     inline bool isSimple() const { return kSimple_Type == this->getType(); }
+    inline bool isSimpleCircular() const {
+        return this->isSimple() && fRadii[0].fX == fRadii[0].fY;
+    }
     inline bool isComplex() const { return kComplex_Type == this->getType(); }
 
     SkScalar width() const { return fRect.width(); }

@@ -19,6 +19,7 @@
 #include "GrSWMaskHelper.h"
 #include "effects/GrTextureDomain.h"
 #include "effects/GrConvexPolyEffect.h"
+#include "effects/GrRRectEffect.h"
 #include "SkRasterClip.h"
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
@@ -189,6 +190,9 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
                                                            GrConvexPolyEffect::kFillNoAA_EdgeType;
                 effect.reset(GrConvexPolyEffect::Create(type, path, &offset));
             }
+        } else if (isAA && SkClipStack::Element::kRRect_Type == type && !rt->isMultisampled()) {
+            const SkRRect& rrect = elements.tail()->getRRect();
+            effect.reset(GrRRectEffect::Create(rrect));
         } else if (isAA && SkClipStack::Element::kRect_Type == type && !rt->isMultisampled()) {
             // We only handle AA/non-MSAA rects here. Coverage effect AA isn't MSAA friendly and
             // non-AA rect clips are handled by the scissor.

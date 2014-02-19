@@ -74,6 +74,11 @@ protected:
         fRRects[0].setRect(SkRect::MakeWH(kTileX-2, kTileY-2));
         fRRects[1].setOval(SkRect::MakeWH(kTileX-2, kTileY-2));
         fRRects[2].setRectXY(SkRect::MakeWH(kTileX-2, kTileY-2), 10, 10);
+        fRRects[3].setRectXY(SkRect::MakeWH(kTileX-2, kTileY-2), 10, 5);
+        // small circular corners are an interesting test case for gpu clipping
+        fRRects[4].setRectXY(SkRect::MakeWH(kTileX-2, kTileY-2), 1, 1);
+        fRRects[5].setRectXY(SkRect::MakeWH(kTileX-2, kTileY-2), 0.5f, 0.5f);
+        fRRects[6].setRectXY(SkRect::MakeWH(kTileX-2, kTileY-2), 0.2f, 0.2f);
 
         // The first complex case needs special handling since it is a square
         fRRects[kNumSimpleCases].setRectRadii(SkRect::MakeWH(kTileY-2, kTileY-2), gRadii[0]);
@@ -92,7 +97,7 @@ private:
     static const int kTileX = 80;
     static const int kTileY = 40;
 
-    static const int kNumSimpleCases = 3;
+    static const int kNumSimpleCases = 7;
     static const int kNumComplexCases = 19;
     static const SkVector gRadii[kNumComplexCases][4];
 

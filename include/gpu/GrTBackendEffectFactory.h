@@ -64,7 +64,7 @@ public:
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrEffect; caller is responsible for deleting
         the object. */
-    virtual GLEffect* createGLInstance(const GrDrawEffect& drawEffect) const SK_OVERRIDE {
+    virtual GrGLEffect* createGLInstance(const GrDrawEffect& drawEffect) const SK_OVERRIDE {
         return SkNEW_ARGS(GLEffect, (*this, drawEffect));
     }
 

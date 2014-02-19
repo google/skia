@@ -139,6 +139,8 @@
       '<(skia_src_path)/gpu/effects/GrBicubicEffect.h',
       '<(skia_src_path)/gpu/effects/GrCustomCoordsTextureEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrCustomCoordsTextureEffect.h',
+      '<(skia_src_path)/gpu/effects/GrRRectEffect.cpp',
+      '<(skia_src_path)/gpu/effects/GrRRectEffect.h',
       '<(skia_src_path)/gpu/effects/GrSimpleTextureEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrSimpleTextureEffect.h',
       '<(skia_src_path)/gpu/effects/GrSingleTextureEffect.cpp',
