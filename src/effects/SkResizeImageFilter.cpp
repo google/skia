@@ -80,3 +80,28 @@ bool SkResizeImageFilter::onFilterImage(Proxy* proxy,
     offset->fY = dstBounds.fTop;
     return true;
 }
+
+void SkResizeImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
+    SkRect bounds = src;
+    if (getInput(0)) {
+        getInput(0)->computeFastBounds(src, &bounds);
+    }
+    dst->setXYWH(bounds.x(), bounds.y(), bounds.width() * fSx, bounds.height() * fSy);
+}
+
+bool SkResizeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                         SkIRect* dst) const {
+    SkMatrix dstMatrix;
+    SkRect dstRect;
+    SkIRect dstRectI;
+    dstMatrix.setScale(SkScalarInvert(fSx), SkScalarInvert(fSy));
+    dstMatrix.mapRect(&dstRect, SkRect::Make(src));
+    dstRect.roundOut(&dstRectI);
+    if (getInput(0) && !getInput(0)->filterBounds(dstRectI, ctm, &dstRectI)) {
+        return false;
+    }
+//    *dst = dstRectI;
+    *dst = src;
+    return true;
+}
+
