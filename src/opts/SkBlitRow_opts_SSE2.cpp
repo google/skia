@@ -9,6 +9,7 @@
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkBitmapProcState_opts_SSE2.h"
 #include "SkColorPriv.h"
+#include "SkColor_opts_SSE2.h"
 #include "SkUtils.h"
 
 #include <emmintrin.h>
@@ -849,5 +850,127 @@ void SkBlitLCD16OpaqueRow_SSE2(SkPMColor dst[], const uint16_t mask[],
         mask++;
         dst++;
         width--;
+    }
+}
+
+/* SSE2 version of S32A_D565_Opaque()
+ * portable version is in core/SkBlitRow_D16.cpp
+ */
+void S32A_D565_Opaque_SSE2(uint16_t* SK_RESTRICT dst,
+                           const SkPMColor* SK_RESTRICT src,
+                           int count, U8CPU alpha, int /*x*/, int /*y*/) {
+    SkASSERT(255 == alpha);
+
+    if (count <= 0) {
+        return;
+    }
+
+    if (count >= 8) {
+        // Make dst 16 bytes alignment
+        while (((size_t)dst & 0x0F) != 0) {
+            SkPMColor c = *src++;
+            if (c) {
+              *dst = SkSrcOver32To16(c, *dst);
+            }
+            dst += 1;
+            count--;
+        }
+
+        const __m128i* s = reinterpret_cast<const __m128i*>(src);
+        __m128i* d = reinterpret_cast<__m128i*>(dst);
+        __m128i var255 = _mm_set1_epi16(255);
+        __m128i r16_mask = _mm_set1_epi16(SK_R16_MASK);
+        __m128i g16_mask = _mm_set1_epi16(SK_G16_MASK);
+        __m128i b16_mask = _mm_set1_epi16(SK_B16_MASK);
+
+        while (count >= 8) {
+            // Load 8 pixels of src.
+            __m128i src_pixel1 = _mm_loadu_si128(s++);
+            __m128i src_pixel2 = _mm_loadu_si128(s++);
+
+            // Check whether src pixels are equal to 0 and get the highest bit
+            // of each byte of result, if src pixels are all zero, src_cmp1 and
+            // src_cmp2 will be 0xFFFF.
+            int src_cmp1 = _mm_movemask_epi8(_mm_cmpeq_epi16(src_pixel1,
+                                             _mm_setzero_si128()));
+            int src_cmp2 = _mm_movemask_epi8(_mm_cmpeq_epi16(src_pixel2,
+                                             _mm_setzero_si128()));
+            if (src_cmp1 == 0xFFFF && src_cmp2 == 0xFFFF) {
+                d++;
+                count -= 8;
+                continue;
+            }
+
+            // Load 8 pixels of dst.
+            __m128i dst_pixel = _mm_load_si128(d);
+
+            // Extract A from src.
+            __m128i sa1 = _mm_slli_epi32(src_pixel1,(24 - SK_A32_SHIFT));
+            sa1 = _mm_srli_epi32(sa1, 24);
+            __m128i sa2 = _mm_slli_epi32(src_pixel2,(24 - SK_A32_SHIFT));
+            sa2 = _mm_srli_epi32(sa2, 24);
+            __m128i sa = _mm_packs_epi32(sa1, sa2);
+
+            // Extract R from src.
+            __m128i sr1 = _mm_slli_epi32(src_pixel1,(24 - SK_R32_SHIFT));
+            sr1 = _mm_srli_epi32(sr1, 24);
+            __m128i sr2 = _mm_slli_epi32(src_pixel2,(24 - SK_R32_SHIFT));
+            sr2 = _mm_srli_epi32(sr2, 24);
+            __m128i sr = _mm_packs_epi32(sr1, sr2);
+
+            // Extract G from src.
+            __m128i sg1 = _mm_slli_epi32(src_pixel1,(24 - SK_G32_SHIFT));
+            sg1 = _mm_srli_epi32(sg1, 24);
+            __m128i sg2 = _mm_slli_epi32(src_pixel2,(24 - SK_G32_SHIFT));
+            sg2 = _mm_srli_epi32(sg2, 24);
+            __m128i sg = _mm_packs_epi32(sg1, sg2);
+
+            // Extract B from src.
+            __m128i sb1 = _mm_slli_epi32(src_pixel1,(24 - SK_B32_SHIFT));
+            sb1 = _mm_srli_epi32(sb1, 24);
+            __m128i sb2 = _mm_slli_epi32(src_pixel2,(24 - SK_B32_SHIFT));
+            sb2 = _mm_srli_epi32(sb2, 24);
+            __m128i sb = _mm_packs_epi32(sb1, sb2);
+
+            // Extract R G B from dst.
+            __m128i dr = _mm_srli_epi16(dst_pixel,SK_R16_SHIFT);
+            dr = _mm_and_si128(dr, r16_mask);
+            __m128i dg = _mm_srli_epi16(dst_pixel,SK_G16_SHIFT);
+            dg = _mm_and_si128(dg, g16_mask);
+            __m128i db = _mm_srli_epi16(dst_pixel,SK_B16_SHIFT);
+            db = _mm_and_si128(db, b16_mask);
+
+            __m128i isa = _mm_sub_epi16(var255, sa); // 255 -sa
+
+            // Calculate R G B of result.
+            // Original algorithm is in SkSrcOver32To16().
+            dr = _mm_add_epi16(sr, SkMul16ShiftRound_SSE(dr, isa, SK_R16_BITS));
+            dr = _mm_srli_epi16(dr, 8 - SK_R16_BITS);
+            dg = _mm_add_epi16(sg, SkMul16ShiftRound_SSE(dg, isa, SK_G16_BITS));
+            dg = _mm_srli_epi16(dg, 8 - SK_G16_BITS);
+            db = _mm_add_epi16(sb, SkMul16ShiftRound_SSE(db, isa, SK_B16_BITS));
+            db = _mm_srli_epi16(db, 8 - SK_B16_BITS);
+
+            // Pack R G B into 16-bit color.
+            __m128i d_pixel = SkPackRGB16_SSE(dr, dg, db);
+
+            // Store 8 16-bit colors in dst.
+            _mm_store_si128(d++, d_pixel);
+            count -= 8;
+        }
+
+        src = reinterpret_cast<const SkPMColor*>(s);
+        dst = reinterpret_cast<uint16_t*>(d);
+    }
+
+    if (count > 0) {
+        do {
+            SkPMColor c = *src++;
+            SkPMColorAssert(c);
+            if (c) {
+                *dst = SkSrcOver32To16(c, *dst);
+            }
+            dst += 1;
+        } while (--count != 0);
     }
 }
