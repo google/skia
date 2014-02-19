@@ -14,7 +14,11 @@
 #include "SkGradientShader.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkResizeImageFilter.h"
 #include "SkScalar.h"
+
+#define RESIZE_FACTOR_X SkIntToScalar(2)
+#define RESIZE_FACTOR_Y SkIntToScalar(5)
 
 namespace skiagm {
 
@@ -96,6 +100,7 @@ protected:
             new SkDilateImageFilter(2, 2, checkerboard.get()),
             new SkErodeImageFilter(2, 2, checkerboard.get()),
             new SkOffsetImageFilter(SkIntToScalar(-16), SkIntToScalar(32)),
+            new SkResizeImageFilter(RESIZE_FACTOR_X, RESIZE_FACTOR_Y, SkPaint::kNone_FilterLevel),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
@@ -113,8 +118,11 @@ protected:
                 paint.setAntiAlias(true);
                 canvas->save();
                 canvas->clipRect(bounds);
-                if (i == 5) {
+                if (5 == i) {
                     canvas->translate(SkIntToScalar(16), SkIntToScalar(-32));
+                } else if (6 == i) {
+                    canvas->scale(SkScalarInvert(RESIZE_FACTOR_X),
+                                  SkScalarInvert(RESIZE_FACTOR_Y));
                 }
                 canvas->drawCircle(r.centerX(), r.centerY(),
                                    SkScalarDiv(r.width()*2, SkIntToScalar(5)), paint);

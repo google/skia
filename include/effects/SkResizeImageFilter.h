@@ -32,6 +32,7 @@ public:
     SkResizeImageFilter(SkScalar sx, SkScalar sy, SkPaint::FilterLevel filterLevel,
                         SkImageFilter* input = NULL);
     virtual ~SkResizeImageFilter();
+    virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkResizeImageFilter)
 
@@ -41,6 +42,8 @@ protected:
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
+    virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
+                                SkIRect* dst) const SK_OVERRIDE;
 
 private:
     SkScalar              fSx, fSy;

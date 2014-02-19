@@ -42,12 +42,12 @@ SkResizeImageFilter::~SkResizeImageFilter() {
 
 bool SkResizeImageFilter::onFilterImage(Proxy* proxy,
                                          const SkBitmap& source,
-                                         const SkMatrix& matrix,
+                                         const SkMatrix& ctm,
                                          SkBitmap* result,
                                          SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, &srcOffset)) {
+    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctm, &src, &srcOffset)) {
         return false;
     }
 
@@ -56,9 +56,13 @@ bool SkResizeImageFilter::onFilterImage(Proxy* proxy,
     src.getBounds(&srcBounds);
     srcBounds.offset(srcOffset);
     SkRect srcRect = SkRect::Make(srcBounds);
-    SkMatrix dstMatrix;
-    dstMatrix.setScale(fSx, fSy);
-    dstMatrix.mapRect(&dstRect, srcRect);
+    SkMatrix matrix;
+    if (!ctm.invert(&matrix)) {
+        return false;
+    }
+    matrix.postScale(fSx, fSy);
+    matrix.postConcat(ctm);
+    matrix.mapRect(&dstRect, srcRect);
     dstRect.roundOut(&dstBounds);
 
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(dstBounds.width(), dstBounds.height()));
@@ -67,16 +71,43 @@ bool SkResizeImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkCanvas canvas(device.get());
-    canvas.translate(-SkIntToScalar(dstBounds.fLeft), -SkIntToScalar(dstBounds.fTop));
+    canvas.scale(fSx, fSy);
     SkPaint paint;
 
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     paint.setFilterLevel(fFilterLevel);
-    canvas.concat(dstMatrix);
     canvas.drawBitmap(src, srcRect.left(), srcRect.top(), &paint);
 
     *result = device.get()->accessBitmap(false);
     offset->fX = dstBounds.fLeft;
     offset->fY = dstBounds.fTop;
+    return true;
+}
+
+void SkResizeImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
+    SkRect bounds = src;
+    if (getInput(0)) {
+        getInput(0)->computeFastBounds(src, &bounds);
+    }
+    dst->setXYWH(bounds.x(), bounds.y(), bounds.width() * fSx, bounds.height() * fSy);
+}
+
+bool SkResizeImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                         SkIRect* dst) const {
+    SkMatrix matrix;
+    if (!ctm.invert(&matrix)) {
+        return false;
+    }
+    matrix.postScale(SkScalarInvert(fSx), SkScalarInvert(fSy));
+    matrix.postConcat(ctm);
+    SkRect floatBounds;
+    matrix.mapRect(&floatBounds, SkRect::Make(src));
+    SkIRect bounds;
+    floatBounds.roundOut(&bounds);
+    if (getInput(0) && !getInput(0)->filterBounds(bounds, ctm, &bounds)) {
+        return false;
+    }
+
+    *dst = bounds;
     return true;
 }

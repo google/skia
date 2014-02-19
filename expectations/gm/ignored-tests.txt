@@ -51,3 +51,8 @@ rrect_clip_bw
 rrect_clip_aa
 rrect_bw
 rrect_aa
+
+# Need to rebaseline all platforms due to new test cases added in
+# https://codereview.chromium.org/168283006/
+imagefiltersclipped
+imagefiltersscaled

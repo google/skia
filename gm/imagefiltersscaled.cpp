@@ -14,7 +14,10 @@
 #include "SkGradientShader.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkResizeImageFilter.h"
 #include "SkScalar.h"
+
+#define RESIZE_FACTOR SkIntToScalar(4)
 
 namespace skiagm {
 
@@ -30,7 +33,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(860, 500);
+        return make_isize(1020, 500);
     }
 
     void make_checkerboard() {
@@ -96,6 +99,7 @@ protected:
             new SkDilateImageFilter(1, 1, checkerboard.get()),
             new SkErodeImageFilter(1, 1, checkerboard.get()),
             new SkOffsetImageFilter(SkIntToScalar(32), 0),
+            new SkResizeImageFilter(RESIZE_FACTOR, RESIZE_FACTOR, SkPaint::kNone_FilterLevel),
         };
 
         SkVector scales[] = {
@@ -122,6 +126,9 @@ protected:
                 canvas->scale(scales[j].fX, scales[j].fY);
                 if (5 == i) {
                     canvas->translate(SkIntToScalar(-32), 0);
+                } else if (6 == i) {
+                    canvas->scale(SkScalarInvert(RESIZE_FACTOR),
+                                  SkScalarInvert(RESIZE_FACTOR));
                 }
                 canvas->drawCircle(r.centerX(), r.centerY(),
                                    SkScalarDiv(r.width()*2, SkIntToScalar(5)), paint);

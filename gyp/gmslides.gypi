@@ -91,6 +91,7 @@
     '../gm/imageblur.cpp',
     '../gm/imageblurtiled.cpp',
     '../gm/imagemagnifier.cpp',
+    '../gm/imageresizetiled.cpp',
     '../gm/inversepaths.cpp',
     '../gm/lerpmode.cpp',
     '../gm/lighting.cpp',
