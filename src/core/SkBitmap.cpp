@@ -503,11 +503,6 @@ bool SkBitmap::installPixels(const SkImageInfo& info, void* pixels, size_t rb,
         return false;
     }
 
-    // No pixels means just behave like setConfig()
-    if (NULL == pixels) {
-        return true;
-    }
-
     SkPixelRef* pr = SkMallocPixelRef::NewWithProc(info, rb, NULL, pixels,
                                                    releaseProc, context);
     if (!pr) {
@@ -519,7 +514,6 @@ bool SkBitmap::installPixels(const SkImageInfo& info, void* pixels, size_t rb,
 
     // since we're already allocated, we lockPixels right away
     this->lockPixels();
-    SkASSERT(this->getPixels());
     SkDEBUGCODE(this->validate();)
     return true;
 }
