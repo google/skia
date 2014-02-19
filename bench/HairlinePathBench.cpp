@@ -5,16 +5,17 @@
  * found in the LICENSE file.
  */
 
-#if SK_SUPPORT_GPU
-#include "GrTest.h"
-#include "GrDrawTargetCaps.h"
-#endif
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkString.h"
+
+#if SK_SUPPORT_GPU
+#include "GrTest.h"
+#include "GrDrawTargetCaps.h"
+#endif
 
 enum Flags {
     kBig_Flag = 1 << 0,
