@@ -868,7 +868,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10869005131589940963
+          371178799665115891
         ]
       ]
     }, 
@@ -876,7 +876,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10241168962200497319
+          9122960779200833672
         ]
       ]
     }, 
@@ -884,7 +884,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6498971447175243177
+          2801325236637973751
         ]
       ]
     }, 
@@ -7332,6 +7332,38 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "imagefiltersclipped_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18269039845400559628
+        ]
+      ]
+    }, 
+    "imagefiltersclipped_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2762100620468562910
+        ]
+      ]
+    }, 
+    "imagefiltersclipped_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5306043000496215456
+        ]
+      ]
+    }, 
+    "imagefiltersclipped_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3854266854123865664
+        ]
+      ]
+    }, 
     "imagefilterscropped_565.png": {
       "allowed-digests": [
         [
@@ -7411,7 +7443,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6679548981111390390
+          1709192304075201426
         ]
       ]
     }, 
@@ -7419,7 +7451,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9600620159504427711
+          2824262589260421093
         ]
       ]
     }, 
@@ -7427,7 +7459,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15106321149868304691
+          9817427954212463041
         ]
       ]
     }, 
@@ -7435,7 +7467,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15087074965294990352
+          13646823825582201228
         ]
       ]
     }, 

@@ -869,7 +869,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17986166798600581781
+          7634008000794960573
         ]
       ]
     }, 
@@ -877,7 +877,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1639171977751265046
+          6706324165444462563
         ]
       ]
     }, 
@@ -885,7 +885,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8558085406422229767
+          5281412422904919583
         ]
       ]
     }, 
@@ -7345,6 +7345,38 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "imagefiltersclipped_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18269039845400559628
+        ]
+      ]
+    }, 
+    "imagefiltersclipped_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2762100620468562910
+        ]
+      ]
+    }, 
+    "imagefiltersclipped_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5306043000496215456
+        ]
+      ]
+    }, 
+    "imagefiltersclipped_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3854266854123865664
+        ]
+      ]
+    }, 
     "imagefilterscropped_565.png": {
       "allowed-digests": [
         [
@@ -7424,7 +7456,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6679548981111390390
+          6650197949984237485
         ]
       ]
     }, 
@@ -7432,7 +7464,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9600620159504427711
+          11877441102748970716
         ]
       ]
     }, 
@@ -7440,7 +7472,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15106321149868304691
+          9817427954212463041
         ]
       ]
     }, 
@@ -7448,7 +7480,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15087074965294990352
+          13646823825582201228
         ]
       ]
     }, 

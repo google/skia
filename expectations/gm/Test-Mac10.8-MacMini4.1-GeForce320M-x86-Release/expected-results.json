@@ -1060,7 +1060,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2663814092169903513
+          9908821889023401880
         ]
       ]
     }, 
@@ -1068,7 +1068,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1069782717777105273
+          4165886163462854988
         ]
       ]
     }, 
@@ -1076,7 +1076,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14762633558880297669
+          13283624577112071570
         ]
       ]
     }, 
@@ -9072,6 +9072,38 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "imagefiltersclipped_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18269039845400559628
+        ]
+      ]
+    }, 
+    "imagefiltersclipped_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2762100620468562910
+        ]
+      ]
+    }, 
+    "imagefiltersclipped_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4242530156356607183
+        ]
+      ]
+    }, 
+    "imagefiltersclipped_pdf-mac.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3854266854123865664
+        ]
+      ]
+    }, 
     "imagefilterscropped_565.png": {
       "allowed-digests": [
         [
@@ -9193,7 +9225,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6679548981111390390
+          1709192304075201426
         ]
       ]
     }, 
@@ -9201,7 +9233,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9600620159504427711
+          2824262589260421093
         ]
       ]
     }, 
@@ -9209,7 +9241,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4408353316115950607
+          790324239119893469
         ]
       ]
     }, 
@@ -9217,7 +9249,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17897900948608816002
+          5196815867471557430
         ]
       ]
     }, 
