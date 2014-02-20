@@ -18,6 +18,16 @@ import xml.sax.saxutils
 # Maximum expected number of characters we expect in an svn revision.
 MAX_SVN_REV_LENGTH = 5
 
+# Indices for getting elements from bench expectation files.
+# See bench_expectations_<builder>.txt for details.
+EXPECTED_IDX = -3
+LB_IDX = -2
+UB_IDX = -1
+
+# Indices of the tuple of dictionaries containing slower and faster alerts.
+SLOWER = 0
+FASTER = 1
+
 def usage():
     """Prints simple usage information."""
 
@@ -134,16 +144,35 @@ def read_expectations(expectations, filename):
         if bench_entry in expectations:
             raise Exception("Dup entries for bench expectation %s" %
                             bench_entry)
-        # [<Bench_BmpConfig_TimeType>,<Platform-Alg>] -> (LB, UB)
-        expectations[bench_entry] = (float(elements[-2]),
-                                     float(elements[-1]))
+        # [<Bench_BmpConfig_TimeType>,<Platform-Alg>] -> (LB, UB, EXPECTED)
+        expectations[bench_entry] = (float(elements[LB_IDX]),
+                                     float(elements[UB_IDX]),
+                                     float(elements[EXPECTED_IDX]))
 
-def check_expectations(lines, expectations, revision, key_suffix):
-    """Check if there are benches in the given revising out of range.
+def check_expectations(lines, expectations, key_suffix):
+    """Check if any bench results are outside of expected range.
+
+    For each input line in lines, checks the expectations dictionary to see if
+    the bench is out of the given range.
+
+    Args:
+      lines: dictionary mapping Label objects to the bench values.
+      expectations: dictionary returned by read_expectations().
+      key_suffix: string of <Platform>-<Alg> containing the bot platform and the
+        bench representation algorithm.
+
+    Returns:
+      No return value.
+
+    Raises:
+      Exception containing bench data that are out of range, if any.
     """
     # The platform for this bot, to pass to the dashboard plot.
     platform = key_suffix[ : key_suffix.rfind('-')]
-    exceptions = []
+    # Tuple of dictionaries recording exceptions that are slower and faster,
+    # respectively. Each dictionary maps off_ratio (ratio of actual to expected)
+    # to a list of corresponding exception messages.
+    exceptions = ({}, {})
     for line in lines:
         line_str = str(line)
         line_str = line_str[ : line_str.find('_{')]
@@ -151,14 +180,31 @@ def check_expectations(lines, expectations, revision, key_suffix):
         if bench_platform_key not in expectations:
             continue
         this_bench_value = lines[line]
-        this_min, this_max = expectations[bench_platform_key]
+        this_min, this_max, this_expected = expectations[bench_platform_key]
         if this_bench_value < this_min or this_bench_value > this_max:
-            exception = 'Bench %s value %s out of range [%s, %s].' % (
-                bench_platform_key, this_bench_value, this_min, this_max)
-            exceptions.append(exception)
-    if exceptions:
-        raise Exception('Bench values out of range:\n' +
-                        '\n'.join(exceptions))
+            off_ratio = this_bench_value / this_expected
+            exception = 'Bench %s out of range [%s, %s] (%s vs %s, %s%%).' % (
+                bench_platform_key, this_min, this_max, this_bench_value,
+                this_expected, (off_ratio - 1) * 100)
+            if off_ratio > 1:  # Bench is slower.
+                exceptions[SLOWER].setdefault(off_ratio, []).append(exception)
+            else:
+                exceptions[FASTER].setdefault(off_ratio, []).append(exception)
+    outputs = []
+    for i in [SLOWER, FASTER]:
+      if exceptions[i]:
+          ratios = exceptions[i].keys()
+          ratios.sort(reverse=True)
+          li = []
+          for ratio in ratios:
+              li.extend(exceptions[i][ratio])
+          header = '%s benches got slower (sorted by %% difference):' % len(li)
+          if i == FASTER:
+              header = header.replace('slower', 'faster')
+          outputs.extend(['', header] + li)
+
+    if outputs:
+        raise Exception('\n'.join(outputs))
 
 def main():
     """Parses command line and checks bench expectations."""
@@ -210,8 +256,7 @@ def main():
     bench_dict = create_bench_dict(data_points)
 
     if bench_expectations:
-        check_expectations(bench_dict, bench_expectations, rev,
-                           platform_and_alg)
+        check_expectations(bench_dict, bench_expectations, platform_and_alg)
 
 
 if __name__ == "__main__":
