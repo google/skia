@@ -209,7 +209,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInf
             for (int i = 0; i < paintCount; i++) {
                 if (needs_deep_copy(src.fPaints->at(i))) {
                     deepCopyInfo->paintData[i] =
-                        SkFlatData::Create<SkPaint::FlatteningTraits>(&deepCopyInfo->controller,
+                        SkFlatData::Create<SkPaintTraits>(&deepCopyInfo->controller,
                                                           src.fPaints->at(i), 0);
 
                 } else {
@@ -230,8 +230,8 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInf
         SkTypefacePlayback* tfPlayback = deepCopyInfo->controller.getTypefacePlayback();
         for (int i = 0; i < paintCount; i++) {
             if (deepCopyInfo->paintData[i]) {
-                deepCopyInfo->paintData[i]->unflatten<SkPaint::FlatteningTraits>(
-                    &fPaints->writableAt(i), bmHeap, tfPlayback);
+                deepCopyInfo->paintData[i]->unflatten<SkPaintTraits>(&fPaints->writableAt(i),
+                                                                     bmHeap, tfPlayback);
             } else {
                 // needs_deep_copy was false, so just need to assign
                 fPaints->writableAt(i) = src.fPaints->at(i);

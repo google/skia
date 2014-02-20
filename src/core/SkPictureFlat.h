@@ -561,7 +561,15 @@ private:
                    SkFlatData::Identity, SkFlatData::Hash, SkFlatData::Equal> fHash;
 };
 
-typedef SkFlatDictionary<SkPaint, SkPaint::FlatteningTraits> SkPaintDictionary;
+struct SkPaintTraits {
+    static void Flatten(SkWriteBuffer& buffer, const SkPaint& paint) {
+        paint.flatten(buffer);
+    }
+    static void Unflatten(SkReadBuffer& buffer, SkPaint* paint) {
+        paint->unflatten(buffer);
+    }
+};
+typedef SkFlatDictionary<SkPaint, SkPaintTraits> SkPaintDictionary;
 
 class SkChunkFlatController : public SkFlatController {
 public:
