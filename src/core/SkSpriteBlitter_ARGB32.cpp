@@ -20,7 +20,7 @@
 class Sprite_D32_S32 : public SkSpriteBlitter {
 public:
     Sprite_D32_S32(const SkBitmap& src, U8CPU alpha)  : INHERITED(src) {
-        SkASSERT(src.config() == SkBitmap::kARGB_8888_Config);
+        SkASSERT(src.colorType() == kPMColor_SkColorType);
 
         unsigned flags32 = 0;
         if (255 != alpha) {
@@ -277,8 +277,8 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkBitmap& source,
     SkColorFilter* filter = paint.getColorFilter();
     SkSpriteBlitter* blitter = NULL;
 
-    switch (source.config()) {
-        case SkBitmap::kARGB_4444_Config:
+    switch (source.colorType()) {
+        case kARGB_4444_SkColorType:
             if (alpha != 0xFF) {
                 return NULL;    // we only have opaque sprites
             }
@@ -293,7 +293,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkBitmap& source,
                                       storage, storageSize, (source));
             }
             break;
-        case SkBitmap::kARGB_8888_Config:
+        case kPMColor_SkColorType:
             if (xfermode || filter) {
                 if (255 == alpha) {
                     // this can handle xfermode or filter, but not alpha

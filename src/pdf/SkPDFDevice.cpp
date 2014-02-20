@@ -704,7 +704,7 @@ private:
 
 static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
                                          const SkMatrix* initialTransform) {
-    SkBitmap bitmap;
+    SkImageInfo info;
     if (initialTransform) {
         // Compute the size of the drawing area.
         SkVector drawingSize;
@@ -718,17 +718,19 @@ static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
         }
         inverse.mapVectors(&drawingSize, 1);
         SkISize size = SkSize::Make(drawingSize.fX, drawingSize.fY).toRound();
-        bitmap.setConfig(SkBitmap::kNo_Config, abs(size.fWidth),
-                         abs(size.fHeight));
+        info = SkImageInfo::MakeUnknown(abs(size.fWidth), abs(size.fHeight));
     } else {
-        bitmap.setConfig(SkBitmap::kNo_Config, abs(contentSize.fWidth),
-                         abs(contentSize.fHeight));
+        info = SkImageInfo::MakeUnknown(abs(contentSize.fWidth),
+                                        abs(contentSize.fHeight));
     }
 
+    SkBitmap bitmap;
+    bitmap.setConfig(info);
     return bitmap;
 }
 
 // TODO(vandebo) change pageSize to SkSize.
+// TODO: inherit from SkBaseDevice instead of SkBitmapDevice
 SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
                          const SkMatrix& initialTransform)
     : SkBitmapDevice(makeContentBitmap(contentSize, &initialTransform)),

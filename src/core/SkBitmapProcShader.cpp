@@ -18,11 +18,11 @@
 #endif
 
 bool SkBitmapProcShader::CanDo(const SkBitmap& bm, TileMode tx, TileMode ty) {
-    switch (bm.config()) {
-        case SkBitmap::kA8_Config:
-        case SkBitmap::kRGB_565_Config:
-        case SkBitmap::kIndex8_Config:
-        case SkBitmap::kARGB_8888_Config:
+    switch (bm.colorType()) {
+        case kAlpha_8_SkColorType:
+        case kRGB_565_SkColorType:
+        case kIndex_8_SkColorType:
+        case kPMColor_SkColorType:
     //        if (tx == ty && (kClamp_TileMode == tx || kRepeat_TileMode == tx))
                 return true;
         default:
@@ -88,7 +88,7 @@ static bool valid_for_drawing(const SkBitmap& bm) {
     if (NULL == bm.pixelRef()) {
         return false;   // no pixels to read
     }
-    if (SkBitmap::kIndex8_Config == bm.config()) {
+    if (kIndex_8_SkColorType == bm.colorType()) {
         // ugh, I have to lock-pixels to inspect the colortable
         SkAutoLockPixels alp(bm);
         if (!bm.getColorTable()) {
@@ -125,23 +125,23 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
         flags |= kOpaqueAlpha_Flag;
     }
 
-    switch (bitmap.config()) {
-        case SkBitmap::kRGB_565_Config:
+    switch (bitmap.colorType()) {
+        case kRGB_565_SkColorType:
             flags |= (kHasSpan16_Flag | kIntrinsicly16_Flag);
             break;
-        case SkBitmap::kIndex8_Config:
-        case SkBitmap::kARGB_8888_Config:
+        case kIndex_8_SkColorType:
+        case kPMColor_SkColorType:
             if (bitmapIsOpaque) {
                 flags |= kHasSpan16_Flag;
             }
             break;
-        case SkBitmap::kA8_Config:
+        case kAlpha_8_SkColorType:
             break;  // never set kHasSpan16_Flag
         default:
             break;
     }
 
-    if (paint.isDither() && bitmap.config() != SkBitmap::kRGB_565_Config) {
+    if (paint.isDither() && bitmap.colorType() != kRGB_565_SkColorType) {
         // gradients can auto-dither in their 16bit sampler, but we don't so
         // we clear the flag here.
         flags &= ~kHasSpan16_Flag;
@@ -278,14 +278,14 @@ static bool canUseColorShader(const SkBitmap& bm, SkColor* color) {
         return false;
     }
 
-    switch (bm.config()) {
-        case SkBitmap::kARGB_8888_Config:
+    switch (bm.colorType()) {
+        case kPMColor_SkColorType:
             *color = SkUnPreMultiply::PMColorToColor(*bm.getAddr32(0, 0));
             return true;
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             *color = SkPixel16ToColor(*bm.getAddr16(0, 0));
             return true;
-        case SkBitmap::kIndex8_Config:
+        case kIndex_8_SkColorType:
             *color = SkUnPreMultiply::PMColorToColor(bm.getIndex8Color(0, 0));
             return true;
         default: // just skip the other configs for now

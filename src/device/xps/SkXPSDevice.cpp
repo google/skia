@@ -106,10 +106,11 @@ static HRESULT create_id(wchar_t* buffer, size_t bufferSize,
 
 static SkBitmap make_fake_bitmap(int width, int height) {
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kNo_Config, width, height);
+    bitmap.setConfig(SkImageInfo::MakeUnknown(width, height));
     return bitmap;
 }
 
+// TODO: should inherit from SkBaseDevice instead of SkBitmapDevice...
 SkXPSDevice::SkXPSDevice()
     : SkBitmapDevice(make_fake_bitmap(10000, 10000))
     , fCurrentPage(0) {

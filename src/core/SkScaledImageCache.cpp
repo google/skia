@@ -289,13 +289,12 @@ bool SkScaledImageCacheDiscardableAllocator::allocPixelRef(SkBitmap* bitmap,
         return false;
     }
 
-    // can relax when we have bitmap::asImageInfo
-    if (SkBitmap::kARGB_8888_Config != bitmap->config()) {
+    // can we relax this?
+    if (kPMColor_SkColorType != bitmap->colorType()) {
         return false;
     }
 
-    SkImageInfo info = SkImageInfo::MakeN32(bitmap->width(), bitmap->height(),
-                                            bitmap->alphaType());
+    SkImageInfo info = bitmap->info();
     bitmap->setPixelRef(SkNEW_ARGS(SkOneShotDiscardablePixelRef,
                                    (info, dm, bitmap->rowBytes())))->unref();
     bitmap->lockPixels();

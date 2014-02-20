@@ -275,7 +275,7 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
 
     SkAutoLockPixels locker(source);
     if (!source.readyToDraw() ||
-        source.config() != SkBitmap::kARGB_8888_Config) {
+        source.colorType() != kPMColor_SkColorType) {
         return false;
     }
 
@@ -290,9 +290,9 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
 
     // Convolve into the result.
     SkBitmap result;
-    result.setConfig(SkBitmap::kARGB_8888_Config,
-                     destSubset.width(), destSubset.height(), 0,
-                     source.alphaType());
+    result.setConfig(SkImageInfo::MakeN32(destSubset.width(),
+                                          destSubset.height(),
+                                          source.alphaType()));
     result.allocPixels(allocator, NULL);
     if (!result.readyToDraw()) {
         return false;

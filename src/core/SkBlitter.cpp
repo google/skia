@@ -812,7 +812,7 @@ enum XferInterp {
 };
 
 static XferInterp interpret_xfermode(const SkPaint& paint, SkXfermode* xfer,
-                                     SkBitmap::Config deviceConfig) {
+                                     SkColorType deviceCT) {
     SkXfermode::Mode  mode;
 
     if (SkXfermode::AsMode(xfer, &mode)) {
@@ -827,12 +827,12 @@ static XferInterp interpret_xfermode(const SkPaint& paint, SkXfermode* xfer,
             case SkXfermode::kSrcOver_Mode:
                 return kSrcOver_XferInterp;
             case SkXfermode::kDstOver_Mode:
-                if (SkBitmap::kRGB_565_Config == deviceConfig) {
+                if (kRGB_565_SkColorType == deviceCT) {
                     return kSkipDrawing_XferInterp;
                 }
                 break;
             case SkXfermode::kSrcIn_Mode:
-                if (SkBitmap::kRGB_565_Config == deviceConfig &&
+                if (kRGB_565_SkColorType == deviceCT &&
                     just_solid_color(paint)) {
                     return kSrcOver_XferInterp;
                 }
@@ -860,8 +860,8 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
 
     // which check, in case we're being called by a client with a dummy device
     // (e.g. they have a bounder that always aborts the draw)
-    if (SkBitmap::kNo_Config == device.config() ||
-            (drawCoverage && (SkBitmap::kA8_Config != device.config()))) {
+    if (kUnknown_SkColorType == device.colorType() ||
+            (drawCoverage && (kAlpha_8_SkColorType != device.colorType()))) {
         SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
         return blitter;
     }
@@ -882,7 +882,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     }
 
     if (NULL != mode) {
-        switch (interpret_xfermode(*paint, mode, device.config())) {
+        switch (interpret_xfermode(*paint, mode, device.colorType())) {
             case kSrcOver_XferInterp:
                 mode = NULL;
                 paint.writable()->setXfermode(NULL);
@@ -945,8 +945,8 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     }
 
 
-    switch (device.config()) {
-        case SkBitmap::kA8_Config:
+    switch (device.colorType()) {
+        case kAlpha_8_SkColorType:
             if (drawCoverage) {
                 SkASSERT(NULL == shader);
                 SkASSERT(NULL == paint->getXfermode());
@@ -961,11 +961,11 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
             }
             break;
 
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             blitter = SkBlitter_ChooseD565(device, *paint, storage, storageSize);
             break;
 
-        case SkBitmap::kARGB_8888_Config:
+        case kPMColor_SkColorType:
             if (shader) {
                 SK_PLACEMENT_NEW_ARGS(blitter, SkARGB32_Shader_Blitter,
                                       storage, storageSize, (device, *paint));

@@ -518,7 +518,7 @@ SkCanvas::SkCanvas(int width, int height)
     inc_canvas();
 
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kNo_Config, width, height);
+    bitmap.setConfig(SkImageInfo::MakeUnknown(width, height));
     this->init(SkNEW_ARGS(SkBitmapDevice, (bitmap)))->unref();
 }
 
@@ -950,9 +950,7 @@ SkImageInfo SkCanvas::imageInfo() const {
     if (dev) {
         return dev->imageInfo();
     } else {
-        // TODO: need a real unknown for alphatype it seems.
-        SkAlphaType unknownAlphaType = kIgnore_SkAlphaType;
-        return SkImageInfo::Make(0, 0, kUnknown_SkColorType, unknownAlphaType);
+        return SkImageInfo::MakeUnknown(0, 0);
     }
 }
 

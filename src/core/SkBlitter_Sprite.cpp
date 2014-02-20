@@ -66,12 +66,12 @@ SkBlitter* SkBlitter::ChooseSprite( const SkBitmap& device,
 
     SkSpriteBlitter* blitter;
 
-    switch (device.config()) {
-        case SkBitmap::kRGB_565_Config:
+    switch (device.colorType()) {
+        case kRGB_565_SkColorType:
             blitter = SkSpriteBlitter::ChooseD16(source, paint, storage,
                                                  storageSize);
             break;
-        case SkBitmap::kARGB_8888_Config:
+        case kPMColor_SkColorType:
             blitter = SkSpriteBlitter::ChooseD32(source, paint, storage,
                                                  storageSize);
             break;

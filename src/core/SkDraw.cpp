@@ -200,20 +200,20 @@ static BitmapXferProc ChooseBitmapXferProc(const SkBitmap& bitmap,
                 should I worry about dithering for the lower depths?
             */
             SkPMColor pmc = SkPreMultiplyColor(color);
-            switch (bitmap.config()) {
-                case SkBitmap::kARGB_8888_Config:
+            switch (bitmap.colorType()) {
+                case kPMColor_SkColorType:
                     if (data) {
                         *data = pmc;
                     }
 //                    SkDebugf("--- D32_Src_BitmapXferProc\n");
                     return D32_Src_BitmapXferProc;
-                case SkBitmap::kRGB_565_Config:
+                case kRGB_565_SkColorType:
                     if (data) {
                         *data = SkPixel32ToPixel16(pmc);
                     }
 //                    SkDebugf("--- D16_Src_BitmapXferProc\n");
                     return D16_Src_BitmapXferProc;
-                case SkBitmap::kA8_Config:
+                case kAlpha_8_SkColorType:
                     if (data) {
                         *data = SkGetPackedA32(pmc);
                     }
@@ -233,14 +233,14 @@ static BitmapXferProc ChooseBitmapXferProc(const SkBitmap& bitmap,
 static void CallBitmapXferProc(const SkBitmap& bitmap, const SkIRect& rect,
                                BitmapXferProc proc, uint32_t procData) {
     int shiftPerPixel;
-    switch (bitmap.config()) {
-        case SkBitmap::kARGB_8888_Config:
+    switch (bitmap.colorType()) {
+        case kPMColor_SkColorType:
             shiftPerPixel = 2;
             break;
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             shiftPerPixel = 1;
             break;
-        case SkBitmap::kA8_Config:
+        case kAlpha_8_SkColorType:
             shiftPerPixel = 0;
             break;
         default:
@@ -526,9 +526,9 @@ PtProcRec::Proc PtProcRec::chooseProc(SkBlitter** blitterPtr) {
             if (SkCanvas::kPoints_PointMode == fMode && fClip->isRect()) {
                 uint32_t value;
                 const SkBitmap* bm = blitter->justAnOpaqueColor(&value);
-                if (bm && SkBitmap::kRGB_565_Config == bm->config()) {
+                if (bm && kRGB_565_SkColorType == bm->colorType()) {
                     proc = bw_pt_rect_16_hair_proc;
-                } else if (bm && SkBitmap::kARGB_8888_Config == bm->config()) {
+                } else if (bm && kPMColor_SkColorType == bm->colorType()) {
                     proc = bw_pt_rect_32_hair_proc;
                 } else {
                     proc = bw_pt_rect_hair_proc;
@@ -1176,7 +1176,7 @@ static bool just_translate(const SkMatrix& matrix, const SkBitmap& bitmap) {
 
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
                               const SkPaint& paint) const {
-    SkASSERT(bitmap.config() == SkBitmap::kA8_Config);
+    SkASSERT(bitmap.colorType() == kAlpha_8_SkColorType);
 
     if (just_translate(*fMatrix, bitmap)) {
         int ix = SkScalarRoundToInt(fMatrix->getTranslateX());
@@ -1284,7 +1284,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     // nothing to draw
     if (fRC->isEmpty() ||
             bitmap.width() == 0 || bitmap.height() == 0 ||
-            bitmap.config() == SkBitmap::kNo_Config) {
+            bitmap.colorType() == kUnknown_SkColorType) {
         return;
     }
 
@@ -1310,7 +1310,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         }
     }
 
-    if (bitmap.config() != SkBitmap::kA8_Config &&
+    if (bitmap.colorType() != kAlpha_8_SkColorType &&
             just_translate(matrix, bitmap)) {
         //
         // It is safe to call lock pixels now, since we know the matrix is
@@ -1343,7 +1343,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     SkDraw draw(*this);
     draw.fMatrix = &matrix;
 
-    if (bitmap.config() == SkBitmap::kA8_Config) {
+    if (bitmap.colorType() == kAlpha_8_SkColorType) {
         draw.drawBitmapAsMask(bitmap, paint);
     } else {
         SkAutoBitmapShaderInstall install(bitmap, paint);
@@ -1363,7 +1363,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y,
     // nothing to draw
     if (fRC->isEmpty() ||
             bitmap.width() == 0 || bitmap.height() == 0 ||
-            bitmap.config() == SkBitmap::kNo_Config) {
+            bitmap.colorType() == kUnknown_SkColorType) {
         return;
     }
 

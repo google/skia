@@ -324,12 +324,12 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkBitmap& source,
     SkSpriteBlitter* blitter = NULL;
     unsigned alpha = paint.getAlpha();
 
-    switch (source.config()) {
-        case SkBitmap::kARGB_8888_Config:
+    switch (source.colorType()) {
+        case kPMColor_SkColorType:
             SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D16_S32_BlitRowProc,
                                   storage, storageSize, (source));
             break;
-        case SkBitmap::kARGB_4444_Config:
+        case kARGB_4444_SkColorType:
             if (255 == alpha) {
                 SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D16_S4444_Opaque,
                                       storage, storageSize, (source));
@@ -338,7 +338,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkBitmap& source,
                                     storage, storageSize, (source, alpha >> 4));
             }
             break;
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             if (255 == alpha) {
                 SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D16_S16_Opaque,
                                       storage, storageSize, (source));
@@ -347,7 +347,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkBitmap& source,
                                       storage, storageSize, (source, alpha));
             }
             break;
-        case SkBitmap::kIndex8_Config:
+        case kIndex_8_SkColorType:
             if (paint.isDither()) {
                 // we don't support dither yet in these special cases
                 break;
