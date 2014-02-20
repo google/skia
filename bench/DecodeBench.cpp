@@ -9,6 +9,7 @@
 #include "SkBitmap.h"
 #include "SkCommandLineFlags.h"
 #include "SkImageDecoder.h"
+#include "SkOSFile.h"
 #include "SkString.h"
 
 DEFINE_string(decodeBenchFilename, "resources/CMYK.jpeg", "Path to image for DecodeBench.");
@@ -24,11 +25,8 @@ public:
     DecodeBench(SkBitmap::Config c) {
         fPrefConfig = c;
 
-        const char* fname = strrchr(FLAGS_decodeBenchFilename[0], '/');
-        if (fname) {
-            fname++; // skip the slash
-        }
-        fName.printf("decode_%s_%s", gConfigName[c], fname);
+        SkString fname = SkOSPath::SkBasename(FLAGS_decodeBenchFilename[0]);
+        fName.printf("decode_%s_%s", gConfigName[c], fname.c_str());
     }
 
     virtual bool isSuitableFor(Backend backend) SK_OVERRIDE {
