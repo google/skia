@@ -125,7 +125,7 @@ void SkSurface_Raster::onCopyOnWrite(ContentChangeMode mode) {
             fBitmap.allocPixels();
         } else {
             SkBitmap prev(fBitmap);
-            prev.deepCopyTo(&fBitmap, prev.config());
+            prev.deepCopyTo(&fBitmap);
         }
         // Now fBitmap is a deep copy of itself (and therefore different from
         // what is being used by the image. Next we update the canvas to use

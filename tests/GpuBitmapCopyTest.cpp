@@ -161,6 +161,7 @@ DEF_GPUTEST(GpuBitmapCopy, reporter, factory) {
 
             // Extract a subset. If this succeeds we will test copying the subset.
             SkBitmap subset;
+#ifdef SK_SUPPORT_DEEPCOPYTO_CONFIG
             const bool extracted = src.extractSubset(&subset, subsetRect);
 
             for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
@@ -228,6 +229,7 @@ DEF_GPUTEST(GpuBitmapCopy, reporter, factory) {
                                        true);
                 }
             } // for (size_t j = ...
+#endif
         } // for (size_t i = ...
     } // GrContextFactory::GLContextType
 }

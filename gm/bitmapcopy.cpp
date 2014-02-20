@@ -72,9 +72,7 @@ protected:
         draw_checks(&canvasTmp, 40, 40);
 
         for (unsigned i = 0; i < NUM_CONFIGS; ++i) {
-            if (!src.deepCopyTo(&fDst[i], gConfigs[i])) {
-                src.copyTo(&fDst[i], gConfigs[i]);
-            }
+            src.copyTo(&fDst[i], gConfigs[i]);
         }
 
         canvas->clear(0xFFDDDDDD);

@@ -507,7 +507,7 @@ SkPDFImage::SkPDFImage(SkStream* stream,
     if (bitmap.isImmutable()) {
         fBitmap = bitmap;
     } else {
-        bitmap.deepCopyTo(&fBitmap, bitmap.config());
+        bitmap.deepCopyTo(&fBitmap);
         fBitmap.setImmutable();
     }
 

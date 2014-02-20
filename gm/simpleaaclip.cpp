@@ -26,7 +26,7 @@ static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
     // need to copy for deferred drawing test to work
     SkBitmap bm2;
 
-    bm.deepCopyTo(&bm2, SkBitmap::kA8_Config);
+    bm.deepCopyTo(&bm2);
 
     canvas->drawBitmap(bm2,
                        SK_Scalar1 * mask.fBounds.fLeft,
