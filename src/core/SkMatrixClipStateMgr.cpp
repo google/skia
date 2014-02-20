@@ -215,8 +215,8 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
         return false;
     }
 
-    if (kIdentityWideOpenStateID != fCurOpenStateID && 
-                  (!fCurMCState->fIsSaveLayer || 
+    if (kIdentityWideOpenStateID != fCurOpenStateID &&
+                  (!fCurMCState->fIsSaveLayer ||
                    fCurMCState->fSaveLayerBaseStateID != fCurOpenStateID)) {
         // Don't write a restore if the open state is one in which a saveLayer
         // is nested. The save after the saveLayer's restore will close it.
@@ -248,8 +248,8 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
     } else {
         // SkDeque's iterators actually return the previous location so we
         // need to reverse and go forward one to get back on track.
-        iter.next(); 
-        SkDEBUGCODE(const MatrixClipState* test = (const MatrixClipState*)) iter.next(); 
+        iter.next();
+        SkDEBUGCODE(const MatrixClipState* test = (const MatrixClipState*)) iter.next();
         SkASSERT(test == state);
     }
 
@@ -295,8 +295,8 @@ void SkMatrixClipStateMgr::finish() {
 
 #ifdef SK_DEBUG
 void SkMatrixClipStateMgr::validate() {
-    if (fCurOpenStateID == fCurMCState->fMCStateID && 
-            (!fCurMCState->fIsSaveLayer || 
+    if (fCurOpenStateID == fCurMCState->fMCStateID &&
+            (!fCurMCState->fIsSaveLayer ||
              fCurOpenStateID != fCurMCState->fSaveLayerBaseStateID)) {
         // The current state is the active one so it should have a skip
         // offset for each clip

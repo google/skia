@@ -510,7 +510,7 @@ static void emit_body3(SkCanvas* canvas, PFEmitMC emitMC, MatType mat,
     if (kNone_MatType != mat || kNone_ClipType != clip) {
         *expected->append() = SAVE;
     }
-    (*emitMC)(canvas, mat, clip, kSaveLayer_DrawOpType, expected, accumulatedClips+1); 
+    (*emitMC)(canvas, mat, clip, kSaveLayer_DrawOpType, expected, accumulatedClips+1);
     *expected->append() = SAVE_LAYER;
     // TODO: widen testing to exercise saveLayer's parameters
     canvas->saveLayer(NULL, NULL);

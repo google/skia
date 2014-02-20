@@ -352,7 +352,7 @@ protected:
 
     // The MCStateID of the state currently in effect in the byte stream. 0 if none.
     int32_t          fCurOpenStateID;
-    // The skip offsets for the current open state. These are the locations in the 
+    // The skip offsets for the current open state. These are the locations in the
     // skp that must be filled in when the current open state is closed. These are
     // here rather then distributed across the MatrixClipState's because saveLayers
     // can cause MC states to be nested.
