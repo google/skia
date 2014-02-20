@@ -65,14 +65,14 @@ protected:
 
     virtual void onDrawContent(SkCanvas* canvas) {
         SkScalar intervals[8] = { .5f, .3f, .5f, .3f, .5f, .3f, .5f, .3f };
-        SkDashPathEffect dash(intervals, 2, fPhase);
-        SkCornerPathEffect corner(.25f);
-        SkComposePathEffect compose(&dash, &corner);
+        SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, fPhase));
+        SkAutoTUnref<SkCornerPathEffect> corner(SkCornerPathEffect::Create(.25f));
+        SkAutoTUnref<SkComposePathEffect> compose(SkComposePathEffect::Create(dash, corner));
 
         SkPaint outlinePaint;
         outlinePaint.setAntiAlias(true);  // dashed paint for bitmap
         outlinePaint.setStyle(SkPaint::kStroke_Style);
-        outlinePaint.setPathEffect(&compose);
+        outlinePaint.setPathEffect(compose);
 
         canvas->scale(10.0f, 10.0f);  // scales up
 

@@ -36,8 +36,10 @@ public:
 
         Note: only affects stroked paths.
     */
-    SkDashPathEffect(const SkScalar intervals[], int count, SkScalar phase,
-                     bool scaleToFit = false);
+    static SkDashPathEffect* Create(const SkScalar intervals[], int count,
+                                    SkScalar phase, bool scaleToFit = false) {
+        return SkNEW_ARGS(SkDashPathEffect, (intervals, count, phase, scaleToFit));
+    }
     virtual ~SkDashPathEffect();
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
@@ -54,6 +56,12 @@ public:
 protected:
     SkDashPathEffect(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+
+#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
+public:
+#endif
+    SkDashPathEffect(const SkScalar intervals[], int count, SkScalar phase,
+                     bool scaleToFit = false);
 
 private:
     SkScalar*   fIntervals;

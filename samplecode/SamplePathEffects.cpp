@@ -29,7 +29,7 @@ static const int gXY[] = {
 
 static SkPathEffect* make_pe(int flags) {
     if (flags == 1)
-        return new SkCornerPathEffect(SkIntToScalar(CORNER_RADIUS));
+        return SkCornerPathEffect::Create(SkIntToScalar(CORNER_RADIUS));
 
     SkPath  path;
     path.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
@@ -38,14 +38,14 @@ static SkPathEffect* make_pe(int flags) {
     path.close();
     path.offset(SkIntToScalar(-6), 0);
 
-    SkPathEffect* outer = new SkPath1DPathEffect(path, SkIntToScalar(12), gPhase, SkPath1DPathEffect::kRotate_Style);
+    SkPathEffect* outer = SkPath1DPathEffect::Create(path, SkIntToScalar(12), gPhase, SkPath1DPathEffect::kRotate_Style);
 
     if (flags == 2)
         return outer;
 
-    SkPathEffect* inner = new SkCornerPathEffect(SkIntToScalar(CORNER_RADIUS));
+    SkPathEffect* inner = SkCornerPathEffect::Create(SkIntToScalar(CORNER_RADIUS));
 
-    SkPathEffect* pe = new SkComposePathEffect(outer, inner);
+    SkPathEffect* pe = SkComposePathEffect::Create(outer, inner);
     outer->unref();
     inner->unref();
     return pe;
@@ -59,10 +59,11 @@ static SkPathEffect* make_warp_pe() {
     path.close();
     path.offset(SkIntToScalar(-6), 0);
 
-    SkPathEffect* outer = new SkPath1DPathEffect(path, SkIntToScalar(12), gPhase, SkPath1DPathEffect::kMorph_Style);
-    SkPathEffect* inner = new SkCornerPathEffect(SkIntToScalar(CORNER_RADIUS));
+    SkPathEffect* outer = SkPath1DPathEffect::Create(
+        path, SkIntToScalar(12), gPhase, SkPath1DPathEffect::kMorph_Style);
+    SkPathEffect* inner = SkCornerPathEffect::Create(SkIntToScalar(CORNER_RADIUS));
 
-    SkPathEffect* pe = new SkComposePathEffect(outer, inner);
+    SkPathEffect* pe = SkComposePathEffect::Create(outer, inner);
     outer->unref();
     inner->unref();
     return pe;

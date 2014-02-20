@@ -78,9 +78,9 @@ protected:
         frameP.setStyle(SkPaint::kStroke_Style);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gData); i++) {
-            SkAvoidXfermode mode(SK_ColorGREEN, gData[i].fTolerance,
-                                 gData[i].fMode);
-            paint.setXfermode(&mode);
+            SkAutoTUnref<SkAvoidXfermode> mode(SkAvoidXfermode::Create(
+                SK_ColorGREEN, gData[i].fTolerance, gData[i].fMode));
+            paint.setXfermode(mode);
             int div = 3;
             SkRect rr = { 0, 0, r.width()/div, r.height()/div };
             rr.offset(r.width()/4 - rr.width()/2, r.height()/4 - rr.height()/2);

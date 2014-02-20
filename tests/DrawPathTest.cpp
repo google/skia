@@ -202,7 +202,7 @@ static void test_crbug_140642() {
      */
 
     const SkScalar vals[] = { 27734, 35660, 2157846850.0f, 247 };
-    SkDashPathEffect dontAssert(vals, 4, -248.135982067f);
+    SkAutoTUnref<SkDashPathEffect> dontAssert(SkDashPathEffect::Create(vals, 4, -248.135982067f));
 }
 
 static void test_crbug_124652() {
@@ -212,8 +212,7 @@ static void test_crbug_124652() {
         large values can "swamp" small ones.
      */
     SkScalar intervals[2] = {837099584, 33450};
-    SkAutoTUnref<SkDashPathEffect> dash(
-        new SkDashPathEffect(intervals, 2, -10, false));
+    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, -10, false));
 }
 
 static void test_bigcubic() {
@@ -254,12 +253,12 @@ static void test_infinite_dash(skiatest::Reporter* reporter) {
     path.lineTo(5000000, 0);
 
     SkScalar intervals[] = { 0.2f, 0.2f };
-    SkDashPathEffect dash(intervals, 2, 0);
+    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
 
     SkPath filteredPath;
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
-    paint.setPathEffect(&dash);
+    paint.setPathEffect(dash);
 
     paint.getFillPath(path, &filteredPath);
     // If we reach this, we passed.
@@ -274,15 +273,15 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
     path.lineTo(10000000, 0);
 
     SkScalar intervals[] = { 0.5f, 0.5f };
-    SkDashPathEffect dash(intervals, 2, 0);
+    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
-    paint.setPathEffect(&dash);
+    paint.setPathEffect(dash);
 
     SkPath filteredPath;
     SkStrokeRec rec(paint);
-    REPORTER_ASSERT(reporter, !dash.filterPath(&filteredPath, path, &rec, NULL));
+    REPORTER_ASSERT(reporter, !dash->filterPath(&filteredPath, path, &rec, NULL));
     REPORTER_ASSERT(reporter, filteredPath.isEmpty());
 }
 

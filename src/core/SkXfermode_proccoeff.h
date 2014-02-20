@@ -15,12 +15,8 @@ struct ProcCoeff {
 
 class SkProcCoeffXfermode : public SkProcXfermode {
 public:
-    SkProcCoeffXfermode(const ProcCoeff& rec, Mode mode)
-            : INHERITED(rec.fProc) {
-        fMode = mode;
-        // these may be valid, or may be CANNOT_USE_COEFF
-        fSrcCoeff = rec.fSC;
-        fDstCoeff = rec.fDC;
+    static SkProcCoeffXfermode* Create(const ProcCoeff& rec, Mode mode) {
+        return SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
     }
 
     virtual bool asMode(Mode* mode) const SK_OVERRIDE;
@@ -36,6 +32,14 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
 
 protected:
+    SkProcCoeffXfermode(const ProcCoeff& rec, Mode mode)
+            : INHERITED(rec.fProc) {
+        fMode = mode;
+        // these may be valid, or may be CANNOT_USE_COEFF
+        fSrcCoeff = rec.fSC;
+        fDstCoeff = rec.fDC;
+    }
+
     SkProcCoeffXfermode(SkReadBuffer& buffer);
 
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;

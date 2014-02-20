@@ -19,7 +19,7 @@ static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint,
         SkIntToScalar(off),
     };
 
-    p.setPathEffect(new SkDashPathEffect(intervals, 2, 0))->unref();
+    p.setPathEffect(SkDashPathEffect::Create(intervals, 2, 0))->unref();
     canvas->drawLine(0, 0, finalX, 0, p);
 }
 
@@ -155,7 +155,7 @@ protected:
                 vals[i] = SkIntToScalar(*intervals++);
             }
             SkScalar phase = vals[0] / 2;
-            paint.setPathEffect(new SkDashPathEffect(vals, count, phase))->unref();
+            paint.setPathEffect(SkDashPathEffect::Create(vals, count, phase))->unref();
 
             for (size_t x = 0; x < SK_ARRAY_COUNT(gProc); ++x) {
                 SkPath path;
@@ -202,7 +202,7 @@ protected:
 
         SkScalar intervals[2] = { dashLength, dashLength };
 
-        p.setPathEffect(new SkDashPathEffect(intervals, 2, phase, false))->unref();
+        p.setPathEffect(SkDashPathEffect::Create(intervals, 2, phase, false))->unref();
 
         SkPoint pts[2];
 

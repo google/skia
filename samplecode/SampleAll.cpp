@@ -144,7 +144,7 @@ static void r4(SkLayerRasterizer* rast, SkPaint& p) {
 static void r5(SkLayerRasterizer* rast, SkPaint& p) {
     rast->addLayer(p);
 
-    p.setPathEffect(new SkDiscretePathEffect(SK_Scalar1*4, SK_Scalar1*3))->unref();
+    p.setPathEffect(SkDiscretePathEffect::Create(SK_Scalar1*4, SK_Scalar1*3))->unref();
     p.setXfermodeMode(SkXfermode::kSrcOut_Mode);
     rast->addLayer(p);
 }
@@ -217,7 +217,7 @@ static void r9(SkLayerRasterizer* rast, SkPaint& p) {
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1, SK_Scalar1*6, 0, 0);
     lattice.postRotate(SkIntToScalar(30), 0, 0);
-    p.setPathEffect(new SkLine2DPathEffect(SK_Scalar1*2, lattice))->unref();
+    p.setPathEffect(SkLine2DPathEffect::Create(SK_Scalar1*2, lattice))->unref();
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rast->addLayer(p);
 
@@ -550,11 +550,11 @@ SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
             path.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
         path.close();
         path.offset(SkIntToScalar(-6), 0);
-        SkPathEffect* outer = new SkPath1DPathEffect(path, SkIntToScalar(12),
+        SkPathEffect* outer = SkPath1DPathEffect::Create(path, SkIntToScalar(12),
             gPhase, SkPath1DPathEffect::kRotate_Style);
-        SkPathEffect* inner = new SkDiscretePathEffect(SkIntToScalar(2),
+        SkPathEffect* inner = SkDiscretePathEffect::Create(SkIntToScalar(2),
             SkIntToScalar(1)/10); // SkCornerPathEffect(SkIntToScalar(2));
-        SkPathEffect* result = new SkComposePathEffect(outer, inner);
+        SkPathEffect* result = SkComposePathEffect::Create(outer, inner);
         outer->unref();
         inner->unref();
         return result;
@@ -627,12 +627,12 @@ SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
         canvas->restore();
 
         if (1) {
-            SkAvoidXfermode   mode(SK_ColorWHITE, 0xFF,
-                                   SkAvoidXfermode::kTargetColor_Mode);
+            SkAutoTUnref<SkAvoidXfermode> mode(SkAvoidXfermode::Create(SK_ColorWHITE, 0xFF,
+                                   SkAvoidXfermode::kTargetColor_Mode));
             SkPaint paint;
             x += SkIntToScalar(20);
             SkRect  r = { x, 0, x + SkIntToScalar(360), SkIntToScalar(700) };
-            paint.setXfermode(&mode);
+            paint.setXfermode(mode);
             paint.setColor(SK_ColorGREEN);
             paint.setAntiAlias(true);
             canvas->drawOval(r, paint);

@@ -31,10 +31,10 @@ typedef void (*SlideProc)(SkCanvas*);
 
 static void compose_pe(SkPaint* paint) {
     SkPathEffect* pe = paint->getPathEffect();
-    SkPathEffect* corner = new SkCornerPathEffect(25);
+    SkPathEffect* corner = SkCornerPathEffect::Create(25);
     SkPathEffect* compose;
     if (pe) {
-        compose = new SkComposePathEffect(pe, corner);
+        compose = SkComposePathEffect::Create(pe, corner);
         corner->unref();
     } else {
         compose = corner;
@@ -59,8 +59,8 @@ static void stroke_pe(SkPaint* paint) {
 static void dash_pe(SkPaint* paint) {
     SkScalar inter[] = { 20, 10, 10, 10 };
     paint->setStrokeWidth(12);
-    paint->setPathEffect(new SkDashPathEffect(inter, SK_ARRAY_COUNT(inter),
-                                              0))->unref();
+    paint->setPathEffect(SkDashPathEffect::Create(inter, SK_ARRAY_COUNT(inter),
+                                                  0))->unref();
     compose_pe(paint);
 }
 
@@ -83,8 +83,8 @@ static void one_d_pe(SkPaint* paint) {
     path.offset(SkIntToScalar(-6), 0);
     scale(&path, 1.5f);
 
-    paint->setPathEffect(new SkPath1DPathEffect(path, SkIntToScalar(21), 0,
-                                SkPath1DPathEffect::kRotate_Style))->unref();
+    paint->setPathEffect(SkPath1DPathEffect::Create(path, SkIntToScalar(21), 0,
+                                                    SkPath1DPathEffect::kRotate_Style))->unref();
     compose_pe(paint);
 }
 
@@ -97,7 +97,7 @@ static void fill_pe(SkPaint* paint) {
 }
 
 static void discrete_pe(SkPaint* paint) {
-    paint->setPathEffect(new SkDiscretePathEffect(10, 4))->unref();
+    paint->setPathEffect(SkDiscretePathEffect::Create(10, 4))->unref();
 }
 
 static SkPathEffect* MakeTileEffect() {
@@ -107,7 +107,7 @@ static SkPathEffect* MakeTileEffect() {
     SkPath path;
     path.addCircle(0, 0, SkIntToScalar(5));
 
-    return new SkPath2DPathEffect(m, path);
+    return SkPath2DPathEffect::Create(m, path);
 }
 
 static void tile_pe(SkPaint* paint) {
@@ -547,7 +547,7 @@ static void r5(SkLayerRasterizer* rast, SkPaint& p)
 {
     rast->addLayer(p);
 
-    p.setPathEffect(new SkDiscretePathEffect(SK_Scalar1*4, SK_Scalar1*3))->unref();
+    p.setPathEffect(SkDiscretePathEffect::Create(SK_Scalar1*4, SK_Scalar1*3))->unref();
     p.setXfermodeMode(SkXfermode::kSrcOut_Mode);
     rast->addLayer(p);
 }
@@ -569,7 +569,7 @@ static void r6(SkLayerRasterizer* rast, SkPaint& p)
 static SkPathEffect* MakeDotEffect(SkScalar radius, const SkMatrix& matrix) {
     SkPath path;
     path.addCircle(0, 0, radius);
-    return new SkPath2DPathEffect(matrix, path);
+    return SkPath2DPathEffect::Create(matrix, path);
 }
 
 static void r7(SkLayerRasterizer* rast, SkPaint& p)
@@ -606,7 +606,7 @@ static void r9(SkLayerRasterizer* rast, SkPaint& p)
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1, SK_Scalar1*6, 0, 0);
     lattice.postRotate(SkIntToScalar(30), 0, 0);
-    p.setPathEffect(new SkLine2DPathEffect(SK_Scalar1*2, lattice))->unref();
+    p.setPathEffect(SkLine2DPathEffect::Create(SK_Scalar1*2, lattice))->unref();
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rast->addLayer(p);
 

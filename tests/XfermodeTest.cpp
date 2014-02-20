@@ -37,7 +37,7 @@ static void test_asMode(skiatest::Reporter* reporter) {
         }
     }
 
-    SkXfermode* bogusXfer = new SkProcXfermode(bogusXfermodeProc);
+    SkXfermode* bogusXfer = SkProcXfermode::Create(bogusXfermodeProc);
     SkXfermode::Mode reportedMode = ILLEGAL_MODE;
     REPORTER_ASSERT(reporter, !bogusXfer->asMode(&reportedMode));
     REPORTER_ASSERT(reporter, reportedMode == ILLEGAL_MODE);

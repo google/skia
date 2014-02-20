@@ -25,9 +25,9 @@ void SkPdfGraphicsState::applyGraphicsState(SkPaint* paint, bool stroking) {
         paint->setStrokeWidth(SkDoubleToScalar(fLineWidth));
         // TODO(edisonn): perf, avoid allocs of the intervals
         if (fDashArrayLength > 0) {
-            paint->setPathEffect(new SkDashPathEffect(fDashArray,
-                                                      fDashArrayLength,
-                                                      fDashPhase))->unref();
+            paint->setPathEffect(SkDashPathEffect::Create(fDashArray,
+                                                          fDashArrayLength,
+                                                          fDashPhase))->unref();
         }
     }
 

@@ -71,8 +71,8 @@ protected:
         SkPath path;
         this->makePath(&path);
 
-        paint.setPathEffect(new SkDashPathEffect(fIntervals.begin(),
-                                                 fIntervals.count(), 0))->unref();
+        paint.setPathEffect(SkDashPathEffect::Create(fIntervals.begin(),
+                                                     fIntervals.count(), 0))->unref();
 
         if (fDoClip) {
             SkRect r = path.getBounds();
@@ -186,7 +186,7 @@ public:
         proc(&fPath);
 
         SkScalar vals[] = { SkIntToScalar(4), SkIntToScalar(4) };
-        fPE.reset(new SkDashPathEffect(vals, 2, 0));
+        fPE.reset(SkDashPathEffect::Create(vals, 2, 0));
     }
 
 protected:
@@ -224,7 +224,7 @@ public:
         fIsRound = isRound;
 
         SkScalar vals[] = { SK_Scalar1, SK_Scalar1 };
-        fPE.reset(new SkDashPathEffect(vals, 2, 0));
+        fPE.reset(SkDashPathEffect::Create(vals, 2, 0));
     }
 
 protected:
@@ -263,7 +263,7 @@ public:
         fDoAA = doAA;
 
         SkScalar vals[] = { SkIntToScalar(dashLength), SkIntToScalar(dashLength) };
-        fPathEffect.reset(new SkDashPathEffect(vals, 2, SK_Scalar1, false));
+        fPathEffect.reset(SkDashPathEffect::Create(vals, 2, SK_Scalar1, false));
     }
 
 protected:
@@ -323,8 +323,8 @@ public:
         // deliberately pick intervals that won't be caught by asPoints(), so
         // we can test the filterPath code-path.
         const SkScalar intervals[] = { 2, 1, 1, 1 };
-        fPathEffect.reset(new SkDashPathEffect(intervals,
-                                               SK_ARRAY_COUNT(intervals), 0));
+        fPathEffect.reset(SkDashPathEffect::Create(intervals,
+                                                   SK_ARRAY_COUNT(intervals), 0));
 
         SkScalar cx = 640 / 2;  // center X
         SkScalar cy = 480 / 2;  // center Y

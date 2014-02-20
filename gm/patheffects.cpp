@@ -17,10 +17,10 @@ namespace skiagm {
 
 static void compose_pe(SkPaint* paint) {
     SkPathEffect* pe = paint->getPathEffect();
-    SkPathEffect* corner = new SkCornerPathEffect(25);
+    SkPathEffect* corner = SkCornerPathEffect::Create(25);
     SkPathEffect* compose;
     if (pe) {
-        compose = new SkComposePathEffect(pe, corner);
+        compose = SkComposePathEffect::Create(pe, corner);
         corner->unref();
     } else {
         compose = corner;
@@ -45,8 +45,8 @@ static void stroke_pe(SkPaint* paint) {
 static void dash_pe(SkPaint* paint) {
     SkScalar inter[] = { 20, 10, 10, 10 };
     paint->setStrokeWidth(12);
-    paint->setPathEffect(new SkDashPathEffect(inter, SK_ARRAY_COUNT(inter),
-                                              0))->unref();
+    paint->setPathEffect(SkDashPathEffect::Create(inter, SK_ARRAY_COUNT(inter),
+                                                  0))->unref();
     compose_pe(paint);
 }
 
@@ -69,7 +69,7 @@ static void one_d_pe(SkPaint* paint) {
     path.offset(SkIntToScalar(-6), 0);
     scale(&path, 1.5f);
 
-    paint->setPathEffect(new SkPath1DPathEffect(path, SkIntToScalar(21), 0,
+    paint->setPathEffect(SkPath1DPathEffect::Create(path, SkIntToScalar(21), 0,
                                 SkPath1DPathEffect::kRotate_Style))->unref();
     compose_pe(paint);
 }
@@ -83,7 +83,7 @@ static void fill_pe(SkPaint* paint) {
 }
 
 static void discrete_pe(SkPaint* paint) {
-    paint->setPathEffect(new SkDiscretePathEffect(10, 4))->unref();
+    paint->setPathEffect(SkDiscretePathEffect::Create(10, 4))->unref();
 }
 
 static SkPathEffect* MakeTileEffect() {
@@ -93,7 +93,7 @@ static SkPathEffect* MakeTileEffect() {
     SkPath path;
     path.addCircle(0, 0, SkIntToScalar(5));
 
-    return new SkPath2DPathEffect(m, path);
+    return SkPath2DPathEffect::Create(m, path);
 }
 
 static void tile_pe(SkPaint* paint) {

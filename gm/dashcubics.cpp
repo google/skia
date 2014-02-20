@@ -43,7 +43,7 @@ protected:
         SkParsePath::FromSVGString(d, &path);
 
         SkScalar intervals[] = { 5, 10 };
-        SkPathEffect* pe = new SkDashPathEffect(intervals, 2, 0);
+        SkPathEffect* pe = SkDashPathEffect::Create(intervals, 2, 0);
 
         SkPaint paint;
         paint.setAntiAlias(true);

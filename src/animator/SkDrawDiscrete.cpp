@@ -30,5 +30,5 @@ SkPathEffect* SkDiscrete::getPathEffect() {
     if (deviation <= 0 || segLength <= 0)
         return NULL;
     else
-        return new SkDiscretePathEffect(segLength, deviation);
+        return SkDiscretePathEffect::Create(segLength, deviation);
 }

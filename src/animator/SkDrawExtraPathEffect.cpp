@@ -371,7 +371,7 @@ bool SkDrawComposePathEffect::addChild(SkAnimateMaker& , SkDisplayable* child) {
 SkPathEffect* SkDrawComposePathEffect::getPathEffect() {
     SkPathEffect* e1 = effect1->getPathEffect();
     SkPathEffect* e2 = effect2->getPathEffect();
-    SkPathEffect* composite = new SkComposePathEffect(e1, e2);
+    SkPathEffect* composite = SkComposePathEffect::Create(e1, e2);
     e1->unref();
     e2->unref();
     return composite;
@@ -401,7 +401,7 @@ SkDrawCornerPathEffect::~SkDrawCornerPathEffect() {
 }
 
 SkPathEffect* SkDrawCornerPathEffect::getPathEffect() {
-    return new SkCornerPathEffect(radius);
+    return SkCornerPathEffect::Create(radius);
 }
 
 /////////

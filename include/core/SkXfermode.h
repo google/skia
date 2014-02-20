@@ -32,8 +32,6 @@ class SK_API SkXfermode : public SkFlattenable {
 public:
     SK_DECLARE_INST_COUNT(SkXfermode)
 
-    SkXfermode() {}
-
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const;
     virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count,
@@ -230,6 +228,11 @@ protected:
     */
     virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst) const;
 
+#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
+public:
+#endif
+    SkXfermode() {}
+
 private:
     enum {
         kModeCount = kLastMode + 1
@@ -250,7 +253,9 @@ private:
 */
 class SkProcXfermode : public SkXfermode {
 public:
-    SkProcXfermode(SkXfermodeProc proc) : fProc(proc) {}
+    static SkProcXfermode* Create(SkXfermodeProc proc) {
+        return SkNEW_ARGS(SkProcXfermode, (proc));
+    }
 
     // overrides from SkXfermode
     virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
@@ -275,6 +280,11 @@ protected:
     SkXfermodeProc getProc() const {
         return fProc;
     }
+
+#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
+public:
+#endif
+    SkProcXfermode(SkXfermodeProc proc) : fProc(proc) {}
 
 private:
     SkXfermodeProc  fProc;

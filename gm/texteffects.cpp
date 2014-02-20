@@ -77,7 +77,7 @@ static void r4(SkLayerRasterizer* rast, SkPaint& p) {
 static void r5(SkLayerRasterizer* rast, SkPaint& p) {
     rast->addLayer(p);
 
-    p.setPathEffect(new SkDiscretePathEffect(SK_Scalar1*4, SK_Scalar1*3))->unref();
+    p.setPathEffect(SkDiscretePathEffect::Create(SK_Scalar1*4, SK_Scalar1*3))->unref();
     p.setXfermodeMode(SkXfermode::kSrcOut_Mode);
     rast->addLayer(p);
 }
@@ -98,7 +98,7 @@ static void r6(SkLayerRasterizer* rast, SkPaint& p) {
 static SkPathEffect* MakeDotEffect(SkScalar radius, const SkMatrix& matrix) {
     SkPath path;
     path.addCircle(0, 0, radius);
-    return new SkPath2DPathEffect(matrix, path);
+    return SkPath2DPathEffect::Create(matrix, path);
 }
 
 static void r7(SkLayerRasterizer* rast, SkPaint& p) {
@@ -132,7 +132,7 @@ static void r9(SkLayerRasterizer* rast, SkPaint& p) {
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1, SK_Scalar1*6, 0, 0);
     lattice.postRotate(SkIntToScalar(30), 0, 0);
-    p.setPathEffect(new SkLine2DPathEffect(SK_Scalar1*2, lattice))->unref();
+    p.setPathEffect(SkLine2DPathEffect::Create(SK_Scalar1*2, lattice))->unref();
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rast->addLayer(p);
 

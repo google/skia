@@ -31,8 +31,6 @@ class SK_API SkPathEffect : public SkFlattenable {
 public:
     SK_DECLARE_INST_COUNT(SkPathEffect)
 
-    SkPathEffect() {}
-
     /**
      *  Given a src path (input) and a stroke-rec (input and output), apply
      *  this effect to the src path, returning the new path in dst, and return
@@ -109,6 +107,7 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkPathEffect)
 
 protected:
+    SkPathEffect() {}
     SkPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
@@ -127,10 +126,10 @@ private:
 */
 class SkPairPathEffect : public SkPathEffect {
 public:
-    SkPairPathEffect(SkPathEffect* pe0, SkPathEffect* pe1);
     virtual ~SkPairPathEffect();
 
 protected:
+    SkPairPathEffect(SkPathEffect* pe0, SkPathEffect* pe1);
     SkPairPathEffect(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
@@ -153,8 +152,9 @@ public:
         The reference counts for outer and inner are both incremented in the constructor,
         and decremented in the destructor.
     */
-    SkComposePathEffect(SkPathEffect* outer, SkPathEffect* inner)
-        : INHERITED(outer, inner) {}
+    static SkComposePathEffect* Create(SkPathEffect* outer, SkPathEffect* inner) {
+        return SkNEW_ARGS(SkComposePathEffect, (outer, inner));
+    }
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
@@ -163,6 +163,12 @@ public:
 
 protected:
     SkComposePathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
+
+#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
+public:
+#endif
+    SkComposePathEffect(SkPathEffect* outer, SkPathEffect* inner)
+        : INHERITED(outer, inner) {}
 
 private:
     // illegal
@@ -184,8 +190,9 @@ public:
         The reference counts for first and second are both incremented in the constructor,
         and decremented in the destructor.
     */
-    SkSumPathEffect(SkPathEffect* first, SkPathEffect* second)
-        : INHERITED(first, second) {}
+    static SkSumPathEffect* Create(SkPathEffect* first, SkPathEffect* second) {
+        return SkNEW_ARGS(SkSumPathEffect, (first, second));
+    }
 
     virtual bool filterPath(SkPath* dst, const SkPath& src,
                             SkStrokeRec*, const SkRect*) const SK_OVERRIDE;
@@ -194,6 +201,12 @@ public:
 
 protected:
     SkSumPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
+
+#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
+public:
+#endif
+    SkSumPathEffect(SkPathEffect* first, SkPathEffect* second)
+        : INHERITED(first, second) {}
 
 private:
     // illegal

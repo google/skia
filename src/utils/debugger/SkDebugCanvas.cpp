@@ -118,7 +118,7 @@ static SkPMColor OverdrawXferModeProc(SkPMColor src, SkPMColor dst) {
 class SkOverdrawFilter : public SkDrawFilter {
 public:
     SkOverdrawFilter() {
-        fXferMode = new SkProcXfermode(OverdrawXferModeProc);
+        fXferMode = SkProcXfermode::Create(OverdrawXferModeProc);
     }
 
     virtual ~SkOverdrawFilter() {
