@@ -1610,7 +1610,8 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
 
     if (FLAGS_rtree) {
         const char renderModeDescriptor[] = "-rtree";
-        if (gmFlags & GM::kSkipPicture_Flag) {
+        if ((gmFlags & GM::kSkipPicture_Flag) ||
+            (gmFlags & GM::kSkipTiled_Flag)) {
             gmmain.RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
                                      renderModeDescriptor);
             errorsForAllModes.add(kIntentionallySkipped_ErrorType);
@@ -1636,6 +1637,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
             }
 
             if ((gmFlags & GM::kSkipPicture_Flag) ||
+                (gmFlags & GM::kSkipTiled_Flag) ||
                 ((gmFlags & GM::kSkipScaledReplay_Flag) && replayScale != 1)) {
                 gmmain.RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
                                          renderModeDescriptor.c_str());
