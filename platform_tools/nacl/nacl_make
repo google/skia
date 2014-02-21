@@ -64,8 +64,9 @@ function setenv {
   exportVar AR "${NACLAR}"
   exportVar RANLIB "${NACLRANLIB}"
   exportVar PATH ${NACL_BIN_PATH}:${PATH};
-
-  exportVar GYP_DEFINES "skia_os=nacl skia_arch_width=${ARCH_WIDTH}"
+  exportVar C_INCLUDE_PATH "${NACL_SDK_ROOT}/include:${NACL_SDK_ROOT}/ports/include:${C_INCLUDE_PATH}"
+  exportVar CPLUS_INCLUDE_PATH "${NACL_SDK_ROOT}/include:${NACL_SDK_ROOT}/ports/include:${CPLUS_INCLUDE_PATH}"
+  exportVar GYP_DEFINES "skia_os=nacl skia_gpu=0 skia_arch_width=${ARCH_WIDTH}"
 }
 
 function build {

@@ -264,12 +264,19 @@
             'defines': [
               'SK_BUILD_FOR_NACL',
             ],
+            'variables': {
+              'nacl_sdk_root': '<!(["echo", "${NACL_SDK_ROOT}"])',
+            },
             'link_settings': {
               'libraries': [
                 '-lppapi',
                 '-lppapi_cpp',
                 '-lnosys',
                 '-pthread',
+              ],
+              'ldflags': [
+                '-L<(nacl_sdk_root)/lib/newlib_x86_<(skia_arch_width)/Release',
+                '-L<(nacl_sdk_root)/ports/lib/newlib_x86_<(skia_arch_width)/Release',
               ],
             },
           }, { # skia_os != "nacl"
