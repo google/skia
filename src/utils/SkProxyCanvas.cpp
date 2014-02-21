@@ -95,6 +95,11 @@ void SkProxyCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     fProxy->drawRRect(rrect, paint);
 }
 
+void SkProxyCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
+                                 const SkPaint& paint) {
+    fProxy->drawDRRect(outer, inner, paint);
+}
+
 void SkProxyCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     fProxy->drawPath(path, paint);
 }

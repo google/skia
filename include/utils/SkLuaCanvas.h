@@ -72,6 +72,9 @@ public:
                               const SkPaint& paint) SK_OVERRIDE;
     virtual void drawData(const void* data, size_t length) SK_OVERRIDE;
 
+protected:
+    virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
+
 private:
     lua_State*  fL;
     SkString    fFunc;

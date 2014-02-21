@@ -401,6 +401,11 @@ void SkDebugCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     addDrawCommand(new SkDrawRRectCommand(rrect, paint));
 }
 
+void SkDebugCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
+                                 const SkPaint& paint) {
+    // TODO: add DRRect to debugger
+}
+
 void SkDebugCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
                                const SkPaint* paint = NULL) {
     addDrawCommand(new SkDrawSpriteCommand(bitmap, left, top, paint));

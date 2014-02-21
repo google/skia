@@ -880,6 +880,13 @@ void SkDeferredCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     }
 }
 
+void SkDeferredCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
+                                    const SkPaint& paint) {
+    AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
+    this->drawingCanvas()->drawDRRect(outer, inner, paint);
+    this->recordedDrawCommand();
+}
+
 void SkDeferredCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawPath(path, paint);

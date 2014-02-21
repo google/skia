@@ -324,7 +324,16 @@ void SkDumpCanvas::drawRect(const SkRect& rect, const SkPaint& paint) {
 void SkDumpCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     SkString str;
     toString(rrect, &str);
-    this->dump(kDrawRRect_Verb, &paint, "drawRRect(%s)", str.c_str());
+    this->dump(kDrawDRRect_Verb, &paint, "drawRRect(%s)", str.c_str());
+}
+
+void SkDumpCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
+                                const SkPaint& paint) {
+    SkString str0, str1;
+    toString(outer, &str0);
+    toString(inner, &str0);
+    this->dump(kDrawRRect_Verb, &paint, "drawDRRect(%s,%s)",
+               str0.c_str(), str1.c_str());
 }
 
 void SkDumpCanvas::drawPath(const SkPath& path, const SkPaint& paint) {

@@ -40,6 +40,7 @@ public:
         kDrawOval_Verb,
         kDrawRect_Verb,
         kDrawRRect_Verb,
+        kDrawDRRect_Verb,
         kDrawPath_Verb,
         kDrawBitmap_Verb,
         kDrawText_Verb,
@@ -125,6 +126,9 @@ public:
     virtual void beginCommentGroup(const char* description) SK_OVERRIDE;
     virtual void addComment(const char* kywd, const char* value) SK_OVERRIDE;
     virtual void endCommentGroup() SK_OVERRIDE;
+
+protected:
+    virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
 
 private:
     Dumper* fDumper;

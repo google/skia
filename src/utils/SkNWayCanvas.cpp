@@ -205,6 +205,14 @@ void SkNWayCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     }
 }
 
+void SkNWayCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
+                                const SkPaint& paint) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawDRRect(outer, inner, paint);
+    }
+}
+
 void SkNWayCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {

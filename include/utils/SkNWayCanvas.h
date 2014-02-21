@@ -86,6 +86,8 @@ public:
 protected:
     SkTDArray<SkCanvas*> fList;
 
+    virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
+
     class Iter;
 
 private:

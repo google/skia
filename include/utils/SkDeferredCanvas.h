@@ -200,6 +200,10 @@ public:
     virtual SkBounder* setBounder(SkBounder* bounder) SK_OVERRIDE;
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE;
 
+protected:
+    virtual void onDrawDRRect(const SkRRect&, const SkRRect&,
+                              const SkPaint&) SK_OVERRIDE;
+
 public:
     class NotificationClient {
     public:

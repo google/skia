@@ -233,6 +233,9 @@ public:
     static const int kVizImageHeight = 256;
     static const int kVizImageWidth = 256;
 
+protected:
+    virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
+
 private:
     SkTDArray<SkDrawCommand*> fCommandVector;
     int fWidth;
