@@ -557,7 +557,7 @@ SkColorFilter* SkColorFilter::CreateLightingFilter(SkColor mul, SkColor add) {
                          SkIntToScalar(SkColorGetG(add)),
                          SkIntToScalar(SkColorGetB(add)),
                          0);
-    return SkNEW_ARGS(SkColorMatrixFilter, (matrix));
+    return SkColorMatrixFilter::Create(matrix);
 }
 
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkColorFilter)

@@ -28,7 +28,7 @@ static SkImageFilter* make_brightness(float amount, SkImageFilter* input = NULL)
                             0, 1, 0, 0, amount255,
                             0, 0, 1, 0, amount255,
                             0, 0, 0, 1, 0 };
-    SkAutoTUnref<SkColorFilter> filter(new SkColorMatrixFilter(matrix));
+    SkAutoTUnref<SkColorFilter> filter(SkColorMatrixFilter::Create(matrix));
     return SkColorFilterImageFilter::Create(filter, input);
 }
 
@@ -39,7 +39,7 @@ static SkImageFilter* make_grayscale(SkImageFilter* input = NULL) {
     matrix[1] = matrix[6] = matrix[11] = 0.7152f;
     matrix[2] = matrix[7] = matrix[12] = 0.0722f;
     matrix[18] = 1.0f;
-    SkAutoTUnref<SkColorFilter> filter(new SkColorMatrixFilter(matrix));
+    SkAutoTUnref<SkColorFilter> filter(SkColorMatrixFilter::Create(matrix));
     return SkColorFilterImageFilter::Create(filter, input);
 }
 

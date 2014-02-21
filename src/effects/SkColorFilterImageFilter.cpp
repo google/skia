@@ -69,7 +69,7 @@ SkColorFilterImageFilter* SkColorFilterImageFilter::Create(SkColorFilter* cf,
         if (inputColorFilter->asColorMatrix(inputMatrix) && !matrix_needs_clamping(inputMatrix)) {
             SkScalar combinedMatrix[20];
             mult_color_matrix(inputMatrix, colorMatrix, combinedMatrix);
-            SkAutoTUnref<SkColorFilter> newCF(SkNEW_ARGS(SkColorMatrixFilter, (combinedMatrix)));
+            SkAutoTUnref<SkColorFilter> newCF(SkColorMatrixFilter::Create(combinedMatrix));
             return SkNEW_ARGS(SkColorFilterImageFilter, (newCF, input->getInput(0), cropRect));
         }
     }

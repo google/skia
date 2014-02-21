@@ -263,7 +263,7 @@ void forceLinking() {
                                      GrConfigConversionEffect::kNone_PMConversion,
                                      SkMatrix::I());
     SkScalar matrix[20];
-    SkColorMatrixFilter cmf(matrix);
+    SkAutoTUnref<SkColorMatrixFilter> cmf(SkColorMatrixFilter::Create(matrix));
 }
 
 #endif

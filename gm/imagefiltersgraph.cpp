@@ -142,7 +142,7 @@ protected:
                                     0, 0, SK_Scalar1, 0, 0,
                                     0, 0, 0, 0.5f, 0 };
 
-            SkAutoTUnref<SkColorFilter> matrixFilter(new SkColorMatrixFilter(matrix));
+            SkAutoTUnref<SkColorFilter> matrixFilter(SkColorMatrixFilter::Create(matrix));
             SkAutoTUnref<SkImageFilter> colorMorph(SkColorFilterImageFilter::Create(matrixFilter, morph));
             SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
             SkAutoTUnref<SkImageFilter> blendColor(new SkXfermodeImageFilter(mode, colorMorph));
@@ -157,8 +157,8 @@ protected:
                                     0, SK_Scalar1, 0, 0, 0,
                                     0, 0, SK_Scalar1, 0, 0,
                                     0, 0, 0, 0.5f, 0 };
-            SkColorMatrixFilter matrixCF(matrix);
-            SkAutoTUnref<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Create(&matrixCF));
+            SkAutoTUnref<SkColorMatrixFilter> matrixCF(SkColorMatrixFilter::Create(matrix));
+            SkAutoTUnref<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Create(matrixCF));
             SimpleOffsetFilter offsetFilter(SkIntToScalar(10), SkIntToScalar(10), matrixFilter);
 
             SkAutoTUnref<SkXfermode> arith(SkArithmeticMode::Create(0, SK_Scalar1, SK_Scalar1, 0));

@@ -29,11 +29,11 @@ private:
 };
 
 static void setColorMatrix(SkPaint* paint, const SkColorMatrix& matrix) {
-    paint->setColorFilter(SkNEW_ARGS(SkColorMatrixFilter, (matrix)))->unref();
+    paint->setColorFilter(SkColorMatrixFilter::Create(matrix))->unref();
 }
 
 static void setArray(SkPaint* paint, const SkScalar array[]) {
-    paint->setColorFilter(SkNEW_ARGS(SkColorMatrixFilter, (array)))->unref();
+    paint->setColorFilter(SkColorMatrixFilter::Create(array))->unref();
 }
 
 namespace skiagm {

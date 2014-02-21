@@ -13,8 +13,12 @@
 
 class SK_API SkColorMatrixFilter : public SkColorFilter {
 public:
-    explicit SkColorMatrixFilter(const SkColorMatrix&);
-    SkColorMatrixFilter(const SkScalar array[20]);
+    static SkColorMatrixFilter* Create(const SkColorMatrix& cm) {
+        return SkNEW_ARGS(SkColorMatrixFilter, (cm));
+    }
+    static SkColorMatrixFilter* Create(const SkScalar array[20]) {
+        return SkNEW_ARGS(SkColorMatrixFilter, (array));
+    }
 
     // overrides from SkColorFilter
     virtual void filterSpan(const SkPMColor src[], int count, SkPMColor[]) const SK_OVERRIDE;
@@ -37,6 +41,12 @@ public:
 protected:
     SkColorMatrixFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+
+#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
+public:
+#endif
+    explicit SkColorMatrixFilter(const SkColorMatrix&);
+    SkColorMatrixFilter(const SkScalar array[20]);
 
 private:
     SkColorMatrix fMatrix;
