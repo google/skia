@@ -98,7 +98,7 @@ private:
     static const int kTileY = 40;
 
     static const int kNumSimpleCases = 7;
-    static const int kNumComplexCases = 19;
+    static const int kNumComplexCases = 23;
     static const SkVector gRadii[kNumComplexCases][4];
 
     static const int kNumRRects = kNumSimpleCases + kNumComplexCases;
@@ -141,6 +141,12 @@ const SkVector RRectGM::gRadii[kNumComplexCases][4] = {
     { { 0, 0 }, { 100, 400 }, { 0, 0 }, { 0, 0 } },
     { { 0, 0 }, { 400, 400 }, { 0, 0 }, { 0, 0 } },
     { { 400, 400 }, { 400, 400 }, { 400, 400 }, { 400, 400 } },
+
+    // circular corner tabs
+    { { 0, 0 }, { 20, 20 }, { 20, 20 }, { 0, 0 } },
+    { { 20, 20 }, { 20, 20 }, { 0, 0 }, { 0, 0 } },
+    { { 0, 0 }, { 0, 0 }, { 20, 20 }, { 20, 20 } },
+    { { 20, 20 }, { 0, 0 }, { 0, 0 }, { 20, 20 } },
 };
 
 ///////////////////////////////////////////////////////////////////////////////
