@@ -372,7 +372,7 @@ const SkMemberInfo* SkDisplayType::GetMembers(SkAnimateMaker* maker,
 
 const SkMemberInfo* SkDisplayType::GetMember(SkAnimateMaker* maker,
         SkDisplayTypes type, const char** matchPtr ) {
-    int infoCount;
+    int infoCount = 0;  // Initialize to remove a warning.
     const SkMemberInfo* info = GetMembers(maker, type, &infoCount);
     info = SkMemberInfo::Find(info, infoCount, matchPtr);
 //  SkASSERT(info);

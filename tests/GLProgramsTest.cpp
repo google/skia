@@ -154,7 +154,7 @@ bool GrGpuGL::programUnitTest(int maxStages) {
 
         int currAttribIndex = 1;  // we need to always leave room for position
         int currTextureCoordSet = 0;
-        int attribIndices[2];
+        int attribIndices[2] = { 0, 0 };
         GrTexture* dummyTextures[] = {dummyTexture1.get(), dummyTexture2.get()};
 
         int numStages = random.nextULessThan(maxStages + 1);

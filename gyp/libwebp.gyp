@@ -34,6 +34,7 @@
             '../third_party/externals/libwebp/src/dec/vp8l.c',
             '../third_party/externals/libwebp/src/dec/webp.c',
           ],
+          'cflags': [ '-w' ],
         },
         {
           'target_name': 'libwebp_demux',
@@ -44,6 +45,7 @@
           'sources': [
             '../third_party/externals/libwebp/src/demux/demux.c',
           ],
+          'cflags': [ '-w' ],
         },
         {
           'target_name': 'libwebp_dsp',
@@ -62,6 +64,7 @@
             '../third_party/externals/libwebp/src/dsp/upsampling_sse2.c',
             '../third_party/externals/libwebp/src/dsp/yuv.c',
           ],
+          'cflags': [ '-w' ],
           'conditions': [
             ['skia_os == "android"', {
               'dependencies' : [
@@ -87,7 +90,7 @@
               'cflags!': [
                 '-mfpu=vfpv3-d16',
               ],
-              'cflags': [ '-mfpu=neon' ],
+              'cflags': [ '-mfpu=neon', '-w' ],
             },{  # !(arm_version >= 7)
               'type': 'none',
             }],
@@ -139,6 +142,7 @@
             '../third_party/externals/libwebp/src/utils/thread.c',
             '../third_party/externals/libwebp/src/utils/utils.c',
           ],
+          'cflags': [ '-w' ],
         },
         {
           'target_name': 'libwebp',
