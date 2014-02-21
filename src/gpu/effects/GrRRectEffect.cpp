@@ -11,16 +11,87 @@
 #include "gl/GrGLSL.h"
 #include "GrTBackendEffectFactory.h"
 
-#include "SkPath.h"
+#include "SkRRect.h"
 
-// This effect only supports circular corner rrects where all corners have the same radius
-// which must be <= kRadiusMin.
-static const SkScalar kRadiusMin = 0.5f;
+class GLRRectEffect;
+
+class RRectEffect : public GrEffect {
+public:
+    // This effect only supports circular corner rrects where all corners have the same radius
+    // which must be <= kRadiusMin.
+    static const SkScalar kRadiusMin;
+
+    static GrEffectRef* Create(const SkRRect&);
+
+    virtual ~RRectEffect() {};
+    static const char* Name() { return "RRect"; }
+
+    const SkRRect& getRRect() const { return fRRect; }
+
+    typedef GLRRectEffect GLEffect;
+
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
+
+private:
+    RRectEffect(const SkRRect&);
+
+    virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
+
+    SkRRect fRRect;
+
+    GR_DECLARE_EFFECT_TEST;
+
+    typedef GrEffect INHERITED;
+};
+
+const SkScalar RRectEffect::kRadiusMin = 0.5f;
+
+GrEffectRef* RRectEffect::Create(const SkRRect& rrect) {
+    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(RRectEffect, (rrect))));
+}
+
+void RRectEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    *validFlags = 0;
+}
+
+const GrBackendEffectFactory& RRectEffect::getFactory() const {
+    return GrTBackendEffectFactory<RRectEffect>::getInstance();
+}
+
+RRectEffect::RRectEffect(const SkRRect& rrect)
+    : fRRect(rrect) {
+    this->setWillReadFragmentPosition();
+}
+
+bool RRectEffect::onIsEqual(const GrEffect& other) const {
+    const RRectEffect& rre = CastEffect<RRectEffect>(other);
+    return fRRect == rre.fRRect;
+}
 
 //////////////////////////////////////////////////////////////////////////////
-class GrGLRRectEffect : public GrGLEffect {
+
+GR_DEFINE_EFFECT_TEST(RRectEffect);
+
+GrEffectRef* RRectEffect::TestCreate(SkRandom* random,
+                                     GrContext*,
+                                     const GrDrawTargetCaps& caps,
+                                     GrTexture*[]) {
+    SkScalar w = random->nextRangeScalar(20.f, 1000.f);
+    SkScalar h = random->nextRangeScalar(20.f, 1000.f);
+    SkScalar r = random->nextRangeF(kRadiusMin, 9.f);
+    SkRRect rrect;
+    rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
+
+    return GrRRectEffect::Create(rrect);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+class GLRRectEffect : public GrGLEffect {
 public:
-    GrGLRRectEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
+    GLRRectEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
 
     virtual void emitCode(GrGLShaderBuilder* builder,
                           const GrDrawEffect& drawEffect,
@@ -41,19 +112,19 @@ private:
     typedef GrGLEffect INHERITED;
 };
 
-GrGLRRectEffect::GrGLRRectEffect(const GrBackendEffectFactory& factory,
-                                 const GrDrawEffect& drawEffect)
+GLRRectEffect::GLRRectEffect(const GrBackendEffectFactory& factory,
+                             const GrDrawEffect& drawEffect)
     : INHERITED (factory) {
     fPrevRRect.setEmpty();
 }
 
-void GrGLRRectEffect::emitCode(GrGLShaderBuilder* builder,
-                               const GrDrawEffect& drawEffect,
-                               EffectKey key,
-                               const char* outputColor,
-                               const char* inputColor,
-                               const TransformedCoordsArray&,
-                               const TextureSamplerArray& samplers) {
+void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
+                             const GrDrawEffect& drawEffect,
+                             EffectKey key,
+                             const char* outputColor,
+                             const char* inputColor,
+                             const TransformedCoordsArray&,
+                             const TextureSamplerArray& samplers) {
     const char *rectName;
     const char *radiusPlusHalfName;
     // The inner rect is the rrect bounds inset by the radius. Its top, left, right, and bottom
@@ -88,14 +159,14 @@ void GrGLRRectEffect::emitCode(GrGLShaderBuilder* builder,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
 }
 
-void GrGLRRectEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
-    const GrRRectEffect& rre = drawEffect.castEffect<GrRRectEffect>();
+void GLRRectEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
+    const RRectEffect& rre = drawEffect.castEffect<RRectEffect>();
     const SkRRect& rrect = rre.getRRect();
     if (rrect != fPrevRRect) {
         SkASSERT(rrect.isSimpleCircular());
         SkRect rect = rrect.getBounds();
         SkScalar radius = rrect.getSimpleRadii().fX;
-        SkASSERT(radius >= kRadiusMin);
+        SkASSERT(radius >= RRectEffect::kRadiusMin);
         rect.inset(radius, radius);
         uman.set4f(fInnerRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
         uman.set1f(fRadiusPlusHalfUniform, radius + 0.5f);
@@ -109,47 +180,10 @@ GrEffectRef* GrRRectEffect::Create(const SkRRect& rrect) {
     if (!rrect.isSimpleCircular()) {
         return NULL;
     }
-    if (rrect.getSimpleRadii().fX < kRadiusMin) {
+
+    if (rrect.getSimpleRadii().fX < RRectEffect::kRadiusMin) {
         return NULL;
     }
-    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(GrRRectEffect, (rrect))));
-}
 
-GrRRectEffect::~GrRRectEffect() {}
-
-void GrRRectEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
-    *validFlags = 0;
-}
-
-const GrBackendEffectFactory& GrRRectEffect::getFactory() const {
-    return GrTBackendEffectFactory<GrRRectEffect>::getInstance();
-}
-
-GrRRectEffect::GrRRectEffect(const SkRRect& rrect)
-    : fRRect(rrect) {
-    SkASSERT(rrect.isSimpleCircular());
-    SkASSERT(rrect.getSimpleRadii().fX >= kRadiusMin);
-    this->setWillReadFragmentPosition();
-}
-
-bool GrRRectEffect::onIsEqual(const GrEffect& other) const {
-    const GrRRectEffect& rre = CastEffect<GrRRectEffect>(other);
-    return fRRect == rre.fRRect;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-GR_DEFINE_EFFECT_TEST(GrRRectEffect);
-
-GrEffectRef* GrRRectEffect::TestCreate(SkRandom* random,
-                                       GrContext*,
-                                       const GrDrawTargetCaps& caps,
-                                       GrTexture*[]) {
-    SkScalar w = random->nextRangeScalar(20.f, 1000.f);
-    SkScalar h = random->nextRangeScalar(20.f, 1000.f);
-    SkScalar r = random->nextRangeF(kRadiusMin, 9.f);
-    SkRRect rrect;
-    rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-
-    return GrRRectEffect::Create(rrect);
+    return RRectEffect::Create(rrect);
 }
