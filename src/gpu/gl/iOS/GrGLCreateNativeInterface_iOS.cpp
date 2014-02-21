@@ -147,7 +147,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 #if GL_EXT_debug_marker
     functions->fInsertEventMarker = glInsertEventMarkerEXT;
     functions->fPushGroupMarker = glPushGroupMarkerEXT;
-    functions->fPopGroupMarker = glPopGropuMarkerEXT;
+    functions->fPopGroupMarker = glPopGroupMarkerEXT;
 #endif
 
     interface->fStandard = kGLES_GrGLStandard;
