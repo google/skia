@@ -32,7 +32,7 @@ bool SkClipStack::Element::operator== (const Element& element) const {
         case kRRect_Type:
             return fRRect == element.fRRect;
         case kRect_Type:
-            return fRect == element.fRect;
+            return this->getRect() == element.getRect();
         case kEmpty_Type:
             return true;
         default:
@@ -45,7 +45,7 @@ void SkClipStack::Element::invertShapeFillType() {
     switch (fType) {
         case kRect_Type:
             fPath.reset();
-            fPath.addRect(fRect);
+            fPath.addRect(this->getRect());
             fPath.setFillType(SkPath::kInverseEvenOdd_FillType);
             fType = kPath_Type;
             break;
@@ -91,7 +91,7 @@ void SkClipStack::Element::asPath(SkPath* path) const {
             break;
         case kRect_Type:
             path->reset();
-            path->addRect(fRect);
+            path->addRect(this->getRect());
             break;
         case kRRect_Type:
             path->reset();
@@ -108,7 +108,6 @@ void SkClipStack::Element::setEmpty() {
     fFiniteBound.setEmpty();
     fFiniteBoundType = kNormal_BoundsType;
     fIsIntersectionOfRects = false;
-    fRect.setEmpty();
     fRRect.setEmpty();
     fPath.reset();
     fGenID = kEmptyGenID;
@@ -143,12 +142,12 @@ bool SkClipStack::Element::rectRectIntersectAllowed(const SkRect& newR, bool new
         return true;
     }
 
-    if (!SkRect::Intersects(fRect, newR)) {
+    if (!SkRect::Intersects(this->getRect(), newR)) {
         // The calling code will correctly set the result to the empty clip
         return true;
     }
 
-    if (fRect.contains(newR)) {
+    if (this->getRect().contains(newR)) {
         // if the new rect carves out a portion of the old one there is no
         // issue
         return true;
@@ -343,13 +342,13 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
     fIsIntersectionOfRects = false;
     switch (fType) {
         case kRect_Type:
-            fFiniteBound = fRect;
+            fFiniteBound = this->getRect();
             fFiniteBoundType = kNormal_BoundsType;
 
             if (SkRegion::kReplace_Op == fOp ||
                 (SkRegion::kIntersect_Op == fOp && NULL == prior) ||
                 (SkRegion::kIntersect_Op == fOp && prior->fIsIntersectionOfRects &&
-                    prior->rectRectIntersectAllowed(fRect, fDoAA))) {
+                    prior->rectRectIntersectAllowed(this->getRect(), fDoAA))) {
                 fIsIntersectionOfRects = true;
             }
             break;
@@ -632,11 +631,13 @@ void SkClipStack::pushElement(const Element& element) {
                 case Element::kRect_Type:
                     if (Element::kRect_Type == element.getType()) {
                         if (prior->rectRectIntersectAllowed(element.getRect(), element.isAA())) {
-                            if (!prior->fRect.intersect(element.getRect())) {
+                            SkRect isectRect;
+                            if (!isectRect.intersect(prior->getRect(), element.getRect())) {
                                 prior->setEmpty();
                                 return;
                             }
 
+                            prior->fRRect.setRect(isectRect);
                             prior->fDoAA = element.isAA();
                             Element* priorPrior = (Element*) iter.prev();
                             prior->updateBoundAndGenID(priorPrior);

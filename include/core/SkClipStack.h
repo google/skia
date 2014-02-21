@@ -78,7 +78,10 @@ public:
         const SkRRect& getRRect() const { SkASSERT(kRRect_Type == fType); return fRRect; }
 
         //!< Call if getType() is kRect to get the rect.
-        const SkRect& getRect() const { SkASSERT(kRect_Type == fType); return fRect; }
+        const SkRect& getRect() const {
+            SkASSERT(kRect_Type == fType && (fRRect.isRect() || fRRect.isEmpty()));
+            return fRRect.getBounds();
+        }
 
         //!< Call if getType() is not kEmpty to get the set operation used to combine this element.
         SkRegion::Op getOp() const { return fOp; }
@@ -110,8 +113,7 @@ public:
         const SkRect& getBounds() const {
             static const SkRect kEmpty = { 0, 0, 0, 0 };
             switch (fType) {
-                case kRect_Type:
-                    return fRect;
+                case kRect_Type:  // fallthrough
                 case kRRect_Type:
                     return fRRect.getBounds();
                 case kPath_Type:
@@ -131,7 +133,7 @@ public:
         bool contains(const SkRect& rect) const {
             switch (fType) {
                 case kRect_Type:
-                    return fRect.contains(rect);
+                    return this->getRect().contains(rect);
                 case kRRect_Type:
                     return fRRect.contains(rect);
                 case kPath_Type:
@@ -155,7 +157,6 @@ public:
         friend class SkClipStack;
 
         SkPath          fPath;
-        SkRect          fRect;
         SkRRect         fRRect;
         int             fSaveCount; // save count of stack when this element was added.
         SkRegion::Op    fOp;
@@ -211,17 +212,17 @@ public:
         }
 
         void initRect(int saveCount, const SkRect& rect, SkRegion::Op op, bool doAA) {
-            fRect = rect;
+            fRRect.setRect(rect);
             fType = kRect_Type;
             this->initCommon(saveCount, op, doAA);
         }
 
         void initRRect(int saveCount, const SkRRect& rrect, SkRegion::Op op, bool doAA) {
-            if (rrect.isRect()) {
-                fRect = rrect.getBounds();
+            SkRRect::Type type = rrect.getType();
+            fRRect = rrect;
+            if (SkRRect::kRect_Type == type || SkRRect::kEmpty_Type == type) {
                 fType = kRect_Type;
             } else {
-                fRRect = rrect;
                 fType = kRRect_Type;
             }
             this->initCommon(saveCount, op, doAA);
