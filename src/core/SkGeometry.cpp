@@ -8,7 +8,9 @@
 #include "SkGeometry.h"
 #include "SkMatrix.h"
 
-bool SkXRayCrossesLine(const SkXRay& pt, const SkPoint pts[2], bool* ambiguous) {
+bool SkXRayCrossesLine(const SkXRay& pt,
+                       const SkPoint pts[2],
+                       bool* ambiguous) {
     if (ambiguous) {
         *ambiguous = false;
     }
@@ -574,8 +576,8 @@ static void flatten_double_cubic_extrema(SkScalar coords[14]) {
 }
 
 /** Given 4 points on a cubic bezier, chop it into 1, 2, 3 beziers such that
-    the resulting beziers are monotonic in Y. This is called by the scan converter.
-    Depending on what is returned, dst[] is treated as follows
+    the resulting beziers are monotonic in Y. This is called by the scan
+    converter.  Depending on what is returned, dst[] is treated as follows:
     0   dst[0..3] is the original cubic
     1   dst[0..3] and dst[3..6] are the two new cubics
     2   dst[0..3], dst[3..6], dst[6..9] are the three new cubics
@@ -632,7 +634,10 @@ int SkFindCubicInflections(const SkPoint src[4], SkScalar tValues[]) {
     SkScalar    Cx = src[3].fX + 3 * (src[1].fX - src[2].fX) - src[0].fX;
     SkScalar    Cy = src[3].fY + 3 * (src[1].fY - src[2].fY) - src[0].fY;
 
-    return SkFindUnitQuadRoots(Bx*Cy - By*Cx, Ax*Cy - Ay*Cx, Ax*By - Ay*Bx, tValues);
+    return SkFindUnitQuadRoots(Bx*Cy - By*Cx,
+                               Ax*Cy - Ay*Cx,
+                               Ax*By - Ay*Bx,
+                               tValues);
 }
 
 int SkChopCubicAtInflections(const SkPoint src[], SkPoint dst[10]) {
@@ -963,7 +968,9 @@ bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4],
     return false;
 }
 
-int SkNumXRayCrossingsForCubic(const SkXRay& pt, const SkPoint cubic[4], bool* ambiguous) {
+int SkNumXRayCrossingsForCubic(const SkXRay& pt,
+                               const SkPoint cubic[4],
+                               bool* ambiguous) {
     int num_crossings = 0;
     SkPoint monotonic_cubics[10];
     int num_monotonic_cubics = SkChopCubicAtYExtrema(cubic, monotonic_cubics);
@@ -971,19 +978,25 @@ int SkNumXRayCrossingsForCubic(const SkXRay& pt, const SkPoint cubic[4], bool* a
         *ambiguous = false;
     }
     bool locally_ambiguous;
-    if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[0], &locally_ambiguous))
+    if (SkXRayCrossesMonotonicCubic(pt,
+                                    &monotonic_cubics[0],
+                                    &locally_ambiguous))
         ++num_crossings;
     if (ambiguous) {
         *ambiguous |= locally_ambiguous;
     }
     if (num_monotonic_cubics > 0)
-        if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[3], &locally_ambiguous))
+        if (SkXRayCrossesMonotonicCubic(pt,
+                                        &monotonic_cubics[3],
+                                        &locally_ambiguous))
             ++num_crossings;
     if (ambiguous) {
         *ambiguous |= locally_ambiguous;
     }
     if (num_monotonic_cubics > 1)
-        if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[6], &locally_ambiguous))
+        if (SkXRayCrossesMonotonicCubic(pt,
+                                        &monotonic_cubics[6],
+                                        &locally_ambiguous))
             ++num_crossings;
     if (ambiguous) {
         *ambiguous |= locally_ambiguous;
@@ -1063,9 +1076,10 @@ static bool truncate_last_curve(const SkPoint quad[3], SkScalar x, SkScalar y,
 static const SkPoint gQuadCirclePts[kSkBuildQuadArcStorage] = {
 // The mid point of the quadratic arc approximation is half way between the two
 // control points. The float epsilon adjustment moves the on curve point out by
-// two bits, distributing the convex test error between the round rect approximation
-// and the convex cross product sign equality test.
-#define SK_MID_RRECT_OFFSET (SK_Scalar1 + SK_ScalarTanPIOver8 + FLT_EPSILON * 4) / 2
+// two bits, distributing the convex test error between the round rect
+// approximation and the convex cross product sign equality test.
+#define SK_MID_RRECT_OFFSET \
+    (SK_Scalar1 + SK_ScalarTanPIOver8 + FLT_EPSILON * 4) / 2
     { SK_Scalar1,            0                      },
     { SK_Scalar1,            SK_ScalarTanPIOver8    },
     { SK_MID_RRECT_OFFSET,   SK_MID_RRECT_OFFSET    },
@@ -1162,8 +1176,16 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
     return pointCount;
 }
 
-///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// NURB representation for conics.  Helpful explanations at:
+//
+// http://citeseerx.ist.psu.edu/viewdoc/
+//   download?doi=10.1.1.44.5740&rep=rep1&type=ps
+// and
+// http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/NURBS/RB-conics.html
+//
 // F = (A (1 - t)^2 + C t^2 + 2 B (1 - t) t w)
 //     ------------------------------------------
 //         ((1 - t)^2 + t^2 + 2 (1 - t) t w)
@@ -1173,12 +1195,6 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
 //             {t^2 (2 - 2 w), t (-2 + 2 w), 1}
 //
 
-// Take the parametric specification for the conic (either X or Y) and return
-// in coeff[] the coefficients for the simple quadratic polynomial
-//    coeff[0] for t^2
-//    coeff[1] for t
-//    coeff[2] for constant term
-//
 static SkScalar conic_eval_pos(const SkScalar src[], SkScalar w, SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
@@ -1210,7 +1226,9 @@ static SkScalar conic_eval_pos(const SkScalar src[], SkScalar w, SkScalar t) {
 //    coeff[1] for t^1
 //    coeff[2] for t^0
 //
-static void conic_deriv_coeff(const SkScalar src[], SkScalar w, SkScalar coeff[3]) {
+static void conic_deriv_coeff(const SkScalar src[],
+                              SkScalar w,
+                              SkScalar coeff[3]) {
     const SkScalar P20 = src[4] - src[0];
     const SkScalar P10 = src[2] - src[0];
     const SkScalar wP10 = w * P10;
@@ -1300,7 +1318,8 @@ void SkConic::chopAt(SkScalar t, SkConic dst[2]) const {
     // or
     // w1 /= sqrt(w0*w2)
     //
-    // However, in our case, we know that for dst[0], w0 == 1, and for dst[1], w2 == 1
+    // However, in our case, we know that for dst[0]:
+    //     w0 == 1, and for dst[1], w2 == 1
     //
     SkScalar root = SkScalarSqrt(tmp2[1].fZ);
     dst[0].fW = tmp2[0].fZ / root;
@@ -1441,4 +1460,9 @@ void SkConic::computeTightBounds(SkRect* bounds) const {
 
 void SkConic::computeFastBounds(SkRect* bounds) const {
     bounds->set(fPts, 3);
+}
+
+bool SkConic::findMaxCurvature(SkScalar* t) const {
+    // TODO: Implement me
+    return false;
 }

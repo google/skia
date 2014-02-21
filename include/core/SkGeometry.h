@@ -255,6 +255,15 @@ struct SkConic {
 
     void computeTightBounds(SkRect* bounds) const;
     void computeFastBounds(SkRect* bounds) const;
+
+    /** Find the parameter value where the conic takes on its maximum curvature.
+     *
+     *  @param t   output scalar for max curvature.  Will be unchanged if
+     *             max curvature outside 0..1 range.
+     *
+     *  @return  true if max curvature found inside 0..1 range, false otherwise
+     */
+    bool findMaxCurvature(SkScalar* t) const;
 };
 
 #include "SkTemplates.h"
