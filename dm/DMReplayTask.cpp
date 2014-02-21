@@ -41,7 +41,7 @@ bool ReplayTask::shouldSkip() const {
     }
 
     if (FLAGS_rtree && fUseRTree) {
-        return fGM->getFlags() & skiagm::GM::kSkipTiled_Flag;
+        return (fGM->getFlags() & skiagm::GM::kSkipTiled_Flag) != 0;
     }
     if (FLAGS_replay && !fUseRTree) {
         return false;
