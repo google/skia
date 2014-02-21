@@ -63,7 +63,10 @@ enum DrawType {
     COMMENT,
     END_COMMENT_GROUP,
 
-    LAST_DRAWTYPE_ENUM = END_COMMENT_GROUP
+    // new ops -- feel free to re-alphabetize on next version bump
+    DRAW_DRRECT,
+
+    LAST_DRAWTYPE_ENUM = DRAW_DRRECT
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

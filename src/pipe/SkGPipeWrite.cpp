@@ -290,6 +290,10 @@ public:
      * according to slot.
      */
     bool shuttleBitmap(const SkBitmap&, int32_t slot);
+
+protected:
+    virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
+
 private:
     enum {
         kNoSaveLayer = -1,
@@ -735,6 +739,17 @@ void SkGPipeCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     if (this->needOpBytes(kSizeOfFlatRRect)) {
         this->writeOp(kDrawRRect_DrawOp);
         fWriter.writeRRect(rrect);
+    }
+}
+
+void SkGPipeCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
+                                 const SkPaint& paint) {
+    NOTIFY_SETUP(this);
+    this->writePaint(paint);
+    if (this->needOpBytes(kSizeOfFlatRRect * 2)) {
+        this->writeOp(kDrawDRRect_DrawOp);
+        fWriter.writeRRect(outer);
+        fWriter.writeRRect(inner);
     }
 }
 

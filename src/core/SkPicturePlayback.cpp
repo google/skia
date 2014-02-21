@@ -910,6 +910,13 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 canvas.drawData(reader.skip(length), length);
                 // skip handles padding the read out to a multiple of 4
             } break;
+            case DRAW_DRRECT: {
+                const SkPaint& paint = *getPaint(reader);
+                SkRRect outer, inner;
+                reader.readRRect(&outer);
+                reader.readRRect(&inner);
+                canvas.drawDRRect(outer, inner, paint);
+            } break;
             case BEGIN_COMMENT_GROUP: {
                 const char* desc = reader.readString();
                 canvas.beginCommentGroup(desc);

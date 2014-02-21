@@ -26,6 +26,13 @@ void SkBBoxRecord::drawRect(const SkRect& rect, const SkPaint& paint) {
     }
 }
 
+void SkBBoxRecord::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
+                                const SkPaint& paint) {
+    if (this->transformBounds(outer.rect(), &paint)) {
+        this->INHERITED::onDrawDRRect(outer, inner, paint);
+    }
+}
+
 void SkBBoxRecord::drawPath(const SkPath& path, const SkPaint& paint) {
     if (path.isInverseFillType()) {
         // If path is inverse filled, use the current clip bounds as the

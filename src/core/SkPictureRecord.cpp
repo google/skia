@@ -111,9 +111,11 @@ static inline uint32_t getPaintOffset(DrawType op, uint32_t opSize) {
         0,  // BEGIN_GROUP - no paint
         0,  // COMMENT - no paint
         0,  // END_GROUP - no paint
+        1,  // DRAWDRRECT - right after op code
     };
 
-    SkASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1);
+    SK_COMPILE_ASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1,
+                      need_to_be_in_sync);
     SkASSERT((unsigned)op <= (unsigned)LAST_DRAWTYPE_ENUM);
 
     int overflow = 0;
@@ -463,6 +465,10 @@ static bool remove_save_layer2(SkWriter32* writer, int32_t offset,
                                                 result[0], result[3]);
 }
 
+static bool is_drawing_op(DrawType op) {
+    return (op > CONCAT && op < ROTATE) || DRAW_DRRECT == op;
+}
+
 /*
  *  Restore has just been called (but not recorded), so look back at the
  *  matching save(), and see if we can eliminate the pair of them, due to no
@@ -511,7 +517,7 @@ static bool collapse_save_clip_restore(SkWriter32* writer, int32_t offset,
     offset += opSize;
     while (offset < restoreOffset) {
         op = peek_op_and_size(writer, offset, &opSize);
-        if ((op > CONCAT && op < ROTATE) || (SAVE_LAYER == op)) {
+        if (is_drawing_op(op) || (SAVE_LAYER == op)) {
             // drawing verb, abort
             return false;
         }
@@ -1066,6 +1072,24 @@ void SkPictureRecord::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         this->addRRect(rrect);
         this->validate(initialOffset, size);
     }
+}
+
+void SkPictureRecord::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
+                                   const SkPaint& paint) {
+    
+#ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
+    fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
+#endif
+    
+    // op + paint index + rrects
+    uint32_t initialOffset, size;
+    size = 2 * kUInt32Size + SkRRect::kSizeInMemory * 2;
+    initialOffset = this->addDraw(DRAW_DRRECT, &size);
+    SkASSERT(initialOffset+getPaintOffset(DRAW_DRRECT, size) == fWriter.bytesWritten());
+    this->addPaint(paint);
+    this->addRRect(outer);
+    this->addRRect(inner);
+    this->validate(initialOffset, size);
 }
 
 void SkPictureRecord::drawPath(const SkPath& path, const SkPaint& paint) {

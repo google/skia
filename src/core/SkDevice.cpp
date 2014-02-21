@@ -158,3 +158,16 @@ bool SkBaseDevice::readPixels(SkBitmap* bitmap, int x, int y,
 SkSurface* SkBaseDevice::newSurface(const SkImageInfo&) { return NULL; }
 
 const void* SkBaseDevice::peekPixels(SkImageInfo*, size_t*) { return NULL; }
+
+void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
+                              const SkRRect& inner, const SkPaint& paint) {
+    SkPath path;
+    path.addRRect(outer);
+    path.addRRect(inner);
+    path.setFillType(SkPath::kEvenOdd_FillType);
+
+    const SkMatrix* preMatrix = NULL;
+    const bool pathIsMutable = true;
+    this->drawPath(draw, path, paint, preMatrix, pathIsMutable);
+}
+

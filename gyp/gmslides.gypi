@@ -66,6 +66,7 @@
     '../gm/drawbitmaprect.cpp',
     '../gm/drawlooper.cpp',
     '../gm/dropshadowimagefilter.cpp',
+    '../gm/drrect.cpp',
     '../gm/extractbitmap.cpp',
     '../gm/emptypath.cpp',
     '../gm/fatpathfill.cpp',

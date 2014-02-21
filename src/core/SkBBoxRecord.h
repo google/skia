@@ -64,6 +64,9 @@ public:
                               const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPicture(SkPicture& picture) SK_OVERRIDE;
 
+protected:
+    virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
+
 private:
     /**
      * Takes a bounding box in current canvas view space, accounts for stroking and effects, and

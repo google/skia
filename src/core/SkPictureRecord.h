@@ -222,6 +222,7 @@ protected:
     const void* onPeekPixels(SkImageInfo*, size_t*) SK_OVERRIDE {
         return NULL;
     }
+    virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
 
     // Return fontmetrics.fTop,fBottom in topbot[0,1], after they have been
     // tweaked by paint.computeFastBounds().

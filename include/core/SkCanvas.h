@@ -668,6 +668,12 @@ public:
      */
     virtual void drawRRect(const SkRRect& rrect, const SkPaint& paint);
 
+    /**
+     *  Draw the annulus formed by the outer and inner rrects. The results
+     *  are undefined if the outer does not contain the inner.
+     */
+    void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint&);
+
     /** Draw the specified circle using the specified paint. If radius is <= 0,
         then nothing will be drawn. The circle will be filled
         or framed based on the Style in the paint.
@@ -1060,6 +1066,8 @@ protected:
 
     // default impl defers to its device
     virtual const void* onPeekPixels(SkImageInfo*, size_t* rowBytes);
+
+    virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
 
     // Returns the canvas to be used by DrawIter. Default implementation
     // returns this. Subclasses that encapsulate an indirect canvas may

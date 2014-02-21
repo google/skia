@@ -1594,6 +1594,26 @@ GrContext* SkCanvas::getGrContext() {
 
 }
 
+void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
+                          const SkPaint& paint) {
+    if (outer.isEmpty()) {
+        return;
+    }
+    if (inner.isEmpty()) {
+        this->drawRRect(outer, paint);
+        return;
+    }
+
+    // We don't have this method (yet), but technically this is what we should
+    // be able to assert...
+    // SkASSERT(outer.contains(inner));
+    //
+    // For now at least check for containment of bounds
+    SkASSERT(outer.getBounds().contains(inner.getBounds()));
+
+    this->onDrawDRRect(outer, inner, paint);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //  These are the virtual drawing methods
 //////////////////////////////////////////////////////////////////////////////
@@ -1729,6 +1749,27 @@ void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     LOOPER_END
 }
 
+void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
+                            const SkPaint& paint) {
+    CHECK_SHADER_NOSETCONTEXT(paint);
+    
+    SkRect storage;
+    const SkRect* bounds = NULL;
+    if (paint.canComputeFastBounds()) {
+        bounds = &paint.computeFastBounds(outer.getBounds(), &storage);
+        if (this->quickReject(*bounds)) {
+            return;
+        }
+    }
+    
+    LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type, bounds)
+    
+    while (iter.next()) {
+        iter.fDevice->drawDRRect(iter, outer, inner, looper.paint());
+    }
+    
+    LOOPER_END
+}
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);

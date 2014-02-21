@@ -237,6 +237,10 @@ protected:
     virtual void drawRRect(const SkDraw&, const SkRRect& rr,
                            const SkPaint& paint) = 0;
 
+    // Default impl calls drawPath()
+    virtual void drawDRRect(const SkDraw&, const SkRRect& outer,
+                            const SkRRect& inner, const SkPaint&);
+
     /**
      *  If pathIsMutable, then the implementation is allowed to cast path to a
      *  non-const pointer and modify it in place (as an optimization). Canvas
