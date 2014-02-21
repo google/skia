@@ -1752,7 +1752,7 @@ void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
                             const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
-    
+
     SkRect storage;
     const SkRect* bounds = NULL;
     if (paint.canComputeFastBounds()) {
@@ -1761,13 +1761,13 @@ void SkCanvas::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
             return;
         }
     }
-    
+
     LOOPER_BEGIN(paint, SkDrawFilter::kRRect_Type, bounds)
-    
+
     while (iter.next()) {
         iter.fDevice->drawDRRect(iter, outer, inner, looper.paint());
     }
-    
+
     LOOPER_END
 }
 

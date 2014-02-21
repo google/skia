@@ -1076,11 +1076,11 @@ void SkPictureRecord::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 
 void SkPictureRecord::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
                                    const SkPaint& paint) {
-    
+
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
 #endif
-    
+
     // op + paint index + rrects
     uint32_t initialOffset, size;
     size = 2 * kUInt32Size + SkRRect::kSizeInMemory * 2;

@@ -170,4 +170,3 @@ void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     const bool pathIsMutable = true;
     this->drawPath(draw, path, paint, preMatrix, pathIsMutable);
 }
-

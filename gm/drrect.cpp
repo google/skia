@@ -33,7 +33,7 @@ protected:
         SkVector radii[4] = {
             { 0, 0 }, { 30, 1 }, { 10, 40 }, { 40, 40 }
         };
-        
+
         const SkScalar dx = r.width() + 16;
         const SkScalar dy = r.height() + 16;
 
