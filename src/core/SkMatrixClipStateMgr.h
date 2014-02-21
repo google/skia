@@ -180,10 +180,10 @@ public:
         };
 
         MatrixClipState(MatrixClipState* prev, int flags)
-#ifdef SK_DEBUG
             : fPrev(prev)
-#endif
         {
+            fHasOpen = false;
+
             if (NULL == prev) {
                 fLayerID = 0;
 
@@ -193,6 +193,9 @@ public:
 
                 // The identity/wide-open-clip state is current by default
                 fMCStateID = kIdentityWideOpenStateID;
+#ifdef SK_DEBUG
+                fExpectedDepth = 1;
+#endif
             }
             else {
                 fLayerID = prev->fLayerID;
@@ -214,6 +217,9 @@ public:
                 // Initially a new save/saveLayer represents the same MC state
                 // as its predecessor.
                 fMCStateID = prev->fMCStateID;
+#ifdef SK_DEBUG
+                fExpectedDepth = prev->fExpectedDepth;
+#endif
             }
 
             fIsSaveLayer = false;
@@ -234,8 +240,13 @@ public:
         int32_t      fSaveLayerBaseStateID;
         SkTDArray<int>* fSavedSkipOffsets;
 
+        // Does the MC state have an open block in the skp?
+        bool         fHasOpen;
+
+        MatrixClipState* fPrev; 
+
 #ifdef SK_DEBUG
-        MatrixClipState* fPrev; // debugging aid
+        int              fExpectedDepth;    // debugging aid
 #endif
 
         int32_t     fMCStateID;
@@ -365,6 +376,8 @@ protected:
     void addClipOffset(int offset) {
         SkASSERT(NULL != fSkipOffsets);
         SkASSERT(kIdentityWideOpenStateID != fCurOpenStateID);
+        SkASSERT(fCurMCState->fHasOpen);
+        SkASSERT(!fCurMCState->fIsSaveLayer);
 
         *fSkipOffsets->append() = offset;
     }
@@ -385,6 +398,12 @@ protected:
         SkASSERT(index >= 0 && index < fMatrixDict.count());
         return fMatrixDict[index];
     }
+
+    bool isCurrentlyOpen(int32_t stateID);
+
+#ifdef SK_DEBUG
+    int fActualDepth;
+#endif
 };
 
 #endif
