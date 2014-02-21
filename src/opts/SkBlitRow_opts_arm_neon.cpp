@@ -776,73 +776,63 @@ void S32_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
                               const SkPMColor* SK_RESTRICT src,
                               int count, U8CPU alpha) {
     SkASSERT(alpha <= 255);
-    if (count > 0) {
-        uint16_t src_scale = SkAlpha255To256(alpha);
-        uint16_t dst_scale = 256 - src_scale;
 
-    /* run them N at a time through the NEON unit */
-    /* note that each 1 is 4 bytes, each treated exactly the same,
-     * so we can work under that guise. We *do* know that the src&dst
-     * will be 32-bit aligned quantities, so we can specify that on
-     * the load/store ops and do a neon 'reinterpret' to get us to
-     * byte-sized (pun intended) pieces that we widen/multiply/shift
-     * we're limited at 128 bits in the wide ops, which is 8x16bits
-     * or a pair of 32 bit src/dsts.
-     */
-    /* we *could* manually unroll this loop so that we load 128 bits
-     * (as a pair of 64s) from each of src and dst, processing them
-     * in pieces. This might give us a little better management of
-     * the memory latency, but my initial attempts here did not
-     * produce an instruction stream that looked all that nice.
-     */
-#define    UNROLL    2
-    while (count >= UNROLL) {
-        uint8x8_t  src_raw, dst_raw, dst_final;
-        uint16x8_t  src_wide, dst_wide;
-
-        /* get 64 bits of src, widen it, multiply by src_scale */
-        src_raw = vreinterpret_u8_u32(vld1_u32(src));
-        src_wide = vmovl_u8(src_raw);
-        /* gcc hoists vdupq_n_u16(), better than using vmulq_n_u16() */
-        src_wide = vmulq_u16 (src_wide, vdupq_n_u16(src_scale));
-
-        /* ditto with dst */
-        dst_raw = vreinterpret_u8_u32(vld1_u32(dst));
-        dst_wide = vmovl_u8(dst_raw);
-
-        /* combine add with dst multiply into mul-accumulate */
-        dst_wide = vmlaq_u16(src_wide, dst_wide, vdupq_n_u16(dst_scale));
-
-        dst_final = vshrn_n_u16(dst_wide, 8);
-        vst1_u32(dst, vreinterpret_u32_u8(dst_final));
-
-        src += UNROLL;
-        dst += UNROLL;
-        count -= UNROLL;
+    if (count <= 0) {
+        return;
     }
-    /* RBE: well, i don't like how gcc manages src/dst across the above
-     * loop it's constantly calculating src+bias, dst+bias and it only
-     * adjusts the real ones when we leave the loop. Not sure why
-     * it's "hoisting down" (hoisting implies above in my lexicon ;))
-     * the adjustments to src/dst/count, but it does...
-     * (might be SSA-style internal logic...
-     */
 
-#if    UNROLL == 2
+    uint16_t src_scale = SkAlpha255To256(alpha);
+    uint16_t dst_scale = 256 - src_scale;
+
+    while (count >= 2) {
+        uint8x8_t vsrc, vdst, vres;
+        uint16x8_t vsrc_wide, vdst_wide;
+
+        /* These commented prefetches are a big win for count
+         * values > 64 on an A9 (Pandaboard) but hurt by 10% for count = 4.
+         * They also hurt a little (<5%) on an A15
+         */
+        //__builtin_prefetch(src+32);
+        //__builtin_prefetch(dst+32);
+
+        // Load
+        vsrc = vreinterpret_u8_u32(vld1_u32(src));
+        vdst = vreinterpret_u8_u32(vld1_u32(dst));
+
+        // Process src
+        vsrc_wide = vmovl_u8(vsrc);
+        vsrc_wide = vmulq_u16(vsrc_wide, vdupq_n_u16(src_scale));
+
+        // Process dst
+        vdst_wide = vmull_u8(vdst, vdup_n_u8(dst_scale));
+
+        // Combine
+        vres = vshrn_n_u16(vdst_wide, 8) + vshrn_n_u16(vsrc_wide, 8);
+
+        // Store
+        vst1_u32(dst, vreinterpret_u32_u8(vres));
+
+        src += 2;
+        dst += 2;
+        count -= 2;
+    }
+
     if (count == 1) {
-            *dst = SkAlphaMulQ(*src, src_scale) + SkAlphaMulQ(*dst, dst_scale);
-    }
-#else
-    if (count > 0) {
-            do {
-                *dst = SkAlphaMulQ(*src, src_scale) + SkAlphaMulQ(*dst, dst_scale);
-                src += 1;
-                dst += 1;
-            } while (--count > 0);
-    }
-#endif
+        uint8x8_t vsrc = vdup_n_u8(0), vdst = vdup_n_u8(0), vres;
+        uint16x8_t vsrc_wide, vdst_wide;
 
-#undef    UNROLL
+        // Load
+        vsrc = vreinterpret_u8_u32(vld1_lane_u32(src, vreinterpret_u32_u8(vsrc), 0));
+        vdst = vreinterpret_u8_u32(vld1_lane_u32(dst, vreinterpret_u32_u8(vdst), 0));
+
+        // Process
+        vsrc_wide = vmovl_u8(vsrc);
+        vsrc_wide = vmulq_u16(vsrc_wide, vdupq_n_u16(src_scale));
+        vdst_wide = vmull_u8(vdst, vdup_n_u8(dst_scale));
+        vres = vshrn_n_u16(vdst_wide, 8) + vshrn_n_u16(vsrc_wide, 8);
+
+        // Store
+        vst1_lane_u32(dst, vreinterpret_u32_u8(vres), 0);
     }
 }
 

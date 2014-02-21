@@ -59,3 +59,11 @@ imagefiltersscaled
 
 # Added by yunchao.he@intel.com for https://codereview.chromium.org/166023002
 inverse_paths
+
+# Added by kevin.petit@arm.com for https://codereview.chromium.org/158973002
+roundrects
+gradients_view_perspective
+filltypespersp
+bleed
+bitmaprect_i
+bitmaprect_s
