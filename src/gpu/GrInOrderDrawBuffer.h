@@ -168,6 +168,11 @@ private:
 
     bool quickInsideClip(const SkRect& devBounds);
 
+    virtual void onInstantGpuTraceEvent(const char* marker) SK_OVERRIDE;
+    virtual void onPushGpuTraceEvent(const char* marker) SK_OVERRIDE;
+    virtual void onPopGpuTraceEvent() SK_OVERRIDE;
+
+
     // Attempts to concat instances from info onto the previous draw. info must represent an
     // instanced draw. The caller must have already recorded a new draw state and clip if necessary.
     int concatInstancedDraw(const DrawInfo& info);

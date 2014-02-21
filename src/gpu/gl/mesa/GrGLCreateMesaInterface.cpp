@@ -221,6 +221,12 @@ const GrGLInterface* GrGLCreateMesaInterface() {
         }
         GR_GL_GET_PROC(BindFragDataLocationIndexed);
 
+        if (extensions.has("GL_EXT_debug_marker")) {
+            GR_GL_GET_PROC_SUFFIX(InsertEventMarker, EXT);
+            GR_GL_GET_PROC_SUFFIX(PopGroupMarker, EXT);
+            GR_GL_GET_PROC_SUFFIX(PushGroupMarker, EXT);
+        }
+
         interface->fStandard = kGL_GrGLStandard;
         interface->fExtensions.swap(&extensions);
 

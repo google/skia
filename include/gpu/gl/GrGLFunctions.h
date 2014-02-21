@@ -147,10 +147,13 @@ extern "C" {
     typedef const GrGLubyte* (GR_GL_FUNCTION_TYPE* GrGLGetStringiProc)(GrGLenum name, GrGLuint index);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetTexLevelParameterivProc)(GrGLenum target, GrGLint level, GrGLenum pname, GrGLint* params);
     typedef GrGLint (GR_GL_FUNCTION_TYPE* GrGLGetUniformLocationProc)(GrGLuint program, const char* name);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInsertEventMarkerProc)(GrGLsizei length, const char* marker);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLLineWidthProc)(GrGLfloat width);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLLinkProgramProc)(GrGLuint program);
     typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapBufferProc)(GrGLenum target, GrGLenum access);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPixelStoreiProc)(GrGLenum pname, GrGLint param);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPopGroupMarkerProc)();
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPushGroupMarkerProc)(GrGLsizei length, const char* marker);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLQueryCounterProc)(GrGLuint id, GrGLenum target);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLReadBufferProc)(GrGLenum src);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLReadPixelsProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels);
@@ -261,6 +264,7 @@ extern "C" {
     typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLIsPointInStrokePathProc)(GrGLuint path, GrGLfloat x, GrGLfloat y);
     typedef GrGLfloat (GR_GL_FUNCTION_TYPE* GrGLGetPathLengthProc)(GrGLuint path, GrGLsizei startSegment, GrGLsizei numSegments);
     typedef GrGLboolean (GR_GL_FUNCTION_TYPE* GrGLPointAlongPathProc)(GrGLuint path, GrGLsizei startSegment, GrGLsizei numSegments, GrGLfloat distance, GrGLfloat *x, GrGLfloat *y, GrGLfloat *tangentX, GrGLfloat *tangentY);
+
 }  // extern "C"
 
 #endif

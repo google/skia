@@ -656,3 +656,10 @@ GrGLint GR_GL_FUNCTION_TYPE noOpGLGetUniformLocation(GrGLuint program, const cha
     static int gUniLocation = 0;
     return ++gUniLocation;
 }
+
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLInsertEventMarker(GrGLsizei length, const char* marker) {
+}
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLPushGroupMarker(GrGLsizei length  , const char* marker) {
+}
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLPopGroupMarker() {
+}

@@ -312,6 +312,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     fPathRenderingSupport = ctxInfo.hasExtension("GL_NV_path_rendering");
     SkASSERT(!fPathRenderingSupport || fFixedFunctionSupport);
 
+    fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
+
     fDstReadInShaderSupport = kNone_FBFetchType != fFBFetchType;
 
     // Disable scratch texture reuse on Mali and Adreno devices

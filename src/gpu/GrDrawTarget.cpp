@@ -88,7 +88,8 @@ void GrDrawTarget::DrawInfo::adjustStartIndex(int indexOffset) {
 
 GrDrawTarget::GrDrawTarget(GrContext* context)
     : fClip(NULL)
-    , fContext(context) {
+    , fContext(context)
+    , fPushGpuTraceCount(0) {
     SkASSERT(NULL != context);
 
     fDrawState = &fDefaultDrawState;
@@ -547,6 +548,28 @@ void GrDrawTarget::drawPath(const GrPath* path, SkPath::FillType fill) {
     this->onDrawPath(path, fill, dstCopy.texture() ? &dstCopy : NULL);
 }
 
+void GrDrawTarget::instantGpuTraceEvent(const char* marker) {
+    if (this->caps()->gpuTracingSupport()) {
+        this->onInstantGpuTraceEvent(marker);
+    }
+}
+
+void GrDrawTarget::pushGpuTraceEvent(const char* marker) {
+    SkASSERT(fPushGpuTraceCount >= 0);
+    if (this->caps()->gpuTracingSupport()) {
+        this->onPushGpuTraceEvent(marker);
+        ++fPushGpuTraceCount;
+    }
+}
+
+void GrDrawTarget::popGpuTraceEvent() {
+    SkASSERT(fPushGpuTraceCount >= 1);
+    if (this->caps()->gpuTracingSupport()) {
+        this->onPopGpuTraceEvent();
+        --fPushGpuTraceCount;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrDrawTarget::willUseHWAALines() const {
@@ -971,6 +994,7 @@ void GrDrawTargetCaps::reset() {
     fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fReuseScratchTextures = true;
+    fGpuTracingSupport = false;
 
     fMaxRenderTargetSize = 0;
     fMaxTextureSize = 0;
@@ -993,6 +1017,7 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fPathRenderingSupport = other.fPathRenderingSupport;
     fDstReadInShaderSupport = other.fDstReadInShaderSupport;
     fReuseScratchTextures = other.fReuseScratchTextures;
+    fGpuTracingSupport = other.fGpuTracingSupport;
 
     fMaxRenderTargetSize = other.fMaxRenderTargetSize;
     fMaxTextureSize = other.fMaxTextureSize;
@@ -1019,6 +1044,7 @@ SkString GrDrawTargetCaps::dump() const {
     r.appendf("Path Rendering Support      : %s\n", gNY[fPathRenderingSupport]);
     r.appendf("Dst Read In Shader Support  : %s\n", gNY[fDstReadInShaderSupport]);
     r.appendf("Reuse Scratch Textures      : %s\n", gNY[fReuseScratchTextures]);
+    r.appendf("Gpu Tracing Support         : %s\n", gNY[fGpuTracingSupport]);
     r.appendf("Max Texture Size            : %d\n", fMaxTextureSize);
     r.appendf("Max Render Target Size      : %d\n", fMaxRenderTargetSize);
     r.appendf("Max Sample Count            : %d\n", fMaxSampleCount);

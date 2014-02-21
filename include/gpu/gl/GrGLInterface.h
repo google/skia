@@ -76,6 +76,13 @@ typedef intptr_t GrGLInterfaceCallbackData;
     GL_NV_path_rendering. */
 const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface*);
 
+/** Function that returns a new interface identical to "interface" but with support for
+    test version of GL_EXT_debug_marker. */
+const GrGLInterface* GrGLInterfaceAddTestDebugMarker(const GrGLInterface*,
+                                                     GrGLInsertEventMarkerProc insertEventMarkerFn,
+                                                     GrGLPushGroupMarkerProc pushGroupMarkerFn,
+                                                     GrGLPopGroupMarkerProc popGroupMarkerFn);
+
 /**
  * GrContext uses the following interface to make all calls into OpenGL. When a
  * GrContext is created it is given a GrGLInterface. The interface's function
@@ -228,6 +235,7 @@ public:
         GLPtr<GrGLGetStringiProc> fGetStringi;
         GLPtr<GrGLGetTexLevelParameterivProc> fGetTexLevelParameteriv;
         GLPtr<GrGLGetUniformLocationProc> fGetUniformLocation;
+        GLPtr<GrGLInsertEventMarkerProc> fInsertEventMarker;
         GLPtr<GrGLLineWidthProc> fLineWidth;
         GLPtr<GrGLLinkProgramProc> fLinkProgram;
         GLPtr<GrGLLoadIdentityProc> fLoadIdentity;
@@ -235,6 +243,8 @@ public:
         GLPtr<GrGLMapBufferProc> fMapBuffer;
         GLPtr<GrGLMatrixModeProc> fMatrixMode;
         GLPtr<GrGLPixelStoreiProc> fPixelStorei;
+        GLPtr<GrGLPopGroupMarkerProc> fPopGroupMarker;
+        GLPtr<GrGLPushGroupMarkerProc> fPushGroupMarker;
         GLPtr<GrGLQueryCounterProc> fQueryCounter;
         GLPtr<GrGLReadBufferProc> fReadBuffer;
         GLPtr<GrGLReadPixelsProc> fReadPixels;
@@ -445,6 +455,7 @@ public:
     GLPtrAlias<GrGLGetStringiProc> fGetStringi;
     GLPtrAlias<GrGLGetTexLevelParameterivProc> fGetTexLevelParameteriv;
     GLPtrAlias<GrGLGetUniformLocationProc> fGetUniformLocation;
+    GLPtrAlias<GrGLInsertEventMarkerProc> fInsertEventMarker;
     GLPtrAlias<GrGLLineWidthProc> fLineWidth;
     GLPtrAlias<GrGLLinkProgramProc> fLinkProgram;
     GLPtrAlias<GrGLLoadIdentityProc> fLoadIdentity;
@@ -452,6 +463,8 @@ public:
     GLPtrAlias<GrGLMapBufferProc> fMapBuffer;
     GLPtrAlias<GrGLMatrixModeProc> fMatrixMode;
     GLPtrAlias<GrGLPixelStoreiProc> fPixelStorei;
+    GLPtrAlias<GrGLPopGroupMarkerProc> fPopGroupMarker;
+    GLPtrAlias<GrGLPushGroupMarkerProc> fPushGroupMarker;
     GLPtrAlias<GrGLQueryCounterProc> fQueryCounter;
     GLPtrAlias<GrGLReadBufferProc> fReadBuffer;
     GLPtrAlias<GrGLReadPixelsProc> fReadPixels;

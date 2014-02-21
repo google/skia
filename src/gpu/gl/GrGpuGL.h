@@ -162,6 +162,12 @@ private:
                                   bool insideClip) SK_OVERRIDE;
     virtual bool flushGraphicsState(DrawType, const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
 
+    // GrDrawTarget ovverides
+    virtual void onInstantGpuTraceEvent(const char* marker) SK_OVERRIDE;
+    virtual void onPushGpuTraceEvent(const char* marker) SK_OVERRIDE;
+    virtual void onPopGpuTraceEvent() SK_OVERRIDE;
+
+
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 

@@ -375,4 +375,8 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetTexLevelParameteriv(GrGLenum target,
 
 GrGLint GR_GL_FUNCTION_TYPE noOpGLGetUniformLocation(GrGLuint program, const char* name);
 
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLInsertEventMarker(GrGLsizei length, const char* marker);
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLPushGroupMarker(GrGLsizei length  , const char* marker);
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLPopGroupMarker();
+
 #endif

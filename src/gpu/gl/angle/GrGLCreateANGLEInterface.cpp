@@ -153,6 +153,12 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
     functions->fMapBuffer = (GrGLMapBufferProc) eglGetProcAddress("glMapBufferOES");
     functions->fUnmapBuffer = (GrGLUnmapBufferProc) eglGetProcAddress("glUnmapBufferOES");
 
+    if (extensions.has("GL_EXT_debug_marker")) {
+        functions->fInsertEventMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glInsertEventMarkerEXT");
+        functions->fPushGroupMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glPushGroupMarkerEXT");
+        functions->fPopGroupMarker = (GrGLPopGroupMarkerProc) eglGetProcAddress("glPopGropuMarkerEXT");
+    }
+
     interface->fExtensions.init(kGLES_GrGLStandard,
                                 interface->fFunctions.fGetString,
                                 interface->fFunctions.fGetStringi,

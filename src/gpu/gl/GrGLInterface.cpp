@@ -18,6 +18,23 @@ void GrGLDefaultInterfaceCallback(const GrGLInterface*) {}
 }
 #endif
 
+const GrGLInterface* GrGLInterfaceAddTestDebugMarker(const GrGLInterface* interface,
+                                                     GrGLInsertEventMarkerProc insertEventMarkerFn,
+                                                     GrGLPushGroupMarkerProc pushGroupMarkerFn,
+                                                     GrGLPopGroupMarkerProc popGroupMarkerFn) {
+    GrGLInterface* newInterface = GrGLInterface::NewClone(interface);
+
+    if (!newInterface->fExtensions.has("GL_EXT_debug_marker")) {
+        newInterface->fExtensions.add("GL_EXT_debug_marker");
+    }
+
+    newInterface->fInsertEventMarker = insertEventMarkerFn;
+    newInterface->fPushGroupMarker = pushGroupMarkerFn;
+    newInterface->fPopGroupMarker = popGroupMarkerFn;
+
+    return newInterface;
+}
+
 const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
     GrGLInterface* newInterface = GrGLInterface::NewClone(interface);
 
@@ -157,6 +174,7 @@ GrGLInterface::GrGLInterface()
     , fGetStringi(&fFunctions.fGetStringi)
     , fGetTexLevelParameteriv(&fFunctions.fGetTexLevelParameteriv)
     , fGetUniformLocation(&fFunctions.fGetUniformLocation)
+    , fInsertEventMarker(&fFunctions.fInsertEventMarker)
     , fLineWidth(&fFunctions.fLineWidth)
     , fLinkProgram(&fFunctions.fLinkProgram)
     , fLoadIdentity(&fFunctions.fLoadIdentity)
@@ -164,6 +182,8 @@ GrGLInterface::GrGLInterface()
     , fMapBuffer(&fFunctions.fMapBuffer)
     , fMatrixMode(&fFunctions.fMatrixMode)
     , fPixelStorei(&fFunctions.fPixelStorei)
+    , fPopGroupMarker(&fFunctions.fPopGroupMarker)
+    , fPushGroupMarker(&fFunctions.fPushGroupMarker)
     , fQueryCounter(&fFunctions.fQueryCounter)
     , fReadBuffer(&fFunctions.fReadBuffer)
     , fReadPixels(&fFunctions.fReadPixels)
@@ -655,5 +675,15 @@ bool GrGLInterface::validate() const {
             }
         }
     }
+
+#if 0
+    if (fExtensions.has("GL_EXT_debug_marker")) {
+        if (NULL == fFunctions.fInsertEventMarker ||
+            NULL == fFunctions.fPushGroupMarker ||
+            NULL == fFunctions.fPopGroupMarker) {
+            return false;
+        }
+    }
+#endif
     return true;
 }

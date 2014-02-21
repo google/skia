@@ -54,6 +54,11 @@ public:
      */
     bool remove(const char[]);
 
+    /**
+     * Adds an extension to list
+     */
+    void add(const char[]);
+
     void reset() { fStrings->reset(); }
 
     void print(const char* sep = "\n") const;

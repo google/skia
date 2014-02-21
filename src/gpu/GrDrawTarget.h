@@ -423,6 +423,20 @@ public:
                        GrRenderTarget* renderTarget = NULL) = 0;
 
     /**
+     * instantGpuTraceEvent places a single "sign post" type marker into command stream. The
+     * argument marker will be the name of the annotation that is added.
+     */
+    void instantGpuTraceEvent(const char* marker);
+    /**
+     * The following two functions are used for marking groups of commands. Use pushGpuTraceEvent
+     * to set the beginning of a command set, and popGpuTraceEvent is be called at end of the
+     * command set. The argument marker is the name for the annotation that is added. The push and
+     * pops can be used hierarchically, but every push must have a match pop.
+     */
+    void pushGpuTraceEvent(const char* marker);
+    void popGpuTraceEvent();
+
+    /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
      * reserved vertex/index data (as though a draw call was made). The src pixels
      * copied are specified by srcRect. They are copied to a rect of the same
@@ -854,6 +868,10 @@ private:
     virtual void onDrawPath(const GrPath*, SkPath::FillType,
                             const GrDeviceCoordTexture* dstCopy) = 0;
 
+    virtual void onInstantGpuTraceEvent(const char* marker) = 0;
+    virtual void onPushGpuTraceEvent(const char* marker) = 0;
+    virtual void onPopGpuTraceEvent() = 0;
+
     // helpers for reserving vertex and index space.
     bool reserveVertexSpace(size_t vertexSize,
                             int vertexCount,
@@ -888,6 +906,8 @@ private:
     GrDrawState                                                     fDefaultDrawState;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by DrawTarget.
     GrContext*                                                      fContext;
+    // To keep track that we always have at least as many debug marker pushes as pops
+    int                                                             fPushGpuTraceCount;
 
     typedef SkRefCnt INHERITED;
 };

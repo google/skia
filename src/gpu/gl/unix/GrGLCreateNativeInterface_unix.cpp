@@ -275,6 +275,12 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             GR_GL_GET_PROC_SUFFIX(PointAlongPath, NV);
         }
 
+        if (extensions.has("GL_EXT_debug_marker")) {
+            GR_GL_GET_PROC_SUFFIX(InsertEventMarker, EXT);
+            GR_GL_GET_PROC_SUFFIX(PushGroupMarker, EXT);
+            GR_GL_GET_PROC_SUFFIX(PopGroupMarker, EXT);
+        }
+
         interface->fStandard = kGL_GrGLStandard;
         interface->fExtensions.swap(&extensions);
 

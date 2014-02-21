@@ -335,12 +335,15 @@ const GrGLInterface* GrGLCreateNullInterface() {
         functions->fGetStringi = noOpGLGetStringi;
         functions->fGetTexLevelParameteriv = noOpGLGetTexLevelParameteriv;
         functions->fGetUniformLocation = noOpGLGetUniformLocation;
+        functions->fInsertEventMarker = noOpGLInsertEventMarker;
         functions->fLoadIdentity = noOpGLLoadIdentity;
         functions->fLoadMatrixf = noOpGLLoadMatrixf;
         functions->fLineWidth = noOpGLLineWidth;
         functions->fLinkProgram = noOpGLLinkProgram;
         functions->fMatrixMode = noOpGLMatrixMode;
         functions->fPixelStorei = nullGLPixelStorei;
+        functions->fPopGroupMarker = noOpGLPopGroupMarker;
+        functions->fPushGroupMarker = noOpGLPushGroupMarker;
         functions->fQueryCounter = noOpGLQueryCounter;
         functions->fReadBuffer = noOpGLReadBuffer;
         functions->fReadPixels = nullGLReadPixels;

@@ -144,6 +144,12 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     functions->fGenVertexArrays = glGenVertexArraysOES;
 #endif
 
+#if GL_EXT_debug_marker
+    functions->fInsertEventMarker = glInsertEventMarkerEXT;
+    functions->fPushGroupMarker = glPushGroupMarkerEXT;
+    functions->fPopGroupMarker = glPopGropuMarkerEXT;
+#endif
+
     interface->fStandard = kGLES_GrGLStandard;
     interface->fExtensions.init(kGLES_GrGLStandard, glGetString, NULL, glGetIntegerv);
 

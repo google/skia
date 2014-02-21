@@ -190,6 +190,12 @@ static GrGLInterface* create_es_interface(GrGLVersion version,
     functions->fUnmapBuffer = (GrGLUnmapBufferProc) eglGetProcAddress("glUnmapBufferOES");
 #endif
 
+    if (extensions.has("GL_EXT_debug_marker")) {
+        functions->fInsertEventMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glInsertEventMarkerEXT");
+        functions->fPushGroupMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glPushGroupMarkerEXT");
+        functions->fPopGroupMarker = (GrGLPopGroupMarkerProc) eglGetProcAddress("glPopGropuMarkerEXT");
+    }
+
     return interface;
 }
 
@@ -387,6 +393,12 @@ static GrGLInterface* create_desktop_interface(GrGLVersion version,
         functions->fIsPointInStrokePath = (GrGLIsPointInStrokePathProc) eglGetProcAddress("glIsPointInStrokePathNV");
         functions->fGetPathLength = (GrGLGetPathLengthProc) eglGetProcAddress("glGetPathLengthNV");
         functions->fPointAlongPath = (GrGLPointAlongPathProc) eglGetProcAddress("glPointAlongPathNV");
+    }
+
+    if (extensions.has("GL_EXT_debug_marker")) {
+        functions->fInsertEventMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glInsertEventMarkerEXT");
+        functions->fPushGroupMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glPushGroupMarkerEXT");
+        functions->fPopGroupMarker = (GrGLPopGroupMarkerProc) eglGetProcAddress("glPopGropuMarkerEXT");
     }
 
     return interface;

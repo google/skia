@@ -241,6 +241,12 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GET_PROC(BindFragDataLocationIndexed);
     }
 
+    if (extensions.has("GL_EXT_debug_marker")) {
+        GET_PROC_SUFFIX(InsertEventMarker, EXT);
+        GET_PROC_SUFFIX(PushGroupMarker, EXT);
+        GET_PROC_SUFFIX(PopGroupMarker, EXT);
+    }
+
     interface->fExtensions.swap(&extensions);
     return interface;
 }
