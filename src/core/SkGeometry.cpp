@@ -69,9 +69,9 @@ bool SkXRayCrossesLine(const SkXRay& pt, const SkPoint pts[2], bool* ambiguous) 
 
 ////////////////////////////////////////////////////////////////////////
 
-static int is_not_monotonic(float a, float b, float c) {
-    float ab = a - b;
-    float bc = b - c;
+static int is_not_monotonic(SkScalar a, SkScalar b, SkScalar c) {
+    SkScalar ab = a - b;
+    SkScalar bc = b - c;
     if (ab < 0) {
         bc = -bc;
     }
@@ -80,31 +80,30 @@ static int is_not_monotonic(float a, float b, float c) {
 
 ////////////////////////////////////////////////////////////////////////
 
-static bool is_unit_interval(SkScalar x)
-{
+static bool is_unit_interval(SkScalar x) {
     return x > 0 && x < SK_Scalar1;
 }
 
-static int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio)
-{
+static int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio) {
     SkASSERT(ratio);
 
-    if (numer < 0)
-    {
+    if (numer < 0) {
         numer = -numer;
         denom = -denom;
     }
 
-    if (denom == 0 || numer == 0 || numer >= denom)
+    if (denom == 0 || numer == 0 || numer >= denom) {
         return 0;
+    }
 
     SkScalar r = SkScalarDiv(numer, denom);
     if (SkScalarIsNaN(r)) {
         return 0;
     }
     SkASSERT(r >= 0 && r < SK_Scalar1);
-    if (r == 0) // catch underflow if numer <<<< denom
+    if (r == 0) { // catch underflow if numer <<<< denom
         return 0;
+    }
     *ratio = r;
     return 1;
 }
@@ -115,26 +114,25 @@ static int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio)
     x1 = Q / A
     x2 = C / Q
 */
-int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2])
-{
+int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]) {
     SkASSERT(roots);
 
-    if (A == 0)
+    if (A == 0) {
         return valid_unit_divide(-C, B, roots);
+    }
 
     SkScalar* r = roots;
 
-    float R = B*B - 4*A*C;
+    SkScalar R = B*B - 4*A*C;
     if (R < 0 || SkScalarIsNaN(R)) {  // complex roots
         return 0;
     }
-    R = sk_float_sqrt(R);
+    R = SkScalarSqrt(R);
 
     SkScalar Q = (B < 0) ? -(B-R)/2 : -(B+R)/2;
     r += valid_unit_divide(Q, A, r);
     r += valid_unit_divide(C, Q, r);
-    if (r - roots == 2)
-    {
+    if (r - roots == 2) {
         if (roots[0] > roots[1])
             SkTSwap<SkScalar>(roots[0], roots[1]);
         else if (roots[0] == roots[1])  // nearly-equal?
@@ -146,8 +144,7 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2])
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkScalar eval_quad(const SkScalar src[], SkScalar t)
-{
+static SkScalar eval_quad(const SkScalar src[], SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
@@ -163,52 +160,50 @@ static SkScalar eval_quad(const SkScalar src[], SkScalar t)
 #endif
 }
 
-static SkScalar eval_quad_derivative(const SkScalar src[], SkScalar t)
-{
+static SkScalar eval_quad_derivative(const SkScalar src[], SkScalar t) {
     SkScalar A = src[4] - 2 * src[2] + src[0];
     SkScalar B = src[2] - src[0];
 
     return 2 * SkScalarMulAdd(A, t, B);
 }
 
-static SkScalar eval_quad_derivative_at_half(const SkScalar src[])
-{
+static SkScalar eval_quad_derivative_at_half(const SkScalar src[]) {
     SkScalar A = src[4] - 2 * src[2] + src[0];
     SkScalar B = src[2] - src[0];
     return A + 2 * B;
 }
 
-void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt, SkVector* tangent)
-{
+void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt,
+                  SkVector* tangent) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
-    if (pt)
+    if (pt) {
         pt->set(eval_quad(&src[0].fX, t), eval_quad(&src[0].fY, t));
-    if (tangent)
+    }
+    if (tangent) {
         tangent->set(eval_quad_derivative(&src[0].fX, t),
                      eval_quad_derivative(&src[0].fY, t));
+    }
 }
 
-void SkEvalQuadAtHalf(const SkPoint src[3], SkPoint* pt, SkVector* tangent)
-{
+void SkEvalQuadAtHalf(const SkPoint src[3], SkPoint* pt, SkVector* tangent) {
     SkASSERT(src);
 
-    if (pt)
-    {
+    if (pt) {
         SkScalar x01 = SkScalarAve(src[0].fX, src[1].fX);
         SkScalar y01 = SkScalarAve(src[0].fY, src[1].fY);
         SkScalar x12 = SkScalarAve(src[1].fX, src[2].fX);
         SkScalar y12 = SkScalarAve(src[1].fY, src[2].fY);
         pt->set(SkScalarAve(x01, x12), SkScalarAve(y01, y12));
     }
-    if (tangent)
+    if (tangent) {
         tangent->set(eval_quad_derivative_at_half(&src[0].fX),
                      eval_quad_derivative_at_half(&src[0].fY));
+    }
 }
 
-static void interp_quad_coords(const SkScalar* src, SkScalar* dst, SkScalar t)
-{
+static void interp_quad_coords(const SkScalar* src, SkScalar* dst, SkScalar t) {
     SkScalar    ab = SkScalarInterp(src[0], src[2], t);
     SkScalar    bc = SkScalarInterp(src[2], src[4], t);
 
@@ -219,16 +214,14 @@ static void interp_quad_coords(const SkScalar* src, SkScalar* dst, SkScalar t)
     dst[8] = src[4];
 }
 
-void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t)
-{
+void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
     SkASSERT(t > 0 && t < SK_Scalar1);
 
     interp_quad_coords(&src[0].fX, &dst[0].fX, t);
     interp_quad_coords(&src[0].fY, &dst[0].fY, t);
 }
 
-void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5])
-{
+void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {
     SkScalar x01 = SkScalarAve(src[0].fX, src[1].fX);
     SkScalar y01 = SkScalarAve(src[0].fY, src[1].fY);
     SkScalar x12 = SkScalarAve(src[1].fX, src[2].fX);
@@ -246,49 +239,31 @@ void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5])
     B = 2(b - a)
     Solve for t, only if it fits between 0 < t < 1
 */
-int SkFindQuadExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar tValue[1])
-{
+int SkFindQuadExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar tValue[1]) {
     /*  At + B == 0
         t = -B / A
     */
     return valid_unit_divide(a - b, a - b - b + c, tValue);
 }
 
-static inline void flatten_double_quad_extrema(SkScalar coords[14])
-{
+static inline void flatten_double_quad_extrema(SkScalar coords[14]) {
     coords[2] = coords[6] = coords[4];
 }
 
 /*  Returns 0 for 1 quad, and 1 for two quads, either way the answer is
  stored in dst[]. Guarantees that the 1/2 quads will be monotonic.
  */
-int SkChopQuadAtYExtrema(const SkPoint src[3], SkPoint dst[5])
-{
+int SkChopQuadAtYExtrema(const SkPoint src[3], SkPoint dst[5]) {
     SkASSERT(src);
     SkASSERT(dst);
-
-#if 0
-    static bool once = true;
-    if (once)
-    {
-        once = false;
-        SkPoint s[3] = { 0, 26398, 0, 26331, 0, 20621428 };
-        SkPoint d[6];
-
-        int n = SkChopQuadAtYExtrema(s, d);
-        SkDebugf("chop=%d, Y=[%x %x %x %x %x %x]\n", n, d[0].fY, d[1].fY, d[2].fY, d[3].fY, d[4].fY, d[5].fY);
-    }
-#endif
 
     SkScalar a = src[0].fY;
     SkScalar b = src[1].fY;
     SkScalar c = src[2].fY;
 
-    if (is_not_monotonic(a, b, c))
-    {
+    if (is_not_monotonic(a, b, c)) {
         SkScalar    tValue;
-        if (valid_unit_divide(a - b, a - b - b + c, &tValue))
-        {
+        if (valid_unit_divide(a - b, a - b - b + c, &tValue)) {
             SkChopQuadAt(src, dst, tValue);
             flatten_double_quad_extrema(&dst[0].fY);
             return 1;
@@ -306,8 +281,7 @@ int SkChopQuadAtYExtrema(const SkPoint src[3], SkPoint dst[5])
 /*  Returns 0 for 1 quad, and 1 for two quads, either way the answer is
     stored in dst[]. Guarantees that the 1/2 quads will be monotonic.
  */
-int SkChopQuadAtXExtrema(const SkPoint src[3], SkPoint dst[5])
-{
+int SkChopQuadAtXExtrema(const SkPoint src[3], SkPoint dst[5]) {
     SkASSERT(src);
     SkASSERT(dst);
 
@@ -344,7 +318,7 @@ int SkChopQuadAtXExtrema(const SkPoint src[3], SkPoint dst[5])
 //
 //  t = - (Ax Bx + Ay By) / (Bx ^ 2 + By ^ 2)
 //
-float SkFindQuadMaxCurvature(const SkPoint src[3]) {
+SkScalar SkFindQuadMaxCurvature(const SkPoint src[3]) {
     SkScalar    Ax = src[1].fX - src[0].fX;
     SkScalar    Ay = src[1].fY - src[0].fY;
     SkScalar    Bx = src[0].fX - src[1].fX - src[1].fX + src[2].fX;
@@ -355,8 +329,7 @@ float SkFindQuadMaxCurvature(const SkPoint src[3]) {
     return t;
 }
 
-int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5])
-{
+int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]) {
     SkScalar t = SkFindQuadMaxCurvature(src);
     if (t == 0) {
         memcpy(dst, src, 3 * sizeof(SkPoint));
@@ -379,35 +352,35 @@ void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]) {
     dst[3] = src[2];
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
-///// CUBICS // CUBICS // CUBICS // CUBICS // CUBICS // CUBICS // CUBICS // CUBICS /////
-////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+///// CUBICS // CUBICS // CUBICS // CUBICS // CUBICS // CUBICS // CUBICS /////
+//////////////////////////////////////////////////////////////////////////////
 
-static void get_cubic_coeff(const SkScalar pt[], SkScalar coeff[4])
-{
+static void get_cubic_coeff(const SkScalar pt[], SkScalar coeff[4]) {
     coeff[0] = pt[6] + 3*(pt[2] - pt[4]) - pt[0];
     coeff[1] = 3*(pt[4] - pt[2] - pt[2] + pt[0]);
     coeff[2] = 3*(pt[2] - pt[0]);
     coeff[3] = pt[0];
 }
 
-void SkGetCubicCoeff(const SkPoint pts[4], SkScalar cx[4], SkScalar cy[4])
-{
+void SkGetCubicCoeff(const SkPoint pts[4], SkScalar cx[4], SkScalar cy[4]) {
     SkASSERT(pts);
 
-    if (cx)
+    if (cx) {
         get_cubic_coeff(&pts[0].fX, cx);
-    if (cy)
+    }
+    if (cy) {
         get_cubic_coeff(&pts[0].fY, cy);
+    }
 }
 
-static SkScalar eval_cubic(const SkScalar src[], SkScalar t)
-{
+static SkScalar eval_cubic(const SkScalar src[], SkScalar t) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
-    if (t == 0)
+    if (t == 0) {
         return src[0];
+    }
 
 #ifdef DIRECT_EVAL_OF_POLYNOMIALS
     SkScalar D = src[0];
@@ -428,15 +401,13 @@ static SkScalar eval_cubic(const SkScalar src[], SkScalar t)
 
 /** return At^2 + Bt + C
 */
-static SkScalar eval_quadratic(SkScalar A, SkScalar B, SkScalar C, SkScalar t)
-{
+static SkScalar eval_quadratic(SkScalar A, SkScalar B, SkScalar C, SkScalar t) {
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
     return SkScalarMulAdd(SkScalarMulAdd(A, t, B), t, C);
 }
 
-static SkScalar eval_cubic_derivative(const SkScalar src[], SkScalar t)
-{
+static SkScalar eval_cubic_derivative(const SkScalar src[], SkScalar t) {
     SkScalar A = src[6] + 3*(src[2] - src[4]) - src[0];
     SkScalar B = 2*(src[4] - 2 * src[2] + src[0]);
     SkScalar C = src[2] - src[0];
@@ -444,27 +415,29 @@ static SkScalar eval_cubic_derivative(const SkScalar src[], SkScalar t)
     return eval_quadratic(A, B, C, t);
 }
 
-static SkScalar eval_cubic_2ndDerivative(const SkScalar src[], SkScalar t)
-{
+static SkScalar eval_cubic_2ndDerivative(const SkScalar src[], SkScalar t) {
     SkScalar A = src[6] + 3*(src[2] - src[4]) - src[0];
     SkScalar B = src[4] - 2 * src[2] + src[0];
 
     return SkScalarMulAdd(A, t, B);
 }
 
-void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* loc, SkVector* tangent, SkVector* curvature)
-{
+void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* loc,
+                   SkVector* tangent, SkVector* curvature) {
     SkASSERT(src);
     SkASSERT(t >= 0 && t <= SK_Scalar1);
 
-    if (loc)
+    if (loc) {
         loc->set(eval_cubic(&src[0].fX, t), eval_cubic(&src[0].fY, t));
-    if (tangent)
+    }
+    if (tangent) {
         tangent->set(eval_cubic_derivative(&src[0].fX, t),
                      eval_cubic_derivative(&src[0].fY, t));
-    if (curvature)
+    }
+    if (curvature) {
         curvature->set(eval_cubic_2ndDerivative(&src[0].fX, t),
                        eval_cubic_2ndDerivative(&src[0].fY, t));
+    }
 }
 
 /** Cubic'(t) = At^2 + Bt + C, where
@@ -473,8 +446,8 @@ void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* loc, SkVector* tan
     C = 3(b - a)
     Solve for t, keeping only those that fit betwee 0 < t < 1
 */
-int SkFindCubicExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar d, SkScalar tValues[2])
-{
+int SkFindCubicExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar d,
+                       SkScalar tValues[2]) {
     // we divide A,B,C by 3 to simplify
     SkScalar A = d - a + 3*(b - c);
     SkScalar B = 2*(a - b - b + c);
@@ -483,8 +456,8 @@ int SkFindCubicExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar d, SkScalar 
     return SkFindUnitQuadRoots(A, B, C, tValues);
 }
 
-static void interp_cubic_coords(const SkScalar* src, SkScalar* dst, SkScalar t)
-{
+static void interp_cubic_coords(const SkScalar* src, SkScalar* dst,
+                                SkScalar t) {
     SkScalar    ab = SkScalarInterp(src[0], src[2], t);
     SkScalar    bc = SkScalarInterp(src[2], src[4], t);
     SkScalar    cd = SkScalarInterp(src[4], src[6], t);
@@ -501,8 +474,7 @@ static void interp_cubic_coords(const SkScalar* src, SkScalar* dst, SkScalar t)
     dst[12] = src[6];
 }
 
-void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t)
-{
+void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
     SkASSERT(t > 0 && t < SK_Scalar1);
 
     interp_cubic_coords(&src[0].fX, &dst[0].fX, t);
@@ -532,8 +504,8 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t)
     }
  */
 
-void SkChopCubicAt(const SkPoint src[4], SkPoint dst[], const SkScalar tValues[], int roots)
-{
+void SkChopCubicAt(const SkPoint src[4], SkPoint dst[],
+                   const SkScalar tValues[], int roots) {
 #ifdef SK_DEBUG
     {
         for (int i = 0; i < roots - 1; i++)
@@ -545,20 +517,18 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[], const SkScalar tValues[]
     }
 #endif
 
-    if (dst)
-    {
-        if (roots == 0) // nothing to chop
+    if (dst) {
+        if (roots == 0) { // nothing to chop
             memcpy(dst, src, 4*sizeof(SkPoint));
-        else
-        {
+        } else {
             SkScalar    t = tValues[0];
             SkPoint     tmp[4];
 
-            for (int i = 0; i < roots; i++)
-            {
+            for (int i = 0; i < roots; i++) {
                 SkChopCubicAt(src, dst, t);
-                if (i == roots - 1)
+                if (i == roots - 1) {
                     break;
+                }
 
                 dst += 3;
                 // have src point to the remaining cubic (after the chop)
@@ -577,8 +547,7 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[], const SkScalar tValues[]
     }
 }
 
-void SkChopCubicAtHalf(const SkPoint src[4], SkPoint dst[7])
-{
+void SkChopCubicAtHalf(const SkPoint src[4], SkPoint dst[7]) {
     SkScalar x01 = SkScalarAve(src[0].fX, src[1].fX);
     SkScalar y01 = SkScalarAve(src[0].fY, src[1].fY);
     SkScalar x12 = SkScalarAve(src[1].fX, src[2].fX);
@@ -600,8 +569,7 @@ void SkChopCubicAtHalf(const SkPoint src[4], SkPoint dst[7])
     dst[6] = src[3];
 }
 
-static void flatten_double_cubic_extrema(SkScalar coords[14])
-{
+static void flatten_double_cubic_extrema(SkScalar coords[14]) {
     coords[4] = coords[8] = coords[6];
 }
 
@@ -656,8 +624,7 @@ int SkChopCubicAtXExtrema(const SkPoint src[4], SkPoint dst[10]) {
     C = d - 3c + 3b - a
     (BxCy - ByCx)t^2 + (AxCy - AyCx)t + AxBy - AyBx == 0
 */
-int SkFindCubicInflections(const SkPoint src[4], SkScalar tValues[])
-{
+int SkFindCubicInflections(const SkPoint src[4], SkScalar tValues[]) {
     SkScalar    Ax = src[1].fX - src[0].fX;
     SkScalar    Ay = src[1].fY - src[0].fY;
     SkScalar    Bx = src[2].fX - 2 * src[1].fX + src[0].fX;
@@ -668,23 +635,21 @@ int SkFindCubicInflections(const SkPoint src[4], SkScalar tValues[])
     return SkFindUnitQuadRoots(Bx*Cy - By*Cx, Ax*Cy - Ay*Cx, Ax*By - Ay*Bx, tValues);
 }
 
-int SkChopCubicAtInflections(const SkPoint src[], SkPoint dst[10])
-{
+int SkChopCubicAtInflections(const SkPoint src[], SkPoint dst[10]) {
     SkScalar    tValues[2];
     int         count = SkFindCubicInflections(src, tValues);
 
-    if (dst)
-    {
-        if (count == 0)
+    if (dst) {
+        if (count == 0) {
             memcpy(dst, src, 4 * sizeof(SkPoint));
-        else
+        } else {
             SkChopCubicAt(src, dst, tValues, count);
+        }
     }
     return count + 1;
 }
 
-template <typename T> void bubble_sort(T array[], int count)
-{
+template <typename T> void bubble_sort(T array[], int count) {
     for (int i = count - 1; i > 0; --i)
         for (int j = i; j > 0; --j)
             if (array[j] < array[j-1])
@@ -695,45 +660,11 @@ template <typename T> void bubble_sort(T array[], int count)
             }
 }
 
-// newton refinement
-#if 0
-static SkScalar refine_cubic_root(const SkFP coeff[4], SkScalar root)
-{
-    //  x1 = x0 - f(t) / f'(t)
-
-    SkFP    T = SkScalarToFloat(root);
-    SkFP    N, D;
-
-    // f' = 3*coeff[0]*T^2 + 2*coeff[1]*T + coeff[2]
-    D = SkFPMul(SkFPMul(coeff[0], SkFPMul(T,T)), 3);
-    D = SkFPAdd(D, SkFPMulInt(SkFPMul(coeff[1], T), 2));
-    D = SkFPAdd(D, coeff[2]);
-
-    if (D == 0)
-        return root;
-
-    // f = coeff[0]*T^3 + coeff[1]*T^2 + coeff[2]*T + coeff[3]
-    N = SkFPMul(SkFPMul(SkFPMul(T, T), T), coeff[0]);
-    N = SkFPAdd(N, SkFPMul(SkFPMul(T, T), coeff[1]));
-    N = SkFPAdd(N, SkFPMul(T, coeff[2]));
-    N = SkFPAdd(N, coeff[3]);
-
-    if (N)
-    {
-        SkScalar delta = SkFPToScalar(SkFPDiv(N, D));
-
-        if (delta)
-            root -= delta;
-    }
-    return root;
-}
-#endif
-
 /**
  *  Given an array and count, remove all pair-wise duplicates from the array,
  *  keeping the existing sorting, and return the new count
  */
-static int collaps_duplicates(float array[], int count) {
+static int collaps_duplicates(SkScalar array[], int count) {
     for (int n = count; n > 1; --n) {
         if (array[0] == array[1]) {
             for (int i = 1; i < n; ++i) {
@@ -755,15 +686,15 @@ static void test_collaps_duplicates() {
     static bool gOnce;
     if (gOnce) { return; }
     gOnce = true;
-    const float src0[] = { 0 };
-    const float src1[] = { 0, 0 };
-    const float src2[] = { 0, 1 };
-    const float src3[] = { 0, 0, 0 };
-    const float src4[] = { 0, 0, 1 };
-    const float src5[] = { 0, 1, 1 };
-    const float src6[] = { 0, 1, 2 };
+    const SkScalar src0[] = { 0 };
+    const SkScalar src1[] = { 0, 0 };
+    const SkScalar src2[] = { 0, 1 };
+    const SkScalar src3[] = { 0, 0, 0 };
+    const SkScalar src4[] = { 0, 0, 1 };
+    const SkScalar src5[] = { 0, 1, 1 };
+    const SkScalar src6[] = { 0, 1, 2 };
     const struct {
-        const float* fData;
+        const SkScalar* fData;
         int fCount;
         int fCollapsedCount;
     } data[] = {
@@ -776,7 +707,7 @@ static void test_collaps_duplicates() {
         { TEST_COLLAPS_ENTRY(src6), 3 },
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(data); ++i) {
-        float dst[3];
+        SkScalar dst[3];
         memcpy(dst, data[i].fData, data[i].fCount * sizeof(dst[0]));
         int count = collaps_duplicates(dst, data[i].fCount);
         SkASSERT(data[i].fCollapsedCount == count);
@@ -788,7 +719,7 @@ static void test_collaps_duplicates() {
 #endif
 
 static SkScalar SkScalarCubeRoot(SkScalar x) {
-    return sk_float_pow(x, 0.3333333f);
+    return SkScalarPow(x, 0.3333333f);
 }
 
 /*  Solve coeff(t) == 0, returning the number of roots that
@@ -798,10 +729,8 @@ static SkScalar SkScalarCubeRoot(SkScalar x) {
     Eliminates repeated roots (so that all tValues are distinct, and are always
     in increasing order.
 */
-static int solve_cubic_polynomial(const SkScalar coeff[4], SkScalar tValues[3])
-{
-    if (SkScalarNearlyZero(coeff[0]))   // we're just a quadratic
-    {
+static int solve_cubic_poly(const SkScalar coeff[4], SkScalar tValues[3]) {
+    if (SkScalarNearlyZero(coeff[0])) {  // we're just a quadratic
         return SkFindUnitQuadRoots(coeff[1], coeff[2], coeff[3], tValues);
     }
 
@@ -825,23 +754,22 @@ static int solve_cubic_polynomial(const SkScalar coeff[4], SkScalar tValues[3])
     SkScalar*   roots = tValues;
     SkScalar    r;
 
-    if (R2MinusQ3 < 0)   // we have 3 real roots
-    {
-        float theta = sk_float_acos(R / sk_float_sqrt(Q3));
-        float neg2RootQ = -2 * sk_float_sqrt(Q);
+    if (R2MinusQ3 < 0) { // we have 3 real roots
+        SkScalar theta = SkScalarACos(R / SkScalarSqrt(Q3));
+        SkScalar neg2RootQ = -2 * SkScalarSqrt(Q);
 
-        r = neg2RootQ * sk_float_cos(theta/3) - adiv3;
-        if (is_unit_interval(r))
+        r = neg2RootQ * SkScalarCos(theta/3) - adiv3;
+        if (is_unit_interval(r)) {
             *roots++ = r;
-
-        r = neg2RootQ * sk_float_cos((theta + 2*SK_ScalarPI)/3) - adiv3;
-        if (is_unit_interval(r))
+        }
+        r = neg2RootQ * SkScalarCos((theta + 2*SK_ScalarPI)/3) - adiv3;
+        if (is_unit_interval(r)) {
             *roots++ = r;
-
-        r = neg2RootQ * sk_float_cos((theta - 2*SK_ScalarPI)/3) - adiv3;
-        if (is_unit_interval(r))
+        }
+        r = neg2RootQ * SkScalarCos((theta - 2*SK_ScalarPI)/3) - adiv3;
+        if (is_unit_interval(r)) {
             *roots++ = r;
-
+        }
         SkDEBUGCODE(test_collaps_duplicates();)
 
         // now sort the roots
@@ -850,19 +778,19 @@ static int solve_cubic_polynomial(const SkScalar coeff[4], SkScalar tValues[3])
         bubble_sort(tValues, count);
         count = collaps_duplicates(tValues, count);
         roots = tValues + count;    // so we compute the proper count below
-    }
-    else                // we have 1 real root
-    {
+    } else {              // we have 1 real root
         SkScalar A = SkScalarAbs(R) + SkScalarSqrt(R2MinusQ3);
         A = SkScalarCubeRoot(A);
-        if (R > 0)
+        if (R > 0) {
             A = -A;
-
-        if (A != 0)
+        }
+        if (A != 0) {
             A += Q / A;
+        }
         r = A - adiv3;
-        if (is_unit_interval(r))
+        if (is_unit_interval(r)) {
             *roots++ = r;
+        }
     }
 
     return (int)(roots - tValues);
@@ -879,8 +807,7 @@ static int solve_cubic_polynomial(const SkScalar coeff[4], SkScalar tValues[3])
 
     F' dot F'' -> CCt^3 + 3BCt^2 + (2BB + CA)t + AB
 */
-static void formulate_F1DotF2(const SkScalar src[], SkScalar coeff[4])
-{
+static void formulate_F1DotF2(const SkScalar src[], SkScalar coeff[4]) {
     SkScalar    a = src[2] - src[0];
     SkScalar    b = src[4] - 2 * src[2] + src[0];
     SkScalar    c = src[6] + 3 * (src[2] - src[4]) - src[0];
@@ -890,10 +817,6 @@ static void formulate_F1DotF2(const SkScalar src[], SkScalar coeff[4])
     coeff[2] = 2 * b * b + c * a;
     coeff[3] = a * b;
 }
-
-// EXPERIMENTAL: can set this to zero to accept all t-values 0 < t < 1
-//#define kMinTValueForChopping (SK_Scalar1 / 256)
-#define kMinTValueForChopping   0
 
 /*  Looking for F' dot F'' == 0
 
@@ -906,51 +829,54 @@ static void formulate_F1DotF2(const SkScalar src[], SkScalar coeff[4])
 
     F' dot F'' -> CCt^3 + 3BCt^2 + (2BB + CA)t + AB
 */
-int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3])
-{
+int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3]) {
     SkScalar coeffX[4], coeffY[4];
     int      i;
 
     formulate_F1DotF2(&src[0].fX, coeffX);
     formulate_F1DotF2(&src[0].fY, coeffY);
 
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++) {
         coeffX[i] += coeffY[i];
+    }
 
     SkScalar    t[3];
-    int         count = solve_cubic_polynomial(coeffX, t);
+    int         count = solve_cubic_poly(coeffX, t);
     int         maxCount = 0;
 
     // now remove extrema where the curvature is zero (mins)
     // !!!! need a test for this !!!!
-    for (i = 0; i < count; i++)
-    {
+    for (i = 0; i < count; i++) {
         // if (not_min_curvature())
-        if (t[i] > kMinTValueForChopping && t[i] < SK_Scalar1 - kMinTValueForChopping)
+        if (t[i] > 0 && t[i] < SK_Scalar1) {
             tValues[maxCount++] = t[i];
+        }
     }
     return maxCount;
 }
 
-int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13], SkScalar tValues[3])
-{
+int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
+                              SkScalar tValues[3]) {
     SkScalar    t_storage[3];
 
-    if (tValues == NULL)
+    if (tValues == NULL) {
         tValues = t_storage;
+    }
 
     int count = SkFindCubicMaxCurvature(src, tValues);
 
     if (dst) {
-        if (count == 0)
+        if (count == 0) {
             memcpy(dst, src, 4 * sizeof(SkPoint));
-        else
+        } else {
             SkChopCubicAt(src, dst, tValues, count);
+        }
     }
     return count + 1;
 }
 
-bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4], bool* ambiguous) {
+bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4],
+                                 bool* ambiguous) {
     if (ambiguous) {
         *ambiguous = false;
     }
@@ -1064,13 +990,13 @@ int SkNumXRayCrossingsForCubic(const SkXRay& pt, const SkPoint cubic[4], bool* a
     }
     return num_crossings;
 }
-////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
 
 /*  Find t value for quadratic [a, b, c] = d.
     Return 0 if there is no solution within [0, 1)
 */
-static SkScalar quad_solve(SkScalar a, SkScalar b, SkScalar c, SkScalar d)
-{
+static SkScalar quad_solve(SkScalar a, SkScalar b, SkScalar c, SkScalar d) {
     // At^2 + Bt + C = d
     SkScalar A = a - 2 * b + c;
     SkScalar B = 2 * (b - a);
@@ -1088,8 +1014,8 @@ static SkScalar quad_solve(SkScalar a, SkScalar b, SkScalar c, SkScalar d)
     Should only return false if the computed pos is the start of the curve
     (i.e. root == 0)
 */
-static bool truncate_last_curve(const SkPoint quad[3], SkScalar x, SkScalar y, SkPoint* dest)
-{
+static bool truncate_last_curve(const SkPoint quad[3], SkScalar x, SkScalar y,
+                                SkPoint* dest) {
     const SkScalar* base;
     SkScalar        value;
 
@@ -1105,8 +1031,7 @@ static bool truncate_last_curve(const SkPoint quad[3], SkScalar x, SkScalar y, S
     // root might return something outside of [0, 1)
     SkScalar t = quad_solve(base[0], base[2], base[4], value);
 
-    if (t > 0)
-    {
+    if (t > 0) {
         SkPoint tmp[5];
         SkChopQuadAt(quad, tmp, t);
         dest[0] = tmp[1];
@@ -1167,8 +1092,7 @@ static const SkPoint gQuadCirclePts[kSkBuildQuadArcStorage] = {
 
 int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
                    SkRotationDirection dir, const SkMatrix* userMatrix,
-                   SkPoint quadPoints[])
-{
+                   SkPoint quadPoints[]) {
     // rotate by x,y so that uStart is (1.0)
     SkScalar x = SkPoint::DotProduct(uStart, uStop);
     SkScalar y = SkPoint::CrossProduct(uStart, uStop);
@@ -1189,45 +1113,37 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
         quadPoints[0].set(SK_Scalar1, 0);
         pointCount = 1;
     } else {
-        if (dir == kCCW_SkRotationDirection)
+        if (dir == kCCW_SkRotationDirection) {
             y = -y;
-
+        }
         // what octant (quadratic curve) is [xy] in?
         int oct = 0;
         bool sameSign = true;
 
-        if (0 == y)
-        {
+        if (0 == y) {
             oct = 4;        // 180
             SkASSERT(SkScalarAbs(x + SK_Scalar1) <= SK_ScalarNearlyZero);
-        }
-        else if (0 == x)
-        {
+        } else if (0 == x) {
             SkASSERT(absY - SK_Scalar1 <= SK_ScalarNearlyZero);
-            if (y > 0)
-                oct = 2;    // 90
-            else
-                oct = 6;    // 270
-        }
-        else
-        {
-            if (y < 0)
+            oct = y > 0 ? 2 : 6; // 90 : 270
+        } else {
+            if (y < 0) {
                 oct += 4;
-            if ((x < 0) != (y < 0))
-            {
+            }
+            if ((x < 0) != (y < 0)) {
                 oct += 2;
                 sameSign = false;
             }
-            if ((absX < absY) == sameSign)
+            if ((absX < absY) == sameSign) {
                 oct += 1;
+            }
         }
 
         int wholeCount = oct << 1;
         memcpy(quadPoints, gQuadCirclePts, (wholeCount + 1) * sizeof(SkPoint));
 
         const SkPoint* arc = &gQuadCirclePts[wholeCount];
-        if (truncate_last_curve(arc, x, y, &quadPoints[wholeCount + 1]))
-        {
+        if (truncate_last_curve(arc, x, y, &quadPoints[wholeCount + 1])) {
             wholeCount += 2;
         }
         pointCount = wholeCount + 1;
