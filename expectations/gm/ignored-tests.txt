@@ -81,3 +81,6 @@ downsamplebitmap_text_none_72.00pt
 bleed
 bitmaprecttest
 drawbitmapmatrix
+
+# Added by yunchao.he@intel.com for https://codereview.chromium.org/166023002
+inverse_paths
