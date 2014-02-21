@@ -234,6 +234,7 @@ static const char* computeAnimatorState(int enabled, int focused, SkButtonWidget
     return "enabled";
 }
 
+#include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkEmbossMaskFilter.h"
 
@@ -255,7 +256,8 @@ static void create_emboss(SkPaint* paint, SkScalar radius, bool focus, bool pres
     if (focus)
         light.fDirection[2] += SK_Scalar1/4;
 
-    paint->setMaskFilter(new SkEmbossMaskFilter(light, radius))->unref();
+    SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(radius);
+    paint->setMaskFilter(new SkEmbossMaskFilter(sigma, light))->unref();
 }
 
 void SkPushButtonWidget::onDraw(SkCanvas* canvas)

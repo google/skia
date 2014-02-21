@@ -12,9 +12,6 @@
 
 class SK_API SkKernel33ProcMaskFilter : public SkMaskFilter {
 public:
-    SkKernel33ProcMaskFilter(unsigned percent256 = 256)
-        : fPercent256(percent256) {}
-
     virtual uint8_t computeValue(uint8_t* const* srcRows) const = 0;
 
     virtual SkMask::Format getFormat() const SK_OVERRIDE;
@@ -24,6 +21,8 @@ public:
     SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
 
 protected:
+    SkKernel33ProcMaskFilter(unsigned percent256 = 256)
+        : fPercent256(percent256) {}
     SkKernel33ProcMaskFilter(SkReadBuffer& rb);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
@@ -37,10 +36,8 @@ private:
 
 class SK_API SkKernel33MaskFilter : public SkKernel33ProcMaskFilter {
 public:
-    SkKernel33MaskFilter(const int coeff[3][3], int shift, int percent256 = 256)
-            : SkKernel33ProcMaskFilter(percent256) {
-        memcpy(fKernel, coeff, 9 * sizeof(int));
-        fShift = shift;
+    static SkKernel33MaskFilter* Create(const int coeff[3][3], int shift, int percent256 = 256) {
+        return SkNEW_ARGS(SkKernel33MaskFilter, (coeff, shift, percent256));
     }
 
     // override from SkKernel33ProcMaskFilter
@@ -48,6 +45,16 @@ public:
 
     SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkKernel33MaskFilter)
+
+protected:
+#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
+public:
+#endif
+    SkKernel33MaskFilter(const int coeff[3][3], int shift, int percent256 = 256)
+            : SkKernel33ProcMaskFilter(percent256) {
+        memcpy(fKernel, coeff, 9 * sizeof(int));
+        fShift = shift;
+    }
 
 private:
     int fKernel[3][3];

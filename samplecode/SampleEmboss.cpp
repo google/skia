@@ -53,7 +53,7 @@ protected:
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(10));
-        paint.setMaskFilter(new SkEmbossMaskFilter(
+        paint.setMaskFilter(SkEmbossMaskFilter::Create(
             SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4)), fLight))->unref();
         paint.setShader(new SkColorShader(SK_ColorBLUE))->unref();
         paint.setDither(true);

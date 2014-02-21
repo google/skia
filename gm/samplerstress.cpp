@@ -83,7 +83,7 @@ protected:
             return;
         }
 
-        fMaskFilter.reset(SkNEW(SkStippleMaskFilter));
+        fMaskFilter.reset(SkStippleMaskFilter::Create());
     }
 
     virtual void onDraw(SkCanvas* canvas) {

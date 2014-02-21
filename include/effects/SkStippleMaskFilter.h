@@ -15,7 +15,8 @@
  */
 class SK_API SkStippleMaskFilter : public SkMaskFilter {
 public:
-    SkStippleMaskFilter() : INHERITED() {
+    static SkStippleMaskFilter* Create() {
+        return SkNEW(SkStippleMaskFilter);
     }
 
     virtual bool filterMask(SkMask* dst, const SkMask& src,
@@ -33,6 +34,12 @@ public:
 protected:
     SkStippleMaskFilter(SkReadBuffer& buffer)
     : SkMaskFilter(buffer) {
+    }
+
+#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
+public:
+#endif
+    SkStippleMaskFilter() : INHERITED() {
     }
 
 private:

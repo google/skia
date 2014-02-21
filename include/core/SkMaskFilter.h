@@ -40,8 +40,6 @@ class SK_API SkMaskFilter : public SkFlattenable {
 public:
     SK_DECLARE_INST_COUNT(SkMaskFilter)
 
-    SkMaskFilter() {}
-
     /** Returns the format of the resulting mask that this subclass will return
         when its filterMask() method is called.
     */
@@ -136,6 +134,7 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkMaskFilter)
 
 protected:
+    SkMaskFilter() {}
     // empty for now, but lets get our subclass to remember to init us for the future
     SkMaskFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
