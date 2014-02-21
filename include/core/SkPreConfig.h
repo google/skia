@@ -144,6 +144,12 @@
     #endif
 #endif
 
+// Android x86 NDK ABI requires SSE3 support
+#if defined(SK_BUILD_FOR_ANDROID)
+    #undef SK_CPU_SSE_LEVEL
+    #define SK_CPU_SSE_LEVEL        SK_CPU_SSE_LEVEL_SSE3
+#endif
+
 //////////////////////////////////////////////////////////////////////
 // ARM defines
 
