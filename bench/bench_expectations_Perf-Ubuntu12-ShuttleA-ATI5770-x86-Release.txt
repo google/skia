@@ -65,7 +65,6 @@ tabl_frantzen.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-
 tabl_gamedeksiam.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.74,-2.28,7.77
 tabl_gmail.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.71,-4.30,5.73
 tabl_googleblog.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.05,-4.02,6.13
-tabl_googlecalendar.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,4.71,-0.36,9.81
 tabl_gspro.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.93,-4.15,6.05
 tabl_hsfi.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.25,-1.79,8.29
 tabl_mercurynews.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.42,-3.61,6.45
@@ -79,7 +78,6 @@ tabl_slashdot.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-
 tabl_techmeme.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.62,-4.37,5.62
 tabl_ukwsj.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.09,-2.93,7.10
 tabl_vnexpress.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.24,-3.77,6.25
-tabl_worldjournal.skp_simple_viewport_1000x1000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.41,-1.60,8.42
 desk_amazon.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.69,-3.85,7.13
 desk_baidu.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.31,-2.93,7.58
 desk_blogger.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.37,-2.67,7.42
@@ -134,7 +132,6 @@ tabl_frantzen.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-
 tabl_gamedeksiam.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,6.11,0.87,11.35
 tabl_gmail.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.00,-4.66,6.59
 tabl_googleblog.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.26,-2.79,7.32
-tabl_googlecalendar.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,9.84,4.12,15.69
 tabl_gspro.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.02,-4.33,6.45
 tabl_hsfi.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.57,-3.54,6.70
 tabl_mercurynews.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.68,-1.73,9.17
@@ -148,7 +145,6 @@ tabl_slashdot.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-
 tabl_techmeme.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.01,-4.47,6.55
 tabl_ukwsj.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.89,-2.39,8.21
 tabl_vnexpress.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.20,-3.30,7.81
-tabl_worldjournal.skp_simple_viewport_1000x1000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,18.01,11.94,24.32
 desk_amazon.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.60,-2.49,7.69
 desk_baidu.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.16,-3.86,6.17
 desk_blogger.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.40,-3.62,6.43
@@ -203,7 +199,6 @@ tabl_frantzen.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-Shutt
 tabl_gamedeksiam.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,4.86,-0.32,10.07
 tabl_gmail.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.70,-4.31,5.71
 tabl_googleblog.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.48,-3.53,6.49
-tabl_googlecalendar.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,4.89,-0.13,9.92
 tabl_gspro.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.93,-4.26,6.18
 tabl_hsfi.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,8.16,3.10,13.22
 tabl_mercurynews.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.11,-2.90,7.13
@@ -217,7 +212,6 @@ tabl_slashdot.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-Shutt
 tabl_techmeme.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.65,-4.37,5.66
 tabl_ukwsj.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.88,-1.18,8.94
 tabl_vnexpress.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.57,-2.44,7.59
-tabl_worldjournal.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,4.98,-0.27,10.26
 desk_amazon.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.66,-3.64,6.90
 desk_baidu.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.13,-3.38,7.76
 desk_blogger.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.80,-2.28,7.89
@@ -272,7 +266,6 @@ tabl_frantzen.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-S
 tabl_gamedeksiam.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,6.28,0.42,12.22
 tabl_gmail.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.84,-4.66,6.45
 tabl_googleblog.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.59,-3.43,6.62
-tabl_googlecalendar.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,12.52,7.19,17.91
 tabl_gspro.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,1.54,-4.29,7.59
 tabl_hsfi.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.03,-3.02,7.09
 tabl_mercurynews.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,3.30,-1.92,8.56
@@ -286,4 +279,3 @@ tabl_slashdot.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-S
 tabl_techmeme.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,0.78,-4.31,5.89
 tabl_ukwsj.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.75,-2.35,7.85
 tabl_vnexpress.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,2.17,-2.94,7.29
-tabl_worldjournal.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-ATI5770-x86-Release-25th,18.32,12.22,24.51

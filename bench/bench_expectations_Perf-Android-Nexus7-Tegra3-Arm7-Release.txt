@@ -65,7 +65,6 @@ tabl_frantzen.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Rel
 tabl_gamedeksiam.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,23.32,7.19,39.23
 tabl_gmail.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,6.29,-9.04,21.68
 tabl_googleblog.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,10.96,-4.82,26.58
-tabl_googlecalendar.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,29.88,13.86,46.02
 tabl_gspro.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,8.16,-7.77,24.15
 tabl_hsfi.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,21.70,5.46,38.20
 tabl_mercurynews.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,15.69,0.02,31.65
@@ -79,7 +78,6 @@ tabl_slashdot.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Rel
 tabl_techmeme.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,5.69,-9.49,20.83
 tabl_ukwsj.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,20.30,4.79,35.93
 tabl_vnexpress.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,13.41,-1.92,28.76
-tabl_worldjournal.skp_simple_viewport_1000x1000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,25.78,8.95,42.88
 desk_amazon.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,9.70,-7.52,27.40
 desk_baidu.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,12.42,-2.97,27.93
 desk_blogger.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,19.89,3.60,36.16
@@ -134,7 +132,6 @@ tabl_frantzen.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7
 tabl_gamedeksiam.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,44.91,26.35,63.35
 tabl_gmail.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,9.35,-5.77,24.50
 tabl_googleblog.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,15.87,-0.01,31.67
-tabl_googlecalendar.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,67.78,51.38,84.27
 tabl_gspro.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,9.89,-9.78,29.57
 tabl_hsfi.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,14.82,-0.81,30.65
 tabl_mercurynews.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,21.52,3.65,39.36
@@ -148,7 +145,6 @@ tabl_slashdot.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7
 tabl_techmeme.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,6.71,-8.55,21.96
 tabl_ukwsj.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,21.19,5.47,36.98
 tabl_vnexpress.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,14.72,-0.86,30.31
-tabl_worldjournal.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,71.71,50.48,94.11
 desk_amazon.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,26.83,11.44,42.37
 desk_baidu.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,8.02,-7.30,23.39
 desk_blogger.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,13.68,-1.52,28.90
@@ -203,7 +199,6 @@ tabl_frantzen.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7
 tabl_gamedeksiam.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,32.40,14.47,49.82
 tabl_gmail.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,6.27,-8.96,21.55
 tabl_googleblog.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,16.02,0.78,31.32
-tabl_googlecalendar.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,31.51,15.70,47.47
 tabl_gspro.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,8.85,-7.31,25.12
 tabl_hsfi.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,36.12,20.38,51.95
 tabl_mercurynews.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,18.32,1.52,34.82
@@ -217,7 +212,6 @@ tabl_slashdot.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7
 tabl_techmeme.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,5.89,-9.38,21.25
 tabl_ukwsj.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,32.48,16.61,48.45
 tabl_vnexpress.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,22.88,7.47,38.34
-tabl_worldjournal.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,32.81,15.67,49.45
 desk_amazon.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,9.38,-6.44,25.20
 desk_baidu.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,12.42,-2.89,27.74
 desk_blogger.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,23.89,8.38,39.38
@@ -272,7 +266,6 @@ tabl_frantzen.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Ne
 tabl_gamedeksiam.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,48.40,31.77,65.17
 tabl_gmail.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,7.78,-9.73,24.37
 tabl_googleblog.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,10.90,-5.46,27.18
-tabl_googlecalendar.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,80.42,63.08,97.79
 tabl_gspro.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,11.86,-8.63,33.28
 tabl_hsfi.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,19.18,-2.63,38.85
 tabl_mercurynews.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,50.33,34.04,66.63
@@ -286,4 +279,3 @@ tabl_slashdot.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Ne
 tabl_techmeme.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,6.78,-8.64,22.13
 tabl_ukwsj.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,20.84,5.39,36.26
 tabl_vnexpress.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,20.71,5.40,36.03
-tabl_worldjournal.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,63.32,47.10,79.71
