@@ -136,11 +136,11 @@ void SkDCubic::toQuadraticTs(double precision, SkTArray<double, true>* ts) const
         memmove(inflectT, &inflectT[1], sizeof(inflectT[0]) * --inflections);
     }
     int start = 0;
-    int next = 1; 
+    int next = 1;
     while (next < inflections) {
         if (!approximately_equal(inflectT[start], inflectT[next])) {
             ++start;
-	    ++next;
+        ++next;
             continue;
         }
         memmove(&inflectT[start], &inflectT[next], sizeof(inflectT[0]) * (--inflections - start));

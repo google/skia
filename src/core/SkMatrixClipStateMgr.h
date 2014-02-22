@@ -243,7 +243,7 @@ public:
         // Does the MC state have an open block in the skp?
         bool         fHasOpen;
 
-        MatrixClipState* fPrev; 
+        MatrixClipState* fPrev;
 
 #ifdef SK_DEBUG
         int              fExpectedDepth;    // debugging aid

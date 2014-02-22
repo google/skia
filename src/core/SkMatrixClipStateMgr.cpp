@@ -279,7 +279,7 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
         return false;
     }
 
-    if (kIdentityWideOpenStateID != fCurOpenStateID && 
+    if (kIdentityWideOpenStateID != fCurOpenStateID &&
         !this->isCurrentlyOpen(fCurOpenStateID)) {
         // Don't write a restore if the open state is one in which a saveLayer
         // is nested. The save after the saveLayer's restore will close it.
@@ -341,7 +341,7 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
 
         // TODO: this assumes that, in the case of Save|SaveLayer when the SaveLayer
         // doesn't save the clip, that the SaveLayer doesn't add any additional clip state.
-        // This assumption will be removed when we explicitly store the clip state in 
+        // This assumption will be removed when we explicitly store the clip state in
         // self-contained objects. It is valid for the small set of skps.
         if (NULL != state->fPrev && state->fClipInfo == state->fPrev->fClipInfo) {
             // By the above assumption the SaveLayer's MC state has already been
