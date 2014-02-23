@@ -293,7 +293,7 @@ public:
         // from this method, we should be able to get rid of the
         // transformation to 8888 format also.
         SkBitmap copy;
-        bitmap.copyTo(&copy, SkBitmap::kARGB_8888_Config);
+        bitmap.copyTo(&copy, kPMColor_SkColorType);
         if (!SkImageEncoder::EncodeFile(path.c_str(), copy,
                                         SkImageEncoder::kPNG_Type,
                                         100)) {

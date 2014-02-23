@@ -40,7 +40,7 @@ protected:
             return;
         }
         canvas->drawBitmap(bm, 0, 0);
-        SkAssertResult(bm.copyTo(&bm4444, SkBitmap::kARGB_4444_Config));
+        SkAssertResult(bm.copyTo(&bm4444, kARGB_4444_SkColorType));
         canvas->drawBitmap(bm4444, SkIntToScalar(bm.width()), 0);
     }
 

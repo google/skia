@@ -178,7 +178,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     }
 
     if (kernelSizeX == 0 && kernelSizeY == 0) {
-        src.copyTo(dst, dst->config());
+        src.copyTo(dst, dst->colorType());
         offset->fX = srcBounds.fLeft;
         offset->fY = srcBounds.fTop;
         return true;

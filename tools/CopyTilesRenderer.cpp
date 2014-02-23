@@ -70,7 +70,7 @@ namespace sk_tools {
                                 dst.pixelRef()->readPixels(&copy, &subset);
                             } else {
 #endif
-                                dst.copyTo(&copy, dst.config());
+                                dst.copyTo(&copy);
 #if SK_SUPPORT_GPU
                             }
 #endif

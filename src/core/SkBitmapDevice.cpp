@@ -189,9 +189,9 @@ bool SkBitmapDevice::onReadPixels(const SkBitmap& bitmap,
     if (!src.extractSubset(&subset, srcRect)) {
         return false;
     }
-    if (SkBitmap::kARGB_8888_Config != subset.config()) {
+    if (kPMColor_SkColorType != subset.colorType()) {
         // It'd be preferable to do this directly to bitmap.
-        subset.copyTo(&subset, SkBitmap::kARGB_8888_Config);
+        subset.copyTo(&subset, kPMColor_SkColorType);
     }
     SkAutoLockPixels alp(bitmap);
     uint32_t* bmpPixels = reinterpret_cast<uint32_t*>(bitmap.getPixels());

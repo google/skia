@@ -125,8 +125,8 @@ static void adobergb_to_cielab(float r, float g, float b, LAB* lab) {
 /// Converts a 8888 bitmap to LAB color space and puts it into the output
 static bool bitmap_to_cielab(const SkBitmap* bitmap, ImageLAB* outImageLAB) {
     SkBitmap bm8888;
-    if (bitmap->config() != SkBitmap::kARGB_8888_Config) {
-        if (!bitmap->copyTo(&bm8888, SkBitmap::kARGB_8888_Config)) {
+    if (bitmap->colorType() != kPMColor_SkColorType) {
+        if (!bitmap->copyTo(&bm8888, kPMColor_SkColorType)) {
             return false;
         }
         bitmap = &bm8888;

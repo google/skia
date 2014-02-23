@@ -1449,7 +1449,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 
         SkBaseDevice* device = orig->getDevice();
         SkBitmap bmp;
-        if (device->accessBitmap(false).copyTo(&bmp, SkBitmap::kARGB_8888_Config)) {
+        if (device->accessBitmap(false).copyTo(&bmp, kPMColor_SkColorType)) {
             static int gSampleGrabCounter;
             SkString name;
             name.printf("sample_grab_%d.png", gSampleGrabCounter++);

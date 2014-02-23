@@ -127,7 +127,7 @@ bool SkImage_Raster::onReadPixels(SkBitmap* dst, const SkIRect& subset) const {
         if (!fBitmap.extractSubset(&src, subset)) {
             return false;
         }
-        return src.copyTo(dst, src.config());
+        return src.copyTo(dst, src.colorType());
     }
 }
 

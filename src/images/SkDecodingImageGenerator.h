@@ -113,13 +113,12 @@ private:
     const SkImageInfo      fInfo;
     const int              fSampleSize;
     const bool             fDitherImage;
-    const SkBitmap::Config fRequestedConfig;
+
     SkDecodingImageGenerator(SkData* data,
                              SkStreamRewindable* stream,
                              const SkImageInfo& info,
                              int sampleSize,
-                             bool ditherImage,
-                             SkBitmap::Config requestedConfig);
+                             bool ditherImage);
     static SkImageGenerator* Create(SkData*, SkStreamRewindable*,
                                     const Options&);
     typedef SkImageGenerator INHERITED;

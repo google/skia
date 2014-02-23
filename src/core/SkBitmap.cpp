@@ -982,32 +982,43 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 #include "SkCanvas.h"
 #include "SkPaint.h"
 
-bool SkBitmap::canCopyTo(Config dstConfig) const {
-    if (this->config() == kNo_Config) {
+#ifdef SK_SUPPORT_LEGACY_COPYTO_CONFIG
+bool SkBitmap::copyTo(SkBitmap* dst, Config c, Allocator* allocator) const {
+    return this->copyTo(dst, SkBitmapConfigToSkColorType(c), allocator);
+}
+
+bool SkBitmap::canCopyTo(Config newConfig) const {
+    return this->canCopyTo(SkBitmapConfigToSkColorType(c));
+}
+#endif
+
+bool SkBitmap::canCopyTo(SkColorType dstColorType) const {
+    if (this->colorType() == kUnknown_SkColorType) {
         return false;
     }
 
-    bool sameConfigs = (this->config() == dstConfig);
-    switch (dstConfig) {
-        case kA8_Config:
-        case kRGB_565_Config:
-        case kARGB_8888_Config:
+    bool sameConfigs = (this->colorType() == dstColorType);
+    switch (dstColorType) {
+        case kAlpha_8_SkColorType:
+        case kRGB_565_SkColorType:
+        case kPMColor_SkColorType:
             break;
-        case kIndex8_Config:
+        case kIndex_8_SkColorType:
             if (!sameConfigs) {
                 return false;
             }
             break;
-        case kARGB_4444_Config:
-            return sameConfigs || kARGB_8888_Config == this->config();
+        case kARGB_4444_SkColorType:
+            return sameConfigs || kPMColor_SkColorType == this->colorType();
         default:
             return false;
     }
     return true;
 }
 
-bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
-    if (!this->canCopyTo(dstConfig)) {
+bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType,
+                      Allocator* alloc) const {
+    if (!this->canCopyTo(dstColorType)) {
         return false;
     }
 
@@ -1024,7 +1035,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
             SkASSERT(tmpSrc.height() == this->height());
 
             // did we get lucky and we can just return tmpSrc?
-            if (tmpSrc.config() == dstConfig && NULL == alloc) {
+            if (tmpSrc.colorType() == dstColorType && NULL == alloc) {
                 dst->swap(tmpSrc);
                 // If the result is an exact copy, clone the gen ID.
                 if (dst->pixelRef() && dst->pixelRef()->info() == fPixelRef->info()) {
@@ -1047,14 +1058,20 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     // The only way to be readyToDraw is if fPixelRef is non NULL.
     SkASSERT(fPixelRef != NULL);
 
+    SkImageInfo dstInfo = src->info();
+    dstInfo.fColorType = dstColorType;
+
     SkBitmap tmpDst;
-    tmpDst.setConfig(dstConfig, src->width(), src->height(), 0,
-                     src->alphaType());
+    if (!tmpDst.setConfig(dstInfo)) {
+        return false;
+    }
 
     // allocate colortable if srcConfig == kIndex8_Config
-    SkColorTable* ctable = (dstConfig == kIndex8_Config) ?
-    new SkColorTable(*src->getColorTable()) : NULL;
-    SkAutoUnref au(ctable);
+    SkAutoTUnref<SkColorTable> ctable;
+    if (dstColorType == kIndex_8_SkColorType) {
+        // TODO: can we just ref() the src colortable? Is it reentrant-safe?
+        ctable.reset(SkNEW_ARGS(SkColorTable, (*src->getColorTable())));
+    }
     if (!tmpDst.allocPixels(alloc, ctable)) {
         return false;
     }
@@ -1070,7 +1087,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
 
     /* do memcpy for the same configs cases, else use drawing
     */
-    if (src->config() == dstConfig) {
+    if (src->colorType() == dstColorType) {
         if (tmpDst.getSize() == src->getSize()) {
             memcpy(tmpDst.getPixels(), src->getPixels(), src->getSafeSize());
             SkPixelRef* pixelRef = tmpDst.pixelRef();
@@ -1102,8 +1119,8 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
                 dstP += tmpDst.rowBytes();
             }
         }
-    } else if (SkBitmap::kARGB_4444_Config == dstConfig
-               && SkBitmap::kARGB_8888_Config == src->config()) {
+    } else if (kARGB_4444_SkColorType == dstColorType
+               && kPMColor_SkColorType == src->colorType()) {
         SkASSERT(src->height() == tmpDst.height());
         SkASSERT(src->width() == tmpDst.width());
         for (int y = 0; y < src->height(); ++y) {
@@ -1134,7 +1151,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
 bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
     const SkColorType dstCT = SkBitmapConfigToColorType(dstConfig);
 
-    if (!this->canCopyTo(dstConfig)) {
+    if (!this->canCopyTo(dstCT)) {
         return false;
     }
 
@@ -1169,7 +1186,7 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
     if (this->getTexture()) {
         return false;
     } else {
-        return this->copyTo(dst, dstConfig, NULL);
+        return this->copyTo(dst, dstCT, NULL);
     }
 }
 

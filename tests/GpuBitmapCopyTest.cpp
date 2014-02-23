@@ -24,31 +24,31 @@ static const char* boolStr(bool value) {
 }
 
 // these are in the same order as the SkBitmap::Config enum
-static const char* gConfigName[] = {
+static const char* gColorTypeName[] = {
     "None", "8888"
 };
 
 struct Pair {
-    SkBitmap::Config    fConfig;
-    const char*         fValid;
+    SkColorType fColorType;
+    const char* fValid;
 };
 
 /**
  *  Check to ensure that copying a GPU-backed SkBitmap behaved as expected.
  *  @param reporter Used to report failures.
- *  @param desiredConfig Config being copied to. If the copy succeeded, dst must have this Config.
+ *  @param desiredCT colorType being copied to. If the copy succeeded, dst must have this Config.
  *  @param success True if the copy succeeded.
  *  @param src A GPU-backed SkBitmap that had copyTo or deepCopyTo called on it.
  *  @param dst SkBitmap that was copied to.
  *  @param expectSameGenID Whether the genIDs should be the same if success is true.
  */
-static void TestIndividualCopy(skiatest::Reporter* reporter, const SkBitmap::Config desiredConfig,
+static void TestIndividualCopy(skiatest::Reporter* reporter, const SkColorType desiredCT,
                                const bool success, const SkBitmap& src, const SkBitmap& dst,
                                const bool expectSameGenID) {
     if (success) {
         REPORTER_ASSERT(reporter, src.width() == dst.width());
         REPORTER_ASSERT(reporter, src.height() == dst.height());
-        REPORTER_ASSERT(reporter, dst.config() == desiredConfig);
+        REPORTER_ASSERT(reporter, dst.colorType() == desiredCT);
         if (src.config() == dst.config()) {
             if (expectSameGenID) {
                 REPORTER_ASSERT(reporter, src.getGenerationID() == dst.getGenerationID());
@@ -75,7 +75,7 @@ static void TestIndividualCopy(skiatest::Reporter* reporter, const SkBitmap::Con
                 REPORTER_ASSERT(reporter, readBack);
             } else {
                 // If dst is not a texture, do a copy instead, to the same config as srcReadBack.
-                bool copy = dst.copyTo(&dstReadBack, srcReadBack.config());
+                bool copy = dst.copyTo(&dstReadBack, srcReadBack.colorType());
                 REPORTER_ASSERT(reporter, copy);
             }
 
@@ -133,7 +133,7 @@ DEF_GPUTEST(GpuBitmapCopy, reporter, factory) {
             //
 //            { SkBitmap::kNo_Config,         "00"  },
 //            { SkBitmap::kARGB_8888_Config,  "01"  },
-            { SkBitmap::kARGB_8888_Config,  "1"  },
+            { kPMColor_SkColorType,  "1"  },
         };
 
         const int W = 20;
@@ -141,7 +141,7 @@ DEF_GPUTEST(GpuBitmapCopy, reporter, factory) {
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
             SkImageInfo info = SkImageInfo::Make(W, H,
-                                                 SkBitmapConfigToColorType(gPairs[i].fConfig),
+                                                 gPairs[i].fColorType,
                                                  kPremul_SkAlphaType);
             SkBitmap src, dst;
 
@@ -165,41 +165,42 @@ DEF_GPUTEST(GpuBitmapCopy, reporter, factory) {
             const bool extracted = src.extractSubset(&subset, subsetRect);
 
             for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
+                SkBitmap::Config pairsConfig = SkColorTypeToBitmapConfig(gPairs[j].fColorType);
                 dst.reset();
-                bool success = src.deepCopyTo(&dst, gPairs[j].fConfig);
+                bool success = src.deepCopyTo(&dst, pairsConfig);
                 bool expected = gPairs[i].fValid[j] != '0';
                 if (success != expected) {
                     ERRORF(reporter, "SkBitmap::deepCopyTo from %s to %s. "
-                           "expected %s returned %s", gConfigName[i],
-                           gConfigName[j], boolStr(expected),
+                           "expected %s returned %s", gColorTypeName[i],
+                           gColorTypeName[j], boolStr(expected),
                            boolStr(success));
                 }
 
-                bool canSucceed = src.canCopyTo(gPairs[j].fConfig);
+                bool canSucceed = src.canCopyTo(gPairs[j].fColorType);
                 if (success != canSucceed) {
                     ERRORF(reporter, "SkBitmap::deepCopyTo from %s to %s "
                            "returned %s, but canCopyTo returned %s",
-                           gConfigName[i], gConfigName[j], boolStr(success),
+                           gColorTypeName[i], gColorTypeName[j], boolStr(success),
                            boolStr(canSucceed));
                 }
 
-                TestIndividualCopy(reporter, gPairs[j].fConfig, success, src, dst, true);
+                TestIndividualCopy(reporter, gPairs[j].fColorType, success, src, dst, true);
 
                 // Test copying the subset bitmap, using both copyTo and deepCopyTo.
                 if (extracted) {
                     SkBitmap subsetCopy;
-                    success = subset.copyTo(&subsetCopy, gPairs[j].fConfig);
+                    success = subset.copyTo(&subsetCopy, gPairs[j].fColorType);
                     REPORTER_ASSERT(reporter, success == expected);
                     REPORTER_ASSERT(reporter, success == canSucceed);
-                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy,
+                    TestIndividualCopy(reporter, gPairs[j].fColorType, success, subset, subsetCopy,
                                        true);
 
                     // Reset the bitmap so that a failed copyTo will leave it in the expected state.
                     subsetCopy.reset();
-                    success = subset.deepCopyTo(&subsetCopy, gPairs[j].fConfig);
+                    success = subset.deepCopyTo(&subsetCopy, pairsConfig);
                     REPORTER_ASSERT(reporter, success == expected);
                     REPORTER_ASSERT(reporter, success == canSucceed);
-                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, subset, subsetCopy,
+                    TestIndividualCopy(reporter, gPairs[j].fColorType, success, subset, subsetCopy,
                                        true);
 
                     // Now set a bitmap to be a subset that will share the same pixelref.
@@ -209,23 +210,24 @@ DEF_GPUTEST(GpuBitmapCopy, reporter, factory) {
                     SkBitmap trueSubset;
                     // FIXME: Once https://codereview.chromium.org/109023008/ lands, call
                     // trueSubset.installPixelRef(src.pixelRef(), subset);
-                    trueSubset.setConfig(gPairs[i].fConfig, W/2, H/2);
+                    trueSubset.setConfig(SkImageInfo::Make(W/2, H/2, gPairs[i].fColorType,
+                                                           kPremul_SkAlphaType));
                     trueSubset.setPixelRef(src.pixelRef(), W/2, H/2);
 
                     subsetCopy.reset();
-                    success = trueSubset.copyTo(&subsetCopy, gPairs[j].fConfig);
+                    success = trueSubset.copyTo(&subsetCopy, gPairs[j].fColorType);
                     REPORTER_ASSERT(reporter, success == expected);
                     REPORTER_ASSERT(reporter, success == canSucceed);
-                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, trueSubset, subsetCopy,
+                    TestIndividualCopy(reporter, gPairs[j].fColorType, success, trueSubset, subsetCopy,
                                        false);
 
                     // deepCopyTo copies the entire pixelref, even if the bitmap only represents
                     // a subset. Therefore, the result should share the same genID.
                     subsetCopy.reset();
-                    success = trueSubset.deepCopyTo(&subsetCopy, gPairs[j].fConfig);
+                    success = trueSubset.deepCopyTo(&subsetCopy, pairsConfig);
                     REPORTER_ASSERT(reporter, success == expected);
                     REPORTER_ASSERT(reporter, success == canSucceed);
-                    TestIndividualCopy(reporter, gPairs[j].fConfig, success, trueSubset, subsetCopy,
+                    TestIndividualCopy(reporter, gPairs[j].fColorType, success, trueSubset, subsetCopy,
                                        true);
                 }
             } // for (size_t j = ...

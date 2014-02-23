@@ -129,7 +129,7 @@ protected:
                 // scrollRect() should always return true, even if it's a no-op
                 SkBitmap scrolledBitmap;
                 SkDEBUGCODE(bool copyToReturnValue = )origBitmap.copyTo(
-                    &scrolledBitmap, origBitmap.config());
+                    &scrolledBitmap, origBitmap.colorType());
                 SkASSERT(copyToReturnValue);
                 SkDEBUGCODE(bool scrollRectReturnValue = )scrolledBitmap.scrollRect(
                     subset, scrollX * xMult, scrollY * yMult);

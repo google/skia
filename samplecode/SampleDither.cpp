@@ -118,7 +118,7 @@ public:
         make_bm(&fBM);
         make_bm(&fBMPreDither);
         pre_dither(fBMPreDither);
-        fBM.copyTo(&fBM16, SkBitmap::kARGB_4444_Config);
+        fBM.copyTo(&fBM16, kARGB_4444_SkColorType);
 
         fAngle = 0;
 

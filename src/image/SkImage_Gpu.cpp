@@ -59,7 +59,7 @@ GrTexture* SkImage_Gpu::onGetTexture() {
 }
 
 bool SkImage_Gpu::getROPixels(SkBitmap* dst) const {
-    return fBitmap.copyTo(dst, SkBitmap::kARGB_8888_Config);
+    return fBitmap.copyTo(dst, kPMColor_SkColorType);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

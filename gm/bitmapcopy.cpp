@@ -9,23 +9,23 @@
 
 namespace skiagm {
 
-static const char* gConfigNames[] = {
-    "unknown config",
+static const char* gColorTypeNames[] = {
+    "unknown",
     "A8",
-    "Index8",
     "565",
     "4444",
-    "8888"
+    "8888",
+    "8888",
+    "Index8",
 };
 
-SkBitmap::Config gConfigs[] = {
-  SkBitmap::kRGB_565_Config,
-  SkBitmap::kARGB_4444_Config,  // TODO(edisonn): Should we remove it from GM?
-                                // it fails to copy in bitmap with this config.
-  SkBitmap::kARGB_8888_Config,
+static const SkColorType gColorTypes[] = {
+    kRGB_565_SkColorType,
+    kARGB_4444_SkColorType,
+    kPMColor_SkColorType,
 };
 
-#define NUM_CONFIGS (sizeof(gConfigs) / sizeof(SkBitmap::Config))
+#define NUM_CONFIGS SK_ARRAY_COUNT(gColorTypes)
 
 static void draw_checks(SkCanvas* canvas, int width, int height) {
     SkPaint paint;
@@ -72,7 +72,7 @@ protected:
         draw_checks(&canvasTmp, 40, 40);
 
         for (unsigned i = 0; i < NUM_CONFIGS; ++i) {
-            src.copyTo(&fDst[i], gConfigs[i]);
+            src.copyTo(&fDst[i], gColorTypes[i]);
         }
 
         canvas->clear(0xFFDDDDDD);
@@ -83,7 +83,7 @@ protected:
             height = paint.getFontSpacing();
         }
         for (unsigned i = 0; i < NUM_CONFIGS; i++) {
-            const char* name = gConfigNames[src.config()];
+            const char* name = gColorTypeNames[src.colorType()];
             SkScalar textWidth = paint.measureText(name, strlen(name));
             if (textWidth > width) {
                 width = textWidth;
@@ -96,7 +96,7 @@ protected:
         for (unsigned i = 0; i < NUM_CONFIGS; i++) {
             canvas->save();
             // Draw destination config name
-            const char* name = gConfigNames[fDst[i].config()];
+            const char* name = gColorTypeNames[fDst[i].colorType()];
             SkScalar textWidth = paint.measureText(name, strlen(name));
             SkScalar x = (width - textWidth) / SkScalar(2);
             SkScalar y = paint.getFontSpacing() / SkScalar(2);

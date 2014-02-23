@@ -14,6 +14,8 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
+//#define SK_SUPPORT_LEGACY_COPYTO_CONFIG
+
 struct SkMask;
 struct SkIRect;
 struct SkRect;
@@ -618,19 +620,33 @@ public:
     */
     bool extractSubset(SkBitmap* dst, const SkIRect& subset) const;
 
-    /** Makes a deep copy of this bitmap, respecting the requested config,
+#ifdef SK_SUPPORT_LEGACY_COPYTO_CONFIG
+    bool copyTo(SkBitmap* dst, Config c, Allocator* allocator) const;
+    bool canCopyTo(Config newConfig) const;
+#endif
+    /** Makes a deep copy of this bitmap, respecting the requested colorType,
      *  and allocating the dst pixels on the cpu.
      *  Returns false if either there is an error (i.e. the src does not have
      *  pixels) or the request cannot be satisfied (e.g. the src has per-pixel
      *  alpha, and the requested config does not support alpha).
      *  @param dst The bitmap to be sized and allocated
-     *  @param c The desired config for dst
+     *  @param ct The desired colorType for dst
      *  @param allocator Allocator used to allocate the pixelref for the dst
      *                   bitmap. If this is null, the standard HeapAllocator
      *                   will be used.
-     *  @return true if the copy could be made.
+     *  @return true if the copy was made.
      */
-    bool copyTo(SkBitmap* dst, Config c, Allocator* allocator = NULL) const;
+    bool copyTo(SkBitmap* dst, SkColorType ct, Allocator* = NULL) const;
+
+    bool copyTo(SkBitmap* dst, Allocator* allocator = NULL) const {
+        return this->copyTo(dst, this->colorType(), allocator);
+    }
+
+    /**
+     *  Returns true if this bitmap's pixels can be converted into the requested
+     *  colorType, such that copyTo() could succeed.
+     */
+    bool canCopyTo(SkColorType colorType) const;
 
     /** Makes a deep copy of this bitmap, respecting the requested config, and
      *  with custom allocation logic that will keep the copied pixels
@@ -652,11 +668,6 @@ public:
      *  If the request cannot be fulfilled, returns false and dst is unmodified.
      */
     bool deepCopyTo(SkBitmap* dst) const;
-
-    /** Returns true if this bitmap can be deep copied into the requested config
-        by calling copyTo().
-     */
-    bool canCopyTo(Config newConfig) const;
 
     SK_ATTR_DEPRECATED("use setFilterLevel on SkPaint")
     void buildMipMap(bool forceRebuild = false);

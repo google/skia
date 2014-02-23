@@ -208,8 +208,8 @@ bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
             // format.
             // <Error>: CGImageDestinationFinalize image destination does not have enough images
             // So instead we copy to 8888.
-            if (bm.config() == SkBitmap::kARGB_4444_Config) {
-                bm.copyTo(&bitmap8888, SkBitmap::kARGB_8888_Config);
+            if (bm.colorType() == kARGB_4444_SkColorType) {
+                bm.copyTo(&bitmap8888, kPMColor_SkColorType);
                 bmPtr = &bitmap8888;
             }
             type = kUTTypePNG;

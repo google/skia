@@ -155,7 +155,7 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
                 return result;
             }
         } else {
-            origBitmap.copyTo(&tmpBitmap, SkBitmap::kARGB_8888_Config);
+            origBitmap.copyTo(&tmpBitmap, kPMColor_SkColorType);
             // now bitmap points to our temp, which has been promoted to 32bits
             bitmap = &tmpBitmap;
             desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap->config());

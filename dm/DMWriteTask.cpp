@@ -113,12 +113,10 @@ bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
         return false;
     }
 
-    SkImageInfo info;
-    SkAssertResult(bitmap.asImageInfo(&info));
+    const SkImageInfo info = bitmap.info();
 
     SkBitmap expected;
-    expected.setConfig(info);
-    expected.allocPixels();
+    expected.allocPixels(info);
 
     // expected will be unpremultiplied.
     decoder->setRequireUnpremultipliedColors(true);
@@ -128,19 +126,18 @@ bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
     }
 
     // We always seem to decode to 8888.  This puts 565 back in 565.
-    if (expected.config() != bitmap.config()) {
+    if (expected.colorType() != bitmap.colorType()) {
         SkBitmap converted;
-        SkAssertResult(expected.copyTo(&converted, bitmap.config()));
+        SkAssertResult(expected.copyTo(&converted, bitmap.colorType()));
         expected.swap(converted);
     }
     SkASSERT(expected.config() == bitmap.config());
 
     // Manually unpremultiply 8888 bitmaps to match expected.
     // Their pixels are shared, concurrently even, so we must copy them.
-    if (info.fColorType == kPMColor_SkColorType) {
+    if (info.colorType() == kPMColor_SkColorType) {
         SkBitmap unpremul;
-        unpremul.setConfig(info);
-        unpremul.allocPixels();
+        unpremul.allocPixels(info);
 
         SkAutoLockPixels lockSrc(bitmap), lockDst(unpremul);
         const SkPMColor* src = (SkPMColor*)bitmap.getPixels();
