@@ -22,10 +22,8 @@ desk_ebay.skp_simple_viewport_1000x1000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86
 desk_espn.skp_simple_viewport_1000x1000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,8.95,3.94,13.95
 desk_facebook.skp_simple_viewport_1000x1000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,14.58,9.35,19.95
 desk_fontwipe.skp_simple_viewport_1000x1000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,1.46,-3.59,6.55
-desk_forecastio.skp_simple_viewport_1000x1000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,6.22,0.90,11.65
 desk_gmailthread.skp_simple_viewport_1000x1000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,8.27,2.55,14.20
 desk_googlehome.skp_simple_viewport_1000x1000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,2.03,-3.15,7.30
-desk_googleplus.skp_simple_viewport_1000x1000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,35.52,30.05,41.10
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,10.33,5.14,15.45
 desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,20.68,15.40,26.00
 desk_gws.skp_simple_viewport_1000x1000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,5.92,0.85,11.00
@@ -89,10 +87,8 @@ desk_ebay.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M
 desk_espn.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,20.85,-9.75,51.70
 desk_facebook.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,36.97,28.10,45.75
 desk_fontwipe.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,0.97,-4.25,6.20
-desk_forecastio.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,19.78,10.35,27.55
 desk_gmailthread.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,16.86,5.85,25.60
 desk_googlehome.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,3.70,-1.29,8.70
-desk_googleplus.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,32.38,27.00,37.90
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,41.28,35.90,46.65
 desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,115.78,99.40,131.45
 desk_gws.skp_simple_viewport_1000x1000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,6.90,0.65,13.95
@@ -156,10 +152,8 @@ desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1
 desk_espn.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,18.32,13.10,23.55
 desk_facebook.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,16.82,11.74,21.90
 desk_fontwipe.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,1.78,-3.29,6.85
-desk_forecastio.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,10.04,4.24,16.20
 desk_gmailthread.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,9.57,4.25,15.00
 desk_googlehome.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,2.36,-2.70,7.45
-desk_googleplus.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,41.07,35.50,46.70
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,13.14,7.85,18.45
 desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,28.87,23.19,34.55
 desk_gws.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,6.45,1.44,11.45
@@ -223,10 +217,8 @@ desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.6-MacMin
 desk_espn.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,16.99,-9.79,50.60
 desk_facebook.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,45.90,37.64,54.85
 desk_fontwipe.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,3.03,-2.14,8.15
-desk_forecastio.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,24.29,17.59,30.45
 desk_gmailthread.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,39.98,30.59,47.80
 desk_googlehome.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,9.99,4.84,15.15
-desk_googleplus.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,35.57,30.50,40.65
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,42.57,36.54,48.65
 desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,274.59,267.34,282.00
 desk_gws.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.6-MacMini4.1-GeForce320M-x86-Release-25th,7.98,2.89,13.05

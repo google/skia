@@ -22,10 +22,8 @@ desk_ebay.skp_simple_viewport_1000x1000_,Perf-Android-Nexus4-Adreno320-Arm7-Rele
 desk_espn.skp_simple_viewport_1000x1000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,21.35,5.75,36.83
 desk_facebook.skp_simple_viewport_1000x1000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,41.82,23.67,59.02
 desk_fontwipe.skp_simple_viewport_1000x1000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,1.93,-13.13,16.99
-desk_forecastio.skp_simple_viewport_1000x1000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,15.74,0.00,31.29
 desk_gmailthread.skp_simple_viewport_1000x1000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,23.57,8.30,38.79
 desk_googlehome.skp_simple_viewport_1000x1000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,3.83,-11.44,19.13
-desk_googleplus.skp_simple_viewport_1000x1000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,76.71,58.64,94.25
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,26.56,11.21,41.93
 desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,68.37,48.25,87.28
 desk_gws.skp_simple_viewport_1000x1000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,19.49,4.07,34.89
@@ -89,10 +87,8 @@ desk_ebay.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-
 desk_espn.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,27.44,11.95,42.88
 desk_facebook.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,128.99,113.20,144.77
 desk_fontwipe.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,1.10,-13.91,16.14
-desk_forecastio.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,105.22,89.58,120.87
 desk_gmailthread.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,104.05,88.67,119.48
 desk_googlehome.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,17.60,2.56,32.63
-desk_googleplus.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,83.60,67.65,99.27
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,139.66,122.48,157.20
 desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,411.57,364.08,459.43
 desk_gws.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,24.52,9.17,39.89
@@ -156,10 +152,8 @@ desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adr
 desk_espn.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,51.27,35.77,66.80
 desk_facebook.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,52.15,36.72,67.57
 desk_fontwipe.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,2.28,-12.76,17.32
-desk_forecastio.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,26.26,11.03,41.55
 desk_gmailthread.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,25.91,10.01,42.09
 desk_googlehome.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,4.32,-10.76,19.39
-desk_googleplus.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,89.25,71.90,106.23
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,33.86,18.02,49.73
 desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,98.64,79.48,117.02
 desk_gws.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,22.04,6.67,37.36
@@ -223,10 +217,8 @@ desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4
 desk_espn.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,28.63,12.93,44.37
 desk_facebook.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,158.97,142.90,175.37
 desk_fontwipe.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,1.29,-13.74,16.32
-desk_forecastio.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,121.86,104.23,139.24
 desk_gmailthread.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,170.95,154.66,187.40
 desk_googlehome.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,46.42,31.06,61.87
-desk_googleplus.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,71.82,55.65,87.85
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,168.61,151.32,185.82
 desk_googlespreadsheetdashed.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,2728.00,2666.84,2797.43
 desk_gws.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,29.31,13.78,44.90
