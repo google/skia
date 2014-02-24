@@ -976,6 +976,73 @@ static int lpath_getBounds(lua_State* L) {
     return 1;
 }
 
+static const char* fill_type_to_str(SkPath::FillType fill) {
+    switch (fill) {
+        case SkPath::kEvenOdd_FillType:
+            return "even-odd";
+        case SkPath::kWinding_FillType:
+            return "winding";
+        case SkPath::kInverseEvenOdd_FillType:
+            return "inverse-even-odd";
+        case SkPath::kInverseWinding_FillType:
+            return "inverse-winding";
+    }
+    return "unknown";
+}
+
+static int lpath_getFillType(lua_State* L) {
+    SkPath::FillType fill = get_obj<SkPath>(L, 1)->getFillType();
+    SkLua(L).pushString(fill_type_to_str(fill));
+    return 1;
+}
+
+static SkString segment_masks_to_str(uint32_t segmentMasks) {
+    SkString result;
+    bool first = true;
+    if (SkPath::kLine_SegmentMask & segmentMasks) {
+        result.append("line");
+        first = false;
+        SkDEBUGCODE(segmentMasks &= ~SkPath::kLine_SegmentMask;)
+    }
+    if (SkPath::kQuad_SegmentMask & segmentMasks) {
+        if (!first) {
+            result.append(" ");
+        }
+        result.append("quad");
+        first = false;
+        SkDEBUGCODE(segmentMasks &= ~SkPath::kQuad_SegmentMask;)
+    }
+    if (SkPath::kConic_SegmentMask & segmentMasks) {
+        if (!first) {
+            result.append(" ");
+        }
+        result.append("conic");
+        first = false;
+        SkDEBUGCODE(segmentMasks &= ~SkPath::kConic_SegmentMask;)
+    }
+    if (SkPath::kCubic_SegmentMask & segmentMasks) {
+        if (!first) {
+            result.append(" ");
+        }
+        result.append("cubic");
+        SkDEBUGCODE(segmentMasks &= ~SkPath::kCubic_SegmentMask;)
+    }
+    SkASSERT(0 == segmentMasks);
+    return result;
+}
+
+static int lpath_getSegementTypes(lua_State* L) {
+    uint32_t segMasks = get_obj<SkPath>(L, 1)->getSegmentMasks();
+    SkLua(L).pushString(segment_masks_to_str(segMasks));
+    return 1;
+}
+
+static int lpath_isConvex(lua_State* L) {
+    bool isConvex = SkPath::kConvex_Convexity == get_obj<SkPath>(L, 1)->getConvexity();
+    SkLua(L).pushBool(isConvex);
+    return 1;
+}
+
 static int lpath_isEmpty(lua_State* L) {
     lua_pushboolean(L, get_obj<SkPath>(L, 1)->isEmpty());
     return 1;
@@ -1058,6 +1125,9 @@ static int lpath_gc(lua_State* L) {
 
 static const struct luaL_Reg gSkPath_Methods[] = {
     { "getBounds", lpath_getBounds },
+    { "getFillType", lpath_getFillType },
+    { "getSegmentTypes", lpath_getSegementTypes },
+    { "isConvex", lpath_isConvex },
     { "isEmpty", lpath_isEmpty },
     { "isRect", lpath_isRect },
     { "isNestedRects", lpath_isNestedRects },
