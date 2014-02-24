@@ -972,6 +972,15 @@ public:
 
     //////////////////////////////////////////////////////////////////////////
 
+    /**
+     *  Return true if the current clip is empty (i.e. nothing will draw).
+     *  Note: this is not always a free call, so it should not be used
+     *  more often than necessary. However, once the canvas has computed this
+     *  result, subsequent calls will be cheap (until the clip state changes,
+     *  which can happen on any clip..() or restore() call.
+     */
+    bool isClipEmpty() const;
+
     /** Return the current matrix on the canvas.
         This does not account for the translate in any of the devices.
         @return The current matrix on the canvas.

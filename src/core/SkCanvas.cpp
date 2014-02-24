@@ -1484,6 +1484,10 @@ void SkCanvas::replayClips(ClipVisitor* visitor) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkCanvas::isClipEmpty() const {
+    return fMCRec->fRasterClip->isEmpty();
+}
+
 bool SkCanvas::quickReject(const SkRect& rect) const {
 
     if (!rect.isFinite())
