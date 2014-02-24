@@ -80,7 +80,7 @@ desk_baidu.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Rele
 desk_blogger.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.77,-2.36,9.93
 desk_booking.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,8.91,2.75,15.06
 desk_carsvg.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,55.34,46.94,63.96
-desk_chalkboard.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,259.65,253.34,266.03
+desk_chalkboard.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,259.65,228.34,276.03
 desk_css3gradients.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.23,-4.77,7.25
 desk_ebay.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,5.73,-0.32,11.79
 desk_espn.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,5.57,-0.46,11.60
