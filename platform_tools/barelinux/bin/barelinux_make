@@ -1,0 +1,96 @@
+#!/bin/sh
+
+# Copyright 2014 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+usage() {
+    cat >&2 <<EOF
+barelinux_make - this script builds a version of skia that does not
+depend on external libraries, perfect for putting in an embedded
+system running Linux.
+
+Assumes that you have already run the download_deps script.
+
+Usage:
+  $0 \\
+    [-o SKIA_OUT_DIR] [-c CC_EXE] [-x CXX_EXE] \\
+    [-t Debug | Release | Coverage | Release_Developer]\\
+    [GYP_DEFINES...]
+
+Example use:
+  $0 \\
+    -o ~/build/skia/arg64gcc \\
+    -c ~/local/arm64/bin/aarch64-linux-gnu-gcc \\
+    -x ~/local/arm64/bin/aarch64-linux-gnu-g++ \\
+    skia_gpu=0 skia_arch_type=arm skia_arch_width=64 \\
+    armv7=1 armv8=1 arm_neon=0 arm_thumb=0
+EOF
+    return 1
+}
+
+# BUILD_TYPE should be one of:
+#  Coverage, Debug, Release, or Release_Developer
+BUILD_TYPE='Debug'
+
+unset OPTIND
+while getopts ":c:x:o:h" opt ; do
+    case $opt in
+        c)  export CC="$OPTARG" ;;
+        x)  export CXX="$OPTARG" ;;
+        o)  export SKIA_OUT="$OPTARG";;
+        t)  BUILD_TYPE="$OPTARG";;
+        h)  usage || exit;;
+        ?)  echo "unknown option '$OPTARG'" >&2;
+            usage || exit;;
+    esac
+done
+# Append exra arguments to GYP_DEFINES variable.
+shift $(( $OPTIND - 1 ))
+GYP_DEFINES="${GYP_DEFINES} $*"
+
+# If you move this script, this must be changed.
+SKIA_SRC_DIR="$(cd "$(dirname "$0")/../../.."; pwd)"
+
+try() {
+    # exit shell script on nonzero return code
+    "$@"
+    local ret=$?
+    if [ $ret != 0 ] ; then
+        echo "'$@' failed and returned ${ret}." >&2
+        return $ret
+    fi
+}
+is_set() {
+    test "$1" && test "$(eval echo \${$1})";
+}
+
+# Set a reasonable default.
+is_set SKIA_OUT || export SKIA_OUT="${SKIA_SRC_DIR}/out/barelinux"
+
+# Assume ninja is in your path
+try command -v ninja > /dev/null || exit
+
+try test -x "${SKIA_SRC_DIR}/gyp_skia" || exit
+try mkdir -p "$SKIA_OUT" || exit
+
+export GYP_GENERATORS="ninja"
+export GYP_GENERATOR_FLAGS=""
+export GYP_DEFINES="${GYP_DEFINES} \
+    skia_warnings_as_errors=0 \
+    skia_giflib_static=1 \
+    skia_libpng_static=1 \
+    skia_zlib_static=1 \
+    skia_freetype_static=1 \
+    skia_no_fontconfig=1 \
+    skia_poppler_enabled=0 \
+    skia_skip_gui=1 \
+    "
+
+try "${SKIA_SRC_DIR}/gyp_skia" || exit
+
+try test -d "${SKIA_OUT}/${BUILD_TYPE}" || exit
+
+try ninja -C "${SKIA_OUT}/${BUILD_TYPE}" || exit
+

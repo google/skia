@@ -104,10 +104,9 @@
               'cflags': [
                 '-w', # supresses warnings
               ],
-
             },
           ],
-        }, {
+        }, {  ## use_system_libjpeg != 0
           'targets': [
             {
               'target_name': 'libjpeg',

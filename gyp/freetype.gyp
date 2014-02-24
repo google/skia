@@ -5,54 +5,71 @@
       'target_name': 'freetype',
       'type': 'none',
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
-          'direct_dependent_settings': {
-            'include_dirs' : [
-              '/usr/include/freetype2',
+        [ 'skia_freetype_static',
+          {
+            'dependencies': [
+              'freetype_static'
             ],
-            'link_settings': {
-              'libraries': [
-                '-lfreetype',
+            'export_dependent_settings': [
+              'freetype_static'
+            ],
+            'conditions': [
+              [ 'skia_os in ["android", "nacl"]',
+                {
+                  'direct_dependent_settings': {
+                    'defines': [
+                      # Both Android and NaCl provide at least FreeType 2.4.0
+                      'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020400',
+                      'SK_CAN_USE_DLOPEN=0',
+                    ],
+                  }
+                }
+              ]
+            ],
+          }, { # (not skia_freetype_static)
+            # dynamic linking depends on the OS:
+            'conditions': [
+              [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]',
+                {
+                  'direct_dependent_settings': {
+                    'include_dirs' : [
+                      '/usr/include/freetype2',
+                    ],
+                    'link_settings': {
+                      'libraries': [
+                        '-lfreetype',
+                      ],
+                    },
+                    'defines': [
+                      # The font host requires at least FreeType 2.3.0
+                      # at runtime.
+                      'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020300',
+                      'SK_CAN_USE_DLOPEN=1',
+                    ],
+                  }
+                },
               ],
-              'defines': [
-                #The font host requires at least FreeType 2.3.0 at runtime.
-                'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020300',\
-                'SK_CAN_USE_DLOPEN=1',
+              [ 'skia_android_framework',
+                {
+                  'direct_dependent_settings': {
+                    'defines': [
+                      # Android provides at least FreeType 2.4.0
+                      'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020400',
+                      'SK_CAN_USE_DLOPEN=0',
+                    ],
+                  },
+                  'include_dirs': [
+                    'external/expat/lib',
+                    'external/freetype/include',
+                  ],
+                  'libraries': [
+                    '-lft2',
+                  ],
+                }
               ],
-            }
-          },
-        }],
-        [ 'skia_os in ["android", "nacl"]', {
-          'dependencies': [
-            'freetype_static'
-          ],
-          'export_dependent_settings': [
-            'freetype_static'
-          ],
-          'direct_dependent_settings': {
-            'defines': [
-              # Both Android and NaCl provide at least FreeType 2.4.0
-              'SK_FONTHOST_FREETYPE_RUNTIME_VERSION=0x020400',
-              'SK_CAN_USE_DLOPEN=0',
             ],
-          },
-        }],
-        [ 'skia_android_framework', {
-            'include_dirs': [
-              'external/expat/lib',
-              'external/freetype/include',
-            ],
-            'libraries': [
-              '-lft2',
-            ],
-            # Remove these, and use the system's freetype instead.
-            'dependencies!': [
-              'freetype_static',
-            ],
-            'export_dependent_settings!': [
-              'freetype_static',
-            ]
-        }],
+          }
+        ],
       ],
     },
     {
@@ -61,7 +78,7 @@
       'standalone_static_library': 1,
       'dependencies': [
         # we are dependent upon PNG for color emoji glyphs
-        'images.gyp:images'
+        'libpng.gyp:libpng',
       ],
       'includes': [
         # common freetype sources needed for both the base Skia build and the

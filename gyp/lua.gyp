@@ -57,7 +57,16 @@
         ],
       },
       'defines': [
-        "getlocaledecpoint()='.'"
+        "getlocaledecpoint()='.'",
+      ],
+      'conditions': [
+        ['skia_os != "win"',
+         {
+            'defines': [
+              'LUA_USE_POSIX',  # Fix warning re dangerous tmpnam.
+            ],
+          }
+        ],
       ],
     },
   ],

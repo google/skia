@@ -4,6 +4,9 @@
 # - debugger: this requires QT to build
 #
 {
+  'variables': {
+    'skia_skip_gui%': 0,
+  },
   'targets': [
     {
       'target_name': 'most',
@@ -29,6 +32,14 @@
         ['skia_gpu == 1', {
           'dependencies': [ 'dm.gyp:dm' ],
         }],
+        [ 'skia_skip_gui',
+          {
+            'dependencies!': [
+              'SampleApp.gyp:SampleApp',
+              'skpskgr_test.gyp:*',
+            ]
+          }
+        ]
       ],
     },
   ],

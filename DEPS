@@ -36,6 +36,17 @@ deps_os = {
     "platform_tools/chromeos/toolchain/src/third_party/chromite": "https://chromium.googlesource.com/chromiumos/chromite.git@d6a4c7e0ee4d53ddc5238dbddfc0417796a70e54",
     "platform_tools/chromeos/toolchain/src/third_party/pyelftools": "https://chromium.googlesource.com/chromiumos/third_party/pyelftools.git@bdc1d380acd88d4bfaf47265008091483b0d614e",
   },
+
+  # barelinux is a DEPS target that has no shared libraries to link
+  # to, similar to android or chromeos.
+  "barelinux": {
+    "third_party/externals/giflib" :
+      "https://android.googlesource.com/platform/external/giflib.git@android-4.2.2_r1.2",
+    "third_party/externals/libpng" :
+       "https://android.googlesource.com/platform/external/libpng.git@android-4.2.2_r1.2",
+    "third_party/externals/zlib" :
+       "https://android.googlesource.com/platform/external/zlib.git@android-4.2.2_r1.2",
+  }
 }
 
 #hooks = [

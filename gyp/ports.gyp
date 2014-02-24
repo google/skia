@@ -64,16 +64,29 @@
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos"]', {
-          'link_settings': {
-            'libraries': [
-              '-lfontconfig',
-              '-ldl',
-            ],
-          },
-          'sources': [
-            '../src/fonts/SkFontMgr_fontconfig.cpp',
-            '../src/ports/SkFontHost_fontconfig.cpp',
-            '../src/ports/SkFontConfigInterface_direct.cpp',
+          'conditions': [
+            [ 'skia_no_fontconfig', {
+              'link_settings': {
+                'libraries': [
+                  '-ldl',
+                ],
+              },
+              'sources': [
+                '../src/ports/SkFontHost_linux.cpp',
+              ],
+            }, {
+              'link_settings': {
+                'libraries': [
+                  '-lfontconfig',
+                  '-ldl',
+                ],
+              },
+              'sources': [
+                '../src/fonts/SkFontMgr_fontconfig.cpp',
+                '../src/ports/SkFontHost_fontconfig.cpp',
+                '../src/ports/SkFontConfigInterface_direct.cpp',
+              ],
+            }]
           ],
         }],
         [ 'skia_os == "nacl"', {

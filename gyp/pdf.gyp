@@ -8,7 +8,7 @@
       'standalone_static_library': 1,
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-        'zlib.gyp:zlib',
+        'skflate.gyp:skflate',
       ],
       'includes': [
         'pdf.gypi',

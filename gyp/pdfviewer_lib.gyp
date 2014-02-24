@@ -44,7 +44,7 @@
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-        'zlib.gyp:zlib',
+        'skflate.gyp:skflate',
       ],
     },
   ],
