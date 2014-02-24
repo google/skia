@@ -41,7 +41,7 @@ public:
             // Call default allocator.
             return bm->allocPixels(NULL, ct);
         }
-        
+
         // TODO(halcanary): verify that all callers of this function
         // will respect new RowBytes.  Will be moot once rowbytes belongs
         // to PixelRef.
