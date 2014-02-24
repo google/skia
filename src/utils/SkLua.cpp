@@ -7,6 +7,7 @@
 
 #include "SkLua.h"
 #include "SkCanvas.h"
+#include "SkClipStack.h"
 #include "SkData.h"
 #include "SkDocument.h"
 #include "SkImage.h"
@@ -234,6 +235,67 @@ void SkLua::pushCanvas(SkCanvas* canvas, const char key[]) {
     CHECK_SETFIELD(key);
 }
 
+static const char* element_type(SkClipStack::Element::Type type) {
+    switch (type) {
+        case SkClipStack::Element::kEmpty_Type:
+            return "empty";
+        case SkClipStack::Element::kRect_Type:
+            return "rect";
+        case SkClipStack::Element::kRRect_Type:
+            return "rrect";
+        case SkClipStack::Element::kPath_Type:
+            return "path";
+    }
+    return "unknown";
+}
+
+static const char* region_op(SkRegion::Op op) {
+    switch (op) {
+        case SkRegion::kDifference_Op:
+            return "difference";
+        case SkRegion::kIntersect_Op:
+            return "intersect";
+        case SkRegion::kUnion_Op:
+            return "union";
+        case SkRegion::kXOR_Op:
+            return "xor";
+        case SkRegion::kReverseDifference_Op:
+            return "reverse-difference";
+        case SkRegion::kReplace_Op:
+            return "replace";
+    }
+    return "unknown";
+}
+
+void SkLua::pushClipStack(const SkClipStack& stack, const char* key) {
+    lua_newtable(fL);
+    SkClipStack::B2TIter iter(stack);
+    const SkClipStack::Element* element;
+    int i = 0;
+    while (NULL != (element = iter.next())) {
+        lua_newtable(fL);
+        SkClipStack::Element::Type type = element->getType();
+        this->pushString(element_type(type), "type");
+        switch (type) {
+            case SkClipStack::Element::kEmpty_Type:
+                break;
+            case SkClipStack::Element::kRect_Type:
+                this->pushRect(element->getRect(), "rect");
+                break;
+            case SkClipStack::Element::kRRect_Type:
+                this->pushRRect(element->getRRect(), "rrect");
+                break;
+            case SkClipStack::Element::kPath_Type:
+                this->pushPath(element->getPath(), "path");
+                break;
+        }
+        this->pushString(region_op(element->getOp()), "op");
+        this->pushBool(element->isAA(), "aa");
+        lua_rawseti(fL, -2, ++i);
+    }
+    CHECK_SETFIELD(key);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -377,6 +439,11 @@ static int lcanvas_getTotalMatrix(lua_State* L) {
     return 1;
 }
 
+static int lcanvas_getClipStack(lua_State* L) {
+    SkLua(L).pushClipStack(*get_ref<SkCanvas>(L, 1)->getClipStack());
+    return 1;
+}
+
 static int lcanvas_save(lua_State* L) {
     lua_pushinteger(L, get_ref<SkCanvas>(L, 1)->save());
     return 1;
@@ -422,6 +489,7 @@ static const struct luaL_Reg gSkCanvas_Methods[] = {
     { "drawText", lcanvas_drawText },
     { "getSaveCount", lcanvas_getSaveCount },
     { "getTotalMatrix", lcanvas_getTotalMatrix },
+    { "getClipStack", lcanvas_getClipStack },
     { "save", lcanvas_save },
     { "restore", lcanvas_restore },
     { "scale", lcanvas_scale },

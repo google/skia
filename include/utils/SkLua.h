@@ -15,6 +15,7 @@
 struct lua_State;
 
 class SkCanvas;
+class SkClipStack;
 class SkMatrix;
 class SkPaint;
 class SkPath;
@@ -53,6 +54,7 @@ public:
     void pushPaint(const SkPaint&, const char tableKey[] = NULL);
     void pushPath(const SkPath&, const char tableKey[] = NULL);
     void pushCanvas(SkCanvas*, const char tableKey[] = NULL);
+    void pushClipStack(const SkClipStack&, const char tableKey[] = NULL);
 
 private:
     lua_State*  fL;
