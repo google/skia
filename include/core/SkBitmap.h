@@ -621,7 +621,7 @@ public:
     bool extractSubset(SkBitmap* dst, const SkIRect& subset) const;
 
 #ifdef SK_SUPPORT_LEGACY_COPYTO_CONFIG
-    bool copyTo(SkBitmap* dst, Config c, Allocator* allocator) const;
+    bool copyTo(SkBitmap* dst, Config c, Allocator* allocator = NULL) const;
     bool canCopyTo(Config newConfig) const;
 #endif
     /** Makes a deep copy of this bitmap, respecting the requested colorType,

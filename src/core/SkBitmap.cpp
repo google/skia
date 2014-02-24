@@ -984,11 +984,11 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 
 #ifdef SK_SUPPORT_LEGACY_COPYTO_CONFIG
 bool SkBitmap::copyTo(SkBitmap* dst, Config c, Allocator* allocator) const {
-    return this->copyTo(dst, SkBitmapConfigToSkColorType(c), allocator);
+    return this->copyTo(dst, SkBitmapConfigToColorType(c), allocator);
 }
 
 bool SkBitmap::canCopyTo(Config newConfig) const {
-    return this->canCopyTo(SkBitmapConfigToSkColorType(c));
+    return this->canCopyTo(SkBitmapConfigToColorType(newConfig));
 }
 #endif
 
