@@ -314,49 +314,37 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7677776281856880837
+          15954400542104295064
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bitmaprect_i_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2126125218256971074
+          1263164671174760260
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bitmaprect_s_565.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7677776281856880837
+          15954400542104295064
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bitmaprect_s_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2126125218256971074
+          1263164671174760260
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bitmaprecttest_565.png": {
       "allowed-digests": [
@@ -452,7 +440,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2726743754826064393
+          10874368221386742934
         ]
       ], 
       "reviewed-by-human": true
@@ -3174,10 +3162,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1770701070727167717
+          7410424049029296878
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "filltypespersp_gpu.png": {
       "allowed-digests": [
@@ -4023,10 +4011,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          425768063018952212
+          13549264186360027708
         ]
       ], 
-      "ignore-failure": false
+      "reviewed-by-human": true
     }, 
     "gradients_view_perspective_gpu.png": {
       "allowed-digests": [
@@ -5367,7 +5355,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14335843340819786796
+          16060307579559364278
         ]
       ], 
       "reviewed-by-human": true
