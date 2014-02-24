@@ -35,53 +35,6 @@ class GrContext;
 
 #include <limits>
 
-// Note that ~SkTDArray is not virtual. This inherits privately to bar using this as a SkTDArray*.
-class RefCntArray : private SkTDArray<SkRefCnt*> {
-public:
-    SkRefCnt** append() { return this->INHERITED::append(); }
-    ~RefCntArray() { this->unrefAll(); }
-private:
-    typedef SkTDArray<SkRefCnt*> INHERITED;
-};
-
-class GMBenchFactory : public SkBenchmarkFactory {
-public:
-    GMBenchFactory(const skiagm::GMRegistry* gmreg)
-    : fGMFactory(gmreg->factory()) {
-        fSelfRegistry = SkNEW_ARGS(BenchRegistry, (this));
-    }
-
-    virtual ~GMBenchFactory() { SkDELETE(fSelfRegistry); }
-
-    virtual SkBenchmark* operator()() const SK_OVERRIDE {
-        skiagm::GM* gm = fGMFactory(NULL);
-        gm->setMode(skiagm::GM::kBench_Mode);
-        return SkNEW_ARGS(SkGMBench, (gm));
-    }
-
-private:
-    skiagm::GMRegistry::Factory fGMFactory;
-    BenchRegistry*              fSelfRegistry;
-};
-
-static void register_gm_benches() {
-    static bool gOnce;
-    static RefCntArray gGMBenchFactories;
-
-    if (!gOnce) {
-        const skiagm::GMRegistry* gmreg = skiagm::GMRegistry::Head();
-        while (gmreg) {
-            skiagm::GM* gm = gmreg->factory()(NULL);
-            if (NULL != gm  && skiagm::GM::kAsBench_Flag & gm->getFlags()) {
-                *gGMBenchFactories.append() = SkNEW_ARGS(GMBenchFactory, (gmreg));
-            }
-            SkDELETE(gm);
-            gmreg = gmreg->next();
-        }
-        gOnce = true;
-    }
-}
-
 enum BenchMode {
     kNormal_BenchMode,
     kDeferred_BenchMode,
@@ -99,19 +52,29 @@ static const char kDefaultsConfigStr[] = "defaults";
 
 class Iter {
 public:
-    Iter() : fBench(BenchRegistry::Head()) {}
+    Iter() : fBenches(BenchRegistry::Head()), fGMs(skiagm::GMRegistry::Head()) {}
 
     SkBenchmark* next() {
-        if (fBench) {
-            BenchRegistry::Factory f = fBench->factory();
-            fBench = fBench->next();
+        if (fBenches) {
+            BenchRegistry::Factory f = fBenches->factory();
+            fBenches = fBenches->next();
             return (*f)();
         }
+
+        while (fGMs) {
+            SkAutoTDelete<skiagm::GM> gm(fGMs->factory()(NULL));
+            fGMs = fGMs->next();
+            if (gm->getFlags() & skiagm::GM::kAsBench_Flag) {
+                return SkNEW_ARGS(SkGMBench, (gm.detach()));
+            }
+        }
+
         return NULL;
     }
 
 private:
-    const BenchRegistry* fBench;
+    const BenchRegistry* fBenches;
+    const skiagm::GMRegistry* fGMs;
 };
 
 class AutoPrePostDraw {
@@ -317,7 +280,6 @@ static bool HasConverged(double prevPerLoop, double currPerLoop, double currRaw)
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
-    register_gm_benches();
     SkCommandLineFlags::Parse(argc, argv);
 #if SK_ENABLE_INST_COUNT
     if (FLAGS_leaks) {
