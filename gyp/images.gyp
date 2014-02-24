@@ -162,6 +162,7 @@
         [ 'skia_os == "chromeos"', {
           'dependencies': [
              'chromeos_deps.gyp:gif',
+             'libpng.gyp:libpng',
           ],
         }],
         [ 'skia_os == "ios"', {
