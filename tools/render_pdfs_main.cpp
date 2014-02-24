@@ -93,7 +93,7 @@ static SkData* encode_to_dct_data(size_t*, const SkBitmap& bitmap) {
     // Workaround bug #1043 where bitmaps with referenced pixels cause
     // CGImageDestinationFinalize to crash
     SkBitmap copy;
-    bitmap.deepCopyTo(&copy, bitmap.config());
+    bitmap.deepCopyTo(&copy);
     bm = copy;
 #endif
 

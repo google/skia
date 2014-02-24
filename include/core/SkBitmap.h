@@ -16,6 +16,8 @@
 
 //#define SK_SUPPORT_LEGACY_COPYTO_CONFIG
 
+//#define SK_SUPPORT_DEEPCOPYTO_CONFIG
+
 struct SkMask;
 struct SkIRect;
 struct SkRect;
@@ -24,9 +26,6 @@ class SkPixelRef;
 class SkPixelRefFactory;
 class SkRegion;
 class SkString;
-
-#define SK_SUPPORT_DEEPCOPYTO_CONFIG
-
 class GrTexture;
 
 /** \class SkBitmap

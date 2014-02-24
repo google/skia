@@ -19,6 +19,12 @@
 #include "SkRect.h"
 #include "Test.h"
 
+struct Pair {
+    SkColorType fColorType;
+    const char* fValid;
+};
+
+#ifdef SK_SUPPORT_DEEPCOPYTO_CONFIG
 static const char* boolStr(bool value) {
     return value ? "true" : "false";
 }
@@ -26,11 +32,6 @@ static const char* boolStr(bool value) {
 // these are in the same order as the SkBitmap::Config enum
 static const char* gColorTypeName[] = {
     "None", "8888"
-};
-
-struct Pair {
-    SkColorType fColorType;
-    const char* fValid;
 };
 
 /**
@@ -99,6 +100,7 @@ static void TestIndividualCopy(skiatest::Reporter* reporter, const SkColorType d
     }
 
 }
+#endif
 
 // Stripped down version of TestBitmapCopy that checks basic fields (width, height, config, genID)
 // to ensure that they were copied properly.
