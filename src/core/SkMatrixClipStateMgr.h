@@ -53,7 +53,7 @@ public:
     static const int32_t kIdentityWideOpenStateID = 0;
     static const int kIdentityMatID = 0;
 
-    class MatrixClipState {
+    class MatrixClipState : public SkNoncopyable {
     public:
         class MatrixInfo {
         public:
@@ -104,6 +104,8 @@ public:
         private:
             SkMatrix fMatrix;
             int      fMatrixID;
+
+            typedef SkNoncopyable INHERITED;
         };
 
         class ClipInfo : public SkNoncopyable {
@@ -162,7 +164,7 @@ public:
                 ClipType     fClipType;
 
                 union {
-                    SkRRect fRRect;        // also stores clipRect
+                    SkRRect fRRect;        // also stores clip rect
                     int     fPathID;
                     int     fRegionID;
                 } fGeom;
@@ -236,8 +238,7 @@ public:
         // Does this MC state represent a saveLayer call?
         bool         fIsSaveLayer;
 
-        // The next two fields are only valid when fIsSaveLayer is set.
-        int32_t      fSaveLayerBaseStateID;
+        // The next field is only valid when fIsSaveLayer is set.
         SkTDArray<int>* fSavedSkipOffsets;
 
         // Does the MC state have an open block in the skp?
@@ -399,11 +400,15 @@ protected:
         return fMatrixDict[index];
     }
 
-    bool isCurrentlyOpen(int32_t stateID);
+    bool isNestingMCState(int stateID);
 
 #ifdef SK_DEBUG
     int fActualDepth;
 #endif
+
+    // save layers are nested within a specific MC state. This stack tracks
+    // the nesting MC state's ID as save layers are pushed and popped.
+    SkTDArray<int> fStateIDStack;
 };
 
 #endif

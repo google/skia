@@ -28,7 +28,6 @@ bool SkMatrixClipStateMgr::MatrixClipState::ClipInfo::clipRegion(SkPictureRecord
                                                                  int regionID,
                                                                  SkRegion::Op op,
                                                                  int matrixID) {
-    // TODO: add a region dictionary so we don't have to copy the region in here
     ClipOp* newClip = fClips.append();
     newClip->fClipType = kRegion_ClipType;
     newClip->fGeom.fRegionID = regionID;
@@ -166,7 +165,7 @@ int SkMatrixClipStateMgr::saveLayer(const SkRect* bounds, const SkPaint* paint,
     fCurMCState->fExpectedDepth++;   // 1 for saveLayer
 #endif
 
-    fCurMCState->fSaveLayerBaseStateID = fCurOpenStateID;
+    *fStateIDStack.append() = fCurOpenStateID;
     fCurMCState->fSavedSkipOffsets = fSkipOffsets;
 
     // TODO: recycle these rather then new & deleting them on every saveLayer/
@@ -205,7 +204,9 @@ void SkMatrixClipStateMgr::restore() {
         fActualDepth--;
 #endif
 
-        fCurOpenStateID = fCurMCState->fSaveLayerBaseStateID;
+        SkASSERT(fStateIDStack.count() >= 1);
+        fCurOpenStateID = fStateIDStack[fStateIDStack.count()-1];
+        fStateIDStack.pop();
 
         SkASSERT(0 == fSkipOffsets->count());
         SkASSERT(NULL != fCurMCState->fSavedSkipOffsets);
@@ -243,23 +244,8 @@ int32_t SkMatrixClipStateMgr::NewMCStateID() {
     return gMCStateID;
 }
 
-bool SkMatrixClipStateMgr::isCurrentlyOpen(int32_t stateID) {
-    if (fCurMCState->fIsSaveLayer)
-        return false;
-
-    SkDeque::Iter iter(fMatrixClipStack, SkDeque::Iter::kBack_IterStart);
-
-    for (const MatrixClipState* state = (const MatrixClipState*) iter.prev();
-         state != NULL;
-         state = (const MatrixClipState*) iter.prev()) {
-        if (state->fIsSaveLayer) {
-            if (state->fSaveLayerBaseStateID == stateID) {
-                return true;
-            }
-        }
-    }
-
-    return false;
+bool SkMatrixClipStateMgr::isNestingMCState(int stateID) {
+    return fStateIDStack.count() > 0 && fStateIDStack[fStateIDStack.count()-1] == fCurOpenStateID;
 }
 
 bool SkMatrixClipStateMgr::call(CallType callType) {
@@ -280,7 +266,7 @@ bool SkMatrixClipStateMgr::call(CallType callType) {
     }
 
     if (kIdentityWideOpenStateID != fCurOpenStateID &&
-        !this->isCurrentlyOpen(fCurOpenStateID)) {
+        !this->isNestingMCState(fCurOpenStateID)) {
         // Don't write a restore if the open state is one in which a saveLayer
         // is nested. The save after the saveLayer's restore will close it.
         fPicRecord->recordRestore();    // Close the open block
@@ -397,9 +383,7 @@ void SkMatrixClipStateMgr::finish() {
 
 #ifdef SK_DEBUG
 void SkMatrixClipStateMgr::validate() {
-    if (fCurOpenStateID == fCurMCState->fMCStateID &&
-            (!fCurMCState->fIsSaveLayer ||
-             fCurOpenStateID != fCurMCState->fSaveLayerBaseStateID)) {
+    if (fCurOpenStateID == fCurMCState->fMCStateID && !this->isNestingMCState(fCurOpenStateID)) {
         // The current state is the active one so it should have a skip
         // offset for each clip
         SkDeque::Iter iter(fMatrixClipStack, SkDeque::Iter::kBack_IterStart);
