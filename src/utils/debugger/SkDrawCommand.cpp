@@ -64,6 +64,7 @@ const char* SkDrawCommand::GetCommandString(DrawType type) {
         case BEGIN_COMMENT_GROUP: return "BeginCommentGroup";
         case COMMENT: return "Comment";
         case END_COMMENT_GROUP: return "EndCommentGroup";
+        case DRAW_DRRECT: return "Draw DRRect";
         default:
             SkDebugf("DrawType error 0x%08x\n", type);
             SkASSERT(0);
@@ -167,6 +168,22 @@ void render_rrect(SkCanvas* canvas, const SkRRect& rrect) {
     p.setStyle(SkPaint::kStroke_Style);
 
     canvas->drawRRect(rrect, p);
+    canvas->restore();
+}
+
+void render_drrect(SkCanvas* canvas, const SkRRect& outer, const SkRRect& inner) {
+    canvas->clear(0xFFFFFFFF);
+    canvas->save();
+
+    const SkRect& bounds = outer.getBounds();
+
+    xlate_and_scale_to_bounds(canvas, bounds);
+
+    SkPaint p;
+    p.setColor(SK_ColorBLACK);
+    p.setStyle(SkPaint::kStroke_Style);
+
+    canvas->drawDRRect(outer, inner, p);
     canvas->restore();
 }
 
@@ -631,6 +648,28 @@ void SkDrawRRectCommand::execute(SkCanvas* canvas) {
 
 bool SkDrawRRectCommand::render(SkCanvas* canvas) const {
     render_rrect(canvas, fRRect);
+    return true;
+}
+
+SkDrawDRRectCommand::SkDrawDRRectCommand(const SkRRect& outer, 
+                                         const SkRRect& inner,
+                                         const SkPaint& paint) {
+    fOuter = outer;
+    fInner = inner;
+    fPaint = paint;
+    fDrawType = DRAW_DRRECT;
+
+    fInfo.push(SkObjectParser::RRectToString(outer));
+    fInfo.push(SkObjectParser::RRectToString(inner));
+    fInfo.push(SkObjectParser::PaintToString(paint));
+}
+
+void SkDrawDRRectCommand::execute(SkCanvas* canvas) {
+    canvas->drawDRRect(fOuter, fInner, fPaint);
+}
+
+bool SkDrawDRRectCommand::render(SkCanvas* canvas) const {
+    render_drrect(canvas, fOuter, fInner);
     return true;
 }
 

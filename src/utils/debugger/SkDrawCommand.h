@@ -429,6 +429,20 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
+class SkDrawDRRectCommand : public SkDrawCommand {
+public:
+    SkDrawDRRectCommand(const SkRRect& outer, const SkRRect& inner,
+                        const SkPaint& paint);
+    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual bool render(SkCanvas* canvas) const SK_OVERRIDE;
+private:
+    SkRRect fOuter;
+    SkRRect fInner;
+    SkPaint fPaint;
+
+    typedef SkDrawCommand INHERITED;
+};
+
 class SkDrawSpriteCommand : public SkDrawCommand {
 public:
     SkDrawSpriteCommand(const SkBitmap& bitmap, int left, int top, const SkPaint* paint);
