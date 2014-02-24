@@ -780,12 +780,12 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
         ir = clipBounds;
     }
 
-    fClipStack.clipDevRect(ir, op);
-
-    // early exit if the clip is now empty
-    if (bounds_affects_clip(flags) &&
-        !fMCRec->fRasterClip->op(ir, op)) {
-        return false;
+    if (bounds_affects_clip(flags)) {
+        fClipStack.clipDevRect(ir, op);
+        // early exit if the clip is now empty
+        if (!fMCRec->fRasterClip->op(ir, op)) {
+            return false;
+        }
     }
 
     if (intersection) {

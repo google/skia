@@ -228,9 +228,43 @@ static void test_soft_clips(skiatest::Reporter* reporter) {
     SkClearLastError();
 }
 
+static void test_saveLayer_clip(skiatest::Reporter* reporter) {
+    const int WIDTH = 100;
+    const int HEIGHT = 100;
+    const int LAYER_WIDTH = 50;
+    const int LAYER_HEIGHT = 50;
+
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(WIDTH, HEIGHT);
+    SkCanvas canvas(bitmap);
+
+    SkRect bounds = SkRect::MakeWH(SkIntToScalar(LAYER_WIDTH), SkIntToScalar(LAYER_HEIGHT));
+    canvas.clipRect(SkRect::MakeWH(SkIntToScalar(WIDTH), SkIntToScalar(HEIGHT)));
+
+    // Check that saveLayer without the kClipToLayer_SaveFlag leaves the
+    // clip stack unchanged.
+    canvas.saveLayer(&bounds, NULL, SkCanvas::kARGB_NoClipLayer_SaveFlag);
+    SkRect clipStackBounds;
+    SkClipStack::BoundsType boundsType;
+    canvas.getClipStack()->getBounds(&clipStackBounds, &boundsType);
+    REPORTER_ASSERT(reporter, clipStackBounds.width() == WIDTH);
+    REPORTER_ASSERT(reporter, clipStackBounds.height() == HEIGHT);
+    canvas.restore();
+
+    // Check that saveLayer with the kClipToLayer_SaveFlag sets the clip
+    // stack to the layer bounds.
+    canvas.saveLayer(&bounds, NULL, SkCanvas::kARGB_ClipLayer_SaveFlag);
+    canvas.getClipStack()->getBounds(&clipStackBounds, &boundsType);
+    REPORTER_ASSERT(reporter, clipStackBounds.width() == LAYER_WIDTH);
+    REPORTER_ASSERT(reporter, clipStackBounds.height() == LAYER_HEIGHT);
+
+    canvas.restore();
+}
+
 DEF_TEST(CanvasState, reporter) {
     test_complex_layers(reporter);
     test_complex_clips(reporter);
     test_draw_filters(reporter);
     test_soft_clips(reporter);
+    test_saveLayer_clip(reporter);
 }
