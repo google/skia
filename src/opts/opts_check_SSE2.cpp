@@ -166,7 +166,7 @@ void SkBitmapProcState::platformProcs() {
 }
 
 static SkBlitRow::Proc platform_16_procs[] = {
-    NULL,                               // S32_D565_Opaque
+    S32_D565_Opaque_SSE2,               // S32_D565_Opaque
     NULL,                               // S32_D565_Blend
     S32A_D565_Opaque_SSE2,              // S32A_D565_Opaque
     NULL,                               // S32A_D565_Blend
