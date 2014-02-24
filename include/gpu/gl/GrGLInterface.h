@@ -176,7 +176,6 @@ public:
         GLPtr<GrGLClearProc> fClear;
         GLPtr<GrGLClearColorProc> fClearColor;
         GLPtr<GrGLClearStencilProc> fClearStencil;
-        GLPtr<GrGLClientActiveTextureProc> fClientActiveTexture;
         GLPtr<GrGLColorMaskProc> fColorMask;
         GLPtr<GrGLCompileShaderProc> fCompileShader;
         GLPtr<GrGLCompressedTexImage2DProc> fCompressedTexImage2D;
@@ -194,14 +193,12 @@ public:
         GLPtr<GrGLDeleteVertexArraysProc> fDeleteVertexArrays;
         GLPtr<GrGLDepthMaskProc> fDepthMask;
         GLPtr<GrGLDisableProc> fDisable;
-        GLPtr<GrGLDisableClientStateProc> fDisableClientState;
         GLPtr<GrGLDisableVertexAttribArrayProc> fDisableVertexAttribArray;
         GLPtr<GrGLDrawArraysProc> fDrawArrays;
         GLPtr<GrGLDrawBufferProc> fDrawBuffer;
         GLPtr<GrGLDrawBuffersProc> fDrawBuffers;
         GLPtr<GrGLDrawElementsProc> fDrawElements;
         GLPtr<GrGLEnableProc> fEnable;
-        GLPtr<GrGLEnableClientStateProc> fEnableClientState;
         GLPtr<GrGLEnableVertexAttribArrayProc> fEnableVertexAttribArray;
         GLPtr<GrGLEndQueryProc> fEndQuery;
         GLPtr<GrGLFinishProc> fFinish;
@@ -285,7 +282,6 @@ public:
         GLPtr<GrGLStencilMaskSeparateProc> fStencilMaskSeparate;
         GLPtr<GrGLStencilOpProc> fStencilOp;
         GLPtr<GrGLStencilOpSeparateProc> fStencilOpSeparate;
-        GLPtr<GrGLTexGenfProc> fTexGenf;
         GLPtr<GrGLTexGenfvProc> fTexGenfv;
         GLPtr<GrGLTexGeniProc> fTexGeni;
         GLPtr<GrGLTexImage2DProc> fTexImage2D;
@@ -317,7 +313,6 @@ public:
         GLPtr<GrGLUseProgramProc> fUseProgram;
         GLPtr<GrGLVertexAttrib4fvProc> fVertexAttrib4fv;
         GLPtr<GrGLVertexAttribPointerProc> fVertexAttribPointer;
-        GLPtr<GrGLVertexPointerProc> fVertexPointer;
         GLPtr<GrGLViewportProc> fViewport;
 
         // Experimental: Functions for GL_NV_path_rendering. These will be
@@ -396,7 +391,6 @@ public:
     GLPtrAlias<GrGLClearProc> fClear;
     GLPtrAlias<GrGLClearColorProc> fClearColor;
     GLPtrAlias<GrGLClearStencilProc> fClearStencil;
-    GLPtrAlias<GrGLClientActiveTextureProc> fClientActiveTexture;
     GLPtrAlias<GrGLColorMaskProc> fColorMask;
     GLPtrAlias<GrGLCompileShaderProc> fCompileShader;
     GLPtrAlias<GrGLCompressedTexImage2DProc> fCompressedTexImage2D;
@@ -414,14 +408,12 @@ public:
     GLPtrAlias<GrGLDeleteVertexArraysProc> fDeleteVertexArrays;
     GLPtrAlias<GrGLDepthMaskProc> fDepthMask;
     GLPtrAlias<GrGLDisableProc> fDisable;
-    GLPtrAlias<GrGLDisableClientStateProc> fDisableClientState;
     GLPtrAlias<GrGLDisableVertexAttribArrayProc> fDisableVertexAttribArray;
     GLPtrAlias<GrGLDrawArraysProc> fDrawArrays;
     GLPtrAlias<GrGLDrawBufferProc> fDrawBuffer;
     GLPtrAlias<GrGLDrawBuffersProc> fDrawBuffers;
     GLPtrAlias<GrGLDrawElementsProc> fDrawElements;
     GLPtrAlias<GrGLEnableProc> fEnable;
-    GLPtrAlias<GrGLEnableClientStateProc> fEnableClientState;
     GLPtrAlias<GrGLEnableVertexAttribArrayProc> fEnableVertexAttribArray;
     GLPtrAlias<GrGLEndQueryProc> fEndQuery;
     GLPtrAlias<GrGLFinishProc> fFinish;
@@ -482,7 +474,6 @@ public:
     GLPtrAlias<GrGLStencilMaskSeparateProc> fStencilMaskSeparate;
     GLPtrAlias<GrGLStencilOpProc> fStencilOp;
     GLPtrAlias<GrGLStencilOpSeparateProc> fStencilOpSeparate;
-    GLPtrAlias<GrGLTexGenfProc> fTexGenf;
     GLPtrAlias<GrGLTexGenfvProc> fTexGenfv;
     GLPtrAlias<GrGLTexGeniProc> fTexGeni;
     GLPtrAlias<GrGLTexImage2DProc> fTexImage2D;
@@ -514,7 +505,6 @@ public:
     GLPtrAlias<GrGLUseProgramProc> fUseProgram;
     GLPtrAlias<GrGLVertexAttrib4fvProc> fVertexAttrib4fv;
     GLPtrAlias<GrGLVertexAttribPointerProc> fVertexAttribPointer;
-    GLPtrAlias<GrGLVertexPointerProc> fVertexPointer;
     GLPtrAlias<GrGLViewportProc> fViewport;
     GLPtrAlias<GrGLPathCommandsProc> fPathCommands;
     GLPtrAlias<GrGLPathCoordsProc> fPathCoords;

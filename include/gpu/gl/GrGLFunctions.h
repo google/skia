@@ -106,14 +106,12 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDeleteVertexArraysProc)(GrGLsizei n, const GrGLuint *arrays);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDepthMaskProc)(GrGLboolean flag);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDisableProc)(GrGLenum cap);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDisableClientStateProc)(GrGLenum cap);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDisableVertexAttribArrayProc)(GrGLuint index);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawArraysProc)(GrGLenum mode, GrGLint first, GrGLsizei count);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawBufferProc)(GrGLenum mode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawBuffersProc)(GrGLsizei n, const GrGLenum* bufs);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLDrawElementsProc)(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid* indices);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEnableProc)(GrGLenum cap);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEnableClientStateProc)(GrGLenum cap);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEnableVertexAttribArrayProc)(GrGLuint index);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLEndQueryProc)(GrGLenum target);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLFinishProc)();
@@ -206,7 +204,6 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLUseProgramProc)(GrGLuint program);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexAttrib4fvProc)(GrGLuint indx, const GrGLfloat* values);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexAttribPointerProc)(GrGLuint indx, GrGLint size, GrGLenum type, GrGLboolean normalized, GrGLsizei stride, const GrGLvoid* ptr);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLVertexPointerProc)(GrGLint size, GrGLenum type, GrGLsizei stride, const GrGLvoid* pointer);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLViewportProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
 
     // Experimental: Functions for GL_NV_path_rendering. These will be

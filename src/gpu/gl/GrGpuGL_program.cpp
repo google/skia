@@ -344,22 +344,29 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
 
     if (!fCurrentProgram->hasVertexShader()) {
         int posIdx = this->getDrawState().positionAttributeIndex();
-        const GrVertexAttrib* vertexArray = this->getDrawState().getVertexAttribs() + posIdx;
-        GrVertexAttribType vertexArrayType = vertexArray->fType;
-        SkASSERT(!GrGLAttribTypeToLayout(vertexArrayType).fNormalized);
-        SkASSERT(GrGLAttribTypeToLayout(vertexArrayType).fCount == 2);
-        attribState->setFixedFunctionVertexArray(this,
-                                                 vbuf,
-                                                 2,
-                                                 GrGLAttribTypeToLayout(vertexArrayType).fType,
-                                                 stride,
-                                                 reinterpret_cast<GrGLvoid*>(
-                                                 vertexOffsetInBytes + vertexArray->fOffset));
-        attribState->disableUnusedArrays(this, 0, true);
+        const GrVertexAttrib* vertexAttrib = this->getDrawState().getVertexAttribs() + posIdx;
+        GrVertexAttribType attribType = vertexAttrib->fType;
+        SkASSERT(!GrGLAttribTypeToLayout(attribType).fNormalized);
+        SkASSERT(GrGLAttribTypeToLayout(attribType).fCount == 2);
+
+        // Attrib at location 0 is defined to be bound to vertex in fixed-function pipe.  Asserts
+        // above should make sure position attribute goes to location 0 when below code is executed.
+
+        attribState->set(this,
+                         0,
+                         vbuf,
+                         GrGLAttribTypeToLayout(attribType).fCount,
+                         GrGLAttribTypeToLayout(attribType).fType,
+                         GrGLAttribTypeToLayout(attribType).fNormalized,
+                         stride,
+                         reinterpret_cast<GrGLvoid*>(
+                             vertexOffsetInBytes + vertexAttrib->fOffset));
+        attribState->disableUnusedArrays(this, 1);
     } else {
+        int vertexAttribCount = this->getDrawState().getVertexAttribCount();
         uint32_t usedAttribArraysMask = 0;
         const GrVertexAttrib* vertexAttrib = this->getDrawState().getVertexAttribs();
-        int vertexAttribCount = this->getDrawState().getVertexAttribCount();
+
         for (int vertexAttribIndex = 0; vertexAttribIndex < vertexAttribCount;
              ++vertexAttribIndex, ++vertexAttrib) {
 
@@ -373,9 +380,8 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
                              GrGLAttribTypeToLayout(attribType).fNormalized,
                              stride,
                              reinterpret_cast<GrGLvoid*>(
-                             vertexOffsetInBytes + vertexAttrib->fOffset));
+                                 vertexOffsetInBytes + vertexAttrib->fOffset));
         }
-
-        attribState->disableUnusedArrays(this, usedAttribArraysMask, false);
+        attribState->disableUnusedArrays(this, usedAttribArraysMask);
     }
 }

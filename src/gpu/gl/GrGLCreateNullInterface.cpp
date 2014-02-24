@@ -100,7 +100,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLBeginQuery(GrGLenum target, GrGLuint id) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindAttribLocation(GrGLuint program, GrGLuint index, const char* name) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindTexture(GrGLenum target, GrGLuint texture) {}
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLBindVertexArray(GrGLuint id) {}
-GrGLvoid GR_GL_FUNCTION_TYPE nullGLClientActiveTexture(GrGLenum) {}
 
 GrGLvoid GR_GL_FUNCTION_TYPE nullGLGenBuffers(GrGLsizei n, GrGLuint* ids) {
 
@@ -285,7 +284,6 @@ const GrGLInterface* GrGLCreateNullInterface() {
         functions->fClear = noOpGLClear;
         functions->fClearColor = noOpGLClearColor;
         functions->fClearStencil = noOpGLClearStencil;
-        functions->fClientActiveTexture = nullGLClientActiveTexture;
         functions->fColorMask = noOpGLColorMask;
         functions->fCompileShader = noOpGLCompileShader;
         functions->fCompressedTexImage2D = noOpGLCompressedTexImage2D;
@@ -301,14 +299,12 @@ const GrGLInterface* GrGLCreateNullInterface() {
         functions->fDeleteVertexArrays = noOpGLDeleteIds;
         functions->fDepthMask = noOpGLDepthMask;
         functions->fDisable = noOpGLDisable;
-        functions->fDisableClientState = noOpGLDisableClientState;
         functions->fDisableVertexAttribArray = noOpGLDisableVertexAttribArray;
         functions->fDrawArrays = noOpGLDrawArrays;
         functions->fDrawBuffer = noOpGLDrawBuffer;
         functions->fDrawBuffers = noOpGLDrawBuffers;
         functions->fDrawElements = noOpGLDrawElements;
         functions->fEnable = noOpGLEnable;
-        functions->fEnableClientState = noOpGLEnableClientState;
         functions->fEnableVertexAttribArray = noOpGLEnableVertexAttribArray;
         functions->fEndQuery = noOpGLEndQuery;
         functions->fFinish = noOpGLFinish;
@@ -355,7 +351,6 @@ const GrGLInterface* GrGLCreateNullInterface() {
         functions->fStencilMaskSeparate = noOpGLStencilMaskSeparate;
         functions->fStencilOp = noOpGLStencilOp;
         functions->fStencilOpSeparate = noOpGLStencilOpSeparate;
-        functions->fTexGenf = noOpGLTexGenf;
         functions->fTexGenfv = noOpGLTexGenfv;
         functions->fTexGeni = noOpGLTexGeni;
         functions->fTexImage2D = noOpGLTexImage2D;
@@ -386,7 +381,6 @@ const GrGLInterface* GrGLCreateNullInterface() {
         functions->fUseProgram = nullGLUseProgram;
         functions->fVertexAttrib4fv = noOpGLVertexAttrib4fv;
         functions->fVertexAttribPointer = noOpGLVertexAttribPointer;
-        functions->fVertexPointer = noOpGLVertexPointer;
         functions->fViewport = nullGLViewport;
         functions->fBindFramebuffer = nullGLBindFramebuffer;
         functions->fBindRenderbuffer = nullGLBindRenderbuffer;

@@ -70,8 +70,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDepthMask(GrGLboolean flag);
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDisable(GrGLenum cap);
 
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDisableClientState(GrGLenum);
-
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDisableVertexAttribArray(GrGLuint index);
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDrawArrays(GrGLenum mode, GrGLint first, GrGLsizei count);
@@ -87,8 +85,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLDrawElements(GrGLenum mode,
                                                 const GrGLvoid* indices);
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLEnable(GrGLenum cap);
-
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLEnableClientState(GrGLenum cap);
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLEnableVertexAttribArray(GrGLuint index);
 
@@ -276,8 +272,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexAttribPointer(GrGLuint indx,
                                                        GrGLboolean normalized,
                                                        GrGLsizei stride,
                                                        const GrGLvoid* ptr);
-
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLVertexPointer(GrGLint, GrGLenum, GrGLsizei, const GrGLvoid*);
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLViewport(GrGLint x,
                                             GrGLint y,

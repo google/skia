@@ -115,7 +115,6 @@ GrGLInterface::GrGLInterface()
     , fClear(&fFunctions.fClear)
     , fClearColor(&fFunctions.fClearColor)
     , fClearStencil(&fFunctions.fClearStencil)
-    , fClientActiveTexture(&fFunctions.fClientActiveTexture)
     , fColorMask(&fFunctions.fColorMask)
     , fCompileShader(&fFunctions.fCompileShader)
     , fCompressedTexImage2D(&fFunctions.fCompressedTexImage2D)
@@ -133,14 +132,12 @@ GrGLInterface::GrGLInterface()
     , fDeleteVertexArrays(&fFunctions.fDeleteVertexArrays)
     , fDepthMask(&fFunctions.fDepthMask)
     , fDisable(&fFunctions.fDisable)
-    , fDisableClientState(&fFunctions.fDisableClientState)
     , fDisableVertexAttribArray(&fFunctions.fDisableVertexAttribArray)
     , fDrawArrays(&fFunctions.fDrawArrays)
     , fDrawBuffer(&fFunctions.fDrawBuffer)
     , fDrawBuffers(&fFunctions.fDrawBuffers)
     , fDrawElements(&fFunctions.fDrawElements)
     , fEnable(&fFunctions.fEnable)
-    , fEnableClientState(&fFunctions.fEnableClientState)
     , fEnableVertexAttribArray(&fFunctions.fEnableVertexAttribArray)
     , fEndQuery(&fFunctions.fEndQuery)
     , fFinish(&fFunctions.fFinish)
@@ -201,7 +198,6 @@ GrGLInterface::GrGLInterface()
     , fStencilMaskSeparate(&fFunctions.fStencilMaskSeparate)
     , fStencilOp(&fFunctions.fStencilOp)
     , fStencilOpSeparate(&fFunctions.fStencilOpSeparate)
-    , fTexGenf(&fFunctions.fTexGenf)
     , fTexGenfv(&fFunctions.fTexGenfv)
     , fTexGeni(&fFunctions.fTexGeni)
     , fTexImage2D(&fFunctions.fTexImage2D)
@@ -233,7 +229,6 @@ GrGLInterface::GrGLInterface()
     , fUseProgram(&fFunctions.fUseProgram)
     , fVertexAttrib4fv(&fFunctions.fVertexAttrib4fv)
     , fVertexAttribPointer(&fFunctions.fVertexAttribPointer)
-    , fVertexPointer(&fFunctions.fVertexPointer)
     , fViewport(&fFunctions.fViewport)
     , fPathCommands(&fFunctions.fPathCommands)
     , fPathCoords(&fFunctions.fPathCoords)
@@ -483,16 +478,11 @@ bool GrGLInterface::validate() const {
             }
         }
         if (!isCoreProfile) {
-            if (NULL == fFunctions.fClientActiveTexture ||
-                NULL == fFunctions.fDisableClientState ||
-                NULL == fFunctions.fEnableClientState ||
-                NULL == fFunctions.fLoadIdentity ||
+            if (NULL == fFunctions.fLoadIdentity ||
                 NULL == fFunctions.fLoadMatrixf ||
                 NULL == fFunctions.fMatrixMode ||
-                NULL == fFunctions.fTexGenf ||
                 NULL == fFunctions.fTexGenfv ||
-                NULL == fFunctions.fTexGeni ||
-                NULL == fFunctions.fVertexPointer) {
+                NULL == fFunctions.fTexGeni) {
                 return false;
             }
         }

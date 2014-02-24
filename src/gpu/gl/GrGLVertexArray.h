@@ -51,9 +51,6 @@ class GrGLAttribArrayState {
 public:
     explicit GrGLAttribArrayState(int arrayCount = 0) {
         this->resize(arrayCount);
-        // glVertexPointer doesn't have a normalization param.
-        fFixedFunctionVertexArray.fNormalized = false;
-        fUnusedFixedFunctionArraysDisabled = false;
     }
 
     void resize(int newCount) {
@@ -77,26 +74,17 @@ public:
              GrGLsizei stride,
              GrGLvoid* offset);
 
-    void setFixedFunctionVertexArray(const GrGpuGL*,
-                                     GrGLVertexBuffer*,
-                                     GrGLint size,
-                                     GrGLenum type,
-                                     GrGLsizei stride,
-                                     GrGLvoid* offset);
-
     /**
      * This function disables vertex attribs not present in the mask. It is assumed that the
      * GrGLAttribArrayState is tracking the state of the currently bound vertex array object.
      */
-    void disableUnusedArrays(const GrGpuGL*, uint64_t usedAttribArrayMask, bool usingFFVertexArray);
+    void disableUnusedArrays(const GrGpuGL*, uint64_t usedAttribArrayMask);
 
     void invalidate() {
         int count = fAttribArrayStates.count();
         for (int i = 0; i < count; ++i) {
             fAttribArrayStates[i].invalidate();
         }
-        fFixedFunctionVertexArray.invalidate();
-        fUnusedFixedFunctionArraysDisabled = false;
     }
 
     void notifyVertexBufferDelete(GrGLuint id) {
@@ -106,10 +94,6 @@ public:
                 id == fAttribArrayStates[i].fVertexBufferID) {
                 fAttribArrayStates[i].invalidate();
             }
-        }
-        if (fFixedFunctionVertexArray.fAttribPointerIsValid &&
-            id == fFixedFunctionVertexArray.fVertexBufferID) {
-            fFixedFunctionVertexArray.invalidate();
         }
     }
 
@@ -140,13 +124,6 @@ private:
     };
 
     SkSTArray<16, AttribArrayState, true> fAttribArrayStates;
-
-    // Tracks the array specified by glVertexPointer.
-    AttribArrayState fFixedFunctionVertexArray;
-
-    // Tracks whether we've disabled the other fixed function arrays that we don't
-    // use (e.g. glNormalPointer).
-    bool fUnusedFixedFunctionArraysDisabled;
 };
 
 /**
