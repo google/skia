@@ -38,11 +38,6 @@
 # https://codereview.chromium.org/154163002/
 extractbitmap
 
-# Need to rebaseline since SkBitmapSource was modified to use higher filter quality
-# https://codereview.chromium.org/163663002/
-bitmapsource
-imagefiltersscaled
-
 # Need to rebaseline GPU versions of these tests due to rrect clipping changes and
 # changes to rrect_* tests.
 # http://skbug.com/2181 https://codereview.chromium.org/171413004/
@@ -52,18 +47,8 @@ rrect_clip_aa
 rrect_bw
 rrect_aa
 
-# Need to rebaseline all platforms due to new test cases added in
-# https://codereview.chromium.org/168283006/
-imagefiltersclipped
-imagefiltersscaled
-
 # Added by yunchao.he@intel.com for https://codereview.chromium.org/166023002
 inverse_paths
-
-# Added by senorblanco as part of https://codereview.chromium.org/164203002/
-# This one gets PDF result closer to 8888 than it was before (only one bar
-# different from 8888 vs three before).
-canvas-layer-state
 
 # Added by kevin.petit@arm.com for https://codereview.chromium.org/177963003/
 xfermodes3
