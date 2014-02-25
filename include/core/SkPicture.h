@@ -242,7 +242,10 @@ protected:
 
     // Note: If the picture version needs to be increased then please follow the
     // steps to generate new SKPs in (only accessible to Googlers): http://goo.gl/qATVcw
-    static const uint32_t PICTURE_VERSION = 20;
+
+    // Only SKPs within the min/current picture version range (inclusive) can be read.
+    static const uint32_t MIN_PICTURE_VERSION = 19;
+    static const uint32_t CURRENT_PICTURE_VERSION = 20;
 
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived

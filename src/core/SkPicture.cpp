@@ -273,7 +273,7 @@ bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
         return false;
     }
 
-    if (PICTURE_VERSION != info.fVersion) {
+    if (info.fVersion < MIN_PICTURE_VERSION || info.fVersion > CURRENT_PICTURE_VERSION) {
         return false;
     }
 
@@ -297,7 +297,7 @@ bool SkPicture::BufferIsSKP(SkReadBuffer& buffer, SkPictInfo* pInfo) {
         return false;
     }
 
-    if (PICTURE_VERSION != info.fVersion) {
+    if (info.fVersion < MIN_PICTURE_VERSION || info.fVersion > CURRENT_PICTURE_VERSION) {
         return false;
     }
 
@@ -362,7 +362,7 @@ void SkPicture::createHeader(void* header) const {
 
     // Set piture info after magic bytes in the header
     SkPictInfo* info = (SkPictInfo*)(((char*)header) + sizeof(kMagic));
-    info->fVersion = PICTURE_VERSION;
+    info->fVersion = CURRENT_PICTURE_VERSION;
     info->fWidth = fWidth;
     info->fHeight = fHeight;
     info->fFlags = SkPictInfo::kCrossProcess_Flag;
