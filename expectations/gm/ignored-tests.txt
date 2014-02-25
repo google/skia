@@ -38,14 +38,5 @@
 # https://codereview.chromium.org/154163002/
 extractbitmap
 
-# Need to rebaseline GPU versions of these tests due to rrect clipping changes and
-# changes to rrect_* tests.
-# http://skbug.com/2181 https://codereview.chromium.org/171413004/
-complexclip2_rrect_aa
-rrect_clip_bw
-rrect_clip_aa
-rrect_bw
-rrect_aa
-
 # Added by yunchao.he@intel.com for https://codereview.chromium.org/166023002
 inverse_paths
