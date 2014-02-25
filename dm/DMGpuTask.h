@@ -32,7 +32,6 @@ public:
     virtual SkString name() const SK_OVERRIDE { return fName; }
 
 private:
-    TaskRunner* fTaskRunner;
     SkAutoTDelete<skiagm::GM> fGM;
     const SkString fName;
     const Expectations& fExpectations;

@@ -9,7 +9,6 @@
         'include_dirs': [
             '../dm',
             '../gm',
-            '../tests',
             '../src/images',
             '../src/lazy',
             '../src/core',
@@ -19,11 +18,7 @@
             '../src/utils/debugger',
             '../tools',
         ],
-        'includes': [
-            'gmslides.gypi',
-            'pathops_unittest.gypi',
-            'tests.gypi',
-        ],
+        'includes': [ 'gmslides.gypi' ],
         'sources': [
             '../dm/DM.cpp',
             '../dm/DMCpuTask.cpp',
@@ -35,7 +30,6 @@
             '../dm/DMSerializeTask.cpp',
             '../dm/DMTask.cpp',
             '../dm/DMTaskRunner.cpp',
-            '../dm/DMTestTask.cpp',
             '../dm/DMTileGridTask.cpp',
             '../dm/DMUtil.cpp',
             '../dm/DMWriteTask.cpp',

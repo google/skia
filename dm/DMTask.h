@@ -34,7 +34,7 @@ public:
 
 protected:
     void spawnChild(Task* task);
-    void fail(const char* msg = NULL);
+    void fail();
 
 private:
     // Both unowned.
