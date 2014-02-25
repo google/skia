@@ -2808,25 +2808,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1536425950056721833
+          11559795738519917215
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "extractbitmap_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1536425950056721833
+          11559795738519917215
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "factory_565.png": {
       "allowed-digests": [

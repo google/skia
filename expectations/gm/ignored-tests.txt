@@ -33,10 +33,5 @@
 ## gradtext GM test
 #gradtext
 
-# Need to rebaseline all platforms, as the content was changed to remove
-# deprecated calling pattern.
-# https://codereview.chromium.org/154163002/
-extractbitmap
-
 # Added by yunchao.he@intel.com for https://codereview.chromium.org/166023002
 inverse_paths
