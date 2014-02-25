@@ -33,5 +33,6 @@
 ## gradtext GM test
 #gradtext
 
-# Added by yunchao.he@intel.com for https://codereview.chromium.org/166023002
+# This GM has probably always drawn incorrectly. We need to clarify the API
+# https://skbug.com/2222
 inverse_paths
