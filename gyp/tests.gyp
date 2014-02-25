@@ -40,6 +40,7 @@
         '../tests/BitmapHasherTest.cpp',
         '../tests/BitmapHeapTest.cpp',
         '../tests/BitmapTest.cpp',
+        '../tests/BlendTest.cpp',
         '../tests/BlitRowTest.cpp',
         '../tests/BlurTest.cpp',
         '../tests/CachedDecodingPixelRefTest.cpp',
