@@ -64,3 +64,26 @@ inverse_paths
 # This one gets PDF result closer to 8888 than it was before (only one bar
 # different from 8888 vs three before).
 canvas-layer-state
+
+# Added by kevin.petit@arm.com for https://codereview.chromium.org/177963003/
+xfermodes3
+xfermodes2
+xfermodes
+scaled_tilemodes_npot
+scaled_tilemodes
+tilemodes_npot
+tilemodes
+modecolorfilters
+lumafilter
+lerpmode
+hairmodes
+radial_gradient
+convex_poly_clip
+complexclip_aa_layer
+complexclip_bw_layer
+canvas-layer-state
+bitmapfilters
+drawbitmapmatrix
+bitmapcopy
+arithmode
+aarectmodes

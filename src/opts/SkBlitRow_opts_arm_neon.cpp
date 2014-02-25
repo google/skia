@@ -970,9 +970,8 @@ void S32A_D565_Opaque_Dither_neon (uint16_t * SK_RESTRICT dst,
 #define    UNROLL    8
 
     if (count >= UNROLL) {
-    uint8x8_t dbase;
 
-#if    defined(DEBUG_OPAQUE_DITHER)
+#if defined(DEBUG_OPAQUE_DITHER)
     uint16_t tmpbuf[UNROLL];
     int td[UNROLL];
     int tdv[UNROLL];
@@ -983,6 +982,7 @@ void S32A_D565_Opaque_Dither_neon (uint16_t * SK_RESTRICT dst,
     int noisy = 0;
 #endif
 
+    uint8x8_t dbase;
     const uint8_t *dstart = &gDitherMatrix_Neon[(y&3)*12 + (x&3)];
     dbase = vld1_u8(dstart);
 
@@ -991,27 +991,27 @@ void S32A_D565_Opaque_Dither_neon (uint16_t * SK_RESTRICT dst,
         uint16x8_t dst8, scale8, alpha8;
         uint16x8_t dst_r, dst_g, dst_b;
 
-#if    defined(DEBUG_OPAQUE_DITHER)
-    /* calculate 8 elements worth into a temp buffer */
-    {
-      int my_y = y;
-      int my_x = x;
-      SkPMColor* my_src = (SkPMColor*)src;
-      uint16_t* my_dst = dst;
-      int i;
+#if defined(DEBUG_OPAQUE_DITHER)
+        // calculate 8 elements worth into a temp buffer
+        {
+        int my_y = y;
+        int my_x = x;
+        SkPMColor* my_src = (SkPMColor*)src;
+        uint16_t* my_dst = dst;
+        int i;
 
-          DITHER_565_SCAN(my_y);
-          for(i=0;i<UNROLL;i++) {
+        DITHER_565_SCAN(my_y);
+        for(i = 0; i < UNROLL; i++) {
             SkPMColor c = *my_src++;
             SkPMColorAssert(c);
             if (c) {
                 unsigned a = SkGetPackedA32(c);
 
                 int d = SkAlphaMul(DITHER_VALUE(my_x), SkAlpha255To256(a));
-        tdv[i] = DITHER_VALUE(my_x);
-        ta[i] = a;
-        tap[i] = SkAlpha255To256(a);
-        td[i] = d;
+                tdv[i] = DITHER_VALUE(my_x);
+                ta[i] = a;
+                tap[i] = SkAlpha255To256(a);
+                td[i] = d;
 
                 unsigned sr = SkGetPackedR32(c);
                 unsigned sg = SkGetPackedG32(c);
@@ -1025,147 +1025,126 @@ void S32A_D565_Opaque_Dither_neon (uint16_t * SK_RESTRICT dst,
                 dst_expanded = dst_expanded * (SkAlpha255To256(255 - a) >> 3);
                 // now src and dst expanded are in g:11 r:10 x:1 b:10
                 tmpbuf[i] = SkCompact_rgb_16((src_expanded + dst_expanded) >> 5);
-        td[i] = d;
-
+                td[i] = d;
             } else {
-        tmpbuf[i] = *my_dst;
-        ta[i] = tdv[i] = td[i] = 0xbeef;
-        }
-        in_dst[i] = *my_dst;
+                tmpbuf[i] = *my_dst;
+                ta[i] = tdv[i] = td[i] = 0xbeef;
+            }
+            in_dst[i] = *my_dst;
             my_dst += 1;
             DITHER_INC_X(my_x);
-          }
-    }
+        }
+        }
 #endif
 
-        /* source is in ABGR */
+
         {
         register uint8x8_t d0 asm("d0");
         register uint8x8_t d1 asm("d1");
         register uint8x8_t d2 asm("d2");
         register uint8x8_t d3 asm("d3");
 
-        asm ("vld4.8    {d0-d3},[%4]  /* r=%P0 g=%P1 b=%P2 a=%P3 */"
-            : "=w" (d0), "=w" (d1), "=w" (d2), "=w" (d3)
-            : "r" (src)
-                    );
+        asm ("vld4.8    {d0-d3},[%[src]]!  /* r=%P0 g=%P1 b=%P2 a=%P3 */"
+            : "=w" (d0), "=w" (d1), "=w" (d2), "=w" (d3), [src] "+r" (src)
+            :
+        );
+#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
+            sr = d2; sg = d1; sb = d0; sa = d3;
+#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
             sr = d0; sg = d1; sb = d2; sa = d3;
+#endif
         }
 
-        /* calculate 'd', which will be 0..7 */
-        /* dbase[] is 0..7; alpha is 0..256; 16 bits suffice */
-#if defined(SK_BUILD_FOR_ANDROID)
-        /* SkAlpha255To256() semantic a+1 vs a+a>>7 */
-        alpha8 = vaddw_u8(vmovl_u8(sa), vdup_n_u8(1));
-#else
-        alpha8 = vaddw_u8(vmovl_u8(sa), vshr_n_u8(sa, 7));
-#endif
-        alpha8 = vmulq_u16(alpha8, vmovl_u8(dbase));
-        d = vshrn_n_u16(alpha8, 8);    /* narrowing too */
+        /* calculate 'd', which will be 0..7
+         * dbase[] is 0..7; alpha is 0..256; 16 bits suffice
+         */
+        alpha8 = vmovl_u8(dbase);
+        alpha8 = vmlal_u8(alpha8, sa, dbase);
+        d = vshrn_n_u16(alpha8, 8);    // narrowing too
 
-        /* sr = sr - (sr>>5) + d */
+        // sr = sr - (sr>>5) + d
         /* watching for 8-bit overflow.  d is 0..7; risky range of
          * sr is >248; and then (sr>>5) is 7 so it offsets 'd';
-         * safe  as long as we do ((sr-sr>>5) + d) */
+         * safe  as long as we do ((sr-sr>>5) + d)
+         */
         sr = vsub_u8(sr, vshr_n_u8(sr, 5));
         sr = vadd_u8(sr, d);
 
-        /* sb = sb - (sb>>5) + d */
+        // sb = sb - (sb>>5) + d
         sb = vsub_u8(sb, vshr_n_u8(sb, 5));
         sb = vadd_u8(sb, d);
 
-        /* sg = sg - (sg>>6) + d>>1; similar logic for overflows */
+        // sg = sg - (sg>>6) + d>>1; similar logic for overflows
         sg = vsub_u8(sg, vshr_n_u8(sg, 6));
         sg = vadd_u8(sg, vshr_n_u8(d,1));
 
-        /* need to pick up 8 dst's -- at 16 bits each, 128 bits */
+        // need to pick up 8 dst's -- at 16 bits each, 128 bits
         dst8 = vld1q_u16(dst);
-        dst_b = vandq_u16(dst8, vdupq_n_u16(0x001F));
-        dst_g = vandq_u16(vshrq_n_u16(dst8,5), vdupq_n_u16(0x003F));
-        dst_r = vshrq_n_u16(dst8,11);    /* clearing hi bits */
+        dst_b = vandq_u16(dst8, vdupq_n_u16(SK_B16_MASK));
+        dst_g = vshrq_n_u16(vshlq_n_u16(dst8, SK_R16_BITS), SK_R16_BITS + SK_B16_BITS);
+        dst_r = vshrq_n_u16(dst8, SK_R16_SHIFT);    // clearing hi bits
 
-        /* blend */
-#if 1
-        /* SkAlpha255To256() semantic a+1 vs a+a>>7 */
-        /* originally 255-sa + 1 */
+        // blend
         scale8 = vsubw_u8(vdupq_n_u16(256), sa);
-#else
-        scale8 = vsubw_u8(vdupq_n_u16(255), sa);
-        scale8 = vaddq_u16(scale8, vshrq_n_u16(scale8, 7));
-#endif
 
-#if 1
-        /* combine the addq and mul, save 3 insns */
+        // combine the addq and mul, save 3 insns
         scale8 = vshrq_n_u16(scale8, 3);
         dst_b = vmlaq_u16(vshll_n_u8(sb,2), dst_b, scale8);
         dst_g = vmlaq_u16(vshll_n_u8(sg,3), dst_g, scale8);
         dst_r = vmlaq_u16(vshll_n_u8(sr,2), dst_r, scale8);
-#else
-        /* known correct, but +3 insns over above */
-        scale8 = vshrq_n_u16(scale8, 3);
-        dst_b = vmulq_u16(dst_b, scale8);
-        dst_g = vmulq_u16(dst_g, scale8);
-        dst_r = vmulq_u16(dst_r, scale8);
 
-        /* combine */
-        /* NB: vshll widens, need to preserve those bits */
-        dst_b = vaddq_u16(dst_b, vshll_n_u8(sb,2));
-        dst_g = vaddq_u16(dst_g, vshll_n_u8(sg,3));
-        dst_r = vaddq_u16(dst_r, vshll_n_u8(sr,2));
-#endif
-
-        /* repack to store */
-        dst8 = vandq_u16(vshrq_n_u16(dst_b, 5), vdupq_n_u16(0x001F));
+        // repack to store
+        dst8 = vshrq_n_u16(dst_b, 5);
         dst8 = vsliq_n_u16(dst8, vshrq_n_u16(dst_g, 5), 5);
         dst8 = vsliq_n_u16(dst8, vshrq_n_u16(dst_r,5), 11);
 
         vst1q_u16(dst, dst8);
 
-#if    defined(DEBUG_OPAQUE_DITHER)
-        /* verify my 8 elements match the temp buffer */
-    {
-       int i, bad=0;
-       static int invocation;
+#if defined(DEBUG_OPAQUE_DITHER)
+        // verify my 8 elements match the temp buffer
+        {
+        int i, bad=0;
+        static int invocation;
 
-       for (i=0;i<UNROLL;i++)
-        if (tmpbuf[i] != dst[i]) bad=1;
-       if (bad) {
-        SkDebugf("BAD S32A_D565_Opaque_Dither_neon(); invocation %d offset %d\n",
-            invocation, offset);
-        SkDebugf("  alpha 0x%x\n", alpha);
-        for (i=0;i<UNROLL;i++)
-            SkDebugf("%2d: %s %04x w %04x id %04x s %08x d %04x %04x %04x %04x\n",
-            i, ((tmpbuf[i] != dst[i])?"BAD":"got"),
-            dst[i], tmpbuf[i], in_dst[i], src[i], td[i], tdv[i], tap[i], ta[i]);
+        for (i = 0; i < UNROLL; i++) {
+            if (tmpbuf[i] != dst[i]) {
+                bad=1;
+            }
+        }
+        if (bad) {
+            SkDebugf("BAD S32A_D565_Opaque_Dither_neon(); invocation %d offset %d\n",
+                     invocation, offset);
+            SkDebugf("  alpha 0x%x\n", alpha);
+            for (i = 0; i < UNROLL; i++)
+                SkDebugf("%2d: %s %04x w %04x id %04x s %08x d %04x %04x %04x %04x\n",
+                         i, ((tmpbuf[i] != dst[i])?"BAD":"got"), dst[i], tmpbuf[i],
+                         in_dst[i], src[i-8], td[i], tdv[i], tap[i], ta[i]);
 
-        showme16("alpha8", &alpha8, sizeof(alpha8));
-        showme16("scale8", &scale8, sizeof(scale8));
-        showme8("d", &d, sizeof(d));
-        showme16("dst8", &dst8, sizeof(dst8));
-        showme16("dst_b", &dst_b, sizeof(dst_b));
-        showme16("dst_g", &dst_g, sizeof(dst_g));
-        showme16("dst_r", &dst_r, sizeof(dst_r));
-        showme8("sb", &sb, sizeof(sb));
-        showme8("sg", &sg, sizeof(sg));
-        showme8("sr", &sr, sizeof(sr));
+            showme16("alpha8", &alpha8, sizeof(alpha8));
+            showme16("scale8", &scale8, sizeof(scale8));
+            showme8("d", &d, sizeof(d));
+            showme16("dst8", &dst8, sizeof(dst8));
+            showme16("dst_b", &dst_b, sizeof(dst_b));
+            showme16("dst_g", &dst_g, sizeof(dst_g));
+            showme16("dst_r", &dst_r, sizeof(dst_r));
+            showme8("sb", &sb, sizeof(sb));
+            showme8("sg", &sg, sizeof(sg));
+            showme8("sr", &sr, sizeof(sr));
 
-        /* cop out */
-        return;
-       }
-       offset += UNROLL;
-       invocation++;
-    }
+            return;
+        }
+        offset += UNROLL;
+        invocation++;
+        }
 #endif
-
-            dst += UNROLL;
-        src += UNROLL;
+        dst += UNROLL;
         count -= UNROLL;
-        /* skip x += UNROLL, since it's unchanged mod-4 */
+        // skip x += UNROLL, since it's unchanged mod-4
         } while (count >= UNROLL);
     }
 #undef    UNROLL
 
-    /* residuals */
+    // residuals
     if (count > 0) {
         DITHER_565_SCAN(y);
         do {
