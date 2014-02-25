@@ -18,6 +18,7 @@ GpuTask::GpuTask(const char* name,
                  GrContextFactory::GLContextType contextType,
                  int sampleCount)
     : Task(reporter, taskRunner)
+    , fTaskRunner(taskRunner)
     , fGM(gmFactory(NULL))
     , fName(UnderJoin(fGM->shortName(), name))
     , fExpectations(expectations)
@@ -26,24 +27,12 @@ GpuTask::GpuTask(const char* name,
     , fSampleCount(sampleCount)
     {}
 
-static void* new_gr_context_factory() {
-    return SkNEW(GrContextFactory);
-}
-
-static void delete_gr_context_factory(void* factory) {
-    SkDELETE((GrContextFactory*) factory);
-}
-
-static GrContextFactory* get_gr_factory() {
-    return reinterpret_cast<GrContextFactory*>(SkTLS::Get(&new_gr_context_factory,
-                                                          &delete_gr_context_factory));
-}
-
 void GpuTask::draw() {
-    GrContext* gr = get_gr_factory()->get(fContextType);  // Will be owned by device.
     SkImageInfo info = SkImageInfo::Make(SkScalarCeilToInt(fGM->width()),
                                          SkScalarCeilToInt(fGM->height()),
-                                         fColorType, kPremul_SkAlphaType);
+                                         fColorType,
+                                         kPremul_SkAlphaType);
+    GrContext* gr = fTaskRunner->getGrContextFactory()->get(fContextType);  // Owned by surface.
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(gr, info, fSampleCount));
     SkCanvas* canvas = surface->getCanvas();
 

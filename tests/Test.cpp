@@ -7,6 +7,7 @@
  */
 #include "Test.h"
 
+#include "SkCommandLineFlags.h"
 #include "SkError.h"
 #include "SkString.h"
 #include "SkTArray.h"
@@ -18,6 +19,8 @@
 #else
 class GrContext;
 #endif
+
+DEFINE_string2(tmpDir, t, NULL, "tmp directory for tests to use.");
 
 using namespace skiatest;
 
@@ -114,23 +117,15 @@ void Test::run() {
 
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-#if SK_SUPPORT_GPU
-#include "GrContextFactory.h"
-GrContextFactory gGrContextFactory;
-#endif
-
-GrContextFactory* GpuTest::GetGrContextFactory() {
-#if SK_SUPPORT_GPU
-    return &gGrContextFactory;
-#else
-    return NULL;
-#endif
+SkString Test::GetTmpDir() {
+    const char* tmpDir = FLAGS_tmpDir.isEmpty() ? NULL : FLAGS_tmpDir[0];
+    return SkString(tmpDir);
 }
 
-void GpuTest::DestroyContexts() {
-#if SK_SUPPORT_GPU
-    gGrContextFactory.destroyContexts();
-#endif
+static const char* gResourcePath = NULL;
+void Test::SetResourcePath(const char* resourcePath) { gResourcePath = resourcePath; }
+
+SkString Test::GetResourcePath() {
+    return SkString(gResourcePath);
 }
+

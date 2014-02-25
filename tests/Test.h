@@ -62,9 +62,11 @@ namespace skiatest {
 
         static SkString GetTmpDir();
 
+        static void SetResourcePath(const char*);
         static SkString GetResourcePath();
 
         virtual bool isGPUTest() const { return false; }
+        virtual void setGrContextFactory(GrContextFactory* factory) {}
 
     protected:
         virtual void onGetName(SkString*) = 0;
@@ -80,10 +82,14 @@ namespace skiatest {
     class GpuTest : public Test{
     public:
         GpuTest() : Test() {}
-        static GrContextFactory* GetGrContextFactory();
-        static void DestroyContexts();
+
         virtual bool isGPUTest() const { return true; }
-    private:
+        virtual void setGrContextFactory(GrContextFactory* factory) {
+            fGrContextFactory = factory;
+        }
+
+    protected:
+        GrContextFactory* fGrContextFactory;  // Unowned.
     };
 
     typedef SkTRegistry<Test*(*)(void*)> TestRegistry;
@@ -162,7 +168,7 @@ namespace skiatest {
             name->set(#name);                                      \
         }                                                          \
         virtual void onRun(Reporter* r) SK_OVERRIDE {              \
-            name(r, GetGrContextFactory());                        \
+            name(r, fGrContextFactory);                            \
         }                                                          \
     };                                                             \
     static TestRegistry gReg_##name##Class(name##Class::Factory);  \
