@@ -5,10 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include <tmmintrin.h>  // SSSE3
 #include "SkBitmapProcState_opts_SSSE3.h"
 #include "SkPaint.h"
 #include "SkUtils.h"
+
+/* With the exception of the Android framework we always build the SSSE3 functions
+ * and enable the caller to determine SSSE3 support.  However for the Android framework
+ * if the device does not support SSSE3 then the compiler will not supply the required
+ * -mssse3 option needed to build this file, so instead we provide a stub implementation.
+ */
+#if !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+
+#include <tmmintrin.h>  // SSSE3
 
 // adding anonymous namespace seemed to force gcc to inline directly the
 // instantiation, instead of creating the functions
@@ -722,3 +730,31 @@ void S32_alpha_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
                                    int count, uint32_t* colors) {
     S32_generic_D32_filter_DXDY_SSSE3<true>(s, xy, count, colors);
 }
+
+#else // !defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+
+void S32_opaque_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
+                                    const uint32_t* xy,
+                                    int count, uint32_t* colors) {
+    sk_throw();
+}
+
+void S32_alpha_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
+                                   const uint32_t* xy,
+                                   int count, uint32_t* colors) {
+    sk_throw();
+}
+
+void S32_opaque_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
+                                    const uint32_t* xy,
+                                    int count, uint32_t* colors) {
+    sk_throw();
+}
+
+void S32_alpha_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
+                                   const uint32_t* xy,
+                                   int count, uint32_t* colors) {
+    sk_throw();
+}
+
+#endif

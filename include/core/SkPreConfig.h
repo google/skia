@@ -116,38 +116,28 @@
 
 // Are we in GCC?
 #ifndef SK_CPU_SSE_LEVEL
-    #if defined(__SSE2__)
-        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE2
+    // These checks must be done in descending order to ensure we set the highest
+    // available SSE level.
+    #if defined(__SSSE3__)
+        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSSE3
     #elif defined(__SSE3__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE3
-    #elif defined(__SSSE3__)
-        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSSE3
+    #elif defined(__SSE2__)
+        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE2
     #endif
 #endif
 
 // Are we in VisualStudio?
 #ifndef SK_CPU_SSE_LEVEL
+    // These checks must be done in descending order to ensure we set the highest
+    // available SSE level.
     #if defined (_M_IX86_FP)
-        #if _M_IX86_FP == 1
-            #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE1
-        #elif _M_IX86_FP >= 2
+        #if _M_IX86_FP >= 2
             #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE2
+        #elif _M_IX86_FP == 1
+            #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE1
         #endif
     #endif
-#endif
-
-// 64bit intel guarantees at least SSE2
-#if defined(__x86_64__) || defined(_WIN64)
-    #if !defined(SK_CPU_SSE_LEVEL) || (SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSE2)
-        #undef SK_CPU_SSE_LEVEL
-        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_SSE2
-    #endif
-#endif
-
-// Android x86 NDK ABI requires SSE3 support
-#if defined(SK_BUILD_FOR_ANDROID)
-    #undef SK_CPU_SSE_LEVEL
-    #define SK_CPU_SSE_LEVEL        SK_CPU_SSE_LEVEL_SSE3
 #endif
 
 //////////////////////////////////////////////////////////////////////
