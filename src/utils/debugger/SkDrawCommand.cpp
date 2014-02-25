@@ -651,7 +651,7 @@ bool SkDrawRRectCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
-SkDrawDRRectCommand::SkDrawDRRectCommand(const SkRRect& outer, 
+SkDrawDRRectCommand::SkDrawDRRectCommand(const SkRRect& outer,
                                          const SkRRect& inner,
                                          const SkPaint& paint) {
     fOuter = outer;
