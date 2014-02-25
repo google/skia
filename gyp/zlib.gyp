@@ -19,7 +19,7 @@
             ],
             'direct_dependent_settings': {
               'defines': [
-                'SK_ZLIB_INCLUDE=<zlib.h>',
+                'SK_ZLIB_INCLUDE="zlib.h"',
               ],
               'include_dirs': [
                 '../third_party/externals/zlib',
@@ -52,7 +52,7 @@
                   ],
                 }, {
                   'defines': [
-                    'SK_ZLIB_INCLUDE=<zlib.h>',
+                    'SK_SYSTEM_ZLIB=1',
                   ],
                 }]
               ],
