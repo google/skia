@@ -19,7 +19,7 @@ struct GrGLInterface;
  * queried. It supports both glGetString- and glGetStringi-style extension string APIs and will
  * use the latter if it is available.
  */
-class GrGLExtensions {
+class SK_API GrGLExtensions {
 public:
     GrGLExtensions() : fInitialized(false), fStrings(SkNEW(SkTArray<SkString>)) {}
 
