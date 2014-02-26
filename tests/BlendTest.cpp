@@ -10,7 +10,7 @@ typedef uint8_t(*Blend)(uint8_t dst, uint8_t src, uint8_t srcAlpha);
 // This is our golden algorithm.
 static uint8_t blend_double_round(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
     SkASSERT(src <= srcAlpha);
-    return 0.5 + src + dst * (255.0 - srcAlpha) / 255.0;
+    return SkToU8(0.5 + src + dst * (255.0 - srcAlpha) / 255.0);
 }
 
 static uint8_t abs_diff(uint8_t a, uint8_t b) {
@@ -52,15 +52,15 @@ static void test_dst(skiatest::Reporter* r, uint8_t dst, int maxDiff, Blend algo
 }
 
 static uint8_t blend_double_trunc(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    return src + dst * (255.0 - srcAlpha) / 255.0;
+    return SkToU8(src + dst * (255.0 - srcAlpha) / 255.0);
 }
 
 static uint8_t blend_float_trunc(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    return src + dst * (255.0f - srcAlpha) / 255.0f;
+    return SkToU8(src + dst * (255.0f - srcAlpha) / 255.0f);
 }
 
 static uint8_t blend_float_round(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
-    return 0.5f + src + dst * (255.0f - srcAlpha) / 255.0f;
+    return SkToU8(0.5f + src + dst * (255.0f - srcAlpha) / 255.0f);
 }
 
 static uint8_t blend_255_trunc(uint8_t dst, uint8_t src, uint8_t srcAlpha) {
