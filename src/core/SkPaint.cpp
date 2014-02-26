@@ -515,42 +515,6 @@ static void DetachDescProc(SkTypeface* typeface, const SkDescriptor* desc,
     *((SkGlyphCache**)context) = SkGlyphCache::DetachCache(typeface, desc);
 }
 
-#ifdef SK_BUILD_FOR_ANDROID
-const SkGlyph& SkPaint::getUnicharMetrics(SkUnichar text,
-                                          const SkMatrix* deviceMatrix) {
-    SkGlyphCache* cache;
-    descriptorProc(NULL, deviceMatrix, DetachDescProc, &cache, true);
-
-    const SkGlyph& glyph = cache->getUnicharMetrics(text);
-
-    SkGlyphCache::AttachCache(cache);
-    return glyph;
-}
-
-const SkGlyph& SkPaint::getGlyphMetrics(uint16_t glyphId,
-                                        const SkMatrix* deviceMatrix) {
-    SkGlyphCache* cache;
-    descriptorProc(NULL, deviceMatrix, DetachDescProc, &cache, true);
-
-    const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphId);
-
-    SkGlyphCache::AttachCache(cache);
-    return glyph;
-}
-
-const void* SkPaint::findImage(const SkGlyph& glyph,
-                               const SkMatrix* deviceMatrix) {
-    // See ::detachCache()
-    SkGlyphCache* cache;
-    descriptorProc(NULL, deviceMatrix, DetachDescProc, &cache, true);
-
-    const void* image = cache->findImage(glyph);
-
-    SkGlyphCache::AttachCache(cache);
-    return image;
-}
-#endif
-
 int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
                           uint16_t glyphs[]) const {
     if (byteLength == 0) {
