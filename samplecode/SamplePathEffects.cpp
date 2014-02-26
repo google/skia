@@ -74,9 +74,9 @@ static SkPathEffect* make_warp_pe() {
 #include "SkColorFilter.h"
 #include "SkLayerRasterizer.h"
 
-class testrast : public SkLayerRasterizer {
+class TestRastBuilder : public SkLayerRasterizer::Builder {
 public:
-    testrast() {
+    TestRastBuilder() {
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -177,7 +177,8 @@ protected:
 
         paint.setARGB(0xFF, 0, 0, 0);
         paint.setPathEffect(make_warp_pe())->unref();
-        paint.setRasterizer(new testrast)->unref();
+        TestRastBuilder testRastBuilder;
+        paint.setRasterizer(testRastBuilder.detachRasterizer())->unref();
         canvas->drawPath(fPath, paint);
     }
 

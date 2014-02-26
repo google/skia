@@ -133,15 +133,15 @@ static SkPathEffect* makepe(float interp, SkTDArray<SkPoint>* pts) {
     return new Dot2DPathEffect(rad, lattice, pts);
 }
 
-static void r7(SkLayerRasterizer* rast, SkPaint& p, SkScalar interp) {
+static void r7(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p, SkScalar interp) {
     p.setPathEffect(makepe(SkScalarToFloat(interp), NULL))->unref();
-    rast->addLayer(p);
+    rastBuilder->addLayer(p);
 #if 0
     p.setPathEffect(new InverseFillPE())->unref();
     p.setXfermodeMode(SkXfermode::kSrcIn_Mode);
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     p.setAlpha((1 - interp) * 255);
-    rast->addLayer(p);
+    rastBuilder->addLayer(p);
 #endif
 }
 
@@ -152,11 +152,11 @@ typedef void (*raster_proc)(SkLayerRasterizer*, SkPaint&);
 static void apply_shader(SkPaint* paint, float scale)
 {
     SkPaint p;
-    SkLayerRasterizer*  rast = new SkLayerRasterizer;
+    SkLayerRasterizer::Builder rastBuilder;
 
     p.setAntiAlias(true);
-    r7(rast, p, scale);
-    paint->setRasterizer(rast)->unref();
+    r7(&rastBuilder, p, scale);
+    paint->setRasterizer(rastBuilder.detachRasterizer())->unref();
 
     paint->setColor(SK_ColorBLUE);
 }
