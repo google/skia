@@ -583,7 +583,17 @@ void SkCanvas::flush() {
     }
 }
 
-SkISize SkCanvas::getDeviceSize() const {
+SkISize SkCanvas::getTopLayerSize() const {
+    SkBaseDevice* d = this->getTopDevice();
+    return d ? SkISize::Make(d->width(), d->height()) : SkISize::Make(0, 0);
+}
+
+SkIPoint SkCanvas::getTopLayerOrigin() const {
+    SkBaseDevice* d = this->getTopDevice();
+    return d ? d->getOrigin() : SkIPoint::Make(0, 0);
+}
+
+SkISize SkCanvas::getBaseLayerSize() const {
     SkBaseDevice* d = this->getDevice();
     return d ? SkISize::Make(d->width(), d->height()) : SkISize::Make(0, 0);
 }
