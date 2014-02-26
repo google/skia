@@ -1137,6 +1137,11 @@ static int lpath_isNestedRects(lua_State* L) {
     return ret_count;
 }
 
+static int lpath_countPoints(lua_State* L) {
+    lua_pushinteger(L, get_obj<SkPath>(L, 1)->countPoints());
+    return 1;
+}
+
 static int lpath_reset(lua_State* L) {
     get_obj<SkPath>(L, 1)->reset();
     return 0;
@@ -1183,6 +1188,7 @@ static const struct luaL_Reg gSkPath_Methods[] = {
     { "isEmpty", lpath_isEmpty },
     { "isRect", lpath_isRect },
     { "isNestedRects", lpath_isNestedRects },
+    { "countPoints", lpath_countPoints },
     { "reset", lpath_reset },
     { "moveTo", lpath_moveTo },
     { "lineTo", lpath_lineTo },
