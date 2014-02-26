@@ -938,7 +938,7 @@ public:
             errors.add(ErrorCombination(kIntentionallySkipped_ErrorType));
         } else {
             ExpectationsSource *expectationsSource = this->fExpectationsSource.get();
-            SkString nameWithExtension = make_shortname_plus_config(gm->shortName(), configName);
+            SkString nameWithExtension = make_shortname_plus_config(gm->getName(), configName);
             nameWithExtension.append(".");
             nameWithExtension.append(kPNG_FileExtension);
 
@@ -957,11 +957,11 @@ public:
                  * See comments above complete_bitmap() for more detail.
                  */
                 Expectations expectations = expectationsSource->get(nameWithExtension.c_str());
-                if (this->ShouldIgnoreTest(gm->shortName())) {
+                if (this->ShouldIgnoreTest(gm->getName())) {
                     expectations.setIgnoreFailure(true);
                 }
                 errors.add(compare_to_expectations(expectations, *actualBitmapAndDigest,
-                                                   gm->shortName(), configName, "", true));
+                                                   gm->getName(), configName, "", true));
             } else {
                 // If we are running without expectations, we still want to
                 // record the actual results.
@@ -1069,7 +1069,7 @@ public:
                            gm, gRec, gRec.fName, &bitmapAndDigest));
 
             if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
-                path = make_bitmap_filename(writePath, gm->shortName(), gRec.fName,
+                path = make_bitmap_filename(writePath, gm->getName(), gRec.fName,
                                             "", bitmapAndDigest.fDigest);
                 errors.add(write_bitmap(path, bitmapAndDigest.fBitmap));
             }
@@ -1079,7 +1079,7 @@ public:
             } else {
                 SkAutoTUnref<SkStreamAsset> documentStream(document.detachAsStream());
                 if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
-                    path = make_filename(writePath, gm->shortName(), gRec.fName, "", "pdf");
+                    path = make_filename(writePath, gm->getName(), gRec.fName, "", "pdf");
                     errors.add(write_document(path, documentStream));
                 }
 
@@ -1091,7 +1091,7 @@ public:
                                 documentStream.get(), &pdfBitmap);
                         if (!success) {
                             gm_fprintf(stderr, "FAILED to render PDF for %s using renderer %s\n",
-                                       gm->shortName(),
+                                       gm->getName(),
                                        pdfRasterizers[i]->fName);
                             continue;
                         }
@@ -1105,7 +1105,7 @@ public:
                                    gm, gRec, configName.c_str(), &bitmapAndDigest));
 
                         if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
-                            path = make_bitmap_filename(writePath, gm->shortName(),
+                            path = make_bitmap_filename(writePath, gm->getName(),
                                                         configName.c_str(),
                                                         "", bitmapAndDigest.fDigest);
                             errors.add(write_bitmap(path, bitmapAndDigest.fBitmap));
@@ -1123,7 +1123,7 @@ public:
                            gm, gRec, gRec.fName, NULL));
 
             if (writePath && (gRec.fFlags & kWrite_ConfigFlag)) {
-                path = make_filename(writePath, gm->shortName(), gRec.fName, "", "xps");
+                path = make_filename(writePath, gm->getName(), gRec.fName, "", "xps");
                 errors.add(write_document(path, documentStream));
             }
         } else {
@@ -1160,14 +1160,14 @@ public:
                 return kEmpty_ErrorCombination;
             }
             return compare_test_results_to_reference_bitmap(
-                gm->shortName(), gRec.fName, renderModeDescriptor, bitmap, &referenceBitmap);
+                gm->getName(), gRec.fName, renderModeDescriptor, bitmap, &referenceBitmap);
         }
         return kEmpty_ErrorCombination;
     }
 
     ErrorCombination test_pipe_playback(GM* gm, const ConfigData& gRec,
                                         const SkBitmap& referenceBitmap, bool simulateFailure) {
-        const SkString shortNamePlusConfig = make_shortname_plus_config(gm->shortName(),
+        const SkString shortNamePlusConfig = make_shortname_plus_config(gm->getName(),
                                                                         gRec.fName);
         ErrorCombination errors;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPipeWritingFlagCombos); ++i) {
@@ -1199,7 +1199,7 @@ public:
                 complete_bitmap(&bitmap);
                 writer.endRecording();
                 errors.add(compare_test_results_to_reference_bitmap(
-                    gm->shortName(), gRec.fName, renderModeDescriptor.c_str(), bitmap,
+                    gm->getName(), gRec.fName, renderModeDescriptor.c_str(), bitmap,
                     &referenceBitmap));
                 if (!errors.isEmpty()) {
                     break;
@@ -1211,7 +1211,7 @@ public:
 
     ErrorCombination test_tiled_pipe_playback(GM* gm, const ConfigData& gRec,
                                               const SkBitmap& referenceBitmap) {
-        const SkString shortNamePlusConfig = make_shortname_plus_config(gm->shortName(),
+        const SkString shortNamePlusConfig = make_shortname_plus_config(gm->getName(),
                                                                         gRec.fName);
         ErrorCombination errors;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPipeWritingFlagCombos); ++i) {
@@ -1237,7 +1237,7 @@ public:
                 invokeGM(gm, pipeCanvas, false, false);
                 complete_bitmap(&bitmap);
                 writer.endRecording();
-                errors.add(compare_test_results_to_reference_bitmap(gm->shortName(), gRec.fName,
+                errors.add(compare_test_results_to_reference_bitmap(gm->getName(), gRec.fName,
                                                                     renderModeDescriptor.c_str(),
                                                                     bitmap, &referenceBitmap));
                 if (!errors.isEmpty()) {
@@ -1555,7 +1555,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
                                     const SkTDArray<SkScalar> &tileGridReplayScales) {
     ErrorCombination errorsForAllModes;
     uint32_t gmFlags = gm->getFlags();
-    const SkString shortNamePlusConfig = gmmain.make_shortname_plus_config(gm->shortName(),
+    const SkString shortNamePlusConfig = gmmain.make_shortname_plus_config(gm->getName(),
                                                                            compareConfig.fName);
 
     SkPicture* pict = gmmain.generate_new_picture(gm, kNone_BbhType, 0);
@@ -1570,7 +1570,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
             SkBitmap bitmap;
             gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap);
             errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
-                gm->shortName(), compareConfig.fName, renderModeDescriptor, bitmap,
+                gm->getName(), compareConfig.fName, renderModeDescriptor, bitmap,
                 &comparisonBitmap));
         }
     }
@@ -1587,7 +1587,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
             SkBitmap bitmap;
             gmmain.generate_image_from_picture(gm, compareConfig, repict, &bitmap);
             errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
-                gm->shortName(), compareConfig.fName, renderModeDescriptor, bitmap,
+                gm->getName(), compareConfig.fName, renderModeDescriptor, bitmap,
                 &comparisonBitmap));
         }
     }
@@ -1602,7 +1602,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
         // write out their SkPictures to separate files rather than
         // overwriting each other.  But we should make sure it doesn't
         // break anybody.
-        SkString path = gmmain.make_filename(FLAGS_writePicturePath[0], gm->shortName(),
+        SkString path = gmmain.make_filename(FLAGS_writePicturePath[0], gm->getName(),
                                              compareConfig.fName, "", pictureSuffix);
         SkFILEWStream stream(path.c_str());
         pict->serialize(&stream);
@@ -1622,7 +1622,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
             SkBitmap bitmap;
             gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap);
             errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
-                gm->shortName(), compareConfig.fName, renderModeDescriptor, bitmap,
+                gm->getName(), compareConfig.fName, renderModeDescriptor, bitmap,
                 &comparisonBitmap));
         }
     }
@@ -1657,7 +1657,7 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
                 gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap,
                                                    replayScale /*, true */);
                 errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
-                    gm->shortName(), compareConfig.fName, renderModeDescriptor.c_str(), bitmap,
+                    gm->getName(), compareConfig.fName, renderModeDescriptor.c_str(), bitmap,
                     &comparisonBitmap));
             }
         }
@@ -1699,7 +1699,7 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
 
     for (int i = 0; i < configs.count(); i++) {
         ConfigData config = gRec[configs[i]];
-        const SkString shortNamePlusConfig = gmmain.make_shortname_plus_config(gm->shortName(),
+        const SkString shortNamePlusConfig = gmmain.make_shortname_plus_config(gm->getName(),
                                                                                config.fName);
 
         // Skip any tests that we don't even need to try.
@@ -2316,7 +2316,7 @@ int tool_main(int argc, char** argv) {
             moduloStr.printf("[%d.%d] ", gmIndex, moduloDivisor);
         }
 
-        const char* shortName = gm->shortName();
+        const char* shortName = gm->getName();
 
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, shortName)) {
             continue;

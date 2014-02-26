@@ -8,7 +8,7 @@
 #include "SkGMBench.h"
 
 SkGMBench::SkGMBench(skiagm::GM* gm) : fGM(gm) {
-    fName.printf("GM:%s", gm->shortName());
+    fName.printf("GM:%s", gm->getName());
 }
 
 SkGMBench::~SkGMBench() { delete fGM; }

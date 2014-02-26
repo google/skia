@@ -40,7 +40,7 @@ void GM::drawBackground(SkCanvas* canvas) {
     this->onDrawBackground(canvas);
 }
 
-const char* GM::shortName() {
+const char* GM::getName() {
     if (fShortName.size() == 0) {
         fShortName = this->onShortName();
     }

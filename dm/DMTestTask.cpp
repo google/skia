@@ -8,17 +8,22 @@ DEFINE_bool2(pathOpsVerbose,      V, false, "Tell pathOps tests to be verbose.")
 
 namespace DM {
 
+static SkString test_name(const char* name) {
+    SkString result("test ");
+    result.append(name);
+    return result;
+}
+
 TestTask::TestTask(Reporter* reporter,
                    TaskRunner* taskRunner,
                    skiatest::TestRegistry::Factory factory)
     : Task(reporter, taskRunner)
-    , fTaskRunner(taskRunner)
     , fTest(factory(NULL))
-    , fName(UnderJoin("test", fTest->getName())) {}
+    , fName(test_name(fTest->getName())) {}
 
 void TestTask::draw() {
     if (this->usesGpu()) {
-        fTest->setGrContextFactory(fTaskRunner->getGrContextFactory());
+        fTest->setGrContextFactory(this->getGrContextFactory());
     }
     fTest->setReporter(&fTestReporter);
     fTest->run();

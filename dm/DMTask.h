@@ -2,6 +2,7 @@
 #define DMTask_DEFINED
 
 #include "DMReporter.h"
+#include "GrContextFactory.h"
 #include "SkRunnable.h"
 #include "SkThreadPool.h"
 
@@ -35,6 +36,9 @@ public:
 protected:
     void spawnChild(Task* task);
     void fail(const char* msg = NULL);
+
+    // This can only be safely called from a GPU task's draw() method.
+    GrContextFactory* getGrContextFactory() const;
 
 private:
     // Both unowned.

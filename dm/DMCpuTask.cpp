@@ -9,7 +9,7 @@
 
 namespace DM {
 
-CpuTask::CpuTask(const char* name,
+CpuTask::CpuTask(const char* config,
                  Reporter* reporter,
                  TaskRunner* taskRunner,
                  const Expectations& expectations,
@@ -18,7 +18,7 @@ CpuTask::CpuTask(const char* name,
     : Task(reporter, taskRunner)
     , fGMFactory(gmFactory)
     , fGM(fGMFactory(NULL))
-    , fName(UnderJoin(fGM->shortName(), name))
+    , fName(UnderJoin(fGM->getName(), config))
     , fExpectations(expectations)
     , fColorType(colorType)
     {}

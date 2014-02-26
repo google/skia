@@ -17,12 +17,11 @@ namespace DM {
 
 class GpuTask : public Task {
 public:
-    GpuTask(const char* name,
+    GpuTask(const char* config,
             Reporter*,
             TaskRunner*,
             const Expectations&,
             skiagm::GMRegistry::Factory,
-            SkColorType,
             GrContextFactory::GLContextType,
             int sampleCount);
 
@@ -32,11 +31,9 @@ public:
     virtual SkString name() const SK_OVERRIDE { return fName; }
 
 private:
-    TaskRunner* fTaskRunner;
     SkAutoTDelete<skiagm::GM> fGM;
     const SkString fName;
     const Expectations& fExpectations;
-    const SkColorType fColorType;
     const GrContextFactory::GLContextType fContextType;
     const int fSampleCount;
 };

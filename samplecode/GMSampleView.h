@@ -36,7 +36,7 @@ protected:
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
             SkString name("GM:");
-            name.append(fGM->shortName());
+            name.append(fGM->getName());
             SampleCode::TitleR(evt, name.c_str());
             return true;
         }

@@ -66,7 +66,7 @@ namespace skiagm {
         void drawContent(SkCanvas*);
 
         SkISize getISize() { return this->onISize(); }
-        const char* shortName();
+        const char* getName();
 
         uint32_t getFlags() const {
             return this->onGetFlags();

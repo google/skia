@@ -58,7 +58,7 @@ public:
         if (fBenches) {
             BenchRegistry::Factory f = fBenches->factory();
             fBenches = fBenches->next();
-            return (*f)();
+            return (*f)(NULL);
         }
 
         while (fGMs) {

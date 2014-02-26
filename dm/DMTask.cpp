@@ -46,4 +46,8 @@ void Task::fail(const char* msg) {
     fReporter->fail(failure);
 }
 
+GrContextFactory* Task::getGrContextFactory() const {
+    return fTaskRunner->getGrContextFactory();
+}
+
 }  // namespace DM

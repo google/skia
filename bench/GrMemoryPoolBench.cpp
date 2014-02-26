@@ -20,12 +20,12 @@
 struct A {
     int gStuff[10];
 #if OVERRIDE_NEW
-    void* operator new (size_t size) { return gPool.allocate(size); }
-    void operator delete (void* mem) { if (mem) { return gPool.release(mem); } }
+    void* operator new (size_t size) { return gBenchPool.allocate(size); }
+    void operator delete (void* mem) { if (mem) { return gBenchPool.release(mem); } }
 #endif
-    static GrMemoryPool gPool;
+    static GrMemoryPool gBenchPool;
 };
-GrMemoryPool A::gPool(10 * (1 << 10), 10 * (1 << 10));
+GrMemoryPool A::gBenchPool(10 * (1 << 10), 10 * (1 << 10));
 
 /**
  * This benchmark creates and deletes objects in stack order
@@ -79,6 +79,16 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+struct B {
+    int gStuff[10];
+#if OVERRIDE_NEW
+    void* operator new (size_t size) { return gBenchPool.allocate(size); }
+    void operator delete (void* mem) { if (mem) { return gBenchPool.release(mem); } }
+#endif
+    static GrMemoryPool gBenchPool;
+};
+GrMemoryPool B::gBenchPool(10 * (1 << 10), 10 * (1 << 10));
+
 /**
  * This benchmark creates objects and deletes them in random order
  */
@@ -98,12 +108,12 @@ protected:
         enum {
             kMaxObjects = 4 * (1 << 10),
         };
-        SkAutoTDelete<A> objects[kMaxObjects];
+        SkAutoTDelete<B> objects[kMaxObjects];
 
         for (int i = 0; i < loops; i++) {
             uint32_t idx = r.nextRangeU(0, kMaxObjects-1);
             if (NULL == objects[idx].get()) {
-                objects[idx].reset(new A);
+                objects[idx].reset(new B);
             } else {
                 objects[idx].free();
             }
@@ -113,6 +123,16 @@ protected:
 private:
     typedef SkBenchmark INHERITED;
 };
+
+struct C {
+    int gStuff[10];
+#if OVERRIDE_NEW
+    void* operator new (size_t size) { return gBenchPool.allocate(size); }
+    void operator delete (void* mem) { if (mem) { return gBenchPool.release(mem); } }
+#endif
+    static GrMemoryPool gBenchPool;
+};
+GrMemoryPool C::gBenchPool(10 * (1 << 10), 10 * (1 << 10));
 
 /**
  * This benchmark creates objects and deletes them in queue order
@@ -133,11 +153,11 @@ protected:
 
     virtual void onDraw(const int loops, SkCanvas*) {
         SkRandom r;
-        A* objects[M];
+        C* objects[M];
         for (int i = 0; i < loops; i++) {
             uint32_t count = r.nextRangeU(0, M-1);
             for (uint32_t i = 0; i < count; i++) {
-                objects[i] = new A;
+                objects[i] = new C;
             }
             for (uint32_t i = 0; i < count; i++) {
                 delete objects[i];

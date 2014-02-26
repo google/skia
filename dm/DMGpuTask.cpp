@@ -9,20 +9,17 @@
 
 namespace DM {
 
-GpuTask::GpuTask(const char* name,
+GpuTask::GpuTask(const char* config,
                  Reporter* reporter,
                  TaskRunner* taskRunner,
                  const Expectations& expectations,
                  skiagm::GMRegistry::Factory gmFactory,
-                 SkColorType colorType,
                  GrContextFactory::GLContextType contextType,
                  int sampleCount)
     : Task(reporter, taskRunner)
-    , fTaskRunner(taskRunner)
     , fGM(gmFactory(NULL))
-    , fName(UnderJoin(fGM->shortName(), name))
+    , fName(UnderJoin(fGM->getName(), config))
     , fExpectations(expectations)
-    , fColorType(colorType)
     , fContextType(contextType)
     , fSampleCount(sampleCount)
     {}
@@ -30,10 +27,10 @@ GpuTask::GpuTask(const char* name,
 void GpuTask::draw() {
     SkImageInfo info = SkImageInfo::Make(SkScalarCeilToInt(fGM->width()),
                                          SkScalarCeilToInt(fGM->height()),
-                                         fColorType,
+                                         kPMColor_SkColorType,
                                          kPremul_SkAlphaType);
-    GrContext* gr = fTaskRunner->getGrContextFactory()->get(fContextType);  // Owned by surface.
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(gr, info, fSampleCount));
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(
+            this->getGrContextFactory()->get(fContextType), info, fSampleCount));
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->concat(fGM->getInitialTransform());

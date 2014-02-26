@@ -3,6 +3,7 @@
 
 #include "GrContext.h"
 #include "GrContextFactory.h"
+#include "SkBenchmark.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
@@ -10,6 +11,7 @@
 #include "Test.h"
 #include "gm.h"
 
+#include "DMBenchTask.h"
 #include "DMCpuTask.h"
 #include "DMGpuTask.h"
 #include "DMReporter.h"
@@ -38,11 +40,12 @@ DEFINE_string(match, "",  "[~][^]substring[$] [...] of GM name to run.\n"
                           "^ and $ requires an exact match\n"
                           "If a GM does not match any list entry,\n"
                           "it is skipped unless some list entry starts with ~");
-DEFINE_string(config, "565 8888 gpu",
-        "Options: 565 8888 gpu msaa4 msaa16 gpunull gpudebug angle mesa"); // TODO(mtklein): pdf
+DEFINE_string(config, "565 8888 gpu nonrendering",
+              "Options: 565 8888 gpu nonrendering msaa4 msaa16 gpunull gpudebug angle mesa");
 DEFINE_bool(leaks, false, "Print leaked instance-counted objects at exit?");
 
 DEFINE_bool(gms, true, "Run GMs?");
+DEFINE_bool(benches, true, "Run benches?  Does not run GMs-as-benches.");
 DEFINE_bool(tests, true, "Run tests?");
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
@@ -55,46 +58,68 @@ static SkString lowercase(SkString s) {
     return s;
 }
 
+static const GrContextFactory::GLContextType native = GrContextFactory::kNative_GLContextType;
+static const GrContextFactory::GLContextType null   = GrContextFactory::kNull_GLContextType;
+static const GrContextFactory::GLContextType debug  = GrContextFactory::kDebug_GLContextType;
+static const GrContextFactory::GLContextType angle  =
+#if SK_ANGLE
+GrContextFactory::kANGLE_GLContextType;
+#else
+native;
+#endif
+static const GrContextFactory::GLContextType mesa   =
+#if SK_MESA
+GLContextFactory::kMESA_GLContextType;
+#else
+native;
+#endif
+
 static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
                          const SkTArray<SkString>& configs,
                          const DM::Expectations& expectations,
                          DM::Reporter* reporter,
                          DM::TaskRunner* tasks) {
-    const SkColorType _565 = kRGB_565_SkColorType;
-    const SkColorType _8888 = kPMColor_SkColorType;
-    const GrContextFactory::GLContextType native = GrContextFactory::kNative_GLContextType;
-    const GrContextFactory::GLContextType null   = GrContextFactory::kNull_GLContextType;
-    const GrContextFactory::GLContextType debug  = GrContextFactory::kDebug_GLContextType;
-    const GrContextFactory::GLContextType angle  =
-    #if SK_ANGLE
-        GrContextFactory::kANGLE_GLContextType;
-    #else
-        native;
-    #endif
-    const GrContextFactory::GLContextType mesa   =
-    #if SK_MESA
-        GLContextFactory::kMESA_GLContextType;
-    #else
-        native;
-    #endif
-
-    for (int i = 0; i < gms.count(); i++) {
-#define START(name, type, ...)                                                     \
-    if (lowercase(configs[j]).equals(name)) {                                      \
-        tasks->add(SkNEW_ARGS(DM::type,                                            \
-                    (name, reporter, tasks, expectations, gms[i], __VA_ARGS__)));  \
+#define START(name, type, ...)                                                        \
+    if (lowercase(configs[j]).equals(name)) {                                         \
+        tasks->add(SkNEW_ARGS(DM::type,                                               \
+                    (name, reporter, tasks, expectations, gms[i], ## __VA_ARGS__)));  \
     }
+    for (int i = 0; i < gms.count(); i++) {
         for (int j = 0; j < configs.count(); j++) {
-            START("565",      CpuTask, _565);
-            START("8888",     CpuTask, _8888);
-            START("gpu",      GpuTask, _8888, native, 0);
-            START("msaa4",    GpuTask, _8888, native, 4);
-            START("msaa16",   GpuTask, _8888, native, 16);
-            START("gpunull",  GpuTask, _8888, null,   0);
-            START("gpudebug", GpuTask, _8888, debug,  0);
-            START("angle",    GpuTask, _8888, angle,  0);
-            START("mesa",     GpuTask, _8888, mesa,   0);
-            //START("pdf",      PdfTask, _8888);
+            START("565",      CpuTask, kRGB_565_SkColorType);
+            START("8888",     CpuTask, kPMColor_SkColorType);
+            START("gpu",      GpuTask, native, 0);
+            START("msaa4",    GpuTask, native, 4);
+            START("msaa16",   GpuTask, native, 16);
+            START("gpunull",  GpuTask, null,   0);
+            START("gpudebug", GpuTask, debug,  0);
+            START("angle",    GpuTask, angle,  0);
+            START("mesa",     GpuTask, mesa,   0);
+        }
+    }
+#undef START
+}
+
+static void kick_off_benches(const SkTDArray<BenchRegistry::Factory>& benches,
+                             const SkTArray<SkString>& configs,
+                             DM::Reporter* reporter,
+                             DM::TaskRunner* tasks) {
+#define START(name, type, ...)                                                                 \
+    if (lowercase(configs[j]).equals(name)) {                                                  \
+        tasks->add(SkNEW_ARGS(DM::type, (name, reporter, tasks, benches[i], ## __VA_ARGS__))); \
+    }
+    for (int i = 0; i < benches.count(); i++) {
+        for (int j = 0; j < configs.count(); j++) {
+            START("nonrendering", NonRenderingBenchTask);
+            START("565",          CpuBenchTask, kRGB_565_SkColorType);
+            START("8888",         CpuBenchTask, kPMColor_SkColorType);
+            START("gpu",          GpuBenchTask, native, 0);
+            START("msaa4",        GpuBenchTask, native, 4);
+            START("msaa16",       GpuBenchTask, native, 16);
+            START("gpunull",      GpuBenchTask, null,   0);
+            START("gpudebug",     GpuBenchTask, debug,  0);
+            START("angle",        GpuBenchTask, angle,  0);
+            START("mesa",         GpuBenchTask, mesa,   0);
         }
     }
 #undef START
@@ -122,31 +147,36 @@ static void report_failures(const DM::Reporter& reporter) {
     }
 }
 
+template <typename T, typename Registry>
+static void append_matching_factories(Registry* head, SkTDArray<typename Registry::Factory>* out) {
+    for (const Registry* reg = head; reg != NULL; reg = reg->next()) {
+        SkAutoTDelete<T> forName(reg->factory()(NULL));
+        if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, forName->getName())) {
+            *out->append() = reg->factory();
+        }
+    }
+}
+
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
+    SkGraphics::Init();
+    SkCommandLineFlags::Parse(argc, argv);
 #if SK_ENABLE_INST_COUNT
     gPrintInstCount = FLAGS_leaks;
 #endif
-    SkGraphics::Init();
-    SkCommandLineFlags::Parse(argc, argv);
     GM::SetResourcePath(FLAGS_resources[0]);
+    SkBenchmark::SetResourcePath(FLAGS_resources[0]);
     Test::SetResourcePath(FLAGS_resources[0]);
 
     SkTArray<SkString> configs;
+    for (int i = 0; i < FLAGS_config.count(); i++) {
+        SkStrSplit(FLAGS_config[i], ", ", &configs);
+    }
+
     SkTDArray<GMRegistry::Factory> gms;
     SkAutoTDelete<DM::Expectations> expectations(SkNEW(DM::NoExpectations));
-
     if (FLAGS_gms) {
-        for (int i = 0; i < FLAGS_config.count(); i++) {
-            SkStrSplit(FLAGS_config[i], ", ", &configs);
-        }
-
-        for (const GMRegistry* reg = GMRegistry::Head(); reg != NULL; reg = reg->next()) {
-            SkAutoTDelete<GM> gmForName(reg->factory()(NULL));
-            if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, gmForName->shortName())) {
-                *gms.append() = reg->factory();
-            }
-        }
+        append_matching_factories<GM>(GMRegistry::Head(), &gms);
 
         if (FLAGS_expectations.count() > 0) {
             const char* path = FLAGS_expectations[0];
@@ -158,20 +188,22 @@ int tool_main(int argc, char** argv) {
         }
     }
 
-    SkTDArray<TestRegistry::Factory> tests;
-    if (FLAGS_tests) {
-        for (const TestRegistry* reg = TestRegistry::Head(); reg != NULL; reg = reg->next()) {
-            SkAutoTDelete<Test> testForName(reg->factory()(NULL));
-            if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, testForName->getName())) {
-                *tests.append() = reg->factory();
-            }
-        }
+    SkTDArray<BenchRegistry::Factory> benches;
+    if (FLAGS_benches) {
+        append_matching_factories<SkBenchmark>(BenchRegistry::Head(), &benches);
     }
 
-    SkDebugf("%d GMs x %d configs, %d tests\n", gms.count(), configs.count(), tests.count());
+    SkTDArray<TestRegistry::Factory> tests;
+    if (FLAGS_tests) {
+        append_matching_factories<Test>(TestRegistry::Head(), &tests);
+    }
+
+    SkDebugf("(%d GMs, %d benches) x %d configs, %d tests\n",
+             gms.count(), benches.count(), configs.count(), tests.count());
     DM::Reporter reporter;
     DM::TaskRunner tasks(FLAGS_threads);
     kick_off_gms(gms, configs, *expectations, &reporter, &tasks);
+    kick_off_benches(benches, configs, &reporter, &tasks);
     kick_off_tests(tests, &reporter, &tasks);
     tasks.wait();
 

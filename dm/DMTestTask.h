@@ -39,7 +39,6 @@ private:
       SkString fFailure;
     };
 
-    TaskRunner* fTaskRunner;
     TestReporter fTestReporter;
     SkAutoTDelete<skiatest::Test> fTest;
     const SkString fName;

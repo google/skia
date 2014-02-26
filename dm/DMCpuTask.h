@@ -17,7 +17,7 @@ namespace DM {
 
 class CpuTask : public Task {
 public:
-    CpuTask(const char* name,
+    CpuTask(const char* config,
             Reporter*,
             TaskRunner*,
             const Expectations&,

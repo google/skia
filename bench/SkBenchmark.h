@@ -15,10 +15,8 @@
 
 #define DEF_BENCH(code)                                                 \
 namespace {                                                             \
-class SK_MACRO_APPEND_LINE(F_CLASS) : public SkBenchmarkFactory {       \
-    virtual SkBenchmark* operator()() const SK_OVERRIDE { code; }       \
-} SK_MACRO_APPEND_LINE(g_F_);                                           \
-BenchRegistry SK_MACRO_APPEND_LINE(g_R_)(&SK_MACRO_APPEND_LINE(g_F_));  \
+static SkBenchmark* SK_MACRO_APPEND_LINE(factory)(void*) { code; }      \
+BenchRegistry SK_MACRO_APPEND_LINE(g_R_)(SK_MACRO_APPEND_LINE(factory)); \
 }
 
 /*
@@ -136,13 +134,6 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
-class SkBenchmarkFactory : public SkRefCnt {
-public:
-    // Creates a new SkBenchmark that is owned by the caller on each call.
-    virtual SkBenchmark* operator()() const = 0;
-    virtual ~SkBenchmarkFactory() {}
-};
-
-typedef SkTRegistry<SkBenchmarkFactory*> BenchRegistry;
+typedef SkTRegistry<SkBenchmark*(*)(void*)> BenchRegistry;
 
 #endif
