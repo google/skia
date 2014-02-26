@@ -12,6 +12,7 @@
       'include_dirs' : [
         '../src/core',
         '../src/effects', #needed for BlurMask.h
+        '../src/gpu', # needed by SkLua.cpp
         '../src/images',
         '../src/lazy',
         '../gm',       # needed to pull gm.h
