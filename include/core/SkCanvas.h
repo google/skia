@@ -90,16 +90,12 @@ public:
     void flush();
 
     /**
-     * Gets the size of the base or root layer in global canvas coordinates. The
-     * origin of the base layer is always (0,0). The current drawable area may be
-     * smaller (due to clipping or saveLayer).
+     *  DEPRECATED: call imageInfo() instead.
+     *  Return the width/height of the underlying device. The current drawable
+     *  area may be small (due to clipping or saveLayer). For a canvas with
+     *  no device, 0,0 will be returned.
      */
-    SkISize getBaseLayerSize() const;
-
-    /**
-     *  DEPRECATED: call getBaseLayerSize
-     */
-    SkISize getDeviceSize() const { return this->getBaseLayerSize(); }
+    SkISize getDeviceSize() const;
 
     /**
      *  DEPRECATED.
@@ -1133,7 +1129,6 @@ private:
 
     friend class SkDrawIter;    // needs setupDrawForLayerDevice()
     friend class AutoDrawLooper;
-    friend class SkLua;         // needs top layer size and offset
 
     SkBaseDevice* createLayerDevice(const SkImageInfo&);
 
@@ -1148,12 +1143,6 @@ private:
      */
     SkBaseDevice* setRootDevice(SkBaseDevice* device);
 
-    /**
-     * Gets the size/origin of the top level layer in global canvas coordinates. We don't want this
-     * to be public because it exposes decisions about layer sizes that are internal to the canvas.
-     */
-    SkISize getTopLayerSize() const;
-    SkIPoint getTopLayerOrigin() const;
 
     // internal methods are not virtual, so they can safely be called by other
     // canvas apis, without confusing subclasses (like SkPictureRecording)

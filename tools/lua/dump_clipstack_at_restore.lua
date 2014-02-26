@@ -11,8 +11,7 @@ end
 function sk_scrape_accumulate(t)
     if (t.verb == "restore") then
         restoreCount = restoreCount + 1;
-        -- io.write("Clip Stack at restore #", restoreCount, ":\n")
-        io.write("Reduced Clip Stack at restore #", restoreCount, ":\n")
+        io.write("Clip Stack at restore #", restoreCount, ":\n")
         for i = 1, #clipstack do
             local element = clipstack[i];
             io.write("\t", element["op"], ", ", element["type"], ", aa:", tostring(element["aa"]))
@@ -25,8 +24,7 @@ function sk_scrape_accumulate(t)
         end
         io.write("\n")
     else
-        -- clipstack = canvas:getClipStack()
-        clipstack = canvas:getReducedClipStack()
+        clipstack = canvas:getClipStack()
     end
 end
 

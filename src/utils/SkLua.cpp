@@ -6,9 +6,8 @@
  */
 
 #include "SkLua.h"
-
-#include "GrReducedClip.h"
 #include "SkCanvas.h"
+#include "SkClipStack.h"
 #include "SkData.h"
 #include "SkDocument.h"
 #include "SkImage.h"
@@ -274,34 +273,28 @@ void SkLua::pushClipStack(const SkClipStack& stack, const char* key) {
     const SkClipStack::Element* element;
     int i = 0;
     while (NULL != (element = iter.next())) {
-        this->pushClipStackElement(*element);
+        lua_newtable(fL);
+        SkClipStack::Element::Type type = element->getType();
+        this->pushString(element_type(type), "type");
+        switch (type) {
+            case SkClipStack::Element::kEmpty_Type:
+                break;
+            case SkClipStack::Element::kRect_Type:
+                this->pushRect(element->getRect(), "rect");
+                break;
+            case SkClipStack::Element::kRRect_Type:
+                this->pushRRect(element->getRRect(), "rrect");
+                break;
+            case SkClipStack::Element::kPath_Type:
+                this->pushPath(element->getPath(), "path");
+                break;
+        }
+        this->pushString(region_op(element->getOp()), "op");
+        this->pushBool(element->isAA(), "aa");
         lua_rawseti(fL, -2, ++i);
     }
     CHECK_SETFIELD(key);
 }
-
-void SkLua::pushClipStackElement(const SkClipStack::Element& element, const char* key) {
-    lua_newtable(fL);
-    SkClipStack::Element::Type type = element.getType();
-    this->pushString(element_type(type), "type");
-    switch (type) {
-        case SkClipStack::Element::kEmpty_Type:
-            break;
-        case SkClipStack::Element::kRect_Type:
-            this->pushRect(element.getRect(), "rect");
-            break;
-        case SkClipStack::Element::kRRect_Type:
-            this->pushRRect(element.getRRect(), "rrect");
-            break;
-        case SkClipStack::Element::kPath_Type:
-            this->pushPath(element.getPath(), "path");
-            break;
-    }
-    this->pushString(region_op(element.getOp()), "op");
-    this->pushBool(element.isAA(), "aa");
-    CHECK_SETFIELD(key);
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -451,41 +444,6 @@ static int lcanvas_getClipStack(lua_State* L) {
     return 1;
 }
 
-int SkLua::lcanvas_getReducedClipStack(lua_State* L) {
-    const SkCanvas* canvas = get_ref<SkCanvas>(L, 1);
-    SkISize layerSize = canvas->getTopLayerSize();
-    SkIPoint layerOrigin = canvas->getTopLayerOrigin();
-    SkIRect queryBounds = SkIRect::MakeXYWH(layerOrigin.fX, layerOrigin.fY,
-                                            layerSize.fWidth, layerSize.fHeight);
-
-    GrReducedClip::ElementList elements;
-    GrReducedClip::InitialState initialState;
-    int32_t genID;
-    SkIRect resultBounds;
-
-    const SkClipStack& stack = *canvas->getClipStack();
-
-    GrReducedClip::ReduceClipStack(stack,
-                                   queryBounds,
-                                   &elements,
-                                   &genID,
-                                   &initialState,
-                                   &resultBounds,
-                                   NULL);
-
-    GrReducedClip::ElementList::Iter iter(elements);
-    int i = 0;
-    lua_newtable(L);
-    while(NULL != iter.get()) {
-        SkLua(L).pushClipStackElement(*iter.get());
-        iter.next();
-        lua_rawseti(L, -2, ++i);
-    }
-    // Currently this only returns the element list to lua, not the initial state or result bounds.
-    // It could return these as additional items on the lua stack.
-    return 1;
-}
-
 static int lcanvas_save(lua_State* L) {
     lua_pushinteger(L, get_ref<SkCanvas>(L, 1)->save());
     return 1;
@@ -521,7 +479,7 @@ static int lcanvas_gc(lua_State* L) {
     return 0;
 }
 
-const struct luaL_Reg gSkCanvas_Methods[] = {
+static const struct luaL_Reg gSkCanvas_Methods[] = {
     { "drawColor", lcanvas_drawColor },
     { "drawRect", lcanvas_drawRect },
     { "drawOval", lcanvas_drawOval },
@@ -532,7 +490,6 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
     { "getSaveCount", lcanvas_getSaveCount },
     { "getTotalMatrix", lcanvas_getTotalMatrix },
     { "getClipStack", lcanvas_getClipStack },
-    { "getReducedClipStack", SkLua::lcanvas_getReducedClipStack },
     { "save", lcanvas_save },
     { "restore", lcanvas_restore },
     { "scale", lcanvas_scale },

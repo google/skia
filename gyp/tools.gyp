@@ -189,11 +189,6 @@
         '../tools/lua/lua_app.cpp',
         '../src/utils/SkLua.cpp',
       ],
-      'include_dirs': [
-        # Lua exposes GrReduceClip which in turn requires src/core for SkTLList
-        '../src/gpu/',
-        '../src/core/',
-      ],
       'dependencies': [
         'effects.gyp:effects',
         'images.gyp:images',
@@ -211,11 +206,6 @@
         '../tools/lua/lua_pictures.cpp',
         '../src/utils/SkLuaCanvas.cpp',
         '../src/utils/SkLua.cpp',
-      ],
-      'include_dirs': [
-        # Lua exposes GrReduceClip which in turn requires src/core for SkTLList
-        '../src/gpu/',
-        '../src/core/',
       ],
       'dependencies': [
         'effects.gyp:effects',
