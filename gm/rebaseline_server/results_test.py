@@ -35,8 +35,9 @@ class ResultsTest(base_unittest.TestCase):
         actuals_root=os.path.join(self._input_dir, 'gm-actuals'),
         expected_root=os.path.join(self._input_dir, 'gm-expectations'),
         generated_images_root=self._temp_dir)
-    gm_json.WriteToFile(results_obj.get_results_of_type(results.RESULTS_ALL),
-                        os.path.join(self._output_dir_actual, 'gm.json'))
+    gm_json.WriteToFile(
+        results_obj.get_results_of_type(results.KEY__HEADER__RESULTS_ALL),
+        os.path.join(self._output_dir_actual, 'gm.json'))
 
 
 def main():

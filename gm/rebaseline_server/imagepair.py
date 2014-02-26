@@ -12,6 +12,7 @@ ImagePair class (see class docstring for details)
 import posixpath
 
 # Keys used within ImagePair dictionary representations.
+# NOTE: Keep these in sync with static/constants.js
 KEY__DIFFERENCE_DATA = 'differenceData'
 KEY__EXPECTATIONS_DATA = 'expectations'
 KEY__EXTRA_COLUMN_VALUES = 'extraColumns'
@@ -31,8 +32,10 @@ class ImagePair(object):
     Args:
       image_diff_db: ImageDiffDB instance we use to generate/store image diffs
       base_url: base of all image URLs
-      imageA_relative_url: URL pointing at an image, relative to base_url
-      imageB_relative_url: URL pointing at an image, relative to base_url
+      imageA_relative_url: string; URL pointing at an image, relative to
+          base_url; or None, if this image is missing
+      imageB_relative_url: string; URL pointing at an image, relative to
+          base_url; or None, if this image is missing
       expectations: optional dictionary containing expectations-specific
           metadata (ignore-failure, bug numbers, etc.)
       extra_columns: optional dictionary containing more metadata (test name,
@@ -43,7 +46,9 @@ class ImagePair(object):
     self.imageB_relative_url = imageB_relative_url
     self.expectations_dict = expectations
     self.extra_columns_dict = extra_columns
-    if imageA_relative_url == imageB_relative_url:
+    if not imageA_relative_url or not imageB_relative_url:
+      self.diff_record = None
+    elif imageA_relative_url == imageB_relative_url:
       self.diff_record = None
     else:
       # TODO(epoger): Rather than blocking until image_diff_db can read in

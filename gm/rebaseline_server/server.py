@@ -40,6 +40,7 @@ if TOOLS_DIRECTORY not in sys.path:
 import svn
 
 # Imports from local dir
+import imagepairset
 import results
 
 ACTUALS_SVN_REPO = 'http://skia-autogen.googlecode.com/svn/gm-actual'
@@ -58,6 +59,20 @@ MIME_TYPE_MAP = {'': 'application/octet-stream',
                  'js': 'application/javascript',
                  'json': 'application/json'
                  }
+
+# Keys that server.py uses to create the toplevel content header.
+# NOTE: Keep these in sync with static/constants.js
+KEY__EDITS__MODIFICATIONS = 'modifications'
+KEY__EDITS__OLD_RESULTS_HASH = 'oldResultsHash'
+KEY__EDITS__OLD_RESULTS_TYPE = 'oldResultsType'
+KEY__HEADER = 'header'
+KEY__HEADER__DATAHASH = 'dataHash'
+KEY__HEADER__IS_EDITABLE = 'isEditable'
+KEY__HEADER__IS_EXPORTED = 'isExported'
+KEY__HEADER__IS_STILL_LOADING = 'resultsStillLoading'
+KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE = 'timeNextUpdateAvailable'
+KEY__HEADER__TIME_UPDATED = 'timeUpdated'
+KEY__HEADER__TYPE = 'type'
 
 DEFAULT_ACTUALS_DIR = '.gm-actuals'
 DEFAULT_PORT = 8888
@@ -313,10 +328,11 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     else:
       now = int(time.time())
       response_dict = {
-          'header': {
-              'resultsStillLoading': True,
-              'timeUpdated': now,
-              'timeNextUpdateAvailable': now + RELOAD_INTERVAL_UNTIL_READY,
+          KEY__HEADER: {
+              KEY__HEADER__IS_STILL_LOADING: True,
+              KEY__HEADER__TIME_UPDATED: now,
+              KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE:
+                  now + RELOAD_INTERVAL_UNTIL_READY,
           },
       }
     self.send_json_dict(response_dict)
@@ -332,7 +348,7 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """
     response_dict = results_obj.get_results_of_type(type)
     time_updated = results_obj.get_timestamp()
-    response_dict['header'] = {
+    response_dict[KEY__HEADER] = {
         # Timestamps:
         # 1. when this data was last updated
         # 2. when the caller should check back for new data (if ever)
@@ -340,23 +356,25 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         # We only return these timestamps if the --reload argument was passed;
         # otherwise, we have no idea when the expectations were last updated
         # (we allow the user to maintain her own expectations as she sees fit).
-        'timeUpdated': time_updated if _SERVER.reload_seconds else None,
-        'timeNextUpdateAvailable': (
+        KEY__HEADER__TIME_UPDATED:
+            time_updated if _SERVER.reload_seconds else None,
+        KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE:
             (time_updated+_SERVER.reload_seconds) if _SERVER.reload_seconds
-            else None),
+            else None,
 
         # The type we passed to get_results_of_type()
-        'type': type,
+        KEY__HEADER__TYPE: type,
 
-        # Hash of testData, which the client must return with any edits--
+        # Hash of dataset, which the client must return with any edits--
         # this ensures that the edits were made to a particular dataset.
-        'dataHash': str(hash(repr(response_dict['testData']))),
+        KEY__HEADER__DATAHASH: str(hash(repr(
+            response_dict[imagepairset.KEY__IMAGEPAIRS]))),
 
         # Whether the server will accept edits back.
-        'isEditable': _SERVER.is_editable,
+        KEY__HEADER__IS_EDITABLE: _SERVER.is_editable,
 
         # Whether the service is accessible from other hosts.
-        'isExported': _SERVER.is_exported,
+        KEY__HEADER__IS_EXPORTED: _SERVER.is_exported,
     }
     return response_dict
 
@@ -406,19 +424,15 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     format:
 
     {
-      'oldResultsType': 'all',    # type of results that the client loaded
-                                  # and then made modifications to
-      'oldResultsHash': 39850913, # hash of results when the client loaded them
-                                  # (ensures that the client and server apply
-                                  # modifications to the same base)
-      'modifications': [
-        {
-          'builder': 'Test-Android-Nexus10-MaliT604-Arm7-Debug',
-          'test': 'strokerect',
-          'config': 'gpu',
-          'expectedHashType': 'bitmap-64bitMD5',
-          'expectedHashDigest': '1707359671708613629',
-        },
+      KEY__EDITS__OLD_RESULTS_TYPE: 'all',  # type of results that the client
+                                            # loaded and then made
+                                            # modifications to
+      KEY__EDITS__OLD_RESULTS_HASH: 39850913, # hash of results when the client
+                                              # loaded them (ensures that the
+                                              # client and server apply
+                                              # modifications to the same base)
+      KEY__EDITS__MODIFICATIONS: [
+        # as needed by results.edit_expectations()
         ...
       ],
     }
@@ -445,15 +459,15 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     # no other thread updates expectations (from the Skia repo) while we are
     # updating them (using the info we received from the client).
     with _SERVER.results_rlock:
-      oldResultsType = data['oldResultsType']
+      oldResultsType = data[KEY__EDITS__OLD_RESULTS_TYPE]
       oldResults = _SERVER.results.get_results_of_type(oldResultsType)
-      oldResultsHash = str(hash(repr(oldResults['testData'])))
-      if oldResultsHash != data['oldResultsHash']:
+      oldResultsHash = str(hash(repr(oldResults[imagepairset.KEY__IMAGEPAIRS])))
+      if oldResultsHash != data[KEY__EDITS__OLD_RESULTS_HASH]:
         raise Exception('results of type "%s" changed while the client was '
                         'making modifications. The client should reload the '
                         'results and submit the modifications again.' %
                         oldResultsType)
-      _SERVER.results.edit_expectations(data['modifications'])
+      _SERVER.results.edit_expectations(data[KEY__EDITS__MODIFICATIONS])
 
     # Read the updated results back from disk.
     # We can do this in a separate thread; we should return our success message

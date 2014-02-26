@@ -85,7 +85,7 @@ class ImagePairSetTest(unittest.TestCase):
         MockImagePair(base_url=BASE_URL_1, dict_to_return=IMAGEPAIR_3_AS_DICT),
     ]
     expected_imageset_dict = {
-        'columnHeaders': {
+        'extraColumnHeaders': {
             'builder': {
                 'headerText': 'builder',
                 'isFilterable': True,

@@ -12,7 +12,8 @@ ImagePairSet class; see its docstring below.
 import column
 
 # Keys used within dictionary representation of ImagePairSet.
-KEY__COLUMNHEADERS = 'columnHeaders'
+# NOTE: Keep these in sync with static/constants.js
+KEY__EXTRACOLUMNHEADERS = 'extraColumnHeaders'
 KEY__IMAGEPAIRS = 'imagePairs'
 KEY__IMAGESETS = 'imageSets'
 KEY__IMAGESETS__BASE_URL = 'baseUrl'
@@ -55,7 +56,7 @@ class ImagePairSet(object):
     extra_columns_dict = image_pair.extra_columns_dict
     if extra_columns_dict:
       for column_id, value in extra_columns_dict.iteritems():
-        self._add_extra_column_entry(column_id, value)
+        self._add_extra_column_value_to_summary(column_id, value)
 
   def set_column_header_factory(self, column_id, column_header_factory):
     """Overrides the default settings for one of the extraColumn headers.
@@ -80,19 +81,36 @@ class ImagePairSet(object):
       self._column_header_factories[column_id] = column_header_factory
     return column_header_factory
 
-  def _add_extra_column_entry(self, column_id, value):
+  def ensure_extra_column_values_in_summary(self, column_id, values):
+    """Ensure this column_id/value pair is part of the extraColumns summary.
+
+    Args:
+      column_id: string; unique ID of this column
+      value: string; a possible value for this column
+    """
+    for value in values:
+      self._add_extra_column_value_to_summary(
+          column_id=column_id, value=value, addend=0)
+
+  def _add_extra_column_value_to_summary(self, column_id, value, addend=1):
     """Records one column_id/value extraColumns pair found within an ImagePair.
 
     We use this information to generate tallies within the column header
     (how many instances we saw of a particular value, within a particular
     extraColumn).
+
+    Args:
+      column_id: string; unique ID of this column (must match a key within
+          an ImagePair's extra_columns dictionary)
+      value: string; a possible value for this column
+      addend: integer; how many instances to add to the tally
     """
     known_values_for_column = self._extra_column_tallies.get(column_id, None)
     if not known_values_for_column:
       known_values_for_column = {}
       self._extra_column_tallies[column_id] = known_values_for_column
     instances_of_this_value = known_values_for_column.get(value, 0)
-    instances_of_this_value += 1
+    instances_of_this_value += addend
     known_values_for_column[value] = instances_of_this_value
 
   def _column_headers_as_dict(self):
@@ -110,7 +128,7 @@ class ImagePairSet(object):
     Uses the KEY__* constants as keys.
     """
     return {
-        KEY__COLUMNHEADERS: self._column_headers_as_dict(),
+        KEY__EXTRACOLUMNHEADERS: self._column_headers_as_dict(),
         KEY__IMAGEPAIRS: self._image_pair_dicts,
         KEY__IMAGESETS: [{
             KEY__IMAGESETS__BASE_URL: self._base_url,

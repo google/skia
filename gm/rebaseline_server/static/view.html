@@ -5,8 +5,9 @@
 <head>
   <title ng-bind="windowTitle"></title>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.js"></script>
-  <script src="loader.js"></script>
+  <script src="constants.js"></script>
   <script src="diff_viewer.js"></script>
+  <script src="loader.js"></script>
   <link rel="stylesheet" href="view.css">
 </head>
 
@@ -22,16 +23,16 @@
     {{loadingMessage}}
   </em>
 
-  <div ng-hide="!categories"><!-- everything: hide until data is loaded -->
+  <div ng-hide="!extraColumnHeaders"><!-- everything: hide until data is loaded -->
 
     <div class="warning-div"
-         ng-hide="!(header.isEditable && header.isExported)">
+         ng-hide="!(header[constants.KEY__HEADER__IS_EDITABLE] && header[constants.KEY__HEADER__IS_EXPORTED])">
       WARNING!  These results are editable and exported, so any user
       who can connect to this server over the network can modify them.
     </div>
 
-    <div ng-hide="!(header.timeUpdated)">
-      Results current as of {{localTimeString(header.timeUpdated)}}
+    <div ng-hide="!(header[constants.KEY__HEADER___TIME_UPDATED])">
+      Results current as of {{localTimeString(header[constants.KEY__HEADER__TIME_UPDATED])}}
     </div>
 
     <div><!-- tabs -->
@@ -60,10 +61,9 @@
       </th>
     </tr>
     <tr valign="top">
-      <!-- TODO(epoger): make this an ng-repeat over resultType, config, etc? -->
       <td>
         resultType<br>
-        <label ng-repeat="(resultType, count) in categories['resultType'] track by $index">
+        <label ng-repeat="(resultType, count) in extraColumnHeaders[constants.KEY__EXTRACOLUMN__RESULT_TYPE][constants.KEY__VALUES_AND_COUNTS] track by $index">
           <input type="checkbox"
                  name="resultTypes"
                  value="{{resultType}}"
@@ -81,7 +81,7 @@
           toggle
         </button>
       </td>
-      <td ng-repeat="category in ['builder', 'test']">
+      <td ng-repeat="category in [constants.KEY__EXTRACOLUMN__BUILDER, constants.KEY__EXTRACOLUMN__TEST]">
         {{category}}
         <br>
         <input type="text"
@@ -95,7 +95,7 @@
       </td>
       <td>
         config<br>
-        <label ng-repeat="(config, count) in categories['config'] track by $index">
+        <label ng-repeat="(config, count) in extraColumnHeaders[constants.KEY__EXTRACOLUMN__CONFIG][constants.KEY__VALUES_AND_COUNTS] track by $index">
           <input type="checkbox"
                  name="configs"
                  value="{{config}}"
@@ -145,9 +145,9 @@
       <div ng-hide="'Pending Approval' != viewingTab">
         <div style="display:inline-block">
           <button style="font-size:20px"
-                  ng-click="submitApprovals(filteredTestData)"
-                  ng-disabled="submitPending || (filteredTestData.length == 0)">
-            Update these {{filteredTestData.length}} expectations on the server
+                  ng-click="submitApprovals(filteredImagePairs)"
+                  ng-disabled="submitPending || (filteredImagePairs.length == 0)">
+            Update these {{filteredImagePairs.length}} expectations on the server
           </button>
         </div>
         <div style="display:inline-block">
@@ -161,7 +161,7 @@
           <input type="checkbox" ng-model="showSubmitAdvancedSettings">
           show
           <ul ng-hide="!showSubmitAdvancedSettings">
-            <li ng-repeat="setting in ['reviewed-by-human', 'ignore-failure']">
+            <li ng-repeat="setting in [constants.KEY__EXPECTATIONS__REVIEWED, constants.KEY__EXPECTATIONS__IGNOREFAILURE]">
               {{setting}}
               <input type="checkbox" ng-model="submitAdvancedSettings[setting]">
             </li>
@@ -179,11 +179,11 @@
       <table border="0" width="100%"> <!-- results header -->
         <tr>
           <td>
-            Found {{filteredTestData.length}} matches;
-            <span ng-hide="filteredTestData.length <= limitedTestData.length">
-              displaying the first {{limitedTestData.length}}
+            Found {{filteredImagePairs.length}} matches;
+            <span ng-hide="filteredImagePairs.length <= limitedImagePairs.length">
+              displaying the first {{limitedImagePairs.length}}
             </span>
-            <span ng-hide="filteredTestData.length > limitedTestData.length">
+            <span ng-hide="filteredImagePairs.length > limitedImagePairs.length">
               displaying them all
             </span>
             <br>
@@ -192,21 +192,21 @@
           <td align="right">
             <div>
               all tests shown:
-              <button ng-click="selectAllItems()">
+              <button ng-click="selectAllImagePairs()">
                 select
               </button>
-              <button ng-click="clearAllItems()">
+              <button ng-click="clearAllImagePairs()">
                 clear
               </button>
-              <button ng-click="toggleAllItems()">
+              <button ng-click="toggleAllImagePairs()">
                 toggle
               </button>
             </div>
             <div ng-repeat="otherTab in tabs">
-              <button ng-click="moveSelectedItemsToTab(otherTab)"
-                      ng-disabled="selectedItems.length == 0"
+              <button ng-click="moveSelectedImagePairsToTab(otherTab)"
+                      ng-disabled="selectedImagePairs.length == 0"
                       ng-hide="otherTab == viewingTab">
-                move {{selectedItems.length}} selected tests to {{otherTab}} tab
+                move {{selectedImagePairs.length}} selected tests to {{otherTab}} tab
               </button>
             </div>
           </td>
@@ -216,12 +216,12 @@
       <table border="1" ng-app="diff_viewer"> <!-- results -->
         <tr>
           <!-- Most column headers are displayed in a common fashion... -->
-          <th ng-repeat="categoryName in ['resultType', 'builder', 'test', 'config']">
+          <th ng-repeat="categoryName in [constants.KEY__EXTRACOLUMN__RESULT_TYPE, constants.KEY__EXTRACOLUMN__BUILDER, constants.KEY__EXTRACOLUMN__TEST, constants.KEY__EXTRACOLUMN__CONFIG]">
             <input type="radio"
                    name="sortColumnRadio"
                    value="{{categoryName}}"
-                   ng-checked="(sortColumn == categoryName)"
-                   ng-click="sortResultsBy(categoryName)">
+                   ng-checked="(sortColumnKey == categoryName)"
+                   ng-click="sortResultsBy(constants.KEY__EXTRA_COLUMN_VALUES, categoryName)">
             {{categoryName}}
           </th>
           <!-- ... but there are a few columns where we display things differently. -->
@@ -229,40 +229,30 @@
             <input type="radio"
                    name="sortColumnRadio"
                    value="bugs"
-                   ng-checked="(sortColumn == 'bugs')"
-                   ng-click="sortResultsBy('bugs')">
+                   ng-checked="(sortColumnKey == constants.KEY__EXPECTATIONS__BUGS)"
+                   ng-click="sortResultsBy(constants.KEY__EXPECTATIONS_DATA, constants.KEY__EXPECTATIONS__BUGS)">
             bugs
           </th>
           <th width="{{imageSize}}">
-            <input type="radio"
-                   name="sortColumnRadio"
-                   value="expectedHashDigest"
-                   ng-checked="(sortColumn == 'expectedHashDigest')"
-                   ng-click="sortResultsBy('expectedHashDigest')">
-            expected image
+            {{imageSets[0][constants.KEY__IMAGESETS__DESCRIPTION]}}
           </th>
           <th width="{{imageSize}}">
-            <input type="radio"
-                   name="sortColumnRadio"
-                   value="actualHashDigest"
-                   ng-checked="(sortColumn == 'actualHashDigest')"
-                   ng-click="sortResultsBy('actualHashDigest')">
-            actual image
+            {{imageSets[1][constants.KEY__IMAGESETS__DESCRIPTION]}}
           </th>
           <th width="{{imageSize}}">
             <input type="radio"
                    name="sortColumnRadio"
                    value="percentDifferingPixels"
-                   ng-checked="(sortColumn == 'percentDifferingPixels')"
-                   ng-click="sortResultsBy('percentDifferingPixels')">
+                   ng-checked="(sortColumnKey == constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS)"
+                   ng-click="sortResultsBy(constants.KEY__DIFFERENCE_DATA, constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS)">
             differing pixels in white
           </th>
           <th width="{{imageSize}}">
             <input type="radio"
                    name="sortColumnRadio"
                    value="weightedDiffMeasure"
-                   ng-checked="(sortColumn == 'weightedDiffMeasure')"
-                   ng-click="sortResultsBy('weightedDiffMeasure')">
+                   ng-checked="(sortColumnKey == constants.KEY__DIFFERENCE_DATA__WEIGHTED_DIFF)"
+                   ng-click="sortResultsBy(constants.KEY__DIFFERENCE_DATA, constants.KEY__DIFFERENCE_DATA__WEIGHTED_DIFF)">
             perceptual difference
             <br>
             <input type="range" ng-model="pixelDiffBgColorBrightness"
@@ -272,18 +262,18 @@
                    min="0" max="255"/>
           </th>
           <th>
-            <!-- item-selection checkbox column -->
+            <!-- imagepair-selection checkbox column -->
           </th>
         </tr>
 
-        <tr ng-repeat="result in limitedTestData" ng-controller="ImageController">
+        <tr ng-repeat="imagePair in limitedImagePairs" ng-controller="ImageController">
           <td>
-            {{result.resultType}}
+            {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__RESULT_TYPE]}}
             <br>
             <button class="show-only-button"
                     ng-hide="viewingTab != defaultTab"
-                    ng-click="showOnlyResultType(result.resultType)"
-                    title="show only results of type '{{result.resultType}}'">
+                    ng-click="showOnlyResultType(imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__RESULT_TYPE])"
+                    title="show only results of type {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__RESULT_TYPE]}}">
               show only
             </button>
             <br>
@@ -295,14 +285,14 @@
               show all
             </button>
           </td>
-          <td ng-repeat="categoryName in ['builder', 'test']">
-            {{result[categoryName]}}
+          <td ng-repeat="categoryName in [constants.KEY__EXTRACOLUMN__BUILDER, constants.KEY__EXTRACOLUMN__TEST]">
+            {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][categoryName]}}
             <br>
             <button class="show-only-button"
                     ng-hide="viewingTab != defaultTab"
-                    ng-disabled="result[categoryName] == categoryValueMatch[categoryName]"
-                    ng-click="setCategoryValueMatch(categoryName, result[categoryName])"
-                    title="show only results of {{categoryName}} '{{result[categoryName]}}'">
+                    ng-disabled="imagePair[constants.KEY__EXTRA_COLUMN_VALUES][categoryName] == categoryValueMatch[categoryName]"
+                    ng-click="setCategoryValueMatch(categoryName, imagePair[constants.KEY__EXTRA_COLUMN_VALUES][categoryName])"
+                    title="show only results of {{categoryName}} {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][categoryName]}}">
               show only
             </button>
             <br>
@@ -315,12 +305,12 @@
             </button>
           </td>
           <td>
-            {{result.config}}
+            {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__CONFIG]}}
             <br>
             <button class="show-only-button"
                     ng-hide="viewingTab != defaultTab"
-                    ng-click="showOnlyConfig(result.config)"
-                    title="show only results of config '{{result.config}}'">
+                    ng-click="showOnlyConfig(imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__CONFIG])"
+                    title="show only results of config {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__CONFIG]}}">
               show only
             </button>
             <br>
@@ -333,43 +323,41 @@
             </button>
           </td>
           <td>
-            <a ng-repeat="bug in result['bugs']"
+            <a ng-repeat="bug in imagePair[constants.KEY__EXPECTATIONS_DATA][constants.KEY__EXPECTATIONS__BUGS]"
                href="https://code.google.com/p/skia/issues/detail?id={{bug}}"
                target="_blank">
               {{bug}}
             </a>
           </td>
 
-          <!-- expected image -->
+          <!-- image A -->
           <td valign="bottom" width="{{imageSize}}">
-            <a href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png" target="_blank">View Image</a><br/>
+            <a href="{{imageSets[0][constants.KEY__IMAGESETS__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_A_URL]}}" target="_blank">View Image</a><br/>
             <img-compare type="baseline" width="{{imageSize}}"
-                         src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.expectedHashType}}/{{result.test}}/{{result.expectedHashDigest}}.png" />
-
+                         src="{{imageSets[0][constants.KEY__IMAGESETS__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_A_URL]}}" />
           </td>
 
-          <!-- actual image -->
+          <!-- image B -->
           <td valign="bottom" width="{{imageSize}}">
-            <a href="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png" target="_blank">View Image</a><br/>
+            <a href="{{imageSets[1][constants.KEY__IMAGESETS__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_B_URL]}}" target="_blank">View Image</a><br/>
             <img-compare type="test" width="{{imageSize}}"
-                         src="http://chromium-skia-gm.commondatastorage.googleapis.com/gm/{{result.actualHashType}}/{{result.test}}/{{result.actualHashDigest}}.png" />
-
+                         src="{{imageSets[1][constants.KEY__IMAGESETS__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_B_URL]}}" />
           </td>
 
           <!-- whitediffs: every differing pixel shown in white -->
           <td valign="bottom" width="{{imageSize}}">
-            <div ng-hide="result.expectedHashDigest == result.actualHashDigest"
-                 title="{{result.numDifferingPixels | number:0}} of {{(100 * result.numDifferingPixels / result.percentDifferingPixels) | number:0}} pixels ({{result.percentDifferingPixels.toFixed(4)}}%) differ from expectation.">
+            <div ng-hide="!imagePair[constants.KEY__IS_DIFFERENT]"
+                 title="{{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__NUM_DIFF_PIXELS] | number:0}} of {{(100 * imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__NUM_DIFF_PIXELS] / imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS]) | number:0}} pixels ({{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS].toFixed(4)}}%) differ from expectation.">
 
-              {{result.percentDifferingPixels.toFixed(4)}}%
-              ({{result.numDifferingPixels}})
+              {{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS].toFixed(4)}}%
+              ({{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__NUM_DIFF_PIXELS]}})
               <br/>
-              <a href="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png" target="_blank">View Image</a><br/>
+              <a href="/static/generated-images/whitediffs/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
               <img-compare type="differingPixelsInWhite" width="{{imageSize}}"
-                           src="/static/generated-images/whitediffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png" />
+                           src="/static/generated-images/whitediffs/{{getImageDiffRelativeUrl(imagePair)}}" />
 
             </div>
-            <div ng-hide="result.expectedHashDigest != result.actualHashDigest"
+            <div ng-hide="imagePair[constants.KEY__IS_DIFFERENT]"
                  style="text-align:center">
               &ndash;none&ndash;
             </div>
@@ -377,23 +365,23 @@
 
           <!-- diffs: per-channel RGB deltas -->
           <td valign="bottom" width="{{imageSize}}">
-            <div ng-hide="result.expectedHashDigest == result.actualHashDigest"
-                 title="Perceptual difference measure is {{result.perceptualDifference.toFixed(4)}}%.  Maximum difference per channel: R={{result.maxDiffPerChannel[0]}}, G={{result.maxDiffPerChannel[1]}}, B={{result.maxDiffPerChannel[2]}}">
+            <div ng-hide="!imagePair[constants.KEY__IS_DIFFERENT]"
+                 title="Perceptual difference measure is {{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF].toFixed(4)}}%.  Maximum difference per channel: R={{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL][0]}}, G={{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL][1]}}, B={{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL][2]}}">
 
-              {{result.perceptualDifference.toFixed(4)}}%
-              {{result.maxDiffPerChannel}}
+              {{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF].toFixed(4)}}%
+              {{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL]}}
               <br/>
-              <a href="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png" target="_blank">View Image</a><br/>
+              <a href="/static/generated-images/diffs/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
               <img-compare ng-style="{backgroundColor: pixelDiffBgColor}"
                            type="differencePerPixel" width="{{imageSize}}"
-                           src="/static/generated-images/diffs/{{result.expectedHashDigest}}-vs-{{result.actualHashDigest}}.png"
+                           src="/static/generated-images/diffs/{{getImageDiffRelativeUrl(imagePair)}}"
                            ng-mousedown="MagnifyDraw($event, true)"
                            ng-mousemove="MagnifyDraw($event, false)"
                            ng-mouseup="MagnifyEnd($event)"
                            ng-mouseleave="MagnifyEnd($event)" />
 
             </div>
-            <div ng-hide="result.expectedHashDigest != result.actualHashDigest"
+            <div ng-hide="imagePair[constants.KEY__IS_DIFFERENT]"
                  style="text-align:center">
               &ndash;none&ndash;
             </div>
@@ -402,23 +390,15 @@
           <td>
             <input type="checkbox"
                    name="rowSelect"
-                   value="{{result.index}}"
-                   ng-checked="isValueInArray(result.index, selectedItems)"
-                   ng-click="toggleValueInArray(result.index, selectedItems)">
+                   value="{{imagePair.index}}"
+                   ng-checked="isValueInArray(imagePair.index, selectedImagePairs)"
+                   ng-click="toggleValueInArray(imagePair.index, selectedImagePairs)">
         </tr>
-      </table> <!-- results -->
-    </td></tr></table> <!-- table holding results header + results table -->
+      </table> <!-- imagePairs -->
+    </td></tr></table> <!-- table holding results header + imagePairs table -->
 
   </div><!-- main display area of selected tab -->
   </div><!-- everything: hide until data is loaded -->
-
-  <!-- TODO(epoger): Can we get the base URLs (commondatastorage and
-       issues list) from
-       https://skia.googlesource.com/buildbot/+/master/site_config/global_variables.json ?
-       I tried importing the
-       http://skia.googlecode.com/svn/buildbot/skia_tools.js script and using
-       that to do so, but I got Access-Control-Allow-Origin errors.
-    -->
 
 </body>
 </html>

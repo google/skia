@@ -1,38 +1,42 @@
 /*
  * Loader:
  * Reads GM result reports written out by results.py, and imports
- * them into $scope.categories and $scope.testData .
+ * them into $scope.extraColumnHeaders and $scope.imagePairs .
  */
 var Loader = angular.module(
     'Loader',
-    ['diff_viewer']
+    ['ConstantsModule', 'diff_viewer']
 );
-
 
 // TODO(epoger): Combine ALL of our filtering operations (including
 // truncation) into this one filter, so that runs most efficiently?
 // (We would have to make sure truncation still took place after
 // sorting, though.)
 Loader.filter(
-  'removeHiddenItems',
-  function() {
-    return function(unfilteredItems, hiddenResultTypes, hiddenConfigs,
+  'removeHiddenImagePairs',
+  function(constants) {
+    return function(unfilteredImagePairs, hiddenResultTypes, hiddenConfigs,
                     builderSubstring, testSubstring, viewingTab) {
-      var filteredItems = [];
-      for (var i = 0; i < unfilteredItems.length; i++) {
-        var item = unfilteredItems[i];
+      var filteredImagePairs = [];
+      for (var i = 0; i < unfilteredImagePairs.length; i++) {
+        var imagePair = unfilteredImagePairs[i];
+        var extraColumnValues = imagePair[constants.KEY__EXTRA_COLUMN_VALUES];
         // For performance, we examine the "set" objects directly rather
         // than calling $scope.isValueInSet().
         // Besides, I don't think we have access to $scope in here...
-        if (!(true == hiddenResultTypes[item.resultType]) &&
-            !(true == hiddenConfigs[item.config]) &&
-            !(-1 == item.builder.indexOf(builderSubstring)) &&
-            !(-1 == item.test.indexOf(testSubstring)) &&
-            (viewingTab == item.tab)) {
-          filteredItems.push(item);
+        if (!(true == hiddenResultTypes[extraColumnValues[
+                  constants.KEY__EXTRACOLUMN__RESULT_TYPE]]) &&
+            !(true == hiddenConfigs[extraColumnValues[
+                  constants.KEY__EXTRACOLUMN__CONFIG]]) &&
+            !(-1 == extraColumnValues[constants.KEY__EXTRACOLUMN__BUILDER]
+                    .indexOf(builderSubstring)) &&
+            !(-1 == extraColumnValues[constants.KEY__EXTRACOLUMN__TEST]
+                    .indexOf(testSubstring)) &&
+            (viewingTab == imagePair.tab)) {
+          filteredImagePairs.push(imagePair);
         }
       }
-      return filteredItems;
+      return filteredImagePairs;
     };
   }
 );
@@ -40,7 +44,8 @@ Loader.filter(
 
 Loader.controller(
   'Loader.Controller',
-    function($scope, $http, $filter, $location, $timeout) {
+    function($scope, $http, $filter, $location, $timeout, constants) {
+    $scope.constants = constants;
     $scope.windowTitle = "Loading GM Results...";
     $scope.resultsToLoad = $location.search().resultsToLoad;
     $scope.loadingMessage = "Loading results of type '" + $scope.resultsToLoad +
@@ -53,26 +58,33 @@ Loader.controller(
      */
     $http.get("/results/" + $scope.resultsToLoad).success(
       function(data, status, header, config) {
-        if (data.header.resultsStillLoading) {
+        var dataHeader = data[constants.KEY__HEADER];
+        if (dataHeader[constants.KEY__HEADER__IS_STILL_LOADING]) {
           $scope.loadingMessage =
               "Server is still loading results; will retry at " +
-              $scope.localTimeString(data.header.timeNextUpdateAvailable);
+              $scope.localTimeString(dataHeader[
+                  constants.KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE]);
           $timeout(
               function(){location.reload();},
-              (data.header.timeNextUpdateAvailable * 1000) - new Date().getTime());
+              (dataHeader[constants.KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE]
+               * 1000) - new Date().getTime());
         } else {
           $scope.loadingMessage = "Processing data, please wait...";
 
-          $scope.header = data.header;
-          $scope.categories = data.categories;
-          $scope.testData = data.testData;
-          $scope.sortColumn = 'weightedDiffMeasure';
+          $scope.header = dataHeader;
+          $scope.extraColumnHeaders = data[constants.KEY__EXTRACOLUMNHEADERS];
+          $scope.imagePairs = data[constants.KEY__IMAGEPAIRS];
+          $scope.imageSets = data[constants.KEY__IMAGESETS];
+          $scope.sortColumnSubdict = constants.KEY__DIFFERENCE_DATA;
+          $scope.sortColumnKey = constants.KEY__DIFFERENCE_DATA__WEIGHTED_DIFF;
           $scope.showTodos = false;
 
           $scope.showSubmitAdvancedSettings = false;
           $scope.submitAdvancedSettings = {};
-          $scope.submitAdvancedSettings['reviewed-by-human'] = true;
-          $scope.submitAdvancedSettings['ignore-failure'] = false;
+          $scope.submitAdvancedSettings[
+              constants.KEY__EXPECTATIONS__REVIEWED] = true;
+          $scope.submitAdvancedSettings[
+              constants.KEY__EXPECTATIONS__IGNOREFAILURE] = false;
           $scope.submitAdvancedSettings['bug'] = '';
 
           // Create the list of tabs (lists into which the user can file each
@@ -80,7 +92,7 @@ Loader.controller(
           $scope.tabs = [
             'Unfiled', 'Hidden'
           ];
-          if (data.header.isEditable) {
+          if (dataHeader[constants.KEY__HEADER__IS_EDITABLE]) {
             $scope.tabs = $scope.tabs.concat(
                 ['Pending Approval']);
           }
@@ -92,26 +104,32 @@ Loader.controller(
           for (var i = 0; i < $scope.tabs.length; i++) {
             $scope.numResultsPerTab[$scope.tabs[i]] = 0;
           }
-          $scope.numResultsPerTab[$scope.defaultTab] = $scope.testData.length;
+          $scope.numResultsPerTab[$scope.defaultTab] = $scope.imagePairs.length;
 
           // Add index and tab fields to all records.
-          for (var i = 0; i < $scope.testData.length; i++) {
-            $scope.testData[i].index = i;
-            $scope.testData[i].tab = $scope.defaultTab;
+          for (var i = 0; i < $scope.imagePairs.length; i++) {
+            $scope.imagePairs[i].index = i;
+            $scope.imagePairs[i].tab = $scope.defaultTab;
           }
 
           // Arrays within which the user can toggle individual elements.
-          $scope.selectedItems = [];
+          $scope.selectedImagePairs = [];
 
           // Sets within which the user can toggle individual elements.
-          $scope.hiddenResultTypes = {
-            'failure-ignored': true,
-            'no-comparison': true,
-            'succeeded': true,
-          };
-          $scope.allResultTypes = Object.keys(data.categories['resultType']);
+          $scope.hiddenResultTypes = {};
+          $scope.hiddenResultTypes[
+              constants.KEY__RESULT_TYPE__FAILUREIGNORED] = true;
+          $scope.hiddenResultTypes[
+              constants.KEY__RESULT_TYPE__NOCOMPARISON] = true;
+          $scope.hiddenResultTypes[
+              constants.KEY__RESULT_TYPE__SUCCEEDED] = true;
+          $scope.allResultTypes = Object.keys(
+              $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMN__RESULT_TYPE]
+                                       [constants.KEY__VALUES_AND_COUNTS]);
           $scope.hiddenConfigs = {};
-          $scope.allConfigs = Object.keys(data.categories['config']);
+          $scope.allConfigs = Object.keys(
+              $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMN__CONFIG]
+                                       [constants.KEY__VALUES_AND_COUNTS]);
 
           // Associative array of partial string matches per category.
           $scope.categoryValueMatch = {};
@@ -142,12 +160,12 @@ Loader.controller(
     /**
      * Select all currently showing tests.
      */
-    $scope.selectAllItems = function() {
-      var numItemsShowing = $scope.limitedTestData.length;
-      for (var i = 0; i < numItemsShowing; i++) {
-        var index = $scope.limitedTestData[i].index;
-        if (!$scope.isValueInArray(index, $scope.selectedItems)) {
-          $scope.toggleValueInArray(index, $scope.selectedItems);
+    $scope.selectAllImagePairs = function() {
+      var numImagePairsShowing = $scope.limitedImagePairs.length;
+      for (var i = 0; i < numImagePairsShowing; i++) {
+        var index = $scope.limitedImagePairs[i].index;
+        if (!$scope.isValueInArray(index, $scope.selectedImagePairs)) {
+          $scope.toggleValueInArray(index, $scope.selectedImagePairs);
         }
       }
     }
@@ -155,12 +173,12 @@ Loader.controller(
     /**
      * Deselect all currently showing tests.
      */
-    $scope.clearAllItems = function() {
-      var numItemsShowing = $scope.limitedTestData.length;
-      for (var i = 0; i < numItemsShowing; i++) {
-        var index = $scope.limitedTestData[i].index;
-        if ($scope.isValueInArray(index, $scope.selectedItems)) {
-          $scope.toggleValueInArray(index, $scope.selectedItems);
+    $scope.clearAllImagePairs = function() {
+      var numImagePairsShowing = $scope.limitedImagePairs.length;
+      for (var i = 0; i < numImagePairsShowing; i++) {
+        var index = $scope.limitedImagePairs[i].index;
+        if ($scope.isValueInArray(index, $scope.selectedImagePairs)) {
+          $scope.toggleValueInArray(index, $scope.selectedImagePairs);
         }
       }
     }
@@ -168,11 +186,11 @@ Loader.controller(
     /**
      * Toggle selection of all currently showing tests.
      */
-    $scope.toggleAllItems = function() {
-      var numItemsShowing = $scope.limitedTestData.length;
-      for (var i = 0; i < numItemsShowing; i++) {
-        var index = $scope.limitedTestData[i].index;
-        $scope.toggleValueInArray(index, $scope.selectedItems);
+    $scope.toggleAllImagePairs = function() {
+      var numImagePairsShowing = $scope.limitedImagePairs.length;
+      for (var i = 0; i < numImagePairsShowing; i++) {
+        var index = $scope.limitedImagePairs[i].index;
+        $scope.toggleValueInArray(index, $scope.selectedImagePairs);
       }
     }
 
@@ -192,33 +210,33 @@ Loader.controller(
     }
 
     /**
-     * Move the items in $scope.selectedItems to a different tab,
-     * and then clear $scope.selectedItems.
+     * Move the imagePairs in $scope.selectedImagePairs to a different tab,
+     * and then clear $scope.selectedImagePairs.
      *
      * @param newTab (string): name of the tab to move the tests to
      */
-    $scope.moveSelectedItemsToTab = function(newTab) {
-      $scope.moveItemsToTab($scope.selectedItems, newTab);
-      $scope.selectedItems = [];
+    $scope.moveSelectedImagePairsToTab = function(newTab) {
+      $scope.moveImagePairsToTab($scope.selectedImagePairs, newTab);
+      $scope.selectedImagePairs = [];
       $scope.updateResults();
     }
 
     /**
-     * Move a subset of $scope.testData to a different tab.
+     * Move a subset of $scope.imagePairs to a different tab.
      *
-     * @param itemIndices (array of ints): indices into $scope.testData
+     * @param imagePairIndices (array of ints): indices into $scope.imagePairs
      *        indicating which test results to move
      * @param newTab (string): name of the tab to move the tests to
      */
-    $scope.moveItemsToTab = function(itemIndices, newTab) {
-      var itemIndex;
-      var numItems = itemIndices.length;
-      for (var i = 0; i < numItems; i++) {
-        itemIndex = itemIndices[i];
-        $scope.numResultsPerTab[$scope.testData[itemIndex].tab]--;
-        $scope.testData[itemIndex].tab = newTab;
+    $scope.moveImagePairsToTab = function(imagePairIndices, newTab) {
+      var imagePairIndex;
+      var numImagePairs = imagePairIndices.length;
+      for (var i = 0; i < numImagePairs; i++) {
+        imagePairIndex = imagePairIndices[i];
+        $scope.numResultsPerTab[$scope.imagePairs[imagePairIndex].tab]--;
+        $scope.imagePairs[imagePairIndex].tab = newTab;
       }
-      $scope.numResultsPerTab[newTab] += numItems;
+      $scope.numResultsPerTab[newTab] += numImagePairs;
     }
 
 
@@ -277,14 +295,16 @@ Loader.controller(
       'resultsToLoad':       $scope.queryParameters.copiers.simple,
       'displayLimitPending': $scope.queryParameters.copiers.simple,
       'imageSizePending':    $scope.queryParameters.copiers.simple,
-      'sortColumn':          $scope.queryParameters.copiers.simple,
-
-      'builder': $scope.queryParameters.copiers.categoryValueMatch,
-      'test':    $scope.queryParameters.copiers.categoryValueMatch,
+      'sortColumnSubdict':   $scope.queryParameters.copiers.simple,
+      'sortColumnKey':       $scope.queryParameters.copiers.simple,
 
       'hiddenResultTypes': $scope.queryParameters.copiers.set,
       'hiddenConfigs':     $scope.queryParameters.copiers.set,
     };
+    $scope.queryParameters.map[constants.KEY__EXTRACOLUMN__BUILDER] =
+        $scope.queryParameters.copiers.categoryValueMatch;
+    $scope.queryParameters.map[constants.KEY__EXTRACOLUMN__TEST] =
+        $scope.queryParameters.copiers.categoryValueMatch;
 
     // Loads all parameters into $scope from the URL query string;
     // any which are not found within the URL will keep their current value.
@@ -339,7 +359,7 @@ Loader.controller(
       $scope.displayLimit = $scope.displayLimitPending;
       // TODO(epoger): Every time we apply a filter, AngularJS creates
       // another copy of the array.  Is there a way we can filter out
-      // the items as they are displayed, rather than storing multiple
+      // the imagePairs as they are displayed, rather than storing multiple
       // array copies?  (For better performance.)
 
       if ($scope.viewingTab == $scope.defaultTab) {
@@ -347,32 +367,34 @@ Loader.controller(
         // TODO(epoger): Until we allow the user to reverse sort order,
         // there are certain columns we want to sort in a different order.
         var doReverse = (
-            ($scope.sortColumn == 'percentDifferingPixels') ||
-            ($scope.sortColumn == 'weightedDiffMeasure'));
+            ($scope.sortColumnKey ==
+             constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS) ||
+            ($scope.sortColumnKey ==
+             constants.KEY__DIFFERENCE_DATA__WEIGHTED_DIFF));
 
-        $scope.filteredTestData =
+        $scope.filteredImagePairs =
             $filter("orderBy")(
-                $filter("removeHiddenItems")(
-                    $scope.testData,
+                $filter("removeHiddenImagePairs")(
+                    $scope.imagePairs,
                     $scope.hiddenResultTypes,
                     $scope.hiddenConfigs,
                     $scope.categoryValueMatch.builder,
                     $scope.categoryValueMatch.test,
                     $scope.viewingTab
                 ),
-                $scope.sortColumn, doReverse);
-        $scope.limitedTestData = $filter("limitTo")(
-            $scope.filteredTestData, $scope.displayLimit);
+                $scope.getSortColumnValue, doReverse);
+        $scope.limitedImagePairs = $filter("limitTo")(
+            $scope.filteredImagePairs, $scope.displayLimit);
       } else {
-        $scope.filteredTestData =
+        $scope.filteredImagePairs =
             $filter("orderBy")(
                 $filter("filter")(
-                    $scope.testData,
+                    $scope.imagePairs,
                     {tab: $scope.viewingTab},
                     true
                 ),
-                $scope.sortColumn);
-        $scope.limitedTestData = $scope.filteredTestData;
+                $scope.getSortColumnValue);
+        $scope.limitedImagePairs = $scope.filteredImagePairs;
       }
       $scope.imageSize = $scope.imageSizePending;
       $scope.setUpdatesPending(false);
@@ -382,11 +404,30 @@ Loader.controller(
     /**
      * Re-sort the displayed results.
      *
-     * @param sortColumn (string): name of the column to sort on
+     * @param subdict (string): which subdictionary
+     *     (constants.KEY__DIFFERENCE_DATA, constants.KEY__EXPECTATIONS_DATA,
+     *      constants.KEY__EXTRA_COLUMN_VALUES) the sort column key is within
+     * @param key (string): sort by value associated with this key in subdict
      */
-    $scope.sortResultsBy = function(sortColumn) {
-      $scope.sortColumn = sortColumn;
+    $scope.sortResultsBy = function(subdict, key) {
+      $scope.sortColumnSubdict = subdict;
+      $scope.sortColumnKey = key;
       $scope.updateResults();
+    }
+
+    /**
+     * For a particular ImagePair, return the value of the column we are
+     * sorting on (according to $scope.sortColumnSubdict and
+     * $scope.sortColumnKey).
+     *
+     * @param imagePair: imagePair to get a column value out of.
+     */
+    $scope.getSortColumnValue = function(imagePair) {
+      if ($scope.sortColumnSubdict in imagePair) {
+        return imagePair[$scope.sortColumnSubdict][$scope.sortColumnKey];
+      } else {
+        return undefined;
+      }
     }
 
     /**
@@ -456,10 +497,13 @@ Loader.controller(
      * Tell the server that the actual results of these particular tests
      * are acceptable.
      *
-     * @param testDataSubset an array of test results, most likely a subset of
-     *        $scope.testData (perhaps with some modifications)
+     * TODO(epoger): This assumes that the original expectations are in
+     * imageSetA, and the actuals are in imageSetB.
+     *
+     * @param imagePairsSubset an array of test results, most likely a subset of
+     *        $scope.imagePairs (perhaps with some modifications)
      */
-    $scope.submitApprovals = function(testDataSubset) {
+    $scope.submitApprovals = function(imagePairsSubset) {
       $scope.submitPending = true;
 
       // Convert bug text field to null or 1-item array.
@@ -476,30 +520,40 @@ Loader.controller(
       // result type, RenderModeMismatch')
       var encounteredComparisonConfig = false;
 
-      var newResults = [];
-      for (var i = 0; i < testDataSubset.length; i++) {
-        var actualResult = testDataSubset[i];
-        var expectedResult = {
-          builder: actualResult['builder'],
-          test: actualResult['test'],
-          config: actualResult['config'],
-          expectedHashType: actualResult['actualHashType'],
-          expectedHashDigest: actualResult['actualHashDigest'],
-        };
-        if (0 == expectedResult.config.indexOf('comparison-')) {
+      var updatedExpectations = [];
+      for (var i = 0; i < imagePairsSubset.length; i++) {
+        var imagePair = imagePairsSubset[i];
+        var updatedExpectation = {};
+        updatedExpectation[constants.KEY__EXPECTATIONS_DATA] =
+            imagePair[constants.KEY__EXPECTATIONS_DATA];
+        updatedExpectation[constants.KEY__EXTRA_COLUMN_VALUES] =
+            imagePair[constants.KEY__EXTRA_COLUMN_VALUES];
+        updatedExpectation[constants.KEY__NEW_IMAGE_URL] =
+            imagePair[constants.KEY__IMAGE_B_URL];
+        if (0 == updatedExpectation[constants.KEY__EXTRA_COLUMN_VALUES]
+                                   [constants.KEY__EXTRACOLUMN__CONFIG]
+                                   .indexOf('comparison-')) {
           encounteredComparisonConfig = true;
         }
 
         // Advanced settings...
-        expectedResult['reviewed-by-human'] =
-            $scope.submitAdvancedSettings['reviewed-by-human'];
-        if (true == $scope.submitAdvancedSettings['ignore-failure']) {
-          // if it's false, don't send it at all (just keep the default)
-          expectedResult['ignore-failure'] = true;
+        if (null == updatedExpectation[constants.KEY__EXPECTATIONS_DATA]) {
+          updatedExpectation[constants.KEY__EXPECTATIONS_DATA] = {};
         }
-        expectedResult['bugs'] = bugs;
+        updatedExpectation[constants.KEY__EXPECTATIONS_DATA]
+                          [constants.KEY__EXPECTATIONS__REVIEWED] =
+            $scope.submitAdvancedSettings[
+                constants.KEY__EXPECTATIONS__REVIEWED];
+        if (true == $scope.submitAdvancedSettings[
+            constants.KEY__EXPECTATIONS__IGNOREFAILURE]) {
+          // if it's false, don't send it at all (just keep the default)
+          updatedExpectation[constants.KEY__EXPECTATIONS_DATA]
+                            [constants.KEY__EXPECTATIONS__IGNOREFAILURE] = true;
+        }
+        updatedExpectation[constants.KEY__EXPECTATIONS_DATA]
+                          [constants.KEY__EXPECTATIONS__BUGS] = bugs;
 
-        newResults.push(expectedResult);
+        updatedExpectations.push(updatedExpectation);
       }
       if (encounteredComparisonConfig) {
         alert("Approval failed -- you cannot approve results with config " +
@@ -507,21 +561,24 @@ Loader.controller(
         $scope.submitPending = false;
         return;
       }
+      var modificationData = {};
+      modificationData[constants.KEY__EDITS__MODIFICATIONS] =
+          updatedExpectations;
+      modificationData[constants.KEY__EDITS__OLD_RESULTS_HASH] =
+          $scope.header[constants.KEY__HEADER__DATAHASH];
+      modificationData[constants.KEY__EDITS__OLD_RESULTS_TYPE] =
+          $scope.header[constants.KEY__HEADER__TYPE];
       $http({
         method: "POST",
         url: "/edits",
-        data: {
-          oldResultsType: $scope.header.type,
-          oldResultsHash: $scope.header.dataHash,
-          modifications: newResults
-        }
+        data: modificationData
       }).success(function(data, status, headers, config) {
-        var itemIndicesToMove = [];
-        for (var i = 0; i < testDataSubset.length; i++) {
-          itemIndicesToMove.push(testDataSubset[i].index);
+        var imagePairIndicesToMove = [];
+        for (var i = 0; i < imagePairsSubset.length; i++) {
+          imagePairIndicesToMove.push(imagePairsSubset[i].index);
         }
-        $scope.moveItemsToTab(itemIndicesToMove,
-                              "HackToMakeSureThisItemDisappears");
+        $scope.moveImagePairsToTab(imagePairIndicesToMove,
+                                   "HackToMakeSureThisImagePairDisappears");
         $scope.updateResults();
         alert("New baselines submitted successfully!\n\n" +
             "You still need to commit the updated expectations files on " +
@@ -680,6 +737,24 @@ Loader.controller(
     $scope.brightnessStringToHexColor = function(brightnessString) {
       var v = parseInt(brightnessString);
       return $scope.hexColorString(v, v, v);
+    }
+
+    /**
+     * Returns the last path component of image diff URL for a given ImagePair.
+     *
+     * Depending on which diff this is (whitediffs, pixeldiffs, etc.) this
+     * will be relative to different base URLs.
+     *
+     * We must keep this function in sync with _get_difference_locator() in
+     * ../imagediffdb.py
+     *
+     * @param imagePair: ImagePair to generate image diff URL for
+     */
+    $scope.getImageDiffRelativeUrl = function(imagePair) {
+      var before =
+          imagePair[constants.KEY__IMAGE_A_URL] + "-vs-" +
+          imagePair[constants.KEY__IMAGE_B_URL];
+      return before.replace(/[^\w\-]/g, "_") + ".png";
     }
 
   }

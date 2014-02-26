@@ -10,6 +10,7 @@ ColumnHeaderFactory class (see class docstring for details)
 """
 
 # Keys used within dictionary representation of each column header.
+# NOTE: Keep these in sync with static/constants.js
 KEY__HEADER_TEXT = 'headerText'
 KEY__HEADER_URL = 'headerUrl'
 KEY__IS_FILTERABLE = 'isFilterable'

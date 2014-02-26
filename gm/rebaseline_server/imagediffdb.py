@@ -43,6 +43,14 @@ WHITEDIFFS_SUBDIR = 'whitediffs'
 
 VALUES_PER_BAND = 256
 
+# Keys used within DiffRecord dictionary representations.
+# NOTE: Keep these in sync with static/constants.js
+KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL = 'maxDiffPerChannel'
+KEY__DIFFERENCE_DATA__NUM_DIFF_PIXELS = 'numDifferingPixels'
+KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS = 'percentDifferingPixels'
+KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF = 'perceptualDifference'
+KEY__DIFFERENCE_DATA__WEIGHTED_DIFF = 'weightedDiffMeasure'
+
 
 class DiffRecord(object):
   """ Record of differences between two images. """
@@ -186,10 +194,12 @@ class DiffRecord(object):
     """Returns a dictionary representation of this DiffRecord, as needed when
     constructing the JSON representation."""
     return {
-        'numDifferingPixels': self._num_pixels_differing,
-        'percentDifferingPixels': self.get_percent_pixels_differing(),
-        'weightedDiffMeasure': self.get_weighted_diff_measure(),
-        'maxDiffPerChannel': self._max_diff_per_channel,
+        KEY__DIFFERENCE_DATA__NUM_DIFF_PIXELS: self._num_pixels_differing,
+        KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS:
+            self.get_percent_pixels_differing(),
+        KEY__DIFFERENCE_DATA__WEIGHTED_DIFF: self.get_weighted_diff_measure(),
+        KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL: self._max_diff_per_channel,
+        KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF: self._perceptual_difference,
     }
 
 
@@ -286,6 +296,7 @@ def _calculate_weighted_diff_metric(histogram, num_pixels):
     total_diff += histogram[index] * (index % VALUES_PER_BAND)**2
   return float(100 * total_diff) / max_diff
 
+
 def _max_per_band(histogram):
   """Given the histogram of an image, return the maximum value of each band
   (a.k.a. "color channel", such as R/G/B) across the entire image.
@@ -312,6 +323,7 @@ def _max_per_band(histogram):
         break
   return max_per_band
 
+
 def _generate_image_diff(image1, image2):
   """Wrapper for ImageChops.difference(image1, image2) that will handle some
   errors automatically, or at least yield more useful error messages.
@@ -333,6 +345,7 @@ def _generate_image_diff(image1, image2):
         repr(image1), repr(image2)))
     raise
 
+
 def _download_and_open_image(local_filepath, url):
   """Open the image at local_filepath; if there is no file at that path,
   download it from url to that path and then open it.
@@ -350,6 +363,7 @@ def _download_and_open_image(local_filepath, url):
         shutil.copyfileobj(fsrc=url_handle, fdst=file_handle)
   return _open_image(local_filepath)
 
+
 def _open_image(filepath):
   """Wrapper for Image.open(filepath) that yields more useful error messages.
 
@@ -364,6 +378,7 @@ def _open_image(filepath):
     logging.error('IOError loading image file %s' % filepath)
     raise
 
+
 def _save_image(image, filepath, format='PNG'):
   """Write an image to disk, creating any intermediate directories as needed.
 
@@ -376,6 +391,7 @@ def _save_image(image, filepath, format='PNG'):
   _mkdir_unless_exists(os.path.dirname(filepath))
   image.save(filepath, format)
 
+
 def _mkdir_unless_exists(path):
   """Unless path refers to an already-existing directory, create it.
 
@@ -384,6 +400,7 @@ def _mkdir_unless_exists(path):
   """
   if not os.path.isdir(path):
     os.makedirs(path)
+
 
 def _sanitize_locator(locator):
   """Returns a sanitized version of a locator (one in which we know none of the
@@ -394,9 +411,13 @@ def _sanitize_locator(locator):
   """
   return DISALLOWED_FILEPATH_CHAR_REGEX.sub('_', str(locator))
 
+
 def _get_difference_locator(expected_image_locator, actual_image_locator):
   """Returns the locator string used to look up the diffs between expected_image
   and actual_image.
+
+  We must keep this function in sync with getImageDiffRelativeUrl() in
+  static/loader.js
 
   Args:
     expected_image_locator: locator string pointing at expected image

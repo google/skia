@@ -1,526 +1,545 @@
 {
-  "categories": {
+  "extraColumnHeaders": {
     "builder": {
-      "Test-Android-GalaxyNexus-SGX540-Arm7-Release": 13, 
-      "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug": 15
+      "headerText": "builder", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "Test-Android-GalaxyNexus-SGX540-Arm7-Release": 13, 
+        "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug": 15
+      }
     }, 
     "config": {
-      "565": 9, 
-      "8888": 9, 
-      "gpu": 4, 
-      "pdf-mac": 3, 
-      "pdf-poppler": 3
-    }, 
-    "ignore-failure": {
-      "null": 12, 
-      "false": 16
+      "headerText": "config", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "565": 9, 
+        "8888": 9, 
+        "gpu": 4, 
+        "pdf-mac": 3, 
+        "pdf-poppler": 3
+      }
     }, 
     "resultType": {
-      "failed": 1, 
-      "failure-ignored": 4, 
-      "no-comparison": 9, 
-      "succeeded": 14
-    }, 
-    "reviewed-by-human": {
-      "null": 16, 
-      "false": 12
+      "headerText": "resultType", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "failed": 1, 
+        "failure-ignored": 4, 
+        "no-comparison": 9, 
+        "succeeded": 14
+      }
     }, 
     "test": {
-      "3x3bitmaprect": 7, 
-      "aaclip": 2, 
-      "bigblurs": 7, 
-      "bitmapsource": 2, 
-      "displacement": 5, 
-      "filterbitmap_checkerboard_192_192": 2, 
-      "filterbitmap_checkerboard_32_2": 2, 
-      "texdata": 1
+      "headerText": "test", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "3x3bitmaprect": 7, 
+        "aaclip": 2, 
+        "bigblurs": 7, 
+        "bitmapsource": 2, 
+        "displacement": 5, 
+        "filterbitmap_checkerboard_192_192": 2, 
+        "filterbitmap_checkerboard_32_2": 2, 
+        "texdata": 1
+      }
     }
   }, 
-  "testData": [
+  "imagePairs": [
     {
-      "actualHashDigest": "3695033638604474475", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": null, 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "gpu", 
-      "expectedHashDigest": "2736593828543197285", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": false, 
-      "maxDiffPerChannel": [
-        128, 
-        128, 
-        128
-      ], 
-      "numDifferingPixels": 120000, 
-      "percentDifferingPixels": 75.0, 
-      "perceptualDifference": 50.122499999999995, 
-      "resultType": "failed", 
-      "reviewed-by-human": null, 
-      "test": "texdata", 
-      "weightedDiffMeasure": 8.413046264257337
+      "differenceData": {
+        "maxDiffPerChannel": [
+          128, 
+          128, 
+          128
+        ], 
+        "numDifferingPixels": 120000, 
+        "percentDifferingPixels": 75.0, 
+        "perceptualDifference": 50.122499999999995, 
+        "weightedDiffMeasure": 8.413046264257337
+      }, 
+      "expectations": {
+        "bugs": null, 
+        "ignore-failure": false, 
+        "reviewed-by-human": null
+      }, 
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "gpu", 
+        "resultType": "failed", 
+        "test": "texdata"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/texdata/2736593828543197285.png", 
+      "imageBUrl": "bitmap-64bitMD5/texdata/3695033638604474475.png", 
+      "isDifferent": true
     }, 
     {
-      "actualHashDigest": "4719210487426381700", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "565", 
-      "expectedHashDigest": "13270012198930365496", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": [
-        222, 
-        223, 
-        222
-      ], 
-      "numDifferingPixels": 77691, 
-      "percentDifferingPixels": 17.593070652173914, 
-      "perceptualDifference": 100, 
-      "resultType": "failure-ignored", 
-      "reviewed-by-human": false, 
-      "test": "filterbitmap_checkerboard_192_192", 
-      "weightedDiffMeasure": 3.661184599893761
+      "differenceData": {
+        "maxDiffPerChannel": [
+          222, 
+          223, 
+          222
+        ], 
+        "numDifferingPixels": 77691, 
+        "percentDifferingPixels": 17.593070652173914, 
+        "perceptualDifference": 100, 
+        "weightedDiffMeasure": 3.661184599893761
+      }, 
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "565", 
+        "resultType": "failure-ignored", 
+        "test": "filterbitmap_checkerboard_192_192"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/13270012198930365496.png", 
+      "imageBUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/4719210487426381700.png", 
+      "isDifferent": true
     }, 
     {
-      "actualHashDigest": "3154864687054945306", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "8888", 
-      "expectedHashDigest": "14746826424040775628", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": [
-        221, 
-        221, 
-        221
-      ], 
-      "numDifferingPixels": 82952, 
-      "percentDifferingPixels": 18.784420289855074, 
-      "perceptualDifference": 100, 
-      "resultType": "failure-ignored", 
-      "reviewed-by-human": false, 
-      "test": "filterbitmap_checkerboard_192_192", 
-      "weightedDiffMeasure": 3.6140912497422955
+      "differenceData": {
+        "maxDiffPerChannel": [
+          221, 
+          221, 
+          221
+        ], 
+        "numDifferingPixels": 82952, 
+        "percentDifferingPixels": 18.784420289855074, 
+        "perceptualDifference": 100, 
+        "weightedDiffMeasure": 3.6140912497422955
+      }, 
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "8888", 
+        "resultType": "failure-ignored", 
+        "test": "filterbitmap_checkerboard_192_192"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/14746826424040775628.png", 
+      "imageBUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/3154864687054945306.png", 
+      "isDifferent": true
     }, 
     {
-      "actualHashDigest": "15528304435129737588", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "565", 
-      "expectedHashDigest": "16197252621792695154", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": [
-        222, 
-        223, 
-        222
-      ], 
-      "numDifferingPixels": 53150, 
-      "percentDifferingPixels": 12.035778985507246, 
-      "perceptualDifference": 100, 
-      "resultType": "failure-ignored", 
-      "reviewed-by-human": false, 
-      "test": "filterbitmap_checkerboard_32_2", 
-      "weightedDiffMeasure": 3.713243437353155
+      "differenceData": {
+        "maxDiffPerChannel": [
+          222, 
+          223, 
+          222
+        ], 
+        "numDifferingPixels": 53150, 
+        "percentDifferingPixels": 12.035778985507246, 
+        "perceptualDifference": 100, 
+        "weightedDiffMeasure": 3.713243437353155
+      }, 
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "565", 
+        "resultType": "failure-ignored", 
+        "test": "filterbitmap_checkerboard_32_2"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_32_2/16197252621792695154.png", 
+      "imageBUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_32_2/15528304435129737588.png", 
+      "isDifferent": true
     }, 
     {
-      "actualHashDigest": "712827739969462165", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "8888", 
-      "expectedHashDigest": "7634650333321761866", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": [
-        221, 
-        221, 
-        221
-      ], 
-      "numDifferingPixels": 53773, 
-      "percentDifferingPixels": 12.17685688405797, 
-      "perceptualDifference": 100, 
-      "resultType": "failure-ignored", 
-      "reviewed-by-human": false, 
-      "test": "filterbitmap_checkerboard_32_2", 
-      "weightedDiffMeasure": 3.6723483686597684
+      "differenceData": {
+        "maxDiffPerChannel": [
+          221, 
+          221, 
+          221
+        ], 
+        "numDifferingPixels": 53773, 
+        "percentDifferingPixels": 12.17685688405797, 
+        "perceptualDifference": 100, 
+        "weightedDiffMeasure": 3.6723483686597684
+      }, 
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "8888", 
+        "resultType": "failure-ignored", 
+        "test": "filterbitmap_checkerboard_32_2"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_32_2/7634650333321761866.png", 
+      "imageBUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_32_2/712827739969462165.png", 
+      "isDifferent": true
     }, 
     {
-      "actualHashDigest": "2422083043229439955", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "565", 
-      "expectedHashDigest": "None", 
-      "expectedHashType": null, 
-      "ignore-failure": false, 
-      "resultType": "no-comparison", 
-      "test": "bigblurs"
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "565", 
+        "resultType": "no-comparison", 
+        "test": "bigblurs"
+      }, 
+      "imageAUrl": null, 
+      "imageBUrl": "bitmap-64bitMD5/bigblurs/2422083043229439955.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "17309852422285247848", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "8888", 
-      "expectedHashDigest": "None", 
-      "expectedHashType": null, 
-      "ignore-failure": false, 
-      "resultType": "no-comparison", 
-      "test": "bigblurs"
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "8888", 
+        "resultType": "no-comparison", 
+        "test": "bigblurs"
+      }, 
+      "imageAUrl": null, 
+      "imageBUrl": "bitmap-64bitMD5/bigblurs/17309852422285247848.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "17503582803589749280", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "565", 
-      "expectedHashDigest": "None", 
-      "expectedHashType": null, 
-      "ignore-failure": false, 
-      "resultType": "no-comparison", 
-      "test": "bitmapsource"
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "565", 
+        "resultType": "no-comparison", 
+        "test": "bitmapsource"
+      }, 
+      "imageAUrl": null, 
+      "imageBUrl": "bitmap-64bitMD5/bitmapsource/17503582803589749280.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "16289727936158057543", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "8888", 
-      "expectedHashDigest": "None", 
-      "expectedHashType": null, 
-      "ignore-failure": false, 
-      "resultType": "no-comparison", 
-      "test": "bitmapsource"
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "8888", 
+        "resultType": "no-comparison", 
+        "test": "bitmapsource"
+      }, 
+      "imageAUrl": null, 
+      "imageBUrl": "bitmap-64bitMD5/bitmapsource/16289727936158057543.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "16998423976396106083", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "565", 
-      "expectedHashDigest": "16998423976396106083", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": false, 
-      "test": "3x3bitmaprect", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "565", 
+        "resultType": "succeeded", 
+        "test": "3x3bitmaprect"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/16998423976396106083.png", 
+      "imageBUrl": "bitmap-64bitMD5/3x3bitmaprect/16998423976396106083.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "2054956815327187963", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "8888", 
-      "expectedHashDigest": "2054956815327187963", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": false, 
-      "test": "3x3bitmaprect", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "8888", 
+        "resultType": "succeeded", 
+        "test": "3x3bitmaprect"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
+      "imageBUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "6190901827590820995", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": null, 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "565", 
-      "expectedHashDigest": "6190901827590820995", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": false, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": null, 
-      "test": "aaclip", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": null, 
+        "ignore-failure": false, 
+        "reviewed-by-human": null
+      }, 
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "565", 
+        "resultType": "succeeded", 
+        "test": "aaclip"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/aaclip/6190901827590820995.png", 
+      "imageBUrl": "bitmap-64bitMD5/aaclip/6190901827590820995.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "14456211900777561488", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": null, 
-      "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
-      "config": "8888", 
-      "expectedHashDigest": "14456211900777561488", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": false, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": null, 
-      "test": "aaclip", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": null, 
+        "ignore-failure": false, 
+        "reviewed-by-human": null
+      }, 
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "8888", 
+        "resultType": "succeeded", 
+        "test": "aaclip"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/aaclip/14456211900777561488.png", 
+      "imageBUrl": "bitmap-64bitMD5/aaclip/14456211900777561488.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "4569468668668628191", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": null, 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "565", 
-      "expectedHashDigest": "4569468668668628191", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": false, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": null, 
-      "test": "displacement", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": null, 
+        "ignore-failure": false, 
+        "reviewed-by-human": null
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "565", 
+        "resultType": "succeeded", 
+        "test": "displacement"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/displacement/4569468668668628191.png", 
+      "imageBUrl": "bitmap-64bitMD5/displacement/4569468668668628191.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "11401048196735046263", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": null, 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "8888", 
-      "expectedHashDigest": "11401048196735046263", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": false, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": null, 
-      "test": "displacement", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": null, 
+        "ignore-failure": false, 
+        "reviewed-by-human": null
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "8888", 
+        "resultType": "succeeded", 
+        "test": "displacement"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/displacement/11401048196735046263.png", 
+      "imageBUrl": "bitmap-64bitMD5/displacement/11401048196735046263.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "5698561127291561694", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": null, 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "gpu", 
-      "expectedHashDigest": "5698561127291561694", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": false, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": null, 
-      "test": "displacement", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": null, 
+        "ignore-failure": false, 
+        "reviewed-by-human": null
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "gpu", 
+        "resultType": "succeeded", 
+        "test": "displacement"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/displacement/5698561127291561694.png", 
+      "imageBUrl": "bitmap-64bitMD5/displacement/5698561127291561694.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "12901125495691049846", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": null, 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "pdf-mac", 
-      "expectedHashDigest": "12901125495691049846", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": false, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": null, 
-      "test": "displacement", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": null, 
+        "ignore-failure": false, 
+        "reviewed-by-human": null
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "pdf-mac", 
+        "resultType": "succeeded", 
+        "test": "displacement"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/displacement/12901125495691049846.png", 
+      "imageBUrl": "bitmap-64bitMD5/displacement/12901125495691049846.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "16285974094717334658", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "pdf-poppler", 
-      "expectedHashDigest": "16285974094717334658", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": false, 
-      "test": "displacement", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "pdf-poppler", 
+        "resultType": "succeeded", 
+        "test": "displacement"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/displacement/16285974094717334658.png", 
+      "imageBUrl": "bitmap-64bitMD5/displacement/16285974094717334658.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "14704206703218007573", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "565", 
-      "expectedHashDigest": "None", 
-      "expectedHashType": null, 
-      "ignore-failure": false, 
-      "resultType": "no-comparison", 
-      "test": "bigblurs"
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "565", 
+        "resultType": "no-comparison", 
+        "test": "bigblurs"
+      }, 
+      "imageAUrl": null, 
+      "imageBUrl": "bitmap-64bitMD5/bigblurs/14704206703218007573.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "17309852422285247848", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "8888", 
-      "expectedHashDigest": "None", 
-      "expectedHashType": null, 
-      "ignore-failure": false, 
-      "resultType": "no-comparison", 
-      "test": "bigblurs"
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "8888", 
+        "resultType": "no-comparison", 
+        "test": "bigblurs"
+      }, 
+      "imageAUrl": null, 
+      "imageBUrl": "bitmap-64bitMD5/bigblurs/17309852422285247848.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "1822195599289208664", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "gpu", 
-      "expectedHashDigest": "None", 
-      "expectedHashType": null, 
-      "ignore-failure": false, 
-      "resultType": "no-comparison", 
-      "test": "bigblurs"
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "gpu", 
+        "resultType": "no-comparison", 
+        "test": "bigblurs"
+      }, 
+      "imageAUrl": null, 
+      "imageBUrl": "bitmap-64bitMD5/bigblurs/1822195599289208664.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "16171608477794909861", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "pdf-mac", 
-      "expectedHashDigest": "None", 
-      "expectedHashType": null, 
-      "ignore-failure": false, 
-      "resultType": "no-comparison", 
-      "test": "bigblurs"
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "pdf-mac", 
+        "resultType": "no-comparison", 
+        "test": "bigblurs"
+      }, 
+      "imageAUrl": null, 
+      "imageBUrl": "bitmap-64bitMD5/bigblurs/16171608477794909861.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "6539050160610613353", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "pdf-poppler", 
-      "expectedHashDigest": "None", 
-      "expectedHashType": null, 
-      "ignore-failure": false, 
-      "resultType": "no-comparison", 
-      "test": "bigblurs"
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "pdf-poppler", 
+        "resultType": "no-comparison", 
+        "test": "bigblurs"
+      }, 
+      "imageAUrl": null, 
+      "imageBUrl": "bitmap-64bitMD5/bigblurs/6539050160610613353.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "16998423976396106083", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "565", 
-      "expectedHashDigest": "16998423976396106083", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": false, 
-      "test": "3x3bitmaprect", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "565", 
+        "resultType": "succeeded", 
+        "test": "3x3bitmaprect"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/16998423976396106083.png", 
+      "imageBUrl": "bitmap-64bitMD5/3x3bitmaprect/16998423976396106083.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "2054956815327187963", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "8888", 
-      "expectedHashDigest": "2054956815327187963", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": false, 
-      "test": "3x3bitmaprect", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "8888", 
+        "resultType": "succeeded", 
+        "test": "3x3bitmaprect"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
+      "imageBUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "2054956815327187963", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "gpu", 
-      "expectedHashDigest": "2054956815327187963", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": false, 
-      "test": "3x3bitmaprect", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "gpu", 
+        "resultType": "succeeded", 
+        "test": "3x3bitmaprect"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
+      "imageBUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "8518347971308375604", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "pdf-mac", 
-      "expectedHashDigest": "8518347971308375604", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": false, 
-      "test": "3x3bitmaprect", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "pdf-mac", 
+        "resultType": "succeeded", 
+        "test": "3x3bitmaprect"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/8518347971308375604.png", 
+      "imageBUrl": "bitmap-64bitMD5/3x3bitmaprect/8518347971308375604.png", 
+      "isDifferent": false
     }, 
     {
-      "actualHashDigest": "16723580409414313678", 
-      "actualHashType": "bitmap-64bitMD5", 
-      "bugs": [
-        1578
-      ], 
-      "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-      "config": "pdf-poppler", 
-      "expectedHashDigest": "16723580409414313678", 
-      "expectedHashType": "bitmap-64bitMD5", 
-      "ignore-failure": null, 
-      "maxDiffPerChannel": 0, 
-      "numDifferingPixels": 0, 
-      "percentDifferingPixels": 0, 
-      "perceptualDifference": 0, 
-      "resultType": "succeeded", 
-      "reviewed-by-human": false, 
-      "test": "3x3bitmaprect", 
-      "weightedDiffMeasure": 0
+      "expectations": {
+        "bugs": [
+          1578
+        ], 
+        "ignore-failure": null, 
+        "reviewed-by-human": false
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "pdf-poppler", 
+        "resultType": "succeeded", 
+        "test": "3x3bitmaprect"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/16723580409414313678.png", 
+      "imageBUrl": "bitmap-64bitMD5/3x3bitmaprect/16723580409414313678.png", 
+      "isDifferent": false
+    }
+  ], 
+  "imageSets": [
+    {
+      "baseUrl": "http://chromium-skia-gm.commondatastorage.googleapis.com/gm", 
+      "description": "expected image"
+    }, 
+    {
+      "baseUrl": "http://chromium-skia-gm.commondatastorage.googleapis.com/gm", 
+      "description": "actual image"
     }
   ]
 }

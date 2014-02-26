@@ -87,6 +87,7 @@ class ImagePairTest(unittest.TestCase):
                     'maxDiffPerChannel': [255, 255, 247],
                     'numDifferingPixels': 662,
                     'percentDifferingPixels': 0.0662,
+                    'perceptualDifference': 0.06620000000000914,
                     'weightedDiffMeasure': 0.01127756555171088,
                 },
                 'imageAUrl': 'arcofzorro/16206093933823793653.png',
@@ -113,6 +114,7 @@ class ImagePairTest(unittest.TestCase):
                     'maxDiffPerChannel': [255, 0, 255],
                     'numDifferingPixels': 102400,
                     'percentDifferingPixels': 100.00,
+                    'perceptualDifference': 100.00,
                     'weightedDiffMeasure': 66.66666666666667,
                 },
                 'expectations': {

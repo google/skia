@@ -32,27 +32,43 @@ if GM_DIRECTORY not in sys.path:
   sys.path.append(GM_DIRECTORY)
 import gm_json
 import imagediffdb
+import imagepair
+import imagepairset
+
+# Keys used to link an image to a particular GM test.
+# NOTE: Keep these in sync with static/constants.js
+KEY__EXPECTATIONS__BUGS = gm_json.JSONKEY_EXPECTEDRESULTS_BUGS
+KEY__EXPECTATIONS__IGNOREFAILURE = gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE
+KEY__EXPECTATIONS__REVIEWED = gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED
+KEY__EXTRACOLUMN__BUILDER = 'builder'
+KEY__EXTRACOLUMN__CONFIG = 'config'
+KEY__EXTRACOLUMN__RESULT_TYPE = 'resultType'
+KEY__EXTRACOLUMN__TEST = 'test'
+KEY__HEADER__RESULTS_ALL = 'all'
+KEY__HEADER__RESULTS_FAILURES = 'failures'
+KEY__NEW_IMAGE_URL = 'newImageUrl'
+KEY__RESULT_TYPE__FAILED = gm_json.JSONKEY_ACTUALRESULTS_FAILED
+KEY__RESULT_TYPE__FAILUREIGNORED = gm_json.JSONKEY_ACTUALRESULTS_FAILUREIGNORED
+KEY__RESULT_TYPE__NOCOMPARISON = gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON
+KEY__RESULT_TYPE__SUCCEEDED = gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED
+
+EXPECTATION_FIELDS_PASSED_THRU_VERBATIM = [
+    KEY__EXPECTATIONS__BUGS,
+    KEY__EXPECTATIONS__IGNOREFAILURE,
+    KEY__EXPECTATIONS__REVIEWED,
+]
 
 IMAGE_FILENAME_RE = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
 IMAGE_FILENAME_FORMATTER = '%s_%s.png'  # pass in (testname, config)
 
-FIELDS_PASSED_THRU_VERBATIM = [
-    gm_json.JSONKEY_EXPECTEDRESULTS_BUGS,
-    gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE,
-    gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED,
-]
-CATEGORIES_TO_SUMMARIZE = [
-    'builder', 'test', 'config', 'resultType',
-    gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE,
-    gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED,
-]
+IMAGEPAIR_SET_DESCRIPTIONS = ('expected image', 'actual image')
 
-RESULTS_ALL = 'all'
-RESULTS_FAILURES = 'failures'
 
 class Results(object):
-  """ Loads actual and expected results from all builders, supplying combined
-  reports as requested.
+  """ Loads actual and expected GM results into an ImagePairSet.
+
+  Loads actual and expected results from all builders, except for those skipped
+  by _ignore_builder().
 
   Once this object has been constructed, the results (in self._results[])
   are immutable.  If you want to update the results based on updated JSON
@@ -94,14 +110,17 @@ class Results(object):
 
          [
            {
-             'builder': 'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug',
-             'test': 'bigmatrix',
-             'config': '8888',
-             'expectedHashType': 'bitmap-64bitMD5',
-             'expectedHashDigest': '10894408024079689926',
-             'bugs': [123, 456],
-             'ignore-failure': false,
-             'reviewed-by-human': true,
+             imagepair.KEY__EXPECTATIONS_DATA: {
+               KEY__EXPECTATIONS__BUGS: [123, 456],
+               KEY__EXPECTATIONS__IGNOREFAILURE: false,
+               KEY__EXPECTATIONS__REVIEWED: true,
+             },
+             imagepair.KEY__EXTRA_COLUMN_VALUES: {
+               KEY__EXTRACOLUMN__BUILDER: 'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug',
+               KEY__EXTRACOLUMN__CONFIG: '8888',
+               KEY__EXTRACOLUMN__TEST: 'bigmatrix',
+             },
+             KEY__NEW_IMAGE_URL: 'bitmap-64bitMD5/bigmatrix/10894408024079689926.png',
            },
            ...
          ]
@@ -109,18 +128,21 @@ class Results(object):
     """
     expected_builder_dicts = Results._read_dicts_from_root(self._expected_root)
     for mod in modifications:
-      image_name = IMAGE_FILENAME_FORMATTER % (mod['test'], mod['config'])
-      # TODO(epoger): assumes a single allowed digest per test
-      allowed_digests = [[mod['expectedHashType'],
-                          int(mod['expectedHashDigest'])]]
+      image_name = IMAGE_FILENAME_FORMATTER % (
+          mod[imagepair.KEY__EXTRA_COLUMN_VALUES][KEY__EXTRACOLUMN__TEST],
+          mod[imagepair.KEY__EXTRA_COLUMN_VALUES][KEY__EXTRACOLUMN__CONFIG])
+      _, hash_type, hash_digest = gm_json.SplitGmRelativeUrl(
+          mod[KEY__NEW_IMAGE_URL])
+      allowed_digests = [[hash_type, int(hash_digest)]]
       new_expectations = {
           gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS: allowed_digests,
       }
-      for field in FIELDS_PASSED_THRU_VERBATIM:
-        value = mod.get(field)
+      for field in EXPECTATION_FIELDS_PASSED_THRU_VERBATIM:
+        value = mod[imagepair.KEY__EXPECTATIONS_DATA].get(field)
         if value is not None:
           new_expectations[field] = value
-      builder_dict = expected_builder_dicts[mod['builder']]
+      builder_dict = expected_builder_dicts[
+          mod[imagepair.KEY__EXTRA_COLUMN_VALUES][KEY__EXTRACOLUMN__BUILDER]]
       builder_expectations = builder_dict.get(gm_json.JSONKEY_EXPECTEDRESULTS)
       if not builder_expectations:
         builder_expectations = {}
@@ -135,47 +157,7 @@ class Results(object):
       type: string describing which types of results to include; must be one
             of the RESULTS_* constants
 
-    Results are returned as a dictionary in this form:
-
-       {
-         'categories': # dictionary of categories listed in
-                       # CATEGORIES_TO_SUMMARIZE, with the number of times
-                       # each value appears within its category
-         {
-           'resultType': # category name
-           {
-             'failed': 29, # category value and total number found of that value
-             'failure-ignored': 948,
-             'no-comparison': 4502,
-             'succeeded': 38609,
-           },
-           'builder':
-           {
-             'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug': 1286,
-             'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release': 1134,
-             ...
-           },
-           ... # other categories from CATEGORIES_TO_SUMMARIZE
-         }, # end of 'categories' dictionary
-
-         'testData': # list of test results, with a dictionary for each
-         [
-           {
-             'resultType': 'failed',
-             'builder': 'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug',
-             'test': 'bigmatrix',
-             'config': '8888',
-             'expectedHashType': 'bitmap-64bitMD5',
-             'expectedHashDigest': '10894408024079689926',
-             'actualHashType': 'bitmap-64bitMD5',
-             'actualHashDigest': '2409857384569',
-             'bugs': [123, 456],
-             'ignore-failure': false,
-             'reviewed-by-human': true,
-           },
-           ...
-         ], # end of 'testData' list
-       }
+    Results are returned in a dictionary as output by ImagePairSet.as_dict().
     """
     return self._results[type]
 
@@ -227,6 +209,24 @@ class Results(object):
     return meta_dict
 
   @staticmethod
+  def _create_relative_url(hashtype_and_digest, test_name):
+    """Returns the URL for this image, relative to GM_ACTUALS_ROOT_HTTP_URL.
+
+    If we don't have a record of this image, returns None.
+
+    Args:
+      hashtype_and_digest: (hash_type, hash_digest) tuple, or None if we
+          don't have a record of this image
+      test_name: string; name of the GM test that created this image
+    """
+    if not hashtype_and_digest:
+      return None
+    return gm_json.CreateGmRelativeUrl(
+        test_name=test_name,
+        hash_type=hashtype_and_digest[0],
+        hash_digest=hashtype_and_digest[1])
+
+  @staticmethod
   def _write_dicts_to_root(meta_dict, root, pattern='*.json'):
     """Write all per-builder dictionaries within meta_dict to files under
     the root path.
@@ -272,36 +272,6 @@ class Results(object):
           'for builders %s' % (
               expected_builders_written, actual_builders_written))
 
-  def _generate_pixel_diffs_if_needed(self, test, expected_image, actual_image):
-    """If expected_image and actual_image both exist but are different,
-    add the image pair to self._image_diff_db and generate pixel diffs.
-
-    Args:
-      test: string; name of test
-      expected_image: (hashType, hashDigest) tuple describing the expected image
-      actual_image: (hashType, hashDigest) tuple describing the actual image
-    """
-    if expected_image == actual_image:
-      return
-
-    (expected_hashtype, expected_hashdigest) = expected_image
-    (actual_hashtype, actual_hashdigest) = actual_image
-    if None in [expected_hashtype, expected_hashdigest,
-                actual_hashtype, actual_hashdigest]:
-      return
-
-    expected_url = gm_json.CreateGmActualUrl(
-        test_name=test, hash_type=expected_hashtype,
-        hash_digest=expected_hashdigest)
-    actual_url = gm_json.CreateGmActualUrl(
-        test_name=test, hash_type=actual_hashtype,
-        hash_digest=actual_hashdigest)
-    self._image_diff_db.add_image_pair(
-        expected_image_locator=expected_hashdigest,
-        expected_image_url=expected_url,
-        actual_image_locator=actual_hashdigest,
-        actual_image_url=actual_url)
-
   def _load_actual_and_expected(self):
     """Loads the results of all tests, across all builders (based on the
     files within self._actuals_root and self._expected_root),
@@ -314,25 +284,23 @@ class Results(object):
                  self._expected_root)
     expected_builder_dicts = Results._read_dicts_from_root(self._expected_root)
 
-    categories_all = {}
-    categories_failures = {}
+    all_image_pairs = imagepairset.ImagePairSet(IMAGEPAIR_SET_DESCRIPTIONS)
+    failing_image_pairs = imagepairset.ImagePairSet(IMAGEPAIR_SET_DESCRIPTIONS)
 
-    Results._ensure_included_in_category_dict(categories_all,
-                                              'resultType', [
-        gm_json.JSONKEY_ACTUALRESULTS_FAILED,
-        gm_json.JSONKEY_ACTUALRESULTS_FAILUREIGNORED,
-        gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON,
-        gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED,
+    all_image_pairs.ensure_extra_column_values_in_summary(
+        column_id=KEY__EXTRACOLUMN__RESULT_TYPE, values=[
+            KEY__RESULT_TYPE__FAILED,
+            KEY__RESULT_TYPE__FAILUREIGNORED,
+            KEY__RESULT_TYPE__NOCOMPARISON,
+            KEY__RESULT_TYPE__SUCCEEDED,
         ])
-    Results._ensure_included_in_category_dict(categories_failures,
-                                              'resultType', [
-        gm_json.JSONKEY_ACTUALRESULTS_FAILED,
-        gm_json.JSONKEY_ACTUALRESULTS_FAILUREIGNORED,
-        gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON,
+    failing_image_pairs.ensure_extra_column_values_in_summary(
+        column_id=KEY__EXTRACOLUMN__RESULT_TYPE, values=[
+            KEY__RESULT_TYPE__FAILED,
+            KEY__RESULT_TYPE__FAILUREIGNORED,
+            KEY__RESULT_TYPE__NOCOMPARISON,
         ])
 
-    data_all = []
-    data_failures = []
     builders = sorted(actual_builder_dicts.keys())
     num_builders = len(builders)
     builder_num = 0
@@ -347,19 +315,30 @@ class Results(object):
         if not results_of_this_type:
           continue
         for image_name in sorted(results_of_this_type.keys()):
-          actual_image = results_of_this_type[image_name]
+          (test, config) = IMAGE_FILENAME_RE.match(image_name).groups()
+          actual_image_relative_url = Results._create_relative_url(
+              hashtype_and_digest=results_of_this_type[image_name],
+              test_name=test)
 
           # Default empty expectations; overwrite these if we find any real ones
           expectations_per_test = None
-          expected_image = [None, None]
+          expected_image_relative_url = None
+          expectations_dict = None
           try:
             expectations_per_test = (
                 expected_builder_dicts
                 [builder][gm_json.JSONKEY_EXPECTEDRESULTS][image_name])
-            # TODO(epoger): assumes a single allowed digest per test
-            expected_image = (
+            # TODO(epoger): assumes a single allowed digest per test, which is
+            # fine; see https://code.google.com/p/skia/issues/detail?id=1787
+            expected_image_hashtype_and_digest = (
                 expectations_per_test
                 [gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS][0])
+            expected_image_relative_url = Results._create_relative_url(
+                hashtype_and_digest=expected_image_hashtype_and_digest,
+                test_name=test)
+            expectations_dict = {}
+            for field in EXPECTATION_FIELDS_PASSED_THRU_VERBATIM:
+              expectations_dict[field] = expectations_per_test.get(field)
           except (KeyError, TypeError):
             # There are several cases in which we would expect to find
             # no expectations for a given test:
@@ -380,11 +359,11 @@ class Results(object):
             # Log other types, because they are rare and we should know about
             # them, but don't throw an exception, because we need to keep our
             # tools working in the meanwhile!
-            if result_type != gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON:
+            if result_type != KEY__RESULT_TYPE__NOCOMPARISON:
               logging.warning('No expectations found for test: %s' % {
-                  'builder': builder,
+                  KEY__EXTRACOLUMN__BUILDER: builder,
+                  KEY__EXTRACOLUMN__RESULT_TYPE: result_type,
                   'image_name': image_name,
-                  'result_type': result_type,
                   })
 
           # If this test was recently rebaselined, it will remain in
@@ -400,121 +379,31 @@ class Results(object):
           # categories recorded within the gm_actuals AT ALL, and
           # instead evaluate the result_type ourselves based on what
           # we see in expectations vs actual checksum?
-          if expected_image == actual_image:
-            updated_result_type = gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED
+          if expected_image_relative_url == actual_image_relative_url:
+            updated_result_type = KEY__RESULT_TYPE__SUCCEEDED
           else:
             updated_result_type = result_type
-
-          (test, config) = IMAGE_FILENAME_RE.match(image_name).groups()
-          self._generate_pixel_diffs_if_needed(
-              test=test, expected_image=expected_image,
-              actual_image=actual_image)
-          results_for_this_test = {
-              'resultType': updated_result_type,
-              'builder': builder,
-              'test': test,
-              'config': config,
-              'actualHashType': actual_image[0],
-              'actualHashDigest': str(actual_image[1]),
-              'expectedHashType': expected_image[0],
-              'expectedHashDigest': str(expected_image[1]),
-
-              # FIELDS_PASSED_THRU_VERBATIM that may be overwritten below...
-              gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE: False,
+          extra_columns_dict = {
+              KEY__EXTRACOLUMN__RESULT_TYPE: updated_result_type,
+              KEY__EXTRACOLUMN__BUILDER: builder,
+              KEY__EXTRACOLUMN__TEST: test,
+              KEY__EXTRACOLUMN__CONFIG: config,
           }
-          if expectations_per_test:
-            for field in FIELDS_PASSED_THRU_VERBATIM:
-              results_for_this_test[field] = expectations_per_test.get(field)
-
-          if updated_result_type == gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON:
-            pass # no diff record to calculate at all
-          elif updated_result_type == gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED:
-            results_for_this_test['numDifferingPixels'] = 0
-            results_for_this_test['percentDifferingPixels'] = 0
-            results_for_this_test['weightedDiffMeasure'] = 0
-            results_for_this_test['perceptualDifference'] = 0
-            results_for_this_test['maxDiffPerChannel'] = 0
-          else:
-            try:
-              diff_record = self._image_diff_db.get_diff_record(
-                  expected_image_locator=expected_image[1],
-                  actual_image_locator=actual_image[1])
-              results_for_this_test['numDifferingPixels'] = (
-                  diff_record.get_num_pixels_differing())
-              results_for_this_test['percentDifferingPixels'] = (
-                  diff_record.get_percent_pixels_differing())
-              results_for_this_test['weightedDiffMeasure'] = (
-                  diff_record.get_weighted_diff_measure())
-              results_for_this_test['perceptualDifference'] = (
-                  diff_record.get_perceptual_difference())
-              results_for_this_test['maxDiffPerChannel'] = (
-                  diff_record.get_max_diff_per_channel())
-            except KeyError:
-              logging.warning('unable to find diff_record for ("%s", "%s")' %
-                              (expected_image[1], actual_image[1]))
-              pass
-
-          Results._add_to_category_dict(categories_all, results_for_this_test)
-          data_all.append(results_for_this_test)
-
-          # TODO(epoger): In effect, we have a list of resultTypes that we
-          # include in the different result lists (data_all and data_failures).
-          # This same list should be used by the calls to
-          # Results._ensure_included_in_category_dict() earlier on.
-          if updated_result_type != gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED:
-            Results._add_to_category_dict(categories_failures,
-                                          results_for_this_test)
-            data_failures.append(results_for_this_test)
+          image_pair = imagepair.ImagePair(
+              image_diff_db=self._image_diff_db,
+              base_url=gm_json.GM_ACTUALS_ROOT_HTTP_URL,
+              imageA_relative_url=expected_image_relative_url,
+              imageB_relative_url=actual_image_relative_url,
+              expectations=expectations_dict,
+              extra_columns=extra_columns_dict)
+          all_image_pairs.add_image_pair(image_pair)
+          if updated_result_type != KEY__RESULT_TYPE__SUCCEEDED:
+            failing_image_pairs.add_image_pair(image_pair)
 
     self._results = {
-      RESULTS_ALL:
-        {'categories': categories_all, 'testData': data_all},
-      RESULTS_FAILURES:
-        {'categories': categories_failures, 'testData': data_failures},
+      KEY__HEADER__RESULTS_ALL: all_image_pairs.as_dict(),
+      KEY__HEADER__RESULTS_FAILURES: failing_image_pairs.as_dict(),
     }
-
-  @staticmethod
-  def _add_to_category_dict(category_dict, test_results):
-    """Add test_results to the category dictionary we are building.
-    (See documentation of self.get_results_of_type() for the format of this
-    dictionary.)
-
-    Args:
-      category_dict: category dict-of-dicts to add to; modify this in-place
-      test_results: test data with which to update category_list, in a dict:
-         {
-           'category_name': 'category_value',
-           'category_name': 'category_value',
-           ...
-         }
-    """
-    for category in CATEGORIES_TO_SUMMARIZE:
-      category_value = test_results.get(category)
-      if not category_dict.get(category):
-        category_dict[category] = {}
-      if not category_dict[category].get(category_value):
-        category_dict[category][category_value] = 0
-      category_dict[category][category_value] += 1
-
-  @staticmethod
-  def _ensure_included_in_category_dict(category_dict,
-                                        category_name, category_values):
-    """Ensure that the category name/value pairs are included in category_dict,
-    even if there aren't any results with that name/value pair.
-    (See documentation of self.get_results_of_type() for the format of this
-    dictionary.)
-
-    Args:
-      category_dict: category dict-of-dicts to modify
-      category_name: category name, as a string
-      category_values: list of values we want to make sure are represented
-                       for this category
-    """
-    if not category_dict.get(category_name):
-      category_dict[category_name] = {}
-    for category_value in category_values:
-      if not category_dict[category_name].get(category_value):
-        category_dict[category_name][category_value] = 0
 
 
 def main():
@@ -538,7 +427,8 @@ def main():
   results = Results(actuals_root=args.actuals,
                     expected_root=args.expectations,
                     generated_images_root=args.workdir)
-  gm_json.WriteToFile(results.get_results_of_type(RESULTS_ALL), args.outfile)
+  gm_json.WriteToFile(results.get_results_of_type(KEY__HEADER__RESULTS_ALL),
+                      args.outfile)
 
 
 if __name__ == '__main__':
