@@ -198,11 +198,11 @@ public:
 
         Iter() {}
 
-        Iter(const SkTLList& list, IterStart start) {
+        Iter(const SkTLList& list, IterStart start = kHead_IterStart) {
             INHERITED::init(list.fList, start);
         }
 
-        T* init(const SkTLList& list, IterStart start) {
+        T* init(const SkTLList& list, IterStart start = kHead_IterStart) {
             return this->nodeToObj(INHERITED::init(list.fList, start));
         }
 
