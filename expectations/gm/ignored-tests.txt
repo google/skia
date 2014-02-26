@@ -28,11 +28,11 @@
 
 # EXAMPLES: (remove the first '#' on each line)
 #
-## Added by epoger as part of MADE-UP BUG
-## https://code.google.com/p/skia/issues/detail?id=123456 : ignoring failures on
-## gradtext GM test
+## Added as part of MADE-UP BUG
+## http://skbug.com/123456 : ignoring failures on gradtext GM test
+## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
 # This GM has probably always drawn incorrectly. We need to clarify the API
-# https://skbug.com/2222
+# http://skbug.com/2222 : Inverse filled paths get inverse stroked
 inverse_paths
