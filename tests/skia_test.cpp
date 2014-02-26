@@ -17,6 +17,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
+#include "GrContextFactory.h"
 #endif
 
 using namespace skiatest;
@@ -29,8 +30,6 @@ DEFINE_string2(match, m, NULL, "[~][^]substring[$] [...] of test name to run.\n"
                                "^ and $ requires an exact match\n" \
                                "If a test does not match any list entry,\n" \
                                "it is skipped unless some list entry starts with ~");
-DEFINE_string2(tmpDir, t, NULL, "tmp directory for tests to use.");
-DEFINE_string2(resourcePath, i, "resources", "directory for test resources.");
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
 DEFINE_bool2(leaks, l, false, "show leaked ref cnt'd objects.");
 DEFINE_bool2(single, z, false, "run tests on a single thread internally.");
@@ -40,6 +39,7 @@ DEFINE_bool(cpu, true, "whether or not to run CPU tests.");
 DEFINE_bool(gpu, true, "whether or not to run GPU tests.");
 DEFINE_int32(threads, SkThreadPool::kThreadPerCore,
              "Run threadsafe tests on a threadpool with this many threads.");
+DEFINE_string2(resourcePath, i, "resources", "directory for test resources.");
 
 // need to explicitly declare this, or we get some weird infinite loop llist
 template TestRegistry* TestRegistry::gHead;
@@ -98,16 +98,6 @@ private:
     const int fTotal;
 };
 
-SkString Test::GetTmpDir() {
-    const char* tmpDir = FLAGS_tmpDir.isEmpty() ? NULL : FLAGS_tmpDir[0];
-    return SkString(tmpDir);
-}
-
-SkString Test::GetResourcePath() {
-    const char* resourcePath = FLAGS_resourcePath.isEmpty() ? NULL : FLAGS_resourcePath[0];
-    return SkString(resourcePath);
-}
-
 // Deletes self when run.
 class SkTestRunnable : public SkRunnable {
 public:
@@ -144,6 +134,7 @@ int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("");
     SkCommandLineFlags::Parse(argc, argv);
+    Test::SetResourcePath(FLAGS_resourcePath[0]);
 
 #if SK_ENABLE_INST_COUNT
     if (FLAGS_leaks) {
@@ -199,7 +190,7 @@ int tool_main(int argc, char** argv) {
     int skipCount = 0;
 
     SkThreadPool threadpool(FLAGS_threads);
-    SkTArray<Test*> unsafeTests;  // Always passes ownership to an SkTestRunnable
+    SkTArray<Test*> gpuTests;  // Always passes ownership to an SkTestRunnable
 
     DebugfReporter reporter(toRun);
     for (int i = 0; i < total; i++) {
@@ -207,15 +198,23 @@ int tool_main(int argc, char** argv) {
         if (!should_run(test->getName(), test->isGPUTest())) {
             ++skipCount;
         } else if (test->isGPUTest()) {
-            unsafeTests.push_back() = test.detach();
+            gpuTests.push_back() = test.detach();
         } else {
             threadpool.add(SkNEW_ARGS(SkTestRunnable, (test.detach(), &failCount)));
         }
     }
 
-    // Run the tests that aren't threadsafe.
-    for (int i = 0; i < unsafeTests.count(); i++) {
-        SkNEW_ARGS(SkTestRunnable, (unsafeTests[i], &failCount))->run();
+#if SK_SUPPORT_GPU
+    // Give GPU tests a context factory if that makes sense on this machine.
+    GrContextFactory grContextFactory;
+    for (int i = 0; i < gpuTests.count(); i++) {
+        gpuTests[i]->setGrContextFactory(&grContextFactory);
+    }
+#endif
+
+    // Run GPU tests on this thread.
+    for (int i = 0; i < gpuTests.count(); i++) {
+        SkNEW_ARGS(SkTestRunnable, (gpuTests[i], &failCount))->run();
     }
 
     // Block until threaded tests finish.
@@ -226,7 +225,6 @@ int tool_main(int argc, char** argv) {
                  toRun, failCount, skipCount, reporter.countTests());
     }
     SkGraphics::Term();
-    GpuTest::DestroyContexts();
 
     SkDebugf("\n");
     return (failCount == 0) ? 0 : 1;

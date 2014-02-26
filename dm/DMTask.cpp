@@ -26,8 +26,7 @@ void Task::run() {
     if (!this->shouldSkip()) {
         this->draw();
     }
-    fReporter->finish();
-    fReporter->updateStatusLine();
+    fReporter->finish(this->name());
     delete this;
 }
 
@@ -39,8 +38,12 @@ void Task::spawnChild(Task* task) {
     }
 }
 
-void Task::fail() {
-    fReporter->fail(this->name());
+void Task::fail(const char* msg) {
+    SkString failure(this->name());
+    if (msg) {
+        failure.appendf(": %s", msg);
+    }
+    fReporter->fail(failure);
 }
 
 }  // namespace DM
