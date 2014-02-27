@@ -66,7 +66,9 @@ public:
      *      kDst_Mode: to just keep the draw's color, ignoring the layer's
      */
     struct SK_API LayerInfo {
+#ifdef SK_SUPPORT_LEGACY_LAYERDRAWLOOPER_PAINTFLAGS
         uint32_t            fFlagsMask; // SkPaint::Flags
+#endif
         BitFlags            fPaintBits;
         SkXfermode::Mode    fColorMode;
         SkVector            fOffset;

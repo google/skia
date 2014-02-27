@@ -76,7 +76,6 @@ private:
         //-----------------------------------------------
         SkLayerDrawLooper::LayerInfo info;
 
-        info.fFlagsMask = 0;
         // TODO: add a color filter to better match what is seen in the wild
         info.fPaintBits = /* SkLayerDrawLooper::kColorFilter_Bit |*/
                           SkLayerDrawLooper::kMaskFilter_Bit;

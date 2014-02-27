@@ -166,7 +166,6 @@ private:
         SkLayerDrawLooper* looper = new SkLayerDrawLooper;
         SkLayerDrawLooper::LayerInfo info;
 
-        info.fFlagsMask = 0;
         info.fPaintBits = SkLayerDrawLooper::kColorFilter_Bit |
                           SkLayerDrawLooper::kMaskFilter_Bit;
         info.fColorMode = SkXfermode::kSrc_Mode;
@@ -211,7 +210,6 @@ private:
         SkLayerDrawLooper* looper = new SkLayerDrawLooper;
         SkLayerDrawLooper::LayerInfo info;
 
-        info.fFlagsMask = 0;
         info.fPaintBits = SkLayerDrawLooper::kColorFilter_Bit |
                           SkLayerDrawLooper::kMaskFilter_Bit;
         info.fColorMode = SkXfermode::kSrc_Mode;

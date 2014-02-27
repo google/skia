@@ -39,6 +39,7 @@ protected:
         this->init();
 
         SkPaint  paint;
+        paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(72));
         paint.setLooper(fLooper);
 
@@ -74,14 +75,12 @@ private:
         fLooper = new SkLayerDrawLooper;
 
         SkLayerDrawLooper::LayerInfo info;
-        info.fFlagsMask = SkPaint::kAntiAlias_Flag;
         info.fPaintBits = SkLayerDrawLooper::kStyle_Bit | SkLayerDrawLooper::kMaskFilter_Bit;
         info.fColorMode = SkXfermode::kSrc_Mode;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gParams); i++) {
             info.fOffset.set(gParams[i].fOffset, gParams[i].fOffset);
             SkPaint* paint = fLooper->addLayer(info);
-            paint->setAntiAlias(true);
             paint->setColor(gParams[i].fColor);
             paint->setStyle(gParams[i].fStyle);
             paint->setStrokeWidth(gParams[i].fWidth);
