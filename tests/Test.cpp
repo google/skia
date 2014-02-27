@@ -128,4 +128,3 @@ void Test::SetResourcePath(const char* resourcePath) { gResourcePath = resourceP
 SkString Test::GetResourcePath() {
     return SkString(gResourcePath);
 }
-
