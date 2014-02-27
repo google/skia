@@ -56,7 +56,7 @@ const char* SkAnnotationKeys::Link_Named_Dest_Key() {
 #include "SkCanvas.h"
 
 static void annotate_paint(SkPaint& paint, const char* key, SkData* value) {
-    paint.setAnnotation(SkNEW_ARGS(SkAnnotation, (key, value)))->unref();
+    paint.setAnnotation(SkAnnotation::Create(key, value))->unref();
 }
 
 void SkAnnotateRectWithURL(SkCanvas* canvas, const SkRect& rect, SkData* value) {

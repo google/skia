@@ -24,18 +24,27 @@ struct SkPoint;
  */
 class SkAnnotation : public SkRefCnt {
 public:
-    SkAnnotation(const char key[], SkData* value);
     virtual ~SkAnnotation();
+
+    static SkAnnotation* Create(const char key[], SkData* value) {
+        return SkNEW_ARGS(SkAnnotation, (key, value));
+    }
+
+    static SkAnnotation* Create(SkReadBuffer& buffer) {
+        return SkNEW_ARGS(SkAnnotation, (buffer));
+    }
 
     /**
      *  Return the data for the specified key, or NULL.
      */
     SkData* find(const char key[]) const;
 
-    SkAnnotation(SkReadBuffer&);
     void writeToBuffer(SkWriteBuffer&) const;
 
 private:
+    SkAnnotation(const char key[], SkData* value);
+    SkAnnotation(SkReadBuffer&);
+
     SkString    fKey;
     SkData*     fData;
 

@@ -2128,7 +2128,7 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
         SkSafeUnref(this->setImageFilter(buffer.readImageFilter()));
 
         if (buffer.readBool()) {
-            this->setAnnotation(SkNEW_ARGS(SkAnnotation, (buffer)))->unref();
+            this->setAnnotation(SkAnnotation::Create(buffer))->unref();
         }
     } else {
         this->setPathEffect(NULL);
@@ -2648,7 +2648,7 @@ void SkPaint::FlatteningTraits::Unflatten(SkReadBuffer& buffer, SkPaint* paint) 
 #undef F
 #undef F_UNREF
     if (dirty & kAnnotation_DirtyBit) {
-        paint->setAnnotation(SkNEW_ARGS(SkAnnotation, (buffer)))->unref();
+        paint->setAnnotation(SkAnnotation::Create(buffer))->unref();
     }
 #ifdef SK_BUILD_FOR_ANDROID
     if (dirty & kPaintOptionsAndroid_DirtyBit) {
