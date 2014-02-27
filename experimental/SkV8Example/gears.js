@@ -1,5 +1,5 @@
 var IS_SKV8 = typeof document == "undefined";
-var HAS_PATH = typeof Path != "undefined";
+var HAS_PATH = typeof Path2D != "undefined";
 
 var NumTeeth = 24;
 var NumGears = 60;
@@ -23,7 +23,7 @@ function makeGear(pathLike, r) {
 
 function gearPath(r) {
   if (HAS_PATH) {
-    p = new Path();
+    p = new Path2D();
     makeGear(p, r)
     p.closePath();
     return p;

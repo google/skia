@@ -13,7 +13,7 @@ using namespace v8;
 
 #include "Global.h"
 #include "JsContext.h"
-#include "Path.h"
+#include "Path2D.h"
 #include "SkCanvas.h"
 
 
@@ -119,7 +119,7 @@ void JsContext::Stroke(const v8::FunctionCallbackInfo<Value>& args) {
     Handle<External> field = Handle<External>::Cast(
             args[0]->ToObject()->GetInternalField(0));
     void* ptr = field->Value();
-    Path* path = static_cast<Path*>(ptr);
+    Path2D* path = static_cast<Path2D*>(ptr);
 
     canvas->drawPath(path->getSkPath(), jsContext->fStrokeStyle);
 }
@@ -138,7 +138,7 @@ void JsContext::Fill(const v8::FunctionCallbackInfo<Value>& args) {
     Handle<External> field = Handle<External>::Cast(
             args[0]->ToObject()->GetInternalField(0));
     void* ptr = field->Value();
-    Path* path = static_cast<Path*>(ptr);
+    Path2D* path = static_cast<Path2D*>(ptr);
 
     canvas->drawPath(path->getSkPath(), jsContext->fFillStyle);
 }

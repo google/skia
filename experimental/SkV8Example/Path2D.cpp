@@ -7,14 +7,14 @@
  *
  */
 
-#include "Path.h"
+#include "Path2D.h"
 #include "Global.h"
 
-Global* Path::gGlobal = NULL;
+Global* Path2D::gGlobal = NULL;
 
-void Path::ConstructPath(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::ConstructPath(const v8::FunctionCallbackInfo<Value>& args) {
     HandleScope handleScope(gGlobal->getIsolate());
-    Path* path = new Path();
+    Path2D* path = new Path2D();
     args.This()->SetInternalField(
             0, External::New(gGlobal->getIsolate(), path));
 }
@@ -26,9 +26,9 @@ void Path::ConstructPath(const v8::FunctionCallbackInfo<Value>& args) {
                     String::kInternalizedString), \
             FunctionTemplate::New(global->getIsolate(), fn))
 
-// Install the constructor in the global scope so Paths can be constructed
+// Install the constructor in the global scope so Path2Ds can be constructed
 // in JS.
-void Path::AddToGlobal(Global* global) {
+void Path2D::AddToGlobal(Global* global) {
     gGlobal = global;
 
     // Create a stack-allocated handle scope.
@@ -40,7 +40,7 @@ void Path::AddToGlobal(Global* global) {
     Context::Scope contextScope(context);
 
     Local<FunctionTemplate> constructor = FunctionTemplate::New(
-            gGlobal->getIsolate(), Path::ConstructPath);
+            gGlobal->getIsolate(), Path2D::ConstructPath);
     constructor->InstanceTemplate()->SetInternalFieldCount(1);
 
     ADD_METHOD("closePath", ClosePath);
@@ -54,22 +54,22 @@ void Path::AddToGlobal(Global* global) {
     ADD_METHOD("conicTo", ConicTo);
 
     context->Global()->Set(String::NewFromUtf8(
-            gGlobal->getIsolate(), "Path"), constructor->GetFunction());
+            gGlobal->getIsolate(), "Path2D"), constructor->GetFunction());
 }
 
-Path* Path::Unwrap(const v8::FunctionCallbackInfo<Value>& args) {
+Path2D* Path2D::Unwrap(const v8::FunctionCallbackInfo<Value>& args) {
     Handle<External> field = Handle<External>::Cast(
             args.This()->GetInternalField(0));
     void* ptr = field->Value();
-    return static_cast<Path*>(ptr);
+    return static_cast<Path2D*>(ptr);
 }
 
-void Path::ClosePath(const v8::FunctionCallbackInfo<Value>& args) {
-    Path* path = Unwrap(args);
+void Path2D::ClosePath(const v8::FunctionCallbackInfo<Value>& args) {
+    Path2D* path = Unwrap(args);
     path->fSkPath.close();
 }
 
-void Path::MoveTo(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::MoveTo(const v8::FunctionCallbackInfo<Value>& args) {
     if (args.Length() != 2) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -78,11 +78,11 @@ void Path::MoveTo(const v8::FunctionCallbackInfo<Value>& args) {
     }
     double x = args[0]->NumberValue();
     double y = args[1]->NumberValue();
-    Path* path = Unwrap(args);
+    Path2D* path = Unwrap(args);
     path->fSkPath.moveTo(SkDoubleToScalar(x), SkDoubleToScalar(y));
 }
 
-void Path::LineTo(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::LineTo(const v8::FunctionCallbackInfo<Value>& args) {
     if (args.Length() != 2) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -91,11 +91,11 @@ void Path::LineTo(const v8::FunctionCallbackInfo<Value>& args) {
     }
     double x = args[0]->NumberValue();
     double y = args[1]->NumberValue();
-    Path* path = Unwrap(args);
+    Path2D* path = Unwrap(args);
     path->fSkPath.lineTo(SkDoubleToScalar(x), SkDoubleToScalar(y));
 }
 
-void Path::QuadraticCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::QuadraticCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
     if (args.Length() != 4) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -106,7 +106,7 @@ void Path::QuadraticCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
     double cpy = args[1]->NumberValue();
     double x = args[2]->NumberValue();
     double y = args[3]->NumberValue();
-    Path* path = Unwrap(args);
+    Path2D* path = Unwrap(args);
     // TODO(jcgregorio) Doesn't handle the empty last path case correctly per
     // the HTML 5 spec.
     path->fSkPath.quadTo(
@@ -114,7 +114,7 @@ void Path::QuadraticCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
             SkDoubleToScalar(x), SkDoubleToScalar(y));
 }
 
-void Path::BezierCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::BezierCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
     if (args.Length() != 6) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -127,7 +127,7 @@ void Path::BezierCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
     double cp2y = args[3]->NumberValue();
     double x = args[4]->NumberValue();
     double y = args[5]->NumberValue();
-    Path* path = Unwrap(args);
+    Path2D* path = Unwrap(args);
     // TODO(jcgregorio) Doesn't handle the empty last path case correctly per
     // the HTML 5 spec.
     path->fSkPath.cubicTo(
@@ -136,7 +136,7 @@ void Path::BezierCurveTo(const v8::FunctionCallbackInfo<Value>& args) {
             SkDoubleToScalar(x), SkDoubleToScalar(y));
 }
 
-void Path::Arc(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::Arc(const v8::FunctionCallbackInfo<Value>& args) {
     if (args.Length() != 5 && args.Length() != 6) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -160,7 +160,7 @@ void Path::Arc(const v8::FunctionCallbackInfo<Value>& args) {
       startAngle = endAngle;
     }
 
-    Path* path = Unwrap(args);
+    Path2D* path = Unwrap(args);
     SkRect rect = {
         SkDoubleToScalar(x-radius),
         SkDoubleToScalar(y-radius),
@@ -172,7 +172,7 @@ void Path::Arc(const v8::FunctionCallbackInfo<Value>& args) {
                          SkRadiansToDegrees(sweepAngle));
 }
 
-void Path::Rect(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::Rect(const v8::FunctionCallbackInfo<Value>& args) {
     if (args.Length() != 4) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -190,11 +190,11 @@ void Path::Rect(const v8::FunctionCallbackInfo<Value>& args) {
         SkDoubleToScalar(x) + SkDoubleToScalar(w),
         SkDoubleToScalar(y) + SkDoubleToScalar(h)
     };
-    Path* path = Unwrap(args);
+    Path2D* path = Unwrap(args);
     path->fSkPath.addRect(rect);
 }
 
-void Path::Oval(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::Oval(const v8::FunctionCallbackInfo<Value>& args) {
     if (args.Length() != 4 && args.Length() != 5) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -209,7 +209,7 @@ void Path::Oval(const v8::FunctionCallbackInfo<Value>& args) {
     if (args.Length() == 5 && !args[4]->BooleanValue()) {
         dir = SkPath::kCCW_Direction;
     }
-    Path* path = Unwrap(args);
+    Path2D* path = Unwrap(args);
     SkRect rect = {
         SkDoubleToScalar(x-radiusX),
         SkDoubleToScalar(y-radiusX),
@@ -220,7 +220,7 @@ void Path::Oval(const v8::FunctionCallbackInfo<Value>& args) {
     path->fSkPath.addOval(rect, dir);
 }
 
-void Path::ConicTo(const v8::FunctionCallbackInfo<Value>& args) {
+void Path2D::ConicTo(const v8::FunctionCallbackInfo<Value>& args) {
     if (args.Length() != 5) {
         args.GetIsolate()->ThrowException(
                 v8::String::NewFromUtf8(
@@ -232,7 +232,7 @@ void Path::ConicTo(const v8::FunctionCallbackInfo<Value>& args) {
     double x2 = args[2]->NumberValue();
     double y2 = args[3]->NumberValue();
     double w  = args[4]->NumberValue();
-    Path* path = Unwrap(args);
+    Path2D* path = Unwrap(args);
 
     path->fSkPath.conicTo(
             SkDoubleToScalar(x1),

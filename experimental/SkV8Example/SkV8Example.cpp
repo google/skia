@@ -13,7 +13,7 @@ using namespace v8;
 #include "SkV8Example.h"
 #include "Global.h"
 #include "JsContext.h"
-#include "Path.h"
+#include "Path2D.h"
 
 #include "gl/GrGLUtil.h"
 #include "gl/GrGLDefines.h"
@@ -204,7 +204,7 @@ SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
         printf("Could not load file: %s.\n", FLAGS_infile[0]);
         exit(1);
     }
-    Path::AddToGlobal(global);
+    Path2D::AddToGlobal(global);
 
     if (!global->parseScript(script)) {
         printf("Failed to parse file: %s.\n", FLAGS_infile[0]);

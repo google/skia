@@ -1,9 +1,9 @@
 var IS_SKV8 = typeof document == "undefined";
-var HAS_PATH = typeof Path != "undefined";
+var HAS_PATH = typeof Path2D != "undefined";
 
 function circlePath(r) {
   if (HAS_PATH) {
-    var p = new Path();
+    var p = new Path2D();
     p.arc(0, 0, r, 0, 2*Math.PI);
     p.closePath();
     return p;

@@ -2,7 +2,7 @@
  * @fileoverview Sample onDraw script for use with SkV8Example.
  */
 var onDraw = function(){
-    var p = new Path();
+    var p = new Path2D();
     p.moveTo(0, 0);
     p.bezierCurveTo(0, 100, 100, 0, 200, 200);
     p.close();
