@@ -16,6 +16,31 @@
 static const int32_t kFirstUnreservedGenID = 3;
 int32_t SkClipStack::gGenID = kFirstUnreservedGenID;
 
+SkClipStack::Element::Element(const Element& that) {
+    switch (that.getType()) {
+        case kEmpty_Type:
+            fPath.reset();
+            break;
+        case kRect_Type: // Rect uses rrect
+        case kRRect_Type:
+            fPath.reset();
+            fRRect = that.fRRect;
+            break;
+        case kPath_Type:
+            fPath.set(that.getPath());
+            break;
+    }
+
+    fSaveCount = that.fSaveCount;
+    fOp = that.fOp;
+    fType = that.fType;
+    fDoAA = that.fDoAA;
+    fFiniteBoundType = that.fFiniteBoundType;
+    fFiniteBound = that.fFiniteBound;
+    fIsIntersectionOfRects = that.fIsIntersectionOfRects;
+    fGenID = that.fGenID;
+}
+
 bool SkClipStack::Element::operator== (const Element& element) const {
     if (this == &element) {
         return true;
@@ -28,7 +53,7 @@ bool SkClipStack::Element::operator== (const Element& element) const {
     }
     switch (fType) {
         case kPath_Type:
-            return fPath == element.fPath;
+            return this->getPath() == element.getPath();
         case kRRect_Type:
             return fRRect == element.fRRect;
         case kRect_Type:
@@ -44,19 +69,19 @@ bool SkClipStack::Element::operator== (const Element& element) const {
 void SkClipStack::Element::invertShapeFillType() {
     switch (fType) {
         case kRect_Type:
-            fPath.reset();
-            fPath.addRect(this->getRect());
-            fPath.setFillType(SkPath::kInverseEvenOdd_FillType);
+            fPath.init();
+            fPath.get()->addRect(this->getRect());
+            fPath.get()->setFillType(SkPath::kInverseEvenOdd_FillType);
             fType = kPath_Type;
             break;
         case kRRect_Type:
-            fPath.reset();
-            fPath.addRRect(fRRect);
-            fPath.setFillType(SkPath::kInverseEvenOdd_FillType);
+            fPath.init();
+            fPath.get()->addRRect(fRRect);
+            fPath.get()->setFillType(SkPath::kInverseEvenOdd_FillType);
             fType = kPath_Type;
             break;
         case kPath_Type:
-            fPath.toggleInverseFillType();
+            fPath.get()->toggleInverseFillType();
             break;
         case kEmpty_Type:
             // Should this set to an empty, inverse filled path?
@@ -79,7 +104,7 @@ void SkClipStack::Element::initPath(int saveCount, const SkPath& path, SkRegion:
             return;
         }
     }
-    fPath = path;
+    fPath.set(path);
     fType = kPath_Type;
     this->initCommon(saveCount, op, doAA);
 }
@@ -98,7 +123,7 @@ void SkClipStack::Element::asPath(SkPath* path) const {
             path->addRRect(fRRect);
             break;
         case kPath_Type:
-            *path = fPath;
+            *path = *fPath.get();
             break;
     }
 }
@@ -119,7 +144,7 @@ void SkClipStack::Element::checkEmpty() const {
     SkASSERT(kNormal_BoundsType == fFiniteBoundType);
     SkASSERT(!fIsIntersectionOfRects);
     SkASSERT(kEmptyGenID == fGenID);
-    SkASSERT(fPath.isEmpty());
+    SkASSERT(!fPath.isValid());
 }
 
 bool SkClipStack::Element::canBeIntersectedInPlace(int saveCount, SkRegion::Op op) const {
@@ -357,9 +382,9 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
             fFiniteBoundType = kNormal_BoundsType;
             break;
         case kPath_Type:
-            fFiniteBound = fPath.getBounds();
+            fFiniteBound = fPath.get()->getBounds();
 
-            if (fPath.isInverseFillType()) {
+            if (fPath.get()->isInverseFillType()) {
                 fFiniteBoundType = kInsideOut_BoundsType;
             } else {
                 fFiniteBoundType = kNormal_BoundsType;

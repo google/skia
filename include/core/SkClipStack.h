@@ -14,6 +14,7 @@
 #include "SkRRect.h"
 #include "SkRegion.h"
 #include "SkTDArray.h"
+#include "SkTLazy.h"
 
 
 // Because a single save/restore state can have multiple clips, this class
@@ -53,6 +54,8 @@ public:
             this->setEmpty();
         }
 
+        Element(const Element&);
+
         Element(const SkRect& rect, SkRegion::Op op, bool doAA) {
             this->initRect(0, rect, op, doAA);
         }
@@ -72,7 +75,7 @@ public:
         Type getType() const { return fType; }
 
         //!< Call if getType() is kPath to get the path.
-        const SkPath& getPath() const { SkASSERT(kPath_Type == fType); return fPath; }
+        const SkPath& getPath() const { SkASSERT(kPath_Type == fType); return *fPath.get(); }
 
         //!< Call if getType() is kRRect to get the round-rect.
         const SkRRect& getRRect() const { SkASSERT(kRRect_Type == fType); return fRRect; }
@@ -117,7 +120,7 @@ public:
                 case kRRect_Type:
                     return fRRect.getBounds();
                 case kPath_Type:
-                    return fPath.getBounds();
+                    return fPath.get()->getBounds();
                 case kEmpty_Type:
                     return kEmpty;
                 default:
@@ -137,7 +140,7 @@ public:
                 case kRRect_Type:
                     return fRRect.contains(rect);
                 case kPath_Type:
-                    return fPath.conservativelyContainsRect(rect);
+                    return fPath.get()->conservativelyContainsRect(rect);
                 case kEmpty_Type:
                     return false;
                 default:
@@ -150,13 +153,13 @@ public:
          * Is the clip shape inverse filled.
          */
         bool isInverseFilled() const {
-            return kPath_Type == fType && fPath.isInverseFillType();
+            return kPath_Type == fType && fPath.get()->isInverseFillType();
         }
 
     private:
         friend class SkClipStack;
 
-        SkPath          fPath;
+        SkTLazy<SkPath> fPath;
         SkRRect         fRRect;
         int             fSaveCount; // save count of stack when this element was added.
         SkRegion::Op    fOp;
