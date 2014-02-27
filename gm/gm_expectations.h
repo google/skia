@@ -20,8 +20,6 @@
 
 namespace skiagm {
 
-    void gm_fprintf(FILE *stream, const char format[], ...);
-
     Json::Value CreateJsonTree(Json::Value expectedResults,
                                Json::Value actualResultsFailed,
                                Json::Value actualResultsFailureIgnored,
