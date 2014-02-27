@@ -430,6 +430,14 @@ void SkDebugCanvas::drawVertices(VertexMode vmode, int vertexCount,
                    texs, colors, NULL, indices, indexCount, paint));
 }
 
+void SkDebugCanvas::onPushCull(const SkRect& cullRect) {
+    this->addDrawCommand(new SkPushCullCommand(cullRect));
+}
+
+void SkDebugCanvas::onPopCull() {
+    this->addDrawCommand(new SkPopCullCommand());
+}
+
 void SkDebugCanvas::restore() {
     addDrawCommand(new SkRestoreCommand());
 }

@@ -571,4 +571,24 @@ private:
     typedef SkDrawCommand INHERITED;
 };
 
+class SkPushCullCommand : public SkDrawCommand {
+public:
+    SkPushCullCommand(const SkRect&);
+    virtual void execute(SkCanvas*) SK_OVERRIDE;
+
+private:
+    SkRect fCullRect;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkPopCullCommand : public SkDrawCommand {
+public:
+    SkPopCullCommand();
+    virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+
+private:
+    typedef SkDrawCommand INHERITED;
+};
+
 #endif

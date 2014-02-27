@@ -50,7 +50,9 @@ public:
 
         kBeginCommentGroup_Verb,
         kAddComment_Verb,
-        kEndCommentGroup_Verb
+        kEndCommentGroup_Verb,
+
+        kCull_Verb
     };
 
     /** Subclasses of this are installed on the DumpCanvas, and then called for
@@ -129,6 +131,8 @@ public:
 
 protected:
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
+    virtual void onPushCull(const SkRect& cullRect) SK_OVERRIDE;
+    virtual void onPopCull() SK_OVERRIDE;
 
 private:
     Dumper* fDumper;

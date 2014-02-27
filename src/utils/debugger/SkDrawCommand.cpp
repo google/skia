@@ -65,6 +65,8 @@ const char* SkDrawCommand::GetCommandString(DrawType type) {
         case COMMENT: return "Comment";
         case END_COMMENT_GROUP: return "EndCommentGroup";
         case DRAW_DRRECT: return "Draw DRRect";
+        case PUSH_CULL: return "PushCull";
+        case POP_CULL: return "PopCull";
         default:
             SkDebugf("DrawType error 0x%08x\n", type);
             SkASSERT(0);
@@ -935,4 +937,23 @@ SkTranslateCommand::SkTranslateCommand(SkScalar dx, SkScalar dy) {
 
 void SkTranslateCommand::execute(SkCanvas* canvas) {
     canvas->translate(fDx, fDy);
+}
+
+SkPushCullCommand::SkPushCullCommand(const SkRect& cullRect)
+    : fCullRect(cullRect) {
+    fDrawType = PUSH_CULL;
+    fInfo.push(SkObjectParser::RectToString(cullRect));
+}
+
+void SkPushCullCommand::execute(SkCanvas* canvas) {
+    //FIXME: add visualization overlay.
+    canvas->pushCull(fCullRect);
+}
+
+SkPopCullCommand::SkPopCullCommand() {
+    fDrawType = POP_CULL;
+}
+
+void SkPopCullCommand::execute(SkCanvas* canvas) {
+    canvas->popCull();
 }

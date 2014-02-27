@@ -993,7 +993,8 @@ void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* command) {
         item->setData(Qt::UserRole + 1, counter++);
 
         if (0 == strcmp("Restore", (*command)[i].c_str()) ||
-            0 == strcmp("EndCommentGroup", (*command)[i].c_str())) {
+            0 == strcmp("EndCommentGroup", (*command)[i].c_str()) ||
+            0 == strcmp("PopCull", (*command)[i].c_str())) {
             indent -= 10;
         }
 
@@ -1001,7 +1002,8 @@ void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* command) {
 
         if (0 == strcmp("Save", (*command)[i].c_str()) ||
             0 == strcmp("Save Layer", (*command)[i].c_str()) ||
-            0 == strcmp("BeginCommentGroup", (*command)[i].c_str())) {
+            0 == strcmp("BeginCommentGroup", (*command)[i].c_str()) ||
+            0 == strcmp("PushCull", (*command)[i].c_str())) {
             indent += 10;
         }
 

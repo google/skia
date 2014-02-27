@@ -112,6 +112,8 @@ static inline uint32_t getPaintOffset(DrawType op, uint32_t opSize) {
         0,  // COMMENT - no paint
         0,  // END_GROUP - no paint
         1,  // DRAWDRRECT - right after op code
+        0,  // PUSH_CULL - no paint
+        0,  // POP_CULL - no paint
     };
 
     SK_COMPILE_ASSERT(sizeof(gPaintOffsets) == LAST_DRAWTYPE_ENUM + 1,
@@ -218,6 +220,15 @@ bool SkPictureRecord::isDrawingToLayer() const {
     return fFirstSavedLayerIndex != kNoSavedLayerIndex;
 #endif
 }
+
+/*
+ * Read the op code from 'offset' in 'writer'.
+ */
+#ifdef SK_DEBUG
+static DrawType peek_op(SkWriter32* writer, int32_t offset) {
+    return (DrawType)(writer->readTAt<uint32_t>(offset) >> 24);
+}
+#endif
 
 /*
  * Read the op code from 'offset' in 'writer' and extract the size too.
@@ -1545,6 +1556,61 @@ void SkPictureRecord::endCommentGroup() {
     // op/size
     uint32_t size = 1 * kUInt32Size;
     size_t initialOffset = this->addDraw(END_COMMENT_GROUP, &size);
+    this->validate(initialOffset, size);
+}
+
+// [op/size] [rect] [skip offset]
+static const uint32_t kPushCullOpSize = 2 * kUInt32Size + sizeof(SkRect);
+void SkPictureRecord::onPushCull(const SkRect& cullRect) {
+    // Skip identical cull rects.
+    if (!fCullOffsetStack.isEmpty()) {
+        const SkRect& prevCull = fWriter.readTAt<SkRect>(fCullOffsetStack.top() - sizeof(SkRect));
+        if (prevCull == cullRect) {
+            // Skipped culls are tracked on the stack, but they point to the previous offset.
+            fCullOffsetStack.push(fCullOffsetStack.top());
+            return;
+        }
+
+        SkASSERT(prevCull.contains(cullRect));
+    }
+
+    uint32_t size = kPushCullOpSize;
+    size_t initialOffset = this->addDraw(PUSH_CULL, &size);
+    // PUSH_CULL's size should stay constant (used to rewind).
+    SkASSERT(size == kPushCullOpSize);
+
+    this->addRect(cullRect);
+    fCullOffsetStack.push(fWriter.bytesWritten());
+    this->addInt(0);
+    this->validate(initialOffset, size);
+}
+
+void SkPictureRecord::onPopCull() {
+    SkASSERT(!fCullOffsetStack.isEmpty());
+
+    uint32_t cullSkipOffset = fCullOffsetStack.top();
+    fCullOffsetStack.pop();
+
+    // Skipped push, do the same for pop.
+    if (!fCullOffsetStack.isEmpty() && cullSkipOffset == fCullOffsetStack.top()) {
+        return;
+    }
+
+    // Collapse empty push/pop pairs.
+    if ((size_t)(cullSkipOffset + kUInt32Size) == fWriter.bytesWritten()) {
+        SkASSERT(fWriter.bytesWritten() >= kPushCullOpSize);
+        SkASSERT(PUSH_CULL == peek_op(&fWriter, fWriter.bytesWritten() - kPushCullOpSize));
+        fWriter.rewindToOffset(fWriter.bytesWritten() - kPushCullOpSize);
+        return;
+    }
+
+    // op only
+    uint32_t size = kUInt32Size;
+    size_t initialOffset = this->addDraw(POP_CULL, &size);
+
+    // update the cull skip offset to point past this op.
+    fWriter.overwriteTAt<uint32_t>(cullSkipOffset, fWriter.bytesWritten());
+
     this->validate(initialOffset, size);
 }
 

@@ -120,6 +120,8 @@ private:
     };
 #endif
 
+    SkTDArray<uint32_t> fCullOffsetStack;
+
     /*
      * Write the 'drawType' operation and chunk size to the skp. 'size'
      * can potentially be increased if the chunk size needs its own storage
@@ -223,6 +225,8 @@ protected:
         return NULL;
     }
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
+    virtual void onPushCull(const SkRect&) SK_OVERRIDE;
+    virtual void onPopCull() SK_OVERRIDE;
 
     // Return fontmetrics.fTop,fBottom in topbot[0,1], after they have been
     // tweaked by paint.computeFastBounds().

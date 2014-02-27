@@ -490,6 +490,7 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device) {
     fAllowSimplifyClip = false;
     fDeviceCMDirty = false;
     fSaveLayerCount = 0;
+    fCullCount = 0;
     fMetaData = NULL;
 
     fMCRec = (MCRec*)fMCStack.push_back();
@@ -1000,6 +1001,14 @@ bool SkAutoROCanvasPixels::asROBitmap(SkBitmap* bitmap) const {
         bitmap->reset();
         return false;
     }
+}
+
+void SkCanvas::onPushCull(const SkRect& cullRect) {
+    // do nothing. Subclasses may do something
+}
+
+void SkCanvas::onPopCull() {
+    // do nothing. Subclasses may do something
 }
 
 /////////////////////////////////////////////////////////////////////////////

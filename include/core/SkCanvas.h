@@ -939,7 +939,26 @@ public:
         // do nothing. Subclasses may do something
     }
 
+    /**
+     *  With this call the client asserts that subsequent draw operations (up to the
+     *  matching popCull()) are fully contained within the given bounding box. The assertion
+     *  is not enforced, but the information might be used to quick-reject command blocks,
+     *  so an incorrect bounding box may result in incomplete rendering.
+     */
+    void pushCull(const SkRect& cullRect) {
+        ++fCullCount;
+        this->onPushCull(cullRect);
+    }
 
+    /**
+     *  Terminates the current culling block, and restores the previous one (if any).
+     */
+    void popCull() {
+        if (fCullCount > 0) {
+            --fCullCount;
+            this->onPopCull();
+        }
+    }
     //////////////////////////////////////////////////////////////////////////
 
     /** Get the current bounder object.
@@ -1105,6 +1124,9 @@ protected:
     // can perform copy-on-write or invalidate any cached images
     void predrawNotify();
 
+    virtual void onPushCull(const SkRect& cullRect);
+    virtual void onPopCull();
+
 private:
     class MCRec;
 
@@ -1117,6 +1139,7 @@ private:
 
     SkBounder*  fBounder;
     int         fSaveLayerCount;    // number of successful saveLayer calls
+    int         fCullCount;         // number of active culls
 
     SkMetaData* fMetaData;
 

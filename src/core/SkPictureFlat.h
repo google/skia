@@ -65,8 +65,10 @@ enum DrawType {
 
     // new ops -- feel free to re-alphabetize on next version bump
     DRAW_DRRECT,
+    PUSH_CULL,
+    POP_CULL,
 
-    LAST_DRAWTYPE_ENUM = DRAW_DRRECT
+    LAST_DRAWTYPE_ENUM = POP_CULL
 };
 
 // In the 'match' method, this constant will match any flavor of DRAW_BITMAP*

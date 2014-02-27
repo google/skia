@@ -707,7 +707,8 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
 #endif
 
 #ifdef SPEW_CLIP_SKIPPING
-    SkipClipRec skipRect, skipRRect, skipRegion, skipPath;
+    SkipClipRec skipRect, skipRRect, skipRegion, skipPath, skipCull;
+    int opCount = 0;
 #endif
 
 #ifdef SK_BUILD_FOR_ANDROID
@@ -770,6 +771,10 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
         if (fAbortCurrentPlayback) {
             return;
         }
+#endif
+
+#ifdef SPEW_CLIP_SKIPPING
+        opCount++;
 #endif
 
         size_t curOffset = reader.offset();
@@ -867,6 +872,21 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                     reader.setOffset(offsetToRestore);
                 }
             } break;
+            case PUSH_CULL: {
+                const SkRect& cullRect = reader.skipT<SkRect>();
+                size_t offsetToRestore = reader.readInt();
+                if (offsetToRestore && canvas.quickReject(cullRect)) {
+#ifdef SPEW_CLIP_SKIPPING
+                    skipCull.recordSkip(offsetToRestore - reader.offset());
+#endif
+                    reader.setOffset(offsetToRestore);
+                } else {
+                    canvas.pushCull(cullRect);
+                }
+            } break;
+            case POP_CULL:
+                canvas.popCull();
+                break;
             case CONCAT: {
                 SkMatrix matrix;
                 this->getMatrix(reader, &matrix);
@@ -1124,10 +1144,12 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
 
 #ifdef SPEW_CLIP_SKIPPING
     {
-        size_t size =  skipRect.fSize + skipRRect.fSize + skipPath.fSize + skipRegion.fSize;
-        SkDebugf("--- Clip skips %d%% rect:%d rrect:%d path:%d rgn:%d\n",
+        size_t size =  skipRect.fSize + skipRRect.fSize + skipPath.fSize + skipRegion.fSize +
+                skipCull.fSize;
+        SkDebugf("--- Clip skips %d%% rect:%d rrect:%d path:%d rgn:%d cull:%d\n",
              size * 100 / reader.offset(), skipRect.fCount, skipRRect.fCount,
-                 skipPath.fCount, skipRegion.fCount);
+                 skipPath.fCount, skipRegion.fCount, skipCull.fCount);
+        SkDebugf("--- Total ops: %d\n", opCount);
     }
 #endif
 //    this->dumpSize();
