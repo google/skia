@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -893,6 +892,45 @@ static void TestOverrideStateConsistency(skiatest::Reporter* reporter,
     }
 }
 
+static void test_newraster(skiatest::Reporter* reporter) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
+    SkCanvas* canvas = SkCanvas::NewRaster(info);
+    REPORTER_ASSERT(reporter, canvas);
+
+    SkImageInfo info2;
+    size_t rowBytes;
+    const SkPMColor* addr = (const SkPMColor*)canvas->peekPixels(&info2, &rowBytes);
+    REPORTER_ASSERT(reporter, addr);
+    REPORTER_ASSERT(reporter, info == info2);
+    for (int y = 0; y < info.height(); ++y) {
+        for (int x = 0; x < info.width(); ++x) {
+            REPORTER_ASSERT(reporter, 0 == addr[x]);
+        }
+        addr = (const SkPMColor*)((const char*)addr + rowBytes);
+    }
+    SkDELETE(canvas);
+
+    // now try a deliberately bad info
+    info.fWidth = -1;
+    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRaster(info));
+
+    // too big
+    info.fWidth = 1 << 30;
+    info.fHeight = 1 << 30;
+    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRaster(info));
+    
+    // not a valid pixel type
+    info.fWidth = info.fHeight = 10;
+    info.fColorType = kUnknown_SkColorType;
+    REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRaster(info));
+
+    // We should succeed with a zero-sized valid info
+    info = SkImageInfo::MakeN32Premul(0, 0);
+    canvas = SkCanvas::NewRaster(info);
+    REPORTER_ASSERT(reporter, canvas);
+    SkDELETE(canvas);
+}
+
 DEF_TEST(Canvas, reporter) {
     // Init global here because bitmap pixels cannot be alocated during
     // static initialization
@@ -909,4 +947,6 @@ DEF_TEST(Canvas, reporter) {
 
     // Explicitly call reset(), so we don't leak the pixels (since kTestBitmap is a global)
     kTestBitmap.reset();
+
+    test_newraster(reporter);
 }

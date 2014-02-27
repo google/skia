@@ -11,14 +11,6 @@
 #include "SkSurface.h"
 #include "Test.h"
 
-static SkCanvas* new_canvas(int w, int h) {
-    SkBitmap bm;
-    bm.allocN32Pixels(w, h);
-    return new SkCanvas(bm);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 // test that we can draw an aa-rect at coordinates > 32K (bigger than fixedpoint)
 static void test_big_aa_rect(skiatest::Reporter* reporter) {
     SkBitmap output;
@@ -103,7 +95,7 @@ static void test_crbug131181() {
     moveToH(&path, &data[0]);
     cubicToH(&path, &data[2]);
 
-    SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
+    SkAutoTUnref<SkCanvas> canvas(SkCanvas::NewRasterN32(640, 480));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -141,7 +133,7 @@ static void test_inversepathwithclip() {
 
     SkPaint paint;
 
-    SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
+    SkAutoTUnref<SkCanvas> canvas(SkCanvas::NewRasterN32(640, 480));
     canvas.get()->save();
     canvas.get()->clipRect(SkRect::MakeWH(SkIntToScalar(19), SkIntToScalar(11)));
 
@@ -181,7 +173,7 @@ static void test_bug533() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
+    SkAutoTUnref<SkCanvas> canvas(SkCanvas::NewRasterN32(640, 480));
     canvas.get()->drawPath(path, paint);
 }
 
@@ -223,7 +215,7 @@ static void test_bigcubic() {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkAutoTUnref<SkCanvas> canvas(new_canvas(640, 480));
+    SkAutoTUnref<SkCanvas> canvas(SkCanvas::NewRasterN32(640, 480));
     canvas.get()->drawPath(path, paint);
 }
 
@@ -233,8 +225,7 @@ static void test_bigcubic() {
 static void test_giantaa() {
     const int W = 400;
     const int H = 400;
-    SkAutoTUnref<SkCanvas> canvas(new_canvas(33000, 10));
-    canvas.get()->clear(SK_ColorTRANSPARENT);
+    SkAutoTUnref<SkCanvas> canvas(SkCanvas::NewRasterN32(33000, 10));
 
     SkPaint paint;
     paint.setAntiAlias(true);

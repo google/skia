@@ -2314,3 +2314,43 @@ int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
 ///////////////////////////////////////////////////////////////////////////////
 
 SkCanvas::ClipVisitor::~ClipVisitor() { }
+
+///////////////////////////////////////////////////////////////////////////////
+
+static bool supported_for_raster_canvas(const SkImageInfo& info) {
+    switch (info.alphaType()) {
+        case kPremul_SkAlphaType:
+        case kOpaque_SkAlphaType:
+            break;
+        default:
+            return false;
+    }
+
+    switch (info.colorType()) {
+        case kAlpha_8_SkColorType:
+        case kRGB_565_SkColorType:
+        case kPMColor_SkColorType:
+            break;
+        default:
+            return false;
+    }
+
+    return true;
+}
+
+SkCanvas* SkCanvas::NewRaster(const SkImageInfo& info) {
+    if (!supported_for_raster_canvas(info)) {
+        return NULL;
+    }
+
+    SkBitmap bitmap;
+    if (!bitmap.allocPixels(info)) {
+        return NULL;
+    }
+
+    // should this functionality be moved into allocPixels()?
+    if (!bitmap.info().isOpaque()) {
+        bitmap.eraseColor(0);
+    }
+    return SkNEW_ARGS(SkCanvas, (bitmap));
+}
