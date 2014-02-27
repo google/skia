@@ -15,12 +15,14 @@
 class GrContext;
 class GrGLInterface;
 class GrRenderTarget;
+class SkSurface;
 
 class JsContext;
 
 class SkV8ExampleWindow : public SkOSWindow {
 public:
     SkV8ExampleWindow(void* hwnd, JsContext* canvas);
+    virtual ~SkV8ExampleWindow();
 
 protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE;
@@ -44,6 +46,7 @@ private:
     GrContext*              fCurContext;
     const GrGLInterface*    fCurIntf;
     GrRenderTarget*         fCurRenderTarget;
+    SkSurface*              fCurSurface;
 #endif
 };
 

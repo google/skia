@@ -27,6 +27,7 @@ using namespace v8;
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkScalar.h"
+#include "SkSurface.h"
 
 
 DEFINE_string2(infile, i, NULL, "Name of file to load JS from.\n");
@@ -49,14 +50,24 @@ SkV8ExampleWindow::SkV8ExampleWindow(void* hwnd, JsContext* context)
     , fCurContext(NULL)
     , fCurIntf(NULL)
     , fCurRenderTarget(NULL)
+    , fCurSurface(NULL)
 #endif
 {
-    this->setConfig(SkBitmap::kARGB_8888_Config);
+    this->setColorType(kBGRA_8888_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
 #if SK_SUPPORT_GPU
     this->windowSizeChanged();
+#endif
+}
+
+SkV8ExampleWindow::~SkV8ExampleWindow() {
+#if SK_SUPPORT_GPU
+    SkSafeUnref(fCurContext);
+    SkSafeUnref(fCurIntf);
+    SkSafeUnref(fCurRenderTarget);
+    SkSafeUnref(fCurSurface);
 #endif
 }
 
@@ -92,6 +103,8 @@ void SkV8ExampleWindow::windowSizeChanged() {
 
         SkSafeUnref(fCurRenderTarget);
         fCurRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
+        SkSafeUnref(fCurSurface);
+        fCurSurface = SkSurface::NewRenderTargetDirect(fCurRenderTarget);
     }
 }
 #endif
@@ -99,9 +112,12 @@ void SkV8ExampleWindow::windowSizeChanged() {
 #if SK_SUPPORT_GPU
 SkCanvas* SkV8ExampleWindow::createCanvas() {
     if (FLAGS_gpu) {
-        SkAutoTUnref<SkBaseDevice> device(
-                new SkGpuDevice(fCurContext, fCurRenderTarget));
-        return new SkCanvas(device);
+        SkCanvas* c = fCurSurface->getCanvas();
+        // Increase the ref count since the surface keeps a reference
+        // to the canvas, but callers of createCanvas put the results
+        // in a SkAutoTUnref.
+        c->ref();
+        return c;
     } else {
         return this->INHERITED::createCanvas();
     }
