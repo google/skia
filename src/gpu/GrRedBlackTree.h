@@ -23,6 +23,11 @@ public:
     bool operator()(const T* a, const T* b) const { return *a < *b; }
 };
 
+class GrStrLess {
+public:
+    bool operator()(const char* a, const char* b) const { return strcmp(a,b) < 0; }
+};
+
 /**
  * In debug build this will cause full traversals of the tree when the validate
  * is called on insert and remove. Useful for debugging but very slow.

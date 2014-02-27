@@ -38,6 +38,7 @@
     '../bench/GameBench.cpp',
     '../bench/GrMemoryPoolBench.cpp',
     '../bench/GrResourceCacheBench.cpp',
+    '../bench/GrOrderedSetBench.cpp',
     '../bench/GradientBench.cpp',
     '../bench/HairlinePathBench.cpp',
     '../bench/ImageCacheBench.cpp',

@@ -88,6 +88,7 @@
     '../tests/GrDrawTargetTest.cpp',
     '../tests/GrMemoryPoolTest.cpp',
     '../tests/GrRedBlackTreeTest.cpp',
+    '../tests/GrOrderedSetTest.cpp',
     '../tests/GrSurfaceTest.cpp',
     '../tests/GrTBSearchTest.cpp',
     '../tests/GradientTest.cpp',
