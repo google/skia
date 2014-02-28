@@ -1,4 +1,4 @@
-#include "DMCpuTask.h"
+#include "DMCpuGMTask.h"
 #include "DMExpectationsTask.h"
 #include "DMPipeTask.h"
 #include "DMReplayTask.h"
@@ -9,13 +9,13 @@
 
 namespace DM {
 
-CpuTask::CpuTask(const char* config,
-                 Reporter* reporter,
-                 TaskRunner* taskRunner,
-                 const Expectations& expectations,
-                 skiagm::GMRegistry::Factory gmFactory,
-                 SkColorType colorType)
-    : Task(reporter, taskRunner)
+CpuGMTask::CpuGMTask(const char* config,
+                     Reporter* reporter,
+                     TaskRunner* taskRunner,
+                     const Expectations& expectations,
+                     skiagm::GMRegistry::Factory gmFactory,
+                     SkColorType colorType)
+    : CpuTask(reporter, taskRunner)
     , fGMFactory(gmFactory)
     , fGM(fGMFactory(NULL))
     , fName(UnderJoin(fGM->getName(), config))
@@ -23,7 +23,7 @@ CpuTask::CpuTask(const char* config,
     , fColorType(colorType)
     {}
 
-void CpuTask::draw() {
+void CpuGMTask::draw() {
     SkBitmap bitmap;
     SetupBitmap(fColorType, fGM.get(), &bitmap);
 
@@ -47,7 +47,7 @@ void CpuTask::draw() {
 #undef SPAWN
 }
 
-bool CpuTask::shouldSkip() const {
+bool CpuGMTask::shouldSkip() const {
     if (kRGB_565_SkColorType == fColorType && (fGM->getFlags() & skiagm::GM::kSkip565_Flag)) {
         return true;
     }

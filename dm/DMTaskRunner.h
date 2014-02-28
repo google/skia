@@ -5,26 +5,25 @@
 #include "SkThreadPool.h"
 #include "SkTypes.h"
 
-// TaskRunner runs Tasks on one of two threadpools depending on the Task's usesGpu() method.  This
-// lets us drive the GPU from a single thread while parallelizing CPU-bound work.
+// TaskRunner runs Tasks on one of two threadpools depending on the need for a GrContextFactory.
+// It's typically a good idea to run fewer GPU threads than CPU threads (go nuts with those).
 
 namespace DM {
 
-class Task;
+class CpuTask;
+class GpuTask;
 
 class TaskRunner : SkNoncopyable {
 public:
-    explicit TaskRunner(int cputhreads);
+    explicit TaskRunner(int cpuThreads, int gpuThreads);
 
-    void add(Task* task);
+    void add(CpuTask* task);
+    void add(GpuTask* task);
     void wait();
 
-    // This can only be safely called from a GPU task's draw() method.
-    GrContextFactory* getGrContextFactory() const { return fGrContextFactory; }
-
 private:
-    SkThreadPool fMain, fGpu;
-    GrContextFactory* fGrContextFactory;  // Created and destroyed on fGpu threadpool.
+    SkTThreadPool<void> fCpu;
+    SkTThreadPool<GrContextFactory> fGpu;
 };
 
 }  // namespace DM

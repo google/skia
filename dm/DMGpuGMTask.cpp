@@ -1,4 +1,4 @@
-#include "DMGpuTask.h"
+#include "DMGpuGMTask.h"
 
 #include "DMExpectationsTask.h"
 #include "DMUtil.h"
@@ -9,14 +9,14 @@
 
 namespace DM {
 
-GpuTask::GpuTask(const char* config,
-                 Reporter* reporter,
-                 TaskRunner* taskRunner,
-                 const Expectations& expectations,
-                 skiagm::GMRegistry::Factory gmFactory,
-                 GrContextFactory::GLContextType contextType,
-                 int sampleCount)
-    : Task(reporter, taskRunner)
+GpuGMTask::GpuGMTask(const char* config,
+                     Reporter* reporter,
+                     TaskRunner* taskRunner,
+                     const Expectations& expectations,
+                     skiagm::GMRegistry::Factory gmFactory,
+                     GrContextFactory::GLContextType contextType,
+                     int sampleCount)
+    : GpuTask(reporter, taskRunner)
     , fGM(gmFactory(NULL))
     , fName(UnderJoin(fGM->getName(), config))
     , fExpectations(expectations)
@@ -24,13 +24,13 @@ GpuTask::GpuTask(const char* config,
     , fSampleCount(sampleCount)
     {}
 
-void GpuTask::draw() {
+void GpuGMTask::draw(GrContextFactory* grFactory) {
     SkImageInfo info = SkImageInfo::Make(SkScalarCeilToInt(fGM->width()),
                                          SkScalarCeilToInt(fGM->height()),
                                          kPMColor_SkColorType,
                                          kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(
-            this->getGrContextFactory()->get(fContextType), info, fSampleCount));
+            grFactory->get(fContextType), info, fSampleCount));
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->concat(fGM->getInitialTransform());
@@ -49,7 +49,7 @@ void GpuTask::draw() {
     this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
 }
 
-bool GpuTask::shouldSkip() const {
+bool GpuGMTask::shouldSkip() const {
     return SkToBool(fGM->getFlags() & skiagm::GM::kSkipGPU_Flag);
 }
 

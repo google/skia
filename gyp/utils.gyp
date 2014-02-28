@@ -30,7 +30,6 @@
         '../include/utils/SkThreadPool.h',
         '../src/utils/SkCondVar.cpp',
         '../src/utils/SkCountdown.cpp',
-        '../src/utils/SkThreadPool.cpp',
 
         '../include/utils/SkBoundaryPatch.h',
         '../include/utils/SkFrontBufferedStream.h',
@@ -227,6 +226,7 @@
       'direct_dependent_settings': {
         'include_dirs': [
           '../include/utils',
+          '../src/utils',
         ],
       },
     },

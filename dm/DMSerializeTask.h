@@ -11,7 +11,7 @@
 
 namespace DM {
 
-class SerializeTask : public Task {
+class SerializeTask : public CpuTask {
 
 public:
     SerializeTask(const Task& parent,
@@ -19,7 +19,6 @@ public:
                   SkBitmap reference);
 
     virtual void draw() SK_OVERRIDE;
-    virtual bool usesGpu() const SK_OVERRIDE { return false; }
     virtual bool shouldSkip() const SK_OVERRIDE;
     virtual SkString name() const SK_OVERRIDE { return fName; }
 

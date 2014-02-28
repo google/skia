@@ -14,7 +14,7 @@ ReplayTask::ReplayTask(const Task& parent,
                        skiagm::GM* gm,
                        SkBitmap reference,
                        bool useRTree)
-    : Task(parent)
+    : CpuTask(parent)
     , fName(UnderJoin(parent.name().c_str(), useRTree ? "rtree" : "replay"))
     , fGM(gm)
     , fReference(reference)

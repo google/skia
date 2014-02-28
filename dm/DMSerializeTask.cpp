@@ -13,7 +13,7 @@ namespace DM {
 SerializeTask::SerializeTask(const Task& parent,
                              skiagm::GM* gm,
                              SkBitmap reference)
-    : Task(parent)
+    : CpuTask(parent)
     , fName(UnderJoin(parent.name().c_str(), "serialize"))
     , fGM(gm)
     , fReference(reference)

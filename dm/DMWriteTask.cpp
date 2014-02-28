@@ -26,7 +26,7 @@ static int split_suffixes(int N, const char* name, SkTArray<SkString>* out) {
     return consumed;
 }
 
-WriteTask::WriteTask(const Task& parent, SkBitmap bitmap) : Task(parent), fBitmap(bitmap) {
+WriteTask::WriteTask(const Task& parent, SkBitmap bitmap) : CpuTask(parent), fBitmap(bitmap) {
     const int suffixes = parent.depth() + 1;
     const SkString& name = parent.name();
     const int totalSuffixLength = split_suffixes(suffixes, name.c_str(), &fSuffixes);

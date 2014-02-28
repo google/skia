@@ -12,7 +12,7 @@ DEFINE_bool(tileGrid, false, "If true, run picture replay tests with a tile grid
 namespace DM {
 
 TileGridTask::TileGridTask(const Task& parent, skiagm::GM* gm, SkBitmap reference, SkISize tileSize)
-    : Task(parent)
+    : CpuTask(parent)
     , fName(UnderJoin(parent.name().c_str(), "tilegrid"))
     , fGM(gm)
     , fReference(reference)

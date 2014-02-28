@@ -1,5 +1,5 @@
-#ifndef DMCpuTask_DEFINED
-#define DMCpuTask_DEFINED
+#ifndef DMCpuGMTask_DEFINED
+#define DMCpuGMTask_DEFINED
 
 #include "DMExpectations.h"
 #include "DMReporter.h"
@@ -15,17 +15,16 @@
 
 namespace DM {
 
-class CpuTask : public Task {
+class CpuGMTask : public CpuTask {
 public:
-    CpuTask(const char* config,
-            Reporter*,
-            TaskRunner*,
-            const Expectations&,
-            skiagm::GMRegistry::Factory,
-            SkColorType);
+    CpuGMTask(const char* config,
+              Reporter*,
+              TaskRunner*,
+              const Expectations&,
+              skiagm::GMRegistry::Factory,
+              SkColorType);
 
     virtual void draw() SK_OVERRIDE;
-    virtual bool usesGpu() const SK_OVERRIDE { return false; }
     virtual bool shouldSkip() const SK_OVERRIDE;
     virtual SkString name() const SK_OVERRIDE { return fName; }
 
@@ -39,4 +38,4 @@ private:
 
 }  // namespace DM
 
-#endif // DMCpuTask_DEFINED
+#endif // DMCpuGMTask_DEFINED

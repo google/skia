@@ -6,7 +6,7 @@ namespace DM {
 ExpectationsTask::ExpectationsTask(const Task& parent,
                                    const Expectations& expectations,
                                    SkBitmap bitmap)
-    : Task(parent)
+    : CpuTask(parent)
     , fName(parent.name())  // Masquerade as parent so failures are attributed to it.
     , fExpectations(expectations)
     , fBitmap(bitmap)

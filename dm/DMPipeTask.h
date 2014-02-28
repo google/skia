@@ -11,7 +11,7 @@
 
 namespace DM {
 
-class PipeTask : public Task {
+class PipeTask : public CpuTask {
 
 public:
     PipeTask(const Task& parent,        // PipeTask must be a child task.  Pass its parent here.
@@ -21,7 +21,6 @@ public:
              bool sharedAddressSpace);  // If cross process, should it assume shared address space?
 
     virtual void draw() SK_OVERRIDE;
-    virtual bool usesGpu() const SK_OVERRIDE { return false; }
     virtual bool shouldSkip() const SK_OVERRIDE;
     virtual SkString name() const SK_OVERRIDE { return fName; }
 

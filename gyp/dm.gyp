@@ -29,9 +29,9 @@
         'sources': [
             '../dm/DM.cpp',
             '../dm/DMBenchTask.cpp',
-            '../dm/DMCpuTask.cpp',
+            '../dm/DMCpuGMTask.cpp',
             '../dm/DMExpectationsTask.cpp',
-            '../dm/DMGpuTask.cpp',
+            '../dm/DMGpuGMTask.cpp',
             '../dm/DMPipeTask.cpp',
             '../dm/DMReplayTask.cpp',
             '../dm/DMReporter.cpp',

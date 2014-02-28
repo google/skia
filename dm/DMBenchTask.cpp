@@ -14,7 +14,7 @@ NonRenderingBenchTask::NonRenderingBenchTask(const char* config,
                                              Reporter* reporter,
                                              TaskRunner* tasks,
                                              BenchRegistry::Factory factory)
-    : Task(reporter, tasks)
+    : CpuTask(reporter, tasks)
     , fBench(factory(NULL))
     , fName(bench_name(fBench->getName(), config)) {}
 
@@ -23,7 +23,7 @@ CpuBenchTask::CpuBenchTask(const char* config,
                            TaskRunner* tasks,
                            BenchRegistry::Factory factory,
                            SkColorType colorType)
-    : Task(reporter, tasks)
+    : CpuTask(reporter, tasks)
     , fBench(factory(NULL))
     , fName(bench_name(fBench->getName(), config))
     , fColorType(colorType) {}
@@ -34,7 +34,7 @@ GpuBenchTask::GpuBenchTask(const char* config,
                            BenchRegistry::Factory factory,
                            GrContextFactory::GLContextType contextType,
                            int sampleCount)
-    : Task(reporter, tasks)
+    : GpuTask(reporter, tasks)
     , fBench(factory(NULL))
     , fName(bench_name(fBench->getName(), config))
     , fContextType(contextType)
@@ -70,13 +70,13 @@ void CpuBenchTask::draw() {
     draw_raster(fBench.get(), fColorType);
 }
 
-void GpuBenchTask::draw() {
+void GpuBenchTask::draw(GrContextFactory* grFactory) {
     SkImageInfo info = SkImageInfo::Make(fBench->getSize().x(),
                                          fBench->getSize().y(),
                                          kPMColor_SkColorType,
                                          kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(
-            this->getGrContextFactory()->get(fContextType), info, fSampleCount));
+            grFactory->get(fContextType), info, fSampleCount));
 
     fBench->preDraw();
     fBench->draw(1, surface->getCanvas());

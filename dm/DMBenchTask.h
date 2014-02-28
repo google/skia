@@ -12,12 +12,11 @@
 
 namespace DM {
 
-class NonRenderingBenchTask : public Task {
+class NonRenderingBenchTask : public CpuTask {
 public:
     NonRenderingBenchTask(const char* config, Reporter*, TaskRunner*, BenchRegistry::Factory);
 
     virtual void draw() SK_OVERRIDE;
-    virtual bool usesGpu() const SK_OVERRIDE { return false; }
     virtual bool shouldSkip() const SK_OVERRIDE;
     virtual SkString name() const SK_OVERRIDE { return fName; }
 
@@ -26,12 +25,11 @@ private:
     const SkString fName;
 };
 
-class CpuBenchTask : public Task {
+class CpuBenchTask : public CpuTask {
 public:
     CpuBenchTask(const char* config, Reporter*, TaskRunner*, BenchRegistry::Factory, SkColorType);
 
     virtual void draw() SK_OVERRIDE;
-    virtual bool usesGpu() const SK_OVERRIDE { return false; }
     virtual bool shouldSkip() const SK_OVERRIDE;
     virtual SkString name() const SK_OVERRIDE { return fName; }
 
@@ -41,7 +39,7 @@ private:
     const SkColorType fColorType;
 };
 
-class GpuBenchTask : public Task {
+class GpuBenchTask : public GpuTask {
 public:
     GpuBenchTask(const char* config,
                  Reporter*,
@@ -50,8 +48,7 @@ public:
                  GrContextFactory::GLContextType,
                  int sampleCount);
 
-    virtual void draw() SK_OVERRIDE;
-    virtual bool usesGpu() const SK_OVERRIDE { return true; }
+    virtual void draw(GrContextFactory*) SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE;
     virtual SkString name() const SK_OVERRIDE { return fName; }
 

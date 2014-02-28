@@ -1,5 +1,5 @@
-#ifndef DMGpuTask_DEFINED
-#define DMGpuTask_DEFINED
+#ifndef DMGpuGMTask_DEFINED
+#define DMGpuGMTask_DEFINED
 
 #include "DMExpectations.h"
 #include "DMReporter.h"
@@ -15,18 +15,17 @@
 
 namespace DM {
 
-class GpuTask : public Task {
+class GpuGMTask : public GpuTask {
 public:
-    GpuTask(const char* config,
-            Reporter*,
-            TaskRunner*,
-            const Expectations&,
-            skiagm::GMRegistry::Factory,
-            GrContextFactory::GLContextType,
-            int sampleCount);
+    GpuGMTask(const char* config,
+              Reporter*,
+              TaskRunner*,
+              const Expectations&,
+              skiagm::GMRegistry::Factory,
+              GrContextFactory::GLContextType,
+              int sampleCount);
 
-    virtual void draw() SK_OVERRIDE;
-    virtual bool usesGpu() const SK_OVERRIDE { return true; }
+    virtual void draw(GrContextFactory*) SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE;
     virtual SkString name() const SK_OVERRIDE { return fName; }
 
@@ -40,4 +39,4 @@ private:
 
 }  // namespace DM
 
-#endif  // DMGpuTask_DEFINED
+#endif  // DMGpuGMTask_DEFINED

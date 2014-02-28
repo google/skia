@@ -12,8 +12,8 @@
 #include "gm.h"
 
 #include "DMBenchTask.h"
-#include "DMCpuTask.h"
-#include "DMGpuTask.h"
+#include "DMCpuGMTask.h"
+#include "DMGpuGMTask.h"
 #include "DMReporter.h"
 #include "DMTask.h"
 #include "DMTaskRunner.h"
@@ -28,6 +28,7 @@ using skiatest::Test;
 using skiatest::TestRegistry;
 
 DEFINE_int32(threads, -1, "Threads for CPU work. Default NUM_CPUS.");
+DEFINE_int32(gpuThreads, 1, "Threads for GPU work.");
 DEFINE_string2(expectations, r, "",
                "If a directory, compare generated images against images under this path. "
                "If a file, compare generated images against JSON expectations at this path.");
@@ -86,15 +87,15 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
     }
     for (int i = 0; i < gms.count(); i++) {
         for (int j = 0; j < configs.count(); j++) {
-            START("565",      CpuTask, kRGB_565_SkColorType);
-            START("8888",     CpuTask, kPMColor_SkColorType);
-            START("gpu",      GpuTask, native, 0);
-            START("msaa4",    GpuTask, native, 4);
-            START("msaa16",   GpuTask, native, 16);
-            START("gpunull",  GpuTask, null,   0);
-            START("gpudebug", GpuTask, debug,  0);
-            START("angle",    GpuTask, angle,  0);
-            START("mesa",     GpuTask, mesa,   0);
+            START("565",      CpuGMTask, kRGB_565_SkColorType);
+            START("8888",     CpuGMTask, kPMColor_SkColorType);
+            START("gpu",      GpuGMTask, native, 0);
+            START("msaa4",    GpuGMTask, native, 4);
+            START("msaa16",   GpuGMTask, native, 16);
+            START("gpunull",  GpuGMTask, null,   0);
+            START("gpudebug", GpuGMTask, debug,  0);
+            START("angle",    GpuGMTask, angle,  0);
+            START("mesa",     GpuGMTask, mesa,   0);
         }
     }
 #undef START
@@ -129,7 +130,12 @@ static void kick_off_tests(const SkTDArray<TestRegistry::Factory>& tests,
                            DM::Reporter* reporter,
                            DM::TaskRunner* tasks) {
     for (int i = 0; i < tests.count(); i++) {
-        tasks->add(SkNEW_ARGS(DM::TestTask, (reporter, tasks, tests[i])));
+        SkAutoTDelete<Test> test(tests[i](NULL));
+        if (test->isGPUTest()) {
+            tasks->add(SkNEW_ARGS(DM::GpuTestTask, (reporter, tasks, tests[i])));
+        } else {
+            tasks->add(SkNEW_ARGS(DM::CpuTestTask, (reporter, tasks, tests[i])));
+        }
     }
 }
 
@@ -201,7 +207,7 @@ int tool_main(int argc, char** argv) {
     SkDebugf("(%d GMs, %d benches) x %d configs, %d tests\n",
              gms.count(), benches.count(), configs.count(), tests.count());
     DM::Reporter reporter;
-    DM::TaskRunner tasks(FLAGS_threads);
+    DM::TaskRunner tasks(FLAGS_threads, FLAGS_gpuThreads);
     kick_off_gms(gms, configs, *expectations, &reporter, &tasks);
     kick_off_benches(benches, configs, &reporter, &tasks);
     kick_off_tests(tests, &reporter, &tasks);
