@@ -261,40 +261,40 @@ void SkDumpCanvas::setMatrix(const SkMatrix& matrix) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char* bool_to_aastring(bool doAA) {
-    return doAA ? "AA" : "BW";
+const char* SkDumpCanvas::EdgeStyleToAAString(ClipEdgeStyle edgeStyle) {
+    return kSoft_ClipEdgeStyle == edgeStyle ? "AA" : "BW";
 }
 
-bool SkDumpCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+void SkDumpCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     SkString str;
     toString(rect, &str);
     this->dump(kClip_Verb, NULL, "clipRect(%s %s %s)", str.c_str(), toString(op),
-               bool_to_aastring(doAA));
-    return this->INHERITED::clipRect(rect, op, doAA);
+               EdgeStyleToAAString(edgeStyle));
+    this->INHERITED::onClipRect(rect, op, edgeStyle);
 }
 
-bool SkDumpCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+void SkDumpCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     SkString str;
     toString(rrect, &str);
     this->dump(kClip_Verb, NULL, "clipRRect(%s %s %s)", str.c_str(), toString(op),
-               bool_to_aastring(doAA));
-    return this->INHERITED::clipRRect(rrect, op, doAA);
+               EdgeStyleToAAString(edgeStyle));
+    this->INHERITED::onClipRRect(rrect, op, edgeStyle);
 }
 
-bool SkDumpCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+void SkDumpCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     SkString str;
     toString(path, &str);
     this->dump(kClip_Verb, NULL, "clipPath(%s %s %s)", str.c_str(), toString(op),
-               bool_to_aastring(doAA));
-    return this->INHERITED::clipPath(path, op, doAA);
+               EdgeStyleToAAString(edgeStyle));
+    this->INHERITED::onClipPath(path, op, edgeStyle);
 }
 
-bool SkDumpCanvas::clipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
+void SkDumpCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     SkString str;
     toString(deviceRgn, &str);
     this->dump(kClip_Verb, NULL, "clipRegion(%s %s)", str.c_str(),
                toString(op));
-    return this->INHERITED::clipRegion(deviceRgn, op);
+    this->INHERITED::onClipRegion(deviceRgn, op);
 }
 
 void SkDumpCanvas::onPushCull(const SkRect& cullRect) {

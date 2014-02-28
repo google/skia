@@ -481,10 +481,9 @@ public:
         specified region. This does not intersect or in any other way account
         for the existing clip region.
         @param deviceRgn The region to copy into the current clip.
-        @return true if the new clip region is non-empty
     */
-    bool setClipRegion(const SkRegion& deviceRgn) {
-        return this->clipRegion(deviceRgn, SkRegion::kReplace_Op);
+    void setClipRegion(const SkRegion& deviceRgn) {
+        this->clipRegion(deviceRgn, SkRegion::kReplace_Op);
     }
 
     /** Return true if the specified rectangle, after being transformed by the
@@ -548,13 +547,13 @@ public:
         in a way similar to quickReject, in that it tells you that drawing
         outside of these bounds will be clipped out.
     */
-    bool getClipBounds(SkRect* bounds) const;
+    virtual bool getClipBounds(SkRect* bounds) const;
 
     /** Return the bounds of the current clip, in device coordinates; returns
         true if non-empty. Maybe faster than getting the clip explicitly and
         then taking its bounds.
     */
-    bool getClipDeviceBounds(SkIRect* bounds) const;
+    virtual bool getClipDeviceBounds(SkIRect* bounds) const;
 
 
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
@@ -1031,7 +1030,7 @@ public:
      *  result, subsequent calls will be cheap (until the clip state changes,
      *  which can happen on any clip..() or restore() call.
      */
-    bool isClipEmpty() const;
+    virtual bool isClipEmpty() const;
 
     /** Return the current matrix on the canvas.
         This does not account for the translate in any of the devices.
@@ -1048,7 +1047,7 @@ public:
     /** Returns a description of the total clip; may be cheaper than
         getting the clip and querying it directly.
     */
-    ClipType getClipType() const;
+    virtual ClipType getClipType() const;
 
     /** DEPRECATED -- need to move this guy to private/friend
      *  Return the current device clip (concatenation of all clip calls).
@@ -1130,6 +1129,16 @@ protected:
 
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
 
+    enum ClipEdgeStyle {
+        kHard_ClipEdgeStyle,
+        kSoft_ClipEdgeStyle
+    };
+
+    virtual void onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle);
+    virtual void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle);
+    virtual void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle);
+    virtual void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op);
+
     // Returns the canvas to be used by DrawIter. Default implementation
     // returns this. Subclasses that encapsulate an indirect canvas may
     // need to overload this method. The impl must keep track of this, as it
@@ -1146,7 +1155,7 @@ protected:
 
     // Called by child classes that override clipPath and clipRRect to only
     // track fast conservative clip bounds, rather than exact clips.
-    bool updateClipConservativelyUsingBounds(const SkRect&, SkRegion::Op,
+    void updateClipConservativelyUsingBounds(const SkRect&, SkRegion::Op,
                                              bool inverseFilled);
 
     // notify our surface (if we have one) that we are about to draw, so it

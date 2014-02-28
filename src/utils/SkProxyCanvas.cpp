@@ -58,20 +58,20 @@ void SkProxyCanvas::setMatrix(const SkMatrix& matrix) {
     fProxy->setMatrix(matrix);
 }
 
-bool SkProxyCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
-    return fProxy->clipRect(rect, op, doAA);
+void SkProxyCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+    fProxy->clipRect(rect, op, kSoft_ClipEdgeStyle == edgeStyle);
 }
 
-bool SkProxyCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
-    return fProxy->clipRRect(rrect, op, doAA);
+void SkProxyCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+    fProxy->clipRRect(rrect, op, kSoft_ClipEdgeStyle == edgeStyle);
 }
 
-bool SkProxyCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
-    return fProxy->clipPath(path, op, doAA);
+void SkProxyCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
+    fProxy->clipPath(path, op, kSoft_ClipEdgeStyle == edgeStyle);
 }
 
-bool SkProxyCanvas::clipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
-    return fProxy->clipRegion(deviceRgn, op);
+void SkProxyCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
+    fProxy->clipRegion(deviceRgn, op);
 }
 
 void SkProxyCanvas::drawPaint(const SkPaint& paint) {

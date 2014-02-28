@@ -139,30 +139,30 @@ void SkLuaCanvas::setMatrix(const SkMatrix& matrix) {
     this->INHERITED::setMatrix(matrix);
 }
 
-bool SkLuaCanvas::clipRect(const SkRect& r, SkRegion::Op op, bool doAA) {
+void SkLuaCanvas::onClipRect(const SkRect& r, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     AUTO_LUA("clipRect");
     lua.pushRect(r, "rect");
-    lua.pushBool(doAA, "aa");
-    return this->INHERITED::clipRect(r, op, doAA);
+    lua.pushBool(kSoft_ClipEdgeStyle == edgeStyle, "aa");
+    this->INHERITED::onClipRect(r, op, edgeStyle);
 }
 
-bool SkLuaCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+void SkLuaCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     AUTO_LUA("clipRRect");
     lua.pushRRect(rrect, "rrect");
-    lua.pushBool(doAA, "aa");
-    return this->INHERITED::clipRRect(rrect, op, doAA);
+    lua.pushBool(kSoft_ClipEdgeStyle == edgeStyle, "aa");
+    this->INHERITED::onClipRRect(rrect, op, edgeStyle);
 }
 
-bool SkLuaCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+void SkLuaCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     AUTO_LUA("clipPath");
     lua.pushPath(path, "path");
-    lua.pushBool(doAA, "aa");
-    return this->INHERITED::clipPath(path, op, doAA);
+    lua.pushBool(kSoft_ClipEdgeStyle == edgeStyle, "aa");
+    this->INHERITED::onClipPath(path, op, edgeStyle);
 }
 
-bool SkLuaCanvas::clipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
+void SkLuaCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     AUTO_LUA("clipRegion");
-    return this->INHERITED::clipRegion(deviceRgn, op);
+    this->INHERITED::onClipRegion(deviceRgn, op);
 }
 
 void SkLuaCanvas::drawPaint(const SkPaint& paint) {

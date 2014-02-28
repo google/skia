@@ -130,36 +130,36 @@ void SkNWayCanvas::setMatrix(const SkMatrix& matrix) {
     this->INHERITED::setMatrix(matrix);
 }
 
-bool SkNWayCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+void SkNWayCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->clipRect(rect, op, doAA);
+        iter->clipRect(rect, op, kSoft_ClipEdgeStyle == edgeStyle);
     }
-    return this->INHERITED::clipRect(rect, op, doAA);
+    this->INHERITED::onClipRect(rect, op, edgeStyle);
 }
 
-bool SkNWayCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+void SkNWayCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->clipRRect(rrect, op, doAA);
+        iter->clipRRect(rrect, op, kSoft_ClipEdgeStyle == edgeStyle);
     }
-    return this->INHERITED::clipRRect(rrect, op, doAA);
+    this->INHERITED::onClipRRect(rrect, op, edgeStyle);
 }
 
-bool SkNWayCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+void SkNWayCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->clipPath(path, op, doAA);
+        iter->clipPath(path, op, kSoft_ClipEdgeStyle == edgeStyle);
     }
-    return this->INHERITED::clipPath(path, op, doAA);
+    this->INHERITED::onClipPath(path, op, edgeStyle);
 }
 
-bool SkNWayCanvas::clipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
+void SkNWayCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     Iter iter(fList);
     while (iter.next()) {
         iter->clipRegion(deviceRgn, op);
     }
-    return this->INHERITED::clipRegion(deviceRgn, op);
+    this->INHERITED::onClipRegion(deviceRgn, op);
 }
 
 void SkNWayCanvas::clear(SkColor color) {
