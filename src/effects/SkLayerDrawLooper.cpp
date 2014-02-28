@@ -15,9 +15,6 @@
 #include "SkUnPreMultiply.h"
 
 SkLayerDrawLooper::LayerInfo::LayerInfo() {
-#ifdef SK_SUPPORT_LEGACY_LAYERDRAWLOOPER_PAINTFLAGS
-    fFlagsMask = 0;                     // ignore layerinfo's paint flags
-#endif
     fPaintBits = 0;                     // ignore our paint fields
     fColorMode = SkXfermode::kDst_Mode; // ignore our color
     fOffset.set(0, 0);
@@ -104,10 +101,6 @@ static SkColor xferColor(SkColor src, SkColor dst, SkXfermode::Mode mode) {
 void SkLayerDrawLooper::ApplyInfo(SkPaint* dst, const SkPaint& src,
                                   const LayerInfo& info) {
 
-#ifdef SK_SUPPORT_LEGACY_LAYERDRAWLOOPER_PAINTFLAGS
-    uint32_t mask = info.fFlagsMask;
-    dst->setFlags((dst->getFlags() & ~mask) | (src.getFlags() & mask));
-#endif
     dst->setColor(xferColor(src.getColor(), dst->getColor(), info.fColorMode));
 
     BitFlags bits = info.fPaintBits;
@@ -215,11 +208,9 @@ void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {
 
     Rec* rec = fRecs;
     for (int i = 0; i < fCount; i++) {
-#ifdef SK_SUPPORT_LEGACY_LAYERDRAWLOOPER_PAINTFLAGS
-        buffer.writeInt(rec->fInfo.fFlagsMask);
-#else
-        buffer.writeInt(0); // remove eventually, when we can bump the version
-#endif
+        // Legacy "flagsmask" field -- now ignored, remove when we bump version
+        buffer.writeInt(0);
+
         buffer.writeInt(rec->fInfo.fPaintBits);
         buffer.writeInt(rec->fInfo.fColorMode);
         buffer.writePoint(rec->fInfo.fOffset);
@@ -235,11 +226,9 @@ SkFlattenable* SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     Builder builder;
     for (int i = 0; i < count; i++) {
         LayerInfo info;
-#ifdef SK_SUPPORT_LEGACY_LAYERDRAWLOOPER_PAINTFLAGS
-        info.fFlagsMask = buffer.readInt();
-#else
+        // Legacy "flagsmask" field -- now ignored, remove when we bump version
         (void)buffer.readInt();
-#endif
+
         info.fPaintBits = buffer.readInt();
         info.fColorMode = (SkXfermode::Mode)buffer.readInt();
         buffer.readPoint(&info.fOffset);
@@ -270,46 +259,7 @@ void SkLayerDrawLooper::toString(SkString* str) const {
 
     Rec* rec = fRecs;
     for (int i = 0; i < fCount; i++) {
-        str->appendf("%d: ", i);
-
-#ifdef SK_SUPPORT_LEGACY_LAYERDRAWLOOPER_PAINTFLAGS
-        str->append("flagsMask: (");
-        if (0 == rec->fInfo.fFlagsMask) {
-            str->append("None");
-        } else {
-            bool needSeparator = false;
-            SkAddFlagToString(str, SkToBool(SkPaint::kAntiAlias_Flag & rec->fInfo.fFlagsMask),
-                              "AntiAlias", &needSeparator);
-//            SkAddFlagToString(str, SkToBool(SkPaint::kFilterBitmap_Flag & rec->fInfo.fFlagsMask), "FilterBitmap", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kDither_Flag & rec->fInfo.fFlagsMask),
-                              "Dither", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kUnderlineText_Flag & rec->fInfo.fFlagsMask),
-                              "UnderlineText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kStrikeThruText_Flag & rec->fInfo.fFlagsMask),
-                              "StrikeThruText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kFakeBoldText_Flag & rec->fInfo.fFlagsMask),
-                              "FakeBoldText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kLinearText_Flag & rec->fInfo.fFlagsMask),
-                              "LinearText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kSubpixelText_Flag & rec->fInfo.fFlagsMask),
-                              "SubpixelText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kDevKernText_Flag & rec->fInfo.fFlagsMask),
-                              "DevKernText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kLCDRenderText_Flag & rec->fInfo.fFlagsMask),
-                              "LCDRenderText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kEmbeddedBitmapText_Flag & rec->fInfo.fFlagsMask),
-                              "EmbeddedBitmapText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kAutoHinting_Flag & rec->fInfo.fFlagsMask),
-                              "Autohinted", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kVerticalText_Flag & rec->fInfo.fFlagsMask),
-                              "VerticalText", &needSeparator);
-            SkAddFlagToString(str, SkToBool(SkPaint::kGenA8FromLCD_Flag & rec->fInfo.fFlagsMask),
-                              "GenA8FromLCD", &needSeparator);
-        }
-#endif
-        str->append(") ");
-
-        str->append("paintBits: (");
+        str->appendf("%d: paintBits: (", i);
         if (0 == rec->fInfo.fPaintBits) {
             str->append("None");
         } else if (kEntirePaint_Bits == rec->fInfo.fPaintBits) {

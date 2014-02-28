@@ -24,8 +24,8 @@ public:
      *  Bits specifies which aspects of the layer's paint should replace the
      *  corresponding aspects on the draw's paint.
      *  kEntirePaint_Bits means use the layer's paint completely.
-     *  0 means ignore the layer's paint... except that LayerInfo's fFlagsMask
-     *  and fColorMode are always applied.
+     *  0 means ignore the layer's paint... except for fColorMode, which is
+     *  always applied.
      */
     enum Bits {
         kStyle_Bit      = 1 << 0,   //!< use this layer's Style/stroke settings
@@ -40,8 +40,7 @@ public:
          *  Use the layer's paint entirely, with these exceptions:
          *  - We never override the draw's paint's text_encoding, since that is
          *    used to interpret the text/len parameters in draw[Pos]Text.
-         *  - Flags and Color are always computed using the LayerInfo's
-         *    fFlagsMask and fColorMode.
+         *  - Color is always computed using the LayerInfo's fColorMode.
          */
         kEntirePaint_Bits = -1
 
@@ -50,12 +49,6 @@ public:
 
     /**
      *  Info for how to apply the layer's paint and offset.
-     *
-     *  fFlagsMask selects which flags in the layer's paint should be applied.
-     *      result = (draw-flags & ~fFlagsMask) | (layer-flags & fFlagsMask)
-     *  In the extreme:
-     *      If fFlagsMask is 0, we ignore all of the layer's flags
-     *      If fFlagsMask is -1, we use all of the layer's flags
      *
      *  fColorMode controls how we compute the final color for the layer:
      *      The layer's paint's color is treated as the SRC
@@ -66,9 +59,6 @@ public:
      *      kDst_Mode: to just keep the draw's color, ignoring the layer's
      */
     struct SK_API LayerInfo {
-#ifdef SK_SUPPORT_LEGACY_LAYERDRAWLOOPER_PAINTFLAGS
-        uint32_t            fFlagsMask; // SkPaint::Flags
-#endif
         BitFlags            fPaintBits;
         SkXfermode::Mode    fColorMode;
         SkVector            fOffset;
