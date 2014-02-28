@@ -12,6 +12,7 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "SkString.h"
+#include "SkTileGridPicture.h"
 #include "SkTime.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
@@ -25,6 +26,7 @@ DEFINE_int32(loops, 900, "Number of times to re-record each SKP.");
 DEFINE_int32(flags, SkPicture::kUsePathBoundsForClip_RecordingFlag, "RecordingFlags to use.");
 DEFINE_bool(endRecording, true, "If false, don't time SkPicture::endRecording()");
 DEFINE_int32(nullSize, 1000, "Pretend dimension of null source picture.");
+DEFINE_int32(tileGridSize, 0, "Set the tile grid size, if non zero switches to tile grid picture and enables kOptimizeForClippedPlayback_RecordingFlag.");
 
 static void bench_record(SkPicture* src, const char* name) {
     const SkMSec start = SkTime::GetMSecs();
@@ -32,10 +34,21 @@ static void bench_record(SkPicture* src, const char* name) {
     const int height = src ? src->height() : FLAGS_nullSize;
 
     for (int i = 0; i < FLAGS_loops; i++) {
-        SkPicture dst;
-        SkCanvas* canvas = dst.beginRecording(width, height, FLAGS_flags);
+        SkAutoTUnref<SkPicture> dst;
+        int recordingFlags = FLAGS_flags;
+        if (FLAGS_tileGridSize > 0) {
+            SkTileGridPicture::TileGridInfo info;
+            info.fTileInterval.set(FLAGS_tileGridSize, FLAGS_tileGridSize);
+            info.fMargin.setEmpty();
+            info.fOffset.setZero();
+            dst.reset(SkNEW_ARGS(SkTileGridPicture, (width, height, info)));
+            recordingFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
+        } else {
+            dst.reset(SkNEW(SkPicture));
+        }
+        SkCanvas* canvas = dst->beginRecording(width, height, recordingFlags);
         if (src) src->draw(canvas);
-        if (FLAGS_endRecording) dst.endRecording();
+        if (FLAGS_endRecording) dst->endRecording();
     }
 
     const SkMSec elapsed = SkTime::GetMSecs() - start;
