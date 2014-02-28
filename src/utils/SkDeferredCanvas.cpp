@@ -789,34 +789,39 @@ void SkDeferredCanvas::setMatrix(const SkMatrix& matrix) {
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onClipRect(const SkRect& rect,
-                                  SkRegion::Op op,
-                                  ClipEdgeStyle edgeStyle) {
-    this->drawingCanvas()->clipRect(rect, op, kSoft_ClipEdgeStyle == edgeStyle);
-    this->INHERITED::onClipRect(rect, op, edgeStyle);
+bool SkDeferredCanvas::clipRect(const SkRect& rect,
+                                SkRegion::Op op,
+                                bool doAntiAlias) {
+    this->drawingCanvas()->clipRect(rect, op, doAntiAlias);
+    bool val = this->INHERITED::clipRect(rect, op, doAntiAlias);
     this->recordedDrawCommand();
+    return val;
 }
 
-void SkDeferredCanvas::onClipRRect(const SkRRect& rrect,
-                                   SkRegion::Op op,
-                                   ClipEdgeStyle edgeStyle) {
-    this->drawingCanvas()->clipRRect(rrect, op, kSoft_ClipEdgeStyle == edgeStyle);
-    this->INHERITED::onClipRRect(rrect, op, edgeStyle);
+bool SkDeferredCanvas::clipRRect(const SkRRect& rrect,
+                                 SkRegion::Op op,
+                                 bool doAntiAlias) {
+    this->drawingCanvas()->clipRRect(rrect, op, doAntiAlias);
+    bool val = this->INHERITED::clipRRect(rrect, op, doAntiAlias);
     this->recordedDrawCommand();
+    return val;
 }
 
-void SkDeferredCanvas::onClipPath(const SkPath& path,
-                                  SkRegion::Op op,
-                                  ClipEdgeStyle edgeStyle) {
-    this->drawingCanvas()->clipPath(path, op, kSoft_ClipEdgeStyle == edgeStyle);
-    this->INHERITED::onClipPath(path, op, edgeStyle);
+bool SkDeferredCanvas::clipPath(const SkPath& path,
+                                SkRegion::Op op,
+                                bool doAntiAlias) {
+    this->drawingCanvas()->clipPath(path, op, doAntiAlias);
+    bool val = this->INHERITED::clipPath(path, op, doAntiAlias);
     this->recordedDrawCommand();
+    return val;
 }
 
-void SkDeferredCanvas::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
+bool SkDeferredCanvas::clipRegion(const SkRegion& deviceRgn,
+                                  SkRegion::Op op) {
     this->drawingCanvas()->clipRegion(deviceRgn, op);
-    this->INHERITED::onClipRegion(deviceRgn, op);
+    bool val = this->INHERITED::clipRegion(deviceRgn, op);
     this->recordedDrawCommand();
+    return val;
 }
 
 void SkDeferredCanvas::clear(SkColor color) {

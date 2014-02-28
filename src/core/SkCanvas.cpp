@@ -1166,12 +1166,6 @@ void SkCanvas::resetMatrix() {
 //////////////////////////////////////////////////////////////////////////////
 
 bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
-    ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
-    this->onClipRect(rect, op, edgeStyle);
-    return !this->isClipEmpty();
-}
-
-void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
 #ifdef SK_ENABLE_CLIP_QUICKREJECT
     if (SkRegion::kIntersect_Op == op) {
         if (fMCRec->fRasterClip->isEmpty()) {
@@ -1192,9 +1186,7 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
 
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    if (!fAllowSoftClip) {
-        edgeStyle = kHard_ClipEdgeStyle;
-    }
+    doAA &= fAllowSoftClip;
 
     if (fMCRec->fMatrix->rectStaysRect()) {
         // for these simpler matrices, we can stay a rect even after applying
@@ -1204,8 +1196,8 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
         SkRect      r;
 
         fMCRec->fMatrix->mapRect(&r, rect);
-        fClipStack.clipDevRect(r, op, kSoft_ClipEdgeStyle == edgeStyle);
-        fMCRec->fRasterClip->op(r, op, kSoft_ClipEdgeStyle == edgeStyle);
+        fClipStack.clipDevRect(r, op, doAA);
+        return fMCRec->fRasterClip->op(r, op, doAA);
     } else {
         // since we're rotated or some such thing, we convert the rect to a path
         // and clip against that, since it can handle any matrix. However, to
@@ -1214,12 +1206,12 @@ void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edg
         SkPath  path;
 
         path.addRect(rect);
-        this->SkCanvas::onClipPath(path, op, edgeStyle);
+        return this->SkCanvas::clipPath(path, op, doAA);
     }
 }
 
-static void clip_path_helper(const SkCanvas* canvas, SkRasterClip* currClip,
-                             const SkPath& devPath, SkRegion::Op op, bool doAA) {
+static bool clipPathHelper(const SkCanvas* canvas, SkRasterClip* currClip,
+                           const SkPath& devPath, SkRegion::Op op, bool doAA) {
     // base is used to limit the size (and therefore memory allocation) of the
     // region that results from scan converting devPath.
     SkRegion base;
@@ -1232,81 +1224,60 @@ static void clip_path_helper(const SkCanvas* canvas, SkRasterClip* currClip,
             // FIXME: we should also be able to do this when currClip->isBW(),
             // but relaxing the test above triggers GM asserts in
             // SkRgnBuilder::blitH(). We need to investigate what's going on.
-            currClip->setPath(devPath, currClip->bwRgn(), doAA);
+            return currClip->setPath(devPath, currClip->bwRgn(), doAA);
         } else {
             base.setRect(currClip->getBounds());
             SkRasterClip clip;
             clip.setPath(devPath, base, doAA);
-            currClip->op(clip, op);
+            return currClip->op(clip, op);
         }
     } else {
         const SkBaseDevice* device = canvas->getDevice();
         if (!device) {
-            currClip->setEmpty();
-            return;
+            return currClip->setEmpty();
         }
 
         base.setRect(0, 0, device->width(), device->height());
 
         if (SkRegion::kReplace_Op == op) {
-            currClip->setPath(devPath, base, doAA);
+            return currClip->setPath(devPath, base, doAA);
         } else {
             SkRasterClip clip;
             clip.setPath(devPath, base, doAA);
-            currClip->op(clip, op);
+            return currClip->op(clip, op);
         }
     }
 }
 
 bool SkCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
-    ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     if (rrect.isRect()) {
-        this->onClipRect(rrect.getBounds(), op, edgeStyle);
-    } else {
-        this->onClipRRect(rrect, op, edgeStyle);
+        // call the non-virtual version
+        return this->SkCanvas::clipRect(rrect.getBounds(), op, doAA);
     }
-    return !this->isClipEmpty();
-}
 
-void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     SkRRect transformedRRect;
     if (rrect.transform(*fMCRec->fMatrix, &transformedRRect)) {
         AutoValidateClip avc(this);
 
         fDeviceCMDirty = true;
         fCachedLocalClipBoundsDirty = true;
-        if (!fAllowSoftClip) {
-            edgeStyle = kHard_ClipEdgeStyle;
-        }
+        doAA &= fAllowSoftClip;
 
-        fClipStack.clipDevRRect(transformedRRect, op, kSoft_ClipEdgeStyle == edgeStyle);
+        fClipStack.clipDevRRect(transformedRRect, op, doAA);
 
         SkPath devPath;
         devPath.addRRect(transformedRRect);
 
-        clip_path_helper(this, fMCRec->fRasterClip, devPath, op, kSoft_ClipEdgeStyle == edgeStyle);
-        return;
+        return clipPathHelper(this, fMCRec->fRasterClip, devPath, op, doAA);
     }
 
     SkPath path;
     path.addRRect(rrect);
     // call the non-virtual version
-    this->SkCanvas::onClipPath(path, op, edgeStyle);
+    return this->SkCanvas::clipPath(path, op, doAA);
 }
 
 bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
-    ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
-    SkRect r;
-    if (!path.isInverseFillType() && path.isRect(&r)) {
-        this->onClipRect(r, op, edgeStyle);
-    } else {
-        this->onClipPath(path, op, edgeStyle);
-    }
-
-    return !this->isClipEmpty();
-}
-
-void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
 #ifdef SK_ENABLE_CLIP_QUICKREJECT
     if (SkRegion::kIntersect_Op == op && !path.isInverseFillType()) {
         if (fMCRec->fRasterClip->isEmpty()) {
@@ -1327,9 +1298,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
 
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    if (!fAllowSoftClip) {
-        edgeStyle = kHard_ClipEdgeStyle;
-    }
+    doAA &= fAllowSoftClip;
 
     SkPath devPath;
     path.transform(*fMCRec->fMatrix, &devPath);
@@ -1345,7 +1314,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
     }
 
     // if we called path.swap() we could avoid a deep copy of this path
-    fClipStack.clipDevPath(devPath, op, kSoft_ClipEdgeStyle == edgeStyle);
+    fClipStack.clipDevPath(devPath, op, doAA);
 
     if (fAllowSimplifyClip) {
         devPath.reset();
@@ -1369,17 +1338,15 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
             // if the prev and curr clips disagree about aa -vs- not, favor the aa request.
             // perhaps we need an API change to avoid this sort of mixed-signals about
             // clipping.
-            if (element->isAA()) {
-                edgeStyle = kSoft_ClipEdgeStyle;
-            }
+            doAA |= element->isAA();
         }
         op = SkRegion::kReplace_Op;
     }
 
-    clip_path_helper(this, fMCRec->fRasterClip, devPath, op, edgeStyle);
+    return clipPathHelper(this, fMCRec->fRasterClip, devPath, op, doAA);
 }
 
-void SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegion::Op op,
+bool SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegion::Op op,
                                                    bool inverseFilled) {
     // This is for updating the clip conservatively using only bounds
     // information.
@@ -1403,7 +1370,7 @@ void SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegio
             case SkRegion::kDifference_Op:
                 // These ops can only shrink the current clip. So leaving
                 // the clip unchanges conservatively respects the contract.
-                return;
+                return this->getClipDeviceBounds(NULL);
             case SkRegion::kUnion_Op:
             case SkRegion::kReplace_Op:
             case SkRegion::kReverseDifference_Op:
@@ -1419,9 +1386,10 @@ void SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegio
                     this->SkCanvas::save(SkCanvas::kMatrix_SaveFlag);
                     // set the clip in device space
                     this->SkCanvas::setMatrix(SkMatrix::I());
-                    this->SkCanvas::clipRect(deviceBounds, SkRegion::kReplace_Op, false);
+                    bool result = this->SkCanvas::clipRect(deviceBounds,
+                        SkRegion::kReplace_Op, false);
                     this->SkCanvas::restore(); //pop the matrix, but keep the clip
-                    return;
+                    return result;
                 }
             default:
                 SkASSERT(0); // unhandled op?
@@ -1432,34 +1400,27 @@ void SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegio
             case SkRegion::kIntersect_Op:
             case SkRegion::kUnion_Op:
             case SkRegion::kReplace_Op:
-                this->SkCanvas::clipRect(bounds, op, false);
-                return;
+                return this->SkCanvas::clipRect(bounds, op, false);
             case SkRegion::kDifference_Op:
                 // Difference can only shrink the current clip.
                 // Leaving clip unchanged conservatively fullfills the contract.
-                return;
+                return this->getClipDeviceBounds(NULL);
             case SkRegion::kReverseDifference_Op:
                 // To reverse, we swap in the bounds with a replace op.
                 // As with difference, leave it unchanged.
-                this->SkCanvas::clipRect(bounds, SkRegion::kReplace_Op, false);
-                return;
+                return this->SkCanvas::clipRect(bounds, SkRegion::kReplace_Op, false);
             case SkRegion::kXOR_Op:
                 // Be conservative, based on (A XOR B) always included in (A union B),
                 // which is always included in (bounds(A) union bounds(B))
-                this->SkCanvas::clipRect(bounds, SkRegion::kUnion_Op, false);
-                return;
+                return this->SkCanvas::clipRect(bounds, SkRegion::kUnion_Op, false);
             default:
                 SkASSERT(0); // unhandled op?
         }
     }
+    return true;
 }
 
 bool SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
-    this->onClipRegion(rgn, op);
-    return !this->isClipEmpty();
-}
-
-void SkCanvas::onClipRegion(const SkRegion& rgn, SkRegion::Op op) {
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
@@ -1469,7 +1430,7 @@ void SkCanvas::onClipRegion(const SkRegion& rgn, SkRegion::Op op) {
     // we have to ignore it, and use the region directly?
     fClipStack.clipDevRect(rgn.getBounds(), op);
 
-    fMCRec->fRasterClip->op(rgn, op);
+    return fMCRec->fRasterClip->op(rgn, op);
 }
 
 #ifdef SK_DEBUG
@@ -1499,7 +1460,11 @@ void SkCanvas::validateClip() const {
             default: {
                 SkPath path;
                 element->asPath(&path);
-                clip_path_helper(this, &tmpClip, path, element->getOp(), element->isAA());
+                clipPathHelper(this,
+                               &tmpClip,
+                               path,
+                               element->getOp(),
+                               element->isAA());
                 break;
             }
         }
@@ -1578,7 +1543,7 @@ bool SkCanvas::quickReject(const SkPath& path) const {
 
 bool SkCanvas::getClipBounds(SkRect* bounds) const {
     SkIRect ibounds;
-    if (!this->getClipDeviceBounds(&ibounds)) {
+    if (!getClipDeviceBounds(&ibounds)) {
         return false;
     }
 
@@ -1623,12 +1588,8 @@ const SkMatrix& SkCanvas::getTotalMatrix() const {
 }
 
 SkCanvas::ClipType SkCanvas::getClipType() const {
-    if (fMCRec->fRasterClip->isEmpty()) {
-        return kEmpty_ClipType;
-    }
-    if (fMCRec->fRasterClip->isRect()) {
-        return kRect_ClipType;
-    }
+    if (fMCRec->fRasterClip->isEmpty()) return kEmpty_ClipType;
+    if (fMCRec->fRasterClip->isRect()) return kRect_ClipType;
     return kComplex_ClipType;
 }
 

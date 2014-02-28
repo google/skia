@@ -982,30 +982,22 @@ public:
         , fClipCount(0){
     }
 
-    virtual void onClipRect(const SkRect& r, 
-                            SkRegion::Op op, 
-                            ClipEdgeStyle edgeStyle) SK_OVERRIDE {
+    virtual bool clipRect(const SkRect& r, SkRegion::Op op, bool doAA)
+        SK_OVERRIDE {
         fClipCount += 1;
-        this->INHERITED::onClipRect(r, op, edgeStyle);
+        return this->INHERITED::clipRect(r, op, doAA);
     }
 
-    virtual void onClipRRect(const SkRRect& rrect, 
-                             SkRegion::Op op, 
-                             ClipEdgeStyle edgeStyle)SK_OVERRIDE {
+    virtual bool clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA)
+        SK_OVERRIDE {
         fClipCount += 1;
-        this->INHERITED::onClipRRect(rrect, op, edgeStyle);
+        return this->INHERITED::clipRRect(rrect, op, doAA);
     }
 
-    virtual void onClipPath(const SkPath& path, 
-                            SkRegion::Op op, 
-                            ClipEdgeStyle edgeStyle) SK_OVERRIDE {
+    virtual bool clipPath(const SkPath& path, SkRegion::Op op, bool doAA)
+        SK_OVERRIDE {
         fClipCount += 1;
-        this->INHERITED::onClipPath(path, op, edgeStyle);
-    }
-
-    virtual void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) SK_OVERRIDE {
-        fClipCount += 1;
-        this->INHERITED::onClipRegion(deviceRgn, op);
+        return this->INHERITED::clipPath(path, op, doAA);
     }
 
     unsigned getClipCount() const { return fClipCount; }

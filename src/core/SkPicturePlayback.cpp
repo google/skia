@@ -819,8 +819,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 size_t offsetToRestore = reader.readInt();
                 SkASSERT(!offsetToRestore || \
                     offsetToRestore >= reader.offset());
-                canvas.clipPath(path, regionOp, doAA);
-                if (canvas.isClipEmpty() && offsetToRestore) {
+                if (!canvas.clipPath(path, regionOp, doAA) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipPath.recordSkip(offsetToRestore - reader.offset());
 #endif
@@ -835,8 +834,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 size_t offsetToRestore = reader.readInt();
                 SkASSERT(!offsetToRestore || \
                     offsetToRestore >= reader.offset());
-                canvas.clipRegion(region, regionOp);
-                if (canvas.isClipEmpty() && offsetToRestore) {
+                if (!canvas.clipRegion(region, regionOp) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipRegion.recordSkip(offsetToRestore - reader.offset());
 #endif
@@ -851,8 +849,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 size_t offsetToRestore = reader.readInt();
                 SkASSERT(!offsetToRestore || \
                          offsetToRestore >= reader.offset());
-                canvas.clipRect(rect, regionOp, doAA);
-                if (canvas.isClipEmpty() && offsetToRestore) {
+                if (!canvas.clipRect(rect, regionOp, doAA) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipRect.recordSkip(offsetToRestore - reader.offset());
 #endif
@@ -868,8 +865,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 size_t offsetToRestore = reader.readInt();
                 SkASSERT(!offsetToRestore || \
                          offsetToRestore >= reader.offset());
-                canvas.clipRRect(rrect, regionOp, doAA);
-                if (canvas.isClipEmpty() && offsetToRestore) {
+                if (!canvas.clipRRect(rrect, regionOp, doAA) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipRRect.recordSkip(offsetToRestore - reader.offset());
 #endif

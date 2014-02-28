@@ -149,6 +149,14 @@ public:
     virtual bool skew(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE;
     virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
+    virtual bool clipRect(const SkRect& rect, SkRegion::Op op,
+                          bool doAntiAlias) SK_OVERRIDE;
+    virtual bool clipRRect(const SkRRect& rect, SkRegion::Op op,
+                           bool doAntiAlias) SK_OVERRIDE;
+    virtual bool clipPath(const SkPath& path, SkRegion::Op op,
+                          bool doAntiAlias) SK_OVERRIDE;
+    virtual bool clipRegion(const SkRegion& deviceRgn,
+                            SkRegion::Op op) SK_OVERRIDE;
     virtual void clear(SkColor) SK_OVERRIDE;
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
@@ -195,11 +203,6 @@ public:
 protected:
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&,
                               const SkPaint&) SK_OVERRIDE;
-
-    virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
-    virtual void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
 
 public:
     class NotificationClient {

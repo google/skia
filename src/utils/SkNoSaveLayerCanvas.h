@@ -32,20 +32,25 @@ public:
         return count;
     }
 
-protected:
     // disable aa for speed
-    virtual void onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle) SK_OVERRIDE {
-        this->INHERITED::onClipRect(rect, op, kHard_ClipEdgeStyle);
+    virtual bool clipRect(const SkRect& rect,
+                          SkRegion::Op op,
+                          bool doAA) SK_OVERRIDE {
+        return this->INHERITED::clipRect(rect, op, false);
     }
 
     // for speed, just respect the bounds, and disable AA. May give us a few
     // false positives and negatives.
-    virtual void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle) SK_OVERRIDE {
-        this->updateClipConservativelyUsingBounds(path.getBounds(), op,
-                                                  path.isInverseFillType());
+    virtual bool clipPath(const SkPath& path,
+                          SkRegion::Op op,
+                          bool doAA) SK_OVERRIDE {
+        return this->updateClipConservativelyUsingBounds(path.getBounds(), op,
+                                                         path.isInverseFillType());
     }
-    virtual void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle) SK_OVERRIDE {
-        this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, false);
+    virtual bool clipRRect(const SkRRect& rrect,
+                           SkRegion::Op op,
+                           bool doAA) SK_OVERRIDE {
+        return this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, false);
     }
 
 private:

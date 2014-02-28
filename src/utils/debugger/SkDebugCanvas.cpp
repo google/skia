@@ -43,8 +43,7 @@ SkDebugCanvas::SkDebugCanvas(int width, int height)
     large.roundOut(&largeIRect);
     SkASSERT(!largeIRect.isEmpty());
 #endif
-    // call the base class' version to avoid adding a draw command
-    this->INHERITED::onClipRect(large, SkRegion::kReplace_Op, kHard_ClipEdgeStyle);
+    INHERITED::clipRect(large, SkRegion::kReplace_Op, false);
 }
 
 SkDebugCanvas::~SkDebugCanvas() {
@@ -298,20 +297,24 @@ void SkDebugCanvas::clear(SkColor color) {
     addDrawCommand(new SkClearCommand(color));
 }
 
-void SkDebugCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
-    this->addDrawCommand(new SkClipPathCommand(path, op, kSoft_ClipEdgeStyle == edgeStyle));
+bool SkDebugCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+    addDrawCommand(new SkClipPathCommand(path, op, doAA));
+    return true;
 }
 
-void SkDebugCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
-    this->addDrawCommand(new SkClipRectCommand(rect, op, kSoft_ClipEdgeStyle == edgeStyle));
+bool SkDebugCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+    addDrawCommand(new SkClipRectCommand(rect, op, doAA));
+    return true;
 }
 
-void SkDebugCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
-    this->addDrawCommand(new SkClipRRectCommand(rrect, op, kSoft_ClipEdgeStyle == edgeStyle));
+bool SkDebugCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+    addDrawCommand(new SkClipRRectCommand(rrect, op, doAA));
+    return true;
 }
 
-void SkDebugCanvas::onClipRegion(const SkRegion& region, SkRegion::Op op) {
-    this->addDrawCommand(new SkClipRegionCommand(region, op));
+bool SkDebugCanvas::clipRegion(const SkRegion& region, SkRegion::Op op) {
+    addDrawCommand(new SkClipRegionCommand(region, op));
+    return true;
 }
 
 bool SkDebugCanvas::concat(const SkMatrix& matrix) {

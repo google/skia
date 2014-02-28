@@ -77,31 +77,31 @@ void SkBBoxHierarchyRecord::setMatrix(const SkMatrix& matrix) {
     fStateTree->appendTransform(getTotalMatrix());
 }
 
-void SkBBoxHierarchyRecord::onClipRect(const SkRect& rect,
-                                       SkRegion::Op op,
-                                       ClipEdgeStyle edgeStyle) {
+bool SkBBoxHierarchyRecord::clipRect(const SkRect& rect,
+                                     SkRegion::Op op,
+                                     bool doAntiAlias) {
     fStateTree->appendClip(this->writeStream().bytesWritten());
-    this->INHERITED::onClipRect(rect, op, edgeStyle);
+    return INHERITED::clipRect(rect, op, doAntiAlias);
 }
 
-void SkBBoxHierarchyRecord::onClipRegion(const SkRegion& region,
-                                         SkRegion::Op op) {
+bool SkBBoxHierarchyRecord::clipRegion(const SkRegion& region,
+                                       SkRegion::Op op) {
     fStateTree->appendClip(this->writeStream().bytesWritten());
-    this->INHERITED::onClipRegion(region, op);
+    return INHERITED::clipRegion(region, op);
 }
 
-void SkBBoxHierarchyRecord::onClipPath(const SkPath& path,
-                                       SkRegion::Op op,
-                                       ClipEdgeStyle edgeStyle) {
+bool SkBBoxHierarchyRecord::clipPath(const SkPath& path,
+                                     SkRegion::Op op,
+                                     bool doAntiAlias) {
     fStateTree->appendClip(this->writeStream().bytesWritten());
-    this->INHERITED::onClipPath(path, op, edgeStyle);
+    return INHERITED::clipPath(path, op, doAntiAlias);
 }
 
-void SkBBoxHierarchyRecord::onClipRRect(const SkRRect& rrect,
-                                        SkRegion::Op op,
-                                        ClipEdgeStyle edgeStyle) {
+bool SkBBoxHierarchyRecord::clipRRect(const SkRRect& rrect,
+                                      SkRegion::Op op,
+                                      bool doAntiAlias) {
     fStateTree->appendClip(this->writeStream().bytesWritten());
-    this->INHERITED::onClipRRect(rrect, op, edgeStyle);
+    return INHERITED::clipRRect(rrect, op, doAntiAlias);
 }
 
 bool SkBBoxHierarchyRecord::shouldRewind(void* data) {
