@@ -200,7 +200,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
             SkVector offset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
                                 SkIntToScalar(-clipDataIn->fOrigin.fY) };
             rect.offset(offset);
-            effect.reset(GrConvexPolyEffect::CreateForAAFillRect(rect));
+            effect.reset(GrConvexPolyEffect::Create(GrConvexPolyEffect::kFillAA_EdgeType, rect));
             // This should never fail.
             SkASSERT(effect);
         }

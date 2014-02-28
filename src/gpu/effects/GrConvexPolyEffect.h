@@ -21,13 +21,13 @@ class SkPath;
  */
 class GrConvexPolyEffect : public GrEffect {
 public:
-    /** This could be expanded to include a AA hairline mode. If so, unify with GrBezierEffect's
-        enum. */
     enum EdgeType {
         kFillNoAA_EdgeType,
         kFillAA_EdgeType,
+        kInverseFillNoAA_EdgeType,
+        kInverseFillAA_EdgeType,
 
-        kLastEdgeType = kFillAA_EdgeType,
+        kLastEdgeType = kInverseFillAA_EdgeType,
     };
 
     enum {
@@ -64,7 +64,7 @@ public:
     /**
      * Creates an effect that fills inside the rect with AA edges..
      */
-    static GrEffectRef* CreateForAAFillRect(const SkRect&);
+    static GrEffectRef* Create(EdgeType, const SkRect&);
 
     virtual ~GrConvexPolyEffect();
 
