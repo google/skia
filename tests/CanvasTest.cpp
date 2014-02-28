@@ -918,7 +918,7 @@ static void test_newraster(skiatest::Reporter* reporter) {
     info.fWidth = 1 << 30;
     info.fHeight = 1 << 30;
     REPORTER_ASSERT(reporter, NULL == SkCanvas::NewRaster(info));
-    
+
     // not a valid pixel type
     info.fWidth = info.fHeight = 10;
     info.fColorType = kUnknown_SkColorType;

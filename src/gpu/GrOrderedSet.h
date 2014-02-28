@@ -152,4 +152,3 @@ void GrOrderedSet<T,C>::remove(const typename GrOrderedSet<T,C>::Iter& iter) {
 }
 
 #endif
-
