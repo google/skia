@@ -114,6 +114,14 @@
             '../src/opts/SkXfermode_opts_none.cpp',
           ],
         }],
+        [ 'skia_android_framework', {
+          'cflags!': [
+            '-msse2',
+            '-mfpu=neon',
+            '-fomit-frame-pointer',
+            '-mno-apcs-frame',
+          ]
+        }],
       ],
     },
     # For the same lame reasons as what is done for skia_opts, we have to
@@ -133,7 +141,8 @@
         '../src/core',
       ],
       'conditions': [
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "nacl", "chromeos", "android"] \
+           and not skia_android_framework', {
           'cflags': [
             '-mssse3',
           ],
@@ -169,9 +178,13 @@
         '-mfpu=vfpv3',
         '-mfpu=vfpv3-d16',
       ],
-      'cflags': [
-        '-mfpu=neon',
-        '-fomit-frame-pointer',
+      'conditions': [
+        [ 'not skia_android_framework', {
+          'cflags': [
+            '-mfpu=neon',
+            '-fomit-frame-pointer',
+          ],
+        }],
       ],
       'ldflags': [
         '-march=armv7-a',

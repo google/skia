@@ -14,6 +14,7 @@
         'opts.gyp:opts',
         'pdf.gyp:pdf',
         'ports.gyp:ports',
+        'utils.gyp:utils',
       ],
     },
   ],

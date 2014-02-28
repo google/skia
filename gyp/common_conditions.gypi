@@ -218,6 +218,13 @@
         '-U_FORTIFY_SOURCE',
         '-D_FORTIFY_SOURCE=1',
       ],
+      'cflags!': [
+        '-g',
+        '-march=armv7-a',
+        '-mthumb',
+        '-mfpu=neon',
+        '-mfloat-abi=softfp',
+      ],
       'defines': [
         'DCT_IFAST_SUPPORTED',
         # using freetype's embolden allows us to adjust fake bold settings at
