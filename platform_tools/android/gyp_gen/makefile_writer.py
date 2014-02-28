@@ -10,8 +10,8 @@ Functions for creating an Android.mk from already created dictionaries.
 """
 
 import os
-import variables
 
+# TODO(scroggo): Add unit tests for this file.
 def write_group(f, name, items, append):
   """
   Helper function to list all names passed to a variable.
@@ -36,12 +36,13 @@ def write_group(f, name, items, append):
   f.write('\n\n')
 
 
-def write_local_vars(f, var_dict, append):
+def write_local_vars(f, var_dict, append, name):
   """
   Helper function to write all the members of var_dict to the makefile.
   @param f File open for writing (Android.mk)
   @param var_dict VarsDict holding the unique values for one configuration.
   @param append Whether to append to each makefile variable or overwrite it.
+  @param name If not None, a string to be appended to each key.
   """
   for key in var_dict.keys():
     if key == 'LOCAL_CFLAGS':
@@ -53,7 +54,10 @@ def write_local_vars(f, var_dict, append):
       continue
     else:
       _append = append
-    write_group(f, key, var_dict[key], _append)
+    _key = key
+    if name:
+      _key += '_' + name
+    write_group(f, _key, var_dict[key], _append)
 
 
 AUTOGEN_WARNING = (
@@ -97,28 +101,38 @@ DEBUGGING_HELP = (
 """
 )
 
+class VarsDictData(object):
+  """
+  Helper class for keeping a VarsDict along with a name and an optional
+  condition.
+  """
+  def __init__(self, vars_dict, name, condition=None):
+    """
+    Create a new VarsDictData.
+    @param vars_dict A VarsDict. Can be accessed via self.vars_dict.
+    @param name Name associated with the VarsDict. Can be accessed via
+                self.name.
+    @param condition Optional string representing a condition. If not None,
+                     used to create a conditional inside the makefile.
+    """
+    self.vars_dict = vars_dict
+    self.condition = condition
+    self.name = name
 
-# TODO (scroggo): Currently write_android_mk has intimate knowledge about its
-# parameters: e.g. arm_neon keeps track of differences from arm, whereas the
-# others keep track of differences from common. Consider reworking this.
-def write_android_mk(target_dir, common, arm, arm_neon, x86, default):
+def write_android_mk(target_dir, common, deviations_from_common):
   """
   Given all the variables, write the final make file.
   @param target_dir The full path to the directory to write Android.mk, or None
                     to use the current working directory.
   @param common VarsDict holding variables definitions common to all
                 configurations.
-  @param arm VarsDict holding variable definitions unique to arm. Will be
-             written to the makefile inside an 'ifeq ($(TARGET_ARCH), arm)'
-             block.
-  @param arm_neon VarsDict holding variable definitions unique to arm with neon.
-                 Will be written inside an 'ifeq ($(ARCH_ARM_HAVE_NEON),true)'
-                 block nested inside an 'ifeq ($(TARGET_ARCH), arm)' block.
-  @param x86 VarsDict holding variable definitions unique to x86. Will be
-             written inside an 'ifeq ($(TARGET_ARCH),x86)' block.
-  @param default VarsDict holding variable definitions for an architecture
-                 without custom optimizations.
-  TODO: Add mips.
+  @param deviations_from_common List of VarsDictData, one for each possible
+                                configuration. VarsDictData.name will be
+                                appended to each key before writing it to the
+                                makefile. VarsDictData.condition, if not None,
+                                will be written to the makefile as a condition
+                                to determine whether to include
+                                VarsDictData.vars_dict.
   """
   target_file = 'Android.mk'
   if target_dir:
@@ -136,11 +150,13 @@ def write_android_mk(target_dir, common, arm, arm_neon, x86, default):
 
     # need a flag to tell the C side when we're on devices with large memory
     # budgets (i.e. larger than the low-end devices that initially shipped)
-    f.write('ifeq ($(ARCH_ARM_HAVE_VFP),true)\n')
-    f.write('\tLOCAL_CFLAGS += -DANDROID_LARGE_MEMORY_DEVICE\n')
-    f.write('endif\n\n')
-
-    f.write('ifeq ($(TARGET_ARCH),x86)\n')
+    # On arm, only define the flag if it has VFP. For all other architectures,
+    # always define the flag.
+    f.write('ifeq ($(TARGET_ARCH),arm)\n')
+    f.write('\tifeq ($(ARCH_ARM_HAVE_VFP),true)\n')
+    f.write('\t\tLOCAL_CFLAGS += -DANDROID_LARGE_MEMORY_DEVICE\n')
+    f.write('\tendif\n')
+    f.write('else\n')
     f.write('\tLOCAL_CFLAGS += -DANDROID_LARGE_MEMORY_DEVICE\n')
     f.write('endif\n\n')
 
@@ -151,25 +167,16 @@ def write_android_mk(target_dir, common, arm, arm_neon, x86, default):
     f.write('\tLOCAL_CFLAGS += -DNO_FALLBACK_FONT\n')
     f.write('endif\n\n')
 
-    write_local_vars(f, common, False)
+    write_local_vars(f, common, False, None)
 
-    f.write('ifeq ($(TARGET_ARCH),arm)\n')
-    f.write('ifeq ($(ARCH_ARM_HAVE_NEON),true)\n')
-    write_local_vars(f, arm_neon, True)
-    f.write('endif\n\n')
-    write_local_vars(f, arm, True)
-
-    if variables.INCLUDE_X86_OPTS:
-      f.write('else ifeq ($(TARGET_ARCH),x86)\n')
-      write_local_vars(f, x86, True)
-
-    f.write('else\n')
-    write_local_vars(f, default, True)
-    f.write('endif\n\n')
+    for data in deviations_from_common:
+      if data.condition:
+        f.write('ifeq ($(%s), true)\n' % data.condition)
+      write_local_vars(f, data.vars_dict, True, data.name)
+      if data.condition:
+        f.write('endif\n\n')
 
     f.write('include external/stlport/libstlport.mk\n')
     f.write('LOCAL_MODULE:= libskia\n')
     f.write('include $(BUILD_SHARED_LIBRARY)\n')
-
-
 
