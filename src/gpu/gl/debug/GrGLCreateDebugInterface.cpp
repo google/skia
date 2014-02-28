@@ -919,5 +919,8 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     functions->fBindFragDataLocationIndexed =
                                     noOpGLBindFragDataLocationIndexed;
 
+    interface->fExtensions.init(kGL_GrGLStandard, functions->fGetString, functions->fGetStringi,
+                                functions->fGetIntegerv);
+
     return interface;
 }

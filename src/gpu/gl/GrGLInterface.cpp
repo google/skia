@@ -28,9 +28,9 @@ const GrGLInterface* GrGLInterfaceAddTestDebugMarker(const GrGLInterface* interf
         newInterface->fExtensions.add("GL_EXT_debug_marker");
     }
 
-    newInterface->fInsertEventMarker = insertEventMarkerFn;
-    newInterface->fPushGroupMarker = pushGroupMarkerFn;
-    newInterface->fPopGroupMarker = popGroupMarkerFn;
+    newInterface->fFunctions.fInsertEventMarker = insertEventMarkerFn;
+    newInterface->fFunctions.fPushGroupMarker = pushGroupMarkerFn;
+    newInterface->fFunctions.fPopGroupMarker = popGroupMarkerFn;
 
     return newInterface;
 }
@@ -40,245 +40,60 @@ const GrGLInterface* GrGLInterfaceRemoveNVPR(const GrGLInterface* interface) {
 
     newInterface->fExtensions.remove("GL_NV_path_rendering");
 
-    newInterface->fPathCommands = NULL;
-    newInterface->fPathCoords = NULL;
-    newInterface->fPathSubCommands = NULL;
-    newInterface->fPathSubCoords = NULL;
-    newInterface->fPathString = NULL;
-    newInterface->fPathGlyphs = NULL;
-    newInterface->fPathGlyphRange = NULL;
-    newInterface->fWeightPaths = NULL;
-    newInterface->fCopyPath = NULL;
-    newInterface->fInterpolatePaths = NULL;
-    newInterface->fTransformPath = NULL;
-    newInterface->fPathParameteriv = NULL;
-    newInterface->fPathParameteri = NULL;
-    newInterface->fPathParameterfv = NULL;
-    newInterface->fPathParameterf = NULL;
-    newInterface->fPathDashArray = NULL;
-    newInterface->fGenPaths = NULL;
-    newInterface->fDeletePaths = NULL;
-    newInterface->fIsPath = NULL;
-    newInterface->fPathStencilFunc = NULL;
-    newInterface->fPathStencilDepthOffset = NULL;
-    newInterface->fStencilFillPath = NULL;
-    newInterface->fStencilStrokePath = NULL;
-    newInterface->fStencilFillPathInstanced = NULL;
-    newInterface->fStencilStrokePathInstanced = NULL;
-    newInterface->fPathCoverDepthFunc = NULL;
-    newInterface->fPathColorGen = NULL;
-    newInterface->fPathTexGen = NULL;
-    newInterface->fPathFogGen = NULL;
-    newInterface->fCoverFillPath = NULL;
-    newInterface->fCoverStrokePath = NULL;
-    newInterface->fCoverFillPathInstanced = NULL;
-    newInterface->fCoverStrokePathInstanced = NULL;
-    newInterface->fGetPathParameteriv = NULL;
-    newInterface->fGetPathParameterfv = NULL;
-    newInterface->fGetPathCommands = NULL;
-    newInterface->fGetPathCoords = NULL;
-    newInterface->fGetPathDashArray = NULL;
-    newInterface->fGetPathMetrics = NULL;
-    newInterface->fGetPathMetricRange = NULL;
-    newInterface->fGetPathSpacing = NULL;
-    newInterface->fGetPathColorGeniv = NULL;
-    newInterface->fGetPathColorGenfv = NULL;
-    newInterface->fGetPathTexGeniv = NULL;
-    newInterface->fGetPathTexGenfv = NULL;
-    newInterface->fIsPointInFillPath = NULL;
-    newInterface->fIsPointInStrokePath = NULL;
-    newInterface->fGetPathLength = NULL;
-    newInterface->fPointAlongPath = NULL;
+    newInterface->fFunctions.fPathCommands = NULL;
+    newInterface->fFunctions.fPathCoords = NULL;
+    newInterface->fFunctions.fPathSubCommands = NULL;
+    newInterface->fFunctions.fPathSubCoords = NULL;
+    newInterface->fFunctions.fPathString = NULL;
+    newInterface->fFunctions.fPathGlyphs = NULL;
+    newInterface->fFunctions.fPathGlyphRange = NULL;
+    newInterface->fFunctions.fWeightPaths = NULL;
+    newInterface->fFunctions.fCopyPath = NULL;
+    newInterface->fFunctions.fInterpolatePaths = NULL;
+    newInterface->fFunctions.fTransformPath = NULL;
+    newInterface->fFunctions.fPathParameteriv = NULL;
+    newInterface->fFunctions.fPathParameteri = NULL;
+    newInterface->fFunctions.fPathParameterfv = NULL;
+    newInterface->fFunctions.fPathParameterf = NULL;
+    newInterface->fFunctions.fPathDashArray = NULL;
+    newInterface->fFunctions.fGenPaths = NULL;
+    newInterface->fFunctions.fDeletePaths = NULL;
+    newInterface->fFunctions.fIsPath = NULL;
+    newInterface->fFunctions.fPathStencilFunc = NULL;
+    newInterface->fFunctions.fPathStencilDepthOffset = NULL;
+    newInterface->fFunctions.fStencilFillPath = NULL;
+    newInterface->fFunctions.fStencilStrokePath = NULL;
+    newInterface->fFunctions.fStencilFillPathInstanced = NULL;
+    newInterface->fFunctions.fStencilStrokePathInstanced = NULL;
+    newInterface->fFunctions.fPathCoverDepthFunc = NULL;
+    newInterface->fFunctions.fPathColorGen = NULL;
+    newInterface->fFunctions.fPathTexGen = NULL;
+    newInterface->fFunctions.fPathFogGen = NULL;
+    newInterface->fFunctions.fCoverFillPath = NULL;
+    newInterface->fFunctions.fCoverStrokePath = NULL;
+    newInterface->fFunctions.fCoverFillPathInstanced = NULL;
+    newInterface->fFunctions.fCoverStrokePathInstanced = NULL;
+    newInterface->fFunctions.fGetPathParameteriv = NULL;
+    newInterface->fFunctions.fGetPathParameterfv = NULL;
+    newInterface->fFunctions.fGetPathCommands = NULL;
+    newInterface->fFunctions.fGetPathCoords = NULL;
+    newInterface->fFunctions.fGetPathDashArray = NULL;
+    newInterface->fFunctions.fGetPathMetrics = NULL;
+    newInterface->fFunctions.fGetPathMetricRange = NULL;
+    newInterface->fFunctions.fGetPathSpacing = NULL;
+    newInterface->fFunctions.fGetPathColorGeniv = NULL;
+    newInterface->fFunctions.fGetPathColorGenfv = NULL;
+    newInterface->fFunctions.fGetPathTexGeniv = NULL;
+    newInterface->fFunctions.fGetPathTexGenfv = NULL;
+    newInterface->fFunctions.fIsPointInFillPath = NULL;
+    newInterface->fFunctions.fIsPointInStrokePath = NULL;
+    newInterface->fFunctions.fGetPathLength = NULL;
+    newInterface->fFunctions.fPointAlongPath = NULL;
 
     return newInterface;
 }
 
-GrGLInterface::GrGLInterface()
-    // TODO: Remove this madness ASAP.
-    : fActiveTexture(&fFunctions.fActiveTexture)
-    , fAttachShader(&fFunctions.fAttachShader)
-    , fBeginQuery(&fFunctions.fBeginQuery)
-    , fBindAttribLocation(&fFunctions.fBindAttribLocation)
-    , fBindBuffer(&fFunctions.fBindBuffer)
-    , fBindFragDataLocation(&fFunctions.fBindFragDataLocation)
-    , fBindFragDataLocationIndexed(&fFunctions.fBindFragDataLocationIndexed)
-    , fBindFramebuffer(&fFunctions.fBindFramebuffer)
-    , fBindRenderbuffer(&fFunctions.fBindRenderbuffer)
-    , fBindTexture(&fFunctions.fBindTexture)
-    , fBindVertexArray(&fFunctions.fBindVertexArray)
-    , fBlendColor(&fFunctions.fBlendColor)
-    , fBlendFunc(&fFunctions.fBlendFunc)
-    , fBlitFramebuffer(&fFunctions.fBlitFramebuffer)
-    , fBufferData(&fFunctions.fBufferData)
-    , fBufferSubData(&fFunctions.fBufferSubData)
-    , fCheckFramebufferStatus(&fFunctions.fCheckFramebufferStatus)
-    , fClear(&fFunctions.fClear)
-    , fClearColor(&fFunctions.fClearColor)
-    , fClearStencil(&fFunctions.fClearStencil)
-    , fColorMask(&fFunctions.fColorMask)
-    , fCompileShader(&fFunctions.fCompileShader)
-    , fCompressedTexImage2D(&fFunctions.fCompressedTexImage2D)
-    , fCopyTexSubImage2D(&fFunctions.fCopyTexSubImage2D)
-    , fCreateProgram(&fFunctions.fCreateProgram)
-    , fCreateShader(&fFunctions.fCreateShader)
-    , fCullFace(&fFunctions.fCullFace)
-    , fDeleteBuffers(&fFunctions.fDeleteBuffers)
-    , fDeleteFramebuffers(&fFunctions.fDeleteFramebuffers)
-    , fDeleteProgram(&fFunctions.fDeleteProgram)
-    , fDeleteQueries(&fFunctions.fDeleteQueries)
-    , fDeleteRenderbuffers(&fFunctions.fDeleteRenderbuffers)
-    , fDeleteShader(&fFunctions.fDeleteShader)
-    , fDeleteTextures(&fFunctions.fDeleteTextures)
-    , fDeleteVertexArrays(&fFunctions.fDeleteVertexArrays)
-    , fDepthMask(&fFunctions.fDepthMask)
-    , fDisable(&fFunctions.fDisable)
-    , fDisableVertexAttribArray(&fFunctions.fDisableVertexAttribArray)
-    , fDrawArrays(&fFunctions.fDrawArrays)
-    , fDrawBuffer(&fFunctions.fDrawBuffer)
-    , fDrawBuffers(&fFunctions.fDrawBuffers)
-    , fDrawElements(&fFunctions.fDrawElements)
-    , fEnable(&fFunctions.fEnable)
-    , fEnableVertexAttribArray(&fFunctions.fEnableVertexAttribArray)
-    , fEndQuery(&fFunctions.fEndQuery)
-    , fFinish(&fFunctions.fFinish)
-    , fFlush(&fFunctions.fFlush)
-    , fFramebufferRenderbuffer(&fFunctions.fFramebufferRenderbuffer)
-    , fFramebufferTexture2D(&fFunctions.fFramebufferTexture2D)
-    , fFramebufferTexture2DMultisample(&fFunctions.fFramebufferTexture2DMultisample)
-    , fFrontFace(&fFunctions.fFrontFace)
-    , fGenBuffers(&fFunctions.fGenBuffers)
-    , fGenFramebuffers(&fFunctions.fGenFramebuffers)
-    , fGenerateMipmap(&fFunctions.fGenerateMipmap)
-    , fGenQueries(&fFunctions.fGenQueries)
-    , fGenRenderbuffers(&fFunctions.fGenRenderbuffers)
-    , fGenTextures(&fFunctions.fGenTextures)
-    , fGenVertexArrays(&fFunctions.fGenVertexArrays)
-    , fGetBufferParameteriv(&fFunctions.fGetBufferParameteriv)
-    , fGetError(&fFunctions.fGetError)
-    , fGetFramebufferAttachmentParameteriv(&fFunctions.fGetFramebufferAttachmentParameteriv)
-    , fGetIntegerv(&fFunctions.fGetIntegerv)
-    , fGetQueryObjecti64v(&fFunctions.fGetQueryObjecti64v)
-    , fGetQueryObjectiv(&fFunctions.fGetQueryObjectiv)
-    , fGetQueryObjectui64v(&fFunctions.fGetQueryObjectui64v)
-    , fGetQueryObjectuiv(&fFunctions.fGetQueryObjectuiv)
-    , fGetQueryiv(&fFunctions.fGetQueryiv)
-    , fGetProgramInfoLog(&fFunctions.fGetProgramInfoLog)
-    , fGetProgramiv(&fFunctions.fGetProgramiv)
-    , fGetRenderbufferParameteriv(&fFunctions.fGetRenderbufferParameteriv)
-    , fGetShaderInfoLog(&fFunctions.fGetShaderInfoLog)
-    , fGetShaderiv(&fFunctions.fGetShaderiv)
-    , fGetString(&fFunctions.fGetString)
-    , fGetStringi(&fFunctions.fGetStringi)
-    , fGetTexLevelParameteriv(&fFunctions.fGetTexLevelParameteriv)
-    , fGetUniformLocation(&fFunctions.fGetUniformLocation)
-    , fInsertEventMarker(&fFunctions.fInsertEventMarker)
-    , fLineWidth(&fFunctions.fLineWidth)
-    , fLinkProgram(&fFunctions.fLinkProgram)
-    , fLoadIdentity(&fFunctions.fLoadIdentity)
-    , fLoadMatrixf(&fFunctions.fLoadMatrixf)
-    , fMapBuffer(&fFunctions.fMapBuffer)
-    , fMatrixMode(&fFunctions.fMatrixMode)
-    , fPixelStorei(&fFunctions.fPixelStorei)
-    , fPopGroupMarker(&fFunctions.fPopGroupMarker)
-    , fPushGroupMarker(&fFunctions.fPushGroupMarker)
-    , fQueryCounter(&fFunctions.fQueryCounter)
-    , fReadBuffer(&fFunctions.fReadBuffer)
-    , fReadPixels(&fFunctions.fReadPixels)
-    , fRenderbufferStorage(&fFunctions.fRenderbufferStorage)
-    , fRenderbufferStorageMultisampleES2EXT(&fFunctions.fRenderbufferStorageMultisampleES2EXT)
-    , fRenderbufferStorageMultisampleES2APPLE(&fFunctions.fRenderbufferStorageMultisampleES2APPLE)
-    , fRenderbufferStorageMultisample(&fFunctions.fRenderbufferStorageMultisample)
-    , fBindUniformLocation(&fFunctions.fBindUniformLocation)
-    , fResolveMultisampleFramebuffer(&fFunctions.fResolveMultisampleFramebuffer)
-    , fScissor(&fFunctions.fScissor)
-    , fShaderSource(&fFunctions.fShaderSource)
-    , fStencilFunc(&fFunctions.fStencilFunc)
-    , fStencilFuncSeparate(&fFunctions.fStencilFuncSeparate)
-    , fStencilMask(&fFunctions.fStencilMask)
-    , fStencilMaskSeparate(&fFunctions.fStencilMaskSeparate)
-    , fStencilOp(&fFunctions.fStencilOp)
-    , fStencilOpSeparate(&fFunctions.fStencilOpSeparate)
-    , fTexGenfv(&fFunctions.fTexGenfv)
-    , fTexGeni(&fFunctions.fTexGeni)
-    , fTexImage2D(&fFunctions.fTexImage2D)
-    , fTexParameteri(&fFunctions.fTexParameteri)
-    , fTexParameteriv(&fFunctions.fTexParameteriv)
-    , fTexSubImage2D(&fFunctions.fTexSubImage2D)
-    , fTexStorage2D(&fFunctions.fTexStorage2D)
-    , fDiscardFramebuffer(&fFunctions.fDiscardFramebuffer)
-    , fUniform1f(&fFunctions.fUniform1f)
-    , fUniform1i(&fFunctions.fUniform1i)
-    , fUniform1fv(&fFunctions.fUniform1fv)
-    , fUniform1iv(&fFunctions.fUniform1iv)
-    , fUniform2f(&fFunctions.fUniform2f)
-    , fUniform2i(&fFunctions.fUniform2i)
-    , fUniform2fv(&fFunctions.fUniform2fv)
-    , fUniform2iv(&fFunctions.fUniform2iv)
-    , fUniform3f(&fFunctions.fUniform3f)
-    , fUniform3i(&fFunctions.fUniform3i)
-    , fUniform3fv(&fFunctions.fUniform3fv)
-    , fUniform3iv(&fFunctions.fUniform3iv)
-    , fUniform4f(&fFunctions.fUniform4f)
-    , fUniform4i(&fFunctions.fUniform4i)
-    , fUniform4fv(&fFunctions.fUniform4fv)
-    , fUniform4iv(&fFunctions.fUniform4iv)
-    , fUniformMatrix2fv(&fFunctions.fUniformMatrix2fv)
-    , fUniformMatrix3fv(&fFunctions.fUniformMatrix3fv)
-    , fUniformMatrix4fv(&fFunctions.fUniformMatrix4fv)
-    , fUnmapBuffer(&fFunctions.fUnmapBuffer)
-    , fUseProgram(&fFunctions.fUseProgram)
-    , fVertexAttrib4fv(&fFunctions.fVertexAttrib4fv)
-    , fVertexAttribPointer(&fFunctions.fVertexAttribPointer)
-    , fViewport(&fFunctions.fViewport)
-    , fPathCommands(&fFunctions.fPathCommands)
-    , fPathCoords(&fFunctions.fPathCoords)
-    , fPathSubCommands(&fFunctions.fPathSubCommands)
-    , fPathSubCoords(&fFunctions.fPathSubCoords)
-    , fPathString(&fFunctions.fPathString)
-    , fPathGlyphs(&fFunctions.fPathGlyphs)
-    , fPathGlyphRange(&fFunctions.fPathGlyphRange)
-    , fWeightPaths(&fFunctions.fWeightPaths)
-    , fCopyPath(&fFunctions.fCopyPath)
-    , fInterpolatePaths(&fFunctions.fInterpolatePaths)
-    , fTransformPath(&fFunctions.fTransformPath)
-    , fPathParameteriv(&fFunctions.fPathParameteriv)
-    , fPathParameteri(&fFunctions.fPathParameteri)
-    , fPathParameterfv(&fFunctions.fPathParameterfv)
-    , fPathParameterf(&fFunctions.fPathParameterf)
-    , fPathDashArray(&fFunctions.fPathDashArray)
-    , fGenPaths(&fFunctions.fGenPaths)
-    , fDeletePaths(&fFunctions.fDeletePaths)
-    , fIsPath(&fFunctions.fIsPath)
-    , fPathStencilFunc(&fFunctions.fPathStencilFunc)
-    , fPathStencilDepthOffset(&fFunctions.fPathStencilDepthOffset)
-    , fStencilFillPath(&fFunctions.fStencilFillPath)
-    , fStencilStrokePath(&fFunctions.fStencilStrokePath)
-    , fStencilFillPathInstanced(&fFunctions.fStencilFillPathInstanced)
-    , fStencilStrokePathInstanced(&fFunctions.fStencilStrokePathInstanced)
-    , fPathCoverDepthFunc(&fFunctions.fPathCoverDepthFunc)
-    , fPathColorGen(&fFunctions.fPathColorGen)
-    , fPathTexGen(&fFunctions.fPathTexGen)
-    , fPathFogGen(&fFunctions.fPathFogGen)
-    , fCoverFillPath(&fFunctions.fCoverFillPath)
-    , fCoverStrokePath(&fFunctions.fCoverStrokePath)
-    , fCoverFillPathInstanced(&fFunctions.fCoverFillPathInstanced)
-    , fCoverStrokePathInstanced(&fFunctions.fCoverStrokePathInstanced)
-    , fGetPathParameteriv(&fFunctions.fGetPathParameteriv)
-    , fGetPathParameterfv(&fFunctions.fGetPathParameterfv)
-    , fGetPathCommands(&fFunctions.fGetPathCommands)
-    , fGetPathCoords(&fFunctions.fGetPathCoords)
-    , fGetPathDashArray(&fFunctions.fGetPathDashArray)
-    , fGetPathMetrics(&fFunctions.fGetPathMetrics)
-    , fGetPathMetricRange(&fFunctions.fGetPathMetricRange)
-    , fGetPathSpacing(&fFunctions.fGetPathSpacing)
-    , fGetPathColorGeniv(&fFunctions.fGetPathColorGeniv)
-    , fGetPathColorGenfv(&fFunctions.fGetPathColorGenfv)
-    , fGetPathTexGeniv(&fFunctions.fGetPathTexGeniv)
-    , fGetPathTexGenfv(&fFunctions.fGetPathTexGenfv)
-    , fIsPointInFillPath(&fFunctions.fIsPointInFillPath)
-    , fIsPointInStrokePath(&fFunctions.fIsPointInStrokePath)
-    , fGetPathLength(&fFunctions.fGetPathLength)
-    , fPointAlongPath(&fFunctions.fPointAlongPath) {
+GrGLInterface::GrGLInterface() {
     fStandard = kNone_GrGLStandard;
 
 #if GR_GL_PER_GL_FUNC_CALLBACK
@@ -307,14 +122,8 @@ bool GrGLInterface::validate() const {
         return false;
     }
 
-    // This const hackery is necessary because the factories in Chromium do not yet initialize
-    // fExtensions.
     if (!fExtensions.isInitialized()) {
-        GrGLExtensions* extensions = const_cast<GrGLExtensions*>(&fExtensions);
-        if (!extensions->init(fStandard, fFunctions.fGetString, fFunctions.fGetStringi,
-                              fFunctions.fGetIntegerv)) {
-            return false;
-        }
+        return false;
     }
 
     // functions that are always required
