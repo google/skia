@@ -143,16 +143,6 @@ public:
 
     virtual void clear(SkColor) SK_OVERRIDE;
 
-    virtual bool clipPath(const SkPath&, SkRegion::Op, bool) SK_OVERRIDE;
-
-    virtual bool clipRect(const SkRect&, SkRegion::Op, bool) SK_OVERRIDE;
-
-    virtual bool clipRRect(const SkRRect& rrect,
-                           SkRegion::Op op = SkRegion::kIntersect_Op,
-                           bool doAntiAlias = false) SK_OVERRIDE;
-
-    virtual bool clipRegion(const SkRegion& region, SkRegion::Op op) SK_OVERRIDE;
-
     virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE;
 
     virtual void drawBitmap(const SkBitmap&, SkScalar left, SkScalar top,
@@ -233,10 +223,34 @@ public:
     static const int kVizImageHeight = 256;
     static const int kVizImageWidth = 256;
 
+    virtual bool isClipEmpty() const SK_OVERRIDE { return false; }
+    virtual ClipType getClipType() const SK_OVERRIDE { 
+        return kRect_ClipType; 
+    }
+    virtual bool getClipBounds(SkRect* bounds) const SK_OVERRIDE {
+        if (NULL != bounds) {
+            bounds->setXYWH(0, 0, 
+                            SkIntToScalar(this->imageInfo().fWidth), 
+                            SkIntToScalar(this->imageInfo().fHeight));
+        }
+        return true;
+    }
+    virtual bool getClipDeviceBounds(SkIRect* bounds) const SK_OVERRIDE {
+        if (NULL != bounds) {
+            bounds->setLargest();
+        }
+        return true;
+    }
+
 protected:
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
     virtual void onPushCull(const SkRect& cullRect) SK_OVERRIDE;
     virtual void onPopCull() SK_OVERRIDE;
+
+    virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    virtual void onClipRegion(const SkRegion& region, SkRegion::Op) SK_OVERRIDE;
 
 private:
     SkTDArray<SkDrawCommand*> fCommandVector;

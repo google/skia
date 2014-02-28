@@ -847,14 +847,14 @@ int SkPictureRecord::recordRestoreOffsetPlaceholder(SkRegion::Op op) {
 }
 #endif
 
-bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+void SkPictureRecord::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.clipRect(rect, op, doAA);
 #else
-    this->recordClipRect(rect, op, doAA);
+    this->recordClipRect(rect, op, kSoft_ClipEdgeStyle == edgeStyle);
 #endif
-    return this->INHERITED::clipRect(rect, op, doAA);
+    this->INHERITED::onClipRect(rect, op, edgeStyle);
 }
 
 int SkPictureRecord::recordClipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
@@ -878,20 +878,17 @@ int SkPictureRecord::recordClipRect(const SkRect& rect, SkRegion::Op op, bool do
     return offset;
 }
 
-bool SkPictureRecord::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
-    if (rrect.isRect()) {
-        return this->SkPictureRecord::clipRect(rrect.getBounds(), op, doAA);
-    }
+void SkPictureRecord::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.clipRRect(rrect, op, doAA);
 #else
-    this->recordClipRRect(rrect, op, doAA);
+    this->recordClipRRect(rrect, op, kSoft_ClipEdgeStyle == edgeStyle);
 #endif
     if (fRecordFlags & SkPicture::kUsePathBoundsForClip_RecordingFlag) {
-        return this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, false);
+        this->updateClipConservativelyUsingBounds(rrect.getBounds(), op, false);
     } else {
-        return this->INHERITED::clipRRect(rrect, op, doAA);
+        this->INHERITED::onClipRRect(rrect, op, edgeStyle);
     }
 }
 
@@ -915,25 +912,20 @@ int SkPictureRecord::recordClipRRect(const SkRRect& rrect, SkRegion::Op op, bool
     return offset;
 }
 
-bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
-
-    SkRect r;
-    if (!path.isInverseFillType() && path.isRect(&r)) {
-        return this->clipRect(r, op, doAA);
-    }
+void SkPictureRecord::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.clipPath(path, op, doAA);
 #else
     int pathID = this->addPathToHeap(path);
-    this->recordClipPath(pathID, op, doAA);
+    this->recordClipPath(pathID, op, kSoft_ClipEdgeStyle == edgeStyle);
 #endif
 
     if (fRecordFlags & SkPicture::kUsePathBoundsForClip_RecordingFlag) {
-        return this->updateClipConservativelyUsingBounds(path.getBounds(), op,
-                                                         path.isInverseFillType());
+        this->updateClipConservativelyUsingBounds(path.getBounds(), op,
+                                                  path.isInverseFillType());
     } else {
-        return this->INHERITED::clipPath(path, op, doAA);
+        this->INHERITED::onClipPath(path, op, edgeStyle);
     }
 }
 
@@ -957,14 +949,14 @@ int SkPictureRecord::recordClipPath(int pathID, SkRegion::Op op, bool doAA) {
     return offset;
 }
 
-bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {
+void SkPictureRecord::onClipRegion(const SkRegion& region, SkRegion::Op op) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.clipRegion(region, op);
 #else
     this->recordClipRegion(region, op);
 #endif
-    return this->INHERITED::clipRegion(region, op);
+    this->INHERITED::onClipRegion(region, op);
 }
 
 int SkPictureRecord::recordClipRegion(const SkRegion& region, SkRegion::Op op) {

@@ -240,11 +240,6 @@ public:
     virtual bool skew(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE;
     virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
-    virtual bool clipRect(const SkRect&, SkRegion::Op op, bool doAntiAlias = false) SK_OVERRIDE;
-    virtual bool clipRRect(const SkRRect&, SkRegion::Op op, bool doAntiAlias = false) SK_OVERRIDE;
-    virtual bool clipPath(const SkPath& path, SkRegion::Op op,
-                          bool doAntiAlias = false) SK_OVERRIDE;
-    virtual bool clipRegion(const SkRegion& region, SkRegion::Op op) SK_OVERRIDE;
     virtual void clear(SkColor) SK_OVERRIDE;
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
@@ -293,6 +288,11 @@ public:
 
 protected:
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
+
+    virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
+    virtual void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
 
 private:
     enum {
@@ -635,47 +635,56 @@ void SkGPipeCanvas::setMatrix(const SkMatrix& matrix) {
     this->INHERITED::setMatrix(matrix);
 }
 
-bool SkGPipeCanvas::clipRect(const SkRect& rect, SkRegion::Op rgnOp,
-                             bool doAntiAlias) {
+void SkGPipeCanvas::onClipRect(const SkRect& rect, SkRegion::Op rgnOp,
+                               ClipEdgeStyle edgeStyle) {
     NOTIFY_SETUP(this);
     if (this->needOpBytes(sizeof(SkRect))) {
-        unsigned flags = doAntiAlias & kClip_HasAntiAlias_DrawOpFlag;
+        unsigned flags = 0;
+        if (kSoft_ClipEdgeStyle == edgeStyle) {
+            flags = kClip_HasAntiAlias_DrawOpFlag;
+        }
         this->writeOp(kClipRect_DrawOp, flags, rgnOp);
         fWriter.writeRect(rect);
     }
-    return this->INHERITED::clipRect(rect, rgnOp, doAntiAlias);
+    this->INHERITED::onClipRect(rect, rgnOp, edgeStyle);
 }
 
-bool SkGPipeCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op rgnOp,
-                              bool doAntiAlias) {
+void SkGPipeCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op rgnOp,
+                                ClipEdgeStyle edgeStyle) {
     NOTIFY_SETUP(this);
     if (this->needOpBytes(kSizeOfFlatRRect)) {
-        unsigned flags = doAntiAlias & kClip_HasAntiAlias_DrawOpFlag;
+        unsigned flags = 0;
+        if (kSoft_ClipEdgeStyle == edgeStyle) {
+            flags = kClip_HasAntiAlias_DrawOpFlag;
+        }
         this->writeOp(kClipRRect_DrawOp, flags, rgnOp);
         fWriter.writeRRect(rrect);
     }
-    return this->INHERITED::clipRRect(rrect, rgnOp, doAntiAlias);
+    this->INHERITED::onClipRRect(rrect, rgnOp, edgeStyle);
 }
 
-bool SkGPipeCanvas::clipPath(const SkPath& path, SkRegion::Op rgnOp,
-                             bool doAntiAlias) {
+void SkGPipeCanvas::onClipPath(const SkPath& path, SkRegion::Op rgnOp,
+                               ClipEdgeStyle edgeStyle) {
     NOTIFY_SETUP(this);
     if (this->needOpBytes(path.writeToMemory(NULL))) {
-        unsigned flags = doAntiAlias & kClip_HasAntiAlias_DrawOpFlag;
+        unsigned flags = 0;
+        if (kSoft_ClipEdgeStyle == edgeStyle) {
+            flags = kClip_HasAntiAlias_DrawOpFlag;
+        }
         this->writeOp(kClipPath_DrawOp, flags, rgnOp);
         fWriter.writePath(path);
     }
     // we just pass on the bounds of the path
-    return this->INHERITED::clipRect(path.getBounds(), rgnOp, doAntiAlias);
+    this->INHERITED::onClipRect(path.getBounds(), rgnOp, edgeStyle);
 }
 
-bool SkGPipeCanvas::clipRegion(const SkRegion& region, SkRegion::Op rgnOp) {
+void SkGPipeCanvas::onClipRegion(const SkRegion& region, SkRegion::Op rgnOp) {
     NOTIFY_SETUP(this);
     if (this->needOpBytes(region.writeToMemory(NULL))) {
         this->writeOp(kClipRegion_DrawOp, 0, rgnOp);
         fWriter.writeRegion(region);
     }
-    return this->INHERITED::clipRegion(region, rgnOp);
+    this->INHERITED::onClipRegion(region, rgnOp);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
