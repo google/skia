@@ -24,7 +24,7 @@ void Reporter::finish(SkString name) {
         status.appendf(", %d failed", failed);
     }
     status.appendf("\t[%s done]", name.c_str());
-    SkDebugf(status.c_str());
+    SkDebugf("%s", status.c_str());
 }
 
 int32_t Reporter::failed() const {
