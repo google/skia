@@ -1418,7 +1418,7 @@ bool SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegio
                     this->SkCanvas::save(SkCanvas::kMatrix_SaveFlag);
                     // set the clip in device space
                     this->SkCanvas::setMatrix(SkMatrix::I());
-                    this->SkCanvas::onClipRect(deviceBounds, SkRegion::kReplace_Op, 
+                    this->SkCanvas::onClipRect(deviceBounds, SkRegion::kReplace_Op,
                                                kHard_ClipEdgeStyle);
                     this->SkCanvas::restore(); //pop the matrix, but keep the clip
                     break;

@@ -224,13 +224,13 @@ public:
     static const int kVizImageWidth = 256;
 
     virtual bool isClipEmpty() const SK_OVERRIDE { return false; }
-    virtual ClipType getClipType() const SK_OVERRIDE { 
-        return kRect_ClipType; 
+    virtual ClipType getClipType() const SK_OVERRIDE {
+        return kRect_ClipType;
     }
     virtual bool getClipBounds(SkRect* bounds) const SK_OVERRIDE {
         if (NULL != bounds) {
-            bounds->setXYWH(0, 0, 
-                            SkIntToScalar(this->imageInfo().fWidth), 
+            bounds->setXYWH(0, 0,
+                            SkIntToScalar(this->imageInfo().fWidth),
                             SkIntToScalar(this->imageInfo().fHeight));
         }
         return true;
