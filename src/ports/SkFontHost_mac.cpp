@@ -1379,6 +1379,11 @@ void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx,
     theMetrics.fXMin         = CGToScalar( CGRectGetMinX_inline(theBounds));
     theMetrics.fXMax         = CGToScalar( CGRectGetMaxX_inline(theBounds));
     theMetrics.fXHeight      = CGToScalar( CTFontGetXHeight(fCTFont));
+    theMetrics.fUnderlineThickness = CGToScalar( CTFontGetUnderlineThickness(fCTFont));
+    theMetrics.fUnderlinePosition = -CGToScalar( CTFontGetUnderlinePosition(fCTFont));
+
+    theMetrics.fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+    theMetrics.fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
 
     if (mx != NULL) {
         *mx = theMetrics;

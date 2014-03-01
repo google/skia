@@ -731,17 +731,60 @@ public:
     void setTextEncoding(TextEncoding encoding);
 
     struct FontMetrics {
+        /** Flags which indicate the confidence level of various metrics.
+            A set flag indicates that the metric may be trusted.
+        */
+        enum FontMetricsFlags {
+            kUnderlineThinknessIsValid_Flag = 1 << 0,
+            kUnderlinePositionIsValid_Flag = 1 << 1,
+        };
+
+        uint32_t    fFlags;       //!< Bit field to identify which values are unknown
         SkScalar    fTop;       //!< The greatest distance above the baseline for any glyph (will be <= 0)
         SkScalar    fAscent;    //!< The recommended distance above the baseline (will be <= 0)
         SkScalar    fDescent;   //!< The recommended distance below the baseline (will be >= 0)
         SkScalar    fBottom;    //!< The greatest distance below the baseline for any glyph (will be >= 0)
         SkScalar    fLeading;   //!< The recommended distance to add between lines of text (will be >= 0)
-        SkScalar    fAvgCharWidth;  //!< the average charactor width (>= 0)
-        SkScalar    fMaxCharWidth;  //!< the max charactor width (>= 0)
+        SkScalar    fAvgCharWidth;  //!< the average character width (>= 0)
+        SkScalar    fMaxCharWidth;  //!< the max character width (>= 0)
         SkScalar    fXMin;      //!< The minimum bounding box x value for all glyphs
         SkScalar    fXMax;      //!< The maximum bounding box x value for all glyphs
         SkScalar    fXHeight;   //!< The height of an 'x' in px, or 0 if no 'x' in face
         SkScalar    fCapHeight;  //!< The cap height (> 0), or 0 if cannot be determined.
+        SkScalar    fUnderlineThickness; //!< underline thickness, or 0 if cannot be determined
+
+        /**  Underline Position - position of the top of the Underline stroke
+                relative to the baseline, this can have following values
+                - Negative - means underline should be drawn above baseline.
+                - Positive - means below baseline.
+                - Zero     - mean underline should be drawn on baseline.
+         */
+        SkScalar    fUnderlinePosition; //!< underline position, or 0 if cannot be determined
+
+        /**  If the fontmetrics has a valid underlinethickness, return true, and set the
+                thickness param to that value. If it doesn't return false and ignore the
+                thickness param.
+        */
+        bool hasUnderlineThickness(SkScalar* thickness) const {
+            if (SkToBool(fFlags & kUnderlineThinknessIsValid_Flag)) {
+                *thickness = fUnderlineThickness;
+                return true;
+            }
+            return false;
+        }
+
+        /**  If the fontmetrics has a valid underlineposition, return true, and set the
+                thickness param to that value. If it doesn't return false and ignore the
+                thickness param.
+        */
+        bool hasUnderlinePosition(SkScalar* position) const {
+            if (SkToBool(fFlags & kUnderlinePositionIsValid_Flag)) {
+                *position = fUnderlinePosition;
+                return true;
+            }
+            return false;
+        }
+
     };
 
     /** Return the recommend spacing between lines (which will be

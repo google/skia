@@ -874,6 +874,11 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* mx,
         mx->fBottom = mx->fDescent;
         mx->fLeading = fRec.fTextSize * SkIntToScalar(dwfm.lineGap) / upem;
         mx->fXHeight = fRec.fTextSize * SkIntToScalar(dwfm.xHeight) / upem;
+        mx->fUnderlineThickness = fRec.fTextSize * SkIntToScalar(dwfm.underlinePosition) / upem;
+        mx->fUnderlinePosition = -(fRec.fTextSize * SkIntToScalar(dwfm.underlineThickness) / upem);
+
+        mx->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+        mx->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
     }
 
     if (my) {
@@ -883,6 +888,11 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* mx,
         my->fBottom = my->fDescent;
         my->fLeading = fRec.fTextSize * SkIntToScalar(dwfm.lineGap) / upem;
         my->fXHeight = fRec.fTextSize * SkIntToScalar(dwfm.xHeight) / upem;
+        my->fUnderlineThickness = fRec.fTextSize * SkIntToScalar(dwfm.underlinePosition) / upem;
+        my->fUnderlinePosition = -(fRec.fTextSize * SkIntToScalar(dwfm.underlineThickness) / upem);
+
+        my->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+        my->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
     }
 }
 

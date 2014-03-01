@@ -1061,6 +1061,11 @@ void SkScalerContext_GDI::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint:
         mx->fDescent = SkIntToScalar(-otm.otmDescent);
         mx->fBottom = SkIntToScalar(otm.otmrcFontBox.right);
         mx->fLeading = SkIntToScalar(otm.otmLineGap);
+        mx->fUnderlineThickness = SkIntToScalar(otm.otmsUnderscoreSize);
+        mx->fUnderlinePosition = -SkIntToScalar(otm.otmsUnderscorePosition);
+
+        mx->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+        mx->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
     }
 
     if (my) {
@@ -1074,6 +1079,11 @@ void SkScalerContext_GDI::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint:
         my->fMaxCharWidth = SkIntToScalar(otm.otmTextMetrics.tmMaxCharWidth);
         my->fXMin = SkIntToScalar(otm.otmrcFontBox.left);
         my->fXMax = SkIntToScalar(otm.otmrcFontBox.right);
+        my->fUnderlineThickness = SkIntToScalar(otm.otmsUnderscoreSize);
+        my->fUnderlinePosition = -SkIntToScalar(otm.otmsUnderscorePosition);
+
+        my->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+        my->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
 #endif
         my->fXHeight = SkIntToScalar(otm.otmsXHeight);
 

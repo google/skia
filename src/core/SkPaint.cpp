@@ -1305,6 +1305,8 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const {
         metrics->fXMin = SkScalarMul(metrics->fXMin, scale);
         metrics->fXMax = SkScalarMul(metrics->fXMax, scale);
         metrics->fXHeight = SkScalarMul(metrics->fXHeight, scale);
+        metrics->fUnderlineThickness = SkScalarMul(metrics->fUnderlineThickness, scale);
+        metrics->fUnderlinePosition = SkScalarMul(metrics->fUnderlinePosition, scale);
     }
     return metrics->fDescent - metrics->fAscent + metrics->fLeading;
 }

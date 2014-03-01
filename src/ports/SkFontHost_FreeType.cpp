@@ -1390,6 +1390,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
 
     // pull from format-specific metrics as needed
     SkScalar ascent, descent, leading, xmin, xmax, ymin, ymax;
+    SkScalar underlineThickness, underlinePosition;
     if (face->face_flags & FT_FACE_FLAG_SCALABLE) { // scalable outline font
         ascent = -SkIntToScalar(face->ascender) / upem;
         descent = -SkIntToScalar(face->descender) / upem;
@@ -1398,6 +1399,17 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         xmax = SkIntToScalar(face->bbox.xMax) / upem;
         ymin = -SkIntToScalar(face->bbox.yMin) / upem;
         ymax = -SkIntToScalar(face->bbox.yMax) / upem;
+        underlineThickness = SkIntToScalar(face->underline_thickness) / upem;
+        underlinePosition = -SkIntToScalar(face->underline_position) / upem;
+
+        if(mx) {
+            mx->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+            mx->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+        }
+        if(my){
+            my->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+            my->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+        }
         // we may be able to synthesize x_height and cap_height from outline
         if (!x_height) {
             FT_BBox bbox;
@@ -1422,6 +1434,17 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         xmax = SkIntToScalar(face->available_sizes[fStrikeIndex].width) / xppem;
         ymin = descent + leading;
         ymax = ascent - descent;
+        underlineThickness = 0;
+        underlinePosition = 0;
+
+        if(mx) {
+            mx->fFlags &= ~SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+            mx->fFlags &= ~SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+        }
+        if(my){
+            my->fFlags &= ~SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
+            my->fFlags &= ~SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
+        }
     } else {
         goto ERROR;
     }
@@ -1453,6 +1476,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         mx->fXMax = xmax;
         mx->fXHeight = x_height;
         mx->fCapHeight = cap_height;
+        mx->fUnderlineThickness = underlineThickness;
+        mx->fUnderlinePosition = underlinePosition;
     }
     if (my) {
         my->fTop = ymax * myy;
@@ -1465,6 +1490,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         my->fXMax = xmax;
         my->fXHeight = x_height;
         my->fCapHeight = cap_height;
+        my->fUnderlineThickness = underlineThickness;
+        my->fUnderlinePosition = underlinePosition;
     }
 }
 
