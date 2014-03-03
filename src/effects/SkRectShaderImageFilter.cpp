@@ -69,8 +69,8 @@ bool SkRectShaderImageFilter::onFilterImage(Proxy* proxy,
     SkCanvas canvas(device.get());
     SkPaint paint;
     paint.setShader(fShader);
-    SkMatrix matrix;
-    matrix.setTranslate(-SkIntToScalar(bounds.fLeft), -SkIntToScalar(bounds.fTop));
+    SkMatrix matrix(ctm);
+    matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
     fShader->setLocalMatrix(matrix);
     SkRect rect = SkRect::MakeWH(SkIntToScalar(bounds.width()), SkIntToScalar(bounds.height()));
     canvas.drawRect(rect, paint);

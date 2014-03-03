@@ -14,6 +14,8 @@
 #include "SkGradientShader.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
+#include "SkPerlinNoiseShader.h"
+#include "SkRectShaderImageFilter.h"
 #include "SkResizeImageFilter.h"
 #include "SkScalar.h"
 
@@ -87,6 +89,8 @@ protected:
 
         SkAutoTUnref<SkImageFilter> gradient(new SkBitmapSource(fGradientCircle));
         SkAutoTUnref<SkImageFilter> checkerboard(new SkBitmapSource(fCheckerboard));
+        SkAutoTUnref<SkShader> noise(SkPerlinNoiseShader::CreateFractalNoise(
+            SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0));
 
         SkImageFilter* filters[] = {
             new SkBlurImageFilter(SkIntToScalar(12), SkIntToScalar(12)),
@@ -101,6 +105,7 @@ protected:
             new SkErodeImageFilter(2, 2, checkerboard.get()),
             new SkOffsetImageFilter(SkIntToScalar(-16), SkIntToScalar(32)),
             new SkResizeImageFilter(RESIZE_FACTOR_X, RESIZE_FACTOR_Y, SkPaint::kNone_FilterLevel),
+            SkRectShaderImageFilter::Create(noise),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));

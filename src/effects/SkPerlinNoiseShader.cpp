@@ -450,6 +450,7 @@ SkScalar SkPerlinNoiseShader::calculateTurbulenceValueForPoint(
 
 SkPMColor SkPerlinNoiseShader::shade(const SkPoint& point, StitchData& stitchData) {
     SkMatrix matrix = fMatrix;
+    matrix.postConcat(getLocalMatrix());
     SkMatrix invMatrix;
     if (!matrix.invert(&invMatrix)) {
         invMatrix.reset();
