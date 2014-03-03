@@ -10,6 +10,7 @@
 #include "SkGraphics.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
+#include "SkQuadTreePicture.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTileGridPicture.h"
@@ -26,26 +27,55 @@ DEFINE_int32(loops, 900, "Number of times to re-record each SKP.");
 DEFINE_int32(flags, SkPicture::kUsePathBoundsForClip_RecordingFlag, "RecordingFlags to use.");
 DEFINE_bool(endRecording, true, "If false, don't time SkPicture::endRecording()");
 DEFINE_int32(nullSize, 1000, "Pretend dimension of null source picture.");
-DEFINE_int32(tileGridSize, 0, "Set the tile grid size, if non zero switches to tile grid picture and enables kOptimizeForClippedPlayback_RecordingFlag.");
+DEFINE_int32(tileGridSize, 512, "Set the tile grid size. Has no effect if bbh is not set to tilegrid.");
+DEFINE_string(bbh, "", "Turn on the bbh and select the type, one of rtree, tilegrid, quadtree");
 
-static void bench_record(SkPicture* src, const char* name) {
+typedef SkPicture* (*PictureFactory)(const int width, const int height, int* recordingFlags);
+
+static SkPicture* vanilla_factory(const int width, const int height, int* recordingFlags) {
+    return SkNEW(SkPicture);
+}
+
+static SkPicture* rtree_factory(const int width, const int height, int* recordingFlags) {
+    *recordingFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
+    return SkNEW(SkPicture);
+}
+
+static SkPicture* tilegrid_factory(const int width, const int height, int* recordingFlags) {
+    *recordingFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
+    SkTileGridPicture::TileGridInfo info;
+    info.fTileInterval.set(FLAGS_tileGridSize, FLAGS_tileGridSize);
+    info.fMargin.setEmpty();
+    info.fOffset.setZero();
+    return SkNEW_ARGS(SkTileGridPicture, (width, height, info));
+}
+
+static SkPicture* quadtree_factory(const int width, const int height, int* recordingFlags) {
+    *recordingFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
+    return SkNEW_ARGS(SkQuadTreePicture, (SkIRect::MakeWH(width, height)));
+}
+
+static PictureFactory parse_FLAGS_bbh() {
+    if (FLAGS_bbh.isEmpty()) { return &vanilla_factory; }
+    if (FLAGS_bbh.count() != 1) {
+        SkDebugf("Multiple bbh arguments supplied.\n");
+        return NULL;
+    }
+    if (FLAGS_bbh.contains("rtree")) { return rtree_factory; }
+    if (FLAGS_bbh.contains("tilegrid")) { return tilegrid_factory; }
+    if (FLAGS_bbh.contains("quadtree")) { return quadtree_factory; }
+    SkDebugf("Invalid bbh type %s, must be one of rtree, tilegrid, quadtree.\n", FLAGS_bbh[0]);
+    return NULL;
+}
+
+static void bench_record(SkPicture* src, const char* name, PictureFactory pictureFactory) {
     const SkMSec start = SkTime::GetMSecs();
     const int width  = src ? src->width()  : FLAGS_nullSize;
     const int height = src ? src->height() : FLAGS_nullSize;
 
     for (int i = 0; i < FLAGS_loops; i++) {
-        SkAutoTUnref<SkPicture> dst;
         int recordingFlags = FLAGS_flags;
-        if (FLAGS_tileGridSize > 0) {
-            SkTileGridPicture::TileGridInfo info;
-            info.fTileInterval.set(FLAGS_tileGridSize, FLAGS_tileGridSize);
-            info.fMargin.setEmpty();
-            info.fOffset.setZero();
-            dst.reset(SkNEW_ARGS(SkTileGridPicture, (width, height, info)));
-            recordingFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
-        } else {
-            dst.reset(SkNEW(SkPicture));
-        }
+        SkAutoTUnref<SkPicture> dst(pictureFactory(width, height, &recordingFlags));
         SkCanvas* canvas = dst->beginRecording(width, height, recordingFlags);
         if (src) src->draw(canvas);
         if (FLAGS_endRecording) dst->endRecording();
@@ -61,7 +91,11 @@ int tool_main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
     SkAutoGraphics autoGraphics;
 
-    bench_record(NULL, "NULL");
+    PictureFactory pictureFactory = parse_FLAGS_bbh();
+    if (pictureFactory == NULL) {
+        return 1;
+    }
+    bench_record(NULL, "NULL", pictureFactory);
     if (FLAGS_skps.isEmpty()) return 0;
 
     SkOSFile::Iter it(FLAGS_skps[0], ".skp");
@@ -82,7 +116,7 @@ int tool_main(int argc, char** argv) {
             failed = true;
             continue;
         }
-        bench_record(src, filename.c_str());
+        bench_record(src, filename.c_str(), pictureFactory);
     }
     return failed ? 1 : 0;
 }
