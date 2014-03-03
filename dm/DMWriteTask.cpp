@@ -3,10 +3,9 @@
 #include "DMUtil.h"
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
-#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkString.h"
-#include "SkUnPreMultiply.h"
+#include "SkStream.h"
 
 DEFINE_string2(writePath, w, "", "If set, write GMs here as .pngs.");
 
@@ -39,6 +38,58 @@ void WriteTask::makeDirOrFail(SkString dir) {
     }
 }
 
+// One file that first contains a .png of an SkBitmap, then its raw pixels.
+// We use this custom format to avoid premultiplied/unpremultiplied pixel conversions.
+struct PngAndRaw {
+    static bool Encode(SkBitmap bitmap, const char* path) {
+        SkFILEWStream stream(path);
+        if (!stream.isValid()) {
+            SkDebugf("Can't write %s.\n", path);
+            return false;
+        }
+
+        // Write a PNG first for humans and other tools to look at.
+        if (!SkImageEncoder::EncodeStream(&stream, bitmap, SkImageEncoder::kPNG_Type, 100)) {
+            SkDebugf("Can't encode a PNG.\n");
+            return false;
+        }
+
+        // Then write our secret raw pixels that only DM reads.
+        SkAutoLockPixels lock(bitmap);
+        return stream.write(bitmap.getPixels(), bitmap.getSize());
+    }
+
+    // This assumes bitmap already has allocated pixels of the correct size.
+    static bool Decode(const char* path, SkBitmap* bitmap) {
+        SkAutoTUnref<SkStreamRewindable> stream(SkStream::NewFromFile(path));
+        if (NULL == stream.get()) {
+            SkDebugf("Can't read %s.\n", path);
+            return false;
+        }
+
+        // The raw pixels are at the end of the stream.  Seek ahead to skip beyond the encoded PNG.
+        const size_t bitmapBytes = bitmap->getSize();
+        if (stream->getLength() < bitmapBytes) {
+            SkDebugf("%s is too small to contain the bitmap we're looking for.\n", path);
+            return false;
+        }
+        SkAssertResult(stream->seek(stream->getLength() - bitmapBytes));
+
+        // Read the raw pixels.
+        // TODO(mtklein): can we install a pixelref that just hangs onto the stream instead of
+        // copying into a malloc'd buffer?
+        SkAutoLockPixels lock(*bitmap);
+        if (bitmapBytes != stream->read(bitmap->getPixels(), bitmapBytes)) {
+            SkDebugf("Couldn't read raw bitmap from %s at %lu of %lu.\n",
+                     path, stream->getPosition(), stream->getLength());
+            return false;
+        }
+
+        SkASSERT(stream->isAtEnd());
+        return true;
+    }
+};
+
 void WriteTask::draw() {
     SkString dir(FLAGS_writePath[0]);
     this->makeDirOrFail(dir);
@@ -48,10 +99,7 @@ void WriteTask::draw() {
     }
     SkString path = SkOSPath::SkPathJoin(dir.c_str(), fGmName.c_str());
     path.append(".png");
-    if (!SkImageEncoder::EncodeFile(path.c_str(),
-                                    fBitmap,
-                                    SkImageEncoder::kPNG_Type,
-                                    100/*quality*/)) {
+    if (!PngAndRaw::Encode(fBitmap, path.c_str())) {
         this->fail();
     }
 }
@@ -85,8 +133,6 @@ static SkString path_to_expected_image(const char* root, const Task& task) {
     filename.remove(filename.size() - suffixLength, suffixLength);
     filename.append(".png");
 
-    //SkDebugf("dir %s, filename %s\n", dir.c_str(), filename.c_str());
-
     return SkOSPath::SkPathJoin(dir.c_str(), filename.c_str());
 }
 
@@ -96,56 +142,11 @@ bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
         return false;
     }
 
-    // PNG is stored unpremultiplied, and going from premul to unpremul to premul is lossy.  To
-    // skirt this problem, we decode the PNG into an unpremul bitmap, convert our bitmap to unpremul
-    // if needed, and compare those.  Each image goes once from premul to unpremul, never back.
     const SkString path = path_to_expected_image(fRoot, task);
-
-    SkAutoTUnref<SkStreamRewindable> stream(SkStream::NewFromFile(path.c_str()));
-    if (NULL == stream.get()) {
-        SkDebugf("Could not read %s.\n", path.c_str());
-        return false;
-    }
-
-    SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(stream));
-    if (NULL == decoder.get()) {
-        SkDebugf("Could not find a decoder for %s.\n", path.c_str());
-        return false;
-    }
-
-    const SkImageInfo info = bitmap.info();
-
     SkBitmap expected;
-    expected.allocPixels(info);
-
-    // expected will be unpremultiplied.
-    decoder->setRequireUnpremultipliedColors(true);
-    if (!decoder->decode(stream, &expected, SkImageDecoder::kDecodePixels_Mode)) {
-        SkDebugf("Could not decode %s.\n", path.c_str());
+    expected.allocPixels(bitmap.info());
+    if (!PngAndRaw::Decode(path.c_str(), &expected)) {
         return false;
-    }
-
-    // We always seem to decode to 8888.  This puts 565 back in 565.
-    if (expected.colorType() != bitmap.colorType()) {
-        SkBitmap converted;
-        SkAssertResult(expected.copyTo(&converted, bitmap.colorType()));
-        expected.swap(converted);
-    }
-    SkASSERT(expected.config() == bitmap.config());
-
-    // Manually unpremultiply 8888 bitmaps to match expected.
-    // Their pixels are shared, concurrently even, so we must copy them.
-    if (info.colorType() == kPMColor_SkColorType) {
-        SkBitmap unpremul;
-        unpremul.allocPixels(info);
-
-        SkAutoLockPixels lockSrc(bitmap), lockDst(unpremul);
-        const SkPMColor* src = (SkPMColor*)bitmap.getPixels();
-        uint32_t* dst = (uint32_t*)unpremul.getPixels();
-        for (size_t i = 0; i < bitmap.getSize()/4; i++) {
-            dst[i] = SkUnPreMultiply::UnPreMultiplyPreservingByteOrder(src[i]);
-        }
-        bitmap.swap(unpremul);
     }
 
     return BitmapsEqual(expected, bitmap);
