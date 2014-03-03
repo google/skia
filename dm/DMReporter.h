@@ -4,6 +4,7 @@
 #include "SkString.h"
 #include "SkTArray.h"
 #include "SkThread.h"
+#include "SkTime.h"
 #include "SkTypes.h"
 
 // Used to report status changes including failures.  All public methods are threadsafe.
@@ -14,7 +15,7 @@ public:
     Reporter() : fStarted(0), fFinished(0) {}
 
     void start()  { sk_atomic_inc(&fStarted); }
-    void finish(SkString name);
+    void finish(SkString name, SkMSec timeMs);
     void fail(SkString msg);
 
     int32_t started()  const { return fStarted; }

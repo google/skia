@@ -4,6 +4,7 @@
 #include "DMReporter.h"
 #include "GrContextFactory.h"
 #include "SkRunnable.h"
+#include "SkTime.h"
 
 // DM will run() these tasks on one of two threadpools.
 // Subclasses can call fail() to mark this task as failed, or make any number of spawnChild() calls
@@ -31,14 +32,17 @@ protected:
     Task(const Task& parent);
     virtual ~Task() {}
 
+    void start();
     void fail(const char* msg = NULL);
     void finish();
+
     void spawnChild(CpuTask* task);  // For now we don't allow GPU child tasks.
 
 private:
     Reporter* fReporter;      // Unowned.
     TaskRunner* fTaskRunner;  // Unowned.
     int fDepth;
+    SkMSec fStart;
 };
 
 class CpuTask : public Task, public SkRunnable {

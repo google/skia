@@ -8,7 +8,7 @@ DEFINE_bool2(verbose, v, false, "If true, print status updates one-per-line.");
 
 namespace DM {
 
-void Reporter::finish(SkString name) {
+void Reporter::finish(SkString name, SkMSec timeMs) {
     sk_atomic_inc(&fFinished);
 
     if (FLAGS_quiet) {
@@ -23,7 +23,9 @@ void Reporter::finish(SkString name) {
     if (failed > 0) {
         status.appendf(", %d failed", failed);
     }
-    status.appendf("\t[%s done]", name.c_str());
+    if (FLAGS_verbose) {
+        status.appendf("\t%5dms %s", timeMs, name.c_str());
+    }
     SkDebugf("%s", status.c_str());
 }
 

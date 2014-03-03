@@ -25,8 +25,12 @@ void Task::fail(const char* msg) {
     fReporter->fail(failure);
 }
 
+void Task::start() {
+    fStart = SkTime::GetMSecs();
+}
+
 void Task::finish() {
-    fReporter->finish(this->name());
+    fReporter->finish(this->name(), SkTime::GetMSecs() - fStart);
 }
 
 void Task::spawnChild(CpuTask* task) {
@@ -37,6 +41,7 @@ CpuTask::CpuTask(Reporter* reporter, TaskRunner* taskRunner) : Task(reporter, ta
 CpuTask::CpuTask(const Task& parent) : Task(parent) {}
 
 void CpuTask::run() {
+    this->start();
     if (!this->shouldSkip()) {
         this->draw();
     }
@@ -47,6 +52,7 @@ void CpuTask::run() {
 GpuTask::GpuTask(Reporter* reporter, TaskRunner* taskRunner) : Task(reporter, taskRunner) {}
 
 void GpuTask::run(GrContextFactory& factory) {
+    this->start();
     if (!this->shouldSkip()) {
         this->draw(&factory);
     }
