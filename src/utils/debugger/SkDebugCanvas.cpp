@@ -197,8 +197,9 @@ private:
 
 // set up the saveLayer commands so that the active ones
 // return true in their 'active' method
-void SkDebugCanvas::markActiveSaveLayers(int index) {
-    SkTDArray<SkDrawCommand*> activeLayers;
+void SkDebugCanvas::markActiveCommands(int index) {
+    fActiveLayers.rewind();
+    fActiveCulls.rewind();
 
     for (int i = 0; i < fCommandVector.count(); ++i) {
         fCommandVector[i]->setActive(false);
@@ -206,15 +207,23 @@ void SkDebugCanvas::markActiveSaveLayers(int index) {
 
     for (int i = 0; i < index; ++i) {
         SkDrawCommand::Action result = fCommandVector[i]->action();
-        if (SkDrawCommand::kPush_Action == result) {
-            activeLayers.push(fCommandVector[i]);
-        } else if (SkDrawCommand::kPop_Action == result) {
-            activeLayers.pop();
+        if (SkDrawCommand::kPushLayer_Action == result) {
+            fActiveLayers.push(fCommandVector[i]);
+        } else if (SkDrawCommand::kPopLayer_Action == result) {
+            fActiveLayers.pop();
+        } else if (SkDrawCommand::kPushCull_Action == result) {
+            fActiveCulls.push(fCommandVector[i]);
+        } else if (SkDrawCommand::kPopCull_Action == result) {
+            fActiveCulls.pop();
         }
     }
 
-    for (int i = 0; i < activeLayers.count(); ++i) {
-        activeLayers[i]->setActive(true);
+    for (int i = 0; i < fActiveLayers.count(); ++i) {
+        fActiveLayers[i]->setActive(true);
+    }
+
+    for (int i = 0; i < fActiveCulls.count(); ++i) {
+        fActiveCulls[i]->setActive(true);
     }
 }
 
@@ -268,7 +277,7 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     }
 
     if (fMegaVizMode) {
-        this->markActiveSaveLayers(index);
+        this->markActiveCommands(index);
     }
 
     for (; i <= index; i++) {
@@ -288,14 +297,16 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
 
         if (fCommandVector[i]->isVisible()) {
             if (fMegaVizMode && fCommandVector[i]->active()) {
-                // All active saveLayers get replaced with saves so all draws go to the
-                // visible canvas
-                canvas->save();
-                ++fOutstandingSaveCount;
+                // "active" commands execute their visualization behaviors:
+                //     All active saveLayers get replaced with saves so all draws go to the
+                //     visible canvas.
+                //     All active culls draw their cull box
+                fCommandVector[i]->vizExecute(canvas);
             } else {
                 fCommandVector[i]->execute(canvas);
-                fCommandVector[i]->trackSaveState(&fOutstandingSaveCount);
             }
+
+            fCommandVector[i]->trackSaveState(&fOutstandingSaveCount);
         }
     }
 

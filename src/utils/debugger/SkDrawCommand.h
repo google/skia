@@ -36,21 +36,29 @@ public:
     }
 
     SkTDArray<SkString*>* Info() {return &fInfo; };
-    virtual void execute(SkCanvas* canvas)=0;
+    virtual void execute(SkCanvas* canvas) = 0;
+    virtual void vizExecute(SkCanvas* canvas) { };
     /** Does nothing by default, but used by save() and restore()-type
         subclasses to track unresolved save() calls. */
     virtual void trackSaveState(int* state) { };
 
-    // The next "active" system is only used by save, saveLayer and restore.
-    // It is used to determine which saveLayers are currently active (at a 
+    // The next "active" system is only used by save, saveLayer, restore,
+    // pushCull and popCull. It is used in two ways:
+    // To determine which saveLayers are currently active (at a 
     // given point in the rendering).
-    //      save just return a kPush action but don't track active state
-    //      restore just return a kPop action
-    //      saveLayers return kPush but also track the active state
+    //      save just return a kPushLayer action but don't track active state
+    //      restore just return a kPopLayer action
+    //      saveLayers return kPushLayer but also track the active state
+    // To determine which culls are currently active (at a given point)
+    // in the rendering).
+    //      pushCull returns a kPushCull action
+    //      popCull  returns a kPopCull action
     enum Action {
         kNone_Action,
-        kPop_Action,
-        kPush_Action
+        kPopLayer_Action,
+        kPushLayer_Action,
+        kPopCull_Action,
+        kPushCull_Action
     };
     virtual Action action() const { return kNone_Action; }
     virtual void setActive(bool active) {}
@@ -75,7 +83,7 @@ public:
     SkRestoreCommand();
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
     virtual void trackSaveState(int* state) SK_OVERRIDE;
-    virtual Action action() const SK_OVERRIDE { return kPop_Action; }
+    virtual Action action() const SK_OVERRIDE { return kPopLayer_Action; }
 
 private:
     typedef SkDrawCommand INHERITED;
@@ -513,7 +521,7 @@ public:
     SkSaveCommand(SkCanvas::SaveFlags flags);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
     virtual void trackSaveState(int* state) SK_OVERRIDE;
-    virtual Action action() const SK_OVERRIDE { return kPush_Action; }
+    virtual Action action() const SK_OVERRIDE { return kPushLayer_Action; }
 private:
     SkCanvas::SaveFlags fFlags;
 
@@ -525,8 +533,9 @@ public:
     SkSaveLayerCommand(const SkRect* bounds, const SkPaint* paint,
                        SkCanvas::SaveFlags flags);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual void vizExecute(SkCanvas* canvas) SK_OVERRIDE;
     virtual void trackSaveState(int* state) SK_OVERRIDE;
-    virtual Action action() const SK_OVERRIDE{ return kPush_Action; }
+    virtual Action action() const SK_OVERRIDE{ return kPushLayer_Action; }
     virtual void setActive(bool active) SK_OVERRIDE { fActive = active; }
     virtual bool active() const SK_OVERRIDE { return fActive; }
 
@@ -598,9 +607,13 @@ class SkPushCullCommand : public SkDrawCommand {
 public:
     SkPushCullCommand(const SkRect&);
     virtual void execute(SkCanvas*) SK_OVERRIDE;
-
+    virtual void vizExecute(SkCanvas* canvas) SK_OVERRIDE;
+    virtual Action action() const { return kPushCull_Action; }
+    virtual void setActive(bool active) { fActive = active; }
+    virtual bool active() const { return fActive; }
 private:
     SkRect fCullRect;
+    bool   fActive;
 
     typedef SkDrawCommand INHERITED;
 };
@@ -609,7 +622,7 @@ class SkPopCullCommand : public SkDrawCommand {
 public:
     SkPopCullCommand();
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
-
+    virtual Action action() const { return kPopCull_Action; }
 private:
     typedef SkDrawCommand INHERITED;
 };

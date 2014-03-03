@@ -254,7 +254,7 @@ protected:
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRegion(const SkRegion& region, SkRegion::Op) SK_OVERRIDE;
 
-    void markActiveSaveLayers(int index);
+    void markActiveCommands(int index);
 
 private:
     SkTDArray<SkDrawCommand*> fCommandVector;
@@ -280,6 +280,18 @@ private:
         to avoid corruption of our canvas.
     */
     int fOutstandingSaveCount;
+
+    /** 
+        The active saveLayer commands at a given point in the renderering.
+        Only used when "mega" visualization is enabled.
+    */
+    SkTDArray<SkDrawCommand*> fActiveLayers;
+
+    /** 
+        The active cull commands at a given point in the rendering.
+        Only used when "mega" visualization is enabled.
+    */
+    SkTDArray<SkDrawCommand*> fActiveCulls;
 
     /**
         Adds the command to the classes vector of commands.

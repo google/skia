@@ -885,6 +885,10 @@ void SkSaveLayerCommand::execute(SkCanvas* canvas) {
                       fFlags);
 }
 
+void SkSaveLayerCommand::vizExecute(SkCanvas* canvas) {
+    canvas->save();
+}
+
 void SkSaveLayerCommand::trackSaveState(int* state) {
     (*state)++;
 }
@@ -946,8 +950,16 @@ SkPushCullCommand::SkPushCullCommand(const SkRect& cullRect)
 }
 
 void SkPushCullCommand::execute(SkCanvas* canvas) {
-    //FIXME: add visualization overlay.
     canvas->pushCull(fCullRect);
+}
+
+void SkPushCullCommand::vizExecute(SkCanvas* canvas) {
+    canvas->pushCull(fCullRect);
+
+    SkPaint p;
+    p.setColor(SK_ColorCYAN);
+    p.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRect(fCullRect, p);
 }
 
 SkPopCullCommand::SkPopCullCommand() {
