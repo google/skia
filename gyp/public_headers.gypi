@@ -247,7 +247,6 @@
       'core/SkTArray.h',
       'core/SkStringUtils.h',
       'core/SkPreConfig.h',
-      'core/SkImageFilterUtils.h',
       'core/SkLineClipper.h',
       'core/SkPathEffect.h',
       'core/SkString.h',

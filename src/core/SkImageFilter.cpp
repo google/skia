@@ -14,8 +14,8 @@
 #include "SkValidationUtils.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "GrTexture.h"
-#include "SkImageFilterUtils.h"
+#include "SkGrPixelRef.h"
+#include "SkGr.h"
 #endif
 
 SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect)
@@ -146,10 +146,11 @@ bool SkImageFilter::canFilterImageGPU() const {
 bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
                                    SkBitmap* result, SkIPoint* offset) const {
 #if SK_SUPPORT_GPU
-    SkBitmap input;
+    SkBitmap input = src;
     SkASSERT(fInputCount == 1);
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(this->getInput(0), proxy, src, ctm, &input, &srcOffset)) {
+    if (this->getInput(0) &&
+        !this->getInput(0)->getInputResultGPU(proxy, src, ctm, &input, &srcOffset)) {
         return false;
     }
     GrTexture* srcTexture = input.getTexture();
@@ -188,7 +189,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMa
     context->drawRectToRect(paint, dstRect, srcRect);
 
     SkAutoTUnref<GrTexture> resultTex(dst.detach());
-    SkImageFilterUtils::WrapTexture(resultTex, bounds.width(), bounds.height(), result);
+    WrapTexture(resultTex, bounds.width(), bounds.height(), result);
     return true;
 #else
     return false;
@@ -242,3 +243,40 @@ bool SkImageFilter::asNewEffect(GrEffectRef**, GrTexture*, const SkMatrix&, cons
 bool SkImageFilter::asColorFilter(SkColorFilter**) const {
     return false;
 }
+
+#if SK_SUPPORT_GPU
+
+void SkImageFilter::WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    result->setConfig(info);
+    result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
+}
+
+bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
+                                      const SkBitmap& src, const SkMatrix& ctm,
+                                      SkBitmap* result, SkIPoint* offset) const {
+    // Ensure that GrContext calls under filterImage and filterImageGPU below will see an identity
+    // matrix with no clip and that the matrix, clip, and render target set before this function was
+    // called are restored before we return to the caller.
+    GrContext* context = src.getTexture()->getContext();
+    GrContext::AutoWideOpenIdentityDraw awoid(context, NULL);
+    if (this->canFilterImageGPU()) {
+        return this->filterImageGPU(proxy, src, ctm, result, offset);
+    } else {
+        if (this->filterImage(proxy, src, ctm, result, offset)) {
+            if (!result->getTexture()) {
+                SkImageInfo info;
+                if (!result->asImageInfo(&info)) {
+                    return false;
+                }
+                GrTexture* resultTex = GrLockAndRefCachedBitmapTexture(context, *result, NULL);
+                result->setPixelRef(new SkGrPixelRef(info, resultTex))->unref();
+                GrUnlockAndUnrefCachedBitmapTexture(resultTex);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+#endif

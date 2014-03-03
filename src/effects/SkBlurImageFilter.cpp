@@ -14,7 +14,6 @@
 #include "SkBlurImage_opts.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
-#include "SkImageFilterUtils.h"
 #endif
 
 SkBlurImageFilter::SkBlurImageFilter(SkReadBuffer& buffer)
@@ -254,9 +253,9 @@ bool SkBlurImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
 bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
                                        SkBitmap* result, SkIPoint* offset) const {
 #if SK_SUPPORT_GPU
-    SkBitmap input;
+    SkBitmap input = src;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &input, &srcOffset)) {
+    if (getInput(0) && !getInput(0)->getInputResultGPU(proxy, src, ctm, &input, &srcOffset)) {
         return false;
     }
     GrTexture* source = input.getTexture();
@@ -278,7 +277,8 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
                                                              true,
                                                              sigma.x(),
                                                              sigma.y()));
-    return SkImageFilterUtils::WrapTexture(tex, rect.width(), rect.height(), result);
+    WrapTexture(tex, rect.width(), rect.height(), result);
+    return true;
 #else
     SkDEBUGFAIL("Should not call in GPU-less build");
     return false;

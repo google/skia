@@ -146,6 +146,20 @@ public:
     // Default impl returns union of all input bounds.
     virtual void computeFastBounds(const SkRect&, SkRect*) const;
 
+#ifdef SK_SUPPORT_GPU
+    /**
+     * Wrap the given texture in a texture-backed SkBitmap.
+     */
+    static void WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result);
+
+    /**
+     * Recursively evaluate this filter on the GPU. If the filter has no GPU
+     * implementation, it will be processed in software and uploaded to the GPU.
+     */
+    bool getInputResultGPU(SkImageFilter::Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+                           SkBitmap* result, SkIPoint* offset) const;
+#endif
+
     SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
 
 protected:
@@ -221,6 +235,7 @@ protected:
                              GrTexture*,
                              const SkMatrix& matrix,
                              const SkIRect& bounds) const;
+
 
 private:
     typedef SkFlattenable INHERITED;

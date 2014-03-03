@@ -18,7 +18,6 @@
 #include "effects/GrBicubicEffect.h"
 #include "GrContext.h"
 #include "GrTexture.h"
-#include "SkImageFilterUtils.h"
 #endif
 
 #define DS(x) SkDoubleToScalar(x)
@@ -171,8 +170,8 @@ bool SkBicubicImageFilter::onFilterImage(Proxy* proxy,
 
 bool SkBicubicImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
                                           SkBitmap* result, SkIPoint* offset) const {
-    SkBitmap srcBM;
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &srcBM, offset)) {
+    SkBitmap srcBM = src;
+    if (getInput(0) && !getInput(0)->getInputResultGPU(proxy, src, ctm, &srcBM, offset)) {
         return false;
     }
     GrTexture* srcTexture = srcBM.getTexture();
@@ -198,7 +197,8 @@ bool SkBicubicImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, con
     SkRect srcRect;
     srcBM.getBounds(&srcRect);
     context->drawRectToRect(paint, dstRect, srcRect);
-    return SkImageFilterUtils::WrapTexture(dst, desc.fWidth, desc.fHeight, result);
+    WrapTexture(dst, desc.fWidth, desc.fHeight, result);
+    return true;
 }
 #endif
 

@@ -18,7 +18,6 @@
 #include "GrTBackendEffectFactory.h"
 #include "gl/GrGLEffect.h"
 #include "effects/Gr1DKernelEffect.h"
-#include "SkImageFilterUtils.h"
 #endif
 
 SkMorphologyImageFilter::SkMorphologyImageFilter(SkReadBuffer& buffer)
@@ -530,7 +529,8 @@ bool apply_morphology(const SkBitmap& input,
                               morphType, Gr1DKernelEffect::kY_Direction);
         src.reset(ast.detach());
     }
-    return SkImageFilterUtils::WrapTexture(src, rect.width(), rect.height(), dst);
+    SkImageFilter::WrapTexture(src, rect.width(), rect.height(), dst);
+    return true;
 }
 
 };
@@ -541,9 +541,9 @@ bool SkMorphologyImageFilter::filterImageGPUGeneric(bool dilate,
                                                     const SkMatrix& ctm,
                                                     SkBitmap* result,
                                                     SkIPoint* offset) const {
-    SkBitmap input;
+    SkBitmap input = src;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &input, &srcOffset)) {
+    if (getInput(0) && !getInput(0)->getInputResultGPU(proxy, src, ctm, &input, &srcOffset)) {
         return false;
     }
     SkIRect bounds;

@@ -15,7 +15,6 @@
 #include "GrCoordTransform.h"
 #include "gl/GrGLEffect.h"
 #include "GrTBackendEffectFactory.h"
-#include "SkImageFilterUtils.h"
 #endif
 
 namespace {
@@ -349,17 +348,18 @@ private:
 
 bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
                                              SkBitmap* result, SkIPoint* offset) const {
-    SkBitmap colorBM;
+    SkBitmap colorBM = src;
     SkIPoint colorOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(getColorInput(), proxy, src, ctm, &colorBM,
-                                               &colorOffset)) {
+    if (getColorInput() && !getColorInput()->getInputResultGPU(proxy, src, ctm, &colorBM,
+                                                               &colorOffset)) {
         return false;
     }
     GrTexture* color = colorBM.getTexture();
-    SkBitmap displacementBM;
+    SkBitmap displacementBM = src;
     SkIPoint displacementOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(getDisplacementInput(), proxy, src, ctm,
-                                               &displacementBM, &displacementOffset)) {
+    if (getDisplacementInput() &&
+        !getDisplacementInput()->getInputResultGPU(proxy, src, ctm, &displacementBM,
+                                                   &displacementOffset)) {
         return false;
     }
     GrTexture* displacement = displacementBM.getTexture();
@@ -415,7 +415,8 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
     context->drawRect(paint, SkRect::Make(colorBounds));
     offset->fX = bounds.left();
     offset->fY = bounds.top();
-    return SkImageFilterUtils::WrapTexture(dst, bounds.width(), bounds.height(), result);
+    WrapTexture(dst, bounds.width(), bounds.height(), result);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

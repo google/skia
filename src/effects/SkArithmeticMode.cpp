@@ -16,7 +16,6 @@
 #include "GrCoordTransform.h"
 #include "gl/GrGLEffect.h"
 #include "GrTBackendEffectFactory.h"
-#include "SkImageFilterUtils.h"
 #endif
 
 static const bool gUseUnpremul = false;

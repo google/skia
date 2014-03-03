@@ -16,7 +16,6 @@
 #include "GrContext.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "SkGr.h"
-#include "SkImageFilterUtils.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -101,17 +100,17 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
                                            const SkMatrix& ctm,
                                            SkBitmap* result,
                                            SkIPoint* offset) const {
-    SkBitmap background;
+    SkBitmap background = src;
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(0), proxy, src, ctm, &background,
-                                               &backgroundOffset)) {
+    if (getInput(0) && !getInput(0)->getInputResultGPU(proxy, src, ctm, &background,
+                                                       &backgroundOffset)) {
         return false;
     }
     GrTexture* backgroundTex = background.getTexture();
-    SkBitmap foreground;
+    SkBitmap foreground = src;
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
-    if (!SkImageFilterUtils::GetInputResultGPU(getInput(1), proxy, src, ctm, &foreground,
-                                               &foregroundOffset)) {
+    if (getInput(1) && !getInput(1)->getInputResultGPU(proxy, src, ctm, &foreground,
+                                                       &foregroundOffset)) {
         return false;
     }
     GrTexture* foregroundTex = foreground.getTexture();
@@ -160,7 +159,8 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     }
     offset->fX = backgroundOffset.fX;
     offset->fY = backgroundOffset.fY;
-    return SkImageFilterUtils::WrapTexture(dst, src.width(), src.height(), result);
+    WrapTexture(dst, src.width(), src.height(), result);
+    return true;
 }
 
 #endif
