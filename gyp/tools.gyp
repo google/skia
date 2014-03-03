@@ -25,6 +25,7 @@
         'skdiff',
         'skhello',
         'skpdiff',
+        'skpinfo',
         'skpmaker',
         'skimage',
         'test_image_decoder',
@@ -179,6 +180,21 @@
         'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',
         'utils.gyp:utils',
+      ],
+    },
+    {
+      'target_name': 'skpinfo',
+      'type': 'executable',
+      'sources': [
+        '../tools/skpinfo.cpp',
+      ],
+      'include_dirs': [
+        '../tools/flags',
+        '../src/core/',
+      ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'skia_lib.gyp:skia_lib',
       ],
     },
 

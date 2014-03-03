@@ -256,7 +256,7 @@ void SkPicture::draw(SkCanvas* surface, SkDrawPictureCallback* callback) {
 static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'c', 't' };
 static const size_t kHeaderSize = sizeof(kMagic) + sizeof(SkPictInfo);
 
-bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
+bool SkPicture::InternalOnly_StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     if (NULL == stream) {
         return false;
     }
@@ -283,7 +283,7 @@ bool SkPicture::StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     return true;
 }
 
-bool SkPicture::BufferIsSKP(SkReadBuffer& buffer, SkPictInfo* pInfo) {
+bool SkPicture::InternalOnly_BufferIsSKP(SkReadBuffer& buffer, SkPictInfo* pInfo) {
     // Check magic bytes.
     char magic[sizeof(kMagic)];
 
@@ -316,7 +316,7 @@ SkPicture::SkPicture(SkPicturePlayback* playback, int width, int height)
 SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc proc) {
     SkPictInfo info;
 
-    if (!StreamIsSKP(stream, &info)) {
+    if (!InternalOnly_StreamIsSKP(stream, &info)) {
         return NULL;
     }
 
@@ -337,7 +337,7 @@ SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc pro
 SkPicture* SkPicture::CreateFromBuffer(SkReadBuffer& buffer) {
     SkPictInfo info;
 
-    if (!BufferIsSKP(buffer, &info)) {
+    if (!InternalOnly_BufferIsSKP(buffer, &info)) {
         return NULL;
     }
 
@@ -360,7 +360,7 @@ void SkPicture::createHeader(void* header) const {
     SkASSERT(sizeof(kMagic) == 8);
     memcpy(header, kMagic, sizeof(kMagic));
 
-    // Set piture info after magic bytes in the header
+    // Set picture info after magic bytes in the header
     SkPictInfo* info = (SkPictInfo*)(((char*)header) + sizeof(kMagic));
     info->fVersion = CURRENT_PICTURE_VERSION;
     info->fWidth = fWidth;
@@ -382,7 +382,7 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     }
 
     char header[kHeaderSize];
-    createHeader(&header);
+    this->createHeader(&header);
     stream->write(header, kHeaderSize);
     if (playback) {
         stream->writeBool(true);
@@ -404,7 +404,7 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     }
 
     char header[kHeaderSize];
-    createHeader(&header);
+    this->createHeader(&header);
     buffer.writeByteArray(header, kHeaderSize);
     if (playback) {
         buffer.writeBool(true);

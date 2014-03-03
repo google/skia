@@ -262,7 +262,7 @@ public:
                                               SkPicture::InstallPixelRefProc proc,
                                               const SkTDArray<bool>& deletedCommands) {
         SkPictInfo info;
-        if (!StreamIsSKP(stream, &info)) {
+        if (!InternalOnly_StreamIsSKP(stream, &info)) {
             return NULL;
         }
 
