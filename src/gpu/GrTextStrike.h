@@ -37,7 +37,7 @@ public:
     GrMaskFormat getMaskFormat() const { return fMaskFormat; }
 
     inline GrGlyph* getGlyph(GrGlyph::PackedID, GrFontScaler*);
-    bool getGlyphAtlas(GrGlyph*, GrFontScaler*);
+    bool addGlyphToAtlas(GrGlyph*, GrFontScaler*);
 
     SkISize getAtlasSize() const { return fAtlas.getSize(); }
 
@@ -47,11 +47,11 @@ public:
         return fCache.getArray()[index];
     }
 
-    // returns true if a plot was removed
-    bool removeUnusedPlots();
+    // remove any references to this plot
+    void removePlot(const GrPlot* plot);
 
 public:
-    // for LRU
+    // for easy removal from list
     GrTextStrike*   fPrev;
     GrTextStrike*   fNext;
 
@@ -88,10 +88,8 @@ public:
 
     void freeAll();
 
-    void purgeExceptFor(GrTextStrike*);
-
-    // remove an unused plot and its strike (if necessary)
-    void freePlotExceptFor(GrTextStrike*);
+    // make an unused plot available
+    bool freeUnusedPlot(GrTextStrike* preserveStrike);
 
     // testing
     int countStrikes() const { return fCache.getArray().count(); }

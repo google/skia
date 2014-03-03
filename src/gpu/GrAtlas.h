@@ -31,6 +31,8 @@ class GrAtlas;
 
 class GrPlot {
 public:
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrPlot);
+    
     int getOffsetX() const { return fOffset.fX; }
     int getOffsetY() const { return fOffset.fY; }
 
@@ -41,14 +43,14 @@ public:
     GrDrawTarget::DrawToken drawToken() const { return fDrawToken; }
     void setDrawToken(GrDrawTarget::DrawToken draw) { fDrawToken = draw; }
 
+    void resetRects();
+
 private:
     GrPlot();
     ~GrPlot(); // does not try to delete the fNext field
 
     // for recycling
     GrDrawTarget::DrawToken fDrawToken;
-
-    GrPlot*                 fNext;
 
     GrTexture*              fTexture;
     GrRectanizer*           fRects;
@@ -59,6 +61,8 @@ private:
     friend class GrAtlasMgr;
 };
 
+typedef SkTInternalLList<GrPlot> GrPlotList;
+
 class GrAtlasMgr {
 public:
     GrAtlasMgr(GrGpu*, GrPixelConfig);
@@ -68,42 +72,41 @@ public:
     // returns the containing GrPlot and location relative to the backing texture
     GrPlot* addToAtlas(GrAtlas*, int width, int height, const void*, GrIPoint16*);
 
-    // free up any plots that are not waiting on a draw call
-    bool removeUnusedPlots(GrAtlas* atlas);
+    // remove reference to this plot
+    bool removePlot(GrAtlas* atlas, const GrPlot* plot);
 
-    // to be called by ~GrAtlas()
-    void deletePlotList(GrPlot* plot);
+    // get a plot that's not being used by the current draw
+    // this allows us to overwrite this plot without flushing
+    GrPlot* getUnusedPlot();
 
     GrTexture* getTexture() const {
         return fTexture;
     }
 
 private:
-    GrPlot* allocPlot();
-    void freePlot(GrPlot* plot);
+    void moveToHead(GrPlot* plot);
 
     GrGpu*        fGpu;
     GrPixelConfig fPixelConfig;
     GrTexture*    fTexture;
 
     // allocated array of GrPlots
-    GrPlot*       fPlots;
-    // linked list of free GrPlots
-    GrPlot*       fFreePlots;
+    GrPlot*       fPlotArray;
+    // LRU list of GrPlots
+    GrPlotList    fPlotList;
 };
 
 class GrAtlas {
 public:
-    GrAtlas(GrAtlasMgr* mgr) : fPlots(NULL), fAtlasMgr(mgr) { }
-    ~GrAtlas() { fAtlasMgr->deletePlotList(fPlots); }
+    GrAtlas() { }
+    ~GrAtlas() { }
 
-    bool isEmpty() { return NULL == fPlots; }
+    bool isEmpty() { return 0 == fPlots.count(); }
 
     SkISize getSize() const;
 
 private:
-    GrPlot*     fPlots;
-    GrAtlasMgr* fAtlasMgr;
+    SkTDArray<GrPlot*> fPlots;
 
     friend class GrAtlasMgr;
 };

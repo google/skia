@@ -35,10 +35,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_DEBUG
-    static int gCounter;
-#endif
-
 // for testing
 #define FONT_CACHE_STATS 0
 #if FONT_CACHE_STATS
@@ -46,7 +42,6 @@ static int g_UploadCount = 0;
 #endif
 
 GrPlot::GrPlot() : fDrawToken(NULL, 0)
-                 , fNext(NULL)
                  , fTexture(NULL)
                  , fAtlasMgr(NULL)
                  , fBytesPerPixel(1)
@@ -94,6 +89,11 @@ bool GrPlot::addSubImage(int width, int height, const void* image,
     return true;
 }
 
+void GrPlot::resetRects() { 
+    SkASSERT(NULL != fRects); 
+    fRects->reset(); 
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrPixelConfig config) {
@@ -104,19 +104,17 @@ GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrPixelConfig config) {
 
     // set up allocated plots
     size_t bpp = GrBytesPerPixel(fPixelConfig);
-    fPlots = SkNEW_ARRAY(GrPlot, (GR_PLOT_WIDTH*GR_PLOT_HEIGHT));
-    fFreePlots = NULL;
-    GrPlot* currPlot = fPlots;
+    fPlotArray = SkNEW_ARRAY(GrPlot, (GR_PLOT_WIDTH*GR_PLOT_HEIGHT));
+
+    GrPlot* currPlot = fPlotArray;
     for (int y = GR_PLOT_HEIGHT-1; y >= 0; --y) {
         for (int x = GR_PLOT_WIDTH-1; x >= 0; --x) {
             currPlot->fAtlasMgr = this;
             currPlot->fOffset.set(x, y);
             currPlot->fBytesPerPixel = bpp;
 
-            // add to free list
-            currPlot->fNext = fFreePlots;
-            fFreePlots = currPlot;
-
+            // build LRU list
+            fPlotList.addToHead(currPlot);
             ++currPlot;
         }
     }
@@ -124,7 +122,7 @@ GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrPixelConfig config) {
 
 GrAtlasMgr::~GrAtlasMgr() {
     SkSafeUnref(fTexture);
-    SkDELETE_ARRAY(fPlots);
+    SkDELETE_ARRAY(fPlotArray);
 
     fGpu->unref();
 #if FONT_CACHE_STATS
@@ -132,25 +130,29 @@ GrAtlasMgr::~GrAtlasMgr() {
 #endif
 }
 
+void GrAtlasMgr::moveToHead(GrPlot* plot) {
+    if (fPlotList.head() == plot) {
+        return;
+    }
+  
+    fPlotList.remove(plot);
+    fPlotList.addToHead(plot);
+};
+
 GrPlot* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
                                int width, int height, const void* image,
                                GrIPoint16* loc) {
-    // iterate through entire plot list, see if we can find a hole
-    GrPlot* plotIter = atlas->fPlots;
-    while (plotIter) {
-        if (plotIter->addSubImage(width, height, image, loc)) {
-            return plotIter;
+    // iterate through entire plot list for this atlas, see if we can find a hole
+    // last one was most recently added and probably most empty
+    for (int i = atlas->fPlots.count()-1; i >= 0; --i) {
+        GrPlot* plot = atlas->fPlots[i];
+        if (plot->addSubImage(width, height, image, loc)) {
+            this->moveToHead(plot);
+            return plot;
         }
-        plotIter = plotIter->fNext;
     }
 
-    // If the above fails, then either we have no starting plot, or the current
-    // plot list is full. Either way we need to allocate a new plot
-    GrPlot* newPlot = this->allocPlot();
-    if (NULL == newPlot) {
-        return NULL;
-    }
-
+    // before we get a new plot, make sure we have a backing texture
     if (NULL == fTexture) {
         // TODO: Update this to use the cache rather than directly creating a texture.
         GrTextureDesc desc;
@@ -164,77 +166,53 @@ GrPlot* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
             return NULL;
         }
     }
-    // be sure to set texture for fast lookup
-    newPlot->fTexture = fTexture;
 
-    if (!newPlot->addSubImage(width, height, image, loc)) {
-        this->freePlot(newPlot);
-        return NULL;
+    // now look through all allocated plots for one we can share, in MRU order
+    GrPlotList::Iter plotIter;
+    plotIter.init(fPlotList, GrPlotList::Iter::kHead_IterStart);
+    GrPlot* plot;
+    while (NULL != (plot = plotIter.get())) {
+        // make sure texture is set for quick lookup
+        plot->fTexture = fTexture;
+        if (plot->addSubImage(width, height, image, loc)) {
+            this->moveToHead(plot);
+            // new plot for atlas, put at end of array
+            *(atlas->fPlots.append()) = plot;
+            return plot;
+        }
+        plotIter.next();
     }
 
-    // new plot, put at head
-    newPlot->fNext = atlas->fPlots;
-    atlas->fPlots = newPlot;
-
-    return newPlot;
+    // If the above fails, then the current plot list has no room
+    return NULL;
 }
 
-bool GrAtlasMgr::removeUnusedPlots(GrAtlas* atlas) {
-
-    // GrPlot** is used so that the head element can be easily
-    // modified when the first element is deleted
-    GrPlot** plotRef = &atlas->fPlots;
-    GrPlot* plot = atlas->fPlots;
-    bool removed = false;
-    while (NULL != plot) {
-        if (plot->drawToken().isIssued()) {
-            *plotRef = plot->fNext;
-            this->freePlot(plot);
-            plot = *plotRef;
-            removed = true;
-        } else {
-            plotRef = &plot->fNext;
-            plot = plot->fNext;
+bool GrAtlasMgr::removePlot(GrAtlas* atlas, const GrPlot* plot) {
+    // iterate through plot list for this atlas
+    int count = atlas->fPlots.count();
+    for (int i = 0; i < count; ++i) {
+        if (plot == atlas->fPlots[i]) {
+            atlas->fPlots.remove(i);
+            return true;
         }
     }
 
-    return removed;
+    return false;
 }
 
-void GrAtlasMgr::deletePlotList(GrPlot* plot) {
-    while (NULL != plot) {
-        GrPlot* next = plot->fNext;
-        this->freePlot(plot);
-        plot = next;
-    }
-}
-
-GrPlot* GrAtlasMgr::allocPlot() {
-    if (NULL == fFreePlots) {
-        return NULL;
-    } else {
-        GrPlot* alloc = fFreePlots;
-        fFreePlots = alloc->fNext;
-#ifdef SK_DEBUG
-//        GrPrintf(" GrPlot %p [%d %d] %d\n", this, alloc->fOffset.fX, alloc->fOffset.fY, gCounter);
-        gCounter += 1;
-#endif
-        return alloc;
+// get a plot that's not being used by the current draw
+GrPlot* GrAtlasMgr::getUnusedPlot() {
+    GrPlotList::Iter plotIter;
+    plotIter.init(fPlotList, GrPlotList::Iter::kTail_IterStart);
+    GrPlot* plot;
+    while (NULL != (plot = plotIter.get())) {
+        if (plot->drawToken().isIssued()) {
+            return plot;
+        }
+        plotIter.prev();
     }
 
-}
-
-void GrAtlasMgr::freePlot(GrPlot* plot) {
-    SkASSERT(this == plot->fAtlasMgr);
-
-    plot->fRects->reset();
-    plot->fNext = fFreePlots;
-    fFreePlots = plot;
-
-#ifdef SK_DEBUG
-    --gCounter;
-//    GrPrintf("~GrPlot %p [%d %d] %d\n", this, plot->fOffset.fX, plot->fOffset.fY, gCounter);
-#endif
+    return NULL;
 }
 
 SkISize GrAtlas::getSize() const {

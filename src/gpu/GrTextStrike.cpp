@@ -110,47 +110,39 @@ void GrFontCache::purgeStrike(GrTextStrike* strike) {
     delete strike;
 }
 
-void GrFontCache::purgeExceptFor(GrTextStrike* preserveStrike) {
+bool GrFontCache::freeUnusedPlot(GrTextStrike* preserveStrike) {
     SkASSERT(NULL != preserveStrike);
-    GrTextStrike* strike = fTail;
-    bool purge = true;
+
+    GrAtlasMgr* atlasMgr = preserveStrike->fAtlasMgr;
+    GrPlot* plot = atlasMgr->getUnusedPlot();
+    if (NULL == plot) {
+        return false;
+    }
+    plot->resetRects();
+
+    GrTextStrike* strike = fHead;
     GrMaskFormat maskFormat = preserveStrike->fMaskFormat;
     while (strike) {
-        if (strike == preserveStrike || maskFormat != strike->fMaskFormat) {
-            strike = strike->fPrev;
+        if (maskFormat != strike->fMaskFormat) {
+            strike = strike->fNext;
             continue;
         }
+
         GrTextStrike* strikeToPurge = strike;
-        strike = strikeToPurge->fPrev;
-        if (purge) {
-            // keep purging if we won't free up any atlases with this strike.
-            purge = strikeToPurge->fAtlas.isEmpty();
+        strike = strikeToPurge->fNext;
+        strikeToPurge->removePlot(plot);
+
+        // clear out any empty strikes (except this one)
+        if (strikeToPurge != preserveStrike && strikeToPurge->fAtlas.isEmpty()) {
             this->purgeStrike(strikeToPurge);
         }
     }
+
 #if FONT_CACHE_STATS
     ++g_PurgeCount;
 #endif
-}
 
-void GrFontCache::freePlotExceptFor(GrTextStrike* preserveStrike) {
-    SkASSERT(NULL != preserveStrike);
-    GrTextStrike* strike = fTail;
-    GrMaskFormat maskFormat = preserveStrike->fMaskFormat;
-    while (strike) {
-        if (strike == preserveStrike || maskFormat != strike->fMaskFormat) {
-            strike = strike->fPrev;
-            continue;
-        }
-        GrTextStrike* strikeToPurge = strike;
-        strike = strikeToPurge->fPrev;
-        if (strikeToPurge->removeUnusedPlots()) {
-            if (strikeToPurge->fAtlas.isEmpty()) {
-                this->purgeStrike(strikeToPurge);
-            }
-            break;
-        }
-    }
+    return true;
 }
 
 #ifdef SK_DEBUG
@@ -221,7 +213,7 @@ void GrFontCache::dump() const {
 
 GrTextStrike::GrTextStrike(GrFontCache* cache, const GrKey* key,
                            GrMaskFormat format,
-                           GrAtlasMgr* atlasMgr) : fPool(64), fAtlas(atlasMgr) {
+                           GrAtlasMgr* atlasMgr) : fPool(64) {
     fFontScalerKey = key;
     fFontScalerKey->ref();
 
@@ -236,15 +228,9 @@ GrTextStrike::GrTextStrike(GrFontCache* cache, const GrKey* key,
 #endif
 }
 
-// these signatures are needed because they're used with
-// SkTDArray::visitAll() (see destructor & removeUnusedAtlases())
+// this signature is needed because it's used with
+// SkTDArray::visitAll() (see destructor)
 static void free_glyph(GrGlyph*& glyph) { glyph->free(); }
-
-static void invalidate_glyph(GrGlyph*& glyph) {
-    if (glyph->fPlot && glyph->fPlot->drawToken().isIssued()) {
-        glyph->fPlot = NULL;
-    }
-}
 
 GrTextStrike::~GrTextStrike() {
     fFontScalerKey->unref();
@@ -278,13 +264,19 @@ GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
     return glyph;
 }
 
-bool GrTextStrike::removeUnusedPlots() {
-    fCache.getArray().visitAll(invalidate_glyph);
-    return fAtlasMgr->removeUnusedPlots(&fAtlas);
+void GrTextStrike::removePlot(const GrPlot* plot) {
+    SkTDArray<GrGlyph*>& glyphArray = fCache.getArray();
+    for (int i = 0; i < glyphArray.count(); ++i) {
+        if (plot == glyphArray[i]->fPlot) {
+            glyphArray[i]->fPlot = NULL;
+        }
+    }
+
+    fAtlasMgr->removePlot(&fAtlas, plot);
 }
 
 
-bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
+bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
 #if 0   // testing hack to force us to flush our cache often
     static int gCounter;
     if ((++gCounter % 10) == 0) return false;

@@ -161,13 +161,13 @@ void GrDistanceFieldTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
     }
 */
     if (NULL == glyph->fPlot) {
-        if (fStrike->getGlyphAtlas(glyph, scaler)) {
+        if (fStrike->addGlyphToAtlas(glyph, scaler)) {
             goto HAS_ATLAS;
         }
 
         // try to clear out an unused plot before we flush
-        fContext->getFontCache()->freePlotExceptFor(fStrike);
-        if (fStrike->getGlyphAtlas(glyph, scaler)) {
+        if (fContext->getFontCache()->freeUnusedPlot(fStrike) &&
+            fStrike->addGlyphToAtlas(glyph, scaler)) {
             goto HAS_ATLAS;
         }
 
@@ -181,10 +181,9 @@ void GrDistanceFieldTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         this->flushGlyphs();
         fContext->flush();
 
-        // try to purge
-        fContext->getFontCache()->purgeExceptFor(fStrike);
-        // need to use new flush count here
-        if (fStrike->getGlyphAtlas(glyph, scaler)) {
+        // we should have an unused plot now
+        if (fContext->getFontCache()->freeUnusedPlot(fStrike) &&
+            fStrike->addGlyphToAtlas(glyph, scaler)) {
             goto HAS_ATLAS;
         }
 
