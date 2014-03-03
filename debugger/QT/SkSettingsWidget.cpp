@@ -62,6 +62,10 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     fOverdrawVizLabel.setMinimumWidth(178);
     fOverdrawVizLabel.setMaximumWidth(178);
 
+    fMegaVizLabel.setText("         Mega Viz: ");
+    fMegaVizLabel.setMinimumWidth(178);
+    fMegaVizLabel.setMaximumWidth(178);
+
 #if SK_SUPPORT_GPU
     fGLLabel.setText("OpenGL: ");
     fGLLabel.setMinimumWidth(178);
@@ -109,8 +113,10 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     fRasterLayout.addWidget(&fRasterLabel);
     fRasterLayout.addWidget(&fRasterCheckBox);
 
-    fOverdrawVizLayout.addWidget(&fOverdrawVizLabel);
-    fOverdrawVizLayout.addWidget(&fOverdrawVizCheckBox);
+    fVizLayout.addWidget(&fOverdrawVizLabel);
+    fVizLayout.addWidget(&fOverdrawVizCheckBox);
+    fVizLayout.addWidget(&fMegaVizLabel);
+    fVizLayout.addWidget(&fMegaVizCheckBox);
 
 #if SK_SUPPORT_GPU
     fGLLayout.addWidget(&fGLLabel);
@@ -120,7 +126,7 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     fCanvasLayout.setSpacing(6);
     fCanvasLayout.setContentsMargins(11,11,11,11);
     fCanvasLayout.addLayout(&fRasterLayout);
-    fCanvasLayout.addLayout(&fOverdrawVizLayout);
+    fCanvasLayout.addLayout(&fVizLayout);
 #if SK_SUPPORT_GPU
     fCanvasLayout.addLayout(&fGLLayout);
     fCanvasLayout.addWidget(&fGLMSAAButtonGroup);

@@ -70,6 +70,10 @@ public:
         return &fOverdrawVizCheckBox;
     }
 
+    QCheckBox* getMegaVizCheckBox() {
+        return &fMegaVizCheckBox;
+    }
+
 private slots:
     void updateCommand(int newCommand);
     void updateHit(int newHit);
@@ -113,9 +117,11 @@ private:
     QLabel fRasterLabel;
     QCheckBox fRasterCheckBox;
 
-    QHBoxLayout fOverdrawVizLayout;
+    QHBoxLayout fVizLayout;
     QLabel fOverdrawVizLabel;
     QCheckBox fOverdrawVizCheckBox;
+    QLabel fMegaVizLabel;
+    QCheckBox fMegaVizCheckBox;
 
 #if SK_SUPPORT_GPU
     QHBoxLayout fGLLayout;

@@ -23,7 +23,9 @@ public:
     SkDebugCanvas(int width, int height);
     virtual ~SkDebugCanvas();
 
-    void toggleFilter(bool toggle);
+    void toggleFilter(bool toggle) { fFilter = toggle; }
+
+    void setMegaVizMode(bool megaVizMode) { fMegaVizMode = megaVizMode; }
 
     /**
      * Enable or disable overdraw visualization
@@ -252,11 +254,14 @@ protected:
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRegion(const SkRegion& region, SkRegion::Op) SK_OVERRIDE;
 
+    void markActiveSaveLayers(int index);
+
 private:
     SkTDArray<SkDrawCommand*> fCommandVector;
     int fWidth;
     int fHeight;
     bool fFilter;
+    bool fMegaVizMode;
     int fIndex;
     SkMatrix fUserMatrix;
     SkMatrix fMatrix;

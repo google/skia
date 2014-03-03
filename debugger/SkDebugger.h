@@ -107,6 +107,12 @@ public:
         }
     }
 
+    void setMegaViz(bool megaViz) {
+        if (NULL != fDebugCanvas) {
+            fDebugCanvas->setMegaVizMode(megaViz);
+        }
+    }
+
     void setTexFilterOverride(bool texFilterOverride, SkPaint::FilterLevel level) {
         if (NULL != fDebugCanvas) {
             fDebugCanvas->overrideTexFiltering(texFilterOverride, level);

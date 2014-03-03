@@ -38,8 +38,24 @@ public:
     SkTDArray<SkString*>* Info() {return &fInfo; };
     virtual void execute(SkCanvas* canvas)=0;
     /** Does nothing by default, but used by save() and restore()-type
-        subclassse to track unresolved save() calls. */
+        subclasses to track unresolved save() calls. */
     virtual void trackSaveState(int* state) { };
+
+    // The next "active" system is only used by save, saveLayer and restore.
+    // It is used to determine which saveLayers are currently active (at a 
+    // given point in the rendering).
+    //      save just return a kPush action but don't track active state
+    //      restore just return a kPop action
+    //      saveLayers return kPush but also track the active state
+    enum Action {
+        kNone_Action,
+        kPop_Action,
+        kPush_Action
+    };
+    virtual Action action() const { return kNone_Action; }
+    virtual void setActive(bool active) {}
+    virtual bool active() const { return false; }
+
     DrawType getType() { return fDrawType; };
 
     virtual bool render(SkCanvas* canvas) const { return false; }
@@ -59,6 +75,7 @@ public:
     SkRestoreCommand();
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
     virtual void trackSaveState(int* state) SK_OVERRIDE;
+    virtual Action action() const SK_OVERRIDE { return kPop_Action; }
 
 private:
     typedef SkDrawCommand INHERITED;
@@ -496,6 +513,7 @@ public:
     SkSaveCommand(SkCanvas::SaveFlags flags);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
     virtual void trackSaveState(int* state) SK_OVERRIDE;
+    virtual Action action() const SK_OVERRIDE { return kPush_Action; }
 private:
     SkCanvas::SaveFlags fFlags;
 
@@ -508,6 +526,9 @@ public:
                        SkCanvas::SaveFlags flags);
     virtual void execute(SkCanvas* canvas) SK_OVERRIDE;
     virtual void trackSaveState(int* state) SK_OVERRIDE;
+    virtual Action action() const SK_OVERRIDE{ return kPush_Action; }
+    virtual void setActive(bool active) SK_OVERRIDE { fActive = active; }
+    virtual bool active() const SK_OVERRIDE { return fActive; }
 
     const SkPaint* paint() const { return fPaintPtr; }
 
@@ -516,6 +537,8 @@ private:
     SkPaint             fPaint;
     SkPaint*            fPaintPtr;
     SkCanvas::SaveFlags fFlags;
+
+    bool                fActive;
 
     typedef SkDrawCommand INHERITED;
 };

@@ -97,6 +97,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fSettingsWidget, SIGNAL(texFilterSettingsChanged()), this, SLOT(actionTextureFilter()));
     connect(fSettingsWidget.getRasterCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionRasterWidget(bool)));
     connect(fSettingsWidget.getOverdrawVizCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionOverdrawVizWidget(bool)));
+    connect(fSettingsWidget.getMegaVizCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionMegaVizWidget(bool)));
     connect(&fActionPause, SIGNAL(toggled(bool)), this, SLOT(pauseDrawing(bool)));
     connect(&fActionCreateBreakpoint, SIGNAL(activated()), this, SLOT(toggleBreakpoint()));
     connect(&fActionShowDeletes, SIGNAL(triggered()), this, SLOT(showDeletes()));
@@ -518,6 +519,11 @@ void SkDebuggerGUI::actionRasterWidget(bool isToggled) {
 
 void SkDebuggerGUI::actionOverdrawVizWidget(bool isToggled) {
     fDebugger.setOverdrawViz(isToggled);
+    fCanvasWidget.update();
+}
+
+void SkDebuggerGUI::actionMegaVizWidget(bool isToggled) {
+    fDebugger.setMegaViz(isToggled);
     fCanvasWidget.update();
 }
 

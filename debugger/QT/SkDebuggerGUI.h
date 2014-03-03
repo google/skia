@@ -142,6 +142,11 @@ private slots:
     void actionOverdrawVizWidget(bool isToggled);
 
     /**
+        Toggles the the mega visualization on and off
+     */
+    void actionMegaVizWidget(bool isToggled);
+
+    /**
         Applies the new texture filter override
      */
     void actionTextureFilter();
