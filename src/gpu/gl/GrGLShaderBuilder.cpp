@@ -404,14 +404,11 @@ const char* GrGLShaderBuilder::fragmentPosition() {
             return "";
         }
     }
+    // We only declare "gl_FragCoord" when we're in the case where we want to use layout qualifiers
+    // to reverse y. Otherwise it isn't necessary and whether the "in" qualifier appears in the
+    // declaration varies in earlier GLSL specs. So it is simpler to omit it.
     if (fTopLeftFragPosRead) {
-        if (!fSetupFragPosition) {
-            fFSInputs.push_back().set(kVec4f_GrSLType,
-                                      GrGLShaderVar::kIn_TypeModifier,
-                                      "gl_FragCoord",
-                                      GrGLShaderVar::kDefault_Precision);
-            fSetupFragPosition = true;
-        }
+        fSetupFragPosition = true;
         return "gl_FragCoord";
     } else if (fGpu->glCaps().fragCoordConventionsSupport()) {
         if (!fSetupFragPosition) {
