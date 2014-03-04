@@ -91,14 +91,26 @@ class DiffRecord(object):
     # TODO(rmistry): Add a parameter that makes _download_and_open_image raise
     # an exception if images are not found locally (instead of trying to
     # download them).
-    expected_image = _download_and_open_image(
-        os.path.join(storage_root, expected_images_subdir,
-                     str(expected_image_locator) + image_suffix),
-        expected_image_url)
-    actual_image = _download_and_open_image(
-        os.path.join(storage_root, actual_images_subdir,
-                     str(actual_image_locator) + image_suffix),
-        actual_image_url)
+    expected_image_file = os.path.join(
+        storage_root, expected_images_subdir,
+        str(expected_image_locator) + image_suffix)
+    actual_image_file = os.path.join(
+        storage_root, actual_images_subdir,
+        str(actual_image_locator) + image_suffix)
+    try:
+      expected_image = _download_and_open_image(
+          expected_image_file, expected_image_url)
+    except Exception:
+      logging.exception('unable to download expected_image_url %s to file %s' %
+                        (expected_image_url, expected_image_file))
+      raise
+    try:
+      actual_image = _download_and_open_image(
+          actual_image_file, actual_image_url)
+    except Exception:
+      logging.exception('unable to download actual_image_url %s to file %s' %
+                        (actual_image_url, actual_image_file))
+      raise
 
     # Generate the diff image (absolute diff at each pixel) and
     # max_diff_per_channel.
