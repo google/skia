@@ -16,7 +16,7 @@ Assumes that you have already run the download_deps script.
 Usage:
   $0 \\
     [-o SKIA_OUT_DIR] [-c CC_EXE] [-x CXX_EXE] \\
-    [-t Debug | Release | Coverage | Release_Developer]\\
+    [-t Debug | Release | Coverage | Release_Developer] \\
     [GYP_DEFINES...]
 
 Example use:
@@ -35,7 +35,7 @@ EOF
 BUILD_TYPE='Debug'
 
 unset OPTIND
-while getopts ":c:x:o:h" opt ; do
+while getopts ":c:x:o:t:h" opt ; do
     case $opt in
         c)  export CC="$OPTARG" ;;
         x)  export CXX="$OPTARG" ;;
