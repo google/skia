@@ -37,11 +37,6 @@
 # http://skbug.com/2222 : Inverse filled paths get inverse stroked
 inverse_paths
 
-# Added as part of https://codereview.chromium.org/184973007/.
-# senorblanco will rebaseline.
-imagefiltersclipped
-imagefiltersscaled
-
 # Added as part of https://codereview.chromium.org/186643003/.
 # senorblanco will rebaseline.
 offsetimagefilter
