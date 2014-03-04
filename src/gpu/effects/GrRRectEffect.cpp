@@ -13,30 +13,34 @@
 
 #include "SkRRect.h"
 
+using namespace GrRRectEffect;
+
 class GLRRectEffect;
 
 class RRectEffect : public GrEffect {
 public:
     // This effect only supports circular corner rrects where the radius is >= kRadiusMin.
     static const SkScalar kRadiusMin;
-
+    
     /// The types of circular corner rrects supported
-    enum Type {
-        kCircleCorner_Type,     //<! All four corners have the same circular radius.
-        kLeftCircleTab_Type,    //<! The left side has circular corners and the right is a rect.
-        kTopCircleTab_Type,     //<! etc
-        kRightCircleTab_Type,
-        kBottomCircleTab_Type,
+    enum RRectType {
+        kCircleCorner_RRectType,     //<! All four corners have the same circular radius.
+        kLeftCircleTab_RRectType,    //<! The left side has circular corners, the right is a rect.
+        kTopCircleTab_RRectType,     //<! etc
+        kRightCircleTab_RRectType,
+        kBottomCircleTab_RRectType,
     };
 
-    static GrEffectRef* Create(const SkRRect&, Type);
+    static GrEffectRef* Create(EdgeType, const SkRRect&, RRectType);
 
     virtual ~RRectEffect() {};
     static const char* Name() { return "RRect"; }
 
     const SkRRect& getRRect() const { return fRRect; }
 
-    Type getType() const { return fType; }
+    RRectType getType() const { return fRRectType; }
+    
+    EdgeType getEdgeType() const { return fEdgeType; }
 
     typedef GLRRectEffect GLEffect;
 
@@ -45,12 +49,13 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
-    RRectEffect(const SkRRect&, Type);
+    RRectEffect(EdgeType, const SkRRect&, RRectType);
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
-    SkRRect fRRect;
-    Type    fType;
+    SkRRect     fRRect;
+    EdgeType    fEdgeType;
+    RRectType   fRRectType;
 
     GR_DECLARE_EFFECT_TEST;
 
@@ -59,8 +64,8 @@ private:
 
 const SkScalar RRectEffect::kRadiusMin = 0.5f;
 
-GrEffectRef* RRectEffect::Create(const SkRRect& rrect, Type type) {
-    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(RRectEffect, (rrect, type))));
+GrEffectRef* RRectEffect::Create(EdgeType edgeType, const SkRRect& rrect, RRectType rrtype) {
+    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(RRectEffect, (edgeType, rrect, rrtype))));
 }
 
 void RRectEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
@@ -71,16 +76,17 @@ const GrBackendEffectFactory& RRectEffect::getFactory() const {
     return GrTBackendEffectFactory<RRectEffect>::getInstance();
 }
 
-RRectEffect::RRectEffect(const SkRRect& rrect, Type type)
+RRectEffect::RRectEffect(EdgeType edgeType, const SkRRect& rrect, RRectType rrtype)
     : fRRect(rrect)
-    , fType(type) {
+    , fEdgeType(edgeType)
+    , fRRectType(rrtype) {
     this->setWillReadFragmentPosition();
 }
 
 bool RRectEffect::onIsEqual(const GrEffect& other) const {
     const RRectEffect& rre = CastEffect<RRectEffect>(other);
     // type is derived from fRRect, so no need to check it.
-    return fRRect == rre.fRRect;
+    return fEdgeType == rre.fEdgeType && fRRect == rre.fRRect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -94,10 +100,11 @@ GrEffectRef* RRectEffect::TestCreate(SkRandom* random,
     SkScalar w = random->nextRangeScalar(20.f, 1000.f);
     SkScalar h = random->nextRangeScalar(20.f, 1000.f);
     SkScalar r = random->nextRangeF(kRadiusMin, 9.f);
+    EdgeType et = (EdgeType) random->nextULessThan(kEdgeTypeCnt);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
 
-    return GrRRectEffect::Create(rrect);
+    return GrRRectEffect::Create(et, rrect);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -170,14 +177,14 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
     // computations, compute a separate rect edge alpha for the rect side, and mul the two computed
     // alphas together.
     switch (rre.getType()) {
-        case RRectEffect::kCircleCorner_Type:
+        case RRectEffect::kCircleCorner_RRectType:
             builder->fsCodeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
             builder->fsCodeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
             builder->fsCodeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
             builder->fsCodeAppendf("\t\tfloat alpha = clamp(%s - length(dxy), 0.0, 1.0);\n",
                                    radiusPlusHalfName);
             break;
-        case RRectEffect::kLeftCircleTab_Type:
+        case RRectEffect::kLeftCircleTab_RRectType:
             builder->fsCodeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
             builder->fsCodeAppendf("\t\tfloat dy1 = %s.y - %s.w;\n", fragmentPos, rectName);
             builder->fsCodeAppend("\t\tvec2 dxy = max(vec2(dxy0.x, max(dxy0.y, dy1)), 0.0);\n");
@@ -186,7 +193,7 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
             builder->fsCodeAppendf("\t\tfloat alpha = rightAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
                                    radiusPlusHalfName);
             break;
-        case RRectEffect::kTopCircleTab_Type:
+        case RRectEffect::kTopCircleTab_RRectType:
             builder->fsCodeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
             builder->fsCodeAppendf("\t\tfloat dx1 = %s.x - %s.z;\n", fragmentPos, rectName);
             builder->fsCodeAppend("\t\tvec2 dxy = max(vec2(max(dxy0.x, dx1), dxy0.y), 0.0);\n");
@@ -195,7 +202,7 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
             builder->fsCodeAppendf("\t\tfloat alpha = bottomAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
                                    radiusPlusHalfName);
             break;
-        case RRectEffect::kRightCircleTab_Type:
+        case RRectEffect::kRightCircleTab_RRectType:
             builder->fsCodeAppendf("\t\tfloat dy0 = %s.y - %s.y;\n", rectName, fragmentPos);
             builder->fsCodeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
             builder->fsCodeAppend("\t\tvec2 dxy = max(vec2(dxy1.x, max(dy0, dxy1.y)), 0.0);\n");
@@ -204,7 +211,7 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
             builder->fsCodeAppendf("\t\tfloat alpha = leftAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
                                    radiusPlusHalfName);
             break;
-        case RRectEffect::kBottomCircleTab_Type:
+        case RRectEffect::kBottomCircleTab_RRectType:
             builder->fsCodeAppendf("\t\tfloat dx0 = %s.x - %s.x;\n", rectName, fragmentPos);
             builder->fsCodeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
             builder->fsCodeAppend("\t\tvec2 dxy = max(vec2(max(dx0, dxy1.x), dxy1.y), 0.0);\n");
@@ -214,6 +221,10 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
                                    radiusPlusHalfName);
             break;
     }
+    
+    if (kInverseFillAA_EdgeType == rre.getEdgeType()) {
+        builder->fsCodeAppend("\t\talpha = 1.0 - alpha;\n");
+    }
 
     builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor,
                            (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
@@ -221,7 +232,8 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
 
 GrGLEffect::EffectKey GLRRectEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
     const RRectEffect& rre = drawEffect.castEffect<RRectEffect>();
-    return rre.getType();
+    GR_STATIC_ASSERT(kEdgeTypeCnt <= 4);
+    return (rre.getType() << 2) | rre.getEdgeType();
 }
 
 void GLRRectEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
@@ -231,34 +243,34 @@ void GLRRectEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& 
         SkRect rect = rrect.getBounds();
         SkScalar radius = 0;
         switch (rre.getType()) {
-            case RRectEffect::kCircleCorner_Type:
+            case RRectEffect::kCircleCorner_RRectType:
                 SkASSERT(rrect.isSimpleCircular());
                 radius = rrect.getSimpleRadii().fX;
                 SkASSERT(radius >= RRectEffect::kRadiusMin);
                 rect.inset(radius, radius);
                 break;
-            case RRectEffect::kLeftCircleTab_Type:
+            case RRectEffect::kLeftCircleTab_RRectType:
                 radius = rrect.radii(SkRRect::kUpperLeft_Corner).fX;
                 rect.fLeft += radius;
                 rect.fTop += radius;
                 rect.fRight += 0.5f;
                 rect.fBottom -= radius;
                 break;
-            case RRectEffect::kTopCircleTab_Type:
+            case RRectEffect::kTopCircleTab_RRectType:
                 radius = rrect.radii(SkRRect::kUpperLeft_Corner).fX;
                 rect.fLeft += radius;
                 rect.fTop += radius;
                 rect.fRight -= radius;
                 rect.fBottom += 0.5f;
                 break;
-            case RRectEffect::kRightCircleTab_Type:
+            case RRectEffect::kRightCircleTab_RRectType:
                 radius = rrect.radii(SkRRect::kUpperRight_Corner).fX;
                 rect.fLeft -= 0.5f;
                 rect.fTop += radius;
                 rect.fRight -= radius;
                 rect.fBottom -= radius;
                 break;
-            case RRectEffect::kBottomCircleTab_Type:
+            case RRectEffect::kBottomCircleTab_RRectType:
                 radius = rrect.radii(SkRRect::kLowerLeft_Corner).fX;
                 rect.fLeft += radius;
                 rect.fTop -= 0.5f;
@@ -274,13 +286,13 @@ void GLRRectEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& 
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrEffectRef* GrRRectEffect::Create(const SkRRect& rrect) {
-    RRectEffect::Type type;
+GrEffectRef* GrRRectEffect::Create(EdgeType edgeType, const SkRRect& rrect) {
+    RRectEffect::RRectType rrtype;
     if (rrect.isSimpleCircular()) {
         if (rrect.getSimpleRadii().fX < RRectEffect::kRadiusMin) {
             return NULL;
         }
-        type = RRectEffect::kCircleCorner_Type;
+        rrtype = RRectEffect::kCircleCorner_RRectType;
     } else if (rrect.isComplex()) {
         // Check for the "tab" cases - two adjacent circular corners and two square corners.
         SkScalar radius = 0;
@@ -314,16 +326,16 @@ GrEffectRef* GrRRectEffect::Create(const SkRRect& rrect) {
         GR_STATIC_ASSERT(SkRRect::kLowerLeft_Corner  == 3);
         switch (circleCornerBitfield) {
             case 3:
-                type = RRectEffect::kTopCircleTab_Type;
+                rrtype = RRectEffect::kTopCircleTab_RRectType;
                 break;
             case 6:
-                type = RRectEffect::kRightCircleTab_Type;
+                rrtype = RRectEffect::kRightCircleTab_RRectType;
                 break;
             case 9:
-                type = RRectEffect::kLeftCircleTab_Type;
+                rrtype = RRectEffect::kLeftCircleTab_RRectType;
                 break;
             case 12:
-                type = RRectEffect::kBottomCircleTab_Type;
+                rrtype = RRectEffect::kBottomCircleTab_RRectType;
                 break;
             default:
                 return NULL;
@@ -331,5 +343,5 @@ GrEffectRef* GrRRectEffect::Create(const SkRRect& rrect) {
     } else {
         return NULL;
     }
-    return RRectEffect::Create(rrect, type);
+    return RRectEffect::Create(edgeType, rrect, rrtype);
 }

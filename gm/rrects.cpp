@@ -6,7 +6,10 @@
  */
 
 #include "gm.h"
+#include "GrTest.h"
+#include "SkDevice.h"
 #include "SkRRect.h"
+#include "effects/GrRRectEffect.h"
 
 namespace skiagm {
 
@@ -14,51 +17,115 @@ namespace skiagm {
 
 class RRectGM : public GM {
 public:
-    RRectGM(bool doAA, bool doClip) : fDoAA(doAA), fDoClip(doClip) {
+    enum Type {
+        kBW_Draw_Type,
+        kAA_Draw_Type,
+        kBW_Clip_Type,
+        kAA_Clip_Type,
+        kEffect_Type,
+    };
+    RRectGM(Type type) : fType(type) {
         this->setBGColor(0xFFDDDDDD);
         this->setUpRRects();
     }
 
 protected:
-    SkString onShortName() {
+    SkString onShortName() SK_OVERRIDE {
         SkString name("rrect");
-        if (fDoClip) {
-            name.append("_clip");
+        switch (fType) {
+            case kBW_Draw_Type:
+                name.append("_draw_bw");
+                break;
+            case kAA_Draw_Type:
+                name.append("_draw_aa");
+                break;
+            case kBW_Clip_Type:
+                name.append("_clip_bw");
+                break;
+            case kAA_Clip_Type:
+                name.append("_clip_aa");
+                break;
+            case kEffect_Type:
+                name.append("_effect");
+                break;
         }
-        if (fDoAA) {
-            name.append("_aa");
-        } else {
-            name.append("_bw");
-        }
-
         return name;
     }
 
-    virtual SkISize onISize() { return make_isize(kImageWidth, kImageHeight); }
+    virtual SkISize onISize() SK_OVERRIDE { return make_isize(kImageWidth, kImageHeight); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        if (kEffect_Type == fType) {
+            return kGPUOnly_Flag;
+        } else {
+            return 0;
+        }
+    }
+
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkBaseDevice* device = canvas->getTopDevice();
+        GrContext* context = NULL;
+        GrRenderTarget* rt = device->accessRenderTarget();
+        if (NULL != rt) {
+            context = rt->getContext();
+        }
+        if (kEffect_Type == fType && NULL == context) {
+            return;
+        }
 
         SkPaint paint;
-        // when clipping the AA is pushed into the clip operation
-        paint.setAntiAlias(fDoClip ? false : fDoAA);
-
+        if (kAA_Draw_Type == fType) {
+            paint.setAntiAlias(true);
+        }
+        
         static const SkRect kMaxTileBound = SkRect::MakeWH(SkIntToScalar(kTileX), SkIntToScalar(kTileY));
 
         int curRRect = 0;
+        int numRRects = kNumRRects;
+        if (kEffect_Type == fType) {
+            numRRects *= GrRRectEffect::kEdgeTypeCnt;
+        }
         for (int y = 1; y < kImageHeight; y += kTileY) {
             for (int x = 1; x < kImageWidth; x += kTileX) {
-                if (curRRect >= kNumRRects) {
+                if (curRRect >= numRRects) {
                     break;
                 }
-                SkASSERT(kMaxTileBound.contains(fRRects[curRRect].getBounds()));
+                int rrectIdx = curRRect % kNumRRects;
+                SkASSERT(kMaxTileBound.contains(fRRects[rrectIdx].getBounds()));
 
                 canvas->save();
                     canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
-                    if (fDoClip) {
-                        canvas->clipRRect(fRRects[curRRect], SkRegion::kReplace_Op, fDoAA);
+                    if (kEffect_Type == fType) {
+                        GrTestTarget tt;
+                        context->getTestTarget(&tt);
+                        if (NULL == tt.target()) {
+                            SkDEBUGFAIL("Couldn't get Gr test target.");
+                            return;
+                        }
+                        GrDrawState* drawState = tt.target()->drawState();
+                        
+                        SkRRect rrect = fRRects[rrectIdx];
+                        rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
+                        GrRRectEffect::EdgeType edgeType = (GrRRectEffect::EdgeType)
+                                                            (curRRect / kNumRRects);
+                        SkAutoTUnref<GrEffectRef> effect(GrRRectEffect::Create(edgeType, rrect));
+                        if (effect) {
+                            drawState->addCoverageEffect(effect);
+                            drawState->setIdentityViewMatrix();
+                            drawState->setRenderTarget(rt);
+                            drawState->setColor(0xff000000);
+
+                            SkRect bounds = rrect.getBounds();
+                            bounds.outset(2.f, 2.f);
+                            
+                            tt.target()->drawSimpleRect(bounds);
+                        }
+                    } else if (kBW_Clip_Type == fType || kAA_Clip_Type == fType) {
+                        bool aaClip = (kAA_Clip_Type == fType);
+                        canvas->clipRRect(fRRects[rrectIdx], SkRegion::kReplace_Op, aaClip);
                         canvas->drawRect(kMaxTileBound, paint);
                     } else {
-                        canvas->drawRRect(fRRects[curRRect], paint);
+                        canvas->drawRRect(fRRects[rrectIdx], paint);
                     }
                     ++curRRect;
                 canvas->restore();
@@ -88,9 +155,8 @@ protected:
     }
 
 private:
-    bool fDoAA;
-    bool fDoClip;   // use clipRRect & drawRect instead of drawRRect
-
+    Type fType;
+    
     static const int kImageWidth = 640;
     static const int kImageHeight = 480;
 
@@ -151,9 +217,10 @@ const SkVector RRectGM::gRadii[kNumComplexCases][4] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_GM( return new RRectGM(false, false); )
-DEF_GM( return new RRectGM(true, false); )
-DEF_GM( return new RRectGM(false, true); )
-DEF_GM( return new RRectGM(true, true); )
+DEF_GM( return new RRectGM(RRectGM::kAA_Draw_Type); )
+DEF_GM( return new RRectGM(RRectGM::kBW_Draw_Type); )
+DEF_GM( return new RRectGM(RRectGM::kAA_Clip_Type); )
+DEF_GM( return new RRectGM(RRectGM::kBW_Clip_Type); )
+DEF_GM( return new RRectGM(RRectGM::kEffect_Type); )
 
 }

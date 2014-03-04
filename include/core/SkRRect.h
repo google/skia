@@ -224,6 +224,13 @@ public:
     void outset(SkScalar dx, SkScalar dy) {
         this->inset(-dx, -dy, this);
     }
+    
+    /**
+     * Translate the rrect by (dx, dy).
+     */
+    void offset(SkScalar dx, SkScalar dy) {
+        fRect.offset(dx, dy);
+    }
 
     /**
      *  Returns true if 'rect' is wholy inside the RR, and both
