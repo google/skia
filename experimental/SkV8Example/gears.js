@@ -1,5 +1,6 @@
 var IS_SKV8 = typeof document == "undefined";
 var HAS_PATH = typeof Path2D != "undefined";
+var HAS_DISPLAY_LIST = typeof DisplayList != "undefined";
 
 var NumTeeth = 24;
 var NumGears = 60;
@@ -27,6 +28,36 @@ function gearPath(r) {
     makeGear(p, r)
     p.closePath();
     return p;
+  } else {
+    return null;
+  }
+}
+
+function gearDisplayListStroke(r, color) {
+  if (HAS_DISPLAY_LIST) {
+    p = new Path2D();
+    makeGear(p, r)
+    p.closePath();
+    var dl = new DisplayList();
+    dl.strokeStyle = color;
+    dl.stroke(p);
+    dl.finalize()
+    return dl;
+  } else {
+    return null;
+  }
+}
+
+function gearDisplayListFill(r, color) {
+  if (HAS_DISPLAY_LIST) {
+    p = new Path2D();
+    makeGear(p, r)
+    p.closePath();
+    var dl = new DisplayList();
+    dl.fillStyle = color;
+    dl.fill(p);
+    dl.finalize()
+    return dl;
   } else {
     return null;
   }
@@ -63,9 +94,17 @@ function draw3DGear(ctx, angle, gear) {
     ctx.rotate(-angle);
     ctx.translate(0.707, 0.707);
     ctx.rotate(angle);
-    strokeGear(ctx, gear);
+    if (HAS_DISPLAY_LIST) {
+        ctx.draw(gear.gearStroke);
+    } else {
+        strokeGear(ctx, gear);
+    }
   }
-  fillGear(ctx, gear);
+  if (HAS_DISPLAY_LIST) {
+      ctx.draw(gear.gearFill);
+  } else {
+      fillGear(ctx, gear);
+  }
   ctx.rotate(-angle);
 }
 
@@ -88,6 +127,8 @@ var onDraw = function() {
         x: Math.random()*500,
         y: Math.random()*500,
         path: gearPath(r),
+        gearFill: gearDisplayListFill(r, FaceColors[color]),
+        gearStroke: gearDisplayListStroke(r, SideColors[color]),
         r: r,
         faceColor: FaceColors[color],
         sideColor: SideColors[color]
