@@ -143,6 +143,12 @@ SkPicture::~SkPicture() {
     SkDELETE(fPlayback);
 }
 
+void SkPicture::internalOnly_EnableOpts(bool enableOpts) {
+    if (NULL != fRecord) {
+        fRecord->internalOnly_EnableOpts(enableOpts);
+    }
+}
+
 void SkPicture::swap(SkPicture& other) {
     SkTSwap(fRecord, other.fRecord);
     SkTSwap(fPlayback, other.fPlayback);

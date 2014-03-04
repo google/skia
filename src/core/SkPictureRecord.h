@@ -103,6 +103,10 @@ public:
     void beginRecording();
     void endRecording();
 
+    void internalOnly_EnableOpts(bool optsEnabled) {
+        fOptsEnabled = optsEnabled;
+    }
+
 private:
     void handleOptimization(int opt);
     int recordRestoreOffsetPlaceholder(SkRegion::Op);
@@ -287,7 +291,8 @@ private:
     SkTDArray<SkPicture*> fPictureRefs;
 
     uint32_t fRecordFlags;
-    int fInitialSaveCount;
+    bool     fOptsEnabled;
+    int      fInitialSaveCount;
 
     friend class SkPicturePlayback;
     friend class SkPictureTester; // for unit testing

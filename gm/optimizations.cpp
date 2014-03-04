@@ -82,8 +82,8 @@ static SkPicture* create_save_layer_opt_1(SkTDArray<DrawType>* preOptPattern,
     SkPicture* result = new SkPicture;
 
     // have to disable the optimizations while generating the picture
-    SkCanvas* canvas = result->beginRecording(100, 100,
-                         SkPicture::kDisableRecordOptimizations_RecordingFlag);
+    SkCanvas* canvas = result->beginRecording(100, 100);
+    result->internalOnly_EnableOpts(false);
 
     SkPaint saveLayerPaint;
     saveLayerPaint.setColor(0xCC000000);
@@ -218,8 +218,8 @@ static SkPicture* create_save_layer_opt_2(SkTDArray<DrawType>* preOptPattern,
     SkPicture* result = new SkPicture;
 
     // have to disable the optimizations while generating the picture
-    SkCanvas* canvas = result->beginRecording(100, 100,
-                         SkPicture::kDisableRecordOptimizations_RecordingFlag);
+    SkCanvas* canvas = result->beginRecording(100, 100);
+    result->internalOnly_EnableOpts(false);
 
     SkPaint saveLayerPaint;
     saveLayerPaint.setColor(0xCC000000);

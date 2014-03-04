@@ -34,7 +34,8 @@ SkPictureRecord::SkPictureRecord(const SkISize& dimensions, uint32_t flags)
     , fStateTree(NULL)
     , fFlattenableHeap(HEAP_BLOCK_SIZE)
     , fPaints(&fFlattenableHeap)
-    , fRecordFlags(flags) {
+    , fRecordFlags(flags)
+    , fOptsEnabled(true) {
 #ifdef SK_DEBUG_SIZE
     fPointBytes = fRectBytes = fTextBytes = 0;
     fPointWrites = fRectWrites = fTextWrites = 0;
@@ -627,7 +628,7 @@ void SkPictureRecord::restore() {
     }
 
     size_t opt = 0;
-    if (!(fRecordFlags & SkPicture::kDisableRecordOptimizations_RecordingFlag)) {
+    if (fOptsEnabled) {
         for (opt = 0; opt < SK_ARRAY_COUNT(gPictureRecordOpts); ++opt) {
             if (0 != (gPictureRecordOpts[opt].fFlags & kSkipIfBBoxHierarchy_Flag)
                 && NULL != fBoundingHierarchy) {
@@ -642,8 +643,7 @@ void SkPictureRecord::restore() {
         }
     }
 
-    if ((fRecordFlags & SkPicture::kDisableRecordOptimizations_RecordingFlag) ||
-        SK_ARRAY_COUNT(gPictureRecordOpts) == opt) {
+    if (!fOptsEnabled || SK_ARRAY_COUNT(gPictureRecordOpts) == opt) {
         // No optimization fired so add the RESTORE
         this->recordRestore();
     }

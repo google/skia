@@ -125,15 +125,6 @@ public:
             discarded if you serialize into a stream and then deserialize.
         */
         kOptimizeForClippedPlayback_RecordingFlag = 0x02,
-        /*
-            This flag disables all the picture recording optimizations (i.e.,
-            those in SkPictureRecord). It is mainly intended for testing the
-            existing optimizations (i.e., to actually have the pattern
-            appear in an .skp we have to disable the optimization). This
-            option doesn't affect the optimizations controlled by
-            'kOptimizeForClippedPlayback_RecordingFlag'.
-         */
-        kDisableRecordOptimizations_RecordingFlag = 0x04
     };
 
     /** Returns the canvas that records the drawing commands.
@@ -227,6 +218,14 @@ public:
     */
     static bool InternalOnly_StreamIsSKP(SkStream*, SkPictInfo*);
     static bool InternalOnly_BufferIsSKP(SkReadBuffer&, SkPictInfo*);
+
+    /** Enable/disable all the picture recording optimizations (i.e.,
+        those in SkPictureRecord). It is mainly intended for testing the
+        existing optimizations (i.e., to actually have the pattern
+        appear in an .skp we have to disable the optimization). Call right
+        after 'beginRecording'.
+    */
+    void internalOnly_EnableOpts(bool enableOpts);
 
 protected:
     // V2 : adds SkPixelRef's generation ID.
