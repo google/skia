@@ -58,7 +58,9 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
         paint.setXfermodeMode(SkXfermode::kSrc_Mode);
         canvas.translate(SkIntToScalar(srcOffset.fX - bounds.fLeft),
                          SkIntToScalar(srcOffset.fY - bounds.fTop));
-        canvas.drawBitmap(src, fOffset.x(), fOffset.y(), &paint);
+        SkVector vec;
+        matrix.mapVectors(&vec, &fOffset, 1);
+        canvas.drawBitmap(src, vec.x(), vec.y(), &paint);
         *result = device->accessBitmap(false);
         offset->fX = bounds.fLeft;
         offset->fY = bounds.fTop;

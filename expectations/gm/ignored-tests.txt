@@ -41,3 +41,7 @@ inverse_paths
 # senorblanco will rebaseline.
 imagefiltersclipped
 imagefiltersscaled
+
+# Added as part of https://codereview.chromium.org/186643003/.
+# senorblanco will rebaseline.
+offsetimagefilter
