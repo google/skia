@@ -6,10 +6,12 @@
  */
 
 #include "gm.h"
+#if SK_SUPPORT_GPU
 #include "GrTest.h"
+#include "effects/GrRRectEffect.h"
+#endif
 #include "SkDevice.h"
 #include "SkRRect.h"
-#include "effects/GrRRectEffect.h"
 
 namespace skiagm {
 
@@ -63,6 +65,8 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        int numRRects = kNumRRects;
+#if SK_SUPPORT_GPU
         SkBaseDevice* device = canvas->getTopDevice();
         GrContext* context = NULL;
         GrRenderTarget* rt = device->accessRenderTarget();
@@ -72,6 +76,10 @@ protected:
         if (kEffect_Type == fType && NULL == context) {
             return;
         }
+        if (kEffect_Type == fType) {
+            numRRects *= GrRRectEffect::kEdgeTypeCnt;
+        }
+#endif
 
         SkPaint paint;
         if (kAA_Draw_Type == fType) {
@@ -81,10 +89,6 @@ protected:
         static const SkRect kMaxTileBound = SkRect::MakeWH(SkIntToScalar(kTileX), SkIntToScalar(kTileY));
 
         int curRRect = 0;
-        int numRRects = kNumRRects;
-        if (kEffect_Type == fType) {
-            numRRects *= GrRRectEffect::kEdgeTypeCnt;
-        }
         for (int y = 1; y < kImageHeight; y += kTileY) {
             for (int x = 1; x < kImageWidth; x += kTileX) {
                 if (curRRect >= numRRects) {
@@ -96,6 +100,7 @@ protected:
                 canvas->save();
                     canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
                     if (kEffect_Type == fType) {
+#if SK_SUPPORT_GPU
                         GrTestTarget tt;
                         context->getTestTarget(&tt);
                         if (NULL == tt.target()) {
@@ -120,6 +125,7 @@ protected:
                             
                             tt.target()->drawSimpleRect(bounds);
                         }
+#endif
                     } else if (kBW_Clip_Type == fType || kAA_Clip_Type == fType) {
                         bool aaClip = (kAA_Clip_Type == fType);
                         canvas->clipRRect(fRRects[rrectIdx], SkRegion::kReplace_Op, aaClip);
@@ -221,6 +227,8 @@ DEF_GM( return new RRectGM(RRectGM::kAA_Draw_Type); )
 DEF_GM( return new RRectGM(RRectGM::kBW_Draw_Type); )
 DEF_GM( return new RRectGM(RRectGM::kAA_Clip_Type); )
 DEF_GM( return new RRectGM(RRectGM::kBW_Clip_Type); )
+#if SK_SUPPORT_GPU
 DEF_GM( return new RRectGM(RRectGM::kEffect_Type); )
+#endif
 
 }
