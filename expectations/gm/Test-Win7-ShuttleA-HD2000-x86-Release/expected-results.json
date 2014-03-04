@@ -3838,7 +3838,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11042904879899740810
+          17378725569618904588
         ]
       ], 
       "reviewed-by-human": true
@@ -4195,13 +4195,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5249569819176189080
+          5028748670062607437
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "copyTo4444_565.png": {
       "allowed-digests": [
@@ -11867,13 +11864,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2701490226733116943
+          7785072589432160866
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "strokerects_pdf-poppler.png": {
       "allowed-digests": [

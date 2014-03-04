@@ -3259,13 +3259,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9709913132513046544
+          6886890201290815898
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "convexpaths_565.png": {
       "allowed-digests": [
@@ -6919,13 +6916,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10531722056214126451
+          7758597652352633244
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "modecolorfilters_565.png": {
       "allowed-digests": [
