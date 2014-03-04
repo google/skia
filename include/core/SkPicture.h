@@ -219,7 +219,7 @@ public:
 
     /** Return true if the SkStream/Buffer represents a serialized picture, and
         fills out SkPictInfo. After this function returns, the data source is not
-        rewound so it will have to be manually reset before passing to 
+        rewound so it will have to be manually reset before passing to
         CreateFromStream or CreateFromBuffer. Note, CreateFromStream and
         CreateFromBuffer perform this check internally so these entry points are
         intended for stand alone tools.

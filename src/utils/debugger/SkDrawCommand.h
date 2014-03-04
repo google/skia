@@ -44,7 +44,7 @@ public:
 
     // The next "active" system is only used by save, saveLayer, restore,
     // pushCull and popCull. It is used in two ways:
-    // To determine which saveLayers are currently active (at a 
+    // To determine which saveLayers are currently active (at a
     // given point in the rendering).
     //      save just return a kPushLayer action but don't track active state
     //      restore just return a kPopLayer action

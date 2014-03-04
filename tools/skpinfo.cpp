@@ -66,8 +66,8 @@ int tool_main(int argc, char** argv) {
     }
 
     if (!stream.readBool()) {
-        // If we read true there's a picture playback object flattened 
-        // in the file; if false, there isn't a playback, so we're done 
+        // If we read true there's a picture playback object flattened
+        // in the file; if false, there isn't a playback, so we're done
         // reading the file.
         return kSuccess;
     }
@@ -95,7 +95,7 @@ int tool_main(int argc, char** argv) {
         // fonts) instead. This forces us to early exit when those
         // chunks are encountered.
         switch (tag) {
-        case SK_PICT_READER_TAG: 
+        case SK_PICT_READER_TAG:
             if (FLAGS_tags && !FLAGS_quiet) {
                 SkDebugf("SK_PICT_READER_TAG %d\n", chunkSize);
             }

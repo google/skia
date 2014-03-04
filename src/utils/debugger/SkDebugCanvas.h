@@ -281,13 +281,13 @@ private:
     */
     int fOutstandingSaveCount;
 
-    /** 
+    /**
         The active saveLayer commands at a given point in the renderering.
         Only used when "mega" visualization is enabled.
     */
     SkTDArray<SkDrawCommand*> fActiveLayers;
 
-    /** 
+    /**
         The active cull commands at a given point in the rendering.
         Only used when "mega" visualization is enabled.
     */

@@ -89,9 +89,9 @@ bool GrPlot::addSubImage(int width, int height, const void* image,
     return true;
 }
 
-void GrPlot::resetRects() { 
-    SkASSERT(NULL != fRects); 
-    fRects->reset(); 
+void GrPlot::resetRects() {
+    SkASSERT(NULL != fRects);
+    fRects->reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@ void GrAtlasMgr::moveToHead(GrPlot* plot) {
     if (fPlotList.head() == plot) {
         return;
     }
-  
+
     fPlotList.remove(plot);
     fPlotList.addToHead(plot);
 };

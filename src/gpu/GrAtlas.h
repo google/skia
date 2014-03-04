@@ -32,7 +32,7 @@ class GrAtlas;
 class GrPlot {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrPlot);
-    
+
     int getOffsetX() const { return fOffset.fX; }
     int getOffsetY() const { return fOffset.fY; }
 
