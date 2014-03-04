@@ -72,19 +72,20 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
     // are we sharing our render target with the image?
     SkASSERT(NULL != this->getCachedImage());
     if (rt->asTexture() == SkTextureImageGetTexture(this->getCachedImage())) {
-        SkAutoTUnref<SkGpuDevice> newDevice(SkGpuDevice::Create(fDevice->context(),
-                                                     fDevice->imageInfo(),
-                                                     rt->numSamples()));
-        SkASSERT(newDevice.get());
-
+        // We call createCompatibleDevice because it uses the texture cache. This isn't
+        // necessarily correct (http://skbug.com/2252), but never using the cache causes
+        // a Chromium regression. (http://crbug.com/344020)
+        SkGpuDevice* newDevice = static_cast<SkGpuDevice*>(
+            fDevice->createCompatibleDevice(fDevice->imageInfo()));
+        SkAutoTUnref<SkGpuDevice> aurd(newDevice);
         if (kRetain_ContentChangeMode == mode) {
-            fDevice->context()->copyTexture(rt->asTexture(),
-                reinterpret_cast<GrRenderTarget*>(newDevice->accessRenderTarget()));
+            fDevice->context()->copyTexture(rt->asTexture(), newDevice->accessRenderTarget());
         }
         SkASSERT(NULL != this->getCachedCanvas());
         SkASSERT(this->getCachedCanvas()->getDevice() == fDevice);
+
         this->getCachedCanvas()->setRootDevice(newDevice);
-        SkRefCnt_SafeAssign(fDevice, newDevice.get());
+        SkRefCnt_SafeAssign(fDevice, newDevice);
     }
 }
 
