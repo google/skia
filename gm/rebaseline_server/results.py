@@ -389,16 +389,19 @@ class Results(object):
               KEY__EXTRACOLUMN__TEST: test,
               KEY__EXTRACOLUMN__CONFIG: config,
           }
-          image_pair = imagepair.ImagePair(
-              image_diff_db=self._image_diff_db,
-              base_url=gm_json.GM_ACTUALS_ROOT_HTTP_URL,
-              imageA_relative_url=expected_image_relative_url,
-              imageB_relative_url=actual_image_relative_url,
-              expectations=expectations_dict,
-              extra_columns=extra_columns_dict)
-          all_image_pairs.add_image_pair(image_pair)
-          if updated_result_type != KEY__RESULT_TYPE__SUCCEEDED:
-            failing_image_pairs.add_image_pair(image_pair)
+          try:
+            image_pair = imagepair.ImagePair(
+                image_diff_db=self._image_diff_db,
+                base_url=gm_json.GM_ACTUALS_ROOT_HTTP_URL,
+                imageA_relative_url=expected_image_relative_url,
+                imageB_relative_url=actual_image_relative_url,
+                expectations=expectations_dict,
+                extra_columns=extra_columns_dict)
+            all_image_pairs.add_image_pair(image_pair)
+            if updated_result_type != KEY__RESULT_TYPE__SUCCEEDED:
+              failing_image_pairs.add_image_pair(image_pair)
+          except Exception:
+            logging.exception('got exception while creating new ImagePair')
 
     self._results = {
       KEY__HEADER__RESULTS_ALL: all_image_pairs.as_dict(),
