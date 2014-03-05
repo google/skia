@@ -29,7 +29,7 @@ public:
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
 private:
-    GrBezierEdgeType fEdgeType;
+    GrEffectEdgeType fEdgeType;
 
     typedef GrGLVertexEffect INHERITED;
 };
@@ -59,7 +59,7 @@ void GrGLConicEffect::emitCode(GrGLFullShaderBuilder* builder,
     builder->fsCodeAppend("\t\tfloat edgeAlpha;\n");
 
     switch (fEdgeType) {
-        case kHairAA_GrBezierEdgeType: {
+        case kHairlineAA_GrEffectEdgeType: {
             SkAssertResult(builder->enableFeature(
                     GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
             builder->fsCodeAppendf("\t\tvec3 dklmdx = dFdx(%s.xyz);\n", fsName);
@@ -81,7 +81,7 @@ void GrGLConicEffect::emitCode(GrGLFullShaderBuilder* builder,
             // builder->fsCodeAppend("\t\tedgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);\n");
             break;
         }
-        case kFillAA_GrBezierEdgeType: {
+        case kFillAA_GrEffectEdgeType: {
             SkAssertResult(builder->enableFeature(
                     GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
             builder->fsCodeAppendf("\t\tvec3 dklmdx = dFdx(%s.xyz);\n", fsName);
@@ -102,12 +102,14 @@ void GrGLConicEffect::emitCode(GrGLFullShaderBuilder* builder,
             // builder->fsCodeAppend("\t\tedgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);\n");
             break;
         }
-        case kFillNoAA_GrBezierEdgeType: {
+        case kFillBW_GrEffectEdgeType: {
             builder->fsCodeAppendf("\t\tedgeAlpha = %s.x*%s.x - %s.y*%s.z;\n", fsName, fsName,
                                    fsName, fsName);
             builder->fsCodeAppend("\t\tedgeAlpha = float(edgeAlpha < 0.0);\n");
             break;
         }
+        default:
+            GrCrash("Shouldn't get here");
     }
 
     builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
@@ -127,7 +129,7 @@ const GrBackendEffectFactory& GrConicEffect::getFactory() const {
     return GrTBackendEffectFactory<GrConicEffect>::getInstance();
 }
 
-GrConicEffect::GrConicEffect(GrBezierEdgeType edgeType) : GrVertexEffect() {
+GrConicEffect::GrConicEffect(GrEffectEdgeType edgeType) : GrVertexEffect() {
     this->addVertexAttrib(kVec4f_GrSLType);
     fEdgeType = edgeType;
 }
@@ -145,8 +147,13 @@ GrEffectRef* GrConicEffect::TestCreate(SkRandom* random,
                                              GrContext*,
                                              const GrDrawTargetCaps& caps,
                                              GrTexture*[]) {
-    const GrBezierEdgeType edgeType = static_cast<GrBezierEdgeType>(random->nextULessThan(3));
-    return GrConicEffect::Create(edgeType, caps);
+    GrEffectRef* effect;
+    do {
+        GrEffectEdgeType edgeType = static_cast<GrEffectEdgeType>(
+                                                    random->nextULessThan(kGrEffectEdgeTypeCnt));
+        effect = GrConicEffect::Create(edgeType, caps);
+    } while (NULL == effect);
+    return effect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -170,7 +177,7 @@ public:
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
 private:
-    GrBezierEdgeType fEdgeType;
+    GrEffectEdgeType fEdgeType;
 
     typedef GrGLVertexEffect INHERITED;
 };
@@ -198,7 +205,7 @@ void GrGLQuadEffect::emitCode(GrGLFullShaderBuilder* builder,
     builder->addVarying(kVec4f_GrSLType, "HairQuadEdge", &vsName, &fsName);
 
     switch (fEdgeType) {
-        case kHairAA_GrBezierEdgeType: {
+        case kHairlineAA_GrEffectEdgeType: {
             SkAssertResult(builder->enableFeature(
                     GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
             builder->fsCodeAppendf("\t\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
@@ -214,7 +221,7 @@ void GrGLQuadEffect::emitCode(GrGLFullShaderBuilder* builder,
             // builder->fsCodeAppend("\t\tedgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);\n");
             break;
         }
-        case kFillAA_GrBezierEdgeType: {
+        case kFillAA_GrEffectEdgeType: {
             SkAssertResult(builder->enableFeature(
                     GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
             builder->fsCodeAppendf("\t\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
@@ -230,12 +237,14 @@ void GrGLQuadEffect::emitCode(GrGLFullShaderBuilder* builder,
             // builder->fsCodeAppend("\t\tedgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);\n");
             break;
         }
-        case kFillNoAA_GrBezierEdgeType: {
+        case kFillBW_GrEffectEdgeType: {
             builder->fsCodeAppendf("\t\tedgeAlpha = (%s.x*%s.x - %s.y);\n", fsName, fsName,
                                    fsName);
             builder->fsCodeAppend("\t\tedgeAlpha = float(edgeAlpha < 0.0);\n");
             break;
         }
+        default:
+            GrCrash("Shouldn't get here");
     }
 
     builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
@@ -258,7 +267,7 @@ const GrBackendEffectFactory& GrQuadEffect::getFactory() const {
     return GrTBackendEffectFactory<GrQuadEffect>::getInstance();
 }
 
-GrQuadEffect::GrQuadEffect(GrBezierEdgeType edgeType) : GrVertexEffect() {
+GrQuadEffect::GrQuadEffect(GrEffectEdgeType edgeType) : GrVertexEffect() {
     this->addVertexAttrib(kVec4f_GrSLType);
     fEdgeType = edgeType;
 }
@@ -276,8 +285,13 @@ GrEffectRef* GrQuadEffect::TestCreate(SkRandom* random,
                                              GrContext*,
                                              const GrDrawTargetCaps& caps,
                                              GrTexture*[]) {
-    const GrBezierEdgeType edgeType = static_cast<GrBezierEdgeType>(random->nextULessThan(3));
-    return GrQuadEffect::Create(edgeType, caps);
+    GrEffectRef* effect;
+    do {
+        GrEffectEdgeType edgeType = static_cast<GrEffectEdgeType>(
+                                                    random->nextULessThan(kGrEffectEdgeTypeCnt));
+        effect = GrQuadEffect::Create(edgeType, caps);
+    } while (NULL == effect);
+    return effect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -301,7 +315,7 @@ public:
     virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE {}
 
 private:
-    GrBezierEdgeType fEdgeType;
+    GrEffectEdgeType fEdgeType;
 
     typedef GrGLVertexEffect INHERITED;
 };
@@ -331,7 +345,7 @@ void GrGLCubicEffect::emitCode(GrGLFullShaderBuilder* builder,
     builder->fsCodeAppend("\t\tfloat edgeAlpha;\n");
 
     switch (fEdgeType) {
-        case kHairAA_GrBezierEdgeType: {
+        case kHairlineAA_GrEffectEdgeType: {
             SkAssertResult(builder->enableFeature(
                     GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
             builder->fsCodeAppendf("\t\tvec3 dklmdx = dFdx(%s.xyz);\n", fsName);
@@ -353,7 +367,7 @@ void GrGLCubicEffect::emitCode(GrGLFullShaderBuilder* builder,
             // builder->fsCodeAppend("\t\tedgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);\n");
             break;
         }
-        case kFillAA_GrBezierEdgeType: {
+        case kFillAA_GrEffectEdgeType: {
             SkAssertResult(builder->enableFeature(
                     GrGLShaderBuilder::kStandardDerivatives_GLSLFeature));
             builder->fsCodeAppendf("\t\tvec3 dklmdx = dFdx(%s.xyz);\n", fsName);
@@ -374,12 +388,14 @@ void GrGLCubicEffect::emitCode(GrGLFullShaderBuilder* builder,
             // builder->fsCodeAppend("\t\tedgeAlpha = edgeAlpha*edgeAlpha*(3.0-2.0*edgeAlpha);\n");
             break;
         }
-        case kFillNoAA_GrBezierEdgeType: {
+        case kFillBW_GrEffectEdgeType: {
             builder->fsCodeAppendf("\t\tedgeAlpha = %s.x*%s.x*%s.x - %s.y*%s.z;\n",
                                    fsName, fsName, fsName, fsName, fsName);
             builder->fsCodeAppend("\t\tedgeAlpha = float(edgeAlpha < 0.0);\n");
             break;
         }
+        default:
+            GrCrash("Shouldn't get here");
     }
 
     builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
@@ -399,7 +415,7 @@ const GrBackendEffectFactory& GrCubicEffect::getFactory() const {
     return GrTBackendEffectFactory<GrCubicEffect>::getInstance();
 }
 
-GrCubicEffect::GrCubicEffect(GrBezierEdgeType edgeType) : GrVertexEffect() {
+GrCubicEffect::GrCubicEffect(GrEffectEdgeType edgeType) : GrVertexEffect() {
     this->addVertexAttrib(kVec4f_GrSLType);
     fEdgeType = edgeType;
 }
@@ -417,6 +433,11 @@ GrEffectRef* GrCubicEffect::TestCreate(SkRandom* random,
                                              GrContext*,
                                              const GrDrawTargetCaps& caps,
                                              GrTexture*[]) {
-    const GrBezierEdgeType edgeType = static_cast<GrBezierEdgeType>(random->nextULessThan(3));
-    return GrCubicEffect::Create(edgeType, caps);
+    GrEffectRef* effect;
+    do {
+        GrEffectEdgeType edgeType = static_cast<GrEffectEdgeType>(
+                                                    random->nextULessThan(kGrEffectEdgeTypeCnt));
+        effect = GrCubicEffect::Create(edgeType, caps);
+    } while (NULL == effect);
+    return effect;
 }

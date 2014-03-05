@@ -93,7 +93,21 @@ protected:
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)},
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
             };
-            for(int edgeType = kFillAA_GrBezierEdgeType; edgeType < 3; ++edgeType) {
+            for(int edgeType = 0; edgeType < kGrEffectEdgeTypeCnt; ++edgeType) {
+                SkAutoTUnref<GrEffectRef> effect;
+                {   // scope to contain GrTestTarget
+                    GrTestTarget tt;
+                    context->getTestTarget(&tt);
+                    if (NULL == tt.target()) {
+                        continue;
+                    }
+                    GrEffectEdgeType et = (GrEffectEdgeType)edgeType;
+                    effect.reset(GrCubicEffect::Create(et, *tt.target()->caps()));
+                    if (!effect) {
+                        continue;
+                    }
+                }
+
                 SkScalar x = SkScalarMul(col, w);
                 SkScalar y = SkScalarMul(row, h);
                 SkPoint controlPts[] = {
@@ -153,17 +167,10 @@ protected:
 
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
-                    if (NULL == tt.target()) {
-                        continue;
-                    }
+                    SkASSERT(NULL != tt.target());
                     GrDrawState* drawState = tt.target()->drawState();
                     drawState->setVertexAttribs<kAttribs>(2);
 
-                    SkAutoTUnref<GrEffectRef> effect(GrCubicEffect::Create(
-                            GrBezierEdgeType(edgeType), *tt.target()->caps()));
-                    if (!effect) {
-                        continue;
-                    }
                     drawState->addCoverageEffect(effect, 1);
                     drawState->setRenderTarget(rt);
                     drawState->setColor(0xff000000);
@@ -245,7 +252,21 @@ protected:
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
             };
             SkScalar weight = rand.nextRangeF(0.f, 2.f);
-            for(int edgeType = kFillAA_GrBezierEdgeType; edgeType < 3; ++edgeType) {
+            for(int edgeType = 0; edgeType < kGrEffectEdgeTypeCnt; ++edgeType) {
+                SkAutoTUnref<GrEffectRef> effect;
+                {   // scope to contain GrTestTarget
+                    GrTestTarget tt;
+                    context->getTestTarget(&tt);
+                    if (NULL == tt.target()) {
+                        continue;
+                    }
+                    GrEffectEdgeType et = (GrEffectEdgeType)edgeType;
+                    effect.reset(GrConicEffect::Create(et, *tt.target()->caps()));
+                    if (!effect) {
+                        continue;
+                    }
+                }
+
                 SkScalar x = SkScalarMul(col, w);
                 SkScalar y = SkScalarMul(row, h);
                 SkPoint controlPts[] = {
@@ -302,17 +323,10 @@ protected:
 
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
-                    if (NULL == tt.target()) {
-                        continue;
-                    }
+                    SkASSERT(NULL != tt.target());
                     GrDrawState* drawState = tt.target()->drawState();
                     drawState->setVertexAttribs<kAttribs>(2);
 
-                    SkAutoTUnref<GrEffectRef> effect(GrConicEffect::Create(
-                            GrBezierEdgeType(edgeType), *tt.target()->caps()));
-                    if (!effect) {
-                        continue;
-                    }
                     drawState->addCoverageEffect(effect, 1);
                     drawState->setRenderTarget(rt);
                     drawState->setColor(0xff000000);
@@ -428,7 +442,21 @@ protected:
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)},
                 {rand.nextRangeF(0.f, w), rand.nextRangeF(0.f, h)}
             };
-            for(int edgeType = kFillAA_GrBezierEdgeType; edgeType < 3; ++edgeType) {
+            for(int edgeType = 0; edgeType < kGrEffectEdgeTypeCnt; ++edgeType) {
+                SkAutoTUnref<GrEffectRef> effect;
+                {   // scope to contain GrTestTarget
+                    GrTestTarget tt;
+                    context->getTestTarget(&tt);
+                    if (NULL == tt.target()) {
+                        continue;
+                    }
+                    GrEffectEdgeType et = (GrEffectEdgeType)edgeType;
+                    effect.reset(GrQuadEffect::Create(et, *tt.target()->caps()));
+                    if (!effect) {
+                        continue;
+                    }
+                }
+
                 SkScalar x = SkScalarMul(col, w);
                 SkScalar y = SkScalarMul(row, h);
                 SkPoint controlPts[] = {
@@ -480,16 +508,10 @@ protected:
 
                     GrTestTarget tt;
                     context->getTestTarget(&tt);
-                    if (NULL == tt.target()) {
-                        continue;
-                    }
+                    SkASSERT(NULL != tt.target());
                     GrDrawState* drawState = tt.target()->drawState();
                     drawState->setVertexAttribs<kAttribs>(2);
-                    SkAutoTUnref<GrEffectRef> effect(GrQuadEffect::Create(
-                            GrBezierEdgeType(edgeType), *tt.target()->caps()));
-                    if (!effect) {
-                        continue;
-                    }
+
                     drawState->addCoverageEffect(effect, 1);
                     drawState->setRenderTarget(rt);
                     drawState->setColor(0xff000000);

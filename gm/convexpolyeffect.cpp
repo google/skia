@@ -120,7 +120,7 @@ protected:
             const SkPath* path = iter.get();
             SkScalar x = 0;
 
-            for (int et = 0; et < GrConvexPolyEffect::kEdgeTypeCnt; ++et) {
+            for (int et = 0; et < kGrEffectEdgeTypeCnt; ++et) {
                 GrTestTarget tt;
                 context->getTestTarget(&tt);
                 if (NULL == tt.target()) {
@@ -135,11 +135,10 @@ protected:
                 m.setTranslate(x, y);
                 path->transform(m, &p);
 
-                GrConvexPolyEffect::EdgeType edgeType = (GrConvexPolyEffect::EdgeType) et;
+                GrEffectEdgeType edgeType = (GrEffectEdgeType) et;
                 SkAutoTUnref<GrEffectRef> effect(GrConvexPolyEffect::Create(edgeType, p));
                 if (!effect) {
-                    SkDEBUGFAIL("Couldn't create convex poly effect.");
-                    return;
+                    continue;
                 }
                 drawState->addCoverageEffect(effect, 1);
                 drawState->setIdentityViewMatrix();
@@ -179,7 +178,7 @@ protected:
 
             SkScalar x = 0;
 
-            for (int et = 0; et < GrConvexPolyEffect::kEdgeTypeCnt; ++et) {
+            for (int et = 0; et < kGrEffectEdgeTypeCnt; ++et) {
                 GrTestTarget tt;
                 context->getTestTarget(&tt);
                 if (NULL == tt.target()) {
@@ -188,11 +187,10 @@ protected:
                 }
                 SkRect rect = *iter.get();
                 rect.offset(x, y);
-                GrConvexPolyEffect::EdgeType edgeType = (GrConvexPolyEffect::EdgeType) et;
+                GrEffectEdgeType edgeType = (GrEffectEdgeType) et;
                 SkAutoTUnref<GrEffectRef> effect(GrConvexPolyEffect::Create(edgeType, rect));
                 if (!effect) {
-                    SkDEBUGFAIL("Couldn't create convex poly effect.");
-                    return;
+                    continue;
                 }
 
                 GrDrawState* drawState = tt.target()->drawState();

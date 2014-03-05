@@ -180,19 +180,18 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
                 if (!isAA) {
                     SkVector offset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
                                         SkIntToScalar(-clipDataIn->fOrigin.fY) };
-                    effect.reset(GrConvexPolyEffect::Create(GrConvexPolyEffect::kFillNoAA_EdgeType,
+                    effect.reset(GrConvexPolyEffect::Create(kFillBW_GrEffectEdgeType,
                                                             path, &offset));
                 }
             } else {
                 SkVector offset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
                                     SkIntToScalar(-clipDataIn->fOrigin.fY) };
-                GrConvexPolyEffect::EdgeType type = isAA ? GrConvexPolyEffect::kFillAA_EdgeType :
-                                                           GrConvexPolyEffect::kFillNoAA_EdgeType;
+                GrEffectEdgeType type = isAA ? kFillAA_GrEffectEdgeType : kFillBW_GrEffectEdgeType;
                 effect.reset(GrConvexPolyEffect::Create(type, path, &offset));
             }
         } else if (isAA && SkClipStack::Element::kRRect_Type == type && !rt->isMultisampled()) {
             const SkRRect& rrect = elements.tail()->getRRect();
-            effect.reset(GrRRectEffect::Create(GrRRectEffect::kFillAA_EdgeType, rrect));
+            effect.reset(GrRRectEffect::Create(kFillAA_GrEffectEdgeType, rrect));
         } else if (isAA && SkClipStack::Element::kRect_Type == type && !rt->isMultisampled()) {
             // We only handle AA/non-MSAA rects here. Coverage effect AA isn't MSAA friendly and
             // non-AA rect clips are handled by the scissor.
@@ -200,7 +199,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
             SkVector offset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
                                 SkIntToScalar(-clipDataIn->fOrigin.fY) };
             rect.offset(offset);
-            effect.reset(GrConvexPolyEffect::Create(GrConvexPolyEffect::kFillAA_EdgeType, rect));
+            effect.reset(GrConvexPolyEffect::Create(kFillAA_GrEffectEdgeType, rect));
             // This should never fail.
             SkASSERT(effect);
         }

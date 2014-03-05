@@ -36,3 +36,9 @@
 # This GM has probably always drawn incorrectly. We need to clarify the API
 # http://skbug.com/2222 : Inverse filled paths get inverse stroked
 inverse_paths
+
+# bsalomon: the order in which the edge types draw has changed.
+# https://codereview.chromium.org/183893023
+bezier_quad_effects
+bezier_conic_effects
+bezier_cubic_effects

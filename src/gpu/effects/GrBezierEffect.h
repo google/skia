@@ -11,20 +11,7 @@
 #include "GrDrawTargetCaps.h"
 #include "GrEffect.h"
 #include "GrVertexEffect.h"
-
-enum GrBezierEdgeType {
-    kFillAA_GrBezierEdgeType,
-    kHairAA_GrBezierEdgeType,
-    kFillNoAA_GrBezierEdgeType,
-};
-
-static inline bool GrBezierEdgeTypeIsFill(const GrBezierEdgeType edgeType) {
-    return (kHairAA_GrBezierEdgeType != edgeType);
-}
-
-static inline bool GrBezierEdgeTypeIsAA(const GrBezierEdgeType edgeType) {
-    return (kFillNoAA_GrBezierEdgeType != edgeType);
-}
+#include "GrTypesPriv.h"
 
 /**
  * Shader is based off of Loop-Blinn Quadratic GPU Rendering
@@ -70,25 +57,28 @@ class GrGLConicEffect;
 
 class GrConicEffect : public GrVertexEffect {
 public:
-    static GrEffectRef* Create(const GrBezierEdgeType edgeType, const GrDrawTargetCaps& caps) {
-        GR_CREATE_STATIC_EFFECT(gConicFillAA, GrConicEffect, (kFillAA_GrBezierEdgeType));
-        GR_CREATE_STATIC_EFFECT(gConicHairAA, GrConicEffect, (kHairAA_GrBezierEdgeType));
-        GR_CREATE_STATIC_EFFECT(gConicFillNoAA, GrConicEffect, (kFillNoAA_GrBezierEdgeType));
-        if (kFillAA_GrBezierEdgeType == edgeType) {
-            if (!caps.shaderDerivativeSupport()) {
+    static GrEffectRef* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
+        GR_CREATE_STATIC_EFFECT(gConicFillAA, GrConicEffect, (kFillAA_GrEffectEdgeType));
+        GR_CREATE_STATIC_EFFECT(gConicHairAA, GrConicEffect, (kHairlineAA_GrEffectEdgeType));
+        GR_CREATE_STATIC_EFFECT(gConicFillBW, GrConicEffect, (kFillBW_GrEffectEdgeType));
+        switch (edgeType) {
+            case kFillAA_GrEffectEdgeType:
+                if (!caps.shaderDerivativeSupport()) {
+                    return NULL;
+                }
+                gConicFillAA->ref();
+                return gConicFillAA;
+            case kHairlineAA_GrEffectEdgeType:
+                if (!caps.shaderDerivativeSupport()) {
+                    return NULL;
+                }
+                gConicHairAA->ref();
+                return gConicHairAA;
+            case kFillBW_GrEffectEdgeType:
+                gConicFillBW->ref();
+                return gConicFillBW;
+            default:
                 return NULL;
-            }
-            gConicFillAA->ref();
-            return gConicFillAA;
-        } else if (kHairAA_GrBezierEdgeType == edgeType) {
-            if (!caps.shaderDerivativeSupport()) {
-                return NULL;
-            }
-            gConicHairAA->ref();
-            return gConicHairAA;
-        } else {
-            gConicFillNoAA->ref();
-            return gConicFillNoAA;
         }
     }
 
@@ -96,9 +86,9 @@ public:
 
     static const char* Name() { return "Conic"; }
 
-    inline bool isAntiAliased() const { return GrBezierEdgeTypeIsAA(fEdgeType); }
-    inline bool isFilled() const { return GrBezierEdgeTypeIsFill(fEdgeType); }
-    inline GrBezierEdgeType getEdgeType() const { return fEdgeType; }
+    inline bool isAntiAliased() const { return GrEffectEdgeTypeIsAA(fEdgeType); }
+    inline bool isFilled() const { return GrEffectEdgeTypeIsFill(fEdgeType); }
+    inline GrEffectEdgeType getEdgeType() const { return fEdgeType; }
 
     typedef GrGLConicEffect GLEffect;
 
@@ -110,11 +100,11 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
-    GrConicEffect(GrBezierEdgeType);
+    GrConicEffect(GrEffectEdgeType);
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
-    GrBezierEdgeType fEdgeType;
+    GrEffectEdgeType fEdgeType;
 
     GR_DECLARE_EFFECT_TEST;
 
@@ -134,25 +124,28 @@ class GrGLQuadEffect;
 
 class GrQuadEffect : public GrVertexEffect {
 public:
-    static GrEffectRef* Create(const GrBezierEdgeType edgeType, const GrDrawTargetCaps& caps) {
-        GR_CREATE_STATIC_EFFECT(gQuadFillAA, GrQuadEffect, (kFillAA_GrBezierEdgeType));
-        GR_CREATE_STATIC_EFFECT(gQuadHairAA, GrQuadEffect, (kHairAA_GrBezierEdgeType));
-        GR_CREATE_STATIC_EFFECT(gQuadFillNoAA, GrQuadEffect, (kFillNoAA_GrBezierEdgeType));
-        if (kFillAA_GrBezierEdgeType == edgeType) {
-            if (!caps.shaderDerivativeSupport()) {
+    static GrEffectRef* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
+        GR_CREATE_STATIC_EFFECT(gQuadFillAA, GrQuadEffect, (kFillAA_GrEffectEdgeType));
+        GR_CREATE_STATIC_EFFECT(gQuadHairAA, GrQuadEffect, (kHairlineAA_GrEffectEdgeType));
+        GR_CREATE_STATIC_EFFECT(gQuadFillBW, GrQuadEffect, (kFillBW_GrEffectEdgeType));
+        switch (edgeType) {
+            case kFillAA_GrEffectEdgeType:
+                if (!caps.shaderDerivativeSupport()) {
+                    return NULL;
+                }
+                gQuadFillAA->ref();
+                return gQuadFillAA;
+            case kHairlineAA_GrEffectEdgeType:
+                if (!caps.shaderDerivativeSupport()) {
+                    return NULL;
+                }
+                gQuadHairAA->ref();
+                return gQuadHairAA;
+            case kFillBW_GrEffectEdgeType:
+                gQuadFillBW->ref();
+                return gQuadFillBW;
+            default:
                 return NULL;
-            }
-            gQuadFillAA->ref();
-            return gQuadFillAA;
-        } else if (kHairAA_GrBezierEdgeType == edgeType) {
-            if (!caps.shaderDerivativeSupport()) {
-                return NULL;
-            }
-            gQuadHairAA->ref();
-            return gQuadHairAA;
-        } else {
-            gQuadFillNoAA->ref();
-            return gQuadFillNoAA;
         }
     }
 
@@ -160,9 +153,9 @@ public:
 
     static const char* Name() { return "Quad"; }
 
-    inline bool isAntiAliased() const { return GrBezierEdgeTypeIsAA(fEdgeType); }
-    inline bool isFilled() const { return GrBezierEdgeTypeIsFill(fEdgeType); }
-    inline GrBezierEdgeType getEdgeType() const { return fEdgeType; }
+    inline bool isAntiAliased() const { return GrEffectEdgeTypeIsAA(fEdgeType); }
+    inline bool isFilled() const { return GrEffectEdgeTypeIsFill(fEdgeType); }
+    inline GrEffectEdgeType getEdgeType() const { return fEdgeType; }
 
     typedef GrGLQuadEffect GLEffect;
 
@@ -174,11 +167,11 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
-    GrQuadEffect(GrBezierEdgeType);
+    GrQuadEffect(GrEffectEdgeType);
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
-    GrBezierEdgeType fEdgeType;
+    GrEffectEdgeType fEdgeType;
 
     GR_DECLARE_EFFECT_TEST;
 
@@ -200,25 +193,28 @@ class GrGLCubicEffect;
 
 class GrCubicEffect : public GrVertexEffect {
 public:
-    static GrEffectRef* Create(const GrBezierEdgeType edgeType, const GrDrawTargetCaps& caps) {
-        GR_CREATE_STATIC_EFFECT(gCubicFillAA, GrCubicEffect, (kFillAA_GrBezierEdgeType));
-        GR_CREATE_STATIC_EFFECT(gCubicHairAA, GrCubicEffect, (kHairAA_GrBezierEdgeType));
-        GR_CREATE_STATIC_EFFECT(gCubicFillNoAA, GrCubicEffect, (kFillNoAA_GrBezierEdgeType));
-        if (kFillAA_GrBezierEdgeType == edgeType) {
-            if (!caps.shaderDerivativeSupport()) {
+    static GrEffectRef* Create(const GrEffectEdgeType edgeType, const GrDrawTargetCaps& caps) {
+        GR_CREATE_STATIC_EFFECT(gCubicFillAA, GrCubicEffect, (kFillAA_GrEffectEdgeType));
+        GR_CREATE_STATIC_EFFECT(gCubicHairAA, GrCubicEffect, (kHairlineAA_GrEffectEdgeType));
+        GR_CREATE_STATIC_EFFECT(gCubicFillBW, GrCubicEffect, (kFillBW_GrEffectEdgeType));
+        switch (edgeType) {
+            case kFillAA_GrEffectEdgeType:
+                if (!caps.shaderDerivativeSupport()) {
+                    return NULL;
+                }
+                gCubicFillAA->ref();
+                return gCubicFillAA;
+            case kHairlineAA_GrEffectEdgeType:
+                if (!caps.shaderDerivativeSupport()) {
+                    return NULL;
+                }
+                gCubicHairAA->ref();
+                return gCubicHairAA;
+            case kFillBW_GrEffectEdgeType:
+                gCubicFillBW->ref();
+                return gCubicFillBW;
+            default:
                 return NULL;
-            }
-            gCubicFillAA->ref();
-            return gCubicFillAA;
-        } else if (kHairAA_GrBezierEdgeType == edgeType) {
-            if (!caps.shaderDerivativeSupport()) {
-                return NULL;
-            }
-            gCubicHairAA->ref();
-            return gCubicHairAA;
-        } else {
-            gCubicFillNoAA->ref();
-            return gCubicFillNoAA;
         }
     }
 
@@ -226,9 +222,9 @@ public:
 
     static const char* Name() { return "Cubic"; }
 
-    inline bool isAntiAliased() const { return GrBezierEdgeTypeIsAA(fEdgeType); }
-    inline bool isFilled() const { return GrBezierEdgeTypeIsFill(fEdgeType); }
-    inline GrBezierEdgeType getEdgeType() const { return fEdgeType; }
+    inline bool isAntiAliased() const { return GrEffectEdgeTypeIsAA(fEdgeType); }
+    inline bool isFilled() const { return GrEffectEdgeTypeIsFill(fEdgeType); }
+    inline GrEffectEdgeType getEdgeType() const { return fEdgeType; }
 
     typedef GrGLCubicEffect GLEffect;
 
@@ -240,11 +236,11 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
-    GrCubicEffect(GrBezierEdgeType);
+    GrCubicEffect(GrEffectEdgeType);
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
-    GrBezierEdgeType fEdgeType;
+    GrEffectEdgeType fEdgeType;
 
     GR_DECLARE_EFFECT_TEST;
 

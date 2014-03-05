@@ -31,7 +31,7 @@ public:
         kBottomCircleTab_RRectType,
     };
 
-    static GrEffectRef* Create(EdgeType, const SkRRect&, RRectType);
+    static GrEffectRef* Create(GrEffectEdgeType, RRectType, const SkRRect&);
 
     virtual ~RRectEffect() {};
     static const char* Name() { return "RRect"; }
@@ -39,8 +39,8 @@ public:
     const SkRRect& getRRect() const { return fRRect; }
 
     RRectType getType() const { return fRRectType; }
-
-    EdgeType getEdgeType() const { return fEdgeType; }
+    
+    GrEffectEdgeType getEdgeType() const { return fEdgeType; }
 
     typedef GLRRectEffect GLEffect;
 
@@ -49,13 +49,13 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
-    RRectEffect(EdgeType, const SkRRect&, RRectType);
+    RRectEffect(GrEffectEdgeType, RRectType, const SkRRect&);
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
-    SkRRect     fRRect;
-    EdgeType    fEdgeType;
-    RRectType   fRRectType;
+    SkRRect             fRRect;
+    GrEffectEdgeType    fEdgeType;
+    RRectType           fRRectType;
 
     GR_DECLARE_EFFECT_TEST;
 
@@ -64,8 +64,11 @@ private:
 
 const SkScalar RRectEffect::kRadiusMin = 0.5f;
 
-GrEffectRef* RRectEffect::Create(EdgeType edgeType, const SkRRect& rrect, RRectType rrtype) {
-    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(RRectEffect, (edgeType, rrect, rrtype))));
+GrEffectRef* RRectEffect::Create(GrEffectEdgeType edgeType,
+                                 RRectType rrType,
+                                 const SkRRect& rrect) {
+    SkASSERT(kFillAA_GrEffectEdgeType == edgeType || kInverseFillBW_GrEffectEdgeType == edgeType);
+    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(RRectEffect, (edgeType, rrType, rrect))));
 }
 
 void RRectEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
@@ -76,10 +79,10 @@ const GrBackendEffectFactory& RRectEffect::getFactory() const {
     return GrTBackendEffectFactory<RRectEffect>::getInstance();
 }
 
-RRectEffect::RRectEffect(EdgeType edgeType, const SkRRect& rrect, RRectType rrtype)
+RRectEffect::RRectEffect(GrEffectEdgeType edgeType, RRectType rrType, const SkRRect& rrect)
     : fRRect(rrect)
     , fEdgeType(edgeType)
-    , fRRectType(rrtype) {
+    , fRRectType(rrType) {
     this->setWillReadFragmentPosition();
 }
 
@@ -100,11 +103,14 @@ GrEffectRef* RRectEffect::TestCreate(SkRandom* random,
     SkScalar w = random->nextRangeScalar(20.f, 1000.f);
     SkScalar h = random->nextRangeScalar(20.f, 1000.f);
     SkScalar r = random->nextRangeF(kRadiusMin, 9.f);
-    EdgeType et = (EdgeType) random->nextULessThan(kEdgeTypeCnt);
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(w, h), r, r);
-
-    return GrRRectEffect::Create(et, rrect);
+    GrEffectRef* effect;
+    do {
+        GrEffectEdgeType et = (GrEffectEdgeType)random->nextULessThan(kGrEffectEdgeTypeCnt);
+        effect = GrRRectEffect::Create(et, rrect);
+    } while (NULL == effect);
+    return effect;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -221,8 +227,8 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
                                    radiusPlusHalfName);
             break;
     }
-
-    if (kInverseFillAA_EdgeType == rre.getEdgeType()) {
+    
+    if (kInverseFillBW_GrEffectEdgeType == rre.getEdgeType()) {
         builder->fsCodeAppend("\t\talpha = 1.0 - alpha;\n");
     }
 
@@ -232,8 +238,8 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
 
 GrGLEffect::EffectKey GLRRectEffect::GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
     const RRectEffect& rre = drawEffect.castEffect<RRectEffect>();
-    GR_STATIC_ASSERT(kEdgeTypeCnt <= 4);
-    return (rre.getType() << 2) | rre.getEdgeType();
+    GR_STATIC_ASSERT(kGrEffectEdgeTypeCnt <= 8);
+    return (rre.getType() << 3) | rre.getEdgeType();
 }
 
 void GLRRectEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
@@ -286,7 +292,10 @@ void GLRRectEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& 
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrEffectRef* GrRRectEffect::Create(EdgeType edgeType, const SkRRect& rrect) {
+GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rrect) {
+    if (kFillAA_GrEffectEdgeType != edgeType && kInverseFillBW_GrEffectEdgeType != edgeType) {
+        return NULL;
+    }
     RRectEffect::RRectType rrtype;
     if (rrect.isSimpleCircular()) {
         if (rrect.getSimpleRadii().fX < RRectEffect::kRadiusMin) {
@@ -343,5 +352,5 @@ GrEffectRef* GrRRectEffect::Create(EdgeType edgeType, const SkRRect& rrect) {
     } else {
         return NULL;
     }
-    return RRectEffect::Create(edgeType, rrect, rrtype);
+    return RRectEffect::Create(edgeType, rrtype, rrect);
 }

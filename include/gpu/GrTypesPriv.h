@@ -60,6 +60,8 @@ static inline GrSLType GrSLFloatVectorType(int count) {
     GR_STATIC_ASSERT(kVec4f_GrSLType == 4);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
 /**
  * Types used to describe format of vertices in arrays.
   */
@@ -165,5 +167,54 @@ struct GrVertexAttrib {
 };
 
 template <int N> class GrVertexAttribArray : public SkSTArray<N, GrVertexAttrib, true> {};
+
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+* We have coverage effects that clip rendering to the edge of some geometric primitive.
+* This enum specifies how that clipping is performed. Not all factories that take a 
+* GrEffectEdgeType will succeed with all values and it is up to the caller to check for
+* a NULL return.
+*/
+enum GrEffectEdgeType {
+    kFillBW_GrEffectEdgeType,
+    kFillAA_GrEffectEdgeType,
+    kInverseFillBW_GrEffectEdgeType,
+    kInverseFillAA_GrEffectEdgeType,
+    kHairlineAA_GrEffectEdgeType,
+
+    kLast_GrEffectEdgeType = kHairlineAA_GrEffectEdgeType
+};
+
+static const int kGrEffectEdgeTypeCnt = kLast_GrEffectEdgeType + 1;
+
+static inline bool GrEffectEdgeTypeIsFill(const GrEffectEdgeType edgeType) {
+    return (kFillAA_GrEffectEdgeType == edgeType || kFillBW_GrEffectEdgeType == edgeType);
+}
+
+static inline bool GrEffectEdgeTypeIsInverseFill(const GrEffectEdgeType edgeType) {
+    return (kInverseFillAA_GrEffectEdgeType == edgeType ||
+            kInverseFillBW_GrEffectEdgeType == edgeType);
+}
+
+static inline bool GrEffectEdgeTypeIsAA(const GrEffectEdgeType edgeType) {
+    return (kFillBW_GrEffectEdgeType != edgeType && kInverseFillBW_GrEffectEdgeType != edgeType);
+}
+
+static inline GrEffectEdgeType GrInvertEffectEdgeType(const GrEffectEdgeType edgeType) {
+    switch (edgeType) {
+        case kFillBW_GrEffectEdgeType:
+            return kInverseFillBW_GrEffectEdgeType;
+        case kFillAA_GrEffectEdgeType:
+            return kInverseFillAA_GrEffectEdgeType;
+        case kInverseFillBW_GrEffectEdgeType:
+            return kFillBW_GrEffectEdgeType;
+        case kInverseFillAA_GrEffectEdgeType:
+            return kFillAA_GrEffectEdgeType;
+        case kHairlineAA_GrEffectEdgeType:
+            GrCrash("Hairline fill isn't invertible.");
+    }
+    return kFillAA_GrEffectEdgeType; // suppress warning.
+}
 
 #endif

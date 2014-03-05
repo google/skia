@@ -77,7 +77,7 @@ protected:
             return;
         }
         if (kEffect_Type == fType) {
-            numRRects *= GrRRectEffect::kEdgeTypeCnt;
+            numRRects *= kGrEffectEdgeTypeCnt;
         }
 #endif
 
@@ -111,8 +111,7 @@ protected:
 
                         SkRRect rrect = fRRects[rrectIdx];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
-                        GrRRectEffect::EdgeType edgeType = (GrRRectEffect::EdgeType)
-                                                            (curRRect / kNumRRects);
+                        GrEffectEdgeType edgeType = (GrEffectEdgeType) (curRRect / kNumRRects);
                         SkAutoTUnref<GrEffectRef> effect(GrRRectEffect::Create(edgeType, rrect));
                         if (effect) {
                             drawState->addCoverageEffect(effect);
