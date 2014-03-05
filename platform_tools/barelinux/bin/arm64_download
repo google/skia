@@ -45,7 +45,7 @@ gsutil_check_get() {
     local gurl="$1"
     local file="$2"
     if ! [ -f "$file" ] || \
-        [ "$(gsutil stat "$gurl" | sed -n 's/\W*Hash (md5):\W*//p')" \
+        [ "$(gsutil ls -L "$gurl" | sed -n 's/\W*Hash (md5):\W*//p')" \
         != "$(md5sum < "$file" | sed 's/\W*-//')" ] ; then
         try gsutil cp "$gurl" "$file" || return
     fi
