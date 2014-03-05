@@ -36,7 +36,3 @@
 # This GM has probably always drawn incorrectly. We need to clarify the API
 # http://skbug.com/2222 : Inverse filled paths get inverse stroked
 inverse_paths
-
-# Added as part of https://codereview.chromium.org/186643003/.
-# senorblanco will rebaseline.
-offsetimagefilter
