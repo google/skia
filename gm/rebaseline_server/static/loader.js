@@ -292,11 +292,12 @@ Loader.controller(
 
     // parameter name -> copier objects to load/save parameter value
     $scope.queryParameters.map = {
-      'resultsToLoad':       $scope.queryParameters.copiers.simple,
-      'displayLimitPending': $scope.queryParameters.copiers.simple,
-      'imageSizePending':    $scope.queryParameters.copiers.simple,
-      'sortColumnSubdict':   $scope.queryParameters.copiers.simple,
-      'sortColumnKey':       $scope.queryParameters.copiers.simple,
+      'resultsToLoad':         $scope.queryParameters.copiers.simple,
+      'displayLimitPending':   $scope.queryParameters.copiers.simple,
+      'showThumbnailsPending': $scope.queryParameters.copiers.simple,
+      'imageSizePending':      $scope.queryParameters.copiers.simple,
+      'sortColumnSubdict':     $scope.queryParameters.copiers.simple,
+      'sortColumnKey':         $scope.queryParameters.copiers.simple,
 
       'hiddenResultTypes': $scope.queryParameters.copiers.set,
       'hiddenConfigs':     $scope.queryParameters.copiers.set,
@@ -396,6 +397,7 @@ Loader.controller(
                 $scope.getSortColumnValue);
         $scope.limitedImagePairs = $scope.filteredImagePairs;
       }
+      $scope.showThumbnails = $scope.showThumbnailsPending;
       $scope.imageSize = $scope.imageSizePending;
       $scope.setUpdatesPending(false);
       $scope.queryParameters.save();
