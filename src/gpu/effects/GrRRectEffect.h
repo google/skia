@@ -17,10 +17,10 @@ namespace GrRRectEffect {
     enum EdgeType {
         kFillAA_EdgeType,
         kInverseFillAA_EdgeType,
-        
+
         kLastEdgeType = kInverseFillAA_EdgeType,
     };
-    
+
     static const int kEdgeTypeCnt = kLastEdgeType + 1;
 
     /**

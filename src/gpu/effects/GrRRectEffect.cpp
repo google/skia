@@ -21,7 +21,7 @@ class RRectEffect : public GrEffect {
 public:
     // This effect only supports circular corner rrects where the radius is >= kRadiusMin.
     static const SkScalar kRadiusMin;
-    
+
     /// The types of circular corner rrects supported
     enum RRectType {
         kCircleCorner_RRectType,     //<! All four corners have the same circular radius.
@@ -39,7 +39,7 @@ public:
     const SkRRect& getRRect() const { return fRRect; }
 
     RRectType getType() const { return fRRectType; }
-    
+
     EdgeType getEdgeType() const { return fEdgeType; }
 
     typedef GLRRectEffect GLEffect;
@@ -221,7 +221,7 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
                                    radiusPlusHalfName);
             break;
     }
-    
+
     if (kInverseFillAA_EdgeType == rre.getEdgeType()) {
         builder->fsCodeAppend("\t\talpha = 1.0 - alpha;\n");
     }

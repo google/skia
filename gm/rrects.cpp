@@ -85,7 +85,7 @@ protected:
         if (kAA_Draw_Type == fType) {
             paint.setAntiAlias(true);
         }
-        
+
         static const SkRect kMaxTileBound = SkRect::MakeWH(SkIntToScalar(kTileX), SkIntToScalar(kTileY));
 
         int curRRect = 0;
@@ -108,7 +108,7 @@ protected:
                             return;
                         }
                         GrDrawState* drawState = tt.target()->drawState();
-                        
+
                         SkRRect rrect = fRRects[rrectIdx];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
                         GrRRectEffect::EdgeType edgeType = (GrRRectEffect::EdgeType)
@@ -122,7 +122,7 @@ protected:
 
                             SkRect bounds = rrect.getBounds();
                             bounds.outset(2.f, 2.f);
-                            
+
                             tt.target()->drawSimpleRect(bounds);
                         }
 #endif
@@ -162,7 +162,7 @@ protected:
 
 private:
     Type fType;
-    
+
     static const int kImageWidth = 640;
     static const int kImageHeight = 480;
 

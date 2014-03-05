@@ -183,4 +183,3 @@ DEF_TEST(DynamicHash_iterator, reporter) {
     ASSERT(2 == count);
     ASSERT(keys[0] != keys[1]);
 }
-

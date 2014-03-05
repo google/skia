@@ -224,7 +224,7 @@ public:
     void outset(SkScalar dx, SkScalar dy) {
         this->inset(-dx, -dy, this);
     }
-    
+
     /**
      * Translate the rrect by (dx, dy).
      */
