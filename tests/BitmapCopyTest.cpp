@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkBitmap.h"
 #include "SkRect.h"
 #include "Test.h"
@@ -12,7 +13,7 @@ static const char* boolStr(bool value) {
     return value ? "true" : "false";
 }
 
-// these are in the same order as the SkBitmap::Config enum
+// these are in the same order as the SkColorType enum
 static const char* gColorTypeName[] = {
     "None", "A8", "565", "4444", "RGBA", "BGRA", "Index8"
 };
@@ -89,17 +90,15 @@ static uint32_t getPixel(int x, int y, const SkBitmap& bm) {
     SkAutoLockPixels lock(bm);
     const void* rawAddr = bm.getAddr(x,y);
 
-    switch (bm.config()) {
-        case SkBitmap::kARGB_8888_Config:
+    switch (bm.bytesPerPixel()) {
+        case 4:
             memcpy(&val, rawAddr, sizeof(uint32_t));
             break;
-        case SkBitmap::kARGB_4444_Config:
-        case SkBitmap::kRGB_565_Config:
+        case 2:
             memcpy(&val16, rawAddr, sizeof(uint16_t));
             val = val16;
             break;
-        case SkBitmap::kA8_Config:
-        case SkBitmap::kIndex8_Config:
+        case 1:
             memcpy(&val8, rawAddr, sizeof(uint8_t));
             val = val8;
             break;
@@ -118,37 +117,21 @@ static void setPixel(int x, int y, uint32_t val, SkBitmap& bm) {
     SkAutoLockPixels lock(bm);
     void* rawAddr = bm.getAddr(x,y);
 
-    switch (bm.config()) {
-        case SkBitmap::kARGB_8888_Config:
+    switch (bm.bytesPerPixel()) {
+        case 4:
             memcpy(rawAddr, &val, sizeof(uint32_t));
             break;
-        case SkBitmap::kARGB_4444_Config:
-        case SkBitmap::kRGB_565_Config:
+        case 2:
             val16 = val & 0xFFFF;
             memcpy(rawAddr, &val16, sizeof(uint16_t));
             break;
-        case SkBitmap::kA8_Config:
-        case SkBitmap::kIndex8_Config:
+        case 1:
             val8 = val & 0xFF;
             memcpy(rawAddr, &val8, sizeof(uint8_t));
             break;
         default:
             // Ignore.
             break;
-    }
-}
-
-// Utility to return string containing name of each format, to
-// simplify diagnostic output.
-static const char* getSkConfigName(const SkBitmap& bm) {
-    switch (bm.config()) {
-        case SkBitmap::kNo_Config: return "SkBitmap::kNo_Config";
-        case SkBitmap::kA8_Config: return "SkBitmap::kA8_Config";
-        case SkBitmap::kIndex8_Config: return "SkBitmap::kIndex8_Config";
-        case SkBitmap::kRGB_565_Config: return "SkBitmap::kRGB_565_Config";
-        case SkBitmap::kARGB_4444_Config: return "SkBitmap::kARGB_4444_Config";
-        case SkBitmap::kARGB_8888_Config: return "SkBitmap::kARGB_8888_Config";
-        default: return "Unknown SkBitmap configuration.";
     }
 }
 
@@ -188,7 +171,8 @@ static void reportCopyVerification(const SkBitmap& bm1, const SkBitmap& bm2,
     }
 
     if (!success) {
-        ERRORF(reporter, "%s [config = %s]", msg, getSkConfigName(bm1));
+        ERRORF(reporter, "%s [colortype = %s]", msg,
+               gColorTypeName[bm1.colorType()]);
     }
 }
 
@@ -317,7 +301,7 @@ DEF_TEST(BitmapCopy, reporter) {
                 REPORTER_ASSERT(reporter, srcPremul.height() == dst.height());
                 REPORTER_ASSERT(reporter, dst.colorType() == gPairs[j].fColorType);
                 test_isOpaque(reporter, srcOpaque, srcPremul, dst.colorType());
-                if (srcPremul.config() == dst.config()) {
+                if (srcPremul.colorType() == dst.colorType()) {
                     SkAutoLockPixels srcLock(srcPremul);
                     SkAutoLockPixels dstLock(dst);
                     REPORTER_ASSERT(reporter, srcPremul.readyToDraw());
@@ -333,7 +317,7 @@ DEF_TEST(BitmapCopy, reporter) {
                 }
             } else {
                 // dst should be unchanged from its initial state
-                REPORTER_ASSERT(reporter, dst.config() == SkBitmap::kNo_Config);
+                REPORTER_ASSERT(reporter, dst.colorType() == kUnknown_SkColorType);
                 REPORTER_ASSERT(reporter, dst.width() == 0);
                 REPORTER_ASSERT(reporter, dst.height() == 0);
             }
@@ -358,7 +342,7 @@ DEF_TEST(BitmapCopy, reporter) {
             int64_t safeSize = tstSafeSize.computeSafeSize64();
             if (safeSize < 0) {
                 ERRORF(reporter, "getSafeSize64() negative: %s",
-                       getSkConfigName(tstSafeSize));
+                       gColorTypeName[tstSafeSize.colorType()]);
             }
             bool sizeFail = false;
             // Compare against hand-computed values.
@@ -391,7 +375,7 @@ DEF_TEST(BitmapCopy, reporter) {
             }
             if (sizeFail) {
                 ERRORF(reporter, "computeSafeSize64() wrong size: %s",
-                       getSkConfigName(tstSafeSize));
+                       gColorTypeName[tstSafeSize.colorType()]);
             }
 
             int subW = 2;
@@ -400,7 +384,7 @@ DEF_TEST(BitmapCopy, reporter) {
             // Create bitmap to act as source for copies and subsets.
             SkBitmap src, subset;
             SkColorTable* ct = NULL;
-            if (SkBitmap::kIndex8_Config == src.config()) {
+            if (kIndex_8_SkColorType == src.colorType()) {
                 ct = init_ctable(kPremul_SkAlphaType);
             }
 
@@ -419,7 +403,7 @@ DEF_TEST(BitmapCopy, reporter) {
             // for subsequent calls to copyPixelsTo/From.
             bool srcReady = false;
             // Test relies on older behavior that extractSubset will fail on
-            // no_config
+            // kUnknown_SkColorType
             if (kUnknown_SkColorType != src.colorType() &&
                 isExtracted[copyCase]) {
                 // The extractedSubset() test case allows us to test copy-
@@ -440,7 +424,7 @@ DEF_TEST(BitmapCopy, reporter) {
                 // buf to a SkBitmap, but copies are done using the
                 // raw buffer pointer.
                 const size_t bufSize = subH *
-                    SkBitmap::ComputeRowBytes(src.config(), subW) * 2;
+                    SkColorTypeMinRowBytes(src.colorType(), subW) * 2;
                 SkAutoMalloc autoBuf (bufSize);
                 uint8_t* buf = static_cast<uint8_t*>(autoBuf.get());
 

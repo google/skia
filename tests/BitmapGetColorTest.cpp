@@ -12,19 +12,19 @@
 
 DEF_TEST(GetColor, reporter) {
     static const struct Rec {
-        SkBitmap::Config    fConfig;
-        SkColor             fInColor;
-        SkColor             fOutColor;
+        SkColorType fColorType;
+        SkColor     fInColor;
+        SkColor     fOutColor;
     } gRec[] = {
         // todo: add some tests that involve alpha, so we exercise the
         // unpremultiply aspect of getColor()
-        {   SkBitmap::kA8_Config,           0xFF000000,     0xFF000000  },
-        {   SkBitmap::kA8_Config,           0,              0           },
-        {   SkBitmap::kRGB_565_Config,      0xFF00FF00,     0xFF00FF00  },
-        {   SkBitmap::kRGB_565_Config,      0xFFFF00FF,     0xFFFF00FF  },
-        {   SkBitmap::kARGB_8888_Config,    0xFFFFFFFF,     0xFFFFFFFF  },
-        {   SkBitmap::kARGB_8888_Config,    0,              0           },
-        {   SkBitmap::kARGB_8888_Config,    0xFF224466,     0xFF224466  },
+        {   kAlpha_8_SkColorType,   0xFF000000,     0xFF000000  },
+        {   kAlpha_8_SkColorType,   0,              0           },
+        {   kRGB_565_SkColorType,   0xFF00FF00,     0xFF00FF00  },
+        {   kRGB_565_SkColorType,   0xFFFF00FF,     0xFFFF00FF  },
+        {   kPMColor_SkColorType,   0xFFFFFFFF,     0xFFFFFFFF  },
+        {   kPMColor_SkColorType,   0,              0           },
+        {   kPMColor_SkColorType,   0xFF224466,     0xFF224466  },
     };
 
     // specify an area that doesn't touch (0,0) and may extend beyond the
@@ -33,10 +33,11 @@ DEF_TEST(GetColor, reporter) {
     const SkIRect area = { 1, 1, 3, 3 };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
+        SkImageInfo info = SkImageInfo::Make(2, 2, gRec[i].fColorType,
+                                             kPremul_SkAlphaType);
         SkBitmap bm;
         uint32_t storage[4];
-        bm.setConfig(gRec[i].fConfig, 2, 2);
-        bm.setPixels(storage);
+        bm.installPixels(info, storage, info.minRowBytes(), NULL, NULL);
 
         bm.eraseColor(initColor);
         bm.eraseArea(area, gRec[i].fInColor);

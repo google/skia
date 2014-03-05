@@ -13,8 +13,8 @@
 #include "Test.h"
 
 // these are in the same order as the SkColorType enum
-static const char* gConfigName[] = {
-    "Unknown", "Alpha8", "565", "4444", "RGBA", "BGRA", "Index8"
+static const char* gColorTypeName[] = {
+    "None", "A8", "565", "4444", "RGBA", "BGRA", "Index8"
 };
 
 /** Returns -1 on success, else the x coord of the first bad pixel, return its
@@ -62,15 +62,15 @@ static int proc_bad(const void*, int, uint32_t, uint32_t* bad) {
 
 static Proc find_proc(const SkBitmap& bm, SkPMColor expect32, uint16_t expect16,
                       uint8_t expect8, uint32_t* expect) {
-    switch (bm.config()) {
-        case SkBitmap::kARGB_8888_Config:
+    switch (bm.colorType()) {
+        case kPMColor_SkColorType:
             *expect = expect32;
             return proc_32;
-        case SkBitmap::kARGB_4444_Config:
-        case SkBitmap::kRGB_565_Config:
+        case kARGB_4444_SkColorType:
+        case kRGB_565_SkColorType:
             *expect = expect16;
             return proc_16;
-        case SkBitmap::kA8_Config:
+        case kAlpha_8_SkColorType:
             *expect = expect8;
             return proc_8;
         default:
@@ -88,8 +88,8 @@ static bool check_color(const SkBitmap& bm, SkPMColor expect32,
         uint32_t bad;
         int x = proc(bm.getAddr(0, y), bm.width(), expect, &bad);
         if (x >= 0) {
-            ERRORF(reporter, "BlitRow config=%s [%d %d] expected %x got %x",
-                   gConfigName[bm.config()], x, y, expect, bad);
+            ERRORF(reporter, "BlitRow colortype=%s [%d %d] expected %x got %x",
+                   gColorTypeName[bm.colorType()], x, y, expect, bad);
             return false;
         }
     }
@@ -249,7 +249,7 @@ static void test_diagonal(skiatest::Reporter* reporter) {
                     if (memcmp(dstBM0.getPixels(), dstBM1.getPixels(), dstBM0.getSize())) {
                         ERRORF(reporter, "Diagonal colortype=%s bg=0x%x dither=%d"
                                " alpha=0x%x src=0x%x",
-                               gConfigName[gDstColorType[i]], bgColor, dither,
+                               gColorTypeName[gDstColorType[i]], bgColor, dither,
                                alpha, c);
                     }
                 }

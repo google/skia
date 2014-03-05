@@ -20,9 +20,8 @@
 
 static const SkColor bgColor = SK_ColorWHITE;
 
-static void create(SkBitmap* bm, SkIRect bound, SkBitmap::Config config) {
-    bm->setConfig(config, bound.width(), bound.height());
-    bm->allocPixels();
+static void create(SkBitmap* bm, SkIRect bound) {
+    bm->allocN32Pixels(bound.width(), bound.height());
 }
 
 static void drawBG(SkCanvas* canvas) {
@@ -76,12 +75,12 @@ DEF_TEST(FontHostStream, reporter) {
 
         SkIRect origRect = SkIRect::MakeWH(64, 64);
         SkBitmap origBitmap;
-        create(&origBitmap, origRect, SkBitmap::kARGB_8888_Config);
+        create(&origBitmap, origRect);
         SkCanvas origCanvas(origBitmap);
 
         SkIRect streamRect = SkIRect::MakeWH(64, 64);
         SkBitmap streamBitmap;
-        create(&streamBitmap, streamRect, SkBitmap::kARGB_8888_Config);
+        create(&streamBitmap, streamRect);
         SkCanvas streamCanvas(streamBitmap);
 
         SkPoint point = SkPoint::Make(24, 32);
