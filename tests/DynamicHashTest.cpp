@@ -35,7 +35,7 @@ private:
 
 #define ASSERT(x) REPORTER_ASSERT(reporter, x)
 
-static void test_growth(skiatest::Reporter* reporter) {
+DEF_TEST(DynamicHash_growth, reporter) {
     Entry a = { 1, 2.0 };
     Entry b = { 2, 3.0 };
     Entry c = { 3, 4.0 };
@@ -63,7 +63,7 @@ static void test_growth(skiatest::Reporter* reporter) {
     ASSERT(hash.count() == 5);
 }
 
-static void test_add(skiatest::Reporter* reporter) {
+DEF_TEST(DynamicHash_add, reporter) {
     Hash hash;
     Entry a = { 1, 2.0 };
     Entry b = { 2, 3.0 };
@@ -75,7 +75,7 @@ static void test_add(skiatest::Reporter* reporter) {
     ASSERT(hash.count() == 2);
 }
 
-static void test_lookup(skiatest::Reporter* reporter) {
+DEF_TEST(DynamicHash_lookup, reporter) {
     Hash hash;
 
     // These collide.
@@ -110,7 +110,7 @@ static void test_lookup(skiatest::Reporter* reporter) {
     ASSERT(hash.find(9) == NULL);
 }
 
-static void test_remove(skiatest::Reporter* reporter) {
+DEF_TEST(DynamicHash_remove, reporter) {
     Hash hash;
 
     // These collide.
@@ -136,9 +136,51 @@ static void test_remove(skiatest::Reporter* reporter) {
     ASSERT(hash.find(5)->value == 3.0);
 }
 
-DEF_TEST(DynamicHash, reporter) {
-    test_growth(reporter);
-    test_add(reporter);
-    test_lookup(reporter);
-    test_remove(reporter);
+DEF_TEST(DynamicHash_iterator, reporter) {
+    Hash hash;
+
+    int count = 0;
+    // this should fall out of loop immediately
+    for (Hash::Iter iter(&hash); !iter.done(); ++iter) {
+        ++count;
+    }
+    ASSERT(0 == count);
+
+    // These collide.
+    Entry a = { 1, 2.0 };
+    Entry b = { 5, 3.0 };
+    Entry c = { 9, 4.0 };
+
+    hash.add(&a);
+    hash.add(&b);
+    hash.add(&c);
+
+    // should see all 3 unique keys when iterating over hash
+    count = 0;
+    int keys[3] = {0, 0, 0};
+    for (Hash::Iter iter(&hash); !iter.done(); ++iter) {
+        int key = (*iter).key;
+        keys[count] = key;
+        ASSERT(hash.find(key) != NULL);
+        ++count;
+    }
+    ASSERT(3 == count);
+    ASSERT(keys[0] != keys[1]);
+    ASSERT(keys[0] != keys[2]);
+    ASSERT(keys[1] != keys[2]);
+
+    // should see 2 unique keys when iterating over hash that aren't 1
+    hash.remove(1);
+    count = 0;
+    memset(keys,0,sizeof(keys));
+    for (Hash::Iter iter(&hash); !iter.done(); ++iter) {
+        int key = (*iter).key;
+        keys[count] = key;
+        ASSERT(key != 1);
+        ASSERT(hash.find(key) != NULL);
+        ++count;
+    }
+    ASSERT(2 == count);
+    ASSERT(keys[0] != keys[1]);
 }
+

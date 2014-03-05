@@ -28,6 +28,33 @@ public:
         sk_free(fArray);
     }
 
+    class Iter {
+    public:
+        explicit Iter(SkTDynamicHash* hash) : fHash(hash), fCurrentIndex(-1) {
+            SkASSERT(hash);
+            ++(*this);
+        }
+        bool done() const {
+            SkASSERT(fCurrentIndex <= fHash->fCapacity);
+            return fCurrentIndex == fHash->fCapacity;
+        }
+        T& operator*() const {
+            SkASSERT(!this->done());
+            return *this->current();
+        }
+        void operator++() {
+            do {
+                fCurrentIndex++;
+            } while (!this->done() && (this->current() == Empty() || this->current() == Deleted()));
+        }
+
+    private:
+        T* current() const { return fHash->fArray[fCurrentIndex]; }
+
+        SkTDynamicHash* fHash;
+        int fCurrentIndex;
+    };
+
     int count() const { return fCount; }
 
     // Return the entry with this key if we have it, otherwise NULL.
