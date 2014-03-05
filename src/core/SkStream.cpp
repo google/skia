@@ -694,10 +694,10 @@ public:
         size_t bytesLeftToRead = count;
         while (fCurrent != NULL) {
             size_t bytesLeftInCurrent = fCurrent->written() - fCurrentOffset;
-            size_t bytesFromCurrent = bytesLeftToRead <= bytesLeftInCurrent
-                                    ? bytesLeftToRead  : bytesLeftInCurrent;
+            size_t bytesFromCurrent = SkTMin(bytesLeftToRead, bytesLeftInCurrent);
             if (buffer) {
                 memcpy(buffer, fCurrent->start() + fCurrentOffset, bytesFromCurrent);
+                buffer = SkTAddOffset<void>(buffer, bytesFromCurrent);
             }
             if (bytesLeftToRead <= bytesFromCurrent) {
                 fCurrentOffset += bytesFromCurrent;
@@ -705,7 +705,6 @@ public:
                 return count;
             }
             bytesLeftToRead -= bytesFromCurrent;
-            buffer = SkTAddOffset<void>(buffer, bytesFromCurrent);
             fCurrent = fCurrent->fNext;
             fCurrentOffset = 0;
         }
