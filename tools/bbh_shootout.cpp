@@ -296,18 +296,12 @@ static void benchmark_recording(
 /**
  * Takes argc,argv along with one of the benchmark functions defined above.
  * Will loop along all skp files and perform measurments.
- *
- * Returns a SkScalar representing CPU time taken during benchmark.
- * As a side effect, it spits the timer result to stdout.
- * Will return -1.0 on error.
  */
-static bool benchmark_loop(
+static void benchmark_loop(
         int argc,
         char **argv,
         const BenchmarkControl& benchControl,
         SkTArray<Histogram>& histogram) {
-    static const SkString timeFormat("%f");
-    TimerData timerData(argc - 1);
     for (int index = 1; index < argc; ++index) {
         BenchTimer timer;
         SkString path(argv[index]);
@@ -317,30 +311,9 @@ static bool benchmark_loop(
             continue;
         }
         benchControl.fFunction(benchControl, path, pic, &timer);
-
         histogram[index - 1].fPath = path;
         histogram[index - 1].fCpuTime = SkDoubleToScalar(timer.fCpu);
     }
-
-    const SkString timerResult = timerData.getResult(
-            /*doubleFormat = */ timeFormat.c_str(),
-            /*result = */ TimerData::kAvg_Result,
-            /*configName = */ benchControl.fName.c_str(),
-            /*timerFlags = */ TimerData::kCpu_Flag);
-
-    const char findStr[] = "= ";
-    int pos = timerResult.find(findStr);
-    if (-1 == pos) {
-        SkDebugf("Unexpected output from TimerData::getResult(...). Unable to parse.\n");
-        return false;
-    }
-
-    SkScalar cpuTime = SkDoubleToScalar(atof(timerResult.c_str() + pos + sizeof(findStr) - 1));
-    if (cpuTime == 0) {  // atof returns 0.0 on error.
-        SkDebugf("Unable to read value from timer result.\n");
-        return false;
-    }
-    return true;
 }
 
 int tool_main(int argc, char** argv);
@@ -358,13 +331,7 @@ int tool_main(int argc, char** argv) {
 
     for (size_t i = 0; i < kNumBenchmarks; ++i) {
         histograms[i].reset(argc - 1);
-        bool success = benchmark_loop(
-                argc, argv,
-                BenchmarkControl::Make(i),
-                histograms[i]);
-        if (!success) {
-            SkDebugf("benchmark_loop failed at index %d\n", i);
-        }
+        benchmark_loop(argc, argv, BenchmarkControl::Make(i), histograms[i]);
     }
 
     // Output gnuplot readable histogram data..
