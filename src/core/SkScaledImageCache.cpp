@@ -425,6 +425,7 @@ SkScaledImageCache::ID* SkScaledImageCache::addAndLock(SkScaledImageCache::Rec* 
     if (NULL != existing) {
         // Since we already have a matching entry, just delete the new one and return.
         // Call sites cannot assume the passed in object will live past this call.
+        existing->fBitmap = rec->fBitmap;
         SkDELETE(rec);
         return rec_to_id(existing);
     }

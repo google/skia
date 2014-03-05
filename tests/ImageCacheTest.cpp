@@ -105,17 +105,27 @@ DEF_TEST(ImageCache, reporter) {
 
 DEF_TEST(ImageCache_doubleAdd, r) {
     // Adding the same key twice should be safe.
-    SkScaledImageCache cache(1024);
+    SkScaledImageCache cache(4096);
 
     SkBitmap original;
     original.allocN32Pixels(40, 40);
 
-    SkBitmap scaled;
-    scaled.allocN32Pixels(20, 20);
+    SkBitmap scaled1;
+    scaled1.allocN32Pixels(20, 20);
 
-    SkScaledImageCache::ID* id1 = cache.addAndLock(original, 0.5f, 0.5f, scaled);
-    SkScaledImageCache::ID* id2 = cache.addAndLock(original, 0.5f, 0.5f, scaled);
+    SkBitmap scaled2;
+    scaled2.allocN32Pixels(20, 20);
+
+    SkScaledImageCache::ID* id1 = cache.addAndLock(original, 0.5f, 0.5f, scaled1);
+    SkScaledImageCache::ID* id2 = cache.addAndLock(original, 0.5f, 0.5f, scaled2);
     // We don't really care if id1 == id2 as long as unlocking both works.
     cache.unlock(id1);
     cache.unlock(id2);
+
+    SkBitmap tmp;
+    // Lookup should return the value that was added last.
+    SkScaledImageCache::ID* id = cache.findAndLock(original, 0.5f, 0.5f, &tmp);
+    REPORTER_ASSERT(r, NULL != id);
+    REPORTER_ASSERT(r, tmp.getGenerationID() == scaled2.getGenerationID());
+    cache.unlock(id);
 }
