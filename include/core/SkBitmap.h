@@ -16,8 +16,6 @@
 
 //#define SK_SUPPORT_LEGACY_COPYTO_CONFIG
 
-//#define SK_SUPPORT_DEEPCOPYTO_CONFIG
-
 struct SkMask;
 struct SkIRect;
 struct SkRect;
@@ -646,19 +644,6 @@ public:
      *  colorType, such that copyTo() could succeed.
      */
     bool canCopyTo(SkColorType colorType) const;
-
-    /** Makes a deep copy of this bitmap, respecting the requested config, and
-     *  with custom allocation logic that will keep the copied pixels
-     *  in the same domain as the source: If the src pixels are allocated for
-     *  the cpu, then so will the dst. If the src pixels are allocated on the
-     *  gpu (typically as a texture), the it will do the same for the dst.
-     *  If the request cannot be fulfilled, returns false and dst is unmodified.
-     */
-#ifndef SK_SUPPORT_DEEPCOPYTO_CONFIG
-private:
-#endif
-    bool deepCopyTo(SkBitmap* dst, Config c) const;
-public:
 
     /** Makes a deep copy of this bitmap, keeping the copied pixels
      *  in the same domain as the source: If the src pixels are allocated for

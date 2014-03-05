@@ -80,7 +80,6 @@
     '../tests/GLProgramsTest.cpp',
     '../tests/GeometryTest.cpp',
     '../tests/GifTest.cpp',
-    '../tests/GpuBitmapCopyTest.cpp',
     '../tests/GpuColorFilterTest.cpp',
     '../tests/GpuDrawPathTest.cpp',
     '../tests/GrBinHashKeyTest.cpp',

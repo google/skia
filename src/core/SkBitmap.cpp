@@ -1148,7 +1148,8 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType,
     return true;
 }
 
-bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
+bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
+    const SkBitmap::Config dstConfig = this->config();
     const SkColorType dstCT = SkBitmapConfigToColorType(dstConfig);
 
     if (!this->canCopyTo(dstCT)) {
@@ -1188,10 +1189,6 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst, Config dstConfig) const {
     } else {
         return this->copyTo(dst, dstCT, NULL);
     }
-}
-
-bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
-    return this->deepCopyTo(dst, this->config());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
