@@ -307,26 +307,45 @@ bool SkPicturePlayback::containsBitmaps() const {
 
 #include "SkStream.h"
 
-static void writeTagSize(SkWriteBuffer& buffer, uint32_t tag,
-                         uint32_t size) {
+static void write_tag_size(SkWriteBuffer& buffer, uint32_t tag, uint32_t size) {
     buffer.writeUInt(tag);
     buffer.writeUInt(size);
 }
 
-static void writeTagSize(SkWStream* stream, uint32_t tag,
-                         uint32_t size) {
+static void write_tag_size(SkWStream* stream, uint32_t tag,  uint32_t size) {
     stream->write32(tag);
     stream->write32(size);
 }
 
-static void writeFactories(SkWStream* stream, const SkFactorySet& rec) {
-    int count = rec.count();
+static size_t compute_chunk_size(SkFlattenable::Factory* array, int count) {
+    size_t size = 4;  // for 'count'
 
-    writeTagSize(stream, SK_PICT_FACTORY_TAG, count);
+    for (int i = 0; i < count; i++) {
+        const char* name = SkFlattenable::FactoryToName(array[i]);
+        if (NULL == name || 0 == *name) {
+            size += SkWStream::SizeOfPackedUInt(0);
+        } else {
+            size_t len = strlen(name);
+            size += SkWStream::SizeOfPackedUInt(len);
+            size += len;
+        }
+    }
+
+    return size;
+}
+
+static void write_factories(SkWStream* stream, const SkFactorySet& rec) {
+    int count = rec.count();
 
     SkAutoSTMalloc<16, SkFlattenable::Factory> storage(count);
     SkFlattenable::Factory* array = (SkFlattenable::Factory*)storage.get();
     rec.copyToArray(array);
+
+    size_t size = compute_chunk_size(array, count);
+
+    // TODO: write_tag_size should really take a size_t
+    write_tag_size(stream, SK_PICT_FACTORY_TAG, (uint32_t) size);
+    stream->write32(count);
 
     for (int i = 0; i < count; i++) {
         const char* name = SkFlattenable::FactoryToName(array[i]);
@@ -339,12 +358,14 @@ static void writeFactories(SkWStream* stream, const SkFactorySet& rec) {
             stream->write(name, len);
         }
     }
+
+
 }
 
 static void writeTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
     int count = rec.count();
 
-    writeTagSize(stream, SK_PICT_TYPEFACE_TAG, count);
+    write_tag_size(stream, SK_PICT_TYPEFACE_TAG, count);
 
     SkAutoSTMalloc<16, SkTypeface*> storage(count);
     SkTypeface** array = (SkTypeface**)storage.get();
@@ -359,32 +380,32 @@ void SkPicturePlayback::flattenToBuffer(SkWriteBuffer& buffer) const {
     int i, n;
 
     if ((n = SafeCount(fBitmaps)) > 0) {
-        writeTagSize(buffer, SK_PICT_BITMAP_BUFFER_TAG, n);
+        write_tag_size(buffer, SK_PICT_BITMAP_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
             buffer.writeBitmap((*fBitmaps)[i]);
         }
     }
 
     if ((n = SafeCount(fPaints)) > 0) {
-        writeTagSize(buffer, SK_PICT_PAINT_BUFFER_TAG, n);
+        write_tag_size(buffer, SK_PICT_PAINT_BUFFER_TAG, n);
         for (i = 0; i < n; i++) {
             buffer.writePaint((*fPaints)[i]);
         }
     }
 
     if ((n = SafeCount(fPathHeap.get())) > 0) {
-        writeTagSize(buffer, SK_PICT_PATH_BUFFER_TAG, n);
+        write_tag_size(buffer, SK_PICT_PATH_BUFFER_TAG, n);
         fPathHeap->flatten(buffer);
     }
 }
 
 void SkPicturePlayback::serialize(SkWStream* stream,
                                   SkPicture::EncodeBitmap encoder) const {
-    writeTagSize(stream, SK_PICT_READER_TAG, fOpData->size());
+    write_tag_size(stream, SK_PICT_READER_TAG, fOpData->size());
     stream->write(fOpData->bytes(), fOpData->size());
 
     if (fPictureCount > 0) {
-        writeTagSize(stream, SK_PICT_PICTURE_TAG, fPictureCount);
+        write_tag_size(stream, SK_PICT_PICTURE_TAG, fPictureCount);
         for (int i = 0; i < fPictureCount; i++) {
             fPictureRefs[i]->serialize(stream, encoder);
         }
@@ -403,13 +424,13 @@ void SkPicturePlayback::serialize(SkWStream* stream,
 
         this->flattenToBuffer(buffer);
 
-        // We have to write these to sets into the stream *before* we write
+        // We have to write these two sets into the stream *before* we write
         // the buffer, since parsing that buffer will require that we already
         // have these sets available to use.
-        writeFactories(stream, factSet);
+        write_factories(stream, factSet);
         writeTypefaces(stream, typefaceSet);
 
-        writeTagSize(stream, SK_PICT_BUFFER_SIZE_TAG, buffer.bytesWritten());
+        write_tag_size(stream, SK_PICT_BUFFER_SIZE_TAG, buffer.bytesWritten());
         buffer.writeToStream(stream);
     }
 
@@ -417,11 +438,11 @@ void SkPicturePlayback::serialize(SkWStream* stream,
 }
 
 void SkPicturePlayback::flatten(SkWriteBuffer& buffer) const {
-    writeTagSize(buffer, SK_PICT_READER_TAG, fOpData->size());
+    write_tag_size(buffer, SK_PICT_READER_TAG, fOpData->size());
     buffer.writeByteArray(fOpData->bytes(), fOpData->size());
 
     if (fPictureCount > 0) {
-        writeTagSize(buffer, SK_PICT_PICTURE_TAG, fPictureCount);
+        write_tag_size(buffer, SK_PICT_PICTURE_TAG, fPictureCount);
         for (int i = 0; i < fPictureCount; i++) {
             fPictureRefs[i]->flatten(buffer);
         }
@@ -481,6 +502,17 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
         } break;
         case SK_PICT_FACTORY_TAG: {
             SkASSERT(!haveBuffer);
+        // Remove this code when v21 and below are no longer supported. At the
+        // same time add a new 'count' variable and use it rather then reusing 'size'.
+#ifndef DISABLE_V21_COMPATIBILITY_CODE
+            if (info.fVersion >= 22) {
+                // in v22 this tag's size represents the size of the chunk in bytes
+                // and the number of factory strings is written out separately
+#endif
+                size = stream->readU32();
+#ifndef DISABLE_V21_COMPATIBILITY_CODE
+            }
+#endif
             fFactoryPlayback = SkNEW_ARGS(SkFactoryPlayback, (size));
             for (size_t i = 0; i < size; i++) {
                 SkString str;

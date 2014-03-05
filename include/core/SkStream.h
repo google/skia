@@ -205,7 +205,7 @@ public:
     bool    writeScalar(SkScalar);
     bool    writePackedUInt(size_t);
 
-    bool writeStream(SkStream* input, size_t length);
+    bool    writeStream(SkStream* input, size_t length);
 
     /**
      * Append an SkData object to the stream, such that it can be read
@@ -216,6 +216,12 @@ public:
      * just write the raw content of the SkData object to the stream.
      */
     bool writeData(const SkData*);
+
+    /**
+     * This returns the number of bytes in the stream required to store
+     * 'value'.
+     */
+    static int SizeOfPackedUInt(size_t value);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

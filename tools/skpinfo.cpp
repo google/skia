@@ -103,9 +103,16 @@ int tool_main(int argc, char** argv) {
         case SK_PICT_FACTORY_TAG:
             if (FLAGS_tags && !FLAGS_quiet) {
                 SkDebugf("SK_PICT_FACTORY_TAG %d\n", chunkSize);
-                SkDebugf("Exiting early due to format limitations\n");
             }
-            return kSuccess;       // TODO: need to store size in bytes
+            // Remove this code when v21 and below are no longer supported
+#ifndef DISABLE_V21_COMPATIBILITY_CODE
+            if (info.fVersion < 22) {
+                if (!FLAGS_quiet) {
+                    SkDebugf("Exiting early due to format limitations\n");
+                }
+                return kSuccess;       // TODO: need to store size in bytes
+            }
+#endif
             break;
         case SK_PICT_TYPEFACE_TAG:
             if (FLAGS_tags && !FLAGS_quiet) {

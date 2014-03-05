@@ -140,6 +140,15 @@ bool SkWStream::writeScalar(SkScalar value) {
     return this->write(&value, sizeof(value));
 }
 
+int SkWStream::SizeOfPackedUInt(size_t value) {
+    if (value <= SK_MAX_BYTE_FOR_U8) {
+        return 1;
+    } else if (value <= 0xFFFF) {
+        return 3;
+    }
+    return 5;
+}
+
 bool SkWStream::writePackedUInt(size_t value) {
     uint8_t data[5];
     size_t len = 1;
