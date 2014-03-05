@@ -4,8 +4,9 @@
 #include "SkColorPriv.h"
 #include "SkCommandLineFlags.h"
 #include "SkImageEncoder.h"
-#include "SkString.h"
+#include "SkMallocPixelRef.h"
 #include "SkStream.h"
+#include "SkString.h"
 
 DEFINE_string2(writePath, w, "", "If set, write GMs here as .pngs.");
 
@@ -38,6 +39,8 @@ void WriteTask::makeDirOrFail(SkString dir) {
     }
 }
 
+namespace {
+
 // One file that first contains a .png of an SkBitmap, then its raw pixels.
 // We use this custom format to avoid premultiplied/unpremultiplied pixel conversions.
 struct PngAndRaw {
@@ -54,41 +57,44 @@ struct PngAndRaw {
             return false;
         }
 
+        // Pad out so the raw pixels start 4-byte aligned.
+        const uint32_t maxPadding = 0;
+        const size_t pos = stream.bytesWritten();
+        stream.write(&maxPadding, SkAlign4(pos) - pos);
+
         // Then write our secret raw pixels that only DM reads.
         SkAutoLockPixels lock(bitmap);
         return stream.write(bitmap.getPixels(), bitmap.getSize());
     }
 
     // This assumes bitmap already has allocated pixels of the correct size.
-    static bool Decode(const char* path, SkBitmap* bitmap) {
-        SkAutoTUnref<SkStreamRewindable> stream(SkStream::NewFromFile(path));
-        if (NULL == stream.get()) {
+    static bool Decode(const char* path, SkImageInfo info, SkBitmap* bitmap) {
+        SkAutoTUnref<SkData> data(SkData::NewFromFileName(path));
+        if (!data) {
             SkDebugf("Can't read %s.\n", path);
             return false;
         }
 
-        // The raw pixels are at the end of the stream.  Seek ahead to skip beyond the encoded PNG.
-        const size_t bitmapBytes = bitmap->getSize();
-        if (stream->getLength() < bitmapBytes) {
+        // The raw pixels are at the end of the file.  We'll skip the encoded PNG at the front.
+        const size_t rowBytes = info.minRowBytes();  // Assume densely packed.
+        const size_t bitmapBytes = info.getSafeSize(rowBytes);
+        if (data->size() < bitmapBytes) {
             SkDebugf("%s is too small to contain the bitmap we're looking for.\n", path);
             return false;
         }
-        SkAssertResult(stream->seek(stream->getLength() - bitmapBytes));
 
-        // Read the raw pixels.
-        // TODO(mtklein): can we install a pixelref that just hangs onto the stream instead of
-        // copying into a malloc'd buffer?
-        SkAutoLockPixels lock(*bitmap);
-        if (bitmapBytes != stream->read(bitmap->getPixels(), bitmapBytes)) {
-            SkDebugf("Couldn't read raw bitmap from %s at %lu of %lu.\n",
-                     path, stream->getPosition(), stream->getLength());
-            return false;
-        }
+        const size_t offset = data->size() - bitmapBytes;
+        SkAutoTUnref<SkPixelRef> pixels(
+            SkMallocPixelRef::NewWithData(info, rowBytes, NULL/*ctable*/, data, offset));
+        SkASSERT(pixels);
 
-        SkASSERT(stream->isAtEnd());
+        bitmap->setConfig(info, rowBytes);
+        bitmap->setPixelRef(pixels);
         return true;
     }
 };
+
+}  // namespace
 
 void WriteTask::draw() {
     SkString dir(FLAGS_writePath[0]);
@@ -144,8 +150,7 @@ bool WriteTask::Expectations::check(const Task& task, SkBitmap bitmap) const {
 
     const SkString path = path_to_expected_image(fRoot, task);
     SkBitmap expected;
-    expected.allocPixels(bitmap.info());
-    if (!PngAndRaw::Decode(path.c_str(), &expected)) {
+    if (!PngAndRaw::Decode(path.c_str(), bitmap.info(), &expected)) {
         return false;
     }
 

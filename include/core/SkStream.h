@@ -363,6 +363,7 @@ public:
     */
     bool isValid() const { return fFILE != NULL; }
 
+    size_t bytesWritten() const;
     virtual bool write(const void* buffer, size_t size) SK_OVERRIDE;
     virtual void flush() SK_OVERRIDE;
 

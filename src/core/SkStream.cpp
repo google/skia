@@ -433,14 +433,20 @@ SkFILEWStream::SkFILEWStream(const char path[])
 
 SkFILEWStream::~SkFILEWStream()
 {
-    if (fFILE)
+    if (fFILE) {
         sk_fclose(fFILE);
+    }
+}
+
+size_t SkFILEWStream::bytesWritten() const {
+    return sk_ftell(fFILE);
 }
 
 bool SkFILEWStream::write(const void* buffer, size_t size)
 {
-    if (fFILE == NULL)
+    if (fFILE == NULL) {
         return false;
+    }
 
     if (sk_fwrite(buffer, size, fFILE) != size)
     {
@@ -454,8 +460,9 @@ bool SkFILEWStream::write(const void* buffer, size_t size)
 
 void SkFILEWStream::flush()
 {
-    if (fFILE)
+    if (fFILE) {
         sk_fflush(fFILE);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////
