@@ -47,7 +47,6 @@ static void test_fontiter(skiatest::Reporter* reporter, bool verbose) {
     for (int i = 0; i < count; ++i) {
         SkString fname;
         fm->getFamilyName(i, &fname);
-        REPORTER_ASSERT(reporter, fname.size() > 0);
 
         SkAutoTUnref<SkFontStyleSet> fnset(fm->matchFamily(fname.c_str()));
         SkAutoTUnref<SkFontStyleSet> set(fm->createStyleSet(i));
