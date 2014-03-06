@@ -41,28 +41,24 @@ try() {
     fi
 }
 
-gsutil_check_get() {
-    local gurl="$1"
-    local file="$2"
-    if ! [ -f "$file" ] || \
-        [ "$(gsutil ls -L "$gurl" | sed -n 's/\W*Hash (md5):\W*//p')" \
-        != "$(md5sum < "$file" | sed 's/\W*-//')" ] ; then
-        try gsutil cp "$gurl" "$file" || return
+download_necessary_software_to_dir() (
+    cd "$1"
+    local location="chromium-skia-gm/arm64env"
+    try gsutil cp "gs://${location}/md5sum.txt" . || return
+    if md5sum -c --quiet "md5sum.txt"; then
+        return 0
     fi
-}
+    try gsutil cp "gs://${location}/*" . || return
+)
 
-download_compiler() {
+install_compiler() {
     local working_dir="$1"
-    local location="$2"
-    local toolchain="$3"
-
-    try cd "$working_dir" || return
-
-    try gsutil_check_get "gs://${location}/${toolchain}.tar.xz" \
-        "${working_dir}/${toolchain}.tar.xz" || return
+    local toolchain="gcc-linaro-aarch64-linux-gnu-4.8-2013.12_linux"
     (
-        cd "$working_dir"
-        xz --decompress --stdout < "${toolchain}.tar.xz" | tar xf -
+        try cd "$working_dir" || return
+        try test -f "${toolchain}.tar.xz" || return
+        try xz --decompress --stdout < "${toolchain}.tar.xz" | \
+            try tar xf - || return
     )
     local dir="${working_dir}/${toolchain}"
     try test -d "$dir" || return
@@ -70,36 +66,31 @@ download_compiler() {
     try test -x "${dir}/bin/aarch64-linux-gnu-g++" || return
 }
 
-download_runtime() {
+install_runtime() {
     local working_dir="$1"
-    local location="$2"
-    local firmware="$3"
-    local compressed_rootfs="$4"
-    local compressed_foundation_model="$5"
-    local keyfile="$6"
 
-    try gsutil_check_get "gs://${location}/${firmware}" \
-        "${working_dir}/firmware" || return
+    local firmware='img-foundation.axf'
+    local rootfs='vexpress64-openembedded_lamp-armv8-gcc-4.8_20131215-557'
+    local compressed_rootfs="${rootfs}.img.CLEAN_AND_CONFIGURED.xz"
+    local compressed_foundation_model='FM000-KT-00035-r0p8-52rel06.tgz'
+    local keyfile='CLEAN_AND_CONFIGURED_key'
 
-    try gsutil_check_get "gs://${location}/${compressed_rootfs}" \
-        "${working_dir}/${compressed_rootfs}" || return
+    try cp "${working_dir}/$firmware" "${working_dir}/firmware" || return
 
     try xz --decompress --stdout \
-            < "${working_dir}/${compressed_rootfs}" \
-            > "${working_dir}/rootfs" || return
+        < "${working_dir}/${compressed_rootfs}" \
+        > "${working_dir}/rootfs" || return
     try test -f "${working_dir}/rootfs" || return
 
-    try gsutil_check_get "gs://${location}/${compressed_foundation_model}" \
-        "${working_dir}/${compressed_foundation_model}" || return
     (
         try cd "$working_dir" || return
+        try test -f "$compressed_foundation_model" || return
         try gunzip -c "$compressed_foundation_model" | try tar xf - || return
         try test -d "Foundation_v8pkg" || return  #  Assert.
     )
 
-    try gsutil_check_get "gs://${location}/${keyfile}" \
-        "${working_dir}/key" || return
-    chmod go= "${working_dir}/key"
+    try cp "${working_dir}/${keyfile}" "${working_dir}/key" || return
+    chmod 'go=' "${working_dir}/key"
 }
 
 start_arm64_image() {
@@ -132,36 +123,26 @@ start_arm64_image() {
 
 arm64_download() {
     local working_directory="$1"
-    local location="chromium-skia-gm/arm64env"
     try mkdir -p "$working_directory" || return
 
-    try download_compiler \
-        "$working_directory" \
-        "$location" \
-        'gcc-linaro-aarch64-linux-gnu-4.8-2013.12_linux' \
-         || return
+    try download_necessary_software_to_dir "$working_directory" || return
 
-    local rootfs='vexpress64-openembedded_lamp-armv8-gcc-4.8_20131215-557'
-    try download_runtime \
-        "$working_directory" \
-        "$location" \
-        'img-foundation.axf' \
-        "${rootfs}.img.CLEAN_AND_CONFIGURED.xz" \
-        'FM000-KT-00035-r0p8-52rel06.tgz' \
-        'CLEAN_AND_CONFIGURED_key' \
-        || return
+    try install_compiler "$working_directory" || return
+
+    try install_runtime "$working_directory" || return
+
+    try start_arm64_image "$working_directory" || return
 
     try start_arm64_image \
         "$working_directory" \
         || return
-
 }
 
-for command in gsutil xz tar gunzip; do
+for command in gsutil xz tar md5sum gunzip; do
     try command -v "$command" > /dev/null || usage || exit
 done
 
 if [ -z "$1" ] ; then
     usage || exit
 fi
-try arm64_download "$1" || exit
+try arm64_download "$1"
