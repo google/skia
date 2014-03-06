@@ -172,7 +172,7 @@ template <int N> class GrVertexAttribArray : public SkSTArray<N, GrVertexAttrib,
 
 /**
 * We have coverage effects that clip rendering to the edge of some geometric primitive.
-* This enum specifies how that clipping is performed. Not all factories that take a 
+* This enum specifies how that clipping is performed. Not all factories that take a
 * GrEffectEdgeType will succeed with all values and it is up to the caller to check for
 * a NULL return.
 */

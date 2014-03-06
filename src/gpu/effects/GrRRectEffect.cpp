@@ -39,7 +39,7 @@ public:
     const SkRRect& getRRect() const { return fRRect; }
 
     RRectType getType() const { return fRRectType; }
-    
+
     GrEffectEdgeType getEdgeType() const { return fEdgeType; }
 
     typedef GLRRectEffect GLEffect;
@@ -227,7 +227,7 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
                                    radiusPlusHalfName);
             break;
     }
-    
+
     if (kInverseFillBW_GrEffectEdgeType == rre.getEdgeType()) {
         builder->fsCodeAppend("\t\talpha = 1.0 - alpha;\n");
     }
