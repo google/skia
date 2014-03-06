@@ -294,10 +294,8 @@ void SkConvolutionFilter1D::AddFilter(int filterOffset,
         filterLength = lastNonZero + 1 - firstNonZero;
         SkASSERT(filterLength > 0);
 
-        // Calling fFilterValues.reset(), or push_back() in a loop, are expensive.
-        fFilterValues.resize_back(filterLength);
         for (int i = firstNonZero; i <= lastNonZero; i++) {
-            fFilterValues[i - firstNonZero] = filterValues[i];
+            fFilterValues.push_back(filterValues[i]);
         }
     } else {
         // Here all the factors were zeroes.
