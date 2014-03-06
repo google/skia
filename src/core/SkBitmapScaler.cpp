@@ -89,8 +89,15 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
 
     this->computeFilters(srcFullWidth, destSubset.fLeft, destSubset.width(),
                          scaleX, &fXFilter, convolveProcs);
-    this->computeFilters(srcFullHeight, destSubset.fTop, destSubset.height(),
-                         scaleY, &fYFilter, convolveProcs);
+    if (srcFullWidth == srcFullHeight &&
+        destSubset.fLeft == destSubset.fTop &&
+        destSubset.width() == destSubset.height()&&
+        scaleX == scaleY) {
+        fYFilter = fXFilter;
+    } else {
+        this->computeFilters(srcFullHeight, destSubset.fTop, destSubset.height(),
+                          scaleY, &fYFilter, convolveProcs);
+    }
 }
 
 // TODO(egouriou): Take advantage of periods in the convolution.
