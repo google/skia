@@ -9085,9 +9085,10 @@
         ]
       ], 
       "bugs": [
-        2146
+        2262
       ], 
-      "reviewed-by-human": false
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "modecolorfilters_565.png": {
       "allowed-digests": [
