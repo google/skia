@@ -97,6 +97,7 @@ protected:
         SkPaint paint;
 
         paint.setFilterLevel(SkPaint::kHigh_FilterLevel);
+        fInputBitmap.notifyPixelsChanged();
         canvas.drawBitmapMatrix( fInputBitmap, fMatrix, &paint );
     }
 private:
