@@ -345,6 +345,7 @@ static void write_factories(SkWStream* stream, const SkFactorySet& rec) {
 
     // TODO: write_tag_size should really take a size_t
     write_tag_size(stream, SK_PICT_FACTORY_TAG, (uint32_t) size);
+    SkDEBUGCODE(size_t start = stream->bytesWritten());
     stream->write32(count);
 
     for (int i = 0; i < count; i++) {
@@ -359,10 +360,10 @@ static void write_factories(SkWStream* stream, const SkFactorySet& rec) {
         }
     }
 
-
+    SkASSERT(size == (stream->bytesWritten() - start));
 }
 
-static void writeTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
+static void write_typefaces(SkWStream* stream, const SkRefCntSet& rec) {
     int count = rec.count();
 
     write_tag_size(stream, SK_PICT_TYPEFACE_TAG, count);
@@ -428,7 +429,7 @@ void SkPicturePlayback::serialize(SkWStream* stream,
         // the buffer, since parsing that buffer will require that we already
         // have these sets available to use.
         write_factories(stream, factSet);
-        writeTypefaces(stream, typefaceSet);
+        write_typefaces(stream, typefaceSet);
 
         write_tag_size(stream, SK_PICT_BUFFER_SIZE_TAG, buffer.bytesWritten());
         buffer.writeToStream(stream);
