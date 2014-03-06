@@ -212,7 +212,6 @@ private:
 */
 class SkCanvas::MCRec {
 public:
-    MCRec*          fNext;
     int             fFlags;
     SkMatrix*       fMatrix;        // points to either fMatrixStorage or prev MCRec
     SkRasterClip*   fRasterClip;    // points to either fRegionStorage or prev MCRec
@@ -498,7 +497,6 @@ SkBaseDevice* SkCanvas::init(SkBaseDevice* device) {
 
     fMCRec->fLayer = SkNEW_ARGS(DeviceCM, (NULL, 0, 0, NULL, NULL));
     fMCRec->fTopLayer = fMCRec->fLayer;
-    fMCRec->fNext = NULL;
 
     fSurfaceBase = NULL;
 
@@ -742,7 +740,6 @@ int SkCanvas::internalSave(SaveFlags flags) {
     MCRec* newTop = (MCRec*)fMCStack.push_back();
     new (newTop) MCRec(fMCRec, flags);    // balanced in restore()
 
-    newTop->fNext = fMCRec;
     fMCRec = newTop;
 
     if (SkCanvas::kClip_SaveFlag & flags) {
