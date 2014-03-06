@@ -1165,10 +1165,9 @@ void SkCanvas::resetMatrix() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+void SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     this->onClipRect(rect, op, edgeStyle);
-    return !this->isClipEmpty();
 }
 
 void SkCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
@@ -1258,14 +1257,13 @@ static void clip_path_helper(const SkCanvas* canvas, SkRasterClip* currClip,
     }
 }
 
-bool SkCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
+void SkCanvas::clipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA) {
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     if (rrect.isRect()) {
         this->onClipRect(rrect.getBounds(), op, edgeStyle);
     } else {
         this->onClipRRect(rrect, op, edgeStyle);
     }
-    return !this->isClipEmpty();
 }
 
 void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
@@ -1294,7 +1292,7 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle 
     this->SkCanvas::onClipPath(path, op, edgeStyle);
 }
 
-bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+void SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
     SkRect r;
     if (!path.isInverseFillType() && path.isRect(&r)) {
@@ -1302,8 +1300,6 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     } else {
         this->onClipPath(path, op, edgeStyle);
     }
-
-    return !this->isClipEmpty();
 }
 
 void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
@@ -1379,7 +1375,7 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
     clip_path_helper(this, fMCRec->fRasterClip, devPath, op, edgeStyle);
 }
 
-bool SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegion::Op op,
+void SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegion::Op op,
                                                    bool inverseFilled) {
     // This is for updating the clip conservatively using only bounds
     // information.
@@ -1452,13 +1448,10 @@ bool SkCanvas::updateClipConservativelyUsingBounds(const SkRect& bounds, SkRegio
                 SkASSERT(0); // unhandled op?
         }
     }
-
-    return !this->isClipEmpty();
 }
 
-bool SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
+void SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
     this->onClipRegion(rgn, op);
-    return !this->isClipEmpty();
 }
 
 void SkCanvas::onClipRegion(const SkRegion& rgn, SkRegion::Op op) {

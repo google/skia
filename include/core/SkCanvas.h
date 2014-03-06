@@ -423,33 +423,30 @@ public:
      *  @param rect The rect to combine with the current clip
      *  @param op The region op to apply to the current clip
      *  @param doAntiAlias true if the clip should be antialiased
-     *  @return true if the canvas' clip is non-empty
      */
-    virtual bool clipRect(const SkRect& rect,
-                          SkRegion::Op op = SkRegion::kIntersect_Op,
-                          bool doAntiAlias = false);
+    void clipRect(const SkRect& rect,
+                  SkRegion::Op op = SkRegion::kIntersect_Op,
+                  bool doAntiAlias = false);
 
     /**
      *  Modify the current clip with the specified SkRRect.
      *  @param rrect The rrect to combine with the current clip
      *  @param op The region op to apply to the current clip
      *  @param doAntiAlias true if the clip should be antialiased
-     *  @return true if the canvas' clip is non-empty
      */
-    virtual bool clipRRect(const SkRRect& rrect,
-                           SkRegion::Op op = SkRegion::kIntersect_Op,
-                           bool doAntiAlias = false);
+    void clipRRect(const SkRRect& rrect,
+                   SkRegion::Op op = SkRegion::kIntersect_Op,
+                   bool doAntiAlias = false);
 
     /**
      *  Modify the current clip with the specified path.
      *  @param path The path to combine with the current clip
      *  @param op The region op to apply to the current clip
      *  @param doAntiAlias true if the clip should be antialiased
-     *  @return true if the canvas' new clip is non-empty
      */
-    virtual bool clipPath(const SkPath& path,
-                          SkRegion::Op op = SkRegion::kIntersect_Op,
-                          bool doAntiAlias = false);
+    void clipPath(const SkPath& path,
+                  SkRegion::Op op = SkRegion::kIntersect_Op,
+                  bool doAntiAlias = false);
 
     /** EXPERIMENTAL -- only used for testing
         Set to false to force clips to be hard, even if doAntiAlias=true is
@@ -472,10 +469,9 @@ public:
         coordinates, and so no transformation is performed.
         @param deviceRgn    The region to apply to the current clip
         @param op The region op to apply to the current clip
-        @return true if the canvas' new clip is non-empty
     */
-    virtual bool clipRegion(const SkRegion& deviceRgn,
-                            SkRegion::Op op = SkRegion::kIntersect_Op);
+    void clipRegion(const SkRegion& deviceRgn,
+                    SkRegion::Op op = SkRegion::kIntersect_Op);
 
     /** Helper for clipRegion(rgn, kReplace_Op). Sets the current clip to the
         specified region. This does not intersect or in any other way account
@@ -1155,7 +1151,7 @@ protected:
 
     // Called by child classes that override clipPath and clipRRect to only
     // track fast conservative clip bounds, rather than exact clips.
-    bool updateClipConservativelyUsingBounds(const SkRect&, SkRegion::Op,
+    void updateClipConservativelyUsingBounds(const SkRect&, SkRegion::Op,
                                              bool inverseFilled);
 
     // notify our surface (if we have one) that we are about to draw, so it
