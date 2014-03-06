@@ -219,6 +219,7 @@ typedef uint8_t SkBool8;
     SK_API uint32_t    SkToU32(uintmax_t);
     SK_API int         SkToInt(intmax_t);
     SK_API unsigned    SkToUInt(uintmax_t);
+    SK_API size_t      SkToSizeT(uintmax_t);
 #else
     #define SkToS8(x)   ((int8_t)(x))
     #define SkToU8(x)   ((uint8_t)(x))
@@ -228,6 +229,7 @@ typedef uint8_t SkBool8;
     #define SkToU32(x)  ((uint32_t)(x))
     #define SkToInt(x)  ((int)(x))
     #define SkToUInt(x) ((unsigned)(x))
+    #define SkToSizeT(x) ((size_t)(x))
 #endif
 
 /** Returns 0 or 1 based on the condition

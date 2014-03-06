@@ -806,6 +806,7 @@ void SkDebugWStream::newline()
 {
 #if defined(SK_DEBUG) || defined(SK_DEVELOPER)
     SkDebugf("\n");
+    fBytesWritten++;
 #endif
 }
 
@@ -817,6 +818,7 @@ bool SkDebugWStream::write(const void* buffer, size_t size)
     s[size] = 0;
     SkDebugf("%s", s);
     delete[] s;
+    fBytesWritten += size+1;
 #endif
     return true;
 }

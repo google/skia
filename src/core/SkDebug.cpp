@@ -51,4 +51,9 @@ unsigned SkToUInt(uintmax_t x) {
     return (unsigned)x;
 }
 
+size_t SkToSizeT(uintmax_t x) {
+    SkASSERT((size_t)x == x);
+    return (size_t)x;
+}
+
 #endif
