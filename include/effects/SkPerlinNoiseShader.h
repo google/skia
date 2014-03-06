@@ -79,28 +79,28 @@ protected:
 private:
     SkPerlinNoiseShader(SkPerlinNoiseShader::Type type, SkScalar baseFrequencyX,
                         SkScalar baseFrequencyY, int numOctaves, SkScalar seed,
-                        const SkISize* tileSize = NULL);
+                        const SkISize* tileSize);
     virtual ~SkPerlinNoiseShader();
 
-    void setTileSize(const SkISize&);
-
-    void initPaint(PaintingData& paintingData);
-
     SkScalar noise2D(int channel, const PaintingData& paintingData,
-                     const StitchData& stitchData, const SkPoint& noiseVector);
+                     const StitchData& stitchData, const SkPoint& noiseVector) const;
 
     SkScalar calculateTurbulenceValueForPoint(int channel, const PaintingData& paintingData,
-                                              StitchData& stitchData, const SkPoint& point);
+                                              StitchData& stitchData, const SkPoint& point) const;
 
-    SkPMColor shade(const SkPoint& point, StitchData& stitchData);
+    SkPMColor shade(const SkPoint& point, StitchData& stitchData) const;
 
-    SkPerlinNoiseShader::Type fType;
-    SkScalar fBaseFrequencyX;
-    SkScalar fBaseFrequencyY;
-    int fNumOctaves;
-    SkScalar fSeed;
-    SkISize fTileSize;
-    bool fStitchTiles;
+    // TODO (scroggo): Once all SkShaders are created from a factory, and we have removed the
+    // constructor that creates SkPerlinNoiseShader from an SkReadBuffer, several fields can
+    // be made constant.
+    /*const*/ SkPerlinNoiseShader::Type fType;
+    /*const*/ SkScalar                  fBaseFrequencyX;
+    /*const*/ SkScalar                  fBaseFrequencyY;
+    /*const*/ int                       fNumOctaves;
+    /*const*/ SkScalar                  fSeed;
+    /*const*/ SkISize                   fTileSize;
+    /*const*/ bool                      fStitchTiles;
+    // TODO (scroggo): Once setContext creates a new object, place this on that object.
     SkMatrix fMatrix;
 
     PaintingData* fPaintingData;
