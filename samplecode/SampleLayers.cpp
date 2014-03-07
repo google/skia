@@ -204,8 +204,6 @@ protected:
                   SkIntToScalar(220), SkIntToScalar(60));
 
             canvas->saveLayer(&r, &p, (SkCanvas::SaveFlags)(SkCanvas::kHasAlphaLayer_SaveFlag | SkCanvas::kFullColorLayer_SaveFlag));
-//            canvas->clipRect(r, SkRegion::kDifference_Op);
-//            canvas->clipRect(r, SkRegion::kIntersect_Op);
 
             r.set(SkIntToScalar(0), SkIntToScalar(0),
                   SkIntToScalar(220), SkIntToScalar(120));
@@ -215,38 +213,7 @@ protected:
             return;
         }
 
-        //canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         test_fade(canvas);
-        return;
-
-    //    canvas->setDrawFilter(new RedFilter)->unref();
-
-        SkRect  r;
-        SkPaint p;
-
-        canvas->translate(SkIntToScalar(220), SkIntToScalar(20));
-
-        p.setAntiAlias(true);
-        r.set(SkIntToScalar(20), SkIntToScalar(20),
-              SkIntToScalar(220), SkIntToScalar(120));
-
-        p.setColor(SK_ColorBLUE);
-     //   p.setMaskFilter(SkBlurMaskFilter::Create(SkIntToScalar(8), SkBlurMaskFilter::kNormal_BlurStyle))->unref();
-        canvas->drawRect(r, p);
-        p.setMaskFilter(NULL);
-
-        SkRect bounds = r;
-        bounds.fBottom = bounds.centerY();
-        canvas->saveLayer(&bounds, NULL, SkCanvas::kARGB_NoClipLayer_SaveFlag);
-
-        p.setColor(SK_ColorRED);
-        canvas->drawOval(r, p);
-
-        p.setAlpha(0x80);
-        p.setXfermodeMode(SkXfermode::kDstIn_Mode);
-        canvas->drawRect(bounds, p);
-
-        canvas->restore();
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
