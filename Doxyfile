@@ -16,7 +16,7 @@ WARN_IF_UNDOCUMENTED = NO
 
 # This file only creates documentation for the most important parts of the
 # external-visible API.
-INPUT = include/core include/effects
+INPUT = include/core include/effects include/gpu
 EXTRACT_PRIVATE = YES
 EXTRACT_STATIC = YES
 
