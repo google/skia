@@ -9,6 +9,7 @@
 #include "SkPath.h"
 #include "SkStream.h"
 #include "SkReadBuffer.h"
+#include "SkTSearch.h"
 #include "SkWriteBuffer.h"
 #include <new>
 
@@ -47,6 +48,38 @@ int SkPathHeap::append(const SkPath& path) {
     new (p) SkPath(path);
     *fPaths.append() = p;
     return fPaths.count();
+}
+
+SkPathHeap::LookupEntry::LookupEntry(const SkPath& path) 
+    : fGenerationID(path.getGenerationID()), fStorageSlot(0) {
+}
+
+SkPathHeap::LookupEntry* SkPathHeap::addIfNotPresent(const SkPath& path) {
+    LookupEntry searchKey(path);
+    int index = SkTSearch<const LookupEntry, LookupEntry::Less>(
+                                    fLookupTable.begin(),
+                                    fLookupTable.count(),
+                                    searchKey, 
+                                    sizeof(LookupEntry));
+    if (index < 0) {
+        index = ~index;
+        *fLookupTable.insert(index) = LookupEntry(path);
+    }
+
+    return &fLookupTable[index];;
+}
+
+int SkPathHeap::insert(const SkPath& path) {
+    SkPathHeap::LookupEntry* entry = this->addIfNotPresent(path);
+
+    if (entry->storageSlot() > 0) {
+        return entry->storageSlot();
+    }
+
+    int newSlot = this->append(path);
+    SkASSERT(newSlot > 0);
+    entry->setStorageSlot(newSlot);
+    return newSlot;
 }
 
 void SkPathHeap::flatten(SkWriteBuffer& buffer) const {

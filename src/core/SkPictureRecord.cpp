@@ -1672,7 +1672,11 @@ int SkPictureRecord::addPathToHeap(const SkPath& path) {
     if (NULL == fPathHeap) {
         fPathHeap = SkNEW(SkPathHeap);
     }
+#ifdef SK_DEDUP_PICTURE_PATHS
+    return fPathHeap->insert(path);
+#else
     return fPathHeap->append(path);
+#endif
 }
 
 void SkPictureRecord::addPath(const SkPath& path) {

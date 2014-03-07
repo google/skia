@@ -196,13 +196,26 @@ static SkMatrix testMatrix() {
     return matrix;
 }
 const SkMatrix kTestMatrix = testMatrix();
-static SkPath testPath() {
+static SkPath test_path() {
     SkPath path;
     path.addRect(SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0),
                                   SkIntToScalar(2), SkIntToScalar(1)));
     return path;
 }
-const SkPath kTestPath = testPath();
+const SkPath kTestPath = test_path();
+static SkPath test_nearly_zero_length_path() {
+    SkPath path;
+    SkPoint pt1 = { 0, 0 };
+    SkPoint pt2 = { 0, SK_ScalarNearlyZero };
+    SkPoint pt3 = { SkIntToScalar(1), 0 };
+    SkPoint pt4 = { SkIntToScalar(1), SK_ScalarNearlyZero/2 };
+    path.moveTo(pt1);
+    path.lineTo(pt2);
+    path.lineTo(pt3);
+    path.lineTo(pt4);
+    return path;
+}
+const SkPath kNearlyZeroLengthPath = test_nearly_zero_length_path();
 static SkRegion testRegion() {
     SkRegion region;
     SkIRect rect = SkIRect::MakeXYWH(0, 0, 2, 1);
@@ -449,17 +462,7 @@ static void DrawNearlyZeroLengthPathTestStep(SkCanvas* canvas,
     paint.setStrokeWidth(SkIntToScalar(1));
     paint.setStyle(SkPaint::kStroke_Style);
 
-    SkPath path;
-    SkPoint pt1 = { 0, 0 };
-    SkPoint pt2 = { 0, SK_ScalarNearlyZero };
-    SkPoint pt3 = { SkIntToScalar(1), 0 };
-    SkPoint pt4 = { SkIntToScalar(1), SK_ScalarNearlyZero/2 };
-    path.moveTo(pt1);
-    path.lineTo(pt2);
-    path.lineTo(pt3);
-    path.lineTo(pt4);
-
-    canvas->drawPath(path, paint);
+    canvas->drawPath(kNearlyZeroLengthPath, paint);
 }
 TEST_STEP(DrawNearlyZeroLengthPath, DrawNearlyZeroLengthPathTestStep);
 
