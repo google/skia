@@ -76,7 +76,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15305678612987997922
+          15256308173777619343
         ]
       ], 
       "reviewed-by-human": true
@@ -95,6 +95,33 @@
         [
           "bitmap-64bitMD5", 
           5546897073650908874
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "convex_poly_effect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15882849726405746866
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "convex_poly_effect_msaa16.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10421146383563303521
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "convex_poly_effect_nvprmsaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8563391143232887802
         ]
       ], 
       "reviewed-by-human": true
@@ -275,6 +302,51 @@
         [
           "bitmap-64bitMD5", 
           5187364238498305648
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "simpleaaclip_rect_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12156661720748789357
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "simpleaaclip_rect_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12487569532344095714
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "simpleaaclip_rect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          150390458074062736
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "simpleaaclip_rect_msaa16.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16935588680543684757
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "simpleaaclip_rect_nvprmsaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13658232617732440524
         ]
       ], 
       "reviewed-by-human": true

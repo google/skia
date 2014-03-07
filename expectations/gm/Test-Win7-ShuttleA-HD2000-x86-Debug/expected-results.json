@@ -3700,7 +3700,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4772242078776569964
+          16512020621587163973
         ]
       ], 
       "reviewed-by-human": true
@@ -3739,7 +3739,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7240382420614639122
+          8118302295190858846
         ]
       ], 
       "reviewed-by-human": true
@@ -3947,6 +3947,15 @@
         1578
       ], 
       "reviewed-by-human": false
+    }, 
+    "convex_poly_effect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8058150921181773336
+        ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "convexpaths_565.png": {
       "allowed-digests": [
@@ -10180,7 +10189,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11284455358950344063
+          10868077502519846091
         ]
       ], 
       "reviewed-by-human": true

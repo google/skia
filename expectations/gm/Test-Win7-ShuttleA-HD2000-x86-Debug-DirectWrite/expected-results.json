@@ -3966,6 +3966,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "convex_poly_effect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1398072788115366655
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "convexpaths_565.png": {
       "allowed-digests": [
         [

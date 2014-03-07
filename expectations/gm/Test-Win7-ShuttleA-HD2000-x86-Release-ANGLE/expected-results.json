@@ -5199,6 +5199,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "convex_poly_effect_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11623983626852572356
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "convexpaths_565.png": {
       "allowed-digests": [
         [

@@ -43,9 +43,3 @@ bezier_quad_effects
 bezier_conic_effects
 bezier_cubic_effects
 
-# bsalomon: These tests change slightly due to https://codereview.chromium.org/188693008/
-complexclip2_rrect_aa
-complexclip2_rect_aa
-convex_poly_effect
-rrect_effect
-simpleaaclip_rect

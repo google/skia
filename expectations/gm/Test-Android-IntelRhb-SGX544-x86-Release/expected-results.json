@@ -2727,7 +2727,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8388418022298889878
+          16628817470554933537
         ]
       ], 
       "reviewed-by-human": true
@@ -2754,7 +2754,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4834196655046921664
+          12795866211978733736
         ]
       ], 
       "reviewed-by-human": true
@@ -2902,6 +2902,15 @@
         1759
       ], 
       "reviewed-by-human": false
+    }, 
+    "convex_poly_effect_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13562837227301896730
+        ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "convexpaths_565.png": {
       "allowed-digests": [
@@ -5966,7 +5975,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          389258352199308507
+          6917538957159124551
         ]
       ], 
       "reviewed-by-human": true
@@ -5999,7 +6008,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          389258352199308507
+          6917538957159124551
         ]
       ], 
       "reviewed-by-human": true
@@ -6032,7 +6041,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          389258352199308507
+          6917538957159124551
         ]
       ], 
       "reviewed-by-human": true
