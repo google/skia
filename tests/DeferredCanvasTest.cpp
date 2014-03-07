@@ -160,37 +160,11 @@ static void TestDeferredCanvasWritePixelsToSurface(skiatest::Reporter* reporter)
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
     REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
-    surface->clearCounts();
-    canvas->writePixels(srcBitmap, 0, 0);
-#if 0
-    REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
-#endif
-    surface->clearCounts();
-    canvas->flush();
-#if 0
-    REPORTER_ASSERT(reporter, 1 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
-#endif
-
     // Case 3: writePixels that partially covers the canvas
     surface->clearCounts();
     SkAutoTUnref<SkImage> image3(canvas->newImageSnapshot());
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
     REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
-
-    surface->clearCounts();
-    canvas->writePixels(srcBitmap, 5, 0);
-#if 0
-    REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
-#endif
-    surface->clearCounts();
-    canvas->flush();
-#if 0
-    REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
-    REPORTER_ASSERT(reporter, 1 == surface->fRetainCount);
-#endif
 
     // Case 4: unpremultiplied opaque writePixels that entirely
     // covers the canvas
