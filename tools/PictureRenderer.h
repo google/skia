@@ -75,6 +75,7 @@ public:
         kBitmap_DeviceType,
 #if SK_SUPPORT_GPU
         kGPU_DeviceType,
+        kNVPR_DeviceType,
 #endif
     };
 
@@ -176,6 +177,9 @@ public:
             case kGPU_DeviceType:
                 // Already set to GrContextFactory::kNative_GLContextType, above.
                 break;
+            case kNVPR_DeviceType:
+                glContextType = GrContextFactory::kNVPR_GLContextType;
+                break;
 #if SK_ANGLE
             case kAngle_DeviceType:
                 glContextType = GrContextFactory::kANGLE_GLContextType;
@@ -262,6 +266,9 @@ public:
                     config.append("_gpu");
                 }
                 break;
+            case kNVPR_DeviceType:
+                config.appendf("_nvprmsaa%d", fSampleCount);
+                break;
 #if SK_ANGLE
             case kAngle_DeviceType:
                 config.append("_angle");
@@ -285,6 +292,7 @@ public:
     bool isUsingGpuDevice() {
         switch (fDeviceType) {
             case kGPU_DeviceType:
+            case kNVPR_DeviceType:
                 // fall through
 #if SK_ANGLE
             case kAngle_DeviceType:
@@ -305,6 +313,9 @@ public:
         switch(fDeviceType) {
             case kGPU_DeviceType:
                 glContextType = GrContextFactory::kNative_GLContextType;
+                break;
+            case kNVPR_DeviceType:
+                glContextType = GrContextFactory::kNVPR_GLContextType;
                 break;
 #if SK_ANGLE
             case kAngle_DeviceType:

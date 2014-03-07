@@ -26,7 +26,7 @@ DEFINE_string(bbh, "none", "bbhType [width height]: Set the bounding box hierarc
 
 
 #if SK_SUPPORT_GPU
-#define GPU_CONFIG_STRING "|gpu|msaa4|msaa16"
+#define GPU_CONFIG_STRING "|gpu|msaa4|msaa16|nvprmsaa4|nvprmsaa16"
 #else
 #define GPU_CONFIG_STRING ""
 #endif
@@ -283,6 +283,22 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
         }
         else if (0 == strcmp(FLAGS_config[0], "msaa16")) {
             deviceType = sk_tools::PictureRenderer::kGPU_DeviceType;
+            if (FLAGS_multi > 1) {
+                error.printf("GPU not compatible with multithreaded tiling.\n");
+                return NULL;
+            }
+            sampleCount = 16;
+        }
+        else if (0 == strcmp(FLAGS_config[0], "nvprmsaa4")) {
+            deviceType = sk_tools::PictureRenderer::kNVPR_DeviceType;
+            if (FLAGS_multi > 1) {
+                error.printf("GPU not compatible with multithreaded tiling.\n");
+                return NULL;
+            }
+            sampleCount = 4;
+        }
+        else if (0 == strcmp(FLAGS_config[0], "nvprmsaa16")) {
+            deviceType = sk_tools::PictureRenderer::kNVPR_DeviceType;
             if (FLAGS_multi > 1) {
                 error.printf("GPU not compatible with multithreaded tiling.\n");
                 return NULL;

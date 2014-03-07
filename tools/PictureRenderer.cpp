@@ -152,7 +152,8 @@ SkCanvas* PictureRenderer::setupCanvas(int width, int height) {
         case kMesa_DeviceType:
             // fall through
 #endif
-        case kGPU_DeviceType: {
+        case kGPU_DeviceType:
+        case kNVPR_DeviceType: {
             SkAutoTUnref<GrSurface> target;
             if (fGrContext) {
                 // create a render target to back the device
