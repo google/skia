@@ -38,3 +38,6 @@ void S32A_D565_Opaque_SSE2(uint16_t* SK_RESTRICT dst,
 void S32_D565_Opaque_Dither_SSE2(uint16_t* SK_RESTRICT dst,
                                  const SkPMColor* SK_RESTRICT src,
                                  int count, U8CPU alpha, int x, int y);
+void S32A_D565_Opaque_Dither_SSE2(uint16_t* SK_RESTRICT dst,
+                                  const SkPMColor* SK_RESTRICT src,
+                                  int count, U8CPU alpha, int x, int y);

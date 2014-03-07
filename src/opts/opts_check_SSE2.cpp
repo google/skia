@@ -172,7 +172,7 @@ static SkBlitRow::Proc platform_16_procs[] = {
     NULL,                               // S32A_D565_Blend
     S32_D565_Opaque_Dither_SSE2,        // S32_D565_Opaque_Dither
     NULL,                               // S32_D565_Blend_Dither
-    NULL,                               // S32A_D565_Opaque_Dither
+    S32A_D565_Opaque_Dither_SSE2,       // S32A_D565_Opaque_Dither
     NULL,                               // S32A_D565_Blend_Dither
 };
 
