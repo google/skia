@@ -181,7 +181,6 @@
         '<(skia_src_path)/core/SkStrokeRec.cpp',
         '<(skia_src_path)/core/SkStrokerPriv.cpp',
         '<(skia_src_path)/core/SkStrokerPriv.h',
-        '<(skia_src_path)/core/SkTemplatesPriv.h',
         '<(skia_src_path)/core/SkTextFormatParams.h',
         '<(skia_src_path)/core/SkTileGrid.cpp',
         '<(skia_src_path)/core/SkTileGrid.h',

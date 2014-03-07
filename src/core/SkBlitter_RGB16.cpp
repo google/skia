@@ -12,7 +12,6 @@
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkShader.h"
-#include "SkTemplatesPriv.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
@@ -1013,7 +1012,9 @@ void SkRGB16_Shader_Xfermode_Blitter::blitAntiH(int x, int y,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBlitter* SkBlitter_ChooseD565(const SkBitmap& device, const SkPaint& paint,
-                                void* storage, size_t storageSize) {
+        SkTBlitterAllocator* allocator) {
+    SkASSERT(allocator != NULL);
+
     SkBlitter* blitter;
     SkShader* shader = paint.getShader();
     SkXfermode* mode = paint.getXfermode();
@@ -1023,31 +1024,25 @@ SkBlitter* SkBlitter_ChooseD565(const SkBitmap& device, const SkPaint& paint,
 
     if (shader) {
         if (mode) {
-            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader_Xfermode_Blitter,
-                                  storage, storageSize, (device, paint));
+            blitter = allocator->createT<SkRGB16_Shader_Xfermode_Blitter>(device, paint);
         } else if (shader->canCallShadeSpan16()) {
-            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader16_Blitter,
-                                  storage, storageSize, (device, paint));
+            blitter = allocator->createT<SkRGB16_Shader16_Blitter>(device, paint);
         } else {
-            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader_Blitter,
-                                  storage, storageSize, (device, paint));
+            blitter = allocator->createT<SkRGB16_Shader_Blitter>(device, paint);
         }
     } else {
         // no shader, no xfermode, (and we always ignore colorfilter)
         SkColor color = paint.getColor();
         if (0 == SkColorGetA(color)) {
-            SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
+            blitter = allocator->createT<SkNullBlitter>();
 #ifdef USE_BLACK_BLITTER
         } else if (SK_ColorBLACK == color) {
-            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Black_Blitter, storage,
-                                  storageSize, (device, paint));
+            blitter = allocator->createT<SkRGB16_Black_Blitter>(device, paint);
 #endif
         } else if (0xFF == SkColorGetA(color)) {
-            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Opaque_Blitter, storage,
-                                  storageSize, (device, paint));
+            blitter = allocator->createT<SkRGB16_Opaque_Blitter>(device, paint);
         } else {
-            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Blitter, storage,
-                                  storageSize, (device, paint));
+            blitter = allocator->createT<SkRGB16_Blitter>(device, paint);
         }
     }
 

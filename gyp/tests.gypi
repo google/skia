@@ -1,3 +1,4 @@
+# Common gypi for unit tests.
 {
   'include_dirs': [
     '../src/core',
@@ -143,6 +144,7 @@
     '../tests/ShaderImageFilterTest.cpp',
     '../tests/ShaderOpacityTest.cpp',
     '../tests/SkBase64Test.cpp',
+    '../tests/SmallAllocatorTest.cpp',
     '../tests/SortTest.cpp',
     '../tests/SrcOverTest.cpp',
     '../tests/StreamTest.cpp',

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-
+#include "SkSmallAllocator.h"
 #include "SkSpriteBlitter.h"
 
 SkSpriteBlitter::SkSpriteBlitter(const SkBitmap& source)
@@ -49,11 +48,8 @@ void SkSpriteBlitter::blitMask(const SkMask&, const SkIRect& clip) {
 
 // returning null means the caller will call SkBlitter::Choose() and
 // have wrapped the source bitmap inside a shader
-SkBlitter* SkBlitter::ChooseSprite( const SkBitmap& device,
-                                    const SkPaint& paint,
-                                    const SkBitmap& source,
-                                    int left, int top,
-                                    void* storage, size_t storageSize) {
+SkBlitter* SkBlitter::ChooseSprite(const SkBitmap& device, const SkPaint& paint,
+        const SkBitmap& source, int left, int top, SkTBlitterAllocator* allocator) {
     /*  We currently ignore antialiasing and filtertype, meaning we will take our
         special blitters regardless of these settings. Ignoring filtertype seems fine
         since by definition there is no scale in the matrix. Ignoring antialiasing is
@@ -63,17 +59,16 @@ SkBlitter* SkBlitter::ChooseSprite( const SkBitmap& device,
         paint and return null if it is set, forcing the client to take the slow shader case
         (which does respect soft edges).
     */
+    SkASSERT(allocator != NULL);
 
     SkSpriteBlitter* blitter;
 
     switch (device.colorType()) {
         case kRGB_565_SkColorType:
-            blitter = SkSpriteBlitter::ChooseD16(source, paint, storage,
-                                                 storageSize);
+            blitter = SkSpriteBlitter::ChooseD16(source, paint, allocator);
             break;
         case kPMColor_SkColorType:
-            blitter = SkSpriteBlitter::ChooseD32(source, paint, storage,
-                                                 storageSize);
+            blitter = SkSpriteBlitter::ChooseD32(source, paint, allocator);
             break;
         default:
             blitter = NULL;

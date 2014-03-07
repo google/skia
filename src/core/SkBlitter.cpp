@@ -11,16 +11,16 @@
 #include "SkAntiRun.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
+#include "SkCoreBlitters.h"
 #include "SkFilterShader.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkMask.h"
 #include "SkMaskFilter.h"
-#include "SkTemplatesPriv.h"
+#include "SkString.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
-#include "SkString.h"
 
 SkBlitter::~SkBlitter() {}
 
@@ -705,15 +705,10 @@ private:
 
 class Sk3DBlitter : public SkBlitter {
 public:
-    Sk3DBlitter(SkBlitter* proxy, Sk3DShader* shader, void (*killProc)(void*))
-            : fProxy(proxy), f3DShader(shader), fKillProc(killProc) {
-        shader->ref();
-    }
-
-    virtual ~Sk3DBlitter() {
-        f3DShader->unref();
-        fKillProc(fProxy);
-    }
+    Sk3DBlitter(SkBlitter* proxy, Sk3DShader* shader)
+        : fProxy(proxy)
+        , f3DShader(SkRef(shader))
+    {}
 
     virtual void blitH(int x, int y, int width) {
         fProxy->blitH(x, y, width);
@@ -747,49 +742,14 @@ public:
     }
 
 private:
-    SkBlitter*  fProxy;
-    Sk3DShader* f3DShader;
-    void        (*fKillProc)(void*);
+    // fProxy is unowned. It will be deleted by SkSmallAllocator.
+    SkBlitter*               fProxy;
+    SkAutoTUnref<Sk3DShader> f3DShader;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkCoreBlitters.h"
-
-class SkAutoCallProc {
-public:
-    typedef void (*Proc)(void*);
-
-    SkAutoCallProc(void* obj, Proc proc)
-    : fObj(obj), fProc(proc) {}
-
-    ~SkAutoCallProc() {
-        if (fObj && fProc) {
-            fProc(fObj);
-        }
-    }
-
-    void* get() const { return fObj; }
-
-    void* detach() {
-        void* obj = fObj;
-        fObj = NULL;
-        return obj;
-    }
-
-private:
-    void*   fObj;
-    Proc    fProc;
-};
-#define SkAutoCallProc(...) SK_REQUIRE_LOCAL_VAR(SkAutoCallProc)
-
-static void destroy_blitter(void* blitter) {
-    ((SkBlitter*)blitter)->~SkBlitter();
-}
-
-static void delete_blitter(void* blitter) {
-    SkDELETE((SkBlitter*)blitter);
-}
 
 static bool just_solid_color(const SkPaint& paint) {
     if (paint.getAlpha() == 0xFF && paint.getColorFilter() == NULL) {
@@ -852,9 +812,9 @@ static XferInterp interpret_xfermode(const SkPaint& paint, SkXfermode* xfer,
 SkBlitter* SkBlitter::Choose(const SkBitmap& device,
                              const SkMatrix& matrix,
                              const SkPaint& origPaint,
-                             void* storage, size_t storageSize,
+                             SkTBlitterAllocator* allocator,
                              bool drawCoverage) {
-    SkASSERT(storageSize == 0 || storage != NULL);
+    SkASSERT(allocator != NULL);
 
     SkBlitter*  blitter = NULL;
 
@@ -862,7 +822,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     // (e.g. they have a bounder that always aborts the draw)
     if (kUnknown_SkColorType == device.colorType() ||
             (drawCoverage && (kAlpha_8_SkColorType != device.colorType()))) {
-        SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
+        blitter = allocator->createT<SkNullBlitter>();
         return blitter;
     }
 
@@ -887,9 +847,10 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
                 mode = NULL;
                 paint.writable()->setXfermode(NULL);
                 break;
-            case kSkipDrawing_XferInterp:
-                SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
+            case kSkipDrawing_XferInterp:{
+                blitter = allocator->createT<SkNullBlitter>();
                 return blitter;
+            }
             default:
                 break;
         }
@@ -940,7 +901,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
      *  not fail) in its destructor.
      */
     if (shader && !shader->setContext(device, *paint, matrix)) {
-        SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
+        blitter = allocator->createT<SkNullBlitter>();
         return blitter;
     }
 
@@ -950,49 +911,40 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
             if (drawCoverage) {
                 SkASSERT(NULL == shader);
                 SkASSERT(NULL == paint->getXfermode());
-                SK_PLACEMENT_NEW_ARGS(blitter, SkA8_Coverage_Blitter,
-                                      storage, storageSize, (device, *paint));
+                blitter = allocator->createT<SkA8_Coverage_Blitter>(device, *paint);
             } else if (shader) {
-                SK_PLACEMENT_NEW_ARGS(blitter, SkA8_Shader_Blitter,
-                                      storage, storageSize, (device, *paint));
+                blitter = allocator->createT<SkA8_Shader_Blitter>(device, *paint);
             } else {
-                SK_PLACEMENT_NEW_ARGS(blitter, SkA8_Blitter,
-                                      storage, storageSize, (device, *paint));
+                blitter = allocator->createT<SkA8_Blitter>(device, *paint);
             }
             break;
 
         case kRGB_565_SkColorType:
-            blitter = SkBlitter_ChooseD565(device, *paint, storage, storageSize);
+            blitter = SkBlitter_ChooseD565(device, *paint, allocator);
             break;
 
         case kPMColor_SkColorType:
             if (shader) {
-                SK_PLACEMENT_NEW_ARGS(blitter, SkARGB32_Shader_Blitter,
-                                      storage, storageSize, (device, *paint));
+                blitter = allocator->createT<SkARGB32_Shader_Blitter>(device, *paint);
             } else if (paint->getColor() == SK_ColorBLACK) {
-                SK_PLACEMENT_NEW_ARGS(blitter, SkARGB32_Black_Blitter,
-                                      storage, storageSize, (device, *paint));
+                blitter = allocator->createT<SkARGB32_Black_Blitter>(device, *paint);
             } else if (paint->getAlpha() == 0xFF) {
-                SK_PLACEMENT_NEW_ARGS(blitter, SkARGB32_Opaque_Blitter,
-                                      storage, storageSize, (device, *paint));
+                blitter = allocator->createT<SkARGB32_Opaque_Blitter>(device, *paint);
             } else {
-                SK_PLACEMENT_NEW_ARGS(blitter, SkARGB32_Blitter,
-                                      storage, storageSize, (device, *paint));
+                blitter = allocator->createT<SkARGB32_Blitter>(device, *paint);
             }
             break;
 
         default:
             SkDEBUGFAIL("unsupported device config");
-            SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
+            blitter = allocator->createT<SkNullBlitter>();
             break;
     }
 
     if (shader3D) {
-        void (*proc)(void*) = ((void*)storage == (void*)blitter) ? destroy_blitter : delete_blitter;
-        SkAutoCallProc  tmp(blitter, proc);
-
-        blitter = SkNEW_ARGS(Sk3DBlitter, (blitter, shader3D, proc));
-        (void)tmp.detach();
+        SkBlitter* innerBlitter = blitter;
+        // innerBlitter was allocated by allocator, which will delete it.
+        blitter = allocator->createT<Sk3DBlitter>(innerBlitter, shader3D);
     }
     return blitter;
 }

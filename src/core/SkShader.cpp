@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-
+#include "SkBitmapProcShader.h"
+#include "SkReadBuffer.h"
+#include "SkMallocPixelRef.h"
+#include "SkPaint.h"
 #include "SkScalar.h"
 #include "SkShader.h"
-#include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
-#include "SkPaint.h"
-#include "SkMallocPixelRef.h"
 
 SkShader::SkShader() {
     fLocalMatrix.reset();
@@ -176,7 +176,7 @@ GrEffectRef* SkShader::asNewEffect(GrContext*, const SkPaint&) const {
 
 SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
                                        TileMode tmx, TileMode tmy) {
-    return SkShader::CreateBitmapShader(src, tmx, tmy, NULL, 0);
+    return ::CreateBitmapShader(src, tmx, tmy, NULL);
 }
 
 #ifdef SK_DEVELOPER

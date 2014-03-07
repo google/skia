@@ -263,11 +263,10 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkTemplatesPriv.h"
+SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkBitmap& source, const SkPaint& paint,
+        SkTBlitterAllocator* allocator) {
+    SkASSERT(allocator != NULL);
 
-SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkBitmap& source,
-                                            const SkPaint& paint,
-                                            void* storage, size_t storageSize) {
     if (paint.getMaskFilter() != NULL) {
         return NULL;
     }
@@ -283,27 +282,22 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkBitmap& source,
                 return NULL;    // we only have opaque sprites
             }
             if (xfermode || filter) {
-                SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D32_S4444_XferFilter,
-                                      storage, storageSize, (source, paint));
+                blitter = allocator->createT<Sprite_D32_S4444_XferFilter>(source, paint);
             } else if (source.isOpaque()) {
-                SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D32_S4444_Opaque,
-                                      storage, storageSize, (source));
+                blitter = allocator->createT<Sprite_D32_S4444_Opaque>(source);
             } else {
-                SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D32_S4444,
-                                      storage, storageSize, (source));
+                blitter = allocator->createT<Sprite_D32_S4444>(source);
             }
             break;
         case kPMColor_SkColorType:
             if (xfermode || filter) {
                 if (255 == alpha) {
                     // this can handle xfermode or filter, but not alpha
-                    SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D32_S32A_XferFilter,
-                                      storage, storageSize, (source, paint));
+                    blitter = allocator->createT<Sprite_D32_S32A_XferFilter>(source, paint);
                 }
             } else {
                 // this can handle alpha, but not xfermode or filter
-                SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D32_S32,
-                              storage, storageSize, (source, alpha));
+                blitter = allocator->createT<Sprite_D32_S32>(source, alpha);
             }
             break;
         default:

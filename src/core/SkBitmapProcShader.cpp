@@ -294,8 +294,6 @@ static bool canUseColorShader(const SkBitmap& bm, SkColor* color) {
     return false;
 }
 
-#include "SkTemplatesPriv.h"
-
 static bool bitmapIsTooBig(const SkBitmap& bm) {
     // SkBitmapProcShader stores bitmap coordinates in a 16bit buffer, as it
     // communicates between its matrix-proc and its sampler-proc. Until we can
@@ -306,20 +304,29 @@ static bool bitmapIsTooBig(const SkBitmap& bm) {
     return bm.width() > maxSize || bm.height() > maxSize;
 }
 
-SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
-                                       TileMode tmx, TileMode tmy,
-                                       void* storage, size_t storageSize) {
+SkShader* CreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
+        SkShader::TileMode tmy, SkTBlitterAllocator* allocator) {
     SkShader* shader;
     SkColor color;
     if (src.isNull() || bitmapIsTooBig(src)) {
-        SK_PLACEMENT_NEW(shader, SkEmptyShader, storage, storageSize);
+        if (NULL == allocator) {
+            shader = SkNEW(SkEmptyShader);
+        } else {
+            shader = allocator->createT<SkEmptyShader>();
+        }
     }
     else if (canUseColorShader(src, &color)) {
-        SK_PLACEMENT_NEW_ARGS(shader, SkColorShader, storage, storageSize,
-                              (color));
+        if (NULL == allocator) {
+            shader = SkNEW_ARGS(SkColorShader, (color));
+        } else {
+            shader = allocator->createT<SkColorShader>(color);
+        }
     } else {
-        SK_PLACEMENT_NEW_ARGS(shader, SkBitmapProcShader, storage,
-                              storageSize, (src, tmx, tmy));
+        if (NULL == allocator) {
+            shader = SkNEW_ARGS(SkBitmapProcShader, (src, tmx, tmy));
+        } else {
+            shader = allocator->createT<SkBitmapProcShader>(src, tmx, tmy);
+        }
     }
     return shader;
 }

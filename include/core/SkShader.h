@@ -371,10 +371,6 @@ private:
     uint8_t             fTotalInverseClass;
     SkDEBUGCODE(SkBool8 fInSetContext;)
 
-    static SkShader* CreateBitmapShader(const SkBitmap& src,
-                                        TileMode, TileMode,
-                                        void* storage, size_t storageSize);
-    friend class SkAutoBitmapShaderInstall;
     typedef SkFlattenable INHERITED;
 };
 

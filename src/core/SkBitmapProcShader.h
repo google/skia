@@ -12,6 +12,7 @@
 
 #include "SkShader.h"
 #include "SkBitmapProcState.h"
+#include "SkSmallAllocator.h"
 
 class SkBitmapProcShader : public SkShader {
 public:
@@ -47,5 +48,15 @@ protected:
 private:
     typedef SkShader INHERITED;
 };
+
+// Commonly used allocator. It currently is only used to allocate up to 2 objects. The total
+// bytes requested is calculated using one of our large shaders plus the size of an Sk3DBlitter
+// in SkDraw.cpp
+typedef SkSmallAllocator<2, sizeof(SkBitmapProcShader) + sizeof(void*) * 2> SkTBlitterAllocator;
+
+// If alloc is non-NULL, it will be used to allocate the returned SkShader, and MUST outlive
+// the SkShader.
+SkShader* CreateBitmapShader(const SkBitmap& src, SkShader::TileMode, SkShader::TileMode,
+                             SkTBlitterAllocator* alloc);
 
 #endif
