@@ -68,7 +68,7 @@ void SkExampleWindow::tearDownBackend() {
 bool SkExampleWindow::setupBackend(DeviceType type) {
     fType = type;
 
-    this->setConfig(SkBitmap::kARGB_8888_Config);
+    this->setColorType(kRGBA_8888_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
