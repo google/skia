@@ -270,15 +270,9 @@ void SkWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
      *  The distinction is important, since 0-index is 32bits (always), but a
      *  0-functionptr might be 32 or 64 bits.
      */
-
-    SkFlattenable::Factory factory = NULL;
-    if (flattenable) {
-        factory = flattenable->getFactory();
-    }
-    if (NULL == factory) {
+    if (NULL == flattenable) {
         if (this->isValidating()) {
             this->writeString("");
-            SkASSERT(NULL == flattenable); // We shouldn't get in here in this scenario
         } else if (fFactorySet != NULL || fNamedFactorySet != NULL) {
             this->write32(0);
         } else {
@@ -286,6 +280,9 @@ void SkWriteBuffer::writeFlattenable(const SkFlattenable* flattenable) {
         }
         return;
     }
+
+    SkFlattenable::Factory factory = flattenable->getFactory();
+    SkASSERT(factory != NULL);
 
     /*
      *  We can write 1 of 3 versions of the flattenable:
