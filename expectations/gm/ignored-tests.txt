@@ -42,3 +42,9 @@ inverse_paths
 bezier_quad_effects
 bezier_conic_effects
 bezier_cubic_effects
+
+# bsalomon: These tests change slightly due to https://codereview.chromium.org/188693008/
+gpu/complexclip2_rrect_aa
+gpu/complexclip2_rect_aa
+convex_poly_effect
+rrect_effect

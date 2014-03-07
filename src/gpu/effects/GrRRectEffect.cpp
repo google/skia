@@ -67,7 +67,7 @@ const SkScalar RRectEffect::kRadiusMin = 0.5f;
 GrEffectRef* RRectEffect::Create(GrEffectEdgeType edgeType,
                                  RRectType rrType,
                                  const SkRRect& rrect) {
-    SkASSERT(kFillAA_GrEffectEdgeType == edgeType || kInverseFillBW_GrEffectEdgeType == edgeType);
+    SkASSERT(kFillAA_GrEffectEdgeType == edgeType || kInverseFillAA_GrEffectEdgeType == edgeType);
     return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(RRectEffect, (edgeType, rrType, rrect))));
 }
 
@@ -228,7 +228,7 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
             break;
     }
 
-    if (kInverseFillBW_GrEffectEdgeType == rre.getEdgeType()) {
+    if (kInverseFillAA_GrEffectEdgeType == rre.getEdgeType()) {
         builder->fsCodeAppend("\t\talpha = 1.0 - alpha;\n");
     }
 
@@ -293,7 +293,7 @@ void GLRRectEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& 
 //////////////////////////////////////////////////////////////////////////////
 
 GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rrect) {
-    if (kFillAA_GrEffectEdgeType != edgeType && kInverseFillBW_GrEffectEdgeType != edgeType) {
+    if (kFillAA_GrEffectEdgeType != edgeType && kInverseFillAA_GrEffectEdgeType != edgeType) {
         return NULL;
     }
     RRectEffect::RRectType rrtype;

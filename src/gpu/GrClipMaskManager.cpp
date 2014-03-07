@@ -107,6 +107,106 @@ bool GrClipMaskManager::useSWOnlyPath(const ElementList& elements) {
     return false;
 }
 
+bool GrClipMaskManager::installClipEffects(const ElementList& elements,
+                                           GrDrawState::AutoRestoreEffects* are,
+                                           const SkVector& clipToRTOffset,
+                                           const SkRect* drawBounds) {
+
+    GrDrawState* drawState = fGpu->drawState();
+    SkRect boundsInClipSpace;
+    if (NULL != drawBounds) {
+        boundsInClipSpace = *drawBounds;
+        boundsInClipSpace.offset(-clipToRTOffset.fX, -clipToRTOffset.fY);
+    }
+
+    are->set(drawState);
+    GrRenderTarget* rt = drawState->getRenderTarget();
+    ElementList::Iter iter(elements);
+
+    bool setARE = false;
+    bool failed = false;
+
+    while (NULL != iter.get()) {
+        SkRegion::Op op = iter.get()->getOp();
+        bool invert;
+        bool skip = false;
+        switch (op) {
+            case SkRegion::kReplace_Op:
+                SkASSERT(iter.get() == elements.head());
+                // Fallthrough, handled same as intersect.
+            case SkRegion::kIntersect_Op:
+                invert = false;
+                if (NULL != drawBounds && iter.get()->contains(boundsInClipSpace)) {
+                    skip = true;
+                }
+                break;
+            case SkRegion::kDifference_Op:
+                invert = true;
+                // We don't currently have a cheap test for whether a rect is fully outside an
+                // element's primitive, so don't attempt to set skip.
+                break;
+            default:
+                failed = true;
+                break;
+        }
+        if (failed) {
+            break;
+        }
+
+        if (!skip) {
+            GrEffectEdgeType edgeType;
+            if (GR_AA_CLIP && iter.get()->isAA()) {
+                if (rt->isMultisampled()) {
+                    // Coverage based AA clips don't place nicely with MSAA.
+                    failed = true;
+                    break;
+                }
+                edgeType = invert ? kInverseFillAA_GrEffectEdgeType : kFillAA_GrEffectEdgeType;
+            } else {
+                edgeType = invert ? kInverseFillBW_GrEffectEdgeType : kFillBW_GrEffectEdgeType;
+            }
+            SkAutoTUnref<GrEffectRef> effect;
+            switch (iter.get()->getType()) {
+                case SkClipStack::Element::kPath_Type:
+                    effect.reset(GrConvexPolyEffect::Create(edgeType, iter.get()->getPath(),
+                        &clipToRTOffset));
+                    break;
+                case SkClipStack::Element::kRRect_Type: {
+                    SkRRect rrect = iter.get()->getRRect();
+                    rrect.offset(clipToRTOffset.fX, clipToRTOffset.fY);
+                    effect.reset(GrRRectEffect::Create(edgeType, rrect));
+                    break;
+                }
+                case SkClipStack::Element::kRect_Type: {
+                    SkRect rect = iter.get()->getRect();
+                    rect.offset(clipToRTOffset.fX, clipToRTOffset.fY);
+                    effect.reset(GrConvexPolyEffect::Create(edgeType, rect));
+                    break;
+                }
+                default:
+                    break;
+            }
+            if (effect) {
+                if (!setARE) {
+                    are->set(fGpu->drawState());
+                    setARE = true;
+                }
+                fGpu->drawState()->addCoverageEffect(effect);
+            } else {
+                failed = true;
+                break;
+            }
+        }
+        iter.next();
+    }
+
+    if (failed) {
+        are->set(NULL);
+    }
+
+    return !failed;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // sort out what kind of clip mask needs to be created: alpha, stencil,
 // scissor, or entirely software
@@ -156,59 +256,27 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
         return true;
     }
 
-    // If there is only one clip element we check whether the draw's bounds are contained
-    // fully within the clip. If not, we install an effect that handles the clip for some
-    // cases.
-    if (1 == elements.count() && SkRegion::kReplace_Op == elements.tail()->getOp()) {
-        if (NULL != devBounds) {
-            SkRect boundsInClipSpace = *devBounds;
-            boundsInClipSpace.offset(SkIntToScalar(clipDataIn->fOrigin.fX),
-                                     SkIntToScalar(clipDataIn->fOrigin.fY));
-            if (elements.tail()->contains(boundsInClipSpace)) {
-                fGpu->disableScissor();
-                this->setGpuStencil();
-                return true;
-            }
-        }
-        Element::Type type = elements.tail()->getType();
-        bool isAA = GR_AA_CLIP && elements.tail()->isAA();
-        SkAutoTUnref<GrEffectRef> effect;
-        if (SkClipStack::Element::kPath_Type == type) {
-            const SkPath& path = elements.tail()->getPath();
-            if (rt->isMultisampled()) {
-                // A coverage effect for AA clipping won't play nicely with MSAA.
-                if (!isAA) {
-                    SkVector offset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
-                                        SkIntToScalar(-clipDataIn->fOrigin.fY) };
-                    effect.reset(GrConvexPolyEffect::Create(kFillBW_GrEffectEdgeType,
-                                                            path, &offset));
-                }
-            } else {
-                SkVector offset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
+    // An element count of 4 was chosen because of the common pattern in Blink of:
+    //   isect RR
+    //   diff  RR
+    //   isect convex_poly
+    //   isect convex_poly
+    // when drawing rounded div borders. This could probably be tuned based on a
+    // configuration's relative costs of switching RTs to generate a mask vs
+    // longer shaders.
+    if (elements.count() <= 4) {
+        SkVector clipToRTOffset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
                                     SkIntToScalar(-clipDataIn->fOrigin.fY) };
-                GrEffectEdgeType type = isAA ? kFillAA_GrEffectEdgeType : kFillBW_GrEffectEdgeType;
-                effect.reset(GrConvexPolyEffect::Create(type, path, &offset));
-            }
-        } else if (isAA && SkClipStack::Element::kRRect_Type == type && !rt->isMultisampled()) {
-            const SkRRect& rrect = elements.tail()->getRRect();
-            effect.reset(GrRRectEffect::Create(kFillAA_GrEffectEdgeType, rrect));
-        } else if (isAA && SkClipStack::Element::kRect_Type == type && !rt->isMultisampled()) {
-            // We only handle AA/non-MSAA rects here. Coverage effect AA isn't MSAA friendly and
-            // non-AA rect clips are handled by the scissor.
-            SkRect rect = elements.tail()->getRect();
-            SkVector offset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
-                                SkIntToScalar(-clipDataIn->fOrigin.fY) };
-            rect.offset(offset);
-            effect.reset(GrConvexPolyEffect::Create(kFillAA_GrEffectEdgeType, rect));
-            // This should never fail.
-            SkASSERT(effect);
-        }
-        if (effect) {
-            are->set(fGpu->drawState());
-            fGpu->drawState()->addCoverageEffect(effect);
+        if (elements.isEmpty() ||
+            this->installClipEffects(elements, are, clipToRTOffset, devBounds)) {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clipDataIn->fOrigin);
-            fGpu->enableScissor(scissorSpaceIBounds);
+            if (NULL == devBounds ||
+                !SkRect::Make(scissorSpaceIBounds).contains(*devBounds)) {
+                fGpu->enableScissor(scissorSpaceIBounds);
+            } else {
+                fGpu->disableScissor();
+            }
             this->setGpuStencil();
             return true;
         }

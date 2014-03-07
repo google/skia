@@ -105,6 +105,13 @@ private:
 
     GrClipMaskCache fAACache;       // cache for the AA path
 
+    // Attempts to install a series of coverage effects to implement the clip. Return indicates
+    // whether the element list was successfully converted to effects.
+    bool installClipEffects(const GrReducedClip::ElementList&,
+                            GrDrawState::AutoRestoreEffects*,
+                            const SkVector& clipOffset,
+                            const SkRect* devBounds);
+
     // Draws the clip into the stencil buffer
     bool createStencilClipMask(int32_t elementsGenID,
                                GrReducedClip::InitialState initialState,

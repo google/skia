@@ -143,8 +143,8 @@ void GLAARectEffect::emitCode(GrGLShaderBuilder* builder,
         builder->fsCodeAppendf("\t\tfloat alpha = 1.0;\n");
         builder->fsCodeAppendf("\t\talpha *= (%s.x - %s.x) > -0.5 ? 1.0 : 0.0;\n", fragmentPos, rectName);
         builder->fsCodeAppendf("\t\talpha *= (%s.z - %s.x) > -0.5 ? 1.0 : 0.0;\n", rectName, fragmentPos);
-        builder->fsCodeAppendf("\t\talpha *= (%s.y - %s.y) > 0.5 ? 1.0 : 0.0;\n", fragmentPos, rectName);
-        builder->fsCodeAppendf("\t\talpha *= (%s.w - %s.y) > 0.5 ? 1.0 : 0.0;\n", rectName, fragmentPos);
+        builder->fsCodeAppendf("\t\talpha *= (%s.y - %s.y) > -0.5 ? 1.0 : 0.0;\n", fragmentPos, rectName);
+        builder->fsCodeAppendf("\t\talpha *= (%s.w - %s.y) > -0.5 ? 1.0 : 0.0;\n", rectName, fragmentPos);
     }
 
     if (GrEffectEdgeTypeIsInverseFill(aare.getEdgeType())) {
