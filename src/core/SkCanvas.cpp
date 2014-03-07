@@ -696,6 +696,7 @@ bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
 void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y,
                            Config8888 config8888) {
     SkBaseDevice* device = this->getDevice();
@@ -706,6 +707,62 @@ void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y,
             device->writePixels(bitmap, x, y, config8888);
         }
     }
+}
+#endif
+
+bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
+    if (bitmap.getTexture()) {
+        return false;
+    }
+    SkBitmap bm(bitmap);
+    bm.lockPixels();
+    if (bm.getPixels()) {
+        return this->writePixels(bm.info(), bm.getPixels(), bm.rowBytes(), x, y);
+    }
+    return false;
+}
+
+bool SkCanvas::writePixels(const SkImageInfo& origInfo, const void* pixels, size_t rowBytes,
+                           int x, int y) {
+    switch (origInfo.colorType()) {
+        case kUnknown_SkColorType:
+        case kIndex_8_SkColorType:
+            return false;
+        default:
+            break;
+    }
+    if (NULL == pixels || rowBytes < origInfo.minRowBytes()) {
+        return false;
+    }
+
+    const SkISize size = this->getBaseLayerSize();
+    SkIRect target = SkIRect::MakeXYWH(x, y, origInfo.width(), origInfo.height());
+    if (!target.intersect(0, 0, size.width(), size.height())) {
+        return false;
+    }
+
+    SkBaseDevice* device = this->getDevice();
+    if (!device) {
+        return false;
+    }
+
+    SkImageInfo info = origInfo;
+    // the intersect may have shrunk info's logical size
+    info.fWidth = target.width();
+    info.fHeight = target.height();
+
+    // if x or y are negative, then we have to adjust pixels
+    if (x > 0) {
+        x = 0;
+    }
+    if (y > 0) {
+        y = 0;
+    }
+    // here x,y are either 0 or negative
+    pixels = ((const char*)pixels - y * rowBytes - x * info.bytesPerPixel());
+
+    // The device can assert that the requested area is always contained in its bounds
+    return device->writePixelsDirect(info, pixels, rowBytes, target.x(), target.y());
 }
 
 SkCanvas* SkCanvas::canvasForDrawIter() {

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -8,35 +7,35 @@
 
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
-#include "SkConfig8888.h"
 #include "SkString.h"
 
 class WritePixelsBench : public SkBenchmark {
 public:
-    WritePixelsBench(SkCanvas::Config8888 config)
-        : fConfig(config)
-        , fName("writepix") {
-        switch (config) {
-            case SkCanvas::kNative_Premul_Config8888:
-                fName.append("_native_PM");
+    WritePixelsBench(SkColorType ct, SkAlphaType at)
+        : fColorType(ct)
+        , fAlphaType(at)
+        , fName("writepix")
+    {
+        switch (ct) {
+            case kRGBA_8888_SkColorType:
+                fName.append("_RGBA");
                 break;
-            case SkCanvas::kNative_Unpremul_Config8888:
-                fName.append("_native_UPM");
-                break;
-            case SkCanvas::kBGRA_Premul_Config8888:
-                fName.append("_bgra_PM");
-                break;
-            case SkCanvas::kBGRA_Unpremul_Config8888:
-                fName.append("_bgra_UPM");
-                break;
-            case SkCanvas::kRGBA_Premul_Config8888:
-                fName.append("_rgba_PM");
-                break;
-            case SkCanvas::kRGBA_Unpremul_Config8888:
-                fName.append("_rgba_UPM");
+            case kBGRA_8888_SkColorType:
+                fName.append("_BGRA");
                 break;
             default:
-                SK_CRASH();
+                SkASSERT(0);
+                break;
+        }
+        switch (at) {
+            case kPremul_SkAlphaType:
+                fName.append("_PM");
+                break;
+            case kUnpremul_SkAlphaType:
+                fName.append("_UPM");
+                break;
+            default:
+                SkASSERT(0);
                 break;
         }
     }
@@ -52,22 +51,27 @@ protected:
         canvas->clear(0xFFFF0000);
 
         SkBitmap bmp;
-        bmp.setConfig(SkBitmap::kARGB_8888_Config, size.width(), size.height());
+        bmp.allocN32Pixels(size.width(), size.height());
         canvas->readPixels(&bmp, 0, 0);
 
+        SkImageInfo info = bmp.info();
+        info.fColorType = fColorType;
+        info.fAlphaType = fAlphaType;
+    
         for (int loop = 0; loop < loops; ++loop) {
-            canvas->writePixels(bmp, 0, 0, fConfig);
+            canvas->writePixels(info, bmp.getPixels(), bmp.rowBytes(), 0, 0);
         }
     }
 
 private:
-    SkCanvas::Config8888 fConfig;
-    SkString             fName;
+    SkColorType fColorType;
+    SkAlphaType fAlphaType;
+    SkString    fName;
 
     typedef SkBenchmark INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (SkCanvas::kRGBA_Premul_Config8888)); )
-DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (SkCanvas::kRGBA_Unpremul_Config8888)); )
+DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (kRGBA_8888_SkColorType, kPremul_SkAlphaType)); )
+DEF_BENCH( return SkNEW_ARGS(WritePixelsBench, (kRGBA_8888_SkColorType, kUnpremul_SkAlphaType)); )

@@ -20,6 +20,7 @@
         '../bench/SkGMBench.cpp',
         '../bench/SkGMBench.h',
         '../bench/benchmain.cpp',
+        '../tools/sk_tool_utils.cpp',
       ],
       'conditions': [
         ['skia_gpu == 1',
@@ -54,6 +55,7 @@
         'include_dirs': [
         '../src/core',
         '../src/gpu',
+        '../tools',
       ],
       'dependencies': [
         'skia_lib.gyp:skia_lib',

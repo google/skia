@@ -170,3 +170,27 @@ void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     const bool pathIsMutable = true;
     this->drawPath(draw, path, paint, preMatrix, pathIsMutable);
 }
+
+bool SkBaseDevice::writePixelsDirect(const SkImageInfo& info, const void* pixels, size_t rowBytes,
+                                     int x, int y) {
+#ifdef SK_DEBUG
+    SkASSERT(info.width() > 0 && info.height() > 0);
+    SkASSERT(pixels);
+    SkASSERT(rowBytes >= info.minRowBytes());
+    SkASSERT(x >= 0 && y >= 0);
+
+    const SkImageInfo& dstInfo = this->imageInfo();
+    SkASSERT(x + info.width() <= dstInfo.width());
+    SkASSERT(y + info.height() <= dstInfo.height());
+#endif
+    return this->onWritePixels(info, pixels, rowBytes, x, y);
+}
+
+bool SkBaseDevice::onWritePixels(const SkImageInfo&, const void*, size_t, int, int) {
+    return false;
+}
+
+#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
+void SkBaseDevice::writePixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) {}
+#endif
+

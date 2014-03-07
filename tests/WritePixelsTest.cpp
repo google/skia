@@ -11,6 +11,7 @@
 #include "SkMathPriv.h"
 #include "SkRegion.h"
 #include "Test.h"
+#include "sk_tool_utils.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"
@@ -134,16 +135,13 @@ static uint32_t getBitmapColor(int x, int y, int w, SkCanvas::Config8888 config8
 }
 
 static void fillCanvas(SkCanvas* canvas) {
-    static SkBitmap bmp;
+    SkBitmap bmp;
     if (bmp.isNull()) {
         SkDEBUGCODE(bool alloc = ) bmp.allocN32Pixels(DEV_W, DEV_H);
         SkASSERT(alloc);
-        SkAutoLockPixels alp(bmp);
-        intptr_t pixels = reinterpret_cast<intptr_t>(bmp.getPixels());
         for (int y = 0; y < DEV_H; ++y) {
             for (int x = 0; x < DEV_W; ++x) {
-                SkPMColor* pixel = reinterpret_cast<SkPMColor*>(pixels + y * bmp.rowBytes() + x * bmp.bytesPerPixel());
-                *pixel = getCanvasColor(x, y);
+                *bmp.getAddr32(x, y) = getCanvasColor(x, y);
             }
         }
     }
@@ -468,7 +466,12 @@ DEF_GPUTEST(WritePixels, reporter, factory) {
                         SkBitmap bmp;
                         REPORTER_ASSERT(reporter, setupBitmap(&bmp, config8888, rect.width(), rect.height(), SkToBool(tightBmp)));
                         uint32_t idBefore = canvas.getDevice()->accessBitmap(false).getGenerationID();
-                        canvas.writePixels(bmp, rect.fLeft, rect.fTop, config8888);
+
+                        SkColorType ct;
+                        SkAlphaType at;
+                        sk_tool_utils::config8888_to_imagetypes(config8888, &ct, &at);
+                        sk_tool_utils::write_pixels(&canvas, bmp, rect.fLeft, rect.fTop, ct, at);
+
                         uint32_t idAfter = canvas.getDevice()->accessBitmap(false).getGenerationID();
                         REPORTER_ASSERT(reporter, checkWrite(reporter, &canvas, bmp, rect.fLeft, rect.fTop, config8888));
 

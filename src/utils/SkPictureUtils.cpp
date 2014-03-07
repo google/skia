@@ -85,10 +85,13 @@ public:
     virtual void clear(SkColor color) SK_OVERRIDE {
         nothing_to_do();
     }
+
+#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
     virtual void writePixels(const SkBitmap& bitmap, int x, int y,
                              SkCanvas::Config8888 config8888) SK_OVERRIDE {
         not_supported();
     }
+#endif
 
     virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE {
         this->addBitmapFromPaint(paint);

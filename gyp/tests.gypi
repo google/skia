@@ -179,5 +179,7 @@
 
     '../tests/TDStackNesterTest.cpp',
     '../experimental/PdfViewer/src/SkTDStackNester.h',
+
+    '../tools/sk_tool_utils.cpp',
   ],
 }

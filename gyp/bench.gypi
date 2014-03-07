@@ -3,6 +3,7 @@
     '../src/core',
     '../src/effects',
     '../src/utils',
+    '../tools',
   ],
   'dependencies': [
     'skia_lib.gyp:skia_lib',

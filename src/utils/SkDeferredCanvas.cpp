@@ -30,8 +30,7 @@ enum PlaybackMode {
     kSilent_PlaybackMode,
 };
 
-namespace {
-bool shouldDrawImmediately(const SkBitmap* bitmap, const SkPaint* paint,
+static bool shouldDrawImmediately(const SkBitmap* bitmap, const SkPaint* paint,
                            size_t bitmapSizeThreshold) {
     if (bitmap && ((bitmap->getTexture() && !bitmap->isImmutable()) ||
         (bitmap->getSize() > bitmapSizeThreshold))) {
@@ -53,7 +52,6 @@ bool shouldDrawImmediately(const SkBitmap* bitmap, const SkPaint* paint,
         }
     }
     return false;
-}
 }
 
 //-----------------------------------------------------------------------------
@@ -170,9 +168,10 @@ public:
 
     virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
 
+#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
     virtual void writePixels(const SkBitmap& bitmap, int x, int y,
                                 SkCanvas::Config8888 config8888) SK_OVERRIDE;
-
+#endif
     virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
 
 protected:
@@ -180,6 +179,7 @@ protected:
     virtual bool onReadPixels(const SkBitmap& bitmap,
                                 int x, int y,
                                 SkCanvas::Config8888 config8888) SK_OVERRIDE;
+    virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int x, int y) SK_OVERRIDE;
 
     // The following methods are no-ops on a deferred device
     virtual bool filterTextFlags(const SkPaint& paint, TextFlags*) SK_OVERRIDE {
@@ -478,8 +478,9 @@ void DeferredDevice::prepareForImmediatePixelWrite() {
     fImmediateCanvas->flush();
 }
 
-void DeferredDevice::writePixels(const SkBitmap& bitmap,
-    int x, int y, SkCanvas::Config8888 config8888) {
+#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
+void DeferredDevice::writePixels(const SkBitmap& bitmap, int x, int y,
+                                 SkCanvas::Config8888 config8888) {
 
     if (x <= 0 && y <= 0 && (x + bitmap.width()) >= width() &&
         (y + bitmap.height()) >= height()) {
@@ -505,6 +506,24 @@ void DeferredDevice::writePixels(const SkBitmap& bitmap,
         this->recordedDrawCommand();
 
     }
+}
+#endif
+
+bool DeferredDevice::onWritePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
+                                   int x, int y) {
+    SkASSERT(x >= 0 && y >= 0);
+    SkASSERT(x + info.width() <= width());
+    SkASSERT(y + info.height() <= height());
+
+    this->flushPendingCommands(kNormal_PlaybackMode);
+
+    const SkImageInfo deviceInfo = this->imageInfo();
+    if (info.width() == deviceInfo.width() && info.height() == deviceInfo.height()) {
+        this->skipPendingCommands();
+    }
+    
+    this->prepareForImmediatePixelWrite();
+    return immediateDevice()->onWritePixels(info, pixels, rowBytes, x, y);
 }
 
 const SkBitmap& DeferredDevice::onAccessBitmap() {

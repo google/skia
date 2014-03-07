@@ -86,6 +86,7 @@ public:
 
     virtual SkImageInfo imageInfo() const SK_OVERRIDE;
 
+#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
     /**
      *  DEPRECATED: This will be made protected once WebKit stops using it.
      *              Instead use Canvas' writePixels method.
@@ -103,7 +104,7 @@ public:
      */
     virtual void writePixels(const SkBitmap& bitmap, int x, int y,
                              SkCanvas::Config8888 config8888) SK_OVERRIDE;
-
+#endif
     /**
      * Return the device's associated gpu render target, or NULL.
      */
@@ -215,9 +216,8 @@ protected:
      *  3. The rectangle (x, y, x + bitmap->width(), y + bitmap->height()) is
      *     contained in the device bounds.
      */
-    virtual bool onReadPixels(const SkBitmap& bitmap,
-                              int x, int y,
-                              SkCanvas::Config8888 config8888) SK_OVERRIDE;
+    virtual bool onReadPixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) SK_OVERRIDE;
+    virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) SK_OVERRIDE;
 
     /** Called when this device is installed into a Canvas. Balanced by a call
         to unlockPixels() when the device is removed from a Canvas.

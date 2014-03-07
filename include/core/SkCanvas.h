@@ -18,6 +18,8 @@
 #include "SkRegion.h"
 #include "SkXfermode.h"
 
+//#define SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
+
 class SkBounder;
 class SkBaseDevice;
 class SkDraw;
@@ -264,7 +266,9 @@ public:
      */
     bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
 
+#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
     /**
+     *  DEPRECATED
      *  Similar to draw sprite, this method will copy the pixels in bitmap onto
      *  the canvas, with the top/left corner specified by (x, y). The canvas'
      *  pixel values are completely replaced: there is no blending.
@@ -279,9 +283,34 @@ public:
      *  Note: If you are recording drawing commands on this canvas to
      *  SkPicture, writePixels() is ignored!
      */
-    void writePixels(const SkBitmap& bitmap,
-                     int x, int y,
-                     Config8888 config8888 = kNative_Premul_Config8888);
+    void writePixels(const SkBitmap& bitmap, int x, int y, Config8888 config8888);
+#endif
+
+    /**
+     *  This method affects the pixels in the base-layer, and operates in pixel coordinates,
+     *  ignoring the matrix and clip.
+     *
+     *  The specified ImageInfo and (x,y) offset specifies a rectangle: target.
+     *
+     *      target.setXYWH(x, y, info.width(), info.height());
+     *
+     *  Target is intersected with the bounds of the base-layer. If this intersection is not empty,
+     *  then we have two sets of pixels (of equal size), the "src" specified by info+pixels+rowBytes
+     *  and the "dst" by the canvas' backend. Replace the dst pixels with the corresponding src
+     *  pixels, performing any colortype/alphatype transformations needed (in the case where the
+     *  src and dst have different colortypes or alphatypes).
+     *
+     *  This call can fail, returning false, for several reasons:
+     *  - If the src colortype/alphatype cannot be converted to the canvas' types
+     *  - If this canvas is not backed by pixels (e.g. picture or PDF)
+     */
+    bool writePixels(const SkImageInfo&, const void* pixels, size_t rowBytes, int x, int y);
+
+    /**
+     *  Helper for calling writePixels(info, ...) by passing its pixels and rowbytes. If the bitmap
+     *  is just wrapping a texture, returns false and does nothing.
+     */
+    bool writePixels(const SkBitmap& bitmap, int x, int y);
 
     ///////////////////////////////////////////////////////////////////////////
 

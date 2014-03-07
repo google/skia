@@ -403,6 +403,7 @@ bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap,
                                             flags);
 }
 
+#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
 void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
                               SkCanvas::Config8888 config8888) {
     SkAutoLockPixels alp(bitmap);
@@ -421,6 +422,26 @@ void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
 
     fRenderTarget->writePixels(x, y, bitmap.width(), bitmap.height(),
                                config, bitmap.getPixels(), bitmap.rowBytes(), flags);
+}
+#endif
+
+bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
+                                int x, int y) {
+    // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType());
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+    uint32_t flags = 0;
+    if (kUnpremul_SkAlphaType == info.alphaType()) {
+        flags = GrContext::kUnpremul_PixelOpsFlag;
+    }
+    fRenderTarget->writePixels(x, y, info.width(), info.height(), config, pixels, rowBytes, flags);
+
+    // need to bump our genID for compatibility with clients that "know" we have a bitmap
+    this->onAccessBitmap().notifyPixelsChanged();
+
+    return true;
 }
 
 void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {

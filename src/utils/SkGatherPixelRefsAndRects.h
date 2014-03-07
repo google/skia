@@ -49,10 +49,12 @@ public:
         return fEmptyBitmap.info();
     }
 
+#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
     virtual void writePixels(const SkBitmap& bitmap, int x, int y,
                              SkCanvas::Config8888 config8888) SK_OVERRIDE {
         NotSupported();
     }
+#endif
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE { return NULL; }
 
 protected:

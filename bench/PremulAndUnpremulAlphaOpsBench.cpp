@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2013 Google Inc.
  *
@@ -10,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkConfig8888.h"
 #include "SkString.h"
+#include "sk_tool_utils.h"
 
 class PremulAndUnpremulAlphaOpsBench : public SkBenchmark {
 public:
@@ -45,9 +45,16 @@ protected:
         bmp2.setConfig(SkBitmap::kARGB_8888_Config, size.width(),
                        size.height());
 
+        SkColorType ct;
+        SkAlphaType at;
+        sk_tool_utils::config8888_to_imagetypes(fUnPremulConfig, &ct, &at);
+        if (bmp1.isOpaque()) {
+            at = kOpaque_SkAlphaType;
+        }
+
         for (int loop = 0; loop < loops; ++loop) {
             // Unpremul -> Premul
-            canvas->writePixels(bmp1, 0, 0, fUnPremulConfig);
+            sk_tool_utils::write_pixels(canvas, bmp1, 0, 0, ct, at);
             // Premul -> Unpremul
             canvas->readPixels(&bmp2, 0, 0, fUnPremulConfig);
         }

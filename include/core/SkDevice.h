@@ -116,6 +116,7 @@ public:
     */
     const SkBitmap& accessBitmap(bool changePixels);
 
+#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
     /**
      *  DEPRECATED: This will be made protected once WebKit stops using it.
      *              Instead use Canvas' writePixels method.
@@ -132,7 +133,10 @@ public:
      *  not kARGB_8888_Config then this parameter is ignored.
      */
     virtual void writePixels(const SkBitmap& bitmap, int x, int y,
-                             SkCanvas::Config8888 config8888 = SkCanvas::kNative_Premul_Config8888) = 0;
+                             SkCanvas::Config8888 config8888 = SkCanvas::kNative_Premul_Config8888);
+#endif
+
+    bool writePixelsDirect(const SkImageInfo&, const void*, size_t rowBytes, int x, int y);
 
     /**
      * Return the device's associated gpu render target, or NULL.
@@ -386,6 +390,14 @@ protected:
 
     // default impl returns NULL
     virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes);
+
+    /**
+     *  The caller is responsible for "pre-clipping" the src. The impl can assume that the src
+     *  image at the specified x,y offset will fit within the device's bounds.
+     *
+     *  This is explicitly asserted in writePixelsDirect(), the public way to call this.
+     */
+    virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int x, int y);
 
     /**
      *  Leaky properties are those which the device should be applying but it isn't.
