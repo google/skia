@@ -530,12 +530,10 @@ bool SkDashPathEffect::asPoints(PointData* results,
 }
 
 SkFlattenable::Factory SkDashPathEffect::getFactory() const {
-    return fInitialDashLength < 0 ? NULL : CreateProc;
+    return CreateProc;
 }
 
 void SkDashPathEffect::flatten(SkWriteBuffer& buffer) const {
-    SkASSERT(fInitialDashLength >= 0);
-
     this->INHERITED::flatten(buffer);
     buffer.writeInt(fInitialDashIndex);
     buffer.writeScalar(fInitialDashLength);
