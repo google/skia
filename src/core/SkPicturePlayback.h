@@ -31,6 +31,7 @@ class SkStream;
 class SkWStream;
 class SkBBoxHierarchy;
 class SkPictureStateTree;
+class SkOffsetTable;
 
 struct SkPictInfo {
     enum Flags {
@@ -106,6 +107,8 @@ protected:
     virtual bool preDraw(int opIndex, int type);
     virtual void postDraw(int opIndex);
 #endif
+
+    void preLoadBitmaps(const SkTDArray<void*>& results);
 
 private:
     class TextContainer {
@@ -225,6 +228,7 @@ private:
     SkTRefArray<SkPaint>* fPaints;
 
     SkData* fOpData;    // opcodes and parameters
+    SkAutoTUnref<SkOffsetTable> fBitmapUseOffsets;
 
     SkPicture** fPictureRefs;
     int fPictureCount;

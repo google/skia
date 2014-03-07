@@ -19,8 +19,9 @@
 #include "SkTemplates.h"
 #include "SkWriter32.h"
 
-class SkPictureStateTree;
 class SkBBoxHierarchy;
+class SkOffsetTable;
+class SkPictureStateTree;
 
 // These macros help with packing and unpacking a single byte value and
 // a 3 byte value into/out of a uint32_t
@@ -164,7 +165,9 @@ private:
         fWriter.writeScalar(scalar);
     }
 
-    void addBitmap(const SkBitmap& bitmap);
+    // The command at 'offset' in the skp uses the specified bitmap
+    void trackBitmapUse(int bitmapID, size_t offset);
+    int addBitmap(const SkBitmap& bitmap);
     void addMatrix(const SkMatrix& matrix);
     const SkFlatData* addPaint(const SkPaint& paint) { return this->addPaintPtr(&paint); }
     const SkFlatData* addPaintPtr(const SkPaint* paint);
@@ -293,6 +296,8 @@ private:
     uint32_t fRecordFlags;
     bool     fOptsEnabled;
     int      fInitialSaveCount;
+
+    SkAutoTUnref<SkOffsetTable> fBitmapUseOffsets;
 
     friend class SkPicturePlayback;
     friend class SkPictureTester; // for unit testing
