@@ -44,10 +44,10 @@ public:
     }
 
     int numIDs() const {
-        return fOffsetArrays.count(); 
+        return fOffsetArrays.count();
     }
 
-    // Do the offsets of any commands referencing this ID fall in the 
+    // Do the offsets of any commands referencing this ID fall in the
     // range [min, max] (both inclusive)
     bool overlap(int id, size_t min, size_t max) {
         SkASSERT(id < fOffsetArrays.count());
@@ -87,17 +87,17 @@ public:
 protected:
     class OffsetArray {
     public:
-        void add(size_t offset) { 
+        void add(size_t offset) {
             SkASSERT(fOffsets.count() == 0 || offset > this->max());
-            *fOffsets.append() = offset;  
+            *fOffsets.append() = offset;
         }
-        size_t min() const { 
+        size_t min() const {
             SkASSERT(fOffsets.count() > 0);
-            return fOffsets[0]; 
+            return fOffsets[0];
         }
-        size_t max() const { 
+        size_t max() const {
             SkASSERT(fOffsets.count() > 0);
-            return fOffsets[fOffsets.count()-1]; 
+            return fOffsets[fOffsets.count()-1];
         }
         int count() const {
             return fOffsets.count();

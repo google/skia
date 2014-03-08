@@ -193,4 +193,3 @@ bool SkBaseDevice::onWritePixels(const SkImageInfo&, const void*, size_t, int, i
 #ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
 void SkBaseDevice::writePixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) {}
 #endif
-

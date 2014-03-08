@@ -521,7 +521,7 @@ bool DeferredDevice::onWritePixels(const SkImageInfo& info, const void* pixels, 
     if (info.width() == deviceInfo.width() && info.height() == deviceInfo.height()) {
         this->skipPendingCommands();
     }
-    
+
     this->prepareForImmediatePixelWrite();
     return immediateDevice()->onWritePixels(info, pixels, rowBytes, x, y);
 }

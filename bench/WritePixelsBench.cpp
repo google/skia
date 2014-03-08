@@ -57,7 +57,7 @@ protected:
         SkImageInfo info = bmp.info();
         info.fColorType = fColorType;
         info.fAlphaType = fAlphaType;
-    
+
         for (int loop = 0; loop < loops; ++loop) {
             canvas->writePixels(info, bmp.getPixels(), bmp.rowBytes(), 0, 0);
         }

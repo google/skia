@@ -50,7 +50,7 @@ int SkPathHeap::append(const SkPath& path) {
     return fPaths.count();
 }
 
-SkPathHeap::LookupEntry::LookupEntry(const SkPath& path) 
+SkPathHeap::LookupEntry::LookupEntry(const SkPath& path)
     : fGenerationID(path.getGenerationID()), fStorageSlot(0) {
 }
 
@@ -59,7 +59,7 @@ SkPathHeap::LookupEntry* SkPathHeap::addIfNotPresent(const SkPath& path) {
     int index = SkTSearch<const LookupEntry, LookupEntry::Less>(
                                     fLookupTable.begin(),
                                     fLookupTable.count(),
-                                    searchKey, 
+                                    searchKey,
                                     sizeof(LookupEntry));
     if (index < 0) {
         index = ~index;

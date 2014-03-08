@@ -63,7 +63,7 @@ private:
     private:
         uint32_t fGenerationID;     // the SkPath's generation ID
         // the path's index in the heap + 1. It is 0 if the path is not yet in the heap.
-        int      fStorageSlot;      
+        int      fStorageSlot;
     };
 
     SkTDArray<LookupEntry> fLookupTable;

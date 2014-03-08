@@ -106,7 +106,7 @@ DEF_GPUTEST(PremulAlphaRoundTrip, reporter, factory) {
 
             for (size_t upmaIdx = 0; upmaIdx < SK_ARRAY_COUNT(gUnpremul); ++upmaIdx) {
                 fillCanvas(&canvas, gUnpremul[upmaIdx].fColorType, gUnpremul[upmaIdx].fPackProc);
-                
+
                 readBmp1.eraseColor(0);
                 readBmp2.eraseColor(0);
 

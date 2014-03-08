@@ -37,11 +37,11 @@ void write_pixels(SkCanvas* canvas, const SkBitmap& bitmap, int x, int y,
                   SkColorType colorType, SkAlphaType alphaType) {
     SkBitmap tmp(bitmap);
     tmp.lockPixels();
-    
+
     SkImageInfo info = tmp.info();
     info.fColorType = colorType;
     info.fAlphaType = alphaType;
-    
+
     canvas->writePixels(info, tmp.getPixels(), tmp.rowBytes(), x, y);
 }
 
