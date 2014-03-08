@@ -328,7 +328,9 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         canvas->restore();
     }
     fMatrix = canvas->getTotalMatrix();
-    fClip = canvas->getTotalClip().getBounds();
+    if (!canvas->getClipDeviceBounds(&fClip)) {
+        fClip.setEmpty();
+    }
     fIndex = index;
 }
 

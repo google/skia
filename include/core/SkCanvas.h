@@ -19,6 +19,8 @@
 #include "SkXfermode.h"
 
 //#define SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
+//#define SK_SUPPORT_LEGACY_GETCLIPTYPE
+//#define SK_SUPPORT_LEGACY_GETTOTALCLIP
 
 class SkBounder;
 class SkBaseDevice;
@@ -1057,29 +1059,38 @@ public:
      */
     virtual bool isClipEmpty() const;
 
+    /**
+     *  Returns true if the current clip is just a (non-empty) rectangle.
+     *  Returns false if the clip is empty, or if it is complex.
+     */
+    virtual bool isClipRect() const;
+
     /** Return the current matrix on the canvas.
         This does not account for the translate in any of the devices.
         @return The current matrix on the canvas.
     */
     const SkMatrix& getTotalMatrix() const;
 
+#ifdef SK_SUPPORT_LEGACY_GETCLIPTYPE
     enum ClipType {
         kEmpty_ClipType = 0,
         kRect_ClipType,
         kComplex_ClipType
     };
-
     /** Returns a description of the total clip; may be cheaper than
         getting the clip and querying it directly.
     */
     virtual ClipType getClipType() const;
+#endif
 
+#ifdef SK_SUPPORT_LEGACY_GETTOTALCLIP
     /** DEPRECATED -- need to move this guy to private/friend
      *  Return the current device clip (concatenation of all clip calls).
      *  This does not account for the translate in any of the devices.
      *  @return the current device clip (concatenation of all clip calls).
      */
     const SkRegion& getTotalClip() const;
+#endif
 
     /** Return the clip stack. The clip stack stores all the individual
      *  clips organized by the save/restore frame in which they were
@@ -1144,6 +1155,11 @@ public:
         SkPaint           fDefaultPaint;
         bool              fDone;
     };
+
+    // don't call
+    const SkRegion& internal_private_getTotalClip() const;
+    // don't call
+    void internal_private_getTotalClipAsPath(SkPath*) const;
 
 protected:
     // default impl defers to getDevice()->newSurface(info)

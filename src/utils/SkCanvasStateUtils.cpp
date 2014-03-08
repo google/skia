@@ -194,7 +194,8 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
     SkAutoTDelete<SkCanvasState> canvasState(SkNEW_ARGS(SkCanvasState, (canvas)));
 
     // decompose the total matrix and clip
-    setup_MC_state(&canvasState->mcState, canvas->getTotalMatrix(), canvas->getTotalClip());
+    setup_MC_state(&canvasState->mcState, canvas->getTotalMatrix(),
+                   canvas->internal_private_getTotalClip());
 
     /*
      * decompose the layers

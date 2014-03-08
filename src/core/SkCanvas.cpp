@@ -1526,7 +1526,7 @@ void SkCanvas::validateClip() const {
     // construct clipRgn from the clipstack
     const SkBaseDevice* device = this->getDevice();
     if (!device) {
-        SkASSERT(this->getTotalClip().isEmpty());
+        SkASSERT(this->isClipEmpty());
         return;
     }
 
@@ -1553,12 +1553,6 @@ void SkCanvas::validateClip() const {
             }
         }
     }
-
-#if 0   // enable this locally for testing
-    // now compare against the current rgn
-    const SkRegion& rgn = this->getTotalClip();
-    SkASSERT(rgn == tmpClip);
-#endif
 }
 #endif
 
@@ -1589,6 +1583,10 @@ void SkCanvas::replayClips(ClipVisitor* visitor) const {
 
 bool SkCanvas::isClipEmpty() const {
     return fMCRec->fRasterClip->isEmpty();
+}
+
+bool SkCanvas::isClipRect() const {
+    return fMCRec->fRasterClip->isRect();
 }
 
 bool SkCanvas::quickReject(const SkRect& rect) const {
@@ -1671,6 +1669,7 @@ const SkMatrix& SkCanvas::getTotalMatrix() const {
     return *fMCRec->fMatrix;
 }
 
+#ifdef SK_SUPPORT_LEGACY_GETCLIPTYPE
 SkCanvas::ClipType SkCanvas::getClipType() const {
     if (fMCRec->fRasterClip->isEmpty()) {
         return kEmpty_ClipType;
@@ -1680,9 +1679,26 @@ SkCanvas::ClipType SkCanvas::getClipType() const {
     }
     return kComplex_ClipType;
 }
+#endif
 
+#ifdef SK_SUPPORT_LEGACY_GETTOTALCLIP
 const SkRegion& SkCanvas::getTotalClip() const {
     return fMCRec->fRasterClip->forceGetBW();
+}
+#endif
+
+const SkRegion& SkCanvas::internal_private_getTotalClip() const {
+    return fMCRec->fRasterClip->forceGetBW();
+}
+
+void SkCanvas::internal_private_getTotalClipAsPath(SkPath* path) const {
+    path->reset();
+
+    const SkRegion& rgn = fMCRec->fRasterClip->forceGetBW();
+    if (rgn.isEmpty()) {
+        return;
+    }
+    (void)rgn.getBoundaryPath(path);
 }
 
 SkBaseDevice* SkCanvas::createLayerDevice(const SkImageInfo& info) {
