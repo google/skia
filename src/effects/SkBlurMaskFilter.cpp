@@ -69,6 +69,8 @@ protected:
 
     bool filterRectMask(SkMask* dstM, const SkRect& r, const SkMatrix& matrix,
                         SkIPoint* margin, SkMask::CreateMode createMode) const;
+    bool filterRRectMask(SkMask* dstM, const SkRRect& r, const SkMatrix& matrix,
+                        SkIPoint* margin, SkMask::CreateMode createMode) const;
 
 private:
     // To avoid unseemly allocation requests (esp. for finite platforms like
@@ -168,6 +170,15 @@ bool SkBlurMaskFilterImpl::filterRectMask(SkMask* dst, const SkRect& r,
                                 margin, createMode);
 }
 
+bool SkBlurMaskFilterImpl::filterRRectMask(SkMask* dst, const SkRRect& r,
+                                          const SkMatrix& matrix,
+                                          SkIPoint* margin, SkMask::CreateMode createMode) const{
+    SkScalar sigma = computeXformedSigma(matrix);
+
+    return SkBlurMask::BlurRRect(sigma, dst, r, (SkBlurMask::Style)fBlurStyle,
+                                margin, createMode);
+}
+
 #include "SkCanvas.h"
 
 static bool prepare_to_draw_into_mask(const SkRect& bounds, SkMask* mask) {
@@ -244,6 +255,12 @@ static bool rect_exceeds(const SkRect& r, SkScalar v) {
            r.width() > v || r.height() > v;
 }
 
+#ifdef SK_IGNORE_FAST_RRECT_BLUR
+SK_CONF_DECLARE( bool, c_analyticBlurRRect, "mask.filter.blur.analyticRRect", false, "Use the faster analytic blur approach for ninepatch rects" );
+#else
+SK_CONF_DECLARE( bool, c_analyticBlurRRect, "mask.filter.blur.analyticRRect", true, "Use the faster analytic blur approach for ninepatch round rects" );
+#endif
+
 SkMaskFilter::FilterReturn
 SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& matrix,
                                         const SkIRect& clipBounds,
@@ -293,7 +310,19 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     srcM.fFormat = SkMask::kA8_Format;
     srcM.fRowBytes = 0;
 
-    if (!this->filterMask(&dstM, srcM, matrix, &margin)) {
+    bool filterResult = false;
+    if (c_analyticBlurRRect) {
+        // special case for fast round rect blur
+        // don't actually do the blur the first time, just compute the correct size
+        filterResult = this->filterRRectMask(&dstM, rrect, matrix, &margin,
+                                            SkMask::kJustComputeBounds_CreateMode);
+    }
+
+    if (!filterResult) {
+        filterResult = this->filterMask(&dstM, srcM, matrix, &margin);
+    }
+
+    if (!filterResult) {
         return kFalse_FilterReturn;
     }
 
@@ -337,14 +366,23 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     radii[SkRRect::kLowerLeft_Corner] = LL;
     smallRR.setRectRadii(smallR, radii);
 
-    if (!draw_rrect_into_mask(smallRR, &srcM)) {
-        return kFalse_FilterReturn;
+    bool analyticBlurWorked = false;
+    if (c_analyticBlurRRect) {
+        analyticBlurWorked =
+            this->filterRRectMask(&patch->fMask, smallRR, matrix, &margin,
+                                  SkMask::kComputeBoundsAndRenderImage_CreateMode);
     }
 
-    SkAutoMaskFreeImage amf(srcM.fImage);
+    if (!analyticBlurWorked) {
+        if (!draw_rrect_into_mask(smallRR, &srcM)) {
+            return kFalse_FilterReturn;
+        }
 
-    if (!this->filterMask(&patch->fMask, srcM, matrix, &margin)) {
-        return kFalse_FilterReturn;
+        SkAutoMaskFreeImage amf(srcM.fImage);
+
+        if (!this->filterMask(&patch->fMask, srcM, matrix, &margin)) {
+            return kFalse_FilterReturn;
+        }
     }
 
     patch->fMask.fBounds.offsetTo(0, 0);

@@ -475,14 +475,6 @@ void SkMask_FreeImage(uint8_t* image) {
     SkMask::FreeImage(image);
 }
 
-bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
-                      SkScalar radius, Style style, Quality quality,
-                      SkIPoint* margin) {
-    return SkBlurMask::BoxBlur(dst, src,
-                               SkBlurMask::ConvertRadiusToSigma(radius),
-                               style, quality, margin);
-}
-
 bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
                          SkScalar sigma, Style style, Quality quality,
                          SkIPoint* margin) {
@@ -741,14 +733,6 @@ void SkBlurMask::ComputeBlurredScanline(uint8_t *pixels, const uint8_t *profile,
     }
 }
 
-bool SkBlurMask::BlurRect(SkMask *dst, const SkRect &src,
-                          SkScalar radius, Style style,
-                          SkIPoint *margin, SkMask::CreateMode createMode) {
-    return SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(radius),
-                                dst, src,
-                                style, margin, createMode);
-}
-
 bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
                           const SkRect &src, Style style,
                           SkIPoint *margin, SkMask::CreateMode createMode) {
@@ -850,10 +834,15 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMask *dst,
     return true;
 }
 
-bool SkBlurMask::BlurGroundTruth(SkMask* dst, const SkMask& src, SkScalar radius,
-                                 Style style, SkIPoint* margin) {
-    return BlurGroundTruth(ConvertRadiusToSigma(radius), dst, src, style, margin);
+bool SkBlurMask::BlurRRect(SkScalar sigma, SkMask *dst,
+                           const SkRRect &src, Style style,
+                           SkIPoint *margin, SkMask::CreateMode createMode) {
+    // Temporary for now -- always fail, should cause caller to fall back
+    // to old path.  Plumbing just to land API and parallelize effort.
+
+    return false;
 }
+
 // The "simple" blur is a direct implementation of separable convolution with a discrete
 // gaussian kernel.  It's "ground truth" in a sense; too slow to be used, but very
 // useful for correctness comparisons.

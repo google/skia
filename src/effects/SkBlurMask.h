@@ -12,6 +12,7 @@
 
 #include "SkShader.h"
 #include "SkMask.h"
+#include "SkRRect.h"
 
 class SkBlurMask {
 public:
@@ -34,6 +35,11 @@ public:
                          SkIPoint *margin = NULL,
                          SkMask::CreateMode createMode =
                                                 SkMask::kComputeBoundsAndRenderImage_CreateMode);
+    static bool BlurRRect(SkScalar sigma, SkMask *dst, const SkRRect &src,
+                         Style style,
+                         SkIPoint *margin = NULL,
+                         SkMask::CreateMode createMode =
+                                                SkMask::kComputeBoundsAndRenderImage_CreateMode);
     static bool BoxBlur(SkMask* dst, const SkMask& src,
                         SkScalar sigma, Style style, Quality quality,
                         SkIPoint* margin = NULL);
@@ -42,23 +48,6 @@ public:
     // but useful for comparison purposes.
     static bool BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
                                 Style style,
-                                SkIPoint* margin = NULL);
-
-    SK_ATTR_DEPRECATED("use sigma version")
-    static bool BlurRect(SkMask *dst, const SkRect &src,
-                         SkScalar radius, Style style,
-                         SkIPoint *margin = NULL,
-                         SkMask::CreateMode createMode =
-                                                SkMask::kComputeBoundsAndRenderImage_CreateMode);
-
-    SK_ATTR_DEPRECATED("use sigma version")
-    static bool Blur(SkMask* dst, const SkMask& src,
-                     SkScalar radius, Style style, Quality quality,
-                     SkIPoint* margin = NULL);
-
-    SK_ATTR_DEPRECATED("use sigma version")
-    static bool BlurGroundTruth(SkMask* dst, const SkMask& src,
-                                SkScalar radius, Style style,
                                 SkIPoint* margin = NULL);
 
     static SkScalar ConvertRadiusToSigma(SkScalar radius);
