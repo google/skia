@@ -1703,6 +1703,23 @@ bool GrContext::isConfigRenderable(GrPixelConfig config, bool withMSAA) const {
     return fGpu->caps()->isConfigRenderable(config, withMSAA);
 }
 
+int GrContext::getRecommendedSampleCount(GrPixelConfig config,
+                                         SkScalar dpi) const {
+    if (!this->isConfigRenderable(config, true)) {
+        return 0;
+    }
+    int chosenSampleCount = 0;
+    if (fGpu->caps()->pathRenderingSupport()) {
+        if (dpi >= 250.0f) {
+            chosenSampleCount = 4;
+        } else {
+            chosenSampleCount = 16;
+        }
+    }
+    return chosenSampleCount <= fGpu->caps()->maxSampleCount() ?
+        chosenSampleCount : 0;
+}
+
 void GrContext::setupDrawBuffer() {
     SkASSERT(NULL == fDrawBuffer);
     SkASSERT(NULL == fDrawBufferVBAllocPool);

@@ -306,6 +306,19 @@ public:
      */
     int getMaxSampleCount() const;
 
+    /**
+     * Returns the recommended sample count for a render target when using this
+     * context.
+     *
+     * @param  config the configuration of the render target.
+     * @param  dpi the display density in dots per inch.
+     *
+     * @return sample count that should be perform well and have good enough
+     *         rendering quality for the display. Alternatively returns 0 if
+     *         MSAA is not supported or recommended to be used by default.
+     */
+    int getRecommendedSampleCount(GrPixelConfig config, SkScalar dpi) const;
+
     ///////////////////////////////////////////////////////////////////////////
     // Backend Surfaces
 
