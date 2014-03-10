@@ -18,6 +18,10 @@
 #include "SkRegion.h"
 #include "SkXfermode.h"
 
+// if not defined, we always assume ClipToLayer for saveLayer()
+//#define SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+
+
 //#define SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
 //#define SK_SUPPORT_LEGACY_GETCLIPTYPE
 //#define SK_SUPPORT_LEGACY_GETTOTALCLIP
@@ -325,12 +329,18 @@ public:
         kHasAlphaLayer_SaveFlag     = 0x04,
         /** the layer needs to support 8-bits per color component */
         kFullColorLayer_SaveFlag    = 0x08,
-        /** the layer should clip against the bounds argument */
+        /**
+         *  the layer should clip against the bounds argument
+         *
+         *  if SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG is undefined, this is treated as always on.
+         */
         kClipToLayer_SaveFlag       = 0x10,
 
         // helper masks for common choices
         kMatrixClip_SaveFlag        = 0x03,
+#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
         kARGB_NoClipLayer_SaveFlag  = 0x0F,
+#endif
         kARGB_ClipLayer_SaveFlag    = 0x1F
     };
 

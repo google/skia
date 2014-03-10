@@ -812,7 +812,11 @@ int SkCanvas::save(SaveFlags flags) {
 }
 
 static bool bounds_affects_clip(SkCanvas::SaveFlags flags) {
+#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     return (flags & SkCanvas::kClipToLayer_SaveFlag) != 0;
+#else
+    return true;
+#endif
 }
 
 bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
@@ -872,6 +876,10 @@ static SkBaseDevice* createCompatibleDevice(SkCanvas* canvas,
 
 int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
                                 SaveFlags flags, bool justForImageFilter) {
+#ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
+    flags = (SaveFlags)(flags | kClipToLayer_SaveFlag);
+#endif
+
     // do this before we create the layer. We don't call the public save() since
     // that would invoke a possibly overridden virtual
     int count = this->internalSave(flags);

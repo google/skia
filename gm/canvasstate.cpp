@@ -132,6 +132,7 @@ protected:
         // clear the canvas to red
         canvas->drawColor(SK_ColorRED);
 
+#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
         // both rects should appear
         drawTestPattern(canvas, 255, SkCanvas::kARGB_NoClipLayer_SaveFlag);
 
@@ -144,6 +145,7 @@ protected:
 
         // only the bottom rect should appear
         drawTestPattern(canvas, 0, SkCanvas::kARGB_NoClipLayer_SaveFlag);
+#endif
     }
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipGPU_Flag; }

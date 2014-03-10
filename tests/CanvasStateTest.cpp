@@ -16,6 +16,7 @@
 #include "Test.h"
 
 static void test_complex_layers(skiatest::Reporter* reporter) {
+#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     const int WIDTH = 400;
     const int HEIGHT = 400;
     const int SPACER = 10;
@@ -87,12 +88,13 @@ static void test_complex_layers(skiatest::Reporter* reporter) {
                                           bitmaps[1].getPixels(),
                                           bitmaps[0].getSize()));
     }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 static void test_complex_clips(skiatest::Reporter* reporter) {
-
+#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     const int WIDTH = 400;
     const int HEIGHT = 400;
     const int SPACER = 10;
@@ -175,6 +177,7 @@ static void test_complex_clips(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !memcmp(bitmaps[0].getPixels(),
                                       bitmaps[1].getPixels(),
                                       bitmaps[0].getSize()));
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -229,6 +232,7 @@ static void test_soft_clips(skiatest::Reporter* reporter) {
 }
 
 static void test_saveLayer_clip(skiatest::Reporter* reporter) {
+#ifdef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     const int WIDTH = 100;
     const int HEIGHT = 100;
     const int LAYER_WIDTH = 50;
@@ -259,6 +263,7 @@ static void test_saveLayer_clip(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, clipStackBounds.height() == LAYER_HEIGHT);
 
     canvas.restore();
+#endif
 }
 
 DEF_TEST(CanvasState, reporter) {
