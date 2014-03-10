@@ -75,14 +75,20 @@ Loader.controller(
       function(data, status, header, config) {
         var dataHeader = data[constants.KEY__HEADER];
         if (dataHeader[constants.KEY__HEADER__IS_STILL_LOADING]) {
+          // Apply the server's requested reload delay to local time,
+          // so we will wait the right number of seconds regardless of clock
+          // skew between client and server.
+          var reloadDelayInSeconds =
+              dataHeader[constants.KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE] -
+              dataHeader[constants.KEY__HEADER__TIME_UPDATED];
+          var timeNow = new Date().getTime();
+          var timeToReload = timeNow + reloadDelayInSeconds * 1000;
           $scope.loadingMessage =
               "Server is still loading results; will retry at " +
-              $scope.localTimeString(dataHeader[
-                  constants.KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE]);
+              $scope.localTimeString(timeToReload / 1000);
           $timeout(
               function(){location.reload();},
-              (dataHeader[constants.KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE]
-               * 1000) - new Date().getTime());
+              timeToReload - timeNow);
         } else {
           $scope.loadingMessage = "Processing data, please wait...";
 
