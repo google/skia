@@ -43,7 +43,6 @@ import svn
 import imagepairset
 import results
 
-ACTUALS_SVN_REPO = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 PATHSPLIT_RE = re.compile('/([^/]+)/(.+)')
 EXPECTATIONS_DIR = os.path.join(TRUNK_DIRECTORY, 'expectations', 'gm')
 GENERATED_IMAGES_ROOT = os.path.join(PARENT_DIRECTORY, 'static',
@@ -75,6 +74,8 @@ KEY__HEADER__TIME_UPDATED = 'timeUpdated'
 KEY__HEADER__TYPE = 'type'
 
 DEFAULT_ACTUALS_DIR = '.gm-actuals'
+DEFAULT_ACTUALS_REPO_REVISION = 'HEAD'
+DEFAULT_ACTUALS_REPO_URL = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 DEFAULT_PORT = 8888
 
 # How often (in seconds) clients should reload while waiting for initial
@@ -143,12 +144,16 @@ class Server(object):
 
   def __init__(self,
                actuals_dir=DEFAULT_ACTUALS_DIR,
+               actuals_repo_revision=DEFAULT_ACTUALS_REPO_REVISION,
+               actuals_repo_url=DEFAULT_ACTUALS_REPO_URL,
                port=DEFAULT_PORT, export=False, editable=True,
                reload_seconds=0):
     """
     Args:
       actuals_dir: directory under which we will check out the latest actual
                    GM results
+      actuals_repo_revision: revision of actual-results.json files to process
+      actuals_repo_url: SVN repo to download actual-results.json files from
       port: which TCP port to listen on for HTTP requests
       export: whether to allow HTTP clients on other hosts to access this server
       editable: whether HTTP clients are allowed to submit new baselines
@@ -156,12 +161,14 @@ class Server(object):
                       if 0, don't check for new results at all
     """
     self._actuals_dir = actuals_dir
+    self._actuals_repo_revision = actuals_repo_revision
+    self._actuals_repo_url = actuals_repo_url
     self._port = port
     self._export = export
     self._editable = editable
     self._reload_seconds = reload_seconds
     self._actuals_repo = _create_svn_checkout(
-        dir_path=actuals_dir, repo_url=ACTUALS_SVN_REPO)
+        dir_path=actuals_dir, repo_url=actuals_repo_url)
 
     # Reentrant lock that must be held whenever updating EITHER of:
     # 1. self._results
@@ -209,9 +216,11 @@ class Server(object):
     with self.results_rlock:
       if invalidate:
         self._results = None
-      logging.info('Updating actual GM results in %s from SVN repo %s ...' % (
-          self._actuals_dir, ACTUALS_SVN_REPO))
-      self._actuals_repo.Update('.')
+      logging.info(
+          'Updating actual GM results in %s to revision %s from repo %s ...' % (
+              self._actuals_dir, self._actuals_repo_revision,
+              self._actuals_repo_url))
+      self._actuals_repo.Update(path='.', revision=self._actuals_repo_revision)
 
       # We only update the expectations dir if the server was run with a
       # nonzero --reload argument; otherwise, we expect the user to maintain
@@ -331,8 +340,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
           KEY__HEADER: {
               KEY__HEADER__IS_STILL_LOADING: True,
               KEY__HEADER__TIME_UPDATED: now,
-              KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE:
-                  now + RELOAD_INTERVAL_UNTIL_READY,
+              KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: (
+                  now + RELOAD_INTERVAL_UNTIL_READY),
           },
       }
     self.send_json_dict(response_dict)
@@ -532,6 +541,16 @@ def main():
                           'actual GM results. If this directory does not '
                           'exist, it will be created. Defaults to %(default)s'),
                     default=DEFAULT_ACTUALS_DIR)
+  parser.add_argument('--actuals-repo',
+                    help=('URL of SVN repo to download actual-results.json '
+                          'files from. Defaults to %(default)s'),
+                    default=DEFAULT_ACTUALS_REPO_URL)
+  parser.add_argument('--actuals-revision',
+                    help=('revision of actual-results.json files to process. '
+                          'Defaults to %(default)s .  Beware of setting this '
+                          'argument in conjunction with --editable; you '
+                          'probably only want to edit results at HEAD.'),
+                    default=DEFAULT_ACTUALS_REPO_REVISION)
   parser.add_argument('--editable', action='store_true',
                       help=('Allow HTTP clients to submit new baselines.'))
   parser.add_argument('--export', action='store_true',
@@ -555,6 +574,8 @@ def main():
   args = parser.parse_args()
   global _SERVER
   _SERVER = Server(actuals_dir=args.actuals_dir,
+                   actuals_repo_revision=args.actuals_revision,
+                   actuals_repo_url=args.actuals_repo,
                    port=args.port, export=args.export, editable=args.editable,
                    reload_seconds=args.reload)
   _SERVER.run()

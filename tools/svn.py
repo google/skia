@@ -95,14 +95,15 @@ class Svn:
         """
         return self._RunCommand([SVN, 'checkout', url, path])
 
-    def Update(self, path):
+    def Update(self, path, revision='HEAD'):
         """Update the working copy.
         Returns stdout as a single string.
 
         @param path path (within self._directory) within which to run
-        "svn update"
+          "svn update"
+        @param revision revision to update to
         """
-        return self._RunCommand([SVN, 'update', path])
+        return self._RunCommand([SVN, 'update', path, '--revision', revision])
 
     def ListSubdirs(self, url):
         """Returns a list of all subdirectories (not files) within a given SVN
