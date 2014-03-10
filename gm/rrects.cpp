@@ -65,7 +65,6 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        int numRRects = kNumRRects;
 #if SK_SUPPORT_GPU
         SkBaseDevice* device = canvas->getTopDevice();
         GrContext* context = NULL;
@@ -76,9 +75,6 @@ protected:
         if (kEffect_Type == fType && NULL == context) {
             return;
         }
-        if (kEffect_Type == fType) {
-            numRRects *= kGrEffectEdgeTypeCnt;
-        }
 #endif
 
         SkPaint paint;
@@ -86,17 +82,26 @@ protected:
             paint.setAntiAlias(true);
         }
 
-        static const SkRect kMaxTileBound = SkRect::MakeWH(SkIntToScalar(kTileX), SkIntToScalar(kTileY));
+        static const SkRect kMaxTileBound = SkRect::MakeWH(SkIntToScalar(kTileX),
+                                                           SkIntToScalar(kTileY));
+#ifdef SK_DEBUG
+        static const SkRect kMaxImageBound = SkRect::MakeWH(SkIntToScalar(kImageWidth),
+                                                            SkIntToScalar(kImageHeight));
+#endif
 
-        int curRRect = 0;
-        for (int y = 1; y < kImageHeight; y += kTileY) {
-            for (int x = 1; x < kImageWidth; x += kTileX) {
-                if (curRRect >= numRRects) {
-                    break;
-                }
-                int rrectIdx = curRRect % kNumRRects;
-                SkASSERT(kMaxTileBound.contains(fRRects[rrectIdx].getBounds()));
+        int lastEdgeType = (kEffect_Type == fType) ? kLast_GrEffectEdgeType: 0;
 
+        int y = 1;
+        for (int et = (GrEffectEdgeType) 0; et <= lastEdgeType; ++et) {
+            int x = 1;
+            for (int curRRect = 0; curRRect < kNumRRects; ++curRRect) {
+                bool drew = true;
+#ifdef SK_DEBUG
+                SkASSERT(kMaxTileBound.contains(fRRects[curRRect].getBounds()));
+                SkRect imageSpaceBounds = fRRects[curRRect].getBounds();
+                imageSpaceBounds.offset(SkIntToScalar(x), SkIntToScalar(y));
+                SkASSERT(kMaxImageBound.contains(imageSpaceBounds));
+#endif
                 canvas->save();
                     canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
                     if (kEffect_Type == fType) {
@@ -109,9 +114,9 @@ protected:
                         }
                         GrDrawState* drawState = tt.target()->drawState();
 
-                        SkRRect rrect = fRRects[rrectIdx];
+                        SkRRect rrect = fRRects[curRRect];
                         rrect.offset(SkIntToScalar(x), SkIntToScalar(y));
-                        GrEffectEdgeType edgeType = (GrEffectEdgeType) (curRRect / kNumRRects);
+                        GrEffectEdgeType edgeType = (GrEffectEdgeType) et;
                         SkAutoTUnref<GrEffectRef> effect(GrRRectEffect::Create(edgeType, rrect));
                         if (effect) {
                             drawState->addCoverageEffect(effect);
@@ -123,17 +128,28 @@ protected:
                             bounds.outset(2.f, 2.f);
 
                             tt.target()->drawSimpleRect(bounds);
+                        } else {
+                            drew = false;
                         }
 #endif
                     } else if (kBW_Clip_Type == fType || kAA_Clip_Type == fType) {
                         bool aaClip = (kAA_Clip_Type == fType);
-                        canvas->clipRRect(fRRects[rrectIdx], SkRegion::kReplace_Op, aaClip);
+                        canvas->clipRRect(fRRects[curRRect], SkRegion::kReplace_Op, aaClip);
                         canvas->drawRect(kMaxTileBound, paint);
                     } else {
-                        canvas->drawRRect(fRRects[rrectIdx], paint);
+                        canvas->drawRRect(fRRects[curRRect], paint);
                     }
-                    ++curRRect;
                 canvas->restore();
+                if (drew) {
+                    x = x + kTileX;
+                    if (x > kImageWidth) {
+                        x = 1;
+                        y += kTileY;
+                    }
+                }
+            }
+            if (x != 1) {
+                y += kTileY;
             }
         }
     }

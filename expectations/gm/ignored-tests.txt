@@ -37,9 +37,12 @@
 # http://skbug.com/2222 : Inverse filled paths get inverse stroked
 inverse_paths
 
+# bsalomon: The rrects that can be drawn by effects are now tightly packed in the GM image.
+# https://codereview.chromium.org/190953008
+rrect_effect
+
 # bsalomon: the order in which the edge types draw has changed.
 # https://codereview.chromium.org/183893023
 bezier_quad_effects
 bezier_conic_effects
 bezier_cubic_effects
-
