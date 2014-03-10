@@ -54,9 +54,9 @@ protected:
             SkRect srcRect = SkRect::MakeXYWH(20, 20, 30, 30);
             SkRect emptyRect = SkRect::MakeXYWH(20, 20, 0, 0);
             SkRect bounds = SkRect::MakeXYWH(0, 0, 100, 100);
-            SkAutoTUnref<SkImageFilter> pictureSource(new SkPictureImageFilter(&fPicture));
-            SkAutoTUnref<SkImageFilter> pictureSourceSrcRect(new SkPictureImageFilter(&fPicture, srcRect));
-            SkAutoTUnref<SkImageFilter> pictureSourceEmptyRect(new SkPictureImageFilter(&fPicture, emptyRect));
+            SkAutoTUnref<SkImageFilter> pictureSource(SkPictureImageFilter::Create(&fPicture));
+            SkAutoTUnref<SkImageFilter> pictureSourceSrcRect(SkPictureImageFilter::Create(&fPicture, srcRect));
+            SkAutoTUnref<SkImageFilter> pictureSourceEmptyRect(SkPictureImageFilter::Create(&fPicture, emptyRect));
 
             // Draw the picture unscaled.
             fillRectFiltered(canvas, bounds, pictureSource);

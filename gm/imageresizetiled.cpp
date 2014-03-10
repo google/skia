@@ -37,7 +37,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         SkAutoTUnref<SkImageFilter> imageFilter(
-            new SkResizeImageFilter(RESIZE_FACTOR, RESIZE_FACTOR, SkPaint::kNone_FilterLevel));
+            SkResizeImageFilter::Create(RESIZE_FACTOR, RESIZE_FACTOR, SkPaint::kNone_FilterLevel));
         paint.setImageFilter(imageFilter.get());
         const SkScalar tile_size = SkIntToScalar(100);
         SkRect bounds;

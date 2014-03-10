@@ -21,10 +21,13 @@ class SK_API SkXfermodeImageFilter : public SkImageFilter {
       */
 
 public:
-    SkXfermodeImageFilter(SkXfermode* mode, SkImageFilter* background,
-                          SkImageFilter* foreground = NULL, const CropRect* cropRect = NULL);
-
     virtual ~SkXfermodeImageFilter();
+
+    static SkXfermodeImageFilter* Create(SkXfermode* mode, SkImageFilter* background,
+                                         SkImageFilter* foreground = NULL,
+                                         const CropRect* cropRect = NULL) {
+        return SkNEW_ARGS(SkXfermodeImageFilter, (mode, background, foreground, cropRect));
+    }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkXfermodeImageFilter)
 
@@ -42,6 +45,12 @@ public:
 protected:
     explicit SkXfermodeImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+
+#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
+public:
+#endif
+    SkXfermodeImageFilter(SkXfermode* mode, SkImageFilter* background,
+                          SkImageFilter* foreground = NULL, const CropRect* cropRect = NULL);
 
 private:
     SkXfermode* fMode;

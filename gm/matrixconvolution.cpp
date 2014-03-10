@@ -57,15 +57,15 @@ protected:
         SkScalar gain = 0.3f, bias = SkIntToScalar(100);
         SkPaint paint;
         SkAutoTUnref<SkImageFilter> filter(
-            SkNEW_ARGS(SkMatrixConvolutionImageFilter, (kernelSize,
-                                                        kernel,
-                                                        gain,
-                                                        bias,
-                                                        target,
-                                                        tileMode,
-                                                        convolveAlpha,
-                                                        NULL,
-                                                        cropRect)));
+            SkMatrixConvolutionImageFilter::Create(kernelSize,
+                                                   kernel,
+                                                   gain,
+                                                   bias,
+                                                   target,
+                                                   tileMode,
+                                                   convolveAlpha,
+                                                   NULL,
+                                                   cropRect));
         paint.setImageFilter(filter);
         canvas->save();
         canvas->translate(SkIntToScalar(x), SkIntToScalar(y));

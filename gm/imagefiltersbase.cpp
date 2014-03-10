@@ -18,10 +18,13 @@
 
 class FailImageFilter : public SkImageFilter {
 public:
-    FailImageFilter() : INHERITED(0) {}
+    static FailImageFilter* Create() {
+        return SkNEW(FailImageFilter);
+    }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(FailImageFilter)
 protected:
+    FailImageFilter() : INHERITED(0) {}
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) const {
         return false;
@@ -41,10 +44,13 @@ static SkFlattenable::Registrar gFailImageFilterReg("FailImageFilter",
 
 class IdentityImageFilter : public SkImageFilter {
 public:
-    IdentityImageFilter() : INHERITED(0) {}
+    static IdentityImageFilter* Create() {
+        return SkNEW(IdentityImageFilter);
+    }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(IdentityImageFilter)
 protected:
+    IdentityImageFilter() : INHERITED(0) {}
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* offset) const {
         *result = src;
@@ -188,11 +194,11 @@ protected:
                                                      SkXfermode::kSrcIn_Mode);
         SkImageFilter* filters[] = {
             NULL,
-            new IdentityImageFilter,
-            new FailImageFilter,
+            IdentityImageFilter::Create(),
+            FailImageFilter::Create(),
             SkColorFilterImageFilter::Create(cf),
-            new SkBlurImageFilter(12.0f, 0.0f),
-            new SkDropShadowImageFilter(10.0f, 5.0f, 3.0f, SK_ColorBLUE),
+            SkBlurImageFilter::Create(12.0f, 0.0f),
+            SkDropShadowImageFilter::Create(10.0f, 5.0f, 3.0f, SK_ColorBLUE),
         };
         cf->unref();
 

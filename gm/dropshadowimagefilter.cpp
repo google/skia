@@ -133,12 +133,12 @@ protected:
 
         SkImageFilter* filters[] = {
             NULL,
-            new SkDropShadowImageFilter(7.0f, 0.0f, 0.0f, 3.0f, SK_ColorBLUE),
-            new SkDropShadowImageFilter(0.0f, 7.0f, 3.0f, 0.0f, SK_ColorBLUE),
-            new SkDropShadowImageFilter(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE),
-            new SkDropShadowImageFilter(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, cfif),
-            new SkDropShadowImageFilter(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, NULL, &cropRect),
-            new SkDropShadowImageFilter(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, NULL, &bogusRect),
+            SkDropShadowImageFilter::Create(7.0f, 0.0f, 0.0f, 3.0f, SK_ColorBLUE),
+            SkDropShadowImageFilter::Create(0.0f, 7.0f, 3.0f, 0.0f, SK_ColorBLUE),
+            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE),
+            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, cfif),
+            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, NULL, &cropRect),
+            SkDropShadowImageFilter::Create(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, NULL, &bogusRect),
         };
 
         SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));

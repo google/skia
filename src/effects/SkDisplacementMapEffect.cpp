@@ -19,6 +19,8 @@
 
 namespace {
 
+#define kChannelSelectorKeyBits 3; // Max value is 4, so 3 bits are required at most
+
 template<SkDisplacementMapEffect::ChannelSelectorType type>
 uint32_t getValue(SkColor, const SkUnPreMultiply::Scale*) {
     SkDEBUGFAIL("Unknown channel selector");
@@ -602,7 +604,7 @@ GrGLEffect::EffectKey GrGLDisplacementMapEffect::GenKey(const GrDrawEffect& draw
         drawEffect.castEffect<GrDisplacementMapEffect>();
 
     EffectKey xKey = displacementMap.xChannelSelector();
-    EffectKey yKey = displacementMap.yChannelSelector() << SkDisplacementMapEffect::kKeyBits;
+    EffectKey yKey = displacementMap.yChannelSelector() << kChannelSelectorKeyBits;
 
     return xKey | yKey;
 }

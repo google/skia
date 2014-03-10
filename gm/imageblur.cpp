@@ -33,7 +33,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        paint.setImageFilter(new SkBlurImageFilter(fSigmaX, fSigmaY))->unref();
+        paint.setImageFilter(SkBlurImageFilter::Create(fSigmaX, fSigmaY))->unref();
         canvas->saveLayer(NULL, &paint);
         const char* str = "The quick brown fox jumped over the lazy dog.";
 

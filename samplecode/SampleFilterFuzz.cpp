@@ -226,7 +226,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         filter = SkBicubicImageFilter::CreateMitchell(SkSize::Make(1, 1), make_image_filter());
         break;
     case MERGE:
-        filter = new SkMergeImageFilter(make_image_filter(), make_image_filter(), make_xfermode());
+        filter = SkMergeImageFilter::Create(make_image_filter(), make_image_filter(), make_xfermode());
         break;
     case COLOR:
     {
@@ -237,22 +237,22 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
     }
         break;
     case BLUR:
-        filter = new SkBlurImageFilter(make_scalar(true), make_scalar(true), make_image_filter());
+        filter = SkBlurImageFilter::Create(make_scalar(true), make_scalar(true), make_image_filter());
         break;
     case MAGNIFIER:
-        filter = new SkMagnifierImageFilter(make_rect(), make_scalar(true));
+        filter = SkMagnifierImageFilter::Create(make_rect(), make_scalar(true));
         break;
     case XFERMODE:
     {
         SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(make_xfermode()));
-        filter = new SkXfermodeImageFilter(mode, make_image_filter(), make_image_filter());
+        filter = SkXfermodeImageFilter::Create(mode, make_image_filter(), make_image_filter());
     }
         break;
     case OFFSET:
-        filter = new SkOffsetImageFilter(make_scalar(), make_scalar(), make_image_filter());
+        filter = SkOffsetImageFilter::Create(make_scalar(), make_scalar(), make_image_filter());
         break;
     case COMPOSE:
-        filter = new SkComposeImageFilter(make_image_filter(), make_image_filter());
+        filter = SkComposeImageFilter::Create(make_image_filter(), make_image_filter());
         break;
     case DISTANT_LIGHT:
         filter = (R(2) == 1) ?
@@ -292,32 +292,32 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
     }
         break;
     case DROP_SHADOW:
-        filter = new SkDropShadowImageFilter(make_scalar(), make_scalar(),
+        filter = SkDropShadowImageFilter::Create(make_scalar(), make_scalar(),
                      make_scalar(true), make_color(), make_image_filter());
         break;
     case MORPHOLOGY:
         if (R(2) == 1) {
-            filter = new SkDilateImageFilter(R(static_cast<float>(kBitmapSize)),
+            filter = SkDilateImageFilter::Create(R(static_cast<float>(kBitmapSize)),
                 R(static_cast<float>(kBitmapSize)), make_image_filter());
         } else {
-            filter = new SkErodeImageFilter(R(static_cast<float>(kBitmapSize)),
+            filter = SkErodeImageFilter::Create(R(static_cast<float>(kBitmapSize)),
                 R(static_cast<float>(kBitmapSize)), make_image_filter());
         }
         break;
     case BITMAP:
         if (R(2) == 1) {
-            filter = new SkBitmapSource(make_bitmap(), make_rect(), make_rect());
+            filter = SkBitmapSource::Create(make_bitmap(), make_rect(), make_rect());
         } else {
-            filter = new SkBitmapSource(make_bitmap());
+            filter = SkBitmapSource::Create(make_bitmap());
         }
         break;
     case DISPLACE:
-        filter = new SkDisplacementMapEffect(make_channel_selector_type(),
-                     make_channel_selector_type(), make_scalar(),
-                     make_image_filter(false), make_image_filter());
+        filter = SkDisplacementMapEffect::Create(make_channel_selector_type(),
+                                                 make_channel_selector_type(), make_scalar(),
+                                                 make_image_filter(false), make_image_filter());
         break;
     case TILE:
-        filter = new SkTileImageFilter(make_rect(), make_rect(), make_image_filter(false));
+        filter = SkTileImageFilter::Create(make_rect(), make_rect(), make_image_filter(false));
         break;
     case PICTURE:
     {
@@ -328,7 +328,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         drawSomething(pict->beginRecording(kBitmapSize, kBitmapSize));
         pict->endRecording();
 #endif
-        filter = new SkPictureImageFilter(pict, make_rect());
+        filter = SkPictureImageFilter::Create(pict, make_rect());
     }
         break;
     default:

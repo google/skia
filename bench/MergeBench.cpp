@@ -44,11 +44,11 @@ protected:
 
 private:
     SkImageFilter* mergeBitmaps() {
-        SkImageFilter* first = new SkBitmapSource(fCheckerboard);
-        SkImageFilter* second = new SkBitmapSource(fBitmap);
+        SkImageFilter* first = SkBitmapSource::Create(fCheckerboard);
+        SkImageFilter* second = SkBitmapSource::Create(fBitmap);
         SkAutoUnref aur0(first);
         SkAutoUnref aur1(second);
-        return new SkMergeImageFilter(first, second);
+        return SkMergeImageFilter::Create(first, second);
     }
 
     void make_bitmap() {

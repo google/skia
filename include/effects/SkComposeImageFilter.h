@@ -12,8 +12,11 @@
 
 class SK_API SkComposeImageFilter : public SkImageFilter {
 public:
-    SkComposeImageFilter(SkImageFilter* outer, SkImageFilter* inner) : INHERITED(outer, inner) {}
     virtual ~SkComposeImageFilter();
+
+    static SkComposeImageFilter* Create(SkImageFilter* outer, SkImageFilter* inner) {
+        return SkNEW_ARGS(SkComposeImageFilter, (outer, inner));
+    }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeImageFilter)
 
@@ -23,6 +26,11 @@ protected:
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
                                SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const SK_OVERRIDE;
+
+#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
+public:
+#endif
+    SkComposeImageFilter(SkImageFilter* outer, SkImageFilter* inner) : INHERITED(outer, inner) {}
 
 private:
     typedef SkImageFilter INHERITED;

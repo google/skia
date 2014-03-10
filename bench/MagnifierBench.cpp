@@ -38,7 +38,7 @@ protected:
         const int h = fIsSmall ? FILTER_HEIGHT_SMALL : FILTER_HEIGHT_LARGE;
         SkPaint paint;
         paint.setImageFilter(
-            new SkMagnifierImageFilter(
+            SkMagnifierImageFilter::Create(
                 SkRect::MakeXYWH(SkIntToScalar(w / 4),
                                  SkIntToScalar(h / 4),
                                  SkIntToScalar(w / 2),

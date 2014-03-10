@@ -87,24 +87,24 @@ protected:
         }
         canvas->clear(0x00000000);
 
-        SkAutoTUnref<SkImageFilter> gradient(new SkBitmapSource(fGradientCircle));
-        SkAutoTUnref<SkImageFilter> checkerboard(new SkBitmapSource(fCheckerboard));
+        SkAutoTUnref<SkImageFilter> gradient(SkBitmapSource::Create(fGradientCircle));
+        SkAutoTUnref<SkImageFilter> checkerboard(SkBitmapSource::Create(fCheckerboard));
         SkAutoTUnref<SkShader> noise(SkPerlinNoiseShader::CreateFractalNoise(
             SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0));
 
         SkImageFilter* filters[] = {
-            new SkBlurImageFilter(SkIntToScalar(12), SkIntToScalar(12)),
-            new SkDropShadowImageFilter(SkIntToScalar(10), SkIntToScalar(10), SkIntToScalar(3),
-                                        SK_ColorGREEN),
-            new SkDisplacementMapEffect(SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                        SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                        SkIntToScalar(12),
-                                        gradient.get(),
-                                        checkerboard.get()),
-            new SkDilateImageFilter(2, 2, checkerboard.get()),
-            new SkErodeImageFilter(2, 2, checkerboard.get()),
-            new SkOffsetImageFilter(SkIntToScalar(-16), SkIntToScalar(32)),
-            new SkResizeImageFilter(RESIZE_FACTOR_X, RESIZE_FACTOR_Y, SkPaint::kNone_FilterLevel),
+            SkBlurImageFilter::Create(SkIntToScalar(12), SkIntToScalar(12)),
+            SkDropShadowImageFilter::Create(SkIntToScalar(10), SkIntToScalar(10), SkIntToScalar(3),
+                                            SK_ColorGREEN),
+            SkDisplacementMapEffect::Create(SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                            SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                            SkIntToScalar(12),
+                                            gradient.get(),
+                                            checkerboard.get()),
+            SkDilateImageFilter::Create(2, 2, checkerboard.get()),
+            SkErodeImageFilter::Create(2, 2, checkerboard.get()),
+            SkOffsetImageFilter::Create(SkIntToScalar(-16), SkIntToScalar(32)),
+            SkResizeImageFilter::Create(RESIZE_FACTOR_X, RESIZE_FACTOR_Y, SkPaint::kNone_FilterLevel),
             SkRectShaderImageFilter::Create(noise),
         };
 

@@ -19,7 +19,7 @@
 #define MARGIN          SkIntToScalar(10)
 
 static SkImageFilter* make_blur(float amount, SkImageFilter* input = NULL) {
-    return new SkBlurImageFilter(amount, amount, input);
+    return SkBlurImageFilter::Create(amount, amount, input);
 }
 
 static SkImageFilter* make_brightness(float amount, SkImageFilter* input = NULL) {

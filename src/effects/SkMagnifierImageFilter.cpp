@@ -247,7 +247,7 @@ SkMagnifierImageFilter::SkMagnifierImageFilter(SkReadBuffer& buffer)
 }
 
 // FIXME:  implement single-input semantics
-SkMagnifierImageFilter::SkMagnifierImageFilter(SkRect srcRect, SkScalar inset)
+SkMagnifierImageFilter::SkMagnifierImageFilter(const SkRect& srcRect, SkScalar inset)
     : INHERITED(0), fSrcRect(srcRect), fInset(inset) {
     SkASSERT(srcRect.x() >= 0 && srcRect.y() >= 0 && inset >= 0);
 }

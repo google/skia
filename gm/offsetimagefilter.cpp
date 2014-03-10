@@ -101,11 +101,11 @@ protected:
                                                  bitmap->width() - i * 8,
                                                  bitmap->height() - i * 12);
             SkImageFilter::CropRect rect(SkRect::Make(cropRect));
-            SkAutoTUnref<SkImageFilter> tileInput(SkNEW_ARGS(SkBitmapSource, (*bitmap)));
+            SkAutoTUnref<SkImageFilter> tileInput(SkBitmapSource::Create(*bitmap));
             SkScalar dx = SkIntToScalar(i*5);
             SkScalar dy = SkIntToScalar(i*10);
-            SkAutoTUnref<SkImageFilter> filter(SkNEW_ARGS(
-                SkOffsetImageFilter, (dx, dy, tileInput, &rect)));
+            SkAutoTUnref<SkImageFilter> filter(
+                SkOffsetImageFilter::Create(dx, dy, tileInput, &rect));
             paint.setImageFilter(filter);
             drawClippedBitmap(canvas, *bitmap, paint, SK_Scalar1, cropRect);
             canvas->translate(SkIntToScalar(bitmap->width() + MARGIN), 0);
@@ -113,8 +113,8 @@ protected:
 
         SkIRect cropRect = SkIRect::MakeXYWH(0, 0, 100, 100);
         SkImageFilter::CropRect rect(SkRect::Make(cropRect));
-        SkAutoTUnref<SkImageFilter> filter(SkNEW_ARGS(
-            SkOffsetImageFilter, (SkIntToScalar(-5), SkIntToScalar(-10), NULL, &rect)));
+        SkAutoTUnref<SkImageFilter> filter(
+            SkOffsetImageFilter::Create(SkIntToScalar(-5), SkIntToScalar(-10), NULL, &rect));
         paint.setImageFilter(filter);
         drawClippedBitmap(canvas, fBitmap, paint, SkIntToScalar(2), cropRect);
     }

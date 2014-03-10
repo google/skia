@@ -20,21 +20,21 @@
 
 class SK_API SkBicubicImageFilter : public SkImageFilter {
 public:
+    virtual ~SkBicubicImageFilter();
+
+    static SkBicubicImageFilter* CreateMitchell(const SkSize& scale, SkImageFilter* input = NULL);
+
+    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBicubicImageFilter)
+
+protected:
     /** Construct a (scaling-only) bicubic resampling image filter.
         @param scale        How much to scale the image.
         @param coefficients The 16 coefficients of the bicubic matrix.
         @param input        The input image filter.  If NULL, the src bitmap
                             passed to filterImage() is used instead.
     */
-
     SkBicubicImageFilter(const SkSize& scale, const SkScalar coefficients[16],
                          SkImageFilter* input = NULL);
-    static SkBicubicImageFilter* CreateMitchell(const SkSize& scale, SkImageFilter* input = NULL);
-    virtual ~SkBicubicImageFilter();
-
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBicubicImageFilter)
-
-protected:
     SkBicubicImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 

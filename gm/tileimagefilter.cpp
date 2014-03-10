@@ -83,9 +83,9 @@ protected:
                                               SkIntToScalar(i * 4),
                                               SkIntToScalar(bitmap->width() - i * 12),
                                               SkIntToScalar(bitmap->height()) - i * 12);
-            SkAutoTUnref<SkImageFilter> tileInput(SkNEW_ARGS(SkBitmapSource, (*bitmap)));
-            SkAutoTUnref<SkImageFilter> filter(SkNEW_ARGS(
-                SkTileImageFilter, (srcRect, dstRect, tileInput)));
+            SkAutoTUnref<SkImageFilter> tileInput(SkBitmapSource::Create(*bitmap));
+            SkAutoTUnref<SkImageFilter> filter(
+                SkTileImageFilter::Create(srcRect, dstRect, tileInput));
             canvas->save();
             canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
             paint.setImageFilter(filter);

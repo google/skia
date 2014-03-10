@@ -205,14 +205,15 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
                                     const SkBitmap& invalidBitmap,
                                     bool shouldSucceed,
                                     skiatest::Reporter* reporter) {
-    SkBitmapSource validBitmapSource(validBitmap);
-    SkBitmapSource invalidBitmapSource(invalidBitmap);
+    SkAutoTUnref<SkBitmapSource> validBitmapSource(SkBitmapSource::Create(validBitmap));
+    SkAutoTUnref<SkBitmapSource> invalidBitmapSource(SkBitmapSource::Create(invalidBitmap));
     SkAutoTUnref<SkXfermode> mode(SkXfermode::Create(SkXfermode::kSrcOver_Mode));
-    SkXfermodeImageFilter xfermodeImageFilter(mode, &invalidBitmapSource, &validBitmapSource);
+    SkAutoTUnref<SkXfermodeImageFilter> xfermodeImageFilter(
+        SkXfermodeImageFilter::Create(mode, invalidBitmapSource, validBitmapSource));
 
     SkAutoTUnref<SkImageFilter> deserializedFilter(
         TestFlattenableSerialization<SkImageFilter>(
-            &xfermodeImageFilter, shouldSucceed, reporter));
+            xfermodeImageFilter, shouldSucceed, reporter));
 
     // Try to render a small bitmap using the invalid deserialized filter
     // to make sure we don't crash while trying to render it

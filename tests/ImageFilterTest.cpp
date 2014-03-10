@@ -168,7 +168,7 @@ DEF_TEST(ImageFilter, reporter) {
             // 3 ) large negative specular exponent value
             SkScalar specularExponent = -1000;
 
-            SkAutoTUnref<SkImageFilter> bmSrc(new SkBitmapSource(bitmap));
+            SkAutoTUnref<SkImageFilter> bmSrc(SkBitmapSource::Create(bitmap));
             SkPaint paint;
             paint.setImageFilter(SkLightingImageFilter::CreateSpotLitSpecular(
                     location, target, specularExponent, 180,
@@ -183,7 +183,7 @@ DEF_TEST(ImageFilter, reporter) {
         {
             // This tests for scale bringing width to 0
             SkSize scale = SkSize::Make(-0.001f, SK_Scalar1);
-            SkAutoTUnref<SkImageFilter> bmSrc(new SkBitmapSource(bitmap));
+            SkAutoTUnref<SkImageFilter> bmSrc(SkBitmapSource::Create(bitmap));
             SkAutoTUnref<SkBicubicImageFilter> bicubic(
                 SkBicubicImageFilter::CreateMitchell(scale, bmSrc));
             SkBitmapDevice device(bitmap);
@@ -222,21 +222,21 @@ static void test_crop_rects(SkBaseDevice* device, skiatest::Reporter* reporter) 
 
     SkImageFilter* filters[] = {
         SkColorFilterImageFilter::Create(cf.get(), input.get(), &cropRect),
-        new SkDisplacementMapEffect(SkDisplacementMapEffect::kR_ChannelSelectorType,
-                                    SkDisplacementMapEffect::kB_ChannelSelectorType,
-                                    40.0f, input.get(), input.get(), &cropRect),
-        new SkBlurImageFilter(SK_Scalar1, SK_Scalar1, input.get(), &cropRect),
-        new SkDropShadowImageFilter(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_ColorGREEN, input.get(), &cropRect),
+        SkDisplacementMapEffect::Create(SkDisplacementMapEffect::kR_ChannelSelectorType,
+                                        SkDisplacementMapEffect::kB_ChannelSelectorType,
+                                        40.0f, input.get(), input.get(), &cropRect),
+        SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1, input.get(), &cropRect),
+        SkDropShadowImageFilter::Create(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_ColorGREEN, input.get(), &cropRect),
         SkLightingImageFilter::CreatePointLitDiffuse(location, SK_ColorGREEN, 0, 0, input.get(), &cropRect),
         SkLightingImageFilter::CreatePointLitSpecular(location, SK_ColorGREEN, 0, 0, 0, input.get(), &cropRect),
-        new SkMatrixConvolutionImageFilter(kernelSize, kernel, gain, bias, SkIPoint::Make(1, 1), SkMatrixConvolutionImageFilter::kRepeat_TileMode, false, input.get(), &cropRect),
-        new SkMergeImageFilter(input.get(), input.get(), SkXfermode::kSrcOver_Mode, &cropRect),
-        new SkOffsetImageFilter(SK_Scalar1, SK_Scalar1, input.get(), &cropRect),
-        new SkOffsetImageFilter(SK_Scalar1, SK_Scalar1, input.get(), &cropRect),
-        new SkDilateImageFilter(3, 2, input.get(), &cropRect),
-        new SkErodeImageFilter(2, 3, input.get(), &cropRect),
-        new SkTileImageFilter(inputCropRect.rect(), cropRect.rect(), input.get()),
-        new SkXfermodeImageFilter(SkXfermode::Create(SkXfermode::kSrcOver_Mode), input.get(), input.get(), &cropRect),
+        SkMatrixConvolutionImageFilter::Create(kernelSize, kernel, gain, bias, SkIPoint::Make(1, 1), SkMatrixConvolutionImageFilter::kRepeat_TileMode, false, input.get(), &cropRect),
+        SkMergeImageFilter::Create(input.get(), input.get(), SkXfermode::kSrcOver_Mode, &cropRect),
+        SkOffsetImageFilter::Create(SK_Scalar1, SK_Scalar1, input.get(), &cropRect),
+        SkOffsetImageFilter::Create(SK_Scalar1, SK_Scalar1, input.get(), &cropRect),
+        SkDilateImageFilter::Create(3, 2, input.get(), &cropRect),
+        SkErodeImageFilter::Create(2, 3, input.get(), &cropRect),
+        SkTileImageFilter::Create(inputCropRect.rect(), cropRect.rect(), input.get()),
+        SkXfermodeImageFilter::Create(SkXfermode::Create(SkXfermode::kSrcOver_Mode), input.get(), input.get(), &cropRect),
     };
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {

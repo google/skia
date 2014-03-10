@@ -18,17 +18,19 @@ public:
         kR_ChannelSelectorType,
         kG_ChannelSelectorType,
         kB_ChannelSelectorType,
-        kA_ChannelSelectorType,
-        kKeyBits = 3 // Max value is 4, so 3 bits are required at most
+        kA_ChannelSelectorType
     };
 
-    SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
-                            ChannelSelectorType yChannelSelector,
-                            SkScalar scale, SkImageFilter* displacement,
-                            SkImageFilter* color = NULL,
-                            const CropRect* cropRect = NULL);
-
     ~SkDisplacementMapEffect();
+
+    static SkDisplacementMapEffect* Create(ChannelSelectorType xChannelSelector,
+                                           ChannelSelectorType yChannelSelector,
+                                           SkScalar scale, SkImageFilter* displacement,
+                                           SkImageFilter* color = NULL,
+                                           const CropRect* cropRect = NULL) {
+        return SkNEW_ARGS(SkDisplacementMapEffect, (xChannelSelector, yChannelSelector, scale,
+                                                    displacement, color, cropRect));
+    }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDisplacementMapEffect)
 
@@ -51,6 +53,15 @@ public:
 protected:
     explicit SkDisplacementMapEffect(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+
+#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
+public:
+#endif
+    SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
+                            ChannelSelectorType yChannelSelector,
+                            SkScalar scale, SkImageFilter* displacement,
+                            SkImageFilter* color = NULL,
+                            const CropRect* cropRect = NULL);
 
 private:
     ChannelSelectorType fXChannelSelector;

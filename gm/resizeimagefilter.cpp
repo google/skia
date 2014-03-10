@@ -35,9 +35,9 @@ protected:
         canvas->scale(deviceScaleX, deviceScaleY);
         canvas->translate(-rect.x(), -rect.y());
         SkAutoTUnref<SkImageFilter> imageFilter(
-            new SkResizeImageFilter(SkScalarInvert(deviceScaleX),
-                                    SkScalarInvert(deviceScaleY),
-                                    filterLevel));
+            SkResizeImageFilter::Create(SkScalarInvert(deviceScaleX),
+                                        SkScalarInvert(deviceScaleY),
+                                        filterLevel));
         SkPaint filteredPaint;
         filteredPaint.setImageFilter(imageFilter.get());
         canvas->saveLayer(&rect, &filteredPaint);

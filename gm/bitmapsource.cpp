@@ -56,10 +56,10 @@ protected:
             SkRect clipRect = SkRect::MakeXYWH(0, 0, 100, 100);
             SkRect bounds;
             fBitmap.getBounds(&bounds);
-            SkAutoTUnref<SkImageFilter> bitmapSource(new SkBitmapSource(fBitmap));
-            SkAutoTUnref<SkImageFilter> bitmapSourceSrcRect(new SkBitmapSource(fBitmap, srcRect, srcRect));
-            SkAutoTUnref<SkImageFilter> bitmapSourceSrcRectDstRect(new SkBitmapSource(fBitmap, srcRect, dstRect));
-            SkAutoTUnref<SkImageFilter> bitmapSourceDstRectOnly(new SkBitmapSource(fBitmap, bounds, dstRect));
+            SkAutoTUnref<SkImageFilter> bitmapSource(SkBitmapSource::Create(fBitmap));
+            SkAutoTUnref<SkImageFilter> bitmapSourceSrcRect(SkBitmapSource::Create(fBitmap, srcRect, srcRect));
+            SkAutoTUnref<SkImageFilter> bitmapSourceSrcRectDstRect(SkBitmapSource::Create(fBitmap, srcRect, dstRect));
+            SkAutoTUnref<SkImageFilter> bitmapSourceDstRectOnly(SkBitmapSource::Create(fBitmap, bounds, dstRect));
 
             // Draw an unscaled bitmap.
             fillRectFiltered(canvas, clipRect, bitmapSource);

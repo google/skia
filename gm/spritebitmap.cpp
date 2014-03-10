@@ -78,7 +78,7 @@ protected:
         int dy = 10;
 
         SkScalar sigma = 8;
-        SkAutoTUnref<SkImageFilter> filter(new SkBlurImageFilter(sigma, sigma));
+        SkAutoTUnref<SkImageFilter> filter(SkBlurImageFilter::Create(sigma, sigma));
 
         draw_2_bitmaps(canvas, bm, false, dx, dy);
         dy += bm.height() + 20;

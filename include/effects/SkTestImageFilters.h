@@ -7,11 +7,14 @@
 // Fun mode that scales down (only) and then scales back up to look pixelated
 class SK_API SkDownSampleImageFilter : public SkImageFilter {
 public:
-    SkDownSampleImageFilter(SkScalar scale) : INHERITED(0), fScale(scale) {}
+    static SkDownSampleImageFilter* Create(SkScalar scale) {
+        return SkNEW_ARGS(SkDownSampleImageFilter, (scale));
+    }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDownSampleImageFilter)
 
 protected:
+    SkDownSampleImageFilter(SkScalar scale) : INHERITED(0), fScale(scale) {}
     SkDownSampleImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 

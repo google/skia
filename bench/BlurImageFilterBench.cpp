@@ -44,7 +44,7 @@ protected:
 
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
-        paint.setImageFilter(new SkBlurImageFilter(fSigmaX, fSigmaY))->unref();
+        paint.setImageFilter(SkBlurImageFilter::Create(fSigmaX, fSigmaY))->unref();
 
         for (int i = 0; i < loops; i++) {
             canvas->drawBitmap(fCheckerboard, 0, 0, &paint);

@@ -37,7 +37,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setImageFilter(
-            new SkMagnifierImageFilter(
+            SkMagnifierImageFilter::Create(
                 SkRect::MakeXYWH(SkIntToScalar(100), SkIntToScalar(100),
                                  SkIntToScalar(WIDTH / 2),
                                  SkIntToScalar(HEIGHT / 2)),

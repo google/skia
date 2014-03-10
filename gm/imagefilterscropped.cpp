@@ -134,7 +134,7 @@ protected:
         SkImageFilter::CropRect cropRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 44, 44)), SkImageFilter::CropRect::kHasAll_CropEdge);
         SkImageFilter::CropRect bogusRect(SkRect::Make(SkIRect::MakeXYWH(-100, -100, 10, 10)), SkImageFilter::CropRect::kHasAll_CropEdge);
 
-        SkAutoTUnref<SkImageFilter> offset(new SkOffsetImageFilter(
+        SkAutoTUnref<SkImageFilter> offset(SkOffsetImageFilter::Create(
             SkIntToScalar(-10), SkIntToScalar(-10)));
 
         SkAutoTUnref<SkImageFilter> cfOffset(SkColorFilterImageFilter::Create(cf.get(), offset.get()));
@@ -142,12 +142,12 @@ protected:
         SkImageFilter* filters[] = {
             NULL,
             SkColorFilterImageFilter::Create(cf.get(), NULL, &cropRect),
-            new SkBlurImageFilter(1.0f, 1.0f, NULL, &cropRect),
-            new SkBlurImageFilter(8.0f, 0.0f, NULL, &cropRect),
-            new SkBlurImageFilter(0.0f, 8.0f, NULL, &cropRect),
-            new SkBlurImageFilter(8.0f, 8.0f, NULL, &cropRect),
-            new SkMergeImageFilter(NULL, cfOffset.get(), SkXfermode::kSrcOver_Mode, &cropRect),
-            new SkBlurImageFilter(8.0f, 8.0f, NULL, &bogusRect),
+            SkBlurImageFilter::Create(1.0f, 1.0f, NULL, &cropRect),
+            SkBlurImageFilter::Create(8.0f, 0.0f, NULL, &cropRect),
+            SkBlurImageFilter::Create(0.0f, 8.0f, NULL, &cropRect),
+            SkBlurImageFilter::Create(8.0f, 8.0f, NULL, &cropRect),
+            SkMergeImageFilter::Create(NULL, cfOffset.get(), SkXfermode::kSrcOver_Mode, &cropRect),
+            SkBlurImageFilter::Create(8.0f, 8.0f, NULL, &bogusRect),
             SkColorFilterImageFilter::Create(cf.get(), NULL, &bogusRect),
         };
 

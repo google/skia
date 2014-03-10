@@ -15,15 +15,15 @@
 SkPictureImageFilter::SkPictureImageFilter(SkPicture* picture)
   : INHERITED(0, 0),
     fPicture(picture),
-    fRect(SkRect::MakeWH(picture ? SkIntToScalar(picture->width()) : 0,
-                         picture ? SkIntToScalar(picture->height()) : 0)) {
+    fCropRect(SkRect::MakeWH(picture ? SkIntToScalar(picture->width()) : 0,
+                             picture ? SkIntToScalar(picture->height()) : 0)) {
     SkSafeRef(fPicture);
 }
 
-SkPictureImageFilter::SkPictureImageFilter(SkPicture* picture, const SkRect& rect)
+SkPictureImageFilter::SkPictureImageFilter(SkPicture* picture, const SkRect& cropRect)
   : INHERITED(0, 0),
     fPicture(picture),
-    fRect(rect) {
+    fCropRect(cropRect) {
     SkSafeRef(fPicture);
 }
 
@@ -41,7 +41,7 @@ SkPictureImageFilter::SkPictureImageFilter(SkReadBuffer& buffer)
 #else
     buffer.readBool();
 #endif
-    buffer.readRect(&fRect);
+    buffer.readRect(&fCropRect);
 }
 
 void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
@@ -55,7 +55,7 @@ void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
 #else
     buffer.writeBool(false);
 #endif
-    buffer.writeRect(fRect);
+    buffer.writeRect(fCropRect);
 }
 
 bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const SkMatrix& matrix,
@@ -67,7 +67,7 @@ bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Sk
 
     SkRect floatBounds;
     SkIRect bounds;
-    matrix.mapRect(&floatBounds, fRect);
+    matrix.mapRect(&floatBounds, fCropRect);
     floatBounds.roundOut(&bounds);
 
     if (bounds.isEmpty()) {
