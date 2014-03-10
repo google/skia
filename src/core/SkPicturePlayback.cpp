@@ -965,14 +965,14 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 break;
             }
             case DRAW_BITMAP: {
-                const SkPaint* paint = getPaint(reader);
-                const SkBitmap& bitmap = getBitmap(reader);
+                const SkPaint* paint = this->getPaint(reader);
+                const SkBitmap& bitmap = this->getBitmap(reader);
                 const SkPoint& loc = reader.skipT<SkPoint>();
                 canvas.drawBitmap(bitmap, loc.fX, loc.fY, paint);
             } break;
             case DRAW_BITMAP_RECT_TO_RECT: {
-                const SkPaint* paint = getPaint(reader);
-                const SkBitmap& bitmap = getBitmap(reader);
+                const SkPaint* paint = this->getPaint(reader);
+                const SkBitmap& bitmap = this->getBitmap(reader);
                 const SkRect* src = this->getRectPtr(reader);   // may be null
                 const SkRect& dst = reader.skipT<SkRect>();     // required
                 SkCanvas::DrawBitmapRectFlags flags;
@@ -980,15 +980,15 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 canvas.drawBitmapRectToRect(bitmap, src, dst, paint, flags);
             } break;
             case DRAW_BITMAP_MATRIX: {
-                const SkPaint* paint = getPaint(reader);
-                const SkBitmap& bitmap = getBitmap(reader);
+                const SkPaint* paint = this->getPaint(reader);
+                const SkBitmap& bitmap = this->getBitmap(reader);
                 SkMatrix matrix;
                 this->getMatrix(reader, &matrix);
                 canvas.drawBitmapMatrix(bitmap, matrix, paint);
             } break;
             case DRAW_BITMAP_NINE: {
-                const SkPaint* paint = getPaint(reader);
-                const SkBitmap& bitmap = getBitmap(reader);
+                const SkPaint* paint = this->getPaint(reader);
+                const SkBitmap& bitmap = this->getBitmap(reader);
                 const SkIRect& src = reader.skipT<SkIRect>();
                 const SkRect& dst = reader.skipT<SkRect>();
                 canvas.drawBitmapNine(bitmap, src, dst, paint);
@@ -1002,7 +1002,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 // skip handles padding the read out to a multiple of 4
             } break;
             case DRAW_DRRECT: {
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 SkRRect outer, inner;
                 reader.readRRect(&outer);
                 reader.readRRect(&inner);
@@ -1021,35 +1021,35 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 canvas.endCommentGroup();
             } break;
             case DRAW_OVAL: {
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 canvas.drawOval(reader.skipT<SkRect>(), paint);
             } break;
             case DRAW_PAINT:
-                canvas.drawPaint(*getPaint(reader));
+                canvas.drawPaint(*this->getPaint(reader));
                 break;
             case DRAW_PATH: {
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 canvas.drawPath(getPath(reader), paint);
             } break;
             case DRAW_PICTURE:
-                canvas.drawPicture(getPicture(reader));
+                canvas.drawPicture(this->getPicture(reader));
                 break;
             case DRAW_POINTS: {
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 SkCanvas::PointMode mode = (SkCanvas::PointMode)reader.readInt();
                 size_t count = reader.readInt();
                 const SkPoint* pts = (const SkPoint*)reader.skip(sizeof(SkPoint) * count);
                 canvas.drawPoints(mode, count, pts, paint);
             } break;
             case DRAW_POS_TEXT: {
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 getText(reader, &text);
                 size_t points = reader.readInt();
                 const SkPoint* pos = (const SkPoint*)reader.skip(points * sizeof(SkPoint));
                 canvas.drawPosText(text.text(), text.length(), pos, paint);
             } break;
             case DRAW_POS_TEXT_TOP_BOTTOM: {
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 getText(reader, &text);
                 size_t points = reader.readInt();
                 const SkPoint* pos = (const SkPoint*)reader.skip(points * sizeof(SkPoint));
@@ -1060,7 +1060,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 }
             } break;
             case DRAW_POS_TEXT_H: {
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 getText(reader, &text);
                 size_t xCount = reader.readInt();
                 const SkScalar constY = reader.readScalar();
@@ -1069,7 +1069,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                                     paint);
             } break;
             case DRAW_POS_TEXT_H_TOP_BOTTOM: {
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 getText(reader, &text);
                 size_t xCount = reader.readInt();
                 const SkScalar* xpos = (const SkScalar*)reader.skip((3 + xCount) * sizeof(SkScalar));
@@ -1082,32 +1082,32 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 }
             } break;
             case DRAW_RECT: {
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 canvas.drawRect(reader.skipT<SkRect>(), paint);
             } break;
             case DRAW_RRECT: {
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 SkRRect rrect;
                 reader.readRRect(&rrect);
                 canvas.drawRRect(rrect, paint);
             } break;
             case DRAW_SPRITE: {
-                const SkPaint* paint = getPaint(reader);
-                const SkBitmap& bitmap = getBitmap(reader);
+                const SkPaint* paint = this->getPaint(reader);
+                const SkBitmap& bitmap = this->getBitmap(reader);
                 int left = reader.readInt();
                 int top = reader.readInt();
                 canvas.drawSprite(bitmap, left, top, paint);
             } break;
             case DRAW_TEXT: {
-                const SkPaint& paint = *getPaint(reader);
-                getText(reader, &text);
+                const SkPaint& paint = *this->getPaint(reader);
+                this->getText(reader, &text);
                 SkScalar x = reader.readScalar();
                 SkScalar y = reader.readScalar();
                 canvas.drawText(text.text(), text.length(), x, y, paint);
             } break;
             case DRAW_TEXT_TOP_BOTTOM: {
-                const SkPaint& paint = *getPaint(reader);
-                getText(reader, &text);
+                const SkPaint& paint = *this->getPaint(reader);
+                this->getText(reader, &text);
                 const SkScalar* ptr = (const SkScalar*)reader.skip(4 * sizeof(SkScalar));
                 // ptr[0] == x
                 // ptr[1] == y
@@ -1119,16 +1119,16 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 }
             } break;
             case DRAW_TEXT_ON_PATH: {
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 getText(reader, &text);
-                const SkPath& path = getPath(reader);
+                const SkPath& path = this->getPath(reader);
                 SkMatrix matrix;
                 this->getMatrix(reader, &matrix);
                 canvas.drawTextOnPath(text.text(), text.length(), path, &matrix, paint);
             } break;
             case DRAW_VERTICES: {
                 SkAutoTUnref<SkXfermode> xfer;
-                const SkPaint& paint = *getPaint(reader);
+                const SkPaint& paint = *this->getPaint(reader);
                 DrawVertexFlags flags = (DrawVertexFlags)reader.readInt();
                 SkCanvas::VertexMode vmode = (SkCanvas::VertexMode)reader.readInt();
                 int vCount = reader.readInt();
@@ -1171,8 +1171,8 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 canvas.save((SkCanvas::SaveFlags) reader.readInt());
                 break;
             case SAVE_LAYER: {
-                const SkRect* boundsPtr = getRectPtr(reader);
-                const SkPaint* paint = getPaint(reader);
+                const SkRect* boundsPtr = this->getRectPtr(reader);
+                const SkPaint* paint = this->getPaint(reader);
                 canvas.saveLayer(boundsPtr, paint, (SkCanvas::SaveFlags) reader.readInt());
                 } break;
             case SCALE: {

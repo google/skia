@@ -505,7 +505,9 @@ private:
         const SkFlatData& scratch = this->resetScratch(element, this->count()+1);
 
         SkFlatData* candidate = fHash.find(scratch);
-        if (candidate != NULL) return candidate;
+        if (candidate != NULL) {
+            return candidate;
+        }
 
         SkFlatData* detached = this->detachScratch();
         fHash.add(detached);
