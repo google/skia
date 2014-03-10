@@ -5,7 +5,7 @@
  */
 var Loader = angular.module(
     'Loader',
-    ['ConstantsModule', 'diff_viewer']
+    ['ConstantsModule']
 );
 
 Loader.directive(
