@@ -13,7 +13,7 @@
 #include "SkString.h"
 
 #if SK_DISTANCEFIELD_FONTS
-#include "SkDistanceFieldGen.h"
+#include "edtaa3.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -199,9 +199,8 @@ void GrFontCache::dump() const {
 #endif
 
 #if SK_DISTANCEFIELD_FONTS
-// this acts as the max magnitude for the distance field,
-// as well as the pad we need around the glyph
-#define DISTANCE_FIELD_RANGE   4
+#define DISTANCE_FIELD_PAD   4
+#define DISTANCE_FIELD_RANGE (4.0)
 #endif
 
 /*
@@ -254,10 +253,10 @@ GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
 #if SK_DISTANCEFIELD_FONTS
     // expand bounds to hold full distance field data
     if (fUseDistanceField) {
-        bounds.fLeft   -= DISTANCE_FIELD_RANGE;
-        bounds.fRight  += DISTANCE_FIELD_RANGE;
-        bounds.fTop    -= DISTANCE_FIELD_RANGE;
-        bounds.fBottom += DISTANCE_FIELD_RANGE;
+        bounds.fLeft   -= DISTANCE_FIELD_PAD;
+        bounds.fRight  += DISTANCE_FIELD_PAD;
+        bounds.fTop    -= DISTANCE_FIELD_PAD;
+        bounds.fBottom += DISTANCE_FIELD_PAD;
     }
 #endif
     glyph->init(packed, bounds);
@@ -295,13 +294,15 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
     GrPlot* plot;
 #if SK_DISTANCEFIELD_FONTS
     if (fUseDistanceField) {
+        SkASSERT(1 == bytesPerPixel);
+
         // we've already expanded the glyph dimensions to match the final size
         // but must shrink back down to get the packed glyph data
         int dfWidth = glyph->width();
         int dfHeight = glyph->height();
-        int width = dfWidth - 2*DISTANCE_FIELD_RANGE;
-        int height = dfHeight - 2*DISTANCE_FIELD_RANGE;
-        int stride = width*bytesPerPixel;
+        int width = dfWidth - 2*DISTANCE_FIELD_PAD;
+        int height = dfHeight - 2*DISTANCE_FIELD_PAD;
+        size_t stride = width*bytesPerPixel;
 
         size_t size = width * height * bytesPerPixel;
         SkAutoSMalloc<1024> storage(size);
@@ -312,28 +313,71 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
         // alloc storage for distance field glyph
         size_t dfSize = dfWidth * dfHeight * bytesPerPixel;
         SkAutoSMalloc<1024> dfStorage(dfSize);
-        
-        if (1 == bytesPerPixel) {
-            (void) SkGenerateDistanceFieldFromImage((unsigned char*)dfStorage.get(),
-                                                    (unsigned char*)storage.get(),
-                                                    width, height, DISTANCE_FIELD_RANGE);
-        } else {
-            // TODO: Fix color emoji
-            // for now, copy glyph into distance field storage
-            // this is not correct, but it won't crash
-            sk_bzero(dfStorage.get(), dfSize);
-            unsigned char* ptr = (unsigned char*) storage.get();
-            unsigned char* dfPtr = (unsigned char*) dfStorage.get();
-            size_t dfStride = dfWidth*bytesPerPixel;
-            dfPtr += DISTANCE_FIELD_RANGE*dfStride;
-            dfPtr += DISTANCE_FIELD_RANGE*bytesPerPixel;
 
-            for (int i = 0; i < height; ++i) {
-                memcpy(dfPtr, ptr, stride);
+        // copy glyph into distance field storage
+        sk_bzero(dfStorage.get(), dfSize);
 
-                dfPtr += dfStride;
-                ptr += stride;
+        unsigned char* ptr = (unsigned char*) storage.get();
+        unsigned char* dfPtr = (unsigned char*) dfStorage.get();
+        size_t dfStride = dfWidth*bytesPerPixel;
+        dfPtr += DISTANCE_FIELD_PAD*dfStride;
+        dfPtr += DISTANCE_FIELD_PAD*bytesPerPixel;
+
+        for (int i = 0; i < height; ++i) {
+            memcpy(dfPtr, ptr, stride);
+
+            dfPtr += dfStride;
+            ptr += stride;
+        }
+
+        // generate distance field data
+        SkAutoSMalloc<1024> distXStorage(dfWidth*dfHeight*sizeof(short));
+        SkAutoSMalloc<1024> distYStorage(dfWidth*dfHeight*sizeof(short));
+        SkAutoSMalloc<1024> outerDistStorage(dfWidth*dfHeight*sizeof(double));
+        SkAutoSMalloc<1024> innerDistStorage(dfWidth*dfHeight*sizeof(double));
+        SkAutoSMalloc<1024> gxStorage(dfWidth*dfHeight*sizeof(double));
+        SkAutoSMalloc<1024> gyStorage(dfWidth*dfHeight*sizeof(double));
+
+        short* distX = (short*) distXStorage.get();
+        short* distY = (short*) distYStorage.get();
+        double* outerDist = (double*) outerDistStorage.get();
+        double* innerDist = (double*) innerDistStorage.get();
+        double* gx = (double*) gxStorage.get();
+        double* gy = (double*) gyStorage.get();
+
+        dfPtr = (unsigned char*) dfStorage.get();
+        EDTAA::computegradient(dfPtr, dfWidth, dfHeight, gx, gy);
+        EDTAA::edtaa3(dfPtr, gx, gy, dfWidth, dfHeight, distX, distY, outerDist);
+
+        for (int i = 0; i < dfWidth*dfHeight; ++i) {
+            *dfPtr = 255 - *dfPtr;
+            dfPtr++;
+        }
+        dfPtr = (unsigned char*) dfStorage.get();
+        sk_bzero(gx, sizeof(double)*dfWidth*dfHeight);
+        sk_bzero(gy, sizeof(double)*dfWidth*dfHeight);
+        EDTAA::computegradient(dfPtr, dfWidth, dfHeight, gx, gy);
+        EDTAA::edtaa3(dfPtr, gx, gy, dfWidth, dfHeight, distX, distY, innerDist);
+
+        for (int i = 0; i < dfWidth*dfHeight; ++i) {
+            unsigned char val;
+            double outerval = outerDist[i];
+            if (outerval < 0.0) {
+                outerval = 0.0;
             }
+            double innerval = innerDist[i];
+            if (innerval < 0.0) {
+                innerval = 0.0;
+            }
+            double dist = outerval - innerval;
+            if (dist <= -DISTANCE_FIELD_RANGE) {
+                val = 255;
+            } else if (dist > DISTANCE_FIELD_RANGE) {
+                val = 0;
+            } else {
+                val = (unsigned char)((DISTANCE_FIELD_RANGE-dist)*128.0/DISTANCE_FIELD_RANGE);
+            }
+            *dfPtr++ = val;
         }
 
         // copy to atlas
