@@ -41,12 +41,6 @@ inverse_paths
 # https://codereview.chromium.org/190953008
 rrect_effect
 
-# bsalomon: the order in which the edge types draw has changed.
-# https://codereview.chromium.org/183893023
-bezier_quad_effects
-bezier_conic_effects
-bezier_cubic_effects
-
 # reed: https://codereview.chromium.org/190723004/
 # This change removes an API that this GM was testing. If/when it lands and sticks,
 # I will likely just delete the GM.

@@ -285,15 +285,16 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14464940541059395015
+          4396166118571451803
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "bezier_cubic_effects_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12541680729712619976
+          18345819850317950930
         ]
       ], 
       "reviewed-by-human": true
@@ -302,7 +303,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3923449697149524069
+          5991188204950518516
         ]
       ], 
       "reviewed-by-human": true

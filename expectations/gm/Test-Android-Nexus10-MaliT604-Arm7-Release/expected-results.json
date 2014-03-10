@@ -294,39 +294,43 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3043872350657813613
+          16937826245063043393
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "bezier_conic_effects_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5784469259466637231
+          1625650000574334368
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "bezier_cubic_effects_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6480467677781984857
+          5950834616123524220
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "bezier_cubic_effects_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          606644217329953381
+          4439200707771429092
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "bezier_quad_effects_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5786951166613298409
+          11836824726968626971
         ]
       ], 
       "reviewed-by-human": true
@@ -335,7 +339,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11968163364924591512
+          7185775830111795273
         ]
       ], 
       "reviewed-by-human": true

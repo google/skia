@@ -235,23 +235,25 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7119842663621436329
+          7129427203348249145
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "bezier_cubic_effects_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12919463677731276523
+          17950611933519690810
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "bezier_quad_effects_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4829531480202130606
+          1433393145373900496
         ]
       ], 
       "reviewed-by-human": true

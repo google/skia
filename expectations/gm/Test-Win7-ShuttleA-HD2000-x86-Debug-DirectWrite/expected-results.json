@@ -285,15 +285,16 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14464940541059395015
+          4396166118571451803
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "bezier_cubic_effects_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12541680729712619976
+          18345819850317950930
         ]
       ], 
       "reviewed-by-human": true
@@ -302,7 +303,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3923449697149524069
+          5991188204950518516
         ]
       ], 
       "reviewed-by-human": true
@@ -3718,7 +3719,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4772242078776569964
+          16512020621587163973
         ]
       ], 
       "reviewed-by-human": true
@@ -3757,7 +3758,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7240382420614639122
+          8118302295190858846
         ]
       ], 
       "reviewed-by-human": true
@@ -3970,7 +3971,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1398072788115366655
+          8058150921181773336
         ]
       ], 
       "reviewed-by-human": true
@@ -10186,7 +10187,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16173220883008117955
+          7239531933601841272
         ]
       ], 
       "reviewed-by-human": true

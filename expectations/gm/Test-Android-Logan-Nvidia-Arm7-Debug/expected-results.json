@@ -1,5 +1,86 @@
 {
   "expected-results": {
+    "bezier_conic_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          947503126928099687
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "bezier_conic_effects_msaa16.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5255794082227421283
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "bezier_conic_effects_nvprmsaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11301477420946563570
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "bezier_cubic_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13327676768378365463
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "bezier_cubic_effects_msaa16.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14464394233413738650
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "bezier_cubic_effects_nvprmsaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6647342900216802622
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "bezier_quad_effects_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7453545016317079091
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "bezier_quad_effects_msaa16.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14567047201700476907
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "bezier_quad_effects_nvprmsaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18237014088098287347
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "bleed_565.png": {
       "allowed-digests": [
         [
