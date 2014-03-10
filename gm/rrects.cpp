@@ -89,10 +89,14 @@ protected:
                                                             SkIntToScalar(kImageHeight));
 #endif
 
+#if SK_SUPPORT_GPU
         int lastEdgeType = (kEffect_Type == fType) ? kLast_GrEffectEdgeType: 0;
+#else
+        int lastEdgeType = 0;
+#endif
 
         int y = 1;
-        for (int et = (GrEffectEdgeType) 0; et <= lastEdgeType; ++et) {
+        for (int et = 0; et <= lastEdgeType; ++et) {
             int x = 1;
             for (int curRRect = 0; curRRect < kNumRRects; ++curRRect) {
                 bool drew = true;
