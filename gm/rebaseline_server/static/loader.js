@@ -8,6 +8,21 @@ var Loader = angular.module(
     ['ConstantsModule', 'diff_viewer']
 );
 
+Loader.directive(
+  'resultsUpdatedCallbackDirective',
+  ['$timeout',
+   function($timeout) {
+     return function(scope, element, attrs) {
+       if (scope.$last) {
+         $timeout(function() {
+           scope.resultsUpdatedCallback();
+         });
+       }
+     };
+   }
+  ]
+);
+
 // TODO(epoger): Combine ALL of our filtering operations (including
 // truncation) into this one filter, so that runs most efficiently?
 // (We would have to make sure truncation still took place after
@@ -44,7 +59,7 @@ Loader.filter(
 
 Loader.controller(
   'Loader.Controller',
-    function($scope, $http, $filter, $location, $timeout, constants) {
+    function($scope, $http, $filter, $location, $log, $timeout, constants) {
     $scope.constants = constants;
     $scope.windowTitle = "Loading GM Results...";
     $scope.resultsToLoad = $location.search().resultsToLoad;
@@ -77,7 +92,6 @@ Loader.controller(
           $scope.imageSets = data[constants.KEY__IMAGESETS];
           $scope.sortColumnSubdict = constants.KEY__DIFFERENCE_DATA;
           $scope.sortColumnKey = constants.KEY__DIFFERENCE_DATA__WEIGHTED_DIFF;
-          $scope.showTodos = false;
 
           $scope.showSubmitAdvancedSettings = false;
           $scope.submitAdvancedSettings = {};
@@ -357,6 +371,8 @@ Loader.controller(
      * can be bookmarked.
      */
     $scope.updateResults = function() {
+      $scope.renderStartTime = window.performance.now();
+      $log.debug("renderStartTime: " + $scope.renderStartTime);
       $scope.displayLimit = $scope.displayLimitPending;
       // TODO(epoger): Every time we apply a filter, AngularJS creates
       // another copy of the array.  Is there a way we can filter out
@@ -401,6 +417,15 @@ Loader.controller(
       $scope.imageSize = $scope.imageSizePending;
       $scope.setUpdatesPending(false);
       $scope.queryParameters.save();
+    }
+
+    /**
+     * This function is called when the results have been completely rendered
+     * after updateResults().
+     */
+    $scope.resultsUpdatedCallback = function() {
+      $scope.renderEndTime = window.performance.now();
+      $log.debug("renderEndTime: " + $scope.renderEndTime);
     }
 
     /**

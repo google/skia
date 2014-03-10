@@ -187,10 +187,13 @@
           <td>
             Found {{filteredImagePairs.length}} matches;
             <span ng-show="filteredImagePairs.length > limitedImagePairs.length">
-              displaying the first {{limitedImagePairs.length}}
+              displaying the first {{limitedImagePairs.length}}.
             </span>
             <span ng-show="filteredImagePairs.length <= limitedImagePairs.length">
-              displaying them all
+              displaying them all.
+            </span>
+            <span ng-show="renderEndTime > renderStartTime">
+              Rendered in {{(renderEndTime - renderStartTime).toFixed(0)}} ms.
             </span>
             <br>
             (click on the column header radio buttons to re-sort by that column)
@@ -272,7 +275,7 @@
           </th>
         </tr>
 
-        <tr ng-repeat="imagePair in limitedImagePairs" ng-controller="ImageController">
+        <tr ng-repeat="imagePair in limitedImagePairs" ng-controller="ImageController" results-updated-callback-directive>
           <td>
             {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__RESULT_TYPE]}}
             <br>
