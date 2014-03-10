@@ -12,7 +12,6 @@
 #if SK_SUPPORT_GPU
 
 SkGLWidget::SkGLWidget(SkDebugger* debugger) : QGLWidget() {
-    this->setStyleSheet("QWidget {background-color: white; border: 1px solid #cccccc;}");
     fDebugger = debugger;
     fCurIntf = NULL;
     fCurContext = NULL;
@@ -40,6 +39,10 @@ void SkGLWidget::initializeGL() {
     if (!fCurIntf) {
         return;
     }
+    glStencilMask(0xffffffff);
+    glClearStencil(0);
+    glClear(GL_STENCIL_BUFFER_BIT);
+
     fCurContext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext) fCurIntf);
     GrBackendRenderTargetDesc desc = this->getDesc(this->width(), this->height());
     desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
@@ -47,14 +50,16 @@ void SkGLWidget::initializeGL() {
     fGpuDevice = new SkGpuDevice(fCurContext, curRenderTarget);
     fCanvas = new SkCanvas(fGpuDevice);
     curRenderTarget->unref();
-
-    glClearColor(1, 1, 1, 0);
-    glClearStencil(0);
-    glClear(GL_STENCIL_BUFFER_BIT);
 }
 
 void SkGLWidget::resizeGL(int w, int h) {
     if (fCurContext) {
+        glDisable(GL_SCISSOR_TEST);
+        glStencilMask(0xffffffff);
+        glClearStencil(0);
+        glClear(GL_STENCIL_BUFFER_BIT);
+        fCurContext->resetContext();
+
         GrBackendRenderTargetDesc desc = this->getDesc(w, h);
         desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
         GrRenderTarget* curRenderTarget = fCurContext->wrapBackendRenderTarget(desc);
