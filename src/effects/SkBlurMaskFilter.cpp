@@ -354,11 +354,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     return kTrue_FilterReturn;
 }
 
-#ifdef SK_IGNORE_FAST_RECT_BLUR
-SK_CONF_DECLARE( bool, c_analyticBlurNinepatch, "mask.filter.analyticNinePatch", false, "Use the faster analytic blur approach for ninepatch rects" );
-#else
 SK_CONF_DECLARE( bool, c_analyticBlurNinepatch, "mask.filter.analyticNinePatch", true, "Use the faster analytic blur approach for ninepatch rects" );
-#endif
 
 SkMaskFilter::FilterReturn
 SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
