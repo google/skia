@@ -19,11 +19,13 @@
 
 #include "SkGrTexturePixelRef.h"
 
+#include "SkBounder.h"
 #include "SkColorFilter.h"
 #include "SkDeviceImageFilterProxy.h"
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
 #include "SkImageFilter.h"
+#include "SkMaskFilter.h"
 #include "SkPathEffect.h"
 #include "SkRRect.h"
 #include "SkStroke.h"
@@ -739,6 +741,44 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
     CHECK_FOR_ANNOTATION(paint);
     CHECK_SHOULD_DRAW(draw, false);
 
+    GrPaint grPaint;
+    if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
+        return;
+    }
+
+    SkStrokeRec stroke(paint);
+    if (paint.getMaskFilter()) {
+        // try to hit the fast path for drawing filtered round rects
+
+        SkRRect devRRect;
+        if (rect.transform(fContext->getMatrix(), &devRRect)) {
+            if (devRRect.allCornersCircular()) {
+                SkRect maskRect;
+                if (paint.getMaskFilter()->canFilterMaskGPU(devRRect.rect(),
+                                            draw.fClip->getBounds(),
+                                            fContext->getMatrix(),
+                                            &maskRect)) {
+                    SkIRect finalIRect;
+                    maskRect.roundOut(&finalIRect);
+                    if (draw.fClip->quickReject(finalIRect)) {
+                        // clipped out
+                        return;
+                    }
+                    if (NULL != draw.fBounder && !draw.fBounder->doIRect(finalIRect)) {
+                        // nothing to draw
+                        return;
+                    }
+                    if (paint.getMaskFilter()->directFilterRRectMaskGPU(fContext, &grPaint,
+                                                                        stroke, devRRect)) {
+                        return;
+                    }
+                }
+
+            }
+        }
+
+    }
+
     bool usePath = !rect.isSimple();
     // another two reasons we might need to call drawPath...
     if (paint.getMaskFilter() || paint.getPathEffect()) {
@@ -756,16 +796,10 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
         return;
     }
 
-    GrPaint grPaint;
-    if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
-        return;
-    }
-
-    SkStrokeRec stroke(paint);
     fContext->drawRRect(grPaint, rect, stroke);
 }
 
-///////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
                            const SkPaint& paint) {
@@ -1011,7 +1045,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
             }
 
             if (paint.getMaskFilter()->directFilterMaskGPU(fContext, &grPaint,
-                                                           SkStrokeRec(paint), *devPathPtr)) {
+                                                           stroke, *devPathPtr)) {
                 // the mask filter was able to draw itself directly, so there's nothing
                 // left to do.
                 return;

@@ -101,6 +101,8 @@ public:
     }
     inline bool isComplex() const { return kComplex_Type == this->getType(); }
 
+    bool allCornersCircular() const;
+
     SkScalar width() const { return fRect.width(); }
     SkScalar height() const { return fRect.height(); }
 

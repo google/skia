@@ -45,6 +45,10 @@ public:
                                      GrPaint* grp,
                                      const SkStrokeRec& strokeRec,
                                      const SkPath& path) const SK_OVERRIDE;
+    virtual bool directFilterRRectMaskGPU(GrContext* context,
+                                          GrPaint* grp,
+                                          const SkStrokeRec& strokeRec,
+                                          const SkRRect& rrect) const SK_OVERRIDE;
 
     virtual bool filterMaskGPU(GrTexture* src,
                                const SkMatrix& ctm,
@@ -813,6 +817,13 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
 
     context->drawRect(*grp, rect);
     return true;
+}
+
+bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
+                                                    GrPaint* grp,
+                                                    const SkStrokeRec& strokeRec,
+                                                    const SkRRect& rrect) const {
+    return false;
 }
 
 bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRect& srcBounds,

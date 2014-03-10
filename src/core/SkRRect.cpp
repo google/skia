@@ -172,6 +172,13 @@ bool SkRRect::checkCornerContainment(SkScalar x, SkScalar y) const {
     return dist <= SkScalarSquare(SkScalarMul(fRadii[index].fX, fRadii[index].fY));
 }
 
+bool SkRRect::allCornersCircular() const {
+    return fRadii[0].fX == fRadii[0].fY &&
+        fRadii[1].fX == fRadii[1].fY &&
+        fRadii[2].fX == fRadii[2].fY &&
+        fRadii[3].fX == fRadii[3].fY;
+}
+
 bool SkRRect::contains(const SkRect& rect) const {
     if (!this->getBounds().contains(rect)) {
         // If 'rect' isn't contained by the RR's bounds then the
