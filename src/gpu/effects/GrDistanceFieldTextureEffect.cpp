@@ -56,7 +56,7 @@ public:
                                        fsCoordName.c_str(),
                                        kVec2f_GrSLType);
         builder->fsCodeAppend(";\n");
-        builder->fsCodeAppend("\tfloat distance = "MULTIPLIER"*(texColor.r - "THRESHOLD");\n");
+        builder->fsCodeAppend("\tfloat distance = " MULTIPLIER "*(texColor.r - " THRESHOLD ");\n");
 
         // we adjust for the effect of the transformation on the distance by using
         // the length of the gradient of the texture coordinates. We use st coordinates
