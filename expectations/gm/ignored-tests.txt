@@ -50,3 +50,8 @@ rrect_clip_aa
 # I will likely just delete the GM.
 canvas-layer-state
 
+# Fixes correctness for offsetimagefilter; slight pixel diffs for imagefiltersclipped.
+# https://codereview.chromium.org/195163004
+# senorblanco will rebaseline.
+offsetimagefilter
+imagefiltersclipped
