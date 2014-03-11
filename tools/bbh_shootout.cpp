@@ -22,7 +22,7 @@ static const int kBBoxTypeCount = sk_tools::PictureRenderer::kLast_BBoxHierarchy
 
 
 DEFINE_string2(skps, r, "", "The list of SKPs to benchmark.");
-DEFINE_string(bbh, "", "The set of bbox types to test. If empty, all are tested. "
+DEFINE_string(bb_types, "", "The set of bbox types to test. If empty, all are tested. "
                        "Should be one or more of none, quadtree, rtree, tilegrid.");
 DEFINE_int32(record, 100, "Number of times to record each SKP.");
 DEFINE_int32(playback, 1, "Number of times to playback each SKP.");
@@ -87,8 +87,8 @@ int tool_main(int argc, char** argv) {
     SkAutoGraphics ag;
     bool includeBBoxType[kBBoxTypeCount];
     for (int bBoxType = 0; bBoxType < kBBoxTypeCount; ++bBoxType) {
-        includeBBoxType[bBoxType] = (FLAGS_bbh.count() == 0) ||
-            FLAGS_bbh.contains(kBBoxHierarchyTypeNames[bBoxType]);
+        includeBBoxType[bBoxType] = (FLAGS_bb_types.count() == 0) ||
+            FLAGS_bb_types.contains(kBBoxHierarchyTypeNames[bBoxType]);
     }
     // go through all the pictures
     SkTArray<Measurement> measurements;
