@@ -149,7 +149,7 @@ public:
 
     /**
      * Resets the GPU's state. Does nothing if the backing is raster. For a GPU renderer, calls
-     * flush, and calls finish if callFinish is true.
+     * flush, swapBuffers and, if callFinish is true, finish.
      * @param callFinish Whether to call finish.
      */
     void resetState(bool callFinish);

@@ -247,6 +247,7 @@ void PictureRenderer::resetState(bool callFinish) {
     }
 
     fGrContext->flush();
+    glContext->swapBuffers();
     if (callFinish) {
         SK_GL(*glContext, Finish());
     }
