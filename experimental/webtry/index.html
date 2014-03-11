@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Skia WebTry</title>
+    <meta charset='utf-8' />
+    <style type="text/css" media="screen">
+        textarea {
+            margin-left: 0;
+            border: solid 1px #ccc;
+            color: green;
+        }
+        pre, code {
+            padding: 0;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+  <pre><code>#include "SkCanvas.h"
+#include "SkGraphics.h"
+#include "SkImageEncoder.h"
+#include "SkImageInfo.h"
+#include "SkForceLinking.h"
+
+int main() {
+  SkForceLinking(false);
+  SkGraphics::Init();
+
+  SkImageInfo info = SkImageInfo::MakeN32(300, 300, kPremul_SkAlphaType);
+  SkBitmap bitmap;
+  bitmap.setConfig(info);
+  bitmap.allocPixels();
+  SkCanvas c(bitmap);
+  c.drawColor(SK_ColorWHITE);
+
+  <textarea name='code' id='code' rows='20' cols='80'>SkPaint p;
+p.setColor(SK_ColorRED);
+p.setAntiAlias(true);
+p.setStyle(SkPaint::kStroke_Style);
+p.setStrokeWidth(10);
+
+c.drawLine(20, 20, 100, 100, p);
+</textarea>
+
+  if (!SkImageEncoder::EncodeFile("foo.png", bitmap, SkImageEncoder::kPNG_Type, 100)) {
+    printf("Failed to encode\n");
+  }
+}
+</code></pre>
+
+  <p>Image appears here:</p>
+  <img id='img' src=''/>
+
+  <pre><code id='output'></code></pre>
+
+  <input type='button' value='Run' id='run'>
+  <script type='text/javascript' charset='utf-8'>
+      var run = document.getElementById('run');
+      var code = document.getElementById('code');
+      var output = document.getElementById('output');
+      var img = document.getElementById('img');
+
+      function codeComplete(e) {
+        // The response is JSON of the form:
+        // {
+        //   "message": "you had an error...",
+        //   "img": "<base64 encoded image but only on success>"
+        // }
+        //
+        // The img is optional and only appears if there is a valid
+        // image to display.
+        console.log(e.target.response);
+        body = JSON.parse(e.target.response);
+        output.innerText = body.message;
+        if (body.hasOwnProperty('img')) {
+            img.src = 'data:image/png;base64,' + body.img;
+        } else {
+            img.src = '';
+        }
+      }
+
+      function codeError(e) {
+        alert('Something bad happened: ' + e);
+      }
+
+      run.addEventListener('click', onSubmitCode);
+      function onSubmitCode() {
+          var req = new XMLHttpRequest();
+          req.addEventListener('load', codeComplete);
+          req.addEventListener('error', codeError);
+          req.overrideMimeType('application/json');
+          req.open('POST', '.', true);
+          req.send(code.value + '\r\nEOF\r\n');
+      }
+  </script>
+</body>
+</html>

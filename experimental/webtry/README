@@ -1,0 +1,16 @@
+WebTry
+======
+
+Allows trying out Skia code in the browser. Run a local webserver
+and from the pages it serves try out Skia code and see the results
+immediately.
+
+Running
+=======
+
+$ cd experimental/webtry
+$ python server.py
+
+Then visit http://localhost:8765 in your browser.
+
+
