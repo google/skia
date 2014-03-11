@@ -165,10 +165,10 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
     const RRectEffect& rre = drawEffect.castEffect<RRectEffect>();
     const char *rectName;
     const char *radiusPlusHalfName;
-    // The inner rect is the rrect bounds inset by the radius. Its top, left, right, and bottom
-    // edges correspond to components x, y, z, and w, respectively. When one side of the rrect has
-    // rectangular corners, that side's value corresponds to the rect edge's value outset by half a
-    // pixel.
+    // The inner rect is the rrect bounds inset by the radius. Its left, top, right, and bottom
+    // edges correspond to components x, y, z, and w, respectively. When a side of the rrect has
+    // only rectangular corners, that side's value corresponds to the rect edge's value outset by
+    // half a pixel.
     fInnerRectUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType,
                                             "innerRect",
@@ -199,6 +199,45 @@ void GLRRectEffect::emitCode(GrGLShaderBuilder* builder,
             builder->fsCodeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
             builder->fsCodeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
             builder->fsCodeAppendf("\t\tfloat alpha = clamp(%s - length(dxy), 0.0, 1.0);\n",
+                                   radiusPlusHalfName);
+            break;
+        case RRectEffect::kTopLeft_CornerFlag:
+            builder->fsCodeAppendf("\t\tvec2 dxy = max(%s.xy - %s.xy, 0.0);\n", rectName, fragmentPos);
+            builder->fsCodeAppendf("\t\tfloat rightAlpha = clamp(%s.z - %s.x, 0.0, 1.0);\n",
+                                    rectName, fragmentPos);
+            builder->fsCodeAppendf("\t\tfloat bottomAlpha = clamp(%s.w - %s.y, 0.0, 1.0);\n",
+                                    rectName, fragmentPos);
+            builder->fsCodeAppendf("\t\tfloat alpha = bottomAlpha * rightAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
+                                   radiusPlusHalfName);
+            break;
+        case RRectEffect::kTopRight_CornerFlag:
+            builder->fsCodeAppendf("\t\tvec2 dxy = max(vec2(%s.x - %s.z, %s.y - %s.y), 0.0);\n",
+                                   fragmentPos, rectName, rectName, fragmentPos);
+            builder->fsCodeAppendf("\t\tfloat leftAlpha = clamp(%s.x - %s.x, 0.0, 1.0);\n",
+                                   fragmentPos, rectName);
+            builder->fsCodeAppendf("\t\tfloat bottomAlpha = clamp(%s.w - %s.y, 0.0, 1.0);\n",
+                                    rectName, fragmentPos);
+            builder->fsCodeAppendf("\t\tfloat alpha = bottomAlpha * leftAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
+                                   radiusPlusHalfName);
+            break;
+        case RRectEffect::kBottomRight_CornerFlag:
+            builder->fsCodeAppendf("\t\tvec2 dxy = max(%s.xy - %s.zw, 0.0);\n",
+                                   fragmentPos, rectName);
+            builder->fsCodeAppendf("\t\tfloat leftAlpha = clamp(%s.x - %s.x, 0.0, 1.0);\n",
+                                   fragmentPos, rectName);
+            builder->fsCodeAppendf("\t\tfloat topAlpha = clamp(%s.y - %s.y, 0.0, 1.0);\n",
+                                   fragmentPos, rectName);
+            builder->fsCodeAppendf("\t\tfloat alpha = topAlpha * leftAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
+                                   radiusPlusHalfName);
+            break;
+        case RRectEffect::kBottomLeft_CornerFlag:
+            builder->fsCodeAppendf("\t\tvec2 dxy = max(vec2(%s.x - %s.x, %s.y - %s.w), 0.0);\n",
+                                   rectName, fragmentPos, fragmentPos, rectName);
+            builder->fsCodeAppendf("\t\tfloat rightAlpha = clamp(%s.z - %s.x, 0.0, 1.0);\n",
+                                    rectName, fragmentPos);
+            builder->fsCodeAppendf("\t\tfloat topAlpha = clamp(%s.y - %s.y, 0.0, 1.0);\n",
+                                   fragmentPos, rectName);
+            builder->fsCodeAppendf("\t\tfloat alpha = topAlpha * rightAlpha * clamp(%s - length(dxy), 0.0, 1.0);\n",
                                    radiusPlusHalfName);
             break;
         case RRectEffect::kLeft_CornerFlags:
@@ -265,6 +304,34 @@ void GLRRectEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& 
                 radius = rrect.getSimpleRadii().fX;
                 SkASSERT(radius >= RRectEffect::kRadiusMin);
                 rect.inset(radius, radius);
+                break;
+            case RRectEffect::kTopLeft_CornerFlag:
+                radius = rrect.radii(SkRRect::kUpperLeft_Corner).fX;
+                rect.fLeft += radius;
+                rect.fTop += radius;
+                rect.fRight += 0.5f;
+                rect.fBottom += 0.5f;
+                break;
+            case RRectEffect::kTopRight_CornerFlag:
+                radius = rrect.radii(SkRRect::kUpperRight_Corner).fX;
+                rect.fLeft -= 0.5;
+                rect.fTop += radius;
+                rect.fRight -= radius;
+                rect.fBottom += 0.5f;
+                break;
+            case RRectEffect::kBottomRight_CornerFlag:
+                radius = rrect.radii(SkRRect::kLowerRight_Corner).fX;
+                rect.fLeft -= 0.5;
+                rect.fTop -= 0.5;
+                rect.fRight -= radius;
+                rect.fBottom -= radius;
+                break;
+            case RRectEffect::kBottomLeft_CornerFlag:
+                radius = rrect.radii(SkRRect::kLowerLeft_Corner).fX;
+                rect.fLeft += radius;
+                rect.fTop -= 0.5;
+                rect.fRight += 0.5;
+                rect.fBottom -= radius;
                 break;
             case RRectEffect::kLeft_CornerFlags:
                 radius = rrect.radii(SkRRect::kUpperLeft_Corner).fX;
@@ -343,6 +410,10 @@ GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rre
         }
 
         switch (cornerFlags) {
+            case RRectEffect::kTopLeft_CornerFlag:
+            case RRectEffect::kTopRight_CornerFlag:
+            case RRectEffect::kBottomRight_CornerFlag:
+            case RRectEffect::kBottomLeft_CornerFlag:
             case RRectEffect::kLeft_CornerFlags:
             case RRectEffect::kTop_CornerFlags:
             case RRectEffect::kRight_CornerFlags:

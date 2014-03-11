@@ -37,9 +37,13 @@
 # http://skbug.com/2222 : Inverse filled paths get inverse stroked
 inverse_paths
 
-# bsalomon: The rrects that can be drawn by effects are now tightly packed in the GM image.
-# https://codereview.chromium.org/190953008
+# bsalomon: Additional test cases were added to these GMs
+# https://codereview.chromium.org/193263002/
 rrect_effect
+rrect_draw_bw
+rrect_draw_aa
+rrect_clip_bw
+rrect_clip_aa
 
 # reed: https://codereview.chromium.org/190723004/
 # This change removes an API that this GM was testing. If/when it lands and sticks,
