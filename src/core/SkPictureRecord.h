@@ -37,6 +37,9 @@ public:
     SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags);
     virtual ~SkPictureRecord();
 
+    virtual int save(SaveFlags) SK_OVERRIDE;
+    virtual int saveLayer(const SkRect* bounds, const SkPaint*, SaveFlags) SK_OVERRIDE;
+    virtual void restore() SK_OVERRIDE;
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
     virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool rotate(SkScalar degrees) SK_OVERRIDE;
@@ -224,11 +227,6 @@ protected:
     const void* onPeekPixels(SkImageInfo*, size_t*) SK_OVERRIDE {
         return NULL;
     }
-
-    virtual void onSave(SaveFlags) SK_OVERRIDE;
-    virtual bool onSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
-    virtual void onRestore() SK_OVERRIDE;
-
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
     virtual void onPushCull(const SkRect&) SK_OVERRIDE;
     virtual void onPopCull() SK_OVERRIDE;

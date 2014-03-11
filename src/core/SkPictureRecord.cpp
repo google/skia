@@ -146,7 +146,7 @@ static inline uint32_t getPaintOffset(DrawType op, uint32_t opSize) {
     return gPaintOffsets[op] * sizeof(uint32_t) + overflow;
 }
 
-void SkPictureRecord::onSave(SaveFlags flags) {
+int SkPictureRecord::save(SaveFlags flags) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.save(flags);
@@ -156,8 +156,7 @@ void SkPictureRecord::onSave(SaveFlags flags) {
     fRestoreOffsetStack.push(-(int32_t)fWriter.bytesWritten());
     this->recordSave(flags);
 #endif
-
-    this->INHERITED::onSave(flags);
+    return this->INHERITED::save(flags);
 }
 
 void SkPictureRecord::recordSave(SaveFlags flags) {
@@ -169,11 +168,12 @@ void SkPictureRecord::recordSave(SaveFlags flags) {
     this->validate(initialOffset, size);
 }
 
-bool SkPictureRecord::onSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                  SaveFlags flags) {
+int SkPictureRecord::saveLayer(const SkRect* bounds, const SkPaint* paint,
+                               SaveFlags flags) {
 
+    int count;
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
-    fMCMgr.saveLayer(bounds, paint, flags);
+    count = fMCMgr.saveLayer(bounds, paint, flags);
 #else
     // record the offset to us, making it non-positive to distinguish a save
     // from a clip entry.
@@ -184,13 +184,15 @@ bool SkPictureRecord::onSaveLayer(const SkRect* bounds, const SkPaint* paint,
     }
 #endif
 
-    this->INHERITED::onSaveLayer(bounds, paint, flags);
-    /*  No need for a (potentially very big) layer which we don't actually need
+    /*  Don't actually call INHERITED::saveLayer, because that will try to allocate
+        an offscreen device (potentially very big) which we don't actually need
         at this time (and may not be able to afford since during record our
         clip starts out the size of the picture, which is often much larger
         than the size of the actual device we'll use during playback).
      */
-    return false;
+    count = this->INHERITED::save(flags);
+    this->clipRectBounds(bounds, flags, NULL);
+    return count;
 }
 
 void SkPictureRecord::recordSaveLayer(const SkRect* bounds, const SkPaint* paint,
@@ -603,7 +605,7 @@ static void apply_optimization_to_bbh(PictureRecordOptType opt, SkPictureStateTr
     }
 }
 
-void SkPictureRecord::onRestore() {
+void SkPictureRecord::restore() {
     // FIXME: SkDeferredCanvas needs to be refactored to respect
     // save/restore balancing so that the following test can be
     // turned on permanently.
@@ -651,7 +653,7 @@ void SkPictureRecord::onRestore() {
     fRestoreOffsetStack.pop();
 #endif
 
-    this->INHERITED::onRestore();
+    return this->INHERITED::restore();
 }
 
 void SkPictureRecord::recordRestore(bool fillInSkips) {

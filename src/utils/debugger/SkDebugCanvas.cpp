@@ -530,9 +530,8 @@ void SkDebugCanvas::onPopCull() {
     this->addDrawCommand(new SkPopCullCommand());
 }
 
-void SkDebugCanvas::onRestore() {
-    this->addDrawCommand(new SkRestoreCommand());
-    this->INHERITED::onRestore();
+void SkDebugCanvas::restore() {
+    addDrawCommand(new SkRestoreCommand());
 }
 
 bool SkDebugCanvas::rotate(SkScalar degrees) {
@@ -540,17 +539,15 @@ bool SkDebugCanvas::rotate(SkScalar degrees) {
     return true;
 }
 
-void SkDebugCanvas::onSave(SaveFlags flags) {
-    this->addDrawCommand(new SkSaveCommand(flags));
-    this->INHERITED::onSave(flags);
+int SkDebugCanvas::save(SaveFlags flags) {
+    addDrawCommand(new SkSaveCommand(flags));
+    return true;
 }
 
-bool SkDebugCanvas::onSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                SaveFlags flags) {
-    this->addDrawCommand(new SkSaveLayerCommand(bounds, paint, flags));
-    this->INHERITED::onSaveLayer(bounds, paint, flags);
-    // No need for a full layer.
-    return false;
+int SkDebugCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
+        SaveFlags flags) {
+    addDrawCommand(new SkSaveLayerCommand(bounds, paint, flags));
+    return true;
 }
 
 bool SkDebugCanvas::scale(SkScalar sx, SkScalar sy) {

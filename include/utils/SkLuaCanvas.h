@@ -20,6 +20,11 @@ public:
     SkLuaCanvas(int width, int height, lua_State*, const char function[]);
     virtual ~SkLuaCanvas();
 
+    virtual int save(SaveFlags flags) SK_OVERRIDE;
+    virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
+                          SaveFlags flags) SK_OVERRIDE;
+    virtual void restore() SK_OVERRIDE;
+
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
     virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool rotate(SkScalar degrees) SK_OVERRIDE;
@@ -62,10 +67,6 @@ public:
     virtual void drawData(const void* data, size_t length) SK_OVERRIDE;
 
 protected:
-    virtual void onSave(SaveFlags) SK_OVERRIDE;
-    virtual bool onSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
-    virtual void onRestore() SK_OVERRIDE;
-
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
 
     virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
