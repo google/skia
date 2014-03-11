@@ -192,13 +192,13 @@ void SkDumpCanvas::dump(Verb verb, const SkPaint* paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int SkDumpCanvas::save(SaveFlags flags) {
+void SkDumpCanvas::onSave(SaveFlags flags) {
     this->dump(kSave_Verb, NULL, "save(0x%X)", flags);
-    return this->INHERITED::save(flags);
+    this->INHERITED::onSave(flags);
 }
 
-int SkDumpCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
-                             SaveFlags flags) {
+bool SkDumpCanvas::onSaveLayer(const SkRect* bounds, const SkPaint* paint,
+                               SaveFlags flags) {
     SkString str;
     str.printf("saveLayer(0x%X)", flags);
     if (bounds) {
@@ -214,12 +214,12 @@ int SkDumpCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
         }
     }
     this->dump(kSave_Verb, paint, str.c_str());
-    return this->INHERITED::saveLayer(bounds, paint, flags);
+    return this->INHERITED::onSaveLayer(bounds, paint, flags);
 }
 
-void SkDumpCanvas::restore() {
-    this->INHERITED::restore();
+void SkDumpCanvas::onRestore() {
     this->dump(kRestore_Verb, NULL, "restore");
+    this->INHERITED::onRestore();
 }
 
 bool SkDumpCanvas::translate(SkScalar dx, SkScalar dy) {

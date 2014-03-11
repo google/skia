@@ -57,29 +57,33 @@ private:
     SkCanvas* fCanvas;
 };
 
-int SkNWayCanvas::save(SaveFlags flags) {
+void SkNWayCanvas::onSave(SaveFlags flags) {
     Iter iter(fList);
     while (iter.next()) {
         iter->save(flags);
     }
-    return this->INHERITED::save(flags);
+
+    this->INHERITED::onSave(flags);
 }
 
-int SkNWayCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
-                                    SaveFlags flags) {
+bool SkNWayCanvas::onSaveLayer(const SkRect* bounds, const SkPaint* paint,
+                               SaveFlags flags) {
     Iter iter(fList);
     while (iter.next()) {
         iter->saveLayer(bounds, paint, flags);
     }
-    return this->INHERITED::saveLayer(bounds, paint, flags);
+
+    this->INHERITED::onSaveLayer(bounds, paint, flags);
+    // No need for a layer.
+    return false;
 }
 
-void SkNWayCanvas::restore() {
+void SkNWayCanvas::onRestore() {
     Iter iter(fList);
     while (iter.next()) {
         iter->restore();
     }
-    this->INHERITED::restore();
+    this->INHERITED::onRestore();
 }
 
 bool SkNWayCanvas::translate(SkScalar dx, SkScalar dy) {

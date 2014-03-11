@@ -348,7 +348,7 @@ public:
             SkPaint tmp;
             tmp.setImageFilter(fOrigPaint.getImageFilter());
             (void)canvas->internalSaveLayer(bounds, &tmp,
-                                    SkCanvas::kARGB_ClipLayer_SaveFlag, true);
+                                    SkCanvas::kARGB_ClipLayer_SaveFlag, true, false);
             // we'll clear the imageFilter for the actual draws in next(), so
             // it will only be applied during the restore().
             fDoClearImageFilter = true;
@@ -806,7 +806,12 @@ int SkCanvas::internalSave(SaveFlags flags) {
     return saveCount;
 }
 
+void SkCanvas::onSave(SaveFlags) {
+    // Do nothing. Subclasses may do something.
+}
+
 int SkCanvas::save(SaveFlags flags) {
+    this->onSave(flags);
     // call shared impl
     return this->internalSave(flags);
 }
@@ -863,9 +868,16 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
     return true;
 }
 
+bool SkCanvas::onSaveLayer(const SkRect*, const SkPaint*, SaveFlags) {
+    // Do nothing. Subclasses may do something.
+    return true;
+}
+
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
                         SaveFlags flags) {
-    return this->internalSaveLayer(bounds, paint, flags, false);
+    // Overriding classes may return false to signal that we don't need to create a layer.
+    bool skipLayer = !this->onSaveLayer(bounds, paint, flags);
+    return this->internalSaveLayer(bounds, paint, flags, false, skipLayer);
 }
 
 static SkBaseDevice* createCompatibleDevice(SkCanvas* canvas,
@@ -875,7 +887,7 @@ static SkBaseDevice* createCompatibleDevice(SkCanvas* canvas,
 }
 
 int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                SaveFlags flags, bool justForImageFilter) {
+                                SaveFlags flags, bool justForImageFilter, bool skipLayer) {
 #ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     flags = (SaveFlags)(flags | kClipToLayer_SaveFlag);
 #endif
@@ -890,6 +902,11 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
     if (!this->clipRectBounds(bounds, flags, &ir, paint ? paint->getImageFilter() : NULL)) {
         return count;
     }
+
+    // FIXME: do onSaveLayer() overriders returning false really care about the clipRectBounds()
+    // call above?
+    if (skipLayer)
+        return count;
 
     // Kill the imagefilter if our device doesn't allow it
     SkLazyPaint lazyP;
@@ -943,9 +960,14 @@ int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha,
     }
 }
 
+void SkCanvas::onRestore() {
+    // Do nothing. Subclasses may do something.
+}
+
 void SkCanvas::restore() {
     // check for underflow
     if (fMCStack.count() > 1) {
+        this->onRestore();
         this->internalRestore();
     }
 }

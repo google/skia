@@ -229,10 +229,6 @@ public:
     }
 
     // overrides from SkCanvas
-    virtual int save(SaveFlags) SK_OVERRIDE;
-    virtual int saveLayer(const SkRect* bounds, const SkPaint*,
-                          SaveFlags) SK_OVERRIDE;
-    virtual void restore() SK_OVERRIDE;
     virtual bool isDrawingToLayer() const SK_OVERRIDE;
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
     virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
@@ -287,6 +283,10 @@ public:
     bool shuttleBitmap(const SkBitmap&, int32_t slot);
 
 protected:
+    virtual void onSave(SaveFlags) SK_OVERRIDE;
+    virtual bool onSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
+    virtual void onRestore() SK_OVERRIDE;
+
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
 
     virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
@@ -514,16 +514,17 @@ uint32_t SkGPipeCanvas::getTypefaceID(SkTypeface* face) {
 #define NOTIFY_SETUP(canvas)    \
     AutoPipeNotify apn(canvas)
 
-int SkGPipeCanvas::save(SaveFlags flags) {
+void SkGPipeCanvas::onSave(SaveFlags flags) {
     NOTIFY_SETUP(this);
     if (this->needOpBytes()) {
         this->writeOp(kSave_DrawOp, 0, flags);
     }
-    return this->INHERITED::save(flags);
+
+    this->INHERITED::onSave(flags);
 }
 
-int SkGPipeCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
-                             SaveFlags saveFlags) {
+bool SkGPipeCanvas::onSaveLayer(const SkRect* bounds, const SkPaint* paint,
+                                SaveFlags saveFlags) {
     NOTIFY_SETUP(this);
     size_t size = 0;
     unsigned opFlags = 0;
@@ -547,21 +548,23 @@ int SkGPipeCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
     if (kNoSaveLayer == fFirstSaveLayerStackLevel){
         fFirstSaveLayerStackLevel = this->getSaveCount();
     }
-    // we just pass on the save, so we don't create a layer
-    return this->INHERITED::save(saveFlags);
+
+    this->INHERITED::onSaveLayer(bounds, paint, saveFlags);
+    // we don't create a layer
+    return false;
 }
 
-void SkGPipeCanvas::restore() {
+void SkGPipeCanvas::onRestore() {
     NOTIFY_SETUP(this);
     if (this->needOpBytes()) {
         this->writeOp(kRestore_DrawOp);
     }
 
-    this->INHERITED::restore();
-
-    if (this->getSaveCount() == fFirstSaveLayerStackLevel){
+    if (this->getSaveCount() - 1 == fFirstSaveLayerStackLevel){
         fFirstSaveLayerStackLevel = kNoSaveLayer;
     }
+
+    this->INHERITED::onRestore();
 }
 
 bool SkGPipeCanvas::isDrawingToLayer() const {

@@ -26,13 +26,6 @@ public:
     explicit SkNulCanvas(const SkBitmap& bitmap) : SkCanvas(bitmap) {}
     virtual ~SkNulCanvas() {}
 
-    virtual int save(SaveFlags flags = kMatrixClip_SaveFlag) SK_OVERRIDE {return 0;}
-    virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
-                          SaveFlags flags = kARGB_ClipLayer_SaveFlag) SK_OVERRIDE {return 0;}
-    int saveLayerAlpha(const SkRect* bounds, U8CPU alpha,
-                       SaveFlags flags = kARGB_ClipLayer_SaveFlag) {return 0;}
-    virtual void restore() SK_OVERRIDE {}
-    int getSaveCount() const {return 0;}
     virtual bool isDrawingToLayer() const SK_OVERRIDE {return false;}
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE {return true;}
     virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE {return true;}
@@ -105,6 +98,12 @@ public:
 protected:
     virtual SkCanvas* canvasForDrawIter() {return NULL;}
     virtual SkBaseDevice* setDevice(SkBaseDevice* device) {return NULL;}
+
+    virtual bool onSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags)
+        SK_OVERRIDE {
+        this->INHERITED::onSaveLayer(bounds, paint, flags);
+        return false;
+    }
 
     virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE {}
     virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE {}

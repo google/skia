@@ -26,11 +26,6 @@ public:
     SkCanvas*   getProxy() const { return fProxy; }
     void        setProxy(SkCanvas* proxy);
 
-    virtual int save(SaveFlags flags = kMatrixClip_SaveFlag) SK_OVERRIDE;
-    virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
-                          SaveFlags flags = kARGB_ClipLayer_SaveFlag) SK_OVERRIDE;
-    virtual void restore() SK_OVERRIDE;
-
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
     virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool rotate(SkScalar degrees) SK_OVERRIDE;
@@ -80,6 +75,10 @@ public:
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter) SK_OVERRIDE;
 
 protected:
+    virtual void onSave(SaveFlags) SK_OVERRIDE;
+    virtual bool onSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
+    virtual void onRestore() SK_OVERRIDE;
+
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
 
     virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;

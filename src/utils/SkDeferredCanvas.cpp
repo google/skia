@@ -739,28 +739,25 @@ bool SkDeferredCanvas::isFullFrame(const SkRect* rect,
         SkIntToScalar(canvasSize.fWidth), SkIntToScalar(canvasSize.fHeight)));
 }
 
-int SkDeferredCanvas::save(SaveFlags flags) {
+void SkDeferredCanvas::onSave(SaveFlags flags) {
     this->drawingCanvas()->save(flags);
-    int val = this->INHERITED::save(flags);
     this->recordedDrawCommand();
-
-    return val;
+    this->INHERITED::onSave(flags);
 }
 
-int SkDeferredCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
-                                SaveFlags flags) {
+bool SkDeferredCanvas::onSaveLayer(const SkRect* bounds, const SkPaint* paint,
+                                   SaveFlags flags) {
     this->drawingCanvas()->saveLayer(bounds, paint, flags);
-    int count = this->INHERITED::save(flags);
-    this->clipRectBounds(bounds, flags, NULL);
     this->recordedDrawCommand();
-
-    return count;
+    this->INHERITED::onSaveLayer(bounds, paint, flags);
+    // No need for a full layer.
+    return false;
 }
 
-void SkDeferredCanvas::restore() {
+void SkDeferredCanvas::onRestore() {
     this->drawingCanvas()->restore();
-    this->INHERITED::restore();
     this->recordedDrawCommand();
+    this->INHERITED::onRestore();
 }
 
 bool SkDeferredCanvas::isDrawingToLayer() const {
