@@ -84,6 +84,8 @@ public:
         kQuadTree_BBoxHierarchyType,
         kRTree_BBoxHierarchyType,
         kTileGrid_BBoxHierarchyType,
+
+        kLast_BBoxHierarchyType = kTileGrid_BBoxHierarchyType,
     };
 
     // this uses SkPaint::Flags as a base and adds additional flags

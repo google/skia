@@ -15,155 +15,30 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTArray.h"
-#include "TimerData.h"
+#include "SkCommandLineFlags.h"
 
-static const int kNumNormalRecordings = 10;
-static const int kNumRTreeRecordings = 10;
-static const int kNumPlaybacks = 1;
-static const size_t kNumBaseBenchmarks = 3;
-static const size_t kNumTileSizes = 3;
-static const size_t kNumBbhPlaybackBenchmarks = 3;
-static const size_t kNumBenchmarks = kNumBaseBenchmarks + kNumBbhPlaybackBenchmarks;
-
-enum BenchmarkType {
-    kNormal_BenchmarkType = 0,
-    kRTree_BenchmarkType,
-};
-
-struct Histogram {
-    Histogram() {
-        // Make fCpuTime negative so that we don't mess with stats:
-        fCpuTime = SkIntToScalar(-1);
-    }
-    SkScalar fCpuTime;
-    SkString fPath;
-};
+typedef sk_tools::PictureRenderer::BBoxHierarchyType BBoxType;
+static const int kBBoxTypeCount = sk_tools::PictureRenderer::kLast_BBoxHierarchyType + 1;
 
 
-////////////////////////////////////////////////////////////////////////////////
-// Defined below.
-struct BenchmarkControl;
+DEFINE_string2(skps, r, "", "The list of SKPs to benchmark.");
+DEFINE_string(bbh, "", "The set of bbox types to test. If empty, all are tested. "
+                       "Should be one or more of none, quadtree, rtree, tilegrid.");
+DEFINE_int32(record, 100, "Number of times to record each SKP.");
+DEFINE_int32(playback, 1, "Number of times to playback each SKP.");
+DEFINE_int32(tilesize, 256, "The size of a tile.");
 
-typedef void (*BenchmarkFunction)
-    (const BenchmarkControl&, const SkString&, SkPicture*, BenchTimer*);
-
-static void benchmark_playback(
-    const BenchmarkControl&, const SkString&, SkPicture*, BenchTimer*);
-static void benchmark_recording(
-    const BenchmarkControl&, const SkString&, SkPicture*, BenchTimer*);
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Acts as a POD containing information needed to run a benchmark.
- * Provides static methods to poll benchmark info from an index.
- */
-struct BenchmarkControl {
-    SkISize fTileSize;
-    BenchmarkType fType;
-    BenchmarkFunction fFunction;
+struct Measurement {
     SkString fName;
-
-    /**
-     * Will construct a BenchmarkControl instance from an index between 0 an kNumBenchmarks.
-     */
-    static BenchmarkControl Make(size_t i) {
-        SkASSERT(kNumBenchmarks > i);
-        BenchmarkControl benchControl;
-        benchControl.fTileSize = GetTileSize(i);
-        benchControl.fType = GetBenchmarkType(i);
-        benchControl.fFunction = GetBenchmarkFunc(i);
-        benchControl.fName = GetBenchmarkName(i);
-        return benchControl;
-    }
-
-    enum BaseBenchmarks {
-        kNormalRecord = 0,
-        kRTreeRecord,
-        kNormalPlayback,
-    };
-
-    static SkISize fTileSizes[kNumTileSizes];
-
-    static SkISize GetTileSize(size_t i) {
-        // Two of the base benchmarks don't need a tile size. But to maintain simplicity
-        // down the pipeline we have to let a couple of values unused.
-        if (i < kNumBaseBenchmarks) {
-            return SkISize::Make(256, 256);
-        }
-        if (i >= kNumBaseBenchmarks && i < kNumBenchmarks) {
-            return fTileSizes[i - kNumBaseBenchmarks];
-        }
-        SkASSERT(0);
-        return SkISize::Make(0, 0);
-    }
-
-    static BenchmarkType GetBenchmarkType(size_t i) {
-        if (i < kNumBaseBenchmarks) {
-            switch (i) {
-            case kNormalRecord:
-                return kNormal_BenchmarkType;
-            case kNormalPlayback:
-                return kNormal_BenchmarkType;
-            case kRTreeRecord:
-                return kRTree_BenchmarkType;
-            }
-        }
-        if (i < kNumBenchmarks) {
-            return kRTree_BenchmarkType;
-        }
-        SkASSERT(0);
-        return kRTree_BenchmarkType;
-    }
-
-    static BenchmarkFunction GetBenchmarkFunc(size_t i) {
-        // Base functions.
-        switch (i) {
-            case kNormalRecord:
-                return benchmark_recording;
-            case kNormalPlayback:
-                return benchmark_playback;
-            case kRTreeRecord:
-                return benchmark_recording;
-        }
-        // RTree playbacks
-        if (i < kNumBenchmarks) {
-            return benchmark_playback;
-        }
-        SkASSERT(0);
-        return NULL;
-    }
-
-    static SkString GetBenchmarkName(size_t i) {
-        // Base benchmark names
-        switch (i) {
-            case kNormalRecord:
-                return SkString("normal_recording");
-            case kNormalPlayback:
-                return SkString("normal_playback");
-            case kRTreeRecord:
-                return SkString("rtree_recording");
-        }
-        // RTree benchmark names.
-        if (i < kNumBenchmarks) {
-            SkASSERT(i >= kNumBaseBenchmarks);
-            SkString name;
-            name.printf("rtree_playback_%dx%d",
-                    fTileSizes[i - kNumBaseBenchmarks].fWidth,
-                    fTileSizes[i - kNumBaseBenchmarks].fHeight);
-            return name;
-
-        } else {
-            SkASSERT(0);
-        }
-        return SkString("");
-    }
-
+    double fRecordAverage[kBBoxTypeCount];
+    double fPlaybackAverage[kBBoxTypeCount];
 };
 
-SkISize BenchmarkControl::fTileSizes[kNumTileSizes] = {
-    SkISize::Make(256, 256),
-    SkISize::Make(512, 512),
-    SkISize::Make(1024, 1024),
+const char* kBBoxHierarchyTypeNames[kBBoxTypeCount] = {
+    "none", // kNone_BBoxHierarchyType
+    "quadtree", // kQuadTree_BBoxHierarchyType
+    "rtree", // kRTree_BBoxHierarchyType
+    "tilegrid", // kTileGrid_BBoxHierarchyType
 };
 
 static SkPicture* pic_from_path(const char path[]) {
@@ -176,162 +51,90 @@ static SkPicture* pic_from_path(const char path[]) {
 }
 
 /**
- * Returns true when a tiled renderer with no bounding box hierarchy produces the given bitmap.
- */
-static bool compare_picture(const SkString& path, const SkBitmap& inBitmap, SkPicture* pic) {
-    SkBitmap* bitmap;
-    sk_tools::TiledPictureRenderer renderer;
-    renderer.setBBoxHierarchyType(sk_tools::PictureRenderer::kNone_BBoxHierarchyType);
-    renderer.init(pic);
-    renderer.setup();
-    renderer.render(&path, &bitmap);
-    SkAutoTDelete<SkBitmap> bmDeleter(bitmap);
-    renderer.end();
-
-    if (bitmap->getSize() != inBitmap.getSize()) {
-        return false;
-    }
-    return !memcmp(bitmap->getPixels(), inBitmap.getPixels(), bitmap->getSize());
-}
-
-/**
  * This function is the sink to which all work ends up going.
- * Renders the picture into the renderer. It may or may not use an RTree.
- * The renderer is chosen upstream. If we want to measure recording, we will
- * use a RecordPictureRenderer. If we want to measure rendering, we will use a
- * TiledPictureRenderer.
+ * @param renderer The renderer to use to perform the work.
+ *                 To measure rendering, use a TiledPictureRenderer.
+ *                 To measure recording, use a RecordPictureRenderer.
+ * @param bBoxType The bounding box hierarchy type to use.
+ * @param pic The picture to draw to the renderer.
+ * @param numRepeats The number of times to repeat the draw.
+ * @param timer The timer used to benchmark the work.
  */
 static void do_benchmark_work(sk_tools::PictureRenderer* renderer,
-        int benchmarkType, const SkString& path, SkPicture* pic,
-        const int numRepeats, const char *msg, BenchTimer* timer) {
-    SkString msgPrefix;
-
-    switch (benchmarkType){
-        case kNormal_BenchmarkType:
-            msgPrefix.set("Normal");
-            renderer->setBBoxHierarchyType(sk_tools::PictureRenderer::kNone_BBoxHierarchyType);
-            break;
-        case kRTree_BenchmarkType:
-            msgPrefix.set("RTree");
-            renderer->setBBoxHierarchyType(sk_tools::PictureRenderer::kRTree_BBoxHierarchyType);
-            break;
-        default:
-            SkASSERT(0);
-            break;
-    }
-
+        BBoxType bBoxType,
+        SkPicture* pic,
+        const int numRepeats,
+        BenchTimer* timer) {
+    renderer->setBBoxHierarchyType(bBoxType);
+    renderer->setGridSize(FLAGS_tilesize, FLAGS_tilesize);
     renderer->init(pic);
 
-    /**
-     * If the renderer is not tiled, assume we are measuring recording.
-     */
-    bool isPlayback = (NULL != renderer->getTiledRenderer());
-    // Will be non-null during RTree picture playback. For correctness test.
-    SkBitmap* bitmap = NULL;
-
-    SkDebugf("%s %s %s %d times...\n", msgPrefix.c_str(), msg, path.c_str(), numRepeats);
+    SkDebugf("%s %d times...\n", renderer->getConfigName().c_str(), numRepeats);
     for (int i = 0; i < numRepeats; ++i) {
-        // Set up the bitmap.
-        SkBitmap** out = NULL;
-        if (i == 0 && kRTree_BenchmarkType == benchmarkType && isPlayback) {
-            out = &bitmap;
-        }
-
         renderer->setup();
-        // Render once to fill caches. Fill bitmap during the first iteration.
-        renderer->render(NULL, out);
+        // Render once to fill caches
+        renderer->render(NULL, NULL);
         // Render again to measure
         timer->start();
-        bool result = renderer->render(NULL);
+        renderer->render(NULL);
         timer->end();
-
-        // We only care about a false result on playback. RecordPictureRenderer::render will always
-        // return false because we are passing a NULL file name on purpose; which is fine.
-        if (isPlayback && !result) {
-            SkDebugf("Error rendering during playback.\n");
-        }
-    }
-    if (bitmap) {
-        SkAutoTDelete<SkBitmap> bmDeleter(bitmap);
-        if (!compare_picture(path, *bitmap, pic)) {
-            SkDebugf("Error: RTree produced different bitmap\n");
-        }
-    }
-}
-
-/**
- * Call do_benchmark_work with a tiled renderer using the default tile dimensions.
- */
-static void benchmark_playback(
-        const BenchmarkControl& benchControl,
-        const SkString& path, SkPicture* pic, BenchTimer* timer) {
-    sk_tools::TiledPictureRenderer renderer;
-
-    SkString message("tiled_playback");
-    message.appendf("_%dx%d", benchControl.fTileSize.fWidth, benchControl.fTileSize.fHeight);
-    do_benchmark_work(&renderer, benchControl.fType,
-            path, pic, kNumPlaybacks, message.c_str(), timer);
-}
-
-/**
- * Call do_benchmark_work with a RecordPictureRenderer.
- */
-static void benchmark_recording(
-        const BenchmarkControl& benchControl,
-        const SkString& path, SkPicture* pic, BenchTimer* timer) {
-    sk_tools::RecordPictureRenderer renderer;
-    int numRecordings = 0;
-    switch(benchControl.fType) {
-        case kRTree_BenchmarkType:
-            numRecordings = kNumRTreeRecordings;
-            break;
-        case kNormal_BenchmarkType:
-            numRecordings = kNumNormalRecordings;
-            break;
-    }
-    do_benchmark_work(&renderer, benchControl.fType,
-            path, pic, numRecordings, "recording", timer);
-}
-
-/**
- * Takes argc,argv along with one of the benchmark functions defined above.
- * Will loop along all skp files and perform measurments.
- */
-static void benchmark_loop(
-        int argc,
-        char **argv,
-        const BenchmarkControl& benchControl,
-        SkTArray<Histogram>& histogram) {
-    for (int index = 1; index < argc; ++index) {
-        BenchTimer timer;
-        SkString path(argv[index]);
-        SkAutoTUnref<SkPicture> pic(pic_from_path(path.c_str()));
-        if (NULL == pic) {
-            SkDebugf("Couldn't create picture. Ignoring path: %s\n", path.c_str());
-            continue;
-        }
-        benchControl.fFunction(benchControl, path, pic, &timer);
-        histogram[index - 1].fPath = path;
-        histogram[index - 1].fCpuTime = SkDoubleToScalar(timer.fCpu);
     }
 }
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
+    SkCommandLineFlags::Parse(argc, argv);
     SkAutoGraphics ag;
-    SkString usage;
-    usage.printf("Usage: filename [filename]*\n");
-
-    if (argc < 2) {
-        SkDebugf("%s\n", usage.c_str());
-        return -1;
+    bool includeBBoxType[kBBoxTypeCount];
+    for (int bBoxType = 0; bBoxType < kBBoxTypeCount; ++bBoxType) {
+        includeBBoxType[bBoxType] = (FLAGS_bbh.count() == 0) ||
+            FLAGS_bbh.contains(kBBoxHierarchyTypeNames[bBoxType]);
+    }
+    // go through all the pictures
+    SkTArray<Measurement> measurements;
+    for (int index = 0; index < FLAGS_skps.count(); ++index) {
+        const char* path = FLAGS_skps[index];
+        SkPicture* picture = pic_from_path(path);
+        if (NULL == picture) {
+            SkDebugf("Couldn't create picture. Ignoring path: %s\n", path);
+            continue;
+        }
+        SkDebugf("Benchmarking path: %s\n", path);
+        Measurement& measurement = measurements.push_back();
+        measurement.fName = path;
+        for (int bBoxType = 0; bBoxType < kBBoxTypeCount; ++bBoxType) {
+            if (!includeBBoxType[bBoxType]) { continue; }
+            if (FLAGS_playback > 0) {
+                sk_tools::TiledPictureRenderer playbackRenderer;
+                BenchTimer playbackTimer;
+                do_benchmark_work(&playbackRenderer, (BBoxType)bBoxType,
+                                  picture, FLAGS_playback, &playbackTimer);
+                measurement.fPlaybackAverage[bBoxType] = playbackTimer.fCpu;
+            }
+            if (FLAGS_record > 0) {
+                sk_tools::RecordPictureRenderer recordRenderer;
+                BenchTimer recordTimer;
+                do_benchmark_work(&recordRenderer, (BBoxType)bBoxType,
+                                  picture, FLAGS_record, &recordTimer);
+                measurement.fRecordAverage[bBoxType] = recordTimer.fCpu;
+            }
+        }
     }
 
-    SkTArray<Histogram> histograms[kNumBenchmarks];
-
-    for (size_t i = 0; i < kNumBenchmarks; ++i) {
-        histograms[i].reset(argc - 1);
-        benchmark_loop(argc, argv, BenchmarkControl::Make(i), histograms[i]);
+    Measurement globalMeasurement;
+    for (int bBoxType = 0; bBoxType < kBBoxTypeCount; ++bBoxType) {
+        if (!includeBBoxType[bBoxType]) { continue; }
+        globalMeasurement.fPlaybackAverage[bBoxType] = 0;
+        globalMeasurement.fRecordAverage[bBoxType] = 0;
+        for (int index = 0; index < measurements.count(); ++index) {
+            const Measurement& measurement = measurements[index];
+            globalMeasurement.fPlaybackAverage[bBoxType] +=
+                measurement.fPlaybackAverage[bBoxType];
+            globalMeasurement.fRecordAverage[bBoxType] +=
+                measurement.fRecordAverage[bBoxType];
+        }
+        globalMeasurement.fPlaybackAverage[bBoxType] /= measurements.count();
+        globalMeasurement.fRecordAverage[bBoxType] /= measurements.count();
     }
 
     // Output gnuplot readable histogram data..
@@ -341,62 +144,46 @@ int tool_main(int argc, char** argv) {
     SkFILEWStream recordOut(recTitle);
     recordOut.writeText("# ");
     playbackOut.writeText("# ");
-    for (size_t i = 0; i < kNumBenchmarks; ++i) {
+    SkDebugf("---\n");
+    for (int bBoxType = 0; bBoxType < kBBoxTypeCount; ++bBoxType) {
+        if (!includeBBoxType[bBoxType]) { continue; }
         SkString out;
-        out.printf("%s ", BenchmarkControl::GetBenchmarkName(i).c_str());
-        if (BenchmarkControl::GetBenchmarkFunc(i) == &benchmark_recording) {
-            recordOut.writeText(out.c_str());
+        out.printf("%s ", kBBoxHierarchyTypeNames[bBoxType]);
+        recordOut.writeText(out.c_str());
+        playbackOut.writeText(out.c_str());
+
+        if (FLAGS_record > 0) {
+            SkDebugf("Average %s recording time: %.3fms\n",
+                kBBoxHierarchyTypeNames[bBoxType],
+                globalMeasurement.fRecordAverage[bBoxType]);
         }
-        if (BenchmarkControl::GetBenchmarkFunc(i) == &benchmark_playback) {
-            playbackOut.writeText(out.c_str());
+        if (FLAGS_playback > 0) {
+            SkDebugf("Average %s playback time: %.3fms\n",
+                kBBoxHierarchyTypeNames[bBoxType],
+                globalMeasurement.fPlaybackAverage[bBoxType]);
         }
     }
     recordOut.writeText("\n");
     playbackOut.writeText("\n");
     // Write to file, and save recording averages.
-    SkScalar avgRecord = SkIntToScalar(0);
-    SkScalar avgPlayback = SkIntToScalar(0);
-    SkScalar avgRecordRTree = SkIntToScalar(0);
-    SkScalar avgPlaybackRTree = SkIntToScalar(0);
-    for (int i = 0; i < argc - 1; ++i) {
+    for (int index = 0; index < measurements.count(); ++index) {
+        const Measurement& measurement = measurements[index];
         SkString pbLine;
         SkString recLine;
-        // ==== Write record info
-        recLine.printf("%d ", i);
-        SkScalar cpuTime = histograms[BenchmarkControl::kNormalRecord][i].fCpuTime;
-        recLine.appendf("%f ", cpuTime);
-        avgRecord += cpuTime;
-        cpuTime = histograms[BenchmarkControl::kRTreeRecord][i].fCpuTime;
-        recLine.appendf("%f", cpuTime);
-        avgRecordRTree += cpuTime;
-        avgPlaybackRTree += cpuTime;
 
-        // ==== Write playback info
-        pbLine.printf("%d ", i);
-        pbLine.appendf("%f ", histograms[2][i].fCpuTime);  // Start with normal playback time.
-        avgPlayback += histograms[kNumBbhPlaybackBenchmarks - 1][i].fCpuTime;
-        avgPlaybackRTree += histograms[kNumBbhPlaybackBenchmarks][i].fCpuTime;
-        // Append all playback benchmark times.
-        for (size_t j = kNumBbhPlaybackBenchmarks; j < kNumBenchmarks; ++j) {
-            pbLine.appendf("%f ", histograms[j][i].fCpuTime);
+        pbLine.printf("%d", index);
+        recLine.printf("%d", index);
+        for (int bBoxType = 0; bBoxType < kBBoxTypeCount; ++bBoxType) {
+            if (!includeBBoxType[bBoxType]) { continue; }
+            pbLine.appendf(" %f", measurement.fPlaybackAverage[bBoxType]);
+            recLine.appendf(" %f", measurement.fRecordAverage[bBoxType]);
         }
-        pbLine.remove(pbLine.size() - 1, 1);  // Remove trailing space from line.
         pbLine.appendf("\n");
         recLine.appendf("\n");
         playbackOut.writeText(pbLine.c_str());
         recordOut.writeText(recLine.c_str());
     }
-    avgRecord /= argc - 1;
-    avgRecordRTree /= argc - 1;
-    avgPlayback /= argc - 1;
-    avgPlaybackRTree /= argc - 1;
-    SkDebugf("Average base recording time: %.3fms\n", avgRecord);
-    SkDebugf("Average recording time with rtree: %.3fms\n", avgRecordRTree);
-    SkDebugf("Average base playback time: %.3fms\n", avgPlayback);
-    SkDebugf("Average playback time with rtree: %.3fms\n", avgPlaybackRTree);
-
     SkDebugf("\nWrote data to gnuplot-readable files: %s %s\n", pbTitle, recTitle);
-
     return 0;
 }
 
