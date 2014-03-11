@@ -83,7 +83,6 @@
       'standalone_static_library': 1,
       'dependencies': [
         'core.gyp:*',
-        'edtaa.gyp:*',
         'utils.gyp:*',
       ],
       'includes': [

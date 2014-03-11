@@ -46,6 +46,7 @@
 
 #ifdef SK_DEBUG
 static const bool kDebugOnly = true;
+#define GR_DUMP_FONT_CACHE 0
 #else
 static const bool kDebugOnly = false;
 #endif
@@ -2404,6 +2405,18 @@ int tool_main(int argc, char** argv) {
 
             SkDebugf("config: %s %x\n", config.fName, gr);
             gr->printCacheStats();
+        }
+    }
+#endif
+
+#if GR_DUMP_FONT_CACHE
+    for (int i = 0; i < configs.count(); i++) {
+        ConfigData config = gRec[configs[i]];
+
+        if (kGPU_Backend == config.fBackend) {
+            GrContext* gr = grFactory->get(config.fGLContextType);
+
+           gr->dumpFontCache();
         }
     }
 #endif
