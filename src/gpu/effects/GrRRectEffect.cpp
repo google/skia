@@ -314,23 +314,23 @@ void GLRRectEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& 
                 break;
             case RRectEffect::kTopRight_CornerFlag:
                 radius = rrect.radii(SkRRect::kUpperRight_Corner).fX;
-                rect.fLeft -= 0.5;
+                rect.fLeft -= 0.5f;
                 rect.fTop += radius;
                 rect.fRight -= radius;
                 rect.fBottom += 0.5f;
                 break;
             case RRectEffect::kBottomRight_CornerFlag:
                 radius = rrect.radii(SkRRect::kLowerRight_Corner).fX;
-                rect.fLeft -= 0.5;
-                rect.fTop -= 0.5;
+                rect.fLeft -= 0.5f;
+                rect.fTop -= 0.5f;
                 rect.fRight -= radius;
                 rect.fBottom -= radius;
                 break;
             case RRectEffect::kBottomLeft_CornerFlag:
                 radius = rrect.radii(SkRRect::kLowerLeft_Corner).fX;
                 rect.fLeft += radius;
-                rect.fTop -= 0.5;
-                rect.fRight += 0.5;
+                rect.fTop -= 0.5f;
+                rect.fRight += 0.5f;
                 rect.fBottom -= radius;
                 break;
             case RRectEffect::kLeft_CornerFlags:
