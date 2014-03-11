@@ -5,7 +5,6 @@
     'SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=<(skia_static_initializers)',
     'SK_SUPPORT_GPU=<(skia_gpu)',
     'SK_SUPPORT_OPENCL=<(skia_opencl)',
-    'SK_DISTANCEFIELD_FONTS=<(skia_distancefield_fonts)',
   ],
   'conditions' : [
     [ 'skia_os == "win"',

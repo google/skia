@@ -13,9 +13,7 @@
 
 #include "GrContext.h"
 #include "GrBitmapTextContext.h"
-#if SK_DISTANCEFIELD_FONTS
 #include "GrDistanceFieldTextContext.h"
-#endif
 
 #include "SkGrTexturePixelRef.h"
 
@@ -189,13 +187,8 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     fContext = context;
     fContext->ref();
 
-#if SK_DISTANCEFIELD_FONTS
     fMainTextContext = SkNEW_ARGS(GrDistanceFieldTextContext, (fContext, fLeakyProperties));
     fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
-#else
-    fMainTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
-    fFallbackTextContext = NULL;
-#endif
 
     fRenderTarget = NULL;
     fNeedClear = false;
@@ -274,13 +267,8 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     fContext = context;
     fContext->ref();
 
-#if SK_DISTANCEFIELD_FONTS
     fMainTextContext = SkNEW_ARGS(GrDistanceFieldTextContext, (fContext, fLeakyProperties));
     fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
-#else
-    fMainTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
-    fFallbackTextContext = NULL;
-#endif
 
     fRenderTarget = NULL;
     fNeedClear = false;

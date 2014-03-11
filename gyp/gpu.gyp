@@ -133,17 +133,6 @@
             'GR_CHROME_UTILS=1',
           ],
         }],
-        [ 'skia_distancefield_fonts', {
-          'sources': [
-            '<(skia_src_path)/gpu/GrDistanceFieldTextContext.h',
-            '<(skia_src_path)/gpu/GrDistanceFieldTextContext.cpp',
-            '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.cpp',
-            '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.h',
-          ],
-          'defines': [
-            'GR_DISTANCEFIELD_FONTS=1',
-          ],
-        }],
         [ 'skia_os == "linux" or skia_os == "chromeos"', {
           'sources!': [
             '../src/gpu/gl/GrGLDefaultInterface_none.cpp',

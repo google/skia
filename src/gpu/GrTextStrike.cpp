@@ -12,9 +12,7 @@
 #include "GrTextStrike_impl.h"
 #include "SkString.h"
 
-#if SK_DISTANCEFIELD_FONTS
 #include "SkDistanceFieldGen.h"
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -198,11 +196,9 @@ void GrFontCache::dump() const {
     static int gCounter;
 #endif
 
-#if SK_DISTANCEFIELD_FONTS
 // this acts as the max magnitude for the distance field,
 // as well as the pad we need around the glyph
 #define DISTANCE_FIELD_RANGE   4
-#endif
 
 /*
     The text strike is specific to a given font/style/matrix setup, which is
@@ -251,7 +247,6 @@ GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
     }
 
     GrGlyph* glyph = fPool.alloc();
-#if SK_DISTANCEFIELD_FONTS
     // expand bounds to hold full distance field data
     if (fUseDistanceField) {
         bounds.fLeft   -= DISTANCE_FIELD_RANGE;
@@ -259,7 +254,6 @@ GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
         bounds.fTop    -= DISTANCE_FIELD_RANGE;
         bounds.fBottom += DISTANCE_FIELD_RANGE;
     }
-#endif
     glyph->init(packed, bounds);
     fCache.insert(packed, glyph);
     return glyph;
@@ -293,7 +287,6 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
     int bytesPerPixel = GrMaskFormatBytesPerPixel(fMaskFormat);
 
     GrPlot* plot;
-#if SK_DISTANCEFIELD_FONTS
     if (fUseDistanceField) {
         // we've already expanded the glyph dimensions to match the final size
         // but must shrink back down to get the packed glyph data
@@ -341,7 +334,6 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
                                      &glyph->fAtlasLocation);
 
     } else {
-#endif
         size_t size = glyph->fBounds.area() * bytesPerPixel;
         SkAutoSMalloc<1024> storage(size);
         if (!scaler->getPackedGlyphImage(glyph->fPackedID, glyph->width(),
@@ -354,9 +346,7 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
         plot = fAtlasMgr->addToAtlas(&fAtlas, glyph->width(),
                                      glyph->height(), storage.get(),
                                      &glyph->fAtlasLocation);
-#if SK_DISTANCEFIELD_FONTS
     }
-#endif
 
     if (NULL == plot) {
         return false;

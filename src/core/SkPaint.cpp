@@ -307,6 +307,10 @@ void SkPaint::setDevKernText(bool doDevKern) {
     this->setFlags(SkSetClearMask(fFlags, doDevKern, kDevKernText_Flag));
 }
 
+void SkPaint::setDistanceFieldTextTEMP(bool doDistanceFieldText) {
+    this->setFlags(SkSetClearMask(fFlags, doDistanceFieldText, kDistanceFieldTextTEMP_Flag));
+}
+
 void SkPaint::setStyle(Style style) {
     if ((unsigned)style < kStyleCount) {
         GEN_ID_INC_EVAL((unsigned)style != fStyle);

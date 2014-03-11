@@ -64,9 +64,7 @@ private:
     GrFontCache*    fFontCache;
     GrAtlasMgr*     fAtlasMgr;
     GrMaskFormat    fMaskFormat;
-#if SK_DISTANCEFIELD_FONTS
     bool            fUseDistanceField;
-#endif
 
     GrAtlas         fAtlas;
 
@@ -80,11 +78,7 @@ public:
     GrFontCache(GrGpu*);
     ~GrFontCache();
 
-#if SK_DISTANCEFIELD_FONTS
     inline GrTextStrike* getStrike(GrFontScaler*, bool useDistanceField);
-#else
-    inline GrTextStrike* getStrike(GrFontScaler*);
-#endif
 
     void freeAll();
 

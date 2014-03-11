@@ -118,6 +118,8 @@ public:
         kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
         kVerticalText_Flag    = 0x1000,
         kGenA8FromLCD_Flag    = 0x2000, // hack for GDI -- do not use if you can help it
+        kDistanceFieldTextTEMP_Flag = 0x4000, //!< TEMPORARY mask to enable distance fields
+                                              // currently overrides LCD and subpixel rendering
         // when adding extra flags, note that the fFlags member is specified
         // with a bit-width and you'll have to expand it.
 
@@ -283,6 +285,19 @@ public:
                             flags, false to clear it.
     */
     void setDevKernText(bool devKernText);
+
+    /** Helper for getFlags(), returns true if kDistanceFieldTextTEMP_Flag bit is set
+     @return true if the distanceFieldText bit is set in the paint's flags.
+     */
+    bool isDistanceFieldTextTEMP() const {
+        return SkToBool(this->getFlags() & kDistanceFieldTextTEMP_Flag);
+    }
+
+    /** Helper for setFlags(), setting or clearing the kDistanceFieldTextTEMP_Flag bit
+     @param distanceFieldText true to set the kDistanceFieldTextTEMP_Flag bit in the paint's
+     flags, false to clear it.
+     */
+    void setDistanceFieldTextTEMP(bool distanceFieldText);
 
     enum FilterLevel {
         kNone_FilterLevel,
@@ -1062,7 +1077,6 @@ private:
     void setBitfields(uint32_t bitfields);
 
     uint32_t fDirtyBits;
-
 
     SkDrawCacheProc    getDrawCacheProc() const;
     SkMeasureCacheProc getMeasureCacheProc(TextBufferDirection dir,

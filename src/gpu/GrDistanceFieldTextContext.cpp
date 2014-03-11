@@ -45,7 +45,8 @@ GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
 }
 
 bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint) {
-    return !paint.getRasterizer() && !paint.getMaskFilter() &&
+    return paint.isDistanceFieldTextTEMP() &&
+           !paint.getRasterizer() && !paint.getMaskFilter() &&
            paint.getStyle() == SkPaint::kFill_Style &&
            fContext->getTextTarget()->caps()->shaderDerivativeSupport() &&
            !SkDraw::ShouldDrawTextAsPaths(paint, fContext->getMatrix());

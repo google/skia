@@ -48,11 +48,7 @@ void GrFontCache::detachStrikeFromList(GrTextStrike* strike) {
     }
 }
 
-#if SK_DISTANCEFIELD_FONTS
 GrTextStrike* GrFontCache::getStrike(GrFontScaler* scaler, bool useDistanceField) {
-#else
-GrTextStrike* GrFontCache::getStrike(GrFontScaler* scaler) {
-#endif
     this->validate();
 
     const Key key(scaler->getKey());
@@ -69,9 +65,7 @@ GrTextStrike* GrFontCache::getStrike(GrFontScaler* scaler) {
         strike->fPrev = NULL;
         fHead = strike;
     }
-#if SK_DISTANCEFIELD_FONTS
     strike->fUseDistanceField = useDistanceField;
-#endif
     this->validate();
     return strike;
 }
