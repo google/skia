@@ -60,11 +60,6 @@ static inline void adjust_for_offset(GrIPoint16* loc, const GrIPoint16& offset) 
     loc->fY += offset.fY * GR_ATLAS_HEIGHT;
 }
 
-static inline uint8_t* zero_fill(uint8_t* ptr, size_t count) {
-    sk_bzero(ptr, count);
-    return ptr + count;
-}
-
 bool GrPlot::addSubImage(int width, int height, const void* image,
                           GrIPoint16* loc) {
     if (!fRects->addRect(width, height, loc)) {
