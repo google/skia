@@ -130,7 +130,7 @@ struct SkCompileAssert {
 // Uses static_cast<bool>(expr) instead of bool(expr) due to
 // https://connect.microsoft.com/VisualStudio/feedback/details/832915
 #define SK_COMPILE_ASSERT(expr, msg) \
-    typedef SkCompileAssert<static_cast<bool>(expr)> \
+    typedef SkCompileAssert<(static_cast<bool>(expr))> \
             msg[static_cast<bool>(expr) ? 1 : -1] SK_UNUSED
 
 /*
