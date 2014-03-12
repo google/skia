@@ -11,8 +11,6 @@
 #define SkTemplates_DEFINED
 
 #include "SkTypes.h"
-#include <climits>
-#include <limits>
 #include <new>
 
 /** \file SkTemplates.h
@@ -65,14 +63,6 @@ template <typename D, typename S> static D* SkTAddOffset(S* ptr, size_t byteOffs
         reinterpret_cast<typename SkTConstType<char, SkTIsConst<D>::value>::type*>(ptr) + byteOffset
     );
 }
-
-/** SkTSetBit<N, T>::value is a T with the Nth bit set. */
-template<unsigned N, typename T = uintmax_t> struct SkTSetBit {
-    static const T value = static_cast<T>(1) << N;
-    SK_COMPILE_ASSERT(sizeof(T)*CHAR_BIT > N, SkTSetBit_N_too_large);
-    SK_COMPILE_ASSERT(std::numeric_limits<T>::is_integer, SkTSetBit_T_must_be_integer);
-    SK_COMPILE_ASSERT(!std::numeric_limits<T>::is_signed, SkTSetBit_T_must_be_unsigned);
-};
 
 /** \class SkAutoTCallVProc
 
