@@ -416,7 +416,7 @@ const SkScalar EllipticalRRectEffect::kRadiusMin = 0.5f;
 
 GrEffectRef* EllipticalRRectEffect::Create(GrEffectEdgeType edgeType,
                                            const SkRRect& rrect) {
-    SkASSERT(kFillAA_GrEffectEdgeType == edgeType || kInverseFillAA_GrEffectEdgeType == edgeType);
+//    SkASSERT(kFillAA_GrEffectEdgeType == edgeType || kInverseFillAA_GrEffectEdgeType == edgeType);
     return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(EllipticalRRectEffect, (edgeType, rrect))));
 }
 
