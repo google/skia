@@ -32,7 +32,7 @@ static bool found_edge(const unsigned char* imagePtr, int width) {
 }
 
 static void init_glyph_data(DFData* data, unsigned char* edges, const unsigned char* image,
-                            int dataWidth, int dataHeight, 
+                            int dataWidth, int dataHeight,
                             int imageWidth, int imageHeight,
                             int pad) {
     data += pad*dataWidth;
@@ -118,11 +118,11 @@ static void init_distances(DFData* data, unsigned char* edges, int width, int he
                 // if you're inside, gradient points away from edge
                 SkPoint currGrad;
                 currGrad.fX = (prevData+1)->fAlpha - (prevData-1)->fAlpha
-                             + SK_ScalarSqrt2*(currData+1)->fAlpha 
+                             + SK_ScalarSqrt2*(currData+1)->fAlpha
                              - SK_ScalarSqrt2*(currData-1)->fAlpha
                              + (nextData+1)->fAlpha - (nextData-1)->fAlpha;
-                currGrad.fY = (nextData-1)->fAlpha - (prevData-1)->fAlpha 
-                             + SK_ScalarSqrt2*nextData->fAlpha 
+                currGrad.fY = (nextData-1)->fAlpha - (prevData-1)->fAlpha
+                             + SK_ScalarSqrt2*nextData->fAlpha
                              - SK_ScalarSqrt2*prevData->fAlpha
                              + (nextData+1)->fAlpha - (prevData+1)->fAlpha;
                 currGrad.setLengthFast(1.0f);
@@ -287,7 +287,7 @@ bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
     SkASSERT(NULL != image);
 
     // the final distance field will have additional texels on each side to handle
-    // the maximum distance 
+    // the maximum distance
     // we expand our temp data by one more on each side to simplify
     // the scanning code -- will always be treated as infinitely far away
     int pad = distanceMagnitude+1;

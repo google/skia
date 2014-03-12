@@ -305,7 +305,7 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
         // alloc storage for distance field glyph
         size_t dfSize = dfWidth * dfHeight * bytesPerPixel;
         SkAutoSMalloc<1024> dfStorage(dfSize);
-        
+
         if (1 == bytesPerPixel) {
             (void) SkGenerateDistanceFieldFromImage((unsigned char*)dfStorage.get(),
                                                     (unsigned char*)storage.get(),

@@ -173,10 +173,10 @@ void PictureBenchmark::run(SkPicture* pict) {
             SkString configName = tiledRenderer->getConfigName();
             configName.appendf(": tile [%i,%i] out of [%i,%i]", x, y, xTiles, yTiles);
 
-            // TODO(borenet): Turn off per-iteration tile time reporting for now.  
-            // Avoiding logging the time for every iteration for each tile cuts 
-            // down on data file size by a significant amount. Re-enable this once 
-            // we're loading the bench data directly into a data store and are no 
+            // TODO(borenet): Turn off per-iteration tile time reporting for now.
+            // Avoiding logging the time for every iteration for each tile cuts
+            // down on data file size by a significant amount. Re-enable this once
+            // we're loading the bench data directly into a data store and are no
             // longer generating SVG graphs.
 #if 0
             SkString result = perTileTimerData.getResult(timeFormat.c_str(), fTimerResult,
