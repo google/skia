@@ -21,22 +21,17 @@ void SkProxyCanvas::setProxy(SkCanvas* proxy) {
 
 ///////////////////////////////// Overrides ///////////
 
-void SkProxyCanvas::onSave(SaveFlags flags) {
-    fProxy->save(flags);
-    this->INHERITED::onSave(flags);
+int SkProxyCanvas::save(SaveFlags flags) {
+    return fProxy->save(flags);
 }
 
-bool SkProxyCanvas::onSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                SaveFlags flags) {
-    fProxy->saveLayer(bounds, paint, flags);
-    this->INHERITED::onSaveLayer(bounds, paint, flags);
-    // No need for a layer.
-    return false;
+int SkProxyCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
+                             SaveFlags flags) {
+    return fProxy->saveLayer(bounds, paint, flags);
 }
 
-void SkProxyCanvas::onRestore() {
+void SkProxyCanvas::restore() {
     fProxy->restore();
-    this->INHERITED::onRestore();
 }
 
 bool SkProxyCanvas::translate(SkScalar dx, SkScalar dy) {

@@ -26,20 +26,20 @@ void SkBBoxHierarchyRecord::handleBBox(const SkRect& bounds) {
     fBoundingHierarchy->insert(draw, r, true);
 }
 
-void SkBBoxHierarchyRecord::onSave(SaveFlags flags) {
+int SkBBoxHierarchyRecord::save(SaveFlags flags) {
     fStateTree->appendSave();
-    this->INHERITED::onSave(flags);
+    return INHERITED::save(flags);
 }
 
-bool SkBBoxHierarchyRecord::onSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                        SaveFlags flags) {
+int SkBBoxHierarchyRecord::saveLayer(const SkRect* bounds, const SkPaint* paint,
+                                     SaveFlags flags) {
     fStateTree->appendSaveLayer(this->writeStream().bytesWritten());
-    return this->INHERITED::onSaveLayer(bounds, paint, flags);
+    return INHERITED::saveLayer(bounds, paint, flags);
 }
 
-void SkBBoxHierarchyRecord::onRestore() {
+void SkBBoxHierarchyRecord::restore() {
     fStateTree->appendRestore();
-    this->INHERITED::onRestore();
+    INHERITED::restore();
 }
 
 bool SkBBoxHierarchyRecord::translate(SkScalar dx, SkScalar dy) {
