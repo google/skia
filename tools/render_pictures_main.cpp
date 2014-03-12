@@ -33,7 +33,8 @@ DEFINE_bool(writeEncodedImages, false, "Any time the skp contains an encoded ima
             "file rather than decoding it. Requires writePath to be set. Skips drawing the full "
             "skp to a file. Not compatible with deferImageDecoding.");
 DEFINE_string(writeJsonSummaryPath, "", "File to write a JSON summary of image results to. "
-              "TODO(epoger): Currently, this only works if --writePath is also specified.");
+              "TODO(epoger): Currently, this only works if --writePath is also specified. "
+              "See https://code.google.com/p/skia/issues/detail?id=2043 .");
 DEFINE_string2(writePath, w, "", "Directory to write the rendered images.");
 DEFINE_bool(writeWholeImage, false, "In tile mode, write the entire rendered image to a "
             "file, instead of an image for each tile.");

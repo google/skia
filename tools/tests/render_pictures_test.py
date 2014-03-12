@@ -25,18 +25,19 @@ MAX_DIFF_LENGTH = 30000
 class RenderPicturesTest(base_unittest.TestCase):
 
   def setUp(self):
+    self._input_skp_dir = tempfile.mkdtemp()
     self._temp_dir = tempfile.mkdtemp()
     self.maxDiff = MAX_DIFF_LENGTH
 
   def tearDown(self):
+    shutil.rmtree(self._input_skp_dir)
     shutil.rmtree(self._temp_dir)
 
-  def test_tiled_whole_image_no_comparison(self):
+  def test_tiled_whole_image(self):
     """Run render_pictures with tiles and --writeWholeImage flag."""
-    input_skp_path = os.path.join(self._temp_dir, 'input.skp')
     output_json_path = os.path.join(self._temp_dir, 'output.json')
-    self._run_skpmaker(['--writePath', input_skp_path])
-    self._run_render_pictures(['-r', input_skp_path,
+    self._generate_skps()
+    self._run_render_pictures(['-r', self._input_skp_dir,
                                '--bbh', 'grid', '256', '256',
                                '--mode', 'tile', '256', '256',
                                '--writeJsonSummaryPath', output_json_path,
@@ -45,59 +46,60 @@ class RenderPicturesTest(base_unittest.TestCase):
         "actual-results" : {
             "no-comparison" : {
                 # Manually verified: 640x400 red rectangle with black border
-                "input.png" : [ "bitmap-64bitMD5", 11092453015575919668 ]
+                "red.png" : [ "bitmap-64bitMD5", 11092453015575919668 ],
+                # Manually verified: 640x400 green rectangle with black border
+                "green.png" : [ "bitmap-64bitMD5", 8891695120562235492 ],
             }
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
 
-  def test_untiled_no_comparison(self):
+  def test_untiled(self):
     """Run without tiles."""
-    input_skp_path = os.path.join(self._temp_dir, 'input.skp')
     output_json_path = os.path.join(self._temp_dir, 'output.json')
-    self._run_skpmaker(['--writePath', input_skp_path])
-    self._run_render_pictures(['-r', input_skp_path,
+    self._generate_skps()
+    self._run_render_pictures(['-r', self._input_skp_dir,
                                '--writePath', self._temp_dir,
                                '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "actual-results" : {
             "no-comparison" : {
                 # Manually verified: 640x400 red rectangle with black border
-                "input.png" : ["bitmap-64bitMD5", 11092453015575919668],
+                "red.png" : ["bitmap-64bitMD5", 11092453015575919668],
+                # Manually verified: 640x400 green rectangle with black border
+                "green.png" : ["bitmap-64bitMD5", 8891695120562235492],
             }
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
 
-  def test_validate(self):
-    """Same as test_untiled_no_comparison, but with --validate.
+  def test_untiled_validate(self):
+    """Same as test_untiled, but with --validate.
 
     TODO(epoger): This test generates undesired results!  The call
     to render_pictures should succeed, and generate the same output as
-    test_untiled_no_comparison.
+    test_untiled.
     See https://code.google.com/p/skia/issues/detail?id=2044 ('render_pictures:
     --validate fails')
     """
-    input_skp_path = os.path.join(self._temp_dir, 'input.skp')
     output_json_path = os.path.join(self._temp_dir, 'output.json')
-    self._run_skpmaker(['--writePath', input_skp_path])
+    self._generate_skps()
     with self.assertRaises(Exception):
-      self._run_render_pictures(['-r', input_skp_path,
+      self._run_render_pictures(['-r', self._input_skp_dir,
                                  '--validate',
                                  '--writePath', self._temp_dir,
                                  '--writeJsonSummaryPath', output_json_path])
 
-  def test_without_writePath(self):
-    """Same as test_untiled_no_comparison, but without --writePath.
+  def test_untiled_without_writePath(self):
+    """Same as test_untiled, but without --writePath.
 
     TODO(epoger): This test generates undesired results!
     See https://code.google.com/p/skia/issues/detail?id=2043 ('render_pictures:
     --writeJsonSummaryPath fails unless --writePath is specified')
     """
-    input_skp_path = os.path.join(self._temp_dir, 'input.skp')
     output_json_path = os.path.join(self._temp_dir, 'output.json')
-    self._run_skpmaker(['--writePath', input_skp_path])
-    self._run_render_pictures(['-r', input_skp_path,
+    self._generate_skps()
+    self._run_render_pictures(['-r', self._input_skp_dir,
                                '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "actual-results" : {
@@ -106,12 +108,11 @@ class RenderPicturesTest(base_unittest.TestCase):
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
 
-  def test_tiled_no_comparison(self):
+  def test_tiled(self):
     """Generate individual tiles."""
-    input_skp_path = os.path.join(self._temp_dir, 'input.skp')
     output_json_path = os.path.join(self._temp_dir, 'output.json')
-    self._run_skpmaker(['--writePath', input_skp_path])
-    self._run_render_pictures(['-r', input_skp_path,
+    self._generate_skps()
+    self._run_render_pictures(['-r', self._input_skp_dir,
                                '--bbh', 'grid', '256', '256',
                                '--mode', 'tile', '256', '256',
                                '--writePath', self._temp_dir,
@@ -122,12 +123,21 @@ class RenderPicturesTest(base_unittest.TestCase):
                 # Manually verified these 6 images, all 256x256 tiles,
                 # consistent with a tiled version of the 640x400 red rect
                 # with black borders.
-                "input0.png" : ["bitmap-64bitMD5", 5815827069051002745],
-                "input1.png" : ["bitmap-64bitMD5", 9323613075234140270],
-                "input2.png" : ["bitmap-64bitMD5", 16670399404877552232],
-                "input3.png" : ["bitmap-64bitMD5", 2507897274083364964],
-                "input4.png" : ["bitmap-64bitMD5", 7325267995523877959],
-                "input5.png" : ["bitmap-64bitMD5", 2181381724594493116],
+                "red0.png" : ["bitmap-64bitMD5", 5815827069051002745],
+                "red1.png" : ["bitmap-64bitMD5", 9323613075234140270],
+                "red2.png" : ["bitmap-64bitMD5", 16670399404877552232],
+                "red3.png" : ["bitmap-64bitMD5", 2507897274083364964],
+                "red4.png" : ["bitmap-64bitMD5", 7325267995523877959],
+                "red5.png" : ["bitmap-64bitMD5", 2181381724594493116],
+                # Manually verified these 6 images, all 256x256 tiles,
+                # consistent with a tiled version of the 640x400 green rect
+                # with black borders.
+                "green0.png" : ["bitmap-64bitMD5", 12587324416545178013],
+                "green1.png" : ["bitmap-64bitMD5", 7624374914829746293],
+                "green2.png" : ["bitmap-64bitMD5", 5686489729535631913],
+                "green3.png" : ["bitmap-64bitMD5", 7980646035555096146],
+                "green4.png" : ["bitmap-64bitMD5", 17817086664365875131],
+                "green5.png" : ["bitmap-64bitMD5", 10673669813016809363],
             }
         }
     }
@@ -140,15 +150,34 @@ class RenderPicturesTest(base_unittest.TestCase):
                              '--config', '8888',
                              ] + args)
 
-  def _run_skpmaker(self, args):
+  def _generate_skps(self):
+    """Runs the skpmaker binary to generate files in self._input_skp_dir."""
+    self._run_skpmaker(
+        output_path=os.path.join(self._input_skp_dir, 'red.skp'), red=255)
+    self._run_skpmaker(
+        output_path=os.path.join(self._input_skp_dir, 'green.skp'), green=255)
+
+  def _run_skpmaker(self, output_path, red=0, green=0, blue=0,
+                    width=640, height=400):
+    """Runs the skpmaker binary to generate SKP with known characteristics.
+
+    Args:
+      output_path: Filepath to write the SKP into.
+      red: Value of red color channel in image, 0-255.
+      green: Value of green color channel in image, 0-255.
+      blue: Value of blue color channel in image, 0-255.
+      width: Width of canvas to create.
+      height: Height of canvas to create.
+    """
     binary = self.find_path_to_program('skpmaker')
     return self.run_command([binary,
-                             '--red', '255',
-                             '--green', '0',
-                             '--blue', '0',
-                             '--width', '640',
-                             '--height', '400',
-                             ] + args)
+                             '--red', str(red),
+                             '--green', str(green),
+                             '--blue', str(blue),
+                             '--width', str(width),
+                             '--height', str(height),
+                             '--writePath', str(output_path),
+                             ])
 
   def _assert_json_contents(self, json_path, expected_dict):
     """Asserts that contents of a JSON file are identical to expected_dict.
