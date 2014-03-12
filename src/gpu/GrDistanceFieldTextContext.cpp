@@ -28,6 +28,12 @@ static const int kBaseDFFontSize = 32;
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
+#if SK_FORCE_DISTANCEFIELD_FONTS
+static const bool kForceDistanceFieldFonts = true;
+#else
+static const bool kForceDistanceFieldFonts = false;
+#endif
+
 GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
                                                        const SkDeviceProperties& properties)
                                                     : GrTextContext(context, properties) {
@@ -45,7 +51,7 @@ GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
 }
 
 bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint) {
-    return paint.isDistanceFieldTextTEMP() &&
+    return (kForceDistanceFieldFonts || paint.isDistanceFieldTextTEMP()) &&
            !paint.getRasterizer() && !paint.getMaskFilter() &&
            paint.getStyle() == SkPaint::kFill_Style &&
            fContext->getTextTarget()->caps()->shaderDerivativeSupport() &&

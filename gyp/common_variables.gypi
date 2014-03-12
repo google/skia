@@ -142,6 +142,7 @@
       'skia_win_debuggers_path%': '',
       'skia_shared_lib%': 0,
       'skia_opencl%': 0,
+      'skia_force_distancefield_fonts%': 0,
 
       # These variables determine the default optimization level for different
       # compilers.
@@ -210,6 +211,7 @@
     'skia_profile_enabled%': '<(skia_profile_enabled)',
     'skia_shared_lib%': '<(skia_shared_lib)',
     'skia_opencl%': '<(skia_opencl)',
+    'skia_force_distancefield_fonts%': '<(skia_force_distancefield_fonts)',
     'skia_static_initializers%': '<(skia_static_initializers)',
     'ios_sdk_version%': '6.0',
     'skia_win_debuggers_path%': '<(skia_win_debuggers_path)',
