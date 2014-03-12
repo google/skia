@@ -127,8 +127,11 @@ template <bool>
 struct SkCompileAssert {
 };
 
+// Uses static_cast<bool>(expr) instead of bool(expr) due to
+// https://connect.microsoft.com/VisualStudio/feedback/details/832915
 #define SK_COMPILE_ASSERT(expr, msg) \
-    typedef SkCompileAssert<(bool(expr))> msg[bool(expr) ? 1 : -1] SK_UNUSED
+    typedef SkCompileAssert<static_cast<bool>(expr)> \
+            msg[static_cast<bool>(expr) ? 1 : -1] SK_UNUSED
 
 /*
  *  Usage:  SK_MACRO_CONCAT(a, b)   to construct the symbol ab
