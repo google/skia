@@ -138,6 +138,8 @@ public:
 
     bool writePixelsDirect(const SkImageInfo&, const void*, size_t rowBytes, int x, int y);
 
+    void* accessPixels(SkImageInfo* info, size_t* rowBytes);
+
     /**
      * Return the device's associated gpu render target, or NULL.
      */
@@ -400,6 +402,11 @@ protected:
     virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int x, int y);
 
     /**
+     *  Default impl returns NULL.
+     */
+    virtual void* onAccessPixels(SkImageInfo* info, size_t* rowBytes);
+
+    /**
      *  Leaky properties are those which the device should be applying but it isn't.
      *  These properties will be applied by the draw, when and as it can.
      *  If the device does handle a property, that property should be set to the identity value
@@ -414,7 +421,7 @@ private:
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
     friend class SkDeviceImageFilterProxy;
-    friend class DeferredDevice;    // for newSurface
+    friend class SkDeferredDevice;    // for newSurface
 
     friend class SkSurface_Raster;
 

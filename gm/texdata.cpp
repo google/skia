@@ -14,7 +14,6 @@
 #include "GrContext.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "SkColorPriv.h"
-#include "SkDevice.h"
 
 namespace skiagm {
 
@@ -38,8 +37,7 @@ protected:
     virtual uint32_t onGetFlags() const SK_OVERRIDE { return kGPUOnly_Flag; }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkBaseDevice* device = canvas->getTopDevice();
-        GrRenderTarget* target = device->accessRenderTarget();
+        GrRenderTarget* target = canvas->internal_private_accessTopLayerRenderTarget();
         GrContext* ctx = canvas->getGrContext();
         if (ctx && target) {
             SkAutoTArray<SkPMColor> gTextureData((2 * S) * (2 * S));

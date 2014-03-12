@@ -25,6 +25,7 @@
 //#define SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
 //#define SK_SUPPORT_LEGACY_GETCLIPTYPE
 //#define SK_SUPPORT_LEGACY_GETTOTALCLIP
+//#define SK_SUPPORT_LEGACY_GETTOPDEVICE
 
 class SkBounder;
 class SkBaseDevice;
@@ -36,6 +37,7 @@ class SkRRect;
 class SkSurface;
 class SkSurface_Base;
 class GrContext;
+class GrRenderTarget;
 
 /** \class SkCanvas
 
@@ -159,7 +161,11 @@ public:
      *        is drawn to, but is optional here, as there is a small perf hit
      *        sometimes.
      */
+#ifndef SK_SUPPORT_LEGACY_GETTOPDEVICE
+private:
+#endif
     SkBaseDevice* getTopDevice(bool updateMatrixClip = false) const;
+public:
 
     /**
      *  Create a new surface matching the specified info, one that attempts to
@@ -176,8 +182,22 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     *  If the canvas has pixels (and is not recording to a picture or other
-     *  non-raster target) and has direct access to its pixels (i.e. they are in
+     *  If the canvas has writable pixels in its top layer (and is not recording to a picture
+     *  or other non-raster target) and has direct access to its pixels (i.e. they are in
+     *  local RAM) return the address of those pixels, and if not null,
+     *  return the ImageInfo and rowBytes. The returned address is only valid
+     *  while the canvas object is in scope and unchanged. Any API calls made on
+     *  canvas (or its parent surface if any) will invalidate the
+     *  returned address (and associated information).
+     *
+     *  On failure, returns NULL and the info and rowBytes parameters are
+     *  ignored.
+     */
+    void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes);
+
+    /**
+     *  If the canvas has readable pixels in its base layer (and is not recording to a picture
+     *  or other non-raster target) and has direct access to its pixels (i.e. they are in
      *  local RAM) return the const-address of those pixels, and if not null,
      *  return the ImageInfo and rowBytes. The returned address is only valid
      *  while the canvas object is in scope and unchanged. Any API calls made on
@@ -1170,6 +1190,8 @@ public:
     const SkRegion& internal_private_getTotalClip() const;
     // don't call
     void internal_private_getTotalClipAsPath(SkPath*) const;
+    // don't call
+    GrRenderTarget* internal_private_accessTopLayerRenderTarget();
 
 protected:
     // default impl defers to getDevice()->newSurface(info)
@@ -1177,6 +1199,7 @@ protected:
 
     // default impl defers to its device
     virtual const void* onPeekPixels(SkImageInfo*, size_t* rowBytes);
+    virtual void* onAccessTopLayerPixels(SkImageInfo*, size_t* rowBytes);
 
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
 
@@ -1243,9 +1266,10 @@ private:
     bool fDeviceCMDirty;            // cleared by updateDeviceCMCache()
     void updateDeviceCMCache();
 
-    friend class SkDrawIter;    // needs setupDrawForLayerDevice()
+    friend class SkDrawIter;        // needs setupDrawForLayerDevice()
     friend class AutoDrawLooper;
-    friend class SkLua;         // needs top layer size and offset
+    friend class SkLua;             // needs top layer size and offset
+    friend class SkDeferredDevice;  // needs getTopDevice()
 
     SkBaseDevice* createLayerDevice(const SkImageInfo&);
 

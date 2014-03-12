@@ -11,7 +11,7 @@
 #include "SkCanvas.h"
 #include "SkPixelRef.h"
 
-class DeferredDevice;
+class SkDeferredDevice;
 class SkImage;
 class SkSurface;
 
@@ -236,10 +236,10 @@ public:
 
 protected:
     virtual SkCanvas* canvasForDrawIter();
-    DeferredDevice* getDeferredDevice() const;
+    SkDeferredDevice* getDeferredDevice() const;
 
 private:
-    SkDeferredCanvas(DeferredDevice*);
+    SkDeferredCanvas(SkDeferredDevice*);
 
     void recordedDrawCommand();
     SkCanvas* drawingCanvas() const;

@@ -1040,6 +1040,15 @@ const void* SkCanvas::onPeekPixels(SkImageInfo* info, size_t* rowBytes) {
     return dev ? dev->peekPixels(info, rowBytes) : NULL;
 }
 
+void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes) {
+    return this->onAccessTopLayerPixels(info, rowBytes);
+}
+
+void* SkCanvas::onAccessTopLayerPixels(SkImageInfo* info, size_t* rowBytes) {
+    SkBaseDevice* dev = this->getTopDevice();
+    return dev ? dev->accessPixels(info, rowBytes) : NULL;
+}
+
 SkAutoROCanvasPixels::SkAutoROCanvasPixels(SkCanvas* canvas) {
     fAddr = canvas->peekPixels(&fInfo, &fRowBytes);
     if (NULL == fAddr) {
@@ -1711,6 +1720,11 @@ void SkCanvas::internal_private_getTotalClipAsPath(SkPath* path) const {
         return;
     }
     (void)rgn.getBoundaryPath(path);
+}
+
+GrRenderTarget* SkCanvas::internal_private_accessTopLayerRenderTarget() {
+    SkBaseDevice* dev = this->getTopDevice();
+    return dev ? dev->accessRenderTarget() : NULL;
 }
 
 SkBaseDevice* SkCanvas::createLayerDevice(const SkImageInfo& info) {

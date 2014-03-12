@@ -194,6 +194,22 @@ bool SkBaseDevice::onReadPixels(const SkBitmap&, int x, int y, SkCanvas::Config8
     return false;
 }
 
+void* SkBaseDevice::accessPixels(SkImageInfo* info, size_t* rowBytes) {
+    SkImageInfo tmpInfo;
+    size_t tmpRowBytes;
+    if (NULL == info) {
+        info = &tmpInfo;
+    }
+    if (NULL == rowBytes) {
+        rowBytes = &tmpRowBytes;
+    }
+    return this->onAccessPixels(info, rowBytes);
+}
+
+void* SkBaseDevice::onAccessPixels(SkImageInfo* info, size_t* rowBytes) {
+    return NULL;
+}
+
 #ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
 void SkBaseDevice::writePixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) {}
 #endif

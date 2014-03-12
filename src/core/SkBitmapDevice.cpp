@@ -268,6 +268,15 @@ void SkBitmapDevice::writePixels(const SkBitmap& bitmap,
 }
 #endif
 
+void* SkBitmapDevice::onAccessPixels(SkImageInfo* info, size_t* rowBytes) {
+    if (fBitmap.getPixels()) {
+        *info = fBitmap.info();
+        *rowBytes = fBitmap.rowBytes();
+        return fBitmap.getPixels();
+    }
+    return NULL;
+}
+
 static void rect_memcpy(void* dst, size_t dstRB, const void* src, size_t srcRB, size_t bytesPerRow,
                         int rowCount) {
     SkASSERT(bytesPerRow <= srcRB);

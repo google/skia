@@ -66,12 +66,8 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 #if SK_SUPPORT_GPU
-        SkBaseDevice* device = canvas->getTopDevice();
-        GrContext* context = NULL;
-        GrRenderTarget* rt = device->accessRenderTarget();
-        if (NULL != rt) {
-            context = rt->getContext();
-        }
+        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
+        GrContext* context = rt ? rt->getContext() : NULL;
         if (kEffect_Type == fType && NULL == context) {
             return;
         }

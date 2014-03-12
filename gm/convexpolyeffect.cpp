@@ -103,8 +103,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
-        SkBaseDevice* device = canvas->getTopDevice();
-        GrRenderTarget* rt = device->accessRenderTarget();
+        GrRenderTarget* rt = canvas->internal_private_accessTopLayerRenderTarget();
         if (NULL == rt) {
             return;
         }
