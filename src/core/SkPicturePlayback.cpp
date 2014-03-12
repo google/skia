@@ -70,10 +70,12 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record, bool deepCop
     record.validate(record.writeStream().bytesWritten(), 0);
     const SkWriter32& writer = record.writeStream();
     init();
+    SkASSERT(!fOpData);
     if (writer.bytesWritten() == 0) {
         fOpData = SkData::NewEmpty();
         return;
     }
+    fOpData = writer.snapshotAsData();
 
     fBoundingHierarchy = record.fBoundingHierarchy;
     fStateTree = record.fStateTree;
@@ -83,14 +85,6 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record, bool deepCop
 
     if (NULL != fBoundingHierarchy) {
         fBoundingHierarchy->flushDeferredInserts();
-    }
-
-    {
-        size_t size = writer.bytesWritten();
-        void* buffer = sk_malloc_throw(size);
-        writer.flatten(buffer);
-        SkASSERT(!fOpData);
-        fOpData = SkData::NewFromMalloc(buffer, size);
     }
 
     // copy over the refcnt dictionary to our reader
