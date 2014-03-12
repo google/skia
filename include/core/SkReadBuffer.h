@@ -177,12 +177,14 @@ public:
     virtual bool isValid() const { return true; }
     virtual bool validateAvailable(size_t size) { return true; }
 
+protected:
+    SkReader32 fReader;
+
 private:
     bool readArray(void* value, size_t size, size_t elementSize);
 
     uint32_t fFlags;
 
-    SkReader32 fReader;
     void* fMemoryPtr;
 
     SkBitmapHeapReader* fBitmapStorage;

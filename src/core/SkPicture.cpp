@@ -260,7 +260,19 @@ void SkPicture::draw(SkCanvas* surface, SkDrawPictureCallback* callback) {
 #include "SkStream.h"
 
 static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'c', 't' };
-static const size_t kHeaderSize = sizeof(kMagic) + sizeof(SkPictInfo);
+
+bool SkPicture::IsValidPictInfo(const SkPictInfo& info) {
+    if (0 != memcmp(info.fMagic, kMagic, sizeof(kMagic))) {
+        return false;
+    }
+
+    if (info.fVersion < MIN_PICTURE_VERSION ||
+        info.fVersion > CURRENT_PICTURE_VERSION) {
+        return false;
+    }
+
+    return true;
+}
 
 bool SkPicture::InternalOnly_StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     if (NULL == stream) {
@@ -268,18 +280,9 @@ bool SkPicture::InternalOnly_StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
     }
 
     // Check magic bytes.
-    char magic[sizeof(kMagic)];
-    if (!stream->read(magic, sizeof(kMagic)) ||
-        (0 != memcmp(magic, kMagic, sizeof(kMagic)))) {
-        return false;
-    }
-
     SkPictInfo info;
-    if (!stream->read(&info, sizeof(SkPictInfo))) {
-        return false;
-    }
-
-    if (info.fVersion < MIN_PICTURE_VERSION || info.fVersion > CURRENT_PICTURE_VERSION) {
+    SkASSERT(sizeof(kMagic) == sizeof(info.fMagic));
+    if (!stream->read(&info, sizeof(info)) || !IsValidPictInfo(info)) {
         return false;
     }
 
@@ -291,19 +294,9 @@ bool SkPicture::InternalOnly_StreamIsSKP(SkStream* stream, SkPictInfo* pInfo) {
 
 bool SkPicture::InternalOnly_BufferIsSKP(SkReadBuffer& buffer, SkPictInfo* pInfo) {
     // Check magic bytes.
-    char magic[sizeof(kMagic)];
-
-    if (!buffer.readByteArray(magic, sizeof(kMagic)) ||
-        (0 != memcmp(magic, kMagic, sizeof(kMagic)))) {
-        return false;
-    }
-
     SkPictInfo info;
-    if (!buffer.readByteArray(&info, sizeof(SkPictInfo))) {
-        return false;
-    }
-
-    if (info.fVersion < MIN_PICTURE_VERSION || info.fVersion > CURRENT_PICTURE_VERSION) {
+    SkASSERT(sizeof(kMagic) == sizeof(info.fMagic));
+    if (!buffer.readByteArray(&info, sizeof(info)) || !IsValidPictInfo(info)) {
         return false;
     }
 
@@ -361,13 +354,13 @@ SkPicture* SkPicture::CreateFromBuffer(SkReadBuffer& buffer) {
     return SkNEW_ARGS(SkPicture, (playback, info.fWidth, info.fHeight));
 }
 
-void SkPicture::createHeader(void* header) const {
+void SkPicture::createHeader(SkPictInfo* info) const {
     // Copy magic bytes at the beginning of the header
     SkASSERT(sizeof(kMagic) == 8);
-    memcpy(header, kMagic, sizeof(kMagic));
+    SkASSERT(sizeof(kMagic) == sizeof(info->fMagic));
+    memcpy(info->fMagic, kMagic, sizeof(kMagic));
 
     // Set picture info after magic bytes in the header
-    SkPictInfo* info = (SkPictInfo*)(((char*)header) + sizeof(kMagic));
     info->fVersion = CURRENT_PICTURE_VERSION;
     info->fWidth = fWidth;
     info->fHeight = fHeight;
@@ -387,9 +380,9 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
         playback = SkNEW_ARGS(SkPicturePlayback, (*fRecord));
     }
 
-    char header[kHeaderSize];
+    SkPictInfo header;
     this->createHeader(&header);
-    stream->write(header, kHeaderSize);
+    stream->write(&header, sizeof(header));
     if (playback) {
         stream->writeBool(true);
         playback->serialize(stream, encoder);
@@ -409,9 +402,9 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
         playback = SkNEW_ARGS(SkPicturePlayback, (*fRecord));
     }
 
-    char header[kHeaderSize];
+    SkPictInfo header;
     this->createHeader(&header);
-    buffer.writeByteArray(header, kHeaderSize);
+    buffer.writeByteArray(&header, sizeof(header));
     if (playback) {
         buffer.writeBool(true);
         playback->flatten(buffer);

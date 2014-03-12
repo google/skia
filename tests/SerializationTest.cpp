@@ -15,6 +15,7 @@
 #include "Test.h"
 
 static const uint32_t kArraySize = 64;
+static const int kBitmapSize = 256;
 
 template<typename T>
 static void TestAlignment(T* testObj, skiatest::Reporter* reporter) {
@@ -229,6 +230,64 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
     }
 }
 
+static bool setup_bitmap_for_canvas(SkBitmap* bitmap) {
+    SkImageInfo info = SkImageInfo::Make(
+        kBitmapSize, kBitmapSize, kPMColor_SkColorType, kPremul_SkAlphaType);
+    return bitmap->allocPixels(info);
+}
+
+static bool make_checkerboard_bitmap(SkBitmap& bitmap) {
+    bool success = setup_bitmap_for_canvas(&bitmap);
+
+    SkCanvas canvas(bitmap);
+    canvas.clear(0x00000000);
+    SkPaint darkPaint;
+    darkPaint.setColor(0xFF804020);
+    SkPaint lightPaint;
+    lightPaint.setColor(0xFF244484);
+    const int i = kBitmapSize / 8;
+    const SkScalar f = SkIntToScalar(i);
+    for (int y = 0; y < kBitmapSize; y += i) {
+        for (int x = 0; x < kBitmapSize; x += i) {
+            canvas.save();
+            canvas.translate(SkIntToScalar(x), SkIntToScalar(y));
+            canvas.drawRect(SkRect::MakeXYWH(0, 0, f, f), darkPaint);
+            canvas.drawRect(SkRect::MakeXYWH(f, 0, f, f), lightPaint);
+            canvas.drawRect(SkRect::MakeXYWH(0, f, f, f), lightPaint);
+            canvas.drawRect(SkRect::MakeXYWH(f, f, f, f), darkPaint);
+            canvas.restore();
+        }
+    }
+
+    return success;
+}
+
+static bool drawSomething(SkCanvas* canvas) {
+    SkPaint paint;
+    SkBitmap bitmap;
+    bool success = make_checkerboard_bitmap(bitmap);
+
+    canvas->save();
+    canvas->scale(0.5f, 0.5f);
+    canvas->drawBitmap(bitmap, 0, 0, NULL);
+    canvas->restore();
+
+    const char beforeStr[] = "before circle";
+    const char afterStr[] = "after circle";
+
+    paint.setAntiAlias(true);
+
+    paint.setColor(SK_ColorRED);
+    canvas->drawData(beforeStr, sizeof(beforeStr));
+    canvas->drawCircle(SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/3), paint);
+    canvas->drawData(afterStr, sizeof(afterStr));
+    paint.setColor(SK_ColorBLACK);
+    paint.setTextSize(SkIntToScalar(kBitmapSize/3));
+    canvas->drawText("Picture", 7, SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), paint);
+
+    return success;
+}
+
 DEF_TEST(Serialization, reporter) {
     // Test matrix serialization
     {
@@ -292,7 +351,7 @@ DEF_TEST(Serialization, reporter) {
 
     // Test invalid deserializations
     {
-        SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
+        SkImageInfo info = SkImageInfo::MakeN32Premul(kBitmapSize, kBitmapSize);
 
         SkBitmap validBitmap;
         validBitmap.setConfig(info);
@@ -305,5 +364,26 @@ DEF_TEST(Serialization, reporter) {
         // The deserialization should succeed, and the rendering shouldn't crash,
         // even when the device fails to initialize, due to its size
         TestBitmapSerialization(validBitmap, invalidBitmap, true, reporter);
+    }
+
+    // Test simple SkPicture serialization
+    {
+        SkPicture* pict = new SkPicture;
+        SkAutoUnref aur(pict);
+        bool didDraw = drawSomething(pict->beginRecording(kBitmapSize, kBitmapSize));
+        REPORTER_ASSERT(reporter, didDraw);
+        pict->endRecording();
+
+        // Serialize picture
+        SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
+        pict->flatten(writer);
+        size_t size = writer.bytesWritten();
+        void* data = sk_malloc_throw(size);
+        writer.writeToMemory(data);
+
+        // Deserialize picture
+        SkValidatingReadBuffer reader(data, size);
+        SkPicture* readPict(SkPicture::CreateFromBuffer(reader));
+        REPORTER_ASSERT(reporter, NULL != readPict);
     }
 }

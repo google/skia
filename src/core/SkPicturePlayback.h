@@ -40,6 +40,7 @@ struct SkPictInfo {
         kPtrIs64Bit_Flag        = 1 << 2,
     };
 
+    char        fMagic[8];
     uint32_t    fVersion;
     uint32_t    fWidth;
     uint32_t    fHeight;

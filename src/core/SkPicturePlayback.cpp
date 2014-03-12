@@ -270,7 +270,7 @@ void SkPicturePlayback::init() {
 }
 
 SkPicturePlayback::~SkPicturePlayback() {
-    fOpData->unref();
+    SkSafeUnref(fOpData);
 
     SkSafeUnref(fBitmaps);
     SkSafeUnref(fPaints);
@@ -612,6 +612,41 @@ bool SkPicturePlayback::parseBufferTag(SkReadBuffer& buffer,
                 fPathHeap.reset(SkNEW_ARGS(SkPathHeap, (buffer)));
             }
             break;
+        case SK_PICT_READER_TAG: {
+            SkAutoMalloc storage(size);
+            if (!buffer.readByteArray(storage.get(), size) ||
+                !buffer.validate(NULL == fOpData)) {
+                return false;
+            }
+            SkASSERT(NULL == fOpData);
+            fOpData = SkData::NewFromMalloc(storage.detach(), size);
+        } break;
+        case SK_PICT_PICTURE_TAG: {
+            if (!buffer.validate((0 == fPictureCount) && (NULL == fPictureRefs))) {
+                return false;
+            }
+            fPictureCount = size;
+            fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
+            bool success = true;
+            int i = 0;
+            for ( ; i < fPictureCount; i++) {
+                fPictureRefs[i] = SkPicture::CreateFromBuffer(buffer);
+                if (NULL == fPictureRefs[i]) {
+                    success = false;
+                    break;
+                }
+            }
+            if (!success) {
+                // Delete all of the pictures that were already created (up to but excluding i):
+                for (int j = 0; j < i; j++) {
+                    fPictureRefs[j]->unref();
+                }
+                // Delete the array
+                SkDELETE_ARRAY(fPictureRefs);
+                fPictureCount = 0;
+                return false;
+            }
+        } break;
         default:
             // The tag was invalid.
             return false;

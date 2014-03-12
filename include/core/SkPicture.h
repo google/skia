@@ -274,7 +274,8 @@ protected:
     // SkBBoxHierarchy implementation
     virtual SkBBoxHierarchy* createBBoxHierarchy() const;
 private:
-    void createHeader(void* header) const;
+    void createHeader(SkPictInfo* info) const;
+    static bool IsValidPictInfo(const SkPictInfo& info);
 
     friend class SkFlatPicture;
     friend class SkPicturePlayback;
