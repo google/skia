@@ -14,8 +14,6 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
-//#define SK_SUPPORT_LEGACY_COPYTO_CONFIG
-
 struct SkMask;
 struct SkIRect;
 struct SkRect;
@@ -617,10 +615,6 @@ public:
     */
     bool extractSubset(SkBitmap* dst, const SkIRect& subset) const;
 
-#ifdef SK_SUPPORT_LEGACY_COPYTO_CONFIG
-    bool copyTo(SkBitmap* dst, Config c, Allocator* allocator = NULL) const;
-    bool canCopyTo(Config newConfig) const;
-#endif
     /** Makes a deep copy of this bitmap, respecting the requested colorType,
      *  and allocating the dst pixels on the cpu.
      *  Returns false if either there is an error (i.e. the src does not have

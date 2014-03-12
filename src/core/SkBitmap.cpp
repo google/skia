@@ -982,16 +982,6 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 #include "SkCanvas.h"
 #include "SkPaint.h"
 
-#ifdef SK_SUPPORT_LEGACY_COPYTO_CONFIG
-bool SkBitmap::copyTo(SkBitmap* dst, Config c, Allocator* allocator) const {
-    return this->copyTo(dst, SkBitmapConfigToColorType(c), allocator);
-}
-
-bool SkBitmap::canCopyTo(Config newConfig) const {
-    return this->canCopyTo(SkBitmapConfigToColorType(newConfig));
-}
-#endif
-
 bool SkBitmap::canCopyTo(SkColorType dstColorType) const {
     if (this->colorType() == kUnknown_SkColorType) {
         return false;
