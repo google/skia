@@ -336,17 +336,6 @@ protected:
     */
     virtual const SkBitmap& onAccessBitmap() = 0;
 
-    /**
-     * Implements readPixels API. The caller will ensure that:
-     *  1. bitmap has pixel config kARGB_8888_Config.
-     *  2. bitmap has pixels.
-     *  3. The rectangle (x, y, x + bitmap->width(), y + bitmap->height()) is
-     *     contained in the device bounds.
-     */
-    virtual bool onReadPixels(const SkBitmap& bitmap,
-                              int x, int y,
-                              SkCanvas::Config8888 config8888) = 0;
-
     /** Called when this device is installed into a Canvas. Balanced by a call
         to unlockPixels() when the device is removed from a Canvas.
     */
@@ -390,6 +379,17 @@ protected:
 
     // default impl returns NULL
     virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes);
+
+    /**
+     * Implements readPixels API. The caller will ensure that:
+     *  1. bitmap has pixel config kARGB_8888_Config.
+     *  2. bitmap has pixels.
+     *  3. The rectangle (x, y, x + bitmap->width(), y + bitmap->height()) is
+     *     contained in the device bounds.
+     */
+    virtual bool onReadPixels(const SkBitmap& bitmap,
+                              int x, int y,
+                              SkCanvas::Config8888 config8888);
 
     /**
      *  The caller is responsible for "pre-clipping" the src. The impl can assume that the src

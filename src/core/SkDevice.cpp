@@ -190,6 +190,10 @@ bool SkBaseDevice::onWritePixels(const SkImageInfo&, const void*, size_t, int, i
     return false;
 }
 
+bool SkBaseDevice::onReadPixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) {
+    return false;
+}
+
 #ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
 void SkBaseDevice::writePixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) {}
 #endif
