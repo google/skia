@@ -153,6 +153,7 @@
     '../gm/strokerect.cpp',
     '../gm/strokerects.cpp',
     '../gm/strokes.cpp',
+    '../gm/stroketext.cpp',
     '../gm/tablecolorfilter.cpp',
     '../gm/texteffects.cpp',
     '../gm/testimagefilters.cpp',
