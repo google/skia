@@ -76,10 +76,10 @@ struct SkOTTableOS2_VA {
                 Reserved07)
         } field;
         struct Raw {
-            static const SK_OT_USHORT Installable = SkTEndian_SwapBE16(0);
-            static const SK_OT_USHORT RestrictedMask = SkTEndian_SwapBE16(1 << 1);
-            static const SK_OT_USHORT PreviewPrintMask = SkTEndian_SwapBE16(1 << 2);
-            static const SK_OT_USHORT EditableMask = SkTEndian_SwapBE16(1 << 3);
+            static const SK_OT_USHORT Installable = 0;
+            static const SK_OT_USHORT RestrictedMask = SkOTSetUSHORTBit<1>::value;
+            static const SK_OT_USHORT PreviewPrintMask = SkOTSetUSHORTBit<2>::value;
+            static const SK_OT_USHORT EditableMask = SkOTSetUSHORTBit<3>::value;
             SK_OT_USHORT value;
         } raw;
     } fsType;
@@ -121,12 +121,12 @@ struct SkOTTableOS2_VA {
                 Reserved07)
         } field;
         struct Raw {
-            static const SK_OT_USHORT ItalicMask = SkTEndian_SwapBE16(1 << 0);
-            static const SK_OT_USHORT UnderscoreMask = SkTEndian_SwapBE16(1 << 1);
-            static const SK_OT_USHORT NegativeMask = SkTEndian_SwapBE16(1 << 2);
-            static const SK_OT_USHORT OutlinedMask = SkTEndian_SwapBE16(1 << 3);
-            static const SK_OT_USHORT StrikeoutMask = SkTEndian_SwapBE16(1 << 4);
-            static const SK_OT_USHORT BoldMask = SkTEndian_SwapBE16(1 << 5);
+            static const SK_OT_USHORT ItalicMask = SkOTSetUSHORTBit<0>::value;
+            static const SK_OT_USHORT UnderscoreMask = SkOTSetUSHORTBit<1>::value;
+            static const SK_OT_USHORT NegativeMask = SkOTSetUSHORTBit<2>::value;
+            static const SK_OT_USHORT OutlinedMask = SkOTSetUSHORTBit<3>::value;
+            static const SK_OT_USHORT StrikeoutMask = SkOTSetUSHORTBit<4>::value;
+            static const SK_OT_USHORT BoldMask = SkOTSetUSHORTBit<5>::value;
             SK_OT_USHORT value;
         } raw;
     } fsSelection;
