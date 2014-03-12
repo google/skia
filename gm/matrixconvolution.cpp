@@ -45,7 +45,7 @@ protected:
         return make_isize(500, 300);
     }
 
-    void draw(SkCanvas* canvas, int x, int y, const SkIPoint& target,
+    void draw(SkCanvas* canvas, int x, int y, const SkIPoint& kernelOffset,
               SkMatrixConvolutionImageFilter::TileMode tileMode, bool convolveAlpha,
               const SkImageFilter::CropRect* cropRect = NULL) {
         SkScalar kernel[9] = {
@@ -61,7 +61,7 @@ protected:
                                                    kernel,
                                                    gain,
                                                    bias,
-                                                   target,
+                                                   kernelOffset,
                                                    tileMode,
                                                    convolveAlpha,
                                                    NULL,
@@ -83,22 +83,22 @@ protected:
             fInitialized = true;
         }
         canvas->clear(0x00000000);
-        SkIPoint target = SkIPoint::Make(1, 0);
+        SkIPoint kernelOffset = SkIPoint::Make(1, 0);
         for (int x = 10; x < 310; x += 100) {
-            this->draw(canvas, x, 10, target, MCIF::kClamp_TileMode, true);
-            this->draw(canvas, x, 110, target, MCIF::kClampToBlack_TileMode, true);
-            this->draw(canvas, x, 210, target, MCIF::kRepeat_TileMode, true);
-            target.fY++;
+            this->draw(canvas, x, 10, kernelOffset, MCIF::kClamp_TileMode, true);
+            this->draw(canvas, x, 110, kernelOffset, MCIF::kClampToBlack_TileMode, true);
+            this->draw(canvas, x, 210, kernelOffset, MCIF::kRepeat_TileMode, true);
+            kernelOffset.fY++;
         }
-        target.fY = 1;
+        kernelOffset.fY = 1;
         SkImageFilter::CropRect rect(SkRect::MakeXYWH(10, 5, 60, 60));
-        this->draw(canvas, 310, 10, target, MCIF::kClamp_TileMode, true, &rect);
-        this->draw(canvas, 310, 110, target, MCIF::kClampToBlack_TileMode, true, &rect);
-        this->draw(canvas, 310, 210, target, MCIF::kRepeat_TileMode, true, &rect);
+        this->draw(canvas, 310, 10, kernelOffset, MCIF::kClamp_TileMode, true, &rect);
+        this->draw(canvas, 310, 110, kernelOffset, MCIF::kClampToBlack_TileMode, true, &rect);
+        this->draw(canvas, 310, 210, kernelOffset, MCIF::kRepeat_TileMode, true, &rect);
 
-        this->draw(canvas, 410, 10, target, MCIF::kClamp_TileMode, false);
-        this->draw(canvas, 410, 110, target, MCIF::kClampToBlack_TileMode, false);
-        this->draw(canvas, 410, 210, target, MCIF::kRepeat_TileMode, false);
+        this->draw(canvas, 410, 10, kernelOffset, MCIF::kClamp_TileMode, false);
+        this->draw(canvas, 410, 110, kernelOffset, MCIF::kClampToBlack_TileMode, false);
+        this->draw(canvas, 410, 210, kernelOffset, MCIF::kRepeat_TileMode, false);
     }
 
 private:

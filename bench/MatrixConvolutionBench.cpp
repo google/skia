@@ -22,8 +22,8 @@ public:
             SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
         };
         SkScalar gain = 0.3f, bias = SkIntToScalar(100);
-        SkIPoint target = SkIPoint::Make(1, 1);
-        fFilter = SkMatrixConvolutionImageFilter::Create(kernelSize, kernel, gain, bias, target, tileMode, convolveAlpha);
+        SkIPoint kernelOffset = SkIPoint::Make(1, 1);
+        fFilter = SkMatrixConvolutionImageFilter::Create(kernelSize, kernel, gain, bias, kernelOffset, tileMode, convolveAlpha);
     }
 
     ~MatrixConvolutionBench() {

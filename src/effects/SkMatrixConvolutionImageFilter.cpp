@@ -412,7 +412,7 @@ private:
     UniformHandle       fBoundsUni;
     UniformHandle       fKernelUni;
     UniformHandle       fImageIncrementUni;
-    UniformHandle       fTargetUni;
+    UniformHandle       fKernelOffsetUni;
     UniformHandle       fGainUni;
     UniformHandle       fBiasUni;
 
@@ -467,15 +467,15 @@ void GrGLMatrixConvolutionEffect::emitCode(GrGLShaderBuilder* builder,
                                              kFloat_GrSLType,
                                              "Kernel",
                                              fKernelSize.width() * fKernelSize.height());
-    fTargetUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
-                                             kVec2f_GrSLType, "Target");
+    fKernelOffsetUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                             kVec2f_GrSLType, "KernelOffset");
     fGainUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                    kFloat_GrSLType, "Gain");
     fBiasUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                    kFloat_GrSLType, "Bias");
 
     const char* bounds = builder->getUniformCStr(fBoundsUni);
-    const char* kernelOffset = builder->getUniformCStr(fTargetUni);
+    const char* kernelOffset = builder->getUniformCStr(fKernelOffsetUni);
     const char* imgInc = builder->getUniformCStr(fImageIncrementUni);
     const char* kernel = builder->getUniformCStr(fKernelUni);
     const char* gain = builder->getUniformCStr(fGainUni);
@@ -545,7 +545,7 @@ void GrGLMatrixConvolutionEffect::setData(const GrGLUniformManager& uman,
     imageIncrement[0] = 1.0f / texture.width();
     imageIncrement[1] = ySign / texture.height();
     uman.set2fv(fImageIncrementUni, 1, imageIncrement);
-    uman.set2fv(fTargetUni, 1, conv.kernelOffset());
+    uman.set2fv(fKernelOffsetUni, 1, conv.kernelOffset());
     uman.set1fv(fKernelUni, fKernelSize.width() * fKernelSize.height(), conv.kernel());
     uman.set1f(fGainUni, conv.gain());
     uman.set1f(fBiasUni, conv.bias());
