@@ -424,6 +424,7 @@ public:
                                    builder->getUniformCStr(fMatrixHandle),
                                    inputColor,
                                    builder->getUniformCStr(fVectorHandle));
+            builder->fsCodeAppendf("\t%s = clamp(%s, 0.0, 1.0);\n", outputColor, outputColor);
             builder->fsCodeAppendf("\t%s.rgb *= %s.a;\n", outputColor, outputColor);
         }
 
