@@ -43,9 +43,9 @@ public:
                      uint32_t flags = kNone_BlurFlag);
     virtual ~SkBlurDrawLooper();
 
-    // overrides from SkDrawLooper
-    virtual void init(SkCanvas*);
-    virtual bool next(SkCanvas*, SkPaint* paint);
+    virtual SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const SK_OVERRIDE;
+
+    virtual size_t contextSize() const SK_OVERRIDE { return sizeof(BlurDrawLooperContext); }
 
     SK_DEVELOPER_TO_STRING()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurDrawLooper)
@@ -66,7 +66,17 @@ private:
         kAfterEdge,
         kDone
     };
-    State   fState;
+
+    class BlurDrawLooperContext : public SkDrawLooper::Context {
+    public:
+        explicit BlurDrawLooperContext(const SkBlurDrawLooper* looper);
+
+        virtual bool next(SkCanvas* canvas, SkPaint* paint) SK_OVERRIDE;
+
+    private:
+        const SkBlurDrawLooper* fLooper;
+        State fState;
+    };
 
     void init(SkScalar sigma, SkScalar dx, SkScalar dy, SkColor color, uint32_t flags);
 

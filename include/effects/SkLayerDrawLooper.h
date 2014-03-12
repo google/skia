@@ -94,9 +94,9 @@ public:
     /// Similar to addLayer, but adds a layer to the top.
     SkPaint* addLayerOnTop(const LayerInfo&);
 
-    // overrides from SkDrawLooper
-    virtual void init(SkCanvas*);
-    virtual bool next(SkCanvas*, SkPaint* paint);
+    virtual SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const SK_OVERRIDE;
+
+    virtual size_t contextSize() const SK_OVERRIDE { return sizeof(LayerDrawLooperContext); }
 
     SK_DEVELOPER_TO_STRING()
 
@@ -118,9 +118,18 @@ private:
     int     fCount;
 
     // state-machine during the init/next cycle
-    Rec* fCurrRec;
+    class LayerDrawLooperContext : public SkDrawLooper::Context {
+    public:
+        explicit LayerDrawLooperContext(const SkLayerDrawLooper* looper);
 
-    static void ApplyInfo(SkPaint* dst, const SkPaint& src, const LayerInfo&);
+    protected:
+        virtual bool next(SkCanvas*, SkPaint* paint) SK_OVERRIDE;
+
+    private:
+        Rec* fCurrRec;
+
+        static void ApplyInfo(SkPaint* dst, const SkPaint& src, const LayerInfo&);
+    };
 
     class MyRegistrar : public SkFlattenable::Registrar {
     public:

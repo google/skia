@@ -96,20 +96,21 @@ public:
         return static_cast<T*>(buf);
     }
 
-private:
     /*
-     *  Helper function to provide space for one T. The space will be in
-     *  fStorage if there is room, or on the heap otherwise. Either way, this
-     *  class will call ~T() in its destructor and free the heap allocation if
-     *  necessary.
+     *  Reserve a specified amount of space (must be enough space for one T).
+     *  The space will be in fStorage if there is room, or on the heap otherwise.
+     *  Either way, this class will call ~T() in its destructor and free the heap
+     *  allocation if necessary.
+     *  Unlike createT(), this method will not call the constructor of T.
      */
-    template<typename T> void* reserveT() {
+    template<typename T> void* reserveT(size_t storageRequired = sizeof(T)) {
         SkASSERT(fNumObjects < kMaxObjects);
+        SkASSERT(storageRequired >= sizeof(T));
         if (kMaxObjects == fNumObjects) {
             return NULL;
         }
         const size_t storageRemaining = SkAlign4(kTotalBytes) - fStorageUsed;
-        const size_t storageRequired = SkAlign4(sizeof(T));
+        storageRequired = SkAlign4(storageRequired);
         Rec* rec = &fRecs[fNumObjects];
         if (storageRequired > storageRemaining) {
             // Allocate on the heap. Ideally we want to avoid this situation,

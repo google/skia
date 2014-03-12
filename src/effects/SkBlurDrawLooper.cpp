@@ -33,7 +33,6 @@ void SkBlurDrawLooper::init(SkScalar sigma, SkScalar dx, SkScalar dy,
     fDy = dy;
     fBlurColor = color;
     fBlurFlags = flags;
-    fState = kDone;
 
     SkASSERT(flags <= kAll_BlurFlag);
     if (sigma > 0) {
@@ -90,11 +89,16 @@ void SkBlurDrawLooper::flatten(SkWriteBuffer& buffer) const {
     buffer.writeUInt(fBlurFlags);
 }
 
-void SkBlurDrawLooper::init(SkCanvas*) {
-    fState = kBeforeEdge;
+SkDrawLooper::Context* SkBlurDrawLooper::createContext(SkCanvas*, void* storage) const {
+    return SkNEW_PLACEMENT_ARGS(storage, BlurDrawLooperContext, (this));
 }
 
-bool SkBlurDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
+SkBlurDrawLooper::BlurDrawLooperContext::BlurDrawLooperContext(
+        const SkBlurDrawLooper* looper)
+    : fLooper(looper), fState(SkBlurDrawLooper::kBeforeEdge) {}
+
+bool SkBlurDrawLooper::BlurDrawLooperContext::next(SkCanvas* canvas,
+                                                   SkPaint* paint) {
     switch (fState) {
         case kBeforeEdge:
             // we do nothing if a maskfilter is already installed
@@ -104,23 +108,23 @@ bool SkBlurDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
             }
 #ifdef SK_BUILD_FOR_ANDROID
             SkColor blurColor;
-            blurColor = fBlurColor;
+            blurColor = fLooper->fBlurColor;
             if (SkColorGetA(blurColor) == 255) {
                 blurColor = SkColorSetA(blurColor, paint->getAlpha());
             }
             paint->setColor(blurColor);
 #else
-            paint->setColor(fBlurColor);
+            paint->setColor(fLooper->fBlurColor);
 #endif
-            paint->setMaskFilter(fBlur);
-            paint->setColorFilter(fColorFilter);
+            paint->setMaskFilter(fLooper->fBlur);
+            paint->setColorFilter(fLooper->fColorFilter);
             canvas->save(SkCanvas::kMatrix_SaveFlag);
-            if (fBlurFlags & kIgnoreTransform_BlurFlag) {
+            if (fLooper->fBlurFlags & kIgnoreTransform_BlurFlag) {
                 SkMatrix transform(canvas->getTotalMatrix());
-                transform.postTranslate(fDx, fDy);
+                transform.postTranslate(fLooper->fDx, fLooper->fDy);
                 canvas->setMatrix(transform);
             } else {
-                canvas->translate(fDx, fDy);
+                canvas->translate(fLooper->fDx, fLooper->fDy);
             }
             fState = kAfterEdge;
             return true;

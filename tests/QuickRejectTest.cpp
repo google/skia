@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkDrawLooper.h"
+#include "SkTypes.h"
 #include "Test.h"
 
 /*
@@ -14,26 +15,36 @@
  */
 class TestLooper : public SkDrawLooper {
 public:
-    bool fOnce;
 
-    virtual void init(SkCanvas*) SK_OVERRIDE {
-        fOnce = true;
+    virtual SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const SK_OVERRIDE {
+        return SkNEW_PLACEMENT(storage, TestDrawLooperContext);
     }
 
-    virtual bool next(SkCanvas* canvas, SkPaint*) SK_OVERRIDE {
-        if (fOnce) {
-            fOnce = false;
-            canvas->translate(SkIntToScalar(10), 0);
-            return true;
-        }
-        return false;
-    }
+    virtual size_t contextSize() const SK_OVERRIDE { return sizeof(TestDrawLooperContext); }
 
 #ifdef SK_DEVELOPER
     virtual void toString(SkString* str) const SK_OVERRIDE {
         str->append("TestLooper:");
     }
 #endif
+
+private:
+    class TestDrawLooperContext : public SkDrawLooper::Context {
+    public:
+        TestDrawLooperContext() : fOnce(true) {}
+        virtual ~TestDrawLooperContext() {}
+
+        virtual bool next(SkCanvas* canvas, SkPaint*) SK_OVERRIDE {
+            if (fOnce) {
+                fOnce = false;
+                canvas->translate(SkIntToScalar(10), 0);
+                return true;
+            }
+            return false;
+        }
+    private:
+        bool fOnce;
+    };
 
     SK_DECLARE_UNFLATTENABLE_OBJECT()
 };

@@ -19,6 +19,7 @@
 #include "SkPicture.h"
 #include "SkRasterClip.h"
 #include "SkRRect.h"
+#include "SkSmallAllocator.h"
 #include "SkSurface_Base.h"
 #include "SkTemplates.h"
 #include "SkTextFormatParams.h"
@@ -337,7 +338,6 @@ public:
                    bool skipLayerForImageFilter = false,
                    const SkRect* bounds = NULL) : fOrigPaint(paint) {
         fCanvas = canvas;
-        fLooper = paint.getLooper();
         fFilter = canvas->getDrawFilter();
         fPaint = NULL;
         fSaveCount = canvas->getSaveCount();
@@ -354,10 +354,13 @@ public:
             fDoClearImageFilter = true;
         }
 
-        if (fLooper) {
-            fLooper->init(canvas);
+        if (SkDrawLooper* looper = paint.getLooper()) {
+            void* buffer = fLooperContextAllocator.reserveT<SkDrawLooper::Context>(
+                    looper->contextSize());
+            fLooperContext = looper->createContext(canvas, buffer);
             fIsSimple = false;
         } else {
+            fLooperContext = NULL;
             // can we be marked as simple?
             fIsSimple = !fFilter && !fDoClearImageFilter;
         }
@@ -391,13 +394,14 @@ private:
     SkLazyPaint     fLazyPaint;
     SkCanvas*       fCanvas;
     const SkPaint&  fOrigPaint;
-    SkDrawLooper*   fLooper;
     SkDrawFilter*   fFilter;
     const SkPaint*  fPaint;
     int             fSaveCount;
     bool            fDoClearImageFilter;
     bool            fDone;
     bool            fIsSimple;
+    SkDrawLooper::Context* fLooperContext;
+    SkSmallAllocator<1, 32> fLooperContextAllocator;
 
     bool doNext(SkDrawFilter::Type drawType);
 };
@@ -405,7 +409,7 @@ private:
 bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     fPaint = NULL;
     SkASSERT(!fIsSimple);
-    SkASSERT(fLooper || fFilter || fDoClearImageFilter);
+    SkASSERT(fLooperContext || fFilter || fDoClearImageFilter);
 
     SkPaint* paint = fLazyPaint.set(fOrigPaint);
 
@@ -413,7 +417,7 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
         paint->setImageFilter(NULL);
     }
 
-    if (fLooper && !fLooper->next(fCanvas, paint)) {
+    if (fLooperContext && !fLooperContext->next(fCanvas, paint)) {
         fDone = true;
         return false;
     }
@@ -422,7 +426,7 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
             fDone = true;
             return false;
         }
-        if (NULL == fLooper) {
+        if (NULL == fLooperContext) {
             // no looper means we only draw once
             fDone = true;
         }
@@ -430,7 +434,7 @@ bool AutoDrawLooper::doNext(SkDrawFilter::Type drawType) {
     fPaint = paint;
 
     // if we only came in here for the imagefilter, mark us as done
-    if (!fLooper && !fFilter) {
+    if (!fLooperContext && !fFilter) {
         fDone = true;
     }
 

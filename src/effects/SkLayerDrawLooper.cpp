@@ -24,8 +24,7 @@ SkLayerDrawLooper::LayerInfo::LayerInfo() {
 SkLayerDrawLooper::SkLayerDrawLooper()
         : fRecs(NULL),
           fTopRec(NULL),
-          fCount(0),
-          fCurrRec(NULL) {
+          fCount(0) {
 }
 
 SkLayerDrawLooper::~SkLayerDrawLooper() {
@@ -75,9 +74,9 @@ SkPaint* SkLayerDrawLooper::addLayerOnTop(const LayerInfo& info) {
     return &rec->fPaint;
 }
 
-void SkLayerDrawLooper::init(SkCanvas* canvas) {
-    fCurrRec = fRecs;
+SkLayerDrawLooper::Context* SkLayerDrawLooper::createContext(SkCanvas* canvas, void* storage) const {
     canvas->save(SkCanvas::kMatrix_SaveFlag);
+    return SkNEW_PLACEMENT_ARGS(storage, LayerDrawLooperContext, (this));
 }
 
 static SkColor xferColor(SkColor src, SkColor dst, SkXfermode::Mode mode) {
@@ -98,8 +97,8 @@ static SkColor xferColor(SkColor src, SkColor dst, SkXfermode::Mode mode) {
 // Even with kEntirePaint_Bits, we always ensure that the master paint's
 // text-encoding is respected, since that controls how we interpret the
 // text/length parameters of a draw[Pos]Text call.
-void SkLayerDrawLooper::ApplyInfo(SkPaint* dst, const SkPaint& src,
-                                  const LayerInfo& info) {
+void SkLayerDrawLooper::LayerDrawLooperContext::ApplyInfo(
+        SkPaint* dst, const SkPaint& src, const LayerInfo& info) {
 
     dst->setColor(xferColor(src.getColor(), dst->getColor(), info.fColorMode));
 
@@ -167,7 +166,11 @@ static void postTranslate(SkCanvas* canvas, SkScalar dx, SkScalar dy) {
     canvas->setMatrix(m);
 }
 
-bool SkLayerDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
+SkLayerDrawLooper::LayerDrawLooperContext::LayerDrawLooperContext(
+        const SkLayerDrawLooper* looper) : fCurrRec(looper->fRecs) {}
+
+bool SkLayerDrawLooper::LayerDrawLooperContext::next(SkCanvas* canvas,
+                                                     SkPaint* paint) {
     canvas->restore();
     if (NULL == fCurrRec) {
         return false;
@@ -180,7 +183,8 @@ bool SkLayerDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
         postTranslate(canvas, fCurrRec->fInfo.fOffset.fX,
                       fCurrRec->fInfo.fOffset.fY);
     } else {
-        canvas->translate(fCurrRec->fInfo.fOffset.fX, fCurrRec->fInfo.fOffset.fY);
+        canvas->translate(fCurrRec->fInfo.fOffset.fX,
+                          fCurrRec->fInfo.fOffset.fY);
     }
     fCurrRec = fCurrRec->fNext;
 
