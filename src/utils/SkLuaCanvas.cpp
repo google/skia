@@ -81,13 +81,13 @@ SkLuaCanvas::SkLuaCanvas(int width, int height, lua_State* L, const char func[])
 
 SkLuaCanvas::~SkLuaCanvas() {}
 
-int SkLuaCanvas::save(SaveFlags flags) {
+void SkLuaCanvas::willSave(SaveFlags flags) {
     AUTO_LUA("save");
-    return this->INHERITED::save(flags);
+    this->INHERITED::willSave(flags);
 }
 
-int SkLuaCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
-                             SaveFlags flags) {
+SkCanvas::SaveLayerStrategy SkLuaCanvas::willSaveLayer(const SkRect* bounds, const SkPaint* paint,
+                                                       SaveFlags flags) {
     AUTO_LUA("saveLayer");
     if (bounds) {
         lua.pushRect(*bounds, "bounds");
@@ -95,12 +95,15 @@ int SkLuaCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
     if (paint) {
         lua.pushPaint(*paint, "paint");
     }
-    return this->INHERITED::save(flags);
+
+    this->INHERITED::willSaveLayer(bounds, paint, flags);
+    // No need for a layer.
+    return kNoLayer_SaveLayerStrategy;
 }
 
-void SkLuaCanvas::restore() {
+void SkLuaCanvas::willRestore() {
     AUTO_LUA("restore");
-    this->INHERITED::restore();
+    this->INHERITED::willRestore();
 }
 
 bool SkLuaCanvas::translate(SkScalar dx, SkScalar dy) {

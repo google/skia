@@ -378,7 +378,7 @@ public:
                      by calls to save/restore.
         @return The value to pass to restoreToCount() to balance this save()
     */
-    virtual int save(SaveFlags flags = kMatrixClip_SaveFlag);
+    int save(SaveFlags flags = kMatrixClip_SaveFlag);
 
     /** This behaves the same as save(), but in addition it allocates an
         offscreen bitmap. All drawing calls are directed there, and only when
@@ -393,8 +393,8 @@ public:
         @param flags  LayerFlags
         @return The value to pass to restoreToCount() to balance this save()
     */
-    virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
-                          SaveFlags flags = kARGB_ClipLayer_SaveFlag);
+    int saveLayer(const SkRect* bounds, const SkPaint* paint,
+                  SaveFlags flags = kARGB_ClipLayer_SaveFlag);
 
     /** This behaves the same as save(), but in addition it allocates an
         offscreen bitmap. All drawing calls are directed there, and only when
@@ -416,7 +416,7 @@ public:
         call.
         It is an error to call restore() more times than save() was called.
     */
-    virtual void restore();
+    void restore();
 
     /** Returns the number of matrix/clip states on the SkCanvas' private stack.
         This will equal # save() calls - # restore() calls + 1. The save count on
@@ -1201,6 +1201,17 @@ protected:
     virtual const void* onPeekPixels(SkImageInfo*, size_t* rowBytes);
     virtual void* onAccessTopLayerPixels(SkImageInfo*, size_t* rowBytes);
 
+    // Subclass save/restore notifiers.
+    // Overriders should call the corresponding INHERITED method up the inheritance chain.
+    // willSaveLayer()'s return value may suppress full layer allocation.
+    enum SaveLayerStrategy {
+        kFullLayer_SaveLayerStrategy,
+        kNoLayer_SaveLayerStrategy
+    };
+    virtual void willSave(SaveFlags);
+    virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags);
+    virtual void willRestore();
+
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
 
     enum ClipEdgeStyle {
@@ -1301,7 +1312,7 @@ private:
                                 const SkRect& dst, const SkPaint* paint);
     void internalDrawPaint(const SkPaint& paint);
     int internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                          SaveFlags, bool justForImageFilter);
+                          SaveFlags, bool justForImageFilter, SaveLayerStrategy strategy);
     void internalDrawDevice(SkBaseDevice*, int x, int y, const SkPaint*);
 
     // shared by save() and saveLayer()

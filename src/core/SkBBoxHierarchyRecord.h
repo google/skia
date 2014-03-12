@@ -23,11 +23,6 @@ public:
 
     virtual void handleBBox(const SkRect& bounds) SK_OVERRIDE;
 
-    virtual int save(SaveFlags flags = kMatrixClip_SaveFlag) SK_OVERRIDE;
-    virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
-                          SaveFlags flags = kARGB_ClipLayer_SaveFlag) SK_OVERRIDE;
-    virtual void restore() SK_OVERRIDE;
-
     virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
     virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
     virtual bool rotate(SkScalar degrees) SK_OVERRIDE;
@@ -39,6 +34,10 @@ public:
     virtual bool shouldRewind(void* data) SK_OVERRIDE;
 
 protected:
+    virtual void willSave(SaveFlags) SK_OVERRIDE;
+    virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
+    virtual void willRestore() SK_OVERRIDE;
+
     virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;

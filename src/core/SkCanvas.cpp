@@ -347,8 +347,8 @@ public:
         if (!skipLayerForImageFilter && fOrigPaint.getImageFilter()) {
             SkPaint tmp;
             tmp.setImageFilter(fOrigPaint.getImageFilter());
-            (void)canvas->internalSaveLayer(bounds, &tmp,
-                                    SkCanvas::kARGB_ClipLayer_SaveFlag, true);
+            (void)canvas->internalSaveLayer(bounds, &tmp, SkCanvas::kARGB_ClipLayer_SaveFlag,
+                                            true, SkCanvas::kFullLayer_SaveLayerStrategy);
             // we'll clear the imageFilter for the actual draws in next(), so
             // it will only be applied during the restore().
             fDoClearImageFilter = true;
@@ -810,7 +810,12 @@ int SkCanvas::internalSave(SaveFlags flags) {
     return saveCount;
 }
 
+void SkCanvas::willSave(SaveFlags) {
+    // Do nothing. Subclasses may do something.
+}
+
 int SkCanvas::save(SaveFlags flags) {
+    this->willSave(flags);
     // call shared impl
     return this->internalSave(flags);
 }
@@ -867,9 +872,17 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
     return true;
 }
 
+SkCanvas::SaveLayerStrategy SkCanvas::willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) {
+
+    // Do nothing. Subclasses may do something.
+    return kFullLayer_SaveLayerStrategy;
+}
+
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
                         SaveFlags flags) {
-    return this->internalSaveLayer(bounds, paint, flags, false);
+    // Overriding classes may return false to signal that we don't need to create a layer.
+    SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, flags);
+    return this->internalSaveLayer(bounds, paint, flags, false, strategy);
 }
 
 static SkBaseDevice* createCompatibleDevice(SkCanvas* canvas,
@@ -878,8 +891,8 @@ static SkBaseDevice* createCompatibleDevice(SkCanvas* canvas,
     return device ? device->createCompatibleDevice(info) : NULL;
 }
 
-int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
-                                SaveFlags flags, bool justForImageFilter) {
+int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags,
+                                bool justForImageFilter, SaveLayerStrategy strategy) {
 #ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
     flags = (SaveFlags)(flags | kClipToLayer_SaveFlag);
 #endif
@@ -892,6 +905,12 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint,
 
     SkIRect ir;
     if (!this->clipRectBounds(bounds, flags, &ir, paint ? paint->getImageFilter() : NULL)) {
+        return count;
+    }
+
+    // FIXME: do willSaveLayer() overriders returning kNoLayer_SaveLayerStrategy really care about
+    // the clipRectBounds() call above?
+    if (kNoLayer_SaveLayerStrategy == strategy) {
         return count;
     }
 
@@ -947,9 +966,14 @@ int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha,
     }
 }
 
+void SkCanvas::willRestore() {
+    // Do nothing. Subclasses may do something.
+}
+
 void SkCanvas::restore() {
     // check for underflow
     if (fMCStack.count() > 1) {
+        this->willRestore();
         this->internalRestore();
     }
 }
