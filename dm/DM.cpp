@@ -42,7 +42,7 @@ DEFINE_string(match, "",  "[~][^]substring[$] [...] of GM name to run.\n"
                           "If a GM does not match any list entry,\n"
                           "it is skipped unless some list entry starts with ~");
 DEFINE_string(config, "565 8888 gpu nonrendering",
-              "Options: 565 8888 gpu nonrendering msaa4 msaa16 gpunull gpudebug angle mesa");
+              "Options: 565 8888 gpu nonrendering msaa4 msaa16 nvprmsaa4 nvprmsaa16 gpunull gpudebug angle mesa");
 DEFINE_bool(leaks, false, "Print leaked instance-counted objects at exit?");
 
 DEFINE_bool(gms, true, "Run GMs?");
@@ -60,6 +60,7 @@ static SkString lowercase(SkString s) {
 }
 
 static const GrContextFactory::GLContextType native = GrContextFactory::kNative_GLContextType;
+static const GrContextFactory::GLContextType nvpr = GrContextFactory::kNVPR_GLContextType;
 static const GrContextFactory::GLContextType null   = GrContextFactory::kNull_GLContextType;
 static const GrContextFactory::GLContextType debug  = GrContextFactory::kDebug_GLContextType;
 static const GrContextFactory::GLContextType angle  =
@@ -92,6 +93,8 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
             START("gpu",      GpuGMTask, native, 0);
             START("msaa4",    GpuGMTask, native, 4);
             START("msaa16",   GpuGMTask, native, 16);
+            START("nvprmsaa4", GpuGMTask, nvpr,  4);
+            START("nvprmsaa16", GpuGMTask, nvpr, 16);
             START("gpunull",  GpuGMTask, null,   0);
             START("gpudebug", GpuGMTask, debug,  0);
             START("angle",    GpuGMTask, angle,  0);
@@ -117,6 +120,8 @@ static void kick_off_benches(const SkTDArray<BenchRegistry::Factory>& benches,
             START("gpu",          GpuBenchTask, native, 0);
             START("msaa4",        GpuBenchTask, native, 4);
             START("msaa16",       GpuBenchTask, native, 16);
+            START("nvprmsaa4",    GpuBenchTask, nvpr,   4);
+            START("nvprmsaa16",   GpuBenchTask, nvpr,   16);
             START("gpunull",      GpuBenchTask, null,   0);
             START("gpudebug",     GpuBenchTask, debug,  0);
             START("angle",        GpuBenchTask, angle,  0);
