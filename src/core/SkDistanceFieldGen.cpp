@@ -14,16 +14,43 @@ struct DFData {
     SkPoint fDistVector; // distance vector to nearest (so far) edge texel
 };
 
+enum NeighborFlags {
+    kLeft_NeighborFlag        = 0x01,
+    kRight_NeighborFlag       = 0x02,
+    kTopLeft_NeighborFlag     = 0x04,
+    kTop_NeighborFlag         = 0x08,
+    kTopRight_NeighborFlag    = 0x10,
+    kBottomLeft_NeighborFlag  = 0x20,
+    kBottom_NeighborFlag      = 0x40,
+    kBottomRight_NeighborFlag = 0x80,
+    kAll_NeighborFlags        = 0xff,
+ 
+    kNeighborFlagCount        = 8
+};
+
 // We treat an "edge" as a place where we cross from a texel >= 128 to a texel < 128,
 // or vice versa. This means we just need to check if the MSBs are different.
-static bool found_edge(const unsigned char* imagePtr, int width) {
+// 'neighborFlags' is used to limit the directions in which we test to avoid indexing
+// outside of the image
+static bool found_edge(const unsigned char* imagePtr, int width, int neighborFlags) {
+    // the order of these should match the neighbor flags above
+    const int kNum8ConnectedNeighbors = 8;
     const int offsets[8] = {-1, 1, -width-1, -width, -width+1, width-1, width, width+1 };
+    SkASSERT(kNum8ConnectedNeighbors == kNeighborFlagCount);
 
     // search for an edge
-    int checkVal = *imagePtr >> 7;
-    for (int i = 0; i < 8; ++i) {
-        const unsigned char* checkPtr = imagePtr + offsets[i];
-        if (checkVal ^ (*checkPtr >> 7)) {
+    unsigned char currVal = *imagePtr >> 7;
+    for (int i = 0; i < kNum8ConnectedNeighbors; ++i) {
+        unsigned char checkVal;
+        if ((1 << i) & neighborFlags) {
+            const unsigned char* checkPtr = imagePtr + offsets[i];
+            checkVal = *checkPtr >> 7;
+        } else {
+            checkVal = 0;
+        }
+        SkASSERT(checkVal == 0 || checkVal == 1);
+        SkASSERT(currVal == 0 || currVal == 1);
+        if (checkVal != currVal) {
             return true;
         }
     }
@@ -46,8 +73,20 @@ static void init_glyph_data(DFData* data, unsigned char* edges, const unsigned c
             } else {
                 data->fAlpha = (*image)*0.00392156862f;  // 1/255
             }
-            if (i > 0 && i < imageWidth-1 && j > 0 && j < imageHeight-1 &&
-                found_edge(image, imageWidth)) {
+            int checkMask = kAll_NeighborFlags;
+            if (i == 0) {
+                checkMask &= ~(kLeft_NeighborFlag|kTopLeft_NeighborFlag|kBottomLeft_NeighborFlag);
+            }
+            if (i == imageWidth-1) {
+                checkMask &= ~(kRight_NeighborFlag|kTopRight_NeighborFlag|kBottomRight_NeighborFlag);
+            }
+            if (j == 0) {
+                checkMask &= ~(kTopLeft_NeighborFlag|kTop_NeighborFlag|kTopRight_NeighborFlag);
+            }
+            if (j == imageHeight-1) {
+                checkMask &= ~(kBottomLeft_NeighborFlag|kBottom_NeighborFlag|kBottomRight_NeighborFlag);
+            }
+            if (found_edge(image, imageWidth, checkMask)) {
                 *edges = 255;  // using 255 makes for convenient debug rendering
             }
             ++data;
@@ -268,6 +307,10 @@ static void B2(DFData* curr, int width) {
     }
 }
 
+// enable this to output edge data rather than the distance field
+#define DUMP_EDGE 0
+
+#if !DUMP_EDGE
 static unsigned char pack_distance_field_val(float dist, float distanceMagnitude) {
     if (dist <= -distanceMagnitude) {
         return 255;
@@ -277,6 +320,7 @@ static unsigned char pack_distance_field_val(float dist, float distanceMagnitude
         return (unsigned char)((distanceMagnitude-dist)*128.0f/distanceMagnitude);
     }
 }
+#endif
 
 // assumes an 8-bit image and distance field
 bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
@@ -382,14 +426,21 @@ bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
     unsigned char *dfPtr = distanceField;
     for (int j = 1; j < dataHeight-1; ++j) {
         for (int i = 1; i < dataWidth-1; ++i) {
+#if DUMP_EDGE
+            unsigned char val = (currData->fAlpha >= 0.5f) ? 255 : 0;
+            if (*currEdge) {
+                val = 128;
+            }
+            *dfPtr++ = val;
+#else
             float dist;
             if (currData->fAlpha > 0.5f) {
                 dist = -SkScalarSqrt(currData->fDistSq);
             } else {
                 dist = SkScalarSqrt(currData->fDistSq);
             }
-
             *dfPtr++ = pack_distance_field_val(dist, (float)distanceMagnitude);
+#endif
             ++currData;
             ++currEdge;
         }
