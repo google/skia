@@ -641,7 +641,10 @@ public:
     virtual SkLight* transform(const SkMatrix& matrix) const {
         SkPoint location2 = SkPoint::Make(fLocation.fX, fLocation.fY);
         matrix.mapPoints(&location2, 1);
-        SkPoint3 location(location2.fX, location2.fY, fLocation.fZ);
+        // Use X scale and Y scale on Z and average the result
+        SkPoint locationZ = SkPoint::Make(fLocation.fZ, fLocation.fZ);
+        matrix.mapVectors(&locationZ, 1);
+        SkPoint3 location(location2.fX, location2.fY, SkScalarAve(locationZ.fX, locationZ.fY));
         return new SkPointLight(location, color());
     }
 
@@ -682,11 +685,18 @@ public:
     virtual SkLight* transform(const SkMatrix& matrix) const {
         SkPoint location2 = SkPoint::Make(fLocation.fX, fLocation.fY);
         matrix.mapPoints(&location2, 1);
-        SkPoint3 location(location2.fX, location2.fY, fLocation.fZ);
+        // Use X scale and Y scale on Z and average the result
+        SkPoint locationZ = SkPoint::Make(fLocation.fZ, fLocation.fZ);
+        matrix.mapVectors(&locationZ, 1);
+        SkPoint3 location(location2.fX, location2.fY, SkScalarAve(locationZ.fX, locationZ.fY));
         SkPoint target2 = SkPoint::Make(fTarget.fX, fTarget.fY);
         matrix.mapPoints(&target2, 1);
-        SkPoint3 target(target2.fX, target2.fY, fTarget.fZ);
-        return new SkSpotLight(location, target, fSpecularExponent, fCosOuterConeAngle, fCosInnerConeAngle, fConeScale, fS, color());
+        SkPoint targetZ = SkPoint::Make(fTarget.fZ, fTarget.fZ);
+        matrix.mapVectors(&targetZ, 1);
+        SkPoint3 target(target2.fX, target2.fY, SkScalarAve(targetZ.fX, targetZ.fY));
+        SkPoint3 s = target - location;
+        s.normalize();
+        return new SkSpotLight(location, target, fSpecularExponent, fCosOuterConeAngle, fCosInnerConeAngle, fConeScale, s, color());
     }
 
     SkPoint3 surfaceToLight(int x, int y, int z, SkScalar surfaceScale) const {

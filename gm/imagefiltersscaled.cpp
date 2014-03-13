@@ -12,6 +12,7 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkGradientShader.h"
+#include "SkLightingImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPerlinNoiseShader.h"
@@ -35,7 +36,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(1140, 500);
+        return make_isize(1428, 500);
     }
 
     void make_checkerboard() {
@@ -91,6 +92,15 @@ protected:
         SkAutoTUnref<SkShader> noise(SkPerlinNoiseShader::CreateFractalNoise(
             SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0));
 
+        SkPoint3 pointLocation(0, 0, SkIntToScalar(10));
+        SkPoint3 spotLocation(SkIntToScalar(-10), SkIntToScalar(-10), SkIntToScalar(20));
+        SkPoint3 spotTarget(SkIntToScalar(40), SkIntToScalar(40), 0);
+        SkScalar spotExponent = SK_Scalar1;
+        SkScalar cutoffAngle = SkIntToScalar(15);
+        SkScalar kd = SkIntToScalar(2);
+        SkScalar surfaceScale = SkIntToScalar(1);
+        SkColor white(0xFFFFFFFF);
+
         SkImageFilter* filters[] = {
             SkBlurImageFilter::Create(SkIntToScalar(4), SkIntToScalar(4)),
             SkDropShadowImageFilter::Create(SkIntToScalar(5), SkIntToScalar(10), SkIntToScalar(3),
@@ -105,6 +115,9 @@ protected:
             SkOffsetImageFilter::Create(SkIntToScalar(32), 0),
             SkResizeImageFilter::Create(RESIZE_FACTOR, RESIZE_FACTOR, SkPaint::kNone_FilterLevel),
             SkRectShaderImageFilter::Create(noise),
+            SkLightingImageFilter::CreatePointLitDiffuse(pointLocation, white, surfaceScale, kd),
+            SkLightingImageFilter::CreateSpotLitDiffuse(spotLocation, spotTarget, spotExponent,
+                                                        cutoffAngle, white, surfaceScale, kd),
         };
 
         SkVector scales[] = {
