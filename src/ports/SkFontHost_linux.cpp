@@ -24,9 +24,6 @@
 #ifndef SK_FONT_FILE_PREFIX
 #    define SK_FONT_FILE_PREFIX "/usr/share/fonts/truetype/"
 #endif
-#ifndef SK_FONT_FILE_DIR_SEPERATOR
-#    define SK_FONT_FILE_DIR_SEPERATOR "/"
-#endif
 
 bool find_name_and_attributes(SkStream* stream, SkString* name,
                               SkTypeface::Style* style, bool* isFixedPitch);
@@ -326,8 +323,8 @@ private:
         SkString name;
 
         while (iter.next(&name, false)) {
-            SkString filename(directory);
-            filename.append(name);
+            SkString filename(
+                SkOSPath::SkPathJoin(directory.c_str(), name.c_str()));
 
             bool isFixedPitch;
             SkString realname;
@@ -358,9 +355,8 @@ private:
             if (name.startsWith(".")) {
                 continue;
             }
-            SkString dirname(directory);
-            dirname.append(name);
-            dirname.append(SK_FONT_FILE_DIR_SEPERATOR);
+            SkString dirname(
+                SkOSPath::SkPathJoin(directory.c_str(), name.c_str()));
             load_directory_fonts(dirname);
         }
     }
@@ -377,7 +373,7 @@ private:
 
         // Try to pick a default font.
         static const char* gDefaultNames[] = {
-            "Arial", "Verdana", "Times New Roman", NULL
+            "Arial", "Verdana", "Times New Roman", "Droid Sans", NULL
         };
         for (size_t i = 0; i < SK_ARRAY_COUNT(gDefaultNames); ++i) {
             SkFontStyleSet_Custom* set = this->onMatchFamily(gDefaultNames[i]);
