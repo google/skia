@@ -89,6 +89,12 @@ Loader.controller(
           $timeout(
               function(){location.reload();},
               timeToReload - timeNow);
+        } else if (dataHeader[constants.KEY__HEADER__SCHEMA_VERSION] !=
+                   constants.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER) {
+          $scope.loadingMessage = "ERROR: Got JSON file with schema version "
+              + dataHeader[constants.KEY__HEADER__SCHEMA_VERSION]
+              + " but expected schema version "
+              + constants.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER;
         } else {
           $scope.loadingMessage = "Processing data, please wait...";
 
