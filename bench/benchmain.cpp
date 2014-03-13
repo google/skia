@@ -267,6 +267,8 @@ DEFINE_bool2(verbose, v, false, "Print more.");
 DEFINE_string2(resourcePath, i, "resources", "directory for test resources.");
 DEFINE_string(outResultsFile, "", "If given, the results will be written to the file in JSON format.");
 
+DEFINE_bool(dryRun, false, "Don't actually run the tests, just print what would have been done.");
+
 // Has this bench converged?  First arguments are milliseconds / loop iteration,
 // last is overall runtime in milliseconds.
 static bool HasConverged(double prevPerLoop, double currPerLoop, double currRaw) {
@@ -551,101 +553,103 @@ int tool_main(int argc, char** argv) {
             int loopsPerFrame = 0;
             int loopsPerIter = 0;
             if (FLAGS_verbose) { SkDebugf("%s %s: ", bench->getName(), config.name); }
-            do {
-                // Ramp up 1 -> 2 -> 4 -> 8 -> 16 -> ... -> ~1 billion.
-                loopsPerIter = (loopsPerIter == 0) ? 1 : loopsPerIter * 2;
-                if (loopsPerIter >= (1<<30) || timer.fWall > FLAGS_maxMs) {
-                    // If you find it takes more than a billion loops to get up to 20ms of runtime,
-                    // you've got a computer clocked at several THz or have a broken benchmark.  ;)
-                    //     "1B ought to be enough for anybody."
-                    logger.logError(SkStringPrintf(
-                        "\nCan't get %s %s to converge in %dms (%d loops)",
-                         bench->getName(), config.name, FLAGS_maxMs, loopsPerIter));
-                    break;
-                }
-
-                if ((benchMode == kRecord_BenchMode || benchMode == kPictureRecord_BenchMode)) {
-                    // Clear the recorded commands so that they do not accumulate.
-                    canvas.reset(SkRef(recordTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
-                }
-
-                timer.start();
-                // Inner loop that allows us to break the run into smaller
-                // chunks (e.g. frames). This is especially useful for the GPU
-                // as we can flush and/or swap buffers to keep the GPU from
-                // queuing up too much work.
-                for (int loopCount = loopsPerIter; loopCount > 0; ) {
-                    // Save and restore around each call to draw() to guarantee a pristine canvas.
-                    SkAutoCanvasRestore saveRestore(canvas, true/*also save*/);
-
-                    int loops;
-                    if (frameIntervalComputed && loopCount > loopsPerFrame) {
-                        loops = loopsPerFrame;
-                        loopCount -= loopsPerFrame;
-                    } else {
-                        loops = loopCount;
-                        loopCount = 0;
+            if (!FLAGS_dryRun) {
+                do {
+                    // Ramp up 1 -> 2 -> 4 -> 8 -> 16 -> ... -> ~1 billion.
+                    loopsPerIter = (loopsPerIter == 0) ? 1 : loopsPerIter * 2;
+                    if (loopsPerIter >= (1<<30) || timer.fWall > FLAGS_maxMs) {
+                        // If you find it takes more than a billion loops to get up to 20ms of runtime,
+                        // you've got a computer clocked at several THz or have a broken benchmark.  ;)
+                        //     "1B ought to be enough for anybody."
+                        logger.logError(SkStringPrintf(
+                            "\nCan't get %s %s to converge in %dms (%d loops)",
+                             bench->getName(), config.name, FLAGS_maxMs, loopsPerIter));
+                        break;
                     }
 
-                    if (benchMode == kPictureRecord_BenchMode) {
-                        recordFrom.draw(canvas);
-                    } else {
-                        bench->draw(loops, canvas);
+                    if ((benchMode == kRecord_BenchMode || benchMode == kPictureRecord_BenchMode)) {
+                        // Clear the recorded commands so that they do not accumulate.
+                        canvas.reset(SkRef(recordTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
                     }
 
-                    if (kDeferredSilent_BenchMode == benchMode) {
-                        static_cast<SkDeferredCanvas*>(canvas.get())->silentFlush();
-                    } else if (NULL != canvas) {
-                        canvas->flush();
-                    }
+                    timer.start();
+                    // Inner loop that allows us to break the run into smaller
+                    // chunks (e.g. frames). This is especially useful for the GPU
+                    // as we can flush and/or swap buffers to keep the GPU from
+                    // queuing up too much work.
+                    for (int loopCount = loopsPerIter; loopCount > 0; ) {
+                        // Save and restore around each call to draw() to guarantee a pristine canvas.
+                        SkAutoCanvasRestore saveRestore(canvas, true/*also save*/);
 
-#if SK_SUPPORT_GPU
-                    // swap drawing buffers on each frame to prevent the GPU
-                    // from queuing up too much work
-                    if (NULL != glContext) {
-                        glContext->swapBuffers();
-                    }
-#endif
-                }
-
-
-
-                // Stop truncated timers before GL calls complete, and stop the full timers after.
-                timer.truncatedEnd();
-#if SK_SUPPORT_GPU
-                if (NULL != glContext) {
-                    context->flush();
-                    SK_GL(*glContext, Finish());
-                }
-#endif
-                timer.end();
-
-                // setup the frame interval for subsequent iterations
-                if (!frameIntervalComputed) {
-                    frameIntervalTime += timer.fWall;
-                    frameIntervalTotalLoops += loopsPerIter;
-                    if (frameIntervalTime >= FLAGS_minMs) {
-                        frameIntervalComputed = true;
-                        loopsPerFrame =
-                          (int)(((double)frameIntervalTotalLoops / frameIntervalTime) * FLAGS_minMs);
-                        if (loopsPerFrame < 1) {
-                            loopsPerFrame = 1;
+                        int loops;
+                        if (frameIntervalComputed && loopCount > loopsPerFrame) {
+                            loops = loopsPerFrame;
+                            loopCount -= loopsPerFrame;
+                        } else {
+                            loops = loopCount;
+                            loopCount = 0;
                         }
-//                        SkDebugf("  %s has %d loops in %f ms (normalized to %d)\n",
-//                                 bench->getName(), frameIntervalTotalLoops,
-//                                 timer.fWall, loopsPerFrame);
-                    }
-                }
 
-                const double current = timer.fWall / loopsPerIter;
-                if (FLAGS_verbose && current > previous) { SkDebugf("↑"); }
-                if (FLAGS_verbose) { SkDebugf("%.3g ", current); }
-                converged = HasConverged(previous, current, timer.fWall);
-                previous = current;
-            } while (!kIsDebug && !converged);
+                        if (benchMode == kPictureRecord_BenchMode) {
+                            recordFrom.draw(canvas);
+                        } else {
+                            bench->draw(loops, canvas);
+                        }
+
+                        if (kDeferredSilent_BenchMode == benchMode) {
+                            static_cast<SkDeferredCanvas*>(canvas.get())->silentFlush();
+                        } else if (NULL != canvas) {
+                            canvas->flush();
+                        }
+
+    #if SK_SUPPORT_GPU
+                        // swap drawing buffers on each frame to prevent the GPU
+                        // from queuing up too much work
+                        if (NULL != glContext) {
+                            glContext->swapBuffers();
+                        }
+    #endif
+                    }
+
+
+
+                    // Stop truncated timers before GL calls complete, and stop the full timers after.
+                    timer.truncatedEnd();
+    #if SK_SUPPORT_GPU
+                    if (NULL != glContext) {
+                        context->flush();
+                        SK_GL(*glContext, Finish());
+                    }
+    #endif
+                    timer.end();
+
+                    // setup the frame interval for subsequent iterations
+                    if (!frameIntervalComputed) {
+                        frameIntervalTime += timer.fWall;
+                        frameIntervalTotalLoops += loopsPerIter;
+                        if (frameIntervalTime >= FLAGS_minMs) {
+                            frameIntervalComputed = true;
+                            loopsPerFrame =
+                              (int)(((double)frameIntervalTotalLoops / frameIntervalTime) * FLAGS_minMs);
+                            if (loopsPerFrame < 1) {
+                                loopsPerFrame = 1;
+                            }
+    //                        SkDebugf("  %s has %d loops in %f ms (normalized to %d)\n",
+    //                                 bench->getName(), frameIntervalTotalLoops,
+    //                                 timer.fWall, loopsPerFrame);
+                        }
+                    }
+
+                    const double current = timer.fWall / loopsPerIter;
+                    if (FLAGS_verbose && current > previous) { SkDebugf("↑"); }
+                    if (FLAGS_verbose) { SkDebugf("%.3g ", current); }
+                    converged = HasConverged(previous, current, timer.fWall);
+                    previous = current;
+                } while (!kIsDebug && !converged);
+            }
             if (FLAGS_verbose) { SkDebugf("\n"); }
 
-            if (FLAGS_outDir.count() && SkBenchmark::kNonRendering_Backend != config.backend) {
+            if (!FLAGS_dryRun && FLAGS_outDir.count() && SkBenchmark::kNonRendering_Backend != config.backend) {
                 SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
                 if (image.get()) {
                     saveFile(bench->getName(), config.name, FLAGS_outDir[0],
