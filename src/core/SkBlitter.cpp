@@ -665,7 +665,7 @@ public:
         }
     }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
     virtual void toString(SkString* str) const SK_OVERRIDE {
         str->append("Sk3DShader: (");
 

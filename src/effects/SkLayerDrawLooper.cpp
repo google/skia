@@ -257,7 +257,7 @@ SkFlattenable* SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     return looper;
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkLayerDrawLooper::toString(SkString* str) const {
     str->appendf("SkLayerDrawLooper (%d): ", fCount);
 

@@ -876,7 +876,7 @@ void SkProcXfermode::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkProcXfermode::toString(SkString* str) const {
     str->appendf("SkProcXfermode: %p", fProc);
 }
@@ -1413,7 +1413,7 @@ const char* SkXfermode::ModeName(Mode mode) {
     SK_COMPILE_ASSERT(SK_ARRAY_COUNT(gModeStrings) == kLastMode + 1, mode_count);
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkProcCoeffXfermode::toString(SkString* str) const {
     str->append("SkProcCoeffXfermode: ");
 
@@ -1451,7 +1451,7 @@ public:
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
     virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkClearXfermode)
 
 private:
@@ -1499,7 +1499,7 @@ void SkClearXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
     }
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkClearXfermode::toString(SkString* str) const {
     this->INHERITED::toString(str);
 }
@@ -1516,7 +1516,7 @@ public:
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
     virtual void xferA8(SkAlpha*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSrcXfermode)
 
 private:
@@ -1569,7 +1569,7 @@ void SkSrcXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
         }
     }
 }
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkSrcXfermode::toString(SkString* str) const {
     this->INHERITED::toString(str);
 }
@@ -1585,7 +1585,7 @@ public:
 
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstInXfermode)
 
 private:
@@ -1615,7 +1615,7 @@ void SkDstInXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
     } while (--count != 0);
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkDstInXfermode::toString(SkString* str) const {
     this->INHERITED::toString(str);
 }
@@ -1631,7 +1631,7 @@ public:
 
     virtual void xfer32(SkPMColor*, const SkPMColor*, int, const SkAlpha*) const SK_OVERRIDE;
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDstOutXfermode)
 
 private:
@@ -1662,7 +1662,7 @@ void SkDstOutXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
     } while (--count != 0);
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkDstOutXfermode::toString(SkString* str) const {
     this->INHERITED::toString(str);
 }

@@ -28,7 +28,7 @@ public:
     virtual void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]) const SK_OVERRIDE;
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLerpXfermode)
 
 protected:

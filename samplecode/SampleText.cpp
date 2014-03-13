@@ -49,7 +49,7 @@ public:
         return c;
     }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
     virtual void toString(SkString* str) const SK_OVERRIDE {
         str->append("ReduceNoise: (");
         this->INHERITED::toString(str);
@@ -81,7 +81,7 @@ public:
         return (int)(f * 255);
     }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
     virtual void toString(SkString* str) const SK_OVERRIDE {
         str->append("Darken: (");
         this->INHERITED::toString(str);
@@ -146,7 +146,7 @@ public:
 
     typedef SkFlattenable* (*Factory)(SkReadBuffer&);
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPowerMode)
 
 private:
@@ -196,7 +196,7 @@ void SkPowerMode::xfer16(uint16_t dst[], const SkPMColor src[], int count,
     }
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkPowerMode::toString(SkString* str) const {
     str->append("SkPowerMode: exponent ");
     str->appendScalar(fExp);

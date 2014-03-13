@@ -49,7 +49,7 @@ public:
     virtual void filterSpan(const SkPMColor src[], int count,
                             SkPMColor dst[]) const SK_OVERRIDE;
 
-    SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
+    SK_TO_STRING_OVERRIDE()
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTable_ColorFilter)
 
@@ -152,7 +152,7 @@ void SkTable_ColorFilter::filterSpan(const SkPMColor src[], int count,
     }
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkTable_ColorFilter::toString(SkString* str) const {
     str->append("SkTable_ColorFilter");
 }

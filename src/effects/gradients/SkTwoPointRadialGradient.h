@@ -33,7 +33,7 @@ public:
     SkScalar getStartRadius() const { return fStartRadius; }
     SkScalar getDiffRadius() const { return fDiffRadius; }
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTwoPointRadialGradient)
 
 protected:

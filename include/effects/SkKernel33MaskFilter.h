@@ -18,7 +18,7 @@ public:
     virtual bool filterMask(SkMask*, const SkMask&, const SkMatrix&,
                             SkIPoint*) const SK_OVERRIDE;
 
-    SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
+    SK_TO_STRING_OVERRIDE()
 
 protected:
     SkKernel33ProcMaskFilter(unsigned percent256 = 256)
@@ -43,7 +43,7 @@ public:
     // override from SkKernel33ProcMaskFilter
     virtual uint8_t computeValue(uint8_t* const* srcRows) const SK_OVERRIDE;
 
-    SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkKernel33MaskFilter)
 
 protected:

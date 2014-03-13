@@ -1032,7 +1032,7 @@ public:
         return SetTextMatrix(matrix, fTextSize, fTextScaleX, fTextSkewX);
     }
 
-    SkDEVCODE(void toString(SkString*) const;)
+    SK_TO_STRING_NONVIRT()
 
     struct FlatteningTraits {
         static void Flatten(SkWriteBuffer& buffer, const SkPaint& paint);

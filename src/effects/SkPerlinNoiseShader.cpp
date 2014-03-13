@@ -1322,7 +1322,7 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext*, const SkPaint&) const 
 
 #endif
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkPerlinNoiseShader::toString(SkString* str) const {
     str->append("SkPerlinNoiseShader: (");
 

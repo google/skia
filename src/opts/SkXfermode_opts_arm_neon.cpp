@@ -835,7 +835,7 @@ void SkNEONProcCoeffXfermode::xfer16(uint16_t* SK_RESTRICT dst,
     }
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkNEONProcCoeffXfermode::toString(SkString* str) const {
     this->INHERITED::toString(str);
 }

@@ -87,7 +87,7 @@ void SkFilterShader::shadeSpan16(int x, int y, uint16_t result[], int count) {
     fFilter->filterSpan16(result, count, result);
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkFilterShader::toString(SkString* str) const {
     str->append("SkFilterShader: (");
 

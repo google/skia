@@ -747,7 +747,7 @@ public:
         int       fHeight;
     };
 
-    SkDEVCODE(void toString(SkString* str) const;)
+    SK_TO_STRING_NONVIRT()
 
 private:
     struct MipMap;

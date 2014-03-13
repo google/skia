@@ -47,7 +47,7 @@ public:
 
     virtual size_t contextSize() const SK_OVERRIDE { return sizeof(BlurDrawLooperContext); }
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurDrawLooper)
 
 protected:

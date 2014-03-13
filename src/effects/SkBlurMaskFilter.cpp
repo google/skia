@@ -59,7 +59,7 @@ public:
 
     virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
 
-    SkDEVCODE(virtual void toString(SkString* str) const SK_OVERRIDE;)
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
 
 protected:
@@ -915,7 +915,7 @@ bool SkBlurMaskFilterImpl::filterMaskGPU(GrTexture* src,
 #endif // SK_SUPPORT_GPU
 
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkBlurMaskFilterImpl::toString(SkString* str) const {
     str->append("SkBlurMaskFilterImpl: (");
 

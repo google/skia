@@ -21,7 +21,7 @@ public:
         return SkNEW_ARGS(SkPixelXorXfermode, (opColor));
     }
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPixelXorXfermode)
 
 protected:

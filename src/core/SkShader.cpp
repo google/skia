@@ -179,7 +179,7 @@ SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
     return ::CreateBitmapShader(src, tmx, tmy, NULL);
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkShader::toString(SkString* str) const {
     if (this->hasLocalMatrix()) {
         str->append(" ");
@@ -309,7 +309,7 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
     return kColor_GradientType;
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkColorShader::toString(SkString* str) const {
     str->append("SkColorShader: (");
 
@@ -348,7 +348,7 @@ void SkEmptyShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
     SkDEBUGFAIL("should never get called, since setContext() returned false");
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkEmptyShader::toString(SkString* str) const {
     str->append("SkEmptyShader: (");
 

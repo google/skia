@@ -1679,7 +1679,7 @@ void SkBitmap::validate() const {
 }
 #endif
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkBitmap::toString(SkString* str) const {
 
     static const char* gConfigNames[kConfigCount] = {

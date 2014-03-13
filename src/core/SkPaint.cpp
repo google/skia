@@ -2278,7 +2278,7 @@ const SkRect& SkPaint::doComputeFastBounds(const SkRect& origSrc,
     return *storage;
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkPaint::toString(SkString* str) const {
     str->append("<dl><dt>SkPaint:</dt><dd><dl>");
 
@@ -2447,7 +2447,6 @@ void SkPaint::toString(SkString* str) const {
     str->append("</dd></dl></dl>");
 }
 #endif
-
 
 ///////////////////////////////////////////////////////////////////////////////
 

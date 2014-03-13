@@ -22,7 +22,7 @@ public:
 
     virtual size_t contextSize() const SK_OVERRIDE { return sizeof(TestDrawLooperContext); }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
     virtual void toString(SkString* str) const SK_OVERRIDE {
         str->append("TestLooper:");
     }

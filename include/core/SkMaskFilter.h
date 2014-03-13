@@ -138,7 +138,7 @@ public:
      */
     virtual void computeFastBounds(const SkRect& src, SkRect* dest) const;
 
-    SkDEVCODE(virtual void toString(SkString* str) const = 0;)
+    SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkMaskFilter)
 
 protected:

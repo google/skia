@@ -30,7 +30,7 @@ public:
 
     static bool CanDo(const SkBitmap&, TileMode tx, TileMode ty);
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBitmapProcShader)
 
 #if SK_SUPPORT_GPU

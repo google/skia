@@ -2363,7 +2363,7 @@ public:
 
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTriColorShader)
 
 protected:
@@ -2436,7 +2436,7 @@ void SkTriColorShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
     }
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkTriColorShader::toString(SkString* str) const {
     str->append("SkTriColorShader: (");
 

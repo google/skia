@@ -128,7 +128,7 @@ public:
      */
     virtual GrEffectRef* asNewEffect(GrContext*) const;
 
-    SkDEVCODE(virtual void toString(SkString* str) const = 0;)
+    SK_TO_STRING_PUREVIRT()
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
     SK_DEFINE_FLATTENABLE_TYPE(SkColorFilter)

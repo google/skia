@@ -86,7 +86,7 @@ SkKernel33ProcMaskFilter::SkKernel33ProcMaskFilter(SkReadBuffer& rb)
     fPercent256 = rb.readInt();
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkKernel33ProcMaskFilter::toString(SkString* str) const {
     str->appendf("percent256: %d, ", fPercent256);
 }
@@ -126,7 +126,7 @@ SkKernel33MaskFilter::SkKernel33MaskFilter(SkReadBuffer& rb)
     fShift = rb.readInt();
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkKernel33MaskFilter::toString(SkString* str) const {
     str->append("SkKernel33MaskFilter: (");
 

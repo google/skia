@@ -167,7 +167,7 @@ void SkAvoidXfermode::xferA8(SkAlpha dst[], const SkPMColor src[], int count,
     // override in subclass
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkAvoidXfermode::toString(SkString* str) const {
     str->append("SkAvoidXfermode: opColor: ");
     str->appendHex(fOpColor);

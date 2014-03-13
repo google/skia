@@ -484,7 +484,7 @@ GrEffectRef* SkColorMatrixFilter::asNewEffect(GrContext*) const {
 
 #endif
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkColorMatrixFilter::toString(SkString* str) const {
     str->append("SkColorMatrixFilter: ");
 

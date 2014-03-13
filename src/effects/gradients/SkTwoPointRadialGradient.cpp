@@ -307,7 +307,7 @@ bool SkTwoPointRadialGradient::setContext( const SkBitmap& device,
     return true;
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkTwoPointRadialGradient::toString(SkString* str) const {
     str->append("SkTwoPointRadialGradient: (");
 

@@ -333,7 +333,7 @@ SkShader* CreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkBitmapProcShader::toString(SkString* str) const {
     static const char* gTileModeName[SkShader::kTileModeCount] = {
         "clamp", "repeat", "mirror"

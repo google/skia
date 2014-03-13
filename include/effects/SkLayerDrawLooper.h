@@ -98,7 +98,7 @@ public:
 
     virtual size_t contextSize() const SK_OVERRIDE { return sizeof(LayerDrawLooperContext); }
 
-    SK_DEVELOPER_TO_STRING()
+    SK_TO_STRING_OVERRIDE()
 
     /// Implements Flattenable.
     virtual Factory getFactory() const SK_OVERRIDE { return CreateProc; }

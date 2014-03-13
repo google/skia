@@ -285,7 +285,7 @@ GrEffectRef* SkSweepGradient::asNewEffect(GrContext*, const SkPaint&) const {
 
 #endif
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkSweepGradient::toString(SkString* str) const {
     str->append("SkSweepGradient: (");
 

@@ -138,7 +138,7 @@ bool SkBlurDrawLooper::BlurDrawLooperContext::next(SkCanvas* canvas,
     }
 }
 
-#ifdef SK_DEVELOPER
+#ifndef SK_IGNORE_TO_STRING
 void SkBlurDrawLooper::toString(SkString* str) const {
     str->append("SkBlurDrawLooper: ");
 
