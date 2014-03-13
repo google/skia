@@ -38,6 +38,7 @@ module.constant('constants', (function() {
     KEY__IMAGESETS__DESCRIPTION: 'description',
 
     // NOTE: Keep these in sync with ../results.py
+    REBASELINE_SERVER_SCHEMA_VERSION_NUMBER: 1,
     KEY__EXPECTATIONS__BUGS: 'bugs',
     KEY__EXPECTATIONS__IGNOREFAILURE: 'ignore-failure',
     KEY__EXPECTATIONS__REVIEWED: 'reviewed-by-human',
@@ -52,6 +53,7 @@ module.constant('constants', (function() {
     KEY__HEADER__IS_STILL_LOADING: 'resultsStillLoading',
     KEY__HEADER__RESULTS_ALL: 'all',
     KEY__HEADER__RESULTS_FAILURES: 'failures',
+    KEY__HEADER__SCHEMA_VERSION: 'schemaVersion',
     KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: 'timeNextUpdateAvailable',
     KEY__HEADER__TIME_UPDATED: 'timeUpdated',
     KEY__HEADER__TYPE: 'type',

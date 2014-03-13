@@ -38,6 +38,7 @@ import imagepairset
 
 # Keys used to link an image to a particular GM test.
 # NOTE: Keep these in sync with static/constants.js
+REBASELINE_SERVER_SCHEMA_VERSION_NUMBER = 1
 KEY__EXPECTATIONS__BUGS = gm_json.JSONKEY_EXPECTEDRESULTS_BUGS
 KEY__EXPECTATIONS__IGNOREFAILURE = gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE
 KEY__EXPECTATIONS__REVIEWED = gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED
@@ -52,6 +53,7 @@ KEY__HEADER__IS_EXPORTED = 'isExported'
 KEY__HEADER__IS_STILL_LOADING = 'resultsStillLoading'
 KEY__HEADER__RESULTS_ALL = 'all'
 KEY__HEADER__RESULTS_FAILURES = 'failures'
+KEY__HEADER__SCHEMA_VERSION = 'schemaVersion'
 KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE = 'timeNextUpdateAvailable'
 KEY__HEADER__TIME_UPDATED = 'timeUpdated'
 KEY__HEADER__TYPE = 'type'
@@ -193,6 +195,8 @@ class Results(object):
     response_dict = self._results[results_type]
     time_updated = self.get_timestamp()
     response_dict[KEY__HEADER] = {
+        KEY__HEADER__SCHEMA_VERSION: REBASELINE_SERVER_SCHEMA_VERSION_NUMBER,
+
         # Timestamps:
         # 1. when this data was last updated
         # 2. when the caller should check back for new data (if ever)

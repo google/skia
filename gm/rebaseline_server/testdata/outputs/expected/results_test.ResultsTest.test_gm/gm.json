@@ -48,6 +48,15 @@
       }
     }
   }, 
+  "header": {
+    "dataHash": "2099241024256114776", 
+    "isEditable": false, 
+    "isExported": true, 
+    "schemaVersion": 1, 
+    "timeNextUpdateAvailable": null, 
+    "timeUpdated": 12345678, 
+    "type": "all"
+  }, 
   "imagePairs": [
     {
       "differenceData": {

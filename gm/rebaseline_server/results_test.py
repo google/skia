@@ -35,9 +35,16 @@ class ResultsTest(base_unittest.TestCase):
         actuals_root=os.path.join(self._input_dir, 'gm-actuals'),
         expected_root=os.path.join(self._input_dir, 'gm-expectations'),
         generated_images_root=self._temp_dir)
+    results_obj.get_timestamp = mock_get_timestamp
     gm_json.WriteToFile(
-        results_obj.get_results_of_type(results.KEY__HEADER__RESULTS_ALL),
+        results_obj.get_packaged_results_of_type(
+            results.KEY__HEADER__RESULTS_ALL),
         os.path.join(self._output_dir_actual, 'gm.json'))
+
+
+def mock_get_timestamp():
+  """Mock version of Results.get_timestamp() for testing."""
+  return 12345678
 
 
 def main():
