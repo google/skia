@@ -669,19 +669,19 @@ GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rre
                 continue;
             }
             if (r.fX != r.fY) {
-                cornerFlags = -1;
+                cornerFlags = ~0U;
                 break;
             }
             if (!cornerFlags) {
                 radius = r.fX;
                 if (radius < CircularRRectEffect::kRadiusMin) {
-                    cornerFlags = -1;
+                    cornerFlags = ~0U;
                     break;
                 }
                 cornerFlags = 1 << c;
             } else {
                 if (r.fX != radius) {
-                   cornerFlags = -1;
+                   cornerFlags = ~0U;
                    break;
                 }
                 cornerFlags |= 1 << c;
