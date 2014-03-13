@@ -40,13 +40,14 @@ if TOOLS_DIRECTORY not in sys.path:
 import svn
 
 # Imports from local dir
+#
+# Note: we import results under a different name, to avoid confusion with the
+# Server.results() property. See discussion at
+# https://codereview.chromium.org/195943004/diff/1/gm/rebaseline_server/server.py#newcode44
 import imagepairset
-import results
+import results as results_mod
 
 PATHSPLIT_RE = re.compile('/([^/]+)/(.+)')
-EXPECTATIONS_DIR = os.path.join(TRUNK_DIRECTORY, 'expectations', 'gm')
-GENERATED_IMAGES_ROOT = os.path.join(PARENT_DIRECTORY, 'static',
-                                     'generated-images')
 
 # A simple dictionary of file name extensions to MIME types. The empty string
 # entry is used as the default when no extension was given or if the extension
@@ -64,16 +65,8 @@ MIME_TYPE_MAP = {'': 'application/octet-stream',
 KEY__EDITS__MODIFICATIONS = 'modifications'
 KEY__EDITS__OLD_RESULTS_HASH = 'oldResultsHash'
 KEY__EDITS__OLD_RESULTS_TYPE = 'oldResultsType'
-KEY__HEADER = 'header'
-KEY__HEADER__DATAHASH = 'dataHash'
-KEY__HEADER__IS_EDITABLE = 'isEditable'
-KEY__HEADER__IS_EXPORTED = 'isExported'
-KEY__HEADER__IS_STILL_LOADING = 'resultsStillLoading'
-KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE = 'timeNextUpdateAvailable'
-KEY__HEADER__TIME_UPDATED = 'timeUpdated'
-KEY__HEADER__TYPE = 'type'
 
-DEFAULT_ACTUALS_DIR = '.gm-actuals'
+DEFAULT_ACTUALS_DIR = results_mod.DEFAULT_ACTUALS_DIR
 DEFAULT_ACTUALS_REPO_REVISION = 'HEAD'
 DEFAULT_ACTUALS_REPO_URL = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 DEFAULT_PORT = 8888
@@ -201,8 +194,8 @@ class Server(object):
     return self._reload_seconds
 
   def update_results(self, invalidate=False):
-    """ Create or update self._results, based on the expectations in
-    EXPECTATIONS_DIR and the latest actuals from skia-autogen.
+    """ Create or update self._results, based on the latest expectations and
+    actuals.
 
     We hold self.results_rlock while we do this, to guarantee that no other
     thread attempts to update either self._results or the underlying files at
@@ -236,13 +229,10 @@ class Server(object):
       if self._reload_seconds:
         logging.info(
             'Updating expected GM results in %s by syncing Skia repo ...' %
-            EXPECTATIONS_DIR)
+            results_mod.DEFAULT_EXPECTATIONS_DIR)
         _run_command(['gclient', 'sync'], TRUNK_DIRECTORY)
 
-      self._results = results.Results(
-          actuals_root=self._actuals_dir,
-          expected_root=EXPECTATIONS_DIR,
-          generated_images_root=GENERATED_IMAGES_ROOT)
+      self._results = results_mod.Results(actuals_root=self._actuals_dir)
 
   def _result_loader(self, reload_seconds=0):
     """ Call self.update_results(), either once or periodically.
@@ -315,14 +305,14 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.send_error(404)
       raise
 
-  def do_GET_results(self, type):
+  def do_GET_results(self, results_type):
     """ Handle a GET request for GM results.
 
     Args:
-      type: string indicating which set of results to return;
-            must be one of the results.RESULTS_* constants
+      results_type: string indicating which set of results to return;
+            must be one of the results_mod.RESULTS_* constants
     """
-    logging.debug('do_GET_results: sending results of type "%s"' % type)
+    logging.debug('do_GET_results: sending results of type "%s"' % results_type)
     # Since we must make multiple calls to the Results object, grab a
     # reference to it in case it is updated to point at a new Results
     # object within another thread.
@@ -333,59 +323,20 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     # the handler's .server instance variable.
     results_obj = _SERVER.results
     if results_obj:
-      response_dict = self.package_results(results_obj, type)
+      response_dict = results_obj.get_packaged_results_of_type(
+          results_type=results_type, reload_seconds=_SERVER.reload_seconds,
+          is_editable=_SERVER.is_editable, is_exported=_SERVER.is_exported)
     else:
       now = int(time.time())
       response_dict = {
-          KEY__HEADER: {
-              KEY__HEADER__IS_STILL_LOADING: True,
-              KEY__HEADER__TIME_UPDATED: now,
-              KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: (
+          results_mod.KEY__HEADER: {
+              results_mod.KEY__HEADER__IS_STILL_LOADING: True,
+              results_mod.KEY__HEADER__TIME_UPDATED: now,
+              results_mod.KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: (
                   now + RELOAD_INTERVAL_UNTIL_READY),
           },
       }
     self.send_json_dict(response_dict)
-
-  def package_results(self, results_obj, type):
-    """ Given a nonempty "results" object, package it as a response_dict
-    as needed within do_GET_results.
-
-    Args:
-      results_obj: nonempty "results" object
-      type: string indicating which set of results to return;
-            must be one of the results.RESULTS_* constants
-    """
-    response_dict = results_obj.get_results_of_type(type)
-    time_updated = results_obj.get_timestamp()
-    response_dict[KEY__HEADER] = {
-        # Timestamps:
-        # 1. when this data was last updated
-        # 2. when the caller should check back for new data (if ever)
-        #
-        # We only return these timestamps if the --reload argument was passed;
-        # otherwise, we have no idea when the expectations were last updated
-        # (we allow the user to maintain her own expectations as she sees fit).
-        KEY__HEADER__TIME_UPDATED:
-            time_updated if _SERVER.reload_seconds else None,
-        KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE:
-            (time_updated+_SERVER.reload_seconds) if _SERVER.reload_seconds
-            else None,
-
-        # The type we passed to get_results_of_type()
-        KEY__HEADER__TYPE: type,
-
-        # Hash of dataset, which the client must return with any edits--
-        # this ensures that the edits were made to a particular dataset.
-        KEY__HEADER__DATAHASH: str(hash(repr(
-            response_dict[imagepairset.KEY__IMAGEPAIRS]))),
-
-        # Whether the server will accept edits back.
-        KEY__HEADER__IS_EDITABLE: _SERVER.is_editable,
-
-        # Whether the service is accessible from other hosts.
-        KEY__HEADER__IS_EXPORTED: _SERVER.is_exported,
-    }
-    return response_dict
 
   def do_GET_static(self, path):
     """ Handle a GET request for a file under the 'static' directory.
@@ -441,7 +392,7 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                               # client and server apply
                                               # modifications to the same base)
       KEY__EDITS__MODIFICATIONS: [
-        # as needed by results.edit_expectations()
+        # as needed by results_mod.edit_expectations()
         ...
       ],
     }

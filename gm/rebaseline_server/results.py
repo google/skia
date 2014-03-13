@@ -28,6 +28,7 @@ import time
 # so any dirs that are already in the PYTHONPATH will be preferred.
 PARENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 GM_DIRECTORY = os.path.dirname(PARENT_DIRECTORY)
+TRUNK_DIRECTORY = os.path.dirname(GM_DIRECTORY)
 if GM_DIRECTORY not in sys.path:
   sys.path.append(GM_DIRECTORY)
 import gm_json
@@ -44,8 +45,16 @@ KEY__EXTRACOLUMN__BUILDER = 'builder'
 KEY__EXTRACOLUMN__CONFIG = 'config'
 KEY__EXTRACOLUMN__RESULT_TYPE = 'resultType'
 KEY__EXTRACOLUMN__TEST = 'test'
+KEY__HEADER = 'header'
+KEY__HEADER__DATAHASH = 'dataHash'
+KEY__HEADER__IS_EDITABLE = 'isEditable'
+KEY__HEADER__IS_EXPORTED = 'isExported'
+KEY__HEADER__IS_STILL_LOADING = 'resultsStillLoading'
 KEY__HEADER__RESULTS_ALL = 'all'
 KEY__HEADER__RESULTS_FAILURES = 'failures'
+KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE = 'timeNextUpdateAvailable'
+KEY__HEADER__TIME_UPDATED = 'timeUpdated'
+KEY__HEADER__TYPE = 'type'
 KEY__NEW_IMAGE_URL = 'newImageUrl'
 KEY__RESULT_TYPE__FAILED = gm_json.JSONKEY_ACTUALRESULTS_FAILED
 KEY__RESULT_TYPE__FAILUREIGNORED = gm_json.JSONKEY_ACTUALRESULTS_FAILUREIGNORED
@@ -63,6 +72,11 @@ IMAGE_FILENAME_FORMATTER = '%s_%s.png'  # pass in (testname, config)
 
 IMAGEPAIR_SET_DESCRIPTIONS = ('expected image', 'actual image')
 
+DEFAULT_ACTUALS_DIR = '.gm-actuals'
+DEFAULT_EXPECTATIONS_DIR = os.path.join(TRUNK_DIRECTORY, 'expectations', 'gm')
+DEFAULT_GENERATED_IMAGES_ROOT = os.path.join(PARENT_DIRECTORY, 'static',
+                                             'generated-images')
+
 
 class Results(object):
   """ Loads actual and expected GM results into an ImagePairSet.
@@ -74,7 +88,9 @@ class Results(object):
   are immutable.  If you want to update the results based on updated JSON
   file contents, you will need to create a new Results object."""
 
-  def __init__(self, actuals_root, expected_root, generated_images_root):
+  def __init__(self, actuals_root=DEFAULT_ACTUALS_DIR,
+               expected_root=DEFAULT_EXPECTATIONS_DIR,
+               generated_images_root=DEFAULT_GENERATED_IMAGES_ROOT):
     """
     Args:
       actuals_root: root directory containing all actual-results.json files
@@ -150,16 +166,55 @@ class Results(object):
       builder_expectations[image_name] = new_expectations
     Results._write_dicts_to_root(expected_builder_dicts, self._expected_root)
 
-  def get_results_of_type(self, type):
-    """Return results of some/all tests (depending on 'type' parameter).
+  def get_results_of_type(self, results_type):
+    """Return results of some/all tests (depending on 'results_type' parameter).
 
     Args:
-      type: string describing which types of results to include; must be one
-            of the RESULTS_* constants
+      results_type: string describing which types of results to include; must
+          be one of the RESULTS_* constants
 
     Results are returned in a dictionary as output by ImagePairSet.as_dict().
     """
-    return self._results[type]
+    return self._results[results_type]
+
+  def get_packaged_results_of_type(self, results_type, reload_seconds=None,
+                                   is_editable=False, is_exported=True):
+    """ Package the results of some/all tests as a complete response_dict.
+
+    Args:
+      results_type: string indicating which set of results to return;
+          must be one of the RESULTS_* constants
+      reload_seconds: if specified, note that new results may be available once
+          these results are reload_seconds old
+      is_editable: whether clients are allowed to submit new baselines
+      is_exported: whether these results are being made available to other
+          network hosts
+    """
+    response_dict = self._results[results_type]
+    time_updated = self.get_timestamp()
+    response_dict[KEY__HEADER] = {
+        # Timestamps:
+        # 1. when this data was last updated
+        # 2. when the caller should check back for new data (if ever)
+        KEY__HEADER__TIME_UPDATED: time_updated,
+        KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: (
+            (time_updated+reload_seconds) if reload_seconds else None),
+
+        # The type we passed to get_results_of_type()
+        KEY__HEADER__TYPE: results_type,
+
+        # Hash of dataset, which the client must return with any edits--
+        # this ensures that the edits were made to a particular dataset.
+        KEY__HEADER__DATAHASH: str(hash(repr(
+            response_dict[imagepairset.KEY__IMAGEPAIRS]))),
+
+        # Whether the server will accept edits back.
+        KEY__HEADER__IS_EDITABLE: is_editable,
+
+        # Whether the service is accessible from other hosts.
+        KEY__HEADER__IS_EXPORTED: is_exported,
+    }
+    return response_dict
 
   @staticmethod
   def _ignore_builder(builder):
@@ -415,23 +470,31 @@ def main():
                       level=logging.INFO)
   parser = argparse.ArgumentParser()
   parser.add_argument(
-      '--actuals', required=True,
+      '--actuals', default=DEFAULT_ACTUALS_DIR,
       help='Directory containing all actual-result JSON files')
   parser.add_argument(
-      '--expectations', required=True,
-      help='Directory containing all expected-result JSON files')
+      '--expectations', default=DEFAULT_EXPECTATIONS_DIR,
+      help='Directory containing all expected-result JSON files; defaults to '
+      '\'%(default)s\' .')
   parser.add_argument(
       '--outfile', required=True,
-      help='File to write result summary into, in JSON format')
+      help='File to write result summary into, in JSON format.')
   parser.add_argument(
-      '--workdir', default='.workdir',
-      help='Directory within which to download images and generate diffs')
+      '--results', default=KEY__HEADER__RESULTS_FAILURES,
+      help='Which result types to include. Defaults to \'%(default)s\'; '
+      'must be one of ' +
+      str([KEY__HEADER__RESULTS_FAILURES, KEY__HEADER__RESULTS_ALL]))
+  parser.add_argument(
+      '--workdir', default=DEFAULT_GENERATED_IMAGES_ROOT,
+      help='Directory within which to download images and generate diffs; '
+      'defaults to \'%(default)s\' .')
   args = parser.parse_args()
   results = Results(actuals_root=args.actuals,
                     expected_root=args.expectations,
                     generated_images_root=args.workdir)
-  gm_json.WriteToFile(results.get_results_of_type(KEY__HEADER__RESULTS_ALL),
-                      args.outfile)
+  gm_json.WriteToFile(
+      results.get_packaged_results_of_type(results_type=args.results),
+      args.outfile)
 
 
 if __name__ == '__main__':

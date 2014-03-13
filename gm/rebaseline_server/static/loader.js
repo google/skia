@@ -63,7 +63,7 @@ Loader.controller(
     $scope.constants = constants;
     $scope.windowTitle = "Loading GM Results...";
     $scope.resultsToLoad = $location.search().resultsToLoad;
-    $scope.loadingMessage = "Loading results of type '" + $scope.resultsToLoad +
+    $scope.loadingMessage = "Loading results from '" + $scope.resultsToLoad +
         "', please wait...";
 
     /**
@@ -71,7 +71,7 @@ Loader.controller(
      * Once the dictionary is loaded, unhide the page elements so they can
      * render the data.
      */
-    $http.get("/results/" + $scope.resultsToLoad).success(
+    $http.get($scope.resultsToLoad).success(
       function(data, status, header, config) {
         var dataHeader = data[constants.KEY__HEADER];
         if (dataHeader[constants.KEY__HEADER__IS_STILL_LOADING]) {
@@ -166,7 +166,7 @@ Loader.controller(
       }
     ).error(
       function(data, status, header, config) {
-        $scope.loadingMessage = "Failed to load results of type '"
+        $scope.loadingMessage = "Failed to load results from '"
             + $scope.resultsToLoad + "'";
         $scope.windowTitle = "Failed to Load GM Results";
       }
