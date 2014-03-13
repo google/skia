@@ -383,7 +383,8 @@ DEF_TEST(Serialization, reporter) {
 
         // Deserialize picture
         SkValidatingReadBuffer reader(data, size);
-        SkPicture* readPict(SkPicture::CreateFromBuffer(reader));
-        REPORTER_ASSERT(reporter, NULL != readPict);
+        SkAutoTUnref<SkPicture> readPict(
+            SkPicture::CreateFromBuffer(reader));
+        REPORTER_ASSERT(reporter, NULL != readPict.get());
     }
 }
