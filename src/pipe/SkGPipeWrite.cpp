@@ -230,12 +230,6 @@ public:
 
     // overrides from SkCanvas
     virtual bool isDrawingToLayer() const SK_OVERRIDE;
-    virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
-    virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
-    virtual bool rotate(SkScalar degrees) SK_OVERRIDE;
-    virtual bool skew(SkScalar sx, SkScalar sy) SK_OVERRIDE;
-    virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE;
-    virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
     virtual void clear(SkColor) SK_OVERRIDE;
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
@@ -286,6 +280,13 @@ protected:
     virtual void willSave(SaveFlags) SK_OVERRIDE;
     virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
     virtual void willRestore() SK_OVERRIDE;
+
+    virtual void didTranslate(SkScalar, SkScalar) SK_OVERRIDE;
+    virtual void didScale(SkScalar, SkScalar) SK_OVERRIDE;
+    virtual void didRotate(SkScalar) SK_OVERRIDE;
+    virtual void didSkew(SkScalar, SkScalar) SK_OVERRIDE;
+    virtual void didConcat(const SkMatrix&) SK_OVERRIDE;
+    virtual void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
 
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
 
@@ -571,7 +572,7 @@ bool SkGPipeCanvas::isDrawingToLayer() const {
     return kNoSaveLayer != fFirstSaveLayerStackLevel;
 }
 
-bool SkGPipeCanvas::translate(SkScalar dx, SkScalar dy) {
+void SkGPipeCanvas::didTranslate(SkScalar dx, SkScalar dy) {
     if (dx || dy) {
         NOTIFY_SETUP(this);
         if (this->needOpBytes(2 * sizeof(SkScalar))) {
@@ -580,10 +581,10 @@ bool SkGPipeCanvas::translate(SkScalar dx, SkScalar dy) {
             fWriter.writeScalar(dy);
         }
     }
-    return this->INHERITED::translate(dx, dy);
+    this->INHERITED::didTranslate(dx, dy);
 }
 
-bool SkGPipeCanvas::scale(SkScalar sx, SkScalar sy) {
+void SkGPipeCanvas::didScale(SkScalar sx, SkScalar sy) {
     if (sx || sy) {
         NOTIFY_SETUP(this);
         if (this->needOpBytes(2 * sizeof(SkScalar))) {
@@ -592,10 +593,10 @@ bool SkGPipeCanvas::scale(SkScalar sx, SkScalar sy) {
             fWriter.writeScalar(sy);
         }
     }
-    return this->INHERITED::scale(sx, sy);
+    this->INHERITED::didScale(sx, sy);
 }
 
-bool SkGPipeCanvas::rotate(SkScalar degrees) {
+void SkGPipeCanvas::didRotate(SkScalar degrees) {
     if (degrees) {
         NOTIFY_SETUP(this);
         if (this->needOpBytes(sizeof(SkScalar))) {
@@ -603,10 +604,10 @@ bool SkGPipeCanvas::rotate(SkScalar degrees) {
             fWriter.writeScalar(degrees);
         }
     }
-    return this->INHERITED::rotate(degrees);
+    this->INHERITED::didRotate(degrees);
 }
 
-bool SkGPipeCanvas::skew(SkScalar sx, SkScalar sy) {
+void SkGPipeCanvas::didSkew(SkScalar sx, SkScalar sy) {
     if (sx || sy) {
         NOTIFY_SETUP(this);
         if (this->needOpBytes(2 * sizeof(SkScalar))) {
@@ -615,10 +616,10 @@ bool SkGPipeCanvas::skew(SkScalar sx, SkScalar sy) {
             fWriter.writeScalar(sy);
         }
     }
-    return this->INHERITED::skew(sx, sy);
+    this->INHERITED::didSkew(sx, sy);
 }
 
-bool SkGPipeCanvas::concat(const SkMatrix& matrix) {
+void SkGPipeCanvas::didConcat(const SkMatrix& matrix) {
     if (!matrix.isIdentity()) {
         NOTIFY_SETUP(this);
         if (this->needOpBytes(matrix.writeToMemory(NULL))) {
@@ -626,16 +627,16 @@ bool SkGPipeCanvas::concat(const SkMatrix& matrix) {
             fWriter.writeMatrix(matrix);
         }
     }
-    return this->INHERITED::concat(matrix);
+    this->INHERITED::didConcat(matrix);
 }
 
-void SkGPipeCanvas::setMatrix(const SkMatrix& matrix) {
+void SkGPipeCanvas::didSetMatrix(const SkMatrix& matrix) {
     NOTIFY_SETUP(this);
     if (this->needOpBytes(matrix.writeToMemory(NULL))) {
         this->writeOp(kSetMatrix_DrawOp);
         fWriter.writeMatrix(matrix);
     }
-    this->INHERITED::setMatrix(matrix);
+    this->INHERITED::didSetMatrix(matrix);
 }
 
 void SkGPipeCanvas::onClipRect(const SkRect& rect, SkRegion::Op rgnOp,

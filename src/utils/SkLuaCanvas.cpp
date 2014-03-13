@@ -106,40 +106,40 @@ void SkLuaCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-bool SkLuaCanvas::translate(SkScalar dx, SkScalar dy) {
+void SkLuaCanvas::didTranslate(SkScalar dx, SkScalar dy) {
     AUTO_LUA("translate");
     lua.pushScalar(dx, "dx");
     lua.pushScalar(dy, "dy");
-    return this->INHERITED::translate(dx, dy);
+    this->INHERITED::didTranslate(dx, dy);
 }
 
-bool SkLuaCanvas::scale(SkScalar sx, SkScalar sy) {
+void SkLuaCanvas::didScale(SkScalar sx, SkScalar sy) {
     AUTO_LUA("scale");
     lua.pushScalar(sx, "sx");
     lua.pushScalar(sy, "sy");
-    return this->INHERITED::scale(sx, sy);
+    this->INHERITED::didScale(sx, sy);
 }
 
-bool SkLuaCanvas::rotate(SkScalar degrees) {
+void SkLuaCanvas::didRotate(SkScalar degrees) {
     AUTO_LUA("rotate");
     lua.pushScalar(degrees, "degrees");
-    return this->INHERITED::rotate(degrees);
+    this->INHERITED::didRotate(degrees);
 }
 
-bool SkLuaCanvas::skew(SkScalar kx, SkScalar ky) {
+void SkLuaCanvas::didSkew(SkScalar kx, SkScalar ky) {
     AUTO_LUA("skew");
     lua.pushScalar(kx, "kx");
     lua.pushScalar(ky, "ky");
-    return this->INHERITED::skew(kx, ky);
+    this->INHERITED::didSkew(kx, ky);
 }
 
-bool SkLuaCanvas::concat(const SkMatrix& matrix) {
+void SkLuaCanvas::didConcat(const SkMatrix& matrix) {
     AUTO_LUA("concat");
-    return this->INHERITED::concat(matrix);
+    this->INHERITED::didConcat(matrix);
 }
 
-void SkLuaCanvas::setMatrix(const SkMatrix& matrix) {
-    this->INHERITED::setMatrix(matrix);
+void SkLuaCanvas::didSetMatrix(const SkMatrix& matrix) {
+    this->INHERITED::didSetMatrix(matrix);
 }
 
 void SkLuaCanvas::onClipRect(const SkRect& r, SkRegion::Op op, ClipEdgeStyle edgeStyle) {

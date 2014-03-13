@@ -409,9 +409,9 @@ void SkDebugCanvas::onClipRegion(const SkRegion& region, SkRegion::Op op) {
     this->addDrawCommand(new SkClipRegionCommand(region, op));
 }
 
-bool SkDebugCanvas::concat(const SkMatrix& matrix) {
+void SkDebugCanvas::didConcat(const SkMatrix& matrix) {
     addDrawCommand(new SkConcatCommand(matrix));
-    return true;
+    this->INHERITED::didConcat(matrix);
 }
 
 void SkDebugCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar left,
@@ -535,9 +535,9 @@ void SkDebugCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-bool SkDebugCanvas::rotate(SkScalar degrees) {
+void SkDebugCanvas::didRotate(SkScalar degrees) {
     addDrawCommand(new SkRotateCommand(degrees));
-    return true;
+    this->INHERITED::didRotate(degrees);
 }
 
 void SkDebugCanvas::willSave(SaveFlags flags) {
@@ -553,23 +553,24 @@ SkCanvas::SaveLayerStrategy SkDebugCanvas::willSaveLayer(const SkRect* bounds, c
     return kNoLayer_SaveLayerStrategy;
 }
 
-bool SkDebugCanvas::scale(SkScalar sx, SkScalar sy) {
+void SkDebugCanvas::didScale(SkScalar sx, SkScalar sy) {
     addDrawCommand(new SkScaleCommand(sx, sy));
-    return true;
+    this->INHERITED::didScale(sx, sy);
 }
 
-void SkDebugCanvas::setMatrix(const SkMatrix& matrix) {
+void SkDebugCanvas::didSetMatrix(const SkMatrix& matrix) {
     addDrawCommand(new SkSetMatrixCommand(matrix));
+    this->INHERITED::didSetMatrix(matrix);
 }
 
-bool SkDebugCanvas::skew(SkScalar sx, SkScalar sy) {
+void SkDebugCanvas::didSkew(SkScalar sx, SkScalar sy) {
     addDrawCommand(new SkSkewCommand(sx, sy));
-    return true;
+    this->INHERITED::didSkew(sx, sy);
 }
 
-bool SkDebugCanvas::translate(SkScalar dx, SkScalar dy) {
+void SkDebugCanvas::didTranslate(SkScalar dx, SkScalar dy) {
     addDrawCommand(new SkTranslateCommand(dx, dy));
-    return true;
+    this->INHERITED::didTranslate(dx, dy);
 }
 
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {

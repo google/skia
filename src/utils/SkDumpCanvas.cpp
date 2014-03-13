@@ -222,41 +222,41 @@ void SkDumpCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-bool SkDumpCanvas::translate(SkScalar dx, SkScalar dy) {
+void SkDumpCanvas::didTranslate(SkScalar dx, SkScalar dy) {
     this->dump(kMatrix_Verb, NULL, "translate(%g %g)",
                SkScalarToFloat(dx), SkScalarToFloat(dy));
-    return this->INHERITED::translate(dx, dy);
+    this->INHERITED::didTranslate(dx, dy);
 }
 
-bool SkDumpCanvas::scale(SkScalar sx, SkScalar sy) {
+void SkDumpCanvas::didScale(SkScalar sx, SkScalar sy) {
     this->dump(kMatrix_Verb, NULL, "scale(%g %g)",
                SkScalarToFloat(sx), SkScalarToFloat(sy));
-    return this->INHERITED::scale(sx, sy);
+    this->INHERITED::didScale(sx, sy);
 }
 
-bool SkDumpCanvas::rotate(SkScalar degrees) {
+void SkDumpCanvas::didRotate(SkScalar degrees) {
     this->dump(kMatrix_Verb, NULL, "rotate(%g)", SkScalarToFloat(degrees));
-    return this->INHERITED::rotate(degrees);
+    this->INHERITED::didRotate(degrees);
 }
 
-bool SkDumpCanvas::skew(SkScalar sx, SkScalar sy) {
+void SkDumpCanvas::didSkew(SkScalar sx, SkScalar sy) {
     this->dump(kMatrix_Verb, NULL, "skew(%g %g)",
                SkScalarToFloat(sx), SkScalarToFloat(sy));
-    return this->INHERITED::skew(sx, sy);
+    this->INHERITED::didSkew(sx, sy);
 }
 
-bool SkDumpCanvas::concat(const SkMatrix& matrix) {
+void SkDumpCanvas::didConcat(const SkMatrix& matrix) {
     SkString str;
     matrix.toString(&str);
     this->dump(kMatrix_Verb, NULL, "concat(%s)", str.c_str());
-    return this->INHERITED::concat(matrix);
+    this->INHERITED::didConcat(matrix);
 }
 
-void SkDumpCanvas::setMatrix(const SkMatrix& matrix) {
+void SkDumpCanvas::didSetMatrix(const SkMatrix& matrix) {
     SkString str;
     matrix.toString(&str);
     this->dump(kMatrix_Verb, NULL, "setMatrix(%s)", str.c_str());
-    this->INHERITED::setMatrix(matrix);
+    this->INHERITED::didSetMatrix(matrix);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

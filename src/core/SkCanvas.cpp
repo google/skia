@@ -1216,45 +1216,82 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
 }
 
 /////////////////////////////////////////////////////////////////////////////
+void SkCanvas::didTranslate(SkScalar, SkScalar) {
+    // Do nothing. Subclasses may do something.
+}
 
 bool SkCanvas::translate(SkScalar dx, SkScalar dy) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    return fMCRec->fMatrix->preTranslate(dx, dy);
+    bool res = fMCRec->fMatrix->preTranslate(dx, dy);
+
+    this->didTranslate(dx, dy);
+    return res;
+}
+
+void SkCanvas::didScale(SkScalar, SkScalar) {
+    // Do nothing. Subclasses may do something.
 }
 
 bool SkCanvas::scale(SkScalar sx, SkScalar sy) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    return fMCRec->fMatrix->preScale(sx, sy);
+    bool res = fMCRec->fMatrix->preScale(sx, sy);
+
+    this->didScale(sx, sy);
+    return res;
+}
+
+void SkCanvas::didRotate(SkScalar) {
+    // Do nothing. Subclasses may do something.
 }
 
 bool SkCanvas::rotate(SkScalar degrees) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    return fMCRec->fMatrix->preRotate(degrees);
+    bool res = fMCRec->fMatrix->preRotate(degrees);
+
+    this->didRotate(degrees);
+    return res;
+}
+
+void SkCanvas::didSkew(SkScalar, SkScalar) {
+    // Do nothing. Subclasses may do something.
 }
 
 bool SkCanvas::skew(SkScalar sx, SkScalar sy) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    return fMCRec->fMatrix->preSkew(sx, sy);
+    bool res = fMCRec->fMatrix->preSkew(sx, sy);
+
+    this->didSkew(sx, sy);
+    return res;
+}
+
+void SkCanvas::didConcat(const SkMatrix&) {
+    // Do nothing. Subclasses may do something.
 }
 
 bool SkCanvas::concat(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    return fMCRec->fMatrix->preConcat(matrix);
+    bool res = fMCRec->fMatrix->preConcat(matrix);
+
+    this->didConcat(matrix);
+    return res;
+}
+
+void SkCanvas::didSetMatrix(const SkMatrix&) {
+    // Do nothing. Subclasses may do something.
 }
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
     *fMCRec->fMatrix = matrix;
+    this->didSetMatrix(matrix);
 }
 
-// this is not virtual, so it must call a virtual method so that subclasses
-// will see its action
 void SkCanvas::resetMatrix() {
     SkMatrix matrix;
 

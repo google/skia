@@ -27,12 +27,6 @@ public:
     virtual ~SkNulCanvas() {}
 
     virtual bool isDrawingToLayer() const SK_OVERRIDE {return false;}
-    virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE {return true;}
-    virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE {return true;}
-    virtual bool rotate(SkScalar degrees) SK_OVERRIDE {return true;}
-    virtual bool skew(SkScalar sx, SkScalar sy) SK_OVERRIDE {return true;}
-    virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE {return true;}
-    virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE {}
     virtual void clear(SkColor) SK_OVERRIDE {}
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE {}
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],

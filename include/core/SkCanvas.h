@@ -442,38 +442,38 @@ public:
         @param dy   The distance to translate in Y
         returns true if the operation succeeded (e.g. did not overflow)
     */
-    virtual bool translate(SkScalar dx, SkScalar dy);
+    bool translate(SkScalar dx, SkScalar dy);
 
     /** Preconcat the current matrix with the specified scale.
         @param sx   The amount to scale in X
         @param sy   The amount to scale in Y
         returns true if the operation succeeded (e.g. did not overflow)
     */
-    virtual bool scale(SkScalar sx, SkScalar sy);
+    bool scale(SkScalar sx, SkScalar sy);
 
     /** Preconcat the current matrix with the specified rotation.
         @param degrees  The amount to rotate, in degrees
         returns true if the operation succeeded (e.g. did not overflow)
     */
-    virtual bool rotate(SkScalar degrees);
+    bool rotate(SkScalar degrees);
 
     /** Preconcat the current matrix with the specified skew.
         @param sx   The amount to skew in X
         @param sy   The amount to skew in Y
         returns true if the operation succeeded (e.g. did not overflow)
     */
-    virtual bool skew(SkScalar sx, SkScalar sy);
+    bool skew(SkScalar sx, SkScalar sy);
 
     /** Preconcat the current matrix with the specified matrix.
         @param matrix   The matrix to preconcatenate with the current matrix
         @return true if the operation succeeded (e.g. did not overflow)
     */
-    virtual bool concat(const SkMatrix& matrix);
+    bool concat(const SkMatrix& matrix);
 
     /** Replace the current matrix with a copy of the specified matrix.
         @param matrix The matrix that will be copied into the current matrix.
     */
-    virtual void setMatrix(const SkMatrix& matrix);
+    void setMatrix(const SkMatrix& matrix);
 
     /** Helper for setMatrix(identity). Sets the current matrix to identity.
     */
@@ -1211,6 +1211,13 @@ protected:
     virtual void willSave(SaveFlags);
     virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags);
     virtual void willRestore();
+
+    virtual void didTranslate(SkScalar, SkScalar);
+    virtual void didScale(SkScalar, SkScalar);
+    virtual void didRotate(SkScalar);
+    virtual void didSkew(SkScalar, SkScalar);
+    virtual void didConcat(const SkMatrix&);
+    virtual void didSetMatrix(const SkMatrix&);
 
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
 

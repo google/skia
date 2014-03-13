@@ -65,7 +65,7 @@ void SkCanvasStack::clipToZOrderedBounds() {
  * canvas unlike all other matrix operations (i.e. translate, scale, etc) which
  * just pre-concatenate with the existing matrix.
  */
-void SkCanvasStack::setMatrix(const SkMatrix& matrix) {
+void SkCanvasStack::didSetMatrix(const SkMatrix& matrix) {
     SkASSERT(fList.count() == fCanvasData.count());
     for (int i = 0; i < fList.count(); ++i) {
 
@@ -74,7 +74,7 @@ void SkCanvasStack::setMatrix(const SkMatrix& matrix) {
                                  SkIntToScalar(-fCanvasData[i].origin.y()));
         fList[i]->setMatrix(tempMatrix);
     }
-    this->SkCanvas::setMatrix(matrix);
+    this->SkCanvas::didSetMatrix(matrix);
 }
 
 void SkCanvasStack::onClipRect(const SkRect& r, SkRegion::Op op, ClipEdgeStyle edgeStyle) {

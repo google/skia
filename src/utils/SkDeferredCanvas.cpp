@@ -759,45 +759,40 @@ bool SkDeferredCanvas::isDrawingToLayer() const {
     return this->drawingCanvas()->isDrawingToLayer();
 }
 
-bool SkDeferredCanvas::translate(SkScalar dx, SkScalar dy) {
+void SkDeferredCanvas::didTranslate(SkScalar dx, SkScalar dy) {
     this->drawingCanvas()->translate(dx, dy);
-    bool val = this->INHERITED::translate(dx, dy);
     this->recordedDrawCommand();
-    return val;
+    this->INHERITED::didTranslate(dx, dy);
 }
 
-bool SkDeferredCanvas::scale(SkScalar sx, SkScalar sy) {
+void SkDeferredCanvas::didScale(SkScalar sx, SkScalar sy) {
     this->drawingCanvas()->scale(sx, sy);
-    bool val = this->INHERITED::scale(sx, sy);
     this->recordedDrawCommand();
-    return val;
+    this->INHERITED::didScale(sx, sy);
 }
 
-bool SkDeferredCanvas::rotate(SkScalar degrees) {
+void SkDeferredCanvas::didRotate(SkScalar degrees) {
     this->drawingCanvas()->rotate(degrees);
-    bool val = this->INHERITED::rotate(degrees);
     this->recordedDrawCommand();
-    return val;
+    this->INHERITED::didRotate(degrees);
 }
 
-bool SkDeferredCanvas::skew(SkScalar sx, SkScalar sy) {
+void SkDeferredCanvas::didSkew(SkScalar sx, SkScalar sy) {
     this->drawingCanvas()->skew(sx, sy);
-    bool val = this->INHERITED::skew(sx, sy);
     this->recordedDrawCommand();
-    return val;
+    this->INHERITED::didSkew(sx, sy);
 }
 
-bool SkDeferredCanvas::concat(const SkMatrix& matrix) {
+void SkDeferredCanvas::didConcat(const SkMatrix& matrix) {
     this->drawingCanvas()->concat(matrix);
-    bool val = this->INHERITED::concat(matrix);
     this->recordedDrawCommand();
-    return val;
+    this->INHERITED::didConcat(matrix);
 }
 
-void SkDeferredCanvas::setMatrix(const SkMatrix& matrix) {
+void SkDeferredCanvas::didSetMatrix(const SkMatrix& matrix) {
     this->drawingCanvas()->setMatrix(matrix);
-    this->INHERITED::setMatrix(matrix);
     this->recordedDrawCommand();
+    this->INHERITED::didSetMatrix(matrix);
 }
 
 void SkDeferredCanvas::onClipRect(const SkRect& rect,

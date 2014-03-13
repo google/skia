@@ -39,28 +39,34 @@ void SkProxyCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-bool SkProxyCanvas::translate(SkScalar dx, SkScalar dy) {
-    return fProxy->translate(dx, dy);
+void SkProxyCanvas::didTranslate(SkScalar dx, SkScalar dy) {
+    fProxy->translate(dx, dy);
+    this->INHERITED::didTranslate(dx, dy);
 }
 
-bool SkProxyCanvas::scale(SkScalar sx, SkScalar sy) {
-    return fProxy->scale(sx, sy);
+void SkProxyCanvas::didScale(SkScalar sx, SkScalar sy) {
+    fProxy->scale(sx, sy);
+    this->INHERITED::didScale(sx, sy);
 }
 
-bool SkProxyCanvas::rotate(SkScalar degrees) {
-    return fProxy->rotate(degrees);
+void SkProxyCanvas::didRotate(SkScalar degrees) {
+    fProxy->rotate(degrees);
+    this->INHERITED::didRotate(degrees);
 }
 
-bool SkProxyCanvas::skew(SkScalar sx, SkScalar sy) {
-    return fProxy->skew(sx, sy);
+void SkProxyCanvas::didSkew(SkScalar sx, SkScalar sy) {
+    fProxy->skew(sx, sy);
+    this->INHERITED::didSkew(sx, sy);
 }
 
-bool SkProxyCanvas::concat(const SkMatrix& matrix) {
-    return fProxy->concat(matrix);
+void SkProxyCanvas::didConcat(const SkMatrix& matrix) {
+    fProxy->concat(matrix);
+    this->INHERITED::didConcat(matrix);
 }
 
-void SkProxyCanvas::setMatrix(const SkMatrix& matrix) {
+void SkProxyCanvas::didSetMatrix(const SkMatrix& matrix) {
     fProxy->setMatrix(matrix);
+    this->INHERITED::didSetMatrix(matrix);
 }
 
 void SkProxyCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {

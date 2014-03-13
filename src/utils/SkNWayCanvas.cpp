@@ -86,52 +86,52 @@ void SkNWayCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-bool SkNWayCanvas::translate(SkScalar dx, SkScalar dy) {
+void SkNWayCanvas::didTranslate(SkScalar dx, SkScalar dy) {
     Iter iter(fList);
     while (iter.next()) {
         iter->translate(dx, dy);
     }
-    return this->INHERITED::translate(dx, dy);
+    this->INHERITED::didTranslate(dx, dy);
 }
 
-bool SkNWayCanvas::scale(SkScalar sx, SkScalar sy) {
+void SkNWayCanvas::didScale(SkScalar sx, SkScalar sy) {
     Iter iter(fList);
     while (iter.next()) {
         iter->scale(sx, sy);
     }
-    return this->INHERITED::scale(sx, sy);
+    this->INHERITED::didScale(sx, sy);
 }
 
-bool SkNWayCanvas::rotate(SkScalar degrees) {
+void SkNWayCanvas::didRotate(SkScalar degrees) {
     Iter iter(fList);
     while (iter.next()) {
         iter->rotate(degrees);
     }
-    return this->INHERITED::rotate(degrees);
+    this->INHERITED::didRotate(degrees);
 }
 
-bool SkNWayCanvas::skew(SkScalar sx, SkScalar sy) {
+void SkNWayCanvas::didSkew(SkScalar sx, SkScalar sy) {
     Iter iter(fList);
     while (iter.next()) {
         iter->skew(sx, sy);
     }
-    return this->INHERITED::skew(sx, sy);
+    this->INHERITED::didSkew(sx, sy);
 }
 
-bool SkNWayCanvas::concat(const SkMatrix& matrix) {
+void SkNWayCanvas::didConcat(const SkMatrix& matrix) {
     Iter iter(fList);
     while (iter.next()) {
         iter->concat(matrix);
     }
-    return this->INHERITED::concat(matrix);
+    this->INHERITED::didConcat(matrix);
 }
 
-void SkNWayCanvas::setMatrix(const SkMatrix& matrix) {
+void SkNWayCanvas::didSetMatrix(const SkMatrix& matrix) {
     Iter iter(fList);
     while (iter.next()) {
         iter->setMatrix(matrix);
     }
-    this->INHERITED::setMatrix(matrix);
+    this->INHERITED::didSetMatrix(matrix);
 }
 
 void SkNWayCanvas::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {

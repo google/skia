@@ -26,13 +26,6 @@ public:
     SkCanvas*   getProxy() const { return fProxy; }
     void        setProxy(SkCanvas* proxy);
 
-    virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
-    virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
-    virtual bool rotate(SkScalar degrees) SK_OVERRIDE;
-    virtual bool skew(SkScalar sx, SkScalar sy) SK_OVERRIDE;
-    virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE;
-    virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
-
     virtual void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                             const SkPaint& paint) SK_OVERRIDE;
@@ -78,6 +71,13 @@ protected:
     virtual void willSave(SaveFlags) SK_OVERRIDE;
     virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
     virtual void willRestore() SK_OVERRIDE;
+
+    virtual void didTranslate(SkScalar, SkScalar) SK_OVERRIDE;
+    virtual void didScale(SkScalar, SkScalar) SK_OVERRIDE;
+    virtual void didRotate(SkScalar) SK_OVERRIDE;
+    virtual void didSkew(SkScalar, SkScalar) SK_OVERRIDE;
+    virtual void didConcat(const SkMatrix&) SK_OVERRIDE;
+    virtual void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
 
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
 

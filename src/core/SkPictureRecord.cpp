@@ -664,7 +664,7 @@ void SkPictureRecord::recordRestore(bool fillInSkips) {
     this->validate(initialOffset, size);
 }
 
-bool SkPictureRecord::translate(SkScalar dx, SkScalar dy) {
+void SkPictureRecord::didTranslate(SkScalar dx, SkScalar dy) {
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.translate(dx, dy);
 #else
@@ -675,10 +675,10 @@ bool SkPictureRecord::translate(SkScalar dx, SkScalar dy) {
     this->addScalar(dy);
     this->validate(initialOffset, size);
 #endif
-    return this->INHERITED::translate(dx, dy);
+    this->INHERITED::didTranslate(dx, dy);
 }
 
-bool SkPictureRecord::scale(SkScalar sx, SkScalar sy) {
+void SkPictureRecord::didScale(SkScalar sx, SkScalar sy) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.scale(sx, sy);
@@ -690,10 +690,10 @@ bool SkPictureRecord::scale(SkScalar sx, SkScalar sy) {
     this->addScalar(sy);
     this->validate(initialOffset, size);
 #endif
-    return this->INHERITED::scale(sx, sy);
+    this->INHERITED::didScale(sx, sy);
 }
 
-bool SkPictureRecord::rotate(SkScalar degrees) {
+void SkPictureRecord::didRotate(SkScalar degrees) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.rotate(degrees);
@@ -704,10 +704,10 @@ bool SkPictureRecord::rotate(SkScalar degrees) {
     this->addScalar(degrees);
     this->validate(initialOffset, size);
 #endif
-    return this->INHERITED::rotate(degrees);
+    this->INHERITED::didRotate(degrees);
 }
 
-bool SkPictureRecord::skew(SkScalar sx, SkScalar sy) {
+void SkPictureRecord::didSkew(SkScalar sx, SkScalar sy) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.skew(sx, sy);
@@ -719,17 +719,17 @@ bool SkPictureRecord::skew(SkScalar sx, SkScalar sy) {
     this->addScalar(sy);
     this->validate(initialOffset, size);
 #endif
-    return this->INHERITED::skew(sx, sy);
+    this->INHERITED::didSkew(sx, sy);
 }
 
-bool SkPictureRecord::concat(const SkMatrix& matrix) {
+void SkPictureRecord::didConcat(const SkMatrix& matrix) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.concat(matrix);
 #else
     this->recordConcat(matrix);
 #endif
-    return this->INHERITED::concat(matrix);
+    this->INHERITED::didConcat(matrix);
 }
 
 void SkPictureRecord::recordConcat(const SkMatrix& matrix) {
@@ -741,7 +741,7 @@ void SkPictureRecord::recordConcat(const SkMatrix& matrix) {
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::setMatrix(const SkMatrix& matrix) {
+void SkPictureRecord::didSetMatrix(const SkMatrix& matrix) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.setMatrix(matrix);
@@ -753,7 +753,7 @@ void SkPictureRecord::setMatrix(const SkMatrix& matrix) {
     this->addMatrix(matrix);
     this->validate(initialOffset, size);
 #endif
-    this->INHERITED::setMatrix(matrix);
+    this->INHERITED::didSetMatrix(matrix);
 }
 
 static bool regionOpExpands(SkRegion::Op op) {

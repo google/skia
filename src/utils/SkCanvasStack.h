@@ -29,9 +29,9 @@ public:
     virtual void addCanvas(SkCanvas*) SK_OVERRIDE { SkDEBUGFAIL("Invalid Op"); }
     virtual void removeCanvas(SkCanvas*) SK_OVERRIDE { SkDEBUGFAIL("Invalid Op"); }
 
-    virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
-
 protected:
+    virtual void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
+
     virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipPath(const SkPath&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;

@@ -23,13 +23,6 @@ public:
 
     virtual void handleBBox(const SkRect& bounds) SK_OVERRIDE;
 
-    virtual bool translate(SkScalar dx, SkScalar dy) SK_OVERRIDE;
-    virtual bool scale(SkScalar sx, SkScalar sy) SK_OVERRIDE;
-    virtual bool rotate(SkScalar degrees) SK_OVERRIDE;
-    virtual bool skew(SkScalar sx, SkScalar sy) SK_OVERRIDE;
-    virtual bool concat(const SkMatrix& matrix) SK_OVERRIDE;
-    virtual void setMatrix(const SkMatrix& matrix) SK_OVERRIDE;
-
     // Implementation of the SkBBoxHierarchyClient interface
     virtual bool shouldRewind(void* data) SK_OVERRIDE;
 
@@ -37,6 +30,13 @@ protected:
     virtual void willSave(SaveFlags) SK_OVERRIDE;
     virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
     virtual void willRestore() SK_OVERRIDE;
+
+    virtual void didTranslate(SkScalar, SkScalar) SK_OVERRIDE;
+    virtual void didScale(SkScalar, SkScalar) SK_OVERRIDE;
+    virtual void didRotate(SkScalar) SK_OVERRIDE;
+    virtual void didSkew(SkScalar, SkScalar) SK_OVERRIDE;
+    virtual void didConcat(const SkMatrix&) SK_OVERRIDE;
+    virtual void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
 
     virtual void onClipRect(const SkRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
     virtual void onClipRRect(const SkRRect&, SkRegion::Op, ClipEdgeStyle) SK_OVERRIDE;
