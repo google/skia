@@ -11854,8 +11854,9 @@
         ]
       ], 
       "bugs": [
-        2146
+        2295
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "strokerects_pdf-poppler.png": {
