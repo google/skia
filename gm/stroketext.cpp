@@ -11,14 +11,14 @@
 static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint) {
     SkPaint p(paint);
     SkPoint loc = { 20, 450 };
-    
+
     canvas->drawText("P", 1, loc.fX, loc.fY - 225, p);
     canvas->drawPosText("P", 1, &loc, p);
-    
+
     p.setColor(SK_ColorRED);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(10);
-    
+
     canvas->drawText("P", 1, loc.fX, loc.fY - 225, p);
     canvas->drawPosText("P", 1, &loc, p);
 }
@@ -46,10 +46,10 @@ protected:
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setAntiAlias(true);
-        
+
         paint.setTextSize(kBelowThreshold_TextSize);
         draw_text_stroked(canvas, paint);
-        
+
         canvas->translate(200, 0);
         paint.setTextSize(kAboveThreshold_TextSize);
         draw_text_stroked(canvas, paint);

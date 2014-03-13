@@ -455,7 +455,7 @@ GrEffectRef* EllipticalRRectEffect::TestCreate(SkRandom* random,
     rrect.setRectXY(SkRect::MakeWH(w, h), rx, ry);
     GrEffectRef* effect;
     do {
-        GrEffectEdgeType et = random->nextBool() ? kFillAA_GrEffectEdgeType : 
+        GrEffectEdgeType et = random->nextBool() ? kFillAA_GrEffectEdgeType :
                                                    kInverseFillAA_GrEffectEdgeType;
         effect = EllipticalRRectEffect::Create(et, rrect);
     } while (NULL == effect);

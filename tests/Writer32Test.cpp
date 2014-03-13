@@ -312,4 +312,3 @@ DEF_TEST(Writer32_snapshot_dynamic, reporter) {
     // test it triggered COW anyway
     REPORTER_ASSERT(reporter, writer.contiguousArray() != beforeData);
 }
-
