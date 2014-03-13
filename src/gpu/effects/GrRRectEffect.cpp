@@ -375,21 +375,26 @@ void GLCircularRRectEffect::setData(const GrGLUniformManager& uman,
 
 class GLEllipticalRRectEffect;
 
-/**
- * Currently this effect only supports "simple" elliptical round rects (i.e.
- * the corners all have a common x/y radii pair).
- */
 class EllipticalRRectEffect : public GrEffect {
 public:
-    // This effect only supports rrects where the radii are >= kRadiusMin
+    // This effect currently works for these two classifications of SkRRects
+    enum RRectType {
+        kSimple_RRectType,       // SkRRect::kSimple_Type
+        kNinePatch_RRectType,    // The two left x radii are the same, the two
+                                 // top y radii are the same, etc.
+    };
+
+    // This effect only supports rrects where the radii are >= kRadiusMin.
     static const SkScalar kRadiusMin;
 
-    static GrEffectRef* Create(GrEffectEdgeType, const SkRRect&);
+    static GrEffectRef* Create(GrEffectEdgeType, RRectType, const SkRRect&);
 
     virtual ~EllipticalRRectEffect() {};
     static const char* Name() { return "EllipticalRRect"; }
 
     const SkRRect& getRRect() const { return fRRect; }
+
+    RRectType getRRectType() const { return fRRectType; }
 
     GrEffectEdgeType getEdgeType() const { return fEdgeType; }
 
@@ -400,11 +405,12 @@ public:
     virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
 private:
-    EllipticalRRectEffect(GrEffectEdgeType, const SkRRect&);
+    EllipticalRRectEffect(GrEffectEdgeType, RRectType, const SkRRect&);
 
     virtual bool onIsEqual(const GrEffect& other) const SK_OVERRIDE;
 
     SkRRect             fRRect;
+    RRectType           fRRectType;
     GrEffectEdgeType    fEdgeType;
 
     GR_DECLARE_EFFECT_TEST;
@@ -415,9 +421,11 @@ private:
 const SkScalar EllipticalRRectEffect::kRadiusMin = 0.5f;
 
 GrEffectRef* EllipticalRRectEffect::Create(GrEffectEdgeType edgeType,
+                                           RRectType rrType,
                                            const SkRRect& rrect) {
-//    SkASSERT(kFillAA_GrEffectEdgeType == edgeType || kInverseFillAA_GrEffectEdgeType == edgeType);
-    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(EllipticalRRectEffect, (edgeType, rrect))));
+    SkASSERT(kFillAA_GrEffectEdgeType == edgeType || kInverseFillAA_GrEffectEdgeType == edgeType);
+    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(EllipticalRRectEffect, (edgeType, rrType,
+                                                                              rrect))));
 }
 
 void EllipticalRRectEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
@@ -428,14 +436,17 @@ const GrBackendEffectFactory& EllipticalRRectEffect::getFactory() const {
     return GrTBackendEffectFactory<EllipticalRRectEffect>::getInstance();
 }
 
-EllipticalRRectEffect::EllipticalRRectEffect(GrEffectEdgeType edgeType, const SkRRect& rrect)
+EllipticalRRectEffect::EllipticalRRectEffect(GrEffectEdgeType edgeType, RRectType rrType,
+                                             const SkRRect& rrect)
     : fRRect(rrect)
+    , fRRectType(rrType)
     , fEdgeType(edgeType){
     this->setWillReadFragmentPosition();
 }
 
 bool EllipticalRRectEffect::onIsEqual(const GrEffect& other) const {
     const EllipticalRRectEffect& erre = CastEffect<EllipticalRRectEffect>(other);
+    // No need to check fRRectType as it is derived from fRRect.
     return fEdgeType == erre.fEdgeType && fRRect == erre.fRRect;
 }
 
@@ -449,15 +460,34 @@ GrEffectRef* EllipticalRRectEffect::TestCreate(SkRandom* random,
                                                GrTexture*[]) {
     SkScalar w = random->nextRangeScalar(20.f, 1000.f);
     SkScalar h = random->nextRangeScalar(20.f, 1000.f);
-    SkScalar rx = random->nextRangeF(kRadiusMin, 9.f);
-    SkScalar ry = random->nextRangeF(kRadiusMin, 9.f);
+    SkVector r[4];
+    r[SkRRect::kUpperLeft_Corner].fX = random->nextRangeF(kRadiusMin, 9.f);
+    // ensure at least one corner really is elliptical
+    do {
+        r[SkRRect::kUpperLeft_Corner].fY = random->nextRangeF(kRadiusMin, 9.f);
+    } while (r[SkRRect::kUpperLeft_Corner].fY == r[SkRRect::kUpperLeft_Corner].fX);
+
     SkRRect rrect;
-    rrect.setRectXY(SkRect::MakeWH(w, h), rx, ry);
+    if (random->nextBool()) {
+        // half the time create a four-radii rrect.
+        r[SkRRect::kLowerRight_Corner].fX = random->nextRangeF(kRadiusMin, 9.f);
+        r[SkRRect::kLowerRight_Corner].fY = random->nextRangeF(kRadiusMin, 9.f);
+
+        r[SkRRect::kUpperRight_Corner].fX = r[SkRRect::kLowerRight_Corner].fX;
+        r[SkRRect::kUpperRight_Corner].fY = r[SkRRect::kUpperLeft_Corner].fY;
+
+        r[SkRRect::kLowerLeft_Corner].fX = r[SkRRect::kUpperLeft_Corner].fX;
+        r[SkRRect::kLowerLeft_Corner].fY = r[SkRRect::kLowerRight_Corner].fY;
+
+        rrect.setRectRadii(SkRect::MakeWH(w, h), r);
+    } else {
+        rrect.setRectXY(SkRect::MakeWH(w, h), r[SkRRect::kUpperLeft_Corner].fX,
+                                              r[SkRRect::kUpperLeft_Corner].fY);
+    }
     GrEffectRef* effect;
     do {
-        GrEffectEdgeType et = random->nextBool() ? kFillAA_GrEffectEdgeType :
-                                                   kInverseFillAA_GrEffectEdgeType;
-        effect = EllipticalRRectEffect::Create(et, rrect);
+        GrEffectEdgeType et = (GrEffectEdgeType)random->nextULessThan(kGrEffectEdgeTypeCnt);
+        effect = GrRRectEffect::Create(et, rrect);
     } while (NULL == effect);
     return effect;
 }
@@ -482,7 +512,7 @@ public:
 
 private:
     GrGLUniformManager::UniformHandle   fInnerRectUniform;
-    GrGLUniformManager::UniformHandle   fInvRadiusXYSqdUniform;
+    GrGLUniformManager::UniformHandle   fInvRadiiSqdUniform;
     SkRRect                             fPrevRRect;
     typedef GrGLEffect INHERITED;
 };
@@ -502,16 +532,11 @@ void GLEllipticalRRectEffect::emitCode(GrGLShaderBuilder* builder,
                                        const TextureSamplerArray& samplers) {
     const EllipticalRRectEffect& erre = drawEffect.castEffect<EllipticalRRectEffect>();
     const char *rectName;
-    const char *invRadiusXYSqdName;
     // The inner rect is the rrect bounds inset by the x/y radii
     fInnerRectUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                             kVec4f_GrSLType,
                                             "innerRect",
                                             &rectName);
-    fInvRadiusXYSqdUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
-                                              kVec2f_GrSLType,
-                                              "invRadiusXY",
-                                              &invRadiusXYSqdName);
     const char* fragmentPos = builder->fragmentPosition();
     // At each quarter-ellipse corner we compute a vector that is the offset of the fragment pos
     // to the ellipse center. The vector is pinned in x and y to be in the quarter-plane relevant
@@ -526,9 +551,33 @@ void GLEllipticalRRectEffect::emitCode(GrGLShaderBuilder* builder,
     // need be computed to determine the min alpha.
     builder->fsCodeAppendf("\t\tvec2 dxy0 = %s.xy - %s.xy;\n", rectName, fragmentPos);
     builder->fsCodeAppendf("\t\tvec2 dxy1 = %s.xy - %s.zw;\n", fragmentPos, rectName);
-    builder->fsCodeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
-    // Z is the x/y offsets divided by squared radii.
-    builder->fsCodeAppendf("\t\tvec2 Z = dxy * %s;\n", invRadiusXYSqdName);
+    switch (erre.getRRectType()) {
+        case EllipticalRRectEffect::kSimple_RRectType: {
+            const char *invRadiiXYSqdName;
+            fInvRadiiSqdUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                                      kVec2f_GrSLType,
+                                                      "invRadiiXY",
+                                                      &invRadiiXYSqdName);
+            builder->fsCodeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
+            // Z is the x/y offsets divided by squared radii.
+            builder->fsCodeAppendf("\t\tvec2 Z = dxy * %s;\n", invRadiiXYSqdName);
+            break;
+        }
+        case EllipticalRRectEffect::kNinePatch_RRectType: {
+            const char *invRadiiLTRBSqdName;
+            fInvRadiiSqdUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                                      kVec4f_GrSLType,
+                                                      "invRadiiLTRB",
+                                                      &invRadiiLTRBSqdName);
+            builder->fsCodeAppend("\t\tvec2 dxy = max(max(dxy0, dxy1), 0.0);\n");
+            // Z is the x/y offsets divided by squared radii. We only care about the (at most) one
+            // corner where both the x and y offsets are positive, hence the maxes. (The inverse
+            // squared radii will always be positive.)
+            builder->fsCodeAppendf("\t\tvec2 Z = max(max(dxy0 * %s.xy, dxy1 * %s.zw), 0.0);\n",
+                                   invRadiiLTRBSqdName, invRadiiLTRBSqdName);
+            break;
+       }
+    }
     // implicit is the evaluation of (x/a)^2 + (y/b)^2 - 1.
     builder->fsCodeAppend("\t\tfloat implicit = dot(Z, dxy) - 1.0;\n");
     // grad_dot is the squared length of the gradient of the implicit.
@@ -549,7 +598,8 @@ void GLEllipticalRRectEffect::emitCode(GrGLShaderBuilder* builder,
 GrGLEffect::EffectKey GLEllipticalRRectEffect::GenKey(const GrDrawEffect& drawEffect,
                                                       const GrGLCaps&) {
     const EllipticalRRectEffect& erre = drawEffect.castEffect<EllipticalRRectEffect>();
-    return erre.getEdgeType();
+    GR_STATIC_ASSERT(kLast_GrEffectEdgeType < (1 << 3));
+    return erre.getRRectType() | erre.getEdgeType() << 3;
 }
 
 void GLEllipticalRRectEffect::setData(const GrGLUniformManager& uman,
@@ -558,14 +608,31 @@ void GLEllipticalRRectEffect::setData(const GrGLUniformManager& uman,
     const SkRRect& rrect = erre.getRRect();
     if (rrect != fPrevRRect) {
         SkRect rect = rrect.getBounds();
-        SkASSERT(rrect.isSimple());
-        const SkVector& radius = rrect.getSimpleRadii();
-        SkASSERT(radius.fX >= EllipticalRRectEffect::kRadiusMin);
-        SkASSERT(radius.fY >= EllipticalRRectEffect::kRadiusMin);
-        rect.inset(radius.fX, radius.fY);
+        const SkVector& r0 = rrect.radii(SkRRect::kUpperLeft_Corner);
+        SkASSERT(r0.fX >= EllipticalRRectEffect::kRadiusMin);
+        SkASSERT(r0.fY >= EllipticalRRectEffect::kRadiusMin);
+        switch (erre.getRRectType()) {
+            case EllipticalRRectEffect::kSimple_RRectType:
+                rect.inset(r0.fX, r0.fY);
+                uman.set2f(fInvRadiiSqdUniform, 1.f / (r0.fX * r0.fX),
+                                                1.f / (r0.fY * r0.fY));
+                break;
+            case EllipticalRRectEffect::kNinePatch_RRectType: {
+                const SkVector& r1 = rrect.radii(SkRRect::kLowerRight_Corner);
+                SkASSERT(r1.fX >= EllipticalRRectEffect::kRadiusMin);
+                SkASSERT(r1.fY >= EllipticalRRectEffect::kRadiusMin);
+                rect.fLeft += r0.fX;
+                rect.fTop += r0.fY;
+                rect.fRight -= r1.fX;
+                rect.fBottom -= r1.fY;
+                uman.set4f(fInvRadiiSqdUniform, 1.f / (r0.fX * r0.fX),
+                                                1.f / (r0.fY * r0.fY),
+                                                1.f / (r1.fX * r1.fX),
+                                                1.f / (r1.fY * r1.fY));
+                break;
+            }
+        }
         uman.set4f(fInnerRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
-        uman.set2f(fInvRadiusXYSqdUniform, 1.f / (radius.fX * radius.fX),
-                                           1.f / (radius.fY * radius.fY));
         fPrevRRect = rrect;
     }
 }
@@ -588,7 +655,8 @@ GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rre
                 rrect.getSimpleRadii().fY < EllipticalRRectEffect::kRadiusMin) {
                 return NULL;
             }
-            return EllipticalRRectEffect::Create(edgeType, rrect);
+            return EllipticalRRectEffect::Create(edgeType,
+                                                 EllipticalRRectEffect::kSimple_RRectType, rrect);
         }
     } else if (rrect.isComplex()) {
         // Check for the "tab" cases - two adjacent circular corners and two square corners.
@@ -601,17 +669,20 @@ GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rre
                 continue;
             }
             if (r.fX != r.fY) {
-                return NULL;
+                cornerFlags = -1;
+                break;
             }
             if (!cornerFlags) {
                 radius = r.fX;
                 if (radius < CircularRRectEffect::kRadiusMin) {
-                    return NULL;
+                    cornerFlags = -1;
+                    break;
                 }
                 cornerFlags = 1 << c;
             } else {
                 if (r.fX != radius) {
-                    return NULL;
+                   cornerFlags = -1;
+                   break;
                 }
                 cornerFlags |= 1 << c;
             }
@@ -629,6 +700,18 @@ GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rre
             case CircularRRectEffect::kAll_CornerFlags:
                 break;
             default:
+                if (rrect.isNinePatch()) {
+                    const SkVector& r0 = rrect.radii(SkRRect::kUpperLeft_Corner);
+                    const SkVector& r1 = rrect.radii(SkRRect::kLowerRight_Corner);
+                    if (r0.fX >= EllipticalRRectEffect::kRadiusMin &&
+                        r0.fY >= EllipticalRRectEffect::kRadiusMin &&
+                        r1.fX >= EllipticalRRectEffect::kRadiusMin &&
+                        r1.fY >= EllipticalRRectEffect::kRadiusMin) {
+                        return EllipticalRRectEffect::Create(edgeType,
+                                                        EllipticalRRectEffect::kNinePatch_RRectType,
+                                                        rrect);
+                    }
+                }
                 return NULL;
         }
     } else {

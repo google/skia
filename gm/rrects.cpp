@@ -185,7 +185,7 @@ private:
     static const int kTileY = 40;
 
     static const int kNumSimpleCases = 7;
-    static const int kNumComplexCases = 27;
+    static const int kNumComplexCases = 29;
     static const SkVector gRadii[kNumComplexCases][4];
 
     static const int kNumRRects = kNumSimpleCases + kNumComplexCases;
@@ -240,6 +240,10 @@ const SkVector RRectGM::gRadii[kNumComplexCases][4] = {
     { { 0, 0 }, { 0, 0 }, { 15, 15 }, { 0, 0 } },
     { { 0, 0 }, { 15, 15 }, { 0, 0 }, { 0, 0 } },
     { { 15, 15 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+
+    // nine patch elliptical
+    { { 5, 7 }, { 8, 7 }, { 8, 12 }, { 5, 12 } },
+    { { 0, 7 }, { 8, 7 }, { 8, 12 }, { 0, 12 } },
 };
 
 ///////////////////////////////////////////////////////////////////////////////
