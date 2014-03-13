@@ -74,9 +74,6 @@ public:
     virtual GrRenderTarget* accessRenderTarget() SK_OVERRIDE;
 
     // overrides from SkBaseDevice
-    virtual uint32_t getDeviceCapabilities() SK_OVERRIDE {
-        return 0;
-    }
     virtual int width() const SK_OVERRIDE {
         return NULL == fRenderTarget ? 0 : fRenderTarget->width();
     }

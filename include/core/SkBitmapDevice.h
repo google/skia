@@ -66,8 +66,6 @@ public:
     static SkBitmapDevice* Create(const SkImageInfo&,
                                   const SkDeviceProperties* = NULL);
 
-    virtual uint32_t getDeviceCapabilities() SK_OVERRIDE { return 0; }
-
     /** Return the width of the device (in pixels).
     */
     virtual int width() const SK_OVERRIDE { return fBitmap.width(); }

@@ -37,8 +37,6 @@ public:
         SkSafeUnref(fPRCont);
     }
 
-    virtual uint32_t getDeviceCapabilities() SK_OVERRIDE { return 0; }
-
     virtual int width() const SK_OVERRIDE { return fSize.width(); }
     virtual int height() const SK_OVERRIDE { return fSize.height(); }
     virtual bool isOpaque() const SK_OVERRIDE { return false; }

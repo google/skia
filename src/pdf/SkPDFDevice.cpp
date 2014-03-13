@@ -807,10 +807,6 @@ void SkPDFDevice::cleanUp(bool clearFontUsage) {
     }
 }
 
-uint32_t SkPDFDevice::getDeviceCapabilities() {
-    return kVector_Capability;
-}
-
 void SkPDFDevice::clear(SkColor color) {
     this->cleanUp(true);
     this->init();
@@ -1341,13 +1337,7 @@ void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
 
 void SkPDFDevice::drawDevice(const SkDraw& d, SkBaseDevice* device,
                              int x, int y, const SkPaint& paint) {
-    if ((device->getDeviceCapabilities() & kVector_Capability) == 0) {
-        // If we somehow get a raster device, do what our parent would do.
-        INHERITED::drawDevice(d, device, x, y, paint);
-        return;
-    }
-
-    // Assume that a vector capable device means that it's a PDF Device.
+    // our onCreateDevice() always creates SkPDFDevice subclasses.
     SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
     if (pdfDevice->isContentEmpty()) {
         return;

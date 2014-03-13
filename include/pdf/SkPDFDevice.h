@@ -70,8 +70,6 @@ public:
                        const SkMatrix& initialTransform);
     SK_API virtual ~SkPDFDevice();
 
-    virtual uint32_t getDeviceCapabilities() SK_OVERRIDE;
-
     virtual void clear(SkColor color) SK_OVERRIDE;
 
     /** These are called inside the per-device-layer loop for each draw call.

@@ -1160,10 +1160,6 @@ HRESULT SkXPSDevice::createXpsQuad(const SkPoint (&points)[4],
     return S_OK;
 }
 
-uint32_t SkXPSDevice::getDeviceCapabilities() {
-    return kVector_Capability;
-}
-
 void SkXPSDevice::clear(SkColor color) {
     //TODO: override this for XPS
     SkDEBUGF(("XPS clear not yet implemented."));

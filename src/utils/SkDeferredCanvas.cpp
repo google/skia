@@ -157,7 +157,6 @@ public:
     void setMaxRecordingStorage(size_t);
     void recordedDrawCommand();
 
-    virtual uint32_t getDeviceCapabilities() SK_OVERRIDE;
     virtual int width() const SK_OVERRIDE;
     virtual int height() const SK_OVERRIDE;
     virtual SkBitmap::Config config() const SK_OVERRIDE;
@@ -430,10 +429,6 @@ SkCanvas* SkDeferredDevice::recordingCanvas() {
 SkImage* SkDeferredDevice::newImageSnapshot() {
     this->flush();
     return fSurface ? fSurface->newImageSnapshot() : NULL;
-}
-
-uint32_t SkDeferredDevice::getDeviceCapabilities() {
-    return immediateDevice()->getDeviceCapabilities();
 }
 
 int SkDeferredDevice::width() const {

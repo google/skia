@@ -67,8 +67,6 @@ public:
     virtual bool endSheet();
     virtual bool endPortfolio();
 
-    virtual uint32_t getDeviceCapabilities() SK_OVERRIDE;
-
 protected:
     virtual void clear(SkColor color) SK_OVERRIDE;
 

@@ -16,6 +16,11 @@
 #include "SkColor.h"
 #include "SkDeviceProperties.h"
 
+// getDeviceCapabilities() is not called by skia, but this flag keeps it around
+// for clients that have "override" annotations on their subclass. These overrides
+// should be deleted.
+//#define SK_SUPPORT_LEGACY_GETDEVICECAPABILITIES
+
 //#define SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
 
 class SkClipStack;
@@ -63,10 +68,9 @@ public:
 
     SkMetaData& getMetaData();
 
-    enum Capabilities {
-        kVector_Capability = 0x1,  //!< mask indicating a vector representation
-    };
-    virtual uint32_t getDeviceCapabilities() = 0;
+#ifdef SK_SUPPORT_LEGACY_GETDEVICECAPABILITIES
+    virtual uint32_t getDeviceCapabilities() { return 0; }
+#endif
 
     /** Return the width of the device (in pixels).
     */
