@@ -1421,6 +1421,7 @@ static SkString pdfRasterizerUsage() {
 DEFINE_string(config, "", configUsage().c_str());
 DEFINE_string(pdfRasterizers, "default", pdfRasterizerUsage().c_str());
 DEFINE_bool(deferred, false, "Exercise the deferred rendering test pass.");
+DEFINE_bool(dryRun, false, "Don't actually run the tests, just print what would have been done.");
 DEFINE_string(excludeConfig, "", "Space delimited list of configs to skip.");
 DEFINE_bool(forceBWtext, false, "Disable text anti-aliasing.");
 #if SK_SUPPORT_GPU
@@ -2237,6 +2238,10 @@ int tool_main(int argc, char** argv) {
     GrContextFactory* grFactory = NULL;
 #endif
 
+    if (FLAGS_dryRun) {
+        SkDebugf( "Doing a dry run; no tests will actually be executed.\n");
+    }
+
     if (!parse_flags_modulo(&moduloRemainder, &moduloDivisor) ||
         !parse_flags_ignore_error_types(&gmmain.fIgnorableErrorTypes) ||
         !parse_flags_ignore_tests(gmmain.fIgnorableTestNames) ||
@@ -2275,26 +2280,27 @@ int tool_main(int argc, char** argv) {
     int gmIndex = -1;
     SkString moduloStr;
 
-    // If we will be writing out files, prepare subdirectories.
-    if (FLAGS_writePath.count() == 1) {
-        if (!prepare_subdirectories(FLAGS_writePath[0], gmmain.fUseFileHierarchy,
-                                    configs, pdfRasterizers)) {
-            return -1;
+    if (!FLAGS_dryRun) {
+        // If we will be writing out files, prepare subdirectories.
+        if (FLAGS_writePath.count() == 1) {
+            if (!prepare_subdirectories(FLAGS_writePath[0], gmmain.fUseFileHierarchy,
+                                        configs, pdfRasterizers)) {
+                return -1;
+            }
+        }
+        if (NULL != gmmain.fMismatchPath) {
+            if (!prepare_subdirectories(gmmain.fMismatchPath, gmmain.fUseFileHierarchy,
+                                        configs, pdfRasterizers)) {
+                return -1;
+            }
+        }
+        if (NULL != gmmain.fMissingExpectationsPath) {
+            if (!prepare_subdirectories(gmmain.fMissingExpectationsPath, gmmain.fUseFileHierarchy,
+                                        configs, pdfRasterizers)) {
+                return -1;
+            }
         }
     }
-    if (NULL != gmmain.fMismatchPath) {
-        if (!prepare_subdirectories(gmmain.fMismatchPath, gmmain.fUseFileHierarchy,
-                                    configs, pdfRasterizers)) {
-            return -1;
-        }
-    }
-    if (NULL != gmmain.fMissingExpectationsPath) {
-        if (!prepare_subdirectories(gmmain.fMissingExpectationsPath, gmmain.fUseFileHierarchy,
-                                    configs, pdfRasterizers)) {
-            return -1;
-        }
-    }
-
     Iter iter;
     GM* gm;
     while ((gm = iter.next()) != NULL) {
@@ -2326,9 +2332,12 @@ int tool_main(int argc, char** argv) {
         SkISize size = gm->getISize();
         SkDebugf("%sdrawing... %s [%d %d]\n", moduloStr.c_str(), shortName,
                  size.width(), size.height());
-
-        run_multiple_configs(gmmain, gm, configs, pdfRasterizers, tileGridReplayScales, grFactory);
+        if (!FLAGS_dryRun)
+            run_multiple_configs(gmmain, gm, configs, pdfRasterizers, tileGridReplayScales, grFactory);
     }
+
+    if (FLAGS_dryRun)
+        return 0;
 
     SkTArray<SkString> modes;
     gmmain.GetRenderModesEncountered(modes);
