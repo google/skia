@@ -34,27 +34,6 @@ class SK_API SkPicture : public SkRefCnt {
 public:
     SK_DECLARE_INST_COUNT(SkPicture)
 
-    // AccelData provides a base class for device-specific acceleration
-    // data. It is added to the picture via a call to a device's optimize 
-    // method.
-    class AccelData : public SkRefCnt {
-    public:
-        typedef uint8_t Domain;
-        typedef uint32_t Key;
-
-        AccelData(Key key) : fKey(key) { }
-
-        const Key& getKey() const { return fKey; }
-
-        // This entry point allows user's to get a unique domain prefix
-        // for their keys
-        static Domain GenerateDomain();
-    private:
-        Key fKey;
-
-        typedef SkRefCnt INHERITED;
-    };
-
     /** The constructor prepares the picture to record.
         @param width the width of the virtual device the picture records.
         @param height the height of the virtual device the picture records.
@@ -64,18 +43,6 @@ public:
         this call, those elements will not appear in this picture.
     */
     SkPicture(const SkPicture& src);
-
-    /**  PRIVATE / EXPERIMENTAL -- do not call */
-    void EXPERIMENTAL_addAccelData(const AccelData* data) { 
-        SkRefCnt_SafeAssign(fAccelData, data); 
-    }
-    /**  PRIVATE / EXPERIMENTAL -- do not call */
-    const AccelData* EXPERIMENTAL_getAccelData(AccelData::Key key) const { 
-        if (NULL != fAccelData && fAccelData->getKey() == key) {
-            return fAccelData; 
-        }
-        return NULL;
-    }
 
     /**
      *  Function signature defining a function that sets up an SkBitmap from encoded data. On
@@ -295,10 +262,9 @@ protected:
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived
     // recorders and set the picture size
-    SkPicturePlayback*    fPlayback;
-    SkPictureRecord*      fRecord;
-    int                   fWidth, fHeight;
-    const AccelData*      fAccelData;
+    SkPicturePlayback* fPlayback;
+    SkPictureRecord* fRecord;
+    int fWidth, fHeight;
 
     // Create a new SkPicture from an existing SkPicturePlayback. Ref count of
     // playback is unchanged.

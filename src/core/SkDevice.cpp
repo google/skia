@@ -213,12 +213,3 @@ void* SkBaseDevice::onAccessPixels(SkImageInfo* info, size_t* rowBytes) {
 #ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
 void SkBaseDevice::writePixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) {}
 #endif
-
-void SkBaseDevice::EXPERIMENTAL_optimize(SkPicture* picture) {
-    // The base class doesn't perform any analysis but derived classes may
-}
-
-bool SkBaseDevice::EXPERIMENTAL_drawPicture(const SkPicture& picture) {
-    // The base class doesn't perform any accelerated picture rendering
-    return false;
-}

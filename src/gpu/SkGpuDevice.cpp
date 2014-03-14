@@ -25,7 +25,6 @@
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
-#include "SkPicture.h"
 #include "SkRRect.h"
 #include "SkStroke.h"
 #include "SkSurface.h"
@@ -2003,45 +2002,4 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     // cache. We pass true for the third argument so that it will get unlocked.
     this->initFromRenderTarget(context, texture->asRenderTarget(), true);
     fNeedClear = needClear;
-}
-
-class GPUAccelData : public SkPicture::AccelData {
-public:
-    GPUAccelData(Key key) : INHERITED(key) { }
-
-protected:
-
-private:
-    typedef SkPicture::AccelData INHERITED;
-};
-
-// In the future this may not be a static method if we need to incorporate the
-// clip and matrix state into the key
-SkPicture::AccelData::Key SkGpuDevice::ComputeAccelDataKey() {
-    static const SkPicture::AccelData::Key gGPUID = SkPicture::AccelData::GenerateDomain();
-
-    return gGPUID;
-}
-
-void SkGpuDevice::EXPERIMENTAL_optimize(SkPicture* picture) {
-    SkPicture::AccelData::Key key = ComputeAccelDataKey();
-
-    GPUAccelData* data = SkNEW_ARGS(GPUAccelData, (key));
-
-    picture->EXPERIMENTAL_addAccelData(data);
-}
-
-bool SkGpuDevice::EXPERIMENTAL_drawPicture(const SkPicture& picture) {
-    SkPicture::AccelData::Key key = ComputeAccelDataKey();
-
-    const SkPicture::AccelData* data = picture.EXPERIMENTAL_getAccelData(key);
-    if (NULL == data) {
-        return false;
-    }
-
-#if 0
-    const GPUAccelData *gpuData = static_cast<const GPUAccelData*>(data);
-#endif
-
-    return false;
 }

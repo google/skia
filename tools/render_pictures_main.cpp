@@ -44,8 +44,6 @@ DEFINE_bool(validate, false, "Verify that the rendered image contains the same p
 
 DEFINE_bool(bench_record, false, "If true, drop into an infinite loop of recording the picture.");
 
-DEFINE_bool(preprocess, false, "If true, perform device specific preprocessing before rendering.");
-
 static void make_output_filepath(SkString* path, const SkString& dir,
                                  const SkString& name) {
     sk_tools::make_filepath(path, dir, name);
@@ -190,13 +188,6 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* o
              inputPath.c_str());
 
     renderer.init(picture);
-    
-    if (FLAGS_preprocess) {
-        if (NULL != renderer.getCanvas()) {
-            renderer.getCanvas()->EXPERIMENTAL_optimize(picture);
-        }
-    }
-
     renderer.setup();
 
     SkString* outputPath = NULL;

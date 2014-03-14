@@ -570,19 +570,20 @@ void TiledPictureRenderer::setupPowerOf2Tiles() {
 }
 
 /**
- * Draw the specified picture to the canvas translated to rectangle provided, so that this mini
+ * Draw the specified playback to the canvas translated to rectangle provided, so that this mini
  * canvas represents the rectangle's portion of the overall picture.
  * Saves and restores so that the initial clip and matrix return to their state before this function
  * is called.
  */
-static void draw_tile_to_canvas(SkCanvas* canvas, const SkRect& tileRect, SkPicture* picture) {
+template<class T>
+static void DrawTileToCanvas(SkCanvas* canvas, const SkRect& tileRect, T* playback) {
     int saveCount = canvas->save();
     // Translate so that we draw the correct portion of the picture.
     // Perform a postTranslate so that the scaleFactor does not interfere with the positioning.
     SkMatrix mat(canvas->getTotalMatrix());
     mat.postTranslate(-tileRect.fLeft, -tileRect.fTop);
     canvas->setMatrix(mat);
-    canvas->drawPicture(*picture);
+    playback->draw(canvas);
     canvas->restoreToCount(saveCount);
     canvas->flush();
 }
@@ -620,7 +621,7 @@ bool TiledPictureRenderer::nextTile(int &i, int &j) {
 
 void TiledPictureRenderer::drawCurrentTile() {
     SkASSERT(fCurrentTileOffset >= 0 && fCurrentTileOffset < fTileRects.count());
-    draw_tile_to_canvas(fCanvas, fTileRects[fCurrentTileOffset], fPicture);
+    DrawTileToCanvas(fCanvas, fTileRects[fCurrentTileOffset], fPicture);
 }
 
 bool TiledPictureRenderer::render(const SkString* path, SkBitmap** out) {
@@ -637,7 +638,7 @@ bool TiledPictureRenderer::render(const SkString* path, SkBitmap** out) {
     }
     bool success = true;
     for (int i = 0; i < fTileRects.count(); ++i) {
-        draw_tile_to_canvas(fCanvas, fTileRects[i], fPicture);
+        DrawTileToCanvas(fCanvas, fTileRects[i], fPicture);
         if (NULL != path) {
             success &= writeAppendNumber(fCanvas, path, i, fJsonSummaryPtr);
         }
@@ -721,7 +722,7 @@ public:
         }
 
         for (int i = fStart; i < fEnd; i++) {
-            draw_tile_to_canvas(fCanvas, fRects[i], fClone);
+            DrawTileToCanvas(fCanvas, fRects[i], fClone);
             if ((fPath != NULL) && !writeAppendNumber(fCanvas, fPath, i, fJsonSummaryPtr)
                 && fSuccess != NULL) {
                 *fSuccess = false;
