@@ -1552,10 +1552,10 @@ static SkColor computeLuminanceColor(const SkPaint& paint) {
 #endif
 
 static bool tooBigForLCD(const SkScalerContext::Rec& rec) {
-    SkScalar area = SkScalarMul(rec.fPost2x2[0][0], rec.fPost2x2[1][1]) -
-                    SkScalarMul(rec.fPost2x2[1][0], rec.fPost2x2[0][1]);
-    SkScalar size = SkScalarMul(area, rec.fTextSize);
-    return SkScalarAbs(size) > SkIntToScalar(SK_MAX_SIZE_FOR_LCDTEXT);
+    SkScalar area = rec.fPost2x2[0][0] * rec.fPost2x2[1][1] -
+                    rec.fPost2x2[1][0] * rec.fPost2x2[0][1];
+    SkScalar size = SkScalarSqrt(SkScalarAbs(area)) * rec.fTextSize;
+    return size > SkIntToScalar(SK_MAX_SIZE_FOR_LCDTEXT);
 }
 
 /*
