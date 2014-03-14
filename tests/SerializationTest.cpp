@@ -9,6 +9,7 @@
 #include "SkBitmapSource.h"
 #include "SkCanvas.h"
 #include "SkMallocPixelRef.h"
+#include "SkTemplates.h"
 #include "SkWriteBuffer.h"
 #include "SkValidatingReadBuffer.h"
 #include "SkXfermodeImageFilter.h"
@@ -378,11 +379,11 @@ DEF_TEST(Serialization, reporter) {
         SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);
         pict->flatten(writer);
         size_t size = writer.bytesWritten();
-        void* data = sk_malloc_throw(size);
-        writer.writeToMemory(data);
+        SkAutoTMalloc<unsigned char> data(size);
+        writer.writeToMemory(static_cast<void*>(data.get()));
 
         // Deserialize picture
-        SkValidatingReadBuffer reader(data, size);
+        SkValidatingReadBuffer reader(static_cast<void*>(data.get()), size);
         SkAutoTUnref<SkPicture> readPict(
             SkPicture::CreateFromBuffer(reader));
         REPORTER_ASSERT(reporter, NULL != readPict.get());
