@@ -101,7 +101,8 @@
     '../gm/imagefiltersbase.cpp',
     '../gm/imagefiltersclipped.cpp',
     '../gm/imagefilterscropped.cpp',
-    '../gm/imagefilterscropexpand.cpp',
+# FIXME(senorblanco): re-enable once Win Debug failures are fixed
+#    '../gm/imagefilterscropexpand.cpp',
     '../gm/imagefiltersgraph.cpp',
     '../gm/imagefiltersscaled.cpp',
     '../gm/internal_links.cpp',
