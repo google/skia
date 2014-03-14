@@ -352,6 +352,11 @@ static bool write_pixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dst
 
 bool SkBitmapDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPixels,
                                    size_t srcRowBytes, int x, int y) {
+    // since we don't stop creating un-pixeled devices yet, check for no pixels here
+    if (NULL == fBitmap.getPixels()) {
+        return false;
+    }
+
     SkImageInfo dstInfo = fBitmap.info();
     dstInfo.fWidth = srcInfo.width();
     dstInfo.fHeight = srcInfo.height();
