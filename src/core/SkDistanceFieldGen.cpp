@@ -24,7 +24,7 @@ enum NeighborFlags {
     kBottom_NeighborFlag      = 0x40,
     kBottomRight_NeighborFlag = 0x80,
     kAll_NeighborFlags        = 0xff,
- 
+
     kNeighborFlagCount        = 8
 };
 

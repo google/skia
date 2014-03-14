@@ -120,8 +120,8 @@ inline void operator delete(void* p) {
 #endif
 
 #ifdef SK_IGNORE_TO_STRING
-    #define SK_TO_STRING_NONVIRT() 
-    #define SK_TO_STRING_VIRT() 
+    #define SK_TO_STRING_NONVIRT()
+    #define SK_TO_STRING_VIRT()
     #define SK_TO_STRING_PUREVIRT()
     #define SK_TO_STRING_OVERRIDE()
 #else
