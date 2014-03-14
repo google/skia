@@ -28,8 +28,7 @@ enum NeighborFlags {
     kNeighborFlagCount        = 8
 };
 
-// We treat an "edge" as a place where we cross from a texel >= 128 to a texel < 128,
-// or vice versa. This means we just need to check if the MSBs are different.
+// We treat an "edge" as a place where we cross from black to non-black, or vice versa. 
 // 'neighborFlags' is used to limit the directions in which we test to avoid indexing
 // outside of the image
 static bool found_edge(const unsigned char* imagePtr, int width, int neighborFlags) {
@@ -39,14 +38,14 @@ static bool found_edge(const unsigned char* imagePtr, int width, int neighborFla
     SkASSERT(kNum8ConnectedNeighbors == kNeighborFlagCount);
 
     // search for an edge
-    unsigned char currVal = *imagePtr >> 7;
+    bool currVal = (*imagePtr != 0);
     for (int i = 0; i < kNum8ConnectedNeighbors; ++i) {
-        unsigned char checkVal;
+        bool checkVal;
         if ((1 << i) & neighborFlags) {
             const unsigned char* checkPtr = imagePtr + offsets[i];
-            checkVal = *checkPtr >> 7;
+            checkVal = (*checkPtr != 0);
         } else {
-            checkVal = 0;
+            checkVal = false;
         }
         SkASSERT(checkVal == 0 || checkVal == 1);
         SkASSERT(currVal == 0 || currVal == 1);
@@ -427,7 +426,7 @@ bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
     for (int j = 1; j < dataHeight-1; ++j) {
         for (int i = 1; i < dataWidth-1; ++i) {
 #if DUMP_EDGE
-            unsigned char val = (currData->fAlpha >= 0.5f) ? 255 : 0;
+            unsigned char val = sk_float_round2int(255*currData->fAlpha);
             if (*currEdge) {
                 val = 128;
             }
