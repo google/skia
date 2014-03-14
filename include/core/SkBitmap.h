@@ -471,7 +471,7 @@ public:
     */
     bool readyToDraw() const {
         return this->getPixels() != NULL &&
-               (this->config() != kIndex8_Config || NULL != fColorTable);
+               (this->colorType() != kIndex_8_SkColorType || NULL != fColorTable);
     }
 
     /** Returns the pixelRef's texture, or NULL
@@ -890,28 +890,28 @@ private:
 
 inline uint32_t* SkBitmap::getAddr32(int x, int y) const {
     SkASSERT(fPixels);
-    SkASSERT(this->config() == kARGB_8888_Config);
+    SkASSERT(4 == this->bytesPerPixel());
     SkASSERT((unsigned)x < (unsigned)this->width() && (unsigned)y < (unsigned)this->height());
     return (uint32_t*)((char*)fPixels + y * fRowBytes + (x << 2));
 }
 
 inline uint16_t* SkBitmap::getAddr16(int x, int y) const {
     SkASSERT(fPixels);
-    SkASSERT(this->config() == kRGB_565_Config || this->config() == kARGB_4444_Config);
+    SkASSERT(2 == this->bytesPerPixel());
     SkASSERT((unsigned)x < (unsigned)this->width() && (unsigned)y < (unsigned)this->height());
     return (uint16_t*)((char*)fPixels + y * fRowBytes + (x << 1));
 }
 
 inline uint8_t* SkBitmap::getAddr8(int x, int y) const {
     SkASSERT(fPixels);
-    SkASSERT(this->config() == kA8_Config || this->config() == kIndex8_Config);
+    SkASSERT(1 == this->bytesPerPixel());
     SkASSERT((unsigned)x < (unsigned)this->width() && (unsigned)y < (unsigned)this->height());
     return (uint8_t*)fPixels + y * fRowBytes + x;
 }
 
 inline SkPMColor SkBitmap::getIndex8Color(int x, int y) const {
     SkASSERT(fPixels);
-    SkASSERT(this->config() == kIndex8_Config);
+    SkASSERT(kIndex_8_SkColorType == this->colorType());
     SkASSERT((unsigned)x < (unsigned)this->width() && (unsigned)y < (unsigned)this->height());
     SkASSERT(fColorTable);
     return (*fColorTable)[*((const uint8_t*)fPixels + y * fRowBytes + x)];
