@@ -423,6 +423,24 @@ protected:
      */
     SkDeviceProperties fLeakyProperties;
 
+    /**
+     *  PRIVATE / EXPERIMENTAL -- do not call
+     *  Construct an acceleration object and attach it to 'picture'
+     */
+    virtual void EXPERIMENTAL_optimize(SkPicture* picture);
+
+    /**
+     *  PRIVATE / EXPERIMENTAL -- do not call
+     *  This entry point gives the backend an opportunity to take over the rendering
+     *  of 'picture'. If optimization data is available (due to an earlier
+     *  'optimize' call) this entry point should make use of it and return true
+     *  if all rendering has been done. If false is returned, SkCanvas will
+     *  perform its own rendering pass. It is acceptable for the backend 
+     *  to perform some device-specific warm up tasks and then let SkCanvas
+     *  perform the main rendering loop (by return false from here).
+     */
+    virtual bool EXPERIMENTAL_drawPicture(const SkPicture& picture);
+
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip

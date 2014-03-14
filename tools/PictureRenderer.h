@@ -309,6 +309,10 @@ public:
         }
     }
 
+    SkCanvas* getCanvas() {
+        return fCanvas;
+    }
+
     SkGLContextHelper* getGLContext() {
         GrContextFactory::GLContextType glContextType
                 = GrContextFactory::kNull_GLContextType;
