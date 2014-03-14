@@ -69,6 +69,9 @@ public:
     SkMetaData& getMetaData();
 
 #ifdef SK_SUPPORT_LEGACY_GETDEVICECAPABILITIES
+    enum Capabilities {
+        kVector_Capability = 0x1,
+    };
     virtual uint32_t getDeviceCapabilities() { return 0; }
 #endif
 
