@@ -365,7 +365,8 @@ def git_cl_uploader(config, message, file_list):
     if config.reviewers_list:
         git_cl.append('--reviewers=%s' % config.reviewers_list)
 
-    git_try = [git, 'cl', 'try', '--revision', svn_info]
+    git_try = [
+        git, 'cl', 'try', '-m', 'tryserver.chromium', '--revision', svn_info]
     git_try.extend([arg for bot in config.cl_bot_list for arg in ('-b', bot)])
 
     branch_name = git_utils.git_branch_name(vsp.verbose)
