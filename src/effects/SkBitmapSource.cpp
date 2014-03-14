@@ -42,11 +42,11 @@ void SkBitmapSource::flatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(fDstRect);
 }
 
-bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const SkMatrix& matrix,
+bool SkBitmapSource::onFilterImage(Proxy* proxy, const SkBitmap&, const Context& ctx,
                                    SkBitmap* result, SkIPoint* offset) const {
     SkRect bounds, dstRect;
     fBitmap.getBounds(&bounds);
-    matrix.mapRect(&dstRect, fDstRect);
+    ctx.ctm().mapRect(&dstRect, fDstRect);
     if (fSrcRect == bounds && dstRect == bounds) {
         // No regions cropped out or resized; return entire bitmap.
         *result = fBitmap;

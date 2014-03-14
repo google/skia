@@ -24,7 +24,7 @@ protected:
     explicit SkMagnifierImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
     virtual bool asNewEffect(GrEffectRef** effect, GrTexture* texture, const SkMatrix& matrix, const SkIRect& bounds) const SK_OVERRIDE;

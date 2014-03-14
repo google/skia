@@ -9,12 +9,12 @@
 #define SkImageFilter_DEFINED
 
 #include "SkFlattenable.h"
+#include "SkMatrix.h"
 #include "SkRect.h"
 
 class SkBitmap;
 class SkColorFilter;
 class SkBaseDevice;
-class SkMatrix;
 struct SkIPoint;
 class SkShader;
 class GrEffectRef;
@@ -49,6 +49,18 @@ public:
         uint32_t fFlags;
     };
 
+    class Context {
+    public:
+        Context(const SkMatrix& ctm, const SkIRect& clipBounds) :
+            fCTM(ctm), fClipBounds(clipBounds) {
+        }
+        const SkMatrix& ctm() const { return fCTM; }
+        const SkIRect& clipBounds() const { return fClipBounds; }
+    private:
+        SkMatrix fCTM;
+        SkIRect  fClipBounds;
+    };
+
     class Proxy {
     public:
         virtual ~Proxy() {};
@@ -59,7 +71,7 @@ public:
         // returns true if the proxy handled the filter itself. if this returns
         // false then the filter's code will be called.
         virtual bool filterImage(const SkImageFilter*, const SkBitmap& src,
-                                 const SkMatrix& ctm,
+                                 const Context&,
                                  SkBitmap* result, SkIPoint* offset) = 0;
     };
 
@@ -76,7 +88,7 @@ public:
      *  If the result image cannot be created, return false, in which case both
      *  the result and offset parameters will be ignored by the caller.
      */
-    bool filterImage(Proxy*, const SkBitmap& src, const SkMatrix& ctm,
+    bool filterImage(Proxy*, const SkBitmap& src, const Context&,
                      SkBitmap* result, SkIPoint* offset) const;
 
     /**
@@ -104,7 +116,7 @@ public:
      *  relative to the src when it is drawn. The default implementation does
      *  single-pass processing using asNewEffect().
      */
-    virtual bool filterImageGPU(Proxy*, const SkBitmap& src, const SkMatrix& ctm,
+    virtual bool filterImageGPU(Proxy*, const SkBitmap& src, const Context&,
                                 SkBitmap* result, SkIPoint* offset) const;
 
     /**
@@ -156,7 +168,7 @@ public:
      * Recursively evaluate this filter on the GPU. If the filter has no GPU
      * implementation, it will be processed in software and uploaded to the GPU.
      */
-    bool getInputResultGPU(SkImageFilter::Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+    bool getInputResultGPU(SkImageFilter::Proxy* proxy, const SkBitmap& src, const Context&,
                            SkBitmap* result, SkIPoint* offset) const;
 #endif
 
@@ -200,7 +212,7 @@ protected:
      *  case both the result and offset parameters will be ignored by the
      *  caller.
      */
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const;
     // Given the bounds of the destination rect to be filled in device
     // coordinates (first parameter), and the CTM, compute (conservatively)

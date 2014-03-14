@@ -24,7 +24,7 @@ public:
         return SkNEW_ARGS(SkTileImageFilter, (srcRect, dstRect, input));
     }
 
-    virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+    virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                SkBitmap* dst, SkIPoint* offset) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTileImageFilter)

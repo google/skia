@@ -40,7 +40,7 @@ protected:
      */
     explicit SkPictureImageFilter(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 
 #ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS

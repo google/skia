@@ -140,7 +140,8 @@ public:
     virtual void makeRenderTargetCurrent();
 
     virtual bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE;
-    virtual bool filterImage(const SkImageFilter*, const SkBitmap&, const SkMatrix&,
+    virtual bool filterImage(const SkImageFilter*, const SkBitmap&,
+                             const SkImageFilter::Context&,
                              SkBitmap*, SkIPoint*) SK_OVERRIDE;
 
     class SkAutoCachedTexture; // used internally

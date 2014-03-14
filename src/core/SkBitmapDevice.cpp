@@ -164,7 +164,7 @@ bool SkBitmapDevice::canHandleImageFilter(const SkImageFilter*) {
 }
 
 bool SkBitmapDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
-                                 const SkMatrix& ctm, SkBitmap* result,
+                                 const SkImageFilter::Context& ctx, SkBitmap* result,
                                  SkIPoint* offset) {
     return false;
 }

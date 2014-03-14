@@ -33,12 +33,12 @@ public:
 
     virtual bool onFilterImage(Proxy* proxy,
                                const SkBitmap& src,
-                               const SkMatrix& ctm,
+                               const Context& ctx,
                                SkBitmap* dst,
                                SkIPoint* offset) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
     virtual bool canFilterImageGPU() const SK_OVERRIDE { return !cropRectIsSet(); }
-    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                 SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #endif
 

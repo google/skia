@@ -248,7 +248,7 @@ protected:
      *  If the device does not recognize or support this filter,
      *  it just returns false and leaves result and offset unchanged.
      */
-    virtual bool filterImage(const SkImageFilter*, const SkBitmap&, const SkMatrix&,
+    virtual bool filterImage(const SkImageFilter*, const SkBitmap&, const SkImageFilter::Context&,
                              SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
 
 private:

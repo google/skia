@@ -58,8 +58,8 @@ void SkPictureImageFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeRect(fCropRect);
 }
 
-bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const SkMatrix& matrix,
-                                   SkBitmap* result, SkIPoint* offset) const {
+bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Context& ctx,
+                                         SkBitmap* result, SkIPoint* offset) const {
     if (!fPicture) {
         offset->fX = offset->fY = 0;
         return true;
@@ -67,7 +67,7 @@ bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Sk
 
     SkRect floatBounds;
     SkIRect bounds;
-    matrix.mapRect(&floatBounds, fCropRect);
+    ctx.ctm().mapRect(&floatBounds, fCropRect);
     floatBounds.roundOut(&bounds);
 
     if (bounds.isEmpty()) {
@@ -84,7 +84,7 @@ bool SkPictureImageFilter::onFilterImage(Proxy* proxy, const SkBitmap&, const Sk
     SkPaint paint;
 
     canvas.translate(-SkIntToScalar(bounds.fLeft), -SkIntToScalar(bounds.fTop));
-    canvas.concat(matrix);
+    canvas.concat(ctx.ctm());
     canvas.drawPicture(*fPicture);
 
     *result = device.get()->accessBitmap(false);

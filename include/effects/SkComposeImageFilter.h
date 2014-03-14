@@ -23,7 +23,7 @@ public:
 protected:
     explicit SkComposeImageFilter(SkReadBuffer& buffer);
 
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const SK_OVERRIDE;
 

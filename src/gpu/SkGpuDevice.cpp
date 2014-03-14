@@ -1588,8 +1588,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
 
 static bool filter_texture(SkBaseDevice* device, GrContext* context,
                            GrTexture* texture, const SkImageFilter* filter,
-                           int w, int h, const SkMatrix& ctm, SkBitmap* result,
-                           SkIPoint* offset) {
+                           int w, int h, const SkImageFilter::Context& ctx,
+                           SkBitmap* result, SkIPoint* offset) {
     SkASSERT(filter);
     SkDeviceImageFilterProxy proxy(device);
 
@@ -1597,7 +1597,7 @@ static bool filter_texture(SkBaseDevice* device, GrContext* context,
         // Save the render target and set it to NULL, so we don't accidentally draw to it in the
         // filter.  Also set the clip wide open and the matrix to identity.
         GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
-        return filter->filterImageGPU(&proxy, wrap_texture(texture), ctm, result, offset);
+        return filter->filterImageGPU(&proxy, wrap_texture(texture), ctx, result, offset);
     } else {
         return false;
     }
@@ -1628,7 +1628,9 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkMatrix matrix(*draw.fMatrix);
         matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
-        if (filter_texture(this, fContext, texture, filter, w, h, matrix, &filteredBitmap,
+        SkIRect clipBounds = SkIRect::MakeWH(bitmap.width(), bitmap.height());
+        SkImageFilter::Context ctx(matrix, clipBounds);
+        if (filter_texture(this, fContext, texture, filter, w, h, ctx, &filteredBitmap,
                            &offset)) {
             texture = (GrTexture*) filteredBitmap.getTexture();
             w = filteredBitmap.width();
@@ -1734,7 +1736,9 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
         SkIPoint offset = SkIPoint::Make(0, 0);
         SkMatrix matrix(*draw.fMatrix);
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
-        if (filter_texture(this, fContext, devTex, filter, w, h, matrix, &filteredBitmap,
+        SkIRect clipBounds = SkIRect::MakeWH(devTex->width(), devTex->height());
+        SkImageFilter::Context ctx(matrix, clipBounds);
+        if (filter_texture(this, fContext, devTex, filter, w, h, ctx, &filteredBitmap,
                            &offset)) {
             devTex = filteredBitmap.getTexture();
             w = filteredBitmap.width();
@@ -1771,7 +1775,7 @@ bool SkGpuDevice::canHandleImageFilter(const SkImageFilter* filter) {
 }
 
 bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
-                              const SkMatrix& ctm,
+                              const SkImageFilter::Context& ctx,
                               SkBitmap* result, SkIPoint* offset) {
     // want explicitly our impl, so guard against a subclass of us overriding it
     if (!this->SkGpuDevice::canHandleImageFilter(filter)) {
@@ -1788,8 +1792,8 @@ bool SkGpuDevice::filterImage(const SkImageFilter* filter, const SkBitmap& src,
     // must be pushed upstack.
     SkAutoCachedTexture act(this, src, NULL, &texture);
 
-    return filter_texture(this, fContext, texture, filter, src.width(), src.height(), ctm, result,
-                          offset);
+    return filter_texture(this, fContext, texture, filter, src.width(), src.height(), ctx,
+                          result, offset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

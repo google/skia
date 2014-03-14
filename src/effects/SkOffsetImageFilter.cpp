@@ -15,7 +15,7 @@
 #include "SkPaint.h"
 
 bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
-                                        const SkMatrix& matrix,
+                                        const Context& ctx,
                                         SkBitmap* result,
                                         SkIPoint* offset) const {
     SkImageFilter* input = getInput(0);
@@ -26,18 +26,18 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
 #else
     if (!cropRectIsSet()) {
 #endif
-        if (input && !input->filterImage(proxy, source, matrix, &src, &srcOffset)) {
+        if (input && !input->filterImage(proxy, source, ctx, &src, &srcOffset)) {
             return false;
         }
 
         SkVector vec;
-        matrix.mapVectors(&vec, &fOffset, 1);
+        ctx.ctm().mapVectors(&vec, &fOffset, 1);
 
         offset->fX = srcOffset.fX + SkScalarRoundToInt(vec.fX);
         offset->fY = srcOffset.fY + SkScalarRoundToInt(vec.fY);
         *result = src;
     } else {
-        if (input && !input->filterImage(proxy, source, matrix, &src, &srcOffset)) {
+        if (input && !input->filterImage(proxy, source, ctx, &src, &srcOffset)) {
             return false;
         }
 
@@ -45,7 +45,7 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
         src.getBounds(&bounds);
         bounds.offset(srcOffset);
 
-        if (!applyCropRect(&bounds, matrix)) {
+        if (!applyCropRect(&bounds, ctx.ctm())) {
             return false;
         }
 
@@ -59,7 +59,7 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
         canvas.translate(SkIntToScalar(srcOffset.fX - bounds.fLeft),
                          SkIntToScalar(srcOffset.fY - bounds.fTop));
         SkVector vec;
-        matrix.mapVectors(&vec, &fOffset, 1);
+        ctx.ctm().mapVectors(&vec, &fOffset, 1);
         canvas.drawBitmap(src, vec.x(), vec.y(), &paint);
         *result = device->accessBitmap(false);
         offset->fX = bounds.fLeft;

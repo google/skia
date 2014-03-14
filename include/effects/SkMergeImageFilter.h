@@ -33,7 +33,7 @@ protected:
     SkMergeImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
 
 #ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS

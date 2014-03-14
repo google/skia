@@ -1164,7 +1164,9 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
             const SkBitmap& src = srcDev->accessBitmap(false);
             SkMatrix matrix = *iter.fMatrix;
             matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
-            if (filter->filterImage(&proxy, src, matrix, &dst, &offset)) {
+            SkIRect clipBounds = SkIRect::MakeWH(srcDev->width(), srcDev->height());
+            SkImageFilter::Context ctx(matrix, clipBounds);
+            if (filter->filterImage(&proxy, src, ctx, &dst, &offset)) {
                 SkPaint tmpUnfiltered(*paint);
                 tmpUnfiltered.setImageFilter(NULL);
                 dstDev->drawSprite(iter, dst, pos.x() + offset.x(), pos.y() + offset.y(),
@@ -1202,7 +1204,9 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
             SkIPoint offset = SkIPoint::Make(0, 0);
             SkMatrix matrix = *iter.fMatrix;
             matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
-            if (filter->filterImage(&proxy, bitmap, matrix, &dst, &offset)) {
+            SkIRect clipBounds = SkIRect::MakeWH(bitmap.width(), bitmap.height());
+            SkImageFilter::Context ctx(matrix, clipBounds);
+            if (filter->filterImage(&proxy, bitmap, ctx, &dst, &offset)) {
                 SkPaint tmpUnfiltered(*paint);
                 tmpUnfiltered.setImageFilter(NULL);
                 iter.fDevice->drawSprite(iter, dst, pos.x() + offset.x(), pos.y() + offset.y(),

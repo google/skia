@@ -32,14 +32,14 @@ protected:
     SkMorphologyImageFilter(int radiusX, int radiusY, SkImageFilter* input,
                             const CropRect* cropRect);
     bool filterImageGeneric(Proc procX, Proc procY,
-                            Proxy*, const SkBitmap& src, const SkMatrix&,
+                            Proxy*, const SkBitmap& src, const Context&,
                             SkBitmap* result, SkIPoint* offset) const;
     SkMorphologyImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
     virtual bool canFilterImageGPU() const SK_OVERRIDE { return true; }
     bool filterImageGPUGeneric(bool dilate, Proxy* proxy, const SkBitmap& src,
-                               const SkMatrix& ctm, SkBitmap* result,
+                               const Context& ctm, SkBitmap* result,
                                SkIPoint* offset) const;
 #endif
 
@@ -58,10 +58,10 @@ public:
         return SkNEW_ARGS(SkDilateImageFilter, (radiusX, radiusY, input, cropRect));
     }
 
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
-    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context&,
                                 SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #endif
 
@@ -90,10 +90,10 @@ public:
         return SkNEW_ARGS(SkErodeImageFilter, (radiusX, radiusY, input, cropRect));
     }
 
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #if SK_SUPPORT_GPU
-    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+    virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context&,
                                 SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
 #endif
 

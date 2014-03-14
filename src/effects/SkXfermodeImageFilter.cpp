@@ -44,7 +44,7 @@ void SkXfermodeImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
                                             const SkBitmap& src,
-                                            const SkMatrix& ctm,
+                                            const Context& ctx,
                                             SkBitmap* dst,
                                             SkIPoint* offset) const {
     SkBitmap background = src, foreground = src;
@@ -52,12 +52,12 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
     SkImageFilter* foregroundInput = getInput(1);
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
     if (backgroundInput &&
-        !backgroundInput->filterImage(proxy, src, ctm, &background, &backgroundOffset)) {
+        !backgroundInput->filterImage(proxy, src, ctx, &background, &backgroundOffset)) {
         return false;
     }
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
     if (foregroundInput &&
-        !foregroundInput->filterImage(proxy, src, ctm, &foreground, &foregroundOffset)) {
+        !foregroundInput->filterImage(proxy, src, ctx, &foreground, &foregroundOffset)) {
         return false;
     }
 
@@ -67,7 +67,7 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
     foreground.getBounds(&foregroundBounds);
     foregroundBounds.offset(foregroundOffset);
     bounds.join(foregroundBounds);
-    if (!applyCropRect(&bounds, ctm)) {
+    if (!applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
 
@@ -97,19 +97,19 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
 
 bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
                                            const SkBitmap& src,
-                                           const SkMatrix& ctm,
+                                           const Context& ctx,
                                            SkBitmap* result,
                                            SkIPoint* offset) const {
     SkBitmap background = src;
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->getInputResultGPU(proxy, src, ctm, &background,
+    if (getInput(0) && !getInput(0)->getInputResultGPU(proxy, src, ctx, &background,
                                                        &backgroundOffset)) {
         return false;
     }
     GrTexture* backgroundTex = background.getTexture();
     SkBitmap foreground = src;
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
-    if (getInput(1) && !getInput(1)->getInputResultGPU(proxy, src, ctm, &foreground,
+    if (getInput(1) && !getInput(1)->getInputResultGPU(proxy, src, ctx, &foreground,
                                                        &foregroundOffset)) {
         return false;
     }

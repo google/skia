@@ -21,9 +21,9 @@ public:
         return fDevice->canHandleImageFilter(filter);
     }
     virtual bool filterImage(const SkImageFilter* filter, const SkBitmap& src,
-                             const SkMatrix& ctm,
+                             const SkImageFilter::Context& ctx,
                              SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
-        return fDevice->filterImage(filter, src, ctm, result, offset);
+        return fDevice->filterImage(filter, src, ctx, result, offset);
     }
 
 private:

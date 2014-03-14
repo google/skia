@@ -251,12 +251,12 @@ static SkBitmap unpremultiplyBitmap(const SkBitmap& src)
 
 bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
                                                    const SkBitmap& source,
-                                                   const SkMatrix& matrix,
+                                                   const Context& ctx,
                                                    SkBitmap* result,
                                                    SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, matrix, &src, &srcOffset)) {
+    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 
@@ -267,7 +267,7 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
     SkIRect bounds;
     src.getBounds(&bounds);
     bounds.offset(srcOffset);
-    if (!this->applyCropRect(&bounds, matrix)) {
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
 

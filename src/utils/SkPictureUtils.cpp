@@ -76,7 +76,7 @@ public:
     virtual void unlockPixels() SK_OVERRIDE { nothing_to_do(); }
     virtual bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE { return false; }
     virtual bool canHandleImageFilter(const SkImageFilter*) SK_OVERRIDE { return false; }
-    virtual bool filterImage(const SkImageFilter*, const SkBitmap&, const SkMatrix&,
+    virtual bool filterImage(const SkImageFilter*, const SkBitmap&, const SkImageFilter::Context&,
                              SkBitmap* result, SkIPoint* offset) SK_OVERRIDE {
         return false;
     }

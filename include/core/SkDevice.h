@@ -15,6 +15,7 @@
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkDeviceProperties.h"
+#include "SkImageFilter.h"
 
 // getDeviceCapabilities() is not called by skia, but this flag keeps it around
 // for clients that have "override" annotations on their subclass. These overrides
@@ -375,7 +376,8 @@ protected:
      *  If the device does not recognize or support this filter,
      *  it just returns false and leaves result and offset unchanged.
      */
-    virtual bool filterImage(const SkImageFilter*, const SkBitmap&, const SkMatrix&,
+    virtual bool filterImage(const SkImageFilter*, const SkBitmap&,
+                             const SkImageFilter::Context& ctx,
                              SkBitmap* result, SkIPoint* offset) = 0;
 
     // This is equal kBGRA_Premul_Config8888 or kRGBA_Premul_Config8888 if

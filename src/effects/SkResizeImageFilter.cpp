@@ -42,12 +42,12 @@ SkResizeImageFilter::~SkResizeImageFilter() {
 
 bool SkResizeImageFilter::onFilterImage(Proxy* proxy,
                                          const SkBitmap& source,
-                                         const SkMatrix& ctm,
+                                         const Context& ctx,
                                          SkBitmap* result,
                                          SkIPoint* offset) const {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
-    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctm, &src, &srcOffset)) {
+    if (getInput(0) && !getInput(0)->filterImage(proxy, source, ctx, &src, &srcOffset)) {
         return false;
     }
 
@@ -57,11 +57,11 @@ bool SkResizeImageFilter::onFilterImage(Proxy* proxy,
     srcBounds.offset(srcOffset);
     SkRect srcRect = SkRect::Make(srcBounds);
     SkMatrix matrix;
-    if (!ctm.invert(&matrix)) {
+    if (!ctx.ctm().invert(&matrix)) {
         return false;
     }
     matrix.postScale(fSx, fSy);
-    matrix.postConcat(ctm);
+    matrix.postConcat(ctx.ctm());
     matrix.mapRect(&dstRect, srcRect);
     dstRect.roundOut(&dstBounds);
 

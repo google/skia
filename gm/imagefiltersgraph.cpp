@@ -29,19 +29,19 @@ public:
     SimpleOffsetFilter(SkScalar dx, SkScalar dy, SkImageFilter* input)
     : SkImageFilter(input), fDX(dx), fDY(dy) {}
 
-    virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+    virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                SkBitmap* dst, SkIPoint* offset) const SK_OVERRIDE {
         SkBitmap source = src;
         SkImageFilter* input = getInput(0);
         SkIPoint srcOffset = SkIPoint::Make(0, 0);
-        if (NULL != input && !input->filterImage(proxy, src, ctm, &source, &srcOffset)) {
+        if (NULL != input && !input->filterImage(proxy, src, ctx, &source, &srcOffset)) {
             return false;
         }
 
         SkIRect bounds;
         source.getBounds(&bounds);
 
-        if (!this->applyCropRect(&bounds, ctm)) {
+        if (!this->applyCropRect(&bounds, ctx.ctm())) {
             return false;
         }
 

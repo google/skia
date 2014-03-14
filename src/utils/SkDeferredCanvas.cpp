@@ -250,7 +250,7 @@ protected:
         return false;
     }
     virtual bool filterImage(const SkImageFilter*, const SkBitmap&,
-                             const SkMatrix&, SkBitmap*, SkIPoint*) SK_OVERRIDE {
+                             const SkImageFilter::Context&, SkBitmap*, SkIPoint*) SK_OVERRIDE {
         return false;
     }
 

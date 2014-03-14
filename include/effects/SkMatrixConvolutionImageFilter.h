@@ -71,13 +71,13 @@ protected:
     SkMatrixConvolutionImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const SkMatrix&,
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
 
 #if SK_SUPPORT_GPU
     virtual bool asNewEffect(GrEffectRef** effect,
                              GrTexture*,
-                             const SkMatrix& matrix,
+                             const SkMatrix& ctm,
                              const SkIRect& bounds) const SK_OVERRIDE;
 #endif
 

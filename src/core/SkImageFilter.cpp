@@ -93,7 +93,7 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
 }
 
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
-                                const SkMatrix& ctm,
+                                const Context& context,
                                 SkBitmap* result, SkIPoint* offset) const {
     SkASSERT(result);
     SkASSERT(offset);
@@ -101,8 +101,8 @@ bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
      *  Give the proxy first shot at the filter. If it returns false, ask
      *  the filter to do it.
      */
-    return (proxy && proxy->filterImage(this, src, ctm, result, offset)) ||
-           this->onFilterImage(proxy, src, ctm, result, offset);
+    return (proxy && proxy->filterImage(this, src, context, result, offset)) ||
+           this->onFilterImage(proxy, src, context, result, offset);
 }
 
 bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
@@ -134,7 +134,7 @@ void SkImageFilter::computeFastBounds(const SkRect& src, SkRect* dst) const {
     }
 }
 
-bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const SkMatrix&,
+bool SkImageFilter::onFilterImage(Proxy*, const SkBitmap&, const Context&,
                                   SkBitmap*, SkIPoint*) const {
     return false;
 }
@@ -143,21 +143,21 @@ bool SkImageFilter::canFilterImageGPU() const {
     return this->asNewEffect(NULL, NULL, SkMatrix::I(), SkIRect());
 }
 
-bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMatrix& ctm,
+bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                    SkBitmap* result, SkIPoint* offset) const {
 #if SK_SUPPORT_GPU
     SkBitmap input = src;
     SkASSERT(fInputCount == 1);
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
     if (this->getInput(0) &&
-        !this->getInput(0)->getInputResultGPU(proxy, src, ctm, &input, &srcOffset)) {
+        !this->getInput(0)->getInputResultGPU(proxy, src, ctx, &input, &srcOffset)) {
         return false;
     }
     GrTexture* srcTexture = input.getTexture();
     SkIRect bounds;
     src.getBounds(&bounds);
     bounds.offset(srcOffset);
-    if (!this->applyCropRect(&bounds, ctm)) {
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
     SkRect srcRect = SkRect::Make(bounds);
@@ -179,7 +179,7 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const SkMa
     offset->fX = bounds.left();
     offset->fY = bounds.top();
     bounds.offset(-srcOffset);
-    SkMatrix matrix(ctm);
+    SkMatrix matrix(ctx.ctm());
     matrix.postTranslate(SkIntToScalar(-bounds.left()), SkIntToScalar(-bounds.top()));
     this->asNewEffect(&effect, srcTexture, matrix, bounds);
     SkASSERT(effect);
@@ -253,7 +253,7 @@ void SkImageFilter::WrapTexture(GrTexture* texture, int width, int height, SkBit
 }
 
 bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
-                                      const SkBitmap& src, const SkMatrix& ctm,
+                                      const SkBitmap& src, const Context& ctx,
                                       SkBitmap* result, SkIPoint* offset) const {
     // Ensure that GrContext calls under filterImage and filterImageGPU below will see an identity
     // matrix with no clip and that the matrix, clip, and render target set before this function was
@@ -261,9 +261,9 @@ bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
     GrContext* context = src.getTexture()->getContext();
     GrContext::AutoWideOpenIdentityDraw awoid(context, NULL);
     if (this->canFilterImageGPU()) {
-        return this->filterImageGPU(proxy, src, ctm, result, offset);
+        return this->filterImageGPU(proxy, src, ctx, result, offset);
     } else {
-        if (this->filterImage(proxy, src, ctm, result, offset)) {
+        if (this->filterImage(proxy, src, ctx, result, offset)) {
             if (!result->getTexture()) {
                 SkImageInfo info;
                 if (!result->asImageInfo(&info)) {

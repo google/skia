@@ -280,7 +280,7 @@ void SkMagnifierImageFilter::flatten(SkWriteBuffer& buffer) const {
 }
 
 bool SkMagnifierImageFilter::onFilterImage(Proxy*, const SkBitmap& src,
-                                           const SkMatrix&, SkBitmap* dst,
+                                           const Context&, SkBitmap* dst,
                                            SkIPoint* offset) const {
     SkASSERT(src.colorType() == kPMColor_SkColorType);
     SkASSERT(fSrcRect.width() < src.width());
