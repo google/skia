@@ -154,7 +154,9 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
     }
 
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, src, &srcOffset, &bounds, &src)) {
+    src.getBounds(&bounds);
+    bounds.offset(srcOffset);
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
 
@@ -545,7 +547,9 @@ bool SkMorphologyImageFilter::filterImageGPUGeneric(bool dilate,
         return false;
     }
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, input, &srcOffset, &bounds, &input)) {
+    input.getBounds(&bounds);
+    bounds.offset(srcOffset);
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
     SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),

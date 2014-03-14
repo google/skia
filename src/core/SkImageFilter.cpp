@@ -8,7 +8,6 @@
 #include "SkImageFilter.h"
 
 #include "SkBitmap.h"
-#include "SkDevice.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkRect.h"
@@ -156,7 +155,9 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
     }
     GrTexture* srcTexture = input.getTexture();
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, input, &srcOffset, &bounds, &input)) {
+    src.getBounds(&bounds);
+    bounds.offset(srcOffset);
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
     SkRect srcRect = SkRect::Make(bounds);
@@ -195,60 +196,18 @@ bool SkImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const Cont
 #endif
 }
 
-bool SkImageFilter::applyCropRect(const Context& ctx, const SkBitmap& src,
-                                  const SkIPoint& srcOffset, SkIRect* bounds) const {
-    SkIRect srcBounds;
-    src.getBounds(&srcBounds);
-    srcBounds.offset(srcOffset);
+bool SkImageFilter::applyCropRect(SkIRect* rect, const SkMatrix& matrix) const {
     SkRect cropRect;
-    ctx.ctm().mapRect(&cropRect, fCropRect.rect());
+    matrix.mapRect(&cropRect, fCropRect.rect());
     SkIRect cropRectI;
     cropRect.roundOut(&cropRectI);
     uint32_t flags = fCropRect.flags();
-    if (flags & CropRect::kHasLeft_CropEdge) srcBounds.fLeft = cropRectI.fLeft;
-    if (flags & CropRect::kHasTop_CropEdge) srcBounds.fTop = cropRectI.fTop;
-    if (flags & CropRect::kHasRight_CropEdge) srcBounds.fRight = cropRectI.fRight;
-    if (flags & CropRect::kHasBottom_CropEdge) srcBounds.fBottom = cropRectI.fBottom;
-    if (!srcBounds.intersect(ctx.clipBounds())) {
-        return false;
-    }
-    *bounds = srcBounds;
-    return true;
-}
-
-bool SkImageFilter::applyCropRect(const Context& ctx, Proxy* proxy, const SkBitmap& src,
-                                  SkIPoint* srcOffset, SkIRect* bounds, SkBitmap* dst) const {
-    SkIRect srcBounds;
-    src.getBounds(&srcBounds);
-    srcBounds.offset(*srcOffset);
-    SkRect cropRect;
-    ctx.ctm().mapRect(&cropRect, fCropRect.rect());
-    SkIRect cropRectI;
-    cropRect.roundOut(&cropRectI);
-    uint32_t flags = fCropRect.flags();
-    *bounds = srcBounds;
-    if (flags & CropRect::kHasLeft_CropEdge) bounds->fLeft = cropRectI.fLeft;
-    if (flags & CropRect::kHasTop_CropEdge) bounds->fTop = cropRectI.fTop;
-    if (flags & CropRect::kHasRight_CropEdge) bounds->fRight = cropRectI.fRight;
-    if (flags & CropRect::kHasBottom_CropEdge) bounds->fBottom = cropRectI.fBottom;
-    if (!bounds->intersect(ctx.clipBounds())) {
-        return false;
-    }
-    if (srcBounds.contains(*bounds)) {
-        *dst = src;
-        return true;
-    } else {
-        SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds->width(), bounds->height()));
-        if (!device) {
-            return false;
-        }
-        SkCanvas canvas(device);
-        canvas.clear(0x00000000);
-        canvas.drawBitmap(src, srcOffset->x() - bounds->x(), srcOffset->y() - bounds->y());
-        *srcOffset = SkIPoint::Make(bounds->x(), bounds->y());
-        *dst = device->accessBitmap(false);
-        return true;
-    }
+    // If the original crop rect edges were unset, max out the new crop edges
+    if (!(flags & CropRect::kHasLeft_CropEdge)) cropRectI.fLeft = SK_MinS32;
+    if (!(flags & CropRect::kHasTop_CropEdge)) cropRectI.fTop = SK_MinS32;
+    if (!(flags & CropRect::kHasRight_CropEdge)) cropRectI.fRight = SK_MaxS32;
+    if (!(flags & CropRect::kHasBottom_CropEdge)) cropRectI.fBottom = SK_MaxS32;
+    return rect->intersect(cropRectI);
 }
 
 bool SkImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,

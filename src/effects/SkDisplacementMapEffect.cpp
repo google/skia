@@ -209,21 +209,24 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
         (color.colorType() != kPMColor_SkColorType)) {
         return false;
     }
+
+    SkAutoLockPixels alp_displacement(displ), alp_color(color);
+    if (!displ.getPixels() || !color.getPixels()) {
+        return false;
+    }
     SkIRect bounds;
-    // Since computeDisplacement does bounds checking on color pixel access, we don't need to pad
-    // the color bitmap to bounds here.
-    if (!this->applyCropRect(ctx, color, colorOffset, &bounds)) {
+    color.getBounds(&bounds);
+    bounds.offset(colorOffset);
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
     SkIRect displBounds;
-    if (!this->applyCropRect(ctx, proxy, displ, &displOffset, &displBounds, &displ)) {
+    displ.getBounds(&displBounds);
+    displBounds.offset(displOffset);
+    if (!this->applyCropRect(&displBounds, ctx.ctm())) {
         return false;
     }
     if (!bounds.intersect(displBounds)) {
-        return false;
-    }
-    SkAutoLockPixels alp_displacement(displ), alp_color(color);
-    if (!displ.getPixels() || !color.getPixels()) {
         return false;
     }
 
@@ -251,18 +254,14 @@ void SkDisplacementMapEffect::computeFastBounds(const SkRect& src, SkRect* dst) 
     } else {
         *dst = src;
     }
-    dst->outset(fScale * SK_ScalarHalf, fScale * SK_ScalarHalf);
 }
 
 bool SkDisplacementMapEffect::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
                                    SkIRect* dst) const {
-    SkIRect bounds = src;
-    if (getColorInput() && !getColorInput()->filterBounds(src, ctm, &bounds)) {
-        return false;
+    if (getColorInput()) {
+        return getColorInput()->filterBounds(src, ctm, dst);
     }
-    bounds.outset(SkScalarCeilToInt(fScale * SK_ScalarHalf),
-                  SkScalarCeilToInt(fScale * SK_ScalarHalf));
-    *dst = bounds;
+    *dst = src;
     return true;
 }
 
@@ -357,6 +356,7 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
                                                                &colorOffset)) {
         return false;
     }
+    GrTexture* color = colorBM.getTexture();
     SkBitmap displacementBM = src;
     SkIPoint displacementOffset = SkIPoint::Make(0, 0);
     if (getDisplacementInput() &&
@@ -364,21 +364,6 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
                                                    &displacementOffset)) {
         return false;
     }
-    SkIRect bounds;
-    // Since GrDisplacementMapEffect does bounds checking on color pixel access, we don't need to
-    // pad the color bitmap to bounds here.
-    if (!this->applyCropRect(ctx, colorBM, colorOffset, &bounds)) {
-        return false;
-    }
-    SkIRect displBounds;
-    if (!this->applyCropRect(ctx, proxy, displacementBM,
-                             &displacementOffset, &displBounds, &displacementBM)) {
-        return false;
-    }
-    if (!bounds.intersect(displBounds)) {
-        return false;
-    }
-    GrTexture* color = colorBM.getTexture();
     GrTexture* displacement = displacementBM.getTexture();
     GrContext* context = color->getContext();
 
@@ -395,6 +380,21 @@ bool SkDisplacementMapEffect::filterImageGPU(Proxy* proxy, const SkBitmap& src, 
 
     SkVector scale = SkVector::Make(fScale, fScale);
     ctx.ctm().mapVectors(&scale, 1);
+    SkIRect bounds;
+    colorBM.getBounds(&bounds);
+    bounds.offset(colorOffset);
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
+        return false;
+    }
+    SkIRect displBounds;
+    displacementBM.getBounds(&displBounds);
+    displBounds.offset(displacementOffset);
+    if (!this->applyCropRect(&displBounds, ctx.ctm())) {
+        return false;
+    }
+    if (!bounds.intersect(displBounds)) {
+        return false;
+    }
 
     GrPaint paint;
     SkMatrix offsetMatrix = GrEffect::MakeDivByTextureWHMatrix(displacement);

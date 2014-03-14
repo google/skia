@@ -66,7 +66,9 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
         return false;
 
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, src, srcOffset, &bounds)) {
+    src.getBounds(&bounds);
+    bounds.offset(srcOffset);
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
 
@@ -88,8 +90,7 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
     paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
     SkVector offsetVec, localOffsetVec = SkVector::Make(fDx, fDy);
     ctx.ctm().mapVectors(&offsetVec, &localOffsetVec, 1);
-    canvas.translate(SkIntToScalar(srcOffset.fX - bounds.fLeft),
-                     SkIntToScalar(srcOffset.fY - bounds.fTop));
+    canvas.translate(-SkIntToScalar(bounds.fLeft), -SkIntToScalar(bounds.fTop));
     canvas.drawBitmap(src, offsetVec.fX, offsetVec.fY, &paint);
     canvas.drawBitmap(src, 0, 0);
     *result = device->accessBitmap(false);

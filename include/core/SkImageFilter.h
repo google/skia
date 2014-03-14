@@ -223,25 +223,10 @@ protected:
     // no inputs.
     virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const;
 
-    /** Computes source bounds as the src bitmap bounds offset by srcOffset.
-     *  Apply the transformed crop rect to the bounds if any of the
-     *  corresponding edge flags are set. Intersects the result against the
-     *  context's clipBounds, and returns the result in "bounds". If there is
-     *  no intersection, returns false and leaves "bounds" unchanged.
-     */
-    bool applyCropRect(const Context&, const SkBitmap& src, const SkIPoint& srcOffset,
-                       SkIRect* bounds) const;
-
-    /** Same as the above call, except that if the resulting crop rect is not
-     *  entirely contained by the source bitmap's bounds, it creates a new
-     *  bitmap in "result" and pads the edges with transparent black. In that
-     *  case, the srcOffset is modified to be the same as the bounds, since no
-     *  further adjustment is needed by the caller. This version should only
-     *  be used by filters which are not capable of processing a smaller
-     *  source bitmap into a larger destination.
-     */
-    bool applyCropRect(const Context&, Proxy* proxy, const SkBitmap& src, SkIPoint* srcOffset,
-                       SkIRect* bounds, SkBitmap* result) const;
+    // Applies "matrix" to the crop rect, and sets "rect" to the intersection of
+    // "rect" and the transformed crop rect. If there is no overlap, returns
+    // false and leaves "rect" unchanged.
+    bool applyCropRect(SkIRect* rect, const SkMatrix& matrix) const;
 
     /**
      *  Returns true if the filter can be expressed a single-pass

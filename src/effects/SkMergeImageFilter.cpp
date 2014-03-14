@@ -73,7 +73,8 @@ bool SkMergeImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     }
 
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, src, SkIPoint::Make(0, 0), &bounds)) {
+    src.getBounds(&bounds);
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
 

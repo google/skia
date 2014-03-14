@@ -39,7 +39,9 @@ public:
         }
 
         SkIRect bounds;
-        if (!this->applyCropRect(ctx, proxy, source, &srcOffset, &bounds, &source)) {
+        source.getBounds(&bounds);
+
+        if (!this->applyCropRect(&bounds, ctx.ctm())) {
             return false;
         }
 

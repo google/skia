@@ -265,7 +265,9 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, src, &srcOffset, &bounds, &src)) {
+    src.getBounds(&bounds);
+    bounds.offset(srcOffset);
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
 

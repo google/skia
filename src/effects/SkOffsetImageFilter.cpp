@@ -42,7 +42,10 @@ bool SkOffsetImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
         }
 
         SkIRect bounds;
-        if (!this->applyCropRect(ctx, src, srcOffset, &bounds)) {
+        src.getBounds(&bounds);
+        bounds.offset(srcOffset);
+
+        if (!applyCropRect(&bounds, ctx.ctm())) {
             return false;
         }
 

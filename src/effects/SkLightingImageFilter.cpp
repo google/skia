@@ -946,17 +946,19 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
     if (src.colorType() != kPMColor_SkColorType) {
         return false;
     }
+    SkAutoLockPixels alp(src);
+    if (!src.getPixels()) {
+        return false;
+    }
+
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, src, &srcOffset, &bounds, &src)) {
+    src.getBounds(&bounds);
+    bounds.offset(srcOffset);
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
 
     if (bounds.width() < 2 || bounds.height() < 2) {
-        return false;
-    }
-
-    SkAutoLockPixels alp(src);
-    if (!src.getPixels()) {
         return false;
     }
 
@@ -1037,18 +1039,19 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
     if (src.colorType() != kPMColor_SkColorType) {
         return false;
     }
+    SkAutoLockPixels alp(src);
+    if (!src.getPixels()) {
+        return false;
+    }
 
     SkIRect bounds;
-    if (!this->applyCropRect(ctx, proxy, src, &srcOffset, &bounds, &src)) {
+    src.getBounds(&bounds);
+    bounds.offset(srcOffset);
+    if (!this->applyCropRect(&bounds, ctx.ctm())) {
         return false;
     }
 
     if (bounds.width() < 2 || bounds.height() < 2) {
-        return false;
-    }
-
-    SkAutoLockPixels alp(src);
-    if (!src.getPixels()) {
         return false;
     }
 

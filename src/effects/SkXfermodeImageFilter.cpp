@@ -62,13 +62,14 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkIRect bounds, foregroundBounds;
-    if (!applyCropRect(ctx, foreground, foregroundOffset, &foregroundBounds)) {
-        return false;
-    }
-    if (!applyCropRect(ctx, background, backgroundOffset, &bounds)) {
-        return false;
-    }
+    background.getBounds(&bounds);
+    bounds.offset(backgroundOffset);
+    foreground.getBounds(&foregroundBounds);
+    foregroundBounds.offset(foregroundOffset);
     bounds.join(foregroundBounds);
+    if (!applyCropRect(&bounds, ctx.ctm())) {
+        return false;
+    }
 
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
     if (NULL == device.get()) {
