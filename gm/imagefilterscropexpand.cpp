@@ -82,7 +82,7 @@ protected:
         canvas->saveLayer(&rect, &paint);
         canvas->drawBitmap(bitmap, 0, 0);
         canvas->restore();
-        
+
         SkPaint strokePaint;
         strokePaint.setColor(0xFFFF0000);
         strokePaint.setStyle(SkPaint::kStroke_Style);
@@ -127,7 +127,7 @@ protected:
             rect.outset(SkIntToScalar(outset),
                         SkIntToScalar(outset));
             SkImageFilter::CropRect big_rect(rect, SkImageFilter::CropRect::kHasAll_CropEdge);
-            
+
             draw(canvas, checkerboard, rect, SkColorFilterImageFilter::Create(
                 cf_alpha_trans, noop_cropped.get(), &big_rect));
 

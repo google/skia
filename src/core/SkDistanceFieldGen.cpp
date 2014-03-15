@@ -28,7 +28,7 @@ enum NeighborFlags {
     kNeighborFlagCount        = 8
 };
 
-// We treat an "edge" as a place where we cross from black to non-black, or vice versa. 
+// We treat an "edge" as a place where we cross from black to non-black, or vice versa.
 // 'neighborFlags' is used to limit the directions in which we test to avoid indexing
 // outside of the image
 static bool found_edge(const unsigned char* imagePtr, int width, int neighborFlags) {
