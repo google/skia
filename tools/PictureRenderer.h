@@ -340,6 +340,10 @@ public:
     }
 #endif
 
+    SkCanvas* getCanvas() {
+        return fCanvas;
+    }
+
     PictureRenderer()
         : fPicture(NULL)
         , fJsonSummaryPtr(NULL)

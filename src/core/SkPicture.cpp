@@ -117,9 +117,12 @@ SkPicture::SkPicture() {
     fRecord = NULL;
     fPlayback = NULL;
     fWidth = fHeight = 0;
+    fAccelData = NULL;
 }
 
-SkPicture::SkPicture(const SkPicture& src) : INHERITED() {
+SkPicture::SkPicture(const SkPicture& src) 
+    : INHERITED()
+    , fAccelData(NULL) {
     fWidth = src.fWidth;
     fHeight = src.fHeight;
     fRecord = NULL;
@@ -141,6 +144,7 @@ SkPicture::SkPicture(const SkPicture& src) : INHERITED() {
 SkPicture::~SkPicture() {
     SkSafeUnref(fRecord);
     SkDELETE(fPlayback);
+    SkSafeUnref(fAccelData);
 }
 
 void SkPicture::internalOnly_EnableOpts(bool enableOpts) {
@@ -152,6 +156,7 @@ void SkPicture::internalOnly_EnableOpts(bool enableOpts) {
 void SkPicture::swap(SkPicture& other) {
     SkTSwap(fRecord, other.fRecord);
     SkTSwap(fPlayback, other.fPlayback);
+    SkTSwap(fAccelData, other.fAccelData);
     SkTSwap(fWidth, other.fWidth);
     SkTSwap(fHeight, other.fHeight);
 }
@@ -188,6 +193,17 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
     }
 }
 
+SkPicture::AccelData::Domain SkPicture::AccelData::GenerateDomain() {
+    static int32_t gNextID = 0;
+
+    int32_t id = sk_atomic_inc(&gNextID);
+    if (id >= 1 << (8 * sizeof(Domain))) {
+        SK_CRASH();
+    }
+
+    return static_cast<Domain>(id);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkCanvas* SkPicture::beginRecording(int width, int height,
@@ -196,7 +212,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
         SkDELETE(fPlayback);
         fPlayback = NULL;
     }
-
+    SkSafeUnref(fAccelData);
     SkSafeSetNull(fRecord);
 
     // Must be set before calling createBBoxHierarchy
@@ -250,7 +266,7 @@ void SkPicture::endRecording() {
 
 void SkPicture::draw(SkCanvas* surface, SkDrawPictureCallback* callback) {
     this->endRecording();
-    if (fPlayback) {
+    if (NULL != fPlayback) {
         fPlayback->draw(*surface, callback);
     }
 }
@@ -310,7 +326,8 @@ SkPicture::SkPicture(SkPicturePlayback* playback, int width, int height)
     : fPlayback(playback)
     , fRecord(NULL)
     , fWidth(width)
-    , fHeight(height) {}
+    , fHeight(height)
+    , fAccelData(NULL) {}
 
 SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc proc) {
     SkPictInfo info;
@@ -418,7 +435,9 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
 }
 
 bool SkPicture::willPlayBackBitmaps() const {
-    if (!fPlayback) return false;
+    if (!fPlayback) {
+        return false;
+    }
     return fPlayback->containsBitmaps();
 }
 

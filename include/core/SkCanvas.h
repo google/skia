@@ -962,6 +962,14 @@ public:
                                 const SkPath& path, const SkMatrix* matrix,
                                 const SkPaint& paint);
 
+    /** PRIVATE / EXPERIMENTAL -- do not call
+        Perform back-end analysis/optimization of a picture. This may attach
+        optimization data to the picture which can be used by a later
+        drawPicture call.
+        @param picture The recorded drawing commands to analyze/optimize
+    */
+    void EXPERIMENTAL_optimize(SkPicture* picture);
+
     /** Draw the picture into this canvas. This method effective brackets the
         playback of the picture's draw calls with save/restore, so the state
         of this canvas will be unchanged after this call.
