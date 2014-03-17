@@ -88,6 +88,27 @@ public:
     }
 
     /**
+     *  Attempt to allocate raster canvas, matching the ImageInfo, that will draw directly into the
+     *  specified pixels. To access the pixels after drawing to them, the caller should call
+     *  flush() or call peekPixels(...).
+     *
+     *  On failure, return NULL. This can fail for several reasons:
+     *  1. invalid ImageInfo (e.g. negative dimensions)
+     *  2. unsupported ImageInfo for a canvas
+     *      - kUnknown_SkColorType, kIndex_8_SkColorType
+     *      - kIgnore_SkAlphaType
+     *      - this list is not complete, so others may also be unsupported
+     *
+     *  Note: it is valid to request a supported ImageInfo, but with zero
+     *  dimensions.
+     */
+    static SkCanvas* NewRasterDirect(const SkImageInfo&, void*, size_t);
+
+    static SkCanvas* NewRasterDirectN32(int width, int height, SkPMColor* pixels, size_t rowBytes) {
+        return NewRasterDirect(SkImageInfo::MakeN32Premul(width, height), pixels, rowBytes);
+    }
+
+    /**
      *  Creates an empty canvas with no backing device/pixels, and zero
      *  dimensions.
      */

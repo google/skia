@@ -2564,3 +2564,22 @@ SkCanvas* SkCanvas::NewRaster(const SkImageInfo& info) {
     }
     return SkNEW_ARGS(SkCanvas, (bitmap));
 }
+
+SkCanvas* SkCanvas::NewRasterDirect(const SkImageInfo& info, void* pixels, size_t rowBytes) {
+    if (!supported_for_raster_canvas(info)) {
+        return NULL;
+    }
+    
+    SkBitmap bitmap;
+    if (!bitmap.installPixels(info, pixels, rowBytes)) {
+        return NULL;
+    }
+    
+    // should this functionality be moved into allocPixels()?
+    if (!bitmap.info().isOpaque()) {
+        bitmap.eraseColor(0);
+    }
+    return SkNEW_ARGS(SkCanvas, (bitmap));
+}
+
+
