@@ -18,6 +18,7 @@
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPathEffect.h"
 #include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkString.h"
@@ -43,6 +44,7 @@ DEF_MTNAME(SkMatrix)
 DEF_MTNAME(SkRRect)
 DEF_MTNAME(SkPath)
 DEF_MTNAME(SkPaint)
+DEF_MTNAME(SkPathEffect)
 DEF_MTNAME(SkShader)
 DEF_MTNAME(SkTypeface)
 
@@ -201,6 +203,18 @@ void SkLua::pushArrayU16(const uint16_t array[], int count, const char key[]) {
     for (int i = 0; i < count; ++i) {
         // make it base-1 to match lua convention
         setarray_number(fL, i + 1, (double)array[i]);
+    }
+    CHECK_SETFIELD(key);
+}
+
+void SkLua::pushArrayPoint(const SkPoint array[], int count, const char key[]) {
+    lua_newtable(fL);
+    for (int i = 0; i < count; ++i) {
+        // make it base-1 to match lua convention
+        lua_newtable(fL);
+        this->pushScalar(array[i].fX, "x");
+        this->pushScalar(array[i].fY, "y");
+        lua_rawseti(fL, -2, i + 1);
     }
     CHECK_SETFIELD(key);
 }
@@ -845,6 +859,16 @@ static int lpaint_getShader(lua_State* L) {
     return 0;
 }
 
+static int lpaint_getPathEffect(lua_State* L) {
+    const SkPaint* paint = get_obj<SkPaint>(L, 1);
+    SkPathEffect* pe = paint->getPathEffect();
+    if (pe) {
+        push_ref(L, pe);
+        return 1;
+    }
+    return 0;
+}
+
 static int lpaint_gc(lua_State* L) {
     get_obj<SkPaint>(L, 1)->~SkPaint();
     return 0;
@@ -888,6 +912,7 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "getFontMetrics", lpaint_getFontMetrics },
     { "getEffects", lpaint_getEffects },
     { "getShader", lpaint_getShader },
+    { "getPathEffect", lpaint_getPathEffect },
     { "__gc", lpaint_gc },
     { NULL, NULL }
 };
@@ -976,6 +1001,18 @@ static const struct luaL_Reg gSkShader_Methods[] = {
     { "asABitmap",      lshader_asABitmap },
     { "asAGradient",    lshader_asAGradient },
     { "__gc",           lshader_gc },
+    { NULL, NULL }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+static int lpatheffect_gc(lua_State* L) {
+    get_ref<SkPathEffect>(L, 1)->unref();
+    return 0;
+}
+
+static const struct luaL_Reg gSkPathEffect_Methods[] = {
+    { "__gc",           lpatheffect_gc },
     { NULL, NULL }
 };
 
@@ -1419,8 +1456,9 @@ void SkLua::Load(lua_State* L) {
     REG_CLASS(L, SkCanvas);
     REG_CLASS(L, SkDocument);
     REG_CLASS(L, SkImage);
-    REG_CLASS(L, SkPath);
     REG_CLASS(L, SkPaint);
+    REG_CLASS(L, SkPath);
+    REG_CLASS(L, SkPathEffect);
     REG_CLASS(L, SkRRect);
     REG_CLASS(L, SkShader);
     REG_CLASS(L, SkTypeface);

@@ -45,6 +45,7 @@ public:
     void pushString(const char[], size_t len, const char tableKey[] = NULL);
     void pushString(const SkString&, const char tableKey[] = NULL);
     void pushArrayU16(const uint16_t[], int count, const char tableKey[] = NULL);
+    void pushArrayPoint(const SkPoint[], int count, const char key[] = NULL);
     void pushColor(SkColor, const char tableKey[] = NULL);
     void pushU32(uint32_t, const char tableKey[] = NULL);
     void pushScalar(SkScalar, const char tableKey[] = NULL);
