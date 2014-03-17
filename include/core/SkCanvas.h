@@ -18,6 +18,8 @@
 #include "SkRegion.h"
 #include "SkXfermode.h"
 
+//#define SK_SUPPORT_LEGACY_READPIXELSCONFIG
+
 // if not defined, we always assume ClipToLayer for saveLayer()
 //#define SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
 
@@ -264,6 +266,7 @@ public:
         kRGBA_Unpremul_Config8888
     };
 
+#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
     /**
      *  On success (returns true), copy the canvas pixels into the bitmap.
      *  On failure, the bitmap parameter is left unchanged and false is
@@ -300,15 +303,42 @@ public:
      *       // use the pixels
      *    }
      */
-    bool readPixels(SkBitmap* bitmap,
-                    int x, int y,
-                    Config8888 config8888 = kNative_Premul_Config8888);
+    bool readPixels(SkBitmap* bitmap, int x, int y, Config8888 config8888);
+#endif
 
     /**
-     * DEPRECATED: This will be removed as soon as webkit is no longer relying
-     * on it. The bitmap is resized to the intersection of srcRect and the
-     * canvas bounds. New pixels are always allocated on success. Bitmap is
-     * unmodified on failure.
+     *  Copy the pixels from the base-layer into the specified buffer (pixels + rowBytes),
+     *  converting them into the requested format (SkImageInfo). The base-layer pixels are read
+     *  starting at the specified (x,y) location in the coordinate system of the base-layer.
+     *
+     *  The specified ImageInfo and (x,y) offset specifies a source rectangle
+     *
+     *      srcR(x, y, info.width(), info.height());
+     *
+     *  SrcR is intersected with the bounds of the base-layer. If this intersection is not empty,
+     *  then we have two sets of pixels (of equal size), the "src" specified by base-layer at (x,y)
+     *  and the "dst" by info+pixels+rowBytes. Replace the dst pixels with the corresponding src
+     *  pixels, performing any colortype/alphatype transformations needed (in the case where the
+     *  src and dst have different colortypes or alphatypes).
+     *
+     *  This call can fail, returning false, for several reasons:
+     *  - If the requested colortype/alphatype cannot be converted from the base-layer's types.
+     *  - If this canvas is not backed by pixels (e.g. picture or PDF)
+     */
+    bool readPixels(const SkImageInfo&, void* pixels, size_t rowBytes, int x, int y);
+
+    /**
+     *  Helper for calling readPixels(info, ...). This call will check if bitmap has been allocated.
+     *  If not, it will attempt to call allocPixels(). If this fails, it will return false. If not,
+     *  it calls through to readPixels(info, ...) and returns its result.
+     */
+    bool readPixels(SkBitmap* bitmap, int x, int y);
+
+    /**
+     *  Helper for allocating pixels and then calling readPixels(info, ...). The bitmap is resized
+     *  to the intersection of srcRect and the base-layer bounds. On success, pixels will be
+     *  allocated in bitmap and true returned. On failure, false is returned and bitmap will be
+     *  set to empty.
      */
     bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
 

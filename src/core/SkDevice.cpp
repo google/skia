@@ -112,6 +112,7 @@ const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
     return bitmap;
 }
 
+#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
 bool SkBaseDevice::readPixels(SkBitmap* bitmap, int x, int y,
                               SkCanvas::Config8888 config8888) {
     if (SkBitmap::kARGB_8888_Config != bitmap->config() ||
@@ -154,6 +155,10 @@ bool SkBaseDevice::readPixels(SkBitmap* bitmap, int x, int y,
     }
     return result;
 }
+bool SkBaseDevice::onReadPixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) {
+    return false;
+}
+#endif
 
 SkSurface* SkBaseDevice::newSurface(const SkImageInfo&) { return NULL; }
 
@@ -169,6 +174,20 @@ void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     const SkMatrix* preMatrix = NULL;
     const bool pathIsMutable = true;
     this->drawPath(draw, path, paint, preMatrix, pathIsMutable);
+}
+
+bool SkBaseDevice::readPixels(const SkImageInfo& info, void* dstP, size_t rowBytes, int x, int y) {
+#ifdef SK_DEBUG
+    SkASSERT(info.width() > 0 && info.height() > 0);
+    SkASSERT(dstP);
+    SkASSERT(rowBytes >= info.minRowBytes());
+    SkASSERT(x >= 0 && y >= 0);
+    
+    const SkImageInfo& srcInfo = this->imageInfo();
+    SkASSERT(x + info.width() <= srcInfo.width());
+    SkASSERT(y + info.height() <= srcInfo.height());
+#endif
+    return this->onReadPixels(info, dstP, rowBytes, x, y);
 }
 
 bool SkBaseDevice::writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
@@ -190,7 +209,7 @@ bool SkBaseDevice::onWritePixels(const SkImageInfo&, const void*, size_t, int, i
     return false;
 }
 
-bool SkBaseDevice::onReadPixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) {
+bool SkBaseDevice::onReadPixels(const SkImageInfo&, void*, size_t, int x, int y) {
     return false;
 }
 

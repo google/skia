@@ -39,12 +39,11 @@ static uint32_t pack_unpremul_bgra(SkColor c) {
 typedef uint32_t (*PackUnpremulProc)(SkColor);
 
 const struct {
-    SkColorType             fColorType;
-    PackUnpremulProc        fPackProc;
-    SkCanvas::Config8888    fConfig8888;
+    SkColorType         fColorType;
+    PackUnpremulProc    fPackProc;
 } gUnpremul[] = {
-    { kRGBA_8888_SkColorType, pack_unpremul_rgba, SkCanvas::kRGBA_Unpremul_Config8888 },
-    { kBGRA_8888_SkColorType, pack_unpremul_bgra, SkCanvas::kBGRA_Unpremul_Config8888 },
+    { kRGBA_8888_SkColorType, pack_unpremul_rgba },
+    { kBGRA_8888_SkColorType, pack_unpremul_bgra },
 };
 
 static void fillCanvas(SkCanvas* canvas, SkColorType colorType, PackUnpremulProc proc) {
@@ -99,21 +98,23 @@ DEF_GPUTEST(PremulAlphaRoundTrip, reporter, factory) {
             }
             SkCanvas canvas(device);
 
-            SkBitmap readBmp1;
-            readBmp1.allocN32Pixels(256, 256);
-            SkBitmap readBmp2;
-            readBmp2.allocN32Pixels(256, 256);
-
             for (size_t upmaIdx = 0; upmaIdx < SK_ARRAY_COUNT(gUnpremul); ++upmaIdx) {
                 fillCanvas(&canvas, gUnpremul[upmaIdx].fColorType, gUnpremul[upmaIdx].fPackProc);
+
+                const SkImageInfo info = SkImageInfo::Make(256, 256, gUnpremul[upmaIdx].fColorType,
+                                                           kUnpremul_SkAlphaType);
+                SkBitmap readBmp1;
+                readBmp1.allocPixels(info);
+                SkBitmap readBmp2;
+                readBmp2.allocPixels(info);
 
                 readBmp1.eraseColor(0);
                 readBmp2.eraseColor(0);
 
-                canvas.readPixels(&readBmp1, 0, 0, gUnpremul[upmaIdx].fConfig8888);
+                canvas.readPixels(&readBmp1, 0, 0);
                 sk_tool_utils::write_pixels(&canvas, readBmp1, 0, 0, gUnpremul[upmaIdx].fColorType,
                                             kUnpremul_SkAlphaType);
-                canvas.readPixels(&readBmp2, 0, 0, gUnpremul[upmaIdx].fConfig8888);
+                canvas.readPixels(&readBmp2, 0, 0);
 
                 bool success = true;
                 for (int y = 0; y < 256 && success; ++y) {

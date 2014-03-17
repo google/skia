@@ -291,12 +291,6 @@ protected:
     virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE {
         return fEmptyBitmap;
     }
-    virtual bool onReadPixels(const SkBitmap& bitmap,
-                              int x, int y,
-                              SkCanvas::Config8888 config8888) SK_OVERRIDE {
-        NotSupported();
-        return false;
-    }
     virtual void lockPixels() SK_OVERRIDE { NothingToDo(); }
     virtual void unlockPixels() SK_OVERRIDE { NothingToDo(); }
     virtual bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE { return false; }

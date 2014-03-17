@@ -287,6 +287,7 @@ protected:
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) = 0;
 
+#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
     /**
      *  On success (returns true), copy the device pixels into the bitmap.
      *  On failure, the bitmap parameter is left unchanged and false is
@@ -317,6 +318,8 @@ protected:
     bool readPixels(SkBitmap* bitmap,
                     int x, int y,
                     SkCanvas::Config8888 config8888);
+#endif
+    bool readPixels(const SkImageInfo&, void* dst, size_t rowBytes, int x, int y);
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -378,9 +381,17 @@ protected:
      *  3. The rectangle (x, y, x + bitmap->width(), y + bitmap->height()) is
      *     contained in the device bounds.
      */
-    virtual bool onReadPixels(const SkBitmap& bitmap,
-                              int x, int y,
-                              SkCanvas::Config8888 config8888);
+#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
+    virtual bool onReadPixels(const SkBitmap& bitmap, int x, int y, SkCanvas::Config8888);
+#endif
+
+    /**
+     *  The caller is responsible for "pre-clipping" the dst. The impl can assume that the dst
+     *  image at the specified x,y offset will fit within the device's bounds.
+     *
+     *  This is explicitly asserted in readPixels(), the public way to call this.
+     */
+    virtual bool onReadPixels(const SkImageInfo&, void*, size_t, int x, int y);
 
     /**
      *  The caller is responsible for "pre-clipping" the src. The impl can assume that the src

@@ -667,6 +667,7 @@ SkBaseDevice* SkCanvas::setRootDevice(SkBaseDevice* device) {
     return device;
 }
 
+#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
 bool SkCanvas::readPixels(SkBitmap* bitmap,
                           int x, int y,
                           Config8888 config8888) {
@@ -676,28 +677,95 @@ bool SkCanvas::readPixels(SkBitmap* bitmap,
     }
     return device->readPixels(bitmap, x, y, config8888);
 }
+#endif
+
+bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
+    if (kUnknown_SkColorType == bitmap->colorType() || bitmap->getTexture()) {
+        return false;
+    }
+
+    bool weAllocated = false;
+    if (NULL == bitmap->pixelRef()) {
+        if (!bitmap->allocPixels()) {
+            return false;
+        }
+        weAllocated = true;
+    }
+
+    SkBitmap bm(*bitmap);
+    bm.lockPixels();
+    if (bm.getPixels() && this->readPixels(bm.info(), bm.getPixels(), bm.rowBytes(), x, y)) {
+        return true;
+    }
+
+    if (weAllocated) {
+        bitmap->setPixelRef(NULL);
+    }
+    return false;
+}
 
 bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
+    SkIRect r = srcRect;
+    const SkISize size = this->getBaseLayerSize();
+    if (!r.intersect(0, 0, size.width(), size.height())) {
+        bitmap->reset();
+        return false;
+    }
+
+    if (!bitmap->allocN32Pixels(r.width(), r.height())) {
+        // bitmap will already be reset.
+        return false;
+    }
+    if (!this->readPixels(bitmap->info(), bitmap->getPixels(), bitmap->rowBytes(), r.x(), r.y())) {
+        bitmap->reset();
+        return false;
+    }
+    return true;
+}
+
+bool SkCanvas::readPixels(const SkImageInfo& origInfo, void* dstP, size_t rowBytes, int x, int y) {
+    switch (origInfo.colorType()) {
+        case kUnknown_SkColorType:
+        case kIndex_8_SkColorType:
+            return false;
+        default:
+            break;
+    }
+    if (NULL == dstP || rowBytes < origInfo.minRowBytes()) {
+        return false;
+    }
+    if (0 == origInfo.width() || 0 == origInfo.height()) {
+        return false;
+    }
+
     SkBaseDevice* device = this->getDevice();
     if (!device) {
         return false;
     }
 
-    SkIRect bounds;
-    bounds.set(0, 0, device->width(), device->height());
-    if (!bounds.intersect(srcRect)) {
+    const SkISize size = this->getBaseLayerSize();
+    SkIRect srcR = SkIRect::MakeXYWH(x, y, origInfo.width(), origInfo.height());
+    if (!srcR.intersect(0, 0, size.width(), size.height())) {
         return false;
     }
-
-    SkBitmap tmp;
-    tmp.setConfig(SkBitmap::kARGB_8888_Config, bounds.width(),
-                                               bounds.height());
-    if (this->readPixels(&tmp, bounds.fLeft, bounds.fTop)) {
-        bitmap->swap(tmp);
-        return true;
-    } else {
-        return false;
+    
+    SkImageInfo info = origInfo;
+    // the intersect may have shrunk info's logical size
+    info.fWidth = srcR.width();
+    info.fHeight = srcR.height();
+    
+    // if x or y are negative, then we have to adjust pixels
+    if (x > 0) {
+        x = 0;
     }
+    if (y > 0) {
+        y = 0;
+    }
+    // here x,y are either 0 or negative
+    dstP = ((char*)dstP - y * rowBytes - x * info.bytesPerPixel());
+    
+    // The device can assert that the requested area is always contained in its bounds
+    return device->readPixels(info, dstP, rowBytes, srcR.x(), srcR.y());
 }
 
 bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
@@ -1063,12 +1131,9 @@ SkAutoROCanvasPixels::SkAutoROCanvasPixels(SkCanvas* canvas) {
     fAddr = canvas->peekPixels(&fInfo, &fRowBytes);
     if (NULL == fAddr) {
         fInfo = canvas->imageInfo();
-        if (kUnknown_SkColorType == fInfo.colorType() ||
-            !fBitmap.allocPixels(fInfo))
-        {
+        if (kUnknown_SkColorType == fInfo.colorType() || !fBitmap.allocPixels(fInfo)) {
             return; // failure, fAddr is NULL
         }
-        fBitmap.lockPixels();
         if (!canvas->readPixels(&fBitmap, 0, 0)) {
             return; // failure, fAddr is NULL
         }

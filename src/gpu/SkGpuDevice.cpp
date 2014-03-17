@@ -343,6 +343,7 @@ void SkGpuDevice::makeRenderTargetCurrent() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
 namespace {
 GrPixelConfig config8888_to_grconfig_and_flags(SkCanvas::Config8888 config8888, uint32_t* flags) {
     switch (config8888) {
@@ -379,7 +380,7 @@ bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap,
     SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
     SkASSERT(!bitmap.isNull());
     SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height())));
-
+    
     SkAutoLockPixels alp(bitmap);
     GrPixelConfig config;
     uint32_t flags;
@@ -392,6 +393,25 @@ bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap,
                                             bitmap.getPixels(),
                                             bitmap.rowBytes(),
                                             flags);
+}
+#endif
+
+bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                               int x, int y) {
+    DO_DEFERRED_CLEAR();
+
+    // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo.colorType(), dstInfo.alphaType());
+    if (kUnknown_GrPixelConfig == config) {
+        return false;
+    }
+
+    uint32_t flags = 0;
+    if (kUnpremul_SkAlphaType == dstInfo.alphaType()) {
+        flags = GrContext::kUnpremul_PixelOpsFlag;
+    }
+    return fContext->readRenderTargetPixels(fRenderTarget, x, y, dstInfo.width(), dstInfo.height(),
+                                            config, dstPixels, dstRowBytes, flags);
 }
 
 bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,

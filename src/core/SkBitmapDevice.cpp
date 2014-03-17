@@ -173,6 +173,7 @@ bool SkBitmapDevice::allowImageFilter(const SkImageFilter*) {
     return true;
 }
 
+#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
 bool SkBitmapDevice::onReadPixels(const SkBitmap& bitmap,
                                   int x, int y,
                                   SkCanvas::Config8888 config8888) {
@@ -198,6 +199,7 @@ bool SkBitmapDevice::onReadPixels(const SkBitmap& bitmap,
     SkCopyBitmapToConfig8888(bmpPixels, bitmap.rowBytes(), config8888, subset);
     return true;
 }
+#endif
 
 void* SkBitmapDevice::onAccessPixels(SkImageInfo* info, size_t* rowBytes) {
     if (fBitmap.getPixels()) {
@@ -246,8 +248,8 @@ static bool info2config8888(const SkImageInfo& info, SkCanvas::Config8888* confi
 
 // TODO: make this guy real, and not rely on legacy config8888 utility
 #include "SkConfig8888.h"
-static bool write_pixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                         const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRowBytes) {
+static bool copy_pixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                        const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRowBytes) {
     if (srcInfo.dimensions() != dstInfo.dimensions()) {
         return false;
     }
@@ -295,11 +297,37 @@ bool SkBitmapDevice::onWritePixels(const SkImageInfo& srcInfo, const void* srcPi
     void* dstPixels = fBitmap.getAddr(x, y);
     size_t dstRowBytes = fBitmap.rowBytes();
 
-    if (write_pixels(dstInfo, dstPixels, dstRowBytes, srcInfo, srcPixels, srcRowBytes)) {
+    if (copy_pixels(dstInfo, dstPixels, dstRowBytes, srcInfo, srcPixels, srcRowBytes)) {
         fBitmap.notifyPixelsChanged();
         return true;
     }
     return false;
+}
+
+bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                                  int x, int y) {
+    // since we don't stop creating un-pixeled devices yet, check for no pixels here
+    if (NULL == fBitmap.getPixels()) {
+        return false;
+    }
+    
+    SkImageInfo srcInfo = fBitmap.info();
+
+    // perhaps can relax these in the future
+    if (4 != dstInfo.bytesPerPixel()) {
+        return false;
+    }
+    if (4 != srcInfo.bytesPerPixel()) {
+        return false;
+    }
+
+    srcInfo.fWidth = dstInfo.width();
+    srcInfo.fHeight = dstInfo.height();
+    
+    const void* srcPixels = fBitmap.getAddr(x, y);
+    const size_t srcRowBytes = fBitmap.rowBytes();
+
+    return copy_pixels(dstInfo, dstPixels, dstRowBytes, srcInfo, srcPixels, srcRowBytes);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

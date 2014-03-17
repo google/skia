@@ -12,6 +12,8 @@
 #include "SkBitmap.h"
 
 namespace sk_tool_utils {
+    
+    const char* colortype_name(SkColorType);
 
     /**
      *  Return the colorType and alphaType that correspond to the specified Config8888
