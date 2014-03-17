@@ -11,9 +11,11 @@
 #include "SkRect.h"
 #include "SkTDArray.h"
 #include "SkBBoxHierarchy.h"
+#include "SkTInternalSList.h"
+#include "SkTObjectPool.h"
 
 /**
- * An QuadTree implementation. In short, it is a tree containing a hierarchy of bounding rectangles
+ * A QuadTree implementation. In short, it is a tree containing a hierarchy of bounding rectangles
  * in which each internal node has exactly four children.
  *
  * For more details see:
@@ -25,9 +27,13 @@ public:
     SK_DECLARE_INST_COUNT(SkQuadTree)
 
     /**
-     * Create a new QuadTree
+     * Quad tree constructor.
+     * @param bounds The bounding box for the root of the quad tree.
+     *               giving the quad tree bounds that fall outside the root
+     *               bounds may result in pathological but correct behavior.
      */
-    static SkQuadTree* Create(const SkIRect& bounds);
+    SkQuadTree(const SkIRect& bounds);
+
     virtual ~SkQuadTree();
 
     /**
@@ -43,7 +49,7 @@ public:
     /**
      * If any inserts have been deferred, this will add them into the tree
      */
-    virtual void flushDeferredInserts() SK_OVERRIDE {}
+    virtual void flushDeferredInserts() SK_OVERRIDE;
 
     /**
      * Given a query rectangle, populates the passed-in array with the elements it intersects
@@ -60,19 +66,44 @@ public:
     /**
      * This gets the insertion count (rather than the node count)
      */
-    virtual int getCount() const SK_OVERRIDE { return fCount; }
+    virtual int getCount() const SK_OVERRIDE { return fEntryCount; }
 
     virtual void rewindInserts() SK_OVERRIDE;
 
 private:
-    class QuadTreeNode;
+    struct Entry {
+        Entry() : fData(NULL) {}
+        SkIRect fBounds;
+        void* fData;
+        SK_DECLARE_INTERNAL_SLIST_INTERFACE(Entry);
+    };
 
-    SkQuadTree(const SkIRect& bounds);
+    static const int kChildCount = 4;
 
-    // This is the count of data elements (rather than total nodes in the tree)
-    int fCount;
+    struct Node {
+        Node() {
+            for (int index=0; index<kChildCount; ++index) {
+                fChildren[index] = NULL;
+            }
+        }
+        SkTInternalSList<Entry> fEntries;
+        SkIRect fBounds;
+        SkIPoint fSplitPoint; // Only valid if the node has children.
+        Node* fChildren[kChildCount];
+        SK_DECLARE_INTERNAL_SLIST_ADAPTER(Node, fChildren[0]);
+    };
 
-    QuadTreeNode* fRoot;
+    SkTObjectPool<Entry> fEntryPool;
+    SkTObjectPool<Node> fNodePool;
+    int fEntryCount;
+    Node* fRoot;
+    SkTInternalSList<Entry> fDeferred;
+
+    Node* pickChild(Node* node, const SkIRect& bounds) const;
+    void insert(Node* node, Entry* entry);
+    void search(Node* node, const SkIRect& query, SkTDArray<void*>* results) const;
+    void clear(Node* node);
+    int getDepth(Node* node) const;
 
     typedef SkBBoxHierarchy INHERITED;
 };

@@ -180,33 +180,37 @@ static inline SkIRect make_random_rects(SkRandom& rand, int index, int numRects)
 
 DEF_BENCH(
     return SkNEW_ARGS(BBoxBuildBench, ("XYordered", &make_XYordered_rects,
-                      SkQuadTree::Create(QUAD_TREE_BOUNDS)));
+                      SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
     return SkNEW_ARGS(BBoxQueryBench, ("XYordered", &make_XYordered_rects,
-                      BBoxQueryBench::kRandom_QueryType, SkQuadTree::Create(QUAD_TREE_BOUNDS)));
+                      BBoxQueryBench::kRandom_QueryType,
+                      SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
     return SkNEW_ARGS(BBoxBuildBench, ("YXordered", &make_YXordered_rects,
-                      SkQuadTree::Create(QUAD_TREE_BOUNDS)));
+                      SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
     return SkNEW_ARGS(BBoxQueryBench, ("YXordered", &make_YXordered_rects,
-                      BBoxQueryBench::kRandom_QueryType, SkQuadTree::Create(QUAD_TREE_BOUNDS)));
+                      BBoxQueryBench::kRandom_QueryType,
+                      SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
     return SkNEW_ARGS(BBoxBuildBench, ("random", &make_random_rects,
-                      SkQuadTree::Create(QUAD_TREE_BOUNDS)));
+                      SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
     return SkNEW_ARGS(BBoxQueryBench, ("random", &make_random_rects,
-                      BBoxQueryBench::kRandom_QueryType, SkQuadTree::Create(QUAD_TREE_BOUNDS)));
+                      BBoxQueryBench::kRandom_QueryType,
+                      SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
     return SkNEW_ARGS(BBoxBuildBench, ("concentric", &make_concentric_rects_increasing,
-                      SkQuadTree::Create(QUAD_TREE_BOUNDS)));
+                      SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
     return SkNEW_ARGS(BBoxQueryBench, ("concentric", &make_concentric_rects_increasing,
-                      BBoxQueryBench::kRandom_QueryType, SkQuadTree::Create(QUAD_TREE_BOUNDS)));
+                      BBoxQueryBench::kRandom_QueryType,
+                      SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )

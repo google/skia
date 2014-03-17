@@ -13,7 +13,7 @@
 
 static const size_t RTREE_MIN_CHILDREN = 6;
 static const size_t RTREE_MAX_CHILDREN = 11;
-static const size_t QUADTREE_MIN_CHILDREN = 4;
+static const size_t QUADTREE_MIN_CHILDREN = 0;
 static const size_t QUADTREE_MAX_CHILDREN = 0; // No hard limit for quadtree
 
 static const int NUM_RECTS = 200;
@@ -126,7 +126,9 @@ static void tree_test_main(SkBBoxHierarchy* tree, int minChildren, int maxChildr
         REPORTER_ASSERT(reporter, 0 == tree->getCount());
 
         // Then try immediate inserts
-        for (int i = 0; i < NUM_RECTS; ++i) {
+        tree->insert(rects[0].data, rects[0].rect);
+        tree->flushDeferredInserts();
+        for (int i = 1; i < NUM_RECTS; ++i) {
             tree->insert(rects[i].data, rects[i].rect);
         }
         run_queries(reporter, rand, rects, *tree);
@@ -138,7 +140,9 @@ static void tree_test_main(SkBBoxHierarchy* tree, int minChildren, int maxChildr
         REPORTER_ASSERT(reporter, 0 == tree->getCount());
 
         // And for good measure try immediate inserts, but in reversed order
-        for (int i = NUM_RECTS - 1; i >= 0; --i) {
+        tree->insert(rects[NUM_RECTS - 1].data, rects[NUM_RECTS - 1].rect);
+        tree->flushDeferredInserts();
+        for (int i = NUM_RECTS - 2; i >= 0; --i) {
             tree->insert(rects[i].data, rects[i].rect);
         }
         run_queries(reporter, rand, rects, *tree);
@@ -166,14 +170,14 @@ DEF_TEST(BBoxHierarchy, reporter) {
 
     // QuadTree
     {
-        SkQuadTree* quadtree = SkQuadTree::Create(
-            SkIRect::MakeLTRB(-MAX_SIZE, -MAX_SIZE, MAX_SIZE, MAX_SIZE));
+        SkQuadTree* quadtree = SkNEW_ARGS(SkQuadTree, (
+            SkIRect::MakeLTRB(-MAX_SIZE, -MAX_SIZE, MAX_SIZE, MAX_SIZE)));
         SkAutoUnref au(quadtree);
         tree_test_main(quadtree, QUADTREE_MIN_CHILDREN, QUADTREE_MAX_CHILDREN, reporter);
 
         // QuadTree that orders input rectangles on deferred insert.
-        SkQuadTree* unsortedQuadTree = SkQuadTree::Create(
-            SkIRect::MakeLTRB(-MAX_SIZE, -MAX_SIZE, MAX_SIZE, MAX_SIZE));
+        SkQuadTree* unsortedQuadTree = SkNEW_ARGS(SkQuadTree, (
+            SkIRect::MakeLTRB(-MAX_SIZE, -MAX_SIZE, MAX_SIZE, MAX_SIZE)));
         SkAutoUnref auo(unsortedQuadTree);
         tree_test_main(unsortedQuadTree, QUADTREE_MIN_CHILDREN, QUADTREE_MAX_CHILDREN, reporter);
     }
