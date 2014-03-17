@@ -63,8 +63,7 @@ Loader.controller(
     $scope.constants = constants;
     $scope.windowTitle = "Loading GM Results...";
     $scope.resultsToLoad = $location.search().resultsToLoad;
-    $scope.loadingMessage = "Loading results from '" + $scope.resultsToLoad +
-        "', please wait...";
+    $scope.loadingMessage = "please wait...";
 
     /**
      * On initial page load, load a full dictionary of results.
@@ -74,7 +73,13 @@ Loader.controller(
     $http.get($scope.resultsToLoad).success(
       function(data, status, header, config) {
         var dataHeader = data[constants.KEY__HEADER];
-        if (dataHeader[constants.KEY__HEADER__IS_STILL_LOADING]) {
+        if (dataHeader[constants.KEY__HEADER__SCHEMA_VERSION] !=
+            constants.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER) {
+          $scope.loadingMessage = "ERROR: Got JSON file with schema version "
+              + dataHeader[constants.KEY__HEADER__SCHEMA_VERSION]
+              + " but expected schema version "
+              + constants.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER;
+        } else if (dataHeader[constants.KEY__HEADER__IS_STILL_LOADING]) {
           // Apply the server's requested reload delay to local time,
           // so we will wait the right number of seconds regardless of clock
           // skew between client and server.
@@ -84,19 +89,13 @@ Loader.controller(
           var timeNow = new Date().getTime();
           var timeToReload = timeNow + reloadDelayInSeconds * 1000;
           $scope.loadingMessage =
-              "Server is still loading results; will retry at " +
+              "server is still loading results; will retry at " +
               $scope.localTimeString(timeToReload / 1000);
           $timeout(
               function(){location.reload();},
               timeToReload - timeNow);
-        } else if (dataHeader[constants.KEY__HEADER__SCHEMA_VERSION] !=
-                   constants.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER) {
-          $scope.loadingMessage = "ERROR: Got JSON file with schema version "
-              + dataHeader[constants.KEY__HEADER__SCHEMA_VERSION]
-              + " but expected schema version "
-              + constants.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER;
         } else {
-          $scope.loadingMessage = "Processing data, please wait...";
+          $scope.loadingMessage = "processing data, please wait...";
 
           $scope.header = dataHeader;
           $scope.extraColumnHeaders = data[constants.KEY__EXTRACOLUMNHEADERS];
@@ -172,8 +171,7 @@ Loader.controller(
       }
     ).error(
       function(data, status, header, config) {
-        $scope.loadingMessage = "Failed to load results from '"
-            + $scope.resultsToLoad + "'";
+        $scope.loadingMessage = "FAILED to load.";
         $scope.windowTitle = "Failed to Load GM Results";
       }
     );

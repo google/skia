@@ -18,7 +18,8 @@
     </a>
   </h2>
 
-  <em>
+  <em ng-show="!extraColumnHeaders"><!-- show until data is loaded -->
+    Loading results from <a href="{{resultsToLoad}}">{{resultsToLoad}}</a> ...
     {{loadingMessage}}
   </em>
 
@@ -31,7 +32,7 @@
     </div>
 
     <div ng-show="header[constants.KEY__HEADER__TIME_UPDATED]">
-      Results current as of {{localTimeString(header[constants.KEY__HEADER__TIME_UPDATED])}}
+      Results from <a href="{{resultsToLoad}}">{{resultsToLoad}}</a> current as of {{localTimeString(header[constants.KEY__HEADER__TIME_UPDATED])}}
     </div>
 
     <div><!-- tabs -->
@@ -242,10 +243,10 @@
             bugs
           </th>
           <th width="{{imageSize}}">
-            {{imageSets[0][constants.KEY__IMAGESETS__DESCRIPTION]}}
+            {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
           </th>
           <th width="{{imageSize}}">
-            {{imageSets[1][constants.KEY__IMAGESETS__DESCRIPTION]}}
+            {{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__DESCRIPTION]}}
           </th>
           <th width="{{imageSize}}">
             <input type="radio"
@@ -341,10 +342,10 @@
           <!-- image A -->
           <td valign="bottom" width="{{imageSize}}">
             <div ng-if="imagePair[constants.KEY__IMAGE_A_URL] != null">
-              <a href="{{imageSets[0][constants.KEY__IMAGESETS__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_A_URL]}}" target="_blank">View Image</a><br/>
+              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_A_URL]}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    width="{{imageSize}}"
-                   src="{{imageSets[0][constants.KEY__IMAGESETS__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_A_URL]}}" />
+                   src="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_A_URL]}}" />
             </div>
             <div ng-show="imagePair[constants.KEY__IMAGE_A_URL] == null"
                  style="text-align:center">
@@ -355,10 +356,10 @@
           <!-- image B -->
           <td valign="bottom" width="{{imageSize}}">
             <div ng-if="imagePair[constants.KEY__IMAGE_B_URL] != null">
-              <a href="{{imageSets[1][constants.KEY__IMAGESETS__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_B_URL]}}" target="_blank">View Image</a><br/>
+              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_B_URL]}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    width="{{imageSize}}"
-                   src="{{imageSets[1][constants.KEY__IMAGESETS__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_B_URL]}}" />
+                   src="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_B_URL]}}" />
             </div>
             <div ng-show="imagePair[constants.KEY__IMAGE_B_URL] == null"
                  style="text-align:center">
@@ -374,10 +375,10 @@
               {{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS].toFixed(4)}}%
               ({{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__NUM_DIFF_PIXELS]}})
               <br/>
-              <a href="/static/generated-images/whitediffs/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
+              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    width="{{imageSize}}"
-                   src="/static/generated-images/whitediffs/{{getImageDiffRelativeUrl(imagePair)}}" />
+                   src="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
             </div>
             <div ng-show="!imagePair[constants.KEY__IS_DIFFERENT]"
                  style="text-align:center">
@@ -393,11 +394,11 @@
               {{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF].toFixed(4)}}%
               {{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL]}}
               <br/>
-              <a href="/static/generated-images/diffs/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
+              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    ng-style="{backgroundColor: pixelDiffBgColor}"
                    width="{{imageSize}}"
-                   src="/static/generated-images/diffs/{{getImageDiffRelativeUrl(imagePair)}}"/>
+                   src="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
             </div>
             <div ng-show="!imagePair[constants.KEY__IS_DIFFERENT]"
                  style="text-align:center">

@@ -34,11 +34,15 @@ module.constant('constants', (function() {
     KEY__EXTRACOLUMNHEADERS: 'extraColumnHeaders',
     KEY__IMAGEPAIRS: 'imagePairs',
     KEY__IMAGESETS: 'imageSets',
-    KEY__IMAGESETS__BASE_URL: 'baseUrl',
-    KEY__IMAGESETS__DESCRIPTION: 'description',
+    KEY__IMAGESETS__FIELD__BASE_URL: 'baseUrl',
+    KEY__IMAGESETS__FIELD__DESCRIPTION: 'description',
+    KEY__IMAGESETS__SET__DIFFS: 'diffs',
+    KEY__IMAGESETS__SET__IMAGE_A: 'imageA',
+    KEY__IMAGESETS__SET__IMAGE_B: 'imageB',
+    KEY__IMAGESETS__SET__WHITEDIFFS: 'whiteDiffs',
 
     // NOTE: Keep these in sync with ../results.py
-    REBASELINE_SERVER_SCHEMA_VERSION_NUMBER: 1,
+    REBASELINE_SERVER_SCHEMA_VERSION_NUMBER: 2,
     KEY__EXPECTATIONS__BUGS: 'bugs',
     KEY__EXPECTATIONS__IGNOREFAILURE: 'ignore-failure',
     KEY__EXPECTATIONS__REVIEWED: 'reviewed-by-human',

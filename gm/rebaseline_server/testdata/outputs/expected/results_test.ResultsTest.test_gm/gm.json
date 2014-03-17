@@ -52,7 +52,7 @@
     "dataHash": "2099241024256114776", 
     "isEditable": false, 
     "isExported": true, 
-    "schemaVersion": 1, 
+    "schemaVersion": 2, 
     "timeNextUpdateAvailable": null, 
     "timeUpdated": 12345678, 
     "type": "all"
@@ -541,14 +541,22 @@
       "isDifferent": false
     }
   ], 
-  "imageSets": [
-    {
+  "imageSets": {
+    "diffs": {
+      "baseUrl": "/static/generated-images/diffs", 
+      "description": "color difference per channel"
+    }, 
+    "imageA": {
       "baseUrl": "http://chromium-skia-gm.commondatastorage.googleapis.com/gm", 
       "description": "expected image"
     }, 
-    {
+    "imageB": {
       "baseUrl": "http://chromium-skia-gm.commondatastorage.googleapis.com/gm", 
       "description": "actual image"
+    }, 
+    "whiteDiffs": {
+      "baseUrl": "/static/generated-images/whitediffs", 
+      "description": "differing pixels in white"
     }
-  ]
+  }
 }

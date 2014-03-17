@@ -9,6 +9,10 @@ found in the LICENSE file.
 ImagePairSet class; see its docstring below.
 """
 
+# System-level imports
+import posixpath
+
+# Local imports
 import column
 
 # Keys used within dictionary representation of ImagePairSet.
@@ -16,10 +20,15 @@ import column
 KEY__EXTRACOLUMNHEADERS = 'extraColumnHeaders'
 KEY__IMAGEPAIRS = 'imagePairs'
 KEY__IMAGESETS = 'imageSets'
-KEY__IMAGESETS__BASE_URL = 'baseUrl'
-KEY__IMAGESETS__DESCRIPTION = 'description'
+KEY__IMAGESETS__FIELD__BASE_URL = 'baseUrl'
+KEY__IMAGESETS__FIELD__DESCRIPTION = 'description'
+KEY__IMAGESETS__SET__DIFFS = 'diffs'
+KEY__IMAGESETS__SET__IMAGE_A = 'imageA'
+KEY__IMAGESETS__SET__IMAGE_B = 'imageB'
+KEY__IMAGESETS__SET__WHITEDIFFS = 'whiteDiffs'
 
 DEFAULT_DESCRIPTIONS = ('setA', 'setB')
+DIFF_BASE_URL = '/static/generated-images'
 
 
 class ImagePairSet(object):
@@ -42,16 +51,18 @@ class ImagePairSet(object):
     self._extra_column_tallies = {}  # maps column_id -> values
                                      #                -> instances_per_value
     self._image_pair_dicts = []
+    self._image_base_url = None
+    self._diff_base_url = DIFF_BASE_URL
 
   def add_image_pair(self, image_pair):
     """Adds an ImagePair; this may be repeated any number of times."""
     # Special handling when we add the first ImagePair...
     if not self._image_pair_dicts:
-      self._base_url = image_pair.base_url
+      self._image_base_url = image_pair.base_url
 
-    if image_pair.base_url != self._base_url:
+    if image_pair.base_url != self._image_base_url:
       raise Exception('added ImagePair with base_url "%s" instead of "%s"' % (
-          image_pair.base_url, self._base_url))
+          image_pair.base_url, self._image_base_url))
     self._image_pair_dicts.append(image_pair.as_dict())
     extra_columns_dict = image_pair.extra_columns_dict
     if extra_columns_dict:
@@ -127,14 +138,29 @@ class ImagePairSet(object):
 
     Uses the KEY__* constants as keys.
     """
+    key_description = KEY__IMAGESETS__FIELD__DESCRIPTION
+    key_base_url = KEY__IMAGESETS__FIELD__BASE_URL
     return {
         KEY__EXTRACOLUMNHEADERS: self._column_headers_as_dict(),
         KEY__IMAGEPAIRS: self._image_pair_dicts,
-        KEY__IMAGESETS: [{
-            KEY__IMAGESETS__BASE_URL: self._base_url,
-            KEY__IMAGESETS__DESCRIPTION: self._descriptions[0],
-        }, {
-            KEY__IMAGESETS__BASE_URL: self._base_url,
-            KEY__IMAGESETS__DESCRIPTION: self._descriptions[1],
-        }],
+        KEY__IMAGESETS: {
+            KEY__IMAGESETS__SET__IMAGE_A: {
+                key_description: self._descriptions[0],
+                key_base_url: self._image_base_url,
+            },
+            KEY__IMAGESETS__SET__IMAGE_B: {
+                key_description: self._descriptions[1],
+                key_base_url: self._image_base_url,
+            },
+            KEY__IMAGESETS__SET__DIFFS: {
+                key_description: 'color difference per channel',
+                key_base_url: posixpath.join(
+                    self._diff_base_url, 'diffs'),
+            },
+            KEY__IMAGESETS__SET__WHITEDIFFS: {
+                key_description: 'differing pixels in white',
+                key_base_url: posixpath.join(
+                    self._diff_base_url, 'whitediffs'),
+            },
+        },
     }

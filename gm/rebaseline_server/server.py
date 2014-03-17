@@ -330,6 +330,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       now = int(time.time())
       response_dict = {
           results_mod.KEY__HEADER: {
+              results_mod.KEY__HEADER__SCHEMA_VERSION: (
+                  results_mod.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER),
               results_mod.KEY__HEADER__IS_STILL_LOADING: True,
               results_mod.KEY__HEADER__TIME_UPDATED: now,
               results_mod.KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: (

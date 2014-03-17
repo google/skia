@@ -106,16 +106,24 @@ class ImagePairSetTest(unittest.TestCase):
             IMAGEPAIR_2_AS_DICT,
             IMAGEPAIR_3_AS_DICT,
         ],
-        'imageSets': [
-            {
+        'imageSets': {
+            'imageA': {
                 'baseUrl': BASE_URL_1,
                 'description': SET_A_DESCRIPTION,
             },
-            {
+            'imageB': {
                 'baseUrl': BASE_URL_1,
                 'description': SET_B_DESCRIPTION,
             },
-        ],
+            'diffs': {
+                'baseUrl': '/static/generated-images/diffs',
+                'description': 'color difference per channel',
+            },
+            'whiteDiffs': {
+                'baseUrl': '/static/generated-images/whitediffs',
+                'description': 'differing pixels in white',
+            },
+        },
     }
 
     image_pair_set = imagepairset.ImagePairSet(
