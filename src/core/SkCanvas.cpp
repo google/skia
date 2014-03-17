@@ -700,20 +700,6 @@ bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
     }
 }
 
-#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
-void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y,
-                           Config8888 config8888) {
-    SkBaseDevice* device = this->getDevice();
-    if (device) {
-        if (SkIRect::Intersects(SkIRect::MakeSize(this->getDeviceSize()),
-                                SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height()))) {
-            device->accessBitmap(true);
-            device->writePixels(bitmap, x, y, config8888);
-        }
-    }
-}
-#endif
-
 bool SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
     if (bitmap.getTexture()) {
         return false;
@@ -766,7 +752,7 @@ bool SkCanvas::writePixels(const SkImageInfo& origInfo, const void* pixels, size
     pixels = ((const char*)pixels - y * rowBytes - x * info.bytesPerPixel());
 
     // The device can assert that the requested area is always contained in its bounds
-    return device->writePixelsDirect(info, pixels, rowBytes, target.x(), target.y());
+    return device->writePixels(info, pixels, rowBytes, target.x(), target.y());
 }
 
 SkCanvas* SkCanvas::canvasForDrawIter() {

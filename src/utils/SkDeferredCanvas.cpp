@@ -167,10 +167,6 @@ public:
 
     virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
 
-#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
-    virtual void writePixels(const SkBitmap& bitmap, int x, int y,
-                                SkCanvas::Config8888 config8888) SK_OVERRIDE;
-#endif
     virtual SkSurface* newSurface(const SkImageInfo&) SK_OVERRIDE;
 
 protected:
@@ -472,37 +468,6 @@ void SkDeferredDevice::prepareForImmediatePixelWrite() {
 
     fImmediateCanvas->flush();
 }
-
-#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
-void SkDeferredDevice::writePixels(const SkBitmap& bitmap, int x, int y,
-                                 SkCanvas::Config8888 config8888) {
-
-    if (x <= 0 && y <= 0 && (x + bitmap.width()) >= width() &&
-        (y + bitmap.height()) >= height()) {
-        this->skipPendingCommands();
-    }
-
-    if (SkBitmap::kARGB_8888_Config == bitmap.config() &&
-        SkCanvas::kNative_Premul_Config8888 != config8888 &&
-        kPMColorAlias != config8888) {
-        //Special case config: no deferral
-        prepareForImmediatePixelWrite();
-        immediateDevice()->writePixels(bitmap, x, y, config8888);
-        return;
-    }
-
-    SkPaint paint;
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
-    if (shouldDrawImmediately(&bitmap, NULL, getBitmapSizeThreshold())) {
-        prepareForImmediatePixelWrite();
-        fImmediateCanvas->drawSprite(bitmap, x, y, &paint);
-    } else {
-        this->recordingCanvas()->drawSprite(bitmap, x, y, &paint);
-        this->recordedDrawCommand();
-
-    }
-}
-#endif
 
 bool SkDeferredDevice::onWritePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
                                    int x, int y) {

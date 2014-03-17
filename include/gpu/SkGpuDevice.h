@@ -88,10 +88,6 @@ public:
     virtual SkBitmap::Config config() const SK_OVERRIDE;
 
     virtual void clear(SkColor color) SK_OVERRIDE;
-#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
-    virtual void writePixels(const SkBitmap& bitmap, int x, int y,
-                             SkCanvas::Config8888 config8888) SK_OVERRIDE;
-#endif
     virtual void drawPaint(const SkDraw&, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,
                             const SkPoint[], const SkPaint& paint) SK_OVERRIDE;

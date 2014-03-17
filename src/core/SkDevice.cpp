@@ -171,8 +171,8 @@ void SkBaseDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
     this->drawPath(draw, path, paint, preMatrix, pathIsMutable);
 }
 
-bool SkBaseDevice::writePixelsDirect(const SkImageInfo& info, const void* pixels, size_t rowBytes,
-                                     int x, int y) {
+bool SkBaseDevice::writePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
+                               int x, int y) {
 #ifdef SK_DEBUG
     SkASSERT(info.width() > 0 && info.height() > 0);
     SkASSERT(pixels);
@@ -209,10 +209,6 @@ void* SkBaseDevice::accessPixels(SkImageInfo* info, size_t* rowBytes) {
 void* SkBaseDevice::onAccessPixels(SkImageInfo* info, size_t* rowBytes) {
     return NULL;
 }
-
-#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
-void SkBaseDevice::writePixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) {}
-#endif
 
 void SkBaseDevice::EXPERIMENTAL_optimize(SkPicture* picture) {
     // The base class doesn't perform any analysis but derived classes may

@@ -394,28 +394,6 @@ bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap,
                                             flags);
 }
 
-#ifdef SK_SUPPORT_LEGACY_WRITEPIXELSCONFIG
-void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y,
-                              SkCanvas::Config8888 config8888) {
-    SkAutoLockPixels alp(bitmap);
-    if (!bitmap.readyToDraw()) {
-        return;
-    }
-
-    GrPixelConfig config;
-    uint32_t flags;
-    if (SkBitmap::kARGB_8888_Config == bitmap.config()) {
-        config = config8888_to_grconfig_and_flags(config8888, &flags);
-    } else {
-        flags = 0;
-        config= SkBitmapConfig2GrPixelConfig(bitmap.config());
-    }
-
-    fRenderTarget->writePixels(x, y, bitmap.width(), bitmap.height(),
-                               config, bitmap.getPixels(), bitmap.rowBytes(), flags);
-}
-#endif
-
 bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
                                 int x, int y) {
     // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
