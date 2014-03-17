@@ -264,6 +264,19 @@ void SkPicture::endRecording() {
     SkASSERT(NULL == fRecord);
 }
 
+const SkPicture::OperationList& SkPicture::OperationList::InvalidList() {
+    static OperationList gInvalid;
+    return gInvalid;
+}
+
+const SkPicture::OperationList& SkPicture::EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) {
+    this->endRecording();
+    if (NULL != fPlayback) {
+        return fPlayback->getActiveOps(queryRect);
+    }
+    return OperationList::InvalidList();
+}
+
 void SkPicture::draw(SkCanvas* surface, SkDrawPictureCallback* callback) {
     this->endRecording();
     if (NULL != fPlayback) {
