@@ -80,35 +80,6 @@ class Label:
                 hash(self.time_type) ^
                 hash(frozenset(self.settings.iteritems())))
 
-def parse_dir(directory, default_settings, revision, rep):
-    """Parses bench data from bench logs files.
-       revision can be either svn revision or git commit hash.
-    """
-    revision_data_points = []  # list of BenchDataPoint
-    file_list = os.listdir(directory)
-    file_list.sort()
-    for bench_file in file_list:
-        scalar_type = None
-        # Scalar type, if any, is in the bench filename after revision
-        if (len(revision) > MAX_SVN_REV_LENGTH and
-            bench_file.startswith('bench_' + revision + '_')):
-            # The revision is GIT commit hash.
-            scalar_type = bench_file[len(revision) + len('bench_') + 1:]
-        elif (bench_file.startswith('bench_r' + revision + '_') and
-              revision.isdigit()):
-            # The revision is SVN number
-            scalar_type = bench_file[len(revision) + len('bench_r') + 1:]
-        else:
-            continue
-
-        file_handle = open(directory + '/' + bench_file, 'r')
-
-        default_settings['scalar'] = scalar_type
-        revision_data_points.extend(
-                        bench_util.parse(default_settings, file_handle, rep))
-        file_handle.close()
-    return revision_data_points
-
 def create_bench_dict(revision_data_points):
     """Convert current revision data into a dictionary of line data.
 
@@ -206,6 +177,7 @@ def check_expectations(lines, expectations, key_suffix):
     if outputs:
         raise Exception('\n'.join(outputs))
 
+
 def main():
     """Parses command line and checks bench expectations."""
     try:
@@ -248,10 +220,7 @@ def main():
 
     platform_and_alg = bot + '-' + rep
 
-    data_points = parse_dir(directory,
-                            {},  # Sets default settings to empty.
-                            rev,
-                            rep)
+    data_points = bench_util.parse_skp_bench_data(directory, rev, rep)
 
     bench_dict = create_bench_dict(data_points)
 

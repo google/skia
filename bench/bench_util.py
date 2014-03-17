@@ -4,6 +4,7 @@ Created on May 19, 2011
 @author: bungeman
 '''
 
+import os
 import re
 import math
 
@@ -146,6 +147,39 @@ def _ParseAndStoreTimes(config_re_compiled, is_per_tile, line, bench,
                     iters)
             layout_dic.setdefault(bench, {}).setdefault(
                 current_config, {}).setdefault(current_time_type, tile_layout)
+
+def parse_skp_bench_data(directory, revision, rep, default_settings=None):
+    """Parses all the skp bench data in the given directory.
+
+    Args:
+      directory: string of path to input data directory.
+      revision: git hash revision that matches the data to process.
+      rep: bench representation algorithm, see bench_util.py.
+      default_settings: dictionary of other run settings. See writer.option() in
+          bench/benchmain.cpp.
+
+    Returns:
+      A list of BenchDataPoint objects.
+    """
+    revision_data_points = []
+    file_list = os.listdir(directory)
+    file_list.sort()
+    for bench_file in file_list:
+        scalar_type = None
+        # Scalar type, if any, is in the bench filename after 'scalar_'.
+        if (bench_file.startswith('bench_' + revision + '_data_')):
+            if bench_file.find('scalar_') > 0:
+                components = bench_file.split('_')
+                scalar_type = components[components.index('scalar') + 1]
+        else:  # Skips non skp bench files.
+            continue
+
+        with open('/'.join([directory, bench_file]), 'r') as file_handle:
+          settings = dict(default_settings or {})
+          settings['scalar'] = scalar_type
+          revision_data_points.extend(parse(settings, file_handle, rep))
+
+    return revision_data_points
 
 # TODO(bensong): switch to reading JSON output when available. This way we don't
 # need the RE complexities.
