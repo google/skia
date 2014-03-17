@@ -241,6 +241,8 @@ SkString* SkObjectParser::RRectToString(const SkRRect& rrect, const char* title)
             mRRect->append("oval");
         } else if (rrect.isSimple()) {
             mRRect->append("simple");
+        } else if (rrect.isNinePatch()) {
+            mRRect->append("nine-patch");
         } else {
             SkASSERT(rrect.isComplex());
             mRRect->append("complex");

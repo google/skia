@@ -658,7 +658,7 @@ GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rre
             return EllipticalRRectEffect::Create(edgeType,
                                                  EllipticalRRectEffect::kSimple_RRectType, rrect);
         }
-    } else if (rrect.isComplex()) {
+    } else if (rrect.isComplex() || rrect.isNinePatch()) {
         // Check for the "tab" cases - two adjacent circular corners and two square corners.
         SkScalar radius = 0;
         cornerFlags = 0;
