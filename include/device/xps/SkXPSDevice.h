@@ -141,10 +141,12 @@ protected:
         int x, int y,
         const SkPaint& paint) SK_OVERRIDE;
 
+#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
     virtual bool onReadPixels(const SkBitmap& bitmap,
                               int x,
                               int y,
                               SkCanvas::Config8888) SK_OVERRIDE;
+#endif
 
     virtual bool allowImageFilter(const SkImageFilter*) SK_OVERRIDE;
 
