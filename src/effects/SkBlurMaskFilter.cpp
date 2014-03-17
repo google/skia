@@ -288,10 +288,10 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
             // already have code for rectangles.
             return kUnimplemented_FilterReturn;
 
-        // These three can take advantage of this fast path.
         case SkRRect::kSimple_Type:
-        case SkRRect::kNinePatch_Type:
+            // Fall through.
         case SkRRect::kComplex_Type:
+            // These can take advantage of this fast path.
             break;
     }
 

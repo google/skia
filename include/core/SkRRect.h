@@ -71,14 +71,6 @@ public:
         //!< the curves) nor a rect (i.e., both radii are non-zero)
         kSimple_Type,
 
-        //!< The RR is non-empty and the two left x radii are equal, the two top
-        //!< y radii are equal, and the same for the right and bottom but it is
-        //!< neither an rect, oval, nor a simple RR. It is called "nine patch"
-        //!< because the centers of the corner ellipses form an axis aligned
-        //!< rect with edges that divide the RR into an 9 rectangular patches:
-        //!< an interior patch, four edge patches, and four corner patches.
-        kNinePatch_Type,
-
         //!< A fully general (non-empty) RR. Some of the x and/or y radii are
         //!< different from the others and there must be one corner where
         //!< both radii are non-zero.
@@ -107,10 +99,20 @@ public:
     inline bool isSimpleCircular() const {
         return this->isSimple() && fRadii[0].fX == fRadii[0].fY;
     }
-    inline bool isNinePatch() const { return kNinePatch_Type == this->getType(); }
     inline bool isComplex() const { return kComplex_Type == this->getType(); }
 
     bool allCornersCircular() const;
+
+    /**
+     * Are both x-radii the same on the two left corners, and similar for the top, right, and
+     * bottom. When this is the case the four ellipse centers form a rectangle.
+     */
+    bool isNinePatch() const {
+        return fRadii[kUpperLeft_Corner].fX == fRadii[kLowerLeft_Corner].fX &&
+               fRadii[kUpperRight_Corner].fX == fRadii[kLowerRight_Corner].fX &&
+               fRadii[kUpperLeft_Corner].fY == fRadii[kUpperRight_Corner].fY &&
+               fRadii[kLowerLeft_Corner].fY == fRadii[kLowerRight_Corner].fY;
+    }
 
     SkScalar width() const { return fRect.width(); }
     SkScalar height() const { return fRect.height(); }
@@ -168,12 +170,6 @@ public:
      * Initialize the RR with the same radii for all four corners.
      */
     void setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad);
-
-    /**
-     * Initialize the rr with one radius per-side.
-     */
-    void setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad,
-                      SkScalar rightRad, SkScalar bottomRad);
 
     /**
      * Initialize the RR with potentially different radii for all four corners.
