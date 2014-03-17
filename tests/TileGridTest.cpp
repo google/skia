@@ -64,53 +64,53 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
         SkTDArray<void*> rects;
         grid.search(query(0.0f, 0.0f, 1.0f, 1.0f), &rects);
         REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, &rect1 == rects[0]);
+        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
     }
     {
         SkTDArray<void*> rects;
         grid.search(query(7.99f, 7.99f, 1.0f, 1.0f), &rects);
         REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, &rect1 == rects[0]);
+        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
     }
     // Corner overlap
     {
         SkTDArray<void*> rects;
         grid.search(query(9.5f, 9.5f, 1.0f, 1.0f), &rects);
         REPORTER_ASSERT(reporter, 2 == rects.count());
-        REPORTER_ASSERT(reporter, &rect1 == rects[0]);
-        REPORTER_ASSERT(reporter, &rect2 == rects[1]);
+        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
+        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
     }
     // Intersect bottom right tile, but does not overlap rect 2
     {
         SkTDArray<void*> rects;
         grid.search(query(16.0f, 16.0f, 1.0f, 1.0f), &rects);
         REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, &rect2 == rects[0]);
+        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
     }
     // Out of bounds queries, snap to border tiles
     {
         SkTDArray<void*> rects;
         grid.search(query(-2.0f, 0.0f, 1.0f, 1.0f), &rects);
         REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, &rect1 == rects[0]);
+        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
     }
     {
         SkTDArray<void*> rects;
         grid.search(query(0.0f, -2.0f, 1.0f, 1.0f), &rects);
         REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, &rect1 == rects[0]);
+        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
     }
     {
         SkTDArray<void*> rects;
         grid.search(query(22.0f, 16.0f, 1.0f, 1.0f), &rects);
         REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, &rect2 == rects[0]);
+        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
     }
     {
         SkTDArray<void*> rects;
         grid.search(query(16.0f, 22.0f, 1.0f, 1.0f), &rects);
         REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, &rect2 == rects[0]);
+        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
     }
 }
 
@@ -139,15 +139,15 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
         SkTDArray<void*> rects;
         grid.search(query(0.0f, 0.0f, 10.0f, 10.0f), &rects);
         REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, &rect1 == rects[0]);
+        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
     }
     {
         // Encroaching border by one pixel
         SkTDArray<void*> rects;
         grid.search(query(0.0f, 0.0f, 11.0f, 11.0f), &rects);
         REPORTER_ASSERT(reporter, 2 == rects.count());
-        REPORTER_ASSERT(reporter, &rect1 == rects[0]);
-        REPORTER_ASSERT(reporter, &rect2 == rects[1]);
+        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
+        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
     }
     {
         // Tile stride is 8 (tileWidth - 2 * border pixels
@@ -156,21 +156,21 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
         SkTDArray<void*> rects;
         grid.search(query(8.0f, 8.0f, 10.0f, 10.0f), &rects);
         REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, &rect2 == rects[0]);
+        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
     }
     {
         SkTDArray<void*> rects;
         grid.search(query(7.9f, 7.9f, 10.0f, 10.0f), &rects);
         REPORTER_ASSERT(reporter, 2 == rects.count());
-        REPORTER_ASSERT(reporter, &rect1 == rects[0]);
-        REPORTER_ASSERT(reporter, &rect2 == rects[1]);
+        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
+        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
     }
     {
         SkTDArray<void*> rects;
         grid.search(query(8.1f, 8.1f, 10.0f, 10.0f), &rects);
         REPORTER_ASSERT(reporter, 2 == rects.count());
-        REPORTER_ASSERT(reporter, &rect2 == rects[0]);
-        REPORTER_ASSERT(reporter, &rect3 == rects[1]);
+        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
+        REPORTER_ASSERT(reporter, rects.find(&rect3) >= 0);
     }
     {
         // Regression test for crbug.com/234688
