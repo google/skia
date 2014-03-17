@@ -60,6 +60,13 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter, zeroPt == rr1.radii((SkRRect::Corner) i));
     }
+    SkRRect rr1_2; // construct the same RR using the most general set function
+    SkVector rr1_2_radii[4] = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } };
+    rr1_2.setRectRadii(rect, rr1_2_radii);
+    REPORTER_ASSERT(reporter, rr1_2 == rr1 && rr1_2.getType() == rr1.getType());
+    SkRRect rr1_3;  // construct the same RR using the nine patch set function
+    rr1_3.setNinePatch(rect, 0, 0, 0, 0);
+    REPORTER_ASSERT(reporter, rr1_3 == rr1 && rr1_3.getType() == rr1.getType());
 
     //----
     SkPoint halfPoint = { SkScalarHalf(kWidth), SkScalarHalf(kHeight) };
@@ -73,6 +80,14 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter,
                         rr2.radii((SkRRect::Corner) i).equalsWithinTolerance(halfPoint));
     }
+    SkRRect rr2_2;  // construct the same RR using the most general set function
+    SkVector rr2_2_radii[4] = { { halfPoint.fX, halfPoint.fY }, { halfPoint.fX, halfPoint.fY },
+                                { halfPoint.fX, halfPoint.fY }, { halfPoint.fX, halfPoint.fY } };
+    rr2_2.setRectRadii(rect, rr2_2_radii);
+    REPORTER_ASSERT(reporter, rr2_2 == rr2 && rr2_2.getType() == rr2.getType());
+    SkRRect rr2_3;  // construct the same RR using the nine patch set function
+    rr2_3.setNinePatch(rect, halfPoint.fX, halfPoint.fY, halfPoint.fX, halfPoint.fY);
+    REPORTER_ASSERT(reporter, rr2_3 == rr2 && rr2_3.getType() == rr2.getType());
 
     //----
     SkPoint p = { 5, 5 };
@@ -85,19 +100,33 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter, p == rr3.radii((SkRRect::Corner) i));
     }
+    SkRRect rr3_2; // construct the same RR using the most general set function
+    SkVector rr3_2_radii[4] = { { 5, 5 }, { 5, 5 }, { 5, 5 }, { 5, 5 } };
+    rr3_2.setRectRadii(rect, rr3_2_radii);
+    REPORTER_ASSERT(reporter, rr3_2 == rr3 && rr3_2.getType() == rr3.getType());
+    SkRRect rr3_3;  // construct the same RR using the nine patch set function
+    rr3_3.setNinePatch(rect, 5, 5, 5, 5);
+    REPORTER_ASSERT(reporter, rr3_3 == rr3 && rr3_3.getType() == rr3.getType());
 
     //----
-    SkPoint radii[4] = { { 5, 5 }, { 5, 5 }, { 5, 5 }, { 5, 5 } };
+    SkRect ninePatchRadii = { 10, 9, 8, 7 };
 
     SkRRect rr4;
-    rr4.setRectRadii(rect, radii);
+    rr4.setNinePatch(rect, ninePatchRadii.fLeft, ninePatchRadii.fTop, ninePatchRadii.fRight,
+                     ninePatchRadii.fBottom);
 
-    REPORTER_ASSERT(reporter, SkRRect::kSimple_Type == rr4.type());
+    REPORTER_ASSERT(reporter, SkRRect::kNinePatch_Type == rr4.type());
     REPORTER_ASSERT(reporter, rr4.rect() == rect);
 
+    SkPoint rquad[4];
+    ninePatchRadii.toQuad(rquad);
     for (int i = 0; i < 4; ++i) {
-        REPORTER_ASSERT(reporter, radii[i] == rr4.radii((SkRRect::Corner) i));
+        REPORTER_ASSERT(reporter, rquad[i] == rr4.radii((SkRRect::Corner) i));
     }
+    SkRRect rr4_2; // construct the same RR using the most general set function
+    SkVector rr4_2_radii[4] = { { 10, 9 }, { 8, 9 }, {8, 7 }, { 10, 7 } };
+    rr4_2.setRectRadii(rect, rr4_2_radii);
+    REPORTER_ASSERT(reporter, rr4_2 == rr4 && rr4_2.getType() == rr4.getType());
 
     //----
     SkPoint radii2[4] = { { 0, 0 }, { 0, 0 }, { 50, 50 }, { 20, 50 } };
@@ -114,7 +143,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
 
     // Test out == & !=
     REPORTER_ASSERT(reporter, empty != rr3);
-    REPORTER_ASSERT(reporter, rr3 == rr4);
+    REPORTER_ASSERT(reporter, rr3 != rr4);
     REPORTER_ASSERT(reporter, rr4 != rr5);
 }
 

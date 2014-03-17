@@ -1208,6 +1208,7 @@ static const char* rrect_type(const SkRRect& rr) {
         case SkRRect::kRect_Type: return "rect";
         case SkRRect::kOval_Type: return "oval";
         case SkRRect::kSimple_Type: return "simple";
+        case SkRRect::kNinePatch_Type: return "nine-patch";
         case SkRRect::kComplex_Type: return "complex";
     }
     SkDEBUGFAIL("never get here");
