@@ -1832,27 +1832,31 @@ void SkFontStyleSet_DirectWrite::getStyle(int index, SkFontStyle* fs, SkString* 
     SkTScopedComPtr<IDWriteFont> font;
     HRVM(fFontFamily->GetFont(index, &font), "Could not get font.");
 
-    SkFontStyle::Slant slant;
-    switch (font->GetStyle()) {
-    case DWRITE_FONT_STYLE_NORMAL:
-        slant = SkFontStyle::kUpright_Slant;
-        break;
-    case DWRITE_FONT_STYLE_OBLIQUE:
-    case DWRITE_FONT_STYLE_ITALIC:
-        slant = SkFontStyle::kItalic_Slant;
-        break;
-    default:
-        SkASSERT(false);
+    if (fs) {
+        SkFontStyle::Slant slant;
+        switch (font->GetStyle()) {
+        case DWRITE_FONT_STYLE_NORMAL:
+            slant = SkFontStyle::kUpright_Slant;
+            break;
+        case DWRITE_FONT_STYLE_OBLIQUE:
+        case DWRITE_FONT_STYLE_ITALIC:
+            slant = SkFontStyle::kItalic_Slant;
+            break;
+        default:
+            SkASSERT(false);
+        }
+
+        int weight = font->GetWeight();
+        int width = font->GetStretch();
+
+        *fs = SkFontStyle(weight, width, slant);
     }
 
-    int weight = font->GetWeight();
-    int width = font->GetStretch();
-
-    *fs = SkFontStyle(weight, width, slant);
-
-    SkTScopedComPtr<IDWriteLocalizedStrings> faceNames;
-    if (SUCCEEDED(font->GetFaceNames(&faceNames))) {
-        get_locale_string(faceNames.get(), fFontMgr->fLocaleName.get(), styleName);
+    if (styleName) {
+        SkTScopedComPtr<IDWriteLocalizedStrings> faceNames;
+        if (SUCCEEDED(font->GetFaceNames(&faceNames))) {
+            get_locale_string(faceNames.get(), fFontMgr->fLocaleName.get(), styleName);
+        }
     }
 }
 
