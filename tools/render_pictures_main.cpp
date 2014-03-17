@@ -190,7 +190,7 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* o
              inputPath.c_str());
 
     renderer.init(picture);
-    
+
     if (FLAGS_preprocess) {
         if (NULL != renderer.getCanvas()) {
             renderer.getCanvas()->EXPERIMENTAL_optimize(picture);

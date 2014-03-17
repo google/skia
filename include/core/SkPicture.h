@@ -35,7 +35,7 @@ public:
     SK_DECLARE_INST_COUNT(SkPicture)
 
     // AccelData provides a base class for device-specific acceleration
-    // data. It is added to the picture via a call to a device's optimize 
+    // data. It is added to the picture via a call to a device's optimize
     // method.
     class AccelData : public SkRefCnt {
     public:
@@ -66,13 +66,13 @@ public:
     SkPicture(const SkPicture& src);
 
     /**  PRIVATE / EXPERIMENTAL -- do not call */
-    void EXPERIMENTAL_addAccelData(const AccelData* data) { 
-        SkRefCnt_SafeAssign(fAccelData, data); 
+    void EXPERIMENTAL_addAccelData(const AccelData* data) {
+        SkRefCnt_SafeAssign(fAccelData, data);
     }
     /**  PRIVATE / EXPERIMENTAL -- do not call */
-    const AccelData* EXPERIMENTAL_getAccelData(AccelData::Key key) const { 
+    const AccelData* EXPERIMENTAL_getAccelData(AccelData::Key key) const {
         if (NULL != fAccelData && fAccelData->getKey() == key) {
-            return fAccelData; 
+            return fAccelData;
         }
         return NULL;
     }

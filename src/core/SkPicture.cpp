@@ -120,7 +120,7 @@ SkPicture::SkPicture() {
     fAccelData = NULL;
 }
 
-SkPicture::SkPicture(const SkPicture& src) 
+SkPicture::SkPicture(const SkPicture& src)
     : INHERITED()
     , fAccelData(NULL) {
     fWidth = src.fWidth;

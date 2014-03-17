@@ -435,7 +435,7 @@ protected:
      *  of 'picture'. If optimization data is available (due to an earlier
      *  'optimize' call) this entry point should make use of it and return true
      *  if all rendering has been done. If false is returned, SkCanvas will
-     *  perform its own rendering pass. It is acceptable for the backend 
+     *  perform its own rendering pass. It is acceptable for the backend
      *  to perform some device-specific warm up tasks and then let SkCanvas
      *  perform the main rendering loop (by return false from here).
      */
