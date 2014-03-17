@@ -85,6 +85,8 @@ public:
 
     virtual ~SkPicturePlayback();
 
+    const SkPicture::OperationList& getActiveOps(const SkIRect& queryRect);
+
     void draw(SkCanvas& canvas, SkDrawPictureCallback*);
 
     void serialize(SkWStream*, SkPicture::EncodeBitmap) const;
@@ -109,7 +111,7 @@ protected:
     virtual void postDraw(int opIndex);
 #endif
 
-    void preLoadBitmaps(const SkTDArray<void*>& results);
+    void preLoadBitmaps(const SkTDArray<void*>* results);
 
 private:
     class TextContainer {
@@ -236,6 +238,29 @@ private:
 
     SkBBoxHierarchy* fBoundingHierarchy;
     SkPictureStateTree* fStateTree;
+
+    class CachedOperationList : public SkPicture::OperationList {
+    public:
+        CachedOperationList() {
+            fCacheQueryRect.setEmpty();
+        }
+
+        virtual bool valid() const { return true; }
+        virtual int numOps() const SK_OVERRIDE { return fOps.count(); }
+        virtual uint32_t offset(int index) const SK_OVERRIDE;
+        virtual const SkMatrix& matrix(int index) const SK_OVERRIDE;
+
+        // The query rect for which the cached active ops are valid
+        SkIRect          fCacheQueryRect;
+
+        // The operations which are active within 'fCachedQueryRect'
+        SkTDArray<void*> fOps;
+
+    private:
+        typedef SkPicture::OperationList INHERITED;
+    };
+
+    CachedOperationList* fCachedActiveOps;
 
     SkTypefacePlayback fTFPlayback;
     SkFactoryPlayback* fFactoryPlayback;

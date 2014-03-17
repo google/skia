@@ -308,11 +308,41 @@ protected:
     // SkBBoxHierarchy implementation
     virtual SkBBoxHierarchy* createBBoxHierarchy() const;
 private:
+    // An OperationList encapsulates a set of operation offsets into the picture byte
+    // stream along with the CTMs needed for those operation.
+    class OperationList : public SkNoncopyable {
+    public:
+        virtual ~OperationList() {}
+
+        // If valid returns false then there is no optimization data
+        // present. All the draw operations need to be issued.
+        virtual bool valid() const { return false; }
+
+        // The following three entry points should only be accessed if
+        // 'valid' returns true.
+        virtual int numOps() const { SkASSERT(false); return 0; };
+        // The offset in the picture of the operation to execute.
+        virtual uint32_t offset(int index) const { SkASSERT(false); return 0; };
+        // The CTM that must be installed for the operation to behave correctly
+        virtual const SkMatrix& matrix(int index) const { SkASSERT(false); return SkMatrix::I(); }
+
+        static const OperationList& InvalidList();
+
+    private:
+        typedef SkNoncopyable INHERITED;
+    };
+
+    /** PRIVATE / EXPERIMENTAL -- do not call
+        Return the operations required to render the content inside 'queryRect'.
+    */
+    const OperationList& EXPERIMENTAL_getActiveOps(const SkIRect& queryRect);
+
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 
     friend class SkFlatPicture;
     friend class SkPicturePlayback;
+    friend class SkGpuDevice;
 
     typedef SkRefCnt INHERITED;
 };
