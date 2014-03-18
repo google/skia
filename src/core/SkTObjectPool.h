@@ -74,6 +74,11 @@ public:
      */
     int blocks() const { return fBlocks.getCount(); }
 
+    /**
+     * Returns the number of items allocated by the pool in total.
+     */
+    int allocated() const { return fBlocks.getCount() * numItemsPerBlock; }
+
 private:
     /**
      * The type for a new block of entries for the list.
