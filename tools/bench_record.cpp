@@ -77,8 +77,12 @@ static void bench_record(SkPicture* src, const char* name, PictureFactory pictur
         int recordingFlags = FLAGS_flags;
         SkAutoTUnref<SkPicture> dst(pictureFactory(width, height, &recordingFlags));
         SkCanvas* canvas = dst->beginRecording(width, height, recordingFlags);
-        if (src) src->draw(canvas);
-        if (FLAGS_endRecording) dst->endRecording();
+        if (NULL != src) {
+            src->draw(canvas);
+        }
+        if (FLAGS_endRecording) {
+            dst->endRecording();
+        }
     }
 
     const SkMSec elapsed = SkTime::GetMSecs() - start;
@@ -96,7 +100,9 @@ int tool_main(int argc, char** argv) {
         return 1;
     }
     bench_record(NULL, "NULL", pictureFactory);
-    if (FLAGS_skps.isEmpty()) return 0;
+    if (FLAGS_skps.isEmpty()) {
+        return 0;
+    }
 
     SkOSFile::Iter it(FLAGS_skps[0], ".skp");
     SkString filename;

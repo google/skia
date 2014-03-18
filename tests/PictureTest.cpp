@@ -16,10 +16,12 @@
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkPictureUtils.h"
+#include "SkQuadTreePicture.h"
 #include "SkRRect.h"
 #include "SkRandom.h"
 #include "SkShader.h"
 #include "SkStream.h"
+#include "SkTileGrid.h"
 #include "Test.h"
 
 static const int gColorScale = 30;
@@ -887,6 +889,54 @@ static void test_clone_empty(skiatest::Reporter* reporter) {
     }
 }
 
+static void test_draw_empty(skiatest::Reporter* reporter) {
+    SkBitmap result;
+    make_bm(&result, 2, 2, SK_ColorBLACK, false);
+
+    SkCanvas canvas(result);
+
+    {
+        // stock SkPicture
+        SkPicture picture;
+        picture.beginRecording(1, 1);
+        picture.endRecording();
+
+        canvas.drawPicture(picture);
+    }
+
+    {
+        // tile grid
+        SkTileGridPicture::TileGridInfo gridInfo;
+        gridInfo.fMargin.setEmpty();
+        gridInfo.fOffset.setZero();
+        gridInfo.fTileInterval.set(1, 1);
+
+        SkTileGridPicture picture(1, 1, gridInfo);
+        picture.beginRecording(1, 1, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+        picture.endRecording();
+
+        canvas.drawPicture(picture);
+    }
+
+    {
+        // RTree
+        SkPicture picture;
+        picture.beginRecording(1, 1, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+        picture.endRecording();
+
+        canvas.drawPicture(picture);
+    }
+
+    {
+        // quad tree
+        SkQuadTreePicture picture(SkIRect::MakeWH(1, 1));
+        picture.beginRecording(1, 1, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+        picture.endRecording();
+
+        canvas.drawPicture(picture);
+    }
+}
+
 static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     // Test for crbug.com/229011
     SkRect rect1 = SkRect::MakeXYWH(SkIntToScalar(4), SkIntToScalar(4),
@@ -1105,6 +1155,7 @@ DEF_TEST(Picture, reporter) {
     test_gatherpixelrefsandrects(reporter);
     test_bitmap_with_encoded_data(reporter);
     test_clone_empty(reporter);
+    test_draw_empty(reporter);
     test_clip_bound_opt(reporter);
     test_clip_expansion(reporter);
     test_hierarchical(reporter);
