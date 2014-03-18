@@ -26,8 +26,9 @@
 // perform a draw and this one does.
 class SimpleOffsetFilter : public SkImageFilter {
 public:
-    SimpleOffsetFilter(SkScalar dx, SkScalar dy, SkImageFilter* input)
-    : SkImageFilter(input), fDX(dx), fDY(dy) {}
+    static SkImageFilter* Create(SkScalar dx, SkScalar dy, SkImageFilter* input) {
+        return SkNEW_ARGS(SimpleOffsetFilter, (dx, dy, input));
+    }
 
     virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                SkBitmap* dst, SkIPoint* offset) const SK_OVERRIDE {
@@ -70,6 +71,9 @@ protected:
     }
 
 private:
+    SimpleOffsetFilter(SkScalar dx, SkScalar dy, SkImageFilter* input)
+    : SkImageFilter(input), fDX(dx), fDY(dy) {}
+
     SkScalar fDX, fDY;
 };
 
@@ -157,11 +161,12 @@ protected:
                                     0, 0, 0, 0.5f, 0 };
             SkAutoTUnref<SkColorMatrixFilter> matrixCF(SkColorMatrixFilter::Create(matrix));
             SkAutoTUnref<SkImageFilter> matrixFilter(SkColorFilterImageFilter::Create(matrixCF));
-            SimpleOffsetFilter offsetFilter(SkIntToScalar(10), SkIntToScalar(10), matrixFilter);
+            SkAutoTUnref<SkImageFilter> offsetFilter(
+                SimpleOffsetFilter::Create(10.0f, 10.f, matrixFilter));
 
             SkAutoTUnref<SkXfermode> arith(SkArithmeticMode::Create(0, SK_Scalar1, SK_Scalar1, 0));
             SkAutoTUnref<SkXfermodeImageFilter> arithFilter(
-                SkXfermodeImageFilter::Create(arith, matrixFilter, &offsetFilter));
+                SkXfermodeImageFilter::Create(arith, matrixFilter, offsetFilter));
 
             SkPaint paint;
             paint.setImageFilter(arithFilter);
