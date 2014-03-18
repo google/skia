@@ -12,7 +12,7 @@
 #include "SkBitmap.h"
 
 namespace sk_tool_utils {
-    
+
     const char* colortype_name(SkColorType);
 
     /**

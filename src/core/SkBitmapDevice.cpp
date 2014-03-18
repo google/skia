@@ -310,7 +310,7 @@ bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
     if (NULL == fBitmap.getPixels()) {
         return false;
     }
-    
+
     SkImageInfo srcInfo = fBitmap.info();
 
     // perhaps can relax these in the future
@@ -323,7 +323,7 @@ bool SkBitmapDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, s
 
     srcInfo.fWidth = dstInfo.width();
     srcInfo.fHeight = dstInfo.height();
-    
+
     const void* srcPixels = fBitmap.getAddr(x, y);
     const size_t srcRowBytes = fBitmap.rowBytes();
 

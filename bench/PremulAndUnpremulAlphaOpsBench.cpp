@@ -17,7 +17,7 @@ class PremulAndUnpremulAlphaOpsBench : public SkBenchmark {
         H = 256,
     };
     SkBitmap fBmp1, fBmp2;
-    
+
 public:
     PremulAndUnpremulAlphaOpsBench(SkColorType ct) {
         fColorType = ct;
@@ -39,7 +39,7 @@ protected:
                 *fBmp1.getAddr32(w, h) = SkColorSetARGB(h & 0xFF, w & 0xFF, w & 0xFF, w & 0xFF);
             }
         }
-        
+
         fBmp2.allocPixels(info);    // used in readPixels()
     }
 

@@ -380,7 +380,7 @@ bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap,
     SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
     SkASSERT(!bitmap.isNull());
     SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height())));
-    
+
     SkAutoLockPixels alp(bitmap);
     GrPixelConfig config;
     uint32_t flags;

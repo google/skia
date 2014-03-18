@@ -182,7 +182,7 @@ bool SkBaseDevice::readPixels(const SkImageInfo& info, void* dstP, size_t rowByt
     SkASSERT(dstP);
     SkASSERT(rowBytes >= info.minRowBytes());
     SkASSERT(x >= 0 && y >= 0);
-    
+
     const SkImageInfo& srcInfo = this->imageInfo();
     SkASSERT(x + info.width() <= srcInfo.width());
     SkASSERT(y + info.height() <= srcInfo.height());

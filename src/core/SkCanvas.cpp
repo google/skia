@@ -748,12 +748,12 @@ bool SkCanvas::readPixels(const SkImageInfo& origInfo, void* dstP, size_t rowByt
     if (!srcR.intersect(0, 0, size.width(), size.height())) {
         return false;
     }
-    
+
     SkImageInfo info = origInfo;
     // the intersect may have shrunk info's logical size
     info.fWidth = srcR.width();
     info.fHeight = srcR.height();
-    
+
     // if x or y are negative, then we have to adjust pixels
     if (x > 0) {
         x = 0;
@@ -763,7 +763,7 @@ bool SkCanvas::readPixels(const SkImageInfo& origInfo, void* dstP, size_t rowByt
     }
     // here x,y are either 0 or negative
     dstP = ((char*)dstP - y * rowBytes - x * info.bytesPerPixel());
-    
+
     // The device can assert that the requested area is always contained in its bounds
     return device->readPixels(info, dstP, rowBytes, srcR.x(), srcR.y());
 }

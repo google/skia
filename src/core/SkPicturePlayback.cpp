@@ -871,7 +871,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 if (0 == activeOpsList.numOps()) {
                     return;     // nothing to draw
                 }
-                
+
                 // Since the opList is valid we know it is our derived class
                 activeOps = &((const CachedOperationList&)activeOpsList).fOps;
             }
