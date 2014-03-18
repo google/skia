@@ -1,9 +1,9 @@
 Traceback (most recent call last):
-  File "bench/check_bench_regressions.py", line 263, in <module>
+  File "bench/check_bench_regressions.py", line 232, in <module>
     main()
-  File "bench/check_bench_regressions.py", line 259, in main
+  File "bench/check_bench_regressions.py", line 228, in main
     check_expectations(bench_dict, bench_expectations, platform_and_alg)
-  File "bench/check_bench_regressions.py", line 207, in check_expectations
+  File "bench/check_bench_regressions.py", line 178, in check_expectations
     raise Exception('\n'.join(outputs))
 Exception: 
 2 benches got slower (sorted by % difference):
