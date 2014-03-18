@@ -55,6 +55,7 @@
     '../tests/ColorFilterTest.cpp',
     '../tests/ColorPrivTest.cpp',
     '../tests/ColorTest.cpp',
+    '../tests/DashPathEffectTest.cpp',
     '../tests/DataRefTest.cpp',
     '../tests/DeferredCanvasTest.cpp',
     '../tests/DequeTest.cpp',
