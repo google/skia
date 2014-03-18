@@ -51,7 +51,3 @@ rrect_clip_aa
 # This change removes an API that this GM was testing. If/when it lands and sticks,
 # I will likely just delete the GM.
 canvas-layer-state
-
-# sugoi: https://codereview.chromium.org/198013002/
-# This adds proper Z scaling (with tests) for point lights and spot lights
-imagefiltersscaled
