@@ -312,14 +312,11 @@ TEST_STEP(NAME, NAME##TestStep )
 // Basic test steps for most virtual methods in SkCanvas that draw or affect
 // the state of the canvas.
 
-SIMPLE_TEST_STEP_WITH_ASSERT(Translate,
-    translate(SkIntToScalar(1), SkIntToScalar(2)));
-SIMPLE_TEST_STEP_WITH_ASSERT(Scale,
-    scale(SkIntToScalar(1), SkIntToScalar(2)));
-SIMPLE_TEST_STEP_WITH_ASSERT(Rotate, rotate(SkIntToScalar(1)));
-SIMPLE_TEST_STEP_WITH_ASSERT(Skew,
-    skew(SkIntToScalar(1), SkIntToScalar(2)));
-SIMPLE_TEST_STEP_WITH_ASSERT(Concat, concat(kTestMatrix));
+SIMPLE_TEST_STEP(Translate, translate(SkIntToScalar(1), SkIntToScalar(2)));
+SIMPLE_TEST_STEP(Scale, scale(SkIntToScalar(1), SkIntToScalar(2)));
+SIMPLE_TEST_STEP(Rotate, rotate(SkIntToScalar(1)));
+SIMPLE_TEST_STEP(Skew, skew(SkIntToScalar(1), SkIntToScalar(2)));
+SIMPLE_TEST_STEP(Concat, concat(kTestMatrix));
 SIMPLE_TEST_STEP(SetMatrix, setMatrix(kTestMatrix));
 SIMPLE_TEST_STEP(ClipRect, clipRect(kTestRect));
 SIMPLE_TEST_STEP(ClipPath, clipPath(kTestPath));

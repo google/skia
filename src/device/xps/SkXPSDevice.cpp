@@ -1696,9 +1696,7 @@ void SkXPSDevice::drawPath(const SkDraw& d,
             }
             platonicPath.transform(*prePathMatrix, skeletalPath);
         } else {
-            if (!matrix.preConcat(*prePathMatrix)) {
-                return;
-            }
+            matrix.preConcat(*prePathMatrix);
         }
     }
 

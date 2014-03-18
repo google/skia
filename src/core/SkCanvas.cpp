@@ -1275,65 +1275,60 @@ void SkCanvas::didTranslate(SkScalar, SkScalar) {
     // Do nothing. Subclasses may do something.
 }
 
-bool SkCanvas::translate(SkScalar dx, SkScalar dy) {
+void SkCanvas::translate(SkScalar dx, SkScalar dy) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    bool res = fMCRec->fMatrix->preTranslate(dx, dy);
+    fMCRec->fMatrix->preTranslate(dx, dy);
 
     this->didTranslate(dx, dy);
-    return res;
 }
 
 void SkCanvas::didScale(SkScalar, SkScalar) {
     // Do nothing. Subclasses may do something.
 }
 
-bool SkCanvas::scale(SkScalar sx, SkScalar sy) {
+void SkCanvas::scale(SkScalar sx, SkScalar sy) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    bool res = fMCRec->fMatrix->preScale(sx, sy);
+    fMCRec->fMatrix->preScale(sx, sy);
 
     this->didScale(sx, sy);
-    return res;
 }
 
 void SkCanvas::didRotate(SkScalar) {
     // Do nothing. Subclasses may do something.
 }
 
-bool SkCanvas::rotate(SkScalar degrees) {
+void SkCanvas::rotate(SkScalar degrees) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    bool res = fMCRec->fMatrix->preRotate(degrees);
+    fMCRec->fMatrix->preRotate(degrees);
 
     this->didRotate(degrees);
-    return res;
 }
 
 void SkCanvas::didSkew(SkScalar, SkScalar) {
     // Do nothing. Subclasses may do something.
 }
 
-bool SkCanvas::skew(SkScalar sx, SkScalar sy) {
+void SkCanvas::skew(SkScalar sx, SkScalar sy) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    bool res = fMCRec->fMatrix->preSkew(sx, sy);
+    fMCRec->fMatrix->preSkew(sx, sy);
 
     this->didSkew(sx, sy);
-    return res;
 }
 
 void SkCanvas::didConcat(const SkMatrix&) {
     // Do nothing. Subclasses may do something.
 }
 
-bool SkCanvas::concat(const SkMatrix& matrix) {
+void SkCanvas::concat(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
-    bool res = fMCRec->fMatrix->preConcat(matrix);
+    fMCRec->fMatrix->preConcat(matrix);
 
     this->didConcat(matrix);
-    return res;
 }
 
 void SkCanvas::didSetMatrix(const SkMatrix&) {

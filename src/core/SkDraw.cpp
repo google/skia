@@ -1056,10 +1056,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
             pathPtr->transform(*prePathMatrix, result);
             pathPtr = result;
         } else {
-            if (!tmpMatrix.setConcat(*matrix, *prePathMatrix)) {
-                // overflow
-                return;
-            }
+            tmpMatrix.setConcat(*matrix, *prePathMatrix);
             matrix = &tmpMatrix;
         }
     }
@@ -1279,9 +1276,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     paint.setStyle(SkPaint::kFill_Style);
 
     SkMatrix matrix;
-    if (!matrix.setConcat(*fMatrix, prematrix)) {
-        return;
-    }
+    matrix.setConcat(*fMatrix, prematrix);
 
     if (clipped_out(matrix, *fRC, bitmap.width(), bitmap.height())) {
         return;
@@ -2394,7 +2389,8 @@ bool SkTriColorShader::setup(const SkPoint pts[], const SkColor colors[],
     if (!m.invert(&im)) {
         return false;
     }
-    return fDstToUnit.setConcat(im, this->getTotalInverse());
+    fDstToUnit.setConcat(im, this->getTotalInverse());
+    return true;
 }
 
 #include "SkColorPriv.h"

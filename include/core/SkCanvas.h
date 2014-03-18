@@ -470,35 +470,30 @@ public:
     /** Preconcat the current matrix with the specified translation
         @param dx   The distance to translate in X
         @param dy   The distance to translate in Y
-        returns true if the operation succeeded (e.g. did not overflow)
     */
-    bool translate(SkScalar dx, SkScalar dy);
+    void translate(SkScalar dx, SkScalar dy);
 
     /** Preconcat the current matrix with the specified scale.
         @param sx   The amount to scale in X
         @param sy   The amount to scale in Y
-        returns true if the operation succeeded (e.g. did not overflow)
     */
-    bool scale(SkScalar sx, SkScalar sy);
+    void scale(SkScalar sx, SkScalar sy);
 
     /** Preconcat the current matrix with the specified rotation.
         @param degrees  The amount to rotate, in degrees
-        returns true if the operation succeeded (e.g. did not overflow)
     */
-    bool rotate(SkScalar degrees);
+    void rotate(SkScalar degrees);
 
     /** Preconcat the current matrix with the specified skew.
         @param sx   The amount to skew in X
         @param sy   The amount to skew in Y
-        returns true if the operation succeeded (e.g. did not overflow)
     */
-    bool skew(SkScalar sx, SkScalar sy);
+    void skew(SkScalar sx, SkScalar sy);
 
     /** Preconcat the current matrix with the specified matrix.
         @param matrix   The matrix to preconcatenate with the current matrix
-        @return true if the operation succeeded (e.g. did not overflow)
     */
-    bool concat(const SkMatrix& matrix);
+    void concat(const SkMatrix& matrix);
 
     /** Replace the current matrix with a copy of the specified matrix.
         @param matrix The matrix that will be copied into the current matrix.

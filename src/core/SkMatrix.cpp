@@ -247,35 +247,36 @@ void SkMatrix::setTranslate(SkScalar dx, SkScalar dy) {
     }
 }
 
-bool SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
+void SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
+    if (!dx && !dy) {
+        return;
+    }
+
     if (this->hasPerspective()) {
         SkMatrix    m;
         m.setTranslate(dx, dy);
-        return this->preConcat(m);
-    }
-
-    if (dx || dy) {
+        this->preConcat(m);
+    } else {
         fMat[kMTransX] += sdot(fMat[kMScaleX], dx, fMat[kMSkewX], dy);
         fMat[kMTransY] += sdot(fMat[kMSkewY], dx, fMat[kMScaleY], dy);
-
         this->setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
     }
-    return true;
 }
 
-bool SkMatrix::postTranslate(SkScalar dx, SkScalar dy) {
+void SkMatrix::postTranslate(SkScalar dx, SkScalar dy) {
+    if (!dx && !dy) {
+        return;
+    }
+
     if (this->hasPerspective()) {
         SkMatrix    m;
         m.setTranslate(dx, dy);
-        return this->postConcat(m);
-    }
-
-    if (dx || dy) {
+        this->postConcat(m);
+    } else {
         fMat[kMTransX] += dx;
         fMat[kMTransY] += dy;
         this->setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
     }
-    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -321,15 +322,19 @@ bool SkMatrix::setIDiv(int divx, int divy) {
     return true;
 }
 
-bool SkMatrix::preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
+void SkMatrix::preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
+    if (1 == sx && 1 == sy) {
+        return;
+    }
+
     SkMatrix    m;
     m.setScale(sx, sy, px, py);
-    return this->preConcat(m);
+    this->preConcat(m);
 }
 
-bool SkMatrix::preScale(SkScalar sx, SkScalar sy) {
+void SkMatrix::preScale(SkScalar sx, SkScalar sy) {
     if (1 == sx && 1 == sy) {
-        return true;
+        return;
     }
 
     // the assumption is that these multiplies are very cheap, and that
@@ -346,25 +351,24 @@ bool SkMatrix::preScale(SkScalar sx, SkScalar sy) {
     fMat[kMPersp1] *= sy;
 
     this->orTypeMask(kScale_Mask);
-    return true;
 }
 
-bool SkMatrix::postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
+void SkMatrix::postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
     if (1 == sx && 1 == sy) {
-        return true;
+        return;
     }
     SkMatrix    m;
     m.setScale(sx, sy, px, py);
-    return this->postConcat(m);
+    this->postConcat(m);
 }
 
-bool SkMatrix::postScale(SkScalar sx, SkScalar sy) {
+void SkMatrix::postScale(SkScalar sx, SkScalar sy) {
     if (1 == sx && 1 == sy) {
-        return true;
+        return;
     }
     SkMatrix    m;
     m.setScale(sx, sy);
-    return this->postConcat(m);
+    this->postConcat(m);
 }
 
 // this guy perhaps can go away, if we have a fract/high-precision way to
@@ -436,28 +440,28 @@ void SkMatrix::setRotate(SkScalar degrees) {
     this->setSinCos(sinV, cosV);
 }
 
-bool SkMatrix::preRotate(SkScalar degrees, SkScalar px, SkScalar py) {
+void SkMatrix::preRotate(SkScalar degrees, SkScalar px, SkScalar py) {
     SkMatrix    m;
     m.setRotate(degrees, px, py);
-    return this->preConcat(m);
+    this->preConcat(m);
 }
 
-bool SkMatrix::preRotate(SkScalar degrees) {
+void SkMatrix::preRotate(SkScalar degrees) {
     SkMatrix    m;
     m.setRotate(degrees);
-    return this->preConcat(m);
+    this->preConcat(m);
 }
 
-bool SkMatrix::postRotate(SkScalar degrees, SkScalar px, SkScalar py) {
+void SkMatrix::postRotate(SkScalar degrees, SkScalar px, SkScalar py) {
     SkMatrix    m;
     m.setRotate(degrees, px, py);
-    return this->postConcat(m);
+    this->postConcat(m);
 }
 
-bool SkMatrix::postRotate(SkScalar degrees) {
+void SkMatrix::postRotate(SkScalar degrees) {
     SkMatrix    m;
     m.setRotate(degrees);
-    return this->postConcat(m);
+    this->postConcat(m);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -492,28 +496,28 @@ void SkMatrix::setSkew(SkScalar sx, SkScalar sy) {
     this->setTypeMask(kUnknown_Mask | kOnlyPerspectiveValid_Mask);
 }
 
-bool SkMatrix::preSkew(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
+void SkMatrix::preSkew(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
     SkMatrix    m;
     m.setSkew(sx, sy, px, py);
-    return this->preConcat(m);
+    this->preConcat(m);
 }
 
-bool SkMatrix::preSkew(SkScalar sx, SkScalar sy) {
+void SkMatrix::preSkew(SkScalar sx, SkScalar sy) {
     SkMatrix    m;
     m.setSkew(sx, sy);
-    return this->preConcat(m);
+    this->preConcat(m);
 }
 
-bool SkMatrix::postSkew(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
+void SkMatrix::postSkew(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
     SkMatrix    m;
     m.setSkew(sx, sy, px, py);
-    return this->postConcat(m);
+    this->postConcat(m);
 }
 
-bool SkMatrix::postSkew(SkScalar sx, SkScalar sy) {
+void SkMatrix::postSkew(SkScalar sx, SkScalar sy) {
     SkMatrix    m;
     m.setSkew(sx, sy);
-    return this->postConcat(m);
+    this->postConcat(m);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -588,21 +592,12 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static inline int fixmuladdmul(float a, float b, float c, float d,
-                               float* result) {
-    *result = SkDoubleToFloat((double)a * b + (double)c * d);
-    return true;
+static inline float muladdmul(float a, float b, float c, float d) {
+    return SkDoubleToFloat((double)a * b + (double)c * d);
 }
 
-static inline bool rowcol3(const float row[], const float col[],
-                           float* result) {
-    *result = row[0] * col[0] + row[1] * col[3] + row[2] * col[6];
-    return true;
-}
-
-static inline int negifaddoverflows(float& result, float a, float b) {
-    result = a + b;
-    return 0;
+static inline float rowcol3(const float row[], const float col[]) {
+    return row[0] * col[0] + row[1] * col[3] + row[2] * col[6];
 }
 
 static void normalize_perspective(SkScalar mat[9]) {
@@ -612,7 +607,7 @@ static void normalize_perspective(SkScalar mat[9]) {
     }
 }
 
-bool SkMatrix::setConcat(const SkMatrix& a, const SkMatrix& b) {
+void SkMatrix::setConcat(const SkMatrix& a, const SkMatrix& b) {
     TypeMask aType = a.getPerspectiveTypeMaskOnly();
     TypeMask bType = b.getPerspectiveTypeMaskOnly();
 
@@ -624,73 +619,52 @@ bool SkMatrix::setConcat(const SkMatrix& a, const SkMatrix& b) {
         SkMatrix tmp;
 
         if ((aType | bType) & kPerspective_Mask) {
-            if (!rowcol3(&a.fMat[0], &b.fMat[0], &tmp.fMat[kMScaleX])) {
-                return false;
-            }
-            if (!rowcol3(&a.fMat[0], &b.fMat[1], &tmp.fMat[kMSkewX])) {
-                return false;
-            }
-            if (!rowcol3(&a.fMat[0], &b.fMat[2], &tmp.fMat[kMTransX])) {
-                return false;
-            }
-
-            if (!rowcol3(&a.fMat[3], &b.fMat[0], &tmp.fMat[kMSkewY])) {
-                return false;
-            }
-            if (!rowcol3(&a.fMat[3], &b.fMat[1], &tmp.fMat[kMScaleY])) {
-                return false;
-            }
-            if (!rowcol3(&a.fMat[3], &b.fMat[2], &tmp.fMat[kMTransY])) {
-                return false;
-            }
-
-            if (!rowcol3(&a.fMat[6], &b.fMat[0], &tmp.fMat[kMPersp0])) {
-                return false;
-            }
-            if (!rowcol3(&a.fMat[6], &b.fMat[1], &tmp.fMat[kMPersp1])) {
-                return false;
-            }
-            if (!rowcol3(&a.fMat[6], &b.fMat[2], &tmp.fMat[kMPersp2])) {
-                return false;
-            }
+            tmp.fMat[kMScaleX] = rowcol3(&a.fMat[0], &b.fMat[0]);
+            tmp.fMat[kMSkewX]  = rowcol3(&a.fMat[0], &b.fMat[1]);
+            tmp.fMat[kMTransX] = rowcol3(&a.fMat[0], &b.fMat[2]);
+            tmp.fMat[kMSkewY]  = rowcol3(&a.fMat[3], &b.fMat[0]);
+            tmp.fMat[kMScaleY] = rowcol3(&a.fMat[3], &b.fMat[1]);
+            tmp.fMat[kMTransY] = rowcol3(&a.fMat[3], &b.fMat[2]);
+            tmp.fMat[kMPersp0] = rowcol3(&a.fMat[6], &b.fMat[0]);
+            tmp.fMat[kMPersp1] = rowcol3(&a.fMat[6], &b.fMat[1]);
+            tmp.fMat[kMPersp2] = rowcol3(&a.fMat[6], &b.fMat[2]);
 
             normalize_perspective(tmp.fMat);
             tmp.setTypeMask(kUnknown_Mask);
         } else {    // not perspective
-            if (!fixmuladdmul(a.fMat[kMScaleX], b.fMat[kMScaleX],
-                    a.fMat[kMSkewX], b.fMat[kMSkewY], &tmp.fMat[kMScaleX])) {
-                return false;
-            }
-            if (!fixmuladdmul(a.fMat[kMScaleX], b.fMat[kMSkewX],
-                      a.fMat[kMSkewX], b.fMat[kMScaleY], &tmp.fMat[kMSkewX])) {
-                return false;
-            }
-            if (!fixmuladdmul(a.fMat[kMScaleX], b.fMat[kMTransX],
-                      a.fMat[kMSkewX], b.fMat[kMTransY], &tmp.fMat[kMTransX])) {
-                return false;
-            }
-            if (negifaddoverflows(tmp.fMat[kMTransX], tmp.fMat[kMTransX],
-                                  a.fMat[kMTransX]) < 0) {
-                return false;
-            }
+            tmp.fMat[kMScaleX] = muladdmul(a.fMat[kMScaleX],
+                                           b.fMat[kMScaleX],
+                                           a.fMat[kMSkewX],
+                                           b.fMat[kMSkewY]);
 
-            if (!fixmuladdmul(a.fMat[kMSkewY], b.fMat[kMScaleX],
-                      a.fMat[kMScaleY], b.fMat[kMSkewY], &tmp.fMat[kMSkewY])) {
-                return false;
-            }
-            if (!fixmuladdmul(a.fMat[kMSkewY], b.fMat[kMSkewX],
-                    a.fMat[kMScaleY], b.fMat[kMScaleY], &tmp.fMat[kMScaleY])) {
-                return false;
-            }
-            if (!fixmuladdmul(a.fMat[kMSkewY], b.fMat[kMTransX],
-                     a.fMat[kMScaleY], b.fMat[kMTransY], &tmp.fMat[kMTransY])) {
-                return false;
-            }
-            if (negifaddoverflows(tmp.fMat[kMTransY], tmp.fMat[kMTransY],
-                                  a.fMat[kMTransY]) < 0) {
-                return false;
-            }
+            tmp.fMat[kMSkewX]  = muladdmul(a.fMat[kMScaleX],
+                                           b.fMat[kMSkewX],
+                                           a.fMat[kMSkewX],
+                                           b.fMat[kMScaleY]);
 
+            tmp.fMat[kMTransX] = muladdmul(a.fMat[kMScaleX],
+                                           b.fMat[kMTransX],
+                                           a.fMat[kMSkewX],
+                                           b.fMat[kMTransY]);
+
+            tmp.fMat[kMTransX] += a.fMat[kMTransX];
+
+            tmp.fMat[kMSkewY]  = muladdmul(a.fMat[kMSkewY],
+                                           b.fMat[kMScaleX],
+                                           a.fMat[kMScaleY],
+                                           b.fMat[kMSkewY]);
+
+            tmp.fMat[kMScaleY] = muladdmul(a.fMat[kMSkewY],
+                                           b.fMat[kMSkewX],
+                                           a.fMat[kMScaleY],
+                                           b.fMat[kMScaleY]);
+
+            tmp.fMat[kMTransY] = muladdmul(a.fMat[kMSkewY],
+                                           b.fMat[kMTransX],
+                                           a.fMat[kMScaleY],
+                                           b.fMat[kMTransY]);
+
+            tmp.fMat[kMTransY] += a.fMat[kMTransY];
             tmp.fMat[kMPersp0] = tmp.fMat[kMPersp1] = 0;
             tmp.fMat[kMPersp2] = 1;
             //SkDebugf("Concat mat non-persp type: %d\n", tmp.getType());
@@ -699,19 +673,22 @@ bool SkMatrix::setConcat(const SkMatrix& a, const SkMatrix& b) {
         }
         *this = tmp;
     }
-    return true;
 }
 
-bool SkMatrix::preConcat(const SkMatrix& mat) {
+void SkMatrix::preConcat(const SkMatrix& mat) {
     // check for identity first, so we don't do a needless copy of ourselves
     // to ourselves inside setConcat()
-    return mat.isIdentity() || this->setConcat(*this, mat);
+    if(!mat.isIdentity()) {
+        this->setConcat(*this, mat);
+    }
 }
 
-bool SkMatrix::postConcat(const SkMatrix& mat) {
+void SkMatrix::postConcat(const SkMatrix& mat) {
     // check for identity first, so we don't do a needless copy of ourselves
     // to ourselves inside setConcat()
-    return mat.isIdentity() || this->setConcat(mat, *this);
+    if (!mat.isIdentity()) {
+        this->setConcat(mat, *this);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1468,10 +1445,7 @@ bool SkMatrix::setPolyToPoly(const SkPoint src[], const SkPoint dst[],
     if (!proc(dst, &tempMap, scale)) {
         return false;
     }
-    if (!result.setConcat(tempMap, result)) {
-        return false;
-    }
-    *this = result;
+    this->setConcat(tempMap, result);
     return true;
 }
 

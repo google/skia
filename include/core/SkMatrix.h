@@ -218,57 +218,57 @@ public:
     /** Set the matrix to skew by sx and sy.
     */
     void setSkew(SkScalar kx, SkScalar ky);
-    /** Set the matrix to the concatenation of the two specified matrices,
-        returning true if the the result can be represented. Either of the
-        two matrices may also be the target matrix. *this = a * b;
+    /** Set the matrix to the concatenation of the two specified matrices.
+        Either of the two matrices may also be the target matrix.
+        *this = a * b;
     */
-    bool setConcat(const SkMatrix& a, const SkMatrix& b);
+    void setConcat(const SkMatrix& a, const SkMatrix& b);
 
     /** Preconcats the matrix with the specified translation.
         M' = M * T(dx, dy)
     */
-    bool preTranslate(SkScalar dx, SkScalar dy);
+    void preTranslate(SkScalar dx, SkScalar dy);
     /** Preconcats the matrix with the specified scale.
         M' = M * S(sx, sy, px, py)
     */
-    bool preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py);
+    void preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py);
     /** Preconcats the matrix with the specified scale.
         M' = M * S(sx, sy)
     */
-    bool preScale(SkScalar sx, SkScalar sy);
+    void preScale(SkScalar sx, SkScalar sy);
     /** Preconcats the matrix with the specified rotation.
         M' = M * R(degrees, px, py)
     */
-    bool preRotate(SkScalar degrees, SkScalar px, SkScalar py);
+    void preRotate(SkScalar degrees, SkScalar px, SkScalar py);
     /** Preconcats the matrix with the specified rotation.
         M' = M * R(degrees)
     */
-    bool preRotate(SkScalar degrees);
+    void preRotate(SkScalar degrees);
     /** Preconcats the matrix with the specified skew.
         M' = M * K(kx, ky, px, py)
     */
-    bool preSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py);
+    void preSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py);
     /** Preconcats the matrix with the specified skew.
         M' = M * K(kx, ky)
     */
-    bool preSkew(SkScalar kx, SkScalar ky);
+    void preSkew(SkScalar kx, SkScalar ky);
     /** Preconcats the matrix with the specified matrix.
         M' = M * other
     */
-    bool preConcat(const SkMatrix& other);
+    void preConcat(const SkMatrix& other);
 
     /** Postconcats the matrix with the specified translation.
         M' = T(dx, dy) * M
     */
-    bool postTranslate(SkScalar dx, SkScalar dy);
+    void postTranslate(SkScalar dx, SkScalar dy);
     /** Postconcats the matrix with the specified scale.
         M' = S(sx, sy, px, py) * M
     */
-    bool postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py);
+    void postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py);
     /** Postconcats the matrix with the specified scale.
         M' = S(sx, sy) * M
     */
-    bool postScale(SkScalar sx, SkScalar sy);
+    void postScale(SkScalar sx, SkScalar sy);
     /** Postconcats the matrix by dividing it by the specified integers.
         M' = S(1/divx, 1/divy, 0, 0) * M
     */
@@ -276,23 +276,23 @@ public:
     /** Postconcats the matrix with the specified rotation.
         M' = R(degrees, px, py) * M
     */
-    bool postRotate(SkScalar degrees, SkScalar px, SkScalar py);
+    void postRotate(SkScalar degrees, SkScalar px, SkScalar py);
     /** Postconcats the matrix with the specified rotation.
         M' = R(degrees) * M
     */
-    bool postRotate(SkScalar degrees);
+    void postRotate(SkScalar degrees);
     /** Postconcats the matrix with the specified skew.
         M' = K(kx, ky, px, py) * M
     */
-    bool postSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py);
+    void postSkew(SkScalar kx, SkScalar ky, SkScalar px, SkScalar py);
     /** Postconcats the matrix with the specified skew.
         M' = K(kx, ky) * M
     */
-    bool postSkew(SkScalar kx, SkScalar ky);
+    void postSkew(SkScalar kx, SkScalar ky);
     /** Postconcats the matrix with the specified matrix.
         M' = other * M
     */
-    bool postConcat(const SkMatrix& other);
+    void postConcat(const SkMatrix& other);
 
     enum ScaleToFit {
         /**

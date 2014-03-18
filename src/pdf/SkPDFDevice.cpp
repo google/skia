@@ -983,10 +983,7 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
             }
             origPath.transform(*prePathMatrix, pathPtr);
         } else {
-            if (!matrix.preConcat(*prePathMatrix)) {
-                // TODO(edisonn): report somehow why we failed?
-                return;
-            }
+            matrix.preConcat(*prePathMatrix);
         }
     }
 
