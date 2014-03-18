@@ -35,6 +35,11 @@ static void draw_mask(SkBitmap* bm) {
     canvas.drawCircle(10, 10, 10, circlePaint);
 }
 
+static void adopt_shader(SkPaint* paint, SkShader* shader) {
+    paint->setShader(shader);
+    SkSafeUnref(shader);
+}
+
 class BitmapShaderGM : public GM {
 public:
 
@@ -50,40 +55,33 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(75, 100);
+        return SkISize::Make(75, 100);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkShader* shader = SkShader::CreateBitmapShader(fBitmap,
-                                                        SkShader::kClamp_TileMode,
-                                                        SkShader::kClamp_TileMode);
         SkPaint paint;
-        paint.setShader(shader);
-        // release the shader ref as the paint now holds a reference
-        shader->unref();
+
+        adopt_shader(&paint, SkShader::CreateBitmapShader(fBitmap, SkShader::kClamp_TileMode,
+                                                          SkShader::kClamp_TileMode));
 
         // draw the shader with a bitmap mask
         canvas->drawBitmap(fMask, 0, 0, &paint);
         canvas->drawBitmap(fMask, 30, 0, &paint);
 
-           canvas->translate(0, 25);
+        canvas->translate(0, 25);
 
-        // draw the shader with standard geometry
-           canvas->drawCircle(10, 10, 10, paint);
-           canvas->drawCircle(40, 10, 10, paint); // no blue circle expected
+        canvas->drawCircle(10, 10, 10, paint);
+        canvas->drawCircle(40, 10, 10, paint); // no blue circle expected
 
-           canvas->translate(0, 25);
+        canvas->translate(0, 25);
 
-        shader = SkShader::CreateBitmapShader(fMask,
-                                              SkShader::kRepeat_TileMode,
-                                              SkShader::kRepeat_TileMode);
-        paint.setShader(shader);
+        adopt_shader(&paint, SkShader::CreateBitmapShader(fMask, SkShader::kRepeat_TileMode,
+                                                          SkShader::kRepeat_TileMode));
         paint.setColor(SK_ColorRED);
-        shader->unref();
 
-           // draw the mask using the shader and a color
-           canvas->drawRect(SkRect::MakeXYWH(0, 0, 20, 20), paint);
-           canvas->drawRect(SkRect::MakeXYWH(30, 0, 20, 20), paint);
+        // draw the mask using the shader and a color
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, 20, 20), paint);
+        canvas->drawRect(SkRect::MakeXYWH(30, 0, 20, 20), paint);
     }
 
 private:

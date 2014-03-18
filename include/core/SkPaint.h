@@ -514,7 +514,12 @@ public:
      *  once (e.g. bitmap tiling or gradient) and then change its transparency
      *  w/o having to modify the original shader... only the paint's alpha needs
      *  to be modified.
-     *  <p />
+     *
+     *  There is an exception to this only-respect-paint's-alpha rule: If the shader only generates
+     *  alpha (e.g. SkShader::CreateBitmapShader(bitmap, ...) where bitmap's colortype is kAlpha_8)
+     *  then the shader will use the paint's entire color to "colorize" its output (modulating the
+     *  bitmap's alpha with the paint's color+alpha).
+     *
      *  Pass NULL to clear any previous shader.
      *  As a convenience, the parameter passed is also returned.
      *  If a previous shader exists, its reference count is decremented.
