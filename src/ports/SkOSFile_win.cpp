@@ -50,18 +50,16 @@ bool sk_fidentical(SkFILE* a, SkFILE* b) {
            && aID.fVolume == bID.fVolume;
 }
 
-template <typename HandleType, HandleType InvalidValue, BOOL (WINAPI * Close)(HandleType)>
-class SkAutoTHandle : SkNoncopyable {
+class SkAutoNullKernelHandle : SkNoncopyable {
 public:
-    SkAutoTHandle(HandleType handle) : fHandle(handle) { }
-    ~SkAutoTHandle() { Close(fHandle); }
-    operator HandleType() { return fHandle; }
-    bool isValid() { return InvalidValue != fHandle; }
+    SkAutoNullKernelHandle(const HANDLE handle) : fHandle(handle) { }
+    ~SkAutoNullKernelHandle() { CloseHandle(fHandle); }
+    operator HANDLE() const { return fHandle; }
+    bool isValid() const { return NULL != fHandle; }
 private:
-    HandleType fHandle;
+    HANDLE fHandle;
 };
-typedef SkAutoTHandle<HANDLE, INVALID_HANDLE_VALUE, CloseHandle> SkAutoWinFile;
-typedef SkAutoTHandle<HANDLE, NULL, CloseHandle> SkAutoWinMMap;
+typedef SkAutoNullKernelHandle SkAutoWinMMap;
 
 void sk_fmunmap(const void* addr, size_t) {
     UnmapViewOfFile(addr);

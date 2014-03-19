@@ -7,7 +7,7 @@
 
 #include "SkTypes.h"
 
-#include "SKHRESULT.h"
+#include "SkHRESULT.h"
 
 void SkTraceHR(const char* file, unsigned long line,
                HRESULT hr, const char* msg) {
