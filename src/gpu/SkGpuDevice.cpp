@@ -433,6 +433,11 @@ bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, siz
     return true;
 }
 
+const SkBitmap& SkGpuDevice::onAccessBitmap() {
+    DO_DEFERRED_CLEAR();
+    return INHERITED::onAccessBitmap();
+}
+
 void SkGpuDevice::onAttachToCanvas(SkCanvas* canvas) {
     INHERITED::onAttachToCanvas(canvas);
 

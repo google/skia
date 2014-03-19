@@ -130,6 +130,8 @@ public:
     virtual void onAttachToCanvas(SkCanvas* canvas) SK_OVERRIDE;
     virtual void onDetachFromCanvas() SK_OVERRIDE;
 
+    virtual const SkBitmap& onAccessBitmap() SK_OVERRIDE;
+
     /**
      * Make's this device's rendertarget current in the underlying 3D API.
      * Also implicitly flushes.
