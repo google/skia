@@ -51,3 +51,8 @@ rrect_clip_aa
 # This change removes an API that this GM was testing. If/when it lands and sticks,
 # I will likely just delete the GM.
 canvas-layer-state
+
+# senorblanco: https://codereview.chromium.org/205073002/
+# This patch changes the LSB of raster lighting results, and will be rebaselined.
+imagefiltersscaled
+lighting
