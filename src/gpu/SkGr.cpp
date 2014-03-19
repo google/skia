@@ -34,11 +34,22 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
     SkColorTable* ctable = bitmap.getColorTable();
     char* dst = (char*)buffer;
 
-    uint32_t* colorTableDst = reinterpret_cast<uint32_t*>(dst);
-    const uint32_t* colorTableSrc = reinterpret_cast<const uint32_t*>(ctable->lockColors());
-    SkConvertConfig8888Pixels(colorTableDst, 0, SkCanvas::kRGBA_Premul_Config8888,
-                              colorTableSrc, 0, SkCanvas::kNative_Premul_Config8888,
-                              ctable->count(), 1);
+    const int count = ctable->count();
+
+    SkDstPixelInfo dstPI;
+    dstPI.fColorType = kRGBA_8888_SkColorType;
+    dstPI.fAlphaType = kPremul_SkAlphaType;
+    dstPI.fPixels = buffer;
+    dstPI.fRowBytes = count * sizeof(SkPMColor);
+    
+    SkSrcPixelInfo srcPI;
+    srcPI.fColorType = kPMColor_SkColorType;
+    srcPI.fAlphaType = kPremul_SkAlphaType;
+    srcPI.fPixels = ctable->lockColors();
+    srcPI.fRowBytes = count * sizeof(SkPMColor);
+
+    srcPI.convertPixelsTo(&dstPI, count, 1);
+
     ctable->unlockColors();
 
     // always skip a full 256 number of entries, even if we memcpy'd fewer

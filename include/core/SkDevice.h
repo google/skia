@@ -363,9 +363,11 @@ protected:
                              const SkImageFilter::Context& ctx,
                              SkBitmap* result, SkIPoint* offset) = 0;
 
+#ifdef SK_SUPPORT_LEGACY_CONFIG8888
     // This is equal kBGRA_Premul_Config8888 or kRGBA_Premul_Config8888 if
     // either is identical to kNative_Premul_Config8888. Otherwise, -1.
     static const SkCanvas::Config8888 kPMColorAlias;
+#endif
 
 protected:
     // default impl returns NULL
