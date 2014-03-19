@@ -26,6 +26,10 @@
 #include "SkRTree.h"
 #include "SkBBoxHierarchyRecord.h"
 
+#if SK_SUPPORT_GPU
+#include "GrContext.h"
+#endif
+
 #define DUMP_BUFFER_SIZE 65536
 
 //#define ENABLE_TIME_DRAW    // dumps milliseconds for each draw
@@ -445,6 +449,11 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     } else {
         buffer.writeBool(false);
     }
+}
+
+bool SkPicture::suitableForGpuRasterization(GrContext* context) const {
+    // Stub for now; never veto GPu rasterization.
+    return true;
 }
 
 bool SkPicture::willPlayBackBitmaps() const {
