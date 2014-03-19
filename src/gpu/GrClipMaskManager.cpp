@@ -268,7 +268,7 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
         SkVector clipToRTOffset = { SkIntToScalar(-clipDataIn->fOrigin.fX),
                                     SkIntToScalar(-clipDataIn->fOrigin.fY) };
         if (elements.isEmpty() ||
-            this->installClipEffects(elements, are, clipToRTOffset, devBounds)) {
+            (requiresAA && this->installClipEffects(elements, are, clipToRTOffset, devBounds))) {
             SkIRect scissorSpaceIBounds(clipSpaceIBounds);
             scissorSpaceIBounds.offset(-clipDataIn->fOrigin);
             if (NULL == devBounds ||
