@@ -111,6 +111,11 @@ public:
      */
     size_t getGpuTextureCacheBytes() const;
 
+    /**
+     * Returns the number of resources hosted by the texture cache.
+     */
+    int getGpuTextureCacheResourceCount() const;
+
     ///////////////////////////////////////////////////////////////////////////
     // Textures
 

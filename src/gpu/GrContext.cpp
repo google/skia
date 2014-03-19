@@ -220,6 +220,10 @@ size_t GrContext::getGpuTextureCacheBytes() const {
   return fTextureCache->getCachedResourceBytes();
 }
 
+int GrContext::getGpuTextureCacheResourceCount() const {
+  return fTextureCache->getCachedResourceCount();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 GrTexture* GrContext::findAndRefTexture(const GrTextureDesc& desc,

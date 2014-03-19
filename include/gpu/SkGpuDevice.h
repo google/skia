@@ -29,12 +29,18 @@ class GrTextContext;
  */
 class SK_API SkGpuDevice : public SkBitmapDevice {
 public:
+    enum Flags {
+        kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear 
+        kCached_Flag    = 1 << 1,  //!< Surface is cached and needs to be unlocked when released
+    };
 
     /**
      * Creates an SkGpuDevice from a GrSurface. This will fail if the surface is not a render
-     * target. The caller owns a ref on the returned device.
+     * target. The caller owns a ref on the returned device. If the surface is cached, 
+     * the kCached_Flag should be specified to make the device responsible for unlocking
+     * the surface when it is released.
      */
-    static SkGpuDevice* Create(GrSurface* surface);
+    static SkGpuDevice* Create(GrSurface* surface, unsigned flags = 0);
 
     /**
      *  New device that will create an offscreen renderTarget based on the
@@ -58,7 +64,7 @@ public:
      *  DEPRECATED -- need to make this private, call Create(surface)
      *  New device that will render to the specified renderTarget.
      */
-    SkGpuDevice(GrContext*, GrRenderTarget*);
+    SkGpuDevice(GrContext*, GrRenderTarget*, unsigned flags = 0);
 
     /**
      *  DEPRECATED -- need to make this private, call Create(surface)
@@ -66,7 +72,7 @@ public:
      *  The GrTexture's asRenderTarget() must be non-NULL or device will not
      *  function.
      */
-    SkGpuDevice(GrContext*, GrTexture*);
+    SkGpuDevice(GrContext*, GrTexture*, unsigned flags = 0);
 
     virtual ~SkGpuDevice();
 
@@ -173,10 +179,7 @@ private:
     bool                fNeedClear;
 
     // called from rt and tex cons
-    void initFromRenderTarget(GrContext*, GrRenderTarget*, bool cached);
-
-    // used by createCompatibleDevice
-    SkGpuDevice(GrContext*, GrTexture* texture, bool needClear);
+    void initFromRenderTarget(GrContext*, GrRenderTarget*, unsigned flags);
 
     virtual SkBaseDevice* onCreateDevice(const SkImageInfo&, Usage) SK_OVERRIDE;
 

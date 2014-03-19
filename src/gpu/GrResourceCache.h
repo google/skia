@@ -213,6 +213,11 @@ public:
      */
     size_t getCachedResourceBytes() const { return fEntryBytes; }
 
+    /**
+     * Returns the number of cached resources.
+     */
+    int getCachedResourceCount() const { return fEntryCount; }
+
     // For a found or added resource to be completely exclusive to the caller
     // both the kNoOtherOwners and kHide flags need to be specified
     enum OwnershipFlags {

@@ -73,6 +73,20 @@ public:
      */
     static SkSurface* NewRenderTarget(GrContext*, const SkImageInfo&, int sampleCount = 0);
 
+    /**
+     *  Return a new surface whose contents will be drawn to an offscreen
+     *  render target, allocated by the surface from the scratch texture pool
+     *  managed by the GrContext. The scratch texture pool serves the purpose
+     *  of retaining textures after they are no longer in use in order to
+     *  re-use them later without having to re-allocate.  Scratch textures
+     *  should be used in cases where high turnover is expected. This allows,
+     *  for example, the copy on write to recycle a texture from a recently
+     *  released SkImage snapshot of the surface.
+     *  Note: Scratch textures count against the GrContext's cached resource
+     *  budget.
+     */
+    static SkSurface* NewScratchRenderTarget(GrContext*, const SkImageInfo&, int sampleCount = 0);
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
 

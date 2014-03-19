@@ -24,6 +24,7 @@ enum SurfaceType {
     kRaster_SurfaceType,
     kRasterDirect_SurfaceType,
     kGpu_SurfaceType,
+    kGpuScratch_SurfaceType,
     kPicture_SurfaceType
 };
 
@@ -48,6 +49,11 @@ static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context,
         case kGpu_SurfaceType:
 #if SK_SUPPORT_GPU
             return context ? SkSurface::NewRenderTarget(context, info) : NULL;
+#endif
+            break;
+        case kGpuScratch_SurfaceType:
+#if SK_SUPPORT_GPU
+            return context ? SkSurface::NewScratchRenderTarget(context, info) : NULL;
 #endif
             break;
         case kPicture_SurfaceType:
@@ -123,7 +129,7 @@ static void test_imagepeek(skiatest::Reporter* reporter) {
     } gRec[] = {
         { kRasterCopy_ImageType,    true    },
         { kRasterData_ImageType,    true    },
-        { kGpu_ImageType,           false    },
+        { kGpu_ImageType,           false   },
         { kPicture_ImageType,       false   },
         { kCodec_ImageType,         false   },
     };
@@ -164,6 +170,7 @@ static void test_canvaspeek(skiatest::Reporter* reporter,
         { kRasterDirect_SurfaceType,    true    },
 #if SK_SUPPORT_GPU
         { kGpu_SurfaceType,             false   },
+        { kGpuScratch_SurfaceType,      false   },
 #endif
         { kPicture_SurfaceType,         false   },
     };
@@ -305,14 +312,36 @@ static void TestSurfaceWritableAfterSnapshotRelease(skiatest::Reporter* reporter
 }
 
 #if SK_SUPPORT_GPU
+static void TestSurfaceInCache(skiatest::Reporter* reporter,
+                               SurfaceType surfaceType,
+                               GrContext* context) {
+    context->freeGpuResources();
+    REPORTER_ASSERT(reporter, 0 == context->getGpuTextureCacheResourceCount());
+    SkAutoTUnref<SkSurface> surface(createSurface(surfaceType, context));
+    // Note: the stencil buffer is always cached, so kGpu_SurfaceType uses
+    // one cached resource, and kGpuScratch_SurfaceType uses two.
+    int expectedCachedResources = surfaceType == kGpuScratch_SurfaceType ? 2 : 1;
+    REPORTER_ASSERT(reporter, expectedCachedResources == context->getGpuTextureCacheResourceCount());
+
+    // Verify that all the cached resources are locked in cache.
+    context->freeGpuResources(); 
+    REPORTER_ASSERT(reporter, expectedCachedResources == context->getGpuTextureCacheResourceCount());
+
+    // Verify that all the cached resources are unlocked upon surface release
+    surface.reset(0);
+    context->freeGpuResources();
+    REPORTER_ASSERT(reporter, 0 == context->getGpuTextureCacheResourceCount()); 
+}
+
 static void Test_crbug263329(skiatest::Reporter* reporter,
+                             SurfaceType surfaceType,
                              GrContext* context) {
     // This is a regression test for crbug.com/263329
     // Bug was caused by onCopyOnWrite releasing the old surface texture
     // back to the scratch texture pool even though the texture is used
     // by and active SkImage_Gpu.
-    SkAutoTUnref<SkSurface> surface1(createSurface(kGpu_SurfaceType, context));
-    SkAutoTUnref<SkSurface> surface2(createSurface(kGpu_SurfaceType, context));
+    SkAutoTUnref<SkSurface> surface1(createSurface(surfaceType, context));
+    SkAutoTUnref<SkSurface> surface2(createSurface(surfaceType, context));
     SkCanvas* canvas1 = surface1->getCanvas();
     SkCanvas* canvas2 = surface2->getCanvas();
     canvas1->clear(1);
@@ -345,7 +374,7 @@ static void TestGetTexture(skiatest::Reporter* reporter,
     SkAutoTUnref<SkSurface> surface(createSurface(surfaceType, context));
     SkAutoTUnref<SkImage> image(surface->newImageSnapshot());
     GrTexture* texture = image->getTexture();
-    if (surfaceType == kGpu_SurfaceType) {
+    if (surfaceType == kGpu_SurfaceType || surfaceType == kGpuScratch_SurfaceType) {
         REPORTER_ASSERT(reporter, NULL != texture);
         REPORTER_ASSERT(reporter, 0 != texture->getTextureHandle());
     } else {
@@ -407,12 +436,20 @@ DEF_GPUTEST(Surface, reporter, factory) {
     if (NULL != factory) {
         GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
         if (NULL != context) {
-            Test_crbug263329(reporter, context);
+            TestSurfaceInCache(reporter, kGpu_SurfaceType, context);
+            TestSurfaceInCache(reporter, kGpuScratch_SurfaceType, context);
+            Test_crbug263329(reporter, kGpu_SurfaceType, context);
+            Test_crbug263329(reporter, kGpuScratch_SurfaceType, context);
             TestSurfaceCopyOnWrite(reporter, kGpu_SurfaceType, context);
+            TestSurfaceCopyOnWrite(reporter, kGpuScratch_SurfaceType, context);
             TestSurfaceWritableAfterSnapshotRelease(reporter, kGpu_SurfaceType, context);
+            TestSurfaceWritableAfterSnapshotRelease(reporter, kGpuScratch_SurfaceType, context);
             TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kDiscard_ContentChangeMode);
+            TestSurfaceNoCanvas(reporter, kGpuScratch_SurfaceType, context, SkSurface::kDiscard_ContentChangeMode);
             TestSurfaceNoCanvas(reporter, kGpu_SurfaceType, context, SkSurface::kRetain_ContentChangeMode);
+            TestSurfaceNoCanvas(reporter, kGpuScratch_SurfaceType, context, SkSurface::kRetain_ContentChangeMode);
             TestGetTexture(reporter, kGpu_SurfaceType, context);
+            TestGetTexture(reporter, kGpuScratch_SurfaceType, context);
         }
     }
 #endif
