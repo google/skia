@@ -451,10 +451,12 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
+#if SK_SUPPORT_GPU
 bool SkPicture::suitableForGpuRasterization(GrContext* context) const {
     // Stub for now; never veto GPu rasterization.
     return true;
 }
+#endif
 
 bool SkPicture::willPlayBackBitmaps() const {
     if (!fPlayback) {
