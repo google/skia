@@ -36,6 +36,7 @@ DEFINE_string2(skpPath, r, "", "Read this .skp file or .skp files from this dir"
 DEFINE_string2(luaFile, l, "", "File containing lua script to run");
 DEFINE_string2(headCode, s, "", "Optional lua code to call at beginning");
 DEFINE_string2(tailFunc, s, "", "Optional lua function to call at end");
+DEFINE_bool2(quiet, q, false, "Silence all non-error related output");
 
 static SkPicture* load_picture(const char path[]) {
     SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path));
@@ -97,7 +98,9 @@ int tool_main(int argc, char** argv) {
 
     for (int i = 0; i < FLAGS_luaFile.count(); ++i) {
         SkAutoDataUnref data(read_into_data(FLAGS_luaFile[i]));
-        SkDebugf("loading %s...\n", FLAGS_luaFile[i]);
+        if (!FLAGS_quiet) {
+            SkDebugf("loading %s...\n", FLAGS_luaFile[i]);
+        }
         if (!L.runCode(data->data(), data->size())) {
             SkDebugf("failed to load luaFile %s\n", FLAGS_luaFile[i]);
             exit(-1);
@@ -144,7 +147,9 @@ int tool_main(int argc, char** argv) {
                 moduloStr.printf("[%d.%d] ", i, moduloDivisor);
             }
             const char* path = paths[i].c_str();
-            SkDebugf("scraping %s %s\n", path, moduloStr.c_str());
+            if (!FLAGS_quiet) {
+                SkDebugf("scraping %s %s\n", path, moduloStr.c_str());
+            }
 
             SkAutoTUnref<SkPicture> pic(load_picture(path));
             if (pic.get()) {
