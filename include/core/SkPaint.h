@@ -1046,10 +1046,6 @@ public:
 
 private:
     SkTypeface*     fTypeface;
-    SkScalar        fTextSize;
-    SkScalar        fTextScaleX;
-    SkScalar        fTextSkewX;
-
     SkPathEffect*   fPathEffect;
     SkShader*       fShader;
     SkXfermode*     fXfermode;
@@ -1060,10 +1056,12 @@ private:
     SkImageFilter*  fImageFilter;
     SkAnnotation*   fAnnotation;
 
+    SkScalar        fTextSize;
+    SkScalar        fTextScaleX;
+    SkScalar        fTextSkewX;
     SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
-
     union {
         struct {
             // all of these bitfields should add up to 32
@@ -1078,10 +1076,10 @@ private:
         };
         uint32_t fBitfields;
     };
+    uint32_t fDirtyBits;
+
     uint32_t getBitfields() const { return fBitfields; }
     void setBitfields(uint32_t bitfields);
-
-    uint32_t fDirtyBits;
 
     SkDrawCacheProc    getDrawCacheProc() const;
     SkMeasureCacheProc getMeasureCacheProc(TextBufferDirection dir,
