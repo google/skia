@@ -73,7 +73,7 @@ void PictureBenchmark::run(SkPicture* pict) {
         return;
     }
 
-    fRenderer->init(pict);
+    fRenderer->init(pict, NULL, NULL, false);
 
     // We throw this away to remove first time effects (such as paging in this program)
     fRenderer->setup();

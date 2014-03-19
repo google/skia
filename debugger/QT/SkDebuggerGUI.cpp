@@ -319,10 +319,10 @@ void SkDebuggerGUI::run(SkTimedPicture* pict,
         return;
     }
 
-    renderer->init(pict);
+    renderer->init(pict, NULL, NULL, false);
 
     renderer->setup();
-    renderer->render(NULL);
+    renderer->render();
     renderer->resetState(true);    // flush, swapBuffers and Finish
 
     // We throw this away the first batch of times to remove first time effects (such as paging in this program)
@@ -330,7 +330,7 @@ void SkDebuggerGUI::run(SkTimedPicture* pict,
 
     for (int i = 0; i < repeats; ++i) {
         renderer->setup();
-        renderer->render(NULL);
+        renderer->render();
         renderer->resetState(false);  // flush & swapBuffers, but don't Finish
     }
     renderer->resetState(true);    // flush, swapBuffers and Finish

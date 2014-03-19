@@ -29,6 +29,8 @@ DEFINE_int32(maxComponentDiff, 256, "Maximum diff on a component, 0 - 256. Compo
              "by more than this amount are considered errors, though all diffs are reported. "
              "Requires --validate.");
 DECLARE_string(readPath);
+DEFINE_bool(writeChecksumBasedFilenames, false,
+            "When writing out images, use checksum-based filenames.");
 DEFINE_bool(writeEncodedImages, false, "Any time the skp contains an encoded image, write it to a "
             "file rather than decoding it. Requires writePath to be set. Skips drawing the full "
             "skp to a file. Not compatible with deferImageDecoding.");
@@ -145,6 +147,10 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* o
                                     SkBitmap** out) {
     SkString inputFilename;
     sk_tools::get_basename(&inputFilename, inputPath);
+    SkString outputDirString;
+    if (NULL != outputDir && outputDir->size() > 0 && !FLAGS_writeEncodedImages) {
+        outputDirString.set(*outputDir);
+    }
 
     SkFILEStream inputStream;
     inputStream.setPath(inputPath.c_str());
@@ -189,7 +195,7 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* o
     SkDebugf("drawing... [%i %i] %s\n", picture->width(), picture->height(),
              inputPath.c_str());
 
-    renderer.init(picture);
+    renderer.init(picture, &outputDirString, &inputFilename, FLAGS_writeChecksumBasedFilenames);
 
     if (FLAGS_preprocess) {
         if (NULL != renderer.getCanvas()) {
@@ -199,18 +205,9 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* o
 
     renderer.setup();
 
-    SkString* outputPath = NULL;
-    if (NULL != outputDir && outputDir->size() > 0 && !FLAGS_writeEncodedImages) {
-        outputPath = SkNEW(SkString);
-        make_output_filepath(outputPath, *outputDir, inputFilename);
-    }
-
-    bool success = renderer.render(outputPath, out);
-    if (outputPath) {
-        if (!success) {
-            SkDebugf("Could not write to file %s\n", outputPath->c_str());
-        }
-        SkDELETE(outputPath);
+    bool success = renderer.render(out);
+    if (!success) {
+        SkDebugf("Failed to render %s\n", inputFilename.c_str());
     }
 
     renderer.end();
@@ -352,13 +349,13 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
         sk_tools::force_all_opaque(*bitmap);
 
         if (NULL != jsonSummaryPtr) {
-            // EPOGER: This is a hacky way of constructing the filename associated with the
+            // TODO(epoger): This is a hacky way of constructing the filename associated with the
             // image checksum; we basically are repeating the logic of make_output_filepath()
             // and code below here, within here.
             // It would be better for the filename (without outputDir) to be passed in here,
             // and used both for the checksum file and writing into outputDir.
             //
-            // EPOGER: what about including the config type within hashFilename?  That way,
+            // TODO(epoger): what about including the config type within hashFilename?  That way,
             // we could combine results of different config types without conflicting filenames.
             SkString hashFilename;
             sk_tools::get_basename(&hashFilename, inputPath);

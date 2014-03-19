@@ -44,6 +44,14 @@ class TiledPictureRenderer;
 class ImageResultsSummary {
 public:
     /**
+     * Adds this bitmap hash to the summary of results.
+     *
+     * @param testName name of the test
+     * @param hash hash to store
+     */
+    void add(const char *testName, uint64_t hash);
+
+    /**
      * Adds this bitmap's hash to the summary of results.
      *
      * @param testName name of the test
@@ -105,8 +113,16 @@ public:
 
     /**
      * Called with each new SkPicture to render.
+     *
+     * @param pict The SkPicture to render.
+     * @param outputDir The output directory within which this renderer should write files,
+     *     or NULL if this renderer should not write files at all.
+     * @param inputFilename The name of the input file we are rendering.
+     * @param useChecksumBasedFilenames Whether to use checksum-based filenames when writing
+     *     bitmap images to disk.
      */
-    virtual void init(SkPicture* pict);
+    virtual void init(SkPicture* pict, const SkString* outputDir,
+                      const SkString* inputFilename, bool useChecksumBasedFilenames);
 
     /**
      *  Set the viewport so that only the portion listed gets drawn.
@@ -125,15 +141,20 @@ public:
     virtual void setup() {}
 
     /**
-     * Perform work that is to be timed. Typically this is rendering, but is also used for recording
-     * and preparing picture for playback by the subclasses which do those.
-     * If path is non-null, subclass implementations should call write().
-     * @param path If non-null, also write the output to the file specified by path. path should
-     *             have no extension; it will be added by write().
-     * @return bool True if rendering succeeded and, if path is non-null, the output was
-     *             successfully written to a file.
+     * Perform the work.  If this is being called within the context of bench_pictures,
+     * this is the step that will be timed.
+     *
+     * Typically "the work" is rendering an SkPicture into a bitmap, but in some subclasses
+     * it is recording the source SkPicture into another SkPicture.
+     *
+     * If fOutputDir has been specified, the result of the work will be written to that dir.
+     *
+     * @param out If non-null, the implementing subclass MAY allocate an SkBitmap, copy the
+     *            output image into it, and return it here.  (Some subclasses ignore this parameter)
+     * @return bool True if rendering succeeded and, if fOutputDir had been specified, the output
+     *              was successfully written to a file.
      */
-    virtual bool render(const SkString* path, SkBitmap** out = NULL) = 0;
+    virtual bool render(SkBitmap** out = NULL) = 0;
 
     /**
      * Called once finished with a particular SkPicture, before calling init again, and before
@@ -371,11 +392,14 @@ public:
 protected:
     SkAutoTUnref<SkCanvas> fCanvas;
     SkPicture*             fPicture;
+    bool                   fUseChecksumBasedFilenames;
     ImageResultsSummary*   fJsonSummaryPtr;
     SkDeviceTypes          fDeviceType;
     BBoxHierarchyType      fBBoxHierarchyType;
     DrawFilterFlags        fDrawFilters[SkDrawFilter::kTypeCount];
     SkString               fDrawFiltersConfig;
+    SkString               fOutputDir;
+    SkString               fInputFilename;
     SkTileGridPicture::TileGridInfo fGridInfo; // used when fBBoxHierarchyType is TileGrid
 
     void buildBBoxHierarchy();
@@ -402,6 +426,11 @@ protected:
     SkCanvas* setupCanvas();
     virtual SkCanvas* setupCanvas(int width, int height);
 
+    /**
+     * Copy src to dest; if src==NULL, set dest to empty string.
+     */
+    static void CopyString(SkString* dest, const SkString* src);
+
 private:
     SkISize                fViewport;
     SkScalar               fScaleFactor;
@@ -421,7 +450,7 @@ private:
  * to time.
  */
 class RecordPictureRenderer : public PictureRenderer {
-    virtual bool render(const SkString*, SkBitmap** out = NULL) SK_OVERRIDE;
+    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
     virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
 
@@ -436,7 +465,7 @@ private:
 
 class PipePictureRenderer : public PictureRenderer {
 public:
-    virtual bool render(const SkString*, SkBitmap** out = NULL) SK_OVERRIDE;
+    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
 private:
     virtual SkString getConfigNameInternal() SK_OVERRIDE;
@@ -446,9 +475,10 @@ private:
 
 class SimplePictureRenderer : public PictureRenderer {
 public:
-    virtual void init(SkPicture* pict) SK_OVERRIDE;
+    virtual void init(SkPicture* pict, const SkString* outputDir,
+                      const SkString* inputFilename, bool useChecksumBasedFilenames) SK_OVERRIDE;
 
-    virtual bool render(const SkString*, SkBitmap** out = NULL) SK_OVERRIDE;
+    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
 private:
     virtual SkString getConfigNameInternal() SK_OVERRIDE;
@@ -460,14 +490,16 @@ class TiledPictureRenderer : public PictureRenderer {
 public:
     TiledPictureRenderer();
 
-    virtual void init(SkPicture* pict) SK_OVERRIDE;
+    virtual void init(SkPicture* pict, const SkString* outputDir,
+                      const SkString* inputFilename, bool useChecksumBasedFilenames) SK_OVERRIDE;
 
     /**
-     * Renders to tiles, rather than a single canvas. If a path is provided, a separate file is
+     * Renders to tiles, rather than a single canvas.
+     * If fOutputDir was provided, a separate file is
      * created for each tile, named "path0.png", "path1.png", etc.
      * Multithreaded mode currently does not support writing to a file.
      */
-    virtual bool render(const SkString* path, SkBitmap** out = NULL) SK_OVERRIDE;
+    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
     virtual void end() SK_OVERRIDE;
 
@@ -583,12 +615,13 @@ public:
 
     ~MultiCorePictureRenderer();
 
-    virtual void init(SkPicture* pict) SK_OVERRIDE;
+    virtual void init(SkPicture* pict, const SkString* outputDir,
+                      const SkString* inputFilename, bool useChecksumBasedFilenames) SK_OVERRIDE;
 
     /**
      * Behaves like TiledPictureRenderer::render(), only using multiple threads.
      */
-    virtual bool render(const SkString* path, SkBitmap** out = NULL) SK_OVERRIDE;
+    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
     virtual void end() SK_OVERRIDE;
 
@@ -615,7 +648,7 @@ class PlaybackCreationRenderer : public PictureRenderer {
 public:
     virtual void setup() SK_OVERRIDE;
 
-    virtual bool render(const SkString*, SkBitmap** out = NULL) SK_OVERRIDE;
+    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
 
     virtual SkString getPerIterTimeFormat() SK_OVERRIDE { return SkString("%.4f"); }
 

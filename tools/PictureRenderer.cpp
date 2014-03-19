@@ -58,13 +58,17 @@ const static char kJsonKey_ActualResults[]   = "actual-results";
 const static char kJsonKey_ActualResults_NoComparison[]  = "no-comparison";
 const static char kJsonKey_Hashtype_Bitmap_64bitMD5[]  = "bitmap-64bitMD5";
 
-void ImageResultsSummary::add(const char *testName, const SkBitmap& bitmap) {
-    uint64_t hash;
-    SkAssertResult(SkBitmapHasher::ComputeDigest(bitmap, &hash));
+void ImageResultsSummary::add(const char *testName, uint64_t hash) {
     Json::Value jsonTypeValuePair;
     jsonTypeValuePair.append(Json::Value(kJsonKey_Hashtype_Bitmap_64bitMD5));
     jsonTypeValuePair.append(Json::UInt64(hash));
     fActualResultsNoComparison[testName] = jsonTypeValuePair;
+}
+
+void ImageResultsSummary::add(const char *testName, const SkBitmap& bitmap) {
+    uint64_t hash;
+    SkAssertResult(SkBitmapHasher::ComputeDigest(bitmap, &hash));
+    this->add(testName, hash);
 }
 
 void ImageResultsSummary::writeToFile(const char *filename) {
@@ -77,7 +81,12 @@ void ImageResultsSummary::writeToFile(const char *filename) {
     stream.write(jsonStdString.c_str(), jsonStdString.length());
 }
 
-void PictureRenderer::init(SkPicture* pict) {
+void PictureRenderer::init(SkPicture* pict, const SkString* outputDir,
+                           const SkString* inputFilename, bool useChecksumBasedFilenames) {
+    this->CopyString(&fOutputDir, outputDir);
+    this->CopyString(&fInputFilename, inputFilename);
+    fUseChecksumBasedFilenames = useChecksumBasedFilenames;
+
     SkASSERT(NULL == fPicture);
     SkASSERT(NULL == fCanvas.get());
     if (fPicture != NULL || NULL != fCanvas.get()) {
@@ -92,6 +101,14 @@ void PictureRenderer::init(SkPicture* pict) {
     fPicture = pict;
     fPicture->ref();
     fCanvas.reset(this->setupCanvas());
+}
+
+void PictureRenderer::CopyString(SkString* dest, const SkString* src) {
+    if (NULL != src) {
+        dest->set(*src);
+    } else {
+        dest->reset();
+    }
 }
 
 class FlagsDrawFilter : public SkDrawFilter {
@@ -281,10 +298,13 @@ uint32_t PictureRenderer::recordFlags() {
 
 /**
  * Write the canvas to the specified path.
+ *
  * @param canvas Must be non-null. Canvas to be written to a file.
- * @param path Path for the file to be written. Should have no extension; write() will append
- *             an appropriate one. Passed in by value so it can be modified.
+ * @param outputDir If nonempty, write the binary image to a file within this directory.
+ * @param inputFilename If we are writing out a binary image, use this to build its filename.
  * @param jsonSummaryPtr If not null, add image results to this summary.
+ * @param useChecksumBasedFilenames If true, use checksum-based filenames when writing to disk.
+ * @param numberToAppend If not null, append this number to the filename.
  * @return bool True if the Canvas is written to a file.
  *
  * TODO(epoger): Right now, all canvases must pass through this function in order to be appended
@@ -295,51 +315,62 @@ uint32_t PictureRenderer::recordFlags() {
  * called even if --writePath was not specified...
  *  const char *outputDir   // NULL if we don't want to write image files to disk
  *  const char *filename    // name we use within JSON summary, and as the filename within outputDir
+ *
+ * UPDATE: Now that outputDir and inputFilename are passed separately, we should be able to do that.
  */
-static bool write(SkCanvas* canvas, const SkString* path, ImageResultsSummary *jsonSummaryPtr) {
+static bool write(SkCanvas* canvas, const SkString& outputDir, const SkString& inputFilename,
+                  ImageResultsSummary *jsonSummaryPtr, bool useChecksumBasedFilenames,
+                  const int* numberToAppend=NULL) {
     SkASSERT(canvas != NULL);
     if (NULL == canvas) {
         return false;
     }
 
-    SkASSERT(path != NULL);  // TODO(epoger): we want to remove this constraint, as noted above
-    SkString fullPathname(*path);
-    fullPathname.append(".png");
-
     SkBitmap bitmap;
     SkISize size = canvas->getDeviceSize();
     sk_tools::setup_bitmap(&bitmap, size.width(), size.height());
 
+    // Make sure we only compute the bitmap hash once (at most).
+    uint64_t hash;
+    bool generatedHash = false;
+
     canvas->readPixels(&bitmap, 0, 0);
     sk_tools::force_all_opaque(bitmap);
 
+    SkString outputFilename(inputFilename);
+    outputFilename.remove(outputFilename.size() - 4, 4);
+    if (NULL != numberToAppend) {
+        outputFilename.appendf("%i", *numberToAppend);
+    }
+    outputFilename.append(".png");
+    // TODO(epoger): what about including the config type within outputFilename?  That way,
+    // we could combine results of different config types without conflicting filenames.
+
     if (NULL != jsonSummaryPtr) {
-        // EPOGER: This is a hacky way of constructing the filename associated with the
-        // image checksum; we assume that outputDir is not NULL, and we remove outputDir
-        // from fullPathname.
-        //
-        // EPOGER: what about including the config type within hashFilename?  That way,
-        // we could combine results of different config types without conflicting filenames.
-        SkString hashFilename;
-        sk_tools::get_basename(&hashFilename, fullPathname);
-        jsonSummaryPtr->add(hashFilename.c_str(), bitmap);
+        if (!generatedHash) {
+            SkAssertResult(SkBitmapHasher::ComputeDigest(bitmap, &hash));
+            generatedHash = true;
+        }
+        jsonSummaryPtr->add(outputFilename.c_str(), hash);
     }
 
+    // Update outputFilename AFTER adding to JSON summary, but BEFORE writing out the image file.
+    if (useChecksumBasedFilenames) {
+        if (!generatedHash) {
+            SkAssertResult(SkBitmapHasher::ComputeDigest(bitmap, &hash));
+            generatedHash = true;
+        }
+        outputFilename.set(kJsonKey_Hashtype_Bitmap_64bitMD5);
+        outputFilename.append("_");
+        outputFilename.appendU64(hash);
+        outputFilename.append(".png");
+    }
+
+    SkASSERT(!outputDir.isEmpty()); // TODO(epoger): we want to remove this constraint,
+                                    // as noted above
+    SkString fullPathname;
+    make_filepath(&fullPathname, outputDir, outputFilename);
     return SkImageEncoder::EncodeFile(fullPathname.c_str(), bitmap, SkImageEncoder::kPNG_Type, 100);
-}
-
-/**
- * If path is non NULL, append number to it, and call write() to write the
- * provided canvas to a file. Returns true if path is NULL or if write() succeeds.
- */
-static bool writeAppendNumber(SkCanvas* canvas, const SkString* path, int number,
-                              ImageResultsSummary *jsonSummaryPtr) {
-    if (NULL == path) {
-        return true;
-    }
-    SkString pathWithNumber(*path);
-    pathWithNumber.appendf("%i", number);
-    return write(canvas, &pathWithNumber, jsonSummaryPtr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -354,18 +385,17 @@ static SkData* encode_bitmap_to_data(size_t*, const SkBitmap& bm) {
     return SkImageEncoder::EncodeData(bm, SkImageEncoder::kPNG_Type, 100);
 }
 
-bool RecordPictureRenderer::render(const SkString* path, SkBitmap** out) {
+bool RecordPictureRenderer::render(SkBitmap** out) {
     SkAutoTUnref<SkPicture> replayer(this->createPicture());
     SkCanvas* recorder = replayer->beginRecording(this->getViewWidth(), this->getViewHeight(),
                                                   this->recordFlags());
     this->scaleToScaleFactor(recorder);
     fPicture->draw(recorder);
     replayer->endRecording();
-    if (path != NULL) {
+    if (!fOutputDir.isEmpty()) {
         // Record the new picture as a new SKP with PNG encoded bitmaps.
-        SkString skpPath(*path);
-        // ".skp" was removed from 'path' before being passed in here.
-        skpPath.append(".skp");
+        SkString skpPath;
+        make_filepath(&skpPath, fOutputDir, fInputFilename);
         SkFILEWStream stream(skpPath.c_str());
         replayer->serialize(&stream, &encode_bitmap_to_data);
         return true;
@@ -379,7 +409,7 @@ SkString RecordPictureRenderer::getConfigNameInternal() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PipePictureRenderer::render(const SkString* path, SkBitmap** out) {
+bool PipePictureRenderer::render(SkBitmap** out) {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
     if (NULL == fCanvas.get() || NULL == fPicture) {
@@ -392,8 +422,9 @@ bool PipePictureRenderer::render(const SkString* path, SkBitmap** out) {
     pipeCanvas->drawPicture(*fPicture);
     writer.endRecording();
     fCanvas->flush();
-    if (NULL != path) {
-        return write(fCanvas, path, fJsonSummaryPtr);
+    if (!fOutputDir.isEmpty()) {
+        return write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
+                     fUseChecksumBasedFilenames);
     }
     if (NULL != out) {
         *out = SkNEW(SkBitmap);
@@ -409,12 +440,13 @@ SkString PipePictureRenderer::getConfigNameInternal() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-void SimplePictureRenderer::init(SkPicture* picture) {
-    INHERITED::init(picture);
+void SimplePictureRenderer::init(SkPicture* picture, const SkString* outputDir,
+                                 const SkString* inputFilename, bool useChecksumBasedFilenames) {
+    INHERITED::init(picture, outputDir, inputFilename, useChecksumBasedFilenames);
     this->buildBBoxHierarchy();
 }
 
-bool SimplePictureRenderer::render(const SkString* path, SkBitmap** out) {
+bool SimplePictureRenderer::render(SkBitmap** out) {
     SkASSERT(fCanvas.get() != NULL);
     SkASSERT(fPicture != NULL);
     if (NULL == fCanvas.get() || NULL == fPicture) {
@@ -423,8 +455,9 @@ bool SimplePictureRenderer::render(const SkString* path, SkBitmap** out) {
 
     fCanvas->drawPicture(*fPicture);
     fCanvas->flush();
-    if (NULL != path) {
-        return write(fCanvas, path, fJsonSummaryPtr);
+    if (!fOutputDir.isEmpty()) {
+        return write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
+                     fUseChecksumBasedFilenames);
     }
 
     if (NULL != out) {
@@ -452,7 +485,8 @@ TiledPictureRenderer::TiledPictureRenderer()
     , fTilesX(0)
     , fTilesY(0) { }
 
-void TiledPictureRenderer::init(SkPicture* pict) {
+void TiledPictureRenderer::init(SkPicture* pict, const SkString* outputDir,
+                                const SkString* inputFilename, bool useChecksumBasedFilenames) {
     SkASSERT(pict != NULL);
     SkASSERT(0 == fTileRects.count());
     if (NULL == pict || fTileRects.count() != 0) {
@@ -462,6 +496,9 @@ void TiledPictureRenderer::init(SkPicture* pict) {
     // Do not call INHERITED::init(), which would create a (potentially large) canvas which is not
     // used by bench_pictures.
     fPicture = pict;
+    this->CopyString(&fOutputDir, outputDir);
+    this->CopyString(&fInputFilename, inputFilename);
+    fUseChecksumBasedFilenames = useChecksumBasedFilenames;
     fPicture->ref();
     this->buildBBoxHierarchy();
 
@@ -623,7 +660,7 @@ void TiledPictureRenderer::drawCurrentTile() {
     draw_tile_to_canvas(fCanvas, fTileRects[fCurrentTileOffset], fPicture);
 }
 
-bool TiledPictureRenderer::render(const SkString* path, SkBitmap** out) {
+bool TiledPictureRenderer::render(SkBitmap** out) {
     SkASSERT(fPicture != NULL);
     if (NULL == fPicture) {
         return false;
@@ -638,8 +675,9 @@ bool TiledPictureRenderer::render(const SkString* path, SkBitmap** out) {
     bool success = true;
     for (int i = 0; i < fTileRects.count(); ++i) {
         draw_tile_to_canvas(fCanvas, fTileRects[i], fPicture);
-        if (NULL != path) {
-            success &= writeAppendNumber(fCanvas, path, i, fJsonSummaryPtr);
+        if (!fOutputDir.isEmpty()) {
+            success &= write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
+                             fUseChecksumBasedFilenames, &i);
         }
         if (NULL != out) {
             if (fCanvas->readPixels(&bitmap, 0, 0)) {
@@ -698,16 +736,16 @@ class CloneData : public SkRunnable {
 
 public:
     CloneData(SkPicture* clone, SkCanvas* canvas, SkTDArray<SkRect>& rects, int start, int end,
-              SkRunnable* done, ImageResultsSummary* jsonSummaryPtr)
+              SkRunnable* done, ImageResultsSummary* jsonSummaryPtr, bool useChecksumBasedFilenames)
         : fClone(clone)
         , fCanvas(canvas)
-        , fPath(NULL)
         , fRects(rects)
         , fStart(start)
         , fEnd(end)
         , fSuccess(NULL)
         , fDone(done)
-        , fJsonSummaryPtr(jsonSummaryPtr) {
+        , fJsonSummaryPtr(jsonSummaryPtr)
+        , fUseChecksumBasedFilenames(useChecksumBasedFilenames) {
         SkASSERT(fDone != NULL);
     }
 
@@ -722,7 +760,9 @@ public:
 
         for (int i = fStart; i < fEnd; i++) {
             draw_tile_to_canvas(fCanvas, fRects[i], fClone);
-            if ((fPath != NULL) && !writeAppendNumber(fCanvas, fPath, i, fJsonSummaryPtr)
+            if ((!fOutputDir.isEmpty())
+                && !write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
+                          fUseChecksumBasedFilenames, &i)
                 && fSuccess != NULL) {
                 *fSuccess = false;
                 // If one tile fails to write to a file, do not continue drawing the rest.
@@ -743,8 +783,10 @@ public:
         fDone->run();
     }
 
-    void setPathAndSuccess(const SkString* path, bool* success) {
-        fPath = path;
+    void setPathsAndSuccess(const SkString& outputDir, const SkString& inputFilename,
+                            bool* success) {
+        fOutputDir.set(outputDir);
+        fInputFilename.set(inputFilename);
         fSuccess = success;
     }
 
@@ -757,7 +799,8 @@ private:
     SkPicture*         fClone;      // Picture to draw from. Each CloneData has a unique one which
                                     // is threadsafe.
     SkCanvas*          fCanvas;     // Canvas to draw to. Reused for each tile.
-    const SkString*    fPath;       // If non-null, path to write the result to as a PNG.
+    SkString           fOutputDir;  // If not empty, write results into this directory.
+    SkString           fInputFilename; // Filename of input SkPicture file.
     SkTDArray<SkRect>& fRects;      // All tiles of the picture.
     const int          fStart;      // Range of tiles drawn by this thread.
     const int          fEnd;
@@ -766,6 +809,7 @@ private:
     SkRunnable*        fDone;
     SkBitmap*          fBitmap;
     ImageResultsSummary* fJsonSummaryPtr;
+    bool               fUseChecksumBasedFilenames;
 };
 
 MultiCorePictureRenderer::MultiCorePictureRenderer(int threadCount)
@@ -778,9 +822,10 @@ MultiCorePictureRenderer::MultiCorePictureRenderer(int threadCount)
     fCloneData = SkNEW_ARRAY(CloneData*, fNumThreads);
 }
 
-void MultiCorePictureRenderer::init(SkPicture *pict) {
+void MultiCorePictureRenderer::init(SkPicture *pict, const SkString* outputDir,
+                                    const SkString* inputFilename, bool useChecksumBasedFilenames) {
     // Set fPicture and the tiles.
-    this->INHERITED::init(pict);
+    this->INHERITED::init(pict, outputDir, inputFilename, useChecksumBasedFilenames);
     for (int i = 0; i < fNumThreads; ++i) {
         *fCanvasPool.append() = this->setupCanvas(this->getTileWidth(), this->getTileHeight());
     }
@@ -802,15 +847,15 @@ void MultiCorePictureRenderer::init(SkPicture *pict) {
         const int end = SkMin32(start + chunkSize, fTileRects.count());
         fCloneData[i] = SkNEW_ARGS(CloneData,
                                    (pic, fCanvasPool[i], fTileRects, start, end, &fCountdown,
-                                    fJsonSummaryPtr));
+                                    fJsonSummaryPtr, useChecksumBasedFilenames));
     }
 }
 
-bool MultiCorePictureRenderer::render(const SkString *path, SkBitmap** out) {
+bool MultiCorePictureRenderer::render(SkBitmap** out) {
     bool success = true;
-    if (path != NULL) {
+    if (!fOutputDir.isEmpty()) {
         for (int i = 0; i < fNumThreads-1; i++) {
-            fCloneData[i]->setPathAndSuccess(path, &success);
+            fCloneData[i]->setPathsAndSuccess(fOutputDir, fInputFilename, &success);
         }
     }
 
@@ -868,7 +913,7 @@ void PlaybackCreationRenderer::setup() {
     fPicture->draw(recorder);
 }
 
-bool PlaybackCreationRenderer::render(const SkString*, SkBitmap** out) {
+bool PlaybackCreationRenderer::render(SkBitmap** out) {
     fReplayer->endRecording();
     // Since this class does not actually render, return false.
     return false;
@@ -915,14 +960,14 @@ SkPicture* PictureRenderer::createPicture() {
 
 class GatherRenderer : public PictureRenderer {
 public:
-    virtual bool render(const SkString* path, SkBitmap** out = NULL)
+    virtual bool render(SkBitmap** out = NULL)
             SK_OVERRIDE {
         SkRect bounds = SkRect::MakeWH(SkIntToScalar(fPicture->width()),
                                        SkIntToScalar(fPicture->height()));
         SkData* data = SkPictureUtils::GatherPixelRefs(fPicture, bounds);
         SkSafeUnref(data);
 
-        return NULL == path;    // we don't have anything to write
+        return (fOutputDir.isEmpty());    // we don't have anything to write
     }
 
 private:
@@ -939,14 +984,14 @@ PictureRenderer* CreateGatherPixelRefsRenderer() {
 
 class PictureCloneRenderer : public PictureRenderer {
 public:
-    virtual bool render(const SkString* path, SkBitmap** out = NULL)
+    virtual bool render(SkBitmap** out = NULL)
             SK_OVERRIDE {
         for (int i = 0; i < 100; ++i) {
             SkPicture* clone = fPicture->clone();
             SkSafeUnref(clone);
         }
 
-        return NULL == path;    // we don't have anything to write
+        return (fOutputDir.isEmpty());    // we don't have anything to write
     }
 
 private:

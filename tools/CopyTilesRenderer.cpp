@@ -20,11 +20,17 @@ namespace sk_tools {
     : fXTilesPerLargeTile(x)
     , fYTilesPerLargeTile(y) {
     }
-    void CopyTilesRenderer::init(SkPicture* pict) {
+    void CopyTilesRenderer::init(SkPicture* pict, const SkString* outputDir,
+                                 const SkString* inputFilename, bool useChecksumBasedFilenames) {
+        // Do not call INHERITED::init(), which would create a (potentially large) canvas which is
+        // not used by bench_pictures.
         SkASSERT(pict != NULL);
         // Only work with absolute widths (as opposed to percentages).
         SkASSERT(this->getTileWidth() != 0 && this->getTileHeight() != 0);
         fPicture = pict;
+        this->CopyString(&fOutputDir, outputDir);
+        this->CopyString(&fInputFilename, inputFilename);
+        fUseChecksumBasedFilenames = useChecksumBasedFilenames;
         fPicture->ref();
         this->buildBBoxHierarchy();
         // In order to avoid allocating a large canvas (particularly important for GPU), create one
@@ -34,7 +40,7 @@ namespace sk_tools {
         fCanvas.reset(this->INHERITED::setupCanvas(fLargeTileWidth, fLargeTileHeight));
     }
 
-    bool CopyTilesRenderer::render(const SkString* path, SkBitmap** out) {
+    bool CopyTilesRenderer::render(SkBitmap** out) {
         int i = 0;
         bool success = true;
         SkBitmap dst;
@@ -59,10 +65,14 @@ namespace sk_tools {
                         SkDEBUGCODE(bool extracted =)
                         baseBitmap.extractSubset(&dst, subset);
                         SkASSERT(extracted);
-                        if (path != NULL) {
-                            // Similar to writeAppendNumber in PictureRenderer.cpp, but just encodes
+                        if (!fOutputDir.isEmpty()) {
+                            // Similar to write() in PictureRenderer.cpp, but just encodes
                             // a bitmap directly.
-                            SkString pathWithNumber(*path);
+                            // TODO: Share more common code with write() to do this, to properly
+                            // write out the JSON summary, etc.
+                            SkString pathWithNumber;
+                            make_filepath(&pathWithNumber, fOutputDir, fInputFilename);
+                            pathWithNumber.remove(pathWithNumber.size() - 4, 4);
                             pathWithNumber.appendf("%i.png", i++);
                             SkBitmap copy;
 #if SK_SUPPORT_GPU

@@ -23,13 +23,14 @@ namespace sk_tools {
 
     public:
         CopyTilesRenderer(int x, int y);
-        virtual void init(SkPicture* pict) SK_OVERRIDE;
+        virtual void init(SkPicture* pict, const SkString* outputDir, const SkString* inputFilename,
+                          bool useChecksumBasedFilenames) SK_OVERRIDE;
 
         /**
          *  Similar to TiledPictureRenderer, this will draw a PNG for each tile. However, the
          *  numbering (and actual tiles) will be different.
          */
-        virtual bool render(const SkString* path, SkBitmap** out) SK_OVERRIDE;
+        virtual bool render(SkBitmap** out) SK_OVERRIDE;
 
         virtual bool supportsTimingIndividualTiles() SK_OVERRIDE { return false; }
 

@@ -37,10 +37,15 @@ class RenderPicturesTest(base_unittest.TestCase):
     """Run render_pictures with tiles and --writeWholeImage flag."""
     output_json_path = os.path.join(self._temp_dir, 'output.json')
     self._generate_skps()
+    # TODO(epoger): I noticed that when this is run without --writePath being
+    # specified, this test writes red.png and green.png to the current working
+    # directory.  We should fix that... if --writePath is not specified, this
+    # probably shouldn't write out red.png and green.png at all!
     self._run_render_pictures(['-r', self._input_skp_dir,
                                '--bbh', 'grid', '256', '256',
                                '--mode', 'tile', '256', '256',
                                '--writeJsonSummaryPath', output_json_path,
+                               '--writePath', self._temp_dir,
                                '--writeWholeImage'])
     expected_summary_dict = {
         "actual-results" : {
@@ -53,6 +58,8 @@ class RenderPicturesTest(base_unittest.TestCase):
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
+    self._assert_directory_contents(
+        self._temp_dir, ['red.png', 'green.png', 'output.json'])
 
   def test_untiled(self):
     """Run without tiles."""
@@ -72,6 +79,32 @@ class RenderPicturesTest(base_unittest.TestCase):
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
+    self._assert_directory_contents(
+        self._temp_dir, ['red.png', 'green.png', 'output.json'])
+
+  def test_untiled_writeChecksumBasedFilenames(self):
+    """Same as test_untiled, but with --writeChecksumBasedFilenames."""
+    output_json_path = os.path.join(self._temp_dir, 'output.json')
+    self._generate_skps()
+    self._run_render_pictures(['-r', self._input_skp_dir,
+                               '--writeChecksumBasedFilenames',
+                               '--writePath', self._temp_dir,
+                               '--writeJsonSummaryPath', output_json_path])
+    expected_summary_dict = {
+        "actual-results" : {
+            "no-comparison" : {
+                # Manually verified: 640x400 red rectangle with black border
+                "red.png" : ["bitmap-64bitMD5", 11092453015575919668],
+                # Manually verified: 640x400 green rectangle with black border
+                "green.png" : ["bitmap-64bitMD5", 8891695120562235492],
+            }
+        }
+    }
+    self._assert_json_contents(output_json_path, expected_summary_dict)
+    self._assert_directory_contents(
+        self._temp_dir, ['bitmap-64bitMD5_11092453015575919668.png',
+                         'bitmap-64bitMD5_8891695120562235492.png',
+                         'output.json'])
 
   def test_untiled_validate(self):
     """Same as test_untiled, but with --validate.
@@ -142,6 +175,62 @@ class RenderPicturesTest(base_unittest.TestCase):
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
+    self._assert_directory_contents(
+        self._temp_dir,
+        ['red0.png', 'red1.png', 'red2.png', 'red3.png', 'red4.png', 'red5.png',
+         'green0.png', 'green1.png', 'green2.png', 'green3.png', 'green4.png',
+         'green5.png', 'output.json'])
+
+  def test_tiled_writeChecksumBasedFilenames(self):
+    """Same as test_tiled, but with --writeChecksumBasedFilenames."""
+    output_json_path = os.path.join(self._temp_dir, 'output.json')
+    self._generate_skps()
+    self._run_render_pictures(['-r', self._input_skp_dir,
+                               '--bbh', 'grid', '256', '256',
+                               '--mode', 'tile', '256', '256',
+                               '--writeChecksumBasedFilenames',
+                               '--writePath', self._temp_dir,
+                               '--writeJsonSummaryPath', output_json_path])
+    expected_summary_dict = {
+        "actual-results" : {
+            "no-comparison" : {
+                # Manually verified these 6 images, all 256x256 tiles,
+                # consistent with a tiled version of the 640x400 red rect
+                # with black borders.
+                "red0.png" : ["bitmap-64bitMD5", 5815827069051002745],
+                "red1.png" : ["bitmap-64bitMD5", 9323613075234140270],
+                "red2.png" : ["bitmap-64bitMD5", 16670399404877552232],
+                "red3.png" : ["bitmap-64bitMD5", 2507897274083364964],
+                "red4.png" : ["bitmap-64bitMD5", 7325267995523877959],
+                "red5.png" : ["bitmap-64bitMD5", 2181381724594493116],
+                # Manually verified these 6 images, all 256x256 tiles,
+                # consistent with a tiled version of the 640x400 green rect
+                # with black borders.
+                "green0.png" : ["bitmap-64bitMD5", 12587324416545178013],
+                "green1.png" : ["bitmap-64bitMD5", 7624374914829746293],
+                "green2.png" : ["bitmap-64bitMD5", 5686489729535631913],
+                "green3.png" : ["bitmap-64bitMD5", 7980646035555096146],
+                "green4.png" : ["bitmap-64bitMD5", 17817086664365875131],
+                "green5.png" : ["bitmap-64bitMD5", 10673669813016809363],
+            }
+        }
+    }
+    self._assert_json_contents(output_json_path, expected_summary_dict)
+    self._assert_directory_contents(
+        self._temp_dir,
+        ['bitmap-64bitMD5_5815827069051002745.png',
+         'bitmap-64bitMD5_9323613075234140270.png',
+         'bitmap-64bitMD5_16670399404877552232.png',
+         'bitmap-64bitMD5_2507897274083364964.png',
+         'bitmap-64bitMD5_7325267995523877959.png',
+         'bitmap-64bitMD5_2181381724594493116.png',
+         'bitmap-64bitMD5_12587324416545178013.png',
+         'bitmap-64bitMD5_7624374914829746293.png',
+         'bitmap-64bitMD5_5686489729535631913.png',
+         'bitmap-64bitMD5_7980646035555096146.png',
+         'bitmap-64bitMD5_17817086664365875131.png',
+         'bitmap-64bitMD5_10673669813016809363.png',
+         'output.json'])
 
   def _run_render_pictures(self, args):
     binary = self.find_path_to_program('render_pictures')
@@ -178,6 +267,20 @@ class RenderPicturesTest(base_unittest.TestCase):
                              '--height', str(height),
                              '--writePath', str(output_path),
                              ])
+
+  def _assert_directory_contents(self, dir_path, expected_filenames):
+    """Asserts that files found in a dir are identical to expected_filenames.
+
+    Args:
+      dir_path: Path to a directory on local disk.
+      expected_filenames: Set containing the expected filenames within the dir.
+
+    Raises:
+      AssertionError: contents of the directory are not identical to
+                      expected_filenames.
+    """
+    self.assertEqual(set(os.listdir(dir_path)), set(expected_filenames))
+
 
   def _assert_json_contents(self, json_path, expected_dict):
     """Asserts that contents of a JSON file are identical to expected_dict.
