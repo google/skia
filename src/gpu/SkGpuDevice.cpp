@@ -209,7 +209,7 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
 
     SkImageInfo info;
     surface->asImageInfo(&info);
-    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, surface, flags & kCached_Flag));
+    SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, surface, SkToBool(flags & kCached_Flag)));
 
     this->setPixelRef(pr)->unref();
 }
