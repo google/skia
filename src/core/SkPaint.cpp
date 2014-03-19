@@ -108,29 +108,18 @@ SkPaint::SkPaint() {
 }
 
 SkPaint::SkPaint(const SkPaint& src) {
-#define COPY(field) field = src.field
-#define REF_COPY(field) field = SkSafeRef(src.field)
-    REF_COPY(fTypeface);
-    REF_COPY(fPathEffect);
-    REF_COPY(fShader);
-    REF_COPY(fXfermode);
-    REF_COPY(fMaskFilter);
-    REF_COPY(fColorFilter);
-    REF_COPY(fRasterizer);
-    REF_COPY(fLooper);
-    REF_COPY(fImageFilter);
-    REF_COPY(fAnnotation);
+    memcpy(this, &src, sizeof(src));
 
-    COPY(fTextSize);
-    COPY(fTextScaleX);
-    COPY(fTextSkewX);
-    COPY(fColor);
-    COPY(fWidth);
-    COPY(fMiterLimit);
-    COPY(fBitfields);
-    COPY(fDirtyBits);
-#undef COPY
-#undef REF_COPY
+    SkSafeRef(fTypeface);
+    SkSafeRef(fPathEffect);
+    SkSafeRef(fShader);
+    SkSafeRef(fXfermode);
+    SkSafeRef(fMaskFilter);
+    SkSafeRef(fColorFilter);
+    SkSafeRef(fRasterizer);
+    SkSafeRef(fLooper);
+    SkSafeRef(fImageFilter);
+    SkSafeRef(fAnnotation);
 
 #ifdef SK_BUILD_FOR_ANDROID
     new (&fPaintOptionsAndroid) SkPaintOptionsAndroid(src.fPaintOptionsAndroid);
