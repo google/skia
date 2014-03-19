@@ -347,10 +347,10 @@ static bool write(SkCanvas* canvas, const SkString& outputDir, const SkString& i
     // we could combine results of different config types without conflicting filenames.
 
     if (NULL != jsonSummaryPtr) {
-        if (!generatedHash) {
-            SkAssertResult(SkBitmapHasher::ComputeDigest(bitmap, &hash));
-            generatedHash = true;
-        }
+        SkASSERT(!generatedHash);
+        SkAssertResult(SkBitmapHasher::ComputeDigest(bitmap, &hash));
+        generatedHash = true;
+
         jsonSummaryPtr->add(outputFilename.c_str(), hash);
     }
 
