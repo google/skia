@@ -34,7 +34,8 @@ class ResultsTest(base_unittest.TestCase):
     results_obj = results.Results(
         actuals_root=os.path.join(self._input_dir, 'gm-actuals'),
         expected_root=os.path.join(self._input_dir, 'gm-expectations'),
-        generated_images_root=self._temp_dir)
+        generated_images_root=self._temp_dir,
+        diff_base_url='/static/generated-images')
     results_obj.get_timestamp = mock_get_timestamp
     gm_json.WriteToFile(
         results_obj.get_packaged_results_of_type(

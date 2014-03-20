@@ -20,6 +20,7 @@ import imagepairset
 
 BASE_URL_1 = 'http://base/url/1'
 BASE_URL_2 = 'http://base/url/2'
+DIFF_BASE_URL = 'http://diff/base/url'
 IMAGEPAIR_1_AS_DICT = {
     imagepair.KEY__EXTRA_COLUMN_VALUES: {
         'builder': 'MyBuilder',
@@ -116,18 +117,19 @@ class ImagePairSetTest(unittest.TestCase):
                 'description': SET_B_DESCRIPTION,
             },
             'diffs': {
-                'baseUrl': '/static/generated-images/diffs',
+                'baseUrl': DIFF_BASE_URL + '/diffs',
                 'description': 'color difference per channel',
             },
             'whiteDiffs': {
-                'baseUrl': '/static/generated-images/whitediffs',
+                'baseUrl': DIFF_BASE_URL + '/whitediffs',
                 'description': 'differing pixels in white',
             },
         },
     }
 
     image_pair_set = imagepairset.ImagePairSet(
-        descriptions=(SET_A_DESCRIPTION, SET_B_DESCRIPTION))
+        descriptions=(SET_A_DESCRIPTION, SET_B_DESCRIPTION),
+        diff_base_url=DIFF_BASE_URL)
     for image_pair in image_pairs:
       image_pair_set.add_image_pair(image_pair)
     # The 'builder' column header uses the default settings,
@@ -144,7 +146,8 @@ class ImagePairSetTest(unittest.TestCase):
 
   def test_mismatched_base_url(self):
     """Confirms that mismatched base_urls will cause an exception."""
-    image_pair_set = imagepairset.ImagePairSet()
+    image_pair_set = imagepairset.ImagePairSet(
+        diff_base_url=DIFF_BASE_URL)
     image_pair_set.add_image_pair(
         MockImagePair(base_url=BASE_URL_1, dict_to_return=IMAGEPAIR_1_AS_DICT))
     image_pair_set.add_image_pair(

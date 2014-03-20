@@ -28,7 +28,6 @@ KEY__IMAGESETS__SET__IMAGE_B = 'imageB'
 KEY__IMAGESETS__SET__WHITEDIFFS = 'whiteDiffs'
 
 DEFAULT_DESCRIPTIONS = ('setA', 'setB')
-DIFF_BASE_URL = '/static/generated-images'
 
 
 class ImagePairSet(object):
@@ -40,9 +39,10 @@ class ImagePairSet(object):
   - or any other pairwise set of images.
   """
 
-  def __init__(self, descriptions=None):
+  def __init__(self, diff_base_url, descriptions=None):
     """
     Args:
+      diff_base_url: base URL indicating where diff images can be loaded from
       descriptions: a (string, string) tuple describing the two image sets.
           If not specified, DEFAULT_DESCRIPTIONS will be used.
     """
@@ -52,7 +52,7 @@ class ImagePairSet(object):
                                      #                -> instances_per_value
     self._image_pair_dicts = []
     self._image_base_url = None
-    self._diff_base_url = DIFF_BASE_URL
+    self._diff_base_url = diff_base_url
 
   def add_image_pair(self, image_pair):
     """Adds an ImagePair; this may be repeated any number of times."""

@@ -21,6 +21,10 @@ import time
 
 # Imports from within Skia
 #
+# TODO(epoger): Once we move the create_filepath_url() function out of
+# download_actuals into a shared utility module, we won't need to import
+# download_actuals anymore.
+#
 # We need to add the 'gm' directory, so that we can import gm_json.py within
 # that directory.  That script allows us to parse the actual-results.json file
 # written out by the GM tool.
@@ -31,6 +35,7 @@ GM_DIRECTORY = os.path.dirname(PARENT_DIRECTORY)
 TRUNK_DIRECTORY = os.path.dirname(GM_DIRECTORY)
 if GM_DIRECTORY not in sys.path:
   sys.path.append(GM_DIRECTORY)
+import download_actuals
 import gm_json
 import imagediffdb
 import imagepair
@@ -76,8 +81,8 @@ IMAGEPAIR_SET_DESCRIPTIONS = ('expected image', 'actual image')
 
 DEFAULT_ACTUALS_DIR = '.gm-actuals'
 DEFAULT_EXPECTATIONS_DIR = os.path.join(TRUNK_DIRECTORY, 'expectations', 'gm')
-DEFAULT_GENERATED_IMAGES_ROOT = os.path.join(PARENT_DIRECTORY, 'static',
-                                             'generated-images')
+DEFAULT_GENERATED_IMAGES_ROOT = os.path.join(
+    PARENT_DIRECTORY, '.generated-images')
 
 
 class Results(object):
@@ -92,16 +97,23 @@ class Results(object):
 
   def __init__(self, actuals_root=DEFAULT_ACTUALS_DIR,
                expected_root=DEFAULT_EXPECTATIONS_DIR,
-               generated_images_root=DEFAULT_GENERATED_IMAGES_ROOT):
+               generated_images_root=DEFAULT_GENERATED_IMAGES_ROOT,
+               diff_base_url=None):
     """
     Args:
       actuals_root: root directory containing all actual-results.json files
       expected_root: root directory containing all expected-results.json files
       generated_images_root: directory within which to create all pixel diffs;
           if this directory does not yet exist, it will be created
+      diff_base_url: base URL within which the client should look for diff
+          images; if not specified, defaults to a "file:///" URL representation
+          of generated_images_root
     """
     time_start = int(time.time())
     self._image_diff_db = imagediffdb.ImageDiffDB(generated_images_root)
+    self._diff_base_url = (
+        diff_base_url or
+        download_actuals.create_filepath_url(generated_images_root))
     self._actuals_root = actuals_root
     self._expected_root = expected_root
     self._load_actual_and_expected()
@@ -343,8 +355,12 @@ class Results(object):
                  self._expected_root)
     expected_builder_dicts = Results._read_dicts_from_root(self._expected_root)
 
-    all_image_pairs = imagepairset.ImagePairSet(IMAGEPAIR_SET_DESCRIPTIONS)
-    failing_image_pairs = imagepairset.ImagePairSet(IMAGEPAIR_SET_DESCRIPTIONS)
+    all_image_pairs = imagepairset.ImagePairSet(
+        descriptions=IMAGEPAIR_SET_DESCRIPTIONS,
+        diff_base_url=self._diff_base_url)
+    failing_image_pairs = imagepairset.ImagePairSet(
+        descriptions=IMAGEPAIR_SET_DESCRIPTIONS,
+        diff_base_url=self._diff_base_url)
 
     all_image_pairs.ensure_extra_column_values_in_summary(
         column_id=KEY__EXTRACOLUMN__RESULT_TYPE, values=[
