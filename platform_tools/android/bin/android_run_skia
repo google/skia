@@ -41,6 +41,7 @@ if [ -z "$($ADB $DEVICE_SERIAL shell 'if [ -f $STATUS_FILENAME ]; then echo exis
 fi
 EXIT_CODE=`$ADB ${DEVICE_SERIAL} shell cat ${STATUS_FILENAME}`
 $ADB ${DEVICE_SERIAL} shell rm ${STATUS_FILENAME}
+echo "EXIT_CODE is [${EXIT_CODE}]"
 if [ $'0\r' != ${EXIT_CODE} ]; then
   exit 1
 fi
