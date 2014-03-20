@@ -1559,18 +1559,6 @@ void SkPictureRecord::endCommentGroup() {
 // [op/size] [rect] [skip offset]
 static const uint32_t kPushCullOpSize = 2 * kUInt32Size + sizeof(SkRect);
 void SkPictureRecord::onPushCull(const SkRect& cullRect) {
-    // Skip identical cull rects.
-    if (!fCullOffsetStack.isEmpty()) {
-        const SkRect& prevCull = fWriter.readTAt<SkRect>(fCullOffsetStack.top() - sizeof(SkRect));
-        if (prevCull == cullRect) {
-            // Skipped culls are tracked on the stack, but they point to the previous offset.
-            fCullOffsetStack.push(fCullOffsetStack.top());
-            return;
-        }
-
-        SkASSERT(prevCull.contains(cullRect));
-    }
-
     uint32_t size = kPushCullOpSize;
     size_t initialOffset = this->addDraw(PUSH_CULL, &size);
     // PUSH_CULL's size should stay constant (used to rewind).
@@ -1587,11 +1575,6 @@ void SkPictureRecord::onPopCull() {
 
     uint32_t cullSkipOffset = fCullOffsetStack.top();
     fCullOffsetStack.pop();
-
-    // Skipped push, do the same for pop.
-    if (!fCullOffsetStack.isEmpty() && cullSkipOffset == fCullOffsetStack.top()) {
-        return;
-    }
 
     // Collapse empty push/pop pairs.
     if ((size_t)(cullSkipOffset + kUInt32Size) == fWriter.bytesWritten()) {

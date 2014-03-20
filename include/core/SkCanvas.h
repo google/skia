@@ -1063,20 +1063,13 @@ public:
      *  is not enforced, but the information might be used to quick-reject command blocks,
      *  so an incorrect bounding box may result in incomplete rendering.
      */
-    void pushCull(const SkRect& cullRect) {
-        ++fCullCount;
-        this->onPushCull(cullRect);
-    }
+    void pushCull(const SkRect& cullRect);
 
     /**
      *  Terminates the current culling block, and restores the previous one (if any).
      */
-    void popCull() {
-        if (fCullCount > 0) {
-            --fCullCount;
-            this->onPopCull();
-        }
-    }
+    void popCull();
+
     //////////////////////////////////////////////////////////////////////////
 
     /** Get the current bounder object.
@@ -1394,6 +1387,9 @@ private:
     };
 
 #ifdef SK_DEBUG
+    // The cull stack rects are in device-space
+    SkTDArray<SkIRect> fCullStack;
+    void validateCull(const SkIRect&);
     void validateClip() const;
 #else
     void validateClip() const {}

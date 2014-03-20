@@ -1162,6 +1162,60 @@ void SkCanvas::onPopCull() {
 }
 
 /////////////////////////////////////////////////////////////////////////////
+#ifdef SK_DEBUG
+// Ensure that cull rects are monotonically nested in device space.
+void SkCanvas::validateCull(const SkIRect& devCull) {
+    if (fCullStack.isEmpty()
+        || devCull.isEmpty()
+        || fCullStack.top().contains(devCull)) {
+        return;
+    }
+
+    SkDEBUGF(("Invalid cull: [%d %d %d %d] (previous cull: [%d %d %d %d])\n",
+              devCull.x(), devCull.y(), devCull.right(), devCull.bottom(),
+              fCullStack.top().x(), fCullStack.top().y(),
+              fCullStack.top().right(), fCullStack.top().bottom()));
+
+#ifdef ASSERT_NESTED_CULLING
+    SkDEBUGFAIL("Invalid cull.");
+#endif
+}
+#endif
+
+void SkCanvas::pushCull(const SkRect& cullRect) {
+    ++fCullCount;
+    this->onPushCull(cullRect);
+
+#ifdef SK_DEBUG
+    // Map the cull rect into device space.
+    SkRect mappedCull;
+    this->getTotalMatrix().mapRect(&mappedCull, cullRect);
+
+    // Take clipping into account.
+    SkIRect devClip, devCull;
+    mappedCull.roundOut(&devCull);
+    this->getClipDeviceBounds(&devClip);
+    if (!devCull.intersect(devClip)) {
+        devCull.setEmpty();
+    }
+
+    this->validateCull(devCull);
+    fCullStack.push(devCull); // balanced in popCull
+#endif
+}
+
+void SkCanvas::popCull() {
+    SkASSERT(fCullStack.count() == fCullCount);
+
+    if (fCullCount > 0) {
+        --fCullCount;
+        this->onPopCull();
+
+        SkDEBUGCODE(fCullStack.pop());
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap,
                                 const SkMatrix& matrix, const SkPaint* paint) {
