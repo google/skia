@@ -15,8 +15,7 @@
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
-#if defined(__ARM_HAVE_NEON) && defined(SK_CPU_LENDIAN)
-    #define SK_USE_NEON
+#if SK_ARM_NEON_IS_ALWAYS && defined(SK_CPU_LENDIAN)
     #include <arm_neon.h>
 #else
     // if we don't have neon, then our black blitter is worth the extra code
@@ -384,7 +383,7 @@ void SkRGB16_Opaque_Blitter::blitMask(const SkMask& mask,
     unsigned    maskRB = mask.fRowBytes - width;
     uint32_t    expanded32 = fExpandedRaw16;
 
-#ifdef SK_USE_NEON
+#if SK_ARM_NEON_IS_ALWAYS && defined(SK_CPU_LENDIAN)
 #define    UNROLL    8
     do {
         int w = width;
