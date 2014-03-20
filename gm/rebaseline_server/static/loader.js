@@ -164,6 +164,20 @@ Loader.controller(
           // If any defaults were overridden in the URL, get them now.
           $scope.queryParameters.load();
 
+          // Any image URLs which are relative should be relative to the JSON
+          // file's source directory; absolute URLs should be left alone.
+          var baseUrlKey = constants.KEY__IMAGESETS__FIELD__BASE_URL;
+          angular.forEach(
+            $scope.imageSets,
+            function(imageSet) {
+              var baseUrl = imageSet[baseUrlKey];
+              if ((baseUrl.substring(0, 1) != '/') &&
+                  (baseUrl.indexOf('://') == -1)) {
+                imageSet[baseUrlKey] = $scope.resultsToLoad + '/../' + baseUrl;
+              }
+            }
+          );
+
           $scope.updateResults();
           $scope.loadingMessage = "";
           $scope.windowTitle = "Current GM Results";
