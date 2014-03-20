@@ -102,7 +102,7 @@
 // no need to pass in the colortype to this function.
 static inline uint32_t SkSwizzle_RB(uint32_t c) {
     static const uint32_t kRBMask = (0xFF << SK_R32_SHIFT) | (0xFF << SK_B32_SHIFT);
-    
+
     unsigned c0 = (c >> SK_R32_SHIFT) & 0xFF;
     unsigned c1 = (c >> SK_B32_SHIFT) & 0xFF;
     return (c & ~kRBMask) | (c0 << SK_B32_SHIFT) | (c1 << SK_R32_SHIFT);

@@ -190,7 +190,7 @@ static bool checkWrite(skiatest::Reporter* reporter, SkCanvas* canvas, const SkB
     SkImageInfo canvasInfo;
     size_t canvasRowBytes;
     const uint32_t* canvasPixels;
-    
+
     // Can't use canvas->peekPixels(), as we are trying to look at GPU pixels sometimes as well.
     // At some point this will be unsupported, as we won't allow accessBitmap() to magically call
     // readPixels for the client.
@@ -441,7 +441,7 @@ DEF_GPUTEST(WritePixels, reporter, factory) {
                     for (size_t c = 0; c < SK_ARRAY_COUNT(gSrcConfigs); ++c) {
                         const SkColorType ct = gSrcConfigs[c].fColorType;
                         const SkAlphaType at = gSrcConfigs[c].fAlphaType;
-                
+
                         fillCanvas(&canvas);
                         SkBitmap bmp;
                         REPORTER_ASSERT(reporter, setupBitmap(&bmp, ct, at, rect.width(),

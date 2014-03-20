@@ -41,7 +41,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
     dstPI.fAlphaType = kPremul_SkAlphaType;
     dstPI.fPixels = buffer;
     dstPI.fRowBytes = count * sizeof(SkPMColor);
-    
+
     SkSrcPixelInfo srcPI;
     srcPI.fColorType = kPMColor_SkColorType;
     srcPI.fAlphaType = kPremul_SkAlphaType;

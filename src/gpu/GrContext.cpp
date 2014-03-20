@@ -1411,13 +1411,13 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
         dstPI.fAlphaType = kUnpremul_SkAlphaType;
         dstPI.fPixels = buffer;
         dstPI.fRowBytes = rowBytes;
-        
+
         SkSrcPixelInfo srcPI;
         srcPI.fColorType = swapRAndB ? toggle_colortype32(dstPI.fColorType) : dstPI.fColorType;
         srcPI.fAlphaType = kPremul_SkAlphaType;
         srcPI.fPixels = buffer;
         srcPI.fRowBytes = rowBytes;
-        
+
         return srcPI.convertPixelsTo(&dstPI, width, height);
     }
     return true;
@@ -1556,7 +1556,7 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
             if (!srcPI.convertPixelsTo(&dstPI, width, height)) {
                 return false;
             }
-            
+
             buffer = tmpPixels.get();
             rowBytes = 4 * width;
         }

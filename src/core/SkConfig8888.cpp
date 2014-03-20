@@ -13,7 +13,7 @@ template <bool doSwapRB, AlphaVerb doAlpha> uint32_t convert32(uint32_t c) {
     if (doSwapRB) {
         c = SkSwizzle_RB(c);
     }
-    
+
     // Lucky for us, in both RGBA and BGRA, the alpha component is always in the same place, so
     // we can perform premul or unpremul the same way without knowing the swizzles for RGB.
     switch (doAlpha) {
@@ -115,4 +115,3 @@ bool SkSrcPixelInfo::convertPixelsTo(SkDstPixelInfo* dst, int width, int height)
     }
     return true;
 }
-
