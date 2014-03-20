@@ -30,13 +30,13 @@ class GrTextContext;
 class SK_API SkGpuDevice : public SkBitmapDevice {
 public:
     enum Flags {
-        kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
+        kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear 
         kCached_Flag    = 1 << 1,  //!< Surface is cached and needs to be unlocked when released
     };
 
     /**
      * Creates an SkGpuDevice from a GrSurface. This will fail if the surface is not a render
-     * target. The caller owns a ref on the returned device. If the surface is cached,
+     * target. The caller owns a ref on the returned device. If the surface is cached, 
      * the kCached_Flag should be specified to make the device responsible for unlocking
      * the surface when it is released.
      */

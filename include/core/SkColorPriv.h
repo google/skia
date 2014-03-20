@@ -1,9 +1,11 @@
+
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 
 #ifndef SkColorPriv_DEFINED
 #define SkColorPriv_DEFINED
@@ -15,134 +17,6 @@
 
 #include "SkColor.h"
 #include "SkMath.h"
-
-//////////////////////////////////////////////////////////////////////////////
-
-#define SkASSERT_IS_BYTE(x)     SkASSERT(0 == ((x) & ~0xFF))
-
-/*
- *  Skia's 32bit backend only supports 1 sizzle order at a time (compile-time).
- *  This is specified by 4 defines SK_A32_SHIFT, SK_R32_SHIFT, ... for G and B.
- *
- *  For easier compatibility with Skia's GPU backend, we further restrict these
- *  to either (in memory-byte-order) RGBA or BGRA. Note that this "order" does
- *  not directly correspond to the same shift-order, since we have to take endianess
- *  into account.
- *
- *  Here we enforce this constraint.
- */
-
-#ifdef SK_CPU_BENDIAN
-    #define SK_RGBA_R32_SHIFT   24
-    #define SK_RGBA_G32_SHIFT   16
-    #define SK_RGBA_B32_SHIFT   8
-    #define SK_RGBA_A32_SHIFT   0
-
-    #define SK_BGRA_B32_SHIFT   24
-    #define SK_BGRA_G32_SHIFT   16
-    #define SK_BGRA_R32_SHIFT   8
-    #define SK_BGRA_A32_SHIFT   0
-#else
-    #define SK_RGBA_R32_SHIFT   0
-    #define SK_RGBA_G32_SHIFT   8
-    #define SK_RGBA_B32_SHIFT   16
-    #define SK_RGBA_A32_SHIFT   24
-
-    #define SK_BGRA_B32_SHIFT   0
-    #define SK_BGRA_G32_SHIFT   8
-    #define SK_BGRA_R32_SHIFT   16
-    #define SK_BGRA_A32_SHIFT   24
-#endif
-
-#if defined(SK_PMCOLOR_IS_RGBA) && defined(SK_PMCOLOR_IS_BGRA)
-    #error "can't define PMCOLOR to be RGBA and BGRA"
-#endif
-
-#define LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_RGBA  \
-    (SK_A32_SHIFT == SK_RGBA_A32_SHIFT &&    \
-     SK_R32_SHIFT == SK_RGBA_R32_SHIFT &&    \
-     SK_G32_SHIFT == SK_RGBA_G32_SHIFT &&    \
-     SK_B32_SHIFT == SK_RGBA_B32_SHIFT)
-
-#define LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_BGRA  \
-    (SK_A32_SHIFT == SK_BGRA_A32_SHIFT &&    \
-     SK_R32_SHIFT == SK_BGRA_R32_SHIFT &&    \
-     SK_G32_SHIFT == SK_BGRA_G32_SHIFT &&    \
-     SK_B32_SHIFT == SK_BGRA_B32_SHIFT)
-
-
-#if defined(SK_PMCOLOR_IS_RGBA) && !LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_RGBA
-    #error "SK_PMCOLOR_IS_RGBA does not match SK_*32_SHIFT values"
-#endif
-
-#if defined(SK_PMCOLOR_IS_BGRA) && !LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_BGRA
-    #error "SK_PMCOLOR_IS_BGRA does not match SK_*32_SHIFT values"
-#endif
-
-#if !defined(SK_PMCOLOR_IS_RGBA) && !defined(SK_PMCOLOR_IS_RGBA)
-    // deduce which to define from the _SHIFT defines
-
-    #if LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_RGBA
-        #define SK_PMCOLOR_IS_RGBA
-    #elif LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_BGRA
-        #define SK_PMCOLOR_IS_BGRA
-    #else
-        #error "need 32bit packing to be either RGBA or BGRA"
-    #endif
-#endif
-
-// hide these now that we're done
-#undef LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_RGBA
-#undef LOCAL_PMCOLOR_SHIFTS_EQUIVALENT_TO_BGRA
-
-//////////////////////////////////////////////////////////////////////////////
-
-// Reverse the bytes coorsponding to RED and BLUE in a packed pixels. Note the
-// pair of them are in the same 2 slots in both RGBA and BGRA, thus there is
-// no need to pass in the colortype to this function.
-static inline uint32_t SkSwizzle_RB(uint32_t c) {
-    static const uint32_t kRBMask = (0xFF << SK_R32_SHIFT) | (0xFF << SK_B32_SHIFT);
-
-    unsigned c0 = (c >> SK_R32_SHIFT) & 0xFF;
-    unsigned c1 = (c >> SK_B32_SHIFT) & 0xFF;
-    return (c & ~kRBMask) | (c0 << SK_B32_SHIFT) | (c1 << SK_R32_SHIFT);
-}
-
-static inline uint32_t SkPackARGB_as_RGBA(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
-    SkASSERT_IS_BYTE(a);
-    SkASSERT_IS_BYTE(r);
-    SkASSERT_IS_BYTE(g);
-    SkASSERT_IS_BYTE(b);
-    return (a << SK_RGBA_A32_SHIFT) | (r << SK_RGBA_R32_SHIFT) |
-           (g << SK_RGBA_G32_SHIFT) | (b << SK_RGBA_B32_SHIFT);
-}
-
-static inline uint32_t SkPackARGB_as_BGRA(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
-    SkASSERT_IS_BYTE(a);
-    SkASSERT_IS_BYTE(r);
-    SkASSERT_IS_BYTE(g);
-    SkASSERT_IS_BYTE(b);
-    return (a << SK_BGRA_A32_SHIFT) | (r << SK_BGRA_R32_SHIFT) |
-           (g << SK_BGRA_G32_SHIFT) | (b << SK_BGRA_B32_SHIFT);
-}
-
-static inline SkPMColor SkSwizzle_RGBA_to_PMColor(uint32_t c) {
-#ifdef SK_PMCOLOR_IS_RGBA
-    return c;
-#else
-    return SkSwizzle_RB(c);
-#endif
-}
-
-static inline SkPMColor SkSwizzle_BGRA_to_PMColor(uint32_t c) {
-#ifdef SK_PMCOLOR_IS_BGRA
-    return c;
-#else
-    return SkSwizzle_RB(c);
-#endif
-}
-
-//////////////////////////////////////////////////////////////////////////////
 
 ///@{
 /** See ITU-R Recommendation BT.709 at http://www.itu.int/rec/R-REC-BT.709/ .*/
@@ -363,16 +237,6 @@ static inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
 
     return (a << SK_A32_SHIFT) | (r << SK_R32_SHIFT) |
            (g << SK_G32_SHIFT) | (b << SK_B32_SHIFT);
-}
-
-static inline uint32_t SkPackPMColor_as_RGBA(SkPMColor c) {
-    return SkPackARGB_as_RGBA(SkGetPackedA32(c), SkGetPackedR32(c),
-                              SkGetPackedG32(c), SkGetPackedB32(c));
-}
-
-static inline uint32_t SkPackPMColor_as_BGRA(SkPMColor c) {
-    return SkPackARGB_as_BGRA(SkGetPackedA32(c), SkGetPackedR32(c),
-                              SkGetPackedG32(c), SkGetPackedB32(c));
 }
 
 /**

@@ -26,6 +26,21 @@ class GrContextFactory;
 static const int gWidth = 2;
 static const int gHeight = 2;
 
+static void callWritePixels(SkCanvas* canvas, const SkBitmap& src, int x, int y,
+                            SkCanvas::Config8888 config) {
+    SkBitmap bm(src);
+    bm.lockPixels();
+
+    SkImageInfo info = bm.info();
+    sk_tool_utils::config8888_to_imagetypes(config, &info.fColorType, &info.fAlphaType);
+
+    if (src.isOpaque()) {
+        info.fAlphaType = kOpaque_SkAlphaType;
+    }
+
+    canvas->writePixels(info, bm.getPixels(), bm.rowBytes(), x, y);
+}
+
 static void create(SkBitmap* bm, SkColor color) {
     bm->allocN32Pixels(gWidth, gHeight);
     bm->eraseColor(color);
@@ -107,7 +122,7 @@ static void TestDeferredCanvasWritePixelsToSurface(skiatest::Reporter* reporter)
     SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
 
     SkBitmap srcBitmap;
-    srcBitmap.allocPixels(SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType));
+    srcBitmap.allocN32Pixels(10, 10);
     srcBitmap.eraseColor(SK_ColorGREEN);
     // Tests below depend on this bitmap being recognized as opaque
 
@@ -159,7 +174,7 @@ static void TestDeferredCanvasWritePixelsToSurface(skiatest::Reporter* reporter)
     REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
-    canvas->writePixels(srcBitmap, 0, 0);
+    callWritePixels(canvas, srcBitmap, 0, 0, SkCanvas::kRGBA_Unpremul_Config8888);
     REPORTER_ASSERT(reporter, 1 == surface->fDiscardCount);
     REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
@@ -176,7 +191,7 @@ static void TestDeferredCanvasWritePixelsToSurface(skiatest::Reporter* reporter)
     REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
-    canvas->writePixels(srcBitmap, 5, 0);
+    callWritePixels(canvas, srcBitmap, 5, 0, SkCanvas::kRGBA_Unpremul_Config8888);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
     REPORTER_ASSERT(reporter, 1 == surface->fRetainCount);
 
@@ -198,7 +213,7 @@ static void TestDeferredCanvasWritePixelsToSurface(skiatest::Reporter* reporter)
     REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
-    canvas->writePixels(srcBitmap, 0, 0);
+    callWritePixels(canvas, srcBitmap, 0, 0, SkCanvas::kRGBA_Unpremul_Config8888);
     REPORTER_ASSERT(reporter, 1 == surface->fDiscardCount);
     REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
@@ -220,7 +235,7 @@ static void TestDeferredCanvasWritePixelsToSurface(skiatest::Reporter* reporter)
     REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
-    canvas->writePixels(srcBitmap, 5, 0);
+    callWritePixels(canvas, srcBitmap, 5, 0, SkCanvas::kRGBA_Unpremul_Config8888);
     REPORTER_ASSERT(reporter, 1 == surface->fDiscardCount); // because of the clear
     REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
@@ -244,7 +259,7 @@ static void TestDeferredCanvasWritePixelsToSurface(skiatest::Reporter* reporter)
     REPORTER_ASSERT(reporter, 0 == surface->fRetainCount);
 
     surface->clearCounts();
-    canvas->writePixels(srcBitmap, 5, 0);
+    callWritePixels(canvas, srcBitmap, 5, 0, SkCanvas::kRGBA_Unpremul_Config8888);
     REPORTER_ASSERT(reporter, 0 == surface->fDiscardCount);
     REPORTER_ASSERT(reporter, 1 == surface->fRetainCount);
 

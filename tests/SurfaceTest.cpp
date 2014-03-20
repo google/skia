@@ -324,13 +324,13 @@ static void TestSurfaceInCache(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, expectedCachedResources == context->getGpuTextureCacheResourceCount());
 
     // Verify that all the cached resources are locked in cache.
-    context->freeGpuResources();
+    context->freeGpuResources(); 
     REPORTER_ASSERT(reporter, expectedCachedResources == context->getGpuTextureCacheResourceCount());
 
     // Verify that all the cached resources are unlocked upon surface release
     surface.reset(0);
     context->freeGpuResources();
-    REPORTER_ASSERT(reporter, 0 == context->getGpuTextureCacheResourceCount());
+    REPORTER_ASSERT(reporter, 0 == context->getGpuTextureCacheResourceCount()); 
 }
 
 static void Test_crbug263329(skiatest::Reporter* reporter,
