@@ -28,6 +28,9 @@ gyp_config_dir = os.path.join(script_dir, 'gyp')
 sys.path.insert(0, os.path.join(gyp_source_dir, 'pylib'))
 import gyp
 
+ENVVAR_GYP_GENERATORS = 'GYP_GENERATORS'
+
+
 def additional_include_files(args=[]):
   # Determine the include files specified on the command line.
   # This doesn't cover all the different option formats you can use,
@@ -62,9 +65,9 @@ def get_output_dir():
   if not output_dir:
     return os.path.join(os.path.abspath(script_dir), 'out')
 
-  if (sys.platform.startswith('darwin') and 
-      (not os.getenv('GYP_GENERATORS') or 
-       'xcode' in os.getenv('GYP_GENERATORS'))):
+  if (sys.platform.startswith('darwin') and
+      (not os.getenv(ENVVAR_GYP_GENERATORS) or
+       'xcode' in os.getenv(ENVVAR_GYP_GENERATORS))):
     print 'ERROR: variable SKIA_OUT is not valid on Mac (using xcodebuild)'
     sys.exit(-1);
 
@@ -76,6 +79,20 @@ def get_output_dir():
 
 if __name__ == '__main__':
   args = sys.argv[1:]
+
+  if not os.getenv(ENVVAR_GYP_GENERATORS):
+    print ('%s environment variable not set, using default' %
+           ENVVAR_GYP_GENERATORS)
+    if sys.platform.startswith('darwin'):
+      default_gyp_generators = 'xcode'
+    elif sys.platform.startswith('win'):
+      default_gyp_generators = 'msvs'
+    elif sys.platform.startswith('cygwin'):
+      default_gyp_generators = 'msvs'
+    else:
+      default_gyp_generators = 'make'
+    os.environ[ENVVAR_GYP_GENERATORS] = default_gyp_generators
+  print '%s is "%s"' % (ENVVAR_GYP_GENERATORS, os.getenv(ENVVAR_GYP_GENERATORS))
 
   # Set CWD to the directory containing this script.
   # This allows us to launch it from other directories, in spite of gyp's
