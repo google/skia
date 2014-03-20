@@ -30,7 +30,7 @@
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
 #include "SkTLS.h"
-#include "SkTrace.h"
+#include "SkTraceEvent.h"
 
 // It can be useful to set this to false to test whether a bug is caused by using the
 // InOrderDrawBuffer, to compare performance of using/not using InOrderDrawBuffer, or to make
@@ -375,8 +375,6 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
                                     void* srcData,
                                     size_t rowBytes,
                                     GrResourceKey* cacheKey) {
-    SK_TRACE_EVENT0("GrContext::createTexture");
-
     GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
 
     GrTexture* texture;
@@ -768,8 +766,6 @@ void GrContext::drawRect(const GrPaint& paint,
                          const SkRect& rect,
                          const SkStrokeRec* stroke,
                          const SkMatrix* matrix) {
-    SK_TRACE_EVENT0("GrContext::drawRect");
-
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
@@ -890,7 +886,6 @@ void GrContext::drawRectToRect(const GrPaint& paint,
                                const SkRect& localRect,
                                const SkMatrix* dstMatrix,
                                const SkMatrix* localMatrix) {
-    SK_TRACE_EVENT0("GrContext::drawRectToRect");
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
@@ -944,8 +939,6 @@ void GrContext::drawVertices(const GrPaint& paint,
                              const GrColor colors[],
                              const uint16_t indices[],
                              int indexCount) {
-    SK_TRACE_EVENT0("GrContext::drawVertices");
-
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GrDrawTarget::AutoReleaseGeometry geo; // must be inside AutoCheckFlush scope
@@ -1206,7 +1199,6 @@ bool GrContext::writeTexturePixels(GrTexture* texture,
                                    int left, int top, int width, int height,
                                    GrPixelConfig config, const void* buffer, size_t rowBytes,
                                    uint32_t flags) {
-    SK_TRACE_EVENT0("GrContext::writeTexturePixels");
     ASSERT_OWNED_RESOURCE(texture);
 
     if ((kUnpremul_PixelOpsFlag & flags) || !fGpu->canWriteTexturePixels(texture, config)) {
@@ -1231,7 +1223,6 @@ bool GrContext::readTexturePixels(GrTexture* texture,
                                   int left, int top, int width, int height,
                                   GrPixelConfig config, void* buffer, size_t rowBytes,
                                   uint32_t flags) {
-    SK_TRACE_EVENT0("GrContext::readTexturePixels");
     ASSERT_OWNED_RESOURCE(texture);
 
     GrRenderTarget* target = texture->asRenderTarget();
@@ -1321,7 +1312,6 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                                        int left, int top, int width, int height,
                                        GrPixelConfig dstConfig, void* buffer, size_t rowBytes,
                                        uint32_t flags) {
-    SK_TRACE_EVENT0("GrContext::readRenderTargetPixels");
     ASSERT_OWNED_RESOURCE(target);
 
     if (NULL == target) {
@@ -1509,7 +1499,6 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
                                         const void* buffer,
                                         size_t rowBytes,
                                         uint32_t flags) {
-    SK_TRACE_EVENT0("GrContext::writeRenderTargetPixels");
     ASSERT_OWNED_RESOURCE(target);
 
     if (NULL == target) {

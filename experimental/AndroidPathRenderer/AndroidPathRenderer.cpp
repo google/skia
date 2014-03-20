@@ -19,7 +19,7 @@
 #include <sys/types.h>
 
 #include <SkTypes.h>
-#include <SkTrace.h>
+#include <SkTraceEvent.h>
 #include <SkMatrix.h>
 #include <SkPoint.h>
 
@@ -522,7 +522,6 @@ static void getStrokeVerticesFromPerimeterAA(const SkTArray<Vertex, true>& perim
 
 void PathRenderer::ConvexPathVertices(const SkPath &path, const SkStrokeRec& stroke, bool isAA,
         const SkMatrix* transform, VertexBuffer* vertexBuffer) {
-    SK_TRACE_EVENT0("PathRenderer::convexPathVertices");
 
     SkStrokeRec::Style style = stroke.getStyle();
 
@@ -598,7 +597,6 @@ static void pushToVector(SkTArray<Vertex, true>* vertices, float x, float y) {
 
 bool PathRenderer::ConvexPathPerimeterVertices(const SkPath& path, bool forceClose,
         float sqrInvScaleX, float sqrInvScaleY, SkTArray<Vertex, true>* outputVertices) {
-    SK_TRACE_EVENT0("PathRenderer::convexPathPerimeterVertices");
 
 
     // TODO: to support joins other than sharp miter, join vertices should be labelled in the

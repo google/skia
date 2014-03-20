@@ -13,7 +13,7 @@
 #include "GrGpuGL.h"
 #include "GrTexture.h"
 #include "SkRTConf.h"
-#include "SkTrace.h"
+#include "SkTraceEvent.h"
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
@@ -570,8 +570,6 @@ const char* GrGLShaderBuilder::enableSecondaryOutput() {
 }
 
 bool GrGLShaderBuilder::finish(GrGLuint* outProgramId) {
-    SK_TRACE_EVENT0("GrGLShaderBuilder::finish");
-
     GrGLuint programId = 0;
     GL_CALL_RET(programId, CreateProgram());
     if (!programId) {

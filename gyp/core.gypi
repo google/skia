@@ -297,7 +297,6 @@
         '<(skia_include_path)/core/SkThread.h',
         '<(skia_include_path)/core/SkTime.h',
         '<(skia_include_path)/core/SkTLazy.h',
-        '<(skia_include_path)/core/SkTrace.h',
         '<(skia_include_path)/core/SkTypeface.h',
         '<(skia_include_path)/core/SkTypes.h',
         '<(skia_include_path)/core/SkUnPreMultiply.h',

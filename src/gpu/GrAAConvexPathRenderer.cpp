@@ -16,7 +16,7 @@
 #include "GrTBackendEffectFactory.h"
 #include "SkString.h"
 #include "SkStrokeRec.h"
-#include "SkTrace.h"
+#include "SkTraceEvent.h"
 
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"

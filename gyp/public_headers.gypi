@@ -259,7 +259,6 @@
       'core/SkWriter32.h',
       'core/SkError.h',
       'core/SkPath.h',
-      'core/SkTrace.h',
       'core/SkUnitMapper.h',
       'core/SkFlattenable.h',
       'core/SkTSearch.h',
