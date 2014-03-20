@@ -87,6 +87,11 @@ RELOAD_INTERVAL_UNTIL_READY = 10
 _HTTP_HEADER_CONTENT_LENGTH = 'Content-Length'
 _HTTP_HEADER_CONTENT_TYPE = 'Content-Type'
 
+SUMMARY_TYPES = [
+    results_mod.KEY__HEADER__RESULTS_ALL,
+    results_mod.KEY__HEADER__RESULTS_FAILURES,
+]
+
 _SERVER = None   # This gets filled in by main()
 
 
@@ -172,6 +177,25 @@ class Server(object):
     self._actuals_repo = _create_svn_checkout(
         dir_path=actuals_dir, repo_url=actuals_repo_url)
 
+    # Since we don't have any results ready yet, prepare a dummy results file
+    # telling any clients that we're still working on the results.
+    response_dict = {
+        results_mod.KEY__HEADER: {
+            results_mod.KEY__HEADER__SCHEMA_VERSION: (
+                results_mod.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER),
+            results_mod.KEY__HEADER__IS_STILL_LOADING: True,
+            results_mod.KEY__HEADER__TIME_UPDATED: 0,
+            results_mod.KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: (
+                RELOAD_INTERVAL_UNTIL_READY),
+        },
+    }
+    if not os.path.isdir(GENERATED_JSON_DIR):
+      os.makedirs(GENERATED_JSON_DIR)
+    for summary_type in SUMMARY_TYPES:
+      gm_json.WriteToFile(
+          response_dict,
+          os.path.join(GENERATED_JSON_DIR, '%s.json' % summary_type))
+
     # Reentrant lock that must be held whenever updating EITHER of:
     # 1. self._results
     # 2. the expected or actual results on local disk
@@ -246,10 +270,10 @@ class Server(object):
           generated_images_root=GENERATED_IMAGES_DIR,
           diff_base_url=os.path.relpath(
               GENERATED_IMAGES_DIR, GENERATED_JSON_DIR))
+
       if not os.path.isdir(GENERATED_JSON_DIR):
         os.makedirs(GENERATED_JSON_DIR)
-      for summary_type in [results_mod.KEY__HEADER__RESULTS_ALL,
-                           results_mod.KEY__HEADER__RESULTS_FAILURES]:
+      for summary_type in SUMMARY_TYPES:
         gm_json.WriteToFile(
             new_results.get_packaged_results_of_type(results_type=summary_type),
             os.path.join(GENERATED_JSON_DIR, '%s.json' % summary_type))
