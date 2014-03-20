@@ -34,7 +34,6 @@ EOF
 #  Coverage, Debug, Release, or Release_Developer
 BUILD_TYPE='Debug'
 
-unset OPTIND
 while getopts ":c:x:o:t:h" opt ; do
     case $opt in
         c)  export CC="$OPTARG" ;;
