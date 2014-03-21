@@ -29,7 +29,9 @@ public:
     SkFontMgr_Indirect(SkFontMgr* impl, SkRemotableFontMgr* proxy)
         : fImpl(SkRef(impl)), fProxy(SkRef(proxy))
     {
-        fOnce = SK_ONCE_INIT;
+        fOnce.done = false;
+        fOnce.lock.shouldBeZero = 0;
+        SkDEBUGCODE(fOnce.lock.thisIsPrivate = 0;)
     }
 
 protected:
@@ -64,7 +66,7 @@ private:
     SkAutoTUnref<SkRemotableFontMgr> fProxy;
 
     struct DataEntry {
-        int fDataId;  // key1
+        uint32_t fDataId;  // key1
         int fTtcIndex;  // key2
         SkTypeface* fTypeface;  // value: weak ref to typeface
 
