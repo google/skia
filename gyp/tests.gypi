@@ -154,6 +154,7 @@
     '../tests/StringTest.cpp',
     '../tests/StrokeTest.cpp',
     '../tests/SurfaceTest.cpp',
+    '../tests/TArrayTest.cpp',
     '../tests/TLSTest.cpp',
     '../tests/TSetTest.cpp',
     '../tests/TestSize.cpp',

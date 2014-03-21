@@ -17,6 +17,10 @@ template <typename T, bool MEM_COPY = false> class SkTArray;
 namespace SkTArrayExt {
 
 template<typename T>
+inline void copy(SkTArray<T, true>* self, int dst, int src) {
+    memcpy(&self->fItemArray[dst], &self->fItemArray[src], sizeof(T));
+}
+template<typename T>
 inline void copy(SkTArray<T, true>* self, const T* array) {
     memcpy(self->fMemArray, array, self->fCount * sizeof(T));
 }
@@ -25,6 +29,10 @@ inline void copyAndDelete(SkTArray<T, true>* self, char* newMemArray) {
     memcpy(newMemArray, self->fMemArray, self->fCount * sizeof(T));
 }
 
+template<typename T>
+inline void copy(SkTArray<T, false>* self, int dst, int src) {
+    SkNEW_PLACEMENT_ARGS(&self->fItemArray[dst], T, (self->fItemArray[src]));
+}
 template<typename T>
 inline void copy(SkTArray<T, false>* self, const T* array) {
     for (int i = 0; i < self->fCount; ++i) {
@@ -140,8 +148,17 @@ public:
         int delta = count - fCount;
         this->checkRealloc(delta);
         fCount = count;
-        for (int i = 0; i < count; ++i) {
-            SkTArrayExt::copy(this, array);
+        SkTArrayExt::copy(this, array);
+    }
+
+    void removeShuffle(int n) {
+        SkASSERT(n < fCount);
+        int newCount = fCount - 1;
+        fCount = newCount;
+        fItemArray[n].~T();
+        if (n != newCount) {
+            SkTArrayExt::copy(this, n, newCount);
+            fItemArray[newCount].~T();
         }
     }
 
@@ -427,9 +444,11 @@ private:
 
     friend void* operator new<T>(size_t, SkTArray*, int);
 
+    template<typename X> friend void SkTArrayExt::copy(SkTArray<X, true>* that, int dst, int src);
     template<typename X> friend void SkTArrayExt::copy(SkTArray<X, true>* that, const X*);
     template<typename X> friend void SkTArrayExt::copyAndDelete(SkTArray<X, true>* that, char*);
 
+    template<typename X> friend void SkTArrayExt::copy(SkTArray<X, false>* that, int dst, int src);
     template<typename X> friend void SkTArrayExt::copy(SkTArray<X, false>* that, const X*);
     template<typename X> friend void SkTArrayExt::copyAndDelete(SkTArray<X, false>* that, char*);
 
