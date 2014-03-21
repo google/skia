@@ -30,8 +30,8 @@ public:
         : fImpl(SkRef(impl)), fProxy(SkRef(proxy))
     {
         fOnce.done = false;
-        fOnce.lock.shouldBeZero = 0;
-        SkDEBUGCODE(fOnce.lock.thisIsPrivate = 0;)
+        fOnce.lock.thisIsPrivate = 0;
+        SkDEBUGCODE(fOnce.lock.shouldBeZero = 0;)
     }
 
 protected:
@@ -67,7 +67,7 @@ private:
 
     struct DataEntry {
         uint32_t fDataId;  // key1
-        int fTtcIndex;  // key2
+        uint32_t fTtcIndex;  // key2
         SkTypeface* fTypeface;  // value: weak ref to typeface
 
         DataEntry() { }
