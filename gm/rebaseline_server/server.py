@@ -28,20 +28,16 @@ import urlparse
 
 # Imports from within Skia
 #
-# We need to add the 'tools' directory for svn.py, and the 'gm' directory for
-# gm_json.py .
-# Make sure that these dirs are in the PYTHONPATH, but add them at the *end*
+# We need to add the 'tools' directory, so that we can import svn.py within
+# that directory.
+# Make sure that the 'tools' dir is in the PYTHONPATH, but add it at the *end*
 # so any dirs that are already in the PYTHONPATH will be preferred.
 PARENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-GM_DIRECTORY = os.path.dirname(PARENT_DIRECTORY)
-TRUNK_DIRECTORY = os.path.dirname(GM_DIRECTORY)
+TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(PARENT_DIRECTORY))
 TOOLS_DIRECTORY = os.path.join(TRUNK_DIRECTORY, 'tools')
 if TOOLS_DIRECTORY not in sys.path:
   sys.path.append(TOOLS_DIRECTORY)
 import svn
-if GM_DIRECTORY not in sys.path:
-  sys.path.append(GM_DIRECTORY)
-import gm_json
 
 # Imports from local dir
 #
@@ -76,9 +72,8 @@ DEFAULT_ACTUALS_REPO_URL = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 DEFAULT_PORT = 8888
 
 # Directory within which the server will serve out static files.
-STATIC_CONTENTS_DIR = os.path.realpath(os.path.join(PARENT_DIRECTORY, 'static'))
-GENERATED_IMAGES_DIR = os.path.join(STATIC_CONTENTS_DIR, 'generated-images')
-GENERATED_JSON_DIR = os.path.join(STATIC_CONTENTS_DIR, 'generated-json')
+STATIC_CONTENTS_SUBDIR = 'static'  # within PARENT_DIR
+GENERATED_IMAGES_SUBDIR = 'generated-images'  # within STATIC_CONTENTS_SUBDIR
 
 # How often (in seconds) clients should reload while waiting for initial
 # results to load.
@@ -86,11 +81,6 @@ RELOAD_INTERVAL_UNTIL_READY = 10
 
 _HTTP_HEADER_CONTENT_LENGTH = 'Content-Length'
 _HTTP_HEADER_CONTENT_TYPE = 'Content-Type'
-
-SUMMARY_TYPES = [
-    results_mod.KEY__HEADER__RESULTS_ALL,
-    results_mod.KEY__HEADER__RESULTS_FAILURES,
-]
 
 _SERVER = None   # This gets filled in by main()
 
@@ -177,25 +167,6 @@ class Server(object):
     self._actuals_repo = _create_svn_checkout(
         dir_path=actuals_dir, repo_url=actuals_repo_url)
 
-    # Since we don't have any results ready yet, prepare a dummy results file
-    # telling any clients that we're still working on the results.
-    response_dict = {
-        results_mod.KEY__HEADER: {
-            results_mod.KEY__HEADER__SCHEMA_VERSION: (
-                results_mod.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER),
-            results_mod.KEY__HEADER__IS_STILL_LOADING: True,
-            results_mod.KEY__HEADER__TIME_UPDATED: 0,
-            results_mod.KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: (
-                RELOAD_INTERVAL_UNTIL_READY),
-        },
-    }
-    if not os.path.isdir(GENERATED_JSON_DIR):
-      os.makedirs(GENERATED_JSON_DIR)
-    for summary_type in SUMMARY_TYPES:
-      gm_json.WriteToFile(
-          response_dict,
-          os.path.join(GENERATED_JSON_DIR, '%s.json' % summary_type))
-
     # Reentrant lock that must be held whenever updating EITHER of:
     # 1. self._results
     # 2. the expected or actual results on local disk
@@ -265,20 +236,13 @@ class Server(object):
             results_mod.DEFAULT_EXPECTATIONS_DIR)
         _run_command(['gclient', 'sync'], TRUNK_DIRECTORY)
 
-      new_results = results_mod.Results(
+      self._results = results_mod.Results(
           actuals_root=self._actuals_dir,
-          generated_images_root=GENERATED_IMAGES_DIR,
-          diff_base_url=os.path.relpath(
-              GENERATED_IMAGES_DIR, GENERATED_JSON_DIR))
-
-      if not os.path.isdir(GENERATED_JSON_DIR):
-        os.makedirs(GENERATED_JSON_DIR)
-      for summary_type in SUMMARY_TYPES:
-        gm_json.WriteToFile(
-            new_results.get_packaged_results_of_type(results_type=summary_type),
-            os.path.join(GENERATED_JSON_DIR, '%s.json' % summary_type))
-
-      self._results = new_results
+          generated_images_root=os.path.join(
+              PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR,
+              GENERATED_IMAGES_SUBDIR),
+          diff_base_url=posixpath.join(
+              os.pardir, STATIC_CONTENTS_SUBDIR, GENERATED_IMAGES_SUBDIR))
 
   def _result_loader(self, reload_seconds=0):
     """ Call self.update_results(), either once or periodically.
@@ -329,10 +293,10 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     try:
       logging.debug('do_GET: path="%s"' % self.path)
       if self.path == '' or self.path == '/' or self.path == '/index.html' :
-        self.redirect_to('/static/index.html')
+        self.redirect_to('/%s/index.html' % STATIC_CONTENTS_SUBDIR)
         return
       if self.path == '/favicon.ico' :
-        self.redirect_to('/static/favicon.ico')
+        self.redirect_to('/%s/favicon.ico' % STATIC_CONTENTS_SUBDIR)
         return
 
       # All requests must be of this form:
@@ -342,7 +306,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       normpath = posixpath.normpath(self.path)
       (dispatcher_name, remainder) = PATHSPLIT_RE.match(normpath).groups()
       dispatchers = {
-          'static': self.do_GET_static,
+          'results': self.do_GET_results,
+           STATIC_CONTENTS_SUBDIR: self.do_GET_static,
       }
       dispatcher = dispatchers[dispatcher_name]
       dispatcher(remainder)
@@ -350,25 +315,62 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.send_error(404)
       raise
 
+  def do_GET_results(self, results_type):
+    """ Handle a GET request for GM results.
+
+    Args:
+      results_type: string indicating which set of results to return;
+            must be one of the results_mod.RESULTS_* constants
+    """
+    logging.debug('do_GET_results: sending results of type "%s"' % results_type)
+    # Since we must make multiple calls to the Results object, grab a
+    # reference to it in case it is updated to point at a new Results
+    # object within another thread.
+    #
+    # TODO(epoger): Rather than using a global variable for the handler
+    # to refer to the Server object, make Server a subclass of
+    # HTTPServer, and then it could be available to the handler via
+    # the handler's .server instance variable.
+    results_obj = _SERVER.results
+    if results_obj:
+      response_dict = results_obj.get_packaged_results_of_type(
+          results_type=results_type, reload_seconds=_SERVER.reload_seconds,
+          is_editable=_SERVER.is_editable, is_exported=_SERVER.is_exported)
+    else:
+      now = int(time.time())
+      response_dict = {
+          results_mod.KEY__HEADER: {
+              results_mod.KEY__HEADER__SCHEMA_VERSION: (
+                  results_mod.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER),
+              results_mod.KEY__HEADER__IS_STILL_LOADING: True,
+              results_mod.KEY__HEADER__TIME_UPDATED: now,
+              results_mod.KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: (
+                  now + RELOAD_INTERVAL_UNTIL_READY),
+          },
+      }
+    self.send_json_dict(response_dict)
+
   def do_GET_static(self, path):
-    """ Handle a GET request for a file under the 'static' directory.
-    Only allow serving of files within the 'static' directory that is a
+    """ Handle a GET request for a file under STATIC_CONTENTS_SUBDIR .
+    Only allow serving of files within STATIC_CONTENTS_SUBDIR that is a
     filesystem sibling of this script.
 
     Args:
-      path: path to file (under static directory) to retrieve
+      path: path to file (within STATIC_CONTENTS_SUBDIR) to retrieve
     """
     # Strip arguments ('?resultsToLoad=all') from the path
     path = urlparse.urlparse(path).path
 
     logging.debug('do_GET_static: sending file "%s"' % path)
-    full_path = os.path.realpath(os.path.join(STATIC_CONTENTS_DIR, path))
-    if full_path.startswith(STATIC_CONTENTS_DIR):
+    static_dir = os.path.realpath(os.path.join(
+        PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR))
+    full_path = os.path.realpath(os.path.join(static_dir, path))
+    if full_path.startswith(static_dir):
       self.send_file(full_path)
     else:
       logging.error(
           'Attempted do_GET_static() of path [%s] outside of static dir [%s]'
-          % (full_path, STATIC_CONTENTS_DIR))
+          % (full_path, static_dir))
       self.send_error(404)
 
   def do_POST(self):
@@ -479,6 +481,18 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.wfile.write(sending_file.read())
     else:
       self.send_error(404)
+
+  def send_json_dict(self, json_dict):
+    """ Send the contents of this dictionary in JSON format, with a JSON
+        mimetype.
+
+    Args:
+      json_dict: dictionary to send
+    """
+    self.send_response(200)
+    self.send_header('Content-type', 'application/json')
+    self.end_headers()
+    json.dump(json_dict, self.wfile)
 
 
 def main():
