@@ -19,7 +19,7 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, a.count() == 0);
 
     // { }, add a default constructed element
-    REPORTER_ASSERT(reporter, a.push_back());
+    a.push_back() = 0;
     REPORTER_ASSERT(reporter, !a.empty());
     REPORTER_ASSERT(reporter, a.count() == 1);
 
@@ -29,7 +29,7 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, a.count() == 0);
 
     // { }, add a default, add a 1, remove first
-    REPORTER_ASSERT(reporter, a.push_back());
+    a.push_back() = 0;
     REPORTER_ASSERT(reporter, a.push_back() = 1);
     a.removeShuffle(0);
     REPORTER_ASSERT(reporter, !a.empty());
