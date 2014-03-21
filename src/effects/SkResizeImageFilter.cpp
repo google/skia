@@ -76,7 +76,7 @@ bool SkResizeImageFilter::onFilterImage(Proxy* proxy,
 
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
     paint.setFilterLevel(fFilterLevel);
-    canvas.drawBitmap(src, srcRect.left(), srcRect.top(), &paint);
+    canvas.drawBitmap(src, 0, 0, &paint);
 
     *result = device.get()->accessBitmap(false);
     offset->fX = dstBounds.fLeft;

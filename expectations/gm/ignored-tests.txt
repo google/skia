@@ -55,3 +55,7 @@ filltypespersp
 # This change removes an API that this GM was testing. If/when it lands and sticks,
 # I will likely just delete the GM.
 canvas-layer-state
+
+# sugoi: https://codereview.chromium.org/208303002/
+# This path fixes a double offset with the resize filter and adds a gm case to test it
+resizeimagefilter

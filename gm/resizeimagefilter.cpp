@@ -6,8 +6,11 @@
  */
 
 #include "gm.h"
+#include "SkBitmapDevice.h"
+#include "SkBitmapSource.h"
 #include "SkColor.h"
 #include "SkResizeImageFilter.h"
+#include "SkRefCnt.h"
 
 namespace skiagm {
 
@@ -25,7 +28,8 @@ protected:
     void draw(SkCanvas* canvas,
               const SkRect& rect,
               const SkSize& deviceSize,
-              SkPaint::FilterLevel filterLevel) {
+              SkPaint::FilterLevel filterLevel,
+              SkImageFilter* input = NULL) {
         SkRect dstRect;
         canvas->getTotalMatrix().mapRect(&dstRect, rect);
         canvas->save();
@@ -37,7 +41,8 @@ protected:
         SkAutoTUnref<SkImageFilter> imageFilter(
             SkResizeImageFilter::Create(SkScalarInvert(deviceScaleX),
                                         SkScalarInvert(deviceScaleY),
-                                        filterLevel));
+                                        filterLevel,
+                                        input));
         SkPaint filteredPaint;
         filteredPaint.setImageFilter(imageFilter.get());
         canvas->saveLayer(&rect, &filteredPaint);
@@ -51,7 +56,7 @@ protected:
     }
 
     virtual SkISize onISize() {
-        return make_isize(420, 100);
+        return make_isize(520, 100);
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -82,6 +87,28 @@ protected:
              srcRect,
              deviceSize,
              SkPaint::kHigh_FilterLevel);
+
+        SkBitmap bitmap;
+        bitmap.allocN32Pixels(16, 16);
+        bitmap.eraseARGB(0x00, 0x00, 0x00, 0x00);
+        {
+            SkBitmapDevice bitmapDevice(bitmap);
+            SkCanvas bitmapCanvas(&bitmapDevice);
+            SkPaint paint;
+            paint.setColor(0xFF00FF00);
+            SkRect ovalRect = SkRect::MakeWH(16, 16);
+            ovalRect.inset(SkScalarDiv(2.0f, 3.0f), SkScalarDiv(2.0f, 3.0f));
+            bitmapCanvas.drawOval(ovalRect, paint);
+        }
+        SkRect inRect = SkRect::MakeXYWH(-4, -4, 20, 20);
+        SkRect outRect = SkRect::MakeXYWH(-24, -24, 120, 120);
+        SkAutoTUnref<SkBitmapSource> source(SkBitmapSource::Create(bitmap, inRect, outRect));
+        canvas->translate(srcRect.width() + SkIntToScalar(10), 0);
+        draw(canvas,
+             srcRect,
+             deviceSize,
+             SkPaint::kHigh_FilterLevel,
+             source.get());
     }
 
 private:
