@@ -173,6 +173,7 @@
             '../src/ports/SkFontMgr_default_gdi.cpp',
             '../src/ports/SkFontMgr_default_dw.cpp',
             '../src/ports/SkOSFile_win.cpp',
+            '../src/ports/SkRemotableFontMgr_win_dw.cpp',
             '../src/ports/SkTime_win.cpp',
             '../src/ports/SkTLS_win.cpp',
           ],
