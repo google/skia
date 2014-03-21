@@ -13,6 +13,7 @@
 #include "SkDither.h"
 #include "SkShader.h"
 #include "SkUtils.h"
+#include "SkUtilsArm.h"
 #include "SkXfermode.h"
 
 #if SK_ARM_NEON_IS_ALWAYS && defined(SK_CPU_LENDIAN)
