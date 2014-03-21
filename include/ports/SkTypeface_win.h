@@ -36,7 +36,25 @@ SK_API void SkTypeface_SetEnsureLOGFONTAccessibleProc(void (*)(const LOGFONT&));
 // Experimental!
 //
 class SkFontMgr;
+class SkRemotableFontMgr;
+
 SK_API SkFontMgr* SkFontMgr_New_GDI();
 SK_API SkFontMgr* SkFontMgr_New_DirectWrite();
+
+/**
+ *  Creates an SkFontMgr which renders using DirectWrite and obtains its data
+ *  from the SkRemotableFontMgr.
+ *
+ *  If DirectWrite could not be initialized, will return NULL.
+ */
+SK_API SkFontMgr* SkFontMgr_New_DirectWriteRenderer(SkRemotableFontMgr*);
+
+/**
+ *  Creates an SkRemotableFontMgr backed by DirectWrite using the default
+ *  system font collection in the current locale.
+ *
+ *  If DirectWrite could not be initialized, will return NULL.
+ */
+SK_API SkRemotableFontMgr* SkRemotableFontMgr_New_DirectWrite();
 
 #endif

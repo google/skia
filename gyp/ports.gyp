@@ -27,14 +27,20 @@
         '../src/ports/SkAtomics_none.h',
         '../src/ports/SkAtomics_sync.h',
         '../src/ports/SkAtomics_win.h',
+        '../src/ports/SkMutex_none.h',
+        '../src/ports/SkMutex_pthread.h',
+        '../src/ports/SkMutex_win.h',
         '../src/ports/SkDebug_nacl.cpp',
         '../src/ports/SkDebug_stdio.cpp',
         '../src/ports/SkDebug_win.cpp',
 
+        '../src/fonts/SkFontMgr_indirect.cpp',
+        '../src/fonts/SkRemotableFontMgr.cpp',
         '../src/ports/SkFontHost_win.cpp',
         '../src/ports/SkFontHost_win_dw.cpp',
         '../src/ports/SkFontMgr_default_gdi.cpp',
         '../src/ports/SkFontMgr_default_dw.cpp',
+        '../src/ports/SkRemotableFontMgr_win_dw.cpp',
 
         '../src/ports/SkGlobalInitialization_default.cpp',
         '../src/ports/SkMemory_malloc.cpp',
@@ -52,6 +58,12 @@
         '../src/ports/SkTLS_pthread.cpp',
         '../src/ports/SkTLS_win.cpp',
         '../src/ports/SkXMLParser_empty.cpp',
+
+        '../include/ports/SkFontConfigInterface.h',
+        '../include/ports/SkFontMgr.h',
+        '../include/ports/SkFontMgr_indirect.h',
+        '../include/ports/SkFontStyle.h',
+        '../include/ports/SkRemotableFontMgr.h',
       ],
       'conditions': [
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "chromeos", "nacl", "android"]', {

@@ -110,6 +110,12 @@ protected:
                                            const SkFontStyle&) const SK_OVERRIDE {
         return NULL;
     }
+    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
+                                                    const SkFontStyle& style,
+                                                    const char bpc47[],
+                                                    uint32_t character) const SK_OVERRIDE {
+        return NULL;
+    }
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
                                          const SkFontStyle&) const SK_OVERRIDE {
         return NULL;
@@ -154,6 +160,11 @@ SkFontStyleSet* SkFontMgr::matchFamily(const char familyName[]) const {
 SkTypeface* SkFontMgr::matchFamilyStyle(const char familyName[],
                                         const SkFontStyle& fs) const {
     return this->onMatchFamilyStyle(familyName, fs);
+}
+
+SkTypeface* SkFontMgr::matchFamilyStyleCharacter(const char familyName[], const SkFontStyle& style,
+                                                 const char bpc47[], uint32_t character) const {
+    return this->onMatchFamilyStyleCharacter(familyName, style, bpc47, character);
 }
 
 SkTypeface* SkFontMgr::matchFaceStyle(const SkTypeface* face,

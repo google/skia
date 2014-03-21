@@ -44,6 +44,9 @@ public:
     /**
      *  The caller must call unref() on the returned object.
      *  Never returns NULL; will return an empty set if the name is not found.
+     *
+     *  It is possible that this will return a style set not accessible from
+     *  createStyleSet(int) due to hidden or auto-activated fonts.
      */
     SkFontStyleSet* matchFamily(const char familyName[]) const;
 
@@ -52,8 +55,23 @@ public:
      *  and return a ref to it. The caller must call unref() on the returned
      *  object. Will never return NULL, as it will return the default font if
      *  no matching font is found.
+     *
+     *  It is possible that this will return a style set not accessible from
+     *  createStyleSet(int) or matchFamily(const char[]) due to hidden or
+     *  auto-activated fonts.
      */
     SkTypeface* matchFamilyStyle(const char familyName[], const SkFontStyle&) const;
+
+    /**
+     *  Use the system fallback to find a typeface for the given character.
+     *  Note that bpc47 is a combination of ISO 639, 15924, and 3166-1 codes,
+     *  so it is fine to just pass a ISO 639 here.
+     *
+     *  Will return NULL if no family can be found for the character
+     *  in the system fallback.
+     */
+    SkTypeface* matchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                          const char bpc47[], uint32_t character) const;
 
     SkTypeface* matchFaceStyle(const SkTypeface*, const SkFontStyle&) const;
 
@@ -98,6 +116,10 @@ protected:
 
     virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
                                            const SkFontStyle&) const = 0;
+    // TODO: pure virtual, implement on all impls.
+    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
+                                                    const char bpc47[], uint32_t character) const
+    { return NULL; }
     virtual SkTypeface* onMatchFaceStyle(const SkTypeface*,
                                          const SkFontStyle&) const = 0;
 

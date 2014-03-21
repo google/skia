@@ -284,15 +284,6 @@ protected:
 class FontMemResourceTypeface : public LogFontTypeface {
 public:
     /**
-     *  Takes ownership of fontMemResource.
-     */
-    FontMemResourceTypeface(SkTypeface::Style style, SkFontID fontID, const LOGFONT& lf, HANDLE fontMemResource) :
-        LogFontTypeface(style, fontID, lf, true), fFontMemResource(fontMemResource) {
-    }
-
-    HANDLE fFontMemResource;
-
-    /**
      *  The created FontMemResourceTypeface takes ownership of fontMemResource.
      */
     static FontMemResourceTypeface* Create(const LOGFONT& lf, HANDLE fontMemResource) {
@@ -309,6 +300,15 @@ protected:
     }
 
 private:
+    /**
+     *  Takes ownership of fontMemResource.
+     */
+    FontMemResourceTypeface(SkTypeface::Style style, SkFontID fontID, const LOGFONT& lf, HANDLE fontMemResource) :
+        LogFontTypeface(style, fontID, lf, true), fFontMemResource(fontMemResource) {
+    }
+
+    HANDLE fFontMemResource;
+
     typedef LogFontTypeface INHERITED;
 };
 
