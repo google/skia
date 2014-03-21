@@ -44,6 +44,7 @@ import svn
 # Note: we import results under a different name, to avoid confusion with the
 # Server.results() property. See discussion at
 # https://codereview.chromium.org/195943004/diff/1/gm/rebaseline_server/server.py#newcode44
+import compare_to_expectations
 import imagepairset
 import results as results_mod
 
@@ -66,7 +67,7 @@ KEY__EDITS__MODIFICATIONS = 'modifications'
 KEY__EDITS__OLD_RESULTS_HASH = 'oldResultsHash'
 KEY__EDITS__OLD_RESULTS_TYPE = 'oldResultsType'
 
-DEFAULT_ACTUALS_DIR = results_mod.DEFAULT_ACTUALS_DIR
+DEFAULT_ACTUALS_DIR = compare_to_expectations.DEFAULT_ACTUALS_DIR
 DEFAULT_ACTUALS_REPO_REVISION = 'HEAD'
 DEFAULT_ACTUALS_REPO_URL = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 DEFAULT_PORT = 8888
@@ -233,10 +234,10 @@ class Server(object):
       if self._reload_seconds:
         logging.info(
             'Updating expected GM results in %s by syncing Skia repo ...' %
-            results_mod.DEFAULT_EXPECTATIONS_DIR)
+            compare_to_expectations.DEFAULT_EXPECTATIONS_DIR)
         _run_command(['gclient', 'sync'], TRUNK_DIRECTORY)
 
-      self._results = results_mod.Results(
+      self._results = compare_to_expectations.Results(
           actuals_root=self._actuals_dir,
           generated_images_root=os.path.join(
               PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR,
@@ -405,7 +406,7 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                               # client and server apply
                                               # modifications to the same base)
       KEY__EDITS__MODIFICATIONS: [
-        # as needed by results_mod.edit_expectations()
+        # as needed by compare_to_expectations.edit_expectations()
         ...
       ],
     }

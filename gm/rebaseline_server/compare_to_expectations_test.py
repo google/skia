@@ -6,7 +6,7 @@ Copyright 2013 Google Inc.
 Use of this source code is governed by a BSD-style license that can be
 found in the LICENSE file.
 
-Test results.py
+Test compare_to_expectations.py
 
 TODO(epoger): Create a command to update the expected results (in
 self._output_dir_expected) when appropriate.  For now, you should:
@@ -23,15 +23,16 @@ import sys
 
 # Imports from within Skia
 import base_unittest
+import compare_to_expectations
 import results
 import gm_json  # must import results first, so that gm_json will be in sys.path
 
 
-class ResultsTest(base_unittest.TestCase):
+class CompareToExpectationsTest(base_unittest.TestCase):
 
   def test_gm(self):
     """Process results of a GM run with the Results object."""
-    results_obj = results.Results(
+    results_obj = compare_to_expectations.Results(
         actuals_root=os.path.join(self._input_dir, 'gm-actuals'),
         expected_root=os.path.join(self._input_dir, 'gm-expectations'),
         generated_images_root=self._temp_dir,
@@ -49,7 +50,7 @@ def mock_get_timestamp():
 
 
 def main():
-  base_unittest.main(ResultsTest)
+  base_unittest.main(CompareToExpectationsTest)
 
 
 if __name__ == '__main__':
