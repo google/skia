@@ -383,7 +383,7 @@ public:
         }
 
         virtual HRESULT STDMETHODCALLTYPE QueryInterface(
-            IID const& riid, void** ppvObject) SK_OVERRIDE 
+            IID const& riid, void** ppvObject) SK_OVERRIDE
         {
             if (__uuidof(IUnknown) == riid ||
                 __uuidof(IDWritePixelSnapping) == riid ||
