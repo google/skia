@@ -78,8 +78,8 @@ private:
             , fTtcIndex(that.fTtcIndex)
             , fTypeface(that.fTypeface)
         {
-            SkDEBUGCODE(that.fDataId = -1;)
-            SkDEBUGCODE(that.fTtcIndex = -1;)
+            SkDEBUGCODE(that.fDataId = SkFontIdentity::kInvalidDataId;)
+            SkDEBUGCODE(that.fTtcIndex = 0xbbadbeef;)
             that.fTypeface = NULL;
         }
 
