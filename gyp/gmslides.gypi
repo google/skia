@@ -185,4 +185,14 @@
     '../src/utils/debugger/SkObjectParser.cpp',
 
   ],
+  # TODO(epoger): Disabling while we investigate http://skbug.com/2313
+  # epoger will re-enable by 10 April 2014
+  'conditions': [
+    [ 'skia_os == "android"', {
+      'sources!': [
+        '../gm/imagefilterscropexpand.cpp',
+      ],
+    }],
+    # base class for GMs
+  ],
 }
