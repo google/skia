@@ -329,7 +329,10 @@ static SkBaseDevice* createDevice(const CanvasConfig& c, GrContext* grCtx) {
             // if rowBytes isn't tight then set the padding to a known value
             if (rowBytes) {
                 SkAutoLockPixels alp(bmp);
-                memset(bmp.getPixels(), DEV_PAD, bmp.getSafeSize());
+                // We'd just use memset here but GCC 4.8.1 throws up a bogus warning when we do.
+                for (size_t i = 0; i < bmp.getSafeSize(); i++) {
+                    ((uint8_t*)bmp.getPixels())[i] = DEV_PAD;
+                }
             }
             return new SkBitmapDevice(bmp);
         }
