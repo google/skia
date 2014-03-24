@@ -2569,7 +2569,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16989893191886330943
+          15865471464929251478
         ]
       ], 
       "reviewed-by-human": true
@@ -3289,7 +3289,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15087092111809386429
+          15835598503521329982
         ]
       ], 
       "ignore-failure": false, 
