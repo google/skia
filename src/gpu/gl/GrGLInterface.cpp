@@ -116,14 +116,18 @@ GrGLInterface* GrGLInterface::NewClone(const GrGLInterface* interface) {
     return clone;
 }
 
+#define RETURN_FALSE_INTERFACE                             \
+    GrDebugCrash("GrGLInterface::validate() failed.");     \
+    return false;                                          \
+
 bool GrGLInterface::validate() const {
 
     if (kNone_GrGLStandard == fStandard) {
-        return false;
+        RETURN_FALSE_INTERFACE
     }
 
     if (!fExtensions.isInitialized()) {
-        return false;
+        RETURN_FALSE_INTERFACE
     }
 
     // functions that are always required
@@ -219,7 +223,7 @@ bool GrGLInterface::validate() const {
         NULL == fFunctions.fGenFramebuffers ||
         NULL == fFunctions.fGenRenderbuffers ||
         NULL == fFunctions.fRenderbufferStorage) {
-        return false;
+        RETURN_FALSE_INTERFACE
     }
 
     GrGLVersion glVer = GrGLGetVersion(this);
@@ -242,7 +246,7 @@ bool GrGLInterface::validate() const {
         if (NULL == fFunctions.fStencilFuncSeparate ||
             NULL == fFunctions.fStencilMaskSeparate ||
             NULL == fFunctions.fStencilOpSeparate) {
-            return false;
+            RETURN_FALSE_INTERFACE
         }
     } else if (kGL_GrGLStandard == fStandard) {
 
@@ -250,15 +254,15 @@ bool GrGLInterface::validate() const {
             if (NULL == fFunctions.fStencilFuncSeparate ||
                 NULL == fFunctions.fStencilMaskSeparate ||
                 NULL == fFunctions.fStencilOpSeparate) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
         if (glVer >= GR_GL_VER(3,0) && NULL == fFunctions.fBindFragDataLocation) {
-            return false;
+            RETURN_FALSE_INTERFACE
         }
         if (glVer >= GR_GL_VER(2,0) || fExtensions.has("GL_ARB_draw_buffers")) {
             if (NULL == fFunctions.fDrawBuffers) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
 
@@ -270,7 +274,7 @@ bool GrGLInterface::validate() const {
                 NULL == fFunctions.fGetQueryiv ||
                 NULL == fFunctions.fGetQueryObjectiv ||
                 NULL == fFunctions.fGetQueryObjectuiv) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
         if (glVer >= GR_GL_VER(3,3) ||
@@ -278,12 +282,12 @@ bool GrGLInterface::validate() const {
             fExtensions.has("GL_EXT_timer_query")) {
             if (NULL == fFunctions.fGetQueryObjecti64v ||
                 NULL == fFunctions.fGetQueryObjectui64v) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
         if (glVer >= GR_GL_VER(3,3) || fExtensions.has("GL_ARB_timer_query")) {
             if (NULL == fFunctions.fQueryCounter) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
         if (!isCoreProfile) {
@@ -292,7 +296,7 @@ bool GrGLInterface::validate() const {
                 NULL == fFunctions.fMatrixMode ||
                 NULL == fFunctions.fTexGenfv ||
                 NULL == fFunctions.fTexGeni) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
         if (fExtensions.has("GL_NV_path_rendering")) {
@@ -345,7 +349,7 @@ bool GrGLInterface::validate() const {
                 NULL == fFunctions.fIsPointInStrokePath ||
                 NULL == fFunctions.fGetPathLength ||
                 NULL == fFunctions.fPointAlongPath) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
     }
@@ -355,7 +359,7 @@ bool GrGLInterface::validate() const {
         (glVer >= GR_GL_VER(1,3)) ||
         fExtensions.has("GL_ARB_texture_compression")) {
         if (NULL == fFunctions.fCompressedTexImage2D) {
-            return false;
+            RETURN_FALSE_INTERFACE
         }
     }
 
@@ -364,7 +368,7 @@ bool GrGLInterface::validate() const {
         (NULL == fFunctions.fGetTexLevelParameteriv ||
          NULL == fFunctions.fDrawBuffer ||
          NULL == fFunctions.fReadBuffer)) {
-        return false;
+        RETURN_FALSE_INTERFACE
     }
 
     // GL_EXT_texture_storage is part of desktop 4.2
@@ -374,12 +378,12 @@ bool GrGLInterface::validate() const {
             fExtensions.has("GL_ARB_texture_storage") ||
             fExtensions.has("GL_EXT_texture_storage")) {
             if (NULL == fFunctions.fTexStorage2D) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
     } else if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_EXT_texture_storage")) {
         if (NULL == fFunctions.fTexStorage2D) {
-            return false;
+            RETURN_FALSE_INTERFACE
         }
     }
 
@@ -387,7 +391,7 @@ bool GrGLInterface::validate() const {
 // FIXME: Remove this once Chromium is updated to provide this function
 #if 0
         if (NULL == fFunctions.fDiscardFramebuffer) {
-            return false;
+            RETURN_FALSE_INTERFACE
         }
 #endif
     }
@@ -398,36 +402,36 @@ bool GrGLInterface::validate() const {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_ARB_framebuffer_object")) {
             if (NULL == fFunctions.fRenderbufferStorageMultisample ||
                 NULL == fFunctions.fBlitFramebuffer) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         } else {
             if (fExtensions.has("GL_EXT_framebuffer_blit") &&
                 NULL == fFunctions.fBlitFramebuffer) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
             if (fExtensions.has("GL_EXT_framebuffer_multisample") &&
                 NULL == fFunctions.fRenderbufferStorageMultisample) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
     } else {
         if (glVer >= GR_GL_VER(3,0) || fExtensions.has("GL_CHROMIUM_framebuffer_multisample")) {
             if (NULL == fFunctions.fRenderbufferStorageMultisample ||
                 NULL == fFunctions.fBlitFramebuffer) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
         if (fExtensions.has("GL_APPLE_framebuffer_multisample")) {
             if (NULL == fFunctions.fRenderbufferStorageMultisampleES2APPLE ||
                 NULL == fFunctions.fResolveMultisampleFramebuffer) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
         if (fExtensions.has("GL_IMG_multisampled_render_to_texture") ||
             fExtensions.has("GL_EXT_multisampled_render_to_texture")) {
             if (NULL == fFunctions.fRenderbufferStorageMultisampleES2EXT ||
                 NULL == fFunctions.fFramebufferTexture2DMultisample) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
     }
@@ -438,7 +442,7 @@ bool GrGLInterface::validate() const {
     if (kGL_GrGLStandard == fStandard || fExtensions.has("GL_OES_mapbuffer")) {
         if (NULL == fFunctions.fMapBuffer ||
             NULL == fFunctions.fUnmapBuffer) {
-            return false;
+            RETURN_FALSE_INTERFACE
         }
     }
 
@@ -446,14 +450,14 @@ bool GrGLInterface::validate() const {
     if (kGL_GrGLStandard == fStandard &&
         (glVer >= GR_GL_VER(3,3) || fExtensions.has("GL_ARB_blend_func_extended"))) {
         if (NULL == fFunctions.fBindFragDataLocationIndexed) {
-            return false;
+            RETURN_FALSE_INTERFACE
         }
     }
 
     // glGetStringi was added in version 3.0 of both desktop and ES.
     if (glVer >= GR_GL_VER(3, 0)) {
         if (NULL == fFunctions.fGetStringi) {
-            return false;
+            RETURN_FALSE_INTERFACE
         }
     }
 
@@ -462,7 +466,7 @@ bool GrGLInterface::validate() const {
             if (NULL == fFunctions.fBindVertexArray ||
                 NULL == fFunctions.fDeleteVertexArrays ||
                 NULL == fFunctions.fGenVertexArrays) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
     } else {
@@ -470,7 +474,7 @@ bool GrGLInterface::validate() const {
             if (NULL == fFunctions.fBindVertexArray ||
                 NULL == fFunctions.fDeleteVertexArrays ||
                 NULL == fFunctions.fGenVertexArrays) {
-                return false;
+                RETURN_FALSE_INTERFACE
             }
         }
     }
@@ -480,7 +484,7 @@ bool GrGLInterface::validate() const {
         if (NULL == fFunctions.fInsertEventMarker ||
             NULL == fFunctions.fPushGroupMarker ||
             NULL == fFunctions.fPopGroupMarker) {
-            return false;
+            RETURN_FALSE_INTERFACE
         }
     }
 #endif
