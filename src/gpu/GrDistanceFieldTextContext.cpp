@@ -372,7 +372,7 @@ void GrDistanceFieldTextContext::drawText(const GrPaint& paint, const SkPaint& s
     SkFixed fy = SkScalarToFixed(y) + SK_FixedHalf;
     SkFixed fixedScale = SkScalarToFixed(sizeRatio);
     while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache, &text, fx, fy);
+        const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
 
         if (glyph.fWidth) {
             this->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(),

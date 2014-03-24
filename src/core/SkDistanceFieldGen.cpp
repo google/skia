@@ -28,7 +28,8 @@ enum NeighborFlags {
     kNeighborFlagCount        = 8
 };
 
-// We treat an "edge" as a place where we cross from black to non-black, or vice versa.
+// We treat an "edge" as a place where we cross from >=128 to <128, or vice versa, or
+// where we have two non-zero pixels that are <128.
 // 'neighborFlags' is used to limit the directions in which we test to avoid indexing
 // outside of the image
 static bool found_edge(const unsigned char* imagePtr, int width, int neighborFlags) {
@@ -38,18 +39,23 @@ static bool found_edge(const unsigned char* imagePtr, int width, int neighborFla
     SkASSERT(kNum8ConnectedNeighbors == kNeighborFlagCount);
 
     // search for an edge
-    bool currVal = (*imagePtr != 0);
+    unsigned char currVal = *imagePtr;
+    unsigned char currCheck = (currVal >> 7);
     for (int i = 0; i < kNum8ConnectedNeighbors; ++i) {
-        bool checkVal;
+        unsigned char neighborVal;
         if ((1 << i) & neighborFlags) {
             const unsigned char* checkPtr = imagePtr + offsets[i];
-            checkVal = (*checkPtr != 0);
+            neighborVal = *checkPtr;
         } else {
-            checkVal = false;
+            neighborVal = 0;
         }
-        SkASSERT(checkVal == 0 || checkVal == 1);
-        SkASSERT(currVal == 0 || currVal == 1);
-        if (checkVal != currVal) {
+        unsigned char neighborCheck = (neighborVal >> 7);
+        SkASSERT(currCheck == 0 || currCheck == 1);
+        SkASSERT(neighborCheck == 0 || neighborCheck == 1);
+        // if sharp transition
+        if (currCheck != neighborCheck ||
+            // or both <128 and >0
+            (!currCheck && !neighborCheck && currVal && neighborVal)) {
             return true;
         }
     }
@@ -349,10 +355,27 @@ bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
     unsigned char* edgePtr = (unsigned char*) edgeStorage.get();
     sk_bzero(edgePtr, dataWidth*dataHeight*sizeof(char));
 
+    SkAutoSMalloc<1024> copyStorage((width+2)*(height+2)*sizeof(char));
+    unsigned char* copyPtr = (unsigned char*) copyStorage.get();
+
+    // we copy our source image into a padded copy to ensure we catch edge transitions
+    // around the outside
+    const unsigned char* currImage = image;
+    sk_bzero(copyPtr, (width+2)*sizeof(char));
+    unsigned char* currCopy = copyPtr + width + 2;
+    for (int i = 0; i < height; ++i) {
+        *currCopy++ = 0; 
+        memcpy(currCopy, currImage, width*sizeof(char));
+        currImage += width;
+        currCopy += width;
+        *currCopy++ = 0;
+    }
+    sk_bzero(currCopy, (width+2)*sizeof(char));
+
     // copy glyph into distance field storage
-    init_glyph_data(dataPtr, edgePtr, image,
+    init_glyph_data(dataPtr, edgePtr, copyPtr,
                     dataWidth, dataHeight,
-                    width, height, pad);
+                    width+2, height+2, pad-1);
 
     // create initial distance data, particularly at edges
     init_distances(dataPtr, edgePtr, dataWidth, dataHeight);
@@ -426,10 +449,14 @@ bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
     for (int j = 1; j < dataHeight-1; ++j) {
         for (int i = 1; i < dataWidth-1; ++i) {
 #if DUMP_EDGE
-            unsigned char val = sk_float_round2int(255*currData->fAlpha);
+            float alpha = currData->fAlpha;
+            float edge = 0.0f;
             if (*currEdge) {
-                val = 128;
+                edge = 0.25f;
             }
+            // blend with original image
+            float result = alpha + (1.0f-alpha)*edge;
+            unsigned char val = sk_float_round2int(255*result);
             *dfPtr++ = val;
 #else
             float dist;
