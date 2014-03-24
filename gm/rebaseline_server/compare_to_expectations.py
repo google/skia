@@ -466,7 +466,8 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument(
       '--actuals', default=DEFAULT_ACTUALS_DIR,
-      help='Directory containing all actual-result JSON files')
+      help='Directory containing all actual-result JSON files; defaults to '
+      '\'%(default)s\' .')
   parser.add_argument(
       '--expectations', default=DEFAULT_EXPECTATIONS_DIR,
       help='Directory containing all expected-result JSON files; defaults to '
@@ -485,11 +486,11 @@ def main():
       help='Directory within which to download images and generate diffs; '
       'defaults to \'%(default)s\' .')
   args = parser.parse_args()
-  results = Results(actuals_root=args.actuals,
-                    expected_root=args.expectations,
-                    generated_images_root=args.workdir)
+  results_obj = Results(actuals_root=args.actuals,
+                        expected_root=args.expectations,
+                        generated_images_root=args.workdir)
   gm_json.WriteToFile(
-      results.get_packaged_results_of_type(results_type=args.results),
+      results_obj.get_packaged_results_of_type(results_type=args.results),
       args.outfile)
 
 
