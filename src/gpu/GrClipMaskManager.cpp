@@ -220,7 +220,6 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
     InitialState initialState;
     SkIRect clipSpaceIBounds;
     bool requiresAA;
-    bool isRect = false;
 
     GrDrawState* drawState = fGpu->drawState();
 
@@ -243,7 +242,6 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
         if (elements.isEmpty()) {
             if (kAllIn_InitialState == initialState) {
                 ignoreClip = clipSpaceIBounds == clipSpaceRTIBounds;
-                isRect = true;
             } else {
                 return false;
             }
@@ -322,16 +320,6 @@ bool GrClipMaskManager::setupClipping(const GrClipData* clipDataIn,
     // clears, InOrderDrawBuffer playbacks) that hit the stencil buffer path. These may be
     // "incorrectly" clearing the AA cache.
     fAACache.reset();
-
-    // If the clip is a rectangle then just set the scissor. Otherwise, create
-    // a stencil mask.
-    if (isRect) {
-        SkIRect clipRect = clipSpaceIBounds;
-        clipRect.offset(-clipDataIn->fOrigin);
-        fGpu->enableScissor(clipRect);
-        this->setGpuStencil();
-        return true;
-    }
 
     // use the stencil clip if we can't represent the clip as a rectangle.
     SkIPoint clipSpaceToStencilSpaceOffset = -clipDataIn->fOrigin;
