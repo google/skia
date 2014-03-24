@@ -66,7 +66,7 @@ protected:
             SkMatrix s;
             s.reset();
             if (1 == i) {
-                s.setScale(1.5, 1.5);
+                s.setScale(1.5f, 1.5f);
                 s.postTranslate(2, 2);
             }
 
