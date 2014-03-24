@@ -185,7 +185,7 @@ private:
     static const int kTileY = 40;
 
     static const int kNumSimpleCases = 7;
-    static const int kNumComplexCases = 29;
+    static const int kNumComplexCases = 35;
     static const SkVector gRadii[kNumComplexCases][4];
 
     static const int kNumRRects = kNumSimpleCases + kNumComplexCases;
@@ -235,6 +235,10 @@ const SkVector RRectGM::gRadii[kNumComplexCases][4] = {
     { { 0, 0 }, { 0, 0 }, { 20, 20 }, { 20, 20 } },
     { { 20, 20 }, { 0, 0 }, { 0, 0 }, { 20, 20 } },
 
+    // small radius circular corner tabs
+    { { 0, 0 }, { 0.2f, 0.2f }, { 0.2f, 0.2f }, { 0, 0 } },
+    { { 0.3f, 0.3f }, { 0.3f, .3f }, { 0, 0 }, { 0, 0 } },
+
     // single circular corner cases
     { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 15, 15 } },
     { { 0, 0 }, { 0, 0 }, { 15, 15 }, { 0, 0 } },
@@ -244,6 +248,13 @@ const SkVector RRectGM::gRadii[kNumComplexCases][4] = {
     // nine patch elliptical
     { { 5, 7 }, { 8, 7 }, { 8, 12 }, { 5, 12 } },
     { { 0, 7 }, { 8, 7 }, { 8, 12 }, { 0, 12 } },
+
+    // nine patch elliptical, small radii
+    { { 0.4f, 7 }, { 8, 7 }, { 8, 12 }, { 0.4f, 12 } },
+    { { 0.4f, 0.4f }, { 8, 0.4f }, { 8, 12 }, { 0.4f, 12 } },
+    { { 20, 0.4f }, { 18, 0.4f }, { 18, 0.4f }, { 20, 0.4f } },
+    { { 0.3f, 0.4f }, { 0.3f, 0.4f }, { 0.3f, 0.4f }, { 0.3f, 0.4f } },
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
