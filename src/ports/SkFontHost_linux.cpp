@@ -86,7 +86,7 @@ public:
 protected:
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE {
         *ttcIndex = 0;
-        return SkRef(fStream.get());
+        return fStream->duplicate();
     }
 
 private:
