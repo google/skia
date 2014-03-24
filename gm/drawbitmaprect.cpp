@@ -178,8 +178,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef SK_BUILD_FOR_ANDROID
 static GM* MyFactory(void*) { return new DrawBitmapRectGM; }
 static GMRegistry reg(MyFactory);
-#endif
 }

@@ -121,8 +121,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef SK_BUILD_FOR_ANDROID
 static GM* MyFactory(void*) { return new BitmapCopyGM; }
 static GMRegistry reg(MyFactory);
-#endif
 }

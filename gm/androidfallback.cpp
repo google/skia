@@ -35,11 +35,9 @@ protected:
         paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
         paint.setTextSize(24);
 
-#ifdef SK_BUILD_FOR_ANDROID
         SkPaintOptionsAndroid options = paint.getPaintOptionsAndroid();
         options.setUseFontFallbacks(true);
         paint.setPaintOptionsAndroid(options);
-#endif
 
         // "א foo 免舌 bar क"
         const uint16_t unicodeStr[] = {0x05D0, 0x0020, 0x0066, 0x006F, 0x006F, 0x0020, 0x514D,
@@ -63,10 +61,8 @@ protected:
         canvas->translate(0, SkIntToScalar(75));
         canvas->drawPosTextH(unicodeStr, strByteLength, posX, 0, paint);
 
-#ifdef SK_BUILD_FOR_ANDROID
         options.setLanguage("ja");
         paint.setPaintOptionsAndroid(options);
-#endif
 
         canvas->translate(0, SkIntToScalar(75));
         canvas->drawPosText(unicodeStr, strByteLength, posXY, paint);
@@ -85,8 +81,6 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_BUILD_FOR_ANDROID
 DEF_GM( return SkNEW(AndroidFallbackGM); )
-#endif
 
 }

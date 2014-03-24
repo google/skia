@@ -109,10 +109,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#if !defined(SK_BUILD_FOR_ANDROID)
-// fail for now until the appropriate freetype changes are submitted
 static GM* MyFactory(void*) { return new ColorEmojiGM; }
 static GMRegistry reg(MyFactory);
-#endif
 
 }
