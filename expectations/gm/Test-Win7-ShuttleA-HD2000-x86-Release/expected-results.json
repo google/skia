@@ -3790,6 +3790,10 @@
           3908297226363946093
         ]
       ], 
+      "bugs": [
+        2332
+      ], 
+      "ignore-failure": true,
       "reviewed-by-human": true
     }, 
     "complexclip2_rect_aa_pdf-poppler.png": {
@@ -4511,8 +4515,9 @@
         ]
       ], 
       "bugs": [
-        2146
-      ], 
+        2331
+      ],
+      "ignore-failure": true,
       "reviewed-by-human": false
     }, 
     "dashing_pdf-poppler.png": {
