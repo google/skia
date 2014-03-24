@@ -69,14 +69,7 @@ enum {
 #endif
 
 SkPaint::SkPaint() {
-    // since we may have padding, we zero everything so that our memcmp() call
-    // in operator== will work correctly.
-    // with this, we can skip 0 and null individual initializations
-    sk_bzero(this, sizeof(*this));
-
-#if 0   // not needed with the bzero call above
     fTypeface    = NULL;
-    fTextSkewX   = 0;
     fPathEffect  = NULL;
     fShader      = NULL;
     fXfermode    = NULL;
@@ -86,21 +79,25 @@ SkPaint::SkPaint() {
     fLooper      = NULL;
     fImageFilter = NULL;
     fAnnotation  = NULL;
-    fWidth       = 0;
-    fDirtyBits   = 0;
-#endif
 
-    fTextSize   = SkPaintDefaults_TextSize;
-    fTextScaleX = SK_Scalar1;
-    fColor      = SK_ColorBLACK;
-    fMiterLimit = SkPaintDefaults_MiterLimit;
-    fFlags      = SkPaintDefaults_Flags;
-    fCapType    = kDefault_Cap;
-    fJoinType   = kDefault_Join;
-    fTextAlign  = kLeft_Align;
-    fStyle      = kFill_Style;
+    fTextSize     = SkPaintDefaults_TextSize;
+    fTextScaleX   = SK_Scalar1;
+    fTextSkewX    = 0;
+    fColor        = SK_ColorBLACK;
+    fWidth        = 0;
+    fMiterLimit   = SkPaintDefaults_MiterLimit;
+
+    // Zero all bitfields, then set some non-zero defaults.
+    fBitfields    = 0;
+    fFlags        = SkPaintDefaults_Flags;
+    fCapType      = kDefault_Cap;
+    fJoinType     = kDefault_Join;
+    fTextAlign    = kLeft_Align;
+    fStyle        = kFill_Style;
     fTextEncoding = kUTF8_TextEncoding;
-    fHinting    = SkPaintDefaults_Hinting;
+    fHinting      = SkPaintDefaults_Hinting;
+
+    fDirtyBits    = 0;
 #ifdef SK_BUILD_FOR_ANDROID
     new (&fPaintOptionsAndroid) SkPaintOptionsAndroid;
     fGenerationID = 0;
@@ -108,22 +105,36 @@ SkPaint::SkPaint() {
 }
 
 SkPaint::SkPaint(const SkPaint& src) {
-    memcpy(this, &src, sizeof(src));
+#define COPY(field) field = src.field
+#define REF_COPY(field) field = SkSafeRef(src.field)
 
-    SkSafeRef(fTypeface);
-    SkSafeRef(fPathEffect);
-    SkSafeRef(fShader);
-    SkSafeRef(fXfermode);
-    SkSafeRef(fMaskFilter);
-    SkSafeRef(fColorFilter);
-    SkSafeRef(fRasterizer);
-    SkSafeRef(fLooper);
-    SkSafeRef(fImageFilter);
-    SkSafeRef(fAnnotation);
+    REF_COPY(fTypeface);
+    REF_COPY(fPathEffect);
+    REF_COPY(fShader);
+    REF_COPY(fXfermode);
+    REF_COPY(fMaskFilter);
+    REF_COPY(fColorFilter);
+    REF_COPY(fRasterizer);
+    REF_COPY(fLooper);
+    REF_COPY(fImageFilter);
+    REF_COPY(fAnnotation);
+
+    COPY(fTextSize);
+    COPY(fTextScaleX);
+    COPY(fTextSkewX);
+    COPY(fColor);
+    COPY(fWidth);
+    COPY(fMiterLimit);
+    COPY(fBitfields);
+    COPY(fDirtyBits);
 
 #ifdef SK_BUILD_FOR_ANDROID
     new (&fPaintOptionsAndroid) SkPaintOptionsAndroid(src.fPaintOptionsAndroid);
+    COPY(fGenerationID);
 #endif
+
+#undef COPY
+#undef REF_COPY
 }
 
 SkPaint::~SkPaint() {
@@ -140,52 +151,68 @@ SkPaint::~SkPaint() {
 }
 
 SkPaint& SkPaint::operator=(const SkPaint& src) {
+#define COPY(field) field = src.field
+#define REF_COPY(field) SkSafeUnref(field); field = SkSafeRef(src.field)
+
     SkASSERT(&src);
 
-    SkSafeRef(src.fTypeface);
-    SkSafeRef(src.fPathEffect);
-    SkSafeRef(src.fShader);
-    SkSafeRef(src.fXfermode);
-    SkSafeRef(src.fMaskFilter);
-    SkSafeRef(src.fColorFilter);
-    SkSafeRef(src.fRasterizer);
-    SkSafeRef(src.fLooper);
-    SkSafeRef(src.fImageFilter);
-    SkSafeRef(src.fAnnotation);
+    REF_COPY(fTypeface);
+    REF_COPY(fPathEffect);
+    REF_COPY(fShader);
+    REF_COPY(fXfermode);
+    REF_COPY(fMaskFilter);
+    REF_COPY(fColorFilter);
+    REF_COPY(fRasterizer);
+    REF_COPY(fLooper);
+    REF_COPY(fImageFilter);
+    REF_COPY(fAnnotation);
 
-    SkSafeUnref(fTypeface);
-    SkSafeUnref(fPathEffect);
-    SkSafeUnref(fShader);
-    SkSafeUnref(fXfermode);
-    SkSafeUnref(fMaskFilter);
-    SkSafeUnref(fColorFilter);
-    SkSafeUnref(fRasterizer);
-    SkSafeUnref(fLooper);
-    SkSafeUnref(fImageFilter);
-    SkSafeUnref(fAnnotation);
+    COPY(fTextSize);
+    COPY(fTextScaleX);
+    COPY(fTextSkewX);
+    COPY(fColor);
+    COPY(fWidth);
+    COPY(fMiterLimit);
+    COPY(fBitfields);
+    COPY(fDirtyBits);
 
 #ifdef SK_BUILD_FOR_ANDROID
     fPaintOptionsAndroid.~SkPaintOptionsAndroid();
-
-    uint32_t oldGenerationID = fGenerationID;
-#endif
-    memcpy(this, &src, sizeof(src));
-#ifdef SK_BUILD_FOR_ANDROID
-    fGenerationID = oldGenerationID + 1;
-
     new (&fPaintOptionsAndroid) SkPaintOptionsAndroid(src.fPaintOptionsAndroid);
+    ++fGenerationID;
 #endif
 
     return *this;
+
+#undef COPY
+#undef REF_COPY
 }
 
 bool operator==(const SkPaint& a, const SkPaint& b) {
+#define EQUAL(field) (a.field == b.field)
+    // Don't check fGenerationID or fDirtyBits, which can be different for logically equal paints.
+    return EQUAL(fTypeface)
+        && EQUAL(fPathEffect)
+        && EQUAL(fShader)
+        && EQUAL(fXfermode)
+        && EQUAL(fMaskFilter)
+        && EQUAL(fColorFilter)
+        && EQUAL(fRasterizer)
+        && EQUAL(fLooper)
+        && EQUAL(fImageFilter)
+        && EQUAL(fAnnotation)
+        && EQUAL(fTextSize)
+        && EQUAL(fTextScaleX)
+        && EQUAL(fTextSkewX)
+        && EQUAL(fColor)
+        && EQUAL(fWidth)
+        && EQUAL(fMiterLimit)
+        && EQUAL(fBitfields)
 #ifdef SK_BUILD_FOR_ANDROID
-    //assumes that fGenerationID is the last field in the struct
-    return !memcmp(&a, &b, SK_OFFSETOF(SkPaint, fGenerationID));
-#else
-    return !memcmp(&a, &b, sizeof(a));
+        && EQUAL(fPaintOptionsAndroid)
 #endif
+        ;
+#undef EQUAL
 }
 
 void SkPaint::reset() {
