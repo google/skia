@@ -261,6 +261,7 @@ void SkPicturePlayback::init() {
     fBoundingHierarchy = NULL;
     fStateTree = NULL;
     fCachedActiveOps = NULL;
+    fCurOffset = 0;
 }
 
 SkPicturePlayback::~SkPicturePlayback() {
@@ -838,7 +839,23 @@ const SkPicture::OperationList& SkPicturePlayback::getActiveOps(const SkIRect& q
     return *fCachedActiveOps;
 }
 
+class SkAutoResetOpID {
+public:
+    SkAutoResetOpID(SkPicturePlayback* playback) : fPlayback(playback) { }
+    ~SkAutoResetOpID() {
+        if (NULL != fPlayback) {
+            fPlayback->resetOpID();
+        }
+    }
+
+private:
+    SkPicturePlayback* fPlayback;
+};
+
 void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) {
+    SkAutoResetOpID aroi(this);
+    SkASSERT(0 == fCurOffset);
+
 #ifdef ENABLE_TIME_DRAW
     SkAutoTime  at("SkPicture::draw", 50);
 #endif
@@ -919,18 +936,18 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
         opCount++;
 #endif
 
-        size_t curOffset = reader.offset();
+        fCurOffset = reader.offset();
         uint32_t size;
         DrawType op = read_op_and_size(&reader, &size);
         size_t skipTo = 0;
         if (NOOP == op) {
             // NOOPs are to be ignored - do not propagate them any further
-            skipTo = curOffset + size;
+            skipTo = fCurOffset + size;
 #ifdef SK_DEVELOPER
         } else {
             opIndex++;
             if (this->preDraw(opIndex, op)) {
-                skipTo = curOffset + size;
+                skipTo = fCurOffset + size;
             }
 #endif
         }

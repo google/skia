@@ -281,6 +281,13 @@ const SkPicture::OperationList& SkPicture::EXPERIMENTAL_getActiveOps(const SkIRe
     return OperationList::InvalidList();
 }
 
+size_t SkPicture::EXPERIMENTAL_curOpID() const {
+    if (NULL != fPlayback) {
+        return fPlayback->curOpID();
+    }
+    return 0;
+}
+
 void SkPicture::draw(SkCanvas* surface, SkDrawPictureCallback* callback) {
     this->endRecording();
     if (NULL != fPlayback) {

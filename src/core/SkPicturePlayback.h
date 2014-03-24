@@ -102,6 +102,9 @@ public:
     void abort() { fAbortCurrentPlayback = true; }
 #endif
 
+    size_t curOpID() const { return fCurOffset; }
+    void resetOpID() { fCurOffset = 0; }
+
 protected:
     bool parseStream(SkStream*, const SkPictInfo&,
                      SkPicture::InstallPixelRefProc);
@@ -264,6 +267,10 @@ private:
 
     SkTypefacePlayback fTFPlayback;
     SkFactoryPlayback* fFactoryPlayback;
+
+    // The offset of the current operation when within the draw method
+    size_t fCurOffset;
+
 #ifdef SK_BUILD_FOR_ANDROID
     SkMutex fDrawMutex;
     bool fAbortCurrentPlayback;

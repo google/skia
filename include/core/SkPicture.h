@@ -348,12 +348,20 @@ private:
     */
     const OperationList& EXPERIMENTAL_getActiveOps(const SkIRect& queryRect);
 
+    /** PRIVATE / EXPERIMENTAL -- do not call
+        Return the ID of the operation currently being executed when playing
+        back. 0 indicates no call is active.
+    */
+    size_t EXPERIMENTAL_curOpID() const;
+
     void createHeader(SkPictInfo* info) const;
     static bool IsValidPictInfo(const SkPictInfo& info);
 
     friend class SkFlatPicture;
     friend class SkPicturePlayback;
     friend class SkGpuDevice;
+    friend class GrGatherDevice;
+    friend class SkDebugCanvas;
 
     typedef SkRefCnt INHERITED;
 };
