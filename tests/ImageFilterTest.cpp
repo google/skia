@@ -295,7 +295,7 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
     canvas.drawPicture(picture);
 }
 
-void test_huge_blur(SkBaseDevice* device, skiatest::Reporter* reporter) {
+static void test_huge_blur(SkBaseDevice* device, skiatest::Reporter* reporter) {
     SkCanvas canvas(device);
 
     SkBitmap bitmap;
