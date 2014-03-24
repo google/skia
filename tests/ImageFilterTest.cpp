@@ -295,6 +295,29 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
     canvas.drawPicture(picture);
 }
 
+void test_huge_blur(SkBaseDevice* device, skiatest::Reporter* reporter) {
+    SkCanvas canvas(device);
+
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(100, 100);
+    bitmap.eraseARGB(0, 0, 0, 0);
+
+    // Check that a blur with an insane radius does not crash or assert.
+    SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(SkIntToScalar(1<<30), SkIntToScalar(1<<30)));
+
+    SkPaint paint;
+    paint.setImageFilter(blur);
+    canvas.drawSprite(bitmap, 0, 0, &paint);
+}
+
+DEF_TEST(HugeBlurImageFilter, reporter) {
+    SkBitmap temp;
+    temp.allocN32Pixels(100, 100);
+    SkBitmapDevice device(temp);
+    test_huge_blur(&device, reporter);
+}
+
+
 #if SK_SUPPORT_GPU
 DEF_GPUTEST(ImageFilterCropRectGPU, reporter, factory) {
     GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
@@ -302,5 +325,13 @@ DEF_GPUTEST(ImageFilterCropRectGPU, reporter, factory) {
                                                          SkImageInfo::MakeN32Premul(100, 100),
                                                          0));
     test_crop_rects(device, reporter);
+}
+
+DEF_GPUTEST(HugeBlurImageFilterGPU, reporter, factory) {
+    GrContext* context = factory->get(static_cast<GrContextFactory::GLContextType>(0));
+    SkAutoTUnref<SkGpuDevice> device(SkGpuDevice::Create(context,
+                                                         SkImageInfo::MakeN32Premul(100, 100),
+                                                         0));
+    test_huge_blur(device, reporter);
 }
 #endif

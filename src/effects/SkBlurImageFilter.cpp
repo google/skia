@@ -16,6 +16,13 @@
 #include "GrContext.h"
 #endif
 
+// This rather arbitrary-looking value results in a maximum box blur kernel size
+// of 1000 pixels on the raster path, which matches the WebKit and Firefox
+// implementations. Since the GPU path does not compute a box blur, putting
+// the limit on sigma ensures consistent behaviour between the GPU and
+// raster paths.
+#define MAX_SIGMA SkIntToScalar(532)
+
 SkBlurImageFilter::SkBlurImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     fSigma.fWidth = buffer.readScalar();
@@ -164,6 +171,8 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
 
     SkVector sigma, localSigma = SkVector::Make(fSigma.width(), fSigma.height());
     ctx.ctm().mapVectors(&sigma, &localSigma, 1);
+    sigma.fX = SkMinScalar(sigma.fX, MAX_SIGMA);
+    sigma.fY = SkMinScalar(sigma.fY, MAX_SIGMA);
 
     int kernelSizeX, kernelSizeX3, lowOffsetX, highOffsetX;
     int kernelSizeY, kernelSizeY3, lowOffsetY, highOffsetY;
@@ -263,6 +272,8 @@ bool SkBlurImageFilter::filterImageGPU(Proxy* proxy, const SkBitmap& src, const 
     GrTexture* source = input.getTexture();
     SkVector sigma, localSigma = SkVector::Make(fSigma.width(), fSigma.height());
     ctx.ctm().mapVectors(&sigma, &localSigma, 1);
+    sigma.fX = SkMinScalar(sigma.fX, MAX_SIGMA);
+    sigma.fY = SkMinScalar(sigma.fY, MAX_SIGMA);
     offset->fX = rect.fLeft;
     offset->fY = rect.fTop;
     rect.offset(-srcOffset);
