@@ -71,7 +71,6 @@ AUTOGEN_WARNING = (
 """
 )
 
-
 DEBUGGING_HELP = (
 """
 ###############################################################################
@@ -100,6 +99,27 @@ DEBUGGING_HELP = (
 
 """
 )
+
+SKIA_TOOLS = (
+"""
+#############################################################
+# Build the skia tools
+#
+
+# benchmark (timings)
+#include $(BASE_PATH)/bench/Android.mk
+
+# golden-master (fidelity / regression test)
+#include $(BASE_PATH)/gm/Android.mk
+
+# unit-tests
+#include $(BASE_PATH)/tests/Android.mk
+
+# pathOps unit-tests
+# TODO include those sources!
+"""
+)
+
 
 class VarsDictData(object):
   """
@@ -179,4 +199,5 @@ def write_android_mk(target_dir, common, deviations_from_common):
     f.write('include external/stlport/libstlport.mk\n')
     f.write('LOCAL_MODULE:= libskia\n')
     f.write('include $(BUILD_SHARED_LIBRARY)\n')
+    f.write(SKIA_TOOLS)
 
