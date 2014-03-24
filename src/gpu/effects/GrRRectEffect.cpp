@@ -9,16 +9,20 @@
 
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
+#include "GrConvexPolyEffect.h"
 #include "GrTBackendEffectFactory.h"
 
 #include "SkRRect.h"
+
+// The effects defined here only handle rrect radii >= kRadiusMin.
+static const SkScalar kRadiusMin = SK_ScalarHalf;
+
+//////////////////////////////////////////////////////////////////////////////
 
 class GLCircularRRectEffect;
 
 class CircularRRectEffect : public GrEffect {
 public:
-    // This effect only supports circular corner rrects where the radius is >= kRadiusMin.
-    static const SkScalar kRadiusMin;
 
     enum CornerFlags {
         kTopLeft_CornerFlag     = (1 << SkRRect::kUpperLeft_Corner),
@@ -34,6 +38,7 @@ public:
         kAll_CornerFlags = kTopLeft_CornerFlag    | kTopRight_CornerFlag |
                            kBottomLeft_CornerFlag | kBottomRight_CornerFlag,
 
+        kNone_CornerFlags = 0
     };
 
     // The flags are used to indicate which corners are circluar (unflagged corners are assumed to
@@ -68,8 +73,6 @@ private:
 
     typedef GrEffect INHERITED;
 };
-
-const SkScalar CircularRRectEffect::kRadiusMin = 0.5f;
 
 GrEffectRef* CircularRRectEffect::Create(GrEffectEdgeType edgeType,
                                  uint32_t circularCornerFlags,
@@ -303,7 +306,7 @@ void GLCircularRRectEffect::setData(const GrGLUniformManager& uman,
             case CircularRRectEffect::kAll_CornerFlags:
                 SkASSERT(rrect.isSimpleCircular());
                 radius = rrect.getSimpleRadii().fX;
-                SkASSERT(radius >= CircularRRectEffect::kRadiusMin);
+                SkASSERT(radius >= kRadiusMin);
                 rect.inset(radius, radius);
                 break;
             case CircularRRectEffect::kTopLeft_CornerFlag:
@@ -377,9 +380,6 @@ class GLEllipticalRRectEffect;
 
 class EllipticalRRectEffect : public GrEffect {
 public:
-    // This effect only supports rrects where the radii are >= kRadiusMin.
-    static const SkScalar kRadiusMin;
-
     static GrEffectRef* Create(GrEffectEdgeType, const SkRRect&);
 
     virtual ~EllipticalRRectEffect() {};
@@ -408,8 +408,6 @@ private:
 
     typedef GrEffect INHERITED;
 };
-
-const SkScalar EllipticalRRectEffect::kRadiusMin = 0.5f;
 
 GrEffectRef* EllipticalRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rrect) {
     SkASSERT(kFillAA_GrEffectEdgeType == edgeType || kInverseFillAA_GrEffectEdgeType == edgeType);
@@ -596,8 +594,8 @@ void GLEllipticalRRectEffect::setData(const GrGLUniformManager& uman,
     if (rrect != fPrevRRect) {
         SkRect rect = rrect.getBounds();
         const SkVector& r0 = rrect.radii(SkRRect::kUpperLeft_Corner);
-        SkASSERT(r0.fX >= EllipticalRRectEffect::kRadiusMin);
-        SkASSERT(r0.fY >= EllipticalRRectEffect::kRadiusMin);
+        SkASSERT(r0.fX >= kRadiusMin);
+        SkASSERT(r0.fY >= kRadiusMin);
         switch (erre.getRRect().getType()) {
             case SkRRect::kSimple_Type:
                 rect.inset(r0.fX, r0.fY);
@@ -606,8 +604,8 @@ void GLEllipticalRRectEffect::setData(const GrGLUniformManager& uman,
                 break;
             case SkRRect::kNinePatch_Type: {
                 const SkVector& r1 = rrect.radii(SkRRect::kLowerRight_Corner);
-                SkASSERT(r1.fX >= EllipticalRRectEffect::kRadiusMin);
-                SkASSERT(r1.fY >= EllipticalRRectEffect::kRadiusMin);
+                SkASSERT(r1.fX >= kRadiusMin);
+                SkASSERT(r1.fY >= kRadiusMin);
                 rect.fLeft += r0.fX;
                 rect.fTop += r0.fY;
                 rect.fRight -= r1.fX;
@@ -632,43 +630,53 @@ GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rre
     if (kFillAA_GrEffectEdgeType != edgeType && kInverseFillAA_GrEffectEdgeType != edgeType) {
         return NULL;
     }
-    uint32_t cornerFlags;
+
+    if (rrect.isRect()) {
+        return GrConvexPolyEffect::Create(edgeType, rrect.getBounds());
+    }
+
     if (rrect.isSimple()) {
+        if (rrect.getSimpleRadii().fX < kRadiusMin || rrect.getSimpleRadii().fY < kRadiusMin) {
+            // In this case the corners are extremely close to rectangular and we collapse the
+            // clip to a rectangular clip.
+            return GrConvexPolyEffect::Create(edgeType, rrect.getBounds());
+        }
         if (rrect.getSimpleRadii().fX == rrect.getSimpleRadii().fY) {
-            if (rrect.getSimpleRadii().fX < CircularRRectEffect::kRadiusMin) {
-                return NULL;
-            }
-            cornerFlags = CircularRRectEffect::kAll_CornerFlags;
+            return CircularRRectEffect::Create(edgeType, CircularRRectEffect::kAll_CornerFlags, 
+                                               rrect);
         } else {
-            if (rrect.getSimpleRadii().fX < EllipticalRRectEffect::kRadiusMin ||
-                rrect.getSimpleRadii().fY < EllipticalRRectEffect::kRadiusMin) {
-                return NULL;
-            }
             return EllipticalRRectEffect::Create(edgeType, rrect);
         }
-    } else if (rrect.isComplex() || rrect.isNinePatch()) {
+    }
+
+    if (rrect.isComplex() || rrect.isNinePatch()) {
         // Check for the "tab" cases - two adjacent circular corners and two square corners.
-        SkScalar radius = 0;
-        cornerFlags = 0;
+        SkScalar circularRadius = 0;
+        uint32_t cornerFlags  = 0;
+
+        SkVector radii[4];
+        bool squashedRadii = false;
         for (int c = 0; c < 4; ++c) {
-            const SkVector& r = rrect.radii((SkRRect::Corner)c);
-            SkASSERT((0 == r.fX) == (0 == r.fY));
-            if (0 == r.fX) {
+            radii[c] = rrect.radii((SkRRect::Corner)c);
+            SkASSERT((0 == radii[c].fX) == (0 == radii[c].fY));
+            if (0 == radii[c].fX) {
+                // The corner is square, so no need to squash or flag as circular.
                 continue;
             }
-            if (r.fX != r.fY) {
+            if (radii[c].fX < kRadiusMin || radii[c].fY < kRadiusMin) {
+                radii[c].set(0, 0);
+                squashedRadii = true;
+                continue;
+            }
+            if (radii[c].fX != radii[c].fY) {
                 cornerFlags = ~0U;
                 break;
             }
             if (!cornerFlags) {
-                radius = r.fX;
-                if (radius < CircularRRectEffect::kRadiusMin) {
-                    cornerFlags = ~0U;
-                    break;
-                }
+                circularRadius = radii[c].fX;
                 cornerFlags = 1 << c;
             } else {
-                if (r.fX != radius) {
+                if (radii[c].fX != circularRadius) {
                    cornerFlags = ~0U;
                    break;
                 }
@@ -677,6 +685,10 @@ GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rre
         }
 
         switch (cornerFlags) {
+            case CircularRRectEffect::kAll_CornerFlags:
+                // This rrect should have been caught in the simple case above. Though, it would
+                // be correctly handled in the fallthrough code.
+                SkASSERT(false);
             case CircularRRectEffect::kTopLeft_CornerFlag:
             case CircularRRectEffect::kTopRight_CornerFlag:
             case CircularRRectEffect::kBottomRight_CornerFlag:
@@ -684,24 +696,29 @@ GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rre
             case CircularRRectEffect::kLeft_CornerFlags:
             case CircularRRectEffect::kTop_CornerFlags:
             case CircularRRectEffect::kRight_CornerFlags:
-            case CircularRRectEffect::kBottom_CornerFlags:
-            case CircularRRectEffect::kAll_CornerFlags:
-                break;
-            default:
+            case CircularRRectEffect::kBottom_CornerFlags: {
+                SkTCopyOnFirstWrite<SkRRect> rr(rrect);
+                if (squashedRadii) {
+                    rr.writable()->setRectRadii(rrect.getBounds(), radii);
+                }
+                return CircularRRectEffect::Create(edgeType, cornerFlags, *rr);
+            }
+            case CircularRRectEffect::kNone_CornerFlags:
+                return GrConvexPolyEffect::Create(edgeType, rrect.getBounds());
+            default: {
+                if (squashedRadii) {
+                    // If we got here then we squashed some but not all the radii to zero. (If all
+                    // had been squashed cornerFlags would be 0.) The elliptical effect doesn't
+                    // support some rounded and some square corners.
+                    return NULL;
+                }
                 if (rrect.isNinePatch()) {
-                    const SkVector& r0 = rrect.radii(SkRRect::kUpperLeft_Corner);
-                    const SkVector& r1 = rrect.radii(SkRRect::kLowerRight_Corner);
-                    if (r0.fX >= EllipticalRRectEffect::kRadiusMin &&
-                        r0.fY >= EllipticalRRectEffect::kRadiusMin &&
-                        r1.fX >= EllipticalRRectEffect::kRadiusMin &&
-                        r1.fY >= EllipticalRRectEffect::kRadiusMin) {
-                        return EllipticalRRectEffect::Create(edgeType, rrect);
-                    }
+                    return EllipticalRRectEffect::Create(edgeType, rrect);
                 }
                 return NULL;
+            }
         }
-    } else {
-        return NULL;
     }
-    return CircularRRectEffect::Create(edgeType, cornerFlags, rrect);
+
+    return NULL;
 }
