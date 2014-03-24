@@ -155,12 +155,12 @@ void SkFontMgr_Indirect::set_up_family_names(const SkFontMgr_Indirect* self) {
 }
 
 int SkFontMgr_Indirect::onCountFamilies() const {
-    SkOnce(&fOnce, SkFontMgr_Indirect::set_up_family_names, this);
+    SkOnce(&fFamilyNamesInited, &fFamilyNamesMutex, SkFontMgr_Indirect::set_up_family_names, this);
     return fFamilyNames->count();
 }
 
 void SkFontMgr_Indirect::onGetFamilyName(int index, SkString* familyName) const {
-    SkOnce(&fOnce, SkFontMgr_Indirect::set_up_family_names, this);
+    SkOnce(&fFamilyNamesInited, &fFamilyNamesMutex, SkFontMgr_Indirect::set_up_family_names, this);
     if (index >= fFamilyNames->count()) {
         familyName->reset();
         return;

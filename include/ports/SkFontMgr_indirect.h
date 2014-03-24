@@ -27,12 +27,8 @@ public:
     // In the future these calls should be broken out into their own interface
     // with a name like SkFontRenderer.
     SkFontMgr_Indirect(SkFontMgr* impl, SkRemotableFontMgr* proxy)
-        : fImpl(SkRef(impl)), fProxy(SkRef(proxy))
-    {
-        fOnce.done = false;
-        fOnce.lock.thisIsPrivate = 0;
-        SkDEBUGCODE(fOnce.lock.shouldBeZero = 0;)
-    }
+        : fImpl(SkRef(impl)), fProxy(SkRef(proxy)), fFamilyNamesInited(false)
+    { }
 
 protected:
     virtual int onCountFamilies() const SK_OVERRIDE;
@@ -99,7 +95,8 @@ private:
     mutable SkMutex fDataCacheMutex;
 
     mutable SkAutoTUnref<SkDataTable> fFamilyNames;
-    mutable SkOnceFlag fOnce;
+    mutable bool fFamilyNamesInited;
+    mutable SkMutex fFamilyNamesMutex;
     static void set_up_family_names(const SkFontMgr_Indirect* self);
 
     friend class SkStyleSet_Indirect;
