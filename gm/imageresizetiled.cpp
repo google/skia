@@ -6,7 +6,7 @@
  */
 
 #include "gm.h"
-#include "SkResizeImageFilter.h"
+#include "SkMatrixImageFilter.h"
 #include "SkRandom.h"
 
 #define WIDTH 640
@@ -36,8 +36,10 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
+        SkMatrix matrix;
+        matrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
         SkAutoTUnref<SkImageFilter> imageFilter(
-            SkResizeImageFilter::Create(RESIZE_FACTOR, RESIZE_FACTOR, SkPaint::kNone_FilterLevel));
+            SkMatrixImageFilter::Create(matrix, SkPaint::kNone_FilterLevel));
         paint.setImageFilter(imageFilter.get());
         const SkScalar tile_size = SkIntToScalar(100);
         SkRect bounds;

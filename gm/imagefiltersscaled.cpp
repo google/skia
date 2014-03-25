@@ -17,7 +17,7 @@
 #include "SkOffsetImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkRectShaderImageFilter.h"
-#include "SkResizeImageFilter.h"
+#include "SkMatrixImageFilter.h"
 #include "SkScalar.h"
 
 #define RESIZE_FACTOR SkIntToScalar(4)
@@ -100,6 +100,8 @@ protected:
         SkScalar kd = SkIntToScalar(2);
         SkScalar surfaceScale = SkIntToScalar(1);
         SkColor white(0xFFFFFFFF);
+        SkMatrix resizeMatrix;
+        resizeMatrix.setScale(RESIZE_FACTOR, RESIZE_FACTOR);
 
         SkImageFilter* filters[] = {
             SkBlurImageFilter::Create(SkIntToScalar(4), SkIntToScalar(4)),
@@ -113,7 +115,7 @@ protected:
             SkDilateImageFilter::Create(1, 1, checkerboard.get()),
             SkErodeImageFilter::Create(1, 1, checkerboard.get()),
             SkOffsetImageFilter::Create(SkIntToScalar(32), 0),
-            SkResizeImageFilter::Create(RESIZE_FACTOR, RESIZE_FACTOR, SkPaint::kNone_FilterLevel),
+            SkMatrixImageFilter::Create(resizeMatrix, SkPaint::kNone_FilterLevel),
             SkRectShaderImageFilter::Create(noise),
             SkLightingImageFilter::CreatePointLitDiffuse(pointLocation, white, surfaceScale, kd),
             SkLightingImageFilter::CreateSpotLitDiffuse(spotLocation, spotTarget, spotExponent,

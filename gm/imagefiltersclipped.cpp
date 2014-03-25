@@ -16,7 +16,7 @@
 #include "SkOffsetImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkRectShaderImageFilter.h"
-#include "SkResizeImageFilter.h"
+#include "SkMatrixImageFilter.h"
 #include "SkScalar.h"
 
 #define RESIZE_FACTOR_X SkIntToScalar(2)
@@ -91,6 +91,8 @@ protected:
         SkAutoTUnref<SkImageFilter> checkerboard(SkBitmapSource::Create(fCheckerboard));
         SkAutoTUnref<SkShader> noise(SkPerlinNoiseShader::CreateFractalNoise(
             SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0));
+        SkMatrix resizeMatrix;
+        resizeMatrix.setScale(RESIZE_FACTOR_X, RESIZE_FACTOR_Y);
 
         SkImageFilter* filters[] = {
             SkBlurImageFilter::Create(SkIntToScalar(12), SkIntToScalar(12)),
@@ -104,7 +106,7 @@ protected:
             SkDilateImageFilter::Create(2, 2, checkerboard.get()),
             SkErodeImageFilter::Create(2, 2, checkerboard.get()),
             SkOffsetImageFilter::Create(SkIntToScalar(-16), SkIntToScalar(32)),
-            SkResizeImageFilter::Create(RESIZE_FACTOR_X, RESIZE_FACTOR_Y, SkPaint::kNone_FilterLevel),
+            SkMatrixImageFilter::Create(resizeMatrix, SkPaint::kNone_FilterLevel),
             SkRectShaderImageFilter::Create(noise),
         };
 

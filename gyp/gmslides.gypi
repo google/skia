@@ -107,6 +107,7 @@
     '../gm/lcdtext.cpp',
     '../gm/linepaths.cpp',
     '../gm/matrixconvolution.cpp',
+    '../gm/matriximagefilter.cpp',
     '../gm/megalooper.cpp',
     '../gm/mixedxfermodes.cpp',
     '../gm/modecolorfilters.cpp',
