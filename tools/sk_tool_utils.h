@@ -16,11 +16,6 @@ namespace sk_tool_utils {
     const char* colortype_name(SkColorType);
 
     /**
-     *  Return the colorType and alphaType that correspond to the specified Config8888
-     */
-    void config8888_to_imagetypes(SkCanvas::Config8888, SkColorType*, SkAlphaType*);
-
-    /**
      *  Call canvas->writePixels() by using the pixels from bitmap, but with an info that claims
      *  the pixels are colorType + alphaType
      */

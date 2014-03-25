@@ -25,6 +25,7 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrStencilBuffer.h"
 #include "GrTextStrike.h"
+#include "SkGr.h"
 #include "SkRTConf.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
@@ -1259,53 +1260,14 @@ bool GrContext::readTexturePixels(GrTexture* texture,
 
 #include "SkConfig8888.h"
 
-namespace {
-/**
- * Converts a GrPixelConfig to a SkCanvas::Config8888. Only byte-per-channel
- * formats are representable as Config8888 and so the function returns false
- * if the GrPixelConfig has no equivalent Config8888.
- */
-bool grconfig_to_config8888(GrPixelConfig config,
-                            bool unpremul,
-                            SkCanvas::Config8888* config8888) {
-    switch (config) {
-        case kRGBA_8888_GrPixelConfig:
-            if (unpremul) {
-                *config8888 = SkCanvas::kRGBA_Unpremul_Config8888;
-            } else {
-                *config8888 = SkCanvas::kRGBA_Premul_Config8888;
-            }
-            return true;
-        case kBGRA_8888_GrPixelConfig:
-            if (unpremul) {
-                *config8888 = SkCanvas::kBGRA_Unpremul_Config8888;
-            } else {
-                *config8888 = SkCanvas::kBGRA_Premul_Config8888;
-            }
-            return true;
-        default:
-            return false;
+// toggles between RGBA and BGRA
+static SkColorType toggle_colortype32(SkColorType ct) {
+    if (kRGBA_8888_SkColorType == ct) {
+        return kBGRA_8888_SkColorType;
+    } else {
+        SkASSERT(kBGRA_8888_SkColorType == ct);
+        return kRGBA_8888_SkColorType;
     }
-}
-
-// It returns a configuration with where the byte position of the R & B components are swapped in
-// relation to the input config. This should only be called with the result of
-// grconfig_to_config8888 as it will fail for other configs.
-SkCanvas::Config8888 swap_config8888_red_and_blue(SkCanvas::Config8888 config8888) {
-    switch (config8888) {
-        case SkCanvas::kBGRA_Premul_Config8888:
-            return SkCanvas::kRGBA_Premul_Config8888;
-        case SkCanvas::kBGRA_Unpremul_Config8888:
-            return SkCanvas::kRGBA_Unpremul_Config8888;
-        case SkCanvas::kRGBA_Premul_Config8888:
-            return SkCanvas::kBGRA_Premul_Config8888;
-        case SkCanvas::kRGBA_Unpremul_Config8888:
-            return SkCanvas::kBGRA_Unpremul_Config8888;
-        default:
-            GrCrash("Unexpected input");
-            return SkCanvas::kBGRA_Unpremul_Config8888;;
-    }
-}
 }
 
 bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
@@ -1432,22 +1394,21 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
     }
     // Perform any conversions we weren't able to perform using a scratch texture.
     if (unpremul || swapRAndB) {
-        // These are initialized to suppress a warning
-        SkCanvas::Config8888 srcC8888 = SkCanvas::kNative_Premul_Config8888;
-        SkCanvas::Config8888 dstC8888 = SkCanvas::kNative_Premul_Config8888;
-
-        SkDEBUGCODE(bool c8888IsValid =) grconfig_to_config8888(dstConfig, false, &srcC8888);
-        grconfig_to_config8888(dstConfig, unpremul, &dstC8888);
-
-        if (swapRAndB) {
-            SkASSERT(c8888IsValid); // we should only do r/b swap on 8888 configs
-            srcC8888 = swap_config8888_red_and_blue(srcC8888);
+        SkDstPixelInfo dstPI;
+        if (!GrPixelConfig2ColorType(dstConfig, &dstPI.fColorType)) {
+            return false;
         }
-        SkASSERT(c8888IsValid);
-        uint32_t* b32 = reinterpret_cast<uint32_t*>(buffer);
-        SkConvertConfig8888Pixels(b32, rowBytes, dstC8888,
-                                  b32, rowBytes, srcC8888,
-                                  width, height);
+        dstPI.fAlphaType = kUnpremul_SkAlphaType;
+        dstPI.fPixels = buffer;
+        dstPI.fRowBytes = rowBytes;
+
+        SkSrcPixelInfo srcPI;
+        srcPI.fColorType = swapRAndB ? toggle_colortype32(dstPI.fColorType) : dstPI.fColorType;
+        srcPI.fAlphaType = kPremul_SkAlphaType;
+        srcPI.fPixels = buffer;
+        srcPI.fRowBytes = rowBytes;
+
+        return srcPI.convertPixelsTo(&dstPI, width, height);
     }
     return true;
 }
@@ -1567,18 +1528,24 @@ bool GrContext::writeRenderTargetPixels(GrRenderTarget* target,
         effect.reset(this->createUPMToPMEffect(texture, swapRAndB, textureMatrix));
         // handle the unpremul step on the CPU if we couldn't create an effect to do it.
         if (NULL == effect) {
-            SkCanvas::Config8888 srcConfig8888, dstConfig8888;
-            SkDEBUGCODE(bool success = )
-            grconfig_to_config8888(srcConfig, true, &srcConfig8888);
-            SkASSERT(success);
-            SkDEBUGCODE(success = )
-            grconfig_to_config8888(srcConfig, false, &dstConfig8888);
-            SkASSERT(success);
-            const uint32_t* src = reinterpret_cast<const uint32_t*>(buffer);
-            tmpPixels.reset(width * height);
-            SkConvertConfig8888Pixels(tmpPixels.get(), 4 * width, dstConfig8888,
-                                      src, rowBytes, srcConfig8888,
-                                      width, height);
+            SkSrcPixelInfo srcPI;
+            if (!GrPixelConfig2ColorType(srcConfig, &srcPI.fColorType)) {
+                return false;
+            }
+            srcPI.fAlphaType = kUnpremul_SkAlphaType;
+            srcPI.fPixels = buffer;
+            srcPI.fRowBytes = rowBytes;
+
+            SkDstPixelInfo dstPI;
+            dstPI.fColorType = srcPI.fColorType;
+            dstPI.fAlphaType = kPremul_SkAlphaType;
+            dstPI.fPixels = tmpPixels.get();
+            dstPI.fRowBytes = 4 * width;
+
+            if (!srcPI.convertPixelsTo(&dstPI, width, height)) {
+                return false;
+            }
+
             buffer = tmpPixels.get();
             rowBytes = 4 * width;
         }
