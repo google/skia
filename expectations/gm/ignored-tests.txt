@@ -63,3 +63,8 @@ resizeimagefilter
 # yunchao: https://codereview.chromium.org/204143004/
 # This change add some cases to bitmapshader to avoid potential drawing error for kA8_Config
 bitmapshaders
+
+# fmalita: https://codereview.chromium.org/203203004
+# A couple of tests changed imperceptibly due to different rounding.
+fontscaler
+bleed
