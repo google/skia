@@ -86,38 +86,6 @@ void SkNWayCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-void SkNWayCanvas::didTranslate(SkScalar dx, SkScalar dy) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->translate(dx, dy);
-    }
-    this->INHERITED::didTranslate(dx, dy);
-}
-
-void SkNWayCanvas::didScale(SkScalar sx, SkScalar sy) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->scale(sx, sy);
-    }
-    this->INHERITED::didScale(sx, sy);
-}
-
-void SkNWayCanvas::didRotate(SkScalar degrees) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->rotate(degrees);
-    }
-    this->INHERITED::didRotate(degrees);
-}
-
-void SkNWayCanvas::didSkew(SkScalar sx, SkScalar sy) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->skew(sx, sy);
-    }
-    this->INHERITED::didSkew(sx, sy);
-}
-
 void SkNWayCanvas::didConcat(const SkMatrix& matrix) {
     Iter iter(fList);
     while (iter.next()) {

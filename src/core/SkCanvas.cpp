@@ -1325,52 +1325,28 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void SkCanvas::didTranslate(SkScalar, SkScalar) {
-    // Do nothing. Subclasses may do something.
-}
-
 void SkCanvas::translate(SkScalar dx, SkScalar dy) {
-    fDeviceCMDirty = true;
-    fCachedLocalClipBoundsDirty = true;
-    fMCRec->fMatrix->preTranslate(dx, dy);
-
-    this->didTranslate(dx, dy);
-}
-
-void SkCanvas::didScale(SkScalar, SkScalar) {
-    // Do nothing. Subclasses may do something.
+    SkMatrix m;
+    m.setTranslate(dx, dy);
+    this->concat(m);
 }
 
 void SkCanvas::scale(SkScalar sx, SkScalar sy) {
-    fDeviceCMDirty = true;
-    fCachedLocalClipBoundsDirty = true;
-    fMCRec->fMatrix->preScale(sx, sy);
-
-    this->didScale(sx, sy);
-}
-
-void SkCanvas::didRotate(SkScalar) {
-    // Do nothing. Subclasses may do something.
+    SkMatrix m;
+    m.setScale(sx, sy);
+    this->concat(m);
 }
 
 void SkCanvas::rotate(SkScalar degrees) {
-    fDeviceCMDirty = true;
-    fCachedLocalClipBoundsDirty = true;
-    fMCRec->fMatrix->preRotate(degrees);
-
-    this->didRotate(degrees);
-}
-
-void SkCanvas::didSkew(SkScalar, SkScalar) {
-    // Do nothing. Subclasses may do something.
+    SkMatrix m;
+    m.setRotate(degrees);
+    this->concat(m);
 }
 
 void SkCanvas::skew(SkScalar sx, SkScalar sy) {
-    fDeviceCMDirty = true;
-    fCachedLocalClipBoundsDirty = true;
-    fMCRec->fMatrix->preSkew(sx, sy);
-
-    this->didSkew(sx, sy);
+    SkMatrix m;
+    m.setSkew(sx, sy);
+    this->concat(m);
 }
 
 void SkCanvas::didConcat(const SkMatrix&) {
@@ -1378,6 +1354,10 @@ void SkCanvas::didConcat(const SkMatrix&) {
 }
 
 void SkCanvas::concat(const SkMatrix& matrix) {
+    if (matrix.isIdentity()) {
+        return;
+    }
+
     fDeviceCMDirty = true;
     fCachedLocalClipBoundsDirty = true;
     fMCRec->fMatrix->preConcat(matrix);

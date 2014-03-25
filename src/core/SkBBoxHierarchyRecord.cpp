@@ -43,26 +43,6 @@ void SkBBoxHierarchyRecord::willRestore() {
     this->INHERITED::willRestore();
 }
 
-void SkBBoxHierarchyRecord::didTranslate(SkScalar dx, SkScalar dy) {
-    fStateTree->appendTransform(getTotalMatrix());
-    INHERITED::didTranslate(dx, dy);
-}
-
-void SkBBoxHierarchyRecord::didScale(SkScalar sx, SkScalar sy) {
-    fStateTree->appendTransform(getTotalMatrix());
-    INHERITED::didScale(sx, sy);
-}
-
-void SkBBoxHierarchyRecord::didRotate(SkScalar degrees) {
-    fStateTree->appendTransform(getTotalMatrix());
-    INHERITED::didRotate(degrees);
-}
-
-void SkBBoxHierarchyRecord::didSkew(SkScalar sx, SkScalar sy) {
-    fStateTree->appendTransform(getTotalMatrix());
-    INHERITED::didSkew(sx, sy);
-}
-
 void SkBBoxHierarchyRecord::didConcat(const SkMatrix& matrix) {
     fStateTree->appendTransform(getTotalMatrix());
     INHERITED::didConcat(matrix);

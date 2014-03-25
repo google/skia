@@ -39,26 +39,6 @@ void SkProxyCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-void SkProxyCanvas::didTranslate(SkScalar dx, SkScalar dy) {
-    fProxy->translate(dx, dy);
-    this->INHERITED::didTranslate(dx, dy);
-}
-
-void SkProxyCanvas::didScale(SkScalar sx, SkScalar sy) {
-    fProxy->scale(sx, sy);
-    this->INHERITED::didScale(sx, sy);
-}
-
-void SkProxyCanvas::didRotate(SkScalar degrees) {
-    fProxy->rotate(degrees);
-    this->INHERITED::didRotate(degrees);
-}
-
-void SkProxyCanvas::didSkew(SkScalar sx, SkScalar sy) {
-    fProxy->skew(sx, sy);
-    this->INHERITED::didSkew(sx, sy);
-}
-
 void SkProxyCanvas::didConcat(const SkMatrix& matrix) {
     fProxy->concat(matrix);
     this->INHERITED::didConcat(matrix);

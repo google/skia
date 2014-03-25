@@ -1246,10 +1246,6 @@ protected:
     virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags);
     virtual void willRestore();
 
-    virtual void didTranslate(SkScalar, SkScalar);
-    virtual void didScale(SkScalar, SkScalar);
-    virtual void didRotate(SkScalar);
-    virtual void didSkew(SkScalar, SkScalar);
     virtual void didConcat(const SkMatrix&);
     virtual void didSetMatrix(const SkMatrix&);
 

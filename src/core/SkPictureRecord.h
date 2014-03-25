@@ -223,10 +223,6 @@ protected:
     virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
     virtual void willRestore() SK_OVERRIDE;
 
-    virtual void didTranslate(SkScalar, SkScalar) SK_OVERRIDE;
-    virtual void didScale(SkScalar, SkScalar) SK_OVERRIDE;
-    virtual void didRotate(SkScalar) SK_OVERRIDE;
-    virtual void didSkew(SkScalar, SkScalar) SK_OVERRIDE;
     virtual void didConcat(const SkMatrix&) SK_OVERRIDE;
     virtual void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
 
@@ -266,6 +262,8 @@ protected:
     // restores to be deferred (e.g., if the MC state is being collapsed and
     // only written out as needed).
     void recordConcat(const SkMatrix& matrix);
+    void recordTranslate(const SkMatrix& matrix);
+    void recordScale(const SkMatrix& matrix);
     int recordClipRect(const SkRect& rect, SkRegion::Op op, bool doAA);
     int recordClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA);
     int recordClipPath(int pathID, SkRegion::Op op, bool doAA);

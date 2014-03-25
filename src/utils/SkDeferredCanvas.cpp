@@ -735,30 +735,6 @@ bool SkDeferredCanvas::isDrawingToLayer() const {
     return this->drawingCanvas()->isDrawingToLayer();
 }
 
-void SkDeferredCanvas::didTranslate(SkScalar dx, SkScalar dy) {
-    this->drawingCanvas()->translate(dx, dy);
-    this->recordedDrawCommand();
-    this->INHERITED::didTranslate(dx, dy);
-}
-
-void SkDeferredCanvas::didScale(SkScalar sx, SkScalar sy) {
-    this->drawingCanvas()->scale(sx, sy);
-    this->recordedDrawCommand();
-    this->INHERITED::didScale(sx, sy);
-}
-
-void SkDeferredCanvas::didRotate(SkScalar degrees) {
-    this->drawingCanvas()->rotate(degrees);
-    this->recordedDrawCommand();
-    this->INHERITED::didRotate(degrees);
-}
-
-void SkDeferredCanvas::didSkew(SkScalar sx, SkScalar sy) {
-    this->drawingCanvas()->skew(sx, sy);
-    this->recordedDrawCommand();
-    this->INHERITED::didSkew(sx, sy);
-}
-
 void SkDeferredCanvas::didConcat(const SkMatrix& matrix) {
     this->drawingCanvas()->concat(matrix);
     this->recordedDrawCommand();

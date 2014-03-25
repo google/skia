@@ -106,35 +106,27 @@ void SkLuaCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-void SkLuaCanvas::didTranslate(SkScalar dx, SkScalar dy) {
-    AUTO_LUA("translate");
-    lua.pushScalar(dx, "dx");
-    lua.pushScalar(dy, "dy");
-    this->INHERITED::didTranslate(dx, dy);
-}
-
-void SkLuaCanvas::didScale(SkScalar sx, SkScalar sy) {
-    AUTO_LUA("scale");
-    lua.pushScalar(sx, "sx");
-    lua.pushScalar(sy, "sy");
-    this->INHERITED::didScale(sx, sy);
-}
-
-void SkLuaCanvas::didRotate(SkScalar degrees) {
-    AUTO_LUA("rotate");
-    lua.pushScalar(degrees, "degrees");
-    this->INHERITED::didRotate(degrees);
-}
-
-void SkLuaCanvas::didSkew(SkScalar kx, SkScalar ky) {
-    AUTO_LUA("skew");
-    lua.pushScalar(kx, "kx");
-    lua.pushScalar(ky, "ky");
-    this->INHERITED::didSkew(kx, ky);
-}
-
 void SkLuaCanvas::didConcat(const SkMatrix& matrix) {
-    AUTO_LUA("concat");
+    switch (matrix.getType()) {
+        case SkMatrix::kTranslate_Mask: {
+            AUTO_LUA("translate");
+            lua.pushScalar(matrix.getTranslateX(), "dx");
+            lua.pushScalar(matrix.getTranslateY(), "dy");
+            break;
+        }
+        case SkMatrix::kScale_Mask: {
+            AUTO_LUA("scale");
+            lua.pushScalar(matrix.getScaleX(), "sx");
+            lua.pushScalar(matrix.getScaleY(), "sy");
+            break;
+        }
+        default: {
+            AUTO_LUA("concat");
+            lua.pushMatrix(matrix);
+            break;
+        }
+    }
+
     this->INHERITED::didConcat(matrix);
 }
 

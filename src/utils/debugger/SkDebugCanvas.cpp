@@ -410,7 +410,20 @@ void SkDebugCanvas::onClipRegion(const SkRegion& region, SkRegion::Op op) {
 }
 
 void SkDebugCanvas::didConcat(const SkMatrix& matrix) {
-    addDrawCommand(new SkConcatCommand(matrix));
+    switch (matrix.getType()) {
+        case SkMatrix::kTranslate_Mask:
+            this->addDrawCommand(new SkTranslateCommand(matrix.getTranslateX(),
+                                                        matrix.getTranslateY()));
+            break;
+        case SkMatrix::kScale_Mask:
+            this->addDrawCommand(new SkScaleCommand(matrix.getScaleX(),
+                                                    matrix.getScaleY()));
+            break;
+        default:
+            this->addDrawCommand(new SkConcatCommand(matrix));
+            break;
+    }
+
     this->INHERITED::didConcat(matrix);
 }
 
@@ -535,11 +548,6 @@ void SkDebugCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-void SkDebugCanvas::didRotate(SkScalar degrees) {
-    addDrawCommand(new SkRotateCommand(degrees));
-    this->INHERITED::didRotate(degrees);
-}
-
 void SkDebugCanvas::willSave(SaveFlags flags) {
     this->addDrawCommand(new SkSaveCommand(flags));
     this->INHERITED::willSave(flags);
@@ -553,24 +561,9 @@ SkCanvas::SaveLayerStrategy SkDebugCanvas::willSaveLayer(const SkRect* bounds, c
     return kNoLayer_SaveLayerStrategy;
 }
 
-void SkDebugCanvas::didScale(SkScalar sx, SkScalar sy) {
-    addDrawCommand(new SkScaleCommand(sx, sy));
-    this->INHERITED::didScale(sx, sy);
-}
-
 void SkDebugCanvas::didSetMatrix(const SkMatrix& matrix) {
     addDrawCommand(new SkSetMatrixCommand(matrix));
     this->INHERITED::didSetMatrix(matrix);
-}
-
-void SkDebugCanvas::didSkew(SkScalar sx, SkScalar sy) {
-    addDrawCommand(new SkSkewCommand(sx, sy));
-    this->INHERITED::didSkew(sx, sy);
-}
-
-void SkDebugCanvas::didTranslate(SkScalar dx, SkScalar dy) {
-    addDrawCommand(new SkTranslateCommand(dx, dy));
-    this->INHERITED::didTranslate(dx, dy);
 }
 
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {

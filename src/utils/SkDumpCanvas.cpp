@@ -222,33 +222,26 @@ void SkDumpCanvas::willRestore() {
     this->INHERITED::willRestore();
 }
 
-void SkDumpCanvas::didTranslate(SkScalar dx, SkScalar dy) {
-    this->dump(kMatrix_Verb, NULL, "translate(%g %g)",
-               SkScalarToFloat(dx), SkScalarToFloat(dy));
-    this->INHERITED::didTranslate(dx, dy);
-}
-
-void SkDumpCanvas::didScale(SkScalar sx, SkScalar sy) {
-    this->dump(kMatrix_Verb, NULL, "scale(%g %g)",
-               SkScalarToFloat(sx), SkScalarToFloat(sy));
-    this->INHERITED::didScale(sx, sy);
-}
-
-void SkDumpCanvas::didRotate(SkScalar degrees) {
-    this->dump(kMatrix_Verb, NULL, "rotate(%g)", SkScalarToFloat(degrees));
-    this->INHERITED::didRotate(degrees);
-}
-
-void SkDumpCanvas::didSkew(SkScalar sx, SkScalar sy) {
-    this->dump(kMatrix_Verb, NULL, "skew(%g %g)",
-               SkScalarToFloat(sx), SkScalarToFloat(sy));
-    this->INHERITED::didSkew(sx, sy);
-}
-
 void SkDumpCanvas::didConcat(const SkMatrix& matrix) {
     SkString str;
-    matrix.toString(&str);
-    this->dump(kMatrix_Verb, NULL, "concat(%s)", str.c_str());
+
+    switch (matrix.getType()) {
+        case SkMatrix::kTranslate_Mask:
+            this->dump(kMatrix_Verb, NULL, "translate(%g %g)",
+                       SkScalarToFloat(matrix.getTranslateX()),
+                       SkScalarToFloat(matrix.getTranslateY()));
+            break;
+        case SkMatrix::kScale_Mask:
+            this->dump(kMatrix_Verb, NULL, "scale(%g %g)",
+                       SkScalarToFloat(matrix.getScaleX()),
+                       SkScalarToFloat(matrix.getScaleY()));
+            break;
+        default:
+            matrix.toString(&str);
+            this->dump(kMatrix_Verb, NULL, "concat(%s)", str.c_str());
+            break;
+    }
+
     this->INHERITED::didConcat(matrix);
 }
 

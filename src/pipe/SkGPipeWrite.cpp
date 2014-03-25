@@ -281,10 +281,6 @@ protected:
     virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) SK_OVERRIDE;
     virtual void willRestore() SK_OVERRIDE;
 
-    virtual void didTranslate(SkScalar, SkScalar) SK_OVERRIDE;
-    virtual void didScale(SkScalar, SkScalar) SK_OVERRIDE;
-    virtual void didRotate(SkScalar) SK_OVERRIDE;
-    virtual void didSkew(SkScalar, SkScalar) SK_OVERRIDE;
     virtual void didConcat(const SkMatrix&) SK_OVERRIDE;
     virtual void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
 
@@ -296,6 +292,10 @@ protected:
     virtual void onClipRegion(const SkRegion&, SkRegion::Op) SK_OVERRIDE;
 
 private:
+    void recordTranslate(const SkMatrix&);
+    void recordScale(const SkMatrix&);
+    void recordConcat(const SkMatrix&);
+
     enum {
         kNoSaveLayer = -1,
     };
@@ -572,61 +572,45 @@ bool SkGPipeCanvas::isDrawingToLayer() const {
     return kNoSaveLayer != fFirstSaveLayerStackLevel;
 }
 
-void SkGPipeCanvas::didTranslate(SkScalar dx, SkScalar dy) {
-    if (dx || dy) {
-        NOTIFY_SETUP(this);
-        if (this->needOpBytes(2 * sizeof(SkScalar))) {
-            this->writeOp(kTranslate_DrawOp);
-            fWriter.writeScalar(dx);
-            fWriter.writeScalar(dy);
-        }
+void SkGPipeCanvas::recordTranslate(const SkMatrix& m) {
+    if (this->needOpBytes(2 * sizeof(SkScalar))) {
+        this->writeOp(kTranslate_DrawOp);
+        fWriter.writeScalar(m.getTranslateX());
+        fWriter.writeScalar(m.getTranslateY());
     }
-    this->INHERITED::didTranslate(dx, dy);
 }
 
-void SkGPipeCanvas::didScale(SkScalar sx, SkScalar sy) {
-    if (sx || sy) {
-        NOTIFY_SETUP(this);
-        if (this->needOpBytes(2 * sizeof(SkScalar))) {
-            this->writeOp(kScale_DrawOp);
-            fWriter.writeScalar(sx);
-            fWriter.writeScalar(sy);
-        }
+void SkGPipeCanvas::recordScale(const SkMatrix& m) {
+    if (this->needOpBytes(2 * sizeof(SkScalar))) {
+        this->writeOp(kScale_DrawOp);
+        fWriter.writeScalar(m.getScaleX());
+        fWriter.writeScalar(m.getScaleY());
     }
-    this->INHERITED::didScale(sx, sy);
 }
 
-void SkGPipeCanvas::didRotate(SkScalar degrees) {
-    if (degrees) {
-        NOTIFY_SETUP(this);
-        if (this->needOpBytes(sizeof(SkScalar))) {
-            this->writeOp(kRotate_DrawOp);
-            fWriter.writeScalar(degrees);
-        }
+void SkGPipeCanvas::recordConcat(const SkMatrix& m) {
+    if (this->needOpBytes(m.writeToMemory(NULL))) {
+        this->writeOp(kConcat_DrawOp);
+        fWriter.writeMatrix(m);
     }
-    this->INHERITED::didRotate(degrees);
-}
-
-void SkGPipeCanvas::didSkew(SkScalar sx, SkScalar sy) {
-    if (sx || sy) {
-        NOTIFY_SETUP(this);
-        if (this->needOpBytes(2 * sizeof(SkScalar))) {
-            this->writeOp(kSkew_DrawOp);
-            fWriter.writeScalar(sx);
-            fWriter.writeScalar(sy);
-        }
-    }
-    this->INHERITED::didSkew(sx, sy);
 }
 
 void SkGPipeCanvas::didConcat(const SkMatrix& matrix) {
     if (!matrix.isIdentity()) {
         NOTIFY_SETUP(this);
-        if (this->needOpBytes(matrix.writeToMemory(NULL))) {
-            this->writeOp(kConcat_DrawOp);
-            fWriter.writeMatrix(matrix);
+        switch (matrix.getType()) {
+            case SkMatrix::kTranslate_Mask:
+                this->recordTranslate(matrix);
+                break;
+            case SkMatrix::kScale_Mask:
+                this->recordScale(matrix);
+                break;
+            default:
+                this->recordConcat(matrix);
+                break;
         }
     }
+
     this->INHERITED::didConcat(matrix);
 }
 
