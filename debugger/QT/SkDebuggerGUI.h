@@ -79,6 +79,11 @@ private slots:
     void actionBreakpoints();
 
     /**
+        Toggles between count and offset style of command indexing in GUI
+     */
+    void actionToggleIndexStyle();
+
+    /**
         Profile the commands
      */
     void actionProfile();
@@ -246,6 +251,7 @@ private:
 
     QAction fActionOpen;
     QAction fActionBreakpoint;
+    QAction fActionToggleIndexStyle;
     QAction fActionProfile;
     QAction fActionCancel;
     QAction fActionClearBreakpoints;
@@ -300,6 +306,7 @@ private:
     QMenu fMenuWindows;
 
     bool fBreakpointsActivated;
+    bool fIndexStyleToggle;
     bool fDeletesActivated;
     bool fPause;
     bool fLoading;
@@ -324,7 +331,7 @@ private:
     /**
         Populates the list widget with the vector of strings passed in.
      */
-    void setupListWidget(SkTArray<SkString>* command);
+    void setupListWidget(SkTArray<SkString>* commands, SkTDArray<size_t>* offsets);
 
     /**
         Populates the combo box widget with the vector of strings passed in.

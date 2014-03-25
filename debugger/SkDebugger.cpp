@@ -31,7 +31,9 @@ void SkDebugger::loadPicture(SkPicture* picture) {
     delete fDebugCanvas;
     fDebugCanvas = new SkDebugCanvas(fPictureWidth, fPictureHeight);
     fDebugCanvas->setBounds(fPictureWidth, fPictureHeight);
+    fDebugCanvas->setPicture(picture);
     picture->draw(fDebugCanvas);
+    fDebugCanvas->setPicture(NULL);
     fIndex = fDebugCanvas->getSize() - 1;
     SkRefCnt_SafeAssign(fPicture, picture);
 }
@@ -41,7 +43,25 @@ SkPicture* SkDebugger::copyPicture() {
     // commands. Playing back will strip those out.
     SkPicture* newPicture = new SkPicture;
     SkCanvas* canvas = newPicture->beginRecording(fPictureWidth, fPictureHeight);
+
+    bool vizMode = fDebugCanvas->getMegaVizMode();
+    fDebugCanvas->setMegaVizMode(false);
+    bool overDraw = fDebugCanvas->getOverdrawViz();
+    fDebugCanvas->setOverdrawViz(false);
+    int saveCount = fDebugCanvas->getOutstandingSaveCount();
+    fDebugCanvas->setOutstandingSaveCount(0);
+
     fDebugCanvas->draw(canvas);
+
+    int temp = fDebugCanvas->getOutstandingSaveCount();
+    for (int i = 0; i < temp; ++i) {
+        canvas->restore();
+    }
+
+    fDebugCanvas->setMegaVizMode(vizMode);
+    fDebugCanvas->setOverdrawViz(overDraw);
+    fDebugCanvas->setOutstandingSaveCount(saveCount);
+
     newPicture->endRecording();
     return newPicture;
 }

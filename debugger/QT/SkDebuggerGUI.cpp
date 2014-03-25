@@ -34,6 +34,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fToolBar(this)
     , fActionOpen(this)
     , fActionBreakpoint(this)
+    , fActionToggleIndexStyle(this)
     , fActionProfile(this)
     , fActionCancel(this)
     , fActionClearBreakpoints(this)
@@ -65,6 +66,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     , fMenuNavigate(this)
     , fMenuView(this)
     , fBreakpointsActivated(false)
+    , fIndexStyleToggle(false)
     , fDeletesActivated(false)
     , fPause(false)
     , fLoading(false)
@@ -82,6 +84,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(&fActionStepBack, SIGNAL(triggered()), this, SLOT(actionStepBack()));
     connect(&fActionStepForward, SIGNAL(triggered()), this, SLOT(actionStepForward()));
     connect(&fActionBreakpoint, SIGNAL(triggered()), this, SLOT(actionBreakpoints()));
+    connect(&fActionToggleIndexStyle, SIGNAL(triggered()), this, SLOT(actionToggleIndexStyle()));
     connect(&fActionInspector, SIGNAL(triggered()), this, SLOT(actionInspector()));
     connect(&fActionSettings, SIGNAL(triggered()), this, SLOT(actionSettings()));
     connect(&fFilter, SIGNAL(activated(QString)), this, SLOT(toggleFilter(QString)));
@@ -135,12 +138,19 @@ void SkDebuggerGUI::actionBreakpoints() {
     }
 }
 
+void SkDebuggerGUI::actionToggleIndexStyle() {
+    fIndexStyleToggle = !fIndexStyleToggle;
+    SkListWidget* list = (SkListWidget*) fListWidget.itemDelegate();
+    list->setIndexStyle(fIndexStyleToggle ? SkListWidget::kIndex_IndexStyle : 
+                                            SkListWidget::kOffset_IndexStyle);
+    fListWidget.update();
+}
+
 void SkDebuggerGUI::showDeletes() {
     fDeletesActivated = !fDeletesActivated;
     for (int row = 0; row < fListWidget.count(); row++) {
         QListWidgetItem *item = fListWidget.item(row);
-        item->setHidden(fDebugger.isCommandVisible(row)
-                && fDeletesActivated);
+        item->setHidden(fDebugger.isCommandVisible(row) && fDeletesActivated);
     }
 }
 
@@ -709,6 +719,9 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fActionBreakpoint.setIcon(breakpoint);
     fActionBreakpoint.setText("Breakpoints");
 
+    fActionToggleIndexStyle.setShortcut(QKeySequence(tr("Ctrl+T")));
+    fActionToggleIndexStyle.setText("Toggle Index Style");
+
     QIcon cancel;
     cancel.addFile(QString::fromUtf8(":/reload.png"), QSize(),
             QIcon::Normal, QIcon::Off);
@@ -906,6 +919,7 @@ void SkDebuggerGUI::setupUi(QMainWindow *SkDebuggerGUI) {
     fMenuView.setTitle("View");
     fMenuView.addAction(&fActionBreakpoint);
     fMenuView.addAction(&fActionShowDeletes);
+    fMenuView.addAction(&fActionToggleIndexStyle);
     fMenuView.addAction(&fActionZoomIn);
     fMenuView.addAction(&fActionZoomOut);
 
@@ -966,6 +980,8 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
 
     // Will this automatically clear out due to nature of refcnt?
     SkTArray<SkString>* commands = fDebugger.getDrawCommandsAsStrings();
+    SkTDArray<size_t>* offsets = fDebugger.getDrawCommandOffsets();
+    SkASSERT(commands->count() == offsets->count());
 
     fActionProfile.setDisabled(false);
 
@@ -976,9 +992,9 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
      * */
     fDebugger.highlightCurrentCommand(fSettingsWidget.getVisibilityFilter());
 
-    setupListWidget(commands);
-    setupComboBox(commands);
-    setupOverviewText(NULL, 0.0, 1);
+    this->setupListWidget(commands, offsets);
+    this->setupComboBox(commands);
+    this->setupOverviewText(NULL, 0.0, 1);
     fInspectorWidget.setDisabled(false);
     fSettingsWidget.setDisabled(false);
     fMenuEdit.setDisabled(false);
@@ -990,31 +1006,33 @@ void SkDebuggerGUI::loadPicture(const SkString& fileName) {
     actionPlay();
 }
 
-void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* command) {
+void SkDebuggerGUI::setupListWidget(SkTArray<SkString>* commands, SkTDArray<size_t>* offsets) {
+    SkASSERT(commands->count() == offsets->count());
     fListWidget.clear();
     int counter = 0;
     int indent = 0;
-    for (int i = 0; i < command->count(); i++) {
+    for (int i = 0; i < commands->count(); i++) {
         QListWidgetItem *item = new QListWidgetItem();
-        item->setData(Qt::DisplayRole, (*command)[i].c_str());
+        item->setData(Qt::DisplayRole, (*commands)[i].c_str());
         item->setData(Qt::UserRole + 1, counter++);
 
-        if (0 == strcmp("Restore", (*command)[i].c_str()) ||
-            0 == strcmp("EndCommentGroup", (*command)[i].c_str()) ||
-            0 == strcmp("PopCull", (*command)[i].c_str())) {
+        if (0 == strcmp("Restore", (*commands)[i].c_str()) ||
+            0 == strcmp("EndCommentGroup", (*commands)[i].c_str()) ||
+            0 == strcmp("PopCull", (*commands)[i].c_str())) {
             indent -= 10;
         }
 
         item->setData(Qt::UserRole + 3, indent);
 
-        if (0 == strcmp("Save", (*command)[i].c_str()) ||
-            0 == strcmp("Save Layer", (*command)[i].c_str()) ||
-            0 == strcmp("BeginCommentGroup", (*command)[i].c_str()) ||
-            0 == strcmp("PushCull", (*command)[i].c_str())) {
+        if (0 == strcmp("Save", (*commands)[i].c_str()) ||
+            0 == strcmp("Save Layer", (*commands)[i].c_str()) ||
+            0 == strcmp("BeginCommentGroup", (*commands)[i].c_str()) ||
+            0 == strcmp("PushCull", (*commands)[i].c_str())) {
             indent += 10;
         }
 
-        item->setData(Qt::UserRole + 4, -1.0);
+        item->setData(Qt::UserRole + 4, -1);
+        item->setData(Qt::UserRole + 5, (int)(*offsets)[i]);
 
         fListWidget.addItem(item);
     }

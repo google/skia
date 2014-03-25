@@ -9,13 +9,9 @@
 
 #include "SkListWidget.h"
 
-SkListWidget::SkListWidget(QObject *parent) {}
-
-SkListWidget::~SkListWidget() {}
-
 void SkListWidget::paint (QPainter *painter,
-        const QStyleOptionViewItem &option,
-        const QModelIndex &index) const {
+                          const QStyleOptionViewItem &option,
+                          const QModelIndex &index) const {
     /* We adjust the initial position of the list item so that
      * we don't have overlapping top and bottom borders of concurrent
      * widget items. */
@@ -64,7 +60,12 @@ void SkListWidget::paint (QPainter *painter,
     int indent = index.data(Qt::UserRole + 3).toInt();
 
     QString drawCommandText = index.data(Qt::DisplayRole).toString();
-    QString drawCommandNumber = index.data(Qt::UserRole + 1).toString();
+    QString drawCommandNumber;
+    if (kIndex_IndexStyle == fIndexStyle) {
+        drawCommandNumber = index.data(Qt::UserRole + 1).toString();
+    } else {
+        drawCommandNumber = index.data(Qt::UserRole + 5).toString();
+    }
     float time = index.data(Qt::UserRole + 4).toFloat();
     QString drawTime;
     drawTime.setNum(time, 'f', 2);
@@ -104,17 +105,17 @@ void SkListWidget::paint (QPainter *painter,
     // Draw Command Number
     r = option.rect.adjusted(kImageSpace, 0, -10, -7);
     painter->drawText(r.left(), r.top(), r.width(), r.height(),
-            Qt::AlignBottom|Qt::AlignLeft, drawCommandNumber, &r);
+                      Qt::AlignBottom|Qt::AlignLeft, drawCommandNumber, &r);
 
     if (time >= 0.0) {
         // Draw time
         r = option.rect.adjusted(kImageSpace+kCommandNumberSpace, 0, -10, -7);
         painter->drawText(r.left(), r.top(), r.width(), r.height(),
-                Qt::AlignBottom|Qt::AlignLeft, drawTime, &r);
+                          Qt::AlignBottom|Qt::AlignLeft, drawTime, &r);
     }
 }
 
-QSize SkListWidget::sizeHint ( const QStyleOptionViewItem & option,
-        const QModelIndex & index ) const{
+QSize SkListWidget::sizeHint (const QStyleOptionViewItem& option,
+                              const QModelIndex& index) const{
     return QSize(200, 30);
 }

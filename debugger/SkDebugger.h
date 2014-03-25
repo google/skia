@@ -48,6 +48,10 @@ public:
         return fDebugCanvas->getDrawCommandsAsStrings();
     }
 
+    SkTDArray<size_t>* getDrawCommandOffsets() {
+        return fDebugCanvas->getDrawCommandOffsets();
+    }
+
     const SkTDArray<SkDrawCommand*>& getDrawCommands() const {
         return fDebugCanvas->getDrawCommands();
     }
