@@ -218,12 +218,34 @@
         '-U_FORTIFY_SOURCE',
         '-D_FORTIFY_SOURCE=1',
       ],
+      # Remove flags which are either unnecessary or problematic for the
+      # Android framework build. Many of these flags are removed simply because
+      # they were not previously in the Android framework makefile, and we did
+      # did not intend to add them when generating the makefile.
+      # TODO (scroggo): Investigate whether any of these flags are actually
+      # needed/would be beneficial.
       'cflags!': [
+        # Android has one makefile, used for both debugging (after manual
+        # modification) and release. Turn off debug info by default.
         '-g',
         '-march=armv7-a',
         '-mthumb',
         '-mfpu=neon',
         '-mfloat-abi=softfp',
+        # This flag is not supported by Android build system.
+        '-Wno-c++11-extensions',
+        '-fno-exceptions',
+        '-fstrict-aliasing',
+        # Remove flags to turn on warnings, since most people building Android
+        # are not focused on Skia and do not need the extra warning info.
+        '-Wall',
+        '-Wextra',
+        '-Winit-self',
+        '-Wpointer-arith',
+      ],
+      'cflags_cc!': [
+        '-fno-rtti',
+        '-Wnon-virtual-dtor',
       ],
       'defines': [
         'DCT_IFAST_SUPPORTED',
@@ -506,6 +528,9 @@
             'libraries!': [
               '-lstdc++',
               '-lm',
+            ],
+            'cflags!': [
+              '-fuse-ld=gold',
             ],
           }],
           [ 'skia_shared_lib', {
