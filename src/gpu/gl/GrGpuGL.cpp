@@ -1695,6 +1695,99 @@ void GrGpuGL::onGpuDrawPath(const GrPath* path, SkPath::FillType fill) {
     }
 }
 
+void GrGpuGL::onGpuDrawPaths(size_t pathCount, const GrPath** paths,
+                             const SkMatrix* transforms,
+                             SkPath::FillType fill,
+                             SkStrokeRec::Style stroke) {
+    SkASSERT(this->caps()->pathRenderingSupport());
+    SkASSERT(NULL != this->drawState()->getRenderTarget());
+    SkASSERT(NULL != this->drawState()->getRenderTarget()->getStencilBuffer());
+    SkASSERT(!fCurrentProgram->hasVertexShader());
+    SkASSERT(stroke != SkStrokeRec::kHairline_Style);
+
+    SkAutoMalloc pathData(pathCount * sizeof(GrGLuint));
+    SkAutoMalloc transformData(pathCount * sizeof(GrGLfloat) * 6);
+    GrGLfloat* transformValues =
+        reinterpret_cast<GrGLfloat*>(transformData.get());
+    GrGLuint* pathIDs = reinterpret_cast<GrGLuint*>(pathData.get());
+
+    for (size_t i = 0; i < pathCount; ++i) {
+        SkASSERT(transforms[i].asAffine(NULL));
+        const SkMatrix& m = transforms[i];
+        transformValues[i * 6] = m.getScaleX();
+        transformValues[i * 6 + 1] = m.getSkewY();
+        transformValues[i * 6 + 2] = m.getSkewX();
+        transformValues[i * 6 + 3] = m.getScaleY();
+        transformValues[i * 6 + 4] = m.getTranslateX();
+        transformValues[i * 6 + 5] = m.getTranslateY();
+        pathIDs[i] = static_cast<const GrGLPath*>(paths[i])->pathID();
+    }
+
+    flushPathStencilSettings(fill);
+
+    SkPath::FillType nonInvertedFill =
+        SkPath::ConvertToNonInverseFillType(fill);
+
+    SkASSERT(!fHWPathStencilSettings.isTwoSided());
+    GrGLenum fillMode =
+        gr_stencil_op_to_gl_path_rendering_fill_mode(
+            fHWPathStencilSettings.passOp(GrStencilSettings::kFront_Face));
+    GrGLint writeMask =
+        fHWPathStencilSettings.writeMask(GrStencilSettings::kFront_Face);
+
+    bool doFill = stroke == SkStrokeRec::kFill_Style
+        || stroke == SkStrokeRec::kStrokeAndFill_Style;
+    bool doStroke = stroke == SkStrokeRec::kStroke_Style
+        || stroke == SkStrokeRec::kStrokeAndFill_Style;
+
+    if (doFill) {
+        GL_CALL(StencilFillPathInstanced(pathCount, GR_GL_UNSIGNED_INT,
+                                         pathIDs, 0,
+                                         fillMode, writeMask,
+                                         GR_GL_AFFINE_2D, transformValues));
+    }
+    if (doStroke) {
+        GL_CALL(StencilStrokePathInstanced(pathCount, GR_GL_UNSIGNED_INT,
+                                           pathIDs, 0,
+                                           0xffff, writeMask,
+                                           GR_GL_AFFINE_2D, transformValues));
+    }
+
+    if (nonInvertedFill == fill) {
+        if (doStroke) {
+            GL_CALL(CoverStrokePathInstanced(
+                        pathCount, GR_GL_UNSIGNED_INT, pathIDs, 0,
+                        GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
+                        GR_GL_AFFINE_2D, transformValues));
+        } else {
+            GL_CALL(CoverFillPathInstanced(
+                        pathCount, GR_GL_UNSIGNED_INT, pathIDs, 0,
+                        GR_GL_BOUNDING_BOX_OF_BOUNDING_BOXES,
+                        GR_GL_AFFINE_2D, transformValues));
+
+        }
+    } else {
+        GrDrawState* drawState = this->drawState();
+        GrDrawState::AutoViewMatrixRestore avmr;
+        SkRect bounds = SkRect::MakeLTRB(0, 0,
+                                         SkIntToScalar(drawState->getRenderTarget()->width()),
+                                         SkIntToScalar(drawState->getRenderTarget()->height()));
+        SkMatrix vmi;
+        // mapRect through persp matrix may not be correct
+        if (!drawState->getViewMatrix().hasPerspective() && drawState->getViewInverse(&vmi)) {
+            vmi.mapRect(&bounds);
+            // theoretically could set bloat = 0, instead leave it because of matrix inversion
+            // precision.
+            SkScalar bloat = drawState->getViewMatrix().getMaxStretch() * SK_ScalarHalf;
+            bounds.outset(bloat, bloat);
+        } else {
+            avmr.setIdentity(drawState);
+        }
+
+        this->drawSimpleRect(bounds, NULL);
+    }
+}
+
 void GrGpuGL::onResolveRenderTarget(GrRenderTarget* target) {
     GrGLRenderTarget* rt = static_cast<GrGLRenderTarget*>(target);
     if (rt->needsResolve()) {

@@ -88,6 +88,7 @@ private:
         kClear_Cmd          = 5,
         kCopySurface_Cmd    = 6,
         kDrawPath_Cmd       = 7,
+        kDrawPaths_Cmd      = 8,
     };
 
     class DrawRecord : public DrawInfo {
@@ -110,6 +111,18 @@ private:
         SkAutoTUnref<const GrPath>  fPath;
         SkPath::FillType            fFill;
         GrDeviceCoordTexture        fDstCopy;
+    };
+
+    struct DrawPaths : public ::SkNoncopyable {
+        DrawPaths();
+        ~DrawPaths();
+
+        size_t fPathCount;
+        const GrPath** fPaths;
+        SkMatrix* fTransforms;
+        SkPath::FillType fFill;
+        SkStrokeRec::Style fStroke;
+        GrDeviceCoordTexture fDstCopy;
     };
 
     struct Clear : public ::SkNoncopyable {
@@ -139,6 +152,9 @@ private:
     virtual void onStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
     virtual void onDrawPath(const GrPath*, SkPath::FillType,
                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
+    virtual void onDrawPaths(size_t, const GrPath**, const SkMatrix*,
+                             SkPath::FillType, SkStrokeRec::Style,
+                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
 
     virtual bool onReserveVertexSpace(size_t vertexSize,
                                       int vertexCount,
@@ -188,6 +204,7 @@ private:
     DrawRecord*     recordDraw(const DrawInfo&);
     StencilPath*    recordStencilPath();
     DrawPath*       recordDrawPath();
+    DrawPaths*      recordDrawPaths();
     Clear*          recordClear();
     CopySurface*    recordCopySurface();
 
@@ -197,6 +214,7 @@ private:
         kDrawPreallocCnt         = 8,
         kStencilPathPreallocCnt  = 8,
         kDrawPathPreallocCnt     = 8,
+        kDrawPathsPreallocCnt    = 8,
         kStatePreallocCnt        = 8,
         kClipPreallocCnt         = 8,
         kClearPreallocCnt        = 4,
@@ -206,8 +224,9 @@ private:
 
     SkSTArray<kCmdPreallocCnt, uint8_t, true>                          fCmds;
     GrSTAllocator<kDrawPreallocCnt, DrawRecord>                        fDraws;
-    GrSTAllocator<kStatePreallocCnt, StencilPath>                      fStencilPaths;
-    GrSTAllocator<kStatePreallocCnt, DrawPath>                         fDrawPaths;
+    GrSTAllocator<kStencilPathPreallocCnt, StencilPath>                fStencilPaths;
+    GrSTAllocator<kDrawPathPreallocCnt, DrawPath>                      fDrawPath;
+    GrSTAllocator<kDrawPathsPreallocCnt, DrawPaths>                    fDrawPaths;
     GrSTAllocator<kStatePreallocCnt, GrDrawState::DeferredState>       fStates;
     GrSTAllocator<kClearPreallocCnt, Clear>                            fClears;
     GrSTAllocator<kCopySurfacePreallocCnt, CopySurface>                fCopySurfaces;

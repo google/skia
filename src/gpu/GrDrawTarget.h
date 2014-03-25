@@ -15,6 +15,7 @@
 #include "SkClipStack.h"
 #include "SkMatrix.h"
 #include "SkPath.h"
+#include "SkStrokeRec.h"
 #include "SkTArray.h"
 #include "SkTLazy.h"
 #include "SkTypes.h"
@@ -24,7 +25,6 @@ class GrClipData;
 class GrDrawTargetCaps;
 class GrPath;
 class GrVertexBuffer;
-class SkStrokeRec;
 
 class GrDrawTarget : public SkRefCnt {
 protected:
@@ -344,6 +344,19 @@ public:
     void drawPath(const GrPath*, SkPath::FillType fill);
 
     /**
+     * Draws many paths. It will respect the HW
+     * antialias flag on the draw state (if possible in the 3D API).
+     *
+     * @param transforms array of 2d affine transformations, one for each path.
+     * @param fill the fill type for drawing all the paths. Fill must not be a
+     *             hairline.
+     * @param stroke the stroke for drawing all the paths.
+     */
+    void drawPaths(size_t pathCount, const GrPath** paths,
+                   const SkMatrix* transforms, SkPath::FillType fill,
+                   SkStrokeRec::Style stroke);
+
+    /**
      * Helper function for drawing rects. It performs a geometry src push and pop
      * and thus will finalize any reserved geometry.
      *
@@ -485,6 +498,16 @@ public:
     void executeDrawPath(const GrPath* path, SkPath::FillType fill,
                          const GrDeviceCoordTexture* dstCopy) {
         this->onDrawPath(path, fill, dstCopy);
+    }
+
+    /**
+     * For subclass internal use to invoke a call to onDrawPaths().
+     */
+    void executeDrawPaths(size_t pathCount, const GrPath** paths,
+                          const SkMatrix* transforms, SkPath::FillType fill,
+                          SkStrokeRec::Style stroke,
+                          const GrDeviceCoordTexture* dstCopy) {
+        this->onDrawPaths(pathCount, paths, transforms, fill, stroke, dstCopy);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -867,6 +890,9 @@ private:
     virtual void onStencilPath(const GrPath*, SkPath::FillType) = 0;
     virtual void onDrawPath(const GrPath*, SkPath::FillType,
                             const GrDeviceCoordTexture* dstCopy) = 0;
+    virtual void onDrawPaths(size_t, const GrPath**, const SkMatrix*,
+                             SkPath::FillType, SkStrokeRec::Style,
+                             const GrDeviceCoordTexture* dstCopy) = 0;
 
     virtual void onInstantGpuTraceEvent(const char* marker) = 0;
     virtual void onPushGpuTraceEvent(const char* marker) = 0;

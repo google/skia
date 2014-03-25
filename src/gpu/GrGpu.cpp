@@ -409,6 +409,22 @@ void GrGpu::onDrawPath(const GrPath* path, SkPath::FillType fill,
     this->onGpuDrawPath(path, fill);
 }
 
+void GrGpu::onDrawPaths(size_t pathCount, const GrPath** paths,
+                        const SkMatrix* transforms, SkPath::FillType fill,
+                        SkStrokeRec::Style style,
+                        const GrDeviceCoordTexture* dstCopy) {
+    this->handleDirtyContext();
+
+    drawState()->setDefaultVertexAttribs();
+
+    GrDrawState::AutoRestoreEffects are;
+    if (!this->setupClipAndFlushState(kDrawPaths_DrawType, dstCopy, &are, NULL)) {
+        return;
+    }
+
+    this->onGpuDrawPaths(pathCount, paths, transforms, fill, style);
+}
+
 void GrGpu::finalizeReservedVertices() {
     SkASSERT(NULL != fVertexPool);
     fVertexPool->unlock();
