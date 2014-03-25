@@ -59,16 +59,11 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         canvas->clear(0x00000000);
-        SkPaint paint;
         SkMatrix matrix;
         SkScalar margin = SkIntToScalar(10);
         matrix.setSkew(SkDoubleToScalar(0.5), SkDoubleToScalar(0.2));
-        SkRect srcBounds;
         SkBitmap checkerboard;
         make_checkerboard(&checkerboard);
-        checkerboard.getBounds(&srcBounds);
-        // Outer paint does no filtering; leave it all for the filter
-        paint.setFilterLevel(SkPaint::kNone_FilterLevel);
 
         SkRect srcRect = SkRect::MakeWH(96, 96);
 
