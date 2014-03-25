@@ -16,7 +16,7 @@ GrTextureDomain::GrTextureDomain(const SkRect& domain, Mode mode, int index)
     : fIndex(index) {
 
     static const SkRect kFullRect = {0, 0, SK_Scalar1, SK_Scalar1};
-    if (domain.contains(kFullRect)) {
+    if (domain.contains(kFullRect) && kClamp_Mode == mode) {
         fMode = kIgnore_Mode;
     } else {
         fMode = mode;

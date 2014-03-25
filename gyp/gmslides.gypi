@@ -158,6 +158,7 @@
     '../gm/texteffects.cpp',
     '../gm/testimagefilters.cpp',
     '../gm/texdata.cpp',
+    '../gm/texturedomaineffect.cpp',
     '../gm/thinrects.cpp',
     '../gm/thinstrokedrects.cpp',
     '../gm/tileimagefilter.cpp',
