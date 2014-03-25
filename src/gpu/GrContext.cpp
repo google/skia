@@ -25,6 +25,7 @@
 #include "GrSoftwarePathRenderer.h"
 #include "GrStencilBuffer.h"
 #include "GrTextStrike.h"
+#include "GrTracing.h"
 #include "SkRTConf.h"
 #include "SkRRect.h"
 #include "SkStrokeRec.h"
@@ -101,6 +102,7 @@ GrContext::GrContext() {
     fOvalRenderer = NULL;
     fViewMatrix.reset();
     fMaxTextureSizeOverride = 1 << 20;
+    fGpuTracingEnabled = false;
 }
 
 bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
@@ -770,6 +772,8 @@ void GrContext::drawRect(const GrPaint& paint,
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
 
+    GR_CREATE_TRACE_MARKER("GrContext::drawRect", target);
+
     SkScalar width = stroke == NULL ? -1 : stroke->getWidth();
     SkMatrix combinedMatrix = target->drawState()->getViewMatrix();
     if (NULL != matrix) {
@@ -890,6 +894,8 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
 
+    GR_CREATE_TRACE_MARKER("GrContext::drawRectToRect", target);
+
     target->drawRect(dstRect, dstMatrix, &localRect, localMatrix);
 }
 
@@ -945,6 +951,8 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
 
+    GR_CREATE_TRACE_MARKER("GrContext::drawVertices", target);
+
     GrDrawState* drawState = target->drawState();
 
     int colorOffset = -1, texOffset = -1;
@@ -998,6 +1006,8 @@ void GrContext::drawRRect(const GrPaint& paint,
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
 
+    GR_CREATE_TRACE_MARKER("GrContext::drawRRect", target);
+
     if (!fOvalRenderer->drawSimpleRRect(target, this, paint.isAntiAlias(), rect, stroke)) {
         SkPath path;
         path.addRRect(rect);
@@ -1017,6 +1027,8 @@ void GrContext::drawOval(const GrPaint& paint,
     AutoRestoreEffects are;
     AutoCheckFlush acf(this);
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+
+    GR_CREATE_TRACE_MARKER("GrContext::drawOval", target);
 
     if (!fOvalRenderer->drawOval(target, this, paint.isAntiAlias(), oval, stroke)) {
         SkPath path;
@@ -1099,6 +1111,8 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
     GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
     GrDrawState* drawState = target->drawState();
 
+    GR_CREATE_TRACE_MARKER("GrContext::drawPath", target);
+
     bool useCoverageAA = paint.isAntiAlias() && !drawState->getRenderTarget()->isMultisampled();
 
     if (useCoverageAA && stroke.getWidth() < 0 && !path.isConvex()) {
@@ -1133,6 +1147,9 @@ void GrContext::drawPath(const GrPaint& paint, const SkPath& path, const SkStrok
 void GrContext::internalDrawPath(GrDrawTarget* target, bool useAA, const SkPath& path,
                                  const SkStrokeRec& origStroke) {
     SkASSERT(!path.isEmpty());
+
+    GR_CREATE_TRACE_MARKER("GrContext::internalDrawPath", target);
+
 
     // An Assumption here is that path renderer would use some form of tweaking
     // the src color (either the input alpha or in the frag shader) to implement

@@ -9,8 +9,10 @@
 #define GrDrawTarget_DEFINED
 
 #include "GrClipData.h"
+#include "GrContext.h"
 #include "GrDrawState.h"
 #include "GrIndexBuffer.h"
+#include "GrTraceMarker.h"
 
 #include "SkClipStack.h"
 #include "SkMatrix.h"
@@ -436,18 +438,12 @@ public:
                        GrRenderTarget* renderTarget = NULL) = 0;
 
     /**
-     * instantGpuTraceEvent places a single "sign post" type marker into command stream. The
-     * argument marker will be the name of the annotation that is added.
+     * Called at start and end of gpu trace marking
+     * GR_CREATE_GPU_TRACE_MARKER(marker_str, target) will automatically call these at the start
+     * and end of a code block respectively
      */
-    void instantGpuTraceEvent(const char* marker);
-    /**
-     * The following two functions are used for marking groups of commands. Use pushGpuTraceEvent
-     * to set the beginning of a command set, and popGpuTraceEvent is be called at end of the
-     * command set. The argument marker is the name for the annotation that is added. The push and
-     * pops can be used hierarchically, but every push must have a match pop.
-     */
-    void pushGpuTraceEvent(const char* marker);
-    void popGpuTraceEvent();
+    void addGpuTraceMarker(GrGpuTraceMarker* marker);
+    void removeGpuTraceMarker(GrGpuTraceMarker* marker);
 
     /**
      * Copies a pixel rectangle from one surface to another. This call may finalize
@@ -508,6 +504,10 @@ public:
                           SkStrokeRec::Style stroke,
                           const GrDeviceCoordTexture* dstCopy) {
         this->onDrawPaths(pathCount, paths, transforms, fill, stroke, dstCopy);
+    }
+    
+    inline bool isGpuTracingEnabled() const {
+        return this->getContext()->isGpuTracingEnabled();
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -786,6 +786,8 @@ protected:
     // Subclass must initialize this in its constructor.
     SkAutoTUnref<const GrDrawTargetCaps> fCaps;
 
+    const GrTraceMarkerSet& getActiveTraceMarkers() { return fActiveTraceMarkers; }
+
     /**
      * Used to communicate draws to subclass's onDraw function.
      */
@@ -894,9 +896,8 @@ private:
                              SkPath::FillType, SkStrokeRec::Style,
                              const GrDeviceCoordTexture* dstCopy) = 0;
 
-    virtual void onInstantGpuTraceEvent(const char* marker) = 0;
-    virtual void onPushGpuTraceEvent(const char* marker) = 0;
-    virtual void onPopGpuTraceEvent() = 0;
+    virtual void didAddGpuTraceMarker() = 0;
+    virtual void didRemoveGpuTraceMarker() = 0;
 
     // helpers for reserving vertex and index space.
     bool reserveVertexSpace(size_t vertexSize,
@@ -932,8 +933,9 @@ private:
     GrDrawState                                                     fDefaultDrawState;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by DrawTarget.
     GrContext*                                                      fContext;
-    // To keep track that we always have at least as many debug marker pushes as pops
-    int                                                             fPushGpuTraceCount;
+    // To keep track that we always have at least as many debug marker adds as removes
+    int                                                             fGpuTraceMarkerCount;
+    GrTraceMarkerSet                                                fActiveTraceMarkers;
 
     typedef SkRefCnt INHERITED;
 };

@@ -184,10 +184,8 @@ private:
 
     bool quickInsideClip(const SkRect& devBounds);
 
-    virtual void onInstantGpuTraceEvent(const char* marker) SK_OVERRIDE;
-    virtual void onPushGpuTraceEvent(const char* marker) SK_OVERRIDE;
-    virtual void onPopGpuTraceEvent() SK_OVERRIDE;
-
+    virtual void didAddGpuTraceMarker() SK_OVERRIDE {}
+    virtual void didRemoveGpuTraceMarker() SK_OVERRIDE {}
 
     // Attempts to concat instances from info onto the previous draw. info must represent an
     // instanced draw. The caller must have already recorded a new draw state and clip if necessary.
@@ -232,6 +230,7 @@ private:
     GrSTAllocator<kCopySurfacePreallocCnt, CopySurface>                fCopySurfaces;
     GrSTAllocator<kClipPreallocCnt, SkClipStack>                       fClips;
     GrSTAllocator<kClipPreallocCnt, SkIPoint>                          fClipOrigins;
+    SkTArray<GrTraceMarkerSet, false>                                  fGpuCmdMarkers;
 
     GrDrawTarget*                   fDstGpu;
 
@@ -263,6 +262,8 @@ private:
     SkSTArray<kGeoPoolStatePreAllocCnt, GeometryPoolState> fGeoPoolStateStack;
 
     virtual bool       isIssued(uint32_t drawID) { return drawID != fDrawID; }
+
+    void addToCmdBuffer(uint8_t cmd);
 
     bool                            fFlushing;
     uint32_t                        fDrawID;

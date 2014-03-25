@@ -156,7 +156,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
 #if GL_EXT_debug_marker
     functions->fInsertEventMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glInsertEventMarkerEXT");
     functions->fPushGroupMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glPushGroupMarkerEXT");
-    functions->fPopGroupMarker = (GrGLPopGroupMarkerProc) eglGetProcAddress("glPopGropuMarkerEXT");
+    functions->fPopGroupMarker = (GrGLPopGroupMarkerProc) eglGetProcAddress("glPopGroupMarkerEXT");
 #endif
 
     interface->fExtensions.init(kGLES_GrGLStandard,

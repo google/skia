@@ -479,7 +479,6 @@ bool GrGLInterface::validate() const {
         }
     }
 
-#if 0
     if (fExtensions.has("GL_EXT_debug_marker")) {
         if (NULL == fFunctions.fInsertEventMarker ||
             NULL == fFunctions.fPushGroupMarker ||
@@ -487,6 +486,5 @@ bool GrGLInterface::validate() const {
             RETURN_FALSE_INTERFACE
         }
     }
-#endif
     return true;
 }

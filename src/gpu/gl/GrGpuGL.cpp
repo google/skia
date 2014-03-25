@@ -2754,24 +2754,19 @@ bool GrGpuGL::onCanCopySurface(GrSurface* dst,
     return INHERITED::onCanCopySurface(dst, src, srcRect, dstPoint);
 }
 
-void GrGpuGL::onInstantGpuTraceEvent(const char* marker) {
+void GrGpuGL::didAddGpuTraceMarker() {
     if (this->caps()->gpuTracingSupport()) {
-        // GL_CALL(InsertEventMarker(0, marker));
+        const GrTraceMarkerSet& markerArray = this->getActiveTraceMarkers();
+        SkString markerString = markerArray.toString();
+        GL_CALL(PushGroupMarker(0, markerString.c_str()));
     }
 }
 
-void GrGpuGL::onPushGpuTraceEvent(const char* marker) {
+void GrGpuGL::didRemoveGpuTraceMarker() {
     if (this->caps()->gpuTracingSupport()) {
-        // GL_CALL(PushGroupMarker(0, marker));
+        GL_CALL(PopGroupMarker());
     }
 }
-
-void GrGpuGL::onPopGpuTraceEvent() {
-    if (this->caps()->gpuTracingSupport()) {
-        // GL_CALL(PopGroupMarker());
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGLAttribArrayState* GrGpuGL::HWGeometryState::bindArrayAndBuffersToDraw(
