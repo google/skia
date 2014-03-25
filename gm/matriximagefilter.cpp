@@ -73,11 +73,14 @@ protected:
         canvas->translate(srcRect.width() + margin, 0);
         draw(canvas, srcRect, checkerboard, matrix, SkPaint::kLow_FilterLevel);
 
+#if 0
+        // This may be causing Mac 10.6 to barf.
         canvas->translate(srcRect.width() + margin, 0);
         draw(canvas, srcRect, checkerboard, matrix, SkPaint::kMedium_FilterLevel);
 
         canvas->translate(srcRect.width() + margin, 0);
         draw(canvas, srcRect, checkerboard, matrix, SkPaint::kHigh_FilterLevel);
+#endif
     }
 
 private:
