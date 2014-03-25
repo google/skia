@@ -1351,10 +1351,6 @@ void GrGpuGL::clearStencilClip(const SkIRect& rect, bool insideClip) {
     fHWStencilSettings.invalidate();
 }
 
-void GrGpuGL::onForceRenderTargetFlush() {
-    this->flushRenderTarget(&SkIRect::EmptyIRect());
-}
-
 bool GrGpuGL::readPixelsWillPayForYFlip(GrRenderTarget* renderTarget,
                                         int left, int top,
                                         int width, int height,

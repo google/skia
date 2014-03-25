@@ -136,8 +136,6 @@ private:
 
     virtual void onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) SK_OVERRIDE;
 
-    virtual void onForceRenderTargetFlush() SK_OVERRIDE;
-
     virtual bool onReadPixels(GrRenderTarget* target,
                               int left, int top,
                               int width, int height,

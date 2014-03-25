@@ -219,11 +219,6 @@ void GrGpu::clear(const SkIRect* rect,
     this->onClear(rect, color, canIgnoreRect);
 }
 
-void GrGpu::forceRenderTargetFlush() {
-    this->handleDirtyContext();
-    this->onForceRenderTargetFlush();
-}
-
 bool GrGpu::readPixels(GrRenderTarget* target,
                        int left, int top, int width, int height,
                        GrPixelConfig config, void* buffer,
