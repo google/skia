@@ -8,16 +8,6 @@
 #include "SkDevice.h"
 #include "SkMetaData.h"
 
-#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-    const SkCanvas::Config8888 SkBaseDevice::kPMColorAlias = SkCanvas::kBGRA_Premul_Config8888;
-#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-    const SkCanvas::Config8888 SkBaseDevice::kPMColorAlias = SkCanvas::kRGBA_Premul_Config8888;
-#else
-    const SkCanvas::Config8888 SkBaseDevice::kPMColorAlias = (SkCanvas::Config8888) -1;
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
 SkBaseDevice::SkBaseDevice()
     : fLeakyProperties(SkDeviceProperties::MakeDefault())
 #ifdef SK_DEBUG

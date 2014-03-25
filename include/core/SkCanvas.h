@@ -20,6 +20,12 @@
 
 //#define SK_SUPPORT_LEGACY_READPIXELSCONFIG
 
+#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
+    #ifndef SK_SUPPORT_LEGACY_CONFIG8888
+        #define SK_SUPPORT_LEGACY_CONFIG8888
+    #endif
+#endif
+
 // if not defined, we always assume ClipToLayer for saveLayer()
 //#define SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
 
@@ -231,6 +237,7 @@ public:
      */
     const void* peekPixels(SkImageInfo* info, size_t* rowBytes);
 
+#ifdef SK_SUPPORT_LEGACY_CONFIG8888
     /**
      * This enum can be used with read/writePixels to perform a pixel ops to or
      * from an 8888 config other than Skia's native config (SkPMColor). There
@@ -265,6 +272,7 @@ public:
         kRGBA_Premul_Config8888,
         kRGBA_Unpremul_Config8888
     };
+#endif
 
 #ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
     /**
