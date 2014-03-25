@@ -8,6 +8,8 @@
 #include "SkCommandLineFlags.h"
 #include "SkTDArray.h"
 
+DEFINE_string(undefok, "", "Silently ignore unknown flags listed here instead of crashing.");
+
 bool SkFlagInfo::CreateStringFlag(const char* name, const char* shortName,
                                   SkCommandLineFlags::StringArray* pStrings,
                                   const char* defaultValue, const char* helpString) {
@@ -285,8 +287,14 @@ void SkCommandLineFlags::Parse(int argc, char** argv) {
                 flag = flag->next();
             }
             if (!flagMatched) {
-                SkDebugf("Got unknown flag \"%s\". Exiting.\n", argv[i]);
-                exit(-1);
+                SkString stripped(argv[i]);
+                while (stripped.startsWith('-')) {
+                    stripped.remove(0, 1);
+                }
+                if (!FLAGS_undefok.contains(stripped.c_str())) {
+                    SkDebugf("Got unknown flag \"%s\". Exiting.\n", argv[i]);
+                    exit(-1);
+                }
             }
         }
     }
