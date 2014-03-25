@@ -364,7 +364,7 @@ bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
     sk_bzero(copyPtr, (width+2)*sizeof(char));
     unsigned char* currCopy = copyPtr + width + 2;
     for (int i = 0; i < height; ++i) {
-        *currCopy++ = 0; 
+        *currCopy++ = 0;
         memcpy(currCopy, currImage, width*sizeof(char));
         currImage += width;
         currCopy += width;

@@ -642,7 +642,7 @@ GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rre
             return GrConvexPolyEffect::Create(edgeType, rrect.getBounds());
         }
         if (rrect.getSimpleRadii().fX == rrect.getSimpleRadii().fY) {
-            return CircularRRectEffect::Create(edgeType, CircularRRectEffect::kAll_CornerFlags, 
+            return CircularRRectEffect::Create(edgeType, CircularRRectEffect::kAll_CornerFlags,
                                                rrect);
         } else {
             return EllipticalRRectEffect::Create(edgeType, rrect);
