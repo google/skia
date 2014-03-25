@@ -939,8 +939,8 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
     return this->internalSaveLayer(bounds, paint, flags, false, strategy);
 }
 
-static SkBaseDevice* createCompatibleDevice(SkCanvas* canvas,
-                                            const SkImageInfo& info) {
+static SkBaseDevice* create_compatible_device(SkCanvas* canvas,
+                                              const SkImageInfo& info) {
     SkBaseDevice* device = canvas->getDevice();
     return device ? device->createCompatibleDevice(info) : NULL;
 }
@@ -988,7 +988,7 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Save
 
     SkBaseDevice* device;
     if (paint && paint->getImageFilter()) {
-        device = createCompatibleDevice(this, info);
+        device = create_compatible_device(this, info);
     } else {
         device = this->createLayerDevice(info);
     }
