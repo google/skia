@@ -18,7 +18,7 @@
 #include <EGL/egl.h>
 
 static GrGLInterface* create_es_interface(GrGLVersion version,
-                                          const GrGLExtensions& extensions) {
+                                          GrGLExtensions* extensions) {
     if (version < GR_GL_VER(2,0)) {
         return NULL;
     }
@@ -159,7 +159,7 @@ static GrGLInterface* create_es_interface(GrGLVersion version,
 #endif
     }
 
-    if (extensions.has("GL_EXT_multisampled_render_to_texture")) {
+    if (extensions->has("GL_EXT_multisampled_render_to_texture")) {
 #if GL_EXT_multisampled_render_to_texture
         functions->fFramebufferTexture2DMultisample = glFramebufferTexture2DMultisampleEXT;
         functions->fRenderbufferStorageMultisampleES2EXT = glRenderbufferStorageMultisampleEXT;
@@ -167,7 +167,7 @@ static GrGLInterface* create_es_interface(GrGLVersion version,
         functions->fFramebufferTexture2DMultisample = (GrGLFramebufferTexture2DMultisampleProc) eglGetProcAddress("glFramebufferTexture2DMultisampleEXT");
         functions->fRenderbufferStorageMultisampleES2EXT = (GrGLRenderbufferStorageMultisampleProc) eglGetProcAddress("glRenderbufferStorageMultisampleEXT");
 #endif
-    } else if (extensions.has("GL_IMG_multisampled_render_to_texture")) {
+    } else if (extensions->has("GL_IMG_multisampled_render_to_texture")) {
 #if GL_IMG_multisampled_render_to_texture
         functions->fFramebufferTexture2DMultisample = glFramebufferTexture2DMultisampleIMG;
         functions->fRenderbufferStorageMultisampleES2EXT = glRenderbufferStorageMultisampleIMG;
@@ -190,10 +190,17 @@ static GrGLInterface* create_es_interface(GrGLVersion version,
     functions->fUnmapBuffer = (GrGLUnmapBufferProc) eglGetProcAddress("glUnmapBufferOES");
 #endif
 
-    if (extensions.has("GL_EXT_debug_marker")) {
-        functions->fInsertEventMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glInsertEventMarkerEXT");
-        functions->fPushGroupMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glPushGroupMarkerEXT");
-        functions->fPopGroupMarker = (GrGLPopGroupMarkerProc) eglGetProcAddress("glPopGroupMarkerEXT");
+    if (extensions->has("GL_EXT_debug_marker")) {
+        functions->fInsertEventMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glInsertEventMarker");
+        functions->fPushGroupMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glPushGroupMarker");
+        functions->fPopGroupMarker = (GrGLPopGroupMarkerProc) eglGetProcAddress("glPopGroupMarker");
+        // The below check is here because a device has been found that has the extension string but
+        // returns NULL from the eglGetProcAddress for the functions
+        if (NULL == functions->fInsertEventMarker ||
+            NULL == functions->fPushGroupMarker ||
+            NULL == functions->fPopGroupMarker) {
+            extensions->remove("GL_EXT_debug_marker");
+        }
     }
 
     return interface;
@@ -414,7 +421,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 
     GrGLInterface* interface = NULL;
     if (kGLES_GrGLStandard == standard) {
-        interface = create_es_interface(version, extensions);
+        interface = create_es_interface(version, &extensions);
     } else if (kGL_GrGLStandard == standard) {
         interface = create_desktop_interface(version, extensions);
     }
