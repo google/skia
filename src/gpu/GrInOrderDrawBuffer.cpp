@@ -132,7 +132,7 @@ static uint8_t strip_trace_bit(uint8_t cmd) {
 }
 
 static bool cmd_has_trace_marker(uint8_t cmd) {
-    return cmd & kTraceCmdBit;
+    return SkToBool(cmd & kTraceCmdBit);
 }
 
 void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
