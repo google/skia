@@ -336,22 +336,6 @@ def main(control_url, roll_url, verbosity=1):
     roll_name = '[roll %s]' % roll_url.split('/')[-1]
 
     out = sys.stdout
-    if verbosity > 0:
-        # Print out summary of all of the bots.
-        out.write('%11s %11s %4s %s\n\n' %
-                  ('CONTROL', 'ROLL', 'DIFF', 'BOT'))
-        for bot in sorted(all_bots):
-            if control[bot].status != roll[bot].status:
-                diff = '****'
-            elif (control[bot].status != 'success' or
-                roll[bot].status != 'success'):
-                diff = '....'
-            else:
-                diff = ''
-            out.write('%11s %11s %4s %s\n' % (
-                    control[bot].status, roll[bot].status, diff, bot))
-        out.write('\n')
-        out.flush()
 
     for bot in sorted(all_bots):
         if (roll[bot].status == 'success'):
@@ -371,6 +355,8 @@ def main(control_url, roll_url, verbosity=1):
                 for result in results:
                     formatted_result = re.sub(
                         r'(\S*\.html) ', '\n__\g<1>\n', result.text)
+                    # Strip runtimes.
+                    formatted_result = re.sub(r'\(.*\)', '', formatted_result)
                     printer(2, formatted_result)
                     if ('compile' in result.text
                         or '...and more' in result.text):
@@ -380,6 +366,25 @@ def main(control_url, roll_url, verbosity=1):
                 printer(2, status)
         out.write('\n')
 
+    if verbosity > 0:
+        # Print out summary of all of the bots.
+        out.write('%11s %11s %4s %s\n\n' %
+                  ('CONTROL', 'ROLL', 'DIFF', 'BOT'))
+        for bot in sorted(all_bots):
+            if roll[bot].status == 'success':
+                diff = ''
+            elif (control[bot].status == 'success' and
+                     roll[bot].status == 'failure'):
+                diff = '!!!!'
+            elif ('pending' in control[bot].status or
+                  'pending' in roll[bot].status):
+                diff = '....'
+            else:
+                diff = '****'
+            out.write('%11s %11s %4s %s\n' % (
+                    control[bot].status, roll[bot].status, diff, bot))
+        out.write('\n')
+        out.flush()
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
