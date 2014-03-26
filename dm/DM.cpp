@@ -1,8 +1,6 @@
 // Main binary for DM.
 // For a high-level overview, please see dm/README.
 
-#include "GrContext.h"
-#include "GrContextFactory.h"
 #include "SkBenchmark.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
@@ -14,6 +12,7 @@
 #include "DMBenchTask.h"
 #include "DMCpuGMTask.h"
 #include "DMGpuGMTask.h"
+#include "DMGpuSupport.h"
 #include "DMReporter.h"
 #include "DMTask.h"
 #include "DMTaskRunner.h"

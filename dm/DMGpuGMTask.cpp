@@ -29,8 +29,7 @@ void GpuGMTask::draw(GrContextFactory* grFactory) {
                                          SkScalarCeilToInt(fGM->height()),
                                          kPMColor_SkColorType,
                                          kPremul_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(
-            grFactory->get(fContextType), info, fSampleCount));
+    SkAutoTUnref<SkSurface> surface(NewGpuSurface(grFactory, fContextType, info, fSampleCount));
     SkCanvas* canvas = surface->getCanvas();
 
     canvas->concat(fGM->getInitialTransform());
@@ -41,16 +40,12 @@ void GpuGMTask::draw(GrContextFactory* grFactory) {
     bitmap.setConfig(info);
     canvas->readPixels(&bitmap, 0, 0);
 
-#if GR_CACHE_STATS
-    gr->printCacheStats();
-#endif
-
     this->spawnChild(SkNEW_ARGS(ExpectationsTask, (*this, fExpectations, bitmap)));
     this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
 }
 
 bool GpuGMTask::shouldSkip() const {
-    return SkToBool(fGM->getFlags() & skiagm::GM::kSkipGPU_Flag);
+    return kGPUDisabled || SkToBool(fGM->getFlags() & skiagm::GM::kSkipGPU_Flag);
 }
 
 }  // namespace DM

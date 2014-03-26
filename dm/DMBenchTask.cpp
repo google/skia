@@ -49,7 +49,7 @@ bool CpuBenchTask::shouldSkip() const {
 }
 
 bool GpuBenchTask::shouldSkip() const {
-    return !fBench->isSuitableFor(SkBenchmark::kGPU_Backend);
+    return kGPUDisabled || !fBench->isSuitableFor(SkBenchmark::kGPU_Backend);
 }
 
 static void draw_raster(SkBenchmark* bench, SkColorType colorType) {
@@ -75,8 +75,7 @@ void GpuBenchTask::draw(GrContextFactory* grFactory) {
                                          fBench->getSize().y(),
                                          kPMColor_SkColorType,
                                          kPremul_SkAlphaType);
-    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTarget(
-            grFactory->get(fContextType), info, fSampleCount));
+    SkAutoTUnref<SkSurface> surface(NewGpuSurface(grFactory, fContextType, info, fSampleCount));
 
     fBench->preDraw();
     fBench->draw(1, surface->getCanvas());

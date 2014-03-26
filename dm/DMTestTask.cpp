@@ -50,4 +50,8 @@ void GpuTestTask::draw(GrContextFactory* grFactory) {
     }
 }
 
+bool GpuTestTask::shouldSkip() const {
+    return kGPUDisabled;
+}
+
 }  // namespace DM

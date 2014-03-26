@@ -1,7 +1,7 @@
 #ifndef DMTaskRunner_DEFINED
 #define DMTaskRunner_DEFINED
 
-#include "GrContextFactory.h"
+#include "DMGpuSupport.h"
 #include "SkThreadPool.h"
 #include "SkTypes.h"
 

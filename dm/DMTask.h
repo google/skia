@@ -2,7 +2,7 @@
 #define DMTask_DEFINED
 
 #include "DMReporter.h"
-#include "GrContextFactory.h"
+#include "DMGpuSupport.h"
 #include "SkRunnable.h"
 #include "SkTime.h"
 

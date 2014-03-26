@@ -2,10 +2,10 @@
 #define DMGpuGMTask_DEFINED
 
 #include "DMExpectations.h"
+#include "DMGpuSupport.h"
 #include "DMReporter.h"
 #include "DMTask.h"
 #include "DMTaskRunner.h"
-#include "GrContextFactory.h"
 #include "SkBitmap.h"
 #include "SkString.h"
 #include "SkTemplates.h"
