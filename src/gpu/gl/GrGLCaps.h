@@ -250,6 +250,8 @@ public:
 
     bool fullClearIsFree() const { return fFullClearIsFree; }
 
+    bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
+
 private:
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
@@ -332,6 +334,7 @@ private:
     bool fFixedFunctionSupport : 1;
     bool fDiscardFBSupport : 1;
     bool fFullClearIsFree : 1;
+    bool fDropsTileOnZeroDivide : 1;
 
     typedef GrDrawTargetCaps INHERITED;
 };

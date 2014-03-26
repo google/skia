@@ -181,7 +181,11 @@ void GrFontCache::dump() const {
             GrTexture* texture = fAtlasMgr[i]->getTexture();
             if (NULL != texture) {
                 SkString filename;
+#ifdef SK_BUILD_FOR_ANDROID
+                filename.printf("/sdcard/fontcache_%d%d.png", gDumpCount, i);
+#else
                 filename.printf("fontcache_%d%d.png", gDumpCount, i);
+#endif
                 texture->savePixels(filename.c_str());
             }
         }
@@ -248,11 +252,13 @@ GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
 
     GrGlyph* glyph = fPool.alloc();
     // expand bounds to hold full distance field data
+    // + room for bilerp
+    int pad = DISTANCE_FIELD_RANGE+1;
     if (fUseDistanceField) {
-        bounds.fLeft   -= DISTANCE_FIELD_RANGE;
-        bounds.fRight  += DISTANCE_FIELD_RANGE;
-        bounds.fTop    -= DISTANCE_FIELD_RANGE;
-        bounds.fBottom += DISTANCE_FIELD_RANGE;
+        bounds.fLeft   -= pad;
+        bounds.fRight  += pad;
+        bounds.fTop    -= pad;
+        bounds.fBottom += pad;
     }
     glyph->init(packed, bounds);
     fCache.insert(packed, glyph);
@@ -292,8 +298,9 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
         // but must shrink back down to get the packed glyph data
         int dfWidth = glyph->width();
         int dfHeight = glyph->height();
-        int width = dfWidth - 2*DISTANCE_FIELD_RANGE;
-        int height = dfHeight - 2*DISTANCE_FIELD_RANGE;
+        int pad = DISTANCE_FIELD_RANGE+1;
+        int width = dfWidth - 2*pad;
+        int height = dfHeight - 2*pad;
         int stride = width*bytesPerPixel;
 
         size_t size = width * height * bytesPerPixel;
