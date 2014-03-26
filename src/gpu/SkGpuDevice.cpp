@@ -343,59 +343,6 @@ void SkGpuDevice::makeRenderTargetCurrent() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
-namespace {
-GrPixelConfig config8888_to_grconfig_and_flags(SkCanvas::Config8888 config8888, uint32_t* flags) {
-    switch (config8888) {
-        case SkCanvas::kNative_Premul_Config8888:
-            *flags = 0;
-            return kSkia8888_GrPixelConfig;
-        case SkCanvas::kNative_Unpremul_Config8888:
-            *flags = GrContext::kUnpremul_PixelOpsFlag;
-            return kSkia8888_GrPixelConfig;
-        case SkCanvas::kBGRA_Premul_Config8888:
-            *flags = 0;
-            return kBGRA_8888_GrPixelConfig;
-        case SkCanvas::kBGRA_Unpremul_Config8888:
-            *flags = GrContext::kUnpremul_PixelOpsFlag;
-            return kBGRA_8888_GrPixelConfig;
-        case SkCanvas::kRGBA_Premul_Config8888:
-            *flags = 0;
-            return kRGBA_8888_GrPixelConfig;
-        case SkCanvas::kRGBA_Unpremul_Config8888:
-            *flags = GrContext::kUnpremul_PixelOpsFlag;
-            return kRGBA_8888_GrPixelConfig;
-        default:
-            GrCrash("Unexpected Config8888.");
-            *flags = 0; // suppress warning
-            return kSkia8888_GrPixelConfig;
-    }
-}
-}
-
-bool SkGpuDevice::onReadPixels(const SkBitmap& bitmap,
-                               int x, int y,
-                               SkCanvas::Config8888 config8888) {
-    DO_DEFERRED_CLEAR();
-    SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
-    SkASSERT(!bitmap.isNull());
-    SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height())));
-
-    SkAutoLockPixels alp(bitmap);
-    GrPixelConfig config;
-    uint32_t flags;
-    config = config8888_to_grconfig_and_flags(config8888, &flags);
-    return fContext->readRenderTargetPixels(fRenderTarget,
-                                            x, y,
-                                            bitmap.width(),
-                                            bitmap.height(),
-                                            config,
-                                            bitmap.getPixels(),
-                                            bitmap.rowBytes(),
-                                            flags);
-}
-#endif
-
 bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                                int x, int y) {
     DO_DEFERRED_CLEAR();

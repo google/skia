@@ -102,54 +102,6 @@ const SkBitmap& SkBaseDevice::accessBitmap(bool changePixels) {
     return bitmap;
 }
 
-#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
-bool SkBaseDevice::readPixels(SkBitmap* bitmap, int x, int y,
-                              SkCanvas::Config8888 config8888) {
-    if (SkBitmap::kARGB_8888_Config != bitmap->config() ||
-        NULL != bitmap->getTexture()) {
-        return false;
-    }
-
-    const SkBitmap& src = this->accessBitmap(false);
-
-    SkIRect srcRect = SkIRect::MakeXYWH(x, y, bitmap->width(),
-                                              bitmap->height());
-    SkIRect devbounds = SkIRect::MakeWH(src.width(), src.height());
-    if (!srcRect.intersect(devbounds)) {
-        return false;
-    }
-
-    SkBitmap tmp;
-    SkBitmap* bmp;
-    if (bitmap->isNull()) {
-        if (!tmp.allocPixels(SkImageInfo::MakeN32Premul(bitmap->width(),
-                                                        bitmap->height()))) {
-            return false;
-        }
-        bmp = &tmp;
-    } else {
-        bmp = bitmap;
-    }
-
-    SkIRect subrect = srcRect;
-    subrect.offset(-x, -y);
-    SkBitmap bmpSubset;
-    bmp->extractSubset(&bmpSubset, subrect);
-
-    bool result = this->onReadPixels(bmpSubset,
-                                     srcRect.fLeft,
-                                     srcRect.fTop,
-                                     config8888);
-    if (result && bmp == &tmp) {
-        tmp.swap(*bitmap);
-    }
-    return result;
-}
-bool SkBaseDevice::onReadPixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) {
-    return false;
-}
-#endif
-
 SkSurface* SkBaseDevice::newSurface(const SkImageInfo&) { return NULL; }
 
 const void* SkBaseDevice::peekPixels(SkImageInfo*, size_t*) { return NULL; }

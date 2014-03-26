@@ -667,18 +667,6 @@ SkBaseDevice* SkCanvas::setRootDevice(SkBaseDevice* device) {
     return device;
 }
 
-#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
-bool SkCanvas::readPixels(SkBitmap* bitmap,
-                          int x, int y,
-                          Config8888 config8888) {
-    SkBaseDevice* device = this->getDevice();
-    if (!device) {
-        return false;
-    }
-    return device->readPixels(bitmap, x, y, config8888);
-}
-#endif
-
 bool SkCanvas::readPixels(SkBitmap* bitmap, int x, int y) {
     if (kUnknown_SkColorType == bitmap->colorType() || bitmap->getTexture()) {
         return false;

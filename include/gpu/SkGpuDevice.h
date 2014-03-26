@@ -153,9 +153,6 @@ public:
 
 
 protected:
-#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
-    virtual bool onReadPixels(const SkBitmap&, int x, int y, SkCanvas::Config8888) SK_OVERRIDE;
-#endif
     virtual bool onReadPixels(const SkImageInfo&, void*, size_t, int, int) SK_OVERRIDE;
     virtual bool onWritePixels(const SkImageInfo&, const void*, size_t, int, int) SK_OVERRIDE;
 

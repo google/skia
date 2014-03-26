@@ -287,38 +287,6 @@ protected:
     virtual void drawDevice(const SkDraw&, SkBaseDevice*, int x, int y,
                             const SkPaint&) = 0;
 
-#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
-    /**
-     *  On success (returns true), copy the device pixels into the bitmap.
-     *  On failure, the bitmap parameter is left unchanged and false is
-     *  returned.
-     *
-     *  The device's pixels are converted to the bitmap's config. The only
-     *  supported config is kARGB_8888_Config, though this is likely to be
-     *  relaxed in  the future. The meaning of config kARGB_8888_Config is
-     *  modified by the enum param config8888. The default value interprets
-     *  kARGB_8888_Config as SkPMColor
-     *
-     *  If the bitmap has pixels already allocated, the device pixels will be
-     *  written there. If not, bitmap->allocPixels() will be called
-     *  automatically. If the bitmap is backed by a texture readPixels will
-     *  fail.
-     *
-     *  The actual pixels written is the intersection of the device's bounds,
-     *  and the rectangle formed by the bitmap's width,height and the specified
-     *  x,y. If bitmap pixels extend outside of that intersection, they will not
-     *  be modified.
-     *
-     *  Other failure conditions:
-     *    * If the device is not a raster device (e.g. PDF) then readPixels will
-     *      fail.
-     *    * If bitmap is texture-backed then readPixels will fail. (This may be
-     *      relaxed in the future.)
-     */
-    bool readPixels(SkBitmap* bitmap,
-                    int x, int y,
-                    SkCanvas::Config8888 config8888);
-#endif
     bool readPixels(const SkImageInfo&, void* dst, size_t rowBytes, int x, int y);
 
     ///////////////////////////////////////////////////////////////////////////
@@ -363,29 +331,12 @@ protected:
                              const SkImageFilter::Context& ctx,
                              SkBitmap* result, SkIPoint* offset) = 0;
 
-#ifdef SK_SUPPORT_LEGACY_CONFIG8888
-    // This is equal kBGRA_Premul_Config8888 or kRGBA_Premul_Config8888 if
-    // either is identical to kNative_Premul_Config8888. Otherwise, -1.
-    static const SkCanvas::Config8888 kPMColorAlias;
-#endif
-
 protected:
     // default impl returns NULL
     virtual SkSurface* newSurface(const SkImageInfo&);
 
     // default impl returns NULL
     virtual const void* peekPixels(SkImageInfo*, size_t* rowBytes);
-
-    /**
-     * Implements readPixels API. The caller will ensure that:
-     *  1. bitmap has pixel config kARGB_8888_Config.
-     *  2. bitmap has pixels.
-     *  3. The rectangle (x, y, x + bitmap->width(), y + bitmap->height()) is
-     *     contained in the device bounds.
-     */
-#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
-    virtual bool onReadPixels(const SkBitmap& bitmap, int x, int y, SkCanvas::Config8888);
-#endif
 
     /**
      *  The caller is responsible for "pre-clipping" the dst. The impl can assume that the dst

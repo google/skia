@@ -2307,13 +2307,6 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& origMatrix,
                                 &content.entry()->fContent);
 }
 
-#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
-bool SkPDFDevice::onReadPixels(const SkBitmap& bitmap, int x, int y,
-                               SkCanvas::Config8888) {
-    return false;
-}
-#endif
-
 bool SkPDFDevice::allowImageFilter(const SkImageFilter*) {
     return false;
 }

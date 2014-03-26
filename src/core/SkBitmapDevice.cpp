@@ -173,34 +173,6 @@ bool SkBitmapDevice::allowImageFilter(const SkImageFilter*) {
     return true;
 }
 
-#ifdef SK_SUPPORT_LEGACY_READPIXELSCONFIG
-bool SkBitmapDevice::onReadPixels(const SkBitmap& bitmap,
-                                  int x, int y,
-                                  SkCanvas::Config8888 config8888) {
-    SkASSERT(SkBitmap::kARGB_8888_Config == bitmap.config());
-    SkASSERT(!bitmap.isNull());
-    SkASSERT(SkIRect::MakeWH(this->width(), this->height()).contains(SkIRect::MakeXYWH(x, y,
-                                                                          bitmap.width(),
-                                                                          bitmap.height())));
-
-    SkIRect srcRect = SkIRect::MakeXYWH(x, y, bitmap.width(), bitmap.height());
-    const SkBitmap& src = this->accessBitmap(false);
-
-    SkBitmap subset;
-    if (!src.extractSubset(&subset, srcRect)) {
-        return false;
-    }
-    if (kPMColor_SkColorType != subset.colorType()) {
-        // It'd be preferable to do this directly to bitmap.
-        subset.copyTo(&subset, kPMColor_SkColorType);
-    }
-    SkAutoLockPixels alp(bitmap);
-    uint32_t* bmpPixels = reinterpret_cast<uint32_t*>(bitmap.getPixels());
-    SkCopyBitmapToConfig8888(bmpPixels, bitmap.rowBytes(), config8888, subset);
-    return true;
-}
-#endif
-
 void* SkBitmapDevice::onAccessPixels(SkImageInfo* info, size_t* rowBytes) {
     if (fBitmap.getPixels()) {
         *info = fBitmap.info();
