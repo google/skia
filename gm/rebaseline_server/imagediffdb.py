@@ -387,7 +387,10 @@ def _open_image(filepath):
   try:
     return Image.open(filepath)
   except IOError:
-    logging.error('IOError loading image file %s' % filepath)
+    # If we are unable to load an image from the file, delete it from disk
+    # and we will try to fetch it again next time.  Fixes http://skbug.com/2247
+    logging.error('IOError loading image file %s ; deleting it.' % filepath)
+    os.remove(filepath)
     raise
 
 
