@@ -47,6 +47,10 @@ struct LabeledMatrix {
     const char* fLabel;
 };
 
+static const char kText[] = "B";
+static const int kTextLen = SK_ARRAY_COUNT(kText) - 1;
+static const int kPointSize = 300;
+
 class ShaderText3GM : public GM {
 public:
     ShaderText3GM() {
@@ -55,27 +59,23 @@ public:
 
 protected:
 
-    SkString onShortName() {
+    virtual SkString onShortName() SK_OVERRIDE {
         return SkString("shadertext3");
     }
 
-    SkISize onISize() { return make_isize(800, 1000); }
+    virtual SkISize onISize() SK_OVERRIDE{ return make_isize(800, 1000); }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        static const char kText[] = "B";
-        static const int kTextLen = SK_ARRAY_COUNT(kText) - 1;
-        static const int kPointSize = 300;
+    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        makebm(&fBmp, kPointSize / 4, kPointSize / 4);
+    }
 
-        static SkBitmap bmp;
-        if (bmp.isNull()) {
-            makebm(&bmp, kPointSize / 4, kPointSize / 4);
-        }
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         SkPaint bmpPaint;
         bmpPaint.setAntiAlias(true);
         bmpPaint.setFilterLevel(SkPaint::kLow_FilterLevel);
         bmpPaint.setAlpha(0x80);
-        canvas->drawBitmap(bmp, 5.f, 5.f, &bmpPaint);
+        canvas->drawBitmap(fBmp, 5.f, 5.f, &bmpPaint);
 
         SkPaint outlinePaint;
         outlinePaint.setAntiAlias(true);
@@ -100,7 +100,7 @@ protected:
         int i = 0;
         for (size_t tm0 = 0; tm0 < SK_ARRAY_COUNT(kTileModes); ++tm0) {
             for (size_t tm1 = 0; tm1 < SK_ARRAY_COUNT(kTileModes); ++tm1) {
-                SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(bmp,
+                SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(fBmp,
                                                                            kTileModes[tm0],
                                                                            kTileModes[tm1]));
                 SkMatrix localM;
@@ -131,6 +131,7 @@ protected:
     }
 
 private:
+    SkBitmap fBmp;
     typedef GM INHERITED;
 };
 
