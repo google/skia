@@ -11,7 +11,6 @@ Functions for creating an Android.mk from already created dictionaries.
 
 import os
 
-# TODO(scroggo): Add unit tests for this file.
 def write_group(f, name, items, append):
   """
   Helper function to list all names passed to a variable.

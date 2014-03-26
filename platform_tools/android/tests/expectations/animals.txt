@@ -1,0 +1,6 @@
+animals := \
+	dog \
+	cat \
+	mouse \
+	elephant
+

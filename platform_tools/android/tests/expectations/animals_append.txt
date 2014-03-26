@@ -1,0 +1,6 @@
+animals_append += \
+	dog \
+	cat \
+	mouse \
+	elephant
+
