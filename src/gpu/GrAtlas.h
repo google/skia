@@ -103,6 +103,8 @@ public:
 
     bool isEmpty() { return 0 == fPlots.count(); }
 
+    SkISize getSize() const;
+
 private:
     SkTDArray<GrPlot*> fPlots;
 

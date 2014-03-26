@@ -47,7 +47,6 @@ void GrGLCaps::reset() {
     fFixedFunctionSupport = false;
     fDiscardFBSupport = false;
     fFullClearIsFree = false;
-    fDropsTileOnZeroDivide = false;
 }
 
 GrGLCaps::GrGLCaps(const GrGLCaps& caps) : GrDrawTargetCaps() {
@@ -85,7 +84,6 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fFixedFunctionSupport = caps.fFixedFunctionSupport;
     fDiscardFBSupport = caps.fDiscardFBSupport;
     fFullClearIsFree = caps.fFullClearIsFree;
-    fDropsTileOnZeroDivide = caps.fDropsTileOnZeroDivide;
 
     return *this;
 }
@@ -245,9 +243,6 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
             fFBFetchType = kNV_FBFetchType;
         }
     }
-
-    // Adreno GPUs have a tendency to drop tiles when there is a divide-by-zero in a shader
-    fDropsTileOnZeroDivide = kQualcomm_GrGLVendor == ctxInfo.vendor();
 
     this->initFSAASupport(ctxInfo, gli);
     this->initStencilFormats(ctxInfo);
@@ -666,6 +661,5 @@ SkString GrGLCaps::dump() const {
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
     r.appendf("Discard FrameBuffer support: %s\n", (fDiscardFBSupport ? "YES" : "NO"));
     r.appendf("Full screen clear is free: %s\n", (fFullClearIsFree ? "YES" : "NO"));
-    r.appendf("Drops tile on zero divide: %s\n", (fDropsTileOnZeroDivide ? "YES" : "NO"));
     return r;
 }

@@ -336,10 +336,10 @@ bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
     SkASSERT(NULL != image);
 
     // the final distance field will have additional texels on each side to handle
-    // the maximum distance + 1 for bilerp
+    // the maximum distance
     // we expand our temp data by one more on each side to simplify
     // the scanning code -- will always be treated as infinitely far away
-    int pad = distanceMagnitude+2;
+    int pad = distanceMagnitude+1;
 
     // set params for distance field data
     int dataWidth = width + 2*pad;

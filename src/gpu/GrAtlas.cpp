@@ -209,3 +209,7 @@ GrPlot* GrAtlasMgr::getUnusedPlot() {
 
     return NULL;
 }
+
+SkISize GrAtlas::getSize() const {
+    return SkISize::Make(GR_ATLAS_TEXTURE_WIDTH, GR_ATLAS_TEXTURE_HEIGHT);
+}
