@@ -46,7 +46,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 GrTraceMarkerSet::GrTraceMarkerSet(const GrTraceMarkerSet& other) {
-   this->addSet(other); 
+   this->addSet(other);
 }
 
 void GrTraceMarkerSet::add(const GrGpuTraceMarker& marker) {
@@ -114,4 +114,3 @@ GrTraceMarkerSet::Iter GrTraceMarkerSet::begin() const {
 GrTraceMarkerSet::Iter GrTraceMarkerSet::end() const {
     return Iter(this, this->fMarkerArray.count());
 }
-

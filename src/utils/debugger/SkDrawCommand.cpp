@@ -213,7 +213,7 @@ bool SkClipPathCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
-SkClipRegionCommand::SkClipRegionCommand(const SkRegion& region, SkRegion::Op op) 
+SkClipRegionCommand::SkClipRegionCommand(const SkRegion& region, SkRegion::Op op)
     : INHERITED(CLIP_REGION) {
     fRegion = region;
     fOp = op;
@@ -241,7 +241,7 @@ void SkClipRectCommand::execute(SkCanvas* canvas) {
     canvas->clipRect(fRect, fOp, fDoAA);
 }
 
-SkClipRRectCommand::SkClipRRectCommand(const SkRRect& rrect, SkRegion::Op op, bool doAA) 
+SkClipRRectCommand::SkClipRRectCommand(const SkRRect& rrect, SkRegion::Op op, bool doAA)
     : INHERITED(CLIP_RRECT) {
     fRRect = rrect;
     fOp = op;
@@ -273,7 +273,7 @@ void SkConcatCommand::execute(SkCanvas* canvas) {
 }
 
 SkDrawBitmapCommand::SkDrawBitmapCommand(const SkBitmap& bitmap, SkScalar left, SkScalar top,
-                       const SkPaint* paint) 
+                       const SkPaint* paint)
     : INHERITED(DRAW_BITMAP) {
     fBitmap = bitmap;
     fLeft = left;
@@ -304,7 +304,7 @@ bool SkDrawBitmapCommand::render(SkCanvas* canvas) const {
 
 SkDrawBitmapMatrixCommand::SkDrawBitmapMatrixCommand(const SkBitmap& bitmap,
                                                      const SkMatrix& matrix,
-                                                     const SkPaint* paint) 
+                                                     const SkPaint* paint)
     : INHERITED(DRAW_BITMAP_MATRIX) {
     fBitmap = bitmap;
     fMatrix = matrix;
@@ -332,7 +332,7 @@ bool SkDrawBitmapMatrixCommand::render(SkCanvas* canvas) const {
 }
 
 SkDrawBitmapNineCommand::SkDrawBitmapNineCommand(const SkBitmap& bitmap, const SkIRect& center,
-                                                 const SkRect& dst, const SkPaint* paint) 
+                                                 const SkRect& dst, const SkPaint* paint)
     : INHERITED(DRAW_BITMAP_NINE) {
     fBitmap = bitmap;
     fCenter = center;
@@ -363,7 +363,7 @@ bool SkDrawBitmapNineCommand::render(SkCanvas* canvas) const {
 
 SkDrawBitmapRectCommand::SkDrawBitmapRectCommand(const SkBitmap& bitmap, const SkRect* src,
                                                  const SkRect& dst, const SkPaint* paint,
-                                                 SkCanvas::DrawBitmapRectFlags flags) 
+                                                 SkCanvas::DrawBitmapRectFlags flags)
     : INHERITED(DRAW_BITMAP_RECT_TO_RECT) {
     fBitmap = bitmap;
     if (NULL != src) {
@@ -401,7 +401,7 @@ bool SkDrawBitmapRectCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
-SkDrawDataCommand::SkDrawDataCommand(const void* data, size_t length) 
+SkDrawDataCommand::SkDrawDataCommand(const void* data, size_t length)
     : INHERITED(DRAW_DATA) {
     fData = new char[length];
     memcpy(fData, data, length);
@@ -434,7 +434,7 @@ SkCommentCommand::SkCommentCommand(const char* kywd, const char* value)
     fInfo.push(temp);
 }
 
-SkEndCommentGroupCommand::SkEndCommentGroupCommand() 
+SkEndCommentGroupCommand::SkEndCommentGroupCommand()
     : INHERITED(END_COMMENT_GROUP) {
 }
 
@@ -502,7 +502,7 @@ bool SkDrawPathCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
-SkDrawPictureCommand::SkDrawPictureCommand(SkPicture& picture) 
+SkDrawPictureCommand::SkDrawPictureCommand(SkPicture& picture)
     : INHERITED(DRAW_PICTURE)
     , fPicture(picture) {
     SkString* temp = new SkString;

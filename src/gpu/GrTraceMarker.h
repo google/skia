@@ -39,7 +39,7 @@ public:
     GrTraceMarkerSet(const GrTraceMarkerSet& other);
 
     // Adds marker to the set.
-    void add(const GrGpuTraceMarker& marker); 
+    void add(const GrGpuTraceMarker& marker);
     // Adds all markers from one set into this set.
     void addSet(const GrTraceMarkerSet& markerSet);
 
@@ -53,7 +53,7 @@ public:
      * marker string used in the TraceMarker and the (#,#,..) is a list of instance
      * id's for the the given marker string
      */
-    SkString toString() const; 
+    SkString toString() const;
 
     class Iter;
 
@@ -66,4 +66,3 @@ private:
 };
 
 #endif
-

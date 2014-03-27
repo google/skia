@@ -104,16 +104,16 @@ uint32_t SkPictureStateTree::Iterator::draw() {
     if (fPlaybackIndex >= fDraws->count()) {
         // restore back to where we started
         fCanvas->setMatrix(fPlaybackMatrix);
-        if (fCurrentNode->fFlags & Node::kSaveLayer_Flag) { 
-            fCanvas->restore(); 
+        if (fCurrentNode->fFlags & Node::kSaveLayer_Flag) {
+            fCanvas->restore();
         }
         fCurrentNode = fCurrentNode->fParent;
         while (NULL != fCurrentNode) {
-            if (fCurrentNode->fFlags & Node::kSave_Flag) { 
-                fCanvas->restore(); 
+            if (fCurrentNode->fFlags & Node::kSave_Flag) {
+                fCanvas->restore();
             }
-            if (fCurrentNode->fFlags & Node::kSaveLayer_Flag) { 
-                fCanvas->restore(); 
+            if (fCurrentNode->fFlags & Node::kSaveLayer_Flag) {
+                fCanvas->restore();
             }
             fCurrentNode = fCurrentNode->fParent;
         }
@@ -143,11 +143,11 @@ uint32_t SkPictureStateTree::Iterator::draw() {
                 uint16_t currentLevel = tmp->fLevel;
                 uint16_t targetLevel = ancestor->fLevel;
                 if (currentLevel >= targetLevel) {
-                    if (tmp != fCurrentNode && tmp->fFlags & Node::kSave_Flag) { 
-                        fCanvas->restore(); 
+                    if (tmp != fCurrentNode && tmp->fFlags & Node::kSave_Flag) {
+                        fCanvas->restore();
                     }
-                    if (tmp->fFlags & Node::kSaveLayer_Flag) { 
-                        fCanvas->restore(); 
+                    if (tmp->fFlags & Node::kSaveLayer_Flag) {
+                        fCanvas->restore();
                     }
                     tmp = tmp->fParent;
                 }
@@ -158,11 +158,11 @@ uint32_t SkPictureStateTree::Iterator::draw() {
             }
 
             if (ancestor->fFlags & Node::kSave_Flag) {
-                if (fCurrentNode != ancestor) { 
-                    fCanvas->restore(); 
+                if (fCurrentNode != ancestor) {
+                    fCanvas->restore();
                 }
-                if (targetNode != ancestor) { 
-                    fCanvas->save(SkCanvas::kClip_SaveFlag); 
+                if (targetNode != ancestor) {
+                    fCanvas->save(SkCanvas::kClip_SaveFlag);
                 }
             }
             fCurrentNode = ancestor;

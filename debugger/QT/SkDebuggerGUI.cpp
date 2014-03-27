@@ -141,7 +141,7 @@ void SkDebuggerGUI::actionBreakpoints() {
 void SkDebuggerGUI::actionToggleIndexStyle() {
     fIndexStyleToggle = !fIndexStyleToggle;
     SkListWidget* list = (SkListWidget*) fListWidget.itemDelegate();
-    list->setIndexStyle(fIndexStyleToggle ? SkListWidget::kIndex_IndexStyle : 
+    list->setIndexStyle(fIndexStyleToggle ? SkListWidget::kIndex_IndexStyle :
                                             SkListWidget::kOffset_IndexStyle);
     fListWidget.update();
 }
