@@ -13540,8 +13540,9 @@
           10769322296615755298
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
+        2354
       ], 
       "reviewed-by-human": false
     }, 
@@ -13612,8 +13613,9 @@
           10769322296615755298
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
+        2354
       ], 
       "reviewed-by-human": false
     }, 
@@ -13684,8 +13686,9 @@
           10769322296615755298
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
+        2354
       ], 
       "reviewed-by-human": false
     }, 
@@ -13696,9 +13699,10 @@
           10769322296615755298
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
-      ], 
+        2354
+      ],  
       "reviewed-by-human": false
     }, 
     "megalooper_4x1_pdf-poppler.png": {
@@ -13750,8 +13754,9 @@
           7068817626419515805
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
+        2354
       ], 
       "reviewed-by-human": false
     }, 
@@ -15189,8 +15194,9 @@
           12915657818379420968
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
+        2354
       ], 
       "reviewed-by-human": false
     }, 

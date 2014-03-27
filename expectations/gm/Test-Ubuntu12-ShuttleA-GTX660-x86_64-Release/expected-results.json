@@ -13540,8 +13540,9 @@
           10807026657174943320
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
+        2354
       ], 
       "reviewed-by-human": false
     }, 
@@ -13612,8 +13613,9 @@
           10807026657174943320
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
+        2354
       ], 
       "reviewed-by-human": false
     }, 
@@ -13684,8 +13686,9 @@
           10807026657174943320
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
+        2354
       ], 
       "reviewed-by-human": false
     }, 
@@ -13696,8 +13699,9 @@
           10769322296615755298
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
+        2354
       ], 
       "reviewed-by-human": false
     }, 
@@ -13750,8 +13754,9 @@
           18053729995632638218
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
+        2354
       ], 
       "reviewed-by-human": false
     }, 
@@ -15189,8 +15194,9 @@
           12915657818379420968
         ]
       ], 
+      "ignore-failure": true,
       "bugs": [
-        2325
+        2354
       ], 
       "reviewed-by-human": false
     }, 
