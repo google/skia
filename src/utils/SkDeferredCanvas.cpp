@@ -324,9 +324,6 @@ void SkDeferredDevice::skipPendingCommands() {
         if (fPipeController.hasPendingCommands()) {
             fFreshFrame = true;
             flushPendingCommands(kSilent_PlaybackMode);
-            if (fNotificationClient) {
-                fNotificationClient->skippedPendingDrawCommands();
-            }
         }
     }
 }
@@ -363,9 +360,14 @@ void SkDeferredDevice::flushPendingCommands(PlaybackMode playbackMode) {
     }
     fPipeWriter.flushRecording(true);
     fPipeController.playback(kSilent_PlaybackMode == playbackMode);
-    if (playbackMode == kNormal_PlaybackMode && fNotificationClient) {
-        fNotificationClient->flushedDrawCommands();
+    if (fNotificationClient) {
+        if (playbackMode == kSilent_PlaybackMode) {
+            fNotificationClient->skippedPendingDrawCommands();
+        } else {
+            fNotificationClient->flushedDrawCommands();
+        }
     }
+
     fPreviousStorageAllocated = storageAllocatedForRecording();
 }
 

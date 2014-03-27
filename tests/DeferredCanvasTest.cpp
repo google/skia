@@ -496,6 +496,19 @@ static void TestDeferredCanvasMemoryLimit(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fFlushedDrawCommandsCount);
 }
 
+static void TestDeferredCanvasSilentFlush(skiatest::Reporter* reporter) {
+    SkAutoTUnref<SkSurface> surface(createSurface(0));
+    SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
+
+    NotificationCounter notificationCounter;
+    canvas->setNotificationClient(&notificationCounter);
+
+    canvas->silentFlush(); // will skip the initial clear that was recorded in createSurface
+
+    REPORTER_ASSERT(reporter, 0 == notificationCounter.fFlushedDrawCommandsCount);
+    REPORTER_ASSERT(reporter, 1 == notificationCounter.fSkippedPendingDrawCommandsCount);
+}
+
 static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(100, 100));
     SkAutoTUnref<SkDeferredCanvas> canvas(SkDeferredCanvas::Create(surface.get()));
@@ -806,6 +819,7 @@ static void TestDeferredCanvasCreateCompatibleDevice(skiatest::Reporter* reporte
 DEF_GPUTEST(DeferredCanvas, reporter, factory) {
     TestDeferredCanvasBitmapAccess(reporter);
     TestDeferredCanvasFlush(reporter);
+    TestDeferredCanvasSilentFlush(reporter);
     TestDeferredCanvasFreshFrame(reporter);
     TestDeferredCanvasMemoryLimit(reporter);
     TestDeferredCanvasBitmapCaching(reporter);
