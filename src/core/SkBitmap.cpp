@@ -839,7 +839,7 @@ void SkBitmap::internalErase(const SkIRect& area,
     switch (fInfo.colorType()) {
         case kUnknown_SkColorType:
         case kIndex_8_SkColorType:
-            return; // can't erase
+            return; // can't erase. Should we bzero so the memory is not uninitialized?
         default:
             break;
     }
@@ -853,13 +853,6 @@ void SkBitmap::internalErase(const SkIRect& area,
     int height = area.height();
     const int width = area.width();
     const int rowBytes = fRowBytes;
-
-    // make rgb premultiplied
-    if (255 != a) {
-        r = SkAlphaMul(r, a);
-        g = SkAlphaMul(g, a);
-        b = SkAlphaMul(b, a);
-    }
 
     switch (this->colorType()) {
         case kAlpha_8_SkColorType: {
@@ -875,6 +868,13 @@ void SkBitmap::internalErase(const SkIRect& area,
             uint16_t* p = this->getAddr16(area.fLeft, area.fTop);;
             uint16_t v;
 
+            // make rgb premultiplied
+            if (255 != a) {
+                r = SkAlphaMul(r, a);
+                g = SkAlphaMul(g, a);
+                b = SkAlphaMul(b, a);
+            }
+
             if (kARGB_4444_SkColorType == this->colorType()) {
                 v = pack_8888_to_4444(a, r, g, b);
             } else {
@@ -888,11 +888,17 @@ void SkBitmap::internalErase(const SkIRect& area,
             }
             break;
         }
-        case kPMColor_SkColorType: {
-            // what to do about BGRA or RGBA (which ever is != PMColor ?
-            // for now we don't support them.
+        case kBGRA_8888_SkColorType:
+        case kRGBA_8888_SkColorType: {
             uint32_t* p = this->getAddr32(area.fLeft, area.fTop);
-            uint32_t  v = SkPackARGB32(a, r, g, b);
+
+            if (255 != a && kPremul_SkAlphaType == this->alphaType()) {
+                r = SkAlphaMul(r, a);
+                g = SkAlphaMul(g, a);
+                b = SkAlphaMul(b, a);
+            }
+            uint32_t v = kRGBA_8888_SkColorType == this->colorType() ?
+                         SkPackARGB_as_RGBA(a, r, g, b) : SkPackARGB_as_BGRA(a, r, g, b);
 
             while (--height >= 0) {
                 sk_memset32(p, v, width);
