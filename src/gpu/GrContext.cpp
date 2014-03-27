@@ -14,24 +14,26 @@
 
 #include "GrAARectRenderer.h"
 #include "GrBufferAllocPool.h"
-#include "GrGpu.h"
+#include "GrDistanceFieldTextContext.h"
 #include "GrDrawTargetCaps.h"
-#include "GrIndexBuffer.h"
+#include "GrGpu.h"
 #include "GrInOrderDrawBuffer.h"
+#include "GrIndexBuffer.h"
 #include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
 #include "GrResourceCache.h"
 #include "GrSoftwarePathRenderer.h"
+#include "GrStencilAndCoverTextContext.h"
 #include "GrStencilBuffer.h"
 #include "GrTextStrike.h"
 #include "GrTracing.h"
 #include "SkGr.h"
-#include "SkRTConf.h"
 #include "SkRRect.h"
+#include "SkRTConf.h"
 #include "SkStrokeRec.h"
-#include "SkTLazy.h"
 #include "SkTLS.h"
+#include "SkTLazy.h"
 #include "SkTraceEvent.h"
 
 // It can be useful to set this to false to test whether a bug is caused by using the
@@ -225,6 +227,17 @@ size_t GrContext::getGpuTextureCacheBytes() const {
 
 int GrContext::getGpuTextureCacheResourceCount() const {
   return fTextureCache->getCachedResourceCount();
+}
+
+GrTextContext* GrContext::createTextContext(GrRenderTarget* renderTarget,
+                                            const SkDeviceProperties&
+                                            leakyProperties) {
+    if (fGpu->caps()->pathRenderingSupport()) {
+        if (renderTarget->getStencilBuffer() && renderTarget->isMultisampled()) {
+            return SkNEW_ARGS(GrStencilAndCoverTextContext, (this, leakyProperties));
+        }
+    }
+    return SkNEW_ARGS(GrDistanceFieldTextContext, (this, leakyProperties));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

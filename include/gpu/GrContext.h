@@ -35,6 +35,7 @@ class GrResourceEntry;
 class GrResourceCache;
 class GrStencilBuffer;
 class GrTestTarget;
+class GrTextContext;
 class GrTextureParams;
 class GrVertexBuffer;
 class GrVertexBufferAllocPool;
@@ -115,6 +116,15 @@ public:
      * Returns the number of resources hosted by the texture cache.
      */
     int getGpuTextureCacheResourceCount() const;
+
+    /**
+     * Creates a new text rendering context that is optimal for the
+     * render target and the context. Caller assumes the ownership
+     * of the returned object. The returned object must be deleted
+     * before the context is destroyed.
+     */
+    GrTextContext* createTextContext(GrRenderTarget*,
+                                     const SkDeviceProperties&);
 
     ///////////////////////////////////////////////////////////////////////////
     // Textures
@@ -954,6 +964,7 @@ private:
     // addExistingTextureToCache
     friend class GrTexture;
     friend class GrStencilAndCoverPathRenderer;
+    friend class GrStencilAndCoverTextContext;
 
     // Add an existing texture to the texture cache. This is intended solely
     // for use with textures released from an GrAutoScratchTexture.

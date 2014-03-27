@@ -188,9 +188,6 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     fContext = context;
     fContext->ref();
 
-    fMainTextContext = SkNEW_ARGS(GrDistanceFieldTextContext, (fContext, fLeakyProperties));
-    fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
-
     fRenderTarget = NULL;
     fNeedClear = flags & kNeedClear_Flag;
 
@@ -212,6 +209,9 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     SkPixelRef* pr = SkNEW_ARGS(SkGrPixelRef, (info, surface, SkToBool(flags & kCached_Flag)));
 
     this->setPixelRef(pr)->unref();
+
+    fMainTextContext = fContext->createTextContext(fRenderTarget, fLeakyProperties);
+    fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
 }
 
 SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo,
@@ -268,9 +268,6 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     fContext = context;
     fContext->ref();
 
-    fMainTextContext = SkNEW_ARGS(GrDistanceFieldTextContext, (fContext, fLeakyProperties));
-    fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
-
     fRenderTarget = NULL;
     fNeedClear = false;
 
@@ -309,6 +306,9 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                  width, height);
         SkASSERT(false);
     }
+
+    fMainTextContext = fContext->createTextContext(fRenderTarget, fLeakyProperties);
+    fFallbackTextContext = SkNEW_ARGS(GrBitmapTextContext, (fContext, fLeakyProperties));
 }
 #endif
 
