@@ -114,7 +114,7 @@ public:
                                 0, SkIntToScalar(2) / fRenderTargetSize.fHeight, -SK_Scalar1,
                                 0, 0, SkMatrix::I()[8]);
             }
-            combined.setConcat(combined, fViewMatrix);
+            combined.preConcat(fViewMatrix);
             GrGLGetMatrix<Size>(destMatrix, combined);
         }
     };
