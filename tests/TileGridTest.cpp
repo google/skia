@@ -20,6 +20,18 @@ enum Tile {
     kAll_Tile = kTopLeft_Tile | kTopRight_Tile | kBottomLeft_Tile | kBottomRight_Tile,
 };
 
+class MockCanvas : public SkCanvas {
+public:
+    MockCanvas(const SkBitmap& bm) : SkCanvas(bm) {}
+
+    virtual void drawRect(const SkRect& rect, const SkPaint&) {
+        // This capture occurs before quick reject.
+        fRects.push(rect);
+    }
+
+    SkTDArray<SkRect> fRects;
+};
+
 static void verifyTileHits(skiatest::Reporter* reporter, SkIRect rect,
                            uint32_t tileMask, int borderPixels = 0) {
     SkTileGridPicture::TileGridInfo info;
@@ -38,79 +50,85 @@ static void verifyTileHits(skiatest::Reporter* reporter, SkIRect rect,
                     ((tileMask & kBottomRight_Tile)? 1 : 0));
 }
 
-static SkIRect query(float x, float y, float w, float h) {
-    // inflate for the margin++ in tilegrid
-    SkRect bounds = SkRect::MakeXYWH(x, y, w, h);
-    SkIRect r;
-    bounds.roundOut(&r);
-    r.outset(1, 1); // to counteract the inset in SkTileGrid::search
-    return r;
-}
-
-
 DEF_TEST(TileGrid_UnalignedQuery, reporter) {
+    // Use SkTileGridPicture to generate a SkTileGrid with a helper
     SkTileGridPicture::TileGridInfo info;
     info.fMargin.setEmpty();
     info.fOffset.setZero();
     info.fTileInterval.set(10, 10);
-    SkIRect rect1 = SkIRect::MakeXYWH(0, 0, 8, 8);
-    SkIRect rect2 = SkIRect::MakeXYWH(11, 11, 1, 1);
-    SkTileGrid grid(2, 2, info, SkTileGridNextDatum<SkPictureStateTree::Draw>);
-    grid.insert(&rect1, rect1, true);
-    grid.insert(&rect2, rect2, true);
+    SkTileGridPicture picture(20, 20, info);
+    SkRect rect1 = SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0),
+                                    SkIntToScalar(8), SkIntToScalar(8));
+    SkRect rect2 = SkRect::MakeXYWH(SkIntToScalar(11), SkIntToScalar(11),
+                                    SkIntToScalar(1), SkIntToScalar(1));
+    SkCanvas* canvas = picture.beginRecording(20, 20, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+    SkPaint paint;
+    canvas->drawRect(rect1, paint);
+    canvas->drawRect(rect2, paint);
+    picture.endRecording();
+
+    SkBitmap store;
+    store.allocN32Pixels(1, 1);
 
     // Test parts of top-left tile
     {
-        SkTDArray<void*> rects;
-        grid.search(query(0.0f, 0.0f, 1.0f, 1.0f), &rects);
-        REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
+        MockCanvas mockCanvas(store);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
-        SkTDArray<void*> rects;
-        grid.search(query(7.99f, 7.99f, 1.0f, 1.0f), &rects);
-        REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
+        MockCanvas mockCanvas(store);
+        mockCanvas.translate(-7.99f, -7.99f);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     // Corner overlap
     {
-        SkTDArray<void*> rects;
-        grid.search(query(9.5f, 9.5f, 1.0f, 1.0f), &rects);
-        REPORTER_ASSERT(reporter, 2 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
-        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
+        MockCanvas mockCanvas(store);
+        mockCanvas.translate(-9.5f, -9.5f);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
+        REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[1]);
     }
     // Intersect bottom right tile, but does not overlap rect 2
     {
-        SkTDArray<void*> rects;
-        grid.search(query(16.0f, 16.0f, 1.0f, 1.0f), &rects);
-        REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
+        MockCanvas mockCanvas(store);
+        mockCanvas.translate(-16.0f, -16.0f);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
     }
     // Out of bounds queries, snap to border tiles
     {
-        SkTDArray<void*> rects;
-        grid.search(query(-2.0f, 0.0f, 1.0f, 1.0f), &rects);
-        REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
+        MockCanvas mockCanvas(store);
+        mockCanvas.translate(2.0f, 0.0f);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
-        SkTDArray<void*> rects;
-        grid.search(query(0.0f, -2.0f, 1.0f, 1.0f), &rects);
-        REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
+        MockCanvas mockCanvas(store);
+        mockCanvas.translate(0.0f, 2.0f);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
-        SkTDArray<void*> rects;
-        grid.search(query(22.0f, 16.0f, 1.0f, 1.0f), &rects);
-        REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
+        MockCanvas mockCanvas(store);
+        mockCanvas.translate(-22.0f, -16.0f);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
     }
     {
-        SkTDArray<void*> rects;
-        grid.search(query(16.0f, 22.0f, 1.0f, 1.0f), &rects);
-        REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
+        MockCanvas mockCanvas(store);
+        mockCanvas.translate(-16.0f, -22.0f);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
     }
 }
 
@@ -120,64 +138,80 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
     info.fMargin.set(1, 1);
     info.fOffset.set(-1, -1);
     info.fTileInterval.set(8, 8);
+    SkTileGridPicture picture(20, 20, info);
 
     // rect landing entirely in top left tile
-    SkIRect rect1 = SkIRect::MakeXYWH(0, 0, 1, 1);
+    SkRect rect1 = SkRect::MakeXYWH(SkIntToScalar(0), SkIntToScalar(0),
+                                    SkIntToScalar(1), SkIntToScalar(1));
     // rect landing entirely in center tile
-    SkIRect rect2 = SkIRect::MakeXYWH(12, 12, 1, 1);
+    SkRect rect2 = SkRect::MakeXYWH(SkIntToScalar(12), SkIntToScalar(12),
+                                    SkIntToScalar(1), SkIntToScalar(1));
     // rect landing entirely in bottomright tile
-    SkIRect rect3 = SkIRect::MakeXYWH(19, 19, 1, 1);
-    SkTileGrid grid(3, 3, info, SkTileGridNextDatum<SkPictureStateTree::Draw>);
-    grid.insert(&rect1, rect1, true);
-    grid.insert(&rect2, rect2, true);
-    grid.insert(&rect3, rect3, true);
+    SkRect rect3 = SkRect::MakeXYWH(SkIntToScalar(19), SkIntToScalar(19),
+                                    SkIntToScalar(1), SkIntToScalar(1));
+    SkCanvas* canvas = picture.beginRecording(20, 20, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+    SkPaint paint;
+    canvas->drawRect(rect1, paint);
+    canvas->drawRect(rect2, paint);
+    canvas->drawRect(rect3, paint);
+    picture.endRecording();
 
+    SkBitmap tileBitmap;
+    tileBitmap.allocN32Pixels(10, 10);
+    SkBitmap moreThanATileBitmap;
+    moreThanATileBitmap.allocN32Pixels(11, 11);
+    SkBitmap tinyBitmap;
+    tinyBitmap.allocN32Pixels(2, 2);
     // Test parts of top-left tile
     {
         // The offset should cancel the top and left borders of the top left tile
         // So a look-up at interval 0-10 should be grid aligned,
-        SkTDArray<void*> rects;
-        grid.search(query(0.0f, 0.0f, 10.0f, 10.0f), &rects);
-        REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
+        MockCanvas mockCanvas(tileBitmap);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
     }
     {
         // Encroaching border by one pixel
-        SkTDArray<void*> rects;
-        grid.search(query(0.0f, 0.0f, 11.0f, 11.0f), &rects);
-        REPORTER_ASSERT(reporter, 2 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
-        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
+        MockCanvas mockCanvas(moreThanATileBitmap);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
+        REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[1]);
     }
     {
         // Tile stride is 8 (tileWidth - 2 * border pixels
         // so translating by 8, should make query grid-aligned
         // with middle tile.
-        SkTDArray<void*> rects;
-        grid.search(query(8.0f, 8.0f, 10.0f, 10.0f), &rects);
-        REPORTER_ASSERT(reporter, 1 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
+        MockCanvas mockCanvas(tileBitmap);
+        mockCanvas.translate(SkIntToScalar(-8), SkIntToScalar(-8));
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 1 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
     }
     {
-        SkTDArray<void*> rects;
-        grid.search(query(7.9f, 7.9f, 10.0f, 10.0f), &rects);
-        REPORTER_ASSERT(reporter, 2 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect1) >= 0);
-        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
+        MockCanvas mockCanvas(tileBitmap);
+        mockCanvas.translate(-7.9f, -7.9f);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect1 == mockCanvas.fRects[0]);
+        REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[1]);
     }
     {
-        SkTDArray<void*> rects;
-        grid.search(query(8.1f, 8.1f, 10.0f, 10.0f), &rects);
-        REPORTER_ASSERT(reporter, 2 == rects.count());
-        REPORTER_ASSERT(reporter, rects.find(&rect2) >= 0);
-        REPORTER_ASSERT(reporter, rects.find(&rect3) >= 0);
+        MockCanvas mockCanvas(tileBitmap);
+        mockCanvas.translate(-8.1f, -8.1f);
+        picture.draw(&mockCanvas);
+        REPORTER_ASSERT(reporter, 2 == mockCanvas.fRects.count());
+        REPORTER_ASSERT(reporter, rect2 == mockCanvas.fRects[0]);
+        REPORTER_ASSERT(reporter, rect3 == mockCanvas.fRects[1]);
     }
     {
         // Regression test for crbug.com/234688
         // Once the 2x2 device region is inset by margin, it yields an empty
         // adjusted region, sitting right on top of the tile boundary.
-        SkTDArray<void*> rects;
-        grid.search(query(8.0f, 8.0f, 2.0f, 2.0f), &rects);
+        MockCanvas mockCanvas(tinyBitmap);
+        mockCanvas.translate(-8.0f, -8.0f);
+        picture.draw(&mockCanvas);
         // This test passes by not asserting. We do not validate the rects recorded
         // because the result is numerically unstable (floating point equality).
         // The content of any one of the four tiles of the tilegrid would be a valid
