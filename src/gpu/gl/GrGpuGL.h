@@ -199,7 +199,7 @@ private:
         enum {
             // We may actually have kMaxEntries+1 shaders in the GL context because we create a new
             // shader before evicting from the cache.
-            kMaxEntries = 32,
+            kMaxEntries = 128,
             kHashBits = 6,
         };
 
