@@ -33,7 +33,7 @@ private:
     GrTextStrike*          fStrike;
 
     void init(const GrPaint&, const SkPaint&);
-    void drawPackedGlyph(GrGlyph::PackedID, GrFixed left, GrFixed top, GrFontScaler*);
+    void drawPackedGlyph(GrGlyph::PackedID, SkFixed left, SkFixed top, GrFontScaler*);
     void flushGlyphs();                 // automatically called by destructor
     void finish();
 

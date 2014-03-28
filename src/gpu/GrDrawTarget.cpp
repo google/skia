@@ -651,7 +651,7 @@ void GrDrawTarget::drawIndexedInstances(GrPrimitiveType type,
     }
 
     while (instanceCount) {
-        info.fInstanceCount = GrMin(instanceCount, maxInstancesPerDraw);
+        info.fInstanceCount = SkTMin(instanceCount, maxInstancesPerDraw);
         info.fVertexCount = info.fInstanceCount * verticesPerInstance;
         info.fIndexCount = info.fInstanceCount * indicesPerInstance;
 
@@ -674,7 +674,7 @@ namespace {
 // position + (optional) texture coord
 extern const GrVertexAttrib gBWRectPosUVAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(GrPoint), kLocalCoord_GrVertexAttribBinding}
+    {kVec2f_GrVertexAttribType, sizeof(SkPoint), kLocalCoord_GrVertexAttribBinding}
 };
 
 void set_vertex_attributes(GrDrawState* drawState, bool hasUVs) {
@@ -708,8 +708,8 @@ void GrDrawTarget::onDrawRect(const SkRect& rect,
     size_t vsize = this->drawState()->getVertexSize();
     geo.positions()->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom, vsize);
     if (NULL != localRect) {
-        GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) +
-                                            sizeof(GrPoint));
+        SkPoint* coords = GrTCast<SkPoint*>(GrTCast<intptr_t>(geo.vertices()) +
+                                            sizeof(SkPoint));
         coords->setRectFan(localRect->fLeft, localRect->fTop,
                            localRect->fRight, localRect->fBottom,
                            vsize);

@@ -16,10 +16,10 @@
 GrMemoryPool::GrMemoryPool(size_t preallocSize, size_t minAllocSize) {
     SkDEBUGCODE(fAllocationCnt = 0);
 
-    minAllocSize = GrMax<size_t>(minAllocSize, 1 << 10);
+    minAllocSize = SkTMax<size_t>(minAllocSize, 1 << 10);
     fMinAllocSize = GrSizeAlignUp(minAllocSize + kPerAllocPad, kAlignment),
     fPreallocSize = GrSizeAlignUp(preallocSize + kPerAllocPad, kAlignment);
-    fPreallocSize = GrMax(fPreallocSize, fMinAllocSize);
+    fPreallocSize = SkTMax(fPreallocSize, fMinAllocSize);
 
     fHead = CreateBlock(fPreallocSize);
     fTail = fHead;
@@ -42,7 +42,7 @@ void* GrMemoryPool::allocate(size_t size) {
     size += kPerAllocPad;
     if (fTail->fFreeSize < size) {
         size_t blockSize = size;
-        blockSize = GrMax<size_t>(blockSize, fMinAllocSize);
+        blockSize = SkTMax<size_t>(blockSize, fMinAllocSize);
         BlockHeader* block = CreateBlock(blockSize);
 
         block->fPrev = fTail;

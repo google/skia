@@ -302,7 +302,7 @@ int num_quad_subdivs(const SkPoint p[3]) {
 
         // +1 since we're ignoring the mantissa contribution.
         int log = get_float_exp(dsqd/(gSubdivTol*gSubdivTol)) + 1;
-        log = GrMin(GrMax(0, log), kMaxSub);
+        log = SkTMin(SkTMax(0, log), kMaxSub);
         return log;
     }
 }
@@ -333,8 +333,8 @@ int generate_lines_and_quads(const SkPath& path,
     bool persp = m.hasPerspective();
 
     for (;;) {
-        GrPoint pathPts[4];
-        GrPoint devPts[4];
+        SkPoint pathPts[4];
+        SkPoint devPts[4];
         SkPath::Verb verb = iter.next(pathPts);
         switch (verb) {
             case SkPath::kConic_Verb: {
@@ -486,26 +486,26 @@ int generate_lines_and_quads(const SkPath& path,
 }
 
 struct LineVertex {
-    GrPoint fPos;
+    SkPoint fPos;
     GrColor fCoverage;
 };
 
 struct BezierVertex {
-    GrPoint fPos;
+    SkPoint fPos;
     union {
         struct {
             SkScalar fK;
             SkScalar fL;
             SkScalar fM;
         } fConic;
-        GrVec   fQuadCoord;
+        SkVector   fQuadCoord;
         struct {
             SkScalar fBogus[4];
         };
     };
 };
 
-GR_STATIC_ASSERT(sizeof(BezierVertex) == 3 * sizeof(GrPoint));
+GR_STATIC_ASSERT(sizeof(BezierVertex) == 3 * sizeof(SkPoint));
 
 void intersect_lines(const SkPoint& ptA, const SkVector& normA,
                      const SkPoint& ptB, const SkVector& normB,
@@ -528,7 +528,7 @@ void intersect_lines(const SkPoint& ptA, const SkVector& normA,
 void set_uv_quad(const SkPoint qpts[3], BezierVertex verts[kVertsPerQuad]) {
     // this should be in the src space, not dev coords, when we have perspective
     GrPathUtils::QuadUVMatrix DevToUV(qpts);
-    DevToUV.apply<kVertsPerQuad, sizeof(BezierVertex), sizeof(GrPoint)>(verts);
+    DevToUV.apply<kVertsPerQuad, sizeof(BezierVertex), sizeof(SkPoint)>(verts);
 }
 
 void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
@@ -708,13 +708,13 @@ namespace {
 // position + edge
 extern const GrVertexAttrib gHairlineBezierAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,                  kPosition_GrVertexAttribBinding},
-    {kVec4f_GrVertexAttribType, sizeof(GrPoint),    kEffect_GrVertexAttribBinding}
+    {kVec4f_GrVertexAttribType, sizeof(SkPoint),    kEffect_GrVertexAttribBinding}
 };
 
 // position + coverage
 extern const GrVertexAttrib gHairlineLineAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
-    {kVec4ub_GrVertexAttribType, sizeof(GrPoint), kCoverage_GrVertexAttribBinding},
+    {kVec4ub_GrVertexAttribType, sizeof(SkPoint), kCoverage_GrVertexAttribBinding},
 };
 
 };
@@ -949,7 +949,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
             target->setIndexSourceToBuffer(fLinesIndexBuffer);
             int lines = 0;
             while (lines < lineCnt) {
-                int n = GrMin(lineCnt - lines, kNumLineSegsInIdxBuffer);
+                int n = SkTMin(lineCnt - lines, kNumLineSegsInIdxBuffer);
                 target->drawIndexed(kTriangles_GrPrimitiveType,
                                     kVertsPerLineSeg*lines,     // startV
                                     0,                          // startI
@@ -1005,7 +1005,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
             drawState->addCoverageEffect(hairQuadEffect, kEdgeAttrIndex)->unref();
             int quads = 0;
             while (quads < quadCnt) {
-                int n = GrMin(quadCnt - quads, kNumQuadsInIdxBuffer);
+                int n = SkTMin(quadCnt - quads, kNumQuadsInIdxBuffer);
                 target->drawIndexed(kTriangles_GrPrimitiveType,
                                     kVertsPerQuad*quads,               // startV
                                     0,                                 // startI
@@ -1024,7 +1024,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const SkPath& path,
             drawState->addCoverageEffect(hairConicEffect, 1, 2)->unref();
             int conics = 0;
             while (conics < conicCnt) {
-                int n = GrMin(conicCnt - conics, kNumQuadsInIdxBuffer);
+                int n = SkTMin(conicCnt - conics, kNumQuadsInIdxBuffer);
                 target->drawIndexed(kTriangles_GrPrimitiveType,
                                     kVertsPerQuad*(quadCnt + conics),  // startV
                                     0,                                 // startI

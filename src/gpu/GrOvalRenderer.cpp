@@ -25,23 +25,23 @@
 namespace {
 
 struct CircleVertex {
-    GrPoint  fPos;
-    GrPoint  fOffset;
+    SkPoint  fPos;
+    SkPoint  fOffset;
     SkScalar fOuterRadius;
     SkScalar fInnerRadius;
 };
 
 struct EllipseVertex {
-    GrPoint  fPos;
-    GrPoint  fOffset;
-    GrPoint  fOuterRadii;
-    GrPoint  fInnerRadii;
+    SkPoint  fPos;
+    SkPoint  fOffset;
+    SkPoint  fOuterRadii;
+    SkPoint  fInnerRadii;
 };
 
 struct DIEllipseVertex {
-    GrPoint  fPos;
-    GrPoint  fOuterOffset;
-    GrPoint  fInnerOffset;
+    SkPoint  fPos;
+    SkPoint  fOuterOffset;
+    SkPoint  fInnerOffset;
 };
 
 inline bool circle_stays_circle(const SkMatrix& m) {
@@ -492,7 +492,7 @@ bool GrOvalRenderer::drawOval(GrDrawTarget* target, const GrContext* context, bo
 // position + edge
 extern const GrVertexAttrib gCircleVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-    {kVec4f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
+    {kVec4f_GrVertexAttribType, sizeof(SkPoint), kEffect_GrVertexAttribBinding}
 };
 
 void GrOvalRenderer::drawCircle(GrDrawTarget* target,
@@ -503,7 +503,7 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
     GrDrawState* drawState = target->drawState();
 
     const SkMatrix& vm = drawState->getViewMatrix();
-    GrPoint center = GrPoint::Make(circle.centerX(), circle.centerY());
+    SkPoint center = SkPoint::Make(circle.centerX(), circle.centerY());
     vm.mapPoints(&center, 1);
     SkScalar radius = vm.mapRadius(SkScalarHalf(circle.width()));
     SkScalar strokeWidth = vm.mapRadius(stroke.getWidth());
@@ -589,15 +589,15 @@ void GrOvalRenderer::drawCircle(GrDrawTarget* target,
 // position + offset + 1/radii
 extern const GrVertexAttrib gEllipseVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding},
-    {kVec4f_GrVertexAttribType, 2*sizeof(GrPoint), kEffect_GrVertexAttribBinding}
+    {kVec2f_GrVertexAttribType, sizeof(SkPoint),   kEffect_GrVertexAttribBinding},
+    {kVec4f_GrVertexAttribType, 2*sizeof(SkPoint), kEffect_GrVertexAttribBinding}
 };
 
 // position + offsets
 extern const GrVertexAttrib gDIEllipseVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, 2*sizeof(GrPoint), kEffect_GrVertexAttribBinding},
+    {kVec2f_GrVertexAttribType, sizeof(SkPoint),   kEffect_GrVertexAttribBinding},
+    {kVec2f_GrVertexAttribType, 2*sizeof(SkPoint), kEffect_GrVertexAttribBinding},
 };
 
 bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
@@ -616,7 +616,7 @@ bool GrOvalRenderer::drawEllipse(GrDrawTarget* target,
 
     // do any matrix crunching before we reset the draw state for device coords
     const SkMatrix& vm = drawState->getViewMatrix();
-    GrPoint center = GrPoint::Make(ellipse.centerX(), ellipse.centerY());
+    SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
     vm.mapPoints(&center, 1);
     SkScalar ellipseXRadius = SkScalarHalf(ellipse.width());
     SkScalar ellipseYRadius = SkScalarHalf(ellipse.height());
@@ -740,7 +740,7 @@ bool GrOvalRenderer::drawDIEllipse(GrDrawTarget* target,
     GrDrawState* drawState = target->drawState();
     const SkMatrix& vm = drawState->getViewMatrix();
 
-    GrPoint center = GrPoint::Make(ellipse.centerX(), ellipse.centerY());
+    SkPoint center = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
     SkScalar xRadius = SkScalarHalf(ellipse.width());
     SkScalar yRadius = SkScalarHalf(ellipse.height());
 
@@ -1031,7 +1031,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
         }
 
         // drop out the middle quad if we're stroked
-        int indexCnt = isStroked ? GR_ARRAY_COUNT(gRRectIndices)-6 : GR_ARRAY_COUNT(gRRectIndices);
+        int indexCnt = isStroked ? SK_ARRAY_COUNT(gRRectIndices)-6 : SK_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
         target->drawIndexed(kTriangles_GrPrimitiveType, 0, 0, 16, indexCnt, &bounds);
 
@@ -1140,7 +1140,7 @@ bool GrOvalRenderer::drawSimpleRRect(GrDrawTarget* target, GrContext* context, b
         }
 
         // drop out the middle quad if we're stroked
-        int indexCnt = isStroked ? GR_ARRAY_COUNT(gRRectIndices)-6 : GR_ARRAY_COUNT(gRRectIndices);
+        int indexCnt = isStroked ? SK_ARRAY_COUNT(gRRectIndices)-6 : SK_ARRAY_COUNT(gRRectIndices);
         target->setIndexSourceToBuffer(indexBuffer);
         target->drawIndexed(kTriangles_GrPrimitiveType, 0, 0, 16, indexCnt, &bounds);
     }

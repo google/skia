@@ -80,7 +80,7 @@ public:
      * removes all added items
      */
     void reset() {
-        int blockCount = GrMax((unsigned)1,
+        int blockCount = SkTMax((unsigned)1,
                                GrUIDivRoundUp(fCount, fItemsPerBlock));
         for (int i = 1; i < blockCount; ++i) {
             sk_free(fBlocks[i]);

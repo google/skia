@@ -76,7 +76,7 @@ void GrDistanceFieldTextContext::flushGlyphs() {
 
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
-        SkASSERT(GrIsALIGN4(fCurrVertex));
+        SkASSERT(SkIsAlign4(fCurrVertex));
         SkASSERT(fCurrTexture);
         GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
 
@@ -126,13 +126,13 @@ namespace {
 // position + texture coord
 extern const GrVertexAttrib gTextVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
+    {kVec2f_GrVertexAttribType, sizeof(SkPoint), kEffect_GrVertexAttribBinding}
 };
 
 };
 
 void GrDistanceFieldTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
-                                                 GrFixed vx, GrFixed vy,
+                                                 SkFixed vx, SkFixed vy,
                                                  GrFontScaler* scaler) {
     if (NULL == fDrawTarget) {
         return;
@@ -257,7 +257,7 @@ HAS_ATLAS:
                                                                GrTCast<void**>(&fVertices),
                                                                NULL);
         GrAlwaysAssert(success);
-        SkASSERT(2*sizeof(GrPoint) == fDrawTarget->getDrawState().getVertexSize());
+        SkASSERT(2*sizeof(SkPoint) == fDrawTarget->getDrawState().getVertexSize());
     }
 
     SkScalar dx = SkIntToScalar(glyph->fBounds.fLeft);
@@ -273,10 +273,10 @@ HAS_ATLAS:
     width *= scale;
     height *= scale;
 
-    GrFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
-    GrFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
-    GrFixed tw = SkIntToFixed(glyph->fBounds.width());
-    GrFixed th = SkIntToFixed(glyph->fBounds.height());
+    SkFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
+    SkFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
+    SkFixed tw = SkIntToFixed(glyph->fBounds.width());
+    SkFixed th = SkIntToFixed(glyph->fBounds.height());
 
     static const size_t kVertexSize = 2 * sizeof(SkPoint);
     fVertices[2*fCurrVertex].setRectFan(sx,

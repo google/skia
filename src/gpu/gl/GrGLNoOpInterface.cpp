@@ -37,11 +37,11 @@ const GrGLubyte* combined_extensions_string() {
     static SkMutex gMutex;
     gMutex.acquire();
     if (0 == gExtString.size()) {
-        for (size_t i = 0; i < GR_ARRAY_COUNT(kExtensions) - 1; ++i) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(kExtensions) - 1; ++i) {
             gExtString.append(kExtensions[i]);
             gExtString.append(" ");
         }
-        gExtString.append(kExtensions[GR_ARRAY_COUNT(kExtensions) - 1]);
+        gExtString.append(kExtensions[SK_ARRAY_COUNT(kExtensions) - 1]);
     }
     gMutex.release();
     return (const GrGLubyte*) gExtString.c_str();
@@ -509,7 +509,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetIntegerv(GrGLenum pname, GrGLint* params) 
             *params = kDefaultMaxVaryingVectors;
             break;
         case GR_GL_NUM_EXTENSIONS:
-            *params = GR_ARRAY_COUNT(kExtensions);
+            *params = SK_ARRAY_COUNT(kExtensions);
             break;
         default:
             GrCrash("Unexpected pname to GetIntegerv");
@@ -623,7 +623,7 @@ const GrGLubyte* GR_GL_FUNCTION_TYPE noOpGLGetString(GrGLenum name) {
 const GrGLubyte* GR_GL_FUNCTION_TYPE noOpGLGetStringi(GrGLenum name, GrGLuint i) {
     switch (name) {
         case GR_GL_EXTENSIONS:
-            if (static_cast<size_t>(i) <= GR_ARRAY_COUNT(kExtensions)) {
+            if (static_cast<size_t>(i) <= SK_ARRAY_COUNT(kExtensions)) {
                 return (const GrGLubyte*) kExtensions[i];
             } else {
                 return NULL;

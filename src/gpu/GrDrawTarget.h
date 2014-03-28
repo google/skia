@@ -607,8 +607,8 @@ public:
         bool succeeded() const { return NULL != fTarget; }
         void* vertices() const { SkASSERT(this->succeeded()); return fVertices; }
         void* indices() const { SkASSERT(this->succeeded()); return fIndices; }
-        GrPoint* positions() const {
-            return static_cast<GrPoint*>(this->vertices());
+        SkPoint* positions() const {
+            return static_cast<SkPoint*>(this->vertices());
         }
 
     private:

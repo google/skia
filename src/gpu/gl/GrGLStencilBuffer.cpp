@@ -17,7 +17,7 @@ size_t GrGLStencilBuffer::sizeInBytes() const {
     uint64_t size = this->width();
     size *= this->height();
     size *= fFormat.fTotalBits;
-    size *= GrMax(1,this->numSamples());
+    size *= SkTMax(1,this->numSamples());
     return static_cast<size_t>(size / 8);
 }
 

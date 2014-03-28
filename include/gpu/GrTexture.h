@@ -99,11 +99,11 @@ public:
      * Convert from texels to normalized texture coords for POT textures
      * only.
      */
-    GrFixed normalizeFixedX(GrFixed x) const {
+    SkFixed normalizeFixedX(SkFixed x) const {
         SkASSERT(GrIsPow2(fDesc.fWidth));
         return x >> fShiftFixedX;
     }
-    GrFixed normalizeFixedY(GrFixed y) const {
+    SkFixed normalizeFixedY(SkFixed y) const {
         SkASSERT(GrIsPow2(fDesc.fHeight));
         return y >> fShiftFixedY;
     }

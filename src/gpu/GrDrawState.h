@@ -185,20 +185,20 @@ public:
      *                      Defaults to zero (corresponding to vertex position)
      * @return pointer to the vertex component as a GrPoint
      */
-    static GrPoint* GetVertexPoint(void* vertices,
+    static SkPoint* GetVertexPoint(void* vertices,
                                    int vertexIndex,
                                    int vertexSize,
                                    int offset = 0) {
         intptr_t start = GrTCast<intptr_t>(vertices);
-        return GrTCast<GrPoint*>(start + offset +
+        return GrTCast<SkPoint*>(start + offset +
                                  vertexIndex * vertexSize);
     }
-    static const GrPoint* GetVertexPoint(const void* vertices,
+    static const SkPoint* GetVertexPoint(const void* vertices,
                                          int vertexIndex,
                                          int vertexSize,
                                          int offset = 0) {
         intptr_t start = GrTCast<intptr_t>(vertices);
-        return GrTCast<const GrPoint*>(start + offset +
+        return GrTCast<const SkPoint*>(start + offset +
                                        vertexIndex * vertexSize);
     }
 

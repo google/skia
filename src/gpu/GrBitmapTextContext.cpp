@@ -69,7 +69,7 @@ void GrBitmapTextContext::flushGlyphs() {
 
     if (fCurrVertex > 0) {
         // setup our sampler state for our text texture/atlas
-        SkASSERT(GrIsALIGN4(fCurrVertex));
+        SkASSERT(SkIsAlign4(fCurrVertex));
         SkASSERT(fCurrTexture);
         GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kNone_FilterMode);
 
@@ -475,13 +475,13 @@ namespace {
 // position + texture coord
 extern const GrVertexAttrib gTextVertexAttribs[] = {
     {kVec2f_GrVertexAttribType, 0,               kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
+    {kVec2f_GrVertexAttribType, sizeof(SkPoint), kEffect_GrVertexAttribBinding}
 };
 
 };
 
 void GrBitmapTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
-                                          GrFixed vx, GrFixed vy,
+                                          SkFixed vx, SkFixed vy,
                                           GrFontScaler* scaler) {
     if (NULL == fDrawTarget) {
         return;
@@ -500,8 +500,8 @@ void GrBitmapTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
     vy += SkIntToFixed(glyph->fBounds.fTop);
 
     // keep them as ints until we've done the clip-test
-    GrFixed width = glyph->fBounds.width();
-    GrFixed height = glyph->fBounds.height();
+    SkFixed width = glyph->fBounds.width();
+    SkFixed height = glyph->fBounds.height();
 
     // check if we clipped out
     if (true || NULL == glyph->fPlot) {
@@ -608,11 +608,11 @@ HAS_ATLAS:
                                                                GrTCast<void**>(&fVertices),
                                                                NULL);
         GrAlwaysAssert(success);
-        SkASSERT(2*sizeof(GrPoint) == fDrawTarget->getDrawState().getVertexSize());
+        SkASSERT(2*sizeof(SkPoint) == fDrawTarget->getDrawState().getVertexSize());
     }
 
-    GrFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
-    GrFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
+    SkFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
+    SkFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
 
     SkRect r;
     r.fLeft = SkFixedToFloat(vx);

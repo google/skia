@@ -67,7 +67,7 @@ namespace {
     void append_tabs(SkString* outAppend, int tabCnt) {
         static const char kTabs[] = "\t\t\t\t\t\t\t\t";
         while (tabCnt) {
-            int cnt = GrMin((int)GR_ARRAY_COUNT(kTabs), tabCnt);
+            int cnt = SkTMin((int)SK_ARRAY_COUNT(kTabs), tabCnt);
             outAppend->append(kTabs, cnt);
             tabCnt -= cnt;
         }

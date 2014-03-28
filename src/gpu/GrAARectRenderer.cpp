@@ -261,12 +261,12 @@ namespace {
 
 extern const GrVertexAttrib gAARectCoverageAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
-    {kVec4ub_GrVertexAttribType, sizeof(GrPoint), kCoverage_GrVertexAttribBinding},
+    {kVec4ub_GrVertexAttribType, sizeof(SkPoint), kCoverage_GrVertexAttribBinding},
 };
 
 extern const GrVertexAttrib gAARectColorAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
-    {kVec4ub_GrVertexAttribType, sizeof(GrPoint), kColor_GrVertexAttribBinding},
+    {kVec4ub_GrVertexAttribType, sizeof(SkPoint), kColor_GrVertexAttribBinding},
 };
 
 static void set_aa_rect_vertex_attributes(GrDrawState* drawState, bool useCoverage) {
@@ -277,7 +277,7 @@ static void set_aa_rect_vertex_attributes(GrDrawState* drawState, bool useCovera
     }
 }
 
-static void set_inset_fan(GrPoint* pts, size_t stride,
+static void set_inset_fan(SkPoint* pts, size_t stride,
                           const SkRect& r, SkScalar dx, SkScalar dy) {
     pts->setRectFan(r.fLeft + dx, r.fTop + dy,
                     r.fRight - dx, r.fBottom - dy, stride);
@@ -299,7 +299,7 @@ static const uint16_t gFillAARectIdx[] = {
     4, 5, 6, 6, 7, 4,
 };
 
-static const int kIndicesPerAAFillRect = GR_ARRAY_COUNT(gFillAARectIdx);
+static const int kIndicesPerAAFillRect = SK_ARRAY_COUNT(gFillAARectIdx);
 static const int kVertsPerAAFillRect = 8;
 static const int kNumAAFillRectsInIndexBuffer = 256;
 
@@ -414,8 +414,8 @@ static const uint16_t gBevelStrokeAARectIdx[] = {
 };
 
 int GrAARectRenderer::aaStrokeRectIndexCount(bool miterStroke) {
-    return miterStroke ? GR_ARRAY_COUNT(gMiterStrokeAARectIdx) :
-                         GR_ARRAY_COUNT(gBevelStrokeAARectIdx);
+    return miterStroke ? SK_ARRAY_COUNT(gMiterStrokeAARectIdx) :
+                         SK_ARRAY_COUNT(gBevelStrokeAARectIdx);
 }
 
 GrIndexBuffer* GrAARectRenderer::aaStrokeRectIndexBuffer(GrGpu* gpu, bool miterStroke) {
@@ -474,10 +474,10 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
     size_t vsize = drawState->getVertexSize();
-    SkASSERT(sizeof(GrPoint) + sizeof(GrColor) == vsize);
+    SkASSERT(sizeof(SkPoint) + sizeof(GrColor) == vsize);
 
-    GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
-    GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
+    SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
+    SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + 4 * vsize);
 
     SkScalar inset = SkMinScalar(devRect.width(), SK_Scalar1);
     inset = SK_ScalarHalf * SkMinScalar(inset, devRect.height());
@@ -531,7 +531,7 @@ void GrAARectRenderer::geometryFillAARect(GrGpu* gpu,
         *((SkPoint*)((intptr_t)fan0Pos + 3 * vsize)) += vec[0] - vec[1];
     }
 
-    verts += sizeof(GrPoint);
+    verts += sizeof(SkPoint);
     for (int i = 0; i < 4; ++i) {
         *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
     }
@@ -571,30 +571,30 @@ namespace {
 
 // Rotated
 struct RectVertex {
-    GrPoint fPos;
-    GrPoint fCenter;
-    GrPoint fDir;
-    GrPoint fWidthHeight;
+    SkPoint fPos;
+    SkPoint fCenter;
+    SkPoint fDir;
+    SkPoint fWidthHeight;
 };
 
 // Rotated
 extern const GrVertexAttrib gAARectVertexAttribs[] = {
     { kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding },
-    { kVec4f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding },
-    { kVec2f_GrVertexAttribType, 3*sizeof(GrPoint), kEffect_GrVertexAttribBinding }
+    { kVec4f_GrVertexAttribType, sizeof(SkPoint),   kEffect_GrVertexAttribBinding },
+    { kVec2f_GrVertexAttribType, 3*sizeof(SkPoint), kEffect_GrVertexAttribBinding }
 };
 
 // Axis Aligned
 struct AARectVertex {
-    GrPoint fPos;
-    GrPoint fOffset;
-    GrPoint fWidthHeight;
+    SkPoint fPos;
+    SkPoint fOffset;
+    SkPoint fWidthHeight;
 };
 
 // Axis Aligned
 extern const GrVertexAttrib gAAAARectVertexAttribs[] = {
     { kVec2f_GrVertexAttribType, 0,                 kPosition_GrVertexAttribBinding },
-    { kVec4f_GrVertexAttribType, sizeof(GrPoint),   kEffect_GrVertexAttribBinding },
+    { kVec4f_GrVertexAttribType, sizeof(SkPoint),   kEffect_GrVertexAttribBinding },
 };
 
 };
@@ -695,7 +695,7 @@ void GrAARectRenderer::shaderFillAlignedAARect(GrGpu* gpu,
         devRect.fBottom + SK_ScalarHalf
     };
 
-    GrPoint widthHeight = {
+    SkPoint widthHeight = {
         SkScalarHalf(devRect.width()) + SK_ScalarHalf,
         SkScalarHalf(devRect.height()) + SK_ScalarHalf
     };
@@ -728,7 +728,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
                                     const SkRect& devRect,
                                     const SkStrokeRec* stroke,
                                     bool useVertexCoverage) {
-    GrVec devStrokeSize;
+    SkVector devStrokeSize;
     SkScalar width = stroke->getWidth();
     if (width > 0) {
         devStrokeSize.set(width, width);
@@ -755,7 +755,7 @@ void GrAARectRenderer::strokeAARect(GrGpu* gpu,
     {
         SkScalar w = devRect.width() - dx;
         SkScalar h = devRect.height() - dy;
-        spare = GrMin(w, h);
+        spare = SkTMin(w, h);
     }
 
     SkRect devOutside(devRect);
@@ -818,15 +818,15 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
     size_t vsize = drawState->getVertexSize();
-    SkASSERT(sizeof(GrPoint) + sizeof(GrColor) == vsize);
+    SkASSERT(sizeof(SkPoint) + sizeof(GrColor) == vsize);
 
     // We create vertices for four nested rectangles. There are two ramps from 0 to full
     // coverage, one on the exterior of the stroke and the other on the interior.
     // The following pointers refer to the four rects, from outermost to innermost.
-    GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
-    GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + outerVertexNum * vsize);
-    GrPoint* fan2Pos = reinterpret_cast<GrPoint*>(verts + 2 * outerVertexNum * vsize);
-    GrPoint* fan3Pos = reinterpret_cast<GrPoint*>(verts + (2 * outerVertexNum + innerVertexNum) * vsize);
+    SkPoint* fan0Pos = reinterpret_cast<SkPoint*>(verts);
+    SkPoint* fan1Pos = reinterpret_cast<SkPoint*>(verts + outerVertexNum * vsize);
+    SkPoint* fan2Pos = reinterpret_cast<SkPoint*>(verts + 2 * outerVertexNum * vsize);
+    SkPoint* fan3Pos = reinterpret_cast<SkPoint*>(verts + (2 * outerVertexNum + innerVertexNum) * vsize);
 
 #ifndef SK_IGNORE_THIN_STROKED_RECT_FIX
     // TODO: this only really works if the X & Y margins are the same all around
@@ -853,8 +853,8 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
         // innermost
         set_inset_fan(fan3Pos, vsize, devInside,   SK_ScalarHalf,  SK_ScalarHalf);
     } else {
-        GrPoint* fan0AssistPos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
-        GrPoint* fan1AssistPos = reinterpret_cast<GrPoint*>(verts + (outerVertexNum + 4) * vsize);
+        SkPoint* fan0AssistPos = reinterpret_cast<SkPoint*>(verts + 4 * vsize);
+        SkPoint* fan1AssistPos = reinterpret_cast<SkPoint*>(verts + (outerVertexNum + 4) * vsize);
         // outermost
         set_inset_fan(fan0Pos, vsize, devOutside, -SK_ScalarHalf, -SK_ScalarHalf);
         set_inset_fan(fan0AssistPos, vsize, devOutsideAssist, -SK_ScalarHalf, -SK_ScalarHalf);
@@ -868,7 +868,7 @@ void GrAARectRenderer::geometryStrokeAARect(GrGpu* gpu,
     }
 
     // The outermost rect has 0 coverage
-    verts += sizeof(GrPoint);
+    verts += sizeof(SkPoint);
     for (int i = 0; i < outerVertexNum; ++i) {
         *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
     }

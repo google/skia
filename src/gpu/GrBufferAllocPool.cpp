@@ -28,7 +28,7 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
                                      bool frequentResetHint,
                                      size_t blockSize,
                                      int preallocBufferCnt) :
-        fBlocks(GrMax(8, 2*preallocBufferCnt)) {
+        fBlocks(SkTMax(8, 2*preallocBufferCnt)) {
 
     SkASSERT(NULL != gpu);
     fGpu = gpu;
@@ -38,7 +38,7 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
     fBufferType = bufferType;
     fFrequentResetHint = frequentResetHint;
     fBufferPtr = NULL;
-    fMinBlockSize = GrMax(GrBufferAllocPool_MIN_BLOCK_SIZE, blockSize);
+    fMinBlockSize = SkTMax(GrBufferAllocPool_MIN_BLOCK_SIZE, blockSize);
 
     fBytesInUse = 0;
 
@@ -258,7 +258,7 @@ void GrBufferAllocPool::putBack(size_t bytes) {
 
 bool GrBufferAllocPool::createBlock(size_t requestSize) {
 
-    size_t size = GrMax(requestSize, fMinBlockSize);
+    size_t size = SkTMax(requestSize, fMinBlockSize);
     SkASSERT(size >= GrBufferAllocPool_MIN_BLOCK_SIZE);
 
     VALIDATE();

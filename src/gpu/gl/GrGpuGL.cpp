@@ -81,7 +81,7 @@ bool GrGpuGL::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
     };
     return gCoeffReferencesBlendConst[coeff];
     GR_STATIC_ASSERT(kTotalGrBlendCoeffCount ==
-                     GR_ARRAY_COUNT(gCoeffReferencesBlendConst));
+                     SK_ARRAY_COUNT(gCoeffReferencesBlendConst));
 
     GR_STATIC_ASSERT(0 == kZero_GrBlendCoeff);
     GR_STATIC_ASSERT(1 == kOne_GrBlendCoeff);
@@ -105,7 +105,7 @@ bool GrGpuGL::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
 
     // assertion for gXfermodeCoeff2Blend have to be in GrGpu scope
     GR_STATIC_ASSERT(kTotalGrBlendCoeffCount ==
-                     GR_ARRAY_COUNT(gXfermodeCoeff2Blend));
+                     SK_ARRAY_COUNT(gXfermodeCoeff2Blend));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -879,7 +879,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         return return_null_texture();
     }
     // If the sample count exceeds the max then we clamp it.
-    glTexDesc.fSampleCnt = GrMin(desc.fSampleCnt, this->caps()->maxSampleCount());
+    glTexDesc.fSampleCnt = SkTMin(desc.fSampleCnt, this->caps()->maxSampleCount());
 
     glTexDesc.fFlags  = desc.fFlags;
     glTexDesc.fWidth  = desc.fWidth;
@@ -1598,7 +1598,7 @@ void GrGpuGL::onGpuDraw(const DrawInfo& info) {
     size_t indexOffsetInBytes;
     this->setupGeometry(info, &indexOffsetInBytes);
 
-    SkASSERT((size_t)info.primitiveType() < GR_ARRAY_COUNT(gPrimitiveType2GLMode));
+    SkASSERT((size_t)info.primitiveType() < SK_ARRAY_COUNT(gPrimitiveType2GLMode));
 
     if (info.isIndexed()) {
         GrGLvoid* indices =
@@ -1859,7 +1859,7 @@ GrGLenum gr_to_gl_stencil_func(GrStencilFunc basicFunc) {
         GR_GL_EQUAL,            // kEqual_StencilFunc,
         GR_GL_NOTEQUAL,         // kNotEqual_StencilFunc,
     };
-    GR_STATIC_ASSERT(GR_ARRAY_COUNT(gTable) == kBasicStencilFuncCount);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kBasicStencilFuncCount);
     GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
     GR_STATIC_ASSERT(1 == kNever_StencilFunc);
     GR_STATIC_ASSERT(2 == kGreater_StencilFunc);
@@ -1884,7 +1884,7 @@ GrGLenum gr_to_gl_stencil_op(GrStencilOp op) {
         GR_GL_ZERO,        // kZero_StencilOp
         GR_GL_INVERT,      // kInvert_StencilOp
     };
-    GR_STATIC_ASSERT(GR_ARRAY_COUNT(gTable) == kStencilOpCount);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kStencilOpCount);
     GR_STATIC_ASSERT(0 == kKeep_StencilOp);
     GR_STATIC_ASSERT(1 == kReplace_StencilOp);
     GR_STATIC_ASSERT(2 == kIncWrap_StencilOp);

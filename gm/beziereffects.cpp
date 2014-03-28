@@ -26,7 +26,7 @@
 namespace {
 extern const GrVertexAttrib kAttribs[] = {
     {kVec2f_GrVertexAttribType, 0, kPosition_GrVertexAttribBinding},
-    {kVec4f_GrVertexAttribType, sizeof(GrPoint), kEffect_GrVertexAttribBinding}
+    {kVec4f_GrVertexAttribType, sizeof(SkPoint), kEffect_GrVertexAttribBinding}
 };
 }
 
@@ -501,7 +501,7 @@ protected:
                                                   sizeof(Vertex));
 
                     GrPathUtils::QuadUVMatrix DevToUV(pts);
-                    DevToUV.apply<4, sizeof(Vertex), sizeof(GrPoint)>(verts);
+                    DevToUV.apply<4, sizeof(Vertex), sizeof(SkPoint)>(verts);
 
                     GrTestTarget tt;
                     context->getTestTarget(&tt);

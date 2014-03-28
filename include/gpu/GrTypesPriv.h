@@ -45,7 +45,7 @@ static inline int GrSLTypeVectorCount(GrSLType type) {
     GR_STATIC_ASSERT(5 == kMat33f_GrSLType);
     GR_STATIC_ASSERT(6 == kMat44f_GrSLType);
     GR_STATIC_ASSERT(7 == kSampler2D_GrSLType);
-    GR_STATIC_ASSERT(GR_ARRAY_COUNT(kCounts) == kGrSLTypeCount);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kCounts) == kGrSLTypeCount);
 }
 
 /** Return the type enum for a vector of floats of length n (1..4),
@@ -89,7 +89,7 @@ static inline int GrVertexAttribTypeVectorCount(GrVertexAttribType type) {
     GR_STATIC_ASSERT(2 == kVec3f_GrVertexAttribType);
     GR_STATIC_ASSERT(3 == kVec4f_GrVertexAttribType);
     GR_STATIC_ASSERT(4 == kVec4ub_GrVertexAttribType);
-    GR_STATIC_ASSERT(GR_ARRAY_COUNT(kCounts) == kGrVertexAttribTypeCount);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kCounts) == kGrVertexAttribTypeCount);
 }
 
 /**
@@ -111,7 +111,7 @@ static inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
     GR_STATIC_ASSERT(2 == kVec3f_GrVertexAttribType);
     GR_STATIC_ASSERT(3 == kVec4f_GrVertexAttribType);
     GR_STATIC_ASSERT(4 == kVec4ub_GrVertexAttribType);
-    GR_STATIC_ASSERT(GR_ARRAY_COUNT(kSizes) == kGrVertexAttribTypeCount);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kSizes) == kGrVertexAttribTypeCount);
 }
 
 /**

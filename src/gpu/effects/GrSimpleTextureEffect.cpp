@@ -73,7 +73,7 @@ GrEffectRef* GrSimpleTextureEffect::TestCreate(SkRandom* random,
         kLocal_GrCoordSet,
         kPosition_GrCoordSet
     };
-    GrCoordSet coordSet = kCoordSets[random->nextULessThan(GR_ARRAY_COUNT(kCoordSets))];
+    GrCoordSet coordSet = kCoordSets[random->nextULessThan(SK_ARRAY_COUNT(kCoordSets))];
 
     const SkMatrix& matrix = GrEffectUnitTest::TestMatrix(random);
     return GrSimpleTextureEffect::Create(textures[texIdx], matrix, coordSet);

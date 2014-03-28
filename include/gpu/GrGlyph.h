@@ -50,22 +50,22 @@ struct GrGlyph {
 
     ///////////////////////////////////////////////////////////////////////////
 
-    static inline unsigned ExtractSubPixelBitsFromFixed(GrFixed pos) {
+    static inline unsigned ExtractSubPixelBitsFromFixed(SkFixed pos) {
         // two most significant fraction bits from fixed-point
         return (pos >> 14) & 3;
     }
 
-    static inline PackedID Pack(uint16_t glyphID, GrFixed x, GrFixed y) {
+    static inline PackedID Pack(uint16_t glyphID, SkFixed x, SkFixed y) {
         x = ExtractSubPixelBitsFromFixed(x);
         y = ExtractSubPixelBitsFromFixed(y);
         return (x << 18) | (y << 16) | glyphID;
     }
 
-    static inline GrFixed UnpackFixedX(PackedID packed) {
+    static inline SkFixed UnpackFixedX(PackedID packed) {
         return ((packed >> 18) & 3) << 14;
     }
 
-    static inline GrFixed UnpackFixedY(PackedID packed) {
+    static inline SkFixed UnpackFixedY(PackedID packed) {
         return ((packed >> 16) & 3) << 14;
     }
 

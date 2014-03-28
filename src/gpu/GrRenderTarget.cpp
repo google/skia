@@ -73,7 +73,7 @@ size_t GrRenderTarget::sizeInBytes() const {
     uint64_t size = fDesc.fWidth;
     size *= fDesc.fHeight;
     size *= colorBits;
-    size *= GrMax(1, fDesc.fSampleCnt);
+    size *= SkTMax(1, fDesc.fSampleCnt);
     return (size_t)(size / 8);
 }
 

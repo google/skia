@@ -62,13 +62,13 @@ void get_vertex_bounds(const void* vertices,
                        size_t vertexSize,
                        int vertexCount,
                        SkRect* bounds) {
-    SkASSERT(vertexSize >= sizeof(GrPoint));
+    SkASSERT(vertexSize >= sizeof(SkPoint));
     SkASSERT(vertexCount > 0);
-    const GrPoint* point = static_cast<const GrPoint*>(vertices);
+    const SkPoint* point = static_cast<const SkPoint*>(vertices);
     bounds->fLeft = bounds->fRight = point->fX;
     bounds->fTop = bounds->fBottom = point->fY;
     for (int i = 1; i < vertexCount; ++i) {
-        point = reinterpret_cast<GrPoint*>(reinterpret_cast<intptr_t>(point) + vertexSize);
+        point = reinterpret_cast<SkPoint*>(reinterpret_cast<intptr_t>(point) + vertexSize);
         bounds->growToInclude(point->fX, point->fY);
     }
 }
@@ -79,14 +79,14 @@ namespace {
 
 extern const GrVertexAttrib kRectPosColorUVAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,               kPosition_GrVertexAttribBinding},
-    {kVec4ub_GrVertexAttribType, sizeof(GrPoint), kColor_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType,  sizeof(GrPoint)+sizeof(GrColor),
+    {kVec4ub_GrVertexAttribType, sizeof(SkPoint), kColor_GrVertexAttribBinding},
+    {kVec2f_GrVertexAttribType,  sizeof(SkPoint)+sizeof(GrColor),
                                                   kLocalCoord_GrVertexAttribBinding},
 };
 
 extern const GrVertexAttrib kRectPosUVAttribs[] = {
     {kVec2f_GrVertexAttribType,  0,              kPosition_GrVertexAttribBinding},
-    {kVec2f_GrVertexAttribType, sizeof(GrPoint), kLocalCoord_GrVertexAttribBinding},
+    {kVec2f_GrVertexAttribType, sizeof(SkPoint), kLocalCoord_GrVertexAttribBinding},
 };
 
 static void set_vertex_attributes(GrDrawState* drawState,
@@ -102,14 +102,14 @@ static void set_vertex_attributes(GrDrawState* drawState,
     // dual-source blending isn't available. This comes into play when there is coverage. If colors
     // were a stage it could take a hint that every vertex's color will be opaque.
     if (hasColor && hasUVs) {
-        *colorOffset = sizeof(GrPoint);
-        *localOffset = sizeof(GrPoint) + sizeof(GrColor);
+        *colorOffset = sizeof(SkPoint);
+        *localOffset = sizeof(SkPoint) + sizeof(GrColor);
         drawState->setVertexAttribs<kRectPosColorUVAttribs>(3);
     } else if (hasColor) {
-        *colorOffset = sizeof(GrPoint);
+        *colorOffset = sizeof(SkPoint);
         drawState->setVertexAttribs<kRectPosColorUVAttribs>(2);
     } else if (hasUVs) {
-        *localOffset = sizeof(GrPoint);
+        *localOffset = sizeof(SkPoint);
         drawState->setVertexAttribs<kRectPosUVAttribs>(2);
     } else {
         drawState->setVertexAttribs<kRectPosUVAttribs>(1);
@@ -192,7 +192,7 @@ void GrInOrderDrawBuffer::onDrawRect(const SkRect& rect,
     get_vertex_bounds(geo.vertices(), vsize, 4, &devBounds);
 
     if (localOffset >= 0) {
-        GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(geo.vertices()) + localOffset);
+        SkPoint* coords = GrTCast<SkPoint*>(GrTCast<intptr_t>(geo.vertices()) + localOffset);
         coords->setRectFan(localRect->fLeft, localRect->fTop,
                            localRect->fRight, localRect->fBottom,
                             vsize);
@@ -300,12 +300,12 @@ int GrInOrderDrawBuffer::concatInstancedDraw(const DrawInfo& info) {
     // how many instances can be concat'ed onto draw given the size of the index buffer
     int instancesToConcat = this->indexCountInCurrentSource() / info.indicesPerInstance();
     instancesToConcat -= draw->instanceCount();
-    instancesToConcat = GrMin(instancesToConcat, info.instanceCount());
+    instancesToConcat = SkTMin(instancesToConcat, info.instanceCount());
 
     // update the amount of reserved vertex data actually referenced in draws
     size_t vertexBytes = instancesToConcat * info.verticesPerInstance() *
                          drawState.getVertexSize();
-    poolState.fUsedPoolVertexBytes = GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
+    poolState.fUsedPoolVertexBytes = SkTMax(poolState.fUsedPoolVertexBytes, vertexBytes);
 
     draw->adjustInstanceCount(instancesToConcat);
 
@@ -380,7 +380,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
         case kArray_GeometrySrcType: {
             size_t vertexBytes = (info.vertexCount() + info.startVertex()) *
                                  drawState.getVertexSize();
-            poolState.fUsedPoolVertexBytes = GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
+            poolState.fUsedPoolVertexBytes = SkTMax(poolState.fUsedPoolVertexBytes, vertexBytes);
             draw->fVertexBuffer = poolState.fPoolVertexBuffer;
             draw->adjustStartVertex(poolState.fPoolStartVertex);
             break;
@@ -398,7 +398,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
             case kReserved_GeometrySrcType: // fallthrough
             case kArray_GeometrySrcType: {
                 size_t indexBytes = (info.indexCount() + info.startIndex()) * sizeof(uint16_t);
-                poolState.fUsedPoolIndexBytes = GrMax(poolState.fUsedPoolIndexBytes, indexBytes);
+                poolState.fUsedPoolIndexBytes = SkTMax(poolState.fUsedPoolIndexBytes, indexBytes);
                 draw->fIndexBuffer = poolState.fPoolIndexBuffer;
                 draw->adjustStartIndex(poolState.fPoolStartIndex);
                 break;

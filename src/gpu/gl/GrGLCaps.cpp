@@ -310,7 +310,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     GR_GL_GetIntegerv(gli, GR_GL_MAX_RENDERBUFFER_SIZE, &fMaxRenderTargetSize);
     // Our render targets are always created with textures as the color
     // attachment, hence this min:
-    fMaxRenderTargetSize = GrMin(fMaxTextureSize, fMaxRenderTargetSize);
+    fMaxRenderTargetSize = SkTMin(fMaxTextureSize, fMaxRenderTargetSize);
 
     fPathRenderingSupport = ctxInfo.hasExtension("GL_NV_path_rendering");
     SkASSERT(!fPathRenderingSupport || fFixedFunctionSupport);
@@ -620,7 +620,7 @@ SkString GrGLCaps::dump() const {
     GR_STATIC_ASSERT(4 == kES_Apple_MSFBOType);
     GR_STATIC_ASSERT(5 == kES_IMG_MsToTexture_MSFBOType);
     GR_STATIC_ASSERT(6 == kES_EXT_MsToTexture_MSFBOType);
-    GR_STATIC_ASSERT(GR_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMSFBOExtStr) == kLast_MSFBOType + 1);
 
     static const char* kFBFetchTypeStr[] = {
         "None",
@@ -630,7 +630,7 @@ SkString GrGLCaps::dump() const {
     GR_STATIC_ASSERT(0 == kNone_FBFetchType);
     GR_STATIC_ASSERT(1 == kEXT_FBFetchType);
     GR_STATIC_ASSERT(2 == kNV_FBFetchType);
-    GR_STATIC_ASSERT(GR_ARRAY_COUNT(kFBFetchTypeStr) == kLast_FBFetchType + 1);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFBFetchTypeStr) == kLast_FBFetchType + 1);
 
 
     r.appendf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));

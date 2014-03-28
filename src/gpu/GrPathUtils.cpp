@@ -36,7 +36,7 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
 static const int MAX_POINTS_PER_CURVE = 1 << 10;
 static const SkScalar gMinCurveTol = 0.0001f;
 
-uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
+uint32_t GrPathUtils::quadraticPointCount(const SkPoint points[],
                                           SkScalar tol) {
     if (tol < gMinCurveTol) {
         tol = gMinCurveTol;
@@ -59,15 +59,15 @@ uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
         if (pow2 < 1) {
             pow2 = 1;
         }
-        return GrMin(pow2, MAX_POINTS_PER_CURVE);
+        return SkTMin(pow2, MAX_POINTS_PER_CURVE);
     }
 }
 
-uint32_t GrPathUtils::generateQuadraticPoints(const GrPoint& p0,
-                                              const GrPoint& p1,
-                                              const GrPoint& p2,
+uint32_t GrPathUtils::generateQuadraticPoints(const SkPoint& p0,
+                                              const SkPoint& p1,
+                                              const SkPoint& p2,
                                               SkScalar tolSqd,
-                                              GrPoint** points,
+                                              SkPoint** points,
                                               uint32_t pointsLeft) {
     if (pointsLeft < 2 ||
         (p1.distanceToLineSegmentBetweenSqd(p0, p2)) < tolSqd) {
@@ -76,11 +76,11 @@ uint32_t GrPathUtils::generateQuadraticPoints(const GrPoint& p0,
         return 1;
     }
 
-    GrPoint q[] = {
+    SkPoint q[] = {
         { SkScalarAve(p0.fX, p1.fX), SkScalarAve(p0.fY, p1.fY) },
         { SkScalarAve(p1.fX, p2.fX), SkScalarAve(p1.fY, p2.fY) },
     };
-    GrPoint r = { SkScalarAve(q[0].fX, q[1].fX), SkScalarAve(q[0].fY, q[1].fY) };
+    SkPoint r = { SkScalarAve(q[0].fX, q[1].fX), SkScalarAve(q[0].fY, q[1].fY) };
 
     pointsLeft >>= 1;
     uint32_t a = generateQuadraticPoints(p0, q[0], r, tolSqd, points, pointsLeft);
@@ -88,14 +88,14 @@ uint32_t GrPathUtils::generateQuadraticPoints(const GrPoint& p0,
     return a + b;
 }
 
-uint32_t GrPathUtils::cubicPointCount(const GrPoint points[],
+uint32_t GrPathUtils::cubicPointCount(const SkPoint points[],
                                            SkScalar tol) {
     if (tol < gMinCurveTol) {
         tol = gMinCurveTol;
     }
     SkASSERT(tol > 0);
 
-    SkScalar d = GrMax(
+    SkScalar d = SkTMax(
         points[1].distanceToLineSegmentBetweenSqd(points[0], points[3]),
         points[2].distanceToLineSegmentBetweenSqd(points[0], points[3]));
     d = SkScalarSqrt(d);
@@ -110,16 +110,16 @@ uint32_t GrPathUtils::cubicPointCount(const GrPoint points[],
         if (pow2 < 1) {
             pow2 = 1;
         }
-        return GrMin(pow2, MAX_POINTS_PER_CURVE);
+        return SkTMin(pow2, MAX_POINTS_PER_CURVE);
     }
 }
 
-uint32_t GrPathUtils::generateCubicPoints(const GrPoint& p0,
-                                          const GrPoint& p1,
-                                          const GrPoint& p2,
-                                          const GrPoint& p3,
+uint32_t GrPathUtils::generateCubicPoints(const SkPoint& p0,
+                                          const SkPoint& p1,
+                                          const SkPoint& p2,
+                                          const SkPoint& p3,
                                           SkScalar tolSqd,
-                                          GrPoint** points,
+                                          SkPoint** points,
                                           uint32_t pointsLeft) {
     if (pointsLeft < 2 ||
         (p1.distanceToLineSegmentBetweenSqd(p0, p3) < tolSqd &&
@@ -128,16 +128,16 @@ uint32_t GrPathUtils::generateCubicPoints(const GrPoint& p0,
             *points += 1;
             return 1;
         }
-    GrPoint q[] = {
+    SkPoint q[] = {
         { SkScalarAve(p0.fX, p1.fX), SkScalarAve(p0.fY, p1.fY) },
         { SkScalarAve(p1.fX, p2.fX), SkScalarAve(p1.fY, p2.fY) },
         { SkScalarAve(p2.fX, p3.fX), SkScalarAve(p2.fY, p3.fY) }
     };
-    GrPoint r[] = {
+    SkPoint r[] = {
         { SkScalarAve(q[0].fX, q[1].fX), SkScalarAve(q[0].fY, q[1].fY) },
         { SkScalarAve(q[1].fX, q[2].fX), SkScalarAve(q[1].fY, q[2].fY) }
     };
-    GrPoint s = { SkScalarAve(r[0].fX, r[1].fX), SkScalarAve(r[0].fY, r[1].fY) };
+    SkPoint s = { SkScalarAve(r[0].fX, r[1].fX), SkScalarAve(r[0].fY, r[1].fY) };
     pointsLeft >>= 1;
     uint32_t a = generateCubicPoints(p0, q[0], r[0], s, tolSqd, points, pointsLeft);
     uint32_t b = generateCubicPoints(s, r[1], q[2], p3, tolSqd, points, pointsLeft);
@@ -159,7 +159,7 @@ int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths,
     SkPath::Iter iter(path, false);
     SkPath::Verb verb;
 
-    GrPoint pts[4];
+    SkPoint pts[4];
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
 
         switch (verb) {
@@ -186,7 +186,7 @@ int GrPathUtils::worstCasePointCount(const SkPath& path, int* subpaths,
     return pointCount;
 }
 
-void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
+void GrPathUtils::QuadUVMatrix::set(const SkPoint qPts[3]) {
     SkMatrix m;
     // We want M such that M * xy_pt = uv_pt
     // We know M * control_pts = [0  1/2 1]
@@ -226,11 +226,11 @@ void GrPathUtils::QuadUVMatrix::set(const GrPoint qPts[3]) {
         // We could have a tolerance here, not sure if it would improve anything
         if (maxD > 0) {
             // Set the matrix to give (u = 0, v = distance_to_line)
-            GrVec lineVec = qPts[(maxEdge + 1)%3] - qPts[maxEdge];
+            SkVector lineVec = qPts[(maxEdge + 1)%3] - qPts[maxEdge];
             // when looking from the point 0 down the line we want positive
             // distances to be to the left. This matches the non-degenerate
             // case.
-            lineVec.setOrthog(lineVec, GrPoint::kLeft_Side);
+            lineVec.setOrthog(lineVec, SkPoint::kLeft_Side);
             lineVec.dot(qPts[0]);
             // first row
             fM[0] = 0;
@@ -519,7 +519,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
 }
 }
 
-void GrPathUtils::convertCubicToQuads(const GrPoint p[4],
+void GrPathUtils::convertCubicToQuads(const SkPoint p[4],
                                       SkScalar tolScale,
                                       bool constrainWithinTangents,
                                       SkPath::Direction dir,

@@ -239,11 +239,11 @@ bool GrDefaultPathRenderer::createGeom(const SkPath& path,
     uint16_t* idx = idxBase;
     uint16_t subpathIdxStart = 0;
 
-    GrPoint* base = reinterpret_cast<GrPoint*>(arg->vertices());
+    SkPoint* base = reinterpret_cast<SkPoint*>(arg->vertices());
     SkASSERT(NULL != base);
-    GrPoint* vert = base;
+    SkPoint* vert = base;
 
-    GrPoint pts[4];
+    SkPoint pts[4];
 
     bool first = true;
     int subpath = 0;

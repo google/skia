@@ -15,6 +15,8 @@
 #include "GrConfig.h"
 #include "SkMath.h"
 
+//#define SK_SUPPORT_LEGACY_GRTYPES
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -50,6 +52,7 @@
     friend X operator & (X a, T b); \
 ////////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_GRTYPES
 
 /**
  *  Macro to round n up to the next multiple of 4, or return it unchanged if
@@ -65,6 +68,31 @@ template <typename T> const T& GrMin(const T& a, const T& b) {
 template <typename T> const T& GrMax(const T& a, const T& b) {
     return (b < a) ? a : b;
 }
+
+/**
+ *  Count elements in an array
+ */
+#define GR_ARRAY_COUNT(array)  SK_ARRAY_COUNT(array)
+
+/**
+ *  16.16 fixed point type
+ */
+typedef int32_t GrFixed;
+
+#ifdef SK_DEBUG
+
+static inline int16_t GrToS16(intptr_t x) {
+    SkASSERT((int16_t)x == x);
+    return (int16_t)x;
+}
+
+#else
+
+#define GrToS16(x)  x
+
+#endif
+
+#endif
 
 // compile time versions of min/max
 #define GR_CT_MAX(a, b) (((b) < (a)) ? (a) : (b))
@@ -120,11 +148,6 @@ static inline size_t GrSizeAlignDown(size_t x, uint32_t alignment) {
     return (x / alignment) * alignment;
 }
 
-/**
- *  Count elements in an array
- */
-#define GR_ARRAY_COUNT(array)  SK_ARRAY_COUNT(array)
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -145,27 +168,6 @@ static inline int GrNextPow2(int n) {
     SkASSERT(n >= 0); // this impl only works for non-neg.
     return n ? (1 << (32 - SkCLZ(n - 1))) : 1;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- *  16.16 fixed point type
- */
-typedef int32_t GrFixed;
-
-#ifdef SK_DEBUG
-
-static inline int16_t GrToS16(intptr_t x) {
-    SkASSERT((int16_t)x == x);
-    return (int16_t)x;
-}
-
-#else
-
-#define GrToS16(x)  x
-
-#endif
-
 
 ///////////////////////////////////////////////////////////////////////////////
 
