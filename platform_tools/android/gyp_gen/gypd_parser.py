@@ -9,8 +9,6 @@
 Functions for parsing the gypd output from gyp.
 """
 
-import vars_dict_lib
-
 def parse_dictionary(var_dict, d, current_target_name):
   """
   Helper function to get the meaningful entries in a dictionary.
@@ -89,7 +87,7 @@ def parse_dictionary(var_dict, d, current_target_name):
       var_dict.LOCAL_EXPORT_C_INCLUDE_DIRS.add(include)
 
   for define in d.get('defines', []):
-    var_dict.LOCAL_CFLAGS.add('-D' + define)
+    var_dict.DEFINES.add(define)
 
 
 def parse_gypd(var_dict, path, desired_targets=None):

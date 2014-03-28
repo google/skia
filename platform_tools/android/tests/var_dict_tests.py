@@ -60,29 +60,9 @@ class VarsDictTest(unittest.TestCase):
     for i in range(RANGE):
       v_dict = VarsDict()
       # Add something common to each field, as well as a unique entry
-      v_dict.LOCAL_CFLAGS.add('cflag')
-      v_dict.LOCAL_CFLAGS.add(str(i))
-
-      v_dict.LOCAL_CPPFLAGS.add('cppflag')
-      v_dict.LOCAL_CPPFLAGS.add(str(i))
-
-      v_dict.LOCAL_SRC_FILES.add('src')
-      v_dict.LOCAL_SRC_FILES.add(str(i))
-
-      v_dict.LOCAL_SHARED_LIBRARIES.add('shared')
-      v_dict.LOCAL_SHARED_LIBRARIES.add(str(i))
-
-      v_dict.LOCAL_STATIC_LIBRARIES.add('static')
-      v_dict.LOCAL_STATIC_LIBRARIES.add(str(i))
-
-      v_dict.LOCAL_C_INCLUDES.add('includes')
-      v_dict.LOCAL_C_INCLUDES.add(str(i))
-
-      v_dict.LOCAL_EXPORT_C_INCLUDE_DIRS.add('exports')
-      v_dict.LOCAL_EXPORT_C_INCLUDE_DIRS.add(str(i))
-
-      v_dict.KNOWN_TARGETS.add('known')
-      v_dict.KNOWN_TARGETS.add(str(i))
+      for key in v_dict.keys():
+        v_dict[key].add(key.lower())
+        v_dict[key].add(str(i))
 
       self.assert_consistency(v_dict)
 

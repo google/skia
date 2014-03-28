@@ -49,6 +49,10 @@ ifeq ($(NO_FALLBACK_FONT),true)
 	LOCAL_CFLAGS += -DNO_FALLBACK_FONT
 endif
 
+ifeq ($(TARGET_ARCH),arm64)
+    $(warning TODOArm64: Unlike arm32, arm64 has no inline assembly for performance critical code.)
+endif
+
 LOCAL_CFLAGS += \
 	local_cflags
 
@@ -69,6 +73,9 @@ LOCAL_C_INCLUDES := \
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := \
 	local_export_c_include_dirs
+
+LOCAL_CFLAGS += \
+	-Ddefines
 
 ifeq ($(COND), true)
 LOCAL_CFLAGS_foo += \
@@ -92,6 +99,9 @@ LOCAL_C_INCLUDES_foo += \
 LOCAL_EXPORT_C_INCLUDE_DIRS_foo += \
 	local_export_c_include_dirs_foo
 
+LOCAL_CFLAGS_foo += \
+	-Ddefines_foo
+
 endif
 
 LOCAL_CFLAGS_bar += \
@@ -114,6 +124,9 @@ LOCAL_C_INCLUDES_bar += \
 
 LOCAL_EXPORT_C_INCLUDE_DIRS_bar += \
 	local_export_c_include_dirs_bar
+
+LOCAL_CFLAGS_bar += \
+	-Ddefines_bar
 
 include external/stlport/libstlport.mk
 LOCAL_MODULE:= libskia

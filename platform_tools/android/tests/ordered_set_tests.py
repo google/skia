@@ -59,6 +59,15 @@ class OrderedSetTest(unittest.TestCase):
       self.assertEqual(len(self.__set), RANGE-i-1)
       self.assertFalse(dummy_var in self.__set)
 
+    # Test reset(), for a range of ranges.
+    for subrange in range(RANGE):
+      for i in range(subrange):
+        self.__set.add(create_dummy_var(i))
+      self.assertEqual(len(self.__set), subrange)
+      self.__set.reset()
+      self.assertEqual(len(self.__set), 0)
+
+
 def main():
   loader = unittest.TestLoader()
   suite = loader.loadTestsFromTestCase(OrderedSetTest)

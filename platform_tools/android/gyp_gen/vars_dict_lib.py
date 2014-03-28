@@ -8,6 +8,10 @@
 import collections
 import types
 
+# The goal of this class is to store a set of unique items in the order in
+# which they are inserted. This is important for the final makefile, where
+# we want to make sure the image decoders are in a particular order. See
+# images.gyp for more information.
 class OrderedSet(object):
   """
   Ordered set of unique items that supports addition and removal.
@@ -57,6 +61,12 @@ class OrderedSet(object):
     """
     return self.__li[index]
 
+  def reset(self):
+    """
+    Reset to empty.
+    """
+    self.__li = []
+
 VAR_NAMES = ['LOCAL_CFLAGS',
              'LOCAL_CPPFLAGS',
              'LOCAL_SRC_FILES',
@@ -64,6 +74,7 @@ VAR_NAMES = ['LOCAL_CFLAGS',
              'LOCAL_STATIC_LIBRARIES',
              'LOCAL_C_INCLUDES',
              'LOCAL_EXPORT_C_INCLUDE_DIRS',
+             'DEFINES',
              'KNOWN_TARGETS']
 
 class VarsDict(collections.namedtuple('VarsDict', VAR_NAMES)):

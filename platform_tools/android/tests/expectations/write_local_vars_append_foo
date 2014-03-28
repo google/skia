@@ -19,3 +19,6 @@ LOCAL_C_INCLUDES_foo += \
 LOCAL_EXPORT_C_INCLUDE_DIRS_foo += \
 	local_export_c_include_dirs
 
+LOCAL_CFLAGS_foo += \
+	-Ddefines
+

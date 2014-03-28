@@ -44,19 +44,28 @@ def write_local_vars(f, var_dict, append, name):
   @param name If not None, a string to be appended to each key.
   """
   for key in var_dict.keys():
+    _key = key
+    _items = var_dict[key]
     if key == 'LOCAL_CFLAGS':
       # Always append LOCAL_CFLAGS. This allows us to define some early on in
       # the makefile and not overwrite them.
       _append = True
+    elif key == 'DEFINES':
+      # For DEFINES, we want to append to LOCAL_CFLAGS.
+      _append = True
+      _key = 'LOCAL_CFLAGS'
+      _items_with_D = []
+      for define in _items:
+        _items_with_D.append('-D' + define)
+      _items = _items_with_D
     elif key == 'KNOWN_TARGETS':
       # KNOWN_TARGETS are not needed in the final make file.
       continue
     else:
       _append = append
-    _key = key
     if name:
       _key += '_' + name
-    write_group(f, _key, var_dict[key], _append)
+    write_group(f, _key, _items, _append)
 
 
 AUTOGEN_WARNING = (
@@ -184,6 +193,11 @@ def write_android_mk(target_dir, common, deviations_from_common):
 
     f.write('ifeq ($(NO_FALLBACK_FONT),true)\n')
     f.write('\tLOCAL_CFLAGS += -DNO_FALLBACK_FONT\n')
+    f.write('endif\n\n')
+
+    f.write('ifeq ($(TARGET_ARCH),arm64)\n')
+    f.write('    $(warning TODOArm64: Unlike arm32, arm64 has no inline'
+            ' assembly for performance critical code.)\n')
     f.write('endif\n\n')
 
     write_local_vars(f, common, False, None)

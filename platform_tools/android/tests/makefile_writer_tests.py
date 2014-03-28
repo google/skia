@@ -16,14 +16,16 @@ import sys
 import tempfile
 import test_variables
 import unittest
+import utils
 
 sys.path.append(test_variables.GYP_GEN_DIR)
 
 import makefile_writer
 import vars_dict_lib
 
-EXPECTATIONS_DIR = os.path.join(os.path.dirname(__file__), 'expectations')
 MAKEFILE_NAME = 'Android.mk'
+REBASELINE_MSG = ('If you\'ve modified makefile_writer.py, run '
+                  '"makefile_writer_tests.py --rebaseline" to rebaseline')
 
 def generate_dummy_vars_dict(name):
   """Create a VarsDict and fill it with dummy entries.
@@ -42,6 +44,31 @@ def generate_dummy_vars_dict(name):
     vars_dict[key].add(entry)
   return vars_dict
 
+def generate_write_local_vars_params():
+  """Generator to compute params for write_local_vars tests.
+
+  Each iteration yields a new tuple: (filename, append, name), specific to a
+  way to call write_local_vars for the tests.
+
+  Yields:
+      filename: filename corresponding to the expectation file for this
+          combination of params to write_local_vars.
+      append: boolean to pass as append parameter to write_local_vars.
+      name: string to pass as name parameter to write_local_vars.
+  """
+  for append in [ True, False ]:
+    for name in [ None, 'arm', 'foo' ]:
+      filename = 'write_local_vars'
+      if append:
+        filename += '_append'
+      else:
+        filename += '_no_append'
+      if name:
+        filename += '_' + name
+      else:
+        filename += '_no_name'
+
+      yield (filename, append, name)
 
 def generate_dummy_vars_dict_data(name, condition):
   """Create a dummy VarsDictData.
@@ -94,26 +121,6 @@ class MakefileWriterTest(unittest.TestCase):
         self.assertEqual(f.tell(), 0)
     f.close()
 
-  def __compare_files(self, actual_name, expectation_name, msg=None):
-    """Check that two files are identical.
-
-    Assert line by line that the files match.
-
-    Args:
-        actual_name: Full path to the test file.
-        expectation_name: Basename of the expectations file within which
-            to compare. The file is expected to be in
-            platform_tools/android/tests/expectations.
-        msg: Message to pass to assertEqual.
-    Raises:
-        AssertionError: If the files do not match.
-    """
-    with open(actual_name, 'r') as result:
-      with open(os.path.join(EXPECTATIONS_DIR,
-                             expectation_name)) as expectation:
-        for line in result:
-          self.assertEqual(line, expectation.readline(), msg)
-
   def test_write_group(self):
     animals = ('dog', 'cat', 'mouse', 'elephant')
     fd, filename = tempfile.mkstemp()
@@ -121,56 +128,44 @@ class MakefileWriterTest(unittest.TestCase):
       makefile_writer.write_group(f, 'animals', animals, False)
     os.close(fd)
     # Now confirm that it matches expectations
-    self.__compare_files(filename, 'animals.txt')
+    utils.compare_to_expectation(filename, 'animals.txt', self.assertTrue)
 
     with open(filename, 'w') as f:
       makefile_writer.write_group(f, 'animals_append', animals, True)
     # Now confirm that it matches expectations
-    self.__compare_files(filename, 'animals_append.txt')
+    utils.compare_to_expectation(filename, 'animals_append.txt',
+                                 self.assertTrue)
     os.remove(filename)
 
   def test_write_local_vars(self):
     vars_dict = generate_dummy_vars_dict(None)
+    # Compare various ways of calling write_local_vars to expectations.
+    for (filename, append, name) in generate_write_local_vars_params():
+      fd, outfile = tempfile.mkstemp()
+      with open(outfile, 'w') as f:
+        makefile_writer.write_local_vars(f, vars_dict, append, name)
+      os.close(fd)
 
-    # Call variations of write_local_vars.
-    for append in [ True, False ]:
-      for name in [ None, 'arm', 'foo' ]:
-        # Now write to a temporary file.
-        fd, outfile = tempfile.mkstemp()
-        with open(outfile, 'w') as f:
-          makefile_writer.write_local_vars(f, vars_dict, append, name)
-        os.close(fd)
+      # Compare to the expected file.
+      utils.compare_to_expectation(outfile, filename, self.assertTrue,
+                                   REBASELINE_MSG)
 
-        # Compare to the expected file.
-        filename = 'write_local_vars'
-        if append:
-          filename += '_append'
-        else:
-          filename += '_no_append'
-        if name:
-          filename += '_' + name
-        else:
-          filename += '_no_name'
-        self.__compare_files(outfile, filename)
+      # KNOWN_TARGETS is always a key in the input VarsDict, but it should not
+      # be written to the resulting file.
+      # Note that this assumes none of our dummy entries is 'KNOWN_TARGETS'.
+      known_targets_name = 'KNOWN_TARGETS'
+      self.assertEqual(len(vars_dict[known_targets_name]), 1)
 
-        # KNOWN_TARGETS is always a part of the input VarsDict, but it should
-        # not be written to the resulting file.
-        # Note that this assumes none of our dummy entries is 'KNOWN_TARGETS'.
-        known_targets_name = 'KNOWN_TARGETS'
-        self.assertEqual(len(vars_dict[known_targets_name]), 1)
-
-        with open(outfile, 'r') as f:
-          self.assertNotIn(known_targets_name, f.read())
-        os.remove(outfile)
+      with open(outfile, 'r') as f:
+        self.assertNotIn(known_targets_name, f.read())
+      os.remove(outfile)
 
   def test_write_android_mk(self):
     outdir = tempfile.mkdtemp()
     generate_dummy_makefile(outdir)
 
-    self.__compare_files(os.path.join(outdir, MAKEFILE_NAME), MAKEFILE_NAME,
-                         'If you\'ve modified makefile_writer.py, run ' +
-                         '"makefile_writer_tests.py --rebaseline" ' +
-                         'to rebaseline')
+    utils.compare_to_expectation(os.path.join(outdir, MAKEFILE_NAME),
+                                 MAKEFILE_NAME, self.assertTrue, REBASELINE_MSG)
 
     shutil.rmtree(outdir)
 
@@ -184,15 +179,23 @@ def main():
     raise Exception('failed one or more unittests')
 
 
+def rebaseline():
+  generate_dummy_makefile(utils.EXPECTATIONS_DIR)
+
+  vars_dict = generate_dummy_vars_dict(None)
+  for (filename, append, name) in generate_write_local_vars_params():
+    with open(os.path.join(utils.EXPECTATIONS_DIR, filename), 'w') as f:
+      makefile_writer.write_local_vars(f, vars_dict, append, name)
+
+
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('-r', '--rebaseline',
-                      help='Rebaseline expectation for Android.mk',
+  parser.add_argument('-r', '--rebaseline', help='Rebaseline expectations.',
                       action='store_true')
   args = parser.parse_args()
 
   if args.rebaseline:
-    generate_dummy_makefile(EXPECTATIONS_DIR)
+    rebaseline()
   else:
     main()
 

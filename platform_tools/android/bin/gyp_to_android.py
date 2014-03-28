@@ -26,6 +26,7 @@ GYP_GEN_DIR = os.path.join(SKIA_DIR, 'platform_tools', 'android', 'gyp_gen')
 sys.path.append(GYP_GEN_DIR)
 
 import gypd_parser
+import generate_user_config
 import makefile_writer
 import vars_dict_lib
 
@@ -106,12 +107,30 @@ def main(target_dir=None):
 
     mips_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'mips', False)
 
+    arm64_var_dict = generate_var_dict(tmp_folder, main_gyp_file, 'arm64',
+                                       False)
+
     # Compute the intersection of all targets. All the files in the intersection
     # should be part of the makefile always. Each dict will now contain trimmed
     # lists containing only variable definitions specific to that configuration.
     var_dict_list = [default_var_dict, arm_var_dict, arm_neon_var_dict,
-                     x86_var_dict, mips_var_dict]
+                     x86_var_dict, mips_var_dict, arm64_var_dict]
     common = vars_dict_lib.intersect(var_dict_list)
+
+    # Create SkUserConfig
+    user_config = os.path.join(SKIA_DIR, 'include', 'config', 'SkUserConfig.h')
+    if target_dir:
+      dst_dir = target_dir
+    else:
+      dst_dir = os.path.join(SKIA_DIR, 'include', 'core')
+
+    generate_user_config.generate_user_config(
+        original_sk_user_config=user_config, target_dir=dst_dir,
+        ordered_set=common.DEFINES)
+
+    # Now that the defines have been written to SkUserConfig, they are not
+    # needed in Android.mk.
+    common.DEFINES.reset()
 
     # Further trim arm_neon_var_dict with arm_var_dict. After this call,
     # arm_var_dict (which will now be the intersection) includes all definitions
@@ -133,6 +152,9 @@ def main(target_dir=None):
 
     deviations_from_common.append(makefile_writer.VarsDictData(mips_var_dict,
                                                                'mips'))
+
+    deviations_from_common.append(makefile_writer.VarsDictData(arm64_var_dict,
+                                                               'arm64'))
 
     makefile_writer.write_android_mk(target_dir=target_dir,
         common=common, deviations_from_common=deviations_from_common)
