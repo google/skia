@@ -152,6 +152,13 @@ setup_toolchain() {
   export RANLIB="$ANDROID_TOOLCHAIN_PREFIX-ranlib"
   export OBJCOPY="$ANDROID_TOOLCHAIN_PREFIX-objcopy"
   export STRIP="$ANDROID_TOOLCHAIN_PREFIX-strip"
+  
+  # create symlinks for nm & readelf and add them to the path so that the ninja
+  # build uses them instead of attempting to use the one on the system
+  ln -sf $ANDROID_TOOLCHAIN_PREFIX-nm $ANDROID_TOOLCHAIN/nm
+  ln -sf $ANDROID_TOOLCHAIN_PREFIX-readelf $ANDROID_TOOLCHAIN/readelf
+  export PATH=$ANDROID_TOOLCHAIN:$PATH
+  
 }
 
 # Helper function to configure the GYP defines to the appropriate values
