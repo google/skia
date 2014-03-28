@@ -3793,7 +3793,7 @@
       "bugs": [
         2332
       ], 
-      "ignore-failure": true,
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "complexclip2_rect_aa_pdf-poppler.png": {
@@ -3830,12 +3830,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8965486191034121270
+          11042904879899740810
         ]
       ], 
       "bugs": [
-        2146
+        2332
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "complexclip2_rrect_aa_pdf-poppler.png": {
@@ -4516,8 +4517,8 @@
       ], 
       "bugs": [
         2331
-      ],
-      "ignore-failure": true,
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "dashing_pdf-poppler.png": {
@@ -8930,13 +8931,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12646073810721924898
+          18350438646195657329
         ]
       ], 
       "bugs": [
-        2146
+        2359
       ], 
-      "reviewed-by-human": false
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "megalooper_0x0_pdf-poppler.png": {
       "allowed-digests": [
