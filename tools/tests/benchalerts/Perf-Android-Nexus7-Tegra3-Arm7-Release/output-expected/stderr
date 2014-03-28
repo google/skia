@@ -1,14 +1,9 @@
-Traceback (most recent call last):
-  File "bench/check_bench_regressions.py", line 232, in <module>
-    main()
-  File "bench/check_bench_regressions.py", line 228, in main
-    check_expectations(bench_dict, bench_expectations, platform_and_alg)
-  File "bench/check_bench_regressions.py", line 178, in check_expectations
-    raise Exception('\n'.join(outputs))
-Exception: 
+Exception:
+
 2 benches got slower (sorted by % difference):
 Bench desk_blogger.skp_record_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th out of range [0.4, 0.6] (1.794 vs 0.5, 258.8%).
 Bench desk_amazon.skp_record_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th out of range [-1.0, 1.2] (1.213 vs 1.1, 10.2727272727%).
 
 1 benches got faster (sorted by % difference):
 Bench desk_baidu.skp_record_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th out of range [0.9, 1.0] (0.83 vs 0.939, -11.6080937167%).
+

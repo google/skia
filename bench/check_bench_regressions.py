@@ -175,7 +175,11 @@ def check_expectations(lines, expectations, key_suffix):
           outputs.extend(['', header] + li)
 
     if outputs:
-        raise Exception('\n'.join(outputs))
+        # Directly raising Exception will have stderr outputs tied to the line
+        # number of the script, so use sys.stderr.write() instead.
+        # Add a trailing newline to supress new line checking errors.
+        sys.stderr.write('\n'.join(['Exception:'] + outputs + ['\n']))
+        exit(1)
 
 
 def main():
