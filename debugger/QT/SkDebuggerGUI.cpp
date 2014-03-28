@@ -164,15 +164,15 @@ public:
                                                     const SkTDArray<bool>& deletedCommands) {
         // Mimics SkPicturePlayback::CreateFromStream
         SkAutoTDelete<SkTimedPicturePlayback> playback(SkNEW_ARGS(SkTimedPicturePlayback,
-                                                                  (deletedCommands)));
-        if (!playback->parseStream(stream, info, proc)) {
+                                                                  (deletedCommands, info)));
+        if (!playback->parseStream(stream, proc)) {
             return NULL; // we're invalid
         }
         return playback.detach();
     }
 
-    SkTimedPicturePlayback(const SkTDArray<bool>& deletedCommands)
-        : INHERITED()
+    SkTimedPicturePlayback(const SkTDArray<bool>& deletedCommands, const SkPictInfo& info)
+        : INHERITED(info)
         , fSkipCommands(deletedCommands)
         , fTot(0.0)
         , fCurCommand(0) {
@@ -254,14 +254,6 @@ protected:
 #endif
 
 private:
-    // SkPicturePlayback::parseStream is protected, so it can be
-    // called here, but not by our static factory function. This
-    // allows the factory function to call it.
-    bool parseStream(SkStream* stream, const SkPictInfo& info,
-                     SkPicture::InstallPixelRefProc proc) {
-        return this->INHERITED::parseStream(stream, info, proc);
-    }
-
     typedef SkPicturePlayback INHERITED;
 };
 

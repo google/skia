@@ -76,12 +76,12 @@ struct SkPictCopyInfo {
 
 class SkPicturePlayback {
 public:
-    SkPicturePlayback();
     SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInfo* deepCopyInfo = NULL);
-    explicit SkPicturePlayback(const SkPictureRecord& record, bool deepCopy = false);
-    static SkPicturePlayback* CreateFromStream(SkStream*, const SkPictInfo&,
+    SkPicturePlayback(const SkPictureRecord& record, const SkPictInfo&, bool deepCopy = false);
+    static SkPicturePlayback* CreateFromStream(SkStream*,
+                                               const SkPictInfo&,
                                                SkPicture::InstallPixelRefProc);
-    static SkPicturePlayback* CreateFromBuffer(SkReadBuffer&);
+    static SkPicturePlayback* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
     virtual ~SkPicturePlayback();
 
@@ -106,8 +106,9 @@ public:
     void resetOpID() { fCurOffset = 0; }
 
 protected:
-    bool parseStream(SkStream*, const SkPictInfo&,
-                     SkPicture::InstallPixelRefProc);
+    explicit SkPicturePlayback(const SkPictInfo& info);
+
+    bool parseStream(SkStream*, SkPicture::InstallPixelRefProc);
     bool parseBuffer(SkReadBuffer& buffer);
 #ifdef SK_DEVELOPER
     virtual bool preDraw(int opIndex, int type);
@@ -217,8 +218,7 @@ public:
 #endif
 
 private:    // these help us with reading/writing
-    bool parseStreamTag(SkStream*, const SkPictInfo&, uint32_t tag, size_t size,
-                        SkPicture::InstallPixelRefProc);
+    bool parseStreamTag(SkStream*, uint32_t tag, size_t size, SkPicture::InstallPixelRefProc);
     bool parseBufferTag(SkReadBuffer&, uint32_t tag, size_t size);
     void flattenToBuffer(SkWriteBuffer&) const;
 
@@ -270,6 +270,8 @@ private:
 
     // The offset of the current operation when within the draw method
     size_t fCurOffset;
+
+    const SkPictInfo fInfo;
 
 #ifdef SK_BUILD_FOR_ANDROID
     SkMutex fDrawMutex;

@@ -41,6 +41,15 @@ public:
     SkReadBuffer(SkStream* stream);
     virtual ~SkReadBuffer();
 
+    /** Return the version of the serialized picture this buffer holds, or 0 if unset. */
+    int pictureVersion() const { return fPictureVersion; }
+
+    /** This may be called at most once; most clients of SkReadBuffer should not mess with it. */
+    void setPictureVersion(int version) {
+        SkASSERT(0 == fPictureVersion);
+        fPictureVersion = version;
+    }
+
     enum Flags {
         kCrossProcess_Flag  = 1 << 0,
         kScalarIsFloat_Flag = 1 << 1,
@@ -184,6 +193,7 @@ private:
     bool readArray(void* value, size_t size, size_t elementSize);
 
     uint32_t fFlags;
+    int fPictureVersion;
 
     void* fMemoryPtr;
 

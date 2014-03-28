@@ -138,8 +138,10 @@ SkPicture::SkPicture(const SkPicture& src)
     if (src.fPlayback) {
         fPlayback = SkNEW_ARGS(SkPicturePlayback, (*src.fPlayback));
     } else if (src.fRecord) {
+        SkPictInfo info;
+        this->createHeader(&info);
         // here we do a fake src.endRecording()
-        fPlayback = SkNEW_ARGS(SkPicturePlayback, (*src.fRecord));
+        fPlayback = SkNEW_ARGS(SkPicturePlayback, (*src.fRecord, info));
     } else {
         fPlayback = NULL;
     }
@@ -173,6 +175,8 @@ SkPicture* SkPicture::clone() const {
 
 void SkPicture::clone(SkPicture* pictures, int count) const {
     SkPictCopyInfo copyInfo;
+    SkPictInfo info;
+    this->createHeader(&info);
 
     for (int i = 0; i < count; i++) {
         SkPicture* clone = &pictures[i];
@@ -190,7 +194,7 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
             clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fPlayback, &copyInfo));
         } else if (fRecord) {
             // here we do a fake src.endRecording()
-            clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, true));
+            clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, info, true));
         } else {
             clone->fPlayback = NULL;
         }
@@ -261,7 +265,9 @@ void SkPicture::endRecording() {
     if (NULL == fPlayback) {
         if (NULL != fRecord) {
             fRecord->endRecording();
-            fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fRecord));
+            SkPictInfo info;
+            this->createHeader(&info);
+            fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, info));
             SkSafeSetNull(fRecord);
         }
     }
@@ -384,7 +390,7 @@ SkPicture* SkPicture::CreateFromBuffer(SkReadBuffer& buffer) {
     SkPicturePlayback* playback;
     // Check to see if there is a playback to recreate.
     if (buffer.readBool()) {
-        playback = SkPicturePlayback::CreateFromBuffer(buffer);
+        playback = SkPicturePlayback::CreateFromBuffer(buffer, info);
         if (NULL == playback) {
             return NULL;
         }
@@ -417,13 +423,13 @@ void SkPicture::createHeader(SkPictInfo* info) const {
 void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     SkPicturePlayback* playback = fPlayback;
 
+    SkPictInfo info;
+    this->createHeader(&info);
     if (NULL == playback && fRecord) {
-        playback = SkNEW_ARGS(SkPicturePlayback, (*fRecord));
+        playback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, info));
     }
 
-    SkPictInfo header;
-    this->createHeader(&header);
-    stream->write(&header, sizeof(header));
+    stream->write(&info, sizeof(info));
     if (playback) {
         stream->writeBool(true);
         playback->serialize(stream, encoder);
@@ -439,13 +445,13 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
 void SkPicture::flatten(SkWriteBuffer& buffer) const {
     SkPicturePlayback* playback = fPlayback;
 
+    SkPictInfo info;
+    this->createHeader(&info);
     if (NULL == playback && fRecord) {
-        playback = SkNEW_ARGS(SkPicturePlayback, (*fRecord));
+        playback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, info));
     }
 
-    SkPictInfo header;
-    this->createHeader(&header);
-    buffer.writeByteArray(&header, sizeof(header));
+    buffer.writeByteArray(&info, sizeof(info));
     if (playback) {
         buffer.writeBool(true);
         playback->flatten(buffer);

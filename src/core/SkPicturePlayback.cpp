@@ -24,11 +24,14 @@ template <typename T> int SafeCount(const T* obj) {
  */
 #define SPEW_CLIP_SKIPPINGx
 
-SkPicturePlayback::SkPicturePlayback() {
+SkPicturePlayback::SkPicturePlayback(const SkPictInfo& info) : fInfo(info) {
     this->init();
 }
 
-SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record, bool deepCopy) {
+SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record,
+                                     const SkPictInfo& info,
+                                     bool deepCopy)
+    : fInfo(info) {
 #ifdef SK_DEBUG_SIZE
     size_t overallBytes, bitmapBytes, matricesBytes,
     paintBytes, pathBytes, pictureBytes, regionBytes;
@@ -158,7 +161,8 @@ static bool needs_deep_copy(const SkPaint& paint) {
            paint.getImageFilter();
 }
 
-SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInfo* deepCopyInfo) {
+SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src, SkPictCopyInfo* deepCopyInfo)
+    : fInfo(src.fInfo) {
     this->init();
 
     fBitmapHeap.reset(SkSafeRef(src.fBitmapHeap.get()));
@@ -479,8 +483,10 @@ static uint32_t pictInfoFlagsToReadBufferFlags(uint32_t pictInfoFlags) {
     return rbMask;
 }
 
-bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info, uint32_t tag,
-                                       size_t size, SkPicture::InstallPixelRefProc proc) {
+bool SkPicturePlayback::parseStreamTag(SkStream* stream,
+                                       uint32_t tag,
+                                       size_t size,
+                                       SkPicture::InstallPixelRefProc proc) {
     /*
      *  By the time we encounter BUFFER_SIZE_TAG, we need to have already seen
      *  its dependents: FACTORY_TAG and TYPEFACE_TAG. These two are not required
@@ -506,7 +512,7 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
         // Remove this code when v21 and below are no longer supported. At the
         // same time add a new 'count' variable and use it rather then reusing 'size'.
 #ifndef DISABLE_V21_COMPATIBILITY_CODE
-            if (info.fVersion >= 22) {
+            if (fInfo.fVersion >= 22) {
                 // in v22 this tag's size represents the size of the chunk in bytes
                 // and the number of factory strings is written out separately
 #endif
@@ -568,7 +574,8 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream, const SkPictInfo& info,
             }
 
             SkReadBuffer buffer(storage.get(), size);
-            buffer.setFlags(pictInfoFlagsToReadBufferFlags(info.fFlags));
+            buffer.setFlags(pictInfoFlagsToReadBufferFlags(fInfo.fFlags));
+            buffer.setPictureVersion(fInfo.fVersion);
 
             fFactoryPlayback->setupBuffer(buffer);
             fTFPlayback.setupBuffer(buffer);
@@ -654,16 +661,18 @@ bool SkPicturePlayback::parseBufferTag(SkReadBuffer& buffer,
 SkPicturePlayback* SkPicturePlayback::CreateFromStream(SkStream* stream,
                                                        const SkPictInfo& info,
                                                        SkPicture::InstallPixelRefProc proc) {
-    SkAutoTDelete<SkPicturePlayback> playback(SkNEW(SkPicturePlayback));
+    SkAutoTDelete<SkPicturePlayback> playback(SkNEW_ARGS(SkPicturePlayback, (info)));
 
-    if (!playback->parseStream(stream, info, proc)) {
+    if (!playback->parseStream(stream, proc)) {
         return NULL;
     }
     return playback.detach();
 }
 
-SkPicturePlayback* SkPicturePlayback::CreateFromBuffer(SkReadBuffer& buffer) {
-    SkAutoTDelete<SkPicturePlayback> playback(SkNEW(SkPicturePlayback));
+SkPicturePlayback* SkPicturePlayback::CreateFromBuffer(SkReadBuffer& buffer,
+                                                       const SkPictInfo& info) {
+    SkAutoTDelete<SkPicturePlayback> playback(SkNEW_ARGS(SkPicturePlayback, (info)));
+    buffer.setPictureVersion(info.fVersion);
 
     if (!playback->parseBuffer(buffer)) {
         return NULL;
@@ -671,7 +680,7 @@ SkPicturePlayback* SkPicturePlayback::CreateFromBuffer(SkReadBuffer& buffer) {
     return playback.detach();
 }
 
-bool SkPicturePlayback::parseStream(SkStream* stream, const SkPictInfo& info,
+bool SkPicturePlayback::parseStream(SkStream* stream,
                                     SkPicture::InstallPixelRefProc proc) {
     for (;;) {
         uint32_t tag = stream->readU32();
@@ -680,7 +689,7 @@ bool SkPicturePlayback::parseStream(SkStream* stream, const SkPictInfo& info,
         }
 
         uint32_t size = stream->readU32();
-        if (!this->parseStreamTag(stream, info, tag, size, proc)) {
+        if (!this->parseStreamTag(stream, tag, size, proc)) {
             return false; // we're invalid
         }
     }
