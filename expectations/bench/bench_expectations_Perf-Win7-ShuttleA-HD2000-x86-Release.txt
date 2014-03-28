@@ -190,7 +190,7 @@ desk_chalkboard.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-Shu
 desk_css3gradients.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.44,-4.55,7.44
 desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,6.50,0.44,12.56
 desk_espn.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,5.23,-0.94,11.39
-desk_facebook.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,90.54,83.90,97.19
+desk_facebook.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,11.5,8.5,14.5
 desk_fontwipe.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.48,-5.52,6.48
 desk_googlehome.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.52,-4.53,7.58
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,55.92,48.49,63.76

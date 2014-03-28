@@ -190,7 +190,7 @@ desk_chalkboard.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.8-
 desk_css3gradients.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.8-MacMini4.1-GeForce320M-x86-Release-25th,2.80,-3.20,8.80
 desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.8-MacMini4.1-GeForce320M-x86-Release-25th,15.60,9.60,21.60
 desk_espn.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.8-MacMini4.1-GeForce320M-x86-Release-25th,10.80,4.80,16.80
-desk_facebook.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.8-MacMini4.1-GeForce320M-x86-Release-25th,72.40,65.40,79.20
+desk_facebook.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.8-MacMini4.1-GeForce320M-x86-Release-25th,17.5,14.5,20.5
 desk_fontwipe.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.8-MacMini4.1-GeForce320M-x86-Release-25th,0.60,-5.39,6.60
 desk_googlehome.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.8-MacMini4.1-GeForce320M-x86-Release-25th,2.20,-3.79,8.20
 desk_googlespreadsheet.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Mac10.8-MacMini4.1-GeForce320M-x86-Release-25th,38.97,32.39,45.60
