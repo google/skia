@@ -72,7 +72,7 @@
         }, {
           'skia_poppler_enabled%': 0,
         }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "mac"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "mac"] or skia_arch_type == "arm64"', {
           'skia_arch_width%': 64,
         }, {
           'skia_arch_width%': 32,

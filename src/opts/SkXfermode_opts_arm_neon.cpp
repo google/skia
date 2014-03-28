@@ -41,8 +41,13 @@ static inline uint16x8_t SkAlphaMulAlpha_neon8_16(uint8x8_t color, uint8x8_t alp
 static inline uint8x8_t SkDiv255Round_neon8_32_8(int32x4_t p1, int32x4_t p2) {
     uint16x8_t tmp;
 
+#ifdef SK_CPU_ARM64
+    tmp = vmovn_high_u32(vmovn_u32(vreinterpretq_u32_s32(p1)),
+                         vreinterpretq_u32_s32(p2));
+#else
     tmp = vcombine_u16(vmovn_u32(vreinterpretq_u32_s32(p1)),
                        vmovn_u32(vreinterpretq_u32_s32(p2)));
+#endif
 
     tmp += vdupq_n_u16(128);
     tmp += vshrq_n_u16(tmp, 8);
@@ -66,7 +71,11 @@ static inline uint8x8_t clamp_div255round_simd8_32(int32x4_t val1, int32x4_t val
     // Test if <= 0
     cmp1 = vcleq_s32(val1, vdupq_n_s32(0));
     cmp2 = vcleq_s32(val2, vdupq_n_s32(0));
+#ifdef SK_CPU_ARM64
+    cmp16 = vmovn_high_u32(vmovn_u32(cmp1), cmp2);
+#else
     cmp16 = vcombine_u16(vmovn_u32(cmp1), vmovn_u32(cmp2));
+#endif
     cmp8_1 = vmovn_u16(cmp16);
 
     // Init to zero
@@ -75,7 +84,11 @@ static inline uint8x8_t clamp_div255round_simd8_32(int32x4_t val1, int32x4_t val
     // Test if >= 255*255
     cmp1 = vcgeq_s32(val1, vdupq_n_s32(255*255));
     cmp2 = vcgeq_s32(val2, vdupq_n_s32(255*255));
+#ifdef SK_CPU_ARM64
+    cmp16 = vmovn_high_u32(vmovn_u32(cmp1), cmp2);
+#else
     cmp16 = vcombine_u16(vmovn_u32(cmp1), vmovn_u32(cmp2));
+#endif
     cmp8 = vmovn_u16(cmp16);
 
     // Insert 255 where true
@@ -409,11 +422,19 @@ static inline uint8x8_t overlay_hardlight_color(uint8x8_t sc, uint8x8_t dc,
     if (overlay) {
         dc2 = vshll_n_u8(dc, 1);
         scdc2_1 = vmull_u16(vget_low_u16(dc2), vget_low_u16(vmovl_u8(sc)));
+#ifdef SK_CPU_ARM64
+        scdc2_2 = vmull_high_u16(dc2, vmovl_u8(sc));
+#else
         scdc2_2 = vmull_u16(vget_high_u16(dc2), vget_high_u16(vmovl_u8(sc)));
+#endif
     } else {
         sc2 = vshll_n_u8(sc, 1);
         scdc2_1 = vmull_u16(vget_low_u16(sc2), vget_low_u16(vmovl_u8(dc)));
+#ifdef SK_CPU_ARM64
+        scdc2_2 = vmull_high_u16(sc2, vmovl_u8(dc));
+#else
         scdc2_2 = vmull_u16(vget_high_u16(sc2), vget_high_u16(vmovl_u8(dc)));
+#endif
     }
 
     // Calc COM
@@ -421,12 +442,20 @@ static inline uint8x8_t overlay_hardlight_color(uint8x8_t sc, uint8x8_t dc,
     com1 = vreinterpretq_s32_u32(
                 vmull_u16(vget_low_u16(const255), vget_low_u16(sc_plus_dc)));
     com2 = vreinterpretq_s32_u32(
+#ifdef SK_CPU_ARM64
+                vmull_high_u16(const255, sc_plus_dc));
+#else
                 vmull_u16(vget_high_u16(const255), vget_high_u16(sc_plus_dc)));
+#endif
 
     // Calc SUB
     int32x4_t sub1, sub2;
     sub1 = vreinterpretq_s32_u32(vaddl_u16(vget_low_u16(scda), vget_low_u16(dcsa)));
+#ifdef SK_CPU_ARM64
+    sub2 = vreinterpretq_s32_u32(vaddl_high_u16(scda, dcsa));
+#else
     sub2 = vreinterpretq_s32_u32(vaddl_u16(vget_high_u16(scda), vget_high_u16(dcsa)));
+#endif
     sub1 = vsubq_s32(sub1, vreinterpretq_s32_u32(scdc2_1));
     sub2 = vsubq_s32(sub2, vreinterpretq_s32_u32(scdc2_2));
 
@@ -444,10 +473,14 @@ static inline uint8x8_t overlay_hardlight_color(uint8x8_t sc, uint8x8_t dc,
     int32x4_t val2_1, val2_2;
     uint32x4_t cmp1, cmp2;
 
-    cmp1 = vmovl_u16(vget_low_u16(cmp));
-    cmp1 |= vshlq_n_u32(cmp1, 16);
-    cmp2 = vmovl_u16(vget_high_u16(cmp));
-    cmp2 |= vshlq_n_u32(cmp2, 16);
+    // Doing a signed lengthening allows to save a few instructions
+    // thanks to sign extension.
+    cmp1 = vreinterpretq_u32_s32(vmovl_s16(vreinterpret_s16_u16(vget_low_u16(cmp))));
+#ifdef SK_CPU_ARM64
+    cmp2 = vreinterpretq_u32_s32(vmovl_high_s16(vreinterpretq_s16_u16(cmp)));
+#else
+    cmp2 = vreinterpretq_u32_s32(vmovl_s16(vreinterpret_s16_u16(vget_high_u16(cmp))));
+#endif
 
     // Calc COM - SUB
     val1_1 = com1 - sub1;
@@ -458,7 +491,11 @@ static inline uint8x8_t overlay_hardlight_color(uint8x8_t sc, uint8x8_t dc,
     val2_2 = com2 + sub2;
 
     val2_1 = vsubq_s32(val2_1, vreinterpretq_s32_u32(vmovl_u16(vget_low_u16(sada))));
+#ifdef SK_CPU_ARM64
+    val2_2 = vsubq_s32(val2_2, vreinterpretq_s32_u32(vmovl_high_u16(sada)));
+#else
     val2_2 = vsubq_s32(val2_2, vreinterpretq_s32_u32(vmovl_u16(vget_high_u16(sada))));
+#endif
 
     // Insert where needed
     val1_1 = vbslq_s32(cmp1, val1_1, val2_1);
@@ -628,11 +665,19 @@ static inline uint8x8_t exclusion_color(uint8x8_t sc, uint8x8_t dc,
     term1_1 = vreinterpretq_s32_u32(
                 vmull_u16(vget_low_u16(const255), vget_low_u16(sc_plus_dc)));
     term1_2 = vreinterpretq_s32_u32(
+#ifdef SK_CPU_ARM64
+                vmull_high_u16(const255, sc_plus_dc));
+#else
                 vmull_u16(vget_high_u16(const255), vget_high_u16(sc_plus_dc)));
+#endif
 
     /* Calc the second term */
     term2_1 = vreinterpretq_s32_u32(vshll_n_u16(vget_low_u16(scdc), 1));
+#ifdef SK_CPU_ARM64
+    term2_2 = vreinterpretq_s32_u32(vshll_high_n_u16(scdc, 1));
+#else
     term2_2 = vreinterpretq_s32_u32(vshll_n_u16(vget_high_u16(scdc), 1));
+#endif
 
     return clamp_div255round_simd8_32(term1_1 - term2_1, term1_2 - term2_2);
 }
@@ -661,10 +706,18 @@ static inline uint8x8_t blendfunc_multiply_color(uint8x8_t sc, uint8x8_t dc,
     scdc = vmull_u8(sc, dc);
 
     val1 = vaddl_u16(vget_low_u16(t1), vget_low_u16(t2));
+#ifdef SK_CPU_ARM64
+    val2 = vaddl_high_u16(t1, t2);
+#else
     val2 = vaddl_u16(vget_high_u16(t1), vget_high_u16(t2));
+#endif
 
     val1 = vaddw_u16(val1, vget_low_u16(scdc));
+#ifdef SK_CPU_ARM64
+    val2 = vaddw_high_u16(val2, scdc);
+#else
     val2 = vaddw_u16(val2, vget_high_u16(scdc));
+#endif
 
     return clamp_div255round_simd8_32(
                 vreinterpretq_s32_u32(val1), vreinterpretq_s32_u32(val2));
@@ -708,6 +761,10 @@ void SkNEONProcCoeffXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
         while (count >= 8) {
             uint8x8x4_t vsrc, vdst, vres;
 
+#ifdef SK_CPU_ARM64
+            vsrc = vld4_u8((uint8_t*)src);
+            vdst = vld4_u8((uint8_t*)dst);
+#else
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6))
             asm volatile (
                 "vld4.u8    %h[vsrc], [%[src]]!  \t\n"
@@ -740,6 +797,7 @@ void SkNEONProcCoeffXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
             vsrc.val[2] = d2; vdst.val[2] = d6;
             vsrc.val[3] = d3; vdst.val[3] = d7;
 #endif
+#endif // #ifdef SK_CPU_ARM64
 
             vres = procSIMD(vsrc, vdst);
 
@@ -747,6 +805,9 @@ void SkNEONProcCoeffXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
 
             count -= 8;
             dst += 8;
+#ifdef SK_CPU_ARM64
+            src += 8;
+#endif
         }
         // Leftovers
         for (int i = 0; i < count; i++) {
@@ -783,6 +844,9 @@ void SkNEONProcCoeffXfermode::xfer16(uint16_t* SK_RESTRICT dst,
 
             vdst = vld1q_u16(dst);
 
+#ifdef SK_CPU_ARM64
+            vsrc = vld4_u8((uint8_t*)src);
+#else
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 6))
             asm volatile (
                 "vld4.u8    %h[vsrc], [%[src]]!  \t\n"
@@ -806,6 +870,7 @@ void SkNEONProcCoeffXfermode::xfer16(uint16_t* SK_RESTRICT dst,
             vsrc.val[2] = d2;
             vsrc.val[3] = d3;
 #endif
+#endif // #ifdef SK_CPU_ARM64
 
             vdst32 = SkPixel16ToPixel32_neon8(vdst);
             vres = procSIMD(vsrc, vdst32);
@@ -815,6 +880,9 @@ void SkNEONProcCoeffXfermode::xfer16(uint16_t* SK_RESTRICT dst,
 
             count -= 8;
             dst += 8;
+#ifdef SK_CPU_ARM64
+            src += 8;
+#endif
         }
         for (int i = 0; i < count; i++) {
             SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
