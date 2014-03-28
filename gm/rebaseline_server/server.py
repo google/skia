@@ -149,14 +149,16 @@ class Server(object):
     """
     Args:
       actuals_dir: directory under which we will check out the latest actual
-                   GM results
+          GM results
       actuals_repo_revision: revision of actual-results.json files to process
-      actuals_repo_url: SVN repo to download actual-results.json files from
+      actuals_repo_url: SVN repo to download actual-results.json files from;
+          if None or '', don't fetch new actual-results files at all,
+          just compare to whatever files are already in actuals_dir
       port: which TCP port to listen on for HTTP requests
       export: whether to allow HTTP clients on other hosts to access this server
       editable: whether HTTP clients are allowed to submit new baselines
       reload_seconds: polling interval with which to check for new results;
-                      if 0, don't check for new results at all
+          if 0, don't check for new results at all
     """
     self._actuals_dir = actuals_dir
     self._actuals_repo_revision = actuals_repo_revision
@@ -165,8 +167,9 @@ class Server(object):
     self._export = export
     self._editable = editable
     self._reload_seconds = reload_seconds
-    self._actuals_repo = _create_svn_checkout(
-        dir_path=actuals_dir, repo_url=actuals_repo_url)
+    if actuals_repo_url:
+      self._actuals_repo = _create_svn_checkout(
+          dir_path=actuals_dir, repo_url=actuals_repo_url)
 
     # Reentrant lock that must be held whenever updating EITHER of:
     # 1. self._results
@@ -214,11 +217,14 @@ class Server(object):
     with self.results_rlock:
       if invalidate:
         self._results = None
-      logging.info(
-          'Updating actual GM results in %s to revision %s from repo %s ...' % (
-              self._actuals_dir, self._actuals_repo_revision,
-              self._actuals_repo_url))
-      self._actuals_repo.Update(path='.', revision=self._actuals_repo_revision)
+      if self._actuals_repo_url:
+        logging.info(
+            'Updating actual GM results in %s to revision %s from repo %s ...'
+            % (
+                self._actuals_dir, self._actuals_repo_revision,
+                self._actuals_repo_url))
+        self._actuals_repo.Update(
+            path='.', revision=self._actuals_repo_revision)
 
       # We only update the expectations dir if the server was run with a
       # nonzero --reload argument; otherwise, we expect the user to maintain
@@ -508,7 +514,9 @@ def main():
                     default=DEFAULT_ACTUALS_DIR)
   parser.add_argument('--actuals-repo',
                     help=('URL of SVN repo to download actual-results.json '
-                          'files from. Defaults to %(default)s'),
+                          'files from. Defaults to %(default)s ; if set to '
+                          'empty string, just compare to actual-results '
+                          'already found in ACTUALS_DIR.'),
                     default=DEFAULT_ACTUALS_REPO_URL)
   parser.add_argument('--actuals-revision',
                     help=('revision of actual-results.json files to process. '
