@@ -10,6 +10,7 @@
 #include "gl/GrGLEffect.h"
 #include "gl/GrGLSL.h"
 #include "GrConvexPolyEffect.h"
+#include "GrOvalEffect.h"
 #include "GrTBackendEffectFactory.h"
 
 #include "SkRRect.h"
@@ -77,7 +78,9 @@ private:
 GrEffectRef* CircularRRectEffect::Create(GrEffectEdgeType edgeType,
                                  uint32_t circularCornerFlags,
                                  const SkRRect& rrect) {
-    SkASSERT(kFillAA_GrEffectEdgeType == edgeType || kInverseFillAA_GrEffectEdgeType == edgeType);
+    if (kFillAA_GrEffectEdgeType != edgeType && kInverseFillAA_GrEffectEdgeType != edgeType) {
+        return NULL;
+    }
     return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(CircularRRectEffect,
                                                       (edgeType, circularCornerFlags, rrect))));
 }
@@ -410,7 +413,9 @@ private:
 };
 
 GrEffectRef* EllipticalRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rrect) {
-    SkASSERT(kFillAA_GrEffectEdgeType == edgeType || kInverseFillAA_GrEffectEdgeType == edgeType);
+    if (kFillAA_GrEffectEdgeType != edgeType && kInverseFillAA_GrEffectEdgeType != edgeType) {
+        return NULL;
+    }
     return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(EllipticalRRectEffect, (edgeType, rrect))));
 }
 
@@ -627,12 +632,12 @@ void GLEllipticalRRectEffect::setData(const GrGLUniformManager& uman,
 //////////////////////////////////////////////////////////////////////////////
 
 GrEffectRef* GrRRectEffect::Create(GrEffectEdgeType edgeType, const SkRRect& rrect) {
-    if (kFillAA_GrEffectEdgeType != edgeType && kInverseFillAA_GrEffectEdgeType != edgeType) {
-        return NULL;
-    }
-
     if (rrect.isRect()) {
         return GrConvexPolyEffect::Create(edgeType, rrect.getBounds());
+    }
+
+    if (rrect.isOval()) {
+        return GrOvalEffect::Create(edgeType, rrect.getBounds());
     }
 
     if (rrect.isSimple()) {

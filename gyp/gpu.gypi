@@ -147,6 +147,8 @@
       '<(skia_src_path)/gpu/effects/GrCustomCoordsTextureEffect.h',
       '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.h',
+      '<(skia_src_path)/gpu/effects/GrOvalEffect.cpp',
+      '<(skia_src_path)/gpu/effects/GrOvalEffect.h',
       '<(skia_src_path)/gpu/effects/GrRRectEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrRRectEffect.h',
       '<(skia_src_path)/gpu/effects/GrSimpleTextureEffect.cpp',
