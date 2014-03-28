@@ -10,11 +10,12 @@
 #include "SkXfermode.h"
 #include "SkXfermode_proccoeff.h"
 #include "SkColorPriv.h"
-#include "SkReadBuffer.h"
-#include "SkWriteBuffer.h"
 #include "SkMathPriv.h"
+#include "SkOnce.h"
+#include "SkReadBuffer.h"
 #include "SkString.h"
 #include "SkUtilsArm.h"
+#include "SkWriteBuffer.h"
 
 #if !SK_ARM_NEON_IS_NONE
 #include "SkXfermode_opts_arm_neon.h"
@@ -1671,7 +1672,8 @@ void SkDstOutXfermode::toString(SkString* str) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 SK_DECLARE_STATIC_MUTEX(gCachedXfermodesMutex);
-static SkXfermode* gCachedXfermodes[SkXfermode::kLastMode + 1];
+static SkXfermode* gCachedXfermodes[SkXfermode::kLastMode + 1];  // All NULL to start.
+static bool gXfermodeCached[SK_ARRAY_COUNT(gCachedXfermodes)];  // All false to start.
 
 void SkXfermode::Term() {
     SkAutoMutexAcquire ac(gCachedXfermodesMutex);
@@ -1685,6 +1687,50 @@ void SkXfermode::Term() {
 extern SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec,
                                                       SkXfermode::Mode mode);
 extern SkXfermodeProc SkPlatformXfermodeProcFactory(SkXfermode::Mode mode);
+
+
+static void create_mode(SkXfermode::Mode mode) {
+    SkASSERT(NULL == gCachedXfermodes[mode]);
+
+    ProcCoeff rec = gProcCoeffs[mode];
+    SkXfermodeProc pp = SkPlatformXfermodeProcFactory(mode);
+    if (pp != NULL) {
+        rec.fProc = pp;
+    }
+
+    SkXfermode* xfer = NULL;
+    // check if we have a platform optim for that
+    SkProcCoeffXfermode* xfm = SkPlatformXfermodeFactory(rec, mode);
+    if (xfm != NULL) {
+        xfer = xfm;
+    } else {
+        // All modes can in theory be represented by the ProcCoeff rec, since
+        // it contains function ptrs. However, a few modes are both simple and
+        // commonly used, so we call those out for their own subclasses here.
+        switch (mode) {
+            case SkXfermode::kClear_Mode:
+                xfer = SkClearXfermode::Create(rec);
+                break;
+            case SkXfermode::kSrc_Mode:
+                xfer = SkSrcXfermode::Create(rec);
+                break;
+            case SkXfermode::kSrcOver_Mode:
+                SkASSERT(false);    // should not land here
+                break;
+            case SkXfermode::kDstIn_Mode:
+                xfer = SkDstInXfermode::Create(rec);
+                break;
+            case SkXfermode::kDstOut_Mode:
+                xfer = SkDstOutXfermode::Create(rec);
+                break;
+            default:
+                // no special-case, just rely in the rec and its function-ptrs
+                xfer = SkProcCoeffXfermode::Create(rec, mode);
+                break;
+        }
+    }
+    gCachedXfermodes[mode] = xfer;
+}
 
 SkXfermode* SkXfermode::Create(Mode mode) {
     SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
@@ -1701,51 +1747,9 @@ SkXfermode* SkXfermode::Create(Mode mode) {
         return NULL;
     }
 
-    // guard our access to gCachedXfermodes, since we may write into it
-    SkAutoMutexAcquire ac(gCachedXfermodesMutex);
-
+    SkOnce(&gXfermodeCached[mode], &gCachedXfermodesMutex, create_mode, mode);
     SkXfermode* xfer = gCachedXfermodes[mode];
-    if (NULL == xfer) {
-        ProcCoeff rec = gProcCoeffs[mode];
-
-        SkXfermodeProc pp = SkPlatformXfermodeProcFactory(mode);
-
-        if (pp != NULL) {
-            rec.fProc = pp;
-        }
-
-        // check if we have a platform optim for that
-        SkProcCoeffXfermode* xfm = SkPlatformXfermodeFactory(rec, mode);
-        if (xfm != NULL) {
-            xfer = xfm;
-        } else {
-            // All modes can in theory be represented by the ProcCoeff rec, since
-            // it contains function ptrs. However, a few modes are both simple and
-            // commonly used, so we call those out for their own subclasses here.
-            switch (mode) {
-                case kClear_Mode:
-                    xfer = SkClearXfermode::Create(rec);
-                    break;
-                case kSrc_Mode:
-                    xfer = SkSrcXfermode::Create(rec);
-                    break;
-                case kSrcOver_Mode:
-                    SkASSERT(false);    // should not land here
-                    break;
-                case kDstIn_Mode:
-                    xfer = SkDstInXfermode::Create(rec);
-                    break;
-                case kDstOut_Mode:
-                    xfer = SkDstOutXfermode::Create(rec);
-                    break;
-                default:
-                    // no special-case, just rely in the rec and its function-ptrs
-                    xfer = SkProcCoeffXfermode::Create(rec, mode);
-                    break;
-            }
-        }
-        gCachedXfermodes[mode] = xfer;
-    }
+    SkASSERT(xfer != NULL);
     return SkSafeRef(xfer);
 }
 
