@@ -156,7 +156,7 @@ private:
 
     virtual void onGpuStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
     virtual void onGpuDrawPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
-    virtual void onGpuDrawPaths(size_t, const GrPath**, const SkMatrix*,
+    virtual void onGpuDrawPaths(int, const GrPath**, const SkMatrix*,
                                 SkPath::FillType,
                                 SkStrokeRec::Style) SK_OVERRIDE;
 

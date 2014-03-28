@@ -419,7 +419,7 @@ GrInOrderDrawBuffer::DrawPaths::~DrawPaths() {
     if (fTransforms) {
         SkDELETE_ARRAY(fTransforms);
     }
-    for (size_t i = 0; i < fPathCount; ++i) {
+    for (int i = 0; i < fPathCount; ++i) {
         fPaths[i]->unref();
     }
     SkDELETE_ARRAY(fPaths);
@@ -457,7 +457,7 @@ void GrInOrderDrawBuffer::onDrawPath(const GrPath* path,
     }
 }
 
-void GrInOrderDrawBuffer::onDrawPaths(size_t pathCount, const GrPath** paths,
+void GrInOrderDrawBuffer::onDrawPaths(int pathCount, const GrPath** paths,
                                       const SkMatrix* transforms,
                                       SkPath::FillType fill,
                                       SkStrokeRec::Style stroke,
@@ -474,7 +474,7 @@ void GrInOrderDrawBuffer::onDrawPaths(size_t pathCount, const GrPath** paths,
     dp->fPathCount = pathCount;
     dp->fPaths = SkNEW_ARRAY(const GrPath*, pathCount);
     memcpy(dp->fPaths, paths, sizeof(GrPath*) * pathCount);
-    for (size_t i = 0; i < pathCount; ++i) {
+    for (int i = 0; i < pathCount; ++i) {
         dp->fPaths[i]->ref();
     }
 

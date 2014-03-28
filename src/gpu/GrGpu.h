@@ -432,7 +432,7 @@ private:
     // overridden by backend-specific derived class to perform the path stenciling.
     virtual void onGpuStencilPath(const GrPath*, SkPath::FillType) = 0;
     virtual void onGpuDrawPath(const GrPath*, SkPath::FillType) = 0;
-    virtual void onGpuDrawPaths(size_t, const GrPath**, const SkMatrix*,
+    virtual void onGpuDrawPaths(int, const GrPath**, const SkMatrix*,
                                 SkPath::FillType, SkStrokeRec::Style) = 0;
 
     // overridden by backend-specific derived class to perform the read pixels.
@@ -476,7 +476,7 @@ private:
     virtual void onStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
     virtual void onDrawPath(const GrPath*, SkPath::FillType,
                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
-    virtual void onDrawPaths(size_t, const GrPath**, const SkMatrix*,
+    virtual void onDrawPaths(int, const GrPath**, const SkMatrix*,
                              SkPath::FillType, SkStrokeRec::Style,
                              const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
 

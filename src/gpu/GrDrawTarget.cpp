@@ -548,7 +548,7 @@ void GrDrawTarget::drawPath(const GrPath* path, SkPath::FillType fill) {
     this->onDrawPath(path, fill, dstCopy.texture() ? &dstCopy : NULL);
 }
 
-void GrDrawTarget::drawPaths(size_t pathCount, const GrPath** paths,
+void GrDrawTarget::drawPaths(int pathCount, const GrPath** paths,
                              const SkMatrix* transforms,
                              SkPath::FillType fill, SkStrokeRec::Style stroke) {
     SkASSERT(pathCount > 0);
@@ -560,7 +560,7 @@ void GrDrawTarget::drawPaths(size_t pathCount, const GrPath** paths,
     const GrDrawState* drawState = &getDrawState();
 
     SkRect devBounds;
-    for (size_t i = 0; i < pathCount; ++i) {
+    for (int i = 0; i < pathCount; ++i) {
         SkRect mappedPathBounds;
         transforms[i].mapRect(&mappedPathBounds, paths[i]->getBounds());
         devBounds.join(mappedPathBounds);

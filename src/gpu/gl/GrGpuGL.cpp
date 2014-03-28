@@ -1710,7 +1710,7 @@ void GrGpuGL::onGpuDrawPath(const GrPath* path, SkPath::FillType fill) {
     }
 }
 
-void GrGpuGL::onGpuDrawPaths(size_t pathCount, const GrPath** paths,
+void GrGpuGL::onGpuDrawPaths(int pathCount, const GrPath** paths,
                              const SkMatrix* transforms,
                              SkPath::FillType fill,
                              SkStrokeRec::Style stroke) {
@@ -1726,7 +1726,7 @@ void GrGpuGL::onGpuDrawPaths(size_t pathCount, const GrPath** paths,
         reinterpret_cast<GrGLfloat*>(transformData.get());
     GrGLuint* pathIDs = reinterpret_cast<GrGLuint*>(pathData.get());
 
-    for (size_t i = 0; i < pathCount; ++i) {
+    for (int i = 0; i < pathCount; ++i) {
         SkASSERT(transforms[i].asAffine(NULL));
         const SkMatrix& m = transforms[i];
         transformValues[i * 6] = m.getScaleX();

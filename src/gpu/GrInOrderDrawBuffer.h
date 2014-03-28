@@ -119,7 +119,7 @@ private:
         DrawPaths();
         ~DrawPaths();
 
-        size_t fPathCount;
+        int fPathCount;
         const GrPath** fPaths;
         SkMatrix* fTransforms;
         SkPath::FillType fFill;
@@ -155,7 +155,7 @@ private:
     virtual void onStencilPath(const GrPath*, SkPath::FillType) SK_OVERRIDE;
     virtual void onDrawPath(const GrPath*, SkPath::FillType,
                             const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
-    virtual void onDrawPaths(size_t, const GrPath**, const SkMatrix*,
+    virtual void onDrawPaths(int, const GrPath**, const SkMatrix*,
                              SkPath::FillType, SkStrokeRec::Style,
                              const GrDeviceCoordTexture* dstCopy) SK_OVERRIDE;
 
