@@ -504,9 +504,24 @@ void GrInOrderDrawBuffer::clear(const SkIRect* rect, GrColor color,
         rect = &r;
     }
     Clear* clr = this->recordClear();
+    GrColorIsPMAssert(color);
     clr->fColor = color;
     clr->fRect = *rect;
     clr->fCanIgnoreRect = canIgnoreRect;
+    clr->fRenderTarget = renderTarget;
+    renderTarget->ref();
+}
+
+void GrInOrderDrawBuffer::discard(GrRenderTarget* renderTarget) {
+    if (!this->caps()->discardRenderTargetSupport()) {
+        return;
+    }
+    if (NULL == renderTarget) {
+        renderTarget = this->drawState()->getRenderTarget();
+        SkASSERT(NULL != renderTarget);
+    }
+    Clear* clr = this->recordClear();
+    clr->fColor = GrColor_ILLEGAL;
     clr->fRenderTarget = renderTarget;
     renderTarget->ref();
 }
@@ -630,10 +645,14 @@ void GrInOrderDrawBuffer::flush() {
                 ++currClip;
                 break;
             case kClear_Cmd:
-                fDstGpu->clear(&fClears[currClear].fRect,
-                               fClears[currClear].fColor,
-                               fClears[currClear].fCanIgnoreRect,
-                               fClears[currClear].fRenderTarget);
+                if (GrColor_ILLEGAL == fClears[currClear].fColor) {
+                    fDstGpu->discard(fClears[currClear].fRenderTarget);
+                } else {
+                    fDstGpu->clear(&fClears[currClear].fRect,
+                                   fClears[currClear].fColor,
+                                   fClears[currClear].fCanIgnoreRect,
+                                   fClears[currClear].fRenderTarget);
+                }
                 ++currClear;
                 break;
             case kCopySurface_Cmd:

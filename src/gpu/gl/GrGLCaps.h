@@ -245,9 +245,6 @@ public:
 
     bool fixedFunctionSupport() const { return fFixedFunctionSupport; }
 
-    /// Is there support for discarding the frame buffer
-    bool discardFBSupport() const { return fDiscardFBSupport; }
-
     bool fullClearIsFree() const { return fFullClearIsFree; }
 
     bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
@@ -332,7 +329,6 @@ private:
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
     bool fFixedFunctionSupport : 1;
-    bool fDiscardFBSupport : 1;
     bool fFullClearIsFree : 1;
     bool fDropsTileOnZeroDivide : 1;
 

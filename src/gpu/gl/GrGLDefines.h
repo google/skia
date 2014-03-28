@@ -691,6 +691,11 @@
 #define GR_GL_DEPTH_ATTACHMENT               0x8D00
 #define GR_GL_STENCIL_ATTACHMENT             0x8D20
 
+// GL_EXT_discard_framebuffer
+#define GR_GL_COLOR                          0x1800
+#define GR_GL_DEPTH                          0x1801
+#define GR_GL_STENCIL                        0x1802
+
 #define GR_GL_NONE                           0
 
 #define GR_GL_FRAMEBUFFER_COMPLETE                      0x8CD5

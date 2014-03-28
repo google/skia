@@ -40,6 +40,7 @@ public:
     bool bufferLockSupport() const { return fBufferLockSupport; }
     bool pathRenderingSupport() const { return fPathRenderingSupport; }
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
+    bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
 
     // Scratch textures not being reused means that those scratch textures
@@ -71,6 +72,7 @@ protected:
     bool fBufferLockSupport         : 1;
     bool fPathRenderingSupport      : 1;
     bool fDstReadInShaderSupport    : 1;
+    bool fDiscardRenderTargetSupport: 1;
     bool fReuseScratchTextures      : 1;
     bool fGpuTracingSupport         : 1;
 

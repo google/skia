@@ -1912,6 +1912,12 @@ void SkCanvas::clear(SkColor color) {
     }
 }
 
+void SkCanvas::onDiscard() {
+    if (NULL != fSurfaceBase) {
+        fSurfaceBase->aboutToDraw(SkSurface::kDiscard_ContentChangeMode);
+    }
+}
+
 void SkCanvas::drawPaint(const SkPaint& paint) {
     this->internalDrawPaint(paint);
 }

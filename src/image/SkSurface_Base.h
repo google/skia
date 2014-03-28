@@ -47,6 +47,12 @@ public:
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y, const SkPaint*);
 
     /**
+     * Called as a performance hint when the Surface is allowed to make it's contents
+     * undefined.
+     */
+    virtual void onDiscard() {}
+
+    /**
      *  If the surface is about to change, we call this so that our subclass
      *  can optionally fork their backend (copy-on-write) in case it was
      *  being shared with the cachedImage.
@@ -67,15 +73,15 @@ private:
     friend class SkCanvas;
     friend class SkSurface;
 
-    inline void installIntoCanvasForDirtyNotification();
-
     typedef SkSurface INHERITED;
 };
 
 SkCanvas* SkSurface_Base::getCachedCanvas() {
     if (NULL == fCachedCanvas) {
         fCachedCanvas = this->onNewCanvas();
-        this->installIntoCanvasForDirtyNotification();
+        if (NULL != fCachedCanvas) {
+            fCachedCanvas->setSurfaceBase(this);
+        }
     }
     return fCachedCanvas;
 }
@@ -83,15 +89,9 @@ SkCanvas* SkSurface_Base::getCachedCanvas() {
 SkImage* SkSurface_Base::getCachedImage() {
     if (NULL == fCachedImage) {
         fCachedImage = this->onNewImageSnapshot();
-        this->installIntoCanvasForDirtyNotification();
+        SkASSERT(!fCachedCanvas || fCachedCanvas->getSurfaceBase() == this);
     }
     return fCachedImage;
-}
-
-void SkSurface_Base::installIntoCanvasForDirtyNotification() {
-    if (NULL != fCachedCanvas) {
-        fCachedCanvas->setSurfaceBase(this);
-    }
 }
 
 #endif

@@ -597,6 +597,20 @@ public:
     virtual void clear(SkColor);
 
     /**
+     * This makes the contents of the canvas undefined. Subsequent calls that
+     * require reading the canvas contents will produce undefined results. Examples
+     * include blending and readPixels. The actual implementation is backend-
+     * dependent and one legal implementation is to do nothing. Like clear(), this
+     * ignores the clip.
+     *
+     * This function should only be called if the caller intends to subsequently
+     * draw to the canvas. The canvas may do real work at discard() time in order
+     * to optimize performance on subsequent draws. Thus, if you call this and then
+     * never draw to the canvas subsequently you may pay a perfomance penalty.
+     */
+    void discard() { this->onDiscard(); }
+
+    /**
      *  Fill the entire canvas' bitmap (restricted to the current clip) with the
      *  specified paint.
      *  @param paint    The paint used to fill the canvas
@@ -1175,6 +1189,8 @@ protected:
     virtual void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle);
     virtual void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle);
     virtual void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op);
+
+    virtual void onDiscard();
 
     // Returns the canvas to be used by DrawIter. Default implementation
     // returns this. Subclasses that encapsulate an indirect canvas may

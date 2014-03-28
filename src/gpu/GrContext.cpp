@@ -1440,6 +1440,14 @@ void GrContext::resolveRenderTarget(GrRenderTarget* target) {
     fGpu->resolveRenderTarget(target);
 }
 
+void GrContext::discardRenderTarget(GrRenderTarget* target) {
+    SkASSERT(target);
+    ASSERT_OWNED_RESOURCE(target);
+    AutoRestoreEffects are;
+    AutoCheckFlush acf(this);
+    this->prepareToDraw(NULL, BUFFERED_DRAW, &are, &acf)->discard(target);
+}
+
 void GrContext::copyTexture(GrTexture* src, GrRenderTarget* dst, const SkIPoint* topLeft) {
     if (NULL == src || NULL == dst) {
         return;

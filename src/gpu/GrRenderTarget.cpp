@@ -54,6 +54,15 @@ void GrRenderTarget::resolve() {
     context->resolveRenderTarget(this);
 }
 
+void GrRenderTarget::discard() {
+    // go through context so that all necessary flushing occurs
+    GrContext* context = this->getContext();
+    if (NULL == context) {
+        return;
+    }
+    context->discardRenderTarget(this);
+}
+
 size_t GrRenderTarget::sizeInBytes() const {
     size_t colorBits;
     if (kUnknown_GrPixelConfig == fDesc.fConfig) {

@@ -23,6 +23,7 @@ public:
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
     virtual void onCopyOnWrite(ContentChangeMode) SK_OVERRIDE;
+    virtual void onDiscard() SK_OVERRIDE;
 
 private:
     SkGpuDevice* fDevice;
@@ -86,7 +87,13 @@ void SkSurface_Gpu::onCopyOnWrite(ContentChangeMode mode) {
 
         this->getCachedCanvas()->setRootDevice(newDevice);
         SkRefCnt_SafeAssign(fDevice, newDevice);
+    } else if (kDiscard_ContentChangeMode == mode) {
+        this->SkSurface_Gpu::onDiscard();
     }
+}
+
+void SkSurface_Gpu::onDiscard() {
+    fDevice->accessRenderTarget()->discard();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

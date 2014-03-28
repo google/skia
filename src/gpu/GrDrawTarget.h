@@ -438,6 +438,12 @@ public:
                        GrRenderTarget* renderTarget = NULL) = 0;
 
     /**
+     * Discards the contents render target. NULL indicates that the current render target should
+     * be discarded.
+     **/
+    virtual void discard(GrRenderTarget* = NULL) = 0;
+
+    /**
      * Called at start and end of gpu trace marking
      * GR_CREATE_GPU_TRACE_MARKER(marker_str, target) will automatically call these at the start
      * and end of a code block respectively

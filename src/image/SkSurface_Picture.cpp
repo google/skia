@@ -25,6 +25,7 @@ public:
     virtual void onDraw(SkCanvas*, SkScalar x, SkScalar y,
                         const SkPaint*) SK_OVERRIDE;
     virtual void onCopyOnWrite(ContentChangeMode) SK_OVERRIDE;
+    virtual void onDiscard() SK_OVERRIDE;
 
 private:
     SkPicture*  fPicture;
@@ -75,9 +76,18 @@ void SkSurface_Picture::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
     SkImagePrivDrawPicture(canvas, fPicture, x, y, paint);
 }
 
-void SkSurface_Picture::onCopyOnWrite(ContentChangeMode /*mode*/) {
+void SkSurface_Picture::onCopyOnWrite(ContentChangeMode mode) {
     // We always spawn a copy of the recording picture when we
     // are asked for a snapshot, so we never need to do anything here.
+    if (kDiscard_ContentChangeMode == mode) {
+        this->SkSurface_Picture::onDiscard();
+    }
+}
+
+void SkSurface_Picture::onDiscard() {
+    if (NULL != fPicture) {
+        fPicture->beginRecording(this->width(), this->height());
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

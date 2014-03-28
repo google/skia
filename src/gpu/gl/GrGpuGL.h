@@ -40,6 +40,8 @@ public:
     GrGLSLGeneration glslGeneration() const { return fGLContext.glslGeneration(); }
     const GrGLCaps& glCaps() const { return *fGLContext.caps(); }
 
+    virtual void discard(GrRenderTarget*) SK_OVERRIDE;
+
     // Used by GrGLProgram and GrGLTexGenProgramEffects to configure OpenGL state.
     void bindTexture(int unitIdx, const GrTextureParams& params, GrGLTexture* texture);
     void setProjectionMatrix(const SkMatrix& matrix,

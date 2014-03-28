@@ -72,7 +72,9 @@ public:
     virtual void clear(const SkIRect* rect,
                        GrColor color,
                        bool canIgnoreRect,
-                       GrRenderTarget* renderTarget = NULL) SK_OVERRIDE;
+                       GrRenderTarget* renderTarget) SK_OVERRIDE;
+
+    virtual void discard(GrRenderTarget*) SK_OVERRIDE;
 
     virtual void initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* desc) SK_OVERRIDE;
 
@@ -125,6 +127,7 @@ private:
         GrDeviceCoordTexture fDstCopy;
     };
 
+    // This is also used to record a discard by setting the color to GrColor_ILLEGAL
     struct Clear : public ::SkNoncopyable {
         Clear() : fRenderTarget(NULL) {}
         ~Clear() { SkSafeUnref(fRenderTarget); }

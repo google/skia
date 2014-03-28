@@ -14,21 +14,26 @@
 #include "GrTypes.h"
 
 /**
- *  GrColor is 4 bytes for R, G, B, A, in a compile-time specific order. The
- *  components are stored premultiplied.
+ * GrColor is 4 bytes for R, G, B, A, in a specific order defined below. The components are stored
+ * premultiplied.
  */
 typedef uint32_t GrColor;
-
 
 // shift amount to assign a component to a GrColor int
 // These shift values are chosen for compatibility with GL attrib arrays
 // ES doesn't allow BGRA vertex attrib order so if they were not in this order
-// we'd have to swizzle in shaders. Note the assumption that the cpu is little
-// endian.
-#define GrColor_SHIFT_R     0
-#define GrColor_SHIFT_G     8
-#define GrColor_SHIFT_B     16
-#define GrColor_SHIFT_A     24
+// we'd have to swizzle in shaders.
+#ifdef SK_CPU_BENDIAN
+    #define GrColor_SHIFT_R     24
+    #define GrColor_SHIFT_G     16
+    #define GrColor_SHIFT_B     8
+    #define GrColor_SHIFT_A     0
+#else
+    #define GrColor_SHIFT_R     0
+    #define GrColor_SHIFT_G     8
+    #define GrColor_SHIFT_B     16
+    #define GrColor_SHIFT_A     24
+#endif
 
 /**
  *  Pack 4 components (RGBA) into a GrColor int
@@ -57,6 +62,22 @@ static inline GrColor GrColorPackRGBA(unsigned r, unsigned g,
  *  each component==255 and alpha == 0 to be "illegal"
  */
 #define GrColor_ILLEGAL     (~(0xFF << GrColor_SHIFT_A))
+
+/**
+ * Assert in debug builds that a GrColor is premultiplied.
+ */
+static inline void GrColorIsPMAssert(GrColor c) {
+#ifdef SK_DEBUG
+    unsigned a = GrColorUnpackA(c);
+    unsigned r = GrColorUnpackR(c);
+    unsigned g = GrColorUnpackG(c);
+    unsigned b = GrColorUnpackB(c);
+
+    SkASSERT(r <= a);
+    SkASSERT(g <= a);
+    SkASSERT(b <= a);
+#endif
+}
 
 /** Converts a GrColor to an rgba array of GrGLfloat */
 static inline void GrColorToRGBAFloat(GrColor color, float rgba[4]) {

@@ -1295,6 +1295,25 @@ void GrGpuGL::onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) {
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }
 
+void GrGpuGL::discard(GrRenderTarget* renderTarget) {
+    if (NULL == renderTarget) {
+        renderTarget = this->drawState()->getRenderTarget();
+        if (NULL == renderTarget) {
+            return;
+        }
+    }
+
+    GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(renderTarget);
+    if (renderTarget != fHWBoundRenderTarget) {
+        fHWBoundRenderTarget = NULL;
+        GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, glRT->renderFBOID()));
+    }
+    GrGLenum attachments[] = { GR_GL_COLOR };
+    GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, SK_ARRAY_COUNT(attachments), attachments));
+    renderTarget->flagAsResolved();
+}
+
+
 void GrGpuGL::clearStencil() {
     if (NULL == this->getDrawState().getRenderTarget()) {
         return;

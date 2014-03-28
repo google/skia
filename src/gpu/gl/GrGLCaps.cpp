@@ -45,7 +45,6 @@ void GrGLCaps::reset() {
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
     fFixedFunctionSupport = false;
-    fDiscardFBSupport = false;
     fFullClearIsFree = false;
     fDropsTileOnZeroDivide = false;
 }
@@ -83,7 +82,6 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fUseNonVBOVertexAndIndexDynamicData = caps.fUseNonVBOVertexAndIndexDynamicData;
     fIsCoreProfile = caps.fIsCoreProfile;
     fFixedFunctionSupport = caps.fFixedFunctionSupport;
-    fDiscardFBSupport = caps.fDiscardFBSupport;
     fFullClearIsFree = caps.fFullClearIsFree;
     fDropsTileOnZeroDivide = caps.fDropsTileOnZeroDivide;
 
@@ -224,7 +222,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fUseNonVBOVertexAndIndexDynamicData = true;
     }
 
-    fDiscardFBSupport = ctxInfo.hasExtension("GL_EXT_discard_framebuffer");
+    fDiscardRenderTargetSupport = ctxInfo.hasExtension("GL_EXT_discard_framebuffer");
 
     if (kARM_GrGLVendor == ctxInfo.vendor() || kImagination_GrGLVendor == ctxInfo.vendor()) {
         fFullClearIsFree = true;
@@ -664,7 +662,6 @@ SkString GrGLCaps::dump() const {
     r.appendf("Vertex array object support: %s\n", (fVertexArrayObjectSupport ? "YES": "NO"));
     r.appendf("Use non-VBO for dynamic data: %s\n",
              (fUseNonVBOVertexAndIndexDynamicData ? "YES" : "NO"));
-    r.appendf("Discard FrameBuffer support: %s\n", (fDiscardFBSupport ? "YES" : "NO"));
     r.appendf("Full screen clear is free: %s\n", (fFullClearIsFree ? "YES" : "NO"));
     r.appendf("Drops tile on zero divide: %s\n", (fDropsTileOnZeroDivide ? "YES" : "NO"));
     return r;
