@@ -23,7 +23,7 @@
 
 #if defined(SK_CPU_ARM) && defined(__ARM_HAVE_OPTIONAL_NEON_SUPPORT)
 #  define SK_ARM_NEON_MODE  SK_ARM_NEON_MODE_DYNAMIC
-#elif defined(SK_CPU_ARM) && defined(__ARM_HAVE_NEON) || defined(SK_CPU_ARM64)
+#elif defined(SK_CPU_ARM) && defined(__ARM_HAVE_NEON)
 #  define SK_ARM_NEON_MODE  SK_ARM_NEON_MODE_ALWAYS
 #else
 #  define SK_ARM_NEON_MODE  SK_ARM_NEON_MODE_NONE

@@ -85,10 +85,12 @@ inline static void compiler_barrier() {
 #endif
 
 inline static void full_barrier_on_arm() {
-#if (defined(SK_CPU_ARM) && SK_ARM_ARCH >= 7) || defined(SK_CPU_ARM64)
-    asm volatile("dmb ish" : : : "memory");
-#elif defined(SK_CPU_ARM)
+#ifdef SK_CPU_ARM
+#  if SK_ARM_ARCH >= 7
+    asm volatile("dmb" : : : "memory");
+#  else
     asm volatile("mcr p15, 0, %0, c7, c10, 5" : : "r" (0) : "memory");
+#  endif
 #endif
 }
 

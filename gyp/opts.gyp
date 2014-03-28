@@ -122,23 +122,6 @@
             '-mno-apcs-frame',
           ]
         }],
-        [ 'skia_arch_type == "arm64"', {
-          'sources': [
-            '../src/opts/SkBitmapProcState_arm_neon.cpp',
-            '../src/opts/SkBitmapProcState_matrixProcs_neon.cpp',
-            '../src/opts/SkBitmapProcState_opts_arm.cpp',
-            '../src/opts/SkBlitMask_opts_arm.cpp',
-            '../src/opts/SkBlitMask_opts_arm_neon.cpp',
-            '../src/opts/SkBlitRow_opts_none.cpp',
-            '../src/opts/SkBlurImage_opts_arm.cpp',
-            '../src/opts/SkBlurImage_opts_neon.cpp',
-            '../src/opts/SkMorphology_opts_arm.cpp',
-            '../src/opts/SkMorphology_opts_neon.cpp',
-            '../src/opts/SkUtils_opts_none.cpp',
-            '../src/opts/SkXfermode_opts_arm.cpp',
-            '../src/opts/SkXfermode_opts_arm_neon.cpp',
-          ],
-        }],
       ],
     },
     # For the same lame reasons as what is done for skia_opts, we have to

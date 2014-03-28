@@ -7,7 +7,7 @@
 
 usage() {
     cat >&2 <<EOF
-arm64_make - this script builds a AArch64 version of skia that
+arm64_make - this script builds a ARMv7 Aarch64 version of skia that
 does not depend on external libraries, perfect for putting in an
 embedded system running Linux.
 
@@ -45,7 +45,12 @@ done
 
 export GYP_DEFINES="${GYP_DEFINES} \
     skia_gpu=0 \
-    skia_arch_type=arm64 \
+    skia_arch_type=arm \
+    skia_arch_width=64 \
+    armv7=1 \
+    armv8=1 \
+    arm_neon=0 \
+    arm_thumb=0 \
     "
 
 "$(dirname "$0")/barelinux_make" -t "$BUILD_TYPE"
