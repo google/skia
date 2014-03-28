@@ -15,6 +15,7 @@
 #include "SkString.h"
 #include "SkTileGridPicture.h"
 #include "SkTime.h"
+#include "LazyDecodeBitmap.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -116,7 +117,8 @@ int tool_main(int argc, char** argv) {
             failed = true;
             continue;
         }
-        SkAutoTUnref<SkPicture> src(SkPicture::CreateFromStream(stream));
+        SkAutoTUnref<SkPicture> src(
+            SkPicture::CreateFromStream(stream, sk_tools::LazyDecodeBitmap));
         if (!src) {
             SkDebugf("Could not read %s as an SkPicture.\n", path.c_str());
             failed = true;

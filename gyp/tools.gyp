@@ -292,8 +292,15 @@
     {
       'target_name': 'bench_record',
       'type': 'executable',
-      'sources': ['../tools/bench_record.cpp'],
-      'include_dirs': [ '../src/core/' ],
+      'sources': [
+        '../tools/bench_record.cpp',
+        '../tools/LazyDecodeBitmap.cpp',
+      ],
+      'include_dirs': [
+        '../src/core/',
+        '../src/images',
+        '../src/lazy',
+      ],
       'dependencies': [
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
