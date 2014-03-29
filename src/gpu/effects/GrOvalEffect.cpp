@@ -146,7 +146,7 @@ void GLCircleEffect::emitCode(GrGLShaderBuilder* builder,
 
     SkASSERT(kHairlineAA_GrEffectEdgeType != ce.getEdgeType());
     if (GrEffectEdgeTypeIsInverseFill(ce.getEdgeType())) {
-        builder->fsCodeAppendf("\t\tfloat d = length(%s.xy - %s.xy) - %s.z;\n", 
+        builder->fsCodeAppendf("\t\tfloat d = length(%s.xy - %s.xy) - %s.z;\n",
                                 circleName, fragmentPos, circleName);
     } else {
         builder->fsCodeAppendf("\t\tfloat d = %s.z - length(%s.xy - %s.xy);\n",

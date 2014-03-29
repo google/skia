@@ -23,15 +23,15 @@
 #ifndef SkUserConfig_Android_DEFINED
 #define SkUserConfig_Android_DEFINED
 #ifdef ANDROID
-	#include <utils/misc.h>
+    #include <utils/misc.h>
 #endif
 
 #if __BYTE_ORDER == __BIG_ENDIAN
-	#define SK_CPU_BENDIAN
-	#undef  SK_CPU_LENDIAN
+    #define SK_CPU_BENDIAN
+    #undef  SK_CPU_LENDIAN
 #else
-	#define SK_CPU_LENDIAN
-	#undef  SK_CPU_BENDIAN
+    #define SK_CPU_LENDIAN
+    #undef  SK_CPU_BENDIAN
 #endif
 
 #define SK_BUILD_FOR_ANDROID
