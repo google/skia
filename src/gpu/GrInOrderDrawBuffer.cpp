@@ -645,7 +645,7 @@ void GrInOrderDrawBuffer::flush() {
                 ++currClip;
                 break;
             case kClear_Cmd:
-                if (GrColor_ILLEGAL == fClears[currClear].fColor) {
+                if (false && GrColor_ILLEGAL == fClears[currClear].fColor) {
                     fDstGpu->discard(fClears[currClear].fRenderTarget);
                 } else {
                     fDstGpu->clear(&fClears[currClear].fRect,
