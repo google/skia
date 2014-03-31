@@ -202,7 +202,7 @@ protected:
 
         SkScalar intervals[2] = { dashLength, dashLength };
 
-        p.setPathEffect(SkDashPathEffect::Create(intervals, 2, phase, false))->unref();
+        p.setPathEffect(SkDashPathEffect::Create(intervals, 2, phase))->unref();
 
         SkPoint pts[2];
 

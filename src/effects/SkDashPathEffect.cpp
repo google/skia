@@ -35,8 +35,7 @@ static SkScalar FindFirstInterval(const SkScalar intervals[], SkScalar phase,
 }
 
 SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count,
-                                   SkScalar phase, bool scaleToFit)
-        : fScaleToFit(scaleToFit) {
+                                   SkScalar phase) {
     SkASSERT(intervals);
     SkASSERT(count > 1 && SkAlign2(count) == count);
 
@@ -256,7 +255,6 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
         bool        addedSegment = false;
         SkScalar    length = meas.getLength();
         int         index = fInitialDashIndex;
-        SkScalar    scale = SK_Scalar1;
 
         // Since the path length / dash length ratio may be arbitrarily large, we can exert
         // significant memory pressure while attempting to build the filtered path. To avoid this,
@@ -273,20 +271,10 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
             return false;
         }
 
-        if (fScaleToFit) {
-            if (fIntervalLength >= length) {
-                scale = SkScalarDiv(length, fIntervalLength);
-            } else {
-                SkScalar div = SkScalarDiv(length, fIntervalLength);
-                int n = SkScalarFloorToInt(div);
-                scale = SkScalarDiv(length, n * fIntervalLength);
-            }
-        }
-
         // Using double precision to avoid looping indefinitely due to single precision rounding
         // (for extreme path_length/dash_length ratios). See test_infinite_dash() unittest.
         double  distance = 0;
-        double  dlen = SkScalarMul(fInitialDashLength, scale);
+        double  dlen = fInitialDashLength;
 
         while (distance < length) {
             SkASSERT(dlen >= 0);
@@ -318,13 +306,13 @@ bool SkDashPathEffect::filterPath(SkPath* dst, const SkPath& src,
             }
 
             // fetch our next dlen
-            dlen = SkScalarMul(intervals[index], scale);
+            dlen = intervals[index];
         }
 
         // extend if we ended on a segment and we need to join up with the (skipped) initial segment
         if (meas.isClosed() && is_even(fInitialDashIndex) &&
                 fInitialDashLength > 0) {
-            meas.getSegment(0, SkScalarMul(fInitialDashLength, scale), dst, !addedSegment);
+            meas.getSegment(0, fInitialDashLength, dst, !addedSegment);
             ++segCount;
         }
     } while (meas.nextContour());
@@ -359,13 +347,6 @@ bool SkDashPathEffect::asPoints(PointData* results,
         !SkScalarNearlyEqual(fIntervals[0], fIntervals[1]) ||
         !SkScalarIsInt(fIntervals[0]) ||
         !SkScalarIsInt(fIntervals[1])) {
-        return false;
-    }
-
-    // TODO: this next test could be eased up. The rescaling should not impact
-    // the equality of the ons & offs. However, we would need to remove the
-    // integer intervals restriction first
-    if (fScaleToFit) {
         return false;
     }
 
@@ -538,7 +519,8 @@ void SkDashPathEffect::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(fInitialDashIndex);
     buffer.writeScalar(fInitialDashLength);
     buffer.writeScalar(fIntervalLength);
-    buffer.writeBool(fScaleToFit);
+    // Dummy write to stay compatible with old skps. Write will be removed in follow up patch.
+    buffer.writeBool(false);
     buffer.writeScalarArray(fIntervals, fCount);
 }
 
@@ -550,7 +532,7 @@ SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
     fInitialDashIndex = buffer.readInt();
     fInitialDashLength = buffer.readScalar();
     fIntervalLength = buffer.readScalar();
-    fScaleToFit = buffer.readBool();
+    buffer.readBool(); // dummy read to stay compatible with old skps
 
     fCount = buffer.getArrayCount();
     size_t allocSize = sizeof(SkScalar) * fCount;

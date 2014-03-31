@@ -263,7 +263,7 @@ public:
         fDoAA = doAA;
 
         SkScalar vals[] = { SkIntToScalar(dashLength), SkIntToScalar(dashLength) };
-        fPathEffect.reset(SkDashPathEffect::Create(vals, 2, SK_Scalar1, false));
+        fPathEffect.reset(SkDashPathEffect::Create(vals, 2, SK_Scalar1));
     }
 
 protected:

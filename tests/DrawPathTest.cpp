@@ -204,7 +204,7 @@ static void test_crbug_124652() {
         large values can "swamp" small ones.
      */
     SkScalar intervals[2] = {837099584, 33450};
-    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, -10, false));
+    SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, -10));
 }
 
 static void test_bigcubic() {
