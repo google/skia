@@ -13537,10 +13537,10 @@
           10769322296615755298
         ]
       ], 
-      "ignore-failure": true,
       "bugs": [
         2354
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "megalooper_0x0_nvprmsaa4.png": {
@@ -13551,8 +13551,9 @@
         ]
       ], 
       "bugs": [
-        2325
+        2354
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "megalooper_0x0_pdf-poppler.png": {
@@ -13610,10 +13611,10 @@
           10769322296615755298
         ]
       ], 
-      "ignore-failure": true,
       "bugs": [
         2354
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "megalooper_1x4_nvprmsaa4.png": {
@@ -13624,8 +13625,9 @@
         ]
       ], 
       "bugs": [
-        2325
+        2354
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "megalooper_1x4_pdf-poppler.png": {
@@ -13683,10 +13685,10 @@
           10769322296615755298
         ]
       ], 
-      "ignore-failure": true,
       "bugs": [
         2354
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "megalooper_4x1_nvprmsaa4.png": {
@@ -13696,10 +13698,10 @@
           10769322296615755298
         ]
       ], 
-      "ignore-failure": true,
       "bugs": [
         2354
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "megalooper_4x1_pdf-poppler.png": {
@@ -13751,10 +13753,10 @@
           7068817626419515805
         ]
       ], 
-      "ignore-failure": true,
       "bugs": [
         2354
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "mixed_xfermodes_nvprmsaa4.png": {
@@ -15192,10 +15194,10 @@
           12915657818379420968
         ]
       ], 
-      "ignore-failure": true,
       "bugs": [
         2354
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "poly2poly_nvprmsaa4.png": {
@@ -19647,8 +19649,9 @@
         ]
       ], 
       "bugs": [
-        2325
+        2354
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "verttext_nvprmsaa4.png": {
