@@ -1,5 +1,9 @@
 #include "DMTask.h"
 #include "DMTaskRunner.h"
+#include "SkCommandLineFlags.h"
+
+DEFINE_bool(cpu, true, "Master switch for running CPU-bound work.");
+DEFINE_bool(gpu, true, "Master switch for running GPU-bound work.");
 
 namespace DM {
 
@@ -42,7 +46,7 @@ CpuTask::CpuTask(const Task& parent) : Task(parent) {}
 
 void CpuTask::run() {
     this->start();
-    if (!this->shouldSkip()) {
+    if (FLAGS_cpu && !this->shouldSkip()) {
         this->draw();
     }
     this->finish();
@@ -53,7 +57,7 @@ GpuTask::GpuTask(Reporter* reporter, TaskRunner* taskRunner) : Task(reporter, ta
 
 void GpuTask::run(GrContextFactory& factory) {
     this->start();
-    if (!this->shouldSkip()) {
+    if (FLAGS_gpu && !this->shouldSkip()) {
         this->draw(&factory);
     }
     this->finish();
