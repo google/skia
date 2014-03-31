@@ -495,11 +495,10 @@ void TiledPictureRenderer::init(SkPicture* pict, const SkString* outputDir,
 
     // Do not call INHERITED::init(), which would create a (potentially large) canvas which is not
     // used by bench_pictures.
-    fPicture = pict;
+    fPicture = SkRef(pict);
     this->CopyString(&fOutputDir, outputDir);
     this->CopyString(&fInputFilename, inputFilename);
     fUseChecksumBasedFilenames = useChecksumBasedFilenames;
-    fPicture->ref();
     this->buildBBoxHierarchy();
 
     if (fTileWidthPercentage > 0) {
@@ -694,7 +693,7 @@ bool TiledPictureRenderer::render(SkBitmap** out) {
 
 SkCanvas* TiledPictureRenderer::setupCanvas(int width, int height) {
     SkCanvas* canvas = this->INHERITED::setupCanvas(width, height);
-    SkASSERT(fPicture != NULL);
+    SkASSERT(NULL != fPicture);
     // Clip the tile to an area that is completely inside both the SkPicture and the viewport. This
     // is mostly important for tiles on the right and bottom edges as they may go over this area and
     // the picture may have some commands that draw outside of this area and so should not actually
@@ -910,7 +909,7 @@ void PlaybackCreationRenderer::setup() {
     SkCanvas* recorder = fReplayer->beginRecording(this->getViewWidth(), this->getViewHeight(),
                                                    this->recordFlags());
     this->scaleToScaleFactor(recorder);
-    fPicture->draw(recorder);
+    recorder->drawPicture(*fPicture);
 }
 
 bool PlaybackCreationRenderer::render(SkBitmap** out) {
@@ -945,12 +944,12 @@ SkPicture* PictureRenderer::createPicture() {
             return SkNEW(SkPicture);
         case kQuadTree_BBoxHierarchyType:
             return SkNEW_ARGS(SkQuadTreePicture, (SkIRect::MakeWH(fPicture->width(),
-                fPicture->height())));
+                                                                  fPicture->height())));
         case kRTree_BBoxHierarchyType:
             return SkNEW(RTreePicture);
         case kTileGrid_BBoxHierarchyType:
             return SkNEW_ARGS(SkTileGridPicture, (fPicture->width(),
-                fPicture->height(), fGridInfo));
+                                                  fPicture->height(), fGridInfo));
     }
     SkASSERT(0); // invalid bbhType
     return NULL;
@@ -960,8 +959,7 @@ SkPicture* PictureRenderer::createPicture() {
 
 class GatherRenderer : public PictureRenderer {
 public:
-    virtual bool render(SkBitmap** out = NULL)
-            SK_OVERRIDE {
+    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE {
         SkRect bounds = SkRect::MakeWH(SkIntToScalar(fPicture->width()),
                                        SkIntToScalar(fPicture->height()));
         SkData* data = SkPictureUtils::GatherPixelRefs(fPicture, bounds);
@@ -984,8 +982,7 @@ PictureRenderer* CreateGatherPixelRefsRenderer() {
 
 class PictureCloneRenderer : public PictureRenderer {
 public:
-    virtual bool render(SkBitmap** out = NULL)
-            SK_OVERRIDE {
+    virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE {
         for (int i = 0; i < 100; ++i) {
             SkPicture* clone = fPicture->clone();
             SkSafeUnref(clone);

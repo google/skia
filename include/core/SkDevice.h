@@ -383,7 +383,7 @@ protected:
      *  to perform some device-specific warm up tasks and then let SkCanvas
      *  perform the main rendering loop (by return false from here).
      */
-    virtual bool EXPERIMENTAL_drawPicture(const SkPicture& picture);
+    virtual bool EXPERIMENTAL_drawPicture(SkPicture* picture);
 
 private:
     friend class SkCanvas;

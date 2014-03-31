@@ -95,6 +95,8 @@
       '<(skia_src_path)/gpu/GrPathRenderer.h',
       '<(skia_src_path)/gpu/GrPathUtils.cpp',
       '<(skia_src_path)/gpu/GrPathUtils.h',
+      '<(skia_src_path)/gpu/GrPictureUtils.h',
+      '<(skia_src_path)/gpu/GrPictureUtils.cpp',
       '<(skia_src_path)/gpu/GrPlotMgr.h',
       '<(skia_src_path)/gpu/GrRectanizer.cpp',
       '<(skia_src_path)/gpu/GrRectanizer.h',

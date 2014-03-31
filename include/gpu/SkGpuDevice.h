@@ -159,7 +159,7 @@ protected:
     /**  PRIVATE / EXPERIMENTAL -- do not call */
     virtual void EXPERIMENTAL_optimize(SkPicture* picture) SK_OVERRIDE;
     /**  PRIVATE / EXPERIMENTAL -- do not call */
-    virtual bool EXPERIMENTAL_drawPicture(const SkPicture& picture) SK_OVERRIDE;
+    virtual bool EXPERIMENTAL_drawPicture(SkPicture* picture) SK_OVERRIDE;
 
 private:
     GrContext*      fContext;

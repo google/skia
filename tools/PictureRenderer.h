@@ -365,6 +365,10 @@ public:
         return fCanvas;
     }
 
+    SkPicture* getPicture() {
+        return fPicture;
+    }
+
     PictureRenderer()
         : fPicture(NULL)
         , fJsonSummaryPtr(NULL)

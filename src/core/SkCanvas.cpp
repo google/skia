@@ -2547,7 +2547,7 @@ void SkCanvas::drawPicture(SkPicture& picture) {
     if (NULL != device) {
         // Canvas has to first give the device the opportunity to render
         // the picture itself.
-        if (device->EXPERIMENTAL_drawPicture(picture)) {
+        if (device->EXPERIMENTAL_drawPicture(&picture)) {
             return; // the device has rendered the entire picture
         }
     }

@@ -175,7 +175,7 @@ void SkBaseDevice::EXPERIMENTAL_optimize(SkPicture* picture) {
     // The base class doesn't perform any analysis but derived classes may
 }
 
-bool SkBaseDevice::EXPERIMENTAL_drawPicture(const SkPicture& picture) {
+bool SkBaseDevice::EXPERIMENTAL_drawPicture(SkPicture* picture) {
     // The base class doesn't perform any accelerated picture rendering
     return false;
 }

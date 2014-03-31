@@ -14,6 +14,7 @@
 #include "GrContext.h"
 #include "GrBitmapTextContext.h"
 #include "GrDistanceFieldTextContext.h"
+#include "GrPictureUtils.h"
 
 #include "SkGrTexturePixelRef.h"
 
@@ -1944,16 +1945,6 @@ SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info) {
     return SkSurface::NewRenderTarget(fContext, info, fRenderTarget->numSamples());
 }
 
-class GPUAccelData : public SkPicture::AccelData {
-public:
-    GPUAccelData(Key key) : INHERITED(key) { }
-
-protected:
-
-private:
-    typedef SkPicture::AccelData INHERITED;
-};
-
 // In the future this may not be a static method if we need to incorporate the
 // clip and matrix state into the key
 SkPicture::AccelData::Key SkGpuDevice::ComputeAccelDataKey() {
@@ -1968,18 +1959,84 @@ void SkGpuDevice::EXPERIMENTAL_optimize(SkPicture* picture) {
     GPUAccelData* data = SkNEW_ARGS(GPUAccelData, (key));
 
     picture->EXPERIMENTAL_addAccelData(data);
+
+    GatherGPUInfo(picture, data);
 }
 
-bool SkGpuDevice::EXPERIMENTAL_drawPicture(const SkPicture& picture) {
+bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkPicture* picture) {
+
     SkPicture::AccelData::Key key = ComputeAccelDataKey();
 
-    const SkPicture::AccelData* data = picture.EXPERIMENTAL_getAccelData(key);
+    const SkPicture::AccelData* data = picture->EXPERIMENTAL_getAccelData(key);
     if (NULL == data) {
         return false;
     }
 
-#if 0
     const GPUAccelData *gpuData = static_cast<const GPUAccelData*>(data);
+
+//#define SK_PRINT_PULL_FORWARD_INFO 1
+
+#ifdef SK_PRINT_PULL_FORWARD_INFO
+    static bool gPrintedAccelData = false;
+
+    if (!gPrintedAccelData) {
+        for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
+            const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
+
+            SkDebugf("%d: Width: %d Height: %d SL: %d R: %d hasNestedLayers: %s\n", 
+                                            i,
+                                            info.fSize.fWidth, 
+                                            info.fSize.fHeight, 
+                                            info.fSaveLayerOpID, 
+                                            info.fRestoreOpID, 
+                                            info.fHasNestedLayers ? "T" : "F");
+        }
+        gPrintedAccelData = true;
+    }
+#endif
+
+    SkAutoTArray<bool> pullForward(gpuData->numSaveLayers());
+    for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
+        pullForward[i] = false;
+    }
+
+    SkIRect clip;
+
+    fClipData.getConservativeBounds(this->width(), this->height(), &clip, NULL);
+
+    SkMatrix inv;
+    if (!fContext->getMatrix().invert(&inv)) {
+        return false;
+    }
+
+    SkRect r = SkRect::Make(clip);
+    inv.mapRect(&r);
+    r.roundOut(&clip);
+
+    const SkPicture::OperationList& ops = picture->EXPERIMENTAL_getActiveOps(clip);
+
+#ifdef SK_PRINT_PULL_FORWARD_INFO
+    SkDebugf("rect: %d %d %d %d\n", clip.fLeft, clip.fTop, clip.fRight, clip.fBottom);
+#endif
+
+    for (int i = 0; i < ops.numOps(); ++i) {
+        for (int j = 0; j < gpuData->numSaveLayers(); ++j) {
+            const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(j);
+
+            if (ops.offset(i) > info.fSaveLayerOpID && ops.offset(i) < info.fRestoreOpID) {
+                pullForward[j] = true;
+            }
+        }
+    }
+
+#ifdef SK_PRINT_PULL_FORWARD_INFO
+    SkDebugf("Need SaveLayers: ");
+    for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
+        if (pullForward[i]) {
+            SkDebugf("%d, ", i);
+        }
+    }
+    SkDebugf("\n");
 #endif
 
     return false;
