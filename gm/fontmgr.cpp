@@ -26,13 +26,13 @@ static SkScalar drawString(SkCanvas* canvas, const SkString& text, SkScalar x,
 
 class FontMgrGM : public skiagm::GM {
 public:
-    FontMgrGM(SkFontMgr* (*factory)() = NULL) {
+    FontMgrGM(SkFontMgr* fontMgr = NULL) {
         SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
 
         fName.set("fontmgr_iter");
-        if (factory) {
+        if (fontMgr) {
             fName.append("_factory");
-            fFM.reset(factory());
+            fFM.reset(fontMgr);
         } else {
             fFM.reset(SkFontMgr::RefDefault());
         }
@@ -195,5 +195,5 @@ DEF_GM( return SkNEW(FontMgrGM); )
 DEF_GM( return SkNEW(FontMgrMatchGM); )
 
 #ifdef SK_BUILD_FOR_WIN
-    DEF_GM( return SkNEW_ARGS(FontMgrGM, (SkFontMgr_New_DirectWrite)); )
+    DEF_GM( return SkNEW_ARGS(FontMgrGM, (SkFontMgr_New_DirectWrite())); )
 #endif
