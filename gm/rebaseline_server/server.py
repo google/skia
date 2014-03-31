@@ -28,22 +28,28 @@ import urlparse
 
 # Imports from within Skia
 #
-# We need to add the 'tools' directory, so that we can import svn.py within
+# We need to add the 'tools' directory for svn.py, and the 'gm' directory for
+# gm_json.py .
 # that directory.
 # Make sure that the 'tools' dir is in the PYTHONPATH, but add it at the *end*
 # so any dirs that are already in the PYTHONPATH will be preferred.
 PARENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-TRUNK_DIRECTORY = os.path.dirname(os.path.dirname(PARENT_DIRECTORY))
+GM_DIRECTORY = os.path.dirname(PARENT_DIRECTORY)
+TRUNK_DIRECTORY = os.path.dirname(GM_DIRECTORY)
 TOOLS_DIRECTORY = os.path.join(TRUNK_DIRECTORY, 'tools')
 if TOOLS_DIRECTORY not in sys.path:
   sys.path.append(TOOLS_DIRECTORY)
 import svn
+if GM_DIRECTORY not in sys.path:
+  sys.path.append(GM_DIRECTORY)
+import gm_json
 
 # Imports from local dir
 #
 # Note: we import results under a different name, to avoid confusion with the
 # Server.results() property. See discussion at
 # https://codereview.chromium.org/195943004/diff/1/gm/rebaseline_server/server.py#newcode44
+import compare_configs
 import compare_to_expectations
 import imagepairset
 import results as results_mod
@@ -67,18 +73,32 @@ KEY__EDITS__MODIFICATIONS = 'modifications'
 KEY__EDITS__OLD_RESULTS_HASH = 'oldResultsHash'
 KEY__EDITS__OLD_RESULTS_TYPE = 'oldResultsType'
 
-DEFAULT_ACTUALS_DIR = compare_to_expectations.DEFAULT_ACTUALS_DIR
+DEFAULT_ACTUALS_DIR = results_mod.DEFAULT_ACTUALS_DIR
 DEFAULT_ACTUALS_REPO_REVISION = 'HEAD'
 DEFAULT_ACTUALS_REPO_URL = 'http://skia-autogen.googlecode.com/svn/gm-actual'
 DEFAULT_PORT = 8888
 
-# Directory within which the server will serve out static files.
-STATIC_CONTENTS_SUBDIR = 'static'  # within PARENT_DIR
-GENERATED_IMAGES_SUBDIR = 'generated-images'  # within STATIC_CONTENTS_SUBDIR
+# Directory, relative to PARENT_DIRECTORY, within which the server will serve
+# out live results (not static files).
+RESULTS_SUBDIR = 'results'
+# Directory, relative to PARENT_DIRECTORY, within which the server will serve
+# out static files.
+STATIC_CONTENTS_SUBDIR = 'static'
+# All of the GENERATED_*_SUBDIRS are relative to STATIC_CONTENTS_SUBDIR
+GENERATED_HTML_SUBDIR = 'generated-html'
+GENERATED_IMAGES_SUBDIR = 'generated-images'
+GENERATED_JSON_SUBDIR = 'generated-json'
 
 # How often (in seconds) clients should reload while waiting for initial
 # results to load.
 RELOAD_INTERVAL_UNTIL_READY = 10
+
+SUMMARY_TYPES = [
+    results_mod.KEY__HEADER__RESULTS_FAILURES,
+    results_mod.KEY__HEADER__RESULTS_ALL,
+]
+# If --compare-configs is specified, compare these configs.
+CONFIG_PAIRS_TO_COMPARE = [('8888', 'gpu')]
 
 _HTTP_HEADER_CONTENT_LENGTH = 'Content-Length'
 _HTTP_HEADER_CONTENT_TYPE = 'Content-Type'
@@ -137,6 +157,57 @@ def _create_svn_checkout(dir_path, repo_url):
   return local_checkout
 
 
+def _create_index(file_path, config_pairs):
+  """Creates an index file linking to all results available from this server.
+
+  Prior to https://codereview.chromium.org/215503002 , we had a static
+  index.html within our repo.  But now that the results may or may not include
+  config comparisons, index.html needs to be generated differently depending
+  on which results are included.
+
+  TODO(epoger): Instead of including raw HTML within the Python code,
+  consider restoring the index.html file as a template and using django (or
+  similar) to fill in dynamic content.
+
+  Args:
+    file_path: path on local disk to write index to; any directory components
+               of this path that do not already exist will be created
+    config_pairs: what pairs of configs (if any) we compare actual results of
+  """
+  dir_path = os.path.dirname(file_path)
+  if not os.path.isdir(dir_path):
+    os.makedirs(dir_path)
+  with open(file_path, 'w') as file_handle:
+    file_handle.write(
+        '<!DOCTYPE html><html>'
+        '<head><title>rebaseline_server</title></head>'
+        '<body><ul>')
+    if SUMMARY_TYPES:
+      file_handle.write('<li>Expectations vs Actuals</li><ul>')
+      for summary_type in SUMMARY_TYPES:
+        file_handle.write(
+            '<li>'
+            '<a href="/%s/view.html#/view.html?resultsToLoad=/%s/%s">'
+            '%s</a></li>' % (
+                STATIC_CONTENTS_SUBDIR, RESULTS_SUBDIR,
+                summary_type, summary_type))
+      file_handle.write('</ul>')
+    if config_pairs:
+      file_handle.write('<li>Comparing configs within actual results</li><ul>')
+      for config_pair in config_pairs:
+        file_handle.write('<li>%s vs %s:' % config_pair)
+        for summary_type in SUMMARY_TYPES:
+          file_handle.write(
+              ' <a href="/%s/view.html#/view.html?'
+              'resultsToLoad=/%s/%s/%s-vs-%s_%s.json">%s</a>' % (
+                  STATIC_CONTENTS_SUBDIR, STATIC_CONTENTS_SUBDIR,
+                  GENERATED_JSON_SUBDIR, config_pair[0], config_pair[1],
+                  summary_type, summary_type))
+        file_handle.write('</li>')
+      file_handle.write('</ul>')
+    file_handle.write('</ul></body></html>')
+
+
 class Server(object):
   """ HTTP server for our HTML rebaseline viewer. """
 
@@ -145,7 +216,7 @@ class Server(object):
                actuals_repo_revision=DEFAULT_ACTUALS_REPO_REVISION,
                actuals_repo_url=DEFAULT_ACTUALS_REPO_URL,
                port=DEFAULT_PORT, export=False, editable=True,
-               reload_seconds=0):
+               reload_seconds=0, config_pairs=None):
     """
     Args:
       actuals_dir: directory under which we will check out the latest actual
@@ -159,6 +230,9 @@ class Server(object):
       editable: whether HTTP clients are allowed to submit new baselines
       reload_seconds: polling interval with which to check for new results;
           if 0, don't check for new results at all
+      config_pairs: List of (string, string) tuples; for each tuple, compare
+          actual results of these two configs.  If None or empty,
+          don't compare configs at all.
     """
     self._actuals_dir = actuals_dir
     self._actuals_repo_revision = actuals_repo_revision
@@ -167,6 +241,12 @@ class Server(object):
     self._export = export
     self._editable = editable
     self._reload_seconds = reload_seconds
+    self._config_pairs = config_pairs or []
+    _create_index(
+        file_path=os.path.join(
+            PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR, GENERATED_HTML_SUBDIR,
+            "index.html"),
+        config_pairs=config_pairs)
     if actuals_repo_url:
       self._actuals_repo = _create_svn_checkout(
           dir_path=actuals_dir, repo_url=actuals_repo_url)
@@ -243,13 +323,35 @@ class Server(object):
             compare_to_expectations.DEFAULT_EXPECTATIONS_DIR)
         _run_command(['gclient', 'sync'], TRUNK_DIRECTORY)
 
-      self._results = compare_to_expectations.Results(
+      self._results = compare_to_expectations.ExpectationComparisons(
           actuals_root=self._actuals_dir,
           generated_images_root=os.path.join(
               PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR,
               GENERATED_IMAGES_SUBDIR),
           diff_base_url=posixpath.join(
               os.pardir, STATIC_CONTENTS_SUBDIR, GENERATED_IMAGES_SUBDIR))
+
+      json_dir = os.path.join(
+          PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR, GENERATED_JSON_SUBDIR)
+      if not os.path.isdir(json_dir):
+         os.makedirs(json_dir)
+
+      for config_pair in self._config_pairs:
+        config_comparisons = compare_configs.ConfigComparisons(
+            configs=config_pair,
+            actuals_root=self._actuals_dir,
+            generated_images_root=os.path.join(
+                PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR,
+                GENERATED_IMAGES_SUBDIR),
+            diff_base_url=posixpath.join(
+                os.pardir, GENERATED_IMAGES_SUBDIR))
+        for summary_type in SUMMARY_TYPES:
+          gm_json.WriteToFile(
+              config_comparisons.get_packaged_results_of_type(
+                  results_type=summary_type),
+              os.path.join(
+                  json_dir, '%s-vs-%s_%s.json' % (
+                      config_pair[0], config_pair[1], summary_type)))
 
   def _result_loader(self, reload_seconds=0):
     """ Call self.update_results(), either once or periodically.
@@ -300,7 +402,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     try:
       logging.debug('do_GET: path="%s"' % self.path)
       if self.path == '' or self.path == '/' or self.path == '/index.html' :
-        self.redirect_to('/%s/index.html' % STATIC_CONTENTS_SUBDIR)
+        self.redirect_to('/%s/%s/index.html' % (
+            STATIC_CONTENTS_SUBDIR, GENERATED_HTML_SUBDIR))
         return
       if self.path == '/favicon.ico' :
         self.redirect_to('/%s/favicon.ico' % STATIC_CONTENTS_SUBDIR)
@@ -313,8 +416,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       normpath = posixpath.normpath(self.path)
       (dispatcher_name, remainder) = PATHSPLIT_RE.match(normpath).groups()
       dispatchers = {
-          'results': self.do_GET_results,
-           STATIC_CONTENTS_SUBDIR: self.do_GET_static,
+          RESULTS_SUBDIR: self.do_GET_results,
+          STATIC_CONTENTS_SUBDIR: self.do_GET_static,
       }
       dispatcher = dispatchers[dispatcher_name]
       dispatcher(remainder)
@@ -330,9 +433,9 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             must be one of the results_mod.RESULTS_* constants
     """
     logging.debug('do_GET_results: sending results of type "%s"' % results_type)
-    # Since we must make multiple calls to the Results object, grab a
-    # reference to it in case it is updated to point at a new Results
-    # object within another thread.
+    # Since we must make multiple calls to the ExpectationComparisons object,
+    # grab a reference to it in case it is updated to point at a new
+    # ExpectationComparisons object within another thread.
     #
     # TODO(epoger): Rather than using a global variable for the handler
     # to refer to the Server object, make Server a subclass of
@@ -524,6 +627,11 @@ def main():
                           'argument in conjunction with --editable; you '
                           'probably only want to edit results at HEAD.'),
                     default=DEFAULT_ACTUALS_REPO_REVISION)
+  parser.add_argument('--compare-configs', action='store_true',
+                      help=('In addition to generating differences between '
+                            'expectations and actuals, also generate '
+                            'differences between these config pairs: '
+                            + str(CONFIG_PAIRS_TO_COMPARE)))
   parser.add_argument('--editable', action='store_true',
                       help=('Allow HTTP clients to submit new baselines.'))
   parser.add_argument('--export', action='store_true',
@@ -545,12 +653,17 @@ def main():
                             'must restart the server to pick up new data.'),
                       default=0)
   args = parser.parse_args()
+  if args.compare_configs:
+    config_pairs = CONFIG_PAIRS_TO_COMPARE
+  else:
+    config_pairs = None
+
   global _SERVER
   _SERVER = Server(actuals_dir=args.actuals_dir,
                    actuals_repo_revision=args.actuals_revision,
                    actuals_repo_url=args.actuals_repo,
                    port=args.port, export=args.export, editable=args.editable,
-                   reload_seconds=args.reload)
+                   reload_seconds=args.reload, config_pairs=config_pairs)
   _SERVER.run()
 
 

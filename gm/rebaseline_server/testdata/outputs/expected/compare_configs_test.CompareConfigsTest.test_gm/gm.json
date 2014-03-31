@@ -1,0 +1,207 @@
+{
+  "extraColumnHeaders": {
+    "builder": {
+      "headerText": "builder", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "Test-Android-GalaxyNexus-SGX540-Arm7-Release": 7, 
+        "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug": 3
+      }
+    }, 
+    "config": {
+      "headerText": "config", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "TODO": 10
+      }
+    }, 
+    "resultType": {
+      "headerText": "resultType", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "failed": 2, 
+        "no-comparison": 7, 
+        "succeeded": 1
+      }
+    }, 
+    "test": {
+      "headerText": "test", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "3x3bitmaprect": 2, 
+        "aaclip": 1, 
+        "bigblurs": 2, 
+        "bitmapsource": 1, 
+        "displacement": 1, 
+        "filterbitmap_checkerboard_192_192": 1, 
+        "filterbitmap_checkerboard_32_2": 1, 
+        "texdata": 1
+      }
+    }
+  }, 
+  "header": {
+    "dataHash": "-8308658702264135120", 
+    "isEditable": false, 
+    "isExported": true, 
+    "schemaVersion": 2, 
+    "timeNextUpdateAvailable": null, 
+    "timeUpdated": 12345678, 
+    "type": "all"
+  }, 
+  "imagePairs": [
+    {
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "TODO", 
+        "resultType": "no-comparison", 
+        "test": "texdata"
+      }, 
+      "imageAUrl": null, 
+      "imageBUrl": "bitmap-64bitMD5/texdata/3695033638604474475.png", 
+      "isDifferent": false
+    }, 
+    {
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "TODO", 
+        "resultType": "no-comparison", 
+        "test": "filterbitmap_checkerboard_32_2"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_32_2/712827739969462165.png", 
+      "imageBUrl": null, 
+      "isDifferent": false
+    }, 
+    {
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "TODO", 
+        "resultType": "no-comparison", 
+        "test": "filterbitmap_checkerboard_192_192"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/3154864687054945306.png", 
+      "imageBUrl": null, 
+      "isDifferent": false
+    }, 
+    {
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "TODO", 
+        "resultType": "no-comparison", 
+        "test": "bigblurs"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/bigblurs/17309852422285247848.png", 
+      "imageBUrl": null, 
+      "isDifferent": false
+    }, 
+    {
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "TODO", 
+        "resultType": "no-comparison", 
+        "test": "bitmapsource"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/bitmapsource/16289727936158057543.png", 
+      "imageBUrl": null, 
+      "isDifferent": false
+    }, 
+    {
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "TODO", 
+        "resultType": "no-comparison", 
+        "test": "3x3bitmaprect"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
+      "imageBUrl": null, 
+      "isDifferent": false
+    }, 
+    {
+      "extraColumns": {
+        "builder": "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+        "config": "TODO", 
+        "resultType": "no-comparison", 
+        "test": "aaclip"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/aaclip/14456211900777561488.png", 
+      "imageBUrl": null, 
+      "isDifferent": false
+    }, 
+    {
+      "differenceData": {
+        "maxDiffPerChannel": [
+          136, 
+          68, 
+          34
+        ], 
+        "numDifferingPixels": 6081, 
+        "percentDifferingPixels": 2.4324, 
+        "perceptualDifference": 1.917199999999994, 
+        "weightedDiffMeasure": 0.06644571780084584
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "TODO", 
+        "resultType": "failed", 
+        "test": "displacement"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/displacement/11401048196735046263.png", 
+      "imageBUrl": "bitmap-64bitMD5/displacement/5698561127291561694.png", 
+      "isDifferent": true
+    }, 
+    {
+      "differenceData": {
+        "maxDiffPerChannel": [
+          255, 
+          221, 
+          221
+        ], 
+        "numDifferingPixels": 50097, 
+        "percentDifferingPixels": 30.5767822265625, 
+        "perceptualDifference": 3.3917, 
+        "weightedDiffMeasure": 1.4826590790651433
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "TODO", 
+        "resultType": "failed", 
+        "test": "bigblurs"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/bigblurs/17309852422285247848.png", 
+      "imageBUrl": "bitmap-64bitMD5/bigblurs/1822195599289208664.png", 
+      "isDifferent": true
+    }, 
+    {
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "TODO", 
+        "resultType": "succeeded", 
+        "test": "3x3bitmaprect"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
+      "imageBUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
+      "isDifferent": false
+    }
+  ], 
+  "imageSets": {
+    "diffs": {
+      "baseUrl": "/static/generated-images/diffs", 
+      "description": "color difference per channel"
+    }, 
+    "imageA": {
+      "baseUrl": "http://chromium-skia-gm.commondatastorage.googleapis.com/gm", 
+      "description": "8888"
+    }, 
+    "imageB": {
+      "baseUrl": "http://chromium-skia-gm.commondatastorage.googleapis.com/gm", 
+      "description": "gpu"
+    }, 
+    "whiteDiffs": {
+      "baseUrl": "/static/generated-images/whitediffs", 
+      "description": "differing pixels in white"
+    }
+  }
+}
