@@ -76,15 +76,15 @@ def generate_user_config(original_sk_user_config, target_dir, ordered_set):
 
     # do this build check for other tools that still read this header
     dst.write('#ifdef ANDROID\n')
-    dst.write('\t#include <utils/misc.h>\n')
+    dst.write('    #include <utils/misc.h>\n')
     dst.write('#endif\n\n')
 
     dst.write('#if __BYTE_ORDER == __BIG_ENDIAN\n')
-    dst.write('\t#define SK_CPU_BENDIAN\n')
-    dst.write('\t#undef  SK_CPU_LENDIAN\n')
+    dst.write('    #define SK_CPU_BENDIAN\n')
+    dst.write('    #undef  SK_CPU_LENDIAN\n')
     dst.write('#else\n')
-    dst.write('\t#define SK_CPU_LENDIAN\n')
-    dst.write('\t#undef  SK_CPU_BENDIAN\n')
+    dst.write('    #define SK_CPU_LENDIAN\n')
+    dst.write('    #undef  SK_CPU_BENDIAN\n')
     dst.write('#endif\n\n')
 
     # Now add the defines from the gyp files.

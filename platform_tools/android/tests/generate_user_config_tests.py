@@ -23,7 +23,7 @@ sys.path.append(test_variables.GYP_GEN_DIR)
 from generate_user_config import generate_user_config as gen_config
 
 # Name of SkUserConfig file.
-USER_CONFIG_NAME = 'SkUserConfig.h'
+USER_CONFIG_NAME = 'SkUserConfig-h.txt'
 # Path to unchanging Dummy SkUserConfig file.
 FULL_DUMMY_PATH = os.path.join(os.path.dirname(__file__), 'inputs',
                                USER_CONFIG_NAME)
