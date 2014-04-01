@@ -85,6 +85,22 @@
               },
             },
           },
+          # Gyp's ninja generator depends on these specially named
+          # configurations to build 64-bit on Windows.
+          # See http://skbug.com/2348
+          #
+          # We handle the 64- vs 32-bit variations elsewhere, so I think it's
+          # OK for us to just make these inherit non-archwidth-specific
+          # configurations without modification.
+          'Debug_x64': {
+            'inherit_from': ['Debug'],
+          },
+          'Release_x64': {
+            'inherit_from': ['Release'],
+          },
+          'Release_Developer_x64': {
+            'inherit_from': ['Release_Developer'],
+          },
         },
         'conditions' : [
           [ 'skia_arch_width == 64', {

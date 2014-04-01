@@ -49,7 +49,7 @@ setup_device() {
 
   exportVar GENERIC_BOARD_TYPE ${GENERIC_BOARD_TYPE}
   exportVar GYP_DEFINES "$DEFINES"
-  exportVar GYP_GENERATORS "make"
+  exportVar GYP_GENERATORS "ninja"
   exportVar GYP_GENERATOR_FLAGS ""
   exportVar SKIA_OUT "out/config/chromeos-${TARGET_DEVICE}"
   exportVar builddir_name "."

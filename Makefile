@@ -1,5 +1,5 @@
 # Makefile that wraps the Gyp and build steps for Unix and Mac (but not Windows)
-# Uses "make" to build on Unix, and "xcodebuild" to build on Mac.
+# Uses "ninja" to build the code.
 #
 # Some usage examples (tested on both Linux and Mac):
 #
@@ -36,6 +36,9 @@ CWD := $(shell pwd)
 # But that will be a bit complicated, so let's keep it for a future CL.
 # Tracked as https://code.google.com/p/skia/issues/detail?id=947 ('eliminate
 # need for VALID_TARGETS in toplevel Makefile')
+#
+# TODO(epoger): I'm not sure if the above comment is still valid in a ninja
+# world.
 VALID_TARGETS := \
                  bench \
                  debugger \
@@ -59,9 +62,8 @@ default: most
 
 # As noted in http://code.google.com/p/skia/issues/detail?id=330 , building
 # multiple targets in parallel was failing.  The special .NOTPARALLEL target
-# tells gnu make not to run targets within _this_ Makefile in parallel, but the
-# recursively invoked Makefile within out/ _is_ allowed to run in parallel
-# (so you can still get some speedup that way).
+# tells gnu make not to run targets within this Makefile in parallel.
+# Targets that ninja builds at this Makefile's behest should not be affected.
 .NOTPARALLEL:
 
 uname := $(shell uname)
@@ -87,44 +89,8 @@ endif
 gyp:
 	$(CWD)/gyp_skia
 
-# Run gyp if necessary.
-#
-# On Linux, only run gyp if we haven't already generated the platform-specific
-# Makefiles.  If the underlying gyp configuration has changed since these
-# Makefiles were generated, they will rerun gyp on their own.
-#
-# This does not work for Mac, though... so for now, we ALWAYS rerun gyp on Mac.
-# TODO(epoger): Figure out a better solution for Mac... maybe compare the
-# gypfile timestamps to the xcodebuild project timestamps?
-.PHONY: gyp_if_needed
-gyp_if_needed:
-ifneq (,$(findstring Linux, $(uname)))
-	$(MAKE) $(SKIA_OUT)/Makefile
-endif
-ifneq (,$(findstring Darwin, $(uname)))
-	$(CWD)/gyp_skia
-endif
-
-$(SKIA_OUT)/Makefile:
-	$(CWD)/gyp_skia
-
 # For all specific targets: run gyp if necessary, and then pass control to
 # the gyp-generated buildfiles.
-#
-# For the Mac, we create a convenience symlink to the generated binary.
 .PHONY: $(VALID_TARGETS)
-$(VALID_TARGETS):: gyp_if_needed
-ifneq (,$(findstring skia_os=android, $(GYP_DEFINES)))
-	$(MAKE) -C $(SKIA_OUT) $@ BUILDTYPE=$(BUILDTYPE)
-else ifneq (,$(findstring Linux, $(uname)))
-	$(MAKE) -C $(SKIA_OUT) $@ BUILDTYPE=$(BUILDTYPE)
-else ifneq (,$(findstring make, $(GYP_GENERATORS)))
-	$(MAKE) -C $(SKIA_OUT) $@ BUILDTYPE=$(BUILDTYPE)
-else ifneq (,$(findstring Darwin, $(uname)))
-	rm -f out/$(BUILDTYPE) || if test -d out/$(BUILDTYPE); then echo "run 'make clean' or otherwise delete out/$(BUILDTYPE)"; exit 1; fi
-	xcodebuild -project out/gyp/$@.xcodeproj -configuration $(BUILDTYPE)
-	ln -s $(CWD)/xcodebuild/$(BUILDTYPE) out/$(BUILDTYPE)
-else
-	echo "unknown platform $(uname)"
-	exit 1
-endif
+$(VALID_TARGETS):: gyp
+	ninja -C $(SKIA_OUT)/$(BUILDTYPE) $@

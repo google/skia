@@ -42,11 +42,6 @@ def rmtree(path):
     print '> rmtree %s' % path
     shutil.rmtree(path, ignore_errors=True)
 
-def mkdirs(path):
-    print '> mkdirs %s' % path
-    if not os.path.isdir(path):
-        os.makedirs(path)
-
 def runcommand(command):
     print '> %s' % command
     if os.system(command):
@@ -99,30 +94,21 @@ def MakeWindows(targets):
     parameters:
         targets: build targets as a list of strings
     """
+    # TODO(epoger): I'm not sure if this is needed for ninja builds.
     CheckWindowsEnvironment()
 
     # Run gyp_skia to prepare Visual Studio projects.
     cd(SCRIPT_DIR)
     runcommand('python gyp_skia')
 
-    # Prepare final output dir into which we will copy all binaries.
-    msbuild_working_dir = os.path.join(SCRIPT_DIR, OUT_SUBDIR, GYP_SUBDIR)
-    msbuild_output_dir = os.path.join(msbuild_working_dir, BUILDTYPE)
-    final_output_dir = os.path.join(SCRIPT_DIR, OUT_SUBDIR, BUILDTYPE)
-    mkdirs(final_output_dir)
+    # We already built the gypfiles...
+    while TARGET_GYP in targets:
+        targets.remove(TARGET_GYP)
 
-    for target in targets:
-        # We already built the gypfiles...
-        if target == TARGET_GYP:
-            continue
-
-        cd(msbuild_working_dir)
-        runcommand(
-            ('msbuild /nologo /property:Configuration=%s'
-            ' /target:%s /verbosity:minimal %s.sln') % (
-                BUILDTYPE, target, target))
-        runcommand('xcopy /y %s\* %s' % (
-            msbuild_output_dir, final_output_dir))
+    # And call ninja to do the work!
+    if targets:
+        runcommand('ninja -C %s %s' % (
+            os.path.join(OUT_SUBDIR, BUILDTYPE), ' '.join(targets)))
 
 
 def Make(args):
