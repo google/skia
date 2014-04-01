@@ -51,7 +51,6 @@
         '../src/ports/SkOSFile_stdio.cpp',
         '../src/ports/SkOSFile_win.cpp',
         '../src/ports/SkDiscardableMemory_none.cpp',
-        '../src/ports/SkPurgeableMemoryBlock_none.cpp',
         '../src/ports/SkTime_Unix.cpp',
         '../src/ports/SkTime_win.cpp',
        #'../src/ports/SkTLS_none.cpp',
@@ -119,11 +118,9 @@
           ],
           'sources': [
             '../src/ports/SkFontHost_mac.cpp',
-            '../src/ports/SkPurgeableMemoryBlock_mac.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
           ],
           'sources!': [
-            '../src/ports/SkPurgeableMemoryBlock_none.cpp',
             '../src/ports/SkFontHost_tables.cpp',
           ],
         }],
@@ -134,11 +131,9 @@
           ],
           'sources': [
             '../src/ports/SkFontHost_mac.cpp',
-            '../src/ports/SkPurgeableMemoryBlock_mac.cpp',
             '../src/utils/mac/SkStream_mac.cpp',
           ],
           'sources!': [
-            '../src/ports/SkPurgeableMemoryBlock_none.cpp',
             '../src/ports/SkFontHost_tables.cpp',
           ],
         }],
@@ -182,7 +177,6 @@
           'sources!': [
             '../src/ports/SkDebug_stdio.cpp',
             '../src/ports/SkDiscardableMemory_none.cpp',
-            '../src/ports/SkPurgeableMemoryBlock_none.cpp',
           ],
           'sources': [
             '../src/ports/SkDebug_android.cpp',
@@ -190,7 +184,6 @@
             '../src/ports/SkFontConfigInterface_android.cpp',
             '../src/ports/SkFontConfigParser_android.cpp',
             '../src/ports/SkFontHost_fontconfig.cpp',
-            '../src/ports/SkPurgeableMemoryBlock_android.cpp',
           ],
           'dependencies': [
              'android_deps.gyp:expat',
