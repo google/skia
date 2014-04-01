@@ -222,6 +222,12 @@ public:
         GLPtr<GrGLGetTexLevelParameterivProc> fGetTexLevelParameteriv;
         GLPtr<GrGLGetUniformLocationProc> fGetUniformLocation;
         GLPtr<GrGLInsertEventMarkerProc> fInsertEventMarker;
+        GLPtr<GrGLInvalidateBufferDataProc> fInvalidateBufferData;
+        GLPtr<GrGLInvalidateBufferSubDataProc> fInvalidateBufferSubData;
+        GLPtr<GrGLInvalidateFramebufferProc> fInvalidateFramebuffer;
+        GLPtr<GrGLInvalidateSubFramebufferProc> fInvalidateSubFramebuffer;
+        GLPtr<GrGLInvalidateTexImageProc> fInvalidateTexImage;
+        GLPtr<GrGLInvalidateTexSubImageProc> fInvalidateTexSubImage;
         GLPtr<GrGLLineWidthProc> fLineWidth;
         GLPtr<GrGLLinkProgramProc> fLinkProgram;
         GLPtr<GrGLLoadIdentityProc> fLoadIdentity;

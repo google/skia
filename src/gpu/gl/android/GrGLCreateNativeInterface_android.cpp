@@ -203,6 +203,18 @@ static GrGLInterface* create_es_interface(GrGLVersion version,
         }
     }
 
+#if GL_ES_VERSION_3_0
+    functions->fInvalidateFramebuffer = glInvalidateFramebuffer;
+    functions->fInvalidateSubFramebuffer = glInvalidateSubFramebuffer;
+#else
+    functions->fInvalidateFramebuffer = (GrGLInvalidateFramebufferProc) eglGetProcAddress("glInvalidateFramebuffer");
+    functions->fInvalidateSubFramebuffer = (GrGLInvalidateSubFramebufferProc) eglGetProcAddress("glInvalidateSubFramebuffer");
+#endif
+    functions->fInvalidateBufferData = (GrGLInvalidateBufferDataProc) eglGetProcAddress("glInvalidateBufferData");
+    functions->fInvalidateBufferSubData = (GrGLInvalidateBufferSubDataProc) eglGetProcAddress("glInvalidateBufferSubData");
+    functions->fInvalidateTexImage = (GrGLInvalidateTexImageProc) eglGetProcAddress("glInvalidateTexImage");
+    functions->fInvalidateTexSubImage = (GrGLInvalidateTexSubImageProc) eglGetProcAddress("glInvalidateTexSubImage");
+
     return interface;
 }
 
@@ -402,6 +414,13 @@ static GrGLInterface* create_desktop_interface(GrGLVersion version,
         functions->fPushGroupMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glPushGroupMarkerEXT");
         functions->fPopGroupMarker = (GrGLPopGroupMarkerProc) eglGetProcAddress("glPopGroupMarkerEXT");
     }
+
+    functions->fInvalidateBufferData = (GrGLInvalidateBufferDataProc) eglGetProcAddress("glInvalidateBufferData");
+    functions->fInvalidateBufferSubData = (GrGLInvalidateBufferSubDataProc) eglGetProcAddress("glInvalidateBufferSubData");
+    functions->fInvalidateFramebuffer = (GrGLInvalidateFramebufferProc) eglGetProcAddress("glInvalidateFramebuffer");
+    functions->fInvalidateSubFramebuffer = (GrGLInvalidateSubFramebufferProc) eglGetProcAddress("glInvalidateSubFramebuffer");
+    functions->fInvalidateTexImage = (GrGLInvalidateTexImageProc) eglGetProcAddress("glInvalidateTexImage");
+    functions->fInvalidateTexSubImage = (GrGLInvalidateTexSubImageProc) eglGetProcAddress("glInvalidateTexSubImage");
 
     return interface;
 }

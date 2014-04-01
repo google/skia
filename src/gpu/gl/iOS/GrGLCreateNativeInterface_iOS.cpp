@@ -150,6 +150,18 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     functions->fPopGroupMarker = glPopGroupMarkerEXT;
 #endif
 
+#if GL_ES_VERSION_3_0 || GL_ARB_invalidate_subdata
+    functions->fInvalidateFramebuffer = glInvalidateFramebuffer;
+    functions->fInvalidateSubFramebuffer = glInvalidateSubFramebuffer;
+#endif
+
+#if GL_ARB_invalidate_subdata
+    functions->fInvalidateBufferData = glInvalidateBufferData;
+    functions->fInvalidateBufferSubData = glInvalidateBufferSubData;
+    functions->fInvalidateTexImage = glInvalidateTexImage;
+    functions->fInvalidateTexSubImage = glInvalidateTexSubImage;
+#endif
+
     interface->fStandard = kGLES_GrGLStandard;
     interface->fExtensions.init(kGLES_GrGLStandard, glGetString, NULL, glGetIntegerv);
 

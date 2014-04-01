@@ -141,6 +141,12 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLGetTexLevelParameterivProc)(GrGLenum target, GrGLint level, GrGLenum pname, GrGLint* params);
     typedef GrGLint (GR_GL_FUNCTION_TYPE* GrGLGetUniformLocationProc)(GrGLuint program, const char* name);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInsertEventMarkerProc)(GrGLsizei length, const char* marker);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateBufferDataProc)(GrGLuint buffer);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateBufferSubDataProc)(GrGLuint buffer, GrGLintptr offset, GrGLsizeiptr length);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateFramebufferProc)(GrGLenum target, GrGLsizei numAttachments,  const GrGLenum *attachments);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateSubFramebufferProc)(GrGLenum target, GrGLsizei numAttachments, const GrGLenum *attachments, GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateTexImageProc)(GrGLuint texture, GrGLint level);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLInvalidateTexSubImageProc)(GrGLuint texture, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLint zoffset, GrGLsizei width, GrGLsizei height, GrGLsizei depth);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLLineWidthProc)(GrGLfloat width);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLLinkProgramProc)(GrGLuint program);
     typedef GrGLvoid* (GR_GL_FUNCTION_TYPE* GrGLMapBufferProc)(GrGLenum target, GrGLenum access);

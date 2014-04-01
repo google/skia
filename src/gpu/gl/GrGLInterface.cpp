@@ -486,5 +486,25 @@ bool GrGLInterface::validate() const {
             RETURN_FALSE_INTERFACE
         }
     }
+
+#if 0 // This can be enabled once Chromium is updated to set these functions pointers.
+    if ((kGL_GrGLStandard == fStandard) || fExtensions.has("GL_ARB_invalidate_subdata")) {
+        if (NULL == fFunctions.fInvalidateBufferData ||
+            NULL == fFunctions.fInvalidateBufferSubData ||
+            NULL == fFunctions.fInvalidateFramebuffer ||
+            NULL == fFunctions.fInvalidateSubFramebuffer ||
+            NULL == fFunctions.fInvalidateTexImage ||
+            NULL == fFunctions.fInvalidateTexSubImage) {
+            RETURN_FALSE_INTERFACE;
+        }
+    } else if (glVer >= GR_GL_VER(3,0)) {
+        // ES 3.0 adds the framebuffer functions but not the others.
+        if (NULL == fFunctions.fInvalidateFramebuffer ||
+            NULL == fFunctions.fInvalidateSubFramebuffer) {
+            RETURN_FALSE_INTERFACE;
+        }
+    }
+#endif
+
     return true;
 }

@@ -278,6 +278,15 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GR_GL_GET_PROC_SUFFIX(PopGroupMarker, EXT);
     }
 
+    if (glVer >= GR_GL_VER(4,3) || extensions.has("GL_ARB_invalidate_subdata")) {
+        GR_GL_GET_PROC(InvalidateBufferData);
+        GR_GL_GET_PROC(InvalidateBufferSubData);
+        GR_GL_GET_PROC(InvalidateFramebuffer);
+        GR_GL_GET_PROC(InvalidateSubFramebuffer);
+        GR_GL_GET_PROC(InvalidateTexImage);
+        GR_GL_GET_PROC(InvalidateTexSubImage);
+    }
+
     interface->fStandard = kGL_GrGLStandard;
     interface->fExtensions.swap(&extensions);
 

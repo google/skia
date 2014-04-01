@@ -88,6 +88,7 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
     GET_PROC(GetShaderInfoLog);
     GET_PROC(GetShaderiv);
     GET_PROC(GetString);
+    GET_PROC(GetStringi);
     GET_PROC(GetUniformLocation);
     GET_PROC(LineWidth);
     GET_PROC(LinkProgram);
@@ -153,15 +154,25 @@ const GrGLInterface* GrGLCreateANGLEInterface() {
     functions->fMapBuffer = (GrGLMapBufferProc) eglGetProcAddress("glMapBufferOES");
     functions->fUnmapBuffer = (GrGLUnmapBufferProc) eglGetProcAddress("glUnmapBufferOES");
 
-#if GL_EXT_debug_marker
     functions->fInsertEventMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glInsertEventMarkerEXT");
     functions->fPushGroupMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glPushGroupMarkerEXT");
     functions->fPopGroupMarker = (GrGLPopGroupMarkerProc) eglGetProcAddress("glPopGroupMarkerEXT");
+
+#if GL_ES_VERSION_3_0
+    GET_PROC(InvalidateFramebuffer);
+    GET_PROC(InvalidateSubFramebuffer);
+#else
+    functions->fInvalidateFramebuffer = (GrGLInvalidateFramebufferProc) eglGetProcAddress("glInvalidateFramebuffer");
+    functions->fInvalidateSubFramebuffer = (GrGLInvalidateSubFramebufferProc) eglGetProcAddress("glInvalidateSubFramebuffer");
 #endif
+    functions->fInvalidateBufferData = (GrGLInvalidateBufferDataProc) eglGetProcAddress("glInvalidateBufferData");
+    functions->fInvalidateBufferSubData = (GrGLInvalidateBufferSubDataProc) eglGetProcAddress("glInvalidateBufferSubData");
+    functions->fInvalidateTexImage = (GrGLInvalidateTexImageProc) eglGetProcAddress("glInvalidateTexImage");
+    functions->fInvalidateTexSubImage = (GrGLInvalidateTexSubImageProc) eglGetProcAddress("glInvalidateTexSubImage");
 
     interface->fExtensions.init(kGLES_GrGLStandard,
-                                interface->fFunctions.fGetString,
-                                interface->fFunctions.fGetStringi,
-                                interface->fFunctions.fGetIntegerv);
+                                functions->fGetString,
+                                functions->fGetStringi,
+                                functions->fGetIntegerv);
     return interface;
 }
