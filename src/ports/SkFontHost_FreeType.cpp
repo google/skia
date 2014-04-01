@@ -1497,20 +1497,30 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
 
 void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph)
 {
-    if (fRec.fFlags & SkScalerContext::kEmbolden_Flag) {
-        switch ( glyph->format ) {
-            case FT_GLYPH_FORMAT_OUTLINE:
-                FT_Pos strength;
-                strength = FT_MulFix(face->units_per_EM, face->size->metrics.y_scale) / 24;
-                FT_Outline_Embolden(&glyph->outline, strength);
-                break;
-            case FT_GLYPH_FORMAT_BITMAP:
-                FT_GlyphSlot_Own_Bitmap(glyph);
-                FT_Bitmap_Embolden(glyph->library, &glyph->bitmap, kBitmapEmboldenStrength, 0);
-                break;
-            default:
-                SkDEBUGFAIL("unknown glyph format");
-        }
+    // check to see if the embolden bit is set
+    if (0 == (fRec.fFlags & SkScalerContext::kEmbolden_Flag)) {
+        return;
+    }
+
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+    // Android doesn't want to embolden a font that is already bold.
+    if ((fFace->style_flags & FT_STYLE_FLAG_BOLD)) {
+        return;
+    }
+#endif
+
+    switch (glyph->format) {
+        case FT_GLYPH_FORMAT_OUTLINE:
+            FT_Pos strength;
+            strength = FT_MulFix(face->units_per_EM, face->size->metrics.y_scale) / 24;
+            FT_Outline_Embolden(&glyph->outline, strength);
+            break;
+        case FT_GLYPH_FORMAT_BITMAP:
+            FT_GlyphSlot_Own_Bitmap(glyph);
+            FT_Bitmap_Embolden(glyph->library, &glyph->bitmap, kBitmapEmboldenStrength, 0);
+            break;
+        default:
+            SkDEBUGFAIL("unknown glyph format");
     }
 }
 
