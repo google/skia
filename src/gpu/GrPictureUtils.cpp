@@ -8,7 +8,7 @@
 #include "GrPictureUtils.h"
 #include "SkDevice.h"
 
-// The GrGather device performs GPU-backend-specific preprocessing on 
+// The GrGather device performs GPU-backend-specific preprocessing on
 // a picture. The results are stored in a GPUAccelData.
 //
 // Currently the only interesting work is done in drawDevice (i.e., when a
@@ -27,7 +27,7 @@ public:
         fInfo.fRestoreOpID = 0;
         fInfo.fHasNestedLayers = false;
 
-        fEmptyBitmap.setConfig(SkImageInfo::Make(fInfo.fSize.fWidth, 
+        fEmptyBitmap.setConfig(SkImageInfo::Make(fInfo.fSize.fWidth,
                                                  fInfo.fSize.fHeight,
                                                  kUnknown_SkColorType,
                                                  kIgnore_SkAlphaType));
@@ -187,11 +187,11 @@ private:
 //      GrGatherDevice dev(w, h, picture, accelData);
 //      GrGatherCanvas canvas(..., picture);
 //      canvas.gather();
-// 
-// which is all just to fill in 'accelData'     
+//
+// which is all just to fill in 'accelData'
 class SK_API GrGatherCanvas : public SkCanvas {
 public:
-    GrGatherCanvas(GrGatherDevice* device, SkPicture* pict) 
+    GrGatherCanvas(GrGatherDevice* device, SkPicture* pict)
         : INHERITED(device)
         , fPicture(pict) {
     }
@@ -232,8 +232,8 @@ private:
     typedef SkCanvas INHERITED;
 };
 
-// GatherGPUInfo is only intended to be called within the context of SkGpuDevice's 
-// EXPERIMENTAL_optimize method. 
+// GatherGPUInfo is only intended to be called within the context of SkGpuDevice's
+// EXPERIMENTAL_optimize method.
 void GatherGPUInfo(SkPicture* pict, GPUAccelData* accelData) {
     if (0 == pict->width() || 0 == pict->height()) {
         return ;
@@ -244,4 +244,3 @@ void GatherGPUInfo(SkPicture* pict, GPUAccelData* accelData) {
 
     canvas.gather();
 }
-

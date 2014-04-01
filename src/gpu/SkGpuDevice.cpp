@@ -1983,12 +1983,12 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkPicture* picture) {
         for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
             const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
-            SkDebugf("%d: Width: %d Height: %d SL: %d R: %d hasNestedLayers: %s\n", 
+            SkDebugf("%d: Width: %d Height: %d SL: %d R: %d hasNestedLayers: %s\n",
                                             i,
-                                            info.fSize.fWidth, 
-                                            info.fSize.fHeight, 
-                                            info.fSaveLayerOpID, 
-                                            info.fRestoreOpID, 
+                                            info.fSize.fWidth,
+                                            info.fSize.fHeight,
+                                            info.fSaveLayerOpID,
+                                            info.fRestoreOpID,
                                             info.fHasNestedLayers ? "T" : "F");
         }
         gPrintedAccelData = true;
