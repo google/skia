@@ -1616,7 +1616,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8702509661032148494
+          899119891905779549
         ]
       ], 
       "reviewed-by-human": true
@@ -1637,13 +1637,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5650627373138480985
+          899119891905779549
         ]
       ], 
-      "bugs": [
-        2325
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bleed_pdf-poppler.png": {
       "allowed-digests": [
@@ -10138,10 +10135,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4405160322804582830
+          16934377745071084590
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "fontscaler_msaa16.png": {
       "allowed-digests": [

@@ -1573,7 +1573,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15307215214955785591
+          10134098955798538896
         ]
       ], 
       "reviewed-by-human": true
@@ -1591,7 +1591,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15307215214955785591
+          10134098955798538896
         ]
       ], 
       "reviewed-by-human": true
@@ -9850,13 +9850,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15367496270667669905
+          6038427216880721079
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontscaler_msaa16.png": {
       "allowed-digests": [
@@ -9874,10 +9871,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15328163197542464557
+          11819142696872198617
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontscaler_pdf-poppler.png": {
       "allowed-digests": [

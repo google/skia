@@ -1066,7 +1066,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10318808333146273266
+          6875302572300858944
         ]
       ], 
       "reviewed-by-human": true
@@ -6784,13 +6784,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18295370272237314185
+          2642181544656365761
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontscaler_pdf-poppler.png": {
       "allowed-digests": [

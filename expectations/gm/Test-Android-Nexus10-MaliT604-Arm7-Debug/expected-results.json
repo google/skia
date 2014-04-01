@@ -768,7 +768,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1691190099326294664
+          1911284151223294607
         ]
       ], 
       "reviewed-by-human": true
@@ -777,7 +777,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7867602234467877695
+          5496062952963902498
         ]
       ], 
       "reviewed-by-human": true
@@ -5645,25 +5645,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12320324857053748193
+          16772822244569086326
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontscaler_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5388360622544029200
+          13423304482320817745
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gammatext_565.png": {
       "allowed-digests": [
