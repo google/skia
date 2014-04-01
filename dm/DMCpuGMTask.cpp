@@ -1,6 +1,7 @@
 #include "DMCpuGMTask.h"
 #include "DMExpectationsTask.h"
 #include "DMPipeTask.h"
+#include "DMRecordTask.h"
 #include "DMReplayTask.h"
 #include "DMSerializeTask.h"
 #include "DMTileGridTask.h"
@@ -38,6 +39,7 @@ void CpuGMTask::draw() {
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, false, false);
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, true, false);
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, true, true);
+    SPAWN(RecordTask, fGMFactory(NULL), bitmap);
     SPAWN(ReplayTask, fGMFactory(NULL), bitmap, false);
     SPAWN(ReplayTask, fGMFactory(NULL), bitmap, true);
     SPAWN(SerializeTask, fGMFactory(NULL), bitmap);

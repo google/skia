@@ -11,6 +11,7 @@
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkQuadTreePicture.h"
+#include "SkRecorder.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTileGridPicture.h"
@@ -30,6 +31,7 @@ DEFINE_bool(endRecording, true, "If false, don't time SkPicture::endRecording()"
 DEFINE_int32(nullSize, 1000, "Pretend dimension of null source picture.");
 DEFINE_int32(tileGridSize, 512, "Set the tile grid size. Has no effect if bbh is not set to tilegrid.");
 DEFINE_string(bbh, "", "Turn on the bbh and select the type, one of rtree, tilegrid, quadtree");
+DEFINE_bool(skr, false, "Record SKR instead of SKP.");
 
 typedef SkPicture* (*PictureFactory)(const int width, const int height, int* recordingFlags);
 
@@ -75,14 +77,22 @@ static void bench_record(SkPicture* src, const char* name, PictureFactory pictur
     const int height = src ? src->height() : FLAGS_nullSize;
 
     for (int i = 0; i < FLAGS_loops; i++) {
-        int recordingFlags = FLAGS_flags;
-        SkAutoTUnref<SkPicture> dst(pictureFactory(width, height, &recordingFlags));
-        SkCanvas* canvas = dst->beginRecording(width, height, recordingFlags);
-        if (NULL != src) {
-            src->draw(canvas);
-        }
-        if (FLAGS_endRecording) {
-            dst->endRecording();
+        if (FLAGS_skr) {
+            SkRecord record;
+            SkRecorder canvas(&record, width, height);
+            if (NULL != src) {
+                src->draw(&canvas);
+            }
+        } else {
+            int recordingFlags = FLAGS_flags;
+            SkAutoTUnref<SkPicture> dst(pictureFactory(width, height, &recordingFlags));
+            SkCanvas* canvas = dst->beginRecording(width, height, recordingFlags);
+            if (NULL != src) {
+                src->draw(canvas);
+            }
+            if (FLAGS_endRecording) {
+                dst->endRecording();
+            }
         }
     }
 

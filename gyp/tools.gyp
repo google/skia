@@ -300,10 +300,12 @@
         '../src/core/',
         '../src/images',
         '../src/lazy',
+        '../src/record',
       ],
       'dependencies': [
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
+        'record.gyp:*',
       ],
     },
     {
