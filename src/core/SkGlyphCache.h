@@ -28,7 +28,7 @@ class SkGlyphCache_Globals;
     This class represents a strike: a specific combination of typeface, size,
     matrix, etc., and holds the glyphs for that strike. Calling any of the
     getUnichar.../getGlyphID... methods will return the requested glyph,
-    either instantly if it is already cahced, or by first generating it and then
+    either instantly if it is already cached, or by first generating it and then
     adding it to the strike.
 
     The strikes are held in a global list, available to all threads. To interact

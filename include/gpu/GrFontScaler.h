@@ -18,7 +18,7 @@ class SkPath;
  *  font scaler.
  *
  *  The client is responsible for subclassing, and instantiating this. The
- *  instance is create for a specific font+size+matrix.
+ *  instance is created for a specific font+size+matrix.
  */
 class GrFontScaler : public SkRefCnt {
 public:

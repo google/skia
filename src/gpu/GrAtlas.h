@@ -33,9 +33,6 @@ class GrPlot {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrPlot);
 
-    int getOffsetX() const { return fOffset.fX; }
-    int getOffsetY() const { return fOffset.fY; }
-
     GrTexture* texture() const { return fTexture; }
 
     bool addSubImage(int width, int height, const void*, GrIPoint16*);
@@ -48,6 +45,7 @@ public:
 private:
     GrPlot();
     ~GrPlot(); // does not try to delete the fNext field
+    void init(GrAtlasMgr* mgr, int offX, int offY, int width, int height, size_t bpp);
 
     // for recycling
     GrDrawTarget::DrawToken fDrawToken;
@@ -55,7 +53,7 @@ private:
     GrTexture*              fTexture;
     GrRectanizer*           fRects;
     GrAtlasMgr*             fAtlasMgr;
-    GrIPoint16              fOffset;
+    GrIPoint16              fOffset;        // the offset of the plot in the backing texture
     size_t                  fBytesPerPixel;
 
     friend class GrAtlasMgr;
@@ -65,7 +63,8 @@ typedef SkTInternalLList<GrPlot> GrPlotList;
 
 class GrAtlasMgr {
 public:
-    GrAtlasMgr(GrGpu*, GrPixelConfig);
+    GrAtlasMgr(GrGpu*, GrPixelConfig, const SkISize& backingTextureSize,
+               int numPlotsX, int numPlotsY);
     ~GrAtlasMgr();
 
     // add subimage of width, height dimensions to atlas
@@ -89,6 +88,9 @@ private:
     GrGpu*        fGpu;
     GrPixelConfig fPixelConfig;
     GrTexture*    fTexture;
+    SkISize       fBackingTextureSize;
+    int           fNumPlotsX;
+    int           fNumPlotsY;
 
     // allocated array of GrPlots
     GrPlot*       fPlotArray;

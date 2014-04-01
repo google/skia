@@ -14,30 +14,30 @@
 
 class GrRectanizerSkyline : public GrRectanizer {
 public:
-    GrRectanizerSkyline(int w, int h) : GrRectanizer(w, h) {
-        reset();
+    GrRectanizerSkyline(int w, int h) : INHERITED(w, h) {
+        this->reset();
     }
 
     virtual ~GrRectanizerSkyline() {
     }
 
-    virtual void reset() {
+    virtual void reset() SK_OVERRIDE {
         fAreaSoFar = 0;
         fSkyline.reset();
         SkylineSegment* seg = fSkyline.append(1);
         seg->fX = 0;
         seg->fY = 0;
-        seg->fWidth = width();
+        seg->fWidth = this->width();
     }
 
-    virtual bool addRect(int w, int h, GrIPoint16* loc);
+    virtual bool addRect(int w, int h, GrIPoint16* loc) SK_OVERRIDE;
 
-    virtual float percentFull() const {
+    virtual float percentFull() const SK_OVERRIDE {
         return fAreaSoFar / ((float)this->width() * this->height());
     }
 
-    virtual int stripToPurge(int height) const { return -1; }
-    virtual void purgeStripAtY(int yCoord) { }
+    virtual int stripToPurge(int height) const SK_OVERRIDE { return -1; }
+    virtual void purgeStripAtY(int yCoord) SK_OVERRIDE { }
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +53,9 @@ public:
 
     bool rectangleFits(int skylineIndex, int width, int height, int* y) const;
     void addSkylineLevel(int skylineIndex, int x, int y, int width, int height);
+
+private:
+    typedef GrRectanizer INHERITED;
 };
 
 bool GrRectanizerSkyline::addRect(int width, int height, GrIPoint16* loc) {
@@ -104,13 +107,13 @@ bool GrRectanizerSkyline::rectangleFits(int skylineIndex, int width, int height,
     int i = skylineIndex;
     int y = fSkyline[skylineIndex].fY;
     while (widthLeft > 0) {
-    y = SkMax32(y, fSkyline[i].fY);
+        y = SkMax32(y, fSkyline[i].fY);
         if (y + height > this->height()) {
             return false;
         }
-    widthLeft -= fSkyline[i].fWidth;
-    ++i;
-    SkASSERT(i < fSkyline.count() || widthLeft <= 0);
+        widthLeft -= fSkyline[i].fWidth;
+        ++i;
+        SkASSERT(i < fSkyline.count() || widthLeft <= 0);
     }
 
     *ypos = y;
@@ -140,12 +143,12 @@ void GrRectanizerSkyline::addSkylineLevel(int skylineIndex, int x, int y, int wi
             if (fSkyline[i].fWidth <= 0) {
                 fSkyline.remove(i);
                 --i;
-            }
-            else
+            } else {
                 break;
-        }
-        else
+            }
+        } else {
             break;
+        }
     }
 
     // merge fSkylines

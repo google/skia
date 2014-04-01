@@ -57,7 +57,7 @@ GrTextStrike* GrFontCache::getStrike(GrFontScaler* scaler, bool useDistanceField
         strike = this->generateStrike(scaler, key);
     } else if (strike->fPrev) {
         // Need to put the strike at the head of its dllist, since that is how
-        // we age the strikes for purging (we purge from the back of the list
+        // we age the strikes for purging (we purge from the back of the list)
         this->detachStrikeFromList(strike);
         // attach at the head
         fHead->fPrev = strike;

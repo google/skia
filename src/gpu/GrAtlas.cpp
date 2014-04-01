@@ -11,28 +11,6 @@
 #include "GrGpu.h"
 #include "GrRectanizer.h"
 
-#if 0
-#define GR_PLOT_WIDTH   8
-#define GR_PLOT_HEIGHT  4
-#define GR_ATLAS_WIDTH  256
-#define GR_ATLAS_HEIGHT 256
-
-#define GR_ATLAS_TEXTURE_WIDTH  (GR_PLOT_WIDTH * GR_ATLAS_WIDTH)
-#define GR_ATLAS_TEXTURE_HEIGHT (GR_PLOT_HEIGHT * GR_ATLAS_HEIGHT)
-
-#else
-
-#define GR_ATLAS_TEXTURE_WIDTH  1024
-#define GR_ATLAS_TEXTURE_HEIGHT 2048
-
-#define GR_ATLAS_WIDTH  256
-#define GR_ATLAS_HEIGHT 256
-
-#define GR_PLOT_WIDTH   (GR_ATLAS_TEXTURE_WIDTH / GR_ATLAS_WIDTH)
-#define GR_PLOT_HEIGHT  (GR_ATLAS_TEXTURE_HEIGHT / GR_ATLAS_HEIGHT)
-
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // for testing
@@ -43,11 +21,10 @@ static int g_UploadCount = 0;
 
 GrPlot::GrPlot() : fDrawToken(NULL, 0)
                  , fTexture(NULL)
+                 , fRects(NULL)
                  , fAtlasMgr(NULL)
                  , fBytesPerPixel(1)
 {
-    fRects = GrRectanizer::Factory(GR_ATLAS_WIDTH,
-                                   GR_ATLAS_HEIGHT);
     fOffset.set(0, 0);
 }
 
@@ -55,9 +32,16 @@ GrPlot::~GrPlot() {
     delete fRects;
 }
 
+void GrPlot::init(GrAtlasMgr* mgr, int offX, int offY, int width, int height, size_t bpp) {
+    fRects = GrRectanizer::Factory(width, height);
+    fAtlasMgr = mgr;
+    fOffset.set(offX * width, offY * height);
+    fBytesPerPixel = bpp;
+}
+
 static inline void adjust_for_offset(GrIPoint16* loc, const GrIPoint16& offset) {
-    loc->fX += offset.fX * GR_ATLAS_WIDTH;
-    loc->fY += offset.fY * GR_ATLAS_HEIGHT;
+    loc->fX += offset.fX;
+    loc->fY += offset.fY;
 }
 
 bool GrPlot::addSubImage(int width, int height, const void* image,
@@ -91,22 +75,30 @@ void GrPlot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrPixelConfig config) {
-    fGpu = gpu;
+GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrPixelConfig config, 
+                       const SkISize& backingTextureSize,
+                       int numPlotsX, int numPlotsY) {
+    fGpu = SkRef(gpu);
     fPixelConfig = config;
-    gpu->ref();
+    fBackingTextureSize = backingTextureSize;
+    fNumPlotsX = numPlotsX;
+    fNumPlotsY = numPlotsY;
     fTexture = NULL;
+
+    int plotWidth = fBackingTextureSize.width() / fNumPlotsX;
+    int plotHeight = fBackingTextureSize.height() / fNumPlotsY;
+
+    SkASSERT(plotWidth * fNumPlotsX == fBackingTextureSize.width());
+    SkASSERT(plotHeight * fNumPlotsY == fBackingTextureSize.height());
 
     // set up allocated plots
     size_t bpp = GrBytesPerPixel(fPixelConfig);
-    fPlotArray = SkNEW_ARRAY(GrPlot, (GR_PLOT_WIDTH*GR_PLOT_HEIGHT));
+    fPlotArray = SkNEW_ARRAY(GrPlot, (fNumPlotsX*fNumPlotsY));
 
     GrPlot* currPlot = fPlotArray;
-    for (int y = GR_PLOT_HEIGHT-1; y >= 0; --y) {
-        for (int x = GR_PLOT_WIDTH-1; x >= 0; --x) {
-            currPlot->fAtlasMgr = this;
-            currPlot->fOffset.set(x, y);
-            currPlot->fBytesPerPixel = bpp;
+    for (int y = numPlotsY-1; y >= 0; --y) {
+        for (int x = numPlotsX-1; x >= 0; --x) {
+            currPlot->init(this, x, y, plotWidth, plotHeight, bpp);
 
             // build LRU list
             fPlotList.addToHead(currPlot);
@@ -152,8 +144,8 @@ GrPlot* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
         // TODO: Update this to use the cache rather than directly creating a texture.
         GrTextureDesc desc;
         desc.fFlags = kDynamicUpdate_GrTextureFlagBit;
-        desc.fWidth = GR_ATLAS_TEXTURE_WIDTH;
-        desc.fHeight = GR_ATLAS_TEXTURE_HEIGHT;
+        desc.fWidth = fBackingTextureSize.width();
+        desc.fHeight = fBackingTextureSize.height();
         desc.fConfig = fPixelConfig;
 
         fTexture = fGpu->createTexture(desc, NULL, 0);
