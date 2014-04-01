@@ -49,7 +49,7 @@
     }
   }, 
   "header": {
-    "dataHash": "2099241024256114776", 
+    "dataHash": "2775016045957284034", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 2, 
@@ -210,7 +210,7 @@
       }, 
       "imageAUrl": null, 
       "imageBUrl": "bitmap-64bitMD5/bigblurs/2422083043229439955.png", 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -221,7 +221,7 @@
       }, 
       "imageAUrl": null, 
       "imageBUrl": "bitmap-64bitMD5/bigblurs/17309852422285247848.png", 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -232,7 +232,7 @@
       }, 
       "imageAUrl": null, 
       "imageBUrl": "bitmap-64bitMD5/bitmapsource/17503582803589749280.png", 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -243,7 +243,7 @@
       }, 
       "imageAUrl": null, 
       "imageBUrl": "bitmap-64bitMD5/bitmapsource/16289727936158057543.png", 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "expectations": {
@@ -404,7 +404,7 @@
       }, 
       "imageAUrl": null, 
       "imageBUrl": "bitmap-64bitMD5/bigblurs/14704206703218007573.png", 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -415,7 +415,7 @@
       }, 
       "imageAUrl": null, 
       "imageBUrl": "bitmap-64bitMD5/bigblurs/17309852422285247848.png", 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -426,7 +426,7 @@
       }, 
       "imageAUrl": null, 
       "imageBUrl": "bitmap-64bitMD5/bigblurs/1822195599289208664.png", 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -437,7 +437,7 @@
       }, 
       "imageAUrl": null, 
       "imageBUrl": "bitmap-64bitMD5/bigblurs/16171608477794909861.png", 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -448,7 +448,7 @@
       }, 
       "imageAUrl": null, 
       "imageBUrl": "bitmap-64bitMD5/bigblurs/6539050160610613353.png", 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "expectations": {

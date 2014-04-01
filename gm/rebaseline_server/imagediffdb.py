@@ -268,8 +268,14 @@ class ImageDiffDB(object):
             actual_image_url=actual_image_url,
             actual_image_locator=actual_image_locator)
       except Exception:
-        logging.exception('got exception while creating new DiffRecord')
-        return
+        # If we can't create a real DiffRecord for this (expected, actual) pair,
+        # store None and the UI will show whatever information we DO have.
+        # Fixes http://skbug.com/2368 .
+        logging.exception(
+            'got exception while creating a DiffRecord for '
+            'expected_image_url=%s , actual_image_url=%s; returning None' % (
+                expected_image_url, actual_image_url))
+        new_diff_record = None
       self._diff_dict[key] = new_diff_record
 
   def get_diff_record(self, expected_image_locator, actual_image_locator):

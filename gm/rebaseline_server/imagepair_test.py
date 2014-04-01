@@ -132,6 +132,36 @@ class ImagePairTest(unittest.TestCase):
                 'isDifferent': True,
             },
         ],
+
+        # Test fix for http://skbug.com/2368 -- how do we handle an ImagePair
+        # missing one of its images?
+        [
+            # inputs:
+            'arcofzorro/16206093933823793653.png',
+            'nonexistentDir/111111.png',
+            {
+                'ignoreFailure': True,
+                'bugs': [1001, 1002],
+            },
+            {
+                'builder': 'MyBuilder',
+                'test': 'MyTest',
+            },
+            # expected output:
+            {
+                'expectations': {
+                    'bugs': [1001, 1002],
+                    'ignoreFailure': True,
+                },
+                'extraColumns': {
+                    'builder': 'MyBuilder',
+                    'test': 'MyTest',
+                },
+                'imageAUrl': 'arcofzorro/16206093933823793653.png',
+                'imageBUrl': 'nonexistentDir/111111.png',
+                'isDifferent': True,
+            },
+        ],
     ]
 
     db = imagediffdb.ImageDiffDB(self._temp_dir)

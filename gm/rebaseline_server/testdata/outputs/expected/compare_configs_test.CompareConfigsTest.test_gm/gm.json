@@ -44,7 +44,7 @@
     }
   }, 
   "header": {
-    "dataHash": "-8308658702264135120", 
+    "dataHash": "7627783634950094306", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 2, 
@@ -62,7 +62,7 @@
       }, 
       "imageAUrl": null, 
       "imageBUrl": "bitmap-64bitMD5/texdata/3695033638604474475.png", 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -73,7 +73,7 @@
       }, 
       "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_32_2/712827739969462165.png", 
       "imageBUrl": null, 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -84,7 +84,7 @@
       }, 
       "imageAUrl": "bitmap-64bitMD5/filterbitmap_checkerboard_192_192/3154864687054945306.png", 
       "imageBUrl": null, 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -95,7 +95,7 @@
       }, 
       "imageAUrl": "bitmap-64bitMD5/bigblurs/17309852422285247848.png", 
       "imageBUrl": null, 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -106,7 +106,7 @@
       }, 
       "imageAUrl": "bitmap-64bitMD5/bitmapsource/16289727936158057543.png", 
       "imageBUrl": null, 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -117,7 +117,7 @@
       }, 
       "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
       "imageBUrl": null, 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "extraColumns": {
@@ -128,7 +128,7 @@
       }, 
       "imageAUrl": "bitmap-64bitMD5/aaclip/14456211900777561488.png", 
       "imageBUrl": null, 
-      "isDifferent": false
+      "isDifferent": true
     }, 
     {
       "differenceData": {

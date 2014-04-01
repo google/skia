@@ -47,8 +47,10 @@ class ImagePair(object):
     self.expectations_dict = expectations
     self.extra_columns_dict = extra_columns
     if not imageA_relative_url or not imageB_relative_url:
+      self._is_different = True
       self.diff_record = None
     elif imageA_relative_url == imageB_relative_url:
+      self._is_different = False
       self.diff_record = None
     else:
       # TODO(epoger): Rather than blocking until image_diff_db can read in
@@ -56,6 +58,7 @@ class ImagePair(object):
       # asynchronously: tell image_diff_db to download a bunch of file pairs,
       # and only block later if we're still waiting for diff_records to come
       # back.
+      self._is_different = True
       image_diff_db.add_image_pair(
           expected_image_locator=imageA_relative_url,
           expected_image_url=posixpath.join(base_url, imageA_relative_url),
@@ -64,6 +67,8 @@ class ImagePair(object):
       self.diff_record = image_diff_db.get_diff_record(
           expected_image_locator=imageA_relative_url,
           actual_image_locator=imageB_relative_url)
+      if self.diff_record and self.diff_record.get_num_pixels_differing() == 0:
+        self._is_different = False
 
   def as_dict(self):
     """Returns a dictionary describing this ImagePair.
@@ -74,13 +79,11 @@ class ImagePair(object):
         KEY__IMAGE_A_URL: self.imageA_relative_url,
         KEY__IMAGE_B_URL: self.imageB_relative_url,
     }
+    asdict[KEY__IS_DIFFERENT] = self._is_different
     if self.expectations_dict:
       asdict[KEY__EXPECTATIONS_DATA] = self.expectations_dict
     if self.extra_columns_dict:
       asdict[KEY__EXTRA_COLUMN_VALUES] = self.extra_columns_dict
     if self.diff_record and (self.diff_record.get_num_pixels_differing() > 0):
-      asdict[KEY__IS_DIFFERENT] = True
       asdict[KEY__DIFFERENCE_DATA] = self.diff_record.as_dict()
-    else:
-      asdict[KEY__IS_DIFFERENT] = False
     return asdict
