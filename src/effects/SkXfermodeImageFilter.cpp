@@ -53,22 +53,27 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
     if (backgroundInput &&
         !backgroundInput->filterImage(proxy, src, ctx, &background, &backgroundOffset)) {
-        return false;
+        background.reset();
     }
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
     if (foregroundInput &&
         !foregroundInput->filterImage(proxy, src, ctx, &foreground, &foregroundOffset)) {
-        return false;
+        foreground.reset();
     }
 
     SkIRect bounds, foregroundBounds;
     if (!applyCropRect(ctx, foreground, foregroundOffset, &foregroundBounds)) {
-        return false;
+        foregroundBounds.setEmpty();
+        foreground.reset();
     }
     if (!applyCropRect(ctx, background, backgroundOffset, &bounds)) {
-        return false;
+        bounds.setEmpty();
+        background.reset();
     }
     bounds.join(foregroundBounds);
+    if (bounds.isEmpty()) {
+        return false;
+    }
 
     SkAutoTUnref<SkBaseDevice> device(proxy->createDevice(bounds.width(), bounds.height()));
     if (NULL == device.get()) {
@@ -94,6 +99,10 @@ bool SkXfermodeImageFilter::onFilterImage(Proxy* proxy,
 
 #if SK_SUPPORT_GPU
 
+bool SkXfermodeImageFilter::canFilterImageGPU() const {
+    return fMode && fMode->asNewEffect(NULL, NULL) && !cropRectIsSet();
+}
+
 bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
                                            const SkBitmap& src,
                                            const Context& ctx,
@@ -103,14 +112,14 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
     if (getInput(0) && !getInput(0)->getInputResultGPU(proxy, src, ctx, &background,
                                                        &backgroundOffset)) {
-        return false;
+        return onFilterImage(proxy, src, ctx, result, offset);
     }
     GrTexture* backgroundTex = background.getTexture();
     SkBitmap foreground = src;
     SkIPoint foregroundOffset = SkIPoint::Make(0, 0);
     if (getInput(1) && !getInput(1)->getInputResultGPU(proxy, src, ctx, &foreground,
                                                        &foregroundOffset)) {
-        return false;
+        return onFilterImage(proxy, src, ctx, result, offset);
     }
     GrTexture* foregroundTex = foreground.getTexture();
     GrContext* context = foregroundTex->getContext();
@@ -128,8 +137,9 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
 
     GrContext::AutoRenderTarget art(context, dst->asRenderTarget());
 
-    SkXfermode::Coeff sm, dm;
-    if (!SkXfermode::AsNewEffectOrCoeff(fMode, &xferEffect, &sm, &dm, backgroundTex)) {
+    if (!fMode || !fMode->asNewEffect(&xferEffect, backgroundTex)) {
+        // canFilterImageGPU() should've taken care of this
+        SkASSERT(false);
         return false;
     }
 
@@ -140,22 +150,12 @@ bool SkXfermodeImageFilter::filterImageGPU(Proxy* proxy,
 
     SkRect srcRect;
     src.getBounds(&srcRect);
-    if (NULL != xferEffect) {
-        GrPaint paint;
-        paint.addColorTextureEffect(foregroundTex, foregroundMatrix);
-        paint.addColorEffect(xferEffect)->unref();
-        context->drawRect(paint, srcRect);
-    } else {
-        GrPaint backgroundPaint;
-        SkMatrix backgroundMatrix = GrEffect::MakeDivByTextureWHMatrix(backgroundTex);
-        backgroundPaint.addColorTextureEffect(backgroundTex, backgroundMatrix);
-        context->drawRect(backgroundPaint, srcRect);
 
-        GrPaint foregroundPaint;
-        foregroundPaint.setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));
-        foregroundPaint.addColorTextureEffect(foregroundTex, foregroundMatrix);
-        context->drawRect(foregroundPaint, srcRect);
-    }
+    GrPaint paint;
+    paint.addColorTextureEffect(foregroundTex, foregroundMatrix);
+    paint.addColorEffect(xferEffect)->unref();
+    context->drawRect(paint, srcRect);
+
     offset->fX = backgroundOffset.fX;
     offset->fY = backgroundOffset.fY;
     WrapTexture(dst, src.width(), src.height(), result);
