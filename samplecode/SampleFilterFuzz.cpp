@@ -284,7 +284,7 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         SkAutoTUnref<SkShader> shader((R(2) == 1) ?
             SkPerlinNoiseShader::CreateFractalNoise(
                 make_scalar(true), make_scalar(true), R(10.0f), make_scalar()) :
-            SkPerlinNoiseShader::CreateTubulence(
+            SkPerlinNoiseShader::CreateTurbulence(
                 make_scalar(true), make_scalar(true), R(10.0f), make_scalar()));
         SkImageFilter::CropRect cropR(SkRect::MakeWH(SkIntToScalar(kBitmapSize),
                                                      SkIntToScalar(kBitmapSize)));

@@ -44,7 +44,7 @@ private:
         SkShader* shader = (type == SkPerlinNoiseShader::kFractalNoise_Type) ?
             SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves,
                                                     seed, stitchTiles ? &fSize : NULL) :
-            SkPerlinNoiseShader::CreateTubulence(baseFrequencyX, baseFrequencyY, numOctaves,
+            SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves,
                                                  seed, stitchTiles ? &fSize : NULL);
         SkPaint paint;
         paint.setShader(shader)->unref();

@@ -58,9 +58,19 @@ public:
     static SkShader* CreateFractalNoise(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
                                         int numOctaves, SkScalar seed,
                                         const SkISize* tileSize = NULL);
-    static SkShader* CreateTubulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
+    static SkShader* CreateTurbulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
                                      int numOctaves, SkScalar seed,
                                      const SkISize* tileSize = NULL);
+    /**
+     * Create alias for CreateTurbulunce until all Skia users changed
+     * its code to use the new naming
+     */
+    static SkShader* CreateTubulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
+                                     int numOctaves, SkScalar seed,
+                                     const SkISize* tileSize = NULL) {
+	return CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed, tileSize);
+    }
+
 
     virtual bool setContext(const SkBitmap& device, const SkPaint& paint,
                             const SkMatrix& matrix);

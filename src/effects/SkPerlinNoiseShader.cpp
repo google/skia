@@ -256,7 +256,7 @@ SkShader* SkPerlinNoiseShader::CreateFractalNoise(SkScalar baseFrequencyX, SkSca
                                             numOctaves, seed, tileSize));
 }
 
-SkShader* SkPerlinNoiseShader::CreateTubulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
+SkShader* SkPerlinNoiseShader::CreateTurbulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
                                               int numOctaves, SkScalar seed,
                                               const SkISize* tileSize) {
     return SkNEW_ARGS(SkPerlinNoiseShader, (kTurbulence_Type, baseFrequencyX, baseFrequencyY,
@@ -706,7 +706,7 @@ GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
     SkShader* shader = random->nextBool() ?
         SkPerlinNoiseShader::CreateFractalNoise(baseFrequencyX, baseFrequencyY, numOctaves, seed,
                                                 stitchTiles ? &tileSize : NULL) :
-        SkPerlinNoiseShader::CreateTubulence(baseFrequencyX, baseFrequencyY, numOctaves, seed,
+        SkPerlinNoiseShader::CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed,
                                              stitchTiles ? &tileSize : NULL);
 
     SkPaint paint;
