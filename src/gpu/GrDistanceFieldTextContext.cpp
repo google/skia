@@ -23,7 +23,11 @@
 
 static const int kGlyphCoordsAttributeIndex = 1;
 
-static const int kBaseDFFontSize = 32;
+static const int kSmallDFFontSize = 32;
+static const int kSmallDFFontLimit = 32;
+static const int kMediumDFFontSize = 64;
+static const int kMediumDFFontLimit = 64;
+static const int kLargeDFFontSize = 128;
 
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
@@ -303,9 +307,17 @@ inline void GrDistanceFieldTextContext::init(const GrPaint& paint, const SkPaint
     fVertices = NULL;
     fMaxVertices = 0;
 
-    fTextRatio = fSkPaint.getTextSize()/kBaseDFFontSize;
+    if (fSkPaint.getTextSize() <= kSmallDFFontLimit) {
+        fTextRatio = fSkPaint.getTextSize()/kSmallDFFontSize;
+        fSkPaint.setTextSize(SkIntToScalar(kSmallDFFontSize));
+    } else if (fSkPaint.getTextSize() <= kMediumDFFontLimit) {
+        fTextRatio = fSkPaint.getTextSize()/kMediumDFFontSize;
+        fSkPaint.setTextSize(SkIntToScalar(kMediumDFFontSize));
+    } else {
+        fTextRatio = fSkPaint.getTextSize()/kLargeDFFontSize;
+        fSkPaint.setTextSize(SkIntToScalar(kLargeDFFontSize));
+    }
 
-    fSkPaint.setTextSize(SkIntToScalar(kBaseDFFontSize));
     fSkPaint.setLCDRenderText(false);
     fSkPaint.setAutohinted(false);
     fSkPaint.setSubpixelText(true);
