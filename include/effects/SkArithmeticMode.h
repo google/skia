@@ -26,7 +26,8 @@ public:
      *  k1=k2=k4=0, k3=1.0 results in returning the dst
      */
     static SkXfermode* Create(SkScalar k1, SkScalar k2,
-                              SkScalar k3, SkScalar k4);
+                              SkScalar k3, SkScalar k4,
+                              bool enforcePMColor = true);
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP();
 
