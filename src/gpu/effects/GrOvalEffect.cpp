@@ -73,8 +73,8 @@ CircleEffect::CircleEffect(GrEffectEdgeType edgeType, const SkPoint& c, SkScalar
 }
 
 bool CircleEffect::onIsEqual(const GrEffect& other) const {
-    const CircleEffect& crre = CastEffect<CircleEffect>(other);
-    return fEdgeType == crre.fEdgeType && fCenter == crre.fCenter && fRadius == crre.fRadius;
+    const CircleEffect& ce = CastEffect<CircleEffect>(other);
+    return fEdgeType == ce.fEdgeType && fCenter == ce.fCenter && fRadius == ce.fRadius;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -176,6 +176,190 @@ void GLCircleEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect&
         fPrevRadius = ce.getRadius();
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+class GLEllipseEffect;
+
+class EllipseEffect : public GrEffect {
+public:
+    static GrEffectRef* Create(GrEffectEdgeType, const SkPoint& center, SkScalar rx, SkScalar ry);
+
+    virtual ~EllipseEffect() {};
+    static const char* Name() { return "Ellipse"; }
+
+    const SkPoint& getCenter() const { return fCenter; }
+    SkVector getRadii() const { return fRadii; }
+
+    GrEffectEdgeType getEdgeType() const { return fEdgeType; }
+
+    typedef GLEllipseEffect GLEffect;
+
+    virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
+
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
+
+private:
+    EllipseEffect(GrEffectEdgeType, const SkPoint& center, SkScalar rx, SkScalar ry);
+
+    virtual bool onIsEqual(const GrEffect&) const SK_OVERRIDE;
+
+    SkPoint             fCenter;
+    SkVector            fRadii;
+    GrEffectEdgeType    fEdgeType;
+
+    GR_DECLARE_EFFECT_TEST;
+
+    typedef GrEffect INHERITED;
+};
+
+GrEffectRef* EllipseEffect::Create(GrEffectEdgeType edgeType,
+                                   const SkPoint& center,
+                                   SkScalar rx,
+                                   SkScalar ry) {
+    SkASSERT(rx >= 0 && ry >= 0);
+    return CreateEffectRef(AutoEffectUnref(SkNEW_ARGS(EllipseEffect,
+                                                      (edgeType, center, rx, ry))));
+}
+
+void EllipseEffect::getConstantColorComponents(GrColor* color, uint32_t* validFlags) const {
+    *validFlags = 0;
+}
+
+const GrBackendEffectFactory& EllipseEffect::getFactory() const {
+    return GrTBackendEffectFactory<EllipseEffect>::getInstance();
+}
+
+EllipseEffect::EllipseEffect(GrEffectEdgeType edgeType, const SkPoint& c, SkScalar rx, SkScalar ry)
+    : fCenter(c)
+    , fRadii(SkVector::Make(rx, ry))
+    , fEdgeType(edgeType) {
+    this->setWillReadFragmentPosition();
+}
+
+bool EllipseEffect::onIsEqual(const GrEffect& other) const {
+    const EllipseEffect& ee = CastEffect<EllipseEffect>(other);
+    return fEdgeType == ee.fEdgeType && fCenter == ee.fCenter && fRadii == ee.fRadii;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+GR_DEFINE_EFFECT_TEST(EllipseEffect);
+
+GrEffectRef* EllipseEffect::TestCreate(SkRandom* random,
+                                       GrContext*,
+                                       const GrDrawTargetCaps& caps,
+                                       GrTexture*[]) {
+    SkPoint center;
+    center.fX = random->nextRangeScalar(0.f, 1000.f);
+    center.fY = random->nextRangeScalar(0.f, 1000.f);
+    SkScalar rx = random->nextRangeF(0.f, 1000.f);
+    SkScalar ry = random->nextRangeF(0.f, 1000.f);
+    GrEffectEdgeType et;
+    do {
+        et = (GrEffectEdgeType)random->nextULessThan(kGrEffectEdgeTypeCnt);
+    } while (kHairlineAA_GrEffectEdgeType == et);
+    return EllipseEffect::Create(et, center, rx, ry);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+class GLEllipseEffect : public GrGLEffect {
+public:
+    GLEllipseEffect(const GrBackendEffectFactory&, const GrDrawEffect&);
+
+    virtual void emitCode(GrGLShaderBuilder* builder,
+                          const GrDrawEffect& drawEffect,
+                          EffectKey key,
+                          const char* outputColor,
+                          const char* inputColor,
+                          const TransformedCoordsArray&,
+                          const TextureSamplerArray&) SK_OVERRIDE;
+
+    static inline EffectKey GenKey(const GrDrawEffect&, const GrGLCaps&);
+
+    virtual void setData(const GrGLUniformManager&, const GrDrawEffect&) SK_OVERRIDE;
+
+private:
+    GrGLUniformManager::UniformHandle   fEllipseUniform;
+    SkPoint                             fPrevCenter;
+    SkVector                            fPrevRadii;
+
+    typedef GrGLEffect INHERITED;
+};
+
+GLEllipseEffect::GLEllipseEffect(const GrBackendEffectFactory& factory,
+                                 const GrDrawEffect& drawEffect)
+    : INHERITED (factory) {
+    fPrevRadii.fX = -1.f;
+}
+
+void GLEllipseEffect::emitCode(GrGLShaderBuilder* builder,
+                               const GrDrawEffect& drawEffect,
+                               EffectKey key,
+                               const char* outputColor,
+                               const char* inputColor,
+                               const TransformedCoordsArray&,
+                               const TextureSamplerArray& samplers) {
+    const EllipseEffect& ee = drawEffect.castEffect<EllipseEffect>();
+    const char *ellipseName;
+    // The ellipse uniform is (center.x, center.y, 1 / rx^2, 1 / ry^2)
+    fEllipseUniform = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
+                                         kVec4f_GrSLType,
+                                         "ellipse",
+                                         &ellipseName);
+    const char* fragmentPos = builder->fragmentPosition();
+
+    // d is the offset to the ellipse center
+    builder->fsCodeAppendf("\t\tvec2 d = %s.xy - %s.xy;\n", fragmentPos, ellipseName);
+    builder->fsCodeAppendf("\t\tvec2 Z = d * %s.zw;\n", ellipseName);
+    // implicit is the evaluation of (x/rx)^2 + (y/ry)^2 - 1.
+    builder->fsCodeAppend("\t\tfloat implicit = dot(Z, d) - 1.0;\n");
+    // grad_dot is the squared length of the gradient of the implicit.
+    builder->fsCodeAppendf("\t\tfloat grad_dot = 4.0 * dot(Z, Z);\n");
+    if (builder->ctxInfo().caps()->dropsTileOnZeroDivide()) {
+        builder->fsCodeAppend("\t\tgrad_dot = max(grad_dot, 1.0e-4);\n");
+    }
+    builder->fsCodeAppendf("\t\tfloat approx_dist = implicit * inversesqrt(grad_dot);\n");
+
+    switch (ee.getEdgeType()) {
+        case kFillAA_GrEffectEdgeType:
+            builder->fsCodeAppend("\t\tfloat alpha = clamp(0.5 - approx_dist, 0.0, 1.0);\n");
+            break;
+        case kInverseFillAA_GrEffectEdgeType:
+            builder->fsCodeAppend("\t\tfloat alpha = clamp(0.5 + approx_dist, 0.0, 1.0);\n");
+            break;
+        case kFillBW_GrEffectEdgeType:
+            builder->fsCodeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 0.0 : 1.0;\n");
+            break;
+        case kInverseFillBW_GrEffectEdgeType:
+            builder->fsCodeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 1.0 : 0.0;\n");
+            break;
+        case kHairlineAA_GrEffectEdgeType:
+            GrCrash("Hairline not expected here.");
+    }
+
+    builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor,
+                           (GrGLSLExpr4(inputColor) * GrGLSLExpr1("alpha")).c_str());
+}
+
+GrGLEffect::EffectKey GLEllipseEffect::GenKey(const GrDrawEffect& drawEffect,
+                                              const GrGLCaps&) {
+    const EllipseEffect& ee = drawEffect.castEffect<EllipseEffect>();
+    return ee.getEdgeType();
+}
+
+void GLEllipseEffect::setData(const GrGLUniformManager& uman, const GrDrawEffect& drawEffect) {
+    const EllipseEffect& ee = drawEffect.castEffect<EllipseEffect>();
+    if (ee.getRadii() != fPrevRadii || ee.getCenter() != fPrevCenter) {
+        SkScalar invRXSqd = 1.f / (ee.getRadii().fX * ee.getRadii().fX);
+        SkScalar invRYSqd = 1.f / (ee.getRadii().fY * ee.getRadii().fY);
+        uman.set4f(fEllipseUniform, ee.getCenter().fX, ee.getCenter().fY, invRXSqd, invRYSqd);
+        fPrevCenter = ee.getCenter();
+        fPrevRadii = ee.getRadii();
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 GrEffectRef* GrOvalEffect::Create(GrEffectEdgeType edgeType, const SkRect& oval) {
@@ -187,6 +371,10 @@ GrEffectRef* GrOvalEffect::Create(GrEffectEdgeType edgeType, const SkRect& oval)
     if (SkScalarNearlyEqual(w, h)) {
         w /= 2;
         return CircleEffect::Create(edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + w), w);
+    } else {
+        w /= 2;
+        h /= 2;
+        return EllipseEffect::Create(edgeType, SkPoint::Make(oval.fLeft + w, oval.fTop + h), w, h);
     }
 
     return NULL;

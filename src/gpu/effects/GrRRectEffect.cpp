@@ -572,7 +572,9 @@ void GLEllipticalRRectEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppend("\t\tfloat implicit = dot(Z, dxy) - 1.0;\n");
     // grad_dot is the squared length of the gradient of the implicit.
     builder->fsCodeAppendf("\t\tfloat grad_dot = 4.0 * dot(Z, Z);\n");
-    builder->fsCodeAppend("\t\tgrad_dot = max(grad_dot, 1.0e-4);\n");
+    if (builder->ctxInfo().caps()->dropsTileOnZeroDivide()) {
+        builder->fsCodeAppend("\t\tgrad_dot = max(grad_dot, 1.0e-4);\n");
+    }
     builder->fsCodeAppendf("\t\tfloat approx_dist = implicit * inversesqrt(grad_dot);\n");
 
     if (kFillAA_GrEffectEdgeType == erre.getEdgeType()) {
