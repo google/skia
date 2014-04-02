@@ -1625,13 +1625,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16399641956805385960
+          1437496665271495907
         ]
       ], 
-      "bugs": [
-        2325
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "bleed_nvprmsaa4.png": {
       "allowed-digests": [
