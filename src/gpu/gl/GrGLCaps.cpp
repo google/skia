@@ -23,6 +23,7 @@ void GrGLCaps::reset() {
     fStencilVerifiedColorConfigs.reset();
     fMSFBOType = kNone_MSFBOType;
     fFBFetchType = kNone_FBFetchType;
+    fInvalidateFBType = kNone_InvalidateFBType;
     fMaxFragmentUniformVectors = 0;
     fMaxVertexAttributes = 0;
     fMaxFragmentTextureUnits = 0;
@@ -64,6 +65,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fMaxFixedFunctionTextureCoords = caps.fMaxFixedFunctionTextureCoords;
     fMSFBOType = caps.fMSFBOType;
     fFBFetchType = caps.fFBFetchType;
+    fInvalidateFBType = caps.fInvalidateFBType;
     fRGBA8RenderbufferSupport = caps.fRGBA8RenderbufferSupport;
     fBGRAFormatSupport = caps.fBGRAFormatSupport;
     fBGRAIsInternalFormat = caps.fBGRAIsInternalFormat;
@@ -222,7 +224,15 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fUseNonVBOVertexAndIndexDynamicData = true;
     }
 
-    fDiscardRenderTargetSupport = ctxInfo.hasExtension("GL_EXT_discard_framebuffer");
+    if ((kGL_GrGLStandard == standard && version >= GR_GL_VER(4,3)) ||
+        (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0)) || 
+        ctxInfo.hasExtension("GL_ARB_invalidate_subdata")) {
+        fDiscardRenderTargetSupport = true;
+        fInvalidateFBType = kInvalidate_InvalidateFBType;
+    } else if (ctxInfo.hasExtension("GL_EXT_discard_framebuffer")) {
+        fDiscardRenderTargetSupport = true;
+        fInvalidateFBType = kDiscard_InvalidateFBType;
+    }
 
     if (kARM_GrGLVendor == ctxInfo.vendor() || kImagination_GrGLVendor == ctxInfo.vendor()) {
         fFullClearIsFree = true;
@@ -632,11 +642,21 @@ SkString GrGLCaps::dump() const {
     GR_STATIC_ASSERT(2 == kNV_FBFetchType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kFBFetchTypeStr) == kLast_FBFetchType + 1);
 
+    static const char* kInvalidateFBTypeStr[] = {
+        "None",
+        "Discard",
+        "Invalidate",
+    };
+    GR_STATIC_ASSERT(0 == kNone_InvalidateFBType);
+    GR_STATIC_ASSERT(1 == kDiscard_InvalidateFBType);
+    GR_STATIC_ASSERT(2 == kInvalidate_InvalidateFBType);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kInvalidateFBTypeStr) == kLast_InvalidateFBType + 1);
 
     r.appendf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));
     r.appendf("Fixed Function Support: %s\n", (fFixedFunctionSupport ? "YES" : "NO"));
     r.appendf("MSAA Type: %s\n", kMSFBOExtStr[fMSFBOType]);
     r.appendf("FB Fetch Type: %s\n", kFBFetchTypeStr[fFBFetchType]);
+    r.appendf("Invalidate FB Type: %s\n", kInvalidateFBTypeStr[fInvalidateFBType]);
     r.appendf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
     r.appendf("Max FS Texture Units: %d\n", fMaxFragmentTextureUnits);
     if (fFixedFunctionSupport) {

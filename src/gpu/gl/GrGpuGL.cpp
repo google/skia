@@ -1296,6 +1296,9 @@ void GrGpuGL::onClear(const SkIRect* rect, GrColor color, bool canIgnoreRect) {
 }
 
 void GrGpuGL::discard(GrRenderTarget* renderTarget) {
+    if (!this->caps()->discardRenderTargetSupport()) {
+        return;
+    }
     if (NULL == renderTarget) {
         renderTarget = this->drawState()->getRenderTarget();
         if (NULL == renderTarget) {
@@ -1308,8 +1311,31 @@ void GrGpuGL::discard(GrRenderTarget* renderTarget) {
         fHWBoundRenderTarget = NULL;
         GL_CALL(BindFramebuffer(GR_GL_FRAMEBUFFER, glRT->renderFBOID()));
     }
-    GrGLenum attachments[] = { GR_GL_COLOR };
-    GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, SK_ARRAY_COUNT(attachments), attachments));
+    switch (this->glCaps().invalidateFBType()) {
+        case GrGLCaps::kNone_FBFetchType:
+            GrCrash("Should never get here.");
+            break;
+        case GrGLCaps::kInvalidate_InvalidateFBType:
+            if (0 == glRT->renderFBOID()) {
+                //  When rendering to the default framebuffer the legal values for attachments
+                //  are GL_COLOR, GL_DEPTH, GL_STENCIL, ... rather than the various FBO attachment
+                //  types.
+                static const GrGLenum attachments[] = { GR_GL_COLOR };
+                GL_CALL(InvalidateFramebuffer(GR_GL_FRAMEBUFFER, SK_ARRAY_COUNT(attachments),
+                        attachments));
+            } else {
+                static const GrGLenum attachments[] = { GR_GL_COLOR_ATTACHMENT0 };
+                GL_CALL(InvalidateFramebuffer(GR_GL_FRAMEBUFFER, SK_ARRAY_COUNT(attachments),
+                        attachments));
+            }
+            break;
+        case GrGLCaps::kDiscard_InvalidateFBType: {
+            static const GrGLenum attachments[] = { GR_GL_COLOR };
+            GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, SK_ARRAY_COUNT(attachments),
+                    attachments));
+            break;
+        }
+    }
     renderTarget->flagAsResolved();
 }
 

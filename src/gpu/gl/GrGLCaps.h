@@ -75,7 +75,15 @@ public:
         /** GL_NV_shader_framebuffer_fetch */
         kNV_FBFetchType,
 
-        kLast_FBFetchType = kNV_FBFetchType,
+        kLast_FBFetchType = kNV_FBFetchType
+    };
+
+    enum InvalidateFBType {
+        kNone_InvalidateFBType,
+        kDiscard_InvalidateFBType,       //<! glDiscardFramebuffer()
+        kInvalidate_InvalidateFBType,     //<! glInvalidateFramebuffer()
+
+        kLast_InvalidateFBType = kInvalidate_InvalidateFBType
     };
 
     /**
@@ -158,6 +166,8 @@ public:
     }
 
     FBFetchType fbFetchType() const { return fFBFetchType; }
+
+    InvalidateFBType invalidateFBType() const { return fInvalidateFBType; }
 
     /**
      * Returs a string containeng the caps info.
@@ -307,9 +317,9 @@ private:
     int fMaxFragmentTextureUnits;
     int fMaxFixedFunctionTextureCoords;
 
-    MSFBOType fMSFBOType;
-
-    FBFetchType fFBFetchType;
+    MSFBOType           fMSFBOType;
+    FBFetchType         fFBFetchType;
+    InvalidateFBType    fInvalidateFBType;
 
     bool fRGBA8RenderbufferSupport : 1;
     bool fBGRAFormatSupport : 1;
