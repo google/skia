@@ -425,7 +425,7 @@ void GrGLVertexProgramEffects::setTransformData(const GrGLUniformManager& unifor
         switch (transforms[t].fType) {
             case kVoid_GrSLType:
                 SkASSERT(get_transform_matrix(drawEffect, t).isIdentity());
-                return;
+                break;
             case kVec2f_GrSLType: {
                 GrGLfloat tx, ty;
                 get_transform_translation(drawEffect, t, &tx, &ty);
