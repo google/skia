@@ -75,7 +75,7 @@ void GrPlot::resetRects() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrPixelConfig config, 
+GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrPixelConfig config,
                        const SkISize& backingTextureSize,
                        int numPlotsX, int numPlotsY) {
     fGpu = SkRef(gpu);

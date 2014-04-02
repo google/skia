@@ -68,7 +68,7 @@ public:
     static SkShader* CreateTubulence(SkScalar baseFrequencyX, SkScalar baseFrequencyY,
                                      int numOctaves, SkScalar seed,
                                      const SkISize* tileSize = NULL) {
-	return CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed, tileSize);
+    return CreateTurbulence(baseFrequencyX, baseFrequencyY, numOctaves, seed, tileSize);
     }
 
 
