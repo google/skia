@@ -5,6 +5,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+set -e  # When any command fails, the shell will immediately exit.
+
+if echo $- | grep -q 'x'; then
+    # Debug mode
+    trap 'echo exit status = $?' EXIT
+fi
+
 usage() {
     cat >&2 <<EOF
 barelinux_make - this script builds a version of skia that does not
@@ -52,27 +59,10 @@ GYP_DEFINES="${GYP_DEFINES} $*"
 # If you move this script, this must be changed.
 SKIA_SRC_DIR="$(cd "$(dirname "$0")/../../.."; pwd)"
 
-try() {
-    # exit shell script on nonzero return code
-    "$@"
-    local ret=$?
-    if [ $ret != 0 ] ; then
-        echo "'$@' failed and returned ${ret}." >&2
-        return $ret
-    fi
-}
-is_set() {
-    test "$1" && test "$(eval echo \${$1})";
-}
-
 # Set a reasonable default.
-is_set SKIA_OUT || export SKIA_OUT="${SKIA_SRC_DIR}/out/barelinux"
+export SKIA_OUT="${SKIA_OUT:-${SKIA_SRC_DIR}/out/barelinux}"
 
-# Assume ninja is in your path
-try command -v ninja > /dev/null || exit
-
-try test -x "${SKIA_SRC_DIR}/gyp_skia" || exit
-try mkdir -p "$SKIA_OUT" || exit
+mkdir -p "$SKIA_OUT"
 
 export GYP_GENERATORS="ninja"
 export GYP_GENERATOR_FLAGS=""
@@ -87,9 +77,7 @@ export GYP_DEFINES="${GYP_DEFINES} \
     skia_skip_gui=1 \
     "
 
-try "${SKIA_SRC_DIR}/gyp_skia" || exit
+"${SKIA_SRC_DIR}/gyp_skia"
 
-try test -d "${SKIA_OUT}/${BUILD_TYPE}" || exit
-
-try ninja -C "${SKIA_OUT}/${BUILD_TYPE}" || exit
+ninja -C "${SKIA_OUT}/${BUILD_TYPE}"
 

@@ -5,6 +5,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+set -e  # When any command fails, the shell will immediately exit.
+
 usage() {
     cat >&2 <<EOF
 arm64_make - this script builds a AArch64 version of skia that
@@ -48,5 +50,5 @@ export GYP_DEFINES="${GYP_DEFINES} \
     skia_arch_type=arm64 \
     "
 
-"$(dirname "$0")/barelinux_make" -t "$BUILD_TYPE"
+. "$(dirname "$0")/barelinux_make" -t "$BUILD_TYPE"
 
