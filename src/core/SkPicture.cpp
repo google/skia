@@ -118,6 +118,7 @@ static void validateMatrix(const SkMatrix* matrix) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkPicture::SkPicture() {
+    this->needsNewGenID();
     fRecord = NULL;
     fPlayback = NULL;
     fWidth = fHeight = 0;
@@ -127,6 +128,7 @@ SkPicture::SkPicture() {
 SkPicture::SkPicture(const SkPicture& src)
     : INHERITED()
     , fAccelData(NULL) {
+    this->needsNewGenID();
     fWidth = src.fWidth;
     fHeight = src.fHeight;
     fRecord = NULL;
@@ -137,6 +139,8 @@ SkPicture::SkPicture(const SkPicture& src)
      */
     if (src.fPlayback) {
         fPlayback = SkNEW_ARGS(SkPicturePlayback, (*src.fPlayback));
+        SkASSERT(NULL == src.fRecord);
+        fGenerationID = src.getGenerationID();     // need to call method to ensure != 0
     } else if (src.fRecord) {
         SkPictInfo info;
         this->createHeader(&info);
@@ -160,6 +164,7 @@ void SkPicture::internalOnly_EnableOpts(bool enableOpts) {
 }
 
 void SkPicture::swap(SkPicture& other) {
+    SkTSwap(fGenerationID, other.fGenerationID);
     SkTSwap(fRecord, other.fRecord);
     SkTSwap(fPlayback, other.fPlayback);
     SkTSwap(fAccelData, other.fAccelData);
@@ -169,7 +174,7 @@ void SkPicture::swap(SkPicture& other) {
 
 SkPicture* SkPicture::clone() const {
     SkPicture* clonedPicture = SkNEW(SkPicture);
-    clone(clonedPicture, 1);
+    this->clone(clonedPicture, 1);
     return clonedPicture;
 }
 
@@ -181,6 +186,7 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
     for (int i = 0; i < count; i++) {
         SkPicture* clone = &pictures[i];
 
+        clone->needsNewGenID();
         clone->fWidth = fWidth;
         clone->fHeight = fHeight;
         SkSafeSetNull(clone->fRecord);
@@ -192,6 +198,8 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
          */
         if (fPlayback) {
             clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fPlayback, &copyInfo));
+            SkASSERT(NULL == fRecord);
+            clone->fGenerationID = this->getGenerationID(); // need to call method to ensure != 0
         } else if (fRecord) {
             // here we do a fake src.endRecording()
             clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, info, true));
@@ -222,6 +230,8 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     }
     SkSafeUnref(fAccelData);
     SkSafeSetNull(fRecord);
+
+    this->needsNewGenID();
 
     // Must be set before calling createBBoxHierarchy
     fWidth = width;
@@ -357,7 +367,9 @@ SkPicture::SkPicture(SkPicturePlayback* playback, int width, int height)
     , fRecord(NULL)
     , fWidth(width)
     , fHeight(height)
-    , fAccelData(NULL) {}
+    , fAccelData(NULL) {
+    this->needsNewGenID();
+}
 
 SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc proc) {
     SkPictInfo info;
@@ -486,3 +498,26 @@ void SkPicture::abortPlayback() {
     fPlayback->abort();
 }
 #endif
+
+static int32_t next_picture_generation_id() {
+    static int32_t  gPictureGenerationID = 0;
+    // do a loop in case our global wraps around, as we never want to
+    // return a 0
+    int32_t genID;
+    do {
+        genID = sk_atomic_inc(&gPictureGenerationID) + 1;
+    } while (((int32_t)SkPicture::kInvalidGenID) == genID);
+    return genID;
+}
+
+uint32_t SkPicture::getGenerationID() const {
+    if (NULL != fRecord) {
+        SkASSERT(NULL == fPlayback);
+        return kInvalidGenID;
+    }
+
+    if (kInvalidGenID == fGenerationID) {
+        fGenerationID = next_picture_generation_id();
+    }
+    return fGenerationID;
+}

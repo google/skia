@@ -1142,6 +1142,58 @@ static void test_hierarchical(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, parentWBWB.willPlayBackBitmaps()); // 2
 }
 
+static void test_gen_id(skiatest::Reporter* reporter) {
+
+    SkPicture hasData, empty, midRecord;
+
+    uint32_t beforeID = hasData.getGenerationID();
+    REPORTER_ASSERT(reporter, SkPicture::kInvalidGenID != beforeID);
+
+    // all 3 pictures should have different ids
+    REPORTER_ASSERT(reporter, beforeID != empty.getGenerationID());
+    REPORTER_ASSERT(reporter, beforeID != midRecord.getGenerationID());
+    REPORTER_ASSERT(reporter, empty.getGenerationID() != midRecord.getGenerationID());
+
+    hasData.beginRecording(1, 1);
+    // gen ID should be invalid mid-record
+    REPORTER_ASSERT(reporter, SkPicture::kInvalidGenID == hasData.getGenerationID());
+    hasData.endRecording();
+    // picture should get a new (non-zero) id after recording
+    REPORTER_ASSERT(reporter, hasData.getGenerationID() != beforeID);
+    REPORTER_ASSERT(reporter, hasData.getGenerationID() != SkPicture::kInvalidGenID);
+
+    midRecord.beginRecording(1, 1);
+    REPORTER_ASSERT(reporter, SkPicture::kInvalidGenID == midRecord.getGenerationID());
+
+    // test out copy constructor
+    SkPicture copyWithData(hasData);
+    REPORTER_ASSERT(reporter, hasData.getGenerationID() == copyWithData.getGenerationID());
+
+    SkPicture emptyCopy(empty);
+    REPORTER_ASSERT(reporter, empty.getGenerationID() != emptyCopy.getGenerationID());
+    
+    SkPicture copyMidRecord(midRecord);
+    REPORTER_ASSERT(reporter, midRecord.getGenerationID() != copyMidRecord.getGenerationID());
+    REPORTER_ASSERT(reporter, copyMidRecord.getGenerationID() != SkPicture::kInvalidGenID);
+
+    // test out swap
+    beforeID = copyMidRecord.getGenerationID();
+    copyWithData.swap(copyMidRecord);
+    REPORTER_ASSERT(reporter, copyWithData.getGenerationID() == beforeID);
+    REPORTER_ASSERT(reporter, copyMidRecord.getGenerationID() == hasData.getGenerationID());
+
+    // test out clone
+    SkAutoTUnref<SkPicture> cloneWithData(hasData.clone());
+    REPORTER_ASSERT(reporter, hasData.getGenerationID() == cloneWithData->getGenerationID());
+
+    SkAutoTUnref<SkPicture> emptyClone(empty.clone());
+    REPORTER_ASSERT(reporter, empty.getGenerationID() != emptyClone->getGenerationID());
+
+    SkAutoTUnref<SkPicture> cloneMidRecord(midRecord.clone());
+    REPORTER_ASSERT(reporter, midRecord.getGenerationID() != cloneMidRecord->getGenerationID());
+    REPORTER_ASSERT(reporter, cloneMidRecord->getGenerationID() != SkPicture::kInvalidGenID);
+}
+
 DEF_TEST(Picture, reporter) {
 #ifdef SK_DEBUG
     test_deleting_empty_playback();
@@ -1159,6 +1211,7 @@ DEF_TEST(Picture, reporter) {
     test_clip_bound_opt(reporter);
     test_clip_expansion(reporter);
     test_hierarchical(reporter);
+    test_gen_id(reporter);
 }
 
 static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {

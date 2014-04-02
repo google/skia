@@ -59,10 +59,6 @@ public:
         typedef SkRefCnt INHERITED;
     };
 
-    /** The constructor prepares the picture to record.
-        @param width the width of the virtual device the picture records.
-        @param height the height of the virtual device the picture records.
-    */
     SkPicture();
     /** Make a copy of the contents of src. If src records more drawing after
         this call, those elements will not appear in this picture.
@@ -205,6 +201,15 @@ public:
     */
     int height() const { return fHeight; }
 
+    static const uint32_t kInvalidGenID = 0;
+
+    /** Return a non-zero, unique value representing the picture. This call is 
+        only valid when not recording. Between a beginRecording/endRecording 
+        pair it will just return 0 (the invalid gen ID). Each beginRecording/
+        endRecording pair will cause a different generation ID to be returned.
+    */
+    uint32_t getGenerationID() const;
+
     /**
      *  Function to encode an SkBitmap to an SkData. A function with this
      *  signature can be passed to serialize() and SkWriteBuffer.
@@ -287,7 +292,7 @@ protected:
     // V13: add flag to drawBitmapRectToRect
     //      parameterize blurs by sigma rather than radius
     // V14: Add flags word to PathRef serialization
-    // V15: Remove A1 bitmpa config (and renumber remaining configs)
+    // V15: Remove A1 bitmap config (and renumber remaining configs)
     // V16: Move SkPath's isOval flag to SkPathRef
     // V17: SkPixelRef now writes SkImageInfo
     // V18: SkBitmap now records x,y for its pixelref origin, instead of offset.
@@ -303,6 +308,8 @@ protected:
     static const uint32_t MIN_PICTURE_VERSION = 19;
     static const uint32_t CURRENT_PICTURE_VERSION = 22;
 
+    mutable uint32_t      fGenerationID;
+
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived
     // recorders and set the picture size
@@ -310,6 +317,8 @@ protected:
     SkPictureRecord*      fRecord;
     int                   fWidth, fHeight;
     const AccelData*      fAccelData;
+
+    void needsNewGenID() { fGenerationID = kInvalidGenID; }
 
     // Create a new SkPicture from an existing SkPicturePlayback. Ref count of
     // playback is unchanged.
