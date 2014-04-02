@@ -12,10 +12,13 @@
 #include "SkTemplates.h"
 #include "SkTypes.h"
 
+// Traits requires:
+//   static const Key& GetKey(const T&) { ... }
+//   static uint32_t Hash(const Key&) { ... }
+// We'll look on T for these by default, or you can pass a custom Traits type.
 template <typename T,
           typename Key,
-          const Key& (GetKey)(const T&),
-          uint32_t (Hash)(const Key&),
+          typename Traits = T,
           int kGrowPercent = 75>  // Larger -> more memory efficient, but slower.
 class SkTDynamicHash {
 public:
@@ -226,6 +229,9 @@ private:
         // This will search a power-of-two array fully without repeating an index.
         return (index + round + 1) & this->hashMask();
     }
+
+    static const Key& GetKey(const T& t) { return Traits::GetKey(t); }
+    static uint32_t Hash(const Key& key) { return Traits::Hash(key); }
 
     int fCount;     // Number of non Empty(), non Deleted() entries in fArray.
     int fDeleted;   // Number of Deleted() entries in fArray.

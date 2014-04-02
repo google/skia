@@ -17,14 +17,13 @@
  */
 template <typename T,
           typename Key,
-          const Key& (GetKey)(const T&),
-          uint32_t (Hash)(const Key&)>
+          typename HashTraits=T>
 class GrTMultiMap {
     struct ValueList {
         explicit ValueList(T* value) : fValue(value), fNext(NULL) {}
 
-        static const Key& ListGetKey(const ValueList& e) { return GetKey(*e.fValue); }
-        static uint32_t ListHash(const Key& key) { return Hash(key); }
+        static const Key& GetKey(const ValueList& e) { return HashTraits::GetKey(*e.fValue); }
+        static uint32_t Hash(const Key& key) { return HashTraits::Hash(key); }
         T* fValue;
         ValueList* fNext;
     };
@@ -104,10 +103,7 @@ public:
     int count() const { return fCount; }
 
 private:
-    SkTDynamicHash<ValueList,
-                   Key,
-                   ValueList::ListGetKey,
-                   ValueList::ListHash> fHash;
+    SkTDynamicHash<ValueList, Key> fHash;
     int fCount;
 };
 

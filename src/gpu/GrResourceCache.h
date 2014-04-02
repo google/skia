@@ -315,10 +315,7 @@ private:
 
     void removeInvalidResource(GrResourceEntry* entry);
 
-    GrTMultiMap<GrResourceEntry,
-                GrResourceKey,
-                GrResourceEntry::GetKey,
-                GrResourceEntry::Hash> fCache;
+    GrTMultiMap<GrResourceEntry, GrResourceKey> fCache;
 
     // We're an internal doubly linked list
     typedef SkTInternalLList<GrResourceEntry> EntryList;

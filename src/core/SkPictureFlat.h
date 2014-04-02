@@ -335,9 +335,10 @@ public:
     }
 
 private:
-    // For SkTDynamicHash.
-    static const SkFlatData& Identity(const SkFlatData& flat) { return flat; }
-    static uint32_t Hash(const SkFlatData& flat) { return flat.checksum(); }
+    struct HashTraits {
+        static const SkFlatData& GetKey(const SkFlatData& flat) { return flat; }
+        static uint32_t Hash(const SkFlatData& flat) { return flat.checksum(); }
+    };
 
     void setIndex(int index) { fIndex = index; }
     uint8_t* data() { return (uint8_t*)this + sizeof(*this); }
@@ -563,7 +564,7 @@ private:
     SkTDArray<const SkFlatData*> fIndexedData;
 
     // For SkFlatData -> cached SkFlatData, which has index().
-    SkTDynamicHash<SkFlatData, SkFlatData, SkFlatData::Identity, SkFlatData::Hash> fHash;
+    SkTDynamicHash<SkFlatData, SkFlatData, SkFlatData::HashTraits> fHash;
 };
 
 typedef SkFlatDictionary<SkPaint, SkPaint::FlatteningTraits> SkPaintDictionary;
