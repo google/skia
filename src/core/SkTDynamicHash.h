@@ -16,7 +16,6 @@ template <typename T,
           typename Key,
           const Key& (GetKey)(const T&),
           uint32_t (Hash)(const Key&),
-          bool (Equal)(const T&, const Key&),
           int kGrowPercent = 75>  // Larger -> more memory efficient, but slower.
 class SkTDynamicHash {
 public:
@@ -65,7 +64,7 @@ public:
             if (Empty() == candidate) {
                 return NULL;
             }
-            if (Deleted() != candidate && Equal(*candidate, key)) {
+            if (Deleted() != candidate && GetKey(*candidate) == key) {
                 return candidate;
             }
             index = this->nextIndex(index, round);
@@ -99,7 +98,7 @@ protected:
         int index = this->firstIndex(key);
         for (int round = 0; round < fCapacity; round++) {
             const T* candidate = fArray[index];
-            if (Empty() == candidate || Deleted() == candidate || Equal(*candidate, key)) {
+            if (Empty() == candidate || Deleted() == candidate || GetKey(*candidate) == key) {
                 return round;
             }
             index = this->nextIndex(index, round);
@@ -149,8 +148,7 @@ private:
                         continue;
                     }
                     SKTDYNAMICHASH_CHECK(fArray[i] != fArray[j]);
-                    SKTDYNAMICHASH_CHECK(!Equal(*fArray[i], GetKey(*fArray[j])));
-                    SKTDYNAMICHASH_CHECK(!Equal(*fArray[j], GetKey(*fArray[i])));
+                    SKTDYNAMICHASH_CHECK(!(GetKey(*fArray[i]) == GetKey(*fArray[j])));
                 }
             }
         }
@@ -181,7 +179,7 @@ private:
         int index = firstIndex;
         for (int round = 0; round < fCapacity; round++) {
             const T* candidate = fArray[index];
-            if (Deleted() != candidate && Equal(*candidate, key)) {
+            if (Deleted() != candidate && GetKey(*candidate) == key) {
                 fDeleted++;
                 fCount--;
                 fArray[index] = Deleted();

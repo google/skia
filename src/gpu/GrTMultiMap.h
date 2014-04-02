@@ -18,17 +18,13 @@
 template <typename T,
           typename Key,
           const Key& (GetKey)(const T&),
-          uint32_t (Hash)(const Key&),
-          bool (Equal)(const T&, const Key&)>
+          uint32_t (Hash)(const Key&)>
 class GrTMultiMap {
     struct ValueList {
         explicit ValueList(T* value) : fValue(value), fNext(NULL) {}
 
         static const Key& ListGetKey(const ValueList& e) { return GetKey(*e.fValue); }
         static uint32_t ListHash(const Key& key) { return Hash(key); }
-        static bool ListEqual(const ValueList& a, const Key& b) {
-            return Equal(*a.fValue, b);
-        }
         T* fValue;
         ValueList* fNext;
     };
@@ -111,8 +107,7 @@ private:
     SkTDynamicHash<ValueList,
                    Key,
                    ValueList::ListGetKey,
-                   ValueList::ListHash,
-                   ValueList::ListEqual> fHash;
+                   ValueList::ListHash> fHash;
     int fCount;
 };
 

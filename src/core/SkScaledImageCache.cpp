@@ -144,16 +144,13 @@ uint32_t hash_from_key(const SkScaledImageCache::Key& key) {
     return key.fHash;
 }
 
-bool eq_rec_key(const SkScaledImageCache::Rec& rec, const SkScaledImageCache::Key& key) {
-    return rec.fKey == key;
-}
-}
+}  // namespace
 
 class SkScaledImageCache::Hash : public SkTDynamicHash<SkScaledImageCache::Rec,
                                                        SkScaledImageCache::Key,
                                                        key_from_rec,
-                                                       hash_from_key,
-                                                       eq_rec_key> {};
+                                                       hash_from_key> {};
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
