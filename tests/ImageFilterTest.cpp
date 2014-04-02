@@ -19,6 +19,7 @@
 #include "SkFlattenableBuffers.h"
 #include "SkLightingImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
+#include "SkMatrixImageFilter.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
@@ -360,6 +361,57 @@ static void test_xfermode_cropped_input(SkBaseDevice* device, skiatest::Reporter
     paint.setImageFilter(xfermodeNoFgNoBg);
     canvas.drawSprite(bitmap, 0, 0, &paint);
     canvas.readPixels(info, &pixel, 4, 0, 0);
+    REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+}
+
+DEF_TEST(ImageFilterNestedSaveLayer, reporter) {
+    SkBitmap temp;
+    temp.allocN32Pixels(50, 50);
+    SkBitmapDevice device(temp);
+    SkCanvas canvas(&device);
+    canvas.clear(0x0);
+
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(10, 10);
+    bitmap.eraseColor(SK_ColorGREEN);
+
+    SkMatrix matrix;
+    matrix.setScale(SkIntToScalar(2), SkIntToScalar(2));
+    matrix.postTranslate(SkIntToScalar(-20), SkIntToScalar(-20));
+    SkAutoTUnref<SkImageFilter> matrixFilter(
+        SkMatrixImageFilter::Create(matrix, SkPaint::kLow_FilterLevel));
+
+    // Test that saveLayer() with a filter nested inside another saveLayer() applies the
+    // correct offset to the filter matrix.
+    SkRect bounds1 = SkRect::MakeXYWH(10, 10, 30, 30);
+    canvas.saveLayer(&bounds1, NULL);
+    SkPaint filterPaint;
+    filterPaint.setImageFilter(matrixFilter);
+    SkRect bounds2 = SkRect::MakeXYWH(20, 20, 10, 10);
+    canvas.saveLayer(&bounds2, &filterPaint);
+    SkPaint greenPaint;
+    greenPaint.setColor(SK_ColorGREEN);
+    canvas.drawRect(bounds2, greenPaint);
+    canvas.restore();
+    canvas.restore();
+    SkPaint strokePaint;
+    strokePaint.setStyle(SkPaint::kStroke_Style);
+    strokePaint.setColor(SK_ColorRED);
+
+    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
+    uint32_t pixel;
+    canvas.readPixels(info, &pixel, 4, 25, 25);
+    REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+
+    // Test that drawSprite() with a filter nested inside a saveLayer() applies the
+    // correct offset to the filter matrix.
+    canvas.clear(0x0);
+    canvas.readPixels(info, &pixel, 4, 25, 25);
+    canvas.saveLayer(&bounds1, NULL);
+    canvas.drawSprite(bitmap, 20, 20, &filterPaint);
+    canvas.restore();
+
+    canvas.readPixels(info, &pixel, 4, 25, 25);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 }
 
