@@ -47,12 +47,14 @@
         'skia_os%': '<(OS)',
 
         'skia_android_framework%': 0,
+        'skia_arch_type%': 'x86',
       },
 
       # Re-define all variables defined within the level-3 'variables' dict,
       # so that siblings of the level-2 'variables' dict can see them.
       # (skia_os will depend on skia_android_framework.)
       'skia_android_framework%': '<(skia_android_framework)',
+      'skia_arch_type%': '<(skia_arch_type)',
 
       'conditions': [
         [ 'skia_android_framework == 1', {
@@ -72,7 +74,7 @@
         }, {
           'skia_poppler_enabled%': 0,
         }],
-        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "mac"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris", "mac"] or skia_arch_type == "arm64"', {
           'skia_arch_width%': 64,
         }, {
           'skia_arch_width%': 32,

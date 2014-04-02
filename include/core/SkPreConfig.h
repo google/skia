@@ -174,6 +174,10 @@
     #endif
 #endif
 
+#if defined(__aarch64__)
+    #define SK_CPU_ARM64
+#endif
+
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(SKIA_IMPLEMENTATION)
