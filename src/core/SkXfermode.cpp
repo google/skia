@@ -17,6 +17,10 @@
 #include "SkUtilsArm.h"
 #include "SkWriteBuffer.h"
 
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#include "SkXfermode_opts_SSE2.h"
+#endif
+
 #if !SK_ARM_NEON_IS_NONE
 #include "SkXfermode_opts_arm_neon.h"
 #endif
@@ -1992,5 +1996,8 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkDstOutXfermode)
 #if !SK_ARM_NEON_IS_NONE
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkNEONProcCoeffXfermode)
+#endif
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSSE2ProcCoeffXfermode)
 #endif
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END

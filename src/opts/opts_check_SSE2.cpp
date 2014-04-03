@@ -17,6 +17,8 @@
 #include "SkUtils.h"
 #include "SkMorphology_opts.h"
 #include "SkMorphology_opts_SSE2.h"
+#include "SkXfermode.h"
+#include "SkXfermode_proccoeff.h"
 
 #include "SkRTConf.h"
 
@@ -306,4 +308,33 @@ SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
     } else {
         return NULL;
     }
+}
+
+extern SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl_SSE2(const ProcCoeff& rec,
+                                                                SkXfermode::Mode mode);
+
+SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl(const ProcCoeff& rec,
+                                                    SkXfermode::Mode mode);
+
+SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl(const ProcCoeff& rec,
+                                                    SkXfermode::Mode mode) {
+    return NULL;
+}
+
+SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec,
+                                               SkXfermode::Mode mode);
+
+SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec,
+                                               SkXfermode::Mode mode) {
+    if (cachedHasSSE2()) {
+        return SkPlatformXfermodeFactory_impl_SSE2(rec, mode);
+    } else {
+        return SkPlatformXfermodeFactory_impl(rec, mode);
+    }
+}
+
+SkXfermodeProc SkPlatformXfermodeProcFactory(SkXfermode::Mode mode);
+
+SkXfermodeProc SkPlatformXfermodeProcFactory(SkXfermode::Mode mode) {
+    return NULL;
 }
