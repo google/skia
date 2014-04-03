@@ -18,6 +18,7 @@
 #include "GrDrawTargetCaps.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
+#include "GrLayerCache.h"
 #include "GrOvalRenderer.h"
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
@@ -124,6 +125,8 @@ bool GrContext::init(GrBackend backend, GrBackendContext backendContext) {
 
     fFontCache = SkNEW_ARGS(GrFontCache, (fGpu));
 
+    fLayerCache.reset(SkNEW_ARGS(GrLayerCache, (fGpu)));
+
     fLastDrawWasBuffered = kNo_BufferedDraw;
 
     fAARectRenderer = SkNEW(GrAARectRenderer);
@@ -197,6 +200,7 @@ void GrContext::contextDestroyed() {
     fTextureCache->purgeAllUnlocked();
 
     fFontCache->freeAll();
+    fLayerCache->freeAll();
     fGpu->markContextDirty();
 }
 
@@ -214,6 +218,7 @@ void GrContext::freeGpuResources() {
 
     fTextureCache->purgeAllUnlocked();
     fFontCache->freeAll();
+    fLayerCache->freeAll();
     // a path renderer may be holding onto resources
     SkSafeSetNull(fPathRendererChain);
     SkSafeSetNull(fSoftwarePathRenderer);

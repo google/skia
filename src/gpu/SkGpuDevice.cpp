@@ -14,6 +14,7 @@
 #include "GrContext.h"
 #include "GrBitmapTextContext.h"
 #include "GrDistanceFieldTextContext.h"
+#include "GrLayerCache.h"
 #include "GrPictureUtils.h"
 
 #include "SkGrTexturePixelRef.h"
@@ -2033,7 +2034,9 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkPicture* picture) {
     SkDebugf("Need SaveLayers: ");
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
         if (pullForward[i]) {
-            SkDebugf("%d, ", i);
+            const GrAtlasedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture, i);
+
+            SkDebugf("%d (%d), ", i, layer->layerID());
         }
     }
     SkDebugf("\n");
