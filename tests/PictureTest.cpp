@@ -1171,7 +1171,7 @@ static void test_gen_id(skiatest::Reporter* reporter) {
 
     SkPicture emptyCopy(empty);
     REPORTER_ASSERT(reporter, empty.getGenerationID() != emptyCopy.getGenerationID());
-    
+
     SkPicture copyMidRecord(midRecord);
     REPORTER_ASSERT(reporter, midRecord.getGenerationID() != copyMidRecord.getGenerationID());
     REPORTER_ASSERT(reporter, copyMidRecord.getGenerationID() != SkPicture::kInvalidGenID);

@@ -52,15 +52,15 @@ public:
     uint32_t pictureID() const { return fPictureID; }
     int layerID() const { return fLayerID; }
 
-    void init(uint32_t pictureID, int layerID) { 
+    void init(uint32_t pictureID, int layerID) {
         fPictureID = pictureID;
-        fLayerID   = layerID; 
+        fLayerID   = layerID;
     }
 
 private:
     uint32_t        fPictureID;
     int             fLayerID;        // only valid if fPicture != kInvalidGenID
-    GrAtlasLocation fLocation; 
+    GrAtlasLocation fLocation;
 };
 
 // The GrLayerCache caches pre-computed saveLayers for later rendering.

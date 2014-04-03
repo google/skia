@@ -14,7 +14,7 @@
  */
 class GrLayerCache::PictureLayerKey {
 public:
-    PictureLayerKey(uint32_t pictureID, int layerID) 
+    PictureLayerKey(uint32_t pictureID, int layerID)
         : fPictureID(pictureID)
         , fLayerID(layerID) {
     }
@@ -41,7 +41,7 @@ private:
     int      fLayerID;
 };
 
-GrLayerCache::GrLayerCache(GrGpu* gpu) 
+GrLayerCache::GrLayerCache(GrGpu* gpu)
     : fGpu(SkRef(gpu))
     , fLayerPool(16) {      // TODO: may need to increase this later
 }

@@ -203,8 +203,8 @@ public:
 
     static const uint32_t kInvalidGenID = 0;
 
-    /** Return a non-zero, unique value representing the picture. This call is 
-        only valid when not recording. Between a beginRecording/endRecording 
+    /** Return a non-zero, unique value representing the picture. This call is
+        only valid when not recording. Between a beginRecording/endRecording
         pair it will just return 0 (the invalid gen ID). Each beginRecording/
         endRecording pair will cause a different generation ID to be returned.
     */

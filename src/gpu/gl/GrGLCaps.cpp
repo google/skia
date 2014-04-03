@@ -225,7 +225,7 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     }
 
     if ((kGL_GrGLStandard == standard && version >= GR_GL_VER(4,3)) ||
-        (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0)) || 
+        (kGLES_GrGLStandard == standard && version >= GR_GL_VER(3,0)) ||
         ctxInfo.hasExtension("GL_ARB_invalidate_subdata")) {
         fDiscardRenderTargetSupport = true;
         fInvalidateFBType = kInvalidate_InvalidateFBType;
