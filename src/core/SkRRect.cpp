@@ -463,9 +463,6 @@ void SkRRect::validate() const {
         case kEmpty_Type:
             SkASSERT(fRect.isEmpty());
             SkASSERT(allRadiiZero && allRadiiSame && allCornersSquare);
-
-            SkASSERT(0 == fRect.fLeft && 0 == fRect.fTop &&
-                     0 == fRect.fRight && 0 == fRect.fBottom);
             break;
         case kRect_Type:
             SkASSERT(!fRect.isEmpty());
