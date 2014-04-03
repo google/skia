@@ -298,20 +298,8 @@ bool SkWEBPImageDecoder::setDecodeConfig(SkBitmap* decodedBitmap,
         return false;
     }
 
-    SkImageInfo info;
-    info.fWidth = width;
-    info.fHeight = height;
-    info.fColorType = SkBitmapConfigToColorType(config);
-    if (SkToBool(fHasAlpha)) {
-        if (this->getRequireUnpremultipliedColors()) {
-            info.fAlphaType = kUnpremul_SkAlphaType;
-        } else {
-            info.fAlphaType = kPremul_SkAlphaType;
-        }
-    } else {
-        info.fAlphaType = kOpaque_SkAlphaType;
-    }
-    return decodedBitmap->setConfig(info);
+    return decodedBitmap->setConfig(config, width, height, 0,
+                                    fHasAlpha ? kPremul_SkAlphaType : kOpaque_SkAlphaType);
 }
 
 bool SkWEBPImageDecoder::onBuildTileIndex(SkStreamRewindable* stream,
