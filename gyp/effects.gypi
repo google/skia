@@ -77,6 +77,8 @@
     '<(skia_src_path)/effects/gradients/SkTwoPointRadialGradient.h',
     '<(skia_src_path)/effects/gradients/SkTwoPointConicalGradient.cpp',
     '<(skia_src_path)/effects/gradients/SkTwoPointConicalGradient.h',
+    '<(skia_src_path)/effects/gradients/SkTwoPointConicalGradient_gpu.cpp',
+    '<(skia_src_path)/effects/gradients/SkTwoPointConicalGradient_gpu.h',
     '<(skia_src_path)/effects/gradients/SkSweepGradient.cpp',
     '<(skia_src_path)/effects/gradients/SkSweepGradient.h',
 

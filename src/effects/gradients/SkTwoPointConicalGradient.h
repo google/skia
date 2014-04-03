@@ -6,8 +6,8 @@
  * found in the LICENSE file.
  */
 
- #ifndef SkTwoPointConicalGradient_DEFINED
- #define SkTwoPointConicalGradient_DEFINED
+#ifndef SkTwoPointConicalGradient_DEFINED
+#define SkTwoPointConicalGradient_DEFINED
 
 #include "SkGradientShaderPriv.h"
 
