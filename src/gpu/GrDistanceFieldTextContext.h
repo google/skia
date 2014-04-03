@@ -32,6 +32,7 @@ public:
 private:
     GrTextStrike*           fStrike;
     SkScalar                fTextRatio;
+    bool                    fUseLCDText;
 
     void init(const GrPaint&, const SkPaint&);
     void drawPackedGlyph(GrGlyph::PackedID, SkFixed left, SkFixed top, GrFontScaler*);

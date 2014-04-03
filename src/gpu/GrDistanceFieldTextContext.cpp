@@ -84,13 +84,18 @@ void GrDistanceFieldTextContext::flushGlyphs() {
         SkASSERT(fCurrTexture);
         GrTextureParams params(SkShader::kRepeat_TileMode, GrTextureParams::kBilerp_FilterMode);
 
-        // This effect could be stored with one of the cache objects (atlas?)
-        drawState->addCoverageEffect(
-                         GrDistanceFieldTextureEffect::Create(fCurrTexture, params,
-                                                              fContext->getMatrix().isSimilarity()),
-                         kGlyphCoordsAttributeIndex)->unref();
+        // Effects could be stored with one of the cache objects (atlas?)
+        if (fUseLCDText) {
+            bool useBGR = SkDeviceProperties::Geometry::kBGR_Layout ==
+                                                            fDeviceProperties.fGeometry.getLayout();
+            drawState->addCoverageEffect(GrDistanceFieldLCDTextureEffect::Create(
+                                                            fCurrTexture,
+                                                            params,
+                                                            fContext->getMatrix().rectStaysRect() &&
+                                                            fContext->getMatrix().isSimilarity(),
+                                                            useBGR),
+                                         kGlyphCoordsAttributeIndex)->unref();
 
-        if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
             if (kOne_GrBlendCoeff != fPaint.getSrcBlendCoeff() ||
                 kISA_GrBlendCoeff != fPaint.getDstBlendCoeff() ||
                 fPaint.numColorStages()) {
@@ -107,6 +112,10 @@ void GrDistanceFieldTextContext::flushGlyphs() {
             drawState->setBlendConstant(skcolor_to_grcolor_nopremultiply(fSkPaint.getColor()));
             drawState->setBlendFunc(kConstC_GrBlendCoeff, kISC_GrBlendCoeff);
         } else {
+            drawState->addCoverageEffect(GrDistanceFieldTextureEffect::Create(fCurrTexture, params,
+                                                              fContext->getMatrix().isSimilarity()),
+                                         kGlyphCoordsAttributeIndex)->unref();
+
             // set back to normal in case we took LCD path previously.
             drawState->setBlendFunc(fPaint.getSrcBlendCoeff(), fPaint.getDstBlendCoeff());
             drawState->setColor(fPaint.getColor());
@@ -318,6 +327,8 @@ inline void GrDistanceFieldTextContext::init(const GrPaint& paint, const SkPaint
         fSkPaint.setTextSize(SkIntToScalar(kLargeDFFontSize));
     }
 
+    fUseLCDText = fSkPaint.isLCDRenderText();
+    
     fSkPaint.setLCDRenderText(false);
     fSkPaint.setAutohinted(false);
     fSkPaint.setSubpixelText(true);
