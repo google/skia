@@ -6,7 +6,7 @@
  */
 
 #ifndef SkTwoPointConicalGradient_gpu_DEFINED
-#define SkTwoPointconicalGradient_gpu_DEFINED
+#define SkTwoPointConicalGradient_gpu_DEFINED
 
 #if SK_SUPPORT_GPU
 
