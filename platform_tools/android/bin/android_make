@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Fail-fast if anything in the script fails.
-set -e
-
 # Remove any existing .android_config file before running android_setup. If we
 # did not remove this now then we would build for whatever device type was
 # listed in the .android_config instead of the default device type.
@@ -11,14 +8,16 @@ rm -f .android_config
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
 
-if [ $(basename $0) = "android_make" ]; then
-    GYP_GENERATORS=make-android make ${APP_ARGS[@]}
-else
-    GYP_GENERATORS=ninja-android ./gyp_skia
-    OUT=$SKIA_OUT/${BUILDTYPE-Debug}   # Defaults to Debug if BUILDTYPE isn't set.
-    ninja -C $OUT ${APP_ARGS[@]}
-    ln -sf lib $OUT/lib.target         # android_run_skia looks in lib.target; ninja writes to lib.
-fi
+# Fail-fast if anything in the script fails.
+# Don't do this until "source android_setup.sh" is done; see
+# https://codereview.chromium.org/223943002 for discussion.
+set -e
+
+GYP_GENERATORS=ninja-android ./gyp_skia
+OUT=$SKIA_OUT/${BUILDTYPE-Debug}   # Defaults to Debug if BUILDTYPE isn't set.
+ninja -C $OUT ${APP_ARGS[@]}
+ln -sf lib $OUT/lib.target         # android_run_skia looks in lib.target; ninja writes to lib.
+                                   # TODO(mtklein): change android_run_skia
 
 # Write the device id into the .android_config file.  This tells
 # android_run_skia the last build we completed.
