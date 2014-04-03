@@ -12869,13 +12869,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          692984742664315819
+          13143469292262107557
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "verttext_pdf-poppler.png": {
       "allowed-digests": [
