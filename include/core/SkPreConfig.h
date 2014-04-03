@@ -149,7 +149,7 @@
 //////////////////////////////////////////////////////////////////////
 // ARM defines
 
-#if defined(__arm__) && !defined(__APPLE__)
+#if defined(__arm__) && (!defined(__APPLE__) || !TARGET_IPHONE_SIMULATOR)
     #define SK_CPU_ARM
 
     #if defined(__GNUC__)
@@ -180,7 +180,8 @@
     #endif
 #endif
 
-#if defined(__aarch64__) && !defined(__APPLE__)
+// Disable ARM64 optimizations for iOS due to complications regarding gyp and iOS.
+#if defined(__aarch64__) && !defined(SK_BUILD_FOR_IOS)
     #define SK_CPU_ARM64
 #endif
 
