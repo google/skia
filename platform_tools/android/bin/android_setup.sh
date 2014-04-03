@@ -19,6 +19,9 @@ while (( "$#" )); do
     fi
     DEVICE_SERIAL="-s $2"
     shift
+  elif [[ $(echo "$1" | grep "^BUILDTYPE=") != "" ]];
+  then
+    BUILDTYPE=${1##BUILDTYPE=}
   else
     APP_ARGS=("${APP_ARGS[@]}" "${1}")
   fi
