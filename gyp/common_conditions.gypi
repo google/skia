@@ -334,7 +334,7 @@
               'SK_BUILD_FOR_NACL',
             ],
             'variables': {
-              'nacl_sdk_root': '<!(["echo", "${NACL_SDK_ROOT}"])',
+              'nacl_sdk_root': '<!(echo ${NACL_SDK_ROOT})',
             },
             'link_settings': {
               'libraries': [
