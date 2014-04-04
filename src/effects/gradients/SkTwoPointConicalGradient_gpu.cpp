@@ -49,7 +49,7 @@ protected:
     // @}
 
 private:
-    
+
     typedef GrGLGradientEffect INHERITED;
 
 };
@@ -57,7 +57,7 @@ private:
 const GrBackendEffectFactory& Gr2PtConicalGradientEffect::getFactory() const {
     return GrTBackendEffectFactory<Gr2PtConicalGradientEffect>::getInstance();
 }
-    
+
 Gr2PtConicalGradientEffect::Gr2PtConicalGradientEffect(GrContext* ctx,
                                                          const SkTwoPointConicalGradient& shader,
                                                          const SkMatrix& matrix,
@@ -303,4 +303,3 @@ GrGLEffect::EffectKey GrGL2PtConicalGradientEffect::GenKey(const GrDrawEffect& d
     return key;
 }
 #endif
-

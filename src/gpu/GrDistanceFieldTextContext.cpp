@@ -328,7 +328,7 @@ inline void GrDistanceFieldTextContext::init(const GrPaint& paint, const SkPaint
     }
 
     fUseLCDText = fSkPaint.isLCDRenderText();
-    
+
     fSkPaint.setLCDRenderText(false);
     fSkPaint.setAutohinted(false);
     fSkPaint.setSubpixelText(true);

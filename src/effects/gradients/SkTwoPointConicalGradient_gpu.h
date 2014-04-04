@@ -30,7 +30,7 @@ public:
     virtual ~Gr2PtConicalGradientEffect() { }
 
     static const char* Name() { return "Two-Point Conical Gradient"; }
-    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE; 
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
 
     // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
     bool isDegenerate() const { return SkScalarAbs(fDiffRadius) == SkScalarAbs(fCenterX1); }
