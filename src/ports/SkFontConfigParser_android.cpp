@@ -52,18 +52,13 @@ static void textHandler(void *data, const char *s, int len) {
     // Make sure we're in the right state to store this name information
     if (familyData->currentFamily &&
             (familyData->currentTag == NAMESET_TAG || familyData->currentTag == FILESET_TAG)) {
-        // Malloc new buffer to store the string
-        char *buff;
-        buff = (char*) malloc((len + 1) * sizeof(char));
-        strncpy(buff, s, len);
-        buff[len] = '\0';
         switch (familyData->currentTag) {
         case NAMESET_TAG:
-            *(familyData->currentFamily->fNames.append()) = buff;
+            familyData->currentFamily->fNames.push_back().set(s, len);
             break;
         case FILESET_TAG:
             if (familyData->currentFontInfo) {
-                familyData->currentFontInfo->fFileName = buff;
+                familyData->currentFontInfo->fFileName.set(s, len);
             }
             break;
         default:
@@ -78,7 +73,8 @@ static void textHandler(void *data, const char *s, int len) {
  * variants then lets textHandler handle the actual file name
  */
 static void fontFileElementHandler(FamilyData *familyData, const char **attributes) {
-    FontFileInfo* newFileInfo = new FontFileInfo();
+
+    FontFileInfo& newFileInfo = familyData->currentFamily->fFontFiles.push_back();
     if (attributes) {
         int currentAttributeIndex = 0;
         while (attributes[currentAttributeIndex]) {
@@ -88,19 +84,18 @@ static void fontFileElementHandler(FamilyData *familyData, const char **attribut
             int valueLength = strlen(attributeValue);
             if (strncmp(attributeName, "variant", nameLength) == 0) {
                 if (strncmp(attributeValue, "elegant", valueLength) == 0) {
-                    newFileInfo->fPaintOptions.setFontVariant(SkPaintOptionsAndroid::kElegant_Variant);
+                    newFileInfo.fPaintOptions.setFontVariant(SkPaintOptionsAndroid::kElegant_Variant);
                 } else if (strncmp(attributeValue, "compact", valueLength) == 0) {
-                    newFileInfo->fPaintOptions.setFontVariant(SkPaintOptionsAndroid::kCompact_Variant);
+                    newFileInfo.fPaintOptions.setFontVariant(SkPaintOptionsAndroid::kCompact_Variant);
                 }
             } else if (strncmp(attributeName, "lang", nameLength) == 0) {
-                newFileInfo->fPaintOptions.setLanguage(attributeValue);
+                newFileInfo.fPaintOptions.setLanguage(attributeValue);
             }
             //each element is a pair of attributeName/attributeValue string pairs
             currentAttributeIndex += 2;
         }
     }
-    *(familyData->currentFamily->fFontFiles.append()) = newFileInfo;
-    familyData->currentFontInfo = newFileInfo;
+    familyData->currentFontInfo = &newFileInfo;
     XML_SetCharacterDataHandler(*familyData->parser, textHandler);
 }
 
