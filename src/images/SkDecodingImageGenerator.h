@@ -18,15 +18,7 @@ class SkStreamRewindable;
  *  An implementation of SkImageGenerator that calls into
  *  SkImageDecoder.
  */
-class SkDecodingImageGenerator : public SkImageGenerator {
-public:
-    virtual ~SkDecodingImageGenerator();
-    virtual SkData* refEncodedData() SK_OVERRIDE;
-    // This implementaion of getInfo() always returns true.
-    virtual bool getInfo(SkImageInfo* info) SK_OVERRIDE;
-    virtual bool getPixels(const SkImageInfo& info,
-                           void* pixels,
-                           size_t rowBytes) SK_OVERRIDE;
+namespace SkDecodingImageGenerator {
     /**
      *  These options will be passed on to the image decoder.  The
      *  defaults are sensible.
@@ -97,31 +89,15 @@ public:
      *
      *  @return NULL on failure, a new SkImageGenerator on success.
      */
-    static SkImageGenerator* Create(SkStreamRewindable* stream,
-                                    const Options& opt);
+    SkImageGenerator* Create(SkStreamRewindable* stream,
+                             const Options& opt);
 
     /**
      *  @param data Contains the encoded image data that will be used by
      *         the SkDecodingImageGenerator.  Will be ref()ed by the
      *         SkImageGenerator constructor and and unref()ed on deletion.
      */
-    static SkImageGenerator* Create(SkData* data, const Options& opt);
-
-private:
-    SkData*                fData;
-    SkStreamRewindable*    fStream;
-    const SkImageInfo      fInfo;
-    const int              fSampleSize;
-    const bool             fDitherImage;
-
-    SkDecodingImageGenerator(SkData* data,
-                             SkStreamRewindable* stream,
-                             const SkImageInfo& info,
-                             int sampleSize,
-                             bool ditherImage);
-    static SkImageGenerator* Create(SkData*, SkStreamRewindable*,
-                                    const Options&);
-    typedef SkImageGenerator INHERITED;
+    SkImageGenerator* Create(SkData* data, const Options& opt);
 };
 
 //  // Example of most basic use case:

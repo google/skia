@@ -14,12 +14,36 @@
 #include "SkStream.h"
 #include "SkUtils.h"
 
-static bool equal_modulo_alpha(const SkImageInfo& a, const SkImageInfo& b) {
+namespace {
+bool equal_modulo_alpha(const SkImageInfo& a, const SkImageInfo& b) {
     return a.width() == b.width() && a.height() == b.height() &&
            a.colorType() == b.colorType();
 }
 
-namespace {
+class DecodingImageGenerator : public SkImageGenerator {
+public:
+    virtual ~DecodingImageGenerator();
+    virtual SkData* refEncodedData() SK_OVERRIDE;
+    // This implementaion of getInfo() always returns true.
+    virtual bool getInfo(SkImageInfo* info) SK_OVERRIDE;
+    virtual bool getPixels(const SkImageInfo& info,
+                           void* pixels,
+                           size_t rowBytes) SK_OVERRIDE;
+
+    SkData*                fData;
+    SkStreamRewindable*    fStream;
+    const SkImageInfo      fInfo;
+    const int              fSampleSize;
+    const bool             fDitherImage;
+
+    DecodingImageGenerator(SkData* data,
+                           SkStreamRewindable* stream,
+                           const SkImageInfo& info,
+                           int sampleSize,
+                           bool ditherImage);
+    typedef SkImageGenerator INHERITED;
+};
+
 /**
  *  Special allocator used by getPixels(). Uses preallocated memory
  *  provided if possible, else fall-back on the default allocator
@@ -76,10 +100,9 @@ inline bool check_alpha(SkAlphaType reported, SkAlphaType actual) {
 }
 #endif  // SK_DEBUG
 
-}  // namespace
 ////////////////////////////////////////////////////////////////////////////////
 
-SkDecodingImageGenerator::SkDecodingImageGenerator(
+DecodingImageGenerator::DecodingImageGenerator(
         SkData* data,
         SkStreamRewindable* stream,
         const SkImageInfo& info,
@@ -95,19 +118,19 @@ SkDecodingImageGenerator::SkDecodingImageGenerator(
     SkSafeRef(fData);  // may be NULL.
 }
 
-SkDecodingImageGenerator::~SkDecodingImageGenerator() {
+DecodingImageGenerator::~DecodingImageGenerator() {
     SkSafeUnref(fData);
     fStream->unref();
 }
 
-bool SkDecodingImageGenerator::getInfo(SkImageInfo* info) {
+bool DecodingImageGenerator::getInfo(SkImageInfo* info) {
     if (info != NULL) {
         *info = fInfo;
     }
     return true;
 }
 
-SkData* SkDecodingImageGenerator::refEncodedData() {
+SkData* DecodingImageGenerator::refEncodedData() {
     // This functionality is used in `gm --serialize`
     // Does not encode options.
     if (fData != NULL) {
@@ -128,7 +151,7 @@ SkData* SkDecodingImageGenerator::refEncodedData() {
     return SkSafeRef(fData);
 }
 
-bool SkDecodingImageGenerator::getPixels(const SkImageInfo& info,
+bool DecodingImageGenerator::getPixels(const SkImageInfo& info,
                                          void* pixels,
                                          size_t rowBytes) {
     if (NULL == pixels) {
@@ -180,35 +203,10 @@ bool SkDecodingImageGenerator::getPixels(const SkImageInfo& info,
     return true;
 }
 
-SkImageGenerator* SkDecodingImageGenerator::Create(
-        SkData* data,
-        const SkDecodingImageGenerator::Options& opts) {
-    SkASSERT(data != NULL);
-    if (NULL == data) {
-        return NULL;
-    }
-    SkStreamRewindable* stream = SkNEW_ARGS(SkMemoryStream, (data));
-    SkASSERT(stream != NULL);
-    SkASSERT(stream->unique());
-    return SkDecodingImageGenerator::Create(data, stream, opts);
-}
-
-SkImageGenerator* SkDecodingImageGenerator::Create(
-        SkStreamRewindable* stream,
-        const SkDecodingImageGenerator::Options& opts) {
-    SkASSERT(stream != NULL);
-    SkASSERT(stream->unique());
-    if ((stream == NULL) || !stream->unique()) {
-        SkSafeUnref(stream);
-        return NULL;
-    }
-    return SkDecodingImageGenerator::Create(NULL, stream, opts);
-}
-
 // A contructor-type function that returns NULL on failure.  This
 // prevents the returned SkImageGenerator from ever being in a bad
 // state.  Called by both Create() functions
-SkImageGenerator* SkDecodingImageGenerator::Create(
+SkImageGenerator* CreateDecodingImageGenerator(
         SkData* data,
         SkStreamRewindable* stream,
         const SkDecodingImageGenerator::Options& opts) {
@@ -250,7 +248,36 @@ SkImageGenerator* SkDecodingImageGenerator::Create(
         }
         info.fColorType = opts.fRequestedColorType;
     }
-    return SkNEW_ARGS(SkDecodingImageGenerator,
+    return SkNEW_ARGS(DecodingImageGenerator,
                       (data, autoStream.detach(), info,
                        opts.fSampleSize, opts.fDitherImage));
+}
+
+}  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+
+SkImageGenerator* SkDecodingImageGenerator::Create(
+        SkData* data,
+        const SkDecodingImageGenerator::Options& opts) {
+    SkASSERT(data != NULL);
+    if (NULL == data) {
+        return NULL;
+    }
+    SkStreamRewindable* stream = SkNEW_ARGS(SkMemoryStream, (data));
+    SkASSERT(stream != NULL);
+    SkASSERT(stream->unique());
+    return CreateDecodingImageGenerator(data, stream, opts);
+}
+
+SkImageGenerator* SkDecodingImageGenerator::Create(
+        SkStreamRewindable* stream,
+        const SkDecodingImageGenerator::Options& opts) {
+    SkASSERT(stream != NULL);
+    SkASSERT(stream->unique());
+    if ((stream == NULL) || !stream->unique()) {
+        SkSafeUnref(stream);
+        return NULL;
+    }
+    return CreateDecodingImageGenerator(NULL, stream, opts);
 }
