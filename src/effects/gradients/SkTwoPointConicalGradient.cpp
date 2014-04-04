@@ -335,24 +335,8 @@ void SkTwoPointConicalGradient::flatten(
 GrEffectRef* SkTwoPointConicalGradient::asNewEffect(GrContext* context, const SkPaint&) const {
     SkASSERT(NULL != context);
     SkASSERT(fPtsToUnit.isIdentity());
-    // invert the localM, translate to center1, rotate so center2 is on x axis.
-    SkMatrix matrix;
-    if (!this->getLocalMatrix().invert(&matrix)) {
-        return NULL;
-    }
-    matrix.postTranslate(-fCenter1.fX, -fCenter1.fY);
 
-    SkPoint diff = fCenter2 - fCenter1;
-    SkScalar diffLen = diff.length();
-    if (0 != diffLen) {
-        SkScalar invDiffLen = SkScalarInvert(diffLen);
-        SkMatrix rot;
-        rot.setSinCos(-SkScalarMul(invDiffLen, diff.fY),
-                       SkScalarMul(invDiffLen, diff.fX));
-        matrix.postConcat(rot);
-    }
-
-    return Gr2PtConicalGradientEffect::Create(context, *this, matrix, fTileMode);
+    return Gr2PtConicalGradientEffect::Create(context, *this, fTileMode);
 }
 
 #else

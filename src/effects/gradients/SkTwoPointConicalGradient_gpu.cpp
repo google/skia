@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #if SK_SUPPORT_GPU
 #include "SkTwoPointConicalGradient_gpu.h"
 #include "GrTBackendEffectFactory.h"
@@ -13,11 +14,105 @@
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 
-class GrGL2PtConicalGradientEffect : public GrGLGradientEffect {
+//////////////////////////////////////////////////////////////////////////////
+
+static void set_matrix_default_conical(const SkTwoPointConicalGradient& shader,
+                                       SkMatrix* invLMatrix) {
+    // Inverse of the current local matrix is passed in then,
+    // translate to center1, rotate so center2 is on x axis.
+    const SkPoint& center1 = shader.getStartCenter();
+    const SkPoint& center2 = shader.getEndCenter();
+
+    invLMatrix->postTranslate(-center1.fX, -center1.fY);
+
+    SkPoint diff = center2 - center1;
+    SkScalar diffLen = diff.length();
+    if (0 != diffLen) {
+        SkScalar invDiffLen = SkScalarInvert(diffLen);
+        SkMatrix rot;
+        rot.setSinCos(-SkScalarMul(invDiffLen, diff.fY),
+                       SkScalarMul(invDiffLen, diff.fX));
+        invLMatrix->postConcat(rot);
+    }
+}
+
+class GLDefault2PtConicalEffect;
+
+class Default2PtConicalEffect : public GrGradientEffect {
 public:
 
-    GrGL2PtConicalGradientEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&);
-    virtual ~GrGL2PtConicalGradientEffect() { }
+    static GrEffectRef* Create(GrContext* ctx,
+                               const SkTwoPointConicalGradient& shader,
+                               const SkMatrix& matrix,
+                               SkShader::TileMode tm) {
+        AutoEffectUnref effect(SkNEW_ARGS(Default2PtConicalEffect, (ctx, shader, matrix, tm)));
+        return CreateEffectRef(effect);
+    }
+
+    virtual ~Default2PtConicalEffect() { }
+
+    static const char* Name() { return "Two-Point Conical Gradient"; }
+    virtual const GrBackendEffectFactory& getFactory() const SK_OVERRIDE;
+
+    // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
+    bool isDegenerate() const { return SkScalarAbs(fDiffRadius) == SkScalarAbs(fCenterX1); }
+    SkScalar center() const { return fCenterX1; }
+    SkScalar diffRadius() const { return fDiffRadius; }
+    SkScalar radius() const { return fRadius0; }
+
+    typedef GLDefault2PtConicalEffect GLEffect;
+
+private:
+    virtual bool onIsEqual(const GrEffect& sBase) const SK_OVERRIDE {
+        const Default2PtConicalEffect& s = CastEffect<Default2PtConicalEffect>(sBase);
+        return (INHERITED::onIsEqual(sBase) &&
+                this->fCenterX1 == s.fCenterX1 &&
+                this->fRadius0 == s.fRadius0 &&
+                this->fDiffRadius == s.fDiffRadius);
+    }
+
+    Default2PtConicalEffect(GrContext* ctx,
+                            const SkTwoPointConicalGradient& shader,
+                            const SkMatrix& matrix,
+                            SkShader::TileMode tm)
+        : INHERITED(ctx, shader, matrix, tm),
+        fCenterX1(shader.getCenterX1()),
+        fRadius0(shader.getStartRadius()),
+        fDiffRadius(shader.getDiffRadius()) {
+        // We pass the linear part of the quadratic as a varying.
+        //    float b = -2.0 * (fCenterX1 * x + fRadius0 * fDiffRadius * z)
+        fBTransform = this->getCoordTransform();
+        SkMatrix& bMatrix = *fBTransform.accessMatrix();
+        SkScalar r0dr = SkScalarMul(fRadius0, fDiffRadius);
+        bMatrix[SkMatrix::kMScaleX] = -2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMScaleX]) +
+                                            SkScalarMul(r0dr, bMatrix[SkMatrix::kMPersp0]));
+        bMatrix[SkMatrix::kMSkewX] = -2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMSkewX]) +
+                                           SkScalarMul(r0dr, bMatrix[SkMatrix::kMPersp1]));
+        bMatrix[SkMatrix::kMTransX] = -2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMTransX]) +
+                                            SkScalarMul(r0dr, bMatrix[SkMatrix::kMPersp2]));
+        this->addCoordTransform(&fBTransform);
+    }
+
+    GR_DECLARE_EFFECT_TEST;
+
+    // @{
+    // Cache of values - these can change arbitrarily, EXCEPT
+    // we shouldn't change between degenerate and non-degenerate?!
+
+    GrCoordTransform fBTransform;
+    SkScalar         fCenterX1;
+    SkScalar         fRadius0;
+    SkScalar         fDiffRadius;
+
+    // @}
+
+    typedef GrGradientEffect INHERITED;
+};
+
+class GLDefault2PtConicalEffect : public GrGLGradientEffect {
+public:
+    GLDefault2PtConicalEffect(const GrBackendEffectFactory& factory, const GrDrawEffect&);
+    virtual ~GLDefault2PtConicalEffect() { }
 
     virtual void emitCode(GrGLShaderBuilder*,
                           const GrDrawEffect&,
@@ -31,7 +126,6 @@ public:
     static EffectKey GenKey(const GrDrawEffect&, const GrGLCaps& caps);
 
 protected:
-
     UniformHandle fParamUni;
 
     const char* fVSVaryingName;
@@ -49,40 +143,17 @@ protected:
     // @}
 
 private:
-
     typedef GrGLGradientEffect INHERITED;
 
 };
 
-const GrBackendEffectFactory& Gr2PtConicalGradientEffect::getFactory() const {
-    return GrTBackendEffectFactory<Gr2PtConicalGradientEffect>::getInstance();
+const GrBackendEffectFactory& Default2PtConicalEffect::getFactory() const {
+    return GrTBackendEffectFactory<Default2PtConicalEffect>::getInstance();
 }
 
-Gr2PtConicalGradientEffect::Gr2PtConicalGradientEffect(GrContext* ctx,
-                                                         const SkTwoPointConicalGradient& shader,
-                                                         const SkMatrix& matrix,
-                                                         SkShader::TileMode tm) :
-    INHERITED(ctx, shader, matrix, tm),
-    fCenterX1(shader.getCenterX1()),
-    fRadius0(shader.getStartRadius()),
-    fDiffRadius(shader.getDiffRadius()) {
-    // We pass the linear part of the quadratic as a varying.
-    //    float b = -2.0 * (fCenterX1 * x + fRadius0 * fDiffRadius * z)
-    fBTransform = this->getCoordTransform();
-    SkMatrix& bMatrix = *fBTransform.accessMatrix();
-    SkScalar r0dr = SkScalarMul(fRadius0, fDiffRadius);
-    bMatrix[SkMatrix::kMScaleX] = -2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMScaleX]) +
-                                        SkScalarMul(r0dr, bMatrix[SkMatrix::kMPersp0]));
-    bMatrix[SkMatrix::kMSkewX] = -2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMSkewX]) +
-                                       SkScalarMul(r0dr, bMatrix[SkMatrix::kMPersp1]));
-    bMatrix[SkMatrix::kMTransX] = -2 * (SkScalarMul(fCenterX1, bMatrix[SkMatrix::kMTransX]) +
-                                        SkScalarMul(r0dr, bMatrix[SkMatrix::kMPersp2]));
-    this->addCoordTransform(&fBTransform);
-}
+GR_DEFINE_EFFECT_TEST(Default2PtConicalEffect);
 
-GR_DEFINE_EFFECT_TEST(Gr2PtConicalGradientEffect);
-
-GrEffectRef* Gr2PtConicalGradientEffect::TestCreate(SkRandom* random,
+GrEffectRef* Default2PtConicalEffect::TestCreate(SkRandom* random,
                                             GrContext* context,
                                             const GrDrawTargetCaps&,
                                             GrTexture**) {
@@ -112,7 +183,7 @@ GrEffectRef* Gr2PtConicalGradientEffect::TestCreate(SkRandom* random,
 
 /////////////////////////////////////////////////////////////////////
 
-GrGL2PtConicalGradientEffect::GrGL2PtConicalGradientEffect(const GrBackendEffectFactory& factory,
+GLDefault2PtConicalEffect::GLDefault2PtConicalEffect(const GrBackendEffectFactory& factory,
                                            const GrDrawEffect& drawEffect)
     : INHERITED(factory)
     , fVSVaryingName(NULL)
@@ -121,11 +192,11 @@ GrGL2PtConicalGradientEffect::GrGL2PtConicalGradientEffect(const GrBackendEffect
     , fCachedRadius(-SK_ScalarMax)
     , fCachedDiffRadius(-SK_ScalarMax) {
 
-    const Gr2PtConicalGradientEffect& data = drawEffect.castEffect<Gr2PtConicalGradientEffect>();
+    const Default2PtConicalEffect& data = drawEffect.castEffect<Default2PtConicalEffect>();
     fIsDegenerate = data.isDegenerate();
 }
 
-void GrGL2PtConicalGradientEffect::emitCode(GrGLShaderBuilder* builder,
+void GLDefault2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
                                     const GrDrawEffect&,
                                     EffectKey key,
                                     const char* outputColor,
@@ -254,10 +325,10 @@ void GrGL2PtConicalGradientEffect::emitCode(GrGLShaderBuilder* builder,
     }
 }
 
-void GrGL2PtConicalGradientEffect::setData(const GrGLUniformManager& uman,
+void GLDefault2PtConicalEffect::setData(const GrGLUniformManager& uman,
                                    const GrDrawEffect& drawEffect) {
     INHERITED::setData(uman, drawEffect);
-    const Gr2PtConicalGradientEffect& data = drawEffect.castEffect<Gr2PtConicalGradientEffect>();
+    const Default2PtConicalEffect& data = drawEffect.castEffect<Default2PtConicalEffect>();
     SkASSERT(data.isDegenerate() == fIsDegenerate);
     SkScalar centerX1 = data.center();
     SkScalar radius0 = data.radius();
@@ -290,16 +361,32 @@ void GrGL2PtConicalGradientEffect::setData(const GrGLUniformManager& uman,
     }
 }
 
-GrGLEffect::EffectKey GrGL2PtConicalGradientEffect::GenKey(const GrDrawEffect& drawEffect,
+GrGLEffect::EffectKey GLDefault2PtConicalEffect::GenKey(const GrDrawEffect& drawEffect,
                                                    const GrGLCaps&) {
     enum {
         kIsDegenerate = 1 << kBaseKeyBitCnt,
     };
 
     EffectKey key = GenBaseGradientKey(drawEffect);
-    if (drawEffect.castEffect<Gr2PtConicalGradientEffect>().isDegenerate()) {
+    if (drawEffect.castEffect<Default2PtConicalEffect>().isDegenerate()) {
         key |= kIsDegenerate;
     }
     return key;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+GrEffectRef* Gr2PtConicalGradientEffect::Create(GrContext* ctx,
+                                                const SkTwoPointConicalGradient& shader,
+                                                SkShader::TileMode tm) {
+
+    SkMatrix matrix;
+    if (!shader.getLocalMatrix().invert(&matrix)) {
+        return NULL;
+    }
+
+    set_matrix_default_conical(shader, &matrix);
+    return Default2PtConicalEffect::Create(ctx, shader, matrix, tm);
+}
+
 #endif
