@@ -7,41 +7,28 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
-configuration="Debug"
-
-for arg in ${APP_ARGS[@]}
-do
-  if [[ "${arg}" == "--release" ]];
-  then 
-    configuration="Release"
-  else
-    runVars=("${runVars[@]}" "${arg}")
-  fi
-
-shift
-done
-
-if [ ! -f "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so" ];
+if [ ! -f "${SKIA_OUT}/$BUILDTYPE/lib/lib${APP_ARGS[0]}.so" ];
 then
-  echo "Unable to find the ${runVars[0]} library"
+  echo "Unable to find $BUILDTYPE ${APP_ARGS[0]} library"
   exit 1
 fi
 
-adb_push_if_needed "${SKIA_OUT}/${configuration}/skia_launcher" /data/local/tmp
-if [ -f "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" ]; then
+adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/skia_launcher" /data/local/tmp
+if [ -f "${SKIA_OUT}/$BUILDTYPE/lib/libskia_android.so" ]; then
     # Does not exist for builds with static skia.
-    adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" /data/local/tmp
+    adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/lib/libskia_android.so" /data/local/tmp
 fi
-adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so" /data/local/tmp
+adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/lib/lib${APP_ARGS[0]}.so" /data/local/tmp
 
 STATUS_FILENAME="/data/local/tmp/.skia_tmp_$(date +%s%N)"
-$ADB ${DEVICE_SERIAL} shell "/data/local/tmp/skia_launcher ${runVars[@]}; echo \$? > ${STATUS_FILENAME}"
+$ADB ${DEVICE_SERIAL} shell \
+    "/data/local/tmp/skia_launcher ${APP_ARGS[@]}; echo \$? > ${STATUS_FILENAME}"
 if [ -z "$($ADB $DEVICE_SERIAL shell 'if [ -f $STATUS_FILENAME ]; then echo exists; fi')" ]; then
   exit 1
 fi
 EXIT_CODE=`$ADB ${DEVICE_SERIAL} shell cat ${STATUS_FILENAME}`
 $ADB ${DEVICE_SERIAL} shell rm ${STATUS_FILENAME}
-echo "EXIT_CODE is [${EXIT_CODE}]"
+echo "EXIT_CODE is ${EXIT_CODE}"
 if [ $'0\r' != "${EXIT_CODE}" ]; then
   exit 1
 fi
