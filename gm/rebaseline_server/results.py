@@ -197,3 +197,33 @@ class BaseComparisons(object):
         test_name=test_name,
         hash_type=hashtype_and_digest[0],
         hash_digest=hashtype_and_digest[1])
+
+  @staticmethod
+  def combine_subdicts(input_dict):
+    """ Flatten out a dictionary structure by one level.
+
+    Input:
+      {
+        "failed" : {
+          "changed.png" : [ "bitmap-64bitMD5", 8891695120562235492 ],
+        },
+        "no-comparison" : {
+          "unchanged.png" : [ "bitmap-64bitMD5", 11092453015575919668 ],
+        }
+      }
+
+    Output:
+      {
+        "changed.png" : [ "bitmap-64bitMD5", 8891695120562235492 ],
+        "unchanged.png" : [ "bitmap-64bitMD5", 11092453015575919668 ],
+      }
+
+    If this would result in any repeated keys, it will raise an Exception.
+    """
+    output_dict = {}
+    for key, subdict in input_dict.iteritems():
+      for subdict_key, subdict_value in subdict.iteritems():
+        if subdict_key in output_dict:
+          raise Exception('duplicate key %s in combine_subdicts' % subdict_key)
+        output_dict[subdict_key] = subdict_value
+    return output_dict

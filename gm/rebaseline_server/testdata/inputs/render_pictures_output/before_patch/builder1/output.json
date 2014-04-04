@@ -1,0 +1,8 @@
+{
+   "actual-results" : {
+      "no-comparison" : {
+         "changed.png" : [ "bitmap-64bitMD5", 8891695120562235492 ],
+         "unchanged.png" : [ "bitmap-64bitMD5", 11092453015575919668 ]
+      }
+   }
+}

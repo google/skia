@@ -1,0 +1,90 @@
+{
+  "extraColumnHeaders": {
+    "builder": {
+      "headerText": "builder", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "builder1": 2
+      }
+    }, 
+    "config": {
+      "headerText": "config", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "TODO": 2
+      }
+    }, 
+    "resultType": {
+      "headerText": "resultType", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "failed": 1, 
+        "no-comparison": 0, 
+        "succeeded": 1
+      }
+    }, 
+    "test": {
+      "headerText": "test", 
+      "isFilterable": true, 
+      "isSortable": true, 
+      "valuesAndCounts": {
+        "changed.png": 1, 
+        "unchanged.png": 1
+      }
+    }
+  }, 
+  "header": {
+    "dataHash": "3972200251153667246", 
+    "isEditable": false, 
+    "isExported": true, 
+    "schemaVersion": 2, 
+    "timeNextUpdateAvailable": null, 
+    "timeUpdated": 12345678, 
+    "type": "all"
+  }, 
+  "imagePairs": [
+    {
+      "extraColumns": {
+        "builder": "builder1", 
+        "config": "TODO", 
+        "resultType": "failed", 
+        "test": "changed.png"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/changed_png/8891695120562235492.png", 
+      "imageBUrl": "bitmap-64bitMD5/changed_png/2520753504544298264.png", 
+      "isDifferent": true
+    }, 
+    {
+      "extraColumns": {
+        "builder": "builder1", 
+        "config": "TODO", 
+        "resultType": "succeeded", 
+        "test": "unchanged.png"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/unchanged_png/11092453015575919668.png", 
+      "imageBUrl": "bitmap-64bitMD5/unchanged_png/11092453015575919668.png", 
+      "isDifferent": false
+    }
+  ], 
+  "imageSets": {
+    "diffs": {
+      "baseUrl": "/static/generated-images/diffs", 
+      "description": "color difference per channel"
+    }, 
+    "imageA": {
+      "baseUrl": "http://chromium-skia-gm.commondatastorage.googleapis.com/render_pictures/images", 
+      "description": "before_patch"
+    }, 
+    "imageB": {
+      "baseUrl": "http://chromium-skia-gm.commondatastorage.googleapis.com/render_pictures/images", 
+      "description": "after_patch"
+    }, 
+    "whiteDiffs": {
+      "baseUrl": "/static/generated-images/whitediffs", 
+      "description": "differing pixels in white"
+    }
+  }
+}
