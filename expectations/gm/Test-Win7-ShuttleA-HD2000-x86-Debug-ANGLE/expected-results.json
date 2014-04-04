@@ -11945,6 +11945,14 @@
         ]
       ]
     }, 
+    "resizeimagefilter_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7776979282577907619
+        ]
+      ]
+    }, 
     "resizeimagefilter_gpu.png": {
       "allowed-digests": [
         [

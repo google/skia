@@ -8524,7 +8524,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16061468794312122510
+          11574452324482789141
         ]
       ]
     }, 
@@ -8532,7 +8532,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13576043681950934704
+          15004076002839832883
         ]
       ]
     }, 
@@ -8540,7 +8540,15 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2071009370130711226
+          7349956630718143123
+        ]
+      ]
+    }, 
+    "resizeimagefilter_msaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10856236620367132161
         ]
       ]
     }, 
