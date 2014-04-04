@@ -303,7 +303,7 @@ DEF_TEST(DiscardableAndCachingPixelRef, reporter) {
                    reporter, kSkDiscardable_PixelRefType, NULL);
 
     SkAutoTUnref<SkDiscardableMemoryPool> pool(
-        SkNEW_ARGS(SkDiscardableMemoryPool, (1, NULL)));
+        SkDiscardableMemoryPool::Create(1, NULL));
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
     check_pixelref(TestImageGenerator::kFailGetPixels_TestType,
                    reporter, kSkDiscardable_PixelRefType, pool);

@@ -46,8 +46,8 @@ DEFINE_bool(purgeDecodedTex, false, "Purge decoded and GPU-uploaded textures "
 DEFINE_string(timers, "c", "[wcgWC]*: Display wall, cpu, gpu, truncated wall or truncated cpu time"
               " for each picture.");
 DEFINE_bool(trackDeferredCaching, false, "Only meaningful with --deferImageDecoding and "
-            "LAZY_CACHE_STATS set to true. Report percentage of cache hits when using deferred "
-            "image decoding.");
+            "SK_LAZY_CACHE_STATS set to true. Report percentage of cache hits when using "
+            "deferred image decoding.");
 
 static char const * const gFilterTypes[] = {
     "paint",
@@ -142,7 +142,7 @@ static SkString filterFlagsUsage() {
     return result;
 }
 
-#if LAZY_CACHE_STATS
+#if SK_LAZY_CACHE_STATS
 static int32_t gTotalCacheHits;
 static int32_t gTotalCacheMisses;
 #endif
@@ -192,11 +192,11 @@ static bool run_single_benchmark(const SkString& inputPath,
 
     benchmark.run(picture);
 
-#if LAZY_CACHE_STATS
+#if SK_LAZY_CACHE_STATS
     if (FLAGS_trackDeferredCaching) {
-        int32_t cacheHits = pool->fCacheHits;
-        int32_t cacheMisses = pool->fCacheMisses;
-        pool->fCacheHits = pool->fCacheMisses = 0;
+        int cacheHits = pool->getCacheHits();
+        int cacheMisses = pool->getCacheMisses();
+        pool->resetCacheHitsAndMisses();
         SkString hitString;
         hitString.printf("Cache hit rate: %f\n", (double) cacheHits / (cacheHits + cacheMisses));
         gLogger.logProgress(hitString);
@@ -435,7 +435,7 @@ int tool_main(int argc, char** argv) {
         gLogger.logError(err);
         return 1;
     }
-#if LAZY_CACHE_STATS
+#if SK_LAZY_CACHE_STATS
     if (FLAGS_trackDeferredCaching) {
         SkDebugf("Total cache hit rate: %f\n",
                  (double) gTotalCacheHits / (gTotalCacheHits + gTotalCacheMisses));

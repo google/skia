@@ -9,60 +9,50 @@
 #define SkDiscardableMemoryPool_DEFINED
 
 #include "SkDiscardableMemory.h"
-#include "SkTInternalLList.h"
-#include "SkThread.h"
 
-class SkPoolDiscardableMemory;
-
-#ifdef SK_DEBUG
-    #define LAZY_CACHE_STATS 1
-#elif !defined(LAZY_CACHE_STATS)
-    #define LAZY_CACHE_STATS 0
+#ifndef SK_LAZY_CACHE_STATS
+    #ifdef SK_DEBUG
+        #define SK_LAZY_CACHE_STATS 1
+    #else
+        #define SK_LAZY_CACHE_STATS 0
+    #endif
 #endif
 
 /**
- *  This non-global pool can be used for unit tests to verify that the
- *  pool works.
+ *  An implementation of Discardable Memory that manages a fixed-size
+ *  budget of memory.  When the allocated memory exceeds this size,
+ *  unlocked blocks of memory are purged.  If all memory is locked, it
+ *  can exceed the memory-use budget.
  */
 class SkDiscardableMemoryPool : public SkDiscardableMemory::Factory {
 public:
-    /**
-     *  Without mutex, will be not be thread safe.
-     */
-    SkDiscardableMemoryPool(size_t budget, SkBaseMutex* mutex = NULL);
-    virtual ~SkDiscardableMemoryPool();
+    virtual ~SkDiscardableMemoryPool() { }
 
-    virtual SkDiscardableMemory* create(size_t bytes) SK_OVERRIDE;
-
-    size_t getRAMUsed();
-    void setRAMBudget(size_t budget);
+    virtual size_t getRAMUsed() = 0;
+    virtual void setRAMBudget(size_t budget) = 0;
+    virtual size_t getRAMBudget() = 0;
 
     /** purges all unlocked DMs */
-    void dumpPool();
+    virtual void dumpPool() = 0;
 
-    #if LAZY_CACHE_STATS
-    int          fCacheHits;
-    int          fCacheMisses;
-    #endif  // LAZY_CACHE_STATS
+    #if SK_LAZY_CACHE_STATS
+    /**
+     * These two values are a count of the number of successful and
+     * failed calls to SkDiscardableMemory::lock() for all DMs managed
+     * by this pool.
+     */
+    virtual int getCacheHits() = 0;
+    virtual int getCacheMisses() = 0;
+    virtual void resetCacheHitsAndMisses() = 0;
+    #endif
 
-private:
-    SkBaseMutex* fMutex;
-    size_t       fBudget;
-    size_t       fUsed;
-    SkTInternalLList<SkPoolDiscardableMemory> fList;
-
-    /** Function called to free memory if needed */
-    void dumpDownTo(size_t budget);
-    /** called by SkDiscardableMemoryPool upon destruction */
-    void free(SkPoolDiscardableMemory* dm);
-    /** called by SkDiscardableMemoryPool::lock() */
-    bool lock(SkPoolDiscardableMemory* dm);
-    /** called by SkDiscardableMemoryPool::unlock() */
-    void unlock(SkPoolDiscardableMemory* dm);
-
-    friend class SkPoolDiscardableMemory;
-
-    typedef SkDiscardableMemory::Factory INHERITED;
+    /**
+     *  This non-global pool can be used for unit tests to verify that
+     *  the pool works.
+     *  Without mutex, will be not be thread safe.
+     */
+    static SkDiscardableMemoryPool* Create(
+            size_t size, SkBaseMutex* mutex = NULL);
 };
 
 /**

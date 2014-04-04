@@ -35,7 +35,7 @@ protected:
             // Create a cache which will boot the pixels out anytime the
             // bitmap is unlocked.
             SkAutoTUnref<SkDiscardableMemoryPool> pool(
-                SkNEW_ARGS(SkDiscardableMemoryPool, (1)));
+                SkDiscardableMemoryPool::Create(1));
             SkAssertResult(SkInstallDiscardablePixelRef(
                 SkDecodingImageGenerator::Create(
                     data, SkDecodingImageGenerator::Options()),

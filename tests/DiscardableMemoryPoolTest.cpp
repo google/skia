@@ -10,7 +10,7 @@
 
 DEF_TEST(DiscardableMemoryPool, reporter) {
     SkAutoTUnref<SkDiscardableMemoryPool> pool(
-        SkNEW_ARGS(SkDiscardableMemoryPool, (1, NULL)));
+        SkDiscardableMemoryPool::Create(1, NULL));
     pool->setRAMBudget(3);
     REPORTER_ASSERT(reporter, 0 == pool->getRAMUsed());
 

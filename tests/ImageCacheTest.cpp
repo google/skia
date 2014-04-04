@@ -81,6 +81,7 @@ static void test_cache(skiatest::Reporter* reporter, SkScaledImageCache& cache,
 
 static SkDiscardableMemoryPool* gPool;
 static SkDiscardableMemory* pool_factory(size_t bytes) {
+    SkASSERT(gPool);
     return gPool->create(bytes);
 }
 
@@ -92,8 +93,9 @@ DEF_TEST(ImageCache, reporter) {
         test_cache(reporter, cache, true);
     }
     {
-        SkDiscardableMemoryPool pool(defLimit);
-        gPool = &pool;
+        SkAutoTUnref<SkDiscardableMemoryPool> pool(
+                SkDiscardableMemoryPool::Create(defLimit, NULL));
+        gPool = pool.get();
         SkScaledImageCache cache(pool_factory);
         test_cache(reporter, cache, true);
     }

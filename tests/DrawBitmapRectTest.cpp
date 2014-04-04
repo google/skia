@@ -43,8 +43,8 @@ public:
 //
 static void test_faulty_pixelref(skiatest::Reporter* reporter) {
     // need a cache, but don't expect to use it, so the budget is not critical
-    SkAutoTUnref<SkDiscardableMemoryPool> pool(SkNEW_ARGS(SkDiscardableMemoryPool,
-                                                          (10 * 1000, NULL)));
+    SkAutoTUnref<SkDiscardableMemoryPool> pool(
+        SkDiscardableMemoryPool::Create(10 * 1000, NULL));
     SkBitmap bm;
     bool installSuccess = SkInstallDiscardablePixelRef(SkNEW(FailureImageGenerator), &bm, pool);
     REPORTER_ASSERT(reporter, installSuccess);
