@@ -29,6 +29,9 @@
         ['skia_os == "android"', {
           'dependencies': [ 'android_system.gyp:SampleApp_APK' ],
         }],
+        ['skia_os == "ios"', {
+          'dependencies!': [ 'SampleApp.gyp:SampleApp' ],
+        }],
         [ 'skia_skip_gui',
           {
             'dependencies!': [

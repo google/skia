@@ -208,37 +208,26 @@
             '../samplecode/SampleDecode.cpp',
           ],
           'sources': [
-            '../src/views/mac/SkEventNotifier.h',
             '../src/views/mac/SkEventNotifier.mm',
-            '../experimental/iOSSampleApp/SkSampleUIView.h',
             '../experimental/iOSSampleApp/SkSampleUIView.mm',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Debug.xcconfig',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Release.xcconfig',
             '../experimental/iOSSampleApp/iOSSampleApp-Info.plist',
-            '../experimental/iOSSampleApp/Shared/SkOptionListController.h',
             '../experimental/iOSSampleApp/Shared/SkOptionListController.mm',
-            '../experimental/iOSSampleApp/Shared/SkUIRootViewController.h',
             '../experimental/iOSSampleApp/Shared/SkUIRootViewController.mm',
-            '../experimental/iOSSampleApp/Shared/SkOptionsTableViewController.h',
             '../experimental/iOSSampleApp/Shared/SkOptionsTableViewController.mm',
-            '../experimental/iOSSampleApp/Shared/SkUIView.h',
             '../experimental/iOSSampleApp/Shared/SkUIView.mm',
-            '../experimental/iOSSampleApp/Shared/SkUIDetailViewController.h',
             '../experimental/iOSSampleApp/Shared/SkUIDetailViewController.mm',
             '../experimental/iOSSampleApp/Shared/skia_ios.mm',
 
             # iPad
-            '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.h',
             '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.mm',
-            '../experimental/iOSSampleApp/iPad/SkUISplitViewController.h',
             '../experimental/iOSSampleApp/iPad/SkUISplitViewController.mm',
             '../experimental/iOSSampleApp/iPad/MainWindow_iPad.xib',
 
             # iPhone
-            '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.h',
             '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.mm',
-            '../experimental/iOSSampleApp/iPhone/SkUINavigationController.h',
             '../experimental/iOSSampleApp/iPhone/SkUINavigationController.mm',
             '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',
 
@@ -247,7 +236,6 @@
             '../src/utils/ios/SkStream_NSData.mm',
             '../src/utils/ios/SkOSFile_iOS.mm',
 
-            '../include/utils/mac/SkCGUtils.h',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Debug.xcconfig',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Release.xcconfig',
@@ -269,7 +257,9 @@
             '../experimental/iOSSampleApp',
             '../experimental/iOSSampleApp/iPad',
             '../experimental/iOSSampleApp/iPhone',
+            '../experimental/iOSSampleApp/Shared',
             '../include/utils/ios',
+            '../src/views/mac',
           ],
           'xcode_settings' : {
             'INFOPLIST_FILE' : '../experimental/iOSSampleApp/iOSSampleApp-Info.plist',

@@ -533,7 +533,7 @@
           },
         },
         'xcode_settings': {
-          'ARCHS': ['armv6', 'armv7'],
+          'ARCHS': ['armv7'],
           'CODE_SIGNING_REQUIRED': 'NO',
           'CODE_SIGN_IDENTITY[sdk=iphoneos*]': '',
           'IPHONEOS_DEPLOYMENT_TARGET': '<(ios_sdk_version)',

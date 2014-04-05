@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "gl/GrGLInterface.h"
 
 #import <OpenGLES/ES2/gl.h>
@@ -70,7 +69,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     functions->fReadBuffer = NULL;
     functions->fReadPixels = glReadPixels;
     functions->fScissor = glScissor;
-    functions->fShaderSource = glShaderSource;
+    functions->fShaderSource = (GrGLShaderSourceProc) glShaderSource;
     functions->fStencilFunc = glStencilFunc;
     functions->fStencilFuncSeparate = glStencilFuncSeparate;
     functions->fStencilMask = glStencilMask;
