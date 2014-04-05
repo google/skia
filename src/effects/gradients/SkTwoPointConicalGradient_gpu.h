@@ -23,4 +23,3 @@ namespace Gr2PtConicalGradientEffect {
 };
 
 #endif
-
