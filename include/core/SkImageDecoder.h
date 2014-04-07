@@ -288,11 +288,6 @@ public:
      */
     bool decodeSubset(SkBitmap* bm, const SkIRect& subset, SkBitmap::Config pref);
 
-    SK_ATTR_DEPRECATED("use decodeSubset() instead")
-    bool decodeRegion(SkBitmap* bitmap, const SkIRect& rect, SkBitmap::Config pref) {
-        return this->decodeSubset(bitmap, rect, pref);
-    }
-
     /** Given a stream, this will try to find an appropriate decoder object.
         If none is found, the method returns NULL.
     */
