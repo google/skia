@@ -16,6 +16,7 @@
 #include "SkPaint.h"
 
 class SkPath;
+class SkPicture;
 class GrContext;
 class GrEffectRef;
 
@@ -344,6 +345,16 @@ public:
     */
     static SkShader* CreateBitmapShader(const SkBitmap& src,
                                         TileMode tmx, TileMode tmy);
+
+    /** Call this to create a new shader that will draw with the specified picture.
+     *
+     *  @param src  The picture to use inside the shader (if not NULL, its ref count
+     *              is incremented).
+     *  @param tmx  The tiling mode to use when sampling the bitmap in the x-direction.
+     *  @param tmy  The tiling mode to use when sampling the bitmap in the y-direction.
+     *  @return     Returns a new shader object. Note: this function never returns null.
+    */
+    static SkShader* CreatePictureShader(SkPicture* src, TileMode tmx, TileMode tmy);
 
     SK_TO_STRING_VIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
