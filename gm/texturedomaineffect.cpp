@@ -46,6 +46,7 @@ protected:
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
         fBmp.allocN32Pixels(100, 100);
         SkCanvas canvas(fBmp);
+        canvas.clear(0x00000000);
         SkPaint paint;
 
         SkColor colors1[] = { SK_ColorCYAN, SK_ColorLTGRAY, SK_ColorGRAY };
