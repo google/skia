@@ -56,6 +56,10 @@ filltypespersp
 # I will likely just delete the GM.
 canvas-layer-state
 
+# fmalita: https://codereview.chromium.org/221923007/
+# Suppress pictureshader GM failures, pending baselines.
+pictureshader
+
 # yunchao: https://codereview.chromium.org/204143004/
 # This change add some cases to bitmapshader to avoid potential drawing error for kA8_Config
 bitmapshaders
