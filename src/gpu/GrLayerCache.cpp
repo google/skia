@@ -69,16 +69,16 @@ void GrLayerCache::freeAll() {
 GrAtlasedLayer* GrLayerCache::createLayer(SkPicture* picture, int layerID) {
     GrAtlasedLayer* layer = fLayerPool.alloc();
 
-    SkASSERT(picture->getGenerationID() != SkPicture::kInvalidGenID);
-    layer->init(picture->getGenerationID(), layerID);
-    fLayerHash.insert(PictureLayerKey(picture->getGenerationID(), layerID), layer);
+    SkASSERT(picture->uniqueID() != SK_InvalidGenID);
+    layer->init(picture->uniqueID(), layerID);
+    fLayerHash.insert(PictureLayerKey(picture->uniqueID(), layerID), layer);
     return layer;
 }
 
 
 const GrAtlasedLayer* GrLayerCache::findLayerOrCreate(SkPicture* picture, int layerID) {
-    SkASSERT(picture->getGenerationID() != SkPicture::kInvalidGenID);
-    GrAtlasedLayer* layer = fLayerHash.find(PictureLayerKey(picture->getGenerationID(), layerID));
+    SkASSERT(picture->uniqueID() != SK_InvalidGenID);
+    GrAtlasedLayer* layer = fLayerHash.find(PictureLayerKey(picture->uniqueID(), layerID));
     if (NULL == layer) {
         layer = this->createLayer(picture, layerID);
     }

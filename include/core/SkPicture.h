@@ -201,14 +201,12 @@ public:
     */
     int height() const { return fHeight; }
 
-    static const uint32_t kInvalidGenID = 0;
-
     /** Return a non-zero, unique value representing the picture. This call is
         only valid when not recording. Between a beginRecording/endRecording
-        pair it will just return 0 (the invalid gen ID). Each beginRecording/
+        pair it will just return 0 (the invalid ID). Each beginRecording/
         endRecording pair will cause a different generation ID to be returned.
     */
-    uint32_t getGenerationID() const;
+    uint32_t uniqueID() const;
 
     /**
      *  Function to encode an SkBitmap to an SkData. A function with this
@@ -308,7 +306,7 @@ protected:
     static const uint32_t MIN_PICTURE_VERSION = 19;
     static const uint32_t CURRENT_PICTURE_VERSION = 22;
 
-    mutable uint32_t      fGenerationID;
+    mutable uint32_t      fUniqueID;
 
     // fPlayback, fRecord, fWidth & fHeight are protected to allow derived classes to
     // install their own SkPicturePlayback-derived players,SkPictureRecord-derived
@@ -318,7 +316,7 @@ protected:
     int                   fWidth, fHeight;
     const AccelData*      fAccelData;
 
-    void needsNewGenID() { fGenerationID = kInvalidGenID; }
+    void needsNewGenID() { fUniqueID = SK_InvalidGenID; }
 
     // Create a new SkPicture from an existing SkPicturePlayback. Ref count of
     // playback is unchanged.

@@ -140,7 +140,7 @@ SkPicture::SkPicture(const SkPicture& src)
     if (src.fPlayback) {
         fPlayback = SkNEW_ARGS(SkPicturePlayback, (*src.fPlayback));
         SkASSERT(NULL == src.fRecord);
-        fGenerationID = src.getGenerationID();     // need to call method to ensure != 0
+        fUniqueID = src.uniqueID();     // need to call method to ensure != 0
     } else if (src.fRecord) {
         SkPictInfo info;
         this->createHeader(&info);
@@ -164,7 +164,7 @@ void SkPicture::internalOnly_EnableOpts(bool enableOpts) {
 }
 
 void SkPicture::swap(SkPicture& other) {
-    SkTSwap(fGenerationID, other.fGenerationID);
+    SkTSwap(fUniqueID, other.fUniqueID);
     SkTSwap(fRecord, other.fRecord);
     SkTSwap(fPlayback, other.fPlayback);
     SkTSwap(fAccelData, other.fAccelData);
@@ -199,7 +199,7 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
         if (fPlayback) {
             clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fPlayback, &copyInfo));
             SkASSERT(NULL == fRecord);
-            clone->fGenerationID = this->getGenerationID(); // need to call method to ensure != 0
+            clone->fUniqueID = this->uniqueID(); // need to call method to ensure != 0
         } else if (fRecord) {
             // here we do a fake src.endRecording()
             clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, info, true));
@@ -506,18 +506,18 @@ static int32_t next_picture_generation_id() {
     int32_t genID;
     do {
         genID = sk_atomic_inc(&gPictureGenerationID) + 1;
-    } while (((int32_t)SkPicture::kInvalidGenID) == genID);
+    } while (SK_InvalidGenID == genID);
     return genID;
 }
 
-uint32_t SkPicture::getGenerationID() const {
+uint32_t SkPicture::uniqueID() const {
     if (NULL != fRecord) {
         SkASSERT(NULL == fPlayback);
-        return kInvalidGenID;
+        return SK_InvalidGenID;
     }
 
-    if (kInvalidGenID == fGenerationID) {
-        fGenerationID = next_picture_generation_id();
+    if (SK_InvalidGenID == fUniqueID) {
+        fUniqueID = next_picture_generation_id();
     }
-    return fGenerationID;
+    return fUniqueID;
 }

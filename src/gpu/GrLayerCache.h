@@ -47,7 +47,7 @@ private:
 // It is roughly equivalent to a GrGlyph in the font caching system
 class GrAtlasedLayer {
 public:
-    GrAtlasedLayer() : fPictureID(SkPicture::kInvalidGenID) { }
+    GrAtlasedLayer() : fPictureID(SK_InvalidGenID) { }
 
     uint32_t pictureID() const { return fPictureID; }
     int layerID() const { return fLayerID; }

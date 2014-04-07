@@ -1146,52 +1146,52 @@ static void test_gen_id(skiatest::Reporter* reporter) {
 
     SkPicture hasData, empty, midRecord;
 
-    uint32_t beforeID = hasData.getGenerationID();
-    REPORTER_ASSERT(reporter, SkPicture::kInvalidGenID != beforeID);
+    uint32_t beforeID = hasData.uniqueID();
+    REPORTER_ASSERT(reporter, SK_InvalidGenID != beforeID);
 
     // all 3 pictures should have different ids
-    REPORTER_ASSERT(reporter, beforeID != empty.getGenerationID());
-    REPORTER_ASSERT(reporter, beforeID != midRecord.getGenerationID());
-    REPORTER_ASSERT(reporter, empty.getGenerationID() != midRecord.getGenerationID());
+    REPORTER_ASSERT(reporter, beforeID != empty.uniqueID());
+    REPORTER_ASSERT(reporter, beforeID != midRecord.uniqueID());
+    REPORTER_ASSERT(reporter, empty.uniqueID() != midRecord.uniqueID());
 
     hasData.beginRecording(1, 1);
     // gen ID should be invalid mid-record
-    REPORTER_ASSERT(reporter, SkPicture::kInvalidGenID == hasData.getGenerationID());
+    REPORTER_ASSERT(reporter, SK_InvalidGenID == hasData.uniqueID());
     hasData.endRecording();
     // picture should get a new (non-zero) id after recording
-    REPORTER_ASSERT(reporter, hasData.getGenerationID() != beforeID);
-    REPORTER_ASSERT(reporter, hasData.getGenerationID() != SkPicture::kInvalidGenID);
+    REPORTER_ASSERT(reporter, hasData.uniqueID() != beforeID);
+    REPORTER_ASSERT(reporter, hasData.uniqueID() != SK_InvalidGenID);
 
     midRecord.beginRecording(1, 1);
-    REPORTER_ASSERT(reporter, SkPicture::kInvalidGenID == midRecord.getGenerationID());
+    REPORTER_ASSERT(reporter, SK_InvalidGenID == midRecord.uniqueID());
 
     // test out copy constructor
     SkPicture copyWithData(hasData);
-    REPORTER_ASSERT(reporter, hasData.getGenerationID() == copyWithData.getGenerationID());
+    REPORTER_ASSERT(reporter, hasData.uniqueID() == copyWithData.uniqueID());
 
     SkPicture emptyCopy(empty);
-    REPORTER_ASSERT(reporter, empty.getGenerationID() != emptyCopy.getGenerationID());
+    REPORTER_ASSERT(reporter, empty.uniqueID() != emptyCopy.uniqueID());
 
     SkPicture copyMidRecord(midRecord);
-    REPORTER_ASSERT(reporter, midRecord.getGenerationID() != copyMidRecord.getGenerationID());
-    REPORTER_ASSERT(reporter, copyMidRecord.getGenerationID() != SkPicture::kInvalidGenID);
+    REPORTER_ASSERT(reporter, midRecord.uniqueID() != copyMidRecord.uniqueID());
+    REPORTER_ASSERT(reporter, copyMidRecord.uniqueID() != SK_InvalidGenID);
 
     // test out swap
-    beforeID = copyMidRecord.getGenerationID();
+    beforeID = copyMidRecord.uniqueID();
     copyWithData.swap(copyMidRecord);
-    REPORTER_ASSERT(reporter, copyWithData.getGenerationID() == beforeID);
-    REPORTER_ASSERT(reporter, copyMidRecord.getGenerationID() == hasData.getGenerationID());
+    REPORTER_ASSERT(reporter, copyWithData.uniqueID() == beforeID);
+    REPORTER_ASSERT(reporter, copyMidRecord.uniqueID() == hasData.uniqueID());
 
     // test out clone
     SkAutoTUnref<SkPicture> cloneWithData(hasData.clone());
-    REPORTER_ASSERT(reporter, hasData.getGenerationID() == cloneWithData->getGenerationID());
+    REPORTER_ASSERT(reporter, hasData.uniqueID() == cloneWithData->uniqueID());
 
     SkAutoTUnref<SkPicture> emptyClone(empty.clone());
-    REPORTER_ASSERT(reporter, empty.getGenerationID() != emptyClone->getGenerationID());
+    REPORTER_ASSERT(reporter, empty.uniqueID() != emptyClone->uniqueID());
 
     SkAutoTUnref<SkPicture> cloneMidRecord(midRecord.clone());
-    REPORTER_ASSERT(reporter, midRecord.getGenerationID() != cloneMidRecord->getGenerationID());
-    REPORTER_ASSERT(reporter, cloneMidRecord->getGenerationID() != SkPicture::kInvalidGenID);
+    REPORTER_ASSERT(reporter, midRecord.uniqueID() != cloneMidRecord->uniqueID());
+    REPORTER_ASSERT(reporter, cloneMidRecord->uniqueID() != SK_InvalidGenID);
 }
 
 DEF_TEST(Picture, reporter) {
