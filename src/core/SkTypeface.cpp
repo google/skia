@@ -37,8 +37,12 @@ SkTypeface::~SkTypeface() {
 
 class SkEmptyTypeface : public SkTypeface {
 public:
-    SkEmptyTypeface() : SkTypeface(SkTypeface::kNormal, 0, true) { }
+    static SkEmptyTypeface* Create() {
+        return SkNEW(SkEmptyTypeface);
+    }
 protected:
+    SkEmptyTypeface() : SkTypeface(SkTypeface::kNormal, 0, true) { }
+
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE { return NULL; }
     virtual SkScalerContext* onCreateScalerContext(const SkDescriptor*) const SK_OVERRIDE {
         return NULL;
@@ -85,7 +89,8 @@ void SkTypeface::create_default_typeface(Style style) {
         gDefaultTypefaces[style] = SkFontHost::CreateTypeface(NULL, NULL, style);
     }
     if (NULL == gDefaultTypefaces[style]) {
-        gDefaultTypefaces[style] = SkNEW(SkEmptyTypeface);
+        // FIXME: Use a singleton for SkEmptyTypeface.
+        gDefaultTypefaces[style] = SkEmptyTypeface::Create();
     }
 }
 

@@ -311,7 +311,7 @@ protected:
             return NULL;
         }
 
-        SkTypeface* face = SkNEW_ARGS(FontConfigTypeface, (style, isFixedWidth, stream));
+        SkTypeface* face = FontConfigTypeface::Create(style, isFixedWidth, stream);
         return face;
     }
 

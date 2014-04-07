@@ -18,19 +18,14 @@ class FontConfigTypeface : public SkTypeface_FreeType {
     SkStream* fLocalStream;
 
 public:
-    FontConfigTypeface(Style style,
-                       const SkFontConfigInterface::FontIdentity& fi,
-                       const SkString& familyName)
-            : INHERITED(style, SkTypefaceCache::NewFontID(), false)
-            , fIdentity(fi)
-            , fFamilyName(familyName)
-            , fLocalStream(NULL) {}
+    static FontConfigTypeface* Create(Style style,
+                                      const SkFontConfigInterface::FontIdentity& fi,
+                                      const SkString& familyName) {
+        return SkNEW_ARGS(FontConfigTypeface, (style, fi, familyName));
+    }
 
-    FontConfigTypeface(Style style, bool fixedWidth, SkStream* localStream)
-            : INHERITED(style, SkTypefaceCache::NewFontID(), fixedWidth) {
-        // we default to empty fFamilyName and fIdentity
-        fLocalStream = localStream;
-        SkSafeRef(localStream);
+    static FontConfigTypeface* Create(Style style, bool fixedWidth, SkStream* localStream) {
+        return SkNEW_ARGS(FontConfigTypeface, (style, fixedWidth, localStream));
     }
 
     virtual ~FontConfigTypeface() {
@@ -54,6 +49,21 @@ public:
 
 protected:
     friend class SkFontHost;    // hack until we can make public versions
+
+    FontConfigTypeface(Style style,
+                       const SkFontConfigInterface::FontIdentity& fi,
+                       const SkString& familyName)
+            : INHERITED(style, SkTypefaceCache::NewFontID(), false)
+            , fIdentity(fi)
+            , fFamilyName(familyName)
+            , fLocalStream(NULL) {}
+
+    FontConfigTypeface(Style style, bool fixedWidth, SkStream* localStream)
+            : INHERITED(style, SkTypefaceCache::NewFontID(), fixedWidth) {
+        // we default to empty fFamilyName and fIdentity
+        fLocalStream = localStream;
+        SkSafeRef(localStream);
+    }
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool*) const SK_OVERRIDE;
     virtual SkStream* onOpenStream(int* ttcIndex) const SK_OVERRIDE;

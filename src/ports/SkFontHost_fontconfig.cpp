@@ -118,7 +118,7 @@ SkTypeface* FontConfigTypeface::LegacyCreateTypeface(
         return face;
     }
 
-    face = SkNEW_ARGS(FontConfigTypeface, (outStyle, indentity, outFamilyName));
+    face = FontConfigTypeface::Create(outStyle, indentity, outFamilyName);
     SkTypefaceCache::Add(face, style);
 //    SkDebugf("add face <%s> <%s> %p [%d]\n", familyName, outFamilyName.c_str(), face, face->getRefCnt());
     return face;
