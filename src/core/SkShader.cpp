@@ -9,8 +9,6 @@
 #include "SkReadBuffer.h"
 #include "SkMallocPixelRef.h"
 #include "SkPaint.h"
-#include "SkPicture.h"
-#include "SkPictureShader.h"
 #include "SkScalar.h"
 #include "SkShader.h"
 #include "SkWriteBuffer.h"
@@ -179,10 +177,6 @@ GrEffectRef* SkShader::asNewEffect(GrContext*, const SkPaint&) const {
 SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
                                        TileMode tmx, TileMode tmy) {
     return ::CreateBitmapShader(src, tmx, tmy, NULL);
-}
-
-SkShader* SkShader::CreatePictureShader(SkPicture* src, TileMode tmx, TileMode tmy) {
-    return SkPictureShader::Create(src, tmx, tmy);
 }
 
 #ifndef SK_IGNORE_TO_STRING
