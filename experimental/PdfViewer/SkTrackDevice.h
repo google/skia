@@ -33,17 +33,6 @@ public:
         : SkBitmapDevice(bitmap, deviceProperties)
         , fTracker(NULL) {}
 
-#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
-    SkTrackDevice(SkBitmap::Config config, int width, int height, bool isOpaque = false)
-        : SkBitmapDevice(config, width, height, isOpaque)
-        , fTracker(NULL) {}
-
-    SkTrackDevice(SkBitmap::Config config, int width, int height, bool isOpaque,
-                  const SkDeviceProperties& deviceProperties)
-        : SkBitmapDevice(config, width, height, isOpaque, deviceProperties)
-        , fTracker(NULL) {}
-#endif
-
     virtual ~SkTrackDevice() {}
 
     // Install a tracker - we can reuse the tracker between multiple devices, and the state of the

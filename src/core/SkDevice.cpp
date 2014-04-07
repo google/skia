@@ -33,52 +33,12 @@ SkBaseDevice::~SkBaseDevice() {
 }
 
 SkBaseDevice* SkBaseDevice::createCompatibleDevice(const SkImageInfo& info) {
-#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
-    // We call the old method to support older subclasses.
-    // If they have, we return their device, else we use the new impl.
-    SkBitmap::Config config = SkColorTypeToBitmapConfig(info.colorType());
-    SkBaseDevice* dev = this->onCreateCompatibleDevice(config,
-                                                       info.width(),
-                                                       info.height(),
-                                                       info.isOpaque(),
-                                                       kGeneral_Usage);
-    if (dev) {
-        return dev;
-    }
-    // fall through to new impl
-#endif
     return this->onCreateDevice(info, kGeneral_Usage);
 }
 
 SkBaseDevice* SkBaseDevice::createCompatibleDeviceForSaveLayer(const SkImageInfo& info) {
-#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
-    // We call the old method to support older subclasses.
-    // If they have, we return their device, else we use the new impl.
-    SkBitmap::Config config = SkColorTypeToBitmapConfig(info.colorType());
-    SkBaseDevice* dev = this->onCreateCompatibleDevice(config,
-                                                       info.width(),
-                                                       info.height(),
-                                                       info.isOpaque(),
-                                                       kSaveLayer_Usage);
-    if (dev) {
-        return dev;
-    }
-    // fall through to new impl
-#endif
     return this->onCreateDevice(info, kSaveLayer_Usage);
 }
-
-#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
-SkBaseDevice* SkBaseDevice::createCompatibleDevice(SkBitmap::Config config,
-                                                   int width, int height,
-                                                   bool isOpaque) {
-    SkImageInfo info = SkImageInfo::Make(width, height,
-                                         SkBitmapConfigToColorType(config),
-                                         isOpaque ? kOpaque_SkAlphaType
-                                                  : kPremul_SkAlphaType);
-    return this->createCompatibleDevice(info);
-}
-#endif
 
 SkMetaData& SkBaseDevice::getMetaData() {
     // metadata users are rare, so we lazily allocate it. If that changes we

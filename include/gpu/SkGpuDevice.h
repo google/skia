@@ -50,16 +50,6 @@ public:
      */
     static SkGpuDevice* Create(GrContext*, const SkImageInfo&, int sampleCount);
 
-#ifdef SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG
-    /**
-     *  New device that will create an offscreen renderTarget based on the
-     *  config, width, height, and sampleCount. The device's storage will not
-     *  count against the GrContext's texture cache budget. The device's pixels
-     *  will be uninitialized. TODO: This can fail, replace with a factory function.
-     */
-    SkGpuDevice(GrContext*, SkBitmap::Config, int width, int height, int sampleCount = 0);
-#endif
-
     /**
      *  DEPRECATED -- need to make this private, call Create(surface)
      *  New device that will render to the specified renderTarget.
