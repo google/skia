@@ -457,11 +457,6 @@ GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, Scra
         // Ensure we have exclusive access to the texture so future 'find' calls don't return it
         resource = fTextureCache->find(key, GrResourceCache::kHide_OwnershipFlag);
         if (NULL != resource) {
-            // If the scratch texture is a render target, discard its contents.
-            GrRenderTarget* rt = static_cast<GrTexture*>(resource)->asRenderTarget();
-            if (NULL != rt) {
-                rt->discard();
-            }
             resource->ref();
             break;
         }
