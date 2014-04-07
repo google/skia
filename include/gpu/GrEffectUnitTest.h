@@ -35,7 +35,7 @@ class GrContext;
 class GrEffectRef;
 class GrTexture;
 
-class GrEffectTestFactory : public SkNoncopyable {
+class GrEffectTestFactory : SkNoncopyable {
 public:
 
     typedef GrEffectRef* (*CreateProc)(SkRandom*,

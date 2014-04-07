@@ -12,7 +12,7 @@
 #include "GrPoint.h"
 #include "SkTypes.h"
 
-class GrPlotMgr : public SkNoncopyable {
+class GrPlotMgr : SkNoncopyable {
 public:
     GrPlotMgr(int width, int height) {
         fDim.set(width, height);

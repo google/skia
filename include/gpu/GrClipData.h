@@ -20,7 +20,7 @@ struct SkIRect;
  * device coordinates (i.e., they have been translated by -fOrigin w.r.t.
  * the canvas' device coordinates).
  */
-class GrClipData : public SkNoncopyable {
+class GrClipData : SkNoncopyable {
 public:
     const SkClipStack*  fClipStack;
     SkIPoint            fOrigin;

@@ -29,7 +29,7 @@ enum SkPdfContent {
  *  The SkPdfRenderer class is used to render a PDF into canvas.
  *
  */
-class SkPdfRenderer : public SkNoncopyable {
+class SkPdfRenderer : SkNoncopyable {
 public:
     // Create a new renderer from a stream.
     // TODO(edisonn): replace it with a SkSmartStream which would know to to efficiently

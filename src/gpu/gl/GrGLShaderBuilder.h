@@ -255,7 +255,7 @@ protected:
     void appendUniformDecls(ShaderVisibility, SkString*) const;
 
 private:
-    class CodeStage : public SkNoncopyable {
+    class CodeStage : SkNoncopyable {
     public:
         CodeStage() : fNextIndex(0), fCurrentIndex(-1), fEffectStage(NULL) {}
 
@@ -274,7 +274,7 @@ private:
             return fCurrentIndex;
         }
 
-        class AutoStageRestore : public SkNoncopyable {
+        class AutoStageRestore : SkNoncopyable {
         public:
             AutoStageRestore(CodeStage* codeStage, const GrEffectStage* newStage) {
                 SkASSERT(NULL != codeStage);

@@ -27,7 +27,7 @@ class GrGpu;
  * a number of buffers to preallocate can be specified. These will
  * be allocated at the min size and kept around until the pool is destroyed.
  */
-class GrBufferAllocPool : public SkNoncopyable {
+class GrBufferAllocPool : SkNoncopyable {
 public:
     /**
      * Ensures all buffers are unlocked and have all data written to them.

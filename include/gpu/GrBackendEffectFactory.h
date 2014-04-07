@@ -28,7 +28,7 @@ class GrGLEffect;
 class GrGLCaps;
 class GrDrawEffect;
 
-class GrBackendEffectFactory : public SkNoncopyable {
+class GrBackendEffectFactory : SkNoncopyable {
 public:
     typedef uint32_t EffectKey;
     enum {

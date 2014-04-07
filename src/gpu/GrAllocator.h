@@ -13,7 +13,7 @@
 #include "SkTArray.h"
 #include "SkTypes.h"
 
-class GrAllocator : public SkNoncopyable {
+class GrAllocator : SkNoncopyable {
 public:
     ~GrAllocator() {
         reset();
@@ -153,7 +153,7 @@ private:
 };
 
 template <typename T>
-class GrTAllocator : public SkNoncopyable {
+class GrTAllocator : SkNoncopyable {
 public:
     virtual ~GrTAllocator() { this->reset(); };
 

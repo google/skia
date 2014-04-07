@@ -25,7 +25,7 @@
     destructor to be called explicitly (or via the object going out of scope on
     the stack or calling delete) if getRefCnt() > 1.
 */
-class SK_API SkRefCntBase : public SkNoncopyable {
+class SK_API SkRefCntBase : SkNoncopyable {
 public:
     SK_DECLARE_INST_COUNT_ROOT(SkRefCntBase)
 

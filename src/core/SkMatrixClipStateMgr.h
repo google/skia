@@ -53,7 +53,7 @@ public:
     static const int32_t kIdentityWideOpenStateID = 0;
     static const int kIdentityMatID = 0;
 
-    class MatrixClipState : public SkNoncopyable {
+    class MatrixClipState : SkNoncopyable {
     public:
         class MatrixInfo {
         public:
@@ -108,7 +108,7 @@ public:
             typedef SkNoncopyable INHERITED;
         };
 
-        class ClipInfo : public SkNoncopyable {
+        class ClipInfo : SkNoncopyable {
         public:
             ClipInfo() {}
 

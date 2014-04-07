@@ -811,7 +811,7 @@ private:
     friend struct SkBitmapProcState;
 };
 
-class SkAutoLockPixels : public SkNoncopyable {
+class SkAutoLockPixels : SkNoncopyable {
 public:
     SkAutoLockPixels(const SkBitmap& bm, bool doLock = true) : fBitmap(bm) {
         fDidLock = doLock;
@@ -835,7 +835,7 @@ private:
 /** Helper class that performs the lock/unlockColors calls on a colortable.
     The destructor will call unlockColors(false) if it has a bitmap's colortable
 */
-class SkAutoLockColors : public SkNoncopyable {
+class SkAutoLockColors : SkNoncopyable {
 public:
     /** Initialize with no bitmap. Call lockColors(bitmap) to lock bitmap's
         colortable

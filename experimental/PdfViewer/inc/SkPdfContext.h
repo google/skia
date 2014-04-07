@@ -22,7 +22,7 @@ class SkPdfNativeObject;
  *   The context of the drawing. The document we draw from, the current stack of
  *   objects, ...
  */
-class SkPdfContext : public SkNoncopyable {
+class SkPdfContext : SkNoncopyable {
 public:
     // FIXME (scroggo): Add functions for accessing these.
     SkTDStackNester<SkPdfNativeObject*>  fObjectStack;

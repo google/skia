@@ -36,7 +36,7 @@ class SkPath;
  * mask can be represented as a rectangle then scissoring is used. In all
  * cases scissoring is used to bound the range of the clip mask.
  */
-class GrClipMaskManager : public SkNoncopyable {
+class GrClipMaskManager : SkNoncopyable {
 public:
     GrClipMaskManager()
         : fGpu(NULL)

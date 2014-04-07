@@ -19,7 +19,7 @@ class GrRenderTarget;
 class SkCanvas;
 class SkExampleWindow;
 
-class SkExample : public SkNoncopyable {
+class SkExample : SkNoncopyable {
 public:
     SkExample(SkExampleWindow* window) : fWindow(window) {}
 

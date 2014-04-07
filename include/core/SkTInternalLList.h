@@ -38,7 +38,7 @@ template <typename T> class SkPtrWrapper {
 /**
  * This class implements a templated internal doubly linked list data structure.
  */
-template <class T> class SkTInternalLList : public SkNoncopyable {
+template <class T> class SkTInternalLList : SkNoncopyable {
 public:
     SkTInternalLList()
         : fHead(NULL)

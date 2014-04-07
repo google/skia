@@ -35,7 +35,7 @@ public:
      *  Subclasses of SkDrawLooper should create a subclass of this object to
      *  hold state specific to their subclass.
      */
-    class SK_API Context : public SkNoncopyable {
+    class SK_API Context : ::SkNoncopyable {
     public:
         Context() {}
         virtual ~Context() {}

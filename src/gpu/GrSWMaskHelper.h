@@ -38,7 +38,7 @@ class GrDrawTarget;
  * The result of this process will be the final mask (on the GPU) in the
  * upper left hand corner of the texture.
  */
-class GrSWMaskHelper : public SkNoncopyable {
+class GrSWMaskHelper : SkNoncopyable {
 public:
     GrSWMaskHelper(GrContext* context)
     : fContext(context) {

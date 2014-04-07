@@ -29,7 +29,7 @@ template<typename T> void destroyT(void* ptr) {
  *  object it allocated and freeing its memory.
  */
 template<uint32_t kMaxObjects, size_t kTotalBytes>
-class SkSmallAllocator : public SkNoncopyable {
+class SkSmallAllocator : SkNoncopyable {
 public:
     SkSmallAllocator()
     : fStorageUsed(0)

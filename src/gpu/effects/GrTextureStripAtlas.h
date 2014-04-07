@@ -79,7 +79,7 @@ private:
      * The state of a single row in our cache, next/prev pointers allow these to be chained
      * together to represent LRU status
      */
-    struct AtlasRow : public SkNoncopyable {
+    struct AtlasRow : SkNoncopyable {
         AtlasRow() : fKey(kEmptyAtlasRowKey), fLocks(0), fNext(NULL), fPrev(NULL) { }
         // GenerationID of the bitmap that is represented by this row, 0xffffffff means "empty"
         uint32_t fKey;

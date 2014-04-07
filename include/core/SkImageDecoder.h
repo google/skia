@@ -24,7 +24,7 @@ class SkStreamRewindable;
 
     Base class for decoding compressed images into a SkBitmap
 */
-class SkImageDecoder : public SkNoncopyable {
+class SkImageDecoder : SkNoncopyable {
 public:
     virtual ~SkImageDecoder();
 

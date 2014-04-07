@@ -21,7 +21,7 @@ class SkPaint;
 class SkPDFCatalog;
 class SkPDFFont;
 
-class SkPDFGlyphSet : public SkNoncopyable {
+class SkPDFGlyphSet : SkNoncopyable {
 public:
     SkPDFGlyphSet();
 
@@ -34,7 +34,7 @@ private:
     SkBitSet fBitSet;
 };
 
-class SkPDFGlyphSetMap : public SkNoncopyable {
+class SkPDFGlyphSetMap : SkNoncopyable {
 public:
     struct FontGlyphSetPair {
         FontGlyphSetPair(SkPDFFont* font, SkPDFGlyphSet* glyphSet);

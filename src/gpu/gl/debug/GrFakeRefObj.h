@@ -18,7 +18,7 @@
 // are tracking in this class are actually OpenGL's references to the objects
 // not "ours"
 // Each object also gets a unique globally identifying ID
-class GrFakeRefObj : public SkNoncopyable {
+class GrFakeRefObj : SkNoncopyable {
 public:
     GrFakeRefObj()
         : fRef(0)

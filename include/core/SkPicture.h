@@ -328,7 +328,7 @@ protected:
 private:
     // An OperationList encapsulates a set of operation offsets into the picture byte
     // stream along with the CTMs needed for those operation.
-    class OperationList : public SkNoncopyable {
+    class OperationList : ::SkNoncopyable {
     public:
         virtual ~OperationList() {}
 
@@ -345,9 +345,6 @@ private:
         virtual const SkMatrix& matrix(int index) const { SkASSERT(false); return SkMatrix::I(); }
 
         static const OperationList& InvalidList();
-
-    private:
-        typedef SkNoncopyable INHERITED;
     };
 
     /** PRIVATE / EXPERIMENTAL -- do not call

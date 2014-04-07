@@ -17,7 +17,7 @@ class GrGpuGL;
  * This class serves as the implementation of GrGL*Buffer classes. It was written to avoid code
  * duplication in those classes.
  */
-class GrGLBufferImpl : public SkNoncopyable {
+class GrGLBufferImpl : SkNoncopyable {
 public:
     struct Desc {
         bool        fIsWrapped;

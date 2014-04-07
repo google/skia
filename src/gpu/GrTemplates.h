@@ -35,7 +35,7 @@ template <typename Dst, typename Src> Dst GrTCast(Src src) {
  *      ...
  * }  // fCount is restored
  */
-template <typename T> class GrAutoTRestore : public SkNoncopyable {
+template <typename T> class GrAutoTRestore : SkNoncopyable {
 public:
     GrAutoTRestore() : fPtr(NULL), fVal() {}
 

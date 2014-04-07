@@ -10,7 +10,7 @@
 
 #include "SkTypes.h"
 
-class GrAllocPool : public SkNoncopyable {
+class GrAllocPool : SkNoncopyable {
 public:
     GrAllocPool(size_t blockSize = 0);
     ~GrAllocPool();
