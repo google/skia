@@ -513,9 +513,9 @@ void SkParse::TestColor() {
         size_t len = strlen(nameRGB.name);
         memcpy(bad, nameRGB.name, len);
         bad[len - 1] -= 1;
-        SkASSERT(FindColor(bad, &result) == false);
+        SkASSERT(FindColor(bad, &result) == NULL);
         bad[len - 1] += 2;
-        SkASSERT(FindColor(bad, &result) == false);
+        SkASSERT(FindColor(bad, &result) == NULL);
     }
     result = SK_ColorBLACK;
     SkASSERT(FindColor("lightGrey", &result));
