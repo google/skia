@@ -1079,7 +1079,10 @@ public:
         }
 
         static inline EffectKey GenKey(const GrDrawEffect& drawEffect, const GrGLCaps&) {
-            return drawEffect.castEffect<XferEffect>().mode();
+            // The background may come from the dst or from a texture.
+            int numTextures = (*drawEffect.effect())->numTextures();
+            SkASSERT(numTextures <= 1);
+            return (drawEffect.castEffect<XferEffect>().mode() << 1) | numTextures;
         }
 
     private:
