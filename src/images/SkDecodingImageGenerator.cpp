@@ -175,6 +175,8 @@ bool DecodingImageGenerator::getPixels(const SkImageInfo& info,
     }
     decoder->setDitherImage(fDitherImage);
     decoder->setSampleSize(fSampleSize);
+    decoder->setRequireUnpremultipliedColors(
+            info.fAlphaType == kUnpremul_SkAlphaType);
 
     SkBitmap bitmap;
     TargetAllocator allocator(fInfo, pixels, rowBytes);
@@ -224,6 +226,7 @@ SkImageGenerator* CreateDecodingImageGenerator(
     }
     SkBitmap bitmap;
     decoder->setSampleSize(opts.fSampleSize);
+    decoder->setRequireUnpremultipliedColors(opts.fRequireUnpremul);
     if (!decoder->decode(stream, &bitmap,
                          SkImageDecoder::kDecodeBounds_Mode)) {
         return NULL;
@@ -247,6 +250,10 @@ SkImageGenerator* CreateDecodingImageGenerator(
             return NULL;  // Can not translate to needed config.
         }
         info.fColorType = opts.fRequestedColorType;
+    }
+
+    if (opts.fRequireUnpremul && info.fAlphaType != kOpaque_SkAlphaType) {
+        info.fAlphaType = kUnpremul_SkAlphaType;
     }
     return SkNEW_ARGS(DecodingImageGenerator,
                       (data, autoStream.detach(), info,

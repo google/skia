@@ -40,27 +40,42 @@ namespace SkDecodingImageGenerator {
      *         type.  If the decoder won't support this color type,
      *         SkDecodingImageGenerator::Create will return
      *         NULL. kIndex_8_SkColorType is not supported.
+     *
+     *  @param fRequireUnpremul If true, the decoder will attempt to
+     *         decode without premultiplying the alpha. If it cannot,
+     *         the pixels will be set to NULL.
      */
     struct Options {
         Options()
             : fSampleSize(1)
             , fDitherImage(true)
             , fUseRequestedColorType(false)
-            , fRequestedColorType() { }
+            , fRequestedColorType()
+            , fRequireUnpremul(false) { }
         Options(int sampleSize, bool dither)
             : fSampleSize(sampleSize)
             , fDitherImage(dither)
             , fUseRequestedColorType(false)
-            , fRequestedColorType() { }
+            , fRequestedColorType()
+            , fRequireUnpremul(false) { }
         Options(int sampleSize, bool dither, SkColorType colorType)
             : fSampleSize(sampleSize)
             , fDitherImage(dither)
             , fUseRequestedColorType(true)
-            , fRequestedColorType(colorType) { }
+            , fRequestedColorType(colorType)
+            , fRequireUnpremul(false) { }
+         Options(int sampleSize, bool dither, SkColorType colorType,
+                 bool requireUnpremul)
+            : fSampleSize(sampleSize)
+            , fDitherImage(dither)
+            , fUseRequestedColorType(true)
+            , fRequestedColorType(colorType)
+            , fRequireUnpremul(requireUnpremul) { }
         const int         fSampleSize;
         const bool        fDitherImage;
         const bool        fUseRequestedColorType;
         const SkColorType fRequestedColorType;
+        const bool        fRequireUnpremul;
     };
 
     /**
