@@ -16,7 +16,6 @@
             '../src/core',
             '../src/effects',
             '../src/pipe/utils/',
-            '../src/record',
             '../src/utils',
             '../src/utils/debugger',
             '../tools',

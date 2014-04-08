@@ -9,7 +9,6 @@
     '../src/pathops',
     '../src/pdf',
     '../src/pipe/utils',
-    '../src/record',
     '../src/utils',
     '../src/utils/debugger',
     '../tools/',
@@ -24,6 +23,7 @@
     'flags.gyp:flags',
     'pdf.gyp:pdf',
     'tools.gyp:picture_utils',
+    'record.gyp:record',
   ],
   'sources': [
     '../tests/Test.cpp',
@@ -136,6 +136,7 @@
     '../tests/ReadWriteAlphaTest.cpp',
     '../tests/Reader32Test.cpp',
     '../tests/RecordTest.cpp',
+    '../tests/RecorderTest.cpp',
     '../tests/RefCntTest.cpp',
     '../tests/RefDictTest.cpp',
     '../tests/RegionTest.cpp',

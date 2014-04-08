@@ -7,6 +7,11 @@
             '../include/config',
             '../include/core',
         ],
+        'direct_dependent_settings': {
+            'include_dirs': [
+                '../src/record',
+            ],
+        },
         'sources': [
             '../src/record/SkRecorder.cpp',
         ],

@@ -300,7 +300,6 @@
         '../src/core/',
         '../src/images',
         '../src/lazy',
-        '../src/record',
       ],
       'dependencies': [
         'flags.gyp:flags',
