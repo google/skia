@@ -66,7 +66,8 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
     
     SkASSERT(text);
 
-    int count;
+    int count = 0;  // fix uninitialized warning (even though the switch is complete!)
+
     switch (encoding) {
         case kUTF8_SkTextEncoding:
             count = SkUTF8_CountUnichars((const char*)text, byteLength);
