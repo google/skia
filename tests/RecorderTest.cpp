@@ -8,17 +8,19 @@
 static const int kRecordTypes = SK_RECORD_TYPES(COUNT);
 #undef COUNT
 
-// Tallies the types of commands it sees into histogram.
+// Tallies the types of commands it sees into a histogram.
 class Tally {
 public:
-    explicit Tally(int histogram[kRecordTypes]) : fHistogram(histogram) {}
+    Tally() { sk_bzero(&fHistogram, sizeof(fHistogram)); }
 
-    template <typename T> void operator()(const T&) {
-        ++fHistogram[T::kType];
-    }
+    template <typename T>
+    void operator()(const T&) { ++fHistogram[T::kType]; }
+
+    template <typename T>
+    int count() const { return fHistogram[T::kType]; }
 
 private:
-    int* fHistogram;
+    int fHistogram[kRecordTypes];
 };
 
 DEF_TEST(Recorder, r) {
@@ -27,10 +29,8 @@ DEF_TEST(Recorder, r) {
 
     recorder.drawRect(SkRect::MakeWH(10, 10), SkPaint());
 
-    int histogram[kRecordTypes];
-    sk_bzero(&histogram, sizeof(histogram));
+    Tally tally;
+    record.visit(tally);
 
-    record.visit(Tally(histogram));
-
-    REPORTER_ASSERT(r, 1 == histogram[SkRecords::DrawRect::kType]);
+    REPORTER_ASSERT(r, 1 == tally.count<SkRecords::DrawRect>());
 }

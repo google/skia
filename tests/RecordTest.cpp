@@ -3,18 +3,20 @@
 #include "SkRecord.h"
 #include "SkRecords.h"
 
-// Adds the area of any DrawRect command it sees into area.
+// Sums the area of any DrawRect command it sees.
 class AreaSummer {
 public:
-    explicit AreaSummer(int* area) : fArea(area) {}
+    AreaSummer() : fArea(0) {}
 
     template <typename T> void operator()(const T&) { }
 
+    int area() const { return fArea; }
+
 private:
-    int* fArea;
+    int fArea;
 };
 template <> void AreaSummer::operator()(const SkRecords::DrawRect& record) {
-    *fArea += (int) (record.rect.width() * record.rect.height());
+    fArea += (int) (record.rect.width() * record.rect.height());
 }
 
 // Scales out the bottom-right corner of any DrawRect command it sees by 2x.
@@ -36,13 +38,15 @@ DEF_TEST(Record, r) {
     SkNEW_PLACEMENT_ARGS(record.append<SkRecords::DrawRect>(), SkRecords::DrawRect, (rect, paint));
 
     // Its area should be 100.
-    int area = 0;
-    record.visit(AreaSummer(&area));
-    REPORTER_ASSERT(r, area == 100);
+    AreaSummer summer;
+    record.visit(summer);
+    REPORTER_ASSERT(r, summer.area() == 100);
 
-    // Scale 2x.  Now it's area should be 400.
-    record.mutate(Stretch());
-    area = 0;
-    record.visit(AreaSummer(&area));
-    REPORTER_ASSERT(r, area == 400);
+    // Scale 2x.
+    Stretch stretch;
+    record.mutate(stretch);
+
+    // Now its area should be 100 + 400.
+    record.visit(summer);
+    REPORTER_ASSERT(r, summer.area() == 500);
 }

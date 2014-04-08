@@ -127,7 +127,8 @@ RECORD0(Restore);
 RECORD1(Save, SkCanvas::SaveFlags, flags);
 RECORD3(SaveLayer, SkRect*, bounds, SkPaint*, paint, SkCanvas::SaveFlags, flags);
 
-RECORD1(PushCull, SkRect, rect);
+static const unsigned kUnsetPopOffset = 0;
+RECORD2(PushCull, SkRect, rect, unsigned, popOffset);
 RECORD0(PopCull);
 
 RECORD1(Concat, SkMatrix, matrix);

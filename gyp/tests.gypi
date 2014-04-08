@@ -135,6 +135,7 @@
     '../tests/ReadPixelsTest.cpp',
     '../tests/ReadWriteAlphaTest.cpp',
     '../tests/Reader32Test.cpp',
+    '../tests/RecordCullingTest.cpp',
     '../tests/RecordTest.cpp',
     '../tests/RecorderTest.cpp',
     '../tests/RefCntTest.cpp',

@@ -27,7 +27,8 @@ void RecordTask::draw() {
     SkBitmap bitmap;
     SetupBitmap(fReference.colorType(), fGM.get(), &bitmap);
     SkCanvas target(bitmap);
-    record.visit(SkRecordDraw(&target));
+
+    SkRecordDraw(record, &target);
 
     if (!BitmapsEqual(bitmap, fReference)) {
         this->fail();

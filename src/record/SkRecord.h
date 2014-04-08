@@ -21,33 +21,49 @@ class SkRecord : SkNoncopyable {
 public:
     SkRecord(size_t chunkBytes = 4096, unsigned firstReserveCount = 64 / sizeof(void*))
         : fAlloc(chunkBytes), fCount(0), fReserved(0), kFirstReserveCount(firstReserveCount) {}
-    ~SkRecord() { this->mutate(Destroyer()); }
+
+    ~SkRecord() {
+        Destroyer destroyer;
+        this->mutate(destroyer);
+    }
+
+    unsigned count() const { return fCount; }
 
     // Accepts a visitor functor with this interface:
     //   template <typename T>
-    //   void operator()()(const T& record) { ... }
+    //   void operator()(const T& record) { ... }
     // This operator() must be defined for at least all SkRecords::*; your compiler will help you
     // get this right.
-    //
-    // f will be called on each recorded canvas call in the order they were append()ed.
     template <typename F>
-    void visit(F f) const {
+    void visit(unsigned i, F& f) const {
+        SkASSERT(i < this->count());
+        fRecords[i].visit(fTypes[i], f);
+    }
+
+    // As above.  f will be called on each recorded canvas call in the order they were append()ed.
+    template <typename F>
+    void visit(F& f) const {
         for (unsigned i = 0; i < fCount; i++) {
-            fRecords[i].visit(fTypes[i], f);
+            this->visit(i, f);
         }
     }
 
     // Accepts a visitor functor with this interface:
     //   template <typename T>
-    //   void operator()()(T* record) { ... }
+    //   void operator()(T* record) { ... }
     // This operator() must be defined for at least all SkRecords::*; again, your compiler will help
     // you get this right.
-    //
-    // f will be called on each recorded canvas call in the order they were append()ed.
     template <typename F>
-    void mutate(F f) {
+    void mutate(unsigned i, F& f) {
+        SkASSERT(i < this->count());
+        fRecords[i].mutate(fTypes[i], f);
+    }
+
+    // As above.  f will be called on each recorded canvas call in the order they were append()ed.
+    template <typename F>
+    void mutate(F& f) {
         for (unsigned i = 0; i < fCount; i++) {
-            fRecords[i].mutate(fTypes[i], f);
+            this->mutate(i, f);
         }
     }
 
@@ -154,7 +170,7 @@ private:
         // Visit this record with functor F (see public API above) assuming the record we're
         // pointing to has this type.
         template <typename F>
-        void visit(Type8 type, F f) const {
+        void visit(Type8 type, F& f) const {
         #define CASE(T) case SkRecords::T##_Type: return f(*this->ptr<SkRecords::T>());
             switch(type) { SK_RECORD_TYPES(CASE) }
         #undef CASE
@@ -163,7 +179,7 @@ private:
         // Mutate this record with functor F (see public API above) assuming the record we're
         // pointing to has this type.
         template <typename F>
-        void mutate(Type8 type, F f) {
+        void mutate(Type8 type, F& f) {
         #define CASE(T) case SkRecords::T##_Type: return f(this->ptr<SkRecords::T>());
             switch(type) { SK_RECORD_TYPES(CASE) }
         #undef CASE

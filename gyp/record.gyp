@@ -14,6 +14,8 @@
         },
         'sources': [
             '../src/record/SkRecorder.cpp',
+            '../src/record/SkRecordCulling.cpp',
+            '../src/record/SkRecordDraw.cpp',
         ],
     }]
 }

@@ -196,7 +196,7 @@ void SkRecorder::willRestore() {
 }
 
 void SkRecorder::onPushCull(const SkRect& rect) {
-    APPEND(PushCull, rect);
+    APPEND(PushCull, rect, SkRecords::kUnsetPopOffset);
 }
 
 void SkRecorder::onPopCull() {
