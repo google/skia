@@ -10,6 +10,44 @@
 #include "SkTypeface.h"
 #include "Test.h"
 
+#include "SkFont.h"
+#include "SkPaint.h"
+static void test_font(skiatest::Reporter* reporter) {
+    uint32_t flags = 0;
+    SkAutoTUnref<SkFont> font(SkFont::Create(NULL, 24, SkFont::kA8_MaskType, flags));
+    
+    REPORTER_ASSERT(reporter, NULL != font->getTypeface());
+    REPORTER_ASSERT(reporter, 24 == font->getSize());
+    REPORTER_ASSERT(reporter, 1 == font->getScaleX());
+    REPORTER_ASSERT(reporter, 0 == font->getSkewX());
+    REPORTER_ASSERT(reporter, SkFont::kA8_MaskType == font->getMaskType());
+
+    uint16_t glyphs[5];
+    sk_bzero(glyphs, sizeof(glyphs));
+
+    int count = font->textToGlyphs("Hello", 5, kUTF8_SkTextEncoding, glyphs, SK_ARRAY_COUNT(glyphs));
+
+    REPORTER_ASSERT(reporter, 5 == count);
+    for (int i = 0; i < count; ++i) {
+        REPORTER_ASSERT(reporter, 0 != glyphs[i]);
+    }
+    REPORTER_ASSERT(reporter, glyphs[0] != glyphs[1]); // 'h' != 'e'
+    REPORTER_ASSERT(reporter, glyphs[2] == glyphs[3]); // 'l' == 'l'
+    
+    SkAutoTUnref<SkFont> newFont(font->cloneWithSize(36));
+    REPORTER_ASSERT(reporter, newFont.get());
+    REPORTER_ASSERT(reporter, font->getTypeface() == newFont->getTypeface());
+    REPORTER_ASSERT(reporter, 36 == newFont->getSize());   // double check we haven't changed
+    REPORTER_ASSERT(reporter, 24 == font->getSize());   // double check we haven't changed
+
+    SkPaint paint;
+    paint.setTextSize(18);
+    font.reset(SkFont::Testing_CreateFromPaint(paint));
+    REPORTER_ASSERT(reporter, font.get());
+    REPORTER_ASSERT(reporter, font->getSize() == paint.getTextSize());
+    REPORTER_ASSERT(reporter, SkFont::kBW_MaskType == font->getMaskType());
+}
+
 /*
  *  If the font backend is going to "alias" some font names to other fonts
  *  (e.g. sans -> Arial) then we want to at least get the same typeface back
@@ -78,4 +116,5 @@ DEFINE_bool(verboseFontMgr, false, "run verbose fontmgr tests.");
 DEF_TEST(FontMgr, reporter) {
     test_fontiter(reporter, FLAGS_verboseFontMgr);
     test_alias_names(reporter);
+    test_font(reporter);
 }

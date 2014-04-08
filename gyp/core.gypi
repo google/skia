@@ -88,6 +88,7 @@
         '<(skia_src_path)/core/SkFloat.cpp',
         '<(skia_src_path)/core/SkFloat.h',
         '<(skia_src_path)/core/SkFloatBits.cpp',
+        '<(skia_src_path)/core/SkFont.cpp',
         '<(skia_src_path)/core/SkFontHost.cpp',
         '<(skia_src_path)/core/SkFontDescriptor.cpp',
         '<(skia_src_path)/core/SkFontDescriptor.h',
