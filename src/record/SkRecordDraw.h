@@ -25,6 +25,9 @@ CASE(Restore) { canvas->restore(); }
 CASE(Save) { canvas->save(r.flags); }
 CASE(SaveLayer) { canvas->saveLayer(r.bounds, r.paint, r.flags); }
 
+CASE(PushCull) { canvas->pushCull(r.rect); }
+CASE(PopCull) { canvas->popCull(); }
+
 CASE(Concat) { canvas->concat(r.matrix); }
 CASE(SetMatrix) { canvas->setMatrix(r.matrix); }
 

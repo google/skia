@@ -39,7 +39,9 @@ namespace SkRecords {
     M(DrawSprite)           \
     M(DrawText)             \
     M(DrawTextOnPath)       \
-    M(DrawVertices)
+    M(DrawVertices)         \
+    M(PushCull)             \
+    M(PopCull)
 
 // Defines SkRecords::Type, an enum of all record types.
 #define ENUM(T) T##_Type,
@@ -124,6 +126,9 @@ private:
 RECORD0(Restore);
 RECORD1(Save, SkCanvas::SaveFlags, flags);
 RECORD3(SaveLayer, SkRect*, bounds, SkPaint*, paint, SkCanvas::SaveFlags, flags);
+
+RECORD1(PushCull, SkRect, rect);
+RECORD0(PopCull);
 
 RECORD1(Concat, SkMatrix, matrix);
 RECORD1(SetMatrix, SkMatrix, matrix);

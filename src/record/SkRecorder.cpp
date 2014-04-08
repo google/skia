@@ -195,6 +195,14 @@ void SkRecorder::willRestore() {
     APPEND(Restore);
 }
 
+void SkRecorder::onPushCull(const SkRect& rect) {
+    APPEND(PushCull, rect);
+}
+
+void SkRecorder::onPopCull() {
+    APPEND(PopCull);
+}
+
 void SkRecorder::didConcat(const SkMatrix& matrix) {
     APPEND(Concat, matrix);
 }

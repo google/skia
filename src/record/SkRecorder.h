@@ -57,6 +57,9 @@ public:
     void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle);
     void onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op);
 
+    void onPushCull(const SkRect& cullRect);
+    void onPopCull();
+
 private:
     template <typename T>
     T* copy(const T*);
