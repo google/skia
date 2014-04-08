@@ -28,7 +28,7 @@ DEF_TEST(Recorder, r) {
     recorder.drawRect(SkRect::MakeWH(10, 10), SkPaint());
 
     int histogram[kRecordTypes];
-    bzero(&histogram, sizeof(histogram));
+    sk_bzero(&histogram, sizeof(histogram));
 
     record.visit(Tally(histogram));
 
