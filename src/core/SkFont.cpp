@@ -21,7 +21,6 @@ SkFont::SkFont(SkTypeface* face, SkScalar size, SkScalar scaleX, SkScalar skewX,
     , fSkewX(skewX)
     , fFlags(flags)
     , fMaskType(SkToU8(mt))
-    , fPad(0)
 {
     SkASSERT(size > 0);
     SkASSERT(scaleX > 0);

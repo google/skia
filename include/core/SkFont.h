@@ -146,6 +146,6 @@ private:
     SkScalar    fSkewX;
     uint16_t    fFlags;
     uint8_t     fMaskType;
-    uint8_t     fPad;
+//  uint8_t     fPad;
 };
 
