@@ -192,8 +192,8 @@ public:
     SkFontID findTypefaceIdForChar(SkUnichar uni);
 #endif
 
-    static inline void MakeRec(const SkPaint&, const SkDeviceProperties* deviceProperties,
-                               const SkMatrix*, Rec* rec);
+    static void MakeRec(const SkPaint&, const SkDeviceProperties* deviceProperties,
+                        const SkMatrix*, Rec* rec);
     static inline void PostMakeRec(const SkPaint&, Rec*);
 
     static SkMaskGamma::PreBlend GetMaskPreBlend(const Rec& rec);

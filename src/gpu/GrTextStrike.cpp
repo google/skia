@@ -332,22 +332,9 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
                                                     (unsigned char*)storage.get(),
                                                     width, height, DISTANCE_FIELD_RANGE);
         } else {
-            // TODO: Fix color emoji
-            // for now, copy glyph into distance field storage
-            // this is not correct, but it won't crash
-            sk_bzero(dfStorage.get(), dfSize);
-            unsigned char* ptr = (unsigned char*) storage.get();
-            unsigned char* dfPtr = (unsigned char*) dfStorage.get();
-            size_t dfStride = dfWidth*bytesPerPixel;
-            dfPtr += DISTANCE_FIELD_RANGE*dfStride;
-            dfPtr += DISTANCE_FIELD_RANGE*bytesPerPixel;
-
-            for (int i = 0; i < height; ++i) {
-                memcpy(dfPtr, ptr, stride);
-
-                dfPtr += dfStride;
-                ptr += stride;
-            }
+            // distance fields should only be used to represent alpha masks
+            SkASSERT(false);
+            return false;
         }
 
         // copy to atlas

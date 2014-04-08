@@ -55,11 +55,32 @@ GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
 }
 
 bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint) {
-    return (kForceDistanceFieldFonts || paint.isDistanceFieldTextTEMP()) &&
-           !paint.getRasterizer() && !paint.getMaskFilter() &&
-           paint.getStyle() == SkPaint::kFill_Style &&
-           fContext->getTextTarget()->caps()->shaderDerivativeSupport() &&
-           !SkDraw::ShouldDrawTextAsPaths(paint, fContext->getMatrix());
+    if (!kForceDistanceFieldFonts && !paint.isDistanceFieldTextTEMP()) {
+        return false;
+    }
+
+    // rasterizers and mask filters modify alpha, which doesn't 
+    // translate well to distance
+    if (paint.getRasterizer() || paint.getMaskFilter() ||
+        !fContext->getTextTarget()->caps()->shaderDerivativeSupport()) {
+        return false;
+    }
+
+    // TODO: add some stroking support
+    if (paint.getStyle() != SkPaint::kFill_Style) {
+        return false;
+    }
+
+    // TODO: choose an appropriate maximum scale for distance fields and
+    //       enable perspective
+    if (SkDraw::ShouldDrawTextAsPaths(paint, fContext->getMatrix())) {
+        return false;
+    }
+
+    // distance fields cannot represent color fonts
+    SkScalerContext::Rec    rec;
+    SkScalerContext::MakeRec(paint, &fDeviceProperties, NULL, &rec);
+    return rec.getFormat() != SkMask::kARGB32_Format;
 }
 
 static inline GrColor skcolor_to_grcolor_nopremultiply(SkColor c) {
