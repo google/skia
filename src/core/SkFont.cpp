@@ -85,11 +85,6 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
         return count;
     }
 
-    if (kGlyphID_SkTextEncoding == encoding) {
-        memcpy(glyphs, text, count << 1);
-        return count;
-    }
-
     // TODO: unify/eliminate SkTypeface::Encoding with SkTextEncoding
     SkTypeface::Encoding typeface_encoding;
     switch (encoding) {
@@ -103,7 +98,9 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
             typeface_encoding = SkTypeface::kUTF32_Encoding;
             break;
         case kGlyphID_SkTextEncoding:
-            SkASSERT(0);    // can't get here
+            // we can early exit, since we already have glyphIDs
+            memcpy(glyphs, text, count << 1);
+            return count;
     }
 
     (void)fTypeface->charsToGlyphs(text, typeface_encoding, glyphs, count);
