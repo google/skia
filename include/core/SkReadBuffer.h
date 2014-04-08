@@ -46,7 +46,7 @@ public:
 
     /** This may be called at most once; most clients of SkReadBuffer should not mess with it. */
     void setPictureVersion(int version) {
-        SkASSERT(0 == fPictureVersion);
+        SkASSERT(0 == fPictureVersion || version == fPictureVersion);
         fPictureVersion = version;
     }
 
