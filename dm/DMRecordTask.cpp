@@ -19,7 +19,8 @@ RecordTask::RecordTask(const Task& parent, skiagm::GM* gm, SkBitmap reference)
 void RecordTask::draw() {
     // Record the GM into an SkRecord.
     SkRecord record;
-    SkRecorder canvas(&record, fReference.width(), fReference.height());
+    SkRecorder canvas(SkRecorder::kWriteOnly_Mode, &record,
+                      fReference.width(), fReference.height());
     canvas.concat(fGM->getInitialTransform());
     fGM->draw(&canvas);
 

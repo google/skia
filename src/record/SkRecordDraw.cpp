@@ -3,74 +3,84 @@
 namespace {
 
 // This is an SkRecord visitor that will draw that SkRecord to an SkCanvas.
-struct Draw {
-    unsigned index;
-    SkCanvas* canvas;
+class Draw : SkNoncopyable {
+public:
+    explicit Draw(SkCanvas* canvas) : fCanvas(canvas), fIndex(0), fClipEmpty(false) {}
+
+    unsigned index() const { return fIndex; }
+    void next() { ++fIndex; }
 
     // No base case, so we'll be compile-time checked that we implemented all possibilities below.
     template <typename T> void operator()(const T&);
+
+private:
+    // Must be called after any potential clip change.
+    void updateClip() { fClipEmpty = fCanvas->isClipEmpty(); }
+
+    SkCanvas* fCanvas;
+    unsigned fIndex;
+    bool fClipEmpty;
 };
 
-template <> void Draw::operator()(const SkRecords::PushCull& pushCull) {
-    if (pushCull.popOffset != SkRecords::kUnsetPopOffset &&
-        canvas->quickReject(pushCull.rect)) {
+template <> void Draw::operator()(const SkRecords::PushCull& r) {
+    if (r.popOffset != SkRecords::kUnsetPopOffset &&
+        fCanvas->quickReject(r.rect)) {
         // We skip to the popCull, then the loop moves us just beyond it.
-        index += pushCull.popOffset;
+        fIndex += r.popOffset;
     } else {
-        canvas->pushCull(pushCull.rect);
+        fCanvas->pushCull(r.rect);
     }
 }
 
-// Nothing fancy below here.
+// These commands might change the clip.
+#define CASE(T, call) \
+    template <> void Draw::operator()(const SkRecords::T& r) { fCanvas->call; this->updateClip(); }
+CASE(Restore, restore());
+CASE(SaveLayer, saveLayer(r.bounds, r.paint, r.flags));
+CASE(ClipPath, clipPath(r.path, r.op, r.doAA));
+CASE(ClipRRect, clipRRect(r.rrect, r.op, r.doAA));
+CASE(ClipRect, clipRect(r.rect, r.op, r.doAA));
+CASE(ClipRegion, clipRegion(r.region, r.op));
+#undef CASE
 
-#define CASE(T) template <> void Draw::operator()(const SkRecords::T& r)
+// Commands which must run regardless of the clip.
+#define CASE(T, call) \
+    template <> void Draw::operator()(const SkRecords::T& r) { fCanvas->call; }
+CASE(Save, save(r.flags));
+CASE(Clear, clear(r.color));
+CASE(PopCull, popCull());
+#undef CASE
 
-CASE(Restore) { canvas->restore(); }
-CASE(Save) { canvas->save(r.flags); }
-CASE(SaveLayer) { canvas->saveLayer(r.bounds, r.paint, r.flags); }
+// Nothing fancy below here.  These commands respect and don't change the clip.
+#define CASE(T, call) \
+    template <> void Draw::operator()(const SkRecords::T& r) { if (!fClipEmpty) fCanvas->call; }
+CASE(Concat, concat(r.matrix));
+CASE(SetMatrix, setMatrix(r.matrix));
 
-CASE(PopCull) { canvas->popCull(); }
-
-CASE(Concat) { canvas->concat(r.matrix); }
-CASE(SetMatrix) { canvas->setMatrix(r.matrix); }
-
-CASE(ClipPath) { canvas->clipPath(r.path, r.op, r.doAA); }
-CASE(ClipRRect) { canvas->clipRRect(r.rrect, r.op, r.doAA); }
-CASE(ClipRect) { canvas->clipRect(r.rect, r.op, r.doAA); }
-CASE(ClipRegion) { canvas->clipRegion(r.region, r.op); }
-
-CASE(Clear) { canvas->clear(r.color); }
-CASE(DrawBitmap) { canvas->drawBitmap(r.bitmap, r.left, r.top, r.paint); }
-CASE(DrawBitmapMatrix) { canvas->drawBitmapMatrix(r.bitmap, r.matrix, r.paint); }
-CASE(DrawBitmapNine) { canvas->drawBitmapNine(r.bitmap, r.center, r.dst, r.paint); }
-CASE(DrawBitmapRectToRect) {
-    canvas->drawBitmapRectToRect(r.bitmap, r.src, r.dst, r.paint, r.flags);
-}
-CASE(DrawDRRect) { canvas->drawDRRect(r.outer, r.inner, r.paint); }
-CASE(DrawOval) { canvas->drawOval(r.oval, r.paint); }
-CASE(DrawPaint) { canvas->drawPaint(r.paint); }
-CASE(DrawPath) { canvas->drawPath(r.path, r.paint); }
-CASE(DrawPoints) { canvas->drawPoints(r.mode, r.count, r.pts, r.paint); }
-CASE(DrawPosText) { canvas->drawPosText(r.text, r.byteLength, r.pos, r.paint); }
-CASE(DrawPosTextH) { canvas->drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint); }
-CASE(DrawRRect) { canvas->drawRRect(r.rrect, r.paint); }
-CASE(DrawRect) { canvas->drawRect(r.rect, r.paint); }
-CASE(DrawSprite) { canvas->drawSprite(r.bitmap, r.left, r.top, r.paint); }
-CASE(DrawText) { canvas->drawText(r.text, r.byteLength, r.x, r.y, r.paint); }
-CASE(DrawTextOnPath) { canvas->drawTextOnPath(r.text, r.byteLength, r.path, r.matrix, r.paint); }
-CASE(DrawVertices) {
-    canvas->drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
-                         r.xmode.get(), r.indices, r.indexCount, r.paint);
-}
+CASE(DrawBitmap, drawBitmap(r.bitmap, r.left, r.top, r.paint));
+CASE(DrawBitmapMatrix, drawBitmapMatrix(r.bitmap, r.matrix, r.paint));
+CASE(DrawBitmapNine, drawBitmapNine(r.bitmap, r.center, r.dst, r.paint));
+CASE(DrawBitmapRectToRect, drawBitmapRectToRect(r.bitmap, r.src, r.dst, r.paint, r.flags));
+CASE(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
+CASE(DrawOval, drawOval(r.oval, r.paint));
+CASE(DrawPaint, drawPaint(r.paint));
+CASE(DrawPath, drawPath(r.path, r.paint));
+CASE(DrawPoints, drawPoints(r.mode, r.count, r.pts, r.paint));
+CASE(DrawPosText, drawPosText(r.text, r.byteLength, r.pos, r.paint));
+CASE(DrawPosTextH, drawPosTextH(r.text, r.byteLength, r.xpos, r.y, r.paint));
+CASE(DrawRRect, drawRRect(r.rrect, r.paint));
+CASE(DrawRect, drawRect(r.rect, r.paint));
+CASE(DrawSprite, drawSprite(r.bitmap, r.left, r.top, r.paint));
+CASE(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
+CASE(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, r.matrix, r.paint));
+CASE(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.colors,
+                                r.xmode.get(), r.indices, r.indexCount, r.paint));
 #undef CASE
 
 }  // namespace
 
 void SkRecordDraw(const SkRecord& record, SkCanvas* canvas) {
-    Draw draw;
-    draw.canvas = canvas;
-
-    for (draw.index = 0; draw.index < record.count(); draw.index++) {
-        record.visit(draw.index, draw);
+    for (Draw draw(canvas); draw.index() < record.count(); draw.next()) {
+        record.visit(draw.index(), draw);
     }
 }

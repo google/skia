@@ -79,7 +79,7 @@ static void bench_record(SkPicture* src, const char* name, PictureFactory pictur
     for (int i = 0; i < FLAGS_loops; i++) {
         if (FLAGS_skr) {
             SkRecord record;
-            SkRecorder canvas(&record, width, height);
+            SkRecorder canvas(SkRecorder::kWriteOnly_Mode, &record, width, height);
             if (NULL != src) {
                 src->draw(&canvas);
             }

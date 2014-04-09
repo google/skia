@@ -18,7 +18,7 @@ template <> void PushCullScanner::operator()(const SkRecords::PushCull& record) 
 
 DEF_TEST(RecordCulling, r) {
     SkRecord record;
-    SkRecorder recorder(&record, 1920, 1080);
+    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1080);
 
     recorder.drawRect(SkRect::MakeWH(1000, 10000), SkPaint());
 

@@ -2,12 +2,15 @@
 #include "SkPicture.h"
 
 // SkCanvas will fail in mysterious ways if it doesn't know the real width and height.
-SkRecorder::SkRecorder(SkRecord* record, int width, int height)
-    : SkCanvas(width, height), fRecord(record) {}
+SkRecorder::SkRecorder(SkRecorder::Mode mode, SkRecord* record, int width, int height)
+    : SkCanvas(width, height), fMode(mode), fRecord(record) {}
 
 // To make appending to fRecord a little less verbose.
 #define APPEND(T, ...) \
         SkNEW_PLACEMENT_ARGS(fRecord->append<SkRecords::T>(), SkRecords::T, (__VA_ARGS__))
+
+// For methods which must call back into SkCanvas in kReadWrite_Mode.
+#define INHERITED(method, ...) if (fMode == kReadWrite_Mode) this->SkCanvas::method(__VA_ARGS__)
 
 // The structs we're creating all copy their constructor arguments.  Given the way the SkRecords
 // framework works, sometimes they happen to technically be copied twice, which is fine and elided
@@ -92,6 +95,10 @@ void SkRecorder::drawOval(const SkRect& oval, const SkPaint& paint) {
 
 void SkRecorder::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     APPEND(DrawRRect, rrect, delay_copy(paint));
+}
+
+void SkRecorder::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
+    APPEND(DrawDRRect, outer, inner, delay_copy(paint));
 }
 
 void SkRecorder::drawPath(const SkPath& path, const SkPaint& paint) {
@@ -182,17 +189,20 @@ void SkRecorder::drawVertices(VertexMode vmode,
 
 void SkRecorder::willSave(SkCanvas::SaveFlags flags) {
     APPEND(Save, flags);
+    INHERITED(willSave, flags);
 }
 
 SkCanvas::SaveLayerStrategy SkRecorder::willSaveLayer(const SkRect* bounds,
                                                       const SkPaint* paint,
                                                       SkCanvas::SaveFlags flags) {
     APPEND(SaveLayer, this->copy(bounds), this->copy(paint), flags);
+    INHERITED(willSaveLayer, bounds, paint, flags);
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 
 void SkRecorder::willRestore() {
     APPEND(Restore);
+    INHERITED(willRestore);
 }
 
 void SkRecorder::onPushCull(const SkRect& rect) {
@@ -205,28 +215,30 @@ void SkRecorder::onPopCull() {
 
 void SkRecorder::didConcat(const SkMatrix& matrix) {
     APPEND(Concat, matrix);
+    INHERITED(didConcat, matrix);
 }
 
 void SkRecorder::didSetMatrix(const SkMatrix& matrix) {
     APPEND(SetMatrix, matrix);
-}
-
-void SkRecorder::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
-    APPEND(DrawDRRect, outer, inner, delay_copy(paint));
+    INHERITED(didSetMatrix, matrix);
 }
 
 void SkRecorder::onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     APPEND(ClipRect, rect, op, edgeStyle == kSoft_ClipEdgeStyle);
+    INHERITED(onClipRect, rect, op, edgeStyle);
 }
 
 void SkRecorder::onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     APPEND(ClipRRect, rrect, op, edgeStyle == kSoft_ClipEdgeStyle);
+    INHERITED(updateClipConservativelyUsingBounds, rrect.getBounds(), op, false);
 }
 
 void SkRecorder::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) {
     APPEND(ClipPath, delay_copy(path), op, edgeStyle == kSoft_ClipEdgeStyle);
+    INHERITED(updateClipConservativelyUsingBounds, path.getBounds(), op, path.isInverseFillType());
 }
 
 void SkRecorder::onClipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
     APPEND(ClipRegion, delay_copy(deviceRgn), op);
+    INHERITED(onClipRegion, deviceRgn, op);
 }
