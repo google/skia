@@ -1,0 +1,11 @@
+ - Add -port flag to webtry.go.
+ - Add flag for inout directory to webtry.go.
+ - In webtry.go add mutexes per hash, to avoid conflicts of writing the same file at the same time.
+ - Don't allow #macros in user code.
+ - Limit the size of the user code submitted.
+ - Add font support in the c++ template.
+ - Add in all the Sk header files that could be needed.
+ - Clean up web page appearance.
+ - Add inline links to doxygen.
+ - Set wait cursor when doing the compiling.
+ - Add monitoring and probing (nagios).

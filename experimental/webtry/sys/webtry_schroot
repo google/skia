@@ -1,0 +1,9 @@
+[webtry]
+description=Chroot jail for webtry runs.
+type=directory
+directory=/srv/chroot/webtry
+users=default,webtry
+root-groups=default
+personality=linux
+preserve-environment=false
+profile=minimal

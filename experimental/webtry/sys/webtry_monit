@@ -1,0 +1,4 @@
+check process webtry with pidfile /var/run/webtry.pid
+   start program = "/etc/init.d/webtry start"
+   stop program = "/etc/init.d/webtry stop"
+

@@ -13,6 +13,9 @@
             padding: 0;
             color: green;
         }
+        #output {
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -27,11 +30,8 @@ int main() {
   SkGraphics::Init();
 
   SkImageInfo info = SkImageInfo::MakeN32(300, 300, kPremul_SkAlphaType);
-  SkBitmap bitmap;
-  bitmap.setConfig(info);
-  bitmap.allocPixels();
-  SkCanvas c(bitmap);
-  c.drawColor(SK_ColorWHITE);
+  SkAutoTUnref&lt;SkSurface> surface(SkSurface::NewRaster(info));
+  SkCanvas* canvas = surface->getCanvas();
 
   <textarea name='code' id='code' rows='20' cols='80'>SkPaint p;
 p.setColor(SK_ColorRED);
@@ -39,7 +39,7 @@ p.setAntiAlias(true);
 p.setStyle(SkPaint::kStroke_Style);
 p.setStrokeWidth(10);
 
-c.drawLine(20, 20, 100, 100, p);
+canvas->drawLine(20, 20, 100, 100, p);
 </textarea>
 
   if (!SkImageEncoder::EncodeFile("foo.png", bitmap, SkImageEncoder::kPNG_Type, 100)) {
@@ -48,12 +48,13 @@ c.drawLine(20, 20, 100, 100, p);
 }
 </code></pre>
 
+  <input type='button' value='Run' id='run'>
+
   <p>Image appears here:</p>
   <img id='img' src=''/>
 
   <pre><code id='output'></code></pre>
 
-  <input type='button' value='Run' id='run'>
   <script type='text/javascript' charset='utf-8'>
       var run = document.getElementById('run');
       var code = document.getElementById('code');
@@ -90,7 +91,7 @@ c.drawLine(20, 20, 100, 100, p);
           req.addEventListener('error', codeError);
           req.overrideMimeType('application/json');
           req.open('POST', '.', true);
-          req.send(code.value + '\r\nEOF\r\n');
+          req.send(code.value);
       }
   </script>
 </body>
