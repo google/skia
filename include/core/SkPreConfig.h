@@ -108,6 +108,10 @@
 
 //////////////////////////////////////////////////////////////////////
 
+#if defined(__i386) || defined(_M_IX86) ||  defined(__x86_64__) || defined(_M_X64)
+  #define SK_CPU_X86 1
+#endif
+
 /**
  *  SK_CPU_SSE_LEVEL
  *
