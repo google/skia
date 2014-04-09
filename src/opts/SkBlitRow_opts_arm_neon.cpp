@@ -52,6 +52,90 @@ void S32_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
     };
 }
 
+void S32_D565_Blend_neon(uint16_t* SK_RESTRICT dst,
+                          const SkPMColor* SK_RESTRICT src, int count,
+                          U8CPU alpha, int /*x*/, int /*y*/) {
+    SkASSERT(255 > alpha);
+
+    uint16x8_t vmask_blue, vscale;
+
+    // prepare constants
+    vscale = vdupq_n_u16(SkAlpha255To256(alpha));
+    vmask_blue = vmovq_n_u16(0x1F);
+
+    while (count >= 8) {
+        uint16x8_t vdst, vdst_r, vdst_g, vdst_b;
+        uint16x8_t vres_r, vres_g, vres_b;
+        uint8x8_t vsrc_r, vsrc_g, vsrc_b;
+
+        // Load src
+        {
+        register uint8x8_t d0 asm("d0");
+        register uint8x8_t d1 asm("d1");
+        register uint8x8_t d2 asm("d2");
+        register uint8x8_t d3 asm("d3");
+
+        asm (
+            "vld4.8    {d0-d3},[%[src]]!"
+            : "=w" (d0), "=w" (d1), "=w" (d2), "=w" (d3), [src] "+&r" (src)
+            :
+        );
+        vsrc_g = d1;
+#if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
+        vsrc_r = d2; vsrc_b = d0;
+#elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
+        vsrc_r = d0; vsrc_b = d2;
+#endif
+        }
+
+        // Load and unpack dst
+        vdst = vld1q_u16(dst);
+        vdst_g = vshlq_n_u16(vdst, 5);        // shift green to top of lanes
+        vdst_b = vandq_u16(vdst, vmask_blue); // extract blue
+        vdst_r = vshrq_n_u16(vdst, 6+5);      // extract red
+        vdst_g = vshrq_n_u16(vdst_g, 5+5);    // extract green
+
+        // Shift src to 565
+        vsrc_r = vshr_n_u8(vsrc_r, 3);    // shift red to 565 range
+        vsrc_g = vshr_n_u8(vsrc_g, 2);    // shift green to 565 range
+        vsrc_b = vshr_n_u8(vsrc_b, 3);    // shift blue to 565 range
+
+        // Scale src - dst
+        vres_r = vmovl_u8(vsrc_r) - vdst_r;
+        vres_g = vmovl_u8(vsrc_g) - vdst_g;
+        vres_b = vmovl_u8(vsrc_b) - vdst_b;
+
+        vres_r = vshrq_n_u16(vres_r * vscale, 8);
+        vres_g = vshrq_n_u16(vres_g * vscale, 8);
+        vres_b = vshrq_n_u16(vres_b * vscale, 8);
+
+        vres_r += vdst_r;
+        vres_g += vdst_g;
+        vres_b += vdst_b;
+
+        // Combine
+        vres_b = vsliq_n_u16(vres_b, vres_g, 5);    // insert green into blue
+        vres_b = vsliq_n_u16(vres_b, vres_r, 6+5);  // insert red into green/blue
+
+        // Store
+        vst1q_u16(dst, vres_b);
+        dst += 8;
+        count -= 8;
+    }
+    if (count > 0) {
+        int scale = SkAlpha255To256(alpha);
+        do {
+            SkPMColor c = *src++;
+            SkPMColorAssert(c);
+            uint16_t d = *dst;
+            *dst++ = SkPackRGB16(
+                    SkAlphaBlend(SkPacked32ToR16(c), SkGetPackedR16(d), scale),
+                    SkAlphaBlend(SkPacked32ToG16(c), SkGetPackedG16(d), scale),
+                    SkAlphaBlend(SkPacked32ToB16(c), SkGetPackedB16(d), scale));
+        } while (--count != 0);
+    }
+}
+
 void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
                            const SkPMColor* SK_RESTRICT src, int count,
                            U8CPU alpha, int /*x*/, int /*y*/) {
@@ -1385,11 +1469,8 @@ void Color32_arm_neon(SkPMColor* dst, const SkPMColor* src, int count,
 
 const SkBlitRow::Proc sk_blitrow_platform_565_procs_arm_neon[] = {
     // no dither
-    // NOTE: For the S32_D565_Blend function below, we don't have a special
-    //       version that assumes that each source pixel is opaque. But our
-    //       S32A is still faster than the default, so use it.
     S32_D565_Opaque_neon,
-    S32A_D565_Blend_neon,   // really S32_D565_Blend
+    S32_D565_Blend_neon,
     S32A_D565_Opaque_neon,
     S32A_D565_Blend_neon,
 
