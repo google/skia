@@ -123,104 +123,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class DWriteOffscreen {
-public:
-    DWriteOffscreen() : fWidth(0), fHeight(0) { }
-
-    void init(IDWriteFactory* factory, IDWriteFontFace* fontFace,
-              const DWRITE_MATRIX& xform, FLOAT fontSize)
-    {
-        fFactory = factory;
-        fFontFace = fontFace;
-        fFontSize = fontSize;
-        fXform = xform;
-    }
-
-    const void* draw(const SkGlyph&, bool isBW);
-
-private:
-    uint16_t fWidth;
-    uint16_t fHeight;
-    IDWriteFactory* fFactory;
-    IDWriteFontFace* fFontFace;
-    FLOAT fFontSize;
-    DWRITE_MATRIX fXform;
-    SkTDArray<uint8_t> fBits;
-};
-
-const void* DWriteOffscreen::draw(const SkGlyph& glyph, bool isBW) {
-    if (fWidth < glyph.fWidth || fHeight < glyph.fHeight) {
-        fWidth = SkMax32(fWidth, glyph.fWidth);
-        fHeight = SkMax32(fHeight, glyph.fHeight);
-
-        if (isBW) {
-            fBits.setCount(fWidth * fHeight);
-        } else {
-            fBits.setCount(fWidth * fHeight * 3);
-        }
-    }
-
-    // erase
-    memset(fBits.begin(), 0, fBits.count());
-
-    fXform.dx = SkFixedToFloat(glyph.getSubXFixed());
-    fXform.dy = SkFixedToFloat(glyph.getSubYFixed());
-
-    FLOAT advance = 0.0f;
-
-    UINT16 index = glyph.getGlyphID();
-
-    DWRITE_GLYPH_OFFSET offset;
-    offset.advanceOffset = 0.0f;
-    offset.ascenderOffset = 0.0f;
-
-    DWRITE_GLYPH_RUN run;
-    run.glyphCount = 1;
-    run.glyphAdvances = &advance;
-    run.fontFace = fFontFace;
-    run.fontEmSize = fFontSize;
-    run.bidiLevel = 0;
-    run.glyphIndices = &index;
-    run.isSideways = FALSE;
-    run.glyphOffsets = &offset;
-
-    DWRITE_RENDERING_MODE renderingMode;
-    DWRITE_TEXTURE_TYPE textureType;
-    if (isBW) {
-        renderingMode = DWRITE_RENDERING_MODE_ALIASED;
-        textureType = DWRITE_TEXTURE_ALIASED_1x1;
-    } else {
-        renderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC;
-        textureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
-    }
-    SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
-    HRNM(fFactory->CreateGlyphRunAnalysis(&run,
-                                          1.0f, // pixelsPerDip,
-                                          &fXform,
-                                          renderingMode,
-                                          DWRITE_MEASURING_MODE_NATURAL,
-                                          0.0f, // baselineOriginX,
-                                          0.0f, // baselineOriginY,
-                                          &glyphRunAnalysis),
-         "Could not create glyph run analysis.");
-
-    //NOTE: this assumes that the glyph has already been measured
-    //with an exact same glyph run analysis.
-    RECT bbox;
-    bbox.left = glyph.fLeft;
-    bbox.top = glyph.fTop;
-    bbox.right = glyph.fLeft + glyph.fWidth;
-    bbox.bottom = glyph.fTop + glyph.fHeight;
-    HRNM(glyphRunAnalysis->CreateAlphaTexture(textureType,
-                                              &bbox,
-                                              fBits.begin(),
-                                              fBits.count()),
-         "Could not draw mask.");
-    return fBits.begin();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 class StreamFontFileLoader : public IDWriteFontFileLoader {
 public:
     // IUnknown methods
@@ -544,10 +446,15 @@ protected:
                                      SkPaint::FontMetrics* mY) SK_OVERRIDE;
 
 private:
-    DWriteOffscreen fOffscreen;
+    const void* drawDWMask(const SkGlyph& glyph);
+
+    SkTDArray<uint8_t> fBits;
     DWRITE_MATRIX fXform;
     SkAutoTUnref<DWriteFontTypeface> fTypeface;
     int fGlyphCount;
+    DWRITE_RENDERING_MODE fRenderingMode;
+    DWRITE_TEXTURE_TYPE fTextureType;
+    DWRITE_MEASURING_MODE fMeasuringMode;
 };
 
 static bool are_same(IUnknown* a, IUnknown* b) {
@@ -676,8 +583,19 @@ SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
     fXform.dx = 0;
     fXform.dy = 0;
 
-    fOffscreen.init(fTypeface->fFactory.get(), fTypeface->fDWriteFontFace.get(),
-                    fXform, SkScalarToFloat(fRec.fTextSize));
+    if (SkMask::kBW_Format == fRec.fMaskFormat) {
+        fRenderingMode = DWRITE_RENDERING_MODE_ALIASED;
+        fTextureType = DWRITE_TEXTURE_ALIASED_1x1;
+        fMeasuringMode = DWRITE_MEASURING_MODE_GDI_CLASSIC;
+    } else {
+        fRenderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC;
+        fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
+        fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
+    }
+
+    if (this->isSubpixel()) {
+        fMeasuringMode = DWRITE_MEASURING_MODE_NATURAL;
+    }
 }
 
 SkScalerContext_DW::~SkScalerContext_DW() {
@@ -708,17 +626,30 @@ void SkScalerContext_DW::generateAdvance(SkGlyph* glyph) {
 
     uint16_t glyphId = glyph->getGlyphID();
     DWRITE_GLYPH_METRICS gm;
-    HRVM(fTypeface->fDWriteFontFace->GetDesignGlyphMetrics(&glyphId, 1, &gm),
-         "Could not get design metrics.");
+
+    if (DWRITE_MEASURING_MODE_GDI_CLASSIC == fMeasuringMode ||
+        DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode)
+    {
+        HRVM(fTypeface->fDWriteFontFace->GetGdiCompatibleGlyphMetrics(
+                 fRec.fTextSize,
+                 1.0f, // pixelsPerDip
+                 &fXform,
+                 DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode,
+                 &glyphId, 1,
+                 &gm),
+             "Could not get gdi compatible glyph metrics.");
+    } else {
+        HRVM(fTypeface->fDWriteFontFace->GetDesignGlyphMetrics(&glyphId, 1, &gm),
+             "Could not get design metrics.");
+    }
 
     DWRITE_FONT_METRICS dwfm;
     fTypeface->fDWriteFontFace->GetMetrics(&dwfm);
-
     SkScalar advanceX = SkScalarMulDiv(fRec.fTextSize,
                                        SkIntToScalar(gm.advanceWidth),
                                        SkIntToScalar(dwfm.designUnitsPerEm));
 
-    if (!(fRec.fFlags & kSubpixelPositioning_Flag)) {
+    if (!this->isSubpixel()) {
         advanceX = SkScalarRoundToScalar(advanceX);
     }
 
@@ -758,31 +689,20 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
     run.isSideways = FALSE;
     run.glyphOffsets = &offset;
 
-    const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
-    DWRITE_RENDERING_MODE renderingMode;
-    DWRITE_TEXTURE_TYPE textureType;
-    if (isBW) {
-        renderingMode = DWRITE_RENDERING_MODE_ALIASED;
-        textureType = DWRITE_TEXTURE_ALIASED_1x1;
-    } else {
-        renderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC;
-        textureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
-    }
-
     SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
     HRVM(fTypeface->fFactory->CreateGlyphRunAnalysis(
              &run,
              1.0f, // pixelsPerDip,
              &fXform,
-             renderingMode,
-             DWRITE_MEASURING_MODE_NATURAL,
+             fRenderingMode,
+             fMeasuringMode,
              0.0f, // baselineOriginX,
              0.0f, // baselineOriginY,
              &glyphRunAnalysis),
          "Could not create glyph run analysis.");
 
     RECT bbox;
-    HRVM(glyphRunAnalysis->GetAlphaTextureBounds(textureType, &bbox),
+    HRVM(glyphRunAnalysis->GetAlphaTextureBounds(fTextureType, &bbox),
          "Could not get texture bounds.");
 
     glyph->fWidth = SkToU16(bbox.right - bbox.left);
@@ -792,7 +712,7 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
 }
 
 void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* mx,
-                                                  SkPaint::FontMetrics* my) {
+                                             SkPaint::FontMetrics* my) {
     if (!(mx || my))
       return;
 
@@ -804,7 +724,17 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* mx,
     }
 
     DWRITE_FONT_METRICS dwfm;
-    fTypeface->fDWriteFontFace->GetMetrics(&dwfm);
+    if (DWRITE_MEASURING_MODE_GDI_CLASSIC == fMeasuringMode ||
+        DWRITE_MEASURING_MODE_GDI_NATURAL == fMeasuringMode)
+    {
+        fTypeface->fDWriteFontFace->GetGdiCompatibleMetrics(
+             fRec.fTextSize,
+             1.0f, // pixelsPerDip
+             &fXform,
+             &dwfm);
+    } else {
+        fTypeface->fDWriteFontFace->GetMetrics(&dwfm);
+    }
 
     SkScalar upem = SkIntToScalar(dwfm.designUnitsPerEm);
     if (mx) {
@@ -931,12 +861,68 @@ static void rgb_to_lcd32(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph,
     }
 }
 
-void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
-    const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
-    const bool isAA = !isLCD(fRec);
+const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph) {
+    int sizeNeeded = glyph.fWidth * glyph.fHeight;
+    if (DWRITE_RENDERING_MODE_ALIASED != fRenderingMode) {
+        sizeNeeded *= 3;
+    }
+    if (sizeNeeded > fBits.count()) {
+        fBits.setCount(sizeNeeded);
+    }
 
+    // erase
+    memset(fBits.begin(), 0, sizeNeeded);
+
+    fXform.dx = SkFixedToFloat(glyph.getSubXFixed());
+    fXform.dy = SkFixedToFloat(glyph.getSubYFixed());
+
+    FLOAT advance = 0.0f;
+
+    UINT16 index = glyph.getGlyphID();
+
+    DWRITE_GLYPH_OFFSET offset;
+    offset.advanceOffset = 0.0f;
+    offset.ascenderOffset = 0.0f;
+
+    DWRITE_GLYPH_RUN run;
+    run.glyphCount = 1;
+    run.glyphAdvances = &advance;
+    run.fontFace = fTypeface->fDWriteFontFace.get();
+    run.fontEmSize = SkScalarToFloat(fRec.fTextSize);
+    run.bidiLevel = 0;
+    run.glyphIndices = &index;
+    run.isSideways = FALSE;
+    run.glyphOffsets = &offset;
+
+    SkTScopedComPtr<IDWriteGlyphRunAnalysis> glyphRunAnalysis;
+    HRNM(fTypeface->fFactory->CreateGlyphRunAnalysis(&run,
+                                          1.0f, // pixelsPerDip,
+                                          &fXform,
+                                          fRenderingMode,
+                                          fMeasuringMode,
+                                          0.0f, // baselineOriginX,
+                                          0.0f, // baselineOriginY,
+                                          &glyphRunAnalysis),
+         "Could not create glyph run analysis.");
+
+    //NOTE: this assumes that the glyph has already been measured
+    //with an exact same glyph run analysis.
+    RECT bbox;
+    bbox.left = glyph.fLeft;
+    bbox.top = glyph.fTop;
+    bbox.right = glyph.fLeft + glyph.fWidth;
+    bbox.bottom = glyph.fTop + glyph.fHeight;
+    HRNM(glyphRunAnalysis->CreateAlphaTexture(fTextureType,
+                                              &bbox,
+                                              fBits.begin(),
+                                              sizeNeeded),
+         "Could not draw mask.");
+    return fBits.begin();
+}
+
+void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     //Create the mask.
-    const void* bits = fOffscreen.draw(glyph, isBW);
+    const void* bits = this->drawDWMask(glyph);
     if (!bits) {
         sk_bzero(glyph.fImage, glyph.computeImageSize());
         return;
@@ -944,9 +930,10 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
 
     //Copy the mask into the glyph.
     const uint8_t* src = (const uint8_t*)bits;
-    if (isBW) {
+    if (DWRITE_RENDERING_MODE_ALIASED == fRenderingMode) {
         bilevel_to_bw(src, glyph);
-    } else if (isAA) {
+        const_cast<SkGlyph&>(glyph).fMaskFormat = SkMask::kBW_Format;
+    } else if (!isLCD(fRec)) {
         if (fPreBlend.isApplicable()) {
             rgb_to_a8<true>(src, glyph, fPreBlend.fG);
         } else {
