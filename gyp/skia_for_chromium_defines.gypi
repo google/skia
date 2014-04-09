@@ -14,7 +14,6 @@
     #
     'skia_for_chromium_defines': [
       'SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS=1',
-      'SK_SUPPORT_LEGACY_GETTOTALCLIP',
       'SK_SUPPORT_LEGACY_GETTOPDEVICE',
     ],
   },
