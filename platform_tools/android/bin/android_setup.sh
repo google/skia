@@ -64,72 +64,6 @@ if [ ! -d "$THIRD_PARTY_EXTERNAL_DIR" ]; then
 	exit 1;
 fi
 
-# Helper function to determine and download the toolchain that we will be using.
-setup_toolchain() {
-  API_LEVEL=14
-  NDK_REV=${NDK_REV-8e}
-  ANDROID_ARCH=${ANDROID_ARCH-arm}
-
-  TOOLCHAIN_DIR=${SCRIPT_DIR}/../toolchains
-  if [ $(uname) == "Darwin" ]; then
-    verbose "Using Mac toolchain."
-    TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-mac_v$API_LEVEL
-  else
-    verbose "Using Linux toolchain."
-    TOOLCHAIN_TYPE=ndk-r$NDK_REV-$ANDROID_ARCH-linux_v$API_LEVEL
-  fi
-  exportVar ANDROID_TOOLCHAIN "${TOOLCHAIN_DIR}/${TOOLCHAIN_TYPE}/bin"
-
-  # if the toolchain doesn't exist on your machine then we need to fetch it
-  if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
-    mkdir -p $TOOLCHAIN_DIR
-    # enter the toolchain directory then download, unpack, and remove the tarball
-    pushd $TOOLCHAIN_DIR
-    TARBALL=ndk-r$NDK_REV-v$API_LEVEL.tgz
-
-    ${SCRIPT_DIR}/download_toolchains.py \
-        http://chromium-skia-gm.commondatastorage.googleapis.com/android-toolchains/$TARBALL \
-        $TOOLCHAIN_DIR/$TARBALL
-    tar -xzf $TARBALL $TOOLCHAIN_TYPE
-    rm $TARBALL
-    popd
-  fi
-
-  if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
-    echo "ERROR: unable to download/setup the required toolchain (${TOOLCHAIN_TYPE})"
-    return 1;
-  fi
-
-  verbose "Targeting NDK API $API_LEVEL for use on Android 4.0 (NDK Revision $NDK_REV) and above"
-
-  GCC=$(command ls $ANDROID_TOOLCHAIN/*-gcc | head -n1)
-  if [ -z "$GCC" ]; then
-    echo "ERROR: Could not find Android cross-compiler in: $ANDROID_TOOLCHAIN"
-    return 1
-  fi
-
-  # Remove the '-gcc' at the end to get the full toolchain prefix
-  ANDROID_TOOLCHAIN_PREFIX=${GCC%%-gcc}
-
-  CCACHE=${ANDROID_MAKE_CCACHE-$(which ccache || true)}
-
-  exportVar CC "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
-  exportVar CXX "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-g++"
-  exportVar LINK "$CCACHE $ANDROID_TOOLCHAIN_PREFIX-gcc"
-
-  exportVar AR "$ANDROID_TOOLCHAIN_PREFIX-ar"
-  exportVar RANLIB "$ANDROID_TOOLCHAIN_PREFIX-ranlib"
-  exportVar OBJCOPY "$ANDROID_TOOLCHAIN_PREFIX-objcopy"
-  exportVar STRIP "$ANDROID_TOOLCHAIN_PREFIX-strip"
-
-  # Create symlinks for nm & readelf and add them to the path so that the ninja
-  # build uses them instead of attempting to use the one on the system.
-  # This is required to build using ninja on a Mac.
-  ln -sf $ANDROID_TOOLCHAIN_PREFIX-nm $ANDROID_TOOLCHAIN/nm
-  ln -sf $ANDROID_TOOLCHAIN_PREFIX-readelf $ANDROID_TOOLCHAIN/readelf
-  exportVar PATH $ANDROID_TOOLCHAIN:$PATH
-}
-
 # Helper function to configure the GYP defines to the appropriate values
 # based on the target device.
 setup_device() {
@@ -208,7 +142,8 @@ setup_device() {
   verbose "The build is targeting the device: $TARGET_DEVICE"
   exportVar DEVICE_ID $TARGET_DEVICE
 
-  setup_toolchain
+  # setup the appropriate cross compiling toolchains
+  source $SCRIPT_DIR/utils/setup_toolchain.sh
 
   DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
 
