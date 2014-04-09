@@ -8,10 +8,6 @@
 #include <dlfcn.h>
 #include <stdio.h>
 
-#ifdef SK_BUILD_FOR_WIN
-    #define snprintf _snprintf
-#endif
-
 void usage() {
     printf("[USAGE] skia_launcher program_name [options]\n");
     printf("  program_name: the skia program you want to launch (e.g. tests, bench)\n");
@@ -36,8 +32,7 @@ void* load_library(const char* appLocation, const char* libraryName)
 {
      // attempt to lookup the location of the shared libraries
     char libraryLocation[100];
-    snprintf(libraryLocation, SK_ARRAY_COUNT(libraryLocation),
-             "%s/lib%s.so", appLocation, libraryName);
+    sprintf(libraryLocation, "%s/lib%s.so", appLocation, libraryName);
     if (!file_exists(libraryLocation)) {
         printf("ERROR: Unable to find the '%s' library in the Skia App.\n", libraryName);
         printf("ERROR: Did you provide the correct program_name?\n");

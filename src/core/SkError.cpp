@@ -14,10 +14,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifdef SK_BUILD_FOR_WIN
-    #define snprintf _snprintf
-#endif
-
 namespace {
     void *CreateThreadError() {
         return SkNEW_ARGS(SkError, (kNoError_SkError));
@@ -133,7 +129,7 @@ void SkErrorInternals::SetError(SkError code, const char *fmt, ...) {
             break;
     }
 
-    snprintf(str, ERROR_STRING_LENGTH, "%s: ", error_name);
+    sprintf( str, "%s: ", error_name );
     int string_left = SkToInt(ERROR_STRING_LENGTH - strlen(str));
     str += strlen(str);
 
