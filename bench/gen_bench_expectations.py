@@ -13,7 +13,7 @@ import sys
 
 # Parameters for calculating bench ranges.
 RANGE_RATIO = 1.0  # Ratio of range for upper and lower bounds.
-ABS_ERR = 1.0  # Additional allowed error in milliseconds.
+ERR_RATIO = 0.05  # Further widens the range by the ratio of average value.
 
 # List of bench configs to monitor. Ignore all other configs.
 CONFIGS_TO_INCLUDE = ['simple_viewport_1000x1000',
@@ -35,9 +35,10 @@ def compute_ranges(benches):
   minimum = min(benches)
   maximum = max(benches)
   diff = maximum - minimum
+  avg = sum(benches) / len(benches)
 
-  return [minimum - diff * RANGE_RATIO - ABS_ERR,
-          maximum + diff * RANGE_RATIO + ABS_ERR]
+  return [minimum - diff * RANGE_RATIO - avg * ERR_RATIO,
+          maximum + diff * RANGE_RATIO + avg * ERR_RATIO]
 
 
 def create_expectations_dict(revision_data_points):
