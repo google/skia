@@ -59,3 +59,7 @@ canvas-layer-state
 # yunchao: https://codereview.chromium.org/204143004/
 # This change add some cases to bitmapshader to avoid potential drawing error for kA8_Config
 bitmapshaders
+
+# bsalomon: This image will change on the GPU due to an accelerated drawDRRect() implementation.
+# https://codereview.chromium.org/220233011/
+drrect

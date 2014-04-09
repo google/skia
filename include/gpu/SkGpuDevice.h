@@ -91,6 +91,8 @@ public:
                           const SkPaint& paint) SK_OVERRIDE;
     virtual void drawRRect(const SkDraw&, const SkRRect& r,
                            const SkPaint& paint) SK_OVERRIDE;
+    virtual void drawDRRect(const SkDraw& draw, const SkRRect& outer,
+                            const SkRRect& inner, const SkPaint& paint) SK_OVERRIDE;
     virtual void drawOval(const SkDraw&, const SkRect& oval,
                           const SkPaint& paint) SK_OVERRIDE;
     virtual void drawPath(const SkDraw&, const SkPath& path,

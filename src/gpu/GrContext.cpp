@@ -1002,9 +1002,9 @@ void GrContext::drawVertices(const GrPaint& paint,
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrContext::drawRRect(const GrPaint& paint,
-                          const SkRRect& rect,
+                          const SkRRect& rrect,
                           const SkStrokeRec& stroke) {
-    if (rect.isEmpty()) {
+    if (rrect.isEmpty()) {
        return;
     }
 
@@ -1014,10 +1014,36 @@ void GrContext::drawRRect(const GrPaint& paint,
 
     GR_CREATE_TRACE_MARKER("GrContext::drawRRect", target);
 
-    if (!fOvalRenderer->drawSimpleRRect(target, this, paint.isAntiAlias(), rect, stroke)) {
+    if (!fOvalRenderer->drawRRect(target, this, paint.isAntiAlias(), rrect, stroke)) {
         SkPath path;
-        path.addRRect(rect);
+        path.addRRect(rrect);
         this->internalDrawPath(target, paint.isAntiAlias(), path, stroke);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void GrContext::drawDRRect(const GrPaint& paint,
+                           const SkRRect& outer,
+                           const SkRRect& inner) {
+    if (outer.isEmpty()) {
+       return;
+    }
+
+    AutoRestoreEffects are;
+    AutoCheckFlush acf(this);
+    GrDrawTarget* target = this->prepareToDraw(&paint, BUFFERED_DRAW, &are, &acf);
+
+    GR_CREATE_TRACE_MARKER("GrContext::drawDRRect", target);
+
+    if (!fOvalRenderer->drawDRRect(target, this, paint.isAntiAlias(), outer, inner)) {
+        SkPath path;
+        path.addRRect(inner);
+        path.addRRect(outer);
+        path.setFillType(SkPath::kEvenOdd_FillType);
+
+        SkStrokeRec fillRec(SkStrokeRec::kFill_InitStyle);
+        this->internalDrawPath(target, paint.isAntiAlias(), path, fillRec);
     }
 }
 

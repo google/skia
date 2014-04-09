@@ -457,9 +457,19 @@ public:
      *  @param rrect        the roundrect to draw
      *  @param stroke       the stroke information (width, join, cap)
      */
-    void drawRRect(const GrPaint& paint,
-                   const SkRRect& rrect,
-                   const SkStrokeRec& stroke);
+    void drawRRect(const GrPaint& paint, const SkRRect& rrect, const SkStrokeRec& stroke);
+
+    /**
+     *  Shortcut for drawing an SkPath consisting of nested rrects using a paint.
+     *  Does not support stroking. The result is undefined if outer does not contain
+     *  inner.
+     *
+     *  @param paint        describes how to color pixels.
+     *  @param outer        the outer roundrect
+     *  @param inner        the inner roundrect
+     */
+    void drawDRRect(const GrPaint& paint, const SkRRect& outer, const SkRRect& inner);
+
 
     /**
      * Draws a path.

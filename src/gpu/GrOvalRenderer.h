@@ -33,8 +33,10 @@ public:
 
     bool drawOval(GrDrawTarget* target, const GrContext* context, bool useAA,
                   const SkRect& oval, const SkStrokeRec& stroke);
-    bool drawSimpleRRect(GrDrawTarget* target, GrContext* context, bool useAA,
-                         const SkRRect& rrect, const SkStrokeRec& stroke);
+    bool drawRRect(GrDrawTarget* target, GrContext* context, bool useAA,
+                   const SkRRect& rrect, const SkStrokeRec& stroke);
+    bool drawDRRect(GrDrawTarget* target, GrContext* context, bool useAA,
+                    const SkRRect& outer, const SkRRect& inner);
 
 private:
     bool drawEllipse(GrDrawTarget* target, bool useCoverageAA,

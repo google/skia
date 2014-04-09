@@ -656,17 +656,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
 
     }
 
-    bool usePath = !rect.isSimple();
-    // another two reasons we might need to call drawPath...
     if (paint.getMaskFilter() || paint.getPathEffect()) {
-        usePath = true;
-    }
-    // until we can rotate rrects...
-    if (!usePath && !fContext->getMatrix().rectStaysRect()) {
-        usePath = true;
-    }
-
-    if (usePath) {
         SkPath path;
         path.addRRect(rect);
         this->drawPath(draw, path, paint, NULL, true);
@@ -675,6 +665,34 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
 
     fContext->drawRRect(grPaint, rect, stroke);
 }
+
+void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
+                              const SkRRect& inner, const SkPaint& paint) {
+    SkStrokeRec stroke(paint);
+    if (stroke.isFillStyle()) {
+
+        CHECK_FOR_ANNOTATION(paint);
+        CHECK_SHOULD_DRAW(draw, false);
+
+        GrPaint grPaint;
+        if (!skPaint2GrPaintShader(this, paint, true, &grPaint)) {
+            return;
+        }
+
+        if (NULL == paint.getMaskFilter() && NULL == paint.getPathEffect()) {
+            fContext->drawDRRect(grPaint, outer, inner);
+            return;
+        }
+    }
+
+    SkPath path;
+    path.addRRect(outer);
+    path.addRRect(inner);
+    path.setFillType(SkPath::kEvenOdd_FillType);
+
+    this->drawPath(draw, path, paint, NULL, true);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 
