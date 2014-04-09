@@ -10501,6 +10501,15 @@
         ]
       ]
     }, 
+    "pictureshader_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3012982612160011296
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "points_565.png": {
       "allowed-digests": [
         [

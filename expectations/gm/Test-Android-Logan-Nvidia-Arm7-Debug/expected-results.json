@@ -207,6 +207,51 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "pictureshader_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12994511397188975534
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "pictureshader_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          18060131563380789045
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "pictureshader_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15881700783330850304
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "pictureshader_msaa16.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16068130794510825896
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "pictureshader_nvprmsaa4.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15881700783330850304
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "rrect_aa_565.png": {
       "allowed-digests": [
         [

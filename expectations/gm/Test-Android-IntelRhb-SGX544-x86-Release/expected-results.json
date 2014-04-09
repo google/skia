@@ -6607,6 +6607,33 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "pictureshader_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9198676987657517428
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "pictureshader_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17117388175840647151
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "pictureshader_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7549768996631810693
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "points_565.png": {
       "allowed-digests": [
         [
