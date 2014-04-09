@@ -59,7 +59,7 @@ bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint) {
         return false;
     }
 
-    // rasterizers and mask filters modify alpha, which doesn't 
+    // rasterizers and mask filters modify alpha, which doesn't
     // translate well to distance
     if (paint.getRasterizer() || paint.getMaskFilter() ||
         !fContext->getTextTarget()->caps()->shaderDerivativeSupport()) {

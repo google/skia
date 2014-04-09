@@ -74,5 +74,3 @@ void SkRecordDraw(const SkRecord& record, SkCanvas* canvas) {
         record.visit(draw.index, draw);
     }
 }
-
-

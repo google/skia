@@ -63,7 +63,7 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
     if (0 == byteLength) {
         return 0;
     }
-    
+
     SkASSERT(text);
 
     int count = 0;  // fix uninitialized warning (even though the switch is complete!)

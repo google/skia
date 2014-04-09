@@ -15,7 +15,7 @@
 static void test_font(skiatest::Reporter* reporter) {
     uint32_t flags = 0;
     SkAutoTUnref<SkFont> font(SkFont::Create(NULL, 24, SkFont::kA8_MaskType, flags));
-    
+
     REPORTER_ASSERT(reporter, NULL != font->getTypeface());
     REPORTER_ASSERT(reporter, 24 == font->getSize());
     REPORTER_ASSERT(reporter, 1 == font->getScaleX());
@@ -33,7 +33,7 @@ static void test_font(skiatest::Reporter* reporter) {
     }
     REPORTER_ASSERT(reporter, glyphs[0] != glyphs[1]); // 'h' != 'e'
     REPORTER_ASSERT(reporter, glyphs[2] == glyphs[3]); // 'l' == 'l'
-    
+
     SkAutoTUnref<SkFont> newFont(font->cloneWithSize(36));
     REPORTER_ASSERT(reporter, newFont.get());
     REPORTER_ASSERT(reporter, font->getTypeface() == newFont->getTypeface());

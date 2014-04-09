@@ -20,9 +20,9 @@ enum SkTextEncoding {
 
 /*
  1. The Hinting enum in SkPaint is gone entirely, absorbed into SkFont's flags.
- 
+
  2. SkPaint Flags look like this today
- 
+
  enum Flags {
      kAntiAlias_Flag       = 0x01,   //!< mask to enable antialiasing
      kDither_Flag          = 0x04,   //!< mask to enable dithering
@@ -40,7 +40,7 @@ enum SkTextEncoding {
  };
 
  SkFont would absorb these:
- 
+
      kFakeBoldText_Flag    = 0x20,   //!< mask to enable fake-bold text
      kLinearText_Flag      = 0x40,   //!< mask to enable linear-text
      kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
@@ -59,10 +59,10 @@ enum SkTextEncoding {
      kStrikeThruText_Flag  = 0x10,   //!< mask to enable strike-thru text
 
  3. Antialiasing
- 
+
     SkFont has a mask-type: BW, AA, LCD
     SkPaint has antialias boolean
- 
+
     What to do if the font's mask-type disagrees with the paint?
 
  */
@@ -136,7 +136,7 @@ private:
     enum {
         kAllFlags = 0xFF,
     };
-    
+
     SkFont(SkTypeface*, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType, uint32_t flags);
     virtual ~SkFont();
 
@@ -148,4 +148,3 @@ private:
     uint8_t     fMaskType;
 //  uint8_t     fPad;
 };
-
