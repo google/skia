@@ -103,7 +103,7 @@
         }],
         [ '(skia_arch_type == "mips") or (skia_arch_type == "arm" and arm_version < 7) \
             or (skia_os == "ios") \
-            or (skia_os == "android" and skia_arch_type not in ["x86", "arm", "mips"])', {
+            or (skia_os == "android" and skia_arch_type not in ["x86", "arm", "mips", "arm64"])', {
           'sources': [
             '../src/opts/SkBitmapProcState_opts_none.cpp',
             '../src/opts/SkBlitMask_opts_none.cpp',

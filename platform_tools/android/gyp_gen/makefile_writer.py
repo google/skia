@@ -195,11 +195,6 @@ def write_android_mk(target_dir, common, deviations_from_common):
     f.write('\tLOCAL_CFLAGS += -DNO_FALLBACK_FONT\n')
     f.write('endif\n\n')
 
-    f.write('ifeq ($(TARGET_ARCH),arm64)\n')
-    f.write('    $(warning TODOArm64: Unlike arm32, arm64 has no inline'
-            ' assembly for performance critical code.)\n')
-    f.write('endif\n\n')
-
     write_local_vars(f, common, False, None)
 
     for data in deviations_from_common:

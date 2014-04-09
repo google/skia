@@ -49,10 +49,6 @@ ifeq ($(NO_FALLBACK_FONT),true)
 	LOCAL_CFLAGS += -DNO_FALLBACK_FONT
 endif
 
-ifeq ($(TARGET_ARCH),arm64)
-    $(warning TODOArm64: Unlike arm32, arm64 has no inline assembly for performance critical code.)
-endif
-
 LOCAL_CFLAGS += \
 	local_cflags
 
