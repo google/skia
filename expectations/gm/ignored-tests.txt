@@ -59,6 +59,3 @@ canvas-layer-state
 # yunchao: https://codereview.chromium.org/204143004/
 # This change add some cases to bitmapshader to avoid potential drawing error for kA8_Config
 bitmapshaders
-
-# Added by kevin.petit@arm.com for https://codereview.chromium.org/181523002/
-gradients_view_perspective
