@@ -230,11 +230,8 @@ public:
             builder->fsCodeAppend("\tfloat test = dot(scaledOffset, scaledOffset) - 1.0;\n");
             builder->fsCodeAppendf("\tvec2 grad = 2.0*scaledOffset*%s.xy;\n", fsRadiiName);
             builder->fsCodeAppend("\tfloat grad_dot = dot(grad, grad);\n");
-            // we need to clamp the length^2 of the gradiant vector to a non-zero value, because
-            // on the Nexus 4 the undefined result of inversesqrt(0) drops out an entire tile
-            if (builder->ctxInfo().caps()->dropsTileOnZeroDivide()) {
-                builder->fsCodeAppend("\tgrad_dot = max(grad_dot, 1.0e-4);\n");
-            }
+            // avoid calling inversesqrt on zero.
+            builder->fsCodeAppend("\tgrad_dot = max(grad_dot, 1.0e-4);\n");
             builder->fsCodeAppend("\tfloat invlen = inversesqrt(grad_dot);\n");
             builder->fsCodeAppend("\tfloat edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);\n");
 
@@ -379,11 +376,8 @@ public:
                                    fsOffsetName0, fsOffsetName0, fsOffsetName0, fsOffsetName0);
 
             builder->fsCodeAppend("\tfloat grad_dot = dot(grad, grad);\n");
-            // we need to clamp the length^2 of the gradiant vector to a non-zero value, because
-            // on the Nexus 4 the undefined result of inversesqrt(0) drops out an entire tile
-            if (builder->ctxInfo().caps()->dropsTileOnZeroDivide()) {
-                builder->fsCodeAppend("\tgrad_dot = max(grad_dot, 1.0e-4);\n");
-            }
+            // avoid calling inversesqrt on zero.
+            builder->fsCodeAppend("\tgrad_dot = max(grad_dot, 1.0e-4);\n");
             builder->fsCodeAppend("\tfloat invlen = inversesqrt(grad_dot);\n");
             if (kHairline == ellipseEffect.getMode()) {
                 // can probably do this with one step
