@@ -13,7 +13,7 @@ struct ProcCoeff {
 
 #define CANNOT_USE_COEFF    SkXfermode::Coeff(-1)
 
-class SkProcCoeffXfermode : public SkProcXfermode {
+class SK_API SkProcCoeffXfermode : public SkProcXfermode {
 public:
     static SkProcCoeffXfermode* Create(const ProcCoeff& rec, Mode mode) {
         return SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));

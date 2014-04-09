@@ -25,7 +25,7 @@ private:
     typedef SkProcCoeffXfermode INHERITED;
 };
 
-SK_API SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl_SSE2(const ProcCoeff& rec,
-                                                                SkXfermode::Mode mode);
+SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl_SSE2(const ProcCoeff& rec,
+                                                         SkXfermode::Mode mode);
 
 #endif // SkXfermode_opts_SSE2_DEFINED

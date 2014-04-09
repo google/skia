@@ -251,7 +251,7 @@ private:
     SkProcXfermode is a xfermode that applies the specified proc to its colors.
     This class is not exported to java.
 */
-class SkProcXfermode : public SkXfermode {
+class SK_API SkProcXfermode : public SkXfermode {
 public:
     static SkProcXfermode* Create(SkXfermodeProc proc) {
         return SkNEW_ARGS(SkProcXfermode, (proc));
