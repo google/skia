@@ -40,7 +40,7 @@ static bool setFont(SkPaint* paint, const char name[]) {
 
 static CGContextRef makeCG(const SkImageInfo& info, const void* addr,
                            size_t rowBytes) {
-    if (kPMColor_SkColorType != info.colorType() || NULL == addr) {
+    if (kN32_SkColorType != info.colorType() || NULL == addr) {
         return NULL;
     }
     CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();

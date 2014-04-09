@@ -282,7 +282,7 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
 
     SkAutoLockPixels locker(source);
     if (!source.readyToDraw() ||
-        source.colorType() != kPMColor_SkColorType) {
+        source.colorType() != kN32_SkColorType) {
         return false;
     }
 

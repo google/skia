@@ -325,7 +325,7 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkBitmap& source, const SkPain
     unsigned alpha = paint.getAlpha();
 
     switch (source.colorType()) {
-        case kPMColor_SkColorType: {
+        case kN32_SkColorType: {
             blitter = allocator->createT<Sprite_D16_S32_BlitRowProc>(source);
             break;
         }

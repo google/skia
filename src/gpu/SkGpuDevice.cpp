@@ -229,7 +229,7 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo
     if (kRGB_565_SkColorType == info.colorType()) {
         info.fAlphaType = kOpaque_SkAlphaType;  // force this setting
     } else {
-        info.fColorType = kPMColor_SkColorType;
+        info.fColorType = kN32_SkColorType;
         if (kOpaque_SkAlphaType != info.alphaType()) {
             info.fAlphaType = kPremul_SkAlphaType;  // force this setting
         }

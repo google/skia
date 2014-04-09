@@ -958,7 +958,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fSlideMenu = new SkOSMenu;
     this->addMenu(fSlideMenu);
 
-    this->setColorType(kPMColor_SkColorType);
+    this->setColorType(kN32_SkColorType);
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
@@ -1449,7 +1449,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 
         SkBaseDevice* device = orig->getDevice();
         SkBitmap bmp;
-        if (device->accessBitmap(false).copyTo(&bmp, kPMColor_SkColorType)) {
+        if (device->accessBitmap(false).copyTo(&bmp, kN32_SkColorType)) {
             static int gSampleGrabCounter;
             SkString name;
             name.printf("sample_grab_%d.png", gSampleGrabCounter++);
@@ -1552,7 +1552,7 @@ static SkColorType gColorTypeCycle[] = {
     kUnknown_SkColorType,           // none -> none
     kUnknown_SkColorType,           // a8 -> none
     kARGB_4444_SkColorType,         // 565 -> 4444
-    kPMColor_SkColorType,           // 4444 -> 8888
+    kN32_SkColorType,               // 4444 -> 8888
     kRGB_565_SkColorType,           // 8888 -> 565
     kRGB_565_SkColorType,           // 8888 -> 565
     kUnknown_SkColorType,           // index8 -> none

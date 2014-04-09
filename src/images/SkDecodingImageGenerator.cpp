@@ -242,7 +242,7 @@ SkImageGenerator* CreateDecodingImageGenerator(
         if (kIndex_8_SkColorType == bitmap.colorType()) {
             // We don't support kIndex8 because we don't support
             // colortables in this workflow.
-            info.fColorType = kPMColor_SkColorType;
+            info.fColorType = kN32_SkColorType;
         }
     } else {
         if (!bitmap.canCopyTo(opts.fRequestedColorType)) {

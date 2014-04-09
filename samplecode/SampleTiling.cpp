@@ -55,7 +55,7 @@ static void setup(SkPaint* paint, const SkBitmap& bm, bool filter,
 }
 
 static const SkColorType gColorTypes[] = {
-    kPMColor_SkColorType,
+    kN32_SkColorType,
     kRGB_565_SkColorType,
 };
 static const int gWidth = 32;
