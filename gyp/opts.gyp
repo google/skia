@@ -56,7 +56,7 @@
             '../src/opts/SkBlurImage_opts_SSE2.cpp',
             '../src/opts/SkMorphology_opts_SSE2.cpp',
             '../src/opts/SkUtils_opts_SSE2.cpp',
-            '../src/opts/SkXfermode_opts_none.cpp',
+            '../src/opts/SkXfermode_opts_SSE2.cpp',
           ],
         }],
         [ 'skia_arch_type == "arm" and arm_version >= 7', {

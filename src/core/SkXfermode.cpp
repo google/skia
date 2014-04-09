@@ -8,6 +8,7 @@
 
 
 #include "SkXfermode.h"
+#include "SkXfermode_opts_SSE2.h"
 #include "SkXfermode_proccoeff.h"
 #include "SkColorPriv.h"
 #include "SkMathPriv.h"
@@ -1996,4 +1997,5 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkXfermode)
 #if !SK_ARM_NEON_IS_NONE
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkNEONProcCoeffXfermode)
 #endif
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkSSE2ProcCoeffXfermode)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
