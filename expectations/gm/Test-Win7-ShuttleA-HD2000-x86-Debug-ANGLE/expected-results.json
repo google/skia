@@ -11544,6 +11544,15 @@
         ]
       ]
     }, 
+    "pictureshader_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          1423899516760376304
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "points_565.png": {
       "allowed-digests": [
         [
