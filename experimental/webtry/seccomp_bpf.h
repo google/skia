@@ -24,11 +24,31 @@
 #include <unistd.h>
 
 #include <sys/prctl.h>
+#ifndef PR_SET_NO_NEW_PRIVS
+# define PR_SET_NO_NEW_PRIVS 38
+#endif
 
 #include <linux/unistd.h>
 #include <linux/audit.h>
 #include <linux/filter.h>
-#include <linux/seccomp.h>
+#ifdef HAVE_LINUX_SECCOMP_H
+# include <linux/seccomp.h>
+#endif
+#ifndef SECCOMP_MODE_FILTER
+# define SECCOMP_MODE_FILTER             2 /* uses user-supplied filter. */
+# define SECCOMP_RET_KILL      0x00000000U /* kill the task immediately */
+# define SECCOMP_RET_TRAP      0x00030000U /* disallow and force a SIGSYS */
+# define SECCOMP_RET_ALLOW     0x7fff0000U /* allow */
+struct seccomp_data {
+    int nr;
+    __u32 arch;
+    __u64 instruction_pointer;
+    __u64 args[6];
+};
+#endif
+#ifndef SYS_SECCOMP
+# define SYS_SECCOMP 1
+#endif
 
 #define syscall_nr (offsetof(struct seccomp_data, nr))
 
