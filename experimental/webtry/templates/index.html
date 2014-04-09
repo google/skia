@@ -4,6 +4,9 @@
     <title>Skia WebTry</title>
     <meta charset='utf-8' />
     <style type="text/css" media="screen">
+        .waiting, .waiting * {
+          cursor: wait;
+        }
         textarea {
             margin-left: 0;
             border: solid 1px #ccc;
@@ -20,20 +23,9 @@
 </head>
 <body>
   <pre><code>#include "SkCanvas.h"
-#include "SkGraphics.h"
-#include "SkImageEncoder.h"
-#include "SkImageInfo.h"
-#include "SkForceLinking.h"
 
-int main() {
-  SkForceLinking(false);
-  SkGraphics::Init();
-
-  SkImageInfo info = SkImageInfo::MakeN32(300, 300, kPremul_SkAlphaType);
-  SkAutoTUnref&lt;SkSurface> surface(SkSurface::NewRaster(info));
-  SkCanvas* canvas = surface->getCanvas();
-
-  <textarea name='code' id='code' rows='20' cols='80'>SkPaint p;
+void draw(SkCanvas* canvas) {
+  <textarea name='code' id='code' rows='15' cols='80'>SkPaint p;
 p.setColor(SK_ColorRED);
 p.setAntiAlias(true);
 p.setStyle(SkPaint::kStroke_Style);
@@ -41,10 +33,6 @@ p.setStrokeWidth(10);
 
 canvas->drawLine(20, 20, 100, 100, p);
 </textarea>
-
-  if (!SkImageEncoder::EncodeFile("foo.png", bitmap, SkImageEncoder::kPNG_Type, 100)) {
-    printf("Failed to encode\n");
-  }
 }
 </code></pre>
 
@@ -61,6 +49,16 @@ canvas->drawLine(20, 20, 100, 100, p);
       var output = document.getElementById('output');
       var img = document.getElementById('img');
 
+      function beginWait() {
+        document.body.classList.add('waiting');
+        run.disabled = true;
+      }
+
+      function endWait() {
+        document.body.classList.remove('waiting');
+        run.disabled = false;
+      }
+
       function codeComplete(e) {
         // The response is JSON of the form:
         // {
@@ -70,28 +68,31 @@ canvas->drawLine(20, 20, 100, 100, p);
         //
         // The img is optional and only appears if there is a valid
         // image to display.
+        endWait();
         console.log(e.target.response);
         body = JSON.parse(e.target.response);
         output.innerText = body.message;
         if (body.hasOwnProperty('img')) {
-            img.src = 'data:image/png;base64,' + body.img;
+          img.src = 'data:image/png;base64,' + body.img;
         } else {
-            img.src = '';
+          img.src = '';
         }
       }
 
       function codeError(e) {
+        endWait();
         alert('Something bad happened: ' + e);
       }
 
       run.addEventListener('click', onSubmitCode);
       function onSubmitCode() {
-          var req = new XMLHttpRequest();
-          req.addEventListener('load', codeComplete);
-          req.addEventListener('error', codeError);
-          req.overrideMimeType('application/json');
-          req.open('POST', '.', true);
-          req.send(code.value);
+        beginWait();
+        var req = new XMLHttpRequest();
+        req.addEventListener('load', codeComplete);
+        req.addEventListener('error', codeError);
+        req.overrideMimeType('application/json');
+        req.open('POST', '.', true);
+        req.send(code.value);
       }
   </script>
 </body>
