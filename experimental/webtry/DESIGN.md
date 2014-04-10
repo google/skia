@@ -25,7 +25,7 @@ for example runtime is limited to 5s of CPU.
 
 User submitted code is also restricted in the following ways:
   * Limited to 10K of code total.
-  * No preprocessor use is allowed (no lines can begin with \s*#).
+  * No preprocessor use is allowed (no lines can begin with #includes).
 
 
 Architecture
@@ -34,36 +34,36 @@ Architecture
 The server runs on GCE, and consists of a Go Web Server that calls out to the
 c++ compiler and executes code in a chroot jail. See the diagram below:
 
-                           
-   +–––––––––––––+         
-   |             |         
-   |  Browser    |         
-   |             |         
-   +––––––+––––––+         
-          |                
-   +––––––+––––––+         
-   |             |         
-   |             |         
-   | Web Server  |         
-   |             |         
-   |   (Go)      |         
-   |             |         
-   |             |         
-   +–––––––+–––––+         
-           |               
-   +–––––––+––––––––––+    
-   | chroot jail      |    
-   |  +––––––––––––––+|    
-   |  | seccomp      ||    
-   |  |  +––––––––––+||    
-   |  |  |User code |||    
-   |  |  |          |||    
-   |  |  +----------+||    
-   |  +––------------+|    
-   |                  |    
-   +––––––––––––––––––+    
-                           
-                           
+                             
+     +–––––––––––––+         
+     |             |         
+     |  Browser    |         
+     |             |         
+     +––––––+––––––+         
+            |                
+     +––––––+––––––+         
+     |             |         
+     |             |         
+     | Web Server  |         
+     |             |         
+     |   (Go)      |         
+     |             |         
+     |             |         
+     +–––––––+–––––+         
+             |               
+     +–––––––+––––––––––+    
+     | chroot jail      |    
+     |  +––––––––––––––+|    
+     |  | seccomp      ||    
+     |  |  +––––––––––+||    
+     |  |  |User code |||    
+     |  |  |          |||    
+     |  |  +––––––––––+||    
+     |  +––––––––––––––+|    
+     |                  |    
+     +––––––––––––––––––+    
+                             
+
 The user code is expanded into a simple template and linked against libskia
 and a couple other .o files that contain main() and the code that sets up the
 seccomp and rlimit restrictions. This code also sets up the SkCanvas that is
