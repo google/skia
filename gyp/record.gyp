@@ -6,16 +6,19 @@
         'include_dirs': [
             '../include/config',
             '../include/core',
+            '../include/record',
         ],
         'direct_dependent_settings': {
             'include_dirs': [
-                '../src/record',
+                '../include/record',   # World-public headers.
+                '../src/record',       # Skia-public headers.
             ],
         },
         'sources': [
-            '../src/record/SkRecorder.cpp',
             '../src/record/SkRecordCulling.cpp',
             '../src/record/SkRecordDraw.cpp',
+            '../src/record/SkRecorder.cpp',
+            '../src/record/SkRecording.cpp',
         ],
     }]
 }
