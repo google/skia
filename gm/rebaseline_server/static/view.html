@@ -345,7 +345,7 @@
               <a href="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_A_URL]}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    width="{{imageSize}}"
-                   src="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_A_URL]}}" />
+                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_A_URL]}}" />
             </div>
             <div ng-show="imagePair[constants.KEY__IMAGE_A_URL] == null"
                  style="text-align:center">
@@ -359,7 +359,7 @@
               <a href="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_B_URL]}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    width="{{imageSize}}"
-                   src="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_B_URL]}}" />
+                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_B_URL]}}" />
             </div>
             <div ng-show="imagePair[constants.KEY__IMAGE_B_URL] == null"
                  style="text-align:center">
@@ -378,7 +378,7 @@
               <a href="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    width="{{imageSize}}"
-                   src="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
+                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
             </div>
             <div ng-show="!imagePair[constants.KEY__IS_DIFFERENT]"
                  style="text-align:center">
@@ -398,7 +398,7 @@
               <img ng-if="showThumbnails"
                    ng-style="{backgroundColor: pixelDiffBgColor}"
                    width="{{imageSize}}"
-                   src="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
+                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
             </div>
             <div ng-show="!imagePair[constants.KEY__IS_DIFFERENT]"
                  style="text-align:center">
