@@ -24,14 +24,25 @@ namespace sk_tools {
     // not be on the GPU.
     void force_all_opaque(const SkBitmap& bitmap);
 
+    /**
+     * Replaces all instances of oldChar with newChar in str.
+     *
+     * TODO: This function appears here and in skimage_main.cpp ;
+     * we should add the implementation to src/core/SkString.cpp, write tests for it,
+     * and remove it from elsewhere.
+     */
+    void replace_char(SkString* str, const char oldChar, const char newChar);
+
     // Creates a posix style filepath by concatenating name onto dir with a
     // forward slash into path.
+    // TODO(epoger): delete in favor of SkOSPath::SkPathJoin()?
     void make_filepath(SkString* path, const SkString&, const SkString& name);
 
     // Returns the last part of the path (file name or leaf directory name)
     //
     // This basically just looks for a foward slash or backslash (windows
     // only).
+    // TODO(epoger): delete in favor of SkOSPath::SkBasename()?
     void get_basename(SkString* basename, const SkString& path);
 
     // Returns true if the string ends with %

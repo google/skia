@@ -21,6 +21,11 @@ import base_unittest
 # Maximum length of text diffs to show when tests fail
 MAX_DIFF_LENGTH = 30000
 
+EXPECTED_HEADER_CONTENTS = {
+    "type" : "ChecksummedImages",
+    "revision" : 1,
+}
+
 
 class RenderPicturesTest(base_unittest.TestCase):
 
@@ -38,9 +43,9 @@ class RenderPicturesTest(base_unittest.TestCase):
     output_json_path = os.path.join(self._temp_dir, 'output.json')
     self._generate_skps()
     # TODO(epoger): I noticed that when this is run without --writePath being
-    # specified, this test writes red.png and green.png to the current working
+    # specified, this test writes red_skp.png and green_skp.png to the current
     # directory.  We should fix that... if --writePath is not specified, this
-    # probably shouldn't write out red.png and green.png at all!
+    # probably shouldn't write out red_skp.png and green_skp.png at all!
     self._run_render_pictures(['-r', self._input_skp_dir,
                                '--bbh', 'grid', '256', '256',
                                '--mode', 'tile', '256', '256',
@@ -48,18 +53,31 @@ class RenderPicturesTest(base_unittest.TestCase):
                                '--writePath', self._temp_dir,
                                '--writeWholeImage'])
     expected_summary_dict = {
+        "header" : EXPECTED_HEADER_CONTENTS,
         "actual-results" : {
-            "no-comparison" : {
+            "red.skp": {
                 # Manually verified: 640x400 red rectangle with black border
-                "red.png" : [ "bitmap-64bitMD5", 11092453015575919668 ],
+                "whole-image": {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 11092453015575919668,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp.png",
+                },
+            },
+            "green.skp": {
                 # Manually verified: 640x400 green rectangle with black border
-                "green.png" : [ "bitmap-64bitMD5", 8891695120562235492 ],
+                "whole-image": {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 8891695120562235492,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp.png",
+                },
             }
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
     self._assert_directory_contents(
-        self._temp_dir, ['red.png', 'green.png', 'output.json'])
+        self._temp_dir, ['red_skp.png', 'green_skp.png', 'output.json'])
 
   def test_untiled(self):
     """Run without tiles."""
@@ -68,19 +86,34 @@ class RenderPicturesTest(base_unittest.TestCase):
     self._run_render_pictures(['-r', self._input_skp_dir,
                                '--writePath', self._temp_dir,
                                '--writeJsonSummaryPath', output_json_path])
+    # TODO(epoger): These expectations are the same as for above unittest.
+    # Define the expectations once, and share them.
     expected_summary_dict = {
+        "header" : EXPECTED_HEADER_CONTENTS,
         "actual-results" : {
-            "no-comparison" : {
+            "red.skp": {
                 # Manually verified: 640x400 red rectangle with black border
-                "red.png" : ["bitmap-64bitMD5", 11092453015575919668],
+                "whole-image": {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 11092453015575919668,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp.png",
+                },
+            },
+            "green.skp": {
                 # Manually verified: 640x400 green rectangle with black border
-                "green.png" : ["bitmap-64bitMD5", 8891695120562235492],
+                "whole-image": {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 8891695120562235492,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp.png",
+                },
             }
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
     self._assert_directory_contents(
-        self._temp_dir, ['red.png', 'green.png', 'output.json'])
+        self._temp_dir, ['red_skp.png', 'green_skp.png', 'output.json'])
 
   def test_untiled_writeChecksumBasedFilenames(self):
     """Same as test_untiled, but with --writeChecksumBasedFilenames."""
@@ -91,20 +124,37 @@ class RenderPicturesTest(base_unittest.TestCase):
                                '--writePath', self._temp_dir,
                                '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
+        "header" : EXPECTED_HEADER_CONTENTS,
         "actual-results" : {
-            "no-comparison" : {
+            "red.skp": {
                 # Manually verified: 640x400 red rectangle with black border
-                "red.png" : ["bitmap-64bitMD5", 11092453015575919668],
+                "whole-image": {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 11092453015575919668,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp/bitmap-64bitMD5_11092453015575919668.png",
+                },
+            },
+            "green.skp": {
                 # Manually verified: 640x400 green rectangle with black border
-                "green.png" : ["bitmap-64bitMD5", 8891695120562235492],
+                "whole-image": {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 8891695120562235492,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp/bitmap-64bitMD5_8891695120562235492.png",
+                },
             }
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
+    self._assert_directory_contents(self._temp_dir, [
+        'red_skp', 'green_skp', 'output.json'])
     self._assert_directory_contents(
-        self._temp_dir, ['bitmap-64bitMD5_11092453015575919668.png',
-                         'bitmap-64bitMD5_8891695120562235492.png',
-                         'output.json'])
+        os.path.join(self._temp_dir, 'red_skp'),
+        ['bitmap-64bitMD5_11092453015575919668.png'])
+    self._assert_directory_contents(
+        os.path.join(self._temp_dir, 'green_skp'),
+        ['bitmap-64bitMD5_8891695120562235492.png'])
 
   def test_untiled_validate(self):
     """Same as test_untiled, but with --validate.
@@ -135,9 +185,8 @@ class RenderPicturesTest(base_unittest.TestCase):
     self._run_render_pictures(['-r', self._input_skp_dir,
                                '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
-        "actual-results" : {
-            "no-comparison" : None,
-        }
+        "header" : EXPECTED_HEADER_CONTENTS,
+        "actual-results" : None,
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
 
@@ -151,35 +200,90 @@ class RenderPicturesTest(base_unittest.TestCase):
                                '--writePath', self._temp_dir,
                                '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
+        "header" : EXPECTED_HEADER_CONTENTS,
         "actual-results" : {
-            "no-comparison" : {
+            "red.skp": {
                 # Manually verified these 6 images, all 256x256 tiles,
                 # consistent with a tiled version of the 640x400 red rect
                 # with black borders.
-                "red0.png" : ["bitmap-64bitMD5", 5815827069051002745],
-                "red1.png" : ["bitmap-64bitMD5", 9323613075234140270],
-                "red2.png" : ["bitmap-64bitMD5", 16670399404877552232],
-                "red3.png" : ["bitmap-64bitMD5", 2507897274083364964],
-                "red4.png" : ["bitmap-64bitMD5", 7325267995523877959],
-                "red5.png" : ["bitmap-64bitMD5", 2181381724594493116],
+                "tiled-images": [{
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 5815827069051002745,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile0.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 9323613075234140270,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile1.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 16670399404877552232,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile2.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 2507897274083364964,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile3.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 7325267995523877959,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile4.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 2181381724594493116,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile5.png",
+                }],
+            },
+            "green.skp": {
                 # Manually verified these 6 images, all 256x256 tiles,
                 # consistent with a tiled version of the 640x400 green rect
                 # with black borders.
-                "green0.png" : ["bitmap-64bitMD5", 12587324416545178013],
-                "green1.png" : ["bitmap-64bitMD5", 7624374914829746293],
-                "green2.png" : ["bitmap-64bitMD5", 5686489729535631913],
-                "green3.png" : ["bitmap-64bitMD5", 7980646035555096146],
-                "green4.png" : ["bitmap-64bitMD5", 17817086664365875131],
-                "green5.png" : ["bitmap-64bitMD5", 10673669813016809363],
+                "tiled-images": [{
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 12587324416545178013,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile0.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 7624374914829746293,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile1.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 5686489729535631913,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile2.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 7980646035555096146,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile3.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 17817086664365875131,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile4.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 10673669813016809363,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile5.png",
+                }],
             }
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
     self._assert_directory_contents(
         self._temp_dir,
-        ['red0.png', 'red1.png', 'red2.png', 'red3.png', 'red4.png', 'red5.png',
-         'green0.png', 'green1.png', 'green2.png', 'green3.png', 'green4.png',
-         'green5.png', 'output.json'])
+        ['red_skp-tile0.png', 'red_skp-tile1.png', 'red_skp-tile2.png',
+         'red_skp-tile3.png', 'red_skp-tile4.png', 'red_skp-tile5.png',
+         'green_skp-tile0.png', 'green_skp-tile1.png', 'green_skp-tile2.png',
+         'green_skp-tile3.png', 'green_skp-tile4.png', 'green_skp-tile5.png',
+         'output.json'])
 
   def test_tiled_writeChecksumBasedFilenames(self):
     """Same as test_tiled, but with --writeChecksumBasedFilenames."""
@@ -192,45 +296,101 @@ class RenderPicturesTest(base_unittest.TestCase):
                                '--writePath', self._temp_dir,
                                '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
+        "header" : EXPECTED_HEADER_CONTENTS,
         "actual-results" : {
-            "no-comparison" : {
+            "red.skp": {
                 # Manually verified these 6 images, all 256x256 tiles,
                 # consistent with a tiled version of the 640x400 red rect
                 # with black borders.
-                "red0.png" : ["bitmap-64bitMD5", 5815827069051002745],
-                "red1.png" : ["bitmap-64bitMD5", 9323613075234140270],
-                "red2.png" : ["bitmap-64bitMD5", 16670399404877552232],
-                "red3.png" : ["bitmap-64bitMD5", 2507897274083364964],
-                "red4.png" : ["bitmap-64bitMD5", 7325267995523877959],
-                "red5.png" : ["bitmap-64bitMD5", 2181381724594493116],
+                "tiled-images": [{
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 5815827069051002745,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp/bitmap-64bitMD5_5815827069051002745.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 9323613075234140270,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp/bitmap-64bitMD5_9323613075234140270.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 16670399404877552232,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp/bitmap-64bitMD5_16670399404877552232.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 2507897274083364964,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp/bitmap-64bitMD5_2507897274083364964.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 7325267995523877959,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp/bitmap-64bitMD5_7325267995523877959.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 2181381724594493116,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp/bitmap-64bitMD5_2181381724594493116.png",
+                }],
+            },
+            "green.skp": {
                 # Manually verified these 6 images, all 256x256 tiles,
                 # consistent with a tiled version of the 640x400 green rect
                 # with black borders.
-                "green0.png" : ["bitmap-64bitMD5", 12587324416545178013],
-                "green1.png" : ["bitmap-64bitMD5", 7624374914829746293],
-                "green2.png" : ["bitmap-64bitMD5", 5686489729535631913],
-                "green3.png" : ["bitmap-64bitMD5", 7980646035555096146],
-                "green4.png" : ["bitmap-64bitMD5", 17817086664365875131],
-                "green5.png" : ["bitmap-64bitMD5", 10673669813016809363],
+                "tiled-images": [{
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 12587324416545178013,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp/bitmap-64bitMD5_12587324416545178013.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 7624374914829746293,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp/bitmap-64bitMD5_7624374914829746293.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 5686489729535631913,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp/bitmap-64bitMD5_5686489729535631913.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 7980646035555096146,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp/bitmap-64bitMD5_7980646035555096146.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 17817086664365875131,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp/bitmap-64bitMD5_17817086664365875131.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 10673669813016809363,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp/bitmap-64bitMD5_10673669813016809363.png",
+                }],
             }
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
+    self._assert_directory_contents(self._temp_dir, [
+        'red_skp', 'green_skp', 'output.json'])
     self._assert_directory_contents(
-        self._temp_dir,
+        os.path.join(self._temp_dir, 'red_skp'),
         ['bitmap-64bitMD5_5815827069051002745.png',
          'bitmap-64bitMD5_9323613075234140270.png',
          'bitmap-64bitMD5_16670399404877552232.png',
          'bitmap-64bitMD5_2507897274083364964.png',
          'bitmap-64bitMD5_7325267995523877959.png',
-         'bitmap-64bitMD5_2181381724594493116.png',
-         'bitmap-64bitMD5_12587324416545178013.png',
+         'bitmap-64bitMD5_2181381724594493116.png'])
+    self._assert_directory_contents(
+        os.path.join(self._temp_dir, 'green_skp'),
+        ['bitmap-64bitMD5_12587324416545178013.png',
          'bitmap-64bitMD5_7624374914829746293.png',
          'bitmap-64bitMD5_5686489729535631913.png',
          'bitmap-64bitMD5_7980646035555096146.png',
          'bitmap-64bitMD5_17817086664365875131.png',
-         'bitmap-64bitMD5_10673669813016809363.png',
-         'output.json'])
+         'bitmap-64bitMD5_10673669813016809363.png'])
 
   def _run_render_pictures(self, args):
     binary = self.find_path_to_program('render_pictures')

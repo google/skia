@@ -464,8 +464,11 @@ static void test_stream_without_length(const char srcPath[], SkImageDecoder* cod
 #endif // defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_UNIX)
 
 /**
- *  Replace all instances of oldChar with newChar in str.
- *  TODO: Add this function to SkString and write tests for it.
+ * Replaces all instances of oldChar with newChar in str.
+ *
+ * TODO: This function appears here and in picture_utils.[cpp|h] ;
+ * we should add the implementation to src/core/SkString.cpp, write tests for it,
+ * and remove it from elsewhere.
  */
 static void replace_char(SkString* str, const char oldChar, const char newChar) {
     if (NULL == str) {

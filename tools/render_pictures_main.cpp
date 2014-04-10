@@ -48,13 +48,6 @@ DEFINE_bool(bench_record, false, "If true, drop into an infinite loop of recordi
 
 DEFINE_bool(preprocess, false, "If true, perform device specific preprocessing before rendering.");
 
-static void make_output_filepath(SkString* path, const SkString& dir,
-                                 const SkString& name) {
-    sk_tools::make_filepath(path, dir, name);
-    // Remove ".skp"
-    path->remove(path->size() - 4, 4);
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -348,28 +341,21 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
     if (FLAGS_writeWholeImage) {
         sk_tools::force_all_opaque(*bitmap);
 
+        // TODO(epoger): It would be better for the filename (without outputDir) to be passed in
+        // here, and used both for the checksum file and writing into outputDir.
+        SkString inputFilename, outputPath;
+        sk_tools::get_basename(&inputFilename, inputPath);
+        sk_tools::make_filepath(&outputPath, *outputDir, inputFilename);
+        sk_tools::replace_char(&outputPath, '.', '_');
+        outputPath.append(".png");
+
         if (NULL != jsonSummaryPtr) {
-            // TODO(epoger): This is a hacky way of constructing the filename associated with the
-            // image checksum; we basically are repeating the logic of make_output_filepath()
-            // and code below here, within here.
-            // It would be better for the filename (without outputDir) to be passed in here,
-            // and used both for the checksum file and writing into outputDir.
-            //
-            // TODO(epoger): what about including the config type within hashFilename?  That way,
-            // we could combine results of different config types without conflicting filenames.
-            SkString hashFilename;
-            sk_tools::get_basename(&hashFilename, inputPath);
-            hashFilename.remove(hashFilename.size() - 4, 4); // Remove ".skp"
-            hashFilename.append(".png");
-            jsonSummaryPtr->add(hashFilename.c_str(), *bitmap);
+            SkString outputFileBasename;
+            sk_tools::get_basename(&outputFileBasename, outputPath);
+            jsonSummaryPtr->add(inputFilename.c_str(), outputFileBasename.c_str(), *bitmap);
         }
 
         if (NULL != outputDir) {
-            SkString inputFilename;
-            sk_tools::get_basename(&inputFilename, inputPath);
-            SkString outputPath;
-            make_output_filepath(&outputPath, *outputDir, inputFilename);
-            outputPath.append(".png");
             if (!SkImageEncoder::EncodeFile(outputPath.c_str(), *bitmap,
                                             SkImageEncoder::kPNG_Type, 100)) {
                 SkDebugf("Failed to draw the picture.\n");

@@ -36,6 +36,17 @@ namespace sk_tools {
         }
     }
 
+    void replace_char(SkString* str, const char oldChar, const char newChar) {
+        if (NULL == str) {
+            return;
+        }
+        for (size_t i = 0; i < str->size(); ++i) {
+            if (oldChar == str->operator[](i)) {
+                str->operator[](i) = newChar;
+            }
+        }
+    }
+
     void make_filepath(SkString* path, const SkString& dir, const SkString& name) {
         size_t len = dir.size();
         path->set(dir);
