@@ -395,7 +395,7 @@ static inline const char* SkColorType_to_string(SkColorType colorType) {
         case kAlpha_8_SkColorType:   return "Alpha_8";
         case kRGB_565_SkColorType:   return "RGB_565";
         case kARGB_4444_SkColorType: return "ARGB_4444";
-        case kPMColor_SkColorType:   return "PMColor";
+        case kN32_SkColorType:       return "N32";
         case kBackwards_SkColorType: return "Backwards";
         case kIndex_8_SkColorType:   return "Index_8";
         default:                     return "ERROR";
@@ -537,7 +537,7 @@ DEF_TEST(ImageDecoderOptions, reporter) {
         kAlpha_8_SkColorType,
         kRGB_565_SkColorType,
         kARGB_4444_SkColorType,  // Most decoders will fail on 4444.
-        kPMColor_SkColorType
+        kN32_SkColorType
         // Note that indexed color is left out of the list.  Lazy
         // decoding doesn't do indexed color.
     };

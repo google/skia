@@ -337,7 +337,7 @@ static FPSState gFPS;
         fWind = new SampleWindow(self, 1, &kDummyArgv, fDevManager);
 
         fWind->resize(self.frame.size.width, self.frame.size.height,
-                      kPMColor_SkColorType);
+                      kN32_SkColorType);
     }
     return self;
 }

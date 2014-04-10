@@ -268,7 +268,7 @@ public:
     static void force_all_opaque(const SkBitmap& bitmap) {
         SkColorType colorType = bitmap.colorType();
         switch (colorType) {
-        case kPMColor_SkColorType:
+        case kN32_SkColorType:
             force_all_opaque_8888(bitmap);
             break;
         case kRGB_565_SkColorType:
@@ -294,7 +294,7 @@ public:
         // from this method, we should be able to get rid of the
         // transformation to 8888 format also.
         SkBitmap copy;
-        bitmap.copyTo(&copy, kPMColor_SkColorType);
+        bitmap.copyTo(&copy, kN32_SkColorType);
         if (!SkImageEncoder::EncodeFile(path.c_str(), copy,
                                         SkImageEncoder::kPNG_Type,
                                         100)) {
@@ -740,8 +740,8 @@ public:
             return;
         }
 
-        if ((kPMColor_SkColorType != expectedBitmap.colorType()) ||
-            (kPMColor_SkColorType != actualBitmap.colorType())) {
+        if ((kN32_SkColorType != expectedBitmap.colorType()) ||
+            (kN32_SkColorType != actualBitmap.colorType())) {
             SkDebugf("---- %s: not computing max per-channel pixel mismatch because non-8888\n",
                      testName);
             return;

@@ -80,11 +80,15 @@ enum SkColorType {
     kLastEnum_SkColorType = kIndex_8_SkColorType,
 
 #if SK_PMCOLOR_BYTE_ORDER(B,G,R,A)
-    kPMColor_SkColorType = kBGRA_8888_SkColorType
+    kN32_SkColorType = kBGRA_8888_SkColorType,
 #elif SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
-    kPMColor_SkColorType = kRGBA_8888_SkColorType
+    kN32_SkColorType = kRGBA_8888_SkColorType,
 #else
 #error "SK_*32_SHFIT values must correspond to BGRA or RGBA byte order"
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_N32_NAME
+    kPMColor_SkColorType = kN32_SkColorType
 #endif
 };
 
@@ -136,7 +140,7 @@ struct SkImageInfo {
      */
     static SkImageInfo MakeN32(int width, int height, SkAlphaType at) {
         SkImageInfo info = {
-            width, height, kPMColor_SkColorType, at
+            width, height, kN32_SkColorType, at
         };
         return info;
     }
@@ -146,7 +150,7 @@ struct SkImageInfo {
      */
     static SkImageInfo MakeN32Premul(int width, int height) {
         SkImageInfo info = {
-            width, height, kPMColor_SkColorType, kPremul_SkAlphaType
+            width, height, kN32_SkColorType, kPremul_SkAlphaType
         };
         return info;
     }
