@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#if SK_SUPPORT_GPU
 #include "SkTwoPointConicalGradient_gpu.h"
 #include "GrTBackendEffectFactory.h"
 
 #include "SkTwoPointConicalGradient.h"
 
+#if SK_SUPPORT_GPU
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 
