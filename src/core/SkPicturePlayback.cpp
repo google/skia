@@ -151,13 +151,15 @@ static bool needs_deep_copy(const SkPaint& paint) {
      *  getAnnotation()
      *  paint.getColorFilter()
      *  getXfermode()
+     *  getPathEffect()
+     *  getMaskFilter()
      */
 
-    return paint.getPathEffect() ||
-           paint.getShader() ||
-           paint.getMaskFilter() ||
+    return paint.getShader() ||
+#ifdef SK_SUPPORT_LEGACY_LAYERRASTERIZER_API
            paint.getRasterizer() ||
-           paint.getLooper() ||
+#endif
+           paint.getLooper() || // needs to hide its addLayer...
            paint.getImageFilter();
 }
 
