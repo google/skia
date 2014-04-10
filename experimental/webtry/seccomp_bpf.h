@@ -53,13 +53,13 @@ struct seccomp_data {
 #define syscall_nr (offsetof(struct seccomp_data, nr))
 
 #define EXAMINE_SYSCALL \
-	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, syscall_nr)
+    BPF_STMT(BPF_LD+BPF_W+BPF_ABS, syscall_nr)
 
 #define ALLOW_SYSCALL(name) \
-	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, __NR_##name, 0, 1), \
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+    BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, __NR_##name, 0, 1), \
+    BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
 
 #define KILL_PROCESS \
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
+    BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
 
 #endif /* _SECCOMP_BPF_H_ */
