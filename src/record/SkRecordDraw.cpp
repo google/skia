@@ -37,13 +37,20 @@ template <> void Draw::operator()(const SkRecords::PushCull& r) {
     template <> void Draw::operator()(const SkRecords::T& r) { fCanvas->call; this->updateClip(); }
 CASE(Restore, restore());
 CASE(SaveLayer, saveLayer(r.bounds, r.paint, r.flags));
+#undef CASE
+
+// These certainly do change the clip,
+// but we can skip them if they're intersecting with a clip that's already empty.
+#define CASE(T, call)  template <> void Draw::operator()(const SkRecords::T& r) {                \
+    if (!(fClipEmpty && SkRegion::kIntersect_Op == r.op)) { fCanvas->call; this->updateClip(); } \
+}
 CASE(ClipPath, clipPath(r.path, r.op, r.doAA));
 CASE(ClipRRect, clipRRect(r.rrect, r.op, r.doAA));
 CASE(ClipRect, clipRect(r.rect, r.op, r.doAA));
 CASE(ClipRegion, clipRegion(r.region, r.op));
 #undef CASE
 
-// Commands which must run regardless of the clip.
+// Commands which must run regardless of the clip, but don't change it themselves.
 #define CASE(T, call) \
     template <> void Draw::operator()(const SkRecords::T& r) { fCanvas->call; }
 CASE(Save, save(r.flags));
