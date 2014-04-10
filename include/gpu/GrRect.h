@@ -14,10 +14,18 @@
 struct GrIRect16 {
     int16_t fLeft, fTop, fRight, fBottom;
 
+    static GrIRect16 SK_WARN_UNUSED_RESULT MakeEmpty() {
+        GrIRect16 r;
+        r.setEmpty();
+        return r;
+    }
+
     int width() const { return fRight - fLeft; }
     int height() const { return fBottom - fTop; }
     int area() const { return this->width() * this->height(); }
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
+
+    void setEmpty() { memset(this, 0, sizeof(*this)); }
 
     void set(const SkIRect& r) {
         fLeft   = SkToS16(r.fLeft);
