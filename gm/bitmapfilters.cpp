@@ -87,7 +87,7 @@ class FilterGM : public GM {
         make_bm(&fBM8);
         fBM8.copyTo(&fBM4444, kARGB_4444_SkColorType);
         fBM8.copyTo(&fBM16, kRGB_565_SkColorType);
-        fBM8.copyTo(&fBM32, kN32_SkColorType);
+        fBM8.copyTo(&fBM32, kPMColor_SkColorType);
     }
 public:
     SkBitmap    fBM8, fBM4444, fBM16, fBM32;

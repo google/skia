@@ -30,7 +30,7 @@ static void init_bitmap(SkColorType ct, SkBitmap* bitmap) {
 
 static SkBitmap make_argb8888_gradient() {
     SkBitmap bitmap;
-    init_bitmap(kN32_SkColorType, &bitmap);
+    init_bitmap(kPMColor_SkColorType, &bitmap);
     uint8_t rowColor = 0;
     for (int y = 0; y < SLIDE_SIZE; y++) {
         uint32_t* dst = bitmap.getAddr32(0, y);
@@ -64,7 +64,7 @@ static SkBitmap make_argb4444_gradient() {
 
 static SkBitmap make_argb8888_stripes() {
     SkBitmap bitmap;
-    init_bitmap(kN32_SkColorType, &bitmap);
+    init_bitmap(kPMColor_SkColorType, &bitmap);
     uint8_t rowColor = 0;
     for (int y = 0; y < SLIDE_SIZE; y++) {
         uint32_t* dst = bitmap.getAddr32(0, y);

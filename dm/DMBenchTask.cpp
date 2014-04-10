@@ -63,7 +63,7 @@ static void draw_raster(SkBenchmark* bench, SkColorType colorType) {
 }
 
 void NonRenderingBenchTask::draw() {
-    draw_raster(fBench.get(), kN32_SkColorType);
+    draw_raster(fBench.get(), kPMColor_SkColorType);
 }
 
 void CpuBenchTask::draw() {
@@ -73,7 +73,7 @@ void CpuBenchTask::draw() {
 void GpuBenchTask::draw(GrContextFactory* grFactory) {
     SkImageInfo info = SkImageInfo::Make(fBench->getSize().x(),
                                          fBench->getSize().y(),
-                                         kN32_SkColorType,
+                                         kPMColor_SkColorType,
                                          kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(NewGpuSurface(grFactory, fContextType, info, fSampleCount));
 

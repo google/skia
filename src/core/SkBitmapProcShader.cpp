@@ -22,7 +22,7 @@ bool SkBitmapProcShader::CanDo(const SkBitmap& bm, TileMode tx, TileMode ty) {
         case kAlpha_8_SkColorType:
         case kRGB_565_SkColorType:
         case kIndex_8_SkColorType:
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
     //        if (tx == ty && (kClamp_TileMode == tx || kRepeat_TileMode == tx))
                 return true;
         default:
@@ -130,7 +130,7 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
             flags |= (kHasSpan16_Flag | kIntrinsicly16_Flag);
             break;
         case kIndex_8_SkColorType:
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
             if (bitmapIsOpaque) {
                 flags |= kHasSpan16_Flag;
             }
@@ -279,7 +279,7 @@ static bool canUseColorShader(const SkBitmap& bm, SkColor* color) {
     }
 
     switch (bm.colorType()) {
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
             *color = SkUnPreMultiply::PMColorToColor(*bm.getAddr32(0, 0));
             return true;
         case kRGB_565_SkColorType:

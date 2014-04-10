@@ -346,7 +346,7 @@ static bool config_to_colorType(SkBitmap::Config config, SkColorType* ctOut) {
             ct = kARGB_4444_SkColorType;
             break;
         case SkBitmap::kARGB_8888_Config:
-            ct = kN32_SkColorType;
+            ct = kPMColor_SkColorType;
             break;
         case SkBitmap::kNo_Config:
         default:
@@ -997,7 +997,7 @@ bool SkBitmap::canCopyTo(SkColorType dstColorType) const {
     switch (dstColorType) {
         case kAlpha_8_SkColorType:
         case kRGB_565_SkColorType:
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
             break;
         case kIndex_8_SkColorType:
             if (!sameConfigs) {
@@ -1005,7 +1005,7 @@ bool SkBitmap::canCopyTo(SkColorType dstColorType) const {
             }
             break;
         case kARGB_4444_SkColorType:
-            return sameConfigs || kN32_SkColorType == this->colorType();
+            return sameConfigs || kPMColor_SkColorType == this->colorType();
         default:
             return false;
     }
@@ -1116,7 +1116,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType,
             }
         }
     } else if (kARGB_4444_SkColorType == dstColorType
-               && kN32_SkColorType == src->colorType()) {
+               && kPMColor_SkColorType == src->colorType()) {
         SkASSERT(src->height() == tmpDst.height());
         SkASSERT(src->width() == tmpDst.width());
         for (int y = 0; y < src->height(); ++y) {

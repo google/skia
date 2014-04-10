@@ -53,7 +53,7 @@ SkWindow::SkWindow() : fFocusView(NULL) {
 #ifdef SK_BUILD_FOR_WINCE
     fColorType = kRGB_565_SkColorType;
 #else
-    fColorType = kN32_SkColorType;
+    fColorType = kPMColor_SkColorType;
 #endif
 
     fMatrix.reset();

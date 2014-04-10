@@ -85,7 +85,7 @@ static void force_all_opaque(const SkBitmap& bitmap) {
 
 bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
     SkBitmap copy;
-    bitmap.copyTo(&copy, kN32_SkColorType);
+    bitmap.copyTo(&copy, kPMColor_SkColorType);
     force_all_opaque(copy);
     return SkImageEncoder::EncodeFile(path.c_str(), copy,
                                       SkImageEncoder::kPNG_Type, 100);

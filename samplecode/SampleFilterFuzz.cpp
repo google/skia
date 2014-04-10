@@ -116,7 +116,7 @@ static bool valid_for_raster_canvas(const SkImageInfo& info) {
         case kAlpha_8_SkColorType:
         case kRGB_565_SkColorType:
             return true;
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
             return kPremul_SkAlphaType == info.alphaType() ||
                    kOpaque_SkAlphaType == info.alphaType();
         default:

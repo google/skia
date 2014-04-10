@@ -26,7 +26,7 @@ static void test_complex_layers(skiatest::Reporter* reporter) {
                                    SkIntToScalar((HEIGHT-(2*SPACER)) / 7));
 
     const SkColorType colorTypes[] = {
-        kRGB_565_SkColorType, kN32_SkColorType
+        kRGB_565_SkColorType, kPMColor_SkColorType
     };
     const int configCount = sizeof(colorTypes) / sizeof(SkBitmap::Config);
 

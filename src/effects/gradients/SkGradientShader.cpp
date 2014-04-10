@@ -517,7 +517,7 @@ const SkPMColor* SkGradientShaderBase::getCache32() const {
         info.fWidth = kCache32Count;
         info.fHeight = 4;   // for our 4 dither rows
         info.fAlphaType = kPremul_SkAlphaType;
-        info.fColorType = kN32_SkColorType;
+        info.fColorType = kPMColor_SkColorType;
 
         if (NULL == fCache32PixelRef) {
             fCache32PixelRef = SkMallocPixelRef::NewAllocate(info, 0, NULL);

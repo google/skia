@@ -47,7 +47,7 @@ bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
         case kRGB_565_SkColorType:
             shift = 1;
             break;
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
             shift = 2;
             break;
         default:

@@ -306,10 +306,10 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     //Convert to 8888 if needed.
     const SkBitmap* bitmap;
     SkBitmap bitmapCopy;
-    if (kN32_SkColorType == bitmapOrig.colorType() && bitmapOrig.isOpaque()) {
+    if (kPMColor_SkColorType == bitmapOrig.colorType() && bitmapOrig.isOpaque()) {
         bitmap = &bitmapOrig;
     } else {
-        if (!bitmapOrig.copyTo(&bitmapCopy, kN32_SkColorType)) {
+        if (!bitmapOrig.copyTo(&bitmapCopy, kPMColor_SkColorType)) {
             return false;
         }
         bitmap = &bitmapCopy;

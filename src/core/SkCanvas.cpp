@@ -2613,7 +2613,7 @@ static bool supported_for_raster_canvas(const SkImageInfo& info) {
     switch (info.colorType()) {
         case kAlpha_8_SkColorType:
         case kRGB_565_SkColorType:
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
             break;
         default:
             return false;

@@ -260,7 +260,7 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    if (src.colorType() != kN32_SkColorType) {
+    if (src.colorType() != kPMColor_SkColorType) {
         return false;
     }
 

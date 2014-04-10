@@ -277,7 +277,7 @@ bool SkScaledImageCacheDiscardableAllocator::allocPixelRef(SkBitmap* bitmap,
     }
 
     // can we relax this?
-    if (kN32_SkColorType != bitmap->colorType()) {
+    if (kPMColor_SkColorType != bitmap->colorType()) {
         return false;
     }
 

@@ -62,7 +62,7 @@ SkImage* SkSurface_Picture::onNewImageSnapshot() {
     } else {
         SkImageInfo info;
         info.fWidth = info.fHeight = 0;
-        info.fColorType = kN32_SkColorType;
+        info.fColorType = kPMColor_SkColorType;
         info.fAlphaType = kOpaque_SkAlphaType;
         return SkImage::NewRasterCopy(info, NULL, 0);
     }
