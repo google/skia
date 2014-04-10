@@ -45,6 +45,7 @@ DEFAULT_BOTS_LIST = [
     'linux_asan',
     'linux_chromeos',
     'linux_chromeos_asan',
+    'linux_chromium_gn_dbg',
     'linux_gpu',
     'linux_layout',
     'linux_layout_rel',
