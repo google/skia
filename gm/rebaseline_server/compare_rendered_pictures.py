@@ -97,9 +97,9 @@ class RenderedPicturesComparisons(results.BaseComparisons):
         'Reading actual-results JSON files from %s subdirs within %s...' % (
             subdirs, actuals_root))
     subdirA, subdirB = subdirs
-    subdirA_builder_dicts = results.BaseComparisons._read_dicts_from_root(
+    subdirA_builder_dicts = self._read_dicts_from_root(
         os.path.join(actuals_root, subdirA))
-    subdirB_builder_dicts = results.BaseComparisons._read_dicts_from_root(
+    subdirB_builder_dicts = self._read_dicts_from_root(
         os.path.join(actuals_root, subdirB))
     logging.info('Comparing subdirs %s and %s...' % (subdirA, subdirB))
 

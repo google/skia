@@ -47,12 +47,12 @@ class ConfigComparisons(results.BaseComparisons):
   """Loads results from two different configurations into an ImagePairSet.
 
   Loads actual and expected results from all builders, except for those skipped
-  by BaseComparisons._ignore_builder().
+  by _ignore_builder().
   """
 
   def __init__(self, configs, actuals_root=results.DEFAULT_ACTUALS_DIR,
                generated_images_root=results.DEFAULT_GENERATED_IMAGES_ROOT,
-               diff_base_url=None):
+               diff_base_url=None, builder_regex_list=None):
     """
     Args:
       configs: (string, string) tuple; pair of configs to compare
@@ -62,8 +62,12 @@ class ConfigComparisons(results.BaseComparisons):
       diff_base_url: base URL within which the client should look for diff
           images; if not specified, defaults to a "file:///" URL representation
           of generated_images_root
+      builder_regex_list: List of regular expressions specifying which builders
+          we will process. If None, process all builders.
     """
     time_start = int(time.time())
+    if builder_regex_list != None:
+      self.set_match_builders_pattern_list(builder_regex_list)
     self._image_diff_db = imagediffdb.ImageDiffDB(generated_images_root)
     self._diff_base_url = (
         diff_base_url or
@@ -84,8 +88,7 @@ class ConfigComparisons(results.BaseComparisons):
     """
     logging.info('Reading actual-results JSON files from %s...' %
                  self._actuals_root)
-    actual_builder_dicts = ConfigComparisons._read_dicts_from_root(
-        self._actuals_root)
+    actual_builder_dicts = self._read_dicts_from_root(self._actuals_root)
     configA, configB = configs
     logging.info('Comparing configs %s and %s...' % (configA, configB))
 

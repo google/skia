@@ -65,7 +65,7 @@ class ExpectationComparisons(results.BaseComparisons):
   def __init__(self, actuals_root=results.DEFAULT_ACTUALS_DIR,
                expected_root=DEFAULT_EXPECTATIONS_DIR,
                generated_images_root=results.DEFAULT_GENERATED_IMAGES_ROOT,
-               diff_base_url=None):
+               diff_base_url=None, builder_regex_list=None):
     """
     Args:
       actuals_root: root directory containing all actual-results.json files
@@ -75,8 +75,12 @@ class ExpectationComparisons(results.BaseComparisons):
       diff_base_url: base URL within which the client should look for diff
           images; if not specified, defaults to a "file:///" URL representation
           of generated_images_root
+      builder_regex_list: List of regular expressions specifying which builders
+          we will process. If None, process all builders.
     """
     time_start = int(time.time())
+    if builder_regex_list != None:
+      self.set_match_builders_pattern_list(builder_regex_list)
     self._image_diff_db = imagediffdb.ImageDiffDB(generated_images_root)
     self._diff_base_url = (
         diff_base_url or
@@ -117,8 +121,7 @@ class ExpectationComparisons(results.BaseComparisons):
          ]
 
     """
-    expected_builder_dicts = ExpectationComparisons._read_dicts_from_root(
-        self._expected_root)
+    expected_builder_dicts = self._read_dicts_from_root(self._expected_root)
     for mod in modifications:
       image_name = results.IMAGE_FILENAME_FORMATTER % (
           mod[imagepair.KEY__EXTRA_COLUMN_VALUES]
@@ -174,8 +177,6 @@ class ExpectationComparisons(results.BaseComparisons):
     for dirpath, dirnames, filenames in os.walk(root):
       for matching_filename in fnmatch.filter(filenames, pattern):
         builder = os.path.basename(dirpath)
-        if ExpectationComparisons._ignore_builder(builder):
-          continue
         per_builder_dict = meta_dict.get(builder)
         if per_builder_dict is not None:
           fullpath = os.path.join(dirpath, matching_filename)
@@ -199,12 +200,10 @@ class ExpectationComparisons(results.BaseComparisons):
     """
     logging.info('Reading actual-results JSON files from %s...' %
                  self._actuals_root)
-    actual_builder_dicts = ExpectationComparisons._read_dicts_from_root(
-        self._actuals_root)
+    actual_builder_dicts = self._read_dicts_from_root(self._actuals_root)
     logging.info('Reading expected-results JSON files from %s...' %
                  self._expected_root)
-    expected_builder_dicts = ExpectationComparisons._read_dicts_from_root(
-        self._expected_root)
+    expected_builder_dicts = self._read_dicts_from_root(self._expected_root)
 
     all_image_pairs = imagepairset.ImagePairSet(
         descriptions=IMAGEPAIR_SET_DESCRIPTIONS,

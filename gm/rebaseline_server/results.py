@@ -59,25 +59,23 @@ KEY__RESULT_TYPE__SUCCEEDED = gm_json.JSONKEY_ACTUALRESULTS_SUCCEEDED
 IMAGE_FILENAME_RE = re.compile(gm_json.IMAGE_FILENAME_PATTERN)
 IMAGE_FILENAME_FORMATTER = '%s_%s.png'  # pass in (testname, config)
 
-# Ignore expectations/actuals for builders matching any of these patterns.
+DEFAULT_ACTUALS_DIR = '.gm-actuals'
+DEFAULT_GENERATED_IMAGES_ROOT = os.path.join(
+    PARENT_DIRECTORY, '.generated-images')
+
+# Define the default set of builders we will process expectations/actuals for.
 # This allows us to ignore builders for which we don't maintain expectations
 # (trybots, Valgrind, ASAN, TSAN), and avoid problems like
 # https://code.google.com/p/skia/issues/detail?id=2036 ('rebaseline_server
 # produces error when trying to add baselines for ASAN/TSAN builders')
-SKIP_BUILDERS_PATTERN_LIST = [re.compile(p) for p in [
-    '.*-Trybot', '.*Valgrind.*', '.*TSAN.*', '.*ASAN.*']]
-
-DEFAULT_ACTUALS_DIR = '.gm-actuals'
-DEFAULT_GENERATED_IMAGES_ROOT = os.path.join(
-    PARENT_DIRECTORY, '.generated-images')
+DEFAULT_MATCH_BUILDERS_PATTERN_LIST = ['.*']
+DEFAULT_SKIP_BUILDERS_PATTERN_LIST = [
+    '.*-Trybot', '.*Valgrind.*', '.*TSAN.*', '.*ASAN.*']
 
 
 class BaseComparisons(object):
   """Base class for generating summary of comparisons between two image sets.
   """
-
-  def __init__(self):
-    raise NotImplementedError('cannot instantiate the abstract base class')
 
   def get_results_of_type(self, results_type):
     """Return results of some/all tests (depending on 'results_type' parameter).
@@ -138,9 +136,45 @@ class BaseComparisons(object):
     """
     return self._timestamp
 
-  @staticmethod
-  def _ignore_builder(builder):
-    """Returns True if this builder matches any of SKIP_BUILDERS_PATTERN_LIST.
+  _match_builders_pattern_list = [
+      re.compile(p) for p in DEFAULT_MATCH_BUILDERS_PATTERN_LIST]
+  _skip_builders_pattern_list = [
+      re.compile(p) for p in DEFAULT_SKIP_BUILDERS_PATTERN_LIST]
+
+  def set_match_builders_pattern_list(self, pattern_list):
+    """Override the default set of builders we should process.
+
+    The default is DEFAULT_MATCH_BUILDERS_PATTERN_LIST .
+
+    Note that skip_builders_pattern_list overrides this; regardless of whether a
+    builder is in the "match" list, if it's in the "skip" list, we will skip it.
+
+    Args:
+      pattern_list: list of regex patterns; process builders that match any
+          entry within this list
+    """
+    if pattern_list == None:
+      pattern_list = []
+    self._match_builders_pattern_list = [re.compile(p) for p in pattern_list]
+
+  def set_skip_builders_pattern_list(self, pattern_list):
+    """Override the default set of builders we should skip while processing.
+
+    The default is DEFAULT_SKIP_BUILDERS_PATTERN_LIST .
+
+    This overrides match_builders_pattern_list; regardless of whether a
+    builder is in the "match" list, if it's in the "skip" list, we will skip it.
+
+    Args:
+      pattern_list: list of regex patterns; skip builders that match any
+          entry within this list
+    """
+    if pattern_list == None:
+      pattern_list = []
+    self._skip_builders_pattern_list = [re.compile(p) for p in pattern_list]
+
+  def _ignore_builder(self, builder):
+    """Returns True if we should skip processing this builder.
 
     Args:
       builder: name of this builder, as a string
@@ -148,13 +182,15 @@ class BaseComparisons(object):
     Returns:
       True if we should ignore expectations and actuals for this builder.
     """
-    for pattern in SKIP_BUILDERS_PATTERN_LIST:
+    for pattern in self._skip_builders_pattern_list:
       if pattern.match(builder):
         return True
-    return False
+    for pattern in self._match_builders_pattern_list:
+      if pattern.match(builder):
+        return False
+    return True
 
-  @staticmethod
-  def _read_dicts_from_root(root, pattern='*.json'):
+  def _read_dicts_from_root(self, root, pattern='*.json'):
     """Read all JSON dictionaries within a directory tree.
 
     Args:
@@ -174,7 +210,7 @@ class BaseComparisons(object):
     for dirpath, dirnames, filenames in os.walk(root):
       for matching_filename in fnmatch.filter(filenames, pattern):
         builder = os.path.basename(dirpath)
-        if BaseComparisons._ignore_builder(builder):
+        if self._ignore_builder(builder):
           continue
         fullpath = os.path.join(dirpath, matching_filename)
         meta_dict[builder] = gm_json.LoadFromFile(fullpath)

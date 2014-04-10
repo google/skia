@@ -17,6 +17,29 @@ import results
 
 class ResultsTest(base_unittest.TestCase):
 
+  def test_ignore_builder(self):
+    """Test _ignore_builder()."""
+    results_obj = results.BaseComparisons()
+    self.assertEqual(results_obj._ignore_builder('SomethingTSAN'), True)
+    self.assertEqual(results_obj._ignore_builder('Something-Trybot'), True)
+    self.assertEqual(results_obj._ignore_builder(
+        'Test-Ubuntu12-ShuttleA-GTX660-x86-Release'), False)
+    results_obj.set_skip_builders_pattern_list(['.*TSAN.*', '.*GTX660.*'])
+    self.assertEqual(results_obj._ignore_builder('SomethingTSAN'), True)
+    self.assertEqual(results_obj._ignore_builder('Something-Trybot'), False)
+    self.assertEqual(results_obj._ignore_builder(
+        'Test-Ubuntu12-ShuttleA-GTX660-x86-Release'), True)
+    results_obj.set_skip_builders_pattern_list(None)
+    self.assertEqual(results_obj._ignore_builder('SomethingTSAN'), False)
+    self.assertEqual(results_obj._ignore_builder('Something-Trybot'), False)
+    self.assertEqual(results_obj._ignore_builder(
+        'Test-Ubuntu12-ShuttleA-GTX660-x86-Release'), False)
+    results_obj.set_match_builders_pattern_list(['.*TSAN'])
+    self.assertEqual(results_obj._ignore_builder('SomethingTSAN'), False)
+    self.assertEqual(results_obj._ignore_builder('Something-Trybot'), True)
+    self.assertEqual(results_obj._ignore_builder(
+        'Test-Ubuntu12-ShuttleA-GTX660-x86-Release'), True)
+
   def test_combine_subdicts_typical(self):
     """Test combine_subdicts() with no merge conflicts. """
     input_dict = {

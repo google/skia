@@ -216,7 +216,7 @@ class Server(object):
                actuals_repo_revision=DEFAULT_ACTUALS_REPO_REVISION,
                actuals_repo_url=DEFAULT_ACTUALS_REPO_URL,
                port=DEFAULT_PORT, export=False, editable=True,
-               reload_seconds=0, config_pairs=None):
+               reload_seconds=0, config_pairs=None, builder_regex_list=None):
     """
     Args:
       actuals_dir: directory under which we will check out the latest actual
@@ -233,6 +233,8 @@ class Server(object):
       config_pairs: List of (string, string) tuples; for each tuple, compare
           actual results of these two configs.  If None or empty,
           don't compare configs at all.
+      builder_regex_list: List of regular expressions specifying which builders
+          we will process. If None, process all builders.
     """
     self._actuals_dir = actuals_dir
     self._actuals_repo_revision = actuals_repo_revision
@@ -242,6 +244,7 @@ class Server(object):
     self._editable = editable
     self._reload_seconds = reload_seconds
     self._config_pairs = config_pairs or []
+    self._builder_regex_list = builder_regex_list
     _create_index(
         file_path=os.path.join(
             PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR, GENERATED_HTML_SUBDIR,
@@ -329,7 +332,8 @@ class Server(object):
               PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR,
               GENERATED_IMAGES_SUBDIR),
           diff_base_url=posixpath.join(
-              os.pardir, STATIC_CONTENTS_SUBDIR, GENERATED_IMAGES_SUBDIR))
+              os.pardir, STATIC_CONTENTS_SUBDIR, GENERATED_IMAGES_SUBDIR),
+          builder_regex_list=self._builder_regex_list)
 
       json_dir = os.path.join(
           PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR, GENERATED_JSON_SUBDIR)
@@ -344,7 +348,8 @@ class Server(object):
                 PARENT_DIRECTORY, STATIC_CONTENTS_SUBDIR,
                 GENERATED_IMAGES_SUBDIR),
             diff_base_url=posixpath.join(
-                os.pardir, GENERATED_IMAGES_SUBDIR))
+                os.pardir, GENERATED_IMAGES_SUBDIR),
+            builder_regex_list=self._builder_regex_list)
         for summary_type in SUMMARY_TYPES:
           gm_json.WriteToFile(
               config_comparisons.get_packaged_results_of_type(
@@ -627,6 +632,10 @@ def main():
                           'argument in conjunction with --editable; you '
                           'probably only want to edit results at HEAD.'),
                     default=DEFAULT_ACTUALS_REPO_REVISION)
+  parser.add_argument('--builders', metavar='BUILDER_REGEX', nargs='+',
+                      help=('Only process builders matching these regular '
+                            'expressions.  If unspecified, process all '
+                            'builders.'))
   parser.add_argument('--compare-configs', action='store_true',
                       help=('In addition to generating differences between '
                             'expectations and actuals, also generate '
@@ -663,7 +672,8 @@ def main():
                    actuals_repo_revision=args.actuals_revision,
                    actuals_repo_url=args.actuals_repo,
                    port=args.port, export=args.export, editable=args.editable,
-                   reload_seconds=args.reload, config_pairs=config_pairs)
+                   reload_seconds=args.reload, config_pairs=config_pairs,
+                   builder_regex_list=args.builders)
   _SERVER.run()
 
 
