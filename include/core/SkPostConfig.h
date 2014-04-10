@@ -391,4 +391,15 @@
 #  endif
 #endif
 
+
+//////////////////////////////////////////////////////////////////////
+
+#if defined(SK_GAMMA_EXPONENT) && defined(SK_GAMMA_SRGB)
+#  error "cannot define both SK_GAMMA_EXPONENT and SK_GAMMA_SRGB"
+#elif defined(SK_GAMMA_SRGB)
+#  define SK_GAMMA_EXPONENT (0.0f)
+#elif !defined(SK_GAMMA_EXPONENT)
+#  define SK_GAMMA_EXPONENT (2.2f)
+#endif
+
 #endif // SkPostConfig_DEFINED

@@ -1,15 +1,6 @@
 #ifndef SkDeviceProperties_DEFINED
 #define SkDeviceProperties_DEFINED
 
-#ifndef SK_GAMMA_EXPONENT
-    #define SK_GAMMA_EXPONENT (2.2f)
-#endif
-
-#ifdef SK_GAMMA_SRGB
-    #undef SK_GAMMA_EXPONENT
-    #define SK_GAMMA_EXPONENT (0.0f)
-#endif
-
 //TODO: get everyone to stop using SkFontLCDConfig::SetSubpixel* and remove this import.
 #include "SkFontLCDConfig.h"
 
