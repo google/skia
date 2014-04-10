@@ -85,7 +85,7 @@ DEF_TEST(LayerRasterizer_copy, reporter) {
     // Create a bunch of paints with different flags.
     for (uint32_t flags = 0x01; flags < SkPaint::kAllFlags; flags <<= 1) {
         paint.setFlags(flags);
-        builder.addLayer(paint, flags, flags);
+        builder.addLayer(paint, static_cast<SkScalar>(flags), static_cast<SkScalar>(flags));
     }
 
     // Create a layer rasterizer with all the existing layers.
