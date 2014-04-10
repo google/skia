@@ -102,6 +102,7 @@
     '../tests/JpegTest.cpp',
     '../tests/LListTest.cpp',
     '../tests/LayerDrawLooperTest.cpp',
+    '../tests/LayerRasterizerTest.cpp',
     '../tests/MD5Test.cpp',
     '../tests/MallocPixelRefTest.cpp',
     '../tests/MathTest.cpp',

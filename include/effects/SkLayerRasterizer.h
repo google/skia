@@ -39,9 +39,25 @@ public:
 
         /**
           *  Pass queue of layers on to newly created layer rasterizer and return it. The builder
-          *  cannot be used any more after calling this function.
+          *  *cannot* be used any more after calling this function.
+          *
+          *  The caller is responsible for calling unref() on the returned object.
           */
         SkLayerRasterizer* detachRasterizer();
+
+        /**
+          *  Create and return a new immutable SkLayerRasterizer that contains a shapshot of the
+          *  layers that were added to the Builder, without modifying the Builder. The Builder
+          *  *may* be used after calling this function. It will continue to hold any layers
+          *  previously added, so consecutive calls to this function will return identical objects,
+          *  and objects returned by future calls to this function contain all the layers in
+          *  previously returned objects.
+          *
+          *  Future calls to addLayer will not affect rasterizers previously returned by this call.
+          *
+          *  The caller is responsible for calling unref() on the returned object.
+          */
+        SkLayerRasterizer* snapshotRasterizer() const;
 
     private:
         SkDeque* fLayers;
@@ -85,6 +101,8 @@ private:
 #endif
 
     static SkDeque* ReadLayers(SkReadBuffer& buffer);
+
+    friend class LayerRasterizerTester;
 
     typedef SkRasterizer INHERITED;
 };
