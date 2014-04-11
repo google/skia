@@ -24,7 +24,7 @@ public:
 
     uint32_t getHash() const { return (fPictureID << 16) | fLayerID; }
 
-    static bool LessThan(const GrAtlasedLayer& layer, const PictureLayerKey& key) {
+    static bool LessThan(const GrCachedLayer& layer, const PictureLayerKey& key) {
         if (layer.pictureID() == key.pictureID()) {
             return layer.layerID() < key.layerID();
         }
@@ -32,7 +32,7 @@ public:
         return layer.pictureID() < key.pictureID();
     }
 
-    static bool Equals(const GrAtlasedLayer& layer, const PictureLayerKey& key) {
+    static bool Equals(const GrCachedLayer& layer, const PictureLayerKey& key) {
         return layer.pictureID() == key.pictureID() && layer.layerID() == key.layerID();
     }
 
@@ -66,8 +66,8 @@ void GrLayerCache::freeAll() {
     fAtlasMgr.free();
 }
 
-GrAtlasedLayer* GrLayerCache::createLayer(SkPicture* picture, int layerID) {
-    GrAtlasedLayer* layer = fLayerPool.alloc();
+GrCachedLayer* GrLayerCache::createLayer(SkPicture* picture, int layerID) {
+    GrCachedLayer* layer = fLayerPool.alloc();
 
     SkASSERT(picture->uniqueID() != SK_InvalidGenID);
     layer->init(picture->uniqueID(), layerID);
@@ -76,9 +76,9 @@ GrAtlasedLayer* GrLayerCache::createLayer(SkPicture* picture, int layerID) {
 }
 
 
-const GrAtlasedLayer* GrLayerCache::findLayerOrCreate(SkPicture* picture, int layerID) {
+GrCachedLayer* GrLayerCache::findLayerOrCreate(SkPicture* picture, int layerID) {
     SkASSERT(picture->uniqueID() != SK_InvalidGenID);
-    GrAtlasedLayer* layer = fLayerHash.find(PictureLayerKey(picture->uniqueID(), layerID));
+    GrCachedLayer* layer = fLayerHash.find(PictureLayerKey(picture->uniqueID(), layerID));
     if (NULL == layer) {
         layer = this->createLayer(picture, layerID);
     }

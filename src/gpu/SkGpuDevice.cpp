@@ -1988,7 +1988,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkPicture* picture) {
     SkDebugf("Need SaveLayers: ");
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
         if (pullForward[i]) {
-            const GrAtlasedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture, i);
+            const GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture, i);
 
             SkDebugf("%d (%d), ", i, layer->layerID());
         }
