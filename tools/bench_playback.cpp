@@ -28,8 +28,10 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
     SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, src.width(), src.height());
     src.draw(&recorder);
 
-    SkAutoTDelete<SkCanvas> canvas(
-        SkCanvas::NewRasterDirectN32(src.width(), src.height(), scratch, 0));
+    SkAutoTDelete<SkCanvas> canvas(SkCanvas::NewRasterDirectN32(src.width(),
+                                                                src.height(),
+                                                                scratch,
+                                                                src.width() * sizeof(SkPMColor)));
     canvas->clipRect(SkRect::MakeWH(SkIntToScalar(FLAGS_tile), SkIntToScalar(FLAGS_tile)));
 
     const SkMSec start = SkTime::GetMSecs();
