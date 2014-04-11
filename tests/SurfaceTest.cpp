@@ -25,7 +25,6 @@ enum SurfaceType {
     kRasterDirect_SurfaceType,
     kGpu_SurfaceType,
     kGpuScratch_SurfaceType,
-    kPicture_SurfaceType
 };
 
 static const int gSurfaceSize = 10;
@@ -56,8 +55,6 @@ static SkSurface* createSurface(SurfaceType surfaceType, GrContext* context,
             return context ? SkSurface::NewScratchRenderTarget(context, info) : NULL;
 #endif
             break;
-        case kPicture_SurfaceType:
-            return SkSurface::NewPicture(info.fWidth, info.fHeight);
     }
     return NULL;
 }
@@ -66,7 +63,6 @@ enum ImageType {
     kRasterCopy_ImageType,
     kRasterData_ImageType,
     kGpu_ImageType,
-    kPicture_ImageType,
     kCodec_ImageType,
 };
 
@@ -103,12 +99,6 @@ static SkImage* createImage(ImageType imageType, GrContext* context,
             return SkImage::NewRasterData(info, data, rowBytes);
         case kGpu_ImageType:
             return NULL;        // TODO
-        case kPicture_ImageType: {
-            SkAutoTUnref<SkSurface> surf(SkSurface::NewPicture(info.fWidth,
-                                                               info.fHeight));
-            surf->getCanvas()->drawColor(SK_ColorRED);
-            return surf->newImageSnapshot();
-        }
         case kCodec_ImageType: {
             SkBitmap bitmap;
             bitmap.installPixels(info, addr, rowBytes, NULL, NULL);
@@ -130,7 +120,6 @@ static void test_imagepeek(skiatest::Reporter* reporter) {
         { kRasterCopy_ImageType,    true    },
         { kRasterData_ImageType,    true    },
         { kGpu_ImageType,           false   },
-        { kPicture_ImageType,       false   },
         { kCodec_ImageType,         false   },
     };
 
@@ -172,7 +161,6 @@ static void test_canvaspeek(skiatest::Reporter* reporter,
         { kGpu_SurfaceType,             false   },
         { kGpuScratch_SurfaceType,      false   },
 #endif
-        { kPicture_SurfaceType,         false   },
     };
 
     const SkColor color = SK_ColorRED;
@@ -421,9 +409,7 @@ DEF_GPUTEST(Surface, reporter, factory) {
     test_image(reporter);
 
     TestSurfaceCopyOnWrite(reporter, kRaster_SurfaceType, NULL);
-    TestSurfaceCopyOnWrite(reporter, kPicture_SurfaceType, NULL);
     TestSurfaceWritableAfterSnapshotRelease(reporter, kRaster_SurfaceType, NULL);
-    TestSurfaceWritableAfterSnapshotRelease(reporter, kPicture_SurfaceType, NULL);
     TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kDiscard_ContentChangeMode);
     TestSurfaceNoCanvas(reporter, kRaster_SurfaceType, NULL, SkSurface::kRetain_ContentChangeMode);
 
@@ -432,7 +418,6 @@ DEF_GPUTEST(Surface, reporter, factory) {
 
 #if SK_SUPPORT_GPU
     TestGetTexture(reporter, kRaster_SurfaceType, NULL);
-    TestGetTexture(reporter, kPicture_SurfaceType, NULL);
     if (NULL != factory) {
         GrContext* context = factory->get(GrContextFactory::kNative_GLContextType);
         if (NULL != context) {

@@ -189,7 +189,8 @@ public:
 
     /**
      *  Create a new surface matching the specified info, one that attempts to
-     *  be maximally compatible when used with this canvas.
+     *  be maximally compatible when used with this canvas. If there is no matching Surface type,
+     *  NULL is returned.
      */
     SkSurface* newSurface(const SkImageInfo&);
 

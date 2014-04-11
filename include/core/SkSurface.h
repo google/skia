@@ -56,13 +56,6 @@ public:
     }
 
     /**
-     *  Return a new surface whose contents will be recorded into a picture.
-     *  When this surface is drawn into another canvas, its contents will be
-     *  "replayed" into that canvas.
-     */
-    static SkSurface* NewPicture(int width, int height);
-
-    /**
      *  Return a new surface using the specified render target.
      */
     static SkSurface* NewRenderTargetDirect(GrRenderTarget*);

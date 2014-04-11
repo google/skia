@@ -13,7 +13,6 @@
 #include "SkDevice.h"
 #include "SkOffsetTable.h"
 #include "SkPictureStateTree.h"
-#include "SkSurface.h"
 
 #define HEAP_BLOCK_SIZE 4096
 
@@ -1571,7 +1570,7 @@ void SkPictureRecord::onPopCull() {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkSurface* SkPictureRecord::onNewSurface(const SkImageInfo& info) {
-    return SkSurface::NewPicture(info.fWidth, info.fHeight);
+    return NULL;
 }
 
 void SkPictureRecord::trackBitmapUse(int bitmapID, size_t offset) {
