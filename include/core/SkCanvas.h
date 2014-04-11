@@ -932,6 +932,12 @@ public:
     */
     void EXPERIMENTAL_optimize(SkPicture* picture);
 
+    /** PRIVATE / EXPERIMENTAL -- do not call
+        Purge all the discardable optimization information associated with
+        'picture'. If NULL is passed in, purge all discardable information.
+    */
+    void EXPERIMENTAL_purge(SkPicture* picture);
+
     /** Draw the picture into this canvas. This method effective brackets the
         playback of the picture's draw calls with save/restore, so the state
         of this canvas will be unchanged after this call.

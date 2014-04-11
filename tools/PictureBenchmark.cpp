@@ -23,6 +23,7 @@ PictureBenchmark::PictureBenchmark()
 , fTimerTypes(0)
 , fTimeIndividualTiles(false)
 , fPurgeDecodedTex(false)
+, fPreprocess(false)
 {}
 
 PictureBenchmark::~PictureBenchmark() {
@@ -77,8 +78,21 @@ void PictureBenchmark::run(SkPicture* pict) {
 
     // We throw this away to remove first time effects (such as paging in this program)
     fRenderer->setup();
+
+    if (fPreprocess) {
+        if (NULL != fRenderer->getCanvas()) {
+            fRenderer->getCanvas()->EXPERIMENTAL_optimize(pict);
+        }
+    }
+
     fRenderer->render(NULL);
     fRenderer->resetState(true);   // flush, swapBuffers and Finish
+
+    if (fPreprocess) {
+        if (NULL != fRenderer->getCanvas()) {
+            fRenderer->getCanvas()->EXPERIMENTAL_purge(pict);
+        }
+    }
 
     if (fPurgeDecodedTex) {
         fRenderer->purgeTextures();
@@ -215,6 +229,12 @@ void PictureBenchmark::run(SkPicture* pict) {
                 perRunTimer->end();
 
                 SkAssertResult(perRunTimerData.appendTimes(perRunTimer.get()));
+
+                if (fPreprocess) {
+                    if (NULL != fRenderer->getCanvas()) {
+                        fRenderer->getCanvas()->EXPERIMENTAL_purge(pict);
+                    }
+                }
 
                 if (fPurgeDecodedTex) {
                     fRenderer->purgeTextures();

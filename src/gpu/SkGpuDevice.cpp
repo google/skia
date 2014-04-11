@@ -1918,7 +1918,11 @@ void SkGpuDevice::EXPERIMENTAL_optimize(SkPicture* picture) {
     GatherGPUInfo(picture, data);
 }
 
-bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkPicture* picture) {
+void SkGpuDevice::EXPERIMENTAL_purge(SkPicture* picture) {
+
+}
+
+bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, SkPicture* picture) {
 
     SkPicture::AccelData::Key key = ComputeAccelDataKey();
 

@@ -2542,12 +2542,19 @@ void SkCanvas::EXPERIMENTAL_optimize(SkPicture* picture) {
     }
 }
 
+void SkCanvas::EXPERIMENTAL_purge(SkPicture* picture) {
+    SkBaseDevice* device = this->getTopDevice();
+    if (NULL != device) {
+        device->EXPERIMENTAL_purge(picture);
+    }
+}
+
 void SkCanvas::drawPicture(SkPicture& picture) {
     SkBaseDevice* device = this->getTopDevice();
     if (NULL != device) {
         // Canvas has to first give the device the opportunity to render
         // the picture itself.
-        if (device->EXPERIMENTAL_drawPicture(&picture)) {
+        if (device->EXPERIMENTAL_drawPicture(this, &picture)) {
             return; // the device has rendered the entire picture
         }
     }

@@ -46,6 +46,9 @@ public:
     void setPurgeDecodedTex(bool purgeDecodedTex) { fPurgeDecodedTex = purgeDecodedTex; }
     bool purgeDecodedText() const { return fPurgeDecodedTex; }
 
+    void setPreprocess(bool preprocess) { fPreprocess = preprocess; }
+    bool preprocess() const { return fPreprocess; }
+
     PictureRenderer* setRenderer(PictureRenderer*);
 
     void setTimerResultType(TimerData::Result resultType) { fTimerResult = resultType; }
@@ -62,6 +65,7 @@ private:
     uint32_t          fTimerTypes; // bitfield of TimerData::TimerFlags values
     bool              fTimeIndividualTiles;
     bool              fPurgeDecodedTex;
+    bool              fPreprocess;
 
     void logProgress(const char msg[]);
 
