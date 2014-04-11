@@ -207,20 +207,20 @@ static const struct Config {
     GLContextType       contextType;
     bool                runByDefault;
 } gConfigs[] = {
-    { kN32_SkColorType,     "NONRENDERING", 0, SkBenchmark::kNonRendering_Backend, kNative, true},
-    { kN32_SkColorType,     "8888",         0, SkBenchmark::kRaster_Backend,       kNative, true},
+    { kPMColor_SkColorType, "NONRENDERING", 0, SkBenchmark::kNonRendering_Backend, kNative, true},
+    { kPMColor_SkColorType, "8888",         0, SkBenchmark::kRaster_Backend,       kNative, true},
     { kRGB_565_SkColorType, "565",          0, SkBenchmark::kRaster_Backend,       kNative, true},
 #if SK_SUPPORT_GPU
-    { kN32_SkColorType,     "GPU",          0, SkBenchmark::kGPU_Backend,          kNative, true},
-    { kN32_SkColorType,     "MSAA4",        4, SkBenchmark::kGPU_Backend,          kNative, false},
-    { kN32_SkColorType,     "MSAA16",      16, SkBenchmark::kGPU_Backend,          kNative, false},
-    { kN32_SkColorType,     "NVPRMSAA4",    4, SkBenchmark::kGPU_Backend,          kNVPR,   true},
-    { kN32_SkColorType,     "NVPRMSAA16",  16, SkBenchmark::kGPU_Backend,          kNVPR,   false},
+    { kPMColor_SkColorType, "GPU",          0, SkBenchmark::kGPU_Backend,          kNative, true},
+    { kPMColor_SkColorType, "MSAA4",        4, SkBenchmark::kGPU_Backend,          kNative, false},
+    { kPMColor_SkColorType, "MSAA16",      16, SkBenchmark::kGPU_Backend,          kNative, false},
+    { kPMColor_SkColorType, "NVPRMSAA4",    4, SkBenchmark::kGPU_Backend,          kNVPR,   true},
+    { kPMColor_SkColorType, "NVPRMSAA16",  16, SkBenchmark::kGPU_Backend,          kNVPR,   false},
 #if SK_ANGLE
-    { kN32_SkColorType,     "ANGLE",        0, SkBenchmark::kGPU_Backend,          kANGLE,  true},
+    { kPMColor_SkColorType, "ANGLE",        0, SkBenchmark::kGPU_Backend,          kANGLE,  true},
 #endif // SK_ANGLE
-    { kN32_SkColorType,     "Debug",        0, SkBenchmark::kGPU_Backend,          kDebug,  kIsDebug},
-    { kN32_SkColorType,     "NULLGPU",      0, SkBenchmark::kGPU_Backend,          kNull,   true},
+    { kPMColor_SkColorType, "Debug",        0, SkBenchmark::kGPU_Backend,          kDebug,  kIsDebug},
+    { kPMColor_SkColorType, "NULLGPU",      0, SkBenchmark::kGPU_Backend,          kNull,   true},
 #endif // SK_SUPPORT_GPU
 };
 

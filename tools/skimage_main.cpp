@@ -164,7 +164,7 @@ static bool write_bitmap(const char outDir[], const char src[],
         return true;
     }
 
-    if (bm.colorType() == kN32_SkColorType) {
+    if (bm.colorType() == kPMColor_SkColorType) {
         // First attempt at encoding failed, and the bitmap was already 8888. Making
         // a copy is not going to help.
         return false;
@@ -172,7 +172,7 @@ static bool write_bitmap(const char outDir[], const char src[],
 
     // Encoding failed. Copy to 8888 and try again.
     SkBitmap bm8888;
-    if (!bm.copyTo(&bm8888, kN32_SkColorType)) {
+    if (!bm.copyTo(&bm8888, kPMColor_SkColorType)) {
         return false;
     }
     return SkImageEncoder::EncodeFile(filename.c_str(), bm8888, SkImageEncoder::kPNG_Type, 100);

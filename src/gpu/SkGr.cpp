@@ -43,7 +43,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
     dstPI.fRowBytes = count * sizeof(SkPMColor);
 
     SkSrcPixelInfo srcPI;
-    srcPI.fColorType = kN32_SkColorType;
+    srcPI.fColorType = kPMColor_SkColorType;
     srcPI.fAlphaType = kPremul_SkAlphaType;
     srcPI.fPixels = ctable->lockColors();
     srcPI.fRowBytes = count * sizeof(SkPMColor);
@@ -166,7 +166,7 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
                 return result;
             }
         } else {
-            origBitmap.copyTo(&tmpBitmap, kN32_SkColorType);
+            origBitmap.copyTo(&tmpBitmap, kPMColor_SkColorType);
             // now bitmap points to our temp, which has been promoted to 32bits
             bitmap = &tmpBitmap;
             desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap->config());

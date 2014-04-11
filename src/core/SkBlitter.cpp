@@ -923,7 +923,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
             blitter = SkBlitter_ChooseD565(device, *paint, allocator);
             break;
 
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
             if (shader) {
                 blitter = allocator->createT<SkARGB32_Shader_Blitter>(device, *paint);
             } else if (paint->getColor() == SK_ColorBLACK) {

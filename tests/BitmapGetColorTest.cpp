@@ -22,9 +22,9 @@ DEF_TEST(GetColor, reporter) {
         {   kAlpha_8_SkColorType,   0,              0           },
         {   kRGB_565_SkColorType,   0xFF00FF00,     0xFF00FF00  },
         {   kRGB_565_SkColorType,   0xFFFF00FF,     0xFFFF00FF  },
-        {   kN32_SkColorType,       0xFFFFFFFF,     0xFFFFFFFF  },
-        {   kN32_SkColorType,       0,              0           },
-        {   kN32_SkColorType,       0xFF224466,     0xFF224466  },
+        {   kPMColor_SkColorType,   0xFFFFFFFF,     0xFFFFFFFF  },
+        {   kPMColor_SkColorType,   0,              0           },
+        {   kPMColor_SkColorType,   0xFF224466,     0xFF224466  },
     };
 
     // specify an area that doesn't touch (0,0) and may extend beyond the

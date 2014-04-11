@@ -223,7 +223,7 @@ SkCanvasState* SkCanvasStateUtils::CaptureCanvasState(SkCanvas* canvas) {
         layerState->height = bitmap.height();
 
         switch (bitmap.colorType()) {
-            case kN32_SkColorType:
+            case kPMColor_SkColorType:
                 layerState->raster.config = kARGB_8888_RasterConfig;
                 break;
             case kRGB_565_SkColorType:
@@ -281,7 +281,7 @@ static SkCanvas* create_canvas_from_canvas_layer(const SkCanvasLayerState& layer
 
     SkBitmap bitmap;
     SkColorType colorType =
-        layerState.raster.config == kARGB_8888_RasterConfig ? kN32_SkColorType :
+        layerState.raster.config == kARGB_8888_RasterConfig ? kPMColor_SkColorType :
         layerState.raster.config == kRGB_565_RasterConfig ? kRGB_565_SkColorType :
         kUnknown_SkColorType;
 

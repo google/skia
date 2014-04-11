@@ -88,7 +88,7 @@ static void kick_off_gms(const SkTDArray<GMRegistry::Factory>& gms,
     for (int i = 0; i < gms.count(); i++) {
         for (int j = 0; j < configs.count(); j++) {
             START("565",      CpuGMTask, kRGB_565_SkColorType);
-            START("8888",     CpuGMTask, kN32_SkColorType);
+            START("8888",     CpuGMTask, kPMColor_SkColorType);
             START("gpu",      GpuGMTask, native, 0);
             START("msaa4",    GpuGMTask, native, 4);
             START("msaa16",   GpuGMTask, native, 16);
@@ -115,7 +115,7 @@ static void kick_off_benches(const SkTDArray<BenchRegistry::Factory>& benches,
         for (int j = 0; j < configs.count(); j++) {
             START("nonrendering", NonRenderingBenchTask);
             START("565",          CpuBenchTask, kRGB_565_SkColorType);
-            START("8888",         CpuBenchTask, kN32_SkColorType);
+            START("8888",         CpuBenchTask, kPMColor_SkColorType);
             START("gpu",          GpuBenchTask, native, 0);
             START("msaa4",        GpuBenchTask, native, 4);
             START("msaa16",       GpuBenchTask, native, 16);

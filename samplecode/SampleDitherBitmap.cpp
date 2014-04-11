@@ -84,7 +84,7 @@ public:
     DitherBitmapView() {
         fResult = test_pathregion();
         fBM8 = make_bitmap();
-        fBM8.copyTo(&fBM32, kN32_SkColorType);
+        fBM8.copyTo(&fBM32, kPMColor_SkColorType);
 
         this->setBGColor(0xFFDDDDDD);
     }

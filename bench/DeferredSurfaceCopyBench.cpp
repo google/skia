@@ -37,7 +37,7 @@ protected:
         SkImageInfo info;
         info.fWidth = kSurfaceWidth;
         info.fHeight = kSurfaceHeight;
-        info.fColorType = kN32_SkColorType;
+        info.fColorType = kPMColor_SkColorType;
         info.fAlphaType = kPremul_SkAlphaType;
         const SkRect fullCanvasRect = SkRect::MakeWH(
             SkIntToScalar(kSurfaceWidth), SkIntToScalar(kSurfaceHeight));

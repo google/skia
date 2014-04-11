@@ -43,7 +43,7 @@ static void make_image(SkBitmap* bm, SkColorType ct, int configIndex) {
                       SkIntToScalar(width)/2, paint);
 
     switch (ct) {
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
             bm->swap(device);
             break;
         case kRGB_565_SkColorType: {
@@ -81,7 +81,7 @@ static void make_image(SkBitmap* bm, SkColorType ct, int configIndex) {
 
 // configs to build the original bitmap in. Can be at most these 3
 static const SkColorType gColorTypes[] = {
-    kN32_SkColorType,
+    kPMColor_SkColorType,
     kRGB_565_SkColorType,
     kIndex_8_SkColorType,   // opaque
     kIndex_8_SkColorType    // alpha

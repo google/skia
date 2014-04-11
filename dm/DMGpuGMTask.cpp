@@ -27,7 +27,7 @@ GpuGMTask::GpuGMTask(const char* config,
 void GpuGMTask::draw(GrContextFactory* grFactory) {
     SkImageInfo info = SkImageInfo::Make(SkScalarCeilToInt(fGM->width()),
                                          SkScalarCeilToInt(fGM->height()),
-                                         kN32_SkColorType,
+                                         kPMColor_SkColorType,
                                          kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(NewGpuSurface(grFactory, fContextType, info, fSampleCount));
     SkCanvas* canvas = surface->getCanvas();

@@ -29,7 +29,7 @@ uint32_t SkTransparentShader::getFlags() {
             if (fAlpha == 255)
                 flags |= kOpaqueAlpha_Flag;
             break;
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
             if (fAlpha == 255 && fDevice->isOpaque())
                 flags |= kOpaqueAlpha_Flag;
             break;
@@ -43,7 +43,7 @@ void SkTransparentShader::shadeSpan(int x, int y, SkPMColor span[], int count) {
     unsigned scale = SkAlpha255To256(fAlpha);
 
     switch (fDevice->colorType()) {
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
             if (scale == 256) {
                 SkPMColor* src = fDevice->getAddr32(x, y);
                 if (src != span) {

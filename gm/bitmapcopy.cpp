@@ -22,7 +22,7 @@ static const char* gColorTypeNames[] = {
 static const SkColorType gColorTypes[] = {
     kRGB_565_SkColorType,
     kARGB_4444_SkColorType,
-    kN32_SkColorType,
+    kPMColor_SkColorType,
 };
 
 #define NUM_CONFIGS SK_ARRAY_COUNT(gColorTypes)

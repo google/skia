@@ -91,7 +91,7 @@ public:
         make_bm(&fBM8);
         fBM8.copyTo(&fBM4444, kARGB_4444_SkColorType);
         fBM8.copyTo(&fBM16, kRGB_565_SkColorType);
-        fBM8.copyTo(&fBM32, kN32_SkColorType);
+        fBM8.copyTo(&fBM32, kPMColor_SkColorType);
 
         this->setBGColor(0xFFDDDDDD);
     }

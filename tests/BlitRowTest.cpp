@@ -63,7 +63,7 @@ static int proc_bad(const void*, int, uint32_t, uint32_t* bad) {
 static Proc find_proc(const SkBitmap& bm, SkPMColor expect32, uint16_t expect16,
                       uint8_t expect8, uint32_t* expect) {
     switch (bm.colorType()) {
-        case kN32_SkColorType:
+        case kPMColor_SkColorType:
             *expect = expect32;
             return proc_32;
         case kARGB_4444_SkColorType:
@@ -101,7 +101,7 @@ static void test_00_FF(skiatest::Reporter* reporter) {
     static const int W = 256;
 
     static const SkColorType gDstColorType[] = {
-        kN32_SkColorType,
+        kPMColor_SkColorType,
         kRGB_565_SkColorType,
     };
 
@@ -192,7 +192,7 @@ static void test_diagonal(skiatest::Reporter* reporter) {
     static const int H = W;
 
     static const SkColorType gDstColorType[] = {
-        kN32_SkColorType,
+        kPMColor_SkColorType,
         kRGB_565_SkColorType,
     };
 
