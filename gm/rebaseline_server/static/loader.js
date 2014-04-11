@@ -102,7 +102,7 @@ Loader.controller(
           $scope.imagePairs = data[constants.KEY__IMAGEPAIRS];
           $scope.imageSets = data[constants.KEY__IMAGESETS];
           $scope.sortColumnSubdict = constants.KEY__DIFFERENCE_DATA;
-          $scope.sortColumnKey = constants.KEY__DIFFERENCE_DATA__WEIGHTED_DIFF;
+          $scope.sortColumnKey = constants.KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF;
 
           $scope.showSubmitAdvancedSettings = false;
           $scope.submitAdvancedSettings = {};
@@ -411,7 +411,7 @@ Loader.controller(
             ($scope.sortColumnKey ==
              constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS) ||
             ($scope.sortColumnKey ==
-             constants.KEY__DIFFERENCE_DATA__WEIGHTED_DIFF));
+             constants.KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF));
 
         $scope.filteredImagePairs =
             $filter("orderBy")(
