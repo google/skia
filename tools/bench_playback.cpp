@@ -30,7 +30,7 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
 
     SkAutoTDelete<SkCanvas> canvas(
         SkCanvas::NewRasterDirectN32(src.width(), src.height(), scratch, 0));
-    canvas->clipRect(SkRect::MakeWH(FLAGS_tile, FLAGS_tile));
+    canvas->clipRect(SkRect::MakeWH(SkIntToScalar(FLAGS_tile), SkIntToScalar(FLAGS_tile)));
 
     const SkMSec start = SkTime::GetMSecs();
     for (int i = 0; i < FLAGS_loops; i++) {
