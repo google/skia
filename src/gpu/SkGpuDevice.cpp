@@ -1536,7 +1536,9 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
         SkMatrix matrix(*draw.fMatrix);
         matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
         SkIRect clipBounds = SkIRect::MakeWH(bitmap.width(), bitmap.height());
-        SkImageFilter::Context ctx(matrix, clipBounds);
+        SkImageFilter::Cache* cache = SkImageFilter::Cache::Create();
+        SkAutoUnref aur(cache);
+        SkImageFilter::Context ctx(matrix, clipBounds, cache);
         if (filter_texture(this, fContext, texture, filter, w, h, ctx, &filteredBitmap,
                            &offset)) {
             texture = (GrTexture*) filteredBitmap.getTexture();
@@ -1644,7 +1646,9 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
         SkMatrix matrix(*draw.fMatrix);
         matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
         SkIRect clipBounds = SkIRect::MakeWH(devTex->width(), devTex->height());
-        SkImageFilter::Context ctx(matrix, clipBounds);
+        SkImageFilter::Cache* cache = SkImageFilter::Cache::Create();
+        SkAutoUnref aur(cache);
+        SkImageFilter::Context ctx(matrix, clipBounds, cache);
         if (filter_texture(this, fContext, devTex, filter, w, h, ctx, &filteredBitmap,
                            &offset)) {
             devTex = filteredBitmap.getTexture();

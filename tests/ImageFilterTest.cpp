@@ -191,7 +191,8 @@ DEF_TEST(ImageFilter, reporter) {
             SkDeviceImageFilterProxy proxy(&device);
             SkIPoint loc = SkIPoint::Make(0, 0);
             // An empty input should early return and return false
-            SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeEmpty());
+            SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(2));
+            SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeEmpty(), cache.get());
             REPORTER_ASSERT(reporter,
                             !bicubic->filterImage(&proxy, bitmap, ctx, &result, &loc));
         }
@@ -247,8 +248,10 @@ static void test_crop_rects(SkBaseDevice* device, skiatest::Reporter* reporter) 
         SkIPoint offset;
         SkString str;
         str.printf("filter %d", static_cast<int>(i));
-        SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest());
-        REPORTER_ASSERT_MESSAGE(reporter, filter->filterImage(&proxy, bitmap, ctx, &result, &offset), str.c_str());
+        SkAutoTUnref<SkImageFilter::Cache> cache(SkImageFilter::Cache::Create(2));
+        SkImageFilter::Context ctx(SkMatrix::I(), SkIRect::MakeLargest(), cache.get());
+        REPORTER_ASSERT_MESSAGE(reporter, filter->filterImage(&proxy, bitmap, ctx,
+                                &result, &offset), str.c_str());
         REPORTER_ASSERT_MESSAGE(reporter, offset.fX == 20 && offset.fY == 30, str.c_str());
     }
 

@@ -1258,7 +1258,9 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, int x, int y,
             SkMatrix matrix = *iter.fMatrix;
             matrix.postTranslate(SkIntToScalar(-pos.x()), SkIntToScalar(-pos.y()));
             SkIRect clipBounds = SkIRect::MakeWH(srcDev->width(), srcDev->height());
-            SkImageFilter::Context ctx(matrix, clipBounds);
+            SkImageFilter::Cache* cache = SkImageFilter::Cache::Create();
+            SkAutoUnref aur(cache);
+            SkImageFilter::Context ctx(matrix, clipBounds, cache);
             if (filter->filterImage(&proxy, src, ctx, &dst, &offset)) {
                 SkPaint tmpUnfiltered(*paint);
                 tmpUnfiltered.setImageFilter(NULL);
@@ -1298,7 +1300,9 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
             SkMatrix matrix = *iter.fMatrix;
             matrix.postTranslate(SkIntToScalar(-pos.x()), SkIntToScalar(-pos.y()));
             SkIRect clipBounds = SkIRect::MakeWH(bitmap.width(), bitmap.height());
-            SkImageFilter::Context ctx(matrix, clipBounds);
+            SkImageFilter::Cache* cache = SkImageFilter::Cache::Create();
+            SkAutoUnref aur(cache);
+            SkImageFilter::Context ctx(matrix, clipBounds, cache);
             if (filter->filterImage(&proxy, bitmap, ctx, &dst, &offset)) {
                 SkPaint tmpUnfiltered(*paint);
                 tmpUnfiltered.setImageFilter(NULL);

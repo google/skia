@@ -15,7 +15,8 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigma, SkColor color, SkImageFilter* input)
+SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigma,
+                                                 SkColor color, SkImageFilter* input)
     : INHERITED(input)
     , fDx(dx)
     , fDy(dy)
@@ -25,7 +26,9 @@ SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkSca
 {
 }
 
-SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy, SkScalar sigmaX, SkScalar sigmaY, SkColor color, SkImageFilter* input, const CropRect* cropRect)
+SkDropShadowImageFilter::SkDropShadowImageFilter(SkScalar dx, SkScalar dy,
+                                                 SkScalar sigmaX, SkScalar sigmaY, SkColor color,
+                                                 SkImageFilter* input, const CropRect* cropRect)
     : INHERITED(input, cropRect)
     , fDx(dx)
     , fDy(dy)
@@ -58,7 +61,9 @@ void SkDropShadowImageFilter::flatten(SkWriteBuffer& buffer) const
     buffer.writeColor(fColor);
 }
 
-bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source, const Context& ctx, SkBitmap* result, SkIPoint* offset) const
+bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source,
+                                            const Context& ctx,
+                                            SkBitmap* result, SkIPoint* offset) const
 {
     SkBitmap src = source;
     SkIPoint srcOffset = SkIPoint::Make(0, 0);
@@ -81,7 +86,8 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
     sigma.fX = SkMaxScalar(0, sigma.fX);
     sigma.fY = SkMaxScalar(0, sigma.fY);
     SkAutoTUnref<SkImageFilter> blurFilter(SkBlurImageFilter::Create(sigma.fX, sigma.fY));
-    SkAutoTUnref<SkColorFilter> colorFilter(SkColorFilter::CreateModeFilter(fColor, SkXfermode::kSrcIn_Mode));
+    SkAutoTUnref<SkColorFilter> colorFilter(
+        SkColorFilter::CreateModeFilter(fColor, SkXfermode::kSrcIn_Mode));
     SkPaint paint;
     paint.setImageFilter(blurFilter.get());
     paint.setColorFilter(colorFilter.get());

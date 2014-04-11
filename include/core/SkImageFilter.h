@@ -16,7 +16,6 @@ class SkBitmap;
 class SkColorFilter;
 class SkBaseDevice;
 struct SkIPoint;
-class SkShader;
 class GrEffectRef;
 class GrTexture;
 
@@ -49,16 +48,28 @@ public:
         uint32_t fFlags;
     };
 
+    class Cache : public SkRefCnt {
+    public:
+        // By default, we cache only image filters with 2 or more children.
+        static Cache* Create(int minChildren = 2);
+        virtual ~Cache() {}
+        virtual bool get(const SkImageFilter* key, SkBitmap* result, SkIPoint* offset) = 0;
+        virtual void set(const SkImageFilter* key,
+                         const SkBitmap& result, const SkIPoint& offset) = 0;
+    };
+
     class Context {
     public:
-        Context(const SkMatrix& ctm, const SkIRect& clipBounds) :
-            fCTM(ctm), fClipBounds(clipBounds) {
+        Context(const SkMatrix& ctm, const SkIRect& clipBounds, Cache* cache) :
+            fCTM(ctm), fClipBounds(clipBounds), fCache(cache) {
         }
         const SkMatrix& ctm() const { return fCTM; }
         const SkIRect& clipBounds() const { return fClipBounds; }
+        Cache* cache() const { return fCache; }
     private:
         SkMatrix fCTM;
         SkIRect  fClipBounds;
+        Cache*   fCache;
     };
 
     class Proxy {

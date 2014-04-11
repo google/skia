@@ -12,6 +12,7 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkRect.h"
+#include "SkTDynamicHash.h"
 #include "SkValidationUtils.h"
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -96,14 +97,23 @@ void SkImageFilter::flatten(SkWriteBuffer& buffer) const {
 bool SkImageFilter::filterImage(Proxy* proxy, const SkBitmap& src,
                                 const Context& context,
                                 SkBitmap* result, SkIPoint* offset) const {
+    Cache* cache = context.cache();
     SkASSERT(result);
     SkASSERT(offset);
+    SkASSERT(cache);
+    if (cache->get(this, result, offset)) {
+        return true;
+    }
     /*
      *  Give the proxy first shot at the filter. If it returns false, ask
      *  the filter to do it.
      */
-    return (proxy && proxy->filterImage(this, src, context, result, offset)) ||
-           this->onFilterImage(proxy, src, context, result, offset);
+    if ((proxy && proxy->filterImage(this, src, context, result, offset)) ||
+        this->onFilterImage(proxy, src, context, result, offset)) {
+        cache->set(this, *result, *offset);
+        return true;
+    }
+    return false;
 }
 
 bool SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
@@ -321,3 +331,83 @@ bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
     }
 }
 #endif
+
+static uint32_t compute_hash(const uint32_t* data, int count) {
+    uint32_t hash = 0;
+
+    for (int i = 0; i < count; ++i) {
+        uint32_t k = data[i];
+        k *= 0xcc9e2d51;
+        k = (k << 15) | (k >> 17);
+        k *= 0x1b873593;
+
+        hash ^= k;
+        hash = (hash << 13) | (hash >> 19);
+        hash *= 5;
+        hash += 0xe6546b64;
+    }
+
+    //    hash ^= size;
+    hash ^= hash >> 16;
+    hash *= 0x85ebca6b;
+    hash ^= hash >> 13;
+    hash *= 0xc2b2ae35;
+    hash ^= hash >> 16;
+
+    return hash;
+}
+
+class CacheImpl : public SkImageFilter::Cache {
+public:
+    explicit CacheImpl(int minChildren) : fMinChildren(minChildren) {}
+    virtual ~CacheImpl();
+    bool get(const SkImageFilter* key, SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
+    void set(const SkImageFilter* key, const SkBitmap& result, const SkIPoint& offset) SK_OVERRIDE;
+private:
+    typedef const SkImageFilter* Key;
+    struct Value {
+        Value(Key key, const SkBitmap& bitmap, const SkIPoint& offset)
+            : fKey(key), fBitmap(bitmap), fOffset(offset) {}
+        Key fKey;
+        SkBitmap fBitmap;
+        SkIPoint fOffset;
+        static const Key& GetKey(const Value& v) {
+            return v.fKey;
+        }
+        static uint32_t Hash(Key key) {
+            return compute_hash(reinterpret_cast<const uint32_t*>(&key), sizeof(Key) / sizeof(uint32_t));
+        }
+    };
+    SkTDynamicHash<Value, Key> fData;
+    int fMinChildren;
+};
+
+bool CacheImpl::get(const SkImageFilter* key, SkBitmap* result, SkIPoint* offset) {
+    Value* v = fData.find(key);
+    if (v) {
+        *result = v->fBitmap;
+        *offset = v->fOffset;
+        return true;
+    }
+    return false;
+}
+
+void CacheImpl::set(const SkImageFilter* key, const SkBitmap& result, const SkIPoint& offset) {
+    if (key->getRefCnt() >= fMinChildren) {
+        fData.add(new Value(key, result, offset));
+    }
+}
+
+SkImageFilter::Cache* SkImageFilter::Cache::Create(int minChildren) {
+    return new CacheImpl(minChildren);
+}
+
+CacheImpl::~CacheImpl() {
+    SkTDynamicHash<Value, Key>::Iter iter(&fData);
+
+    while (!iter.done()) {
+        Value* v = &*iter;
+        ++iter;
+        delete v;
+    }
+}
