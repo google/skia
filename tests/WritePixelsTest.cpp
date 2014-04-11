@@ -213,7 +213,7 @@ static bool checkWrite(skiatest::Reporter* reporter, SkCanvas* canvas, const SkB
 
     if (canvasInfo.width() != DEV_W ||
         canvasInfo.height() != DEV_H ||
-        canvasInfo.colorType() != kPMColor_SkColorType) {
+        canvasInfo.colorType() != kN32_SkColorType) {
         return false;
     }
 

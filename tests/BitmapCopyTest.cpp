@@ -188,7 +188,7 @@ static const Pair gPairs[] = {
     { kIndex_8_SkColorType,     "011101"  },
     { kRGB_565_SkColorType,     "010101"  },
     { kARGB_4444_SkColorType,   "010111"  },
-    { kPMColor_SkColorType,     "010111"  },
+    { kN32_SkColorType,         "010111"  },
 };
 
 static const int W = 20;
@@ -364,7 +364,7 @@ DEF_TEST(BitmapCopy, reporter) {
                     }
                     break;
 
-                case kPMColor_SkColorType:
+                case kN32_SkColorType:
                     if (safeSize != 0x8E1BC9BF040000LL) {
                         sizeFail = true;
                     }

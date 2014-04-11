@@ -188,7 +188,7 @@ static BitmapXferProc ChooseBitmapXferProc(const SkBitmap& bitmap,
             */
             SkPMColor pmc = SkPreMultiplyColor(color);
             switch (bitmap.colorType()) {
-                case kPMColor_SkColorType:
+                case kN32_SkColorType:
                     if (data) {
                         *data = pmc;
                     }
@@ -221,7 +221,7 @@ static void CallBitmapXferProc(const SkBitmap& bitmap, const SkIRect& rect,
                                BitmapXferProc proc, uint32_t procData) {
     int shiftPerPixel;
     switch (bitmap.colorType()) {
-        case kPMColor_SkColorType:
+        case kN32_SkColorType:
             shiftPerPixel = 2;
             break;
         case kRGB_565_SkColorType:
@@ -515,7 +515,7 @@ PtProcRec::Proc PtProcRec::chooseProc(SkBlitter** blitterPtr) {
                 const SkBitmap* bm = blitter->justAnOpaqueColor(&value);
                 if (bm && kRGB_565_SkColorType == bm->colorType()) {
                     proc = bw_pt_rect_16_hair_proc;
-                } else if (bm && kPMColor_SkColorType == bm->colorType()) {
+                } else if (bm && kN32_SkColorType == bm->colorType()) {
                     proc = bw_pt_rect_32_hair_proc;
                 } else {
                     proc = bw_pt_rect_hair_proc;

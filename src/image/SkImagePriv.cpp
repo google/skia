@@ -20,7 +20,7 @@ SkBitmap::Config SkColorTypeToBitmapConfig(SkColorType colorType) {
         case kRGB_565_SkColorType:
             return SkBitmap::kRGB_565_Config;
 
-        case kPMColor_SkColorType:
+        case kN32_SkColorType:
             return SkBitmap::kARGB_8888_Config;
 
         case kIndex_8_SkColorType:
@@ -44,7 +44,7 @@ SkColorType SkBitmapConfigToColorType(SkBitmap::Config config) {
         kIndex_8_SkColorType,   // kIndex8_Config
         kRGB_565_SkColorType,   // kRGB_565_Config
         kARGB_4444_SkColorType, // kARGB_4444_Config
-        kPMColor_SkColorType,   // kARGB_8888_Config
+        kN32_SkColorType,   // kARGB_8888_Config
     };
     SkASSERT((unsigned)config < SK_ARRAY_COUNT(gCT));
     return gCT[config];

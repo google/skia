@@ -149,7 +149,7 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
         return false;
     }
 
-    if (src.colorType() != kPMColor_SkColorType) {
+    if (src.colorType() != kN32_SkColorType) {
         return false;
     }
 

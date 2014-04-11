@@ -34,7 +34,7 @@ static bool getBitmapInfo(const SkBitmap& bm,
                 *upscaleTo32 = true;
             }
             // fall through
-        case kPMColor_SkColorType:
+        case kN32_SkColorType:
             *bitsPerComponent = 8;
 #if SK_PMCOLOR_BYTE_ORDER(R,G,B,A)
             *info = kCGBitmapByteOrder32Big;
@@ -94,7 +94,7 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
         copy = new SkBitmap;
         // here we make a ceep copy of the pixels, since CG won't take our
         // 565 directly
-        bm.copyTo(copy, kPMColor_SkColorType);
+        bm.copyTo(copy, kN32_SkColorType);
     } else {
         copy = new SkBitmap(bm);
     }

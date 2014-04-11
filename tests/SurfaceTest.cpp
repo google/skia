@@ -151,7 +151,7 @@ static void test_imagepeek(skiatest::Reporter* reporter) {
         if (success) {
             REPORTER_ASSERT(reporter, 10 == info.fWidth);
             REPORTER_ASSERT(reporter, 10 == info.fHeight);
-            REPORTER_ASSERT(reporter, kPMColor_SkColorType == info.fColorType);
+            REPORTER_ASSERT(reporter, kN32_SkColorType == info.fColorType);
             REPORTER_ASSERT(reporter, kPremul_SkAlphaType == info.fAlphaType ||
                             kOpaque_SkAlphaType == info.fAlphaType);
             REPORTER_ASSERT(reporter, info.minRowBytes() <= rowBytes);

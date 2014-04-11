@@ -25,7 +25,7 @@ static void test_bigwidth(skiatest::Reporter* reporter) {
     // TODO: perhaps skia can relax this, and only require that rowBytes fit
     //       in a uint32_t (or larger), but for now this is the constraint.
 
-    info.fColorType = kPMColor_SkColorType;
+    info.fColorType = kN32_SkColorType;
     REPORTER_ASSERT(reporter, !bm.setConfig(info));
 }
 

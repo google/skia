@@ -189,7 +189,7 @@ public:
         }
         info->fWidth = TestImageGenerator::Width();
         info->fHeight = TestImageGenerator::Height();
-        info->fColorType = kPMColor_SkColorType;
+        info->fColorType = kN32_SkColorType;
         info->fAlphaType = kOpaque_SkAlphaType;
         return true;
     }
@@ -202,7 +202,7 @@ public:
         REPORTER_ASSERT(fReporter, rowBytes >= minRowBytes);
         if ((NULL == pixels)
             || (fType != kSucceedGetPixels_TestType)
-            || (info.fColorType != kPMColor_SkColorType)) {
+            || (info.fColorType != kN32_SkColorType)) {
             return false;
         }
         char* bytePtr = static_cast<char*>(pixels);

@@ -381,7 +381,7 @@ DEF_GPUTEST(ReadPixels, reporter, factory) {
                     SkIRect clippedRect = DEV_RECT;
                     if (clippedRect.intersect(srcRect)) {
                         REPORTER_ASSERT(reporter, success);
-                        REPORTER_ASSERT(reporter, kPMColor_SkColorType == wkbmp.colorType());
+                        REPORTER_ASSERT(reporter, kN32_SkColorType == wkbmp.colorType());
                         REPORTER_ASSERT(reporter, kPremul_SkAlphaType == wkbmp.alphaType());
                         checkRead(reporter, wkbmp, clippedRect.fLeft,
                                   clippedRect.fTop, true, false);

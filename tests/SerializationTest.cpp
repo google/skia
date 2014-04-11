@@ -233,7 +233,7 @@ static void TestBitmapSerialization(const SkBitmap& validBitmap,
 
 static bool setup_bitmap_for_canvas(SkBitmap* bitmap) {
     SkImageInfo info = SkImageInfo::Make(
-        kBitmapSize, kBitmapSize, kPMColor_SkColorType, kPremul_SkAlphaType);
+        kBitmapSize, kBitmapSize, kN32_SkColorType, kPremul_SkAlphaType);
     return bitmap->allocPixels(info);
 }
 

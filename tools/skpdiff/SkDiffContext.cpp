@@ -122,7 +122,7 @@ void SkDiffContext::addDiff(const char* baselinePath, const char* testPath) {
 
             // compute the image diff and output it
             SkBitmap copy;
-            diffData.fResult.poiAlphaMask.copyTo(&copy, kPMColor_SkColorType);
+            diffData.fResult.poiAlphaMask.copyTo(&copy, kN32_SkColorType);
             SkImageEncoder::EncodeFile(newRecord->fDifferencePath.c_str(), copy,
                                        SkImageEncoder::kPNG_Type, 100);
 

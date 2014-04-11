@@ -205,8 +205,8 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
         (displInput && !displInput->filterImage(proxy, src, ctx, &displ, &displOffset))) {
         return false;
     }
-    if ((displ.colorType() != kPMColor_SkColorType) ||
-        (color.colorType() != kPMColor_SkColorType)) {
+    if ((displ.colorType() != kN32_SkColorType) ||
+        (color.colorType() != kN32_SkColorType)) {
         return false;
     }
     SkIRect bounds;

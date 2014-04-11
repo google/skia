@@ -301,9 +301,8 @@
         # Temporary until https:#googleplex-android-review.git.corp.google.com/#/c/442220/
         # lands.
         'SK_SUPPORT_LEGACY_GETTOTALCLIP',
-        # Use a better name for kPMColor_SkColorType until
-        # https://code.google.com/p/skia/issues/detail?id=2384 is fixed.
-        'kNative_8888_SkColorType kPMColor_SkColorType',
+        # Still need to switch Android to the new name for N32.
+        'kNative_8888_SkColorType kN32_SkColorType',
       ],
     }],
 
