@@ -1,10 +1,11 @@
+*.pyc
 *.swp
 .android_config
 .DS_Store
 .gclient*
-*.pyc
+.gm-actuals/
 gyp/build/
 out
+TAGS
 third_party/externals/
 xcodebuild/
-TAGS
