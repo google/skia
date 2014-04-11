@@ -115,8 +115,6 @@ protected:
     virtual void postDraw(int opIndex);
 #endif
 
-    void preLoadBitmaps(const SkTDArray<void*>* results);
-
 private:
     class TextContainer {
     public:
