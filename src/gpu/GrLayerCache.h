@@ -47,9 +47,9 @@ private:
 //
 // Atlased layers get a ref to their atlas GrTexture and their GrAtlasLocation
 // is filled in.
-// In this case GrCachedLayer is roughly equivalent to a GrGlyph in the font 
+// In this case GrCachedLayer is roughly equivalent to a GrGlyph in the font
 // caching system.
-// 
+//
 // Non-atlased layers get a ref to the GrTexture in which they reside.
 // TODO: can we easily reuse the empty space in the non-atlased GrTexture's?
 struct GrCachedLayer {
@@ -65,7 +65,7 @@ public:
     }
 
     // This call takes over the caller's ref
-    void setTexture(GrTexture* texture) { 
+    void setTexture(GrTexture* texture) {
         if (NULL != fTexture) {
             fTexture->unref();
         }
@@ -78,9 +78,9 @@ private:
     uint32_t        fPictureID;
     // fLayerID is only valid when fPicture != kInvalidGenID in which case it
     // is the index of this layer in the picture (one of 0 .. #layers).
-    int             fLayerID;        
+    int             fLayerID;
 
-    // fTexture is a ref on the atlasing texture for atlased layers and a 
+    // fTexture is a ref on the atlasing texture for atlased layers and a
     // ref on a GrTexture for non-atlased textures. In both cases, if this is
     // non-NULL, that means that the texture is locked in the texture cache.
     GrTexture*      fTexture;

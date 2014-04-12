@@ -143,4 +143,3 @@ bool SkBaseDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, SkPicture* picture
     // The base class doesn't perform any accelerated picture rendering
     return false;
 }
-
