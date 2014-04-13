@@ -61,15 +61,18 @@ public:
 
         fBitmap = load_bitmap();
 
-        fPicture = new SkPicture;
-        SkCanvas* canvas = fPicture->beginRecording(100, 100);
+        SkPictureRecorder recorder;
+
+        recorder.beginRecording(100, 100);
+        fSubPicture = recorder.endRecording();
+
+        SkCanvas* canvas = recorder.beginRecording(100, 100);
         SkPaint paint;
         paint.setAntiAlias(true);
 
         canvas->drawBitmap(fBitmap, 0, 0, NULL);
 
         drawCircle(canvas, 50, SK_ColorBLACK);
-        fSubPicture = new SkPicture;
         canvas->drawPicture(*fSubPicture);
         canvas->translate(SkIntToScalar(50), 0);
         canvas->drawPicture(*fSubPicture);
@@ -77,8 +80,11 @@ public:
         canvas->drawPicture(*fSubPicture);
         canvas->translate(SkIntToScalar(-50), 0);
         canvas->drawPicture(*fSubPicture);
-        // fPicture now has (4) references to us. We can release ours, and just
-        // unref fPicture in our destructor, and it will in turn take care of
+
+        fPicture = recorder.endRecording();
+
+        // fPicture now has (4) references to fSubPicture. We can release our ref, 
+        // and just unref fPicture in our destructor, and it will in turn take care of
         // the other references to fSubPicture
         fSubPicture->unref();
     }
@@ -123,13 +129,11 @@ protected:
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
-        drawSomething(canvas);
+        this->drawSomething(canvas);
 
-        SkPicture* pict = new SkPicture;
-        SkAutoUnref aur(pict);
-
-        drawSomething(pict->beginRecording(100, 100));
-        pict->endRecording();
+        SkPictureRecorder recorder;
+        this->drawSomething(recorder.beginRecording(100, 100));
+        SkAutoTUnref<SkPicture> pict(recorder.endRecording());
 
         canvas->save();
         canvas->translate(SkIntToScalar(300), SkIntToScalar(50));
@@ -160,12 +164,11 @@ protected:
         }
 #endif
 
-        // test that we can re-record a subpicture, and see the results
+        // This used to re-record the sub-picture and redraw the parent
+        // A capability that is now forbidden!
 
         SkRandom rand(SampleCode::GetAnimTime());
         canvas->translate(SkIntToScalar(10), SkIntToScalar(250));
-        drawCircle(fSubPicture->beginRecording(50, 50), 25,
-                   rand.nextU() | 0xFF000000);
         canvas->drawPicture(*fPicture);
         delayInval(500);
     }

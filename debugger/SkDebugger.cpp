@@ -41,8 +41,8 @@ void SkDebugger::loadPicture(SkPicture* picture) {
 SkPicture* SkDebugger::copyPicture() {
     // We can't just call clone here since we want to removed the "deleted"
     // commands. Playing back will strip those out.
-    SkPicture* newPicture = new SkPicture;
-    SkCanvas* canvas = newPicture->beginRecording(fPictureWidth, fPictureHeight);
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(fPictureWidth, fPictureHeight);
 
     bool vizMode = fDebugCanvas->getMegaVizMode();
     fDebugCanvas->setMegaVizMode(false);
@@ -62,8 +62,7 @@ SkPicture* SkDebugger::copyPicture() {
     fDebugCanvas->setOverdrawViz(overDraw);
     fDebugCanvas->setOutstandingSaveCount(saveCount);
 
-    newPicture->endRecording();
-    return newPicture;
+    return recorder.endRecording();
 }
 
 void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,

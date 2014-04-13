@@ -834,8 +834,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fclose(f);
 #endif
 
-    fPicture = NULL;
-
     fDeviceType = kRaster_DeviceType;
 
 #if DEFAULT_TO_GPU
@@ -990,7 +988,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
 }
 
 SampleWindow::~SampleWindow() {
-    delete fPicture;
     delete fPdfCanvas;
     fTypeface->unref();
 
@@ -1379,8 +1376,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
         pdfDevice->unref();
         canvas = fPdfCanvas;
     } else if (kPicture_DeviceType == fDeviceType) {
-        fPicture = new SkPicture;
-        canvas = fPicture->beginRecording(9999, 9999);
+        canvas = fRecorder.beginRecording(9999, 9999);
     } else {
 #if SK_SUPPORT_GPU
         if (kNullGPU_DeviceType != fDeviceType)
@@ -1459,16 +1455,16 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     }
 
     if (kPicture_DeviceType == fDeviceType) {
+        SkAutoTUnref<SkPicture> picture(fRecorder.endRecording());
+
         if (true) {
-            SkPicture* pict = new SkPicture(*fPicture);
-            fPicture->unref();
+            SkPicture* pict = new SkPicture(*picture);
             this->installDrawFilter(orig);
             orig->drawPicture(*pict);
             pict->unref();
         } else if (true) {
             SkDynamicMemoryWStream ostream;
-            fPicture->serialize(&ostream);
-            fPicture->unref();
+            picture->serialize(&ostream);
 
             SkAutoDataUnref data(ostream.copyToData());
             SkMemoryStream istream(data->data(), data->size());
@@ -1477,10 +1473,8 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
                 orig->drawPicture(*pict.get());
             }
         } else {
-            fPicture->draw(orig);
-            fPicture->unref();
+            picture->draw(orig);
         }
-        fPicture = NULL;
     }
 
     // Do this after presentGL and other finishing, rather than in afterChild

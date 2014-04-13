@@ -20,11 +20,10 @@ SerializeTask::SerializeTask(const Task& parent,
     {}
 
 void SerializeTask::draw() {
-    SkPicture recorded;
-    RecordPicture(fGM.get(), &recorded);
+    SkAutoTUnref<SkPicture> recorded(RecordPicture(fGM.get()));
 
     SkDynamicMemoryWStream wStream;
-    recorded.serialize(&wStream, NULL);
+    recorded->serialize(&wStream, NULL);
     SkAutoTUnref<SkStream> rStream(wStream.detachAsStream());
     SkAutoTUnref<SkPicture> reconstructed(SkPicture::CreateFromStream(rStream));
 

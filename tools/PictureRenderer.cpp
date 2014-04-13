@@ -120,7 +120,7 @@ void PictureRenderer::init(SkPicture* pict, const SkString* outputDir,
 
     SkASSERT(NULL == fPicture);
     SkASSERT(NULL == fCanvas.get());
-    if (fPicture != NULL || NULL != fCanvas.get()) {
+    if (NULL != fPicture || NULL != fCanvas.get()) {
         return;
     }
 
@@ -129,8 +129,7 @@ void PictureRenderer::init(SkPicture* pict, const SkString* outputDir,
         return;
     }
 
-    fPicture = pict;
-    fPicture->ref();
+    fPicture.reset(pict)->ref();
     fCanvas.reset(this->setupCanvas());
 }
 
@@ -246,8 +245,7 @@ void PictureRenderer::scaleToScaleFactor(SkCanvas* canvas) {
 
 void PictureRenderer::end() {
     this->resetState(true);
-    SkSafeUnref(fPicture);
-    fPicture = NULL;
+    fPicture.reset(NULL);
     fCanvas.reset(NULL);
 }
 
@@ -276,13 +274,12 @@ int PictureRenderer::getViewHeight() {
 void PictureRenderer::buildBBoxHierarchy() {
     SkASSERT(NULL != fPicture);
     if (kNone_BBoxHierarchyType != fBBoxHierarchyType && NULL != fPicture) {
-        SkPicture* newPicture = this->createPicture();
-        SkCanvas* recorder = newPicture->beginRecording(fPicture->width(), fPicture->height(),
-                                                        this->recordFlags());
-        fPicture->draw(recorder);
-        newPicture->endRecording();
-        fPicture->unref();
-        fPicture = newPicture;
+        SkAutoTUnref<SkPictureFactory> factory(this->getFactory());
+        SkPictureRecorder recorder(factory);
+        SkCanvas* canvas = recorder.beginRecording(fPicture->width(), fPicture->height(),
+                                                   this->recordFlags());
+        fPicture->draw(canvas);
+        fPicture.reset(recorder.endRecording());
     }
 }
 
@@ -438,17 +435,18 @@ static SkData* encode_bitmap_to_data(size_t*, const SkBitmap& bm) {
 }
 
 bool RecordPictureRenderer::render(SkBitmap** out) {
-    SkAutoTUnref<SkPicture> replayer(this->createPicture());
-    SkCanvas* recorder = replayer->beginRecording(this->getViewWidth(), this->getViewHeight(),
-                                                  this->recordFlags());
-    this->scaleToScaleFactor(recorder);
-    fPicture->draw(recorder);
-    replayer->endRecording();
+    SkAutoTUnref<SkPictureFactory> factory(this->getFactory());
+    SkPictureRecorder recorder(factory);
+    SkCanvas* canvas = recorder.beginRecording(this->getViewWidth(), this->getViewHeight(),
+                                               this->recordFlags());
+    this->scaleToScaleFactor(canvas);
+    fPicture->draw(canvas);
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
     if (!fOutputDir.isEmpty()) {
         // Record the new picture as a new SKP with PNG encoded bitmaps.
         SkString skpPath = SkOSPath::SkPathJoin(fOutputDir.c_str(), fInputFilename.c_str());
         SkFILEWStream stream(skpPath.c_str());
-        replayer->serialize(&stream, &encode_bitmap_to_data);
+        picture->serialize(&stream, &encode_bitmap_to_data);
         return true;
     }
     return false;
@@ -499,7 +497,7 @@ void SimplePictureRenderer::init(SkPicture* picture, const SkString* outputDir,
 
 bool SimplePictureRenderer::render(SkBitmap** out) {
     SkASSERT(fCanvas.get() != NULL);
-    SkASSERT(fPicture != NULL);
+    SkASSERT(NULL != fPicture);
     if (NULL == fCanvas.get() || NULL == fPicture) {
         return false;
     }
@@ -538,7 +536,7 @@ TiledPictureRenderer::TiledPictureRenderer()
 
 void TiledPictureRenderer::init(SkPicture* pict, const SkString* outputDir,
                                 const SkString* inputFilename, bool useChecksumBasedFilenames) {
-    SkASSERT(pict != NULL);
+    SkASSERT(NULL != pict);
     SkASSERT(0 == fTileRects.count());
     if (NULL == pict || fTileRects.count() != 0) {
         return;
@@ -546,7 +544,7 @@ void TiledPictureRenderer::init(SkPicture* pict, const SkString* outputDir,
 
     // Do not call INHERITED::init(), which would create a (potentially large) canvas which is not
     // used by bench_pictures.
-    fPicture = SkRef(pict);
+    fPicture.reset(pict)->ref();
     this->CopyString(&fOutputDir, outputDir);
     this->CopyString(&fInputFilename, inputFilename);
     fUseChecksumBasedFilenames = useChecksumBasedFilenames;
@@ -956,15 +954,16 @@ SkString MultiCorePictureRenderer::getConfigNameInternal() {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 void PlaybackCreationRenderer::setup() {
-    fReplayer.reset(this->createPicture());
-    SkCanvas* recorder = fReplayer->beginRecording(this->getViewWidth(), this->getViewHeight(),
-                                                   this->recordFlags());
-    this->scaleToScaleFactor(recorder);
-    recorder->drawPicture(*fPicture);
+    SkAutoTUnref<SkPictureFactory> factory(this->getFactory());
+    fRecorder.reset(SkNEW_ARGS(SkPictureRecorder, (factory)));
+    SkCanvas* canvas = fRecorder->beginRecording(this->getViewWidth(), this->getViewHeight(),
+                                                 this->recordFlags());
+    this->scaleToScaleFactor(canvas);
+    canvas->drawPicture(*fPicture);
 }
 
 bool PlaybackCreationRenderer::render(SkBitmap** out) {
-    fReplayer->endRecording();
+    fPicture.reset(fRecorder->endRecording());
     // Since this class does not actually render, return false.
     return false;
 }
@@ -978,7 +977,7 @@ SkString PlaybackCreationRenderer::getConfigNameInternal() {
 
 class RTreePicture : public SkPicture {
 public:
-    virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE{
+    virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE {
         static const int kRTreeMinChildren = 6;
         static const int kRTreeMaxChildren = 11;
         SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(fWidth),
@@ -989,18 +988,26 @@ public:
     }
 };
 
-SkPicture* PictureRenderer::createPicture() {
+class SkRTreePictureFactory : public SkPictureFactory {
+private:
+    virtual SkPicture* create(int width, int height) SK_OVERRIDE {
+        return SkNEW(RTreePicture);   
+    }
+
+private:
+    typedef SkPictureFactory INHERITED;
+};
+
+SkPictureFactory* PictureRenderer::getFactory() {
     switch (fBBoxHierarchyType) {
         case kNone_BBoxHierarchyType:
-            return SkNEW(SkPicture);
+            return NULL;
         case kQuadTree_BBoxHierarchyType:
-            return SkNEW_ARGS(SkQuadTreePicture, (SkIRect::MakeWH(fPicture->width(),
-                                                                  fPicture->height())));
+            return SkNEW(SkQuadTreePictureFactory);
         case kRTree_BBoxHierarchyType:
-            return SkNEW(RTreePicture);
+            return SkNEW(SkRTreePictureFactory);
         case kTileGrid_BBoxHierarchyType:
-            return SkNEW_ARGS(SkTileGridPicture, (fPicture->width(),
-                                                  fPicture->height(), fGridInfo));
+            return new SkTileGridPictureFactory(fGridInfo);
     }
     SkASSERT(0); // invalid bbhType
     return NULL;

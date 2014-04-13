@@ -302,13 +302,17 @@ protected:
 
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->save();
-        drawPicture(canvas, 0);
+        this->drawPicture(canvas, 0);
         canvas->restore();
 
         {
-            SkPicture picture;
-            SkCanvas* record = picture.beginRecording(320, 480);
-            drawPicture(record, 120);
+            SkPictureRecorder recorder;
+            {
+                SkCanvas* record = recorder.beginRecording(320, 480);
+                this->drawPicture(record, 120);
+            }
+            SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+
             canvas->translate(0, SkIntToScalar(120));
 
             SkRect clip;
@@ -316,7 +320,7 @@ protected:
             do {
                 canvas->save();
                 canvas->clipRect(clip);
-                picture.draw(canvas);
+                picture->draw(canvas);
                 canvas->restore();
                 if (clip.fRight < SkIntToScalar(320))
                     clip.offset(SkIntToScalar(160), 0);

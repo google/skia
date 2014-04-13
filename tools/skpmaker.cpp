@@ -26,8 +26,8 @@ DEFINE_string(writePath, "", "Filepath to write the SKP into.");
 
 static void skpmaker(int width, int height, int border, SkColor color,
                      const char *writePath) {
-    SkPicture pict;
-    SkCanvas* canvas = pict.beginRecording(width, height);
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(width, height);
     SkPaint paint;
     paint.setStyle(SkPaint::kFill_Style);
     paint.setColor(SK_ColorBLACK);
@@ -36,9 +36,9 @@ static void skpmaker(int width, int height, int border, SkColor color,
     canvas->drawRectCoords(SkIntToScalar(border), SkIntToScalar(border),
                            SkIntToScalar(width - border*2), SkIntToScalar(height - border*2),
                            paint);
-    pict.endRecording();
+    SkAutoTUnref<SkPicture> pict(recorder.endRecording());
     SkFILEWStream stream(writePath);
-    pict.serialize(&stream);
+    pict->serialize(&stream);
 }
 
 int tool_main(int argc, char** argv);

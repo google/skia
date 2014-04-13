@@ -276,8 +276,8 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
 
     SkMatrix expectedMatrix = canvas.getTotalMatrix();
 
-    SkPicture picture;
-    SkCanvas* recordingCanvas = picture.beginRecording(100, 100,
+    SkPictureRecorder recorder;
+    SkCanvas* recordingCanvas = recorder.beginRecording(100, 100,
         SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
 
     SkPaint paint;
@@ -294,9 +294,9 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
     recordingCanvas->drawRect(SkRect::Make(SkIRect::MakeWH(100, 100)), solidPaint);
     recordingCanvas->restore(); // scale
     recordingCanvas->restore(); // saveLayer
-    picture.endRecording();
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
-    canvas.drawPicture(picture);
+    canvas.drawPicture(*picture);
 }
 
 static void test_huge_blur(SkBaseDevice* device, skiatest::Reporter* reporter) {

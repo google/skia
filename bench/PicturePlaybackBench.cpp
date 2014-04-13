@@ -37,16 +37,15 @@ protected:
 
     virtual void onDraw(const int loops, SkCanvas* canvas) {
 
-        SkPicture picture;
-
-        SkCanvas* pCanvas = picture.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
-        recordCanvas(pCanvas);
-        picture.endRecording();
+        SkPictureRecorder recorder;
+        SkCanvas* pCanvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
+        this->recordCanvas(pCanvas);
+        SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
         const SkPoint translateDelta = getTranslateDelta(loops);
 
         for (int i = 0; i < loops; i++) {
-            picture.draw(canvas);
+            picture->draw(canvas);
             canvas->translate(translateDelta.fX, translateDelta.fY);
         }
     }
@@ -71,7 +70,7 @@ class TextPlaybackBench : public PicturePlaybackBench {
 public:
     TextPlaybackBench() : INHERITED("drawText") { }
 protected:
-    virtual void recordCanvas(SkCanvas* canvas) {
+    virtual void recordCanvas(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setTextSize(fTextSize);
         paint.setColor(SK_ColorBLACK);
@@ -96,7 +95,7 @@ public:
         : INHERITED(drawPosH ? "drawPosTextH" : "drawPosText")
         , fDrawPosH(drawPosH) { }
 protected:
-    virtual void recordCanvas(SkCanvas* canvas) {
+    virtual void recordCanvas(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         paint.setTextSize(fTextSize);
         paint.setColor(SK_ColorBLACK);

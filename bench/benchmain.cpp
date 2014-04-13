@@ -122,7 +122,7 @@ static void saveFile(const char name[], const char config[], const char dir[],
     stream.write(data->data(), data->size());
 }
 
-static void performClip(SkCanvas* canvas, int w, int h) {
+static void perform_clip(SkCanvas* canvas, int w, int h) {
     SkRect r;
 
     r.set(SkIntToScalar(10), SkIntToScalar(10),
@@ -134,7 +134,7 @@ static void performClip(SkCanvas* canvas, int w, int h) {
     canvas->clipRect(r, SkRegion::kXOR_Op);
 }
 
-static void performRotate(SkCanvas* canvas, int w, int h) {
+static void perform_rotate(SkCanvas* canvas, int w, int h) {
     const SkScalar x = SkIntToScalar(w) / 2;
     const SkScalar y = SkIntToScalar(h) / 2;
 
@@ -143,7 +143,7 @@ static void performRotate(SkCanvas* canvas, int w, int h) {
     canvas->translate(-x, -y);
 }
 
-static void performScale(SkCanvas* canvas, int w, int h) {
+static void perform_scale(SkCanvas* canvas, int w, int h) {
     const SkScalar x = SkIntToScalar(w) / 2;
     const SkScalar y = SkIntToScalar(h) / 2;
 
@@ -480,7 +480,8 @@ int tool_main(int argc, char** argv) {
 #endif
 
             SkAutoTUnref<SkCanvas> canvas;
-            SkPicture recordFrom, recordTo;
+            SkAutoTUnref<SkPicture> recordFrom;
+            SkPictureRecorder recorderTo;
             const SkIPoint dim = bench->getSize();
 
             const SkPicture::RecordingFlags kRecordFlags =
@@ -505,13 +506,15 @@ int tool_main(int argc, char** argv) {
                         canvas.reset(SkDeferredCanvas::Create(surface.get()));
                         break;
                     case kRecord_BenchMode:
-                        canvas.reset(SkRef(recordTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
+                        canvas.reset(SkRef(recorderTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
                         break;
-                    case kPictureRecord_BenchMode:
-                        bench->draw(1, recordFrom.beginRecording(dim.fX, dim.fY, kRecordFlags));
-                        recordFrom.endRecording();
-                        canvas.reset(SkRef(recordTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
+                    case kPictureRecord_BenchMode: {
+                        SkPictureRecorder recorderFrom;
+                        bench->draw(1, recorderFrom.beginRecording(dim.fX, dim.fY, kRecordFlags));
+                        recordFrom.reset(recorderFrom.endRecording());
+                        canvas.reset(SkRef(recorderTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
                         break;
+                    }
                     case kNormal_BenchMode:
                         canvas.reset(SkRef(surface->getCanvas()));
                         break;
@@ -522,9 +525,15 @@ int tool_main(int argc, char** argv) {
 
             if (NULL != canvas) {
                 canvas->clear(SK_ColorWHITE);
-                if (FLAGS_clip)   {   performClip(canvas, dim.fX, dim.fY); }
-                if (FLAGS_scale)  {  performScale(canvas, dim.fX, dim.fY); }
-                if (FLAGS_rotate) { performRotate(canvas, dim.fX, dim.fY); }
+                if (FLAGS_clip)   {   
+                    perform_clip(canvas, dim.fX, dim.fY); 
+                }
+                if (FLAGS_scale)  {  
+                    perform_scale(canvas, dim.fX, dim.fY); 
+                }
+                if (FLAGS_rotate) { 
+                    perform_rotate(canvas, dim.fX, dim.fY); 
+                }
             }
 
             if (!loggedBenchName) {
@@ -569,7 +578,7 @@ int tool_main(int argc, char** argv) {
 
                     if ((benchMode == kRecord_BenchMode || benchMode == kPictureRecord_BenchMode)) {
                         // Clear the recorded commands so that they do not accumulate.
-                        canvas.reset(SkRef(recordTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
+                        canvas.reset(SkRef(recorderTo.beginRecording(dim.fX, dim.fY, kRecordFlags)));
                     }
 
                     timer.start();
@@ -591,7 +600,7 @@ int tool_main(int argc, char** argv) {
                         }
 
                         if (benchMode == kPictureRecord_BenchMode) {
-                            recordFrom.draw(canvas);
+                            recordFrom->draw(canvas);
                         } else {
                             bench->draw(loops, canvas);
                         }

@@ -174,9 +174,9 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* o
 
     while (FLAGS_bench_record) {
         const int kRecordFlags = 0;
-        SkPicture other;
-        picture->draw(other.beginRecording(picture->width(), picture->height(), kRecordFlags));
-        other.endRecording();
+        SkPictureRecorder recorder;
+        picture->draw(recorder.beginRecording(picture->width(), picture->height(), kRecordFlags));
+        SkAutoTUnref<SkPicture> other(recorder.endRecording());
     }
 
     for (int i = 0; i < FLAGS_clone; ++i) {

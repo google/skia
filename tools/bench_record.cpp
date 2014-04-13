@@ -33,40 +33,48 @@ DEFINE_int32(tileGridSize, 512, "Set the tile grid size. Has no effect if bbh is
 DEFINE_string(bbh, "", "Turn on the bbh and select the type, one of rtree, tilegrid, quadtree");
 DEFINE_bool(skr, false, "Record SKR instead of SKP.");
 
-typedef SkPicture* (*PictureFactory)(const int width, const int height, int* recordingFlags);
+typedef SkPictureFactory* (*PictureFactory)(int* recordingFlags);
 
-static SkPicture* vanilla_factory(const int width, const int height, int* recordingFlags) {
-    return SkNEW(SkPicture);
+static SkPictureFactory* vanilla_factory(int* recordingFlags) {
+    return NULL;
 }
 
-static SkPicture* rtree_factory(const int width, const int height, int* recordingFlags) {
+static SkPictureFactory* rtree_factory(int* recordingFlags) {
     *recordingFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
-    return SkNEW(SkPicture);
+    return NULL;
 }
 
-static SkPicture* tilegrid_factory(const int width, const int height, int* recordingFlags) {
+static SkPictureFactory* tilegrid_factory(int* recordingFlags) {
     *recordingFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
     SkTileGridPicture::TileGridInfo info;
     info.fTileInterval.set(FLAGS_tileGridSize, FLAGS_tileGridSize);
     info.fMargin.setEmpty();
     info.fOffset.setZero();
-    return SkNEW_ARGS(SkTileGridPicture, (width, height, info));
+    return SkNEW_ARGS(SkTileGridPictureFactory, (info));
 }
 
-static SkPicture* quadtree_factory(const int width, const int height, int* recordingFlags) {
+static SkPictureFactory* quadtree_factory(int* recordingFlags) {
     *recordingFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
-    return SkNEW_ARGS(SkQuadTreePicture, (SkIRect::MakeWH(width, height)));
+    return SkNEW(SkQuadTreePictureFactory);
 }
 
 static PictureFactory parse_FLAGS_bbh() {
-    if (FLAGS_bbh.isEmpty()) { return &vanilla_factory; }
+    if (FLAGS_bbh.isEmpty()) { 
+        return &vanilla_factory; 
+    }
     if (FLAGS_bbh.count() != 1) {
         SkDebugf("Multiple bbh arguments supplied.\n");
         return NULL;
     }
-    if (FLAGS_bbh.contains("rtree")) { return rtree_factory; }
-    if (FLAGS_bbh.contains("tilegrid")) { return tilegrid_factory; }
-    if (FLAGS_bbh.contains("quadtree")) { return quadtree_factory; }
+    if (FLAGS_bbh.contains("rtree")) { 
+        return rtree_factory; 
+    }
+    if (FLAGS_bbh.contains("tilegrid")) { 
+        return tilegrid_factory; 
+    }
+    if (FLAGS_bbh.contains("quadtree")) { 
+        return quadtree_factory; 
+    }
     SkDebugf("Invalid bbh type %s, must be one of rtree, tilegrid, quadtree.\n", FLAGS_bbh[0]);
     return NULL;
 }
@@ -85,13 +93,14 @@ static void bench_record(SkPicture* src, const char* name, PictureFactory pictur
             }
         } else {
             int recordingFlags = FLAGS_flags;
-            SkAutoTUnref<SkPicture> dst(pictureFactory(width, height, &recordingFlags));
-            SkCanvas* canvas = dst->beginRecording(width, height, recordingFlags);
+            SkAutoTUnref<SkPictureFactory> factory(pictureFactory(&recordingFlags));
+            SkPictureRecorder recorder(factory);
+            SkCanvas* canvas = recorder.beginRecording(width, height, recordingFlags);
             if (NULL != src) {
                 src->draw(canvas);
             }
             if (FLAGS_endRecording) {
-                dst->endRecording();
+                SkAutoTUnref<SkPicture> dst(recorder.endRecording());
             }
         }
     }

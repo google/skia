@@ -32,7 +32,7 @@ public:
     virtual void drawRect(const SkDraw& draw, const SkRect& r,
                           const SkPaint& paint) SK_OVERRIDE {
         fLastMatrix = *draw.fMatrix;
-        INHERITED::drawRect(draw, r, paint);
+        this->INHERITED::drawRect(draw, r, paint);
     }
 
     SkMatrix fLastMatrix;

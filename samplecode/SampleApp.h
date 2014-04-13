@@ -10,6 +10,7 @@
 
 #include "SkOSMenu.h"
 #include "SkPath.h"
+#include "SkPicture.h"
 #include "SkScalar.h"
 #include "SkTDArray.h"
 #include "SkTouchGesture.h"
@@ -21,7 +22,6 @@ class GrRenderTarget;
 class SkCanvas;
 class SkData;
 class SkEvent;
-class SkPicture;
 class SkTypeface;
 class SkViewFactory;
 
@@ -168,7 +168,7 @@ private:
 
     int fCurrIndex;
 
-    SkPicture* fPicture;
+    SkPictureRecorder fRecorder;
     SkPath fClipPath;
 
     SkTouchGesture fGesture;

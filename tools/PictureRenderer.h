@@ -376,8 +376,7 @@ public:
     }
 
     PictureRenderer()
-        : fPicture(NULL)
-        , fJsonSummaryPtr(NULL)
+        : fJsonSummaryPtr(NULL)
         , fDeviceType(kBitmap_DeviceType)
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
         , fScaleFactor(SK_Scalar1)
@@ -401,7 +400,7 @@ public:
 
 protected:
     SkAutoTUnref<SkCanvas> fCanvas;
-    SkPicture*             fPicture;
+    SkAutoTUnref<SkPicture> fPicture;
     bool                   fUseChecksumBasedFilenames;
     ImageResultsSummary*   fJsonSummaryPtr;
     SkDeviceTypes          fDeviceType;
@@ -431,7 +430,7 @@ protected:
      */
     void scaleToScaleFactor(SkCanvas*);
 
-    SkPicture* createPicture();
+    SkPictureFactory* getFactory();
     uint32_t recordFlags();
     SkCanvas* setupCanvas();
     virtual SkCanvas* setupCanvas(int width, int height);
@@ -665,7 +664,7 @@ public:
     virtual SkString getNormalTimeFormat() SK_OVERRIDE { return SkString("%6.4f"); }
 
 private:
-    SkAutoTUnref<SkPicture> fReplayer;
+    SkAutoTDelete<SkPictureRecorder> fRecorder;
 
     virtual SkString getConfigNameInternal() SK_OVERRIDE;
 

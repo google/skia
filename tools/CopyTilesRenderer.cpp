@@ -27,11 +27,10 @@ namespace sk_tools {
         SkASSERT(pict != NULL);
         // Only work with absolute widths (as opposed to percentages).
         SkASSERT(this->getTileWidth() != 0 && this->getTileHeight() != 0);
-        fPicture = pict;
+        fPicture.reset(pict)->ref();
         this->CopyString(&fOutputDir, outputDir);
         this->CopyString(&fInputFilename, inputFilename);
         fUseChecksumBasedFilenames = useChecksumBasedFilenames;
-        fPicture->ref();
         this->buildBBoxHierarchy();
         // In order to avoid allocating a large canvas (particularly important for GPU), create one
         // canvas that is a multiple of the tile size, and draw portions of the picture.

@@ -51,6 +51,23 @@ public:
 private:
     int fXTileCount, fYTileCount;
     TileGridInfo fInfo;
+
+    typedef SkPicture INHERITED;
+};
+
+class SkTileGridPictureFactory : public SkPictureFactory {
+public:
+    SkTileGridPictureFactory(const SkTileGridPicture::TileGridInfo& info) : fInfo(info) { }
+
+    virtual SkPicture* create(int width, int height) SK_OVERRIDE {
+        return SkNEW_ARGS(SkTileGridPicture, (width, height, fInfo));   
+    }
+
+protected:
+    SkTileGridPicture::TileGridInfo fInfo;
+
+private:
+    typedef SkPictureFactory INHERITED;
 };
 
 #endif

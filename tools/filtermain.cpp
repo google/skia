@@ -717,15 +717,14 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
     int numAfter = debugCanvas.getSize();
 
     if (!outFile.isEmpty()) {
-        SkPicture outPicture;
-
-        SkCanvas* canvas = outPicture.beginRecording(inPicture->width(), inPicture->height());
+        SkPictureRecorder recorder;
+        SkCanvas* canvas = recorder.beginRecording(inPicture->width(), inPicture->height());
         debugCanvas.draw(canvas);
-        outPicture.endRecording();
+        SkAutoTUnref<SkPicture> outPicture(recorder.endRecording());
 
         SkFILEWStream outStream(outFile.c_str());
 
-        outPicture.serialize(&outStream);
+        outPicture->serialize(&outStream);
     }
 
     bool someOptFired = false;

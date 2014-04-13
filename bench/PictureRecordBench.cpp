@@ -51,15 +51,15 @@ public:
 
 protected:
     virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
-        SkAutoTDelete<SkPicture> picture;
+        SkPictureRecorder recorder;
         SkCanvas* canvas = NULL;
 
         const SkPoint translateDelta = getTranslateDelta(loops);
 
         for (int i = 0; i < loops; i++) {
             if (0 == i % kMaxLoopsPerCanvas) {
-                picture.reset(SkNEW(SkPicture));
-                canvas = picture->beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
+                SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+                canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
             }
 
             SkColor color = SK_ColorYELLOW + (i % 255);
@@ -120,12 +120,12 @@ protected:
     virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         SkRandom rand;
         SkPaint paint;
-        SkAutoTDelete<SkPicture> picture;
+        SkPictureRecorder recorder;
         SkCanvas* canvas = NULL;
         for (int i = 0; i < loops; i++) {
             if (0 == i % kMaxLoopsPerCanvas) {
-                picture.reset(SkNEW(SkPicture));
-                canvas = picture->beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
+                SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+                canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
             }
             paint.setColor(rand.nextU());
             canvas->drawPaint(paint);
@@ -158,8 +158,8 @@ public:
     };
 protected:
     virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
-        SkPicture picture;
-        SkCanvas* canvas = picture.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
+        SkPictureRecorder recorder;
+        SkCanvas* canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
         for (int i = 0; i < loops; i++) {
             canvas->drawPaint(fPaint[i % ObjCount]);
         }

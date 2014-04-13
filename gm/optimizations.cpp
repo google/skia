@@ -79,11 +79,11 @@ static SkPicture* create_save_layer_opt_1(SkTDArray<DrawType>* preOptPattern,
         (*postOptPattern)[6] = RESTORE;
     }
 
-    SkPicture* result = new SkPicture;
+    SkPictureRecorder recorder;
 
+    SkCanvas* canvas = recorder.beginRecording(100, 100);
     // have to disable the optimizations while generating the picture
-    SkCanvas* canvas = result->beginRecording(100, 100);
-    result->internalOnly_EnableOpts(false);
+    recorder.internalOnly_EnableOpts(false);
 
     SkPaint saveLayerPaint;
     saveLayerPaint.setColor(0xCC000000);
@@ -112,9 +112,7 @@ static SkPicture* create_save_layer_opt_1(SkTDArray<DrawType>* preOptPattern,
     }
     canvas->restore();
 
-    result->endRecording();
-
-    return result;
+    return recorder.endRecording();
 }
 
 // straight-ahead version that is seen in the skps
@@ -215,11 +213,11 @@ static SkPicture* create_save_layer_opt_2(SkTDArray<DrawType>* preOptPattern,
         (*postOptPattern)[9] = RESTORE;
     }
 
-    SkPicture* result = new SkPicture;
+    SkPictureRecorder recorder;
 
+    SkCanvas* canvas = recorder.beginRecording(100, 100);
     // have to disable the optimizations while generating the picture
-    SkCanvas* canvas = result->beginRecording(100, 100);
-    result->internalOnly_EnableOpts(false);
+    recorder.internalOnly_EnableOpts(false);
 
     SkPaint saveLayerPaint;
     saveLayerPaint.setColor(0xCC000000);
@@ -252,9 +250,7 @@ static SkPicture* create_save_layer_opt_2(SkTDArray<DrawType>* preOptPattern,
     canvas->restore();
     canvas->restore();
 
-    result->endRecording();
-
-    return result;
+    return recorder.endRecording();
 }
 
 // straight-ahead version that is seen in the skps
@@ -360,13 +356,13 @@ protected:
             canvas->restore();
 
             // re-render the 'pre' picture and thus 'apply' the optimization
-            SkAutoTUnref<SkPicture> post(new SkPicture);
+            SkPictureRecorder recorder;
 
-            SkCanvas* recordCanvas = post->beginRecording(pre->width(), pre->height());
+            SkCanvas* recordCanvas = recorder.beginRecording(pre->width(), pre->height());
 
             pre->draw(recordCanvas);
 
-            post->endRecording();
+            SkAutoTUnref<SkPicture> post(recorder.endRecording());
 
             if (!(check_pattern(*post, postPattern))) {
                 WARN("Post optimization pattern mismatch");

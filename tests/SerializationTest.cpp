@@ -369,11 +369,10 @@ DEF_TEST(Serialization, reporter) {
 
     // Test simple SkPicture serialization
     {
-        SkPicture* pict = new SkPicture;
-        SkAutoUnref aur(pict);
-        bool didDraw = drawSomething(pict->beginRecording(kBitmapSize, kBitmapSize));
+        SkPictureRecorder recorder;
+        bool didDraw = drawSomething(recorder.beginRecording(kBitmapSize, kBitmapSize));
         REPORTER_ASSERT(reporter, didDraw);
-        pict->endRecording();
+        SkAutoTUnref<SkPicture> pict(recorder.endRecording());
 
         // Serialize picture
         SkWriteBuffer writer(SkWriteBuffer::kValidation_Flag);

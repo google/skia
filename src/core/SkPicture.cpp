@@ -290,7 +290,7 @@ const SkPicture::OperationList& SkPicture::OperationList::InvalidList() {
 }
 
 const SkPicture::OperationList& SkPicture::EXPERIMENTAL_getActiveOps(const SkIRect& queryRect) {
-    this->endRecording();
+    this->endRecording();  // TODO: remove eventually
     if (NULL != fPlayback) {
         return fPlayback->getActiveOps(queryRect);
     }
@@ -305,7 +305,7 @@ size_t SkPicture::EXPERIMENTAL_curOpID() const {
 }
 
 void SkPicture::draw(SkCanvas* surface, SkDrawPictureCallback* callback) {
-    this->endRecording();
+    this->endRecording(); // TODO: remove eventually
     if (NULL != fPlayback) {
         fPlayback->draw(*surface, callback);
     }

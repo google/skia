@@ -31,11 +31,11 @@ public:
         , fSceneSize(sceneSize) {
 
         // Build the picture.
-        SkAutoTUnref<SkPicture> p(SkNEW(SkPicture));
-        SkCanvas* pictureCanvas = p->beginRecording(SkScalarRoundToInt(tileSize),
-                                                    SkScalarRoundToInt(tileSize));
+        SkPictureRecorder recorder;
+        SkCanvas* pictureCanvas = recorder.beginRecording(SkScalarRoundToInt(tileSize),
+                                                          SkScalarRoundToInt(tileSize));
         this->drawTile(pictureCanvas);
-        p->endRecording();
+        SkAutoTUnref<SkPicture> p(recorder.endRecording());
 
         // Build a reference bitmap.
         SkBitmap bm;

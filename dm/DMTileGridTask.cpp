@@ -29,9 +29,10 @@ void TileGridTask::draw() {
         SkISize::Make(0,0),   // Overlap between adjacent tiles.
         SkIPoint::Make(0,0),  // Offset.
     };
-    const SkISize size = fGM->getISize();
-    SkTileGridPicture recorded(size.width(), size.height(), info);
-    RecordPicture(fGM.get(), &recorded, SkPicture::kUsePathBoundsForClip_RecordingFlag);
+    SkAutoTUnref<SkPictureFactory> factory(SkNEW_ARGS(SkTileGridPictureFactory, (info)));
+    SkAutoTUnref<SkPicture> recorded(RecordPicture(fGM.get(), 
+                                                   SkPicture::kUsePathBoundsForClip_RecordingFlag, 
+                                                   factory));
 
     SkBitmap full;
     SetupBitmap(fReference.colorType(), fGM.get(), &full);
@@ -55,7 +56,7 @@ void TileGridTask::draw() {
             matrix.postTranslate(-xOffset, -yOffset);
             tileCanvas.setMatrix(matrix);
 
-            recorded.draw(&tileCanvas);
+            recorded->draw(&tileCanvas);
             tileCanvas.flush();
             fullCanvas.drawBitmap(tile, xOffset, yOffset, &paint);
         }

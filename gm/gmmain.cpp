@@ -1008,29 +1008,25 @@ public:
 
     static SkPicture* generate_new_picture(GM* gm, BbhType bbhType, uint32_t recordFlags,
                                            SkScalar scale = SK_Scalar1) {
-        // Pictures are refcounted so must be on heap
-        SkPicture* pict;
         int width = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().width()), scale));
         int height = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().height()), scale));
 
+        SkAutoTUnref<SkPictureFactory> factory;
         if (kTileGrid_BbhType == bbhType) {
             SkTileGridPicture::TileGridInfo info;
             info.fMargin.setEmpty();
             info.fOffset.setZero();
             info.fTileInterval.set(16, 16);
-            pict = new SkTileGridPicture(width, height, info);
-        } else {
-            pict = new SkPicture;
+            factory.reset(SkNEW_ARGS(SkTileGridPictureFactory, (info)));
         }
         if (kNone_BbhType != bbhType) {
             recordFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
         }
-        SkCanvas* cv = pict->beginRecording(width, height, recordFlags);
+        SkPictureRecorder recorder(factory);
+        SkCanvas* cv = recorder.beginRecording(width, height, recordFlags);
         cv->scale(scale, scale);
         invokeGM(gm, cv, false, false);
-        pict->endRecording();
-
-        return pict;
+        return recorder.endRecording();
     }
 
     static SkPicture* stream_to_new_picture(const SkPicture& src) {

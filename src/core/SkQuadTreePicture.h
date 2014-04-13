@@ -24,6 +24,18 @@ public:
     virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE;
 private:
     SkIRect fBounds;
+
+    typedef SkPicture INHERITED;
+};
+
+class SkQuadTreePictureFactory : public SkPictureFactory {
+private:
+    virtual SkPicture* create(int width, int height) SK_OVERRIDE {
+        return SkNEW_ARGS(SkQuadTreePicture, (SkIRect::MakeWH(width, height)));
+    }
+
+private:
+    typedef SkPictureFactory INHERITED;
 };
 
 #endif

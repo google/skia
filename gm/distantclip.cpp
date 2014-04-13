@@ -29,11 +29,11 @@ protected:
         int offset = 35000;
         int extents = 1000;
 
+        SkPictureRecorder recorder;
         // We record a picture of huge vertical extents in which we clear the canvas to red, create
         // a 'extents' by 'extents' round rect clip at a vertical offset of 'offset', then draw
         // green into that.
-        SkPicture pict;
-        SkCanvas* rec = pict.beginRecording(100, offset + extents);
+        SkCanvas* rec = recorder.beginRecording(100, offset + extents);
         rec->drawColor(0xffff0000);
         rec->save();
         SkRect r = {
@@ -47,18 +47,17 @@ protected:
         rec->clipPath(p, SkRegion::kIntersect_Op, true);
         rec->drawColor(0xff00ff00);
         rec->restore();
-        pict.endRecording();
+        SkAutoTUnref<SkPicture> pict(recorder.endRecording());
 
         // Next we play that picture into another picture of the same size.
-        SkPicture pict2;
-        pict.draw(pict2.beginRecording(100, offset + extents));
-        pict2.endRecording();
+        pict->draw(recorder.beginRecording(100, offset + extents));
+        SkAutoTUnref<SkPicture> pict2(recorder.endRecording());
 
         // Finally we play the part of that second picture that should be green into the canvas.
         canvas->save();
         canvas->translate(SkIntToScalar(extents / 2),
                           SkIntToScalar(-(offset - extents / 2)));
-        pict2.draw(canvas);
+        pict2->draw(canvas);
         canvas->restore();
 
         // If the image is red, we erroneously decided the clipPath was empty and didn't record

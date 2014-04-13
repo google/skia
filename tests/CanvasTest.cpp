@@ -495,12 +495,13 @@ TEST_STEP_NO_PDF(DrawVerticesShader, DrawVerticesShaderTestStep);
 static void DrawPictureTestStep(SkCanvas* canvas,
                                 skiatest::Reporter*,
                                 CanvasTestStep*) {
-    SkPicture* testPicture = SkNEW_ARGS(SkPicture, ());
-    SkAutoUnref aup(testPicture);
-    SkCanvas* testCanvas = testPicture->beginRecording(kWidth, kHeight);
+    SkPictureRecorder recorder;
+    SkCanvas* testCanvas = recorder.beginRecording(kWidth, kHeight);
     testCanvas->scale(SkIntToScalar(2), SkIntToScalar(1));
     testCanvas->clipRect(kTestRect);
     testCanvas->drawRect(kTestRect, kTestPaint);
+    SkAutoTUnref<SkPicture> testPicture(recorder.endRecording());
+
     canvas->drawPicture(*testPicture);
 }
 TEST_STEP(DrawPicture, DrawPictureTestStep);
@@ -722,24 +723,23 @@ public:
         // Verify that when a test step is executed twice, no extra resources
         // are flattened during the second execution
         testStep->setAssertMessageFormat(kPictureDrawAssertMessageFormat);
-        SkPicture referencePicture;
-        SkCanvas* referenceCanvas = referencePicture.beginRecording(kWidth,
-            kHeight, recordFlags);
+        SkPictureRecorder referenceRecorder;
+        SkCanvas* referenceCanvas = referenceRecorder.beginRecording(kWidth,
+                                                                     kHeight, recordFlags);
         testStep->draw(referenceCanvas, reporter);
-        SkPicture testPicture;
-        SkCanvas* testCanvas = testPicture.beginRecording(kWidth,
-            kHeight, recordFlags);
+
+        SkPictureRecorder testRecorder;
+        SkCanvas* testCanvas = testRecorder.beginRecording(kWidth,
+                                                           kHeight, recordFlags);
         testStep->draw(testCanvas, reporter);
         testStep->setAssertMessageFormat(kPictureSecondDrawAssertMessageFormat);
         testStep->draw(testCanvas, reporter);
 
-        SkPictureRecord* referenceRecord = static_cast<SkPictureRecord*>(
-            referenceCanvas);
-        SkPictureRecord* testRecord = static_cast<SkPictureRecord*>(
-            testCanvas);
+        SkPictureRecord* referenceRecord = static_cast<SkPictureRecord*>(referenceCanvas);
+        SkPictureRecord* testRecord = static_cast<SkPictureRecord*>(testCanvas);
         testStep->setAssertMessageFormat(kPictureResourceReuseMessageFormat);
         AssertFlattenedObjectsEqual(referenceRecord, testRecord,
-            reporter, testStep);
+                                    reporter, testStep);
     }
 };
 

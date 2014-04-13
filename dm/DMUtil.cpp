@@ -10,13 +10,14 @@ SkString UnderJoin(const char* a, const char* b) {
     return s;
 }
 
-void RecordPicture(skiagm::GM* gm, SkPicture* picture, uint32_t recordFlags) {
+SkPicture* RecordPicture(skiagm::GM* gm, uint32_t recordFlags, SkPictureFactory* factory) {
     const SkISize size = gm->getISize();
-    SkCanvas* canvas = picture->beginRecording(size.width(), size.height(), recordFlags);
+    SkPictureRecorder recorder(factory);
+    SkCanvas* canvas = recorder.beginRecording(size.width(), size.height(), recordFlags);
     canvas->concat(gm->getInitialTransform());
     gm->draw(canvas);
     canvas->flush();
-    picture->endRecording();
+    return recorder.endRecording();
 }
 
 static void setup_bitmap(SkColorType ct, int width, int height, SkBitmap* bitmap) {

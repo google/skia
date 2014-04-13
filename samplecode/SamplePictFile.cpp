@@ -122,19 +122,19 @@ private:
     SkSize      fTileSize;
 
     SkPicture* LoadPicture(const char path[], BBoxType bbox) {
-        SkPicture* pic = NULL;
+        SkAutoTUnref<SkPicture> pic;
 
         SkBitmap bm;
         if (SkImageDecoder::DecodeFile(path, &bm)) {
             bm.setImmutable();
-            pic = SkNEW(SkPicture);
-            SkCanvas* can = pic->beginRecording(bm.width(), bm.height());
+            SkPictureRecorder recorder;
+            SkCanvas* can = recorder.beginRecording(bm.width(), bm.height());
             can->drawBitmap(bm, 0, 0, NULL);
-            pic->endRecording();
+            pic.reset(recorder.endRecording());
         } else {
             SkFILEStream stream(path);
             if (stream.isValid()) {
-                pic = SkPicture::CreateFromStream(&stream);
+                pic.reset(SkPicture::CreateFromStream(&stream));
             } else {
                 SkDebugf("coun't load picture at \"path\"\n", path);
             }
@@ -145,32 +145,30 @@ private:
                 surf->unref();
             }
             if (false) { // re-record
-                SkPicture p2;
-                pic->draw(p2.beginRecording(pic->width(), pic->height()));
-                p2.endRecording();
+                SkPictureRecorder recorder;
+                pic->draw(recorder.beginRecording(pic->width(), pic->height()));
+                SkAutoTUnref<SkPicture> p2(recorder.endRecording());
 
                 SkString path2(path);
                 path2.append(".new.skp");
                 SkFILEWStream writer(path2.c_str());
-                p2.serialize(&writer);
+                p2->serialize(&writer);
             }
         }
 
-        if (!pic) {
+        if (NULL == pic) {
             return NULL;
         }
 
-        SkPicture* bboxPicture = NULL;
+        SkAutoTUnref<SkPictureFactory> factory;
         switch (bbox) {
         case kNo_BBoxType:
             // no bbox playback necessary
-            break;
+            return pic.detach();
         case kRTree_BBoxType:
-            bboxPicture = SkNEW(SkPicture);
             break;
         case kQuadTree_BBoxType:
-            bboxPicture = SkNEW_ARGS(SkQuadTreePicture,
-                (SkIRect::MakeWH(pic->width(), pic->height())));
+            factory.reset(SkNEW(SkQuadTreePictureFactory));
             break;
         case kTileGrid_BBoxType: {
             SkASSERT(!fTileSize.isEmpty());
@@ -178,21 +176,17 @@ private:
             gridInfo.fMargin = SkISize::Make(0, 0);
             gridInfo.fOffset = SkIPoint::Make(0, 0);
             gridInfo.fTileInterval = fTileSize.toRound();
-            bboxPicture = SkNEW_ARGS(SkTileGridPicture, (pic->width(), pic->height(), gridInfo));
-        } break;
+            factory.reset(SkNEW_ARGS(SkTileGridPictureFactory, (gridInfo)));
+            break;
+        }
         default:
             SkASSERT(false);
         }
 
-        if (bboxPicture) {
-            pic->draw(bboxPicture->beginRecording(pic->width(), pic->height(),
-                      SkPicture::kOptimizeForClippedPlayback_RecordingFlag));
-            bboxPicture->endRecording();
-            SkDELETE(pic);
-            return bboxPicture;
-        }
-
-        return pic;
+        SkPictureRecorder recorder(factory);
+        pic->draw(recorder.beginRecording(pic->width(), pic->height(),
+                                          SkPicture::kOptimizeForClippedPlayback_RecordingFlag));
+        return recorder.endRecording();
     }
 
     typedef SampleView INHERITED;
