@@ -9737,37 +9737,28 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1172872440246401668
+          14623783333134142243
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "pathopsinverse_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9668529016840761256
+          5042245836684575034
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "pathopsinverse_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7944706175731962976
+          6401170007849234165
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "pathopsinverse_pdf-poppler.png": {
       "allowed-digests": [
