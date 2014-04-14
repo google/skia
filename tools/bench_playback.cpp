@@ -24,6 +24,8 @@ DEFINE_bool(skr, false, "Play via SkRecord instead of SkPicture.");
 DEFINE_int32(tile, 1000000000, "Simulated tile size.");
 
 static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
+    // We don't use the public SkRecording interface here because we need kWriteOnly_Mode.
+    // (We don't want SkPicturePlayback to be able to optimize playing into our SkRecord.)
     SkRecord record;
     SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, src.width(), src.height());
     src.draw(&recorder);

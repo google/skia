@@ -10,8 +10,7 @@
         ],
         'direct_dependent_settings': {
             'include_dirs': [
-                '../include/record',   # World-public headers.
-                '../src/record',       # Skia-public headers.
+                '../include/record',  # Public headers.
             ],
         },
         'sources': [

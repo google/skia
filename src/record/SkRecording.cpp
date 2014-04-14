@@ -8,8 +8,9 @@
 #include "SkRecording.h"
 
 #include "SkRecord.h"
-#include "SkRecorder.h"
+#include "SkRecordCulling.h"
 #include "SkRecordDraw.h"
+#include "SkRecorder.h"
 
 namespace EXPERIMENTAL {
 
@@ -35,7 +36,8 @@ SkRecording::SkRecording(int width, int height) {
 }
 
 /*static*/ const SkPlayback* SkRecording::Delete(SkRecording* recording) {
-    const SkRecord* record = recording->fRecord;
+    SkRecord* record = recording->fRecord;
+    SkRecordAnnotateCullingPairs(record);
     SkDELETE(recording);
     return SkNEW_ARGS(SkPlayback, (record));
 }

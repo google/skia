@@ -11,7 +11,7 @@
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkQuadTreePicture.h"
-#include "SkRecorder.h"
+#include "SkRecording.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTileGridPicture.h"
@@ -86,11 +86,12 @@ static void bench_record(SkPicture* src, const char* name, PictureFactory pictur
 
     for (int i = 0; i < FLAGS_loops; i++) {
         if (FLAGS_skr) {
-            SkRecord record;
-            SkRecorder canvas(SkRecorder::kWriteOnly_Mode, &record, width, height);
+            using EXPERIMENTAL::SkRecording;
+            SkRecording* recording = SkRecording::Create(width, height);
             if (NULL != src) {
-                src->draw(&canvas);
+                src->draw(recording->canvas());
             }
+            SkDELETE(SkRecording::Delete(recording));  // delete the SkPlayback*.
         } else {
             int recordingFlags = FLAGS_flags;
             SkAutoTUnref<SkPictureFactory> factory(pictureFactory(&recordingFlags));

@@ -9,6 +9,7 @@
     '../src/pathops',
     '../src/pdf',
     '../src/pipe/utils',
+    '../src/record',
     '../src/utils',
     '../src/utils/debugger',
     '../tools/',

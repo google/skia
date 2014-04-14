@@ -313,12 +313,11 @@
       'type': 'executable',
       'sources': [
         '../tools/bench_playback.cpp',
-        '../tools/LazyDecodeBitmap.cpp',
       ],
       'include_dirs': [
         '../src/core/',
         '../src/images',
-        '../src/lazy',
+        '../src/record',
       ],
       'dependencies': [
         'flags.gyp:flags',

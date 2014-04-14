@@ -66,7 +66,7 @@ private:
     ~SkRecording();
 
     SkRecorder* fRecorder;
-    const SkRecord* fRecord;
+    SkRecord* fRecord;
 };
 
 }  // namespace EXPERIMENTAL

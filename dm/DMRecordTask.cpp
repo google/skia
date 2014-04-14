@@ -2,8 +2,7 @@
 #include "DMUtil.h"
 #include "DMWriteTask.h"
 #include "SkCommandLineFlags.h"
-#include "SkRecordDraw.h"
-#include "SkRecorder.h"
+#include "SkRecording.h"
 
 DEFINE_bool(skr, false, "If true, run SKR tests.");
 
@@ -17,19 +16,19 @@ RecordTask::RecordTask(const Task& parent, skiagm::GM* gm, SkBitmap reference)
     {}
 
 void RecordTask::draw() {
+    using EXPERIMENTAL::SkRecording;
+    using EXPERIMENTAL::SkPlayback;
+
     // Record the GM into an SkRecord.
-    SkRecord record;
-    SkRecorder canvas(SkRecorder::kWriteOnly_Mode, &record,
-                      fReference.width(), fReference.height());
-    canvas.concat(fGM->getInitialTransform());
-    fGM->draw(&canvas);
+    SkRecording* recording = SkRecording::Create(fReference.width(), fReference.height());
+    fGM->draw(recording->canvas());
+    SkAutoTDelete<const SkPlayback> playback(SkRecording::Delete(recording));
 
     // Draw the SkRecord back into a bitmap.
     SkBitmap bitmap;
     SetupBitmap(fReference.colorType(), fGM.get(), &bitmap);
     SkCanvas target(bitmap);
-
-    SkRecordDraw(record, &target);
+    playback->draw(&target);
 
     if (!BitmapsEqual(bitmap, fReference)) {
         this->fail();
