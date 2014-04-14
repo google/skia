@@ -102,6 +102,50 @@ static SkShader* MakeConical(const SkPoint pts[2], const GradData& data,
                                                    data.fColors, data.fPos, data.fCount, tm, mapper);
 }
 
+/// Ignores scale
+static SkShader* MakeConicalZeroRad(const SkPoint pts[2], const GradData& data,
+                                    SkShader::TileMode tm, SkUnitMapper* mapper,
+                                    float scale) {
+    SkPoint center0, center1;
+    center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
+                SkScalarAve(pts[0].fY, pts[1].fY));
+    center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
+                SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
+    return SkGradientShader::CreateTwoPointConical(center1, 0.0,
+                                                   center0, (pts[1].fX - pts[0].fX) / 2,
+                                                   data.fColors, data.fPos, data.fCount, tm, mapper);
+}
+
+/// Ignores scale
+static SkShader* MakeConicalOutside(const SkPoint pts[2], const GradData& data,
+                                    SkShader::TileMode tm, SkUnitMapper* mapper,
+                                    float scale) {
+    SkPoint center0, center1;
+    SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 10);
+    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
+    center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
+    return SkGradientShader::CreateTwoPointConical(center0, radius0,
+                                                   center1, radius1,
+                                                   data.fColors, data.fPos,
+                                                   data.fCount, tm, mapper);
+}
+
+/// Ignores scale
+static SkShader* MakeConicalOutsideZeroRad(const SkPoint pts[2], const GradData& data,
+                                           SkShader::TileMode tm, SkUnitMapper* mapper,
+                                           float scale) {
+    SkPoint center0, center1;
+    SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 10);
+    SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
+    center0.set(pts[0].fX + radius0, pts[0].fY + radius0);
+    center1.set(pts[1].fX - radius1, pts[1].fY - radius1);
+    return SkGradientShader::CreateTwoPointConical(center0, 0.0,
+                                                   center1, radius1,
+                                                   data.fColors, data.fPos,
+                                                   data.fCount, tm, mapper);
+}
+
 typedef SkShader* (*GradMaker)(const SkPoint pts[2], const GradData& data,
                                SkShader::TileMode tm, SkUnitMapper* mapper,
                                float scale);
@@ -110,11 +154,14 @@ static const struct {
     GradMaker   fMaker;
     const char* fName;
 } gGrads[] = {
-    { MakeLinear,   "linear"  },
-    { MakeRadial,   "radial1" },
-    { MakeSweep,    "sweep"   },
-    { Make2Radial,  "radial2" },
-    { MakeConical,  "conical" },
+    { MakeLinear,                 "linear"  },
+    { MakeRadial,                 "radial1" },
+    { MakeSweep,                  "sweep"   },
+    { Make2Radial,                "radial2" },
+    { MakeConical,                "conical" },
+    { MakeConicalZeroRad,         "conicalZero" },
+    { MakeConicalOutside,         "conicalOut" },
+    { MakeConicalOutsideZeroRad,  "conicalOutZero" },
 };
 
 enum GradType { // these must match the order in gGrads
@@ -122,7 +169,10 @@ enum GradType { // these must match the order in gGrads
     kRadial_GradType,
     kSweep_GradType,
     kRadial2_GradType,
-    kConical_GradType
+    kConical_GradType,
+    kConicalZero_GradType,
+    kConicalOut_GradType,
+    kConicalOutZero_GradType
 };
 
 enum GeomType {
@@ -255,6 +305,15 @@ DEF_BENCH( return new GradientBench(kRadial2_GradType, gGradData[0], SkShader::k
 DEF_BENCH( return new GradientBench(kConical_GradType); )
 DEF_BENCH( return new GradientBench(kConical_GradType, gGradData[1]); )
 DEF_BENCH( return new GradientBench(kConical_GradType, gGradData[2]); )
+DEF_BENCH( return new GradientBench(kConicalZero_GradType); )
+DEF_BENCH( return new GradientBench(kConicalZero_GradType, gGradData[1]); )
+DEF_BENCH( return new GradientBench(kConicalZero_GradType, gGradData[2]); )
+DEF_BENCH( return new GradientBench(kConicalOut_GradType); )
+DEF_BENCH( return new GradientBench(kConicalOut_GradType, gGradData[1]); )
+DEF_BENCH( return new GradientBench(kConicalOut_GradType, gGradData[2]); )
+DEF_BENCH( return new GradientBench(kConicalOutZero_GradType); )
+DEF_BENCH( return new GradientBench(kConicalOutZero_GradType, gGradData[1]); )
+DEF_BENCH( return new GradientBench(kConicalOutZero_GradType, gGradData[2]); )
 
 ///////////////////////////////////////////////////////////////////////////////
 
