@@ -67,3 +67,10 @@ drrect
 # reed: https://codereview.chromium.org/233943002
 # GM itself may be changed
 image-surface
+
+# yunchao: https://codereview.chromium.org/221953002/
+# This change resized the canvas for some GM cases. It is better to show the
+# visual difference in viewer.html for these cases.
+aaclip
+composeshader
+peekpixels

@@ -17,14 +17,14 @@ class SkXfermode;
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 /** \class SkComposeShader
-    This subclass of shader returns the coposition of two other shaders, combined by
+    This subclass of shader returns the composition of two other shaders, combined by
     a xfermode.
 */
 class SK_API SkComposeShader : public SkShader {
 public:
     /** Create a new compose shader, given shaders A, B, and a combining xfermode mode.
         When the xfermode is called, it will be given the result from shader A as its
-        "dst", and the result of from shader B as its "src".
+        "dst", and the result from shader B as its "src".
         mode->xfer32(sA_result, sB_result, ...)
         @param shaderA  The colors from this shader are seen as the "dst" by the xfermode
         @param shaderB  The colors from this shader are seen as the "src" by the xfermode

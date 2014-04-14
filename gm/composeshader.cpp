@@ -56,7 +56,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(640, 480);
+        return make_isize(120, 120);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
