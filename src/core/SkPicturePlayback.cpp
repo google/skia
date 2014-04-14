@@ -6,7 +6,6 @@
  */
 #include <new>
 #include "SkBBoxHierarchy.h"
-#include "SkOffsetTable.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 #include "SkPictureStateTree.h"
@@ -97,8 +96,6 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record,
 
     fBitmapHeap.reset(SkSafeRef(record.fBitmapHeap));
     fPathHeap.reset(SkSafeRef(record.fPathHeap));
-
-    fBitmapUseOffsets.reset(SkSafeRef(record.fBitmapUseOffsets.get()));
 
     // ensure that the paths bounds are pre-computed
     if (fPathHeap.get()) {

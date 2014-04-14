@@ -20,7 +20,6 @@
 #include "SkWriter32.h"
 
 class SkBBoxHierarchy;
-class SkOffsetTable;
 class SkPictureStateTree;
 
 // These macros help with packing and unpacking a single byte value and
@@ -157,7 +156,6 @@ private:
     }
 
     // The command at 'offset' in the skp uses the specified bitmap
-    void trackBitmapUse(int bitmapID, size_t offset);
     int addBitmap(const SkBitmap& bitmap);
     void addMatrix(const SkMatrix& matrix);
     const SkFlatData* addPaint(const SkPaint& paint) { return this->addPaintPtr(&paint); }
@@ -297,8 +295,6 @@ private:
     uint32_t fRecordFlags;
     bool     fOptsEnabled;
     int      fInitialSaveCount;
-
-    SkAutoTUnref<SkOffsetTable> fBitmapUseOffsets;
 
     friend class SkPicturePlayback;
     friend class SkPictureTester; // for unit testing

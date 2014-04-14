@@ -115,7 +115,6 @@
         '<(skia_src_path)/core/SkMessageBus.h',
         '<(skia_src_path)/core/SkMetaData.cpp',
         '<(skia_src_path)/core/SkMipMap.cpp',
-        '<(skia_src_path)/core/SkOffsetTable.h',
         '<(skia_src_path)/core/SkPackBits.cpp',
         '<(skia_src_path)/core/SkPaint.cpp',
         '<(skia_src_path)/core/SkPaintOptionsAndroid.cpp',

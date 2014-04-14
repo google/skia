@@ -11,7 +11,6 @@
 #include "SkRRect.h"
 #include "SkBBoxHierarchy.h"
 #include "SkDevice.h"
-#include "SkOffsetTable.h"
 #include "SkPictureStateTree.h"
 
 #define HEAP_BLOCK_SIZE 4096
@@ -1098,11 +1097,10 @@ void SkPictureRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar
     size_t initialOffset = this->addDraw(DRAW_BITMAP, &size);
     SkASSERT(initialOffset+getPaintOffset(DRAW_BITMAP, size) == fWriter.bytesWritten());
     this->addPaintPtr(paint);
-    int bitmapID = this->addBitmap(bitmap);
+    this->addBitmap(bitmap);
     this->addScalar(left);
     this->addScalar(top);
     this->validate(initialOffset, size);
-    this->trackBitmapUse(bitmapID, initialOffset);
 }
 
 void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
@@ -1126,12 +1124,11 @@ void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect*
     SkASSERT(initialOffset+getPaintOffset(DRAW_BITMAP_RECT_TO_RECT, size)
              == fWriter.bytesWritten());
     this->addPaintPtr(paint);
-    int bitmapID = this->addBitmap(bitmap);
+    this->addBitmap(bitmap);
     this->addRectPtr(src);  // may be null
     this->addRect(dst);
     this->addInt(flags);
     this->validate(initialOffset, size);
-    this->trackBitmapUse(bitmapID, initialOffset);
 }
 
 void SkPictureRecord::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
@@ -1149,10 +1146,9 @@ void SkPictureRecord::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m
     size_t initialOffset = this->addDraw(DRAW_BITMAP_MATRIX, &size);
     SkASSERT(initialOffset+getPaintOffset(DRAW_BITMAP_MATRIX, size) == fWriter.bytesWritten());
     this->addPaintPtr(paint);
-    int bitmapID = this->addBitmap(bitmap);
+    this->addBitmap(bitmap);
     this->addMatrix(matrix);
     this->validate(initialOffset, size);
-    this->trackBitmapUse(bitmapID, initialOffset);
 }
 
 void SkPictureRecord::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
@@ -1170,11 +1166,10 @@ void SkPictureRecord::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& cent
     size_t initialOffset = this->addDraw(DRAW_BITMAP_NINE, &size);
     SkASSERT(initialOffset+getPaintOffset(DRAW_BITMAP_NINE, size) == fWriter.bytesWritten());
     this->addPaintPtr(paint);
-    int bitmapID = this->addBitmap(bitmap);
+    this->addBitmap(bitmap);
     this->addIRect(center);
     this->addRect(dst);
     this->validate(initialOffset, size);
-    this->trackBitmapUse(bitmapID, initialOffset);
 }
 
 void SkPictureRecord::drawSprite(const SkBitmap& bitmap, int left, int top,
@@ -1192,11 +1187,10 @@ void SkPictureRecord::drawSprite(const SkBitmap& bitmap, int left, int top,
     size_t initialOffset = this->addDraw(DRAW_SPRITE, &size);
     SkASSERT(initialOffset+getPaintOffset(DRAW_SPRITE, size) == fWriter.bytesWritten());
     this->addPaintPtr(paint);
-    int bitmapID = this->addBitmap(bitmap);
+    this->addBitmap(bitmap);
     this->addInt(left);
     this->addInt(top);
     this->validate(initialOffset, size);
-    this->trackBitmapUse(bitmapID, initialOffset);
 }
 
 void SkPictureRecord::ComputeFontMetricsTopBottom(const SkPaint& paint, SkScalar topbot[2]) {
@@ -1571,26 +1565,6 @@ void SkPictureRecord::onPopCull() {
 
 SkSurface* SkPictureRecord::onNewSurface(const SkImageInfo& info) {
     return NULL;
-}
-
-void SkPictureRecord::trackBitmapUse(int bitmapID, size_t offset) {
-#ifndef SK_ALLOW_BITMAP_TRACKING
-    return;
-#endif
-
-    if (!(fRecordFlags & SkPicture::kOptimizeForClippedPlayback_RecordingFlag)) {
-        return;
-    }
-
-    if (SkBitmapHeap::INVALID_SLOT == bitmapID) {
-        return;
-    }
-
-    if (NULL == fBitmapUseOffsets) {
-        fBitmapUseOffsets.reset(SkNEW(SkOffsetTable));
-    }
-
-    fBitmapUseOffsets->add(bitmapID, offset);
 }
 
 int SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
