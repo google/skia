@@ -5060,13 +5060,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6623696400821673561
+          11577432472710705185
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "pathopsskpclip_565.png": {
       "allowed-digests": [

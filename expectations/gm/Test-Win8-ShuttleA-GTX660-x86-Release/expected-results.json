@@ -14060,13 +14060,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14543745002649249442
+          4723631856577570487
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "pathopsinverse_gpu.png": {
       "allowed-digests": [
