@@ -119,8 +119,8 @@ private:
     int fStart;
     int fEnd;
     int fSectorMask;
-    char fSectorStart;  // in 32nds of a circle
-    char fSectorEnd;
+    int8_t fSectorStart;  // in 32nds of a circle
+    int8_t fSectorEnd;
     bool fIsCurve;
     bool fStop; // set if ordered angle is greater than the previous
     mutable bool fUnorderable;  // this is editable by orderable()
