@@ -138,6 +138,8 @@ Initial setup of the database, the user, and the only table:
     CREATE USER 'webtry'@'%' IDENTIFIED BY '<password is in valentine>';
     GRANT SELECT, INSERT, UPDATE ON webtry.webtry TO 'webtry'@'%';
 
+    // If this gets changed also update the sqlite create statement in webtry.go.
+
     CREATE TABLE webtry (
       code      TEXT      DEFAULT ''                 NOT NULL,
       create_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,

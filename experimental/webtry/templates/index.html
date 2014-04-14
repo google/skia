@@ -25,14 +25,7 @@
   <pre><code>#include "SkCanvas.h"
 
 void draw(SkCanvas* canvas) {
-  <textarea name='code' id='code' rows='15' cols='80'>SkPaint p;
-p.setColor(SK_ColorRED);
-p.setAntiAlias(true);
-p.setStyle(SkPaint::kStroke_Style);
-p.setStrokeWidth(10);
-
-canvas->drawLine(20, 20, 100, 100, p);
-</textarea>
+  <textarea name='code' id='code' rows='15' cols='80'>{{.UserCode}}</textarea>
 }
 </code></pre>
 
@@ -77,6 +70,7 @@ canvas->drawLine(20, 20, 100, 100, p);
         } else {
           img.src = '';
         }
+        window.history.pushState(null, null, "/c/" + body.hash);
       }
 
       function codeError(e) {

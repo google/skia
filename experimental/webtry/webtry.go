@@ -9,12 +9,15 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
+	htemplate "html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"text/template"
 )
@@ -22,6 +25,14 @@ import (
 const (
 	RESULT_COMPILE = `c++ -DSK_GAMMA_SRGB -DSK_GAMMA_APPLY_TO_A8 -DSK_SCALAR_TO_FLOAT_EXCLUDED -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1 -DSK_SUPPORT_GPU=0 -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCEFIELD_FONTS=0 -DSK_SCALAR_IS_FLOAT -DSK_CAN_USE_FLOAT -DSK_SAMPLES_FOR_X -DSK_BUILD_FOR_UNIX -DSK_USE_POSIX_THREADS -DSK_SYSTEM_ZLIB=1 -DSK_DEBUG -DSK_DEVELOPER=1 -I../../src/core -I../../src/images -I../../tools/flags -I../../include/config -I../../include/core -I../../include/pathops -I../../include/pipe -I../../include/effects -I../../include/ports -I../../src/sfnt -I../../include/utils -I../../src/utils -I../../include/images -g -fno-exceptions -fstrict-aliasing -Wall -Wextra -Winit-self -Wpointer-arith -Wno-unused-parameter -Wno-c++11-extensions -Werror -m64 -fno-rtti -Wnon-virtual-dtor -c ../../../cache/%s.cpp -o ../../../cache/%s.o`
 	LINK           = `c++ -m64 -lstdc++ -lm -o ../../../inout/%s -Wl,--start-group ../../../cache/%s.o obj/experimental/webtry/webtry.main.o obj/gyp/libflags.a libskia_images.a libskia_core.a libskia_effects.a obj/gyp/libjpeg.a obj/gyp/libwebp_dec.a obj/gyp/libwebp_demux.a obj/gyp/libwebp_dsp.a obj/gyp/libwebp_enc.a obj/gyp/libwebp_utils.a libskia_utils.a libskia_opts.a libskia_opts_ssse3.a libskia_ports.a libskia_sfnt.a -Wl,--end-group -lpng -lz -lgif -lpthread -lfontconfig -ldl -lfreetype`
+	DEFAULT_SAMPLE = `SkPaint p;
+p.setColor(SK_ColorRED);
+p.setAntiAlias(true);
+p.setStyle(SkPaint::kStroke_Style);
+p.setStrokeWidth(10);
+
+canvas->drawLine(20, 20, 100, 100, p);
+`
 )
 
 var (
@@ -29,10 +40,13 @@ var (
 	codeTemplate *template.Template = nil
 
 	// index is the main index.html page we serve.
-	index []byte
+	index *htemplate.Template = nil
 
 	// db is the database, nil if we don't have an SQL database to store data into.
 	db *sql.DB = nil
+
+	// directLink is the regex that matches URLs paths that are direct links.
+	directLink = regexp.MustCompile("^c/([a-a0-9]+)$")
 )
 
 // flags
@@ -53,6 +67,7 @@ func LineNumbers(c string) string {
 }
 
 func init() {
+
 	// Change the current working directory to the directory of the executable.
 	var err error
 	cwd, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -65,7 +80,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	index, err = ioutil.ReadFile(filepath.Join(cwd, "templates/index.html"))
+	// Convert index.html into a template, which is expanded with the code.
+	index, err = htemplate.ParseFiles(filepath.Join(cwd, "templates/index.html"))
 	if err != nil {
 		panic(err)
 	}
@@ -93,6 +109,19 @@ func init() {
 			panic(err)
 		}
 	} else {
+		// Fallback to sqlite for local use.
+		db, err = sql.Open("sqlite3", "./webtry.db")
+		if err != nil {
+			log.Printf("ERROR: Failed to open: %q\n", err)
+			panic(err)
+		}
+		sql := `CREATE TABLE webtry (
+             code      TEXT      DEFAULT ''                 NOT NULL,
+             create_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
+             hash      CHAR(64)  DEFAULT ''                 NOT NULL,
+             PRIMARY KEY(hash)
+            )`
+		db.Exec(sql)
 		log.Printf("INFO: Failed to find metadata, unable to connect to MySQL server (Expected when running locally): %q\n", err)
 	}
 }
@@ -109,7 +138,7 @@ func expandToFile(filename string, code string, t *template.Template) error {
 		return err
 	}
 	defer f.Close()
-	return t.Execute(f, struct{ UserCode string }{UserCode: code})
+	return t.Execute(f, userCode{UserCode: code})
 }
 
 // expandCode expands the template into a file and calculate the MD5 hash.
@@ -128,6 +157,7 @@ func expandCode(code string) (string, error) {
 type response struct {
 	Message string `json:"message"`
 	Img     string `json:"img"`
+	Hash    string `json:"hash"`
 }
 
 // doCmd executes the given command line string in either the out/Debug
@@ -199,7 +229,25 @@ func writeToDatabase(hash string, code string) {
 // mainHandler handles the GET and POST of the main page.
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		w.Write(index)
+		code := DEFAULT_SAMPLE
+		directLink := regexp.MustCompile("^/c/([a-f0-9]+)$")
+		match := directLink.FindStringSubmatch(r.URL.Path)
+		if len(match) == 2 {
+			hash := match[1]
+			if db == nil {
+				http.NotFound(w, r)
+				return
+			}
+			// Update 'code' with the code found in the database.
+			if err := db.QueryRow("SELECT code FROM webtry WHERE hash=?", hash).Scan(&code); err != nil {
+				http.NotFound(w, r)
+				return
+			}
+		}
+		// Expand the template.
+		if err := index.Execute(w, userCode{UserCode: code}); err != nil {
+			log.Printf("ERROR: Failed to expand template: %q\n", err)
+		}
 	} else if r.Method == "POST" {
 		w.Header().Set("Content-Type", "application/json")
 		b, err := ioutil.ReadAll(r.Body)
@@ -251,6 +299,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		m := response{
 			Message: message,
 			Img:     base64.StdEncoding.EncodeToString([]byte(png)),
+			Hash:    hash,
 		}
 		resp, err := json.Marshal(m)
 		if err != nil {
