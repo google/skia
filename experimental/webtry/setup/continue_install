@@ -24,6 +24,9 @@ else
   tar -xzf go1.2.1.linux-amd64.tar.gz
 fi
 export GOROOT=$HOME/go
+mkdir=$HOME/golib
+export GOPATH=$HOME/golib
+
 export PATH=$PATH:$GOROOT/bin
 
 mkdir /home/webtry/cache
@@ -53,4 +56,5 @@ ninja -C out/Debug webtry
 
 cd experimental/webtry
 
+go get github.com/go-sql-driver/mysql
 go build webtry.go

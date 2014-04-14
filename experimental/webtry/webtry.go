@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"crypto/md5"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -28,11 +30,15 @@ var (
 
 	// index is the main index.html page we serve.
 	index []byte
+
+	// db is the database, nil if we don't have an SQL database to store data into.
+	db *sql.DB = nil
 )
 
 // flags
 var (
 	useChroot = flag.Bool("use_chroot", false, "Run the compiled code in the schroot jail.")
+	port      = flag.String("port", ":8000", "HTTP service address (e.g., ':8000')")
 )
 
 // lineNumbers adds #line numbering to the user's code.
@@ -62,6 +68,32 @@ func init() {
 	index, err = ioutil.ReadFile(filepath.Join(cwd, "templates/index.html"))
 	if err != nil {
 		panic(err)
+	}
+
+	// Connect to MySQL server. First, get the password from the metadata server.
+	// See https://developers.google.com/compute/docs/metadata#custom.
+	req, err := http.NewRequest("GET", "http://metadata/computeMetadata/v1/instance/attributes/password", nil)
+	if err != nil {
+		panic(err)
+	}
+	client := http.Client{}
+	req.Header.Add("X-Google-Metadata-Request", "True")
+	if resp, err := client.Do(req); err == nil {
+		password, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("ERROR: Failed to read password from metadata server: %q\n", err)
+			panic(err)
+		}
+		// The IP address of the database is found here:
+		//    https://console.developers.google.com/project/31977622648/sql/instances/webtry/overview
+		// And 3306 is the default port for MySQL.
+		db, err = sql.Open("mysql", fmt.Sprintf("webtry:%s@tcp(173.194.83.52:3306)/webtry", password))
+		if err != nil {
+			log.Printf("ERROR: Failed to open connection to SQL server: %q\n", err)
+			panic(err)
+		}
+	} else {
+		log.Printf("INFO: Failed to find metadata, unable to connect to MySQL server (Expected when running locally): %q\n", err)
 	}
 }
 
@@ -155,6 +187,15 @@ func reportError(w http.ResponseWriter, r *http.Request, err error, message stri
 	w.Write(resp)
 }
 
+func writeToDatabase(hash string, code string) {
+	if db == nil {
+		return
+	}
+	if _, err := db.Exec("INSERT INTO webtry (code, hash) VALUES(?, ?)", code, hash); err != nil {
+		log.Printf("ERROR: Failed to insert code into database: %q\n", err)
+	}
+}
+
 // mainHandler handles the GET and POST of the main page.
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
@@ -166,11 +207,13 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			reportError(w, r, err, "Failed to read a request body.")
 			return
 		}
-		hash, err := expandCode(LineNumbers(string(b)))
+		code := string(b)
+		hash, err := expandCode(LineNumbers(code))
 		if err != nil {
 			reportError(w, r, err, "Failed to write the code to compile.")
 			return
 		}
+		writeToDatabase(hash, code)
 		message, err := doCmd(fmt.Sprintf(RESULT_COMPILE, hash, hash), true)
 		if err != nil {
 			reportError(w, r, err, "Failed to compile the code:\n"+message)
@@ -222,5 +265,5 @@ func main() {
 	flag.Parse()
 
 	http.HandleFunc("/", mainHandler)
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	log.Fatal(http.ListenAndServe(*port, nil))
 }
