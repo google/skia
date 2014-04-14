@@ -60,7 +60,7 @@ public:
     SkTileGridPictureFactory(const SkTileGridPicture::TileGridInfo& info) : fInfo(info) { }
 
     virtual SkPicture* create(int width, int height) SK_OVERRIDE {
-        return SkNEW_ARGS(SkTileGridPicture, (width, height, fInfo));   
+        return SkNEW_ARGS(SkTileGridPicture, (width, height, fInfo));
     }
 
 protected:

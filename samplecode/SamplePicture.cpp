@@ -83,7 +83,7 @@ public:
 
         fPicture = recorder.endRecording();
 
-        // fPicture now has (4) references to fSubPicture. We can release our ref, 
+        // fPicture now has (4) references to fSubPicture. We can release our ref,
         // and just unref fPicture in our destructor, and it will in turn take care of
         // the other references to fSubPicture
         fSubPicture->unref();

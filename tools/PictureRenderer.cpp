@@ -991,7 +991,7 @@ public:
 class SkRTreePictureFactory : public SkPictureFactory {
 private:
     virtual SkPicture* create(int width, int height) SK_OVERRIDE {
-        return SkNEW(RTreePicture);   
+        return SkNEW(RTreePicture);
     }
 
 private:

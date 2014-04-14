@@ -16,8 +16,8 @@ namespace DM {
 SkString UnderJoin(const char* a, const char* b);
 
 // Draw gm to picture.  Passes recordFlags to SkPictureRecorder::beginRecording().
-SkPicture* RecordPicture(skiagm::GM* gm, 
-                         uint32_t recordFlags = 0, 
+SkPicture* RecordPicture(skiagm::GM* gm,
+                         uint32_t recordFlags = 0,
                          SkPictureFactory* factory = NULL);
 
 // Prepare bitmap to have gm or bench draw into it with this config.

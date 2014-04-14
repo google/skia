@@ -30,8 +30,8 @@ void TileGridTask::draw() {
         SkIPoint::Make(0,0),  // Offset.
     };
     SkAutoTUnref<SkPictureFactory> factory(SkNEW_ARGS(SkTileGridPictureFactory, (info)));
-    SkAutoTUnref<SkPicture> recorded(RecordPicture(fGM.get(), 
-                                                   SkPicture::kUsePathBoundsForClip_RecordingFlag, 
+    SkAutoTUnref<SkPicture> recorded(RecordPicture(fGM.get(),
+                                                   SkPicture::kUsePathBoundsForClip_RecordingFlag,
                                                    factory));
 
     SkBitmap full;

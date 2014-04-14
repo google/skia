@@ -59,21 +59,21 @@ static SkPictureFactory* quadtree_factory(int* recordingFlags) {
 }
 
 static PictureFactory parse_FLAGS_bbh() {
-    if (FLAGS_bbh.isEmpty()) { 
-        return &vanilla_factory; 
+    if (FLAGS_bbh.isEmpty()) {
+        return &vanilla_factory;
     }
     if (FLAGS_bbh.count() != 1) {
         SkDebugf("Multiple bbh arguments supplied.\n");
         return NULL;
     }
-    if (FLAGS_bbh.contains("rtree")) { 
-        return rtree_factory; 
+    if (FLAGS_bbh.contains("rtree")) {
+        return rtree_factory;
     }
-    if (FLAGS_bbh.contains("tilegrid")) { 
-        return tilegrid_factory; 
+    if (FLAGS_bbh.contains("tilegrid")) {
+        return tilegrid_factory;
     }
-    if (FLAGS_bbh.contains("quadtree")) { 
-        return quadtree_factory; 
+    if (FLAGS_bbh.contains("quadtree")) {
+        return quadtree_factory;
     }
     SkDebugf("Invalid bbh type %s, must be one of rtree, tilegrid, quadtree.\n", FLAGS_bbh[0]);
     return NULL;

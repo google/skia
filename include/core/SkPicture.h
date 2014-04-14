@@ -445,9 +445,9 @@ public:
     }
 
     /** Signal that the caller is done recording. This invalidates the canvas
-        returned by beginRecording/getRecordingCanvas, and returns the 
+        returned by beginRecording/getRecordingCanvas, and returns the
         created SkPicture. Note that the returned picture has its creation
-        ref which the caller must take ownership of. 
+        ref which the caller must take ownership of.
     */
     SkPicture* endRecording() {
         if (NULL != fPicture.get()) {

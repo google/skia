@@ -525,14 +525,14 @@ int tool_main(int argc, char** argv) {
 
             if (NULL != canvas) {
                 canvas->clear(SK_ColorWHITE);
-                if (FLAGS_clip)   {   
-                    perform_clip(canvas, dim.fX, dim.fY); 
+                if (FLAGS_clip)   {
+                    perform_clip(canvas, dim.fX, dim.fY);
                 }
-                if (FLAGS_scale)  {  
-                    perform_scale(canvas, dim.fX, dim.fY); 
+                if (FLAGS_scale)  {
+                    perform_scale(canvas, dim.fX, dim.fY);
                 }
-                if (FLAGS_rotate) { 
-                    perform_rotate(canvas, dim.fX, dim.fY); 
+                if (FLAGS_rotate) {
+                    perform_rotate(canvas, dim.fX, dim.fY);
                 }
             }
 
