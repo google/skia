@@ -9,11 +9,8 @@
 #include "SkMath.h"
 #include "SkMathPriv.h"
 
-#define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale)
 #define SCALE_FILTER_NAME       MAKENAME(_filter_scale)
-#define AFFINE_NOFILTER_NAME    MAKENAME(_nofilter_affine)
 #define AFFINE_FILTER_NAME      MAKENAME(_filter_affine)
-#define PERSP_NOFILTER_NAME     MAKENAME(_nofilter_persp)
 #define PERSP_FILTER_NAME       MAKENAME(_filter_persp)
 
 #define PACK_FILTER_X_NAME  MAKENAME(_pack_filter_x)
@@ -28,13 +25,6 @@
 #endif
 
 // declare functions externally to suppress warnings.
-void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
-                                uint32_t xy[], int count, int x, int y);
-void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
-                                 uint32_t xy[], int count, int x, int y);
-void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
-                                uint32_t* SK_RESTRICT xy,
-                                int count, int x, int y);
 void SCALE_FILTER_NAME(const SkBitmapProcState& s,
                               uint32_t xy[], int count, int x, int y);
 void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
@@ -42,122 +32,6 @@ void AFFINE_FILTER_NAME(const SkBitmapProcState& s,
 void PERSP_FILTER_NAME(const SkBitmapProcState& s,
                               uint32_t* SK_RESTRICT xy, int count,
                               int x, int y);
-
-void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
-                                uint32_t xy[], int count, int x, int y) {
-    SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
-                             SkMatrix::kScale_Mask)) == 0);
-
-    PREAMBLE(s);
-    // we store y, x, x, x, x, x
-
-    const unsigned maxX = s.fBitmap->width() - 1;
-    SkFractionalInt fx;
-    {
-        SkPoint pt;
-        s.fInvProc(s.fInvMatrix, SkIntToScalar(x) + SK_ScalarHalf,
-                                  SkIntToScalar(y) + SK_ScalarHalf, &pt);
-        fx = SkScalarToFractionalInt(pt.fY);
-        const unsigned maxY = s.fBitmap->height() - 1;
-        *xy++ = TILEY_PROCF(SkFractionalIntToFixed(fx), maxY);
-        fx = SkScalarToFractionalInt(pt.fX);
-    }
-
-    if (0 == maxX) {
-        // all of the following X values must be 0
-        memset(xy, 0, count * sizeof(uint16_t));
-        return;
-    }
-
-    const SkFractionalInt dx = s.fInvSxFractionalInt;
-
-#ifdef CHECK_FOR_DECAL
-    if (can_truncate_to_fixed_for_decal(fx, dx, count, maxX)) {
-        decal_nofilter_scale(xy, SkFractionalIntToFixed(fx),
-                             SkFractionalIntToFixed(dx), count);
-    } else
-#endif
-    {
-        int i;
-        for (i = (count >> 2); i > 0; --i) {
-            unsigned a, b;
-            a = TILEX_PROCF(SkFractionalIntToFixed(fx), maxX); fx += dx;
-            b = TILEX_PROCF(SkFractionalIntToFixed(fx), maxX); fx += dx;
-#ifdef SK_CPU_BENDIAN
-            *xy++ = (a << 16) | b;
-#else
-            *xy++ = (b << 16) | a;
-#endif
-            a = TILEX_PROCF(SkFractionalIntToFixed(fx), maxX); fx += dx;
-            b = TILEX_PROCF(SkFractionalIntToFixed(fx), maxX); fx += dx;
-#ifdef SK_CPU_BENDIAN
-            *xy++ = (a << 16) | b;
-#else
-            *xy++ = (b << 16) | a;
-#endif
-        }
-        uint16_t* xx = (uint16_t*)xy;
-        for (i = (count & 3); i > 0; --i) {
-            *xx++ = TILEX_PROCF(SkFractionalIntToFixed(fx), maxX); fx += dx;
-        }
-    }
-}
-
-// note: we could special-case on a matrix which is skewed in X but not Y.
-// this would require a more general setup thatn SCALE does, but could use
-// SCALE's inner loop that only looks at dx
-
-void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
-                                 uint32_t xy[], int count, int x, int y) {
-    SkASSERT(s.fInvType & SkMatrix::kAffine_Mask);
-    SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
-                             SkMatrix::kScale_Mask |
-                             SkMatrix::kAffine_Mask)) == 0);
-
-    PREAMBLE(s);
-    SkPoint srcPt;
-    s.fInvProc(s.fInvMatrix,
-               SkIntToScalar(x) + SK_ScalarHalf,
-               SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-
-    SkFractionalInt fx = SkScalarToFractionalInt(srcPt.fX);
-    SkFractionalInt fy = SkScalarToFractionalInt(srcPt.fY);
-    SkFractionalInt dx = s.fInvSxFractionalInt;
-    SkFractionalInt dy = s.fInvKyFractionalInt;
-    int maxX = s.fBitmap->width() - 1;
-    int maxY = s.fBitmap->height() - 1;
-
-    for (int i = count; i > 0; --i) {
-        *xy++ = (TILEY_PROCF(SkFractionalIntToFixed(fy), maxY) << 16) |
-                 TILEX_PROCF(SkFractionalIntToFixed(fx), maxX);
-        fx += dx; fy += dy;
-    }
-}
-
-void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
-                                uint32_t* SK_RESTRICT xy,
-                                int count, int x, int y) {
-    SkASSERT(s.fInvType & SkMatrix::kPerspective_Mask);
-
-    PREAMBLE(s);
-    int maxX = s.fBitmap->width() - 1;
-    int maxY = s.fBitmap->height() - 1;
-
-    SkPerspIter   iter(s.fInvMatrix,
-                       SkIntToScalar(x) + SK_ScalarHalf,
-                       SkIntToScalar(y) + SK_ScalarHalf, count);
-
-    while ((count = iter.next()) != 0) {
-        const SkFixed* SK_RESTRICT srcXY = iter.getXY();
-        while (--count >= 0) {
-            *xy++ = (TILEY_PROCF(srcXY[1], maxY) << 16) |
-                     TILEX_PROCF(srcXY[0], maxX);
-            srcXY += 2;
-        }
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////////
 
 static inline uint32_t PACK_FILTER_Y_NAME(SkFixed f, unsigned max,
                                           SkFixed one PREAMBLE_PARAM_Y) {
@@ -270,15 +144,6 @@ void PERSP_FILTER_NAME(const SkBitmapProcState& s,
     }
 }
 
-static SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
-    SCALE_NOFILTER_NAME,
-    SCALE_FILTER_NAME,
-    AFFINE_NOFILTER_NAME,
-    AFFINE_FILTER_NAME,
-    PERSP_NOFILTER_NAME,
-    PERSP_FILTER_NAME
-};
-
 #undef MAKENAME
 #undef TILEX_PROCF
 #undef TILEY_PROCF
@@ -286,11 +151,8 @@ static SkBitmapProcState::MatrixProc MAKENAME(_Procs)[] = {
     #undef CHECK_FOR_DECAL
 #endif
 
-#undef SCALE_NOFILTER_NAME
 #undef SCALE_FILTER_NAME
-#undef AFFINE_NOFILTER_NAME
 #undef AFFINE_FILTER_NAME
-#undef PERSP_NOFILTER_NAME
 #undef PERSP_FILTER_NAME
 
 #undef PREAMBLE
