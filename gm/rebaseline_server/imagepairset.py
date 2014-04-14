@@ -50,20 +50,20 @@ class ImagePairSet(object):
     self._descriptions = descriptions or DEFAULT_DESCRIPTIONS
     self._extra_column_tallies = {}  # maps column_id -> values
                                      #                -> instances_per_value
-    self._image_pair_dicts = []
+    self._image_pairs = []
     self._image_base_url = None
     self._diff_base_url = diff_base_url
 
   def add_image_pair(self, image_pair):
     """Adds an ImagePair; this may be repeated any number of times."""
     # Special handling when we add the first ImagePair...
-    if not self._image_pair_dicts:
+    if not self._image_pairs:
       self._image_base_url = image_pair.base_url
 
     if image_pair.base_url != self._image_base_url:
       raise Exception('added ImagePair with base_url "%s" instead of "%s"' % (
           image_pair.base_url, self._image_base_url))
-    self._image_pair_dicts.append(image_pair.as_dict())
+    self._image_pairs.append(image_pair)
     extra_columns_dict = image_pair.extra_columns_dict
     if extra_columns_dict:
       for column_id, value in extra_columns_dict.iteritems():
@@ -142,7 +142,7 @@ class ImagePairSet(object):
     key_base_url = KEY__IMAGESETS__FIELD__BASE_URL
     return {
         KEY__EXTRACOLUMNHEADERS: self._column_headers_as_dict(),
-        KEY__IMAGEPAIRS: self._image_pair_dicts,
+        KEY__IMAGEPAIRS: [pair.as_dict() for pair in self._image_pairs],
         KEY__IMAGESETS: {
             KEY__IMAGESETS__SET__IMAGE_A: {
                 key_description: self._descriptions[0],
