@@ -31,6 +31,10 @@
     #define SK_SNPRINTF snprintf
 #endif
 
+#define WIND_AS_STRING(x) char x##Str[12]; \
+        if (!SkPathOpsDebug::ValidWind(x)) strcpy(x##Str, "?"); \
+        else SK_SNPRINTF(x##Str, sizeof(x##Str), "%d", x)
+
 #if FORCE_RELEASE
 
 #define DEBUG_ACTIVE_OP 0
@@ -121,13 +125,12 @@
 #define DEBUG_TEST 0
 #endif
 
-#if defined SK_DEBUG || !FORCE_RELEASE
-
 #if DEBUG_SHOW_TEST_NAME
 #include "SkTLS.h"
 #endif
 
 #include "SkTArray.h"
+#include "SkTDArray.h"
 
 class SkPathOpsDebug {
 public:
@@ -147,6 +150,7 @@ public:
     static const char* kPathOpStr[];
 #endif
 
+    static bool ChaseContains(const SkTDArray<struct SkOpSpan *>& , const struct SkOpSpan * );
     static void MathematicaIze(char* str, size_t bufferSize);
     static bool ValidWind(int winding);
     static void WindingPrintf(int winding);
@@ -158,10 +162,20 @@ public:
 #define DEBUG_FILENAME_STRING (reinterpret_cast<char* >(SkTLS::Get(SkPathOpsDebug::CreateNameStr, \
         SkPathOpsDebug::DeleteNameStr)))
     static void BumpTestName(char* );
-    static void ShowPath(const SkPath& one, const SkPath& two, SkPathOp op, const char* name);
 #endif
+    static void ShowPath(const SkPath& one, const SkPath& two, SkPathOp op, const char* name);
     static void DumpAngles(const SkTArray<class SkOpAngle, true>& angles);
     static void DumpAngles(const SkTArray<class SkOpAngle* , true>& angles);
+    static void DumpContours(const SkTArray<class SkOpContour, true>& contours);
+    static void DumpContours(const SkTArray<class SkOpContour* , true>& contours);
+    static void DumpContourAngles(const SkTArray<class SkOpContour, true>& contours);
+    static void DumpContourAngles(const SkTArray<class SkOpContour* , true>& contours);
+    static void DumpContourPts(const SkTArray<class SkOpContour, true>& contours);
+    static void DumpContourPts(const SkTArray<class SkOpContour* , true>& contours);
+    static void DumpContourSpans(const SkTArray<class SkOpContour, true>& contours);
+    static void DumpContourSpans(const SkTArray<class SkOpContour* , true>& contours);
+    static void DumpSpans(const SkTDArray<struct SkOpSpan *>& );
+    static void DumpSpans(const SkTDArray<struct SkOpSpan *>* );
 };
 
 // shorthand for calling from debugger
@@ -170,6 +184,32 @@ void Dump(const SkTArray<class SkOpAngle* , true>& angles);
 void Dump(const SkTArray<class SkOpAngle, true>* angles);
 void Dump(const SkTArray<class SkOpAngle* , true>* angles);
 
-#endif  // SK_DEBUG || !FORCE_RELEASE
+void Dump(const SkTArray<class SkOpContour, true>& contours);
+void Dump(const SkTArray<class SkOpContour* , true>& contours);
+void Dump(const SkTArray<class SkOpContour, true>* contours);
+void Dump(const SkTArray<class SkOpContour* , true>* contours);
+
+void Dump(const SkTDArray<SkOpSpan *>& chaseArray);
+void Dump(const SkTDArray<SkOpSpan *>* chaseArray);
+
+void DumpAngles(const SkTArray<class SkOpContour, true>& contours);
+void DumpAngles(const SkTArray<class SkOpContour* , true>& contours);
+void DumpAngles(const SkTArray<class SkOpContour, true>* contours);
+void DumpAngles(const SkTArray<class SkOpContour* , true>* contours);
+
+void DumpPts(const SkTArray<class SkOpContour, true>& contours);
+void DumpPts(const SkTArray<class SkOpContour* , true>& contours);
+void DumpPts(const SkTArray<class SkOpContour, true>* contours);
+void DumpPts(const SkTArray<class SkOpContour* , true>* contours);
+
+void DumpSpans(const SkTArray<class SkOpContour, true>& contours);
+void DumpSpans(const SkTArray<class SkOpContour* , true>& contours);
+void DumpSpans(const SkTArray<class SkOpContour, true>* contours);
+void DumpSpans(const SkTArray<class SkOpContour* , true>* contours);
+
+// generates tools/path_sorter.htm and path_visualizer.htm compatible data
+void DumpQ(const struct SkDQuad& quad1, const struct SkDQuad& quad2, int testNo);
+
+void DumpT(const struct SkDQuad& quad, double t);
 
 #endif

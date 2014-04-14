@@ -53,6 +53,9 @@ static void standardTestCases(skiatest::Reporter* reporter) {
 }
 
 static const SkDQuad testSet[] = {
+{{{-708.00779269310044, -154.36998607290101}, {-707.90560262312511, -154.36998607290101}, {-707.8333433370193, -154.44224536635932}}},
+{{{-708.00779269310044, -154.61669472244046}, {-701.04513225634582, -128.85970734043804}, {505.58447265625, -504.9130859375}}},
+
 {{{164, -40}, {231.51681518554687, -40}, {279.25839233398438, 7.7416000366210938}}},
 {{{279.25839233398438, 7.7416000366210938}, {275.2164306640625, 3.6996400356292725}, {271.03286743164062, -5.3290705182007514e-015}}},
 
@@ -306,7 +309,7 @@ static const SkDQuad coincidentTestSet[] = {
     {{{8, -10}, {10, 10}, {8, 8}}},
 };
 
-const size_t coincidentTestSetCount = SK_ARRAY_COUNT(coincidentTestSet);
+static const int coincidentTestSetCount = (int) SK_ARRAY_COUNT(coincidentTestSet);
 
 static void coincidentTestOne(skiatest::Reporter* reporter, int test1, int test2) {
     const SkDQuad& quad1 = coincidentTestSet[test1];
@@ -327,7 +330,7 @@ static void coincidentTestOne(skiatest::Reporter* reporter, int test1, int test2
 }
 
 static void coincidentTest(skiatest::Reporter* reporter) {
-    for (size_t testIndex = 0; testIndex < coincidentTestSetCount - 1; testIndex += 2) {
+    for (int testIndex = 0; testIndex < coincidentTestSetCount - 1; testIndex += 2) {
         coincidentTestOne(reporter, testIndex, testIndex + 1);
     }
 }

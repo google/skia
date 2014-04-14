@@ -166,6 +166,9 @@ int tool_main(int argc, char** argv) {
         header.append(" SK_RELEASE");
 #endif
         header.appendf(" skia_arch_width=%d", (int)sizeof(void*) * 8);
+        if (FLAGS_veryVerbose) {
+            header.appendf("\n");
+        }
         SkDebugf(header.c_str());
     }
 

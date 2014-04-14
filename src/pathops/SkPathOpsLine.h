@@ -38,9 +38,7 @@ struct SkDLine {
     SkDPoint ptAtT(double t) const;
     SkDLine subDivide(double t1, double t2) const;
 
-#ifdef SK_DEBUG
-    void dump();
-#endif
+    void dump() const;
 private:
     SkDVector tangent() const { return fPts[0] - fPts[1]; }
 };

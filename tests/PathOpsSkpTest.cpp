@@ -6,10 +6,9 @@
  */
 #include "PathOpsExtendedTest.h"
 
-
 #define TEST(name) { name, #name }
 
-static void skpcheeseandburger_com225(skiatest::Reporter* reporter) {
+static void skpcheeseandburger_com225(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(555, 468);
@@ -367,10 +366,10 @@ static void skpcheeseandburger_com225(skiatest::Reporter* reporter) {
     pathB.lineTo(716.868225f, 365.046783f);
     pathB.cubicTo(716.868225f, 363.740021f, 716.960083f, 363.043213f, 717.597961f, 362);
     pathB.cubicTo(715.331848f, 363.104095f, 714.19873f, 363.657166f, 711.928711f, 364.782227f);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpeverytechpro_blogspot_com100(skiatest::Reporter* reporter) {
+static void skpeverytechpro_blogspot_com100(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(1074.29285f, 627.292786f);
@@ -401,10 +400,10 @@ static void skpeverytechpro_blogspot_com100(skiatest::Reporter* reporter) {
     pathB.lineTo(1075, 628);
     pathB.lineTo(1116.5f, 644.5f);
     pathB.lineTo(1134, 627);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpflite_com41(skiatest::Reporter* reporter) {
+static void skpflite_com41(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(301.464081f, 424);
@@ -424,10 +423,10 @@ static void skpflite_com41(skiatest::Reporter* reporter) {
     pathB.lineTo(304.510101f, 438.724121f);
     pathB.lineTo(295.849854f, 433.724121f);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpilkoora_com37(skiatest::Reporter* reporter) {
+static void skpilkoora_com37(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(818, 157);
@@ -456,10 +455,10 @@ static void skpilkoora_com37(skiatest::Reporter* reporter) {
     pathB.lineTo(1001.5f, 325.5f);
     pathB.lineTo(1001.5f, 782.5f);
     pathB.lineTo(1185, 966);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpmm4everfriends_com43(skiatest::Reporter* reporter) {
+static void skpmm4everfriends_com43(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(540.74231f, 215.922546f);
@@ -479,10 +478,10 @@ static void skpmm4everfriends_com43(skiatest::Reporter* reporter) {
     pathB.lineTo(576.435852f, 247.626068f);
     pathB.lineTo(535.280823f, 235.165573f);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpmtrk_uz27(skiatest::Reporter* reporter) {
+static void skpmtrk_uz27(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(33, 787);
@@ -506,10 +505,10 @@ static void skpmtrk_uz27(skiatest::Reporter* reporter) {
     pathB.quadTo(41.7867432f, 802, 37.3919678f, 797.608032f);
     pathB.quadTo(33, 793.213196f, 33, 787);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpfrauen_magazin_com83(skiatest::Reporter* reporter) {
+static void skpfrauen_magazin_com83(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(808, 886);
@@ -530,12 +529,10 @@ static void skpfrauen_magazin_com83(skiatest::Reporter* reporter) {
     pathB.lineTo(803, 891);
     pathB.cubicTo(803, 888.238586f, 805.238586f, 886, 808, 886);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#define TRY_BROKEN_TESTS 0
-#if TRY_BROKEN_TESTS
-static void skpi_gino_com16(skiatest::Reporter* reporter) {
+static void skpi_gino_com16(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(184, 734);
@@ -557,10 +554,10 @@ static void skpi_gino_com16(skiatest::Reporter* reporter) {
     pathB.cubicTo(61, 789.06897f, 116.068977f, 734, 184, 734);
     pathB.lineTo(185, 734);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skppchappy_com_au102(skiatest::Reporter* reporter) {
+static void skppchappy_com_au102(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(363, 493);
@@ -585,10 +582,10 @@ static void skppchappy_com_au102(skiatest::Reporter* reporter) {
     pathB.lineTo(359, 496);
     pathB.cubicTo(359, 494.895416f, 360.34314f, 494, 362, 494);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpsciality_com161(skiatest::Reporter* reporter) {
+static void skpsciality_com161(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(656, 728);
@@ -613,11 +610,10 @@ static void skpsciality_com161(skiatest::Reporter* reporter) {
     pathB.lineTo(652, 731);
     pathB.cubicTo(652, 729.895447f, 653.34314f, 729, 655, 729);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
-#endif
 
-static void skpsudoestenegocios_com186(skiatest::Reporter* reporter) {
+static void skpsudoestenegocios_com186(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(0, 495);
@@ -644,10 +640,10 @@ static void skpsudoestenegocios_com186(skiatest::Reporter* reporter) {
     pathB.lineTo(24, 471);
     pathB.lineTo(24, 317);
     pathB.lineTo(48, 293);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpthesuburbanite_com213(skiatest::Reporter* reporter) {
+static void skpthesuburbanite_com213(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(863.439026f, 692);
@@ -665,10 +661,10 @@ static void skpthesuburbanite_com213(skiatest::Reporter* reporter) {
     pathB.lineTo(866.016724f, 701.620361f);
     pathB.lineTo(785.84491f, 723.102356f);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skphostloco_com11(skiatest::Reporter* reporter) {
+static void skphostloco_com11(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(6.66133815e-16f, 648);
@@ -688,10 +684,10 @@ static void skphostloco_com11(skiatest::Reporter* reporter) {
     pathB.lineTo(30, 648);
     pathB.lineTo(0, 648);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpsergeychunkevich_com8(skiatest::Reporter* reporter) {
+static void skpsergeychunkevich_com8(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(0, 926);
@@ -710,10 +706,10 @@ static void skpsergeychunkevich_com8(skiatest::Reporter* reporter) {
     pathB.lineTo(34, 371);
     pathB.cubicTo(35.6568565f, 371, 37, 372.34314f, 37, 374);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skptracksflow_com9(skiatest::Reporter* reporter) {
+static void skptracksflow_com9(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(16, 56);
@@ -744,10 +740,10 @@ static void skptracksflow_com9(skiatest::Reporter* reporter) {
     pathB.cubicTo(26.0091248f, 64.2129364f, 24.2174377f, 66.0046234f, 22.0072803f, 66.0046234f);
     pathB.cubicTo(19.7970943f, 66.0045929f, 18.0054054f, 64.2129059f, 18.0054054f, 62.0027809f);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpautobutler_dk29(skiatest::Reporter* reporter) {
+static void skpautobutler_dk29(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(0, 926);
@@ -763,10 +759,10 @@ static void skpautobutler_dk29(skiatest::Reporter* reporter) {
     pathB.lineTo(8.57224448e-15f, 301);
     pathB.lineTo(6.12303177e-17f, 162);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skponlinecollege_org144(skiatest::Reporter* reporter) {
+static void skponlinecollege_org144(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(179, 407);
@@ -791,10 +787,10 @@ static void skponlinecollege_org144(skiatest::Reporter* reporter) {
     pathB.lineTo(177, 410);
     pathB.cubicTo(177, 408.895416f, 177.895432f, 408, 179, 408);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpnational_com_au81(skiatest::Reporter* reporter) {
+static void skpnational_com_au81(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(807, 817);
@@ -817,10 +813,10 @@ static void skpnational_com_au81(skiatest::Reporter* reporter) {
     pathB.lineTo(806, 818);
     pathB.cubicTo(806, 817.447693f, 806.447693f, 817, 807, 817);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skprentacheat_com30(skiatest::Reporter* reporter) {
+static void skprentacheat_com30(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(967, 263);
@@ -843,10 +839,10 @@ static void skprentacheat_com30(skiatest::Reporter* reporter) {
     pathB.lineTo(966, 264);
     pathB.cubicTo(966, 263.447723f, 966.447693f, 263, 967, 263);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpbreakmystyle_com10(skiatest::Reporter* reporter) {
+static void skpbreakmystyle_com10(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(271.032867f, -5.32907052e-15f);
@@ -872,10 +868,10 @@ static void skpbreakmystyle_com10(skiatest::Reporter* reporter) {
     pathB.quadTo(231.516815f, -40, 279.258392f, 7.74160004f);
     pathB.quadTo(327, 55.4831848f, 327, 123);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpsd_graphic_net104(skiatest::Reporter* reporter) {
+static void skpsd_graphic_net104(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(475.421448f, 836.985962f);
@@ -897,10 +893,9 @@ static void skpsd_graphic_net104(skiatest::Reporter* reporter) {
     pathB.lineTo(390.578583f, 867.014099f);
     pathB.lineTo(433, 852.000061f);
     pathB.lineTo(490.435486f, 879.40741f);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#if TRY_BROKEN_TESTS
 /* this cubic/quad pair
  c = 430,280 430,278.895416 473.876068,278 528,278
  q = 430,280 430.009796,277.101196 458.703552,275.050262
@@ -914,7 +909,7 @@ static void skpsd_graphic_net104(skiatest::Reporter* reporter) {
  Maybe in angle setup, this instability can be detected to suppress sorting on the initial tangent
  Or the error term can be passed to NearRay that is magnified by the distance from the next ctrl?
  */
-static void skpnaoxrane_ru23(skiatest::Reporter* reporter) {
+static void skpnaoxrane_ru23(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(458.703552f, 275.050262f);
@@ -943,7 +938,7 @@ static void skpnaoxrane_ru23(skiatest::Reporter* reporter) {
     pathB.lineTo(430, 280);
     pathB.cubicTo(430, 278.895416f, 473.876068f, 278, 528, 278);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
 /* didn't investigate thoroughly, but looks to be missorting quad and cubic
@@ -951,7 +946,7 @@ static void skpnaoxrane_ru23(skiatest::Reporter* reporter) {
     {{463.779907,542.671143}, {464.829529,542.672974}, {466.946289,550.755676}, {468.507751,560.724426}}
     decision maker is case 14 leftLessThanRight
  */
-static void skptcmevents_org23(skiatest::Reporter* reporter) {
+static void skptcmevents_org23(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(465.503998f, 546);
@@ -976,10 +971,10 @@ static void skptcmevents_org23(skiatest::Reporter* reporter) {
     pathB.lineTo(325.968597f, 560.475708f);
     pathB.cubicTo(324.407104f, 550.506958f, 341.01001f, 542.456909f, 363.052246f, 542.495361f);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpredbullskatearcade_es16(skiatest::Reporter* reporter) {
+static void skpredbullskatearcade_es16(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(936.765625f, 458.965302f);
@@ -1007,10 +1002,10 @@ static void skpredbullskatearcade_es16(skiatest::Reporter* reporter) {
     pathB.lineTo(652.258179f, 468.503662f);
     pathB.cubicTo(652.520996f, 463.401611f, 656.829834f, 459.128235f, 661.882263f, 458.958862f);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpfinanzasdigital_com9(skiatest::Reporter* reporter) {
+static void skpfinanzasdigital_com9(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(156, 126);
@@ -1033,11 +1028,10 @@ static void skpfinanzasdigital_com9(skiatest::Reporter* reporter) {
     pathB.lineTo(153, 130);
     pathB.cubicTo(153, 127.790863f, 154.34314f, 126, 156, 126);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
-#endif
 
-static void skppartainasdemo250_org56(skiatest::Reporter* reporter) {
+static void skppartainasdemo250_org56(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(182.000015f, 645);
@@ -1057,10 +1051,10 @@ static void skppartainasdemo250_org56(skiatest::Reporter* reporter) {
     pathB.lineTo(206.748749f, 634.748718f);
     pathB.lineTo(182.000015f, 610);
     pathB.lineTo(132.502533f, 610);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpmlk_com326(skiatest::Reporter* reporter) {
+static void skpmlk_com326(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(154, 670);
@@ -1085,10 +1079,10 @@ static void skpmlk_com326(skiatest::Reporter* reporter) {
     pathB.lineTo(149, 675);
     pathB.cubicTo(149, 672.790833f, 151.238571f, 671, 154, 671);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpcyclist_friends_gr52(skiatest::Reporter* reporter) {
+static void skpcyclist_friends_gr52(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(50, 182);
@@ -1111,11 +1105,11 @@ static void skpcyclist_friends_gr52(skiatest::Reporter* reporter) {
     pathB.cubicTo(52.238575f, 207, 50, 204.761429f, 50, 202);
     pathB.lineTo(50, 183);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
 /* cubic ends just above opp line */
-static void skpwww_fj_p_com_22(skiatest::Reporter* reporter) {
+static void skpwww_fj_p_com_22(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(172, 201);
@@ -1131,13 +1125,11 @@ static void skpwww_fj_p_com_22(skiatest::Reporter* reporter) {
     pathB.lineTo(161, 199);
     pathB.lineTo(223, 199.000015f);
     pathB.lineTo(223, 202);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#define TRY_SEPT_BROKEN_TESTS 0
-#if TRY_SEPT_BROKEN_TESTS
 // pair of lines are not quite coincident, so sorting line/cubic fails (i think)
-static void skpwww_lavoixdunord_fr_11(skiatest::Reporter* reporter) {
+static void skpwww_lavoixdunord_fr_11(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(806, 57);
@@ -1166,13 +1158,13 @@ static void skpwww_lavoixdunord_fr_11(skiatest::Reporter* reporter) {
     pathB.lineTo(808, 56);
     pathB.lineTo(935.02002f, 56.0200005f);
     pathB.lineTo(933, 54);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
 // pair of curves have nearly the same initial tangent but are sorting by
 // that alone sorts them incorrectly. Need to detect that tangents are nearly
 // identical and not reliable by themselves
-static void skppptv_com_62(skiatest::Reporter* reporter) {
+static void skppptv_com_62(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(173, 5342);
@@ -1195,11 +1187,11 @@ static void skppptv_com_62(skiatest::Reporter* reporter) {
     pathB.lineTo(169, 5346);
     pathB.cubicTo(169, 5343.79102f, 170.790863f, 5342, 173, 5342);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
 // nearly identical to lavoixdunord -- to not-quite-coincident lines
-static void skpwww_booking_com_68(skiatest::Reporter* reporter) {
+static void skpwww_booking_com_68(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(90, 187);
@@ -1228,11 +1220,11 @@ static void skpwww_booking_com_68(skiatest::Reporter* reporter) {
     pathB.lineTo(92, 186);
     pathB.lineTo(593.02002f, 186.020004f);
     pathB.lineTo(591, 184);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
 // visually looks like lavoixdunord and www_booking_com
-static void skpwww_despegar_com_mx_272(skiatest::Reporter* reporter) {
+static void skpwww_despegar_com_mx_272(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(635, 1788);
@@ -1261,11 +1253,10 @@ static void skpwww_despegar_com_mx_272(skiatest::Reporter* reporter) {
     pathB.lineTo(833, 1787);
     pathB.lineTo(832.97998f, 1817.02002f);
     pathB.lineTo(835, 1815);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
-#endif
 
-static void skpwww_joomla_org_23(skiatest::Reporter* reporter) {
+static void skpwww_joomla_org_23(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(320, 347);
@@ -1290,10 +1281,10 @@ static void skpwww_joomla_org_23(skiatest::Reporter* reporter) {
     pathB.lineTo(320, 378);
     pathB.lineTo(421, 378.000031f);
     pathB.lineTo(421, 383);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpwww_macrumors_com_131(skiatest::Reporter* reporter) {
+static void skpwww_macrumors_com_131(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(136, 14089);
@@ -1316,10 +1307,10 @@ static void skpwww_macrumors_com_131(skiatest::Reporter* reporter) {
     pathB.cubicTo(137.790863f, 14093, 136, 14091.209f, 136, 14089);
     pathB.lineTo(136, 14057);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpwww_leadpages_net_84(skiatest::Reporter* reporter) {
+static void skpwww_leadpages_net_84(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(377.1716f, 5910.17139f);
@@ -1337,10 +1328,10 @@ static void skpwww_leadpages_net_84(skiatest::Reporter* reporter) {
     pathB.lineTo(378.481873f, 5909);
     pathB.lineTo(379.999878f, 5976);
     pathB.lineTo(376, 5976);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpwww_briian_com_34(skiatest::Reporter* reporter) {
+static void skpwww_briian_com_34(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(843, 216);
@@ -1369,11 +1360,10 @@ static void skpwww_briian_com_34(skiatest::Reporter* reporter) {
     pathB.lineTo(843, 779);
     pathB.lineTo(1196, 779.000061f);
     pathB.lineTo(1196, 784);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-
-static void skpwww_sciality_com_100(skiatest::Reporter* reporter) {
+static void skpwww_sciality_com_100(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(162, 468);
@@ -1398,11 +1388,10 @@ static void skpwww_sciality_com_100(skiatest::Reporter* reporter) {
     pathB.cubicTo(158, 469.34314f, 159.34314f, 468, 161, 468);
     pathB.lineTo(275, 468);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#if TRY_SEPT_BROKEN_TESTS
-static void skpwww_sciality_com_101(skiatest::Reporter* reporter) {
+static void skpwww_sciality_com_101(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(162, 468);
@@ -1427,11 +1416,10 @@ static void skpwww_sciality_com_101(skiatest::Reporter* reporter) {
     pathB.lineTo(158, 471);
     pathB.cubicTo(158, 469.895416f, 159.34314f, 469, 161, 469);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
-#endif
 
-static void skpwww_meb_gov_tr_5(skiatest::Reporter* reporter) {
+static void skpwww_meb_gov_tr_5(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(137.34314f, 145.34314f);
@@ -1451,11 +1439,10 @@ static void skpwww_meb_gov_tr_5(skiatest::Reporter* reporter) {
     pathB.lineTo(250, 177);
     pathB.lineTo(135, 177);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#if TRY_SEPT_BROKEN_TESTS
-static void skpwww_meb_gov_tr_6(skiatest::Reporter* reporter) {
+static void skpwww_meb_gov_tr_6(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(143, 143);
@@ -1478,11 +1465,10 @@ static void skpwww_meb_gov_tr_6(skiatest::Reporter* reporter) {
     pathB.lineTo(135, 151);
     pathB.cubicTo(135, 146.581726f, 138.581726f, 143, 143, 143);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
-#endif
 
-static void skpgithub_io_25(skiatest::Reporter* reporter) {
+static void skpgithub_io_25(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(1001.87866f, 14.8786793f);
@@ -1511,10 +1497,10 @@ static void skpgithub_io_25(skiatest::Reporter* reporter) {
     pathB.lineTo(1003, 18);
     pathB.cubicTo(1003, 16.8954296f, 1003.89545f, 16, 1005, 16);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpgithub_io_26(skiatest::Reporter* reporter) {
+static void skpgithub_io_26(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(1001.87866f, 14.8786793f);
@@ -1547,10 +1533,10 @@ static void skpgithub_io_26(skiatest::Reporter* reporter) {
     pathB.lineTo(1106, 16);
     pathB.lineTo(1105.97998f, 46.0200005f);
     pathB.lineTo(1108, 44);
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-static void skpskpicture14(skiatest::Reporter* reporter) {
+static void skpskpicture14(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(0, 994);
@@ -1570,11 +1556,10 @@ static void skpskpicture14(skiatest::Reporter* reporter) {
     pathB.lineTo(323, 193);
     pathB.lineTo(-317, 193);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
-#if TRY_SEPT_BROKEN_TESTS
-static void skpskpicture15(skiatest::Reporter* reporter) {
+static void skpskpicture15(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.moveTo(0, 193);
@@ -1595,15 +1580,180 @@ static void skpskpicture15(skiatest::Reporter* reporter) {
     pathB.lineTo(-317, 168);
     pathB.cubicTo(-317, 166.34314f, -315.65686f, 165, -314, 165);
     pathB.close();
-    testPathOp(reporter, path, pathB, kIntersect_PathOp);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
-#endif
 
-static void (*firstTest)(skiatest::Reporter* ) = 0;
+/* Three edges are partially coincident. Only one of the three knows about the other two.
+   Subsequently, when the angle loop is created, it misses one of the edges.
+   After coincident edges are processed, probably need a check-and-correct that makes sure the
+   coincidences are all self-consistent.
+ */
+static void skpelpais_com_18(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(183, 8507);
+    path.lineTo(552, 8506.99023f);
+    path.lineTo(552, 8508);
+    path.lineTo(183, 8508);
+    path.lineTo(183, 8507);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(183, 8508);
+    pathB.lineTo(183, 8506.99023f);
+    pathB.lineTo(552, 8507);
+    pathB.lineTo(552, 8508);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+/* this generates a pair of lines that are essentially coincident; but the next line at a right
+   angle is not treated as if it intersects at the same point.
+   There are several of options:
+     move the intersection of the right angle line to the coincident point (should 'near' do this?
+     construct another coincident pair from the right angle line to the coincident point
+     treat the intersection as simple and not coincident
+ */
+static void skpnamecheap_com_405(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(140, 1000);
+    path.lineTo(140, 842);
+    path.lineTo(141, 842);
+    path.lineTo(141.14502f, 1000);
+    path.lineTo(140, 1000);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(140, 842);
+    pathB.lineTo(141.008835f, 837.9646f);
+    pathB.lineTo(141.235291f, 1109.05884f);
+    pathB.lineTo(140, 1114);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+// fails on angle insert -- haven't investigated yet
+static void skpwww_alrakoba_net_62(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(134.34314f, 9802.34277f);
+    path.quadTo(132, 9804.68652f, 132, 9808);
+    path.lineTo(132, 9822);
+    path.quadTo(132, 9825.31348f, 134.34314f, 9827.65723f);
+    path.quadTo(136.686295f, 9830, 140, 9830);
+    path.lineTo(140.028473f, 9830);
+    path.lineTo(139.877213f, 9828.90723f);
+    path.quadTo(137.692032f, 9828.5332f, 136.050247f, 9826.65723f);
+    path.quadTo(134, 9824.31348f, 134, 9821);
+    path.lineTo(134, 9809);
+    path.quadTo(134, 9806.10059f, 136.050247f, 9804.0498f);
+    path.lineTo(134.34314f, 9802.34277f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(132, 9800);
+    pathB.lineTo(135.962357f, 9800);
+    pathB.lineTo(140, 9830);
+    pathB.lineTo(132, 9830);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+/* asserts in alignSpanState looks like a coincident related bug */
+static void skpwww_cityads_ru_249(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(817.464478f, 11.4644661f);
+    path.quadTo(818.928955f, 10, 821, 10);
+    path.lineTo(998, 10);
+    path.quadTo(999.082947f, 10, 1000, 10.4003992f);
+    path.lineTo(1000, 13.3527431f);
+    path.quadTo(999.917603f, 13.2607508f, 999.82843f, 13.1715727f);
+    path.quadTo(998.65686f, 12, 997, 12);
+    path.lineTo(822, 12);
+    path.quadTo(820.34314f, 12, 819.17157f, 13.1715727f);
+    path.quadTo(818, 14.3431454f, 818, 16);
+    path.lineTo(818, 28);
+    path.quadTo(818, 29.6568546f, 819.17157f, 30.8284264f);
+    path.quadTo(820.34314f, 32, 822, 32);
+    path.lineTo(997, 32);
+    path.quadTo(998.65686f, 32, 999.82843f, 30.8284264f);
+    path.quadTo(999.917603f, 30.7392426f, 1000, 30.6472569f);
+    path.lineTo(1000, 33.5996017f);
+    path.quadTo(999.082947f, 34, 998, 34);
+    path.lineTo(821, 34);
+    path.quadTo(818.928955f, 34, 817.464478f, 32.5355339f);
+    path.quadTo(816, 31.0710678f, 816, 29);
+    path.lineTo(816, 15);
+    path.quadTo(816, 12.9289322f, 817.464478f, 11.4644661f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1003, 10);
+    pathB.lineTo(1000, 13);
+    pathB.lineTo(999.969971f, 37.0299988f);
+    pathB.lineTo(1003, 34);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+// fails on angle insert
+static void skpwww_dealnews_com_315(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(966.464478f, 4261.46436f);
+    path.quadTo(965, 4262.92871f, 965, 4265);
+    path.lineTo(965, 4276);
+    path.quadTo(965, 4278.07129f, 966.464478f, 4279.53564f);
+    path.quadTo(967.928955f, 4281, 970, 4281);
+    path.lineTo(970.020325f, 4281);
+    path.lineTo(969.887512f, 4279.81641f);
+    path.quadTo(968.928284f, 4279.48145f, 968.17157f, 4278.53564f);
+    path.quadTo(967, 4277.07129f, 967, 4275);
+    path.lineTo(967, 4266);
+    path.quadTo(967, 4264.44287f, 968.035217f, 4263.31396f);
+    path.lineTo(968, 4263);
+    path.lineTo(966.464478f, 4261.46436f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(965, 4260);
+    pathB.lineTo(967.716675f, 4260);
+    pathB.lineTo(970, 4281);
+    pathB.lineTo(965, 4281);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+// fails in intersections insert
+static void skpwww_inmotionhosting_com_9(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(991.633911f, 1839);
+    path.lineTo(964.265015f, 1839);
+    path.lineTo(963.734985f, 1893.73242f);
+    path.lineTo(991.3703f, 1894);
+    path.lineTo(1018.23492f, 1894);
+    path.lineTo(1018.76501f, 1839.2627f);
+    path.lineTo(991.638184f, 1839);
+    path.lineTo(991.633911f, 1839);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(964.267578f, 1838.73499f);
+    pathB.lineTo(1019.26501f, 1839.26758f);
+    pathB.lineTo(1018.73242f, 1894.26501f);
+    pathB.lineTo(963.734985f, 1893.73242f);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(skpnamecheap_com_405),
+    TEST(skpelpais_com_18),
+    TEST(skpwww_cityads_ru_249),
+    TEST(skpwww_alrakoba_net_62),
+    TEST(skpwww_dealnews_com_315),
+    TEST(skpwww_inmotionhosting_com_9),
     TEST(skpskpicture14),
-#if TRY_SEPT_BROKEN_TESTS
     TEST(skpskpicture15),
     TEST(skpwww_meb_gov_tr_6),
     TEST(skpwww_sciality_com_101),
@@ -1611,8 +1761,6 @@ static struct TestDesc tests[] = {
     TEST(skpwww_despegar_com_mx_272),  // similar to lavoixdunord
     TEST(skpwww_lavoixdunord_fr_11),  // not quite coincident, sorting line/cubic fails
     TEST(skppptv_com_62),  // cubic have nearly identical tangents, sort incorrectly
-#endif
-#if TRY_BROKEN_TESTS
     TEST(skppchappy_com_au102),
     TEST(skpsciality_com161),
     TEST(skpi_gino_com16),
@@ -1620,7 +1768,6 @@ static struct TestDesc tests[] = {
     TEST(skptcmevents_org23),  // see test for (partial) failure evaluation
     TEST(skpredbullskatearcade_es16),  // cubic have nearly identical tangents, sort incorrectly
     TEST(skpfinanzasdigital_com9),  // cubic/quad tangents too close to sort
-#endif
     TEST(skpgithub_io_26),
     TEST(skpgithub_io_25),
     TEST(skpwww_meb_gov_tr_5),
@@ -1656,7 +1803,7 @@ static struct TestDesc tests[] = {
 static const size_t testCount = SK_ARRAY_COUNT(tests);
 
 static bool runReverse = false;
-static void (*stopTest)(skiatest::Reporter* ) = 0;
+static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 DEF_TEST(PathOpsSkp, reporter) {
 #if DEBUG_SHOW_TEST_NAME

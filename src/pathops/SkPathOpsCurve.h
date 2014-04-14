@@ -7,6 +7,7 @@
 #ifndef SkPathOpsCurve_DEFINE
 #define SkPathOpsCurve_DEFINE
 
+#include "SkIntersections.h"
 #include "SkPathOpsCubic.h"
 #include "SkPathOpsLine.h"
 #include "SkPathOpsQuad.h"
@@ -147,6 +148,31 @@ static bool (* const CurveIsVertical[])(const SkPoint[], double , double) = {
     line_is_vertical,
     quad_is_vertical,
     cubic_is_vertical
+};
+
+static void line_intersect_ray(const SkPoint a[2], const SkDLine& ray, SkIntersections* i) {
+    SkDLine line;
+    line.set(a);
+    i->intersectRay(line, ray);
+}
+
+static void quad_intersect_ray(const SkPoint a[3], const SkDLine& ray, SkIntersections* i) {
+    SkDQuad quad;
+    quad.set(a);
+    i->intersectRay(quad, ray);
+}
+
+static void cubic_intersect_ray(const SkPoint a[4], const SkDLine& ray, SkIntersections* i) {
+    SkDCubic cubic;
+    cubic.set(a);
+    i->intersectRay(cubic, ray);
+}
+
+static void (* const CurveIntersectRay[])(const SkPoint[] , const SkDLine& , SkIntersections* ) = {
+    NULL,
+    line_intersect_ray,
+    quad_intersect_ray,
+    cubic_intersect_ray
 };
 
 #endif

@@ -26,6 +26,17 @@ int SkPathOpsDebug::gSortCount;
 const char* SkPathOpsDebug::kPathOpStr[] = {"diff", "sect", "union", "xor"};
 #endif
 
+bool SkPathOpsDebug::ChaseContains(const SkTDArray<SkOpSpan *>& chaseArray,
+        const SkOpSpan* span) {
+    for (int index = 0; index < chaseArray.count(); ++index) {
+        const SkOpSpan* entry = chaseArray[index];
+        if (entry == span) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void SkPathOpsDebug::MathematicaIze(char* str, size_t bufferLen) {
     size_t len = strlen(str);
     bool num = false;
@@ -81,81 +92,521 @@ void SkPathOpsDebug::BumpTestName(char* test) {
 }
 #endif
 
-#include "SkOpSegment.h"
-
-void SkPathOpsDebug::DumpAngles(const SkTArray<SkOpAngle, true>& angles) {
-    int count = angles.count();
-    for (int index = 0; index < count; ++index) {
-        angles[index].dump();
-    }
-}
-
-void SkPathOpsDebug::DumpAngles(const SkTArray<SkOpAngle* , true>& angles) {
-    int count = angles.count();
-    for (int index = 0; index < count; ++index) {
-        angles[index]->dump();
-    }
-}
-#endif  // SK_DEBUG || !FORCE_RELEASE
-
-#ifdef SK_DEBUG
-void SkOpSpan::dump() const {
-    SkDebugf("t=");
-    DebugDumpDouble(fT);
-    SkDebugf(" pt=");
-    SkDPoint::dump(fPt);
-    SkDebugf(" other.fID=%d", fOther->debugID());
-    SkDebugf(" [%d] otherT=", fOtherIndex);
-    DebugDumpDouble(fOtherT);
-    SkDebugf(" windSum=");
-    SkPathOpsDebug::WindingPrintf(fWindSum);
-    if (SkPathOpsDebug::ValidWind(fOppSum) || fOppValue != 0) {
-        SkDebugf(" oppSum=");
-        SkPathOpsDebug::WindingPrintf(fOppSum);
-    }
-    SkDebugf(" windValue=%d", fWindValue);
-    if (SkPathOpsDebug::ValidWind(fOppSum) || fOppValue != 0) {
-        SkDebugf(" oppValue=%d", fOppValue);
-    }
-    if (fDone) {
-        SkDebugf(" done");
-    }
-    if (fUnsortableStart) {
-        SkDebugf("  unsortable-start");
-    }
-    if (fUnsortableEnd) {
-        SkDebugf(" unsortable-end");
-    }
-    if (fTiny) {
-        SkDebugf(" tiny");
-    } else if (fSmall) {
-        SkDebugf(" small");
-    }
-    if (fLoop) {
-        SkDebugf(" loop");
-    }
-    SkDebugf("\n");
-}
-
-void Dump(const SkTArray<class SkOpAngle, true>& angles) {
-    SkPathOpsDebug::DumpAngles(angles);
-}
-
-void Dump(const SkTArray<class SkOpAngle* , true>& angles) {
-    SkPathOpsDebug::DumpAngles(angles);
-}
-
-void Dump(const SkTArray<class SkOpAngle, true>* angles) {
-    SkPathOpsDebug::DumpAngles(*angles);
-}
-
-void Dump(const SkTArray<class SkOpAngle* , true>* angles) {
-    SkPathOpsDebug::DumpAngles(*angles);
-}
-
-#endif
-
-#if !FORCE_RELEASE && 0  // enable when building without extended test
+#if !DEBUG_SHOW_TEST_NAME  // enable when building without extended test
 void SkPathOpsDebug::ShowPath(const SkPath& one, const SkPath& two, SkPathOp op, const char* name) {
 }
 #endif
+
+#endif //  defined SK_DEBUG || !FORCE_RELEASE
+
+#include "SkOpAngle.h"
+#include "SkOpSegment.h"
+
+#if DEBUG_SORT
+void SkOpAngle::debugLoop() const {
+    const SkOpAngle* first = this;
+    const SkOpAngle* next = this;
+    do {
+        next->debugOne(true);
+        SkDebugf("\n");
+        next = next->fNext;
+    } while (next && next != first);
+}
+
+void SkOpAngle::debugOne(bool functionHeader) const {
+//    fSegment->debugValidate();
+    const SkOpSpan& mSpan = fSegment->span(SkMin32(fStart, fEnd));
+    if (functionHeader) {
+        SkDebugf("%s ", __FUNCTION__);
+    }
+    SkDebugf("[%d", fSegment->debugID());
+#if DEBUG_ANGLE
+    SkDebugf("/%d", fID);
+#endif
+    SkDebugf("] next=");
+    if (fNext) {
+        SkDebugf("%d", fNext->fSegment->debugID());
+#if DEBUG_ANGLE
+        SkDebugf("/%d", fNext->fID);
+#endif
+    } else {
+        SkDebugf("?");
+    }
+    SkDebugf(" sect=%d/%d ", fSectorStart, fSectorEnd);
+    SkDebugf(" s=%1.9g [%d] e=%1.9g [%d]", fSegment->span(fStart).fT, fStart,
+            fSegment->span(fEnd).fT, fEnd);
+    SkDebugf(" sgn=%d windVal=%d", sign(), mSpan.fWindValue);
+
+#if DEBUG_WINDING
+    SkDebugf(" windSum=");
+    SkPathOpsDebug::WindingPrintf(mSpan.fWindSum);
+#endif
+    if (mSpan.fOppValue != 0 || mSpan.fOppSum != SK_MinS32) {
+        SkDebugf(" oppVal=%d", mSpan.fOppValue);
+#if DEBUG_WINDING
+        SkDebugf(" oppSum=");
+        SkPathOpsDebug::WindingPrintf(mSpan.fOppSum);
+#endif
+    }
+    if (mSpan.fDone) {
+        SkDebugf(" done");
+    }
+    if (unorderable()) {
+        SkDebugf(" unorderable");
+    }
+    if (small()) {
+        SkDebugf(" small");
+    }
+    if (mSpan.fTiny) {
+        SkDebugf(" tiny");
+    }
+    if (fSegment->operand()) {
+        SkDebugf(" operand");
+    }
+    if (fStop) {
+        SkDebugf(" stop");
+    }
+}
+#endif
+
+#if DEBUG_ANGLE
+void SkOpAngle::debugSameAs(const SkOpAngle* compare) const {
+    SK_DEBUGBREAK(fSegment == compare->fSegment);
+    const SkOpSpan& startSpan = fSegment->span(fStart);
+    const SkOpSpan& oStartSpan = fSegment->span(compare->fStart);
+    SK_DEBUGBREAK(startSpan.fToAngleIndex == oStartSpan.fToAngleIndex);
+    SK_DEBUGBREAK(startSpan.fFromAngleIndex == oStartSpan.fFromAngleIndex);
+    const SkOpSpan& endSpan = fSegment->span(fEnd);
+    const SkOpSpan& oEndSpan = fSegment->span(compare->fEnd);
+    SK_DEBUGBREAK(endSpan.fToAngleIndex == oEndSpan.fToAngleIndex);
+    SK_DEBUGBREAK(endSpan.fFromAngleIndex == oEndSpan.fFromAngleIndex);
+}
+#endif
+
+#if DEBUG_VALIDATE
+void SkOpAngle::debugValidateNext() const {
+    const SkOpAngle* first = this;
+    const SkOpAngle* next = first;
+    SkTDArray<const SkOpAngle*>(angles);
+    do {
+        SK_DEBUGBREAK(next->fSegment->debugContains(next));
+        angles.push(next);
+        next = next->next();
+        if (next == first) {
+            break;
+        }
+        SK_DEBUGBREAK(!angles.contains(next));
+        if (!next) {
+            return;
+        }
+    } while (true);
+}
+
+void SkOpAngle::debugValidateLoop() const {
+    const SkOpAngle* first = this;
+    const SkOpAngle* next = first;
+    SK_DEBUGBREAK(first->next() != first);
+    int signSum = 0;
+    int oppSum = 0;
+    bool firstOperand = fSegment->operand();
+    bool unorderable = false;
+    do {
+        unorderable |= next->fUnorderable;
+        const SkOpSegment* segment = next->fSegment;
+        bool operandsMatch = firstOperand == segment->operand();
+        signSum += operandsMatch ? segment->spanSign(next) : segment->oppSign(next);
+        oppSum += operandsMatch ? segment->oppSign(next) : segment->spanSign(next);
+        const SkOpSpan& span = segment->span(SkMin32(next->fStart, next->fEnd));
+        if (segment->_xor()) {
+//            SK_DEBUGBREAK(span.fWindValue == 1);
+//            SK_DEBUGBREAK(span.fWindSum == SK_MinS32 || span.fWindSum == 1);
+        }
+        if (segment->oppXor()) {
+            SK_DEBUGBREAK(span.fOppValue == 0 || abs(span.fOppValue) == 1);
+//            SK_DEBUGBREAK(span.fOppSum == SK_MinS32 || span.fOppSum == 0 || abs(span.fOppSum) == 1);
+        }
+        next = next->next();
+        if (!next) {
+            return;
+        }
+    } while (next != first);
+    if (unorderable) {
+        return;
+    }
+    SK_DEBUGBREAK(!signSum || fSegment->_xor());
+    SK_DEBUGBREAK(!oppSum || fSegment->oppXor());
+    int lastWinding;
+    int lastOppWinding;
+    int winding;
+    int oppWinding;
+    do {
+        const SkOpSegment* segment = next->fSegment;
+        const SkOpSpan& span = segment->span(SkMin32(next->fStart, next->fEnd));
+        winding = span.fWindSum;
+        if (winding != SK_MinS32) {
+//            SK_DEBUGBREAK(winding != 0);
+            SK_DEBUGBREAK(SkPathOpsDebug::ValidWind(winding));
+            lastWinding = winding;
+            int diffWinding = segment->spanSign(next);
+            if (!segment->_xor()) {
+                SK_DEBUGBREAK(diffWinding != 0);
+                bool sameSign = (winding > 0) == (diffWinding > 0);
+                winding -= sameSign ? diffWinding : -diffWinding;
+                SK_DEBUGBREAK(SkPathOpsDebug::ValidWind(winding));
+                SK_DEBUGBREAK(abs(winding) <= abs(lastWinding));
+                if (!sameSign) {
+                    SkTSwap(winding, lastWinding);
+                }
+            }
+            lastOppWinding = oppWinding = span.fOppSum;
+            if (oppWinding != SK_MinS32 && !segment->oppXor()) {
+                int oppDiffWinding = segment->oppSign(next);
+//                SK_DEBUGBREAK(abs(oppDiffWinding) <= abs(diffWinding) || segment->_xor());
+                if (oppDiffWinding) {
+                    bool oppSameSign = (oppWinding > 0) == (oppDiffWinding > 0);
+                    oppWinding -= oppSameSign ? oppDiffWinding : -oppDiffWinding;
+                    SK_DEBUGBREAK(SkPathOpsDebug::ValidWind(oppWinding));
+                    SK_DEBUGBREAK(abs(oppWinding) <= abs(lastOppWinding));
+                    if (!oppSameSign) {
+                        SkTSwap(oppWinding, lastOppWinding);
+                    }
+                }
+            }
+            firstOperand = segment->operand();
+            break;
+        }
+        SK_DEBUGBREAK(span.fOppSum == SK_MinS32);
+        next = next->next();
+    } while (next != first);
+    if (winding == SK_MinS32) {
+        return;
+    }
+    SK_DEBUGBREAK(oppWinding == SK_MinS32 || SkPathOpsDebug::ValidWind(oppWinding));
+    first = next;
+    next = next->next();
+    do {
+        const SkOpSegment* segment = next->fSegment;
+        lastWinding = winding;
+        lastOppWinding = oppWinding;
+        bool operandsMatch = firstOperand == segment->operand();
+        if (operandsMatch) {
+            if (!segment->_xor()) {
+                winding -= segment->spanSign(next);
+                SK_DEBUGBREAK(winding != lastWinding);
+                SK_DEBUGBREAK(SkPathOpsDebug::ValidWind(winding));
+            }
+            if (!segment->oppXor()) {
+                int oppDiffWinding = segment->oppSign(next);
+                if (oppWinding != SK_MinS32) {
+                    oppWinding -= oppDiffWinding;
+                    SK_DEBUGBREAK(SkPathOpsDebug::ValidWind(oppWinding));
+                } else {
+                    SK_DEBUGBREAK(oppDiffWinding == 0);
+                }
+            }
+        } else {
+            if (!segment->oppXor()) {
+                winding -= segment->oppSign(next);
+                SK_DEBUGBREAK(SkPathOpsDebug::ValidWind(winding));
+            }
+            if (!segment->_xor()) {
+                oppWinding -= segment->spanSign(next);
+                SK_DEBUGBREAK(oppWinding != lastOppWinding);
+                SK_DEBUGBREAK(SkPathOpsDebug::ValidWind(oppWinding));
+            }
+        }
+        bool useInner = SkOpSegment::UseInnerWinding(lastWinding, winding);
+        int sumWinding = useInner ? winding : lastWinding;
+        bool oppUseInner = SkOpSegment::UseInnerWinding(lastOppWinding, oppWinding);
+        int oppSumWinding = oppUseInner ? oppWinding : lastOppWinding;
+        if (!operandsMatch) {
+            SkTSwap(useInner, oppUseInner);
+            SkTSwap(sumWinding, oppSumWinding);
+        }
+        const SkOpSpan& span = segment->span(SkMin32(next->fStart, next->fEnd));
+        if (winding == -lastWinding) {
+            if (span.fWindSum != SK_MinS32) {
+                SkDebugf("%s useInner=%d spanSign=%d lastWinding=%d winding=%d windSum=%d\n",
+                        __FUNCTION__,
+                        useInner, segment->spanSign(next), lastWinding, winding, span.fWindSum);
+            }
+        }
+        if (oppWinding != SK_MinS32) {
+            if (span.fOppSum != SK_MinS32) {
+                SK_DEBUGBREAK(span.fOppSum == oppSumWinding || segment->oppXor() || segment->_xor());
+            }
+        } else {
+            SK_DEBUGBREAK(!firstOperand);
+            SK_DEBUGBREAK(!segment->operand());
+            SK_DEBUGBREAK(!span.fOppValue);
+        }
+        next = next->next();
+    } while (next != first);
+}
+#endif
+
+#if DEBUG_SWAP_TOP
+bool SkOpSegment::controlsContainedByEnds(int tStart, int tEnd) const {
+    if (fVerb != SkPath::kCubic_Verb) {
+        return false;
+    }
+    SkDCubic dst = SkDCubic::SubDivide(fPts, fTs[tStart].fT, fTs[tEnd].fT);
+    return dst.controlsContainedByEnds();
+}
+#endif
+
+#if DEBUG_CONCIDENT
+// SK_DEBUGBREAK if pair has not already been added
+void SkOpSegment::debugAddTPair(double t, const SkOpSegment& other, double otherT) const {
+    for (int i = 0; i < fTs.count(); ++i) {
+        if (fTs[i].fT == t && fTs[i].fOther == &other && fTs[i].fOtherT == otherT) {
+            return;
+        }
+    }
+    SK_DEBUGBREAK(0);
+}
+#endif
+
+#if DEBUG_ANGLE
+void SkOpSegment::debugCheckPointsEqualish(int tStart, int tEnd) const {
+    const SkPoint& basePt = fTs[tStart].fPt;
+    while (++tStart < tEnd) {
+       const SkPoint& cmpPt = fTs[tStart].fPt;
+       SK_DEBUGBREAK(SkDPoint::ApproximatelyEqual(basePt, cmpPt));
+    }
+}
+#endif
+
+#if DEBUG_VALIDATE
+bool SkOpSegment::debugContains(const SkOpAngle* angle) const {
+    for (int index = 0; index < fAngles.count(); ++index) {
+        if (&fAngles[index] == angle) {
+            return true;
+        }
+    }
+    for (int index = 0; index < fSingletonAngles.count(); ++index) {
+        if (&fSingletonAngles[index] == angle) {
+            return true;
+        }
+    }
+    return false;
+}
+#endif
+
+void SkOpSegment::debugReset() {
+    fTs.reset();
+    fAngles.reset();
+}
+
+#if DEBUG_CONCIDENT
+void SkOpSegment::debugShowTs(const char* prefix) const {
+    SkDebugf("%s %s id=%d", __FUNCTION__, prefix, fID);
+    int lastWind = -1;
+    int lastOpp = -1;
+    double lastT = -1;
+    int i;
+    for (i = 0; i < fTs.count(); ++i) {
+        bool change = lastT != fTs[i].fT || lastWind != fTs[i].fWindValue
+                || lastOpp != fTs[i].fOppValue;
+        if (change && lastWind >= 0) {
+            SkDebugf(" t=%1.3g %1.9g,%1.9g w=%d o=%d]",
+                    lastT, xyAtT(i - 1).fX, xyAtT(i - 1).fY, lastWind, lastOpp);
+        }
+        if (change) {
+            SkDebugf(" [o=%d", fTs[i].fOther->fID);
+            lastWind = fTs[i].fWindValue;
+            lastOpp = fTs[i].fOppValue;
+            lastT = fTs[i].fT;
+        } else {
+            SkDebugf(",%d", fTs[i].fOther->fID);
+        }
+    }
+    if (i <= 0) {
+        return;
+    }
+    SkDebugf(" t=%1.3g %1.9g,%1.9g w=%d o=%d]",
+            lastT, xyAtT(i - 1).fX, xyAtT(i - 1).fY, lastWind, lastOpp);
+    if (fOperand) {
+        SkDebugf(" operand");
+    }
+    if (done()) {
+        SkDebugf(" done");
+    }
+    SkDebugf("\n");
+}
+#endif
+
+#if DEBUG_ACTIVE_SPANS || DEBUG_ACTIVE_SPANS_FIRST_ONLY
+void SkOpSegment::debugShowActiveSpans() const {
+    debugValidate();
+    if (done()) {
+        return;
+    }
+#if DEBUG_ACTIVE_SPANS_SHORT_FORM
+    int lastId = -1;
+    double lastT = -1;
+#endif
+    for (int i = 0; i < fTs.count(); ++i) {
+        if (fTs[i].fDone) {
+            continue;
+        }
+        SK_DEBUGBREAK(i < fTs.count() - 1);
+#if DEBUG_ACTIVE_SPANS_SHORT_FORM
+        if (lastId == fID && lastT == fTs[i].fT) {
+            continue;
+        }
+        lastId = fID;
+        lastT = fTs[i].fT;
+#endif
+        SkDebugf("%s id=%d", __FUNCTION__, fID);
+        SkDebugf(" (%1.9g,%1.9g", fPts[0].fX, fPts[0].fY);
+        for (int vIndex = 1; vIndex <= SkPathOpsVerbToPoints(fVerb); ++vIndex) {
+            SkDebugf(" %1.9g,%1.9g", fPts[vIndex].fX, fPts[vIndex].fY);
+        }
+        const SkOpSpan* span = &fTs[i];
+        SkDebugf(") t=%1.9g (%1.9g,%1.9g)", span->fT, xAtT(span), yAtT(span));
+        int iEnd = i + 1;
+        while (fTs[iEnd].fT < 1 && approximately_equal(fTs[i].fT, fTs[iEnd].fT)) {
+            ++iEnd;
+        }
+        SkDebugf(" tEnd=%1.9g", fTs[iEnd].fT);
+        const SkOpSegment* other = fTs[i].fOther;
+        SkDebugf(" other=%d otherT=%1.9g otherIndex=%d windSum=",
+                other->fID, fTs[i].fOtherT, fTs[i].fOtherIndex);
+        if (fTs[i].fWindSum == SK_MinS32) {
+            SkDebugf("?");
+        } else {
+            SkDebugf("%d", fTs[i].fWindSum);
+        }
+        SkDebugf(" windValue=%d oppValue=%d\n", fTs[i].fWindValue, fTs[i].fOppValue);
+    }
+}
+#endif
+
+#if DEBUG_MARK_DONE || DEBUG_UNSORTABLE
+void SkOpSegment::debugShowNewWinding(const char* fun, const SkOpSpan& span, int winding) {
+    const SkPoint& pt = xyAtT(&span);
+    SkDebugf("%s id=%d", fun, fID);
+    SkDebugf(" (%1.9g,%1.9g", fPts[0].fX, fPts[0].fY);
+    for (int vIndex = 1; vIndex <= SkPathOpsVerbToPoints(fVerb); ++vIndex) {
+        SkDebugf(" %1.9g,%1.9g", fPts[vIndex].fX, fPts[vIndex].fY);
+    }
+    SK_DEBUGBREAK(&span == &span.fOther->fTs[span.fOtherIndex].fOther->
+            fTs[span.fOther->fTs[span.fOtherIndex].fOtherIndex]);
+    SkDebugf(") t=%1.9g [%d] (%1.9g,%1.9g) tEnd=%1.9g newWindSum=%d windSum=",
+            span.fT, span.fOther->fTs[span.fOtherIndex].fOtherIndex, pt.fX, pt.fY,
+            (&span)[1].fT, winding);
+    if (span.fWindSum == SK_MinS32) {
+        SkDebugf("?");
+    } else {
+        SkDebugf("%d", span.fWindSum);
+    }
+    SkDebugf(" windValue=%d\n", span.fWindValue);
+}
+
+void SkOpSegment::debugShowNewWinding(const char* fun, const SkOpSpan& span, int winding,
+                                      int oppWinding) {
+    const SkPoint& pt = xyAtT(&span);
+    SkDebugf("%s id=%d", fun, fID);
+    SkDebugf(" (%1.9g,%1.9g", fPts[0].fX, fPts[0].fY);
+    for (int vIndex = 1; vIndex <= SkPathOpsVerbToPoints(fVerb); ++vIndex) {
+        SkDebugf(" %1.9g,%1.9g", fPts[vIndex].fX, fPts[vIndex].fY);
+    }
+    SK_DEBUGBREAK(&span == &span.fOther->fTs[span.fOtherIndex].fOther->
+            fTs[span.fOther->fTs[span.fOtherIndex].fOtherIndex]);
+    SkDebugf(") t=%1.9g [%d] (%1.9g,%1.9g) tEnd=%1.9g newWindSum=%d newOppSum=%d oppSum=",
+            span.fT, span.fOther->fTs[span.fOtherIndex].fOtherIndex, pt.fX, pt.fY,
+            (&span)[1].fT, winding, oppWinding);
+    if (span.fOppSum == SK_MinS32) {
+        SkDebugf("?");
+    } else {
+        SkDebugf("%d", span.fOppSum);
+    }
+    SkDebugf(" windSum=");
+    if (span.fWindSum == SK_MinS32) {
+        SkDebugf("?");
+    } else {
+        SkDebugf("%d", span.fWindSum);
+    }
+    SkDebugf(" windValue=%d\n", span.fWindValue);
+}
+#endif
+
+#if DEBUG_SHOW_WINDING
+int SkOpSegment::debugShowWindingValues(int slotCount, int ofInterest) const {
+    if (!(1 << fID & ofInterest)) {
+        return 0;
+    }
+    int sum = 0;
+    SkTArray<char, true> slots(slotCount * 2);
+    memset(slots.begin(), ' ', slotCount * 2);
+    for (int i = 0; i < fTs.count(); ++i) {
+   //     if (!(1 << fTs[i].fOther->fID & ofInterest)) {
+   //         continue;
+   //     }
+        sum += fTs[i].fWindValue;
+        slots[fTs[i].fOther->fID - 1] = as_digit(fTs[i].fWindValue);
+        sum += fTs[i].fOppValue;
+        slots[slotCount + fTs[i].fOther->fID - 1] = as_digit(fTs[i].fOppValue);
+    }
+    SkDebugf("%s id=%2d %.*s | %.*s\n", __FUNCTION__, fID, slotCount, slots.begin(), slotCount,
+            slots.begin() + slotCount);
+    return sum;
+}
+#endif
+
+void SkOpSegment::debugValidate() const {
+#if DEBUG_VALIDATE
+    int count = fTs.count();
+    SK_DEBUGBREAK(count >= 2);
+    SK_DEBUGBREAK(fTs[0].fT == 0);
+    SK_DEBUGBREAK(fTs[count - 1].fT == 1);
+    int done = 0;
+    double t = -1;
+    const SkOpSpan* last = NULL;
+    bool tinyTFound = false;
+    bool hasLoop = false;
+    for (int i = 0; i < count; ++i) {
+        const SkOpSpan& span = fTs[i];
+        SK_DEBUGBREAK(t <= span.fT);
+        t = span.fT;
+        int otherIndex = span.fOtherIndex;
+        const SkOpSegment* other = span.fOther;
+        SK_DEBUGBREAK(other != this || fVerb == SkPath::kCubic_Verb);
+        const SkOpSpan& otherSpan = other->fTs[otherIndex];
+        SK_DEBUGBREAK(otherSpan.fPt == span.fPt);
+        SK_DEBUGBREAK(otherSpan.fOtherT == t);
+        SK_DEBUGBREAK(&fTs[i] == &otherSpan.fOther->fTs[otherSpan.fOtherIndex]);
+        done += span.fDone;
+        if (last) {
+            bool tsEqual = last->fT == span.fT;
+            bool tsPreciselyEqual = precisely_equal(last->fT, span.fT);
+            SK_DEBUGBREAK(!tsEqual || tsPreciselyEqual);
+            bool pointsEqual = last->fPt == span.fPt;
+            bool pointsNearlyEqual = AlmostEqualUlps(last->fPt, span.fPt);
+#if 0  // bufferOverflow test triggers this
+            SK_DEBUGBREAK(!tsPreciselyEqual || pointsNearlyEqual);
+#endif
+//            SK_DEBUGBREAK(!last->fTiny || !tsPreciselyEqual || span.fTiny || tinyTFound);
+            SK_DEBUGBREAK(last->fTiny || tsPreciselyEqual || !pointsEqual || hasLoop);
+            SK_DEBUGBREAK(!last->fTiny || pointsEqual);
+            SK_DEBUGBREAK(!last->fTiny || last->fDone);
+            SK_DEBUGBREAK(!last->fSmall || pointsNearlyEqual);
+            SK_DEBUGBREAK(!last->fSmall || last->fDone);
+//            SK_DEBUGBREAK(!last->fSmall || last->fTiny);
+//            SK_DEBUGBREAK(last->fTiny || !pointsEqual || last->fDone == span.fDone);
+            if (last->fTiny) {
+                tinyTFound |= !tsPreciselyEqual;
+            } else {
+                tinyTFound = false;
+            }
+        }
+        last = &span;
+        hasLoop |= last->fLoop;
+    }
+    SK_DEBUGBREAK(done == fDoneSpans);
+    if (fAngles.count() ) {
+        fAngles.begin()->debugValidateLoop();
+    }
+#endif
+}

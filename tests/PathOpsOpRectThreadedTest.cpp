@@ -63,7 +63,7 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
             if (progress) {
                 outputProgress(state.fPathStr, pathStr, (SkPathOp) op);
             }
-            testThreadedPathOp(state.fReporter, pathA, pathB, (SkPathOp) op);
+            testThreadedPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "rects");
         }
     }
                     }

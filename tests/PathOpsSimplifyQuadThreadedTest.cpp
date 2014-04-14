@@ -90,4 +90,5 @@ DEF_TEST(PathOpsSimplifyQuadsThreaded, reporter) {
     }
 finish:
     testRunner.render();
+    ShowTestArray();
 }

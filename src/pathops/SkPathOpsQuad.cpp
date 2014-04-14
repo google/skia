@@ -252,10 +252,10 @@ SkDPoint SkDQuad::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, dou
     SkDLine b1 = {{c, sub[1] + (c - sub[2])}};
     SkIntersections i;
     i.intersectRay(b0, b1);
-    if (i.used() == 1) {
+    if (i.used() == 1 && i[0][0] >= 0 && i[1][0] >= 0) {
         b = i.pt(0);
     } else {
-        SkASSERT(i.used() == 2 || i.used() == 0);
+        SkASSERT(i.used() <= 2);
         b = SkDPoint::Mid(b0[1], b1[1]);
     }
 #endif
@@ -265,14 +265,14 @@ SkDPoint SkDQuad::subDivide(const SkDPoint& a, const SkDPoint& c, double t1, dou
     if (t1 == 1 || t2 == 1) {
         align(2, &b);
     }
-    if (precisely_subdivide_equal(b.fX, a.fX)) {
+    if (AlmostBequalUlps(b.fX, a.fX)) {
         b.fX = a.fX;
-    } else if (precisely_subdivide_equal(b.fX, c.fX)) {
+    } else if (AlmostBequalUlps(b.fX, c.fX)) {
         b.fX = c.fX;
     }
-    if (precisely_subdivide_equal(b.fY, a.fY)) {
+    if (AlmostBequalUlps(b.fY, a.fY)) {
         b.fY = a.fY;
-    } else if (precisely_subdivide_equal(b.fY, c.fY)) {
+    } else if (AlmostBequalUlps(b.fY, c.fY)) {
         b.fY = c.fY;
     }
     return b;
@@ -340,16 +340,3 @@ void SkDQuad::SetABC(const double* quad, double* a, double* b, double* c) {
     *a -= *b;          // a = A - 2*B +   C
     *b -= *c;          // b =     2*B - 2*C
 }
-
-#ifdef SK_DEBUG
-void SkDQuad::dump() {
-    SkDebugf("{{");
-    int index = 0;
-    do {
-        fPts[index].dump();
-        SkDebugf(", ");
-    } while (++index < 2);
-    fPts[index].dump();
-    SkDebugf("}}\n");
-}
-#endif

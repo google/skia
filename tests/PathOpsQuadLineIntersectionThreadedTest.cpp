@@ -65,7 +65,6 @@ static void testLineIntersect(skiatest::Reporter* reporter, const SkDQuad& quad,
     REPORTER_ASSERT(reporter, found);
 }
 
-
 // find a point on a quad by choosing a t from 0 to 1
 // create a vertical span above and below the point
 // verify that intersecting the vertical span and the quad returns t

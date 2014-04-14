@@ -166,12 +166,14 @@
 #  endif
 #
 #else
-#  ifdef SK_DEBUG
-#    include <stdio.h>
-#    ifndef SK_DEBUGBREAK
+#  ifndef SK_DEBUGBREAK
+#    ifdef SK_DEBUG
+#      include <stdio.h>
 #      define SK_DEBUGBREAK(cond) do { if (cond) break; \
                 SkDebugf("%s:%d: failed assertion \"%s\"\n", \
                 __FILE__, __LINE__, #cond); SK_CRASH(); } while (false)
+#    else
+#      define SK_DEBUGBREAK(cond) do { if (cond) break; SK_CRASH(); } while (false)
 #    endif
 #  endif
 #endif

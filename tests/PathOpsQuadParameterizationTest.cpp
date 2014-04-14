@@ -24,22 +24,22 @@ static const SkDQuad quadratics[] = {
     {{{0, 0}, {1, 0}, {1, 1}}},
 };
 
-static const size_t quadratics_count = SK_ARRAY_COUNT(quadratics);
+static const int quadratics_count = (int) SK_ARRAY_COUNT(quadratics);
 
 DEF_TEST(PathOpsQuadImplicit, reporter) {
     // split large quadratic
     // compare original, parts, to see if the are coincident
-    for (size_t index = 0; index < quadratics_count; ++index) {
+    for (int index = 0; index < quadratics_count; ++index) {
         const SkDQuad& test = quadratics[index];
         SkDQuadPair split = test.chopAt(0.5);
         SkDQuad midThird = test.subDivide(1.0/3, 2.0/3);
         const SkDQuad* quads[] = {
             &test, &midThird, &split.first(), &split.second()
         };
-        size_t quadsCount = SK_ARRAY_COUNT(quads);
-        for (size_t one = 0; one < quadsCount; ++one) {
-            for (size_t two = 0; two < quadsCount; ++two) {
-                for (size_t inner = 0; inner < 3; inner += 2) {
+        int quadsCount = (int) SK_ARRAY_COUNT(quads);
+        for (int one = 0; one < quadsCount; ++one) {
+            for (int two = 0; two < quadsCount; ++two) {
+                for (int inner = 0; inner < 3; inner += 2) {
                      REPORTER_ASSERT(reporter, point_on_parameterized_curve(*quads[one],
                             (*quads[two])[inner]));
                 }

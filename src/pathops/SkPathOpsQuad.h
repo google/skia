@@ -62,9 +62,10 @@ struct SkDQuad {
     SkDCubic toCubic() const;
     SkDPoint top(double startT, double endT) const;
 
-#ifdef SK_DEBUG
-    void dump();
-#endif
+    // utilities callable by the user from the debugger when the implementation code is linked in
+    void dump() const;
+    void dumpComma(const char*) const;
+
 private:
 //  static double Tangent(const double* quadratic, double t);  // uncalled
 };

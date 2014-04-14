@@ -28,7 +28,6 @@ Reporter::Reporter() : fTestCount(0) {
 }
 
 void Reporter::startTest(Test* test) {
-    this->bumpTestCount();
     this->onStart(test);
 }
 

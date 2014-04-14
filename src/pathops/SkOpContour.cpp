@@ -148,6 +148,16 @@ bool SkOpContour::addPartialCoincident(int index, SkOpContour* other, int otherI
     return true;
 }
 
+bool SkOpContour::calcAngles() {
+    int segmentCount = fSegments.count();
+    for (int test = 0; test < segmentCount; ++test) {
+        if (!fSegments[test].calcAngles()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void SkOpContour::calcCoincidentWinding() {
     int count = fCoincidences.count();
 #if DEBUG_CONCIDENT
@@ -275,6 +285,13 @@ void SkOpContour::calcCommonCoincidentWinding(const SkCoincidence& coincidence) 
     thisOne.debugShowTs("p");
     other.debugShowTs("o");
 #endif
+}
+
+void SkOpContour::sortAngles() {
+    int segmentCount = fSegments.count();
+    for (int test = 0; test < segmentCount; ++test) {
+        fSegments[test].sortAngles();
+    }
 }
 
 void SkOpContour::sortSegments() {

@@ -8,8 +8,6 @@
 #define SkOpAngle_DEFINED
 
 #include "SkLineParameters.h"
-#include "SkPath.h"
-#include "SkPathOpsCubic.h"
 
 class SkOpSegment;
 struct SkOpSpan;
@@ -26,27 +24,28 @@ public:
         kBinaryOpp,
     };
 
-    bool operator<(const SkOpAngle& rh) const;
-
-    bool calcSlop(double x, double y, double rx, double ry, bool* result) const;
-
-    double dx() const {
-        return fTangentPart.dx();
-    }
-
-    double dy() const {
-        return fTangentPart.dy();
-    }
-
     int end() const {
         return fEnd;
     }
 
-    bool isHorizontal() const;
+    const SkOpAngle* findFirst() const;
 
-    SkOpSpan* lastMarked() const {
-        return fLastMarked;
+    bool inLoop() const {
+        return !!fNext;
     }
+
+    void insert(SkOpAngle* );
+    bool isHorizontal() const;
+    SkOpSpan* lastMarked() const;
+    int loopCount() const;
+    void markStops();
+    bool merge(SkOpAngle* );
+
+    SkOpAngle* next() const {
+        return fNext;
+    }
+
+    SkOpAngle* previous() const;
 
     void set(const SkOpSegment* segment, int start, int end);
 
@@ -62,6 +61,8 @@ public:
         return SkSign32(fStart - fEnd);
     }
 
+    bool small() const;
+
     int start() const {
         return fStart;
     }
@@ -70,43 +71,78 @@ public:
         return fUnorderable;
     }
 
-    bool unsortable() const {
-        return fUnsortable;
-    }
-
-#ifdef SK_DEBUG
-    void dump() const;
+    // available to testing only
+#if DEBUG_SORT
+    void debugLoop() const;  // called by code during run
 #endif
+#if DEBUG_ANGLE
+    void debugSameAs(const SkOpAngle* compare) const;
+#endif
+    void dump() const;
+    void dumpFromTo(const SkOpSegment* fromSeg, int from, int to) const;
 
 #if DEBUG_ANGLE
     void setID(int id) {
         fID = id;
     }
 #endif
+#if DEBUG_VALIDATE
+    void debugValidateLoop() const;
+#endif
 
 private:
-    bool lengthen(const SkOpAngle& );
+    bool after(const SkOpAngle* test) const;
+    int allOnOneSide(const SkOpAngle& test) const;
+    bool calcSlop(double x, double y, double rx, double ry, bool* result) const;
+    bool checkCrossesZero() const;
+    bool checkParallel(const SkOpAngle& ) const;
+    bool computeSector();
+    int convexHullOverlaps(const SkOpAngle& ) const;
+    double distEndRatio(double dist) const;
+    int findSector(SkPath::Verb verb, double x, double y) const;
+    bool endsIntersect(const SkOpAngle& ) const;
+    double midT() const;
+    bool oppositePlanes(const SkOpAngle& rh) const;
+    bool orderable(const SkOpAngle& rh) const;  // false == this < rh ; true == this > rh
+    void setCurveHullSweep();
+    void setSector();
     void setSpans();
+    bool tangentsDiverge(const SkOpAngle& rh, double s0xt0) const;
 
     SkDCubic fCurvePart; // the curve from start to end
-    SkDCubic fCurveHalf; // the curve from start to 1 or 0
     double fSide;
-    double fSide2;
-    SkLineParameters fTangentPart;
-    SkLineParameters fTangentHalf;
+    SkLineParameters fTangentHalf;  // used only to sort a pair of lines or line-like sections
     const SkOpSegment* fSegment;
+    SkOpAngle* fNext;
     SkOpSpan* fLastMarked;
+    SkDVector fSweep[2];
     int fStart;
     int fEnd;
-    bool fComputed; // tangent is computed, may contain some error
-    // if subdividing a quad or cubic causes the tangent to go from the maximum angle to the
-    // minimum, mark it unorderable. It still can be sorted, which is good enough for find-top
-    // but can't be ordered, and therefore can't be used to compute winding
-    bool fUnorderable;
-    mutable bool fUnsortable;  // this alone is editable by the less than operator
+    int fSectorMask;
+    char fSectorStart;  // in 32nds of a circle
+    char fSectorEnd;
+    bool fIsCurve;
+    bool fStop; // set if ordered angle is greater than the previous
+    mutable bool fUnorderable;  // this is editable by orderable()
+    bool fUnorderedSweep;  // set when a cubic's first control point between the sweep vectors
+    bool fComputeSector;
+    bool fComputedSector;
+
+#if DEBUG_SORT
+    void debugOne(bool showFunc) const;  // available to testing only
+#endif
 #if DEBUG_ANGLE
+    int debugID() const { return fID; }
     int fID;
 #endif
+#if DEBUG_VALIDATE
+    void debugValidateNext() const;  // in debug builds, verify that angle loop is uncorrupted
+#else
+    void debugValidateNext() const {}
+#endif
+    void dumpLoop() const;  // utility to be called by user from debugger
+    void dumpPartials() const;  // utility to be called by user from debugger
+    friend class PathOpsAngleTester;
 };
 
 #endif

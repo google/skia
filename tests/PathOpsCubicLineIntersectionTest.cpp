@@ -15,6 +15,12 @@ static struct lineCubic {
     SkDCubic cubic;
     SkDLine line;
 } lineCubicTests[] = {
+    {{{{421, 378}, {421, 380.209137f}, {418.761414f, 382}, {416, 382}}},
+            {{{320, 378}, {421, 378.000031f}}}},
+
+    {{{{416, 383}, {418.761414f, 383}, {421, 380.761414f}, {421, 378}}},
+            {{{320, 378}, {421, 378.000031f}}}},
+
     {{{{154,715}, {151.238571,715}, {149,712.761414}, {149,710}}},
             {{{149,675}, {149,710.001465}}}},
 
@@ -73,6 +79,21 @@ static void testOne(skiatest::Reporter* reporter, int iIndex) {
             }
             REPORTER_ASSERT(reporter, xy1.approximatelyEqual(xy2));
         }
+#if ONE_OFF_DEBUG
+        double cubicT = i[0][0];
+        SkDPoint prev = cubic.ptAtT(cubicT * 2 - 1);
+        SkDPoint sect = cubic.ptAtT(cubicT);
+        double left[3] = { line.isLeft(prev), line.isLeft(sect), line.isLeft(cubic[3]) };
+        SkDebugf("cubic=(%1.9g, %1.9g, %1.9g)\n", left[0], left[1], left[2]);
+        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", prev.fX, prev.fY, sect.fX, sect.fY);
+        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", sect.fX, sect.fY, cubic[3].fX, cubic[3].fY);
+        SkDPoint prevL = line.ptAtT(i[1][0] - 0.0000007);
+        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", prevL.fX, prevL.fY, i.pt(0).fX, i.pt(0).fY);
+        SkDPoint nextL = line.ptAtT(i[1][0] + 0.0000007);
+        SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", i.pt(0).fX, i.pt(0).fY, nextL.fX, nextL.fY);
+        SkDebugf("prevD=%1.9g dist=%1.9g nextD=%1.9g\n", prev.distance(nextL),
+                sect.distance(i.pt(0)), cubic[3].distance(prevL));
+#endif
     }
 }
 
@@ -92,19 +113,4 @@ DEF_TEST(PathOpsCubicLineIntersectionOneOff, reporter) {
     SkIntersections i;
     i.intersect(cubic, line);
     SkASSERT(i.used() == 1);
-#if ONE_OFF_DEBUG
-    double cubicT = i[0][0];
-    SkDPoint prev = cubic.ptAtT(cubicT * 2 - 1);
-    SkDPoint sect = cubic.ptAtT(cubicT);
-    double left[3] = { line.isLeft(prev), line.isLeft(sect), line.isLeft(cubic[3]) };
-    SkDebugf("cubic=(%1.9g, %1.9g, %1.9g)\n", left[0], left[1], left[2]);
-    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", prev.fX, prev.fY, sect.fX, sect.fY);
-    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", sect.fX, sect.fY, cubic[3].fX, cubic[3].fY);
-    SkDPoint prevL = line.ptAtT(i[1][0] - 0.0000007);
-    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", prevL.fX, prevL.fY, i.pt(0).fX, i.pt(0).fY);
-    SkDPoint nextL = line.ptAtT(i[1][0] + 0.0000007);
-    SkDebugf("{{%1.9g,%1.9g}, {%1.9g,%1.9g}},\n", i.pt(0).fX, i.pt(0).fY, nextL.fX, nextL.fY);
-    SkDebugf("prevD=%1.9g dist=%1.9g nextD=%1.9g\n", prev.distance(nextL),
-            sect.distance(i.pt(0)), cubic[3].distance(prevL));
-#endif
 }

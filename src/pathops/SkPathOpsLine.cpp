@@ -189,13 +189,3 @@ double SkDLine::NearPointV(const SkDPoint& xy, double top, double bottom, double
     }
     return t;
 }
-
-#ifdef SK_DEBUG
-void SkDLine::dump() {
-    SkDebugf("{{");
-    fPts[0].dump();
-    SkDebugf(", ");
-    fPts[1].dump();
-    SkDebugf("}}\n");
-}
-#endif

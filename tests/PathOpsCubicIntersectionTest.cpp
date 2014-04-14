@@ -159,7 +159,7 @@ static const SkDCubic testSet[] = {
         {56.4860195, 60.529264}}},
 };
 
-const size_t testSetCount = SK_ARRAY_COUNT(testSet);
+const int testSetCount = (int) SK_ARRAY_COUNT(testSet);
 
 static const SkDCubic newTestSet[] = {
 {{{275,532}, {277.209137,532}, {279,530.209106}, {279,528}}},
@@ -302,7 +302,7 @@ static const SkDCubic newTestSet[] = {
 {{{0, 3}, {0, 1}, {2, 0}, {1, 0}}},
 };
 
-const size_t newTestSetCount = SK_ARRAY_COUNT(newTestSet);
+const int newTestSetCount = (int) SK_ARRAY_COUNT(newTestSet);
 
 static void oneOff(skiatest::Reporter* reporter, const SkDCubic& cubic1, const SkDCubic& cubic2,
         bool coin) {
@@ -373,13 +373,13 @@ static void newOneOff(skiatest::Reporter* reporter, int outer, int inner) {
 }
 
 static void oneOffTests(skiatest::Reporter* reporter) {
-    for (size_t outer = 0; outer < testSetCount - 1; ++outer) {
-        for (size_t inner = outer + 1; inner < testSetCount; ++inner) {
+    for (int outer = 0; outer < testSetCount - 1; ++outer) {
+        for (int inner = outer + 1; inner < testSetCount; ++inner) {
             oneOff(reporter, outer, inner);
         }
     }
-    for (size_t outer = 0; outer < newTestSetCount - 1; ++outer) {
-        for (size_t inner = outer + 1; inner < newTestSetCount; ++inner) {
+    for (int outer = 0; outer < newTestSetCount - 1; ++outer) {
+        for (int inner = outer + 1; inner < newTestSetCount; ++inner) {
             newOneOff(reporter, outer, inner);
         }
     }
@@ -550,7 +550,8 @@ static const SkDCubic selfSet[] = {
     {{{6.71, 3.14}, {7.99, 2.75}, {8.27, 1.96}, {6.35, 3.57}}},
     {{{12.81, 7.27}, {7.22, 6.98}, {12.49, 8.97}, {11.42, 6.18}}},
 };
-size_t selfSetCount = SK_ARRAY_COUNT(selfSet);
+
+int selfSetCount = (int) SK_ARRAY_COUNT(selfSet);
 
 static void selfOneOff(skiatest::Reporter* reporter, int index) {
     const SkDCubic& cubic = selfSet[index];
@@ -588,8 +589,8 @@ static void selfOneOff(skiatest::Reporter* reporter, int index) {
 }
 
 static void cubicIntersectionSelfTest(skiatest::Reporter* reporter) {
-    size_t firstFail = 0;
-    for (size_t index = firstFail; index < selfSetCount; ++index) {
+    int firstFail = 0;
+    for (int index = firstFail; index < selfSetCount; ++index) {
         selfOneOff(reporter, index);
     }
 }
@@ -603,7 +604,7 @@ static const SkDCubic coinSet[] = {
     {{{2, 3}, {0, 4}, {3, 2}, {5, 3}}},
 };
 
-size_t coinSetCount = SK_ARRAY_COUNT(coinSet);
+static int coinSetCount = (int) SK_ARRAY_COUNT(coinSet);
 
 static void coinOneOff(skiatest::Reporter* reporter, int index) {
     const SkDCubic& cubic1 = coinSet[index];
@@ -612,8 +613,8 @@ static void coinOneOff(skiatest::Reporter* reporter, int index) {
 }
 
 static void cubicIntersectionCoinTest(skiatest::Reporter* reporter) {
-    size_t firstFail = 0;
-    for (size_t index = firstFail; index < coinSetCount; index += 2) {
+    int firstFail = 0;
+    for (int index = firstFail; index < coinSetCount; index += 2) {
         coinOneOff(reporter, index);
     }
 }

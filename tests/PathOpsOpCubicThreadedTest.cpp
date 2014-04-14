@@ -56,7 +56,7 @@ static void testOpCubicsMain(PathOpsThreadState* data) {
             if (progress) {
                 outputProgress(state.fPathStr, pathStr, (SkPathOp) op);
             }
-            testThreadedPathOp(state.fReporter, pathA, pathB, (SkPathOp) op);
+            testThreadedPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "cubics");
         }
     }
                     }
@@ -82,4 +82,5 @@ DEF_TEST(PathOpsOpCubicsThreaded, reporter) {
     }
 finish:
     testRunner.render();
+    ShowTestArray();
 }

@@ -41,5 +41,4 @@ private:
     bool fMoved;
 };
 
-
 #endif /* defined(__PathOps__SkPathWriter__) */

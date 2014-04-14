@@ -152,20 +152,6 @@ void SkIntersections::quickRemoveOne(int index, int replace) {
     }
 }
 
-#if 0
-void SkIntersections::remove(double one, double two, const SkDPoint& startPt,
-        const SkDPoint& endPt) {
-    for (int index = fUsed - 1; index >= 0; --index) {
-        if (!(fIsCoincident[0] & (1 << index)) && (between(one, fT[fSwap][index], two)
-                || startPt.approximatelyEqual(fPt[index])
-                || endPt.approximatelyEqual(fPt[index]))) {
-            SkASSERT(fUsed > 0);
-            removeOne(index);
-        }
-    }
-}
-#endif
-
 void SkIntersections::removeOne(int index) {
     int remaining = --fUsed - index;
     if (remaining <= 0) {

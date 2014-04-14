@@ -134,7 +134,10 @@ static void intersect(const SkDCubic& cubic1, double t1s, double t1e, const SkDC
                         }
                     }
                 } else {
-                    double offset = precisionScale / 16;  // FIME: const is arbitrary: test, refine
+/*for random cubics, 16 below catches 99.997% of the intersections. To test for the remaining 0.003%
+  look for nearly coincident curves. and check each 1/16th section.
+*/
+                    double offset = precisionScale / 16;  // FIXME: const is arbitrary: test, refine
                     double c1Bottom = tIdx == 0 ? 0 :
                             (t1Start + (t1 - t1Start) * locals[0][tIdx - 1] + to1) / 2;
                     double c1Min = SkTMax(c1Bottom, to1 - offset);

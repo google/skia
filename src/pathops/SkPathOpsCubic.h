@@ -78,9 +78,9 @@ struct SkDCubic {
     void toQuadraticTs(double precision, SkTArray<double, true>* ts) const;
     SkDQuad toQuad() const;
 
-#ifdef SK_DEBUG
-    void dump();
-#endif
+    // utilities callable by the user from the debugger when the implementation code is linked in
+    void dump() const;
+    void dumpNumber() const;
 };
 
 #endif

@@ -22,6 +22,8 @@
         'pathops_unittest.gypi',
       ],
       'sources': [
+        '../tests/PathOpsAngleIdeas.cpp',
+        '../tests/PathOpsDebug.cpp',
         '../tests/PathOpsSkpClipTest.cpp',
         '../tests/Test.cpp',
         '../tests/skia_test.cpp',

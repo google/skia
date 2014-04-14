@@ -46,8 +46,8 @@ public:
         return fContour->addT(fIndex, other.fContour, other.fIndex, pt, newT);
     }
 
-    int addSelfT(const SkIntersectionHelper& other, const SkPoint& pt, double newT) {
-        return fContour->addSelfT(fIndex, other.fContour, other.fIndex, pt, newT);
+    int addSelfT(const SkPoint& pt, double newT) {
+        return fContour->addSelfT(fIndex, pt, newT);
     }
 
     bool advance() {
@@ -141,20 +141,10 @@ public:
         return y() != pts()[0].fY;
     }
 
-#ifdef SK_DEBUG
-    void dump() {
-        SkDPoint::dump(pts()[0]);
-        SkDPoint::dump(pts()[1]);
-        if (verb() >= SkPath::kQuad_Verb) {
-            SkDPoint::dump(pts()[2]);
-        }
-        if (verb() >= SkPath::kCubic_Verb) {
-            SkDPoint::dump(pts()[3]);
-        }
-    }
-#endif
-
 private:
+    // utility callable by the user from the debugger when the implementation code is linked in
+    void dump() const;
+
     SkOpContour* fContour;
     int fIndex;
     int fLast;

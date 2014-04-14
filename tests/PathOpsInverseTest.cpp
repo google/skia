@@ -22,7 +22,7 @@ DEF_TEST(PathOpsInverse, reporter) {
                         two.reset();
                         two.setFillType((SkPath::FillType) twoFill);
                         two.addRect(3, 3, 9, 9, (SkPath::Direction) twoDir);
-                        testPathOp(reporter, one, two, (SkPathOp) op);
+                        testPathOp(reporter, one, two, (SkPathOp) op, "inverseTest");
                     }
                 }
             }

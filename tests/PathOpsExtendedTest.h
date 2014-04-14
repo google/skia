@@ -18,7 +18,7 @@
 struct PathOpsThreadState;
 
 struct TestDesc {
-    void (*fun)(skiatest::Reporter*);
+    void (*fun)(skiatest::Reporter*, const char* filename);
     const char* str;
 };
 
@@ -27,20 +27,23 @@ extern int comparePaths(const SkPath& one, const SkPath& two, SkBitmap& bitmap);
 extern bool drawAsciiPaths(const SkPath& one, const SkPath& two, bool drawPaths);
 extern void showOp(const SkPathOp op);
 extern bool testPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                        const SkPathOp , const char* testName = NULL);
+                        const SkPathOp , const char* testName);
+extern bool testPathFailOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
+                        const SkPathOp , const char* testName);
 extern bool testThreadedPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
-                        const SkPathOp , const char* testName = NULL);
+                        const SkPathOp , const char* testName);
 extern bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
                          const char* pathStr);
-extern bool testSimplify(skiatest::Reporter* reporter, const SkPath& path);
+extern bool testSimplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename);
 
 int initializeTests(skiatest::Reporter* reporter, const char* testName);
 void outputProgress(char* ramStr, const char* pathStr, SkPath::FillType );
 void outputProgress(char* ramStr, const char* pathStr, SkPathOp op);
 
 void RunTestSet(skiatest::Reporter* reporter, TestDesc tests[], size_t count,
-                void (*firstTest)(skiatest::Reporter* ),
-                void (*stopTest)(skiatest::Reporter* ), bool reverse);
+                void (*firstTest)(skiatest::Reporter* , const char* filename),
+                void (*stopTest)(skiatest::Reporter* , const char* filename), bool reverse);
+void ShowTestArray();
 void ShowTestName(PathOpsThreadState* data, int a, int b, int c, int d);
 void ShowFunctionHeader(const char* name);
 void ShowPath(const SkPath& path, const char* pathName);

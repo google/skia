@@ -424,8 +424,8 @@ void AddSelfIntersectTs(SkOpContour* test) {
         SkASSERT(ts[0][0] >= 0 && ts[0][0] <= 1);
         SkASSERT(ts[1][0] >= 0 && ts[1][0] <= 1);
         SkPoint point = ts.pt(0).asSkPoint();
-        int testTAt = wt.addSelfT(wt, point, ts[0][0]);
-        int nextTAt = wt.addT(wt, point, ts[1][0]);
+        int testTAt = wt.addSelfT(point, ts[0][0]);
+        int nextTAt = wt.addSelfT(point, ts[1][0]);
         wt.addOtherT(testTAt, ts[1][0], nextTAt);
         wt.addOtherT(nextTAt, ts[0][0], testTAt);
     } while (wt.advance());

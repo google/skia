@@ -33,9 +33,6 @@ static bool bridgeWinding(SkTArray<SkOpContour*, true>& contourList, SkPathWrite
             if (current->activeWinding(index, endIndex)) {
                 do {
                     if (!unsortable && current->done()) {
-            #if DEBUG_ACTIVE_SPANS
-                        DebugShowActiveSpans(contourList);
-            #endif
                         if (simple->isEmpty()) {
                             simple->init();
                             break;
@@ -77,11 +74,15 @@ static bool bridgeWinding(SkTArray<SkOpContour*, true>& contourList, SkPathWrite
                 simple->close();
             } else {
                 SkOpSpan* last = current->markAndChaseDoneUnary(index, endIndex);
-                if (last && !last->fLoop) {
+                if (last && !last->fChased && !last->fLoop) {
+                    last->fChased = true;
+                    SkASSERT(!SkPathOpsDebug::ChaseContains(chaseArray, last));
+                    // assert that last isn't already in array
                     *chaseArray.append() = last;
                 }
             }
-            current = FindChase(chaseArray, index, endIndex);
+            SkTDArray<SkOpSpan *>* chaseArrayPtr = &chaseArray;
+            current = FindChase(chaseArrayPtr, &index, &endIndex);
         #if DEBUG_ACTIVE_SPANS
             DebugShowActiveSpans(contourList);
         #endif
@@ -182,7 +183,9 @@ bool Simplify(const SkPath& path, SkPath* result) {
             next = *nextPtr++;
         } while (AddIntersectTs(current, next) && nextPtr != listEnd);
     } while (currentPtr != listEnd);
-    HandleCoincidence(&contourList, 0);
+    if (!HandleCoincidence(&contourList, 0)) {
+        return false;
+    }
     // construct closed contours
     SkPathWriter simple(*result);
     if (builder.xorMask() == kWinding_PathOpsMask ? bridgeWinding(contourList, &simple)

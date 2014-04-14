@@ -24,48 +24,50 @@
 class SkLineParameters {
 public:
 
-    void cubicEndPoints(const SkDCubic& pts) {
+    bool cubicEndPoints(const SkDCubic& pts) {
         int endIndex = 1;
         cubicEndPoints(pts, 0, endIndex);
         if (dy() != 0) {
-            return;
+            return true;
         }
         if (dx() == 0) {
             cubicEndPoints(pts, 0, ++endIndex);
             SkASSERT(endIndex == 2);
             if (dy() != 0) {
-                return;
+                return true;
             }
             if (dx() == 0) {
                 cubicEndPoints(pts, 0, ++endIndex);  // line
                 SkASSERT(endIndex == 3);
-                return;
+                return false;
             }
         }
+        // FIXME: after switching to round sort, remove bumping fA
         if (dx() < 0) { // only worry about y bias when breaking cw/ccw tie
-            return;
+            return true;
         }
         // if cubic tangent is on x axis, look at next control point to break tie
         // control point may be approximate, so it must move significantly to account for error
         if (NotAlmostEqualUlps(pts[0].fY, pts[++endIndex].fY)) {
             if (pts[0].fY > pts[endIndex].fY) {
-                a = DBL_EPSILON; // push it from 0 to slightly negative (y() returns -a)
+                fA = DBL_EPSILON; // push it from 0 to slightly negative (y() returns -a)
             }
-            return;
+            return true;
         }
         if (endIndex == 3) {
-            return;
+            return true;
         }
         SkASSERT(endIndex == 2);
         if (pts[0].fY > pts[3].fY) {
-            a = DBL_EPSILON; // push it from 0 to slightly negative (y() returns -a)
+            fA = DBL_EPSILON; // push it from 0 to slightly negative (y() returns -a)
         }
+        return true;
     }
 
     void cubicEndPoints(const SkDCubic& pts, int s, int e) {
-        a = pts[s].fY - pts[e].fY;
-        b = pts[e].fX - pts[s].fX;
-        c = pts[s].fX * pts[e].fY - pts[e].fX * pts[s].fY;
+        fA = pts[s].fY - pts[e].fY;
+        fB = pts[e].fX - pts[s].fX;
+        fC = pts[s].fX * pts[e].fY - pts[e].fX * pts[s].fY;
     }
 
     double cubicPart(const SkDCubic& part) {
@@ -77,32 +79,34 @@ public:
     }
 
     void lineEndPoints(const SkDLine& pts) {
-        a = pts[0].fY - pts[1].fY;
-        b = pts[1].fX - pts[0].fX;
-        c = pts[0].fX * pts[1].fY - pts[1].fX * pts[0].fY;
+        fA = pts[0].fY - pts[1].fY;
+        fB = pts[1].fX - pts[0].fX;
+        fC = pts[0].fX * pts[1].fY - pts[1].fX * pts[0].fY;
     }
 
-    void quadEndPoints(const SkDQuad& pts) {
+    bool quadEndPoints(const SkDQuad& pts) {
         quadEndPoints(pts, 0, 1);
         if (dy() != 0) {
-            return;
+            return true;
         }
         if (dx() == 0) {
             quadEndPoints(pts, 0, 2);
-            return;
+            return false;
         }
         if (dx() < 0) { // only worry about y bias when breaking cw/ccw tie
-            return;
+            return true;
         }
+        // FIXME: after switching to round sort, remove this
         if (pts[0].fY > pts[2].fY) {
-            a = DBL_EPSILON;
+            fA = DBL_EPSILON;
         }
+        return true;
     }
 
     void quadEndPoints(const SkDQuad& pts, int s, int e) {
-        a = pts[s].fY - pts[e].fY;
-        b = pts[e].fX - pts[s].fX;
-        c = pts[s].fX * pts[e].fY - pts[e].fX * pts[s].fY;
+        fA = pts[s].fY - pts[e].fY;
+        fB = pts[e].fX - pts[s].fX;
+        fC = pts[s].fX * pts[e].fY - pts[e].fX * pts[s].fY;
     }
 
     double quadPart(const SkDQuad& part) {
@@ -111,19 +115,19 @@ public:
     }
 
     double normalSquared() const {
-        return a * a + b * b;
+        return fA * fA + fB * fB;
     }
 
     bool normalize() {
         double normal = sqrt(normalSquared());
         if (approximately_zero(normal)) {
-            a = b = c = 0;
+            fA = fB = fC = 0;
             return false;
         }
         double reciprocal = 1 / normal;
-        a *= reciprocal;
-        b *= reciprocal;
-        c *= reciprocal;
+        fA *= reciprocal;
+        fB *= reciprocal;
+        fC *= reciprocal;
         return true;
     }
 
@@ -131,7 +135,7 @@ public:
         double oneThird = 1 / 3.0;
         for (int index = 0; index < 4; ++index) {
             distance[index].fX = index * oneThird;
-            distance[index].fY = a * pts[index].fX + b * pts[index].fY + c;
+            distance[index].fY = fA * pts[index].fX + fB * pts[index].fY + fC;
         }
     }
 
@@ -139,33 +143,33 @@ public:
         double oneHalf = 1 / 2.0;
         for (int index = 0; index < 3; ++index) {
             distance[index].fX = index * oneHalf;
-            distance[index].fY = a * pts[index].fX + b * pts[index].fY + c;
+            distance[index].fY = fA * pts[index].fX + fB * pts[index].fY + fC;
         }
     }
 
     double controlPtDistance(const SkDCubic& pts, int index) const {
         SkASSERT(index == 1 || index == 2);
-        return a * pts[index].fX + b * pts[index].fY + c;
+        return fA * pts[index].fX + fB * pts[index].fY + fC;
     }
 
     double controlPtDistance(const SkDQuad& pts) const {
-        return a * pts[1].fX + b * pts[1].fY + c;
+        return fA * pts[1].fX + fB * pts[1].fY + fC;
     }
 
     double pointDistance(const SkDPoint& pt) const {
-        return a * pt.fX + b * pt.fY + c;
+        return fA * pt.fX + fB * pt.fY + fC;
     }
 
     double dx() const {
-        return b;
+        return fB;
     }
 
     double dy() const {
-        return -a;
+        return -fA;
     }
 
 private:
-    double a;
-    double b;
-    double c;
+    double fA;
+    double fB;
+    double fC;
 };

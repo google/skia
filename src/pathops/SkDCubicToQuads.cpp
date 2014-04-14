@@ -20,7 +20,6 @@ If this is a degree-elevated cubic, then both equations will give the same answe
 
 P1 = -1/4 Q0 + 3/4 Q1 + 3/4 Q2 - 1/4 Q3
 
-
 SkDCubic defined by: P1/2 - anchor points, C1/C2 control points
 |x| is the euclidean norm of x
 mid-point approx of cubic: a quad that shares the same anchors with the cubic and has the
