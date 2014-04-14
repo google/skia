@@ -20,6 +20,8 @@
 #include "SkGr.h"
 #endif
 
+SkImageFilter::Cache* gExternalCache;
+
 SkImageFilter::SkImageFilter(int inputCount, SkImageFilter** inputs, const CropRect* cropRect)
   : fInputCount(inputCount),
     fInputs(new SkImageFilter*[inputCount]),
@@ -295,6 +297,14 @@ bool SkImageFilter::asColorFilter(SkColorFilter**) const {
     return false;
 }
 
+void SkImageFilter::SetExternalCache(Cache* cache) {
+    SkRefCnt_SafeAssign(gExternalCache, cache);
+}
+
+SkImageFilter::Cache* SkImageFilter::GetExternalCache() {
+    return gExternalCache;
+}
+
 #if SK_SUPPORT_GPU
 
 void SkImageFilter::WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result) {
@@ -363,6 +373,7 @@ public:
     virtual ~CacheImpl();
     bool get(const SkImageFilter* key, SkBitmap* result, SkIPoint* offset) SK_OVERRIDE;
     void set(const SkImageFilter* key, const SkBitmap& result, const SkIPoint& offset) SK_OVERRIDE;
+    void remove(const SkImageFilter* key) SK_OVERRIDE;
 private:
     typedef const SkImageFilter* Key;
     struct Value {
@@ -390,6 +401,14 @@ bool CacheImpl::get(const SkImageFilter* key, SkBitmap* result, SkIPoint* offset
         return true;
     }
     return false;
+}
+
+void CacheImpl::remove(const SkImageFilter* key) {
+    Value* v = fData.find(key);
+    if (v) {
+        fData.remove(key);
+        delete v;
+    }
 }
 
 void CacheImpl::set(const SkImageFilter* key, const SkBitmap& result, const SkIPoint& offset) {

@@ -56,6 +56,7 @@ public:
         virtual bool get(const SkImageFilter* key, SkBitmap* result, SkIPoint* offset) = 0;
         virtual void set(const SkImageFilter* key,
                          const SkBitmap& result, const SkIPoint& offset) = 0;
+        virtual void remove(const SkImageFilter* key) = 0;
     };
 
     class Context {
@@ -183,6 +184,17 @@ public:
                            SkBitmap* result, SkIPoint* offset) const;
 #endif
 
+    /**
+     *  Set an external cache to be used for all image filter processing. This
+     *  will replace the default intra-frame cache.
+     */
+    static void SetExternalCache(Cache* cache);
+
+    /**
+     *  Returns the currently-set external cache, or NULL if none is set.
+     */
+    static Cache* GetExternalCache();
+
     SK_DEFINE_FLATTENABLE_TYPE(SkImageFilter)
 
 protected:
@@ -273,7 +285,6 @@ protected:
                              GrTexture*,
                              const SkMatrix& matrix,
                              const SkIRect& bounds) const;
-
 
 private:
     typedef SkFlattenable INHERITED;
