@@ -3,25 +3,15 @@
 <head>
     <title>Skia WebTry</title>
     <meta charset='utf-8' />
-    <style type="text/css" media="screen">
-        .waiting, .waiting * {
-          cursor: wait;
-        }
-        textarea {
-            margin-left: 0;
-            border: solid 1px #ccc;
-            color: green;
-        }
-        pre, code {
-            padding: 0;
-            color: green;
-        }
-        #output {
-            color: #333;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/" type="text/css" media="screen">
 </head>
 <body>
+  <section id=title>
+    <a href="/">Home</a>
+    <a href="/recent">Recent</a>
+    <a href="https://github.com/google/skia/tree/master/experimental/webtry">Code</a>
+  </section>
+  <section id=content>
   <pre><code>#include "SkCanvas.h"
 
 void draw(SkCanvas* canvas) {
@@ -36,6 +26,7 @@ void draw(SkCanvas* canvas) {
 
   <pre><code id='output'></code></pre>
 
+  </section>
   <script type='text/javascript' charset='utf-8'>
       var run = document.getElementById('run');
       var code = document.getElementById('code');

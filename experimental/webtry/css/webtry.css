@@ -1,0 +1,60 @@
+body {
+  font-family: helvetica arial sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  box-shadow: 2px 2px 5px gray;
+}
+
+h1 {
+  font-size: 18px;
+}
+
+h2 {
+  font-size: 16px;
+}
+
+.waiting, .waiting * {
+  cursor: wait;
+}
+
+textarea {
+    margin-left: 0;
+    border: solid 1px #ccc;
+    color: green;
+}
+
+pre, code {
+    padding: 0;
+    color: green;
+}
+
+#output {
+    color: #333;
+}
+
+.tries {
+  margin: 1em;
+  float: left;
+}
+
+#title {
+  color: #ddd;
+  background: #444;
+  margin: 0;
+  padding: 0.5em;
+}
+
+#title a:link,
+#title a:visited,
+#title a:hover,
+#title a:active
+{
+  color: #ddd;
+}
+
+#content {
+  padding: 1em;
+}

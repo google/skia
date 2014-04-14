@@ -20,6 +20,7 @@ import (
 	"regexp"
 	"strings"
 	"text/template"
+	"time"
 )
 
 const (
@@ -39,14 +40,20 @@ var (
 	// codeTemplate is the cpp code template the user's code is copied into.
 	codeTemplate *template.Template = nil
 
-	// index is the main index.html page we serve.
-	index *htemplate.Template = nil
+	// indexTemplate is the main index.html page we serve.
+	indexTemplate *htemplate.Template = nil
+
+	// recentTemplate is a list of recent  images.
+	recentTemplate *htemplate.Template = nil
 
 	// db is the database, nil if we don't have an SQL database to store data into.
 	db *sql.DB = nil
 
 	// directLink is the regex that matches URLs paths that are direct links.
-	directLink = regexp.MustCompile("^c/([a-a0-9]+)$")
+	directLink = regexp.MustCompile("^/c/([a-f0-9]+)$")
+
+	// imageLink is the regex that matches URLs paths that are direct links to PNGs.
+	imageLink = regexp.MustCompile("^/i/([a-f0-9]+.png)$")
 )
 
 // flags
@@ -81,7 +88,12 @@ func init() {
 		panic(err)
 	}
 	// Convert index.html into a template, which is expanded with the code.
-	index, err = htemplate.ParseFiles(filepath.Join(cwd, "templates/index.html"))
+	indexTemplate, err = htemplate.ParseFiles(filepath.Join(cwd, "templates/index.html"))
+	if err != nil {
+		panic(err)
+	}
+
+	recentTemplate, err = htemplate.ParseFiles(filepath.Join(cwd, "templates/recent.html"))
 	if err != nil {
 		panic(err)
 	}
@@ -226,13 +238,67 @@ func writeToDatabase(hash string, code string) {
 	}
 }
 
+func cssHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "css/webtry.css")
+}
+
+// imageHandler serves up the PNG of a specific try.
+func imageHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Image Handler: %q\n", r.URL.Path)
+	if r.Method != "GET" {
+		http.NotFound(w, r)
+		return
+	}
+	match := imageLink.FindStringSubmatch(r.URL.Path)
+	if len(match) != 2 {
+		http.NotFound(w, r)
+		return
+	}
+	filename := match[1]
+	http.ServeFile(w, r, fmt.Sprintf("../../../inout/%s", filename))
+}
+
+type Try struct {
+	Hash     string
+	CreateTS string
+}
+
+type Recent struct {
+	Tries []Try
+}
+
+// recentHandler shows the last 20 tries.
+func recentHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Recent Handler: %q\n", r.URL.Path)
+
+	var err error
+	rows, err := db.Query("SELECT create_ts, hash FROM webtry ORDER BY create_ts DESC LIMIT 20")
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	recent := []Try{}
+	for rows.Next() {
+		var hash string
+		var create_ts time.Time
+		if err := rows.Scan(&create_ts, &hash); err != nil {
+			log.Printf("Error: failed to fetch from database: %q", err)
+			continue
+		}
+		recent = append(recent, Try{Hash: hash, CreateTS: create_ts.Format("2006-02-01")})
+	}
+	if err := recentTemplate.Execute(w, Recent{Tries: recent}); err != nil {
+		log.Printf("ERROR: Failed to expand template: %q\n", err)
+	}
+}
+
 // mainHandler handles the GET and POST of the main page.
 func mainHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Main Handler: %q\n", r.URL.Path)
 	if r.Method == "GET" {
 		code := DEFAULT_SAMPLE
-		directLink := regexp.MustCompile("^/c/([a-f0-9]+)$")
 		match := directLink.FindStringSubmatch(r.URL.Path)
-		if len(match) == 2 {
+		if len(match) == 2 && r.URL.Path != "/" {
 			hash := match[1]
 			if db == nil {
 				http.NotFound(w, r)
@@ -245,7 +311,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		// Expand the template.
-		if err := index.Execute(w, userCode{UserCode: code}); err != nil {
+		if err := indexTemplate.Execute(w, userCode{UserCode: code}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
 		}
 	} else if r.Method == "POST" {
@@ -312,7 +378,9 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	flag.Parse()
-
+	http.HandleFunc("/i/", imageHandler)
+	http.HandleFunc("/recent/", recentHandler)
+	http.HandleFunc("/css/", cssHandler)
 	http.HandleFunc("/", mainHandler)
 	log.Fatal(http.ListenAndServe(*port, nil))
 }

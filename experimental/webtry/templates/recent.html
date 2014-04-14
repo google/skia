@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recent SkFiddles</title>
+    <meta charset='utf-8' />
+    <link rel="stylesheet" href="/css/" type="text/css" media="screen">
+</head>
+<body>
+  <section id=title>
+    <a href="/">Home</a>
+    <a href="/recent">Recent</a>
+    <a href="https://github.com/google/skia/tree/master/experimental/webtry">Code</a>
+  </section>
+  <section id=content>
+  <h1>Recent Activity</h1>
+  {{range .Tries}}
+    <section class=tries>
+    <h2><a href="/c/{{.Hash}}">{{.CreateTS}}</a></h2>
+    <a href="/c/{{.Hash}}">
+      <img width=100 height=100 src="/i/{{.Hash}}.png">
+    </a>
+    </section>
+  {{end}}
+  </section>
+</body>
+</html>
