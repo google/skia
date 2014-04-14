@@ -17,6 +17,15 @@ static inline __m128i SkDiv255Round_SSE2(const __m128i& a) {
     return prod;
 }
 
+static inline __m128i saturated_add_SSE2(const __m128i& a, const __m128i& b) {
+    __m128i sum = _mm_add_epi32(a, b);
+    __m128i cmp = _mm_cmpgt_epi32(sum, _mm_set1_epi32(255));
+
+    sum = _mm_or_si128(_mm_and_si128(cmp, _mm_set1_epi32(255)),
+                       _mm_andnot_si128(cmp, sum));
+    return sum;
+}
+
 static inline __m128i clamp_div255round_SSE2(const __m128i& prod) {
     // test if > 0
     __m128i cmp1 = _mm_cmpgt_epi32(prod, _mm_setzero_si128());
@@ -36,6 +45,130 @@ static inline __m128i clamp_div255round_SSE2(const __m128i& prod) {
     ret = _mm_or_si128(_mm_and_si128(cmp, div), _mm_andnot_si128(cmp, ret));
 
     return ret;
+}
+
+static __m128i srcover_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i isa = _mm_sub_epi32(_mm_set1_epi32(256), SkGetPackedA32_SSE2(src));
+    return _mm_add_epi32(src, SkAlphaMulQ_SSE2(dst, isa));
+}
+
+static __m128i dstover_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i ida = _mm_sub_epi32(_mm_set1_epi32(256), SkGetPackedA32_SSE2(dst));
+    return _mm_add_epi32(dst, SkAlphaMulQ_SSE2(src, ida));
+}
+
+static __m128i srcin_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i da = SkGetPackedA32_SSE2(dst);
+    return SkAlphaMulQ_SSE2(src, SkAlpha255To256_SSE2(da));
+}
+
+static __m128i dstin_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i sa = SkGetPackedA32_SSE2(src);
+    return SkAlphaMulQ_SSE2(dst, SkAlpha255To256_SSE2(sa));
+}
+
+static __m128i srcout_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i ida = _mm_sub_epi32(_mm_set1_epi32(256), SkGetPackedA32_SSE2(dst));
+    return SkAlphaMulQ_SSE2(src, ida);
+}
+
+static __m128i dstout_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i isa = _mm_sub_epi32(_mm_set1_epi32(256), SkGetPackedA32_SSE2(src));
+    return SkAlphaMulQ_SSE2(dst, isa);
+}
+
+static __m128i srcatop_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i sa = SkGetPackedA32_SSE2(src);
+    __m128i da = SkGetPackedA32_SSE2(dst);
+    __m128i isa = _mm_sub_epi32(_mm_set1_epi32(255), sa);
+
+    __m128i a = da;
+
+    __m128i r1 = SkAlphaMulAlpha_SSE2(da, SkGetPackedR32_SSE2(src));
+    __m128i r2 = SkAlphaMulAlpha_SSE2(isa, SkGetPackedR32_SSE2(dst));
+    __m128i r = _mm_add_epi32(r1, r2);
+
+    __m128i g1 = SkAlphaMulAlpha_SSE2(da, SkGetPackedG32_SSE2(src));
+    __m128i g2 = SkAlphaMulAlpha_SSE2(isa, SkGetPackedG32_SSE2(dst));
+    __m128i g = _mm_add_epi32(g1, g2);
+
+    __m128i b1 = SkAlphaMulAlpha_SSE2(da, SkGetPackedB32_SSE2(src));
+    __m128i b2 = SkAlphaMulAlpha_SSE2(isa, SkGetPackedB32_SSE2(dst));
+    __m128i b = _mm_add_epi32(b1, b2);
+
+    return SkPackARGB32_SSE2(a, r, g, b);
+}
+
+static __m128i dstatop_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i sa = SkGetPackedA32_SSE2(src);
+    __m128i da = SkGetPackedA32_SSE2(dst);
+    __m128i ida = _mm_sub_epi32(_mm_set1_epi32(255), da);
+
+    __m128i a = sa;
+
+    __m128i r1 = SkAlphaMulAlpha_SSE2(ida, SkGetPackedR32_SSE2(src));
+    __m128i r2 = SkAlphaMulAlpha_SSE2(sa, SkGetPackedR32_SSE2(dst));
+    __m128i r = _mm_add_epi32(r1, r2);
+
+    __m128i g1 = SkAlphaMulAlpha_SSE2(ida, SkGetPackedG32_SSE2(src));
+    __m128i g2 = SkAlphaMulAlpha_SSE2(sa, SkGetPackedG32_SSE2(dst));
+    __m128i g = _mm_add_epi32(g1, g2);
+
+    __m128i b1 = SkAlphaMulAlpha_SSE2(ida, SkGetPackedB32_SSE2(src));
+    __m128i b2 = SkAlphaMulAlpha_SSE2(sa, SkGetPackedB32_SSE2(dst));
+    __m128i b = _mm_add_epi32(b1, b2);
+
+    return SkPackARGB32_SSE2(a, r, g, b);
+}
+
+static __m128i xor_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i sa = SkGetPackedA32_SSE2(src);
+    __m128i da = SkGetPackedA32_SSE2(dst);
+    __m128i isa = _mm_sub_epi32(_mm_set1_epi32(255), sa);
+    __m128i ida = _mm_sub_epi32(_mm_set1_epi32(255), da);
+
+    __m128i a1 = _mm_add_epi32(sa, da);
+    __m128i a2 = SkAlphaMulAlpha_SSE2(sa, da);
+    a2 = _mm_slli_epi32(a2, 1);
+    __m128i a = _mm_sub_epi32(a1, a2);
+
+    __m128i r1 = SkAlphaMulAlpha_SSE2(ida, SkGetPackedR32_SSE2(src));
+    __m128i r2 = SkAlphaMulAlpha_SSE2(isa, SkGetPackedR32_SSE2(dst));
+    __m128i r = _mm_add_epi32(r1, r2);
+
+    __m128i g1 = SkAlphaMulAlpha_SSE2(ida, SkGetPackedG32_SSE2(src));
+    __m128i g2 = SkAlphaMulAlpha_SSE2(isa, SkGetPackedG32_SSE2(dst));
+    __m128i g = _mm_add_epi32(g1, g2);
+
+    __m128i b1 = SkAlphaMulAlpha_SSE2(ida, SkGetPackedB32_SSE2(src));
+    __m128i b2 = SkAlphaMulAlpha_SSE2(isa, SkGetPackedB32_SSE2(dst));
+    __m128i b = _mm_add_epi32(b1, b2);
+
+    return SkPackARGB32_SSE2(a, r, g, b);
+}
+
+static __m128i plus_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i b = saturated_add_SSE2(SkGetPackedB32_SSE2(src),
+                                   SkGetPackedB32_SSE2(dst));
+    __m128i g = saturated_add_SSE2(SkGetPackedG32_SSE2(src),
+                                   SkGetPackedG32_SSE2(dst));
+    __m128i r = saturated_add_SSE2(SkGetPackedR32_SSE2(src),
+                                   SkGetPackedR32_SSE2(dst));
+    __m128i a = saturated_add_SSE2(SkGetPackedA32_SSE2(src),
+                                   SkGetPackedA32_SSE2(dst));
+    return SkPackARGB32_SSE2(a, r, g, b);
+}
+
+static __m128i modulate_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i a = SkAlphaMulAlpha_SSE2(SkGetPackedA32_SSE2(src),
+                                     SkGetPackedA32_SSE2(dst));
+    __m128i r = SkAlphaMulAlpha_SSE2(SkGetPackedR32_SSE2(src),
+                                     SkGetPackedR32_SSE2(dst));
+    __m128i g = SkAlphaMulAlpha_SSE2(SkGetPackedG32_SSE2(src),
+                                     SkGetPackedG32_SSE2(dst));
+    __m128i b = SkAlphaMulAlpha_SSE2(SkGetPackedB32_SSE2(src),
+                                     SkGetPackedB32_SSE2(dst));
+    return SkPackARGB32_SSE2(a, r, g, b);
 }
 
 static inline __m128i srcover_byte_SSE2(const __m128i& a, const __m128i& b) {
@@ -81,6 +214,18 @@ static __m128i multiply_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
     __m128i db = SkGetPackedB32_SSE2(dst);
     __m128i b = blendfunc_multiply_byte_SSE2(sb, db, sa, da);
 
+    return SkPackARGB32_SSE2(a, r, g, b);
+}
+
+static __m128i screen_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i a = srcover_byte_SSE2(SkGetPackedA32_SSE2(src),
+                                  SkGetPackedA32_SSE2(dst));
+    __m128i r = srcover_byte_SSE2(SkGetPackedR32_SSE2(src),
+                                  SkGetPackedR32_SSE2(dst));
+    __m128i g = srcover_byte_SSE2(SkGetPackedG32_SSE2(src),
+                                  SkGetPackedG32_SSE2(dst));
+    __m128i b = srcover_byte_SSE2(SkGetPackedB32_SSE2(src),
+                                  SkGetPackedB32_SSE2(dst));
     return SkPackARGB32_SSE2(a, r, g, b);
 }
 
@@ -226,18 +371,18 @@ SkXfermodeProcSIMD gSSE2XfermodeProcs[] = {
     NULL, // kClear_Mode
     NULL, // kSrc_Mode
     NULL, // kDst_Mode
-    NULL, // kSrcOver_Mode
-    NULL, // kDstOver_Mode
-    NULL, // kSrcIn_Mode
-    NULL, // kDstIn_Mode
-    NULL, // kSrcOut_Mode
-    NULL, // kDstOut_Mode
-    NULL, // kSrcATop_Mode
-    NULL, // kDstATop_Mode
-    NULL, // kXor_Mode
-    NULL, // kPlus_Mode
-    NULL, // kModulate_Mode
-    NULL, // kScreen_Mode
+    srcover_modeproc_SSE2,
+    dstover_modeproc_SSE2,
+    srcin_modeproc_SSE2,
+    dstin_modeproc_SSE2,
+    srcout_modeproc_SSE2,
+    dstout_modeproc_SSE2,
+    srcatop_modeproc_SSE2,
+    dstatop_modeproc_SSE2,
+    xor_modeproc_SSE2,
+    plus_modeproc_SSE2,
+    modulate_modeproc_SSE2,
+    screen_modeproc_SSE2,
 
     NULL, // kOverlay_Mode
     NULL, // kDarken_Mode
