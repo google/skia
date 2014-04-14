@@ -29,6 +29,12 @@ public:
     virtual bool getPackedGlyphBounds(GrGlyph::PackedID, SkIRect* bounds) = 0;
     virtual bool getPackedGlyphImage(GrGlyph::PackedID, int width, int height,
                                      int rowBytes, void* image) = 0;
+    // get bounds for distance field associated with packed ID
+    virtual bool getPackedGlyphDFBounds(GrGlyph::PackedID, SkIRect* bounds) = 0;
+    // copies distance field bytes into pre-allocated dfImage
+    // (should be width*height bytes in size)
+    virtual bool getPackedGlyphDFImage(GrGlyph::PackedID, int width, int height,
+                                       void* dfImage) = 0;
     virtual bool getGlyphPath(uint16_t glyphID, SkPath*) = 0;
 
 private:

@@ -10,6 +10,7 @@
 #include "GrTemplates.h"
 #include "SkGr.h"
 #include "SkDescriptor.h"
+#include "SkDistanceFieldGen.h"
 #include "SkGlyphCache.h"
 
 class SkGrDescKey : public GrKey {
@@ -102,14 +103,23 @@ const GrKey* SkGrFontScaler::getKey() {
     return fKey;
 }
 
-bool SkGrFontScaler::getPackedGlyphBounds(GrGlyph::PackedID packed,
-                                          SkIRect* bounds) {
+bool SkGrFontScaler::getPackedGlyphBounds(GrGlyph::PackedID packed, SkIRect* bounds) {
     const SkGlyph& glyph = fStrike->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
-                                              GrGlyph::UnpackFixedX(packed),
-                                              GrGlyph::UnpackFixedY(packed));
+                                                      GrGlyph::UnpackFixedX(packed),
+                                                      GrGlyph::UnpackFixedY(packed));
     bounds->setXYWH(glyph.fLeft, glyph.fTop, glyph.fWidth, glyph.fHeight);
-    return true;
 
+    return true;
+}
+
+bool SkGrFontScaler::getPackedGlyphDFBounds(GrGlyph::PackedID packed, SkIRect* bounds) {
+    const SkGlyph& glyph = fStrike->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
+                                                      GrGlyph::UnpackFixedX(packed),
+                                                      GrGlyph::UnpackFixedY(packed));
+    bounds->setXYWH(glyph.fLeft, glyph.fTop, glyph.fWidth, glyph.fHeight);
+    bounds->outset(SK_DistanceFieldPad, SK_DistanceFieldPad);
+
+    return true;
 }
 
 namespace {
@@ -142,8 +152,8 @@ bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
                                          int width, int height,
                                          int dstRB, void* dst) {
     const SkGlyph& glyph = fStrike->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
-                                              GrGlyph::UnpackFixedX(packed),
-                                              GrGlyph::UnpackFixedY(packed));
+                                                      GrGlyph::UnpackFixedX(packed),
+                                                      GrGlyph::UnpackFixedY(packed));
     SkASSERT(glyph.fWidth == width);
     SkASSERT(glyph.fHeight == height);
     const void* src = fStrike->findImage(glyph);
@@ -187,6 +197,24 @@ bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
             dst = (char*)dst + dstRB;
         }
     }
+    return true;
+}
+
+bool SkGrFontScaler::getPackedGlyphDFImage(GrGlyph::PackedID packed,
+                                           int width, int height,
+                                           void* dst) {
+    const SkGlyph& glyph = fStrike->getGlyphIDMetrics(GrGlyph::UnpackID(packed),
+                                                      GrGlyph::UnpackFixedX(packed),
+                                                      GrGlyph::UnpackFixedY(packed));
+    SkASSERT(glyph.fWidth + 2*SK_DistanceFieldPad == width);
+    SkASSERT(glyph.fHeight + 2*SK_DistanceFieldPad == height);
+    const void* src = fStrike->findDistanceField(glyph);
+    if (NULL == src) {
+        return false;
+    }
+
+    memcpy(dst, src, width * height);
+
     return true;
 }
 

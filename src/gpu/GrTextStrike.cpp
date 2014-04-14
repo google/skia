@@ -214,10 +214,6 @@ void GrFontCache::dump() const {
     static int gCounter;
 #endif
 
-// this acts as the max magnitude for the distance field,
-// as well as the pad we need around the glyph
-#define DISTANCE_FIELD_RANGE   4
-
 /*
     The text strike is specific to a given font/style/matrix setup, which is
     represented by the GrHostFontScaler object we are given in getGlyph().
@@ -260,20 +256,17 @@ GrTextStrike::~GrTextStrike() {
 GrGlyph* GrTextStrike::generateGlyph(GrGlyph::PackedID packed,
                                      GrFontScaler* scaler) {
     SkIRect bounds;
-    if (!scaler->getPackedGlyphBounds(packed, &bounds)) {
-        return NULL;
+    if (fUseDistanceField) {
+        if (!scaler->getPackedGlyphDFBounds(packed, &bounds)) {
+            return NULL;
+        }
+    } else {
+        if (!scaler->getPackedGlyphBounds(packed, &bounds)) {
+            return NULL;
+        }
     }
 
     GrGlyph* glyph = fPool.alloc();
-    // expand bounds to hold full distance field data
-    // + room for bilerp
-    int pad = DISTANCE_FIELD_RANGE+1;
-    if (fUseDistanceField) {
-        bounds.fLeft   -= pad;
-        bounds.fRight  += pad;
-        bounds.fTop    -= pad;
-        bounds.fBottom += pad;
-    }
     glyph->init(packed, bounds);
     fCache.insert(packed, glyph);
     return glyph;
@@ -306,55 +299,26 @@ bool GrTextStrike::addGlyphToAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
 
     int bytesPerPixel = GrMaskFormatBytesPerPixel(fMaskFormat);
 
-    GrPlot* plot;
+    size_t size = glyph->fBounds.area() * bytesPerPixel;
+    SkAutoSMalloc<1024> storage(size);
     if (fUseDistanceField) {
-        // we've already expanded the glyph dimensions to match the final size
-        // but must shrink back down to get the packed glyph data
-        int dfWidth = glyph->width();
-        int dfHeight = glyph->height();
-        int pad = DISTANCE_FIELD_RANGE+1;
-        int width = dfWidth - 2*pad;
-        int height = dfHeight - 2*pad;
-        int stride = width*bytesPerPixel;
-
-        size_t size = width * height * bytesPerPixel;
-        SkAutoSMalloc<1024> storage(size);
-        if (!scaler->getPackedGlyphImage(glyph->fPackedID, width, height, stride, storage.get())) {
+        if (!scaler->getPackedGlyphDFImage(glyph->fPackedID, glyph->width(),
+                                           glyph->height(),
+                                           storage.get())) {
             return false;
         }
-
-        // alloc storage for distance field glyph
-        size_t dfSize = dfWidth * dfHeight * bytesPerPixel;
-        SkAutoSMalloc<1024> dfStorage(dfSize);
-
-        if (1 == bytesPerPixel) {
-            (void) SkGenerateDistanceFieldFromImage((unsigned char*)dfStorage.get(),
-                                                    (unsigned char*)storage.get(),
-                                                    width, height, DISTANCE_FIELD_RANGE);
-        } else {
-            // distance fields should only be used to represent alpha masks
-            SkASSERT(false);
-            return false;
-        }
-
-        // copy to atlas
-        plot = fAtlasMgr->addToAtlas(&fAtlas, dfWidth, dfHeight, dfStorage.get(),
-                                     &glyph->fAtlasLocation);
-
     } else {
-        size_t size = glyph->fBounds.area() * bytesPerPixel;
-        SkAutoSMalloc<1024> storage(size);
         if (!scaler->getPackedGlyphImage(glyph->fPackedID, glyph->width(),
                                          glyph->height(),
                                          glyph->width() * bytesPerPixel,
                                          storage.get())) {
             return false;
         }
-
-        plot = fAtlasMgr->addToAtlas(&fAtlas, glyph->width(),
-                                     glyph->height(), storage.get(),
-                                     &glyph->fAtlasLocation);
     }
+
+    GrPlot* plot  = fAtlasMgr->addToAtlas(&fAtlas, glyph->width(),
+                                          glyph->height(), storage.get(),
+                                          &glyph->fAtlasLocation);
 
     if (NULL == plot) {
         return false;

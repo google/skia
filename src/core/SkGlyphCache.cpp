@@ -9,6 +9,7 @@
 
 #include "SkGlyphCache.h"
 #include "SkGlyphCache_Globals.h"
+#include "SkDistanceFieldGen.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -328,12 +329,12 @@ SkGlyph* SkGlyphCache::lookupMetrics(uint32_t id, MetricsType mtype) {
 
 const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
     if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
-        if (glyph.fImage == NULL) {
+        if (NULL == glyph.fImage) {
             size_t  size = glyph.computeImageSize();
             const_cast<SkGlyph&>(glyph).fImage = fGlyphAlloc.alloc(size,
                                         SkChunkAlloc::kReturnNil_AllocFailType);
             // check that alloc() actually succeeded
-            if (glyph.fImage) {
+            if (NULL != glyph.fImage) {
                 fScalerContext->getImage(glyph);
                 // TODO: the scaler may have changed the maskformat during
                 // getImage (e.g. from AA or LCD to BW) which means we may have
@@ -356,6 +357,45 @@ const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
         }
     }
     return glyph.fPath;
+}
+
+const void* SkGlyphCache::findDistanceField(const SkGlyph& glyph) {
+    if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
+        if (NULL == glyph.fDistanceField) {
+            size_t  size = SkComputeDistanceFieldSize(glyph.fWidth, glyph.fHeight);
+            if (size == 0) {
+                return NULL;
+            }
+            const void* image = this->findImage(glyph);
+            // now generate the distance field
+            if (NULL != image) {
+                const_cast<SkGlyph&>(glyph).fDistanceField = fGlyphAlloc.alloc(size,
+                                            SkChunkAlloc::kReturnNil_AllocFailType);
+                if (NULL != glyph.fDistanceField) {
+                    SkMask::Format maskFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
+                    if (SkMask::kA8_Format == maskFormat) {
+                        // make the distance field from the image
+                        SkGenerateDistanceFieldFromA8Image((unsigned char*)glyph.fDistanceField,
+                                                           (unsigned char*)glyph.fImage,
+                                                           glyph.fWidth, glyph.fHeight,
+                                                           glyph.rowBytes());
+                        fMemoryUsed += size;
+                    } else if (SkMask::kBW_Format == maskFormat) {
+                        // make the distance field from the image
+                        SkGenerateDistanceFieldFromBWImage((unsigned char*)glyph.fDistanceField,
+                                                           (unsigned char*)glyph.fImage,
+                                                           glyph.fWidth, glyph.fHeight,
+                                                           glyph.rowBytes());
+                        fMemoryUsed += size;
+                    } else {
+                        fGlyphAlloc.unalloc(glyph.fDistanceField);
+                        const_cast<SkGlyph&>(glyph).fDistanceField = NULL;
+                    }
+                }
+            }
+        }
+    }
+    return glyph.fDistanceField;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -648,6 +688,9 @@ void SkGlyphCache::validate() const {
         SkASSERT(fGlyphAlloc.contains(glyph));
         if (glyph->fImage) {
             SkASSERT(fGlyphAlloc.contains(glyph->fImage));
+        }
+        if (glyph->fDistanceField) {
+            SkASSERT(fGlyphAlloc.contains(glyph->fDistanceField));
         }
     }
 #endif

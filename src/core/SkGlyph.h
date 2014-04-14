@@ -29,6 +29,7 @@ struct SkGlyph {
     uint16_t    fWidth, fHeight;
     int16_t     fTop, fLeft;
 
+    void*       fDistanceField;
     uint8_t     fMaskFormat;
     int8_t      fRsbDelta, fLsbDelta;  // used by auto-kerning
 
@@ -36,6 +37,7 @@ struct SkGlyph {
         fID             = id;
         fImage          = NULL;
         fPath           = NULL;
+        fDistanceField  = NULL;
         fMaskFormat     = MASK_FORMAT_UNKNOWN;
     }
 

@@ -13,10 +13,7 @@
 #include "GrTBackendEffectFactory.h"
 #include "GrTexture.h"
 
-// The distance field is constructed as unsigned char values, so that the zero value is at 128,
-// and the range is [-4, 4 - 1/255). Hence our multiplier is 8 - 1/32 and zero threshold is 128/255.
-#define MULTIPLIER "7.96875"
-#define THRESHOLD "0.50196078431"
+#include "SkDistanceFieldGen.h"
 
 class GrGLDistanceFieldTextureEffect : public GrGLVertexEffect {
 public:
@@ -58,7 +55,8 @@ public:
                                        fsCoordName.c_str(),
                                        kVec2f_GrSLType);
         builder->fsCodeAppend(";\n");
-        builder->fsCodeAppend("\tfloat distance = " MULTIPLIER "*(texColor.r - " THRESHOLD ");\n");
+        builder->fsCodeAppend("\tfloat distance = " 
+                     SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");\n");
 
         // we adjust for the effect of the transformation on the distance by using
         // the length of the gradient of the texture coordinates. We use st coordinates
@@ -239,20 +237,22 @@ public:
         builder->fsAppendTextureLookup(samplers[0], "uv", kVec2f_GrSLType);
         builder->fsCodeAppend(";\n");
         builder->fsCodeAppend("\tvec3 distance;\n");
-        builder->fsCodeAppend("\tdistance.y = " MULTIPLIER "*(texColor.r - " THRESHOLD ");\n");
+        builder->fsCodeAppend("\tdistance.y = " 
+                     SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");\n");
         // red is distance to left offset
         builder->fsCodeAppend("\tvec2 uv_adjusted = uv - offset;\n");
         builder->fsCodeAppend("\ttexColor = ");
         builder->fsAppendTextureLookup(samplers[0], "uv_adjusted", kVec2f_GrSLType);
         builder->fsCodeAppend(";\n");
-        builder->fsCodeAppend("\tdistance.x = " MULTIPLIER "*(texColor.r - " THRESHOLD ");\n");
+        builder->fsCodeAppend("\tdistance.x = " 
+                     SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");\n");
         // blue is distance to right offset
         builder->fsCodeAppend("\tuv_adjusted = uv + offset;\n");
         builder->fsCodeAppend("\ttexColor = ");
         builder->fsAppendTextureLookup(samplers[0], "uv_adjusted", kVec2f_GrSLType);
         builder->fsCodeAppend(";\n");
-        builder->fsCodeAppend("\tdistance.z = " MULTIPLIER "*(texColor.r - " THRESHOLD ");\n");
-
+        builder->fsCodeAppend("\tdistance.z = " 
+                     SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");\n");
         // we adjust for the effect of the transformation on the distance by using
         // the length of the gradient of the texture coordinates. We use st coordinates
         // to ensure we're mapping 1:1 from texel space to pixel space.

@@ -239,10 +239,11 @@ void GrDistanceFieldTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         }
 
         GrContext::AutoMatrix am;
-        SkMatrix translate;
-        translate.setTranslate(sx, sy);
+        SkMatrix ctm;
+        ctm.setScale(fTextRatio, fTextRatio);
+        ctm.postTranslate(sx, sy);
         GrPaint tmpPaint(fPaint);
-        am.setPreConcat(fContext, translate, &tmpPaint);
+        am.setPreConcat(fContext, ctm, &tmpPaint);
         SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
         fContext->drawPath(tmpPaint, *glyph->fPath, stroke);
         return;

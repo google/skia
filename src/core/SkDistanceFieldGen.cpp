@@ -327,19 +327,17 @@ static unsigned char pack_distance_field_val(float dist, float distanceMagnitude
 }
 #endif
 
-// assumes an 8-bit image and distance field
-bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
-                                      const unsigned char* image,
-                                      int width, int height,
-                                      int distanceMagnitude) {
+// assumes a padded 8-bit image and distance field
+// width and height are the original width and height of the image
+bool generate_distance_field_from_image(unsigned char* distanceField,
+                                        const unsigned char* copyPtr,
+                                        int width, int height) {
     SkASSERT(NULL != distanceField);
-    SkASSERT(NULL != image);
+    SkASSERT(NULL != copyPtr);
 
-    // the final distance field will have additional texels on each side to handle
-    // the maximum distance + 1 for bilerp
     // we expand our temp data by one more on each side to simplify
     // the scanning code -- will always be treated as infinitely far away
-    int pad = distanceMagnitude+2;
+    int pad = SK_DistanceFieldPad + 1;
 
     // set params for distance field data
     int dataWidth = width + 2*pad;
@@ -355,27 +353,10 @@ bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
     unsigned char* edgePtr = (unsigned char*) edgeStorage.get();
     sk_bzero(edgePtr, dataWidth*dataHeight*sizeof(char));
 
-    SkAutoSMalloc<1024> copyStorage((width+2)*(height+2)*sizeof(char));
-    unsigned char* copyPtr = (unsigned char*) copyStorage.get();
-
-    // we copy our source image into a padded copy to ensure we catch edge transitions
-    // around the outside
-    const unsigned char* currImage = image;
-    sk_bzero(copyPtr, (width+2)*sizeof(char));
-    unsigned char* currCopy = copyPtr + width + 2;
-    for (int i = 0; i < height; ++i) {
-        *currCopy++ = 0;
-        memcpy(currCopy, currImage, width*sizeof(char));
-        currImage += width;
-        currCopy += width;
-        *currCopy++ = 0;
-    }
-    sk_bzero(currCopy, (width+2)*sizeof(char));
-
     // copy glyph into distance field storage
     init_glyph_data(dataPtr, edgePtr, copyPtr,
                     dataWidth, dataHeight,
-                    width+2, height+2, pad-1);
+                    width+2, height+2, SK_DistanceFieldPad);
 
     // create initial distance data, particularly at edges
     init_distances(dataPtr, edgePtr, dataWidth, dataHeight);
@@ -465,7 +446,7 @@ bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
             } else {
                 dist = SkScalarSqrt(currData->fDistSq);
             }
-            *dfPtr++ = pack_distance_field_val(dist, (float)distanceMagnitude);
+            *dfPtr++ = pack_distance_field_val(dist, (float)SK_DistanceFieldMagnitude);
 #endif
             ++currData;
             ++currEdge;
@@ -475,4 +456,66 @@ bool SkGenerateDistanceFieldFromImage(unsigned char* distanceField,
     }
 
     return true;
+}
+
+// assumes an 8-bit image and distance field
+bool SkGenerateDistanceFieldFromA8Image(unsigned char* distanceField,
+                                        const unsigned char* image,
+                                        int width, int height, int rowBytes) {
+    SkASSERT(NULL != distanceField);
+    SkASSERT(NULL != image);
+
+    // create temp data
+    SkAutoSMalloc<1024> copyStorage((width+2)*(height+2)*sizeof(char));
+    unsigned char* copyPtr = (unsigned char*) copyStorage.get();
+
+    // we copy our source image into a padded copy to ensure we catch edge transitions
+    // around the outside
+    const unsigned char* currSrcScanLine = image;
+    sk_bzero(copyPtr, (width+2)*sizeof(char));
+    unsigned char* currDestPtr = copyPtr + width + 2;
+    for (int i = 0; i < height; ++i) {
+        *currDestPtr++ = 0;
+        memcpy(currDestPtr, currSrcScanLine, rowBytes);
+        currSrcScanLine += rowBytes;
+        currDestPtr += width;
+        *currDestPtr++ = 0;
+    }
+    sk_bzero(currDestPtr, (width+2)*sizeof(char));
+
+    return generate_distance_field_from_image(distanceField, copyPtr, width, height);
+}
+
+// assumes a 1-bit image and 8-bit distance field
+bool SkGenerateDistanceFieldFromBWImage(unsigned char* distanceField,
+                                        const unsigned char* image,
+                                        int width, int height, int rowBytes) {
+    SkASSERT(NULL != distanceField);
+    SkASSERT(NULL != image);
+
+    // create temp data
+    SkAutoSMalloc<1024> copyStorage((width+2)*(height+2)*sizeof(char));
+    unsigned char* copyPtr = (unsigned char*) copyStorage.get();
+
+    // we copy our source image into a padded copy to ensure we catch edge transitions
+    // around the outside
+    const unsigned char* currSrcScanLine = image;
+    sk_bzero(copyPtr, (width+2)*sizeof(char));
+    unsigned char* currDestPtr = copyPtr + width + 2;
+    for (int i = 0; i < height; ++i) {
+        *currDestPtr++ = 0;
+        int rowWritesLeft = width;
+        const unsigned char *maskPtr = currSrcScanLine;
+        while (rowWritesLeft > 0) {
+            unsigned mask = *maskPtr++;
+            for (int i = 7; i >= 0 && rowWritesLeft; --i, --rowWritesLeft) {
+                *currDestPtr++ = (mask & (1 << i)) ? 0xff : 0;
+            }
+        }
+        currSrcScanLine += rowBytes;
+        *currDestPtr++ = 0;
+    }
+    sk_bzero(currDestPtr, (width+2)*sizeof(char));
+
+    return generate_distance_field_from_image(distanceField, copyPtr, width, height);
 }
