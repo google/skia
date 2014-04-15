@@ -76,7 +76,7 @@ CAN_SKIP(ClipRegion);
 
 static bool can_skip_text(const SkCanvas& c, const SkPaint& p, SkScalar minY, SkScalar maxY) {
     // If we're drawing vertical text, none of the checks we're about to do make any sense.
-    // We use canComputeFastBounds as a proxy for "is this text going to be rectangular?".
+    // We'll need to call SkPaint::computeFastBounds() later, so bail out if that's not possible.
     if (p.isVerticalText() || !p.canComputeFastBounds()) {
         return false;
     }
@@ -88,7 +88,13 @@ static bool can_skip_text(const SkCanvas& c, const SkPaint& p, SkScalar minY, Sk
     SkDEBUGCODE(p.getFontMetrics(&metrics);)
     SkASSERT(-buffer <= metrics.fTop);
     SkASSERT(+buffer >= metrics.fBottom);
-    return c.quickRejectY(minY - buffer, maxY + buffer);
+
+    // Let the paint adjust the text bounds.  We don't care about left and right here, so we use
+    // 0 and 1 respectively just so the bounds rectangle isn't empty.
+    SkRect bounds;
+    bounds.set(0, -buffer, SK_Scalar1, buffer);
+    SkRect adjusted = p.computeFastBounds(bounds, &bounds);
+    return c.quickRejectY(minY + adjusted.fTop, maxY + adjusted.fBottom);
 }
 
 template <> bool Draw::canSkip(const SkRecords::DrawPosTextH& r) const {

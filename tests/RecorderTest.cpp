@@ -11,6 +11,8 @@
 #include "SkRecorder.h"
 #include "SkRecords.h"
 
+#include "SkEmptyShader.h"
+
 #define COUNT(T) + 1
 static const int kRecordTypes = SK_RECORD_TYPES(COUNT);
 #undef COUNT
@@ -40,4 +42,24 @@ DEF_TEST(Recorder, r) {
     record.visit(tally);
 
     REPORTER_ASSERT(r, 1 == tally.count<SkRecords::DrawRect>());
+}
+
+// Regression test for leaking refs held by optional arguments.
+DEF_TEST(Recorder_RefLeaking, r) {
+    // We use SaveLayer to test:
+    //   - its SkRect argument is optional and SkRect is POD.  Just testing that that works.
+    //   - its SkPaint argument is optional and SkPaint is not POD.  The bug was here.
+
+    SkRect bounds;
+    SkPaint paint;
+    paint.setShader(SkNEW(SkEmptyShader))->unref();
+
+    REPORTER_ASSERT(r, paint.getShader()->unique());
+    {
+        SkRecord record;
+        SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1080);
+        recorder.saveLayer(&bounds, &paint);
+        REPORTER_ASSERT(r, !paint.getShader()->unique());
+    }
+    REPORTER_ASSERT(r, paint.getShader()->unique());
 }

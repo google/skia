@@ -107,6 +107,31 @@ struct T {                                                                \
     A a; B b; C c; D d; E e;                                              \
 };
 
+// An Optional doesn't own the pointer's memory, but may need to destroy non-POD data.
+template <typename T>
+class Optional : SkNoncopyable {
+public:
+    Optional(T* ptr) : fPtr(ptr) {}
+    ~Optional() { if (fPtr) fPtr->~T(); }
+
+    operator T*() { return fPtr; }
+    operator const T*() const { return fPtr; }
+private:
+    T* fPtr;
+};
+
+// PODArray doesn't own the pointer's memory, and we assume the data is POD.
+template <typename T>
+class PODArray : SkNoncopyable {
+public:
+    PODArray(T* ptr) : fPtr(ptr) {}
+
+    operator T*() { return fPtr; }
+    operator const T*() const { return fPtr; }
+private:
+    T* fPtr;
+};
+
 // Like SkBitmap, but deep copies pixels if they're not immutable.
 // Using this, we guarantee the immutability of all bitmaps we record.
 class ImmutableBitmap {
@@ -126,13 +151,12 @@ private:
     SkBitmap fBitmap;
 };
 
-// Pointers here represent either an optional value or an array if accompanied by a count.
 // None of these records manages the lifetimes of pointers, except for DrawVertices handling its
 // Xfermode specially.
 
 RECORD0(Restore);
 RECORD1(Save, SkCanvas::SaveFlags, flags);
-RECORD3(SaveLayer, SkRect*, bounds, SkPaint*, paint, SkCanvas::SaveFlags, flags);
+RECORD3(SaveLayer, Optional<SkRect>, bounds, Optional<SkPaint>, paint, SkCanvas::SaveFlags, flags);
 
 static const unsigned kUnsetPopOffset = 0;
 RECORD2(PushCull, SkRect, rect, unsigned, popOffset);
@@ -147,33 +171,46 @@ RECORD3(ClipRect, SkRect, rect, SkRegion::Op, op, bool, doAA);
 RECORD2(ClipRegion, SkRegion, region, SkRegion::Op, op);
 
 RECORD1(Clear, SkColor, color);
-RECORD4(DrawBitmap, ImmutableBitmap, bitmap, SkScalar, left, SkScalar, top, SkPaint*, paint);
-RECORD3(DrawBitmapMatrix, ImmutableBitmap, bitmap, SkMatrix, matrix, SkPaint*, paint);
-RECORD4(DrawBitmapNine, ImmutableBitmap, bitmap, SkIRect, center, SkRect, dst, SkPaint*, paint);
+RECORD4(DrawBitmap, ImmutableBitmap, bitmap,
+                    SkScalar, left,
+                    SkScalar, top,
+                    Optional<SkPaint>, paint);
+RECORD3(DrawBitmapMatrix, ImmutableBitmap, bitmap, SkMatrix, matrix, Optional<SkPaint>, paint);
+RECORD4(DrawBitmapNine, ImmutableBitmap, bitmap,
+                        SkIRect, center,
+                        SkRect, dst,
+                        Optional<SkPaint>, paint);
 RECORD5(DrawBitmapRectToRect, ImmutableBitmap, bitmap,
-                              SkRect*, src,
+                              Optional<SkRect>, src,
                               SkRect, dst,
-                              SkPaint*, paint,
+                              Optional<SkPaint>, paint,
                               SkCanvas::DrawBitmapRectFlags, flags);
 RECORD3(DrawDRRect, SkRRect, outer, SkRRect, inner, SkPaint, paint);
 RECORD2(DrawOval, SkRect, oval, SkPaint, paint);
 RECORD1(DrawPaint, SkPaint, paint);
 RECORD2(DrawPath, SkPath, path, SkPaint, paint);
 RECORD4(DrawPoints, SkCanvas::PointMode, mode, size_t, count, SkPoint*, pts, SkPaint, paint);
-RECORD4(DrawPosText, char*, text, size_t, byteLength, SkPoint*, pos, SkPaint, paint);
-RECORD5(DrawPosTextH, char*, text,
+RECORD4(DrawPosText, PODArray<char>, text,
+                     size_t, byteLength,
+                     PODArray<SkPoint>, pos,
+                     SkPaint, paint);
+RECORD5(DrawPosTextH, PODArray<char>, text,
                       size_t, byteLength,
-                      SkScalar*, xpos,
+                      PODArray<SkScalar>, xpos,
                       SkScalar, y,
                       SkPaint, paint);
 RECORD2(DrawRRect, SkRRect, rrect, SkPaint, paint);
 RECORD2(DrawRect, SkRect, rect, SkPaint, paint);
-RECORD4(DrawSprite, ImmutableBitmap, bitmap, int, left, int, top, SkPaint*, paint);
-RECORD5(DrawText, char*, text, size_t, byteLength, SkScalar, x, SkScalar, y, SkPaint, paint);
-RECORD5(DrawTextOnPath, char*, text,
+RECORD4(DrawSprite, ImmutableBitmap, bitmap, int, left, int, top, Optional<SkPaint>, paint);
+RECORD5(DrawText, PODArray<char>, text,
+                  size_t, byteLength,
+                  SkScalar, x,
+                  SkScalar, y,
+                  SkPaint, paint);
+RECORD5(DrawTextOnPath, PODArray<char>, text,
                         size_t, byteLength,
                         SkPath, path,
-                        SkMatrix*, matrix,
+                        Optional<SkMatrix>, matrix,
                         SkPaint, paint);
 
 // This guy is so ugly we just write it manually.
@@ -201,11 +238,11 @@ struct DrawVertices {
 
     SkCanvas::VertexMode vmode;
     int vertexCount;
-    SkPoint* vertices;
-    SkPoint* texs;
-    SkColor* colors;
+    PODArray<SkPoint> vertices;
+    PODArray<SkPoint> texs;
+    PODArray<SkColor> colors;
     SkAutoTUnref<SkXfermode> xmode;
-    uint16_t* indices;
+    PODArray<uint16_t> indices;
     int indexCount;
     SkPaint paint;
 };
