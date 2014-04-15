@@ -58,7 +58,11 @@
         'CopySampleAppDeps',
       ],
       'variables': {
-         'ANDROID_SDK_ROOT': '<!(echo $ANDROID_SDK_ROOT)'
+         'ANDROID_SDK_ROOT': '<!(echo $ANDROID_SDK_ROOT)',
+         # the ninja generator treats PRODUCT_DIR as a relative path to the
+         # gyp directory but android ant build wants a path relative to the
+         # build.xml file so we do that adjustment here. 
+         'ANDROID_OUT': '../../<(PRODUCT_DIR)/android'
        },
       'actions': [
         {
@@ -81,10 +85,10 @@
             '-quiet',
             '-f',
             '<(android_base)/app/build.xml',
-            '-Dout.dir=<(PRODUCT_DIR)/android/bin',
-            '-Dgen.absolute.dir=<(PRODUCT_DIR)/android/gen',
-            '-Dnative.libs.absolute.dir=<(PRODUCT_DIR)/android/libs',
-            '-Dout.final.file=<(PRODUCT_DIR)/android/bin/SkiaAndroid.apk',
+            '-Dout.dir=<(ANDROID_OUT)/bin',
+            '-Dgen.absolute.dir=<(ANDROID_OUT)/gen',
+            '-Dnative.libs.absolute.dir=<(ANDROID_OUT)/libs',
+            '-Dout.final.file=<(ANDROID_OUT)/bin/SkiaAndroid.apk',
             '-Dsdk.dir=<(ANDROID_SDK_ROOT)',
             'debug',
           ],
