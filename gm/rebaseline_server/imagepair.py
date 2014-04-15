@@ -48,43 +48,27 @@ class ImagePair(object):
     self.extra_columns_dict = extra_columns
     if not imageA_relative_url or not imageB_relative_url:
       self._is_different = True
-      self._diff_record = None
-      self._diff_record_set = True
+      self.diff_record = None
     elif imageA_relative_url == imageB_relative_url:
       self._is_different = False
-      self._diff_record = None
-      self._diff_record_set = True
+      self.diff_record = None
     else:
-      # Tell image_diff_db to add this ImagePair.
-      # It will do so in a separate thread so as not to block this one;
-      # when you call self.get_diff_record(), it will block until the results
-      # are ready.
-      image_diff_db.add_image_pair_async(
+      # TODO(epoger): Rather than blocking until image_diff_db can read in
+      # the image pair and generate diffs, it would be better to do it
+      # asynchronously: tell image_diff_db to download a bunch of file pairs,
+      # and only block later if we're still waiting for diff_records to come
+      # back.
+      self._is_different = True
+      image_diff_db.add_image_pair(
           expected_image_locator=imageA_relative_url,
           expected_image_url=posixpath.join(base_url, imageA_relative_url),
           actual_image_locator=imageB_relative_url,
           actual_image_url=posixpath.join(base_url, imageB_relative_url))
-      self._image_diff_db = image_diff_db
-      self._diff_record_set = False
-
-  def get_diff_record(self):
-    """Returns the DiffRecord associated with this ImagePair.
-
-    Returns None if the images are identical, or one is missing.
-    This method will block until the DiffRecord is available.
-    """
-    if not self._diff_record_set:
-      self._diff_record = self._image_diff_db.get_diff_record(
-          expected_image_locator=self.imageA_relative_url,
-          actual_image_locator=self.imageB_relative_url)
-      self._image_diff_db = None  # release reference, no longer needed
-      if (self._diff_record and
-          self._diff_record.get_num_pixels_differing() == 0):
+      self.diff_record = image_diff_db.get_diff_record(
+          expected_image_locator=imageA_relative_url,
+          actual_image_locator=imageB_relative_url)
+      if self.diff_record and self.diff_record.get_num_pixels_differing() == 0:
         self._is_different = False
-      else:
-        self._is_different = True
-      self._diff_record_set = True
-    return self._diff_record
 
   def as_dict(self):
     """Returns a dictionary describing this ImagePair.
@@ -95,12 +79,11 @@ class ImagePair(object):
         KEY__IMAGE_A_URL: self.imageA_relative_url,
         KEY__IMAGE_B_URL: self.imageB_relative_url,
     }
+    asdict[KEY__IS_DIFFERENT] = self._is_different
     if self.expectations_dict:
       asdict[KEY__EXPECTATIONS_DATA] = self.expectations_dict
     if self.extra_columns_dict:
       asdict[KEY__EXTRA_COLUMN_VALUES] = self.extra_columns_dict
-    diff_record = self.get_diff_record()
-    if diff_record and (diff_record.get_num_pixels_differing() > 0):
-      asdict[KEY__DIFFERENCE_DATA] = diff_record.as_dict()
-    asdict[KEY__IS_DIFFERENT] = self._is_different
+    if self.diff_record and (self.diff_record.get_num_pixels_differing() > 0):
+      asdict[KEY__DIFFERENCE_DATA] = self.diff_record.as_dict()
     return asdict

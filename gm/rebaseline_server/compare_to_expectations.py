@@ -89,8 +89,6 @@ class ExpectationComparisons(results.BaseComparisons):
     self._expected_root = expected_root
     self._load_actual_and_expected()
     self._timestamp = int(time.time())
-    logging.info('Number of download file collisions: %s' %
-                 imagediffdb.global_file_collisions)
     logging.info('Results complete; took %d seconds.' %
                  (self._timestamp - time_start))
 
