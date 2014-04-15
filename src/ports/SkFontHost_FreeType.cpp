@@ -18,6 +18,7 @@
 #include "SkGlyph.h"
 #include "SkMask.h"
 #include "SkMaskGamma.h"
+#include "SkMatrix22.h"
 #include "SkOTUtils.h"
 #include "SkOnce.h"
 #include "SkScalerContext.h"
@@ -43,6 +44,8 @@
 #include FT_LCD_FILTER_H
 #endif
 
+// Defined in FreeType 2.3.8 and later.
+// This is a silly build time check, we would need a runtime check if we really cared.
 #ifdef   FT_ADVANCES_H
 #include FT_ADVANCES_H
 #endif
@@ -693,9 +696,6 @@ SkAdvancedTypefaceMetrics* SkTypeface_FreeType::onGetAdvancedTypefaceMetrics(
 
 ///////////////////////////////////////////////////////////////////////////
 
-#define BLACK_LUMINANCE_LIMIT   0x40
-#define WHITE_LUMINANCE_LIMIT   0xA0
-
 static bool bothZero(SkScalar a, SkScalar b) {
     return 0 == a && 0 == b;
 }
@@ -849,46 +849,34 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
     }
     fFace = fFaceRec->fFace;
 
-    // compute our factors from the record
+    // A is the total matrix.
+    SkMatrix A;
+    fRec.getSingleMatrix(&A);
 
-    SkMatrix    m;
-
-    fRec.getSingleMatrix(&m);
-
-#ifdef DUMP_STRIKE_CREATION
-    SkString     keyString;
-    SkFontHost::GetDescriptorKeyString(desc, &keyString);
-    printf("========== strike [%g %g %g] [%g %g %g %g] hints %d format %d %s\n", SkScalarToFloat(fRec.fTextSize),
-           SkScalarToFloat(fRec.fPreScaleX), SkScalarToFloat(fRec.fPreSkewX),
-           SkScalarToFloat(fRec.fPost2x2[0][0]), SkScalarToFloat(fRec.fPost2x2[0][1]),
-           SkScalarToFloat(fRec.fPost2x2[1][0]), SkScalarToFloat(fRec.fPost2x2[1][1]),
-           fRec.getHinting(), fRec.fMaskFormat, keyString.c_str());
-#endif
-
-    //  now compute our scale factors
-    SkScalar    sx = m.getScaleX();
-    SkScalar    sy = m.getScaleY();
-
+    SkScalar sx = A.getScaleX();
+    SkScalar sy = A.getScaleY();
     fMatrix22Scalar.reset();
 
-    if (m.getSkewX() || m.getSkewY() || sx < 0 || sy < 0) {
+//#define SK_IGNORE_FREETYPE_ROTATION_FIX
+#ifdef SK_IGNORE_FREETYPE_ROTATION_FIX
+    if (A.getSkewX() || A.getSkewY() || sx < 0 || sy < 0) {
         // sort of give up on hinting
-        sx = SkMaxScalar(SkScalarAbs(sx), SkScalarAbs(m.getSkewX()));
-        sy = SkMaxScalar(SkScalarAbs(m.getSkewY()), SkScalarAbs(sy));
+        sx = SkMaxScalar(SkScalarAbs(sx), SkScalarAbs(A.getSkewX()));
+        sy = SkMaxScalar(SkScalarAbs(A.getSkewY()), SkScalarAbs(sy));
         sx = sy = SkScalarAve(sx, sy);
 
         SkScalar inv = SkScalarInvert(sx);
 
         // flip the skew elements to go from our Y-down system to FreeType's
-        fMatrix22.xx = SkScalarToFixed(SkScalarMul(m.getScaleX(), inv));
-        fMatrix22.xy = -SkScalarToFixed(SkScalarMul(m.getSkewX(), inv));
-        fMatrix22.yx = -SkScalarToFixed(SkScalarMul(m.getSkewY(), inv));
-        fMatrix22.yy = SkScalarToFixed(SkScalarMul(m.getScaleY(), inv));
+        fMatrix22.xx = SkScalarToFixed(SkScalarMul(A.getScaleX(), inv));
+        fMatrix22.xy = -SkScalarToFixed(SkScalarMul(A.getSkewX(), inv));
+        fMatrix22.yx = -SkScalarToFixed(SkScalarMul(A.getSkewY(), inv));
+        fMatrix22.yy = SkScalarToFixed(SkScalarMul(A.getScaleY(), inv));
 
-        fMatrix22Scalar.setScaleX(SkScalarMul(m.getScaleX(), inv));
-        fMatrix22Scalar.setSkewX(-SkScalarMul(m.getSkewX(), inv));
-        fMatrix22Scalar.setSkewY(-SkScalarMul(m.getSkewY(), inv));
-        fMatrix22Scalar.setScaleY(SkScalarMul(m.getScaleY(), inv));
+        fMatrix22Scalar.setScaleX(SkScalarMul(A.getScaleX(), inv));
+        fMatrix22Scalar.setSkewX(-SkScalarMul(A.getSkewX(), inv));
+        fMatrix22Scalar.setSkewY(-SkScalarMul(A.getSkewY(), inv));
+        fMatrix22Scalar.setScaleY(SkScalarMul(A.getScaleY(), inv));
     } else {
         fMatrix22.xx = fMatrix22.yy = SK_Fixed1;
         fMatrix22.xy = fMatrix22.yx = 0;
@@ -896,6 +884,54 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
     fScale.set(sx, sy);
     fScaleX = SkScalarToFixed(sx);
     fScaleY = SkScalarToFixed(sy);
+#else
+    // In GDI, the hinter is aware of the current transformation
+    // (the transform is in some sense applied before/with the hinting).
+    // The bytecode can then test if it is rotated or stretched and decide
+    // to apply instructions or not.
+    //
+    // FreeType, however, always does the transformation strictly after hinting.
+    // It just sets 'rotated' and 'stretched' to false and only applies the
+    // size before hinting.
+    //
+    // Also, FreeType respects the head::flags::IntegerScaling flag,
+    // (although this is patched out on most major distros)
+    // so it is critical to get the size correct on the request.
+    //
+    // This also gets us the actual closest size on bitmap fonts as well.
+    if (A.getSkewX() || A.getSkewY() || sx < 0 || sy < 0) {
+        // h is where A maps the horizontal baseline.
+        SkPoint h = SkPoint::Make(SK_Scalar1, 0);
+        A.mapPoints(&h, 1);
+
+        // G is the Givens Matrix for A (rotational matrix where GA[0][1] == 0).
+        SkMatrix G;
+        SkComputeGivensRotation(h, &G);
+
+        // GA is the matrix A with rotation removed.
+        SkMatrix GA(G);
+        GA.preConcat(A);
+
+        sx = SkScalarAbs(GA.get(SkMatrix::kMScaleX));
+        sy = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
+
+        // sA is the total matrix A without the text scale.
+        SkMatrix sA(A);
+        sA.preScale(SkScalarInvert(sx), SkScalarInvert(sy)); //remove text size
+
+        fMatrix22Scalar.setScaleX(sA.getScaleX());
+        fMatrix22Scalar.setSkewX(-sA.getSkewX());
+        fMatrix22Scalar.setSkewY(-sA.getSkewY());
+        fMatrix22Scalar.setScaleY(sA.getScaleY());
+    }
+    fScale.set(sx, sy);
+    fScaleX = SkScalarToFixed(sx);
+    fScaleY = SkScalarToFixed(sy);
+    fMatrix22.xx = SkScalarToFixed(fMatrix22Scalar.getScaleX());
+    fMatrix22.xy = SkScalarToFixed(fMatrix22Scalar.getSkewX());
+    fMatrix22.yx = SkScalarToFixed(fMatrix22Scalar.getSkewY());
+    fMatrix22.yy = SkScalarToFixed(fMatrix22Scalar.getScaleY());
+#endif
 
     fLCDIsVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
 

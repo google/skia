@@ -14,6 +14,12 @@
 
 #include <math.h>
 #include <float.h>
+
+// For _POSIX_VERSION
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+#include <unistd.h>
+#endif
+
 #include "SkFloatBits.h"
 
 // C++98 cmath std::pow seems to be the earliest portable way to get float pow.
@@ -24,9 +30,24 @@ static inline float sk_float_pow(float base, float exp) {
 }
 
 static inline float sk_float_copysign(float x, float y) {
+// c++11 contains a 'float copysign(float, float)' function in <cmath>.
+#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1800)
+    return copysign(x, y);
+
+// Posix has demanded 'float copysignf(float, float)' (from C99) since Issue 6.
+#elif defined(_POSIX_VERSION) && _POSIX_VERSION >= 200112L
+    return copysignf(x, y);
+
+// Visual studio prior to 13 only has 'double _copysign(double, double)'.
+#elif defined(_MSC_VER)
+    return _copysign(x, y);
+
+// Otherwise convert to bits and extract sign.
+#else
     int32_t xbits = SkFloat2Bits(x);
     int32_t ybits = SkFloat2Bits(y);
     return SkBits2Float((xbits & 0x7FFFFFFF) | (ybits & 0x80000000));
+#endif
 }
 
 #ifdef SK_BUILD_FOR_WINCE

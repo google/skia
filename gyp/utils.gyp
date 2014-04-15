@@ -81,6 +81,8 @@
         '../src/utils/SkGatherPixelRefsAndRects.h',
         '../src/utils/SkInterpolator.cpp',
         '../src/utils/SkLayer.cpp',
+        '../src/utils/SkMatrix22.cpp',
+        '../src/utils/SkMatrix22.h',
         '../src/utils/SkMatrix44.cpp',
         '../src/utils/SkMD5.cpp',
         '../src/utils/SkMD5.h',
