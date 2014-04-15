@@ -14,8 +14,9 @@
 #define SK_DistanceFieldMagnitude   4
 // we need to pad around the original glyph to allow our maximum distance of
 // SK_DistanceFieldMagnitude texels away from any edge
-// we add one to this pad to allow for bilerp
-#define SK_DistanceFieldPad     (SK_DistanceFieldMagnitude+1)
+#define SK_DistanceFieldPad         4
+// the rect we render with is inset from the distance field glyph size to allow for bilerp
+#define SK_DistanceFieldInset       2
 
 // for the fragment shader
 // The distance field is constructed as unsigned char values, so that the zero value is at 128,

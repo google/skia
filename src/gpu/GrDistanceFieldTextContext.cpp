@@ -14,6 +14,7 @@
 #include "GrIndexBuffer.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
+#include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
 #include "SkGpuDevice.h"
 #include "SkPath.h"
@@ -295,10 +296,10 @@ HAS_ATLAS:
         SkASSERT(2*sizeof(SkPoint) == fDrawTarget->getDrawState().getVertexSize());
     }
 
-    SkScalar dx = SkIntToScalar(glyph->fBounds.fLeft);
-    SkScalar dy = SkIntToScalar(glyph->fBounds.fTop);
-    SkScalar width = SkIntToScalar(glyph->fBounds.width());
-    SkScalar height = SkIntToScalar(glyph->fBounds.height());
+    SkScalar dx = SkIntToScalar(glyph->fBounds.fLeft + SK_DistanceFieldInset);
+    SkScalar dy = SkIntToScalar(glyph->fBounds.fTop + SK_DistanceFieldInset);
+    SkScalar width = SkIntToScalar(glyph->fBounds.width() - 2*SK_DistanceFieldInset);
+    SkScalar height = SkIntToScalar(glyph->fBounds.height() - 2*SK_DistanceFieldInset);
 
     SkScalar scale = fTextRatio;
     dx *= scale;
@@ -308,10 +309,10 @@ HAS_ATLAS:
     width *= scale;
     height *= scale;
 
-    SkFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX);
-    SkFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY);
-    SkFixed tw = SkIntToFixed(glyph->fBounds.width());
-    SkFixed th = SkIntToFixed(glyph->fBounds.height());
+    SkFixed tx = SkIntToFixed(glyph->fAtlasLocation.fX + SK_DistanceFieldInset);
+    SkFixed ty = SkIntToFixed(glyph->fAtlasLocation.fY + SK_DistanceFieldInset);
+    SkFixed tw = SkIntToFixed(glyph->fBounds.width() - 2*SK_DistanceFieldInset);
+    SkFixed th = SkIntToFixed(glyph->fBounds.height() - 2*SK_DistanceFieldInset);
 
     static const size_t kVertexSize = 2 * sizeof(SkPoint);
     fVertices[2*fCurrVertex].setRectFan(sx,
