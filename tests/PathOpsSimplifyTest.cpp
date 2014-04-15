@@ -4142,8 +4142,8 @@ static void testQuads21(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.quadTo(3, 0, 2, 3);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads22(skiatest::Reporter* reporter, const char* filename) {
@@ -4155,8 +4155,8 @@ static void testQuads22(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.quadTo(0, 1, 3, 2);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads23(skiatest::Reporter* reporter, const char* filename) {
@@ -4168,8 +4168,8 @@ static void testQuads23(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.quadTo(0, 1, 3, 2);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads24(skiatest::Reporter* reporter, const char* filename) {
@@ -4181,8 +4181,8 @@ static void testQuads24(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(0, 1);
     path.lineTo(0, 1);
     path.quadTo(0, 2, 3, 3);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads25(skiatest::Reporter* reporter, const char* filename) {
@@ -4194,8 +4194,8 @@ static void testQuads25(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.quadTo(3, 0, 2, 3);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads26(skiatest::Reporter* reporter, const char* filename) {
@@ -4207,8 +4207,8 @@ static void testQuads26(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.quadTo(0, 1, 3, 2);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads27(skiatest::Reporter* reporter, const char* filename) {
@@ -4220,8 +4220,8 @@ static void testQuads27(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(2, 0);
     path.lineTo(2, 0);
     path.quadTo(3, 0, 1, 3);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads28(skiatest::Reporter* reporter, const char* filename) {
@@ -4233,8 +4233,8 @@ static void testQuads28(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.quadTo(3, 0, 2, 3);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads29(skiatest::Reporter* reporter, const char* filename) {
@@ -4246,8 +4246,8 @@ static void testQuads29(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(3, 0);
     path.lineTo(3, 0);
     path.quadTo(3, 1, 0, 2);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads30(skiatest::Reporter* reporter, const char* filename) {
@@ -4260,8 +4260,8 @@ static void testQuads30(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(2, 0);
     path.lineTo(2, 0);
     path.quadTo(3, 2, 1, 3);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads31(skiatest::Reporter* reporter, const char* filename) {
@@ -4274,8 +4274,8 @@ static void testQuads31(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(0, 1);
 
     path.quadTo(2, 1, 1, 3);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads32(skiatest::Reporter* reporter, const char* filename) {
@@ -4287,8 +4287,8 @@ static void testQuads32(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(1, 1);
     path.lineTo(1, 1);
     path.quadTo(3, 1, 0, 3);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads33(skiatest::Reporter* reporter, const char* filename) {
@@ -4300,8 +4300,8 @@ static void testQuads33(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(0, 0);
     path.lineTo(0, 0);
     path.quadTo(3, 0, 2, 3);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads34(skiatest::Reporter* reporter, const char* filename) {
@@ -4313,8 +4313,8 @@ static void testQuads34(skiatest::Reporter* reporter, const char* filename) {
     path.moveTo(1, 0);
     path.lineTo(1, 0);
     path.quadTo(2, 0, 3, 3);
-    path.close();    
-	testSimplify(reporter, path, filename);
+    path.close();
+    testSimplify(reporter, path, filename);
 }
 
 static void testQuads35(skiatest::Reporter* reporter, const char* filename) {
@@ -4507,7 +4507,7 @@ static void testQuads47(skiatest::Reporter* reporter, const char* filename) {
 }
 
 // this fails because there is a short unorderable segment and the unordered state isn't handled
-// correctly later on. 
+// correctly later on.
 static void testQuads46x(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kEvenOdd_FillType);

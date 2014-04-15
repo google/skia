@@ -87,7 +87,7 @@ static void dontFailOne(skiatest::Reporter* reporter, int index) {
     result.setFillType(SkPath::kWinding_FillType);
     bool success = Simplify(path, &result);
     // linux 32 debug fails test 13 because the quad is not treated as linear
-    // there's no error in the math that I can find -- it looks like a processor 
+    // there's no error in the math that I can find -- it looks like a processor
     // or compiler bug -- so for now, allow either to work
     REPORTER_ASSERT(reporter, success || index == 13);
     REPORTER_ASSERT(reporter, result.getFillType() != SkPath::kWinding_FillType);

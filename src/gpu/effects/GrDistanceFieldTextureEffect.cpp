@@ -55,7 +55,7 @@ public:
                                        fsCoordName.c_str(),
                                        kVec2f_GrSLType);
         builder->fsCodeAppend(";\n");
-        builder->fsCodeAppend("\tfloat distance = " 
+        builder->fsCodeAppend("\tfloat distance = "
                      SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");\n");
 
         // we adjust for the effect of the transformation on the distance by using
@@ -237,21 +237,21 @@ public:
         builder->fsAppendTextureLookup(samplers[0], "uv", kVec2f_GrSLType);
         builder->fsCodeAppend(";\n");
         builder->fsCodeAppend("\tvec3 distance;\n");
-        builder->fsCodeAppend("\tdistance.y = " 
+        builder->fsCodeAppend("\tdistance.y = "
                      SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");\n");
         // red is distance to left offset
         builder->fsCodeAppend("\tvec2 uv_adjusted = uv - offset;\n");
         builder->fsCodeAppend("\ttexColor = ");
         builder->fsAppendTextureLookup(samplers[0], "uv_adjusted", kVec2f_GrSLType);
         builder->fsCodeAppend(";\n");
-        builder->fsCodeAppend("\tdistance.x = " 
+        builder->fsCodeAppend("\tdistance.x = "
                      SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");\n");
         // blue is distance to right offset
         builder->fsCodeAppend("\tuv_adjusted = uv + offset;\n");
         builder->fsCodeAppend("\ttexColor = ");
         builder->fsAppendTextureLookup(samplers[0], "uv_adjusted", kVec2f_GrSLType);
         builder->fsCodeAppend(";\n");
-        builder->fsCodeAppend("\tdistance.z = " 
+        builder->fsCodeAppend("\tdistance.z = "
                      SK_DistanceFieldMultiplier "*(texColor.r - " SK_DistanceFieldThreshold ");\n");
         // we adjust for the effect of the transformation on the distance by using
         // the length of the gradient of the texture coordinates. We use st coordinates

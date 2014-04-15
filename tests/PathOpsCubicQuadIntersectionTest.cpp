@@ -232,11 +232,11 @@ DEF_TEST(PathOpsCubicQuadSlop, reporter) {
                     SkDebugf("cubic={{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}}"
                         " quad={{{%1.9g,%1.9g}, {%1.9g,%1.9g}, {%1.9g,%1.9g}}}"
                         " {{{%1.9g,%1.9g}, {%1.9g,%1.9g}}}"
-                        " qT=%1.9g cT=%1.9g dist=%1.9g cross=%1.9g\n", 
+                        " qT=%1.9g cT=%1.9g dist=%1.9g cross=%1.9g\n",
                         cubic[0].fX, cubic[0].fY, cubic[1].fX, cubic[1].fY,
                         cubic[2].fX, cubic[2].fY, cubic[3].fX, cubic[3].fY,
                         nearby[0].fX, nearby[0].fY, nearby[1].fX, nearby[1].fY,
-                        nearby[2].fX, nearby[2].fY, 
+                        nearby[2].fX, nearby[2].fY,
                         liner.pt(0).fX, liner.pt(0).fY,
                         locals.pt(0).fX, locals.pt(0).fY, quadT, cubicT, dist.length(), qxc);
 #else
@@ -249,7 +249,7 @@ DEF_TEST(PathOpsCubicQuadSlop, reporter) {
                         cubic[0].fX, cubic[0].fY, cubic[1].fX, cubic[1].fY,
                         cubic[2].fX, cubic[2].fY, cubic[3].fX, cubic[3].fY,
                         nearby[0].fX, nearby[0].fY, nearby[1].fX, nearby[1].fY,
-                        nearby[2].fX, nearby[2].fY, 
+                        nearby[2].fX, nearby[2].fY,
                         liner.pt(0).fX, liner.pt(0).fY,
                         locals.pt(0).fX, locals.pt(0).fY);
                     SkDebugf("</div>\n\n");

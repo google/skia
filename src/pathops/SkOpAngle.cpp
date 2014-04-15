@@ -553,7 +553,7 @@ const SkOpAngle* SkOpAngle::findFirst() const {
         }
         int angleStart = SkTMin(angle->fSectorStart, angle->fSectorEnd);
         // angles that are smaller by one aren't necessary better, since the larger may be a line
-        // and the smaller may be a curve that curls to the other side of the line. 
+        // and the smaller may be a curve that curls to the other side of the line.
         if (bestEnd + 1 < angleStart) {
             return best;
         }
@@ -720,7 +720,7 @@ void SkOpAngle::markStops() {
         angle = angle->fNext;
         int angleStart = SkTMin(angle->fSectorStart, angle->fSectorEnd);
         // angles that are smaller by one aren't necessary better, since the larger may be a line
-        // and the smaller may be a curve that curls to the other side of the line. 
+        // and the smaller may be a curve that curls to the other side of the line.
         if (lastEnd + 1 < angleStart) {
             angle->fStop = true;
         }

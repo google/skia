@@ -600,7 +600,7 @@ static IntersectData intersectDataSet15[] = { // pathops_visualizer.htm:6580
     { {{{490.435,879.407}, {405.593,909.436}}}, 2, 0.500554405, 1, {} }, // pathops_visualizer.htm:6538
     { {{{447.967,894.438}, {448.007,894.424}, {448.014,894.422}}}, 3, 0, 1, {} }, // pathops_visualizer.htm:6538
     { {{{490.435,879.407}, {405.593,909.436}}}, 2, 0.500554405, 0.500000273, {} }, // pathops_visualizer.htm:6538
-}; // 
+}; //
 
 static IntersectData intersectDataSet16[] = { // pathops_visualizer.htm:7419
     { {{{1.000,4.000}, {4.000,5.000}, {3.000,2.000}, {6.000,3.000}}}, 4, 0.5, 0, {} }, // pathops_visualizer.htm:7377

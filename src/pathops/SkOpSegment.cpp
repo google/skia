@@ -313,7 +313,7 @@ void SkOpSegment::addCoinOutsides(const SkPoint& startPt, const SkPoint& endPt,
         const SkOpSpan& span = fTs[ttIndex];
         if (startPt != span.fPt) {
             break;
-        } 
+        }
         if (span.fOther == other && span.fPt == startPt) {
             checkOtherTMatch = true;
             break;
@@ -329,7 +329,7 @@ void SkOpSegment::addCoinOutsides(const SkPoint& startPt, const SkPoint& endPt,
             const SkOpSpan& oSpan = other->fTs[ooIndex];
             if (startPt != oSpan.fPt) {
                 break;
-            } 
+            }
             if (oSpan.fT == fTs[ttIndex].fOtherT) {
                 skipAdd = true;
                 break;
@@ -2039,7 +2039,7 @@ void SkOpSegment::checkSmallCoincidence(const SkOpSpan& span,
                     if (!SkDPoint::ApproximatelyEqual(mid, oMid)) {
                         continue;
                     }
-                } 
+                }
 #if DEBUG_CONCIDENT
                 SkDebugf("%s coincident found=%d %1.9g %1.9g\n", __FUNCTION__, testOther->fID,
                         oTest->fOtherT, tTest->fT);
