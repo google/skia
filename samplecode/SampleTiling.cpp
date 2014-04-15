@@ -105,7 +105,7 @@ protected:
 
         SkPictureRecorder recorder;
         SkCanvas* textCanvas = NULL;
-        if (fTextPicture->width() == 0) {
+        if (NULL == fTextPicture) {
             textCanvas = recorder.beginRecording(1000, 1000);
         }
 
@@ -146,7 +146,7 @@ protected:
                         x += r.width() * 4 / 3;
                     }
                 }
-                if (textCanvas) {
+                if (NULL != textCanvas) {
                     SkPaint p;
                     SkString str;
                     p.setAntiAlias(true);
@@ -159,8 +159,12 @@ protected:
             }
         }
 
-        fTextPicture.reset(recorder.endRecording());
+        if (NULL != textCanvas) {
+            SkASSERT(NULL == fTextPicture);
+            fTextPicture.reset(recorder.endRecording());
+        }
 
+        SkASSERT(NULL != fTextPicture);
         canvas->drawPicture(*fTextPicture);
     }
 
