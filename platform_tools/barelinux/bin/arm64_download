@@ -138,10 +138,6 @@ arm64_download() {
     try install_runtime "$working_directory" || return
 
     try start_arm64_image "$working_directory" || return
-
-    try start_arm64_image \
-        "$working_directory" \
-        || return
 }
 
 for command in gsutil xz tar md5sum gunzip; do
