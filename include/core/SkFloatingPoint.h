@@ -40,7 +40,7 @@ static inline float sk_float_copysign(float x, float y) {
 
 // Visual studio prior to 13 only has 'double _copysign(double, double)'.
 #elif defined(_MSC_VER)
-    return _copysign(x, y);
+    return (float)_copysign(x, y);
 
 // Otherwise convert to bits and extract sign.
 #else
