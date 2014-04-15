@@ -17,7 +17,6 @@ class SK_API SkLayerDrawLooper : public SkDrawLooper {
 public:
     SK_DECLARE_INST_COUNT(SkLayerDrawLooper)
 
-            SkLayerDrawLooper();
     virtual ~SkLayerDrawLooper();
 
     /**
@@ -74,26 +73,6 @@ public:
         LayerInfo();
     };
 
-    /**
-     *  Call for each layer you want to add (from top to bottom).
-     *  This returns a paint you can modify, but that ptr is only valid until
-     *  the next call made to addLayer().
-     */
-    SkPaint* addLayer(const LayerInfo&);
-
-    /**
-     *  This layer will draw with the original paint, at the specified offset
-     */
-    void addLayer(SkScalar dx, SkScalar dy);
-
-    /**
-     *  This layer will with the original paint and no offset.
-     */
-    void addLayer() { this->addLayer(0, 0); }
-
-    /// Similar to addLayer, but adds a layer to the top.
-    SkPaint* addLayerOnTop(const LayerInfo&);
-
     virtual SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const SK_OVERRIDE;
 
     virtual size_t contextSize() const SK_OVERRIDE { return sizeof(LayerDrawLooperContext); }
@@ -105,6 +84,8 @@ public:
     static SkFlattenable* CreateProc(SkReadBuffer& buffer);
 
 protected:
+    SkLayerDrawLooper();
+
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:

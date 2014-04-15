@@ -35,12 +35,16 @@ public:
         kAll_BlurFlag               = 0x07
     };
 
-    SkBlurDrawLooper(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
-                     uint32_t flags = kNone_BlurFlag);
+    static SkBlurDrawLooper* Create(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
+                                    uint32_t flags = kNone_BlurFlag) {
+        return SkNEW_ARGS(SkBlurDrawLooper, (color, sigma, dx, dy, flags));
+    }
 
-//    SK_ATTR_DEPRECATED("use sigma version")
+#ifdef SK_SUPPORT_LEGACY_BLURDRAWLOOPERCONSTRUCTORS
     SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy, SkColor color,
                      uint32_t flags = kNone_BlurFlag);
+#endif
+
     virtual ~SkBlurDrawLooper();
 
     virtual SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const SK_OVERRIDE;
@@ -51,6 +55,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurDrawLooper)
 
 protected:
+    SkBlurDrawLooper(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy,
+                     uint32_t flags);
+
     SkBlurDrawLooper(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 

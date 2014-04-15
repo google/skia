@@ -40,7 +40,7 @@ public:
     }
 
     virtual void onDraw(const int loops, SkCanvas* canvas) SK_OVERRIDE {
-        SkLayerDrawLooper* looper = new SkLayerDrawLooper;
+        SkLayerDrawLooper::Builder looperBuilder;
         {
             SkLayerDrawLooper::LayerInfo info;
             info.fPaintBits = SkLayerDrawLooper::kMaskFilter_Bit
@@ -48,7 +48,7 @@ public:
             info.fColorMode = SkXfermode::kSrc_Mode;
             info.fOffset = SkPoint::Make(SkIntToScalar(-1), SkIntToScalar(0));
             info.fPostTranslate = false;
-            SkPaint* paint = looper->addLayerOnTop(info);
+            SkPaint* paint = looperBuilder.addLayerOnTop(info);
             SkMaskFilter* maskFilter = SkBlurMaskFilter::Create(
                     SkBlurMaskFilter::kNormal_BlurStyle,
                     SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf),
@@ -61,13 +61,13 @@ public:
         }
         {
             SkLayerDrawLooper::LayerInfo info;
-            looper->addLayerOnTop(info);
+            looperBuilder.addLayerOnTop(info);
         }
         SkPaint dullPaint;
         dullPaint.setAntiAlias(true);
 
         SkPaint loopedPaint;
-        loopedPaint.setLooper(looper)->unref();
+        loopedPaint.setLooper(looperBuilder.detachLooper())->unref();
         loopedPaint.setAntiAlias(true);
         loopedPaint.setColor(SK_ColorCYAN);
 

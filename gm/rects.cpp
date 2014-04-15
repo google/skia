@@ -95,12 +95,12 @@ protected:
             p.setColor(SK_ColorWHITE);
             p.setAntiAlias(true);
             SkBlurDrawLooper* shadowLooper =
-                new SkBlurDrawLooper (SK_ColorWHITE,
-                                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
-                                      SkIntToScalar(5), SkIntToScalar(10),
-                                      SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
-                                      SkBlurDrawLooper::kOverrideColor_BlurFlag |
-                                      SkBlurDrawLooper::kHighQuality_BlurFlag);
+                SkBlurDrawLooper::Create(SK_ColorWHITE,
+                                         SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(10)),
+                                         SkIntToScalar(5), SkIntToScalar(10),
+                                         SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
+                                         SkBlurDrawLooper::kOverrideColor_BlurFlag |
+                                         SkBlurDrawLooper::kHighQuality_BlurFlag);
             SkAutoUnref aurL0(shadowLooper);
             p.setLooper(shadowLooper);
             fPaints.push_back(p);

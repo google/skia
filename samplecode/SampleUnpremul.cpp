@@ -85,10 +85,10 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(24));
-        SkAutoTUnref<SkBlurDrawLooper> looper(SkNEW_ARGS(SkBlurDrawLooper,
-                                              (SK_ColorBLUE,
-                                               SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(2)),
-                                               0, 0)));
+        SkAutoTUnref<SkBlurDrawLooper> looper(
+            SkBlurDrawLooper::Create(SK_ColorBLUE,
+                                     SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(2)),
+                                     0, 0));
         paint.setLooper(looper);
         SkScalar height = paint.getFontMetrics(NULL);
         if (!fDecodeSucceeded) {

@@ -13,6 +13,7 @@
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkTypeface.h"
+#include "SkBlurMask.h"
 
 // effects
 #include "SkGradientShader.h"
@@ -55,10 +56,12 @@ static const SkColorType gColorTypes[] = {
 };
 
 class ScaledTilingGM : public skiagm::GM {
-    SkBlurDrawLooper    fLooper;
+    SkAutoTUnref<SkBlurDrawLooper> fLooper;
 public:
     ScaledTilingGM(bool powerOfTwoSize)
-            : fLooper(SkIntToScalar(1), SkIntToScalar(2), SkIntToScalar(2), 0x88000000)
+            : fLooper(SkBlurDrawLooper::Create(0x88000000,
+                                               SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
+                                               SkIntToScalar(2), SkIntToScalar(2)))
             , fPowerOfTwoSize(powerOfTwoSize) {
     }
 
@@ -117,7 +120,7 @@ protected:
                 SkString str;
                 p.setAntiAlias(true);
                 p.setDither(true);
-                p.setLooper(&fLooper);
+                p.setLooper(fLooper);
                 str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
                 p.setTextAlign(SkPaint::kCenter_Align);
@@ -157,7 +160,7 @@ protected:
                     SkPaint p;
                     SkString str;
                     p.setAntiAlias(true);
-                    p.setLooper(&fLooper);
+                    p.setLooper(fLooper);
                     str.printf("%s, %s", gColorTypeNames[i], gFilterNames[j]);
                     canvas->drawText(str.c_str(), str.size(), scale*x, scale*(y + r.height() * 2 / 3), p);
                 }

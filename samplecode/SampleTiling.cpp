@@ -62,13 +62,13 @@ static const int gWidth = 32;
 static const int gHeight = 32;
 
 class TilingView : public SampleView {
-    SkAutoTUnref<SkPicture> fTextPicture;
-    SkBlurDrawLooper        fLooper;
+    SkAutoTUnref<SkPicture>        fTextPicture;
+    SkAutoTUnref<SkBlurDrawLooper> fLooper;
 public:
     TilingView()
-            : fLooper(0x88000000,
-                      SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
-                      SkIntToScalar(2), SkIntToScalar(2)) {
+            : fLooper(SkBlurDrawLooper::Create(0x88000000,
+                                               SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(1)),
+                                               SkIntToScalar(2), SkIntToScalar(2))) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(gColorTypes); i++) {
             makebm(&fTexture[i], gColorTypes[i], gWidth, gHeight);
         }
@@ -116,7 +116,7 @@ protected:
                     SkString str;
                     p.setAntiAlias(true);
                     p.setDither(true);
-                    p.setLooper(&fLooper);
+                    p.setLooper(fLooper);
                     str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
 
                     p.setTextAlign(SkPaint::kCenter_Align);
@@ -150,7 +150,7 @@ protected:
                     SkPaint p;
                     SkString str;
                     p.setAntiAlias(true);
-                    p.setLooper(&fLooper);
+                    p.setLooper(fLooper);
                     str.printf("%s, %s", gConfigNames[i], gFilterNames[j]);
                     textCanvas->drawText(str.c_str(), str.size(), x, y + r.height() * 2 / 3, p);
                 }
