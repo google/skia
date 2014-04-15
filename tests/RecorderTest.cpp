@@ -50,7 +50,7 @@ DEF_TEST(Recorder_RefLeaking, r) {
     //   - its SkRect argument is optional and SkRect is POD.  Just testing that that works.
     //   - its SkPaint argument is optional and SkPaint is not POD.  The bug was here.
 
-    SkRect bounds;
+    SkRect bounds = SkRect::MakeWH(320, 240);
     SkPaint paint;
     paint.setShader(SkNEW(SkEmptyShader))->unref();
 
