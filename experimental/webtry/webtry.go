@@ -34,6 +34,8 @@ p.setStrokeWidth(10);
 
 canvas->drawLine(20, 20, 100, 100, p);
 `
+	// Don't increase above 2^16 w/o altering the db tables to accept something bigger than TEXT.
+	MAX_TRY_SIZE = 64000
 )
 
 var (
@@ -115,7 +117,7 @@ func init() {
 		// The IP address of the database is found here:
 		//    https://console.developers.google.com/project/31977622648/sql/instances/webtry/overview
 		// And 3306 is the default port for MySQL.
-		db, err = sql.Open("mysql", fmt.Sprintf("webtry:%s@tcp(173.194.83.52:3306)/webtry", password))
+		db, err = sql.Open("mysql", fmt.Sprintf("webtry:%s@tcp(173.194.83.52:3306)/webtry?parseTime=true", password))
 		if err != nil {
 			log.Printf("ERROR: Failed to open connection to SQL server: %q\n", err)
 			panic(err)
@@ -292,6 +294,17 @@ func recentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// hasPreProcessor returns true if any line in the code begins with a # char.
+func hasPreProcessor(code string) bool {
+	lines := strings.Split(code, "\n")
+	for _, s := range lines {
+		if strings.HasPrefix(strings.TrimSpace(s), "#") {
+			return true
+		}
+	}
+	return false
+}
+
 // mainHandler handles the GET and POST of the main page.
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Main Handler: %q\n", r.URL.Path)
@@ -316,12 +329,23 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	} else if r.Method == "POST" {
 		w.Header().Set("Content-Type", "application/json")
-		b, err := ioutil.ReadAll(r.Body)
+		buf := bytes.NewBuffer(make([]byte, 0, MAX_TRY_SIZE))
+		n, err := buf.ReadFrom(r.Body)
 		if err != nil {
 			reportError(w, r, err, "Failed to read a request body.")
 			return
 		}
-		code := string(b)
+		if n == MAX_TRY_SIZE {
+			err := fmt.Errorf("Code length equal to, or exceeded, %d", MAX_TRY_SIZE)
+			reportError(w, r, err, "Code too large.")
+			return
+		}
+		code := string(buf.Bytes())
+		if hasPreProcessor(code) {
+			err := fmt.Errorf("Found preprocessor macro in code.")
+			reportError(w, r, err, "Preprocessor macros aren't allowed.")
+			return
+		}
 		hash, err := expandCode(LineNumbers(code))
 		if err != nil {
 			reportError(w, r, err, "Failed to write the code to compile.")
