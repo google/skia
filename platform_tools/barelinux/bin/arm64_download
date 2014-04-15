@@ -118,6 +118,12 @@ start_arm64_image() {
         --network-nat-subnet="192.168.31.0/24" \
         --network-nat-ports="8022=22" \
         > /dev/null 2>&1 &
+    echo 'Waiting for foundation model to boot...'
+    while ! ssh -i "${working_dir}/key" \
+        -o NoHostAuthenticationForLocalhost=yes \
+        -p 8022 user@localhost true 2> /dev/null; do
+        sleep 5
+    done
     echo 'Listening to SSH on port 8022.'
 }
 
