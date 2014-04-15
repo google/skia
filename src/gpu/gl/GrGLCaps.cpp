@@ -48,13 +48,14 @@ void GrGLCaps::reset() {
     fFixedFunctionSupport = false;
     fFullClearIsFree = false;
     fDropsTileOnZeroDivide = false;
+    fMapSubSupport = false;
 }
 
 GrGLCaps::GrGLCaps(const GrGLCaps& caps) : GrDrawTargetCaps() {
     *this = caps;
 }
 
-GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
+GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     INHERITED::operator=(caps);
     fVerifiedColorConfigs = caps.fVerifiedColorConfigs;
     fStencilFormats = caps.fStencilFormats;
@@ -86,6 +87,7 @@ GrGLCaps& GrGLCaps::operator = (const GrGLCaps& caps) {
     fFixedFunctionSupport = caps.fFixedFunctionSupport;
     fFullClearIsFree = caps.fFullClearIsFree;
     fDropsTileOnZeroDivide = caps.fDropsTileOnZeroDivide;
+    fMapSubSupport = caps.fMapSubSupport;
 
     return *this;
 }
@@ -293,8 +295,10 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     if (kGL_GrGLStandard == standard) {
         fBufferLockSupport = true; // we require VBO support and the desktop VBO extension includes
                                    // glMapBuffer.
+        fMapSubSupport = false;
     } else {
         fBufferLockSupport = ctxInfo.hasExtension("GL_OES_mapbuffer");
+        fMapSubSupport = ctxInfo.hasExtension("GL_CHROMIUM_map_sub");
     }
 
     if (kGL_GrGLStandard == standard) {

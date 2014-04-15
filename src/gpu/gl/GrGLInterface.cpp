@@ -504,6 +504,15 @@ bool GrGLInterface::validate() const {
             RETURN_FALSE_INTERFACE;
         }
     }
+
+    if (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_CHROMIUM_map_sub")) {
+        if (NULL == fFunctions.fMapBufferSubData ||
+            NULL == fFunctions.fMapTexSubImage2D ||
+            NULL == fFunctions.fUnmapBufferSubData ||
+            NULL == fFunctions.fUnmapTexSubImage2D) {
+            RETURN_FALSE_INTERFACE;
+        }
+    }
 #endif
 
     return true;

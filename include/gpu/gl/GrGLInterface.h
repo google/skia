@@ -233,6 +233,8 @@ public:
         GLPtr<GrGLLoadIdentityProc> fLoadIdentity;
         GLPtr<GrGLLoadMatrixfProc> fLoadMatrixf;
         GLPtr<GrGLMapBufferProc> fMapBuffer;
+        GLPtr<GrGLMapBufferSubDataProc> fMapBufferSubData;
+        GLPtr<GrGLMapTexSubImage2DProc> fMapTexSubImage2D;
         GLPtr<GrGLMatrixModeProc> fMatrixMode;
         GLPtr<GrGLPixelStoreiProc> fPixelStorei;
         GLPtr<GrGLPopGroupMarkerProc> fPopGroupMarker;
@@ -305,6 +307,8 @@ public:
         GLPtr<GrGLUniformMatrix3fvProc> fUniformMatrix3fv;
         GLPtr<GrGLUniformMatrix4fvProc> fUniformMatrix4fv;
         GLPtr<GrGLUnmapBufferProc> fUnmapBuffer;
+        GLPtr<GrGLUnmapBufferSubDataProc> fUnmapBufferSubData;
+        GLPtr<GrGLUnmapTexSubImage2DProc> fUnmapTexSubImage2D;
         GLPtr<GrGLUseProgramProc> fUseProgram;
         GLPtr<GrGLVertexAttrib4fvProc> fVertexAttrib4fv;
         GLPtr<GrGLVertexAttribPointerProc> fVertexAttribPointer;

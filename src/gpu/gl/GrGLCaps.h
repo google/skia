@@ -259,6 +259,9 @@ public:
 
     bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
 
+    /// Is GL_CHROMIUM_map_sub supported?
+    bool mapSubSupport() const { return fMapSubSupport; }
+
 private:
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
@@ -341,6 +344,7 @@ private:
     bool fFixedFunctionSupport : 1;
     bool fFullClearIsFree : 1;
     bool fDropsTileOnZeroDivide : 1;
+    bool fMapSubSupport : 1;
 
     typedef GrDrawTargetCaps INHERITED;
 };
