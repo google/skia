@@ -2491,7 +2491,6 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
             break;
         case kIndex_8_GrPixelConfig:
             if (this->caps()->eightBitPaletteSupport()) {
-                *internalFormat = GR_GL_PALETTE8_RGBA8;
                 // glCompressedTexImage doesn't take external params
                 *externalFormat = GR_GL_PALETTE8_RGBA8;
                 // no sized/unsized internal format distinction here
