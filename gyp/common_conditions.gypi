@@ -296,6 +296,8 @@
         # Still need to switch Android to the new name for N32.
         'kNative_8888_SkColorType kN32_SkColorType',
         'SK_SUPPORT_LEGACY_PICTURE_CAN_RECORD',
+        'SK_SUPPORT_DEPRECATED_RECORD_FLAGS',
+        'SK_SUPPORT_LEGACY_BLURDRAWLOOPERCONSTRUCTORS',
       ],
     }],
 
