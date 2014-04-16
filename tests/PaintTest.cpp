@@ -325,7 +325,7 @@ DEF_TEST(Paint_FlatteningTraits, r) {
 
     SkWriteBuffer writer;
     SkPaint::FlatteningTraits::Flatten(writer, paint);
-    const size_t expectedBytesWritten = sizeof(void*) == 8 ? 48 : 40;
+    const size_t expectedBytesWritten = sizeof(void*) == 8 ? 40 : 32;
     ASSERT(expectedBytesWritten == writer.bytesWritten());
 
     const uint32_t* written = writer.getWriter32()->contiguousArray();

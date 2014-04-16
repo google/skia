@@ -73,6 +73,7 @@ public:
     uint32_t offset() { return fReader.offset(); }
     bool eof() { return fReader.eof(); }
     const void* skip(size_t size) { return fReader.skip(size); }
+    void* readFunctionPtr() { return fReader.readPtr(); }
 
     // primitives
     virtual bool readBool();
@@ -82,12 +83,6 @@ public:
     virtual SkScalar readScalar();
     virtual uint32_t readUInt();
     virtual int32_t read32();
-
-    void* readFunctionPtr() {
-        void* ptr;
-        this->readByteArray(&ptr, sizeof(ptr));
-        return ptr;
-    }
 
     // strings -- the caller is responsible for freeing the string contents
     virtual void readString(SkString* string);
