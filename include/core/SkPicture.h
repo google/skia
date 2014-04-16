@@ -147,6 +147,7 @@ public:
     // all external consumers, SkPicture::createBBoxHierarchy can also be
     // cleaned up.
 private:
+    friend class SkPictureRecorder;
 #endif
     enum Deprecated_RecordingFlags {
         /*  This flag causes the picture to compute bounding boxes and build
@@ -175,8 +176,6 @@ public:
 #ifndef SK_SUPPORT_LEGACY_PICTURE_CAN_RECORD
 private:
     friend class SkPictureRecorder;
-    friend class SkImage_Picture;
-    friend class SkSurface_Picture;
 #endif
 
     /** Returns the canvas that records the drawing commands.
