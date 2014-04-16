@@ -38,8 +38,8 @@ struct FCLocker {
     }
 
     ~FCLocker() {
-        gFCSafeToUse = false;
         if (fUnlock) {
+            gFCSafeToUse = false;
             gFCMutex.release();
         }
     }
