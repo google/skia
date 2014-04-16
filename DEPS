@@ -11,7 +11,7 @@ deps = {
   # DEPS using https://chromium.googlesource.com are pulled from chromium @ r205199
   # (see https://chromium.googlesource.com/chromium/chromium/+/c59bfa8ef877f45bfa859669053859857af1d279)
   "third_party/externals/angle" : "https://chromium.googlesource.com/external/angleproject.git",
-  "third_party/externals/angle2" : "https://chromium.googlesource.com/angle/angle.git@cebb5aa092f92e1f727fe5e4300dbd83abd49afb",
+  "third_party/externals/angle2" : "https://chromium.googlesource.com/angle/angle.git@bdc9b2f0ed9e365bf5a4d19799d93a512f07dd32",
   "third_party/externals/fontconfig" : "https://skia.googlesource.com/third_party/fontconfig.git@2.11.0",
   "third_party/externals/freetype" : "https://skia.googlesource.com/third_party/freetype2.git@VER-2-5-0-1",
   "third_party/externals/gyp" : "https://chromium.googlesource.com/external/gyp.git@5917c6a6b77c9e97a0cbb66847194381bd36ec4c",
