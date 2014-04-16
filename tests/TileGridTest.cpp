@@ -62,7 +62,7 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
                                     SkIntToScalar(1), SkIntToScalar(1));
     SkAutoTUnref<SkPictureFactory> factory(SkNEW_ARGS(SkTileGridPictureFactory, (info)));
     SkPictureRecorder recorder(factory);
-    SkCanvas* canvas = recorder.beginRecording(20, 20, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+    SkCanvas* canvas = recorder.beginRecording(20, 20);
     SkPaint paint;
     canvas->drawRect(rect1, paint);
     canvas->drawRect(rect2, paint);
@@ -151,7 +151,7 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
                                     SkIntToScalar(1), SkIntToScalar(1));
     SkAutoTUnref<SkPictureFactory> factory(SkNEW_ARGS(SkTileGridPictureFactory, (info)));
     SkPictureRecorder recorder(factory);
-    SkCanvas* canvas = recorder.beginRecording(20, 20, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+    SkCanvas* canvas = recorder.beginRecording(20, 20);
     SkPaint paint;
     canvas->drawRect(rect1, paint);
     canvas->drawRect(rect2, paint);

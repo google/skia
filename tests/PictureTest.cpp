@@ -19,6 +19,7 @@
 #include "SkQuadTreePicture.h"
 #include "SkRRect.h"
 #include "SkRandom.h"
+#include "SkRTreePicture.h"
 #include "SkShader.h"
 #include "SkStream.h"
 #include "SkTileGrid.h"
@@ -917,7 +918,7 @@ static void test_draw_empty(skiatest::Reporter* reporter) {
 
         SkAutoTUnref<SkPictureFactory> factory(SkNEW_ARGS(SkTileGridPictureFactory, (gridInfo)));
         SkPictureRecorder recorder(factory);
-        recorder.beginRecording(1, 1, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+        recorder.beginRecording(1, 1);
         SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
         canvas.drawPicture(*picture);
@@ -925,8 +926,9 @@ static void test_draw_empty(skiatest::Reporter* reporter) {
 
     {
         // RTree
-        SkPictureRecorder recorder;
-        recorder.beginRecording(1, 1, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+        SkAutoTUnref<SkPictureFactory> factory(SkNEW(SkRTreePictureFactory));
+        SkPictureRecorder recorder(factory);
+        recorder.beginRecording(1, 1);
         SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
         canvas.drawPicture(*picture);
@@ -936,7 +938,7 @@ static void test_draw_empty(skiatest::Reporter* reporter) {
         // quad tree
         SkAutoTUnref<SkPictureFactory> factory(SkNEW(SkQuadTreePictureFactory));
         SkPictureRecorder recorder(factory);
-        recorder.beginRecording(1, 1, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+        recorder.beginRecording(1, 1);
         SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
         canvas.drawPicture(*picture);

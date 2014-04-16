@@ -253,6 +253,10 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
 }
 
 SkBBoxHierarchy* SkPicture::createBBoxHierarchy() const {
+    // TODO: this code is now replicated in SkRTreePicture. Once all external
+    // clients have been weaned off of kOptimizeForClippedPlayback_RecordingFlag,
+    // this code can be removed.
+
     // These values were empirically determined to produce reasonable
     // performance in most cases.
     static const int kRTreeMinChildren = 6;

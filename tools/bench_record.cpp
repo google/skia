@@ -12,6 +12,7 @@
 #include "SkPicture.h"
 #include "SkQuadTreePicture.h"
 #include "SkRecording.h"
+#include "SkRTreePicture.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTileGridPicture.h"
@@ -33,19 +34,17 @@ DEFINE_int32(tileGridSize, 512, "Set the tile grid size. Has no effect if bbh is
 DEFINE_string(bbh, "", "Turn on the bbh and select the type, one of rtree, tilegrid, quadtree");
 DEFINE_bool(skr, false, "Record SKR instead of SKP.");
 
-typedef SkPictureFactory* (*PictureFactory)(int* recordingFlags);
+typedef SkPictureFactory* (*PictureFactory)();
 
-static SkPictureFactory* vanilla_factory(int* recordingFlags) {
+static SkPictureFactory* vanilla_factory() {
     return NULL;
 }
 
-static SkPictureFactory* rtree_factory(int* recordingFlags) {
-    *recordingFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
-    return NULL;
+static SkPictureFactory* rtree_factory() {
+    return SkNEW(SkRTreePictureFactory);
 }
 
-static SkPictureFactory* tilegrid_factory(int* recordingFlags) {
-    *recordingFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
+static SkPictureFactory* tilegrid_factory() {
     SkTileGridPicture::TileGridInfo info;
     info.fTileInterval.set(FLAGS_tileGridSize, FLAGS_tileGridSize);
     info.fMargin.setEmpty();
@@ -53,8 +52,7 @@ static SkPictureFactory* tilegrid_factory(int* recordingFlags) {
     return SkNEW_ARGS(SkTileGridPictureFactory, (info));
 }
 
-static SkPictureFactory* quadtree_factory(int* recordingFlags) {
-    *recordingFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
+static SkPictureFactory* quadtree_factory() {
     return SkNEW(SkQuadTreePictureFactory);
 }
 
@@ -94,7 +92,7 @@ static void bench_record(SkPicture* src, const char* name, PictureFactory pictur
             SkDELETE(SkRecording::Delete(recording));  // delete the SkPlayback*.
         } else {
             int recordingFlags = FLAGS_flags;
-            SkAutoTUnref<SkPictureFactory> factory(pictureFactory(&recordingFlags));
+            SkAutoTUnref<SkPictureFactory> factory(pictureFactory());
             SkPictureRecorder recorder(factory);
             SkCanvas* canvas = recorder.beginRecording(width, height, recordingFlags);
             if (NULL != src) {

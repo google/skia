@@ -28,7 +28,7 @@
 #include "SkPixelRef.h"
 #include "SkQuadTree.h"
 #include "SkQuadTreePicture.h"
-#include "SkRTree.h"
+#include "SkRTreePicture.h"
 #include "SkScalar.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -319,9 +319,9 @@ void PictureRenderer::purgeTextures() {
 }
 
 uint32_t PictureRenderer::recordFlags() {
-    return ((kNone_BBoxHierarchyType == fBBoxHierarchyType) ? 0 :
-        SkPicture::kOptimizeForClippedPlayback_RecordingFlag) |
-        SkPicture::kUsePathBoundsForClip_RecordingFlag;
+    return (kNone_BBoxHierarchyType == fBBoxHierarchyType) 
+                            ? 0
+                            : SkPicture::kUsePathBoundsForClip_RecordingFlag;
 }
 
 /**
@@ -974,29 +974,6 @@ SkString PlaybackCreationRenderer::getConfigNameInternal() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 // SkPicture variants for each BBoxHierarchy type
-
-class RTreePicture : public SkPicture {
-public:
-    virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE {
-        static const int kRTreeMinChildren = 6;
-        static const int kRTreeMaxChildren = 11;
-        SkScalar aspectRatio = SkScalarDiv(SkIntToScalar(fWidth),
-                                           SkIntToScalar(fHeight));
-        bool sortDraws = false;
-        return SkRTree::Create(kRTreeMinChildren, kRTreeMaxChildren,
-                               aspectRatio, sortDraws);
-    }
-};
-
-class SkRTreePictureFactory : public SkPictureFactory {
-private:
-    virtual SkPicture* create(int width, int height) SK_OVERRIDE {
-        return SkNEW(RTreePicture);
-    }
-
-private:
-    typedef SkPictureFactory INHERITED;
-};
 
 SkPictureFactory* PictureRenderer::getFactory() {
     switch (fBBoxHierarchyType) {

@@ -12,9 +12,8 @@
 #include "SkRect.h"
 
 /**
- * Subclass of SkPicture that override the behavior of the
- * kOptimizeForClippedPlayback_RecordingFlag by creating an SkQuadGrid
- * structure rather than an R-Tree. The quad tree has generally faster
+ * Subclass of SkPicture that creates an SkQuadGrid
+ * structure. The quad tree has generally faster
  * tree creation time, but slightly slower query times, as compared to
  * R-Tree, so some cases may be faster and some cases slower.
  */
@@ -29,7 +28,9 @@ private:
 };
 
 class SkQuadTreePictureFactory : public SkPictureFactory {
-private:
+public:
+    SkQuadTreePictureFactory() {}
+
     virtual SkPicture* create(int width, int height) SK_OVERRIDE {
         return SkNEW_ARGS(SkQuadTreePicture, (SkIRect::MakeWH(width, height)));
     }

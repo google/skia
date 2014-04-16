@@ -34,7 +34,9 @@
 #include "SkOSFile.h"
 #include "SkPDFRasterizer.h"
 #include "SkPicture.h"
+#include "SkQuadTreePicture.h"
 #include "SkRefCnt.h"
+#include "SkRTreePicture.h"
 #include "SkScalar.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -139,6 +141,7 @@ enum BbhType {
     kNone_BbhType,
     kRTree_BbhType,
     kTileGrid_BbhType,
+    kQuadTree_BbhType
 };
 
 enum ConfigFlags {
@@ -1018,9 +1021,10 @@ public:
             info.fOffset.setZero();
             info.fTileInterval.set(16, 16);
             factory.reset(SkNEW_ARGS(SkTileGridPictureFactory, (info)));
-        }
-        if (kNone_BbhType != bbhType) {
-            recordFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
+        } else if (kQuadTree_BbhType == bbhType) {
+            factory.reset(SkNEW(SkQuadTreePictureFactory));
+        } else if (kRTree_BbhType == bbhType) {
+            factory.reset(SkNEW(SkRTreePictureFactory));
         }
         SkPictureRecorder recorder(factory);
         SkCanvas* cv = recorder.beginRecording(width, height, recordFlags);
@@ -1449,6 +1453,7 @@ DEFINE_string(mismatchPath, "", "Write images for tests that failed due to "
 DEFINE_string(modulo, "", "[--modulo <remainder> <divisor>]: only run tests for which "
               "testIndex %% divisor == remainder.");
 DEFINE_bool(pipe, false, "Exercise the SkGPipe replay test pass.");
+DEFINE_bool(quadtree, false, "Exercise the QuadTree variant of SkPicture test pass.");
 DEFINE_string2(readPath, r, "", "Read reference images from this dir, and report "
                "any differences between those and the newly generated ones.");
 DEFINE_bool(replay, false, "Exercise the SkPicture replay test pass.");
@@ -1607,14 +1612,29 @@ ErrorCombination run_multiple_modes(GMMain &gmmain, GM *gm, const ConfigData &co
 
     if (FLAGS_rtree) {
         const char renderModeDescriptor[] = "-rtree";
-        if ((gmFlags & GM::kSkipPicture_Flag) ||
-            (gmFlags & GM::kSkipTiled_Flag)) {
+        if ((gmFlags & GM::kSkipPicture_Flag) || (gmFlags & GM::kSkipTiled_Flag)) {
             gmmain.RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
                                      renderModeDescriptor);
             errorsForAllModes.add(kIntentionallySkipped_ErrorType);
         } else {
-            SkPicture* pict = gmmain.generate_new_picture(
-                gm, kRTree_BbhType, SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+            SkPicture* pict = gmmain.generate_new_picture(gm, kRTree_BbhType, 0);
+            SkAutoUnref aur(pict);
+            SkBitmap bitmap;
+            gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap);
+            errorsForAllModes.add(gmmain.compare_test_results_to_reference_bitmap(
+                gm->getName(), compareConfig.fName, renderModeDescriptor, bitmap,
+                &comparisonBitmap));
+        }
+    }
+
+    if (FLAGS_quadtree) {
+        const char renderModeDescriptor[] = "-quadtree";
+        if ((gmFlags & GM::kSkipPicture_Flag) || (gmFlags & GM::kSkipTiled_Flag)) {
+            gmmain.RecordTestResults(kIntentionallySkipped_ErrorType, shortNamePlusConfig,
+                                     renderModeDescriptor);
+            errorsForAllModes.add(kIntentionallySkipped_ErrorType);
+        } else {
+            SkPicture* pict = gmmain.generate_new_picture(gm, kQuadTree_BbhType, 0);
             SkAutoUnref aur(pict);
             SkBitmap bitmap;
             gmmain.generate_image_from_picture(gm, compareConfig, pict, &bitmap);

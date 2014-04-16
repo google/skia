@@ -18,6 +18,7 @@
 #include "SkQuadTreePicture.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
+#include "SkRTreePicture.h"
 #include "SkShader.h"
 #include "SkTileGridPicture.h"
 #include "SkUtils.h"
@@ -166,6 +167,7 @@ private:
             // no bbox playback necessary
             return pic.detach();
         case kRTree_BBoxType:
+            factory.reset(SkNEW(SkRTreePictureFactory));
             break;
         case kQuadTree_BBoxType:
             factory.reset(SkNEW(SkQuadTreePictureFactory));
@@ -184,8 +186,7 @@ private:
         }
 
         SkPictureRecorder recorder(factory);
-        pic->draw(recorder.beginRecording(pic->width(), pic->height(),
-                                          SkPicture::kOptimizeForClippedPlayback_RecordingFlag));
+        pic->draw(recorder.beginRecording(pic->width(), pic->height()));
         return recorder.endRecording();
     }
 

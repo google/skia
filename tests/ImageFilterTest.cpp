@@ -24,6 +24,7 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPicture.h"
+#include "SkRTreePicture.h"
 #include "SkRect.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
@@ -276,9 +277,9 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
 
     SkMatrix expectedMatrix = canvas.getTotalMatrix();
 
-    SkPictureRecorder recorder;
-    SkCanvas* recordingCanvas = recorder.beginRecording(100, 100,
-        SkPicture::kOptimizeForClippedPlayback_RecordingFlag);
+    SkAutoTUnref<SkPictureFactory> factory(SkNEW(SkRTreePictureFactory));
+    SkPictureRecorder recorder(factory);
+    SkCanvas* recordingCanvas = recorder.beginRecording(100, 100);
 
     SkPaint paint;
     SkAutoTUnref<MatrixTestImageFilter> imageFilter(

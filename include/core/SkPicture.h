@@ -139,7 +139,16 @@ public:
             clip-query calls will reflect the path's bounds, not the actual
             path.
          */
-        kUsePathBoundsForClip_RecordingFlag = 0x01,
+        kUsePathBoundsForClip_RecordingFlag = 0x01
+    };
+
+#ifndef SK_SUPPORT_DEPRECATED_RECORD_FLAGS
+    // TODO: once kOptimizeForClippedPlayback_RecordingFlag is hidden from
+    // all external consumers, SkPicture::createBBoxHierarchy can also be
+    // cleaned up.
+private:
+#endif
+    enum Deprecated_RecordingFlags {
         /*  This flag causes the picture to compute bounding boxes and build
             up a spatial hierarchy (currently an R-Tree), plus a tree of Canvas'
             usually stack-based clip/etc state. This requires an increase in
@@ -159,6 +168,9 @@ public:
         */
         kOptimizeForClippedPlayback_RecordingFlag = 0x02,
     };
+#ifndef SK_SUPPORT_DEPRECATED_RECORD_FLAGS
+public:
+#endif
 
 #ifndef SK_SUPPORT_LEGACY_PICTURE_CAN_RECORD
 private:
@@ -337,6 +349,7 @@ protected:
     // For testing. Derived classes may instantiate an alternate
     // SkBBoxHierarchy implementation
     virtual SkBBoxHierarchy* createBBoxHierarchy() const;
+
 private:
     // An OperationList encapsulates a set of operation offsets into the picture byte
     // stream along with the CTMs needed for those operation.
@@ -406,6 +419,9 @@ public:
      *  Allocate a new SkPicture. Return NULL on failure.
      */
     virtual SkPicture* create(int width, int height) = 0;
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 class SK_API SkPictureRecorder : SkNoncopyable {
@@ -428,6 +444,7 @@ public:
     SkCanvas* beginRecording(int width, int height, uint32_t recordFlags = 0) {
         if (NULL != fFactory) {
             fPicture.reset(fFactory->create(width, height));
+            recordFlags |= SkPicture::kOptimizeForClippedPlayback_RecordingFlag;
         } else {
             fPicture.reset(SkNEW(SkPicture));
         }
