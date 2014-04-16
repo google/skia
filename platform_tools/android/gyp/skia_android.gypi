@@ -61,7 +61,7 @@
          'ANDROID_SDK_ROOT': '<!(echo $ANDROID_SDK_ROOT)',
          # the ninja generator treats PRODUCT_DIR as a relative path to the
          # gyp directory but android ant build wants a path relative to the
-         # build.xml file so we do that adjustment here. 
+         # build.xml file so we do that adjustment here.
          'ANDROID_OUT': '../../<(PRODUCT_DIR)/android'
        },
       'actions': [
