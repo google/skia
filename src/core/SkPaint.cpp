@@ -37,23 +37,25 @@
 
 enum {
     kColor_DirtyBit               = 1 <<  0,
-    kBitfields_DirtyBit           = 1 <<  1,
-    kTextSize_DirtyBit            = 1 <<  2,
-    kTextScaleX_DirtyBit          = 1 <<  3,
-    kTextSkewX_DirtyBit           = 1 <<  4,
-    kStrokeWidth_DirtyBit         = 1 <<  5,
-    kStrokeMiter_DirtyBit         = 1 <<  6,
-    kPathEffect_DirtyBit          = 1 <<  7,
-    kShader_DirtyBit              = 1 <<  8,
-    kXfermode_DirtyBit            = 1 <<  9,
-    kMaskFilter_DirtyBit          = 1 << 10,
-    kColorFilter_DirtyBit         = 1 << 11,
-    kRasterizer_DirtyBit          = 1 << 12,
-    kLooper_DirtyBit              = 1 << 13,
-    kImageFilter_DirtyBit         = 1 << 14,
-    kTypeface_DirtyBit            = 1 << 15,
-    kAnnotation_DirtyBit          = 1 << 16,
-    kPaintOptionsAndroid_DirtyBit = 1 << 17,
+    kTextSize_DirtyBit            = 1 <<  1,
+    kTextScaleX_DirtyBit          = 1 <<  2,
+    kTextSkewX_DirtyBit           = 1 <<  3,
+    kStrokeWidth_DirtyBit         = 1 <<  4,
+    kStrokeMiter_DirtyBit         = 1 <<  5,
+
+    kPOD_DirtyBitMask             = 63,
+
+    kPathEffect_DirtyBit          = 1 <<  6,
+    kShader_DirtyBit              = 1 <<  7,
+    kXfermode_DirtyBit            = 1 <<  8,
+    kMaskFilter_DirtyBit          = 1 <<  9,
+    kColorFilter_DirtyBit         = 1 << 10,
+    kRasterizer_DirtyBit          = 1 << 11,
+    kLooper_DirtyBit              = 1 << 12,
+    kImageFilter_DirtyBit         = 1 << 13,
+    kTypeface_DirtyBit            = 1 << 14,
+    kAnnotation_DirtyBit          = 1 << 15,
+    kPaintOptionsAndroid_DirtyBit = 1 << 16,
 };
 
 // define this to get a printf for out-of-range parameter in setters
@@ -254,19 +256,16 @@ void SkPaint::setPaintOptionsAndroid(const SkPaintOptionsAndroid& options) {
 void SkPaint::setFilterLevel(FilterLevel level) {
     GEN_ID_INC_EVAL((unsigned) level != fFilterLevel);
     fFilterLevel = level;
-    fDirtyBits |= kBitfields_DirtyBit;
 }
 
 void SkPaint::setHinting(Hinting hintingLevel) {
     GEN_ID_INC_EVAL((unsigned) hintingLevel != fHinting);
     fHinting = hintingLevel;
-    fDirtyBits |= kBitfields_DirtyBit;
 }
 
 void SkPaint::setFlags(uint32_t flags) {
     GEN_ID_INC_EVAL(fFlags != flags);
     fFlags = flags;
-    fDirtyBits |= kBitfields_DirtyBit;
 }
 
 void SkPaint::setAntiAlias(bool doAA) {
@@ -325,7 +324,6 @@ void SkPaint::setStyle(Style style) {
     if ((unsigned)style < kStyleCount) {
         GEN_ID_INC_EVAL((unsigned)style != fStyle);
         fStyle = style;
-        fDirtyBits |= kBitfields_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStyle(%d) out of range\n", style);
@@ -376,7 +374,6 @@ void SkPaint::setStrokeCap(Cap ct) {
     if ((unsigned)ct < kCapCount) {
         GEN_ID_INC_EVAL((unsigned)ct != fCapType);
         fCapType = SkToU8(ct);
-        fDirtyBits |= kBitfields_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStrokeCap(%d) out of range\n", ct);
@@ -388,7 +385,6 @@ void SkPaint::setStrokeJoin(Join jt) {
     if ((unsigned)jt < kJoinCount) {
         GEN_ID_INC_EVAL((unsigned)jt != fJoinType);
         fJoinType = SkToU8(jt);
-        fDirtyBits |= kBitfields_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setStrokeJoin(%d) out of range\n", jt);
@@ -402,7 +398,6 @@ void SkPaint::setTextAlign(Align align) {
     if ((unsigned)align < kAlignCount) {
         GEN_ID_INC_EVAL((unsigned)align != fTextAlign);
         fTextAlign = SkToU8(align);
-        fDirtyBits |= kBitfields_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setTextAlign(%d) out of range\n", align);
@@ -438,7 +433,6 @@ void SkPaint::setTextEncoding(TextEncoding encoding) {
     if ((unsigned)encoding <= kGlyphID_TextEncoding) {
         GEN_ID_INC_EVAL((unsigned)encoding != fTextEncoding);
         fTextEncoding = encoding;
-        fDirtyBits |= kBitfields_DirtyBit;
     } else {
 #ifdef SK_REPORT_API_RANGE_CHECK
         SkDebugf("SkPaint::setTextEncoding(%d) out of range\n", encoding);
@@ -2650,7 +2644,6 @@ bool SkPaint::nothingToDraw() const {
 
 void SkPaint::setBitfields(uint32_t bitfields) {
     fBitfields = bitfields;
-    fDirtyBits |= kBitfields_DirtyBit;
 }
 
 inline static unsigned popcount(uint8_t x) {
@@ -2664,18 +2657,19 @@ inline static unsigned popcount(uint8_t x) {
 void SkPaint::FlatteningTraits::Flatten(SkWriteBuffer& buffer, const SkPaint& paint) {
     const uint32_t dirty = paint.fDirtyBits;
 
-    // Each of the low 7 dirty bits corresponds to a 4-byte flat value, plus one for the dirty bits.
-    const size_t flatBytes = 4 * (popcount(dirty & 127) + 1);
+    // Each of the low 7 dirty bits corresponds to a 4-byte flat value,
+    // plus one for the dirty bits and one for the bitfields
+    const size_t flatBytes = 4 * (popcount(dirty & kPOD_DirtyBitMask) + 2);
     SkASSERT(flatBytes <= 32);
     uint32_t* u32 = buffer.reserve(flatBytes);
     *u32++ = dirty;
-    if (dirty == 0) {
+    *u32++ = paint.getBitfields();
+    if (0 == dirty) {
         return;
     }
 
 #define F(dst, field) if (dirty & k##field##_DirtyBit) *dst++ = paint.get##field()
     F(u32, Color);
-    F(u32, Bitfields);
     SkScalar* f32 = reinterpret_cast<SkScalar*>(u32);
     F(f32, TextSize);
     F(f32, TextScaleX);
@@ -2702,6 +2696,7 @@ void SkPaint::FlatteningTraits::Flatten(SkWriteBuffer& buffer, const SkPaint& pa
 
 void SkPaint::FlatteningTraits::Unflatten(SkReadBuffer& buffer, SkPaint* paint) {
     const uint32_t dirty = buffer.readUInt();
+    paint->setBitfields(buffer.readUInt());
     if (dirty == 0) {
         return;
     }
@@ -2712,7 +2707,6 @@ void SkPaint::FlatteningTraits::Unflatten(SkReadBuffer& buffer, SkPaint* paint) 
         paint->set##field(buffer.reader())->unref()
 
     F(Color,       readUInt);
-    F(Bitfields,   readUInt);
     F(TextSize,    readScalar);
     F(TextScaleX,  readScalar);
     F(TextSkewX,   readScalar);

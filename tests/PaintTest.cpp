@@ -325,12 +325,12 @@ DEF_TEST(Paint_FlatteningTraits, r) {
 
     SkWriteBuffer writer;
     SkPaint::FlatteningTraits::Flatten(writer, paint);
-    const size_t expectedBytesWritten = sizeof(void*) == 8 ? 40 : 32;
+    const size_t expectedBytesWritten = sizeof(void*) == 8 ? 44 : 36;
     ASSERT(expectedBytesWritten == writer.bytesWritten());
 
     const uint32_t* written = writer.getWriter32()->contiguousArray();
     SkASSERT(written != NULL);
-    ASSERT(*written == ((1<<0) | (1<<2) | (1<<3) | (1<<9)));  // Dirty bits for our 4.
+    ASSERT(*written == ((1<<0) | (1<<1) | (1<<2) | (1<<8)));  // Dirty bits for our 4.
 
     SkReadBuffer reader(written, writer.bytesWritten());
     SkPaint other;
