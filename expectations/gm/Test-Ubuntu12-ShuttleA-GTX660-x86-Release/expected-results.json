@@ -4767,14 +4767,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10167332900422109271
+          6658051419802088177
         ]
       ], 
       "bugs": [
-        2325
+        2404
       ], 
       "ignore-failure": false, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "circles_msaa16.png": {
       "allowed-digests": [
@@ -8459,14 +8459,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14897792001610563483
+          1539449287605088678
         ]
       ], 
       "bugs": [
-        2325
+        2404
       ], 
       "ignore-failure": false, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "drawlooper_msaa16.png": {
       "allowed-digests": [
@@ -17053,14 +17053,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16065988395535735595
+          16383763212496843414
         ]
       ], 
       "bugs": [
-        2325
+        2404
       ], 
       "ignore-failure": false, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadows_msaa16.png": {
       "allowed-digests": [
@@ -19234,14 +19234,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5993714245643675395
+          18181134168985431124
         ]
       ], 
       "bugs": [
-        2325
+        2404
       ], 
       "ignore-failure": false, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "twopointconical_msaa16.png": {
       "allowed-digests": [
