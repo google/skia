@@ -251,27 +251,10 @@ void SkPaint::setPaintOptionsAndroid(const SkPaintOptionsAndroid& options) {
 }
 #endif
 
-SkPaint::FilterLevel SkPaint::getFilterLevel() const {
-    int level = 0;
-    if (fFlags & kFilterBitmap_Flag) {
-        level |= 1;
-    }
-    if (fFlags & kHighQualityFilterBitmap_Flag) {
-        level |= 2;
-    }
-    return (FilterLevel)level;
-}
-
 void SkPaint::setFilterLevel(FilterLevel level) {
-    unsigned mask = kFilterBitmap_Flag | kHighQualityFilterBitmap_Flag;
-    unsigned flags = 0;
-    if (level & 1) {
-        flags |= kFilterBitmap_Flag;
-    }
-    if (level & 2) {
-        flags |= kHighQualityFilterBitmap_Flag;
-    }
-    this->setFlags((fFlags & ~mask) | flags);
+    GEN_ID_INC_EVAL((unsigned) level != fFilterLevel);
+    fFilterLevel = level;
+    fDirtyBits |= kBitfields_DirtyBit;
 }
 
 void SkPaint::setHinting(Hinting hintingLevel) {
@@ -2026,11 +2009,88 @@ static uint32_t pack_4(unsigned a, unsigned b, unsigned c, unsigned d) {
     return (a << 24) | (b << 16) | (c << 8) | d;
 }
 
+#ifdef SK_DEBUG
+    static void ASSERT_FITS_IN(uint32_t value, int bitCount) {
+        SkASSERT(bitCount > 0 && bitCount <= 32);
+        uint32_t mask = ~0U;
+        mask >>= (32 - bitCount);
+        SkASSERT(0 == (value & ~mask));
+    }
+#else
+    #define ASSERT_FITS_IN(value, bitcount)
+#endif
+
 enum FlatFlags {
     kHasTypeface_FlatFlag                      = 0x01,
     kHasEffects_FlatFlag                       = 0x02,
     kHasNonDefaultPaintOptionsAndroid_FlatFlag = 0x04,
+    
+    kFlatFlagMask = 0x7,
 };
+
+enum BitsPerField {
+    kFlags_BPF  = 16,
+    kHint_BPF   = 2,
+    kAlign_BPF  = 2,
+    kFilter_BPF = 2,
+    kFlatFlags_BPF  = 3,
+};
+
+static inline int BPF_Mask(int bits) {
+    return (1 << bits) - 1;
+}
+
+static uint32_t pack_paint_flags(unsigned flags, unsigned hint, unsigned align,
+                                 unsigned filter, unsigned flatFlags) {
+    ASSERT_FITS_IN(flags, kFlags_BPF);
+    ASSERT_FITS_IN(hint, kHint_BPF);
+    ASSERT_FITS_IN(align, kAlign_BPF);
+    ASSERT_FITS_IN(filter, kFilter_BPF);
+    ASSERT_FITS_IN(flatFlags, kFlatFlags_BPF);
+
+    // left-align the fields of "known" size, and right-align the last (flatFlags) so it can easly
+    // add more bits in the future.
+    return (flags << 16) | (hint << 14) | (align << 12) | (filter << 10) | flatFlags;
+}
+
+static FlatFlags unpack_paint_flags(SkPaint* paint, uint32_t packed) {
+    paint->setFlags(packed >> 16);
+    paint->setHinting((SkPaint::Hinting)((packed >> 14) & BPF_Mask(kHint_BPF)));
+    paint->setTextAlign((SkPaint::Align)((packed >> 12) & BPF_Mask(kAlign_BPF)));
+    paint->setFilterLevel((SkPaint::FilterLevel)((packed >> 10) & BPF_Mask(kFilter_BPF)));
+    return (FlatFlags)(packed & kFlatFlagMask);
+}
+
+// V22_COMPATIBILITY_CODE
+static FlatFlags unpack_paint_flags_v22(SkPaint* paint, uint32_t packed) {
+    enum {
+        kFilterBitmap_Flag    = 0x02,
+        kHighQualityFilterBitmap_Flag = 0x4000,
+        
+        kAll_Flags = kFilterBitmap_Flag | kHighQualityFilterBitmap_Flag
+    };
+
+    // previously flags:16, textAlign:8, flatFlags:8
+    // now flags:16, hinting:4, textAlign:4, flatFlags:8
+    unsigned flags = packed >> 16;
+    int filter = 0;
+    if (flags & kFilterBitmap_Flag) {
+        filter |= 1;
+    }
+    if (flags & kHighQualityFilterBitmap_Flag) {
+        filter |= 2;
+    }
+    paint->setFilterLevel((SkPaint::FilterLevel)filter);
+    flags &= ~kAll_Flags;   // remove these (now dead) bit flags
+
+    paint->setFlags(flags);
+    
+    // hinting added later. 0 in this nibble means use the default.
+    uint32_t hinting = (packed >> 12) & 0xF;
+    paint->setHinting(0 == hinting ? SkPaint::kNormal_Hinting : static_cast<SkPaint::Hinting>(hinting-1));
+    paint->setTextAlign(static_cast<SkPaint::Align>((packed >> 8) & 0xF));
+    return (FlatFlags)(packed & kFlatFlagMask);
+}
 
 // The size of a flat paint's POD fields
 static const uint32_t kPODPaintSize =   5 * sizeof(SkScalar) +
@@ -2072,13 +2132,9 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
     ptr = write_scalar(ptr, this->getStrokeWidth());
     ptr = write_scalar(ptr, this->getStrokeMiter());
     *ptr++ = this->getColor();
-    // previously flags:16, textAlign:8, flatFlags:8
-    // now flags:16, hinting:4, textAlign:4, flatFlags:8
-    *ptr++ = (this->getFlags() << 16) |
-        // hinting added later. 0 in this nibble means use the default.
-        ((this->getHinting()+1) << 12) |
-        (this->getTextAlign() << 8) |
-        flatFlags;
+
+    *ptr++ = pack_paint_flags(this->getFlags(), this->getHinting(), this->getTextAlign(),
+                              this->getFilterLevel(), flatFlags);
     *ptr++ = pack_4(this->getStrokeCap(), this->getStrokeJoin(),
                     this->getStyle(), this->getTextEncoding());
 
@@ -2112,7 +2168,6 @@ void SkPaint::flatten(SkWriteBuffer& buffer) const {
 }
 
 void SkPaint::unflatten(SkReadBuffer& buffer) {
-    uint8_t flatFlags = 0;
     SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
     const void* podData = buffer.skip(kPODPaintSize);
     const uint32_t* pod = reinterpret_cast<const uint32_t*>(podData);
@@ -2125,20 +2180,15 @@ void SkPaint::unflatten(SkReadBuffer& buffer) {
     this->setStrokeMiter(read_scalar(pod));
     this->setColor(*pod++);
 
-    // previously flags:16, textAlign:8, flatFlags:8
-    // now flags:16, hinting:4, textAlign:4, flatFlags:8
+    const int picVer = buffer.pictureVersion();
+    unsigned flatFlags = 0;
+    if (picVer > 0 && picVer <= 22) {
+        flatFlags = unpack_paint_flags_v22(this, *pod++);
+    } else {
+        flatFlags = unpack_paint_flags(this, *pod++);
+    }
+
     uint32_t tmp = *pod++;
-    this->setFlags(tmp >> 16);
-
-    // hinting added later. 0 in this nibble means use the default.
-    uint32_t hinting = (tmp >> 12) & 0xF;
-    this->setHinting(0 == hinting ? kNormal_Hinting : static_cast<Hinting>(hinting-1));
-
-    this->setTextAlign(static_cast<Align>((tmp >> 8) & 0xF));
-
-    flatFlags = tmp & 0xFF;
-
-    tmp = *pod++;
     this->setStrokeCap(static_cast<Cap>((tmp >> 24) & 0xFF));
     this->setStrokeJoin(static_cast<Join>((tmp >> 16) & 0xFF));
     this->setStyle(static_cast<Style>((tmp >> 8) & 0xFF));

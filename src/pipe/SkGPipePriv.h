@@ -224,6 +224,7 @@ enum PaintOps {
 
     kFlags_PaintOp,     // arg inline
     kColor_PaintOp,     // arg 32
+    kFilterLevel_PaintOp,   // arg inline
     kStyle_PaintOp,     // arg inline
     kJoin_PaintOp,      // arg inline
     kCap_PaintOp,       // arg inline

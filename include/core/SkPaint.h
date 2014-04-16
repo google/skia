@@ -52,14 +52,6 @@ typedef const SkGlyph& (*SkMeasureCacheProc)(SkGlyphCache*, const char**);
 */
 
 class SK_API SkPaint {
-    enum {
-        // DEPRECATED -- use setFilterLevel instead
-        kFilterBitmap_Flag    = 0x02, // temporary flag
-        // DEPRECATED -- use setFilterLevel instead
-        kHighQualityFilterBitmap_Flag = 0x4000, // temporary flag
-        // DEPRECATED -- use setFilterLevel instead
-        kHighQualityDownsampleBitmap_Flag = 0x8000, // temporary flag
-    };
 public:
     SkPaint();
     SkPaint(const SkPaint& paint);
@@ -310,7 +302,7 @@ public:
      *  Return the filter level. This affects the quality (and performance) of
      *  drawing scaled images.
      */
-    FilterLevel getFilterLevel() const;
+    FilterLevel getFilterLevel() const { return (FilterLevel)fFilterLevel; }
 
     /**
      *  Set the filter level. This affects the quality (and performance) of
@@ -1072,7 +1064,8 @@ private:
             unsigned        fStyle : 2;
             unsigned        fTextEncoding : 2;  // 3 values
             unsigned        fHinting : 2;
-            //unsigned      fFreeBits : 4;
+            unsigned        fFilterLevel : 2;
+            //unsigned      fFreeBits : 2;
         };
         uint32_t fBitfields;
     };

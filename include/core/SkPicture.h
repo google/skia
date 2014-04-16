@@ -309,13 +309,14 @@ protected:
     // V20: added bool to SkPictureImageFilter's serialization (to allow SkPicture serialization)
     // V21: add pushCull, popCull
     // V22: SK_PICT_FACTORY_TAG's size is now the chunk size in bytes
+    // V23: SkPaint::FilterLevel became a real enum
 
     // Note: If the picture version needs to be increased then please follow the
     // steps to generate new SKPs in (only accessible to Googlers): http://goo.gl/qATVcw
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t MIN_PICTURE_VERSION = 19;
-    static const uint32_t CURRENT_PICTURE_VERSION = 22;
+    static const uint32_t CURRENT_PICTURE_VERSION = 23;
 
     mutable uint32_t      fUniqueID;
 
