@@ -69,7 +69,7 @@ private:
     SkShader* validInternal(const SkBitmap& device, const SkPaint& paint,
                             const SkMatrix& matrix, SkMatrix* totalInverse) const;
 
-    SkShader* buildBitmapShader(const SkMatrix&) const;
+    SkShader* refBitmapShader(const SkMatrix&) const;
 
     SkPicture*  fPicture;
     TileMode    fTmx, fTmy;

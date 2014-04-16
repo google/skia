@@ -55,7 +55,7 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-SkShader* SkPictureShader::buildBitmapShader(const SkMatrix& matrix) const {
+SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix) const {
     if (!fPicture || (0 == fPicture->width() && 0 == fPicture->height())) {
         return NULL;
     }
@@ -121,17 +121,12 @@ SkShader* SkPictureShader::validInternal(const SkBitmap& device, const SkPaint& 
         return NULL;
     }
 
-    SkShader* bitmapShader = this->buildBitmapShader(matrix);
-    if (!bitmapShader) {
+    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(matrix));
+    if (!bitmapShader || !bitmapShader->validContext(device, paint, matrix)) {
         return NULL;
     }
 
-    if (!bitmapShader->validContext(device, paint, matrix)) {
-        bitmapShader->unref();
-        return NULL;
-    }
-
-    return bitmapShader;
+    return bitmapShader.detach();
 }
 
 bool SkPictureShader::validContext(const SkBitmap& device, const SkPaint& paint,
@@ -142,13 +137,13 @@ bool SkPictureShader::validContext(const SkBitmap& device, const SkPaint& paint,
 
 SkShader::Context* SkPictureShader::createContext(const SkBitmap& device, const SkPaint& paint,
                                                   const SkMatrix& matrix, void* storage) const {
-    SkShader* bitmapShader = this->validInternal(device, paint, matrix, NULL);
+    SkAutoTUnref<SkShader> bitmapShader(this->validInternal(device, paint, matrix, NULL));
     if (!bitmapShader) {
         return NULL;
     }
 
     return SkNEW_PLACEMENT_ARGS(storage, PictureShaderContext,
-                                (*this, device, paint, matrix, bitmapShader));
+                                (*this, device, paint, matrix, bitmapShader.detach()));
 }
 
 size_t SkPictureShader::contextSize() const {
@@ -209,7 +204,7 @@ void SkPictureShader::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 GrEffectRef* SkPictureShader::asNewEffect(GrContext* context, const SkPaint& paint) const {
-    SkAutoTUnref<SkShader> bitmapShader(this->buildBitmapShader(context->getMatrix()));
+    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(context->getMatrix()));
     if (!bitmapShader) {
         return NULL;
     }

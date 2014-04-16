@@ -215,7 +215,7 @@ private:
     SkColor*    fOrigColors; // original colors, before modulation by paint in context.
     bool        fColorsAreOpaque;
 
-    GradientShaderCache* getCache(U8CPU alpha) const;
+    GradientShaderCache* refCache(U8CPU alpha) const;
     mutable SkMutex                           fCacheMutex;
     mutable SkAutoTUnref<GradientShaderCache> fCache;
 
