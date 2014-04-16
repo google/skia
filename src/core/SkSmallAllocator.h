@@ -117,10 +117,12 @@ public:
             // but we're not sure we can catch all callers, so handle it but
             // assert false in debug mode.
             SkASSERT(false);
+            rec->fStorageSize = 0;
             rec->fHeapStorage = sk_malloc_throw(storageRequired);
             rec->fObj = static_cast<void*>(rec->fHeapStorage);
         } else {
             // There is space in fStorage.
+            rec->fStorageSize = storageRequired;
             rec->fHeapStorage = NULL;
             SkASSERT(SkIsAlign4(fStorageUsed));
             rec->fObj = static_cast<void*>(fStorage + (fStorageUsed / 4));
@@ -131,11 +133,26 @@ public:
         return rec->fObj;
     }
 
+    /*
+     *  Free the memory reserved last without calling the destructor.
+     *  Can be used in a nested way, i.e. after reserving A and B, calling
+     *  freeLast once will free B and calling it again will free A.
+     */
+    void freeLast() {
+        SkASSERT(fNumObjects > 0);
+        Rec* rec = &fRecs[fNumObjects - 1];
+        sk_free(rec->fHeapStorage);
+        fStorageUsed -= rec->fStorageSize;
+
+        fNumObjects--;
+    }
+
 private:
     struct Rec {
-        void* fObj;
-        void* fHeapStorage;
-        void  (*fKillProc)(void*);
+        size_t fStorageSize;  // 0 if allocated on heap
+        void*  fObj;
+        void*  fHeapStorage;
+        void   (*fKillProc)(void*);
     };
 
     // Number of bytes used so far.

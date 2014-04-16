@@ -398,6 +398,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     }
     // The above logic should have always assigned fBitmap, but in case it
     // didn't, we check for that now...
+    // TODO(dominikg): Ask humper@ if we can just use an SkASSERT(fBitmap)?
     if (NULL == fBitmap) {
         return false;
     }
@@ -480,6 +481,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     // shader will perform.
 
     fMatrixProc = this->chooseMatrixProc(trivialMatrix);
+    // TODO(dominikg): SkASSERT(fMatrixProc) instead? chooseMatrixProc never returns NULL.
     if (NULL == fMatrixProc) {
         return false;
     }
@@ -521,6 +523,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
                 fPaintPMColor = SkPreMultiplyColor(paint.getColor());
                 break;
             default:
+                // TODO(dominikg): Should we ever get here? SkASSERT(false) instead?
                 return false;
         }
 

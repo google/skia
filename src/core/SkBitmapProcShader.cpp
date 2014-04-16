@@ -34,18 +34,16 @@ bool SkBitmapProcShader::CanDo(const SkBitmap& bm, TileMode tx, TileMode ty) {
 SkBitmapProcShader::SkBitmapProcShader(const SkBitmap& src,
                                        TileMode tmx, TileMode tmy) {
     fRawBitmap = src;
-    fState.fTileModeX = (uint8_t)tmx;
-    fState.fTileModeY = (uint8_t)tmy;
-    fFlags = 0; // computed in setContext
+    fTileModeX = (uint8_t)tmx;
+    fTileModeY = (uint8_t)tmy;
 }
 
 SkBitmapProcShader::SkBitmapProcShader(SkReadBuffer& buffer)
         : INHERITED(buffer) {
     buffer.readBitmap(&fRawBitmap);
     fRawBitmap.setImmutable();
-    fState.fTileModeX = buffer.readUInt();
-    fState.fTileModeY = buffer.readUInt();
-    fFlags = 0; // computed in setContext
+    fTileModeX = buffer.readUInt();
+    fTileModeY = buffer.readUInt();
 }
 
 SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture,
@@ -58,8 +56,8 @@ SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture,
         texM->reset();
     }
     if (xy) {
-        xy[0] = (TileMode)fState.fTileModeX;
-        xy[1] = (TileMode)fState.fTileModeY;
+        xy[0] = (TileMode)fTileModeX;
+        xy[1] = (TileMode)fTileModeY;
     }
     return kDefault_BitmapType;
 }
@@ -68,8 +66,8 @@ void SkBitmapProcShader::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
 
     buffer.writeBitmap(fRawBitmap);
-    buffer.writeUInt(fState.fTileModeX);
-    buffer.writeUInt(fState.fTileModeY);
+    buffer.writeUInt(fTileModeX);
+    buffer.writeUInt(fTileModeY);
 }
 
 static bool only_scale_and_translate(const SkMatrix& matrix) {
@@ -98,25 +96,67 @@ static bool valid_for_drawing(const SkBitmap& bm) {
     return true;
 }
 
-bool SkBitmapProcShader::setContext(const SkBitmap& device,
-                                    const SkPaint& paint,
-                                    const SkMatrix& matrix) {
+bool SkBitmapProcShader::validInternal(const SkBitmap& device,
+                                       const SkPaint& paint,
+                                       const SkMatrix& matrix,
+                                       SkMatrix* totalInverse,
+                                       SkBitmapProcState* state) const {
     if (!fRawBitmap.getTexture() && !valid_for_drawing(fRawBitmap)) {
         return false;
     }
 
-    // do this first, so we have a correct inverse matrix
-    if (!this->INHERITED::setContext(device, paint, matrix)) {
+    // Make sure we can use totalInverse as a cache.
+    SkMatrix totalInverseLocal;
+    if (NULL == totalInverse) {
+        totalInverse = &totalInverseLocal;
+    }
+
+    // Do this first, so we know the matrix can be inverted.
+    if (!this->INHERITED::validContext(device, paint, matrix, totalInverse)) {
         return false;
     }
 
-    fState.fOrigBitmap = fRawBitmap;
-    if (!fState.chooseProcs(this->getTotalInverse(), paint)) {
-        this->INHERITED::endContext();
-        return false;
+    SkASSERT(state);
+    state->fTileModeX = fTileModeX;
+    state->fTileModeY = fTileModeY;
+    state->fOrigBitmap = fRawBitmap;
+    return state->chooseProcs(*totalInverse, paint);
+}
+
+bool SkBitmapProcShader::validContext(const SkBitmap& device,
+                                      const SkPaint& paint,
+                                      const SkMatrix& matrix,
+                                      SkMatrix* totalInverse) const {
+    SkBitmapProcState state;
+    return this->validInternal(device, paint, matrix, totalInverse, &state);
+}
+
+SkShader::Context* SkBitmapProcShader::createContext(const SkBitmap& device, const SkPaint& paint,
+                                                     const SkMatrix& matrix, void* storage) const {
+    void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
+    SkBitmapProcState* state = SkNEW_PLACEMENT(stateStorage, SkBitmapProcState);
+    if (!this->validInternal(device, paint, matrix, NULL, state)) {
+        state->~SkBitmapProcState();
+        return NULL;
     }
 
-    const SkBitmap& bitmap = *fState.fBitmap;
+    return SkNEW_PLACEMENT_ARGS(storage, BitmapProcShaderContext,
+                                (*this, device, paint, matrix, state));
+}
+
+size_t SkBitmapProcShader::contextSize() const {
+    // The SkBitmapProcState is stored outside of the context object, with the context holding
+    // a pointer to it.
+    return sizeof(BitmapProcShaderContext) + sizeof(SkBitmapProcState);
+}
+
+SkBitmapProcShader::BitmapProcShaderContext::BitmapProcShaderContext(
+        const SkBitmapProcShader& shader, const SkBitmap& device,
+        const SkPaint& paint, const SkMatrix& matrix, SkBitmapProcState* state)
+    : INHERITED(shader, device, paint, matrix)
+    , fState(state)
+{
+    const SkBitmap& bitmap = *fState->fBitmap;
     bool bitmapIsOpaque = bitmap.isOpaque();
 
     // update fFlags
@@ -157,12 +197,12 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
     }
 
     fFlags = flags;
-    return true;
 }
 
-void SkBitmapProcShader::endContext() {
-    fState.endContext();
-    this->INHERITED::endContext();
+SkBitmapProcShader::BitmapProcShaderContext::~BitmapProcShaderContext() {
+    // The bitmap proc state has been created outside of the context on memory that will be freed
+    // elsewhere. Only call the destructor but leave the freeing of the memory to the caller.
+    fState->~SkBitmapProcState();
 }
 
 #define BUF_MAX     128
@@ -176,8 +216,9 @@ void SkBitmapProcShader::endContext() {
     #define TEST_BUFFER_EXTRA   0
 #endif
 
-void SkBitmapProcShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
-    const SkBitmapProcState& state = fState;
+void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan(int x, int y, SkPMColor dstC[],
+                                                            int count) {
+    const SkBitmapProcState& state = *fState;
     if (state.getShaderProc32()) {
         state.getShaderProc32()(state, x, y, dstC, count);
         return;
@@ -186,7 +227,7 @@ void SkBitmapProcShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
     uint32_t buffer[BUF_MAX + TEST_BUFFER_EXTRA];
     SkBitmapProcState::MatrixProc   mproc = state.getMatrixProc();
     SkBitmapProcState::SampleProc32 sproc = state.getSampleProc32();
-    int max = fState.maxCountForBufferSize(sizeof(buffer[0]) * BUF_MAX);
+    int max = state.maxCountForBufferSize(sizeof(buffer[0]) * BUF_MAX);
 
     SkASSERT(state.fBitmap->getPixels());
     SkASSERT(state.fBitmap->pixelRef() == NULL ||
@@ -220,16 +261,17 @@ void SkBitmapProcShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
     }
 }
 
-SkShader::ShadeProc SkBitmapProcShader::asAShadeProc(void** ctx) {
-    if (fState.getShaderProc32()) {
-        *ctx = &fState;
-        return (ShadeProc)fState.getShaderProc32();
+SkShader::Context::ShadeProc SkBitmapProcShader::BitmapProcShaderContext::asAShadeProc(void** ctx) {
+    if (fState->getShaderProc32()) {
+        *ctx = fState;
+        return (ShadeProc)fState->getShaderProc32();
     }
     return NULL;
 }
 
-void SkBitmapProcShader::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
-    const SkBitmapProcState& state = fState;
+void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan16(int x, int y, uint16_t dstC[],
+                                                              int count) {
+    const SkBitmapProcState& state = *fState;
     if (state.getShaderProc16()) {
         state.getShaderProc16()(state, x, y, dstC, count);
         return;
@@ -238,7 +280,7 @@ void SkBitmapProcShader::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
     uint32_t buffer[BUF_MAX];
     SkBitmapProcState::MatrixProc   mproc = state.getMatrixProc();
     SkBitmapProcState::SampleProc16 sproc = state.getSampleProc16();
-    int max = fState.maxCountForBufferSize(sizeof(buffer));
+    int max = state.maxCountForBufferSize(sizeof(buffer));
 
     SkASSERT(state.fBitmap->getPixels());
     SkASSERT(state.fBitmap->pixelRef() == NULL ||
@@ -342,8 +384,8 @@ void SkBitmapProcShader::toString(SkString* str) const {
     str->append("BitmapShader: (");
 
     str->appendf("(%s, %s)",
-                 gTileModeName[fState.fTileModeX],
-                 gTileModeName[fState.fTileModeY]);
+                 gTileModeName[fTileModeX],
+                 gTileModeName[fTileModeY]);
 
     str->append(" ");
     fRawBitmap.toString(str);
@@ -384,8 +426,8 @@ GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& 
     matrix.preConcat(lmInverse);
 
     SkShader::TileMode tm[] = {
-        (TileMode)fState.fTileModeX,
-        (TileMode)fState.fTileModeY,
+        (TileMode)fTileModeX,
+        (TileMode)fTileModeY,
     };
 
     // Must set wrap and filter on the sampler before requesting a texture. In two places below
