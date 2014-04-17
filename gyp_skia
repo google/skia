@@ -15,7 +15,7 @@ import platform
 import shlex
 import sys
 
-script_dir = os.path.dirname(__file__)
+script_dir = os.path.abspath(os.path.dirname(__file__))
 
 # Directory within which we can find the gyp source.
 gyp_source_dir = os.path.join(script_dir, 'third_party', 'externals', 'gyp')
