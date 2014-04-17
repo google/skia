@@ -30,35 +30,16 @@ public:
     */
     SkColorShader(SkColor c);
 
+    virtual ~SkColorShader();
+
+    virtual uint32_t getFlags() SK_OVERRIDE;
+    virtual uint8_t getSpan16Alpha() const SK_OVERRIDE;
     virtual bool isOpaque() const SK_OVERRIDE;
-
-    virtual SkShader::Context* createContext(const SkBitmap& device,
-                                             const SkPaint& paint,
-                                             const SkMatrix& matrix,
-                                             void* storage) const SK_OVERRIDE;
-
-    virtual size_t contextSize() const SK_OVERRIDE {
-        return sizeof(ColorShaderContext);
-    }
-
-    class ColorShaderContext : public SkShader::Context {
-    public:
-        ColorShaderContext(const SkColorShader& shader, const SkBitmap& device,
-                           const SkPaint& paint, const SkMatrix& matrix);
-
-        virtual uint32_t getFlags() const SK_OVERRIDE;
-        virtual uint8_t getSpan16Alpha() const SK_OVERRIDE;
-        virtual void shadeSpan(int x, int y, SkPMColor span[], int count) SK_OVERRIDE;
-        virtual void shadeSpan16(int x, int y, uint16_t span[], int count) SK_OVERRIDE;
-        virtual void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) SK_OVERRIDE;
-
-    private:
-        SkPMColor   fPMColor;
-        uint32_t    fFlags;
-        uint16_t    fColor16;
-
-        typedef SkShader::Context INHERITED;
-    };
+    virtual bool setContext(const SkBitmap& device, const SkPaint& paint,
+                            const SkMatrix& matrix) SK_OVERRIDE;
+    virtual void shadeSpan(int x, int y, SkPMColor span[], int count) SK_OVERRIDE;
+    virtual void shadeSpan16(int x, int y, uint16_t span[], int count) SK_OVERRIDE;
+    virtual void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) SK_OVERRIDE;
 
     // we return false for this, use asAGradient
     virtual BitmapType asABitmap(SkBitmap* outTexture,
@@ -75,7 +56,11 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
+
     SkColor     fColor;         // ignored if fInheritColor is true
+    SkPMColor   fPMColor;       // cached after setContext()
+    uint32_t    fFlags;         // cached after setContext()
+    uint16_t    fColor16;       // cached after setContext()
     SkBool8     fInheritColor;
 
     typedef SkShader INHERITED;

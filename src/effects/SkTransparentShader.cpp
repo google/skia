@@ -11,40 +11,26 @@
 #include "SkColorPriv.h"
 #include "SkString.h"
 
-SkShader::Context* SkTransparentShader::createContext(const SkBitmap& device,
-                                                      const SkPaint& paint,
-                                                      const SkMatrix& matrix,
-                                                      void* storage) const {
-    if (!this->validContext(device, paint, matrix)) {
-        return NULL;
-    }
+bool SkTransparentShader::setContext(const SkBitmap& device,
+                                     const SkPaint& paint,
+                                     const SkMatrix& matrix) {
+    fDevice = &device;
+    fAlpha = paint.getAlpha();
 
-    return SkNEW_PLACEMENT_ARGS(storage, TransparentShaderContext, (*this, device, paint, matrix));
+    return this->INHERITED::setContext(device, paint, matrix);
 }
 
-size_t SkTransparentShader::contextSize() const {
-    return sizeof(TransparentShaderContext);
-}
-
-SkTransparentShader::TransparentShaderContext::TransparentShaderContext(
-        const SkTransparentShader& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix)
-    : INHERITED(shader, device, paint, matrix)
-    , fDevice(&device) {}
-
-SkTransparentShader::TransparentShaderContext::~TransparentShaderContext() {}
-
-uint32_t SkTransparentShader::TransparentShaderContext::getFlags() const {
+uint32_t SkTransparentShader::getFlags() {
     uint32_t flags = this->INHERITED::getFlags();
 
     switch (fDevice->colorType()) {
         case kRGB_565_SkColorType:
             flags |= kHasSpan16_Flag;
-            if (this->getPaintAlpha() == 255)
+            if (fAlpha == 255)
                 flags |= kOpaqueAlpha_Flag;
             break;
         case kN32_SkColorType:
-            if (this->getPaintAlpha() == 255 && fDevice->isOpaque())
+            if (fAlpha == 255 && fDevice->isOpaque())
                 flags |= kOpaqueAlpha_Flag;
             break;
         default:
@@ -53,9 +39,8 @@ uint32_t SkTransparentShader::TransparentShaderContext::getFlags() const {
     return flags;
 }
 
-void SkTransparentShader::TransparentShaderContext::shadeSpan(int x, int y, SkPMColor span[],
-                                                              int count) {
-    unsigned scale = SkAlpha255To256(this->getPaintAlpha());
+void SkTransparentShader::shadeSpan(int x, int y, SkPMColor span[], int count) {
+    unsigned scale = SkAlpha255To256(fAlpha);
 
     switch (fDevice->colorType()) {
         case kN32_SkColorType:
@@ -78,7 +63,7 @@ void SkTransparentShader::TransparentShaderContext::shadeSpan(int x, int y, SkPM
                     span[i] = SkPixel16ToPixel32(src[i]);
                 }
             } else {
-                unsigned alpha = this->getPaintAlpha();
+                unsigned alpha = fAlpha;
                 for (int i = count - 1; i >= 0; --i) {
                     uint16_t c = src[i];
                     unsigned r = SkPacked16ToR32(c);
@@ -112,8 +97,7 @@ void SkTransparentShader::TransparentShaderContext::shadeSpan(int x, int y, SkPM
     }
 }
 
-void SkTransparentShader::TransparentShaderContext::shadeSpan16(int x, int y, uint16_t span[],
-                                                                int count) {
+void SkTransparentShader::shadeSpan16(int x, int y, uint16_t span[], int count) {
     SkASSERT(fDevice->colorType() == kRGB_565_SkColorType);
 
     uint16_t* src = fDevice->getAddr16(x, y);

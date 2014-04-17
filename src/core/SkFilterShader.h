@@ -17,29 +17,12 @@ public:
     SkFilterShader(SkShader* shader, SkColorFilter* filter);
     virtual ~SkFilterShader();
 
-    virtual bool validContext(const SkBitmap&, const SkPaint&,
-                              const SkMatrix&, SkMatrix* totalInverse = NULL) const SK_OVERRIDE;
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&,
-                                             const SkMatrix&, void* storage) const SK_OVERRIDE;
-    virtual size_t contextSize() const SK_OVERRIDE;
-
-    class FilterShaderContext : public SkShader::Context {
-    public:
-        // Takes ownership of shaderContext and calls its destructor.
-        FilterShaderContext(const SkFilterShader& filterShader, SkShader::Context* shaderContext,
-                            const SkBitmap& device, const SkPaint& paint, const SkMatrix& matrix);
-        virtual ~FilterShaderContext();
-
-        virtual uint32_t getFlags() const SK_OVERRIDE;
-
-        virtual void shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
-        virtual void shadeSpan16(int x, int y, uint16_t[], int count) SK_OVERRIDE;
-
-    private:
-        SkShader::Context* fShaderContext;
-
-        typedef SkShader::Context INHERITED;
-    };
+    virtual uint32_t getFlags() SK_OVERRIDE;
+    virtual bool setContext(const SkBitmap&, const SkPaint&,
+                            const SkMatrix&) SK_OVERRIDE;
+    virtual void endContext() SK_OVERRIDE;
+    virtual void shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
+    virtual void shadeSpan16(int x, int y, uint16_t[], int count) SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkFilterShader)

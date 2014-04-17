@@ -11,8 +11,6 @@
 
 #include "SkGradientShaderPriv.h"
 
-// TODO(dominikg): Worth making it truly immutable (i.e. set values in constructor)?
-// Should only be initialized once via init(). Immutable afterwards.
 struct TwoPtRadial {
     enum {
         kDontDrawT  = 0x80000000
@@ -29,6 +27,13 @@ struct TwoPtRadial {
     void init(const SkPoint& center0, SkScalar rad0,
               const SkPoint& center1, SkScalar rad1);
 
+    // used by setup and nextT
+    float   fRelX, fRelY, fIncX, fIncY;
+    float   fB, fDB;
+
+    void setup(SkScalar fx, SkScalar fy, SkScalar dfx, SkScalar dfy);
+    SkFixed nextT();
+
     static bool DontDrawT(SkFixed t) {
         return kDontDrawT == (uint32_t)t;
     }
@@ -44,24 +49,11 @@ public:
                               const SkPoint& end, SkScalar endRadius,
                               const Descriptor&);
 
-
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
-                                             void* storage) const SK_OVERRIDE;
-    virtual size_t contextSize() const SK_OVERRIDE;
-
-    class TwoPointConicalGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
-    public:
-        TwoPointConicalGradientContext(const SkTwoPointConicalGradient& shader,
-                                       const SkBitmap& device,
-                                       const SkPaint& paint,
-                                       const SkMatrix& matrix);
-        ~TwoPointConicalGradientContext() {}
-
-        virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
-
-    private:
-        typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
-    };
+    virtual void shadeSpan(int x, int y, SkPMColor* dstCParam,
+                           int count) SK_OVERRIDE;
+    virtual bool setContext(const SkBitmap& device,
+                            const SkPaint& paint,
+                            const SkMatrix& matrix) SK_OVERRIDE;
 
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
@@ -85,12 +77,11 @@ protected:
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 
 private:
+    typedef SkGradientShaderBase INHERITED;
     const SkPoint fCenter1;
     const SkPoint fCenter2;
     const SkScalar fRadius1;
     const SkScalar fRadius2;
-
-    typedef SkGradientShaderBase INHERITED;
 };
 
 #endif

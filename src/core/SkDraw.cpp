@@ -2354,26 +2354,9 @@ class SkTriColorShader : public SkShader {
 public:
     SkTriColorShader() {}
 
-    virtual SkShader::Context* createContext(
-            const SkBitmap&, const SkPaint&, const SkMatrix&, void*) const SK_OVERRIDE;
-    virtual size_t contextSize() const SK_OVERRIDE;
+    bool setup(const SkPoint pts[], const SkColor colors[], int, int, int);
 
-    class TriColorShaderContext : public SkShader::Context {
-    public:
-        TriColorShaderContext(const SkTriColorShader& shader, const SkBitmap& device,
-                              const SkPaint& paint, const SkMatrix& matrix);
-        virtual ~TriColorShaderContext();
-
-        bool setup(const SkPoint pts[], const SkColor colors[], int, int, int);
-
-        virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
-
-    private:
-        SkMatrix    fDstToUnit;
-        SkPMColor   fColors[3];
-
-        typedef SkShader::Context INHERITED;
-    };
+    virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTriColorShader)
@@ -2382,20 +2365,14 @@ protected:
     SkTriColorShader(SkReadBuffer& buffer) : SkShader(buffer) {}
 
 private:
+    SkMatrix    fDstToUnit;
+    SkPMColor   fColors[3];
+
     typedef SkShader INHERITED;
 };
 
-SkShader::Context* SkTriColorShader::createContext(const SkBitmap& device, const SkPaint& paint,
-                                                   const SkMatrix& matrix, void* storage) const {
-    if (!this->validContext(device, paint, matrix)) {
-        return NULL;
-    }
-
-    return SkNEW_PLACEMENT_ARGS(storage, TriColorShaderContext, (*this, device, paint, matrix));
-}
-
-bool SkTriColorShader::TriColorShaderContext::setup(const SkPoint pts[], const SkColor colors[],
-                                                    int index0, int index1, int index2) {
+bool SkTriColorShader::setup(const SkPoint pts[], const SkColor colors[],
+                             int index0, int index1, int index2) {
 
     fColors[0] = SkPreMultiplyColor(colors[index0]);
     fColors[1] = SkPreMultiplyColor(colors[index1]);
@@ -2430,18 +2407,7 @@ static int ScalarTo256(SkScalar v) {
     return SkAlpha255To256(scale);
 }
 
-
-SkTriColorShader::TriColorShaderContext::TriColorShaderContext(
-        const SkTriColorShader& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix)
-    : INHERITED(shader, device, paint, matrix) {}
-
-SkTriColorShader::TriColorShaderContext::~TriColorShaderContext() {}
-
-size_t SkTriColorShader::contextSize() const {
-    return sizeof(TriColorShaderContext);
-}
-void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
+void SkTriColorShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
     SkPoint src;
 
     for (int i = 0; i < count; i++) {
@@ -2526,7 +2492,6 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
     }
 
     // setup the custom shader (if needed)
-    SkAutoTUnref<SkComposeShader> composeShader;
     if (NULL != colors) {
         if (NULL == textures) {
             // just colors (no texture)
@@ -2539,8 +2504,9 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
                 xmode = SkXfermode::Create(SkXfermode::kModulate_Mode);
                 releaseMode = true;
             }
-            composeShader.reset(SkNEW_ARGS(SkComposeShader, (&triShader, shader, xmode)));
-            p.setShader(composeShader);
+            SkShader* compose = SkNEW_ARGS(SkComposeShader,
+                                           (&triShader, shader, xmode));
+            p.setShader(compose)->unref();
             if (releaseMode) {
                 xmode->unref();
             }
@@ -2548,7 +2514,9 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
     }
 
     SkAutoBlitterChoose blitter(*fBitmap, *fMatrix, p);
-    // Abort early if we failed to create a shader context.
+    // important that we abort early, as below we may manipulate the shader
+    // and that is only valid if the shader returned true from setContext.
+    // If it returned false, then our blitter will be the NullBlitter.
     if (blitter->isNullBlitter()) {
         return;
     }
@@ -2564,38 +2532,30 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
             savedLocalM = shader->getLocalMatrix();
         }
 
+        // setContext has already been called and verified to return true
+        // by the constructor of SkAutoBlitterChoose
+        bool prevContextSuccess = true;
         while (vertProc(&state)) {
             if (NULL != textures) {
                 if (texture_to_matrix(state, vertices, textures, &tempM)) {
                     tempM.postConcat(savedLocalM);
                     shader->setLocalMatrix(tempM);
-                    if (!blitter->resetShaderContext(*fBitmap, p, *fMatrix)) {
+                    // Need to recall setContext since we changed the local matrix.
+                    // However, we also need to balance the calls this with a
+                    // call to endContext which requires tracking the result of
+                    // the previous call to setContext.
+                    if (prevContextSuccess) {
+                        shader->endContext();
+                    }
+                    prevContextSuccess = shader->setContext(*fBitmap, p, *fMatrix);
+                    if (!prevContextSuccess) {
                         continue;
                     }
                 }
             }
             if (NULL != colors) {
-                // Find the context for triShader.
-                SkTriColorShader::TriColorShaderContext* triColorShaderContext;
-
-                SkShader::Context* shaderContext = blitter->getShaderContext();
-                SkASSERT(shaderContext);
-                if (p.getShader() == &triShader) {
-                    triColorShaderContext =
-                            static_cast<SkTriColorShader::TriColorShaderContext*>(shaderContext);
-                } else {
-                    // The shader is a compose shader and triShader is its first shader.
-                    SkASSERT(p.getShader() == composeShader);
-                    SkASSERT(composeShader->getShaderA() == &triShader);
-                    SkComposeShader::ComposeShaderContext* composeShaderContext =
-                            static_cast<SkComposeShader::ComposeShaderContext*>(shaderContext);
-                    SkShader::Context* shaderContextA = composeShaderContext->getShaderContextA();
-                    triColorShaderContext =
-                            static_cast<SkTriColorShader::TriColorShaderContext*>(shaderContextA);
-                }
-
-                if (!triColorShaderContext->setup(vertices, colors,
-                                                  state.f0, state.f1, state.f2)) {
+                if (!triShader.setup(vertices, colors,
+                                     state.f0, state.f1, state.f2)) {
                     continue;
                 }
             }
@@ -2609,6 +2569,13 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
         // now restore the shader's original local matrix
         if (NULL != shader) {
             shader->setLocalMatrix(savedLocalM);
+        }
+
+        // If the final call to setContext fails we must make it suceed so that the
+        // call to endContext in the destructor for SkAutoBlitterChoose is balanced.
+        if (!prevContextSuccess) {
+            prevContextSuccess = shader->setContext(*fBitmap, paint, SkMatrix::I());
+            SkASSERT(prevContextSuccess);
         }
     } else {
         // no colors[] and no texture

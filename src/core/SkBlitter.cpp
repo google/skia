@@ -26,15 +26,6 @@ SkBlitter::~SkBlitter() {}
 
 bool SkBlitter::isNullBlitter() const { return false; }
 
-bool SkBlitter::resetShaderContext(const SkBitmap& device, const SkPaint& paint,
-                                   const SkMatrix& matrix) {
-    return true;
-}
-
-SkShader::Context* SkBlitter::getShaderContext() const {
-    return NULL;
-}
-
 const SkBitmap* SkBlitter::justAnOpaqueColor(uint32_t* value) {
     return NULL;
 }
@@ -577,149 +568,102 @@ class Sk3DShader : public SkShader {
 public:
     Sk3DShader(SkShader* proxy) : fProxy(proxy) {
         SkSafeRef(proxy);
+        fMask = NULL;
     }
 
     virtual ~Sk3DShader() {
         SkSafeUnref(fProxy);
     }
 
-    virtual size_t contextSize() const SK_OVERRIDE {
-        size_t size = sizeof(Sk3DShaderContext);
-        if (fProxy) {
-            size += fProxy->contextSize();
-        }
-        return size;
-    }
+    void setMask(const SkMask* mask) { fMask = mask; }
 
-    virtual bool validContext(const SkBitmap& device, const SkPaint& paint,
-                              const SkMatrix& matrix, SkMatrix* totalInverse = NULL) const
-            SK_OVERRIDE
-    {
-        if (!this->INHERITED::validContext(device, paint, matrix, totalInverse)) {
+    virtual bool setContext(const SkBitmap& device, const SkPaint& paint,
+                            const SkMatrix& matrix) SK_OVERRIDE {
+        if (!this->INHERITED::setContext(device, paint, matrix)) {
             return false;
         }
         if (fProxy) {
-            return fProxy->validContext(device, paint, matrix);
+            if (!fProxy->setContext(device, paint, matrix)) {
+                // must keep our set/end context calls balanced
+                this->INHERITED::endContext();
+                return false;
+            }
+        } else {
+            fPMColor = SkPreMultiplyColor(paint.getColor());
         }
         return true;
     }
 
-    virtual SkShader::Context* createContext(const SkBitmap& device,
-                                             const SkPaint& paint,
-                                             const SkMatrix& matrix,
-                                             void* storage) const SK_OVERRIDE
-    {
-        if (!this->validContext(device, paint, matrix)) {
-            return NULL;
-        }
-
-        SkShader::Context* proxyContext;
+    virtual void endContext() SK_OVERRIDE {
         if (fProxy) {
-            char* proxyContextStorage = (char*) storage + sizeof(Sk3DShaderContext);
-            proxyContext = fProxy->createContext(device, paint, matrix, proxyContextStorage);
-            SkASSERT(proxyContext);
-        } else {
-            proxyContext = NULL;
+            fProxy->endContext();
         }
-        return SkNEW_PLACEMENT_ARGS(storage, Sk3DShaderContext, (*this, device, paint, matrix,
-                                                                 proxyContext));
+        this->INHERITED::endContext();
     }
 
-    class Sk3DShaderContext : public SkShader::Context {
-    public:
-        // Calls proxyContext's destructor but will NOT free its memory.
-        Sk3DShaderContext(const Sk3DShader& shader, const SkBitmap& device, const SkPaint& paint,
-                          const SkMatrix& matrix, SkShader::Context* proxyContext)
-            : INHERITED(shader, device, paint, matrix)
-            , fMask(NULL)
-            , fProxyContext(proxyContext)
-        {
-            if (!fProxyContext) {
-                fPMColor = SkPreMultiplyColor(paint.getColor());
-            }
+    virtual void shadeSpan(int x, int y, SkPMColor span[], int count) SK_OVERRIDE {
+        if (fProxy) {
+            fProxy->shadeSpan(x, y, span, count);
         }
 
-        virtual ~Sk3DShaderContext() {
-            if (fProxyContext) {
-                fProxyContext->SkShader::Context::~Context();
+        if (fMask == NULL) {
+            if (fProxy == NULL) {
+                sk_memset32(span, fPMColor, count);
             }
+            return;
         }
 
-        void setMask(const SkMask* mask) { fMask = mask; }
+        SkASSERT(fMask->fBounds.contains(x, y));
+        SkASSERT(fMask->fBounds.contains(x + count - 1, y));
 
-        virtual void shadeSpan(int x, int y, SkPMColor span[], int count) SK_OVERRIDE {
-            if (fProxyContext) {
-                fProxyContext->shadeSpan(x, y, span, count);
-            }
+        size_t          size = fMask->computeImageSize();
+        const uint8_t*  alpha = fMask->getAddr8(x, y);
+        const uint8_t*  mulp = alpha + size;
+        const uint8_t*  addp = mulp + size;
 
-            if (fMask == NULL) {
-                if (fProxyContext == NULL) {
-                    sk_memset32(span, fPMColor, count);
-                }
-                return;
-            }
+        if (fProxy) {
+            for (int i = 0; i < count; i++) {
+                if (alpha[i]) {
+                    SkPMColor c = span[i];
+                    if (c) {
+                        unsigned a = SkGetPackedA32(c);
+                        unsigned r = SkGetPackedR32(c);
+                        unsigned g = SkGetPackedG32(c);
+                        unsigned b = SkGetPackedB32(c);
 
-            SkASSERT(fMask->fBounds.contains(x, y));
-            SkASSERT(fMask->fBounds.contains(x + count - 1, y));
-
-            size_t          size = fMask->computeImageSize();
-            const uint8_t*  alpha = fMask->getAddr8(x, y);
-            const uint8_t*  mulp = alpha + size;
-            const uint8_t*  addp = mulp + size;
-
-            if (fProxyContext) {
-                for (int i = 0; i < count; i++) {
-                    if (alpha[i]) {
-                        SkPMColor c = span[i];
-                        if (c) {
-                            unsigned a = SkGetPackedA32(c);
-                            unsigned r = SkGetPackedR32(c);
-                            unsigned g = SkGetPackedG32(c);
-                            unsigned b = SkGetPackedB32(c);
-
-                            unsigned mul = SkAlpha255To256(mulp[i]);
-                            unsigned add = addp[i];
-
-                            r = SkFastMin32(SkAlphaMul(r, mul) + add, a);
-                            g = SkFastMin32(SkAlphaMul(g, mul) + add, a);
-                            b = SkFastMin32(SkAlphaMul(b, mul) + add, a);
-
-                            span[i] = SkPackARGB32(a, r, g, b);
-                        }
-                    } else {
-                        span[i] = 0;
-                    }
-                }
-            } else {    // color
-                unsigned a = SkGetPackedA32(fPMColor);
-                unsigned r = SkGetPackedR32(fPMColor);
-                unsigned g = SkGetPackedG32(fPMColor);
-                unsigned b = SkGetPackedB32(fPMColor);
-                for (int i = 0; i < count; i++) {
-                    if (alpha[i]) {
                         unsigned mul = SkAlpha255To256(mulp[i]);
                         unsigned add = addp[i];
 
-                        span[i] = SkPackARGB32( a,
-                                        SkFastMin32(SkAlphaMul(r, mul) + add, a),
-                                        SkFastMin32(SkAlphaMul(g, mul) + add, a),
-                                        SkFastMin32(SkAlphaMul(b, mul) + add, a));
-                    } else {
-                        span[i] = 0;
+                        r = SkFastMin32(SkAlphaMul(r, mul) + add, a);
+                        g = SkFastMin32(SkAlphaMul(g, mul) + add, a);
+                        b = SkFastMin32(SkAlphaMul(b, mul) + add, a);
+
+                        span[i] = SkPackARGB32(a, r, g, b);
                     }
+                } else {
+                    span[i] = 0;
+                }
+            }
+        } else {    // color
+            unsigned a = SkGetPackedA32(fPMColor);
+            unsigned r = SkGetPackedR32(fPMColor);
+            unsigned g = SkGetPackedG32(fPMColor);
+            unsigned b = SkGetPackedB32(fPMColor);
+            for (int i = 0; i < count; i++) {
+                if (alpha[i]) {
+                    unsigned mul = SkAlpha255To256(mulp[i]);
+                    unsigned add = addp[i];
+
+                    span[i] = SkPackARGB32( a,
+                                    SkFastMin32(SkAlphaMul(r, mul) + add, a),
+                                    SkFastMin32(SkAlphaMul(g, mul) + add, a),
+                                    SkFastMin32(SkAlphaMul(b, mul) + add, a));
+                } else {
+                    span[i] = 0;
                 }
             }
         }
-
-    private:
-        // Unowned.
-        const SkMask*       fMask;
-        // Memory is unowned, but we need to call the destructor.
-        SkShader::Context*  fProxyContext;
-        SkPMColor           fPMColor;
-
-        typedef SkShader::Context INHERITED;
-    };
+    }
 
 #ifndef SK_IGNORE_TO_STRING
     virtual void toString(SkString* str) const SK_OVERRIDE {
@@ -741,30 +685,29 @@ public:
 protected:
     Sk3DShader(SkReadBuffer& buffer) : INHERITED(buffer) {
         fProxy = buffer.readShader();
-        // Leaving this here until we bump the picture version, though this
-        // shader should never be recorded.
-        buffer.readColor();
+        fPMColor = buffer.readColor();
+        fMask = NULL;
     }
 
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE {
         this->INHERITED::flatten(buffer);
         buffer.writeFlattenable(fProxy);
-        // Leaving this here until we bump the picture version, though this
-        // shader should never be recorded.
-        buffer.writeColor(SkColor());
+        buffer.writeColor(fPMColor);
     }
 
 private:
     SkShader*       fProxy;
+    SkPMColor       fPMColor;
+    const SkMask*   fMask;
 
     typedef SkShader INHERITED;
 };
 
 class Sk3DBlitter : public SkBlitter {
 public:
-    Sk3DBlitter(SkBlitter* proxy, Sk3DShader::Sk3DShaderContext* shaderContext)
+    Sk3DBlitter(SkBlitter* proxy, Sk3DShader* shader)
         : fProxy(proxy)
-        , f3DShaderContext(shaderContext)
+        , f3DShader(SkRef(shader))
     {}
 
     virtual void blitH(int x, int y, int width) {
@@ -786,22 +729,22 @@ public:
 
     virtual void blitMask(const SkMask& mask, const SkIRect& clip) {
         if (mask.fFormat == SkMask::k3D_Format) {
-            f3DShaderContext->setMask(&mask);
+            f3DShader->setMask(&mask);
 
             ((SkMask*)&mask)->fFormat = SkMask::kA8_Format;
             fProxy->blitMask(mask, clip);
             ((SkMask*)&mask)->fFormat = SkMask::k3D_Format;
 
-            f3DShaderContext->setMask(NULL);
+            f3DShader->setMask(NULL);
         } else {
             fProxy->blitMask(mask, clip);
         }
     }
 
 private:
-    // Both pointers are unowned. They will be deleted by SkSmallAllocator.
-    SkBlitter*                     fProxy;
-    Sk3DShader::Sk3DShaderContext* f3DShaderContext;
+    // fProxy is unowned. It will be deleted by SkSmallAllocator.
+    SkBlitter*               fProxy;
+    SkAutoTUnref<Sk3DShader> f3DShader;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -811,7 +754,8 @@ private:
 static bool just_solid_color(const SkPaint& paint) {
     if (paint.getAlpha() == 0xFF && paint.getColorFilter() == NULL) {
         SkShader* shader = paint.getShader();
-        if (NULL == shader) {
+        if (NULL == shader ||
+            (shader->getFlags() & SkShader::kOpaqueAlpha_Flag)) {
             return true;
         }
     }
@@ -949,22 +893,16 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     }
 
     /*
-     *  We create a SkShader::Context object, and store it on the blitter.
+     *  We need to have balanced calls to the shader:
+     *      setContext
+     *      endContext
+     *  We make the first call here, in case it fails we can abort the draw.
+     *  The endContext() call is made by the blitter (assuming setContext did
+     *  not fail) in its destructor.
      */
-    SkShader::Context* shaderContext;
-    if (shader) {
-        // Try to create the ShaderContext
-        void* storage = allocator->reserveT<SkShader::Context>(shader->contextSize());
-        shaderContext = shader->createContext(device, *paint, matrix, storage);
-        if (!shaderContext) {
-            allocator->freeLast();
-            blitter = allocator->createT<SkNullBlitter>();
-            return blitter;
-        }
-        SkASSERT(shaderContext);
-        SkASSERT((void*) shaderContext == storage);
-    } else {
-        shaderContext = NULL;
+    if (shader && !shader->setContext(device, *paint, matrix)) {
+        blitter = allocator->createT<SkNullBlitter>();
+        return blitter;
     }
 
 
@@ -975,20 +913,19 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
                 SkASSERT(NULL == paint->getXfermode());
                 blitter = allocator->createT<SkA8_Coverage_Blitter>(device, *paint);
             } else if (shader) {
-                blitter = allocator->createT<SkA8_Shader_Blitter>(device, *paint, shaderContext);
+                blitter = allocator->createT<SkA8_Shader_Blitter>(device, *paint);
             } else {
                 blitter = allocator->createT<SkA8_Blitter>(device, *paint);
             }
             break;
 
         case kRGB_565_SkColorType:
-            blitter = SkBlitter_ChooseD565(device, *paint, shaderContext, allocator);
+            blitter = SkBlitter_ChooseD565(device, *paint, allocator);
             break;
 
         case kN32_SkColorType:
             if (shader) {
-                blitter = allocator->createT<SkARGB32_Shader_Blitter>(
-                        device, *paint, shaderContext);
+                blitter = allocator->createT<SkARGB32_Shader_Blitter>(device, *paint);
             } else if (paint->getColor() == SK_ColorBLACK) {
                 blitter = allocator->createT<SkARGB32_Black_Blitter>(device, *paint);
             } else if (paint->getAlpha() == 0xFF) {
@@ -1007,9 +944,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     if (shader3D) {
         SkBlitter* innerBlitter = blitter;
         // innerBlitter was allocated by allocator, which will delete it.
-        // We know shaderContext is of type Sk3DShaderContext because it belongs to shader3D.
-        blitter = allocator->createT<Sk3DBlitter>(innerBlitter,
-                static_cast<Sk3DShader::Sk3DShaderContext*>(shaderContext));
+        blitter = allocator->createT<Sk3DBlitter>(innerBlitter, shader3D);
     }
     return blitter;
 }
@@ -1021,36 +956,18 @@ const uint32_t gMask_00FF00FF = 0xFF00FF;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkShaderBlitter::SkShaderBlitter(const SkBitmap& device, const SkPaint& paint,
-                                 SkShader::Context* shaderContext)
-        : INHERITED(device)
-        , fShader(paint.getShader())
-        , fShaderContext(shaderContext) {
+SkShaderBlitter::SkShaderBlitter(const SkBitmap& device, const SkPaint& paint)
+        : INHERITED(device) {
+    fShader = paint.getShader();
     SkASSERT(fShader);
-    SkASSERT(fShaderContext);
+    SkASSERT(fShader->setContextHasBeenCalled());
 
     fShader->ref();
-    fShaderFlags = fShaderContext->getFlags();
+    fShaderFlags = fShader->getFlags();
 }
 
 SkShaderBlitter::~SkShaderBlitter() {
+    SkASSERT(fShader->setContextHasBeenCalled());
+    fShader->endContext();
     fShader->unref();
-}
-
-bool SkShaderBlitter::resetShaderContext(const SkBitmap& device, const SkPaint& paint,
-                                         const SkMatrix& matrix) {
-    if (!fShader->validContext(device, paint, matrix)) {
-        return false;
-    }
-
-    // Only destroy the old context if we have a new one. We need to ensure to have a
-    // live context in fShaderContext because the storage is owned by an SkSmallAllocator
-    // outside of this class.
-    // The new context will be of the same size as the old one because we use the same
-    // shader to create it. It is therefore safe to re-use the storage.
-    fShaderContext->SkShader::Context::~Context();
-    fShaderContext = fShader->createContext(device, paint, matrix, (void*)fShaderContext);
-    SkASSERT(fShaderContext);
-
-    return true;
 }
