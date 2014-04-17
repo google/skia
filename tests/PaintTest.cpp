@@ -289,7 +289,7 @@ DEF_TEST(Paint_flattening, reporter) {
 
     const uint32_t* written = writer.getWriter32()->contiguousArray();
     SkReadBuffer reader(written, writer.bytesWritten());
-    
+
     SkPaint paint2;
     paint2.unflatten(reader);
     REPORTER_ASSERT(reporter, paint2 == paint);

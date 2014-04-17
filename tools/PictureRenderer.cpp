@@ -319,7 +319,7 @@ void PictureRenderer::purgeTextures() {
 }
 
 uint32_t PictureRenderer::recordFlags() {
-    return (kNone_BBoxHierarchyType == fBBoxHierarchyType) 
+    return (kNone_BBoxHierarchyType == fBBoxHierarchyType)
                             ? 0
                             : SkPicture::kUsePathBoundsForClip_RecordingFlag;
 }

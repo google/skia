@@ -11,7 +11,7 @@
 #include "SkPicture.h"
 
 /**
- * Subclass of SkPicture that creates an RTree acceleration structure. 
+ * Subclass of SkPicture that creates an RTree acceleration structure.
  */
 class SkRTreePicture : public SkPicture {
 public:

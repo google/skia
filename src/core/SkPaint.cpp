@@ -2018,7 +2018,7 @@ enum FlatFlags {
     kHasTypeface_FlatFlag                      = 0x01,
     kHasEffects_FlatFlag                       = 0x02,
     kHasNonDefaultPaintOptionsAndroid_FlatFlag = 0x04,
-    
+
     kFlatFlagMask = 0x7,
 };
 
@@ -2060,7 +2060,7 @@ static FlatFlags unpack_paint_flags_v22(SkPaint* paint, uint32_t packed) {
     enum {
         kFilterBitmap_Flag    = 0x02,
         kHighQualityFilterBitmap_Flag = 0x4000,
-        
+
         kAll_Flags = kFilterBitmap_Flag | kHighQualityFilterBitmap_Flag
     };
 
@@ -2078,7 +2078,7 @@ static FlatFlags unpack_paint_flags_v22(SkPaint* paint, uint32_t packed) {
     flags &= ~kAll_Flags;   // remove these (now dead) bit flags
 
     paint->setFlags(flags);
-    
+
     // hinting added later. 0 in this nibble means use the default.
     uint32_t hinting = (packed >> 12) & 0xF;
     paint->setHinting(0 == hinting ? SkPaint::kNormal_Hinting : static_cast<SkPaint::Hinting>(hinting-1));
