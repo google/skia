@@ -17,6 +17,8 @@ class GrEffectRef;
 class GrTexture;
 class SkString;
 
+//#define SK_SUPPORT_LEGACY_PROCXFERMODE
+
 /** \class SkXfermode
  *
  *  SkXfermode is the base class for objects that are called to implement custom
@@ -246,6 +248,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_PROCXFERMODE
 /** \class SkProcXfermode
 
     SkProcXfermode is a xfermode that applies the specified proc to its colors.
@@ -291,5 +294,6 @@ private:
 
     typedef SkXfermode INHERITED;
 };
+#endif
 
 #endif

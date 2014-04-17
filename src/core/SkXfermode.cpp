@@ -775,6 +775,7 @@ void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+#ifdef SK_SUPPORT_LEGACY_PROCXFERMODE
 
 void SkProcXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                             const SkPMColor* SK_RESTRICT src, int count,
@@ -884,6 +885,7 @@ void SkProcXfermode::toString(SkString* str) const {
 }
 #endif
 
+#endif
 //////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
@@ -1358,11 +1360,10 @@ SkProcCoeffXfermode::SkProcCoeffXfermode(SkReadBuffer& buffer) : INHERITED(buffe
     fMode = (SkXfermode::Mode)mode32;
 
     const ProcCoeff& rec = gProcCoeffs[fMode];
+    fProc = rec.fProc;
     // these may be valid, or may be CANNOT_USE_COEFF
     fSrcCoeff = rec.fSC;
     fDstCoeff = rec.fDC;
-    // now update our function-ptr in the super class
-    this->INHERITED::setProc(rec.fProc);
 }
 
 bool SkProcCoeffXfermode::asMode(Mode* mode) const {
@@ -1384,6 +1385,93 @@ bool SkProcCoeffXfermode::asCoeff(Coeff* sc, Coeff* dc) const {
         *dc = fDstCoeff;
     }
     return true;
+}
+
+void SkProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
+                                 const SkPMColor* SK_RESTRICT src, int count,
+                                 const SkAlpha* SK_RESTRICT aa) const {
+    SkASSERT(dst && src && count >= 0);
+    
+    SkXfermodeProc proc = fProc;
+    
+    if (NULL != proc) {
+        if (NULL == aa) {
+            for (int i = count - 1; i >= 0; --i) {
+                dst[i] = proc(src[i], dst[i]);
+            }
+        } else {
+            for (int i = count - 1; i >= 0; --i) {
+                unsigned a = aa[i];
+                if (0 != a) {
+                    SkPMColor dstC = dst[i];
+                    SkPMColor C = proc(src[i], dstC);
+                    if (a != 0xFF) {
+                        C = SkFourByteInterp(C, dstC, a);
+                    }
+                    dst[i] = C;
+                }
+            }
+        }
+    }
+}
+
+void SkProcCoeffXfermode::xfer16(uint16_t* SK_RESTRICT dst,
+                                 const SkPMColor* SK_RESTRICT src, int count,
+                                 const SkAlpha* SK_RESTRICT aa) const {
+    SkASSERT(dst && src && count >= 0);
+    
+    SkXfermodeProc proc = fProc;
+    
+    if (NULL != proc) {
+        if (NULL == aa) {
+            for (int i = count - 1; i >= 0; --i) {
+                SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
+                dst[i] = SkPixel32ToPixel16_ToU16(proc(src[i], dstC));
+            }
+        } else {
+            for (int i = count - 1; i >= 0; --i) {
+                unsigned a = aa[i];
+                if (0 != a) {
+                    SkPMColor dstC = SkPixel16ToPixel32(dst[i]);
+                    SkPMColor C = proc(src[i], dstC);
+                    if (0xFF != a) {
+                        C = SkFourByteInterp(C, dstC, a);
+                    }
+                    dst[i] = SkPixel32ToPixel16_ToU16(C);
+                }
+            }
+        }
+    }
+}
+
+void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
+                                 const SkPMColor* SK_RESTRICT src, int count,
+                                 const SkAlpha* SK_RESTRICT aa) const {
+    SkASSERT(dst && src && count >= 0);
+    
+    SkXfermodeProc proc = fProc;
+    
+    if (NULL != proc) {
+        if (NULL == aa) {
+            for (int i = count - 1; i >= 0; --i) {
+                SkPMColor res = proc(src[i], dst[i] << SK_A32_SHIFT);
+                dst[i] = SkToU8(SkGetPackedA32(res));
+            }
+        } else {
+            for (int i = count - 1; i >= 0; --i) {
+                unsigned a = aa[i];
+                if (0 != a) {
+                    SkAlpha dstA = dst[i];
+                    SkPMColor res = proc(src[i], dstA << SK_A32_SHIFT);
+                    unsigned A = SkGetPackedA32(res);
+                    if (0xFF != a) {
+                        A = SkAlphaBlend(A, dstA, SkAlpha255To256(a));
+                    }
+                    dst[i] = SkToU8(A);
+                }
+            }
+        }
+    }
 }
 
 #if SK_SUPPORT_GPU

@@ -13,11 +13,18 @@ struct ProcCoeff {
 
 #define CANNOT_USE_COEFF    SkXfermode::Coeff(-1)
 
-class SK_API SkProcCoeffXfermode : public SkProcXfermode {
+class SK_API SkProcCoeffXfermode : public SkXfermode {
 public:
     static SkProcCoeffXfermode* Create(const ProcCoeff& rec, Mode mode) {
         return SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
     }
+
+    virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
+                        const SkAlpha aa[]) const SK_OVERRIDE;
+    virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count,
+                        const SkAlpha aa[]) const SK_OVERRIDE;
+    virtual void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
+                        const SkAlpha aa[]) const SK_OVERRIDE;
 
     virtual bool asMode(Mode* mode) const SK_OVERRIDE;
 
@@ -32,9 +39,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcCoeffXfermode)
 
 protected:
-    SkProcCoeffXfermode(const ProcCoeff& rec, Mode mode)
-            : INHERITED(rec.fProc) {
+    SkProcCoeffXfermode(const ProcCoeff& rec, Mode mode) {
         fMode = mode;
+        fProc = rec.fProc;
         // these may be valid, or may be CANNOT_USE_COEFF
         fSrcCoeff = rec.fSC;
         fDstCoeff = rec.fDC;
@@ -44,15 +51,16 @@ protected:
 
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 
-    Mode getMode() const {
-        return fMode;
-    }
+    Mode getMode() const { return fMode; }
+
+    SkXfermodeProc getProc() const { return fProc; }
 
 private:
-    Mode    fMode;
-    Coeff   fSrcCoeff, fDstCoeff;
+    SkXfermodeProc  fProc;
+    Mode            fMode;
+    Coeff           fSrcCoeff, fDstCoeff;
 
-    typedef SkProcXfermode INHERITED;
+    typedef SkXfermode INHERITED;
 };
 
 #endif // #ifndef SkXfermode_proccoeff_DEFINED
