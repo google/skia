@@ -74,20 +74,3 @@ image-surface
 aaclip
 composeshader
 peekpixels
-
-# geofflang: https://codereview.chromium.org/237173002
-# Rolling to the new version of ANGLE causes slight differences in some tests
-texture_domain_effect
-filterbitmap_image_mandrill_512.png
-filterbitmap_image_mandrill_256.png
-filterbitmap_image_mandrill_128.png
-filterbitmap_image_mandrill_64.png
-filterbitmap_image_mandrill_32.png
-filterbitmap_image_mandrill_16.png
-filterbitmap_text_7.00pt
-filterbitmap_text_3.00pt
-downsamplebitmap_image_medium_mandrill_512.png
-downsamplebitmap_text_medium_72.00pt
-downsamplebitmap_image_high_mandrill_512.png
-downsamplebitmap_text_high_72.00pt
-bitmapsource
