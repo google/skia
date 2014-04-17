@@ -272,7 +272,7 @@ JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_handleClick(JNIEnv* env,
             SkDebugf("motion event ignored\n");
             return;
     }
-    gWindow->handleClick(x, y, state, (void*) owner);
+    gWindow->handleClick(x, y, state, reinterpret_cast<void*>(owner));
 }
 
 JNIEXPORT void JNICALL Java_com_skia_SkiaSampleRenderer_nextSample(
