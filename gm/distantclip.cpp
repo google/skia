@@ -33,7 +33,7 @@ protected:
         // We record a picture of huge vertical extents in which we clear the canvas to red, create
         // a 'extents' by 'extents' round rect clip at a vertical offset of 'offset', then draw
         // green into that.
-        SkCanvas* rec = recorder.beginRecording(100, offset + extents);
+        SkCanvas* rec = recorder.beginRecording(100, offset + extents, NULL, 0);
         rec->drawColor(0xffff0000);
         rec->save();
         SkRect r = {
@@ -50,7 +50,7 @@ protected:
         SkAutoTUnref<SkPicture> pict(recorder.endRecording());
 
         // Next we play that picture into another picture of the same size.
-        pict->draw(recorder.beginRecording(100, offset + extents));
+        pict->draw(recorder.beginRecording(100, offset + extents, NULL, 0));
         SkAutoTUnref<SkPicture> pict2(recorder.endRecording());
 
         // Finally we play the part of that second picture that should be green into the canvas.

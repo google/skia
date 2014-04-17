@@ -308,7 +308,7 @@ protected:
         {
             SkPictureRecorder recorder;
             {
-                SkCanvas* record = recorder.beginRecording(320, 480);
+                SkCanvas* record = recorder.beginRecording(320, 480, NULL, 0);
                 this->drawPicture(record, 120);
             }
             SkAutoTUnref<SkPicture> picture(recorder.endRecording());

@@ -496,7 +496,7 @@ static void DrawPictureTestStep(SkCanvas* canvas,
                                 skiatest::Reporter*,
                                 CanvasTestStep*) {
     SkPictureRecorder recorder;
-    SkCanvas* testCanvas = recorder.beginRecording(kWidth, kHeight);
+    SkCanvas* testCanvas = recorder.beginRecording(kWidth, kHeight, NULL, 0);
     testCanvas->scale(SkIntToScalar(2), SkIntToScalar(1));
     testCanvas->clipRect(kTestRect);
     testCanvas->drawRect(kTestRect, kTestPaint);
@@ -724,13 +724,13 @@ public:
         // are flattened during the second execution
         testStep->setAssertMessageFormat(kPictureDrawAssertMessageFormat);
         SkPictureRecorder referenceRecorder;
-        SkCanvas* referenceCanvas = referenceRecorder.beginRecording(kWidth,
-                                                                     kHeight, recordFlags);
+        SkCanvas* referenceCanvas = referenceRecorder.beginRecording(kWidth, kHeight, 
+                                                                     NULL, recordFlags);
         testStep->draw(referenceCanvas, reporter);
 
         SkPictureRecorder testRecorder;
-        SkCanvas* testCanvas = testRecorder.beginRecording(kWidth,
-                                                           kHeight, recordFlags);
+        SkCanvas* testCanvas = testRecorder.beginRecording(kWidth, kHeight, 
+                                                           NULL, recordFlags);
         testStep->draw(testCanvas, reporter);
         testStep->setAssertMessageFormat(kPictureSecondDrawAssertMessageFormat);
         testStep->draw(testCanvas, reporter);

@@ -135,7 +135,9 @@ sk_tools::PictureRenderer* parseRenderer(SkString& error, PictureTool tool) {
         // Allow 'mode' to be set to 'simple', but do not create a renderer, so we can
         // ensure that pipe does not override a mode besides simple. The renderer will
         // be created below.
-        } else if (0 != strcmp(mode, "simple")) {
+        } else if (0 == strcmp(mode, "simple")) {
+            gridSupported = true;
+        } else {
             error.printf("%s is not a valid mode for --mode\n", mode);
             return NULL;
         }

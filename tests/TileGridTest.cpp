@@ -34,7 +34,7 @@ public:
 
 static void verifyTileHits(skiatest::Reporter* reporter, SkIRect rect,
                            uint32_t tileMask, int borderPixels = 0) {
-    SkTileGridPicture::TileGridInfo info;
+    SkTileGridFactory::TileGridInfo info;
     info.fMargin.set(borderPixels, borderPixels);
     info.fOffset.setZero();
     info.fTileInterval.set(10 - 2 * borderPixels, 10 - 2 * borderPixels);
@@ -52,7 +52,7 @@ static void verifyTileHits(skiatest::Reporter* reporter, SkIRect rect,
 
 DEF_TEST(TileGrid_UnalignedQuery, reporter) {
     // Use SkTileGridPicture to generate a SkTileGrid with a helper
-    SkTileGridPicture::TileGridInfo info;
+    SkTileGridFactory::TileGridInfo info;
     info.fMargin.setEmpty();
     info.fOffset.setZero();
     info.fTileInterval.set(10, 10);
@@ -60,9 +60,9 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
                                     SkIntToScalar(8), SkIntToScalar(8));
     SkRect rect2 = SkRect::MakeXYWH(SkIntToScalar(11), SkIntToScalar(11),
                                     SkIntToScalar(1), SkIntToScalar(1));
-    SkAutoTUnref<SkPictureFactory> factory(SkNEW_ARGS(SkTileGridPictureFactory, (info)));
-    SkPictureRecorder recorder(factory);
-    SkCanvas* canvas = recorder.beginRecording(20, 20);
+    SkTileGridFactory factory(info);
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(20, 20, &factory, 0);
     SkPaint paint;
     canvas->drawRect(rect1, paint);
     canvas->drawRect(rect2, paint);
@@ -135,7 +135,7 @@ DEF_TEST(TileGrid_UnalignedQuery, reporter) {
 
 DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
     // Use SkTileGridPicture to generate a SkTileGrid with a helper
-    SkTileGridPicture::TileGridInfo info;
+    SkTileGridFactory::TileGridInfo info;
     info.fMargin.set(1, 1);
     info.fOffset.set(-1, -1);
     info.fTileInterval.set(8, 8);
@@ -149,9 +149,9 @@ DEF_TEST(TileGrid_OverlapOffsetQueryAlignment, reporter) {
     // rect landing entirely in bottomright tile
     SkRect rect3 = SkRect::MakeXYWH(SkIntToScalar(19), SkIntToScalar(19),
                                     SkIntToScalar(1), SkIntToScalar(1));
-    SkAutoTUnref<SkPictureFactory> factory(SkNEW_ARGS(SkTileGridPictureFactory, (info)));
-    SkPictureRecorder recorder(factory);
-    SkCanvas* canvas = recorder.beginRecording(20, 20);
+    SkTileGridFactory factory(info);
+    SkPictureRecorder recorder;
+    SkCanvas* canvas = recorder.beginRecording(20, 20, &factory, 0);
     SkPaint paint;
     canvas->drawRect(rect1, paint);
     canvas->drawRect(rect2, paint);

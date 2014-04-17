@@ -129,7 +129,7 @@ private:
         if (SkImageDecoder::DecodeFile(path, &bm)) {
             bm.setImmutable();
             SkPictureRecorder recorder;
-            SkCanvas* can = recorder.beginRecording(bm.width(), bm.height());
+            SkCanvas* can = recorder.beginRecording(bm.width(), bm.height(), NULL, 0);
             can->drawBitmap(bm, 0, 0, NULL);
             pic.reset(recorder.endRecording());
         } else {
@@ -147,7 +147,7 @@ private:
             }
             if (false) { // re-record
                 SkPictureRecorder recorder;
-                pic->draw(recorder.beginRecording(pic->width(), pic->height()));
+                pic->draw(recorder.beginRecording(pic->width(), pic->height(), NULL, 0));
                 SkAutoTUnref<SkPicture> p2(recorder.endRecording());
 
                 SkString path2(path);
@@ -161,32 +161,32 @@ private:
             return NULL;
         }
 
-        SkAutoTUnref<SkPictureFactory> factory;
+        SkAutoTDelete<SkBBHFactory> factory;
         switch (bbox) {
         case kNo_BBoxType:
             // no bbox playback necessary
             return pic.detach();
         case kRTree_BBoxType:
-            factory.reset(SkNEW(SkRTreePictureFactory));
+            factory.reset(SkNEW(SkRTreeFactory));
             break;
         case kQuadTree_BBoxType:
-            factory.reset(SkNEW(SkQuadTreePictureFactory));
+            factory.reset(SkNEW(SkQuadTreeFactory));
             break;
         case kTileGrid_BBoxType: {
             SkASSERT(!fTileSize.isEmpty());
-            SkTileGridPicture::TileGridInfo gridInfo;
+            SkTileGridFactory::TileGridInfo gridInfo;
             gridInfo.fMargin = SkISize::Make(0, 0);
             gridInfo.fOffset = SkIPoint::Make(0, 0);
             gridInfo.fTileInterval = fTileSize.toRound();
-            factory.reset(SkNEW_ARGS(SkTileGridPictureFactory, (gridInfo)));
+            factory.reset(SkNEW_ARGS(SkTileGridFactory, (gridInfo)));
             break;
         }
         default:
             SkASSERT(false);
         }
 
-        SkPictureRecorder recorder(factory);
-        pic->draw(recorder.beginRecording(pic->width(), pic->height()));
+        SkPictureRecorder recorder;
+        pic->draw(recorder.beginRecording(pic->width(), pic->height(), factory.get(), 0));
         return recorder.endRecording();
     }
 

@@ -106,7 +106,7 @@ protected:
         SkPictureRecorder recorder;
         SkCanvas* textCanvas = NULL;
         if (NULL == fTextPicture) {
-            textCanvas = recorder.beginRecording(1000, 1000);
+            textCanvas = recorder.beginRecording(1000, 1000, NULL, 0);
         }
 
         if (NULL != textCanvas) {

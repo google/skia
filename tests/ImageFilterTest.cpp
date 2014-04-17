@@ -277,9 +277,9 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
 
     SkMatrix expectedMatrix = canvas.getTotalMatrix();
 
-    SkAutoTUnref<SkPictureFactory> factory(SkNEW(SkRTreePictureFactory));
-    SkPictureRecorder recorder(factory);
-    SkCanvas* recordingCanvas = recorder.beginRecording(100, 100);
+    SkRTreeFactory factory;
+    SkPictureRecorder recorder;
+    SkCanvas* recordingCanvas = recorder.beginRecording(100, 100, &factory, 0);
 
     SkPaint paint;
     SkAutoTUnref<MatrixTestImageFilter> imageFilter(

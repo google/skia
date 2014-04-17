@@ -59,7 +59,7 @@ protected:
         for (int i = 0; i < loops; i++) {
             if (0 == i % kMaxLoopsPerCanvas) {
                 SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-                canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
+                canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT, NULL, 0);
             }
 
             SkColor color = SK_ColorYELLOW + (i % 255);
@@ -125,7 +125,7 @@ protected:
         for (int i = 0; i < loops; i++) {
             if (0 == i % kMaxLoopsPerCanvas) {
                 SkAutoTUnref<SkPicture> picture(recorder.endRecording());
-                canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
+                canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT, NULL, 0);
             }
             paint.setColor(rand.nextU());
             canvas->drawPaint(paint);
@@ -159,7 +159,7 @@ public:
 protected:
     virtual void onDraw(const int loops, SkCanvas*) SK_OVERRIDE {
         SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT);
+        SkCanvas* canvas = recorder.beginRecording(PICTURE_WIDTH, PICTURE_HEIGHT, NULL, 0);
         for (int i = 0; i < loops; i++) {
             canvas->drawPaint(fPaint[i % ObjCount]);
         }

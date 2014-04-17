@@ -6,7 +6,7 @@
 #include "SkString.h"
 #include "gm_expectations.h"
 
-class SkPictureFactory;
+class SkBBHFactory;
 
 // Small free functions used in more than one place in DM.
 
@@ -18,7 +18,7 @@ SkString UnderJoin(const char* a, const char* b);
 // Draw gm to picture.  Passes recordFlags to SkPictureRecorder::beginRecording().
 SkPicture* RecordPicture(skiagm::GM* gm,
                          uint32_t recordFlags = 0,
-                         SkPictureFactory* factory = NULL);
+                         SkBBHFactory* factory = NULL);
 
 // Prepare bitmap to have gm or bench draw into it with this config.
 // TODO(mtklein): make SkBenchmark::getSize()/GM::getISize() const.

@@ -8,9 +8,8 @@
 
 #include "SkTileGrid.h"
 
-SkTileGrid::SkTileGrid(int xTileCount, int yTileCount, const SkTileGridPicture::TileGridInfo& info,
-    SkTileGridNextDatumFunctionPtr nextDatumFunction)
-{
+SkTileGrid::SkTileGrid(int xTileCount, int yTileCount, const SkTileGridFactory::TileGridInfo& info,
+                       SkTileGridNextDatumFunctionPtr nextDatumFunction) {
     fXTileCount = xTileCount;
     fYTileCount = yTileCount;
     fInfo = info;

@@ -12,13 +12,7 @@
 #include "SkPoint.h"
 #include "SkSize.h"
 
-/**
- * Subclass of SkPicture that creates an SkTileGrid. The tile grid has lower recording
- * and playback costs then rTree, but is less effective at eliminating extraneous
- * primitives for arbitrary query rectangles. It is most effective for
- * tiled playback when the tile structure is known at record time.
- */
-class SK_API SkTileGridPicture : public SkPicture {
+class SkTileGridFactory : public SkBBHFactory {
 public:
     struct TileGridInfo {
         /** Tile placement interval */
@@ -36,36 +30,60 @@ public:
           */
         SkIPoint fOffset;
     };
+
+    SkTileGridFactory(const TileGridInfo& info) : fInfo(info) { }
+
+    virtual SkBBoxHierarchy* operator()(int width, int height) const SK_OVERRIDE;
+
+private:
+    TileGridInfo fInfo;
+
+    typedef SkBBHFactory INHERITED;
+};
+
+#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
+
+/**
+ * Subclass of SkPicture that creates an SkTileGrid. The tile grid has lower recording
+ * and playback costs then rTree, but is less effective at eliminating extraneous
+ * primitives for arbitrary query rectangles. It is most effective for
+ * tiled playback when the tile structure is known at record time.
+ */
+class SK_API SkTileGridPicture : public SkPicture {
+public:
+    typedef SkTileGridFactory::TileGridInfo TileGridInfo;
+
     /**
      * Constructor
      * @param width recording canvas width in device pixels
      * @param height recording canvas height in device pixels
      * @param info description of the tiling layout
      */
-    SkTileGridPicture(int width, int height, const TileGridInfo& info);
+    SkTileGridPicture(int width, int height, const SkTileGridFactory::TileGridInfo& info);
 
     virtual SkBBoxHierarchy* createBBoxHierarchy() const SK_OVERRIDE;
 
 private:
     int fXTileCount, fYTileCount;
-    TileGridInfo fInfo;
+    SkTileGridFactory::TileGridInfo fInfo;
 
     typedef SkPicture INHERITED;
 };
 
 class SkTileGridPictureFactory : public SkPictureFactory {
 public:
-    SkTileGridPictureFactory(const SkTileGridPicture::TileGridInfo& info) : fInfo(info) { }
+    SkTileGridPictureFactory(const SkTileGridFactory::TileGridInfo& info) : fInfo(info) { }
 
     virtual SkPicture* create(int width, int height) SK_OVERRIDE {
         return SkNEW_ARGS(SkTileGridPicture, (width, height, fInfo));
     }
 
 protected:
-    SkTileGridPicture::TileGridInfo fInfo;
+    SkTileGridFactory::TileGridInfo fInfo;
 
 private:
     typedef SkPictureFactory INHERITED;
 };
+#endif
 
 #endif

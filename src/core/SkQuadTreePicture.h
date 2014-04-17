@@ -9,6 +9,16 @@
 #define SkQuadTreePicture_DEFINED
 
 #include "SkPicture.h"
+
+class SkQuadTreeFactory : public SkBBHFactory {
+public:
+    virtual SkBBoxHierarchy* operator()(int width, int height) const SK_OVERRIDE;
+private:
+    typedef SkBBHFactory INHERITED;
+};
+
+#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
+
 #include "SkRect.h"
 
 /**
@@ -38,5 +48,7 @@ public:
 private:
     typedef SkPictureFactory INHERITED;
 };
+
+#endif
 
 #endif

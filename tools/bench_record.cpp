@@ -34,50 +34,29 @@ DEFINE_int32(tileGridSize, 512, "Set the tile grid size. Has no effect if bbh is
 DEFINE_string(bbh, "", "Turn on the bbh and select the type, one of rtree, tilegrid, quadtree");
 DEFINE_bool(skr, false, "Record SKR instead of SKP.");
 
-typedef SkPictureFactory* (*PictureFactory)();
-
-static SkPictureFactory* vanilla_factory() {
-    return NULL;
-}
-
-static SkPictureFactory* rtree_factory() {
-    return SkNEW(SkRTreePictureFactory);
-}
-
-static SkPictureFactory* tilegrid_factory() {
-    SkTileGridPicture::TileGridInfo info;
-    info.fTileInterval.set(FLAGS_tileGridSize, FLAGS_tileGridSize);
-    info.fMargin.setEmpty();
-    info.fOffset.setZero();
-    return SkNEW_ARGS(SkTileGridPictureFactory, (info));
-}
-
-static SkPictureFactory* quadtree_factory() {
-    return SkNEW(SkQuadTreePictureFactory);
-}
-
-static PictureFactory parse_FLAGS_bbh() {
+static SkBBHFactory* parse_FLAGS_bbh() {
     if (FLAGS_bbh.isEmpty()) {
-        return &vanilla_factory;
-    }
-    if (FLAGS_bbh.count() != 1) {
-        SkDebugf("Multiple bbh arguments supplied.\n");
         return NULL;
     }
+
     if (FLAGS_bbh.contains("rtree")) {
-        return rtree_factory;
+        return SkNEW(SkRTreeFactory);
     }
     if (FLAGS_bbh.contains("tilegrid")) {
-        return tilegrid_factory;
+        SkTileGridFactory::TileGridInfo info;
+        info.fTileInterval.set(FLAGS_tileGridSize, FLAGS_tileGridSize);
+        info.fMargin.setEmpty();
+        info.fOffset.setZero();
+        return SkNEW_ARGS(SkTileGridFactory, (info));
     }
     if (FLAGS_bbh.contains("quadtree")) {
-        return quadtree_factory;
+        return SkNEW(SkQuadTreeFactory);
     }
     SkDebugf("Invalid bbh type %s, must be one of rtree, tilegrid, quadtree.\n", FLAGS_bbh[0]);
     return NULL;
 }
 
-static void bench_record(SkPicture* src, const char* name, PictureFactory pictureFactory) {
+static void bench_record(SkPicture* src, const char* name, SkBBHFactory* bbhFactory) {
     const SkMSec start = SkTime::GetMSecs();
     const int width  = src ? src->width()  : FLAGS_nullSize;
     const int height = src ? src->height() : FLAGS_nullSize;
@@ -91,10 +70,8 @@ static void bench_record(SkPicture* src, const char* name, PictureFactory pictur
             }
             SkDELETE(SkRecording::Delete(recording));  // delete the SkPlayback*.
         } else {
-            int recordingFlags = FLAGS_flags;
-            SkAutoTUnref<SkPictureFactory> factory(pictureFactory());
-            SkPictureRecorder recorder(factory);
-            SkCanvas* canvas = recorder.beginRecording(width, height, recordingFlags);
+            SkPictureRecorder recorder;
+            SkCanvas* canvas = recorder.beginRecording(width, height, bbhFactory, FLAGS_flags);
             if (NULL != src) {
                 src->draw(canvas);
             }
@@ -114,11 +91,13 @@ int tool_main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
     SkAutoGraphics autoGraphics;
 
-    PictureFactory pictureFactory = parse_FLAGS_bbh();
-    if (pictureFactory == NULL) {
+    if (FLAGS_bbh.count() > 1) {
+        SkDebugf("Multiple bbh arguments supplied.\n");
         return 1;
     }
-    bench_record(NULL, "NULL", pictureFactory);
+
+    SkAutoTDelete<SkBBHFactory> bbhFactory(parse_FLAGS_bbh());
+    bench_record(NULL, "NULL", bbhFactory.get());
     if (FLAGS_skps.isEmpty()) {
         return 0;
     }
@@ -142,7 +121,7 @@ int tool_main(int argc, char** argv) {
             failed = true;
             continue;
         }
-        bench_record(src, filename.c_str(), pictureFactory);
+        bench_record(src, filename.c_str(), bbhFactory.get());
     }
     return failed ? 1 : 0;
 }

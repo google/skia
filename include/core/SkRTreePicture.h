@@ -10,6 +10,14 @@
 
 #include "SkPicture.h"
 
+class SkRTreeFactory : public SkBBHFactory {
+public:
+    virtual SkBBoxHierarchy* operator()(int width, int height) const SK_OVERRIDE;
+private:
+    typedef SkBBHFactory INHERITED;
+};
+
+#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
 /**
  * Subclass of SkPicture that creates an RTree acceleration structure.
  */
@@ -32,5 +40,6 @@ public:
 private:
     typedef SkPictureFactory INHERITED;
 };
+#endif
 
 #endif

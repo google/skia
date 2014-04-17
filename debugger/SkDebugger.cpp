@@ -42,7 +42,7 @@ SkPicture* SkDebugger::copyPicture() {
     // We can't just call clone here since we want to removed the "deleted"
     // commands. Playing back will strip those out.
     SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(fPictureWidth, fPictureHeight);
+    SkCanvas* canvas = recorder.beginRecording(fPictureWidth, fPictureHeight, NULL, 0);
 
     bool vizMode = fDebugCanvas->getMegaVizMode();
     fDebugCanvas->setMegaVizMode(false);

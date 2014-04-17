@@ -1014,20 +1014,20 @@ public:
         int width = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().width()), scale));
         int height = SkScalarCeilToInt(SkScalarMul(SkIntToScalar(gm->getISize().height()), scale));
 
-        SkAutoTUnref<SkPictureFactory> factory;
+        SkAutoTDelete<SkBBHFactory> factory;
         if (kTileGrid_BbhType == bbhType) {
-            SkTileGridPicture::TileGridInfo info;
+            SkTileGridFactory::TileGridInfo info;
             info.fMargin.setEmpty();
             info.fOffset.setZero();
             info.fTileInterval.set(16, 16);
-            factory.reset(SkNEW_ARGS(SkTileGridPictureFactory, (info)));
+            factory.reset(SkNEW_ARGS(SkTileGridFactory, (info)));
         } else if (kQuadTree_BbhType == bbhType) {
-            factory.reset(SkNEW(SkQuadTreePictureFactory));
+            factory.reset(SkNEW(SkQuadTreeFactory));
         } else if (kRTree_BbhType == bbhType) {
-            factory.reset(SkNEW(SkRTreePictureFactory));
+            factory.reset(SkNEW(SkRTreeFactory));
         }
-        SkPictureRecorder recorder(factory);
-        SkCanvas* cv = recorder.beginRecording(width, height, recordFlags);
+        SkPictureRecorder recorder;
+        SkCanvas* cv = recorder.beginRecording(width, height, factory.get(), recordFlags);
         cv->scale(scale, scale);
         invokeGM(gm, cv, false, false);
         return recorder.endRecording();

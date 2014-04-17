@@ -35,7 +35,7 @@ public:
 
     typedef void* (*SkTileGridNextDatumFunctionPtr)(SkTDArray<void*>** tileData, SkAutoSTArray<kStackAllocationTileCount, int>& tileIndices);
 
-    SkTileGrid(int xTileCount, int yTileCount, const SkTileGridPicture::TileGridInfo& info,
+    SkTileGrid(int xTileCount, int yTileCount, const SkTileGridFactory::TileGridInfo& info,
         SkTileGridNextDatumFunctionPtr nextDatumFunction);
 
     virtual ~SkTileGrid();
@@ -78,7 +78,7 @@ private:
     SkTDArray<void*>& tile(int x, int y);
 
     int fXTileCount, fYTileCount, fTileCount;
-    SkTileGridPicture::TileGridInfo fInfo;
+    SkTileGridFactory::TileGridInfo fInfo;
     SkTDArray<void*>* fTileData;
     int fInsertionCount;
     SkIRect fGridBounds;

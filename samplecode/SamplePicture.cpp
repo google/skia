@@ -63,10 +63,10 @@ public:
 
         SkPictureRecorder recorder;
 
-        recorder.beginRecording(100, 100);
+        recorder.beginRecording(100, 100, NULL, 0);
         fSubPicture = recorder.endRecording();
 
-        SkCanvas* canvas = recorder.beginRecording(100, 100);
+        SkCanvas* canvas = recorder.beginRecording(100, 100, NULL, 0);
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -132,7 +132,7 @@ protected:
         this->drawSomething(canvas);
 
         SkPictureRecorder recorder;
-        this->drawSomething(recorder.beginRecording(100, 100));
+        this->drawSomething(recorder.beginRecording(100, 100, NULL, 0));
         SkAutoTUnref<SkPicture> pict(recorder.endRecording());
 
         canvas->save();

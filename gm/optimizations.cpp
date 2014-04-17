@@ -81,7 +81,7 @@ static SkPicture* create_save_layer_opt_1(SkTDArray<DrawType>* preOptPattern,
 
     SkPictureRecorder recorder;
 
-    SkCanvas* canvas = recorder.beginRecording(100, 100);
+    SkCanvas* canvas = recorder.beginRecording(100, 100, NULL, 0);
     // have to disable the optimizations while generating the picture
     recorder.internalOnly_EnableOpts(false);
 
@@ -215,7 +215,7 @@ static SkPicture* create_save_layer_opt_2(SkTDArray<DrawType>* preOptPattern,
 
     SkPictureRecorder recorder;
 
-    SkCanvas* canvas = recorder.beginRecording(100, 100);
+    SkCanvas* canvas = recorder.beginRecording(100, 100, NULL, 0);
     // have to disable the optimizations while generating the picture
     recorder.internalOnly_EnableOpts(false);
 
@@ -358,7 +358,7 @@ protected:
             // re-render the 'pre' picture and thus 'apply' the optimization
             SkPictureRecorder recorder;
 
-            SkCanvas* recordCanvas = recorder.beginRecording(pre->width(), pre->height());
+            SkCanvas* recordCanvas = recorder.beginRecording(pre->width(), pre->height(), NULL, 0);
 
             pre->draw(recordCanvas);
 

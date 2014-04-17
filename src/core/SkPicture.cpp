@@ -222,6 +222,8 @@ SkPicture::AccelData::Domain SkPicture::AccelData::GenerateDomain() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
+
 SkCanvas* SkPicture::beginRecording(int width, int height,
                                     uint32_t recordingFlags) {
     if (fPlayback) {
@@ -252,6 +254,43 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     return fRecord;
 }
 
+#endif
+
+SkCanvas* SkPicture::beginRecording(int width, int height, 
+                                    SkBBHFactory* bbhFactory,
+                                    uint32_t recordingFlags) {
+    if (fPlayback) {
+        SkDELETE(fPlayback);
+        fPlayback = NULL;
+    }
+    SkSafeUnref(fAccelData);
+    SkSafeSetNull(fRecord);
+
+    this->needsNewGenID();
+
+    fWidth = width;
+    fHeight = height;
+
+    const SkISize size = SkISize::Make(width, height);
+
+    if (NULL != bbhFactory) {
+        SkAutoTUnref<SkBBoxHierarchy> tree((*bbhFactory)(width, height));
+        SkASSERT(NULL != tree);
+        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (size, 
+                                                     recordingFlags|
+                                                     kOptimizeForClippedPlayback_RecordingFlag,
+                                                     tree.get()));
+    } else {
+        fRecord = SkNEW_ARGS(SkPictureRecord, (size, recordingFlags));
+    }
+    fRecord->beginRecording();
+
+    return fRecord;
+}
+
+
+#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
+
 SkBBoxHierarchy* SkPicture::createBBoxHierarchy() const {
     // TODO: this code is now replicated in SkRTreePicture. Once all external
     // clients have been weaned off of kOptimizeForClippedPlayback_RecordingFlag,
@@ -269,6 +308,8 @@ SkBBoxHierarchy* SkPicture::createBBoxHierarchy() const {
     return SkRTree::Create(kRTreeMinChildren, kRTreeMaxChildren,
                            aspectRatio, sortDraws);
 }
+
+#endif
 
 SkCanvas* SkPicture::getRecordingCanvas() const {
     // will be null if we are not recording

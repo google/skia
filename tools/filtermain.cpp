@@ -718,7 +718,7 @@ static int filter_picture(const SkString& inFile, const SkString& outFile) {
 
     if (!outFile.isEmpty()) {
         SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(inPicture->width(), inPicture->height());
+        SkCanvas* canvas = recorder.beginRecording(inPicture->width(), inPicture->height(), NULL, 0);
         debugCanvas.draw(canvas);
         SkAutoTUnref<SkPicture> outPicture(recorder.endRecording());
 

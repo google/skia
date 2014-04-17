@@ -18,6 +18,7 @@
 class GrContext;
 #endif
 
+class SkBBHFactory;
 class SkBBoxHierarchy;
 class SkCanvas;
 class SkDrawPictureCallback;
@@ -174,10 +175,9 @@ public:
 
 #ifndef SK_SUPPORT_LEGACY_PICTURE_CAN_RECORD
 private:
-    friend class SkPictureRecorder;
-    friend class SkImage_Picture;
-    friend class SkSurface_Picture;
 #endif
+
+#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
 
     /** Returns the canvas that records the drawing commands.
         @param width the base width for the picture, as if the recording
@@ -188,6 +188,7 @@ private:
         @return the picture canvas.
     */
     SkCanvas* beginRecording(int width, int height, uint32_t recordFlags = 0);
+#endif
 
     /** Returns the recording canvas if one is active, or NULL if recording is
         not active. This does not alter the refcnt on the canvas (if present).
@@ -346,9 +347,13 @@ protected:
     // playback is unchanged.
     SkPicture(SkPicturePlayback*, int width, int height);
 
+#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
     // For testing. Derived classes may instantiate an alternate
     // SkBBoxHierarchy implementation
     virtual SkBBoxHierarchy* createBBoxHierarchy() const;
+#endif
+
+    SkCanvas* beginRecording(int width, int height, SkBBHFactory* factory, uint32_t recordFlags);
 
 private:
     // An OperationList encapsulates a set of operation offsets into the picture byte
@@ -388,6 +393,7 @@ private:
 
     friend class SkFlatPicture;
     friend class SkPicturePlayback;
+    friend class SkPictureRecorder;
     friend class SkGpuDevice;
     friend class GrGatherDevice;
     friend class SkDebugCanvas;
@@ -413,6 +419,8 @@ public:
     virtual bool abortDrawing() = 0;
 };
 
+#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
+
 class SkPictureFactory : public SkRefCnt {
 public:
     /**
@@ -424,8 +432,21 @@ private:
     typedef SkRefCnt INHERITED;
 };
 
+#endif
+
+class SkBBHFactory {
+public:
+    /**
+     *  Allocate a new SkBBoxHierarchy. Return NULL on failure.
+     */
+    virtual SkBBoxHierarchy* operator()(int width, int height) const = 0;
+    virtual ~SkBBHFactory() {};
+};
+
 class SK_API SkPictureRecorder : SkNoncopyable {
 public:
+#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
+
     SkPictureRecorder(SkPictureFactory* factory = NULL) {
         fFactory.reset(factory);
         if (NULL != fFactory.get()) {
@@ -450,6 +471,24 @@ public:
         }
 
         return fPicture->beginRecording(width, height, recordFlags);
+    }
+#endif
+
+    /** Returns the canvas that records the drawing commands.
+        @param width the base width for the picture, as if the recording
+                     canvas' bitmap had this width.
+        @param height the base width for the picture, as if the recording
+                     canvas' bitmap had this height.
+        @param bbhFactory factory to create desired acceleration structure
+        @param recordFlags optional flags that control recording.
+        @return the canvas.
+    */
+    // TODO: allow default parameters once the other beginRecoding entry point is gone
+    SkCanvas* beginRecording(int width, int height, 
+                             SkBBHFactory* bbhFactory /* = NULL */, 
+                             uint32_t recordFlags /* = 0 */) {
+        fPicture.reset(SkNEW(SkPicture));
+        return fPicture->beginRecording(width, height, bbhFactory, recordFlags);
     }
 
     /** Returns the recording canvas if one is active, or NULL if recording is
@@ -488,8 +527,11 @@ public:
     }
 
 private:
-    SkAutoTUnref<SkPictureFactory> fFactory;
-    SkAutoTUnref<SkPicture>        fPicture;
+#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
+    SkAutoTUnref<SkPictureFactory>  fFactory;
+#endif
+
+    SkAutoTUnref<SkPicture>         fPicture;
 
     typedef SkNoncopyable INHERITED;
 };
