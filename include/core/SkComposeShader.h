@@ -62,7 +62,7 @@ public:
         typedef SkShader::Context INHERITED;
     };
 
-#ifdef SK_DEBUG
+#if SK_DEBUG
     SkShader* getShaderA() { return fShaderA; }
     SkShader* getShaderB() { return fShaderB; }
 #endif
