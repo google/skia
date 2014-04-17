@@ -211,7 +211,7 @@ SkGradientShaderBase::GradientShaderBaseContext::GradientShaderBaseContext(
         const SkGradientShaderBase& shader, const SkBitmap& device,
         const SkPaint& paint, const SkMatrix& matrix)
     : INHERITED(shader, device, paint, matrix)
-    , fCache(shader.refCache(getPaintAlpha()))
+    , fCache(shader.getCache(getPaintAlpha()))
 {
     const SkMatrix& inverse = this->getTotalInverse();
 
@@ -558,7 +558,7 @@ void SkGradientShaderBase::GradientShaderCache::initCache32(GradientShaderCache*
  *  The gradient holds a cache for the most recent value of alpha. Successive
  *  callers with the same alpha value will share the same cache.
  */
-SkGradientShaderBase::GradientShaderCache* SkGradientShaderBase::refCache(U8CPU alpha) const {
+SkGradientShaderBase::GradientShaderCache* SkGradientShaderBase::getCache(U8CPU alpha) const {
     SkAutoMutexAcquire ama(fCacheMutex);
     if (!fCache || fCache->getAlpha() != alpha) {
         fCache.reset(SkNEW_ARGS(GradientShaderCache, (alpha, *this)));
@@ -581,7 +581,7 @@ SkGradientShaderBase::GradientShaderCache* SkGradientShaderBase::refCache(U8CPU 
 void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap) const {
     // our caller assumes no external alpha, so we ensure that our cache is
     // built with 0xFF
-    SkAutoTUnref<GradientShaderCache> cache(this->refCache(0xFF));
+    GradientShaderCache* cache = this->getCache(0xFF);
 
     // don't have a way to put the mapper into our cache-key yet
     if (fMapper) {
