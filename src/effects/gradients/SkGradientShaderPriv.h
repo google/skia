@@ -205,6 +205,11 @@ protected:
 
     void commonAsAGradient(GradientInfo*) const;
 
+    // V23_COMPATIBILITY_CODE
+    // Used for 2-pt conical gradients since we sort start/end cirlces by radius
+    // Assumes space has already been allocated for fOrigColors
+    void flipGradientColors();
+
 private:
     enum {
         kColorStorageCount = 4, // more than this many colors, and we'll use sk_malloc for the space

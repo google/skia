@@ -25,9 +25,11 @@ struct TwoPtRadial {
     float   fA;
     float   fRadius2;
     float   fRDR;
+    bool    fFlipped;
 
     void init(const SkPoint& center0, SkScalar rad0,
-              const SkPoint& center1, SkScalar rad1);
+              const SkPoint& center1, SkScalar rad1,
+              bool flipped);
 
     static bool DontDrawT(SkFixed t) {
         return kDontDrawT == (uint32_t)t;
@@ -42,7 +44,7 @@ class SkTwoPointConicalGradient : public SkGradientShaderBase {
 public:
     SkTwoPointConicalGradient(const SkPoint& start, SkScalar startRadius,
                               const SkPoint& end, SkScalar endRadius,
-                              const Descriptor&);
+                              bool flippedGrad, const Descriptor&);
 
 
     virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
@@ -76,6 +78,7 @@ public:
     const SkPoint& getStartCenter() const { return fCenter1; }
     const SkPoint& getEndCenter() const { return fCenter2; }
     SkScalar getEndRadius() const { return fRadius2; }
+    bool isFlippedGrad() const { return fFlippedGrad; }
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTwoPointConicalGradient)
@@ -85,10 +88,11 @@ protected:
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 
 private:
-    const SkPoint fCenter1;
-    const SkPoint fCenter2;
-    const SkScalar fRadius1;
-    const SkScalar fRadius2;
+    SkPoint fCenter1;
+    SkPoint fCenter2;
+    SkScalar fRadius1;
+    SkScalar fRadius2;
+    bool fFlippedGrad;
 
     typedef SkGradientShaderBase INHERITED;
 };
