@@ -22,6 +22,8 @@
 
 #include <linux/ashmem.h>
 
+#include <SkTypes.h>  // SkASSERT
+
 #define ASHMEM_DEVICE   "/dev/ashmem"
 
 /*
@@ -66,13 +68,19 @@ int ashmem_set_prot_region(int fd, int prot)
 
 int ashmem_pin_region(int fd, size_t offset, size_t len)
 {
-    struct ashmem_pin pin = { offset, len };
+    // Skia only calls this when offset=len=0.
+    struct ashmem_pin pin = { static_cast<__u32>(offset),
+                              static_cast<__u32>(len) };
+    SkASSERT(pin.offset == offset && pin.len == len);
     return ioctl(fd, ASHMEM_PIN, &pin);
 }
 
 int ashmem_unpin_region(int fd, size_t offset, size_t len)
 {
-    struct ashmem_pin pin = { offset, len };
+    // Skia only calls this when offset=len=0.
+    struct ashmem_pin pin = { static_cast<__u32>(offset),
+                              static_cast<__u32>(len) };
+    SkASSERT(pin.offset == offset && pin.len == len);
     return ioctl(fd, ASHMEM_UNPIN, &pin);
 }
 
