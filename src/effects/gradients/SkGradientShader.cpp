@@ -203,25 +203,6 @@ void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(fPtsToUnit);
 }
 
-// V23_COMPATIBILITY_CODE
-void SkGradientShaderBase::flipGradientColors() {
-    SkAutoSTArray<8, SkColor> colorsTemp(fColorCount);
-    for (int i = 0; i < fColorCount; ++i) {
-        int offset = fColorCount - i - 1;
-        colorsTemp[i] = fOrigColors[offset];
-    }
-    if (fColorCount > 2) {
-        SkAutoSTArray<8, Rec> recsTemp(fColorCount);
-        for (int i = 0; i < fColorCount; ++i) {
-            int offset = fColorCount - i - 1;
-            recsTemp[i].fPos = 1 - fRecs[offset].fPos;
-            recsTemp[i].fScale = fRecs[offset].fScale;
-        }
-        memcpy(fRecs, recsTemp.get(), fColorCount * sizeof(Rec));
-    }
-    memcpy(fOrigColors, colorsTemp.get(), fColorCount * sizeof(SkColor));
-}
-
 bool SkGradientShaderBase::isOpaque() const {
     return fColorsAreOpaque;
 }
@@ -812,36 +793,12 @@ SkShader* SkGradientShader::CreateTwoPointConical(const SkPoint& start,
     if (start == end && startRadius == endRadius) {
         return SkNEW(SkEmptyShader);
     }
-
     EXPAND_1_COLOR(colorCount);
 
-    bool flipGradient = startRadius > endRadius;
-
     SkGradientShaderBase::Descriptor desc;
-
-    if (!flipGradient) {
-        desc_init(&desc, colors, pos, colorCount, mode, mapper, flags);
-        return SkNEW_ARGS(SkTwoPointConicalGradient,
-                          (start, startRadius, end, endRadius, flipGradient, desc));
-    } else {
-        SkAutoSTArray<8, SkColor> colorsNew(colorCount);
-        SkAutoSTArray<8, SkScalar> posNew(colorCount);
-        for (int i = 0; i < colorCount; ++i) {
-            colorsNew[i] = colors[colorCount - i - 1];
-        }
-
-        if (pos) {
-            for (int i = 0; i < colorCount; ++i) {
-                posNew[i] = 1 - pos[colorCount - i - 1];
-            }
-            desc_init(&desc, colorsNew.get(), posNew.get(), colorCount, mode, mapper, flags);
-        } else {
-            desc_init(&desc, colorsNew.get(), NULL, colorCount, mode, mapper, flags);
-        }
-
-        return SkNEW_ARGS(SkTwoPointConicalGradient,
-                          (end, endRadius, start, startRadius, flipGradient, desc));
-    }
+    desc_init(&desc, colors, pos, colorCount, mode, mapper, flags);
+    return SkNEW_ARGS(SkTwoPointConicalGradient,
+                      (start, startRadius, end, endRadius, desc));
 }
 
 SkShader* SkGradientShader::CreateSweep(SkScalar cx, SkScalar cy,
