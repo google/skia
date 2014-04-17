@@ -263,6 +263,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
             if (mip) {
                 fScaledCacheID = SkScaledImageCache::AddAndLockMip(fOrigBitmap,
                                                                    mip);
+                SkASSERT(mip->getRefCnt() > 1);
                 mip->unref();   // the cache took a ref
                 SkASSERT(fScaledCacheID);
             }
@@ -401,6 +402,12 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     // TODO(dominikg): Ask humper@ if we can just use an SkASSERT(fBitmap)?
     if (NULL == fBitmap) {
         return false;
+    }
+
+    // If we are "still" kMedium_FilterLevel, then the request was not fulfilled by possiblyScale,
+    // so we downgrade to kLow (so the rest of the sniffing code can assume that)
+    if (SkPaint::kMedium_FilterLevel == fFilterLevel) {
+        fFilterLevel = SkPaint::kLow_FilterLevel;
     }
 
     bool trivialMatrix = (fInvMatrix.getType() & ~SkMatrix::kTranslate_Mask) == 0;
