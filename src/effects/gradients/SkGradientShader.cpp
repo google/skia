@@ -220,6 +220,23 @@ void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     buffer.writeMatrix(fPtsToUnit);
 }
 
+SkGradientShaderBase::GpuColorType SkGradientShaderBase::getGpuColorType(SkColor colors[3]) const {
+    if (fColorCount <= 3) {
+        memcpy(colors, fOrigColors, fColorCount * sizeof(SkColor));
+    }
+
+    if (SkShader::kClamp_TileMode == fTileMode) {
+        if (2 == fColorCount) {
+            return kTwo_GpuColorType;
+        } else if (3 == fColorCount &&
+                   (SkScalarAbs(
+                    SkFixedToScalar(fRecs[1].fPos) - SK_ScalarHalf) < SK_Scalar1 / 1000)) {
+            return kThree_GpuColorType;
+        }
+    }
+    return kTexture_GpuColorType;
+}
+
 bool SkGradientShaderBase::isOpaque() const {
     return fColorsAreOpaque;
 }
@@ -832,13 +849,13 @@ GrGLGradientEffect::~GrGLGradientEffect() { }
 
 void GrGLGradientEffect::emitUniforms(GrGLShaderBuilder* builder, EffectKey key) {
 
-    if (GrGradientEffect::kTwo_ColorType == ColorTypeFromKey(key)) { // 2 Color case
+    if (SkGradientShaderBase::kTwo_GpuColorType == ColorTypeFromKey(key)) { // 2 Color case
         fColorStartUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                              kVec4f_GrSLType, "GradientStartColor");
         fColorEndUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                            kVec4f_GrSLType, "GradientEndColor");
 
-    } else if (GrGradientEffect::kThree_ColorType == ColorTypeFromKey(key)){ // 3 Color Case
+    } else if (SkGradientShaderBase::kThree_GpuColorType == ColorTypeFromKey(key)){ // 3 Color Case
         fColorStartUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
                                              kVec4f_GrSLType, "GradientStartColor");
         fColorMidUni = builder->addUniform(GrGLShaderBuilder::kFragment_Visibility,
@@ -880,7 +897,7 @@ void GrGLGradientEffect::setData(const GrGLUniformManager& uman,
     const GrGradientEffect& e = drawEffect.castEffect<GrGradientEffect>();
 
 
-    if (GrGradientEffect::kTwo_ColorType == e.getColorType()){
+    if (SkGradientShaderBase::kTwo_GpuColorType == e.getColorType()){
 
         if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
             set_mul_color_uni(uman, fColorStartUni, e.getColors(0));
@@ -890,7 +907,7 @@ void GrGLGradientEffect::setData(const GrGLUniformManager& uman,
             set_color_uni(uman, fColorEndUni,   e.getColors(1));
         }
 
-    } else if (GrGradientEffect::kThree_ColorType == e.getColorType()){
+    } else if (SkGradientShaderBase::kThree_GpuColorType == e.getColorType()){
 
         if (GrGradientEffect::kBeforeInterp_PremulType == e.getPremulType()) {
             set_mul_color_uni(uman, fColorStartUni, e.getColors(0));
@@ -917,9 +934,9 @@ GrGLEffect::EffectKey GrGLGradientEffect::GenBaseGradientKey(const GrDrawEffect&
 
     EffectKey key = 0;
 
-    if (GrGradientEffect::kTwo_ColorType == e.getColorType()) {
+    if (SkGradientShaderBase::kTwo_GpuColorType == e.getColorType()) {
         key |= kTwoColorKey;
-    } else if (GrGradientEffect::kThree_ColorType == e.getColorType()){
+    } else if (SkGradientShaderBase::kThree_GpuColorType == e.getColorType()){
         key |= kThreeColorKey;
     }
 
@@ -936,7 +953,7 @@ void GrGLGradientEffect::emitColor(GrGLShaderBuilder* builder,
                                    const char* outputColor,
                                    const char* inputColor,
                                    const TextureSamplerArray& samplers) {
-    if (GrGradientEffect::kTwo_ColorType == ColorTypeFromKey(key)){
+    if (SkGradientShaderBase::kTwo_GpuColorType == ColorTypeFromKey(key)){
         builder->fsCodeAppendf("\tvec4 colorTemp = mix(%s, %s, clamp(%s, 0.0, 1.0));\n",
                                builder->getUniformVariable(fColorStartUni).c_str(),
                                builder->getUniformVariable(fColorEndUni).c_str(),
@@ -952,7 +969,7 @@ void GrGLGradientEffect::emitColor(GrGLShaderBuilder* builder,
 
         builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
                                (GrGLSLExpr4(inputColor) * GrGLSLExpr4("colorTemp")).c_str());
-    } else if (GrGradientEffect::kThree_ColorType == ColorTypeFromKey(key)){
+    } else if (SkGradientShaderBase::kThree_GpuColorType == ColorTypeFromKey(key)){
         builder->fsCodeAppendf("\tfloat oneMinus2t = 1.0 - (2.0 * (%s));\n",
                                gradientTValue);
         builder->fsCodeAppendf("\tvec4 colorTemp = clamp(oneMinus2t, 0.0, 1.0) * %s;\n",
@@ -997,30 +1014,14 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
 
     fIsOpaque = shader.isOpaque();
 
-    SkShader::GradientInfo info;
-    SkScalar pos[3] = {0};
-
-    info.fColorCount = 3;
-    info.fColors = &fColors[0];
-    info.fColorOffsets = &pos[0];
-    shader.asAGradient(&info);
+    fColorType = shader.getGpuColorType(&fColors[0]);
 
     // The two and three color specializations do not currently support tiling.
-    bool foundSpecialCase = false;
-    if (SkShader::kClamp_TileMode == info.fTileMode) {
-        if (2 == info.fColorCount) {
-            fRow = -1; // flag for no atlas
-            fColorType = kTwo_ColorType;
-            foundSpecialCase = true;
-        } else if (3 == info.fColorCount &&
-                   (SkScalarAbs(pos[1] - SK_ScalarHalf) < SK_Scalar1 / 1000)) { // 3 color symmetric
-            fRow = -1; // flag for no atlas
-            fColorType = kThree_ColorType;
-            foundSpecialCase = true;
-        }
-    }
-    if (foundSpecialCase) {
-        if (SkGradientShader::kInterpolateColorsInPremul_Flag & info.fGradientFlags) {
+    if (SkGradientShaderBase::kTwo_GpuColorType == fColorType ||
+        SkGradientShaderBase::kThree_GpuColorType == fColorType) {
+        fRow = -1;
+        
+        if (SkGradientShader::kInterpolateColorsInPremul_Flag & shader.getFlags()) {
             fPremulType = kBeforeInterp_PremulType;
         } else {
             fPremulType = kAfterInterp_PremulType;
@@ -1031,7 +1032,6 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
         fPremulType = kBeforeInterp_PremulType;
         SkBitmap bitmap;
         shader.getGradientTableBitmap(&bitmap);
-        fColorType = kTexture_ColorType;
 
         GrTextureStripAtlas::Desc desc;
         desc.fWidth  = bitmap.width();
@@ -1080,12 +1080,12 @@ bool GrGradientEffect::onIsEqual(const GrEffect& effect) const {
 
     if (this->fColorType == s.getColorType()){
 
-        if (kTwo_ColorType == fColorType) {
+        if (SkGradientShaderBase::kTwo_GpuColorType == fColorType) {
             if (*this->getColors(0) != *s.getColors(0) ||
                 *this->getColors(1) != *s.getColors(1)) {
                 return false;
             }
-        } else if (kThree_ColorType == fColorType) {
+        } else if (SkGradientShaderBase::kThree_GpuColorType == fColorType) {
             if (*this->getColors(0) != *s.getColors(0) ||
                 *this->getColors(1) != *s.getColors(1) ||
                 *this->getColors(2) != *s.getColors(2)) {

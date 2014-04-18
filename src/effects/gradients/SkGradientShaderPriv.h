@@ -128,6 +128,18 @@ public:
         kDitherStride16 = kCache16Count,
     };
 
+    enum GpuColorType {
+        kTwo_GpuColorType,
+        kThree_GpuColorType, // Symmetric three color
+        kTexture_GpuColorType
+    };
+
+    // Determines and returns the gradient is a two color gradient, symmetric three color gradient
+    // or other (texture gradient). If it is two or symmetric three color, the colors array will
+    // also be filled with the gradient colors
+    GpuColorType getGpuColorType(SkColor colors[3]) const;
+
+    uint32_t getFlags() const { return fGradFlags; } 
 
 protected:
     SkGradientShaderBase(SkReadBuffer& );
@@ -251,13 +263,7 @@ public:
 
     virtual void getConstantColorComponents(GrColor* color, uint32_t* validFlags) const SK_OVERRIDE;
 
-    enum ColorType {
-        kTwo_ColorType,
-        kThree_ColorType,
-        kTexture_ColorType
-    };
-
-    ColorType getColorType() const { return fColorType; }
+    SkGradientShaderBase::GpuColorType getColorType() const { return fColorType; }
 
     enum PremulType {
         kBeforeInterp_PremulType,
@@ -267,7 +273,7 @@ public:
     PremulType getPremulType() const { return fPremulType; }
 
     const SkColor* getColors(int pos) const {
-        SkASSERT(fColorType != kTexture_ColorType);
+        SkASSERT(fColorType != SkGradientShaderBase::kTexture_GpuColorType);
         SkASSERT((pos-1) <= fColorType);
         return &fColors[pos];
     }
@@ -294,18 +300,14 @@ protected:
 private:
     static const GrCoordSet kCoordSet = kLocal_GrCoordSet;
 
-    enum {
-        kMaxAnalyticColors = 3 // if more colors use texture
-    };
-
     GrCoordTransform fCoordTransform;
     GrTextureAccess fTextureAccess;
     SkScalar fYCoord;
     GrTextureStripAtlas* fAtlas;
     int fRow;
     bool fIsOpaque;
-    ColorType fColorType;
-    SkColor fColors[kMaxAnalyticColors];
+    SkGradientShaderBase::GpuColorType fColorType;
+    SkColor fColors[3]; // More than 3 colors we use texture
     PremulType fPremulType; // This only changes behavior for two and three color special cases.
                             // It is already baked into to the table for texture gradients.
     typedef GrEffect INHERITED;
@@ -338,12 +340,12 @@ protected:
         kBaseKeyBitCnt = (kPremulTypeKeyBitCnt + kColorKeyBitCnt)
     };
 
-    static GrGradientEffect::ColorType ColorTypeFromKey(EffectKey key){
+    static SkGradientShaderBase::GpuColorType ColorTypeFromKey(EffectKey key){
         if (kTwoColorKey == (key & kColorKeyMask)) {
-            return GrGradientEffect::kTwo_ColorType;
+            return SkGradientShaderBase::kTwo_GpuColorType;
         } else if (kThreeColorKey == (key & kColorKeyMask)) {
-            return GrGradientEffect::kThree_ColorType;
-        } else {return GrGradientEffect::kTexture_ColorType;}
+            return SkGradientShaderBase::kThree_GpuColorType;
+        } else {return SkGradientShaderBase::kTexture_GpuColorType;}
     }
 
     static GrGradientEffect::PremulType PremulTypeFromKey(EffectKey key){
