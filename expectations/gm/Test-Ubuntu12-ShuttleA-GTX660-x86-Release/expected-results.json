@@ -8996,10 +8996,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7197704326183722998
+          12273653956620770758
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "filltypespersp_msaa16.png": {
       "allowed-digests": [

@@ -3793,14 +3793,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4154170096558850878
+          18341071975247024765
         ]
       ], 
-      "bugs": [
-        2152
-      ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "filterbitmap_checkerboard_192_192_565.png": {
       "allowed-digests": [

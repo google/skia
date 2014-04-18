@@ -37,10 +37,6 @@
 # http://skbug.com/2222 : Inverse filled paths get inverse stroked
 inverse_paths
 
-# bsalomon: This test changed imperceptibly on my windows laptop with an intel gpu
-# https://codereview.chromium.org/204983003/
-filltypespersp
-
 # reed: https://codereview.chromium.org/190723004/
 # This change removes an API that this GM was testing. If/when it lands and sticks,
 # I will likely just delete the GM.
