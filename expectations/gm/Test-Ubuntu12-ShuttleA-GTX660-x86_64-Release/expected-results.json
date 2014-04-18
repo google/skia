@@ -8595,13 +8595,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15779709998424192045
+          4223157266221639889
         ]
       ], 
-      "bugs": [
-        2325
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "drrect_msaa16.png": {
       "allowed-digests": [

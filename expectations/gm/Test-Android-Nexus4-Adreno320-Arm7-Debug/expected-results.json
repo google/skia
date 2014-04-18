@@ -4060,13 +4060,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5600345847268631056
+          6560520154614986954
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "emptypath_565.png": {
       "allowed-digests": [

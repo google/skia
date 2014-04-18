@@ -50,10 +50,6 @@ canvas-layer-state
 # This change add some cases to bitmapshader to avoid potential drawing error for kA8_Config
 bitmapshaders
 
-# bsalomon: This image will change on the GPU due to an accelerated drawDRRect() implementation.
-# https://codereview.chromium.org/220233011/
-drrect
-
 # reed: https://codereview.chromium.org/233943002
 # GM itself may be changed
 image-surface
