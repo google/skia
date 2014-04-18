@@ -37,16 +37,6 @@
 # http://skbug.com/2222 : Inverse filled paths get inverse stroked
 inverse_paths
 
-# bsalomon: Additional test cases were added to these GMs
-# https://codereview.chromium.org/193263002/
-# The rrect_clip_aa and rrect_effect tests were additionally modified by:
-# https://codereview.chromium.org/194603004
-rrect_effect
-rrect_draw_bw
-rrect_draw_aa
-rrect_clip_bw
-rrect_clip_aa
-
 # bsalomon: This test changed imperceptibly on my windows laptop with an intel gpu
 # https://codereview.chromium.org/204983003/
 filltypespersp
