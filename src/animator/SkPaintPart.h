@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-
-#ifndef SkPaintParts_DEFINED
-#define SkPaintParts_DEFINED
+#ifndef SkPaintPart_DEFINED
+#define SkPaintPart_DEFINED
 
 #include "SkDisplayable.h"
 #include "SkMemberInfo.h"
@@ -72,4 +70,4 @@ protected:
     SkTypeface::Style style;
 };
 
-#endif // SkPaintParts_DEFINED
+#endif // SkPaintPart_DEFINED

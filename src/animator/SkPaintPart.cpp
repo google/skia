@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkPaintParts.h"
+#include "SkPaintPart.h"
 #include "SkDrawPaint.h"
 #ifdef SK_DUMP_ENABLED
 #include "SkDisplayList.h"

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkDrawTransparentShader_DEFINED
 #define SkDrawTransparentShader_DEFINED
 
-#include "SkPaintParts.h"
+#include "SkPaintPart.h"
 
 class SkDrawTransparentShader : public SkDrawShader {
     DECLARE_EMPTY_MEMBER_INFO(TransparentShader);

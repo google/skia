@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkDrawBlur_DEFINED
 #define SkDrawBlur_DEFINED
 
-#include "SkPaintParts.h"
+#include "SkPaintPart.h"
 #include "SkBlurMaskFilter.h"
 
 class SkDrawBlur : public SkDrawMaskFilter {
