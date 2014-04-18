@@ -9,6 +9,7 @@
 #include "SkBitmapSource.h"
 #include "SkCanvas.h"
 #include "SkMallocPixelRef.h"
+#include "SkPictureRecorder.h"
 #include "SkTemplates.h"
 #include "SkWriteBuffer.h"
 #include "SkValidatingReadBuffer.h"

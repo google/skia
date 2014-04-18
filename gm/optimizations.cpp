@@ -8,6 +8,7 @@
 #include "gm.h"
 #include "SkDebugCanvas.h"
 #include "SkPictureFlat.h"
+#include "SkPictureRecorder.h"
 
 #define WARN(msg)                                           \
     SkDebugf("%s:%d: %s\n", __FILE__, __LINE__, msg);

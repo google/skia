@@ -16,6 +16,7 @@
 #include "SkMath.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "PictureRenderer.h"

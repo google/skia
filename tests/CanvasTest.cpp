@@ -55,6 +55,7 @@
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkPictureRecord.h"
+#include "SkPictureRecorder.h"
 #include "SkProxyCanvas.h"
 #include "SkRect.h"
 #include "SkRegion.h"

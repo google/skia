@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkPictureRecorder.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"

@@ -7,6 +7,7 @@
  */
 
 #include "SkDebugger.h"
+#include "SkPictureRecorder.h"
 #include "SkString.h"
 
 

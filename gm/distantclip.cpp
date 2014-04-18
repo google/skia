@@ -10,6 +10,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 
 namespace skiagm {
 

@@ -7,8 +7,8 @@
 
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
+#include "SkPictureRecorder.h"
 #include "SkTileGrid.h"
-#include "SkTileGridPicture.h"
 #include "Test.h"
 
 enum Tile {

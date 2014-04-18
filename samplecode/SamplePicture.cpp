@@ -17,6 +17,7 @@
 #include "SkOSFile.h"
 #include "SkPath.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkShader.h"

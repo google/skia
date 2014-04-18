@@ -11,6 +11,7 @@
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
 
+#include "SkBBHFactory.h"
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkChunkAlloc.h"

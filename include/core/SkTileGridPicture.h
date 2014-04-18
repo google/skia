@@ -8,40 +8,15 @@
 #ifndef SkTileGridPicture_DEFINED
 #define SkTileGridPicture_DEFINED
 
+#ifdef SK_SUPPORT_LEGACY_PICTURE_HEADERS
+#include "SkBBHFactory.h"
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
+
 #include "SkPicture.h"
 #include "SkPoint.h"
 #include "SkSize.h"
-
-class SkTileGridFactory : public SkBBHFactory {
-public:
-    struct TileGridInfo {
-        /** Tile placement interval */
-        SkISize  fTileInterval;
-
-        /** Pixel coverage overlap between adjacent tiles */
-        SkISize  fMargin;
-
-        /** Offset added to device-space bounding box positions to convert
-          * them to tile-grid space. This can be used to adjust the "phase"
-          * of the tile grid to match probable query rectangles that will be
-          * used to search into the tile grid. As long as the offset is smaller
-          * or equal to the margin, there is no need to extend the domain of
-          * the tile grid to prevent data loss.
-          */
-        SkIPoint fOffset;
-    };
-
-    SkTileGridFactory(const TileGridInfo& info) : fInfo(info) { }
-
-    virtual SkBBoxHierarchy* operator()(int width, int height) const SK_OVERRIDE;
-
-private:
-    TileGridInfo fInfo;
-
-    typedef SkBBHFactory INHERITED;
-};
-
-#ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
 
 /**
  * Subclass of SkPicture that creates an SkTileGrid. The tile grid has lower recording

@@ -15,14 +15,12 @@
 #include "SkImageGenerator.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkPictureUtils.h"
-#include "SkQuadTreePicture.h"
 #include "SkRRect.h"
 #include "SkRandom.h"
-#include "SkRTreePicture.h"
 #include "SkShader.h"
 #include "SkStream.h"
-#include "SkTileGrid.h"
 #include "Test.h"
 
 static const int gColorScale = 30;

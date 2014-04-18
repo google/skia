@@ -34,16 +34,14 @@
 #include "SkOSFile.h"
 #include "SkPDFRasterizer.h"
 #include "SkPicture.h"
-#include "SkQuadTreePicture.h"
+#include "SkPictureRecorder.h"
 #include "SkRefCnt.h"
-#include "SkRTreePicture.h"
 #include "SkScalar.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTArray.h"
 #include "SkTDict.h"
-#include "SkTileGridPicture.h"
 #include "SamplePipeControllers.h"
 
 #ifdef SK_DEBUG

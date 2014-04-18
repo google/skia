@@ -15,6 +15,7 @@
 #include "SkPicture.h"
 #include "SkPicturePlayback.h"
 #include "SkPictureRecord.h"
+#include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "picture_utils.h"
 #include "path_utils.h"

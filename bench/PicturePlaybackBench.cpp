@@ -9,6 +9,7 @@
 #include "SkColor.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkPoint.h"
 #include "SkRect.h"
 #include "SkString.h"

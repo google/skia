@@ -15,13 +15,13 @@
 #include "SkMath.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
 #include "SkRunnable.h"
 #include "SkString.h"
 #include "SkTDArray.h"
 #include "SkThreadPool.h"
-#include "SkTileGridPicture.h"
 #include "SkTypes.h"
 
 #if SK_SUPPORT_GPU

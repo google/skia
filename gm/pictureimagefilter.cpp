@@ -8,6 +8,7 @@
 #include "gm.h"
 
 #include "SkPictureImageFilter.h"
+#include "SkPictureRecorder.h"
 
 // This GM exercises the SkPictureImageFilter ImageFilter class.
 

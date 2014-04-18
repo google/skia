@@ -26,6 +26,7 @@
 #include "SkLayerRasterizer.h"
 #include "SkMath.h"
 #include "SkPath.h"
+#include "SkPictureRecorder.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkComposeShader.h"

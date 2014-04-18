@@ -12,6 +12,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkScalar.h"
 #include "SkStream.h"
 

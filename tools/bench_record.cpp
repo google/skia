@@ -10,12 +10,10 @@
 #include "SkGraphics.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
-#include "SkQuadTreePicture.h"
+#include "SkPictureRecorder.h"
 #include "SkRecording.h"
-#include "SkRTreePicture.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkTileGridPicture.h"
 #include "SkTime.h"
 #include "LazyDecodeBitmap.h"
 

@@ -1,6 +1,7 @@
 #include "DMUtil.h"
 
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 
 namespace DM {
 

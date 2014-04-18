@@ -24,7 +24,7 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPicture.h"
-#include "SkRTreePicture.h"
+#include "SkPictureRecorder.h"
 #include "SkRect.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"

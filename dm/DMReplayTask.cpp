@@ -2,9 +2,9 @@
 #include "DMWriteTask.h"
 #include "DMUtil.h"
 
+#include "SkBBHFactory.h"
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
-#include "SkRTreePicture.h"
 
 DEFINE_bool(replay, true, "If true, run picture replay tests.");
 DEFINE_bool(rtree,  true, "If true, run picture replay tests with an rtree.");

@@ -2,9 +2,9 @@
 #include "DMWriteTask.h"
 #include "DMUtil.h"
 
+#include "SkBBHFactory.h"
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
-#include "SkTileGridPicture.h"
 
 // TODO(mtklein): Tile grid tests are currently failing.  (Skia issue 1198).  When fixed, -> true.
 DEFINE_bool(tileGrid, false, "If true, run picture replay tests with a tile grid.");

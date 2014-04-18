@@ -11,6 +11,7 @@
 #include "SkOSMenu.h"
 #include "SkPath.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkScalar.h"
 #include "SkTDArray.h"
 #include "SkTouchGesture.h"

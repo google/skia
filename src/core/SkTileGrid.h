@@ -9,9 +9,9 @@
 #ifndef SkTileGrid_DEFINED
 #define SkTileGrid_DEFINED
 
+#include "SkBBHFactory.h"
 #include "SkBBoxHierarchy.h"
 #include "SkPictureStateTree.h"
-#include "SkTileGridPicture.h" // for TileGridInfo
 
 /**
  * Subclass of SkBBoxHierarchy that stores elements in buckets that correspond

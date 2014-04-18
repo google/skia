@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkShader.h"
 
 namespace skiagm {

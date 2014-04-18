@@ -14,6 +14,7 @@
 #include "SkImageEncoder.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "SkTSort.h"
 #include "SkTime.h"

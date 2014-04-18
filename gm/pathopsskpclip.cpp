@@ -13,6 +13,7 @@
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkRect.h"
 
 namespace skiagm {
