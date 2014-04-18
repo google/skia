@@ -285,9 +285,7 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
     SkAutoTUnref<MatrixTestImageFilter> imageFilter(
         new MatrixTestImageFilter(reporter, expectedMatrix));
     paint.setImageFilter(imageFilter.get());
-    SkCanvas::SaveFlags saveFlags = static_cast<SkCanvas::SaveFlags>(
-        SkCanvas::kHasAlphaLayer_SaveFlag | SkCanvas::kFullColorLayer_SaveFlag);
-    recordingCanvas->saveLayer(NULL, &paint, saveFlags);
+    recordingCanvas->saveLayer(NULL, &paint);
     SkPaint solidPaint;
     solidPaint.setColor(0xFFFFFFFF);
     recordingCanvas->save();

@@ -152,7 +152,7 @@ private:
 
         SkCanvas* modeCanvas;
         if (NULL == layerCanvas) {
-            canvas->saveLayer(&r, NULL, SkCanvas::kARGB_ClipLayer_SaveFlag);
+            canvas->saveLayer(&r, NULL);
             modeCanvas = canvas;
         } else {
             modeCanvas = layerCanvas;

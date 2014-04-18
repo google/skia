@@ -69,11 +69,11 @@ static void test_fade(SkCanvas* canvas) {
     canvas->clipRect(r);
 
     r.fBottom = SkIntToScalar(20);
-    canvas->saveLayer(&r, NULL, (SkCanvas::SaveFlags)(SkCanvas::kHasAlphaLayer_SaveFlag | SkCanvas::kFullColorLayer_SaveFlag));
+    canvas->saveLayer(&r, NULL);
 
     r.fTop = SkIntToScalar(80);
     r.fBottom = SkIntToScalar(100);
-    canvas->saveLayer(&r, NULL, (SkCanvas::SaveFlags)(SkCanvas::kHasAlphaLayer_SaveFlag | SkCanvas::kFullColorLayer_SaveFlag));
+    canvas->saveLayer(&r, NULL);
 
     // now draw the "content"
 
@@ -203,7 +203,7 @@ protected:
             r.set(SkIntToScalar(0), SkIntToScalar(0),
                   SkIntToScalar(220), SkIntToScalar(60));
 
-            canvas->saveLayer(&r, &p, (SkCanvas::SaveFlags)(SkCanvas::kHasAlphaLayer_SaveFlag | SkCanvas::kFullColorLayer_SaveFlag));
+            canvas->saveLayer(&r, &p);
 
             r.set(SkIntToScalar(0), SkIntToScalar(0),
                   SkIntToScalar(220), SkIntToScalar(120));

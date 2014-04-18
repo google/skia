@@ -112,7 +112,7 @@ class XfermodesGM : public GM {
                 break;
             }
             case kRectangleWithMask_SrcType: {
-                canvas->save(SkCanvas::kClip_SaveFlag);
+                canvas->save();
                 restoreNeeded = true;
                 SkScalar w = SkIntToScalar(W);
                 SkScalar h = SkIntToScalar(H);
@@ -247,7 +247,7 @@ protected:
                 p.setShader(s);
                 canvas->drawRect(r, p);
 
-                canvas->saveLayer(&r, NULL, SkCanvas::kARGB_ClipLayer_SaveFlag);
+                canvas->saveLayer(&r, NULL);
                 draw_mode(canvas, mode, static_cast<SrcType>(sourceType),
                           r.fLeft, r.fTop);
                 canvas->restore();

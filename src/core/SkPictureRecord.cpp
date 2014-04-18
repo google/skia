@@ -770,7 +770,7 @@ void SkPictureRecord::beginRecording() {
     // we have to call this *after* our constructor, to ensure that it gets
     // recorded. This is balanced by restoreToCount() call from endRecording,
     // which in-turn calls our overridden restore(), so those get recorded too.
-    fInitialSaveCount = this->save(kMatrixClip_SaveFlag);
+    fInitialSaveCount = this->save();
 }
 
 void SkPictureRecord::endRecording() {

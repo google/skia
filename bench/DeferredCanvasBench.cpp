@@ -83,7 +83,7 @@ protected:
         rect.setXYWH(0, 0, 10, 10);
         SkPaint paint;
         for (int i = 0; i < loops; i++) {
-            canvas->save(SkCanvas::kMatrixClip_SaveFlag);
+            canvas->save();
             canvas->translate(SkIntToScalar(i * 27 % CANVAS_WIDTH), SkIntToScalar(i * 13 % CANVAS_HEIGHT));
             canvas->drawRect(rect, paint);
             canvas->restore();

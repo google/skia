@@ -37,7 +37,7 @@ SkLayerDrawLooper::~SkLayerDrawLooper() {
 }
 
 SkLayerDrawLooper::Context* SkLayerDrawLooper::createContext(SkCanvas* canvas, void* storage) const {
-    canvas->save(SkCanvas::kMatrix_SaveFlag);
+    canvas->save();
     return SkNEW_PLACEMENT_ARGS(storage, LayerDrawLooperContext, (this));
 }
 
@@ -140,7 +140,7 @@ bool SkLayerDrawLooper::LayerDrawLooperContext::next(SkCanvas* canvas,
 
     ApplyInfo(paint, fCurrRec->fPaint, fCurrRec->fInfo);
 
-    canvas->save(SkCanvas::kMatrix_SaveFlag);
+    canvas->save();
     if (fCurrRec->fInfo.fPostTranslate) {
         postTranslate(canvas, fCurrRec->fInfo.fOffset.fX,
                       fCurrRec->fInfo.fOffset.fY);

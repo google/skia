@@ -54,7 +54,7 @@ protected:
             SkRect r = SkRect::MakeWH(w, h);
             canvas->drawRect(r, p);
 
-            canvas->saveLayer(&r, NULL, SkCanvas::kARGB_ClipLayer_SaveFlag);
+            canvas->saveLayer(&r, NULL);
 
             p.setShader(fDst);
             canvas->drawRect(r, p);

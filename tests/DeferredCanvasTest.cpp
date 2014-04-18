@@ -290,20 +290,20 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, canvas->isFreshFrame());
 
     // Verify that clear with saved state triggers a fresh frame
-    canvas->save(SkCanvas::kMatrixClip_SaveFlag);
+    canvas->save();
     canvas->clear(0x00000000);
     canvas->restore();
     REPORTER_ASSERT(reporter, canvas->isFreshFrame());
 
     // Verify that clear within a layer does NOT trigger a fresh frame
-    canvas->saveLayer(NULL, NULL, SkCanvas::kARGB_ClipLayer_SaveFlag);
+    canvas->saveLayer(NULL, NULL);
     canvas->clear(0x00000000);
     canvas->restore();
     REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
 
     // Verify that a clear with clipping triggers a fresh frame
     // (clear is not affected by clipping)
-    canvas->save(SkCanvas::kMatrixClip_SaveFlag);
+    canvas->save();
     canvas->clipRect(partialRect, SkRegion::kIntersect_Op, false);
     canvas->clear(0x00000000);
     canvas->restore();
@@ -389,7 +389,7 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
     // Verify that incomplete coverage due to clipping does not trigger a fresh
     // frame
     {
-        canvas->save(SkCanvas::kMatrixClip_SaveFlag);
+        canvas->save();
         canvas->clipRect(partialRect, SkRegion::kIntersect_Op, false);
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
@@ -399,7 +399,7 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, !canvas->isFreshFrame());
     }
     {
-        canvas->save(SkCanvas::kMatrixClip_SaveFlag);
+        canvas->save();
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
         paint.setAlpha(255);
