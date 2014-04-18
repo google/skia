@@ -131,12 +131,12 @@ static int max_glyphid_for_typeface(SkTypeface* typeface) {
 
 typedef SkAutoSTMalloc<128, uint16_t> SkGlyphStorage;
 
-static size_t force_glyph_encoding(const SkPaint& paint, const void* text,
-                                   size_t len, SkGlyphStorage* storage,
-                                   uint16_t** glyphIDs) {
+static int force_glyph_encoding(const SkPaint& paint, const void* text,
+                                size_t len, SkGlyphStorage* storage,
+                                uint16_t** glyphIDs) {
     // Make sure we have a glyph id encoding.
     if (paint.getTextEncoding() != SkPaint::kGlyphID_TextEncoding) {
-        size_t numGlyphs = paint.textToGlyphs(text, len, NULL);
+        int numGlyphs = paint.textToGlyphs(text, len, NULL);
         storage->reset(numGlyphs);
         paint.textToGlyphs(text, len, storage->get());
         *glyphIDs = storage->get();
@@ -145,12 +145,12 @@ static size_t force_glyph_encoding(const SkPaint& paint, const void* text,
 
     // For user supplied glyph ids we need to validate them.
     SkASSERT((len & 1) == 0);
-    size_t numGlyphs = len / 2;
+    int numGlyphs = SkToInt(len / 2);
     const uint16_t* input =
         reinterpret_cast<uint16_t*>(const_cast<void*>((text)));
 
     int maxGlyphID = max_glyphid_for_typeface(paint.getTypeface());
-    size_t validated;
+    int validated;
     for (validated = 0; validated < numGlyphs; ++validated) {
         if (input[validated] > maxGlyphID) {
             break;
@@ -167,7 +167,7 @@ static size_t force_glyph_encoding(const SkPaint& paint, const void* text,
         memcpy(storage->get(), input, validated * sizeof(uint16_t));
     }
 
-    for (size_t i = validated; i < numGlyphs; ++i) {
+    for (int i = validated; i < numGlyphs; ++i) {
         storage->get()[i] = input[i];
         if (input[i] > maxGlyphID) {
             storage->get()[i] = 0;
@@ -1126,8 +1126,7 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
 
     SkGlyphStorage storage(0);
     uint16_t* glyphIDs = NULL;
-    size_t numGlyphs = force_glyph_encoding(paint, text, len, &storage,
-                                            &glyphIDs);
+    int numGlyphs = force_glyph_encoding(paint, text, len, &storage, &glyphIDs);
     textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
     SkDrawCacheProc glyphCacheProc = textPaint.getDrawCacheProc();
@@ -1135,11 +1134,11 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     content.entry()->fContent.writeText("BT\n");
     set_text_transform(x, y, textPaint.getTextSkewX(),
                        &content.entry()->fContent);
-    size_t consumedGlyphCount = 0;
+    int consumedGlyphCount = 0;
     while (numGlyphs > consumedGlyphCount) {
         updateFont(textPaint, glyphIDs[consumedGlyphCount], content.entry());
         SkPDFFont* font = content.entry()->fState.fFont;
-        size_t availableGlyphs =
+        int availableGlyphs =
             font->glyphsToPDFFontEncoding(glyphIDs + consumedGlyphCount,
                                           numGlyphs - consumedGlyphCount);
         fFontGlyphUsage->noteGlyphUsage(font, glyphIDs + consumedGlyphCount,

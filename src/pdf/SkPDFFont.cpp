@@ -568,21 +568,21 @@ static void sk_delete_array(const void* ptr, size_t, void*) {
 }
 #endif
 
-static int get_subset_font_stream(const char* fontName,
-                                  const SkTypeface* typeface,
-                                  const SkTDArray<uint32_t>& subset,
-                                  SkPDFStream** fontStream) {
+static size_t get_subset_font_stream(const char* fontName,
+                                     const SkTypeface* typeface,
+                                     const SkTDArray<uint32_t>& subset,
+                                     SkPDFStream** fontStream) {
     int ttcIndex;
     SkAutoTUnref<SkStream> fontData(typeface->openStream(&ttcIndex));
 
-    int fontSize = fontData->getLength();
+    size_t fontSize = fontData->getLength();
 
 #if defined (SK_SFNTLY_SUBSETTER)
     // Read font into buffer.
     SkPDFStream* subsetFontStream = NULL;
     SkTDArray<unsigned char> originalFont;
-    originalFont.setCount(fontSize);
-    if (fontData->read(originalFont.begin(), fontSize) == (size_t)fontSize) {
+    originalFont.setCount(SkToInt(fontSize));
+    if (fontData->read(originalFont.begin(), fontSize) == fontSize) {
         unsigned char* subsetFont = NULL;
         // sfntly requires unsigned int* to be passed in, as far as we know,
         // unsigned int is equivalent to uint32_t on all platforms.
@@ -765,14 +765,13 @@ bool SkPDFFont::hasGlyph(uint16_t id) {
     return (id >= fFirstGlyphID && id <= fLastGlyphID) || id == 0;
 }
 
-size_t SkPDFFont::glyphsToPDFFontEncoding(uint16_t* glyphIDs,
-                                          size_t numGlyphs) {
+int SkPDFFont::glyphsToPDFFontEncoding(uint16_t* glyphIDs, int numGlyphs) {
     // A font with multibyte glyphs will support all glyph IDs in a single font.
     if (this->multiByteGlyphs()) {
         return numGlyphs;
     }
 
-    for (size_t i = 0; i < numGlyphs; i++) {
+    for (int i = 0; i < numGlyphs; i++) {
         if (glyphIDs[i] == 0) {
             continue;
         }
@@ -1112,10 +1111,10 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
             SkASSERT(subset);
             // Font subsetting
             SkPDFStream* rawStream = NULL;
-            int fontSize = get_subset_font_stream(fontInfo()->fFontName.c_str(),
-                                                  typeface(),
-                                                  *subset,
-                                                  &rawStream);
+            size_t fontSize = get_subset_font_stream(fontInfo()->fFontName.c_str(),
+                                                     typeface(),
+                                                     *subset,
+                                                     &rawStream);
             SkASSERT(fontSize);
             SkASSERT(rawStream);
             SkAutoTUnref<SkPDFStream> fontStream(rawStream);

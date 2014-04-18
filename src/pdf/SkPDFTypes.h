@@ -392,6 +392,14 @@ public:
      */
     void insertInt(const char key[], int32_t value);
 
+    /**
+     *  Calls insertInt() but asserts in debug builds that the value can be represented
+     *  by an int32_t.
+     */
+    void insertInt(const char key[], size_t value) {
+        this->insertInt(key, SkToS32(value));
+    }
+
     /** Add the scalar to the dictionary with the given key.
      *  @param key   The text of the key for this dictionary entry.
      *  @param value The scalar value for this dictionary entry.
