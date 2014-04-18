@@ -27,7 +27,6 @@ struct SkClampRange {
     SkFixed fFx1;   // initial fx value for the fCount1 range.
                     // only valid if fCount1 > 0
     int fV0, fV1;
-    bool fOverflowed;   // true if we had to clamp due to numerical overflow
 
     void init(SkFixed fx, SkFixed dx, int count, int v0, int v1);
 

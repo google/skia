@@ -50,33 +50,24 @@ static void slow_check(const SkClampRange& range,
                        SkFixed fx, SkFixed dx, int count) {
     SkASSERT(range.fCount0 + range.fCount1 + range.fCount2 == count);
 
-    int i;
-    if (range.fOverflowed) {
-        fx = range.fFx1;
-        for (i = 0; i < range.fCount1; i++) {
-            R_ASSERT(fx >= 0 && fx <= 0xFFFF);
-            fx += dx;
-        }
-    } else {
-        for (i = 0; i < range.fCount0; i++) {
-            int v = classify_value(fx, V0, V1);
-            R_ASSERT(v == range.fV0);
-            fx += dx;
-        }
-        if (range.fCount1 > 0 && fx != range.fFx1) {
-            SkDebugf("%x %x\n", fx, range.fFx1);
-            R_ASSERT(false); // bad fFx1
-            return;
-        }
-        for (i = 0; i < range.fCount1; i++) {
-            R_ASSERT(fx >= 0 && fx <= 0xFFFF);
-            fx += dx;
-        }
-        for (i = 0; i < range.fCount2; i++) {
-            int v = classify_value(fx, V0, V1);
-            R_ASSERT(v == range.fV1);
-            fx += dx;
-        }
+    for (int i = 0; i < range.fCount0; i++) {
+        int v = classify_value(fx, V0, V1);
+        R_ASSERT(v == range.fV0);
+        fx += dx;
+    }
+    if (range.fCount1 > 0 && fx != range.fFx1) {
+        SkDebugf("%x %x\n", fx, range.fFx1);
+        R_ASSERT(false); // bad fFx1
+        return;
+    }
+    for (int i = 0; i < range.fCount1; i++) {
+        R_ASSERT(fx >= 0 && fx <= 0xFFFF);
+        fx += dx;
+    }
+    for (int i = 0; i < range.fCount2; i++) {
+        int v = classify_value(fx, V0, V1);
+        R_ASSERT(v == range.fV1);
+        fx += dx;
     }
 }
 
