@@ -1391,9 +1391,9 @@ void SkProcCoeffXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
                                  const SkPMColor* SK_RESTRICT src, int count,
                                  const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
-    
+
     SkXfermodeProc proc = fProc;
-    
+
     if (NULL != proc) {
         if (NULL == aa) {
             for (int i = count - 1; i >= 0; --i) {
@@ -1419,9 +1419,9 @@ void SkProcCoeffXfermode::xfer16(uint16_t* SK_RESTRICT dst,
                                  const SkPMColor* SK_RESTRICT src, int count,
                                  const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
-    
+
     SkXfermodeProc proc = fProc;
-    
+
     if (NULL != proc) {
         if (NULL == aa) {
             for (int i = count - 1; i >= 0; --i) {
@@ -1448,9 +1448,9 @@ void SkProcCoeffXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
                                  const SkPMColor* SK_RESTRICT src, int count,
                                  const SkAlpha* SK_RESTRICT aa) const {
     SkASSERT(dst && src && count >= 0);
-    
+
     SkXfermodeProc proc = fProc;
-    
+
     if (NULL != proc) {
         if (NULL == aa) {
             for (int i = count - 1; i >= 0; --i) {

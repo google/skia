@@ -256,7 +256,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
 
 #endif
 
-SkCanvas* SkPicture::beginRecording(int width, int height, 
+SkCanvas* SkPicture::beginRecording(int width, int height,
                                     SkBBHFactory* bbhFactory,
                                     uint32_t recordingFlags) {
     if (fPlayback) {
@@ -276,7 +276,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     if (NULL != bbhFactory) {
         SkAutoTUnref<SkBBoxHierarchy> tree((*bbhFactory)(width, height));
         SkASSERT(NULL != tree);
-        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (size, 
+        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (size,
                                                      recordingFlags|
                                                      kOptimizeForClippedPlayback_RecordingFlag,
                                                      tree.get()));

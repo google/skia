@@ -724,12 +724,12 @@ public:
         // are flattened during the second execution
         testStep->setAssertMessageFormat(kPictureDrawAssertMessageFormat);
         SkPictureRecorder referenceRecorder;
-        SkCanvas* referenceCanvas = referenceRecorder.beginRecording(kWidth, kHeight, 
+        SkCanvas* referenceCanvas = referenceRecorder.beginRecording(kWidth, kHeight,
                                                                      NULL, recordFlags);
         testStep->draw(referenceCanvas, reporter);
 
         SkPictureRecorder testRecorder;
-        SkCanvas* testCanvas = testRecorder.beginRecording(kWidth, kHeight, 
+        SkCanvas* testCanvas = testRecorder.beginRecording(kWidth, kHeight,
                                                            NULL, recordFlags);
         testStep->draw(testCanvas, reporter);
         testStep->setAssertMessageFormat(kPictureSecondDrawAssertMessageFormat);

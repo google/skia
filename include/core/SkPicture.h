@@ -484,8 +484,8 @@ public:
         @return the canvas.
     */
     // TODO: allow default parameters once the other beginRecoding entry point is gone
-    SkCanvas* beginRecording(int width, int height, 
-                             SkBBHFactory* bbhFactory /* = NULL */, 
+    SkCanvas* beginRecording(int width, int height,
+                             SkBBHFactory* bbhFactory /* = NULL */,
                              uint32_t recordFlags /* = 0 */) {
         fPicture.reset(SkNEW(SkPicture));
         return fPicture->beginRecording(width, height, bbhFactory, recordFlags);

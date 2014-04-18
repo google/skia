@@ -26,7 +26,7 @@ SkBBoxHierarchy* SkTileGridFactory::operator()(int width, int height) const {
 
 #ifdef SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES
 
-SkTileGridPicture::SkTileGridPicture(int width, int height, 
+SkTileGridPicture::SkTileGridPicture(int width, int height,
                                      const SkTileGridFactory::TileGridInfo& info) {
     SkASSERT(info.fMargin.width() >= 0);
     SkASSERT(info.fMargin.height() >= 0);

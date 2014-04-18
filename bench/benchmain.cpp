@@ -506,15 +506,15 @@ int tool_main(int argc, char** argv) {
                         canvas.reset(SkDeferredCanvas::Create(surface.get()));
                         break;
                     case kRecord_BenchMode:
-                        canvas.reset(SkRef(recorderTo.beginRecording(dim.fX, dim.fY, 
+                        canvas.reset(SkRef(recorderTo.beginRecording(dim.fX, dim.fY,
                                                                      NULL, kRecordFlags)));
                         break;
                     case kPictureRecord_BenchMode: {
                         SkPictureRecorder recorderFrom;
-                        bench->draw(1, recorderFrom.beginRecording(dim.fX, dim.fY, 
+                        bench->draw(1, recorderFrom.beginRecording(dim.fX, dim.fY,
                                                                    NULL, kRecordFlags));
                         recordFrom.reset(recorderFrom.endRecording());
-                        canvas.reset(SkRef(recorderTo.beginRecording(dim.fX, dim.fY, 
+                        canvas.reset(SkRef(recorderTo.beginRecording(dim.fX, dim.fY,
                                                                      NULL, kRecordFlags)));
                         break;
                     }
@@ -581,7 +581,7 @@ int tool_main(int argc, char** argv) {
 
                     if ((benchMode == kRecord_BenchMode || benchMode == kPictureRecord_BenchMode)) {
                         // Clear the recorded commands so that they do not accumulate.
-                        canvas.reset(SkRef(recorderTo.beginRecording(dim.fX, dim.fY, 
+                        canvas.reset(SkRef(recorderTo.beginRecording(dim.fX, dim.fY,
                                                                      NULL, kRecordFlags)));
                     }
 
