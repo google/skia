@@ -12,29 +12,6 @@
 
 #include "SkTypes.h"
 
-/**
- *  Computes numer1 * numer2 / denom in full 64 intermediate precision.
- *  It is an error for denom to be 0. There is no special handling if
- *  the result overflows 32bits.
- */
-int32_t SkMulDiv(int32_t numer1, int32_t numer2, int32_t denom);
-
-/**
- *  Computes (numer1 << shift) / denom in full 64 intermediate precision.
- *  It is an error for denom to be 0. There is no special handling if
- *  the result overflows 32bits.
- */
-int32_t SkDivBits(int32_t numer, int32_t denom, int shift);
-
-/**
- *  Return the integer square root of value, with a bias of bitBias
- */
-int32_t SkSqrtBits(int32_t value, int bitBias);
-
-/** Return the integer square root of n, treated as a SkFixed (16.16)
- */
-#define SkSqrt32(n)         SkSqrtBits(n, 15)
-
 // 64bit -> 32bit utilities
 
 /**
@@ -62,6 +39,34 @@ static inline int64_t sk_64_mul(int64_t a, int64_t b) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Computes numer1 * numer2 / denom in full 64 intermediate precision.
+ *  It is an error for denom to be 0. There is no special handling if
+ *  the result overflows 32bits.
+ */
+static inline int32_t SkMulDiv(int32_t numer1, int32_t numer2, int32_t denom) {
+    SkASSERT(denom);
+    
+    int64_t tmp = sk_64_mul(numer1, numer2) / denom;
+    return sk_64_asS32(tmp);
+}
+
+/**
+ *  Computes (numer1 << shift) / denom in full 64 intermediate precision.
+ *  It is an error for denom to be 0. There is no special handling if
+ *  the result overflows 32bits.
+ */
+int32_t SkDivBits(int32_t numer, int32_t denom, int shift);
+
+/**
+ *  Return the integer square root of value, with a bias of bitBias
+ */
+int32_t SkSqrtBits(int32_t value, int bitBias);
+
+/** Return the integer square root of n, treated as a SkFixed (16.16)
+ */
+#define SkSqrt32(n)         SkSqrtBits(n, 15)
 
 //! Returns the number of leading zero bits (0...32)
 int SkCLZ_portable(uint32_t);

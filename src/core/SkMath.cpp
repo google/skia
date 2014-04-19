@@ -43,13 +43,6 @@ int SkCLZ_portable(uint32_t x) {
     return zeros;
 }
 
-int32_t SkMulDiv(int32_t numer1, int32_t numer2, int32_t denom) {
-    SkASSERT(denom);
-
-    int64_t tmp = sk_64_mul(numer1, numer2) / denom;
-    return sk_64_asS32(tmp);
-}
-
 SkFixed SkFixedMul_portable(SkFixed a, SkFixed b) {
 #if defined(SkLONGLONG)
     return static_cast<SkFixed>((int64_t)a * b >> 16);
