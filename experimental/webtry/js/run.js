@@ -12,6 +12,9 @@
  */
 (function(workspaceName) {
     var run = document.getElementById('run');
+    var permalink = document.getElementById('permalink');
+    var embed = document.getElementById('embed');
+    var embedButton = document.getElementById('embedButton');
     var code = document.getElementById('code');
     var output = document.getElementById('output');
     var img = document.getElementById('img');
@@ -57,11 +60,24 @@
       if (tryHistory) {
         var newHistoryStr = '<div class=tries>' +
           '<a href="/c/' + body.hash + '">' +
-          '  <img width=64 height=64 src="/i/' + body.hash +  '.png">' +
+          '  <img width=64 height=64 src="' + img.src +  '">' +
           '</a></div>';
 
         var newHistory = parser.parseFromString(newHistoryStr, "text/html");
         tryHistory.insertBefore(newHistory.body.firstChild, tryHistory.firstChild);
+      } else {
+        window.history.pushState(null, null, "./" + body.hash);
+      }
+      if (permalink) {
+        permalink.href = "/c/" + body.hash;
+      }
+      if (embed) {
+        var url = document.URL;
+        url = url.replace('/c/', '/iframe/');
+        embed.value = '<iframe src="' + url + '" width="740" height="550" style="border: solid #00a 5px; border-radius: 5px;"/>'
+      }
+      if (embedButton && embedButton.hasAttribute('disabled')) {
+        embedButton.removeAttribute('disabled');
       }
     }
 
@@ -87,4 +103,14 @@
       req.send(JSON.stringify({"code": code.value, "name": workspaceName}));
     }
     run.addEventListener('click', onSubmitCode);
+
+
+    function onEmbedClick() {
+      embed.style.display='inline';
+    }
+
+    if (embedButton) {
+      embedButton.addEventListener('click', onEmbedClick);
+    }
+
 })(workspaceName);

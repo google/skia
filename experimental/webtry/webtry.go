@@ -46,6 +46,9 @@ var (
 	// indexTemplate is the main index.html page we serve.
 	indexTemplate *htemplate.Template = nil
 
+	// iframeTemplate is the main index.html page we serve.
+	iframeTemplate *htemplate.Template = nil
+
 	// recentTemplate is a list of recent images.
 	recentTemplate *htemplate.Template = nil
 
@@ -57,6 +60,9 @@ var (
 
 	// directLink is the regex that matches URLs paths that are direct links.
 	directLink = regexp.MustCompile("^/c/([a-f0-9]+)$")
+
+	// iframeLink is the regex that matches URLs paths that are links to iframes.
+	iframeLink = regexp.MustCompile("^/iframe/([a-f0-9]+)$")
 
 	// imageLink is the regex that matches URLs paths that are direct links to PNGs.
 	imageLink = regexp.MustCompile("^/i/([a-f0-9]+.png)$")
@@ -109,6 +115,7 @@ func LineNumbers(c string) string {
 }
 
 func init() {
+	rand.Seed(time.Now().UnixNano())
 
 	// Change the current working directory to the directory of the executable.
 	var err error
@@ -122,10 +129,15 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	// Convert index.html into a template, which is expanded with the code.
 	indexTemplate, err = htemplate.ParseFiles(
 		filepath.Join(cwd, "templates/index.html"),
 		filepath.Join(cwd, "templates/titlebar.html"),
+	)
+	if err != nil {
+		panic(err)
+	}
+	iframeTemplate, err = htemplate.ParseFiles(
+		filepath.Join(cwd, "templates/iframe.html"),
 	)
 	if err != nil {
 		panic(err)
@@ -206,6 +218,7 @@ func init() {
 // userCode is used in template expansion.
 type userCode struct {
 	UserCode string
+	Hash     string
 }
 
 // expandToFile expands the template and writes the result to the file.
@@ -455,6 +468,35 @@ type TryRequest struct {
 	Name string `json:"name"`
 }
 
+// iframeHandler handles the GET and POST of the main page.
+func iframeHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("IFrame Handler: %q\n", r.URL.Path)
+	if r.Method != "GET" {
+		http.NotFound(w, r)
+		return
+	}
+	match := iframeLink.FindStringSubmatch(r.URL.Path)
+	if len(match) != 2 {
+		http.NotFound(w, r)
+		return
+	}
+	hash := match[1]
+	if db == nil {
+		http.NotFound(w, r)
+		return
+	}
+	var code string
+	// Load 'code' with the code found in the database.
+	if err := db.QueryRow("SELECT code FROM webtry WHERE hash=?", hash).Scan(&code); err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	// Expand the template.
+	if err := iframeTemplate.Execute(w, userCode{UserCode: code, Hash: hash}); err != nil {
+		log.Printf("ERROR: Failed to expand template: %q\n", err)
+	}
+}
+
 // mainHandler handles the GET and POST of the main page.
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Main Handler: %q\n", r.URL.Path)
@@ -559,6 +601,7 @@ func main() {
 	http.HandleFunc("/i/", imageHandler)
 	http.HandleFunc("/w/", workspaceHandler)
 	http.HandleFunc("/recent/", recentHandler)
+	http.HandleFunc("/iframe/", iframeHandler)
 	http.HandleFunc("/css/", cssHandler)
 	http.HandleFunc("/js/", jsHandler)
 	http.HandleFunc("/", mainHandler)

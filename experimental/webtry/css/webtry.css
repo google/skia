@@ -21,9 +21,14 @@ h2 {
 }
 
 textarea {
-    margin-left: 0;
-    border: solid 1px #ccc;
-    color: green;
+  margin-left: 0;
+  border: solid 1px #ccc;
+  color: green;
+  background: #eee;
+}
+
+.iframe textarea {
+  resize: none;
 }
 
 pre, code {

@@ -11,14 +11,18 @@
   <pre><code>#include "SkCanvas.h"
 
 void draw(SkCanvas* canvas) {
-  <textarea name='code' id='code' rows='15' cols='80'>{{.UserCode}}</textarea>
+  <textarea spellcheck=false name='code' id='code' rows='15' cols='80'>{{.UserCode}}</textarea>
 }
 </code></pre>
 
   <input type='button' value='Run' id='run'>
 
-  <p>Image appears here:</p>
+  <input type='button' value='Embed' id='embedButton' disabled/>
+  <input type="text" value="" id="embed" readonly style="display:none;">
+
+  <p>
   <img id='img' src=''/>
+  </p>
 
   <pre><code id='output'></code></pre>
 
@@ -27,6 +31,6 @@ void draw(SkCanvas* canvas) {
       // Not running in a workspace.
       var workspaceName = "";
   </script>
-  <script src="/js/run.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/js/" type="text/javascript" charset="utf-8"></script>
 </body>
 </html>
