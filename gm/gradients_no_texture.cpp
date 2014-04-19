@@ -212,11 +212,11 @@ class GradientsManyColorsGM : public GM {
     typedef void (*Proc)(ColorPos*);
 public:
     GradientsManyColorsGM() {}
-    
+
 protected:
     SkString onShortName() SK_OVERRIDE { return SkString("gradients_many"); }
     virtual SkISize onISize() SK_OVERRIDE { return SkISize::Make(850, 100); }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         const Proc procs[] = {
             make0, make1, make2,
@@ -228,9 +228,9 @@ protected:
         const SkRect r = SkRect::MakeWH(SkIntToScalar(W), 30);
 
         SkPaint paint;
-        
+
         canvas->translate(20, 20);
-        
+
         for (int i = 0; i <= 8; ++i) {
             SkScalar x = r.width() * i / 8;
             canvas->drawLine(x, 0, x, 10000, paint);
@@ -246,7 +246,7 @@ protected:
             canvas->translate(0, r.height() + 20);
         }
     }
-    
+
 private:
     typedef GM INHERITED;
 };

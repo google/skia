@@ -139,7 +139,7 @@ public:
     // also be filled with the gradient colors
     GpuColorType getGpuColorType(SkColor colors[3]) const;
 
-    uint32_t getFlags() const { return fGradFlags; } 
+    uint32_t getFlags() const { return fGradFlags; }
 
 protected:
     SkGradientShaderBase(SkReadBuffer& );

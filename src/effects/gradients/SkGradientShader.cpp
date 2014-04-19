@@ -1020,7 +1020,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
     if (SkGradientShaderBase::kTwo_GpuColorType == fColorType ||
         SkGradientShaderBase::kThree_GpuColorType == fColorType) {
         fRow = -1;
-        
+
         if (SkGradientShader::kInterpolateColorsInPremul_Flag & shader.getFlags()) {
             fPremulType = kBeforeInterp_PremulType;
         } else {
