@@ -36,35 +36,33 @@ Architecture
 The server runs on GCE, and consists of a Go Web Server that calls out to the
 c++ compiler and executes code in a chroot jail. See the diagram below:
 
-                             
-     +–––––––––––––+         
-     |             |         
-     |  Browser    |         
-     |             |         
-     +––––––+––––––+         
-            |                
-     +––––––+––––––+         
-     |             |         
-     |             |         
-     | Web Server  |         
-     |             |         
-     |   (Go)      |         
-     |             |         
-     |             |         
-     +–––––––+–––––+         
-             |               
-     +–––––––+––––––––––+    
-     | chroot jail      |    
-     |  +––––––––––––––+|    
-     |  | seccomp      ||    
-     |  |  +––––––––––+||    
-     |  |  |User code |||    
-     |  |  |          |||    
-     |  |  +––––––––––+||    
-     |  +––––––––––––––+|    
-     |                  |    
-     +––––––––––––––––––+    
-                             
+    +–––––––––––––+
+    |             |
+    |  Browser    |
+    |             |
+    +––––––+––––––+
+           |
+    +––––––+––––––+
+    |             |
+    |             |
+    | Web Server  |
+    |             |
+    |   (Go)      |
+    |             |
+    |             |
+    +–––––––+–––––+
+            |
+    +–––––––+––––––––––+
+    | chroot jail      |
+    |  +––––––––––––––+|
+    |  | seccomp      ||
+    |  |  +––––––––––+||
+    |  |  |User code |||
+    |  |  |          |||
+    |  |  +––––––––––+||
+    |  +––––––––––––––+|
+    |                  |
+    +––––––––––––––––––+
 
 The user code is expanded into a simple template and linked against libskia
 and a couple other .o files that contain main() and the code that sets up the
@@ -147,6 +145,21 @@ Initial setup of the database, the user, and the only table:
       PRIMARY KEY(hash)
     );
 
+    CREATE TABLE workspace (
+      name      CHAR(64)  DEFAULT ''                 NOT NULL,
+      create_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
+      PRIMARY KEY(name)
+    );
+
+    CREATE TABLE workspacetry (
+      name      CHAR(64)  DEFAULT ''                 NOT NULL,
+      create_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
+      hash      CHAR(64)  DEFAULT ''                 NOT NULL,
+      hidden    INTEGER   DEFAULT 0                  NOT NULL,
+
+      FOREIGN KEY (name) REFERENCES workspace(name)
+    );
+
 Common queries webtry.go will use:
 
     INSERT INTO webtry (code, hash) VALUES('int i = 0;...', 'abcdef...');
@@ -161,9 +174,18 @@ Common queries webtry.go will use:
     // Run before and after to confirm the password changed:
     SELECT Host, User, Password FROM mysql.user;
 
+Common queries for workspaces:
+
+    SELECT hash, create_ts FROM workspace ORDER BY create_ts DESC;
+
+    INSERT INTO workspace (name, hash) VALUES('autumn-river-12354', 'abcdef...');
+
+    SELECT name FROM workspace GROUP BY name;
+
 Password for the database will be stored in the metadata instance, if the
-metadata server can't be found, i.e. running locally, then data will not be
-stored.  To see the current password stored in metadata and the fingerprint:
+metadata server can't be found, i.e. running locally, then a local sqlite
+database will be used. To see the current password stored in metadata and the
+fingerprint:
 
     gcutil  --project=google.com:skia-buildbots    getinstance skia-webtry-b
 
@@ -178,6 +200,14 @@ the metadata server:
 
 N.B. If you need to change the MySQL password that webtry uses, you must change
 it both in MySQL and the value stored in the metadata server.
+
+Workspaces
+----------
+
+Workspaces are implemented by the workspace and workspacetry tables. The
+workspace table keeps the unique list of all workspaces. The workspacetry table
+keeps track of all the tries that have occured in a workspace. Right now the
+hidden column of workspacetry is not used, it's for future functionality.
 
 Installation
 ------------

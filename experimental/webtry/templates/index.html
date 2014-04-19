@@ -6,11 +6,7 @@
     <link rel="stylesheet" href="/css/" type="text/css" media="screen">
 </head>
 <body>
-  <section id=title>
-    <a href="/">Home</a>
-    <a href="/recent">Recent</a>
-    <a href="https://github.com/google/skia/tree/master/experimental/webtry">Code</a>
-  </section>
+  {{template "titlebar.html"}}
   <section id=content>
   <pre><code>#include "SkCanvas.h"
 
@@ -28,57 +24,9 @@ void draw(SkCanvas* canvas) {
 
   </section>
   <script type='text/javascript' charset='utf-8'>
-      var run = document.getElementById('run');
-      var code = document.getElementById('code');
-      var output = document.getElementById('output');
-      var img = document.getElementById('img');
-
-      function beginWait() {
-        document.body.classList.add('waiting');
-        run.disabled = true;
-      }
-
-      function endWait() {
-        document.body.classList.remove('waiting');
-        run.disabled = false;
-      }
-
-      function codeComplete(e) {
-        // The response is JSON of the form:
-        // {
-        //   "message": "you had an error...",
-        //   "img": "<base64 encoded image but only on success>"
-        // }
-        //
-        // The img is optional and only appears if there is a valid
-        // image to display.
-        endWait();
-        console.log(e.target.response);
-        body = JSON.parse(e.target.response);
-        output.innerText = body.message;
-        if (body.hasOwnProperty('img')) {
-          img.src = 'data:image/png;base64,' + body.img;
-        } else {
-          img.src = '';
-        }
-        window.history.pushState(null, null, "/c/" + body.hash);
-      }
-
-      function codeError(e) {
-        endWait();
-        alert('Something bad happened: ' + e);
-      }
-
-      run.addEventListener('click', onSubmitCode);
-      function onSubmitCode() {
-        beginWait();
-        var req = new XMLHttpRequest();
-        req.addEventListener('load', codeComplete);
-        req.addEventListener('error', codeError);
-        req.overrideMimeType('application/json');
-        req.open('POST', '.', true);
-        req.send(code.value);
-      }
+      // Not running in a workspace.
+      var workspaceName = "";
   </script>
+  <script src="/js/run.js" type="text/javascript" charset="utf-8"></script>
 </body>
 </html>

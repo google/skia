@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
     }
     SkFILEWStream stream(FLAGS_out[0]);
 
-    SkImageInfo info = SkImageInfo::MakeN32(300, 300, kPremul_SkAlphaType);
+    SkImageInfo info = SkImageInfo::MakeN32(256, 256, kPremul_SkAlphaType);
     SkAutoTUnref<SkSurface> surface(SkSurface::NewRaster(info));
     SkCanvas* canvas = surface->getCanvas();
 

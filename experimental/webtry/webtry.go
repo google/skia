@@ -13,6 +13,7 @@ import (
 	htemplate "html/template"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/exec"
@@ -45,8 +46,11 @@ var (
 	// indexTemplate is the main index.html page we serve.
 	indexTemplate *htemplate.Template = nil
 
-	// recentTemplate is a list of recent  images.
+	// recentTemplate is a list of recent images.
 	recentTemplate *htemplate.Template = nil
+
+	// workspaceTemplate is the page for workspaces, a series of webtrys.
+	workspaceTemplate *htemplate.Template = nil
 
 	// db is the database, nil if we don't have an SQL database to store data into.
 	db *sql.DB = nil
@@ -56,6 +60,35 @@ var (
 
 	// imageLink is the regex that matches URLs paths that are direct links to PNGs.
 	imageLink = regexp.MustCompile("^/i/([a-f0-9]+.png)$")
+
+	// workspaceLink is the regex that matches URLs paths for workspaces.
+	workspaceLink = regexp.MustCompile("^/w/([a-z0-9-]+)$")
+
+	// workspaceNameAdj is a list of adjectives for building workspace names.
+	workspaceNameAdj = []string{
+		"autumn", "hidden", "bitter", "misty", "silent", "empty", "dry", "dark",
+		"summer", "icy", "delicate", "quiet", "white", "cool", "spring", "winter",
+		"patient", "twilight", "dawn", "crimson", "wispy", "weathered", "blue",
+		"billowing", "broken", "cold", "damp", "falling", "frosty", "green",
+		"long", "late", "lingering", "bold", "little", "morning", "muddy", "old",
+		"red", "rough", "still", "small", "sparkling", "throbbing", "shy",
+		"wandering", "withered", "wild", "black", "young", "holy", "solitary",
+		"fragrant", "aged", "snowy", "proud", "floral", "restless", "divine",
+		"polished", "ancient", "purple", "lively", "nameless",
+	}
+
+	// workspaceNameNoun is a list of nouns for building workspace names.
+	workspaceNameNoun = []string{
+		"waterfall", "river", "breeze", "moon", "rain", "wind", "sea", "morning",
+		"snow", "lake", "sunset", "pine", "shadow", "leaf", "dawn", "glitter",
+		"forest", "hill", "cloud", "meadow", "sun", "glade", "bird", "brook",
+		"butterfly", "bush", "dew", "dust", "field", "fire", "flower", "firefly",
+		"feather", "grass", "haze", "mountain", "night", "pond", "darkness",
+		"snowflake", "silence", "sound", "sky", "shape", "surf", "thunder",
+		"violet", "water", "wildflower", "wave", "water", "resonance", "sun",
+		"wood", "dream", "cherry", "tree", "fog", "frost", "voice", "paper",
+		"frog", "smoke", "star",
+	}
 )
 
 // flags
@@ -90,12 +123,24 @@ func init() {
 		panic(err)
 	}
 	// Convert index.html into a template, which is expanded with the code.
-	indexTemplate, err = htemplate.ParseFiles(filepath.Join(cwd, "templates/index.html"))
+	indexTemplate, err = htemplate.ParseFiles(
+		filepath.Join(cwd, "templates/index.html"),
+		filepath.Join(cwd, "templates/titlebar.html"),
+	)
 	if err != nil {
 		panic(err)
 	}
-
-	recentTemplate, err = htemplate.ParseFiles(filepath.Join(cwd, "templates/recent.html"))
+	recentTemplate, err = htemplate.ParseFiles(
+		filepath.Join(cwd, "templates/recent.html"),
+		filepath.Join(cwd, "templates/titlebar.html"),
+	)
+	if err != nil {
+		panic(err)
+	}
+	workspaceTemplate, err = htemplate.ParseFiles(
+		filepath.Join(cwd, "templates/workspace.html"),
+		filepath.Join(cwd, "templates/titlebar.html"),
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -123,6 +168,7 @@ func init() {
 			panic(err)
 		}
 	} else {
+		log.Printf("INFO: Failed to find metadata, unable to connect to MySQL server (Expected when running locally): %q\n", err)
 		// Fallback to sqlite for local use.
 		db, err = sql.Open("sqlite3", "./webtry.db")
 		if err != nil {
@@ -135,8 +181,25 @@ func init() {
              hash      CHAR(64)  DEFAULT ''                 NOT NULL,
              PRIMARY KEY(hash)
             )`
-		db.Exec(sql)
-		log.Printf("INFO: Failed to find metadata, unable to connect to MySQL server (Expected when running locally): %q\n", err)
+		_, err = db.Exec(sql)
+		log.Printf("Info: status creating sqlite table for webtry: %q\n", err)
+		sql = `CREATE TABLE workspace (
+          name      CHAR(64)  DEFAULT ''                 NOT NULL,
+          create_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
+          PRIMARY KEY(name)
+        )`
+		_, err = db.Exec(sql)
+		log.Printf("Info: status creating sqlite table for workspace: %q\n", err)
+		sql = `CREATE TABLE workspacetry (
+          name      CHAR(64)  DEFAULT ''                 NOT NULL,
+          create_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
+          hash      CHAR(64)  DEFAULT ''                 NOT NULL,
+          hidden    INTEGER   DEFAULT 0                  NOT NULL,
+
+          FOREIGN KEY (name) REFERENCES workspace(name)
+        )`
+		_, err = db.Exec(sql)
+		log.Printf("Info: status creating sqlite table for workspace try: %q\n", err)
 	}
 }
 
@@ -231,17 +294,26 @@ func reportError(w http.ResponseWriter, r *http.Request, err error, message stri
 	w.Write(resp)
 }
 
-func writeToDatabase(hash string, code string) {
+func writeToDatabase(hash string, code string, workspaceName string) {
 	if db == nil {
 		return
 	}
 	if _, err := db.Exec("INSERT INTO webtry (code, hash) VALUES(?, ?)", code, hash); err != nil {
 		log.Printf("ERROR: Failed to insert code into database: %q\n", err)
 	}
+	if workspaceName != "" {
+		if _, err := db.Exec("INSERT INTO workspacetry (name, hash) VALUES(?, ?)", workspaceName, hash); err != nil {
+			log.Printf("ERROR: Failed to insert into workspacetry table: %q\n", err)
+		}
+	}
 }
 
 func cssHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "css/webtry.css")
+}
+
+func jsHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "js/run.js")
 }
 
 // imageHandler serves up the PNG of a specific try.
@@ -294,6 +366,79 @@ func recentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type Workspace struct {
+	Name  string
+	Code  string
+	Tries []Try
+}
+
+// newWorkspace generates a new random workspace name and stores it in the database.
+func newWorkspace() (string, error) {
+	for i := 0; i < 10; i++ {
+		adj := workspaceNameAdj[rand.Intn(len(workspaceNameAdj))]
+		noun := workspaceNameNoun[rand.Intn(len(workspaceNameNoun))]
+		suffix := rand.Intn(1000)
+		name := fmt.Sprintf("%s-%s-%d", adj, noun, suffix)
+		if _, err := db.Exec("INSERT INTO workspace (name) VALUES(?)", name); err == nil {
+			return name, nil
+		} else {
+			log.Printf("ERROR: Failed to insert workspace into database: %q\n", err)
+		}
+	}
+	return "", fmt.Errorf("Failed to create a new workspace")
+}
+
+// getCode returns the code for a given hash, or the empty string if not found.
+func getCode(hash string) string {
+	code := ""
+	if err := db.QueryRow("SELECT code FROM webtry WHERE hash=?", hash).Scan(&code); err != nil {
+		log.Printf("ERROR: Code for hash is missing: %q\n", err)
+	}
+	return code
+}
+
+func workspaceHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Workspace Handler: %q\n", r.URL.Path)
+	if r.Method == "GET" {
+		tries := []Try{}
+		match := workspaceLink.FindStringSubmatch(r.URL.Path)
+		name := ""
+		if len(match) == 2 {
+			name = match[1]
+			rows, err := db.Query("SELECT create_ts, hash FROM workspacetry WHERE name=? ORDER BY create_ts DESC ", name)
+			if err != nil {
+				reportError(w, r, err, "Failed to select.")
+				return
+			}
+			for rows.Next() {
+				var hash string
+				var create_ts time.Time
+				if err := rows.Scan(&create_ts, &hash); err != nil {
+					log.Printf("Error: failed to fetch from database: %q", err)
+					continue
+				}
+				tries = append(tries, Try{Hash: hash, CreateTS: create_ts.Format("2006-02-01")})
+			}
+		}
+		var code string
+		if len(tries) == 0 {
+			code = DEFAULT_SAMPLE
+		} else {
+			code = getCode(tries[len(tries)-1].Hash)
+		}
+		if err := workspaceTemplate.Execute(w, Workspace{Tries: tries, Code: code, Name: name}); err != nil {
+			log.Printf("ERROR: Failed to expand template: %q\n", err)
+		}
+	} else if r.Method == "POST" {
+		name, err := newWorkspace()
+		if err != nil {
+			http.Error(w, "Failed to create a new workspace.", 500)
+			return
+		}
+		http.Redirect(w, r, "/w/"+name, 302)
+	}
+}
+
 // hasPreProcessor returns true if any line in the code begins with a # char.
 func hasPreProcessor(code string) bool {
 	lines := strings.Split(code, "\n")
@@ -303,6 +448,11 @@ func hasPreProcessor(code string) bool {
 		}
 	}
 	return false
+}
+
+type TryRequest struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
 }
 
 // mainHandler handles the GET and POST of the main page.
@@ -340,18 +490,22 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			reportError(w, r, err, "Code too large.")
 			return
 		}
-		code := string(buf.Bytes())
-		if hasPreProcessor(code) {
+		request := TryRequest{}
+		if err := json.Unmarshal(buf.Bytes(), &request); err != nil {
+			reportError(w, r, err, "Coulnd't decode JSON.")
+			return
+		}
+		if hasPreProcessor(request.Code) {
 			err := fmt.Errorf("Found preprocessor macro in code.")
 			reportError(w, r, err, "Preprocessor macros aren't allowed.")
 			return
 		}
-		hash, err := expandCode(LineNumbers(code))
+		hash, err := expandCode(LineNumbers(request.Code))
 		if err != nil {
 			reportError(w, r, err, "Failed to write the code to compile.")
 			return
 		}
-		writeToDatabase(hash, code)
+		writeToDatabase(hash, request.Code, request.Name)
 		message, err := doCmd(fmt.Sprintf(RESULT_COMPILE, hash, hash), true)
 		if err != nil {
 			reportError(w, r, err, "Failed to compile the code:\n"+message)
@@ -403,8 +557,10 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	flag.Parse()
 	http.HandleFunc("/i/", imageHandler)
+	http.HandleFunc("/w/", workspaceHandler)
 	http.HandleFunc("/recent/", recentHandler)
 	http.HandleFunc("/css/", cssHandler)
+	http.HandleFunc("/js/", jsHandler)
 	http.HandleFunc("/", mainHandler)
 	log.Fatal(http.ListenAndServe(*port, nil))
 }

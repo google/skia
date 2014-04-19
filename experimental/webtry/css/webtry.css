@@ -58,3 +58,14 @@ pre, code {
 #content {
   padding: 1em;
 }
+
+#tryHistory {
+    position: absolute;
+    top: 3em;
+    right: 10px;
+    width: 75px;
+}
+
+#tryHistory .tries {
+    float: none;
+}
