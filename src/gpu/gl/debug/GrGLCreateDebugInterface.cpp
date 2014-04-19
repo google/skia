@@ -712,7 +712,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetBufferParameteriv(GrGLenum target,
         case GR_GL_BUFFER_SIZE:
             *params = 0;
             if (buffer)
-                *params = buffer->getSize();
+                *params = SkToInt(buffer->getSize());
             break;
         case GR_GL_BUFFER_USAGE:
             *params = GR_GL_STATIC_DRAW;

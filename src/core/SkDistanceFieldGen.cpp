@@ -329,9 +329,9 @@ static unsigned char pack_distance_field_val(float dist, float distanceMagnitude
 
 // assumes a padded 8-bit image and distance field
 // width and height are the original width and height of the image
-bool generate_distance_field_from_image(unsigned char* distanceField,
-                                        const unsigned char* copyPtr,
-                                        int width, int height) {
+static bool generate_distance_field_from_image(unsigned char* distanceField,
+                                               const unsigned char* copyPtr,
+                                               int width, int height) {
     SkASSERT(NULL != distanceField);
     SkASSERT(NULL != copyPtr);
 

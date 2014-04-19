@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkMatrix22_DEFINED
+#define SkMatrix22_DEFINED
+
 #include "SkPoint.h"
 
 class SkMatrix;
@@ -24,3 +27,5 @@ class SkMatrix;
  *  and saves a multiply by not computing r.
  */
 void SkComputeGivensRotation(const SkVector& h, SkMatrix* G);
+
+#endif

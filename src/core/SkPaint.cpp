@@ -536,12 +536,11 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
         case kUTF8_TextEncoding:
             return SkUTF8_CountUnichars((const char*)textData, byteLength);
         case kUTF16_TextEncoding:
-            return SkUTF16_CountUnichars((const uint16_t*)textData,
-                                         byteLength >> 1);
+            return SkUTF16_CountUnichars((const uint16_t*)textData, SkToInt(byteLength >> 1));
         case kUTF32_TextEncoding:
-            return byteLength >> 2;
+            return SkToInt(byteLength >> 2);
         case kGlyphID_TextEncoding:
-            return byteLength >> 1;
+            return SkToInt(byteLength >> 1);
         default:
             SkDEBUGFAIL("unknown text encoding");
         }
@@ -554,7 +553,7 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
     if (this->getTextEncoding() == kGlyphID_TextEncoding) {
         // we want to ignore the low bit of byteLength
         memcpy(glyphs, textData, byteLength >> 1 << 1);
-        return byteLength >> 1;
+        return SkToInt(byteLength >> 1);
     }
 
     SkAutoGlyphCache autoCache(*this, NULL, NULL);
@@ -589,7 +588,7 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
         default:
             SkDEBUGFAIL("unknown text encoding");
     }
-    return gptr - glyphs;
+    return SkToInt(gptr - glyphs);
 }
 
 bool SkPaint::containsText(const void* textData, size_t byteLength) const {

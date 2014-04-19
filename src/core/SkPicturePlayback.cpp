@@ -310,14 +310,14 @@ bool SkPicturePlayback::containsBitmaps() const {
 
 #include "SkStream.h"
 
-static void write_tag_size(SkWriteBuffer& buffer, uint32_t tag, uint32_t size) {
+static void write_tag_size(SkWriteBuffer& buffer, uint32_t tag, size_t size) {
     buffer.writeUInt(tag);
     buffer.writeUInt(size);
 }
 
-static void write_tag_size(SkWStream* stream, uint32_t tag,  uint32_t size) {
+static void write_tag_size(SkWStream* stream, uint32_t tag,  size_t size) {
     stream->write32(tag);
-    stream->write32(size);
+    stream->write32(SkToU32(size));
 }
 
 static size_t compute_chunk_size(SkFlattenable::Factory* array, int count) {
@@ -357,7 +357,7 @@ static void write_factories(SkWStream* stream, const SkFactorySet& rec) {
         if (NULL == name || 0 == *name) {
             stream->writePackedUInt(0);
         } else {
-            uint32_t len = strlen(name);
+            size_t len = strlen(name);
             stream->writePackedUInt(len);
             stream->write(name, len);
         }

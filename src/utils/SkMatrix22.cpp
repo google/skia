@@ -6,6 +6,7 @@
  */
 
 #include "SkMatrix.h"
+#include "SkMatrix22.h"
 #include "SkPoint.h"
 #include "SkScalar.h"
 

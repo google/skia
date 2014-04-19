@@ -168,7 +168,7 @@ void SkLuaCanvas::drawPaint(const SkPaint& paint) {
 void SkLuaCanvas::drawPoints(PointMode mode, size_t count,
                                const SkPoint pts[], const SkPaint& paint) {
     AUTO_LUA("drawPoints");
-    lua.pushArrayPoint(pts, count, "points");
+    lua.pushArrayPoint(pts, SkToInt(count), "points");
     lua.pushPaint(paint, "paint");
 }
 
