@@ -47,7 +47,7 @@ static inline int64_t sk_64_mul(int64_t a, int64_t b) {
  */
 static inline int32_t SkMulDiv(int32_t numer1, int32_t numer2, int32_t denom) {
     SkASSERT(denom);
-    
+
     int64_t tmp = sk_64_mul(numer1, numer2) / denom;
     return sk_64_asS32(tmp);
 }
