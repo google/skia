@@ -119,7 +119,7 @@ tabl_gmail.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Rele
 tabl_googleblog.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,2.42,2.12825,2.82175
 tabl_googlecalendar.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,9.66,8.572575,11.077425
 tabl_gspro.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.26,1.0451,1.5949
-tabl_hsfi.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.4,2.799675,3.980325
+tabl_hsfi.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.4,2.50,3.980325
 tabl_mercurynews.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,3.41,2.80415,4.32585
 tabl_mlb.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,11.52,5.194025,23.555975
 tabl_mozilla.skp_simple_viewport_1000x1000_gpu_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.3,1.1643,1.5057
