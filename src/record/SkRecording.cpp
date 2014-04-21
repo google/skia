@@ -8,7 +8,7 @@
 #include "SkRecording.h"
 
 #include "SkRecord.h"
-#include "SkRecordCulling.h"
+#include "SkRecordOpts.h"
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
 
@@ -37,7 +37,7 @@ SkRecording::SkRecording(int width, int height) {
 
 /*static*/ const SkPlayback* SkRecording::Delete(SkRecording* recording) {
     SkRecord* record = recording->fRecord;
-    SkRecordAnnotateCullingPairs(record);
+    SkRecordOptimize(record);
     SkDELETE(recording);
     return SkNEW_ARGS(SkPlayback, (record));
 }

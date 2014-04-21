@@ -8,7 +8,7 @@
 #include "Test.h"
 
 #include "SkRecord.h"
-#include "SkRecordCulling.h"
+#include "SkRecordOpts.h"
 #include "SkRecorder.h"
 #include "SkRecords.h"
 

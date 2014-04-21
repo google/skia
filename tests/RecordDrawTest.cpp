@@ -9,7 +9,7 @@
 
 #include "SkDebugCanvas.h"
 #include "SkRecord.h"
-#include "SkRecordCulling.h"
+#include "SkRecordOpts.h"
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
 #include "SkRecords.h"

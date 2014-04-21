@@ -11,6 +11,7 @@
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkRecordDraw.h"
+#include "SkRecordOpts.h"
 #include "SkRecorder.h"
 #include "SkStream.h"
 #include "SkString.h"
@@ -30,6 +31,8 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
     SkRecord record;
     SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, src.width(), src.height());
     src.draw(&recorder);
+
+    SkRecordOptimize(&record);
 
     SkAutoTDelete<SkCanvas> canvas(SkCanvas::NewRasterDirectN32(src.width(),
                                                                 src.height(),

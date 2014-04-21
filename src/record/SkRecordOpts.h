@@ -5,12 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkRecordCulling_DEFINED
-#define SkRecordCulling_DEFINED
+#ifndef SkRecordOpts_DEFINED
+#define SkRecordOpts_DEFINED
 
 #include "SkRecord.h"
 
-// Annotates PushCull records in record with the relative offset of their paired PopCull.
-void SkRecordAnnotateCullingPairs(SkRecord* record);
+// Run all optimizations in recommended order.
+void SkRecordOptimize(SkRecord*);
 
-#endif//SkRecordCulling_DEFINED
+
+// Annotates PushCull records in record with the relative offset of their paired PopCull.
+void SkRecordAnnotateCullingPairs(SkRecord*);
+
+#endif//SkRecordOpts_DEFINED

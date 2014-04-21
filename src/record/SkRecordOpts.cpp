@@ -5,10 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "SkRecordCulling.h"
+#include "SkRecordOpts.h"
 
 #include "SkRecords.h"
 #include "SkTDArray.h"
+
+void SkRecordOptimize(SkRecord* record) {
+    SkRecordAnnotateCullingPairs(record);
+}
 
 namespace {
 
