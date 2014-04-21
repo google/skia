@@ -1,6 +1,15 @@
 Skia Quickstart Guide
 =====================
 
+
+WARNING: Several steps in this guide are out of sync with our automatically-
+tested, officially-supported processes for checking out and building Skia.
+The officially supported processes are the ones documented in skiadocs; see
+https://sites.google.com/site/skiadocs/user-documentation/quick-start-guides
+
+The steps documented within this file are more experimental in nature.
+
+
 This guide assumes you've got `git`, `ninja`, and `python` on your path.
 
 1. First, checkout Skia:
