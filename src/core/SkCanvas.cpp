@@ -1106,8 +1106,12 @@ const void* SkCanvas::onPeekPixels(SkImageInfo* info, size_t* rowBytes) {
     return dev ? dev->peekPixels(info, rowBytes) : NULL;
 }
 
-void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes) {
-    return this->onAccessTopLayerPixels(info, rowBytes);
+void* SkCanvas::accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin) {
+    void* pixels = this->onAccessTopLayerPixels(info, rowBytes);
+    if (pixels && origin) {
+        *origin = this->getTopDevice(false)->getOrigin();
+    }
+    return pixels;
 }
 
 void* SkCanvas::onAccessTopLayerPixels(SkImageInfo* info, size_t* rowBytes) {

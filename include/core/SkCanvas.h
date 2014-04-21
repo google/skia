@@ -206,15 +206,14 @@ public:
      *  If the canvas has writable pixels in its top layer (and is not recording to a picture
      *  or other non-raster target) and has direct access to its pixels (i.e. they are in
      *  local RAM) return the address of those pixels, and if not null,
-     *  return the ImageInfo and rowBytes. The returned address is only valid
+     *  return the ImageInfo, rowBytes and origin. The returned address is only valid
      *  while the canvas object is in scope and unchanged. Any API calls made on
      *  canvas (or its parent surface if any) will invalidate the
      *  returned address (and associated information).
      *
-     *  On failure, returns NULL and the info and rowBytes parameters are
-     *  ignored.
+     *  On failure, returns NULL and the info, rowBytes, and origin parameters are ignored.
      */
-    void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes);
+    void* accessTopLayerPixels(SkImageInfo* info, size_t* rowBytes, SkIPoint* origin = NULL);
 
     /**
      *  If the canvas has readable pixels in its base layer (and is not recording to a picture
