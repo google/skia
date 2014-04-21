@@ -56,6 +56,7 @@ public:
 
     // The radial gradient parameters can collapse to a linear (instead of quadratic) equation.
     bool isDegenerate() const { return SkScalarAbs(fDiffRadius) == SkScalarAbs(fCenterX1); }
+    bool isFlipped() const { return fIsFlipped; }
     SkScalar center() const { return fCenterX1; }
     SkScalar diffRadius() const { return fDiffRadius; }
     SkScalar radius() const { return fRadius0; }
@@ -68,7 +69,8 @@ private:
         return (INHERITED::onIsEqual(sBase) &&
                 this->fCenterX1 == s.fCenterX1 &&
                 this->fRadius0 == s.fRadius0 &&
-                this->fDiffRadius == s.fDiffRadius);
+                this->fDiffRadius == s.fDiffRadius &&
+                this->fIsFlipped == s.fIsFlipped);
     }
 
     Default2PtConicalEffect(GrContext* ctx,
@@ -78,7 +80,8 @@ private:
         : INHERITED(ctx, shader, matrix, tm),
         fCenterX1(shader.getCenterX1()),
         fRadius0(shader.getStartRadius()),
-        fDiffRadius(shader.getDiffRadius()) {
+        fDiffRadius(shader.getDiffRadius()),
+        fIsFlipped(shader.isFlippedGrad()) {
         // We pass the linear part of the quadratic as a varying.
         //    float b = -2.0 * (fCenterX1 * x + fRadius0 * fDiffRadius * z)
         fBTransform = this->getCoordTransform();
@@ -103,6 +106,7 @@ private:
     SkScalar         fCenterX1;
     SkScalar         fRadius0;
     SkScalar         fDiffRadius;
+    bool             fIsFlipped;
 
     // @}
 
@@ -132,6 +136,7 @@ protected:
     const char* fFSVaryingName;
 
     bool fIsDegenerate;
+    bool fIsFlipped;
 
     // @{
     /// Values last uploaded as uniforms
@@ -194,6 +199,7 @@ GLDefault2PtConicalEffect::GLDefault2PtConicalEffect(const GrBackendEffectFactor
 
     const Default2PtConicalEffect& data = drawEffect.castEffect<Default2PtConicalEffect>();
     fIsDegenerate = data.isDegenerate();
+    fIsFlipped = data.isFlipped();
 }
 
 void GLDefault2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
@@ -281,9 +287,14 @@ void GLDefault2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
         // Note: If there are two roots that both generate radius(t) > 0, the
         // Canvas spec says to choose the larger t.
 
-        // so we'll look at the larger one first:
-        builder->fsCodeAppendf("\t\tfloat %s = max(%s, %s);\n", tName.c_str(),
-                               r0Name.c_str(), r1Name.c_str());
+        // so we'll look at the larger one first (or smaller if flipped):
+        if (!fIsFlipped) {
+            builder->fsCodeAppendf("\t\tfloat %s = max(%s, %s);\n", tName.c_str(),
+                                   r0Name.c_str(), r1Name.c_str());
+        } else {
+            builder->fsCodeAppendf("\t\tfloat %s = min(%s, %s);\n", tName.c_str(),
+                                   r0Name.c_str(), r1Name.c_str());
+        }
 
         // if r(t) > 0, then we're done; t will be our x coordinate
         builder->fsCodeAppendf("\t\tif (%s * %s + %s > 0.0) {\n", tName.c_str(),
@@ -294,8 +305,13 @@ void GLDefault2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
 
         // otherwise, if r(t) for the larger root was <= 0, try the other root
         builder->fsCodeAppend("\t\t} else {\n");
-        builder->fsCodeAppendf("\t\t\t%s = min(%s, %s);\n", tName.c_str(),
-                               r0Name.c_str(), r1Name.c_str());
+        if (!fIsFlipped) {
+            builder->fsCodeAppendf("\t\t\t%s = min(%s, %s);\n", tName.c_str(),
+                                   r0Name.c_str(), r1Name.c_str());
+        } else {
+            builder->fsCodeAppendf("\t\t\t%s = max(%s, %s);\n", tName.c_str(),
+                                   r0Name.c_str(), r1Name.c_str());
+        }
 
         // if r(t) > 0 for the smaller root, then t will be our x coordinate
         builder->fsCodeAppendf("\t\t\tif (%s * %s + %s > 0.0) {\n",
@@ -330,6 +346,7 @@ void GLDefault2PtConicalEffect::setData(const GrGLUniformManager& uman,
     INHERITED::setData(uman, drawEffect);
     const Default2PtConicalEffect& data = drawEffect.castEffect<Default2PtConicalEffect>();
     SkASSERT(data.isDegenerate() == fIsDegenerate);
+    SkASSERT(data.isFlipped() == fIsFlipped);
     SkScalar centerX1 = data.center();
     SkScalar radius0 = data.radius();
     SkScalar diffRadius = data.diffRadius();
@@ -365,11 +382,15 @@ GrGLEffect::EffectKey GLDefault2PtConicalEffect::GenKey(const GrDrawEffect& draw
                                                    const GrGLCaps&) {
     enum {
         kIsDegenerate = 1 << kBaseKeyBitCnt,
+        kIsFlipped = 1 << (kBaseKeyBitCnt + 1),
     };
 
     EffectKey key = GenBaseGradientKey(drawEffect);
     if (drawEffect.castEffect<Default2PtConicalEffect>().isDegenerate()) {
         key |= kIsDegenerate;
+    }
+    if (drawEffect.castEffect<Default2PtConicalEffect>().isFlipped()) {
+        key |= kIsFlipped;
     }
     return key;
 }

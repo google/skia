@@ -20,7 +20,7 @@ static int valid_divide(float numer, float denom, float* ratio) {
 
 // Return the number of distinct real roots, and write them into roots[] in
 // ascending order
-static int find_quad_roots(float A, float B, float C, float roots[2]) {
+static int find_quad_roots(float A, float B, float C, float roots[2], bool descendingOrder = false) {
     SkASSERT(roots);
 
     if (A == 0) {
@@ -54,6 +54,9 @@ static int find_quad_roots(float A, float B, float C, float roots[2]) {
     float r1 = C / Q;
     roots[0] = r0 < r1 ? r0 : r1;
     roots[1] = r0 > r1 ? r0 : r1;
+    if (descendingOrder) {
+        SkTSwap(roots[0], roots[1]);
+    }
     return 2;
 }
 
@@ -64,7 +67,8 @@ static float lerp(float x, float dx, float t) {
 static float sqr(float x) { return x * x; }
 
 void TwoPtRadial::init(const SkPoint& center0, SkScalar rad0,
-                       const SkPoint& center1, SkScalar rad1) {
+                       const SkPoint& center1, SkScalar rad1,
+                       bool flipped) {
     fCenterX = SkScalarToFloat(center0.fX);
     fCenterY = SkScalarToFloat(center0.fY);
     fDCenterX = SkScalarToFloat(center1.fX) - fCenterX;
@@ -75,6 +79,8 @@ void TwoPtRadial::init(const SkPoint& center0, SkScalar rad0,
     fA = sqr(fDCenterX) + sqr(fDCenterY) - sqr(fDRadius);
     fRadius2 = sqr(fRadius);
     fRDR = fRadius * fDRadius;
+
+    fFlipped = flipped;
 }
 
 void TwoPtRadial::setup(SkScalar fx, SkScalar fy, SkScalar dfx, SkScalar dfy) {
@@ -90,7 +96,7 @@ SkFixed TwoPtRadial::nextT() {
     float roots[2];
 
     float C = sqr(fRelX) + sqr(fRelY) - fRadius2;
-    int countRoots = find_quad_roots(fA, fB, C, roots);
+    int countRoots = find_quad_roots(fA, fB, C, roots, fFlipped);
 
     fRelX += fIncX;
     fRelY += fIncY;
@@ -169,7 +175,7 @@ static void twopoint_mirror(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
 }
 
 void SkTwoPointConicalGradient::init() {
-    fRec.init(fCenter1, fRadius1, fCenter2, fRadius2);
+    fRec.init(fCenter1, fRadius1, fCenter2, fRadius2, fFlippedGrad);
     fPtsToUnit.reset();
 }
 
@@ -178,12 +184,13 @@ void SkTwoPointConicalGradient::init() {
 SkTwoPointConicalGradient::SkTwoPointConicalGradient(
         const SkPoint& start, SkScalar startRadius,
         const SkPoint& end, SkScalar endRadius,
-        const Descriptor& desc)
+        bool flippedGrad, const Descriptor& desc)
     : SkGradientShaderBase(desc),
     fCenter1(start),
     fCenter2(end),
     fRadius1(startRadius),
-    fRadius2(endRadius) {
+    fRadius2(endRadius),
+    fFlippedGrad(flippedGrad) {
     // this is degenerate, and should be caught by our caller
     SkASSERT(fCenter1 != fCenter2 || fRadius1 != fRadius2);
     this->init();
@@ -299,14 +306,19 @@ SkShader::BitmapType SkTwoPointConicalGradient::asABitmap(
     return kTwoPointConical_BitmapType;
 }
 
+// Returns the original non-sorted version of the gradient
 SkShader::GradientType SkTwoPointConicalGradient::asAGradient(
     GradientInfo* info) const {
     if (info) {
-        commonAsAGradient(info);
+        commonAsAGradient(info, fFlippedGrad);
         info->fPoint[0] = fCenter1;
         info->fPoint[1] = fCenter2;
         info->fRadius[0] = fRadius1;
         info->fRadius[1] = fRadius2;
+        if (fFlippedGrad) {
+            SkTSwap(info->fPoint[0], info->fPoint[1]);
+            SkTSwap(info->fRadius[0], info->fRadius[1]);
+        }
     }
     return kConical_GradientType;
 }
@@ -318,6 +330,20 @@ SkTwoPointConicalGradient::SkTwoPointConicalGradient(
     fCenter2(buffer.readPoint()),
     fRadius1(buffer.readScalar()),
     fRadius2(buffer.readScalar()) {
+    if (buffer.pictureVersion() >= 24 || 0 == buffer.pictureVersion()) {
+        fFlippedGrad = buffer.readBool();
+    } else {
+        // V23_COMPATIBILITY_CODE
+        // Sort gradient by radius size for old pictures
+        if (fRadius2 < fRadius1) {
+            SkTSwap(fCenter1, fCenter2);
+            SkTSwap(fRadius1, fRadius2);
+            this->flipGradientColors();
+            fFlippedGrad = true;
+        } else {
+            fFlippedGrad = false;
+        }
+    }
     this->init();
 };
 
@@ -328,6 +354,7 @@ void SkTwoPointConicalGradient::flatten(
     buffer.writePoint(fCenter2);
     buffer.writeScalar(fRadius1);
     buffer.writeScalar(fRadius2);
+    buffer.writeBool(fFlippedGrad);
 }
 
 #if SK_SUPPORT_GPU

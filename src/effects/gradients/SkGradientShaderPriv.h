@@ -166,7 +166,23 @@ protected:
     const uint16_t*     getCache16() const;
     const SkPMColor*    getCache32() const;
 
-    void commonAsAGradient(GradientInfo*) const;
+    void commonAsAGradient(GradientInfo*, bool flipGrad = false) const;
+    
+    /*
+     * Takes in pointers to gradient color and Rec info as colorSrc and recSrc respectively.
+     * Count is the number of colors in the gradient
+     * It will then flip all the color and rec information and return in their respective Dst
+     * pointers. It is assumed that space has already been allocated for the Dst pointers.
+     * The rec src and dst are only assumed to be valid if count > 2
+     */
+    static void FlipGradientColors(SkColor* colorDst, Rec* recDst,
+                                   SkColor* colorSrc, Rec* recSrc,
+                                   int count);
+
+    // V23_COMPATIBILITY_CODE
+    // Used for 2-pt conical gradients since we sort start/end cirlces by radius
+    // Assumes space has already been allocated for fOrigColors
+    void flipGradientColors();
 
 private:
     enum {
