@@ -84,8 +84,11 @@ struct PngAndRaw {
         }
 
         const size_t offset = data->size() - bitmapBytes;
+        SkAutoTUnref<SkData> subset(
+                SkData::NewSubset(data, offset, bitmapBytes));
         SkAutoTUnref<SkPixelRef> pixels(
-            SkMallocPixelRef::NewWithData(info, rowBytes, NULL/*ctable*/, data, offset));
+            SkMallocPixelRef::NewWithData(
+                    info, rowBytes, NULL/*ctable*/, subset));
         SkASSERT(pixels);
 
         bitmap->setConfig(info, rowBytes);

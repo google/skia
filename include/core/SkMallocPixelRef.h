@@ -64,9 +64,6 @@ public:
      *  The SkData will be ref()ed and on destruction of the PielRef,
      *  the SkData will be unref()ed.
      *
-     *  @param offset (in bytes) into the provided SkData that the
-     *         first pixel is located at.
-     *
      *  This pixelref will ref() the specified colortable (if not NULL).
      *
      *  Returns NULL on failure.
@@ -74,8 +71,7 @@ public:
     static SkMallocPixelRef* NewWithData(const SkImageInfo& info,
                                          size_t rowBytes,
                                          SkColorTable* ctable,
-                                         SkData* data,
-                                         size_t offset = 0);
+                                         SkData* data);
 
     void* getAddr() const { return fStorage; }
 

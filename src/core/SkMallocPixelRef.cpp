@@ -49,6 +49,7 @@ SkMallocPixelRef* SkMallocPixelRef::NewDirect(const SkImageInfo& info,
                       (info, addr, rowBytes, ctable, NULL, NULL));
 }
 
+
 SkMallocPixelRef* SkMallocPixelRef::NewAllocate(const SkImageInfo& info,
                                                 size_t requestedRowBytes,
                                                 SkColorTable* ctable) {
@@ -108,22 +109,19 @@ static void sk_data_releaseproc(void*, void* dataPtr) {
 SkMallocPixelRef* SkMallocPixelRef::NewWithData(const SkImageInfo& info,
                                                 size_t rowBytes,
                                                 SkColorTable* ctable,
-                                                SkData* data,
-                                                size_t offset) {
+                                                SkData* data) {
     SkASSERT(data != NULL);
-    SkASSERT(offset <= data->size());
     if (!is_valid(info, ctable)) {
         return NULL;
     }
     if ((rowBytes < info.minRowBytes())
-        || ((data->size() - offset) < info.getSafeSize(rowBytes))) {
+        || (data->size() < info.getSafeSize(rowBytes))) {
         return NULL;
     }
     data->ref();
-    const void* ptr = static_cast<const void*>(data->bytes() + offset);
     SkMallocPixelRef* pr
         = SkNEW_ARGS(SkMallocPixelRef,
-                     (info, const_cast<void*>(ptr), rowBytes, ctable,
+                     (info, const_cast<void*>(data->data()), rowBytes, ctable,
                       sk_data_releaseproc, static_cast<void*>(data)));
     SkASSERT(pr != NULL);
     // We rely on the immutability of the pixels to make the

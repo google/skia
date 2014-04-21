@@ -104,11 +104,10 @@ DEF_TEST(MallocPixelRef, reporter) {
         SkData* dataPtr = data.get();
         REPORTER_ASSERT(reporter, dataPtr->unique());
         SkAutoTUnref<SkMallocPixelRef> pr(
-            SkMallocPixelRef::NewWithData(info, rowBytes, NULL, data.get(), 4));
+            SkMallocPixelRef::NewWithData(info, rowBytes, NULL, data.get()));
         REPORTER_ASSERT(reporter, !(dataPtr->unique()));
         data.reset(NULL);
         REPORTER_ASSERT(reporter, dataPtr->unique());
-        REPORTER_ASSERT(reporter,
-            static_cast<const void*>(dataPtr->bytes() + 4) == pr->pixels());
+        REPORTER_ASSERT(reporter, dataPtr->data() == pr->pixels());
     }
 }
