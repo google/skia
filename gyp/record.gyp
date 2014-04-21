@@ -3,6 +3,7 @@
     'targets': [{
         'target_name': 'record',
         'type': 'static_library',
+        'includes': [ 'record.gypi' ],
         'include_dirs': [
             '../include/config',
             '../include/core',
@@ -13,11 +14,5 @@
                 '../include/record',  # Public headers.
             ],
         },
-        'sources': [
-            '../src/record/SkRecordOpts.cpp',
-            '../src/record/SkRecordDraw.cpp',
-            '../src/record/SkRecorder.cpp',
-            '../src/record/SkRecording.cpp',
-        ],
     }]
 }
