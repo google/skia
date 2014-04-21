@@ -125,6 +125,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc) {
                 p += dp;
             }
             recs->fPos = SK_Fixed1;
+            recs->fScale = scale;
         }
     }
     this->initCommon();
