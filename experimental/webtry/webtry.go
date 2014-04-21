@@ -437,7 +437,7 @@ func workspaceHandler(w http.ResponseWriter, r *http.Request) {
 		if len(tries) == 0 {
 			code = DEFAULT_SAMPLE
 		} else {
-			code = getCode(tries[len(tries)-1].Hash)
+			code = getCode(tries[0].Hash)
 		}
 		if err := workspaceTemplate.Execute(w, Workspace{Tries: tries, Code: code, Name: name}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
