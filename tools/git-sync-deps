@@ -64,6 +64,23 @@ def git_repository_sync_is_disabled(git, directory):
     return False
 
 
+def is_git_toplevel(git, directory):
+  """Return true iff the directory is the top level of a Git repository.
+
+  Args:
+    git (string) the git executable
+
+    directory (string) the path into which the repository
+              is expected to be checked out.
+  """
+  try:
+    toplevel = subprocess.check_output(
+      [git, 'rev-parse', '--show-toplevel'], cwd=directory).strip()
+    return os.path.abspath(directory) == os.path.abspath(toplevel)
+  except subprocess.CalledProcessError:
+    return False
+
+
 def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
   """Checkout (and clone if needed) a Git repository.
 
@@ -86,6 +103,12 @@ def git_checkout_to_directory(git, repo, checkoutable, directory, verbose):
   if not os.path.isdir(directory):
     subprocess.check_call(
       [git, 'clone', '--quiet', repo, directory])
+
+  if not is_git_toplevel(git, directory):
+    # if the directory exists, but isn't a git repo, you will modify
+    # the parent repostory, which isn't what you want.
+    sys.stdout.write('%s\n  IS NOT TOP-LEVEL GIT DIRECTORY.\n' % directory)
+    return
 
   # Check to see if this repo is disabled.  Quick return.
   if git_repository_sync_is_disabled(git, directory):
