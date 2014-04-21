@@ -24,13 +24,15 @@ from generate_user_config import generate_user_config as gen_config
 
 # Name of SkUserConfig file.
 USER_CONFIG_NAME = 'SkUserConfig-h.txt'
+MISSING_FILENAME = 'missing-filename.xxx'
 # Path to unchanging Dummy SkUserConfig file.
 FULL_DUMMY_PATH = os.path.join(os.path.dirname(__file__), 'inputs',
                                USER_CONFIG_NAME)
 REBASELINE_MSG = ('If you\'ve modified generate_user_config.py, run '
                   '"generate_user_config_tests.py --rebaseline" to rebaseline')
 
-def generate_dummy_user_config(original_sk_user_config, target_dir):
+def generate_dummy_user_config(original_sk_user_config,
+                               require_sk_user_config, target_dir):
   # Add an arbitrary set of defines
   defines = [ 'SK_BUILD_FOR_ANDROID',
               'SK_BUILD_FOR_ANDROID_FRAMEWORK',
@@ -38,6 +40,7 @@ def generate_dummy_user_config(original_sk_user_config, target_dir):
               'foo',
               'bar' ]
   gen_config(original_sk_user_config=original_sk_user_config,
+             require_sk_user_config=require_sk_user_config,
              target_dir=target_dir, ordered_set=defines)
 
 
@@ -45,18 +48,33 @@ class GenUserConfigTest(unittest.TestCase):
 
   def test_missing_sk_user_config(self):
     tmp = tempfile.mkdtemp()
-    original = os.path.join(tmp, 'filename')
+    original = os.path.join(tmp, MISSING_FILENAME)
     assert not os.path.exists(original)
 
+
+    # With require_sk_user_config set to True, an AssertionError will be
+    # thrown when original_sk_user_config is missing.
     with self.assertRaises(AssertionError):
       ordered_set = [ 'define' ]
-      gen_config(original_sk_user_config=original, target_dir=tmp,
-                 ordered_set=ordered_set)
+      gen_config(original_sk_user_config=original,
+                 require_sk_user_config=True,
+                 target_dir=tmp, ordered_set=ordered_set)
+
+    # With require_sk_user_config set to False, it is okay for
+    # original_sk_user_config to be missing.
+    generate_dummy_user_config(original_sk_user_config=original,
+                               require_sk_user_config=False, target_dir=tmp)
+    actual_name = os.path.join(tmp, MISSING_FILENAME)
+    utils.compare_to_expectation(actual_name=actual_name,
+                                 expectation_name=MISSING_FILENAME,
+                                 assert_true=self.assertTrue,
+                                 msg=REBASELINE_MSG)
+
     shutil.rmtree(tmp)
 
   def test_gen_config(self):
     tmp = tempfile.mkdtemp()
-    generate_dummy_user_config(FULL_DUMMY_PATH, tmp)
+    generate_dummy_user_config(FULL_DUMMY_PATH, True, tmp)
     actual_name = os.path.join(tmp, USER_CONFIG_NAME)
     utils.compare_to_expectation(actual_name=actual_name,
                         expectation_name=USER_CONFIG_NAME,
@@ -74,7 +92,8 @@ def main():
 
 
 def rebaseline():
-  generate_dummy_user_config(FULL_DUMMY_PATH, utils.EXPECTATIONS_DIR)
+  generate_dummy_user_config(FULL_DUMMY_PATH, True, utils.EXPECTATIONS_DIR)
+  generate_dummy_user_config(MISSING_FILENAME, False, utils.EXPECTATIONS_DIR)
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()

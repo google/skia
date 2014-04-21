@@ -64,12 +64,14 @@ def generate_var_dict(target_dir, target_file, skia_arch_type, have_neon):
   print '.',
   return var_dict
 
-def main(target_dir=None):
+def main(target_dir=None, require_sk_user_config=False):
   """
   Read gyp files and create Android.mk for the Android framework's
   external/skia.
   @param target_dir Directory in which to place 'Android.mk'. If None, the file
                     will be placed in skia's root directory.
+  @param require_sk_user_config If True, raise an AssertionError if
+                                SkUserConfig.h does not exist.
   """
   # Create a temporary folder to hold gyp and gypd files. Create it in SKIA_DIR
   # so that it is a sibling of gyp/, so the relationships between gyp files and
@@ -125,7 +127,8 @@ def main(target_dir=None):
       dst_dir = os.path.join(SKIA_DIR, 'include', 'core')
 
     generate_user_config.generate_user_config(
-        original_sk_user_config=user_config, target_dir=dst_dir,
+        original_sk_user_config=user_config,
+        require_sk_user_config=require_sk_user_config, target_dir=dst_dir,
         ordered_set=common.DEFINES)
 
     # Now that the defines have been written to SkUserConfig, they are not

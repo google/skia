@@ -8,6 +8,7 @@
 """Function for generating the SkUserConfig file, customized for Android."""
 
 import os
+import shutil
 
 
 AUTOGEN_WARNING = (
@@ -27,7 +28,8 @@ AUTOGEN_WARNING = (
 BUILD_GUARD = 'SkUserConfig_Android_DEFINED'
 
 
-def generate_user_config(original_sk_user_config, target_dir, ordered_set):
+def generate_user_config(original_sk_user_config, require_sk_user_config,
+                         target_dir, ordered_set):
   """Generate the SkUserConfig file specific to the Android framework.
 
   Android needs its #defines in its skia/include/core directory, so that other
@@ -39,6 +41,9 @@ def generate_user_config(original_sk_user_config, target_dir, ordered_set):
 
   Args:
       original_sk_user_config: Path to original SkUserConfig.h
+      require_sk_user_config: If True, raise an AssertionError if
+          SkUserConfig.h does not exist. Either way, if it does exist, copy it
+          into the new file.
       target_dir: Directory within which the modified SkUserConfig.h will be
           written. Its name will be the same basename as
           original_sk_user_config. If None, the new file will be written to the
@@ -50,7 +55,9 @@ def generate_user_config(original_sk_user_config, target_dir, ordered_set):
       AssertionError: If original_sk_user_config does not exist.
   """
 
-  assert os.path.exists(original_sk_user_config)
+  sk_user_config_exists = os.path.exists(original_sk_user_config)
+  if require_sk_user_config:
+    assert sk_user_config_exists
 
   dst_filename = os.path.basename(original_sk_user_config)
   if target_dir:
@@ -62,9 +69,9 @@ def generate_user_config(original_sk_user_config, target_dir, ordered_set):
     # Copy the original exactly. This is merely for reference. Many of the
     # defines written to the file below, either manually or generated from the
     # gyp files, have explanations in the original SkUserConfig.h
-    with open(original_sk_user_config, 'r') as original:
-      for line in original:
-        dst.write(line)
+    if sk_user_config_exists:
+      with open(original_sk_user_config, 'r') as original:
+        shutil.copyfileobj(original, dst)
 
     # Now add the defines specific to Android. Write a custom build guard to
     # ensure they don't get defined more than once.
