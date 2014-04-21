@@ -134,8 +134,8 @@ struct ColorPos {
 
     ColorPos() : fColors(NULL), fPos(NULL), fCount(0) {}
     ~ColorPos() {
-        SkDELETE(fColors);
-        SkDELETE(fPos);
+        SkDELETE_ARRAY(fColors);
+        SkDELETE_ARRAY(fPos);
     }
 
     void construct(const SkColor colors[], const SkScalar pos[], int count) {
