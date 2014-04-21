@@ -4,11 +4,37 @@
  */
 
 /**
+ * A polyfill for HTML Templates.
+ *
+ * This just adds in the content attribute, it doesn't stop scripts
+ * from running nor does it stop other side-effects.
+ */
+(function polyfillTemplates() {
+  if('content' in document.createElement('template')) {
+    return false;
+  }
+
+  var templates = document.getElementsByTagName('template');
+  for (var i=0; i<templates.length; i++) {
+    var content = document.createDocumentFragment();
+    while (templates[i].firstChild) {
+     content.appendChild(templates[i].firstChild);
+    }
+    templates[i].content = content;
+  }
+})();
+
+/**
  * All the functionality is wrapped up in this anonymous closure, but we need
  * to be told if we are on the workspace page or a normal try page, so the
  * workspaceName is passed into the closure, it must be set in the global
  * namespace. If workspaceName is the empty string then we know we aren't
  * running on a workspace page.
+ *
+ * If we are on a workspace page we also look for a 'history'
+ * variable in the global namespace which contains the list of tries
+ * that are included in this workspace. That variable is used to
+ * populate the history list.
  */
 (function(workspaceName) {
     var run = document.getElementById('run');
@@ -20,6 +46,15 @@
     var img = document.getElementById('img');
     var tryHistory = document.getElementById('tryHistory');
     var parser = new DOMParser();
+    var tryTemplate = document.getElementById('tryTemplate');
+
+
+    function addToHistory(hash, imgUrl) {
+      var clone = tryTemplate.content.cloneNode(true);
+      clone.querySelector('a').href = '/c/' + hash;
+      clone.querySelector('img').src = imgUrl;
+      tryHistory.insertBefore(clone, tryHistory.firstChild);
+    }
 
 
     function beginWait() {
@@ -58,13 +93,7 @@
       }
       // Add the image to the history if we are on a workspace page.
       if (tryHistory) {
-        var newHistoryStr = '<div class=tries>' +
-          '<a href="/c/' + body.hash + '">' +
-          '  <img width=64 height=64 src="' + img.src +  '">' +
-          '</a></div>';
-
-        var newHistory = parser.parseFromString(newHistoryStr, "text/html");
-        tryHistory.insertBefore(newHistory.body.firstChild, tryHistory.firstChild);
+        addToHistory(body.hash, 'data:image/png;base64,' + body.img);
       } else {
         window.history.pushState(null, null, "./" + body.hash);
       }
@@ -111,6 +140,14 @@
 
     if (embedButton) {
       embedButton.addEventListener('click', onEmbedClick);
+    }
+
+
+    // Add the images to the history if we are on a workspace page.
+    if (tryHistory && history) {
+      for (var i=0; i<history.length; i++) {
+        addToHistory(history[i].hash, '/i/'+history[i].hash+'.png');
+      }
     }
 
 })(workspaceName);

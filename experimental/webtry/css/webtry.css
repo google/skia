@@ -31,6 +31,10 @@ textarea {
   resize: none;
 }
 
+template {
+  display: none;
+}
+
 pre, code {
     padding: 0;
     color: green;

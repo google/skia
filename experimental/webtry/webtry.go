@@ -346,8 +346,8 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type Try struct {
-	Hash     string
-	CreateTS string
+	Hash     string `json:"hash"`
+	CreateTS string `json:"create_ts"`
 }
 
 type Recent struct {
@@ -418,7 +418,7 @@ func workspaceHandler(w http.ResponseWriter, r *http.Request) {
 		name := ""
 		if len(match) == 2 {
 			name = match[1]
-			rows, err := db.Query("SELECT create_ts, hash FROM workspacetry WHERE name=? ORDER BY create_ts DESC ", name)
+			rows, err := db.Query("SELECT create_ts, hash FROM workspacetry WHERE name=? ORDER BY create_ts", name)
 			if err != nil {
 				reportError(w, r, err, "Failed to select.")
 				return
@@ -437,7 +437,7 @@ func workspaceHandler(w http.ResponseWriter, r *http.Request) {
 		if len(tries) == 0 {
 			code = DEFAULT_SAMPLE
 		} else {
-			code = getCode(tries[0].Hash)
+			code = getCode(tries[len(tries)-1].Hash)
 		}
 		if err := workspaceTemplate.Execute(w, Workspace{Tries: tries, Code: code, Name: name}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
