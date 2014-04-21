@@ -19,28 +19,25 @@
 #endif
 
 SkPictureShader::SkPictureShader(SkPicture* picture, TileMode tmx, TileMode tmy)
-    : fPicture(picture)
+    : fPicture(SkRef(picture))
     , fTmx(tmx)
-    , fTmy(tmy) {
-    SkSafeRef(fPicture);
-}
+    , fTmy(tmy) { }
 
 SkPictureShader::SkPictureShader(SkReadBuffer& buffer)
         : INHERITED(buffer) {
     fTmx = static_cast<SkShader::TileMode>(buffer.read32());
     fTmy = static_cast<SkShader::TileMode>(buffer.read32());
-    if (buffer.readBool()) {
-        fPicture = SkPicture::CreateFromBuffer(buffer);
-    } else {
-        fPicture = NULL;
-    }
+    fPicture = SkPicture::CreateFromBuffer(buffer);
 }
 
 SkPictureShader::~SkPictureShader() {
-    SkSafeUnref(fPicture);
+    fPicture->unref();
 }
 
 SkPictureShader* SkPictureShader::Create(SkPicture* picture, TileMode tmx, TileMode tmy) {
+    if (!picture || 0 == picture->width() || 0 == picture->height()) {
+        return NULL;
+    }
     return SkNEW_ARGS(SkPictureShader, (picture, tmx, tmy));
 }
 
@@ -49,16 +46,11 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
 
     buffer.write32(fTmx);
     buffer.write32(fTmy);
-    buffer.writeBool(NULL != fPicture);
-    if (fPicture) {
-        fPicture->flatten(buffer);
-    }
+    fPicture->flatten(buffer);
 }
 
 bool SkPictureShader::buildBitmapShader(const SkMatrix& matrix) const {
-    if (!fPicture || (0 == fPicture->width() && 0 == fPicture->height())) {
-        return false;
-    }
+    SkASSERT(fPicture && fPicture->width() > 0 && fPicture->height() > 0);
 
     SkMatrix m;
     if (this->hasLocalMatrix()) {

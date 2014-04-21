@@ -349,7 +349,9 @@ public:
     /** Call this to create a new shader that will draw with the specified picture.
      *
      *  @param src  The picture to use inside the shader (if not NULL, its ref count
-     *              is incremented).
+     *              is incremented). The SkPicture must not be changed after
+     *              successfully creating a picture shader.
+     *              FIXME: src cannot be const due to SkCanvas::drawPicture
      *  @param tmx  The tiling mode to use when sampling the bitmap in the x-direction.
      *  @param tmy  The tiling mode to use when sampling the bitmap in the y-direction.
      *  @return     Returns a new shader object. Note: this function never returns null.
