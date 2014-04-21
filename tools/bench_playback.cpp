@@ -22,6 +22,7 @@ DEFINE_string2(skps, r, "skps", "Directory containing SKPs to read and re-record
 DEFINE_int32(loops, 10, "Number of times to play back each SKP.");
 DEFINE_bool(skr, false, "Play via SkRecord instead of SkPicture.");
 DEFINE_int32(tile, 1000000000, "Simulated tile size.");
+DEFINE_string(match, "", "The usual filters on file names of SKPs to bench.");
 
 static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
     // We don't use the public SkRecording interface here because we need kWriteOnly_Mode.
@@ -47,7 +48,7 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
 
     const SkMSec elapsed = SkTime::GetMSecs() - start;
     const double msPerLoop = elapsed / (double)FLAGS_loops;
-    printf("%5.1f\t%s\n", msPerLoop, name);
+    printf("%6.2f\t%s\n", msPerLoop, name);
 }
 
 int tool_main(int argc, char** argv);
@@ -63,6 +64,10 @@ int tool_main(int argc, char** argv) {
     SkString filename;
     bool failed = false;
     while (it.next(&filename)) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, filename.c_str())) {
+            continue;
+        }
+
         const SkString path = SkOSPath::SkPathJoin(FLAGS_skps[0], filename.c_str());
 
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path.c_str()));

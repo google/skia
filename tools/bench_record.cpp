@@ -31,6 +31,7 @@ DEFINE_int32(nullSize, 1000, "Pretend dimension of null source picture.");
 DEFINE_int32(tileGridSize, 512, "Set the tile grid size. Has no effect if bbh is not set to tilegrid.");
 DEFINE_string(bbh, "", "Turn on the bbh and select the type, one of rtree, tilegrid, quadtree");
 DEFINE_bool(skr, false, "Record SKR instead of SKP.");
+DEFINE_string(match, "", "The usual filters on file names of SKPs to bench.");
 
 static SkBBHFactory* parse_FLAGS_bbh() {
     if (FLAGS_bbh.isEmpty()) {
@@ -104,6 +105,10 @@ int tool_main(int argc, char** argv) {
     SkString filename;
     bool failed = false;
     while (it.next(&filename)) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, filename.c_str())) {
+            continue;
+        }
+
         const SkString path = SkOSPath::SkPathJoin(FLAGS_skps[0], filename.c_str());
 
         SkAutoTUnref<SkStream> stream(SkStream::NewFromFile(path.c_str()));
