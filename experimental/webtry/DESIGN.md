@@ -134,7 +134,9 @@ Initial setup of the database, the user, and the only table:
     CREATE DATABASE webtry;
     USE webtry;
     CREATE USER 'webtry'@'%' IDENTIFIED BY '<password is in valentine>';
-    GRANT SELECT, INSERT, UPDATE ON webtry.webtry TO 'webtry'@'%';
+    GRANT SELECT, INSERT, UPDATE ON webtry.webtry       TO 'webtry'@'%';
+    GRANT SELECT, INSERT, UPDATE ON webtry.workspace    TO 'webtry'@'%';
+    GRANT SELECT, INSERT, UPDATE ON webtry.workspacetry TO 'webtry'@'%';
 
     // If this gets changed also update the sqlite create statement in webtry.go.
 
