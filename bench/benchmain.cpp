@@ -261,6 +261,7 @@ DEFINE_string(config, kDefaultsConfigStr,
 DEFINE_string(logFile, "", "Also write stdout here.");
 DEFINE_int32(minMs, 20,  "Shortest time we'll allow a benchmark to run.");
 DEFINE_int32(maxMs, 4000, "Longest time we'll allow a benchmark to run.");
+DEFINE_bool(runOnce, kIsDebug, "Run each bench exactly once and don't report timings.");
 DEFINE_double(error, 0.01,
               "Ratio of subsequent bench measurements must drop within 1±error to converge.");
 DEFINE_string(timeFormat, "%9.2f", "Format to print results, in milliseconds per 1000 loops.");
@@ -387,9 +388,9 @@ int tool_main(int argc, char** argv) {
 #endif
 
     // All flags should be parsed now.  Report our settings.
-    if (kIsDebug) {
-        logger.logError("bench was built in Debug mode, so we're going to hide the times."
-                        "  It's for your own good!\n");
+    if (FLAGS_runOnce) {
+        logger.logError("bench was run with --runOnce, so we're going to hide the times."
+                        " It's for your own good!\n");
     }
     writer.option("mode", FLAGS_mode[0]);
     writer.option("alpha", SkStringPrintf("0x%02X", alpha).c_str());
@@ -659,7 +660,7 @@ int tool_main(int argc, char** argv) {
                     if (FLAGS_verbose) { SkDebugf("%.3g ", current); }
                     converged = HasConverged(previous, current, timer.fWall);
                     previous = current;
-                } while (!kIsDebug && !converged);
+                } while (!FLAGS_runOnce && !converged);
             }
             if (FLAGS_verbose) { SkDebugf("\n"); }
 
@@ -671,8 +672,8 @@ int tool_main(int argc, char** argv) {
                 }
             }
 
-            if (kIsDebug) {
-                // Let's not mislead ourselves by looking at Debug build bench times!
+            if (FLAGS_runOnce) {
+                // Let's not mislead ourselves by looking at Debug build or single iteration bench times!
                 continue;
             }
 
