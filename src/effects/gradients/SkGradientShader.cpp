@@ -19,7 +19,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc) {
 
     fMapper = desc.fMapper;
     SkSafeRef(fMapper);
-    fGradFlags = SkToU8(desc.fFlags);
+    fGradFlags = SkToU8(desc.fGradFlags);
 
     SkASSERT((unsigned)desc.fTileMode < SkShader::kTileModeCount);
     SkASSERT(SkShader::kTileModeCount == SK_ARRAY_COUNT(gTileProcs));
@@ -762,12 +762,12 @@ static void desc_init(SkGradientShaderBase::Descriptor* desc,
                       const SkScalar pos[], int colorCount,
                       SkShader::TileMode mode,
                       SkUnitMapper* mapper, uint32_t flags) {
-    desc->fColors   = colors;
-    desc->fPos      = pos;
-    desc->fCount    = colorCount;
-    desc->fTileMode = mode;
-    desc->fMapper   = mapper;
-    desc->fFlags    = flags;
+    desc->fColors       = colors;
+    desc->fPos          = pos;
+    desc->fCount        = colorCount;
+    desc->fTileMode     = mode;
+    desc->fMapper       = mapper;
+    desc->fGradFlags    = flags;
 }
 
 SkShader* SkGradientShader::CreateLinear(const SkPoint pts[2],
@@ -1083,7 +1083,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
         SkGradientShaderBase::kThree_GpuColorType == fColorType) {
         fRow = -1;
 
-        if (SkGradientShader::kInterpolateColorsInPremul_Flag & shader.getFlags()) {
+        if (SkGradientShader::kInterpolateColorsInPremul_Flag & shader.getGradFlags()) {
             fPremulType = kBeforeInterp_PremulType;
         } else {
             fPremulType = kAfterInterp_PremulType;

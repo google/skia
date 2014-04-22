@@ -94,7 +94,7 @@ public:
         int                 fCount;
         SkShader::TileMode  fTileMode;
         SkUnitMapper*       fMapper;
-        uint32_t            fFlags;
+        uint32_t            fGradFlags;
     };
 
 public:
@@ -139,7 +139,7 @@ public:
     // also be filled with the gradient colors
     GpuColorType getGpuColorType(SkColor colors[3]) const;
 
-    uint32_t getFlags() const { return fGradFlags; }
+    uint32_t getGradFlags() const { return fGradFlags; }
 
 protected:
     SkGradientShaderBase(SkReadBuffer& );
