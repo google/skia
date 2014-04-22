@@ -857,34 +857,6 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
     SkScalar sy = A.getScaleY();
     fMatrix22Scalar.reset();
 
-//#define SK_IGNORE_FREETYPE_ROTATION_FIX
-#ifdef SK_IGNORE_FREETYPE_ROTATION_FIX
-    if (A.getSkewX() || A.getSkewY() || sx < 0 || sy < 0) {
-        // sort of give up on hinting
-        sx = SkMaxScalar(SkScalarAbs(sx), SkScalarAbs(A.getSkewX()));
-        sy = SkMaxScalar(SkScalarAbs(A.getSkewY()), SkScalarAbs(sy));
-        sx = sy = SkScalarAve(sx, sy);
-
-        SkScalar inv = SkScalarInvert(sx);
-
-        // flip the skew elements to go from our Y-down system to FreeType's
-        fMatrix22.xx = SkScalarToFixed(SkScalarMul(A.getScaleX(), inv));
-        fMatrix22.xy = -SkScalarToFixed(SkScalarMul(A.getSkewX(), inv));
-        fMatrix22.yx = -SkScalarToFixed(SkScalarMul(A.getSkewY(), inv));
-        fMatrix22.yy = SkScalarToFixed(SkScalarMul(A.getScaleY(), inv));
-
-        fMatrix22Scalar.setScaleX(SkScalarMul(A.getScaleX(), inv));
-        fMatrix22Scalar.setSkewX(-SkScalarMul(A.getSkewX(), inv));
-        fMatrix22Scalar.setSkewY(-SkScalarMul(A.getSkewY(), inv));
-        fMatrix22Scalar.setScaleY(SkScalarMul(A.getScaleY(), inv));
-    } else {
-        fMatrix22.xx = fMatrix22.yy = SK_Fixed1;
-        fMatrix22.xy = fMatrix22.yx = 0;
-    }
-    fScale.set(sx, sy);
-    fScaleX = SkScalarToFixed(sx);
-    fScaleY = SkScalarToFixed(sy);
-#else
     // In GDI, the hinter is aware of the current transformation
     // (the transform is in some sense applied before/with the hinting).
     // The bytecode can then test if it is rotated or stretched and decide
@@ -931,7 +903,6 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(SkTypeface* typeface,
     fMatrix22.xy = SkScalarToFixed(fMatrix22Scalar.getSkewX());
     fMatrix22.yx = SkScalarToFixed(fMatrix22Scalar.getSkewY());
     fMatrix22.yy = SkScalarToFixed(fMatrix22Scalar.getScaleY());
-#endif
 
     fLCDIsVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
 
