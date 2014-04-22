@@ -13,7 +13,7 @@
 
 class SkBBoxHierarchy;
 
-class SkBBHFactory {
+class SK_API SkBBHFactory {
 public:
     /**
      *  Allocate a new SkBBoxHierarchy. Return NULL on failure.
@@ -22,7 +22,7 @@ public:
     virtual ~SkBBHFactory() {};
 };
 
-class SkQuadTreeFactory : public SkBBHFactory {
+class SK_API SkQuadTreeFactory : public SkBBHFactory {
 public:
     virtual SkBBoxHierarchy* operator()(int width, int height) const SK_OVERRIDE;
 private:
@@ -30,14 +30,14 @@ private:
 };
 
 
-class SkRTreeFactory : public SkBBHFactory {
+class SK_API SkRTreeFactory : public SkBBHFactory {
 public:
     virtual SkBBoxHierarchy* operator()(int width, int height) const SK_OVERRIDE;
 private:
     typedef SkBBHFactory INHERITED;
 };
 
-class SkTileGridFactory : public SkBBHFactory {
+class SK_API SkTileGridFactory : public SkBBHFactory {
 public:
     struct TileGridInfo {
         /** Tile placement interval */
