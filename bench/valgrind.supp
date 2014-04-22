@@ -1,0 +1,196 @@
+# Valgrind suppressions for bench --config 8888 GPU NONRENDERING --runOnce
+# Pass this file to Valgrind with "--suppressions=bench/valgrind.supp"
+{
+   NV driver 1
+   Memcheck:Cond
+   obj:/usr/lib/nvidia-current/libnvidia-glcore.so.319.32
+}
+{
+   NV driver 2
+   Memcheck:Param
+   write(buf)
+   fun:__write_nocancel
+}
+{
+   FontConfig
+   Memcheck:Addr4
+   fun:FcConfigFileExists
+}
+{
+   SkipZeroes_arrow.png_writes_zeroes
+   Memcheck:Cond
+   fun:inflateReset2
+   fun:inflateInit2_
+   fun:png_create_read_struct_2
+   fun:png_create_read_struct
+   fun:_ZN17SkPNGImageDecoder12onDecodeInitEP8SkStreamPP14png_struct_defPP15png_info_struct
+   fun:_ZN17SkPNGImageDecoder8onDecodeEP8SkStreamP8SkBitmapN14SkImageDecoder4ModeE
+   fun:_ZN14SkImageDecoder6decodeEP8SkStreamP8SkBitmapNS2_6ConfigENS_4ModeE
+   fun:_ZN14SkImageDecoder6decodeEP8SkStreamP8SkBitmapNS_4ModeE
+   fun:_ZN15SkipZeroesBench6onDrawEiP8SkCanvas
+   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:main
+}
+{
+   SkipZeroes_arrow.png_writes_zeroes Release
+   Memcheck:Cond
+   fun:inflateReset2
+   fun:inflateInit2_
+   fun:png_create_read_struct_2
+   fun:png_create_read_struct
+   fun:_ZN17SkPNGImageDecoder12onDecodeInitEP8SkStreamPP14png_struct_defPP15png_info_struct
+   fun:_ZN17SkPNGImageDecoder8onDecodeEP8SkStreamP8SkBitmapN14SkImageDecoder4ModeE
+   fun:_ZN14SkImageDecoder6decodeEP8SkStreamP8SkBitmapNS2_6ConfigENS_4ModeE
+   fun:_ZN15SkipZeroesBench6onDrawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:(below main)
+}
+
+{
+   shadermask_LCD_80
+   Memcheck:Cond
+   fun:_ZL16SkMulDiv255Roundjj
+   fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint
+   fun:_ZN11SkGpuDevice8drawTextERK6SkDrawPKvmffRK7SkPaint
+   fun:_ZN8SkCanvas8drawTextEPKvmffRK7SkPaint
+   fun:_ZN15ShaderMaskBench6onDrawEiP8SkCanvas
+   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:main
+}
+{
+   shadermask_LCD_80 2
+   Memcheck:Cond
+   fun:_ZL8SkMulS16ii
+   fun:_ZL16SkMulDiv255Roundjj
+   fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint
+   fun:_ZN11SkGpuDevice8drawTextERK6SkDrawPKvmffRK7SkPaint
+   fun:_ZN8SkCanvas8drawTextEPKvmffRK7SkPaint
+   fun:_ZN15ShaderMaskBench6onDrawEiP8SkCanvas
+   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:main
+}
+{
+   shadermask_LCD_80 3
+   Memcheck:Cond
+   fun:_ZL23SkPremultiplyARGBInlinejjjj
+   fun:_Z18SkPreMultiplyColorj
+   fun:_ZL15SkColor2GrColorj
+   fun:_ZN12_GLOBAL__N_123skPaint2GrPaintNoShaderEP11SkGpuDeviceRK7SkPaintbbP7GrPaint
+   fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint
+   fun:_ZN11SkGpuDevice8drawTextERK6SkDrawPKvmffRK7SkPaint
+   fun:_ZN8SkCanvas8drawTextEPKvmffRK7SkPaint
+   fun:_ZN15ShaderMaskBench6onDrawEiP8SkCanvas
+   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:main
+}
+{
+   shadermask_LCD_80 4
+   Memcheck:Cond
+   fun:_ZL16SkMulDiv255Roundjj
+   fun:_ZL23SkPremultiplyARGBInlinejjjj
+   fun:_Z18SkPreMultiplyColorj
+   fun:_ZL15SkColor2GrColorj
+   fun:_ZN12_GLOBAL__N_123skPaint2GrPaintNoShaderEP11SkGpuDeviceRK7SkPaintbbP7GrPaint
+   fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint
+   fun:_ZN11SkGpuDevice8drawTextERK6SkDrawPKvmffRK7SkPaint
+   fun:_ZN8SkCanvas8drawTextEPKvmffRK7SkPaint
+   fun:_ZN15ShaderMaskBench6onDrawEiP8SkCanvas
+   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:main
+}
+{
+   shadermask_LCD_80 5
+   Memcheck:Cond
+   fun:_ZL16SkMulDiv255Roundjj
+   fun:_ZL23SkPremultiplyARGBInlinejjjj
+   fun:_Z18SkPreMultiplyColorj
+   fun:_ZL15SkColor2GrColorj
+   fun:_ZN12_GLOBAL__N_123skPaint2GrPaintNoShaderEP11SkGpuDeviceRK7SkPaintbbP7GrPaint
+   fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint
+   fun:_ZN11SkGpuDevice8drawTextERK6SkDrawPKvmffRK7SkPaint
+   fun:_ZN8SkCanvas8drawTextEPKvmffRK7SkPaint
+   fun:_ZN15ShaderMaskBench6onDrawEiP8SkCanvas
+   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:main
+}
+{
+   shadermask_LCD_80 6
+   Memcheck:Cond
+   fun:_ZL8SkMulS16ii
+   fun:_ZL16SkMulDiv255Roundjj
+   fun:_ZL23SkPremultiplyARGBInlinejjjj
+   fun:_Z18SkPreMultiplyColorj
+   fun:_ZL15SkColor2GrColorj
+   fun:_ZN12_GLOBAL__N_123skPaint2GrPaintNoShaderEP11SkGpuDeviceRK7SkPaintbbP7GrPaint
+   fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint
+   fun:_ZN11SkGpuDevice8drawTextERK6SkDrawPKvmffRK7SkPaint
+   fun:_ZN8SkCanvas8drawTextEPKvmffRK7SkPaint
+   fun:_ZN15ShaderMaskBench6onDrawEiP8SkCanvas
+   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+}
+{
+   shadermask_LCD_80 7
+   Memcheck:Cond
+   fun:_ZL12SkPackARGB32jjjj
+   fun:_ZL23SkPremultiplyARGBInlinejjjj
+   fun:_Z18SkPreMultiplyColorj
+   fun:_ZL15SkColor2GrColorj
+   fun:_ZN12_GLOBAL__N_123skPaint2GrPaintNoShaderEP11SkGpuDeviceRK7SkPaintbbP7GrPaint
+   fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint
+   fun:_ZN11SkGpuDevice8drawTextERK6SkDrawPKvmffRK7SkPaint
+   fun:_ZN8SkCanvas8drawTextEPKvmffRK7SkPaint
+   fun:_ZN15ShaderMaskBench6onDrawEiP8SkCanvas
+   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:main
+}
+{
+   shadermask_LCD_80 8
+   Memcheck:Cond
+   fun:_ZL15GrColorPackRGBAjjjj
+   fun:_ZL15SkColor2GrColorj
+   fun:_ZN12_GLOBAL__N_123skPaint2GrPaintNoShaderEP11SkGpuDeviceRK7SkPaintbbP7GrPaint
+   fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint
+   fun:_ZN11SkGpuDevice8drawTextERK6SkDrawPKvmffRK7SkPaint
+   fun:_ZN8SkCanvas8drawTextEPKvmffRK7SkPaint
+   fun:_ZN15ShaderMaskBench6onDrawEiP8SkCanvas
+   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:main
+}
+{
+   shadermask_LCD_80 Release
+   Memcheck:Cond
+   fun:_Z18SkPreMultiplyColorj
+   fun:_ZN12_GLOBAL__N_123skPaint2GrPaintNoShaderEP11SkGpuDeviceRK7SkPaintbbP7GrPaint
+   fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint.constprop.127
+   fun:_ZN11SkGpuDevice8drawTextERK6SkDrawPKvmffRK7SkPaint
+   fun:_ZN8SkCanvas8drawTextEPKvmffRK7SkPaint
+   fun:_ZN15ShaderMaskBench6onDrawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:(below main)
+}
+{
+   rtree_(unsorted)concentric_query_bulk
+   Memcheck:Cond
+   fun:_ZN14BBoxQueryBench6onDrawEiP8SkCanvas
+   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:main
+}
+{
+   rtree_(unsorted)concentric_query_bulk Release
+   Memcheck:Cond
+   fun:_ZN14BBoxQueryBench6onDrawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:(below main)
+}
+
+
