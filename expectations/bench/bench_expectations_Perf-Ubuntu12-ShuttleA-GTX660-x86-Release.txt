@@ -186,7 +186,7 @@ desk_baidu.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-Shut
 desk_blogger.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-GTX660-x86-Release-25th,1.23,-4.79,7.26
 desk_booking.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-GTX660-x86-Release-25th,3.16,-2.91,9.26
 desk_carsvg.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-GTX660-x86-Release-25th,19.62,13.16,26.10
-desk_chalkboard.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-GTX660-x86-Release-25th,53.76,47.10,60.48
+desk_chalkboard.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-GTX660-x86-Release-25th,53.76,47.10,65.0
 desk_css3gradients.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-GTX660-x86-Release-25th,0.56,-5.45,6.57
 desk_ebay.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-GTX660-x86-Release-25th,1.25,-4.77,7.28
 desk_espn.skp_simple_viewport_1000x1000_scalar_1.100000_gpu_,Perf-Ubuntu12-ShuttleA-GTX660-x86-Release-25th,2.03,-4.03,8.11
