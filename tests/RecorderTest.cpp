@@ -28,6 +28,12 @@ public:
     template <typename T>
     int count() const { return fHistogram[T::kType]; }
 
+    void apply(const SkRecord& record) {
+        for (unsigned i = 0; i < record.count(); i++) {
+            record.visit(i, *this);
+        }
+    }
+
 private:
     int fHistogram[kRecordTypes];
 };
@@ -39,8 +45,7 @@ DEF_TEST(Recorder, r) {
     recorder.drawRect(SkRect::MakeWH(10, 10), SkPaint());
 
     Tally tally;
-    record.visit(tally);
-
+    tally.apply(record);
     REPORTER_ASSERT(r, 1 == tally.count<SkRecords::DrawRect>());
 }
 

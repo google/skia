@@ -12,14 +12,20 @@
 #include "SkRecorder.h"
 #include "SkRecords.h"
 
-struct PushCullScanner {
+struct SkipScanner {
     template <typename T> void operator()(const T&) {}
 
-    SkTDArray<unsigned> fPopOffsets;
+    void apply(const SkRecord& record) {
+        for (unsigned i = 0; i < record.count(); i++) {
+            record.visit(i, *this);
+        }
+    }
+
+    SkTDArray<unsigned> fSkips;
 };
 
-template <> void PushCullScanner::operator()(const SkRecords::PushCull& record) {
-    *fPopOffsets.append() = record.popOffset;
+template <> void SkipScanner::operator()(const SkRecords::PairedPushCull& r) {
+    *fSkips.append() = r.skip;
 }
 
 
@@ -39,10 +45,10 @@ DEF_TEST(RecordCulling, r) {
 
     SkRecordAnnotateCullingPairs(&record);
 
-    PushCullScanner scan;
-    record.visit(scan);
+    SkipScanner scan;
+    scan.apply(record);
 
-    REPORTER_ASSERT(r, 2 == scan.fPopOffsets.count());
-    REPORTER_ASSERT(r, 6 == scan.fPopOffsets[0]);
-    REPORTER_ASSERT(r, 2 == scan.fPopOffsets[1]);
+    REPORTER_ASSERT(r, 2 == scan.fSkips.count());
+    REPORTER_ASSERT(r, 6 == scan.fSkips[0]);
+    REPORTER_ASSERT(r, 2 == scan.fSkips[1]);
 }

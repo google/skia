@@ -18,15 +18,16 @@ public:
     void next() { ++fIndex; }
 
     template <typename T> void operator()(const T& r) {
-        if (!this->canSkip(r)) {
+        if (!this->skip(r)) {
             this->draw(r);
             this->updateClip<T>();
         }
     }
 
 private:
-    // Can we skip this command right now?
-    template <typename T> bool canSkip(const T&) const {
+    // Return true if we can skip this command, false if not.
+    // Update fIndex here directly to skip more than just this one command.
+    template <typename T> bool skip(const T&) {
         // We can skip most commands if the clip is empty.  Exceptions are specialized below.
         return fClipEmpty;
     }
@@ -44,6 +45,8 @@ private:
     bool fClipEmpty;
 };
 
+// TODO(mtklein): do this specialization with template traits instead of macros
+
 // These commands may change the clip.
 #define UPDATE_CLIP(T) template <> void Draw::updateClip<SkRecords::T>() \
     { fClipEmpty = fCanvas->isClipEmpty(); }
@@ -56,75 +59,34 @@ UPDATE_CLIP(ClipRegion);
 #undef UPDATE_CLIP
 
 // These commands must always run.
-#define CAN_SKIP(T) template <> bool Draw::canSkip(const SkRecords::T&) const { return false; }
-CAN_SKIP(Restore);
-CAN_SKIP(Save);
-CAN_SKIP(SaveLayer);
-CAN_SKIP(Clear);
-CAN_SKIP(PushCull);
-CAN_SKIP(PopCull);
-#undef CAN_SKIP
+#define SKIP(T) template <> bool Draw::skip(const SkRecords::T&) { return false; }
+SKIP(Restore);
+SKIP(Save);
+SKIP(SaveLayer);
+SKIP(Clear);
+SKIP(PushCull);
+SKIP(PopCull);
+#undef SKIP
 
 // We can skip these commands if they're intersecting with a clip that's already empty.
-#define CAN_SKIP(T) template <> bool Draw::canSkip(const SkRecords::T& r) const \
+#define SKIP(T) template <> bool Draw::skip(const SkRecords::T& r) \
     { return fClipEmpty && SkRegion::kIntersect_Op == r.op; }
-CAN_SKIP(ClipPath);
-CAN_SKIP(ClipRRect);
-CAN_SKIP(ClipRect);
-CAN_SKIP(ClipRegion);
-#undef CAN_SKIP
+SKIP(ClipPath);
+SKIP(ClipRRect);
+SKIP(ClipRect);
+SKIP(ClipRegion);
+#undef SKIP
 
-static bool can_skip_text(const SkCanvas& c, const SkPaint& p, SkScalar minY, SkScalar maxY) {
-    // If we're drawing vertical text, none of the checks we're about to do make any sense.
-    // We'll need to call SkPaint::computeFastBounds() later, so bail out if that's not possible.
-    if (p.isVerticalText() || !p.canComputeFastBounds()) {
-        return false;
-    }
-
-    // Rather than checking the top and bottom font metrics, we guess.  Actually looking up the top
-    // and bottom metrics is slow, and this overapproximation should be good enough.
-    const SkScalar buffer = p.getTextSize() * 1.5f;
-    SkDEBUGCODE(SkPaint::FontMetrics metrics;)
-    SkDEBUGCODE(p.getFontMetrics(&metrics);)
-    SkASSERT(-buffer <= metrics.fTop);
-    SkASSERT(+buffer >= metrics.fBottom);
-
-    // Let the paint adjust the text bounds.  We don't care about left and right here, so we use
-    // 0 and 1 respectively just so the bounds rectangle isn't empty.
-    SkRect bounds;
-    bounds.set(0, -buffer, SK_Scalar1, buffer);
-    SkRect adjusted = p.computeFastBounds(bounds, &bounds);
-    return c.quickRejectY(minY + adjusted.fTop, maxY + adjusted.fBottom);
-}
-
-template <> bool Draw::canSkip(const SkRecords::DrawPosTextH& r) const {
-    return fClipEmpty || can_skip_text(*fCanvas, r.paint, r.y, r.y);
-}
-
-template <> bool Draw::canSkip(const SkRecords::DrawPosText& r) const {
-    if (fClipEmpty) {
-        return true;
-    }
-
-    // TODO(mtklein): may want to move this minY/maxY calculation into a one-time pass
-    const unsigned points = r.paint.countText(r.text, r.byteLength);
-    if (points == 0) {
-        return true;
-    }
-    SkScalar minY = SK_ScalarInfinity, maxY = SK_ScalarNegativeInfinity;
-    for (unsigned i = 0; i < points; i++) {
-        minY = SkTMin(minY, r.pos[i].fY);
-        maxY = SkTMax(maxY, r.pos[i].fY);
-    }
-
-    return can_skip_text(*fCanvas, r.paint, minY, maxY);
-}
+// NoOps can always be skipped and draw nothing.
+template <> bool Draw::skip(const SkRecords::NoOp&) { return true; }
+template <> void Draw::draw(const SkRecords::NoOp&) {}
 
 #define DRAW(T, call) template <> void Draw::draw(const SkRecords::T& r) { fCanvas->call; }
 DRAW(Restore, restore());
 DRAW(Save, save(r.flags));
 DRAW(SaveLayer, saveLayer(r.bounds, r.paint, r.flags));
 DRAW(PopCull, popCull());
+DRAW(PushCull, pushCull(r.rect));
 DRAW(Clear, clear(r.color));
 DRAW(Concat, concat(r.matrix));
 DRAW(SetMatrix, setMatrix(r.matrix));
@@ -154,14 +116,25 @@ DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.co
                                 r.xmode.get(), r.indices, r.indexCount, r.paint));
 #undef DRAW
 
-// PushCull is a bit of a oddball.  We might be able to just skip until just past its popCull.
-template <> void Draw::draw(const SkRecords::PushCull& r) {
-    if (r.popOffset != SkRecords::kUnsetPopOffset && fCanvas->quickReject(r.rect)) {
-        fIndex += r.popOffset;
-    } else {
-        fCanvas->pushCull(r.rect);
+// Added by SkRecordAnnotateCullingPairs.
+template <> bool Draw::skip(const SkRecords::PairedPushCull& r) {
+    if (fCanvas->quickReject(r.base->rect)) {
+        fIndex += r.skip;
+        return true;
     }
+    return false;
 }
+
+// Added by SkRecordBoundDrawPosTextH
+template <> bool Draw::skip(const SkRecords::BoundedDrawPosTextH& r) {
+    return fClipEmpty || fCanvas->quickRejectY(r.minY, r.maxY);
+}
+
+// These draw by proxying to the commands they wrap.  (All the optimization is for skip().)
+#define DRAW(T) template <> void Draw::draw(const SkRecords::T& r) { this->draw(*r.base); }
+DRAW(PairedPushCull);
+DRAW(BoundedDrawPosTextH);
+#undef DRAW
 
 }  // namespace
 

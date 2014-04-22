@@ -19,6 +19,12 @@ public:
 
     int area() const { return fArea; }
 
+    void apply(const SkRecord& record) {
+        for (unsigned i = 0; i < record.count(); i++) {
+            record.visit(i, *this);
+        }
+    }
+
 private:
     int fArea;
 };
@@ -29,6 +35,12 @@ template <> void AreaSummer::operator()(const SkRecords::DrawRect& record) {
 // Scales out the bottom-right corner of any DrawRect command it sees by 2x.
 struct Stretch {
     template <typename T> void operator()(T*) {}
+
+    void apply(SkRecord* record) {
+        for (unsigned i = 0; i < record->count(); i++) {
+            record->mutate(i, *this);
+        }
+    }
 };
 template <> void Stretch::operator()(SkRecords::DrawRect* record) {
     record->rect.fRight *= 2;
@@ -46,14 +58,14 @@ DEF_TEST(Record, r) {
 
     // Its area should be 100.
     AreaSummer summer;
-    record.visit(summer);
+    summer.apply(record);
     REPORTER_ASSERT(r, summer.area() == 100);
 
     // Scale 2x.
     Stretch stretch;
-    record.mutate(stretch);
+    stretch.apply(&record);
 
     // Now its area should be 100 + 400.
-    record.visit(summer);
+    summer.apply(record);
     REPORTER_ASSERT(r, summer.area() == 500);
 }

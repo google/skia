@@ -31,59 +31,43 @@ public:
 
     ~SkRecord() {
         Destroyer destroyer;
-        this->mutate(destroyer);
+        for (unsigned i = 0; i < this->count(); i++) {
+            this->mutate(i, destroyer);
+        }
     }
 
+    // Returns the number of canvas commands in this SkRecord.
     unsigned count() const { return fCount; }
 
-    // Accepts a visitor functor with this interface:
+    // Visit the i-th canvas command with a functor matching this interface:
     //   template <typename T>
     //   void operator()(const T& record) { ... }
-    // This operator() must be defined for at least all SkRecords::*; your compiler will help you
-    // get this right.
+    // This operator() must be defined for at least all SkRecords::*.
     template <typename F>
     void visit(unsigned i, F& f) const {
         SkASSERT(i < this->count());
         fRecords[i].visit(fTypes[i], f);
     }
 
-    // As above.  f will be called on each recorded canvas call in the order they were append()ed.
-    template <typename F>
-    void visit(F& f) const {
-        for (unsigned i = 0; i < fCount; i++) {
-            this->visit(i, f);
-        }
-    }
-
-    // Accepts a visitor functor with this interface:
+    // Mutate the i-th canvas command with a functor matching this interface:
     //   template <typename T>
     //   void operator()(T* record) { ... }
-    // This operator() must be defined for at least all SkRecords::*; again, your compiler will help
-    // you get this right.
+    // This operator() must be defined for at least all SkRecords::*.
     template <typename F>
     void mutate(unsigned i, F& f) {
         SkASSERT(i < this->count());
         fRecords[i].mutate(fTypes[i], f);
     }
 
-    // As above.  f will be called on each recorded canvas call in the order they were append()ed.
-    template <typename F>
-    void mutate(F& f) {
-        for (unsigned i = 0; i < fCount; i++) {
-            this->mutate(i, f);
-        }
-    }
-
-    // Allocate contiguous space for count Ts, to be destroyed (not just freed) when the SkRecord is
-    // destroyed.  For classes with constructors, placement new into this array.  Throws on failure.
-    // Here T can really be any class, not just those from SkRecords.
+    // Allocate contiguous space for count Ts, to be freed when the SkRecord is destroyed.
+    // Here T can be any class, not just those from SkRecords.  Throws on failure.
     template <typename T>
     T* alloc(unsigned count = 1) {
         return (T*)fAlloc.allocThrow(sizeof(T) * count);
     }
 
-    // Allocate space to record a canvas call of type T at the end of this SkRecord.  You are
-    // expected to placement new an object of type T onto this pointer.
+    // Add a new command of type T to the end of this SkRecord.
+    // You are expected to placement new an object of type T onto this pointer.
     template <typename T>
     T* append() {
         if (fCount == fReserved) {
@@ -93,8 +77,25 @@ public:
         }
 
         fTypes[fCount] = T::kType;
-        return fRecords[fCount++].alloc<T>(this);
+        return fRecords[fCount++].set(this->alloc<T>());
     }
+
+    // Replace the i-th command with a new command of type T.
+    // You are expected to placement new an object of type T onto this pointer.
+    // References to the old command remain valid for the life of the SkRecord, but
+    // you must destroy the old command.  (It's okay to destroy it first before calling replace.)
+    template <typename T>
+    T* replace(unsigned i) {
+        SkASSERT(i < this->count());
+        fTypes[i] = T::kType;
+        return fRecords[i].set(this->alloc<T>());
+    }
+
+    // A mutator that can be used with replace to destroy canvas commands.
+    struct Destroyer {
+        template <typename T>
+        void operator()(T* record) { record->~T(); }
+    };
 
 private:
     // Implementation notes!
@@ -131,22 +132,8 @@ private:
     // SkRecord looking for just patterns of draw commands (or using this as a quick reject
     // mechanism) though there's admittedly not a very good API exposed publically for this.
     //
-    // We pull one final sneaky trick in the implementation.  When recording canvas calls that need
-    // to store less than a pointer of data, we don't go through the usual path of allocating the
-    // draw command in fAlloc and a pointer to it in fRecords; instead, we ignore fAlloc and
-    // directly allocate the object in the space we would have put the pointer in fRecords.  This is
-    // why you'll see uintptr_t instead of void* in Record below.
-    //
-    // The cost of appending a single record into this structure is then:
-    //   - 1 + sizeof(void*) + sizeof(T) if sizeof(T) >  sizeof(void*)
-    //   - 1 + sizeof(void*)             if sizeof(T) <= sizeof(void*)
+    // The cost to append a T into this structure is 1 + sizeof(void*) + sizeof(T).
 
-
-    // A mutator that calls destructors of all the canvas calls we've recorded.
-    struct Destroyer {
-        template <typename T>
-        void operator()(T* record) { record->~T(); }
-    };
 
     // Logically the same as SkRecords::Type, but packed into 8 bits.
     struct Type8 {
@@ -159,19 +146,15 @@ private:
         uint8_t fType;
     };
 
-    // Logically a void* to some bytes in fAlloc, but maybe has the bytes stored immediately
-    // instead.  This is also the main interface for devirtualized polymorphic dispatch: see visit()
-    // and mutate(), which essentially do the work of the missing vtable.
+    // An untyped pointer to some bytes in fAlloc.  This is the interface for polymorphic dispatch:
+    // visit() and mutate() work with the parallel fTypes array to do the work of a vtable.
     struct Record {
     public:
-
-        // Allocate space for a T, perhaps using the SkRecord to allocate that space.
+        // Point this record to its data in fAlloc.  Returns ptr for convenience.
         template <typename T>
-        T* alloc(SkRecord* record) {
-            if (IsLarge<T>()) {
-                fRecord = (uintptr_t)record->alloc<T>();
-            }
-            return this->ptr<T>();
+        T* set(T* ptr) {
+            fPtr = ptr;
+            return ptr;
         }
 
         // Visit this record with functor F (see public API above) assuming the record we're
@@ -194,13 +177,9 @@ private:
 
     private:
         template <typename T>
-        T* ptr() const { return (T*)(IsLarge<T>() ? (void*)fRecord : &fRecord); }
+        T* ptr() const { return (T*)fPtr; }
 
-        // Is T too big to fit directly into a uintptr_t, neededing external allocation?
-        template <typename T>
-        static bool IsLarge() { return sizeof(T) > sizeof(uintptr_t); }
-
-        uintptr_t fRecord;
+        void* fPtr;
     };
 
     // fAlloc needs to be a data structure which can append variable length data in contiguous

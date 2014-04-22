@@ -19,36 +19,39 @@ namespace SkRecords {
 //
 // We leave this SK_RECORD_TYPES macro defined for use by code that wants to operate on SkRecords
 // types polymorphically.  (See SkRecord::Record::{visit,mutate} for an example.)
-#define SK_RECORD_TYPES(M)  \
-    M(Restore)              \
-    M(Save)                 \
-    M(SaveLayer)            \
-    M(Concat)               \
-    M(SetMatrix)            \
-    M(ClipPath)             \
-    M(ClipRRect)            \
-    M(ClipRect)             \
-    M(ClipRegion)           \
-    M(Clear)                \
-    M(DrawBitmap)           \
-    M(DrawBitmapMatrix)     \
-    M(DrawBitmapNine)       \
-    M(DrawBitmapRectToRect) \
-    M(DrawDRRect)           \
-    M(DrawOval)             \
-    M(DrawPaint)            \
-    M(DrawPath)             \
-    M(DrawPoints)           \
-    M(DrawPosText)          \
-    M(DrawPosTextH)         \
-    M(DrawRRect)            \
-    M(DrawRect)             \
-    M(DrawSprite)           \
-    M(DrawText)             \
-    M(DrawTextOnPath)       \
-    M(DrawVertices)         \
-    M(PushCull)             \
-    M(PopCull)
+#define SK_RECORD_TYPES(M)                                          \
+    M(NoOp)                                                         \
+    M(Restore)                                                      \
+    M(Save)                                                         \
+    M(SaveLayer)                                                    \
+    M(Concat)                                                       \
+    M(SetMatrix)                                                    \
+    M(ClipPath)                                                     \
+    M(ClipRRect)                                                    \
+    M(ClipRect)                                                     \
+    M(ClipRegion)                                                   \
+    M(Clear)                                                        \
+    M(DrawBitmap)                                                   \
+    M(DrawBitmapMatrix)                                             \
+    M(DrawBitmapNine)                                               \
+    M(DrawBitmapRectToRect)                                         \
+    M(DrawDRRect)                                                   \
+    M(DrawOval)                                                     \
+    M(DrawPaint)                                                    \
+    M(DrawPath)                                                     \
+    M(DrawPoints)                                                   \
+    M(DrawPosText)                                                  \
+    M(DrawPosTextH)                                                 \
+    M(DrawRRect)                                                    \
+    M(DrawRect)                                                     \
+    M(DrawSprite)                                                   \
+    M(DrawText)                                                     \
+    M(DrawTextOnPath)                                               \
+    M(DrawVertices)                                                 \
+    M(PushCull)                                                     \
+    M(PopCull)                                                      \
+    M(PairedPushCull)         /*From SkRecordAnnotateCullingPairs*/ \
+    M(BoundedDrawPosTextH)    /*From SkRecordBoundDrawPosTextH*/
 
 // Defines SkRecords::Type, an enum of all record types.
 #define ENUM(T) T##_Type,
@@ -107,6 +110,12 @@ struct T {                                                                \
     A a; B b; C c; D d; E e;                                              \
 };
 
+#define ACT_AS_PTR(ptr)                       \
+    operator T*() { return ptr; }             \
+    operator const T*() const { return ptr; } \
+    T* operator->() { return ptr; }           \
+    const T* operator->() const { return ptr; }
+
 // An Optional doesn't own the pointer's memory, but may need to destroy non-POD data.
 template <typename T>
 class Optional : SkNoncopyable {
@@ -114,8 +123,19 @@ public:
     Optional(T* ptr) : fPtr(ptr) {}
     ~Optional() { if (fPtr) fPtr->~T(); }
 
-    operator T*() { return fPtr; }
-    operator const T*() const { return fPtr; }
+    ACT_AS_PTR(fPtr);
+private:
+    T* fPtr;
+};
+
+// Like Optional, but ptr must not be NULL.
+template <typename T>
+class Adopted : SkNoncopyable {
+public:
+    Adopted(T* ptr) : fPtr(ptr) { SkASSERT(fPtr); }
+    ~Adopted() { fPtr->~T(); }
+
+    ACT_AS_PTR(fPtr);
 private:
     T* fPtr;
 };
@@ -126,8 +146,7 @@ class PODArray : SkNoncopyable {
 public:
     PODArray(T* ptr) : fPtr(ptr) {}
 
-    operator T*() { return fPtr; }
-    operator const T*() const { return fPtr; }
+    ACT_AS_PTR(fPtr);
 private:
     T* fPtr;
 };
@@ -151,15 +170,13 @@ private:
     SkBitmap fBitmap;
 };
 
-// None of these records manages the lifetimes of pointers, except for DrawVertices handling its
-// Xfermode specially.
+RECORD0(NoOp);
 
 RECORD0(Restore);
 RECORD1(Save, SkCanvas::SaveFlags, flags);
 RECORD3(SaveLayer, Optional<SkRect>, bounds, Optional<SkPaint>, paint, SkCanvas::SaveFlags, flags);
 
-static const unsigned kUnsetPopOffset = 0;
-RECORD2(PushCull, SkRect, rect, unsigned, popOffset);
+RECORD1(PushCull, SkRect, rect);
 RECORD0(PopCull);
 
 RECORD1(Concat, SkMatrix, matrix);
@@ -246,6 +263,10 @@ struct DrawVertices {
     int indexCount;
     SkPaint paint;
 };
+
+// Records added by optimizations.
+RECORD2(PairedPushCull, Adopted<PushCull>, base, unsigned, skip);
+RECORD3(BoundedDrawPosTextH, Adopted<DrawPosTextH>, base, SkScalar, minY, SkScalar, maxY);
 
 #undef RECORD0
 #undef RECORD1
