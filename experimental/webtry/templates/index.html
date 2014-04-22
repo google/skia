@@ -21,7 +21,7 @@ void draw(SkCanvas* canvas) {
   <input type="text" value="" id="embed" readonly style="display:none;">
 
   <p>
-  <img id='img' src=''/>
+  <img id='img' src='{{if .Hash}}/i/{{.Hash}}.png{{end}}'/>
   </p>
 
   <pre><code id='output'></code></pre>

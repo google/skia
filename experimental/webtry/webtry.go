@@ -67,6 +67,9 @@ var (
 	// imageLink is the regex that matches URLs paths that are direct links to PNGs.
 	imageLink = regexp.MustCompile("^/i/([a-f0-9]+.png)$")
 
+	// tryInfoLink is the regex that matches URLs paths that are direct links to data about a single try.
+	tryInfoLink = regexp.MustCompile("^/json/([a-f0-9]+)$")
+
 	// workspaceLink is the regex that matches URLs paths for workspaces.
 	workspaceLink = regexp.MustCompile("^/w/([a-z0-9-]+)$")
 
@@ -382,6 +385,7 @@ func recentHandler(w http.ResponseWriter, r *http.Request) {
 type Workspace struct {
 	Name  string
 	Code  string
+	Hash  string
 	Tries []Try
 }
 
@@ -402,12 +406,13 @@ func newWorkspace() (string, error) {
 }
 
 // getCode returns the code for a given hash, or the empty string if not found.
-func getCode(hash string) string {
+func getCode(hash string) (string, error) {
 	code := ""
 	if err := db.QueryRow("SELECT code FROM webtry WHERE hash=?", hash).Scan(&code); err != nil {
 		log.Printf("ERROR: Code for hash is missing: %q\n", err)
+		return code, err
 	}
-	return code
+	return code, nil
 }
 
 func workspaceHandler(w http.ResponseWriter, r *http.Request) {
@@ -434,12 +439,14 @@ func workspaceHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		var code string
+		var hash string
 		if len(tries) == 0 {
 			code = DEFAULT_SAMPLE
 		} else {
-			code = getCode(tries[len(tries)-1].Hash)
+			hash = tries[len(tries)-1].Hash
+			code, _ = getCode(hash)
 		}
-		if err := workspaceTemplate.Execute(w, Workspace{Tries: tries, Code: code, Name: name}); err != nil {
+		if err := workspaceTemplate.Execute(w, Workspace{Tries: tries, Code: code, Name: name, Hash: hash}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
 		}
 	} else if r.Method == "POST" {
@@ -465,7 +472,7 @@ func hasPreProcessor(code string) bool {
 
 type TryRequest struct {
 	Code string `json:"code"`
-	Name string `json:"name"`
+	Name string `json:"name"` // Optional name of the workspace the code is in.
 }
 
 // iframeHandler handles the GET and POST of the main page.
@@ -486,8 +493,8 @@ func iframeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var code string
-	// Load 'code' with the code found in the database.
-	if err := db.QueryRow("SELECT code FROM webtry WHERE hash=?", hash).Scan(&code); err != nil {
+	code, err := getCode(hash)
+	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
@@ -497,14 +504,51 @@ func iframeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type TryInfo struct {
+	Hash string `json:"hash"`
+	Code string `json:"code"`
+}
+
+// tryInfoHandler returns information about a specific try.
+func tryInfoHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Try Info Handler: %q\n", r.URL.Path)
+	if r.Method != "GET" {
+		http.NotFound(w, r)
+		return
+	}
+	match := tryInfoLink.FindStringSubmatch(r.URL.Path)
+	if len(match) != 2 {
+		http.NotFound(w, r)
+		return
+	}
+	hash := match[1]
+	code, err := getCode(hash)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	m := TryInfo{
+		Hash: hash,
+		Code: code,
+	}
+	resp, err := json.Marshal(m)
+	if err != nil {
+		reportError(w, r, err, "Failed to serialize a response.")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(resp)
+}
+
 // mainHandler handles the GET and POST of the main page.
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Main Handler: %q\n", r.URL.Path)
 	if r.Method == "GET" {
 		code := DEFAULT_SAMPLE
 		match := directLink.FindStringSubmatch(r.URL.Path)
+		var hash string
 		if len(match) == 2 && r.URL.Path != "/" {
-			hash := match[1]
+			hash = match[1]
 			if db == nil {
 				http.NotFound(w, r)
 				return
@@ -516,7 +560,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		// Expand the template.
-		if err := indexTemplate.Execute(w, userCode{UserCode: code}); err != nil {
+		if err := indexTemplate.Execute(w, userCode{UserCode: code, Hash: hash}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
 		}
 	} else if r.Method == "POST" {
@@ -602,8 +646,10 @@ func main() {
 	http.HandleFunc("/w/", workspaceHandler)
 	http.HandleFunc("/recent/", recentHandler)
 	http.HandleFunc("/iframe/", iframeHandler)
+	http.HandleFunc("/json/", tryInfoHandler)
 	http.HandleFunc("/css/", cssHandler)
 	http.HandleFunc("/js/", jsHandler)
+	// TODO Break out /c/ as it's own handler.
 	http.HandleFunc("/", mainHandler)
 	log.Fatal(http.ListenAndServe(*port, nil))
 }
