@@ -47,7 +47,7 @@
    fun:(below main)
 }
 {
-   shadermask_LCD_80
+   shadermask_LCD_* http://skbug.com/2453
    Memcheck:Cond
    fun:_ZL16SkMulDiv255Roundjj
    fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint
@@ -59,7 +59,7 @@
    fun:main
 }
 {
-   shadermask_LCD_80 2
+   shadermask_LCD_* 2 http://skbug.com/2453
    Memcheck:Cond
    fun:_ZL8SkMulS16ii
    fun:_ZL16SkMulDiv255Roundjj
@@ -72,7 +72,7 @@
    fun:main
 }
 {
-   shadermask_LCD_80 3
+   shadermask_LCD_* 3 http://skbug.com/2453
    Memcheck:Cond
    fun:_ZL23SkPremultiplyARGBInlinejjjj
    fun:_Z18SkPreMultiplyColorj
@@ -87,23 +87,7 @@
    fun:main
 }
 {
-   shadermask_LCD_80 4
-   Memcheck:Cond
-   fun:_ZL16SkMulDiv255Roundjj
-   fun:_ZL23SkPremultiplyARGBInlinejjjj
-   fun:_Z18SkPreMultiplyColorj
-   fun:_ZL15SkColor2GrColorj
-   fun:_ZN12_GLOBAL__N_123skPaint2GrPaintNoShaderEP11SkGpuDeviceRK7SkPaintbbP7GrPaint
-   fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint
-   fun:_ZN11SkGpuDevice8drawTextERK6SkDrawPKvmffRK7SkPaint
-   fun:_ZN8SkCanvas8drawTextEPKvmffRK7SkPaint
-   fun:_ZN15ShaderMaskBench6onDrawEiP8SkCanvas
-   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
-   fun:_Z9tool_mainiPPc
-   fun:main
-}
-{
-   shadermask_LCD_80 5
+   shadermask_LCD_* 4 http://skbug.com/2453
    Memcheck:Cond
    fun:_ZL16SkMulDiv255Roundjj
    fun:_ZL23SkPremultiplyARGBInlinejjjj
@@ -119,7 +103,23 @@
    fun:main
 }
 {
-   shadermask_LCD_80 6
+   shadermask_LCD_* 5 http://skbug.com/2453
+   Memcheck:Cond
+   fun:_ZL16SkMulDiv255Roundjj
+   fun:_ZL23SkPremultiplyARGBInlinejjjj
+   fun:_Z18SkPreMultiplyColorj
+   fun:_ZL15SkColor2GrColorj
+   fun:_ZN12_GLOBAL__N_123skPaint2GrPaintNoShaderEP11SkGpuDeviceRK7SkPaintbbP7GrPaint
+   fun:_ZN12_GLOBAL__N_121skPaint2GrPaintShaderEP11SkGpuDeviceRK7SkPaintbP7GrPaint
+   fun:_ZN11SkGpuDevice8drawTextERK6SkDrawPKvmffRK7SkPaint
+   fun:_ZN8SkCanvas8drawTextEPKvmffRK7SkPaint
+   fun:_ZN15ShaderMaskBench6onDrawEiP8SkCanvas
+   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
+   fun:_Z9tool_mainiPPc
+   fun:main
+}
+{
+   shadermask_LCD_* 6 http://skbug.com/2453
    Memcheck:Cond
    fun:_ZL8SkMulS16ii
    fun:_ZL16SkMulDiv255Roundjj
@@ -135,7 +135,7 @@
    fun:_Z9tool_mainiPPc
 }
 {
-   shadermask_LCD_80 7
+   shadermask_LCD_* 7 http://skbug.com/2453
    Memcheck:Cond
    fun:_ZL12SkPackARGB32jjjj
    fun:_ZL23SkPremultiplyARGBInlinejjjj
@@ -151,7 +151,7 @@
    fun:main
 }
 {
-   shadermask_LCD_80 8
+   shadermask_LCD_* 8 http://skbug.com/2453
    Memcheck:Cond
    fun:_ZL15GrColorPackRGBAjjjj
    fun:_ZL15SkColor2GrColorj
@@ -165,7 +165,7 @@
    fun:main
 }
 {
-   shadermask_LCD_80 Release
+   shadermask_LCD_* Release http://skbug.com/2453
    Memcheck:Cond
    fun:_Z18SkPreMultiplyColorj
    fun:_ZN12_GLOBAL__N_123skPaint2GrPaintNoShaderEP11SkGpuDeviceRK7SkPaintbbP7GrPaint
