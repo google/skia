@@ -368,19 +368,19 @@ protected:
     // skp that must be filled in when the current open state is closed. These are
     // here rather then distributed across the MatrixClipState's because saveLayers
     // can cause MC states to be nested.
-    SkTDArray<int32_t>  *fSkipOffsets;
+    SkTDArray<int32_t>  *fSkipOffsets;  // TODO: should we store u32 or size_t instead?
 
     SkDEBUGCODE(void validate();)
 
     int MCStackPush(SkCanvas::SaveFlags flags);
 
-    void addClipOffset(int offset) {
+    void addClipOffset(size_t offset) {
         SkASSERT(NULL != fSkipOffsets);
         SkASSERT(kIdentityWideOpenStateID != fCurOpenStateID);
         SkASSERT(fCurMCState->fHasOpen);
         SkASSERT(!fCurMCState->fIsSaveLayer);
 
-        *fSkipOffsets->append() = offset;
+        *fSkipOffsets->append() = SkToS32(offset);
     }
 
     void writeDeltaMat(int currentMatID, int desiredMatID);

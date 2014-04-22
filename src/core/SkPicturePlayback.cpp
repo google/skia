@@ -312,7 +312,7 @@ bool SkPicturePlayback::containsBitmaps() const {
 
 static void write_tag_size(SkWriteBuffer& buffer, uint32_t tag, size_t size) {
     buffer.writeUInt(tag);
-    buffer.writeUInt(size);
+    buffer.writeUInt(SkToU32(size));
 }
 
 static void write_tag_size(SkWStream* stream, uint32_t tag,  size_t size) {
@@ -484,7 +484,7 @@ static uint32_t pictInfoFlagsToReadBufferFlags(uint32_t pictInfoFlags) {
 
 bool SkPicturePlayback::parseStreamTag(SkStream* stream,
                                        uint32_t tag,
-                                       size_t size,
+                                       uint32_t size,
                                        SkPicture::InstallPixelRefProc proc) {
     /*
      *  By the time we encounter BUFFER_SIZE_TAG, we need to have already seen
@@ -532,8 +532,9 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream,
         } break;
         case SK_PICT_TYPEFACE_TAG: {
             SkASSERT(!haveBuffer);
-            fTFPlayback.setCount(size);
-            for (size_t i = 0; i < size; i++) {
+            const int count = SkToInt(size);
+            fTFPlayback.setCount(count);
+            for (int i = 0; i < count; i++) {
                 SkAutoTUnref<SkTypeface> tf(SkTypeface::Deserialize(stream));
                 if (!tf.get()) {    // failed to deserialize
                     // fTFPlayback asserts it never has a null, so we plop in
@@ -594,19 +595,21 @@ bool SkPicturePlayback::parseStreamTag(SkStream* stream,
 }
 
 bool SkPicturePlayback::parseBufferTag(SkReadBuffer& buffer,
-                                       uint32_t tag, size_t size) {
+                                       uint32_t tag, uint32_t size) {
     switch (tag) {
         case SK_PICT_BITMAP_BUFFER_TAG: {
+            const int count = SkToInt(size);
             fBitmaps = SkTRefArray<SkBitmap>::Create(size);
-            for (size_t i = 0; i < size; ++i) {
+            for (int i = 0; i < count; ++i) {
                 SkBitmap* bm = &fBitmaps->writableAt(i);
                 buffer.readBitmap(bm);
                 bm->setImmutable();
             }
         } break;
         case SK_PICT_PAINT_BUFFER_TAG: {
+            const int count = SkToInt(size);
             fPaints = SkTRefArray<SkPaint>::Create(size);
-            for (size_t i = 0; i < size; ++i) {
+            for (int i = 0; i < count; ++i) {
                 buffer.readPaint(&fPaints->writableAt(i));
             }
         } break;

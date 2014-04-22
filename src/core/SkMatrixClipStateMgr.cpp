@@ -69,7 +69,7 @@ void SkMatrixClipStateMgr::MatrixClipState::ClipInfo::writeClip(int* curMatID,
         mgr->writeDeltaMat(*curMatID, curClip.fMatrixID);
         *curMatID = curClip.fMatrixID;
 
-        int offset = 0;
+        size_t offset = 0;
 
         switch (curClip.fClipType) {
         case kRect_ClipType:

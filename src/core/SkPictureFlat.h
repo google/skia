@@ -529,7 +529,7 @@ private:
         // Reinterpret data in fScratch as an SkFlatData.
         SkFlatData* scratch = (SkFlatData*)fScratch.getWriter32()->contiguousArray();
         SkASSERT(scratch != NULL);
-        scratch->stampHeader(index, dataSize);
+        scratch->stampHeader(index, SkToS32(dataSize));
         return *scratch;
     }
 

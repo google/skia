@@ -100,7 +100,7 @@ public:
 
 private:
     void handleOptimization(int opt);
-    int recordRestoreOffsetPlaceholder(SkRegion::Op);
+    size_t recordRestoreOffsetPlaceholder(SkRegion::Op);
     void fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t restoreOffset);
 
 #ifndef SK_COLLAPSE_MATRIX_CLIP_STATE
@@ -125,7 +125,7 @@ private:
      * end of blocks could go unused). Possibly add a second addDraw that
      * operates in this manner.
      */
-    size_t addDraw(DrawType drawType, uint32_t* size) {
+    size_t addDraw(DrawType drawType, size_t* size) {
         size_t offset = fWriter.bytesWritten();
 
         this->predrawNotify();
@@ -140,9 +140,9 @@ private:
         if (0 != (*size & ~MASK_24) || *size == MASK_24) {
             fWriter.writeInt(PACK_8_24(drawType, MASK_24));
             *size += 1;
-            fWriter.writeInt(*size);
+            fWriter.writeInt(SkToU32(*size));
         } else {
-            fWriter.writeInt(PACK_8_24(drawType, *size));
+            fWriter.writeInt(PACK_8_24(drawType, SkToU32(*size)));
         }
 
         return offset;
@@ -206,7 +206,7 @@ private:
     void validateRegions() const;
 #else
 public:
-    void validate(size_t initialOffset, uint32_t size) const {
+    void validate(size_t initialOffset, size_t size) const {
         SkASSERT(fWriter.bytesWritten() == initialOffset + size);
     }
 #endif
@@ -262,10 +262,10 @@ protected:
     void recordConcat(const SkMatrix& matrix);
     void recordTranslate(const SkMatrix& matrix);
     void recordScale(const SkMatrix& matrix);
-    int recordClipRect(const SkRect& rect, SkRegion::Op op, bool doAA);
-    int recordClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA);
-    int recordClipPath(int pathID, SkRegion::Op op, bool doAA);
-    int recordClipRegion(const SkRegion& region, SkRegion::Op op);
+    size_t recordClipRect(const SkRect& rect, SkRegion::Op op, bool doAA);
+    size_t recordClipRRect(const SkRRect& rrect, SkRegion::Op op, bool doAA);
+    size_t recordClipPath(int pathID, SkRegion::Op op, bool doAA);
+    size_t recordClipRegion(const SkRegion& region, SkRegion::Op op);
     void recordSave(SaveFlags flags);
     void recordSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags);
     void recordRestore(bool fillInSkips = true);

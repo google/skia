@@ -215,8 +215,8 @@ public:
 #endif
 
 private:    // these help us with reading/writing
-    bool parseStreamTag(SkStream*, uint32_t tag, size_t size, SkPicture::InstallPixelRefProc);
-    bool parseBufferTag(SkReadBuffer&, uint32_t tag, size_t size);
+    bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size, SkPicture::InstallPixelRefProc);
+    bool parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;
 
 private:
