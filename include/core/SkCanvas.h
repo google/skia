@@ -26,13 +26,6 @@
 //#define SK_SUPPORT_LEGACY_GETTOTALCLIP
 //#define SK_SUPPORT_LEGACY_GETTOPDEVICE
 
-//#define SK_SUPPORT_LEGACY_DRAWTEXT_VIRTUAL
-#ifdef SK_SUPPORT_LEGACY_DRAWTEXT_VIRTUAL
-    #define SK_LEGACY_DRAWTEXT_VIRTUAL  virtual
-#else
-    #define SK_LEGACY_DRAWTEXT_VIRTUAL
-#endif
-
 class SkBounder;
 class SkBaseDevice;
 class SkDraw;
@@ -875,7 +868,7 @@ public:
         @param y        The y-coordinate of the origin of the text being drawn
         @param paint    The paint used for the text (e.g. color, size, style)
     */
-    SK_LEGACY_DRAWTEXT_VIRTUAL void drawText(const void* text, size_t byteLength, SkScalar x,
+    virtual void drawText(const void* text, size_t byteLength, SkScalar x,
                           SkScalar y, const SkPaint& paint);
 
     /** Draw the text, with each character/glyph origin specified by the pos[]
@@ -885,7 +878,7 @@ public:
         @param pos      Array of positions, used to position each character
         @param paint    The paint used for the text (e.g. color, size, style)
         */
-    SK_LEGACY_DRAWTEXT_VIRTUAL void drawPosText(const void* text, size_t byteLength,
+    virtual void drawPosText(const void* text, size_t byteLength,
                              const SkPoint pos[], const SkPaint& paint);
 
     /** Draw the text, with each character/glyph origin specified by the x
@@ -897,7 +890,7 @@ public:
         @param constY   The shared Y coordinate for all of the positions
         @param paint    The paint used for the text (e.g. color, size, style)
         */
-    SK_LEGACY_DRAWTEXT_VIRTUAL void drawPosTextH(const void* text, size_t byteLength,
+    virtual void drawPosTextH(const void* text, size_t byteLength,
                               const SkScalar xpos[], SkScalar constY,
                               const SkPaint& paint);
 
@@ -927,7 +920,7 @@ public:
                             mapped onto the path
         @param paint        The paint used for the text
         */
-    SK_LEGACY_DRAWTEXT_VIRTUAL void drawTextOnPath(const void* text, size_t byteLength,
+    virtual void drawTextOnPath(const void* text, size_t byteLength,
                                 const SkPath& path, const SkMatrix* matrix,
                                 const SkPaint& paint);
 
@@ -1192,22 +1185,6 @@ protected:
     virtual void didSetMatrix(const SkMatrix&);
 
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
-
-#ifndef SK_SUPPORT_LEGACY_DRAWTEXT_VIRTUAL
-    virtual void onDrawText(const void* text, size_t byteLength, SkScalar x,
-                            SkScalar y, const SkPaint& paint);
-    
-    virtual void onDrawPosText(const void* text, size_t byteLength,
-                               const SkPoint pos[], const SkPaint& paint);
-    
-    virtual void onDrawPosTextH(const void* text, size_t byteLength,
-                                const SkScalar xpos[], SkScalar constY,
-                                const SkPaint& paint);
-    
-    virtual void onDrawTextOnPath(const void* text, size_t byteLength,
-                                  const SkPath& path, const SkMatrix* matrix,
-                                  const SkPaint& paint);
-#endif
 
     enum ClipEdgeStyle {
         kHard_ClipEdgeStyle,

@@ -189,12 +189,26 @@ public:
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
                             const SkPaint&) SK_OVERRIDE;
 
+    virtual void drawPosText(const void* text, size_t byteLength,
+                             const SkPoint pos[], const SkPaint&) SK_OVERRIDE;
+
+    virtual void drawPosTextH(const void* text, size_t byteLength,
+                              const SkScalar xpos[], SkScalar constY,
+                              const SkPaint&) SK_OVERRIDE;
+
     virtual void drawRect(const SkRect& rect, const SkPaint&) SK_OVERRIDE;
 
     virtual void drawRRect(const SkRRect& rrect, const SkPaint& paint) SK_OVERRIDE;
 
     virtual void drawSprite(const SkBitmap&, int left, int top,
                             const SkPaint*) SK_OVERRIDE;
+
+    virtual void drawText(const void* text, size_t byteLength, SkScalar x,
+                          SkScalar y, const SkPaint&) SK_OVERRIDE;
+
+    virtual void drawTextOnPath(const void* text, size_t byteLength,
+                                const SkPath& path, const SkMatrix* matrix,
+                                const SkPaint&) SK_OVERRIDE;
 
     virtual void drawVertices(VertexMode, int vertexCount,
                               const SkPoint vertices[], const SkPoint texs[],
@@ -236,14 +250,6 @@ protected:
     virtual void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
 
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
-    virtual void onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                            const SkPaint&) SK_OVERRIDE;
-    virtual void onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                               const SkPaint&) SK_OVERRIDE;
-    virtual void onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                                SkScalar constY, const SkPaint&) SK_OVERRIDE;
-    virtual void onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                  const SkMatrix* matrix, const SkPaint&) SK_OVERRIDE;
     virtual void onPushCull(const SkRect& cullRect) SK_OVERRIDE;
     virtual void onPopCull() SK_OVERRIDE;
 

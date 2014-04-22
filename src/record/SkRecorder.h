@@ -58,6 +58,25 @@ public:
                     int left,
                     int top,
                     const SkPaint* paint = NULL) SK_OVERRIDE;
+    void drawText(const void* text,
+                  size_t byteLength,
+                  SkScalar x,
+                  SkScalar y,
+                  const SkPaint& paint) SK_OVERRIDE;
+    void drawPosText(const void* text,
+                     size_t byteLength,
+                     const SkPoint pos[],
+                     const SkPaint& paint) SK_OVERRIDE;
+    void drawPosTextH(const void* text,
+                      size_t byteLength,
+                      const SkScalar xpos[],
+                      SkScalar constY,
+                      const SkPaint& paint) SK_OVERRIDE;
+    void drawTextOnPath(const void* text,
+                        size_t byteLength,
+                        const SkPath& path,
+                        const SkMatrix* matrix,
+                        const SkPaint& paint) SK_OVERRIDE;
     void drawPicture(SkPicture& picture) SK_OVERRIDE;
     void drawVertices(VertexMode vmode,
                       int vertexCount,
@@ -77,25 +96,6 @@ public:
     void didSetMatrix(const SkMatrix&) SK_OVERRIDE;
 
     void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&) SK_OVERRIDE;
-    void onDrawText(const void* text,
-                    size_t byteLength,
-                    SkScalar x,
-                    SkScalar y,
-                    const SkPaint& paint) SK_OVERRIDE;
-    void onDrawPosText(const void* text,
-                       size_t byteLength,
-                       const SkPoint pos[],
-                       const SkPaint& paint) SK_OVERRIDE;
-    void onDrawPosTextH(const void* text,
-                        size_t byteLength,
-                        const SkScalar xpos[],
-                        SkScalar constY,
-                        const SkPaint& paint) SK_OVERRIDE;
-    void onDrawTextOnPath(const void* text,
-                          size_t byteLength,
-                          const SkPath& path,
-                          const SkMatrix* matrix,
-                          const SkPaint& paint) SK_OVERRIDE;
     void onClipRect(const SkRect& rect, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;
     void onClipRRect(const SkRRect& rrect, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;
     void onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edgeStyle) SK_OVERRIDE;

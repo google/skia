@@ -904,29 +904,32 @@ void SkDeferredCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                                  const SkPaint& paint) {
+void SkDeferredCanvas::drawText(const void* text, size_t byteLength,
+                                SkScalar x, SkScalar y, const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawText(text, byteLength, x, y, paint);
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                                     const SkPaint& paint) {
+void SkDeferredCanvas::drawPosText(const void* text, size_t byteLength,
+                                   const SkPoint pos[], const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawPosText(text, byteLength, pos, paint);
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                                      SkScalar constY, const SkPaint& paint) {
+void SkDeferredCanvas::drawPosTextH(const void* text, size_t byteLength,
+                                    const SkScalar xpos[], SkScalar constY,
+                                    const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawPosTextH(text, byteLength, xpos, constY, paint);
     this->recordedDrawCommand();
 }
 
-void SkDeferredCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                        const SkMatrix* matrix, const SkPaint& paint) {
+void SkDeferredCanvas::drawTextOnPath(const void* text, size_t byteLength,
+                                      const SkPath& path,
+                                      const SkMatrix* matrix,
+                                      const SkPaint& paint) {
     AutoImmediateDrawIfNeeded autoDraw(*this, &paint);
     this->drawingCanvas()->drawTextOnPath(text, byteLength, path, matrix, paint);
     this->recordedDrawCommand();

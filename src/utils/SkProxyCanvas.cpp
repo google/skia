@@ -116,23 +116,25 @@ void SkProxyCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
     fProxy->drawSprite(bitmap, x, y, paint);
 }
 
-void SkProxyCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                               const SkPaint& paint) {
+void SkProxyCanvas::drawText(const void* text, size_t byteLength, SkScalar x,
+                             SkScalar y, const SkPaint& paint) {
     fProxy->drawText(text, byteLength, x, y, paint);
 }
 
-void SkProxyCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                                  const SkPaint& paint) {
+void SkProxyCanvas::drawPosText(const void* text, size_t byteLength,
+                                const SkPoint pos[], const SkPaint& paint) {
     fProxy->drawPosText(text, byteLength, pos, paint);
 }
 
-void SkProxyCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                                   SkScalar constY, const SkPaint& paint) {
+void SkProxyCanvas::drawPosTextH(const void* text, size_t byteLength,
+                                 const SkScalar xpos[], SkScalar constY,
+                                 const SkPaint& paint) {
     fProxy->drawPosTextH(text, byteLength, xpos, constY, paint);
 }
 
-void SkProxyCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                     const SkMatrix* matrix, const SkPaint& paint) {
+void SkProxyCanvas::drawTextOnPath(const void* text, size_t byteLength,
+                                   const SkPath& path, const SkMatrix* matrix,
+                                   const SkPaint& paint) {
     fProxy->drawTextOnPath(text, byteLength, path, matrix, paint);
 }
 

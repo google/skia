@@ -84,8 +84,8 @@ void SkBBoxRecord::clear(SkColor color) {
     INHERITED::clear(color);
 }
 
-void SkBBoxRecord::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                              const SkPaint& paint) {
+void SkBBoxRecord::drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
+                            const SkPaint& paint) {
     SkRect bbox;
     paint.measureText(text, byteLength, &bbox);
     SkPaint::FontMetrics metrics;
@@ -128,7 +128,7 @@ void SkBBoxRecord::onDrawText(const void* text, size_t byteLength, SkScalar x, S
     bbox.fTop += y;
     bbox.fBottom += y;
     if (this->transformBounds(bbox, &paint)) {
-        INHERITED::onDrawText(text, byteLength, x, y, paint);
+        INHERITED::drawText(text, byteLength, x, y, paint);
     }
 }
 
@@ -165,8 +165,8 @@ void SkBBoxRecord::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
     }
 }
 
-void SkBBoxRecord::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                                 const SkPaint& paint) {
+void SkBBoxRecord::drawPosText(const void* text, size_t byteLength,
+                               const SkPoint pos[], const SkPaint& paint) {
     SkRect bbox;
     bbox.set(pos, paint.countText(text, byteLength));
     SkPaint::FontMetrics metrics;
@@ -180,12 +180,12 @@ void SkBBoxRecord::onDrawPosText(const void* text, size_t byteLength, const SkPo
     bbox.fRight -= pad;
 
     if (this->transformBounds(bbox, &paint)) {
-        INHERITED::onDrawPosText(text, byteLength, pos, paint);
+        INHERITED::drawPosText(text, byteLength, pos, paint);
     }
 }
 
-void SkBBoxRecord::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                                  SkScalar constY, const SkPaint& paint) {
+void SkBBoxRecord::drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
+                                SkScalar constY, const SkPaint& paint) {
     size_t numChars = paint.countText(text, byteLength);
     if (numChars == 0) {
         return;
@@ -235,8 +235,9 @@ void SkBBoxRecord::drawSprite(const SkBitmap& bitmap, int left, int top,
     INHERITED::drawSprite(bitmap, left, top, paint);
 }
 
-void SkBBoxRecord::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                    const SkMatrix* matrix, const SkPaint& paint) {
+void SkBBoxRecord::drawTextOnPath(const void* text, size_t byteLength,
+                                  const SkPath& path, const SkMatrix* matrix,
+                                  const SkPaint& paint) {
     SkRect bbox = path.getBounds();
     SkPaint::FontMetrics metrics;
     paint.getFontMetrics(&metrics);
@@ -249,7 +250,7 @@ void SkBBoxRecord::onDrawTextOnPath(const void* text, size_t byteLength, const S
     bbox.fBottom -= pad;
 
     if (this->transformBounds(bbox, &paint)) {
-        INHERITED::onDrawTextOnPath(text, byteLength, path, matrix, paint);
+        INHERITED::drawTextOnPath(text, byteLength, path, matrix, paint);
     }
 }
 

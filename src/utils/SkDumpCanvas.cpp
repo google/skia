@@ -388,16 +388,16 @@ void SkDumpCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
                x, y);
 }
 
-void SkDumpCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                              const SkPaint& paint) {
+void SkDumpCanvas::drawText(const void* text, size_t byteLength, SkScalar x,
+                             SkScalar y, const SkPaint& paint) {
     SkString str;
     toString(text, byteLength, paint.getTextEncoding(), &str);
     this->dump(kDrawText_Verb, &paint, "drawText(%s [%d] %g %g)", str.c_str(),
                byteLength, SkScalarToFloat(x), SkScalarToFloat(y));
 }
 
-void SkDumpCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                                 const SkPaint& paint) {
+void SkDumpCanvas::drawPosText(const void* text, size_t byteLength,
+                                const SkPoint pos[], const SkPaint& paint) {
     SkString str;
     toString(text, byteLength, paint.getTextEncoding(), &str);
     this->dump(kDrawText_Verb, &paint, "drawPosText(%s [%d] %g %g ...)",
@@ -405,8 +405,9 @@ void SkDumpCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPo
                SkScalarToFloat(pos[0].fY));
 }
 
-void SkDumpCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                                  SkScalar constY, const SkPaint& paint) {
+void SkDumpCanvas::drawPosTextH(const void* text, size_t byteLength,
+                                 const SkScalar xpos[], SkScalar constY,
+                                 const SkPaint& paint) {
     SkString str;
     toString(text, byteLength, paint.getTextEncoding(), &str);
     this->dump(kDrawText_Verb, &paint, "drawPosTextH(%s [%d] %g %g ...)",
@@ -414,8 +415,9 @@ void SkDumpCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkS
                SkScalarToFloat(constY));
 }
 
-void SkDumpCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                    const SkMatrix* matrix, const SkPaint& paint) {
+void SkDumpCanvas::drawTextOnPath(const void* text, size_t byteLength,
+                                   const SkPath& path, const SkMatrix* matrix,
+                                   const SkPaint& paint) {
     SkString str;
     toString(text, byteLength, paint.getTextEncoding(), &str);
     this->dump(kDrawText_Verb, &paint, "drawTextOnPath(%s [%d])",

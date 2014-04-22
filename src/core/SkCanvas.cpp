@@ -2356,8 +2356,8 @@ void SkCanvas::DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
     }
 }
 
-void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                          const SkPaint& paint) {
+void SkCanvas::drawText(const void* text, size_t byteLength,
+                        SkScalar x, SkScalar y, const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
 
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
@@ -2372,66 +2372,50 @@ void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkSca
     LOOPER_END
 }
 
-void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                             const SkPaint& paint) {
+void SkCanvas::drawPosText(const void* text, size_t byteLength,
+                           const SkPoint pos[], const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
-    
+
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
-    
+
     while (iter.next()) {
         SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
         iter.fDevice->drawPosText(iter, text, byteLength, &pos->fX, 0, 2,
                                   dfp.paint());
     }
-    
+
     LOOPER_END
 }
 
-void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                              SkScalar constY, const SkPaint& paint) {
+void SkCanvas::drawPosTextH(const void* text, size_t byteLength,
+                            const SkScalar xpos[], SkScalar constY,
+                            const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
-    
+
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
-    
+
     while (iter.next()) {
         SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
         iter.fDevice->drawPosText(iter, text, byteLength, xpos, constY, 1,
                                   dfp.paint());
     }
-    
+
     LOOPER_END
 }
 
-void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                const SkMatrix* matrix, const SkPaint& paint) {
+void SkCanvas::drawTextOnPath(const void* text, size_t byteLength,
+                              const SkPath& path, const SkMatrix* matrix,
+                              const SkPaint& paint) {
     CHECK_SHADER_NOSETCONTEXT(paint);
-    
+
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type, NULL)
-    
+
     while (iter.next()) {
         iter.fDevice->drawTextOnPath(iter, text, byteLength, path,
                                      matrix, looper.paint());
     }
-    
-    LOOPER_END
-}
 
-// These will become non-virtual, so they always call the (virtual) onDraw... method
-void SkCanvas::drawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                        const SkPaint& paint) {
-    this->onDrawText(text, byteLength, x, y, paint);
-}
-void SkCanvas::drawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                           const SkPaint& paint) {
-    this->onDrawPosText(text, byteLength, pos, paint);
-}
-void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                            SkScalar constY, const SkPaint& paint) {
-    this->onDrawPosTextH(text, byteLength, xpos, constY, paint);
-}
-void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                              const SkMatrix* matrix, const SkPaint& paint) {
-    this->onDrawTextOnPath(text, byteLength, path, matrix, paint);
+    LOOPER_END
 }
 
 void SkCanvas::drawVertices(VertexMode vmode, int vertexCount,

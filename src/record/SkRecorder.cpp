@@ -145,30 +145,30 @@ void SkRecorder::drawSprite(const SkBitmap& bitmap, int left, int top, const SkP
     APPEND(DrawSprite, delay_copy(bitmap), left, top, this->copy(paint));
 }
 
-void SkRecorder::onDrawText(const void* text, size_t byteLength,
-                            SkScalar x, SkScalar y, const SkPaint& paint) {
+void SkRecorder::drawText(const void* text, size_t byteLength,
+                          SkScalar x, SkScalar y, const SkPaint& paint) {
     APPEND(DrawText,
            this->copy((const char*)text, byteLength), byteLength, x, y, delay_copy(paint));
 }
 
-void SkRecorder::onDrawPosText(const void* text, size_t byteLength,
-                               const SkPoint pos[], const SkPaint& paint) {
+void SkRecorder::drawPosText(const void* text, size_t byteLength,
+                             const SkPoint pos[], const SkPaint& paint) {
     const unsigned points = paint.countText(text, byteLength);
     APPEND(DrawPosText,
            this->copy((const char*)text, byteLength), byteLength,
            this->copy(pos, points), delay_copy(paint));
 }
 
-void SkRecorder::onDrawPosTextH(const void* text, size_t byteLength,
-                                const SkScalar xpos[], SkScalar constY, const SkPaint& paint) {
+void SkRecorder::drawPosTextH(const void* text, size_t byteLength,
+                              const SkScalar xpos[], SkScalar constY, const SkPaint& paint) {
     const unsigned points = paint.countText(text, byteLength);
     APPEND(DrawPosTextH,
            this->copy((const char*)text, byteLength), byteLength,
            this->copy(xpos, points), constY, delay_copy(paint));
 }
 
-void SkRecorder::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                  const SkMatrix* matrix, const SkPaint& paint) {
+void SkRecorder::drawTextOnPath(const void* text, size_t byteLength,
+                                const SkPath& path, const SkMatrix* matrix, const SkPaint& paint) {
     APPEND(DrawTextOnPath,
            this->copy((const char*)text, byteLength), byteLength,
            delay_copy(path), this->copy(matrix), delay_copy(paint));

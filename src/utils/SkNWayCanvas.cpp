@@ -233,32 +233,34 @@ void SkNWayCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
     }
 }
 
-void SkNWayCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
-                              const SkPaint& paint) {
+void SkNWayCanvas::drawText(const void* text, size_t byteLength, SkScalar x,
+                            SkScalar y, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
         iter->drawText(text, byteLength, x, y, paint);
     }
 }
 
-void SkNWayCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
-                                 const SkPaint& paint) {
+void SkNWayCanvas::drawPosText(const void* text, size_t byteLength,
+                               const SkPoint pos[], const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
         iter->drawPosText(text, byteLength, pos, paint);
     }
 }
 
-void SkNWayCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
-                                  SkScalar constY, const SkPaint& paint) {
+void SkNWayCanvas::drawPosTextH(const void* text, size_t byteLength,
+                                const SkScalar xpos[], SkScalar constY,
+                                const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
         iter->drawPosTextH(text, byteLength, xpos, constY, paint);
     }
 }
 
-void SkNWayCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                    const SkMatrix* matrix, const SkPaint& paint) {
+void SkNWayCanvas::drawTextOnPath(const void* text, size_t byteLength,
+                                  const SkPath& path, const SkMatrix* matrix,
+                                  const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
         iter->drawTextOnPath(text, byteLength, path, matrix, paint);
