@@ -58,18 +58,18 @@ private:
 
 // If the command doesn't draw anything, that doesn't reset the state back to inactive.
 // TODO(mtklein): do this with some sort of template-based trait mechanism instead of macros
-#define IGNORE(T) template <> void SaveRestoreNooper::operator()(SkRecords::T*) {}
-IGNORE(NoOp)
-IGNORE(Concat)
-IGNORE(SetMatrix)
-IGNORE(ClipRect)
-IGNORE(ClipRRect)
-IGNORE(ClipPath)
-IGNORE(ClipRegion)
-IGNORE(PairedPushCull)
-IGNORE(PushCull)
-IGNORE(PopCull)
-#undef CLIP
+#define DOESNT_DRAW(T) template <> void SaveRestoreNooper::operator()(SkRecords::T*) {}
+DOESNT_DRAW(NoOp)
+DOESNT_DRAW(Concat)
+DOESNT_DRAW(SetMatrix)
+DOESNT_DRAW(ClipRect)
+DOESNT_DRAW(ClipRRect)
+DOESNT_DRAW(ClipPath)
+DOESNT_DRAW(ClipRegion)
+DOESNT_DRAW(PairedPushCull)
+DOESNT_DRAW(PushCull)
+DOESNT_DRAW(PopCull)
+#undef DOESNT_DRAW
 
 template <>
 void SaveRestoreNooper::operator()(SkRecords::Save* r) {

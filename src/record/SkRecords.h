@@ -151,6 +151,8 @@ private:
     T* fPtr;
 };
 
+#undef ACT_AS_PTR
+
 // Like SkBitmap, but deep copies pixels if they're not immutable.
 // Using this, we guarantee the immutability of all bitmaps we record.
 class ImmutableBitmap {
