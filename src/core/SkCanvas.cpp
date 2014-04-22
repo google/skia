@@ -2672,10 +2672,5 @@ SkCanvas* SkCanvas::NewRasterDirect(const SkImageInfo& info, void* pixels, size_
     if (!bitmap.installPixels(info, pixels, rowBytes)) {
         return NULL;
     }
-
-    // should this functionality be moved into allocPixels()?
-    if (!bitmap.info().isOpaque()) {
-        bitmap.eraseColor(0);
-    }
     return SkNEW_ARGS(SkCanvas, (bitmap));
 }
