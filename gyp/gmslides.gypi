@@ -80,6 +80,7 @@
     '../gm/getpostextpath.cpp',
     '../gm/giantbitmap.cpp',
     '../gm/gradients.cpp',
+    '../gm/gradients_2pt_conical.cpp',
     '../gm/gradients_no_texture.cpp',
     '../gm/gradientDirtyLaundry.cpp',
     '../gm/gradient_matrix.cpp',

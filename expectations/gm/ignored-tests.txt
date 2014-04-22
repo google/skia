@@ -68,3 +68,5 @@ twopointconical
 lightingcolorfilter
 radial_gradient2
 gradient_dirty_laundry
+shallow_gradient_conical
+
