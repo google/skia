@@ -6,17 +6,7 @@
     <link rel='stylesheet' href='/css/' type='text/css' media='screen'>
 </head>
 <body class=iframe>
-  <section id=content>
-  <pre><code><textarea spellcheck=false name='code' id='code' rows='8' cols='80'>{{.UserCode}}</textarea></code></pre>
-
-  <input type='button' value='Run' id='run'>
-  <a href='/c/{{.Hash}}' target=_blank id=permalink>Share</a>
-
-  <p><img id='img' src=''/></p>
-
-  <pre><code id='output'></code></pre>
-
-  </section>
+  {{template "content.html" .}}
   <script type='text/javascript' charset='utf-8'>
       // Not running in a workspace.
       var workspaceName = '';

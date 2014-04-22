@@ -1,6 +1,5 @@
 Public facing feature requests
 ------------------------------
- - return printf output
  - ability to render against multiple targets (gpu/cpu)
  - versioning (which version of skia was this run against)
  - magnifying glass (both client side and server side)
@@ -15,4 +14,3 @@ Implementation details
  - Add font support in the c++ template.
  - Add inline links to doxygen.
  - Add monitoring and probing (nagios).
- - sanitize the file name in the output.

@@ -157,5 +157,5 @@
 #include "SkXfermodeImageFilter.h"
 
 void draw(SkCanvas* canvas) {
-{{.UserCode}}
+{{.Code}}
 }

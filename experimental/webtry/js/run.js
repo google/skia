@@ -43,6 +43,7 @@
     var embedButton = document.getElementById('embedButton');
     var code = document.getElementById('code');
     var output = document.getElementById('output');
+    var stdout = document.getElementById('stdout');
     var img = document.getElementById('img');
     var tryHistory = document.getElementById('tryHistory');
     var parser = new DOMParser();
@@ -70,11 +71,20 @@
       alert('Something bad happened: ' + e);
     }
 
+    function clearOutput() {
+      output.innerText = "";
+      if (stdout) {
+        stdout.innerText = "";
+      }
+      embed.style.display='none';
+    }
+
     /**
      * Called when an image in the workspace history is clicked.
      */
     function historyClick() {
       beginWait();
+      clearOutput();
       var req = new XMLHttpRequest();
       req.addEventListener('load', historyComplete);
       req.addEventListener('error', xhrError);
@@ -132,6 +142,9 @@
       console.log(e.target.response);
       body = JSON.parse(e.target.response);
       output.innerText = body.message;
+      if (stdout) {
+        stdout.innerText = body.stdout;
+      }
       if (body.hasOwnProperty('img')) {
         img.src = 'data:image/png;base64,' + body.img;
       } else {
@@ -159,6 +172,7 @@
 
     function onSubmitCode() {
       beginWait();
+      clearOutput();
       var req = new XMLHttpRequest();
       req.addEventListener('load', codeComplete);
       req.addEventListener('error', xhrError);

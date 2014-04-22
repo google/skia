@@ -35,13 +35,12 @@ template {
   display: none;
 }
 
-pre, code {
-    padding: 0;
+code {
     color: green;
 }
 
-#output {
-    color: #333;
+pre, code {
+    padding: 0;
 }
 
 .tries {

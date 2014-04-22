@@ -135,12 +135,14 @@ func init() {
 	indexTemplate, err = htemplate.ParseFiles(
 		filepath.Join(cwd, "templates/index.html"),
 		filepath.Join(cwd, "templates/titlebar.html"),
+		filepath.Join(cwd, "templates/content.html"),
 	)
 	if err != nil {
 		panic(err)
 	}
 	iframeTemplate, err = htemplate.ParseFiles(
 		filepath.Join(cwd, "templates/iframe.html"),
+		filepath.Join(cwd, "templates/content.html"),
 	)
 	if err != nil {
 		panic(err)
@@ -155,6 +157,7 @@ func init() {
 	workspaceTemplate, err = htemplate.ParseFiles(
 		filepath.Join(cwd, "templates/workspace.html"),
 		filepath.Join(cwd, "templates/titlebar.html"),
+		filepath.Join(cwd, "templates/content.html"),
 	)
 	if err != nil {
 		panic(err)
@@ -220,8 +223,8 @@ func init() {
 
 // userCode is used in template expansion.
 type userCode struct {
-	UserCode string
-	Hash     string
+	Code string
+	Hash string
 }
 
 // expandToFile expands the template and writes the result to the file.
@@ -231,7 +234,7 @@ func expandToFile(filename string, code string, t *template.Template) error {
 		return err
 	}
 	defer f.Close()
-	return t.Execute(f, userCode{UserCode: code})
+	return t.Execute(f, userCode{Code: code})
 }
 
 // expandCode expands the template into a file and calculate the MD5 hash.
@@ -249,6 +252,7 @@ func expandCode(code string) (string, error) {
 // response is serialized to JSON as a response to POSTs.
 type response struct {
 	Message string `json:"message"`
+	StdOut  string `json:"stdout"`
 	Img     string `json:"img"`
 	Hash    string `json:"hash"`
 }
@@ -298,8 +302,15 @@ func doCmd(commandLine string, moveToDebug bool) (string, error) {
 
 // reportError formats an HTTP error response and also logs the detailed error message.
 func reportError(w http.ResponseWriter, r *http.Request, err error, message string) {
+	log.Printf("Error: %s\n%s", message, err.Error())
+	http.Error(w, message, 500)
+}
+
+// reportTryError formats an HTTP error response in JSON and also logs the detailed error message.
+func reportTryError(w http.ResponseWriter, r *http.Request, err error, message, hash string) {
 	m := response{
 		Message: message,
+		Hash:    hash,
 	}
 	log.Printf("Error: %s\n%s", message, err.Error())
 	resp, err := json.Marshal(m)
@@ -499,7 +510,7 @@ func iframeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Expand the template.
-	if err := iframeTemplate.Execute(w, userCode{UserCode: code, Hash: hash}); err != nil {
+	if err := iframeTemplate.Execute(w, userCode{Code: code, Hash: hash}); err != nil {
 		log.Printf("ERROR: Failed to expand template: %q\n", err)
 	}
 }
@@ -540,6 +551,12 @@ func tryInfoHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
+func cleanCompileOutput(s, hash string) string {
+	old := "../../../cache/" + hash + ".cpp:"
+	log.Printf("INFO: replacing %q\n", old)
+	return strings.Replace(s, old, "usercode.cpp:", -1)
+}
+
 // mainHandler handles the GET and POST of the main page.
 func mainHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Main Handler: %q\n", r.URL.Path)
@@ -560,7 +577,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		// Expand the template.
-		if err := indexTemplate.Execute(w, userCode{UserCode: code, Hash: hash}); err != nil {
+		if err := indexTemplate.Execute(w, userCode{Code: code, Hash: hash}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
 		}
 	} else if r.Method == "POST" {
@@ -568,38 +585,40 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		buf := bytes.NewBuffer(make([]byte, 0, MAX_TRY_SIZE))
 		n, err := buf.ReadFrom(r.Body)
 		if err != nil {
-			reportError(w, r, err, "Failed to read a request body.")
+			reportTryError(w, r, err, "Failed to read a request body.", "")
 			return
 		}
 		if n == MAX_TRY_SIZE {
 			err := fmt.Errorf("Code length equal to, or exceeded, %d", MAX_TRY_SIZE)
-			reportError(w, r, err, "Code too large.")
+			reportTryError(w, r, err, "Code too large.", "")
 			return
 		}
 		request := TryRequest{}
 		if err := json.Unmarshal(buf.Bytes(), &request); err != nil {
-			reportError(w, r, err, "Coulnd't decode JSON.")
+			reportTryError(w, r, err, "Coulnd't decode JSON.", "")
 			return
 		}
 		if hasPreProcessor(request.Code) {
 			err := fmt.Errorf("Found preprocessor macro in code.")
-			reportError(w, r, err, "Preprocessor macros aren't allowed.")
+			reportTryError(w, r, err, "Preprocessor macros aren't allowed.", "")
 			return
 		}
 		hash, err := expandCode(LineNumbers(request.Code))
 		if err != nil {
-			reportError(w, r, err, "Failed to write the code to compile.")
+			reportTryError(w, r, err, "Failed to write the code to compile.", hash)
 			return
 		}
 		writeToDatabase(hash, request.Code, request.Name)
 		message, err := doCmd(fmt.Sprintf(RESULT_COMPILE, hash, hash), true)
 		if err != nil {
-			reportError(w, r, err, "Failed to compile the code:\n"+message)
+			message = cleanCompileOutput(message, hash)
+			reportTryError(w, r, err, message, hash)
 			return
 		}
 		linkMessage, err := doCmd(fmt.Sprintf(LINK, hash, hash), true)
 		if err != nil {
-			reportError(w, r, err, "Failed to link the code:\n"+linkMessage)
+			linkMessage = cleanCompileOutput(linkMessage, hash)
+			reportTryError(w, r, err, linkMessage, hash)
 			return
 		}
 		message += linkMessage
@@ -609,7 +628,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			abs, err := filepath.Abs("../../../inout")
 			if err != nil {
-				reportError(w, r, err, "Failed to find executable directory.")
+				reportTryError(w, r, err, "Failed to find executable directory.", hash)
 				return
 			}
 			cmd = abs + "/" + cmd
@@ -617,23 +636,24 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 
 		execMessage, err := doCmd(cmd, false)
 		if err != nil {
-			reportError(w, r, err, "Failed to run the code:\n"+execMessage)
+			reportTryError(w, r, err, "Failed to run the code:\n"+execMessage, hash)
 			return
 		}
 		png, err := ioutil.ReadFile("../../../inout/" + hash + ".png")
 		if err != nil {
-			reportError(w, r, err, "Failed to open the generated PNG.")
+			reportTryError(w, r, err, "Failed to open the generated PNG.", hash)
 			return
 		}
 
 		m := response{
 			Message: message,
+			StdOut:  execMessage,
 			Img:     base64.StdEncoding.EncodeToString([]byte(png)),
 			Hash:    hash,
 		}
 		resp, err := json.Marshal(m)
 		if err != nil {
-			reportError(w, r, err, "Failed to serialize a response.")
+			reportTryError(w, r, err, "Failed to serialize a response.", hash)
 			return
 		}
 		w.Write(resp)
