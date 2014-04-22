@@ -997,7 +997,8 @@ bool SkBitmap::canCopyTo(SkColorType dstColorType) const {
     switch (dstColorType) {
         case kAlpha_8_SkColorType:
         case kRGB_565_SkColorType:
-        case kN32_SkColorType:
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
             break;
         case kIndex_8_SkColorType:
             if (!sameConfigs) {

@@ -8,7 +8,8 @@
 #ifndef SkCGUtils_DEFINED
 #define SkCGUtils_DEFINED
 
-#include "SkTypes.h"
+#include "SkSize.h"
+#include "SkImageInfo.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #include <ApplicationServices/ApplicationServices.h>
@@ -21,6 +22,22 @@
 class SkBitmap;
 class SkData;
 class SkStream;
+
+/**
+ *  Given a CGImage, allocate an SkBitmap and copy the image's pixels into it. If scaleToFit is not
+ *  null, use it to determine the size of the bitmap, and scale the image to fill the bitmap.
+ *  Otherwise use the image's width/height.
+ *
+ *  On failure, return false, and leave bitmap unchanged.
+ */
+SK_API bool SkCreateBitmapFromCGImage(SkBitmap* dst, CGImageRef src, SkISize* scaleToFit = NULL);
+
+/**
+ *  Copy the pixels from src into the memory specified by info/rowBytes/dstPixels. On failure,
+ *  return false (e.g. ImageInfo incompatible with src).
+ */
+SK_API bool SkCopyPixelsFromCGImage(const SkImageInfo& info, size_t rowBytes, void* dstPixels,
+                                    CGImageRef src);
 
 /**
  *  Create an imageref from the specified bitmap using the specified colorspace.

@@ -108,3 +108,91 @@ private:
 };
 
 DEF_GM( return SkNEW(AAClipGM); )
+
+/////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_BUILD_FOR_MAC
+
+static SkCanvas* make_canvas(const SkBitmap& bm) {
+    const SkImageInfo& info = bm.info();
+    if (info.bytesPerPixel() == 4) {
+        return SkCanvas::NewRasterDirectN32(info.width(), info.height(),
+                                            (SkPMColor*)bm.getPixels(),
+                                            bm.rowBytes());
+    } else {
+        return SkNEW_ARGS(SkCanvas, (bm));
+    }
+}
+
+#include "SkCGUtils.h"
+static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
+    SkBitmap bm;
+    bm.allocPixels(info);
+
+    SkAutoTUnref<SkCanvas> newc(make_canvas(bm));
+    if (info.isOpaque()) {
+        bm.eraseColor(SK_ColorGREEN);
+    } else {
+        bm.eraseColor(0);
+    }
+    
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorBLUE);
+    newc->drawCircle(50, 50, 49, paint);
+    canvas->drawBitmap(bm, 10, 10);
+    
+    CGImageRef image = SkCreateCGImageRefWithColorspace(bm, NULL);
+    
+    SkBitmap bm2;
+    SkCreateBitmapFromCGImage(&bm2, image);
+    CGImageRelease(image);
+    
+    canvas->drawBitmap(bm2, 10, 120);
+}
+
+class CGImageGM : public skiagm::GM {
+public:
+    CGImageGM() {}
+    
+protected:
+    virtual SkString onShortName() SK_OVERRIDE {
+        return SkString("cgimage");
+    }
+    
+    virtual SkISize onISize() SK_OVERRIDE {
+        return SkISize::Make(800, 250);
+    }
+    
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        const struct {
+            SkColorType fCT;
+            SkAlphaType fAT;
+        } rec[] = {
+            { kRGB_565_SkColorType, kOpaque_SkAlphaType },
+
+            { kRGBA_8888_SkColorType, kPremul_SkAlphaType },
+            { kRGBA_8888_SkColorType, kUnpremul_SkAlphaType },
+            { kRGBA_8888_SkColorType, kOpaque_SkAlphaType },
+
+            { kBGRA_8888_SkColorType, kPremul_SkAlphaType },
+            { kBGRA_8888_SkColorType, kUnpremul_SkAlphaType },
+            { kBGRA_8888_SkColorType, kOpaque_SkAlphaType },
+        };
+        
+        for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
+            SkImageInfo info = SkImageInfo::Make(100, 100, rec[i].fCT, rec[i].fAT);
+            test_image(canvas, info);
+            canvas->translate(info.width() + 10, 0);
+        }
+    }
+    
+    virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPipe_Flag; }
+    
+private:
+    typedef skiagm::GM INHERITED;
+};
+
+DEF_GM( return SkNEW(CGImageGM); )
+
+#endif

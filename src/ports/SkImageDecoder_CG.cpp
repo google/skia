@@ -68,7 +68,9 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
     const int width = SkToInt(CGImageGetWidth(image));
     const int height = SkToInt(CGImageGetHeight(image));
-    bm->setConfig(SkBitmap::kARGB_8888_Config, width, height);
+    SkImageInfo skinfo = SkImageInfo::MakeN32Premul(width, height);
+
+    bm->setConfig(skinfo);
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }
@@ -76,16 +78,12 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     if (!this->allocPixelRef(bm, NULL)) {
         return false;
     }
+    
+    SkAutoLockPixels alp(*bm);
 
-    bm->lockPixels();
-    bm->eraseColor(SK_ColorTRANSPARENT);
-
-    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
-    CGContextRef cg = CGBitmapContextCreate(bm->getPixels(), width, height, 8, bm->rowBytes(), cs, BITMAP_INFO);
-    CFRelease(cs);
-
-    CGContextDrawImage(cg, CGRectMake(0, 0, width, height), image);
-    CGContextRelease(cg);
+    if (!SkCopyPixelsFromCGImage(bm->info(), bm->rowBytes(), bm->getPixels(), image)) {
+        return false;
+    }
 
     CGImageAlphaInfo info = CGImageGetAlphaInfo(image);
     switch (info) {
@@ -112,7 +110,6 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         }
         bm->setAlphaType(kUnpremul_SkAlphaType);
     }
-    bm->unlockPixels();
     return true;
 }
 
