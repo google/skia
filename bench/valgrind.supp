@@ -17,7 +17,7 @@
    fun:FcConfigFileExists
 }
 {
-   SkipZeroes_arrow.png_writes_zeroes
+   SkipZeroes_arrow.png_skip_zeroes http://skbug.com/2452
    Memcheck:Cond
    fun:inflateReset2
    fun:inflateInit2_
@@ -33,7 +33,7 @@
    fun:main
 }
 {
-   SkipZeroes_arrow.png_writes_zeroes Release
+   SkipZeroes_arrow.png_skip_zeroes Release http://skbug.com/2452
    Memcheck:Cond
    fun:inflateReset2
    fun:inflateInit2_
@@ -46,7 +46,6 @@
    fun:_Z9tool_mainiPPc
    fun:(below main)
 }
-
 {
    shadermask_LCD_80
    Memcheck:Cond
