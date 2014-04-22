@@ -15,7 +15,7 @@
 // For brevity
 typedef GrGLUniformManager::UniformHandle UniformHandle;
 
-static const SkScalar kErrorTol = 0.00001;
+static const SkScalar kErrorTol = 0.00001f;
 
 /**
  * We have three general cases for 2pt conical gradients. First we always assume that
@@ -305,7 +305,7 @@ static ConicalType set_matrix_focal_conical(const SkTwoPointConicalGradient& sha
     const SkPoint& focal = shader.getStartCenter();
     const SkPoint& centerEnd = shader.getEndCenter();
     SkScalar radius = shader.getEndRadius();
-    SkScalar invRadius = 1.0 / radius;
+    SkScalar invRadius = 1.f / radius;
 
     SkMatrix matrix;
 
@@ -316,7 +316,7 @@ static ConicalType set_matrix_focal_conical(const SkTwoPointConicalGradient& sha
     matrix.mapPoints(&focalTrans, &focal, 1);
     *focalX = focalTrans.length();
 
-    if (0.0 != *focalX) {
+    if (0.f != *focalX) {
         SkScalar invFocalX = SkScalarInvert(*focalX);
         SkMatrix rot;
         rot.setSinCos(-SkScalarMul(invFocalX, focalTrans.fY),
@@ -324,22 +324,22 @@ static ConicalType set_matrix_focal_conical(const SkTwoPointConicalGradient& sha
         matrix.postConcat(rot);
     }
 
-    matrix.postTranslate(-(*focalX), 0.0);
+    matrix.postTranslate(-(*focalX), 0.f);
 
     // If the focal point is touching the edge of the circle it will
     // cause a degenerate case that must be handled separately
     // 5 * kErrorTol was picked after manual testing the stability trade off
     // versus the linear approx used in the Edge Shader
-    if (SkScalarAbs(1.0 - (*focalX)) < 5 *  kErrorTol) {
+    if (SkScalarAbs(1.f - (*focalX)) < 5 *  kErrorTol) {
         return kEdge_ConicalType;
     }
 
     // Scale factor 1 / (1 - focalX * focalX)
-    SkScalar oneMinusF2 = 1.0 - SkScalarMul(*focalX, *focalX);
-    SkScalar s = SkScalarDiv(1.0, oneMinusF2);
+    SkScalar oneMinusF2 = 1.f - SkScalarMul(*focalX, *focalX);
+    SkScalar s = SkScalarDiv(1.f, oneMinusF2);
 
 
-    if (s >= 0.0) {
+    if (s >= 0.f) {
         conicalType = kInside_ConicalType;
         matrix.postScale(s, s * SkScalarSqrt(oneMinusF2));
     } else {
@@ -448,7 +448,7 @@ GrEffectRef* FocalOutside2PtConicalEffect::TestCreate(SkRandom* random,
                                                       const GrDrawTargetCaps&,
                                                       GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
-    SkScalar radius1 = 0.0;
+    SkScalar radius1 = 0.f;
     SkPoint center2;
     SkScalar radius2;
     do {
@@ -458,7 +458,7 @@ GrEffectRef* FocalOutside2PtConicalEffect::TestCreate(SkRandom* random,
         SkPoint diff = center2 - center1;
         SkScalar diffLen = diff.length();
         // Below makes sure that the focal point is not contained within circle two
-        radius2 = random->nextRangeF(0.0, diffLen);
+        radius2 = random->nextRangeF(0.f, diffLen);
 
     SkColor colors[kMaxRandomGradientColors];
     SkScalar stopsArray[kMaxRandomGradientColors];
@@ -538,7 +538,7 @@ void GLFocalOutside2PtConicalEffect::setData(const GrGLUniformManager& uman,
     SkScalar focal = data.focal();
 
     if (fCachedFocal != focal) {
-        SkScalar oneMinus2F = 1.0 - SkScalarMul(focal, focal);
+        SkScalar oneMinus2F = 1.f - SkScalarMul(focal, focal);
 
         float values[2] = {
             SkScalarToFloat(focal),
@@ -655,7 +655,7 @@ GrEffectRef* FocalInside2PtConicalEffect::TestCreate(SkRandom* random,
                                                      const GrDrawTargetCaps&,
                                                      GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
-    SkScalar radius1 = 0.0;
+    SkScalar radius1 = 0.f;
     SkPoint center2;
     SkScalar radius2;
     do {
@@ -758,7 +758,7 @@ static ConicalType set_matrix_circle_conical(const SkTwoPointConicalGradient& sh
 
     matrix.setTranslate(-centerStart.fX, -centerStart.fY);
 
-    SkScalar invStartRad = 1.0 / radiusStart;
+    SkScalar invStartRad = 1.f / radiusStart;
     matrix.postScale(invStartRad, invStartRad);
 
     radiusEnd /= radiusStart;
@@ -777,8 +777,8 @@ static ConicalType set_matrix_circle_conical(const SkTwoPointConicalGradient& sh
         return kEdge_ConicalType;
     }
 
-    SkScalar C = 1.0 / A;
-    SkScalar B = (radiusEnd - 1.0) * C;
+    SkScalar C = 1.f / A;
+    SkScalar B = (radiusEnd - 1.f) * C;
 
     matrix.postScale(C, C);
 
@@ -790,7 +790,7 @@ static ConicalType set_matrix_circle_conical(const SkTwoPointConicalGradient& sh
     info->fC = C;
 
     // if A ends up being negative, the start circle is contained completely inside the end cirlce
-    if (A < 0.0) {
+    if (A < 0.f) {
         return kInside_ConicalType;
     }
     return kOutside_ConicalType;
@@ -897,7 +897,7 @@ GrEffectRef* CircleInside2PtConicalEffect::TestCreate(SkRandom* random,
                                                       const GrDrawTargetCaps&,
                                                       GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
-    SkScalar radius1 = random->nextUScalar1() + 0.0001; // make sure radius1 != 0
+    SkScalar radius1 = random->nextUScalar1() + 0.0001f; // make sure radius1 != 0
     SkPoint center2;
     SkScalar radius2;
     do {
@@ -1124,7 +1124,7 @@ GrEffectRef* CircleOutside2PtConicalEffect::TestCreate(SkRandom* random,
                                                        const GrDrawTargetCaps&,
                                                        GrTexture**) {
     SkPoint center1 = {random->nextUScalar1(), random->nextUScalar1()};
-    SkScalar radius1 = random->nextUScalar1() + 0.0001; // make sure radius1 != 0
+    SkScalar radius1 = random->nextUScalar1() + 0.0001f; // make sure radius1 != 0
     SkPoint center2;
     SkScalar radius2;
     SkScalar diffLen;
@@ -1136,7 +1136,7 @@ GrEffectRef* CircleOutside2PtConicalEffect::TestCreate(SkRandom* random,
         diffLen = diff.length();
         // Below makes sure that circle one is not contained within circle two
         // and have radius2 >= radius to match sorting on cpu side
-        radius2 = radius1 + random->nextRangeF(0.0, diffLen);
+        radius2 = radius1 + random->nextRangeF(0.f, diffLen);
 
     SkColor colors[kMaxRandomGradientColors];
     SkScalar stopsArray[kMaxRandomGradientColors];
