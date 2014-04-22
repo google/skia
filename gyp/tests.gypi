@@ -34,6 +34,7 @@
     '../tests/ARGBImageEncoderTest.cpp',
     '../tests/AndroidPaintTest.cpp',
     '../tests/AnnotationTest.cpp',
+    '../tests/AsADashTest.cpp',
     '../tests/AtomicTest.cpp',
     '../tests/BBoxHierarchyTest.cpp',
     '../tests/BitSetTest.cpp',

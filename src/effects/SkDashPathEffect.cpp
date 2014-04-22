@@ -34,19 +34,10 @@ static SkScalar FindFirstInterval(const SkScalar intervals[], SkScalar phase,
     return intervals[0];
 }
 
-SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count,
-                                   SkScalar phase) {
-    SkASSERT(intervals);
-    SkASSERT(count > 1 && SkAlign2(count) == count);
-
-    fIntervals = (SkScalar*)sk_malloc_throw(sizeof(SkScalar) * count);
-    fCount = count;
-
+void SkDashPathEffect::setInternalMembers(SkScalar phase) {
     SkScalar len = 0;
-    for (int i = 0; i < count; i++) {
-        SkASSERT(intervals[i] >= 0);
-        fIntervals[i] = intervals[i];
-        len += intervals[i];
+    for (int i = 0; i < fCount; i++) {
+        len += fIntervals[i];
     }
     fIntervalLength = len;
 
@@ -74,14 +65,31 @@ SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count,
         }
         SkASSERT(phase >= 0 && phase < len);
 
-        fInitialDashLength = FindFirstInterval(intervals, phase,
-                                               &fInitialDashIndex, count);
+        fPhase = phase;
+
+        fInitialDashLength = FindFirstInterval(fIntervals, fPhase,
+                                               &fInitialDashIndex, fCount);
 
         SkASSERT(fInitialDashLength >= 0);
         SkASSERT(fInitialDashIndex >= 0 && fInitialDashIndex < fCount);
     } else {
         fInitialDashLength = -1;    // signal bad dash intervals
     }
+}
+
+SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count,
+                                   SkScalar phase) {
+    SkASSERT(intervals);
+    SkASSERT(count > 1 && SkAlign2(count) == count);
+
+    fIntervals = (SkScalar*)sk_malloc_throw(sizeof(SkScalar) * count);
+    fCount = count;
+    for (int i = 0; i < count; i++) {
+        SkASSERT(intervals[i] >= 0);
+        fIntervals[i] = intervals[i];
+    }
+
+    this->setInternalMembers(phase);
 }
 
 SkDashPathEffect::~SkDashPathEffect() {
@@ -510,17 +518,24 @@ bool SkDashPathEffect::asPoints(PointData* results,
     return true;
 }
 
+SkPathEffect::DashType SkDashPathEffect::asADash(DashInfo* info) const {
+    if (info) {
+        if (info->fCount >= fCount && NULL != info->fIntervals) {
+            memcpy(info->fIntervals, fIntervals, fCount * sizeof(SkScalar));
+        }
+        info->fCount = fCount;
+        info->fPhase = fPhase;
+    }
+    return kDash_DashType;
+}
+
 SkFlattenable::Factory SkDashPathEffect::getFactory() const {
     return CreateProc;
 }
 
 void SkDashPathEffect::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeInt(fInitialDashIndex);
-    buffer.writeScalar(fInitialDashLength);
-    buffer.writeScalar(fIntervalLength);
-    // Dummy write to stay compatible with old skps. Write will be removed in follow up patch.
-    buffer.writeBool(false);
+    buffer.writeScalar(fPhase);
     buffer.writeScalarArray(fIntervals, fCount);
 }
 
@@ -529,10 +544,15 @@ SkFlattenable* SkDashPathEffect::CreateProc(SkReadBuffer& buffer) {
 }
 
 SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
-    fInitialDashIndex = buffer.readInt();
-    fInitialDashLength = buffer.readScalar();
-    fIntervalLength = buffer.readScalar();
-    buffer.readBool(); // dummy read to stay compatible with old skps
+    bool useOldPic = buffer.pictureVersion() < 25 && 0 != buffer.pictureVersion();
+    if (useOldPic) {
+        fInitialDashIndex = buffer.readInt();
+        fInitialDashLength = buffer.readScalar();
+        fIntervalLength = buffer.readScalar();
+        buffer.readBool(); // Dummy for old ScalarToFit field
+    } else {
+        fPhase = buffer.readScalar();
+    }
 
     fCount = buffer.getArrayCount();
     size_t allocSize = sizeof(SkScalar) * fCount;
@@ -541,5 +561,15 @@ SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
         buffer.readScalarArray(fIntervals, fCount);
     } else {
         fIntervals = NULL;
+    }
+
+    if (useOldPic) {
+        fPhase = 0;
+        for (int i = 0; i < fInitialDashIndex; ++i) {
+            fPhase += fIntervals[i];
+        }
+        fPhase += fInitialDashLength;
+    } else {
+        this->setInternalMembers(fPhase);
     }
 }

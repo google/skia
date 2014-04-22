@@ -104,6 +104,33 @@ public:
                           const SkStrokeRec&, const SkMatrix&,
                           const SkRect* cullR) const;
 
+    /**
+     *  If the PathEffect can be represented as a dash pattern, asADash will return kDash_DashType
+     *  and None otherwise. If a non NULL info is passed in, the various DashInfo will be filled
+     *  in if the PathEffect can be a dash pattern. If passed in info has an fCount equal or
+     *  greater to that of the effect, it will memcpy the values of the dash intervals into the
+     *  info. Thus the general approach will be call asADash once with default info to get DashType
+     *  and fCount. If effect can be represented as a dash pattern, allocate space for the intervals
+     *  in info, then call asADash again with the same info and the intervals will get copied in.
+     */
+
+    enum DashType {
+        kNone_DashType, //!< ignores the info parameter
+        kDash_DashType, //!< fills in all of the info parameter
+    };
+
+    struct DashInfo {
+        DashInfo() : fIntervals(NULL), fCount(0), fPhase(0) {}
+
+        SkScalar*   fIntervals;         //!< Length of on/off intervals for dashed lines
+                                        //   Even values represent ons, and odds offs
+        int32_t     fCount;             //!< Number of intervals in the dash. Should be even number
+        SkScalar    fPhase;             //!< Offset into the dashed interval pattern
+                                        //   mod the sum of all intervals
+    };
+
+    virtual DashType asADash(DashInfo* info) const;
+
     SK_DEFINE_FLATTENABLE_TYPE(SkPathEffect)
 
 protected:

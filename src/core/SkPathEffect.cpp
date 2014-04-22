@@ -22,6 +22,10 @@ bool SkPathEffect::asPoints(PointData* results, const SkPath& src,
     return false;
 }
 
+SkPathEffect::DashType SkPathEffect::asADash(DashInfo* info) const {
+    return kNone_DashType;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkPairPathEffect::SkPairPathEffect(SkPathEffect* pe0, SkPathEffect* pe1)
