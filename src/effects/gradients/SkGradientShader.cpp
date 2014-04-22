@@ -260,7 +260,7 @@ void SkGradientShaderBase::FlipGradientColors(SkColor* colorDst, Rec* recDst,
 }
 
 void SkGradientShaderBase::flipGradientColors() {
-    FlipGradientColors(fOrigColors, fRecs, fOrigColors, fRecs, fColorCount); 
+    FlipGradientColors(fOrigColors, fRecs, fOrigColors, fRecs, fColorCount);
 }
 
 bool SkGradientShaderBase::isOpaque() const {
