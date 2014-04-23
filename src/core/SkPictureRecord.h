@@ -33,7 +33,7 @@ class SkPictureStateTree;
 
 class SkPictureRecord : public SkCanvas {
 public:
-    SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags);
+    SkPictureRecord(SkPicture* picture, const SkISize& dimensions, uint32_t recordFlags);
     virtual ~SkPictureRecord();
 
     virtual void clear(SkColor) SK_OVERRIDE;
@@ -279,6 +279,9 @@ protected:
     SkBitmapHeap* fBitmapHeap;
 
 private:
+    // The owning SkPicture
+    SkPicture* fPicture;
+
     friend class MatrixClipState; // for access to *Impl methods
     friend class SkMatrixClipStateMgr; // for access to *Impl methods
 
@@ -286,7 +289,6 @@ private:
 
     SkPaintDictionary fPaints;
 
-    SkPathHeap* fPathHeap;  // reference counted
     SkWriter32 fWriter;
 
     // we ref each item in these arrays

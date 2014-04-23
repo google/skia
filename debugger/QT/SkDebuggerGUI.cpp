@@ -159,20 +159,23 @@ void SkDebuggerGUI::showDeletes() {
 // offsets to individual commands.
 class SkTimedPicturePlayback : public SkPicturePlayback {
 public:
-    static SkTimedPicturePlayback* CreateFromStream(SkStream* stream, const SkPictInfo& info,
+    static SkTimedPicturePlayback* CreateFromStream(SkPicture* picture,
+                                                    SkStream* stream, const SkPictInfo& info,
                                                     SkPicture::InstallPixelRefProc proc,
                                                     const SkTDArray<bool>& deletedCommands) {
         // Mimics SkPicturePlayback::CreateFromStream
         SkAutoTDelete<SkTimedPicturePlayback> playback(SkNEW_ARGS(SkTimedPicturePlayback,
-                                                                  (deletedCommands, info)));
-        if (!playback->parseStream(stream, proc)) {
+                                                               (picture, deletedCommands, info)));
+        if (!playback->parseStream(picture, stream, proc)) {
             return NULL; // we're invalid
         }
         return playback.detach();
     }
 
-    SkTimedPicturePlayback(const SkTDArray<bool>& deletedCommands, const SkPictInfo& info)
-        : INHERITED(info)
+    SkTimedPicturePlayback(SkPicture* picture,
+                           const SkTDArray<bool>& deletedCommands, 
+                           const SkPictInfo& info)
+        : INHERITED(picture, info)
         , fSkipCommands(deletedCommands)
         , fTot(0.0)
         , fCurCommand(0) {
@@ -268,19 +271,21 @@ public:
             return NULL;
         }
 
-        SkTimedPicturePlayback* playback;
+        SkTimedPicture* newPict = SkNEW_ARGS(SkTimedPicture, (NULL, info.fWidth, info.fHeight));
         // Check to see if there is a playback to recreate.
         if (stream->readBool()) {
-            playback = SkTimedPicturePlayback::CreateFromStream(stream, info, proc,
+            SkTimedPicturePlayback* playback = SkTimedPicturePlayback::CreateFromStream(
+                                                                newPict, stream,
+                                                                info, proc,
                                                                 deletedCommands);
             if (NULL == playback) {
+                SkDELETE(newPict);
                 return NULL;
             }
-        } else {
-            playback = NULL;
+            newPict->fPlayback = playback;
         }
 
-        return SkNEW_ARGS(SkTimedPicture, (playback, info.fWidth, info.fHeight));
+        return newPict;
     }
 
     void resetTimes() { ((SkTimedPicturePlayback*) fPlayback)->resetTimes(); }

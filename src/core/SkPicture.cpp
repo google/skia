@@ -31,6 +31,10 @@
 #include "GrContext.h"
 #endif
 
+template <typename T> int SafeCount(const T* obj) {
+    return obj ? obj->count() : 0;
+}
+
 #define DUMP_BUFFER_SIZE 65536
 
 //#define ENABLE_TIME_DRAW    // dumps milliseconds for each draw
@@ -139,17 +143,48 @@ SkPicture::SkPicture(const SkPicture& src)
         it (since it is destructive, and we don't want to change src).
      */
     if (src.fPlayback) {
-        fPlayback = SkNEW_ARGS(SkPicturePlayback, (*src.fPlayback));
+        fPlayback = SkNEW_ARGS(SkPicturePlayback, (this, *src.fPlayback));
         SkASSERT(NULL == src.fRecord);
         fUniqueID = src.uniqueID();     // need to call method to ensure != 0
     } else if (src.fRecord) {
         SkPictInfo info;
         this->createHeader(&info);
         // here we do a fake src.endRecording()
-        fPlayback = SkNEW_ARGS(SkPicturePlayback, (*src.fRecord, info));
+        fPlayback = SkNEW_ARGS(SkPicturePlayback, (this, *src.fRecord, info));
     } else {
         fPlayback = NULL;
     }
+
+    fPathHeap.reset(SkSafeRef(src.fPathHeap.get()));
+}
+
+const SkPath& SkPicture::getPath(int index) const {
+    return (*fPathHeap.get())[index];
+}
+
+int SkPicture::addPathToHeap(const SkPath& path) {
+    if (NULL == fPathHeap) {
+        fPathHeap.reset(SkNEW(SkPathHeap));
+    }
+#ifdef SK_DEDUP_PICTURE_PATHS
+    return fPathHeap->insert(path);
+#else
+    return fPathHeap->append(path);
+#endif
+}
+
+void SkPicture::initForPlayback() const {
+    // ensure that the paths bounds are pre-computed
+    if (NULL != fPathHeap.get()) {
+        for (int i = 0; i < fPathHeap->count(); i++) {
+            (*fPathHeap.get())[i].updateBoundsCache();
+        }
+    }
+}
+
+void SkPicture::dumpSize() const {
+    SkDebugf("--- picture size: paths=%d\n",
+             SafeCount(fPathHeap.get()));
 }
 
 SkPicture::~SkPicture() {
@@ -171,6 +206,7 @@ void SkPicture::swap(SkPicture& other) {
     SkTSwap(fAccelData, other.fAccelData);
     SkTSwap(fWidth, other.fWidth);
     SkTSwap(fHeight, other.fHeight);
+    fPathHeap.swap(&other.fPathHeap);
 }
 
 SkPicture* SkPicture::clone() const {
@@ -198,15 +234,17 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
             it (since it is destructive, and we don't want to change src).
          */
         if (fPlayback) {
-            clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fPlayback, &copyInfo));
+            clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (clone, *fPlayback, &copyInfo));
             SkASSERT(NULL == fRecord);
             clone->fUniqueID = this->uniqueID(); // need to call method to ensure != 0
         } else if (fRecord) {
             // here we do a fake src.endRecording()
-            clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, info, true));
+            clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (clone, *fRecord, info, true));
         } else {
             clone->fPlayback = NULL;
         }
+
+        clone->fPathHeap.reset(SkSafeRef(fPathHeap.get()));
     }
 }
 
@@ -266,6 +304,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     }
     SkSafeUnref(fAccelData);
     SkSafeSetNull(fRecord);
+    SkASSERT(NULL == fPathHeap);
 
     this->needsNewGenID();
 
@@ -277,12 +316,12 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     if (NULL != bbhFactory) {
         SkAutoTUnref<SkBBoxHierarchy> tree((*bbhFactory)(width, height));
         SkASSERT(NULL != tree);
-        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (size,
+        fRecord = SkNEW_ARGS(SkBBoxHierarchyRecord, (this, size,
                                                      recordingFlags|
                                                      kOptimizeForClippedPlayback_RecordingFlag,
                                                      tree.get()));
     } else {
-        fRecord = SkNEW_ARGS(SkPictureRecord, (size, recordingFlags));
+        fRecord = SkNEW_ARGS(SkPictureRecord, (this, size, recordingFlags));
     }
     fRecord->beginRecording();
 
@@ -323,7 +362,7 @@ void SkPicture::endRecording() {
             fRecord->endRecording();
             SkPictInfo info;
             this->createHeader(&info);
-            fPlayback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, info));
+            fPlayback = SkNEW_ARGS(SkPicturePlayback, (this, *fRecord, info));
             SkSafeSetNull(fRecord);
         }
     }
@@ -424,18 +463,20 @@ SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc pro
         return NULL;
     }
 
-    SkPicturePlayback* playback;
+    SkPicture* newPict = SkNEW_ARGS(SkPicture, (NULL, info.fWidth, info.fHeight));
+
     // Check to see if there is a playback to recreate.
     if (stream->readBool()) {
-        playback = SkPicturePlayback::CreateFromStream(stream, info, proc);
+        SkPicturePlayback* playback = SkPicturePlayback::CreateFromStream(newPict, stream, 
+                                                                          info, proc);
         if (NULL == playback) {
+            SkDELETE(newPict);
             return NULL;
         }
-    } else {
-        playback = NULL;
+        newPict->fPlayback = playback;
     }
 
-    return SkNEW_ARGS(SkPicture, (playback, info.fWidth, info.fHeight));
+    return newPict;
 }
 
 SkPicture* SkPicture::CreateFromBuffer(SkReadBuffer& buffer) {
@@ -445,18 +486,19 @@ SkPicture* SkPicture::CreateFromBuffer(SkReadBuffer& buffer) {
         return NULL;
     }
 
-    SkPicturePlayback* playback;
+    SkPicture* newPict = SkNEW_ARGS(SkPicture, (NULL, info.fWidth, info.fHeight));
+
     // Check to see if there is a playback to recreate.
     if (buffer.readBool()) {
-        playback = SkPicturePlayback::CreateFromBuffer(buffer, info);
+        SkPicturePlayback* playback = SkPicturePlayback::CreateFromBuffer(newPict, buffer, info);
         if (NULL == playback) {
+            SkDELETE(newPict);
             return NULL;
         }
-    } else {
-        playback = NULL;
+        newPict->fPlayback = playback;
     }
 
-    return SkNEW_ARGS(SkPicture, (playback, info.fWidth, info.fHeight));
+    return newPict;
 }
 
 void SkPicture::createHeader(SkPictInfo* info) const {
@@ -484,7 +526,7 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     SkPictInfo info;
     this->createHeader(&info);
     if (NULL == playback && fRecord) {
-        playback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, info));
+        playback = SkNEW_ARGS(SkPicturePlayback, (this, *fRecord, info));
     }
 
     stream->write(&info, sizeof(info));
@@ -500,13 +542,49 @@ void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     }
 }
 
+void SkPicture::WriteTagSize(SkWriteBuffer& buffer, uint32_t tag, size_t size) {
+    buffer.writeUInt(tag);
+    buffer.writeUInt(SkToU32(size));
+}
+
+void SkPicture::WriteTagSize(SkWStream* stream, uint32_t tag,  size_t size) {
+    stream->write32(tag);
+    stream->write32(SkToU32(size));
+}
+
+bool SkPicture::parseBufferTag(SkReadBuffer& buffer,
+                               uint32_t tag, 
+                               uint32_t size) {
+    switch (tag) {
+        case SK_PICT_PATH_BUFFER_TAG:
+            if (size > 0) {
+                fPathHeap.reset(SkNEW_ARGS(SkPathHeap, (buffer)));
+            }
+            break;
+        default:
+            // The tag was invalid.
+            return false;
+    }
+
+    return true;    // success
+}
+
+void SkPicture::flattenToBuffer(SkWriteBuffer& buffer) const {
+    int n;
+
+    if ((n = SafeCount(fPathHeap.get())) > 0) {
+        WriteTagSize(buffer, SK_PICT_PATH_BUFFER_TAG, n);
+        fPathHeap->flatten(buffer);
+    }
+}
+
 void SkPicture::flatten(SkWriteBuffer& buffer) const {
     SkPicturePlayback* playback = fPlayback;
 
     SkPictInfo info;
     this->createHeader(&info);
     if (NULL == playback && fRecord) {
-        playback = SkNEW_ARGS(SkPicturePlayback, (*fRecord, info));
+        playback = SkNEW_ARGS(SkPicturePlayback, (this, *fRecord, info));
     }
 
     buffer.writeByteArray(&info, sizeof(info));
