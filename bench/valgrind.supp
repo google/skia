@@ -1,6 +1,41 @@
 # Valgrind suppressions for bench --config 8888 GPU NONRENDERING --runOnce
 # Pass this file to Valgrind with "--suppressions=bench/valgrind.supp"
 {
+   fglrx 1
+   Memcheck:Param
+   ioctl(generic)
+   fun:ioctl
+   obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
+}
+{
+   fglrx 2
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
+}
+{
+   fglrx 3
+   Memcheck:Addr8
+   fun:memcpy@GLIBC_2.2.5
+   obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
+}
+{
+   fglrx 3
+   Memcheck:Addr2
+   fun:memcpy@GLIBC_2.2.5
+   obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
+}
+{
+   fglrx 4
+   Memcheck:Addr8
+   obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
+}
+{
+   fglrx 5
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/dri/fglrx_dri.so
+}
+{
    NV driver 1
    Memcheck:Cond
    obj:/usr/lib/nvidia-current/libnvidia-glcore.so.319.32
