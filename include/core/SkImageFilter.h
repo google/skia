@@ -48,7 +48,7 @@ public:
         uint32_t fFlags;
     };
 
-    class Cache : public SkRefCnt {
+    class SK_API Cache : public SkRefCnt {
     public:
         // By default, we cache only image filters with 2 or more children.
         static Cache* Create(int minChildren = 2);
