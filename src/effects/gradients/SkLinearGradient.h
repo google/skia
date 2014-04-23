@@ -15,23 +15,9 @@ class SkLinearGradient : public SkGradientShaderBase {
 public:
     SkLinearGradient(const SkPoint pts[2], const Descriptor&);
 
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
-                                             void* storage) const SK_OVERRIDE;
-    virtual size_t contextSize() const SK_OVERRIDE;
-
-    class LinearGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
-    public:
-        LinearGradientContext(const SkLinearGradient& shader, const SkBitmap& device,
-                              const SkPaint& paint, const SkMatrix& matrix);
-        ~LinearGradientContext() {}
-
-        virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
-        virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
-
-    private:
-        typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
-    };
-
+    virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&) SK_OVERRIDE;
+    virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
+    virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
     virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*) const SK_OVERRIDE;
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
     virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint&) const SK_OVERRIDE;

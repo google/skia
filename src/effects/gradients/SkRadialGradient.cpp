@@ -157,36 +157,16 @@ SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius,
     rad_to_unit_matrix(center, radius, &fPtsToUnit);
 }
 
-size_t SkRadialGradient::contextSize() const {
-    return sizeof(RadialGradientContext);
-}
-
-SkShader::Context* SkRadialGradient::createContext(const SkBitmap& device, const SkPaint& paint,
-                                                   const SkMatrix& matrix, void* storage) const {
-    if (!this->validContext(device, paint, matrix)) {
-        return NULL;
-    }
-
-    return SkNEW_PLACEMENT_ARGS(storage, RadialGradientContext, (*this, device, paint, matrix));
-}
-
-SkRadialGradient::RadialGradientContext::RadialGradientContext(
-        const SkRadialGradient& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix)
-    : INHERITED(shader, device, paint, matrix) {}
-
-void SkRadialGradient::RadialGradientContext::shadeSpan16(int x, int y, uint16_t* dstCParam,
-                                                          int count) {
+void SkRadialGradient::shadeSpan16(int x, int y, uint16_t* dstCParam,
+                         int count) {
     SkASSERT(count > 0);
-
-    const SkRadialGradient& radialGradient = static_cast<const SkRadialGradient&>(fShader);
 
     uint16_t* SK_RESTRICT dstC = dstCParam;
 
     SkPoint             srcPt;
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
-    TileProc            proc = radialGradient.fTileProc;
-    const uint16_t* SK_RESTRICT cache = fCache->getCache16();
+    TileProc            proc = fTileProc;
+    const uint16_t* SK_RESTRICT cache = this->getCache16();
     int                 toggle = init_dither_toggle16(x, y);
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
@@ -207,12 +187,12 @@ void SkRadialGradient::RadialGradientContext::shadeSpan16(int x, int y, uint16_t
         }
 
         RadialShade16Proc shadeProc = shadeSpan16_radial_repeat;
-        if (SkShader::kClamp_TileMode == radialGradient.fTileMode) {
+        if (SkShader::kClamp_TileMode == fTileMode) {
             shadeProc = shadeSpan16_radial_clamp;
-        } else if (SkShader::kMirror_TileMode == radialGradient.fTileMode) {
+        } else if (SkShader::kMirror_TileMode == fTileMode) {
             shadeProc = shadeSpan16_radial_mirror;
         } else {
-            SkASSERT(SkShader::kRepeat_TileMode == radialGradient.fTileMode);
+            SkASSERT(SkShader::kRepeat_TileMode == fTileMode);
         }
         (*shadeProc)(srcPt.fX, sdx, srcPt.fY, sdy, dstC,
                      cache, toggle, count);
@@ -409,16 +389,14 @@ void shadeSpan_radial_repeat(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar dy,
 
 }  // namespace
 
-void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
-                                                        SkPMColor* SK_RESTRICT dstC, int count) {
+void SkRadialGradient::shadeSpan(int x, int y,
+                                SkPMColor* SK_RESTRICT dstC, int count) {
     SkASSERT(count > 0);
-
-    const SkRadialGradient& radialGradient = static_cast<const SkRadialGradient&>(fShader);
 
     SkPoint             srcPt;
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
-    TileProc            proc = radialGradient.fTileProc;
-    const SkPMColor* SK_RESTRICT cache = fCache->getCache32();
+    TileProc            proc = fTileProc;
+    const SkPMColor* SK_RESTRICT cache = this->getCache32();
     int toggle = init_dither_toggle(x, y);
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
@@ -438,12 +416,12 @@ void SkRadialGradient::RadialGradientContext::shadeSpan(int x, int y,
         }
 
         RadialShadeProc shadeProc = shadeSpan_radial_repeat;
-        if (SkShader::kClamp_TileMode == radialGradient.fTileMode) {
+        if (SkShader::kClamp_TileMode == fTileMode) {
             shadeProc = shadeSpan_radial_clamp;
-        } else if (SkShader::kMirror_TileMode == radialGradient.fTileMode) {
+        } else if (SkShader::kMirror_TileMode == fTileMode) {
             shadeProc = shadeSpan_radial_mirror;
         } else {
-            SkASSERT(SkShader::kRepeat_TileMode == radialGradient.fTileMode);
+            SkASSERT(SkShader::kRepeat_TileMode == fTileMode);
         }
         (*shadeProc)(srcPt.fX, sdx, srcPt.fY, sdy, dstC, cache, count, toggle);
     } else {    // perspective case

@@ -71,24 +71,12 @@ void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fEnd);
 }
 
-size_t SkLinearGradient::contextSize() const {
-    return sizeof(LinearGradientContext);
-}
-
-SkShader::Context* SkLinearGradient::createContext(const SkBitmap& device, const SkPaint& paint,
-                                                   const SkMatrix& matrix, void* storage) const {
-    if (!this->validContext(device, paint, matrix)) {
-        return NULL;
+bool SkLinearGradient::setContext(const SkBitmap& device, const SkPaint& paint,
+                                 const SkMatrix& matrix) {
+    if (!this->INHERITED::setContext(device, paint, matrix)) {
+        return false;
     }
 
-    return SkNEW_PLACEMENT_ARGS(storage, LinearGradientContext, (*this, device, paint, matrix));
-}
-
-SkLinearGradient::LinearGradientContext::LinearGradientContext(
-        const SkLinearGradient& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix)
-    : INHERITED(shader, device, paint, matrix)
-{
     unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
     if ((fDstToIndex.getType() & ~mask) == 0) {
         // when we dither, we are (usually) not const-in-Y
@@ -99,6 +87,7 @@ SkLinearGradient::LinearGradientContext::LinearGradientContext(
             fFlags |= SkShader::kConstInY16_Flag;
         }
     }
+    return true;
 }
 
 #define NO_CHECK_ITER               \
@@ -207,16 +196,14 @@ void shadeSpan_linear_repeat(TileProc proc, SkFixed dx, SkFixed fx,
 
 }
 
-void SkLinearGradient::LinearGradientContext::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
-                                                        int count) {
+void SkLinearGradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
+                                int count) {
     SkASSERT(count > 0);
-
-    const SkLinearGradient& linearGradient = static_cast<const SkLinearGradient&>(fShader);
 
     SkPoint             srcPt;
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
-    TileProc            proc = linearGradient.fTileProc;
-    const SkPMColor* SK_RESTRICT cache = fCache->getCache32();
+    TileProc            proc = fTileProc;
+    const SkPMColor* SK_RESTRICT cache = this->getCache32();
     int                 toggle = init_dither_toggle(x, y);
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
@@ -236,12 +223,12 @@ void SkLinearGradient::LinearGradientContext::shadeSpan(int x, int y, SkPMColor*
         LinearShadeProc shadeProc = shadeSpan_linear_repeat;
         if (0 == dx) {
             shadeProc = shadeSpan_linear_vertical_lerp;
-        } else if (SkShader::kClamp_TileMode == linearGradient.fTileMode) {
+        } else if (SkShader::kClamp_TileMode == fTileMode) {
             shadeProc = shadeSpan_linear_clamp;
-        } else if (SkShader::kMirror_TileMode == linearGradient.fTileMode) {
+        } else if (SkShader::kMirror_TileMode == fTileMode) {
             shadeProc = shadeSpan_linear_mirror;
         } else {
-            SkASSERT(SkShader::kRepeat_TileMode == linearGradient.fTileMode);
+            SkASSERT(SkShader::kRepeat_TileMode == fTileMode);
         }
         (*shadeProc)(proc, dx, fx, dstC, cache, toggle, count);
     } else {
@@ -394,16 +381,14 @@ static bool fixed_nearly_zero(SkFixed x) {
     return SkAbs32(x) < (SK_Fixed1 >> 12);
 }
 
-void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
-                                                          uint16_t* SK_RESTRICT dstC, int count) {
+void SkLinearGradient::shadeSpan16(int x, int y,
+                                  uint16_t* SK_RESTRICT dstC, int count) {
     SkASSERT(count > 0);
-
-    const SkLinearGradient& linearGradient = static_cast<const SkLinearGradient&>(fShader);
 
     SkPoint             srcPt;
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
-    TileProc            proc = linearGradient.fTileProc;
-    const uint16_t* SK_RESTRICT cache = fCache->getCache16();
+    TileProc            proc = fTileProc;
+    const uint16_t* SK_RESTRICT cache = this->getCache16();
     int                 toggle = init_dither_toggle16(x, y);
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
@@ -423,12 +408,12 @@ void SkLinearGradient::LinearGradientContext::shadeSpan16(int x, int y,
         LinearShade16Proc shadeProc = shadeSpan16_linear_repeat;
         if (fixed_nearly_zero(dx)) {
             shadeProc = shadeSpan16_linear_vertical;
-        } else if (SkShader::kClamp_TileMode == linearGradient.fTileMode) {
+        } else if (SkShader::kClamp_TileMode == fTileMode) {
             shadeProc = shadeSpan16_linear_clamp;
-        } else if (SkShader::kMirror_TileMode == linearGradient.fTileMode) {
+        } else if (SkShader::kMirror_TileMode == fTileMode) {
             shadeProc = shadeSpan16_linear_mirror;
         } else {
-            SkASSERT(SkShader::kRepeat_TileMode == linearGradient.fTileMode);
+            SkASSERT(SkShader::kRepeat_TileMode == fTileMode);
         }
         (*shadeProc)(proc, dx, fx, dstC, cache, toggle, count);
     } else {

@@ -14,24 +14,10 @@
 class SkRadialGradient : public SkGradientShaderBase {
 public:
     SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&);
-
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
-                                             void* storage) const SK_OVERRIDE;
-    virtual size_t contextSize() const SK_OVERRIDE;
-
-    class RadialGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
-    public:
-        RadialGradientContext(const SkRadialGradient& shader, const SkBitmap& device,
-                              const SkPaint& paint, const SkMatrix& matrix);
-        ~RadialGradientContext() {}
-
-        virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
-        virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
-
-    private:
-        typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
-    };
-
+    virtual void shadeSpan(int x, int y, SkPMColor* dstC, int count)
+        SK_OVERRIDE;
+    virtual void shadeSpan16(int x, int y, uint16_t* dstCParam,
+                             int count) SK_OVERRIDE;
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
                                  TileMode* xy) const SK_OVERRIDE;
