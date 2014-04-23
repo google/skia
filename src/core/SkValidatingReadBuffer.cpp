@@ -256,10 +256,10 @@ SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type)
     SkFlattenable* obj = NULL;
     uint32_t sizeRecorded = this->readUInt();
     if (factory) {
-        uint32_t offset = fReader.offset();
+        size_t offset = fReader.offset();
         obj = (*factory)(*this);
         // check that we read the amount we expected
-        uint32_t sizeRead = fReader.offset() - offset;
+        size_t sizeRead = fReader.offset() - offset;
         this->validate(sizeRecorded == sizeRead);
         if (fError) {
             // we could try to fix up the offset...

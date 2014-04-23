@@ -161,7 +161,7 @@ bool SkWStream::writePackedUInt(size_t value) {
         memcpy(&data[1], &value16, 2);
         len = 3;
     } else {
-        uint32_t value32 = value;
+        uint32_t value32 = SkToU32(value);
         data[0] = SK_BYTE_SENTINEL_FOR_U32;
         memcpy(&data[1], &value32, 4);
         len = 5;
@@ -189,7 +189,7 @@ bool SkWStream::writeStream(SkStream* stream, size_t length) {
 
 bool SkWStream::writeData(const SkData* data) {
     if (data) {
-        this->write32(data->size());
+        this->write32(SkToU32(data->size()));
         this->write(data->data(), data->size());
     } else {
         this->write32(0);
@@ -481,11 +481,9 @@ SkMemoryWStream::SkMemoryWStream(void* buffer, size_t size)
 {
 }
 
-bool SkMemoryWStream::write(const void* buffer, size_t size)
-{
-    size = SkMin32(size, fMaxLength - fBytesWritten);
-    if (size > 0)
-    {
+bool SkMemoryWStream::write(const void* buffer, size_t size) {
+    size = SkTMin(size, fMaxLength - fBytesWritten);
+    if (size > 0) {
         memcpy(fBuffer + fBytesWritten, buffer, size);
         fBytesWritten += size;
         return true;
@@ -558,7 +556,7 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count)
         size_t  size;
 
         if (fTail != NULL && fTail->avail() > 0) {
-            size = SkMin32(fTail->avail(), count);
+            size = SkTMin(fTail->avail(), count);
             buffer = fTail->append(buffer, size);
             SkASSERT(count >= size);
             count -= size;
@@ -566,7 +564,7 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count)
                 return true;
         }
 
-        size = SkMax32(count, SkDynamicMemoryWStream_MinBlockSize);
+        size = SkTMax<size_t>(count, SkDynamicMemoryWStream_MinBlockSize);
         Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
         block->init(size);
         block->append(buffer, count);

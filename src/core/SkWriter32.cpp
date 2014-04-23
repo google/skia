@@ -47,7 +47,7 @@ void SkWriter32::writeString(const char str[], size_t len) {
 
     // [ 4 byte len ] [ str ... ] [1 - 4 \0s]
     uint32_t* ptr = this->reservePad(sizeof(uint32_t) + len + 1);
-    *ptr = len;
+    *ptr = SkToU32(len);
     char* chars = (char*)(ptr + 1);
     memcpy(chars, str, len);
     chars[len] = '\0';

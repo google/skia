@@ -103,7 +103,7 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData, const char* fontName, int font
     for (; currentEntry < endEntry; ++currentEntry) {
         uint32_t oldOffset = SkEndian_SwapBE32(currentEntry->offset);
         if (oldOffset > oldNameTableOffset) {
-            currentEntry->offset = SkEndian_SwapBE32(oldOffset - oldNameTablePhysicalSize);
+            currentEntry->offset = SkEndian_SwapBE32(SkToU32(oldOffset - oldNameTablePhysicalSize));
         }
         if (SkOTTableHead::TAG == currentEntry->tag) {
             headTableEntry = currentEntry;
@@ -112,8 +112,8 @@ SkData* SkOTUtils::RenameFont(SkStream* fontData, const char* fontName, int font
 
     // Make the table directory entry point to the new 'name' table.
     SkSFNTHeader::TableDirectoryEntry* nameTableEntry = reinterpret_cast<SkSFNTHeader::TableDirectoryEntry*>(data + sizeof(SkSFNTHeader)) + tableIndex;
-    nameTableEntry->logicalLength = SkEndian_SwapBE32(nameTableLogicalSize);
-    nameTableEntry->offset = SkEndian_SwapBE32(originalDataSize);
+    nameTableEntry->logicalLength = SkEndian_SwapBE32(SkToU32(nameTableLogicalSize));
+    nameTableEntry->offset = SkEndian_SwapBE32(SkToU32(originalDataSize));
 
     // Write the new 'name' table after the original font data.
     SkOTTableName* nameTable = reinterpret_cast<SkOTTableName*>(data + originalDataSize);

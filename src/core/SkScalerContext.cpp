@@ -548,8 +548,9 @@ static void packA8ToA1(const SkMask& mask, const uint8_t* src, size_t srcRB) {
     const int dstPad = mask.fRowBytes - SkAlign8(width)/8;
     SkASSERT(dstPad >= 0);
 
-    const int srcPad = srcRB - width;
-    SkASSERT(srcPad >= 0);
+    SkASSERT(width >= 0);
+    SkASSERT(srcRB >= (size_t)width);
+    const size_t srcPad = srcRB - width;
 
     for (int y = 0; y < height; ++y) {
         for (int i = 0; i < octs; ++i) {

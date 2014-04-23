@@ -69,8 +69,8 @@ public:
 
     SkReader32* getReader32() { return &fReader; }
 
-    uint32_t size() { return fReader.size(); }
-    uint32_t offset() { return fReader.offset(); }
+    size_t size() { return fReader.size(); }
+    size_t offset() { return fReader.offset(); }
     bool eof() { return fReader.eof(); }
     const void* skip(size_t size) { return fReader.skip(size); }
     void* readFunctionPtr() { return fReader.readPtr(); }

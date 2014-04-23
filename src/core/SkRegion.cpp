@@ -796,7 +796,7 @@ public:
                 fTop = (SkRegion::RunType)(bottom); // just update our bottom
             } else {
                 start[-2] = (SkRegion::RunType)(bottom);
-                start[-1] = len >> 1;
+                start[-1] = SkToS32(len >> 1);
                 fPrevDst = start;
                 fPrevLen = len;
             }
@@ -1212,7 +1212,7 @@ static void compute_bounds(const SkRegion::RunType runs[],
 
             const SkRegion::RunType* prev = runs;
             runs = skip_intervals_slow(runs);
-            int intervals = (runs - prev) >> 1;
+            int intervals = SkToInt((runs - prev) >> 1);
             SkASSERT(prev[-1] == intervals);
             intervalCount += intervals;
 

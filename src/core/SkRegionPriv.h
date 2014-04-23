@@ -29,7 +29,7 @@ static int compute_intervalcount(const SkRegion::RunType runs[]) {
         SkASSERT(curr[1] < SkRegion::kRunTypeSentinel);
         curr += 2;
     }
-    return (curr - runs) >> 1;
+    return SkToInt((curr - runs) >> 1);
 }
 #endif
 
@@ -213,7 +213,7 @@ public:
 
 #ifdef SK_DEBUG
         // +1 to skip the last Y-sentinel
-        int runCount = runs - this->writable_runs() + 1;
+        int runCount = SkToInt(runs - this->writable_runs() + 1);
         SkASSERT(runCount == fRunCount);
 #endif
 
