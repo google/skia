@@ -239,7 +239,7 @@ SkGpuDevice* SkGpuDevice::Create(GrContext* context, const SkImageInfo& origInfo
     desc.fFlags = kRenderTarget_GrTextureFlagBit;
     desc.fWidth = info.width();
     desc.fHeight = info.height();
-    desc.fConfig = SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType());
+    desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = sampleCount;
 
     SkAutoTUnref<GrTexture> texture(context->createUncachedTexture(desc, NULL, 0));
@@ -286,7 +286,7 @@ bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
     DO_DEFERRED_CLEAR();
 
     // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo.colorType(), dstInfo.alphaType());
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(dstInfo);
     if (kUnknown_GrPixelConfig == config) {
         return false;
     }
@@ -302,7 +302,7 @@ bool SkGpuDevice::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
 bool SkGpuDevice::onWritePixels(const SkImageInfo& info, const void* pixels, size_t rowBytes,
                                 int x, int y) {
     // TODO: teach fRenderTarget to take ImageInfo directly to specify the src pixels
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(info.colorType(), info.alphaType());
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(info);
     if (kUnknown_GrPixelConfig == config) {
         return false;
     }

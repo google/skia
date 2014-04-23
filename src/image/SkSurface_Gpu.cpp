@@ -110,13 +110,11 @@ SkSurface* SkSurface::NewRenderTarget(GrContext* ctx, const SkImageInfo& info, i
         return NULL;
     }
 
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
-
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kCheckAllocation_GrTextureFlagBit;
-    desc.fWidth = info.fWidth;
-    desc.fHeight = info.fHeight;
-    desc.fConfig = SkBitmapConfig2GrPixelConfig(config);
+    desc.fWidth = info.width();
+    desc.fHeight = info.height();
+    desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = sampleCount;
 
     SkAutoTUnref<GrTexture> tex(ctx->createUncachedTexture(desc, NULL, 0));
@@ -132,13 +130,11 @@ SkSurface* SkSurface::NewScratchRenderTarget(GrContext* ctx, const SkImageInfo& 
         return NULL;
     }
 
-    SkBitmap::Config config = SkImageInfoToBitmapConfig(info);
-
     GrTextureDesc desc;
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kCheckAllocation_GrTextureFlagBit;
-    desc.fWidth = info.fWidth;
-    desc.fHeight = info.fHeight;
-    desc.fConfig = SkBitmapConfig2GrPixelConfig(config);
+    desc.fWidth = info.width();
+    desc.fHeight = info.height();
+    desc.fConfig = SkImageInfo2GrPixelConfig(info);
     desc.fSampleCnt = sampleCount;
 
     SkAutoTUnref<GrTexture> tex(ctx->lockAndRefScratchTexture(desc, GrContext::kExact_ScratchTexMatch));

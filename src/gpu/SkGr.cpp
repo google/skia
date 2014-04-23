@@ -97,7 +97,7 @@ static void generate_bitmap_texture_desc(const SkBitmap& bitmap, GrTextureDesc* 
     desc->fFlags = kNone_GrTextureFlags;
     desc->fWidth = bitmap.width();
     desc->fHeight = bitmap.height();
-    desc->fConfig = SkBitmapConfig2GrPixelConfig(bitmap.config());
+    desc->fConfig = SkImageInfo2GrPixelConfig(bitmap.info());
     desc->fSampleCnt = 0;
 }
 
@@ -169,7 +169,7 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
             origBitmap.copyTo(&tmpBitmap, kN32_SkColorType);
             // now bitmap points to our temp, which has been promoted to 32bits
             bitmap = &tmpBitmap;
-            desc.fConfig = SkBitmapConfig2GrPixelConfig(bitmap->config());
+            desc.fConfig = SkImageInfo2GrPixelConfig(bitmap->info());
         }
     }
 

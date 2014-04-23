@@ -158,7 +158,7 @@ int GrTextureStripAtlas::lockRow(const SkBitmap& data) {
         fDesc.fContext->writeTexturePixels(fTexture,
                                            0,  rowNumber * fDesc.fRowHeight,
                                            fDesc.fWidth, fDesc.fRowHeight,
-                                           SkBitmapConfig2GrPixelConfig(data.config()),
+                                           SkImageInfo2GrPixelConfig(data.info()),
                                            data.getPixels(),
                                            data.rowBytes(),
                                            GrContext::kDontFlush_PixelOpsFlag);

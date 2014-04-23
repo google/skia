@@ -1109,7 +1109,7 @@ GrGradientEffect::GrGradientEffect(GrContext* ctx,
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height();
         desc.fContext = ctx;
-        desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.colorType(), bitmap.alphaType());
+        desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info());
         fAtlas = GrTextureStripAtlas::GetAtlas(desc);
         SkASSERT(NULL != fAtlas);
 
