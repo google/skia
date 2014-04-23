@@ -21,9 +21,9 @@ static const int GRID_WIDTH = 100;
 typedef SkIRect (*MakeRectProc)(SkRandom&, int, int);
 
 // Time how long it takes to build an R-Tree either bulk-loaded or not
-class BBoxBuildBench : public SkBenchmark {
+class RTreeBuildBench : public SkBenchmark {
 public:
-    BBoxBuildBench(const char* name, MakeRectProc proc, bool bulkLoad,
+    RTreeBuildBench(const char* name, MakeRectProc proc, bool bulkLoad,
                     SkBBoxHierarchy* tree)
         : fTree(tree)
         , fProc(proc)
@@ -40,7 +40,7 @@ public:
         return backend == kNonRendering_Backend;
     }
 
-    virtual ~BBoxBuildBench() {
+    virtual ~RTreeBuildBench() {
         fTree->unref();
     }
 protected:
@@ -67,7 +67,7 @@ private:
 };
 
 // Time how long it takes to perform queries on an R-Tree, bulk-loaded or not
-class BBoxQueryBench : public SkBenchmark {
+class RTreeQueryBench : public SkBenchmark {
 public:
     enum QueryType {
         kSmall_QueryType, // small queries
@@ -76,7 +76,7 @@ public:
         kFull_QueryType   // queries that cover everything
     };
 
-    BBoxQueryBench(const char* name, MakeRectProc proc, bool bulkLoad,
+    RTreeQueryBench(const char* name, MakeRectProc proc, bool bulkLoad,
                     QueryType q, SkBBoxHierarchy* tree)
         : fTree(tree)
         , fProc(proc)
@@ -94,7 +94,7 @@ public:
         return backend == kNonRendering_Backend;
     }
 
-    virtual ~BBoxQueryBench() {
+    virtual ~RTreeQueryBench() {
         fTree->unref();
     }
 protected:
@@ -189,81 +189,81 @@ static inline SkIRect make_random_rects(SkRandom& rand, int index, int numRects)
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("XYordered", &make_XYordered_rects, false,
+    return SkNEW_ARGS(RTreeBuildBench, ("XYordered", &make_XYordered_rects, false,
                       SkRTree::Create(5, 16)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("XYordered", &make_XYordered_rects, true,
+    return SkNEW_ARGS(RTreeBuildBench, ("XYordered", &make_XYordered_rects, true,
                       SkRTree::Create(5, 16)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("(unsorted)XYordered", &make_XYordered_rects, true,
+    return SkNEW_ARGS(RTreeBuildBench, ("(unsorted)XYordered", &make_XYordered_rects, true,
                       SkRTree::Create(5, 16, 1, false)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("XYordered", &make_XYordered_rects, true,
-                      BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
+    return SkNEW_ARGS(RTreeQueryBench, ("XYordered", &make_XYordered_rects, true,
+                      RTreeQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("(unsorted)XYordered", &make_XYordered_rects, true,
-                      BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
+    return SkNEW_ARGS(RTreeQueryBench, ("(unsorted)XYordered", &make_XYordered_rects, true,
+                      RTreeQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
 )
 
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("YXordered", &make_YXordered_rects, false,
+    return SkNEW_ARGS(RTreeBuildBench, ("YXordered", &make_YXordered_rects, false,
                       SkRTree::Create(5, 16)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("YXordered", &make_YXordered_rects, true,
+    return SkNEW_ARGS(RTreeBuildBench, ("YXordered", &make_YXordered_rects, true,
                       SkRTree::Create(5, 16)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("(unsorted)YXordered", &make_YXordered_rects, true,
+    return SkNEW_ARGS(RTreeBuildBench, ("(unsorted)YXordered", &make_YXordered_rects, true,
                       SkRTree::Create(5, 16, 1, false)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("YXordered", &make_YXordered_rects, true,
-                      BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
+    return SkNEW_ARGS(RTreeQueryBench, ("YXordered", &make_YXordered_rects, true,
+                      RTreeQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("(unsorted)YXordered", &make_YXordered_rects, true,
-                      BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
+    return SkNEW_ARGS(RTreeQueryBench, ("(unsorted)YXordered", &make_YXordered_rects, true,
+                      RTreeQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
 )
 
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("random", &make_random_rects, false,
+    return SkNEW_ARGS(RTreeBuildBench, ("random", &make_random_rects, false,
                       SkRTree::Create(5, 16)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("random", &make_random_rects, true,
+    return SkNEW_ARGS(RTreeBuildBench, ("random", &make_random_rects, true,
                       SkRTree::Create(5, 16)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("(unsorted)random", &make_random_rects, true,
+    return SkNEW_ARGS(RTreeBuildBench, ("(unsorted)random", &make_random_rects, true,
                       SkRTree::Create(5, 16, 1, false)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("random", &make_random_rects, true,
-                      BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
+    return SkNEW_ARGS(RTreeQueryBench, ("random", &make_random_rects, true,
+                      RTreeQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("(unsorted)random", &make_random_rects, true,
-                      BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
+    return SkNEW_ARGS(RTreeQueryBench, ("(unsorted)random", &make_random_rects, true,
+                      RTreeQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
 )
 
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("concentric",
+    return SkNEW_ARGS(RTreeBuildBench, ("concentric",
                       &make_concentric_rects_increasing, true, SkRTree::Create(5, 16)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("(unsorted)concentric",
+    return SkNEW_ARGS(RTreeBuildBench, ("(unsorted)concentric",
                       &make_concentric_rects_increasing, true, SkRTree::Create(5, 16, 1, false)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("concentric", &make_concentric_rects_increasing, true,
-                      BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
+    return SkNEW_ARGS(RTreeQueryBench, ("concentric", &make_concentric_rects_increasing, true,
+                      RTreeQueryBench::kRandom_QueryType, SkRTree::Create(5, 16)));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("(unsorted)concentric", &make_concentric_rects_increasing, true,
-                      BBoxQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
+    return SkNEW_ARGS(RTreeQueryBench, ("(unsorted)concentric", &make_concentric_rects_increasing, true,
+                      RTreeQueryBench::kRandom_QueryType, SkRTree::Create(5, 16, 1, false)));
 )

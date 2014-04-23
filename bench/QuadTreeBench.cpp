@@ -22,9 +22,9 @@ static const SkIRect QUAD_TREE_BOUNDS = SkIRect::MakeLTRB(
 typedef SkIRect (*MakeRectProc)(SkRandom&, int, int);
 
 // Time how long it takes to build an QuadTree
-class BBoxBuildBench : public SkBenchmark {
+class QuadTreeBuildBench : public SkBenchmark {
 public:
-    BBoxBuildBench(const char* name, MakeRectProc proc, SkBBoxHierarchy* tree)
+    QuadTreeBuildBench(const char* name, MakeRectProc proc, SkBBoxHierarchy* tree)
         : fTree(tree)
         , fProc(proc) {
         fName.append("quadtree_");
@@ -36,7 +36,7 @@ public:
         return backend == kNonRendering_Backend;
     }
 
-    virtual ~BBoxBuildBench() {
+    virtual ~QuadTreeBuildBench() {
         fTree->unref();
     }
 protected:
@@ -61,7 +61,7 @@ private:
 };
 
 // Time how long it takes to perform queries on an QuadTree
-class BBoxQueryBench : public SkBenchmark {
+class QuadTreeQueryBench : public SkBenchmark {
 public:
     enum QueryType {
         kSmall_QueryType, // small queries
@@ -70,7 +70,7 @@ public:
         kFull_QueryType   // queries that cover everything
     };
 
-    BBoxQueryBench(const char* name, MakeRectProc proc,
+    QuadTreeQueryBench(const char* name, MakeRectProc proc,
                     QueryType q, SkBBoxHierarchy* tree)
         : fTree(tree)
         , fProc(proc)
@@ -84,7 +84,7 @@ public:
         return backend == kNonRendering_Backend;
     }
 
-    virtual ~BBoxQueryBench() {
+    virtual ~QuadTreeQueryBench() {
         fTree->unref();
     }
 protected:
@@ -179,38 +179,38 @@ static inline SkIRect make_random_rects(SkRandom& rand, int index, int numRects)
 ///////////////////////////////////////////////////////////////////////////////
 
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("XYordered", &make_XYordered_rects,
+    return SkNEW_ARGS(QuadTreeBuildBench, ("XYordered", &make_XYordered_rects,
                       SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("XYordered", &make_XYordered_rects,
-                      BBoxQueryBench::kRandom_QueryType,
+    return SkNEW_ARGS(QuadTreeQueryBench, ("XYordered", &make_XYordered_rects,
+                      QuadTreeQueryBench::kRandom_QueryType,
                       SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("YXordered", &make_YXordered_rects,
+    return SkNEW_ARGS(QuadTreeBuildBench, ("YXordered", &make_YXordered_rects,
                       SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("YXordered", &make_YXordered_rects,
-                      BBoxQueryBench::kRandom_QueryType,
+    return SkNEW_ARGS(QuadTreeQueryBench, ("YXordered", &make_YXordered_rects,
+                      QuadTreeQueryBench::kRandom_QueryType,
                       SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("random", &make_random_rects,
+    return SkNEW_ARGS(QuadTreeBuildBench, ("random", &make_random_rects,
                       SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("random", &make_random_rects,
-                      BBoxQueryBench::kRandom_QueryType,
+    return SkNEW_ARGS(QuadTreeQueryBench, ("random", &make_random_rects,
+                      QuadTreeQueryBench::kRandom_QueryType,
                       SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxBuildBench, ("concentric", &make_concentric_rects_increasing,
+    return SkNEW_ARGS(QuadTreeBuildBench, ("concentric", &make_concentric_rects_increasing,
                       SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )
 DEF_BENCH(
-    return SkNEW_ARGS(BBoxQueryBench, ("concentric", &make_concentric_rects_increasing,
-                      BBoxQueryBench::kRandom_QueryType,
+    return SkNEW_ARGS(QuadTreeQueryBench, ("concentric", &make_concentric_rects_increasing,
+                      QuadTreeQueryBench::kRandom_QueryType,
                       SkNEW_ARGS(SkQuadTree, (QUAD_TREE_BOUNDS))));
 )

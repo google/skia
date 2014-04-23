@@ -211,20 +211,4 @@
    fun:_Z9tool_mainiPPc
    fun:(below main)
 }
-{
-   rtree_(unsorted)* http://skbug.com/2455
-   Memcheck:Cond
-   fun:_ZN14BBoxQueryBench6onDrawEiP8SkCanvas
-   fun:_ZN11SkBenchmark4drawEiP8SkCanvas
-   fun:_Z9tool_mainiPPc
-   fun:main
-}
-{
-   rtree_(unsorted)* 2 http://skbug.com/2455
-   Memcheck:Cond
-   fun:_ZN14BBoxQueryBench6onDrawEiP8SkCanvas
-   fun:_Z9tool_mainiPPc
-   fun:(below main)
-}
-
 
