@@ -123,46 +123,54 @@ void SkBitmapProcState::platformConvolutionProcs(SkConvolutionProcs* procs) {
 }
 
 void SkBitmapProcState::platformProcs() {
-    if (cachedHasSSSE3()) {
-        if (fSampleProc32 == S32_opaque_D32_filter_DX) {
-            fSampleProc32 = S32_opaque_D32_filter_DX_SSSE3;
-        } else if (fSampleProc32 == S32_alpha_D32_filter_DX) {
-            fSampleProc32 = S32_alpha_D32_filter_DX_SSSE3;
-        }
+    /* Every optimization in the function requires at least SSE2 */
+    if (!cachedHasSSE2()) {
+        return;
+    }
 
-        if (fSampleProc32 == S32_opaque_D32_filter_DXDY) {
-            fSampleProc32 = S32_opaque_D32_filter_DXDY_SSSE3;
-        } else if (fSampleProc32 == S32_alpha_D32_filter_DXDY) {
-            fSampleProc32 = S32_alpha_D32_filter_DXDY_SSSE3;
-        }
-    } else if (cachedHasSSE2()) {
-        if (fSampleProc32 == S32_opaque_D32_filter_DX) {
+    /* Check fSampleProc32 */
+    if (fSampleProc32 == S32_opaque_D32_filter_DX) {
+        if (cachedHasSSSE3()) {
+            fSampleProc32 = S32_opaque_D32_filter_DX_SSSE3;
+        } else {
             fSampleProc32 = S32_opaque_D32_filter_DX_SSE2;
-        } else if (fSampleProc32 == S32_alpha_D32_filter_DX) {
+        }
+    } else if (fSampleProc32 == S32_opaque_D32_filter_DXDY) {
+        if (cachedHasSSSE3()) {
+            fSampleProc32 = S32_opaque_D32_filter_DXDY_SSSE3;
+        }
+    } else if (fSampleProc32 == S32_alpha_D32_filter_DX) {
+        if (cachedHasSSSE3()) {
+            fSampleProc32 = S32_alpha_D32_filter_DX_SSSE3;
+        } else {
             fSampleProc32 = S32_alpha_D32_filter_DX_SSE2;
         }
-
-        if (fSampleProc16 == S32_D16_filter_DX) {
-            fSampleProc16 = S32_D16_filter_DX_SSE2;
+    } else if (fSampleProc32 == S32_alpha_D32_filter_DXDY) {
+        if (cachedHasSSSE3()) {
+            fSampleProc32 = S32_alpha_D32_filter_DXDY_SSSE3;
         }
     }
 
-    if (cachedHasSSSE3() || cachedHasSSE2()) {
-        if (fMatrixProc == ClampX_ClampY_filter_scale) {
-            fMatrixProc = ClampX_ClampY_filter_scale_SSE2;
-        } else if (fMatrixProc == ClampX_ClampY_nofilter_scale) {
-            fMatrixProc = ClampX_ClampY_nofilter_scale_SSE2;
-        }
+    /* Check fSampleProc16 */
+    if (fSampleProc16 == S32_D16_filter_DX) {
+        fSampleProc16 = S32_D16_filter_DX_SSE2;
+    }
 
-        if (fMatrixProc == ClampX_ClampY_filter_affine) {
-            fMatrixProc = ClampX_ClampY_filter_affine_SSE2;
-        } else if (fMatrixProc == ClampX_ClampY_nofilter_affine) {
-            fMatrixProc = ClampX_ClampY_nofilter_affine_SSE2;
-        }
-        if (c_hqfilter_sse) {
-            if (fShaderProc32 == highQualityFilter32) {
-                fShaderProc32 = highQualityFilter_SSE2;
-            }
+    /* Check fMatrixProc */
+    if (fMatrixProc == ClampX_ClampY_filter_scale) {
+        fMatrixProc = ClampX_ClampY_filter_scale_SSE2;
+    } else if (fMatrixProc == ClampX_ClampY_nofilter_scale) {
+        fMatrixProc = ClampX_ClampY_nofilter_scale_SSE2;
+    } else if (fMatrixProc == ClampX_ClampY_filter_affine) {
+        fMatrixProc = ClampX_ClampY_filter_affine_SSE2;
+    } else if (fMatrixProc == ClampX_ClampY_nofilter_affine) {
+        fMatrixProc = ClampX_ClampY_nofilter_affine_SSE2;
+    }
+
+    /* Check fShaderProc32 */
+    if (c_hqfilter_sse) {
+        if (fShaderProc32 == highQualityFilter32) {
+            fShaderProc32 = highQualityFilter_SSE2;
         }
     }
 }
