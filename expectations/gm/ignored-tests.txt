@@ -57,16 +57,3 @@ aaclip
 composeshader
 peekpixels
 
-# egdaniel https://codereview.chromium.org/227623004/
-# This change will cause change two point conical gradients to change pixels values
-# but without any real perceptual differences.
-gradients
-gradients_view_perspective
-gradients_local_perspective
-gradients_no_texture
-twopointconical
-lightingcolorfilter
-radial_gradient2
-gradient_dirty_laundry
-shallow_gradient_conical
-

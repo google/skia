@@ -3636,25 +3636,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10762793849250293992
+          18427944060070741931
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gradients_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13767852174935105740
+          12133405207773006034
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gradients_degenerate_2pt_565.png": {
       "allowed-digests": [
@@ -3684,43 +3678,34 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1089438258687054437
+          985404641645198444
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gradients_local_perspective_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8414556914951942593
+          17064109448195172956
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gradients_no_texture_565.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15221086024986221341
+          5621382888884309360
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gradients_no_texture_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5300612142393972488
+          4912739431312765892
         ]
       ], 
       "reviewed-by-human": true
@@ -3729,25 +3714,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7499285867317230776
+          13974009090117142026
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gradients_view_perspective_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6181827770080111995
+          5917965457166341818
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gradtext_565.png": {
       "allowed-digests": [
@@ -5985,25 +5964,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          895812429971613395
+          9802255882534201734
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "twopointconical_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2053023928005473460
+          5458413985248906719
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "typeface_565.png": {
       "allowed-digests": [

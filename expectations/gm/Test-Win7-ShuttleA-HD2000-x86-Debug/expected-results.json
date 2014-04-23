@@ -6868,19 +6868,21 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          56931488496548232
+          9775174031067596899
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "gradients_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13482573280692946399
+          8533292926559519783
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "gradients_degenerate_2pt_565.png": {
       "allowed-digests": [
@@ -6925,16 +6927,17 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11820545537165154467
+          15549483760863222807
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "gradients_local_perspective_565.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4878079512882290491
+          13032302264713515488
         ]
       ], 
       "reviewed-by-human": true
@@ -6943,7 +6946,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4970713057235161060
+          5307785401956665380
         ]
       ], 
       "reviewed-by-human": true
@@ -6952,10 +6955,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7703974215119816438
+          35225316996945182
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "gradients_local_perspective_pdf-poppler.png": {
       "allowed-digests": [
@@ -6973,33 +6977,28 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2587361054709239447
+          2581942217672907914
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gradients_no_texture_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16702244593723644408
+          1966146192766763074
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "gradients_no_texture_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1911029399171789143
+          2593125557214469485
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "gradients_no_texture_pdf-poppler.png": {
       "allowed-digests": [
@@ -7029,7 +7028,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7697966422068751466
+          9067832518014881340
         ]
       ], 
       "reviewed-by-human": true
@@ -7038,7 +7037,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          321493272926561171
+          5411786770250802560
         ]
       ], 
       "reviewed-by-human": true
@@ -7047,7 +7046,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14196901374083169423
+          16153918498792373446
         ]
       ], 
       "reviewed-by-human": true
@@ -9093,13 +9092,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15363203064805977848
+          16128783726365556078
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "radial_gradient2_pdf.png": {
       "allowed-digests": [
@@ -11221,28 +11217,31 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14634608406736033892
+          17453681852009184262
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "twopointconical_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5878122535846949357
+          9692196727387651123
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "twopointconical_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12266460855791797604
+          2777928313170626539
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "twopointconical_pdf-poppler.png": {
       "allowed-digests": [
