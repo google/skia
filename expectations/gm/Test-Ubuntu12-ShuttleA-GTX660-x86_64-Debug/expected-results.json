@@ -9021,13 +9021,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17516235019688616487
+          18036566499496185653
         ]
       ], 
-      "bugs": [
-        2325
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "filltypespersp_pdf-poppler.png": {
       "allowed-digests": [
