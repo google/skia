@@ -75,12 +75,16 @@ public:
     class Iterator {
     public:
         /** Returns the next offset into the picture stream, or kDrawComplete if complete. */
-        uint32_t draw();
+        uint32_t nextDraw();
         static const uint32_t kDrawComplete = SK_MaxU32;
         Iterator() : fPlaybackMatrix(), fValid(false) { }
         bool isValid() const { return fValid; }
+
     private:
         Iterator(const SkTDArray<void*>& draws, SkCanvas* canvas, Node* root);
+
+        void setCurrentMatrix(const SkMatrix*);
+
         // The draws this iterator is associated with
         const SkTDArray<void*>* fDraws;
 
@@ -97,7 +101,7 @@ public:
         const SkMatrix fPlaybackMatrix;
 
         // Cache of current matrix, so we can avoid redundantly setting it
-        SkMatrix* fCurrentMatrix;
+        const SkMatrix* fCurrentMatrix;
 
         // current position in the array of draws
         int fPlaybackIndex;
