@@ -193,6 +193,7 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
+#if 0 // Disabled pending fix from reed@
 DEF_GM( return SkNEW(CGImageGM); )
-
+#endif
 #endif
