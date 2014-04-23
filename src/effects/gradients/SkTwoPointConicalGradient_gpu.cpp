@@ -453,7 +453,7 @@ GrEffectRef* FocalOutside2PtConicalEffect::TestCreate(SkRandom* random,
     SkScalar radius2;
     do {
         center2.set(random->nextUScalar1(), random->nextUScalar1());
-        // Need to make sure the centers are not the same or else focal point will be inside 
+        // Need to make sure the centers are not the same or else focal point will be inside
     } while (center1 == center2);
         SkPoint diff = center2 - center1;
         SkScalar diffLen = diff.length();
@@ -501,8 +501,8 @@ void GLFocalOutside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     builder->getUniformVariable(fParamUni).appendArrayAccess(1, &p1);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    SkString coords2DString = builder->ensureFSCoords2D(coords, 0); 
-    const char* coords2D = coords2DString.c_str(); 
+    SkString coords2DString = builder->ensureFSCoords2D(coords, 0);
+    const char* coords2D = coords2DString.c_str();
 
     // t = p.x * focal.x +/- sqrt(p.x^2 + (1 - focal.x^2) * p.y^2)
 
@@ -706,8 +706,8 @@ void GLFocalInside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     GrGLShaderVar focal = builder->getUniformVariable(fFocalUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    SkString coords2DString = builder->ensureFSCoords2D(coords, 0); 
-    const char* coords2D = coords2DString.c_str(); 
+    SkString coords2DString = builder->ensureFSCoords2D(coords, 0);
+    const char* coords2D = coords2DString.c_str();
 
     // t = p.x * focalX + length(p)
     builder->fsCodeAppendf("\tfloat %s = %s.x * %s  + length(%s);\n", tName.c_str(),
@@ -955,8 +955,8 @@ void GLCircleInside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     GrGLShaderVar params = builder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    SkString coords2DString = builder->ensureFSCoords2D(coords, 0); 
-    const char* coords2D = coords2DString.c_str(); 
+    SkString coords2DString = builder->ensureFSCoords2D(coords, 0);
+    const char* coords2D = coords2DString.c_str();
 
     // p = coords2D
     // e = center end
@@ -1187,8 +1187,8 @@ void GLCircleOutside2PtConicalEffect::emitCode(GrGLShaderBuilder* builder,
     GrGLShaderVar params = builder->getUniformVariable(fParamUni);
 
     // if we have a vec3 from being in perspective, convert it to a vec2 first
-    SkString coords2DString = builder->ensureFSCoords2D(coords, 0); 
-    const char* coords2D = coords2DString.c_str(); 
+    SkString coords2DString = builder->ensureFSCoords2D(coords, 0);
+    const char* coords2D = coords2DString.c_str();
 
     // output will default to transparent black (we simply won't write anything
     // else to it if invalid, instead of discarding or returning prematurely)

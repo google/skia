@@ -78,7 +78,7 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     if (!this->allocPixelRef(bm, NULL)) {
         return false;
     }
-    
+
     SkAutoLockPixels alp(*bm);
 
     if (!SkCopyPixelsFromCGImage(bm->info(), bm->rowBytes(), bm->getPixels(), image)) {

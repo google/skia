@@ -372,4 +372,3 @@ static GMRegistry reg2(MyFactory2);
 static GM* MyFactory3(void*) { return new ConicalGradientsGM(kEdge_GradCaseType); }
 static GMRegistry reg3(MyFactory3);
 }
-

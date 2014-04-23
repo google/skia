@@ -135,35 +135,35 @@ static void test_image(SkCanvas* canvas, const SkImageInfo& info) {
     } else {
         bm.eraseColor(0);
     }
-    
+
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorBLUE);
     newc->drawCircle(50, 50, 49, paint);
     canvas->drawBitmap(bm, 10, 10);
-    
+
     CGImageRef image = SkCreateCGImageRefWithColorspace(bm, NULL);
-    
+
     SkBitmap bm2;
     SkCreateBitmapFromCGImage(&bm2, image);
     CGImageRelease(image);
-    
+
     canvas->drawBitmap(bm2, 10, 120);
 }
 
 class CGImageGM : public skiagm::GM {
 public:
     CGImageGM() {}
-    
+
 protected:
     virtual SkString onShortName() SK_OVERRIDE {
         return SkString("cgimage");
     }
-    
+
     virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(800, 250);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         const struct {
             SkColorType fCT;
@@ -179,16 +179,16 @@ protected:
             { kBGRA_8888_SkColorType, kUnpremul_SkAlphaType },
             { kBGRA_8888_SkColorType, kOpaque_SkAlphaType },
         };
-        
+
         for (size_t i = 0; i < SK_ARRAY_COUNT(rec); ++i) {
             SkImageInfo info = SkImageInfo::Make(100, 100, rec[i].fCT, rec[i].fAT);
             test_image(canvas, info);
             canvas->translate(info.width() + 10, 0);
         }
     }
-    
+
     virtual uint32_t onGetFlags() const SK_OVERRIDE { return kSkipPipe_Flag; }
-    
+
 private:
     typedef skiagm::GM INHERITED;
 };

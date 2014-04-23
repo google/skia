@@ -313,4 +313,3 @@ bool SkCreateBitmapFromCGImage(SkBitmap* dst, CGImageRef image, SkISize* scaleTo
     *dst = tmp;
     return true;
 }
-
