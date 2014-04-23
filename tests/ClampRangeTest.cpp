@@ -56,7 +56,7 @@ static void slow_check(const SkClampRange& range,
         fx += dx;
     }
     if (range.fCount1 > 0 && fx != range.fFx1) {
-        SkDebugf("%x %x\n", fx, range.fFx1);
+//        SkDebugf("%x %x\n", fx, range.fFx1);
         R_ASSERT(false); // bad fFx1
         return;
     }
