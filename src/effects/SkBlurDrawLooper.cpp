@@ -120,7 +120,7 @@ bool SkBlurDrawLooper::BlurDrawLooperContext::next(SkCanvas* canvas,
 #endif
             paint->setMaskFilter(fLooper->fBlur);
             paint->setColorFilter(fLooper->fColorFilter);
-            canvas->save(SkCanvas::kMatrix_SaveFlag);
+            canvas->save();
             if (fLooper->fBlurFlags & kIgnoreTransform_BlurFlag) {
                 SkMatrix transform(canvas->getTotalMatrix());
                 transform.postTranslate(fLooper->fDx, fLooper->fDy);
