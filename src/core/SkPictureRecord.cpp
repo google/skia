@@ -1209,8 +1209,8 @@ void SkPictureRecord::addFontMetricsTopBottom(const SkPaint& paint, const SkFlat
     this->addScalar(flat.topBot()[1] + maxY);
 }
 
-void SkPictureRecord::drawText(const void* text, size_t byteLength, SkScalar x,
-                      SkScalar y, const SkPaint& paint) {
+void SkPictureRecord::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
+                                 const SkPaint& paint) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
@@ -1238,8 +1238,8 @@ void SkPictureRecord::drawText(const void* text, size_t byteLength, SkScalar x,
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
-                         const SkPoint pos[], const SkPaint& paint) {
+void SkPictureRecord::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
+                                    const SkPaint& paint) {
 
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
@@ -1327,10 +1327,8 @@ void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawPosTextH(const void* text, size_t byteLength,
-                          const SkScalar xpos[], SkScalar constY,
-                          const SkPaint& paint) {
-
+void SkPictureRecord::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
+                                     SkScalar constY, const SkPaint& paint) {
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
 #endif
@@ -1378,10 +1376,8 @@ void SkPictureRecord::drawPosTextHImpl(const void* text, size_t byteLength,
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::drawTextOnPath(const void* text, size_t byteLength,
-                            const SkPath& path, const SkMatrix* matrix,
-                            const SkPaint& paint) {
-
+void SkPictureRecord::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
+                                       const SkMatrix* matrix, const SkPaint& paint) {
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
 #endif

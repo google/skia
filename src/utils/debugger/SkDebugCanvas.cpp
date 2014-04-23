@@ -506,13 +506,13 @@ void SkDebugCanvas::drawPoints(PointMode mode, size_t count,
     this->addDrawCommand(new SkDrawPointsCommand(mode, count, pts, paint));
 }
 
-void SkDebugCanvas::drawPosText(const void* text, size_t byteLength,
-        const SkPoint pos[], const SkPaint& paint) {
+void SkDebugCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
+                                  const SkPaint& paint) {
     this->addDrawCommand(new SkDrawPosTextCommand(text, byteLength, pos, paint));
 }
 
-void SkDebugCanvas::drawPosTextH(const void* text, size_t byteLength,
-        const SkScalar xpos[], SkScalar constY, const SkPaint& paint) {
+void SkDebugCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
+                                   SkScalar constY, const SkPaint& paint) {
     this->addDrawCommand(
         new SkDrawPosTextHCommand(text, byteLength, xpos, constY, paint));
 }
@@ -536,13 +536,13 @@ void SkDebugCanvas::drawSprite(const SkBitmap& bitmap, int left, int top,
     this->addDrawCommand(new SkDrawSpriteCommand(bitmap, left, top, paint));
 }
 
-void SkDebugCanvas::drawText(const void* text, size_t byteLength, SkScalar x,
-        SkScalar y, const SkPaint& paint) {
+void SkDebugCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
+                               const SkPaint& paint) {
     this->addDrawCommand(new SkDrawTextCommand(text, byteLength, x, y, paint));
 }
 
-void SkDebugCanvas::drawTextOnPath(const void* text, size_t byteLength,
-        const SkPath& path, const SkMatrix* matrix, const SkPaint& paint) {
+void SkDebugCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
+                                     const SkMatrix* matrix, const SkPaint& paint) {
     this->addDrawCommand(
         new SkDrawTextOnPathCommand(text, byteLength, path, matrix, paint));
 }

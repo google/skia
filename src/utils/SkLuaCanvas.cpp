@@ -237,31 +237,29 @@ void SkLuaCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
     }
 }
 
-void SkLuaCanvas::drawText(const void* text, size_t byteLength, SkScalar x,
-                             SkScalar y, const SkPaint& paint) {
+void SkLuaCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkScalar y,
+                             const SkPaint& paint) {
     AUTO_LUA("drawText");
     lua.pushEncodedText(paint.getTextEncoding(), text, byteLength);
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::drawPosText(const void* text, size_t byteLength,
-                                const SkPoint pos[], const SkPaint& paint) {
+void SkLuaCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
+                                const SkPaint& paint) {
     AUTO_LUA("drawPosText");
     lua.pushEncodedText(paint.getTextEncoding(), text, byteLength);
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::drawPosTextH(const void* text, size_t byteLength,
-                                 const SkScalar xpos[], SkScalar constY,
-                                 const SkPaint& paint) {
+void SkLuaCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
+                                 SkScalar constY, const SkPaint& paint) {
     AUTO_LUA("drawPosTextH");
     lua.pushEncodedText(paint.getTextEncoding(), text, byteLength);
     lua.pushPaint(paint, "paint");
 }
 
-void SkLuaCanvas::drawTextOnPath(const void* text, size_t byteLength,
-                                   const SkPath& path, const SkMatrix* matrix,
-                                   const SkPaint& paint) {
+void SkLuaCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
+                                   const SkMatrix* matrix, const SkPaint& paint) {
     AUTO_LUA("drawTextOnPath");
     lua.pushPath(path, "path");
     lua.pushEncodedText(paint.getTextEncoding(), text, byteLength);
