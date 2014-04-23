@@ -72,9 +72,9 @@
     }
 
     function clearOutput() {
-      output.innerText = "";
+      output.textContent = "";
       if (stdout) {
-        stdout.innerText = "";
+        stdout.textContent = "";
       }
       embed.style.display='none';
     }
@@ -141,9 +141,9 @@
       endWait();
       console.log(e.target.response);
       body = JSON.parse(e.target.response);
-      output.innerText = body.message;
+      output.textContent = body.message;
       if (stdout) {
-        stdout.innerText = body.stdout;
+        stdout.textContent = body.stdout;
       }
       if (body.hasOwnProperty('img')) {
         img.src = 'data:image/png;base64,' + body.img;
