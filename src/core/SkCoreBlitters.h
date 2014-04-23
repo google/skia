@@ -27,12 +27,29 @@ private:
 
 class SkShaderBlitter : public SkRasterBlitter {
 public:
-    SkShaderBlitter(const SkBitmap& device, const SkPaint& paint);
+    /**
+      *  The storage for shaderContext is owned by the caller, but the object itself is not.
+      *  The blitter only ensures that the storage always holds a live object, but it may
+      *  exchange that object.
+      */
+    SkShaderBlitter(const SkBitmap& device, const SkPaint& paint,
+                    SkShader::Context* shaderContext);
     virtual ~SkShaderBlitter();
 
+    /**
+      *  Create a new shader context and uses it instead of the old one if successful.
+      *  Will create the context at the same location as the old one (this is safe
+      *  because the shader itself is unchanged).
+      */
+    virtual bool resetShaderContext(const SkBitmap& device, const SkPaint& paint,
+                                    const SkMatrix& matrix) SK_OVERRIDE;
+
+    virtual SkShader::Context* getShaderContext() const SK_OVERRIDE { return fShaderContext; }
+
 protected:
-    uint32_t    fShaderFlags;
-    SkShader*   fShader;
+    uint32_t            fShaderFlags;
+    const SkShader*     fShader;
+    SkShader::Context*  fShaderContext;
 
 private:
     // illegal
@@ -75,7 +92,8 @@ private:
 
 class SkA8_Shader_Blitter : public SkShaderBlitter {
 public:
-    SkA8_Shader_Blitter(const SkBitmap& device, const SkPaint& paint);
+    SkA8_Shader_Blitter(const SkBitmap& device, const SkPaint& paint,
+                        SkShader::Context* shaderContext);
     virtual ~SkA8_Shader_Blitter();
     virtual void blitH(int x, int y, int width);
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
@@ -141,7 +159,8 @@ private:
 
 class SkARGB32_Shader_Blitter : public SkShaderBlitter {
 public:
-    SkARGB32_Shader_Blitter(const SkBitmap& device, const SkPaint& paint);
+    SkARGB32_Shader_Blitter(const SkBitmap& device, const SkPaint& paint,
+                            SkShader::Context* shaderContext);
     virtual ~SkARGB32_Shader_Blitter();
     virtual void blitH(int x, int y, int width) SK_OVERRIDE;
     virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE;
@@ -179,6 +198,7 @@ private:
  */
 
 SkBlitter* SkBlitter_ChooseD565(const SkBitmap& device, const SkPaint& paint,
+                                SkShader::Context* shaderContext,
                                 SkTBlitterAllocator* allocator);
 
 #endif

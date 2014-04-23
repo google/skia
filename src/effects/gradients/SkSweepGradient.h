@@ -14,8 +14,23 @@
 class SkSweepGradient : public SkGradientShaderBase {
 public:
     SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&);
-    virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
-    virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
+
+    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
+                                             void* storage) const SK_OVERRIDE;
+    virtual size_t contextSize() const SK_OVERRIDE;
+
+    class SweepGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
+    public:
+        SweepGradientContext(const SkSweepGradient& shader, const SkBitmap& device,
+                             const SkPaint& paint, const SkMatrix& matrix);
+        ~SweepGradientContext() {}
+
+        virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
+        virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
+
+    private:
+        typedef SkGradientShaderBase::GradientShaderBaseContext INHERITED;
+    };
 
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
@@ -33,8 +48,9 @@ protected:
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
 
 private:
-    typedef SkGradientShaderBase INHERITED;
     const SkPoint fCenter;
+
+    typedef SkGradientShaderBase INHERITED;
 };
 
 #endif

@@ -89,12 +89,6 @@ struct SkBitmapProcState {
     uint8_t             fTileModeY;         // CONSTRUCTOR
     uint8_t             fFilterLevel;       // chooseProcs
 
-    /** The shader will let us know when we can release some of our resources
-      * like scaled bitmaps.
-      */
-
-    void endContext();
-
     /** Platforms implement this, and can optionally overwrite only the
         following fields:
 

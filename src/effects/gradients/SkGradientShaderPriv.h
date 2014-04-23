@@ -19,6 +19,7 @@
 #include "SkTemplates.h"
 #include "SkBitmapCache.h"
 #include "SkShader.h"
+#include "SkOnce.h"
 
 static inline void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
                                int count) {
@@ -101,8 +102,64 @@ public:
     SkGradientShaderBase(const Descriptor& desc);
     virtual ~SkGradientShaderBase();
 
-    virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&) SK_OVERRIDE;
-    virtual uint32_t getFlags() SK_OVERRIDE { return fFlags; }
+    // The cache is initialized on-demand when getCache16/32 is called.
+    class GradientShaderCache : public SkRefCnt {
+    public:
+        GradientShaderCache(U8CPU alpha, const SkGradientShaderBase& shader);
+        ~GradientShaderCache();
+
+        const uint16_t*     getCache16();
+        const SkPMColor*    getCache32();
+
+        SkMallocPixelRef* getCache32PixelRef() const { return fCache32PixelRef; }
+
+        unsigned getAlpha() const { return fCacheAlpha; }
+
+    private:
+        // Working pointers. If either is NULL, we need to recompute the corresponding cache values.
+        uint16_t*   fCache16;
+        SkPMColor*  fCache32;
+
+        uint16_t*         fCache16Storage;    // Storage for fCache16, allocated on demand.
+        SkMallocPixelRef* fCache32PixelRef;
+        const unsigned    fCacheAlpha;        // The alpha value we used when we computed the cache.
+                                              // Larger than 8bits so we can store uninitialized
+                                              // value.
+
+        const SkGradientShaderBase& fShader;
+
+        // Make sure we only initialize the caches once.
+        bool    fCache16Inited, fCache32Inited;
+        SkMutex fCache16Mutex, fCache32Mutex;
+
+        static void initCache16(GradientShaderCache* cache);
+        static void initCache32(GradientShaderCache* cache);
+
+        static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count);
+        static void Build32bitCache(SkPMColor[], SkColor c0, SkColor c1, int count,
+                                    U8CPU alpha, uint32_t gradFlags);
+    };
+
+    class GradientShaderBaseContext : public SkShader::Context {
+    public:
+        GradientShaderBaseContext(const SkGradientShaderBase& shader, const SkBitmap& device,
+                                  const SkPaint& paint, const SkMatrix& matrix);
+        ~GradientShaderBaseContext() {}
+
+        virtual uint32_t getFlags() const SK_OVERRIDE { return fFlags; }
+
+    protected:
+        SkMatrix    fDstToIndex;
+        SkMatrix::MapXYProc fDstToIndexProc;
+        uint8_t     fDstToIndexClass;
+        uint8_t     fFlags;
+
+        SkAutoTUnref<GradientShaderCache> fCache;
+
+    private:
+        typedef SkShader::Context INHERITED;
+    };
+
     virtual bool isOpaque() const SK_OVERRIDE;
 
     void getGradientTableBitmap(SkBitmap*) const;
@@ -148,13 +205,9 @@ protected:
 
     SkUnitMapper* fMapper;
     SkMatrix    fPtsToUnit;     // set by subclass
-    SkMatrix    fDstToIndex;
-    SkMatrix::MapXYProc fDstToIndexProc;
     TileMode    fTileMode;
     TileProc    fTileProc;
     int         fColorCount;
-    uint8_t     fDstToIndexClass;
-    uint8_t     fFlags;
     uint8_t     fGradFlags;
 
     struct Rec {
@@ -162,9 +215,6 @@ protected:
         uint32_t    fScale; // (1 << 24) / range
     };
     Rec*        fRecs;
-
-    const uint16_t*     getCache16() const;
-    const SkPMColor*    getCache32() const;
 
     void commonAsAGradient(GradientInfo*, bool flipGrad = false) const;
 
@@ -191,20 +241,13 @@ private:
         kStorageSize = kColorStorageCount * (sizeof(SkColor) + sizeof(Rec))
     };
     SkColor     fStorage[(kStorageSize + 3) >> 2];
-    SkColor*    fOrigColors; // original colors, before modulation by paint in setContext
+    SkColor*    fOrigColors; // original colors, before modulation by paint in context.
     bool        fColorsAreOpaque;
 
-    mutable uint16_t*   fCache16;   // working ptr. If this is NULL, we need to recompute the cache values
-    mutable SkPMColor*  fCache32;   // working ptr. If this is NULL, we need to recompute the cache values
+    GradientShaderCache* refCache(U8CPU alpha) const;
+    mutable SkMutex                           fCacheMutex;
+    mutable SkAutoTUnref<GradientShaderCache> fCache;
 
-    mutable uint16_t*   fCache16Storage;    // storage for fCache16, allocated on demand
-    mutable SkMallocPixelRef* fCache32PixelRef;
-    mutable unsigned    fCacheAlpha;        // the alpha value we used when we computed the cache. larger than 8bits so we can store uninitialized value
-
-    static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count);
-    static void Build32bitCache(SkPMColor[], SkColor c0, SkColor c1, int count,
-                                U8CPU alpha, uint32_t gradFlags);
-    void setCacheAlpha(U8CPU alpha) const;
     void initCommon();
 
     typedef SkShader INHERITED;

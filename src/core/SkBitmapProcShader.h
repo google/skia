@@ -20,13 +20,15 @@ public:
 
     // overrides from SkShader
     virtual bool isOpaque() const SK_OVERRIDE;
-    virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&) SK_OVERRIDE;
-    virtual void endContext() SK_OVERRIDE;
-    virtual uint32_t getFlags() SK_OVERRIDE { return fFlags; }
-    virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
-    virtual ShadeProc asAShadeProc(void** ctx) SK_OVERRIDE;
-    virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
     virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*) const SK_OVERRIDE;
+
+    virtual bool validContext(const SkBitmap& device,
+                              const SkPaint& paint,
+                              const SkMatrix& matrix,
+                              SkMatrix* totalInverse = NULL) const SK_OVERRIDE;
+    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&,
+                                             const SkMatrix&, void* storage) const SK_OVERRIDE;
+    virtual size_t contextSize() const SK_OVERRIDE;
 
     static bool CanDo(const SkBitmap&, TileMode tx, TileMode ty);
 
@@ -37,22 +39,54 @@ public:
     GrEffectRef* asNewEffect(GrContext*, const SkPaint&) const SK_OVERRIDE;
 #endif
 
+    class BitmapProcShaderContext : public SkShader::Context {
+    public:
+        // The context takes ownership of the state. It will call its destructor
+        // but will NOT free the memory.
+        BitmapProcShaderContext(const SkBitmapProcShader& shader,
+                                const SkBitmap& device,
+                                const SkPaint& paint,
+                                const SkMatrix& matrix,
+                                SkBitmapProcState* state);
+        virtual ~BitmapProcShaderContext();
+
+        virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
+        virtual ShadeProc asAShadeProc(void** ctx) SK_OVERRIDE;
+        virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
+
+        virtual uint32_t getFlags() const SK_OVERRIDE { return fFlags; }
+
+    private:
+        SkBitmapProcState*  fState;
+        uint32_t            fFlags;
+
+        typedef SkShader::Context INHERITED;
+    };
+
 protected:
     SkBitmapProcShader(SkReadBuffer& );
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
-    SkBitmap          fRawBitmap;   // experimental for RLE encoding
-    SkBitmapProcState fState;
-    uint32_t          fFlags;
+    SkBitmap    fRawBitmap;   // experimental for RLE encoding
+    uint8_t     fTileModeX, fTileModeY;
 
 private:
+    bool validInternal(const SkBitmap& device, const SkPaint& paint,
+                       const SkMatrix& matrix, SkMatrix* totalInverse,
+                       SkBitmapProcState* state) const;
+
     typedef SkShader INHERITED;
 };
 
-// Commonly used allocator. It currently is only used to allocate up to 2 objects. The total
-// bytes requested is calculated using one of our large shaders plus the size of an Sk3DBlitter
-// in SkDraw.cpp
-typedef SkSmallAllocator<2, sizeof(SkBitmapProcShader) + sizeof(void*) * 2> SkTBlitterAllocator;
+// Commonly used allocator. It currently is only used to allocate up to 3 objects. The total
+// bytes requested is calculated using one of our large shaders, its context size plus the size of
+// an Sk3DBlitter in SkDraw.cpp
+// Note that some contexts may contain other contexts (e.g. for compose shaders), but we've not
+// yet found a situation where the size below isn't big enough.
+typedef SkSmallAllocator<3, sizeof(SkBitmapProcShader) +
+                            sizeof(SkBitmapProcShader::BitmapProcShaderContext) +
+                            sizeof(SkBitmapProcState) +
+                            sizeof(void*) * 2> SkTBlitterAllocator;
 
 // If alloc is non-NULL, it will be used to allocate the returned SkShader, and MUST outlive
 // the SkShader.

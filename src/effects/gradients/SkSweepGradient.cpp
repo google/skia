@@ -52,6 +52,24 @@ void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writePoint(fCenter);
 }
 
+size_t SkSweepGradient::contextSize() const {
+    return sizeof(SweepGradientContext);
+}
+
+SkShader::Context* SkSweepGradient::createContext(const SkBitmap& device, const SkPaint& paint,
+                                                  const SkMatrix& matrix, void* storage) const {
+    if (!this->validContext(device, paint, matrix)) {
+        return NULL;
+    }
+
+    return SkNEW_PLACEMENT_ARGS(storage, SweepGradientContext, (*this, device, paint, matrix));
+}
+
+SkSweepGradient::SweepGradientContext::SweepGradientContext(
+        const SkSweepGradient& shader, const SkBitmap& device,
+        const SkPaint& paint, const SkMatrix& matrix)
+    : INHERITED(shader, device, paint, matrix) {}
+
 //  returns angle in a circle [0..2PI) -> [0..255]
 static unsigned SkATan2_255(float y, float x) {
     //    static const float g255Over2PI = 255 / (2 * SK_ScalarPI);
@@ -69,11 +87,11 @@ static unsigned SkATan2_255(float y, float x) {
     return ir;
 }
 
-void SkSweepGradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
-                               int count) {
+void SkSweepGradient::SweepGradientContext::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
+                                                      int count) {
     SkMatrix::MapXYProc proc = fDstToIndexProc;
     const SkMatrix&     matrix = fDstToIndex;
-    const SkPMColor* SK_RESTRICT cache = this->getCache32();
+    const SkPMColor* SK_RESTRICT cache = fCache->getCache32();
     int                 toggle = init_dither_toggle(x, y);
     SkPoint             srcPt;
 
@@ -111,11 +129,11 @@ void SkSweepGradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC,
     }
 }
 
-void SkSweepGradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
-                                 int count) {
+void SkSweepGradient::SweepGradientContext::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC,
+                                                        int count) {
     SkMatrix::MapXYProc proc = fDstToIndexProc;
     const SkMatrix&     matrix = fDstToIndex;
-    const uint16_t* SK_RESTRICT cache = this->getCache16();
+    const uint16_t* SK_RESTRICT cache = fCache->getCache16();
     int                 toggle = init_dither_toggle16(x, y);
     SkPoint             srcPt;
 
