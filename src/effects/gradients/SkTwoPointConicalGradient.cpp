@@ -9,6 +9,18 @@
 
 #include "SkTwoPointConicalGradient_gpu.h"
 
+struct TwoPtRadialContext {
+    const TwoPtRadial&  fRec;
+    float               fRelX, fRelY;
+    const float         fIncX, fIncY;
+    float               fB;
+    const float         fDB;
+
+    TwoPtRadialContext(const TwoPtRadial& rec, SkScalar fx, SkScalar fy,
+                       SkScalar dfx, SkScalar dfy);
+    SkFixed nextT();
+};
+
 static int valid_divide(float numer, float denom, float* ratio) {
     SkASSERT(ratio);
     if (0 == denom) {
@@ -83,47 +95,48 @@ void TwoPtRadial::init(const SkPoint& center0, SkScalar rad0,
     fFlipped = flipped;
 }
 
-void TwoPtRadial::setup(SkScalar fx, SkScalar fy, SkScalar dfx, SkScalar dfy) {
-    fRelX = SkScalarToFloat(fx) - fCenterX;
-    fRelY = SkScalarToFloat(fy) - fCenterY;
-    fIncX = SkScalarToFloat(dfx);
-    fIncY = SkScalarToFloat(dfy);
-    fB = -2 * (fDCenterX * fRelX + fDCenterY * fRelY + fRDR);
-    fDB = -2 * (fDCenterX * fIncX + fDCenterY * fIncY);
-}
+TwoPtRadialContext::TwoPtRadialContext(const TwoPtRadial& rec, SkScalar fx, SkScalar fy,
+                                       SkScalar dfx, SkScalar dfy)
+    : fRec(rec)
+    , fRelX(SkScalarToFloat(fx) - rec.fCenterX)
+    , fRelY(SkScalarToFloat(fy) - rec.fCenterY)
+    , fIncX(SkScalarToFloat(dfx))
+    , fIncY(SkScalarToFloat(dfy))
+    , fB(-2 * (rec.fDCenterX * fRelX + rec.fDCenterY * fRelY + rec.fRDR))
+    , fDB(-2 * (rec.fDCenterX * fIncX + rec.fDCenterY * fIncY)) {}
 
-SkFixed TwoPtRadial::nextT() {
+SkFixed TwoPtRadialContext::nextT() {
     float roots[2];
 
-    float C = sqr(fRelX) + sqr(fRelY) - fRadius2;
-    int countRoots = find_quad_roots(fA, fB, C, roots, fFlipped);
+    float C = sqr(fRelX) + sqr(fRelY) - fRec.fRadius2;
+    int countRoots = find_quad_roots(fRec.fA, fB, C, roots, fRec.fFlipped);
 
     fRelX += fIncX;
     fRelY += fIncY;
     fB += fDB;
 
     if (0 == countRoots) {
-        return kDontDrawT;
+        return TwoPtRadial::kDontDrawT;
     }
 
     // Prefer the bigger t value if both give a radius(t) > 0
     // find_quad_roots returns the values sorted, so we start with the last
     float t = roots[countRoots - 1];
-    float r = lerp(fRadius, fDRadius, t);
+    float r = lerp(fRec.fRadius, fRec.fDRadius, t);
     if (r <= 0) {
         t = roots[0];   // might be the same as roots[countRoots-1]
-        r = lerp(fRadius, fDRadius, t);
+        r = lerp(fRec.fRadius, fRec.fDRadius, t);
         if (r <= 0) {
-            return kDontDrawT;
+            return TwoPtRadial::kDontDrawT;
         }
     }
     return SkFloatToFixed(t);
 }
 
-typedef void (*TwoPointConicalProc)(TwoPtRadial* rec, SkPMColor* dstC,
+typedef void (*TwoPointConicalProc)(TwoPtRadialContext* rec, SkPMColor* dstC,
                                     const SkPMColor* cache, int toggle, int count);
 
-static void twopoint_clamp(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
+static void twopoint_clamp(TwoPtRadialContext* rec, SkPMColor* SK_RESTRICT dstC,
                            const SkPMColor* SK_RESTRICT cache, int toggle,
                            int count) {
     for (; count > 0; --count) {
@@ -140,7 +153,7 @@ static void twopoint_clamp(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
     }
 }
 
-static void twopoint_repeat(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
+static void twopoint_repeat(TwoPtRadialContext* rec, SkPMColor* SK_RESTRICT dstC,
                             const SkPMColor* SK_RESTRICT cache, int toggle,
                             int count) {
     for (; count > 0; --count) {
@@ -157,7 +170,7 @@ static void twopoint_repeat(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
     }
 }
 
-static void twopoint_mirror(TwoPtRadial* rec, SkPMColor* SK_RESTRICT dstC,
+static void twopoint_mirror(TwoPtRadialContext* rec, SkPMColor* SK_RESTRICT dstC,
                             const SkPMColor* SK_RESTRICT cache, int toggle,
                             int count) {
     for (; count > 0; --count) {
@@ -203,8 +216,39 @@ bool SkTwoPointConicalGradient::isOpaque() const {
     return false;
 }
 
-void SkTwoPointConicalGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
-                                          int count) {
+size_t SkTwoPointConicalGradient::contextSize() const {
+    return sizeof(TwoPointConicalGradientContext);
+}
+
+SkShader::Context* SkTwoPointConicalGradient::createContext(
+        const SkBitmap& device, const SkPaint& paint,
+        const SkMatrix& matrix, void* storage) const {
+    if (!this->validContext(device, paint, matrix)) {
+        return NULL;
+    }
+
+    return SkNEW_PLACEMENT_ARGS(storage, TwoPointConicalGradientContext,
+                                (*this, device, paint, matrix));
+}
+
+SkTwoPointConicalGradient::TwoPointConicalGradientContext::TwoPointConicalGradientContext(
+        const SkTwoPointConicalGradient& shader, const SkBitmap& device,
+        const SkPaint& paint, const SkMatrix& matrix)
+    : INHERITED(shader, device, paint, matrix)
+{
+    // we don't have a span16 proc
+    fFlags &= ~kHasSpan16_Flag;
+
+    // in general, we might discard based on computed-radius, so clear
+    // this flag (todo: sometimes we can detect that we never discard...)
+    fFlags &= ~kOpaqueAlpha_Flag;
+}
+
+void SkTwoPointConicalGradient::TwoPointConicalGradientContext::shadeSpan(
+        int x, int y, SkPMColor* dstCParam, int count) {
+    const SkTwoPointConicalGradient& twoPointConicalGradient =
+            static_cast<const SkTwoPointConicalGradient&>(fShader);
+
     int toggle = init_dither_toggle(x, y);
 
     SkASSERT(count > 0);
@@ -213,15 +257,15 @@ void SkTwoPointConicalGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
 
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
 
-    const SkPMColor* SK_RESTRICT cache = this->getCache32();
+    const SkPMColor* SK_RESTRICT cache = fCache->getCache32();
 
     TwoPointConicalProc shadeProc = twopoint_repeat;
-    if (SkShader::kClamp_TileMode == fTileMode) {
+    if (SkShader::kClamp_TileMode == twoPointConicalGradient.fTileMode) {
         shadeProc = twopoint_clamp;
-    } else if (SkShader::kMirror_TileMode == fTileMode) {
+    } else if (SkShader::kMirror_TileMode == twoPointConicalGradient.fTileMode) {
         shadeProc = twopoint_mirror;
     } else {
-        SkASSERT(SkShader::kRepeat_TileMode == fTileMode);
+        SkASSERT(SkShader::kRepeat_TileMode == twoPointConicalGradient.fTileMode);
     }
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
@@ -242,39 +286,22 @@ void SkTwoPointConicalGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
             dy = fDstToIndex.getSkewY();
         }
 
-        fRec.setup(fx, fy, dx, dy);
-        (*shadeProc)(&fRec, dstC, cache, toggle, count);
+        TwoPtRadialContext rec(twoPointConicalGradient.fRec, fx, fy, dx, dy);
+        (*shadeProc)(&rec, dstC, cache, toggle, count);
     } else {    // perspective case
         SkScalar dstX = SkIntToScalar(x) + SK_ScalarHalf;
         SkScalar dstY = SkIntToScalar(y) + SK_ScalarHalf;
         for (; count > 0; --count) {
             SkPoint srcPt;
             dstProc(fDstToIndex, dstX, dstY, &srcPt);
-            fRec.setup(srcPt.fX, srcPt.fY, 0, 0);
-            (*shadeProc)(&fRec, dstC, cache, toggle, 1);
+            TwoPtRadialContext rec(twoPointConicalGradient.fRec, srcPt.fX, srcPt.fY, 0, 0);
+            (*shadeProc)(&rec, dstC, cache, toggle, 1);
 
             dstX += SK_Scalar1;
             toggle = next_dither_toggle(toggle);
             dstC += 1;
         }
     }
-}
-
-bool SkTwoPointConicalGradient::setContext(const SkBitmap& device,
-                                           const SkPaint& paint,
-                                           const SkMatrix& matrix) {
-    if (!this->INHERITED::setContext(device, paint, matrix)) {
-        return false;
-    }
-
-    // we don't have a span16 proc
-    fFlags &= ~kHasSpan16_Flag;
-
-    // in general, we might discard based on computed-radius, so clear
-    // this flag (todo: sometimes we can detect that we never discard...)
-    fFlags &= ~kOpaqueAlpha_Flag;
-
-    return true;
 }
 
 SkShader::BitmapType SkTwoPointConicalGradient::asABitmap(

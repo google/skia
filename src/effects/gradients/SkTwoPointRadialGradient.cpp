@@ -220,23 +220,60 @@ SkShader::GradientType SkTwoPointRadialGradient::asAGradient(
     return kRadial2_GradientType;
 }
 
-void SkTwoPointRadialGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
-                                         int count) {
+size_t SkTwoPointRadialGradient::contextSize() const {
+    return sizeof(TwoPointRadialGradientContext);
+}
+
+bool SkTwoPointRadialGradient::validContext(const SkBitmap& device, const SkPaint& paint,
+                                            const SkMatrix& matrix, SkMatrix* totalInverse) const {
+    // For now, we might have divided by zero, so detect that.
+    if (0 == fDiffRadius) {
+        return false;
+    }
+
+    return this->INHERITED::validContext(device, paint, matrix, totalInverse);
+}
+
+SkShader::Context* SkTwoPointRadialGradient::createContext(
+        const SkBitmap& device, const SkPaint& paint,
+        const SkMatrix& matrix, void* storage) const {
+    if (!this->validContext(device, paint, matrix)) {
+        return NULL;
+    }
+
+    return SkNEW_PLACEMENT_ARGS(storage, TwoPointRadialGradientContext,
+                                (*this, device, paint, matrix));
+}
+
+SkTwoPointRadialGradient::TwoPointRadialGradientContext::TwoPointRadialGradientContext(
+        const SkTwoPointRadialGradient& shader, const SkBitmap& device,
+        const SkPaint& paint, const SkMatrix& matrix)
+    : INHERITED(shader, device, paint, matrix)
+{
+    // we don't have a span16 proc
+    fFlags &= ~kHasSpan16_Flag;
+}
+
+void SkTwoPointRadialGradient::TwoPointRadialGradientContext::shadeSpan(
+        int x, int y, SkPMColor* dstCParam, int count) {
     SkASSERT(count > 0);
+
+    const SkTwoPointRadialGradient& twoPointRadialGradient =
+            static_cast<const SkTwoPointRadialGradient&>(fShader);
 
     SkPMColor* SK_RESTRICT dstC = dstCParam;
 
     // Zero difference between radii:  fill with transparent black.
-    if (fDiffRadius == 0) {
+    if (twoPointRadialGradient.fDiffRadius == 0) {
       sk_bzero(dstC, count * sizeof(*dstC));
       return;
     }
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
-    TileProc            proc = fTileProc;
-    const SkPMColor* SK_RESTRICT cache = this->getCache32();
+    TileProc            proc = twoPointRadialGradient.fTileProc;
+    const SkPMColor* SK_RESTRICT cache = fCache->getCache32();
 
-    SkScalar foura = fA * 4;
-    bool posRoot = fDiffRadius < 0;
+    SkScalar foura = twoPointRadialGradient.fA * 4;
+    bool posRoot = twoPointRadialGradient.fDiffRadius < 0;
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         SkPoint srcPt;
         dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
@@ -254,21 +291,23 @@ void SkTwoPointRadialGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
             dx = fDstToIndex.getScaleX();
             dy = fDstToIndex.getSkewY();
         }
-        SkScalar b = (SkScalarMul(fDiff.fX, fx) +
-                     SkScalarMul(fDiff.fY, fy) - fStartRadius) * 2;
-        SkScalar db = (SkScalarMul(fDiff.fX, dx) +
-                      SkScalarMul(fDiff.fY, dy)) * 2;
+        SkScalar b = (SkScalarMul(twoPointRadialGradient.fDiff.fX, fx) +
+                     SkScalarMul(twoPointRadialGradient.fDiff.fY, fy) -
+                     twoPointRadialGradient.fStartRadius) * 2;
+        SkScalar db = (SkScalarMul(twoPointRadialGradient.fDiff.fX, dx) +
+                      SkScalarMul(twoPointRadialGradient.fDiff.fY, dy)) * 2;
 
         TwoPointRadialShadeProc shadeProc = shadeSpan_twopoint_repeat;
-        if (SkShader::kClamp_TileMode == fTileMode) {
+        if (SkShader::kClamp_TileMode == twoPointRadialGradient.fTileMode) {
             shadeProc = shadeSpan_twopoint_clamp;
-        } else if (SkShader::kMirror_TileMode == fTileMode) {
+        } else if (SkShader::kMirror_TileMode == twoPointRadialGradient.fTileMode) {
             shadeProc = shadeSpan_twopoint_mirror;
         } else {
-            SkASSERT(SkShader::kRepeat_TileMode == fTileMode);
+            SkASSERT(SkShader::kRepeat_TileMode == twoPointRadialGradient.fTileMode);
         }
         (*shadeProc)(fx, dx, fy, dy, b, db,
-                     fSr2D2, foura, fOneOverTwoA, posRoot,
+                     twoPointRadialGradient.fSr2D2, foura,
+                     twoPointRadialGradient.fOneOverTwoA, posRoot,
                      dstC, cache, count);
     } else {    // perspective case
         SkScalar dstX = SkIntToScalar(x);
@@ -278,33 +317,17 @@ void SkTwoPointRadialGradient::shadeSpan(int x, int y, SkPMColor* dstCParam,
             dstProc(fDstToIndex, dstX, dstY, &srcPt);
             SkScalar fx = srcPt.fX;
             SkScalar fy = srcPt.fY;
-            SkScalar b = (SkScalarMul(fDiff.fX, fx) +
-                         SkScalarMul(fDiff.fY, fy) - fStartRadius) * 2;
-            SkFixed t = two_point_radial(b, fx, fy, fSr2D2, foura,
-                                         fOneOverTwoA, posRoot);
+            SkScalar b = (SkScalarMul(twoPointRadialGradient.fDiff.fX, fx) +
+                         SkScalarMul(twoPointRadialGradient.fDiff.fY, fy) -
+                         twoPointRadialGradient.fStartRadius) * 2;
+            SkFixed t = two_point_radial(b, fx, fy, twoPointRadialGradient.fSr2D2, foura,
+                                         twoPointRadialGradient.fOneOverTwoA, posRoot);
             SkFixed index = proc(t);
             SkASSERT(index <= 0xFFFF);
             *dstC++ = cache[index >> SkGradientShaderBase::kCache32Shift];
             dstX += SK_Scalar1;
         }
     }
-}
-
-bool SkTwoPointRadialGradient::setContext( const SkBitmap& device,
-                                          const SkPaint& paint,
-                                          const SkMatrix& matrix){
-    // For now, we might have divided by zero, so detect that
-    if (0 == fDiffRadius) {
-        return false;
-    }
-
-    if (!this->INHERITED::setContext(device, paint, matrix)) {
-        return false;
-    }
-
-    // we don't have a span16 proc
-    fFlags &= ~kHasSpan16_Flag;
-    return true;
 }
 
 #ifndef SK_IGNORE_TO_STRING

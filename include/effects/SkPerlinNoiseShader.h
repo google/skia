@@ -72,10 +72,32 @@ public:
     }
 
 
-    virtual bool setContext(const SkBitmap& device, const SkPaint& paint,
-                            const SkMatrix& matrix);
-    virtual void shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
-    virtual void shadeSpan16(int x, int y, uint16_t[], int count) SK_OVERRIDE;
+    virtual SkShader::Context* createContext(
+        const SkBitmap& device, const SkPaint& paint,
+        const SkMatrix& matrix, void* storage) const SK_OVERRIDE;
+    virtual size_t contextSize() const SK_OVERRIDE;
+
+    class PerlinNoiseShaderContext : public SkShader::Context {
+    public:
+        PerlinNoiseShaderContext(const SkPerlinNoiseShader& shader, const SkBitmap& device,
+                                 const SkPaint& paint, const SkMatrix& matrix);
+        virtual ~PerlinNoiseShaderContext() {}
+
+        virtual void shadeSpan(int x, int y, SkPMColor[], int count) SK_OVERRIDE;
+        virtual void shadeSpan16(int x, int y, uint16_t[], int count) SK_OVERRIDE;
+
+    private:
+        SkPMColor shade(const SkPoint& point, StitchData& stitchData) const;
+        SkScalar calculateTurbulenceValueForPoint(
+            int channel, const PaintingData& paintingData,
+            StitchData& stitchData, const SkPoint& point) const;
+        SkScalar noise2D(int channel, const PaintingData& paintingData,
+                         const StitchData& stitchData, const SkPoint& noiseVector) const;
+
+        SkMatrix fMatrix;
+
+        typedef SkShader::Context INHERITED;
+    };
 
     virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint&) const SK_OVERRIDE;
 
@@ -92,14 +114,6 @@ private:
                         const SkISize* tileSize);
     virtual ~SkPerlinNoiseShader();
 
-    SkScalar noise2D(int channel, const PaintingData& paintingData,
-                     const StitchData& stitchData, const SkPoint& noiseVector) const;
-
-    SkScalar calculateTurbulenceValueForPoint(int channel, const PaintingData& paintingData,
-                                              StitchData& stitchData, const SkPoint& point) const;
-
-    SkPMColor shade(const SkPoint& point, StitchData& stitchData) const;
-
     // TODO (scroggo): Once all SkShaders are created from a factory, and we have removed the
     // constructor that creates SkPerlinNoiseShader from an SkReadBuffer, several fields can
     // be made constant.
@@ -110,8 +124,6 @@ private:
     /*const*/ SkScalar                  fSeed;
     /*const*/ SkISize                   fTileSize;
     /*const*/ bool                      fStitchTiles;
-    // TODO (scroggo): Once setContext creates a new object, place this on that object.
-    SkMatrix fMatrix;
 
     PaintingData* fPaintingData;
 
