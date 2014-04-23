@@ -970,7 +970,6 @@ GrGLFragmentOnlyShaderBuilder::GrGLFragmentOnlyShaderBuilder(GrGpuGL* gpu,
     , fNumTexCoordSets(0) {
 
     SkASSERT(!desc.getHeader().fHasVertexCode);
-    SkASSERT(gpu->glCaps().fixedFunctionSupport());
     SkASSERT(gpu->glCaps().pathRenderingSupport());
     SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fColorInput);
     SkASSERT(GrGLProgramDesc::kAttribute_ColorInput != desc.getHeader().fCoverageInput);
@@ -989,11 +988,12 @@ GrGLProgramEffects* GrGLFragmentOnlyShaderBuilder::createAndEmitEffects(
         int effectCnt,
         GrGLSLExpr4* inOutFSColor) {
 
-    GrGLTexGenProgramEffectsBuilder texGenEffectsBuilder(this, effectCnt);
-    this->INHERITED::createAndEmitEffects(&texGenEffectsBuilder,
+    GrGLPathTexGenProgramEffectsBuilder pathTexGenEffectsBuilder(this,
+                                                                 effectCnt);
+    this->INHERITED::createAndEmitEffects(&pathTexGenEffectsBuilder,
                                           effectStages,
                                           effectKeys,
                                           effectCnt,
                                           inOutFSColor);
-    return texGenEffectsBuilder.finish();
+    return pathTexGenEffectsBuilder.finish();
 }

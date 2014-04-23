@@ -237,19 +237,19 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * This is a GrGLProgramEffects implementation that does coord transforms with the the built-in GL
- * TexGen functionality.
+ * This is a GrGLProgramEffects implementation that does coord transforms with
+ * the the  NV_path_rendering PathTexGen functionality.
  */
-class GrGLTexGenProgramEffects : public GrGLProgramEffects {
+class GrGLPathTexGenProgramEffects : public GrGLProgramEffects {
 public:
     virtual void setData(GrGpuGL*,
                          const GrGLUniformManager&,
                          const GrEffectStage* effectStages[]) SK_OVERRIDE;
 
 private:
-    friend class GrGLTexGenProgramEffectsBuilder;
+    friend class GrGLPathTexGenProgramEffectsBuilder;
 
-    GrGLTexGenProgramEffects(int reserveCount)
+    GrGLPathTexGenProgramEffects(int reserveCount)
         : INHERITED(reserveCount)
         , fTransforms(reserveCount) {
     }
@@ -273,15 +273,15 @@ private:
      * types are appended to the TransformedCoordsArray* object, which is in turn passed to the
      * effect's emitCode() function.
      */
-    void setupTexGen(GrGLFragmentOnlyShaderBuilder*,
-                     const GrEffectRef&,
-                     EffectKey,
-                     TransformedCoordsArray*);
+    void setupPathTexGen(GrGLFragmentOnlyShaderBuilder*,
+                         const GrEffectRef&,
+                         EffectKey,
+                         TransformedCoordsArray*);
 
     /**
-     * Helper for setData(). Sets the TexGen state for each transform in an effect.
+     * Helper for setData(). Sets the PathTexGen state for each transform in an effect.
      */
-    void setTexGenState(GrGpuGL*, const GrDrawEffect&, int effectIdx);
+    void setPathTexGenState(GrGpuGL*, const GrDrawEffect&, int effectIdx);
 
     struct Transforms {
         Transforms(EffectKey transformKey, int texCoordIndex)
@@ -296,12 +296,12 @@ private:
 };
 
 /**
- * This class is used to construct a GrGLTexGenProgramEffects* object.
+ * This class is used to construct a GrGLPathTexGenProgramEffects* object.
  */
-class GrGLTexGenProgramEffectsBuilder : public GrGLProgramEffectsBuilder {
+class GrGLPathTexGenProgramEffectsBuilder : public GrGLProgramEffectsBuilder {
 public:
-    GrGLTexGenProgramEffectsBuilder(GrGLFragmentOnlyShaderBuilder*, int reserveCount);
-    virtual ~GrGLTexGenProgramEffectsBuilder() { }
+    GrGLPathTexGenProgramEffectsBuilder(GrGLFragmentOnlyShaderBuilder*, int reserveCount);
+    virtual ~GrGLPathTexGenProgramEffectsBuilder() { }
 
     virtual void emitEffect(const GrEffectStage&,
                             GrGLProgramEffects::EffectKey,
@@ -317,7 +317,7 @@ public:
 
 private:
     GrGLFragmentOnlyShaderBuilder*          fBuilder;
-    SkAutoTDelete<GrGLTexGenProgramEffects> fProgramEffects;
+    SkAutoTDelete<GrGLPathTexGenProgramEffects> fProgramEffects;
 
     typedef GrGLProgramEffectsBuilder INHERITED;
 };

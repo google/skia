@@ -229,10 +229,11 @@ void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
     fCoverageEffects->setData(fGpu, fUniformManager, coverageStages);
 
 
-    // TexGen state applies to the the fixed function vertex shader. For custom shaders, it's
-    // ignored, so we don't need to change the texgen settings in that case.
+    // PathTexGen state applies to the the fixed function vertex shader. For
+    // custom shaders, it's ignored, so we don't need to change the texgen
+    // settings in that case.
     if (!fHasVertexShader) {
-        fGpu->flushTexGenSettings(fNumTexCoordSets);
+        fGpu->flushPathTexGenSettings(fNumTexCoordSets);
     }
 }
 

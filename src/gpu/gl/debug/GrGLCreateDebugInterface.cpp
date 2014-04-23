@@ -865,8 +865,6 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     functions->fStencilMaskSeparate = noOpGLStencilMaskSeparate;
     functions->fStencilOp = noOpGLStencilOp;
     functions->fStencilOpSeparate = noOpGLStencilOpSeparate;
-    functions->fTexGenfv = noOpGLTexGenfv;
-    functions->fTexGeni = noOpGLTexGeni;
     functions->fTexImage2D = noOpGLTexImage2D;
     functions->fTexParameteri = noOpGLTexParameteri;
     functions->fTexParameteriv = noOpGLTexParameteriv;

@@ -325,8 +325,6 @@ static GrGLInterface* create_desktop_interface(GrGLVersion version,
     functions->fStencilMaskSeparate = (GrGLStencilMaskSeparateProc) eglGetProcAddress("glStencilMaskSeparate");
     functions->fStencilOp = (GrGLStencilOpProc) eglGetProcAddress("glStencilOp");
     functions->fStencilOpSeparate = (GrGLStencilOpSeparateProc) eglGetProcAddress("glStencilOpSeparate");
-    functions->fTexGenfv = (GrGLTexGenfvProc) eglGetProcAddress("glTexGenfv");
-    functions->fTexGeni = (GrGLTexGeniProc) eglGetProcAddress("glTexGeni");
     functions->fTexImage2D = (GrGLTexImage2DProc) eglGetProcAddress("glTexImage2D");
     functions->fTexParameteri = (GrGLTexParameteriProc) eglGetProcAddress("glTexParameteri");
     functions->fTexParameteriv = (GrGLTexParameterivProc) eglGetProcAddress("glTexParameteriv");

@@ -219,15 +219,6 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLStencilOpSeparate(GrGLenum face,
                                                      GrGLenum zpass) {
 }
 
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLTexGenf(GrGLenum, GrGLenum, float) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLTexGenfv(GrGLenum, GrGLenum, const float*) {
-}
-
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLTexGeni(GrGLenum, GrGLenum, GrGLint) {
-}
-
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLTexImage2D(GrGLenum target,
                                               GrGLint level,
                                               GrGLint internalformat,

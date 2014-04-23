@@ -11,6 +11,7 @@
 #include "GrGLEffect.h"
 #include "GrDrawState.h"
 #include "GrGLShaderBuilder.h"
+#include "GrGpu.h"
 
 class GrGpuGL;
 
@@ -64,7 +65,7 @@ public:
      * be treated as color stages in the output.
      */
     static void Build(const GrDrawState&,
-                      bool isPoints,
+                      GrGpu::DrawType drawType,
                       GrDrawState::BlendOptFlags,
                       GrBlendCoeff srcCoeff,
                       GrBlendCoeff dstCoeff,

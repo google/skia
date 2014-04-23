@@ -323,7 +323,6 @@ public:
 
     void getPathStencilSettingsForFillType(SkPath::FillType fill, GrStencilSettings* outStencilSettings);
 
-protected:
     enum DrawType {
         kDrawPoints_DrawType,
         kDrawLines_DrawType,
@@ -333,6 +332,7 @@ protected:
         kDrawPaths_DrawType,
     };
 
+protected:
     DrawType PrimTypeToDrawType(GrPrimitiveType type) {
         switch (type) {
             case kTriangles_GrPrimitiveType:

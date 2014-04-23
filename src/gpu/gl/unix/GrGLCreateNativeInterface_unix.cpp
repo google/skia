@@ -131,8 +131,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     functions->fStencilOp = glStencilOp;
     GR_GL_GET_PROC(StencilOpSeparate);
     functions->fTexImage2D = glTexImage2D;
-    functions->fTexGenfv = glTexGenfv;
-    functions->fTexGeni = glTexGeni;
     functions->fTexParameteri = glTexParameteri;
     functions->fTexParameteriv = glTexParameteriv;
     if (glVer >= GR_GL_VER(4,2) || extensions.has("GL_ARB_texture_storage")) {

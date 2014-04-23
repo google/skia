@@ -113,8 +113,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         SET_PROC(StencilFunc)
         SET_PROC(StencilMask)
         SET_PROC(StencilOp)
-        SET_PROC(TexGenfv)
-        SET_PROC(TexGeni)
         SET_PROC(TexImage2D)
         SET_PROC(TexParameteri)
         SET_PROC(TexParameteriv)

@@ -293,9 +293,7 @@ bool GrGLInterface::validate() const {
         if (!isCoreProfile) {
             if (NULL == fFunctions.fLoadIdentity ||
                 NULL == fFunctions.fLoadMatrixf ||
-                NULL == fFunctions.fMatrixMode ||
-                NULL == fFunctions.fTexGenfv ||
-                NULL == fFunctions.fTexGeni) {
+                NULL == fFunctions.fMatrixMode) {
                 RETURN_FALSE_INTERFACE
             }
         }

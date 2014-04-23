@@ -253,7 +253,6 @@ public:
 
     bool isCoreProfile() const { return fIsCoreProfile; }
 
-    bool fixedFunctionSupport() const { return fFixedFunctionSupport; }
 
     bool fullClearIsFree() const { return fFullClearIsFree; }
 
@@ -341,7 +340,6 @@ private:
     bool fVertexArrayObjectSupport : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
-    bool fFixedFunctionSupport : 1;
     bool fFullClearIsFree : 1;
     bool fDropsTileOnZeroDivide : 1;
     bool fMapSubSupport : 1;

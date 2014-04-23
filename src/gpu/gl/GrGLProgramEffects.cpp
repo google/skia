@@ -469,7 +469,7 @@ void GrGLVertexProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGLTexGenProgramEffects::emitEffect(GrGLFragmentOnlyShaderBuilder* builder,
+void GrGLPathTexGenProgramEffects::emitEffect(GrGLFragmentOnlyShaderBuilder* builder,
                                           const GrEffectStage& stage,
                                           EffectKey key,
                                           const char* outColor,
@@ -481,7 +481,7 @@ void GrGLTexGenProgramEffects::emitEffect(GrGLFragmentOnlyShaderBuilder* builder
     SkSTArray<4, TextureSampler> samplers(effect->numTextures());
 
     SkASSERT(0 == stage.getVertexAttribIndexCount());
-    this->setupTexGen(builder, effect, key, &coords);
+    this->setupPathTexGen(builder, effect, key, &coords);
     this->emitSamplers(builder, effect, &samplers);
 
     GrGLEffect* glEffect = effect->getFactory().createGLInstance(drawEffect);
@@ -498,7 +498,7 @@ void GrGLTexGenProgramEffects::emitEffect(GrGLFragmentOnlyShaderBuilder* builder
     builder->fsCodeAppend("\t}\n");
 }
 
-void GrGLTexGenProgramEffects::setupTexGen(GrGLFragmentOnlyShaderBuilder* builder,
+void GrGLPathTexGenProgramEffects::setupPathTexGen(GrGLFragmentOnlyShaderBuilder* builder,
                                            const GrEffectRef& effect,
                                            EffectKey effectKey,
                                            TransformedCoordsArray* outCoords) {
@@ -516,7 +516,7 @@ void GrGLTexGenProgramEffects::setupTexGen(GrGLFragmentOnlyShaderBuilder* builde
     }
 }
 
-void GrGLTexGenProgramEffects::setData(GrGpuGL* gpu,
+void GrGLPathTexGenProgramEffects::setData(GrGpuGL* gpu,
                                        const GrGLUniformManager& uniformManager,
                                        const GrEffectStage* effectStages[]) {
     int numEffects = fGLEffects.count();
@@ -525,12 +525,12 @@ void GrGLTexGenProgramEffects::setData(GrGpuGL* gpu,
     for (int e = 0; e < numEffects; ++e) {
         GrDrawEffect drawEffect(*effectStages[e], false);
         fGLEffects[e]->setData(uniformManager, drawEffect);
-        this->setTexGenState(gpu, drawEffect, e);
+        this->setPathTexGenState(gpu, drawEffect, e);
         this->bindTextures(gpu, *drawEffect.effect(), e);
     }
 }
 
-void GrGLTexGenProgramEffects::setTexGenState(GrGpuGL* gpu,
+void GrGLPathTexGenProgramEffects::setPathTexGenState(GrGpuGL* gpu,
                                               const GrDrawEffect& drawEffect,
                                               int effectIdx) {
     EffectKey totalKey = fTransforms[effectIdx].fTransformKey;
@@ -542,7 +542,9 @@ void GrGLTexGenProgramEffects::setTexGenState(GrGpuGL* gpu,
                 SkASSERT(get_transform_matrix(drawEffect, t).isIdentity());
                 GrGLfloat identity[] = {1, 0, 0,
                                         0, 1, 0};
-                gpu->enableTexGen(texCoordIndex++, GrGpuGL::kST_TexGenComponents, identity);
+                gpu->enablePathTexGen(texCoordIndex++,
+                                      GrGpuGL::kST_PathTexGenComponents,
+                                      identity);
                 break;
             }
             case kTrans_MatrixType: {
@@ -550,17 +552,23 @@ void GrGLTexGenProgramEffects::setTexGenState(GrGpuGL* gpu,
                 get_transform_translation(drawEffect, t, &tx, &ty);
                 GrGLfloat translate[] = {1, 0, tx,
                                          0, 1, ty};
-                gpu->enableTexGen(texCoordIndex++, GrGpuGL::kST_TexGenComponents, translate);
+                gpu->enablePathTexGen(texCoordIndex++,
+                                      GrGpuGL::kST_PathTexGenComponents,
+                                      translate);
                 break;
             }
             case kNoPersp_MatrixType: {
                 const SkMatrix& transform = get_transform_matrix(drawEffect, t);
-                gpu->enableTexGen(texCoordIndex++, GrGpuGL::kST_TexGenComponents, transform);
+                gpu->enablePathTexGen(texCoordIndex++,
+                                      GrGpuGL::kST_PathTexGenComponents,
+                                      transform);
                 break;
             }
             case kGeneral_MatrixType: {
                 const SkMatrix& transform = get_transform_matrix(drawEffect, t);
-                gpu->enableTexGen(texCoordIndex++, GrGpuGL::kSTR_TexGenComponents, transform);
+                gpu->enablePathTexGen(texCoordIndex++,
+                                      GrGpuGL::kSTR_PathTexGenComponents,
+                                      transform);
                 break;
             }
             default:
@@ -569,18 +577,18 @@ void GrGLTexGenProgramEffects::setTexGenState(GrGpuGL* gpu,
     }
 }
 
-GrGLTexGenProgramEffectsBuilder::GrGLTexGenProgramEffectsBuilder(
+GrGLPathTexGenProgramEffectsBuilder::GrGLPathTexGenProgramEffectsBuilder(
         GrGLFragmentOnlyShaderBuilder* builder,
         int reserveCount)
     : fBuilder(builder)
-    , fProgramEffects(SkNEW_ARGS(GrGLTexGenProgramEffects, (reserveCount))) {
+    , fProgramEffects(SkNEW_ARGS(GrGLPathTexGenProgramEffects, (reserveCount))) {
 }
 
-void GrGLTexGenProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
-                                                 GrGLProgramEffects::EffectKey key,
-                                                 const char* outColor,
-                                                 const char* inColor,
-                                                 int stageIndex) {
+void GrGLPathTexGenProgramEffectsBuilder::emitEffect(const GrEffectStage& stage,
+                                                     GrGLProgramEffects::EffectKey key,
+                                                     const char* outColor,
+                                                     const char* inColor,
+                                                     int stageIndex) {
     SkASSERT(NULL != fProgramEffects.get());
     fProgramEffects->emitEffect(fBuilder, stage, key, outColor, inColor, stageIndex);
 }

@@ -45,7 +45,6 @@ void GrGLCaps::reset() {
     fVertexArrayObjectSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
-    fFixedFunctionSupport = false;
     fFullClearIsFree = false;
     fDropsTileOnZeroDivide = false;
     fMapSubSupport = false;
@@ -84,7 +83,6 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fVertexArrayObjectSupport = caps.fVertexArrayObjectSupport;
     fUseNonVBOVertexAndIndexDynamicData = caps.fUseNonVBOVertexAndIndexDynamicData;
     fIsCoreProfile = caps.fIsCoreProfile;
-    fFixedFunctionSupport = caps.fFixedFunctionSupport;
     fFullClearIsFree = caps.fFullClearIsFree;
     fDropsTileOnZeroDivide = caps.fDropsTileOnZeroDivide;
     fMapSubSupport = caps.fMapSubSupport;
@@ -120,7 +118,6 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
             fIsCoreProfile = SkToBool(profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT);
         }
         if (!fIsCoreProfile) {
-            fFixedFunctionSupport = true;
             GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_COORDS, &fMaxFixedFunctionTextureCoords);
             // Sanity check
             SkASSERT(fMaxFixedFunctionTextureCoords > 0 && fMaxFixedFunctionTextureCoords < 128);
@@ -327,7 +324,6 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     fMaxRenderTargetSize = SkTMin(fMaxTextureSize, fMaxRenderTargetSize);
 
     fPathRenderingSupport = ctxInfo.hasExtension("GL_NV_path_rendering");
-    SkASSERT(!fPathRenderingSupport || fFixedFunctionSupport);
 
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
 
@@ -657,13 +653,12 @@ SkString GrGLCaps::dump() const {
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kInvalidateFBTypeStr) == kLast_InvalidateFBType + 1);
 
     r.appendf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));
-    r.appendf("Fixed Function Support: %s\n", (fFixedFunctionSupport ? "YES" : "NO"));
     r.appendf("MSAA Type: %s\n", kMSFBOExtStr[fMSFBOType]);
     r.appendf("FB Fetch Type: %s\n", kFBFetchTypeStr[fFBFetchType]);
     r.appendf("Invalidate FB Type: %s\n", kInvalidateFBTypeStr[fInvalidateFBType]);
     r.appendf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
     r.appendf("Max FS Texture Units: %d\n", fMaxFragmentTextureUnits);
-    if (fFixedFunctionSupport) {
+    if (!fIsCoreProfile) {
         r.appendf("Max Fixed Function Texture Coords: %d\n", fMaxFixedFunctionTextureCoords);
     }
     r.appendf("Max Vertex Attributes: %d\n", fMaxVertexAttributes);

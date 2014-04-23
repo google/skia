@@ -175,9 +175,6 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilMaskSeparateProc)(GrGLenum face, GrGLuint mask);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilOpProc)(GrGLenum fail, GrGLenum zfail, GrGLenum zpass);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLStencilOpSeparateProc)(GrGLenum face, GrGLenum fail, GrGLenum zfail, GrGLenum zpass);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexGenfProc)(GrGLenum coord, GrGLenum pname, GrGLfloat param);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexGenfvProc)(GrGLenum coord, GrGLenum pname, const GrGLfloat* params);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexGeniProc)(GrGLenum coord, GrGLenum pname, GrGLint param);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexImage2DProc)(GrGLenum target, GrGLint level, GrGLint internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid* pixels);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexParameteriProc)(GrGLenum target, GrGLenum pname, GrGLint param);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLTexParameterivProc)(GrGLenum target, GrGLenum pname, const GrGLint* params);

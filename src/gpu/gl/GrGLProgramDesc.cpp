@@ -37,7 +37,7 @@ inline GrGLEffect::EffectKey get_key_and_update_stats(const GrEffectStage& stage
 }
 }
 void GrGLProgramDesc::Build(const GrDrawState& drawState,
-                            bool isPoints,
+                            GrGpu::DrawType drawType,
                             GrDrawState::BlendOptFlags blendOpts,
                             GrBlendCoeff srcCoeff,
                             GrBlendCoeff dstCoeff,
@@ -113,7 +113,10 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     int currEffectKey = 0;
     bool readsDst = false;
     bool readFragPosition = false;
-    bool hasVertexCode = false;
+    // We use vertexshader-less shader programs only when drawing paths.
+    bool hasVertexCode = !(GrGpu::kDrawPath_DrawType == drawType ||
+                           GrGpu::kDrawPaths_DrawType == drawType);
+
     if (!skipColor) {
         for (int s = firstEffectiveColorStage; s < drawState.numColorStages(); ++s) {
             effectKeys[currEffectKey++] =
@@ -132,7 +135,7 @@ void GrGLProgramDesc::Build(const GrDrawState& drawState,
     }
 
     header->fHasVertexCode = hasVertexCode || requiresLocalCoordAttrib;
-    header->fEmitsPointSize = isPoints;
+    header->fEmitsPointSize = GrGpu::kDrawPoints_DrawType == drawType;
 
     // Currently the experimental GS will only work with triangle prims (and it doesn't do anything
     // other than pass through values from the VS to the FS anyway).

@@ -279,8 +279,6 @@ public:
         GLPtr<GrGLStencilMaskSeparateProc> fStencilMaskSeparate;
         GLPtr<GrGLStencilOpProc> fStencilOp;
         GLPtr<GrGLStencilOpSeparateProc> fStencilOpSeparate;
-        GLPtr<GrGLTexGenfvProc> fTexGenfv;
-        GLPtr<GrGLTexGeniProc> fTexGeni;
         GLPtr<GrGLTexImage2DProc> fTexImage2D;
         GLPtr<GrGLTexParameteriProc> fTexParameteri;
         GLPtr<GrGLTexParameterivProc> fTexParameteriv;

@@ -133,8 +133,6 @@ const GrGLInterface* GrGLCreateMesaInterface() {
     GR_GL_GET_PROC(StencilMaskSeparate);
     GR_GL_GET_PROC(StencilOp);
     GR_GL_GET_PROC(StencilOpSeparate);
-    GR_GL_GET_PROC(TexGenfv);
-    GR_GL_GET_PROC(TexGeni);
     GR_GL_GET_PROC(TexImage2D)
     GR_GL_GET_PROC(TexParameteri);
     GR_GL_GET_PROC(TexParameteriv);
