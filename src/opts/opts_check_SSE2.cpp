@@ -91,6 +91,16 @@ static inline bool hasSSE2() {
 static inline bool hasSSSE3() {
     return true;
 }
+#elif defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+/* For the Android framework we should always know at compile time if the device
+ * we are building for supports SSSE3.  The one exception to this rule is on the
+ * emulator where we are compiled without the -msse3 option (so we have no SSSE3
+ * procs) but can be run on a host machine that supports SSSE3 instructions. So
+ * for that particular case we disable our SSSE3 options.
+ */
+static inline bool hasSSSE3() {
+    return false;
+}
 #else
 
 static inline bool hasSSSE3() {
