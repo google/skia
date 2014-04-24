@@ -9,7 +9,8 @@
 
 #include "SkTime.h"
 
-void SkTime::GetDateTime(DateTime* dt) {
+void SkTime::GetDateTime(DateTime* dt)
+{
     if (dt)
     {
         SYSTEMTIME      st;
@@ -25,12 +26,13 @@ void SkTime::GetDateTime(DateTime* dt) {
     }
 }
 
-SkNSec SkTime::GetNSecs() {
+SkMSec SkTime::GetMSecs()
+{
     FILETIME        ft;
     LARGE_INTEGER   li;
     GetSystemTimeAsFileTime(&ft);
     li.LowPart  = ft.dwLowDateTime;
     li.HighPart = ft.dwHighDateTime;
     __int64 t  = li.QuadPart;       /* In 100-nanosecond intervals */
-    return (SkMSec)(t * 100);
+    return (SkMSec)(t / 10000);               /* In milliseconds */
 }

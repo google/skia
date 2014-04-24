@@ -40,7 +40,7 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
                                                                 src.width() * sizeof(SkPMColor)));
     canvas->clipRect(SkRect::MakeWH(SkIntToScalar(FLAGS_tile), SkIntToScalar(FLAGS_tile)));
 
-    const SkNSec start = SkTime::GetNSecs();
+    const SkMSec start = SkTime::GetMSecs();
     for (int i = 0; i < FLAGS_loops; i++) {
         if (FLAGS_skr) {
             SkRecordDraw(record, canvas.get());
@@ -49,9 +49,9 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
         }
     }
 
-    const SkNSec elapsed = SkTime::GetNSecs() - start;
-    const double nsPerLoop = elapsed / (double)FLAGS_loops;
-    printf("%u\t%s\n", SkToUInt(nsPerLoop), name);
+    const SkMSec elapsed = SkTime::GetMSecs() - start;
+    const double msPerLoop = elapsed / (double)FLAGS_loops;
+    printf("%6.2f\t%s\n", msPerLoop, name);
 }
 
 int tool_main(int argc, char** argv);

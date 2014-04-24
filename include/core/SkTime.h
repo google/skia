@@ -28,9 +28,7 @@ public:
     };
     static void GetDateTime(DateTime*);
 
-    static SkMSec GetMSecs() { return GetNSecs() / 1000000; }
-
-    static SkNSec GetNSecs();
+    static SkMSec GetMSecs();
 };
 
 #if defined(SK_DEBUG) && defined(SK_BUILD_FOR_WIN32)
