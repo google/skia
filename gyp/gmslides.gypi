@@ -56,6 +56,7 @@
     '../gm/cubicpaths.cpp',
     '../gm/cmykjpeg.cpp',
     '../gm/degeneratesegments.cpp',
+    '../gm/discard.cpp',
     '../gm/dashcubics.cpp',
     '../gm/dashing.cpp',
     '../gm/deviceproperties.cpp',
