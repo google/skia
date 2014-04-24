@@ -18,10 +18,6 @@ void SkRecordOptimize(SkRecord* record) {
     SkRecordBoundDrawPosTextH(record);
 }
 
-// Streamline replacing one command with another.
-#define REPLACE(record, index, T, ...) \
-    SkNEW_PLACEMENT_ARGS(record->replace<SkRecords::T>(index), SkRecords::T, (__VA_ARGS__))
-
 namespace {
 
 // Convenience base class to share some common implementation code.
@@ -81,10 +77,8 @@ void SaveRestoreNooper::operator()(SkRecords::Restore* r) {
     if (fSave != kInactive) {
         // Remove everything between the save and restore, inclusive on both sides.
         fChanged = true;
-        SkRecord::Destroyer destroyer;
         for (unsigned i = fSave; i <= this->index(); i++) {
-            fRecord->mutate(i, destroyer);
-            REPLACE(fRecord, i, NoOp);
+            fRecord->replace<SkRecords::NoOp>(i);
         }
         fSave = kInactive;
     }
@@ -124,8 +118,9 @@ void CullAnnotator::operator()(SkRecords::PopCull* pop) {
     SkASSERT(this->index() > push.index);
     unsigned skip = this->index() - push.index;
 
-    // PairedPushCull adopts push.command.
-    REPLACE(fRecord, push.index, PairedPushCull, push.command, skip);
+    SkRecords::Adopted<SkRecords::PushCull> adopted(push.command);
+    SkNEW_PLACEMENT_ARGS(fRecord->replace<SkRecords::PairedPushCull>(push.index, adopted),
+                         SkRecords::PairedPushCull, (&adopted, skip));
 }
 
 // Replaces DrawPosText with DrawPosTextH when all Y coordinates are equal.
@@ -164,10 +159,11 @@ void StrengthReducer::operator()(SkRecords::DrawPosText* r) {
         scalars[i/2] = scalars[i];
     }
 
-    SkRecord::Destroyer destroyer;
-    fRecord->mutate(this->index(), destroyer);
-    REPLACE(fRecord, this->index(),
-            DrawPosTextH, (char*)r->text, r->byteLength, scalars, firstY, r->paint);
+    // Extend lifetime of r to the end of the method so we can copy its parts.
+    SkRecords::Adopted<SkRecords::DrawPosText> adopted(r);
+    SkNEW_PLACEMENT_ARGS(fRecord->replace<SkRecords::DrawPosTextH>(this->index(), adopted),
+                         SkRecords::DrawPosTextH,
+                         (r->text, r->byteLength, scalars, firstY, r->paint));
 }
 
 
@@ -204,8 +200,10 @@ void TextBounder::operator()(SkRecords::DrawPosTextH* r) {
     bounds.set(0, r->y - buffer, SK_Scalar1, r->y + buffer);
     SkRect adjusted = r->paint.computeFastBounds(bounds, &bounds);
 
-    // BoundedDrawPosTextH adopts r.
-    REPLACE(fRecord, this->index(), BoundedDrawPosTextH, r, adjusted.fTop, adjusted.fBottom);
+    SkRecords::Adopted<SkRecords::DrawPosTextH> adopted(r);
+    SkNEW_PLACEMENT_ARGS(fRecord->replace<SkRecords::BoundedDrawPosTextH>(this->index(), adopted),
+                         SkRecords::BoundedDrawPosTextH,
+                         (&adopted, adjusted.fTop, adjusted.fBottom));
 }
 
 template <typename Pass>
@@ -242,5 +240,3 @@ void SkRecordBoundDrawPosTextH(SkRecord* record) {
     TextBounder bounder(record);
     run_pass(bounder, record);
 }
-
-#undef REPLACE

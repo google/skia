@@ -82,20 +82,31 @@ public:
 
     // Replace the i-th command with a new command of type T.
     // You are expected to placement new an object of type T onto this pointer.
-    // References to the old command remain valid for the life of the SkRecord, but
-    // you must destroy the old command.  (It's okay to destroy it first before calling replace.)
+    // References to the original command are invalidated.
     template <typename T>
     T* replace(unsigned i) {
         SkASSERT(i < this->count());
+
+        Destroyer destroyer;
+        this->mutate(i, destroyer);
+
         fTypes[i] = T::kType;
         return fRecords[i].set(this->alloc<T>());
     }
 
-    // A mutator that can be used with replace to destroy canvas commands.
-    struct Destroyer {
-        template <typename T>
-        void operator()(T* record) { record->~T(); }
-    };
+    // Replace the i-th command with a new command of type T.
+    // You are expected to placement new an object of type T onto this pointer.
+    // You must show proof that you've already adopted the existing command.
+    template <typename T, typename Existing>
+    T* replace(unsigned i, const SkRecords::Adopted<Existing>& proofOfAdoption) {
+        SkASSERT(i < this->count());
+
+        SkASSERT(Existing::kType == fTypes[i]);
+        SkASSERT(proofOfAdoption == fRecords[i].ptr<Existing>());
+
+        fTypes[i] = T::kType;
+        return fRecords[i].set(this->alloc<T>());
+    }
 
 private:
     // Implementation notes!
@@ -134,6 +145,11 @@ private:
     //
     // The cost to append a T into this structure is 1 + sizeof(void*) + sizeof(T).
 
+    // A mutator that can be used with replace to destroy canvas commands.
+    struct Destroyer {
+        template <typename T>
+        void operator()(T* record) { record->~T(); }
+    };
 
     // Logically the same as SkRecords::Type, but packed into 8 bits.
     struct Type8 {
@@ -157,6 +173,10 @@ private:
             return ptr;
         }
 
+        // Get the data in fAlloc, assuming it's of type T.
+        template <typename T>
+        T* ptr() const { return (T*)fPtr; }
+
         // Visit this record with functor F (see public API above) assuming the record we're
         // pointing to has this type.
         template <typename F>
@@ -176,9 +196,6 @@ private:
         }
 
     private:
-        template <typename T>
-        T* ptr() const { return (T*)fPtr; }
-
         void* fPtr;
     };
 

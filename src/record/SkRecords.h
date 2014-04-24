@@ -133,7 +133,12 @@ template <typename T>
 class Adopted : SkNoncopyable {
 public:
     Adopted(T* ptr) : fPtr(ptr) { SkASSERT(fPtr); }
-    ~Adopted() { fPtr->~T(); }
+    Adopted(Adopted* source) {
+        // Transfer ownership from source to this.
+        fPtr = source->fPtr;
+        source->fPtr = NULL;
+    }
+    ~Adopted() { if (fPtr) fPtr->~T(); }
 
     ACT_AS_PTR(fPtr);
 private:
@@ -142,9 +147,10 @@ private:
 
 // PODArray doesn't own the pointer's memory, and we assume the data is POD.
 template <typename T>
-class PODArray : SkNoncopyable {
+class PODArray {
 public:
     PODArray(T* ptr) : fPtr(ptr) {}
+    // Default copy and assign.
 
     ACT_AS_PTR(fPtr);
 private:
