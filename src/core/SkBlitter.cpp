@@ -928,8 +928,9 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     if (NULL == shader) {
         if (mode) {
             // xfermodes (and filters) require shaders for our current blitters
-            shader = SkNEW(SkColorShader);
+            shader = SkNEW_ARGS(SkColorShader, (paint->getColor()));
             paint.writable()->setShader(shader)->unref();
+            paint.writable()->setAlpha(0xFF);
         } else if (cf) {
             // if no shader && no xfermode, we just apply the colorfilter to
             // our color and move on.

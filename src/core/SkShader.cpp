@@ -203,37 +203,29 @@ void SkShader::toString(SkString* str) const {
 #include "SkColorShader.h"
 #include "SkUtils.h"
 
-SkColorShader::SkColorShader()
-    : fColor()
-    , fInheritColor(true) {
-}
-
 SkColorShader::SkColorShader(SkColor c)
-    : fColor(c)
-    , fInheritColor(false) {
+    : fColor(c) {
 }
 
 bool SkColorShader::isOpaque() const {
-    if (fInheritColor) {
-        return true; // using paint's alpha
-    }
     return SkColorGetA(fColor) == 255;
 }
 
 SkColorShader::SkColorShader(SkReadBuffer& b) : INHERITED(b) {
-    fInheritColor = b.readBool();
-    if (fInheritColor) {
-        return;
+    // V25_COMPATIBILITY_CODE We had a boolean to make the color shader inherit the paint's
+    // color. We don't support that any more.
+    if (b.pictureVersion() < 26 && 0 != b.pictureVersion()) {
+        if (b.readBool()) {
+            SkDEBUGFAIL("We shouldn't have pictures that recorded the inherited case.");
+            fColor = SK_ColorWHITE;
+            return;
+        }
     }
     fColor = b.readColor();
 }
 
 void SkColorShader::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writeBool(fInheritColor);
-    if (fInheritColor) {
-        return;
-    }
     buffer.writeColor(fColor);
 }
 
@@ -260,16 +252,11 @@ SkColorShader::ColorShaderContext::ColorShaderContext(const SkColorShader& shade
                                                       const SkMatrix& matrix)
     : INHERITED(shader, device, paint, matrix)
 {
+    SkColor color;
     unsigned a;
 
-    SkColor color;
-    if (shader.fInheritColor) {
-        color = paint.getColor();
-        a = SkColorGetA(color);
-    } else {
-        color = shader.fColor;
-        a = SkAlphaMul(SkColorGetA(color), SkAlpha255To256(paint.getAlpha()));
-    }
+    color = shader.fColor;
+    a = SkAlphaMul(SkColorGetA(color), SkAlpha255To256(paint.getAlpha()));
 
     unsigned r = SkColorGetR(color);
     unsigned g = SkColorGetG(color);
@@ -327,12 +314,8 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
 void SkColorShader::toString(SkString* str) const {
     str->append("SkColorShader: (");
 
-    if (fInheritColor) {
-        str->append("Color: inherited from paint");
-    } else {
-        str->append("Color: ");
-        str->appendHex(fColor);
-    }
+    str->append("Color: ");
+    str->appendHex(fColor);
 
     this->INHERITED::toString(str);
 

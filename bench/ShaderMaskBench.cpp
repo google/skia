@@ -44,8 +44,7 @@ public:
 
         fPaint.setAntiAlias(kBW != fq);
         fPaint.setLCDRenderText(kLCD == fq);
-        fPaint.setAlpha(isOpaque ? 0xFF : 0x80);
-        fPaint.setShader(new SkColorShader)->unref();
+        fPaint.setShader(new SkColorShader(isOpaque ? 0xFFFFFFFF : 0x80808080))->unref();
     }
 
 protected:

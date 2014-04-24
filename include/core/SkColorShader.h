@@ -19,16 +19,11 @@
 */
 class SK_API SkColorShader : public SkShader {
 public:
-    /** Create a ColorShader that will inherit its color from the Paint
-        at draw time.
-    */
-    SkColorShader();
-
     /** Create a ColorShader that ignores the color in the paint, and uses the
         specified color. Note: like all shaders, at draw time the paint's alpha
         will be respected, and is applied to the specified color.
     */
-    SkColorShader(SkColor c);
+    explicit SkColorShader(SkColor c);
 
     virtual bool isOpaque() const SK_OVERRIDE;
 
@@ -65,7 +60,7 @@ public:
                                  SkMatrix* outMatrix,
                                  TileMode xy[2]) const SK_OVERRIDE;
 
-    virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
+    virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE; 
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorShader)
@@ -76,7 +71,6 @@ protected:
 
 private:
     SkColor     fColor;         // ignored if fInheritColor is true
-    SkBool8     fInheritColor;
 
     typedef SkShader INHERITED;
 };

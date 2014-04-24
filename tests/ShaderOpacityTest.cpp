@@ -103,11 +103,6 @@ static void test_color(skiatest::Reporter* reporter)
     REPORTER_ASSERT(reporter, colorShader2.isOpaque());
     SkColorShader colorShader3(SkColorSetARGB(0x7F,0,0,0));
     REPORTER_ASSERT(reporter, !colorShader3.isOpaque());
-
-    // with inherrited color, shader must declare itself as opaque,
-    // since lack of opacity will depend solely on the paint
-    SkColorShader colorShader4;
-    REPORTER_ASSERT(reporter, colorShader4.isOpaque());
 }
 
 DEF_TEST(ShaderOpacity, reporter) {
