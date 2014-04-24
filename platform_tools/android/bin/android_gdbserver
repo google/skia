@@ -6,26 +6,14 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
 source $SCRIPT_DIR/utils/setup_adb.sh
 
-configuration="Debug"
-
-for arg in ${APP_ARGS[@]}
-do
-  if [[ "${arg}" == "--release" ]];
-  then 
-    configuration="Release"
-  else
-    gdbVars=("${gdbVars[@]}" "${arg}")
-  fi
-
-shift
-done
-
-APP_NAME=${gdbVars[0]}
+APP_NAME=${APP_ARGS[0]}
 PORT=5039
 
-if [ ! -f "${SKIA_OUT}/${configuration}/lib.target/lib${gdbVars[0]}.so" ];
+BUILD_DIR="${SKIA_OUT}/${BUILDTYPE}"
+TARGET_LIBRARY="${BUILD_DIR}/lib/lib${APP_NAME}.so"
+if [ ! -f "$TARGET_LIBRARY" ]
 then
-  echo "Unable to find the ${gdbVars[0]} library"
+  echo "Unable to find the ${APP_NAME} library at ${TARGET_LIBRARY}."
   exit 1
 fi
 
@@ -35,14 +23,16 @@ mkdir $GDB_TMP_DIR
 
 echo "Copying symbol files"
 adb_pull_if_needed /system/lib/libc.so $GDB_TMP_DIR
-cp "${SKIA_OUT}/${configuration}/skia_launcher" $GDB_TMP_DIR
-cp "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" $GDB_TMP_DIR
-cp "${SKIA_OUT}/${configuration}/lib.target/lib${APP_NAME}.so" $GDB_TMP_DIR
 
 echo "Pushing app..."
-adb_push_if_needed "${SKIA_OUT}/${configuration}/skia_launcher" /data/local/tmp
-adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" /data/local/tmp
-adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/lib${APP_NAME}.so" /data/local/tmp
+for file in \
+    "${BUILD_DIR}/skia_launcher" \
+    "${BUILD_DIR}/lib/libskia_android.so" \
+    "${BUILD_DIR}/lib/lib${APP_NAME}.so" \
+    ; do
+    cp "$file" $GDB_TMP_DIR
+    adb_push_if_needed "$file" /data/local/tmp
+done
 
 echo "Pushing gdbserver..."
 adb_push_if_needed $ANDROID_TOOLCHAIN/../gdbserver data/local/tmp
@@ -56,5 +46,5 @@ $ADB shell ps | grep gdbserver | awk '{print $2}' | xargs $ADB shell kill
 $ADB shell ps | grep ${APP_NAME} | awk '{print $2}' | xargs $ADB shell kill
 
 # Starting up gdbserver in android shell
-echo "Starting gdbserver with command: ${gdbVars[@]}"
-$ADB shell /data/local/tmp/gdbserver :5039 /data/local/tmp/skia_launcher ${gdbVars[@]} & 
+echo "Starting gdbserver with command: ${APP_ARGS[@]}"
+$ADB shell /data/local/tmp/gdbserver :5039 /data/local/tmp/skia_launcher ${APP_ARGS[@]} &

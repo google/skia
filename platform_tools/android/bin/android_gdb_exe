@@ -6,6 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $SCRIPT_DIR/android_setup.sh
 
 # setup the gdbserver
+export BUILDTYPE  # from android_setup.sh
 $SCRIPT_DIR/android_gdbserver -d ${DEVICE_ID} ${APP_ARGS[@]}
 
 # quit if gdbserver setup failed
@@ -36,12 +37,8 @@ echo "sharedLibrary $APP_NAME" >> $GDBSETUP
 
 # Launch gdb client
 echo "Entering gdb client shell"
-if [ "$ANDROID_ARCH" == "x86" ]
-then
-  $ANDROID_TOOLCHAIN/i686-linux-android-gdb -x $GDBSETUP
-else
-  $ANDROID_TOOLCHAIN/arm-linux-androideabi-gdb -x $GDBSETUP
-fi
+GDB_COMMAND=$(command ls "$ANDROID_TOOLCHAIN"/*-gdb | head -n1)
+"$GDB_COMMAND" -x $GDBSETUP
 
 # Clean up
 rm -rf $GDB_TMP_DIR
