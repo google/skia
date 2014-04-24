@@ -42,6 +42,7 @@ CWD := $(shell pwd)
 VALID_TARGETS := \
                  bench \
                  debugger \
+                 dm \
                  everything \
                  gm \
                  most \

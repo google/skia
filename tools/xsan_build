@@ -2,7 +2,7 @@
 
 # Build Skia with one of Clang's many sanitizers.
 #
-# $ tools/xsan_build {address,thread,undefined,etc.} [any other flags to pass to make/ninja...]
+# $ tools/xsan_build {address,thread,undefined,etc.} [any other flags to pass to make...]
 #
 # This script assumes the use of Clang >=3.2.
 #
@@ -17,18 +17,15 @@ args="$@"
 
 export CC="$(which clang)"
 export CXX="$(which clang++)"
-export LINK="$(which clang)"
 
-if [[ -z "${CC}" ]] || [[ -z "${CXX}" ]] || [[ -z "${LINK}" ]]; then
+if [[ -z "${CC}" ]] || [[ -z "${CXX}" ]]; then
   echo "Couldn't find Clang on this machine!"
   exit 1
 fi
 
-export GYP_DEFINES="skia_sanitizer=$sanitizer ${GYP_DEFINES}"
+echo "CC=$CC"
+echo "CXX=$CXX"
+$CC --version
 
-./gyp_skia
-if [[ $GYP_GENERATORS == "ninja" ]]; then
-    ninja ${args}
-else
-    make ${args}
-fi
+export GYP_DEFINES="skia_sanitizer=$sanitizer ${GYP_DEFINES}"
+make ${args}
