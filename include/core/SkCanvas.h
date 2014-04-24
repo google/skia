@@ -330,6 +330,16 @@ public:
         operate on this copy.
         When the balancing call to restore() is made, the previous matrix, clip,
         and drawFilter are restored.
+
+        @return The value to pass to restoreToCount() to balance this save()
+    */
+    int save();
+
+    /** DEPRECATED - use save() instead.
+
+        This behaves the same as save(), but it allows fine-grained control of
+        which state bits to be saved (and subsequently restored).
+
         @param flags The flags govern what portion of the Matrix/Clip/drawFilter
                      state the save (and matching restore) effect. For example,
                      if only kMatrix is specified, then only the matrix state
@@ -338,7 +348,8 @@ public:
                      by calls to save/restore.
         @return The value to pass to restoreToCount() to balance this save()
     */
-    int save(SaveFlags flags = kMatrixClip_SaveFlag);
+    SK_ATTR_EXTERNALLY_DEPRECATED("SaveFlags use is deprecated")
+    int save(SaveFlags flags);
 
     /** This behaves the same as save(), but in addition it allocates an
         offscreen bitmap. All drawing calls are directed there, and only when
@@ -350,11 +361,27 @@ public:
                       happen. If exact clipping is desired, use clipRect().
         @param paint (may be null) This is copied, and is applied to the
                      offscreen when restore() is called
+        @return The value to pass to restoreToCount() to balance this save()
+    */
+    int saveLayer(const SkRect* bounds, const SkPaint* paint);
+
+    /** DEPRECATED - use saveLayer(const SkRect*, const SkPaint*) instead.
+
+        This behaves the same as saveLayer(const SkRect*, const SkPaint*),
+        but it allows fine-grained control of which state bits to be saved
+        (and subsequently restored).
+
+        @param bounds (may be null) This rect, if non-null, is used as a hint to
+                      limit the size of the offscreen, and thus drawing may be
+                      clipped to it, though that clipping is not guaranteed to
+                      happen. If exact clipping is desired, use clipRect().
+        @param paint (may be null) This is copied, and is applied to the
+                     offscreen when restore() is called
         @param flags  LayerFlags
         @return The value to pass to restoreToCount() to balance this save()
     */
-    int saveLayer(const SkRect* bounds, const SkPaint* paint,
-                  SaveFlags flags = kARGB_ClipLayer_SaveFlag);
+    SK_ATTR_EXTERNALLY_DEPRECATED("SaveFlags use is deprecated")
+    int saveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags);
 
     /** This behaves the same as save(), but in addition it allocates an
         offscreen bitmap. All drawing calls are directed there, and only when
@@ -365,11 +392,26 @@ public:
                       clipped to it, though that clipping is not guaranteed to
                       happen. If exact clipping is desired, use clipRect().
         @param alpha  This is applied to the offscreen when restore() is called.
+        @return The value to pass to restoreToCount() to balance this save()
+    */
+    int saveLayerAlpha(const SkRect* bounds, U8CPU alpha);
+
+    /** DEPRECATED - use saveLayerAlpha(const SkRect*, U8CPU) instead.
+
+        This behaves the same as saveLayerAlpha(const SkRect*, U8CPU),
+        but it allows fine-grained control of which state bits to be saved
+        (and subsequently restored).
+
+        @param bounds (may be null) This rect, if non-null, is used as a hint to
+                      limit the size of the offscreen, and thus drawing may be
+                      clipped to it, though that clipping is not guaranteed to
+                      happen. If exact clipping is desired, use clipRect().
+        @param alpha  This is applied to the offscreen when restore() is called.
         @param flags  LayerFlags
         @return The value to pass to restoreToCount() to balance this save()
     */
-    int saveLayerAlpha(const SkRect* bounds, U8CPU alpha,
-                       SaveFlags flags = kARGB_ClipLayer_SaveFlag);
+    SK_ATTR_EXTERNALLY_DEPRECATED("SaveFlags use is deprecated")
+    int saveLayerAlpha(const SkRect* bounds, U8CPU alpha, SaveFlags flags);
 
     /** This call balances a previous call to save(), and is used to remove all
         modifications to the matrix/clip/drawFilter state since the last save

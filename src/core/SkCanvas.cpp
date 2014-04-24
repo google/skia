@@ -834,6 +834,11 @@ void SkCanvas::willSave(SaveFlags) {
     // Do nothing. Subclasses may do something.
 }
 
+int SkCanvas::save() {
+    this->willSave(kMatrixClip_SaveFlag);
+    return this->internalSave(kMatrixClip_SaveFlag);
+}
+
 int SkCanvas::save(SaveFlags flags) {
     this->willSave(flags);
     // call shared impl
@@ -898,9 +903,13 @@ SkCanvas::SaveLayerStrategy SkCanvas::willSaveLayer(const SkRect*, const SkPaint
     return kFullLayer_SaveLayerStrategy;
 }
 
+int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
+    SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag);
+    return this->internalSaveLayer(bounds, paint, kARGB_ClipLayer_SaveFlag, false, strategy);
+}
+
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
                         SaveFlags flags) {
-    // Overriding classes may return false to signal that we don't need to create a layer.
     SaveLayerStrategy strategy = this->willSaveLayer(bounds, paint, flags);
     return this->internalSaveLayer(bounds, paint, flags, false, strategy);
 }
@@ -973,6 +982,10 @@ int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, Save
 
     fSaveLayerCount += 1;
     return count;
+}
+
+int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
+    return this->saveLayerAlpha(bounds, alpha, kARGB_ClipLayer_SaveFlag);
 }
 
 int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha,

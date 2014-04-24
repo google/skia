@@ -309,6 +309,8 @@
         'SK_SUPPORT_LEGACY_BLURDRAWLOOPERCONSTRUCTORS',
         # Needed until we fix skbug.com/2440.
         'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
+        # Transitional, for deprecated SkCanvas::SaveFlags methods.
+        'SK_ATTR_DEPRECATED=SK_NOTHING_ARG1',
       ],
     }],
 
