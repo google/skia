@@ -122,17 +122,18 @@ static void validateMatrix(const SkMatrix* matrix) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkPicture::SkPicture() {
+SkPicture::SkPicture()
+    : fAccelData(NULL) {
     this->needsNewGenID();
     fRecord = NULL;
     fPlayback = NULL;
     fWidth = fHeight = 0;
-    fAccelData = NULL;
 }
 
 SkPicture::SkPicture(const SkPicture& src)
     : INHERITED()
-    , fAccelData(NULL) {
+    , fAccelData(NULL)
+    , fContentInfo(src.fContentInfo) {
     this->needsNewGenID();
     fWidth = src.fWidth;
     fHeight = src.fHeight;
@@ -207,6 +208,7 @@ void SkPicture::swap(SkPicture& other) {
     SkTSwap(fWidth, other.fWidth);
     SkTSwap(fHeight, other.fHeight);
     fPathHeap.swap(&other.fPathHeap);
+    fContentInfo.swap(&other.fContentInfo);
 }
 
 SkPicture* SkPicture::clone() const {
@@ -228,6 +230,7 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
         clone->fHeight = fHeight;
         SkSafeSetNull(clone->fRecord);
         SkDELETE(clone->fPlayback);
+        clone->fContentInfo.set(fContentInfo);
 
         /*  We want to copy the src's playback. However, if that hasn't been built
             yet, we need to fake a call to endRecording() without actually calling
@@ -271,6 +274,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     }
     SkSafeUnref(fAccelData);
     SkSafeSetNull(fRecord);
+    fContentInfo.reset();
 
     this->needsNewGenID();
 
@@ -305,6 +309,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height,
     SkSafeUnref(fAccelData);
     SkSafeSetNull(fRecord);
     SkASSERT(NULL == fPathHeap);
+    fContentInfo.reset();
 
     this->needsNewGenID();
 
@@ -602,8 +607,14 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
 
 #if SK_SUPPORT_GPU
 bool SkPicture::suitableForGpuRasterization(GrContext* context) const {
-    // Stub for now; never veto GPu rasterization.
-    return true;
+    // TODO: the heuristic used here needs to be refined
+    static const int kNumPaintWithPathEffectUsesTol = 1;
+    static const int kNumAAConcavePaths = 5;
+
+    SkASSERT(this->numAAHairlineConcavePaths() <= this->numAAConcavePaths());
+
+    return this->numPaintWithPathEffectUses() < kNumPaintWithPathEffectUsesTol &&
+           (this->numAAConcavePaths()-this->numAAHairlineConcavePaths()) < kNumAAConcavePaths;
 }
 #endif
 

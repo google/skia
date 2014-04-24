@@ -8,6 +8,7 @@
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkDashPathEffect.h"
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
 #include "SkError.h"
@@ -694,6 +695,76 @@ static void rand_op(SkCanvas* canvas, SkRandom& rand) {
     }
 }
 
+static void test_gpu_veto(skiatest::Reporter* reporter) {
+
+    SkPictureRecorder recorder;
+
+    SkCanvas* canvas = recorder.beginRecording(100, 100, NULL, 0);
+    {
+        SkPath path;
+        path.moveTo(0, 0);
+        path.lineTo(50, 50);
+
+        SkScalar intervals[] = { 1.0f, 1.0f };
+        SkAutoTUnref<SkDashPathEffect> dash(SkDashPathEffect::Create(intervals, 2, 0));
+
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setPathEffect(dash);
+
+        canvas->drawPath(path, paint);
+    }
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    // path effects currently render an SkPicture undesireable for GPU rendering
+    REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
+
+    canvas = recorder.beginRecording(100, 100, NULL, 0);
+    {
+        SkPath path;
+
+        path.moveTo(0, 0);
+        path.lineTo(0, 50);
+        path.lineTo(25, 25);
+        path.lineTo(50, 50);
+        path.lineTo(50, 0);
+        path.close();
+        REPORTER_ASSERT(reporter, !path.isConvex());
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        for (int i = 0; i < 50; ++i) {
+            canvas->drawPath(path, paint);
+        }
+    }
+    picture.reset(recorder.endRecording());
+    // A lot of AA concave paths currently render an SkPicture undesireable for GPU rendering
+    REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
+
+    canvas = recorder.beginRecording(100, 100, NULL, 0);
+    {
+        SkPath path;
+
+        path.moveTo(0, 0);
+        path.lineTo(0, 50);
+        path.lineTo(25, 25);
+        path.lineTo(50, 50);
+        path.lineTo(50, 0);
+        path.close();
+        REPORTER_ASSERT(reporter, !path.isConvex());
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(0);
+        for (int i = 0; i < 50; ++i) {
+            canvas->drawPath(path, paint);
+        }
+    }
+    picture.reset(recorder.endRecording());
+    // hairline stroked AA concave paths are fine for GPU rendering
+    REPORTER_ASSERT(reporter, picture->suitableForGpuRasterization(NULL));
+}
+
 static void set_canvas_to_save_count_4(SkCanvas* canvas) {
     canvas->restoreToCount(1);
     canvas->save();
@@ -1197,6 +1268,7 @@ DEF_TEST(Picture, reporter) {
 #endif
     test_unbalanced_save_restores(reporter);
     test_peephole();
+    test_gpu_veto(reporter);
     test_gatherpixelrefs(reporter);
     test_gatherpixelrefsandrects(reporter);
     test_bitmap_with_encoded_data(reporter);

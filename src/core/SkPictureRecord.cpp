@@ -1065,6 +1065,15 @@ void SkPictureRecord::onDrawDRRect(const SkRRect& outer, const SkRRect& inner,
 
 void SkPictureRecord::drawPath(const SkPath& path, const SkPaint& paint) {
 
+    if (paint.isAntiAlias() && !path.isConvex()) {
+        fPicture->incAAConcavePaths();
+
+        if (SkPaint::kStroke_Style == paint.getStyle() &&
+            0 == paint.getStrokeWidth()) {
+            fPicture->incAAHairlineConcavePaths();
+        }
+    }
+
 #ifdef SK_COLLAPSE_MATRIX_CLIP_STATE
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
 #endif
@@ -1578,6 +1587,10 @@ const SkFlatData* SkPictureRecord::getFlatPaintData(const SkPaint& paint) {
 }
 
 const SkFlatData* SkPictureRecord::addPaintPtr(const SkPaint* paint) {
+    if (NULL != paint && NULL != paint->getPathEffect()) {
+        fPicture->incPaintWithPathEffectUses();
+    }
+
     const SkFlatData* data = paint ? getFlatPaintData(*paint) : NULL;
     this->addFlatPaint(data);
     return data;
