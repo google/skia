@@ -148,7 +148,7 @@ setup_device() {
   DEFINES="${DEFINES} android_toolchain=${TOOLCHAIN_TYPE}"
 
   exportVar GYP_DEFINES "$DEFINES $GYP_DEFINES"
-  exportVar SKIA_OUT "out/config/android-${TARGET_DEVICE}"
+  exportVar SKIA_OUT "${SKIA_OUT:-out/config/android-${TARGET_DEVICE}}"
 }
 
 # adb_pull_if_needed(android_src, host_dst)
