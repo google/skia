@@ -173,7 +173,7 @@ public:
     }
 
     SkTimedPicturePlayback(SkPicture* picture,
-                           const SkTDArray<bool>& deletedCommands, 
+                           const SkTDArray<bool>& deletedCommands,
                            const SkPictInfo& info)
         : INHERITED(picture, info)
         , fSkipCommands(deletedCommands)

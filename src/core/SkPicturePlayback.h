@@ -75,16 +75,16 @@ struct SkPictCopyInfo {
 
 class SkPicturePlayback {
 public:
-    SkPicturePlayback(const SkPicture* picture, const SkPicturePlayback& src, 
+    SkPicturePlayback(const SkPicture* picture, const SkPicturePlayback& src,
                       SkPictCopyInfo* deepCopyInfo = NULL);
-    SkPicturePlayback(const SkPicture* picture, const SkPictureRecord& record, const SkPictInfo&, 
+    SkPicturePlayback(const SkPicture* picture, const SkPictureRecord& record, const SkPictInfo&,
                       bool deepCopy = false);
     static SkPicturePlayback* CreateFromStream(SkPicture* picture,
                                                SkStream*,
                                                const SkPictInfo&,
                                                SkPicture::InstallPixelRefProc);
-    static SkPicturePlayback* CreateFromBuffer(SkPicture* picture, 
-                                               SkReadBuffer&, 
+    static SkPicturePlayback* CreateFromBuffer(SkPicture* picture,
+                                               SkReadBuffer&,
                                                const SkPictInfo&);
 
     virtual ~SkPicturePlayback();
@@ -220,7 +220,7 @@ public:
 #endif
 
 private:    // these help us with reading/writing
-    bool parseStreamTag(SkPicture* picture, SkStream*, uint32_t tag, uint32_t size, 
+    bool parseStreamTag(SkPicture* picture, SkStream*, uint32_t tag, uint32_t size,
                         SkPicture::InstallPixelRefProc);
     bool parseBufferTag(SkPicture* picture, SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&) const;

@@ -2343,7 +2343,7 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
         iter.fDevice->drawPosText(iter, text, byteLength, &pos->fX, 0, 2,
                                   dfp.paint());
     }
-    
+
     LOOPER_END
 }
 
@@ -2356,7 +2356,7 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
         iter.fDevice->drawPosText(iter, text, byteLength, xpos, constY, 1,
                                   dfp.paint());
     }
-    
+
     LOOPER_END
 }
 
@@ -2368,7 +2368,7 @@ void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPat
         iter.fDevice->drawTextOnPath(iter, text, byteLength, path,
                                      matrix, looper.paint());
     }
-    
+
     LOOPER_END
 }
 

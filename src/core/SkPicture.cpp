@@ -467,7 +467,7 @@ SkPicture* SkPicture::CreateFromStream(SkStream* stream, InstallPixelRefProc pro
 
     // Check to see if there is a playback to recreate.
     if (stream->readBool()) {
-        SkPicturePlayback* playback = SkPicturePlayback::CreateFromStream(newPict, stream, 
+        SkPicturePlayback* playback = SkPicturePlayback::CreateFromStream(newPict, stream,
                                                                           info, proc);
         if (NULL == playback) {
             SkDELETE(newPict);
@@ -553,7 +553,7 @@ void SkPicture::WriteTagSize(SkWStream* stream, uint32_t tag,  size_t size) {
 }
 
 bool SkPicture::parseBufferTag(SkReadBuffer& buffer,
-                               uint32_t tag, 
+                               uint32_t tag,
                                uint32_t size) {
     switch (tag) {
         case SK_PICT_PATH_BUFFER_TAG:

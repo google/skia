@@ -23,7 +23,7 @@ template <typename T> int SafeCount(const T* obj) {
  */
 #define SPEW_CLIP_SKIPPINGx
 
-SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, const SkPictInfo& info) 
+SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, const SkPictInfo& info)
     : fPicture(picture)
     , fInfo(info) {
     this->init();
@@ -158,7 +158,7 @@ static bool needs_deep_copy(const SkPaint& paint) {
            paint.getImageFilter();
 }
 
-SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, const SkPicturePlayback& src, 
+SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, const SkPicturePlayback& src,
                                      SkPictCopyInfo* deepCopyInfo)
     : fPicture(picture)
     , fInfo(src.fInfo) {

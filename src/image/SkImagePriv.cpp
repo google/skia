@@ -68,4 +68,3 @@ SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef) {
     }
     return image;
 }
-
