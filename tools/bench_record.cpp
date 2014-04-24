@@ -56,7 +56,7 @@ static SkBBHFactory* parse_FLAGS_bbh() {
 }
 
 static void bench_record(SkPicture* src, const char* name, SkBBHFactory* bbhFactory) {
-    const SkMSec start = SkTime::GetMSecs();
+    const SkNSec start = SkTime::GetNSecs();
     const int width  = src ? src->width()  : FLAGS_nullSize;
     const int height = src ? src->height() : FLAGS_nullSize;
 
@@ -80,9 +80,9 @@ static void bench_record(SkPicture* src, const char* name, SkBBHFactory* bbhFact
         }
     }
 
-    const SkMSec elapsed = SkTime::GetMSecs() - start;
-    const double msPerLoop = elapsed / (double)FLAGS_loops;
-    printf("%.2g\t%s\n", msPerLoop, name);
+    const SkNSec elapsed = SkTime::GetNSecs() - start;
+    const double nsPerLoop = elapsed / (double)FLAGS_loops;
+    printf("%u\t%s\n", SkToUInt(nsPerLoop), name);
 }
 
 int tool_main(int argc, char** argv);

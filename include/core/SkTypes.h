@@ -315,6 +315,10 @@ typedef uint32_t SkMSec;
 */
 #define SkMSec_LE(a, b)     ((int32_t)(a) - (int32_t)(b) <= 0)
 
+/** 64 bit value to hold nanosecond count
+*/
+typedef uint64_t SkNSec;
+
 /** The generation IDs in Skia reserve 0 has an invalid marker.
  */
 #define SK_InvalidGenID     0

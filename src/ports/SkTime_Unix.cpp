@@ -12,10 +12,8 @@
 #include <sys/time.h>
 #include <time.h>
 
-void SkTime::GetDateTime(DateTime* dt)
-{
-    if (dt)
-    {
+void SkTime::GetDateTime(DateTime* dt) {
+    if (dt) {
         time_t m_time;
         time(&m_time);
         struct tm* tstruct;
@@ -31,9 +29,33 @@ void SkTime::GetDateTime(DateTime* dt)
     }
 }
 
-SkMSec SkTime::GetMSecs()
-{
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return (SkMSec) (tv.tv_sec * 1000 + tv.tv_usec / 1000 ); // microseconds to milliseconds
+#ifdef __MACH__
+#  include <mach/mach_time.h>
+
+namespace {
+
+struct ConversionFactor {
+    ConversionFactor() {
+        mach_timebase_info_data_t timebase;
+        mach_timebase_info(&timebase);
+        toNanos = (double) timebase.numer / timebase.denom;
+    }
+    double toNanos;
+};
+
+}  // namespace
+
+SkNSec SkTime::GetNSecs() {
+    static ConversionFactor convert;  // Since already know we're on Mac, this is threadsafe.
+    return mach_absolute_time() * convert.toNanos;
 }
+
+#else  // Linux, presumably all others too
+
+SkNSec SkTime::GetNSecs() {
+    struct timespec time;
+    clock_gettime(CLOCK_MONOTONIC, &time);
+    return (SkNSec)(time.tv_sec * 1000000000 + time.tv_nsec);
+}
+
+#endif
