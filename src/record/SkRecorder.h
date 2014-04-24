@@ -28,6 +28,9 @@ public:
     // Does not take ownership of the SkRecord.
     SkRecorder(Mode mode, SkRecord*, int width, int height);
 
+    // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
+    void forgetRecord();
+
     void clear(SkColor) SK_OVERRIDE;
     void drawPaint(const SkPaint& paint) SK_OVERRIDE;
     void drawPoints(PointMode mode,

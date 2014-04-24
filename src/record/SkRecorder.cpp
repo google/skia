@@ -12,6 +12,10 @@
 SkRecorder::SkRecorder(SkRecorder::Mode mode, SkRecord* record, int width, int height)
     : SkCanvas(width, height), fMode(mode), fRecord(record) {}
 
+void SkRecorder::forgetRecord() {
+    fRecord = NULL;
+}
+
 // To make appending to fRecord a little less verbose.
 #define APPEND(T, ...) \
         SkNEW_PLACEMENT_ARGS(fRecord->append<SkRecords::T>(), SkRecords::T, (__VA_ARGS__))

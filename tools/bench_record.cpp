@@ -62,12 +62,12 @@ static void bench_record(SkPicture* src, const char* name, SkBBHFactory* bbhFact
 
     for (int i = 0; i < FLAGS_loops; i++) {
         if (FLAGS_skr) {
-            using EXPERIMENTAL::SkRecording;
-            SkRecording* recording = SkRecording::Create(width, height);
+            EXPERIMENTAL::SkRecording recording(width, height);
             if (NULL != src) {
-                src->draw(recording->canvas());
+                src->draw(recording.canvas());
             }
-            SkDELETE(SkRecording::Delete(recording));  // delete the SkPlayback*.
+            // Release and delete the SkPlayback so that recording optimizes its SkRecord.
+            SkDELETE(recording.releasePlayback());
         } else {
             SkPictureRecorder recorder;
             SkCanvas* canvas = recorder.beginRecording(width, height, bbhFactory, FLAGS_flags);

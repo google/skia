@@ -16,38 +16,29 @@ namespace EXPERIMENTAL {
 
 SkPlayback::SkPlayback(const SkRecord* record) : fRecord(record) {}
 
-SkPlayback::~SkPlayback() {
-    SkDELETE(fRecord);
-}
+SkPlayback::~SkPlayback() {}
 
 void SkPlayback::draw(SkCanvas* canvas) const {
-    SkASSERT(fRecord != NULL);
+    SkASSERT(fRecord.get() != NULL);
     SkRecordDraw(*fRecord, canvas);
 }
 
-/*static*/ SkRecording* SkRecording::Create(int width, int height) {
-    return SkNEW_ARGS(SkRecording, (width, height));
+SkRecording::SkRecording(int width, int height)
+    : fRecord(SkNEW(SkRecord))
+    , fRecorder(SkNEW_ARGS(SkRecorder, (SkRecorder::kReadWrite_Mode, fRecord.get(), width, height)))
+    {}
+
+SkPlayback* SkRecording::releasePlayback() {
+    SkASSERT(fRecorder->unique());
+    fRecorder->forgetRecord();
+    SkRecordOptimize(fRecord.get());
+    return SkNEW_ARGS(SkPlayback, (fRecord.detach()));
 }
 
-SkRecording::SkRecording(int width, int height) {
-    SkRecord* record = SkNEW(SkRecord);
-    fRecorder = SkNEW_ARGS(SkRecorder, (SkRecorder::kReadWrite_Mode, record, width, height));
-    fRecord = record;
-}
-
-/*static*/ const SkPlayback* SkRecording::Delete(SkRecording* recording) {
-    SkRecord* record = recording->fRecord;
-    SkRecordOptimize(record);
-    SkDELETE(recording);
-    return SkNEW_ARGS(SkPlayback, (record));
-}
-
-SkRecording::~SkRecording() {
-    SkDELETE(fRecorder);
-}
+SkRecording::~SkRecording() {}
 
 SkCanvas* SkRecording::canvas() {
-    return fRecorder;
+    return fRecord.get() ? fRecorder.get() : NULL;
 }
 
 }  // namespace EXPERIMENTAL
