@@ -107,7 +107,7 @@ protected:
 
 private:
     // OK for use in asserts, but not much else.
-    int32_t unsafeGetRefCnt() { return SK_ANNOTATE_UNPROTECTED_READ(fRefCnt); }
+    int32_t unsafeGetRefCnt() const { return SK_ANNOTATE_UNPROTECTED_READ(fRefCnt); }
 
     /**
      *  Called when the ref count goes to 0.
