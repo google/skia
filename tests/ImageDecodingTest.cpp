@@ -163,6 +163,162 @@ static void test_unpremul(skiatest::Reporter* reporter) {
     }
 }
 
+#if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_UNIX)
+// Test that the alpha type is what we expect.
+static void test_alphaType(skiatest::Reporter* reporter, const SkString& filename,
+                           bool requireUnpremul) {
+    SkBitmap bm;
+    SkFILEStream stream(filename.c_str());
+
+    SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(&stream));
+    if (NULL == decoder.get()) {
+        return;
+    }
+
+    decoder->setRequireUnpremultipliedColors(requireUnpremul);
+
+    // Decode just the bounds. This should always succeed.
+    bool success = decoder->decode(&stream, &bm, SkBitmap::kARGB_8888_Config,
+                                   SkImageDecoder::kDecodeBounds_Mode);
+    REPORTER_ASSERT(reporter, success);
+    if (!success) {
+        return;
+    }
+
+    // Keep track of the alpha type for testing later. If the full decode
+    // succeeds, the alpha type should be the same, unless the full decode
+    // determined that the alpha type should actually be opaque, which may
+    // not be known when only decoding the bounds.
+    const SkAlphaType boundsAlphaType = bm.alphaType();
+
+    // rewind should always succeed on SkFILEStream.
+    success = stream.rewind();
+    REPORTER_ASSERT(reporter, success);
+    if (!success) {
+        return;
+    }
+
+    success = decoder->decode(&stream, &bm, SkBitmap::kARGB_8888_Config,
+                              SkImageDecoder::kDecodePixels_Mode);
+
+    if (!success) {
+        // When the decoder is set to require unpremul, if it does not support
+        // unpremul it will fail. This is the only reason the decode should
+        // fail (since we know the files we are using to test can be decoded).
+        REPORTER_ASSERT(reporter, requireUnpremul);
+        return;
+    }
+
+    // The bounds decode should return with either the requested
+    // premul/unpremul or opaque, if that value could be determined when only
+    // decoding the bounds.
+    if (requireUnpremul) {
+        REPORTER_ASSERT(reporter, kUnpremul_SkAlphaType == boundsAlphaType
+                                  || kOpaque_SkAlphaType == boundsAlphaType);
+    } else {
+        REPORTER_ASSERT(reporter, kPremul_SkAlphaType == boundsAlphaType
+                                  || kOpaque_SkAlphaType == boundsAlphaType);
+    }
+
+    // When decoding the full image, the alpha type should match the one
+    // returned by the bounds decode, unless the full decode determined that
+    // the alpha type is actually opaque.
+    REPORTER_ASSERT(reporter, bm.alphaType() == boundsAlphaType
+                              || bm.alphaType() == kOpaque_SkAlphaType);
+}
+
+DEF_TEST(ImageDecoding_alphaType, reporter) {
+    SkString resourcePath = skiatest::Test::GetResourcePath();
+    if (resourcePath.isEmpty()) {
+        SkDebugf("Could not run alphaType test because resourcePath not specified.");
+        return;
+    }
+
+    SkOSFile::Iter iter(resourcePath.c_str());
+    SkString basename;
+    if (iter.next(&basename)) {
+        do {
+            SkString filename = SkOSPath::SkPathJoin(resourcePath.c_str(), basename.c_str());
+            for (int truth = 0; truth <= 1; ++truth) {
+                test_alphaType(reporter, filename, SkToBool(truth));
+            }
+        } while (iter.next(&basename));
+    } else {
+        SkDebugf("Failed to find any files :(\n");
+    }
+
+}
+
+// Using known images, test that decoding into unpremul and premul behave as expected.
+DEF_TEST(ImageDecoding_unpremul, reporter) {
+    SkString resourcePath = skiatest::Test::GetResourcePath();
+    if (resourcePath.isEmpty()) {
+        SkDebugf("Could not run unpremul test because resourcePath not specified.");
+        return;
+    }
+    const char* root = "half-transparent-white-pixel";
+    const char* suffixes[] = { ".png", ".webp" };
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(suffixes); ++i) {
+        SkString basename = SkStringPrintf("%s%s", root, suffixes[i]);
+        SkString fullName = SkOSPath::SkPathJoin(resourcePath.c_str(), basename.c_str());
+
+        SkBitmap bm;
+        SkFILEStream stream(fullName.c_str());
+
+        if (!stream.isValid()) {
+            SkDebugf("file %s missing from resource directoy %s\n",
+                     basename.c_str(), resourcePath.c_str());
+            continue;
+        }
+
+        // This should never fail since we know the images we're decoding.
+        SkAutoTDelete<SkImageDecoder> decoder(SkImageDecoder::Factory(&stream));
+        REPORTER_ASSERT(reporter, NULL != decoder.get());
+        if (NULL == decoder.get()) {
+            continue;
+        }
+
+        // Test unpremultiplied. We know what color this should result in.
+        decoder->setRequireUnpremultipliedColors(true);
+        bool success = decoder->decode(&stream, &bm, SkBitmap::kARGB_8888_Config,
+                                       SkImageDecoder::kDecodePixels_Mode);
+        REPORTER_ASSERT(reporter, success);
+        if (!success) {
+            continue;
+        }
+
+        REPORTER_ASSERT(reporter, bm.width() == 1 && bm.height() == 1);
+        {
+            SkAutoLockPixels alp(bm);
+            REPORTER_ASSERT(reporter, bm.getAddr32(0, 0)[0] == 0x7fffffff);
+        }
+
+        success = stream.rewind();
+        REPORTER_ASSERT(reporter, success);
+        if (!success) {
+            continue;
+        }
+
+        // Test premultiplied. Once again, we know which color this should
+        // result in.
+        decoder->setRequireUnpremultipliedColors(false);
+        success = decoder->decode(&stream, &bm, SkBitmap::kARGB_8888_Config,
+                                  SkImageDecoder::kDecodePixels_Mode);
+        REPORTER_ASSERT(reporter, success);
+        if (!success) {
+            continue;
+        }
+
+        REPORTER_ASSERT(reporter, bm.width() == 1 && bm.height() == 1);
+        {
+            SkAutoLockPixels alp(bm);
+            REPORTER_ASSERT(reporter, bm.getAddr32(0, 0)[0] == 0x7f7f7f7f);
+        }
+    }
+}
+#endif // SK_BUILD_FOR_UNIX/ANDROID skbug.com/2388
+
 #ifdef SK_DEBUG
 // Create a stream containing a bitmap encoded to Type type.
 static SkMemoryStream* create_image_stream(SkImageEncoder::Type type) {
