@@ -231,14 +231,12 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename T> const T* skip(SkReader32* reader, size_t count = 1) {
-    SkASSERT(count >= 0);
     size_t size = sizeof(T) * count;
     SkASSERT(SkAlign4(size) == size);
     return reinterpret_cast<const T*>(reader->skip(size));
 }
 
 template <typename T> const T* skipAlign(SkReader32* reader, size_t count = 1) {
-    SkASSERT(count >= 0);
     size_t size = SkAlign4(sizeof(T) * count);
     return reinterpret_cast<const T*>(reader->skip(size));
 }
