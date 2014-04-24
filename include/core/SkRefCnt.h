@@ -37,7 +37,7 @@ public:
     */
     virtual ~SkRefCntBase() {
 #ifdef SK_DEBUG
-        SkASSERT(fRefCnt == 1);
+        SkASSERT(this->unique());
         fRefCnt = 0;    // illegal value, to catch us if we reuse after delete
 #endif
     }
@@ -53,6 +53,7 @@ public:
         // an unproctected read.  Generally, don't read fRefCnt, and don't stifle this warning.
         bool const unique = (1 == SK_ANNOTATE_UNPROTECTED_READ(fRefCnt));
         if (unique) {
+            SK_ANNOTATE_HAPPENS_AFTER(this);
             // Acquire barrier (L/SL), if not provided by load of fRefCnt.
             // Prevents user's 'unique' code from happening before decrements.
             //TODO: issue the barrier.
@@ -63,7 +64,7 @@ public:
     /** Increment the reference count. Must be balanced by a call to unref().
     */
     void ref() const {
-        SkASSERT(fRefCnt > 0);
+        SkASSERT(this->unsafeGetRefCnt() > 0);
         sk_atomic_inc(&fRefCnt);  // No barrier required.
     }
 
@@ -72,9 +73,11 @@ public:
         the object needs to have been allocated via new, and not on the stack.
     */
     void unref() const {
-        SkASSERT(fRefCnt > 0);
+        SkASSERT(this->unsafeGetRefCnt() > 0);
+        SK_ANNOTATE_HAPPENS_BEFORE(this);
         // Release barrier (SL/S), if not provided below.
         if (sk_atomic_dec(&fRefCnt) == 1) {
+            SK_ANNOTATE_HAPPENS_AFTER(this);
             // Acquire barrier (L/SL), if not provided above.
             // Prevents code in dispose from happening before the decrement.
             sk_membar_acquire__after_atomic_dec();
@@ -84,7 +87,7 @@ public:
 
 #ifdef SK_DEBUG
     void validate() const {
-        SkASSERT(fRefCnt > 0);
+        SkASSERT(this->unsafeGetRefCnt() > 0);
     }
 #endif
 
@@ -103,6 +106,9 @@ protected:
     }
 
 private:
+    // OK for use in asserts, but not much else.
+    int32_t unsafeGetRefCnt() { return SK_ANNOTATE_UNPROTECTED_READ(fRefCnt); }
+
     /**
      *  Called when the ref count goes to 0.
      */

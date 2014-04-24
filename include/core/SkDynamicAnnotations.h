@@ -19,6 +19,10 @@ extern "C" {
 // TSAN provides these hooks.
 void AnnotateIgnoreReadsBegin(const char* file, int line);
 void AnnotateIgnoreReadsEnd(const char* file, int line);
+void AnnotateHappensBefore(const char* file, int line, const volatile void* ptr);
+void AnnotateHappensAfter(const char* file, int line, const volatile void* ptr);
+void AnnotateRWLockAcquired(const char* file, int line, const volatile void* lock, long is_w);
+void AnnotateRWLockReleased(const char* file, int line, const volatile void* lock, long is_w);
 }  // extern "C"
 
 // SK_ANNOTATE_UNPROTECTED_READ can wrap any variable read to tell TSAN to ignore that it appears to
@@ -37,9 +41,19 @@ inline T SK_ANNOTATE_UNPROTECTED_READ(const volatile T& x) {
     return read;
 }
 
+#define SK_ANNOTATE_HAPPENS_BEFORE(obj) AnnotateHappensBefore(__FILE__, __LINE__, obj)
+#define SK_ANNOTATE_HAPPENS_AFTER(obj)  AnnotateHappensAfter(__FILE__, __LINE__, obj)
+
+#define SK_ANNOTATE_RWLOCK_ACQUIRED(lock, w) AnnotateRWLockAcquired(__FILE__, __LINE__, lock, w)
+#define SK_ANNOTATE_RWLOCK_RELEASED(lock, w) AnnotateRWLockReleased(__FILE__, __LINE__, lock, w)
+
 #else  // !DYNAMIC_ANNOTATIONS_ENABLED
 
 #define SK_ANNOTATE_UNPROTECTED_READ(x) (x)
+#define SK_ANNOTATE_HAPPENS_BEFORE(obj)
+#define SK_ANNOTATE_HAPPENS_AFTER(obj)
+#define SK_ANNOTATE_RWLOCK_ACQUIRED(lock, w)
+#define SK_ANNOTATE_RWLOCK_RELEASED(lock, w)
 
 #endif
 
