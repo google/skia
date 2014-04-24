@@ -8,7 +8,6 @@
 #include "SkQuadTree.h"
 #include "SkTSort.h"
 #include <stdio.h>
-#include <vector>
 
 static const int kSplitThreshold = 8;
 
