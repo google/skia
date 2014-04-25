@@ -1,6 +1,7 @@
 #include "SkColorPriv.h"
 #include "SkColor_opts_SSE2.h"
 #include "SkMathPriv.h"
+#include "SkMath_opts_SSE2.h"
 #include "SkXfermode.h"
 #include "SkXfermode_opts_SSE2.h"
 #include "SkXfermode_proccoeff.h"
@@ -324,6 +325,87 @@ static __m128i hardlight_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
     return SkPackARGB32_SSE2(a, r, g, b);
 }
 
+static __m128i sqrt_unit_byte_SSE2(const __m128i& n) {
+    return SkSqrtBits_SSE2(n, 15+4);
+}
+
+static inline __m128i softlight_byte_SSE2(const __m128i& sc, const __m128i& dc,
+                                          const __m128i& sa, const __m128i& da) {
+    __m128i tmp1, tmp2, tmp3;
+
+    // int m = da ? dc * 256 / da : 0;
+    __m128i cmp = _mm_cmpeq_epi32(da, _mm_setzero_si128());
+    __m128i m = _mm_slli_epi32(dc, 8);
+    __m128 x = _mm_cvtepi32_ps(m);
+    __m128 y = _mm_cvtepi32_ps(da);
+    m = _mm_cvttps_epi32(_mm_div_ps(x, y));
+    m = _mm_andnot_si128(cmp, m);
+
+    // if (2 * sc <= sa)
+    tmp1 = _mm_slli_epi32(sc, 1);                      // 2 * sc
+    __m128i cmp1 = _mm_cmpgt_epi32(tmp1, sa);
+    tmp1 = _mm_sub_epi32(tmp1, sa);                    // 2 * sc - sa
+    tmp2 = _mm_sub_epi32(_mm_set1_epi32(256), m);      // 256 - m
+    tmp1 = Multiply32_SSE2(tmp1, tmp2);
+    tmp1 = _mm_srai_epi32(tmp1, 8);
+    tmp1 = _mm_add_epi32(sa, tmp1);
+    tmp1 = Multiply32_SSE2(dc, tmp1);
+    __m128i rc1 = _mm_andnot_si128(cmp1, tmp1);
+
+    // else if (4 * dc <= da)
+    tmp2 = _mm_slli_epi32(dc, 2);                      // dc * 4
+    __m128i cmp2 = _mm_cmpgt_epi32(tmp2, da);
+    __m128i i = _mm_slli_epi32(m, 2);                  // 4 * m
+    __m128i j = _mm_add_epi32(i, _mm_set1_epi32(256)); // 4 * m + 256
+    __m128i k = Multiply32_SSE2(i, j);                 // 4 * m * (4 * m + 256)
+    __m128i t = _mm_sub_epi32(m, _mm_set1_epi32(256)); // m - 256
+    i = Multiply32_SSE2(k, t);                         // 4 * m * (4 * m + 256) * (m - 256)
+    i = _mm_srai_epi32(i, 16);                         // >> 16
+    j = Multiply32_SSE2(_mm_set1_epi32(7), m);         // 7 * m
+    tmp2 = _mm_add_epi32(i, j);
+    i = Multiply32_SSE2(dc, sa);                       // dc * sa
+    j = _mm_slli_epi32(sc, 1);                         // 2 * sc
+    j = _mm_sub_epi32(j, sa);                          // 2 * sc - sa
+    j = Multiply32_SSE2(da, j);                        // da * (2 * sc - sa)
+    tmp2 = Multiply32_SSE2(j, tmp2);                   // * tmp
+    tmp2 = _mm_srai_epi32(tmp2, 8);                    // >> 8
+    tmp2 = _mm_add_epi32(i, tmp2);
+    cmp = _mm_andnot_si128(cmp2, cmp1);
+    __m128i rc2 = _mm_and_si128(cmp, tmp2);
+    __m128i rc = _mm_or_si128(rc1, rc2);
+
+    // else
+    tmp3 = sqrt_unit_byte_SSE2(m);
+    tmp3 = _mm_sub_epi32(tmp3, m);
+    tmp3 = Multiply32_SSE2(j, tmp3);                   // j = da * (2 * sc - sa)
+    tmp3 = _mm_srai_epi32(tmp3, 8);
+    tmp3 = _mm_add_epi32(i, tmp3);                     // i = dc * sa
+    cmp = _mm_and_si128(cmp1, cmp2);
+    __m128i rc3 = _mm_and_si128(cmp, tmp3);
+    rc = _mm_or_si128(rc, rc3);
+
+    tmp1 = _mm_sub_epi32(_mm_set1_epi32(255), da);     // 255 - da
+    tmp1 = _mm_mullo_epi16(sc, tmp1);
+    tmp2 = _mm_sub_epi32(_mm_set1_epi32(255), sa);     // 255 - sa
+    tmp2 = _mm_mullo_epi16(dc, tmp2);
+    rc = _mm_add_epi32(rc, tmp1);
+    rc = _mm_add_epi32(rc, tmp2);
+    return clamp_div255round_SSE2(rc);
+}
+
+static __m128i softlight_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i sa = SkGetPackedA32_SSE2(src);
+    __m128i da = SkGetPackedA32_SSE2(dst);
+
+    __m128i a = srcover_byte_SSE2(sa, da);
+    __m128i r = softlight_byte_SSE2(SkGetPackedR32_SSE2(src),
+                                    SkGetPackedR32_SSE2(dst), sa, da);
+    __m128i g = softlight_byte_SSE2(SkGetPackedG32_SSE2(src),
+                                    SkGetPackedG32_SSE2(dst), sa, da);
+    __m128i b = softlight_byte_SSE2(SkGetPackedB32_SSE2(src),
+                                    SkGetPackedB32_SSE2(dst), sa, da);
+    return SkPackARGB32_SSE2(a, r, g, b);
+}
 
 static inline __m128i difference_byte_SSE2(const __m128i& sc, const __m128i& dc,
                                            const __m128i& sa, const __m128i& da) {
@@ -353,6 +435,7 @@ static __m128i difference_modeproc_SSE2(const __m128i& src,
                                      SkGetPackedB32_SSE2(dst), sa, da);
     return SkPackARGB32_SSE2(a, r, g, b);
 }
+
 static inline __m128i exclusion_byte_SSE2(const __m128i& sc, const __m128i& dc,
                                           const __m128i&, __m128i&) {
     __m128i tmp1 = _mm_mullo_epi16(_mm_set1_epi32(255), sc); // 255 * sc
@@ -540,7 +623,7 @@ SkXfermodeProcSIMD gSSE2XfermodeProcs[] = {
     NULL, // kColorDodge_Mode
     NULL, // kColorBurn_Mode
     hardlight_modeproc_SSE2,
-    NULL, // kSoftLight_Mode
+    softlight_modeproc_SSE2,
     difference_modeproc_SSE2,
     exclusion_modeproc_SSE2,
     multiply_modeproc_SSE2,
