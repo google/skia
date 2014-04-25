@@ -266,6 +266,32 @@ static __m128i overlay_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
     return SkPackARGB32_SSE2(a, r, g, b);
 }
 
+static inline __m128i exclusion_byte_SSE2(const __m128i& sc, const __m128i& dc,
+                                          const __m128i&, __m128i&) {
+    __m128i tmp1 = _mm_mullo_epi16(_mm_set1_epi32(255), sc); // 255 * sc
+    __m128i tmp2 = _mm_mullo_epi16(_mm_set1_epi32(255), dc); // 255 * dc
+    tmp1 = _mm_add_epi32(tmp1, tmp2);
+    tmp2 = _mm_mullo_epi16(sc, dc);                          // sc * dc
+    tmp2 = _mm_slli_epi32(tmp2, 1);                          // 2 * sc * dc
+
+    __m128i r = _mm_sub_epi32(tmp1, tmp2);
+    return clamp_div255round_SSE2(r);
+}
+
+static __m128i exclusion_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i sa = SkGetPackedA32_SSE2(src);
+    __m128i da = SkGetPackedA32_SSE2(dst);
+
+    __m128i a = srcover_byte_SSE2(sa, da);
+    __m128i r = exclusion_byte_SSE2(SkGetPackedR32_SSE2(src),
+                                    SkGetPackedR32_SSE2(dst), sa, da);
+    __m128i g = exclusion_byte_SSE2(SkGetPackedG32_SSE2(src),
+                                    SkGetPackedG32_SSE2(dst), sa, da);
+    __m128i b = exclusion_byte_SSE2(SkGetPackedB32_SSE2(src),
+                                    SkGetPackedB32_SSE2(dst), sa, da);
+    return SkPackARGB32_SSE2(a, r, g, b);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef __m128i (*SkXfermodeProcSIMD)(const __m128i& src, const __m128i& dst);
@@ -429,7 +455,7 @@ SkXfermodeProcSIMD gSSE2XfermodeProcs[] = {
     NULL, // kHardLight_Mode
     NULL, // kSoftLight_Mode
     NULL, // kDifference_Mode
-    NULL, // kExclusion_Mode
+    exclusion_modeproc_SSE2,
     multiply_modeproc_SSE2,
 
     NULL, // kHue_Mode
