@@ -14,13 +14,17 @@
 #include "SkTArray.h"
 #include "SkTDArray.h"
 
+#if defined(SK_DEBUG) || !FORCE_RELEASE
+#include "SkThread.h"
+#endif
+
 class SkPathWriter;
 
 class SkOpSegment {
 public:
     SkOpSegment() {
 #if defined(SK_DEBUG) || !FORCE_RELEASE
-        fID = ++SkPathOpsDebug::gSegmentID;
+        fID = sk_atomic_inc(&SkPathOpsDebug::gSegmentID);
 #endif
     }
 

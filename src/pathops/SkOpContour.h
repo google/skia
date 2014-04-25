@@ -10,6 +10,10 @@
 #include "SkOpSegment.h"
 #include "SkTArray.h"
 
+#if defined(SK_DEBUG) || !FORCE_RELEASE
+#include "SkThread.h"
+#endif
+
 class SkIntersections;
 class SkOpContour;
 class SkPathWriter;
@@ -26,7 +30,7 @@ public:
     SkOpContour() {
         reset();
 #if defined(SK_DEBUG) || !FORCE_RELEASE
-        fID = ++SkPathOpsDebug::gContourID;
+        fID = sk_atomic_inc(&SkPathOpsDebug::gContourID);
 #endif
     }
 
