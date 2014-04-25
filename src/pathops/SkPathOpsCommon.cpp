@@ -206,7 +206,7 @@ void DebugShowActiveSpans(SkTArray<SkOpContour*, true>& contourList) {
 
 static SkOpSegment* findSortableTop(const SkTArray<SkOpContour*, true>& contourList,
                                     int* index, int* endIndex, SkPoint* topLeft, bool* unsortable,
-                                    bool* done, bool onlySortable) {
+                                    bool* done, bool firstPass) {
     SkOpSegment* result;
     const SkOpSegment* lastTopStart = NULL;
     int lastIndex = -1, lastEndIndex = -1;
@@ -238,7 +238,7 @@ static SkOpSegment* findSortableTop(const SkTArray<SkOpContour*, true>& contourL
             return NULL;
         }
         *topLeft = bestXY;
-        result = topStart->findTop(index, endIndex, unsortable);
+        result = topStart->findTop(index, endIndex, unsortable, firstPass);
         if (!result) {
             if (lastTopStart == topStart && lastIndex == *index && lastEndIndex == *endIndex) {
                 *done = true;
@@ -249,9 +249,11 @@ static SkOpSegment* findSortableTop(const SkTArray<SkOpContour*, true>& contourL
             lastEndIndex = *endIndex;
         }
     } while (!result);
+#if 0
     if (result) {
         *unsortable = false;
     }
+#endif
     return result;
 }
 
@@ -283,18 +285,20 @@ static void skipVertical(const SkTArray<SkOpContour*, true>& contourList,
         if (contour->done()) {
             continue;
         }
-        *current = contour->nonVerticalSegment(index, endIndex);
-        if (*current) {
+        SkOpSegment* nonVertical = contour->nonVerticalSegment(index, endIndex);
+        if (nonVertical) {
+            *current = nonVertical;
             return;
         }
     }
+    return;
 }
 
 SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList,
         SkOpAngle::IncludeType angleIncludeType, bool* firstContour, int* indexPtr,
-        int* endIndexPtr, SkPoint* topLeft, bool* unsortable, bool* done) {
+        int* endIndexPtr, SkPoint* topLeft, bool* unsortable, bool* done, bool firstPass) {
     SkOpSegment* current = findSortableTop(contourList, indexPtr, endIndexPtr, topLeft, unsortable,
-            done, true);
+            done, firstPass);
     if (!current) {
         return NULL;
     }
@@ -332,7 +336,7 @@ SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList,
         // if only remaining candidates are vertical, then they can be marked done
         SkASSERT(*indexPtr != *endIndexPtr && *indexPtr >= 0 && *endIndexPtr >= 0);
         skipVertical(contourList, &current, indexPtr, endIndexPtr);
-
+        SkASSERT(current);  // FIXME: if null, all remaining are vertical
         SkASSERT(*indexPtr != *endIndexPtr && *indexPtr >= 0 && *endIndexPtr >= 0);
         tryAgain = false;
         contourWinding = rightAngleWinding(contourList, &current, indexPtr, endIndexPtr, &tHit,
@@ -348,6 +352,9 @@ SkOpSegment* FindSortableTop(const SkTArray<SkOpContour*, true>& contourList,
     } while (tryAgain);
     current->initWinding(*indexPtr, *endIndexPtr, tHit, contourWinding, hitDx, oppContourWinding,
             hitOppDx);
+    if (current->done()) {
+        return NULL;
+    }
     return current;
 }
 

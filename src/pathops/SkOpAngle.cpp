@@ -321,9 +321,11 @@ recomputeSector:
         fUnorderable = true;
         return false;
     }
+    int saveEnd = fEnd;
     fEnd = checkEnd - step;
     setSpans();
     setSector();
+    fEnd = saveEnd;
     return !fUnorderable;
 }
 
@@ -658,6 +660,9 @@ void SkOpAngle::insert(SkOpAngle* angle) {
     }
     SkOpAngle* next = fNext;
     if (next->fNext == this) {
+        if (angle->overlap(*this)) {
+            return;
+        }
         if (singleton || angle->after(this)) {
             this->fNext = angle;
             angle->fNext = next;
@@ -671,6 +676,9 @@ void SkOpAngle::insert(SkOpAngle* angle) {
     SkOpAngle* last = this;
     do {
         SkASSERT(last->fNext == next);
+        if (angle->overlap(*last) || angle->overlap(*next)) {
+            return;
+        }
         if (angle->after(last)) {
             last->fNext = angle;
             angle->fNext = next;
@@ -699,6 +707,33 @@ SkOpSpan* SkOpAngle::lastMarked() const {
         fLastMarked->fChased = true;
     }
     return fLastMarked;
+}
+
+bool SkOpAngle::loopContains(const SkOpAngle& test) const {
+    if (!fNext) {
+        return false;
+    }
+    const SkOpAngle* first = this;
+    const SkOpAngle* loop = this;
+    const SkOpSegment* tSegment = test.fSegment;
+    double tStart = tSegment->span(test.fStart).fT;
+    double tEnd = tSegment->span(test.fEnd).fT;
+    do {
+        const SkOpSegment* lSegment = loop->fSegment;
+        // FIXME : use precisely_equal ? or compare points exactly ?
+        if (lSegment != tSegment) {
+            continue;
+        }
+        double lStart = lSegment->span(loop->fStart).fT;
+        if (lStart != tEnd) {
+            continue;
+        }
+        double lEnd = lSegment->span(loop->fEnd).fT;
+        if (lEnd == tStart) {
+            return true;
+        }
+    } while ((loop = loop->fNext) != first);
+    return false;
 }
 
 int SkOpAngle::loopCount() const {
@@ -811,6 +846,23 @@ unorderable:
     fUnorderable = true;
     rh.fUnorderable = true;
     return true;
+}
+
+bool SkOpAngle::overlap(const SkOpAngle& other) const {
+    int min = SkTMin(fStart, fEnd);
+    const SkOpSpan& span = fSegment->span(min);
+    const SkOpSegment* oSeg = other.fSegment;
+    int oMin = SkTMin(other.fStart, other.fEnd);
+    const SkOpSpan& oSpan = oSeg->span(oMin);
+    if (!span.fSmall && !oSpan.fSmall) {
+        return false;
+    }
+    if (fSegment->span(fStart).fPt != oSeg->span(other.fStart).fPt) {
+        return false;
+    }
+    // see if small span is contained by opposite span
+    return span.fSmall ? oSeg->containsPt(fSegment->span(fEnd).fPt, other.fEnd, other.fStart)
+            : fSegment->containsPt(oSeg->span(other.fEnd).fPt, fEnd, fStart);
 }
 
 // OPTIMIZE: if this shows up in a profile, add a previous pointer

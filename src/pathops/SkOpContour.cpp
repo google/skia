@@ -211,9 +211,12 @@ void SkOpContour::joinCoincidence(const SkTArray<SkCoincidence, true>& coinciden
         }
         bool swapStart = startT > endT;
         bool swapOther = oStartT > oEndT;
+        const SkPoint* startPt = &coincidence.fPts[0];
+        const SkPoint* endPt = &coincidence.fPts[1];
         if (swapStart) {
-            SkTSwap<double>(startT, endT);
-            SkTSwap<double>(oStartT, oEndT);
+            SkTSwap(startT, endT);
+            SkTSwap(oStartT, oEndT);
+            SkTSwap(startPt, endPt);
         }
         bool cancel = swapOther != swapStart;
         int step = swapStart ? -1 : 1;
@@ -222,17 +225,18 @@ void SkOpContour::joinCoincidence(const SkTArray<SkCoincidence, true>& coinciden
         if (partial ? startT != 0 || oMatchStart != 0 : (startT == 0) != (oMatchStart == 0)) {
             bool added = false;
             if (oMatchStart != 0) {
-                added = thisOne.joinCoincidence(&other, oMatchStart, oStep, cancel);
+                const SkPoint& oMatchStartPt = cancel ? *endPt : *startPt;
+                added = thisOne.joinCoincidence(&other, oMatchStart, oMatchStartPt, oStep, cancel);
             }
             if (!cancel && startT != 0 && !added) {
-                (void) other.joinCoincidence(&thisOne, startT, step, cancel);
+                (void) other.joinCoincidence(&thisOne, startT, *startPt, step, cancel);
             }
         }
         double oMatchEnd = cancel ? oStartT : oEndT;
         if (partial ? endT != 1 || oMatchEnd != 1 : (endT == 1) != (oMatchEnd == 1)) {
             bool added = false;
             if (cancel && endT != 1 && !added) {
-                (void) other.joinCoincidence(&thisOne, endT, -step, cancel);
+                (void) other.joinCoincidence(&thisOne, endT, *endPt, -step, cancel);
             }
         }
     }
@@ -329,7 +333,7 @@ void SkOpContour::topSortableSegment(const SkPoint& topLeft, SkPoint* bestXY,
             continue;
         }
         fDone = false;
-        SkPoint testXY = testSegment->activeLeftTop(true, NULL);
+        SkPoint testXY = testSegment->activeLeftTop(NULL);
         if (*topStart) {
             if (testXY.fY < topLeft.fY) {
                 continue;

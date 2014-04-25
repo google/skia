@@ -164,7 +164,7 @@ public:
         quad.set(a);
         SkDLine line;
         line.set(b);
-        fMax = 2;
+        fMax = 3; // 2;  permit small coincident segment + non-coincident intersection
         return intersect(quad, line);
     }
 

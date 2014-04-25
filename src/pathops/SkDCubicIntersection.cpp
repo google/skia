@@ -494,7 +494,18 @@ int SkIntersections::intersect(const SkDCubic& c1, const SkDCubic& c2) {
         cubicNearEnd(c1, false, c2, c2Bounds);
     }
     if (!(exactEndBits & 8)) {
+        if (selfIntersect && fUsed) {
+            return fUsed;
+        }
         cubicNearEnd(c1, true, c2, c2Bounds);
+        if (selfIntersect && fUsed && ((approximately_less_than_zero(fT[0][0])
+                    && approximately_less_than_zero(fT[1][0]))
+                    || (approximately_greater_than_one(fT[0][0])
+                    && approximately_greater_than_one(fT[1][0])))) {
+            SkASSERT(fUsed == 1);
+            fUsed = 0;
+            return fUsed;
+        }
     }
     if (!selfIntersect) {
         SkDRect c1Bounds;

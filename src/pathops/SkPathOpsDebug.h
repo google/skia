@@ -52,6 +52,7 @@
 #define DEBUG_CROSS 0
 #define DEBUG_FLAT_QUADS 0
 #define DEBUG_FLOW 0
+#define DEBUG_LIMIT_WIND_SUM 0
 #define DEBUG_MARK_DONE 0
 #define DEBUG_PATH_CONSTRUCTION 0
 #define DEBUG_SHOW_TEST_NAME 0
@@ -85,6 +86,7 @@
 #define DEBUG_CROSS 01
 #define DEBUG_FLAT_QUADS 0
 #define DEBUG_FLOW 1
+#define DEBUG_LIMIT_WIND_SUM 4
 #define DEBUG_MARK_DONE 1
 #define DEBUG_PATH_CONSTRUCTION 1
 #define DEBUG_SHOW_TEST_NAME 1
@@ -96,7 +98,7 @@
 #define DEBUG_SORT_SINGLE 0
 #define DEBUG_SWAP_TOP 1
 #define DEBUG_UNSORTABLE 1
-#define DEBUG_VALIDATE 1
+#define DEBUG_VALIDATE 0
 #define DEBUG_WIND_BUMP 0
 #define DEBUG_WINDING 1
 #define DEBUG_WINDING_AT_T 1
@@ -134,12 +136,12 @@
 
 class SkPathOpsDebug {
 public:
-    static int gMaxWindSum;
-    static int gMaxWindValue;
-
     static const char* kLVerbStr[];
+
+#if defined(SK_DEBUG) || !FORCE_RELEASE
     static int gContourID;
     static int gSegmentID;
+#endif
 
 #if DEBUG_SORT || DEBUG_SWAP_TOP
     static int gSortCountDefault;

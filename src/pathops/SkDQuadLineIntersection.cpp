@@ -98,7 +98,7 @@ public:
         , fLine(l)
         , fIntersections(i)
         , fAllowNear(true) {
-        i->setMax(2);
+        i->setMax(3);  // allow short partial coincidence plus discrete intersection
     }
 
     void allowNear(bool allow) {
@@ -330,6 +330,9 @@ protected:
         } else if (gridPt == fLine[1].asSkPoint()) {
             *pt = fLine[1];
             *lineT = 1;
+        }
+        if (fIntersections->used() > 0 && approximately_equal((*fIntersections)[1][0], *lineT)) {
+            return false;
         }
         if (gridPt == fQuad[0].asSkPoint()) {
             *pt = fQuad[0];

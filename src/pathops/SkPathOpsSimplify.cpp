@@ -13,21 +13,24 @@ static bool bridgeWinding(SkTArray<SkOpContour*, true>& contourList, SkPathWrite
     bool firstContour = true;
     bool unsortable = false;
     bool topUnsortable = false;
+    bool firstPass = true;
+    SkPoint lastTopLeft;
     SkPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
     do {
         int index, endIndex;
         bool topDone;
+        lastTopLeft = topLeft;
         SkOpSegment* current = FindSortableTop(contourList, SkOpAngle::kUnaryWinding, &firstContour,
-                &index, &endIndex, &topLeft, &topUnsortable, &topDone);
+                &index, &endIndex, &topLeft, &topUnsortable, &topDone, firstPass);
         if (!current) {
-            if (topUnsortable || !topDone) {
-                topUnsortable = false;
+            if ((!topUnsortable || firstPass) && !topDone) {
                 SkASSERT(topLeft.fX != SK_ScalarMin && topLeft.fY != SK_ScalarMin);
                 topLeft.fX = topLeft.fY = SK_ScalarMin;
                 continue;
             }
             break;
         }
+        firstPass = !topUnsortable || lastTopLeft != topLeft;
         SkTDArray<SkOpSpan*> chaseArray;
         do {
             if (current->activeWinding(index, endIndex)) {

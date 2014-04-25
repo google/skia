@@ -26,22 +26,86 @@
     #define OUT_DIR "D:\\skpOut\\1\\"
 #else
     #define PATH_SLASH "/"
-    #define IN_DIR "/skp/slave"
-    #define OUT_DIR "/skpOut/1/"
+    #define IN_DIR "/skp/2311328-7fc2228/slave"
+    #define OUT_DIR "/skpOut/2/"
 #endif
 
 const struct {
     int directory;
     const char* filename;
 } skipOverSept[] = {
-    {1, "http___elpais_com_.skp"},
-    {1, "http___namecheap_com_.skp"},
-    {1, "http___www_alrakoba_net_.skp"},
-    {1, "http___www_briian_com_.skp"},  // triggers assert at line 467 of SkRRect.cpp
-    {1, "http___www_cityads_ru_.skp"},
-    {3, "http___www_abeautifulmess_com_.skp"},  // asserts in IntToFixed from SkScan::AntiFilllXRect
-    {1, "http___www_dealnews_com_.skp"},
-    {1, "http___www_inmotionhosting_com.skp"},
+    { 9, "http___www_catingueiraonline_com_.skp"},  // infinite loop
+    {13, "http___www_galaxystwo_com_.skp"},  // infinite loop
+    {15, "http___www_giffingtool_com_.skp"},  // joinCoincidence / findT / assert
+    {15, "http___www_thaienews_blogspot_com_.skp"},  // infinite loop
+    {17, "http___www_gruposejaumdivulgador_com_br_.skp"}, // calcCoincidentWinding asserts zeroSpan
+    {18, "http___www_argus_presse_fr_.skp"},  // can't find winding of remaining vertical edge
+    {21, "http___www_fashionscandal_com_.skp"},  // infinite loop
+    {21, "http___www_kenlevine_blogspot_com_.skp"},  // infinite loop
+    {25, "http___www_defense_studies_blogspot_com_.skp"},  // infinite loop
+    {27, "http___www_brokeroutpost_com_.skp"},  // suspect infinite loop
+    {28, "http___www_jaimebatistadasilva_blogspot_com_br_.skp"},  // suspect infinite loop
+    {28, "http___www_odia_com_br_.skp"},  // !simple->isClosed()
+    {29, "http___www_hubbyscook_com_.skp"},  // joinCoincidence / findT / assert
+    {30, "http___www_spankystokes_com_.skp"},  // suspect infinite loop
+    {32, "http___www_adalbertoday_blogspot_com_br_.skp"},  // suspect infinite loop
+    {32, "http___www_galery_annisa_com_.skp"},  // suspect infinite loop
+    {33, "http___www_pindosiya_com_.skp"},  // line quad intersection SkIntersections::assert
+    {36, "http___www_educationalcraft_com_.skp"},  // cubic / cubic near end / assert in SkIntersections::insert (missing skp test)
+    {36, "http___www_shaam_org_.skp"},  // suspect infinite loop
+    {36, "http___www_my_pillow_book_blogspot_gr_.skp"},  // suspect infinite loop
+    {39, "http___www_opbeat_com_.skp"},  // suspect infinite loop
+    {40, "http___www_phototransferapp_com_.skp"},  // !simple->isClosed()
+    {41, "http___www_freeismylife_com_.skp"},  // suspect infinite loop
+    {41, "http___www_accordidelmomento_com_.skp"},  // suspect infinite loop
+    {41, "http___www_evolvehq_com_.skp"},  // joinCoincidence / findT / assert
+    {44, "http___www_contextualnewsfeeds_com_.skp"},  // !simple->isClosed()
+    {44, "http___www_cooksnaps_com_.skp"},  // !simple->isClosed()
+    {44, "http___www_helha_be_.skp"},  // !simple->isClosed()
+    {45, "http___www_blondesmakemoney_blogspot_com_.skp"},  // suspect infinite loop
+    {46, "http___www_cheaphealthygood_blogspot_com_.skp"},  // suspect infinite loop
+    {47, "http___www_ajitvadakayil_blogspot_in_.skp"},  // suspect infinite loop
+    {49, "http___www_karnivool_com_au_.skp"},  // SkOpAngle::setSector SkASSERT(fSectorStart >= 0);
+    {49, "http___www_tunero_de_.skp"},  // computeonesumreverse calls markwinding with 0 winding
+    {49, "http___www_thaienews_blogspot_sg_.skp"},  // suspect infinite loop
+    {50, "http___www_docgelo_com_.skp"},  // rightAngleWinding (probably same as argus_presse)
+    {53, "http___www_lojaanabotafogo_com_br_.skp"},  // rrect validate assert
+    {54, "http___www_odecktestanswer2013_blogspot_in_.skp"},  // suspect infinite loop
+    {54, "http___www_cleristonsilva_com_br_.skp"},  // suspect infinite loop
+    {56, "http___www_simplysaru_com_.skp"},  // joinCoincidence / findT / assert
+    {57, "http___www_koukfamily_blogspot_gr_.skp"},  // suspect infinite loop
+    {57, "http___www_dinar2010_blogspot_com_.skp"},  // suspect infinite loop
+    {58, "http___www_artblart_com_.skp"},  // rightAngleWinding
+    {59, "http___www_accrispin_blogspot_com_.skp"},  // suspect infinite loop
+    {59, "http___www_vicisitudysordidez_blogspot_com_es_.skp"},  // suspect infinite loop
+    {60, "http___www_thehousingbubbleblog_com_.skp"},  // suspect infinite loop
+    {61, "http___www_jessicaslens_wordpress_com_.skp"},  // joinCoincidence / findT / assert
+    {61, "http___www_partsdata_de_.skp"},  // cubic-cubic intersection reduce checkLinear assert
+    {62, "http___www_blondesmakemoney_blogspot_com_au_.skp"},  // suspect infinite loop
+    {62, "http___www_intellibriefs_blogspot_in_.skp"},  // suspect infinite loop
+    {63, "http___www_tankerenemy_com_.skp"},  // suspect infinite loop
+    {65, "http___www_kpopexplorer_net_.skp"},  // joinCoincidence / findT / assert
+    {65, "http___www_bestthingsinbeauty_blogspot_com_.skp"},  // suspect infinite loop
+    {65, "http___www_wartepop_blogspot_com_br_.skp"},  // !simple->isClosed()
+    {65, "http___www_eolake_blogspot_com_.skp"},  // suspect infinite loop
+    {67, "http___www_cacadordemisterio_blogspot_com_br_.skp"},  // suspect infinite loop
+    {69, "http___www_misnotasyapuntes_blogspot_mx_.skp"},  // suspect infinite loop
+    {69, "http___www_awalkintheparknyc_blogspot_com_.skp"},  // suspect infinite loop
+    {71, "http___www_lokado_de_.skp"},  // joinCoincidence / findT / assert
+    {72, "http___www_karlosdesanjuan_blogspot_com_.skp"},  // suspect infinite loop
+    {73, "http___www_cyberlawsinindia_blogspot_in_.skp"},  // suspect infinite loop
+    {73, "http___www_taxiemmovimento_blogspot_com_br_.skp"},  // suspect infinite loop
+    {74, "http___www_giveusliberty1776_blogspot_com_.skp"},  // suspect infinite loop
+    {75, "http___www_e_cynical_blogspot_gr_.skp"},  // suspect infinite loop
+    {76, "http___www_seopack_blogspot_com_.skp"},  // SkOpAngle::setSector SkASSERT(fSectorStart >= 0);
+    {77, "http___www_sunsky_russia_com_.skp"},  // joinCoincidence / findT / assert (no op test, already fixed hopefully)
+    {78, "http___www_bisnisonlineinfo_com_.skp"},  // suspect infinite loop
+    {79, "http___www_danielsgroupcpa_com_.skp"},  // joinCoincidence / findT / assert (no op test, already fixed hopefully)
+    {80, "http___www_clinique_portugal_com_.skp"},  // suspect infinite loop
+    {81, "http___www_europebusines_blogspot_com_.skp"},  // suspect infinite loop
+    {82, "http___www_apopsignomi_blogspot_gr_.skp"},  // suspect infinite loop
+    {85, "http___www_ajitvadakayil_blogspot_com_.skp"},  // suspect infinite loop
+    {86, "http___www_madhousefamilyreviews_blogspot_co_uk_.skp"},  // suspect infinite loop
 };
 
 size_t skipOverSeptCount = sizeof(skipOverSept) / sizeof(skipOverSept[0]);
@@ -409,6 +473,9 @@ void TestResult::testOne() {
         int height = pic->height();
         SkBitmap oldBitmap, opBitmap;
         fScale = 1;
+        while (width / fScale > 32767 || height / fScale > 32767) {
+            ++fScale;
+        }
         do {
             int dimX = (width + fScale - 1) / fScale;
             int dimY = (height + fScale - 1) / fScale;
@@ -417,7 +484,7 @@ void TestResult::testOne() {
                 break;
             }
             SkDebugf("-%d-", fScale);
-        } while ((fScale *= 2) < 256);
+        } while (++fScale < 256);
         if (fScale >= 256) {
             SkDebugf("unable to allocate bitmap for %s (w=%d h=%d)\n", fFilename,
                     width, height);
@@ -458,9 +525,10 @@ static SkString makeStatusString(int dirNo) {
 
 class PreParser {
 public:
-    PreParser(int dirNo)
+    PreParser(int dirNo, bool threaded)
         : fDirNo(dirNo)
-        , fIndex(0) {
+        , fIndex(0)
+        , fThreaded(threaded) {
         SkString statusPath = makeStatusString(dirNo);
         if (!sk_exists(statusPath.c_str())) {
             return;
@@ -481,7 +549,7 @@ public:
         do {
             bool readOne = reader.read(&c, 1) != 0;
             if (!readOne) {
-                SkASSERT(i == 0);
+//                SkASSERT(i == 0);   // the current text may be incomplete -- if so, ignore it
                 return false;
             }
             if (c == ' ') {
@@ -492,7 +560,9 @@ public:
             SkASSERT(i < kMaxLength);
         } while (true);
         do {
-            SkAssertResult(reader.read(&c, 1));
+            if (!reader.read(&c, 1)) {
+                return false;
+            }   
             if (c == ' ') {
                 break;
             }
@@ -501,7 +571,9 @@ public:
         } while (true);
         bool minus = false;
         do {
-            SkAssertResult(reader.read(&c, 1));
+            if (!reader.read(&c, 1)) {
+                return false;
+            }
             if (c == '\n') {
                 break;
             }
@@ -519,7 +591,17 @@ public:
     }
 
     bool match(const SkString& filename, SkFILEWStream* stream, TestResult* result) {
-        if (fIndex < fResults.count()) {
+        if (fThreaded) {
+            for (int index = 0; index < fResults.count(); ++index) {
+                const TestResult& test = fResults[index];
+                if (filename.equals(test.fFilename)) {
+                    *result = test;
+                    SkString outStr(result->status());
+                    stream->write(outStr.c_str(), outStr.size());
+                    return true;
+                }
+            }
+        } else if (fIndex < fResults.count()) {
             *result = fResults[fIndex++];
             SkASSERT(filename.equals(result->fFilename));
             SkString outStr(result->status());
@@ -533,9 +615,10 @@ private:
     int fDirNo;
     int fIndex;
     SkTArray<TestResult, true> fResults;
+    bool fThreaded;
 };
 
-static bool doOneDir(TestState* state) {
+static bool doOneDir(TestState* state, bool threaded) {
     int dirNo = state->fResult.fDirNo;
     skiatest::Reporter* reporter = state->fReporter;
     SkString dirName = make_in_dir_name(dirNo);
@@ -545,7 +628,7 @@ static bool doOneDir(TestState* state) {
     SkOSFile::Iter iter(dirName.c_str(), "skp");
     SkString filename;
     int testCount = 0;
-    PreParser preParser(dirNo);
+    PreParser preParser(dirNo, threaded);
     SkFILEWStream statusStream(makeStatusString(dirNo).c_str());
     while (iter.next(&filename)) {
         for (size_t index = 0; index < skipOverSeptCount; ++index) {
@@ -632,7 +715,7 @@ DEF_TEST(PathOpsSkpClip, reporter) {
             SkDebugf("dirNo=%d\n", dirNo);
         }
         state.fResult.fDirNo = dirNo;
-        if (!doOneDir(&state)) {
+        if (!doOneDir(&state, false)) {
             break;
         }
     }
@@ -640,7 +723,7 @@ DEF_TEST(PathOpsSkpClip, reporter) {
 }
 
 static void testSkpClipMain(TestState* data) {
-        (void) doOneDir(data);
+        (void) doOneDir(data, true);
 }
 
 DEF_TEST(PathOpsSkpClipThreaded, reporter) {

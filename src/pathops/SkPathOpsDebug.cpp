@@ -10,12 +10,12 @@
 
 #if defined SK_DEBUG || !FORCE_RELEASE
 
-int SkPathOpsDebug::gMaxWindSum = SK_MaxS32;
-int SkPathOpsDebug::gMaxWindValue = SK_MaxS32;
-
 const char* SkPathOpsDebug::kLVerbStr[] = {"", "line", "quad", "cubic"};
+
+#if defined(SK_DEBUG) || !FORCE_RELEASE
 int SkPathOpsDebug::gContourID;
 int SkPathOpsDebug::gSegmentID;
+#endif
 
 #if DEBUG_SORT || DEBUG_SWAP_TOP
 int SkPathOpsDebug::gSortCountDefault = SK_MaxS32;
@@ -390,6 +390,17 @@ bool SkOpSegment::debugContains(const SkOpAngle* angle) const {
         }
     }
     return false;
+}
+#endif
+
+#if DEBUG_SWAP_TOP
+int SkOpSegment::debugInflections(int tStart, int tEnd) const {
+    if (fVerb != SkPath::kCubic_Verb) {
+        return false;
+    }
+    SkDCubic dst = SkDCubic::SubDivide(fPts, fTs[tStart].fT, fTs[tEnd].fT);
+    double inflections[2];
+    return dst.findInflections(inflections);
 }
 #endif
 

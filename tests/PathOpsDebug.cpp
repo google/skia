@@ -202,6 +202,10 @@ void SkIntersectionHelper::dump() const {
     }
 }
 
+const SkTDArray<SkOpSpan>& SkOpSegment::debugSpans() const {
+    return fTs;
+}
+
 void SkOpSegment::dumpAngles() const {
     SkDebugf("((SkOpSegment*) 0x%p) [%d]\n", this, debugID());
     int fromIndex = -1, toIndex = -1;
@@ -371,8 +375,8 @@ const SkOpSegment* SkOpSpan::debugToSegment(ptrdiff_t* spanIndex) const {
         }
         SkASSERT(otherTestT == fOtherT);
         const SkOpSegment* candidate = otherSpan.fOther;
-        const SkOpSpan* first = candidate->spans().begin();
-        const SkOpSpan* last = candidate->spans().end() - 1;
+        const SkOpSpan* first = candidate->debugSpans().begin();
+        const SkOpSpan* last = candidate->debugSpans().end() - 1;
         if (first <= this && this <= last) {
             if (spanIndex) {
                 *spanIndex = this - first;
@@ -414,12 +418,6 @@ void SkOpSpan::dumpOne() const {
     SkDebugf(" to=%d", fToAngleIndex);
     if (fDone) {
         SkDebugf(" done");
-    }
-    if (fUnsortableStart) {
-        SkDebugf("  unsortable-start");
-    }
-    if (fUnsortableEnd) {
-        SkDebugf(" unsortable-end");
     }
     if (fTiny) {
         SkDebugf(" tiny");

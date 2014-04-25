@@ -48,8 +48,6 @@ public:
         return count > 1 && fTs[0].fT == 0 && fTs[--count].fT == 1;
     }
 
-    void constructLine(SkPoint shortLine[2]);
-
     int count() const {
         return fTs.count();
     }
@@ -193,11 +191,6 @@ public:
         return const_cast<SkOpAngle*>(cAngle);
     }
 
-    // OPTIMIZATION: mark as debugging only if used solely by tests
-    const SkTDArray<SkOpSpan>& spans() const {
-        return fTs;
-    }
-
     int spanSign(const SkOpAngle* angle) const {
         SkASSERT(angle->segment() == this);
         return spanSign(angle->start(), angle->end());
@@ -217,10 +210,6 @@ public:
 
     double tAtMid(int start, int end, double mid) const {
         return fTs[start].fT * (1 - mid) + fTs[end].fT * mid;
-    }
-
-    bool unsortable(int index) const {
-        return fTs[index].fUnsortableStart || fTs[index].fUnsortableEnd;
     }
 
     void updatePts(const SkPoint pts[]) {
@@ -267,7 +256,7 @@ public:
 
     const SkOpAngle* activeAngle(int index, int* start, int* end, bool* done,
                                  bool* sortable) const;
-    SkPoint activeLeftTop(bool onlySortable, int* firstT) const;
+    SkPoint activeLeftTop(int* firstT) const;
     bool activeOp(int index, int endIndex, int xorMiMask, int xorSuMask, SkPathOp op);
     bool activeWinding(int index, int endIndex);
     void addCubic(const SkPoint pts[4], bool operand, bool evenOdd);
@@ -297,6 +286,7 @@ public:
     bool checkSmall(int index) const;
     void checkTiny();
     int computeSum(int startIndex, int endIndex, SkOpAngle::IncludeType includeType);
+    bool containsPt(const SkPoint& , int index, int endIndex) const;
     int crossedSpanY(const SkPoint& basePt, SkScalar* bestY, double* hitT, bool* hitSomething,
                      double mid, bool opp, bool current) const;
     bool findCoincidentMatch(const SkOpSpan* span, const SkOpSegment* other, int oStart, int oEnd,
@@ -307,16 +297,16 @@ public:
                                  bool* unsortable);
     SkOpSegment* findNextXor(int* nextStart, int* nextEnd, bool* unsortable);
     int findExactT(double t, const SkOpSegment* ) const;
-    int findT(double t, const SkOpSegment* ) const;
-    SkOpSegment* findTop(int* tIndex, int* endIndex, bool* unsortable);
+    int findT(double t, const SkPoint& , const SkOpSegment* ) const;
+    SkOpSegment* findTop(int* tIndex, int* endIndex, bool* unsortable, bool firstPass);
     void fixOtherTIndex();
     void initWinding(int start, int end, SkOpAngle::IncludeType angleIncludeType);
     void initWinding(int start, int end, double tHit, int winding, SkScalar hitDx, int oppWind,
                      SkScalar hitOppDx);
     bool isMissing(double startT, const SkPoint& pt) const;
-    bool isSmall(const SkOpAngle* angle) const;
     bool isTiny(const SkOpAngle* angle) const;
-    bool joinCoincidence(SkOpSegment* other, double otherT, int step, bool cancel);
+    bool joinCoincidence(SkOpSegment* other, double otherT, const SkPoint& otherPt, int step,
+                         bool cancel);
     SkOpSpan* markAndChaseDoneBinary(int index, int endIndex);
     SkOpSpan* markAndChaseDoneUnary(int index, int endIndex);
     SkOpSpan* markAndChaseWinding(const SkOpAngle* angle, int winding, int oppWinding);
@@ -361,6 +351,7 @@ public:
 #if DEBUG_SHOW_WINDING
     int debugShowWindingValues(int slotCount, int ofInterest) const;
 #endif
+    const SkTDArray<SkOpSpan>& debugSpans() const;
     void debugValidate() const;
     // available to testing only
     void dumpAngles() const;
@@ -439,7 +430,6 @@ private:
     SkOpSpan* markOneWinding(const char* funName, int tIndex, int winding, int oppWinding);
     void markWinding(int index, int winding);
     void markWinding(int index, int winding, int oppWinding);
-    void markUnsortable(int start, int end);
     bool monotonicInY(int tStart, int tEnd) const;
 
     bool multipleEnds() const {
@@ -489,6 +479,9 @@ private:
 #endif
 #if DEBUG_ANGLE
     void debugCheckPointsEqualish(int tStart, int tEnd) const;
+#endif
+#if DEBUG_SWAP_TOP
+    int debugInflections(int index, int endIndex) const;
 #endif
 #if DEBUG_MARK_DONE || DEBUG_UNSORTABLE
     void debugShowNewWinding(const char* fun, const SkOpSpan& span, int winding);

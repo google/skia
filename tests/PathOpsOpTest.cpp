@@ -3257,10 +3257,70 @@ static void findFirst1(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
 }
 
+// triggers addSimpleAngle with non-zero argument
+static void cubicOp112(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(2,4);
+    path.cubicTo(2,3, 6,4, 1,0);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(4,6);
+    pathB.cubicTo(0,1, 4,2, 3,2);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
+}
+
+// triggers untested calcLoopSpanCount code path
+#if 0
+static void cubicOp113(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.moveTo(2,4);
+    path.cubicTo(3,5, 2.33333325f,4.33333349f, 3.83333325f,3.83333349f);
+    path.close();
+    pathB.moveTo(3,5);
+    pathB.cubicTo(2.33333325f,4.33333349f, 3.83333325f,3.83333349f, 2,4);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kDifference_PathOp, filename);
+}
+#endif
+
+static void cubicOp114(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.setFillType(SkPath::kWinding_FillType);
+    path.moveTo(0, 1);
+    path.cubicTo(1, 3, -1, 2, 3.5f, 1.33333337f);
+    path.close();
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(1, 3);
+    pathB.cubicTo(-1, 2, 3.5f, 1.33333337f, 0, 1);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
+static void quadOp10i(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path, pathB;
+    path.moveTo(0, 0);
+    path.quadTo(1, 8, 3, 5);
+    path.lineTo(8, 1);
+    path.close();
+    pathB.moveTo(0, 0);
+    pathB.quadTo(8, 1, 4, 8);
+    pathB.close();
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(quadOp10i),
+#if 0  // FIXME: serpentine curve is ordered the wrong way
+    TEST(cubicOp114),
+#endif
+#if 0  // FIXME: currently failing
+    TEST(cubicOp113),
+#endif
 #if SKPS_WORKING
     // fails because a cubic/quadratic intersection is missed
     // the internal quad/quad is far enough away from the real cubic/quad that it is rejected
@@ -3269,6 +3329,7 @@ static struct TestDesc tests[] = {
 #if ISSUE_1417_WORKING_ON_LINUX_32
     TEST(issue1417),
 #endif
+    TEST(cubicOp112),
     TEST(skpadspert_net23),
     TEST(skpadspert_de11),
     TEST(findFirst1),
@@ -3467,11 +3528,9 @@ static struct TestDesc tests[] = {
 static const size_t testCount = SK_ARRAY_COUNT(tests);
 
 static struct TestDesc subTests[] = {
-    TEST(cubicOp6d),
-    TEST(cubicOp8d),
-    TEST(cubicOp70d),
-    TEST(cubicOp16d),
-    TEST(skp5),
+    TEST(cubicOp114),
+    TEST(cubicOp58d),
+    TEST(cubicOp53d),
 };
 
 static const size_t subTestCount = SK_ARRAY_COUNT(subTests);
@@ -3483,10 +3542,6 @@ static bool runSubTestsFirst = false;
 static bool runReverse = false;
 
 DEF_TEST(PathOpsOp, reporter) {
-#ifdef SK_DEBUG
-    SkPathOpsDebug::gMaxWindSum = 4;
-    SkPathOpsDebug::gMaxWindValue = 4;
-#endif
 #if DEBUG_SHOW_TEST_NAME
     strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
 #endif
@@ -3497,10 +3552,6 @@ DEF_TEST(PathOpsOp, reporter) {
     if (runSubTests && !runSubTestsFirst) {
         RunTestSet(reporter, subTests, subTestCount, firstSubTest, stopTest, runReverse);
     }
-#ifdef SK_DEBUG
-    SkPathOpsDebug::gMaxWindSum = SK_MaxS32;
-    SkPathOpsDebug::gMaxWindValue = SK_MaxS32;
-#endif
 }
 
 static void bufferOverflow(skiatest::Reporter* reporter, const char* filename) {
@@ -3518,10 +3569,6 @@ static struct TestDesc failTests[] = {
 static const size_t failTestCount = SK_ARRAY_COUNT(failTests);
 
 DEF_TEST(PathOpsFailOp, reporter) {
-#ifdef SK_DEBUG
-    SkPathOpsDebug::gMaxWindSum = 4;
-    SkPathOpsDebug::gMaxWindValue = 4;
-#endif
 #if DEBUG_SHOW_TEST_NAME
     strncpy(DEBUG_FILENAME_STRING, "", DEBUG_FILENAME_STRING_LENGTH);
 #endif

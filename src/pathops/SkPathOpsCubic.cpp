@@ -94,6 +94,11 @@ bool SkDCubic::monotonicInY() const {
 }
 
 bool SkDCubic::serpentine() const {
+#if 0  // FIXME: enabling this fixes cubicOp114 but breaks cubicOp58d and cubicOp53d
+    double tValues[2];
+    // OPTIMIZATION : another case where caching the present of cubic inflections would be useful
+    return findInflections(tValues) > 1;
+#endif
     if (!controlsContainedByEnds()) {
         return false;
     }

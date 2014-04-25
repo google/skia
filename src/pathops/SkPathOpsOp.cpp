@@ -21,6 +21,9 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpan*>& chase, int* tIndex, int* e
         *endIndex = -1;
         if (const SkOpAngle* last = segment->activeAngle(*tIndex, tIndex, endIndex, &done,
                 &sortable)) {
+            if (last->unorderable()) {
+                continue;
+            }
             *tIndex = last->start();
             *endIndex = last->end();
    #if TRY_ROTATE
@@ -116,21 +119,31 @@ static bool bridgeOp(SkTArray<SkOpContour*, true>& contourList, const SkPathOp o
     bool firstContour = true;
     bool unsortable = false;
     bool topUnsortable = false;
+    bool firstPass = true;
+    SkPoint lastTopLeft;
     SkPoint topLeft = {SK_ScalarMin, SK_ScalarMin};
     do {
         int index, endIndex;
-        bool done;
+        bool topDone;
+        lastTopLeft = topLeft;
         SkOpSegment* current = FindSortableTop(contourList, SkOpAngle::kBinarySingle, &firstContour,
-                &index, &endIndex, &topLeft, &topUnsortable, &done);
+                &index, &endIndex, &topLeft, &topUnsortable, &topDone, firstPass);
         if (!current) {
-            if (topUnsortable || !done) {
-                topUnsortable = false;
+            if ((!topUnsortable || firstPass) && !topDone) {
                 SkASSERT(topLeft.fX != SK_ScalarMin && topLeft.fY != SK_ScalarMin);
+                if (lastTopLeft.fX == SK_ScalarMin && lastTopLeft.fY == SK_ScalarMin) {
+                    if (firstPass) {
+                        firstPass = false;
+                    } else {
+                        break;
+                    }
+                }
                 topLeft.fX = topLeft.fY = SK_ScalarMin;
                 continue;
             }
             break;
         }
+        firstPass = !topUnsortable || lastTopLeft != topLeft;
         SkTDArray<SkOpSpan*> chaseArray;
         do {
             if (current->activeOp(index, endIndex, xorMask, xorOpMask, op)) {

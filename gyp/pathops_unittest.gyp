@@ -24,6 +24,7 @@
       'sources': [
         '../tests/PathOpsAngleIdeas.cpp',
         '../tests/PathOpsDebug.cpp',
+        '../tests/PathOpsOpLoopThreadedTest.cpp',
         '../tests/PathOpsSkpClipTest.cpp',
         '../tests/Test.cpp',
         '../tests/skia_test.cpp',

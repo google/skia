@@ -28,8 +28,6 @@ struct SkOpSpan {
     bool fLoop;  // set when a cubic loops back to this point
     bool fSmall;   // if set, consecutive points are almost equal
     bool fTiny;  // if set, consecutive points are equal but consecutive ts are not precisely equal
-    bool fUnsortableStart;  // set when start is part of an unsortable pair
-    bool fUnsortableEnd;  // set when end is part of an unsortable pair
 
     // available to testing only
     const SkOpSegment* debugToSegment(ptrdiff_t* ) const;

@@ -24,6 +24,7 @@ public:
         kBinaryOpp,
     };
 
+
     int end() const {
         return fEnd;
     }
@@ -37,6 +38,7 @@ public:
     void insert(SkOpAngle* );
     bool isHorizontal() const;
     SkOpSpan* lastMarked() const;
+    bool loopContains(const SkOpAngle& ) const;
     int loopCount() const;
     void markStops();
     bool merge(SkOpAngle* );
@@ -104,6 +106,7 @@ private:
     double midT() const;
     bool oppositePlanes(const SkOpAngle& rh) const;
     bool orderable(const SkOpAngle& rh) const;  // false == this < rh ; true == this > rh
+    bool overlap(const SkOpAngle& test) const;
     void setCurveHullSweep();
     void setSector();
     void setSpans();

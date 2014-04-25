@@ -5086,10 +5086,6 @@ static bool runReverse = false;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 DEF_TEST(PathOpsSimplify, reporter) {
-#ifdef SK_DEBUG
-    SkPathOpsDebug::gMaxWindSum = 4;
-    SkPathOpsDebug::gMaxWindValue = 4;
-#endif
     if (runSubTests && runSubTestsFirst) {
         RunTestSet(reporter, subTests, subTestCount, firstSubTest, stopTest, runReverse);
     }
@@ -5097,8 +5093,4 @@ DEF_TEST(PathOpsSimplify, reporter) {
     if (runSubTests && !runSubTestsFirst) {
         RunTestSet(reporter, subTests, subTestCount, firstSubTest, stopTest, runReverse);
     }
-#ifdef SK_DEBUG
-    SkPathOpsDebug::gMaxWindSum = SK_MaxS32;
-    SkPathOpsDebug::gMaxWindValue = SK_MaxS32;
-#endif
 }

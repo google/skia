@@ -161,8 +161,8 @@ static int check_linear(const SkDCubic& cubic,
     while (cubic[startIndex].approximatelyEqual(cubic[endIndex])) {
         --endIndex;
         if (endIndex == 0) {
-            SkDebugf("%s shouldn't get here if all four points are about equal\n", __FUNCTION__);
-            SkASSERT(0);
+            endIndex = 3;
+            break;
         }
     }
     if (!cubic.isLinear(startIndex, endIndex)) {

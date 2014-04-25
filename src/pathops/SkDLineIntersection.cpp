@@ -292,7 +292,7 @@ int SkIntersections::vertical(const SkDLine& line, double x) {
 
 int SkIntersections::vertical(const SkDLine& line, double top, double bottom,
                               double x, bool flipped) {
-    fMax = 2;
+    fMax = 3;  // cleanup parallel lines will bring this back line
     // see if end points intersect the opposite line
     double t;
     SkDPoint topPt = { x, top };
@@ -344,6 +344,7 @@ int SkIntersections::vertical(const SkDLine& line, double top, double bottom,
         }
     }
     cleanUpParallelLines(result == 2);
+    SkASSERT(fUsed <= 2);
     return fUsed;
 }
 

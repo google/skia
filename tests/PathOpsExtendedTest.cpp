@@ -11,7 +11,7 @@
 #include "SkCanvas.h"
 #include "SkForceLinking.h"
 #include "SkMatrix.h"
-#include "SkPaint.h"
+#include "SkPaint.h" 
 #include "SkRTConf.h"
 #include "SkStream.h"
 #include "SkThread.h"
@@ -566,8 +566,12 @@ bool testSimplify(skiatest::Reporter* reporter, const SkPath& path, const char* 
 }
 
 #if DEBUG_SHOW_TEST_NAME
+
+SK_DECLARE_STATIC_MUTEX(gTestMutex);
+
 void SkPathOpsDebug::ShowPath(const SkPath& a, const SkPath& b, SkPathOp shapeOp,
         const char* testName) {
+    SkAutoMutexAcquire ac(gTestMutex);
     ShowFunctionHeader(testName);
     showPath(a, "path", true);
     showPath(b, "pathB", true);
@@ -661,10 +665,6 @@ int initializeTests(skiatest::Reporter* reporter, const char* test) {
 #if 0  // doesn't work yet
     SK_CONF_SET("images.jpeg.suppressDecoderWarnings", true);
     SK_CONF_SET("images.png.suppressDecoderWarnings", true);
-#endif
-#ifdef SK_DEBUG
-    SkPathOpsDebug::gMaxWindSum = 4;
-    SkPathOpsDebug::gMaxWindValue = 4;
 #endif
     if (reporter->verbose()) {
         SkAutoMutexAcquire lock(gMutex);
