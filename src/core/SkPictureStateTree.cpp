@@ -124,7 +124,10 @@ uint32_t SkPictureStateTree::Iterator::draw() {
     Node* targetNode = draw->fNode;
 
     if (fSave) {
-        fCanvas->save();
+        // FIXME: the save below depends on soon-to-be-deprecated
+        // SaveFlags behavior: it relies on matrix changes persisting
+        // after restore.
+        fCanvas->save(SkCanvas::kClip_SaveFlag);
         fSave = false;
     }
 
