@@ -394,7 +394,7 @@ private:
         // This field is incremented every time a paint with a path effect is
         // used (i.e., it is not a de-duplicated count)
         int fNumPaintWithPathEffectUses;
-        // This field is incremented every time an anti-aliased drawPath call is 
+        // This field is incremented every time an anti-aliased drawPath call is
         // issued with a concave path
         int fNumAAConcavePaths;
         // This field is incremented every time a drawPath call is

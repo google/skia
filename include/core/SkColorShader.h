@@ -60,7 +60,7 @@ public:
                                  SkMatrix* outMatrix,
                                  TileMode xy[2]) const SK_OVERRIDE;
 
-    virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE; 
+    virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorShader)
