@@ -323,7 +323,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     // attachment, hence this min:
     fMaxRenderTargetSize = SkTMin(fMaxTextureSize, fMaxRenderTargetSize);
 
-    fPathRenderingSupport = ctxInfo.hasExtension("GL_NV_path_rendering");
+    fPathRenderingSupport = ctxInfo.hasExtension("GL_NV_path_rendering") &&
+        ctxInfo.hasExtension("GL_EXT_direct_state_access");
 
     fGpuTracingSupport = ctxInfo.hasExtension("GL_EXT_debug_marker");
 

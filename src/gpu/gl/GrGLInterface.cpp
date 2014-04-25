@@ -228,13 +228,6 @@ bool GrGLInterface::validate() const {
 
     GrGLVersion glVer = GrGLGetVersion(this);
 
-    bool isCoreProfile = false;
-    if (kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,2)) {
-        GrGLint profileMask;
-        GR_GL_GetIntegerv(this, GR_GL_CONTEXT_PROFILE_MASK, &profileMask);
-        isCoreProfile = SkToBool(profileMask & GR_GL_CONTEXT_CORE_PROFILE_BIT);
-    }
-
     // Now check that baseline ES/Desktop fns not covered above are present
     // and that we have fn pointers for any advertised fExtensions that we will
     // try to use.
@@ -290,10 +283,9 @@ bool GrGLInterface::validate() const {
                 RETURN_FALSE_INTERFACE
             }
         }
-        if (!isCoreProfile) {
-            if (NULL == fFunctions.fLoadIdentity ||
-                NULL == fFunctions.fLoadMatrixf ||
-                NULL == fFunctions.fMatrixMode) {
+        if (fExtensions.has("GL_EXT_direct_state_access")) {
+            if (NULL == fFunctions.fMatrixLoadf ||
+                NULL == fFunctions.fMatrixLoadIdentity) {
                 RETURN_FALSE_INTERFACE
             }
         }

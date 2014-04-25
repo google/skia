@@ -96,15 +96,13 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLFlush();
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLFrontFace(GrGLenum mode);
 
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLLoadIdentity();
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLMatrixLoadf(GrGLenum, const GrGLfloat*);
 
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLLoadMatrixf(const GrGLfloat*);
+GrGLvoid GR_GL_FUNCTION_TYPE noOpGLMatrixLoadIdentity(GrGLenum);
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLLineWidth(GrGLfloat width);
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLLinkProgram(GrGLuint program);
-
-GrGLvoid GR_GL_FUNCTION_TYPE noOpGLMatrixMode(GrGLenum);
 
 GrGLvoid GR_GL_FUNCTION_TYPE noOpGLQueryCounter(GrGLuint id,
                                                 GrGLenum target);

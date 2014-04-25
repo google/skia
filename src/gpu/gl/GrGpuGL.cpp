@@ -304,8 +304,7 @@ void GrGpuGL::onResetContext(uint32_t resetBits) {
         if (this->caps()->pathRenderingSupport()) {
             fHWProjectionMatrixState.invalidate();
             // we don't use the model view matrix.
-            GL_CALL(MatrixMode(GR_GL_MODELVIEW));
-            GL_CALL(LoadIdentity());
+            GL_CALL(MatrixLoadIdentity(GR_GL_MODELVIEW));
 
             for (int i = 0; i < this->glCaps().maxFixedFunctionTextureCoords(); ++i) {
                 GL_CALL(PathTexGen(GR_GL_TEXTURE0 + i, GR_GL_NONE, 0, NULL));
@@ -2235,8 +2234,7 @@ void GrGpuGL::setProjectionMatrix(const SkMatrix& matrix,
 
     GrGLfloat glMatrix[4 * 4];
     fHWProjectionMatrixState.getGLMatrix<4>(glMatrix);
-    GL_CALL(MatrixMode(GR_GL_PROJECTION));
-    GL_CALL(LoadMatrixf(glMatrix));
+    GL_CALL(MatrixLoadf(GR_GL_PROJECTION, glMatrix));
 }
 
 void GrGpuGL::enablePathTexGen(int unitIdx,

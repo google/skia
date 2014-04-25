@@ -307,10 +307,11 @@ static GrGLInterface* create_desktop_interface(GrGLVersion version,
     functions->fGetUniformLocation = (GrGLGetUniformLocationProc) eglGetProcAddress("glGetUniformLocation");
     functions->fLineWidth = (GrGLLineWidthProc) eglGetProcAddress("glLineWidth");
     functions->fLinkProgram = (GrGLLinkProgramProc) eglGetProcAddress("glLinkProgram");
-    functions->fLoadIdentity = (GrGLLoadIdentityProc) eglGetProcAddress("glLoadIdentity");
-    functions->fLoadMatrixf = (GrGLLoadMatrixfProc) eglGetProcAddress("glLoadMatrixf");
     functions->fMapBuffer = (GrGLMapBufferProc) eglGetProcAddress("glMapBuffer");
-    functions->fMatrixMode = (GrGLMatrixModeProc) eglGetProcAddress("glMatrixMode");
+    if (extensions.has("GL_EXT_direct_state_access")) {
+        functions->fMatrixLoadf = (GrGLMatrixLoadfProc) eglGetProcAddress("glMatrixLoadfEXT");
+        functions->fMatrixLoadIdentity = (GrGLMatrixLoadIdentityProc) eglGetProcAddress("glMatrixLoadIdentityEXT");
+    }
     functions->fPixelStorei = (GrGLPixelStoreiProc) eglGetProcAddress("glPixelStorei");
     functions->fQueryCounter = (GrGLQueryCounterProc) eglGetProcAddress("glQueryCounter");
     functions->fReadBuffer = (GrGLReadBufferProc) eglGetProcAddress("glReadBuffer");

@@ -848,11 +848,8 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     functions->fGetTexLevelParameteriv = noOpGLGetTexLevelParameteriv;
     functions->fGetUniformLocation = noOpGLGetUniformLocation;
     functions->fGenVertexArrays = debugGLGenVertexArrays;
-    functions->fLoadIdentity = noOpGLLoadIdentity;
-    functions->fLoadMatrixf = noOpGLLoadMatrixf;
     functions->fLineWidth = noOpGLLineWidth;
     functions->fLinkProgram = noOpGLLinkProgram;
-    functions->fMatrixMode = noOpGLMatrixMode;
     functions->fPixelStorei = debugGLPixelStorei;
     functions->fQueryCounter = noOpGLQueryCounter;
     functions->fReadBuffer = noOpGLReadBuffer;
@@ -913,6 +910,8 @@ const GrGLInterface* GrGLCreateDebugInterface() {
     functions->fResolveMultisampleFramebuffer =
                                     noOpGLResolveMultisampleFramebuffer;
     functions->fMapBuffer = debugGLMapBuffer;
+    functions->fMatrixLoadf = noOpGLMatrixLoadf;
+    functions->fMatrixLoadIdentity = noOpGLMatrixLoadIdentity;
     functions->fUnmapBuffer = debugGLUnmapBuffer;
     functions->fBindFragDataLocationIndexed =
                                     noOpGLBindFragDataLocationIndexed;

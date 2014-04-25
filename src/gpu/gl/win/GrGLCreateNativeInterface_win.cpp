@@ -103,9 +103,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         SET_PROC(GetString)
         SET_PROC(GetTexLevelParameteriv)
         SET_PROC(LineWidth)
-        SET_PROC(LoadIdentity)
-        SET_PROC(LoadMatrixf)
-        SET_PROC(MatrixMode)
         SET_PROC(PixelStorei)
         SET_PROC(ReadBuffer)
         SET_PROC(ReadPixels)
@@ -242,7 +239,12 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             delete interface;
             return NULL;
         }
+
         WGL_SET_PROC(MapBuffer);
+        if (extensions.has("GL_EXT_direct_state_access")) {
+            WGL_SET_PROC_SUFFIX(MatrixLoadf, EXT);
+            WGL_SET_PROC_SUFFIX(MatrixLoadIdentity, EXT);
+        }
         WGL_SET_PROC(UnmapBuffer);
 
         if (extensions.has("GL_NV_path_rendering")) {

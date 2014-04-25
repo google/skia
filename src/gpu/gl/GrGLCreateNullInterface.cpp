@@ -327,11 +327,8 @@ const GrGLInterface* GrGLCreateNullInterface() {
     functions->fGetTexLevelParameteriv = noOpGLGetTexLevelParameteriv;
     functions->fGetUniformLocation = noOpGLGetUniformLocation;
     functions->fInsertEventMarker = noOpGLInsertEventMarker;
-    functions->fLoadIdentity = noOpGLLoadIdentity;
-    functions->fLoadMatrixf = noOpGLLoadMatrixf;
     functions->fLineWidth = noOpGLLineWidth;
     functions->fLinkProgram = noOpGLLinkProgram;
-    functions->fMatrixMode = noOpGLMatrixMode;
     functions->fPixelStorei = nullGLPixelStorei;
     functions->fPopGroupMarker = noOpGLPopGroupMarker;
     functions->fPushGroupMarker = noOpGLPushGroupMarker;
@@ -391,6 +388,8 @@ const GrGLInterface* GrGLCreateNullInterface() {
     functions->fBlitFramebuffer = noOpGLBlitFramebuffer;
     functions->fResolveMultisampleFramebuffer = noOpGLResolveMultisampleFramebuffer;
     functions->fMapBuffer = nullGLMapBuffer;
+    functions->fMatrixLoadf = noOpGLMatrixLoadf;
+    functions->fMatrixLoadIdentity = noOpGLMatrixLoadIdentity;
     functions->fUnmapBuffer = nullGLUnmapBuffer;
     functions->fBindFragDataLocationIndexed = noOpGLBindFragDataLocationIndexed;
 

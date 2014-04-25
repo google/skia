@@ -211,9 +211,8 @@ extern "C" {
     // Experimental: Functions for GL_NV_path_rendering. These will be
     // alphabetized with the above functions once this is fully supported
     // (and functions we are unlikely to use will possibly be omitted).
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMatrixModeProc)(GrGLenum);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLLoadIdentityProc)();
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLLoadMatrixfProc)(const GrGLfloat* m);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMatrixLoadfProc)(GrGLenum matrixMode, const GrGLfloat* m);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLMatrixLoadIdentityProc)(GrGLenum);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathCommandsProc)(GrGLuint path, GrGLsizei numCommands, const GrGLubyte *commands, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathCoordsProc)(GrGLuint path, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE* GrGLPathSubCommandsProc)(GrGLuint path, GrGLsizei commandStart, GrGLsizei commandsToDelete, GrGLsizei numCommands, const GrGLubyte *commands, GrGLsizei numCoords, GrGLenum coordType, const GrGLvoid *coords);
