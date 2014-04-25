@@ -266,6 +266,48 @@ static __m128i overlay_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
     return SkPackARGB32_SSE2(a, r, g, b);
 }
 
+static inline __m128i hardlight_byte_SSE2(const __m128i& sc, const __m128i& dc,
+                                          const __m128i& sa, const __m128i& da) {
+    // if (2 * sc <= sa)
+    __m128i tmp1 = _mm_slli_epi32(sc, 1);
+    __m128i cmp1 = _mm_cmpgt_epi32(tmp1, sa);
+    __m128i rc1 = _mm_mullo_epi16(sc, dc);                // sc * dc;
+    rc1 = _mm_slli_epi32(rc1, 1);                         // 2 * sc * dc
+    rc1 = _mm_andnot_si128(cmp1, rc1);
+
+    // else
+    tmp1 = _mm_mullo_epi16(sa, da);
+    __m128i tmp2 = Multiply32_SSE2(_mm_sub_epi32(da, dc),
+                                   _mm_sub_epi32(sa, sc));
+    tmp2 = _mm_slli_epi32(tmp2, 1);
+    __m128i rc2 = _mm_sub_epi32(tmp1, tmp2);
+    rc2 = _mm_and_si128(cmp1, rc2);
+
+    __m128i rc = _mm_or_si128(rc1, rc2);
+
+    __m128i ida = _mm_sub_epi32(_mm_set1_epi32(255), da);
+    tmp1 = _mm_mullo_epi16(sc, ida);
+    __m128i isa = _mm_sub_epi32(_mm_set1_epi32(255), sa);
+    tmp2 = _mm_mullo_epi16(dc, isa);
+    rc = _mm_add_epi32(rc, tmp1);
+    rc = _mm_add_epi32(rc, tmp2);
+    return clamp_div255round_SSE2(rc);
+}
+
+static __m128i hardlight_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i sa = SkGetPackedA32_SSE2(src);
+    __m128i da = SkGetPackedA32_SSE2(dst);
+
+    __m128i a = srcover_byte_SSE2(sa, da);
+    __m128i r = hardlight_byte_SSE2(SkGetPackedR32_SSE2(src),
+                                    SkGetPackedR32_SSE2(dst), sa, da);
+    __m128i g = hardlight_byte_SSE2(SkGetPackedG32_SSE2(src),
+                                    SkGetPackedG32_SSE2(dst), sa, da);
+    __m128i b = hardlight_byte_SSE2(SkGetPackedB32_SSE2(src),
+                                    SkGetPackedB32_SSE2(dst), sa, da);
+    return SkPackARGB32_SSE2(a, r, g, b);
+}
+
 static inline __m128i exclusion_byte_SSE2(const __m128i& sc, const __m128i& dc,
                                           const __m128i&, __m128i&) {
     __m128i tmp1 = _mm_mullo_epi16(_mm_set1_epi32(255), sc); // 255 * sc
@@ -452,7 +494,7 @@ SkXfermodeProcSIMD gSSE2XfermodeProcs[] = {
     NULL, // kLighten_Mode
     NULL, // kColorDodge_Mode
     NULL, // kColorBurn_Mode
-    NULL, // kHardLight_Mode
+    hardlight_modeproc_SSE2,
     NULL, // kSoftLight_Mode
     NULL, // kDifference_Mode
     exclusion_modeproc_SSE2,
