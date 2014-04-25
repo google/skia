@@ -13,8 +13,8 @@
 const char* SkPathOpsDebug::kLVerbStr[] = {"", "line", "quad", "cubic"};
 
 #if defined(SK_DEBUG) || !FORCE_RELEASE
-int SkPathOpsDebug::gContourID;
-int SkPathOpsDebug::gSegmentID;
+int SkPathOpsDebug::gContourID = 0;
+int SkPathOpsDebug::gSegmentID = 0;
 #endif
 
 #if DEBUG_SORT || DEBUG_SWAP_TOP
