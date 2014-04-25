@@ -695,6 +695,7 @@ static void rand_op(SkCanvas* canvas, SkRandom& rand) {
     }
 }
 
+#if SK_SUPPORT_GPU
 static void test_gpu_veto(skiatest::Reporter* reporter) {
 
     SkPictureRecorder recorder;
@@ -764,6 +765,7 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     // hairline stroked AA concave paths are fine for GPU rendering
     REPORTER_ASSERT(reporter, picture->suitableForGpuRasterization(NULL));
 }
+#endif
 
 static void set_canvas_to_save_count_4(SkCanvas* canvas) {
     canvas->restoreToCount(1);
@@ -1268,7 +1270,9 @@ DEF_TEST(Picture, reporter) {
 #endif
     test_unbalanced_save_restores(reporter);
     test_peephole();
+#if SK_SUPPORT_GPU
     test_gpu_veto(reporter);
+#endif
     test_gatherpixelrefs(reporter);
     test_gatherpixelrefsandrects(reporter);
     test_bitmap_with_encoded_data(reporter);
