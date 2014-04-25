@@ -851,7 +851,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
         fStateTree->getIterator(*activeOps, &canvas);
 
     if (it.isValid()) {
-        uint32_t skipTo = it.nextDraw();
+        uint32_t skipTo = it.draw();
         if (kDrawComplete == skipTo) {
             return;
         }
@@ -907,7 +907,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                 // iterator until at or after skipTo
                 uint32_t adjustedSkipTo;
                 do {
-                    adjustedSkipTo = it.nextDraw();
+                    adjustedSkipTo = it.draw();
                 } while (adjustedSkipTo < skipTo);
                 skipTo = adjustedSkipTo;
             }
@@ -1246,7 +1246,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
 #endif
 
         if (it.isValid()) {
-            uint32_t skipTo = it.nextDraw();
+            uint32_t skipTo = it.draw();
             if (kDrawComplete == skipTo) {
                 break;
             }
