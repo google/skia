@@ -10,6 +10,14 @@
 
 #include <emmintrin.h>
 
+// Because no _mm_div_epi32() in SSE2, we use float division to emulate.
+// When using this function, make sure a and b don't exceed float's precision.
+static inline __m128i shim_mm_div_epi32(const __m128i& a, const __m128i& b) {
+    __m128 x = _mm_cvtepi32_ps(a);
+    __m128 y = _mm_cvtepi32_ps(b);
+    return _mm_cvttps_epi32(_mm_div_ps(x, y));
+}
+
 // Portable version of SkSqrtBits is in SkMath.cpp.
 static inline __m128i SkSqrtBits_SSE2(const __m128i& x, int count) {
     __m128i root =  _mm_setzero_si128();
