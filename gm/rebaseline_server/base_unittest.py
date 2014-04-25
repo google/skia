@@ -49,8 +49,11 @@ class TestCase(unittest.TestCase):
       # Ravi notes: if somebody later comes along and adds cleanup code below
       # this assert, then if tests fail, the artifacts will not be cleaned up.
       assert (not different_files), \
-        ('found differing files between actual dir %s and expected dir %s: %s' %
-         (self._output_dir_actual, self._output_dir_expected, different_files))
+        ('found differing files:\n' +
+         '\n'.join(['tkdiff %s %s &' % (
+             os.path.join(self._output_dir_actual, basename),
+             os.path.join(self._output_dir_expected, basename))
+                    for basename in different_files]))
 
   def shortDescription(self):
     """Tell unittest framework to not print docstrings for test cases."""
