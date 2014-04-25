@@ -1,0 +1,7 @@
+# Suppressions for Thread Sanitizer
+
+# WebP races (harmlessly) choosing function pointers for SIMD versions of some of its functions.
+race:third_party/externals/libwebp
+
+# skia:2459  Seemingly misdiagnosed use-after-free, having something to do with software GL drivers.
+race:swrast_dri.so  # If this doesn't work, it's got to be SkGLContextHelper::init :(
