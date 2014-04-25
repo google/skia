@@ -229,6 +229,43 @@ static __m128i screen_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
     return SkPackARGB32_SSE2(a, r, g, b);
 }
 
+// Portable version overlay_byte() is in SkXfermode.cpp.
+static inline __m128i overlay_byte_SSE2(const __m128i& sc, const __m128i& dc,
+                                        const __m128i& sa, const __m128i& da) {
+    __m128i ida = _mm_sub_epi32(_mm_set1_epi32(255), da);
+    __m128i tmp1 = _mm_mullo_epi16(sc, ida);
+    __m128i isa = _mm_sub_epi32(_mm_set1_epi32(255), sa);
+    __m128i tmp2 = _mm_mullo_epi16(dc, isa);
+    __m128i tmp = _mm_add_epi32(tmp1, tmp2);
+
+    __m128i cmp = _mm_cmpgt_epi32(_mm_slli_epi32(dc, 1), da);
+    __m128i rc1 = _mm_slli_epi32(sc, 1);                        // 2 * sc
+    rc1 = Multiply32_SSE2(rc1, dc);                             // *dc
+
+    __m128i rc2 = _mm_mullo_epi16(sa, da);                      // sa * da
+    __m128i tmp3 = _mm_slli_epi32(_mm_sub_epi32(da, dc), 1);    // 2 * (da - dc)
+    tmp3 = Multiply32_SSE2(tmp3, _mm_sub_epi32(sa, sc));        // * (sa - sc)
+    rc2 = _mm_sub_epi32(rc2, tmp3);
+
+    __m128i rc = _mm_or_si128(_mm_andnot_si128(cmp, rc1),
+                              _mm_and_si128(cmp, rc2));
+    return clamp_div255round_SSE2(_mm_add_epi32(rc, tmp));
+}
+
+static __m128i overlay_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i sa = SkGetPackedA32_SSE2(src);
+    __m128i da = SkGetPackedA32_SSE2(dst);
+
+    __m128i a = srcover_byte_SSE2(sa, da);
+    __m128i r = overlay_byte_SSE2(SkGetPackedR32_SSE2(src),
+                                  SkGetPackedR32_SSE2(dst), sa, da);
+    __m128i g = overlay_byte_SSE2(SkGetPackedG32_SSE2(src),
+                                  SkGetPackedG32_SSE2(dst), sa, da);
+    __m128i b = overlay_byte_SSE2(SkGetPackedB32_SSE2(src),
+                                  SkGetPackedB32_SSE2(dst), sa, da);
+    return SkPackARGB32_SSE2(a, r, g, b);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef __m128i (*SkXfermodeProcSIMD)(const __m128i& src, const __m128i& dst);
@@ -384,7 +421,7 @@ SkXfermodeProcSIMD gSSE2XfermodeProcs[] = {
     modulate_modeproc_SSE2,
     screen_modeproc_SSE2,
 
-    NULL, // kOverlay_Mode
+    overlay_modeproc_SSE2,
     NULL, // kDarken_Mode
     NULL, // kLighten_Mode
     NULL, // kColorDodge_Mode

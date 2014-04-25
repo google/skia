@@ -10,6 +10,21 @@
 
 #include <emmintrin.h>
 
+// Because no _mm_mul_epi32() in SSE2, we emulate it here.
+// Multiplies 4 32-bit integers from a by 4 32-bit intergers from b.
+// The 4 multiplication results should be represented within 32-bit
+// integers, otherwise they would be overflow.
+static inline  __m128i Multiply32_SSE2(const __m128i& a, const __m128i& b) {
+    // Calculate results of a0 * b0 and a2 * b2.
+    __m128i r1 = _mm_mul_epu32(a, b);
+    // Calculate results of a1 * b1 and a3 * b3.
+    __m128i r2 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4));
+    // Shuffle results to [63..0] and interleave the results.
+    __m128i r = _mm_unpacklo_epi32(_mm_shuffle_epi32(r1, _MM_SHUFFLE(0,0,2,0)),
+                                   _mm_shuffle_epi32(r2, _MM_SHUFFLE(0,0,2,0)));
+    return r;
+}
+
 static inline __m128i SkAlpha255To256_SSE2(const __m128i& alpha) {
     return _mm_add_epi32(alpha, _mm_set1_epi32(1));
 }
