@@ -11,7 +11,7 @@
 #include "SkCanvas.h"
 #include "SkForceLinking.h"
 #include "SkMatrix.h"
-#include "SkPaint.h" 
+#include "SkPaint.h"
 #include "SkRTConf.h"
 #include "SkStream.h"
 #include "SkThread.h"

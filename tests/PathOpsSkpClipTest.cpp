@@ -562,7 +562,7 @@ public:
         do {
             if (!reader.read(&c, 1)) {
                 return false;
-            }   
+            }
             if (c == ' ') {
                 break;
             }
