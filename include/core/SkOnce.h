@@ -54,12 +54,10 @@ struct SkSpinlock {
         while (!sk_atomic_cas(&thisIsPrivate, 0, 1)) {
             // spin
         }
-        SK_ANNOTATE_RWLOCK_ACQUIRED(this, true);
     }
 
     void release() {
         SkASSERT(shouldBeZero == 0);
-        SK_ANNOTATE_RWLOCK_RELEASED(this, true);
         // This requires a release memory barrier before storing, which sk_atomic_cas guarantees.
         SkAssertResult(sk_atomic_cas(&thisIsPrivate, 1, 0));
     }
@@ -147,7 +145,6 @@ static void sk_once_slow(bool* done, Lock* lock, Func f, Arg arg, void (*atExit)
         // observable whenever we observe *done == true.
         release_barrier();
         *done = true;
-        SK_ANNOTATE_HAPPENS_BEFORE(done);
     }
 }
 
@@ -168,7 +165,6 @@ inline void SkOnce(bool* done, Lock* lock, Func f, Arg arg, void(*atExit)()) {
     // happens after f(arg), so by syncing to once->done = true here we're
     // forcing ourselves to also wait until the effects of f(arg) are readble.
     acquire_barrier();
-    SK_ANNOTATE_HAPPENS_AFTER(done);
 }
 
 template <typename Func, typename Arg>
