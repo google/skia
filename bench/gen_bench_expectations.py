@@ -24,6 +24,10 @@ CONFIGS_TO_INCLUDE = ['simple_viewport_1000x1000',
                       'simple_viewport_1000x1000_scalar_1.100000_gpu',
                      ]
 
+# List of flaky SKPs that should be excluded.
+SKPS_TO_EXCLUDE = ['desk_chalkboard.skp',
+                  ]
+
 
 def compute_ranges(benches):
   """Given a list of bench numbers, calculate the alert range.
@@ -57,7 +61,8 @@ def create_expectations_dict(revision_data_points):
   bench_dict = {}
   for point in revision_data_points:
     if (point.time_type or  # Not walltime which has time_type ''
-        not point.config in CONFIGS_TO_INCLUDE):
+        not point.config in CONFIGS_TO_INCLUDE or
+        point.bench in SKPS_TO_EXCLUDE):
       continue
     key = (point.config, point.bench)
     if key in bench_dict:
