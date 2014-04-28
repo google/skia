@@ -49,7 +49,8 @@ public:
                                   const SkColor colors[], const SkScalar pos[], int count,
                                   SkShader::TileMode mode,
                                   SkUnitMapper* mapper = NULL,
-                                  uint32_t flags = 0);
+                                  uint32_t flags = 0,
+                                  const SkMatrix* localMatrix = NULL);
 
     /** Returns a shader that generates a radial gradient given the center and radius.
         <p />
@@ -72,7 +73,8 @@ public:
                                   const SkColor colors[], const SkScalar pos[], int count,
                                   SkShader::TileMode mode,
                                   SkUnitMapper* mapper = NULL,
-                                  uint32_t flags = 0);
+                                  uint32_t flags = 0,
+                                  const SkMatrix* localMatrix = NULL);
 
     /** Returns a shader that generates a radial gradient given the start position, start radius, end position and end radius.
         <p />
@@ -102,7 +104,8 @@ public:
                                           const SkScalar pos[], int count,
                                           SkShader::TileMode mode,
                                           SkUnitMapper* mapper = NULL,
-                                          uint32_t flags = 0);
+                                          uint32_t flags = 0,
+                                          const SkMatrix* localMatrix = NULL);
 
     /**
      *  Returns a shader that generates a conical gradient given two circles, or
@@ -118,7 +121,8 @@ public:
                                            const SkScalar pos[], int count,
                                            SkShader::TileMode mode,
                                            SkUnitMapper* mapper = NULL,
-                                           uint32_t flags = 0);
+                                           uint32_t flags = 0,
+                                           const SkMatrix* localMatrix = NULL);
 
     /** Returns a shader that generates a sweep gradient given a center.
         <p />
@@ -139,7 +143,8 @@ public:
     static SkShader* CreateSweep(SkScalar cx, SkScalar cy,
                                  const SkColor colors[], const SkScalar pos[],
                                  int count, SkUnitMapper* mapper = NULL,
-                                 uint32_t flags = 0);
+                                 uint32_t flags = 0,
+                                 const SkMatrix* localMatrix = NULL);
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };

@@ -38,15 +38,15 @@ static SkBitmap make_bmp(int w, int h) {
                          SK_Scalar1};
 
     SkPaint paint;
-    paint.setShader(SkGradientShader::CreateRadial(
-                    pt, radius,
-                    colors, pos,
-                    SK_ARRAY_COUNT(colors),
-                    SkShader::kRepeat_TileMode))->unref();
     SkRect rect = SkRect::MakeWH(wScalar, hScalar);
     SkMatrix mat = SkMatrix::I();
     for (int i = 0; i < 4; ++i) {
-        paint.getShader()->setLocalMatrix(mat);
+        paint.setShader(SkGradientShader::CreateRadial(
+                        pt, radius,
+                        colors, pos,
+                        SK_ARRAY_COUNT(colors),
+                        SkShader::kRepeat_TileMode,
+                        NULL, 0, &mat))->unref();
         canvas.drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.preTranslate(6 * wScalar, 6 * hScalar);

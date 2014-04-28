@@ -100,14 +100,15 @@ protected:
         int i = 0;
         for (size_t tm0 = 0; tm0 < SK_ARRAY_COUNT(kTileModes); ++tm0) {
             for (size_t tm1 = 0; tm1 < SK_ARRAY_COUNT(kTileModes); ++tm1) {
-                SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(fBmp,
-                                                                           kTileModes[tm0],
-                                                                           kTileModes[tm1]));
                 SkMatrix localM;
                 localM.setTranslate(5.f, 5.f);
                 localM.postRotate(20);
                 localM.postScale(1.15f, .85f);
-                shader->setLocalMatrix(localM);
+
+                SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(fBmp,
+                                                                           kTileModes[tm0],
+                                                                           kTileModes[tm1],
+                                                                           &localM));
 
                 SkPaint fillPaint;
                 fillPaint.setAntiAlias(true);

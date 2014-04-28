@@ -9,8 +9,8 @@
 #include "SkSweepGradient.h"
 
 SkSweepGradient::SkSweepGradient(SkScalar cx, SkScalar cy,
-                                 const Descriptor& desc)
-    : SkGradientShaderBase(desc)
+                                 const Descriptor& desc, const SkMatrix* localMatrix)
+    : SkGradientShaderBase(desc, localMatrix)
     , fCenter(SkPoint::Make(cx, cy))
 {
     fPtsToUnit.setTranslate(-cx, -cy);

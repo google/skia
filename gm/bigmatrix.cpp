@@ -67,14 +67,14 @@ protected:
         pixels[3] = SkPackARGB32(0xFF, 0x00, 0x00, 0xFF);
         pt.set(30 * SK_Scalar1, 30 * SK_Scalar1);
         m.mapPoints(&pt, 1);
-        SkShader* shader = SkShader::CreateBitmapShader(
-                                            bmp,
-                                            SkShader::kRepeat_TileMode,
-                                            SkShader::kRepeat_TileMode);
         SkMatrix s;
         s.reset();
         s.setScale(SK_Scalar1 / 1000, SK_Scalar1 / 1000);
-        shader->setLocalMatrix(s);
+        SkShader* shader = SkShader::CreateBitmapShader(
+                                            bmp,
+                                            SkShader::kRepeat_TileMode,
+                                            SkShader::kRepeat_TileMode,
+                                            &s);
         paint.setShader(shader)->unref();
         paint.setAntiAlias(false);
         paint.setFilterLevel(SkPaint::kLow_FilterLevel);

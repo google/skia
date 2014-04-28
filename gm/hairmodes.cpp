@@ -64,14 +64,12 @@ static SkShader* make_bg_shader() {
     *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = 0xFFFFFFFF;
     *bm.getAddr32(1, 0) = *bm.getAddr32(0, 1) = SkPackARGB32(0xFF, 0xCC, 0xCC, 0xCC);
 
-    SkShader* s = SkShader::CreateBitmapShader(bm,
-                                               SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode);
-
     SkMatrix m;
     m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-    s->setLocalMatrix(m);
-    return s;
+    return SkShader::CreateBitmapShader(bm,
+                                        SkShader::kRepeat_TileMode,
+                                        SkShader::kRepeat_TileMode,
+                                        &m);
 }
 
 namespace skiagm {

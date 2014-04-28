@@ -13,7 +13,8 @@
 
 class SkSweepGradient : public SkGradientShaderBase {
 public:
-    SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&);
+    SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&,
+                    const SkMatrix* localMatrix);
 
     virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
                                              void* storage) const SK_OVERRIDE;

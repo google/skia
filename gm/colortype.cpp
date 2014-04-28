@@ -17,11 +17,10 @@ public:
             SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
             SK_ColorMAGENTA, SK_ColorCYAN, SK_ColorYELLOW
         };
-        SkShader* s = SkGradientShader::CreateSweep(0,0, colors, NULL,
-                                                    SK_ARRAY_COUNT(colors));
         SkMatrix local;
         local.setRotate(180);
-        s->setLocalMatrix(local);
+        SkShader* s = SkGradientShader::CreateSweep(0,0, colors, NULL,
+                                                    SK_ARRAY_COUNT(colors), NULL, 0, &local);
 
         SkPaint paint;
         paint.setAntiAlias(true);

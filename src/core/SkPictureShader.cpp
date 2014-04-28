@@ -91,13 +91,12 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix) const {
         canvas.scale(tileScale.width(), tileScale.height());
         canvas.drawPicture(*fPicture);
 
-        fCachedBitmapShader.reset(CreateBitmapShader(bm, fTmx, fTmy));
         fCachedTileScale = tileScale;
         fCachedLocalMatrix = this->getLocalMatrix();
 
         SkMatrix shaderMatrix = this->getLocalMatrix();
         shaderMatrix.preScale(1 / tileScale.width(), 1 / tileScale.height());
-        fCachedBitmapShader->setLocalMatrix(shaderMatrix);
+        fCachedBitmapShader.reset(CreateBitmapShader(bm, fTmx, fTmy, &shaderMatrix));
     }
 
     // Increment the ref counter inside the mutex to ensure the returned pointer is still valid.

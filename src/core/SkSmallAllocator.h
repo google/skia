@@ -96,6 +96,16 @@ public:
         return static_cast<T*>(buf);
     }
 
+    template<typename T, typename A1, typename A2, typename A3, typename A4>
+    T* createT(const A1& a1, const A2& a2, const A3& a3, const A4& a4) {
+        void* buf = this->reserveT<T>();
+        if (NULL == buf) {
+            return NULL;
+        }
+        SkNEW_PLACEMENT_ARGS(buf, T, (a1, a2, a3, a4));
+        return static_cast<T*>(buf);
+    }
+
     /*
      *  Reserve a specified amount of space (must be enough space for one T).
      *  The space will be in fStorage if there is room, or on the heap otherwise.

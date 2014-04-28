@@ -72,11 +72,12 @@ private:
  */
 class SkAutoBitmapShaderInstall : SkNoncopyable {
 public:
-    SkAutoBitmapShaderInstall(const SkBitmap& src, const SkPaint& paint)
+    SkAutoBitmapShaderInstall(const SkBitmap& src, const SkPaint& paint,
+                              const SkMatrix* localMatrix = NULL)
             : fPaint(paint) /* makes a copy of the paint */ {
         fPaint.setShader(CreateBitmapShader(src, SkShader::kClamp_TileMode,
                                             SkShader::kClamp_TileMode,
-                                            &fAllocator));
+                                            localMatrix, &fAllocator));
         // we deliberately left the shader with an owner-count of 2
         SkASSERT(2 == fPaint.getShader()->getRefCnt());
     }
@@ -1374,18 +1375,16 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y,
         }
     }
 
-    SkAutoBitmapShaderInstall install(bitmap, paint);
-    const SkPaint& shaderPaint = install.paintWithShader();
-
     SkMatrix        matrix;
     SkRect          r;
 
     // get a scalar version of our rect
     r.set(bounds);
 
-    // tell the shader our offset
+    // create shader with offset
     matrix.setTranslate(r.fLeft, r.fTop);
-    shaderPaint.getShader()->setLocalMatrix(matrix);
+    SkAutoBitmapShaderInstall install(bitmap, paint, &matrix);
+    const SkPaint& shaderPaint = install.paintWithShader();
 
     SkDraw draw(*this);
     matrix.reset();

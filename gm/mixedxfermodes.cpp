@@ -86,13 +86,13 @@ protected:
             SkBitmap bitmap;
             bitmap.allocN32Pixels(2, 2);
             memcpy(bitmap.getPixels(), kCheckerPixelData, sizeof(kCheckerPixelData));
+            SkMatrix lm;
+            lm.setScale(SkIntToScalar(20), SkIntToScalar(20));
             fBG.reset(SkShader::CreateBitmapShader(bitmap,
                                                    SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode));
+                                                   SkShader::kRepeat_TileMode,
+                                                   &lm));
         }
-        SkMatrix lm;
-        lm.setScale(SkIntToScalar(20), SkIntToScalar(20));
-        fBG->setLocalMatrix(lm);
 
         SkPaint bgPaint;
         bgPaint.setShader(fBG.get());

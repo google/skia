@@ -30,11 +30,11 @@ SkComposeShader::SkComposeShader(SkReadBuffer& buffer) :
     INHERITED(buffer) {
     fShaderA = buffer.readShader();
     if (NULL == fShaderA) {
-        fShaderA = SkNEW_ARGS(SkColorShader, (0));
+        fShaderA = SkNEW_ARGS(SkColorShader, ((SkColor)0));
     }
     fShaderB = buffer.readShader();
     if (NULL == fShaderB) {
-        fShaderB = SkNEW_ARGS(SkColorShader, (0));
+        fShaderB = SkNEW_ARGS(SkColorShader, ((SkColor)0));
     }
     fMode = buffer.readXfermode();
 }

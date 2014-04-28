@@ -31,8 +31,9 @@ bool SkBitmapProcShader::CanDo(const SkBitmap& bm, TileMode tx, TileMode ty) {
     return false;
 }
 
-SkBitmapProcShader::SkBitmapProcShader(const SkBitmap& src,
-                                       TileMode tmx, TileMode tmy) {
+SkBitmapProcShader::SkBitmapProcShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
+                                       const SkMatrix* localMatrix)
+        : INHERITED(localMatrix) {
     fRawBitmap = src;
     fTileModeX = (uint8_t)tmx;
     fTileModeY = (uint8_t)tmy;
@@ -347,7 +348,7 @@ static bool bitmapIsTooBig(const SkBitmap& bm) {
 }
 
 SkShader* CreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
-        SkShader::TileMode tmy, SkTBlitterAllocator* allocator) {
+        SkShader::TileMode tmy, const SkMatrix* localMatrix, SkTBlitterAllocator* allocator) {
     SkShader* shader;
     SkColor color;
     if (src.isNull() || bitmapIsTooBig(src)) {
@@ -365,9 +366,9 @@ SkShader* CreateBitmapShader(const SkBitmap& src, SkShader::TileMode tmx,
         }
     } else {
         if (NULL == allocator) {
-            shader = SkNEW_ARGS(SkBitmapProcShader, (src, tmx, tmy));
+            shader = SkNEW_ARGS(SkBitmapProcShader, (src, tmx, tmy, localMatrix));
         } else {
-            shader = allocator->createT<SkBitmapProcShader>(src, tmx, tmy);
+            shader = allocator->createT<SkBitmapProcShader>(src, tmx, tmy, localMatrix);
         }
     }
     return shader;

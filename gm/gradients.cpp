@@ -40,31 +40,35 @@ static const GradData gGradData[] = {
 };
 
 static SkShader* MakeLinear(const SkPoint pts[2], const GradData& data,
-                            SkShader::TileMode tm, SkUnitMapper* mapper) {
+                            SkShader::TileMode tm, SkUnitMapper* mapper,
+                            const SkMatrix& localMatrix) {
     return SkGradientShader::CreateLinear(pts, data.fColors, data.fPos,
-                                          data.fCount, tm, mapper);
+                                          data.fCount, tm, mapper, 0, &localMatrix);
 }
 
 static SkShader* MakeRadial(const SkPoint pts[2], const GradData& data,
-                            SkShader::TileMode tm, SkUnitMapper* mapper) {
+                            SkShader::TileMode tm, SkUnitMapper* mapper,
+                            const SkMatrix& localMatrix) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
     return SkGradientShader::CreateRadial(center, center.fX, data.fColors,
-                                          data.fPos, data.fCount, tm, mapper);
+                                          data.fPos, data.fCount, tm, mapper, 0, &localMatrix);
 }
 
 static SkShader* MakeSweep(const SkPoint pts[2], const GradData& data,
-                           SkShader::TileMode, SkUnitMapper* mapper) {
+                           SkShader::TileMode, SkUnitMapper* mapper,
+                           const SkMatrix& localMatrix) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
     return SkGradientShader::CreateSweep(center.fX, center.fY, data.fColors,
-                                         data.fPos, data.fCount, mapper);
+                                         data.fPos, data.fCount, mapper, 0, &localMatrix);
 }
 
 static SkShader* Make2Radial(const SkPoint pts[2], const GradData& data,
-                             SkShader::TileMode tm, SkUnitMapper* mapper) {
+                             SkShader::TileMode tm, SkUnitMapper* mapper,
+                             const SkMatrix& localMatrix) {
     SkPoint center0, center1;
     center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
@@ -73,11 +77,13 @@ static SkShader* Make2Radial(const SkPoint pts[2], const GradData& data,
     return SkGradientShader::CreateTwoPointRadial(
                                                   center1, (pts[1].fX - pts[0].fX) / 7,
                                                   center0, (pts[1].fX - pts[0].fX) / 2,
-                                                  data.fColors, data.fPos, data.fCount, tm, mapper);
+                                                  data.fColors, data.fPos, data.fCount, tm, mapper,
+                                                  0, &localMatrix);
 }
 
 static SkShader* Make2Conical(const SkPoint pts[2], const GradData& data,
-                             SkShader::TileMode tm, SkUnitMapper* mapper) {
+                             SkShader::TileMode tm, SkUnitMapper* mapper,
+                             const SkMatrix& localMatrix) {
     SkPoint center0, center1;
     SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 10);
     SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
@@ -86,11 +92,13 @@ static SkShader* Make2Conical(const SkPoint pts[2], const GradData& data,
     return SkGradientShader::CreateTwoPointConical(center1, radius1,
                                                    center0, radius0,
                                                    data.fColors, data.fPos,
-                                                   data.fCount, tm, mapper);
+                                                   data.fCount, tm, mapper,
+                                                   0, &localMatrix);
 }
 
 typedef SkShader* (*GradMaker)(const SkPoint pts[2], const GradData& data,
-                               SkShader::TileMode tm, SkUnitMapper* mapper);
+                               SkShader::TileMode tm, SkUnitMapper* mapper,
+                               const SkMatrix& localMatrix);
 static const GradMaker gGradMakers[] = {
     MakeLinear, MakeRadial, MakeSweep, Make2Radial, Make2Conical
 };
@@ -125,14 +133,14 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
             canvas->save();
             for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers); j++) {
-                SkShader* shader = gGradMakers[j](pts, gGradData[i], tm, NULL);
+                SkMatrix scale = SkMatrix::I();
 
                 if (i == 5) { // if the clamp case
-                    SkMatrix scale;
                     scale.setScale(0.5f, 0.5f);
                     scale.postTranslate(25.f, 25.f);
-                    shader->setLocalMatrix(scale);
                 }
+
+                SkShader* shader = gGradMakers[j](pts, gGradData[i], tm, NULL, scale);
 
                 paint.setShader(shader);
                 canvas->drawRect(r, paint);
@@ -178,8 +186,6 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
             canvas->save();
             for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers); j++) {
-                SkShader* shader = gGradMakers[j](pts, gGradData[i], tm, NULL);
-
                 // apply an increasing y perspective as we move to the right
                 SkMatrix perspective;
                 perspective.setIdentity();
@@ -188,7 +194,7 @@ protected:
                 perspective.setSkewX(SkScalarDiv(SkIntToScalar((unsigned) i+1),
                                      SkIntToScalar(10)));
 
-                shader->setLocalMatrix(perspective);
+                SkShader* shader = gGradMakers[j](pts, gGradData[i], tm, NULL, perspective);
 
                 paint.setShader(shader);
                 canvas->drawRect(r, paint);

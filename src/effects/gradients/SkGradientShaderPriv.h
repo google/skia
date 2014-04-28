@@ -99,7 +99,7 @@ public:
     };
 
 public:
-    SkGradientShaderBase(const Descriptor& desc);
+    SkGradientShaderBase(const Descriptor& desc, const SkMatrix* localMatrix);
     virtual ~SkGradientShaderBase();
 
     // The cache is initialized on-demand when getCache16/32 is called.

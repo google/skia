@@ -151,12 +151,12 @@ protected:
 
         const SkScalar w = SkIntToScalar(W);
         const SkScalar h = SkIntToScalar(H);
-        SkShader* s = SkShader::CreateBitmapShader(fBG,
-                                                   SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode);
         SkMatrix m;
         m.setScale(SkIntToScalar(6), SkIntToScalar(6));
-        s->setLocalMatrix(m);
+        SkShader* s = SkShader::CreateBitmapShader(fBG,
+                                                   SkShader::kRepeat_TileMode,
+                                                   SkShader::kRepeat_TileMode,
+                                                   &m);
 
         SkPaint labelP;
         labelP.setAntiAlias(true);

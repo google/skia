@@ -175,9 +175,9 @@ SkShader* SkDrawLinearGradient::getShader() {
     if (addPrelude() == 0 || points.count() != 4)
         return NULL;
     SkShader* shader = SkGradientShader::CreateLinear((SkPoint*)points.begin(),
-        fColors.begin(), offsets.begin(), fColors.count(), (SkShader::TileMode) tileMode, fUnitMapper);
+        fColors.begin(), offsets.begin(), fColors.count(), (SkShader::TileMode) tileMode,
+        fUnitMapper, 0, getMatrix());
     SkAutoTDelete<SkShader> autoDel(shader);
-    addPostlude(shader);
     (void)autoDel.detach();
     return shader;
 }
@@ -210,9 +210,9 @@ SkShader* SkDrawRadialGradient::getShader() {
     if (addPrelude() == 0)
         return NULL;
     SkShader* shader = SkGradientShader::CreateRadial(center,
-        radius, fColors.begin(), offsets.begin(), fColors.count(), (SkShader::TileMode) tileMode, fUnitMapper);
+        radius, fColors.begin(), offsets.begin(), fColors.count(), (SkShader::TileMode) tileMode,
+        fUnitMapper, 0, getMatrix());
     SkAutoTDelete<SkShader> autoDel(shader);
-    addPostlude(shader);
     (void)autoDel.detach();
     return shader;
 }

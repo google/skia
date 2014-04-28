@@ -27,10 +27,11 @@
 #include "SkXfermode.h"
 #include "SkDrawFilter.h"
 
-static void make_paint(SkPaint* paint) {
+static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
     SkColor colors[] = { 0, SK_ColorWHITE };
     SkPoint pts[] = { { 0, 0 }, { 0, SK_Scalar1*20 } };
-    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode,
+                                                 NULL, 0, &localMatrix);
 
     paint->setShader(s)->unref();
     paint->setXfermodeMode(SkXfermode::kDstIn_Mode);
@@ -104,18 +105,15 @@ static void test_fade(SkCanvas* canvas) {
     dump_layers("outside layer alpha", canvas);
 
     // now apply an effect
+    SkMatrix m;
+    m.setScale(SK_Scalar1, -SK_Scalar1);
+    m.postTranslate(0, SkIntToScalar(100));
 
     SkPaint paint;
-    make_paint(&paint);
+    make_paint(&paint, m);
     r.set(0, 0, SkIntToScalar(100), SkIntToScalar(20));
 //    SkDebugf("--------- draw top grad\n");
     canvas->drawRect(r, paint);
-
-    SkMatrix m;
-    SkShader* s = paint.getShader();
-    m.setScale(SK_Scalar1, -SK_Scalar1);
-    m.postTranslate(0, SkIntToScalar(100));
-    s->setLocalMatrix(m);
 
     r.fTop = SkIntToScalar(80);
     r.fBottom = SkIntToScalar(100);

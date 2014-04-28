@@ -28,8 +28,7 @@ static void setBitmapDash(SkPaint* paint, int width) {
     matrix.setScale(SkIntToScalar(width), SK_Scalar1);
 
     SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                               SkShader::kClamp_TileMode);
-    s->setLocalMatrix(matrix);
+                                               SkShader::kClamp_TileMode, &matrix);
 
     paint->setShader(s)->unref();
 }

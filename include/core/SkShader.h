@@ -34,7 +34,7 @@ class SK_API SkShader : public SkFlattenable {
 public:
     SK_DECLARE_INST_COUNT(SkShader)
 
-    SkShader();
+    SkShader(const SkMatrix* localMatrix = NULL);
     virtual ~SkShader();
 
     /**
@@ -371,7 +371,8 @@ public:
      *  @return     Returns a new shader object. Note: this function never returns null.
     */
     static SkShader* CreateBitmapShader(const SkBitmap& src,
-                                        TileMode tmx, TileMode tmy);
+                                        TileMode tmx, TileMode tmy,
+                                        const SkMatrix* localMatrix = NULL);
 
     /** Call this to create a new shader that will draw with the specified picture.
      *

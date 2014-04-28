@@ -60,12 +60,12 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     SkPaint paint;
     paint.setXfermodeMode(SkXfermode::kSrc_Mode);
 
-    SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(subset,
-                                  SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode));
     SkMatrix shaderMatrix;
     shaderMatrix.setTranslate(SkIntToScalar(srcOffset.fX),
                               SkIntToScalar(srcOffset.fY));
-    shader->setLocalMatrix(shaderMatrix);
+    SkAutoTUnref<SkShader> shader(SkShader::CreateBitmapShader(subset,
+                                  SkShader::kRepeat_TileMode, SkShader::kRepeat_TileMode,
+                                  &shaderMatrix));
     paint.setShader(shader);
     canvas.translate(-dstRect.fLeft, -dstRect.fTop);
     canvas.drawRect(dstRect, paint);

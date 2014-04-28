@@ -44,7 +44,8 @@ class SkTwoPointConicalGradient : public SkGradientShaderBase {
 public:
     SkTwoPointConicalGradient(const SkPoint& start, SkScalar startRadius,
                               const SkPoint& end, SkScalar endRadius,
-                              bool flippedGrad, const Descriptor&);
+                              bool flippedGrad, const Descriptor&,
+                              const SkMatrix* localMatrix);
 
 
     virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,

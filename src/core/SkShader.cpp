@@ -15,8 +15,12 @@
 #include "SkShader.h"
 #include "SkWriteBuffer.h"
 
-SkShader::SkShader() {
-    fLocalMatrix.reset();
+SkShader::SkShader(const SkMatrix* localMatrix) {
+    if (localMatrix) {
+        fLocalMatrix = *localMatrix;
+    } else {
+        fLocalMatrix.reset();
+    }
 }
 
 SkShader::SkShader(SkReadBuffer& buffer)
@@ -180,9 +184,9 @@ GrEffectRef* SkShader::asNewEffect(GrContext*, const SkPaint&) const {
     return NULL;
 }
 
-SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
-                                       TileMode tmx, TileMode tmy) {
-    return ::CreateBitmapShader(src, tmx, tmy, NULL);
+SkShader* SkShader::CreateBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
+                                       const SkMatrix* localMatrix) {
+    return ::CreateBitmapShader(src, tmx, tmy, localMatrix, NULL);
 }
 
 SkShader* SkShader::CreatePictureShader(SkPicture* src, TileMode tmx, TileMode tmy) {
@@ -252,11 +256,8 @@ SkColorShader::ColorShaderContext::ColorShaderContext(const SkColorShader& shade
                                                       const SkMatrix& matrix)
     : INHERITED(shader, device, paint, matrix)
 {
-    SkColor color;
-    unsigned a;
-
-    color = shader.fColor;
-    a = SkAlphaMul(SkColorGetA(color), SkAlpha255To256(paint.getAlpha()));
+    SkColor color = shader.fColor;
+    unsigned a = SkAlphaMul(SkColorGetA(color), SkAlpha255To256(paint.getAlpha()));
 
     unsigned r = SkColorGetR(color);
     unsigned g = SkColorGetG(color);

@@ -33,15 +33,15 @@ public:
             str.printf("/skimages/elephant%d.jpeg", i);
             SkBitmap bm;
             if (SkImageDecoder::DecodeFile(str.c_str(), &bm)) {
-                SkShader* s = SkShader::CreateBitmapShader(bm,
-                                                           SkShader::kClamp_TileMode,
-                                                           SkShader::kClamp_TileMode);
-
                 SkRect src = { 0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) };
                 SkRect dst = { -150, -150, 150, 150 };
                 SkMatrix matrix;
                 matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
-                s->setLocalMatrix(matrix);
+
+                SkShader* s = SkShader::CreateBitmapShader(bm,
+                                                           SkShader::kClamp_TileMode,
+                                                           SkShader::kClamp_TileMode,
+                                                           &matrix);
                 *fShaders.append() = s;
             } else {
                 break;

@@ -1202,8 +1202,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
 
         SkPaint paintWithShader(paint);
         paintWithShader.setShader(SkShader::CreateBitmapShader(*bitmapPtr,
-            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode))->unref();
-        paintWithShader.getShader()->setLocalMatrix(localM);
+            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode, &localM))->unref();
         SkRect dstRect = {0, 0, dstSize.fWidth, dstSize.fHeight};
         this->drawRect(draw, dstRect, paintWithShader);
 

@@ -35,8 +35,7 @@ static void draw_mask(SkBitmap* bm) {
     canvas.drawCircle(10, 10, 10, circlePaint);
 }
 
-static void adopt_shader(SkPaint* paint, SkShader* shader, SkMatrix s) {
-    shader->setLocalMatrix(s);
+static void adopt_shader(SkPaint* paint, SkShader* shader) {
     paint->setShader(shader);
     SkSafeUnref(shader);
 }
@@ -72,7 +71,7 @@ protected:
 
             canvas->save();
             adopt_shader(&paint, SkShader::CreateBitmapShader(fBitmap, SkShader::kClamp_TileMode,
-                                                              SkShader::kClamp_TileMode), s);
+                                                              SkShader::kClamp_TileMode, &s));
 
             // draw the shader with a bitmap mask
             canvas->drawBitmap(fMask, 0, 0, &paint);
@@ -94,7 +93,7 @@ protected:
             canvas->translate(0, 25);
 
             adopt_shader(&paint, SkShader::CreateBitmapShader(fMask, SkShader::kRepeat_TileMode,
-                                                              SkShader::kRepeat_TileMode), s);
+                                                              SkShader::kRepeat_TileMode, &s));
             paint.setColor(SK_ColorRED);
 
             // draw the mask using the shader and a color

@@ -381,11 +381,11 @@ void SkBitmapDevice::drawBitmapRect(const SkDraw& draw, const SkBitmap& bitmap,
     // construct a shader, so we can call drawRect with the dst
     SkShader* s = SkShader::CreateBitmapShader(*bitmapPtr,
                                                SkShader::kClamp_TileMode,
-                                               SkShader::kClamp_TileMode);
+                                               SkShader::kClamp_TileMode,
+                                               &matrix);
     if (NULL == s) {
         return;
     }
-    s->setLocalMatrix(matrix);
 
     SkPaint paintWithShader(paint);
     paintWithShader.setStyle(SkPaint::kFill_Style);

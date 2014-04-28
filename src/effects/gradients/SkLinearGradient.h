@@ -13,7 +13,7 @@
 
 class SkLinearGradient : public SkGradientShaderBase {
 public:
-    SkLinearGradient(const SkPoint pts[2], const Descriptor&);
+    SkLinearGradient(const SkPoint pts[2], const Descriptor&, const SkMatrix* localMatrix);
 
     virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
                                              void* storage) const SK_OVERRIDE;

@@ -146,8 +146,8 @@ void shadeSpan16_radial_repeat(SkScalar fx, SkScalar dx, SkScalar fy, SkScalar d
 /////////////////////////////////////////////////////////////////////
 
 SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius,
-                                   const Descriptor& desc)
-    : SkGradientShaderBase(desc),
+                                   const Descriptor& desc, const SkMatrix* localMatrix)
+    : SkGradientShaderBase(desc, localMatrix),
       fCenter(center),
       fRadius(radius)
 {

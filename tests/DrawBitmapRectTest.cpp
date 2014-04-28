@@ -197,8 +197,6 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
     bm.allocN32Pixels(width, height);
     bm.eraseColor(SK_ColorRED);
 
-    SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode);
     matrix.setAll(0.0078740157f,
                   0,
                   SkIntToScalar(249),
@@ -206,7 +204,8 @@ static void test_wacky_bitmapshader(skiatest::Reporter* reporter,
                   0.0078740157f,
                   SkIntToScalar(239),
                   0, 0, SK_Scalar1);
-    s->setLocalMatrix(matrix);
+    SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
+                                               SkShader::kRepeat_TileMode, &matrix);
 
     SkPaint paint;
     paint.setShader(s)->unref();
