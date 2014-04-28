@@ -77,3 +77,8 @@ pre, code {
 #tryHistory .tries {
     float: none;
 }
+
+#gitInfo {
+    float: right;
+    font-size: 70%;
+}

@@ -98,6 +98,9 @@ var (
 		"wood", "dream", "cherry", "tree", "fog", "frost", "voice", "paper",
 		"frog", "smoke", "star",
 	}
+
+	gitHash = ""
+	gitInfo = ""
 )
 
 // flags
@@ -163,6 +166,18 @@ func init() {
 		panic(err)
 	}
 
+	// The git command returns output of the format:
+	//
+	//   f672cead70404080a991ebfb86c38316a4589b23 2014-04-27 19:21:51 +0000
+	//
+	logOutput, err := doCmd(`git log --format=%H%x20%ai HEAD^..HEAD`, true)
+	if err != nil {
+		panic(err)
+	}
+	logInfo := strings.Split(logOutput, " ")
+	gitHash = logInfo[0]
+	gitInfo = logInfo[1] + " " + logInfo[2] + " " + logInfo[0][0:6]
+
 	// Connect to MySQL server. First, get the password from the metadata server.
 	// See https://developers.google.com/compute/docs/metadata#custom.
 	req, err := http.NewRequest("GET", "http://metadata/computeMetadata/v1/instance/attributes/password", nil)
@@ -221,10 +236,17 @@ func init() {
 	}
 }
 
+// Titlebar is used in titlebar template expansion.
+type Titlebar struct {
+	GitHash string
+	GitInfo string
+}
+
 // userCode is used in template expansion.
 type userCode struct {
-	Code string
-	Hash string
+	Code     string
+	Hash     string
+	Titlebar Titlebar
 }
 
 // expandToFile expands the template and writes the result to the file.
@@ -234,7 +256,7 @@ func expandToFile(filename string, code string, t *template.Template) error {
 		return err
 	}
 	defer f.Close()
-	return t.Execute(f, userCode{Code: code})
+	return t.Execute(f, userCode{Code: code, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}})
 }
 
 // expandCode expands the template into a file and calculate the MD5 hash.
@@ -356,7 +378,8 @@ type Try struct {
 }
 
 type Recent struct {
-	Tries []Try
+	Tries    []Try
+	Titlebar Titlebar
 }
 
 // recentHandler shows the last 20 tries.
@@ -379,16 +402,17 @@ func recentHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		recent = append(recent, Try{Hash: hash, CreateTS: create_ts.Format("2006-02-01")})
 	}
-	if err := recentTemplate.Execute(w, Recent{Tries: recent}); err != nil {
+	if err := recentTemplate.Execute(w, Recent{Tries: recent, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
 		log.Printf("ERROR: Failed to expand template: %q\n", err)
 	}
 }
 
 type Workspace struct {
-	Name  string
-	Code  string
-	Hash  string
-	Tries []Try
+	Name     string
+	Code     string
+	Hash     string
+	Tries    []Try
+	Titlebar Titlebar
 }
 
 // newWorkspace generates a new random workspace name and stores it in the database.
@@ -448,7 +472,7 @@ func workspaceHandler(w http.ResponseWriter, r *http.Request) {
 			hash = tries[len(tries)-1].Hash
 			code, _ = getCode(hash)
 		}
-		if err := workspaceTemplate.Execute(w, Workspace{Tries: tries, Code: code, Name: name, Hash: hash}); err != nil {
+		if err := workspaceTemplate.Execute(w, Workspace{Tries: tries, Code: code, Name: name, Hash: hash, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
 		}
 	} else if r.Method == "POST" {
@@ -568,7 +592,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		// Expand the template.
-		if err := indexTemplate.Execute(w, userCode{Code: code, Hash: hash}); err != nil {
+		if err := indexTemplate.Execute(w, userCode{Code: code, Hash: hash, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
 		}
 	} else if r.Method == "POST" {
