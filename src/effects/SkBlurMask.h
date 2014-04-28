@@ -40,16 +40,9 @@ public:
                          SkIPoint *margin = NULL,
                          SkMask::CreateMode createMode =
                                                 SkMask::kComputeBoundsAndRenderImage_CreateMode);
-
-    // forceQuality will prevent BoxBlur from falling back to the low quality approach when sigma
-    // is very small -- this can be used predict the margin bump ahead of time without completely
-    // replicating the internal logic.  This permits not only simpler caching of blurred results,
-    // but also being able to predict precisely at what pixels the blurred profile of e.g. a
-    // rectangle will lie.
-
     static bool BoxBlur(SkMask* dst, const SkMask& src,
                         SkScalar sigma, Style style, Quality quality,
-                        SkIPoint* margin = NULL, bool forceQuality = false);
+                        SkIPoint* margin = NULL);
 
     // the "ground truth" blur does a gaussian convolution; it's slow
     // but useful for comparison purposes.
