@@ -99,24 +99,41 @@ SkPictureStateTree::Iterator::Iterator(const SkTDArray<void*>& draws, SkCanvas* 
     , fValid(true) {
 }
 
-uint32_t SkPictureStateTree::Iterator::draw() {
+void SkPictureStateTree::Iterator::setCurrentMatrix(const SkMatrix* matrix) {
+    SkASSERT(NULL != matrix);
+
+    if (matrix == fCurrentMatrix) {
+        return;
+    }
+
+    // The matrix is in recording space, but we also inherit
+    // a playback matrix from out target canvas.
+    SkMatrix m = *matrix;
+    m.postConcat(fPlaybackMatrix);
+    fCanvas->setMatrix(m);
+    fCurrentMatrix = matrix;
+}
+
+uint32_t SkPictureStateTree::Iterator::nextDraw() {
     SkASSERT(this->isValid());
     if (fPlaybackIndex >= fDraws->count()) {
-        // restore back to where we started
-        fCanvas->setMatrix(fPlaybackMatrix);
         if (fCurrentNode->fFlags & Node::kSaveLayer_Flag) {
             fCanvas->restore();
         }
-        fCurrentNode = fCurrentNode->fParent;
-        while (NULL != fCurrentNode) {
+
+        for (fCurrentNode = fCurrentNode->fParent; fCurrentNode;
+             fCurrentNode = fCurrentNode->fParent) {
+            // Note: we call restore() twice when both flags are set.
             if (fCurrentNode->fFlags & Node::kSave_Flag) {
                 fCanvas->restore();
             }
             if (fCurrentNode->fFlags & Node::kSaveLayer_Flag) {
                 fCanvas->restore();
             }
-            fCurrentNode = fCurrentNode->fParent;
         }
+
+        fCanvas->setMatrix(fPlaybackMatrix);
+        fCurrentMatrix = NULL;
         return kDrawComplete;
     }
 
@@ -124,10 +141,7 @@ uint32_t SkPictureStateTree::Iterator::draw() {
     Node* targetNode = draw->fNode;
 
     if (fSave) {
-        // FIXME: the save below depends on soon-to-be-deprecated
-        // SaveFlags behavior: it relies on matrix changes persisting
-        // after restore.
-        fCanvas->save(SkCanvas::kClip_SaveFlag);
+        fCanvas->save();
         fSave = false;
     }
 
@@ -148,9 +162,13 @@ uint32_t SkPictureStateTree::Iterator::draw() {
                 if (currentLevel >= targetLevel) {
                     if (tmp != fCurrentNode && tmp->fFlags & Node::kSave_Flag) {
                         fCanvas->restore();
+                        // restore() may change the matrix, so we need to reapply.
+                        fCurrentMatrix = NULL;
                     }
                     if (tmp->fFlags & Node::kSaveLayer_Flag) {
                         fCanvas->restore();
+                        // restore() may change the matrix, so we need to reapply.
+                        fCurrentMatrix = NULL;
                     }
                     tmp = tmp->fParent;
                 }
@@ -163,12 +181,11 @@ uint32_t SkPictureStateTree::Iterator::draw() {
             if (ancestor->fFlags & Node::kSave_Flag) {
                 if (fCurrentNode != ancestor) {
                     fCanvas->restore();
+                    // restore() may change the matrix, so we need to reapply.
+                    fCurrentMatrix = NULL;
                 }
                 if (targetNode != ancestor) {
-                    // FIXME: the save below depends on soon-to-be-deprecated
-                    // SaveFlags behavior: it relies on matrix changes persisting
-                    // after restore.
-                    fCanvas->save(SkCanvas::kClip_SaveFlag);
+                    fCanvas->save();
                 }
             }
             fCurrentNode = ancestor;
@@ -177,29 +194,18 @@ uint32_t SkPictureStateTree::Iterator::draw() {
         // If we're not at the target node yet, we'll need to return an offset to make the caller
         // apply the next clip or saveLayer.
         if (fCurrentNode != targetNode) {
-            if (fCurrentMatrix != fNodes.top()->fMatrix) {
-                fCurrentMatrix = fNodes.top()->fMatrix;
-                SkMatrix tmp = *fNodes.top()->fMatrix;
-                tmp.postConcat(fPlaybackMatrix);
-                fCanvas->setMatrix(tmp);
-            }
             uint32_t offset = fNodes.top()->fOffset;
             fCurrentNode = fNodes.top();
             fSave = fCurrentNode != targetNode && fCurrentNode->fFlags & Node::kSave_Flag;
             fNodes.pop();
+            this->setCurrentMatrix(fCurrentNode->fMatrix);
             return offset;
         }
     }
 
     // If we got this far, the clip/saveLayer state is all set, so we can proceed to set the matrix
     // for the draw, and return its offset.
-
-    if (fCurrentMatrix != draw->fMatrix) {
-        SkMatrix tmp = *draw->fMatrix;
-        tmp.postConcat(fPlaybackMatrix);
-        fCanvas->setMatrix(tmp);
-        fCurrentMatrix = draw->fMatrix;
-    }
+    this->setCurrentMatrix(draw->fMatrix);
 
     ++fPlaybackIndex;
     return draw->fOffset;
