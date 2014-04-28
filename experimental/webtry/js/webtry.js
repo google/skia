@@ -25,6 +25,85 @@
 })();
 
 /**
+ * Enable zooming for any images with a class of 'zoom'.
+ */
+(function () {
+  var clientX      = 0;
+  var clientY      = 0;
+  var lastClientX  = 0;
+  var lastClientY  = 0;
+  var ctx          = null; // The 2D canvas context of the zoom.
+  var currentImage = null; // The img node we are zooming for, otherwise null.
+
+  function zoomMove(e) {
+    clientX = e.clientX;
+    clientY = e.clientY;
+  }
+
+  function zoomMouseDown(e) {
+    e.preventDefault();
+    // Only do zooming on the primary mouse button.
+    if (e.button != 0) {
+      return
+    }
+    currentImage = e.target;
+    clientX = e.clientX;
+    clientY = e.clientY;
+    lastClientX = clientX-1;
+    lastClientY = clientY-1;
+    document.body.style.cursor = 'crosshair';
+    canvas = document.createElement('canvas');
+    canvas.width=256;
+    canvas.height=256;
+    canvas.classList.add('zoomCanvas');
+    ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    this.parentNode.insertBefore(canvas, this);
+
+    document.body.addEventListener('mousemove',  zoomMove,     true);
+    document.body.addEventListener('mouseup',    zoomFinished);
+    document.body.addEventListener('mouseleave', zoomFinished);
+
+    // Kick off the drawing.
+    setTimeout(drawZoom, 1);
+  }
+
+  function drawZoom() {
+    if (currentImage) {
+      // Only draw if the mouse has moved from the last time we drew.
+      if (lastClientX != clientX || lastClientY != clientY) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.drawImage(currentImage,
+            clientX - currentImage.x, clientY - currentImage.y,  // src zero
+            32, 32,                                              // src dimensions
+            0, 0,                                                // dst zero
+            ctx.canvas.width, ctx.canvas.height);                // dst dimensions
+        lastClientX = clientX;
+        lastClientY = clientY;
+      }
+      setTimeout(drawZoom, 1000/30);
+    }
+  }
+
+  function zoomFinished() {
+    currentImage = null;
+    document.body.style.cursor = 'default';
+    ctx.canvas.parentNode.removeChild(ctx.canvas);
+    document.body.removeEventListener('mousemove',  zoomMove,     true);
+    document.body.removeEventListener('mouseup',    zoomFinished);
+    document.body.removeEventListener('mouseleave', zoomFinished);
+  }
+
+  this.addEventListener('DOMContentLoaded', function() {
+    var zoomables = document.body.querySelectorAll('.zoom');
+    for (var i=0; i<zoomables.length; i++) {
+      zoomables[i].addEventListener('mousedown', zoomMouseDown);
+    }
+  });
+})();
+
+
+/**
  * All the functionality is wrapped up in this anonymous closure, but we need
  * to be told if we are on the workspace page or a normal try page, so the
  * workspaceName is passed into the closure, it must be set in the global

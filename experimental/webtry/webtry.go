@@ -352,10 +352,6 @@ func cssHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "css/webtry.css")
 }
 
-func jsHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "js/run.js")
-}
-
 // imageHandler serves up the PNG of a specific try.
 func imageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Image Handler: %q\n", r.URL.Path)
@@ -683,7 +679,7 @@ func main() {
 	http.HandleFunc("/iframe/", iframeHandler)
 	http.HandleFunc("/json/", tryInfoHandler)
 	http.HandleFunc("/css/", cssHandler)
-	http.HandleFunc("/js/", jsHandler)
+	http.Handle("/js/", http.FileServer(http.Dir("./")))
 	// TODO Break out /c/ as it's own handler.
 	http.HandleFunc("/", mainHandler)
 	log.Fatal(http.ListenAndServe(*port, nil))
