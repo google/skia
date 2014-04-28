@@ -36,7 +36,7 @@ namespace EXPERIMENTAL {
  *  SkPlayback is thread safe; SkRecording is not.
  */
 
-class SkPlayback : SkNoncopyable {
+class SK_API SkPlayback : SkNoncopyable {
 public:
     // Remember, if you've got an SkPlayback*, you probably own it.  Don't forget to delete it!
     ~SkPlayback();
@@ -52,7 +52,7 @@ private:
     friend class SkRecording;
 };
 
-class SkRecording : SkNoncopyable {
+class SK_API SkRecording : SkNoncopyable {
 public:
     SkRecording(int width, int height);
     ~SkRecording();
