@@ -35,8 +35,10 @@ DEFINE_bool(writeChecksumBasedFilenames, false,
 DEFINE_bool(writeEncodedImages, false, "Any time the skp contains an encoded image, write it to a "
             "file rather than decoding it. Requires writePath to be set. Skips drawing the full "
             "skp to a file. Not compatible with deferImageDecoding.");
-DEFINE_string(writeJsonSummaryPath, "", "File to write a JSON summary of image results to.");
-DEFINE_string2(writePath, w, "", "Directory to write the rendered images into.");
+DEFINE_string(writeJsonSummaryPath, "", "File to write a JSON summary of image results to. "
+              "TODO(epoger): Currently, this only works if --writePath is also specified. "
+              "See https://code.google.com/p/skia/issues/detail?id=2043 .");
+DEFINE_string2(writePath, w, "", "Directory to write the rendered images.");
 DEFINE_bool(writeWholeImage, false, "In tile mode, write the entire rendered image to a "
             "file, instead of an image for each tile.");
 DEFINE_bool(validate, false, "Verify that the rendered image contains the same pixels as "
@@ -339,6 +341,8 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
     if (FLAGS_writeWholeImage) {
         sk_tools::force_all_opaque(*bitmap);
 
+        // TODO(epoger): It would be better for the filename (without outputDir) to be passed in
+        // here, and used both for the checksum file and writing into outputDir.
         SkString inputFilename, outputPath;
         sk_tools::get_basename(&inputFilename, inputPath);
         sk_tools::make_filepath(&outputPath, *outputDir, inputFilename);

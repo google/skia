@@ -26,92 +26,6 @@ EXPECTED_HEADER_CONTENTS = {
     "revision" : 1,
 }
 
-# Manually verified: 640x400 red rectangle with black border
-RED_WHOLEIMAGE = {
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 11092453015575919668,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "red_skp.png",
-}
-
-# Manually verified: 640x400 green rectangle with black border
-GREEN_WHOLEIMAGE = {
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 8891695120562235492,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "green_skp.png",
-}
-
-# Manually verified these 6 images, all 256x256 tiles,
-# consistent with a tiled version of the 640x400 red rect
-# with black borders.
-RED_TILES = [{
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 5815827069051002745,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "red_skp-tile0.png",
-},{
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 9323613075234140270,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "red_skp-tile1.png",
-}, {
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 16670399404877552232,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "red_skp-tile2.png",
-}, {
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 2507897274083364964,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "red_skp-tile3.png",
-}, {
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 7325267995523877959,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "red_skp-tile4.png",
-}, {
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 2181381724594493116,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "red_skp-tile5.png",
-}]
-
-# Manually verified these 6 images, all 256x256 tiles,
-# consistent with a tiled version of the 640x400 green rect
-# with black borders.
-GREEN_TILES = [{
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 12587324416545178013,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "green_skp-tile0.png",
-}, {
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 7624374914829746293,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "green_skp-tile1.png",
-}, {
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 5686489729535631913,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "green_skp-tile2.png",
-}, {
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 7980646035555096146,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "green_skp-tile3.png",
-}, {
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 17817086664365875131,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "green_skp-tile4.png",
-}, {
-    "checksumAlgorithm" : "bitmap-64bitMD5",
-    "checksumValue" : 10673669813016809363,
-    "comparisonResult" : "no-comparison",
-    "filepath" : "green_skp-tile5.png",
-}]
-
 
 class RenderPicturesTest(base_unittest.TestCase):
 
@@ -125,20 +39,13 @@ class RenderPicturesTest(base_unittest.TestCase):
     shutil.rmtree(self._temp_dir)
 
   def test_tiled_whole_image(self):
-    """Run render_pictures with tiles and --writeWholeImage flag.
-
-    TODO(epoger): This test generates undesired results!  The JSON summary
-    includes both whole-image and tiled-images (as it should), but only
-    whole-images are written out to disk.  See http://skbug.com/2463
-
-    TODO(epoger): I noticed that when this is run without --writePath being
-    specified, this test writes red_skp.png and green_skp.png to the current
-    directory.  We should fix that... if --writePath is not specified, this
-    probably shouldn't write out red_skp.png and green_skp.png at all!
-    See http://skbug.com/2464
-    """
+    """Run render_pictures with tiles and --writeWholeImage flag."""
     output_json_path = os.path.join(self._temp_dir, 'output.json')
     self._generate_skps()
+    # TODO(epoger): I noticed that when this is run without --writePath being
+    # specified, this test writes red_skp.png and green_skp.png to the current
+    # directory.  We should fix that... if --writePath is not specified, this
+    # probably shouldn't write out red_skp.png and green_skp.png at all!
     self._run_render_pictures(['-r', self._input_skp_dir,
                                '--bbh', 'grid', '256', '256',
                                '--mode', 'tile', '256', '256',
@@ -149,12 +56,22 @@ class RenderPicturesTest(base_unittest.TestCase):
         "header" : EXPECTED_HEADER_CONTENTS,
         "actual-results" : {
             "red.skp": {
-                "tiled-images": RED_TILES,
-                "whole-image": RED_WHOLEIMAGE,
+                # Manually verified: 640x400 red rectangle with black border
+                "whole-image": {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 11092453015575919668,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp.png",
+                },
             },
             "green.skp": {
-                "tiled-images": GREEN_TILES,
-                "whole-image": GREEN_WHOLEIMAGE,
+                # Manually verified: 640x400 green rectangle with black border
+                "whole-image": {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 8891695120562235492,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp.png",
+                },
             }
         }
     }
@@ -169,14 +86,28 @@ class RenderPicturesTest(base_unittest.TestCase):
     self._run_render_pictures(['-r', self._input_skp_dir,
                                '--writePath', self._temp_dir,
                                '--writeJsonSummaryPath', output_json_path])
+    # TODO(epoger): These expectations are the same as for above unittest.
+    # Define the expectations once, and share them.
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
         "actual-results" : {
             "red.skp": {
-                "whole-image": RED_WHOLEIMAGE,
+                # Manually verified: 640x400 red rectangle with black border
+                "whole-image": {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 11092453015575919668,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp.png",
+                },
             },
             "green.skp": {
-                "whole-image": GREEN_WHOLEIMAGE,
+                # Manually verified: 640x400 green rectangle with black border
+                "whole-image": {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 8891695120562235492,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp.png",
+                },
             }
         }
     }
@@ -226,44 +157,36 @@ class RenderPicturesTest(base_unittest.TestCase):
         ['bitmap-64bitMD5_8891695120562235492.png'])
 
   def test_untiled_validate(self):
-    """Same as test_untiled, but with --validate."""
+    """Same as test_untiled, but with --validate.
+
+    TODO(epoger): This test generates undesired results!  The call
+    to render_pictures should succeed, and generate the same output as
+    test_untiled.
+    See https://code.google.com/p/skia/issues/detail?id=2044 ('render_pictures:
+    --validate fails')
+    """
     output_json_path = os.path.join(self._temp_dir, 'output.json')
     self._generate_skps()
-    self._run_render_pictures(['-r', self._input_skp_dir,
-                               '--validate',
-                               '--writePath', self._temp_dir,
-                               '--writeJsonSummaryPath', output_json_path])
-    expected_summary_dict = {
-        "header" : EXPECTED_HEADER_CONTENTS,
-        "actual-results" : {
-            "red.skp": {
-                "whole-image": RED_WHOLEIMAGE,
-            },
-            "green.skp": {
-                "whole-image": GREEN_WHOLEIMAGE,
-            }
-        }
-    }
-    self._assert_json_contents(output_json_path, expected_summary_dict)
-    self._assert_directory_contents(
-        self._temp_dir, ['red_skp.png', 'green_skp.png', 'output.json'])
+    with self.assertRaises(Exception):
+      self._run_render_pictures(['-r', self._input_skp_dir,
+                                 '--validate',
+                                 '--writePath', self._temp_dir,
+                                 '--writeJsonSummaryPath', output_json_path])
 
   def test_untiled_without_writePath(self):
-    """Same as test_untiled, but without --writePath."""
+    """Same as test_untiled, but without --writePath.
+
+    TODO(epoger): This test generates undesired results!
+    See https://code.google.com/p/skia/issues/detail?id=2043 ('render_pictures:
+    --writeJsonSummaryPath fails unless --writePath is specified')
+    """
     output_json_path = os.path.join(self._temp_dir, 'output.json')
     self._generate_skps()
     self._run_render_pictures(['-r', self._input_skp_dir,
                                '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
-        "actual-results" : {
-            "red.skp": {
-                "whole-image": RED_WHOLEIMAGE,
-            },
-            "green.skp": {
-                "whole-image": GREEN_WHOLEIMAGE,
-            }
-        }
+        "actual-results" : None,
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
 
@@ -280,10 +203,76 @@ class RenderPicturesTest(base_unittest.TestCase):
         "header" : EXPECTED_HEADER_CONTENTS,
         "actual-results" : {
             "red.skp": {
-                "tiled-images": RED_TILES,
+                # Manually verified these 6 images, all 256x256 tiles,
+                # consistent with a tiled version of the 640x400 red rect
+                # with black borders.
+                "tiled-images": [{
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 5815827069051002745,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile0.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 9323613075234140270,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile1.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 16670399404877552232,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile2.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 2507897274083364964,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile3.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 7325267995523877959,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile4.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 2181381724594493116,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "red_skp-tile5.png",
+                }],
             },
             "green.skp": {
-                "tiled-images": GREEN_TILES,
+                # Manually verified these 6 images, all 256x256 tiles,
+                # consistent with a tiled version of the 640x400 green rect
+                # with black borders.
+                "tiled-images": [{
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 12587324416545178013,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile0.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 7624374914829746293,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile1.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 5686489729535631913,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile2.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 7980646035555096146,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile3.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 17817086664365875131,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile4.png",
+                }, {
+                    "checksumAlgorithm" : "bitmap-64bitMD5",
+                    "checksumValue" : 10673669813016809363,
+                    "comparisonResult" : "no-comparison",
+                    "filepath" : "green_skp-tile5.png",
+                }],
             }
         }
     }

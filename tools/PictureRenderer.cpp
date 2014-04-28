@@ -323,17 +323,26 @@ uint32_t PictureRenderer::recordFlags() {
 }
 
 /**
- * Write the canvas to an image file and/or JSON summary.
+ * Write the canvas to the specified path.
  *
  * @param canvas Must be non-null. Canvas to be written to a file.
- * @param outputDir If nonempty, write the binary image to a file within this directory;
- *     if empty, don't write out the image at all.
+ * @param outputDir If nonempty, write the binary image to a file within this directory.
  * @param inputFilename If we are writing out a binary image, use this to build its filename.
- * @param jsonSummaryPtr If not null, add image results (checksum) to this summary.
+ * @param jsonSummaryPtr If not null, add image results to this summary.
  * @param useChecksumBasedFilenames If true, use checksum-based filenames when writing to disk.
  * @param tileNumberPtr If not null, which tile number this image contains.
+ * @return bool True if the Canvas is written to a file.
  *
- * @return bool True if the operation completed successfully.
+ * TODO(epoger): Right now, all canvases must pass through this function in order to be appended
+ * to the ImageResultsSummary.  We need some way to add bitmaps to the ImageResultsSummary
+ * even if --writePath has not been specified (and thus this function is not called).
+ *
+ * One fix would be to pass in these path elements separately, and allow this function to be
+ * called even if --writePath was not specified...
+ *  const char *outputDir   // NULL if we don't want to write image files to disk
+ *  const char *filename    // name we use within JSON summary, and as the filename within outputDir
+ *
+ * UPDATE: Now that outputDir and inputFilename are passed separately, we should be able to do that.
  */
 static bool write(SkCanvas* canvas, const SkString& outputDir, const SkString& inputFilename,
                   ImageResultsSummary *jsonSummaryPtr, bool useChecksumBasedFilenames,
@@ -398,10 +407,8 @@ static bool write(SkCanvas* canvas, const SkString& outputDir, const SkString& i
                             hash, tileNumberPtr);
     }
 
-    if (outputDir.isEmpty()) {
-        return true;
-    }
-
+    SkASSERT(!outputDir.isEmpty()); // TODO(epoger): we want to remove this constraint,
+                                    // as noted above
     SkString dirPath;
     if (outputSubdirPtr) {
         dirPath = SkOSPath::SkPathJoin(outputDir.c_str(), outputSubdirPtr);
@@ -463,13 +470,16 @@ bool PipePictureRenderer::render(SkBitmap** out) {
     pipeCanvas->drawPicture(*fPicture);
     writer.endRecording();
     fCanvas->flush();
+    if (!fOutputDir.isEmpty()) {
+        return write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
+                     fUseChecksumBasedFilenames);
+    }
     if (NULL != out) {
         *out = SkNEW(SkBitmap);
         setup_bitmap(*out, fPicture->width(), fPicture->height());
         fCanvas->readPixels(*out, 0, 0);
     }
-    return write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
-                 fUseChecksumBasedFilenames);
+    return true;
 }
 
 SkString PipePictureRenderer::getConfigNameInternal() {
@@ -493,13 +503,18 @@ bool SimplePictureRenderer::render(SkBitmap** out) {
 
     fCanvas->drawPicture(*fPicture);
     fCanvas->flush();
+    if (!fOutputDir.isEmpty()) {
+        return write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
+                     fUseChecksumBasedFilenames);
+    }
+
     if (NULL != out) {
         *out = SkNEW(SkBitmap);
         setup_bitmap(*out, fPicture->width(), fPicture->height());
         fCanvas->readPixels(*out, 0, 0);
     }
-    return write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
-                 fUseChecksumBasedFilenames);
+
+    return true;
 }
 
 SkString SimplePictureRenderer::getConfigNameInternal() {
@@ -707,8 +722,10 @@ bool TiledPictureRenderer::render(SkBitmap** out) {
     bool success = true;
     for (int i = 0; i < fTileRects.count(); ++i) {
         draw_tile_to_canvas(fCanvas, fTileRects[i], fPicture);
-        success &= write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
-                         fUseChecksumBasedFilenames, &i);
+        if (!fOutputDir.isEmpty()) {
+            success &= write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
+                             fUseChecksumBasedFilenames, &i);
+        }
         if (NULL != out) {
             if (fCanvas->readPixels(&bitmap, 0, 0)) {
                 // Add this tile to the entire bitmap.
@@ -790,8 +807,9 @@ public:
 
         for (int i = fStart; i < fEnd; i++) {
             draw_tile_to_canvas(fCanvas, fRects[i], fClone);
-            if (!write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
-                       fUseChecksumBasedFilenames, &i)
+            if ((!fOutputDir.isEmpty())
+                && !write(fCanvas, fOutputDir, fInputFilename, fJsonSummaryPtr,
+                          fUseChecksumBasedFilenames, &i)
                 && fSuccess != NULL) {
                 *fSuccess = false;
                 // If one tile fails to write to a file, do not continue drawing the rest.
