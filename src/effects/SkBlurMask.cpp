@@ -477,14 +477,14 @@ void SkMask_FreeImage(uint8_t* image) {
 
 bool SkBlurMask::BoxBlur(SkMask* dst, const SkMask& src,
                          SkScalar sigma, Style style, Quality quality,
-                         SkIPoint* margin) {
+                         SkIPoint* margin, bool force_quality) {
 
     if (src.fFormat != SkMask::kA8_Format) {
         return false;
     }
 
     // Force high quality off for small radii (performance)
-    if (sigma <= SkIntToScalar(2)) {
+    if (!force_quality && sigma <= SkIntToScalar(2)) {
         quality = kLow_Quality;
     }
 
