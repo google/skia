@@ -57,3 +57,6 @@ aaclip
 composeshader
 peekpixels
 
+# humper: https://codereview.chromium.org/248613004/
+# Changed the test in a few ways, will need rebaselining.
+simpleblurrrect
