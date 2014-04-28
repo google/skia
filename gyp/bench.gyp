@@ -52,11 +52,14 @@
         '../bench/BenchSysTimer_windows.h',
         '../bench/BenchSysTimer_windows.cpp',
       ],
-        'include_dirs': [
+      'include_dirs': [
         '../src/core',
         '../src/gpu',
         '../tools',
       ],
+      'direct_dependent_settings': {
+        'include_dirs': ['../bench'],
+      },
       'dependencies': [
         'skia_lib.gyp:skia_lib',
       ],

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "BenchTimer.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
@@ -14,7 +15,6 @@
 #include "SkRecording.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkTime.h"
 #include "LazyDecodeBitmap.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
@@ -56,7 +56,8 @@ static SkBBHFactory* parse_FLAGS_bbh() {
 }
 
 static void bench_record(SkPicture* src, const char* name, SkBBHFactory* bbhFactory) {
-    const SkMSec start = SkTime::GetMSecs();
+    BenchTimer timer;
+    timer.start();
     const int width  = src ? src->width()  : FLAGS_nullSize;
     const int height = src ? src->height() : FLAGS_nullSize;
 
@@ -79,10 +80,10 @@ static void bench_record(SkPicture* src, const char* name, SkBBHFactory* bbhFact
             }
         }
     }
+    timer.end();
 
-    const SkMSec elapsed = SkTime::GetMSecs() - start;
-    const double msPerLoop = elapsed / (double)FLAGS_loops;
-    printf("%.2g\t%s\n", msPerLoop, name);
+    const double msPerLoop = timer.fCpu / (double)FLAGS_loops;
+    printf("%u\t%s\n", unsigned(1000 * msPerLoop), name);
 }
 
 int tool_main(int argc, char** argv);

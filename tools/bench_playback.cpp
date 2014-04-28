@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "BenchTimer.h"
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
@@ -15,7 +16,6 @@
 #include "SkRecorder.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkTime.h"
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -40,7 +40,8 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
                                                                 src.width() * sizeof(SkPMColor)));
     canvas->clipRect(SkRect::MakeWH(SkIntToScalar(FLAGS_tile), SkIntToScalar(FLAGS_tile)));
 
-    const SkMSec start = SkTime::GetMSecs();
+    BenchTimer timer;
+    timer.start();
     for (int i = 0; i < FLAGS_loops; i++) {
         if (FLAGS_skr) {
             SkRecordDraw(record, canvas.get());
@@ -48,10 +49,10 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
             src.draw(canvas.get());
         }
     }
+    timer.end();
 
-    const SkMSec elapsed = SkTime::GetMSecs() - start;
-    const double msPerLoop = elapsed / (double)FLAGS_loops;
-    printf("%6.2f\t%s\n", msPerLoop, name);
+    const double msPerLoop = timer.fCpu / (double)FLAGS_loops;
+    printf("%u\t%s\n", unsigned(1000 * msPerLoop), name);
 }
 
 int tool_main(int argc, char** argv);

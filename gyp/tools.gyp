@@ -321,6 +321,7 @@
         '../src/lazy',
       ],
       'dependencies': [
+        'bench.gyp:bench_timer',
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
         'record.gyp:*',
@@ -338,6 +339,7 @@
         '../src/record',
       ],
       'dependencies': [
+        'bench.gyp:bench_timer',
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
         'record.gyp:*',
