@@ -11,6 +11,7 @@
 #include "SkGlyphCache_Globals.h"
 #include "SkDistanceFieldGen.h"
 #include "SkGraphics.h"
+#include "SkOnce.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkTemplates.h"
