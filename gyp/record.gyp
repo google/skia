@@ -8,6 +8,7 @@
             '../include/config',
             '../include/core',
             '../include/record',
+            '../src/utils',
         ],
         'direct_dependent_settings': {
             'include_dirs': [

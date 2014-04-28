@@ -58,4 +58,35 @@ struct SkTMux {
                               typename SkTIf<b, B, Neither>::type>::type type;
 };
 
+/** SkTEnableIf_c::type = (condition) ? T : [does not exist]; */
+template <bool condition, class T = void> struct SkTEnableIf_c { };
+template <class T> struct SkTEnableIf_c<true, T> {
+    typedef T type;
+};
+
+/** SkTEnableIf::type = (Condition::value) ? T : [does not exist]; */
+template <class Condition, class T = void> struct SkTEnableIf
+    : public SkTEnableIf_c<static_cast<bool>(Condition::value), T> { };
+
+/** Use as a return type to enable a function only when cond_type::value is true,
+ *  like C++14's std::enable_if_t.  E.g.  (N.B. this is a dumb example.)
+ *  SK_WHEN(SkTrue, int) f(void* ptr) { return 1; }
+ *  SK_WHEN(!SkTrue, int) f(void* ptr) { return 2; }
+ */
+#define SK_WHEN(cond_prefix, T) typename SkTEnableIf_c<cond_prefix::value, T>::type
+
+// See http://en.wikibooks.org/wiki/More_C++_Idioms/Member_Detector
+#define SK_CREATE_MEMBER_DETECTOR(member)                                           \
+template <typename T>                                                               \
+class HasMember_##member {                                                          \
+    struct Fallback { int member; };                                                \
+    struct Derived : T, Fallback {};                                                \
+    template <typename U, U> struct Check;                                          \
+    template <typename U> static uint8_t func(Check<int Fallback::*, &U::member>*); \
+    template <typename U> static uint16_t func(...);                                \
+public:                                                                             \
+    typedef HasMember_##member type;                                                \
+    static const bool value = sizeof(func<Derived>(NULL)) == sizeof(uint16_t);      \
+}
+
 #endif
