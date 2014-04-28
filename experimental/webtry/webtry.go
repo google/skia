@@ -258,8 +258,7 @@ type response struct {
 }
 
 // doCmd executes the given command line string in either the out/Debug
-// directory or the inout directory. Returns the stdout, and stderr in the case
-// of a non-zero exit code.
+// directory or the inout directory. Returns the stdout and stderr.
 func doCmd(commandLine string, moveToDebug bool) (string, error) {
 	log.Printf("Command: %q\n", commandLine)
 	programAndArgs := strings.SplitN(commandLine, " ", 2)
@@ -283,21 +282,13 @@ func doCmd(commandLine string, moveToDebug bool) (string, error) {
 		cmd.Dir = abs
 	}
 	log.Printf("Run in directory: %q\n", cmd.Dir)
-	var stdOut bytes.Buffer
-	cmd.Stdout = &stdOut
-	var stdErr bytes.Buffer
-	cmd.Stderr = &stdErr
-	cmd.Start()
-	err = cmd.Wait()
-	message := stdOut.String()
-	log.Printf("StdOut: %s\n", message)
+	message, err := cmd.CombinedOutput()
+	log.Printf("StdOut + StdErr: %s\n", string(message))
 	if err != nil {
 		log.Printf("Exit status: %s\n", err.Error())
-		log.Printf("StdErr: %s\n", stdErr.String())
-		message += stdErr.String()
-		return message, fmt.Errorf("Failed to run command.")
+		return string(message), fmt.Errorf("Failed to run command.")
 	}
-	return message, nil
+	return string(message), nil
 }
 
 // reportError formats an HTTP error response and also logs the detailed error message.

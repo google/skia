@@ -7,6 +7,7 @@
       'include_dirs' : [
         '../src/core',
         '../src/images',
+        '../src/pathops',
         ],
        'sources': [
          '../experimental/webtry/result.cpp',

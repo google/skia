@@ -1,6 +1,6 @@
 // To regenerate this list of includes run the following command from skia/include:
 //
-//     find core effects  -maxdepth 1 -name "*.h" | sed "s#^[^\/]*\/##g" | sed "s/\(.*\)/#include \"\1\"/" | sort
+//     find core effects pathops  -maxdepth 1 -name "*.h" | sed "s#^[^\/]*\/##g" | sed "s/\(.*\)/#include \"\1\"/" | sort
 //
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
@@ -9,6 +9,7 @@
 #include "SkAnnotation.h"
 #include "SkArithmeticMode.h"
 #include "SkAvoidXfermode.h"
+#include "SkBBHFactory.h"
 #include "SkBicubicImageFilter.h"
 #include "SkBitmapDevice.h"
 #include "SkBitmap.h"
@@ -101,10 +102,12 @@
 #include "SkPathEffect.h"
 #include "SkPath.h"
 #include "SkPathMeasure.h"
+#include "SkPathOps.h"
 #include "SkPathRef.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPicture.h"
 #include "SkPictureImageFilter.h"
+#include "SkPictureRecorder.h"
 #include "SkPixelRef.h"
 #include "SkPixelXorXfermode.h"
 #include "SkPoint.h"
@@ -119,6 +122,7 @@
 #include "SkRefCnt.h"
 #include "SkRegion.h"
 #include "SkRRect.h"
+#include "SkRTreePicture.h"
 #include "SkScalar.h"
 #include "SkShader.h"
 #include "SkSize.h"
