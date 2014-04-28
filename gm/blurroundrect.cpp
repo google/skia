@@ -106,32 +106,30 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return SkISize::Make(950, 950);
+        return SkISize::Make(750, 750);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         canvas->scale(1.5f, 1.5f);
-        canvas->translate(50,50);
 
-        const float blurRadii[] = { 1,5,10,20 };
-        const int cornerRadii[] = { 1,5,10,20 };
+        const int blurRadii[] = { 1, 3, 6, 10 };
+        const int cornerRadii[] = { 1, 3, 6, 10 };
         const SkRect r = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
         for (size_t i = 0; i < SK_ARRAY_COUNT(blurRadii); ++i) {
             SkAutoCanvasRestore autoRestore(canvas, true);
-            canvas->translate(0, (r.height() + SkIntToScalar(50)) * i);
+            canvas->translate(0, (r.height() + SkIntToScalar(20)) * i);
             for (size_t j = 0; j < SK_ARRAY_COUNT(cornerRadii); ++j) {
                 SkMaskFilter* filter = SkBlurMaskFilter::Create(
                     kNormal_SkBlurStyle,
-                    SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(blurRadii[i])),
-                    SkBlurMaskFilter::kHighQuality_BlurFlag);
+                    SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(blurRadii[i])));
                 SkPaint paint;
-                paint.setColor(SK_ColorBLACK);
+                paint.setColor(SK_ColorBLUE);
                 paint.setMaskFilter(filter)->unref();
 
                 SkRRect rrect;
                 rrect.setRectXY(r, SkIntToScalar(cornerRadii[j]), SkIntToScalar(cornerRadii[j]));
                 canvas->drawRRect(rrect, paint);
-                canvas->translate(r.width() + SkIntToScalar(50), 0);
+                canvas->translate(r.width() + SkIntToScalar(10), 0);
             }
         }
     }

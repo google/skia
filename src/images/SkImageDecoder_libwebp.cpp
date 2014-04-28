@@ -559,6 +559,15 @@ static void Index8_To_RGB(const uint8_t* in, uint8_t* rgb, int width,
   }
 }
 
+static void Alpha8_To_RGB(const uint8_t* in, uint8_t* rgb, int width,
+                          const SkPMColor* SK_RESTRICT ctable) {
+  const uint8_t* SK_RESTRICT src = (const uint8_t*)in;
+  for (int i = 0; i < width; ++i) {
+      rgb[0] = rgb[1] = rgb[2] = *src++;
+      rgb += 3;
+  }
+}
+
 static ScanlineImporter ChooseImporter(const SkBitmap::Config& config,
                                        bool  hasAlpha,
                                        int*  bpp) {
@@ -585,6 +594,9 @@ static ScanlineImporter ChooseImporter(const SkBitmap::Config& config,
         case SkBitmap::kIndex8_Config:
             *bpp = 3;
             return Index8_To_RGB;
+        case SkBitmap::kA8_Config:
+            *bpp = 3;
+            return Alpha8_To_RGB;
         default:
             return NULL;
     }
