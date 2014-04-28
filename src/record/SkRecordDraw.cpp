@@ -11,16 +11,10 @@
 
 namespace {
 
-// All clip commands, Restore, and SaveLayer may change the clip.
-template <typename T> struct ChangesClip { static const bool value = SkRecords::IsClip<T>::value; };
-template <> struct ChangesClip<SkRecords::Restore> { static const bool value = true; };
-template <> struct ChangesClip<SkRecords::SaveLayer> { static const bool value = true; };
-
-
 // This is an SkRecord visitor that will draw that SkRecord to an SkCanvas.
 class Draw : SkNoncopyable {
 public:
-    explicit Draw(SkCanvas* canvas) : fCanvas(canvas), fIndex(0), fClipEmpty(false) {}
+    explicit Draw(SkCanvas* canvas) : fCanvas(canvas), fIndex(0) {}
 
     unsigned index() const { return fIndex; }
     void next() { ++fIndex; }
@@ -28,7 +22,6 @@ public:
     template <typename T> void operator()(const T& r) {
         if (!this->skip(r)) {
             this->draw(r);
-            this->updateClip<T>();
         }
     }
 
@@ -41,7 +34,7 @@ private:
 
     // If we're drawing into an empty clip, we can skip it.  Otherwise, run the command.
     template <typename T>
-    SK_WHEN(SkRecords::IsDraw<T>, bool) skip(const T&) { return fClipEmpty; }
+    SK_WHEN(SkRecords::IsDraw<T>, bool) skip(const T&) { return fCanvas->isClipEmpty(); }
 
     template <typename T>
     SK_WHEN(!SkRecords::IsDraw<T>, bool) skip(const T&) { return false; }
@@ -59,15 +52,8 @@ private:
         return this->skip(*r.base) || fCanvas->quickRejectY(r.minY, r.maxY);
     }
 
-    // If we might have changed the clip, update it, else do nothing.
-    template <typename T>
-    SK_WHEN(ChangesClip<T>, void) updateClip() { fClipEmpty = fCanvas->isClipEmpty(); }
-    template <typename T>
-    SK_WHEN(!ChangesClip<T>, void) updateClip() {}
-
     SkCanvas* fCanvas;
     unsigned fIndex;
-    bool fClipEmpty;
 };
 
 // NoOps draw nothing.
