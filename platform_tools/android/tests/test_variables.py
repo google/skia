@@ -20,3 +20,5 @@ BIN_DIR = os.path.join(ANDROID_DIR, 'bin')
 
 # Path to generator files.
 GYP_GEN_DIR = os.path.join(ANDROID_DIR, 'gyp_gen')
+
+ANDROID_MK = 'Android.mk'

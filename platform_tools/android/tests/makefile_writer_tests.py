@@ -21,11 +21,13 @@ import utils
 sys.path.append(test_variables.GYP_GEN_DIR)
 
 import makefile_writer
+import tool_makefile_writer
 import vars_dict_lib
 
-MAKEFILE_NAME = 'Android.mk'
+MAKEFILE_NAME = test_variables.ANDROID_MK
 REBASELINE_MSG = ('If you\'ve modified makefile_writer.py, run '
                   '"makefile_writer_tests.py --rebaseline" to rebaseline')
+TOOL_DIR = 'tool'
 
 def generate_dummy_vars_dict(name):
   """Create a VarsDict and fill it with dummy entries.
@@ -109,6 +111,16 @@ def generate_dummy_makefile(target_dir):
                                    common=common_vars_dict,
                                    deviations_from_common=deviations)
 
+def generate_dummy_tool_makefile(target_dir):
+  """Create a dummy makefile for a tool.
+
+  Args:
+      target_dir: directory in which to write the resulting Android.mk
+  """
+  vars_dict = generate_dummy_vars_dict(None)
+  tool_makefile_writer.write_tool_android_mk(target_dir=target_dir,
+                                             var_dict=vars_dict)
+
 
 class MakefileWriterTest(unittest.TestCase):
 
@@ -169,6 +181,15 @@ class MakefileWriterTest(unittest.TestCase):
 
     shutil.rmtree(outdir)
 
+  def test_tool_writer(self):
+    outdir = tempfile.mkdtemp()
+    tool_dir = os.path.join(outdir, TOOL_DIR)
+    os.mkdir(tool_dir)
+    generate_dummy_tool_makefile(tool_dir)
+
+    utils.compare_to_expectation(os.path.join(tool_dir, MAKEFILE_NAME),
+                                 os.path.join(TOOL_DIR, MAKEFILE_NAME),
+                                 self.assertTrue, REBASELINE_MSG)
 
 def main():
   loader = unittest.TestLoader()
@@ -186,6 +207,8 @@ def rebaseline():
   for (filename, append, name) in generate_write_local_vars_params():
     with open(os.path.join(utils.EXPECTATIONS_DIR, filename), 'w') as f:
       makefile_writer.write_local_vars(f, vars_dict, append, name)
+
+  generate_dummy_tool_makefile(os.path.join(utils.EXPECTATIONS_DIR, TOOL_DIR))
 
 
 if __name__ == '__main__':

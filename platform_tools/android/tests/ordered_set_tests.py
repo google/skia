@@ -28,8 +28,7 @@ class OrderedSetTest(unittest.TestCase):
     self.__set = OrderedSet()
 
   def test_methods(self):
-    """
-    Test methods on OrderedSet.
+    """Test methods on OrderedSet.
     """
     RANGE = 10
     for i in range(RANGE):
@@ -66,6 +65,38 @@ class OrderedSetTest(unittest.TestCase):
       self.assertEqual(len(self.__set), subrange)
       self.__set.reset()
       self.assertEqual(len(self.__set), 0)
+
+  def test_set(self):
+    """Test OrderedSet.set().
+    """
+    # Create a set with dummy values.
+    my_set = OrderedSet()
+    RANGE = 10
+    for i in range(RANGE):
+      my_set.add(create_dummy_var(i))
+    my_len = len(my_set)
+    self.assertEqual(my_len, RANGE)
+
+    # Copy it to another set.
+    other_set = OrderedSet()
+    self.assertEqual(len(other_set), 0)
+    other_set.set(my_set)
+
+    # Both sets should contain the same values, in the same order.
+    iterator = iter(my_set)
+    for item in other_set:
+      self.assertTrue(item == iterator.next())
+    with self.assertRaises(StopIteration):
+      iterator.next()
+    self.assertEqual(my_len, len(other_set))
+
+    # But the sets are different. Changing one will not affect the other.
+    self.assertFalse(other_set is my_set)
+    other_var = 'something_else'
+    other_set.add(other_var)
+    self.assertEqual(my_len + 1, len(other_set))
+    self.assertEqual(my_len, len(my_set))
+    self.assertNotIn(other_var, my_set)
 
 
 def main():

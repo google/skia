@@ -12,7 +12,7 @@
       },
     },
     'conditions': [
-      [ 'skia_os == "android"', {
+      [ 'skia_os == "android" and not skia_android_framework', {
         'dependencies': [
           'android_deps.gyp:Android_EntryPoint',
           'android_system.gyp:skia_launcher',

@@ -12,12 +12,13 @@ Functions for creating an Android.mk from already created dictionaries.
 import os
 
 def write_group(f, name, items, append):
-  """
-  Helper function to list all names passed to a variable.
-  @param f File open for writing (Android.mk)
-  @param name Name of the makefile variable (e.g. LOCAL_CFLAGS)
-  @param items list of strings to be passed to the variable.
-  @param append Whether to append to the variable or overwrite it.
+  """Helper function to list all names passed to a variable.
+
+  Args:
+    f: File open for writing (Android.mk)
+    name: Name of the makefile variable (e.g. LOCAL_CFLAGS)
+    items: list of strings to be passed to the variable.
+    append: Whether to append to the variable or overwrite it.
   """
   if not items:
     return
@@ -36,12 +37,13 @@ def write_group(f, name, items, append):
 
 
 def write_local_vars(f, var_dict, append, name):
-  """
-  Helper function to write all the members of var_dict to the makefile.
-  @param f File open for writing (Android.mk)
-  @param var_dict VarsDict holding the unique values for one configuration.
-  @param append Whether to append to each makefile variable or overwrite it.
-  @param name If not None, a string to be appended to each key.
+  """Helper function to write all the members of var_dict to the makefile.
+
+  Args:
+    f: File open for writing (Android.mk)
+    var_dict: VarsDict holding the unique values for one configuration.
+    append: Whether to append to each makefile variable or overwrite it.
+    name: If not None, a string to be appended to each key.
   """
   for key in var_dict.keys():
     _key = key
@@ -121,46 +123,65 @@ SKIA_TOOLS = (
 #include $(BASE_PATH)/gm/Android.mk
 
 # unit-tests
-#include $(BASE_PATH)/tests/Android.mk
-
-# pathOps unit-tests
-# TODO include those sources!
+include $(BASE_PATH)/tests/Android.mk
 """
 )
 
 
 class VarsDictData(object):
-  """
-  Helper class for keeping a VarsDict along with a name and an optional
-  condition.
+  """Helper class to keep a VarsDict along with a name and optional condition.
   """
   def __init__(self, vars_dict, name, condition=None):
-    """
-    Create a new VarsDictData.
-    @param vars_dict A VarsDict. Can be accessed via self.vars_dict.
-    @param name Name associated with the VarsDict. Can be accessed via
-                self.name.
-    @param condition Optional string representing a condition. If not None,
-                     used to create a conditional inside the makefile.
+    """Create a new VarsDictData.
+
+    Args:
+      vars_dict: A VarsDict. Can be accessed via self.vars_dict.
+      name: Name associated with the VarsDict. Can be accessed via
+        self.name.
+      condition: Optional string representing a condition. If not None,
+        used to create a conditional inside the makefile.
     """
     self.vars_dict = vars_dict
     self.condition = condition
     self.name = name
 
+def write_local_path(f):
+    """Add the LOCAL_PATH line to the makefile.
+
+    Args:
+      f: File open for writing.
+    """
+    f.write('LOCAL_PATH:= $(call my-dir)\n')
+
+def write_clear_vars(f):
+    """Add the CLEAR_VARS line to the makefile.
+
+    Args:
+      f: File open for writing.
+    """
+    f.write('include $(CLEAR_VARS)\n')
+
+def write_include_stlport(f):
+    """Add a line to include stlport.
+
+    Args:
+      f: File open for writing.
+    """
+    f.write('include external/stlport/libstlport.mk\n')
+
 def write_android_mk(target_dir, common, deviations_from_common):
-  """
-  Given all the variables, write the final make file.
-  @param target_dir The full path to the directory to write Android.mk, or None
-                    to use the current working directory.
-  @param common VarsDict holding variables definitions common to all
-                configurations.
-  @param deviations_from_common List of VarsDictData, one for each possible
-                                configuration. VarsDictData.name will be
-                                appended to each key before writing it to the
-                                makefile. VarsDictData.condition, if not None,
-                                will be written to the makefile as a condition
-                                to determine whether to include
-                                VarsDictData.vars_dict.
+  """Given all the variables, write the final make file.
+
+  Args:
+    target_dir: The full path to the directory to write Android.mk, or None
+      to use the current working directory.
+    common: VarsDict holding variables definitions common to all
+      configurations.
+    deviations_from_common: List of VarsDictData, one for each possible
+      configuration. VarsDictData.name will be appended to each key before
+      writing it to the makefile. VarsDictData.condition, if not None, will be
+      written to the makefile as a condition to determine whether to include
+      VarsDictData.vars_dict.
   """
   target_file = 'Android.mk'
   if target_dir:
@@ -168,12 +189,11 @@ def write_android_mk(target_dir, common, deviations_from_common):
   with open(target_file, 'w') as f:
     f.write(AUTOGEN_WARNING)
     f.write('BASE_PATH := $(call my-dir)\n')
-    f.write('LOCAL_PATH:= $(call my-dir)\n')
+    write_local_path(f)
 
     f.write(DEBUGGING_HELP)
 
-    f.write('include $(CLEAR_VARS)\n')
-
+    write_clear_vars(f)
     f.write('LOCAL_ARM_MODE := thumb\n')
 
     # need a flag to tell the C side when we're on devices with large memory
@@ -204,8 +224,7 @@ def write_android_mk(target_dir, common, deviations_from_common):
       if data.condition:
         f.write('endif\n\n')
 
-    f.write('include external/stlport/libstlport.mk\n')
-    f.write('LOCAL_MODULE:= libskia\n')
+    write_include_stlport(f)
     f.write('include $(BUILD_SHARED_LIBRARY)\n')
     f.write(SKIA_TOOLS)
 

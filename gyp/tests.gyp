@@ -15,6 +15,16 @@
         '../tests/skia_test.cpp',
       ],
       'conditions': [
+        [ 'skia_android_framework == 1', {
+          'libraries': [
+            '-lskia',
+            '-lcutils',
+          ],
+          'libraries!': [
+            '-lz',
+            '-llog',
+          ],
+        }],
         [ 'skia_gpu == 1', {
           'include_dirs': [
             '../src/gpu',

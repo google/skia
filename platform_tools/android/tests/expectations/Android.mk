@@ -73,6 +73,12 @@ LOCAL_EXPORT_C_INCLUDE_DIRS := \
 LOCAL_CFLAGS += \
 	-Ddefines
 
+LOCAL_MODULE_TAGS := \
+	local_module_tags
+
+LOCAL_MODULE := \
+	local_module
+
 ifeq ($(COND), true)
 LOCAL_CFLAGS_foo += \
 	local_cflags_foo
@@ -97,6 +103,12 @@ LOCAL_EXPORT_C_INCLUDE_DIRS_foo += \
 
 LOCAL_CFLAGS_foo += \
 	-Ddefines_foo
+
+LOCAL_MODULE_TAGS_foo += \
+	local_module_tags_foo
+
+LOCAL_MODULE_foo += \
+	local_module_foo
 
 endif
 
@@ -124,8 +136,13 @@ LOCAL_EXPORT_C_INCLUDE_DIRS_bar += \
 LOCAL_CFLAGS_bar += \
 	-Ddefines_bar
 
+LOCAL_MODULE_TAGS_bar += \
+	local_module_tags_bar
+
+LOCAL_MODULE_bar += \
+	local_module_bar
+
 include external/stlport/libstlport.mk
-LOCAL_MODULE:= libskia
 include $(BUILD_SHARED_LIBRARY)
 
 #############################################################
@@ -139,7 +156,4 @@ include $(BUILD_SHARED_LIBRARY)
 #include $(BASE_PATH)/gm/Android.mk
 
 # unit-tests
-#include $(BASE_PATH)/tests/Android.mk
-
-# pathOps unit-tests
-# TODO include those sources!
+include $(BASE_PATH)/tests/Android.mk

@@ -13,59 +13,76 @@ import types
 # we want to make sure the image decoders are in a particular order. See
 # images.gyp for more information.
 class OrderedSet(object):
-  """
-  Ordered set of unique items that supports addition and removal.
+  """Ordered set of unique items that supports addition and removal.
+
+  Retains the order in which items are inserted.
   """
 
   def __init__(self):
-    self.__li = []
+    self.__ordered_set = []
 
   def add(self, item):
+    """Add item, if it is not already in the set.
+
+    item is appended to the end if it is not already in the set.
+
+    Args:
+      item: The item to add.
     """
-    Add item, if it is not already in the set.
-    @param item The item to add.
-    """
-    if item not in self.__li:
-      self.__li.append(item)
+    if item not in self.__ordered_set:
+      self.__ordered_set.append(item)
 
   def __contains__(self, item):
+    """Whether the set contains item.
+
+    Args:
+      item: The item to search for in the set.
+
+    Returns:
+      bool: Whether the item is in the set.
     """
-    Whether the set contains item.
-    @param item The item to search for in the set.
-    @return bool Whether the item is in the set.
-    """
-    return item in self.__li
+    return item in self.__ordered_set
 
   def __iter__(self):
+    """Iterator for the set.
     """
-    Iterator for the set.
-    """
-    return self.__li.__iter__()
+    return self.__ordered_set.__iter__()
 
   def remove(self, item):
     """
     Remove item from the set.
-    @param item Item to be removed.
+
+    Args:
+      item: Item to be removed.
+
+    Raises:
+      ValueError if item is not in the set.
     """
-    return self.__li.remove(item)
+    self.__ordered_set.remove(item)
 
   def __len__(self):
+    """Number of items in the set.
     """
-    Number of items in the set.
-    """
-    return len(self.__li)
+    return len(self.__ordered_set)
 
   def __getitem__(self, index):
+    """Return item at index.
     """
-    Return item at index.
-    """
-    return self.__li[index]
+    return self.__ordered_set[index]
 
   def reset(self):
+    """Reset to empty.
     """
-    Reset to empty.
+    self.__ordered_set = []
+
+  def set(self, other):
+    """Replace this ordered set with another.
+
+    Args:
+      other: OrderedSet to replace this one. After this call, this OrderedSet
+        will contain exactly the same elements as other.
     """
-    self.__li = []
+    self.__ordered_set = list(other.__ordered_set)
 
 VAR_NAMES = ['LOCAL_CFLAGS',
              'LOCAL_CPPFLAGS',
@@ -75,12 +92,15 @@ VAR_NAMES = ['LOCAL_CFLAGS',
              'LOCAL_C_INCLUDES',
              'LOCAL_EXPORT_C_INCLUDE_DIRS',
              'DEFINES',
-             'KNOWN_TARGETS']
+             'KNOWN_TARGETS',
+             # These are not parsed by gyp, but set manually.
+             'LOCAL_MODULE_TAGS',
+             'LOCAL_MODULE']
 
 class VarsDict(collections.namedtuple('VarsDict', VAR_NAMES)):
-  """
-  Custom class for storing the arguments to Android.mk variables. Can be
-  treated as a dictionary with fixed keys.
+  """Custom class for storing the arguments to Android.mk variables.
+
+  Can also be treated as a dictionary with fixed keys.
   """
 
   __slots__ = ()
@@ -93,14 +113,12 @@ class VarsDict(collections.namedtuple('VarsDict', VAR_NAMES)):
     return tuple.__new__(cls, lists)
 
   def keys(self):
-    """
-    Return the field names as strings.
+    """Return the field names as strings.
     """
     return self._fields
 
   def __getitem__(self, index):
-    """
-    Return an item, indexed by a number or a string.
+    """Return an item, indexed by a number or a string.
     """
     if type(index) == types.IntType:
       # Treat the index as an array index into a tuple.
@@ -112,13 +130,17 @@ class VarsDict(collections.namedtuple('VarsDict', VAR_NAMES)):
 
 
 def intersect(var_dict_list):
-  """
+  """Compute intersection of VarsDicts.
+
   Find the intersection of a list of VarsDicts and trim each input to its
   unique entries.
-  @param var_dict_list list of VarsDicts. WARNING: each VarsDict will be
-                       modified in place, to remove the common elements!
-  @return VarsDict containing list entries common to all VarsDicts in
-          var_dict_list
+
+  Args:
+    var_dict_list: list of VarsDicts. WARNING: each VarsDict will be
+      modified in place, to remove the common elements!
+  Returns:
+    VarsDict containing list entries common to all VarsDicts in
+      var_dict_list
   """
   intersection = VarsDict()
   # First VarsDict

@@ -22,3 +22,9 @@ LOCAL_EXPORT_C_INCLUDE_DIRS_arm := \
 LOCAL_CFLAGS_arm += \
 	-Ddefines
 
+LOCAL_MODULE_TAGS_arm := \
+	local_module_tags
+
+LOCAL_MODULE_arm := \
+	local_module
+

@@ -22,3 +22,9 @@ LOCAL_EXPORT_C_INCLUDE_DIRS += \
 LOCAL_CFLAGS += \
 	-Ddefines
 
+LOCAL_MODULE_TAGS += \
+	local_module_tags
+
+LOCAL_MODULE += \
+	local_module
+
