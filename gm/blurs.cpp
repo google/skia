@@ -27,16 +27,16 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        SkBlurMaskFilter::BlurStyle NONE = SkBlurMaskFilter::BlurStyle(-999);
+        SkBlurStyle NONE = SkBlurStyle(-999);
         static const struct {
-            SkBlurMaskFilter::BlurStyle fStyle;
-            int                         fCx, fCy;
+            SkBlurStyle fStyle;
+            int         fCx, fCy;
         } gRecs[] = {
-            { NONE,                                 0,  0 },
-            { SkBlurMaskFilter::kInner_BlurStyle,  -1,  0 },
-            { SkBlurMaskFilter::kNormal_BlurStyle,  0,  1 },
-            { SkBlurMaskFilter::kSolid_BlurStyle,   0, -1 },
-            { SkBlurMaskFilter::kOuter_BlurStyle,   1,  0 },
+            { NONE,                 0,  0 },
+            { kInner_SkBlurStyle,  -1,  0 },
+            { kNormal_SkBlurStyle,  0,  1 },
+            { kSolid_SkBlurStyle,   0, -1 },
+            { kOuter_SkBlurStyle,   1,  0 },
         };
 
         SkPaint paint;
@@ -64,7 +64,7 @@ protected:
             }
             // draw text
             {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+                SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
                                            SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(4)),
                                            flags);
                 paint.setMaskFilter(mf)->unref();

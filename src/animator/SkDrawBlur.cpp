@@ -22,11 +22,12 @@ DEFINE_GET_MEMBER(SkDrawBlur);
 
 SkDrawBlur::SkDrawBlur()
     : fSigma(-1)
-    , fBlurStyle(SkBlurMaskFilter::kNormal_BlurStyle) {
+    , fBlurStyle(kNormal_SkBlurStyle) {
 }
 
 SkMaskFilter* SkDrawBlur::getMaskFilter() {
-    if (fSigma < 0)
+    if (fSigma <= 0) {
         return NULL;
-    return SkBlurMaskFilter::Create((SkBlurMaskFilter::BlurStyle) fBlurStyle, fSigma);
+    }
+    return SkBlurMaskFilter::Create((SkBlurStyle)fBlurStyle, fSigma);
 }

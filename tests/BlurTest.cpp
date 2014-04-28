@@ -103,9 +103,8 @@ static void test_blur_drawing(skiatest::Reporter* reporter) {
     paint.setStrokeWidth(SkIntToScalar(strokeWidth));
 
     SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5));
-    for (int style = 0; style < SkBlurMaskFilter::kBlurStyleCount; ++style) {
-        SkBlurMaskFilter::BlurStyle blurStyle =
-            static_cast<SkBlurMaskFilter::BlurStyle>(style);
+    for (int style = 0; style <= kLastEnum_SkBlurStyle; ++style) {
+        SkBlurStyle blurStyle = static_cast<SkBlurStyle>(style);
 
         const uint32_t flagPermutations = SkBlurMaskFilter::kAll_BlurFlag;
         for (uint32_t flags = 0; flags < flagPermutations; ++flags) {
@@ -169,7 +168,7 @@ static void ground_truth_2d(int width, int height,
     memset(src.fImage, 0xff, src.computeTotalImageSize());
 
     dst.fImage = NULL;
-    SkBlurMask::BlurGroundTruth(sigma, &dst, src, SkBlurMask::kNormal_Style);
+    SkBlurMask::BlurGroundTruth(sigma, &dst, src, kNormal_SkBlurStyle);
 
     int midX = dst.fBounds.centerX();
     int midY = dst.fBounds.centerY();
@@ -231,7 +230,7 @@ static void blur_path(SkCanvas* canvas, const SkPath& path,
 
     SkPaint blurPaint;
     blurPaint.setColor(SK_ColorWHITE);
-    SkMaskFilter* filter = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+    SkMaskFilter* filter = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
                                                     gaussianSigma,
                                                     SkBlurMaskFilter::kHighQuality_BlurFlag);
     blurPaint.setMaskFilter(filter)->unref();

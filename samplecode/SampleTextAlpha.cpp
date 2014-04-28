@@ -70,7 +70,7 @@ protected:
 
         paint.setARGB(fByte, 0xFF, 0xFF, 0xFF);
 
-        paint.setMaskFilter(SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+        paint.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
                                     SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3))));
         paint.getMaskFilter()->unref();
 

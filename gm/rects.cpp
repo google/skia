@@ -64,7 +64,7 @@ protected:
             p.setColor(SK_ColorWHITE);
             p.setAntiAlias(true);
             SkMaskFilter* mf = SkBlurMaskFilter::Create(
-                                   SkBlurMaskFilter::kNormal_BlurStyle,
+                                   kNormal_SkBlurStyle,
                                    SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
                                    SkBlurMaskFilter::kHighQuality_BlurFlag);
             p.setMaskFilter(mf)->unref();

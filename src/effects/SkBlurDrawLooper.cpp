@@ -46,9 +46,7 @@ void SkBlurDrawLooper::init(SkScalar sigma, SkScalar dx, SkScalar dy,
             SkBlurMaskFilter::kHighQuality_BlurFlag :
             SkBlurMaskFilter::kNone_BlurFlag;
 
-        fBlur = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
-                                         sigma,
-                                         blurFlags);
+        fBlur = SkBlurMaskFilter::Create(kNormal_SkBlurStyle, sigma, blurFlags);
     } else {
         fBlur = NULL;
     }

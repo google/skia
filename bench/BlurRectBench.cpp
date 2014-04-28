@@ -91,7 +91,7 @@ protected:
     virtual void makeBlurryRect(const SkRect& r) SK_OVERRIDE {
         SkMask mask;
         SkBlurMask::BlurRect(SkBlurMask::ConvertRadiusToSigma(this->radius()),
-                             &mask, r, SkBlurMask::kNormal_Style);
+                             &mask, r, kNormal_SkBlurStyle);
         SkMask::FreeImage(mask.fImage);
     }
 private:
@@ -146,8 +146,7 @@ protected:
         SkMask mask;
         mask.fImage = NULL;
         SkBlurMask::BoxBlur(&mask, fSrcMask, SkBlurMask::ConvertRadiusToSigma(this->radius()),
-                            SkBlurMask::kNormal_Style,
-                            SkBlurMask::kHigh_Quality);
+                            kNormal_SkBlurStyle, kHigh_SkBlurQuality);
         SkMask::FreeImage(mask.fImage);
     }
 private:
@@ -174,7 +173,7 @@ protected:
         SkMask mask;
         mask.fImage = NULL;
         SkBlurMask::BlurGroundTruth(SkBlurMask::ConvertRadiusToSigma(this->radius()),
-                                    &mask, fSrcMask, SkBlurMask::kNormal_Style);
+                                    &mask, fSrcMask, kNormal_SkBlurStyle);
         SkMask::FreeImage(mask.fImage);
     }
 private:

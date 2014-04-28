@@ -37,11 +37,11 @@ protected:
                                                              25 * SK_Scalar1,
                                                              3 * SK_Scalar1);
 
-        static const SkBlurMaskFilter::BlurStyle gStyles[] = {
-            SkBlurMaskFilter::kNormal_BlurStyle,
-            SkBlurMaskFilter::kInner_BlurStyle,
-            SkBlurMaskFilter::kSolid_BlurStyle,
-            SkBlurMaskFilter::kOuter_BlurStyle,
+        static const SkBlurStyle gStyles[] = {
+            kNormal_SkBlurStyle,
+            kInner_SkBlurStyle,
+            kSolid_SkBlurStyle,
+            kOuter_SkBlurStyle,
         };
         SkRandom random;
 

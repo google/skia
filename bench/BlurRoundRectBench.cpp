@@ -50,7 +50,7 @@ public:
             info.fPostTranslate = false;
             SkPaint* paint = looperBuilder.addLayerOnTop(info);
             SkMaskFilter* maskFilter = SkBlurMaskFilter::Create(
-                    SkBlurMaskFilter::kNormal_BlurStyle,
+                    kNormal_SkBlurStyle,
                     SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf),
                     SkBlurMaskFilter::kHighQuality_BlurFlag);
             paint->setMaskFilter(maskFilter)->unref();

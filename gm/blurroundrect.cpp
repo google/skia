@@ -63,7 +63,7 @@ public:
             info.fPostTranslate = false;
             SkPaint* paint = looperBuilder.addLayerOnTop(info);
             SkMaskFilter* maskFilter = SkBlurMaskFilter::Create(
-                    SkBlurMaskFilter::kNormal_BlurStyle,
+                    kNormal_SkBlurStyle,
                     SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf),
                     SkBlurMaskFilter::kHighQuality_BlurFlag);
             paint->setMaskFilter(maskFilter)->unref();
@@ -121,7 +121,7 @@ protected:
             canvas->translate(0, (r.height() + SkIntToScalar(50)) * i);
             for (size_t j = 0; j < SK_ARRAY_COUNT(cornerRadii); ++j) {
                 SkMaskFilter* filter = SkBlurMaskFilter::Create(
-                    SkBlurMaskFilter::kNormal_BlurStyle,
+                    kNormal_SkBlurStyle,
                     SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(blurRadii[i])),
                     SkBlurMaskFilter::kHighQuality_BlurFlag);
                 SkPaint paint;

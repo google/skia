@@ -84,7 +84,7 @@ protected:
             paint.setFilterLevel(SkPaint::kLow_FilterLevel);
 
             SkMaskFilter* mf = SkBlurMaskFilter::Create(
-                SkBlurMaskFilter::kNormal_BlurStyle,
+                kNormal_SkBlurStyle,
                 SkBlurMask::ConvertRadiusToSigma(5),
                 SkBlurMaskFilter::kHighQuality_BlurFlag |
                 SkBlurMaskFilter::kIgnoreTransform_BlurFlag);

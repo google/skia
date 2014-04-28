@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,37 +5,21 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkBlurMask_DEFINED
 #define SkBlurMask_DEFINED
 
+#include "SkBlurTypes.h"
 #include "SkShader.h"
 #include "SkMask.h"
 #include "SkRRect.h"
 
 class SkBlurMask {
 public:
-    enum Style {
-        kNormal_Style,  //!< fuzzy inside and outside
-        kSolid_Style,   //!< solid inside, fuzzy outside
-        kOuter_Style,   //!< nothing inside, fuzzy outside
-        kInner_Style,   //!< fuzzy inside, nothing outside
-
-        kStyleCount
-    };
-
-    enum Quality {
-        kLow_Quality,   //!< box blur
-        kHigh_Quality   //!< three pass box blur (similar to gaussian)
-    };
-
-    static bool BlurRect(SkScalar sigma, SkMask *dst, const SkRect &src,
-                         Style style,
+    static bool BlurRect(SkScalar sigma, SkMask *dst, const SkRect &src, SkBlurStyle,
                          SkIPoint *margin = NULL,
                          SkMask::CreateMode createMode =
                                                 SkMask::kComputeBoundsAndRenderImage_CreateMode);
-    static bool BlurRRect(SkScalar sigma, SkMask *dst, const SkRRect &src,
-                         Style style,
+    static bool BlurRRect(SkScalar sigma, SkMask *dst, const SkRRect &src, SkBlurStyle,
                          SkIPoint *margin = NULL,
                          SkMask::CreateMode createMode =
                                                 SkMask::kComputeBoundsAndRenderImage_CreateMode);
@@ -48,13 +31,12 @@ public:
     // rectangle will lie.
 
     static bool BoxBlur(SkMask* dst, const SkMask& src,
-                        SkScalar sigma, Style style, Quality quality,
+                        SkScalar sigma, SkBlurStyle style, SkBlurQuality quality,
                         SkIPoint* margin = NULL, bool forceQuality = false);
 
     // the "ground truth" blur does a gaussian convolution; it's slow
     // but useful for comparison purposes.
-    static bool BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src,
-                                Style style,
+    static bool BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src, SkBlurStyle,
                                 SkIPoint* margin = NULL);
 
     static SkScalar ConvertRadiusToSigma(SkScalar radius);

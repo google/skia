@@ -52,7 +52,7 @@ protected:
         SkPaint p;
         p.setAntiAlias(true);
         SkMaskFilter* mf = SkBlurMaskFilter::Create(
-                               SkBlurMaskFilter::kNormal_BlurStyle,
+                               kNormal_SkBlurStyle,
                                SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
                                SkBlurMaskFilter::kHighQuality_BlurFlag);
         p.setMaskFilter(mf)->unref();

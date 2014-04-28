@@ -56,7 +56,7 @@ protected:
 
         SkPaint blurPaint;
         blurPaint.setFilterLevel(SkPaint::kLow_FilterLevel);
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+        SkMaskFilter* mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
                                                     SkBlurMask::ConvertRadiusToSigma(kBlurRadius));
         blurPaint.setMaskFilter(mf)->unref();
 

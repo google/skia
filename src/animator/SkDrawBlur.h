@@ -17,7 +17,7 @@ class SkDrawBlur : public SkDrawMaskFilter {
     virtual SkMaskFilter* getMaskFilter() SK_OVERRIDE;
 protected:
     SkScalar fSigma;
-    int /*SkBlurMaskFilter::BlurStyle*/ fBlurStyle;
+    int /*SkBlurStyle*/ fBlurStyle;
 
     typedef SkDrawMaskFilter INHERITED;
 };

@@ -160,11 +160,11 @@ protected:
             paint.setColor(SK_ColorWHITE);
             canvas->translate(10, 30);
 
-            static const SkBlurMaskFilter::BlurStyle gStyle[] = {
-                SkBlurMaskFilter::kNormal_BlurStyle,
-                SkBlurMaskFilter::kInner_BlurStyle,
-                SkBlurMaskFilter::kOuter_BlurStyle,
-                SkBlurMaskFilter::kSolid_BlurStyle,
+            static const SkBlurStyle gStyle[] = {
+                kNormal_SkBlurStyle,
+                kInner_SkBlurStyle,
+                kOuter_SkBlurStyle,
+                kSolid_SkBlurStyle,
             };
             for (int x = 0; x < 5; x++) {
                 SkMaskFilter* mf;

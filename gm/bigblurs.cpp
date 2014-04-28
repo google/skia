@@ -69,9 +69,8 @@ protected:
         int desiredX = 0, desiredY = 0;
 
         for (int i = 0; i < 2; ++i) {
-            for (int j = 0; j < SkBlurMaskFilter::kBlurStyleCount; ++j) {
-                SkMaskFilter* mf = SkBlurMaskFilter::Create((SkBlurMaskFilter::BlurStyle)j,
-                                                            kSigma);
+            for (int j = 0; j <= kLastEnum_SkBlurStyle; ++j) {
+                SkMaskFilter* mf = SkBlurMaskFilter::Create((SkBlurStyle)j, kSigma);
                 blurPaint.setMaskFilter(mf)->unref();
 
                 for (int k = 0; k < (int)SK_ARRAY_COUNT(origins); ++k) {
@@ -107,7 +106,7 @@ protected:
 private:
     static const int kCloseUpSize = 64;
     static const int kWidth = 5 * kCloseUpSize;
-    static const int kHeight = 2 * SkBlurMaskFilter::kBlurStyleCount * kCloseUpSize;
+    static const int kHeight = 2 * (kLastEnum_SkBlurStyle + 1) * kCloseUpSize;
 
     typedef GM INHERITED;
 };

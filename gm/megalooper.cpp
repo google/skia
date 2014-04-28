@@ -113,8 +113,7 @@ private:
     SkMaskFilter* createBlur() {
         static const SkScalar kBlurSigma = SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(25));
 
-        return SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
-                                        kBlurSigma,
+        return SkBlurMaskFilter::Create(kNormal_SkBlurStyle, kBlurSigma,
                                         SkBlurMaskFilter::kHighQuality_BlurFlag);
     }
 

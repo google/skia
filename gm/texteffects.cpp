@@ -13,7 +13,7 @@
 #include "SkLayerRasterizer.h"
 
 static void r0(SkLayerRasterizer::Builder* rastBuilder, SkPaint& p) {
-    p.setMaskFilter(SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+    p.setMaskFilter(SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
                               SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(3))))->unref();
     rastBuilder->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
 

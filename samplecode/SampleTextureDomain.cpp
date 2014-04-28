@@ -78,7 +78,7 @@ protected:
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(5, 405, 305, 305);
         SkMaskFilter* mf = SkBlurMaskFilter::Create(
-            SkBlurMaskFilter::kNormal_BlurStyle,
+            kNormal_SkBlurStyle,
             SkBlurMask::ConvertRadiusToSigma(SkIntToScalar(5)),
             SkBlurMaskFilter::kHighQuality_BlurFlag |
             SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
@@ -90,7 +90,7 @@ protected:
         // but it will test a code path in SkGpuDevice::drawBitmap
         // that handles blurs with rects transformed to non-
         // orthogonal rects. It also tests the NULL src rect handling
-        mf = SkBlurMaskFilter::Create(SkBlurMaskFilter::kNormal_BlurStyle,
+        mf = SkBlurMaskFilter::Create(kNormal_SkBlurStyle,
                                       SkBlurMask::ConvertRadiusToSigma(5),
                                       SkBlurMaskFilter::kHighQuality_BlurFlag);
         paint.setMaskFilter(mf)->unref();
