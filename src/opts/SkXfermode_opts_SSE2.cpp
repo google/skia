@@ -283,6 +283,64 @@ static __m128i overlay_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
     return SkPackARGB32_SSE2(a, r, g, b);
 }
 
+static inline __m128i darken_byte_SSE2(const __m128i& sc, const __m128i& dc,
+                                       const __m128i& sa, const __m128i& da) {
+    __m128i sd = _mm_mullo_epi16(sc, da);
+    __m128i ds = _mm_mullo_epi16(dc, sa);
+
+    __m128i cmp = _mm_cmplt_epi32(sd, ds);
+
+    __m128i tmp = _mm_add_epi32(sc, dc);
+    __m128i ret1 = _mm_sub_epi32(tmp, SkDiv255Round_SSE2(ds));
+    __m128i ret2 = _mm_sub_epi32(tmp, SkDiv255Round_SSE2(sd));
+    __m128i ret = _mm_or_si128(_mm_and_si128(cmp, ret1),
+                               _mm_andnot_si128(cmp, ret2));
+    return ret;
+}
+
+static __m128i darken_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i sa = SkGetPackedA32_SSE2(src);
+    __m128i da = SkGetPackedA32_SSE2(dst);
+
+    __m128i a = srcover_byte_SSE2(sa, da);
+    __m128i r = darken_byte_SSE2(SkGetPackedR32_SSE2(src),
+                                 SkGetPackedR32_SSE2(dst), sa, da);
+    __m128i g = darken_byte_SSE2(SkGetPackedG32_SSE2(src),
+                                 SkGetPackedG32_SSE2(dst), sa, da);
+    __m128i b = darken_byte_SSE2(SkGetPackedB32_SSE2(src),
+                                 SkGetPackedB32_SSE2(dst), sa, da);
+    return SkPackARGB32_SSE2(a, r, g, b);
+}
+
+static inline __m128i lighten_byte_SSE2(const __m128i& sc, const __m128i& dc,
+                                        const __m128i& sa, const __m128i& da) {
+    __m128i sd = _mm_mullo_epi16(sc, da);
+    __m128i ds = _mm_mullo_epi16(dc, sa);
+
+    __m128i cmp = _mm_cmpgt_epi32(sd, ds);
+
+    __m128i tmp = _mm_add_epi32(sc, dc);
+    __m128i ret1 = _mm_sub_epi32(tmp, SkDiv255Round_SSE2(ds));
+    __m128i ret2 = _mm_sub_epi32(tmp, SkDiv255Round_SSE2(sd));
+    __m128i ret = _mm_or_si128(_mm_and_si128(cmp, ret1),
+                               _mm_andnot_si128(cmp, ret2));
+    return ret;
+}
+
+static __m128i lighten_modeproc_SSE2(const __m128i& src, const __m128i& dst) {
+    __m128i sa = SkGetPackedA32_SSE2(src);
+    __m128i da = SkGetPackedA32_SSE2(dst);
+
+    __m128i a = srcover_byte_SSE2(sa, da);
+    __m128i r = lighten_byte_SSE2(SkGetPackedR32_SSE2(src),
+                                  SkGetPackedR32_SSE2(dst), sa, da);
+    __m128i g = lighten_byte_SSE2(SkGetPackedG32_SSE2(src),
+                                  SkGetPackedG32_SSE2(dst), sa, da);
+    __m128i b = lighten_byte_SSE2(SkGetPackedB32_SSE2(src),
+                                  SkGetPackedB32_SSE2(dst), sa, da);
+    return SkPackARGB32_SSE2(a, r, g, b);
+}
+
 static inline __m128i colordodge_byte_SSE2(const __m128i& sc, const __m128i& dc,
                                            const __m128i& sa, const __m128i& da) {
     __m128i diff = _mm_sub_epi32(sa, sc);
@@ -726,8 +784,8 @@ SkXfermodeProcSIMD gSSE2XfermodeProcs[] = {
     screen_modeproc_SSE2,
 
     overlay_modeproc_SSE2,
-    NULL, // kDarken_Mode
-    NULL, // kLighten_Mode
+    darken_modeproc_SSE2,
+    lighten_modeproc_SSE2,
     colordodge_modeproc_SSE2,
     colorburn_modeproc_SSE2,
     hardlight_modeproc_SSE2,
