@@ -32,6 +32,13 @@ DEFINE_int32(tileGridSize, 512, "Set the tile grid size. Has no effect if bbh is
 DEFINE_string(bbh, "", "Turn on the bbh and select the type, one of rtree, tilegrid, quadtree");
 DEFINE_bool(skr, false, "Record SKR instead of SKP.");
 DEFINE_string(match, "", "The usual filters on file names of SKPs to bench.");
+DEFINE_string(timescale, "us", "Print times in ms, us, or ns");
+
+static double scale_time(double ms) {
+    if (FLAGS_timescale.contains("us")) ms *= 1000;
+    if (FLAGS_timescale.contains("ns")) ms *= 1000000;
+    return ms;
+}
 
 static SkBBHFactory* parse_FLAGS_bbh() {
     if (FLAGS_bbh.isEmpty()) {
@@ -83,7 +90,7 @@ static void bench_record(SkPicture* src, const char* name, SkBBHFactory* bbhFact
     timer.end();
 
     const double msPerLoop = timer.fCpu / (double)FLAGS_loops;
-    printf("%u\t%s\n", unsigned(1000 * msPerLoop), name);
+    printf("%f\t%s\n", scale_time(msPerLoop), name);
 }
 
 int tool_main(int argc, char** argv);

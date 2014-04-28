@@ -24,6 +24,13 @@ DEFINE_int32(loops, 10, "Number of times to play back each SKP.");
 DEFINE_bool(skr, false, "Play via SkRecord instead of SkPicture.");
 DEFINE_int32(tile, 1000000000, "Simulated tile size.");
 DEFINE_string(match, "", "The usual filters on file names of SKPs to bench.");
+DEFINE_string(timescale, "ms", "Print times in ms, us, or ns");
+
+static double scale_time(double ms) {
+    if (FLAGS_timescale.contains("us")) ms *= 1000;
+    if (FLAGS_timescale.contains("ns")) ms *= 1000000;
+    return ms;
+}
 
 static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
     // We don't use the public SkRecording interface here because we need kWriteOnly_Mode.
@@ -52,7 +59,7 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
     timer.end();
 
     const double msPerLoop = timer.fCpu / (double)FLAGS_loops;
-    printf("%u\t%s\n", unsigned(1000 * msPerLoop), name);
+    printf("%f\t%s\n", scale_time(msPerLoop), name);
 }
 
 int tool_main(int argc, char** argv);
