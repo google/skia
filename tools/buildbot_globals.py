@@ -22,8 +22,8 @@ import urllib2
 _global_vars = None
 
 
-GLOBAL_VARS_JSON_URL = ('https://skia.googlesource.com/buildbot/+'
-                        '/master/site_config/global_variables.json')
+GLOBAL_VARS_JSON_URL = ('http://skia-tree-status.appspot.com/repo-serving/'
+                        'buildbot/site_config/global_variables.json')
 
 
 class GlobalVarsRetrievalError(Exception):
@@ -46,29 +46,16 @@ class NoSuchGlobalVariable(KeyError):
   pass
 
 
-def retrieve_from_googlesource(url):
-  """Retrieve the given file from GoogleSource's HTTP interface, trimming the
-  extraneous HTML. Intended to be a GoogleSource equivalent of "svn cat".
-
-  This just returns the unescaped contents of the first <pre> tag which matches
-  our expectations for GoogleSource's HTTP interface. If that interface changes,
-  this function will almost surely break.
+def retrieve_from_mirror(url):
+  """Retrieve the given file from the Skia Buildbot repo mirror.
 
   Args:
       url: string; the URL of the file to retrieve.
   Returns:
-      The contents of the file in GoogleSource, stripped of the extra HTML from
-          the HTML interface.
+      The contents of the file in the repository.
   """
   with closing(urllib2.urlopen(url)) as f:
-    contents = f.read()
-    pre_open = '<pre class="git-blob prettyprint linenums lang-(\w+)">'
-    pre_close = '</pre>'
-    matched_tag = re.search(pre_open, contents).group()
-    start_index = contents.find(matched_tag)
-    end_index = contents.find(pre_close)
-    parser = HTMLParser.HTMLParser()
-    return parser.unescape(contents[start_index + len(matched_tag):end_index])
+    return f.read()
 
 
 def Get(var_name):
@@ -84,10 +71,10 @@ def Get(var_name):
   global _global_vars
   if not _global_vars:
     try:
-      global_vars_text = retrieve_from_googlesource(GLOBAL_VARS_JSON_URL)
-    except Exception:
-      raise GlobalVarsRetrievalError('Failed to retrieve %s.' %
-                                     GLOBAL_VARS_JSON_URL)
+      global_vars_text = retrieve_from_mirror(GLOBAL_VARS_JSON_URL)
+    except Exception as e:
+      raise GlobalVarsRetrievalError('Failed to retrieve %s:\n%s' %
+                                     (GLOBAL_VARS_JSON_URL, str(e)))
     try:
       _global_vars = json.loads(global_vars_text)
     except ValueError as e:
