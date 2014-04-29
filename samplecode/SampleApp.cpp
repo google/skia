@@ -78,7 +78,7 @@ public:
 SkTCPServer gServer;
 #endif
 
-#define USE_ARROWS_FOR_ZOOM true
+#define USE_ARROWS_FOR_ZOOM false
 
 #if SK_ANGLE
 //#define DEFAULT_TO_ANGLE 1
@@ -297,7 +297,8 @@ public:
                 fCurContext->setRenderTarget(fCurRenderTarget);
                 const SkBitmap& bm = win->getBitmap();
                 fCurRenderTarget->writePixels(0, 0, bm.width(), bm.height(),
-                                             kSkia8888_GrPixelConfig,
+                                             SkImageInfo2GrPixelConfig(bm.colorType(),
+                                                                       bm.alphaType()),
                                              bm.getPixels(),
                                              bm.rowBytes());
             }
@@ -1546,7 +1547,7 @@ void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
 static SkColorType gColorTypeCycle[] = {
     kUnknown_SkColorType,           // none -> none
     kUnknown_SkColorType,           // a8 -> none
-    kARGB_4444_SkColorType,         // 565 -> 4444
+    kN32_SkColorType,               // 565 -> 8888
     kN32_SkColorType,               // 4444 -> 8888
     kRGB_565_SkColorType,           // 8888 -> 565
     kRGB_565_SkColorType,           // 8888 -> 565
