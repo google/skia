@@ -22,7 +22,26 @@ GDB_TMP_DIR=$(pwd)/android_gdb_tmp
 mkdir $GDB_TMP_DIR
 
 echo "Copying symbol files"
-adb_pull_if_needed /system/lib/libc.so $GDB_TMP_DIR
+SYSTEM_LIBRARY_PATH=/system/lib
+for library_file in \
+    libc.so \
+    libstdc++.so \
+    libm.so \
+    liblog.so \
+    libz.so \
+    libcutils.so \
+    libgccdemangle.so \
+    libcorkscrew.so \
+    libutils.so \
+    libstlport.so \
+    libGLES_trace.so \
+    libEGL.so \
+    libGLESv2.so \
+    ; do
+    adb_pull_if_needed "${SYSTEM_LIBRARY_PATH}/${library_file}" $GDB_TMP_DIR
+done
+
+adb_pull_if_needed /system/bin/linker $GDB_TMP_DIR
 
 echo "Pushing app..."
 for file in \
