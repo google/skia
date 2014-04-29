@@ -7,7 +7,6 @@
       'type': 'static_library',
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-        'angle.gyp:*',
         'animator.gyp:*',
         'views.gyp:*',
         'xml.gyp:*',

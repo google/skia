@@ -13,7 +13,6 @@
       'standalone_static_library': 1,
       'dependencies': [
         'skia_lib.gyp:skia_lib',
-        'angle.gyp:*',
         'xml.gyp:*',
       ],
       'include_dirs': [
