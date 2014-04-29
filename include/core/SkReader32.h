@@ -40,7 +40,7 @@ public:
     const void* peek() const { return fCurr; }
 
     size_t available() const { return fStop - fCurr; }
-    bool isAvailable(size_t size) const { return fCurr + size <= fStop; }
+    bool isAvailable(size_t size) const { return size <= this->available(); }
 
     void rewind() { fCurr = fBase; }
 

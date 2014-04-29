@@ -91,7 +91,7 @@ int32_t SkValidatingReadBuffer::read32() {
 }
 
 void SkValidatingReadBuffer::readString(SkString* string) {
-    const size_t len = this->readInt();
+    const size_t len = this->readUInt();
     const void* ptr = fReader.peek();
     const char* cptr = (const char*)ptr;
 

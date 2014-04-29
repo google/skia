@@ -14,7 +14,7 @@
  */
 
 const char* SkReader32::readString(size_t* outLen) {
-    size_t len = this->readInt();
+    size_t len = this->readU32();
     const void* ptr = this->peek();
 
     // skip over the string + '\0' and then pad to a multiple of 4
