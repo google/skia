@@ -226,6 +226,8 @@ private:    // these help us with reading/writing
     void flattenToBuffer(SkWriteBuffer&) const;
 
 private:
+    friend class SkPicture;
+
     // The picture that owns this SkPicturePlayback object
     const SkPicture* fPicture;
 

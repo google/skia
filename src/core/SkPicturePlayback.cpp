@@ -138,26 +138,6 @@ SkPicturePlayback::SkPicturePlayback(const SkPicture* picture,
 #endif
 }
 
-static bool needs_deep_copy(const SkPaint& paint) {
-    /*
-     *  These fields are known to be immutable, and so can be shallow-copied
-     *
-     *  getTypeface()
-     *  getAnnotation()
-     *  paint.getColorFilter()
-     *  getXfermode()
-     *  getPathEffect()
-     *  getMaskFilter()
-     */
-
-    return paint.getShader() ||
-#ifdef SK_SUPPORT_LEGACY_LAYERRASTERIZER_API
-           paint.getRasterizer() ||
-#endif
-           paint.getLooper() || // needs to hide its addLayer...
-           paint.getImageFilter();
-}
-
 SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, const SkPicturePlayback& src,
                                      SkPictCopyInfo* deepCopyInfo)
     : fPicture(picture)
@@ -175,51 +155,12 @@ SkPicturePlayback::SkPicturePlayback(const SkPicture* picture, const SkPicturePl
     SkSafeRef(fStateTree);
 
     if (deepCopyInfo) {
+        SkASSERT(deepCopyInfo->initialized);
+
         int paintCount = SafeCount(src.fPaints);
 
         if (src.fBitmaps) {
             fBitmaps = SkTRefArray<SkBitmap>::Create(src.fBitmaps->begin(), src.fBitmaps->count());
-        }
-
-        if (!deepCopyInfo->initialized) {
-            /* The alternative to doing this is to have a clone method on the paint and have it make
-             * the deep copy of its internal structures as needed. The holdup to doing that is at
-             * this point we would need to pass the SkBitmapHeap so that we don't unnecessarily
-             * flatten the pixels in a bitmap shader.
-             */
-            deepCopyInfo->paintData.setCount(paintCount);
-
-            /* Use an SkBitmapHeap to avoid flattening bitmaps in shaders. If there already is one,
-             * use it. If this SkPicturePlayback was created from a stream, fBitmapHeap will be
-             * NULL, so create a new one.
-             */
-            if (fBitmapHeap.get() == NULL) {
-                // FIXME: Put this on the stack inside SkPicture::clone. Further, is it possible to
-                // do the rest of this initialization in SkPicture::clone as well?
-                SkBitmapHeap* heap = SkNEW(SkBitmapHeap);
-                deepCopyInfo->controller.setBitmapStorage(heap);
-                heap->unref();
-            } else {
-                deepCopyInfo->controller.setBitmapStorage(fBitmapHeap);
-            }
-
-            SkDEBUGCODE(int heapSize = SafeCount(fBitmapHeap.get());)
-            for (int i = 0; i < paintCount; i++) {
-                if (needs_deep_copy(src.fPaints->at(i))) {
-                    deepCopyInfo->paintData[i] =
-                        SkFlatData::Create<SkPaint::FlatteningTraits>(&deepCopyInfo->controller,
-                                                          src.fPaints->at(i), 0);
-
-                } else {
-                    // this is our sentinel, which we use in the unflatten loop
-                    deepCopyInfo->paintData[i] = NULL;
-                }
-            }
-            SkASSERT(SafeCount(fBitmapHeap.get()) == heapSize);
-
-            // needed to create typeface playback
-            deepCopyInfo->controller.setupPlaybacks();
-            deepCopyInfo->initialized = true;
         }
 
         fPaints = SkTRefArray<SkPaint>::Create(paintCount);

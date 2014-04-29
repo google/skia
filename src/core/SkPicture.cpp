@@ -217,6 +217,26 @@ SkPicture* SkPicture::clone() const {
     return clonedPicture;
 }
 
+static bool needs_deep_copy(const SkPaint& paint) {
+    /*
+     *  These fields are known to be immutable, and so can be shallow-copied
+     *
+     *  getTypeface()
+     *  getAnnotation()
+     *  paint.getColorFilter()
+     *  getXfermode()
+     *  getPathEffect()
+     *  getMaskFilter()
+     */
+
+    return paint.getShader() ||
+#ifdef SK_SUPPORT_LEGACY_LAYERRASTERIZER_API
+           paint.getRasterizer() ||
+#endif
+           paint.getLooper() || // needs to hide its addLayer...
+           paint.getImageFilter();
+}
+
 void SkPicture::clone(SkPicture* pictures, int count) const {
     SkPictCopyInfo copyInfo;
     SkPictInfo info;
@@ -237,6 +257,48 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
             it (since it is destructive, and we don't want to change src).
          */
         if (fPlayback) {
+            if (!copyInfo.initialized) {
+                int paintCount = SafeCount(fPlayback->fPaints);
+
+                /* The alternative to doing this is to have a clone method on the paint and have it
+                 * make the deep copy of its internal structures as needed. The holdup to doing
+                 * that is at this point we would need to pass the SkBitmapHeap so that we don't 
+                 * unnecessarily flatten the pixels in a bitmap shader.
+                 */
+                copyInfo.paintData.setCount(paintCount);
+
+                /* Use an SkBitmapHeap to avoid flattening bitmaps in shaders. If there already is 
+                 * one, use it. If this SkPicturePlayback was created from a stream, fBitmapHeap 
+                 * will be NULL, so create a new one.
+                 */
+                if (fPlayback->fBitmapHeap.get() == NULL) {
+                    // FIXME: Put this on the stack inside SkPicture::clone.
+                    SkBitmapHeap* heap = SkNEW(SkBitmapHeap);
+                    copyInfo.controller.setBitmapStorage(heap);
+                    heap->unref();
+                } else {
+                    copyInfo.controller.setBitmapStorage(fPlayback->fBitmapHeap);
+                }
+
+                SkDEBUGCODE(int heapSize = SafeCount(fPlayback->fBitmapHeap.get());)
+                for (int i = 0; i < paintCount; i++) {
+                    if (needs_deep_copy(fPlayback->fPaints->at(i))) {
+                        copyInfo.paintData[i] =
+                            SkFlatData::Create<SkPaint::FlatteningTraits>(&copyInfo.controller,
+                                                              fPlayback->fPaints->at(i), 0);
+
+                    } else {
+                        // this is our sentinel, which we use in the unflatten loop
+                        copyInfo.paintData[i] = NULL;
+                    }
+                }
+                SkASSERT(SafeCount(fPlayback->fBitmapHeap.get()) == heapSize);
+
+                // needed to create typeface playback
+                copyInfo.controller.setupPlaybacks();
+                copyInfo.initialized = true;
+            }
+
             clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (clone, *fPlayback, &copyInfo));
             SkASSERT(NULL == fRecord);
             clone->fUniqueID = this->uniqueID(); // need to call method to ensure != 0
