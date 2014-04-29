@@ -222,6 +222,7 @@ adb_push_if_needed() {
     fi
   else
     echo -n "$ANDROID_DST "
+    $ADB $DEVICE_SERIAL shell mkdir -p "$(dirname "$ANDROID_DST")"
     $ADB $DEVICE_SERIAL push $HOST_SRC $ANDROID_DST
   fi
 }
