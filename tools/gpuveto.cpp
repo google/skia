@@ -63,7 +63,7 @@ int tool_main(int argc, char** argv) {
     } else {
         SkDebugf("unsuitable\n");
     }
-    
+
     return kSuccess;
 #else
     SkDebugf("gpuveto is only useful when GPU rendering is enabled\n");
