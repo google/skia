@@ -26,6 +26,8 @@ public:
 
     virtual bool onFilterImage(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                SkBitmap* dst, SkIPoint* offset) const SK_OVERRIDE;
+    virtual bool onFilterBounds(const SkIRect& src, const SkMatrix&,
+                                SkIRect* dst) const SK_OVERRIDE;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTileImageFilter)
 

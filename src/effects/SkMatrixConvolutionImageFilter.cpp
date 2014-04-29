@@ -306,6 +306,19 @@ bool SkMatrixConvolutionImageFilter::onFilterImage(Proxy* proxy,
     return true;
 }
 
+bool SkMatrixConvolutionImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                                    SkIRect* dst) const {
+    SkIRect bounds = src;
+    bounds.fRight += fKernelSize.width() - 1;
+    bounds.fBottom += fKernelSize.height() - 1;
+    bounds.offset(-fKernelOffset);
+    if (getInput(0) && !getInput(0)->filterBounds(bounds, ctm, &bounds)) {
+        return false;
+    }
+    *dst = bounds;
+    return true;
+}
+
 #if SK_SUPPORT_GPU
 
 ///////////////////////////////////////////////////////////////////////////////

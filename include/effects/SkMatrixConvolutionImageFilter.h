@@ -73,6 +73,8 @@ protected:
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
+    virtual bool onFilterBounds(const SkIRect&, const SkMatrix&, SkIRect*) const SK_OVERRIDE;
+
 
 #if SK_SUPPORT_GPU
     virtual bool asNewEffect(GrEffectRef** effect,

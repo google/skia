@@ -75,6 +75,17 @@ bool SkTileImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& src,
     return true;
 }
 
+bool SkTileImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm,
+                                       SkIRect* dst) const {
+    SkRect srcRect;
+    ctm.mapRect(&srcRect, fSrcRect);
+    SkIRect srcIRect;
+    srcRect.roundOut(&srcIRect);
+    srcIRect.join(src);
+    *dst = srcIRect;
+    return true;
+}
+
 SkTileImageFilter::SkTileImageFilter(SkReadBuffer& buffer)
   : INHERITED(1, buffer) {
     buffer.readRect(&fSrcRect);

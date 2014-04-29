@@ -17,6 +17,7 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkFlattenableBuffers.h"
+#include "SkGradientShader.h"
 #include "SkLightingImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
 #include "SkMatrixImageFilter.h"
@@ -258,6 +259,116 @@ static void test_crop_rects(SkBaseDevice* device, skiatest::Reporter* reporter) 
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
         SkSafeUnref(filters[i]);
+    }
+}
+
+static SkBitmap make_gradient_circle(int width, int height) {
+    SkBitmap bitmap;
+    SkScalar x = SkIntToScalar(width / 2);
+    SkScalar y = SkIntToScalar(height / 2);
+    SkScalar radius = SkMinScalar(x, y) * 0.8f;
+    bitmap.allocN32Pixels(width, height);
+    SkCanvas canvas(bitmap);
+    canvas.clear(0x00000000);
+    SkColor colors[2];
+    colors[0] = SK_ColorWHITE;
+    colors[1] = SK_ColorBLACK;
+    SkAutoTUnref<SkShader> shader(
+        SkGradientShader::CreateRadial(SkPoint::Make(x, y), radius, colors, NULL, 2,
+                                       SkShader::kClamp_TileMode)
+    );
+    SkPaint paint;
+    paint.setShader(shader);
+    canvas.drawCircle(x, y, radius, paint);
+    return bitmap;
+}
+
+DEF_TEST(ImageFilterDrawTiled, reporter) {
+    // Check that all filters when drawn tiled (with subsequent clip rects) exactly
+    // match the same filters drawn with a single full-canvas bitmap draw.
+    // Tests pass by not asserting.
+
+    SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateModeFilter(SK_ColorRED, SkXfermode::kSrcIn_Mode));
+    SkPoint3 location(0, 0, SK_Scalar1);
+    SkPoint3 target(SK_Scalar1, SK_Scalar1, SK_Scalar1);
+    SkScalar kernel[9] = {
+        SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
+        SkIntToScalar( 1), SkIntToScalar(-7), SkIntToScalar( 1),
+        SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
+    };
+    SkISize kernelSize = SkISize::Make(3, 3);
+    SkScalar gain = SK_Scalar1, bias = 0;
+
+    SkAutoTUnref<SkImageFilter> gradient_source(SkBitmapSource::Create(make_gradient_circle(64, 64)));
+
+    struct {
+        const char*    fName;
+        SkImageFilter* fFilter;
+    } filters[] = {
+        { "color filter", SkColorFilterImageFilter::Create(cf.get()) },
+        { "displacement map", SkDisplacementMapEffect::Create(
+              SkDisplacementMapEffect::kR_ChannelSelectorType,
+              SkDisplacementMapEffect::kB_ChannelSelectorType,
+              40.0f, gradient_source.get()) },
+        { "blur", SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1) },
+        { "drop shadow", SkDropShadowImageFilter::Create(
+              SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_ColorGREEN) },
+        { "diffuse lighting", SkLightingImageFilter::CreatePointLitDiffuse(
+              location, SK_ColorGREEN, 0, 0) },
+        { "specular lighting",
+              SkLightingImageFilter::CreatePointLitSpecular(location, SK_ColorGREEN, 0, 0, 0) },
+        { "matrix convolution",
+              SkMatrixConvolutionImageFilter::Create(
+                  kernelSize, kernel, gain, bias, SkIPoint::Make(1, 1),
+                  SkMatrixConvolutionImageFilter::kRepeat_TileMode, false) },
+        { "merge", SkMergeImageFilter::Create(NULL, NULL, SkXfermode::kSrcOver_Mode) },
+        { "offset", SkOffsetImageFilter::Create(SK_Scalar1, SK_Scalar1) },
+        { "dilate", SkDilateImageFilter::Create(3, 2) },
+        { "erode", SkErodeImageFilter::Create(2, 3) },
+        { "tile", SkTileImageFilter::Create(SkRect::MakeXYWH(0, 0, 50, 50),
+                                            SkRect::MakeXYWH(0, 0, 100, 100), NULL) },
+    };
+
+    SkBitmap untiledResult, tiledResult;
+    int width = 64, height = 64;
+    untiledResult.allocN32Pixels(width, height);
+    tiledResult.allocN32Pixels(width, height);
+    SkCanvas tiledCanvas(tiledResult);
+    SkCanvas untiledCanvas(untiledResult);
+    tiledCanvas.clear(0);
+    untiledCanvas.clear(0);
+    int tileSize = 16;
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+        SkPaint paint;
+        paint.setImageFilter(filters[i].fFilter);
+        paint.setTextSize(SkIntToScalar(height));
+        paint.setColor(SK_ColorWHITE);
+        SkString str;
+        const char* text = "ABC";
+        SkScalar ypos = SkIntToScalar(height);
+        untiledCanvas.drawText(text, strlen(text), 0, ypos, paint);
+        for (int y = 0; y < height; y += tileSize) {
+            for (int x = 0; x < width; x += tileSize) {
+                tiledCanvas.save();
+                tiledCanvas.clipRect(SkRect::Make(SkIRect::MakeXYWH(x, y, tileSize, tileSize)));
+                tiledCanvas.drawText(text, strlen(text), 0, ypos, paint);
+                tiledCanvas.restore();
+            }
+        }
+        untiledCanvas.flush();
+        tiledCanvas.flush();
+        for (int y = 0; y < height; y++) {
+            int diffs = memcmp(untiledResult.getAddr32(0, y), tiledResult.getAddr32(0, y), untiledResult.rowBytes());
+            REPORTER_ASSERT_MESSAGE(reporter, !diffs, filters[i].fName);
+            if (diffs) {
+                break;
+            }
+        }
+    }
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+        SkSafeUnref(filters[i].fFilter);
     }
 }
 

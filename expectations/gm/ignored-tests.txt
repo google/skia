@@ -60,3 +60,7 @@ peekpixels
 # humper: https://codereview.chromium.org/248613004/
 # Changed the test in a few ways, will need rebaselining.
 simpleblurroundrect
+
+# senorblanco: http://YOUR_CODE_REVIEW_HERE/
+# Added a new test case; reduced the text bitmap size
+tileimagefilter
