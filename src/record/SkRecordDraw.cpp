@@ -7,8 +7,6 @@
 
 #include "SkRecordDraw.h"
 
-#include "SkRecordTraits.h"
-
 namespace {
 
 // This is an SkRecord visitor that will draw that SkRecord to an SkCanvas.
@@ -29,27 +27,22 @@ private:
     // No base case, so we'll be compile-time checked that we implemented all possibilities below.
     template <typename T> void draw(const T&);
 
-    // skip() returns true if we can skip this command, false if not.
-    // Update fIndex directly to skip more than just this one command.
+    // skip() should return true if we can skip this command, false if not.
+    // It may update fIndex directly to skip more than just this one command.
 
-    // If we're drawing into an empty clip, we can skip it.  Otherwise, run the command.
-    template <typename T>
-    SK_WHEN(SkRecords::IsDraw<T>, bool) skip(const T&) { return fCanvas->isClipEmpty(); }
+    // Mostly we just blindly call fCanvas and let it handle quick rejects itself.
+    template <typename T> bool skip(const T&) { return false; }
 
-    template <typename T>
-    SK_WHEN(!SkRecords::IsDraw<T>, bool) skip(const T&) { return false; }
-
-    // Special versions for commands added by optimizations.
+    // We add our own quick rejects for commands added by optimizations.
     bool skip(const SkRecords::PairedPushCull& r) {
         if (fCanvas->quickReject(r.base->rect)) {
             fIndex += r.skip;
             return true;
         }
-        return this->skip(*r.base);
+        return false;
     }
-
     bool skip(const SkRecords::BoundedDrawPosTextH& r) {
-        return this->skip(*r.base) || fCanvas->quickRejectY(r.minY, r.maxY);
+        return fCanvas->quickRejectY(r.minY, r.maxY);
     }
 
     SkCanvas* fCanvas;

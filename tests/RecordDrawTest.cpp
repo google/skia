@@ -45,27 +45,3 @@ DEF_TEST(RecordDraw_Culling, r) {
     // If culling weren't working, we'd see 8 commands recorded here.
     REPORTER_ASSERT(r, 5 == rerecord.count());
 }
-
-DEF_TEST(RecordDraw_Clipping, r) {
-    SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
-
-    // 8 draw commands.
-    recorder.save();
-        recorder.clipRect(SkRect::MakeLTRB(0, 0, 100, 100));
-        recorder.drawRect(SkRect::MakeLTRB(20, 20, 40, 40), SkPaint());
-        recorder.save();
-            // This clipRect makes the clip empty, so the next command does nothing.
-            recorder.clipRect(SkRect::MakeLTRB(200, 200, 300, 300));
-            recorder.drawRect(SkRect::MakeLTRB(220, 220, 240, 240), SkPaint());   // Skipped
-        recorder.restore();
-    recorder.restore();
-
-    // Same deal as above: we need full SkCanvas semantics for clip skipping to work.
-    SkRecord rerecord;
-    SkRecorder rerecorder(SkRecorder::kReadWrite_Mode, &rerecord, W, H);
-    SkRecordDraw(record, &rerecorder);
-
-    // All commands except the one marked // Skipped will be preserved.
-    REPORTER_ASSERT(r, 7 == rerecord.count());
-}
