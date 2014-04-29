@@ -1,12 +1,15 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
+#include "SkBlurDrawLooper.h"
+#include "SkLayerDrawLooper.h"
+#include "SkEmbossMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkMath.h"
 #include "SkPaint.h"
@@ -380,7 +383,187 @@ static void test_sigma_range(skiatest::Reporter* reporter, GrContextFactory* fac
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
+
+static SkBlurQuality blurMaskFilterFlags_as_quality(uint32_t blurMaskFilterFlags) {
+    return (blurMaskFilterFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ?
+            kHigh_SkBlurQuality : kLow_SkBlurQuality;
+}
+
+static uint32_t blurMaskFilterFlags_to_blurDrawLooperFlags(uint32_t bmf) {
+    const struct {
+        uint32_t fBlurMaskFilterFlag;
+        uint32_t fBlurDrawLooperFlag;
+    } pairs[] = {
+        { SkBlurMaskFilter::kIgnoreTransform_BlurFlag, SkBlurDrawLooper::kIgnoreTransform_BlurFlag },
+        { SkBlurMaskFilter::kHighQuality_BlurFlag,     SkBlurDrawLooper::kHighQuality_BlurFlag },
+    };
+
+    uint32_t bdl = 0;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(pairs); ++i) {
+        if (bmf & pairs[i].fBlurMaskFilterFlag) {
+            bdl |= pairs[i].fBlurDrawLooperFlag;
+        }
+    }
+    return bdl;
+}
+
+static void test_blurDrawLooper(skiatest::Reporter* reporter, SkScalar sigma,
+                                SkBlurStyle style, uint32_t blurMaskFilterFlags) {
+    if (kNormal_SkBlurStyle != style) {
+        return; // blurdrawlooper only supports normal
+    }
+
+    const SkColor color = 0xFF335577;
+    const SkScalar dx = 10;
+    const SkScalar dy = -5;
+    const SkBlurQuality quality = blurMaskFilterFlags_as_quality(blurMaskFilterFlags);
+    uint32_t flags = blurMaskFilterFlags_to_blurDrawLooperFlags(blurMaskFilterFlags);
+
+    SkAutoTUnref<SkDrawLooper> lp(SkBlurDrawLooper::Create(color, sigma, dx, dy, flags));
+
+    const bool expectSuccess = sigma > 0 &&
+                               0 == (flags & SkBlurDrawLooper::kIgnoreTransform_BlurFlag);
+
+    if (NULL == lp.get()) {
+        REPORTER_ASSERT(reporter, sigma <= 0);
+    } else {
+        SkDrawLooper::BlurShadowRec rec;
+        bool success = lp->asABlurShadow(&rec);
+        REPORTER_ASSERT(reporter, success == expectSuccess);
+        if (success) {
+            REPORTER_ASSERT(reporter, rec.fSigma == sigma);
+            REPORTER_ASSERT(reporter, rec.fOffset.x() == dx);
+            REPORTER_ASSERT(reporter, rec.fOffset.y() == dy);
+            REPORTER_ASSERT(reporter, rec.fColor == color);
+            REPORTER_ASSERT(reporter, rec.fStyle == style);
+            REPORTER_ASSERT(reporter, rec.fQuality == quality);
+        }
+    }
+}
+
+static void test_delete_looper(skiatest::Reporter* reporter, SkDrawLooper* lp, SkScalar sigma,
+                               SkBlurStyle style, SkBlurQuality quality, bool expectSuccess) {
+    SkDrawLooper::BlurShadowRec rec;
+    bool success = lp->asABlurShadow(&rec);
+    REPORTER_ASSERT(reporter, success == expectSuccess);
+    if (success != expectSuccess) {
+        lp->asABlurShadow(&rec);
+    }
+    if (success) {
+        REPORTER_ASSERT(reporter, rec.fSigma == sigma);
+        REPORTER_ASSERT(reporter, rec.fStyle == style);
+        REPORTER_ASSERT(reporter, rec.fQuality == quality);
+    }
+    lp->unref();
+}
+
+static void make_noop_layer(SkLayerDrawLooper::Builder* builder) {
+    SkLayerDrawLooper::LayerInfo info;
+
+    info.fPaintBits = 0;
+    info.fColorMode = SkXfermode::kDst_Mode;
+    builder->addLayer(info);
+}
+
+static void make_blur_layer(SkLayerDrawLooper::Builder* builder, SkMaskFilter* mf) {
+    SkLayerDrawLooper::LayerInfo info;
+
+    info.fPaintBits = SkLayerDrawLooper::kMaskFilter_Bit;
+    info.fColorMode = SkXfermode::kSrc_Mode;
+    SkPaint* paint = builder->addLayer(info);
+    paint->setMaskFilter(mf);
+}
+
+static void test_layerDrawLooper(skiatest::Reporter* reporter, SkMaskFilter* mf, SkScalar sigma,
+                                 SkBlurStyle style, SkBlurQuality quality, bool expectSuccess) {
+
+    SkLayerDrawLooper::LayerInfo info;
+    SkLayerDrawLooper::Builder builder;
+
+    // 1 layer is too few
+    make_noop_layer(&builder);
+    test_delete_looper(reporter, builder.detachLooper(), sigma, style, quality, false);
+
+    // 2 layers is good, but need blur
+    make_noop_layer(&builder);
+    make_noop_layer(&builder);
+    test_delete_looper(reporter, builder.detachLooper(), sigma, style, quality, false);
+
+    // 2 layers is just right
+    make_noop_layer(&builder);
+    make_blur_layer(&builder, mf);
+    test_delete_looper(reporter, builder.detachLooper(), sigma, style, quality, expectSuccess);
+
+    // 3 layers is too many
+    make_noop_layer(&builder);
+    make_blur_layer(&builder, mf);
+    make_noop_layer(&builder);
+    test_delete_looper(reporter, builder.detachLooper(), sigma, style, quality, false);
+}
+
+static void test_asABlur(skiatest::Reporter* reporter) {
+    const SkBlurStyle styles[] = {
+        kNormal_SkBlurStyle, kSolid_SkBlurStyle, kOuter_SkBlurStyle, kInner_SkBlurStyle
+    };
+    const SkScalar sigmas[] = {
+        // values <= 0 should not success for a blur
+        -1, 0, 0.5f, 2
+    };
+
+    // Test asABlur for SkBlurMaskFilter
+    //
+    for (size_t i = 0; i < SK_ARRAY_COUNT(styles); ++i) {
+        const SkBlurStyle style = (SkBlurStyle)styles[i];
+        for (size_t j = 0; j < SK_ARRAY_COUNT(sigmas); ++j) {
+            const SkScalar sigma = sigmas[j];
+            for (int flags = 0; flags <= SkBlurMaskFilter::kAll_BlurFlag; ++flags) {
+                const SkBlurQuality quality = blurMaskFilterFlags_as_quality(flags);
+
+                SkAutoTUnref<SkMaskFilter> mf(SkBlurMaskFilter::Create(style, sigma, flags));
+                if (NULL == mf.get()) {
+                    REPORTER_ASSERT(reporter, sigma <= 0);
+                } else {
+                    REPORTER_ASSERT(reporter, sigma > 0);
+                    SkMaskFilter::BlurRec rec;
+                    bool success = mf->asABlur(&rec);
+                    if (flags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag) {
+                        REPORTER_ASSERT(reporter, !success);
+                    } else {
+                        REPORTER_ASSERT(reporter, success);
+                        REPORTER_ASSERT(reporter, rec.fSigma == sigma);
+                        REPORTER_ASSERT(reporter, rec.fStyle == style);
+                        REPORTER_ASSERT(reporter, rec.fQuality == quality);
+                    }
+                    test_layerDrawLooper(reporter, mf, sigma, style, quality, success);
+                }
+                test_blurDrawLooper(reporter, sigma, style, flags);
+            }
+        }
+    }
+
+    // Test asABlur for SkEmbossMaskFilter -- should never succeed
+    //
+    {
+        SkEmbossMaskFilter::Light light = {
+            { 1, 1, 1 }, 0, 127, 127
+        };
+        for (size_t j = 0; j < SK_ARRAY_COUNT(sigmas); ++j) {
+            const SkScalar sigma = sigmas[j];
+            SkAutoTUnref<SkMaskFilter> mf(SkEmbossMaskFilter::Create(sigma, light));
+            if (mf.get()) {
+                SkMaskFilter::BlurRec rec;
+                bool success = mf->asABlur(&rec);
+                REPORTER_ASSERT(reporter, !success);
+            }
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
 DEF_GPUTEST(Blur, reporter, factory) {
     test_blur_drawing(reporter);
     test_sigma_range(reporter, factory);
+    test_asABlur(reporter);
 }

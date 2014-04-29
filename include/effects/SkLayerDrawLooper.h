@@ -77,6 +77,8 @@ public:
 
     virtual size_t contextSize() const SK_OVERRIDE { return sizeof(LayerDrawLooperContext); }
 
+    virtual bool asABlurShadow(BlurShadowRec* rec) const SK_OVERRIDE;
+
     SK_TO_STRING_OVERRIDE()
 
     /// Implements Flattenable.

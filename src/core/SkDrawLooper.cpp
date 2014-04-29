@@ -59,3 +59,7 @@ void SkDrawLooper::computeFastBounds(const SkPaint& paint, const SkRect& src,
         }
     }
 }
+
+bool SkDrawLooper::asABlurShadow(BlurShadowRec*) const {
+    return false;
+}

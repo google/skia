@@ -59,6 +59,7 @@ public:
 #endif
 
     virtual void computeFastBounds(const SkRect&, SkRect*) const SK_OVERRIDE;
+    virtual bool asABlur(BlurRec*) const SK_OVERRIDE;
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
@@ -86,6 +87,11 @@ private:
     SkScalar    fSigma;
     SkBlurStyle fBlurStyle;
     uint32_t    fBlurFlags;
+
+    SkBlurQuality getQuality() const {
+        return (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ?
+                kHigh_SkBlurQuality : kLow_SkBlurQuality;
+    }
 
     SkBlurMaskFilterImpl(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
@@ -145,16 +151,24 @@ SkMask::Format SkBlurMaskFilterImpl::getFormat() const {
     return SkMask::kA8_Format;
 }
 
+bool SkBlurMaskFilterImpl::asABlur(BlurRec* rec) const {
+    if (fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag) {
+        return false;
+    }
+
+    if (rec) {
+        rec->fSigma = fSigma;
+        rec->fStyle = fBlurStyle;
+        rec->fQuality = this->getQuality();
+    }
+    return true;
+}
+
 bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
                                       const SkMatrix& matrix,
                                       SkIPoint* margin) const{
     SkScalar sigma = this->computeXformedSigma(matrix);
-
-    SkBlurQuality blurQuality =
-        (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ?
-            kHigh_SkBlurQuality : kLow_SkBlurQuality;
-
-    return SkBlurMask::BoxBlur(dst, src, sigma, fBlurStyle, blurQuality, margin);
+    return SkBlurMask::BoxBlur(dst, src, sigma, fBlurStyle, this->getQuality(), margin);
 }
 
 bool SkBlurMaskFilterImpl::filterRectMask(SkMask* dst, const SkRect& r,

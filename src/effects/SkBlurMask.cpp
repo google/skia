@@ -13,17 +13,21 @@
 #include "SkEndian.h"
 
 
-SkScalar SkBlurMask::ConvertRadiusToSigma(SkScalar radius) {
-    // This constant approximates the scaling done in the software path's
-    // "high quality" mode, in SkBlurMask::Blur() (1 / sqrt(3)).
-    // IMHO, it actually should be 1:  we blur "less" than we should do
-    // according to the CSS and canvas specs, simply because Safari does the same.
-    // Firefox used to do the same too, until 4.0 where they fixed it.  So at some
-    // point we should probably get rid of these scaling constants and rebaseline
-    // all the blur tests.
-    static const SkScalar kBLUR_SIGMA_SCALE = 0.57735f;
+// This constant approximates the scaling done in the software path's
+// "high quality" mode, in SkBlurMask::Blur() (1 / sqrt(3)).
+// IMHO, it actually should be 1:  we blur "less" than we should do
+// according to the CSS and canvas specs, simply because Safari does the same.
+// Firefox used to do the same too, until 4.0 where they fixed it.  So at some
+// point we should probably get rid of these scaling constants and rebaseline
+// all the blur tests.
+static const SkScalar kBLUR_SIGMA_SCALE = 0.57735f;
 
-    return radius ? kBLUR_SIGMA_SCALE * radius + 0.5f : 0.0f;
+SkScalar SkBlurMask::ConvertRadiusToSigma(SkScalar radius) {
+    return radius > 0 ? kBLUR_SIGMA_SCALE * radius + 0.5f : 0.0f;
+}
+
+SkScalar SkBlurMask::ConvertSigmaToRadius(SkScalar sigma) {
+    return sigma > 0.5f ? (sigma - 0.5f) / kBLUR_SIGMA_SCALE : 0.0f;
 }
 
 #define UNROLL_SEPARABLE_LOOPS

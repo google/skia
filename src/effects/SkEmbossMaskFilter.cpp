@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkEmbossMaskFilter.h"
 #include "SkBlurMaskFilter.h"
@@ -14,6 +12,10 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkString.h"
+
+SkEmbossMaskFilter* SkEmbossMaskFilter::Create(SkScalar blurSigma, const Light& light) {
+    return SkNEW_ARGS(SkEmbossMaskFilter, (blurSigma, light));
+}
 
 static inline int pin2byte(int n) {
     if (n < 0) {

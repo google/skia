@@ -61,10 +61,12 @@ protected:
     SkBlurDrawLooper(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
+    virtual bool asABlurShadow(BlurShadowRec*) const SK_OVERRIDE;
+
 private:
     SkMaskFilter*   fBlur;
     SkColorFilter*  fColorFilter;
-    SkScalar        fDx, fDy;
+    SkScalar        fDx, fDy, fSigma;
     SkColor         fBlurColor;
     uint32_t        fBlurFlags;
 
@@ -86,6 +88,7 @@ private:
     };
 
     void init(SkScalar sigma, SkScalar dx, SkScalar dy, SkColor color, uint32_t flags);
+    void initEffects();
 
     typedef SkDrawLooper INHERITED;
 };

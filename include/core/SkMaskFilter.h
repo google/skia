@@ -10,6 +10,7 @@
 #ifndef SkMaskFilter_DEFINED
 #define SkMaskFilter_DEFINED
 
+#include "SkBlurTypes.h"
 #include "SkFlattenable.h"
 #include "SkMask.h"
 #include "SkPaint.h"
@@ -137,6 +138,18 @@ public:
      *  but subclasses may override this if they can compute the rect faster.
      */
     virtual void computeFastBounds(const SkRect& src, SkRect* dest) const;
+
+    struct BlurRec {
+        SkScalar        fSigma;
+        SkBlurStyle     fStyle;
+        SkBlurQuality   fQuality;
+    };
+    /**
+     *  If this filter can be represented by a BlurRec, return true and (if not null) fill in the
+     *  provided BlurRec parameter. If this effect cannot be represented as a BlurRec, return false
+     *  and ignore the BlurRec parameter.
+     */
+    virtual bool asABlur(BlurRec*) const;
 
     SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkMaskFilter)

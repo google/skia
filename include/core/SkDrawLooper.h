@@ -10,7 +10,10 @@
 #ifndef SkDrawLooper_DEFINED
 #define SkDrawLooper_DEFINED
 
+#include "SkBlurTypes.h"
 #include "SkFlattenable.h"
+#include "SkPoint.h"
+#include "SkColor.h"
 
 class SkCanvas;
 class SkPaint;
@@ -87,6 +90,24 @@ public:
     virtual bool canComputeFastBounds(const SkPaint& paint) const;
     virtual void computeFastBounds(const SkPaint& paint,
                                    const SkRect& src, SkRect* dst) const;
+
+    struct BlurShadowRec {
+        SkScalar        fSigma;
+        SkVector        fOffset;
+        SkColor         fColor;
+        SkBlurStyle     fStyle;
+        SkBlurQuality   fQuality;
+    };
+    /**
+     *  If this looper can be interpreted as having two layers, such that
+     *      1. The first layer (bottom most) just has a blur and translate
+     *      2. The second layer has no modifications to either paint or canvas
+     *      3. No other layers.
+     *  then return true, and if not null, fill out the BlurShadowRec).
+     *
+     *  If any of the above are not met, return false and ignore the BlurShadowRec parameter.
+     */
+    virtual bool asABlurShadow(BlurShadowRec*) const;
 
     SK_TO_STRING_PUREVIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkDrawLooper)

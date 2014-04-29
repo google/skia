@@ -23,9 +23,7 @@ public:
         uint8_t     fSpecular;      // exponent, 4.4 right now
     };
 
-    static SkEmbossMaskFilter* Create(SkScalar blurSigma, const Light& light) {
-        return SkNEW_ARGS(SkEmbossMaskFilter, (blurSigma, light));
-    }
+    static SkEmbossMaskFilter* Create(SkScalar blurSigma, const Light& light);
 
     // overrides from SkMaskFilter
     //  This method is not exported to java.

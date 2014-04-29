@@ -39,7 +39,10 @@ public:
     static bool BlurGroundTruth(SkScalar sigma, SkMask* dst, const SkMask& src, SkBlurStyle,
                                 SkIPoint* margin = NULL);
 
+    // If radius > 0, return the corresponding sigma, else return 0
     static SkScalar ConvertRadiusToSigma(SkScalar radius);
+    // If sigma > 0.5, return the corresponding radius, else return 0
+    static SkScalar ConvertSigmaToRadius(SkScalar sigma);
 
     /* Helper functions for analytic rectangle blurs */
 

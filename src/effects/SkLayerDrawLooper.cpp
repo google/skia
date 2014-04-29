@@ -153,6 +153,50 @@ bool SkLayerDrawLooper::LayerDrawLooperContext::next(SkCanvas* canvas,
     return true;
 }
 
+bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
+    if (fCount != 2) {
+        return false;
+    }
+    const Rec* rec = fRecs;
+
+    // bottom layer needs to be just blur(maskfilter)
+    if ((rec->fInfo.fPaintBits & ~kMaskFilter_Bit)) {
+        return false;
+    }
+    if (SkXfermode::kSrc_Mode != rec->fInfo.fColorMode) {
+        return false;
+    }
+    const SkMaskFilter* mf = rec->fPaint.getMaskFilter();
+    if (NULL == mf) {
+        return false;
+    }
+    SkMaskFilter::BlurRec maskBlur;
+    if (!mf->asABlur(&maskBlur)) {
+        return false;
+    }
+
+    rec = rec->fNext;
+    // top layer needs to be "plain"
+    if (rec->fInfo.fPaintBits) {
+        return false;
+    }
+    if (SkXfermode::kDst_Mode != rec->fInfo.fColorMode) {
+        return false;
+    }
+    if (!rec->fInfo.fOffset.equals(0, 0)) {
+        return false;
+    }
+
+    if (bsRec) {
+        bsRec->fSigma = maskBlur.fSigma;
+        bsRec->fOffset = fRecs->fInfo.fOffset;
+        bsRec->fColor = fRecs->fPaint.getColor();
+        bsRec->fStyle = maskBlur.fStyle;
+        bsRec->fQuality = maskBlur.fQuality;
+    }
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {

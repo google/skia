@@ -1,10 +1,10 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "SkBlurDrawLooper.h"
 #include "SkBlurMask.h"     // just for SkBlurMask::ConvertRadiusToSigma
 #include "SkBlurMaskFilter.h"
@@ -29,32 +29,27 @@ SkBlurDrawLooper::SkBlurDrawLooper(SkColor color, SkScalar sigma,
     this->init(sigma, dx, dy, color, flags);
 }
 
-void SkBlurDrawLooper::init(SkScalar sigma, SkScalar dx, SkScalar dy,
-                            SkColor color, uint32_t flags) {
-    fDx = dx;
-    fDy = dy;
-    fBlurColor = color;
-    fBlurFlags = flags;
-
-    SkASSERT(flags <= kAll_BlurFlag);
-    if (sigma > 0) {
-        uint32_t blurFlags = flags & kIgnoreTransform_BlurFlag ?
-            SkBlurMaskFilter::kIgnoreTransform_BlurFlag :
-            SkBlurMaskFilter::kNone_BlurFlag;
-
-        blurFlags |= flags & kHighQuality_BlurFlag ?
-            SkBlurMaskFilter::kHighQuality_BlurFlag :
-            SkBlurMaskFilter::kNone_BlurFlag;
-
-        fBlur = SkBlurMaskFilter::Create(kNormal_SkBlurStyle, sigma, blurFlags);
+// only call from constructor
+void SkBlurDrawLooper::initEffects() {
+    SkASSERT(fBlurFlags <= kAll_BlurFlag);
+    if (fSigma > 0) {
+        uint32_t flags = fBlurFlags & kIgnoreTransform_BlurFlag ?
+                            SkBlurMaskFilter::kIgnoreTransform_BlurFlag :
+                            SkBlurMaskFilter::kNone_BlurFlag;
+        
+        flags |= fBlurFlags & kHighQuality_BlurFlag ?
+                    SkBlurMaskFilter::kHighQuality_BlurFlag :
+                    SkBlurMaskFilter::kNone_BlurFlag;
+        
+        fBlur = SkBlurMaskFilter::Create(kNormal_SkBlurStyle, fSigma, flags);
     } else {
         fBlur = NULL;
     }
-
-    if (flags & kOverrideColor_BlurFlag) {
+    
+    if (fBlurFlags & kOverrideColor_BlurFlag) {
         // Set alpha to 1 for the override since transparency will already
         // be baked into the blurred mask.
-        SkColor opaqueColor = SkColorSetA(color, 255);
+        SkColor opaqueColor = SkColorSetA(fBlurColor, 255);
         //The SrcIn xfer mode will multiply 'color' by the incoming alpha
         fColorFilter = SkColorFilter::CreateModeFilter(opaqueColor,
                                                        SkXfermode::kSrcIn_Mode);
@@ -63,15 +58,35 @@ void SkBlurDrawLooper::init(SkScalar sigma, SkScalar dx, SkScalar dy,
     }
 }
 
-SkBlurDrawLooper::SkBlurDrawLooper(SkReadBuffer& buffer)
-: INHERITED(buffer) {
+void SkBlurDrawLooper::init(SkScalar sigma, SkScalar dx, SkScalar dy,
+                            SkColor color, uint32_t flags) {
+    fSigma = sigma;
+    fDx = dx;
+    fDy = dy;
+    fBlurColor = color;
+    fBlurFlags = flags;
 
+    this->initEffects();
+}
+
+SkBlurDrawLooper::SkBlurDrawLooper(SkReadBuffer& buffer) : INHERITED(buffer) {
+
+    fSigma = buffer.readScalar();
     fDx = buffer.readScalar();
     fDy = buffer.readScalar();
     fBlurColor = buffer.readColor();
-    fBlur = buffer.readMaskFilter();
-    fColorFilter = buffer.readColorFilter();
     fBlurFlags = buffer.readUInt() & kAll_BlurFlag;
+
+    this->initEffects();
+}
+
+void SkBlurDrawLooper::flatten(SkWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
+    buffer.writeScalar(fSigma);
+    buffer.writeScalar(fDx);
+    buffer.writeScalar(fDy);
+    buffer.writeColor(fBlurColor);
+    buffer.write32(fBlurFlags);
 }
 
 SkBlurDrawLooper::~SkBlurDrawLooper() {
@@ -79,15 +94,23 @@ SkBlurDrawLooper::~SkBlurDrawLooper() {
     SkSafeUnref(fColorFilter);
 }
 
-void SkBlurDrawLooper::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    buffer.writeScalar(fDx);
-    buffer.writeScalar(fDy);
-    buffer.writeColor(fBlurColor);
-    buffer.writeFlattenable(fBlur);
-    buffer.writeFlattenable(fColorFilter);
-    buffer.writeUInt(fBlurFlags);
+bool SkBlurDrawLooper::asABlurShadow(BlurShadowRec* rec) const {
+    if (fSigma <= 0 || (fBlurFlags & fBlurFlags & kIgnoreTransform_BlurFlag)) {
+        return false;
+    }
+
+    if (rec) {
+        rec->fSigma = fSigma;
+        rec->fColor = fBlurColor;
+        rec->fOffset.set(fDx, fDy);
+        rec->fStyle = kNormal_SkBlurStyle;
+        rec->fQuality = (fBlurFlags & kHighQuality_BlurFlag) ?
+                        kHigh_SkBlurQuality : kLow_SkBlurQuality;
+    }
+    return true;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////
 
 SkDrawLooper::Context* SkBlurDrawLooper::createContext(SkCanvas*, void* storage) const {
     return SkNEW_PLACEMENT_ARGS(storage, BlurDrawLooperContext, (this));

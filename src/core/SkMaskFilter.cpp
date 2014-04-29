@@ -26,6 +26,10 @@ bool SkMaskFilter::filterMask(SkMask*, const SkMask&, const SkMatrix&,
     return false;
 }
 
+bool SkMaskFilter::asABlur(BlurRec*) const {
+    return false;
+}
+
 static void extractMaskSubset(const SkMask& src, SkMask* dst) {
     SkASSERT(src.fBounds.contains(dst->fBounds));
 
