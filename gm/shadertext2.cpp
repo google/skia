@@ -154,10 +154,11 @@ protected:
                 canvas->translate(0, kPadY / 2 + kPointSize);
                 columnH += kPadY / 2 + kPointSize;
                 for (int lm = 0; lm < localMatrices.count(); ++lm) {
-                    paint.setShader(SkShader::CreateBitmapShader(bmp,
-                                                                 SkShader::kMirror_TileMode,
-                                                                 SkShader::kRepeat_TileMode,
-                                                                 &localMatrices[lm].fMatrix));
+                    paint.setShader(
+                            SkShader::CreateBitmapShader(bmp,
+                                                         SkShader::kMirror_TileMode,
+                                                         SkShader::kRepeat_TileMode,
+                                                         &localMatrices[lm].fMatrix))->unref();
 
                     canvas->save();
                         canvas->concat(matrices[m].fMatrix);
