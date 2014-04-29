@@ -4,8 +4,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "gl/GrGLExtensions.h"
 #include "gl/GrGLInterface.h"
+#include "gl/GrGLAssembleInterface.h"
+#include "gl/GrGLExtensions.h"
 #include "gl/GrGLUtil.h"
 
 #ifndef GL_GLEXT_PROTOTYPES
@@ -218,235 +219,37 @@ static GrGLInterface* create_es_interface(GrGLVersion version,
     return interface;
 }
 
-static GrGLInterface* create_desktop_interface(GrGLVersion version,
-                                               const GrGLExtensions& extensions) {
-    // Currently this assumes a 4.4 context or later. Supporting lower GL versions would require
-    // getting suffixed versions of pointers for supported extensions.
-    if (version < GR_GL_VER(4,4)) {
-        return NULL;
-    }
+static GrGLFuncPtr android_get_gl_proc(void* ctx, const char name[]) {
+    SkASSERT(NULL == ctx);
+    return eglGetProcAddress(name);
+}
 
-    GrGLInterface* interface = SkNEW(GrGLInterface);
-    interface->fStandard = kGL_GrGLStandard;
-    GrGLInterface::Functions* functions = &interface->fFunctions;
-
-    functions->fActiveTexture = (GrGLActiveTextureProc) eglGetProcAddress("glActiveTexture");
-    functions->fAttachShader = (GrGLAttachShaderProc) eglGetProcAddress("glAttachShader");
-    functions->fBeginQuery = (GrGLBeginQueryProc) eglGetProcAddress("glBeginQuery");
-    functions->fBindAttribLocation = (GrGLBindAttribLocationProc) eglGetProcAddress("glBindAttribLocation");
-    functions->fBindBuffer = (GrGLBindBufferProc) eglGetProcAddress("glBindBuffer");
-    functions->fBindFragDataLocation = (GrGLBindFragDataLocationProc) eglGetProcAddress("glBindFragDataLocation");
-    functions->fBindFragDataLocationIndexed = (GrGLBindFragDataLocationIndexedProc) eglGetProcAddress("glBindFragDataLocationIndexed");
-    functions->fBindFramebuffer = (GrGLBindFramebufferProc) eglGetProcAddress("glBindFramebuffer");
-    functions->fBindRenderbuffer = (GrGLBindRenderbufferProc) eglGetProcAddress("glBindRenderbuffer");
-    functions->fBindTexture = (GrGLBindTextureProc) eglGetProcAddress("glBindTexture");
-    functions->fBindVertexArray = (GrGLBindVertexArrayProc) eglGetProcAddress("glBindVertexArray");
-    functions->fBlendColor = (GrGLBlendColorProc) eglGetProcAddress("glBlendColor");
-    functions->fBlendFunc = (GrGLBlendFuncProc) eglGetProcAddress("glBlendFunc");
-    functions->fBlitFramebuffer = (GrGLBlitFramebufferProc) eglGetProcAddress("glBlitFramebuffer");
-    functions->fBufferData = (GrGLBufferDataProc) eglGetProcAddress("glBufferData");
-    functions->fBufferSubData = (GrGLBufferSubDataProc) eglGetProcAddress("glBufferSubData");
-    functions->fCheckFramebufferStatus = (GrGLCheckFramebufferStatusProc) eglGetProcAddress("glCheckFramebufferStatus");
-    functions->fClear = (GrGLClearProc) eglGetProcAddress("glClear");
-    functions->fClearColor = (GrGLClearColorProc) eglGetProcAddress("glClearColor");
-    functions->fClearStencil = (GrGLClearStencilProc) eglGetProcAddress("glClearStencil");
-    functions->fColorMask = (GrGLColorMaskProc) eglGetProcAddress("glColorMask");
-    functions->fCompileShader = (GrGLCompileShaderProc) eglGetProcAddress("glCompileShader");
-    functions->fCompressedTexImage2D = (GrGLCompressedTexImage2DProc) eglGetProcAddress("glCompressedTexImage2D");
-    functions->fCopyTexSubImage2D = (GrGLCopyTexSubImage2DProc) eglGetProcAddress("glCopyTexSubImage2D");
-    functions->fCreateProgram = (GrGLCreateProgramProc) eglGetProcAddress("glCreateProgram");
-    functions->fCreateShader = (GrGLCreateShaderProc) eglGetProcAddress("glCreateShader");
-    functions->fCullFace = (GrGLCullFaceProc) eglGetProcAddress("glCullFace");
-    functions->fDeleteBuffers = (GrGLDeleteBuffersProc) eglGetProcAddress("glDeleteBuffers");
-    functions->fDeleteFramebuffers = (GrGLDeleteFramebuffersProc) eglGetProcAddress("glDeleteFramebuffers");
-    functions->fDeleteProgram = (GrGLDeleteProgramProc) eglGetProcAddress("glDeleteProgram");
-    functions->fDeleteQueries = (GrGLDeleteQueriesProc) eglGetProcAddress("glDeleteQueries");
-    functions->fDeleteRenderbuffers = (GrGLDeleteRenderbuffersProc) eglGetProcAddress("glDeleteRenderbuffers");
-    functions->fDeleteShader = (GrGLDeleteShaderProc) eglGetProcAddress("glDeleteShader");
-    functions->fDeleteTextures = (GrGLDeleteTexturesProc) eglGetProcAddress("glDeleteTextures");
-    functions->fDeleteVertexArrays = (GrGLDeleteVertexArraysProc) eglGetProcAddress("glDeleteVertexArrays");
-    functions->fDepthMask = (GrGLDepthMaskProc) eglGetProcAddress("glDepthMask");
-    functions->fDisable = (GrGLDisableProc) eglGetProcAddress("glDisable");
-    functions->fDisableVertexAttribArray = (GrGLDisableVertexAttribArrayProc) eglGetProcAddress("glDisableVertexAttribArray");
-    functions->fDrawArrays = (GrGLDrawArraysProc) eglGetProcAddress("glDrawArrays");
-    functions->fDrawBuffer = (GrGLDrawBufferProc) eglGetProcAddress("glDrawBuffer");
-    functions->fDrawBuffers = (GrGLDrawBuffersProc) eglGetProcAddress("glDrawBuffers");
-    functions->fDrawElements = (GrGLDrawElementsProc) eglGetProcAddress("glDrawElements");
-    functions->fEnable = (GrGLEnableProc) eglGetProcAddress("glEnable");
-    functions->fEnableVertexAttribArray = (GrGLEnableVertexAttribArrayProc) eglGetProcAddress("glEnableVertexAttribArray");
-    functions->fEndQuery = (GrGLEndQueryProc) eglGetProcAddress("glEndQuery");
-    functions->fFinish = (GrGLFinishProc) eglGetProcAddress("glFinish");
-    functions->fFlush = (GrGLFlushProc) eglGetProcAddress("glFlush");
-    functions->fFramebufferRenderbuffer = (GrGLFramebufferRenderbufferProc) eglGetProcAddress("glFramebufferRenderbuffer");
-    functions->fFramebufferTexture2D = (GrGLFramebufferTexture2DProc) eglGetProcAddress("glFramebufferTexture2D");
-    functions->fFrontFace = (GrGLFrontFaceProc) eglGetProcAddress("glFrontFace");
-    functions->fGenBuffers = (GrGLGenBuffersProc) eglGetProcAddress("glGenBuffers");
-    functions->fGenFramebuffers = (GrGLGenFramebuffersProc) eglGetProcAddress("glGenFramebuffers");
-    functions->fGenerateMipmap = (GrGLGenerateMipmapProc) eglGetProcAddress("glGenerateMipmap");
-    functions->fGenQueries = (GrGLGenQueriesProc) eglGetProcAddress("glGenQueries");
-    functions->fGenRenderbuffers = (GrGLGenRenderbuffersProc) eglGetProcAddress("glGenRenderbuffers");
-    functions->fGenTextures = (GrGLGenTexturesProc) eglGetProcAddress("glGenTextures");
-    functions->fGenVertexArrays = (GrGLGenVertexArraysProc) eglGetProcAddress("glGenVertexArrays");
-    functions->fGetBufferParameteriv = (GrGLGetBufferParameterivProc) eglGetProcAddress("glGetBufferParameteriv");
-    functions->fGetError = (GrGLGetErrorProc) eglGetProcAddress("glGetError");
-    functions->fGetFramebufferAttachmentParameteriv = (GrGLGetFramebufferAttachmentParameterivProc) eglGetProcAddress("glGetFramebufferAttachmentParameteriv");
-    functions->fGetIntegerv = (GrGLGetIntegervProc) eglGetProcAddress("glGetIntegerv");
-    functions->fGetQueryObjecti64v = (GrGLGetQueryObjecti64vProc) eglGetProcAddress("glGetQueryObjecti64v");
-    functions->fGetQueryObjectiv = (GrGLGetQueryObjectivProc) eglGetProcAddress("glGetQueryObjectiv");
-    functions->fGetQueryObjectui64v = (GrGLGetQueryObjectui64vProc) eglGetProcAddress("glGetQueryObjectui64v");
-    functions->fGetQueryObjectuiv = (GrGLGetQueryObjectuivProc) eglGetProcAddress("glGetQueryObjectuiv");
-    functions->fGetQueryiv = (GrGLGetQueryivProc) eglGetProcAddress("glGetQueryiv");
-    functions->fGetProgramInfoLog = (GrGLGetProgramInfoLogProc) eglGetProcAddress("glGetProgramInfoLog");
-    functions->fGetProgramiv = (GrGLGetProgramivProc) eglGetProcAddress("glGetProgramiv");
-    functions->fGetRenderbufferParameteriv = (GrGLGetRenderbufferParameterivProc) eglGetProcAddress("glGetRenderbufferParameteriv");
-    functions->fGetShaderInfoLog = (GrGLGetShaderInfoLogProc) eglGetProcAddress("glGetShaderInfoLog");
-    functions->fGetShaderiv = (GrGLGetShaderivProc) eglGetProcAddress("glGetShaderiv");
-    functions->fGetString = (GrGLGetStringProc) eglGetProcAddress("glGetString");
-    functions->fGetStringi = (GrGLGetStringiProc) eglGetProcAddress("glGetStringi");
-    functions->fGetTexLevelParameteriv = (GrGLGetTexLevelParameterivProc) eglGetProcAddress("glGetTexLevelParameteriv");
-    functions->fGetUniformLocation = (GrGLGetUniformLocationProc) eglGetProcAddress("glGetUniformLocation");
-    functions->fLineWidth = (GrGLLineWidthProc) eglGetProcAddress("glLineWidth");
-    functions->fLinkProgram = (GrGLLinkProgramProc) eglGetProcAddress("glLinkProgram");
-    functions->fMapBuffer = (GrGLMapBufferProc) eglGetProcAddress("glMapBuffer");
-    if (extensions.has("GL_EXT_direct_state_access")) {
-        functions->fMatrixLoadf = (GrGLMatrixLoadfProc) eglGetProcAddress("glMatrixLoadfEXT");
-        functions->fMatrixLoadIdentity = (GrGLMatrixLoadIdentityProc) eglGetProcAddress("glMatrixLoadIdentityEXT");
-    }
-    functions->fPixelStorei = (GrGLPixelStoreiProc) eglGetProcAddress("glPixelStorei");
-    functions->fQueryCounter = (GrGLQueryCounterProc) eglGetProcAddress("glQueryCounter");
-    functions->fReadBuffer = (GrGLReadBufferProc) eglGetProcAddress("glReadBuffer");
-    functions->fReadPixels = (GrGLReadPixelsProc) eglGetProcAddress("glReadPixels");
-    functions->fRenderbufferStorage = (GrGLRenderbufferStorageProc) eglGetProcAddress("glRenderbufferStorage");
-    functions->fRenderbufferStorageMultisample = (GrGLRenderbufferStorageMultisampleProc) eglGetProcAddress("glRenderbufferStorageMultisample");
-    functions->fScissor = (GrGLScissorProc) eglGetProcAddress("glScissor");
-    functions->fShaderSource = (GrGLShaderSourceProc) eglGetProcAddress("glShaderSource");
-    functions->fStencilFunc = (GrGLStencilFuncProc) eglGetProcAddress("glStencilFunc");
-    functions->fStencilFuncSeparate = (GrGLStencilFuncSeparateProc) eglGetProcAddress("glStencilFuncSeparate");
-    functions->fStencilMask = (GrGLStencilMaskProc) eglGetProcAddress("glStencilMask");
-    functions->fStencilMaskSeparate = (GrGLStencilMaskSeparateProc) eglGetProcAddress("glStencilMaskSeparate");
-    functions->fStencilOp = (GrGLStencilOpProc) eglGetProcAddress("glStencilOp");
-    functions->fStencilOpSeparate = (GrGLStencilOpSeparateProc) eglGetProcAddress("glStencilOpSeparate");
-    functions->fTexImage2D = (GrGLTexImage2DProc) eglGetProcAddress("glTexImage2D");
-    functions->fTexParameteri = (GrGLTexParameteriProc) eglGetProcAddress("glTexParameteri");
-    functions->fTexParameteriv = (GrGLTexParameterivProc) eglGetProcAddress("glTexParameteriv");
-    functions->fTexSubImage2D = (GrGLTexSubImage2DProc) eglGetProcAddress("glTexSubImage2D");
-    functions->fTexStorage2D = (GrGLTexStorage2DProc) eglGetProcAddress("glTexStorage2D");
-    functions->fUniform1f = (GrGLUniform1fProc) eglGetProcAddress("glUniform1f");
-    functions->fUniform1i = (GrGLUniform1iProc) eglGetProcAddress("glUniform1i");
-    functions->fUniform1fv = (GrGLUniform1fvProc) eglGetProcAddress("glUniform1fv");
-    functions->fUniform1iv = (GrGLUniform1ivProc) eglGetProcAddress("glUniform1iv");
-    functions->fUniform2f = (GrGLUniform2fProc) eglGetProcAddress("glUniform2f");
-    functions->fUniform2i = (GrGLUniform2iProc) eglGetProcAddress("glUniform2i");
-    functions->fUniform2fv = (GrGLUniform2fvProc) eglGetProcAddress("glUniform2fv");
-    functions->fUniform2iv = (GrGLUniform2ivProc) eglGetProcAddress("glUniform2iv");
-    functions->fUniform3f = (GrGLUniform3fProc) eglGetProcAddress("glUniform3f");
-    functions->fUniform3i = (GrGLUniform3iProc) eglGetProcAddress("glUniform3i");
-    functions->fUniform3fv = (GrGLUniform3fvProc) eglGetProcAddress("glUniform3fv");
-    functions->fUniform3iv = (GrGLUniform3ivProc) eglGetProcAddress("glUniform3iv");
-    functions->fUniform4f = (GrGLUniform4fProc) eglGetProcAddress("glUniform4f");
-    functions->fUniform4i = (GrGLUniform4iProc) eglGetProcAddress("glUniform4i");
-    functions->fUniform4fv = (GrGLUniform4fvProc) eglGetProcAddress("glUniform4fv");
-    functions->fUniform4iv = (GrGLUniform4ivProc) eglGetProcAddress("glUniform4iv");
-    functions->fUniformMatrix2fv = (GrGLUniformMatrix2fvProc) eglGetProcAddress("glUniformMatrix2fv");
-    functions->fUniformMatrix3fv = (GrGLUniformMatrix3fvProc) eglGetProcAddress("glUniformMatrix3fv");
-    functions->fUniformMatrix4fv = (GrGLUniformMatrix4fvProc) eglGetProcAddress("glUniformMatrix4fv");
-    functions->fUnmapBuffer = (GrGLUnmapBufferProc) eglGetProcAddress("glUnmapBuffer");
-    functions->fUseProgram = (GrGLUseProgramProc) eglGetProcAddress("glUseProgram");
-    functions->fVertexAttrib4fv = (GrGLVertexAttrib4fvProc) eglGetProcAddress("glVertexAttrib4fv");
-    functions->fVertexAttribPointer = (GrGLVertexAttribPointerProc) eglGetProcAddress("glVertexAttribPointer");
-    functions->fViewport = (GrGLViewportProc) eglGetProcAddress("glViewport");
-
-    if (extensions.has("GL_NV_path_rendering")) {
-        functions->fPathCommands = (GrGLPathCommandsProc) eglGetProcAddress("glPathCommandsNV");
-        functions->fPathCoords = (GrGLPathCoordsProc) eglGetProcAddress("glPathCoordsNV");
-        functions->fPathSubCommands = (GrGLPathSubCommandsProc) eglGetProcAddress("glPathSubCommandsNV");
-        functions->fPathSubCoords = (GrGLPathSubCoordsProc) eglGetProcAddress("glPathSubCoordsNV");
-        functions->fPathString = (GrGLPathStringProc) eglGetProcAddress("glPathStringNV");
-        functions->fPathGlyphs = (GrGLPathGlyphsProc) eglGetProcAddress("glPathGlyphsNV");
-        functions->fPathGlyphRange = (GrGLPathGlyphRangeProc) eglGetProcAddress("glPathGlyphRangeNV");
-        functions->fWeightPaths = (GrGLWeightPathsProc) eglGetProcAddress("glWeightPathsNV");
-        functions->fCopyPath = (GrGLCopyPathProc) eglGetProcAddress("glCopyPathNV");
-        functions->fInterpolatePaths = (GrGLInterpolatePathsProc) eglGetProcAddress("glInterpolatePathsNV");
-        functions->fTransformPath = (GrGLTransformPathProc) eglGetProcAddress("glTransformPathNV");
-        functions->fPathParameteriv = (GrGLPathParameterivProc) eglGetProcAddress("glPathParameterivNV");
-        functions->fPathParameteri = (GrGLPathParameteriProc) eglGetProcAddress("glPathParameteriNV");
-        functions->fPathParameterfv = (GrGLPathParameterfvProc) eglGetProcAddress("glPathParameterfvNV");
-        functions->fPathParameterf = (GrGLPathParameterfProc) eglGetProcAddress("glPathParameterfNV");
-        functions->fPathDashArray = (GrGLPathDashArrayProc) eglGetProcAddress("glPathDashArrayNV");
-        functions->fGenPaths = (GrGLGenPathsProc) eglGetProcAddress("glGenPathsNV");
-        functions->fDeletePaths = (GrGLDeletePathsProc) eglGetProcAddress("glDeletePathsNV");
-        functions->fIsPath = (GrGLIsPathProc) eglGetProcAddress("glIsPathNV");
-        functions->fPathStencilFunc = (GrGLPathStencilFuncProc) eglGetProcAddress("glPathStencilFuncNV");
-        functions->fPathStencilDepthOffset = (GrGLPathStencilDepthOffsetProc) eglGetProcAddress("glPathStencilDepthOffsetNV");
-        functions->fStencilFillPath = (GrGLStencilFillPathProc) eglGetProcAddress("glStencilFillPathNV");
-        functions->fStencilStrokePath = (GrGLStencilStrokePathProc) eglGetProcAddress("glStencilStrokePathNV");
-        functions->fStencilFillPathInstanced = (GrGLStencilFillPathInstancedProc) eglGetProcAddress("glStencilFillPathInstancedNV");
-        functions->fStencilStrokePathInstanced = (GrGLStencilStrokePathInstancedProc) eglGetProcAddress("glStencilStrokePathInstancedNV");
-        functions->fPathCoverDepthFunc = (GrGLPathCoverDepthFuncProc) eglGetProcAddress("glPathCoverDepthFuncNV");
-        functions->fPathColorGen = (GrGLPathColorGenProc) eglGetProcAddress("glPathColorGenNV");
-        functions->fPathTexGen = (GrGLPathTexGenProc) eglGetProcAddress("glPathTexGenNV");
-        functions->fPathFogGen = (GrGLPathFogGenProc) eglGetProcAddress("glPathFogGenNV");
-        functions->fCoverFillPath = (GrGLCoverFillPathProc) eglGetProcAddress("glCoverFillPathNV");
-        functions->fCoverStrokePath = (GrGLCoverStrokePathProc) eglGetProcAddress("glCoverStrokePathNV");
-        functions->fCoverFillPathInstanced = (GrGLCoverFillPathInstancedProc) eglGetProcAddress("glCoverFillPathInstancedNV");
-        functions->fCoverStrokePathInstanced = (GrGLCoverStrokePathInstancedProc) eglGetProcAddress("glCoverStrokePathInstancedNV");
-        functions->fGetPathParameteriv = (GrGLGetPathParameterivProc) eglGetProcAddress("glGetPathParameterivNV");
-        functions->fGetPathParameterfv = (GrGLGetPathParameterfvProc) eglGetProcAddress("glGetPathParameterfvNV");
-        functions->fGetPathCommands = (GrGLGetPathCommandsProc) eglGetProcAddress("glGetPathCommandsNV");
-        functions->fGetPathCoords = (GrGLGetPathCoordsProc) eglGetProcAddress("glGetPathCoordsNV");
-        functions->fGetPathDashArray = (GrGLGetPathDashArrayProc) eglGetProcAddress("glGetPathDashArrayNV");
-        functions->fGetPathMetrics = (GrGLGetPathMetricsProc) eglGetProcAddress("glGetPathMetricsNV");
-        functions->fGetPathMetricRange = (GrGLGetPathMetricRangeProc) eglGetProcAddress("glGetPathMetricRangeNV");
-        functions->fGetPathSpacing = (GrGLGetPathSpacingProc) eglGetProcAddress("glGetPathSpacingNV");
-        functions->fGetPathColorGeniv = (GrGLGetPathColorGenivProc) eglGetProcAddress("glGetPathColorGenivNV");
-        functions->fGetPathColorGenfv = (GrGLGetPathColorGenfvProc) eglGetProcAddress("glGetPathColorGenfvNV");
-        functions->fGetPathTexGeniv = (GrGLGetPathTexGenivProc) eglGetProcAddress("glGetPathTexGenivNV");
-        functions->fGetPathTexGenfv = (GrGLGetPathTexGenfvProc) eglGetProcAddress("glGetPathTexGenfvNV");
-        functions->fIsPointInFillPath = (GrGLIsPointInFillPathProc) eglGetProcAddress("glIsPointInFillPathNV");
-        functions->fIsPointInStrokePath = (GrGLIsPointInStrokePathProc) eglGetProcAddress("glIsPointInStrokePathNV");
-        functions->fGetPathLength = (GrGLGetPathLengthProc) eglGetProcAddress("glGetPathLengthNV");
-        functions->fPointAlongPath = (GrGLPointAlongPathProc) eglGetProcAddress("glPointAlongPathNV");
-    }
-
-    if (extensions.has("GL_EXT_debug_marker")) {
-        functions->fInsertEventMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glInsertEventMarkerEXT");
-        functions->fPushGroupMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glPushGroupMarkerEXT");
-        functions->fPopGroupMarker = (GrGLPopGroupMarkerProc) eglGetProcAddress("glPopGroupMarkerEXT");
-    }
-
-    functions->fInvalidateBufferData = (GrGLInvalidateBufferDataProc) eglGetProcAddress("glInvalidateBufferData");
-    functions->fInvalidateBufferSubData = (GrGLInvalidateBufferSubDataProc) eglGetProcAddress("glInvalidateBufferSubData");
-    functions->fInvalidateFramebuffer = (GrGLInvalidateFramebufferProc) eglGetProcAddress("glInvalidateFramebuffer");
-    functions->fInvalidateSubFramebuffer = (GrGLInvalidateSubFramebufferProc) eglGetProcAddress("glInvalidateSubFramebuffer");
-    functions->fInvalidateTexImage = (GrGLInvalidateTexImageProc) eglGetProcAddress("glInvalidateTexImage");
-    functions->fInvalidateTexSubImage = (GrGLInvalidateTexSubImageProc) eglGetProcAddress("glInvalidateTexSubImage");
-
-    return interface;
+static const GrGLInterface* create_desktop_interface() {
+    return GrGLAssembleGLInterface(NULL, android_get_gl_proc);
 }
 
 const GrGLInterface* GrGLCreateNativeInterface() {
 
-    GrGLGetStringiProc getStringi = (GrGLGetStringiProc) eglGetProcAddress("glGetStringi");
-
     const char* verStr = reinterpret_cast<const char*>(glGetString(GR_GL_VERSION));
-    GrGLVersion version = GrGLGetVersionFromString(verStr);
     GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
 
-    GrGLExtensions extensions;
-    if (!extensions.init(standard, glGetString, getStringi, glGetIntegerv)) {
-        return NULL;
-    }
-
-    GrGLInterface* interface = NULL;
     if (kGLES_GrGLStandard == standard) {
-        interface = create_es_interface(version, &extensions);
+        GrGLVersion version = GrGLGetVersionFromString(verStr);
+        GrGLExtensions extensions;
+        GrGLGetStringiProc getStringi = (GrGLGetStringiProc) eglGetProcAddress("glGetStringi");
+        if (!extensions.init(standard, glGetString, getStringi, glGetIntegerv)) {
+            return NULL;
+        }
+        GrGLInterface* interface = create_es_interface(version, &extensions);
+
+        if (NULL != interface) {
+            interface->fExtensions.swap(&extensions);
+        }
+
+        return interface;
     } else if (kGL_GrGLStandard == standard) {
-        interface = create_desktop_interface(version, extensions);
+        return create_desktop_interface();
     }
 
-    if (NULL != interface) {
-        interface->fExtensions.swap(&extensions);
-    }
-
-    return interface;
+    return NULL;
 }
