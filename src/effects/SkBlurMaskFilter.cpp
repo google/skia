@@ -906,8 +906,10 @@ GrEffectRef* GrRRectBlurEffect::Create(GrContext* context, float sigma, const Sk
         SkBlurMask::BoxBlur(&blurred_mask, mask, sigma, kNormal_SkBlurStyle, kHigh_SkBlurQuality, NULL, true );
 
         blurNinePatchTexture = context->createTexture(&params, texDesc, blurRRectNinePatchID, blurred_mask.fImage, 0);
+        SkMask::FreeImage(blurred_mask.fImage);
     }
 
+    SkAutoTUnref<GrTexture> blurunref(blurNinePatchTexture);
     if (NULL == blurNinePatchTexture) {
         return NULL;
     }
