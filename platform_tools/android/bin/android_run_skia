@@ -13,13 +13,6 @@ then
   exit 1
 fi
 
-(
-    SKIA_SRC_DIR=$(cd ${SCRIPT_DIR}/../../..; pwd)
-    cd "$SKIA_SRC_DIR"
-    for resource in $(find resources -type f); do
-        adb_push_if_needed "$resource" "/data/local/tmp/${resource}"
-    done
-)
 adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/skia_launcher" /data/local/tmp
 if [ -f "${SKIA_OUT}/$BUILDTYPE/lib/libskia_android.so" ]; then
     # Does not exist for builds with static skia.
@@ -29,7 +22,7 @@ adb_push_if_needed "${SKIA_OUT}/$BUILDTYPE/lib/lib${APP_ARGS[0]}.so" /data/local
 
 STATUS_FILENAME="/data/local/tmp/.skia_tmp_$(date +%s%N)"
 $ADB ${DEVICE_SERIAL} shell \
-    "cd /data/local/tmp; ./skia_launcher ${APP_ARGS[@]}; echo \$? > ${STATUS_FILENAME}"
+    "/data/local/tmp/skia_launcher ${APP_ARGS[@]}; echo \$? > ${STATUS_FILENAME}"
 if [ -z "$($ADB $DEVICE_SERIAL shell 'if [ -f $STATUS_FILENAME ]; then echo exists; fi')" ]; then
   exit 1
 fi
