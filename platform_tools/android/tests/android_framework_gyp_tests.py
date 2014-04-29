@@ -16,10 +16,9 @@ import tempfile
 import test_variables
 import unittest
 
-# Path to android_framework_gyp
-sys.path.append(test_variables.GYP_GEN_DIR)
+sys.path.append(test_variables.ANDROID_DIR)
 
-import android_framework_gyp
+import gyp_gen.android_framework_gyp
 
 GYPD_SUFFIX = ".gypd"
 GYP_SUFFIX = ".gyp"
@@ -61,7 +60,7 @@ class CleanGypdTest(unittest.TestCase):
   def test_clean(self):
     """Test that clean_gypd_files() deletes .gypd files, and leaves others.
     """
-    android_framework_gyp.clean_gypd_files(self.__tmp_dir)
+    gyp_gen.android_framework_gyp.clean_gypd_files(self.__tmp_dir)
     for i in range(self.__num_files):
       self.assert_file_exists('%s%s' % (str(i), GYPI_SUFFIX))
       self.assert_file_exists('%s%s' % (str(i), GYP_SUFFIX))

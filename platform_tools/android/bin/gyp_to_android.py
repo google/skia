@@ -21,15 +21,15 @@ SKIA_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, os.pardir, os.pardir,
                                          os.pardir))
 
 # Find the directory with our helper files, and add it to the path.
-GYP_GEN_DIR = os.path.join(SKIA_DIR, 'platform_tools', 'android', 'gyp_gen')
-sys.path.append(GYP_GEN_DIR)
+ANDROID_TOOLS = os.path.join(SKIA_DIR, 'platform_tools', 'android')
+sys.path.append(ANDROID_TOOLS)
 
-import android_framework_gyp
-import gypd_parser
-import generate_user_config
-import makefile_writer
-import tool_makefile_writer
-import vars_dict_lib
+import gyp_gen.android_framework_gyp as android_framework_gyp
+import gyp_gen.gypd_parser as gypd_parser
+import gyp_gen.generate_user_config as generate_user_config
+import gyp_gen.makefile_writer as makefile_writer
+import gyp_gen.tool_makefile_writer as tool_makefile_writer
+import gyp_gen.vars_dict_lib as vars_dict_lib
 
 # Folder containing all gyp files and generated gypd files.
 GYP_FOLDER = 'gyp'
