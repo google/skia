@@ -19,7 +19,7 @@ fi
 
 # We need the debug symbols from these files
 GDB_TMP_DIR=$(pwd)/android_gdb_tmp
-mkdir $GDB_TMP_DIR
+mkdir -p $GDB_TMP_DIR
 
 echo "Copying symbol files"
 SYSTEM_LIBRARY_PATH=/system/lib
