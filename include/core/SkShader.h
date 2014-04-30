@@ -207,16 +207,22 @@ public:
      *  Create the actual object that does the shading.
      *  Returns NULL if validContext() returns false.
      *  Size of storage must be >= contextSize.
+     *  Your subclass must also override contextSize() if it overrides createContext().
+     *
+     *  Base class implementation returns NULL.
      */
     virtual Context* createContext(const SkBitmap& device,
                                    const SkPaint& paint,
                                    const SkMatrix& matrix,
-                                   void* storage) const = 0;
+                                   void* storage) const;
 
     /**
      *  Return the size of a Context returned by createContext.
+     *
+     *  Override this if your subclass overrides createContext, to return the correct size of
+     *  your subclass' context.
      */
-    virtual size_t contextSize() const = 0;
+    virtual size_t contextSize() const;
 
     /**
      *  Helper to check the flags to know if it is legal to call shadeSpan16()

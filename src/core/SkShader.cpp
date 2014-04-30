@@ -63,6 +63,15 @@ bool SkShader::validContext(const SkBitmap& device,
     return this->computeTotalInverse(matrix, totalInverse);
 }
 
+SkShader::Context* SkShader::createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
+                                           void* storage) const {
+    return NULL;
+}
+
+size_t SkShader::contextSize() const {
+    return 0;
+}
+
 SkShader::Context::Context(const SkShader& shader, const SkBitmap& device,
                            const SkPaint& paint, const SkMatrix& matrix)
     : fShader(shader)
