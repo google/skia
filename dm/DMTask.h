@@ -36,7 +36,7 @@ protected:
     void fail(const char* msg = NULL);
     void finish();
 
-    void spawnChild(CpuTask* task);  // For now we don't allow GPU child tasks.
+    void reallySpawnChild(CpuTask* task);  // For now we don't allow GPU child tasks.
 
 private:
     Reporter* fReporter;      // Unowned.
@@ -53,6 +53,8 @@ public:
 
     void run() SK_OVERRIDE;
     virtual void draw() = 0;
+
+    void spawnChild(CpuTask* task);
 };
 
 class GpuTask : public Task, public SkTRunnable<GrContextFactory> {
@@ -62,6 +64,8 @@ class GpuTask : public Task, public SkTRunnable<GrContextFactory> {
 
     void run(GrContextFactory&) SK_OVERRIDE;
     virtual void draw(GrContextFactory*) = 0;
+
+    void spawnChild(CpuTask* task);
 };
 
 }  // namespace DM

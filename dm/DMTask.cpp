@@ -37,7 +37,7 @@ void Task::finish() {
     fReporter->finish(this->name(), SkTime::GetMSecs() - fStart);
 }
 
-void Task::spawnChild(CpuTask* task) {
+void Task::reallySpawnChild(CpuTask* task) {
     fTaskRunner->add(task);
 }
 
@@ -53,6 +53,11 @@ void CpuTask::run() {
     SkDELETE(this);
 }
 
+void CpuTask::spawnChild(CpuTask* task) {
+    // Run children serially on this (CPU) thread.  This tends to save RAM and is usually no slower.
+    task->run();
+}
+
 GpuTask::GpuTask(Reporter* reporter, TaskRunner* taskRunner) : Task(reporter, taskRunner) {}
 
 void GpuTask::run(GrContextFactory& factory) {
@@ -64,6 +69,9 @@ void GpuTask::run(GrContextFactory& factory) {
     SkDELETE(this);
 }
 
-
+void GpuTask::spawnChild(CpuTask* task) {
+    // Really spawn a new task so it runs on the CPU threadpool instead of the GPU one we're on now.
+    this->reallySpawnChild(task);
+}
 
 }  // namespace DM
