@@ -42,10 +42,6 @@ inverse_paths
 # I will likely just delete the GM.
 canvas-layer-state
 
-# reed: https://codereview.chromium.org/233943002
-# GM itself may be changed
-image-surface
-
 # humper: https://codereview.chromium.org/248613004/
 # Changed the test in a few ways, will need rebaselining.
 simpleblurroundrect
