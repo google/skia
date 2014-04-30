@@ -3754,27 +3754,21 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12434684388173049252
+          9756935761589936356
         ]
       ], 
-      "bugs": [
-        2422
-      ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "image-surface_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          74057096367586148
+          16339859862085367753
         ]
       ], 
-      "bugs": [
-        2422
-      ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "imagealphathreshold_565.png": {
       "allowed-digests": [

@@ -9422,13 +9422,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13589271802576147739
+          15896254500886456697
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "image-surface_gpu.png": {
       "allowed-digests": [

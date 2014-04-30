@@ -4944,7 +4944,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13014960307213237065
+          16771938741318176654
         ]
       ], 
       "reviewed-by-human": true
@@ -4953,7 +4953,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12283742825786542958
+          15729042135723497470
         ]
       ], 
       "reviewed-by-human": true
@@ -4962,13 +4962,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12197262035629514012
+          2357930893174733166
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "imageblur_565.png": {
       "allowed-digests": [
