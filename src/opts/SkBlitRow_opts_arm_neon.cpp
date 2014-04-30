@@ -14,7 +14,6 @@
 #include "SkMathPriv.h"
 #include "SkUtils.h"
 
-#include "SkCachePreload_arm.h"
 #include "SkColor_opts_neon.h"
 #include <arm_neon.h>
 
