@@ -302,10 +302,17 @@ public:
         }
         double cT = *cubicT = SkPinT(*cubicT);
         double lT = *lineT = SkPinT(*lineT);
+        SkDPoint lPt = fLine.ptAtT(lT);
+        SkDPoint cPt = fCubic.ptAtT(cT);
+        if (!lPt.moreRoughlyEqual(cPt)) {
+            return false;
+        }
+        // FIXME: if points are roughly equal but not approximately equal, need to do 
+        // a binary search like quad/quad intersection to find more precise t values
         if (lT == 0 || lT == 1 || (ptSet == kPointUninitialized && cT != 0 && cT != 1)) {
-            *pt = fLine.ptAtT(lT);
+            *pt = lPt;
         } else if (ptSet == kPointUninitialized) {
-            *pt = fCubic.ptAtT(cT);
+            *pt = cPt;
         }
         SkPoint gridPt = pt->asSkPoint();
         if (gridPt == fLine[0].asSkPoint()) {

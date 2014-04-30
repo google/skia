@@ -410,12 +410,13 @@ static void showPathOpPath(const char* testName, const SkPath& one, const SkPath
     SkDebugf("static void %s(skiatest::Reporter* reporter, const char* filename) {\n", testName);
     *gTestOp.append() = shapeOp;
     ++gTestNo;
+    SkDebugf("\n*** this test fails ***\n");
     SkDebugf("    SkPath path, pathB;\n");
     showPath(a, "path", false);
     showPath(b, "pathB", false);
     SkDebugf("    testPathOp(reporter, path, pathB, %s, filename);\n", opStrs[shapeOp]);
     SkDebugf("}\n");
-    drawAsciiPaths(scaledOne, scaledTwo, false);
+    drawAsciiPaths(scaledOne, scaledTwo, true);
 }
 
 void ShowTestArray() {

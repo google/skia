@@ -2962,9 +2962,57 @@ static void skpwww_defense_studies_blogspot_com_64(skiatest::Reporter* reporter,
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
+// checkSmall / addTPair / addT assert
+#if TRY_NEW_TESTS
+static void skpwww_uniquefx_net_442(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(960, 306);
+    path.lineTo(960, 305);
+    path.lineTo(1000, 305);
+    path.lineTo(1000, 306.708527f);
+    path.lineTo(960, 306);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(960, 305);
+    pathB.lineTo(958.997253f, 306.002747f);
+    pathB.lineTo(1017, 307);
+    pathB.lineTo(1019, 305);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+#endif
+
+// rightAngleWinding
+#if TRY_NEW_TESTS
+static void skpwww_kitcheninspirations_wordpress_com_32(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(47.1666679f, 19651.334f);
+    path.lineTo(65.8333359f, 19651.332f);
+    path.lineTo(65.8333359f, 19651.5f);
+    path.lineTo(47.1666679f, 19651.5f);
+    path.lineTo(47.1666679f, 19651.334f);
+    path.close();
+    SkPath pathB;
+    pathB.setFillType(SkPath::kWinding_FillType);
+    pathB.moveTo(47.1666679f, 19651.5f);
+    pathB.lineTo(47.1666679f, 19651.332f);
+    pathB.lineTo(65.8333359f, 19651.334f);
+    pathB.lineTo(65.8333359f, 19651.5f);
+    testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
+}
+#endif
+
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+#if TRY_NEW_TESTS
+    TEST(skpwww_kitcheninspirations_wordpress_com_32),  // rightanglewinding
+#endif
+#if TRY_NEW_TESTS
+    TEST(skpwww_uniquefx_net_442),  // checkSmall / addTPair / addT assert
+#endif
     TEST(skpwww_defense_studies_blogspot_com_64),
     TEST(skpwww_kenlevine_blogspot_com_28),
     TEST(skpwww_fashionscandal_com_94),

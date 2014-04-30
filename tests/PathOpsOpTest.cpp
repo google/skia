@@ -3310,10 +3310,30 @@ static void quadOp10i(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kIntersect_PathOp, filename);
 }
 
+static void kari1(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path1;
+    path1.moveTo(39.9375, -5.8359375);
+    path1.lineTo(40.625, -5.7890625);
+    path1.lineTo(37.7109375, 1.3515625);
+    path1.lineTo(37.203125, 0.9609375);
+    path1.close();
+
+    SkPath path2;
+    path2.moveTo(37.52734375f, -1.44140625f);
+    path2.cubicTo(37.8736991882324f, -1.69921875f, 38.1640625f, -2.140625f, 38.3984375f, -2.765625f);
+    path2.lineTo(38.640625f, -2.609375f);
+    path2.cubicTo(38.53125f, -1.89583337306976f, 38.0664443969727f, -0.154893040657043f, 38.0664443969727f, -0.154893040657043f);
+    path2.cubicTo(38.0664443969727f, -0.154893040657043f, 37.1809883117676f, -1.18359375f, 37.52734375, -1.44140625f);
+    path2.close();
+
+    testPathOp(reporter, path1, path2, kDifference_PathOp, filename);
+}
+
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(kari1),
     TEST(quadOp10i),
 #if 0  // FIXME: serpentine curve is ordered the wrong way
     TEST(cubicOp114),
