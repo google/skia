@@ -5,15 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include <emmintrin.h>
 #include "SkBlitRect_opts_SSE2.h"
 #include "SkBlitRow.h"
 #include "SkColorPriv.h"
 
-#include <emmintrin.h>
-
-/** Simple blitting of opaque rectangles less than 31 pixels wide:
-    inlines and merges sections of Color32_SSE2 and sk_memset32_SSE2.
-*/
+/* Simple blitting of opaque rectangles less than 31 pixels wide:
+ * inlines and merges sections of Color32_SSE2 and sk_memset32_SSE2.
+ */
 static void BlitRect32_OpaqueNarrow_SSE2(SkPMColor* SK_RESTRICT destination,
                                   int width, int height,
                                   size_t rowBytes, uint32_t color) {
@@ -42,12 +41,12 @@ static void BlitRect32_OpaqueNarrow_SSE2(SkPMColor* SK_RESTRICT destination,
     }
 }
 
-/**
-  Fast blitting of opaque rectangles at least 31 pixels wide:
-  inlines and merges sections of Color32_SSE2 and sk_memset32_SSE2.
-  A 31 pixel rectangle is guaranteed to have at least one
-  16-pixel aligned span that can take advantage of mm_store.
-*/
+/*
+ * Fast blitting of opaque rectangles at least 31 pixels wide:
+ * inlines and merges sections of Color32_SSE2 and sk_memset32_SSE2.
+ * A 31 pixel rectangle is guaranteed to have at least one
+ * 16-pixel aligned span that can take advantage of mm_store.
+ */
 static void BlitRect32_OpaqueWide_SSE2(SkPMColor* SK_RESTRICT destination,
                                 int width, int height,
                                 size_t rowBytes, uint32_t color) {

@@ -65,7 +65,7 @@ struct ClampTileProcs {
     }
 };
 
-// Referenced in opts_check_SSE2.cpp
+// Referenced in opts_check_x86.cpp
 void ClampX_ClampY_nofilter_scale(const SkBitmapProcState& s, uint32_t xy[],
                                   int count, int x, int y) {
     return NoFilterProc_Scale<ClampTileProcs, true>(s, xy, count, x, y);

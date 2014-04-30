@@ -5,15 +5,13 @@
  * found in the LICENSE file.
  */
 
-
-#include "SkBlitRow_opts_SSE2.h"
+#include <emmintrin.h>
 #include "SkBitmapProcState_opts_SSE2.h"
+#include "SkBlitRow_opts_SSE2.h"
 #include "SkColorPriv.h"
 #include "SkColor_opts_SSE2.h"
 #include "SkDither.h"
 #include "SkUtils.h"
-
-#include <emmintrin.h>
 
 /* SSE2 version of S32_Blend_BlitRow32()
  * portable version is in core/SkBlitRow_D32.cpp
@@ -179,7 +177,7 @@ void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
             d++;
             count -= 4;
         }
-    #else
+#else
         __m128i rb_mask = _mm_set1_epi32(0x00FF00FF);
         __m128i c_256 = _mm_set1_epi16(0x0100);  // 8 copies of 256 (16-bit)
         while (count >= 4) {
@@ -342,7 +340,6 @@ void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
  */
 void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
                   SkPMColor color) {
-
     if (count <= 0) {
         return;
     }
@@ -406,7 +403,7 @@ void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
             }
             src = reinterpret_cast<const SkPMColor*>(s);
             dst = reinterpret_cast<SkPMColor*>(d);
-         }
+        }
 
         while (count > 0) {
             *dst = color + SkAlphaMulQ(*src, scale);
@@ -504,7 +501,7 @@ void SkARGB32_A8_BlitMask_SSE2(void* device, size_t dstRB, const void* maskPtr,
             }
             dst = reinterpret_cast<SkPMColor *>(d);
         }
-        while(count > 0) {
+        while (count > 0) {
             *dst= SkBlendARGB32(color, *dst, *mask);
             dst += 1;
             mask++;

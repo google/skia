@@ -5,22 +5,21 @@
  * found in the LICENSE file.
  */
 
+#include "SkBitmapFilter_opts_SSE2.h"
 #include "SkBitmapProcState_opts_SSE2.h"
 #include "SkBitmapProcState_opts_SSSE3.h"
-#include "SkBitmapFilter_opts_SSE2.h"
 #include "SkBlitMask.h"
-#include "SkBlitRow.h"
 #include "SkBlitRect_opts_SSE2.h"
+#include "SkBlitRow.h"
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkBlurImage_opts_SSE2.h"
-#include "SkUtils_opts_SSE2.h"
-#include "SkUtils.h"
 #include "SkMorphology_opts.h"
 #include "SkMorphology_opts_SSE2.h"
+#include "SkRTConf.h"
+#include "SkUtils.h"
+#include "SkUtils_opts_SSE2.h"
 #include "SkXfermode.h"
 #include "SkXfermode_proccoeff.h"
-
-#include "SkRTConf.h"
 
 #if defined(_MSC_VER) && defined(_WIN64)
 #include <intrin.h>
@@ -32,6 +31,7 @@
    in this directory should be compiled with -msse2. */
 
 
+/* Function to get the CPU SSE-level in runtime, for different compilers. */
 #ifdef _MSC_VER
 static inline void getcpuid(int info_type, int info[4]) {
 #if defined(_WIN64)
@@ -71,6 +71,8 @@ static inline void getcpuid(int info_type, int info[4]) {
 }
 #endif
 #endif
+
+////////////////////////////////////////////////////////////////////////////////
 
 #if defined(__x86_64__) || defined(_WIN64) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 /* All x86_64 machines have SSE2, or we know it's supported at compile time,  so don't even bother checking. */
@@ -120,6 +122,8 @@ static bool cachedHasSSSE3() {
     return gHasSSSE3;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 SK_CONF_DECLARE( bool, c_hqfilter_sse, "bitmap.filter.highQualitySSE", false, "Use SSE optimized version of high quality image filters");
 
 void SkBitmapProcState::platformConvolutionProcs(SkConvolutionProcs* procs) {
@@ -131,6 +135,8 @@ void SkBitmapProcState::platformConvolutionProcs(SkConvolutionProcs* procs) {
         procs->fApplySIMDPadding = &applySIMDPadding_SSE2;
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void SkBitmapProcState::platformProcs() {
     /* Every optimization in the function requires at least SSE2 */
@@ -185,6 +191,8 @@ void SkBitmapProcState::platformProcs() {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 static SkBlitRow::Proc platform_16_procs[] = {
     S32_D565_Opaque_SSE2,               // S32_D565_Opaque
     NULL,                               // S32_D565_Blend
@@ -196,6 +204,14 @@ static SkBlitRow::Proc platform_16_procs[] = {
     NULL,                               // S32A_D565_Blend_Dither
 };
 
+SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
+    if (cachedHasSSE2()) {
+        return platform_16_procs[flags];
+    } else {
+        return NULL;
+    }
+}
+
 static SkBlitRow::Proc32 platform_32_procs[] = {
     NULL,                               // S32_Opaque,
     S32_Blend_BlitRow32_SSE2,           // S32_Blend,
@@ -203,9 +219,9 @@ static SkBlitRow::Proc32 platform_32_procs[] = {
     S32A_Blend_BlitRow32_SSE2,          // S32A_Blend,
 };
 
-SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
+SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
     if (cachedHasSSE2()) {
-        return platform_16_procs[flags];
+        return platform_32_procs[flags];
     } else {
         return NULL;
     }
@@ -219,14 +235,20 @@ SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
     }
 }
 
-SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
+SkBlitRow::ColorRectProc PlatformColorRectProcFactory(); // suppress warning
+
+SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
+/* Return NULL for now, since the optimized path in ColorRect32_SSE2 is disabled.
     if (cachedHasSSE2()) {
-        return platform_32_procs[flags];
+        return ColorRect32_SSE2;
     } else {
         return NULL;
     }
+*/
+    return NULL;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkBitmap::Config dstConfig,
                                                      SkMask::Format maskFormat,
@@ -264,11 +286,14 @@ SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
     }
 
 }
+
 SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkBitmap::Config dstConfig,
                                                  SkMask::Format maskFormat,
                                                  RowFlags flags) {
     return NULL;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 SkMemset16Proc SkMemset16GetPlatformProc() {
     if (cachedHasSSE2()) {
@@ -285,6 +310,8 @@ SkMemset32Proc SkMemset32GetPlatformProc() {
         return NULL;
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 SkMorphologyImageFilter::Proc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {
     if (!cachedHasSSE2()) {
@@ -304,6 +331,8 @@ SkMorphologyImageFilter::Proc SkMorphologyGetPlatformProc(SkMorphologyProcType t
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
                                SkBoxBlurProc* boxBlurY,
                                SkBoxBlurProc* boxBlurXY,
@@ -318,15 +347,7 @@ bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
 #endif
 }
 
-SkBlitRow::ColorRectProc PlatformColorRectProcFactory(); // suppress warning
-
-SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
-    if (cachedHasSSE2()) {
-        return ColorRect32_SSE2;
-    } else {
-        return NULL;
-    }
-}
+////////////////////////////////////////////////////////////////////////////////
 
 extern SkProcCoeffXfermode* SkPlatformXfermodeFactory_impl_SSE2(const ProcCoeff& rec,
                                                                 SkXfermode::Mode mode);

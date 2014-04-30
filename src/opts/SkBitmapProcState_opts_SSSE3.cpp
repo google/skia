@@ -425,9 +425,10 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
     const __m128i zero = _mm_setzero_si128();
 
     __m128i alpha = _mm_setzero_si128();
-    if (has_alpha)
+    if (has_alpha) {
         // 8x(alpha)
         alpha = _mm_set1_epi16(s.fAlphaScale);
+    }
 
     if (sub_y == 0) {
         // Unroll 4x, interleave bytes, use pmaddubsw (all_x is small)
@@ -705,7 +706,7 @@ void S32_generic_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
         *colors++ = _mm_cvtsi128_si32(sum0);
     }
 }
-}  // namepace
+}  // namespace
 
 void S32_opaque_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
                                     const uint32_t* xy,

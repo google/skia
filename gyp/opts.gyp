@@ -48,7 +48,7 @@
             'opts_ssse3',
           ],
           'sources': [
-            '../src/opts/opts_check_SSE2.cpp',
+            '../src/opts/opts_check_x86.cpp',
             '../src/opts/SkBitmapProcState_opts_SSE2.cpp',
             '../src/opts/SkBitmapFilter_opts_SSE2.cpp',
             '../src/opts/SkBlitRow_opts_SSE2.cpp',

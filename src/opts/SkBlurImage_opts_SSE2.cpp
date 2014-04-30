@@ -5,36 +5,31 @@
  * found in the LICENSE file.
  */
 
-
+#include <emmintrin.h>
 #include "SkBitmap.h"
-#include "SkColorPriv.h"
 #include "SkBlurImage_opts_SSE2.h"
+#include "SkColorPriv.h"
 #include "SkRect.h"
 
-#include <emmintrin.h>
-
 namespace {
-
 enum BlurDirection {
     kX, kY
 };
 
-/**
- * Helper function to spread the components of a 32-bit integer into the
+/* Helper function to spread the components of a 32-bit integer into the
  * lower 8 bits of each 32-bit element of an SSE register.
  */
-
 inline __m128i expand(int a) {
-      const __m128i zero = _mm_setzero_si128();
+    const __m128i zero = _mm_setzero_si128();
 
-      // 0 0 0 0   0 0 0 0   0 0 0 0   A R G B
-      __m128i result = _mm_cvtsi32_si128(a);
+    // 0 0 0 0   0 0 0 0   0 0 0 0   A R G B
+    __m128i result = _mm_cvtsi32_si128(a);
 
-      // 0 0 0 0   0 0 0 0   0 A 0 R   0 G 0 B
-      result = _mm_unpacklo_epi8(result, zero);
+    // 0 0 0 0   0 0 0 0   0 A 0 R   0 G 0 B
+    result = _mm_unpacklo_epi8(result, zero);
 
-      // 0 0 0 A   0 0 0 R   0 0 0 G   0 0 0 B
-      return _mm_unpacklo_epi16(result, zero);
+    // 0 0 0 A   0 0 0 R   0 0 0 G   0 0 0 B
+    return _mm_unpacklo_epi16(result, zero);
 }
 
 template<BlurDirection srcDirection, BlurDirection dstDirection>

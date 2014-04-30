@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-
+#include <emmintrin.h>
 #include "SkColorPriv.h"
 #include "SkMorphology_opts_SSE2.h"
-
-#include <emmintrin.h>
 
 /* SSE2 version of dilateX, dilateY, erodeX, erodeY.
  * portable versions are in src/effects/SkMorphologyImageFilter.cpp.
@@ -48,8 +46,12 @@ static void SkMorph_SSE2(const SkPMColor* src, SkPMColor* dst, int radius,
             lp += srcStrideY;
             up += srcStrideY;
         }
-        if (x >= radius) src += srcStrideX;
-        if (x + radius < width - 1) upperSrc += srcStrideX;
+        if (x >= radius) {
+            src += srcStrideX;
+        }
+        if (x + radius < width - 1) {
+            upperSrc += srcStrideX;
+        }
         dst += dstStrideX;
     }
 }
