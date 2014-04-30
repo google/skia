@@ -9970,13 +9970,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17559672705575608767
+          16833589819863475738
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "inverse_paths_gpu.png": {
       "allowed-digests": [
