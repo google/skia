@@ -233,7 +233,7 @@
       if (tryHistory) {
         addToHistory(body.hash, 'data:image/png;base64,' + body.img);
       } else {
-        window.history.pushState(null, null, './' + body.hash);
+        window.history.pushState(null, null, '/c/' + body.hash);
       }
       if (permalink) {
         permalink.href = '/c/' + body.hash;
