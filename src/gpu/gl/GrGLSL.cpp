@@ -9,27 +9,33 @@
 #include "GrGLShaderVar.h"
 #include "SkString.h"
 
-GrGLSLGeneration GrGetGLSLGeneration(const GrGLInterface* gl) {
+bool GrGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation) {
+    SkASSERT(NULL != generation);
     GrGLSLVersion ver = GrGLGetGLSLVersion(gl);
+    if (GR_GLSL_INVALID_VER == ver) {
+        return false;
+    }
     switch (gl->fStandard) {
         case kGL_GrGLStandard:
             SkASSERT(ver >= GR_GLSL_VER(1,10));
             if (ver >= GR_GLSL_VER(1,50)) {
-                return k150_GrGLSLGeneration;
+                *generation = k150_GrGLSLGeneration;
             } else if (ver >= GR_GLSL_VER(1,40)) {
-                return k140_GrGLSLGeneration;
+                *generation = k140_GrGLSLGeneration;
             } else if (ver >= GR_GLSL_VER(1,30)) {
-                return k130_GrGLSLGeneration;
+                *generation = k130_GrGLSLGeneration;
             } else {
-                return k110_GrGLSLGeneration;
+                *generation = k110_GrGLSLGeneration;
             }
+            return true;
         case kGLES_GrGLStandard:
             // version 1.00 of ES GLSL based on ver 1.20 of desktop GLSL
             SkASSERT(ver >= GR_GL_VER(1,00));
-            return k110_GrGLSLGeneration;
+            *generation = k110_GrGLSLGeneration;
+            return true;
         default:
             GrCrash("Unknown GL Standard");
-            return k110_GrGLSLGeneration; // suppress warning
+            return false;
     }
 }
 

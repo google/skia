@@ -227,6 +227,9 @@ bool GrGLInterface::validate() const {
     }
 
     GrGLVersion glVer = GrGLGetVersion(this);
+    if (GR_GL_INVALID_VER == glVer) {
+        RETURN_FALSE_INTERFACE
+    }
 
     // Now check that baseline ES/Desktop fns not covered above are present
     // and that we have fn pointers for any advertised fExtensions that we will

@@ -37,8 +37,13 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
         if (interface->validate()) {
 
             fGLVersion = GrGLGetVersionFromString(ver);
+            if (GR_GL_INVALID_VER == fGLVersion) {
+                return false;
+            }
 
-            fGLSLGeneration = GrGetGLSLGeneration(interface);
+            if (!GrGetGLSLGeneration(interface, &fGLSLGeneration)) {
+                return false;
+            }
 
             fVendor = GrGLGetVendor(interface);
 
@@ -51,9 +56,7 @@ bool GrGLContextInfo::initialize(const GrGLInterface* interface) {
             // This must occur before caps init.
             fInterface.reset(SkRef(interface));
 
-            fGLCaps->init(*this, interface);
-
-            return true;
+            return fGLCaps->init(*this, interface);
         }
     }
     return false;

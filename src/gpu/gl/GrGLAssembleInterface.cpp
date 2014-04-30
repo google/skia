@@ -27,7 +27,7 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
     const char* versionString = (const char*) GetString(GR_GL_VERSION);
     GrGLVersion glVer = GrGLGetVersionFromString(versionString);
 
-    if (glVer < GR_GL_VER(1,5)) {
+    if (glVer < GR_GL_VER(1,5) || GR_GL_INVALID_VER == glVer) {
         // We must have array and element_array buffer objects.
         return NULL;
     }

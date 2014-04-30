@@ -90,11 +90,11 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     return *this;
 }
 
-void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
+bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     this->reset();
     if (!ctxInfo.isInitialized()) {
-        return;
+        return false;
     }
 
     GrGLStandard standard = ctxInfo.standard();
@@ -353,6 +353,8 @@ void GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     }
 
     this->initConfigRenderableTable(ctxInfo);
+
+    return true;
 }
 
 void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
