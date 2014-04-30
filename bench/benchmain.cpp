@@ -368,17 +368,16 @@ int tool_main(int argc, char** argv) {
         if (SkBenchmark::kGPU_Backend == config.backend) {
             GrContext* context = gContextFactory.get(config.contextType);
             if (NULL == context) {
-                logger.logError(SkStringPrintf(
-                    "Error creating GrContext for config %s. Config will be skipped.\n",
-                    config.name));
+                SkDebugf("GrContext could not be created for config %s. Config will be skipped.\n",
+                    config.name);
                 configs.remove(i);
                 --i;
                 continue;
             }
             if (config.sampleCount > context->getMaxSampleCount()){
-                logger.logError(SkStringPrintf(
-                    "Sample count (%d) for config %s is unsupported. Config will be skipped.\n",
-                    config.sampleCount, config.name));
+                SkDebugf(
+                    "Sample count (%d) for config %s is not supported. Config will be skipped.\n",
+                    config.sampleCount, config.name);
                 configs.remove(i);
                 --i;
                 continue;
