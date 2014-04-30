@@ -154,8 +154,8 @@
 #    undef NOMINMAX
 #  endif
 #
-#  ifndef SK_ALWAYSBREAK
-#    define SK_ALWAYSBREAK(p) do { if (!(p)) { SkNO_RETURN_HINT(); __debugbreak(); }} while (false)
+#  ifndef SK_DEBUGBREAK
+#    define SK_DEBUGBREAK(p) do { if (!(p)) { SkNO_RETURN_HINT(); __debugbreak(); }} while (false)
 #  endif
 #
 #  ifndef SK_A32_SHIFT
@@ -166,14 +166,14 @@
 #  endif
 #
 #else
-#  ifndef SK_ALWAYSBREAK
+#  ifndef SK_DEBUGBREAK
 #    ifdef SK_DEBUG
 #      include <stdio.h>
-#      define SK_ALWAYSBREAK(cond) do { if (cond) break; \
+#      define SK_DEBUGBREAK(cond) do { if (cond) break; \
                 SkDebugf("%s:%d: failed assertion \"%s\"\n", \
                 __FILE__, __LINE__, #cond); SK_CRASH(); } while (false)
 #    else
-#      define SK_ALWAYSBREAK(cond) do { if (cond) break; SK_CRASH(); } while (false)
+#      define SK_DEBUGBREAK(cond) do { if (cond) break; SK_CRASH(); } while (false)
 #    endif
 #  endif
 #endif
