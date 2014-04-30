@@ -33,10 +33,6 @@
 ## epoger will rebaseline by 25 Dec 2013
 #gradtext
 
-# This GM has probably always drawn incorrectly. We need to clarify the API
-# http://skbug.com/2222 : Inverse filled paths get inverse stroked
-inverse_paths
-
 # reed: https://codereview.chromium.org/190723004/
 # This change removes an API that this GM was testing. If/when it lands and sticks,
 # I will likely just delete the GM.
