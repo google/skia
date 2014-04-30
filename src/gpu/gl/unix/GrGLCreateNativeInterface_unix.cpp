@@ -23,4 +23,3 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     }
     return GrGLAssembleGLInterface(NULL, glx_get);
 }
-

@@ -16,4 +16,3 @@ typedef GrGLFuncPtr (*GrGLGetProc)(void* ctx, const char name[]);
  * get() to get each function address. ctx is a generic ptr passed to and interpreted by get().
  */
 const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get);
-

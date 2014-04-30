@@ -262,13 +262,13 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
 
                 /* The alternative to doing this is to have a clone method on the paint and have it
                  * make the deep copy of its internal structures as needed. The holdup to doing
-                 * that is at this point we would need to pass the SkBitmapHeap so that we don't 
+                 * that is at this point we would need to pass the SkBitmapHeap so that we don't
                  * unnecessarily flatten the pixels in a bitmap shader.
                  */
                 copyInfo.paintData.setCount(paintCount);
 
-                /* Use an SkBitmapHeap to avoid flattening bitmaps in shaders. If there already is 
-                 * one, use it. If this SkPicturePlayback was created from a stream, fBitmapHeap 
+                /* Use an SkBitmapHeap to avoid flattening bitmaps in shaders. If there already is
+                 * one, use it. If this SkPicturePlayback was created from a stream, fBitmapHeap
                  * will be NULL, so create a new one.
                  */
                 if (fPlayback->fBitmapHeap.get() == NULL) {

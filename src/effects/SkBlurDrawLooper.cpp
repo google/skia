@@ -36,16 +36,16 @@ void SkBlurDrawLooper::initEffects() {
         uint32_t flags = fBlurFlags & kIgnoreTransform_BlurFlag ?
                             SkBlurMaskFilter::kIgnoreTransform_BlurFlag :
                             SkBlurMaskFilter::kNone_BlurFlag;
-        
+
         flags |= fBlurFlags & kHighQuality_BlurFlag ?
                     SkBlurMaskFilter::kHighQuality_BlurFlag :
                     SkBlurMaskFilter::kNone_BlurFlag;
-        
+
         fBlur = SkBlurMaskFilter::Create(kNormal_SkBlurStyle, fSigma, flags);
     } else {
         fBlur = NULL;
     }
-    
+
     if (fBlurFlags & kOverrideColor_BlurFlag) {
         // Set alpha to 1 for the override since transparency will already
         // be baked into the blurred mask.

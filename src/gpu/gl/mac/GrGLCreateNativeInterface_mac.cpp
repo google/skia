@@ -37,7 +37,7 @@ private:
 class GLProcGetter {
 public:
     GLProcGetter() {}
-    
+
     GrGLFuncPtr getProc(const char name[]) const {
         return (GrGLFuncPtr) dlsym(fLoader.handle(), name);
     }
