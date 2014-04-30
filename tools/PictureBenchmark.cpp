@@ -115,7 +115,7 @@ void PictureBenchmark::run(SkPicture* pict) {
         timeFormat = fRenderer->getNormalTimeFormat();
     }
 
-    static const int kNumInnerLoops = 5;
+    static const int kNumInnerLoops = 10;
     int numOuterLoops = 1;
     int numInnerLoops = fRepeats;
 
