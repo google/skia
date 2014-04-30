@@ -16,6 +16,10 @@ public:
     QuadPathGM() {}
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() {
         return SkString("quadpath");
     }
@@ -158,6 +162,10 @@ public:
     QuadClosePathGM() {}
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() {
         return SkString("quadclosepath");
     }

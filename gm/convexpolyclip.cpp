@@ -213,7 +213,7 @@ protected:
     }
 
     virtual uint32_t onGetFlags() const {
-        return kAsBench_Flag;
+        return kAsBench_Flag | kSkipTiled_Flag;
     }
 
 private:

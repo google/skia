@@ -37,6 +37,10 @@ public:
     DashingGM() {}
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() {
         return SkString("dashing");
     }
@@ -119,6 +123,10 @@ public:
     Dashing2GM() {}
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() {
         return SkString("dashing2");
     }
@@ -177,6 +185,10 @@ public:
     Dashing3GM() {}
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() {
         return SkString("dashing3");
     }

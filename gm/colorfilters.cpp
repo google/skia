@@ -49,6 +49,10 @@ protected:
         return SkISize::Make(640, 480);
     }
 
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkPaint paint;
         SkRect r;

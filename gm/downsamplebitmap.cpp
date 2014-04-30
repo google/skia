@@ -40,6 +40,13 @@ public:
     }
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        if (SkPaint::kHigh_FilterLevel != fFilterLevel) {
+            return kSkipTiled_Flag;
+        }
+        return 0;
+    }
+
     virtual SkString onShortName() SK_OVERRIDE {
         return fName;
     }

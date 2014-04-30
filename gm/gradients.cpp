@@ -112,6 +112,10 @@ public:
     }
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() {
         return SkString("gradients");
     }
@@ -165,6 +169,10 @@ public:
     }
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() {
         return SkString("gradients_local_perspective");
     }
@@ -294,6 +302,10 @@ public:
     ClampedGradientsGM() {}
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() { return SkString("clamped_gradients"); }
 
     virtual SkISize onISize() { return SkISize::Make(640, 510); }
@@ -333,6 +345,10 @@ public:
     RadialGradientGM() {}
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() { return SkString("radial_gradient"); }
     virtual SkISize onISize() { return SkISize::Make(1280, 1280); }
     void drawBG(SkCanvas* canvas) {
@@ -372,6 +388,10 @@ public:
     RadialGradient2GM() {}
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() { return SkString("radial_gradient2"); }
     virtual SkISize onISize() { return SkISize::Make(800, 400); }
     void drawBG(SkCanvas* canvas) {

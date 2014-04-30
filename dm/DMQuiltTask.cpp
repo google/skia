@@ -1,50 +1,37 @@
-#include "DMTileGridTask.h"
-#include "DMWriteTask.h"
+#include "DMQuiltTask.h"
 #include "DMUtil.h"
+#include "DMWriteTask.h"
 
-#include "SkBBHFactory.h"
 #include "SkCommandLineFlags.h"
 #include "SkPicture.h"
 
-// TODO(mtklein): Tile grid tests are currently failing.  (Skia issue 1198).  When fixed, -> true.
-DEFINE_bool(tileGrid, false, "If true, run picture replay tests with a tile grid.");
+DEFINE_bool(quilt, true, "If true, draw into a quilt of small tiles and compare.");
+DEFINE_int32(quiltTile, 16, "Dimension of (square) quilt tile.");
 
 namespace DM {
 
-TileGridTask::TileGridTask(const Task& parent, skiagm::GM* gm, SkBitmap reference, SkISize tileSize)
+QuiltTask::QuiltTask(const Task& parent, skiagm::GM* gm, SkBitmap reference)
     : CpuTask(parent)
-    , fName(UnderJoin(parent.name().c_str(), "tilegrid"))
+    , fName(UnderJoin(parent.name().c_str(), "quilt"))
     , fGM(gm)
     , fReference(reference)
-    , fTileSize(tileSize)
     {}
 
 static int tiles_needed(int fullDimension, int tileDimension) {
     return (fullDimension + tileDimension - 1) / tileDimension;
 }
 
-void TileGridTask::draw() {
-    const SkTileGridFactory::TileGridInfo info = {
-        fTileSize,
-        SkISize::Make(0,0),    // Overlap between adjacent tiles.
-        SkIPoint::Make(0,0),   // Offset.
-    };
-    SkTileGridFactory factory(info);
-    SkAutoTUnref<SkPicture> recorded(RecordPicture(fGM.get(),
-                                                   SkPicture::kUsePathBoundsForClip_RecordingFlag,
-                                                   &factory));
+void QuiltTask::draw() {
+    SkAutoTUnref<SkPicture> recorded(RecordPicture(fGM.get()));
 
     SkBitmap full;
     SetupBitmap(fReference.colorType(), fGM.get(), &full);
     SkCanvas fullCanvas(full);
 
     SkBitmap tile;
-    tile.allocPixels(SkImageInfo::Make(fTileSize.width(), fTileSize.height(),
+    tile.allocPixels(SkImageInfo::Make(FLAGS_quiltTile, FLAGS_quiltTile,
                                        fReference.colorType(), kPremul_SkAlphaType));
     SkCanvas tileCanvas(tile);
-
-    SkPaint paint;
-    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
 
     for (int y = 0; y < tiles_needed(full.height(), tile.height()); y++) {
         for (int x = 0; x < tiles_needed(full.width(), tile.width()); x++) {
@@ -58,7 +45,7 @@ void TileGridTask::draw() {
 
             recorded->draw(&tileCanvas);
             tileCanvas.flush();
-            fullCanvas.drawBitmap(tile, xOffset, yOffset, &paint);
+            fullCanvas.drawBitmap(tile, xOffset, yOffset, NULL);
         }
     }
 
@@ -68,14 +55,14 @@ void TileGridTask::draw() {
     }
 }
 
-bool TileGridTask::shouldSkip() const {
+bool QuiltTask::shouldSkip() const {
     if (fGM->getFlags() & skiagm::GM::kSkipPicture_Flag) {
         return true;
     }
     if (fGM->getFlags() & skiagm::GM::kSkipTiled_Flag) {
         return true;
     }
-    return !FLAGS_tileGrid;
+    return !FLAGS_quilt;
 }
 
 }  // namespace DM

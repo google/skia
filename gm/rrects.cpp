@@ -58,9 +58,9 @@ protected:
 
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
         if (kEffect_Type == fType) {
-            return kGPUOnly_Flag;
+            return kGPUOnly_Flag | kSkipTiled_Flag;
         } else {
-            return 0;
+            return kSkipTiled_Flag;
         }
     }
 

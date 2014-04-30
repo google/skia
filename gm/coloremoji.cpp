@@ -22,6 +22,10 @@ public:
         SkSafeUnref(fTypeface);
     }
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     virtual void onOnceBeforeDraw() SK_OVERRIDE {
 
         SkString filename(INHERITED::gResourcePath);

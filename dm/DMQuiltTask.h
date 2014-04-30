@@ -1,5 +1,5 @@
-#ifndef DMTileGridTask_DEFINED
-#define DMTileGridTask_DEFINED
+#ifndef DMQuiltTask_DEFINED
+#define DMQuiltTask_DEFINED
 
 #include "DMTask.h"
 #include "SkBitmap.h"
@@ -11,13 +11,12 @@
 
 namespace DM {
 
-class TileGridTask : public CpuTask {
+class QuiltTask : public CpuTask {
 
 public:
-    TileGridTask(const Task& parent,  // TileGridTask must be a child task.  Pass its parent here.
-                 skiagm::GM*,         // GM to run through a picture.  Takes ownership.
-                 SkBitmap reference,  // Bitmap to compare picture replay results to.
-                 SkISize tileSize);   // Tile size to use.
+    QuiltTask(const Task& parent,   // QuiltTask must be a child task.  Pass its parent here.
+                skiagm::GM*,          // GM to run through a picture.  Takes ownership.
+                SkBitmap reference);  // Bitmap to compare picture replay results to.
 
     virtual void draw() SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE;
@@ -27,7 +26,6 @@ private:
     const SkString fName;
     SkAutoTDelete<skiagm::GM> fGM;
     const SkBitmap fReference;
-    const SkISize fTileSize;
 };
 
 }  // namespace DM

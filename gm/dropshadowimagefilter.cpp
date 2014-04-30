@@ -115,7 +115,7 @@ protected:
         // from scaled replay tests because drawSprite ignores the
         // reciprocal scale that is applied at record time, which is
         // the intended behavior of drawSprite.
-        return kSkipScaledReplay_Flag;
+        return kSkipScaledReplay_Flag | kSkipTiled_Flag;
     }
 
     virtual void onDraw(SkCanvas* canvas) {

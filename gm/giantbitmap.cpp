@@ -71,6 +71,13 @@ public:
     }
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        if (fDoFilter && fDoRotate && fMode != SkShader::kClamp_TileMode) {
+            return kSkipTiled_Flag;
+        }
+        return 0;
+    }
+
     virtual SkString onShortName() {
         SkString str("giantbitmap_");
         switch (fMode) {

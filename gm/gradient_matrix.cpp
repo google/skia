@@ -120,6 +120,10 @@ public:
     }
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() SK_OVERRIDE {
         return SkString("gradient_matrix");
     }

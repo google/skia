@@ -34,6 +34,10 @@ public:
     HitTestPathGM () {}
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     virtual SkString onShortName() {
         return SkString("hittestpath");
     }

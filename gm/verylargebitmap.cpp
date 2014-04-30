@@ -109,7 +109,7 @@ protected:
                kSkipTiled_Flag              |
                kSkipScaledReplay_Flag;
 #else
-        return 0;
+        return kSkipTiled_Flag;
 #endif
     }
 

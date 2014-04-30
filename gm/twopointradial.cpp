@@ -56,6 +56,10 @@ public:
     TwoPointRadialGM() {}
 
 protected:
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        return kSkipTiled_Flag;
+    }
+
     SkString onShortName() {
         return SkString("twopointconical");
     }
