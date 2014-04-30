@@ -1076,7 +1076,7 @@ public:
                     break;
                 }
                 default:
-                    GrCrash("Unknown XferEffect mode.");
+                    SkFAIL("Unknown XferEffect mode.");
                     break;
             }
         }

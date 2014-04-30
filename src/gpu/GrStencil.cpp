@@ -389,7 +389,7 @@ bool GrStencilSettings::GetClipPasses(
             }
             break;
         default:
-            GrCrash("Unknown set op");
+            SkFAIL("Unknown set op");
     }
     return false;
 }

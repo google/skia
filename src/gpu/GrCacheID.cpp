@@ -27,7 +27,7 @@ GrCacheID::Domain GrCacheID::GenerateDomain() {
 
     int32_t domain = sk_atomic_inc(&gNextDomain);
     if (domain >= 1 << (8 * sizeof(Domain))) {
-        GrCrash("Too many Cache Domains");
+        SkFAIL("Too many Cache Domains");
     }
 
     return static_cast<Domain>(domain);

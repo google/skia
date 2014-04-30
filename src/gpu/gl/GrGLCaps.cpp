@@ -579,7 +579,7 @@ void GrGLCaps::markColorConfigAndStencilFormatAsVerified(
             return;
         }
     }
-    GrCrash("Why are we seeing a stencil format that "
+    SkFAIL("Why are we seeing a stencil format that "
             "GrGLCaps doesn't know about.");
 }
 
@@ -600,7 +600,7 @@ bool GrGLCaps::isColorConfigAndStencilFormatVerified(
             return fStencilVerifiedColorConfigs[i].isVerified(config);
         }
     }
-    GrCrash("Why are we seeing a stencil format that "
+    SkFAIL("Why are we seeing a stencil format that "
             "GLCaps doesn't know about.");
     return false;
 }

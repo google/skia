@@ -34,7 +34,7 @@ bool GrGetGLSLGeneration(const GrGLInterface* gl, GrGLSLGeneration* generation) 
             *generation = k110_GrGLSLGeneration;
             return true;
         default:
-            GrCrash("Unknown GL Standard");
+            SkFAIL("Unknown GL Standard");
             return false;
     }
 }
@@ -64,7 +64,7 @@ const char* GrGetGLSLVersionDecl(const GrGLContextInfo& info) {
                 return "#version 150 compatibility\n";
             }
         default:
-            GrCrash("Unknown GL version.");
+            SkFAIL("Unknown GL version.");
             return ""; // suppress warning
     }
 }

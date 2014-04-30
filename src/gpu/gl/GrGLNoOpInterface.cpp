@@ -500,7 +500,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetIntegerv(GrGLenum pname, GrGLint* params) 
             *params = SK_ARRAY_COUNT(kExtensions);
             break;
         default:
-            GrCrash("Unexpected pname to GetIntegerv");
+            SkFAIL("Unexpected pname to GetIntegerv");
    }
 }
 
@@ -529,7 +529,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetShaderOrProgramiv(GrGLuint program,
             break;
         // we don't expect any other pnames
         default:
-            GrCrash("Unexpected pname to GetProgramiv");
+            SkFAIL("Unexpected pname to GetProgramiv");
             break;
    }
 }
@@ -545,7 +545,7 @@ void query_result(GrGLenum GLtarget, GrGLenum pname, T *params) {
             *params = 0;
             break;
         default:
-            GrCrash("Unexpected pname passed to GetQueryObject.");
+            SkFAIL("Unexpected pname passed to GetQueryObject.");
             break;
    }
 }
@@ -562,7 +562,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetQueryiv(GrGLenum GLtarget,
             *params = 32;
             break;
         default:
-            GrCrash("Unexpected pname passed GetQueryiv.");
+            SkFAIL("Unexpected pname passed GetQueryiv.");
    }
 }
 
@@ -603,7 +603,7 @@ const GrGLubyte* GR_GL_FUNCTION_TYPE noOpGLGetString(GrGLenum name) {
         case GR_GL_RENDERER:
             return (const GrGLubyte*)"The Debug (Non-)Renderer";
         default:
-            GrCrash("Unexpected name passed to GetString");
+            SkFAIL("Unexpected name passed to GetString");
             return NULL;
    }
 }
@@ -617,7 +617,7 @@ const GrGLubyte* GR_GL_FUNCTION_TYPE noOpGLGetStringi(GrGLenum name, GrGLuint i)
                 return NULL;
             }
         default:
-            GrCrash("Unexpected name passed to GetStringi");
+            SkFAIL("Unexpected name passed to GetStringi");
             return NULL;
     }
 }
@@ -628,7 +628,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE noOpGLGetTexLevelParameteriv(GrGLenum target,
                                                           GrGLint* params) {
     // we used to use this to query stuff about externally created textures,
     // now we just require clients to tell us everything about the texture.
-    GrCrash("Should never query texture parameters.");
+    SkFAIL("Should never query texture parameters.");
 }
 
 GrGLint GR_GL_FUNCTION_TYPE noOpGLGetUniformLocation(GrGLuint program, const char* name) {

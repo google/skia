@@ -345,7 +345,7 @@ protected:
             case kLineStrip_GrPrimitiveType:
                 return kDrawLines_DrawType;
             default:
-                GrCrash("Unexpected primitive type");
+                SkFAIL("Unexpected primitive type");
                 return kDrawTriangles_DrawType;
         }
     }

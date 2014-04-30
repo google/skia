@@ -730,7 +730,7 @@ static bool renderbuffer_storage_msaa(GrGLContext& ctx,
                                                                 width, height));
             break;
         case GrGLCaps::kNone_MSFBOType:
-            GrCrash("Shouldn't be here if we don't support multisampled renderbuffers.");
+            SkFAIL("Shouldn't be here if we don't support multisampled renderbuffers.");
             break;
     }
     return (GR_GL_NO_ERROR == CHECK_ALLOC_ERROR(ctx.interface()));;
@@ -1303,7 +1303,7 @@ void GrGpuGL::discard(GrRenderTarget* renderTarget) {
     }
     switch (this->glCaps().invalidateFBType()) {
         case GrGLCaps::kNone_FBFetchType:
-            GrCrash("Should never get here.");
+            SkFAIL("Should never get here.");
             break;
         case GrGLCaps::kInvalidate_InvalidateFBType:
             if (0 == glRT->renderFBOID()) {
@@ -1463,7 +1463,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
                                     tgt->textureFBOID()));
             break;
         default:
-            GrCrash("Unknown resolve type");
+            SkFAIL("Unknown resolve type");
     }
 
     const GrGLIRect& glvp = tgt->getViewport();
@@ -1656,7 +1656,7 @@ void GrGpuGL::onGpuDraw(const DrawInfo& info) {
 static GrGLenum gr_stencil_op_to_gl_path_rendering_fill_mode(GrStencilOp op) {
     switch (op) {
         default:
-            GrCrash("Unexpected path fill.");
+            SkFAIL("Unexpected path fill.");
             /* fallthrough */;
         case kIncClamp_StencilOp:
             return GR_GL_COUNT_UP;
@@ -2357,7 +2357,7 @@ void GrGpuGL::flushMiscFixedFunctionState() {
                 GL_CALL(Disable(GR_GL_CULL_FACE));
                 break;
             default:
-                GrCrash("Unknown draw face.");
+                SkFAIL("Unknown draw face.");
         }
         fHWDrawFace = drawState.getDrawFace();
     }

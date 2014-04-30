@@ -145,7 +145,7 @@ static inline ColorExpr blend_term(SkXfermode::Coeff coeff,
                                    const ColorExpr& value) {
     switch (coeff) {
     default:
-        GrCrash("Unexpected xfer coeff.");
+        SkFAIL("Unexpected xfer coeff.");
     case SkXfermode::kZero_Coeff:    /** 0 */
         return ColorExpr(0);
     case SkXfermode::kOne_Coeff:     /** 1 */

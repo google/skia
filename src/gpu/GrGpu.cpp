@@ -265,7 +265,7 @@ void GrGpu::getPathStencilSettingsForFillType(SkPath::FillType fill, GrStencilSe
 
     switch (fill) {
         default:
-            GrCrash("Unexpected path fill.");
+            SkFAIL("Unexpected path fill.");
             /* fallthrough */;
         case SkPath::kWinding_FillType:
         case SkPath::kInverseWinding_FillType:
@@ -313,7 +313,7 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
                 if (!fQuadIndexBuffer->updateData(indices, SIZE)) {
                     fQuadIndexBuffer->unref();
                     fQuadIndexBuffer = NULL;
-                    GrCrash("Can't get indices into buffer!");
+                    SkFAIL("Can't get indices into buffer!");
                 }
                 sk_free(indices);
             }

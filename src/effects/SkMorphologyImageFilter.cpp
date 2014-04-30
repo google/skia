@@ -369,7 +369,7 @@ void GrGLMorphologyEffect::emitCode(GrGLShaderBuilder* builder,
             func = "max";
             break;
         default:
-            GrCrash("Unexpected type");
+            SkFAIL("Unexpected type");
             func = ""; // suppress warning
             break;
     }
@@ -410,7 +410,7 @@ void GrGLMorphologyEffect::setData(const GrGLUniformManager& uman,
             imageIncrement[1] = 1.0f / texture.height();
             break;
         default:
-            GrCrash("Unknown filter direction.");
+            SkFAIL("Unknown filter direction.");
     }
     uman.set2fv(fImageIncrementUni, 1, imageIncrement);
 }

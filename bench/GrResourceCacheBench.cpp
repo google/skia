@@ -116,11 +116,11 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
         GrResourceKey key = TextureResource::ComputeKey(desc);
         GrResource* item = cache->find(key);
         if (NULL == item) {
-            GrCrash("cache add does not work as expected");
+            SkFAIL("cache add does not work as expected");
             return;
         }
         if (static_cast<TextureResource*>(item)->fID != k) {
-            GrCrash("cache add does not work as expected");
+            SkFAIL("cache add does not work as expected");
             return;
         }
     }
@@ -130,11 +130,11 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
         GrResourceKey key = StencilResource::ComputeKey(w, h, s);
         GrResource* item = cache->find(key);
         if (NULL == item) {
-            GrCrash("cache add does not work as expected");
+            SkFAIL("cache add does not work as expected");
             return;
         }
         if (static_cast<TextureResource*>(item)->fID != k) {
-            GrCrash("cache add does not work as expected");
+            SkFAIL("cache add does not work as expected");
             return;
         }
     }
@@ -147,7 +147,7 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
         GrResourceKey key = TextureResource::ComputeKey(desc);
         GrResource* item = cache->find(key);
         if (NULL != item) {
-            GrCrash("cache add does not work as expected");
+            SkFAIL("cache add does not work as expected");
             return;
         }
     }
@@ -158,7 +158,7 @@ static void check_cache_contents_or_die(GrResourceCache* cache, int k) {
         GrResourceKey key = StencilResource::ComputeKey(w, h, s);
         GrResource* item = cache->find(key);
         if (NULL != item) {
-            GrCrash("cache add does not work as expected");
+            SkFAIL("cache add does not work as expected");
             return;
         }
     }

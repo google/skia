@@ -100,7 +100,7 @@ void GrTextureAccess::setSwizzle(const char* swizzle) {
                 fSwizzleMask |= kA_GrColorComponentFlag;
                 break;
             default:
-                GrCrash("Unexpected swizzle string character.");
+                SkFAIL("Unexpected swizzle string character.");
                 break;
         }
     }

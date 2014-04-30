@@ -212,7 +212,7 @@ static inline GrEffectEdgeType GrInvertEffectEdgeType(const GrEffectEdgeType edg
         case kInverseFillAA_GrEffectEdgeType:
             return kFillAA_GrEffectEdgeType;
         case kHairlineAA_GrEffectEdgeType:
-            GrCrash("Hairline fill isn't invertible.");
+            SkFAIL("Hairline fill isn't invertible.");
     }
     return kFillAA_GrEffectEdgeType; // suppress warning.
 }

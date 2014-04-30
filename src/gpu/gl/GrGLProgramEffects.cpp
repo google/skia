@@ -341,7 +341,7 @@ void GrGLVertexProgramEffects::emitTransforms(GrGLFullShaderBuilder* builder,
                 varyingType = kVec3f_GrSLType;
                 break;
             default:
-                GrCrash("Unexpected key.");
+                SkFAIL("Unexpected key.");
         }
         SkString suffixedUniName;
         if (kVoid_GrSLType != transforms[t].fType) {
@@ -393,7 +393,7 @@ void GrGLVertexProgramEffects::emitTransforms(GrGLFullShaderBuilder* builder,
                 break;
             }
             default:
-                GrCrash("Unexpected uniform type.");
+                SkFAIL("Unexpected uniform type.");
         }
         SkNEW_APPEND_TO_TARRAY(outCoords, TransformedCoords,
                                (SkString(fsVaryingName), varyingType));
@@ -446,7 +446,7 @@ void GrGLVertexProgramEffects::setTransformData(const GrGLUniformManager& unifor
                 break;
             }
             default:
-                GrCrash("Unexpected uniform type.");
+                SkFAIL("Unexpected uniform type.");
         }
     }
 }
@@ -572,7 +572,7 @@ void GrGLPathTexGenProgramEffects::setPathTexGenState(GrGpuGL* gpu,
                 break;
             }
             default:
-                GrCrash("Unexpected matrixs type.");
+                SkFAIL("Unexpected matrixs type.");
         }
     }
 }

@@ -369,7 +369,7 @@ void GLCircularRRectEffect::setData(const GrGLUniformManager& uman,
                 rect.fBottom -= radius;
                 break;
             default:
-                GrCrash("Should have been one of the above cases.");
+                SkFAIL("Should have been one of the above cases.");
         }
         uman.set4f(fInnerRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
         uman.set1f(fRadiusPlusHalfUniform, radius + 0.5f);
@@ -566,7 +566,7 @@ void GLEllipticalRRectEffect::emitCode(GrGLShaderBuilder* builder,
             break;
         }
         default:
-            GrCrash("RRect should always be simple or nine-patch.");
+            SkFAIL("RRect should always be simple or nine-patch.");
     }
     // implicit is the evaluation of (x/a)^2 + (y/b)^2 - 1.
     builder->fsCodeAppend("\t\tfloat implicit = dot(Z, dxy) - 1.0;\n");
@@ -623,7 +623,7 @@ void GLEllipticalRRectEffect::setData(const GrGLUniformManager& uman,
                 break;
             }
         default:
-            GrCrash("RRect should always be simple or nine-patch.");
+            SkFAIL("RRect should always be simple or nine-patch.");
         }
         uman.set4f(fInnerRectUniform, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
         fPrevRRect = rrect;

@@ -1115,7 +1115,7 @@ SkLight* create_random_light(SkRandom* random) {
                                             random->nextU()));
         }
         default:
-            GrCrash();
+            SkFAIL("Unexpected value.");
             return NULL;
     }
 }

@@ -118,7 +118,7 @@ void GrGLConvolutionEffect::setData(const GrGLUniformManager& uman,
             imageIncrement[1] = ySign / texture.height();
             break;
         default:
-            GrCrash("Unknown filter direction.");
+            SkFAIL("Unknown filter direction.");
     }
     uman.set2fv(fImageIncrementUni, 1, imageIncrement);
     if (conv.useBounds()) {

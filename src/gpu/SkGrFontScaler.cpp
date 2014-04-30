@@ -185,7 +185,7 @@ bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
                 break;
             }
             default:
-                GrCrash("Invalid GrMaskFormat");
+                SkFAIL("Invalid GrMaskFormat");
         }
     } else if (srcRB == dstRB) {
         memcpy(dst, src, dstRB * height);

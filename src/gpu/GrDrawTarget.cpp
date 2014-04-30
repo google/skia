@@ -244,7 +244,7 @@ void GrDrawTarget::releasePreviousVertexSource() {
 #endif
             break;
         default:
-            GrCrash("Unknown Vertex Source Type.");
+            SkFAIL("Unknown Vertex Source Type.");
             break;
     }
 }
@@ -267,7 +267,7 @@ void GrDrawTarget::releasePreviousIndexSource() {
 #endif
             break;
         default:
-            GrCrash("Unknown Index Source Type.");
+            SkFAIL("Unknown Index Source Type.");
             break;
     }
 }
@@ -355,7 +355,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
     int maxValidVertex;
     switch (geoSrc.fVertexSrc) {
         case kNone_GeometrySrcType:
-            GrCrash("Attempting to draw without vertex src.");
+            SkFAIL("Attempting to draw without vertex src.");
         case kReserved_GeometrySrcType: // fallthrough
         case kArray_GeometrySrcType:
             maxValidVertex = geoSrc.fVertexCount;
@@ -365,14 +365,14 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
             break;
     }
     if (maxVertex > maxValidVertex) {
-        GrCrash("Drawing outside valid vertex range.");
+        SkFAIL("Drawing outside valid vertex range.");
     }
     if (indexCount > 0) {
         int maxIndex = startIndex + indexCount;
         int maxValidIndex;
         switch (geoSrc.fIndexSrc) {
             case kNone_GeometrySrcType:
-                GrCrash("Attempting to draw indexed geom without index src.");
+                SkFAIL("Attempting to draw indexed geom without index src.");
             case kReserved_GeometrySrcType: // fallthrough
             case kArray_GeometrySrcType:
                 maxValidIndex = geoSrc.fIndexCount;
@@ -382,7 +382,7 @@ bool GrDrawTarget::checkDraw(GrPrimitiveType type, int startVertex,
                 break;
         }
         if (maxIndex > maxValidIndex) {
-            GrCrash("Index reads outside valid index range.");
+            SkFAIL("Index reads outside valid index range.");
         }
     }
 

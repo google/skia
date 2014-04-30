@@ -327,7 +327,7 @@ GrIndexBuffer* GrAARectRenderer::aaFillRectIndexBuffer(GrGpu* gpu) {
             }
             if (useTempData) {
                 if (!fAAFillRectIndexBuffer->updateData(data, kAAFillRectIndexBufferSize)) {
-                    GrCrash("Can't get AA Fill Rect indices into buffer!");
+                    SkFAIL("Can't get AA Fill Rect indices into buffer!");
                 }
                 SkDELETE_ARRAY(data);
             } else {

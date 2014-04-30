@@ -309,7 +309,7 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
             break;
         default:
             vbuf = NULL; // suppress warning
-            GrCrash("Unknown geometry src type!");
+            SkFAIL("Unknown geometry src type!");
     }
 
     SkASSERT(NULL != vbuf);
@@ -333,7 +333,7 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
             break;
         default:
             ibuf = NULL; // suppress warning
-            GrCrash("Unknown geometry src type!");
+            SkFAIL("Unknown geometry src type!");
         }
 
         SkASSERT(NULL != ibuf);

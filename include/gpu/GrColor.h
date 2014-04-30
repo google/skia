@@ -117,7 +117,7 @@ static inline char GrColorComponentFlagToChar(GrColorComponentFlags component) {
         case kA_GrColorComponentFlag:
             return 'a';
         default:
-            GrCrash("Invalid color component flag.");
+            SkFAIL("Invalid color component flag.");
             return '\0';
     }
 }

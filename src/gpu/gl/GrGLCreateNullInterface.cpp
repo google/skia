@@ -125,7 +125,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLBufferData(GrGLenum target,
         id = gCurrElementArrayBuffer;
         break;
     default:
-        GrCrash("Unexpected target to nullGLBufferData");
+        SkFAIL("Unexpected target to nullGLBufferData");
         break;
     }
 
@@ -251,7 +251,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLGetBufferParameteriv(GrGLenum target, GrGLenu
             }
             break; }
         default:
-            GrCrash("Unexpected pname to GetBufferParamateriv");
+            SkFAIL("Unexpected pname to GetBufferParamateriv");
             break;
     }
 };

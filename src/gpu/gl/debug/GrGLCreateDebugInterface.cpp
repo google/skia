@@ -93,7 +93,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBufferData(GrGLenum target,
             buffer = GrDebugGL::getInstance()->getElementArrayBuffer();
             break;
         default:
-            GrCrash("Unexpected target to glBufferData");
+            SkFAIL("Unexpected target to glBufferData");
             break;
     }
 
@@ -586,7 +586,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLBindBuffer(GrGLenum target, GrGLuint bufferI
             GrDebugGL::getInstance()->setElementArrayBuffer(buffer);
             break;
         default:
-            GrCrash("Unexpected target to glBindBuffer");
+            SkFAIL("Unexpected target to glBindBuffer");
             break;
     }
 }
@@ -638,7 +638,7 @@ GrGLvoid* GR_GL_FUNCTION_TYPE debugGLMapBuffer(GrGLenum target, GrGLenum access)
             buffer = GrDebugGL::getInstance()->getElementArrayBuffer();
             break;
         default:
-            GrCrash("Unexpected target to glMapBuffer");
+            SkFAIL("Unexpected target to glMapBuffer");
             break;
     }
 
@@ -668,7 +668,7 @@ GrGLboolean GR_GL_FUNCTION_TYPE debugGLUnmapBuffer(GrGLenum target) {
             buffer = GrDebugGL::getInstance()->getElementArrayBuffer();
             break;
         default:
-            GrCrash("Unexpected target to glUnmapBuffer");
+            SkFAIL("Unexpected target to glUnmapBuffer");
             break;
     }
 
@@ -720,7 +720,7 @@ GrGLvoid GR_GL_FUNCTION_TYPE debugGLGetBufferParameteriv(GrGLenum target,
                 *params = buffer->getUsage();
             break;
         default:
-            GrCrash("Unexpected value to glGetBufferParamateriv");
+            SkFAIL("Unexpected value to glGetBufferParamateriv");
             break;
     }
 };

@@ -84,7 +84,7 @@ public:
             case kDebug_GLContextType:
                 return "debug";
             default:
-                GrCrash("Unknown GL Context type.");
+                SkFAIL("Unknown GL Context type.");
         }
     }
 

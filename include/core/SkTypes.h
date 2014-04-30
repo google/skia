@@ -113,6 +113,8 @@ inline void operator delete(void* p) {
     #define SkAssertResult(cond)        cond
 #endif
 
+#define SkFAIL(message)                 SK_DEBUGBREAK(false && message)
+
 #ifdef SK_DEVELOPER
     #define SkDEVCODE(code)             code
 #else

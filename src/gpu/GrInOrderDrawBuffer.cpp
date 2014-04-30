@@ -386,7 +386,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
             break;
         }
         default:
-            GrCrash("unknown geom src type");
+            SkFAIL("unknown geom src type");
     }
     draw->fVertexBuffer->ref();
 
@@ -404,7 +404,7 @@ void GrInOrderDrawBuffer::onDraw(const DrawInfo& info) {
                 break;
             }
             default:
-                GrCrash("unknown geom src type");
+                SkFAIL("unknown geom src type");
         }
         draw->fIndexBuffer->ref();
     } else {

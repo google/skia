@@ -342,7 +342,7 @@ void GLEllipseEffect::emitCode(GrGLShaderBuilder* builder,
             builder->fsCodeAppend("\t\tfloat alpha = approx_dist > 0.0 ? 1.0 : 0.0;\n");
             break;
         case kHairlineAA_GrEffectEdgeType:
-            GrCrash("Hairline not expected here.");
+            SkFAIL("Hairline not expected here.");
     }
 
     builder->fsCodeAppendf("\t\t%s = %s;\n", outputColor,

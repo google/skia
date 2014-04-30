@@ -89,7 +89,7 @@ void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
             SkASSERT(kOne_GrBlendCoeff == *srcCoeff && kZero_GrBlendCoeff == *dstCoeff);
             break;
         default:
-            GrCrash("Unexpected coverage output");
+            SkFAIL("Unexpected coverage output");
             break;
     }
 }
@@ -270,7 +270,7 @@ void GrGLProgram::setColor(const GrDrawState& drawState,
                 sharedState->fConstAttribColorIndex = -1;
                 break;
             default:
-                GrCrash("Unknown color type.");
+                SkFAIL("Unknown color type.");
         }
     } else {
         sharedState->fConstAttribColorIndex = -1;
@@ -309,7 +309,7 @@ void GrGLProgram::setCoverage(const GrDrawState& drawState,
                 sharedState->fConstAttribCoverageIndex = -1;
                 break;
             default:
-                GrCrash("Unknown coverage type.");
+                SkFAIL("Unknown coverage type.");
         }
     } else {
         sharedState->fConstAttribCoverageIndex = -1;

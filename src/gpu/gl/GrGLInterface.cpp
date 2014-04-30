@@ -117,7 +117,7 @@ GrGLInterface* GrGLInterface::NewClone(const GrGLInterface* interface) {
 }
 
 #define RETURN_FALSE_INTERFACE                             \
-    GrDebugCrash("GrGLInterface::validate() failed.");     \
+    SkDEBUGFAIL("GrGLInterface::validate() failed.");      \
     return false;                                          \
 
 bool GrGLInterface::validate() const {

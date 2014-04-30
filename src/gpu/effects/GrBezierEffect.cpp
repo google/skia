@@ -109,7 +109,7 @@ void GrGLConicEffect::emitCode(GrGLFullShaderBuilder* builder,
             break;
         }
         default:
-            GrCrash("Shouldn't get here");
+            SkFAIL("Shouldn't get here");
     }
 
     builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
@@ -244,7 +244,7 @@ void GrGLQuadEffect::emitCode(GrGLFullShaderBuilder* builder,
             break;
         }
         default:
-            GrCrash("Shouldn't get here");
+            SkFAIL("Shouldn't get here");
     }
 
     builder->fsCodeAppendf("\t%s = %s;\n", outputColor,
@@ -395,7 +395,7 @@ void GrGLCubicEffect::emitCode(GrGLFullShaderBuilder* builder,
             break;
         }
         default:
-            GrCrash("Shouldn't get here");
+            SkFAIL("Shouldn't get here");
     }
 
     builder->fsCodeAppendf("\t%s = %s;\n", outputColor,

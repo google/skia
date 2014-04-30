@@ -61,7 +61,7 @@ public:
                         outputColor, outputColor, outputColor, swiz, outputColor, outputColor);
                     break;
                 default:
-                    GrCrash("Unknown conversion op.");
+                    SkFAIL("Unknown conversion op.");
                     break;
             }
         }

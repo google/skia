@@ -18,7 +18,7 @@ GrResourceKey::ResourceType GrResourceKey::GenerateResourceType() {
 
     int32_t type = sk_atomic_inc(&gNextType);
     if (type >= (1 << 8 * sizeof(ResourceType))) {
-        GrCrash("Too many Resource Types");
+        SkFAIL("Too many Resource Types");
     }
 
     return static_cast<ResourceType>(type);

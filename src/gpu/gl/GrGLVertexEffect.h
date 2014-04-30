@@ -42,7 +42,7 @@ public:
                           const char* inputColor,
                           const TransformedCoordsArray& coords,
                           const TextureSamplerArray& samplers) SK_OVERRIDE {
-        GrCrash("GrGLVertexEffect requires GrGLFullShaderBuilder* overload for emitCode().");
+        SkFAIL("GrGLVertexEffect requires GrGLFullShaderBuilder* overload for emitCode().");
     }
 
 private:
