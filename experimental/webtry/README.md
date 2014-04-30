@@ -62,6 +62,11 @@ then run the following so it applies:
 
 This means that monit will poll every two seconds that our application is up and running.
 
+6. Set the TCP keepalive. For more info see:
+   https://developers.google.com/cloud-sql/docs/gce-access
+
+    sudo bash -c 'echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time'
+
 Do the first time
 -----------------
 
