@@ -31,6 +31,7 @@
             'AdditionalOptions': [ '/MP', ],
           },
           'VCLinkerTool': {
+            'LargeAddressAware': 2,  # 2 means "Yes, please let me use more RAM on 32-bit builds."
             'AdditionalDependencies': [
               'OpenGL32.lib',
               'usp10.lib',
