@@ -2,8 +2,12 @@
 #include "DMUtil.h"
 #include "SkCommandLineFlags.h"
 
+// When PathOps threaded tests get going, they're briefly a big consumer of lots of RAM.
+// We disable the internal threading there by default on 32-bit builds.
+static const bool is32Bit = sizeof(void*) == 4;
+
 DEFINE_bool2(pathOpsExtended,     x, false, "Run extended pathOps tests.");
-DEFINE_bool2(pathOpsSingleThread, z, false, "Disallow pathOps tests from using threads.");
+DEFINE_bool2(pathOpsSingleThread, z, is32Bit, "Disallow pathOps tests from using threads.");
 DEFINE_bool2(pathOpsVerbose,      V, false, "Tell pathOps tests to be verbose.");
 
 namespace DM {
