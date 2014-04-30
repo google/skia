@@ -38,6 +38,26 @@
     fun:FcPatternObjectInsertElt
     fun:FcPatternObjectAddWithBinding
 }
+
+# Blanket nvidia driver suppressions
+{
+    nvidia_param_write_to_unallocated_buf
+    Memcheck:Param
+    write(buf)
+    obj:/usr/lib/libnvidia-glcore.so*
+}
+{
+    nvidia_conditional_jump_on_uninitialized_value
+    Memcheck:Cond
+    obj:/usr/lib/libnvidia-glcore.so*
+}
+{
+    nvidia_memory_leaks
+    Memcheck:Leak
+    obj:/usr/lib/libGL.so*
+}
+
+# Suppressions for ATI cards
 {
     driver_bug_1
     Memcheck:Param
@@ -100,7 +120,7 @@
     obj:/usr/lib/fglrx/fglrx-libGL.so.1.2
 }
 # the gpu_issue_* suppressions suppress issues that cannot be reproduced
-# locally. 
+# locally.
 {
     gpu_issue_1
     Memcheck:Addr2
