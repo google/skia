@@ -2253,7 +2253,7 @@ static void text_draw_init(const SkPaint& paint,
             numGlyphGuess = byteLength / 2;
             break;
         default:
-            SK_DEBUGBREAK(true);
+            SK_ALWAYSBREAK(true);
     }
     procs.xpsGlyphs.setReserve(numGlyphGuess);
     procs.glyphUse = &glyphsUsed;
