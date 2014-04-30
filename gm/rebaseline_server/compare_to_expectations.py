@@ -226,7 +226,14 @@ class ExpectationComparisons(results.BaseComparisons):
             results.KEY__RESULT_TYPE__NOCOMPARISON,
         ])
 
-    builders = sorted(actual_builder_dicts.keys())
+    # Only consider builders we have both expected and actual results for.
+    # Fixes http://skbug.com/2486 ('rebaseline_server shows actual results
+    # (but not expectations) for Test-Ubuntu12-ShuttleA-NoGPU-x86_64-Debug
+    # builder')
+    actual_builder_set = set(actual_builder_dicts.keys())
+    expected_builder_set = set(expected_builder_dicts.keys())
+    builders = sorted(actual_builder_set.intersection(expected_builder_set))
+
     num_builders = len(builders)
     builder_num = 0
     for builder in builders:

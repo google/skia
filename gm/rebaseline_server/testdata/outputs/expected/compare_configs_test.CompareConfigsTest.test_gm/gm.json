@@ -6,6 +6,7 @@
       "isSortable": true, 
       "valuesAndCounts": {
         "Test-Android-GalaxyNexus-SGX540-Arm7-Release": 7, 
+        "Test-Builder-We-Have-No-Expectations-File-For": 3, 
         "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug": 3
       }
     }, 
@@ -14,7 +15,7 @@
       "isFilterable": true, 
       "isSortable": true, 
       "valuesAndCounts": {
-        "TODO": 10
+        "TODO": 13
       }
     }, 
     "resultType": {
@@ -22,9 +23,9 @@
       "isFilterable": true, 
       "isSortable": true, 
       "valuesAndCounts": {
-        "failed": 2, 
+        "failed": 4, 
         "no-comparison": 7, 
-        "succeeded": 1
+        "succeeded": 2
       }
     }, 
     "test": {
@@ -32,11 +33,11 @@
       "isFilterable": true, 
       "isSortable": true, 
       "valuesAndCounts": {
-        "3x3bitmaprect": 2, 
+        "3x3bitmaprect": 3, 
         "aaclip": 1, 
-        "bigblurs": 2, 
+        "bigblurs": 3, 
         "bitmapsource": 1, 
-        "displacement": 1, 
+        "displacement": 2, 
         "filterbitmap_checkerboard_192_192": 1, 
         "filterbitmap_checkerboard_32_2": 1, 
         "texdata": 1
@@ -44,7 +45,7 @@
     }
   }, 
   "header": {
-    "dataHash": "7627783634950094306", 
+    "dataHash": "-7043844904261310530", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 2, 
@@ -129,6 +130,61 @@
       "imageAUrl": "bitmap-64bitMD5/aaclip/14456211900777561488.png", 
       "imageBUrl": null, 
       "isDifferent": true
+    }, 
+    {
+      "differenceData": {
+        "maxDiffPerChannel": [
+          136, 
+          68, 
+          34
+        ], 
+        "numDifferingPixels": 6081, 
+        "percentDifferingPixels": 2.4324, 
+        "perceptualDifference": 1.917199999999994, 
+        "weightedDiffMeasure": 0.06644571780084584
+      }, 
+      "extraColumns": {
+        "builder": "Test-Builder-We-Have-No-Expectations-File-For", 
+        "config": "TODO", 
+        "resultType": "failed", 
+        "test": "displacement"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/displacement/11401048196735046263.png", 
+      "imageBUrl": "bitmap-64bitMD5/displacement/5698561127291561694.png", 
+      "isDifferent": true
+    }, 
+    {
+      "differenceData": {
+        "maxDiffPerChannel": [
+          255, 
+          221, 
+          221
+        ], 
+        "numDifferingPixels": 50097, 
+        "percentDifferingPixels": 30.5767822265625, 
+        "perceptualDifference": 3.3917, 
+        "weightedDiffMeasure": 1.4826590790651433
+      }, 
+      "extraColumns": {
+        "builder": "Test-Builder-We-Have-No-Expectations-File-For", 
+        "config": "TODO", 
+        "resultType": "failed", 
+        "test": "bigblurs"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/bigblurs/17309852422285247848.png", 
+      "imageBUrl": "bitmap-64bitMD5/bigblurs/1822195599289208664.png", 
+      "isDifferent": true
+    }, 
+    {
+      "extraColumns": {
+        "builder": "Test-Builder-We-Have-No-Expectations-File-For", 
+        "config": "TODO", 
+        "resultType": "succeeded", 
+        "test": "3x3bitmaprect"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
+      "imageBUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
+      "isDifferent": false
     }, 
     {
       "differenceData": {
