@@ -28,6 +28,10 @@
 #include "SkDraw.h"
 #endif
 
+SkScalar SkBlurMaskFilter::ConvertRadiusToSigma(SkScalar radius) {
+    return SkBlurMask::ConvertRadiusToSigma(radius);
+}
+
 class SkBlurMaskFilterImpl : public SkMaskFilter {
 public:
     SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle, uint32_t flags);
