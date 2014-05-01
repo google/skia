@@ -186,12 +186,6 @@
     editor.setSize(editor.defaultCharWidth() * code.cols,
                    editor.defaultTextHeight() * code.rows);
 
-    // Suppress changes to the first/last line (draw wrapper method)
-    editor.on('beforeChange', function(cm, change) {
-      if (change.from.line < 1 || change.from.line == cm.lineCount() - 1)
-        change.cancel();
-    });
-
     function beginWait() {
       document.body.classList.add('waiting');
       run.disabled = true;
@@ -248,6 +242,7 @@
       endWait();
       body = JSON.parse(e.target.response);
       code.value = body.code;
+      editor.setValue(body.code);
       img.src = '/i/'+body.hash+'.png';
       if (permalink) {
         permalink.href = '/c/' + body.hash;
