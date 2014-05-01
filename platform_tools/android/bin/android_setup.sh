@@ -134,8 +134,17 @@ setup_device() {
       ANDROID_ARCH="mips"
       ;;
     *)
-      echo "ERROR: unknown device $TARGET_DEVICE"
-      exit 1
+      if [ -z "$ANDROID_IGNORE_UNKNOWN_DEVICE" ]; then
+          echo "ERROR: unknown device $TARGET_DEVICE"
+          exit 1
+      fi
+      # If ANDROID_IGNORE_UNKNOWN_DEVICE is set, then ANDROID_TOOLCHAIN
+      # or ANDROID_ARCH should be set; Otherwise, ANDROID_ARCH
+      # defaults to 'arm' and the default ARM toolchain is used.
+      DEFINES="${DEFINES} skia_arch_type=${ANDROID_ARCH-arm}"
+      # If ANDROID_IGNORE_UNKNOWN_DEVICE is set, extra gyp defines can be
+      # added via ANDROID_GYP_DEFINES
+      DEFINES="${DEFINES} ${ANDROID_GYP_DEFINES}"
       ;;
   esac
 
