@@ -35,9 +35,9 @@
       Results from <a href="{{resultsToLoad}}">{{resultsToLoad}}</a> current as of {{localTimeString(header[constants.KEY__HEADER__TIME_UPDATED])}}
     </div>
 
-    <div><!-- tabs -->
+    <div class="tab-wrapper"><!-- tabs -->
       <div class="tab-spacer" ng-repeat="tab in tabs">
-        <div class="tab-{{tab == viewingTab}}"
+        <div class="tab tab-{{tab == viewingTab}}"
              ng-click="setViewingTab(tab)">
           &nbsp;{{tab}} ({{numResultsPerTab[tab]}})&nbsp;
         </div>

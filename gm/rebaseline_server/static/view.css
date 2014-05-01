@@ -6,18 +6,36 @@
     background-color: #ffbb00;
 }
 
+.tab-wrapper {
+    margin-top: 10px;
+}
+
+.tab {
+    display: inline-block;
+    font-size: 20px;
+    padding: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    position: relative;
+}
+
 /* Tab which has been selected. */
 .tab-true {
     background-color: #ccccff;
-    display: inline-block;
-    font-size: 20px;
+    border: 1px solid black;
+    border-bottom-width: 0px;
+    bottom: -1px;
 }
 /* All other tabs. */
 .tab-false {
     background-color: #8888ff;
-    display: inline-block;
-    font-size: 20px;
+    cursor: pointer;
 }
+
+.tab-false:hover {
+    background-color: #aa88ff;
+}
+
 /* Spacers between tabs. */
 .tab-spacer {
     display: inline-block;
@@ -25,6 +43,7 @@
 /* The main working area (connected to the selected tab). */
 .tab-main {
     background-color: #ccccff;
+    border: 1px solid black;
 }
 
 .update-results-button {
