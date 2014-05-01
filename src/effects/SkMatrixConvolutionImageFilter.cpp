@@ -153,6 +153,9 @@ void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src,
                                                   SkBitmap* result,
                                                   const SkIRect& rect,
                                                   const SkIRect& bounds) const {
+    if (rect.isEmpty()) {
+        return;
+    }
     for (int y = rect.fTop; y < rect.fBottom; ++y) {
         SkPMColor* dptr = result->getAddr32(rect.fLeft - bounds.fLeft, y - bounds.fTop);
         for (int x = rect.fLeft; x < rect.fRight; ++x) {

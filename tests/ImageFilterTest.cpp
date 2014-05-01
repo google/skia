@@ -372,6 +372,32 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     }
 }
 
+DEF_TEST(ImageFilterMatrixConvolution, reporter) {
+    // Check that a 1x3 filter does not cause a spurious assert.
+    SkScalar kernel[3] = {
+        SkIntToScalar( 1), SkIntToScalar( 1), SkIntToScalar( 1),
+    };
+    SkISize kernelSize = SkISize::Make(1, 3);
+    SkScalar gain = SK_Scalar1, bias = 0;
+    SkIPoint kernelOffset = SkIPoint::Make(0, 0);
+
+    SkAutoTUnref<SkImageFilter> filter(
+        SkMatrixConvolutionImageFilter::Create(
+            kernelSize, kernel, gain, bias, kernelOffset,
+            SkMatrixConvolutionImageFilter::kRepeat_TileMode, false));
+
+    SkBitmap result;
+    int width = 16, height = 16;
+    result.allocN32Pixels(width, height);
+    SkCanvas canvas(result);
+    canvas.clear(0);
+
+    SkPaint paint;
+    paint.setImageFilter(filter);
+    SkRect rect = SkRect::Make(SkIRect::MakeWH(width, height));
+    canvas.drawRect(rect, paint);
+}
+
 DEF_TEST(ImageFilterCropRect, reporter) {
     SkBitmap temp;
     temp.allocN32Pixels(100, 100);
