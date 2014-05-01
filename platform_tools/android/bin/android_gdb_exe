@@ -25,15 +25,19 @@ PORT=5039
 
 # Set up gdb commands
 GDBSETUP=$GDB_TMP_DIR/gdb.setup
-echo "file $GDB_TMP_DIR/skia_launcher" >> $GDBSETUP
-echo "target remote :$PORT" >> $GDBSETUP
-echo "set solib-absolute-prefix $GDB_TMP_DIR" >> $GDBSETUP
-echo "set solib-search-path $GDB_TMP_DIR" >> $GDBSETUP
+{
+    echo "file ${GDB_TMP_DIR}/skia_launcher"
+    echo "target remote :${PORT}"
+    echo "set solib-absolute-prefix ${GDB_TMP_DIR}"
+    echo "set solib-search-path ${GDB_TMP_DIR}
 
-# The apps shared library symbols are not loaded by default so we load them here
-echo "break launch_app" >> $GDBSETUP
-echo "continue" >> $GDBSETUP
-echo "sharedLibrary $APP_NAME" >> $GDBSETUP
+    # The apps shared library symbols are not loaded by default so we
+    # load them here."
+    echo "break launch_app"
+    echo "continue"
+    echo "sharedLibrary ${APP_NAME}"
+} > $GDBSETUP
+
 
 # Launch gdb client
 echo "Entering gdb client shell"
