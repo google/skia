@@ -24,10 +24,23 @@ STATUS_FILENAME="/data/local/tmp/.skia_tmp_$(date +%s%N)"
 $ADB ${DEVICE_SERIAL} shell \
     "/data/local/tmp/skia_launcher ${APP_ARGS[@]}; echo \$? > ${STATUS_FILENAME}"
 if [ -z "$($ADB $DEVICE_SERIAL shell 'if [ -f $STATUS_FILENAME ]; then echo exists; fi')" ]; then
+  echo "***********************************************************************"
+  echo "The application terminated unexpectedly and did not produce an exit code"
+  echo "***********************************************************************"
   exit 1
 fi
+
 EXIT_CODE=`$ADB ${DEVICE_SERIAL} shell cat ${STATUS_FILENAME}`
-$ADB ${DEVICE_SERIAL} shell rm ${STATUS_FILENAME}
+$ADB ${DEVICE_SERIAL} shell rm -f ${STATUS_FILENAME}
+
+# check to see if the 'cat' command failed and print errors accordingly
+if [[ ${EXIT_CODE} == *${STATUS_FILENAME}* ]]; then
+  echo "***********************************************************************"
+  echo "ADB failed to retrieve the application's exit code"
+  echo "***********************************************************************"
+  exit 1
+fi
+
 echo "EXIT_CODE is ${EXIT_CODE}"
 if [ $'0\r' != "${EXIT_CODE}" ]; then
   exit 1
