@@ -99,7 +99,7 @@ bool get_gl_version_for_mesa(int mesaMajorVersion, int* major, int* minor) {
 
 GrGLStandard GrGLGetStandardInUseFromString(const char* versionString) {
     if (NULL == versionString) {
-        SkDEBUGFAIL("NULL GL version string.");
+        SkDebugf("NULL GL version string.");
         return kNone_GrGLStandard;
     }
 
@@ -139,7 +139,7 @@ bool GrGLIsChromiumFromRendererString(const char* rendererString) {
 
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {
     if (NULL == versionString) {
-        SkDEBUGFAIL("NULL GL version string.");
+        SkDebugf("NULL GL version string.");
         return GR_GL_INVALID_VER;
     }
 
@@ -178,7 +178,7 @@ GrGLVersion GrGLGetVersionFromString(const char* versionString) {
 
 GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
     if (NULL == versionString) {
-        SkDEBUGFAIL("NULL GLSL version string.");
+        SkDebugf("NULL GLSL version string.");
         return GR_GLSL_INVALID_VER;
     }
 
