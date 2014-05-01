@@ -11401,49 +11401,37 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14035514972316109592
+          5817058158222690587
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "simpleblurroundrect_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2355217598087336311
+          15443119637233985043
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "simpleblurroundrect_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1893880511262545820
+          5442073193338977717
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "simpleblurroundrect_pdf-poppler.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          950676191690992737
+          4659327556183756708
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "skbug1719_565.png": {
       "allowed-digests": [
