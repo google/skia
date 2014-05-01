@@ -18,6 +18,7 @@ RecordTask::RecordTask(const Task& parent, skiagm::GM* gm, SkBitmap reference)
 void RecordTask::draw() {
     // Record the GM into an SkRecord.
     EXPERIMENTAL::SkRecording recording(fReference.width(), fReference.height());
+    recording.canvas()->concat(fGM->getInitialTransform());
     fGM->draw(recording.canvas());
     SkAutoTDelete<const EXPERIMENTAL::SkPlayback> playback(recording.releasePlayback());
 
