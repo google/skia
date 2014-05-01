@@ -491,55 +491,6 @@ protected:
         canvas->restore();
     }
 
-    /*
-./SkColorFilter.h:25:class SkColorFilter : public SkFlattenable { -- abstract
-    static SkColorFilter* CreatXfermodeFilter() *** untested ***
-    static SkColorFilter* CreatePorterDuffFilter() *** untested ***
-    static SkColorFilter* CreateLightingFilter() -- tested
-./SkDrawLooper.h:9:class SkDrawLooper : public SkFlattenable { -- virtually abstract
-    ./SkBlurDrawLooper.h:9:class SkBlurDrawLooper : public SkDrawLooper { *** untested ***
-./SkMaskFilter.h:41:class SkMaskFilter : public SkFlattenable { -- abstract chmod +w .h
-    ./SkEmbossMaskFilter.h:27:class SkEmbossMaskFilter : public SkMaskFilter { -- tested
-./SkPathEffect.h:33:class SkPathEffect : public SkFlattenable { -- abstract
-    ./Sk1DPathEffect.h:27:class Sk1DPathEffect : public SkPathEffect { -- abstract
-        ./Sk1DPathEffect.h:48:class SkPath1DPathEffect : public Sk1DPathEffect { -- tested
-    ./Sk2DPathEffect.h:25:class Sk2DPathEffect : public SkPathEffect { *** untested ***
-    ./SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect { *** untested ***
-    ./SkDashPathEffect.h:27:class SkDashPathEffect : public SkPathEffect {
-    ./SkDiscretePathEffect.h:27:class SkDiscretePathEffect : public SkPathEffect {
-    ./SkPaint.h:760:class SkStrokePathEffect : public SkPathEffect {
-    ./SkPathEffect.h:58:class SkPairPathEffect : public SkPathEffect {
-        ./SkPathEffect.h:78:class SkComposePathEffect : public SkPairPathEffect {
-        ./SkPathEffect.h:114:class SkSumPathEffect : public SkPairPathEffect {
-./SkRasterizer.h:29:class SkRasterizer : public SkFlattenable {
-    ./SkLayerRasterizer.h:27:class SkLayerRasterizer : public SkRasterizer {
-./SkShader.h:36:class SkShader : public SkFlattenable {
-    ./SkColorFilter.h:59:class SkFilterShader : public SkShader {
-    ./SkColorShader.h:26:class SkColorShader : public SkShader {
-    ./SkShaderExtras.h:31:class SkComposeShader : public SkShader {
-    ./SkTransparentShader.h:23:class SkTransparentShader : public SkShader {
-./SkUnitMapper.h:24:class SkUnitMapper : public SkFlattenable {
-    ./SkUnitMapper.h:33:class SkDiscreteMapper : public SkUnitMapper {
-    ./SkUnitMapper.h:51:class SkFlipCosineMapper : public SkUnitMapper {
-./SkXfermode.h:32:class SkXfermode : public SkFlattenable {
-    ./SkAvoidXfermode.h:28:class SkAvoidXfermode : public SkXfermode { *** not done *** chmod +w .h .cpp
-    ./SkXfermode.h:54:class SkProcXfermode : public SkXfermode {
-    */
-
-    /*
-./SkBlurMaskFilter.h:25:class SkBlurMaskFilter {
-    chmod +w SkBlurMaskFilter.cpp
-./SkGradientShader.h:30:class SkGradientShader {
-    */
-        // save layer, bounder, looper
-        // matrix
-        // clip /path/region
-        // bitmap proc shader ?
-
-/* untested:
-SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
-*/
-
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) {
         fClickPt.set(x, y);
         this->inval(NULL);

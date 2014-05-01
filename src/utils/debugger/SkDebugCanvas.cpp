@@ -125,8 +125,6 @@ public:
 #endif
 };
 
-// The OverdrawFilter modifies every paint to use an SkProcXfermode which
-// in turn invokes OverdrawXferModeProc
 class SkOverdrawFilter : public SkDrawFilter {
 public:
     SkOverdrawFilter() {

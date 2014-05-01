@@ -17,8 +17,6 @@ class GrEffectRef;
 class GrTexture;
 class SkString;
 
-//#define SK_SUPPORT_LEGACY_PROCXFERMODE
-
 /** \class SkXfermode
  *
  *  SkXfermode is the base class for objects that are called to implement custom
@@ -245,55 +243,5 @@ private:
 
     typedef SkFlattenable INHERITED;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_SUPPORT_LEGACY_PROCXFERMODE
-/** \class SkProcXfermode
-
-    SkProcXfermode is a xfermode that applies the specified proc to its colors.
-    This class is not exported to java.
-*/
-class SK_API SkProcXfermode : public SkXfermode {
-public:
-    static SkProcXfermode* Create(SkXfermodeProc proc) {
-        return SkNEW_ARGS(SkProcXfermode, (proc));
-    }
-
-    // overrides from SkXfermode
-    virtual void xfer32(SkPMColor dst[], const SkPMColor src[], int count,
-                        const SkAlpha aa[]) const SK_OVERRIDE;
-    virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count,
-                        const SkAlpha aa[]) const SK_OVERRIDE;
-    virtual void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
-                        const SkAlpha aa[]) const SK_OVERRIDE;
-
-    SK_TO_STRING_OVERRIDE()
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkProcXfermode)
-
-protected:
-    SkProcXfermode(SkReadBuffer&);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-
-    // allow subclasses to update this after we unflatten
-    void setProc(SkXfermodeProc proc) {
-        fProc = proc;
-    }
-
-    SkXfermodeProc getProc() const {
-        return fProc;
-    }
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
-    SkProcXfermode(SkXfermodeProc proc) : fProc(proc) {}
-
-private:
-    SkXfermodeProc  fProc;
-
-    typedef SkXfermode INHERITED;
-};
-#endif
 
 #endif
