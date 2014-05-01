@@ -18,6 +18,7 @@ public:
     explicit TaskRunner(int cpuThreads, int gpuThreads);
 
     void add(CpuTask* task);
+    void addNext(CpuTask* task);
     void add(GpuTask* task);
     void wait();
 

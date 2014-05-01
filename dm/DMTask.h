@@ -36,7 +36,7 @@ protected:
     void fail(const char* msg = NULL);
     void finish();
 
-    void reallySpawnChild(CpuTask* task);  // For now we don't allow GPU child tasks.
+    void spawnChildNext(CpuTask* task);  // For now we don't allow GPU child tasks.
 
 private:
     Reporter* fReporter;      // Unowned.

@@ -6,7 +6,7 @@ namespace DM {
 TaskRunner::TaskRunner(int cpuThreads, int gpuThreads) : fCpu(cpuThreads), fGpu(gpuThreads) {}
 
 void TaskRunner::add(CpuTask* task) { fCpu.add(task); }
-
+void TaskRunner::addNext(CpuTask* task) { fCpu.addNext(task); }
 void TaskRunner::add(GpuTask* task) { fGpu.add(task); }
 
 void TaskRunner::wait() {

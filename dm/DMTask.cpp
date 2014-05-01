@@ -37,8 +37,8 @@ void Task::finish() {
     fReporter->finish(this->name(), SkTime::GetMSecs() - fStart);
 }
 
-void Task::reallySpawnChild(CpuTask* task) {
-    fTaskRunner->add(task);
+void Task::spawnChildNext(CpuTask* task) {
+    fTaskRunner->addNext(task);
 }
 
 CpuTask::CpuTask(Reporter* reporter, TaskRunner* taskRunner) : Task(reporter, taskRunner) {}
@@ -55,6 +55,8 @@ void CpuTask::run() {
 
 void CpuTask::spawnChild(CpuTask* task) {
     // Run children serially on this (CPU) thread.  This tends to save RAM and is usually no slower.
+    // Calling spawnChildNext() is nearly equivalent, but it'd pointlessly contend on the
+    // threadpool; spawnChildNext() is most useful when you want to change threadpools.
     task->run();
 }
 
@@ -71,7 +73,8 @@ void GpuTask::run(GrContextFactory& factory) {
 
 void GpuTask::spawnChild(CpuTask* task) {
     // Really spawn a new task so it runs on the CPU threadpool instead of the GPU one we're on now.
-    this->reallySpawnChild(task);
+    // It goes on the front of the queue to minimize the time we must hold reference bitmaps in RAM.
+    this->spawnChildNext(task);
 }
 
 }  // namespace DM
