@@ -175,7 +175,7 @@
     var tryTemplate = document.getElementById('tryTemplate');
 
     var editor = CodeMirror.fromTextArea(code, {
-      theme: "ambiance",
+      theme: "default",
       lineNumbers: true,
       matchBrackets: true,
       mode: "text/x-c++src",

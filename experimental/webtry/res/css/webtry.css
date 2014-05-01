@@ -99,3 +99,13 @@ pre, code {
     float: right;
     font-size: 70%;
 }
+
+.CodeMirror-lines,
+.CodeMirror-scroll
+{
+  background-color: #eee;
+}
+
+.CodeMirror {
+  border: solid gray 1px;
+}

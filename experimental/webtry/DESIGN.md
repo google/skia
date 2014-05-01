@@ -220,11 +220,9 @@ be updated in place (no local customizations):
   * codemirror.js  - base CM implementation
   * codemirror.css - base CM stylesheet
   * clike.js       - C-like syntax highlighting support
-  * ambiance.css   - Ambiance CM theme
 
 Alternatively, we may consider pulling CM as an external dependency at some
 point.
-
 
 Installation
 ------------
