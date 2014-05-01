@@ -7,7 +7,6 @@
 #
 {
     'sources': [
-        '<(skia_src_path)/core/ARGB32_Clamp_Bilinear_BitmapShader.h',
         '<(skia_src_path)/core/SkAAClip.cpp',
         '<(skia_src_path)/core/SkAnnotation.cpp',
         '<(skia_src_path)/core/SkAdvancedTypefaceMetrics.cpp',
