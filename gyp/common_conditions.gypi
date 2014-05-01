@@ -413,6 +413,16 @@
                   }],
                 ],
               }],
+              [ 'skia_sanitizer == "undefined"', {
+                'cflags': [ '-fPIC' ],
+                'cflags_cc!': ['-fno-rtti'],
+                'target_conditions': [
+                  [ '_type == "executable"', {
+                    'cflags': [ '-fPIE' ],
+                    'ldflags': [ '-pie' ],
+                  }],
+                ],
+              }],
             ],
           }],
           [ 'skia_clang_build', {
