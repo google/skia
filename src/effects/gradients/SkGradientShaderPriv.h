@@ -142,9 +142,7 @@ public:
 
     class GradientShaderBaseContext : public SkShader::Context {
     public:
-        GradientShaderBaseContext(const SkGradientShaderBase& shader, const SkBitmap& device,
-                                  const SkPaint& paint, const SkMatrix& matrix);
-        ~GradientShaderBaseContext() {}
+        GradientShaderBaseContext(const SkGradientShaderBase& shader, const ContextRec&);
 
         virtual uint32_t getFlags() const SK_OVERRIDE { return fFlags; }
 

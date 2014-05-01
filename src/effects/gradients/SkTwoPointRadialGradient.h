@@ -23,20 +23,13 @@ public:
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE;
     virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint&) const SK_OVERRIDE;
 
-
     virtual size_t contextSize() const SK_OVERRIDE;
-    virtual bool validContext(const SkBitmap&, const SkPaint&,
-                              const SkMatrix&, SkMatrix* totalInverse = NULL) const SK_OVERRIDE;
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
-                                             void* storage) const SK_OVERRIDE;
+    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse) const SK_OVERRIDE;
+    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
     class TwoPointRadialGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
-        TwoPointRadialGradientContext(const SkTwoPointRadialGradient& shader,
-                                      const SkBitmap& device,
-                                      const SkPaint& paint,
-                                      const SkMatrix& matrix);
-        ~TwoPointRadialGradientContext() {}
+        TwoPointRadialGradientContext(const SkTwoPointRadialGradient&, const ContextRec&);
 
         virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
 

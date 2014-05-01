@@ -106,35 +106,31 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix) const {
     return fCachedBitmapShader;
 }
 
-SkShader* SkPictureShader::validInternal(const SkBitmap& device, const SkPaint& paint,
-                                         const SkMatrix& matrix, SkMatrix* totalInverse) const {
-    if (!this->INHERITED::validContext(device, paint, matrix, totalInverse)) {
+SkShader* SkPictureShader::validInternal(const ContextRec& rec, SkMatrix* totalInverse) const {
+    if (!this->INHERITED::validContext(rec, totalInverse)) {
         return NULL;
     }
 
-    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(matrix));
-    if (!bitmapShader || !bitmapShader->validContext(device, paint, matrix)) {
+    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix));
+    if (!bitmapShader || !bitmapShader->validContext(rec)) {
         return NULL;
     }
 
     return bitmapShader.detach();
 }
 
-bool SkPictureShader::validContext(const SkBitmap& device, const SkPaint& paint,
-                                   const SkMatrix& matrix, SkMatrix* totalInverse) const {
-    SkAutoTUnref<SkShader> shader(this->validInternal(device, paint, matrix, totalInverse));
+bool SkPictureShader::validContext(const ContextRec& rec, SkMatrix* totalInverse) const {
+    SkAutoTUnref<SkShader> shader(this->validInternal(rec, totalInverse));
     return shader != NULL;
 }
 
-SkShader::Context* SkPictureShader::createContext(const SkBitmap& device, const SkPaint& paint,
-                                                  const SkMatrix& matrix, void* storage) const {
-    SkAutoTUnref<SkShader> bitmapShader(this->validInternal(device, paint, matrix, NULL));
+SkShader::Context* SkPictureShader::createContext(const ContextRec& rec, void* storage) const {
+    SkAutoTUnref<SkShader> bitmapShader(this->validInternal(rec, NULL));
     if (!bitmapShader) {
         return NULL;
     }
 
-    return SkNEW_PLACEMENT_ARGS(storage, PictureShaderContext,
-                                (*this, device, paint, matrix, bitmapShader.detach()));
+    return SkNEW_PLACEMENT_ARGS(storage, PictureShaderContext, (*this, rec, bitmapShader.detach()));
 }
 
 size_t SkPictureShader::contextSize() const {
@@ -142,15 +138,13 @@ size_t SkPictureShader::contextSize() const {
 }
 
 SkPictureShader::PictureShaderContext::PictureShaderContext(
-        const SkPictureShader& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix, SkShader* bitmapShader)
-    : INHERITED(shader, device, paint, matrix)
+        const SkPictureShader& shader, const ContextRec& rec, SkShader* bitmapShader)
+    : INHERITED(shader, rec)
     , fBitmapShader(bitmapShader)
 {
     SkASSERT(fBitmapShader);
     fBitmapShaderContextStorage = sk_malloc_throw(fBitmapShader->contextSize());
-    fBitmapShaderContext = fBitmapShader->createContext(
-            device, paint, matrix, fBitmapShaderContextStorage);
+    fBitmapShaderContext = fBitmapShader->createContext(rec, fBitmapShaderContextStorage);
     SkASSERT(fBitmapShaderContext);
 }
 

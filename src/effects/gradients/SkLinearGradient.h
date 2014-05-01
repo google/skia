@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -15,14 +14,12 @@ class SkLinearGradient : public SkGradientShaderBase {
 public:
     SkLinearGradient(const SkPoint pts[2], const Descriptor&, const SkMatrix* localMatrix);
 
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
-                                             void* storage) const SK_OVERRIDE;
+    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class LinearGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
-        LinearGradientContext(const SkLinearGradient& shader, const SkBitmap& device,
-                              const SkPaint& paint, const SkMatrix& matrix);
+        LinearGradientContext(const SkLinearGradient&, const ContextRec&);
         ~LinearGradientContext() {}
 
         virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;

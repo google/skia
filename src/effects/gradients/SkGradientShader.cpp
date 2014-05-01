@@ -253,9 +253,8 @@ bool SkGradientShaderBase::isOpaque() const {
 }
 
 SkGradientShaderBase::GradientShaderBaseContext::GradientShaderBaseContext(
-        const SkGradientShaderBase& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix)
-    : INHERITED(shader, device, paint, matrix)
+        const SkGradientShaderBase& shader, const ContextRec& rec)
+    : INHERITED(shader, rec)
     , fCache(shader.refCache(getPaintAlpha()))
 {
     const SkMatrix& inverse = this->getTotalInverse();

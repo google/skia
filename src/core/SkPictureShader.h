@@ -24,18 +24,13 @@ public:
     static SkPictureShader* Create(SkPicture*, TileMode, TileMode);
     virtual ~SkPictureShader();
 
-    virtual bool validContext(const SkBitmap&, const SkPaint&,
-                              const SkMatrix&, SkMatrix* totalInverse = NULL) const SK_OVERRIDE;
-    virtual SkShader::Context* createContext(const SkBitmap& device, const SkPaint& paint,
-                                             const SkMatrix& matrix, void* storage) const
-            SK_OVERRIDE;
+    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse) const SK_OVERRIDE;
+    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class PictureShaderContext : public SkShader::Context {
     public:
-        PictureShaderContext(const SkPictureShader& shader, const SkBitmap& device,
-                             const SkPaint& paint, const SkMatrix& matrix,
-                             SkShader* bitmapShader);
+        PictureShaderContext(const SkPictureShader&, const ContextRec&, SkShader* bitmapShader);
         virtual ~PictureShaderContext();
 
         virtual uint32_t getFlags() const SK_OVERRIDE;
@@ -66,9 +61,7 @@ protected:
 private:
     SkPictureShader(SkPicture*, TileMode, TileMode);
 
-    SkShader* validInternal(const SkBitmap& device, const SkPaint& paint,
-                            const SkMatrix& matrix, SkMatrix* totalInverse) const;
-
+    SkShader* validInternal(const ContextRec&, SkMatrix* totalInverse) const;
     SkShader* refBitmapShader(const SkMatrix&) const;
 
     SkPicture*  fPicture;

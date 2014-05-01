@@ -78,11 +78,8 @@ void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
     really is translucent, then we apply that after the fact.
 
  */
-bool SkComposeShader::validContext(const SkBitmap& device,
-                                   const SkPaint& paint,
-                                   const SkMatrix& matrix,
-                                   SkMatrix* totalInverse) const {
-    if (!this->INHERITED::validContext(device, paint, matrix, totalInverse)) {
+bool SkComposeShader::validContext(const ContextRec& rec, SkMatrix* totalInverse) const {
+    if (!this->INHERITED::validContext(rec, totalInverse)) {
         return false;
     }
 
@@ -90,48 +87,49 @@ bool SkComposeShader::validContext(const SkBitmap& device,
     // before calling our sub-shaders
 
     SkMatrix tmpM;
+    tmpM.setConcat(*rec.fMatrix, this->getLocalMatrix());
 
-    tmpM.setConcat(matrix, this->getLocalMatrix());
+    ContextRec newRec(rec);
+    newRec.fMatrix = &tmpM;
 
-    return fShaderA->validContext(device, paint, tmpM) &&
-           fShaderB->validContext(device, paint, tmpM);
+    return fShaderA->validContext(newRec) && fShaderB->validContext(newRec);
 }
 
-SkShader::Context* SkComposeShader::createContext(const SkBitmap& device, const SkPaint& paint,
-                                                  const SkMatrix& matrix, void* storage) const {
-    if (!this->validContext(device, paint, matrix)) {
+SkShader::Context* SkComposeShader::createContext(const ContextRec& rec, void* storage) const {
+    if (!this->validContext(rec)) {
         return NULL;
     }
 
-    // we preconcat our localMatrix (if any) with the device matrix
-    // before calling our sub-shaders
-
-    SkMatrix tmpM;
-
-    tmpM.setConcat(matrix, this->getLocalMatrix());
-
-    SkAutoAlphaRestore  restore(const_cast<SkPaint*>(&paint), 0xFF);
+    // TODO : must fix this to not "cheat" and modify fPaint
+    SkAutoAlphaRestore  restore(const_cast<SkPaint*>(rec.fPaint), 0xFF);
 
     char* aStorage = (char*) storage + sizeof(ComposeShaderContext);
     char* bStorage = aStorage + fShaderA->contextSize();
 
-    SkShader::Context* contextA = fShaderA->createContext(device, paint, tmpM, aStorage);
-    SkShader::Context* contextB = fShaderB->createContext(device, paint, tmpM, bStorage);
+    // we preconcat our localMatrix (if any) with the device matrix
+    // before calling our sub-shaders
+    
+    SkMatrix tmpM;
+    tmpM.setConcat(*rec.fMatrix, this->getLocalMatrix());
+    
+    ContextRec newRec(rec);
+    newRec.fMatrix = &tmpM;
+
+    SkShader::Context* contextA = fShaderA->createContext(newRec, aStorage);
+    SkShader::Context* contextB = fShaderB->createContext(newRec, bStorage);
 
     // Both functions must succeed; otherwise validContext should have returned
     // false.
     SkASSERT(contextA);
     SkASSERT(contextB);
 
-    return SkNEW_PLACEMENT_ARGS(storage, ComposeShaderContext,
-                                (*this, device, paint, matrix, contextA, contextB));
+    return SkNEW_PLACEMENT_ARGS(storage, ComposeShaderContext, (*this, rec, contextA, contextB));
 }
 
 SkComposeShader::ComposeShaderContext::ComposeShaderContext(
-        const SkComposeShader& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix,
+        const SkComposeShader& shader, const ContextRec& rec,
         SkShader::Context* contextA, SkShader::Context* contextB)
-    : INHERITED(shader, device, paint, matrix)
+    : INHERITED(shader, rec)
     , fShaderContextA(contextA)
     , fShaderContextB(contextB) {}
 

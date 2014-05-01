@@ -119,10 +119,26 @@ public:
      */
     virtual bool isOpaque() const { return false; }
 
+    /**
+     *  ContextRec acts as a parameter bundle for creating Contexts.
+     */
+    struct ContextRec {
+        ContextRec() : fDevice(NULL), fPaint(NULL), fMatrix(NULL) {}
+        ContextRec(const ContextRec& other)
+            : fDevice(other.fDevice), fPaint(other.fPaint), fMatrix(other.fMatrix) {}
+        ContextRec(const SkBitmap& device, const SkPaint& paint, const SkMatrix& matrix)
+            : fDevice(&device)
+            , fPaint(&paint)
+            , fMatrix(&matrix) {}
+
+        const SkBitmap* fDevice;    // the bitmap we are drawing into
+        const SkPaint*  fPaint;     // the current paint associated with the draw
+        const SkMatrix* fMatrix;    // the current matrix in the canvas
+    };
+
     class Context : public ::SkNoncopyable {
     public:
-        Context(const SkShader& shader, const SkBitmap& device,
-                const SkPaint& paint, const SkMatrix& matrix);
+        Context(const SkShader& shader, const ContextRec&);
 
         virtual ~Context();
 
@@ -200,8 +216,7 @@ public:
      *  Subclasses should be sure to call their INHERITED::validContext() if
      *  they override this method.
      */
-    virtual bool validContext(const SkBitmap& device, const SkPaint& paint,
-                              const SkMatrix& matrix, SkMatrix* totalInverse = NULL) const;
+    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse = NULL) const;
 
     /**
      *  Create the actual object that does the shading.
@@ -211,10 +226,7 @@ public:
      *
      *  Base class implementation returns NULL.
      */
-    virtual Context* createContext(const SkBitmap& device,
-                                   const SkPaint& paint,
-                                   const SkMatrix& matrix,
-                                   void* storage) const;
+    virtual Context* createContext(const ContextRec&, void* storage) const;
 
     /**
      *  Return the size of a Context returned by createContext.

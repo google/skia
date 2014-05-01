@@ -16,15 +16,12 @@ public:
     SkSweepGradient(SkScalar cx, SkScalar cy, const Descriptor&,
                     const SkMatrix* localMatrix);
 
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
-                                             void* storage) const SK_OVERRIDE;
+    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class SweepGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
-        SweepGradientContext(const SkSweepGradient& shader, const SkBitmap& device,
-                             const SkPaint& paint, const SkMatrix& matrix);
-        ~SweepGradientContext() {}
+        SweepGradientContext(const SkSweepGradient& shader, const ContextRec&);
 
         virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
         virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;

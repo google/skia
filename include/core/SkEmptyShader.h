@@ -27,13 +27,11 @@ public:
         return sizeof(SkShader::Context);
     }
 
-    virtual bool validContext(const SkBitmap&, const SkPaint&,
-                              const SkMatrix&, SkMatrix* totalInverse = NULL) const SK_OVERRIDE {
+    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse = NULL) const SK_OVERRIDE {
         return false;
     }
 
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&,
-                                             const SkMatrix&, void*) const SK_OVERRIDE {
+    virtual SkShader::Context* createContext(const ContextRec&, void*) const SK_OVERRIDE {
         // validContext returns false.
         return NULL;
     }

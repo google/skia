@@ -224,31 +224,27 @@ size_t SkTwoPointRadialGradient::contextSize() const {
     return sizeof(TwoPointRadialGradientContext);
 }
 
-bool SkTwoPointRadialGradient::validContext(const SkBitmap& device, const SkPaint& paint,
-                                            const SkMatrix& matrix, SkMatrix* totalInverse) const {
+bool SkTwoPointRadialGradient::validContext(const ContextRec& rec, SkMatrix* totalInverse) const {
     // For now, we might have divided by zero, so detect that.
     if (0 == fDiffRadius) {
         return false;
     }
 
-    return this->INHERITED::validContext(device, paint, matrix, totalInverse);
+    return this->INHERITED::validContext(rec, totalInverse);
 }
 
-SkShader::Context* SkTwoPointRadialGradient::createContext(
-        const SkBitmap& device, const SkPaint& paint,
-        const SkMatrix& matrix, void* storage) const {
-    if (!this->validContext(device, paint, matrix)) {
+SkShader::Context* SkTwoPointRadialGradient::createContext(const ContextRec& rec,
+                                                           void* storage) const {
+    if (!this->validContext(rec, NULL)) {
         return NULL;
     }
 
-    return SkNEW_PLACEMENT_ARGS(storage, TwoPointRadialGradientContext,
-                                (*this, device, paint, matrix));
+    return SkNEW_PLACEMENT_ARGS(storage, TwoPointRadialGradientContext, (*this, rec));
 }
 
 SkTwoPointRadialGradient::TwoPointRadialGradientContext::TwoPointRadialGradientContext(
-        const SkTwoPointRadialGradient& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix)
-    : INHERITED(shader, device, paint, matrix)
+        const SkTwoPointRadialGradient& shader, const ContextRec& rec)
+    : INHERITED(shader, rec)
 {
     // we don't have a span16 proc
     fFlags &= ~kHasSpan16_Flag;

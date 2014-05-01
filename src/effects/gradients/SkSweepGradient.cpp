@@ -56,19 +56,17 @@ size_t SkSweepGradient::contextSize() const {
     return sizeof(SweepGradientContext);
 }
 
-SkShader::Context* SkSweepGradient::createContext(const SkBitmap& device, const SkPaint& paint,
-                                                  const SkMatrix& matrix, void* storage) const {
-    if (!this->validContext(device, paint, matrix)) {
+SkShader::Context* SkSweepGradient::createContext(const ContextRec& rec, void* storage) const {
+    if (!this->validContext(rec)) {
         return NULL;
     }
 
-    return SkNEW_PLACEMENT_ARGS(storage, SweepGradientContext, (*this, device, paint, matrix));
+    return SkNEW_PLACEMENT_ARGS(storage, SweepGradientContext, (*this, rec));
 }
 
 SkSweepGradient::SweepGradientContext::SweepGradientContext(
-        const SkSweepGradient& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix)
-    : INHERITED(shader, device, paint, matrix) {}
+        const SkSweepGradient& shader, const ContextRec& rec)
+    : INHERITED(shader, rec) {}
 
 //  returns angle in a circle [0..2PI) -> [0..255]
 static unsigned SkATan2_255(float y, float x) {

@@ -34,18 +34,15 @@ public:
     SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode = NULL);
     virtual ~SkComposeShader();
 
-    virtual bool validContext(const SkBitmap&, const SkPaint&,
-                              const SkMatrix&, SkMatrix* totalInverse = NULL) const SK_OVERRIDE;
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&,
-                                             const SkMatrix&, void*) const SK_OVERRIDE;
+    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse = NULL) const SK_OVERRIDE;
+    virtual SkShader::Context* createContext(const ContextRec&, void*) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class ComposeShaderContext : public SkShader::Context {
     public:
         // When this object gets destroyed, it will call contextA and contextB's destructor
         // but it will NOT free the memory.
-        ComposeShaderContext(const SkComposeShader&, const SkBitmap&,
-                             const SkPaint&, const SkMatrix&,
+        ComposeShaderContext(const SkComposeShader&, const ContextRec&,
                              SkShader::Context* contextA, SkShader::Context* contextB);
 
         SkShader::Context* getShaderContextA() const { return fShaderContextA; }

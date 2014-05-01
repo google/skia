@@ -11,15 +11,12 @@
 #include "SkColorPriv.h"
 #include "SkString.h"
 
-SkShader::Context* SkTransparentShader::createContext(const SkBitmap& device,
-                                                      const SkPaint& paint,
-                                                      const SkMatrix& matrix,
-                                                      void* storage) const {
-    if (!this->validContext(device, paint, matrix)) {
+SkShader::Context* SkTransparentShader::createContext(const ContextRec& rec, void* storage) const {
+    if (!this->validContext(rec)) {
         return NULL;
     }
 
-    return SkNEW_PLACEMENT_ARGS(storage, TransparentShaderContext, (*this, device, paint, matrix));
+    return SkNEW_PLACEMENT_ARGS(storage, TransparentShaderContext, (*this, rec));
 }
 
 size_t SkTransparentShader::contextSize() const {
@@ -27,10 +24,9 @@ size_t SkTransparentShader::contextSize() const {
 }
 
 SkTransparentShader::TransparentShaderContext::TransparentShaderContext(
-        const SkTransparentShader& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix)
-    : INHERITED(shader, device, paint, matrix)
-    , fDevice(&device) {}
+        const SkTransparentShader& shader, const ContextRec& rec)
+    : INHERITED(shader, rec)
+    , fDevice(rec.fDevice) {}
 
 SkTransparentShader::TransparentShaderContext::~TransparentShaderContext() {}
 

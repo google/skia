@@ -17,17 +17,14 @@ public:
     SkFilterShader(SkShader* shader, SkColorFilter* filter);
     virtual ~SkFilterShader();
 
-    virtual bool validContext(const SkBitmap&, const SkPaint&,
-                              const SkMatrix&, SkMatrix* totalInverse = NULL) const SK_OVERRIDE;
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&,
-                                             const SkMatrix&, void* storage) const SK_OVERRIDE;
+    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse) const SK_OVERRIDE;
+    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class FilterShaderContext : public SkShader::Context {
     public:
         // Takes ownership of shaderContext and calls its destructor.
-        FilterShaderContext(const SkFilterShader& filterShader, SkShader::Context* shaderContext,
-                            const SkBitmap& device, const SkPaint& paint, const SkMatrix& matrix);
+        FilterShaderContext(const SkFilterShader&, SkShader::Context*, const ContextRec&);
         virtual ~FilterShaderContext();
 
         virtual uint32_t getFlags() const SK_OVERRIDE;

@@ -2353,14 +2353,12 @@ class SkTriColorShader : public SkShader {
 public:
     SkTriColorShader() {}
 
-    virtual SkShader::Context* createContext(
-            const SkBitmap&, const SkPaint&, const SkMatrix&, void*) const SK_OVERRIDE;
+    virtual SkShader::Context* createContext(const ContextRec&, void*) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class TriColorShaderContext : public SkShader::Context {
     public:
-        TriColorShaderContext(const SkTriColorShader& shader, const SkBitmap& device,
-                              const SkPaint& paint, const SkMatrix& matrix);
+        TriColorShaderContext(const SkTriColorShader& shader, const ContextRec&);
         virtual ~TriColorShaderContext();
 
         bool setup(const SkPoint pts[], const SkColor colors[], int, int, int);
@@ -2384,13 +2382,12 @@ private:
     typedef SkShader INHERITED;
 };
 
-SkShader::Context* SkTriColorShader::createContext(const SkBitmap& device, const SkPaint& paint,
-                                                   const SkMatrix& matrix, void* storage) const {
-    if (!this->validContext(device, paint, matrix)) {
+SkShader::Context* SkTriColorShader::createContext(const ContextRec& rec, void* storage) const {
+    if (!this->validContext(rec)) {
         return NULL;
     }
 
-    return SkNEW_PLACEMENT_ARGS(storage, TriColorShaderContext, (*this, device, paint, matrix));
+    return SkNEW_PLACEMENT_ARGS(storage, TriColorShaderContext, (*this, rec));
 }
 
 bool SkTriColorShader::TriColorShaderContext::setup(const SkPoint pts[], const SkColor colors[],
@@ -2430,10 +2427,9 @@ static int ScalarTo256(SkScalar v) {
 }
 
 
-SkTriColorShader::TriColorShaderContext::TriColorShaderContext(
-        const SkTriColorShader& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix)
-    : INHERITED(shader, device, paint, matrix) {}
+SkTriColorShader::TriColorShaderContext::TriColorShaderContext(const SkTriColorShader& shader,
+                                                               const ContextRec& rec)
+    : INHERITED(shader, rec) {}
 
 SkTriColorShader::TriColorShaderContext::~TriColorShaderContext() {}
 

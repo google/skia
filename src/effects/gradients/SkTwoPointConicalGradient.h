@@ -48,16 +48,12 @@ public:
                               const SkMatrix* localMatrix);
 
 
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&, const SkMatrix&,
-                                             void* storage) const SK_OVERRIDE;
+    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class TwoPointConicalGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
-        TwoPointConicalGradientContext(const SkTwoPointConicalGradient& shader,
-                                       const SkBitmap& device,
-                                       const SkPaint& paint,
-                                       const SkMatrix& matrix);
+        TwoPointConicalGradientContext(const SkTwoPointConicalGradient&, const ContextRec&);
         ~TwoPointConicalGradientContext() {}
 
         virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;

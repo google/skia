@@ -23,12 +23,8 @@ public:
     virtual bool isOpaque() const SK_OVERRIDE;
     virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*) const SK_OVERRIDE;
 
-    virtual bool validContext(const SkBitmap& device,
-                              const SkPaint& paint,
-                              const SkMatrix& matrix,
-                              SkMatrix* totalInverse = NULL) const SK_OVERRIDE;
-    virtual SkShader::Context* createContext(const SkBitmap&, const SkPaint&,
-                                             const SkMatrix&, void* storage) const SK_OVERRIDE;
+    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse) const SK_OVERRIDE;
+    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     static bool CanDo(const SkBitmap&, TileMode tx, TileMode ty);
@@ -44,11 +40,7 @@ public:
     public:
         // The context takes ownership of the state. It will call its destructor
         // but will NOT free the memory.
-        BitmapProcShaderContext(const SkBitmapProcShader& shader,
-                                const SkBitmap& device,
-                                const SkPaint& paint,
-                                const SkMatrix& matrix,
-                                SkBitmapProcState* state);
+        BitmapProcShaderContext(const SkBitmapProcShader&, const ContextRec&, SkBitmapProcState*);
         virtual ~BitmapProcShaderContext();
 
         virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
@@ -72,9 +64,7 @@ protected:
     uint8_t     fTileModeX, fTileModeY;
 
 private:
-    bool validInternal(const SkBitmap& device, const SkPaint& paint,
-                       const SkMatrix& matrix, SkMatrix* totalInverse,
-                       SkBitmapProcState* state) const;
+    bool validInternal(const ContextRec&, SkMatrix* totalInverse, SkBitmapProcState*) const;
 
     typedef SkShader INHERITED;
 };

@@ -161,19 +161,17 @@ size_t SkRadialGradient::contextSize() const {
     return sizeof(RadialGradientContext);
 }
 
-SkShader::Context* SkRadialGradient::createContext(const SkBitmap& device, const SkPaint& paint,
-                                                   const SkMatrix& matrix, void* storage) const {
-    if (!this->validContext(device, paint, matrix)) {
+SkShader::Context* SkRadialGradient::createContext(const ContextRec& rec, void* storage) const {
+    if (!this->validContext(rec)) {
         return NULL;
     }
 
-    return SkNEW_PLACEMENT_ARGS(storage, RadialGradientContext, (*this, device, paint, matrix));
+    return SkNEW_PLACEMENT_ARGS(storage, RadialGradientContext, (*this, rec));
 }
 
 SkRadialGradient::RadialGradientContext::RadialGradientContext(
-        const SkRadialGradient& shader, const SkBitmap& device,
-        const SkPaint& paint, const SkMatrix& matrix)
-    : INHERITED(shader, device, paint, matrix) {}
+        const SkRadialGradient& shader, const ContextRec& rec)
+    : INHERITED(shader, rec) {}
 
 void SkRadialGradient::RadialGradientContext::shadeSpan16(int x, int y, uint16_t* dstCParam,
                                                           int count) {
