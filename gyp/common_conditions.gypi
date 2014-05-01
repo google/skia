@@ -22,7 +22,6 @@
           'GR_GL_FUNCTION_TYPE=__stdcall',
         ],
         'msvs_cygwin_shell': 0,
-        'msvs_disabled_warnings': [4275],
         'msvs_settings': {
           'VCCLCompilerTool': {
             'WarningLevel': '3',
