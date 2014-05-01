@@ -2,3 +2,6 @@ check process webtry with pidfile /var/run/webtry.pid
    start program = "/etc/init.d/webtry start"
    stop program = "/etc/init.d/webtry stop"
 
+check process squid3 with pidfile /var/run/squid3.pid
+   start program = "/etc/init.d/squid3 start"
+   stop program = "/etc/init.d/squid3 stop"

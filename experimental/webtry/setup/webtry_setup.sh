@@ -2,7 +2,7 @@
 #
 # Script to setup a GCE instance to run the webtry server.
 # For full instructions see the README file.
-sudo apt-get install schroot debootstrap monit
+sudo apt-get install schroot debootstrap monit squid3
 sudo apt-get install g++ libfreetype6 libfreetype6-dev libpng12-0 libpng12-dev libglu1-mesa-dev mesa-common-dev freeglut3-dev libgif-dev libfontconfig libfontconfig-dev
 
 echo "Adding the webtry user account"
@@ -26,6 +26,7 @@ sudo cp --parents `ldd /bin/sh | cut -d " " -f 3` /srv/chroot/webtry
 
 sudo cp /home/webtry/skia/experimental/webtry/sys/webtry_init /etc/init.d/webtry
 sudo cp /home/webtry/skia/experimental/webtry/sys/webtry_monit /etc/monit/conf.d/webtry
+sudo cp /home/webtry/skia/experimental/webtry/sys/webtry_squid /etc/squid3/squid.conf
 sudo chmod 744 /etc/init.d/webtry
 
 # Confirm that monit is happy.

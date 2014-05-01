@@ -30,6 +30,8 @@ Create a GCE instance:
       --network=default --machine_type=n1-standard-1 --image=backports-debian-7-wheezy-v20140331 \
       --persistent_boot_disk
 
+Make sure port 80 is accessible externally for the above instance.
+
 SSH into the instance:
 
     gcutil --project=google.com:skia-buildbots ssh --ssh_user=default skia-webtry-b

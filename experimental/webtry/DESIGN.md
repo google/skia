@@ -32,7 +32,6 @@ User submitted code is also restricted in the following ways:
 Architecture
 ------------
 
-
 The server runs on GCE, and consists of a Go Web Server that calls out to the
 c++ compiler and executes code in a chroot jail. See the diagram below:
 
@@ -202,6 +201,14 @@ the metadata server:
 
 N.B. If you need to change the MySQL password that webtry uses, you must change
 it both in MySQL and the value stored in the metadata server.
+
+Squid
+-----
+
+Squid is configured to run on port 80 and run as an accelerator for the actual
+Go program which is running on port 8000. The config for the squid proxy is
+held in sys/webtry_squid, which is copied into place during installation and
+squid is kept running via monit.
 
 Workspaces
 ----------
