@@ -7819,14 +7819,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9912902331916817018
+          3080700020968668861
         ]
       ], 
-      "bugs": [
-        1597
-      ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_iter_factory_565.png": {
       "allowed-digests": [

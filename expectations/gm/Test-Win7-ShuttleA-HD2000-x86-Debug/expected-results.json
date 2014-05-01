@@ -6033,14 +6033,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9409893669461786108
+          2963378280773795200
         ]
       ], 
-      "bugs": [
-        1597
-      ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "fontmgr_match_565.png": {
       "allowed-digests": [
