@@ -307,7 +307,7 @@ public:
         if (!lPt.moreRoughlyEqual(cPt)) {
             return false;
         }
-        // FIXME: if points are roughly equal but not approximately equal, need to do 
+        // FIXME: if points are roughly equal but not approximately equal, need to do
         // a binary search like quad/quad intersection to find more precise t values
         if (lT == 0 || lT == 1 || (ptSet == kPointUninitialized && cT != 0 && cT != 1)) {
             *pt = lPt;
