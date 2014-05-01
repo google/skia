@@ -1,11 +1,11 @@
 
 <section id=content>
-  <pre><code>#include "SkCanvas.h"
+  <script src="/res/js/cm/codemirror.js"></script>
+  <script src="/res/js/cm/clike.js"></script>
 
-void draw(SkCanvas* canvas) {
-  <textarea spellcheck=false name='code' id='code' rows='15' cols='80'>{{.Code}}</textarea>
-}
-</code></pre>
+  <pre>
+    <textarea spellcheck=false name='code' id='code' rows='15' cols='100'>{{.Code}}</textarea>
+  </pre>
 
   <input type='button' value='Run' id='run'>
   <a href='{{if .Hash}}/c/{{.Hash}}{{end}}' target=_blank id=permalink>Share</a>

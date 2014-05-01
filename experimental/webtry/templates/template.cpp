@@ -160,6 +160,4 @@
 #include "SkXfermode.h"
 #include "SkXfermodeImageFilter.h"
 
-void draw(SkCanvas* canvas) {
 {{.Code}}
-}

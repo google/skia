@@ -211,6 +211,21 @@ workspace table keeps the unique list of all workspaces. The workspacetry table
 keeps track of all the tries that have occured in a workspace. Right now the
 hidden column of workspacetry is not used, it's for future functionality.
 
+Code Editor
+-----------
+[CodeMirror](http://codemirror.net/) is used for rich code editing. The
+following files are included from the official CodeMirror distribution and can
+be updated in place (no local customizations):
+
+  * codemirror.js  - base CM implementation
+  * codemirror.css - base CM stylesheet
+  * clike.js       - C-like syntax highlighting support
+  * ambiance.css   - Ambiance CM theme
+
+Alternatively, we may consider pulling CM as an external dependency at some
+point.
+
+
 Installation
 ------------
 See the README file.

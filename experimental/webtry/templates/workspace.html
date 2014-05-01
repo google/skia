@@ -3,7 +3,9 @@
 <head>
     <title>Workspace</title>
     <meta charset='utf-8' />
-    <link rel="stylesheet" href="/css/" type="text/css" media="screen">
+    <link rel='stylesheet' href='/res/css/webtry.css' type='text/css' media='screen'>
+    <link rel="stylesheet" href="/res/css/cm/codemirror.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="/res/css/cm/ambiance.css" type="text/css" media="screen">
 </head>
 <body>
   <template id=tryTemplate>
@@ -25,7 +27,7 @@
       // Set the workspace name so run.js also updates the history.
       var workspaceName = "{{.Name}}";
   </script>
-  <script src="/js/webtry.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/res/js/webtry.js" type="text/javascript" charset="utf-8"></script>
 {{else}}
   <section id=content>
     <h1>Create</h1>

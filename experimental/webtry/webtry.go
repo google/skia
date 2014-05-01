@@ -27,14 +27,15 @@ import (
 const (
 	RESULT_COMPILE = `../../experimental/webtry/safec++ -DSK_GAMMA_SRGB -DSK_GAMMA_APPLY_TO_A8 -DSK_SCALAR_TO_FLOAT_EXCLUDED -DSK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1 -DSK_SUPPORT_GPU=0 -DSK_SUPPORT_OPENCL=0 -DSK_FORCE_DISTANCEFIELD_FONTS=0 -DSK_SCALAR_IS_FLOAT -DSK_CAN_USE_FLOAT -DSK_SAMPLES_FOR_X -DSK_BUILD_FOR_UNIX -DSK_USE_POSIX_THREADS -DSK_SYSTEM_ZLIB=1 -DSK_DEBUG -DSK_DEVELOPER=1 -I../../src/core -I../../src/images -I../../tools/flags -I../../include/config -I../../include/core -I../../include/pathops -I../../include/pipe -I../../include/effects -I../../include/ports -I../../src/sfnt -I../../include/utils -I../../src/utils -I../../include/images -g -fno-exceptions -fstrict-aliasing -Wall -Wextra -Winit-self -Wpointer-arith -Wno-unused-parameter -m64 -fno-rtti -Wnon-virtual-dtor -c ../../../cache/%s.cpp -o ../../../cache/%s.o`
 	LINK           = `../../experimental/webtry/safec++ -m64 -lstdc++ -lm -o ../../../inout/%s -Wl,--start-group ../../../cache/%s.o obj/experimental/webtry/webtry.main.o obj/gyp/libflags.a libskia_images.a libskia_core.a libskia_effects.a obj/gyp/libjpeg.a obj/gyp/libwebp_dec.a obj/gyp/libwebp_demux.a obj/gyp/libwebp_dsp.a obj/gyp/libwebp_enc.a obj/gyp/libwebp_utils.a libskia_utils.a libskia_opts.a libskia_opts_ssse3.a libskia_ports.a libskia_sfnt.a -Wl,--end-group -lpng -lz -lgif -lpthread -lfontconfig -ldl -lfreetype`
-	DEFAULT_SAMPLE = `SkPaint p;
-p.setColor(SK_ColorRED);
-p.setAntiAlias(true);
-p.setStyle(SkPaint::kStroke_Style);
-p.setStrokeWidth(10);
+	DEFAULT_SAMPLE = `void draw(SkCanvas* canvas) {
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(10);
 
-canvas->drawLine(20, 20, 100, 100, p);
-`
+    canvas->drawLine(20, 20, 100, 100, p);
+}`
 	// Don't increase above 2^16 w/o altering the db tables to accept something bigger than TEXT.
 	MAX_TRY_SIZE = 64000
 )
@@ -346,10 +347,6 @@ func writeToDatabase(hash string, code string, workspaceName string) {
 			log.Printf("ERROR: Failed to insert into workspacetry table: %q\n", err)
 		}
 	}
-}
-
-func cssHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "css/webtry.css")
 }
 
 // imageHandler serves up the PNG of a specific try.
@@ -678,8 +675,11 @@ func main() {
 	http.HandleFunc("/recent/", recentHandler)
 	http.HandleFunc("/iframe/", iframeHandler)
 	http.HandleFunc("/json/", tryInfoHandler)
-	http.HandleFunc("/css/", cssHandler)
-	http.Handle("/js/", http.FileServer(http.Dir("./")))
+
+	// Resources are served directly
+	// TODO add support for caching/etags/gzip
+	http.Handle("/res/", http.FileServer(http.Dir("./")))
+
 	// TODO Break out /c/ as it's own handler.
 	http.HandleFunc("/", mainHandler)
 	log.Fatal(http.ListenAndServe(*port, nil))

@@ -174,6 +174,23 @@
     var parser = new DOMParser();
     var tryTemplate = document.getElementById('tryTemplate');
 
+    var editor = CodeMirror.fromTextArea(code, {
+      theme: "ambiance",
+      lineNumbers: true,
+      matchBrackets: true,
+      mode: "text/x-c++src",
+      indentUnit: 4,
+    });
+
+    // Match the initial textarea size.
+    editor.setSize(editor.defaultCharWidth() * code.cols,
+                   editor.defaultTextHeight() * code.rows);
+
+    // Suppress changes to the first/last line (draw wrapper method)
+    editor.on('beforeChange', function(cm, change) {
+      if (change.from.line < 1 || change.from.line == cm.lineCount() - 1)
+        change.cancel();
+    });
 
     function beginWait() {
       document.body.classList.add('waiting');
@@ -304,7 +321,7 @@
       req.overrideMimeType('application/json');
       req.open('POST', '/', true);
       req.setRequestHeader('content-type', 'application/json');
-      req.send(JSON.stringify({'code': code.value, 'name': workspaceName}));
+      req.send(JSON.stringify({'code': editor.getValue(), 'name': workspaceName}));
     }
     run.addEventListener('click', onSubmitCode);
 
