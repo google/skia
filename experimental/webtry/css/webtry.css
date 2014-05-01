@@ -21,6 +21,10 @@ img {
   z-index: -1;
 }
 
+#zoomCopy {
+  display: none;
+}
+
 h1 {
   font-size: 18px;
 }

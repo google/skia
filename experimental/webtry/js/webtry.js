@@ -28,12 +28,15 @@
  * Enable zooming for any images with a class of 'zoom'.
  */
 (function () {
+  var PIXELS       = 20; // The number of pixels in width and height in a zoom.
   var clientX      = 0;
   var clientY      = 0;
   var lastClientX  = 0;
   var lastClientY  = 0;
   var ctx          = null; // The 2D canvas context of the zoom.
   var currentImage = null; // The img node we are zooming for, otherwise null.
+  var hex          = document.getElementById('zoomHex');
+  var canvasCopy   = null;
 
   function zoomMove(e) {
     clientX = e.clientX;
@@ -53,12 +56,22 @@
     lastClientY = clientY-1;
     document.body.style.cursor = 'crosshair';
     canvas = document.createElement('canvas');
-    canvas.width=256;
-    canvas.height=256;
+    canvas.width = 1024;
+    canvas.height = 1024;
     canvas.classList.add('zoomCanvas');
     ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     this.parentNode.insertBefore(canvas, this);
+
+    // Copy the image over to a canvas so we can read RGBA values for each point.
+    if (hex) {
+      canvasCopy = document.createElement('canvas');
+      canvasCopy.width = currentImage.width;
+      canvasCopy.height = currentImage.height;
+      canvasCopy.id = 'zoomCopy';
+      canvasCopy.getContext('2d').drawImage(currentImage, 0, 0, currentImage.width, currentImage.height);
+      this.parentNode.insertBefore(canvasCopy, this);
+    }
 
     document.body.addEventListener('mousemove',  zoomMove,     true);
     document.body.addEventListener('mouseup',    zoomFinished);
@@ -68,18 +81,47 @@
     setTimeout(drawZoom, 1);
   }
 
+  function hexify(i) {
+    var s = i.toString(16).toUpperCase();
+    // Pad out to two hex digits if necessary.
+    if (s.length < 2) {
+      s = '0' + s;
+    }
+    return s;
+  }
+
   function drawZoom() {
     if (currentImage) {
       // Only draw if the mouse has moved from the last time we drew.
       if (lastClientX != clientX || lastClientY != clientY) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        var x = clientX - currentImage.x;
+        var y = clientY - currentImage.y;
         ctx.drawImage(currentImage,
-            clientX - currentImage.x, clientY - currentImage.y,  // src zero
-            32, 32,                                              // src dimensions
-            0, 0,                                                // dst zero
-            ctx.canvas.width, ctx.canvas.height);                // dst dimensions
+            x, y,                                 // src zero
+            PIXELS, PIXELS,                       // src dimensions
+            0, 0,                                 // dst zero
+            ctx.canvas.width, ctx.canvas.height); // dst dimensions
         lastClientX = clientX;
         lastClientY = clientY;
+        // Box and label one selected pixel with its rgba values.
+        if (hex) {
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = '#000';
+          var dx = ctx.canvas.width/PIXELS;
+          var dy = ctx.canvas.height/PIXELS;
+          ctx.strokeRect((PIXELS/2)*dx, (PIXELS/2)*dy, dx, dy);
+          var p = canvasCopy.getContext('2d').getImageData(x+PIXELS/2, y+PIXELS/2, 1, 1).data;
+          hex.textContent = 'rgba('
+            + p[0] + ', '
+            + p[1] + ', '
+            + p[2] + ', '
+            + p[3] + ') '
+            + hexify(p[0])
+            + hexify(p[1])
+            + hexify(p[2])
+            + hexify(p[3]);
+        }
       }
       setTimeout(drawZoom, 1000/30);
     }
@@ -87,8 +129,12 @@
 
   function zoomFinished() {
     currentImage = null;
+    if (hex) {
+      hex.textContent = '';
+    }
     document.body.style.cursor = 'default';
     ctx.canvas.parentNode.removeChild(ctx.canvas);
+    canvasCopy.parentNode.removeChild(canvasCopy);
     document.body.removeEventListener('mousemove',  zoomMove,     true);
     document.body.removeEventListener('mouseup',    zoomFinished);
     document.body.removeEventListener('mouseleave', zoomFinished);
