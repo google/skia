@@ -133,8 +133,8 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 #endif
 
 #if GL_EXT_map_buffer_range || GL_ES_VERSION_3_0
-    functions->fMapBufferRange = glMapBufferRangeEXT;
-    functions->fFlushMappedBufferRange = glFlushMappedBufferRangeEXT;
+    functions->fMapBufferRange = glMapBufferRange;
+    functions->fFlushMappedBufferRange = glFlushMappedBufferRange;
 #endif
 
 #if GL_APPLE_framebuffer_multisample
