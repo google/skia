@@ -4,7 +4,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkRecording.h"
 
-DEFINE_bool(skr, false, "If true, run SKR tests.");
+DEFINE_bool(skr, true, "If true, run SKR tests.");
 
 namespace DM {
 

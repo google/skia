@@ -402,7 +402,8 @@ public:
      *  @param tmy  The tiling mode to use when sampling the bitmap in the y-direction.
      *  @return     Returns a new shader object. Note: this function never returns null.
     */
-    static SkShader* CreatePictureShader(SkPicture* src, TileMode tmx, TileMode tmy);
+    static SkShader* CreatePictureShader(SkPicture* src, TileMode tmx, TileMode tmy,
+                                         const SkMatrix* localMatrix = NULL);
 
     SK_TO_STRING_VIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
