@@ -7,8 +7,6 @@
  */
 #include "com_skia_SkiaSampleRenderer.h"
 
-#include "GrContext.h"
-#include "gl/GrGLInterface.h"
 #include "SampleApp.h"
 #include "SkApplication.h"
 #include "SkCanvas.h"
