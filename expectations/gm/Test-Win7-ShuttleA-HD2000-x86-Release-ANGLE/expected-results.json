@@ -603,6 +603,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "bigblurs_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6890339176809960518
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "bigmatrix_565.png": {
       "allowed-digests": [
         [
@@ -1148,6 +1157,15 @@
         ]
       ], 
       "reviewed-by-human": true
+    }, 
+    "bitmapshaders_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4175176360478310748
+        ]
+      ], 
+      "reviewed-by-human": false
     }, 
     "bitmapsource_565.png": {
       "allowed-digests": [
@@ -3514,6 +3532,24 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "blurrects_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10988013427224104734
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurroundrect-WH[100x100]-unevenCorners_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3790505575251759681
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurs_565.png": {
       "allowed-digests": [
         [
@@ -4924,6 +4960,15 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "complexclip2_rrect_bw_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7607167258483373168
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "complexclip_aa_565.png": {
       "allowed-digests": [
         [
@@ -5194,6 +5239,15 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "convex_poly_clip_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8697330971113241151
+        ]
       ], 
       "reviewed-by-human": false
     }, 
@@ -8927,6 +8981,33 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "gradients_2pt_conical_edge_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9587990073962599956
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradients_2pt_conical_inside_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14991008189028264532
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradients_2pt_conical_outside_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17361471970706518435
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "gradients_565.png": {
       "allowed-digests": [
         [
@@ -9079,6 +9160,15 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "gradients_many_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5365203580671105490
+        ]
       ], 
       "reviewed-by-human": false
     }, 
@@ -9457,6 +9547,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "imagealphathreshold_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7434810293688860099
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "imageblur_565.png": {
       "allowed-digests": [
         [
@@ -9687,6 +9786,15 @@
         ]
       ]
     }, 
+    "imagefilterscropexpand_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15274291964814354979
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "imagefilterscropped_565.png": {
       "allowed-digests": [
         [
@@ -9885,6 +9993,15 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "imageresizetiled_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14006603930599710444
+        ]
       ], 
       "reviewed-by-human": false
     }, 
@@ -10179,6 +10296,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "lightingcolorfilter_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10752195847025533353
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "lineclosepath_565.png": {
       "allowed-digests": [
         [
@@ -10428,6 +10554,15 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "matriximagefilter_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17307107486327392885
+        ]
       ], 
       "reviewed-by-human": false
     }, 
@@ -10919,6 +11054,15 @@
         ]
       ], 
       "ignore-failure": false
+    }, 
+    "nonclosedpaths_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6282018213741596378
+        ]
+      ], 
+      "reviewed-by-human": false
     }, 
     "offsetimagefilter_565.png": {
       "allowed-digests": [
@@ -11468,6 +11612,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "peekpixels_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2117041505467664585
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "perlinnoise_565.png": {
       "allowed-digests": [
         [
@@ -11540,6 +11693,15 @@
           5185419490189304266
         ]
       ]
+    }, 
+    "pictureimagefilter_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5185419490189304266
+        ]
+      ], 
+      "reviewed-by-human": false
     }, 
     "pictureimagefilter_gpu.png": {
       "allowed-digests": [
@@ -11669,6 +11831,15 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "polygons_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14447548625150494323
+        ]
       ], 
       "reviewed-by-human": false
     }, 
@@ -12229,6 +12400,33 @@
         ]
       ], 
       "reviewed-by-human": true
+    }, 
+    "rrect_draw_aa_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7807359845839646534
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "rrect_draw_bw_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2639533157784794570
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "rrect_effect_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10373786639175700127
+        ]
+      ], 
+      "reviewed-by-human": false
     }, 
     "rrect_gpu.png": {
       "allowed-digests": [
@@ -13921,6 +14119,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "stroketext_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12738053637777372666
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "tablecolorfilter_565.png": {
       "allowed-digests": [
         [
@@ -14146,6 +14353,15 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "texture_domain_effect_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16570721013563827642
+        ]
       ], 
       "reviewed-by-human": false
     }, 
@@ -14767,6 +14983,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "typefacestyles_kerning_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14669575486571291164
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "typefacestyles_pdf-poppler.png": {
       "allowed-digests": [
         [
@@ -14776,6 +15001,15 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "vertices_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16291849870731431958
+        ]
       ], 
       "reviewed-by-human": false
     }, 
