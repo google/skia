@@ -13,6 +13,8 @@
 #include "SkPictureRecorder.h"
 #include "SkShader.h"
 
+namespace skiagm {
+
 static struct {
     SkShader::TileMode tmx;
     SkShader::TileMode tmy;
@@ -22,8 +24,9 @@ static struct {
     { SkShader::kMirror_TileMode, SkShader::kRepeat_TileMode },
 };
 
-class PictureShaderGM : public skiagm::GM {
+class PictureShaderGM : public GM {
 public:
+
     PictureShaderGM(SkScalar tileSize, SkScalar sceneSize)
         : fTileSize(tileSize)
         , fSceneSize(sceneSize) {
@@ -34,13 +37,24 @@ public:
                                                           SkScalarRoundToInt(tileSize),
                                                           NULL, 0);
         this->drawTile(pictureCanvas);
-        fPicture.reset(recorder.endRecording());
+        SkAutoTUnref<SkPicture> p(recorder.endRecording());
 
         // Build a reference bitmap.
-        fBitmap.allocN32Pixels(SkScalarRoundToInt(tileSize), SkScalarRoundToInt(tileSize));
-        fBitmap.eraseColor(SK_ColorTRANSPARENT);
-        SkCanvas bitmapCanvas(fBitmap);
+        SkBitmap bm;
+        bm.allocN32Pixels(SkScalarRoundToInt(tileSize), SkScalarRoundToInt(tileSize));
+        bm.eraseColor(SK_ColorTRANSPARENT);
+        SkCanvas bitmapCanvas(bm);
         this->drawTile(&bitmapCanvas);
+
+        for (unsigned i = 0; i < SK_ARRAY_COUNT(kTileConfigs); ++i) {
+            fPictureShaders[i].reset(SkShader::CreatePictureShader(p,
+                                                                   kTileConfigs[i].tmx,
+                                                                   kTileConfigs[i].tmy));
+
+            fBitmapShaders[i].reset(SkShader::CreateBitmapShader(bm,
+                                                                 kTileConfigs[i].tmx,
+                                                                 kTileConfigs[i].tmy));
+        }
     }
 
 protected:
@@ -131,22 +145,14 @@ private:
         canvas->drawRect(SkRect::MakeWH(fSceneSize, fSceneSize), paint);
         canvas->drawRect(SkRect::MakeXYWH(fSceneSize * 1.1f, 0, fSceneSize, fSceneSize), paint);
 
-        SkAutoTUnref<SkShader> pictureShader(SkShader::CreatePictureShader(
-                    fPicture,
-                    kTileConfigs[tileMode].tmx,
-                    kTileConfigs[tileMode].tmy,
-                    &localMatrix));
-        paint.setShader(pictureShader.get());
+        fPictureShaders[tileMode]->setLocalMatrix(localMatrix);
+        paint.setShader(fPictureShaders[tileMode].get());
         canvas->drawRect(SkRect::MakeWH(fSceneSize, fSceneSize), paint);
 
         canvas->translate(fSceneSize * 1.1f, 0);
 
-        SkAutoTUnref<SkShader> bitmapShader(SkShader::CreateBitmapShader(
-                    fBitmap,
-                    kTileConfigs[tileMode].tmx,
-                    kTileConfigs[tileMode].tmy,
-                    &localMatrix));
-        paint.setShader(bitmapShader.get());
+        fBitmapShaders[tileMode]->setLocalMatrix(localMatrix);
+        paint.setShader(fBitmapShaders[tileMode].get());
         canvas->drawRect(SkRect::MakeWH(fSceneSize, fSceneSize), paint);
 
         canvas->restore();
@@ -155,10 +161,11 @@ private:
     SkScalar    fTileSize;
     SkScalar    fSceneSize;
 
-    SkAutoTUnref<SkPicture> fPicture;
-    SkBitmap fBitmap;
+    SkAutoTUnref<SkShader> fPictureShaders[SK_ARRAY_COUNT(kTileConfigs)];
+    SkAutoTUnref<SkShader> fBitmapShaders[SK_ARRAY_COUNT(kTileConfigs)];
 
     typedef GM INHERITED;
 };
 
 DEF_GM( return SkNEW_ARGS(PictureShaderGM, (50, 100)); )
+}

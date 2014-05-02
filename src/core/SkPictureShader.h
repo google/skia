@@ -21,7 +21,7 @@ class SkPicture;
  */
 class SkPictureShader : public SkShader {
 public:
-    static SkPictureShader* Create(SkPicture*, TileMode, TileMode, const SkMatrix* = NULL);
+    static SkPictureShader* Create(SkPicture*, TileMode, TileMode);
     virtual ~SkPictureShader();
 
     virtual bool validContext(const ContextRec&, SkMatrix* totalInverse) const SK_OVERRIDE;
@@ -59,7 +59,7 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
-    SkPictureShader(SkPicture*, TileMode, TileMode, const SkMatrix* = NULL);
+    SkPictureShader(SkPicture*, TileMode, TileMode);
 
     SkShader* validInternal(const ContextRec&, SkMatrix* totalInverse) const;
     SkShader* refBitmapShader(const SkMatrix&) const;
