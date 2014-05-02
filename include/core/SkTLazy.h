@@ -66,6 +66,11 @@ public:
      *  contents.
      */
     T* set(const T& src) {
+        // Diagnoistic. May remove later. See crbug.com/364224
+        if (NULL == &src) {
+            sk_throw();
+        }
+
         if (this->isValid()) {
             *fPtr = src;
         } else {
