@@ -32,6 +32,7 @@ public:
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
         kCached_Flag    = 1 << 1,  //!< Surface is cached and needs to be unlocked when released
+        kDFFonts_Flag   = 1 << 2,  //!< Surface should render fonts using signed distance fields
     };
 
     /**

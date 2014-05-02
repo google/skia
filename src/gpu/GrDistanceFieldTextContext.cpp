@@ -33,15 +33,15 @@ static const int kLargeDFFontSize = 128;
 SK_CONF_DECLARE(bool, c_DumpFontCache, "gpu.dumpFontCache", false,
                 "Dump the contents of the font cache before every purge.");
 
-#if SK_FORCE_DISTANCEFIELD_FONTS
-static const bool kForceDistanceFieldFonts = true;
-#else
-static const bool kForceDistanceFieldFonts = false;
-#endif
-
 GrDistanceFieldTextContext::GrDistanceFieldTextContext(GrContext* context,
-                                                       const SkDeviceProperties& properties)
+                                                       const SkDeviceProperties& properties,
+                                                       bool enable)
                                                     : GrTextContext(context, properties) {
+#if SK_FORCE_DISTANCEFIELD_FONTS
+    fEnableDFRendering = true;
+#else
+    fEnableDFRendering = enable;
+#endif
     fStrike = NULL;
 
     fCurrTexture = NULL;
@@ -56,7 +56,7 @@ GrDistanceFieldTextContext::~GrDistanceFieldTextContext() {
 }
 
 bool GrDistanceFieldTextContext::canDraw(const SkPaint& paint) {
-    if (!kForceDistanceFieldFonts && !paint.isDistanceFieldTextTEMP()) {
+    if (!fEnableDFRendering && !paint.isDistanceFieldTextTEMP()) {
         return false;
     }
 

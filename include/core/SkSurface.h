@@ -56,15 +56,31 @@ public:
     }
 
     /**
+     *  Text rendering modes that can be passed to NewRenderTarget*
+     */
+    enum TextRenderMode {
+        /**
+         *  This will use the standard text rendering method
+         */
+        kStandard_TextRenderMode,
+        /**
+         *  This will use signed distance fields for text rendering when possible
+         */
+        kDistanceField_TextRenderMode,
+    };
+
+    /**
      *  Return a new surface using the specified render target.
      */
-    static SkSurface* NewRenderTargetDirect(GrRenderTarget*);
+    static SkSurface* NewRenderTargetDirect(GrRenderTarget*,
+                                            TextRenderMode trm = kStandard_TextRenderMode);
 
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
      *  render target, allocated by the surface.
      */
-    static SkSurface* NewRenderTarget(GrContext*, const SkImageInfo&, int sampleCount = 0);
+    static SkSurface* NewRenderTarget(GrContext*, const SkImageInfo&, int sampleCount = 0,
+                                      TextRenderMode trm = kStandard_TextRenderMode);
 
     /**
      *  Return a new surface whose contents will be drawn to an offscreen
@@ -78,7 +94,8 @@ public:
      *  Note: Scratch textures count against the GrContext's cached resource
      *  budget.
      */
-    static SkSurface* NewScratchRenderTarget(GrContext*, const SkImageInfo&, int sampleCount = 0);
+    static SkSurface* NewScratchRenderTarget(GrContext*, const SkImageInfo&, int sampleCount = 0,
+                                             TextRenderMode trm = kStandard_TextRenderMode);
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }
