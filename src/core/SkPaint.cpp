@@ -153,6 +153,10 @@ SkPaint::~SkPaint() {
 }
 
 SkPaint& SkPaint::operator=(const SkPaint& src) {
+    if (this == &src) {
+        return *this;
+    }
+
 #define COPY(field) field = src.field
 #define REF_COPY(field) SkSafeUnref(field); field = SkSafeRef(src.field)
 
