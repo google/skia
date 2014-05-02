@@ -18,8 +18,10 @@
 #include "GrContext.h"
 #endif
 
-SkPictureShader::SkPictureShader(SkPicture* picture, TileMode tmx, TileMode tmy)
-    : fPicture(SkRef(picture))
+SkPictureShader::SkPictureShader(SkPicture* picture, TileMode tmx, TileMode tmy,
+                                 const SkMatrix* localMatrix)
+    : INHERITED(localMatrix)
+    , fPicture(SkRef(picture))
     , fTmx(tmx)
     , fTmy(tmy) { }
 
@@ -34,7 +36,8 @@ SkPictureShader::~SkPictureShader() {
     fPicture->unref();
 }
 
-SkPictureShader* SkPictureShader::Create(SkPicture* picture, TileMode tmx, TileMode tmy) {
+SkPictureShader* SkPictureShader::Create(SkPicture* picture, TileMode tmx, TileMode tmy,
+                                         const SkMatrix* localMatrix) {
     if (!picture || 0 == picture->width() || 0 == picture->height()) {
         return NULL;
     }
@@ -79,6 +82,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix) const {
 
     SkAutoMutexAcquire ama(fCachedBitmapShaderMutex);
 
+    // TODO(fmalita): remove fCachedLocalMatrix from this key after getLocalMatrix is removed.
     if (!fCachedBitmapShader || tileScale != fCachedTileScale ||
         this->getLocalMatrix() != fCachedLocalMatrix) {
         SkBitmap bm;
