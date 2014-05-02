@@ -108,10 +108,10 @@ SkShader::Context* SkComposeShader::createContext(const ContextRec& rec, void* s
 
     // we preconcat our localMatrix (if any) with the device matrix
     // before calling our sub-shaders
-    
+
     SkMatrix tmpM;
     tmpM.setConcat(*rec.fMatrix, this->getLocalMatrix());
-    
+
     ContextRec newRec(rec);
     newRec.fMatrix = &tmpM;
 
