@@ -396,6 +396,10 @@ parser.add_argument('--configs', metavar='CONFIG', nargs='+',
                           '"--configs 565 8888", as a filter over the full set '
                           'of results in ACTUALS_FILENAME; if unspecified, '
                           'rebaseline *all* configs that are available.'))
+parser.add_argument('--deprecated', action='store_true',
+                    help=('run the tool even though it has been deprecated; '
+                          'see http://tinyurl.com/SkiaRebaselineServer for '
+                          'the recommended/supported process'))
 parser.add_argument('--expectations-filename',
                     help=('filename (under EXPECTATIONS_ROOT) to read '
                           'current expectations from, and to write new '
@@ -446,6 +450,11 @@ parser.add_argument('--skimage', action='store_true',
                           'and ACTUALS_BASE_URL and EXPECTATIONS_ROOT are set '
                           'to alternate defaults, specific to skimage.'))
 args = parser.parse_args()
+if not args.deprecated:
+  raise Exception(
+      'This tool has been deprecated; see'
+      ' http://tinyurl.com/SkiaRebaselineServer for the recommended/supported'
+      ' process, or re-run with the --deprecated option to press on.')
 exception_handler = ExceptionHandler(
     keep_going_on_failure=args.keep_going_on_failure)
 if args.builders:
