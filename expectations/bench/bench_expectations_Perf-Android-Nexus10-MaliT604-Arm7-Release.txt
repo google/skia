@@ -32,7 +32,7 @@ desk_weather.skp_simple_viewport_1000x1000_,Perf-Android-Nexus10-MaliT604-Arm7-R
 desk_wowwiki.skp_simple_viewport_1000x1000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,37.12,33.21436,41.07764
 desk_yahooanswers.skp_simple_viewport_1000x1000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,26.08,23.4114,28.7446
 desk_yahoogames.skp_simple_viewport_1000x1000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,15.52,3.96216,29.20984
-desk_yahoosports.skp_simple_viewport_1000x1000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,3.62,2.7664,4.4656
+desk_yahoosports.skp_simple_viewport_1000x1000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,1.95,1.40,3.50
 desk_youtube.skp_simple_viewport_1000x1000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,24.29,21.70984,26.87816
 desk_youtubetvvideo.skp_simple_viewport_1000x1000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,44.42,40.23772,48.58628
 mobi_wikipedia.skp_simple_viewport_1000x1000_,Perf-Android-Nexus10-MaliT604-Arm7-Release-25th,23.48,17.27612,30.53188
