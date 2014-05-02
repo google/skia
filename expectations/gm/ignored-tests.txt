@@ -37,7 +37,3 @@
 # This change removes an API that this GM was testing. If/when it lands and sticks,
 # I will likely just delete the GM.
 canvas-layer-state
-
-# humper: https://codereview.chromium.org/248613004/
-# Changed the test in a few ways, will need rebaselining.
-simpleblurroundrect
