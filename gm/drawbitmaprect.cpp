@@ -68,6 +68,8 @@ static void makebm(SkBitmap* bm, int w, int h) {
         rect.inset(wScalar / 8, hScalar / 8);
         mat.postScale(SK_Scalar1 / 4, SK_Scalar1 / 4);
     }
+    // Let backends know we won't change this, so they don't have to deep copy it defensively.
+    bm->setImmutable();
 }
 
 static const int gSize = 1024;
