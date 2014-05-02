@@ -151,9 +151,10 @@ public:
 template<class PixelFetcher, bool convolveAlpha>
 void SkMatrixConvolutionImageFilter::filterPixels(const SkBitmap& src,
                                                   SkBitmap* result,
-                                                  const SkIRect& rect,
+                                                  const SkIRect& r,
                                                   const SkIRect& bounds) const {
-    if (rect.isEmpty()) {
+    SkIRect rect(r);
+    if (!rect.intersect(bounds)) {
         return;
     }
     for (int y = rect.fTop; y < rect.fBottom; ++y) {

@@ -398,6 +398,38 @@ DEF_TEST(ImageFilterMatrixConvolution, reporter) {
     canvas.drawRect(rect, paint);
 }
 
+DEF_TEST(ImageFilterMatrixConvolutionBorder, reporter) {
+    // Check that a filter with borders outside the target bounds
+    // does not crash.
+    SkScalar kernel[3] = {
+        0, 0, 0,
+    };
+    SkISize kernelSize = SkISize::Make(3, 1);
+    SkScalar gain = SK_Scalar1, bias = 0;
+    SkIPoint kernelOffset = SkIPoint::Make(2, 0);
+
+    SkAutoTUnref<SkImageFilter> filter(
+        SkMatrixConvolutionImageFilter::Create(
+            kernelSize, kernel, gain, bias, kernelOffset,
+            SkMatrixConvolutionImageFilter::kClamp_TileMode, true));
+
+    SkBitmap result;
+
+    int width = 10, height = 10;
+    result.allocN32Pixels(width, height);
+    SkCanvas canvas(result);
+    canvas.clear(0);
+
+    SkPaint filterPaint;
+    filterPaint.setImageFilter(filter);
+    SkRect bounds = SkRect::MakeWH(1, 10);
+    SkRect rect = SkRect::Make(SkIRect::MakeWH(width, height));
+    SkPaint rectPaint;
+    canvas.saveLayer(&bounds, &filterPaint);
+    canvas.drawRect(rect, rectPaint);
+    canvas.restore();
+}
+
 DEF_TEST(ImageFilterCropRect, reporter) {
     SkBitmap temp;
     temp.allocN32Pixels(100, 100);
