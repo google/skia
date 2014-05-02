@@ -24,6 +24,7 @@ void GrGLCaps::reset() {
     fMSFBOType = kNone_MSFBOType;
     fFBFetchType = kNone_FBFetchType;
     fInvalidateFBType = kNone_InvalidateFBType;
+    fMapBufferType = kNone_MapBufferType;
     fMaxFragmentUniformVectors = 0;
     fMaxVertexAttributes = 0;
     fMaxFragmentTextureUnits = 0;
@@ -47,7 +48,6 @@ void GrGLCaps::reset() {
     fIsCoreProfile = false;
     fFullClearIsFree = false;
     fDropsTileOnZeroDivide = false;
-    fMapSubSupport = false;
 }
 
 GrGLCaps::GrGLCaps(const GrGLCaps& caps) : GrDrawTargetCaps() {
@@ -66,6 +66,7 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fMSFBOType = caps.fMSFBOType;
     fFBFetchType = caps.fFBFetchType;
     fInvalidateFBType = caps.fInvalidateFBType;
+    fMapBufferType = caps.fMapBufferType;
     fRGBA8RenderbufferSupport = caps.fRGBA8RenderbufferSupport;
     fBGRAFormatSupport = caps.fBGRAFormatSupport;
     fBGRAIsInternalFormat = caps.fBGRAIsInternalFormat;
@@ -85,7 +86,6 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fIsCoreProfile = caps.fIsCoreProfile;
     fFullClearIsFree = caps.fFullClearIsFree;
     fDropsTileOnZeroDivide = caps.fDropsTileOnZeroDivide;
-    fMapSubSupport = caps.fMapSubSupport;
 
     return *this;
 }
@@ -290,12 +290,27 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     }
 
     if (kGL_GrGLStandard == standard) {
-        fBufferLockSupport = true; // we require VBO support and the desktop VBO extension includes
-                                   // glMapBuffer.
-        fMapSubSupport = false;
+        fMapBufferFlags = kCanMap_MapFlag; // we require VBO support and the desktop VBO
+                                            // extension includes glMapBuffer.
+        if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_ARB_map_buffer_range")) {
+            fMapBufferFlags |= kSubset_MapFlag;
+            fMapBufferType = kMapBufferRange_MapBufferType;
+        } else {
+            fMapBufferType = kMapBuffer_MapBufferType;
+        }
     } else {
-        fBufferLockSupport = ctxInfo.hasExtension("GL_OES_mapbuffer");
-        fMapSubSupport = ctxInfo.hasExtension("GL_CHROMIUM_map_sub");
+        // Unextended GLES2 doesn't have any buffer mapping.
+        fMapBufferFlags = kNone_MapBufferType;
+        if (ctxInfo.hasExtension("GL_CHROMIUM_map_sub")) {
+            fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
+            fMapBufferType = kChromium_MapBufferType;
+        } else if (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_EXT_map_buffer_range")) {
+            fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
+            fMapBufferType = kMapBufferRange_MapBufferType;
+        } else if (ctxInfo.hasExtension("GL_OES_mapbuffer")) {
+            fMapBufferFlags = kCanMap_MapFlag;
+            fMapBufferType = kMapBuffer_MapBufferType;
+        }
     }
 
     if (kGL_GrGLStandard == standard) {
@@ -655,10 +670,23 @@ SkString GrGLCaps::dump() const {
     GR_STATIC_ASSERT(2 == kInvalidate_InvalidateFBType);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kInvalidateFBTypeStr) == kLast_InvalidateFBType + 1);
 
+    static const char* kMapBufferTypeStr[] = {
+        "None",
+        "MapBuffer",
+        "MapBufferRange",
+        "Chromium",
+    };
+    GR_STATIC_ASSERT(0 == kNone_MapBufferType);
+    GR_STATIC_ASSERT(1 == kMapBuffer_MapBufferType);
+    GR_STATIC_ASSERT(2 == kMapBufferRange_MapBufferType);
+    GR_STATIC_ASSERT(3 == kChromium_MapBufferType);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kMapBufferTypeStr) == kLast_MapBufferType + 1);
+
     r.appendf("Core Profile: %s\n", (fIsCoreProfile ? "YES" : "NO"));
     r.appendf("MSAA Type: %s\n", kMSFBOExtStr[fMSFBOType]);
     r.appendf("FB Fetch Type: %s\n", kFBFetchTypeStr[fFBFetchType]);
     r.appendf("Invalidate FB Type: %s\n", kInvalidateFBTypeStr[fInvalidateFBType]);
+    r.appendf("Map Buffer Type: %s\n", kMapBufferTypeStr[fMapBufferType]);
     r.appendf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
     r.appendf("Max FS Texture Units: %d\n", fMaxFragmentTextureUnits);
     if (!fIsCoreProfile) {

@@ -186,8 +186,29 @@ GrGLvoid GR_GL_FUNCTION_TYPE nullGLDeleteBuffers(GrGLsizei n, const GrGLuint* id
     }
 }
 
-GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBuffer(GrGLenum target, GrGLenum access) {
+GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBufferRange(GrGLenum target, GrGLintptr offset,
+                                                   GrGLsizeiptr length, GrGLbitfield access) {
+    GrGLuint id = 0;
+    switch (target) {
+        case GR_GL_ARRAY_BUFFER:
+            id = gCurrArrayBuffer;
+            break;
+        case GR_GL_ELEMENT_ARRAY_BUFFER:
+            id = gCurrElementArrayBuffer;
+            break;
+    }
 
+    if (id > 0) {
+        // We just ignore the offset and length here.
+        GrBufferObj* buffer = look_up(id);
+        SkASSERT(!buffer->mapped());
+        buffer->setMapped(true);
+        return buffer->dataPtr();
+    }
+    return NULL;
+}
+
+GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBuffer(GrGLenum target, GrGLenum access) {
     GrGLuint id = 0;
     switch (target) {
         case GR_GL_ARRAY_BUFFER:
@@ -208,6 +229,11 @@ GrGLvoid* GR_GL_FUNCTION_TYPE nullGLMapBuffer(GrGLenum target, GrGLenum access) 
     SkASSERT(false);
     return NULL;            // no buffer bound to target
 }
+
+GrGLvoid GR_GL_FUNCTION_TYPE nullGLFlushMappedBufferRange(GrGLenum target,
+                                                          GrGLintptr offset,
+                                                          GrGLsizeiptr length) {}
+
 
 GrGLboolean GR_GL_FUNCTION_TYPE nullGLUnmapBuffer(GrGLenum target) {
     GrGLuint id = 0;
@@ -304,6 +330,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
     functions->fEndQuery = noOpGLEndQuery;
     functions->fFinish = noOpGLFinish;
     functions->fFlush = noOpGLFlush;
+    functions->fFlushMappedBufferRange = nullGLFlushMappedBufferRange;
     functions->fFrontFace = noOpGLFrontFace;
     functions->fGenBuffers = nullGLGenBuffers;
     functions->fGenerateMipmap = nullGLGenerateMipmap;
@@ -329,6 +356,8 @@ const GrGLInterface* GrGLCreateNullInterface() {
     functions->fInsertEventMarker = noOpGLInsertEventMarker;
     functions->fLineWidth = noOpGLLineWidth;
     functions->fLinkProgram = noOpGLLinkProgram;
+    functions->fMapBuffer = nullGLMapBuffer;
+    functions->fMapBufferRange = nullGLMapBufferRange;
     functions->fPixelStorei = nullGLPixelStorei;
     functions->fPopGroupMarker = noOpGLPopGroupMarker;
     functions->fPushGroupMarker = noOpGLPushGroupMarker;
@@ -368,6 +397,7 @@ const GrGLInterface* GrGLCreateNullInterface() {
     functions->fUniformMatrix2fv = noOpGLUniformMatrix2fv;
     functions->fUniformMatrix3fv = noOpGLUniformMatrix3fv;
     functions->fUniformMatrix4fv = noOpGLUniformMatrix4fv;
+    functions->fUnmapBuffer = nullGLUnmapBuffer;
     functions->fUseProgram = nullGLUseProgram;
     functions->fVertexAttrib4fv = noOpGLVertexAttrib4fv;
     functions->fVertexAttribPointer = noOpGLVertexAttribPointer;
@@ -387,10 +417,8 @@ const GrGLInterface* GrGLCreateNullInterface() {
     functions->fRenderbufferStorageMultisample = noOpGLRenderbufferStorageMultisample;
     functions->fBlitFramebuffer = noOpGLBlitFramebuffer;
     functions->fResolveMultisampleFramebuffer = noOpGLResolveMultisampleFramebuffer;
-    functions->fMapBuffer = nullGLMapBuffer;
     functions->fMatrixLoadf = noOpGLMatrixLoadf;
     functions->fMatrixLoadIdentity = noOpGLMatrixLoadIdentity;
-    functions->fUnmapBuffer = nullGLUnmapBuffer;
     functions->fBindFragDataLocationIndexed = noOpGLBindFragDataLocationIndexed;
 
     interface->fExtensions.init(kGL_GrGLStandard, functions->fGetString, functions->fGetStringi,

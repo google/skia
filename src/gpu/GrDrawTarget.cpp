@@ -1016,12 +1016,13 @@ void GrDrawTargetCaps::reset() {
     fShaderDerivativeSupport = false;
     fGeometryShaderSupport = false;
     fDualSourceBlendingSupport = false;
-    fBufferLockSupport = false;
     fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fDiscardRenderTargetSupport = false;
     fReuseScratchTextures = true;
     fGpuTracingSupport = false;
+
+    fMapBufferFlags = kNone_MapFlags;
 
     fMaxRenderTargetSize = 0;
     fMaxTextureSize = 0;
@@ -1040,12 +1041,13 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fShaderDerivativeSupport = other.fShaderDerivativeSupport;
     fGeometryShaderSupport = other.fGeometryShaderSupport;
     fDualSourceBlendingSupport = other.fDualSourceBlendingSupport;
-    fBufferLockSupport = other.fBufferLockSupport;
     fPathRenderingSupport = other.fPathRenderingSupport;
     fDstReadInShaderSupport = other.fDstReadInShaderSupport;
     fDiscardRenderTargetSupport = other.fDiscardRenderTargetSupport;
     fReuseScratchTextures = other.fReuseScratchTextures;
     fGpuTracingSupport = other.fGpuTracingSupport;
+
+    fMapBufferFlags = other.fMapBufferFlags;
 
     fMaxRenderTargetSize = other.fMaxRenderTargetSize;
     fMaxTextureSize = other.fMaxTextureSize;
@@ -1054,6 +1056,26 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     memcpy(fConfigRenderSupport, other.fConfigRenderSupport, sizeof(fConfigRenderSupport));
 
     return *this;
+}
+
+static SkString map_flags_to_string(uint32_t flags) {
+    SkString str;
+    if (GrDrawTargetCaps::kNone_MapFlags == flags) {
+        str = "none";
+    } else {
+        SkASSERT(GrDrawTargetCaps::kCanMap_MapFlag & flags);
+        SkDEBUGCODE(flags &= ~GrDrawTargetCaps::kCanMap_MapFlag);
+        str = "can_map";
+
+        if (GrDrawTargetCaps::kSubset_MapFlag & flags) {
+            str.append(" partial");
+        } else {
+            str.append(" full");
+        }
+        SkDEBUGCODE(flags &= ~GrDrawTargetCaps::kSubset_MapFlag);
+    }
+    SkASSERT(0 == flags); // Make sure we handled all the flags.
+    return str;
 }
 
 SkString GrDrawTargetCaps::dump() const {
@@ -1068,7 +1090,6 @@ SkString GrDrawTargetCaps::dump() const {
     r.appendf("Shader Derivative Support    : %s\n", gNY[fShaderDerivativeSupport]);
     r.appendf("Geometry Shader Support      : %s\n", gNY[fGeometryShaderSupport]);
     r.appendf("Dual Source Blending Support : %s\n", gNY[fDualSourceBlendingSupport]);
-    r.appendf("Buffer Lock Support          : %s\n", gNY[fBufferLockSupport]);
     r.appendf("Path Rendering Support       : %s\n", gNY[fPathRenderingSupport]);
     r.appendf("Dst Read In Shader Support   : %s\n", gNY[fDstReadInShaderSupport]);
     r.appendf("Discard Render Target Support: %s\n", gNY[fDiscardRenderTargetSupport]);
@@ -1077,6 +1098,8 @@ SkString GrDrawTargetCaps::dump() const {
     r.appendf("Max Texture Size             : %d\n", fMaxTextureSize);
     r.appendf("Max Render Target Size       : %d\n", fMaxRenderTargetSize);
     r.appendf("Max Sample Count             : %d\n", fMaxSampleCount);
+
+    r.appendf("Map Buffer Support           : %s\n", map_flags_to_string(fMapBufferFlags).c_str());
 
     static const char* kConfigNames[] = {
         "Unknown",  // kUnknown_GrPixelConfig

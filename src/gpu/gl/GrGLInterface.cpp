@@ -486,8 +486,8 @@ bool GrGLInterface::validate() const {
         }
     }
 
-#if 0 // This can be enabled once Chromium is updated to set these functions pointers.
-    if ((kGL_GrGLStandard == fStandard) || fExtensions.has("GL_ARB_invalidate_subdata")) {
+    if ((kGL_GrGLStandard == fStandard && glVer >= GR_GL_VER(4,3)) ||
+        fExtensions.has("GL_ARB_invalidate_subdata")) {
         if (NULL == fFunctions.fInvalidateBufferData ||
             NULL == fFunctions.fInvalidateBufferSubData ||
             NULL == fFunctions.fInvalidateFramebuffer ||
@@ -496,7 +496,7 @@ bool GrGLInterface::validate() const {
             NULL == fFunctions.fInvalidateTexSubImage) {
             RETURN_FALSE_INTERFACE;
         }
-    } else if (glVer >= GR_GL_VER(3,0)) {
+    } else if (kGLES_GrGLStandard == fStandard && glVer >= GR_GL_VER(3,0)) {
         // ES 3.0 adds the framebuffer functions but not the others.
         if (NULL == fFunctions.fInvalidateFramebuffer ||
             NULL == fFunctions.fInvalidateSubFramebuffer) {
@@ -512,7 +512,15 @@ bool GrGLInterface::validate() const {
             RETURN_FALSE_INTERFACE;
         }
     }
-#endif
 
+    // These functions are added to the 3.0 version of both GLES and GL.
+    if (glVer >= GR_GL_VER(3,0) ||
+        (kGLES_GrGLStandard == fStandard && fExtensions.has("GL_EXT_map_buffer_range")) ||
+        (kGL_GrGLStandard == fStandard && fExtensions.has("GL_ARB_map_buffer_range"))) {
+        if (NULL == fFunctions.fMapBufferRange ||
+            NULL == fFunctions.fFlushMappedBufferRange) {
+            RETURN_FALSE_INTERFACE;
+        }
+    }
     return true;
 }
