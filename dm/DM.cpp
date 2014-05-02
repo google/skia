@@ -70,7 +70,7 @@ native;
 #endif
 static const GrContextFactory::GLContextType mesa   =
 #if SK_MESA
-GLContextFactory::kMESA_GLContextType;
+GrContextFactory::kMESA_GLContextType;
 #else
 native;
 #endif
