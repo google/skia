@@ -17,7 +17,7 @@
     @param value    The 16bit value to be copied into buffer
     @param count    The number of times value should be copied into the buffer.
 */
-void sk_memset16_portable(uint16_t dst[], uint16_t value, int count);
+void sk_memset16(uint16_t dst[], uint16_t value, int count);
 typedef void (*SkMemset16Proc)(uint16_t dst[], uint16_t value, int count);
 SkMemset16Proc SkMemset16GetPlatformProc();
 
@@ -26,17 +26,9 @@ SkMemset16Proc SkMemset16GetPlatformProc();
     @param value    The 32bit value to be copied into buffer
     @param count    The number of times value should be copied into the buffer.
 */
-void sk_memset32_portable(uint32_t dst[], uint32_t value, int count);
+void sk_memset32(uint32_t dst[], uint32_t value, int count);
 typedef void (*SkMemset32Proc)(uint32_t dst[], uint32_t value, int count);
 SkMemset32Proc SkMemset32GetPlatformProc();
-
-#ifndef sk_memset16
-extern SkMemset16Proc sk_memset16;
-#endif
-
-#ifndef sk_memset32
-extern SkMemset32Proc sk_memset32;
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -8,6 +8,7 @@
 
 
 #include "SkUtils.h"
+#include "SkOnce.h"
 
 #if 0
 #define assign_16_longs(dst, value)             \
@@ -37,7 +38,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void sk_memset16_portable(uint16_t dst[], uint16_t value, int count) {
+static void sk_memset16_portable(uint16_t dst[], uint16_t value, int count) {
     SkASSERT(dst != NULL && count >= 0);
 
     if (count <= 0) {
@@ -90,7 +91,7 @@ void sk_memset16_portable(uint16_t dst[], uint16_t value, int count) {
     }
 }
 
-void sk_memset32_portable(uint32_t dst[], uint32_t value, int count) {
+static void sk_memset32_portable(uint32_t dst[], uint32_t value, int count) {
     SkASSERT(dst != NULL && count >= 0);
 
     int sixteenlongs = count >> 4;
@@ -108,21 +109,37 @@ void sk_memset32_portable(uint32_t dst[], uint32_t value, int count) {
     }
 }
 
-static void sk_memset16_stub(uint16_t dst[], uint16_t value, int count) {
-    SkMemset16Proc proc = SkMemset16GetPlatformProc();
-    sk_memset16 = proc ? proc : sk_memset16_portable;
-    sk_memset16(dst, value, count);
+static void choose_memset16(SkMemset16Proc* proc) {
+    *proc = SkMemset16GetPlatformProc();
+    if (NULL == *proc) {
+        *proc = &sk_memset16_portable;
+    }
 }
 
-SkMemset16Proc sk_memset16 = sk_memset16_stub;
+void sk_memset16(uint16_t dst[], uint16_t value, int count) {
+    SK_DECLARE_STATIC_ONCE(once);
+    static SkMemset16Proc proc = NULL;
+    SkOnce(&once, choose_memset16, &proc);
+    SkASSERT(proc != NULL);
 
-static void sk_memset32_stub(uint32_t dst[], uint32_t value, int count) {
-    SkMemset32Proc proc = SkMemset32GetPlatformProc();
-    sk_memset32 = proc ? proc : sk_memset32_portable;
-    sk_memset32(dst, value, count);
+    return proc(dst, value, count);
 }
 
-SkMemset32Proc sk_memset32 = sk_memset32_stub;
+static void choose_memset32(SkMemset32Proc* proc) {
+    *proc = SkMemset32GetPlatformProc();
+    if (NULL == *proc) {
+        *proc = &sk_memset32_portable;
+    }
+}
+
+void sk_memset32(uint32_t dst[], uint32_t value, int count) {
+    SK_DECLARE_STATIC_ONCE(once);
+    static SkMemset32Proc proc = NULL;
+    SkOnce(&once, choose_memset32, &proc);
+    SkASSERT(proc != NULL);
+
+    return proc(dst, value, count);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
