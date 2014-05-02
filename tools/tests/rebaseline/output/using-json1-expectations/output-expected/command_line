@@ -1,1 +1,0 @@
-python tools/rebaseline.py --expectations-root tools/tests/rebaseline/output/using-json1-expectations/output-actual/gm-expectations --actuals-base-url tools/tests/rebaseline/input/json1 --builders Test-Android-GalaxyNexus-SGX540-Arm7-Debug Test-Win7-ShuttleA-HD2000-x86-Release

@@ -126,39 +126,6 @@ function benchalert_test {
   compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
 }
 
-# Test rebaseline.py's JSON-format expectations rebaselining capability.
-#
-# Copy expected-results.json files from $1 into a dir where they can be modified.
-# Run rebaseline.py with arguments in $2, recording its output.
-# Then compare the output (and modified expected-results.json files) to the
-# content of $2/output-expected.
-function rebaseline_test {
-  if [ $# != 3 ]; then
-    echo "rebaseline_test requires exactly 3 parameters, got $#"
-    exit 1
-  fi
-  COPY_EXPECTATIONS_FROM_DIR="$1"
-  ARGS="$2"
-  ACTUAL_OUTPUT_DIR="$3/output-actual"
-  EXPECTED_OUTPUT_DIR="$3/output-expected"
-
-  rm -rf $ACTUAL_OUTPUT_DIR
-  mkdir -p $ACTUAL_OUTPUT_DIR
-  EXPECTATIONS_TO_MODIFY_DIR="$ACTUAL_OUTPUT_DIR/gm-expectations"
-  BUILDERS=$(ls $COPY_EXPECTATIONS_FROM_DIR)
-  for BUILDER in $BUILDERS; do
-    mkdir -p $EXPECTATIONS_TO_MODIFY_DIR/$BUILDER
-    cp $COPY_EXPECTATIONS_FROM_DIR/$BUILDER/expected-results.json \
-       $EXPECTATIONS_TO_MODIFY_DIR/$BUILDER
-  done
-  COMMAND="python tools/rebaseline.py --expectations-root $EXPECTATIONS_TO_MODIFY_DIR $ARGS"
-  echo "$COMMAND" >$ACTUAL_OUTPUT_DIR/command_line
-  $COMMAND &>$ACTUAL_OUTPUT_DIR/stdout
-  echo $? >$ACTUAL_OUTPUT_DIR/return_value
-
-  compare_directories $EXPECTED_OUTPUT_DIR $ACTUAL_OUTPUT_DIR
-}
-
 # Run jsondiff.py with arguments in $1, recording its output.
 # Then compare that output to the content of $2/output-expected.
 function jsondiff_test {
@@ -215,16 +182,6 @@ REVISION=69c9e1a7261a3c8361e2b2c109d6340862149e34
 download_bench_rawdata $PLATFORM $REVISION "$BENCHDATA_FILE_SUFFIXES_NO_INDIVIDUAL_TILES"
 download_bench_rawdata $PLATFORM $REVISION "$BENCHDATA_FILE_SUFFIXES_YES_INDIVIDUAL_TILES"
 benchalert_test $PLATFORM $REVISION
-
-#
-# Test rebaseline.py ...
-#
-
-REBASELINE_INPUT=tools/tests/rebaseline/input
-REBASELINE_OUTPUT=tools/tests/rebaseline/output
-rebaseline_test "$REBASELINE_INPUT/json1" "--actuals-base-url $REBASELINE_INPUT/json1 --builders Test-Android-GalaxyNexus-SGX540-Arm7-Debug Test-Win7-ShuttleA-HD2000-x86-Release" "$REBASELINE_OUTPUT/using-json1-expectations"
-rebaseline_test "$REBASELINE_INPUT/json1" "--actuals-base-url $REBASELINE_INPUT/json1 --bugs 1234 5678 --builders Test-Android-GalaxyNexus-SGX540-Arm7-Debug Test-Win7-ShuttleA-HD2000-x86-Release --notes notes_content --unreviewed" "$REBASELINE_OUTPUT/marked-unreviewed"
-rebaseline_test "$REBASELINE_INPUT/json1" "--actuals-base-url $REBASELINE_INPUT/json1 --add-new --builders Test-Android-GalaxyNexus-SGX540-Arm7-Debug Test-Mac10.6-MacMini4.1-GeForce320M-x86-Release Test-Win7-ShuttleA-HD2000-x86-Release" "$REBASELINE_OUTPUT/add-new"
 
 #
 # Test jsondiff.py ...
