@@ -4593,6 +4593,15 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "discard_gpu.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17913590323992569598
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "displacement_565.png": {
       "allowed-digests": [
         [
