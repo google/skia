@@ -2959,12 +2959,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15988401162496752256
+          12226828480489288358
         ]
       ], 
       "bugs": [
-        2146
+        2332
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "blurs_pdf-poppler.png": {
