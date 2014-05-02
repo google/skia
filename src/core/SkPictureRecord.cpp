@@ -15,6 +15,15 @@
 
 #define HEAP_BLOCK_SIZE 4096
 
+// If SK_RECORD_LITERAL_PICTURES is defined, record our inputs as literally as possible.
+// Otherwise, we can be clever and record faster equivalents.  kBeClever is normally true.
+static const bool kBeClever =
+#ifdef SK_RECORD_LITERAL_PICTURES
+    false;
+#else
+    true;
+#endif
+
 enum {
     // just need a value that save or getSaveCount would never return
     kNoInitialSave = -1,
@@ -34,7 +43,7 @@ SkPictureRecord::SkPictureRecord(SkPicture* picture, const SkISize& dimensions, 
     , fFlattenableHeap(HEAP_BLOCK_SIZE)
     , fPaints(&fFlattenableHeap)
     , fRecordFlags(flags)
-    , fOptsEnabled(true) {
+    , fOptsEnabled(kBeClever) {
 #ifdef SK_DEBUG_SIZE
     fPointBytes = fRectBytes = fTextBytes = 0;
     fPointWrites = fRectWrites = fTextWrites = 0;
@@ -1031,9 +1040,9 @@ void SkPictureRecord::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
 #endif
 
-    if (rrect.isRect()) {
+    if (rrect.isRect() && kBeClever) {
         this->SkPictureRecord::drawRect(rrect.getBounds(), paint);
-    } else if (rrect.isOval()) {
+    } else if (rrect.isOval() && kBeClever) {
         this->SkPictureRecord::drawOval(rrect.getBounds(), paint);
     } else {
         // op + paint index + rrect
@@ -1089,7 +1098,7 @@ void SkPictureRecord::drawPath(const SkPath& path, const SkPaint& paint) {
 
 void SkPictureRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                                  const SkPaint* paint = NULL) {
-    if (bitmap.drawsNothing()) {
+    if (bitmap.drawsNothing() && kBeClever) {
         return;
     }
 
@@ -1111,7 +1120,7 @@ void SkPictureRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar
 void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect* src,
                                            const SkRect& dst, const SkPaint* paint,
                                            DrawBitmapRectFlags flags) {
-    if (bitmap.drawsNothing()) {
+    if (bitmap.drawsNothing() && kBeClever) {
         return;
     }
 
@@ -1138,7 +1147,7 @@ void SkPictureRecord::drawBitmapRectToRect(const SkBitmap& bitmap, const SkRect*
 
 void SkPictureRecord::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
                                        const SkPaint* paint) {
-    if (bitmap.drawsNothing()) {
+    if (bitmap.drawsNothing() && kBeClever) {
         return;
     }
 
@@ -1158,7 +1167,7 @@ void SkPictureRecord::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m
 
 void SkPictureRecord::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                      const SkRect& dst, const SkPaint* paint) {
-    if (bitmap.drawsNothing()) {
+    if (bitmap.drawsNothing() && kBeClever) {
         return;
     }
 
@@ -1179,7 +1188,7 @@ void SkPictureRecord::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& cent
 
 void SkPictureRecord::drawSprite(const SkBitmap& bitmap, int left, int top,
                                  const SkPaint* paint = NULL) {
-    if (bitmap.drawsNothing()) {
+    if (bitmap.drawsNothing() && kBeClever) {
         return;
     }
 
@@ -1224,7 +1233,7 @@ void SkPictureRecord::onDrawText(const void* text, size_t byteLength, SkScalar x
     fMCMgr.call(SkMatrixClipStateMgr::kOther_CallType);
 #endif
 
-    bool fast = !paint.isVerticalText() && paint.canComputeFastBounds();
+    bool fast = !paint.isVerticalText() && paint.canComputeFastBounds() && kBeClever;
 
     // op + paint index + length + 'length' worth of chars + x + y
     size_t size = 3 * kUInt32Size + SkAlign4(byteLength) + 2 * sizeof(SkScalar);
@@ -1275,8 +1284,8 @@ void SkPictureRecord::onDrawPosText(const void* text, size_t byteLength, const S
         }
     }
 
-    bool fastBounds = !paint.isVerticalText() && paint.canComputeFastBounds();
-    bool fast = canUseDrawH && fastBounds;
+    bool fastBounds = !paint.isVerticalText() && paint.canComputeFastBounds() && kBeClever;
+    bool fast = canUseDrawH && fastBounds && kBeClever;
 
     // op + paint index + length + 'length' worth of data + num points
     size_t size = 3 * kUInt32Size + SkAlign4(byteLength) + 1 * kUInt32Size;
@@ -1349,10 +1358,11 @@ void SkPictureRecord::drawPosTextHImpl(const void* text, size_t byteLength,
                           const SkScalar xpos[], SkScalar constY,
                           const SkPaint& paint, const SkFlatData* flatPaintData) {
     int points = paint.countText(text, byteLength);
-    if (0 == points)
+    if (0 == points && kBeClever) {
         return;
+    }
 
-    bool fast = !paint.isVerticalText() && paint.canComputeFastBounds();
+    bool fast = !paint.isVerticalText() && paint.canComputeFastBounds() && kBeClever;
 
     // op + paint index + length + 'length' worth of data + num points
     size_t size = 3 * kUInt32Size + SkAlign4(byteLength) + 1 * kUInt32Size;
@@ -1545,7 +1555,7 @@ void SkPictureRecord::onPopCull() {
     fCullOffsetStack.pop();
 
     // Collapse empty push/pop pairs.
-    if ((size_t)(cullSkipOffset + kUInt32Size) == fWriter.bytesWritten()) {
+    if ((size_t)(cullSkipOffset + kUInt32Size) == fWriter.bytesWritten() && kBeClever) {
         SkASSERT(fWriter.bytesWritten() >= kPushCullOpSize);
         SkASSERT(PUSH_CULL == peek_op(&fWriter, fWriter.bytesWritten() - kPushCullOpSize));
         fWriter.rewindToOffset(fWriter.bytesWritten() - kPushCullOpSize);
