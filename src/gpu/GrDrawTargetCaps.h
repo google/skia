@@ -37,24 +37,11 @@ public:
     bool shaderDerivativeSupport() const { return fShaderDerivativeSupport; }
     bool geometryShaderSupport() const { return fGeometryShaderSupport; }
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
+    bool bufferLockSupport() const { return fBufferLockSupport; }
     bool pathRenderingSupport() const { return fPathRenderingSupport; }
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
     bool discardRenderTargetSupport() const { return fDiscardRenderTargetSupport; }
     bool gpuTracingSupport() const { return fGpuTracingSupport; }
-
-    /**
-     * Indicates whether GPU->CPU memory mapping for GPU resources such as vertex buffers and
-     * textures allows partial mappings or full mappings.
-     */
-    enum MapFlags {
-        kNone_MapFlags   = 0x0,       //<! Cannot map the resource.
-
-        kCanMap_MapFlag  = 0x1,       //<! The resource can be mapped. Must be set for any of
-                                      //   the other flags to have meaning.k
-        kSubset_MapFlag  = 0x2,       //<! The resource can be partially mapped.
-    };
-
-    uint32_t mapBufferFlags() const { return fMapBufferFlags; }
 
     // Scratch textures not being reused means that those scratch textures
     // that we upload to (i.e., don't have a render target) will not be
@@ -82,13 +69,12 @@ protected:
     bool fShaderDerivativeSupport   : 1;
     bool fGeometryShaderSupport     : 1;
     bool fDualSourceBlendingSupport : 1;
+    bool fBufferLockSupport         : 1;
     bool fPathRenderingSupport      : 1;
     bool fDstReadInShaderSupport    : 1;
     bool fDiscardRenderTargetSupport: 1;
     bool fReuseScratchTextures      : 1;
     bool fGpuTracingSupport         : 1;
-
-    uint32_t fMapBufferFlags;
 
     int fMaxRenderTargetSize;
     int fMaxTextureSize;

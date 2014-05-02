@@ -53,8 +53,6 @@ private:
     GrGLenum     fBufferType; // GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
     void*        fCPUData;
     void*        fLockPtr;
-    size_t       fGLSizeInBytes;     // In certain cases we make the size of the GL buffer object
-                                     // smaller or larger than the size in fDesc.
 
     typedef SkNoncopyable INHERITED;
 };

@@ -75,7 +75,7 @@ static GrGLInterface* create_es_interface(GrGLVersion version,
     functions->fGetShaderInfoLog = glGetShaderInfoLog;
     functions->fGetShaderiv = glGetShaderiv;
     functions->fGetString = glGetString;
-#if GL_ES_VERSION_3_0
+#if GL_ES_VERSION_30
     functions->fGetStringi = glGetStringi;
 #else
     functions->fGetStringi = (GrGLGetStringiProc) eglGetProcAddress("glGetStringi");
@@ -183,24 +183,12 @@ static GrGLInterface* create_es_interface(GrGLVersion version,
     functions->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;
     functions->fGetRenderbufferParameteriv = glGetRenderbufferParameteriv;
     functions->fRenderbufferStorage = glRenderbufferStorage;
-
 #if GL_OES_mapbuffer
     functions->fMapBuffer = glMapBufferOES;
     functions->fUnmapBuffer = glUnmapBufferOES;
 #else
     functions->fMapBuffer = (GrGLMapBufferProc) eglGetProcAddress("glMapBufferOES");
     functions->fUnmapBuffer = (GrGLUnmapBufferProc) eglGetProcAddress("glUnmapBufferOES");
-
-#endif
-
-#if GL_ES_VERSION_3_0 || GL_EXT_map_buffer_range
-    functions->fMapBufferRange = glMapBufferRange;
-    functions->fFlushMappedBufferRange = glFlushMappedBufferRange;
-#else
-    if (version >= GR_GL_VER(3,0) || extensions->has("GL_EXT_map_buffer_range")) {
-        functions->fMapBufferRange = (GrGLMapBufferRangeProc) eglGetProcAddress("glMapBufferRange");
-        functions->fFlushMappedBufferRange = (GrGLFlushMappedBufferRangeProc) eglGetProcAddress("glFlushMappedBufferRange");
-    }
 #endif
 
     if (extensions->has("GL_EXT_debug_marker")) {

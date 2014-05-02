@@ -173,11 +173,6 @@ const GrGLInterface* GrGLAssembleGLInterface(void* ctx, GrGLGetProc get) {
         GET_PROC(DeleteVertexArrays);
     }
 
-    if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_map_buffer_range")) {
-        GET_PROC(MapBufferRange);
-        GET_PROC(FlushMappedBufferRange);
-    }
-
     // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
     // GL_ARB_framebuffer_object doesn't use ARB suffix.)
     if (glVer >= GR_GL_VER(3,0) || extensions.has("GL_ARB_framebuffer_object")) {

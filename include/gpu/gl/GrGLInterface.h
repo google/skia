@@ -192,7 +192,6 @@ public:
         GLPtr<GrGLEndQueryProc> fEndQuery;
         GLPtr<GrGLFinishProc> fFinish;
         GLPtr<GrGLFlushProc> fFlush;
-        GLPtr<GrGLFlushMappedBufferRangeProc> fFlushMappedBufferRange;
         GLPtr<GrGLFramebufferRenderbufferProc> fFramebufferRenderbuffer;
         GLPtr<GrGLFramebufferTexture2DProc> fFramebufferTexture2D;
         GLPtr<GrGLFramebufferTexture2DMultisampleProc> fFramebufferTexture2DMultisample;
@@ -232,7 +231,6 @@ public:
         GLPtr<GrGLLineWidthProc> fLineWidth;
         GLPtr<GrGLLinkProgramProc> fLinkProgram;
         GLPtr<GrGLMapBufferProc> fMapBuffer;
-        GLPtr<GrGLMapBufferRangeProc> fMapBufferRange;
         GLPtr<GrGLMapBufferSubDataProc> fMapBufferSubData;
         GLPtr<GrGLMapTexSubImage2DProc> fMapTexSubImage2D;
         GLPtr<GrGLMatrixLoadfProc> fMatrixLoadf;

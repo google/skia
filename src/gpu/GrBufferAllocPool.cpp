@@ -303,7 +303,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     //      threshold (since we don't expect it is likely that we will see more vertex data)
     //      b) If the hint is not set we lock if the buffer size is greater than the threshold.
     bool attemptLock = block.fBuffer->isCPUBacked();
-    if (!attemptLock && GrDrawTargetCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags()) {
+    if (!attemptLock && fGpu->caps()->bufferLockSupport()) {
         if (fFrequentResetHint) {
             attemptLock = requestSize > GR_GEOM_BUFFER_LOCK_THRESHOLD;
         } else {
@@ -351,7 +351,7 @@ void GrBufferAllocPool::flushCpuData(GrGeometryBuffer* buffer,
     SkASSERT(flushSize <= buffer->sizeInBytes());
     VALIDATE(true);
 
-    if (GrDrawTargetCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags() &&
+    if (fGpu->caps()->bufferLockSupport() &&
         flushSize > GR_GEOM_BUFFER_LOCK_THRESHOLD) {
         void* data = buffer->lock();
         if (NULL != data) {

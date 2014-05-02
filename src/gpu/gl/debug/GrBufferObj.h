@@ -34,15 +34,9 @@ public:
         GrAlwaysAssert(!fMapped);
     }
 
-    void setMapped(GrGLintptr offset, GrGLsizeiptr length) {
-        fMapped = true;
-        fMappedOffset = offset;
-        fMappedLength = length;
-    }
+    void setMapped()             { fMapped = true; }
     void resetMapped()           { fMapped = false; }
     bool getMapped() const       { return fMapped; }
-    GrGLsizei getMappedOffset() const { return fMappedOffset; }
-    GrGLsizei getMappedLength() const { return fMappedLength; }
 
     void setBound()              { fBound = true; }
     void resetBound()            { fBound = false; }
@@ -61,9 +55,7 @@ protected:
 private:
 
     GrGLchar*    fDataPtr;
-    bool         fMapped;       // is the buffer object mapped via "glMapBuffer[Range]"?
-    GrGLintptr   fMappedOffset; // the offset of the buffer range that is mapped
-    GrGLsizeiptr fMappedLength; // the size of the buffer range that is mapped
+    bool         fMapped;       // is the buffer object mapped via "glMapBuffer"?
     bool         fBound;        // is the buffer object bound via "glBindBuffer"?
     GrGLsizeiptr fSize;         // size in bytes
     GrGLint      fUsage;        // one of: GL_STREAM_DRAW,
