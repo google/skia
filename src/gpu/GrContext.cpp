@@ -238,7 +238,7 @@ GrTexture* GrContext::findAndRefTexture(const GrTextureDesc& desc,
                                         const GrCacheID& cacheID,
                                         const GrTextureParams* params) {
     GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
-    GrResource* resource = fTextureCache->find(resourceKey);
+    GrCacheable* resource = fTextureCache->find(resourceKey);
     SkSafeRef(resource);
     return static_cast<GrTexture*>(resource);
 }
@@ -264,7 +264,7 @@ GrStencilBuffer* GrContext::findStencilBuffer(int width, int height,
     GrResourceKey resourceKey = GrStencilBuffer::ComputeKey(width,
                                                             height,
                                                             sampleCnt);
-    GrResource* resource = fTextureCache->find(resourceKey);
+    GrCacheable* resource = fTextureCache->find(resourceKey);
     return static_cast<GrStencilBuffer*>(resource);
 }
 
@@ -397,7 +397,7 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
     if (NULL != texture) {
         // Adding a resource could put us overbudget. Try to free up the
         // necessary space before adding it.
-        fTextureCache->purgeAsNeeded(1, texture->sizeInBytes());
+        fTextureCache->purgeAsNeeded(1, texture->gpuMemorySize());
         fTextureCache->addResource(resourceKey, texture);
 
         if (NULL != cacheKey) {
@@ -416,7 +416,7 @@ static GrTexture* create_scratch_texture(GrGpu* gpu,
         GrResourceKey key = GrTexture::ComputeScratchKey(texture->desc());
         // Adding a resource could put us overbudget. Try to free up the
         // necessary space before adding it.
-        textureCache->purgeAsNeeded(1, texture->sizeInBytes());
+        textureCache->purgeAsNeeded(1, texture->gpuMemorySize());
         // Make the resource exclusive so future 'find' calls don't return it
         textureCache->addResource(key, texture, GrResourceCache::kHide_OwnershipFlag);
     }
@@ -448,7 +448,7 @@ GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, Scra
         desc.fHeight = SkTMax(MIN_SIZE, GrNextPow2(desc.fHeight));
     }
 
-    GrResource* resource = NULL;
+    GrCacheable* resource = NULL;
     int origWidth = desc.fWidth;
     int origHeight = desc.fHeight;
 
@@ -1819,7 +1819,7 @@ GrPath* GrContext::createPath(const SkPath& inPath, const SkStrokeRec& stroke) {
         path->ref();
     } else {
         path = fGpu->createPath(inPath, stroke);
-        fTextureCache->purgeAsNeeded(1, path->sizeInBytes());
+        fTextureCache->purgeAsNeeded(1, path->gpuMemorySize());
         fTextureCache->addResource(resourceKey, path);
     }
     return path;

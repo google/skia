@@ -10,14 +10,14 @@
 #define GrSurface_DEFINED
 
 #include "GrTypes.h"
-#include "GrResource.h"
+#include "GrGpuObject.h"
 #include "SkRect.h"
 
 class GrTexture;
 class GrRenderTarget;
 struct SkImageInfo;
 
-class GrSurface : public GrResource {
+class GrSurface : public GrGpuObject {
 public:
     SK_DECLARE_INST_COUNT(GrSurface);
 
@@ -144,7 +144,7 @@ protected:
     GrTextureDesc fDesc;
 
 private:
-    typedef GrResource INHERITED;
+    typedef GrGpuObject INHERITED;
 };
 
 #endif // GrSurface_DEFINED

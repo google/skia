@@ -14,7 +14,7 @@ GrGLVertexBuffer::GrGLVertexBuffer(GrGpuGL* gpu, const Desc& desc)
 }
 
 void GrGLVertexBuffer::onRelease() {
-    if (this->isValid()) {
+    if (!this->wasDestroyed()) {
         fImpl.release(this->getGpuGL());
     }
 
@@ -28,7 +28,7 @@ void GrGLVertexBuffer::onAbandon() {
 }
 
 void* GrGLVertexBuffer::lock() {
-    if (this->isValid()) {
+    if (!this->wasDestroyed()) {
         return fImpl.lock(this->getGpuGL());
     } else {
         return NULL;
@@ -40,7 +40,7 @@ void* GrGLVertexBuffer::lockPtr() const {
 }
 
 void GrGLVertexBuffer::unlock() {
-    if (this->isValid()) {
+    if (!this->wasDestroyed()) {
         fImpl.unlock(this->getGpuGL());
     }
 }
@@ -50,7 +50,7 @@ bool GrGLVertexBuffer::isLocked() const {
 }
 
 bool GrGLVertexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
-    if (this->isValid()) {
+    if (!this->wasDestroyed()) {
         return fImpl.updateData(this->getGpuGL(), src, srcSizeInBytes);
     } else {
         return false;

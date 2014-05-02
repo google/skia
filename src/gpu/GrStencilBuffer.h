@@ -11,13 +11,12 @@
 #define GrStencilBuffer_DEFINED
 
 #include "GrClipData.h"
-#include "GrResource.h"
+#include "GrGpuObject.h"
 
 class GrRenderTarget;
-class GrResourceEntry;
 class GrResourceKey;
 
-class GrStencilBuffer : public GrResource {
+class GrStencilBuffer : public GrGpuObject {
 public:
     SK_DECLARE_INST_COUNT(GrStencilBuffer);
 
@@ -55,7 +54,7 @@ public:
 
 protected:
     GrStencilBuffer(GrGpu* gpu, bool isWrapped, int width, int height, int bits, int sampleCnt)
-        : GrResource(gpu, isWrapped)
+        : GrGpuObject(gpu, isWrapped)
         , fWidth(width)
         , fHeight(height)
         , fBits(bits)
@@ -75,7 +74,7 @@ private:
     SkIRect     fLastClipStackRect;
     SkIPoint    fLastClipSpaceOffset;
 
-    typedef GrResource INHERITED;
+    typedef GrGpuObject INHERITED;
 };
 
 #endif

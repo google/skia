@@ -63,7 +63,7 @@ void GrRenderTarget::discard() {
     context->discardRenderTarget(this);
 }
 
-size_t GrRenderTarget::sizeInBytes() const {
+size_t GrRenderTarget::gpuMemorySize() const {
     size_t colorBits;
     if (kUnknown_GrPixelConfig == fDesc.fConfig) {
         colorBits = 32; // don't know, make a guess

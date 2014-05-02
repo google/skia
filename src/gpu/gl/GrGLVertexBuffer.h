@@ -26,7 +26,7 @@ public:
     size_t baseOffset() const { return fImpl.baseOffset(); }
 
     void bind() const {
-        if (this->isValid()) {
+        if (!this->wasDestroyed()) {
             fImpl.bind(this->getGpuGL());
         }
     }
@@ -45,7 +45,7 @@ protected:
 
 private:
     GrGpuGL* getGpuGL() const {
-        SkASSERT(this->isValid());
+        SkASSERT(!this->wasDestroyed());
         return (GrGpuGL*)(this->getGpu());
     }
 

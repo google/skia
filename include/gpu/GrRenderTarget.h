@@ -26,7 +26,7 @@ public:
     SK_DECLARE_INST_COUNT(GrRenderTarget)
 
     // GrResource overrides
-    virtual size_t sizeInBytes() const SK_OVERRIDE;
+    virtual size_t gpuMemorySize() const SK_OVERRIDE;
 
     // GrSurface overrides
     /**

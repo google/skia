@@ -57,11 +57,11 @@ void GrGpu::abandonResources() {
 
     fClipMaskManager.releaseResources();
 
-    while (NULL != fResourceList.head()) {
-        fResourceList.head()->abandon();
+    while (NULL != fObjectList.head()) {
+        fObjectList.head()->abandon();
     }
 
-    SkASSERT(NULL == fQuadIndexBuffer || !fQuadIndexBuffer->isValid());
+    SkASSERT(NULL == fQuadIndexBuffer || fQuadIndexBuffer->wasDestroyed());
     SkSafeSetNull(fQuadIndexBuffer);
     delete fVertexPool;
     fVertexPool = NULL;
@@ -73,11 +73,11 @@ void GrGpu::releaseResources() {
 
     fClipMaskManager.releaseResources();
 
-    while (NULL != fResourceList.head()) {
-        fResourceList.head()->release();
+    while (NULL != fObjectList.head()) {
+        fObjectList.head()->release();
     }
 
-    SkASSERT(NULL == fQuadIndexBuffer || !fQuadIndexBuffer->isValid());
+    SkASSERT(NULL == fQuadIndexBuffer || fQuadIndexBuffer->wasDestroyed());
     SkSafeSetNull(fQuadIndexBuffer);
     delete fVertexPool;
     fVertexPool = NULL;
@@ -85,18 +85,18 @@ void GrGpu::releaseResources() {
     fIndexPool = NULL;
 }
 
-void GrGpu::insertResource(GrResource* resource) {
-    SkASSERT(NULL != resource);
-    SkASSERT(this == resource->getGpu());
+void GrGpu::insertObject(GrGpuObject* object) {
+    SkASSERT(NULL != object);
+    SkASSERT(this == object->getGpu());
 
-    fResourceList.addToHead(resource);
+    fObjectList.addToHead(object);
 }
 
-void GrGpu::removeResource(GrResource* resource) {
-    SkASSERT(NULL != resource);
-    SkASSERT(this == resource->getGpu());
+void GrGpu::removeObject(GrGpuObject* object) {
+    SkASSERT(NULL != object);
+    SkASSERT(this == object->getGpu());
 
-    fResourceList.remove(resource);
+    fObjectList.remove(object);
 }
 
 

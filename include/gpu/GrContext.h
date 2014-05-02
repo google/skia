@@ -20,6 +20,7 @@
 
 class GrAARectRenderer;
 class GrAutoScratchTexture;
+class GrCacheable;
 class GrDrawState;
 class GrDrawTarget;
 class GrEffect;
@@ -87,8 +88,8 @@ public:
      * buffer, etc. references/IDs are now invalid. Should be called even when
      * GrContext is no longer going to be used for two reasons:
      *  1) ~GrContext will not try to free the objects in the 3D API.
-     *  2) If you've created GrResources that outlive the GrContext they will
-     *     be marked as invalid (GrResource::isValid()) and won't attempt to
+     *  2) If you've created GrGpuObjects that outlive the GrContext they will
+     *     be marked as invalid (GrGpuObjects::isValid()) and won't attempt to
      *     free their underlying resource in the 3D API.
      * Content drawn since the last GrContext::flush() may be lost.
      */

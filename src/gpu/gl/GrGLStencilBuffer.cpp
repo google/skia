@@ -13,7 +13,7 @@ GrGLStencilBuffer::~GrGLStencilBuffer() {
     this->release();
 }
 
-size_t GrGLStencilBuffer::sizeInBytes() const {
+size_t GrGLStencilBuffer::gpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
     size *= fFormat.fTotalBits;

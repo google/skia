@@ -167,7 +167,7 @@ SkPixelRef* SkGrPixelRef::deepCopy(SkBitmap::Config dstConfig, const SkIRect* su
 }
 
 bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
-    if (NULL == fSurface || !fSurface->isValid()) {
+    if (NULL == fSurface || fSurface->wasDestroyed()) {
         return false;
     }
 

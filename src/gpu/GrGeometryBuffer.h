@@ -10,14 +10,14 @@
 #ifndef GrGeometryBuffer_DEFINED
 #define GrGeometryBuffer_DEFINED
 
-#include "GrResource.h"
+#include "GrGpuObject.h"
 
 class GrGpu;
 
 /**
  * Parent class for vertex and index buffers
  */
-class GrGeometryBuffer : public GrResource {
+class GrGeometryBuffer : public GrGpuObject {
 public:
     SK_DECLARE_INST_COUNT(GrGeometryBuffer);
 
@@ -82,22 +82,22 @@ public:
      */
     virtual bool updateData(const void* src, size_t srcSizeInBytes) = 0;
 
-    // GrResource overrides
-    virtual size_t sizeInBytes() const { return fSizeInBytes; }
+    // GrGpuObject overrides
+    virtual size_t gpuMemorySize() const { return fGpuMemorySize; }
 
 protected:
-    GrGeometryBuffer(GrGpu* gpu, bool isWrapped, size_t sizeInBytes, bool dynamic, bool cpuBacked)
+    GrGeometryBuffer(GrGpu* gpu, bool isWrapped, size_t gpuMemorySize, bool dynamic, bool cpuBacked)
         : INHERITED(gpu, isWrapped)
-        , fSizeInBytes(sizeInBytes)
+        , fGpuMemorySize(gpuMemorySize)
         , fDynamic(dynamic)
         , fCPUBacked(cpuBacked) {}
 
 private:
-    size_t   fSizeInBytes;
+    size_t   fGpuMemorySize;
     bool     fDynamic;
     bool     fCPUBacked;
 
-    typedef GrResource INHERITED;
+    typedef GrGpuObject INHERITED;
 };
 
 #endif

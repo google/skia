@@ -69,7 +69,7 @@ void GrGLAttribArrayState::disableUnusedArrays(const GrGpuGL* gpu, uint64_t used
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 GrGLVertexArray::GrGLVertexArray(GrGpuGL* gpu, GrGLint id, int attribCount)
-    : GrResource(gpu, false)
+    : INHERITED(gpu, false)
     , fID(id)
     , fAttribArrays(attribCount)
     , fIndexBufferIDIsValid(false) {

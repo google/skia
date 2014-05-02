@@ -55,7 +55,7 @@ public:
     /**
      *  Approximate number of bytes used by the texture
      */
-    virtual size_t sizeInBytes() const SK_OVERRIDE {
+    virtual size_t gpuMemorySize() const SK_OVERRIDE {
         return (size_t) fDesc.fWidth *
                         fDesc.fHeight *
                         GrBytesPerPixel(fDesc.fConfig);

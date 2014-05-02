@@ -36,7 +36,7 @@ public:
 
     virtual ~GrGLStencilBuffer();
 
-    virtual size_t sizeInBytes() const SK_OVERRIDE;
+    virtual size_t gpuMemorySize() const SK_OVERRIDE;
 
     GrGLuint renderbufferID() const {
         return fRenderbufferID;

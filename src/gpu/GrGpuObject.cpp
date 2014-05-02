@@ -7,44 +7,43 @@
  */
 
 
-#include "GrResource.h"
+#include "GrGpuObject.h"
 #include "GrGpu.h"
 
-GrResource::GrResource(GrGpu* gpu, bool isWrapped) {
+GrGpuObject::GrGpuObject(GrGpu* gpu, bool isWrapped) {
     fGpu              = gpu;
-    fCacheEntry       = NULL;
     fDeferredRefCount = 0;
     if (isWrapped) {
         fFlags = kWrapped_FlagBit;
     } else {
         fFlags = 0;
     }
-    fGpu->insertResource(this);
+    fGpu->insertObject(this);
 }
 
-GrResource::~GrResource() {
+GrGpuObject::~GrGpuObject() {
     // subclass should have released this.
     SkASSERT(0 == fDeferredRefCount);
-    SkASSERT(!this->isValid());
+    SkASSERT(this->wasDestroyed());
 }
 
-void GrResource::release() {
+void GrGpuObject::release() {
     if (NULL != fGpu) {
         this->onRelease();
-        fGpu->removeResource(this);
+        fGpu->removeObject(this);
         fGpu = NULL;
     }
 }
 
-void GrResource::abandon() {
+void GrGpuObject::abandon() {
     if (NULL != fGpu) {
         this->onAbandon();
-        fGpu->removeResource(this);
+        fGpu->removeObject(this);
         fGpu = NULL;
     }
 }
 
-const GrContext* GrResource::getContext() const {
+const GrContext* GrGpuObject::getContext() const {
     if (NULL != fGpu) {
         return fGpu->getContext();
     } else {
@@ -52,7 +51,7 @@ const GrContext* GrResource::getContext() const {
     }
 }
 
-GrContext* GrResource::getContext() {
+GrContext* GrGpuObject::getContext() {
     if (NULL != fGpu) {
         return fGpu->getContext();
     } else {

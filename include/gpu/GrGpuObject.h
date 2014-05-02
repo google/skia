@@ -5,26 +5,25 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrResource_DEFINED
-#define GrResource_DEFINED
+#ifndef GrGpuObject_DEFINED
+#define GrGpuObject_DEFINED
 
-#include "SkRefCnt.h"
+#include "GrCacheable.h"
 #include "SkTInternalLList.h"
 
 class GrGpu;
 class GrContext;
-class GrResourceEntry;
 
 /**
- * Base class for the GPU resources created by a GrContext.
+ * Base class for the GPU objects created by a GrContext.
  */
-class GrResource : public SkRefCnt {
+class GrGpuObject : public GrCacheable {
 public:
-    SK_DECLARE_INST_COUNT(GrResource)
+    SK_DECLARE_INST_COUNT(GrGpuObject)
 
     /**
-     * Frees the resource in the underlying 3D API. It must be safe to call this
-     * when the resource has been previously abandoned.
+     * Frees the object in the underlying 3D API. It must be safe to call this
+     * when the object has been previously abandoned.
      */
     void release();
 
@@ -35,36 +34,25 @@ public:
     void abandon();
 
     /**
-     * Tests whether a resource has been abandoned or released. All resources
-     * will be in this state after their creating GrContext is destroyed or has
-     * contextLost called. It's up to the client to test isValid() before
-     * attempting to use a resource if it holds refs on resources across
+     * Tests whether a object has been abandoned or released. All objects will
+     * be in this state after their creating GrContext is destroyed or has
+     * contextLost called. It's up to the client to test wasDestroyed() before
+     * attempting to use an object if it holds refs on objects across
      * ~GrContext, freeResources with the force flag, or contextLost.
      *
-     * @return true if the resource has been released or abandoned,
+     * @return true if the object has been released or abandoned,
      *         false otherwise.
      */
-    bool isValid() const { return NULL != fGpu; }
+    bool wasDestroyed() const { return NULL == fGpu; }
 
     /**
-     * Retrieves the size of the object in GPU memory. This is approximate since
-     * we aren't aware of additional padding or copies made by the driver.
-     *
-     * @return the size of the buffer in bytes
-     */
-    virtual size_t sizeInBytes() const = 0;
-
-    /**
-     * Retrieves the context that owns the resource. Note that it is possible
-     * for this to return NULL. When resources have been release()ed or
-     * abandon()ed they no longer have an owning context. Destroying a
-     * GrContext automatically releases all its resources.
+     * Retrieves the context that owns the object. Note that it is possible for
+     * this to return NULL. When objects have been release()ed or abandon()ed
+     * they no longer have an owning context. Destroying a GrContext
+     * automatically releases all its resources.
      */
     const GrContext* getContext() const;
     GrContext* getContext();
-
-    void setCacheEntry(GrResourceEntry* cacheEntry) { fCacheEntry = cacheEntry; }
-    GrResourceEntry* getCacheEntry() { return fCacheEntry; }
 
     void incDeferredRefCount() const {
         SkASSERT(fDeferredRefCount >= 0);
@@ -84,14 +72,16 @@ public:
 
     void setNeedsDeferredUnref() { fFlags |= kDeferredUnref_FlagBit; }
 
+    virtual bool isValidOnGpu() const SK_OVERRIDE { return !this->wasDestroyed(); }
+
 protected:
     /**
-     * isWrapped indicates we have wrapped a client-created backend resource in a GrResource. If it
-     * is true then the client is responsible for the lifetime of the underlying backend resource.
-     * Otherwise, our onRelease() should free the resource.
+     * isWrapped indicates we have wrapped a client-created backend object in a GrGpuObject. If it
+     * is true then the client is responsible for the lifetime of the underlying backend object.
+     * Otherwise, our onRelease() should free the object.
      */
-    GrResource(GrGpu* gpu, bool isWrapped);
-    virtual ~GrResource();
+    GrGpuObject(GrGpu* gpu, bool isWrapped);
+    virtual ~GrGpuObject();
 
     GrGpu* getGpu() const { return fGpu; }
 
@@ -100,7 +90,6 @@ protected:
     virtual void onRelease() {};
     virtual void onAbandon() {};
 
-    bool isInCache() const { return NULL != fCacheEntry; }
     bool isWrapped() const { return kWrapped_FlagBit & fFlags; }
     bool needsDeferredUnref() const { return SkToBool(kDeferredUnref_FlagBit & fFlags); }
 
@@ -110,18 +99,16 @@ private:
 #endif
 
     // We're in an internal doubly linked list
-    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrResource);
+    SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrGpuObject);
 
     GrGpu*              fGpu;               // not reffed. The GrGpu can be deleted while there
-                                            // are still live GrResources. It will call
-                                            // release() on all such resources in its
-                                            // destructor.
-    GrResourceEntry*    fCacheEntry;        // NULL if not in cache
+                                            // are still live GrGpuObjects. It will call
+                                            // release() on all such objects in its destructor.
     mutable int         fDeferredRefCount;  // How many references in deferred drawing buffers.
 
     enum Flags {
         /**
-         * This resource wraps a GPU resource given to us by the user.
+         * This object wraps a GPU object given to us by the user.
          * Lifetime management is left up to the user (i.e., we will not
          * free it).
          */
@@ -129,7 +116,7 @@ private:
 
         /**
          * This texture should be de-refed when the deferred ref count goes
-         * to zero. A resource gets into this state when the resource cache
+         * to zero. An object gets into this state when the resource cache
          * is holding a ref-of-obligation (i.e., someone needs to own it but
          * no one else wants to) but doesn't really want to keep it around.
          */
@@ -137,7 +124,7 @@ private:
     };
     uint32_t         fFlags;
 
-    typedef SkRefCnt INHERITED;
+    typedef GrCacheable INHERITED;
 };
 
 #endif
