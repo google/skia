@@ -44,8 +44,8 @@ def compute_ranges(benches):
   diff = maximum - minimum
   avg = sum(benches) / len(benches)
 
-  return [minimum - diff * RANGE_RATIO_LOWER - avg * ERR_RATIO - ERR_UB,
-          maximum + diff * RANGE_RATIO_UPPER + avg * ERR_RATIO + ERR_LB]
+  return [minimum - diff * RANGE_RATIO_LOWER - avg * ERR_RATIO - ERR_LB,
+          maximum + diff * RANGE_RATIO_UPPER + avg * ERR_RATIO + ERR_UB]
 
 
 def create_expectations_dict(revision_data_points):
