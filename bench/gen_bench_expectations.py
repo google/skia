@@ -13,7 +13,7 @@ import sys
 
 # Parameters for calculating bench ranges.
 RANGE_RATIO_UPPER = 1.2  # Ratio of range for upper bounds.
-RANGE_RATIO_LOWER = 1.8  # Ratio of range for lower bounds.
+RANGE_RATIO_LOWER = 2.0  # Ratio of range for lower bounds.
 ERR_RATIO = 0.08  # Further widens the range by the ratio of average value.
 ERR_ABS = 0.5  # Adds an absolute error margin to cope with very small benches.
 
@@ -25,7 +25,7 @@ CONFIGS_TO_INCLUDE = ['simple_viewport_1000x1000',
                      ]
 
 # List of flaky SKPs that should be excluded.
-SKPS_TO_EXCLUDE = ['desk_chalkboard.skp',
+SKPS_TO_EXCLUDE = [
                   ]
 
 
@@ -44,7 +44,7 @@ def compute_ranges(benches):
   avg = sum(benches) / len(benches)
 
   return [minimum - diff * RANGE_RATIO_LOWER - avg * ERR_RATIO - ERR_ABS,
-          maximum + diff * RANGE_RATIO_UPPER + avg * ERR_RATIO + ERR_ABS]
+          maximum + diff * RANGE_RATIO_UPPER + avg * ERR_RATIO + 2 * ERR_ABS]
 
 
 def create_expectations_dict(revision_data_points):
