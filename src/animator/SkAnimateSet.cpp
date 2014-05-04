@@ -62,7 +62,7 @@ void SkSet::onEndElement(SkAnimateMaker& maker) {
     fReset = dur != 1;
     SkDisplayTypes outType = fFieldInfo->getType();
     int comps = outType == SkType_String || outType == SkType_DynamicString ? 1 :
-        fFieldInfo->getSize((const SkDisplayable*) fTarget) / sizeof(int);
+        (int)fFieldInfo->getSize((const SkDisplayable*) fTarget) / sizeof(int);
     if (fValues.getType() == SkType_Unknown) {
         fValues.setType(outType);
         fValues.setCount(comps);

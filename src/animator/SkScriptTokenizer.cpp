@@ -170,7 +170,7 @@ void SkScriptEngine2::addTokenScalar(SkScalar scalar) {
 }
 
 void SkScriptEngine2::addTokenString(const SkString& string) {
-    int size = string.size();
+    int size = SkToInt(string.size());
     addTokenInt(size);
     fActiveStream->write(string.c_str(), size);
 }
@@ -1023,7 +1023,7 @@ void SkScriptEngine2::processLogicalOp(Op op) {
             branch.fOperator = op;
             branch.fDone = Branch::kIsNotDone;
             SkASSERT(branch.fOpStackDepth == fOpStack.count());
-            branch.fOffset = newOffset;
+            branch.fOffset = SkToU16(newOffset);
             fAccumulatorType = SkOperand2::kNoType;
         } break;
         case kLogicalAnd:
