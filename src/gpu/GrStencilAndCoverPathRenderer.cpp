@@ -71,7 +71,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const SkPath& path,
 
     SkAutoTUnref<GrPath> p(fGpu->getContext()->createPath(path, stroke));
 
-    if (path.isInverseFillType() && SkStrokeRec::kFill_Style == stroke.getStyle()) {
+    if (path.isInverseFillType()) {
         GR_STATIC_CONST_SAME_STENCIL(kInvertedStencilPass,
             kZero_StencilOp,
             kZero_StencilOp,

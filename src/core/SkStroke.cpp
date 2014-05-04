@@ -562,9 +562,8 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
         SkPath::Direction dir;
         if (src.isRect(&isClosed, &dir) && isClosed) {
             this->strokeRect(src.getBounds(), dst, dir);
-            // our answer should preserve the inverseness of the src, but the
-            // rect should not be inverse-stroked.
-            if (src.isInverseFillType() && fWidth < 0) {
+            // our answer should preserve the inverseness of the src
+            if (src.isInverseFillType()) {
                 SkASSERT(!dst->isInverseFillType());
                 dst->toggleInverseFillType();
             }
@@ -647,9 +646,8 @@ DONE:
 #endif
     }
 
-    // our answer should preserve the inverseness of the src, but the path
-    // should not be inverse-stroked.
-    if (src.isInverseFillType() && fWidth < 0) {
+    // our answer should preserve the inverseness of the src
+    if (src.isInverseFillType()) {
         SkASSERT(!dst->isInverseFillType());
         dst->toggleInverseFillType();
     }

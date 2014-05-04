@@ -1119,13 +1119,6 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
 
     SkAutoBlitterChoose blitter(*fBitmap, *fMatrix, *paint, drawCoverage);
 
-    // make sure the path will not be inverse-stroked. hairlineStroke + fill = fill,
-    // they can be inverse-filled.
-    if (devPathPtr->isInverseFillType() && (SkPaint::kStroke_Style == paint->getStyle() ||
-            (SkPaint::kStrokeAndFill_Style == paint->getStyle() && paint->getStrokeWidth() > 0))) {
-        devPathPtr->toggleInverseFillType();
-    }
-
     if (paint->getMaskFilter()) {
         SkPaint::Style style = doFill ? SkPaint::kFill_Style :
             SkPaint::kStroke_Style;
