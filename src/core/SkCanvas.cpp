@@ -2076,7 +2076,7 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 
     const SkRect& r = path.getBounds();
     if (r.width() <= 0 && r.height() <= 0) {
-        if (path.isInverseFillType()) {
+        if (path.isInverseFillType() && SkPaint::kFill_Style == paint.getStyle()) {
             this->internalDrawPaint(paint);
         }
         return;

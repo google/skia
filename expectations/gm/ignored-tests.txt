@@ -37,3 +37,16 @@
 # This change removes an API that this GM was testing. If/when it lands and sticks,
 # I will likely just delete the GM.
 canvas-layer-state
+
+# yunchao: https://codereview.chromium.org/183683010/
+# This change fixed the error that path is inversed for Stroke and StrokeAndFill
+# styles. These GM cases need to be rebaselined:
+inverse_paths
+degeneratesegments
+quadclosepath
+quadpath
+lineclosepath
+linepath
+cubicclosepath
+cubicpath
+emptypath
