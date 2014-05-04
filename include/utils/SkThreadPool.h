@@ -26,7 +26,7 @@ static inline int num_cores() {
     GetSystemInfo(&sysinfo);
     return sysinfo.dwNumberOfProcessors;
 #elif defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_ANDROID)
-    return sysconf(_SC_NPROCESSORS_ONLN);
+    return (int) sysconf(_SC_NPROCESSORS_ONLN);
 #else
     return 1;
 #endif
