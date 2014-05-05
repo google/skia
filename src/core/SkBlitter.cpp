@@ -591,29 +591,14 @@ public:
         return size;
     }
 
-    virtual bool validContext(const ContextRec& rec, SkMatrix* totalInverse) const SK_OVERRIDE {
-        if (!this->INHERITED::validContext(rec, totalInverse)) {
-            return false;
-        }
-        if (fProxy) {
-            return fProxy->validContext(rec);
-        }
-        return true;
-    }
-
-    virtual SkShader::Context* createContext(const ContextRec& rec, void* storage) const SK_OVERRIDE
-    {
-        if (!this->validContext(rec, NULL)) {
-            return NULL;
-        }
-
-        SkShader::Context* proxyContext;
+    virtual Context* onCreateContext(const ContextRec& rec, void* storage) const SK_OVERRIDE {
+        SkShader::Context* proxyContext = NULL;
         if (fProxy) {
             char* proxyContextStorage = (char*) storage + sizeof(Sk3DShaderContext);
             proxyContext = fProxy->createContext(rec, proxyContextStorage);
-            SkASSERT(proxyContext);
-        } else {
-            proxyContext = NULL;
+            if (!proxyContext) {
+                return NULL;
+            }
         }
         return SkNEW_PLACEMENT_ARGS(storage, Sk3DShaderContext, (*this, rec, proxyContext));
     }
@@ -1016,6 +1001,19 @@ const uint32_t gMask_00FF00FF = 0xFF00FF;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class SkTransparentShaderContext : public SkShader::Context {
+public:
+    SkTransparentShaderContext(const SkShader& shader, const SkShader::ContextRec& rec)
+        : INHERITED(shader, rec) {}
+
+    virtual void shadeSpan(int x, int y, SkPMColor colors[], int count) SK_OVERRIDE {
+        sk_bzero(colors, count * sizeof(SkPMColor));
+    }
+
+private:
+    typedef SkShader::Context INHERITED;
+};
+
 SkShaderBlitter::SkShaderBlitter(const SkBitmap& device, const SkPaint& paint,
                                  SkShader::Context* shaderContext)
         : INHERITED(device)
@@ -1035,9 +1033,6 @@ SkShaderBlitter::~SkShaderBlitter() {
 bool SkShaderBlitter::resetShaderContext(const SkBitmap& device, const SkPaint& paint,
                                          const SkMatrix& matrix) {
     SkShader::ContextRec rec(device, paint, matrix);
-    if (!fShader->validContext(rec)) {
-        return false;
-    }
 
     // Only destroy the old context if we have a new one. We need to ensure to have a
     // live context in fShaderContext because the storage is owned by an SkSmallAllocator
@@ -1045,8 +1040,11 @@ bool SkShaderBlitter::resetShaderContext(const SkBitmap& device, const SkPaint& 
     // The new context will be of the same size as the old one because we use the same
     // shader to create it. It is therefore safe to re-use the storage.
     fShaderContext->~Context();
-    fShaderContext = fShader->createContext(rec, (void*)fShaderContext);
-    SkASSERT(fShaderContext);
-
-    return true;
+    SkShader::Context* ctx = fShader->createContext(rec, (void*)fShaderContext);
+    if (NULL == ctx) {
+        // Need a valid context in fShaderContext's storage, so we can later (or our caller) call
+        // the in-place destructor.
+        SkNEW_PLACEMENT_ARGS(fShaderContext, SkTransparentShaderContext, (*fShader, rec));
+    }
+    return ctx != NULL;
 }

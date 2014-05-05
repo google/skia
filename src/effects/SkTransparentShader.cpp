@@ -11,11 +11,8 @@
 #include "SkColorPriv.h"
 #include "SkString.h"
 
-SkShader::Context* SkTransparentShader::createContext(const ContextRec& rec, void* storage) const {
-    if (!this->validContext(rec)) {
-        return NULL;
-    }
-
+SkShader::Context* SkTransparentShader::onCreateContext(const ContextRec& rec,
+                                                        void* storage) const {
     return SkNEW_PLACEMENT_ARGS(storage, TransparentShaderContext, (*this, rec));
 }
 

@@ -2353,7 +2353,6 @@ class SkTriColorShader : public SkShader {
 public:
     SkTriColorShader() {}
 
-    virtual SkShader::Context* createContext(const ContextRec&, void*) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class TriColorShaderContext : public SkShader::Context {
@@ -2378,17 +2377,13 @@ public:
 protected:
     SkTriColorShader(SkReadBuffer& buffer) : SkShader(buffer) {}
 
+    virtual Context* onCreateContext(const ContextRec& rec, void* storage) const SK_OVERRIDE {
+        return SkNEW_PLACEMENT_ARGS(storage, TriColorShaderContext, (*this, rec));
+    }
+
 private:
     typedef SkShader INHERITED;
 };
-
-SkShader::Context* SkTriColorShader::createContext(const ContextRec& rec, void* storage) const {
-    if (!this->validContext(rec)) {
-        return NULL;
-    }
-
-    return SkNEW_PLACEMENT_ARGS(storage, TriColorShaderContext, (*this, rec));
-}
 
 bool SkTriColorShader::TriColorShaderContext::setup(const SkPoint pts[], const SkColor colors[],
                                                     int index0, int index1, int index2) {

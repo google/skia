@@ -97,39 +97,25 @@ static bool valid_for_drawing(const SkBitmap& bm) {
     return true;
 }
 
-bool SkBitmapProcShader::validInternal(const ContextRec& rec, SkMatrix* totalInverse,
-                                       SkBitmapProcState* state) const {
+SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, void* storage) const {
     if (!fRawBitmap.getTexture() && !valid_for_drawing(fRawBitmap)) {
-        return false;
+        return NULL;
     }
-
-    // Make sure we can use totalInverse as a cache.
-    SkMatrix totalInverseLocal;
-    if (NULL == totalInverse) {
-        totalInverse = &totalInverseLocal;
-    }
-
+    
+    SkMatrix totalInverse;
     // Do this first, so we know the matrix can be inverted.
-    if (!this->INHERITED::validContext(rec, totalInverse)) {
-        return false;
+    if (!this->computeTotalInverse(rec, &totalInverse)) {
+        return NULL;
     }
+    
+    void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
+    SkBitmapProcState* state = SkNEW_PLACEMENT(stateStorage, SkBitmapProcState);
 
     SkASSERT(state);
     state->fTileModeX = fTileModeX;
     state->fTileModeY = fTileModeY;
     state->fOrigBitmap = fRawBitmap;
-    return state->chooseProcs(*totalInverse, *rec.fPaint);
-}
-
-bool SkBitmapProcShader::validContext(const ContextRec& rec, SkMatrix* totalInverse) const {
-    SkBitmapProcState state;
-    return this->validInternal(rec, totalInverse, &state);
-}
-
-SkShader::Context* SkBitmapProcShader::createContext(const ContextRec& rec, void* storage) const {
-    void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
-    SkBitmapProcState* state = SkNEW_PLACEMENT(stateStorage, SkBitmapProcState);
-    if (!this->validInternal(rec, NULL, state)) {
+    if (!state->chooseProcs(totalInverse, *rec.fPaint)) {
         state->~SkBitmapProcState();
         return NULL;
     }

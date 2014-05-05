@@ -425,11 +425,8 @@ SkPMColor SkPerlinNoiseShader::PerlinNoiseShaderContext::shade(
     return SkPreMultiplyARGB(rgba[3], rgba[0], rgba[1], rgba[2]);
 }
 
-SkShader::Context* SkPerlinNoiseShader::createContext(const ContextRec& rec, void* storage) const {
-    if (!this->validContext(rec)) {
-        return NULL;
-    }
-
+SkShader::Context* SkPerlinNoiseShader::onCreateContext(const ContextRec& rec,
+                                                        void* storage) const {
     return SkNEW_PLACEMENT_ARGS(storage, PerlinNoiseShaderContext, (*this, rec));
 }
 

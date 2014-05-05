@@ -224,21 +224,12 @@ size_t SkTwoPointRadialGradient::contextSize() const {
     return sizeof(TwoPointRadialGradientContext);
 }
 
-bool SkTwoPointRadialGradient::validContext(const ContextRec& rec, SkMatrix* totalInverse) const {
+SkShader::Context* SkTwoPointRadialGradient::onCreateContext(const ContextRec& rec,
+                                                             void* storage) const {
     // For now, we might have divided by zero, so detect that.
     if (0 == fDiffRadius) {
-        return false;
-    }
-
-    return this->INHERITED::validContext(rec, totalInverse);
-}
-
-SkShader::Context* SkTwoPointRadialGradient::createContext(const ContextRec& rec,
-                                                           void* storage) const {
-    if (!this->validContext(rec, NULL)) {
         return NULL;
     }
-
     return SkNEW_PLACEMENT_ARGS(storage, TwoPointRadialGradientContext, (*this, rec));
 }
 

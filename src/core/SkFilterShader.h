@@ -17,8 +17,6 @@ public:
     SkFilterShader(SkShader* shader, SkColorFilter* filter);
     virtual ~SkFilterShader();
 
-    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse) const SK_OVERRIDE;
-    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class FilterShaderContext : public SkShader::Context {
@@ -44,6 +42,8 @@ public:
 protected:
     SkFilterShader(SkReadBuffer& );
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
+    
 
 private:
     SkShader*       fShader;

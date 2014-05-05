@@ -34,8 +34,6 @@ public:
     SkComposeShader(SkShader* sA, SkShader* sB, SkXfermode* mode = NULL);
     virtual ~SkComposeShader();
 
-    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse = NULL) const SK_OVERRIDE;
-    virtual SkShader::Context* createContext(const ContextRec&, void*) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class ComposeShaderContext : public SkShader::Context {
@@ -70,6 +68,7 @@ public:
 protected:
     SkComposeShader(SkReadBuffer& );
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    virtual Context* onCreateContext(const ContextRec&, void*) const SK_OVERRIDE;
 
 private:
     SkShader*   fShaderA;

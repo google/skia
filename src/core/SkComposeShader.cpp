@@ -73,33 +73,13 @@ void SkComposeShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fMode);
 }
 
-/*  We call validContext/createContext on our two worker shaders.
-    However, we always let them see opaque alpha, and if the paint
-    really is translucent, then we apply that after the fact.
-
- */
-bool SkComposeShader::validContext(const ContextRec& rec, SkMatrix* totalInverse) const {
-    if (!this->INHERITED::validContext(rec, totalInverse)) {
-        return false;
+template <typename T> void safe_call_destructor(T* obj) {
+    if (obj) {
+        obj->~T();
     }
-
-    // we preconcat our localMatrix (if any) with the device matrix
-    // before calling our sub-shaders
-
-    SkMatrix tmpM;
-    tmpM.setConcat(*rec.fMatrix, this->getLocalMatrix());
-
-    ContextRec newRec(rec);
-    newRec.fMatrix = &tmpM;
-
-    return fShaderA->validContext(newRec) && fShaderB->validContext(newRec);
 }
 
-SkShader::Context* SkComposeShader::createContext(const ContextRec& rec, void* storage) const {
-    if (!this->validContext(rec)) {
-        return NULL;
-    }
-
+SkShader::Context* SkComposeShader::onCreateContext(const ContextRec& rec, void* storage) const {
     char* aStorage = (char*) storage + sizeof(ComposeShaderContext);
     char* bStorage = aStorage + fShaderA->contextSize();
 
@@ -120,11 +100,11 @@ SkShader::Context* SkComposeShader::createContext(const ContextRec& rec, void* s
 
     SkShader::Context* contextA = fShaderA->createContext(newRec, aStorage);
     SkShader::Context* contextB = fShaderB->createContext(newRec, bStorage);
-
-    // Both functions must succeed; otherwise validContext should have returned
-    // false.
-    SkASSERT(contextA);
-    SkASSERT(contextB);
+    if (!contextA || !contextB) {
+        safe_call_destructor(contextA);
+        safe_call_destructor(contextB);
+        return NULL;
+    }
 
     return SkNEW_PLACEMENT_ARGS(storage, ComposeShaderContext, (*this, rec, contextA, contextB));
 }

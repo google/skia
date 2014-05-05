@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef SkEmptyShader_DEFINED
 #define SkEmptyShader_DEFINED
 
 #include "SkShader.h"
+
+// TODO: move this to private, as there is a public factory on SkShader
 
 /**
  *  \class SkEmptyShader
@@ -27,20 +26,15 @@ public:
         return sizeof(SkShader::Context);
     }
 
-    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse = NULL) const SK_OVERRIDE {
-        return false;
-    }
-
-    virtual SkShader::Context* createContext(const ContextRec&, void*) const SK_OVERRIDE {
-        // validContext returns false.
-        return NULL;
-    }
-
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkEmptyShader)
 
 protected:
     SkEmptyShader(SkReadBuffer& buffer) : INHERITED(buffer) {}
+
+    virtual SkShader::Context* onCreateContext(const ContextRec&, void*) const SK_OVERRIDE {
+        return NULL;
+    }
 
 private:
     typedef SkShader INHERITED;

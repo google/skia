@@ -16,7 +16,6 @@ public:
     SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&,
                      const SkMatrix* localMatrix);
 
-    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class RadialGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
@@ -42,6 +41,7 @@ public:
 protected:
     SkRadialGradient(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
+    virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
 private:
     typedef SkGradientShaderBase INHERITED;

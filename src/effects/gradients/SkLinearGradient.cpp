@@ -76,11 +76,7 @@ size_t SkLinearGradient::contextSize() const {
     return sizeof(LinearGradientContext);
 }
 
-SkShader::Context* SkLinearGradient::createContext(const ContextRec& rec, void* storage) const {
-    if (!this->validContext(rec)) {
-        return NULL;
-    }
-
+SkShader::Context* SkLinearGradient::onCreateContext(const ContextRec& rec, void* storage) const {
     return SkNEW_PLACEMENT_ARGS(storage, LinearGradientContext, (*this, rec));
 }
 

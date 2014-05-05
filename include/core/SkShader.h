@@ -213,20 +213,10 @@ public:
     };
 
     /**
-     *  Subclasses should be sure to call their INHERITED::validContext() if
-     *  they override this method.
-     */
-    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse = NULL) const;
-
-    /**
      *  Create the actual object that does the shading.
-     *  Returns NULL if validContext() returns false.
      *  Size of storage must be >= contextSize.
-     *  Your subclass must also override contextSize() if it overrides createContext().
-     *
-     *  Base class implementation returns NULL.
      */
-    virtual Context* createContext(const ContextRec&, void* storage) const;
+    Context* createContext(const ContextRec&, void* storage) const;
 
     /**
      *  Return the size of a Context returned by createContext.
@@ -374,6 +364,11 @@ public:
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders
 
+    /**
+     *  Call this to create a new "empty" shader, that will not draw anything.
+     */
+    static SkShader* CreateEmptyShader();
+
     /** Call this to create a new shader that will draw with the specified bitmap.
      *
      *  If the bitmap cannot be used (e.g. has no pixels, or its dimensions
@@ -409,14 +404,19 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
 
 protected:
-
     SkShader(SkReadBuffer& );
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
-private:
-    SkMatrix            fLocalMatrix;
+    bool computeTotalInverse(const ContextRec&, SkMatrix* totalInverse) const;
 
-    bool computeTotalInverse(const SkMatrix& matrix, SkMatrix* totalInverse) const;
+    /**
+     *  Your subclass must also override contextSize() if it overrides onCreateContext().
+     *  Base class impl returns NULL.
+     */
+    virtual Context* onCreateContext(const ContextRec&, void* storage) const;
+
+private:
+    SkMatrix fLocalMatrix;
 
     typedef SkFlattenable INHERITED;
 };

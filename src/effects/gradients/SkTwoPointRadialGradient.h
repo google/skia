@@ -24,8 +24,6 @@ public:
     virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint&) const SK_OVERRIDE;
 
     virtual size_t contextSize() const SK_OVERRIDE;
-    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse) const SK_OVERRIDE;
-    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
     class TwoPointRadialGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
     public:
@@ -47,6 +45,7 @@ public:
 protected:
     SkTwoPointRadialGradient(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
+    virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
 private:
     const SkPoint fCenter1;

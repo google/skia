@@ -55,11 +55,7 @@ uint32_t SkFilterShader::FilterShaderContext::getFlags() const {
     return shaderF;
 }
 
-SkShader::Context* SkFilterShader::createContext(const ContextRec& rec, void* storage) const {
-    if (!this->validContext(rec, NULL)) {
-        return NULL;
-    }
-
+SkShader::Context* SkFilterShader::onCreateContext(const ContextRec& rec, void* storage) const {
     char* shaderContextStorage = (char*)storage + sizeof(FilterShaderContext);
     SkShader::Context* shaderContext = fShader->createContext(rec, shaderContextStorage);
     SkASSERT(shaderContext);
@@ -69,10 +65,6 @@ SkShader::Context* SkFilterShader::createContext(const ContextRec& rec, void* st
 
 size_t SkFilterShader::contextSize() const {
     return sizeof(FilterShaderContext) + fShader->contextSize();
-}
-
-bool SkFilterShader::validContext(const ContextRec& rec, SkMatrix* totalInverse) const {
-    return this->INHERITED::validContext(rec, totalInverse) && fShader->validContext(rec);
 }
 
 SkFilterShader::FilterShaderContext::FilterShaderContext(const SkFilterShader& filterShader,

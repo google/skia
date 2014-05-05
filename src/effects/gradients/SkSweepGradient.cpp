@@ -56,11 +56,7 @@ size_t SkSweepGradient::contextSize() const {
     return sizeof(SweepGradientContext);
 }
 
-SkShader::Context* SkSweepGradient::createContext(const ContextRec& rec, void* storage) const {
-    if (!this->validContext(rec)) {
-        return NULL;
-    }
-
+SkShader::Context* SkSweepGradient::onCreateContext(const ContextRec& rec, void* storage) const {
     return SkNEW_PLACEMENT_ARGS(storage, SweepGradientContext, (*this, rec));
 }
 

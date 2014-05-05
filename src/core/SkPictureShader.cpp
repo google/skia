@@ -110,58 +110,55 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix) const {
     return fCachedBitmapShader;
 }
 
-SkShader* SkPictureShader::validInternal(const ContextRec& rec, SkMatrix* totalInverse) const {
-    if (!this->INHERITED::validContext(rec, totalInverse)) {
-        return NULL;
-    }
-
-    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix));
-    if (!bitmapShader || !bitmapShader->validContext(rec)) {
-        return NULL;
-    }
-
-    return bitmapShader.detach();
-}
-
-bool SkPictureShader::validContext(const ContextRec& rec, SkMatrix* totalInverse) const {
-    SkAutoTUnref<SkShader> shader(this->validInternal(rec, totalInverse));
-    return shader != NULL;
-}
-
-SkShader::Context* SkPictureShader::createContext(const ContextRec& rec, void* storage) const {
-    SkAutoTUnref<SkShader> bitmapShader(this->validInternal(rec, NULL));
-    if (!bitmapShader) {
-        return NULL;
-    }
-
-    return SkNEW_PLACEMENT_ARGS(storage, PictureShaderContext, (*this, rec, bitmapShader.detach()));
-}
-
 size_t SkPictureShader::contextSize() const {
     return sizeof(PictureShaderContext);
+}
+
+SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void* storage) const {
+    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix));
+    if (NULL == bitmapShader.get()) {
+        return NULL;
+    }
+    return PictureShaderContext::Create(storage, *this, rec, bitmapShader.detach());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+SkShader::Context* SkPictureShader::PictureShaderContext::Create(void* storage,
+                   const SkPictureShader& shader, const ContextRec& rec, SkShader* bitmapShader) {
+    PictureShaderContext* ctx = SkNEW_PLACEMENT_ARGS(storage, PictureShaderContext,
+                                                     (shader, rec, bitmapShader));
+    if (NULL == ctx->fBitmapShaderContext) {
+        ctx->~PictureShaderContext();
+        ctx = NULL;
+    }
+    return ctx;
 }
 
 SkPictureShader::PictureShaderContext::PictureShaderContext(
         const SkPictureShader& shader, const ContextRec& rec, SkShader* bitmapShader)
     : INHERITED(shader, rec)
-    , fBitmapShader(bitmapShader)
+    , fBitmapShader(SkRef(bitmapShader))
 {
-    SkASSERT(fBitmapShader);
-    fBitmapShaderContextStorage = sk_malloc_throw(fBitmapShader->contextSize());
-    fBitmapShaderContext = fBitmapShader->createContext(rec, fBitmapShaderContextStorage);
-    SkASSERT(fBitmapShaderContext);
+    fBitmapShaderContextStorage = sk_malloc_throw(bitmapShader->contextSize());
+    fBitmapShaderContext = bitmapShader->createContext(rec, fBitmapShaderContextStorage);
+    //if fBitmapShaderContext is null, we are invalid
 }
 
 SkPictureShader::PictureShaderContext::~PictureShaderContext() {
-    fBitmapShaderContext->~Context();
+    if (fBitmapShaderContext) {
+        fBitmapShaderContext->~Context();
+    }
     sk_free(fBitmapShaderContextStorage);
 }
 
 uint32_t SkPictureShader::PictureShaderContext::getFlags() const {
+    SkASSERT(fBitmapShaderContext);
     return fBitmapShaderContext->getFlags();
 }
 
 SkShader::Context::ShadeProc SkPictureShader::PictureShaderContext::asAShadeProc(void** ctx) {
+    SkASSERT(fBitmapShaderContext);
     return fBitmapShaderContext->asAShadeProc(ctx);
 }
 

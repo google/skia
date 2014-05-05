@@ -14,7 +14,6 @@ class SkLinearGradient : public SkGradientShaderBase {
 public:
     SkLinearGradient(const SkPoint pts[2], const Descriptor&, const SkMatrix* localMatrix);
 
-    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class LinearGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
@@ -39,6 +38,7 @@ public:
 protected:
     SkLinearGradient(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
+    virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
 private:
     typedef SkGradientShaderBase INHERITED;

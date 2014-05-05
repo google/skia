@@ -23,8 +23,6 @@ public:
     virtual bool isOpaque() const SK_OVERRIDE;
     virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*) const SK_OVERRIDE;
 
-    virtual bool validContext(const ContextRec&, SkMatrix* totalInverse) const SK_OVERRIDE;
-    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     static bool CanDo(const SkBitmap&, TileMode tx, TileMode ty);
@@ -59,13 +57,12 @@ public:
 protected:
     SkBitmapProcShader(SkReadBuffer& );
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
     SkBitmap    fRawBitmap;   // experimental for RLE encoding
     uint8_t     fTileModeX, fTileModeY;
 
 private:
-    bool validInternal(const ContextRec&, SkMatrix* totalInverse, SkBitmapProcState*) const;
-
     typedef SkShader INHERITED;
 };
 

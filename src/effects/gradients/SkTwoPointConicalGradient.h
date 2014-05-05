@@ -48,7 +48,6 @@ public:
                               const SkMatrix* localMatrix);
 
 
-    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class TwoPointConicalGradientContext : public SkGradientShaderBase::GradientShaderBaseContext {
@@ -83,6 +82,7 @@ public:
 protected:
     SkTwoPointConicalGradient(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
+    virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
 private:
     SkPoint fCenter1;

@@ -6,6 +6,7 @@
  */
 
 #include "SkBitmapProcShader.h"
+#include "SkEmptyShader.h"
 #include "SkReadBuffer.h"
 #include "SkMallocPixelRef.h"
 #include "SkPaint.h"
@@ -44,23 +45,25 @@ void SkShader::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
-bool SkShader::computeTotalInverse(const SkMatrix& matrix, SkMatrix* totalInverse) const {
-    const SkMatrix* m = &matrix;
+bool SkShader::computeTotalInverse(const ContextRec& rec, SkMatrix* totalInverse) const {
+    const SkMatrix* m = rec.fMatrix;
     SkMatrix        total;
 
     if (this->hasLocalMatrix()) {
-        total.setConcat(matrix, this->getLocalMatrix());
+        total.setConcat(*m, this->getLocalMatrix());
         m = &total;
     }
-
     return m->invert(totalInverse);
 }
 
-bool SkShader::validContext(const ContextRec& rec, SkMatrix* totalInverse) const {
-    return this->computeTotalInverse(*rec.fMatrix, totalInverse);
+SkShader::Context* SkShader::createContext(const ContextRec& rec, void* storage) const {
+    if (!this->computeTotalInverse(rec, NULL)) {
+        return NULL;
+    }
+    return this->onCreateContext(rec, storage);
 }
 
-SkShader::Context* SkShader::createContext(const ContextRec&, void* storage) const {
+SkShader::Context* SkShader::onCreateContext(const ContextRec&, void*) const {
     return NULL;
 }
 
@@ -71,11 +74,9 @@ size_t SkShader::contextSize() const {
 SkShader::Context::Context(const SkShader& shader, const ContextRec& rec)
     : fShader(shader)
 {
-    SkASSERT(fShader.validContext(rec));
-
     // Because the context parameters must be valid at this point, we know that the matrix is
     // invertible.
-    SkAssertResult(fShader.computeTotalInverse(*rec.fMatrix, &fTotalInverse));
+    SkAssertResult(fShader.computeTotalInverse(rec, &fTotalInverse));
     fTotalInverseClass = (uint8_t)ComputeMatrixClass(fTotalInverse);
 
     fPaintAlpha = rec.fPaint->getAlpha();
@@ -188,6 +189,10 @@ GrEffectRef* SkShader::asNewEffect(GrContext*, const SkPaint&) const {
     return NULL;
 }
 
+SkShader* SkShader::CreateEmptyShader() {
+    return SkNEW(SkEmptyShader);
+}
+
 SkShader* SkShader::CreateBitmapShader(const SkBitmap& src, TileMode tmx, TileMode tmy,
                                        const SkMatrix* localMatrix) {
     return ::CreateBitmapShader(src, tmx, tmy, localMatrix, NULL);
@@ -246,11 +251,7 @@ uint8_t SkColorShader::ColorShaderContext::getSpan16Alpha() const {
     return SkGetPackedA32(fPMColor);
 }
 
-SkShader::Context* SkColorShader::createContext(const ContextRec& rec, void* storage) const {
-    if (!this->validContext(rec)) {
-        return NULL;
-    }
-
+SkShader::Context* SkColorShader::onCreateContext(const ContextRec& rec, void* storage) const {
     return SkNEW_PLACEMENT_ARGS(storage, ColorShaderContext, (*this, rec));
 }
 

@@ -27,8 +27,6 @@ public:
 
     virtual bool isOpaque() const SK_OVERRIDE;
 
-    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const SK_OVERRIDE;
-
     virtual size_t contextSize() const SK_OVERRIDE {
         return sizeof(ColorShaderContext);
     }
@@ -64,6 +62,7 @@ public:
 protected:
     SkColorShader(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+    virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
 private:
     SkColor     fColor;         // ignored if fInheritColor is true

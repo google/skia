@@ -14,8 +14,6 @@ class SK_API SkTransparentShader : public SkShader {
 public:
     SkTransparentShader() {}
 
-    virtual SkShader::Context* createContext(const ContextRec&, void* storage) const
-            SK_OVERRIDE;
     virtual size_t contextSize() const SK_OVERRIDE;
 
     class TransparentShaderContext : public SkShader::Context {
@@ -35,6 +33,9 @@ public:
 
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTransparentShader)
+
+protected:
+    virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
 
 private:
     SkTransparentShader(SkReadBuffer& buffer) : INHERITED(buffer) {}
