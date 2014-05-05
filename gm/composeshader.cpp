@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2012 Google Inc.
  *
@@ -16,11 +15,9 @@
 #include "SkString.h"
 #include "SkXfermode.h"
 
-namespace skiagm {
-
-class ShaderGM : public GM {
+class ComposeShaderGM : public skiagm::GM {
 public:
-    ShaderGM() {
+    ComposeShaderGM() {
         SkPoint pts[2];
         SkColor colors[2];
 
@@ -46,7 +43,7 @@ public:
         mode->unref();
     }
 
-    virtual ~ShaderGM() {
+    virtual ~ComposeShaderGM() {
         SkSafeUnref(fShader);
     }
 
@@ -60,7 +57,7 @@ protected:
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
-        return make_isize(120, 120);
+        return SkISize::Make(120, 120);
     }
 
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
@@ -73,14 +70,47 @@ protected:
         canvas->drawRectCoords(0, 0, SkIntToScalar(100), SkIntToScalar(100), paint);
     }
 
-private:
+protected:
     SkShader*   fShader;
+
+private:
     typedef GM INHERITED ;
+};
+
+class ComposeShaderAlphaGM : public ComposeShaderGM {
+public:
+    ComposeShaderAlphaGM() {}
+
+protected:
+    virtual SkString onShortName() SK_OVERRIDE {
+        return SkString("composeshader_alpha");
+    }
+    
+    virtual SkISize onISize() SK_OVERRIDE {
+        return SkISize::Make(120, 1024);
+    }
+    
+    virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
+        SkPaint paint;
+        paint.setColor(SK_ColorGREEN);
+        
+        const SkRect r = SkRect::MakeXYWH(5, 5, 100, 100);
+        for (int alpha = 0xFF; alpha > 0; alpha -= 0x20) {
+            paint.setAlpha(0xFF);
+            paint.setShader(NULL);
+            canvas->drawRect(r, paint);
+            
+            paint.setAlpha(alpha);
+            paint.setShader(fShader);
+            canvas->drawRect(r, paint);
+            
+            canvas->translate(r.width() + 5, 0);
+        }
+    }
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new ShaderGM; }
-static GMRegistry reg(MyFactory);
+DEF_GM( return new ComposeShaderGM; )
+DEF_GM( return new ComposeShaderAlphaGM; )
 
-} // namespace
