@@ -97,31 +97,37 @@
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         var x = clientX - currentImage.x;
         var y = clientY - currentImage.y;
-        ctx.drawImage(currentImage,
-            x, y,                                 // src zero
-            PIXELS, PIXELS,                       // src dimensions
-            0, 0,                                 // dst zero
-            ctx.canvas.width, ctx.canvas.height); // dst dimensions
+        var dx = Math.floor(ctx.canvas.width/PIXELS);
+        var dy = Math.floor(ctx.canvas.height/PIXELS);
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#000';
+
+        // Draw out each pixel as a rect on the target canvas, as this works around
+        // FireFox doing a blur as it copies from one canvas to another.
+        var colors = canvasCopy.getContext('2d').getImageData(x, y, PIXELS, PIXELS).data;
+        for (var i=0; i<PIXELS; i++) {
+          for (var j=0; j<PIXELS; j++) {
+            var offset = (j*PIXELS+i)*4; // Offset into the colors array.
+            ctx.fillStyle = 'rgba(' + colors[offset] + ', ' + colors[offset+1] + ', ' + colors[offset+2] + ', ' + colors[offset+3]/255.0 + ')';
+            ctx.fillRect(i*dx, j*dy, dx-1, dy-1);
+            // Box and label one selected pixel with its rgba values.
+            if (hex && i==PIXELS/2 && j == PIXELS/2) {
+              ctx.strokeRect(i*dx, j*dy, dx-1, dy-1);
+              hex.textContent = 'rgba('
+                + colors[offset] + ', '
+                + colors[offset+1] + ', '
+                + colors[offset+2] + ', '
+                + colors[offset+3] + ') '
+                + hexify(colors[offset])
+                + hexify(colors[offset+1])
+                + hexify(colors[offset+2])
+                + hexify(colors[offset+3]);
+            }
+          }
+        }
         lastClientX = clientX;
         lastClientY = clientY;
-        // Box and label one selected pixel with its rgba values.
-        if (hex) {
-          ctx.lineWidth = 1;
-          ctx.strokeStyle = '#000';
-          var dx = ctx.canvas.width/PIXELS;
-          var dy = ctx.canvas.height/PIXELS;
-          ctx.strokeRect((PIXELS/2)*dx, (PIXELS/2)*dy, dx, dy);
-          var p = canvasCopy.getContext('2d').getImageData(x+PIXELS/2, y+PIXELS/2, 1, 1).data;
-          hex.textContent = 'rgba('
-            + p[0] + ', '
-            + p[1] + ', '
-            + p[2] + ', '
-            + p[3] + ') '
-            + hexify(p[0])
-            + hexify(p[1])
-            + hexify(p[2])
-            + hexify(p[3]);
-        }
       }
       setTimeout(drawZoom, 1000/30);
     }
