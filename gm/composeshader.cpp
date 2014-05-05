@@ -90,7 +90,12 @@ protected:
     virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(220, 750);
     }
-    
+
+    virtual uint32_t onGetFlags() const SK_OVERRIDE {
+        // we're only off by 1 bit per-component
+        return kSkipTiled_Flag;
+    }
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
         SkAutoTUnref<SkShader> shader0(make_shader(SkXfermode::kDstIn_Mode));
         SkAutoTUnref<SkShader> shader1(make_shader(SkXfermode::kSrcOver_Mode));
