@@ -181,6 +181,15 @@ static inline unsigned SkAlpha255To256(U8CPU alpha) {
     return alpha + 1;
 }
 
+/**
+ *  Turn a 0..255 value into a 0..256 value, rounding up if the value is >= 0x80.
+ *  This is slightly more accurate than SkAlpha255To256.
+ */
+static inline unsigned Sk255To256(U8CPU value) {
+    SkASSERT(SkToU8(value) == value);
+    return value + (value >> 7);
+}
+
 /** Multiplify value by 0..256, and shift the result down 8
     (i.e. return (value * alpha256) >> 8)
  */

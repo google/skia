@@ -2432,6 +2432,8 @@ size_t SkTriColorShader::contextSize() const {
     return sizeof(TriColorShaderContext);
 }
 void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
+    const int alphaScale = Sk255To256(this->getPaintAlpha());
+
     SkPoint src;
 
     for (int i = 0; i < count; i++) {
@@ -2450,9 +2452,15 @@ void SkTriColorShader::TriColorShaderContext::shadeSpan(int x, int y, SkPMColor 
             scale0 = 0;
         }
 
+        if (256 != alphaScale) {
+            scale0 = SkAlphaMul(scale0, alphaScale);
+            scale1 = SkAlphaMul(scale1, alphaScale);
+            scale2 = SkAlphaMul(scale2, alphaScale);
+        }
+
         dstC[i] = SkAlphaMulQ(fColors[0], scale0) +
-        SkAlphaMulQ(fColors[1], scale1) +
-        SkAlphaMulQ(fColors[2], scale2);
+                  SkAlphaMulQ(fColors[1], scale1) +
+                  SkAlphaMulQ(fColors[2], scale2);
     }
 }
 
