@@ -100,20 +100,23 @@ SkShader::Context* SkComposeShader::createContext(const ContextRec& rec, void* s
         return NULL;
     }
 
-    // TODO : must fix this to not "cheat" and modify fPaint
-    SkAutoAlphaRestore  restore(const_cast<SkPaint*>(rec.fPaint), 0xFF);
-
     char* aStorage = (char*) storage + sizeof(ComposeShaderContext);
     char* bStorage = aStorage + fShaderA->contextSize();
 
     // we preconcat our localMatrix (if any) with the device matrix
     // before calling our sub-shaders
-
     SkMatrix tmpM;
     tmpM.setConcat(*rec.fMatrix, this->getLocalMatrix());
 
+    // Our sub-shaders need to see opaque, so by combining them we don't double-alphatize the
+    // result. ComposeShader itself will respect the alpha, and post-apply it after calling the
+    // sub-shaders.
+    SkPaint opaquePaint(*rec.fPaint);
+    opaquePaint.setAlpha(0xFF);
+    
     ContextRec newRec(rec);
     newRec.fMatrix = &tmpM;
+    newRec.fPaint = &opaquePaint;
 
     SkShader::Context* contextA = fShaderA->createContext(newRec, aStorage);
     SkShader::Context* contextB = fShaderB->createContext(newRec, bStorage);
@@ -147,6 +150,10 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
     SkShader::Context* shaderContextB = fShaderContextB;
     SkXfermode*        mode = static_cast<const SkComposeShader&>(fShader).fMode;
     unsigned           scale = SkAlpha255To256(this->getPaintAlpha());
+
+#ifdef SK_BUILD_FOR_ANDROID
+    scale = 256;    // ugh -- maintain old bug/behavior for now
+#endif
 
     SkPMColor   tmp[TMP_COLOR_COUNT];
 
@@ -188,7 +195,7 @@ void SkComposeShader::ComposeShaderContext::shadeSpan(int x, int y, SkPMColor re
             shaderContextB->shadeSpan(x, y, tmp, n);
             mode->xfer32(result, tmp, n, NULL);
 
-            if (256 == scale) {
+            if (256 != scale) {
                 for (int i = 0; i < n; i++) {
                     result[i] = SkAlphaMulQ(result[i], scale);
                 }
