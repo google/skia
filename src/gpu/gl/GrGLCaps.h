@@ -86,6 +86,15 @@ public:
         kLast_InvalidateFBType = kInvalidate_InvalidateFBType
     };
 
+    enum MapBufferType {
+        kNone_MapBufferType,
+        kMapBuffer_MapBufferType,         // glMapBuffer()
+        kMapBufferRange_MapBufferType,    // glMapBufferRange()
+        kChromium_MapBufferType,          // GL_CHROMIUM_map_sub
+
+        kLast_MapBufferType = kChromium_MapBufferType,
+    };
+
     /**
      * Creates a GrGLCaps that advertises no support for any extensions,
      * formats, etc. Call init to initialize from a GrGLContextInfo.
@@ -169,10 +178,8 @@ public:
 
     InvalidateFBType invalidateFBType() const { return fInvalidateFBType; }
 
-    /**
-     * Returs a string containeng the caps info.
-     */
-    virtual SkString dump() const SK_OVERRIDE;
+    /// What type of buffer mapping is supported?
+    MapBufferType mapBufferType() const { return fMapBufferType; }
 
     /**
      * Gets an array of legal stencil formats. These formats are not guaranteed
@@ -258,8 +265,10 @@ public:
 
     bool dropsTileOnZeroDivide() const { return fDropsTileOnZeroDivide; }
 
-    /// Is GL_CHROMIUM_map_sub supported?
-    bool mapSubSupport() const { return fMapSubSupport; }
+    /**
+     * Returns a string containing the caps info.
+     */
+    virtual SkString dump() const SK_OVERRIDE;
 
 private:
     /**
@@ -322,6 +331,7 @@ private:
     MSFBOType           fMSFBOType;
     FBFetchType         fFBFetchType;
     InvalidateFBType    fInvalidateFBType;
+    MapBufferType       fMapBufferType;
 
     bool fRGBA8RenderbufferSupport : 1;
     bool fBGRAFormatSupport : 1;
@@ -342,7 +352,6 @@ private:
     bool fIsCoreProfile : 1;
     bool fFullClearIsFree : 1;
     bool fDropsTileOnZeroDivide : 1;
-    bool fMapSubSupport : 1;
 
     typedef GrDrawTargetCaps INHERITED;
 };

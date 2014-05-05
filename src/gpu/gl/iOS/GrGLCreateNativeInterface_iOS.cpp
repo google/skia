@@ -132,6 +132,11 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     functions->fUnmapBuffer = glUnmapBufferOES;
 #endif
 
+#if GL_EXT_map_buffer_range || GL_ES_VERSION_3_0
+    functions->fMapBufferRange = glMapBufferRangeEXT;
+    functions->fFlushMappedBufferRange = glFlushMappedBufferRangeEXT;
+#endif
+
 #if GL_APPLE_framebuffer_multisample
     functions->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleAPPLE;
     functions->fResolveMultisampleFramebuffer = glResolveMultisampleFramebufferAPPLE;
