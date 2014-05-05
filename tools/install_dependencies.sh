@@ -4,6 +4,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# install_dependencies.sh will install system-specific Skia
+# dependencies using your system's package manager.  If your system is
+# not supported, add logic here to support it.
+
 if command -v lsb_release > /dev/null ; then
     case $(lsb_release -i -s) in
         Ubuntu)
