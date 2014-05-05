@@ -13,7 +13,7 @@
 #include "Test.h"
 
 static void test_roundtoint(skiatest::Reporter* reporter) {
-    SkScalar x = 0.49999997;
+    SkScalar x = 0.49999997f;
     int ix = SkScalarRoundToInt(x);
     // We "should" get 0, since x < 0.5, but we don't due to float addition rounding up the low
     // bit after adding 0.5.
