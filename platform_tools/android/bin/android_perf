@@ -24,21 +24,7 @@ fi
 # grab and remove the perf command from the input args
 PERF_CMD=${APP_ARGS[0]}
 unset APP_ARGS[0]
-
-configuration="Debug"
-
-for arg in ${APP_ARGS[@]}
-do
-  if [[ "${arg}" == "--release" ]];
-  then 
-    configuration="Release"
-  else
-    echo "${arg}"
-    runVars=("${runVars[@]}" "${arg}")
-  fi
-
-shift
-done
+runVars=("${APP_ARGS[@]}")  # shift array indices
 
 # We need the debug symbols from these files
 PERF_TMP_DIR=$(pwd)/android_perf_tmp
@@ -62,20 +48,23 @@ perf_setup() {
     adb_pull_if_needed /system/lib/libm.so $TMP_SYS_LIB
     adb_pull_if_needed /system/lib/libz.so $TMP_SYS_LIB
 
-    if [ ! -f "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so" ];
+    # BUILDTYPE variable is set by android_setup.sh
+    BUILDDIR="${SKIA_OUT}/${BUILDTYPE}"
+    if [ ! -f "${BUILDDIR}/lib/lib${runVars[0]}.so" ];
     then
-      echo "Unable to find the ${runVars[0]} library"
+      echo "Unable to find the ${runVars[0]} library in ${BUILDDIR}/lib."
       exit 1
     fi
 
     echo "Pushing app..."
-    adb_push_if_needed "${SKIA_OUT}/${configuration}/skia_launcher" /data/local/tmp
-    adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" /data/local/tmp
-    adb_push_if_needed "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so" /data/local/tmp
-
-    cp "${SKIA_OUT}/${configuration}/skia_launcher" $TMP_APP_LOC
-    cp "${SKIA_OUT}/${configuration}/lib.target/libskia_android.so" $TMP_APP_LOC
-    cp "${SKIA_OUT}/${configuration}/lib.target/lib${runVars[0]}.so" $TMP_APP_LOC
+    for lib_file in \
+        "${BUILDDIR}/skia_launcher" \
+        "${BUILDDIR}/lib/libskia_android.so" \
+        "${BUILDDIR}/lib/lib${runVars[0]}.so" \
+      ; do
+      adb_push_if_needed "$lib_file" /data/local/tmp
+      cp "$lib_file" $TMP_APP_LOC
+    done
 }
 
 perf_record() {
