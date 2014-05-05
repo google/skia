@@ -1825,6 +1825,17 @@ GrPath* GrContext::createPath(const SkPath& inPath, const SkStrokeRec& stroke) {
     return path;
 }
 
+void GrContext::addResourceToCache(const GrResourceKey& resourceKey, GrCacheable* resource) {
+    fTextureCache->purgeAsNeeded(1, resource->gpuMemorySize());
+    fTextureCache->addResource(resourceKey, resource);
+}
+
+GrCacheable* GrContext::findAndRefCachedResource(const GrResourceKey& resourceKey) {
+    GrCacheable* resource = fTextureCache->find(resourceKey);
+    SkSafeRef(resource);
+    return resource;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 #if GR_CACHE_STATS
 void GrContext::printCacheStats() const {
