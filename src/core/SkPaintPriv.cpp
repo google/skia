@@ -76,3 +76,24 @@ bool isPaintOpaque(const SkPaint* paint,
     }
     return false;
 }
+
+bool NeedsDeepCopy(const SkPaint& paint) {
+    /*
+     *  These fields are known to be immutable, and so can be shallow-copied
+     *
+     *  getTypeface()
+     *  getAnnotation()
+     *  paint.getColorFilter()
+     *  getXfermode()
+     *  getPathEffect()
+     *  getMaskFilter()
+     */
+
+    return paint.getShader() ||
+#ifdef SK_SUPPORT_LEGACY_LAYERRASTERIZER_API
+           paint.getRasterizer() ||
+#endif
+           paint.getLooper() || // needs to hide its addLayer...
+           paint.getImageFilter();
+}
+

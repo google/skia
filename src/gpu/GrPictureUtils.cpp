@@ -7,6 +7,8 @@
 
 #include "GrPictureUtils.h"
 #include "SkDevice.h"
+#include "SkDraw.h"
+#include "SkPaintPriv.h"
 
 // The GrGather device performs GPU-backend-specific preprocessing on
 // a picture. The results are stored in a GPUAccelData.
@@ -20,12 +22,17 @@ class GrGatherDevice : public SkBaseDevice {
 public:
     SK_DECLARE_INST_COUNT(GrGatherDevice)
 
-    GrGatherDevice(int width, int height, SkPicture* picture, GPUAccelData* accelData) {
+    GrGatherDevice(int width, int height, SkPicture* picture, GPUAccelData* accelData,
+                   int saveLayerDepth) {
         fPicture = picture;
+        fSaveLayerDepth = saveLayerDepth;
+        fInfo.fValid = true;
         fInfo.fSize.set(width, height);
+        fInfo.fPaint = NULL;
         fInfo.fSaveLayerOpID = fPicture->EXPERIMENTAL_curOpID();
         fInfo.fRestoreOpID = 0;
         fInfo.fHasNestedLayers = false;
+        fInfo.fIsNested = (2 == fSaveLayerDepth);
 
         fEmptyBitmap.setConfig(SkImageInfo::Make(fInfo.fSize.fWidth,
                                                  fInfo.fSize.fHeight,
@@ -110,7 +117,8 @@ protected:
                               const SkPaint& paint) SK_OVERRIDE {
     }
     virtual void drawDevice(const SkDraw& draw, SkBaseDevice* deviceIn, int x, int y,
-                            const SkPaint&) SK_OVERRIDE {
+                            const SkPaint& paint) SK_OVERRIDE {
+        // deviceIn is the one that is being "restored" back to its parent
         GrGatherDevice* device = static_cast<GrGatherDevice*>(deviceIn);
 
         if (device->fAlreadyDrawn) {
@@ -118,6 +126,29 @@ protected:
         }
 
         device->fInfo.fRestoreOpID = fPicture->EXPERIMENTAL_curOpID();
+        device->fInfo.fCTM = *draw.fMatrix;
+        device->fInfo.fCTM.postTranslate(SkIntToScalar(-device->getOrigin().fX),
+                                         SkIntToScalar(-device->getOrigin().fY));
+
+        // We need the x & y values that will yield 'getOrigin' when transformed
+        // by 'draw.fMatrix'.
+        device->fInfo.fOffset.iset(device->getOrigin());
+
+        SkMatrix invMatrix;
+        if (draw.fMatrix->invert(&invMatrix)) {
+            invMatrix.mapPoints(&device->fInfo.fOffset, 1);
+        } else {
+            device->fInfo.fValid = false;
+        }
+
+        if (NeedsDeepCopy(paint)) {
+            // This NULL acts as a signal that the paint was uncopyable (for now)
+            device->fInfo.fPaint = NULL;
+            device->fInfo.fValid = false;
+        } else {
+            device->fInfo.fPaint = SkNEW_ARGS(SkPaint, (paint));
+        }
+
         fAccelData->addSaveLayerInfo(device->fInfo);
         device->fAlreadyDrawn = true;
     }
@@ -158,6 +189,9 @@ private:
     // The information regarding the saveLayer call this device represents.
     GPUAccelData::SaveLayerInfo fInfo;
 
+    // The depth of this device in the saveLayer stack
+    int fSaveLayerDepth;
+
     virtual void replaceBitmapBackendForRasterSurface(const SkBitmap&) SK_OVERRIDE {
         NotSupported();
     }
@@ -167,7 +201,8 @@ private:
         SkASSERT(kSaveLayer_Usage == usage);
 
         fInfo.fHasNestedLayers = true;
-        return SkNEW_ARGS(GrGatherDevice, (info.width(), info.height(), fPicture, fAccelData));
+        return SkNEW_ARGS(GrGatherDevice, (info.width(), info.height(), fPicture, 
+                                           fAccelData, fSaveLayerDepth+1));
     }
 
     virtual void flush() SK_OVERRIDE {}
@@ -239,7 +274,7 @@ void GatherGPUInfo(SkPicture* pict, GPUAccelData* accelData) {
         return ;
     }
 
-    GrGatherDevice device(pict->width(), pict->height(), pict, accelData);
+    GrGatherDevice device(pict->width(), pict->height(), pict, accelData, 0);
     GrGatherCanvas canvas(&device, pict);
 
     canvas.gather();
