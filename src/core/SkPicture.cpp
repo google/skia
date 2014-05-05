@@ -15,7 +15,6 @@
 #include "SkBitmapDevice.h"
 #include "SkCanvas.h"
 #include "SkChunkAlloc.h"
-#include "SkPaintPriv.h"
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include "SkStream.h"
@@ -218,6 +217,26 @@ SkPicture* SkPicture::clone() const {
     return clonedPicture;
 }
 
+static bool needs_deep_copy(const SkPaint& paint) {
+    /*
+     *  These fields are known to be immutable, and so can be shallow-copied
+     *
+     *  getTypeface()
+     *  getAnnotation()
+     *  paint.getColorFilter()
+     *  getXfermode()
+     *  getPathEffect()
+     *  getMaskFilter()
+     */
+
+    return paint.getShader() ||
+#ifdef SK_SUPPORT_LEGACY_LAYERRASTERIZER_API
+           paint.getRasterizer() ||
+#endif
+           paint.getLooper() || // needs to hide its addLayer...
+           paint.getImageFilter();
+}
+
 void SkPicture::clone(SkPicture* pictures, int count) const {
     SkPictCopyInfo copyInfo;
     SkPictInfo info;
@@ -263,7 +282,7 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
 
                 SkDEBUGCODE(int heapSize = SafeCount(fPlayback->fBitmapHeap.get());)
                 for (int i = 0; i < paintCount; i++) {
-                    if (NeedsDeepCopy(fPlayback->fPaints->at(i))) {
+                    if (needs_deep_copy(fPlayback->fPaints->at(i))) {
                         copyInfo.paintData[i] =
                             SkFlatData::Create<SkPaint::FlatteningTraits>(&copyInfo.controller,
                                                               fPlayback->fPaints->at(i), 0);
