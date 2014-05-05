@@ -142,6 +142,7 @@
     '../tests/Reader32Test.cpp',
     '../tests/RecordDrawTest.cpp',
     '../tests/RecordOptsTest.cpp',
+    '../tests/RecordPatternTest.cpp',
     '../tests/RecordTest.cpp',
     '../tests/RecorderTest.cpp',
     '../tests/RecordingTest.cpp',

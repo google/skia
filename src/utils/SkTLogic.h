@@ -89,4 +89,14 @@ public:                                                                         
     static const bool value = sizeof(func<Derived>(NULL)) == sizeof(uint16_t);      \
 }
 
+// Same sort of thing as SK_CREATE_MEMBER_DETECTOR, but checks for the existence of a nested type.
+#define SK_CREATE_TYPE_DETECTOR(type)                                   \
+template <typename T>                                                   \
+class HasType_##type {                                                  \
+    template <typename U> static uint8_t func(typename U::type*);       \
+    template <typename U> static uint16_t func(...);                    \
+public:                                                                 \
+    static const bool value = sizeof(func<T>(NULL)) == sizeof(uint8_t); \
+}
+
 #endif
