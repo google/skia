@@ -27,9 +27,10 @@ class VerticesGM : public skiagm::GM {
     SkPoint     fTexs[9];
     SkColor     fColors[9];
     SkShader*   fShader;
+    unsigned    fAlpha;
 
 public:
-    VerticesGM() : fShader(NULL) {
+    VerticesGM(unsigned alpha) : fShader(NULL), fAlpha(alpha) {
     }
 
     virtual ~VerticesGM() {
@@ -65,7 +66,11 @@ protected:
     }
 
     virtual SkString onShortName() SK_OVERRIDE {
-        return SkString("vertices");
+        SkString name("vertices");
+        if (0xFF != fAlpha) {
+            name.appendf("_%02X", fAlpha);
+        }
+        return name;
     }
 
     virtual SkISize onISize() SK_OVERRIDE {
@@ -96,6 +101,7 @@ protected:
 
         SkPaint paint;
         paint.setShader(fShader);
+        paint.setAlpha(fAlpha);
 
         canvas->translate(20, 20);
         for (size_t j = 0; j < SK_ARRAY_COUNT(modes); ++j) {
@@ -118,4 +124,7 @@ private:
     typedef skiagm::GM INHERITED;
 };
 
-DEF_GM( return SkNEW(VerticesGM); )
+/////////////////////////////////////////////////////////////////////////////////////
+
+DEF_GM( return SkNEW_ARGS(VerticesGM, (0xFF)); )
+DEF_GM( return SkNEW_ARGS(VerticesGM, (0x80)); )
