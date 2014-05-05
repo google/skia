@@ -46,6 +46,14 @@ protected:
 
     bool isInCache() const { return NULL != fCacheEntry; }
 
+    /**
+     * This entry point should be called whenever gpuMemorySize() begins
+     * reporting a different size. If the object is in the cache, it will call
+     * gpuMemorySize() immediately and pass the new size on to the resource
+     * cache.
+     */
+    void didChangeGpuMemorySize() const;
+
 private:
     GrResourceCacheEntry* fCacheEntry;  // NULL if not in cache
 

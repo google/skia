@@ -19,6 +19,7 @@
 #include "SkTInternalLList.h"
 
 class GrCacheable;
+class GrResourceCache;
 class GrResourceCacheEntry;
 
 class GrResourceKey {
@@ -128,12 +129,24 @@ public:
     void validate() const {}
 #endif
 
+    /**
+     *  Update the cached size for this entry and inform the resource cache that
+     *  it has changed. Usually invoked from GrCacheable::didChangeGpuMemorySize,
+     *  not directly from here.
+     */
+    void didChangeResourceSize();
+
 private:
-    GrResourceCacheEntry(const GrResourceKey& key, GrCacheable* resource);
+    GrResourceCacheEntry(GrResourceCache* resourceCache,
+                         const GrResourceKey& key,
+                         GrCacheable* resource);
     ~GrResourceCacheEntry();
 
+    GrResourceCache* fResourceCache;
     GrResourceKey    fKey;
     GrCacheable*     fResource;
+    size_t           fCachedSize;
+    bool             fIsExclusive;
 
     // Linked list for the LRU ordering.
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrResourceCacheEntry);
@@ -270,6 +283,12 @@ public:
      * will also be purgeable (provided its lock count is now 0.)
      */
     void makeNonExclusive(GrResourceCacheEntry* entry);
+
+    /**
+     * Notify the cache that the size of a resource has changed.
+     */
+    void didIncreaseResourceSize(const GrResourceCacheEntry*, size_t amountInc);
+    void didDecreaseResourceSize(const GrResourceCacheEntry*, size_t amountDec);
 
     /**
      * Remove a resource from the cache and delete it!

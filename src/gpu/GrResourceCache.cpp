@@ -13,6 +13,16 @@
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrResourceInvalidatedMessage);
 
+///////////////////////////////////////////////////////////////////////////////
+
+void GrCacheable::didChangeGpuMemorySize() const {
+    if (this->isInCache()) {
+        fCacheEntry->didChangeResourceSize();
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 GrResourceKey::ResourceType GrResourceKey::GenerateResourceType() {
     static int32_t gNextType = 0;
 
@@ -26,8 +36,14 @@ GrResourceKey::ResourceType GrResourceKey::GenerateResourceType() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrResourceCacheEntry::GrResourceCacheEntry(const GrResourceKey& key, GrCacheable* resource)
-        : fKey(key), fResource(resource) {
+GrResourceCacheEntry::GrResourceCacheEntry(GrResourceCache* resourceCache,
+                                           const GrResourceKey& key,
+                                           GrCacheable* resource)
+        : fResourceCache(resourceCache),
+          fKey(key),
+          fResource(resource),
+          fCachedSize(resource->gpuMemorySize()),
+          fIsExclusive(false) {
     // we assume ownership of the resource, and will unref it when we die
     SkASSERT(resource);
     resource->ref();
@@ -40,11 +56,23 @@ GrResourceCacheEntry::~GrResourceCacheEntry() {
 
 #ifdef SK_DEBUG
 void GrResourceCacheEntry::validate() const {
+    SkASSERT(fResourceCache);
     SkASSERT(fResource);
     SkASSERT(fResource->getCacheEntry() == this);
+    SkASSERT(fResource->gpuMemorySize() == fCachedSize);
     fResource->validate();
 }
 #endif
+
+void GrResourceCacheEntry::didChangeResourceSize() {
+    size_t oldSize = fCachedSize;
+    fCachedSize = fResource->gpuMemorySize();
+    if (fCachedSize > oldSize) {
+        fResourceCache->didIncreaseResourceSize(this, fCachedSize - oldSize);
+    } else if (fCachedSize < oldSize) {
+        fResourceCache->didDecreaseResourceSize(this, oldSize - fCachedSize);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -115,7 +143,7 @@ void GrResourceCache::internalDetach(GrResourceCacheEntry* entry,
     // update our stats
     if (kIgnore_BudgetBehavior == behavior) {
         fClientDetachedCount += 1;
-        fClientDetachedBytes += entry->resource()->gpuMemorySize();
+        fClientDetachedBytes += entry->fCachedSize;
 
 #if GR_CACHE_STATS
         if (fHighWaterClientDetachedCount < fClientDetachedCount) {
@@ -130,7 +158,7 @@ void GrResourceCache::internalDetach(GrResourceCacheEntry* entry,
         SkASSERT(kAccountFor_BudgetBehavior == behavior);
 
         fEntryCount -= 1;
-        fEntryBytes -= entry->resource()->gpuMemorySize();
+        fEntryBytes -= entry->fCachedSize;
     }
 }
 
@@ -141,12 +169,12 @@ void GrResourceCache::attachToHead(GrResourceCacheEntry* entry,
     // update our stats
     if (kIgnore_BudgetBehavior == behavior) {
         fClientDetachedCount -= 1;
-        fClientDetachedBytes -= entry->resource()->gpuMemorySize();
+        fClientDetachedBytes -= entry->fCachedSize;
     } else {
         SkASSERT(kAccountFor_BudgetBehavior == behavior);
 
         fEntryCount += 1;
-        fEntryBytes += entry->resource()->gpuMemorySize();
+        fEntryBytes += entry->fCachedSize;
 
 #if GR_CACHE_STATS
         if (fHighWaterEntryCount < fEntryCount) {
@@ -208,7 +236,7 @@ void GrResourceCache::addResource(const GrResourceKey& key,
     SkASSERT(!fPurging);
     GrAutoResourceCacheValidate atcv(this);
 
-    GrResourceCacheEntry* entry = SkNEW_ARGS(GrResourceCacheEntry, (key, resource));
+    GrResourceCacheEntry* entry = SkNEW_ARGS(GrResourceCacheEntry, (this, key, resource));
     resource->setCacheEntry(entry);
 
     this->attachToHead(entry);
@@ -222,6 +250,9 @@ void GrResourceCache::addResource(const GrResourceKey& key,
 
 void GrResourceCache::makeExclusive(GrResourceCacheEntry* entry) {
     GrAutoResourceCacheValidate atcv(this);
+
+    SkASSERT(!entry->fIsExclusive);
+    entry->fIsExclusive = true;
 
     // When scratch textures are detached (to hide them from future finds) they
     // still count against the resource budget
@@ -239,11 +270,12 @@ void GrResourceCache::removeInvalidResource(GrResourceCacheEntry* entry) {
     // the client called GrContext::contextDestroyed() to notify Gr,
     // and then later an SkGpuDevice's destructor releases its backing
     // texture (which was invalidated at contextDestroyed time).
+    // TODO: Safely delete the GrResourceCacheEntry as well.
     fClientDetachedCount -= 1;
     fEntryCount -= 1;
-    size_t size = entry->resource()->gpuMemorySize();
-    fClientDetachedBytes -= size;
-    fEntryBytes -= size;
+    fClientDetachedBytes -= entry->fCachedSize;
+    fEntryBytes -= entry->fCachedSize;
+    entry->fCachedSize = 0;
 }
 
 void GrResourceCache::makeNonExclusive(GrResourceCacheEntry* entry) {
@@ -259,9 +291,30 @@ void GrResourceCache::makeNonExclusive(GrResourceCacheEntry* entry) {
         // alter the budget information.
         attachToHead(entry, kIgnore_BudgetBehavior);
         fCache.insert(entry->key(), entry);
+
+        SkASSERT(entry->fIsExclusive);
+        entry->fIsExclusive = false;
     } else {
         this->removeInvalidResource(entry);
     }
+}
+
+void GrResourceCache::didIncreaseResourceSize(const GrResourceCacheEntry* entry, size_t amountInc) {
+    fEntryBytes += amountInc;
+    if (entry->fIsExclusive) {
+        fClientDetachedBytes += amountInc;
+    }
+    this->purgeAsNeeded();
+}
+
+void GrResourceCache::didDecreaseResourceSize(const GrResourceCacheEntry* entry, size_t amountDec) {
+    fEntryBytes -= amountDec;
+    if (entry->fIsExclusive) {
+        fClientDetachedBytes -= amountDec;
+    }
+#ifdef SK_DEBUG
+    this->validate();
+#endif
 }
 
 /**

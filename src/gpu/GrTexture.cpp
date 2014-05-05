@@ -44,6 +44,33 @@ void GrTexture::internal_dispose() const {
     this->INHERITED::internal_dispose();
 }
 
+void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
+    if (mipMapsDirty) {
+        if (kValid_MipMapsStatus == fMipMapsStatus) {
+            fMipMapsStatus = kAllocated_MipMapsStatus;
+        }
+    } else {
+        const bool sizeChanged = kNotAllocated_MipMapsStatus == fMipMapsStatus;
+        fMipMapsStatus = kValid_MipMapsStatus;
+        if (sizeChanged) {
+            // This must not be called until after changing fMipMapsStatus.
+            this->didChangeGpuMemorySize();
+        }
+    }
+}
+
+size_t GrTexture::gpuMemorySize() const {
+    size_t textureSize =  (size_t) fDesc.fWidth *
+                                   fDesc.fHeight *
+                                   GrBytesPerPixel(fDesc.fConfig);
+    if (kNotAllocated_MipMapsStatus != fMipMapsStatus) {
+        // We don't have to worry about the mipmaps being a different size than
+        // we'd expect because we never change fDesc.fWidth/fHeight.
+        textureSize *= 2;
+    }
+    return textureSize;
+}
+
 bool GrTexture::readPixels(int left, int top, int width, int height,
                            GrPixelConfig config, void* buffer,
                            size_t rowBytes, uint32_t pixelOpsFlags) {
