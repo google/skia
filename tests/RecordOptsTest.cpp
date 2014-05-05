@@ -17,22 +17,25 @@ static const int W = 1920, H = 1080;
 // If the command we're reading is a U, set ptr to it, otherwise set it to NULL.
 template <typename U>
 struct ReadAs {
-    explicit ReadAs(const U** ptr) : ptr(ptr) {}
-    const U** ptr;
+    explicit ReadAs(const U** ptr) : ptr(ptr), type(SkRecords::Type(~0)) {}
 
-    void operator()(const U& r) { *ptr = &r; }
+    const U** ptr;
+    SkRecords::Type type;
+
+    void operator()(const U& r) { *ptr = &r; type = U::kType; }
 
     template <typename T>
-    void operator()(const T&) { *ptr = NULL; }
+    void operator()(const T&) { *ptr = NULL; type = U::kType; }
 };
 
 // Assert that the ith command in record is of type T, and return it.
 template <typename T>
-static const T* assert_type(const SkRecord& record, unsigned index) {
+static const T* assert_type(skiatest::Reporter* r, const SkRecord& record, unsigned index) {
     const T* ptr = NULL;
     ReadAs<T> reader(&ptr);
     record.visit(index, reader);
-    SkASSERT(ptr != NULL);
+    REPORTER_ASSERT(r, T::kType == reader.type);
+    REPORTER_ASSERT(r, ptr != NULL);
     return ptr;
 }
 
@@ -52,8 +55,8 @@ DEF_TEST(RecordOpts_Culling, r) {
 
     SkRecordAnnotateCullingPairs(&record);
 
-    REPORTER_ASSERT(r, 6 == assert_type<SkRecords::PairedPushCull>(record, 1)->skip);
-    REPORTER_ASSERT(r, 2 == assert_type<SkRecords::PairedPushCull>(record, 4)->skip);
+    REPORTER_ASSERT(r, 6 == assert_type<SkRecords::PairedPushCull>(r, record, 1)->skip);
+    REPORTER_ASSERT(r, 2 == assert_type<SkRecords::PairedPushCull>(r, record, 4)->skip);
 }
 
 static void draw_pos_text(SkCanvas* canvas, const char* text, bool constantY) {
@@ -76,8 +79,8 @@ DEF_TEST(RecordOpts_StrengthReduction, r) {
 
     SkRecordReduceDrawPosTextStrength(&record);
 
-    assert_type<SkRecords::DrawPosTextH>(record, 0);
-    assert_type<SkRecords::DrawPosText>(record, 1);
+    assert_type<SkRecords::DrawPosTextH>(r, record, 0);
+    assert_type<SkRecords::DrawPosText>(r, record, 1);
 }
 
 DEF_TEST(RecordOpts_TextBounding, r) {
@@ -89,18 +92,32 @@ DEF_TEST(RecordOpts_TextBounding, r) {
     SkRecordReduceDrawPosTextStrength(&record);
 
     const SkRecords::DrawPosTextH* original =
-        assert_type<SkRecords::DrawPosTextH>(record, 0);
+        assert_type<SkRecords::DrawPosTextH>(r, record, 0);
 
     // This should wrap the original DrawPosTextH with minY and maxY.
     SkRecordBoundDrawPosTextH(&record);
 
     const SkRecords::BoundedDrawPosTextH* bounded =
-        assert_type<SkRecords::BoundedDrawPosTextH>(record, 0);
+        assert_type<SkRecords::BoundedDrawPosTextH>(r, record, 0);
 
     const SkPaint defaults;
     REPORTER_ASSERT(r, bounded->base == original);
     REPORTER_ASSERT(r, bounded->minY <= SK_Scalar1 - defaults.getTextSize());
     REPORTER_ASSERT(r, bounded->maxY >= SK_Scalar1 + defaults.getTextSize());
+}
+
+DEF_TEST(RecordOpts_SingleNoopSaveRestore, r) {
+    SkRecord record;
+    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+
+    recorder.save();
+        recorder.clipRect(SkRect::MakeWH(200, 200));
+    recorder.restore();
+
+    SkRecordNoopSaveRestores(&record);
+    for (unsigned i = 0; i < 3; i++) {
+        assert_type<SkRecords::NoOp>(r, record, i);
+    }
 }
 
 DEF_TEST(RecordOpts_NoopSaveRestores, r) {
@@ -128,9 +145,9 @@ DEF_TEST(RecordOpts_NoopSaveRestores, r) {
     SkRecordNoopSaveRestores(&record);
 
     for (unsigned index = 0; index < 8; index++) {
-        assert_type<SkRecords::NoOp>(record, index);
+        assert_type<SkRecords::NoOp>(r, record, index);
     }
-    assert_type<SkRecords::Save>(record, 8);
-    assert_type<SkRecords::DrawRect>(record, 9);
-    assert_type<SkRecords::Restore>(record, 10);
+    assert_type<SkRecords::Save>(r, record, 8);
+    assert_type<SkRecords::DrawRect>(r, record, 9);
+    assert_type<SkRecords::Restore>(r, record, 10);
 }
