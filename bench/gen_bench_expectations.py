@@ -12,10 +12,10 @@ import re
 import sys
 
 # Parameters for calculating bench ranges.
-RANGE_RATIO_UPPER = 1.2  # Ratio of range for upper bounds.
+RANGE_RATIO_UPPER = 1.5  # Ratio of range for upper bounds.
 RANGE_RATIO_LOWER = 2.0  # Ratio of range for lower bounds.
 ERR_RATIO = 0.08  # Further widens the range by the ratio of average value.
-ERR_UB = 0.5  # Adds an absolute upper error to cope with small benches.
+ERR_UB = 1.0  # Adds an absolute upper error to cope with small benches.
 ERR_LB = 1.5
 
 # List of bench configs to monitor. Ignore all other configs.
