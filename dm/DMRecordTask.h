@@ -14,7 +14,7 @@ namespace DM {
 class RecordTask : public CpuTask {
 
 public:
-    RecordTask(const Task& parent, skiagm::GM*, SkBitmap reference);
+    RecordTask(const Task& parent, skiagm::GM*, SkBitmap reference, bool optimize);
 
     virtual void draw() SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE;
@@ -24,6 +24,7 @@ private:
     const SkString fName;
     SkAutoTDelete<skiagm::GM> fGM;
     const SkBitmap fReference;
+    bool fOptimize;
 };
 
 }  // namespace DM

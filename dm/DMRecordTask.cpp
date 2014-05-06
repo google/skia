@@ -2,31 +2,40 @@
 #include "DMUtil.h"
 #include "DMWriteTask.h"
 #include "SkCommandLineFlags.h"
-#include "SkRecording.h"
+#include "SkRecord.h"
+#include "SkRecordDraw.h"
+#include "SkRecordOpts.h"
+#include "SkRecorder.h"
 
 DEFINE_bool(skr, true, "If true, run SKR tests.");
 
 namespace DM {
 
-RecordTask::RecordTask(const Task& parent, skiagm::GM* gm, SkBitmap reference)
+RecordTask::RecordTask(const Task& parent, skiagm::GM* gm, SkBitmap reference, bool optimize)
     : CpuTask(parent)
-    , fName(UnderJoin(parent.name().c_str(), "skr"))
+    , fName(UnderJoin(parent.name().c_str(), optimize ? "skr" : "skr-noopt"))
     , fGM(gm)
     , fReference(reference)
+    , fOptimize(optimize)
     {}
 
 void RecordTask::draw() {
     // Record the GM into an SkRecord.
-    EXPERIMENTAL::SkRecording recording(fReference.width(), fReference.height());
-    recording.canvas()->concat(fGM->getInitialTransform());
-    fGM->draw(recording.canvas());
-    SkAutoTDelete<const EXPERIMENTAL::SkPlayback> playback(recording.releasePlayback());
+    SkRecord record;
+    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record,
+                        fReference.width(), fReference.height());
+    recorder.concat(fGM->getInitialTransform());
+    fGM->draw(&recorder);
+
+    if (fOptimize) {
+        SkRecordOptimize(&record);
+    }
 
     // Draw the SkRecord back into a bitmap.
     SkBitmap bitmap;
     SetupBitmap(fReference.colorType(), fGM.get(), &bitmap);
     SkCanvas target(bitmap);
-    playback->draw(&target);
+    SkRecordDraw(record, &target);
 
     if (!BitmapsEqual(bitmap, fReference)) {
         this->fail();

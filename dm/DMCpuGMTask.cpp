@@ -40,7 +40,8 @@ void CpuGMTask::draw() {
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, true, false);
     SPAWN(PipeTask, fGMFactory(NULL), bitmap, true, true);
     SPAWN(QuiltTask, fGMFactory(NULL), bitmap);
-    SPAWN(RecordTask, fGMFactory(NULL), bitmap);
+    SPAWN(RecordTask, fGMFactory(NULL), bitmap, true);
+    SPAWN(RecordTask, fGMFactory(NULL), bitmap, false);
     SPAWN(ReplayTask, fGMFactory(NULL), bitmap, false);
     SPAWN(ReplayTask, fGMFactory(NULL), bitmap, true);
     SPAWN(SerializeTask, fGMFactory(NULL), bitmap);
