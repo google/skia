@@ -18,23 +18,23 @@
 static SkShader* make_shader(SkXfermode::Mode mode) {
     SkPoint pts[2];
     SkColor colors[2];
-    
+
     pts[0].set(0, 0);
     pts[1].set(SkIntToScalar(100), 0);
     colors[0] = SK_ColorRED;
     colors[1] = SK_ColorBLUE;
     SkAutoTUnref<SkShader> shaderA(SkGradientShader::CreateLinear(pts, colors, NULL, 2,
                                                                   SkShader::kClamp_TileMode));
-    
+
     pts[0].set(0, 0);
     pts[1].set(0, SkIntToScalar(100));
     colors[0] = SK_ColorBLACK;
     colors[1] = SkColorSetARGB(0x80, 0, 0, 0);
     SkAutoTUnref<SkShader> shaderB(SkGradientShader::CreateLinear(pts, colors, NULL, 2,
                                                                   SkShader::kClamp_TileMode));
-    
+
     SkAutoTUnref<SkXfermode> xfer(SkXfermode::Create(mode));
-    
+
     return SkNEW_ARGS(SkComposeShader, (shaderA, shaderB, xfer));
 }
 
@@ -86,7 +86,7 @@ protected:
     virtual SkString onShortName() SK_OVERRIDE {
         return SkString("composeshader_alpha");
     }
-    
+
     virtual SkISize onISize() SK_OVERRIDE {
         return SkISize::Make(220, 750);
     }
@@ -103,9 +103,9 @@ protected:
 
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
-        
+
         const SkRect r = SkRect::MakeXYWH(5, 5, 100, 100);
-        
+
         for (size_t y = 0; y < SK_ARRAY_COUNT(shaders); ++y) {
             SkShader* shader = shaders[y];
             canvas->save();
@@ -113,11 +113,11 @@ protected:
                 paint.setAlpha(0xFF);
                 paint.setShader(NULL);
                 canvas->drawRect(r, paint);
-                
+
                 paint.setAlpha(alpha);
                 paint.setShader(shader);
                 canvas->drawRect(r, paint);
-                
+
                 canvas->translate(r.width() + 5, 0);
             }
             canvas->restore();
@@ -130,4 +130,3 @@ protected:
 
 DEF_GM( return new ComposeShaderGM; )
 DEF_GM( return new ComposeShaderAlphaGM; )
-

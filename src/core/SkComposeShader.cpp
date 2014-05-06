@@ -93,7 +93,7 @@ SkShader::Context* SkComposeShader::onCreateContext(const ContextRec& rec, void*
     // sub-shaders.
     SkPaint opaquePaint(*rec.fPaint);
     opaquePaint.setAlpha(0xFF);
-    
+
     ContextRec newRec(rec);
     newRec.fMatrix = &tmpM;
     newRec.fPaint = &opaquePaint;

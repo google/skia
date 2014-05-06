@@ -101,13 +101,13 @@ SkShader::Context* SkBitmapProcShader::onCreateContext(const ContextRec& rec, vo
     if (!fRawBitmap.getTexture() && !valid_for_drawing(fRawBitmap)) {
         return NULL;
     }
-    
+
     SkMatrix totalInverse;
     // Do this first, so we know the matrix can be inverted.
     if (!this->computeTotalInverse(rec, &totalInverse)) {
         return NULL;
     }
-    
+
     void* stateStorage = (char*)storage + sizeof(BitmapProcShaderContext);
     SkBitmapProcState* state = SkNEW_PLACEMENT(stateStorage, SkBitmapProcState);
 

@@ -57,23 +57,23 @@ private:
                                SkShader* bitmapShader);
 
         virtual ~PictureShaderContext();
-        
+
         virtual uint32_t getFlags() const SK_OVERRIDE;
-        
+
         virtual ShadeProc asAShadeProc(void** ctx) SK_OVERRIDE;
         virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) SK_OVERRIDE;
         virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) SK_OVERRIDE;
-        
+
     private:
         PictureShaderContext(const SkPictureShader&, const ContextRec&, SkShader* bitmapShader);
 
         SkAutoTUnref<SkShader>  fBitmapShader;
         SkShader::Context*      fBitmapShaderContext;
         void*                   fBitmapShaderContextStorage;
-        
+
         typedef SkShader::Context INHERITED;
     };
-    
+
     typedef SkShader INHERITED;
 };
 

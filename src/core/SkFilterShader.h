@@ -43,7 +43,7 @@ protected:
     SkFilterShader(SkReadBuffer& );
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     virtual Context* onCreateContext(const ContextRec&, void* storage) const SK_OVERRIDE;
-    
+
 
 private:
     SkShader*       fShader;
