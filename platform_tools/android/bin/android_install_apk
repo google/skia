@@ -19,7 +19,6 @@ source $SCRIPT_DIR/utils/setup_adb.sh
 forceRemoval="false"
 installLauncher="false"
 installOptions="-r"
-configuration="Debug"
 
 for arg in ${APP_ARGS[@]}
 do
@@ -33,9 +32,6 @@ do
   elif [[ "${arg}" == "-r" ]];
   then
     echo "DEPRECATED: -r is now a no-op"
-  elif [[ "${arg}" == "--release" ]];
-  then
-    configuration="Release"
   else
     echo "ERROR: unrecognized option ${arg}"
     print_usage
@@ -49,5 +45,5 @@ then
     $ADB ${DEVICE_SERIAL} uninstall com.skia > /dev/null
 fi
 
-echo "Installing Skia App from ${SKIA_OUT}/${configuration}"
-$ADB ${DEVICE_SERIAL} install ${installOptions} ${SKIA_OUT}/${configuration}/android/bin/SkiaAndroid.apk
+echo "Installing Skia App from ${SKIA_OUT}/${BUILDTYPE}"
+$ADB ${DEVICE_SERIAL} install ${installOptions} ${SKIA_OUT}/${BUILDTYPE}/android/bin/SkiaAndroid.apk
