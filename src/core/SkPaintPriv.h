@@ -22,4 +22,11 @@ class SkPaint;
 */
 bool isPaintOpaque(const SkPaint* paint,
                    const SkBitmap* bmpReplacesShader = NULL);
+
+/** Returns true if the provided paint has fields which are not
+    immutable (and will thus require deep copying).
+    @param paint the paint to be analyzed
+    @return true if the paint requires a deep copy
+*/
+bool NeedsDeepCopy(const SkPaint& paint);
 #endif
