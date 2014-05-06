@@ -23,7 +23,9 @@ import re
 # actual-results.json).
 #
 # NOTE: These constants must be kept in sync with the kJsonKey_ constants in
-# gm_expectations.cpp !
+# gm_expectations.cpp and tools/PictureRenderer.cpp !
+# Eric suggests: create gm/gm_expectations_constants.h containing ONLY variable
+# declarations so as to be readable by both gm/gm_expectations.cpp and Python.
 
 
 JSONKEY_ACTUALRESULTS = 'actual-results'
@@ -75,9 +77,19 @@ JSONKEY_EXPECTEDRESULTS_NOTES = 'notes'
 #   review of expectations.
 JSONKEY_EXPECTEDRESULTS_REVIEWED = 'reviewed-by-human'
 
-
 # Allowed hash types for test expectations.
 JSONKEY_HASHTYPE_BITMAP_64BITMD5 = 'bitmap-64bitMD5'
+
+JSONKEY_HEADER = 'header'
+JSONKEY_HEADER_TYPE = 'type'
+JSONKEY_HEADER_REVISION = 'revision'
+JSONKEY_IMAGE_CHECKSUMALGORITHM = 'checksumAlgorithm'
+JSONKEY_IMAGE_CHECKSUMVALUE = 'checksumValue'
+JSONKEY_IMAGE_COMPARISONRESULT = 'comparisonResult'
+JSONKEY_IMAGE_FILEPATH = 'filepath'
+JSONKEY_SOURCE_TILEDIMAGES = 'tiled-images'
+JSONKEY_SOURCE_WHOLEIMAGE = 'whole-image'
+
 
 # Root directory where the buildbots store their actually-generated images...
 #  as a publicly readable HTTP URL:

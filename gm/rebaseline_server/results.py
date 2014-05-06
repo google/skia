@@ -190,6 +190,37 @@ class BaseComparisons(object):
         return False
     return True
 
+  def _read_builder_dicts_from_root(self, root, pattern='*.json'):
+    """Read all JSON dictionaries within a directory tree.
+
+    Skips any dictionaries belonging to a builder we have chosen to ignore.
+
+    Args:
+      root: path to root of directory tree
+      pattern: which files to read within root (fnmatch-style pattern)
+
+    Returns:
+      A meta-dictionary containing all the JSON dictionaries found within
+      the directory tree, keyed by builder name (the basename of the directory
+      where each JSON dictionary was found).
+
+    Raises:
+      IOError if root does not refer to an existing directory
+    """
+    # I considered making this call _read_dicts_from_root(), but I decided
+    # it was better to prune out the ignored builders within the os.walk().
+    if not os.path.isdir(root):
+      raise IOError('no directory found at path %s' % root)
+    meta_dict = {}
+    for dirpath, dirnames, filenames in os.walk(root):
+      for matching_filename in fnmatch.filter(filenames, pattern):
+        builder = os.path.basename(dirpath)
+        if self._ignore_builder(builder):
+          continue
+        full_path = os.path.join(dirpath, matching_filename)
+        meta_dict[builder] = gm_json.LoadFromFile(full_path)
+    return meta_dict
+
   def _read_dicts_from_root(self, root, pattern='*.json'):
     """Read all JSON dictionaries within a directory tree.
 
@@ -199,7 +230,8 @@ class BaseComparisons(object):
 
     Returns:
       A meta-dictionary containing all the JSON dictionaries found within
-      the directory tree, keyed by the builder name of each dictionary.
+      the directory tree, keyed by the pathname (relative to root) of each JSON
+      dictionary.
 
     Raises:
       IOError if root does not refer to an existing directory
@@ -207,13 +239,12 @@ class BaseComparisons(object):
     if not os.path.isdir(root):
       raise IOError('no directory found at path %s' % root)
     meta_dict = {}
-    for dirpath, dirnames, filenames in os.walk(root):
+    for abs_dirpath, dirnames, filenames in os.walk(root):
+      rel_dirpath = os.path.relpath(abs_dirpath, root)
       for matching_filename in fnmatch.filter(filenames, pattern):
-        builder = os.path.basename(dirpath)
-        if self._ignore_builder(builder):
-          continue
-        fullpath = os.path.join(dirpath, matching_filename)
-        meta_dict[builder] = gm_json.LoadFromFile(fullpath)
+        abs_path = os.path.join(abs_dirpath, matching_filename)
+        rel_path = os.path.join(rel_dirpath, matching_filename)
+        meta_dict[rel_path] = gm_json.LoadFromFile(abs_path)
     return meta_dict
 
   @staticmethod
@@ -240,18 +271,18 @@ class BaseComparisons(object):
 
     Input:
       {
-        "failed" : {
-          "changed.png" : [ "bitmap-64bitMD5", 8891695120562235492 ],
+        KEY_A1 : {
+          KEY_B1 : VALUE_B1,
         },
-        "no-comparison" : {
-          "unchanged.png" : [ "bitmap-64bitMD5", 11092453015575919668 ],
+        KEY_A2 : {
+          KEY_B2 : VALUE_B2,
         }
       }
 
     Output:
       {
-        "changed.png" : [ "bitmap-64bitMD5", 8891695120562235492 ],
-        "unchanged.png" : [ "bitmap-64bitMD5", 11092453015575919668 ],
+        KEY_B1 : VALUE_B1,
+        KEY_B2 : VALUE_B2,
       }
 
     If this would result in any repeated keys, it will raise an Exception.
@@ -263,3 +294,13 @@ class BaseComparisons(object):
           raise Exception('duplicate key %s in combine_subdicts' % subdict_key)
         output_dict[subdict_key] = subdict_value
     return output_dict
+
+  @staticmethod
+  def get_multilevel(input_dict, *keys):
+    """ Returns input_dict[key1][key2][...], or None if any key is not found.
+    """
+    for key in keys:
+      if input_dict == None:
+        return None
+      input_dict = input_dict.get(key, None)
+    return input_dict

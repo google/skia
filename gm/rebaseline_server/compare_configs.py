@@ -88,7 +88,8 @@ class ConfigComparisons(results.BaseComparisons):
     """
     logging.info('Reading actual-results JSON files from %s...' %
                  self._actuals_root)
-    actual_builder_dicts = self._read_dicts_from_root(self._actuals_root)
+    actual_builder_dicts = self._read_builder_dicts_from_root(
+        self._actuals_root)
     configA, configB = configs
     logging.info('Comparing configs %s and %s...' % (configA, configB))
 

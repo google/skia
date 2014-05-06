@@ -1,8 +1,32 @@
 {
+   "header" : {
+      "type" : "ChecksummedImages",
+      "revision" : 1
+   },
    "actual-results" : {
-      "no-comparison" : {
-         "changed.png" : [ "bitmap-64bitMD5", 8891695120562235492 ],
-         "unchanged.png" : [ "bitmap-64bitMD5", 11092453015575919668 ]
+      "changed.skp" : {
+         "whole-image" : {
+           "checksumAlgorithm" : "bitmap-64bitMD5",
+           "checksumValue" : 8891695120562235492,
+           "comparisonResult" : "no-comparison",
+           "filepath" : "bitmap-64bitMD5_8891695120562235492.png"
+         }
+      },
+      "only-in-before.skp" : {
+         "whole-image" : {
+           "checksumAlgorithm" : "bitmap-64bitMD5",
+           "checksumValue" : 8891695120562235492,
+           "comparisonResult" : "no-comparison",
+           "filepath" : "bitmap-64bitMD5_8891695120562235492.png"
+         }
+      },
+      "unchanged.skp" : {
+         "whole-image" : {
+           "checksumAlgorithm" : "bitmap-64bitMD5",
+           "checksumValue" : 11092453015575919668,
+           "comparisonResult" : "no-comparison",
+           "filepath" : "bitmap-64bitMD5_11092453015575919668.png"
+         }
       }
    }
 }

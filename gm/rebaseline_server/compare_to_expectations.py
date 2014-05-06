@@ -121,7 +121,8 @@ class ExpectationComparisons(results.BaseComparisons):
          ]
 
     """
-    expected_builder_dicts = self._read_dicts_from_root(self._expected_root)
+    expected_builder_dicts = self._read_builder_dicts_from_root(
+        self._expected_root)
     for mod in modifications:
       image_name = results.IMAGE_FILENAME_FORMATTER % (
           mod[imagepair.KEY__EXTRA_COLUMN_VALUES]
@@ -200,10 +201,12 @@ class ExpectationComparisons(results.BaseComparisons):
     """
     logging.info('Reading actual-results JSON files from %s...' %
                  self._actuals_root)
-    actual_builder_dicts = self._read_dicts_from_root(self._actuals_root)
+    actual_builder_dicts = self._read_builder_dicts_from_root(
+        self._actuals_root)
     logging.info('Reading expected-results JSON files from %s...' %
                  self._expected_root)
-    expected_builder_dicts = self._read_dicts_from_root(self._expected_root)
+    expected_builder_dicts = self._read_builder_dicts_from_root(
+        self._expected_root)
 
     all_image_pairs = imagepairset.ImagePairSet(
         descriptions=IMAGEPAIR_SET_DESCRIPTIONS,
