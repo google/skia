@@ -1913,7 +1913,7 @@ SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info) {
 void SkGpuDevice::EXPERIMENTAL_optimize(SkPicture* picture) {
     SkPicture::AccelData::Key key = GPUAccelData::ComputeAccelDataKey();
 
-    GPUAccelData* data = SkNEW_ARGS(GPUAccelData, (key));
+    SkAutoTUnref<GPUAccelData> data(SkNEW_ARGS(GPUAccelData, (key)));
 
     picture->EXPERIMENTAL_addAccelData(data);
 

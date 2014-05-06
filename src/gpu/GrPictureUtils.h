@@ -45,6 +45,12 @@ public:
 
     GPUAccelData(Key key) : INHERITED(key) { }
 
+    virtual ~GPUAccelData() {
+        for (int i = 0; i < fSaveLayerInfo.count(); ++i) {
+            SkDELETE(fSaveLayerInfo[i].fPaint);
+        }
+    }
+
     void addSaveLayerInfo(const SaveLayerInfo& info) {
         SkASSERT(info.fSaveLayerOpID < info.fRestoreOpID);
         *fSaveLayerInfo.push() = info;
