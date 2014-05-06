@@ -12,6 +12,19 @@
 #include "SkRect.h"
 #include "Test.h"
 
+static void test_roundtoint(skiatest::Reporter* reporter) {
+    SkScalar x = 0.49999997;
+    int ix = SkScalarRoundToInt(x);
+    // We "should" get 0, since x < 0.5, but we don't due to float addition rounding up the low
+    // bit after adding 0.5.
+    REPORTER_ASSERT(reporter, 1 == ix);
+
+    // This version explicitly performs the +0.5 step using double, which should avoid losing the
+    // low bits.
+    ix = SkDScalarRoundToInt(x);
+    REPORTER_ASSERT(reporter, 0 == ix);
+}
+
 struct PointSet {
     const SkPoint* fPts;
     size_t         fCount;
@@ -187,4 +200,5 @@ static void test_isfinite(skiatest::Reporter* reporter) {
 
 DEF_TEST(Scalar, reporter) {
     test_isfinite(reporter);
+    test_roundtoint(reporter);
 }

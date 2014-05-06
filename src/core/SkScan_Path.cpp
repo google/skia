@@ -602,7 +602,11 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
         // don't reference "origClip" any more, just use clipPtr
 
     SkIRect ir;
-    path.getBounds().round(&ir);
+    // We deliberately call dround() instead of round(), since we can't afford to generate a
+    // bounds that is tighter than the corresponding SkEdges. The edge code basically converts
+    // the floats to fixed, and then "rounds". If we called round() instead of dround() here,
+    // we could generate the wrong ir for values like 0.4999997.
+    path.getBounds().dround(&ir);
     if (ir.isEmpty()) {
         if (path.isInverseFillType()) {
             blitter->blitRegion(*clipPtr);

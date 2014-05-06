@@ -20,6 +20,49 @@
 #include "SkWriter32.h"
 #include "Test.h"
 
+static void make_path_crbug364224(SkPath* path) {
+    path->reset();
+    path->moveTo(3.747501373f, 2.724499941f);
+    path->lineTo(3.747501373f, 3.75f);
+    path->cubicTo(3.747501373f, 3.88774991f, 3.635501385f, 4.0f, 3.497501373f, 4.0f);
+    path->lineTo(0.7475013733f, 4.0f);
+    path->cubicTo(0.6095013618f, 4.0f, 0.4975013733f, 3.88774991f, 0.4975013733f, 3.75f);
+    path->lineTo(0.4975013733f, 1.0f);
+    path->cubicTo(0.4975013733f, 0.8622499704f, 0.6095013618f, 0.75f, 0.7475013733f,0.75f);
+    path->lineTo(3.497501373f, 0.75f);
+    path->cubicTo(3.50275135f, 0.75f, 3.5070014f, 0.7527500391f, 3.513001442f, 0.753000021f);
+    path->lineTo(3.715001345f, 0.5512499809f);
+    path->cubicTo(3.648251295f, 0.5194999576f, 3.575501442f, 0.4999999702f, 3.497501373f, 0.4999999702f);
+    path->lineTo(0.7475013733f, 0.4999999702f);
+    path->cubicTo(0.4715013802f, 0.4999999702f, 0.2475013733f, 0.7239999771f, 0.2475013733f, 1.0f);
+    path->lineTo(0.2475013733f, 3.75f);
+    path->cubicTo(0.2475013733f, 4.026000023f, 0.4715013504f, 4.25f, 0.7475013733f, 4.25f);
+    path->lineTo(3.497501373f, 4.25f);
+    path->cubicTo(3.773501396f, 4.25f, 3.997501373f, 4.026000023f, 3.997501373f, 3.75f);
+    path->lineTo(3.997501373f, 2.474750042f);
+    path->lineTo(3.747501373f, 2.724499941f);
+    path->close();
+}
+
+static void make_path_crbug364224_simplified(SkPath* path) {
+    path->moveTo(3.747501373f, 2.724499941f);
+    path->cubicTo(3.648251295f, 0.5194999576f, 3.575501442f, 0.4999999702f, 3.497501373f, 0.4999999702f);
+    path->close();
+}
+
+static void test_path_crbug364224() {
+    SkPath path;
+    SkPaint paint;
+    SkAutoTUnref<SkSurface> surface(SkSurface::NewRasterPMColor(84, 88));
+    SkCanvas* canvas = surface->getCanvas();
+
+    make_path_crbug364224_simplified(&path);
+    canvas->drawPath(path, paint);
+
+    make_path_crbug364224(&path);
+    canvas->drawPath(path, paint);
+}
+
 static void make_path0(SkPath* path) {
     // from  *  https://code.google.com/p/skia/issues/detail?id=1706
 
@@ -3326,6 +3369,8 @@ public:
 };
 
 DEF_TEST(Paths, reporter) {
+    test_path_crbug364224();
+
     SkTSize<SkScalar>::Make(3,4);
 
     SkPath  p, empty;
