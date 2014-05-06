@@ -17,6 +17,7 @@
         'bench_pictures',
         'bench_record',
         'bench_playback',
+        'dump_record',
         'filter',
         'gpuveto',
         'lua_app',
@@ -343,6 +344,25 @@
         'flags.gyp:flags',
         'skia_lib.gyp:skia_lib',
         'record.gyp:*',
+      ],
+    },
+    {
+      'target_name': 'dump_record',
+      'type': 'executable',
+      'sources': [
+        '../tools/dump_record.cpp',
+        '../tools/LazyDecodeBitmap.cpp',
+      ],
+      'include_dirs': [
+        '../src/core/',
+        '../src/images',
+        '../src/lazy',
+        '../src/record',
+      ],
+      'dependencies': [
+        'flags.gyp:flags',
+        'record.gyp:*',
+        'skia_lib.gyp:skia_lib',
       ],
     },
     {
