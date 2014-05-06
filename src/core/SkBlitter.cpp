@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkBlitter.h"
 #include "SkAntiRun.h"
@@ -26,8 +24,7 @@ SkBlitter::~SkBlitter() {}
 
 bool SkBlitter::isNullBlitter() const { return false; }
 
-bool SkBlitter::resetShaderContext(const SkBitmap& device, const SkPaint& paint,
-                                   const SkMatrix& matrix) {
+bool SkBlitter::resetShaderContext(const SkShader::ContextRec&) {
     return true;
 }
 
@@ -1030,10 +1027,7 @@ SkShaderBlitter::~SkShaderBlitter() {
     fShader->unref();
 }
 
-bool SkShaderBlitter::resetShaderContext(const SkBitmap& device, const SkPaint& paint,
-                                         const SkMatrix& matrix) {
-    SkShader::ContextRec rec(device, paint, matrix);
-
+bool SkShaderBlitter::resetShaderContext(const SkShader::ContextRec& rec) {
     // Only destroy the old context if we have a new one. We need to ensure to have a
     // live context in fShaderContext because the storage is owned by an SkSmallAllocator
     // outside of this class.
@@ -1045,6 +1039,7 @@ bool SkShaderBlitter::resetShaderContext(const SkBitmap& device, const SkPaint& 
         // Need a valid context in fShaderContext's storage, so we can later (or our caller) call
         // the in-place destructor.
         SkNEW_PLACEMENT_ARGS(fShaderContext, SkTransparentShaderContext, (*fShader, rec));
+        return false;
     }
-    return ctx != NULL;
+    return true;
 }

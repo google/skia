@@ -41,8 +41,7 @@ public:
       *  Will create the context at the same location as the old one (this is safe
       *  because the shader itself is unchanged).
       */
-    virtual bool resetShaderContext(const SkBitmap& device, const SkPaint& paint,
-                                    const SkMatrix& matrix) SK_OVERRIDE;
+    virtual bool resetShaderContext(const SkShader::ContextRec&) SK_OVERRIDE;
 
     virtual SkShader::Context* getShaderContext() const SK_OVERRIDE { return fShaderContext; }
 

@@ -53,6 +53,10 @@ bool SkShader::computeTotalInverse(const ContextRec& rec, SkMatrix* totalInverse
         total.setConcat(*m, this->getLocalMatrix());
         m = &total;
     }
+    if (rec.fLocalMatrix) {
+        total.setConcat(*m, *rec.fLocalMatrix);
+        m = &total;
+    }
     return m->invert(totalInverse);
 }
 
@@ -63,7 +67,7 @@ SkShader::Context* SkShader::createContext(const ContextRec& rec, void* storage)
     return this->onCreateContext(rec, storage);
 }
 
-SkShader::Context* SkShader::onCreateContext(const ContextRec&, void*) const {
+SkShader::Context* SkShader::onCreateContext(const ContextRec& rec, void*) const {
     return NULL;
 }
 
@@ -72,7 +76,7 @@ size_t SkShader::contextSize() const {
 }
 
 SkShader::Context::Context(const SkShader& shader, const ContextRec& rec)
-    : fShader(shader)
+    : fShader(shader), fCTM(*rec.fMatrix)
 {
     // Because the context parameters must be valid at this point, we know that the matrix is
     // invertible.

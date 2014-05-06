@@ -64,8 +64,7 @@ public:
     /**
      *  Special methods for SkShaderBlitter. On all other classes this is a no-op.
      */
-    virtual bool resetShaderContext(const SkBitmap& device, const SkPaint& paint,
-                                    const SkMatrix& matrix);
+    virtual bool resetShaderContext(const SkShader::ContextRec&);
     virtual SkShader::Context* getShaderContext() const;
 
     ///@name non-virtual helpers

@@ -123,17 +123,17 @@ public:
      *  ContextRec acts as a parameter bundle for creating Contexts.
      */
     struct ContextRec {
-        ContextRec() : fDevice(NULL), fPaint(NULL), fMatrix(NULL) {}
-        ContextRec(const ContextRec& other)
-            : fDevice(other.fDevice), fPaint(other.fPaint), fMatrix(other.fMatrix) {}
+        ContextRec() : fDevice(NULL), fPaint(NULL), fMatrix(NULL), fLocalMatrix(NULL) {}
         ContextRec(const SkBitmap& device, const SkPaint& paint, const SkMatrix& matrix)
             : fDevice(&device)
             , fPaint(&paint)
-            , fMatrix(&matrix) {}
+            , fMatrix(&matrix)
+            , fLocalMatrix(NULL) {}
 
-        const SkBitmap* fDevice;    // the bitmap we are drawing into
-        const SkPaint*  fPaint;     // the current paint associated with the draw
-        const SkMatrix* fMatrix;    // the current matrix in the canvas
+        const SkBitmap* fDevice;        // the bitmap we are drawing into
+        const SkPaint*  fPaint;         // the current paint associated with the draw
+        const SkMatrix* fMatrix;        // the current matrix in the canvas
+        const SkMatrix* fLocalMatrix;   // optional local matrix
     };
 
     class Context : public ::SkNoncopyable {
@@ -200,14 +200,15 @@ public:
         };
         static MatrixClass ComputeMatrixClass(const SkMatrix&);
 
-        uint8_t             getPaintAlpha() const { return fPaintAlpha; }
-        const SkMatrix&     getTotalInverse() const { return fTotalInverse; }
-        MatrixClass         getInverseClass() const { return (MatrixClass)fTotalInverseClass; }
-
+        uint8_t         getPaintAlpha() const { return fPaintAlpha; }
+        const SkMatrix& getTotalInverse() const { return fTotalInverse; }
+        MatrixClass     getInverseClass() const { return (MatrixClass)fTotalInverseClass; }
+        const SkMatrix& getCTM() const { return fCTM; }
     private:
-        SkMatrix            fTotalInverse;
-        uint8_t             fPaintAlpha;
-        uint8_t             fTotalInverseClass;
+        SkMatrix    fCTM;
+        SkMatrix    fTotalInverse;
+        uint8_t     fPaintAlpha;
+        uint8_t     fTotalInverseClass;
 
         typedef SkNoncopyable INHERITED;
     };

@@ -52,7 +52,7 @@ void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
     fPicture->flatten(buffer);
 }
 
-SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix) const {
+SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatrix* localM) const {
     SkASSERT(fPicture && fPicture->width() > 0 && fPicture->height() > 0);
 
     SkMatrix m;
@@ -60,6 +60,9 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix) const {
         m.setConcat(matrix, this->getLocalMatrix());
     } else {
         m = matrix;
+    }
+    if (localM) {
+        m.preConcat(*localM);
     }
 
     // Use a rotation-invariant scale
@@ -115,7 +118,7 @@ size_t SkPictureShader::contextSize() const {
 }
 
 SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void* storage) const {
-    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix));
+    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(*rec.fMatrix, rec.fLocalMatrix));
     if (NULL == bitmapShader.get()) {
         return NULL;
     }
@@ -190,7 +193,7 @@ void SkPictureShader::toString(SkString* str) const {
 
 #if SK_SUPPORT_GPU
 GrEffectRef* SkPictureShader::asNewEffect(GrContext* context, const SkPaint& paint) const {
-    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(context->getMatrix()));
+    SkAutoTUnref<SkShader> bitmapShader(this->refBitmapShader(context->getMatrix(), NULL));
     if (!bitmapShader) {
         return NULL;
     }
