@@ -53,6 +53,12 @@ public:
         return false;
     }
 
+    // SaveLayer has an SkPaint named paint, but it's not a draw.
+    bool match(SaveLayer*) {
+        fPaint = NULL;
+        return false;
+    }
+
 private:
     // Abstracts away whether the paint is always part of the command or optional.
     template <typename T> static T* AsPtr(SkRecords::Optional<T>& x) { return x; }

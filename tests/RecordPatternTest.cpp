@@ -190,3 +190,13 @@ DEF_TEST(RecordPattern_Complex, r) {
 
     REPORTER_ASSERT(r, !pattern.search(&record, &begin, &end));
 }
+
+DEF_TEST(RecordPattern_SaveLayerIsNotADraw, r) {
+    Pattern1<IsDraw> pattern;
+
+    SkRecord record;
+    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1200);
+    recorder.saveLayer(NULL, NULL);
+
+    REPORTER_ASSERT(r, !pattern.match(&record, 0));
+}
