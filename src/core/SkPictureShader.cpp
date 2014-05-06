@@ -119,7 +119,7 @@ SkShader::Context* SkPictureShader::onCreateContext(const ContextRec& rec, void*
     if (NULL == bitmapShader.get()) {
         return NULL;
     }
-    return PictureShaderContext::Create(storage, *this, rec, bitmapShader.detach());
+    return PictureShaderContext::Create(storage, *this, rec, bitmapShader);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
