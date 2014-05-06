@@ -103,7 +103,8 @@
         }],
         [ '(skia_arch_type == "mips") or (skia_arch_type == "arm" and arm_version < 7) \
             or (skia_os == "ios") \
-            or (skia_os == "android" and skia_arch_type not in ["x86", "arm", "mips", "arm64"])', {
+            or (skia_os == "android" and skia_arch_type not in ["x86", "arm", "mips", "arm64"]) \
+            or (skia_android_framework and skia_arch_type == "arm64")', {
           'sources': [
             '../src/opts/SkBitmapProcState_opts_none.cpp',
             '../src/opts/SkBlitMask_opts_none.cpp',
@@ -122,7 +123,7 @@
             '-mno-apcs-frame',
           ]
         }],
-        [ 'skia_arch_type == "arm64"', {
+        [ 'skia_arch_type == "arm64" and skia_android_framework == 0', {
           'sources': [
             '../src/opts/SkBitmapProcState_arm_neon.cpp',
             '../src/opts/SkBitmapProcState_matrixProcs_neon.cpp',
