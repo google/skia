@@ -89,6 +89,9 @@ public:
         fOptsEnabled = optsEnabled;
     }
 
+protected:
+    void addNoOp();
+
 private:
     void handleOptimization(int opt);
     size_t recordRestoreOffsetPlaceholder(SkRegion::Op);

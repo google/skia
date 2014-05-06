@@ -35,8 +35,29 @@ void SkBBoxHierarchyRecord::willSave(SaveFlags flags) {
 SkCanvas::SaveLayerStrategy SkBBoxHierarchyRecord::willSaveLayer(const SkRect* bounds,
                                                                  const SkPaint* paint,
                                                                  SaveFlags flags) {
+    // For now, assume all filters affect transparent black.
+    // FIXME: This could be made less conservative as an optimization.
+    bool paintAffectsTransparentBlack = NULL != paint &&
+        ((NULL != paint->getImageFilter()) ||
+         (NULL != paint->getColorFilter()));
+    SkRect drawBounds;
+    if (paintAffectsTransparentBlack) {
+        if (bounds) {
+            drawBounds = *bounds;
+            this->getTotalMatrix().mapRect(&drawBounds);
+        } else {
+            SkIRect deviceBounds;
+            this->getClipDeviceBounds(&deviceBounds);
+            drawBounds.set(deviceBounds);
+        }
+    }
     fStateTree->appendSaveLayer(this->writeStream().bytesWritten());
-    return this->INHERITED::willSaveLayer(bounds, paint, flags);
+    SkCanvas::SaveLayerStrategy strategy = this->INHERITED::willSaveLayer(bounds, paint, flags);
+    if (paintAffectsTransparentBlack) {
+        this->handleBBox(drawBounds);
+        this->addNoOp();
+    }
+    return strategy;
 }
 
 void SkBBoxHierarchyRecord::willRestore() {

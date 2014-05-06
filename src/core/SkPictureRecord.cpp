@@ -293,13 +293,12 @@ static bool match(SkWriter32* writer, uint32_t offset,
     int numMatched;
     for (numMatched = 0; numMatched < numCommands && curOffset < writer->bytesWritten(); ++numMatched) {
         DrawType op = peek_op_and_size(writer, curOffset, &curSize);
-        while (NOOP == op && curOffset < writer->bytesWritten()) {
+        while (NOOP == op) {
             curOffset += curSize;
+            if (curOffset >= writer->bytesWritten()) {
+                return false;
+            }
             op = peek_op_and_size(writer, curOffset, &curSize);
-        }
-
-        if (curOffset >= writer->bytesWritten()) {
-            return false; // ran out of byte stream
         }
 
         if (kDRAW_BITMAP_FLAVOR == pattern[numMatched]) {
@@ -1647,6 +1646,11 @@ void SkPictureRecord::addPoints(const SkPoint pts[], int count) {
     fPointBytes += count * sizeof(SkPoint);
     fPointWrites++;
 #endif
+}
+
+void SkPictureRecord::addNoOp() {
+    size_t size = kUInt32Size; // op
+    this->addDraw(NOOP, &size);
 }
 
 void SkPictureRecord::addRect(const SkRect& rect) {

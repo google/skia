@@ -467,6 +467,61 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
     canvas.drawPicture(*picture);
 }
 
+DEF_TEST(ImageFilterEmptySaveLayerTest, reporter) {
+
+    // Even when there's an empty saveLayer()/restore(), ensure that an image
+    // filter or color filter which affects transparent black still draws.
+
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(10, 10);
+    SkBitmapDevice device(bitmap);
+    SkCanvas canvas(&device);
+
+    SkRTreeFactory factory;
+    SkPictureRecorder recorder;
+
+    SkAutoTUnref<SkColorFilter> green(
+        SkColorFilter::CreateModeFilter(SK_ColorGREEN, SkXfermode::kSrc_Mode));
+    SkAutoTUnref<SkColorFilterImageFilter> imageFilter(
+        SkColorFilterImageFilter::Create(green.get()));
+    SkPaint imageFilterPaint;
+    imageFilterPaint.setImageFilter(imageFilter.get());
+    SkPaint colorFilterPaint;
+    colorFilterPaint.setColorFilter(green.get());
+
+    SkRect bounds = SkRect::MakeWH(10, 10);
+
+    SkCanvas* recordingCanvas = recorder.beginRecording(10, 10, &factory, 0);
+    recordingCanvas->saveLayer(&bounds, &imageFilterPaint);
+    recordingCanvas->restore();
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+
+    canvas.clear(0);
+    canvas.drawPicture(*picture);
+    uint32_t pixel = *bitmap.getAddr32(0, 0);
+    REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+
+    recordingCanvas = recorder.beginRecording(10, 10, &factory, 0);
+    recordingCanvas->saveLayer(NULL, &imageFilterPaint);
+    recordingCanvas->restore();
+    SkAutoTUnref<SkPicture> picture2(recorder.endRecording());
+
+    canvas.clear(0);
+    canvas.drawPicture(*picture2);
+    pixel = *bitmap.getAddr32(0, 0);
+    REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+
+    recordingCanvas = recorder.beginRecording(10, 10, &factory, 0);
+    recordingCanvas->saveLayer(&bounds, &colorFilterPaint);
+    recordingCanvas->restore();
+    SkAutoTUnref<SkPicture> picture3(recorder.endRecording());
+
+    canvas.clear(0);
+    canvas.drawPicture(*picture3);
+    pixel = *bitmap.getAddr32(0, 0);
+    REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+}
+
 static void test_huge_blur(SkBaseDevice* device, skiatest::Reporter* reporter) {
     SkCanvas canvas(device);
 
