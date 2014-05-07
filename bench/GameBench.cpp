@@ -190,9 +190,8 @@ protected:
 
             canvas->concat(mat);
             if (fUseAtlas) {
-                static int curCell = 0;
+                const int curCell = i % (kNumAtlasedX * kNumAtlasedY);
                 SkIRect src = fAtlasRects[curCell % (kNumAtlasedX)][curCell / (kNumAtlasedX)];
-                curCell = (curCell + 1) % (kNumAtlasedX*kNumAtlasedY);
 
                 if (fUseDrawVertices) {
                     SkPoint uvs[4] = {
