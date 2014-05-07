@@ -17,14 +17,14 @@ class SkMatrix;
 class PipeController : public SkGPipeController {
 public:
     PipeController(SkCanvas* target, SkPicture::InstallPixelRefProc proc = NULL);
-    virtual ~PipeController();
+
     virtual void* requestBlock(size_t minRequest, size_t* actual) SK_OVERRIDE;
     virtual void notifyWritten(size_t bytes) SK_OVERRIDE;
 protected:
-    const void* getData() { return (const char*) fBlock + fBytesWritten; }
+    const void* getData() { return (const char*) fBlock.get() + fBytesWritten; }
     SkGPipeReader fReader;
 private:
-    void* fBlock;
+    SkAutoMalloc fBlock;
     size_t fBlockSize;
     size_t fBytesWritten;
     SkGPipeReader::Status fStatus;
