@@ -114,27 +114,60 @@ void SkPictureStateTree::Iterator::setCurrentMatrix(const SkMatrix* matrix) {
     fCurrentMatrix = matrix;
 }
 
-uint32_t SkPictureStateTree::Iterator::nextDraw() {
+uint32_t SkPictureStateTree::Iterator::peekDraw() {
     SkASSERT(this->isValid());
     if (fPlaybackIndex >= fDraws->count()) {
+        return kDrawComplete;
+    }
+
+    Draw* draw = static_cast<Draw*>((*fDraws)[fPlaybackIndex]);
+    return draw->fOffset;    
+}
+
+uint32_t SkPictureStateTree::Iterator::skipDraw() {
+    SkASSERT(this->isValid());
+    if (fPlaybackIndex >= fDraws->count()) {
+        return this->finish();
+    }
+
+    Draw* draw = static_cast<Draw*>((*fDraws)[fPlaybackIndex]);
+
+    if (fSave) {
+        fCanvas->save();
+        fSave = false;
+    }
+
+    fNodes.rewind();
+
+    ++fPlaybackIndex;
+    return draw->fOffset;
+}
+
+uint32_t SkPictureStateTree::Iterator::finish() {
+    if (fCurrentNode->fFlags & Node::kSaveLayer_Flag) {
+        fCanvas->restore();
+    }
+
+    for (fCurrentNode = fCurrentNode->fParent; fCurrentNode;
+            fCurrentNode = fCurrentNode->fParent) {
+        // Note: we call restore() twice when both flags are set.
+        if (fCurrentNode->fFlags & Node::kSave_Flag) {
+            fCanvas->restore();
+        }
         if (fCurrentNode->fFlags & Node::kSaveLayer_Flag) {
             fCanvas->restore();
         }
+    }
 
-        for (fCurrentNode = fCurrentNode->fParent; fCurrentNode;
-             fCurrentNode = fCurrentNode->fParent) {
-            // Note: we call restore() twice when both flags are set.
-            if (fCurrentNode->fFlags & Node::kSave_Flag) {
-                fCanvas->restore();
-            }
-            if (fCurrentNode->fFlags & Node::kSaveLayer_Flag) {
-                fCanvas->restore();
-            }
-        }
+    fCanvas->setMatrix(fPlaybackMatrix);
+    fCurrentMatrix = NULL;
+    return kDrawComplete;
+}
 
-        fCanvas->setMatrix(fPlaybackMatrix);
-        fCurrentMatrix = NULL;
-        return kDrawComplete;
+uint32_t SkPictureStateTree::Iterator::nextDraw() {
+    SkASSERT(this->isValid());
+    if (fPlaybackIndex >= fDraws->count()) {
+        return this->finish();
     }
 
     Draw* draw = static_cast<Draw*>((*fDraws)[fPlaybackIndex]);

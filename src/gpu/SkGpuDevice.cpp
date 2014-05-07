@@ -28,6 +28,7 @@
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
+#include "SkPicturePlayback.h"
 #include "SkRRect.h"
 #include "SkStroke.h"
 #include "SkSurface.h"
@@ -1920,6 +1921,12 @@ void SkGpuDevice::EXPERIMENTAL_optimize(SkPicture* picture) {
     GatherGPUInfo(picture, data);
 }
 
+static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* result) {
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    result->setConfig(info);
+    result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
+}
+
 void SkGpuDevice::EXPERIMENTAL_purge(SkPicture* picture) {
 
 }
@@ -1940,30 +1947,148 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, SkPicture* picture)
         pullForward[i] = false;
     }
 
-    SkIRect clip;
-
-    fClipData.getConservativeBounds(this->width(), this->height(), &clip, NULL);
-
-    SkMatrix inv;
-    if (!fContext->getMatrix().invert(&inv)) {
-        return false;
+    SkRect clipBounds;
+    if (!canvas->getClipBounds(&clipBounds)) {
+        return true;
     }
+    SkIRect query;
+    clipBounds.roundOut(&query);
 
-    SkRect r = SkRect::Make(clip);
-    inv.mapRect(&r);
-    r.roundOut(&clip);
+    const SkPicture::OperationList& ops = picture->EXPERIMENTAL_getActiveOps(query);
 
-    const SkPicture::OperationList& ops = picture->EXPERIMENTAL_getActiveOps(clip);
+    // This code pre-renders the entire layer since it will be cached and potentially
+    // reused with different clips (e.g., in different tiles). Because of this the
+    // clip will not be limiting the size of the pre-rendered layer. kSaveLayerMaxSize
+    // is used to limit which clips are pre-rendered.
+    static const int kSaveLayerMaxSize = 256;
 
-    for (int i = 0; i < ops.numOps(); ++i) {
+    if (ops.valid()) {
+        // In this case the picture has been generated with a BBH so we use
+        // the BBH to limit the pre-rendering to just the layers needed to cover 
+        // the region being drawn 
+        for (int i = 0; i < ops.numOps(); ++i) {
+            uint32_t offset = ops.offset(i);
+
+            // For now we're saving all the layers in the GPUAccelData so they
+            // can be nested. Additionally, the nested layers appear before 
+            // their parent in the list.
+            for (int j = 0 ; j < gpuData->numSaveLayers(); ++j) {
+                const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(j);
+
+                if (pullForward[j]) {
+                    continue;            // already pulling forward
+                }
+
+                if (offset < info.fSaveLayerOpID || offset > info.fRestoreOpID) {
+                    continue;            // the op isn't in this range
+                }
+
+                // TODO: once this code is more stable unsuitable layers can
+                // just be omitted during the optimization stage
+                if (!info.fValid ||
+                    kSaveLayerMaxSize < info.fSize.fWidth ||
+                    kSaveLayerMaxSize < info.fSize.fHeight ||
+                    info.fIsNested) {
+                    continue;            // this layer is unsuitable
+                }
+
+                pullForward[j] = true;
+            }
+        }
+    } else {
+        // In this case there is no BBH associated with the picture. Pre-render
+        // all the layers
+        // TODO: intersect the bounds of each layer with the clip region to
+        // reduce the number of pre-rendered layers
         for (int j = 0; j < gpuData->numSaveLayers(); ++j) {
             const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(j);
 
-            if (ops.offset(i) > info.fSaveLayerOpID && ops.offset(i) < info.fRestoreOpID) {
-                pullForward[j] = true;
+            // TODO: once this code is more stable unsuitable layers can
+            // just be omitted during the optimization stage
+            if (!info.fValid ||
+                kSaveLayerMaxSize < info.fSize.fWidth ||
+                kSaveLayerMaxSize < info.fSize.fHeight ||
+                info.fIsNested) {
+                continue;
+            }
+
+            pullForward[j] = true;   
+        }
+    }
+
+    SkPicturePlayback::PlaybackReplacements replacements;
+
+    for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
+        if (pullForward[i]) {
+            GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture, i);
+
+            const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
+
+            if (NULL != picture->fPlayback) {
+                SkPicturePlayback::PlaybackReplacements::ReplacementInfo* layerInfo = 
+                                                                        replacements.push();
+                layerInfo->fStart = info.fSaveLayerOpID;
+                layerInfo->fStop = info.fRestoreOpID;
+                layerInfo->fPos = info.fOffset;
+
+                GrTextureDesc desc;
+                desc.fFlags = kRenderTarget_GrTextureFlagBit;
+                desc.fWidth = info.fSize.fWidth;
+                desc.fHeight = info.fSize.fHeight;
+                desc.fConfig = kSkia8888_GrPixelConfig;
+                // TODO: need to deal with sample count
+
+                bool bNeedsRendering = true;
+
+                // This just uses scratch textures and doesn't cache the texture.
+                // This can yield a lot of re-rendering
+                if (NULL == layer->getTexture()) {
+                    layer->setTexture(fContext->lockAndRefScratchTexture(desc, 
+                                                        GrContext::kApprox_ScratchTexMatch));
+                    if (NULL == layer->getTexture()) {
+                        continue;
+                    }
+                } else {
+                    bNeedsRendering = false;
+                }
+
+                layerInfo->fBM = SkNEW(SkBitmap);
+                wrap_texture(layer->getTexture(), desc.fWidth, desc.fHeight, layerInfo->fBM);
+
+                SkASSERT(info.fPaint);
+                layerInfo->fPaint = info.fPaint;
+
+                if (bNeedsRendering) {
+                    SkAutoTUnref<SkSurface> surface(SkSurface::NewRenderTargetDirect(
+                                                        layer->getTexture()->asRenderTarget()));
+
+                    SkCanvas* canvas = surface->getCanvas();
+
+                    canvas->setMatrix(info.fCTM);
+                    canvas->clear(SK_ColorTRANSPARENT);
+
+                    picture->fPlayback->setDrawLimits(info.fSaveLayerOpID, info.fRestoreOpID);
+                    picture->fPlayback->draw(*canvas, NULL);
+                    picture->fPlayback->setDrawLimits(0, 0);
+                    canvas->flush();
+                }
             }
         }
     }
 
-    return false;
+    // Playback using new layers
+    picture->fPlayback->setReplacements(&replacements);
+    picture->fPlayback->draw(*canvas, NULL);
+    picture->fPlayback->setReplacements(NULL);
+
+    for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
+        GrCachedLayer* layer = fContext->getLayerCache()->findLayerOrCreate(picture, i);
+
+        if (NULL != layer->getTexture()) {
+            fContext->unlockScratchTexture(layer->getTexture());
+            layer->setTexture(NULL);
+        }
+    }
+
+    return true;
 }

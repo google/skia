@@ -477,6 +477,7 @@ private:
     friend class SkPicturePlayback;
     friend class SkPictureRecorder;
     friend class SkGpuDevice;
+    friend class GrGatherCanvas;
     friend class GrGatherDevice;
     friend class SkDebugCanvas;
 

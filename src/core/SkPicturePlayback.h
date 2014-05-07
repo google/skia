@@ -5,6 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #ifndef SkPicturePlayback_DEFINED
 #define SkPicturePlayback_DEFINED
 
@@ -90,6 +91,8 @@ public:
     virtual ~SkPicturePlayback();
 
     const SkPicture::OperationList& getActiveOps(const SkIRect& queryRect);
+
+    void setUseBBH(bool useBBH) { fUseBBH = useBBH; }
 
     void draw(SkCanvas& canvas, SkDrawPictureCallback*);
 
@@ -227,6 +230,7 @@ private:    // these help us with reading/writing
 
 private:
     friend class SkPicture;
+    friend class SkGpuDevice;   // for access to setDrawLimits & setReplacements
 
     // The picture that owns this SkPicturePlayback object
     const SkPicture* fPicture;
@@ -247,6 +251,68 @@ private:
 
     SkBBoxHierarchy* fBoundingHierarchy;
     SkPictureStateTree* fStateTree;
+
+    // Limit the opcode playback to be between the offsets 'start' and 'stop'.
+    // The opcode at 'start' should be a saveLayer while the opcode at
+    // 'stop' should be a restore. Neither of those commands will be issued.
+    // Set both start & stop to 0 to disable draw limiting
+    // Draw limiting cannot be enabled at the same time as draw replacing
+    void setDrawLimits(size_t start, size_t stop) {
+        SkASSERT(NULL == fReplacements);
+        fStart = start;
+        fStop = stop;
+    }
+
+    // PlaybackReplacements collects op ranges that can be replaced with
+    // a single drawBitmap call (using a precomputed bitmap).
+    class PlaybackReplacements {
+    public:
+        // All the operations between fStart and fStop (inclusive) will be replaced with
+        // a single drawBitmap call using fPos, fBM and fPaint.
+        // fPaint will be NULL if the picture's paint wasn't copyable
+        struct ReplacementInfo {
+            size_t          fStart;
+            size_t          fStop;
+            SkPoint         fPos;
+            SkBitmap*       fBM;
+            const SkPaint*  fPaint;  // Note: this object doesn't own the paint
+        };
+
+        ~PlaybackReplacements() { this->freeAll(); }
+
+        // Add a new replacement range. The replacement ranges should be 
+        // sorted in increasing order and non-overlapping (esp. no nested
+        // saveLayers).
+        ReplacementInfo* push();
+
+    private:
+        friend class SkPicturePlayback; // for access to lookupByStart
+
+        // look up a replacement range by its start offset
+        ReplacementInfo* lookupByStart(size_t start);
+
+        void freeAll();
+
+    #ifdef SK_DEBUG
+        void validate() const;
+    #endif
+
+        SkTDArray<ReplacementInfo> fReplacements;
+    };
+
+
+    // Replace all the draw ops in the replacement ranges in 'replacements' with
+    // the associated drawBitmap call
+    // Draw replacing cannot be enabled at the same time as draw limiting
+    void setReplacements(PlaybackReplacements* replacements) {
+        SkASSERT(fStart == 0 && fStop == 0);
+        fReplacements = replacements;
+    }
+
+    bool   fUseBBH;
+    size_t fStart;
+    size_t fStop;
+    PlaybackReplacements* fReplacements;
 
     class CachedOperationList : public SkPicture::OperationList {
     public:

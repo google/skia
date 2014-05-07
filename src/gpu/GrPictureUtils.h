@@ -68,10 +68,9 @@ public:
     // incorporate the clip and matrix state into the key
     static SkPicture::AccelData::Key ComputeAccelDataKey();
 
-protected:
+private:
     SkTDArray<SaveLayerInfo> fSaveLayerInfo;
 
-private:
     typedef SkPicture::AccelData INHERITED;
 };
 

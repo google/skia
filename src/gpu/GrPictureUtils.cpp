@@ -9,6 +9,7 @@
 #include "SkDevice.h"
 #include "SkDraw.h"
 #include "SkPaintPriv.h"
+#include "SkPicturePlayback.h"
 
 SkPicture::AccelData::Key GPUAccelData::ComputeAccelDataKey() {
     static const SkPicture::AccelData::Key gGPUID = SkPicture::AccelData::GenerateDomain();
@@ -249,7 +250,15 @@ public:
     }
 
     virtual void drawPicture(SkPicture& picture) SK_OVERRIDE {
+        // BBH-based rendering doesn't re-issue many of the operations the gather
+        // process cares about (e.g., saves and restores) so it must be disabled.
+        if (NULL != picture.fPlayback) {
+            picture.fPlayback->setUseBBH(false);
+        }
         picture.draw(this);
+        if (NULL != picture.fPlayback) {
+            picture.fPlayback->setUseBBH(true);
+        }
     }
 protected:
     // disable aa for speed
