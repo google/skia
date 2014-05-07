@@ -5,7 +5,7 @@
       "isFilterable": true, 
       "isSortable": true, 
       "valuesAndCounts": {
-        "TODO": 3
+        "TODO": 4
       }
     }, 
     "config": {
@@ -13,7 +13,7 @@
       "isFilterable": true, 
       "isSortable": true, 
       "valuesAndCounts": {
-        "whole-image": 3
+        "whole-image": 4
       }
     }, 
     "resultType": {
@@ -22,7 +22,7 @@
       "isSortable": true, 
       "valuesAndCounts": {
         "failed": 1, 
-        "no-comparison": 1, 
+        "no-comparison": 2, 
         "succeeded": 1
       }
     }, 
@@ -32,13 +32,14 @@
       "isSortable": true, 
       "valuesAndCounts": {
         "changed.skp": 1, 
+        "only-in-after.skp": 1, 
         "only-in-before.skp": 1, 
         "unchanged.skp": 1
       }
     }
   }, 
   "header": {
-    "dataHash": "182723807383859624", 
+    "dataHash": "-595743736412687673", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 2, 
@@ -54,8 +55,19 @@
         "resultType": "failed", 
         "test": "changed.skp"
       }, 
-      "imageAUrl": "bitmap-64bitMD5_8891695120562235492.png", 
-      "imageBUrl": "bitmap-64bitMD5_2520753504544298264.png", 
+      "imageAUrl": "changed_skp/bitmap-64bitMD5_3101044995537104462.png", 
+      "imageBUrl": "changed_skp/bitmap-64bitMD5_13623922271964399662.png", 
+      "isDifferent": true
+    }, 
+    {
+      "extraColumns": {
+        "builder": "TODO", 
+        "config": "whole-image", 
+        "resultType": "no-comparison", 
+        "test": "only-in-after.skp"
+      }, 
+      "imageAUrl": null, 
+      "imageBUrl": "only-in-after_skp/bitmap-64bitMD5_2320185040577047131.png", 
       "isDifferent": true
     }, 
     {
@@ -65,7 +77,7 @@
         "resultType": "no-comparison", 
         "test": "only-in-before.skp"
       }, 
-      "imageAUrl": "bitmap-64bitMD5_8891695120562235492.png", 
+      "imageAUrl": "only-in-before_skp/bitmap-64bitMD5_2320185040577047131.png", 
       "imageBUrl": null, 
       "isDifferent": true
     }, 
@@ -76,8 +88,8 @@
         "resultType": "succeeded", 
         "test": "unchanged.skp"
       }, 
-      "imageAUrl": "bitmap-64bitMD5_11092453015575919668.png", 
-      "imageBUrl": "bitmap-64bitMD5_11092453015575919668.png", 
+      "imageAUrl": "unchanged_skp/bitmap-64bitMD5_3322248763049618493.png", 
+      "imageBUrl": "unchanged_skp/bitmap-64bitMD5_3322248763049618493.png", 
       "isDifferent": false
     }
   ], 

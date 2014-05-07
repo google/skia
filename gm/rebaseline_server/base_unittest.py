@@ -17,6 +17,7 @@ import tempfile
 import unittest
 
 PARENT_DIR = os.path.dirname(os.path.realpath(__file__))
+TRUNK_DIR = os.path.dirname(os.path.dirname(PARENT_DIR))
 TESTDATA_DIR = os.path.join(PARENT_DIR, 'testdata')
 OUTPUT_DIR_ACTUAL = os.path.join(TESTDATA_DIR, 'outputs', 'actual')
 OUTPUT_DIR_EXPECTED = os.path.join(TESTDATA_DIR, 'outputs', 'expected')
@@ -58,6 +59,30 @@ class TestCase(unittest.TestCase):
   def shortDescription(self):
     """Tell unittest framework to not print docstrings for test cases."""
     return None
+
+  def find_path_to_program(self, program):
+    """Returns path to an existing program binary.
+
+    Args:
+      program: Basename of the program to find (e.g., 'render_pictures').
+
+    Returns:
+      Absolute path to the program binary, as a string.
+
+    Raises:
+      Exception: unable to find the program binary.
+    """
+    possible_paths = [os.path.join(TRUNK_DIR, 'out', 'Release', program),
+                      os.path.join(TRUNK_DIR, 'out', 'Debug', program),
+                      os.path.join(TRUNK_DIR, 'out', 'Release',
+                                   program + '.exe'),
+                      os.path.join(TRUNK_DIR, 'out', 'Debug',
+                                   program + '.exe')]
+    for try_path in possible_paths:
+      if os.path.isfile(try_path):
+        return try_path
+    raise Exception('cannot find %s in paths %s; maybe you need to '
+                    'build %s?' % (program, possible_paths, program))
 
 
 def create_empty_dir(path):
