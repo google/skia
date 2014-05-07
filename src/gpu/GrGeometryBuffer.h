@@ -30,46 +30,46 @@ public:
 
     /**
      * Returns true if the buffer is a wrapper around a CPU array. If true it
-     * indicates that lock will always succeed and will be free.
+     * indicates that map will always succeed and will be free.
      */
     bool isCPUBacked() const { return fCPUBacked; }
 
     /**
-     * Locks the buffer to be written by the CPU.
+     * Maps the buffer to be written by the CPU.
      *
      * The previous content of the buffer is invalidated. It is an error
-     * to draw from the buffer while it is locked. It is an error to call lock
-     * on an already locked buffer. It may fail if the backend doesn't support
-     * locking the buffer. If the buffer is CPU backed then it will always
-     * succeed and is a free operation. Must be matched by an unlock() call.
-     * Currently only one lock at a time is supported (no nesting of
-     * lock/unlock).
+     * to draw from the buffer while it is mapped. It is an error to call map
+     * on an already mapped buffer. It may fail if the backend doesn't support
+     * mapping the buffer. If the buffer is CPU backed then it will always
+     * succeed and is a free operation. Must be matched by an unmap() call.
+     * Currently only one map at a time is supported (no nesting of
+     * map/unmap).
      *
-     * @return a pointer to the data or NULL if the lock fails.
+     * @return a pointer to the data or NULL if the map fails.
      */
-    virtual void* lock() = 0;
+    virtual void* map() = 0;
 
     /**
-     * Returns the same ptr that lock() returned at time of lock or NULL if the
-     * is not locked.
+     * Returns the same ptr that map() returned at time of map or NULL if the
+     * is not mapped.
      *
-     * @return ptr to locked buffer data or undefined if buffer is not locked.
+     * @return ptr to mapped buffer data or undefined if buffer is not mapped.
      */
-    virtual void* lockPtr() const = 0;
+    virtual void* mapPtr() const = 0;
 
     /**
-     * Unlocks the buffer.
+     * Unmaps the buffer.
      *
-     * The pointer returned by the previous lock call will no longer be valid.
+     * The pointer returned by the previous map call will no longer be valid.
      */
-    virtual void unlock() = 0;
+    virtual void unmap() = 0;
 
     /**
-     Queries whether the buffer has been locked.
+     Queries whether the buffer has been mapped.
 
-     @return true if the buffer is locked, false otherwise.
+     @return true if the buffer is mapped, false otherwise.
      */
-    virtual bool isLocked() const = 0;
+    virtual bool isMapped() const = 0;
 
     /**
      * Updates the buffer data.

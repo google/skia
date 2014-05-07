@@ -569,8 +569,8 @@ void GrInOrderDrawBuffer::flush() {
     GrAutoTRestore<bool> flushRestore(&fFlushing);
     fFlushing = true;
 
-    fVertexPool.unlock();
-    fIndexPool.unlock();
+    fVertexPool.unmap();
+    fIndexPool.unmap();
 
     GrDrawTarget::AutoClipRestore acr(fDstGpu);
     AutoGeometryAndStatePush agasp(fDstGpu, kPreserve_ASRInit);

@@ -27,26 +27,26 @@ void GrGLVertexBuffer::onAbandon() {
     INHERITED::onAbandon();
 }
 
-void* GrGLVertexBuffer::lock() {
+void* GrGLVertexBuffer::map() {
     if (!this->wasDestroyed()) {
-        return fImpl.lock(this->getGpuGL());
+        return fImpl.map(this->getGpuGL());
     } else {
         return NULL;
     }
 }
 
-void* GrGLVertexBuffer::lockPtr() const {
-    return fImpl.lockPtr();
+void* GrGLVertexBuffer::mapPtr() const {
+    return fImpl.mapPtr();
 }
 
-void GrGLVertexBuffer::unlock() {
+void GrGLVertexBuffer::unmap() {
     if (!this->wasDestroyed()) {
-        fImpl.unlock(this->getGpuGL());
+        fImpl.unmap(this->getGpuGL());
     }
 }
 
-bool GrGLVertexBuffer::isLocked() const {
-    return fImpl.isLocked();
+bool GrGLVertexBuffer::isMapped() const {
+    return fImpl.isMapped();
 }
 
 bool GrGLVertexBuffer::updateData(const void* src, size_t srcSizeInBytes) {

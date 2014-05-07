@@ -311,7 +311,7 @@ GrIndexBuffer* GrAARectRenderer::aaFillRectIndexBuffer(GrGpu* gpu) {
     if (NULL == fAAFillRectIndexBuffer) {
         fAAFillRectIndexBuffer = gpu->createIndexBuffer(kAAFillRectIndexBufferSize, false);
         if (NULL != fAAFillRectIndexBuffer) {
-            uint16_t* data = (uint16_t*) fAAFillRectIndexBuffer->lock();
+            uint16_t* data = (uint16_t*) fAAFillRectIndexBuffer->map();
             bool useTempData = (NULL == data);
             if (useTempData) {
                 data = SkNEW_ARRAY(uint16_t, kNumAAFillRectsInIndexBuffer * kIndicesPerAAFillRect);
@@ -331,7 +331,7 @@ GrIndexBuffer* GrAARectRenderer::aaFillRectIndexBuffer(GrGpu* gpu) {
                 }
                 SkDELETE_ARRAY(data);
             } else {
-                fAAFillRectIndexBuffer->unlock();
+                fAAFillRectIndexBuffer->unmap();
             }
         }
     }

@@ -40,10 +40,10 @@ public:
 
     void bind(GrGpuGL* gpu) const;
 
-    void* lock(GrGpuGL* gpu);
-    void* lockPtr() const { return fLockPtr; }
-    void unlock(GrGpuGL* gpu);
-    bool isLocked() const;
+    void* map(GrGpuGL* gpu);
+    void* mapPtr() const { return fMapPtr; }
+    void unmap(GrGpuGL* gpu);
+    bool isMapped() const;
     bool updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInBytes);
 
 private:
@@ -52,7 +52,7 @@ private:
     Desc         fDesc;
     GrGLenum     fBufferType; // GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
     void*        fCPUData;
-    void*        fLockPtr;
+    void*        fMapPtr;
     size_t       fGLSizeInBytes;     // In certain cases we make the size of the GL buffer object
                                      // smaller or larger than the size in fDesc.
 

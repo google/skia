@@ -101,8 +101,8 @@ public:
      *
      * @param size    size in bytes of the vertex buffer
      * @param dynamic hints whether the data will be frequently changed
-     *                by either GrVertexBuffer::lock or
-     *                GrVertexBuffer::updateData.
+     *                by either GrVertexBuffer::map() or
+     *                GrVertexBuffer::updateData().
      *
      * @return    The vertex buffer if successful, otherwise NULL.
      */
@@ -113,8 +113,8 @@ public:
      *
      * @param size    size in bytes of the index buffer
      * @param dynamic hints whether the data will be frequently changed
-     *                by either GrIndexBuffer::lock or
-     *                GrIndexBuffer::updateData.
+     *                by either GrIndexBuffer::map() or
+     *                GrIndexBuffer::updateData().
      *
      * @return The index buffer if successful, otherwise NULL.
      */

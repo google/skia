@@ -313,7 +313,7 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
     }
 
     SkASSERT(NULL != vbuf);
-    SkASSERT(!vbuf->isLocked());
+    SkASSERT(!vbuf->isMapped());
     vertexOffsetInBytes += vbuf->baseOffset();
 
     GrGLIndexBuffer* ibuf = NULL;
@@ -337,7 +337,7 @@ void GrGpuGL::setupGeometry(const DrawInfo& info, size_t* indexOffsetInBytes) {
         }
 
         SkASSERT(NULL != ibuf);
-        SkASSERT(!ibuf->isLocked());
+        SkASSERT(!ibuf->isMapped());
         *indexOffsetInBytes += ibuf->baseOffset();
     }
     GrGLAttribArrayState* attribState =

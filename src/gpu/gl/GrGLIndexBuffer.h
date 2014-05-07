@@ -32,10 +32,10 @@ public:
     }
 
     // overrides of GrIndexBuffer
-    virtual void* lock();
-    virtual void* lockPtr() const;
-    virtual void unlock();
-    virtual bool isLocked() const;
+    virtual void* map() SK_OVERRIDE;
+    virtual void* mapPtr() const SK_OVERRIDE;
+    virtual void unmap() SK_OVERRIDE;
+    virtual bool isMapped() const SK_OVERRIDE;
     virtual bool updateData(const void* src, size_t srcSizeInBytes);
 
 protected:

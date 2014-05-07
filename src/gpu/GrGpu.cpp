@@ -303,10 +303,10 @@ const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
         GrGpu* me = const_cast<GrGpu*>(this);
         fQuadIndexBuffer = me->createIndexBuffer(SIZE, false);
         if (NULL != fQuadIndexBuffer) {
-            uint16_t* indices = (uint16_t*)fQuadIndexBuffer->lock();
+            uint16_t* indices = (uint16_t*)fQuadIndexBuffer->map();
             if (NULL != indices) {
                 fill_indices(indices, MAX_QUADS);
-                fQuadIndexBuffer->unlock();
+                fQuadIndexBuffer->unmap();
             } else {
                 indices = (uint16_t*)sk_malloc_throw(SIZE);
                 fill_indices(indices, MAX_QUADS);
@@ -422,12 +422,12 @@ void GrGpu::onDrawPaths(int pathCount, const GrPath** paths,
 
 void GrGpu::finalizeReservedVertices() {
     SkASSERT(NULL != fVertexPool);
-    fVertexPool->unlock();
+    fVertexPool->unmap();
 }
 
 void GrGpu::finalizeReservedIndices() {
     SkASSERT(NULL != fIndexPool);
-    fIndexPool->unlock();
+    fIndexPool->unmap();
 }
 
 void GrGpu::prepareVertexPool() {

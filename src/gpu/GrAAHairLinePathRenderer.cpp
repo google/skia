@@ -50,7 +50,7 @@ static const size_t kLineSegIdxSBufize = kIdxsPerLineSeg *
                                          kNumLineSegsInIdxBuffer;
 
 static bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
-    uint16_t* data = (uint16_t*) qIdxBuffer->lock();
+    uint16_t* data = (uint16_t*) qIdxBuffer->map();
     bool tempData = NULL == data;
     if (tempData) {
         data = SkNEW_ARRAY(uint16_t, kNumQuadsInIdxBuffer * kIdxsPerQuad);
@@ -86,13 +86,13 @@ static bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
         delete[] data;
         return ret;
     } else {
-        qIdxBuffer->unlock();
+        qIdxBuffer->unmap();
         return true;
     }
 }
 
 static bool push_line_index_data(GrIndexBuffer* lIdxBuffer) {
-    uint16_t* data = (uint16_t*) lIdxBuffer->lock();
+    uint16_t* data = (uint16_t*) lIdxBuffer->map();
     bool tempData = NULL == data;
     if (tempData) {
         data = SkNEW_ARRAY(uint16_t, kNumLineSegsInIdxBuffer * kIdxsPerLineSeg);
@@ -139,7 +139,7 @@ static bool push_line_index_data(GrIndexBuffer* lIdxBuffer) {
         delete[] data;
         return ret;
     } else {
-        lIdxBuffer->unlock();
+        lIdxBuffer->unmap();
         return true;
     }
 }

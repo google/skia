@@ -23,7 +23,7 @@
 GrGLBufferImpl::GrGLBufferImpl(GrGpuGL* gpu, const Desc& desc, GrGLenum bufferType)
     : fDesc(desc)
     , fBufferType(bufferType)
-    , fLockPtr(NULL) {
+    , fMapPtr(NULL) {
     if (0 == desc.fID) {
         fCPUData = sk_malloc_flags(desc.fSizeInBytes, SK_MALLOC_THROW);
         fGLSizeInBytes = 0;
@@ -52,14 +52,14 @@ void GrGLBufferImpl::release(GrGpuGL* gpu) {
         fDesc.fID = 0;
         fGLSizeInBytes = 0;
     }
-    fLockPtr = NULL;
+    fMapPtr = NULL;
     VALIDATE();
 }
 
 void GrGLBufferImpl::abandon() {
     fDesc.fID = 0;
     fGLSizeInBytes = 0;
-    fLockPtr = NULL;
+    fMapPtr = NULL;
     sk_free(fCPUData);
     fCPUData = NULL;
     VALIDATE();
@@ -76,11 +76,11 @@ void GrGLBufferImpl::bind(GrGpuGL* gpu) const {
     VALIDATE();
 }
 
-void* GrGLBufferImpl::lock(GrGpuGL* gpu) {
+void* GrGLBufferImpl::map(GrGpuGL* gpu) {
     VALIDATE();
-    SkASSERT(!this->isLocked());
+    SkASSERT(!this->isMapped());
     if (0 == fDesc.fID) {
-        fLockPtr = fCPUData;
+        fMapPtr = fCPUData;
     } else {
         switch (gpu->glCaps().mapBufferType()) {
             case GrGLCaps::kNone_MapBufferType:
@@ -95,7 +95,7 @@ void* GrGLBufferImpl::lock(GrGpuGL* gpu) {
                             BufferData(fBufferType, fGLSizeInBytes, NULL,
                                        fDesc.fDynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
                 }
-                GR_GL_CALL_RET(gpu->glInterface(), fLockPtr,
+                GR_GL_CALL_RET(gpu->glInterface(), fMapPtr,
                                MapBuffer(fBufferType, GR_GL_WRITE_ONLY));
                 break;
             case GrGLCaps::kMapBufferRange_MapBufferType: {
@@ -110,7 +110,7 @@ void* GrGLBufferImpl::lock(GrGpuGL* gpu) {
                 static const GrGLbitfield kAccess = GR_GL_MAP_INVALIDATE_BUFFER_BIT |
                                                     GR_GL_MAP_WRITE_BIT;
                 GR_GL_CALL_RET(gpu->glInterface(),
-                               fLockPtr,
+                               fMapPtr,
                                MapBufferRange(fBufferType, 0, fGLSizeInBytes, kAccess));
                 break;
             }
@@ -124,18 +124,18 @@ void* GrGLBufferImpl::lock(GrGpuGL* gpu) {
                                        fDesc.fDynamic ? DYNAMIC_USAGE_PARAM : GR_GL_STATIC_DRAW));
                 }
                 GR_GL_CALL_RET(gpu->glInterface(),
-                               fLockPtr,
+                               fMapPtr,
                                MapBufferSubData(fBufferType, 0, fGLSizeInBytes, GR_GL_WRITE_ONLY));
                 break;
         }
     }
     VALIDATE();
-    return fLockPtr;
+    return fMapPtr;
 }
 
-void GrGLBufferImpl::unlock(GrGpuGL* gpu) {
+void GrGLBufferImpl::unmap(GrGpuGL* gpu) {
     VALIDATE();
-    SkASSERT(this->isLocked());
+    SkASSERT(this->isMapped());
     if (0 != fDesc.fID) {
         switch (gpu->glCaps().mapBufferType()) {
             case GrGLCaps::kNone_MapBufferType:
@@ -148,20 +148,20 @@ void GrGLBufferImpl::unlock(GrGpuGL* gpu) {
                 break;
             case GrGLCaps::kChromium_MapBufferType:
                 this->bind(gpu);
-                GR_GL_CALL(gpu->glInterface(), UnmapBufferSubData(fLockPtr));
+                GR_GL_CALL(gpu->glInterface(), UnmapBufferSubData(fMapPtr));
                 break;
         }
     }
-    fLockPtr = NULL;
+    fMapPtr = NULL;
 }
 
-bool GrGLBufferImpl::isLocked() const {
+bool GrGLBufferImpl::isMapped() const {
     VALIDATE();
-    return NULL != fLockPtr;
+    return NULL != fMapPtr;
 }
 
 bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInBytes) {
-    SkASSERT(!this->isLocked());
+    SkASSERT(!this->isMapped());
     VALIDATE();
     if (srcSizeInBytes > fDesc.fSizeInBytes) {
         return false;
@@ -190,7 +190,7 @@ bool GrGLBufferImpl::updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInB
 #else
     // Note that we're cheating on the size here. Currently no methods
     // allow a partial update that preserves contents of non-updated
-    // portions of the buffer (lock() does a glBufferData(..size, NULL..))
+    // portions of the buffer (map() does a glBufferData(..size, NULL..))
     bool doSubData = false;
 #if GR_GL_MAC_BUFFER_OBJECT_PERFOMANCE_WORKAROUND
     static int N = 0;
@@ -221,6 +221,6 @@ void GrGLBufferImpl::validate() const {
     // SkASSERT((0 == fDesc.fID) == (NULL != fCPUData));
     SkASSERT(0 != fDesc.fID || !fDesc.fIsWrapped);
     SkASSERT(NULL == fCPUData || 0 == fGLSizeInBytes);
-    SkASSERT(NULL == fLockPtr || NULL != fCPUData || fGLSizeInBytes == fDesc.fSizeInBytes);
-    SkASSERT(NULL == fCPUData || NULL == fLockPtr || fCPUData == fLockPtr);
+    SkASSERT(NULL == fMapPtr || NULL != fCPUData || fGLSizeInBytes == fDesc.fSizeInBytes);
+    SkASSERT(NULL == fCPUData || NULL == fMapPtr || fCPUData == fMapPtr);
 }

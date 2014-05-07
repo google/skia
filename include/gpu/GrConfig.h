@@ -197,13 +197,13 @@ typedef unsigned __int64 uint64_t;
 #endif
 
 /**
- * GR_GEOM_BUFFER_LOCK_THRESHOLD gives a threshold (in bytes) for when Gr should
- * lock a GrGeometryBuffer to update its contents. It will use lock() if the
+ * GR_GEOM_BUFFER_MAP_THRESHOLD gives a threshold (in bytes) for when Gr should
+ * map a GrGeometryBuffer to update its contents. It will use map() if the
  * size of the updated region is greater than the threshold. Otherwise it will
  * use updateData().
  */
-#if !defined(GR_GEOM_BUFFER_LOCK_THRESHOLD)
-    #define GR_GEOM_BUFFER_LOCK_THRESHOLD (1 << 15)
+#if !defined(GR_GEOM_BUFFER_MAP_THRESHOLD)
+    #define GR_GEOM_BUFFER_MAP_THRESHOLD (1 << 15)
 #endif
 
 /**

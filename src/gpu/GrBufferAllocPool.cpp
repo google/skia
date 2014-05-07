@@ -56,8 +56,8 @@ GrBufferAllocPool::~GrBufferAllocPool() {
     VALIDATE();
     if (fBlocks.count()) {
         GrGeometryBuffer* buffer = fBlocks.back().fBuffer;
-        if (buffer->isLocked()) {
-            buffer->unlock();
+        if (buffer->isMapped()) {
+            buffer->unmap();
         }
     }
     while (!fBlocks.empty()) {
@@ -79,8 +79,8 @@ void GrBufferAllocPool::reset() {
     fBytesInUse = 0;
     if (fBlocks.count()) {
         GrGeometryBuffer* buffer = fBlocks.back().fBuffer;
-        if (buffer->isLocked()) {
-            buffer->unlock();
+        if (buffer->isMapped()) {
+            buffer->unmap();
         }
     }
     // fPreallocBuffersInUse will be decremented down to zero in the while loop
@@ -101,16 +101,16 @@ void GrBufferAllocPool::reset() {
     VALIDATE();
 }
 
-void GrBufferAllocPool::unlock() {
+void GrBufferAllocPool::unmap() {
     VALIDATE();
 
     if (NULL != fBufferPtr) {
         BufferBlock& block = fBlocks.back();
-        if (block.fBuffer->isLocked()) {
-            block.fBuffer->unlock();
+        if (block.fBuffer->isMapped()) {
+            block.fBuffer->unmap();
         } else {
             size_t flushSize = block.fBuffer->gpuMemorySize() - block.fBytesFree;
-            flushCpuData(fBlocks.back().fBuffer, flushSize);
+            this->flushCpuData(fBlocks.back().fBuffer, flushSize);
         }
         fBufferPtr = NULL;
     }
@@ -121,18 +121,18 @@ void GrBufferAllocPool::unlock() {
 void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
     if (NULL != fBufferPtr) {
         SkASSERT(!fBlocks.empty());
-        if (fBlocks.back().fBuffer->isLocked()) {
+        if (fBlocks.back().fBuffer->isMapped()) {
             GrGeometryBuffer* buf = fBlocks.back().fBuffer;
-            SkASSERT(buf->lockPtr() == fBufferPtr);
+            SkASSERT(buf->mapPtr() == fBufferPtr);
         } else {
             SkASSERT(fCpuData.get() == fBufferPtr);
         }
     } else {
-        SkASSERT(fBlocks.empty() || !fBlocks.back().fBuffer->isLocked());
+        SkASSERT(fBlocks.empty() || !fBlocks.back().fBuffer->isMapped());
     }
     size_t bytesInUse = 0;
     for (int i = 0; i < fBlocks.count() - 1; ++i) {
-        SkASSERT(!fBlocks[i].fBuffer->isLocked());
+        SkASSERT(!fBlocks[i].fBuffer->isMapped());
     }
     for (int i = 0; i < fBlocks.count(); ++i) {
         size_t bytes = fBlocks[i].fBuffer->gpuMemorySize() - fBlocks[i].fBytesFree;
@@ -236,9 +236,9 @@ void GrBufferAllocPool::putBack(size_t bytes) {
             bytes -= bytesUsed;
             fBytesInUse -= bytesUsed;
             // if we locked a vb to satisfy the make space and we're releasing
-            // beyond it, then unlock it.
-            if (block.fBuffer->isLocked()) {
-                block.fBuffer->unlock();
+            // beyond it, then unmap it.
+            if (block.fBuffer->isMapped()) {
+                block.fBuffer->unmap();
             }
             this->destroyBlock();
         } else {
@@ -286,8 +286,8 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     if (NULL != fBufferPtr) {
         SkASSERT(fBlocks.count() > 1);
         BufferBlock& prev = fBlocks.fromBack(1);
-        if (prev.fBuffer->isLocked()) {
-            prev.fBuffer->unlock();
+        if (prev.fBuffer->isMapped()) {
+            prev.fBuffer->unmap();
         } else {
             flushCpuData(prev.fBuffer,
                          prev.fBuffer->gpuMemorySize() - prev.fBytesFree);
@@ -297,22 +297,22 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
 
     SkASSERT(NULL == fBufferPtr);
 
-    // If the buffer is CPU-backed we lock it because it is free to do so and saves a copy.
-    // Otherwise when buffer locking is supported:
-    //      a) If the frequently reset hint is set we only lock when the requested size meets a
+    // If the buffer is CPU-backed we map it because it is free to do so and saves a copy.
+    // Otherwise when buffer mapping is supported:
+    //      a) If the frequently reset hint is set we only map when the requested size meets a
     //      threshold (since we don't expect it is likely that we will see more vertex data)
-    //      b) If the hint is not set we lock if the buffer size is greater than the threshold.
-    bool attemptLock = block.fBuffer->isCPUBacked();
-    if (!attemptLock && GrDrawTargetCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags()) {
+    //      b) If the hint is not set we map if the buffer size is greater than the threshold.
+    bool attemptMap = block.fBuffer->isCPUBacked();
+    if (!attemptMap && GrDrawTargetCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags()) {
         if (fFrequentResetHint) {
-            attemptLock = requestSize > GR_GEOM_BUFFER_LOCK_THRESHOLD;
+            attemptMap = requestSize > GR_GEOM_BUFFER_MAP_THRESHOLD;
         } else {
-            attemptLock = size > GR_GEOM_BUFFER_LOCK_THRESHOLD;
+            attemptMap = size > GR_GEOM_BUFFER_MAP_THRESHOLD;
         }
     }
 
-    if (attemptLock) {
-        fBufferPtr = block.fBuffer->lock();
+    if (attemptMap) {
+        fBufferPtr = block.fBuffer->map();
     }
 
     if (NULL == fBufferPtr) {
@@ -337,7 +337,7 @@ void GrBufferAllocPool::destroyBlock() {
             --fPreallocBuffersInUse;
         }
     }
-    SkASSERT(!block.fBuffer->isLocked());
+    SkASSERT(!block.fBuffer->isMapped());
     block.fBuffer->unref();
     fBlocks.pop_back();
     fBufferPtr = NULL;
@@ -346,17 +346,17 @@ void GrBufferAllocPool::destroyBlock() {
 void GrBufferAllocPool::flushCpuData(GrGeometryBuffer* buffer,
                                      size_t flushSize) {
     SkASSERT(NULL != buffer);
-    SkASSERT(!buffer->isLocked());
+    SkASSERT(!buffer->isMapped());
     SkASSERT(fCpuData.get() == fBufferPtr);
     SkASSERT(flushSize <= buffer->gpuMemorySize());
     VALIDATE(true);
 
     if (GrDrawTargetCaps::kNone_MapFlags != fGpu->caps()->mapBufferFlags() &&
-        flushSize > GR_GEOM_BUFFER_LOCK_THRESHOLD) {
-        void* data = buffer->lock();
+        flushSize > GR_GEOM_BUFFER_MAP_THRESHOLD) {
+        void* data = buffer->map();
         if (NULL != data) {
             memcpy(data, fBufferPtr, flushSize);
-            buffer->unlock();
+            buffer->unmap();
             return;
         }
     }
