@@ -29,7 +29,7 @@
 #include "SkTypeface.h"
 #include "SkWriter32.h"
 
-#if SK_DEBUG
+#ifdef SK_DEBUG
 // When debugging, allocate snuggly.
 static const size_t kMinBlockSize = 0;
 #else
