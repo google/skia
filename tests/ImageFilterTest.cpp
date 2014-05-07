@@ -309,7 +309,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
         { "displacement map", SkDisplacementMapEffect::Create(
               SkDisplacementMapEffect::kR_ChannelSelectorType,
               SkDisplacementMapEffect::kB_ChannelSelectorType,
-              40.0f, gradient_source.get()) },
+              20.0f, gradient_source.get()) },
         { "blur", SkBlurImageFilter::Create(SK_Scalar1, SK_Scalar1) },
         { "drop shadow", SkDropShadowImageFilter::Create(
               SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_ColorGREEN) },
@@ -335,34 +335,40 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     tiledResult.allocN32Pixels(width, height);
     SkCanvas tiledCanvas(tiledResult);
     SkCanvas untiledCanvas(untiledResult);
-    tiledCanvas.clear(0);
-    untiledCanvas.clear(0);
-    int tileSize = 16;
+    int tileSize = 8;
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
-        SkPaint paint;
-        paint.setImageFilter(filters[i].fFilter);
-        paint.setTextSize(SkIntToScalar(height));
-        paint.setColor(SK_ColorWHITE);
-        SkString str;
-        const char* text = "ABC";
-        SkScalar ypos = SkIntToScalar(height);
-        untiledCanvas.drawText(text, strlen(text), 0, ypos, paint);
-        for (int y = 0; y < height; y += tileSize) {
-            for (int x = 0; x < width; x += tileSize) {
-                tiledCanvas.save();
-                tiledCanvas.clipRect(SkRect::Make(SkIRect::MakeXYWH(x, y, tileSize, tileSize)));
-                tiledCanvas.drawText(text, strlen(text), 0, ypos, paint);
-                tiledCanvas.restore();
+    for (int scale = 1; scale <= 2; ++scale) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(filters); ++i) {
+            tiledCanvas.clear(0);
+            untiledCanvas.clear(0);
+            SkPaint paint;
+            paint.setImageFilter(filters[i].fFilter);
+            paint.setTextSize(SkIntToScalar(height));
+            paint.setColor(SK_ColorWHITE);
+            SkString str;
+            const char* text = "ABC";
+            SkScalar ypos = SkIntToScalar(height);
+            untiledCanvas.save();
+            untiledCanvas.scale(SkIntToScalar(scale), SkIntToScalar(scale));
+            untiledCanvas.drawText(text, strlen(text), 0, ypos, paint);
+            untiledCanvas.restore();
+            for (int y = 0; y < height; y += tileSize) {
+                for (int x = 0; x < width; x += tileSize) {
+                    tiledCanvas.save();
+                    tiledCanvas.clipRect(SkRect::Make(SkIRect::MakeXYWH(x, y, tileSize, tileSize)));
+                    tiledCanvas.scale(SkIntToScalar(scale), SkIntToScalar(scale));
+                    tiledCanvas.drawText(text, strlen(text), 0, ypos, paint);
+                    tiledCanvas.restore();
+                }
             }
-        }
-        untiledCanvas.flush();
-        tiledCanvas.flush();
-        for (int y = 0; y < height; y++) {
-            int diffs = memcmp(untiledResult.getAddr32(0, y), tiledResult.getAddr32(0, y), untiledResult.rowBytes());
-            REPORTER_ASSERT_MESSAGE(reporter, !diffs, filters[i].fName);
-            if (diffs) {
-                break;
+            untiledCanvas.flush();
+            tiledCanvas.flush();
+            for (int y = 0; y < height; y++) {
+                int diffs = memcmp(untiledResult.getAddr32(0, y), tiledResult.getAddr32(0, y), untiledResult.rowBytes());
+                REPORTER_ASSERT_MESSAGE(reporter, !diffs, filters[i].fName);
+                if (diffs) {
+                    break;
+                }
             }
         }
     }
