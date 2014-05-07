@@ -329,8 +329,9 @@
         ]
       ], 
       "bugs": [
-        2146
-      ], 
+        2528
+      ],
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "bigmatrix_565.png": {
