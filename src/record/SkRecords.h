@@ -63,7 +63,6 @@ enum Type { SK_RECORD_TYPES(ENUM) };
 #define RECORD0(T)                      \
 struct T {                              \
     static const Type kType = T##_Type; \
-    T() {}                              \
 };
 
 // We try to be flexible about the types the constructors take.  Instead of requring the exact type
