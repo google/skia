@@ -32,6 +32,7 @@
     '../gm/bitmapshader.cpp',
     '../gm/bitmapsource.cpp',
     '../gm/bleed.cpp',
+    '../gm/blurcircles.cpp',
     '../gm/blurs.cpp',
     '../gm/blurquickreject.cpp',
     '../gm/blurrect.cpp',
