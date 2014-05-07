@@ -19,11 +19,17 @@ namespace SkRecords {
 //
 // We leave this SK_RECORD_TYPES macro defined for use by code that wants to operate on SkRecords
 // types polymorphically.  (See SkRecord::Record::{visit,mutate} for an example.)
+//
+// Order doesn't technically matter here, but the compiler can generally generate better code if
+// you keep them semantically grouped, especially the Draws.  It's also nice to leave NoOp at 0.
 #define SK_RECORD_TYPES(M)                                          \
     M(NoOp)                                                         \
     M(Restore)                                                      \
     M(Save)                                                         \
     M(SaveLayer)                                                    \
+    M(PushCull)                                                     \
+    M(PopCull)                                                      \
+    M(PairedPushCull)         /*From SkRecordAnnotateCullingPairs*/ \
     M(Concat)                                                       \
     M(SetMatrix)                                                    \
     M(ClipPath)                                                     \
@@ -48,9 +54,6 @@ namespace SkRecords {
     M(DrawText)                                                     \
     M(DrawTextOnPath)                                               \
     M(DrawVertices)                                                 \
-    M(PushCull)                                                     \
-    M(PopCull)                                                      \
-    M(PairedPushCull)         /*From SkRecordAnnotateCullingPairs*/ \
     M(BoundedDrawPosTextH)    /*From SkRecordBoundDrawPosTextH*/
 
 // Defines SkRecords::Type, an enum of all record types.
@@ -195,71 +198,73 @@ RECORD3(ClipRect, SkRect, rect, SkRegion::Op, op, bool, doAA);
 RECORD2(ClipRegion, SkRegion, region, SkRegion::Op, op);
 
 RECORD1(Clear, SkColor, color);
-RECORD4(DrawBitmap, ImmutableBitmap, bitmap,
+// While not strictly required, if you have an SkPaint, it's fastest to put it first.
+RECORD4(DrawBitmap, Optional<SkPaint>, paint,
+                    ImmutableBitmap, bitmap,
                     SkScalar, left,
-                    SkScalar, top,
-                    Optional<SkPaint>, paint);
-RECORD3(DrawBitmapMatrix, ImmutableBitmap, bitmap, SkMatrix, matrix, Optional<SkPaint>, paint);
-RECORD4(DrawBitmapNine, ImmutableBitmap, bitmap,
+                    SkScalar, top);
+RECORD3(DrawBitmapMatrix, Optional<SkPaint>, paint, ImmutableBitmap, bitmap, SkMatrix, matrix);
+RECORD4(DrawBitmapNine, Optional<SkPaint>, paint,
+                        ImmutableBitmap, bitmap,
                         SkIRect, center,
-                        SkRect, dst,
-                        Optional<SkPaint>, paint);
-RECORD5(DrawBitmapRectToRect, ImmutableBitmap, bitmap,
+                        SkRect, dst);
+RECORD5(DrawBitmapRectToRect, Optional<SkPaint>, paint,
+                              ImmutableBitmap, bitmap,
                               Optional<SkRect>, src,
                               SkRect, dst,
-                              Optional<SkPaint>, paint,
                               SkCanvas::DrawBitmapRectFlags, flags);
-RECORD3(DrawDRRect, SkRRect, outer, SkRRect, inner, SkPaint, paint);
-RECORD2(DrawOval, SkRect, oval, SkPaint, paint);
+RECORD3(DrawDRRect, SkPaint, paint, SkRRect, outer, SkRRect, inner);
+RECORD2(DrawOval, SkPaint, paint, SkRect, oval);
 RECORD1(DrawPaint, SkPaint, paint);
-RECORD2(DrawPath, SkPath, path, SkPaint, paint);
-RECORD4(DrawPoints, SkCanvas::PointMode, mode, size_t, count, SkPoint*, pts, SkPaint, paint);
-RECORD4(DrawPosText, PODArray<char>, text,
+RECORD2(DrawPath, SkPaint, paint, SkPath, path);
+RECORD4(DrawPoints, SkPaint, paint, SkCanvas::PointMode, mode, size_t, count, SkPoint*, pts);
+RECORD4(DrawPosText, SkPaint, paint,
+                     PODArray<char>, text,
                      size_t, byteLength,
-                     PODArray<SkPoint>, pos,
-                     SkPaint, paint);
-RECORD5(DrawPosTextH, PODArray<char>, text,
+                     PODArray<SkPoint>, pos);
+RECORD5(DrawPosTextH, SkPaint, paint,
+                      PODArray<char>, text,
                       size_t, byteLength,
                       PODArray<SkScalar>, xpos,
-                      SkScalar, y,
-                      SkPaint, paint);
-RECORD2(DrawRRect, SkRRect, rrect, SkPaint, paint);
-RECORD2(DrawRect, SkRect, rect, SkPaint, paint);
-RECORD4(DrawSprite, ImmutableBitmap, bitmap, int, left, int, top, Optional<SkPaint>, paint);
-RECORD5(DrawText, PODArray<char>, text,
+                      SkScalar, y);
+RECORD2(DrawRRect, SkPaint, paint, SkRRect, rrect);
+RECORD2(DrawRect, SkPaint, paint, SkRect, rect);
+RECORD4(DrawSprite, Optional<SkPaint>, paint, ImmutableBitmap, bitmap, int, left, int, top);
+RECORD5(DrawText, SkPaint, paint,
+                  PODArray<char>, text,
                   size_t, byteLength,
                   SkScalar, x,
-                  SkScalar, y,
-                  SkPaint, paint);
-RECORD5(DrawTextOnPath, PODArray<char>, text,
+                  SkScalar, y);
+RECORD5(DrawTextOnPath, SkPaint, paint,
+                        PODArray<char>, text,
                         size_t, byteLength,
                         SkPath, path,
-                        Optional<SkMatrix>, matrix,
-                        SkPaint, paint);
+                        Optional<SkMatrix>, matrix);
 
 // This guy is so ugly we just write it manually.
 struct DrawVertices {
     static const Type kType = DrawVertices_Type;
 
-    DrawVertices(SkCanvas::VertexMode vmode,
+    DrawVertices(const SkPaint& paint,
+                 SkCanvas::VertexMode vmode,
                  int vertexCount,
                  SkPoint* vertices,
                  SkPoint* texs,
                  SkColor* colors,
                  SkXfermode* xmode,
                  uint16_t* indices,
-                 int indexCount,
-                 const SkPaint& paint)
-        : vmode(vmode)
+                 int indexCount)
+        : paint(paint)
+        , vmode(vmode)
         , vertexCount(vertexCount)
         , vertices(vertices)
         , texs(texs)
         , colors(colors)
         , xmode(SkSafeRef(xmode))
         , indices(indices)
-        , indexCount(indexCount)
-        , paint(paint) {}
+        , indexCount(indexCount) {}
 
+    SkPaint paint;
     SkCanvas::VertexMode vmode;
     int vertexCount;
     PODArray<SkPoint> vertices;
@@ -268,7 +273,6 @@ struct DrawVertices {
     SkAutoTUnref<SkXfermode> xmode;
     PODArray<uint16_t> indices;
     int indexCount;
-    SkPaint paint;
 };
 
 // Records added by optimizations.

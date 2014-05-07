@@ -93,34 +93,34 @@ void SkRecorder::drawPoints(PointMode mode,
                             size_t count,
                             const SkPoint pts[],
                             const SkPaint& paint) {
-    APPEND(DrawPoints, mode, count, this->copy(pts, count), delay_copy(paint));
+    APPEND(DrawPoints, delay_copy(paint), mode, count, this->copy(pts, count));
 }
 
 void SkRecorder::drawRect(const SkRect& rect, const SkPaint& paint) {
-    APPEND(DrawRect, rect, delay_copy(paint));
+    APPEND(DrawRect, delay_copy(paint), rect);
 }
 
 void SkRecorder::drawOval(const SkRect& oval, const SkPaint& paint) {
-    APPEND(DrawOval, oval, delay_copy(paint));
+    APPEND(DrawOval, delay_copy(paint), oval);
 }
 
 void SkRecorder::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
-    APPEND(DrawRRect, rrect, delay_copy(paint));
+    APPEND(DrawRRect, delay_copy(paint), rrect);
 }
 
 void SkRecorder::onDrawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
-    APPEND(DrawDRRect, outer, inner, delay_copy(paint));
+    APPEND(DrawDRRect, delay_copy(paint), outer, inner);
 }
 
 void SkRecorder::drawPath(const SkPath& path, const SkPaint& paint) {
-    APPEND(DrawPath, delay_copy(path), delay_copy(paint));
+    APPEND(DrawPath, delay_copy(paint), delay_copy(path));
 }
 
 void SkRecorder::drawBitmap(const SkBitmap& bitmap,
                             SkScalar left,
                             SkScalar top,
                             const SkPaint* paint) {
-    APPEND(DrawBitmap, delay_copy(bitmap), left, top, this->copy(paint));
+    APPEND(DrawBitmap, this->copy(paint), delay_copy(bitmap), left, top);
 }
 
 void SkRecorder::drawBitmapRectToRect(const SkBitmap& bitmap,
@@ -129,53 +129,61 @@ void SkRecorder::drawBitmapRectToRect(const SkBitmap& bitmap,
                                       const SkPaint* paint,
                                       DrawBitmapRectFlags flags) {
     APPEND(DrawBitmapRectToRect,
-           delay_copy(bitmap), this->copy(src), dst, this->copy(paint), flags);
+           this->copy(paint), delay_copy(bitmap), this->copy(src), dst, flags);
 }
 
 void SkRecorder::drawBitmapMatrix(const SkBitmap& bitmap,
                                   const SkMatrix& matrix,
                                   const SkPaint* paint) {
-    APPEND(DrawBitmapMatrix, delay_copy(bitmap), matrix, this->copy(paint));
+    APPEND(DrawBitmapMatrix, this->copy(paint), delay_copy(bitmap), matrix);
 }
 
 void SkRecorder::drawBitmapNine(const SkBitmap& bitmap,
                                 const SkIRect& center,
                                 const SkRect& dst,
                                 const SkPaint* paint) {
-    APPEND(DrawBitmapNine, delay_copy(bitmap), center, dst, this->copy(paint));
+    APPEND(DrawBitmapNine, this->copy(paint), delay_copy(bitmap), center, dst);
 }
 
 void SkRecorder::drawSprite(const SkBitmap& bitmap, int left, int top, const SkPaint* paint) {
-    APPEND(DrawSprite, delay_copy(bitmap), left, top, this->copy(paint));
+    APPEND(DrawSprite, this->copy(paint), delay_copy(bitmap), left, top);
 }
 
 void SkRecorder::onDrawText(const void* text, size_t byteLength,
                             SkScalar x, SkScalar y, const SkPaint& paint) {
     APPEND(DrawText,
-           this->copy((const char*)text, byteLength), byteLength, x, y, delay_copy(paint));
+           delay_copy(paint), this->copy((const char*)text, byteLength), byteLength, x, y);
 }
 
 void SkRecorder::onDrawPosText(const void* text, size_t byteLength,
                                const SkPoint pos[], const SkPaint& paint) {
     const unsigned points = paint.countText(text, byteLength);
     APPEND(DrawPosText,
-           this->copy((const char*)text, byteLength), byteLength,
-           this->copy(pos, points), delay_copy(paint));
+           delay_copy(paint),
+           this->copy((const char*)text, byteLength),
+           byteLength,
+           this->copy(pos, points));
 }
 
 void SkRecorder::onDrawPosTextH(const void* text, size_t byteLength,
                                 const SkScalar xpos[], SkScalar constY, const SkPaint& paint) {
     const unsigned points = paint.countText(text, byteLength);
     APPEND(DrawPosTextH,
-           this->copy((const char*)text, byteLength), byteLength,
-           this->copy(xpos, points), constY, delay_copy(paint));
+           delay_copy(paint),
+           this->copy((const char*)text, byteLength),
+           byteLength,
+           this->copy(xpos, points),
+           constY);
 }
 
 void SkRecorder::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                                   const SkMatrix* matrix, const SkPaint& paint) {
     APPEND(DrawTextOnPath,
-           this->copy((const char*)text, byteLength), byteLength,
-           delay_copy(path), this->copy(matrix), delay_copy(paint));
+           delay_copy(paint),
+           this->copy((const char*)text, byteLength),
+           byteLength,
+           delay_copy(path),
+           this->copy(matrix));
 }
 
 void SkRecorder::drawPicture(SkPicture& picture) {
@@ -187,15 +195,15 @@ void SkRecorder::drawVertices(VertexMode vmode,
                               const SkPoint texs[], const SkColor colors[],
                               SkXfermode* xmode,
                               const uint16_t indices[], int indexCount, const SkPaint& paint) {
-    APPEND(DrawVertices, vmode,
+    APPEND(DrawVertices, delay_copy(paint),
+                         vmode,
                          vertexCount,
                          this->copy(vertices, vertexCount),
                          texs ? this->copy(texs, vertexCount) : NULL,
                          colors ? this->copy(colors, vertexCount) : NULL,
                          xmode,
                          this->copy(indices, indexCount),
-                         indexCount,
-                         delay_copy(paint));
+                         indexCount);
 }
 
 void SkRecorder::willSave(SkCanvas::SaveFlags flags) {

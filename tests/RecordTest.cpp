@@ -55,7 +55,7 @@ DEF_TEST(Record, r) {
     // Add a simple DrawRect command.
     SkRect rect = SkRect::MakeWH(10, 10);
     SkPaint paint;
-    SkNEW_PLACEMENT_ARGS(record.append<SkRecords::DrawRect>(), SkRecords::DrawRect, (rect, paint));
+    SkNEW_PLACEMENT_ARGS(record.append<SkRecords::DrawRect>(), SkRecords::DrawRect, (paint, rect));
 
     // Its area should be 100.
     AreaSummer summer;

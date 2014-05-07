@@ -187,7 +187,7 @@ struct StrengthReducer {
         Adopted<DrawPosText> adopted(draw);
         SkNEW_PLACEMENT_ARGS(record->replace<DrawPosTextH>(begin, adopted),
                              DrawPosTextH,
-                             (draw->text, draw->byteLength, scalars, firstY, draw->paint));
+                             (draw->paint, draw->text, draw->byteLength, scalars, firstY));
         return true;
     }
 };
