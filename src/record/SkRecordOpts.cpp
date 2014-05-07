@@ -42,8 +42,21 @@ static bool apply(Pass* pass, SkRecord* record) {
     return changed;
 }
 
+// Turns the logical NoOp Save and Restore in Save-Draw*-Restore patterns into actual NoOps.
+struct SaveOnlyDrawsRestoreNooper {
+    typedef Pattern3<Is<Save>,
+                     Star<Or<Is<NoOp>, IsDraw> >,
+                     Is<Restore> >
+        Pattern;
+
+    bool onMatch(SkRecord* record, Pattern* pattern, unsigned begin, unsigned end) {
+        record->replace<NoOp>(begin);  // Save
+        record->replace<NoOp>(end-1);  // Restore
+        return true;
+    }
+};
 // Turns logical no-op Save-[non-drawing command]*-Restore patterns into actual no-ops.
-struct SaveRestoreNooper {
+struct SaveNoDrawsRestoreNooper {
     // Star matches greedily, so we also have to exclude Save and Restore.
     typedef Pattern3<Is<Save>,
                      Star<Not<Or3<Is<Save>,
@@ -66,8 +79,11 @@ struct SaveRestoreNooper {
     }
 };
 void SkRecordNoopSaveRestores(SkRecord* record) {
-    SaveRestoreNooper pass;
-    while (apply(&pass, record));  // Run until it stops changing things.
+    SaveOnlyDrawsRestoreNooper onlyDraws;
+    SaveNoDrawsRestoreNooper noDraws;
+
+    // Run until they stop changing things.
+    while (apply(&onlyDraws, record) || apply(&noDraws, record));
 }
 
 // For some SaveLayer-[drawing command]-Restore patterns, merge the SaveLayer's alpha into the

@@ -108,6 +108,28 @@ DEF_TEST(RecordOpts_TextBounding, r) {
     REPORTER_ASSERT(r, bounded->maxY >= SK_Scalar1 + defaults.getTextSize());
 }
 
+DEF_TEST(RecordOpts_NoopDrawSaveRestore, r) {
+    SkRecord record;
+    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+
+    // The save and restore are pointless if there's only draw commands in the middle.
+    recorder.save();
+        recorder.drawRect(SkRect::MakeWH(200, 200), SkPaint());
+        recorder.drawRect(SkRect::MakeWH(300, 300), SkPaint());
+        recorder.drawRect(SkRect::MakeWH(100, 100), SkPaint());
+    recorder.restore();
+
+    record.replace<SkRecords::NoOp>(2);  // NoOps should be allowed.
+
+    SkRecordNoopSaveRestores(&record);
+
+    assert_type<SkRecords::NoOp>(r, record, 0);
+    assert_type<SkRecords::DrawRect>(r, record, 1);
+    assert_type<SkRecords::NoOp>(r, record, 2);
+    assert_type<SkRecords::DrawRect>(r, record, 3);
+    assert_type<SkRecords::NoOp>(r, record, 4);
+}
+
 DEF_TEST(RecordOpts_SingleNoopSaveRestore, r) {
     SkRecord record;
     SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
@@ -139,19 +161,10 @@ DEF_TEST(RecordOpts_NoopSaveRestores, r) {
         recorder.restore();
     recorder.restore();
 
-    // These will be kept (though some future optimization might noop the save and restore).
-    recorder.save();
-        recorder.drawRect(SkRect::MakeWH(200, 200), SkPaint());
-    recorder.restore();
-
     SkRecordNoopSaveRestores(&record);
-
     for (unsigned index = 0; index < 8; index++) {
         assert_type<SkRecords::NoOp>(r, record, index);
     }
-    assert_type<SkRecords::Save>(r, record, 8);
-    assert_type<SkRecords::DrawRect>(r, record, 9);
-    assert_type<SkRecords::Restore>(r, record, 10);
 }
 
 static void assert_savelayer_restore(skiatest::Reporter* r,
