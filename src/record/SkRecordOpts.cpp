@@ -264,7 +264,7 @@ public:
 
     void apply(SkRecord* record) {
         for (fRecord = record, fIndex = 0; fIndex < record->count(); fIndex++) {
-            fRecord->mutate(fIndex, *this);
+            fRecord->mutate<void>(fIndex, *this);
         }
     }
 

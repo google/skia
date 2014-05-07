@@ -94,6 +94,6 @@ template <> void Draw::draw(const SkRecords::BoundedDrawPosTextH& r) { this->dra
 
 void SkRecordDraw(const SkRecord& record, SkCanvas* canvas) {
     for (Draw draw(canvas); draw.index() < record.count(); draw.next()) {
-        record.visit(draw.index(), draw);
+        record.visit<void>(draw.index(), draw);
     }
 }

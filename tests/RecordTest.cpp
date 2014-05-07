@@ -17,35 +17,36 @@ public:
 
     template <typename T> void operator()(const T&) { }
 
+    void operator()(const SkRecords::DrawRect& draw) {
+        fArea += (int)(draw.rect.width() * draw.rect.height());
+    }
+
     int area() const { return fArea; }
 
     void apply(const SkRecord& record) {
         for (unsigned i = 0; i < record.count(); i++) {
-            record.visit(i, *this);
+            record.visit<void>(i, *this);
         }
     }
 
 private:
     int fArea;
 };
-template <> void AreaSummer::operator()(const SkRecords::DrawRect& record) {
-    fArea += (int) (record.rect.width() * record.rect.height());
-}
 
 // Scales out the bottom-right corner of any DrawRect command it sees by 2x.
 struct Stretch {
     template <typename T> void operator()(T*) {}
+    void operator()(SkRecords::DrawRect* draw) {
+        draw->rect.fRight *= 2;
+        draw->rect.fBottom *= 2;
+    }
 
     void apply(SkRecord* record) {
         for (unsigned i = 0; i < record->count(); i++) {
-            record->mutate(i, *this);
+            record->mutate<void>(i, *this);
         }
     }
 };
-template <> void Stretch::operator()(SkRecords::DrawRect* record) {
-    record->rect.fRight *= 2;
-    record->rect.fBottom *= 2;
-}
 
 // Basic tests for the low-level SkRecord code.
 DEF_TEST(Record, r) {

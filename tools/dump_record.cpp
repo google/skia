@@ -84,7 +84,7 @@ static void dump(const char* name, const SkRecord& record) {
     printf("%s %s\n", FLAGS_optimize ? "optimized" : "not-optimized", name);
     for (unsigned i = 0; i < record.count(); i++) {
         printf("%*d ", digits, i);
-        record.visit(i, dumper);
+        record.visit<void>(i, dumper);
     }
 }
 

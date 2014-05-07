@@ -19,26 +19,25 @@ static const int W = 1920, H = 1080;
 // If the command we're reading is a U, set ptr to it, otherwise set it to NULL.
 template <typename U>
 struct ReadAs {
-    explicit ReadAs(const U** ptr) : ptr(ptr), type(SkRecords::Type(~0)) {}
+    ReadAs() : ptr(NULL), type(SkRecords::Type(~0)) {}
 
-    const U** ptr;
+    const U* ptr;
     SkRecords::Type type;
 
-    void operator()(const U& r) { *ptr = &r; type = U::kType; }
+    void operator()(const U& r) { ptr = &r; type = U::kType; }
 
     template <typename T>
-    void operator()(const T&) { *ptr = NULL; type = U::kType; }
+    void operator()(const T&) { type = U::kType; }
 };
 
 // Assert that the ith command in record is of type T, and return it.
 template <typename T>
 static const T* assert_type(skiatest::Reporter* r, const SkRecord& record, unsigned index) {
-    const T* ptr = NULL;
-    ReadAs<T> reader(&ptr);
-    record.visit(index, reader);
+    ReadAs<T> reader;
+    record.visit<void>(index, reader);
     REPORTER_ASSERT(r, T::kType == reader.type);
-    REPORTER_ASSERT(r, ptr != NULL);
-    return ptr;
+    REPORTER_ASSERT(r, NULL != reader.ptr);
+    return reader.ptr;
 }
 
 DEF_TEST(RecordOpts_Culling, r) {

@@ -17,13 +17,13 @@ public:
     typedef T type;
     type* get() { return fPtr; }
 
-    bool match(T* ptr) {
+    bool operator()(T* ptr) {
         fPtr = ptr;
         return true;
     }
 
     template <typename U>
-    bool match(U*) {
+    bool operator()(U*) {
         fPtr = NULL;
         return false;
     }
@@ -42,19 +42,19 @@ public:
     type* get() { return fPaint; }
 
     template <typename T>
-    SK_WHEN(HasMember_paint<T>, bool) match(T* draw) {
+    SK_WHEN(HasMember_paint<T>, bool) operator()(T* draw) {
         fPaint = AsPtr(draw->paint);
         return true;
     }
 
     template <typename T>
-    SK_WHEN(!HasMember_paint<T>, bool) match(T*) {
+    SK_WHEN(!HasMember_paint<T>, bool) operator()(T*) {
         fPaint = NULL;
         return false;
     }
 
     // SaveLayer has an SkPaint named paint, but it's not a draw.
-    bool match(SaveLayer*) {
+    bool operator()(SaveLayer*) {
         fPaint = NULL;
         return false;
     }
@@ -71,14 +71,14 @@ private:
 template <typename Matcher>
 struct Not {
     template <typename T>
-    bool match(T* ptr) { return !Matcher().match(ptr); }
+    bool operator()(T* ptr) { return !Matcher()(ptr); }
 };
 
 // Matches if either of A or B does.  Stores nothing.
 template <typename A, typename B>
 struct Or {
     template <typename T>
-    bool match(T* ptr) { return A().match(ptr) || B().match(ptr); }
+    bool operator()(T* ptr) { return A()(ptr) || B()(ptr); }
 };
 
 // Matches if any of A, B or C does.  Stores nothing.
@@ -96,7 +96,7 @@ public:
     void reset() {}
 
     template <typename T>
-    bool match(T* ptr) { return Matcher().match(ptr); }
+    bool operator()(T* ptr) { return Matcher()(ptr); }
 };
 
 // This version stores a list of matches.  It's enabled if Matcher stores something.
@@ -109,9 +109,9 @@ public:
     void reset() { fMatches.rewind(); }
 
     template <typename T>
-    bool match(T* ptr) {
+    bool operator()(T* ptr) {
         Matcher matcher;
-        if (matcher.match(ptr)) {
+        if (matcher(ptr)) {
             fMatches.push(matcher.get());
             return true;
         }
@@ -161,16 +161,11 @@ public:
     template <typename T> T* third()  { return fTail.fTail.fHead.get(); }
 
 private:
-    template <typename T>
-    void operator()(T* r) { fHeadMatched = fHead.match(r); }
-
     // If head isn't a Star, try to match at i once.
     template <typename T>
     unsigned matchHead(T*, SkRecord* record, unsigned i) {
         if (i < record->count()) {
-            fHeadMatched = false;
-            record->mutate(i, *this);
-            if (fHeadMatched) {
+            if (record->mutate<bool>(i, fHead)) {
                 return i+1;
             }
         }
@@ -182,9 +177,7 @@ private:
     unsigned matchHead(Star<T>*, SkRecord* record, unsigned i) {
         fHead.reset();
         while (i < record->count()) {
-            fHeadMatched = false;
-            record->mutate(i, *this);
-            if (!fHeadMatched) {
+            if (!record->mutate<bool>(i, fHead)) {
                 return i;
             }
             i++;
@@ -194,9 +187,6 @@ private:
 
     Matcher fHead;
     Pattern fTail;
-    bool fHeadMatched;
-
-    friend class ::SkRecord;  // So operator() can otherwise stay private.
 
     // All Cons are friends with each other.  This lets first, second, and third work.
     template <typename, typename> friend class Cons;
