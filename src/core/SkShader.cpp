@@ -14,9 +14,30 @@
 #include "SkPictureShader.h"
 #include "SkScalar.h"
 #include "SkShader.h"
+#include "SkThread.h"
 #include "SkWriteBuffer.h"
 
+//#define SK_TRACK_SHADER_LIFETIME
+
+#ifdef SK_TRACK_SHADER_LIFETIME
+    static int32_t gShaderCounter;
+#endif
+
+static inline void inc_shader_counter() {
+#ifdef SK_TRACK_SHADER_LIFETIME
+    int32_t prev = sk_atomic_inc(&gShaderCounter);
+    SkDebugf("+++ shader counter %d\n", prev + 1);
+#endif
+}
+static inline void dec_shader_counter() {
+#ifdef SK_TRACK_SHADER_LIFETIME
+    int32_t prev = sk_atomic_dec(&gShaderCounter);
+    SkDebugf("--- shader counter %d\n", prev - 1);
+#endif
+}
+
 SkShader::SkShader(const SkMatrix* localMatrix) {
+    inc_shader_counter();
     if (localMatrix) {
         fLocalMatrix = *localMatrix;
     } else {
@@ -24,8 +45,8 @@ SkShader::SkShader(const SkMatrix* localMatrix) {
     }
 }
 
-SkShader::SkShader(SkReadBuffer& buffer)
-        : INHERITED(buffer) {
+SkShader::SkShader(SkReadBuffer& buffer) : INHERITED(buffer) {
+    inc_shader_counter();
     if (buffer.readBool()) {
         buffer.readMatrix(&fLocalMatrix);
     } else {
@@ -34,6 +55,7 @@ SkShader::SkShader(SkReadBuffer& buffer)
 }
 
 SkShader::~SkShader() {
+    dec_shader_counter();
 }
 
 void SkShader::flatten(SkWriteBuffer& buffer) const {
@@ -190,6 +212,10 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
 }
 
 GrEffectRef* SkShader::asNewEffect(GrContext*, const SkPaint&) const {
+    return NULL;
+}
+
+SkShader* SkShader::refAsALocalMatrixShader(SkMatrix*) const {
     return NULL;
 }
 

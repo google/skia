@@ -401,6 +401,23 @@ public:
     static SkShader* CreatePictureShader(SkPicture* src, TileMode tmx, TileMode tmy,
                                          const SkMatrix* localMatrix = NULL);
 
+    /**
+     *  Return a shader that will apply the specified localMatrix to the proxy shader.
+     *  The specified matrix will be applied before any matrix associated with the proxy.
+     *
+     *  Note: ownership of the proxy is not transferred (though a ref is taken).
+     */
+    static SkShader* CreateLocalMatrixShader(SkShader* proxy, const SkMatrix& localMatrix);
+
+    /**
+     *  If this shader can be represented by another shader + a localMatrix, return that shader
+     *  and, if not NULL, the localMatrix. If not, return NULL and ignore the localMatrix parameter.
+     *
+     *  Note: the returned shader (if not NULL) will have been ref'd, and it is the responsibility
+     *  of the caller to balance that with unref() when they are done.
+     */
+    virtual SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const;
+
     SK_TO_STRING_VIRT()
     SK_DEFINE_FLATTENABLE_TYPE(SkShader)
 

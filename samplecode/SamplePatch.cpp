@@ -296,8 +296,23 @@ protected:
 
         paint.setAntiAlias(false);
         paint.setShader(fShader1);
+        {
+            SkMatrix m;
+            m.setSkew(1, 0);
+            SkShader* s = SkShader::CreateLocalMatrixShader(paint.getShader(), m);
+            paint.setShader(s)->unref();
+        }
+        {
+            static int gAngle;
+            SkMatrix m;
+            m.setRotate(SkIntToScalar(gAngle++));
+            SkShader* s = SkShader::CreateLocalMatrixShader(paint.getShader(), m);
+            paint.setShader(s)->unref();
+        }
         patch.setBounds(fSize1.fX, fSize1.fY);
         drawpatches(canvas, paint, 10, 10, &patch);
+        
+        this->inval(NULL);
     }
 
     class PtClick : public Click {
