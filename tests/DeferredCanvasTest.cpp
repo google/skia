@@ -816,7 +816,7 @@ static void TestDeferredCanvasCreateCompatibleDevice(skiatest::Reporter* reporte
     REPORTER_ASSERT(reporter, notificationCounter.fStorageAllocatedChangedCount == 1);
 }
 
-DEF_TEST(DeferredCanvas_CPU, reporter) {
+DEF_GPUTEST(DeferredCanvas, reporter, factory) {
     TestDeferredCanvasBitmapAccess(reporter);
     TestDeferredCanvasFlush(reporter);
     TestDeferredCanvasSilentFlush(reporter);
@@ -830,10 +830,8 @@ DEF_TEST(DeferredCanvas_CPU, reporter) {
     TestDeferredCanvasWritePixelsToSurface(reporter);
     TestDeferredCanvasSurface(reporter, NULL);
     TestDeferredCanvasSetSurface(reporter, NULL);
-}
-
-DEF_GPUTEST(DeferredCanvas_GPU, reporter, factory) {
-    SkASSERT(factory != NULL);
-    TestDeferredCanvasSurface(reporter, factory);
-    TestDeferredCanvasSetSurface(reporter, factory);
+    if (NULL != factory) {
+        TestDeferredCanvasSurface(reporter, factory);
+        TestDeferredCanvasSetSurface(reporter, factory);
+    }
 }
