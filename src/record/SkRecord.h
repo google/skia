@@ -167,7 +167,7 @@ private:
     // We could just return NULL but it's sort of confusing to return NULL on success.
     template <typename T>
     SK_WHEN(SkTIsEmpty<T>, T*) allocCommand() {
-        static T singleton;
+        static T singleton = {};
         return &singleton;
     }
 

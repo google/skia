@@ -21,6 +21,9 @@
           '_CRT_SECURE_NO_WARNINGS',
           'GR_GL_FUNCTION_TYPE=__stdcall',
         ],
+        'msvs_disabled_warnings': [
+            4345,  # This is an FYI about a behavior change from long ago.  Chrome stifles it too.
+        ],
         'msvs_cygwin_shell': 0,
         'msvs_settings': {
           'VCCLCompilerTool': {
