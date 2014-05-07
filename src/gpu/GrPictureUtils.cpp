@@ -207,7 +207,7 @@ private:
         SkASSERT(kSaveLayer_Usage == usage);
 
         fInfo.fHasNestedLayers = true;
-        return SkNEW_ARGS(GrGatherDevice, (info.width(), info.height(), fPicture, 
+        return SkNEW_ARGS(GrGatherDevice, (info.width(), info.height(), fPicture,
                                            fAccelData, fSaveLayerDepth+1));
     }
 

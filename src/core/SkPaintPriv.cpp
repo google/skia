@@ -96,4 +96,3 @@ bool NeedsDeepCopy(const SkPaint& paint) {
            paint.getLooper() || // needs to hide its addLayer...
            paint.getImageFilter();
 }
-
