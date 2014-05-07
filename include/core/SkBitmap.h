@@ -647,8 +647,10 @@ public:
      */
     bool deepCopyTo(SkBitmap* dst) const;
 
+#ifdef SK_SUPPORT_LEGACY_BUILDMIPMAP
     SK_ATTR_DEPRECATED("use setFilterLevel on SkPaint")
-    void buildMipMap(bool forceRebuild = false);
+    void buildMipMap(bool forceRebuild = false) {}
+#endif
 
 #ifdef SK_BUILD_FOR_ANDROID
     bool hasHardwareMipMap() const {
@@ -750,9 +752,6 @@ public:
     SK_TO_STRING_NONVIRT()
 
 private:
-    struct MipMap;
-    mutable MipMap* fMipMap;
-
     mutable SkPixelRef* fPixelRef;
     mutable int         fPixelLockCount;
     // These are just caches from the locked pixelref
@@ -797,16 +796,6 @@ private:
     */
     void freePixels();
     void updatePixelsFromRef() const;
-
-    static SkFixed ComputeMipLevel(SkFixed sx, SkFixed dy);
-
-    /** Given scale factors sx, sy, determine the miplevel available in the
-     bitmap, and return it (this is the amount to shift matrix iterators
-     by). If dst is not null, it is set to the correct level.
-     */
-    int extractMipLevel(SkBitmap* dst, SkFixed sx, SkFixed sy);
-    bool hasMipMap() const;
-    void freeMipMap();
 
     friend struct SkBitmapProcState;
 };
