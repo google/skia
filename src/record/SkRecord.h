@@ -10,6 +10,7 @@
 
 #include "SkChunkAlloc.h"
 #include "SkRecords.h"
+#include "SkTLogic.h"
 #include "SkTemplates.h"
 
 // SkRecord (REC-ord) represents a sequence of SkCanvas calls, saved for future use.
@@ -77,7 +78,7 @@ public:
         }
 
         fTypes[fCount] = T::kType;
-        return fRecords[fCount++].set(this->alloc<T>());
+        return fRecords[fCount++].set(this->allocCommand<T>());
     }
 
     // Replace the i-th command with a new command of type T.
@@ -91,7 +92,7 @@ public:
         this->mutate(i, destroyer);
 
         fTypes[i] = T::kType;
-        return fRecords[i].set(this->alloc<T>());
+        return fRecords[i].set(this->allocCommand<T>());
     }
 
     // Replace the i-th command with a new command of type T.
@@ -105,7 +106,7 @@ public:
         SkASSERT(proofOfAdoption == fRecords[i].ptr<Existing>());
 
         fTypes[i] = T::kType;
-        return fRecords[i].set(this->alloc<T>());
+        return fRecords[i].set(this->allocCommand<T>());
     }
 
 private:
@@ -161,6 +162,17 @@ private:
     private:
         uint8_t fType;
     };
+
+    // No point in allocating any more than one of an empty struct.
+    // We could just return NULL but it's sort of confusing to return NULL on success.
+    template <typename T>
+    SK_WHEN(SkTIsEmpty<T>, T*) allocCommand() {
+        static T singleton;
+        return &singleton;
+    }
+
+    template <typename T>
+    SK_WHEN(!SkTIsEmpty<T>, T*) allocCommand() { return this->alloc<T>(); }
 
     // An untyped pointer to some bytes in fAlloc.  This is the interface for polymorphic dispatch:
     // visit() and mutate() work with the parallel fTypes array to do the work of a vtable.

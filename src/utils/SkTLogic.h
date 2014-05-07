@@ -30,6 +30,14 @@ template <typename T, T v> struct SkTIntegralConstant {
 /** Convenience specialization of SkTIntegralConstant. */
 template <bool b> struct SkTBool : SkTIntegralConstant<bool, b> { };
 
+/** Pre-C++11 version of std::is_empty<T>. */
+template <typename T>
+class SkTIsEmpty {
+    struct Derived : public T { char unused; };
+public:
+    static const bool value = sizeof(Derived) == sizeof(char);
+};
+
 /** Pre-C++11 version of std::true_type. */
 typedef SkTBool<true> SkTrue;
 
