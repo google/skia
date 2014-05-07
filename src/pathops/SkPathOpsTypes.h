@@ -30,9 +30,7 @@ inline bool AlmostEqualUlps(double a, double b) {
 
 // Use Almost Dequal when comparing should not special case denormalized values.
 bool AlmostDequalUlps(float a, float b);
-inline bool AlmostDequalUlps(double a, double b) {
-    return AlmostDequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
-}
+bool AlmostDequalUlps(double a, double b);
 
 bool NotAlmostEqualUlps(float a, float b);
 inline bool NotAlmostEqualUlps(double a, double b) {

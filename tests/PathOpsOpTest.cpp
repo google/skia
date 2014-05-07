@@ -3329,10 +3329,30 @@ static void kari1(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path1, path2, kDifference_PathOp, filename);
 }
 
+static void issue2504(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path1;
+    path1.moveTo(34.2421875, -5.976562976837158203125);
+    path1.lineTo(35.453121185302734375, 0);
+    path1.lineTo(31.9375, 0);
+    path1.close();
+
+    SkPath path2;
+    path2.moveTo(36.71843719482421875, 0.8886508941650390625);
+    path2.cubicTo(36.71843719482421875, 0.8886508941650390625,
+                  35.123386383056640625, 0.554015457630157470703125,
+                  34.511409759521484375, -0.1152553558349609375);
+    path2.cubicTo(33.899425506591796875, -0.7845261096954345703125,
+                  34.53484344482421875, -5.6777553558349609375,
+                  34.53484344482421875, -5.6777553558349609375);
+    path2.close();
+    testPathOp(reporter, path1, path2, kUnion_PathOp, filename);
+}
+
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 
 static struct TestDesc tests[] = {
+    TEST(issue2504),
     TEST(kari1),
     TEST(quadOp10i),
 #if 0  // FIXME: serpentine curve is ordered the wrong way

@@ -102,6 +102,13 @@ bool AlmostDequalUlps(float a, float b) {
     return d_equal_ulps(a, b, UlpsEpsilon);
 }
 
+bool AlmostDequalUlps(double a, double b) {
+    if (SkScalarIsFinite(a) || SkScalarIsFinite(b)) {
+        return AlmostDequalUlps(SkDoubleToScalar(a), SkDoubleToScalar(b));
+    }
+    return fabs(a - b) / SkTMax(fabs(a), fabs(b)) < FLT_EPSILON * 16;
+}
+
 bool AlmostEqualUlps(float a, float b) {
     const int UlpsEpsilon = 16;
     return equal_ulps(a, b, UlpsEpsilon, UlpsEpsilon);

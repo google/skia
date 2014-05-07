@@ -49,6 +49,13 @@ static void testFail(skiatest::Reporter* reporter, int iIndex) {
 }
 
 static lineCubic lineCubicTests[] = {
+    {{{{-634.60540771484375, -481.262939453125}, {266.2696533203125, -752.70867919921875},
+            {-751.8370361328125, -317.37921142578125}, {-969.7427978515625, 824.7255859375}}},
+            {{{-287.9506133720805678, -557.1376476615772617},
+            {-285.9506133720805678, -557.1376476615772617}}}},
+
+    {{{{36.7184372,0.888650894}, {36.7184372,0.888650894}, {35.1233864,0.554015458},
+            {34.5114098,-0.115255356}}}, {{{35.4531212,0}, {31.9375,0}}}},
 
     {{{{421, 378}, {421, 380.209137f}, {418.761414f, 382}, {416, 382}}},
             {{{320, 378}, {421, 378.000031f}}}},
@@ -83,6 +90,32 @@ static lineCubic lineCubicTests[] = {
 
 static const size_t lineCubicTests_count = SK_ARRAY_COUNT(lineCubicTests);
 
+static int doIntersect(SkIntersections& intersections, const SkDCubic& cubic, const SkDLine& line) {
+    int result;
+    bool flipped = false;
+    if (line[0].fX == line[1].fX) {
+        double top = line[0].fY;
+        double bottom = line[1].fY;
+        flipped = top > bottom;
+        if (flipped) {
+            SkTSwap<double>(top, bottom);
+        }
+        result = intersections.vertical(cubic, top, bottom, line[0].fX, flipped);
+    } else if (line[0].fY == line[1].fY) {
+        double left = line[0].fX;
+        double right = line[1].fX;
+        flipped = left > right;
+        if (flipped) {
+            SkTSwap<double>(left, right);
+        }
+        result = intersections.horizontal(cubic, left, right, line[0].fY, flipped);
+    } else {
+        intersections.intersect(cubic, line);
+        result = intersections.used();
+    }
+    return result;
+}
+
 static void testOne(skiatest::Reporter* reporter, int iIndex) {
     const SkDCubic& cubic = lineCubicTests[iIndex].cubic;
     SkASSERT(ValidCubic(cubic));
@@ -102,7 +135,7 @@ static void testOne(skiatest::Reporter* reporter, int iIndex) {
     }
     if (order1 == 4 && order2 == 2) {
         SkIntersections i;
-        int roots = i.intersect(cubic, line);
+        int roots = doIntersect(i, cubic, line);
         for (int pt = 0; pt < roots; ++pt) {
             double tt1 = i[0][pt];
             SkDPoint xy1 = cubic.ptAtT(tt1);
