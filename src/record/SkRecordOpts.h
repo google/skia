@@ -17,6 +17,10 @@ void SkRecordOptimize(SkRecord*);
 // Turns logical no-op Save-[non-drawing command]*-Restore patterns into actual no-ops.
 void SkRecordNoopSaveRestores(SkRecord*);
 
+// For some SaveLayer-[drawing command]-Restore patterns, merge the SaveLayer's alpha into the
+// draw, and no-op the SaveLayer and Restore.
+void SkRecordNoopSaveLayerDrawRestores(SkRecord*);
+
 // Annotates PushCull commands with the relative offset of their paired PopCull.
 void SkRecordAnnotateCullingPairs(SkRecord*);
 
