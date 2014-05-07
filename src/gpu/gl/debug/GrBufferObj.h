@@ -41,8 +41,8 @@ public:
     }
     void resetMapped()           { fMapped = false; }
     bool getMapped() const       { return fMapped; }
-    GrGLsizei getMappedOffset() const { return fMappedOffset; }
-    GrGLsizei getMappedLength() const { return fMappedLength; }
+    GrGLintptr getMappedOffset() const { return fMappedOffset; }
+    GrGLsizeiptr getMappedLength() const { return fMappedLength; }
 
     void setBound()              { fBound = true; }
     void resetBound()            { fBound = false; }
