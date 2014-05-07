@@ -568,7 +568,7 @@ SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
         for (int i = 0; i < fInitialDashIndex; ++i) {
             fPhase += fIntervals[i];
         }
-        fPhase += fInitialDashLength;
+        fPhase += fIntervals[fInitialDashIndex] - fInitialDashLength;
     } else {
         this->setInternalMembers(fPhase);
     }
