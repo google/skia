@@ -81,8 +81,8 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
     }
     SkCanvas canvas(device.get());
 
-    SkVector sigma, localSigma = SkVector::Make(fSigmaX, fSigmaY);
-    ctx.ctm().mapVectors(&sigma, &localSigma, 1);
+    SkVector sigma = SkVector::Make(fSigmaX, fSigmaY);
+    ctx.ctm().mapVectors(&sigma, 1);
     sigma.fX = SkMaxScalar(0, sigma.fX);
     sigma.fY = SkMaxScalar(0, sigma.fY);
     SkAutoTUnref<SkImageFilter> blurFilter(SkBlurImageFilter::Create(sigma.fX, sigma.fY));
@@ -92,8 +92,8 @@ bool SkDropShadowImageFilter::onFilterImage(Proxy* proxy, const SkBitmap& source
     paint.setImageFilter(blurFilter.get());
     paint.setColorFilter(colorFilter.get());
     paint.setXfermodeMode(SkXfermode::kSrcOver_Mode);
-    SkVector offsetVec, localOffsetVec = SkVector::Make(fDx, fDy);
-    ctx.ctm().mapVectors(&offsetVec, &localOffsetVec, 1);
+    SkVector offsetVec = SkVector::Make(fDx, fDy);
+    ctx.ctm().mapVectors(&offsetVec, 1);
     canvas.translate(SkIntToScalar(srcOffset.fX - bounds.fLeft),
                      SkIntToScalar(srcOffset.fY - bounds.fTop));
     canvas.drawBitmap(src, offsetVec.fX, offsetVec.fY, &paint);
@@ -124,12 +124,12 @@ bool SkDropShadowImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix&
     if (getInput(0) && !getInput(0)->filterBounds(src, ctm, &bounds)) {
         return false;
     }
-    SkVector offsetVec, localOffsetVec = SkVector::Make(fDx, fDy);
-    ctm.mapVectors(&offsetVec, &localOffsetVec, 1);
+    SkVector offsetVec = SkVector::Make(fDx, fDy);
+    ctm.mapVectors(&offsetVec, 1);
     bounds.offset(-SkScalarCeilToInt(offsetVec.x()),
                   -SkScalarCeilToInt(offsetVec.y()));
-    SkVector sigma, localSigma = SkVector::Make(fSigmaX, fSigmaY);
-    ctm.mapVectors(&sigma, &localSigma, 1);
+    SkVector sigma = SkVector::Make(fSigmaX, fSigmaY);
+    ctm.mapVectors(&sigma, 1);
     bounds.outset(SkScalarCeilToInt(SkScalarMul(sigma.x(), SkIntToScalar(3))),
                   SkScalarCeilToInt(SkScalarMul(sigma.y(), SkIntToScalar(3))));
     bounds.join(src);
