@@ -85,43 +85,12 @@ struct Or {
 template <typename A, typename B, typename C>
 struct Or3 : Or<A, Or<B, C> > {};
 
-// We'll use this to choose which implementation of Star suits each Matcher.
-SK_CREATE_TYPE_DETECTOR(type);
-
-// Star is a special matcher that matches Matcher 0 or more times _greedily_ in the SkRecord.
-// This version stores nothing.  It's enabled when Matcher stores nothing.
-template <typename Matcher, typename = void>
-class Star {
-public:
-    void reset() {}
-
+// Star is a special matcher that greedily matches Matcher 0 or more times.  Stores nothing.
+template <typename Matcher>
+struct Star {
     template <typename T>
     bool operator()(T* ptr) { return Matcher()(ptr); }
 };
-
-// This version stores a list of matches.  It's enabled if Matcher stores something.
-template <typename Matcher>
-class Star<Matcher, SK_WHEN(HasType_type<Matcher>, void)> {
-public:
-    typedef SkTDArray<typename Matcher::type*> type;
-    type* get() { return &fMatches; }
-
-    void reset() { fMatches.rewind(); }
-
-    template <typename T>
-    bool operator()(T* ptr) {
-        Matcher matcher;
-        if (matcher(ptr)) {
-            fMatches.push(matcher.get());
-            return true;
-        }
-        return false;
-    }
-
-private:
-    type fMatches;
-};
-
 
 // Cons builds a list of Matchers.
 // It first matches Matcher (something from above), then Pattern (another Cons or Nil).
@@ -175,7 +144,6 @@ private:
     // If head is a Star, walk i until it doesn't match.
     template <typename T>
     unsigned matchHead(Star<T>*, SkRecord* record, unsigned i) {
-        fHead.reset();
         while (i < record->count()) {
             if (!record->mutate<bool>(i, fHead)) {
                 return i;

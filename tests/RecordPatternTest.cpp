@@ -79,20 +79,17 @@ DEF_TEST(RecordPattern_Star, r) {
     recorder.save();
     recorder.restore();
     REPORTER_ASSERT(r, pattern.match(&record, 0));
-    REPORTER_ASSERT(r, pattern.second<SkTDArray<ClipRect*> >()->count() == 0);
 
     recorder.save();
         recorder.clipRect(SkRect::MakeWH(300, 200));
     recorder.restore();
     REPORTER_ASSERT(r, pattern.match(&record, 2));
-    REPORTER_ASSERT(r, pattern.second<SkTDArray<ClipRect*> >()->count() == 1);
 
     recorder.save();
         recorder.clipRect(SkRect::MakeWH(300, 200));
         recorder.clipRect(SkRect::MakeWH(100, 100));
     recorder.restore();
     REPORTER_ASSERT(r, pattern.match(&record, 5));
-    REPORTER_ASSERT(r, pattern.second<SkTDArray<ClipRect*> >()->count() == 2);
 }
 
 DEF_TEST(RecordPattern_IsDraw, r) {
