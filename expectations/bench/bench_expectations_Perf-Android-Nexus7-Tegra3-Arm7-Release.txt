@@ -163,7 +163,7 @@ desk_weather.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-
 desk_wowwiki.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,108.37,97.86888,118.38612
 desk_yahooanswers.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,31.78,27.62776,35.39224
 desk_yahoogames.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,25.39,21.79792,28.49708
-desk_yahoosports.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,8.3,6.06576,10.02924
+desk_yahoosports.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,8.3,6.07,11.31
 desk_youtube.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,47.25,41.8796,52.1204
 desk_youtubetvvideo.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,58.15,51.88656,63.91844
 mobi_wikipedia.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,30.58,26.26216,34.42284
@@ -189,7 +189,7 @@ tabl_nytimes.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-
 tabl_pravda.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,31.52,27.47808,35.06692
 tabl_sahadan.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,52.68,46.88456,57.99544
 tabl_slashdot.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,49.19,43.61384,54.25616
-tabl_techmeme.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,21.89,18.56832,24.70668
+tabl_techmeme.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,21.89,18.57,27.74
 tabl_ukwsj.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,47.49,42.12032,52.35468
 tabl_vnexpress.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,38.41,33.76672,42.54828
 tabl_worldjournal.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,44.67,39.5056,49.3344
