@@ -35,7 +35,7 @@ desk_yahooanswers.skp_simple_viewport_1000x1000_,Perf-Win7-ShuttleA-HD2000-x86-R
 desk_yahoogames.skp_simple_viewport_1000x1000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,1.7,0.00368,2.91132
 desk_yahoosports.skp_simple_viewport_1000x1000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,0.53,-1.03264,1.59764
 desk_youtube.skp_simple_viewport_1000x1000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,2.98,0.8992,4.6458
-desk_youtubetvvideo.skp_simple_viewport_1000x1000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,6.56,4.354,8.266
+desk_youtubetvvideo.skp_simple_viewport_1000x1000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,6.56,4.35,9.43
 mobi_wikipedia.skp_simple_viewport_1000x1000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,2.96,1.15312,4.26188
 tabl_androidpolice.skp_simple_viewport_1000x1000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,4.43,2.31344,6.06656
 tabl_cnet.skp_simple_viewport_1000x1000_,Perf-Win7-ShuttleA-HD2000-x86-Release-25th,4.83,2.762,6.398
