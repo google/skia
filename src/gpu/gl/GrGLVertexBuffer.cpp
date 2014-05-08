@@ -21,13 +21,12 @@ void GrGLVertexBuffer::onRelease() {
     INHERITED::onRelease();
 }
 
-
 void GrGLVertexBuffer::onAbandon() {
     fImpl.abandon();
     INHERITED::onAbandon();
 }
 
-void* GrGLVertexBuffer::map() {
+void* GrGLVertexBuffer::onMap() {
     if (!this->wasDestroyed()) {
         return fImpl.map(this->getGpuGL());
     } else {
@@ -35,21 +34,13 @@ void* GrGLVertexBuffer::map() {
     }
 }
 
-void* GrGLVertexBuffer::mapPtr() const {
-    return fImpl.mapPtr();
-}
-
-void GrGLVertexBuffer::unmap() {
+void GrGLVertexBuffer::onUnmap() {
     if (!this->wasDestroyed()) {
         fImpl.unmap(this->getGpuGL());
     }
 }
 
-bool GrGLVertexBuffer::isMapped() const {
-    return fImpl.isMapped();
-}
-
-bool GrGLVertexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
+bool GrGLVertexBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     if (!this->wasDestroyed()) {
         return fImpl.updateData(this->getGpuGL(), src, srcSizeInBytes);
     } else {

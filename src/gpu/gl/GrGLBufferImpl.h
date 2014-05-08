@@ -41,7 +41,6 @@ public:
     void bind(GrGpuGL* gpu) const;
 
     void* map(GrGpuGL* gpu);
-    void* mapPtr() const { return fMapPtr; }
     void unmap(GrGpuGL* gpu);
     bool isMapped() const;
     bool updateData(GrGpuGL* gpu, const void* src, size_t srcSizeInBytes);

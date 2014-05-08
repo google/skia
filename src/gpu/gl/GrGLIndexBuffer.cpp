@@ -26,7 +26,7 @@ void GrGLIndexBuffer::onAbandon() {
     INHERITED::onAbandon();
 }
 
-void* GrGLIndexBuffer::map() {
+void* GrGLIndexBuffer::onMap() {
     if (!this->wasDestroyed()) {
         return fImpl.map(this->getGpuGL());
     } else {
@@ -34,21 +34,13 @@ void* GrGLIndexBuffer::map() {
     }
 }
 
-void* GrGLIndexBuffer::mapPtr() const {
-    return fImpl.mapPtr();
-}
-
-void GrGLIndexBuffer::unmap() {
+void GrGLIndexBuffer::onUnmap() {
     if (!this->wasDestroyed()) {
         fImpl.unmap(this->getGpuGL());
     }
 }
 
-bool GrGLIndexBuffer::isMapped() const {
-    return fImpl.isMapped();
-}
-
-bool GrGLIndexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
+bool GrGLIndexBuffer::onUpdateData(const void* src, size_t srcSizeInBytes) {
     if (!this->wasDestroyed()) {
         return fImpl.updateData(this->getGpuGL(), src, srcSizeInBytes);
     } else {
