@@ -17,7 +17,6 @@
       'dependencies': [
         'skia_lib.gyp:skia_lib',
         'jsoncpp.gyp:jsoncpp',
-        'utils.gyp:utils',
       ],
       'direct_dependent_settings': {
         'include_dirs': [

@@ -19,8 +19,6 @@
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
 #include "SkString.h"
-
-#include "image_expectations.h"
 #include "PictureRenderer.h"
 #include "PictureRenderingFlags.h"
 #include "picture_utils.h"

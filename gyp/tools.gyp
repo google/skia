@@ -369,8 +369,6 @@
       'target_name': 'picture_renderer',
       'type': 'static_library',
       'sources': [
-        '../tools/image_expectations.h',
-        '../tools/image_expectations.cpp',
         '../tools/LazyDecodeBitmap.cpp',
         '../tools/PictureRenderer.h',
         '../tools/PictureRenderer.cpp',
@@ -390,7 +388,7 @@
       ],
       'direct_dependent_settings': {
         'include_dirs': [
-          # needed for JSON headers used within image_expectations.h
+          # needed for JSON headers used within PictureRenderer.h
           '../third_party/externals/jsoncpp-chromium/overrides/include/',
           '../third_party/externals/jsoncpp/include/',
         ],
@@ -400,7 +398,6 @@
         'jsoncpp.gyp:jsoncpp',
         'skia_lib.gyp:skia_lib',
         'tools.gyp:picture_utils',
-        'utils.gyp:utils',
       ],
       'conditions': [
         ['skia_gpu == 1',

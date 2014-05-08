@@ -73,8 +73,6 @@
         '../src/utils/SkCanvasStateUtils.cpp',
         '../src/utils/SkCubicInterval.cpp',
         '../src/utils/SkCullPoints.cpp',
-        '../src/utils/SkDataUtils.cpp',
-        '../src/utils/SkDataUtils.h',
         '../src/utils/SkDeferredCanvas.cpp',
         '../src/utils/SkDumpCanvas.cpp',
         '../src/utils/SkEventTracer.cpp',
