@@ -25,10 +25,11 @@
 #include <intrin.h>
 #endif
 
-/* This file must *not* be compiled with -msse or -msse2, otherwise
-   gcc may generate sse2 even for scalar ops (and thus give an invalid
-   instruction on Pentium3 on the code below).  Only files named *_SSE2.cpp
-   in this directory should be compiled with -msse2. */
+/* This file must *not* be compiled with -msse or any other optional SIMD
+   extension, otherwise gcc may generate SIMD instructions even for scalar ops
+   (and thus give an invalid instruction on Pentium3 on the code below).
+   For example, only files named *_SSE2.cpp in this directory should be
+   compiled with -msse2 or higher. */
 
 
 /* Function to get the CPU SSE-level in runtime, for different compilers. */
@@ -48,8 +49,7 @@ static inline void getcpuid(int info_type, int info[4]) {
     }
 #endif
 }
-#else
-#if defined(__x86_64__)
+#elif defined(__x86_64__)
 static inline void getcpuid(int info_type, int info[4]) {
     asm volatile (
         "cpuid \n\t"
@@ -70,56 +70,47 @@ static inline void getcpuid(int info_type, int info[4]) {
     );
 }
 #endif
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#if defined(__x86_64__) || defined(_WIN64) || SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-/* All x86_64 machines have SSE2, or we know it's supported at compile time,  so don't even bother checking. */
-static inline bool hasSSE2() {
-    return true;
-}
-#else
-
-static inline bool hasSSE2() {
-    int cpu_info[4] = { 0 };
-    getcpuid(1, cpu_info);
-    return (cpu_info[3] & (1<<26)) != 0;
-}
-#endif
-
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
-/* If we know SSSE3 is supported at compile time, don't even bother checking. */
-static inline bool hasSSSE3() {
-    return true;
-}
-#elif defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-/* For the Android framework we should always know at compile time if the device
- * we are building for supports SSSE3.  The one exception to this rule is on the
- * emulator where we are compiled without the -msse3 option (so we have no SSSE3
- * procs) but can be run on a host machine that supports SSSE3 instructions. So
- * for that particular case we disable our SSSE3 options.
+/* Fetch the SIMD level directly from the CPU, at run-time.
+ * Only checks the levels needed by the optimizations in this file.
  */
-static inline bool hasSSSE3() {
-    return false;
-}
-#else
-
-static inline bool hasSSSE3() {
+static int get_SIMD_level() {
     int cpu_info[4] = { 0 };
+
     getcpuid(1, cpu_info);
-    return (cpu_info[2] & 0x200) != 0;
+    if ((cpu_info[2] & (1<<20)) != 0) {
+        return SK_CPU_SSE_LEVEL_SSE42;
+    } else if ((cpu_info[2] & (1<<9)) != 0) {
+        return SK_CPU_SSE_LEVEL_SSSE3;
+    } else if ((cpu_info[3] & (1<<26)) != 0) {
+        return SK_CPU_SSE_LEVEL_SSE2;
+    } else {
+        return 0;
+    }
 }
+
+/* Verify that the requested SIMD level exists in the build.
+ * If not, check if the platform supports it.
+ */
+static inline bool supports_simd(int minLevel) {
+    if (minLevel <= SK_CPU_SSE_LEVEL) {
+        return true;
+    } else {
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+        /* For the Android framework we should always know at compile time if the device
+         * we are building for supports SSSE3.  The one exception to this rule is on the
+         * emulator where we are compiled without the -mssse3 option (so we have no
+         * SSSE3 procs) but can be run on a host machine that supports SSSE3
+         * instructions. So for that particular case we disable our SSSE3 options.
+         */
+        return false;
+#else
+        static int gSIMDLevel = get_SIMD_level();
+        return (minLevel <= gSIMDLevel);
 #endif
-
-static bool cachedHasSSE2() {
-    static bool gHasSSE2 = hasSSE2();
-    return gHasSSE2;
-}
-
-static bool cachedHasSSSE3() {
-    static bool gHasSSSE3 = hasSSSE3();
-    return gHasSSSE3;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +118,7 @@ static bool cachedHasSSSE3() {
 SK_CONF_DECLARE( bool, c_hqfilter_sse, "bitmap.filter.highQualitySSE", false, "Use SSE optimized version of high quality image filters");
 
 void SkBitmapProcState::platformConvolutionProcs(SkConvolutionProcs* procs) {
-    if (cachedHasSSE2()) {
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         procs->fExtraHorizontalReads = 3;
         procs->fConvolveVertically = &convolveVertically_SSE2;
         procs->fConvolve4RowsHorizontally = &convolve4RowsHorizontally_SSE2;
@@ -140,29 +131,29 @@ void SkBitmapProcState::platformConvolutionProcs(SkConvolutionProcs* procs) {
 
 void SkBitmapProcState::platformProcs() {
     /* Every optimization in the function requires at least SSE2 */
-    if (!cachedHasSSE2()) {
+    if (!supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return;
     }
 
     /* Check fSampleProc32 */
     if (fSampleProc32 == S32_opaque_D32_filter_DX) {
-        if (cachedHasSSSE3()) {
+        if (supports_simd(SK_CPU_SSE_LEVEL_SSSE3)) {
             fSampleProc32 = S32_opaque_D32_filter_DX_SSSE3;
         } else {
             fSampleProc32 = S32_opaque_D32_filter_DX_SSE2;
         }
     } else if (fSampleProc32 == S32_opaque_D32_filter_DXDY) {
-        if (cachedHasSSSE3()) {
+        if (supports_simd(SK_CPU_SSE_LEVEL_SSSE3)) {
             fSampleProc32 = S32_opaque_D32_filter_DXDY_SSSE3;
         }
     } else if (fSampleProc32 == S32_alpha_D32_filter_DX) {
-        if (cachedHasSSSE3()) {
+        if (supports_simd(SK_CPU_SSE_LEVEL_SSSE3)) {
             fSampleProc32 = S32_alpha_D32_filter_DX_SSSE3;
         } else {
             fSampleProc32 = S32_alpha_D32_filter_DX_SSE2;
         }
     } else if (fSampleProc32 == S32_alpha_D32_filter_DXDY) {
-        if (cachedHasSSSE3()) {
+        if (supports_simd(SK_CPU_SSE_LEVEL_SSSE3)) {
             fSampleProc32 = S32_alpha_D32_filter_DXDY_SSSE3;
         }
     }
@@ -205,7 +196,7 @@ static SkBlitRow::Proc platform_16_procs[] = {
 };
 
 SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
-    if (cachedHasSSE2()) {
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return platform_16_procs[flags];
     } else {
         return NULL;
@@ -220,7 +211,7 @@ static SkBlitRow::Proc32 platform_32_procs[] = {
 };
 
 SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
-    if (cachedHasSSE2()) {
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return platform_32_procs[flags];
     } else {
         return NULL;
@@ -228,7 +219,7 @@ SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
 }
 
 SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
-    if (cachedHasSSE2()) {
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return Color32_SSE2;
     } else {
         return NULL;
@@ -239,7 +230,7 @@ SkBlitRow::ColorRectProc PlatformColorRectProcFactory(); // suppress warning
 
 SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
 /* Return NULL for now, since the optimized path in ColorRect32_SSE2 is disabled.
-    if (cachedHasSSE2()) {
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return ColorRect32_SSE2;
     } else {
         return NULL;
@@ -258,7 +249,7 @@ SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkBitmap::Config dstConfig,
     }
 
     ColorProc proc = NULL;
-    if (cachedHasSSE2()) {
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         switch (dstConfig) {
             case SkBitmap::kARGB_8888_Config:
                 // The SSE2 version is not (yet) faster for black, so we check
@@ -275,7 +266,7 @@ SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkBitmap::Config dstConfig,
 }
 
 SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
-    if (cachedHasSSE2()) {
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         if (isOpaque) {
             return SkBlitLCD16OpaqueRow_SSE2;
         } else {
@@ -296,7 +287,7 @@ SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkBitmap::Config dstConfig,
 ////////////////////////////////////////////////////////////////////////////////
 
 SkMemset16Proc SkMemset16GetPlatformProc() {
-    if (cachedHasSSE2()) {
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return sk_memset16_SSE2;
     } else {
         return NULL;
@@ -304,7 +295,7 @@ SkMemset16Proc SkMemset16GetPlatformProc() {
 }
 
 SkMemset32Proc SkMemset32GetPlatformProc() {
-    if (cachedHasSSE2()) {
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return sk_memset32_SSE2;
     } else {
         return NULL;
@@ -314,7 +305,7 @@ SkMemset32Proc SkMemset32GetPlatformProc() {
 ////////////////////////////////////////////////////////////////////////////////
 
 SkMorphologyImageFilter::Proc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {
-    if (!cachedHasSSE2()) {
+    if (!supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return NULL;
     }
     switch (type) {
@@ -340,7 +331,7 @@ bool SkBoxBlurGetPlatformProcs(SkBoxBlurProc* boxBlurX,
 #ifdef SK_DISABLE_BLUR_DIVISION_OPTIMIZATION
     return false;
 #else
-    if (!cachedHasSSE2()) {
+    if (!supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return false;
     }
     return SkBoxBlurGetPlatformProcs_SSE2(boxBlurX, boxBlurY, boxBlurXY, boxBlurYX);
@@ -365,7 +356,7 @@ SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec,
 
 SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec,
                                                SkXfermode::Mode mode) {
-    if (cachedHasSSE2()) {
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
         return SkPlatformXfermodeFactory_impl_SSE2(rec, mode);
     } else {
         return SkPlatformXfermodeFactory_impl(rec, mode);
