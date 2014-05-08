@@ -91,9 +91,7 @@ class ImagePairSetTest(unittest.TestCase):
                 'headerText': 'builder',
                 'isFilterable': True,
                 'isSortable': True,
-                'valuesAndCounts': {
-                    'MyBuilder': 3
-                },
+                'valuesAndCounts': [('MyBuilder', 3)],
             },
             'test': {
                 'headerText': 'which GM test',

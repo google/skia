@@ -148,13 +148,15 @@ Loader.controller(
               constants.KEY__RESULT_TYPE__NOCOMPARISON] = true;
           $scope.hiddenResultTypes[
               constants.KEY__RESULT_TYPE__SUCCEEDED] = true;
-          $scope.allResultTypes = Object.keys(
+          $scope.allResultTypes = $scope.columnSliceOf2DArray(
               $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMN__RESULT_TYPE]
-                                       [constants.KEY__VALUES_AND_COUNTS]);
+                                       [constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS],
+              0);
           $scope.hiddenConfigs = {};
-          $scope.allConfigs = Object.keys(
+          $scope.allConfigs = $scope.columnSliceOf2DArray(
               $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMN__CONFIG]
-                                       [constants.KEY__VALUES_AND_COUNTS]);
+                                       [constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS],
+              0);
 
           // Associative array of partial string matches per category.
           $scope.categoryValueMatch = {};
@@ -742,6 +744,28 @@ Loader.controller(
     // Miscellaneous utility functions.
     // TODO(epoger): move into a separate .js file?
     //
+
+    /**
+     * Returns a single "column slice" of a 2D array.
+     *
+     * For example, if array is:
+     * [[A0, A1],
+     *  [B0, B1],
+     *  [C0, C1]]
+     * and index is 0, this this will return:
+     * [A0, B0, C0]
+     *
+     * @param array a Javascript Array
+     * @param column (numeric): index within each row array
+     */
+    $scope.columnSliceOf2DArray = function(array, column) {
+      var slice = [];
+      var numRows = array.length;
+      for (var row = 0; row < numRows; row++) {
+        slice.push(array[row][column]);
+      }
+      return slice;
+    }
 
     /**
      * Returns a human-readable (in local time zone) time string for a

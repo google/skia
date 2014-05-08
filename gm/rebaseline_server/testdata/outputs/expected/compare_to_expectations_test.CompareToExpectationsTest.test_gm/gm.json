@@ -4,55 +4,112 @@
       "headerText": "builder", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "Test-Android-GalaxyNexus-SGX540-Arm7-Release": 13, 
-        "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug": 15
-      }
+      "valuesAndCounts": [
+        [
+          "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+          13
+        ], 
+        [
+          "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+          15
+        ]
+      ]
     }, 
     "config": {
       "headerText": "config", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "565": 9, 
-        "8888": 9, 
-        "gpu": 4, 
-        "pdf-mac": 3, 
-        "pdf-poppler": 3
-      }
+      "valuesAndCounts": [
+        [
+          "565", 
+          9
+        ], 
+        [
+          "8888", 
+          9
+        ], 
+        [
+          "gpu", 
+          4
+        ], 
+        [
+          "pdf-mac", 
+          3
+        ], 
+        [
+          "pdf-poppler", 
+          3
+        ]
+      ]
     }, 
     "resultType": {
       "headerText": "resultType", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "failed": 1, 
-        "failure-ignored": 4, 
-        "no-comparison": 9, 
-        "succeeded": 14
-      }
+      "valuesAndCounts": [
+        [
+          "failed", 
+          1
+        ], 
+        [
+          "failure-ignored", 
+          4
+        ], 
+        [
+          "no-comparison", 
+          9
+        ], 
+        [
+          "succeeded", 
+          14
+        ]
+      ]
     }, 
     "test": {
       "headerText": "test", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "3x3bitmaprect": 7, 
-        "aaclip": 2, 
-        "bigblurs": 7, 
-        "bitmapsource": 2, 
-        "displacement": 5, 
-        "filterbitmap_checkerboard_192_192": 2, 
-        "filterbitmap_checkerboard_32_2": 2, 
-        "texdata": 1
-      }
+      "valuesAndCounts": [
+        [
+          "3x3bitmaprect", 
+          7
+        ], 
+        [
+          "aaclip", 
+          2
+        ], 
+        [
+          "bigblurs", 
+          7
+        ], 
+        [
+          "bitmapsource", 
+          2
+        ], 
+        [
+          "displacement", 
+          5
+        ], 
+        [
+          "filterbitmap_checkerboard_192_192", 
+          2
+        ], 
+        [
+          "filterbitmap_checkerboard_32_2", 
+          2
+        ], 
+        [
+          "texdata", 
+          1
+        ]
+      ]
     }
   }, 
   "header": {
     "dataHash": "2775016045957284034", 
     "isEditable": false, 
     "isExported": true, 
-    "schemaVersion": 2, 
+    "schemaVersion": 3, 
     "timeNextUpdateAvailable": null, 
     "timeUpdated": 12345678, 
     "type": "all"

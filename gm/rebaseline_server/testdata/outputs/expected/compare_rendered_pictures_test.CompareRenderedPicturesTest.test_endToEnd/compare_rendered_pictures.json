@@ -4,45 +4,72 @@
       "headerText": "builder", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "TODO": 4
-      }
+      "valuesAndCounts": [
+        [
+          "TODO", 
+          4
+        ]
+      ]
     }, 
     "config": {
       "headerText": "config", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "whole-image": 4
-      }
+      "valuesAndCounts": [
+        [
+          "whole-image", 
+          4
+        ]
+      ]
     }, 
     "resultType": {
       "headerText": "resultType", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "failed": 1, 
-        "no-comparison": 2, 
-        "succeeded": 1
-      }
+      "valuesAndCounts": [
+        [
+          "failed", 
+          1
+        ], 
+        [
+          "no-comparison", 
+          2
+        ], 
+        [
+          "succeeded", 
+          1
+        ]
+      ]
     }, 
     "test": {
       "headerText": "test", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "changed.skp": 1, 
-        "only-in-after.skp": 1, 
-        "only-in-before.skp": 1, 
-        "unchanged.skp": 1
-      }
+      "valuesAndCounts": [
+        [
+          "changed.skp", 
+          1
+        ], 
+        [
+          "only-in-after.skp", 
+          1
+        ], 
+        [
+          "only-in-before.skp", 
+          1
+        ], 
+        [
+          "unchanged.skp", 
+          1
+        ]
+      ]
     }
   }, 
   "header": {
     "dataHash": "-595743736412687673", 
     "isEditable": false, 
     "isExported": true, 
-    "schemaVersion": 2, 
+    "schemaVersion": 3, 
     "timeNextUpdateAvailable": null, 
     "timeUpdated": 12345678, 
     "type": "all"

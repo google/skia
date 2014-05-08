@@ -4,51 +4,96 @@
       "headerText": "builder", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "Test-Android-GalaxyNexus-SGX540-Arm7-Release": 7, 
-        "Test-Builder-We-Have-No-Expectations-File-For": 3, 
-        "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug": 3
-      }
+      "valuesAndCounts": [
+        [
+          "Test-Android-GalaxyNexus-SGX540-Arm7-Release", 
+          7
+        ], 
+        [
+          "Test-Builder-We-Have-No-Expectations-File-For", 
+          3
+        ], 
+        [
+          "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+          3
+        ]
+      ]
     }, 
     "config": {
       "headerText": "config", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "TODO": 13
-      }
+      "valuesAndCounts": [
+        [
+          "TODO", 
+          13
+        ]
+      ]
     }, 
     "resultType": {
       "headerText": "resultType", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "failed": 4, 
-        "no-comparison": 7, 
-        "succeeded": 2
-      }
+      "valuesAndCounts": [
+        [
+          "failed", 
+          4
+        ], 
+        [
+          "no-comparison", 
+          7
+        ], 
+        [
+          "succeeded", 
+          2
+        ]
+      ]
     }, 
     "test": {
       "headerText": "test", 
       "isFilterable": true, 
       "isSortable": true, 
-      "valuesAndCounts": {
-        "3x3bitmaprect": 3, 
-        "aaclip": 1, 
-        "bigblurs": 3, 
-        "bitmapsource": 1, 
-        "displacement": 2, 
-        "filterbitmap_checkerboard_192_192": 1, 
-        "filterbitmap_checkerboard_32_2": 1, 
-        "texdata": 1
-      }
+      "valuesAndCounts": [
+        [
+          "3x3bitmaprect", 
+          3
+        ], 
+        [
+          "aaclip", 
+          1
+        ], 
+        [
+          "bigblurs", 
+          3
+        ], 
+        [
+          "bitmapsource", 
+          1
+        ], 
+        [
+          "displacement", 
+          2
+        ], 
+        [
+          "filterbitmap_checkerboard_192_192", 
+          1
+        ], 
+        [
+          "filterbitmap_checkerboard_32_2", 
+          1
+        ], 
+        [
+          "texdata", 
+          1
+        ]
+      ]
     }
   }, 
   "header": {
     "dataHash": "-7043844904261310530", 
     "isEditable": false, 
     "isExported": true, 
-    "schemaVersion": 2, 
+    "schemaVersion": 3, 
     "timeNextUpdateAvailable": null, 
     "timeUpdated": 12345678, 
     "type": "all"

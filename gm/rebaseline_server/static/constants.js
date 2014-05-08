@@ -9,11 +9,12 @@ var module = angular.module(
 module.constant('constants', (function() {
   return {
     // NOTE: Keep these in sync with ../column.py
-    KEY__HEADER_TEXT: 'headerText',
-    KEY__HEADER_URL: 'headerUrl',
-    KEY__IS_FILTERABLE: 'isFilterable',
-    KEY__IS_SORTABLE: 'isSortable',
-    KEY__VALUES_AND_COUNTS: 'valuesAndCounts',
+    KEY__EXTRACOLUMNHEADERS: 'extraColumnHeaders',
+    KEY__EXTRACOLUMNHEADERS__HEADER_TEXT: 'headerText',
+    KEY__EXTRACOLUMNHEADERS__HEADER_URL: 'headerUrl',
+    KEY__EXTRACOLUMNHEADERS__IS_FILTERABLE: 'isFilterable',
+    KEY__EXTRACOLUMNHEADERS__IS_SORTABLE: 'isSortable',
+    KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS: 'valuesAndCounts',
 
     // NOTE: Keep these in sync with ../imagediffdb.py
     KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL: 'maxDiffPerChannel',
@@ -31,7 +32,6 @@ module.constant('constants', (function() {
     KEY__IS_DIFFERENT: 'isDifferent',
 
     // NOTE: Keep these in sync with ../imagepairset.py
-    KEY__EXTRACOLUMNHEADERS: 'extraColumnHeaders',
     KEY__IMAGEPAIRS: 'imagePairs',
     KEY__IMAGESETS: 'imageSets',
     KEY__IMAGESETS__FIELD__BASE_URL: 'baseUrl',
@@ -42,7 +42,7 @@ module.constant('constants', (function() {
     KEY__IMAGESETS__SET__WHITEDIFFS: 'whiteDiffs',
 
     // NOTE: Keep these in sync with ../results.py
-    REBASELINE_SERVER_SCHEMA_VERSION_NUMBER: 2,
+    REBASELINE_SERVER_SCHEMA_VERSION_NUMBER: 3,
     KEY__EXPECTATIONS__BUGS: 'bugs',
     KEY__EXPECTATIONS__IGNOREFAILURE: 'ignore-failure',
     KEY__EXPECTATIONS__REVIEWED: 'reviewed-by-human',

@@ -316,6 +316,8 @@ class ExpectationComparisons(results.BaseComparisons):
           # categories recorded within the gm_actuals AT ALL, and
           # instead evaluate the result_type ourselves based on what
           # we see in expectations vs actual checksum?
+          # See related http://skbug.com/2514 ('rebaseline_server: apply
+          # ignored-tests.txt within rebaseline_server, not just on the bots')
           if expected_image_relative_url == actual_image_relative_url:
             updated_result_type = results.KEY__RESULT_TYPE__SUCCEEDED
           else:

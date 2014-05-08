@@ -17,7 +17,6 @@ import column
 
 # Keys used within dictionary representation of ImagePairSet.
 # NOTE: Keep these in sync with static/constants.js
-KEY__EXTRACOLUMNHEADERS = 'extraColumnHeaders'
 KEY__IMAGEPAIRS = 'imagePairs'
 KEY__IMAGESETS = 'imageSets'
 KEY__IMAGESETS__FIELD__BASE_URL = 'baseUrl'
@@ -141,7 +140,7 @@ class ImagePairSet(object):
     key_description = KEY__IMAGESETS__FIELD__DESCRIPTION
     key_base_url = KEY__IMAGESETS__FIELD__BASE_URL
     return {
-        KEY__EXTRACOLUMNHEADERS: self._column_headers_as_dict(),
+        column.KEY__EXTRACOLUMNHEADERS: self._column_headers_as_dict(),
         KEY__IMAGEPAIRS: self._image_pair_dicts,
         KEY__IMAGESETS: {
             KEY__IMAGESETS__SET__IMAGE_A: {

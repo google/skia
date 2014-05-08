@@ -68,13 +68,13 @@
     <tr valign="top">
       <td>
         resultType<br>
-        <label ng-repeat="(resultType, count) in extraColumnHeaders[constants.KEY__EXTRACOLUMN__RESULT_TYPE][constants.KEY__VALUES_AND_COUNTS] track by $index">
+        <label ng-repeat="valueAndCount in extraColumnHeaders[constants.KEY__EXTRACOLUMN__RESULT_TYPE][constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS]">
           <input type="checkbox"
                  name="resultTypes"
-                 value="{{resultType}}"
-                 ng-checked="!isValueInSet(resultType, hiddenResultTypes)"
-                 ng-click="toggleValueInSet(resultType, hiddenResultTypes); setUpdatesPending(true)">
-          {{resultType}} ({{count}})<br>
+                 value="{{valueAndCount[0]}}"
+                 ng-checked="!isValueInSet(valueAndCount[0], hiddenResultTypes)"
+                 ng-click="toggleValueInSet(valueAndCount[0], hiddenResultTypes); setUpdatesPending(true)">
+          {{valueAndCount[0]}} ({{valueAndCount[1]}})<br>
         </label>
         <button ng-click="hiddenResultTypes = {}; updateResults()">
           all
@@ -100,13 +100,13 @@
       </td>
       <td>
         config<br>
-        <label ng-repeat="(config, count) in extraColumnHeaders[constants.KEY__EXTRACOLUMN__CONFIG][constants.KEY__VALUES_AND_COUNTS] track by $index">
+        <label ng-repeat="valueAndCount in extraColumnHeaders[constants.KEY__EXTRACOLUMN__CONFIG][constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS]">
           <input type="checkbox"
                  name="configs"
-                 value="{{config}}"
-                 ng-checked="!isValueInSet(config, hiddenConfigs)"
-                 ng-click="toggleValueInSet(config, hiddenConfigs); setUpdatesPending(true)">
-          {{config}} ({{count}})<br>
+                 value="{{valueAndCount[0]}}"
+                 ng-checked="!isValueInSet(valueAndCount[0], hiddenConfigs)"
+                 ng-click="toggleValueInSet(valueAndCount[0], hiddenConfigs); setUpdatesPending(true)">
+          {{valueAndCount[0]}} ({{valueAndCount[1]}})<br>
         </label>
         <button ng-click="hiddenConfigs = {}; updateResults()">
           all

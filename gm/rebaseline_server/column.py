@@ -11,11 +11,12 @@ ColumnHeaderFactory class (see class docstring for details)
 
 # Keys used within dictionary representation of each column header.
 # NOTE: Keep these in sync with static/constants.js
-KEY__HEADER_TEXT = 'headerText'
-KEY__HEADER_URL = 'headerUrl'
-KEY__IS_FILTERABLE = 'isFilterable'
-KEY__IS_SORTABLE = 'isSortable'
-KEY__VALUES_AND_COUNTS = 'valuesAndCounts'
+KEY__EXTRACOLUMNHEADERS = 'extraColumnHeaders'
+KEY__EXTRACOLUMNHEADERS__HEADER_TEXT = 'headerText'
+KEY__EXTRACOLUMNHEADERS__HEADER_URL = 'headerUrl'
+KEY__EXTRACOLUMNHEADERS__IS_FILTERABLE = 'isFilterable'
+KEY__EXTRACOLUMNHEADERS__IS_SORTABLE = 'isSortable'
+KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS = 'valuesAndCounts'
 
 
 class ColumnHeaderFactory(object):
@@ -46,7 +47,8 @@ class ColumnHeaderFactory(object):
     """Creates the header for this column, in dictionary form.
 
     Creates the header for this column in dictionary form, as needed when
-    constructing the JSON representation.  Uses the KEY__* constants as keys.
+    constructing the JSON representation.  Uses the KEY__EXTRACOLUMNHEADERS__*
+    constants as keys.
 
     Args:
       values_and_counts_dict: dictionary mapping each possible column value
@@ -54,12 +56,13 @@ class ColumnHeaderFactory(object):
           None if this information is not available.
     """
     asdict = {
-        KEY__HEADER_TEXT: self._header_text,
-        KEY__IS_FILTERABLE: self._is_filterable,
-        KEY__IS_SORTABLE: self._is_sortable,
+        KEY__EXTRACOLUMNHEADERS__HEADER_TEXT: self._header_text,
+        KEY__EXTRACOLUMNHEADERS__IS_FILTERABLE: self._is_filterable,
+        KEY__EXTRACOLUMNHEADERS__IS_SORTABLE: self._is_sortable,
     }
     if self._header_url:
-      asdict[KEY__HEADER_URL] = self._header_url
+      asdict[KEY__EXTRACOLUMNHEADERS__HEADER_URL] = self._header_url
     if self._include_values_and_counts and values_and_counts_dict:
-      asdict[KEY__VALUES_AND_COUNTS] = values_and_counts_dict
+      asdict[KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS] = sorted(
+          values_and_counts_dict.items())
     return asdict
