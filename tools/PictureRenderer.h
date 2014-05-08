@@ -11,7 +11,6 @@
 #include "SkCanvas.h"
 #include "SkCountdown.h"
 #include "SkDrawFilter.h"
-#include "SkJSONCPP.h"
 #include "SkMath.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
@@ -29,6 +28,8 @@
 #include "GrContext.h"
 #endif
 
+#include "image_expectations.h"
+
 class SkBitmap;
 class SkCanvas;
 class SkGLContextHelper;
@@ -37,44 +38,6 @@ class SkThread;
 namespace sk_tools {
 
 class TiledPictureRenderer;
-
-/**
- * Class for collecting image results (checksums) as we go.
- */
-class ImageResultsSummary {
-public:
-    /**
-     * Adds this image to the summary of results.
-     *
-     * @param sourceName name of the source file that generated this result
-     * @param fileName relative path to the image output file on local disk
-     * @param hash hash to store
-     * @param tileNumber if not NULL, ptr to tile number
-     */
-    void add(const char *sourceName, const char *fileName, uint64_t hash,
-             const int *tileNumber=NULL);
-
-    /**
-     * Adds this image to the summary of results.
-     *
-     * @param sourceName name of the source file that generated this result
-     * @param fileName relative path to the image output file on local disk
-     * @param bitmap bitmap to store the hash of
-     * @param tileNumber if not NULL, ptr to tile number
-     */
-    void add(const char *sourceName, const char *fileName, const SkBitmap& bitmap,
-             const int *tileNumber=NULL);
-
-    /**
-     * Writes the summary (as constructed so far) to a file.
-     *
-     * @param filename path to write the summary to
-     */
-    void writeToFile(const char *filename);
-
-private:
-    Json::Value fActualResults;
-};
 
 class PictureRenderer : public SkRefCnt {
 
