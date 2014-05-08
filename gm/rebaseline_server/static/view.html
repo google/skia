@@ -32,7 +32,12 @@
     </div>
 
     <div ng-show="header[constants.KEY__HEADER__TIME_UPDATED]">
-      Results from <a href="{{resultsToLoad}}">{{resultsToLoad}}</a> current as of {{localTimeString(header[constants.KEY__HEADER__TIME_UPDATED])}}
+      These results, from raw JSON file
+      <a href="{{resultsToLoad}}">{{resultsToLoad}}</a>, current as of
+      {{localTimeString(header[constants.KEY__HEADER__TIME_UPDATED])}}
+      <br>
+      To see other sets of results (all results, failures only, etc.),
+      <a href="/">click here</a>
     </div>
 
     <div class="tab-wrapper"><!-- tabs -->
