@@ -16,11 +16,11 @@
  */
 
 // Generates y values for the chart plots.
-static void gen_data(SkScalar yAvg, SkScalar ySpread, int count, SkTDArray<SkScalar>* dataPts) {
+static void gen_data(SkScalar yAvg, SkScalar ySpread, int count,
+                     SkRandom* random, SkTDArray<SkScalar>* dataPts) {
     dataPts->setCount(count);
-    static SkRandom gRandom;
     for (int i = 0; i < count; ++i) {
-        (*dataPts)[i] = gRandom.nextRangeScalar(yAvg - SkScalarHalf(ySpread),
+        (*dataPts)[i] = random->nextRangeScalar(yAvg - SkScalarHalf(ySpread),
                                                 yAvg + SkScalarHalf(ySpread));
     }
 }
@@ -115,24 +115,23 @@ protected:
         if (sizeChanged) {
             int dataPointCount = SkMax32(fSize.fWidth / kPixelsPerTick + 1, 2);
 
+            SkRandom random;
             for (int i = 0; i < kNumGraphs; ++i) {
                 SkScalar y = (kNumGraphs - i) * (height - ySpread) / (kNumGraphs + 1);
                 fData[i].reset();
-                gen_data(y, ySpread, dataPointCount, fData + i);
+                gen_data(y, ySpread, dataPointCount, &random, fData + i);
             }
+        }
+
+        SkRandom colorRand;
+        SkColor colors[kNumGraphs];
+        for (int i = 0; i < kNumGraphs; ++i) {
+            colors[i] = colorRand.nextU() | 0xff000000;
         }
 
         for (int frame = 0; frame < loops; ++frame) {
 
             canvas->clear(0xFFE0F0E0);
-
-            static SkRandom colorRand;
-            static SkColor gColors[kNumGraphs] = { 0x0 };
-            if (0 == gColors[0]) {
-                for (int i = 0; i < kNumGraphs; ++i) {
-                    gColors[i] = colorRand.nextU() | 0xff000000;
-                }
-            }
 
             SkPath plotPath;
             SkPath fillPath;
@@ -160,10 +159,10 @@ protected:
                           &fillPath);
 
                 // Make the fills partially transparent
-                fillPaint.setColor((gColors[i] & 0x00ffffff) | 0x80000000);
+                fillPaint.setColor((colors[i] & 0x00ffffff) | 0x80000000);
                 canvas->drawPath(fillPath, fillPaint);
 
-                plotPaint.setColor(gColors[i]);
+                plotPaint.setColor(colors[i]);
                 canvas->drawPath(plotPath, plotPaint);
 
                 prevData = fData + i;
