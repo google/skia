@@ -153,7 +153,7 @@ desk_mapsvg.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-T
 desk_mobilenews.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,32.51,28.32792,36.21208
 desk_oldinboxapp.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,16.96,14.06224,19.36776
 desk_pinterest.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,43.71,38.60224,48.32276
-desk_pokemonwiki.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,38.1,33.50168,42.18832
+desk_pokemonwiki.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,38.1,33.50,44.86
 desk_rectangletransition.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,2.02,0.13712,3.45788
 desk_samoasvg.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,60.51,54.0588,66.4662
 desk_sfgate.skp_simple_viewport_1000x1000_scalar_1.100000_,Perf-Android-Nexus7-Tegra3-Arm7-Release-25th,38.0,33.36928,42.13072
