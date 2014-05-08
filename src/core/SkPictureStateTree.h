@@ -82,21 +82,6 @@ public:
             TODO: this might be better named nextOp
         */
         uint32_t nextDraw();
-        /** Peek at the currently queued up draw op's offset. Note that this can
-            be different then what 'nextDraw' would return b.c. it is
-            the offset of the next _draw_ op while 'nextDraw' can return
-            the offsets to saveLayer and clip ops while it is creating the proper
-            drawing context for the queued up draw op.
-        */
-        uint32_t peekDraw();
-        /** Stop trying to create the drawing context for the currently queued
-            up _draw_ operation and queue up the next one. This call returns
-            the offset of the skipped _draw_ operation. Obviously (since the
-            correct drawing context has not been established), the skipped
-            _draw_ operation should not be issued. Returns kDrawComplete if
-            the end of the draw operations is reached.
-         */
-        uint32_t skipDraw();
         static const uint32_t kDrawComplete = SK_MaxU32;
         Iterator() : fPlaybackMatrix(), fValid(false) { }
         bool isValid() const { return fValid; }

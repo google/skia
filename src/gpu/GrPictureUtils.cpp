@@ -137,16 +137,7 @@ protected:
         device->fInfo.fCTM.postTranslate(SkIntToScalar(-device->getOrigin().fX),
                                          SkIntToScalar(-device->getOrigin().fY));
 
-        // We need the x & y values that will yield 'getOrigin' when transformed
-        // by 'draw.fMatrix'.
-        device->fInfo.fOffset.iset(device->getOrigin());
-
-        SkMatrix invMatrix;
-        if (draw.fMatrix->invert(&invMatrix)) {
-            invMatrix.mapPoints(&device->fInfo.fOffset, 1);
-        } else {
-            device->fInfo.fValid = false;
-        }
+        device->fInfo.fOffset = device->getOrigin();
 
         if (NeedsDeepCopy(paint)) {
             // This NULL acts as a signal that the paint was uncopyable (for now)
