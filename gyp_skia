@@ -54,10 +54,8 @@ def additional_include_files(args=[]):
 
   return result
 
-# Return the directory where all generated files (including Makefiles) are to
-# be written.
+# Return the directory where all the build files are to be written.
 def get_output_dir():
-
   # SKIA_OUT can be any directory either as a child of the standard out/
   # directory or any given location on the file system (e.g. /tmp/skia)
   output_dir = os.getenv('SKIA_OUT')
@@ -119,10 +117,10 @@ if __name__ == '__main__':
   args.extend(['-I' + i for i in additional_include_files(args)])
   args.extend(['--depth', '.'])
 
-  # Tell gyp to write the Makefiles into output_dir
+  # Tell gyp to write the build files into output_dir.
   args.extend(['--generator-output', os.path.abspath(get_output_dir())])
 
-  # Tell make to write its output into the same dir
+  # Tell ninja to write its output into the same directory.
   args.extend(['-Goutput_dir=.'])
 
   # By default, we build 'most' instead of 'all' or 'everything'. See skia.gyp.
