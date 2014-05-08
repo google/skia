@@ -273,7 +273,7 @@ private:
         struct ReplacementInfo {
             size_t          fStart;
             size_t          fStop;
-            SkPoint         fPos;
+            SkIPoint        fPos;
             SkBitmap*       fBM;
             const SkPaint*  fPaint;  // Note: this object doesn't own the paint
         };
@@ -293,13 +293,12 @@ private:
 
         void freeAll();
 
-    #ifdef SK_DEBUG
+#ifdef SK_DEBUG
         void validate() const;
-    #endif
+#endif
 
         SkTDArray<ReplacementInfo> fReplacements;
     };
-
 
     // Replace all the draw ops in the replacement ranges in 'replacements' with
     // the associated drawBitmap call

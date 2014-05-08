@@ -114,35 +114,6 @@ void SkPictureStateTree::Iterator::setCurrentMatrix(const SkMatrix* matrix) {
     fCurrentMatrix = matrix;
 }
 
-uint32_t SkPictureStateTree::Iterator::peekDraw() {
-    SkASSERT(this->isValid());
-    if (fPlaybackIndex >= fDraws->count()) {
-        return kDrawComplete;
-    }
-
-    Draw* draw = static_cast<Draw*>((*fDraws)[fPlaybackIndex]);
-    return draw->fOffset;
-}
-
-uint32_t SkPictureStateTree::Iterator::skipDraw() {
-    SkASSERT(this->isValid());
-    if (fPlaybackIndex >= fDraws->count()) {
-        return this->finish();
-    }
-
-    Draw* draw = static_cast<Draw*>((*fDraws)[fPlaybackIndex]);
-
-    if (fSave) {
-        fCanvas->save();
-        fSave = false;
-    }
-
-    fNodes.rewind();
-
-    ++fPlaybackIndex;
-    return draw->fOffset;
-}
-
 uint32_t SkPictureStateTree::Iterator::finish() {
     if (fCurrentNode->fFlags & Node::kSaveLayer_Flag) {
         fCanvas->restore();
