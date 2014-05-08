@@ -27,8 +27,8 @@ public:
         // the translation needed to map the layer's top-left point to the origin.
         SkMatrix fCTM;
         // The offset that needs to be passed to drawBitmap to correctly
-        // position the pre-rendered layer. It is in device space.
-        SkIPoint fOffset;
+        // position the pre-rendered layer.
+        SkPoint fOffset;
         // The paint to use on restore. NULL if the paint was not copyable (and
         // thus that this layer should not be pulled forward).
         const SkPaint* fPaint;

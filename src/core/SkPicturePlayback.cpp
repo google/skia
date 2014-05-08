@@ -896,15 +896,15 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
             if (NULL != temp) {
                 SkASSERT(NULL != temp->fBM);
                 SkASSERT(NULL != temp->fPaint);
-                canvas.save();
-                canvas.setMatrix(initialMatrix);
                 canvas.drawBitmap(*temp->fBM, temp->fPos.fX, temp->fPos.fY, temp->fPaint);
-                canvas.restore();
 
                 if (it.isValid()) {
                     // This save is needed since the BBH will automatically issue
                     // a restore to balanced the saveLayer we're skipping
                     canvas.save();
+                    // Note: This skipping only works if the client only issues
+                    // well behaved saveLayer calls (i.e., doesn't use
+                    // kMatrix_SaveFlag or kClip_SaveFlag in isolation)
 
                     // At this point we know that the PictureStateTree was aiming
                     // for some draw op within temp's saveLayer (although potentially
@@ -912,32 +912,17 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                     // We need to skip all the operations inside temp's range
                     // along with all the associated state changes but update
                     // the state tree to the first operation outside temp's range.
+                    SkASSERT(it.peekDraw() >= temp->fStart && it.peekDraw() <= temp->fStop);
 
-                    uint32_t skipTo;
-                    do {
-                        skipTo = it.nextDraw();
-                        if (kDrawComplete == skipTo) {
-                            break;
-                        }
+                    while (kDrawComplete != it.peekDraw() && it.peekDraw() <= temp->fStop) {
+                        it.skipDraw();
+                    }
 
-                        if (skipTo <= temp->fStop) {
-                            reader.setOffset(skipTo);
-                            uint32_t size;
-                            DrawType op = read_op_and_size(&reader, &size);
-                            // Since we are relying on the normal SkPictureStateTree
-                            // playback we need to convert any nested saveLayer calls
-                            // it may issue into saves (so that all its internal
-                            // restores will be balanced).
-                            if (SAVE_LAYER == op) {
-                                canvas.save();
-                            }
-                        }
-                    } while (skipTo <= temp->fStop);
-
-                    if (kDrawComplete == skipTo) {
+                    if (kDrawComplete == it.peekDraw()) {
                         break;
                     }
 
+                    uint32_t skipTo = it.nextDraw();
                     reader.setOffset(skipTo);
                 } else {
                     reader.setOffset(temp->fStop);

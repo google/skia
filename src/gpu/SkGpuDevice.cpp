@@ -1997,18 +1997,11 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, SkPicture* picture)
         }
     } else {
         // In this case there is no BBH associated with the picture. Pre-render
-        // all the layers that intersect the drawn region
+        // all the layers
+        // TODO: intersect the bounds of each layer with the clip region to
+        // reduce the number of pre-rendered layers
         for (int j = 0; j < gpuData->numSaveLayers(); ++j) {
             const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(j);
-
-            SkIRect layerRect = SkIRect::MakeXYWH(info.fOffset.fX,
-                                                  info.fOffset.fY,
-                                                  info.fSize.fWidth,
-                                                  info.fSize.fHeight);
-
-            if (!SkIRect::Intersects(query, layerRect)) {
-                continue;
-            }
 
             // TODO: once this code is more stable unsuitable layers can
             // just be omitted during the optimization stage
