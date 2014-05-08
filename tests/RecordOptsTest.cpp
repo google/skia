@@ -60,6 +60,35 @@ DEF_TEST(RecordOpts_Culling, r) {
     REPORTER_ASSERT(r, 2 == assert_type<SkRecords::PairedPushCull>(r, record, 4)->skip);
 }
 
+DEF_TEST(RecordOpts_NoopCulls, r) {
+    SkRecord record;
+    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+
+    // All should be nooped.
+    recorder.pushCull(SkRect::MakeWH(200, 200));
+        recorder.pushCull(SkRect::MakeWH(100, 100));
+        recorder.popCull();
+    recorder.popCull();
+
+    // Kept for now.  We could peel off a layer of culling.
+    recorder.pushCull(SkRect::MakeWH(5, 5));
+        recorder.pushCull(SkRect::MakeWH(5, 5));
+            recorder.drawRect(SkRect::MakeWH(1, 1), SkPaint());
+        recorder.popCull();
+    recorder.popCull();
+
+    SkRecordNoopCulls(&record);
+
+    for (unsigned i = 0; i < 4; i++) {
+        assert_type<SkRecords::NoOp>(r, record, i);
+    }
+    assert_type<SkRecords::PushCull>(r, record, 4);
+    assert_type<SkRecords::PushCull>(r, record, 5);
+    assert_type<SkRecords::DrawRect>(r, record, 6);
+    assert_type<SkRecords::PopCull>(r, record, 7);
+    assert_type<SkRecords::PopCull>(r, record, 8);
+}
+
 static void draw_pos_text(SkCanvas* canvas, const char* text, bool constantY) {
     const size_t len = strlen(text);
     SkAutoTMalloc<SkPoint> pos(len);

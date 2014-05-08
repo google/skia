@@ -15,8 +15,10 @@ using namespace SkRecords;
 
 void SkRecordOptimize(SkRecord* record) {
     // TODO(mtklein): fuse independent optimizations to reduce number of passes?
+    SkRecordNoopCulls(record);
     SkRecordNoopSaveRestores(record);
     SkRecordNoopSaveLayerDrawRestores(record);
+
     SkRecordAnnotateCullingPairs(record);
     SkRecordReduceDrawPosTextStrength(record);  // Helpful to run this before BoundDrawPosTextH.
     SkRecordBoundDrawPosTextH(record);
@@ -40,6 +42,21 @@ static bool apply(Pass* pass, SkRecord* record) {
         changed |= pass->onMatch(record, &pattern, begin, end);
     }
     return changed;
+}
+
+struct CullNooper {
+    typedef Pattern3<Is<PushCull>, Star<Is<NoOp> >, Is<PopCull> > Pattern;
+
+    bool onMatch(SkRecord* record, Pattern* pattern, unsigned begin, unsigned end) {
+        record->replace<NoOp>(begin);  // PushCull
+        record->replace<NoOp>(end-1);  // PopCull
+        return true;
+    }
+};
+
+void SkRecordNoopCulls(SkRecord* record) {
+    CullNooper pass;
+    while (apply(&pass, record));
 }
 
 // Turns the logical NoOp Save and Restore in Save-Draw*-Restore patterns into actual NoOps.

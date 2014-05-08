@@ -13,6 +13,8 @@
 // Run all optimizations in recommended order.
 void SkRecordOptimize(SkRecord*);
 
+// NoOp away pointless PushCull/PopCull pairs with nothing between them.
+void SkRecordNoopCulls(SkRecord*);
 
 // Turns logical no-op Save-[non-drawing command]*-Restore patterns into actual no-ops.
 void SkRecordNoopSaveRestores(SkRecord*);
