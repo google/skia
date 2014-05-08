@@ -86,7 +86,7 @@ desk_jsfiddlehumperclip.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-A
 desk_linkedin.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,106.17,68.0764,130.1286
 desk_mapsvg.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,235.38,213.59168,256.93832
 desk_mobilenews.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,110.38,99.11152,121.31348
-desk_oldinboxapp.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,70.62,61.44936,79.77064
+desk_oldinboxapp.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,70.62,56.46,79.77
 desk_pinterest.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,80.81,54.582,99.013
 desk_pokemonwiki.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,124.86,111.36312,137.25688
 desk_rectangletransition.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,24.89,20.00008,29.51492
@@ -97,7 +97,7 @@ desk_twitter.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Ar
 desk_weather.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,113.48,101.79368,124.67132
 desk_wowwiki.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,113.47,83.12416,134.85584
 desk_yahooanswers.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,99.66,87.96856,110.43644
-desk_yahoogames.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,199.21,180.57352,217.48648
+desk_yahoogames.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,199.21,175.48,217.49
 desk_yahoosports.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,54.46,46.76832,60.94168
 desk_youtube.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,150.07,134.66152,165.04348
 desk_youtubetvvideo.skp_simple_viewport_1000x1000_gpu_,Perf-Android-Nexus4-Adreno320-Arm7-Release-25th,77.6,53.3092,93.6008
