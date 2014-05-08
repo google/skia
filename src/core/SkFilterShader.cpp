@@ -58,8 +58,9 @@ uint32_t SkFilterShader::FilterShaderContext::getFlags() const {
 SkShader::Context* SkFilterShader::onCreateContext(const ContextRec& rec, void* storage) const {
     char* shaderContextStorage = (char*)storage + sizeof(FilterShaderContext);
     SkShader::Context* shaderContext = fShader->createContext(rec, shaderContextStorage);
-    SkASSERT(shaderContext);
-
+    if (NULL == shaderContext) {
+        return NULL;
+    }
     return SkNEW_PLACEMENT_ARGS(storage, FilterShaderContext, (*this, shaderContext, rec));
 }
 
