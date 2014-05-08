@@ -631,6 +631,15 @@
         'SK_USE_POSIX_THREADS',
       ],
     }],
+
+    [ 'skia_moz2d', {
+      'defines': [
+        'SK_SUPPORT_LEGACY_LAYERRASTERIZER_API=1',
+        'SK_SUPPORT_LEGACY_COMPATIBLEDEVICE_CONFIG=1',
+        'SK_SUPPORT_LEGACY_GETTOTALCLIP=1',
+      ],
+    }],
+
   ], # end 'conditions'
   # The Xcode SYMROOT must be at the root. See build/common.gypi in chromium for more details
   'xcode_settings': {
