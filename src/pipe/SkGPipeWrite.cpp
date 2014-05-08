@@ -1230,4 +1230,3 @@ void BitmapShuttle::removeCanvas() {
     fCanvas->unref();
     fCanvas = NULL;
 }
-

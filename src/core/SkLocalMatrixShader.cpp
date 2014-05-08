@@ -15,44 +15,44 @@ public:
         : fProxyShader(SkRef(proxy))
         , fProxyLocalMatrix(localMatrix)
     {}
-    
+
     virtual size_t contextSize() const SK_OVERRIDE {
         return fProxyShader->contextSize();
     }
-    
+
     virtual BitmapType asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
                                  TileMode* mode) const SK_OVERRIDE {
         return fProxyShader->asABitmap(bitmap, matrix, mode);
     }
-    
+
     virtual GradientType asAGradient(GradientInfo* info) const SK_OVERRIDE {
         return fProxyShader->asAGradient(info);
     }
-    
+
     // TODO: need to augment this API to pass in a localmatrix (which we can augment)
     virtual GrEffectRef* asNewEffect(GrContext* ctx, const SkPaint& paint) const SK_OVERRIDE {
         return fProxyShader->asNewEffect(ctx, paint);
     }
-    
+
     virtual SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const SK_OVERRIDE {
         if (localMatrix) {
             *localMatrix = fProxyLocalMatrix;
         }
         return SkRef(fProxyShader.get());
     }
-    
+
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkLocalMatrixShader)
-    
+
 protected:
     SkLocalMatrixShader(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     virtual Context* onCreateContext(const ContextRec&, void*) const SK_OVERRIDE;
-    
+
 private:
     SkAutoTUnref<SkShader> fProxyShader;
     SkMatrix  fProxyLocalMatrix;
-    
+
     typedef SkShader INHERITED;
 };
 
@@ -86,11 +86,11 @@ SkShader::Context* SkLocalMatrixShader::onCreateContext(const ContextRec& rec,
 #ifndef SK_IGNORE_TO_STRING
 void SkLocalMatrixShader::toString(SkString* str) const {
     str->append("SkLocalMatrixShader: (");
-    
+
     fProxyShader->toString(str);
-    
+
     this->INHERITED::toString(str);
-    
+
     str->append(")");
 }
 #endif
@@ -99,9 +99,9 @@ SkShader* SkShader::CreateLocalMatrixShader(SkShader* proxy, const SkMatrix& loc
     if (localMatrix.isIdentity()) {
         return SkRef(proxy);
     }
-    
+
     const SkMatrix* lm = &localMatrix;
-    
+
     SkMatrix otherLocalMatrix;
     SkAutoTUnref<SkShader> otherProxy(proxy->refAsALocalMatrixShader(&otherLocalMatrix));
     if (otherProxy.get()) {
@@ -109,7 +109,6 @@ SkShader* SkShader::CreateLocalMatrixShader(SkShader* proxy, const SkMatrix& loc
         lm = &otherLocalMatrix;
         proxy = otherProxy.get();
     }
-    
+
     return SkNEW_ARGS(SkLocalMatrixShader, (proxy, *lm));
 }
-

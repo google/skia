@@ -311,7 +311,7 @@ protected:
         }
         patch.setBounds(fSize1.fX, fSize1.fY);
         drawpatches(canvas, paint, 10, 10, &patch);
-        
+
         this->inval(NULL);
     }
 

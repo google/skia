@@ -1964,13 +1964,13 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, SkPicture* picture)
 
     if (ops.valid()) {
         // In this case the picture has been generated with a BBH so we use
-        // the BBH to limit the pre-rendering to just the layers needed to cover 
-        // the region being drawn 
+        // the BBH to limit the pre-rendering to just the layers needed to cover
+        // the region being drawn
         for (int i = 0; i < ops.numOps(); ++i) {
             uint32_t offset = ops.offset(i);
 
             // For now we're saving all the layers in the GPUAccelData so they
-            // can be nested. Additionally, the nested layers appear before 
+            // can be nested. Additionally, the nested layers appear before
             // their parent in the list.
             for (int j = 0 ; j < gpuData->numSaveLayers(); ++j) {
                 const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(j);
@@ -2012,7 +2012,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, SkPicture* picture)
                 continue;
             }
 
-            pullForward[j] = true;   
+            pullForward[j] = true;
         }
     }
 
@@ -2025,7 +2025,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, SkPicture* picture)
             const GPUAccelData::SaveLayerInfo& info = gpuData->saveLayerInfo(i);
 
             if (NULL != picture->fPlayback) {
-                SkPicturePlayback::PlaybackReplacements::ReplacementInfo* layerInfo = 
+                SkPicturePlayback::PlaybackReplacements::ReplacementInfo* layerInfo =
                                                                         replacements.push();
                 layerInfo->fStart = info.fSaveLayerOpID;
                 layerInfo->fStop = info.fRestoreOpID;
@@ -2043,7 +2043,7 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, SkPicture* picture)
                 // This just uses scratch textures and doesn't cache the texture.
                 // This can yield a lot of re-rendering
                 if (NULL == layer->getTexture()) {
-                    layer->setTexture(fContext->lockAndRefScratchTexture(desc, 
+                    layer->setTexture(fContext->lockAndRefScratchTexture(desc,
                                                         GrContext::kApprox_ScratchTexMatch));
                     if (NULL == layer->getTexture()) {
                         continue;

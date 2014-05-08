@@ -23,10 +23,10 @@ template <typename T> int SafeCount(const T* obj) {
  */
 #define SPEW_CLIP_SKIPPINGx
 
-SkPicturePlayback::PlaybackReplacements::ReplacementInfo* 
-SkPicturePlayback::PlaybackReplacements::push() { 
+SkPicturePlayback::PlaybackReplacements::ReplacementInfo*
+SkPicturePlayback::PlaybackReplacements::push() {
     SkDEBUGCODE(this->validate());
-    return fReplacements.push(); 
+    return fReplacements.push();
 }
 
 void SkPicturePlayback::PlaybackReplacements::freeAll() {
@@ -776,7 +776,7 @@ private:
 };
 
 // TODO: Replace with hash or pass in "lastLookedUp" hint
-SkPicturePlayback::PlaybackReplacements::ReplacementInfo* 
+SkPicturePlayback::PlaybackReplacements::ReplacementInfo*
 SkPicturePlayback::PlaybackReplacements::lookupByStart(size_t start) {
     SkDEBUGCODE(this->validate());
     for (int i = 0; i < fReplacements.count(); ++i) {
@@ -891,7 +891,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
 
         if (NULL != fReplacements) {
             // Potentially replace a block of operations with a single drawBitmap call
-            SkPicturePlayback::PlaybackReplacements::ReplacementInfo* temp = 
+            SkPicturePlayback::PlaybackReplacements::ReplacementInfo* temp =
                                             fReplacements->lookupByStart(reader.offset());
             if (NULL != temp) {
                 SkASSERT(NULL != temp->fBM);
@@ -903,14 +903,14 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
                     // a restore to balanced the saveLayer we're skipping
                     canvas.save();
                     // Note: This skipping only works if the client only issues
-                    // well behaved saveLayer calls (i.e., doesn't use 
+                    // well behaved saveLayer calls (i.e., doesn't use
                     // kMatrix_SaveFlag or kClip_SaveFlag in isolation)
 
                     // At this point we know that the PictureStateTree was aiming
                     // for some draw op within temp's saveLayer (although potentially
                     // in a separate saveLayer nested inside it).
                     // We need to skip all the operations inside temp's range
-                    // along with all the associated state changes but update 
+                    // along with all the associated state changes but update
                     // the state tree to the first operation outside temp's range.
                     SkASSERT(it.peekDraw() >= temp->fStart && it.peekDraw() <= temp->fStop);
 

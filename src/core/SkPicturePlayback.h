@@ -280,7 +280,7 @@ private:
 
         ~PlaybackReplacements() { this->freeAll(); }
 
-        // Add a new replacement range. The replacement ranges should be 
+        // Add a new replacement range. The replacement ranges should be
         // sorted in increasing order and non-overlapping (esp. no nested
         // saveLayers).
         ReplacementInfo* push();

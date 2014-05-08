@@ -121,7 +121,7 @@ uint32_t SkPictureStateTree::Iterator::peekDraw() {
     }
 
     Draw* draw = static_cast<Draw*>((*fDraws)[fPlaybackIndex]);
-    return draw->fOffset;    
+    return draw->fOffset;
 }
 
 uint32_t SkPictureStateTree::Iterator::skipDraw() {
