@@ -958,8 +958,8 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* mx,
         mx->fBottom = mx->fDescent;
         mx->fLeading = fTextSizeRender * SkIntToScalar(dwfm.lineGap) / upem;
         mx->fXHeight = fTextSizeRender * SkIntToScalar(dwfm.xHeight) / upem;
-        mx->fUnderlineThickness = fTextSizeRender * SkIntToScalar(dwfm.underlinePosition) / upem;
-        mx->fUnderlinePosition = -(fTextSizeRender * SkIntToScalar(dwfm.underlineThickness) / upem);
+        mx->fUnderlineThickness = fTextSizeRender * SkIntToScalar(dwfm.underlineThickness) / upem;
+        mx->fUnderlinePosition = -(fTextSizeRender * SkIntToScalar(dwfm.underlinePosition) / upem);
 
         mx->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
         mx->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
@@ -972,8 +972,8 @@ void SkScalerContext_DW::generateFontMetrics(SkPaint::FontMetrics* mx,
         my->fBottom = my->fDescent;
         my->fLeading = fTextSizeRender * SkIntToScalar(dwfm.lineGap) / upem;
         my->fXHeight = fTextSizeRender * SkIntToScalar(dwfm.xHeight) / upem;
-        my->fUnderlineThickness = fTextSizeRender * SkIntToScalar(dwfm.underlinePosition) / upem;
-        my->fUnderlinePosition = -(fTextSizeRender * SkIntToScalar(dwfm.underlineThickness) / upem);
+        my->fUnderlineThickness = fTextSizeRender * SkIntToScalar(dwfm.underlineThickness) / upem;
+        my->fUnderlinePosition = -(fTextSizeRender * SkIntToScalar(dwfm.underlinePosition) / upem);
 
         my->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
         my->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
