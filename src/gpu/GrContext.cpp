@@ -237,7 +237,7 @@ void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes)
 GrTexture* GrContext::findAndRefTexture(const GrTextureDesc& desc,
                                         const GrCacheID& cacheID,
                                         const GrTextureParams* params) {
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
+    GrResourceKey resourceKey = GrTextureImpl::ComputeKey(fGpu, params, desc, cacheID);
     GrCacheable* resource = fResourceCache->find(resourceKey);
     SkSafeRef(resource);
     return static_cast<GrTexture*>(resource);
@@ -246,7 +246,7 @@ GrTexture* GrContext::findAndRefTexture(const GrTextureDesc& desc,
 bool GrContext::isTextureInCache(const GrTextureDesc& desc,
                                  const GrCacheID& cacheID,
                                  const GrTextureParams* params) const {
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
+    GrResourceKey resourceKey = GrTextureImpl::ComputeKey(fGpu, params, desc, cacheID);
     return fResourceCache->hasKey(resourceKey);
 }
 
@@ -383,13 +383,13 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
                                     void* srcData,
                                     size_t rowBytes,
                                     GrResourceKey* cacheKey) {
-    GrResourceKey resourceKey = GrTexture::ComputeKey(fGpu, params, desc, cacheID);
+    GrResourceKey resourceKey = GrTextureImpl::ComputeKey(fGpu, params, desc, cacheID);
 
     GrTexture* texture;
-    if (GrTexture::NeedsResizing(resourceKey)) {
+    if (GrTextureImpl::NeedsResizing(resourceKey)) {
         texture = this->createResizedTexture(desc, cacheID,
                                              srcData, rowBytes,
-                                             GrTexture::NeedsBilerp(resourceKey));
+                                             GrTextureImpl::NeedsBilerp(resourceKey));
     } else {
         texture= fGpu->createTexture(desc, srcData, rowBytes);
     }
@@ -413,7 +413,7 @@ static GrTexture* create_scratch_texture(GrGpu* gpu,
                                          const GrTextureDesc& desc) {
     GrTexture* texture = gpu->createTexture(desc, NULL, 0);
     if (NULL != texture) {
-        GrResourceKey key = GrTexture::ComputeScratchKey(texture->desc());
+        GrResourceKey key = GrTextureImpl::ComputeScratchKey(texture->desc());
         // Adding a resource could put us overbudget. Try to free up the
         // necessary space before adding it.
         resourceCache->purgeAsNeeded(1, texture->gpuMemorySize());
@@ -453,7 +453,7 @@ GrTexture* GrContext::lockAndRefScratchTexture(const GrTextureDesc& inDesc, Scra
     int origHeight = desc.fHeight;
 
     do {
-        GrResourceKey key = GrTexture::ComputeScratchKey(desc);
+        GrResourceKey key = GrTextureImpl::ComputeScratchKey(desc);
         // Ensure we have exclusive access to the texture so future 'find' calls don't return it
         resource = fResourceCache->find(key, GrResourceCache::kHide_OwnershipFlag);
         if (NULL != resource) {
@@ -543,7 +543,7 @@ void GrContext::unlockScratchTexture(GrTexture* texture) {
             // Instead, give up the cache's ref and leave the decision up to
             // addExistingTextureToCache once its ref count reaches 0. For
             // this to work we need to leave it in the exclusive list.
-            texture->setFlag((GrTextureFlags) GrTexture::kReturnToCache_FlagBit);
+            texture->impl()->setFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit);
             // Give up the cache's ref to the texture
             texture->unref();
         }

@@ -479,7 +479,7 @@ bool GrGpuGL::onWriteTexturePixels(GrTexture* texture,
     if (this->uploadTexData(desc, false,
                             left, top, width, height,
                             config, buffer, rowBytes)) {
-        texture->dirtyMipMaps(true);
+        texture->impl()->dirtyMipMaps(true);
         return true;
     } else {
         return false;
@@ -1583,8 +1583,8 @@ void GrGpuGL::flushRenderTarget(const SkIRect* bound) {
     }
 
     GrTexture *texture = rt->asTexture();
-    if (texture) {
-        texture->dirtyMipMaps(true);
+    if (NULL != texture) {
+        texture->impl()->dirtyMipMaps(true);
     }
 }
 
