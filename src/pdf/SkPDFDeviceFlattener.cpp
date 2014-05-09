@@ -6,6 +6,7 @@
  */
 
 #include "SkPDFDeviceFlattener.h"
+
 #include "SkDraw.h"
 
 static SkISize SkSizeToISize(const SkSize& size) {
@@ -24,9 +25,9 @@ SkPDFDeviceFlattener::~SkPDFDeviceFlattener() {
 
 static void flattenPaint(const SkDraw& d, SkPaint* paint) {
     if (paint->getShader()) {
-        SkAutoTUnref<SkShader> lms(SkShader::CreateLocalMatrixShader(paint->getShader(),
-                                                                     *d.fMatrix));
-        paint->setShader(lms);
+        SkMatrix local = paint->getShader()->getLocalMatrix();
+        local.preConcat(*d.fMatrix);
+        paint->getShader()->setLocalMatrix(local);
     }
 }
 

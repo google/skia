@@ -60,7 +60,7 @@ SkShader::~SkShader() {
 
 void SkShader::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    bool hasLocalM = !fLocalMatrix.isIdentity();
+    bool hasLocalM = this->hasLocalMatrix();
     buffer.writeBool(hasLocalM);
     if (hasLocalM) {
         buffer.writeMatrix(fLocalMatrix);
@@ -68,10 +68,13 @@ void SkShader::flatten(SkWriteBuffer& buffer) const {
 }
 
 bool SkShader::computeTotalInverse(const ContextRec& rec, SkMatrix* totalInverse) const {
-    SkMatrix total;
-    total.setConcat(*rec.fMatrix, fLocalMatrix);
+    const SkMatrix* m = rec.fMatrix;
+    SkMatrix        total;
 
-    const SkMatrix* m = &total;
+    if (this->hasLocalMatrix()) {
+        total.setConcat(*m, this->getLocalMatrix());
+        m = &total;
+    }
     if (rec.fLocalMatrix) {
         total.setConcat(*m, *rec.fLocalMatrix);
         m = &total;
@@ -232,9 +235,9 @@ SkShader* SkShader::CreatePictureShader(SkPicture* src, TileMode tmx, TileMode t
 
 #ifndef SK_IGNORE_TO_STRING
 void SkShader::toString(SkString* str) const {
-    if (!fLocalMatrix.isIdentity()) {
+    if (this->hasLocalMatrix()) {
         str->append(" ");
-        fLocalMatrix.toString(str);
+        this->getLocalMatrix().toString(str);
     }
 }
 #endif

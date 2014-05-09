@@ -38,15 +38,14 @@ public:
     virtual ~SkShader();
 
     /**
-     *  Returns the local matrix.
-     */
-    const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
-
-#ifdef SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX
-    /**
      *  Returns true if the local matrix is not an identity matrix.
      */
     bool hasLocalMatrix() const { return !fLocalMatrix.isIdentity(); }
+
+    /**
+     *  Returns the local matrix.
+     */
+    const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
 
     /**
      *  Set the shader's local matrix.
@@ -58,7 +57,6 @@ public:
      *  Reset the shader's local matrix to identity.
      */
     void resetLocalMatrix() { fLocalMatrix.reset(); }
-#endif
 
     enum TileMode {
         /** replicate the edge color if the shader draws outside of its
