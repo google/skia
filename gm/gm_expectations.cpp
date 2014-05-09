@@ -3,10 +3,13 @@
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
+ *
+ * TODO(epoger): Combine this with tools/image_expectations.cpp, or eliminate one of the two.
  */
 
 #include "gm_expectations.h"
 #include "SkBitmapHasher.h"
+#include "SkData.h"
 #include "SkImageDecoder.h"
 
 #define DEBUGFAIL_SEE_STDERR SkDEBUGFAIL("see stderr for message")
@@ -219,33 +222,8 @@ namespace skiagm {
         return Expectations(fJsonExpectedResults[testName]);
     }
 
-    /*static*/ SkData* JsonExpectationsSource::ReadIntoSkData(SkStream &stream, size_t maxBytes) {
-        if (0 == maxBytes) {
-            return SkData::NewEmpty();
-        }
-        char* bufStart = reinterpret_cast<char *>(sk_malloc_throw(maxBytes));
-        char* bufPtr = bufStart;
-        size_t bytesRemaining = maxBytes;
-        while (bytesRemaining > 0) {
-            size_t bytesReadThisTime = stream.read(bufPtr, bytesRemaining);
-            if (0 == bytesReadThisTime) {
-                break;
-            }
-            bytesRemaining -= bytesReadThisTime;
-            bufPtr += bytesReadThisTime;
-        }
-        return SkData::NewFromMalloc(bufStart, maxBytes - bytesRemaining);
-    }
-
     /*static*/ bool JsonExpectationsSource::Parse(const char *jsonPath, Json::Value *jsonRoot) {
-        SkFILEStream inFile(jsonPath);
-        if (!inFile.isValid()) {
-            SkDebugf("unable to read JSON file %s\n", jsonPath);
-            DEBUGFAIL_SEE_STDERR;
-            return false;
-        }
-
-        SkAutoDataUnref dataRef(ReadFileIntoSkData(inFile));
+        SkAutoDataUnref dataRef(SkData::NewFromFileName(jsonPath));
         if (NULL == dataRef.get()) {
             SkDebugf("error reading JSON file %s\n", jsonPath);
             DEBUGFAIL_SEE_STDERR;

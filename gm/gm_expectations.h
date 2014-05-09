@@ -3,6 +3,8 @@
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
+ *
+ * TODO(epoger): Combine this with tools/image_expectations.h, or eliminate one of the two.
  */
 #ifndef gm_expectations_DEFINED
 #define gm_expectations_DEFINED
@@ -214,47 +216,6 @@ namespace skiagm {
         Expectations get(const char *testName) const SK_OVERRIDE;
 
     private:
-
-        /**
-         * Read as many bytes as possible (up to maxBytes) from the stream into
-         * an SkData object.
-         *
-         * If the returned SkData contains fewer than maxBytes, then EOF has been
-         * reached and no more data would be available from subsequent calls.
-         * (If EOF has already been reached, then this call will return an empty
-         * SkData object immediately.)
-         *
-         * If there are fewer than maxBytes bytes available to read from the
-         * stream, but the stream has not been closed yet, this call will block
-         * until there are enough bytes to read or the stream has been closed.
-         *
-         * It is up to the caller to call unref() on the returned SkData object
-         * once the data is no longer needed, so that the underlying buffer will
-         * be freed.  For example:
-         *
-         * {
-         *   size_t maxBytes = 256;
-         *   SkAutoDataUnref dataRef(readIntoSkData(stream, maxBytes));
-         *   if (NULL != dataRef.get()) {
-         *     size_t bytesActuallyRead = dataRef.get()->size();
-         *     // use the data...
-         *   }
-         * }
-         * // underlying buffer has been freed, thanks to auto unref
-         *
-         */
-        // TODO(epoger): Move this, into SkStream.[cpp|h] as attempted in
-        // https://codereview.appspot.com/7300071 ?
-        // And maybe ReadFileIntoSkData() also?
-        static SkData* ReadIntoSkData(SkStream &stream, size_t maxBytes);
-
-        /**
-         * Wrapper around ReadIntoSkData for files: reads the entire file into
-         * an SkData object.
-         */
-        static SkData* ReadFileIntoSkData(SkFILEStream &stream) {
-            return ReadIntoSkData(stream, stream.getLength());
-        }
 
         /**
          * Read the file contents from jsonPath and parse them into jsonRoot.
