@@ -14,6 +14,9 @@
       'sources': [
         '../src/sfnt/SkIBMFamilyClass.h',
         '../src/sfnt/SkOTTableTypes.h',
+        '../src/sfnt/SkOTTable_EBDT.h',
+        '../src/sfnt/SkOTTable_EBLC.h',
+        '../src/sfnt/SkOTTable_EBSC.h',
         '../src/sfnt/SkOTTable_glyf.h',
         '../src/sfnt/SkOTTable_head.h',
         '../src/sfnt/SkOTTable_hhea.h',
