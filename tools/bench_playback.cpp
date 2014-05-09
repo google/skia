@@ -11,6 +11,7 @@
 #include "SkGraphics.h"
 #include "SkOSFile.h"
 #include "SkPicture.h"
+#include "SkPictureRecorder.h"
 #include "SkRecordDraw.h"
 #include "SkRecordOpts.h"
 #include "SkRecorder.h"
@@ -101,7 +102,21 @@ int tool_main(int argc, char** argv) {
             continue;
         }
 
-        bench(scratch.get(), *src, filename.c_str());
+        // Rerecord into a picture using a tile grid.
+        SkTileGridFactory::TileGridInfo info;
+        info.fTileInterval.set(FLAGS_tile, FLAGS_tile);
+        info.fMargin.setEmpty();
+        info.fOffset.setZero();
+        SkTileGridFactory factory(info);
+
+        SkPictureRecorder recorder;
+        SkCanvas* canvas = recorder.beginRecording(src->width(), src->height(),
+                                                   &factory,
+                                                   SkPicture::kUsePathBoundsForClip_RecordingFlag);
+        src->draw(canvas);
+        SkAutoTUnref<SkPicture> replay(recorder.endRecording());
+
+        bench(scratch.get(), *replay, filename.c_str());
     }
     return failed ? 1 : 0;
 }
