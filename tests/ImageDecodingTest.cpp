@@ -512,8 +512,8 @@ static SkPixelRef* install_pixel_ref(SkBitmap* bitmap,
  */
 DEF_TEST(ImprovedBitmapFactory, reporter) {
     SkString resourcePath = skiatest::Test::GetResourcePath();
-    SkString directory = SkOSPath::SkPathJoin(resourcePath.c_str(), "encoding");
-    SkString path = SkOSPath::SkPathJoin(directory.c_str(), "randPixels.png");
+    SkString path = SkOSPath::SkPathJoin(
+            resourcePath.c_str(), "randPixels.png");
     SkAutoTUnref<SkStreamRewindable> stream(
         SkStream::NewFromFile(path.c_str()));
     if (sk_exists(path.c_str())) {
@@ -531,9 +531,10 @@ DEF_TEST(ImprovedBitmapFactory, reporter) {
 
 #if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_UNIX)
 static inline bool check_rounding(int value, int dividend, int divisor) {
-    // returns true if (dividend/divisor) rounds up OR down to value
+    // returns true if the value is greater than floor(dividend/divisor)
+    // and less than SkNextPow2(ceil(dividend - divisor))
     return (((divisor * value) > (dividend - divisor))
-            && ((divisor * value) < (dividend + divisor)));
+            && value <= SkNextPow2(((dividend - 1) / divisor) + 1));
 }
 #endif  // SK_BUILD_FOR_ANDROID || SK_BUILD_FOR_UNIX
 
@@ -621,6 +622,11 @@ static void test_options(skiatest::Reporter* reporter,
                                              opts.fSampleSize));
     REPORTER_ASSERT(reporter, check_rounding(bm.width(), kExpectedWidth,
                                              opts.fSampleSize));
+    // The ImageDecoder API doesn't guarantee that SampleSize does
+    // anything at all, but the decoders that this test excercises all
+    // produce an output size in the following range:
+    //    (((sample_size * out_size) > (in_size - sample_size))
+    //     && out_size <= SkNextPow2(((in_size - 1) / sample_size) + 1));
     #endif  // SK_BUILD_FOR_ANDROID || SK_BUILD_FOR_UNIX
     SkAutoLockPixels alp(bm);
     if (bm.getPixels() == NULL) {
@@ -682,8 +688,7 @@ DEF_TEST(ImageDecoderOptions, reporter) {
     };
 
     SkString resourceDir = skiatest::Test::GetResourcePath();
-    SkString directory = SkOSPath::SkPathJoin(resourceDir.c_str(), "encoding");
-    if (!sk_exists(directory.c_str())) {
+    if (!sk_exists(resourceDir.c_str())) {
         return;
     }
 
@@ -700,7 +705,7 @@ DEF_TEST(ImageDecoderOptions, reporter) {
     const bool useDataList[] = {true, false};
 
     for (size_t fidx = 0; fidx < SK_ARRAY_COUNT(files); ++fidx) {
-        SkString path = SkOSPath::SkPathJoin(directory.c_str(), files[fidx]);
+        SkString path = SkOSPath::SkPathJoin(resourceDir.c_str(), files[fidx]);
         if (!sk_exists(path.c_str())) {
             continue;
         }
