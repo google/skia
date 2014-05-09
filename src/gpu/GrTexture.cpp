@@ -26,12 +26,13 @@ GrTexture::~GrTexture() {
  * textures back in the texture cache when their ref count goes to zero.
  */
 void GrTexture::internal_dispose() const {
-    if (this->impl()->isSetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit) &&
+
+    if (this->isSetFlag((GrTextureFlags) kReturnToCache_FlagBit) &&
         NULL != this->INHERITED::getContext()) {
         GrTexture* nonConstThis = const_cast<GrTexture *>(this);
         this->fRefCnt = 1;      // restore ref count to initial setting
 
-        nonConstThis->impl()->resetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit);
+        nonConstThis->resetFlag((GrTextureFlags) kReturnToCache_FlagBit);
         nonConstThis->INHERITED::getContext()->addExistingTextureToCache(nonConstThis);
 
         // Note: "this" texture might be freed inside addExistingTextureToCache
@@ -43,7 +44,7 @@ void GrTexture::internal_dispose() const {
     this->INHERITED::internal_dispose();
 }
 
-void GrTextureImpl::dirtyMipMaps(bool mipMapsDirty) {
+void GrTexture::dirtyMipMaps(bool mipMapsDirty) {
     if (mipMapsDirty) {
         if (kValid_MipMapsStatus == fMipMapsStatus) {
             fMipMapsStatus = kAllocated_MipMapsStatus;
@@ -62,7 +63,7 @@ size_t GrTexture::gpuMemorySize() const {
     size_t textureSize =  (size_t) fDesc.fWidth *
                                    fDesc.fHeight *
                                    GrBytesPerPixel(fDesc.fConfig);
-    if (this->impl()->hasMipMaps()) {
+    if (kNotAllocated_MipMapsStatus != fMipMapsStatus) {
         // We don't have to worry about the mipmaps being a different size than
         // we'd expect because we never change fDesc.fWidth/fHeight.
         textureSize *= 2;
@@ -99,7 +100,7 @@ void GrTexture::writePixels(int left, int top, int width, int height,
 }
 
 void GrTexture::onRelease() {
-    SkASSERT(!this->impl()->isSetFlag((GrTextureFlags) GrTextureImpl::kReturnToCache_FlagBit));
+    SkASSERT(!this->isSetFlag((GrTextureFlags) kReturnToCache_FlagBit));
     INHERITED::onRelease();
 }
 
@@ -128,8 +129,6 @@ void GrTexture::validateDesc() const {
         SkASSERT(0 == fDesc.fSampleCnt);
     }
 }
-
-//////////////////////////////////////////////////////////////////////////////
 
 // These flags need to fit in a GrResourceKey::ResourceFlags so they can be folded into the texture
 // key
@@ -187,9 +186,7 @@ GrSurfaceOrigin resolve_origin(const GrTextureDesc& desc) {
 }
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-GrResourceKey GrTextureImpl::ComputeKey(const GrGpu* gpu,
+GrResourceKey GrTexture::ComputeKey(const GrGpu* gpu,
                                     const GrTextureParams* params,
                                     const GrTextureDesc& desc,
                                     const GrCacheID& cacheID) {
@@ -197,7 +194,7 @@ GrResourceKey GrTextureImpl::ComputeKey(const GrGpu* gpu,
     return GrResourceKey(cacheID, texture_resource_type(), flags);
 }
 
-GrResourceKey GrTextureImpl::ComputeScratchKey(const GrTextureDesc& desc) {
+GrResourceKey GrTexture::ComputeScratchKey(const GrTextureDesc& desc) {
     GrCacheID::Key idKey;
     // Instead of a client-provided key of the texture contents we create a key from the
     // descriptor.
@@ -216,10 +213,10 @@ GrResourceKey GrTextureImpl::ComputeScratchKey(const GrTextureDesc& desc) {
     return GrResourceKey(cacheID, texture_resource_type(), 0);
 }
 
-bool GrTextureImpl::NeedsResizing(const GrResourceKey& key) {
+bool GrTexture::NeedsResizing(const GrResourceKey& key) {
     return SkToBool(key.getResourceFlags() & kStretchToPOT_TextureFlag);
 }
 
-bool GrTextureImpl::NeedsBilerp(const GrResourceKey& key) {
+bool GrTexture::NeedsBilerp(const GrResourceKey& key) {
     return SkToBool(key.getResourceFlags() & kBilerp_TextureFlag);
 }

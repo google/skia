@@ -62,7 +62,7 @@ public:
     }
 
     static GrResourceKey ComputeKey(const GrTextureDesc& desc) {
-        return GrTextureImpl::ComputeScratchKey(desc);
+        return GrTexture::ComputeScratchKey(desc);
     }
 
     int fID;
