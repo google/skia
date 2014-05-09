@@ -1778,25 +1778,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8656374752057403712
+          12670698167582780333
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "canvas-layer-state_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8656374752057403712
+          12670698167582780333
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "canvas-state_565.png": {
       "allowed-digests": [

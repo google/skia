@@ -3020,37 +3020,28 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9377267151286982251
+          12670698167582780333
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "canvas-layer-state_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9377267151286982251
+          12670698167582780333
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "canvas-layer-state_pdf-poppler.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2547347972224996459
+          12588341744877816109
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "canvas-state_565.png": {
       "allowed-digests": [
