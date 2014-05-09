@@ -26,16 +26,17 @@ static void test_cache(skiatest::Reporter* reporter,
     src.eraseColor(SK_ColorBLACK);
     size_t srcSize = src.getSize();
 
-    size_t initialCacheSize = context->getGpuTextureCacheBytes();
+    size_t initialCacheSize;
+    context->getResourceCacheUsage(NULL, &initialCacheSize);
 
     int oldMaxNum;
     size_t oldMaxBytes;
-    context->getTextureCacheLimits(&oldMaxNum, &oldMaxBytes);
+    context->getResourceCacheLimits(&oldMaxNum, &oldMaxBytes);
 
     // Set the cache limits so we can fit 10 "src" images and the
     // max number of textures doesn't matter
     size_t maxCacheSize = initialCacheSize + 10*srcSize;
-    context->setTextureCacheLimits(1000, maxCacheSize);
+    context->setResourceCacheLimits(1000, maxCacheSize);
 
     SkBitmap readback;
     readback.allocN32Pixels(size.width(), size.height());
@@ -47,13 +48,14 @@ static void test_cache(skiatest::Reporter* reporter,
         // "modify" the src texture
         src.notifyPixelsChanged();
 
-        size_t curCacheSize = context->getGpuTextureCacheBytes();
+        size_t curCacheSize;
+        context->getResourceCacheUsage(NULL, &curCacheSize);
 
         // we should never go over the size limit
         REPORTER_ASSERT(reporter, curCacheSize <= maxCacheSize);
     }
 
-    context->setTextureCacheLimits(oldMaxNum, oldMaxBytes);
+    context->setResourceCacheLimits(oldMaxNum, oldMaxBytes);
 }
 
 class TestResource : public GrCacheable {

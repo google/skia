@@ -433,14 +433,14 @@ int tool_main(int argc, char** argv) {
 
         size_t bytes;
         int count;
-        context->getTextureCacheLimits(&count, &bytes);
+        context->getResourceCacheLimits(&count, &bytes);
         if (-1 != FLAGS_gpuCacheBytes) {
             bytes = static_cast<size_t>(FLAGS_gpuCacheBytes);
         }
         if (-1 != FLAGS_gpuCacheCount) {
             count = FLAGS_gpuCacheCount;
         }
-        context->setTextureCacheLimits(count, bytes);
+        context->setResourceCacheLimits(count, bytes);
 #endif
     }
 

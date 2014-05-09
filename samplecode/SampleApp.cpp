@@ -1863,10 +1863,10 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             {
                 GrContext* grContext = this->getGrContext();
                 if (grContext) {
-                    size_t cacheBytes = grContext->getGpuTextureCacheBytes();
+                    size_t cacheBytes;
+                    grContext->getResourceCacheUsage(NULL, &cacheBytes);
                     grContext->freeGpuResources();
-                    SkDebugf("Purged %d bytes from the GPU resource cache.\n",
-                             cacheBytes);
+                    SkDebugf("Purged %d bytes from the GPU resource cache.\n", cacheBytes);
                 }
             }
             return true;

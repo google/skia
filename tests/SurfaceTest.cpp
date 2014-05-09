@@ -304,21 +304,27 @@ static void TestSurfaceInCache(skiatest::Reporter* reporter,
                                SurfaceType surfaceType,
                                GrContext* context) {
     context->freeGpuResources();
-    REPORTER_ASSERT(reporter, 0 == context->getGpuTextureCacheResourceCount());
+    int resourceCount;
+
+    context->getResourceCacheUsage(&resourceCount, NULL);
+    REPORTER_ASSERT(reporter, 0 == resourceCount);
     SkAutoTUnref<SkSurface> surface(createSurface(surfaceType, context));
     // Note: the stencil buffer is always cached, so kGpu_SurfaceType uses
     // one cached resource, and kGpuScratch_SurfaceType uses two.
     int expectedCachedResources = surfaceType == kGpuScratch_SurfaceType ? 2 : 1;
-    REPORTER_ASSERT(reporter, expectedCachedResources == context->getGpuTextureCacheResourceCount());
+    context->getResourceCacheUsage(&resourceCount, NULL);
+    REPORTER_ASSERT(reporter, expectedCachedResources == resourceCount);
 
     // Verify that all the cached resources are locked in cache.
     context->freeGpuResources();
-    REPORTER_ASSERT(reporter, expectedCachedResources == context->getGpuTextureCacheResourceCount());
+    context->getResourceCacheUsage(&resourceCount, NULL);
+    REPORTER_ASSERT(reporter, expectedCachedResources == resourceCount);
 
     // Verify that all the cached resources are unlocked upon surface release
     surface.reset(0);
     context->freeGpuResources();
-    REPORTER_ASSERT(reporter, 0 == context->getGpuTextureCacheResourceCount());
+    context->getResourceCacheUsage(&resourceCount, NULL);
+    REPORTER_ASSERT(reporter, 0 == resourceCount);
 }
 
 static void Test_crbug263329(skiatest::Reporter* reporter,

@@ -1774,14 +1774,14 @@ ErrorCombination run_multiple_configs(GMMain &gmmain, GM *gm,
                     // Set the user specified cache limits if non-default.
                     size_t bytes;
                     int count;
-                    gr->getTextureCacheLimits(&count, &bytes);
+                    gr->getResourceCacheLimits(&count, &bytes);
                     if (DEFAULT_CACHE_VALUE != gGpuCacheSizeBytes) {
                         bytes = static_cast<size_t>(gGpuCacheSizeBytes);
                     }
                     if (DEFAULT_CACHE_VALUE != gGpuCacheSizeCount) {
                         count = gGpuCacheSizeCount;
                     }
-                    gr->setTextureCacheLimits(count, bytes);
+                    gr->setResourceCacheLimits(count, bytes);
                 }
             }
             if (!grSuccess) {

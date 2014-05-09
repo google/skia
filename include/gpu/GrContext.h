@@ -102,6 +102,62 @@ public:
      */
     void contextDestroyed();
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Resource Cache
+
+    /**
+     *  Return the current GPU resource cache limits.
+     *
+     *  @param maxResources If non-null, returns maximum number of resources that
+     *                      can be held in the cache.
+     *  @param maxResourceBytes If non-null, returns maximum number of bytes of
+     *                          video memory that can be held in the cache.
+     */
+    void getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const;
+    SK_ATTR_DEPRECATED("This function has been renamed to getResourceCacheLimits().")
+    void getTextureCacheLimits(int* maxTextures, size_t* maxTextureBytes) const {
+        this->getResourceCacheLimits(maxTextures, maxTextureBytes);
+    }
+
+    /**
+     *  Gets the current GPU resource cache usage.
+     *
+     *  @param resourceCount If non-null, returns the number of resources that are held in the
+     *                       cache.
+     *  @param maxResourceBytes If non-null, returns the total number of bytes of video memory held
+     *                          in the cache.
+     */
+    void getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const;
+
+    SK_ATTR_DEPRECATED("Use getResourceCacheUsage().")
+    size_t getGpuTextureCacheBytes() const {
+        size_t bytes;
+        this->getResourceCacheUsage(NULL, &bytes);
+        return bytes;
+    }
+
+    SK_ATTR_DEPRECATED("Use getResourceCacheUsage().")
+    int getGpuTextureCacheResourceCount() const {
+        int count;
+        this->getResourceCacheUsage(&count, NULL);
+        return count;
+    }
+
+    /**
+     *  Specify the GPU resource cache limits. If the current cache exceeds either
+     *  of these, it will be purged (LRU) to keep the cache within these limits.
+     *
+     *  @param maxResources The maximum number of resources that can be held in
+     *                      the cache.
+     *  @param maxResourceBytes The maximum number of bytes of video memory
+     *                          that can be held in the cache.
+     */
+    void setResourceCacheLimits(int maxResources, size_t maxResourceBytes);
+    SK_ATTR_DEPRECATED("This function has been renamed to setResourceCacheLimits().")
+    void setTextureCacheLimits(int maxTextures, size_t maxTextureBytes) {
+        this->setResourceCacheLimits(maxTextures, maxTextureBytes);
+    }
+
     /**
      * Frees GPU created by the context. Can be called to reduce GPU memory
      * pressure.
@@ -109,14 +165,32 @@ public:
     void freeGpuResources();
 
     /**
-     * Returns the number of bytes of GPU memory hosted by the texture cache.
+     * This method should be called whenever a GrResource is unreffed or
+     * switched from exclusive to non-exclusive. This
+     * gives the resource cache a chance to discard unneeded resources.
+     * Note: this entry point will be removed once totally ref-driven
+     * cache maintenance is implemented.
      */
-    size_t getGpuTextureCacheBytes() const;
+    void purgeCache();
 
     /**
-     * Returns the number of resources hosted by the texture cache.
+     * Purge all the unlocked resources from the cache.
+     * This entry point is mainly meant for timing texture uploads
+     * and is not defined in normal builds of Skia.
      */
-    int getGpuTextureCacheResourceCount() const;
+    void purgeAllUnlockedResources();
+
+    /**
+     * Stores a custom resource in the cache, based on the specified key.
+     */
+    void addResourceToCache(const GrResourceKey&, GrCacheable*);
+
+    /**
+     * Finds a resource in the cache, based on the specified key. This is intended for use in
+     * conjunction with addResourceToCache(). The return value will be NULL if not found. The
+     * caller must balance with a call to unref().
+     */
+    GrCacheable* findAndRefCachedResource(const GrResourceKey&);
 
     ///////////////////////////////////////////////////////////////////////////
     // Textures
@@ -208,22 +282,6 @@ public:
     void unlockScratchTexture(GrTexture* texture);
 
     /**
-     * This method should be called whenever a GrTexture is unreffed or
-     * switched from exclusive to non-exclusive. This
-     * gives the resource cache a chance to discard unneeded textures.
-     * Note: this entry point will be removed once totally ref-driven
-     * cache maintenance is implemented
-     */
-    void purgeCache();
-
-    /**
-     * Purge all the unlocked resources from the cache.
-     * This entry point is mainly meant for timing texture uploads
-     * and is not defined in normal builds of Skia.
-     */
-    void purgeAllUnlockedResources();
-
-    /**
      * Creates a texture that is outside the cache. Does not count against
      * cache's budget.
      */
@@ -240,27 +298,6 @@ public:
     bool supportsIndex8PixelConfig(const GrTextureParams*,
                                    int width,
                                    int height) const;
-
-    /**
-     *  Return the current texture cache limits.
-     *
-     *  @param maxTextures If non-null, returns maximum number of textures that
-     *                     can be held in the cache.
-     *  @param maxTextureBytes If non-null, returns maximum number of bytes of
-     *                         texture memory that can be held in the cache.
-     */
-    void getTextureCacheLimits(int* maxTextures, size_t* maxTextureBytes) const;
-
-    /**
-     *  Specify the texture cache limits. If the current cache exceeds either
-     *  of these, it will be purged (LRU) to keep the cache within these limits.
-     *
-     *  @param maxTextures The maximum number of textures that can be held in
-     *                     the cache.
-     *  @param maxTextureBytes The maximum number of bytes of texture memory
-     *                         that can be held in the cache.
-     */
-    void setTextureCacheLimits(int maxTextures, size_t maxTextureBytes);
 
     /**
      *  Return the max width or height of a texture supported by the current GPU.
@@ -293,8 +330,6 @@ public:
      */
     const GrRenderTarget* getRenderTarget() const { return fRenderTarget.get(); }
     GrRenderTarget* getRenderTarget() { return fRenderTarget.get(); }
-
-    GrAARectRenderer* getAARectRenderer() { return fAARectRenderer; }
 
     /**
      * Can the provided configuration act as a color render target?
@@ -642,7 +677,6 @@ public:
                             size_t rowBytes,
                             uint32_t pixelOpsFlags = 0);
 
-
     /**
      * Copies a rectangle of texels from src to dst. The size of dst is the size of the rectangle
      * copied and topLeft is the position of the rect in src. The rectangle is clipped to src's
@@ -875,6 +909,7 @@ public:
     GrLayerCache* getLayerCache() { return fLayerCache.get(); }
     GrDrawTarget* getTextTarget();
     const GrIndexBuffer* getQuadIndexBuffer() const;
+    GrAARectRenderer* getAARectRenderer() { return fAARectRenderer; }
 
     // Called by tests that draw directly to the context via GrDrawTarget
     void getTestTarget(GrTestTarget*);
@@ -899,18 +934,6 @@ public:
                     GrPathRendererChain::DrawType drawType = GrPathRendererChain::kColor_DrawType,
                     GrPathRendererChain::StencilSupport* stencilSupport = NULL);
 
-    /**
-     * Stores a custom resource in the cache, based on the specified key.
-     */
-    void addResourceToCache(const GrResourceKey&, GrCacheable*);
-
-    /**
-     * Finds a resource in the cache, based on the specified key. This is intended for use in
-     * conjunction with addResourceToCache(). The return value will be NULL if not found. The
-     * caller must balance with a call to unref().
-     */
-    GrCacheable* findAndRefCachedResource(const GrResourceKey&);
-
 #if GR_CACHE_STATS
     void printCacheStats() const;
 #endif
@@ -929,7 +952,7 @@ private:
     const GrClipData*               fClip;  // TODO: make this ref counted
     GrDrawState*                    fDrawState;
 
-    GrResourceCache*                fTextureCache;
+    GrResourceCache*                fResourceCache;
     GrFontCache*                    fFontCache;
     SkAutoTDelete<GrLayerCache>     fLayerCache;
 

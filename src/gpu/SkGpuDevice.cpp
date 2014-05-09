@@ -1080,7 +1080,7 @@ bool SkGpuDevice::shouldTileBitmap(const SkBitmap& bitmap,
     // a texture
     size_t bmpSize = bitmap.getSize();
     size_t cacheSize;
-    fContext->getTextureCacheLimits(NULL, &cacheSize);
+    fContext->getResourceCacheLimits(NULL, &cacheSize);
     if (bmpSize < cacheSize / 2) {
         return false;
     }

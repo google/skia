@@ -38,5 +38,5 @@ void GrContext::setMaxTextureSizeOverride(int maxTextureSizeOverride) {
 }
 
 void GrContext::purgeAllUnlockedResources() {
-    fTextureCache->purgeAllUnlocked();
+    fResourceCache->purgeAllUnlocked();
 }
