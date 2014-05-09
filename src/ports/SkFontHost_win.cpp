@@ -646,7 +646,7 @@ SkScalerContext_GDI::SkScalerContext_GDI(SkTypeface* rawTypeface,
     GA.preConcat(A);
 
     // realTextSize is the actual device size we want (as opposed to the size the user requested).
-    // gdiTextSide is the size we request from GDI.
+    // gdiTextSize is the size we request from GDI.
     // If the scale is negative, this means the matrix will do the flip anyway.
     SkScalar realTextSize = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
     SkScalar gdiTextSize = SkScalarRoundToScalar(realTextSize);
