@@ -1320,6 +1320,8 @@ static const ConfigData gRec[] = {
 #endif // SK_SUPPORT_PDF
 };
 
+static bool SkNoRasterizePDF(SkStream*, SkBitmap*) { return false; }
+
 static const PDFRasterizerData kPDFRasterizers[] = {
 #ifdef SK_BUILD_FOR_MAC
     { &SkPDFDocumentToBitmap, "mac",     true },
@@ -1330,6 +1332,8 @@ static const PDFRasterizerData kPDFRasterizers[] = {
 #ifdef SK_BUILD_NATIVE_PDF_RENDERER
     { &SkNativeRasterizePDF,  "native",  true },
 #endif  // SK_BUILD_NATIVE_PDF_RENDERER
+    // The following exists so that this array is never zero length.
+    { &SkNoRasterizePDF,      "none",    false},
 };
 
 static const char kDefaultsConfigStr[] = "defaults";
