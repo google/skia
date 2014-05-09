@@ -1255,6 +1255,15 @@
         ]
       ]
     }, 
+    "blurcircles_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          3758971349284252263
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurquickreject_565.png": {
       "allowed-digests": [
         [
@@ -5206,6 +5215,15 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "composeshader_alpha_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13415066704472475041
+        ]
       ], 
       "reviewed-by-human": false
     }, 
@@ -15001,6 +15019,15 @@
       ], 
       "bugs": [
         1578
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "vertices_80_angle.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          14873078309899436312
+        ]
       ], 
       "reviewed-by-human": false
     }, 

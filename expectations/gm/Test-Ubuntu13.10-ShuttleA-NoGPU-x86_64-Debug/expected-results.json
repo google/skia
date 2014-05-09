@@ -793,6 +793,33 @@
         ]
       ]
     }, 
+    "blurcircles_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          8149334815780864538
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurcircles_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11187657384039514790
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "blurcircles_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          12411969916048928910
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "blurquickreject_565.png": {
       "allowed-digests": [
         [
@@ -3651,6 +3678,33 @@
         ]
       ], 
       "reviewed-by-human": true
+    }, 
+    "composeshader_alpha_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          17593634704240688672
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "composeshader_alpha_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9779259465230566097
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "composeshader_alpha_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13415066704472475041
+        ]
+      ], 
+      "reviewed-by-human": false
     }, 
     "composeshader_pdf-poppler.png": {
       "allowed-digests": [
@@ -10484,6 +10538,33 @@
         [
           "bitmap-64bitMD5", 
           12016571983635712769
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "vertices_80_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          925585149480269261
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "vertices_80_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5226204384509634475
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "vertices_80_pdf-poppler.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          5541447607866535516
         ]
       ], 
       "reviewed-by-human": false
