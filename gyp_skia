@@ -129,5 +129,9 @@ if __name__ == '__main__':
   print 'Updating projects from gyp files...'
   sys.stdout.flush()
 
-  # Off we go...
-  sys.exit(gyp.main(args))
+  if '--dry-run' in args:
+    args.remove('--dry-run')
+    print gyp_source_dir, ' '.join(args)
+  else:
+    # Off we go...
+    sys.exit(gyp.main(args))
