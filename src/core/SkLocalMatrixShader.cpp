@@ -30,8 +30,13 @@ public:
     }
 
     // TODO: need to augment this API to pass in a localmatrix (which we can augment)
-    virtual GrEffectRef* asNewEffect(GrContext* ctx, const SkPaint& paint) const SK_OVERRIDE {
-        return fProxyShader->asNewEffect(ctx, paint);
+    virtual GrEffectRef* asNewEffect(GrContext* ctx, const SkPaint& paint,
+                                     const SkMatrix* localMatrix) const SK_OVERRIDE {
+        SkMatrix tmp = fProxyLocalMatrix;
+        if (localMatrix) {
+            tmp.preConcat(*localMatrix);
+        }
+        return fProxyShader->asNewEffect(ctx, paint, &tmp);
     }
 
     virtual SkShader* refAsALocalMatrixShader(SkMatrix* localMatrix) const SK_OVERRIDE {

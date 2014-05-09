@@ -199,7 +199,7 @@ GrEffectRef* Edge2PtConicalEffect::TestCreate(SkRandom* random,
                                                                           colors, stops, colorCount,
                                                                           tm));
     SkPaint paint;
-    return shader->asNewEffect(context, paint);
+    return shader->asNewEffect(context, paint, NULL);
 }
 
 GLEdge2PtConicalEffect::GLEdge2PtConicalEffect(const GrBackendEffectFactory& factory,
@@ -470,7 +470,7 @@ GrEffectRef* FocalOutside2PtConicalEffect::TestCreate(SkRandom* random,
                                                                           colors, stops, colorCount,
                                                                           tm));
     SkPaint paint;
-    return shader->asNewEffect(context, paint);
+    return shader->asNewEffect(context, paint, NULL);
 }
 
 GLFocalOutside2PtConicalEffect::GLFocalOutside2PtConicalEffect(const GrBackendEffectFactory& factory,
@@ -679,7 +679,7 @@ GrEffectRef* FocalInside2PtConicalEffect::TestCreate(SkRandom* random,
                                                                           colors, stops, colorCount,
                                                                           tm));
     SkPaint paint;
-    return shader->asNewEffect(context, paint);
+    return shader->asNewEffect(context, paint, NULL);
 }
 
 GLFocalInside2PtConicalEffect::GLFocalInside2PtConicalEffect(const GrBackendEffectFactory& factory,
@@ -920,7 +920,7 @@ GrEffectRef* CircleInside2PtConicalEffect::TestCreate(SkRandom* random,
                                                                           colors, stops, colorCount,
                                                                           tm));
     SkPaint paint;
-    return shader->asNewEffect(context, paint);
+    return shader->asNewEffect(context, paint, NULL);
 }
 
 GLCircleInside2PtConicalEffect::GLCircleInside2PtConicalEffect(const GrBackendEffectFactory& factory,
@@ -1148,7 +1148,7 @@ GrEffectRef* CircleOutside2PtConicalEffect::TestCreate(SkRandom* random,
                                                                           colors, stops, colorCount,
                                                                           tm));
     SkPaint paint;
-    return shader->asNewEffect(context, paint);
+    return shader->asNewEffect(context, paint, NULL);
 }
 
 GLCircleOutside2PtConicalEffect::GLCircleOutside2PtConicalEffect(const GrBackendEffectFactory& factory,
@@ -1267,10 +1267,18 @@ GrGLEffect::EffectKey GLCircleOutside2PtConicalEffect::GenKey(const GrDrawEffect
 
 GrEffectRef* Gr2PtConicalGradientEffect::Create(GrContext* ctx,
                                                 const SkTwoPointConicalGradient& shader,
-                                                SkShader::TileMode tm) {
+                                                SkShader::TileMode tm,
+                                                const SkMatrix* localMatrix) {
     SkMatrix matrix;
     if (!shader.getLocalMatrix().invert(&matrix)) {
         return NULL;
+    }
+    if (localMatrix) {
+        SkMatrix inv;
+        if (!localMatrix->invert(&inv)) {
+            return NULL;
+        }
+        matrix.postConcat(inv);
     }
 
     if (shader.getStartRadius() < kErrorTol) {

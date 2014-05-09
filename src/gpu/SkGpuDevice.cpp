@@ -463,7 +463,7 @@ inline bool skPaint2GrPaintShader(SkGpuDevice* dev,
     GrContext::AutoWideOpenIdentityDraw awo(dev->context(), NULL);
 
     // setup the shader as the first color effect on the paint
-    SkAutoTUnref<GrEffectRef> effect(shader->asNewEffect(dev->context(), skPaint));
+    SkAutoTUnref<GrEffectRef> effect(shader->asNewEffect(dev->context(), skPaint, NULL));
     if (NULL != effect.get()) {
         grPaint->addColorEffect(effect);
         // Now setup the rest of the paint.

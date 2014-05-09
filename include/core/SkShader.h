@@ -360,7 +360,8 @@ public:
      *  color. The GrContext may be used by the effect to create textures. The GPU device does not
      *  call createContext. Instead we pass the SkPaint here in case the shader needs paint info.
      */
-    virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint& paint) const;
+    virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint& paint,
+                                     const SkMatrix* localMatrixOrNull) const;
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders

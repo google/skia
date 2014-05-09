@@ -19,7 +19,7 @@ namespace Gr2PtConicalGradientEffect {
      * shader passed in.
      */
     GrEffectRef* Create(GrContext* ctx, const SkTwoPointConicalGradient& shader,
-                        SkShader::TileMode tm);
+                        SkShader::TileMode tm, const SkMatrix* localMatrix);
 };
 
 #endif

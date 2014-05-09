@@ -723,7 +723,7 @@ GrEffectRef* GrPerlinNoiseEffect::TestCreate(SkRandom* random,
                                              stitchTiles ? &tileSize : NULL);
 
     SkPaint paint;
-    GrEffectRef* effect = shader->asNewEffect(context, paint);
+    GrEffectRef* effect = shader->asNewEffect(context, paint, NULL);
 
     SkDELETE(shader);
 
@@ -1275,8 +1275,14 @@ void GrGLSimplexNoise::setData(const GrGLUniformManager& uman, const GrDrawEffec
 
 /////////////////////////////////////////////////////////////////////
 
-GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint) const {
+GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint& paint,
+                                              const SkMatrix* externalLocalMatrix) const {
     SkASSERT(NULL != context);
+
+    SkMatrix localMatrix = this->getLocalMatrix();
+    if (externalLocalMatrix) {
+        localMatrix.preConcat(*externalLocalMatrix);
+    }
 
     if (0 == fNumOctaves) {
         SkColor clearColor = 0;
@@ -1309,7 +1315,7 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint&
                                     fNumOctaves, fStitchTiles,
                                     fPaintingData->fStitchDataInit,
                                     permutationsTexture, noiseTexture,
-                                    this->getLocalMatrix(), paint.getAlpha()) :
+                                    localMatrix, paint.getAlpha()) :
         NULL;
 
     // Unlock immediately, this is not great, but we don't have a way of
@@ -1328,7 +1334,7 @@ GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext* context, const SkPaint&
 
 #else
 
-GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext*, const SkPaint&) const {
+GrEffectRef* SkPerlinNoiseShader::asNewEffect(GrContext*, const SkPaint&, const SkMatrix*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return NULL;
 }

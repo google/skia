@@ -211,7 +211,7 @@ SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
     return kNone_GradientType;
 }
 
-GrEffectRef* SkShader::asNewEffect(GrContext*, const SkPaint&) const {
+GrEffectRef* SkShader::asNewEffect(GrContext*, const SkPaint&, const SkMatrix*) const {
     return NULL;
 }
 

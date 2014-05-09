@@ -393,13 +393,21 @@ static SkScalar get_combined_min_stretch(const SkMatrix& viewMatrix, const SkMat
     }
 }
 
-GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint) const {
+GrEffectRef* SkBitmapProcShader::asNewEffect(GrContext* context, const SkPaint& paint,
+                                             const SkMatrix* localMatrix) const {
     SkMatrix matrix;
     matrix.setIDiv(fRawBitmap.width(), fRawBitmap.height());
 
     SkMatrix lmInverse;
     if (!this->getLocalMatrix().invert(&lmInverse)) {
         return NULL;
+    }
+    if (localMatrix) {
+        SkMatrix inv;
+        if (!localMatrix->invert(&inv)) {
+            return NULL;
+        }
+        lmInverse.postConcat(inv);
     }
     matrix.preConcat(lmInverse);
 

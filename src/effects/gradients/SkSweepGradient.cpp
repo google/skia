@@ -247,7 +247,7 @@ GrEffectRef* GrSweepGradient::TestCreate(SkRandom* random,
     SkAutoTUnref<SkShader> shader(SkGradientShader::CreateSweep(center.fX, center.fY,
                                                                 colors, stops, colorCount));
     SkPaint paint;
-    return shader->asNewEffect(context, paint);
+    return shader->asNewEffect(context, paint, NULL);
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -279,10 +279,18 @@ void GrGLSweepGradient::emitCode(GrGLShaderBuilder* builder,
 
 /////////////////////////////////////////////////////////////////////
 
-GrEffectRef* SkSweepGradient::asNewEffect(GrContext* context, const SkPaint&) const {
+GrEffectRef* SkSweepGradient::asNewEffect(GrContext* context, const SkPaint&,
+                                          const SkMatrix* localMatrix) const {
     SkMatrix matrix;
     if (!this->getLocalMatrix().invert(&matrix)) {
         return NULL;
+    }
+    if (localMatrix) {
+        SkMatrix inv;
+        if (!localMatrix->invert(&inv)) {
+            return NULL;
+        }
+        matrix.postConcat(inv);
     }
     matrix.postConcat(fPtsToUnit);
     return GrSweepGradient::Create(context, *this, matrix);
