@@ -208,7 +208,8 @@ private:
                             const GrTextureParams& params,
                             const SkPaint& paint,
                             SkCanvas::DrawBitmapRectFlags flags,
-                            bool bicubic);
+                            bool bicubic,
+                            bool needsTextureDomain);
     void drawTiledBitmap(const SkBitmap& bitmap,
                          const SkRect& srcRect,
                          const SkIRect& clippedSrcRect,

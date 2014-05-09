@@ -1140,6 +1140,74 @@ static inline void clamped_outset_with_offset(SkIRect* iRect,
     }
 }
 
+static bool has_aligned_samples(const SkRect& srcRect,
+                                const SkRect& transformedRect) {
+    // detect pixel disalignment
+    if (SkScalarAbs(SkScalarRoundToScalar(transformedRect.left()) -
+            transformedRect.left()) < COLOR_BLEED_TOLERANCE &&
+        SkScalarAbs(SkScalarRoundToScalar(transformedRect.top()) -
+            transformedRect.top()) < COLOR_BLEED_TOLERANCE &&
+        SkScalarAbs(transformedRect.width() - srcRect.width()) <
+            COLOR_BLEED_TOLERANCE &&
+        SkScalarAbs(transformedRect.height() - srcRect.height()) <
+            COLOR_BLEED_TOLERANCE) {
+        return true;
+    }
+    return false;
+}
+
+static bool may_color_bleed(const SkRect& srcRect,
+                            const SkRect& transformedRect,
+                            const SkMatrix& m) {
+    // Only gets called if has_aligned_samples returned false.
+    // So we can assume that sampling is axis aligned but not texel aligned.
+    SkASSERT(!has_aligned_samples(srcRect, transformedRect));
+    SkRect innerSrcRect(srcRect), innerTransformedRect,
+        outerTransformedRect(transformedRect);
+    innerSrcRect.inset(SK_ScalarHalf, SK_ScalarHalf);
+    m.mapRect(&innerTransformedRect, innerSrcRect);
+
+    // The gap between outerTransformedRect and innerTransformedRect
+    // represents the projection of the source border area, which is
+    // problematic for color bleeding.  We must check whether any
+    // destination pixels sample the border area.
+    outerTransformedRect.inset(COLOR_BLEED_TOLERANCE, COLOR_BLEED_TOLERANCE);
+    innerTransformedRect.outset(COLOR_BLEED_TOLERANCE, COLOR_BLEED_TOLERANCE);
+    SkIRect outer, inner;
+    outerTransformedRect.round(&outer);
+    innerTransformedRect.round(&inner);
+    // If the inner and outer rects round to the same result, it means the
+    // border does not overlap any pixel centers. Yay!
+    return inner != outer;
+}
+
+static bool needs_texture_domain(const SkBitmap& bitmap,
+                                 const SkRect& srcRect,
+                                 GrTextureParams &params,
+                                 const SkMatrix& contextMatrix,
+                                 bool bicubic) {
+    bool needsTextureDomain = false;
+
+    if (bicubic || params.filterMode() != GrTextureParams::kNone_FilterMode) {
+        // Need texture domain if drawing a sub rect
+        needsTextureDomain = srcRect.width() < bitmap.width() ||
+                             srcRect.height() < bitmap.height();
+        if (!bicubic && needsTextureDomain && contextMatrix.rectStaysRect()) {
+            // sampling is axis-aligned
+            SkRect transformedRect;
+            contextMatrix.mapRect(&transformedRect, srcRect);
+
+            if (has_aligned_samples(srcRect, transformedRect)) {
+                params.setFilterMode(GrTextureParams::kNone_FilterMode);
+                needsTextureDomain = false;
+            } else {
+                needsTextureDomain = may_color_bleed(srcRect, transformedRect, contextMatrix);
+            }
+        }
+    }
+    return needsTextureDomain;
+}
+
 void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                                    const SkBitmap& bitmap,
                                    const SkRect* srcRectPtr,
@@ -1278,7 +1346,18 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
                               doBicubic);
     } else {
         // take the simple case
-        this->internalDrawBitmap(bitmap, srcRect, params, paint, flags, doBicubic);
+        bool needsTextureDomain = needs_texture_domain(bitmap,
+                                                       srcRect,
+                                                       params,
+                                                       fContext->getMatrix(),
+                                                       doBicubic);
+        this->internalDrawBitmap(bitmap,
+                                 srcRect,
+                                 params,
+                                 paint,
+                                 flags,
+                                 doBicubic,
+                                 needsTextureDomain);
     }
 }
 
@@ -1349,52 +1428,22 @@ void SkGpuDevice::drawTiledBitmap(const SkBitmap& bitmap,
             if (bitmap.extractSubset(&tmpB, iTileR)) {
                 // now offset it to make it "local" to our tmp bitmap
                 tileR.offset(-offset.fX, -offset.fY);
-
-                this->internalDrawBitmap(tmpB, tileR, params, paint, flags, bicubic);
+                GrTextureParams paramsTemp = params;
+                bool needsTextureDomain = needs_texture_domain(bitmap,
+                                                               srcRect,
+                                                               paramsTemp,
+                                                               fContext->getMatrix(),
+                                                               bicubic);
+                this->internalDrawBitmap(tmpB,
+                                         tileR,
+                                         paramsTemp,
+                                         paint,
+                                         flags,
+                                         bicubic,
+                                         needsTextureDomain);
             }
         }
     }
-}
-
-static bool has_aligned_samples(const SkRect& srcRect,
-                                const SkRect& transformedRect) {
-    // detect pixel disalignment
-    if (SkScalarAbs(SkScalarRoundToScalar(transformedRect.left()) -
-            transformedRect.left()) < COLOR_BLEED_TOLERANCE &&
-        SkScalarAbs(SkScalarRoundToScalar(transformedRect.top()) -
-            transformedRect.top()) < COLOR_BLEED_TOLERANCE &&
-        SkScalarAbs(transformedRect.width() - srcRect.width()) <
-            COLOR_BLEED_TOLERANCE &&
-        SkScalarAbs(transformedRect.height() - srcRect.height()) <
-            COLOR_BLEED_TOLERANCE) {
-        return true;
-    }
-    return false;
-}
-
-static bool may_color_bleed(const SkRect& srcRect,
-                            const SkRect& transformedRect,
-                            const SkMatrix& m) {
-    // Only gets called if has_aligned_samples returned false.
-    // So we can assume that sampling is axis aligned but not texel aligned.
-    SkASSERT(!has_aligned_samples(srcRect, transformedRect));
-    SkRect innerSrcRect(srcRect), innerTransformedRect,
-        outerTransformedRect(transformedRect);
-    innerSrcRect.inset(SK_ScalarHalf, SK_ScalarHalf);
-    m.mapRect(&innerTransformedRect, innerSrcRect);
-
-    // The gap between outerTransformedRect and innerTransformedRect
-    // represents the projection of the source border area, which is
-    // problematic for color bleeding.  We must check whether any
-    // destination pixels sample the border area.
-    outerTransformedRect.inset(COLOR_BLEED_TOLERANCE, COLOR_BLEED_TOLERANCE);
-    innerTransformedRect.outset(COLOR_BLEED_TOLERANCE, COLOR_BLEED_TOLERANCE);
-    SkIRect outer, inner;
-    outerTransformedRect.round(&outer);
-    innerTransformedRect.round(&inner);
-    // If the inner and outer rects round to the same result, it means the
-    // border does not overlap any pixel centers. Yay!
-    return inner != outer;
 }
 
 
@@ -1410,7 +1459,8 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                                      const GrTextureParams& params,
                                      const SkPaint& paint,
                                      SkCanvas::DrawBitmapRectFlags flags,
-                                     bool bicubic) {
+                                     bool bicubic,
+                                     bool needsTextureDomain) {
     SkASSERT(bitmap.width() <= fContext->getMaxTextureSize() &&
              bitmap.height() <= fContext->getMaxTextureSize());
 
@@ -1429,31 +1479,9 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
                       SkScalarMul(srcRect.fRight,  wInv),
                       SkScalarMul(srcRect.fBottom, hInv));
 
-    bool needsTextureDomain = false;
-    if (!(flags & SkCanvas::kBleed_DrawBitmapRectFlag) &&
-        (bicubic || params.filterMode() != GrTextureParams::kNone_FilterMode)) {
-        // Need texture domain if drawing a sub rect
-        needsTextureDomain = srcRect.width() < bitmap.width() ||
-                             srcRect.height() < bitmap.height();
-        if (!bicubic && needsTextureDomain && fContext->getMatrix().rectStaysRect()) {
-            const SkMatrix& matrix = fContext->getMatrix();
-            // sampling is axis-aligned
-            SkRect transformedRect;
-            matrix.mapRect(&transformedRect, srcRect);
-
-            if (has_aligned_samples(srcRect, transformedRect)) {
-                // We could also turn off filtering here (but we already did a cache lookup with
-                // params).
-                needsTextureDomain = false;
-            } else {
-                needsTextureDomain = may_color_bleed(srcRect, transformedRect, matrix);
-            }
-        }
-    }
-
     SkRect textureDomain = SkRect::MakeEmpty();
     SkAutoTUnref<GrEffectRef> effect;
-    if (needsTextureDomain) {
+    if (needsTextureDomain && !(flags & SkCanvas::kBleed_DrawBitmapRectFlag)) {
         // Use a constrained texture domain to avoid color bleeding
         SkScalar left, top, right, bottom;
         if (srcRect.width() > SK_Scalar1) {

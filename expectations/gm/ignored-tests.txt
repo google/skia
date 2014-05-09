@@ -37,3 +37,7 @@
 # This change removes an API that this GM was testing. If/when it lands and sticks,
 # I will likely just delete the GM.
 canvas-layer-state
+
+# bsalomon: https://codereview.chromium.org/264303008/
+# bsalomon@ will rebaseline this test
+ninepatch-stretch
