@@ -390,7 +390,8 @@ GrEffectRef* SkTwoPointConicalGradient::asNewEffect(GrContext* context, const Sk
 
 #else
 
-GrEffectRef* SkTwoPointConicalGradient::asNewEffect(GrContext*, const SkPaint&) const {
+GrEffectRef* SkTwoPointConicalGradient::asNewEffect(GrContext*, const SkPaint&,
+                                                    const SkMatrix*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return NULL;
 }

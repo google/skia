@@ -701,7 +701,8 @@ GrEffectRef* SkTwoPointRadialGradient::asNewEffect(GrContext* context, const SkP
 
 #else
 
-GrEffectRef* SkTwoPointRadialGradient::asNewEffect(GrContext*, const SkPaint&) const {
+GrEffectRef* SkTwoPointRadialGradient::asNewEffect(GrContext*, const SkPaint&,
+                                                   const SkMatrix*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return NULL;
 }

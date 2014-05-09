@@ -567,7 +567,7 @@ GrEffectRef* SkLinearGradient::asNewEffect(GrContext* context, const SkPaint&,
 
 #else
 
-GrEffectRef* SkLinearGradient::asNewEffect(GrContext*, const SkPaint&) const {
+GrEffectRef* SkLinearGradient::asNewEffect(GrContext*, const SkPaint&, const SkMatrix*) const {
     SkDEBUGFAIL("Should not call in GPU-less build");
     return NULL;
 }
