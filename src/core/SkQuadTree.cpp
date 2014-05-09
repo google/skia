@@ -46,8 +46,7 @@ static U8CPU child_intersect(const SkIRect& query, const SkIPoint& split) {
     return intersect;
 }
 
-SkQuadTree::SkQuadTree(const SkIRect& bounds)
-    : fRoot(NULL) {
+SkQuadTree::SkQuadTree(const SkIRect& bounds) : fRoot(NULL) {
     SkASSERT((bounds.width() * bounds.height()) > 0);
     fRootBounds = bounds;
 }
@@ -178,11 +177,14 @@ void SkQuadTree::search(const SkIRect& query, SkTDArray<void*>* results) {
 }
 
 void SkQuadTree::clear() {
+    this->flushDeferredInserts();
     if (NULL != fRoot) {
         this->clear(fRoot);
         fNodePool.release(fRoot);
         fRoot = NULL;
     }
+    SkASSERT(fEntryPool.allocated() == fEntryPool.available());
+    SkASSERT(fNodePool.allocated() == fNodePool.available());
 }
 
 int SkQuadTree::getDepth() const {
