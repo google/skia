@@ -11,7 +11,43 @@
 #include "SkRecord.h"
 #include "SkCanvas.h"
 
-// Draw an SkRecord into an SkCanvas.
+// Draw an SkRecord into an SkCanvas.  A convenience wrapper around SkRecords::Draw.
 void SkRecordDraw(const SkRecord&, SkCanvas*);
+
+namespace SkRecords {
+
+// This is an SkRecord visitor that will draw that SkRecord to an SkCanvas.
+class Draw : SkNoncopyable {
+public:
+    explicit Draw(SkCanvas* canvas) : fCanvas(canvas), fIndex(0) {}
+
+    unsigned index() const { return fIndex; }
+    void next() { ++fIndex; }
+
+    template <typename T> void operator()(const T& r) {
+        if (!this->skip(r)) {
+            this->draw(r);
+        }
+    }
+
+private:
+    // No base case, so we'll be compile-time checked that we implement all possibilities.
+    template <typename T> void draw(const T&);
+
+    // skip() should return true if we can skip this command, false if not.
+    // It may update fIndex directly to skip more than just this one command.
+
+    // Mostly we just blindly call fCanvas and let it handle quick rejects itself.
+    template <typename T> bool skip(const T&) { return false; }
+
+    // We add our own quick rejects for commands added by optimizations.
+    bool skip(const PairedPushCull&);
+    bool skip(const BoundedDrawPosTextH&);
+
+    SkCanvas* fCanvas;
+    unsigned fIndex;
+};
+
+}  // namespace SkRecords
 
 #endif//SkRecordDraw_DEFINED

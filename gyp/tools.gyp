@@ -357,6 +357,7 @@
         '../src/record',
       ],
       'dependencies': [
+        'bench.gyp:bench_timer',
         'flags.gyp:flags',
         'record.gyp:*',
         'skia_lib.gyp:skia_lib',

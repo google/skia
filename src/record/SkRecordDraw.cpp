@@ -7,52 +7,30 @@
 
 #include "SkRecordDraw.h"
 
-namespace {
-
-// This is an SkRecord visitor that will draw that SkRecord to an SkCanvas.
-class Draw : SkNoncopyable {
-public:
-    explicit Draw(SkCanvas* canvas) : fCanvas(canvas), fIndex(0) {}
-
-    unsigned index() const { return fIndex; }
-    void next() { ++fIndex; }
-
-    template <typename T> void operator()(const T& r) {
-        if (!this->skip(r)) {
-            this->draw(r);
-        }
+void SkRecordDraw(const SkRecord& record, SkCanvas* canvas) {
+    for (SkRecords::Draw draw(canvas); draw.index() < record.count(); draw.next()) {
+        record.visit<void>(draw.index(), draw);
     }
+}
 
-private:
-    // No base case, so we'll be compile-time checked that we implemented all possibilities below.
-    template <typename T> void draw(const T&);
+namespace SkRecords {
 
-    // skip() should return true if we can skip this command, false if not.
-    // It may update fIndex directly to skip more than just this one command.
-
-    // Mostly we just blindly call fCanvas and let it handle quick rejects itself.
-    template <typename T> bool skip(const T&) { return false; }
-
-    // We add our own quick rejects for commands added by optimizations.
-    bool skip(const SkRecords::PairedPushCull& r) {
-        if (fCanvas->quickReject(r.base->rect)) {
-            fIndex += r.skip;
-            return true;
-        }
-        return false;
+bool Draw::skip(const PairedPushCull& r) {
+    if (fCanvas->quickReject(r.base->rect)) {
+        fIndex += r.skip;
+        return true;
     }
-    bool skip(const SkRecords::BoundedDrawPosTextH& r) {
-        return fCanvas->quickRejectY(r.minY, r.maxY);
-    }
+    return false;
+}
 
-    SkCanvas* fCanvas;
-    unsigned fIndex;
-};
+bool Draw::skip(const BoundedDrawPosTextH& r) {
+    return fCanvas->quickRejectY(r.minY, r.maxY);
+}
 
 // NoOps draw nothing.
-template <> void Draw::draw(const SkRecords::NoOp&) {}
+template <> void Draw::draw(const NoOp&) {}
 
-#define DRAW(T, call) template <> void Draw::draw(const SkRecords::T& r) { fCanvas->call; }
+#define DRAW(T, call) template <> void Draw::draw(const T& r) { fCanvas->call; }
 DRAW(Restore, restore());
 DRAW(Save, save(r.flags));
 DRAW(SaveLayer, saveLayer(r.bounds, r.paint, r.flags));
@@ -87,13 +65,7 @@ DRAW(DrawVertices, drawVertices(r.vmode, r.vertexCount, r.vertices, r.texs, r.co
                                 r.xmode.get(), r.indices, r.indexCount, r.paint));
 #undef DRAW
 
-template <> void Draw::draw(const SkRecords::PairedPushCull& r) { this->draw(*r.base); }
-template <> void Draw::draw(const SkRecords::BoundedDrawPosTextH& r) { this->draw(*r.base); }
+template <> void Draw::draw(const PairedPushCull& r) { this->draw(*r.base); }
+template <> void Draw::draw(const BoundedDrawPosTextH& r) { this->draw(*r.base); }
 
-}  // namespace
-
-void SkRecordDraw(const SkRecord& record, SkCanvas* canvas) {
-    for (Draw draw(canvas); draw.index() < record.count(); draw.next()) {
-        record.visit<void>(draw.index(), draw);
-    }
-}
+}  // namespace SkRecords
