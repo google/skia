@@ -12,8 +12,6 @@
 #include "SkRandom.h"
 #include "SkString.h"
 
-extern bool gSkSuppressFontCachePurgeSpew;
-
 class FontScalerBench : public SkBenchmark {
     SkString fName;
     SkString fText;
@@ -32,9 +30,6 @@ protected:
         this->setupPaint(&paint);
         paint.setLCDRenderText(fDoLCD);
 
-        bool prev = gSkSuppressFontCachePurgeSpew;
-        gSkSuppressFontCachePurgeSpew = true;
-
         for (int i = 0; i < loops; i++) {
             // this is critical - we want to time the creation process, so we
             // explicitly flush our cache before each run
@@ -46,8 +41,6 @@ protected:
                         0, SkIntToScalar(20), paint);
             }
         }
-
-        gSkSuppressFontCachePurgeSpew = prev;
     }
 private:
     typedef SkBenchmark INHERITED;

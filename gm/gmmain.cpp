@@ -69,7 +69,6 @@ typedef int GLContextType;
 
 #define DEBUGFAIL_SEE_STDERR SkDEBUGFAIL("see stderr for message")
 
-extern bool gSkSuppressFontCachePurgeSpew;
 DECLARE_bool(useDocumentInsteadOfDevice);
 
 #ifdef SK_SUPPORT_PDF
@@ -2238,8 +2237,6 @@ int tool_main(int argc, char** argv) {
 #endif
 
     SkGraphics::Init();
-    // we don't need to see this during a run
-    gSkSuppressFontCachePurgeSpew = true;
 
     setSystemPreferences();
     GMMain gmmain;

@@ -21,8 +21,6 @@
 //#define SPEW_PURGE_STATUS
 //#define RECORD_HASH_EFFICIENCY
 
-bool gSkSuppressFontCachePurgeSpew;
-
 static void create_globals(SkGlyphCache_Globals** globals) {
     *globals = SkNEW_ARGS(SkGlyphCache_Globals, (SkGlyphCache_Globals::kYes_UseMutex));
 }
@@ -645,7 +643,7 @@ size_t SkGlyphCache_Globals::internalPurge(size_t minBytesNeeded) {
     this->validate();
 
 #ifdef SPEW_PURGE_STATUS
-    if (countFreed && !gSkSuppressFontCachePurgeSpew) {
+    if (countFreed) {
         SkDebugf("purging %dK from font cache [%d entries]\n",
                  (int)(bytesFreed >> 10), countFreed);
     }
