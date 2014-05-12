@@ -31,6 +31,7 @@ DECLARE_bool(deferImageDecoding);
 DEFINE_int32(maxComponentDiff, 256, "Maximum diff on a component, 0 - 256. Components that differ "
              "by more than this amount are considered errors, though all diffs are reported. "
              "Requires --validate.");
+DEFINE_string(readJsonSummaryPath, "", "JSON file to read image expectations from.");
 DECLARE_string(readPath);
 DEFINE_bool(writeChecksumBasedFilenames, false,
             "When writing out images, use checksum-based filenames.");
@@ -254,7 +255,7 @@ private:
  */
 static bool render_picture(const SkString& inputPath, const SkString* outputDir,
                            sk_tools::PictureRenderer& renderer,
-                           sk_tools::ImageResultsSummary *jsonSummaryPtr) {
+                           sk_tools::ImageResultsAndExpectations *jsonSummaryPtr) {
     int diffs[256] = {0};
     SkBitmap* bitmap = NULL;
     renderer.setJsonSummaryPtr(jsonSummaryPtr);
@@ -348,9 +349,10 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
         outputPath.append(".png");
 
         if (NULL != jsonSummaryPtr) {
+            sk_tools::ImageDigest imageDigest(*bitmap);
             SkString outputFileBasename;
             sk_tools::get_basename(&outputFileBasename, outputPath);
-            jsonSummaryPtr->add(inputFilename.c_str(), outputFileBasename.c_str(), *bitmap);
+            jsonSummaryPtr->add(inputFilename.c_str(), outputFileBasename.c_str(), imageDigest);
         }
 
         if (NULL != outputDir) {
@@ -369,7 +371,7 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
 
 static int process_input(const char* input, const SkString* outputDir,
                          sk_tools::PictureRenderer& renderer,
-                         sk_tools::ImageResultsSummary *jsonSummaryPtr) {
+                         sk_tools::ImageResultsAndExpectations *jsonSummaryPtr) {
     SkOSFile::Iter iter(input, "skp");
     SkString inputFilename;
     int failures = 0;
@@ -449,10 +451,13 @@ int tool_main(int argc, char** argv) {
     if (FLAGS_writePath.count() == 1) {
         outputDir.set(FLAGS_writePath[0]);
     }
-    sk_tools::ImageResultsSummary jsonSummary;
-    sk_tools::ImageResultsSummary* jsonSummaryPtr = NULL;
+    sk_tools::ImageResultsAndExpectations jsonSummary;
+    sk_tools::ImageResultsAndExpectations* jsonSummaryPtr = NULL;
     if (FLAGS_writeJsonSummaryPath.count() == 1) {
         jsonSummaryPtr = &jsonSummary;
+        if (FLAGS_readJsonSummaryPath.count() == 1) {
+            SkASSERT(jsonSummary.readExpectationsFile(FLAGS_readJsonSummaryPath[0]));
+        }
     }
 
     int failures = 0;

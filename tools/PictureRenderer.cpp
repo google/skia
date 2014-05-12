@@ -275,7 +275,7 @@ uint32_t PictureRenderer::recordFlags() {
  * @return bool True if the operation completed successfully.
  */
 static bool write(SkCanvas* canvas, const SkString& outputDir, const SkString& inputFilename,
-                  ImageResultsSummary *jsonSummaryPtr, bool useChecksumBasedFilenames,
+                  ImageResultsAndExpectations *jsonSummaryPtr, bool useChecksumBasedFilenames,
                   const int* tileNumberPtr=NULL) {
     SkASSERT(canvas != NULL);
     if (NULL == canvas) {
@@ -284,14 +284,11 @@ static bool write(SkCanvas* canvas, const SkString& outputDir, const SkString& i
 
     SkBitmap bitmap;
     SkISize size = canvas->getDeviceSize();
-    sk_tools::setup_bitmap(&bitmap, size.width(), size.height());
-
-    // Make sure we only compute the bitmap hash once (at most).
-    uint64_t hash;
-    bool generatedHash = false;
+    setup_bitmap(&bitmap, size.width(), size.height());
 
     canvas->readPixels(&bitmap, 0, 0);
-    sk_tools::force_all_opaque(bitmap);
+    force_all_opaque(bitmap);
+    BitmapAndDigest bitmapAndDigest(bitmap);
 
     SkString escapedInputFilename(inputFilename);
     replace_char(&escapedInputFilename, '.', '_');
@@ -299,18 +296,13 @@ static bool write(SkCanvas* canvas, const SkString& outputDir, const SkString& i
     // TODO(epoger): what about including the config type within outputFilename?  That way,
     // we could combine results of different config types without conflicting filenames.
     SkString outputFilename;
+    const ImageDigest *imageDigestPtr = bitmapAndDigest.getImageDigestPtr();
     const char *outputSubdirPtr = NULL;
     if (useChecksumBasedFilenames) {
-        SkASSERT(!generatedHash);
-        SkAssertResult(SkBitmapHasher::ComputeDigest(bitmap, &hash));
-        generatedHash = true;
-
         outputSubdirPtr = escapedInputFilename.c_str();
-        // TODO(epoger): The string constant below will be removed when I land
-        // the second part of https://codereview.chromium.org/261313004/
-        // ('add --readJsonSummaryPath to render_pictures')
-        outputFilename.set("bitmap-64bitMD5_");
-        outputFilename.appendU64(hash);
+        outputFilename.set(imageDigestPtr->getHashType());
+        outputFilename.append("_");
+        outputFilename.appendU64(imageDigestPtr->getHashValue());
     } else {
         outputFilename.set(escapedInputFilename);
         if (NULL != tileNumberPtr) {
@@ -321,11 +313,7 @@ static bool write(SkCanvas* canvas, const SkString& outputDir, const SkString& i
     outputFilename.append(".png");
 
     if (NULL != jsonSummaryPtr) {
-        if (!generatedHash) {
-            SkAssertResult(SkBitmapHasher::ComputeDigest(bitmap, &hash));
-            generatedHash = true;
-        }
-
+        const ImageDigest *imageDigestPtr = bitmapAndDigest.getImageDigestPtr();
         SkString outputRelativePath;
         if (outputSubdirPtr) {
             outputRelativePath.set(outputSubdirPtr);
@@ -336,7 +324,7 @@ static bool write(SkCanvas* canvas, const SkString& outputDir, const SkString& i
         }
 
         jsonSummaryPtr->add(inputFilename.c_str(), outputRelativePath.c_str(),
-                            hash, tileNumberPtr);
+                            *imageDigestPtr, tileNumberPtr);
     }
 
     if (outputDir.isEmpty()) {
@@ -707,7 +695,8 @@ class CloneData : public SkRunnable {
 
 public:
     CloneData(SkPicture* clone, SkCanvas* canvas, SkTDArray<SkRect>& rects, int start, int end,
-              SkRunnable* done, ImageResultsSummary* jsonSummaryPtr, bool useChecksumBasedFilenames)
+              SkRunnable* done, ImageResultsAndExpectations* jsonSummaryPtr,
+              bool useChecksumBasedFilenames)
         : fClone(clone)
         , fCanvas(canvas)
         , fRects(rects)
@@ -778,7 +767,7 @@ private:
                                     // and only set to false upon failure to write to a PNG.
     SkRunnable*        fDone;
     SkBitmap*          fBitmap;
-    ImageResultsSummary* fJsonSummaryPtr;
+    ImageResultsAndExpectations* fJsonSummaryPtr;
     bool               fUseChecksumBasedFilenames;
 };
 

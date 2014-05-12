@@ -219,7 +219,7 @@ public:
         fGridInfo.fTileInterval.set(width, height);
     }
 
-    void setJsonSummaryPtr(ImageResultsSummary* jsonSummaryPtr) {
+    void setJsonSummaryPtr(ImageResultsAndExpectations* jsonSummaryPtr) {
         fJsonSummaryPtr = jsonSummaryPtr;
     }
 
@@ -365,7 +365,7 @@ protected:
     SkAutoTUnref<SkCanvas> fCanvas;
     SkAutoTUnref<SkPicture> fPicture;
     bool                   fUseChecksumBasedFilenames;
-    ImageResultsSummary*   fJsonSummaryPtr;
+    ImageResultsAndExpectations*   fJsonSummaryPtr;
     SkDeviceTypes          fDeviceType;
     BBoxHierarchyType      fBBoxHierarchyType;
     DrawFilterFlags        fDrawFilters[SkDrawFilter::kTypeCount];
