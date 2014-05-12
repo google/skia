@@ -12,6 +12,9 @@
 #  export DOXYGEN_TEMPDIR=/tmp/doxygen
 #  export DOXYGEN_COMMIT=false
 #  bash update-doxygen.sh
+#
+# To install doxygen on most Linux systems, you can run:
+# sudo apt-get install doxygen
 
 function check_out_docs {
   svn checkout https://skia-autogen.googlecode.com/svn/docs  # writeable
