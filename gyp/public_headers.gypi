@@ -83,7 +83,6 @@
       'effects/SkBicubicImageFilter.h',
       'effects/SkPorterDuff.h',
       'effects/SkBlurImageFilter.h',
-      'effects/SkKernel33MaskFilter.h',
       'effects/SkTableMaskFilter.h',
       'effects/SkAvoidXfermode.h',
       'effects/SkBitmapSource.h',

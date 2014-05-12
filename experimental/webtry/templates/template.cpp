@@ -74,7 +74,6 @@
 #include "SkImage.h"
 #include "SkImageInfo.h"
 #include "SkInstCnt.h"
-#include "SkKernel33MaskFilter.h"
 #include "SkLayerDrawLooper.h"
 #include "SkLayerRasterizer.h"
 #include "SkLerpXfermode.h"

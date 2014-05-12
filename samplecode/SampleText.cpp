@@ -13,7 +13,6 @@
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
-#include "SkKernel33MaskFilter.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
@@ -27,77 +26,6 @@
 
 #include "SkStream.h"
 #include "SkXMLParser.h"
-
-class ReduceNoise : public SkKernel33ProcMaskFilter {
-public:
-    ReduceNoise(int percent256) : SkKernel33ProcMaskFilter(percent256) {}
-    virtual uint8_t computeValue(uint8_t* const* srcRows) const {
-        int c = srcRows[1][1];
-        int min = 255, max = 0;
-        for (int i = 0; i < 3; i++)
-            for (int j = 0; j < 3; j++)
-                if (i != 1 || j != 1)
-                {
-                    int v = srcRows[i][j];
-                    if (max < v)
-                        max = v;
-                    if  (min > v)
-                        min = v;
-                }
-        if (c > max) c = max;
-    //    if (c < min) c = min;
-        return c;
-    }
-
-#ifndef SK_IGNORE_TO_STRING
-    virtual void toString(SkString* str) const SK_OVERRIDE {
-        str->append("ReduceNoise: (");
-        this->INHERITED::toString(str);
-        str->append(")");
-    }
-#endif
-
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(ReduceNoise)
-
-private:
-    ReduceNoise(SkReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
-
-    typedef SkKernel33ProcMaskFilter INHERITED;
-};
-
-class Darken : public SkKernel33ProcMaskFilter {
-public:
-    Darken(int percent256) : SkKernel33ProcMaskFilter(percent256) {}
-    virtual uint8_t computeValue(uint8_t* const* srcRows) const {
-        int c = srcRows[1][1];
-        float f = c / 255.f;
-
-        if (c >= 0) {
-            f = sqrtf(f);
-        } else {
-            f *= f;
-        }
-        SkASSERT(f >= 0 && f <= 1);
-        return (int)(f * 255);
-    }
-
-#ifndef SK_IGNORE_TO_STRING
-    virtual void toString(SkString* str) const SK_OVERRIDE {
-        str->append("Darken: (");
-        this->INHERITED::toString(str);
-        str->append(")");
-    }
-#endif
-
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(Darken)
-
-private:
-    Darken(SkReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
-
-    typedef SkKernel33ProcMaskFilter INHERITED;
-};
-
-static SkMaskFilter* makemf() { return new Darken(0x30); }
 
 static void test_breakText() {
     SkPaint paint;
@@ -213,9 +141,8 @@ static const struct {
     { "Subpixel", SkPaint::kSubpixelText_Flag, true }
 };
 
-static void DrawTheText(SkCanvas* canvas, const char text[], size_t length,
-                        SkScalar x, SkScalar y, const SkPaint& paint,
-                        SkScalar clickX, SkMaskFilter* mf) {
+static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkScalar x, SkScalar y,
+                        const SkPaint& paint, SkScalar clickX) {
     SkPaint p(paint);
 
 #if 0
@@ -238,7 +165,6 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length,
 
 #ifdef SK_DEBUG
     if (true) {
-    //    p.setMaskFilter(mf);
         p.setSubpixelText(false);
         p.setLinearText(true);
         x += SkIntToScalar(180);
@@ -250,16 +176,10 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length,
 class TextSpeedView : public SampleView {
 public:
     TextSpeedView() {
-        fMF = makemf();
-
         fHints = 0;
         fClickX = 0;
 
         test_breakText();
-    }
-
-    virtual ~TextSpeedView() {
-        SkSafeUnref(fMF);
     }
 
 protected:
@@ -326,8 +246,7 @@ protected:
             for (SkScalar dx = 0; dx <= SkIntToScalar(3)/4;
                                             dx += SkIntToScalar(1) /* /4 */) {
                 y += paint.getFontSpacing();
-                DrawTheText(canvas, text, length, SkIntToScalar(20) + dx, y,
-                            paint, fClickX, fMF);
+                DrawTheText(canvas, text, length, SkIntToScalar(20) + dx, y, paint, fClickX);
             }
         }
         if (gHints[index].fFlushCache) {
@@ -349,7 +268,6 @@ protected:
 private:
     int fHints;
     SkScalar fClickX;
-    SkMaskFilter* fMF;
 
     typedef SampleView INHERITED;
 };
