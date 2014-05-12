@@ -42,6 +42,7 @@
 #include "SkLayerRasterizer.h"
 #include "SkLerpXfermode.h"
 #include "SkLightingImageFilter.h"
+#include "SkLocalMatrixShader.h"
 #include "SkLumaColorFilter.h"
 #include "SkMagnifierImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
@@ -84,6 +85,7 @@ static void InitializeFlattenables(int*) {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerDrawLooper)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLayerRasterizer)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLerpXfermode)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLocalMatrixShader)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLumaColorFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath1DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(Sk2DPathEffect)

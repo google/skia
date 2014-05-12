@@ -35,7 +35,7 @@ static void erase(SkSurface* surface) {
     surface->getCanvas()->clear(SK_ColorTRANSPARENT);
 }
 
-static SkShader* createChecker() {
+static SkShader* createChecker(const SkMatrix& localMatrix) {
 //    SkColor colors[] = { 0xFFFDFDFD, 0xFFF4F4F4 };
     SkColor colors[] = { 0xFFFFFFFF, 0xFFFFFFFF };
     SkBitmap bm;
@@ -43,15 +43,13 @@ static SkShader* createChecker() {
     bm.lockPixels();
     *bm.getAddr32(0, 0) = *bm.getAddr32(1, 1) = SkPreMultiplyColor(colors[0]);
     *bm.getAddr32(0, 1) = *bm.getAddr32(1, 0) = SkPreMultiplyColor(colors[1]);
-    SkMatrix m;
-    m.setScale(12, 12);
     return SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                        SkShader::kRepeat_TileMode, &m);
+                                        SkShader::kRepeat_TileMode, &localMatrix);
 }
 
 class FatBits {
 public:
-    FatBits() : fShader(createChecker()) {
+    FatBits() {
         fAA = false;
         fStyle = kHair_Style;
         fGrid = true;
@@ -100,7 +98,7 @@ public:
         fBounds.set(0, 0, SkIntToScalar(width * zoom), SkIntToScalar(height * zoom));
         fMatrix.setScale(SkIntToScalar(zoom), SkIntToScalar(zoom));
         fInverse.setScale(SK_Scalar1 / zoom, SK_Scalar1 / zoom);
-        fShader->setLocalMatrix(fMatrix);
+        fShader.reset(createChecker(fMatrix));
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
         fMinSurface.reset(SkSurface::NewRaster(info));

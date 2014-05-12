@@ -56,11 +56,7 @@ SkShader* SkPictureShader::refBitmapShader(const SkMatrix& matrix, const SkMatri
     SkASSERT(fPicture && fPicture->width() > 0 && fPicture->height() > 0);
 
     SkMatrix m;
-    if (this->hasLocalMatrix()) {
-        m.setConcat(matrix, this->getLocalMatrix());
-    } else {
-        m = matrix;
-    }
+    m.setConcat(matrix, this->getLocalMatrix());
     if (localM) {
         m.preConcat(*localM);
     }
