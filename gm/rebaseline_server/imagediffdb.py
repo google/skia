@@ -45,11 +45,11 @@ VALUES_PER_BAND = 256
 
 # Keys used within DiffRecord dictionary representations.
 # NOTE: Keep these in sync with static/constants.js
-KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL = 'maxDiffPerChannel'
-KEY__DIFFERENCE_DATA__NUM_DIFF_PIXELS = 'numDifferingPixels'
-KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS = 'percentDifferingPixels'
-KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF = 'perceptualDifference'
-KEY__DIFFERENCE_DATA__WEIGHTED_DIFF = 'weightedDiffMeasure'
+KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL = 'maxDiffPerChannel'
+KEY__DIFFERENCES__NUM_DIFF_PIXELS = 'numDifferingPixels'
+KEY__DIFFERENCES__PERCENT_DIFF_PIXELS = 'percentDifferingPixels'
+KEY__DIFFERENCES__PERCEPTUAL_DIFF = 'perceptualDifference'
+KEY__DIFFERENCES__WEIGHTED_DIFF = 'weightedDiffMeasure'
 
 
 class DiffRecord(object):
@@ -206,12 +206,12 @@ class DiffRecord(object):
     """Returns a dictionary representation of this DiffRecord, as needed when
     constructing the JSON representation."""
     return {
-        KEY__DIFFERENCE_DATA__NUM_DIFF_PIXELS: self._num_pixels_differing,
-        KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS:
+        KEY__DIFFERENCES__NUM_DIFF_PIXELS: self._num_pixels_differing,
+        KEY__DIFFERENCES__PERCENT_DIFF_PIXELS:
             self.get_percent_pixels_differing(),
-        KEY__DIFFERENCE_DATA__WEIGHTED_DIFF: self.get_weighted_diff_measure(),
-        KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL: self._max_diff_per_channel,
-        KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF: self._perceptual_difference,
+        KEY__DIFFERENCES__WEIGHTED_DIFF: self.get_weighted_diff_measure(),
+        KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL: self._max_diff_per_channel,
+        KEY__DIFFERENCES__PERCEPTUAL_DIFF: self._perceptual_difference,
     }
 
 

@@ -14,11 +14,14 @@ import posixpath
 
 # Local imports
 import column
+import imagepair
 
 # Keys used within dictionary representation of ImagePairSet.
 # NOTE: Keep these in sync with static/constants.js
-KEY__IMAGEPAIRS = 'imagePairs'
-KEY__IMAGESETS = 'imageSets'
+KEY__ROOT__EXTRACOLUMNHEADERS = 'extraColumnHeaders'
+KEY__ROOT__HEADER = 'header'
+KEY__ROOT__IMAGEPAIRS = 'imagePairs'
+KEY__ROOT__IMAGESETS = 'imageSets'
 KEY__IMAGESETS__FIELD__BASE_URL = 'baseUrl'
 KEY__IMAGESETS__FIELD__DESCRIPTION = 'description'
 KEY__IMAGESETS__SET__DIFFS = 'diffs'
@@ -140,9 +143,9 @@ class ImagePairSet(object):
     key_description = KEY__IMAGESETS__FIELD__DESCRIPTION
     key_base_url = KEY__IMAGESETS__FIELD__BASE_URL
     return {
-        column.KEY__EXTRACOLUMNHEADERS: self._column_headers_as_dict(),
-        KEY__IMAGEPAIRS: self._image_pair_dicts,
-        KEY__IMAGESETS: {
+        KEY__ROOT__EXTRACOLUMNHEADERS: self._column_headers_as_dict(),
+        KEY__ROOT__IMAGEPAIRS: self._image_pair_dicts,
+        KEY__ROOT__IMAGESETS: {
             KEY__IMAGESETS__SET__IMAGE_A: {
                 key_description: self._descriptions[0],
                 key_base_url: self._image_base_url,

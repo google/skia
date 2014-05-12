@@ -454,9 +454,9 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     else:
       now = int(time.time())
       response_dict = {
-          results_mod.KEY__HEADER: {
+          imagepairset.KEY__ROOT__HEADER: {
               results_mod.KEY__HEADER__SCHEMA_VERSION: (
-                  results_mod.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER),
+                  results_mod.VALUE__HEADER__SCHEMA_VERSION),
               results_mod.KEY__HEADER__IS_STILL_LOADING: True,
               results_mod.KEY__HEADER__TIME_UPDATED: now,
               results_mod.KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE: (
@@ -549,7 +549,8 @@ class HTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     with _SERVER.results_rlock:
       oldResultsType = data[KEY__EDITS__OLD_RESULTS_TYPE]
       oldResults = _SERVER.results.get_results_of_type(oldResultsType)
-      oldResultsHash = str(hash(repr(oldResults[imagepairset.KEY__IMAGEPAIRS])))
+      oldResultsHash = str(hash(repr(
+          oldResults[imagepairset.KEY__ROOT__IMAGEPAIRS])))
       if oldResultsHash != data[KEY__EDITS__OLD_RESULTS_HASH]:
         raise Exception('results of type "%s" changed while the client was '
                         'making modifications. The client should reload the '

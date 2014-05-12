@@ -105,17 +105,17 @@ class ExpectationComparisons(results.BaseComparisons):
 
          [
            {
-             imagepair.KEY__EXPECTATIONS_DATA: {
+             imagepair.KEY__IMAGEPAIRS__EXPECTATIONS: {
                results.KEY__EXPECTATIONS__BUGS: [123, 456],
                results.KEY__EXPECTATIONS__IGNOREFAILURE: false,
                results.KEY__EXPECTATIONS__REVIEWED: true,
              },
-             imagepair.KEY__EXTRA_COLUMN_VALUES: {
-               results.KEY__EXTRACOLUMN__BUILDER: 'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug',
-               results.KEY__EXTRACOLUMN__CONFIG: '8888',
-               results.KEY__EXTRACOLUMN__TEST: 'bigmatrix',
+             imagepair.KEY__IMAGEPAIRS__EXTRACOLUMNS: {
+               results.KEY__EXTRACOLUMNS__BUILDER: 'Test-Mac10.6-MacMini4.1-GeForce320M-x86-Debug',
+               results.KEY__EXTRACOLUMNS__CONFIG: '8888',
+               results.KEY__EXTRACOLUMNS__TEST: 'bigmatrix',
              },
-             results.KEY__NEW_IMAGE_URL: 'bitmap-64bitMD5/bigmatrix/10894408024079689926.png',
+             results.KEY__IMAGEPAIRS__IMAGE_B_URL: 'bitmap-64bitMD5/bigmatrix/10894408024079689926.png',
            },
            ...
          ]
@@ -125,23 +125,23 @@ class ExpectationComparisons(results.BaseComparisons):
         self._expected_root)
     for mod in modifications:
       image_name = results.IMAGE_FILENAME_FORMATTER % (
-          mod[imagepair.KEY__EXTRA_COLUMN_VALUES]
-             [results.KEY__EXTRACOLUMN__TEST],
-          mod[imagepair.KEY__EXTRA_COLUMN_VALUES]
-             [results.KEY__EXTRACOLUMN__CONFIG])
+          mod[imagepair.KEY__IMAGEPAIRS__EXTRACOLUMNS]
+             [results.KEY__EXTRACOLUMNS__TEST],
+          mod[imagepair.KEY__IMAGEPAIRS__EXTRACOLUMNS]
+             [results.KEY__EXTRACOLUMNS__CONFIG])
       _, hash_type, hash_digest = gm_json.SplitGmRelativeUrl(
-          mod[results.KEY__NEW_IMAGE_URL])
+          mod[imagepair.KEY__IMAGEPAIRS__IMAGE_B_URL])
       allowed_digests = [[hash_type, int(hash_digest)]]
       new_expectations = {
           gm_json.JSONKEY_EXPECTEDRESULTS_ALLOWEDDIGESTS: allowed_digests,
       }
       for field in EXPECTATION_FIELDS_PASSED_THRU_VERBATIM:
-        value = mod[imagepair.KEY__EXPECTATIONS_DATA].get(field)
+        value = mod[imagepair.KEY__IMAGEPAIRS__EXPECTATIONS].get(field)
         if value is not None:
           new_expectations[field] = value
       builder_dict = expected_builder_dicts[
-          mod[imagepair.KEY__EXTRA_COLUMN_VALUES]
-             [results.KEY__EXTRACOLUMN__BUILDER]]
+          mod[imagepair.KEY__IMAGEPAIRS__EXTRACOLUMNS]
+             [results.KEY__EXTRACOLUMNS__BUILDER]]
       builder_expectations = builder_dict.get(gm_json.JSONKEY_EXPECTEDRESULTS)
       if not builder_expectations:
         builder_expectations = {}
@@ -216,14 +216,14 @@ class ExpectationComparisons(results.BaseComparisons):
         diff_base_url=self._diff_base_url)
 
     all_image_pairs.ensure_extra_column_values_in_summary(
-        column_id=results.KEY__EXTRACOLUMN__RESULT_TYPE, values=[
+        column_id=results.KEY__EXTRACOLUMNS__RESULT_TYPE, values=[
             results.KEY__RESULT_TYPE__FAILED,
             results.KEY__RESULT_TYPE__FAILUREIGNORED,
             results.KEY__RESULT_TYPE__NOCOMPARISON,
             results.KEY__RESULT_TYPE__SUCCEEDED,
         ])
     failing_image_pairs.ensure_extra_column_values_in_summary(
-        column_id=results.KEY__EXTRACOLUMN__RESULT_TYPE, values=[
+        column_id=results.KEY__EXTRACOLUMNS__RESULT_TYPE, values=[
             results.KEY__RESULT_TYPE__FAILED,
             results.KEY__RESULT_TYPE__FAILUREIGNORED,
             results.KEY__RESULT_TYPE__NOCOMPARISON,
@@ -298,8 +298,8 @@ class ExpectationComparisons(results.BaseComparisons):
             # tools working in the meanwhile!
             if result_type != results.KEY__RESULT_TYPE__NOCOMPARISON:
               logging.warning('No expectations found for test: %s' % {
-                  results.KEY__EXTRACOLUMN__BUILDER: builder,
-                  results.KEY__EXTRACOLUMN__RESULT_TYPE: result_type,
+                  results.KEY__EXTRACOLUMNS__BUILDER: builder,
+                  results.KEY__EXTRACOLUMNS__RESULT_TYPE: result_type,
                   'image_name': image_name,
                   })
 
@@ -323,10 +323,10 @@ class ExpectationComparisons(results.BaseComparisons):
           else:
             updated_result_type = result_type
           extra_columns_dict = {
-              results.KEY__EXTRACOLUMN__RESULT_TYPE: updated_result_type,
-              results.KEY__EXTRACOLUMN__BUILDER: builder,
-              results.KEY__EXTRACOLUMN__TEST: test,
-              results.KEY__EXTRACOLUMN__CONFIG: config,
+              results.KEY__EXTRACOLUMNS__RESULT_TYPE: updated_result_type,
+              results.KEY__EXTRACOLUMNS__BUILDER: builder,
+              results.KEY__EXTRACOLUMNS__TEST: test,
+              results.KEY__EXTRACOLUMNS__CONFIG: config,
           }
           try:
             image_pair = imagepair.ImagePair(

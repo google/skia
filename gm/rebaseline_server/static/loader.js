@@ -35,17 +35,17 @@ Loader.filter(
       var filteredImagePairs = [];
       for (var i = 0; i < unfilteredImagePairs.length; i++) {
         var imagePair = unfilteredImagePairs[i];
-        var extraColumnValues = imagePair[constants.KEY__EXTRA_COLUMN_VALUES];
+        var extraColumnValues = imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS];
         // For performance, we examine the "set" objects directly rather
         // than calling $scope.isValueInSet().
         // Besides, I don't think we have access to $scope in here...
         if (!(true == hiddenResultTypes[extraColumnValues[
-                  constants.KEY__EXTRACOLUMN__RESULT_TYPE]]) &&
+                  constants.KEY__EXTRACOLUMNS__RESULT_TYPE]]) &&
             !(true == hiddenConfigs[extraColumnValues[
-                  constants.KEY__EXTRACOLUMN__CONFIG]]) &&
-            !(-1 == extraColumnValues[constants.KEY__EXTRACOLUMN__BUILDER]
+                  constants.KEY__EXTRACOLUMNS__CONFIG]]) &&
+            !(-1 == extraColumnValues[constants.KEY__EXTRACOLUMNS__BUILDER]
                     .indexOf(builderSubstring)) &&
-            !(-1 == extraColumnValues[constants.KEY__EXTRACOLUMN__TEST]
+            !(-1 == extraColumnValues[constants.KEY__EXTRACOLUMNS__TEST]
                     .indexOf(testSubstring)) &&
             (viewingTab == imagePair.tab)) {
           filteredImagePairs.push(imagePair);
@@ -72,13 +72,13 @@ Loader.controller(
      */
     $http.get($scope.resultsToLoad).success(
       function(data, status, header, config) {
-        var dataHeader = data[constants.KEY__HEADER];
+        var dataHeader = data[constants.KEY__ROOT__HEADER];
         if (dataHeader[constants.KEY__HEADER__SCHEMA_VERSION] !=
-            constants.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER) {
+            constants.VALUE__HEADER__SCHEMA_VERSION) {
           $scope.loadingMessage = "ERROR: Got JSON file with schema version "
               + dataHeader[constants.KEY__HEADER__SCHEMA_VERSION]
               + " but expected schema version "
-              + constants.REBASELINE_SERVER_SCHEMA_VERSION_NUMBER;
+              + constants.VALUE__HEADER__SCHEMA_VERSION;
         } else if (dataHeader[constants.KEY__HEADER__IS_STILL_LOADING]) {
           // Apply the server's requested reload delay to local time,
           // so we will wait the right number of seconds regardless of clock
@@ -98,11 +98,11 @@ Loader.controller(
           $scope.loadingMessage = "processing data, please wait...";
 
           $scope.header = dataHeader;
-          $scope.extraColumnHeaders = data[constants.KEY__EXTRACOLUMNHEADERS];
-          $scope.imagePairs = data[constants.KEY__IMAGEPAIRS];
-          $scope.imageSets = data[constants.KEY__IMAGESETS];
-          $scope.sortColumnSubdict = constants.KEY__DIFFERENCE_DATA;
-          $scope.sortColumnKey = constants.KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF;
+          $scope.extraColumnHeaders = data[constants.KEY__ROOT__EXTRACOLUMNHEADERS];
+          $scope.imagePairs = data[constants.KEY__ROOT__IMAGEPAIRS];
+          $scope.imageSets = data[constants.KEY__ROOT__IMAGESETS];
+          $scope.sortColumnSubdict = constants.KEY__IMAGEPAIRS__DIFFERENCES;
+          $scope.sortColumnKey = constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF;
 
           $scope.showSubmitAdvancedSettings = false;
           $scope.submitAdvancedSettings = {};
@@ -149,12 +149,12 @@ Loader.controller(
           $scope.hiddenResultTypes[
               constants.KEY__RESULT_TYPE__SUCCEEDED] = true;
           $scope.allResultTypes = $scope.columnSliceOf2DArray(
-              $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMN__RESULT_TYPE]
+              $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMNS__RESULT_TYPE]
                                        [constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS],
               0);
           $scope.hiddenConfigs = {};
           $scope.allConfigs = $scope.columnSliceOf2DArray(
-              $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMN__CONFIG]
+              $scope.extraColumnHeaders[constants.KEY__EXTRACOLUMNS__CONFIG]
                                        [constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS],
               0);
 
@@ -342,9 +342,9 @@ Loader.controller(
       'hiddenResultTypes': $scope.queryParameters.copiers.set,
       'hiddenConfigs':     $scope.queryParameters.copiers.set,
     };
-    $scope.queryParameters.map[constants.KEY__EXTRACOLUMN__BUILDER] =
+    $scope.queryParameters.map[constants.KEY__EXTRACOLUMNS__BUILDER] =
         $scope.queryParameters.copiers.categoryValueMatch;
-    $scope.queryParameters.map[constants.KEY__EXTRACOLUMN__TEST] =
+    $scope.queryParameters.map[constants.KEY__EXTRACOLUMNS__TEST] =
         $scope.queryParameters.copiers.categoryValueMatch;
 
     // Loads all parameters into $scope from the URL query string;
@@ -411,9 +411,9 @@ Loader.controller(
         // there are certain columns we want to sort in a different order.
         var doReverse = (
             ($scope.sortColumnKey ==
-             constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS) ||
+             constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS) ||
             ($scope.sortColumnKey ==
-             constants.KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF));
+             constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF));
 
         $scope.filteredImagePairs =
             $filter("orderBy")(
@@ -457,9 +457,8 @@ Loader.controller(
     /**
      * Re-sort the displayed results.
      *
-     * @param subdict (string): which subdictionary
-     *     (constants.KEY__DIFFERENCE_DATA, constants.KEY__EXPECTATIONS_DATA,
-     *      constants.KEY__EXTRA_COLUMN_VALUES) the sort column key is within
+     * @param subdict (string): which KEY__IMAGEPAIRS__* subdictionary
+     *     the sort column key is within
      * @param key (string): sort by value associated with this key in subdict
      */
     $scope.sortResultsBy = function(subdict, key) {
@@ -577,33 +576,34 @@ Loader.controller(
       for (var i = 0; i < imagePairsSubset.length; i++) {
         var imagePair = imagePairsSubset[i];
         var updatedExpectation = {};
-        updatedExpectation[constants.KEY__EXPECTATIONS_DATA] =
-            imagePair[constants.KEY__EXPECTATIONS_DATA];
-        updatedExpectation[constants.KEY__EXTRA_COLUMN_VALUES] =
-            imagePair[constants.KEY__EXTRA_COLUMN_VALUES];
-        updatedExpectation[constants.KEY__NEW_IMAGE_URL] =
-            imagePair[constants.KEY__IMAGE_B_URL];
-        if (0 == updatedExpectation[constants.KEY__EXTRA_COLUMN_VALUES]
-                                   [constants.KEY__EXTRACOLUMN__CONFIG]
+        updatedExpectation[constants.KEY__IMAGEPAIRS__EXPECTATIONS] =
+            imagePair[constants.KEY__IMAGEPAIRS__EXPECTATIONS];
+        updatedExpectation[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS] =
+            imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS];
+        // IMAGE_B_URL contains the actual image (which is now the expectation)
+        updatedExpectation[constants.KEY__IMAGEPAIRS__IMAGE_B_URL] =
+            imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL];
+        if (0 == updatedExpectation[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS]
+                                   [constants.KEY__EXTRACOLUMNS__CONFIG]
                                    .indexOf('comparison-')) {
           encounteredComparisonConfig = true;
         }
 
         // Advanced settings...
-        if (null == updatedExpectation[constants.KEY__EXPECTATIONS_DATA]) {
-          updatedExpectation[constants.KEY__EXPECTATIONS_DATA] = {};
+        if (null == updatedExpectation[constants.KEY__IMAGEPAIRS__EXPECTATIONS]) {
+          updatedExpectation[constants.KEY__IMAGEPAIRS__EXPECTATIONS] = {};
         }
-        updatedExpectation[constants.KEY__EXPECTATIONS_DATA]
+        updatedExpectation[constants.KEY__IMAGEPAIRS__EXPECTATIONS]
                           [constants.KEY__EXPECTATIONS__REVIEWED] =
             $scope.submitAdvancedSettings[
                 constants.KEY__EXPECTATIONS__REVIEWED];
         if (true == $scope.submitAdvancedSettings[
             constants.KEY__EXPECTATIONS__IGNOREFAILURE]) {
           // if it's false, don't send it at all (just keep the default)
-          updatedExpectation[constants.KEY__EXPECTATIONS_DATA]
+          updatedExpectation[constants.KEY__IMAGEPAIRS__EXPECTATIONS]
                             [constants.KEY__EXPECTATIONS__IGNOREFAILURE] = true;
         }
-        updatedExpectation[constants.KEY__EXPECTATIONS_DATA]
+        updatedExpectation[constants.KEY__IMAGEPAIRS__EXPECTATIONS]
                           [constants.KEY__EXPECTATIONS__BUGS] = bugs;
 
         updatedExpectations.push(updatedExpectation);
@@ -827,8 +827,8 @@ Loader.controller(
      */
     $scope.getImageDiffRelativeUrl = function(imagePair) {
       var before =
-          imagePair[constants.KEY__IMAGE_A_URL] + "-vs-" +
-          imagePair[constants.KEY__IMAGE_B_URL];
+          imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL] + "-vs-" +
+          imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL];
       return before.replace(/[^\w\-]/g, "_") + ".png";
     }
 

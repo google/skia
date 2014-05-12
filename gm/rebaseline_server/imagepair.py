@@ -11,14 +11,15 @@ ImagePair class (see class docstring for details)
 
 import posixpath
 
+
 # Keys used within ImagePair dictionary representations.
 # NOTE: Keep these in sync with static/constants.js
-KEY__DIFFERENCE_DATA = 'differenceData'
-KEY__EXPECTATIONS_DATA = 'expectations'
-KEY__EXTRA_COLUMN_VALUES = 'extraColumns'
-KEY__IMAGE_A_URL = 'imageAUrl'
-KEY__IMAGE_B_URL = 'imageBUrl'
-KEY__IS_DIFFERENT = 'isDifferent'
+KEY__IMAGEPAIRS__DIFFERENCES = 'differenceData'
+KEY__IMAGEPAIRS__EXPECTATIONS = 'expectations'
+KEY__IMAGEPAIRS__EXTRACOLUMNS = 'extraColumns'
+KEY__IMAGEPAIRS__IMAGE_A_URL = 'imageAUrl'
+KEY__IMAGEPAIRS__IMAGE_B_URL = 'imageBUrl'
+KEY__IMAGEPAIRS__IS_DIFFERENT = 'isDifferent'
 
 
 class ImagePair(object):
@@ -73,17 +74,17 @@ class ImagePair(object):
   def as_dict(self):
     """Returns a dictionary describing this ImagePair.
 
-    Uses the KEY__* constants as keys.
+    Uses the KEY__IMAGEPAIRS__* constants as keys.
     """
     asdict = {
-        KEY__IMAGE_A_URL: self.imageA_relative_url,
-        KEY__IMAGE_B_URL: self.imageB_relative_url,
+        KEY__IMAGEPAIRS__IMAGE_A_URL: self.imageA_relative_url,
+        KEY__IMAGEPAIRS__IMAGE_B_URL: self.imageB_relative_url,
     }
-    asdict[KEY__IS_DIFFERENT] = self._is_different
+    asdict[KEY__IMAGEPAIRS__IS_DIFFERENT] = self._is_different
     if self.expectations_dict:
-      asdict[KEY__EXPECTATIONS_DATA] = self.expectations_dict
+      asdict[KEY__IMAGEPAIRS__EXPECTATIONS] = self.expectations_dict
     if self.extra_columns_dict:
-      asdict[KEY__EXTRA_COLUMN_VALUES] = self.extra_columns_dict
+      asdict[KEY__IMAGEPAIRS__EXTRACOLUMNS] = self.extra_columns_dict
     if self.diff_record and (self.diff_record.get_num_pixels_differing() > 0):
-      asdict[KEY__DIFFERENCE_DATA] = self.diff_record.as_dict()
+      asdict[KEY__IMAGEPAIRS__DIFFERENCES] = self.diff_record.as_dict()
     return asdict

@@ -31,15 +31,14 @@ import imagepairset
 
 # Keys used to link an image to a particular GM test.
 # NOTE: Keep these in sync with static/constants.js
-REBASELINE_SERVER_SCHEMA_VERSION_NUMBER = 3
+VALUE__HEADER__SCHEMA_VERSION = 3
 KEY__EXPECTATIONS__BUGS = gm_json.JSONKEY_EXPECTEDRESULTS_BUGS
 KEY__EXPECTATIONS__IGNOREFAILURE = gm_json.JSONKEY_EXPECTEDRESULTS_IGNOREFAILURE
 KEY__EXPECTATIONS__REVIEWED = gm_json.JSONKEY_EXPECTEDRESULTS_REVIEWED
-KEY__EXTRACOLUMN__BUILDER = 'builder'
-KEY__EXTRACOLUMN__CONFIG = 'config'
-KEY__EXTRACOLUMN__RESULT_TYPE = 'resultType'
-KEY__EXTRACOLUMN__TEST = 'test'
-KEY__HEADER = 'header'
+KEY__EXTRACOLUMNS__BUILDER = 'builder'
+KEY__EXTRACOLUMNS__CONFIG = 'config'
+KEY__EXTRACOLUMNS__RESULT_TYPE = 'resultType'
+KEY__EXTRACOLUMNS__TEST = 'test'
 KEY__HEADER__DATAHASH = 'dataHash'
 KEY__HEADER__IS_EDITABLE = 'isEditable'
 KEY__HEADER__IS_EXPORTED = 'isExported'
@@ -50,7 +49,6 @@ KEY__HEADER__SCHEMA_VERSION = 'schemaVersion'
 KEY__HEADER__TIME_NEXT_UPDATE_AVAILABLE = 'timeNextUpdateAvailable'
 KEY__HEADER__TIME_UPDATED = 'timeUpdated'
 KEY__HEADER__TYPE = 'type'
-KEY__NEW_IMAGE_URL = 'newImageUrl'
 KEY__RESULT_TYPE__FAILED = gm_json.JSONKEY_ACTUALRESULTS_FAILED
 KEY__RESULT_TYPE__FAILUREIGNORED = gm_json.JSONKEY_ACTUALRESULTS_FAILUREIGNORED
 KEY__RESULT_TYPE__NOCOMPARISON = gm_json.JSONKEY_ACTUALRESULTS_NOCOMPARISON
@@ -103,9 +101,9 @@ class BaseComparisons(object):
     """
     response_dict = self._results[results_type]
     time_updated = self.get_timestamp()
-    response_dict[KEY__HEADER] = {
+    response_dict[imagepairset.KEY__ROOT__HEADER] = {
         KEY__HEADER__SCHEMA_VERSION: (
-            REBASELINE_SERVER_SCHEMA_VERSION_NUMBER),
+            VALUE__HEADER__SCHEMA_VERSION),
 
         # Timestamps:
         # 1. when this data was last updated
@@ -120,7 +118,7 @@ class BaseComparisons(object):
         # Hash of dataset, which the client must return with any edits--
         # this ensures that the edits were made to a particular dataset.
         KEY__HEADER__DATAHASH: str(hash(repr(
-            response_dict[imagepairset.KEY__IMAGEPAIRS]))),
+            response_dict[imagepairset.KEY__ROOT__IMAGEPAIRS]))),
 
         # Whether the server will accept edits back.
         KEY__HEADER__IS_EDITABLE: is_editable,

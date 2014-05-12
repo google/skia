@@ -68,7 +68,7 @@
     <tr valign="top">
       <td>
         resultType<br>
-        <label ng-repeat="valueAndCount in extraColumnHeaders[constants.KEY__EXTRACOLUMN__RESULT_TYPE][constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS]">
+        <label ng-repeat="valueAndCount in extraColumnHeaders[constants.KEY__EXTRACOLUMNS__RESULT_TYPE][constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS]">
           <input type="checkbox"
                  name="resultTypes"
                  value="{{valueAndCount[0]}}"
@@ -86,7 +86,7 @@
           toggle
         </button>
       </td>
-      <td ng-repeat="category in [constants.KEY__EXTRACOLUMN__BUILDER, constants.KEY__EXTRACOLUMN__TEST]">
+      <td ng-repeat="category in [constants.KEY__EXTRACOLUMNS__BUILDER, constants.KEY__EXTRACOLUMNS__TEST]">
         {{category}}
         <br>
         <input type="text"
@@ -100,7 +100,7 @@
       </td>
       <td>
         config<br>
-        <label ng-repeat="valueAndCount in extraColumnHeaders[constants.KEY__EXTRACOLUMN__CONFIG][constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS]">
+        <label ng-repeat="valueAndCount in extraColumnHeaders[constants.KEY__EXTRACOLUMNS__CONFIG][constants.KEY__EXTRACOLUMNHEADERS__VALUES_AND_COUNTS]">
           <input type="checkbox"
                  name="configs"
                  value="{{valueAndCount[0]}}"
@@ -230,12 +230,12 @@
       <table border="1" ng-app="diff_viewer"> <!-- results -->
         <tr>
           <!-- Most column headers are displayed in a common fashion... -->
-          <th ng-repeat="categoryName in [constants.KEY__EXTRACOLUMN__RESULT_TYPE, constants.KEY__EXTRACOLUMN__BUILDER, constants.KEY__EXTRACOLUMN__TEST, constants.KEY__EXTRACOLUMN__CONFIG]">
+          <th ng-repeat="categoryName in [constants.KEY__EXTRACOLUMNS__RESULT_TYPE, constants.KEY__EXTRACOLUMNS__BUILDER, constants.KEY__EXTRACOLUMNS__TEST, constants.KEY__EXTRACOLUMNS__CONFIG]">
             <input type="radio"
                    name="sortColumnRadio"
                    value="{{categoryName}}"
                    ng-checked="(sortColumnKey == categoryName)"
-                   ng-click="sortResultsBy(constants.KEY__EXTRA_COLUMN_VALUES, categoryName)">
+                   ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__EXTRACOLUMNS, categoryName)">
             {{categoryName}}
           </th>
           <!-- ... but there are a few columns where we display things differently. -->
@@ -244,7 +244,7 @@
                    name="sortColumnRadio"
                    value="bugs"
                    ng-checked="(sortColumnKey == constants.KEY__EXPECTATIONS__BUGS)"
-                   ng-click="sortResultsBy(constants.KEY__EXPECTATIONS_DATA, constants.KEY__EXPECTATIONS__BUGS)">
+                   ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__EXPECTATIONS, constants.KEY__EXPECTATIONS__BUGS)">
             bugs
           </th>
           <th width="{{imageSize}}">
@@ -257,16 +257,16 @@
             <input type="radio"
                    name="sortColumnRadio"
                    value="percentDifferingPixels"
-                   ng-checked="(sortColumnKey == constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS)"
-                   ng-click="sortResultsBy(constants.KEY__DIFFERENCE_DATA, constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS)">
+                   ng-checked="(sortColumnKey == constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS)"
+                   ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__DIFFERENCES, constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS)">
             differing pixels in white
           </th>
           <th width="{{imageSize}}">
             <input type="radio"
                    name="sortColumnRadio"
                    value="weightedDiffMeasure"
-                   ng-checked="(sortColumnKey == constants.KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF)"
-                   ng-click="sortResultsBy(constants.KEY__DIFFERENCE_DATA, constants.KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF)">
+                   ng-checked="(sortColumnKey == constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF)"
+                   ng-click="sortResultsBy(constants.KEY__IMAGEPAIRS__DIFFERENCES, constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF)">
             perceptual difference
             <br>
             <input type="range" ng-model="pixelDiffBgColorBrightness"
@@ -282,12 +282,12 @@
 
         <tr ng-repeat="imagePair in limitedImagePairs" results-updated-callback-directive>
           <td>
-            {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__RESULT_TYPE]}}
+            {{imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__RESULT_TYPE]}}
             <br>
             <button class="show-only-button"
                     ng-show="viewingTab == defaultTab"
-                    ng-click="showOnlyResultType(imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__RESULT_TYPE])"
-                    title="show only results of type {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__RESULT_TYPE]}}">
+                    ng-click="showOnlyResultType(imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__RESULT_TYPE])"
+                    title="show only results of type {{imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__RESULT_TYPE]}}">
               show only
             </button>
             <br>
@@ -299,14 +299,14 @@
               show all
             </button>
           </td>
-          <td ng-repeat="categoryName in [constants.KEY__EXTRACOLUMN__BUILDER, constants.KEY__EXTRACOLUMN__TEST]">
-            {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][categoryName]}}
+          <td ng-repeat="categoryName in [constants.KEY__EXTRACOLUMNS__BUILDER, constants.KEY__EXTRACOLUMNS__TEST]">
+            {{imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][categoryName]}}
             <br>
             <button class="show-only-button"
                     ng-show="viewingTab == defaultTab"
-                    ng-disabled="imagePair[constants.KEY__EXTRA_COLUMN_VALUES][categoryName] == categoryValueMatch[categoryName]"
-                    ng-click="setCategoryValueMatch(categoryName, imagePair[constants.KEY__EXTRA_COLUMN_VALUES][categoryName])"
-                    title="show only results of {{categoryName}} {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][categoryName]}}">
+                    ng-disabled="imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][categoryName] == categoryValueMatch[categoryName]"
+                    ng-click="setCategoryValueMatch(categoryName, imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][categoryName])"
+                    title="show only results of {{categoryName}} {{imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][categoryName]}}">
               show only
             </button>
             <br>
@@ -319,12 +319,12 @@
             </button>
           </td>
           <td>
-            {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__CONFIG]}}
+            {{imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__CONFIG]}}
             <br>
             <button class="show-only-button"
                     ng-show="viewingTab == defaultTab"
-                    ng-click="showOnlyConfig(imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__CONFIG])"
-                    title="show only results of config {{imagePair[constants.KEY__EXTRA_COLUMN_VALUES][constants.KEY__EXTRACOLUMN__CONFIG]}}">
+                    ng-click="showOnlyConfig(imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__CONFIG])"
+                    title="show only results of config {{imagePair[constants.KEY__IMAGEPAIRS__EXTRACOLUMNS][constants.KEY__EXTRACOLUMNS__CONFIG]}}">
               show only
             </button>
             <br>
@@ -337,7 +337,7 @@
             </button>
           </td>
           <td>
-            <a ng-repeat="bug in imagePair[constants.KEY__EXPECTATIONS_DATA][constants.KEY__EXPECTATIONS__BUGS]"
+            <a ng-repeat="bug in imagePair[constants.KEY__IMAGEPAIRS__EXPECTATIONS][constants.KEY__EXPECTATIONS__BUGS]"
                href="https://code.google.com/p/skia/issues/detail?id={{bug}}"
                target="_blank">
               {{bug}}
@@ -346,13 +346,13 @@
 
           <!-- image A -->
           <td valign="bottom" width="{{imageSize}}">
-            <div ng-if="imagePair[constants.KEY__IMAGE_A_URL] != null">
-              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_A_URL]}}" target="_blank">View Image</a><br/>
+            <div ng-if="imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL] != null">
+              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL]}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    width="{{imageSize}}"
-                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_A_URL]}}" />
+                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_A][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL]}}" />
             </div>
-            <div ng-show="imagePair[constants.KEY__IMAGE_A_URL] == null"
+            <div ng-show="imagePair[constants.KEY__IMAGEPAIRS__IMAGE_A_URL] == null"
                  style="text-align:center">
               &ndash;none&ndash;
             </div>
@@ -360,13 +360,13 @@
 
           <!-- image B -->
           <td valign="bottom" width="{{imageSize}}">
-            <div ng-if="imagePair[constants.KEY__IMAGE_B_URL] != null">
-              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_B_URL]}}" target="_blank">View Image</a><br/>
+            <div ng-if="imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL] != null">
+              <a href="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL]}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    width="{{imageSize}}"
-                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGE_B_URL]}}" />
+                   ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__IMAGE_B][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL]}}" />
             </div>
-            <div ng-show="imagePair[constants.KEY__IMAGE_B_URL] == null"
+            <div ng-show="imagePair[constants.KEY__IMAGEPAIRS__IMAGE_B_URL] == null"
                  style="text-align:center">
               &ndash;none&ndash;
             </div>
@@ -374,18 +374,18 @@
 
           <!-- whitediffs: every differing pixel shown in white -->
           <td valign="bottom" width="{{imageSize}}">
-            <div ng-if="imagePair[constants.KEY__IS_DIFFERENT]"
-                 title="{{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__NUM_DIFF_PIXELS] | number:0}} of {{(100 * imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__NUM_DIFF_PIXELS] / imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS]) | number:0}} pixels ({{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS].toFixed(4)}}%) differ from expectation.">
+            <div ng-if="imagePair[constants.KEY__IMAGEPAIRS__IS_DIFFERENT]"
+                 title="{{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__NUM_DIFF_PIXELS] | number:0}} of {{(100 * imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__NUM_DIFF_PIXELS] / imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS]) | number:0}} pixels ({{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS].toFixed(4)}}%) differ from expectation.">
 
-              {{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCENT_DIFF_PIXELS].toFixed(4)}}%
-              ({{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__NUM_DIFF_PIXELS]}})
+              {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCENT_DIFF_PIXELS].toFixed(4)}}%
+              ({{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__NUM_DIFF_PIXELS]}})
               <br/>
               <a href="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
                    width="{{imageSize}}"
                    ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__WHITEDIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
             </div>
-            <div ng-show="!imagePair[constants.KEY__IS_DIFFERENT]"
+            <div ng-show="!imagePair[constants.KEY__IMAGEPAIRS__IS_DIFFERENT]"
                  style="text-align:center">
               &ndash;none&ndash;
             </div>
@@ -393,11 +393,11 @@
 
           <!-- diffs: per-channel RGB deltas -->
           <td valign="bottom" width="{{imageSize}}">
-            <div ng-if="imagePair[constants.KEY__IS_DIFFERENT]"
-                 title="Perceptual difference measure is {{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF].toFixed(4)}}%.  Maximum difference per channel: R={{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL][0]}}, G={{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL][1]}}, B={{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL][2]}}">
+            <div ng-if="imagePair[constants.KEY__IMAGEPAIRS__IS_DIFFERENT]"
+                 title="Perceptual difference measure is {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF].toFixed(4)}}%.  Maximum difference per channel: R={{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL][0]}}, G={{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL][1]}}, B={{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL][2]}}">
 
-              {{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__PERCEPTUAL_DIFF].toFixed(4)}}%
-              {{imagePair[constants.KEY__DIFFERENCE_DATA][constants.KEY__DIFFERENCE_DATA__MAX_DIFF_PER_CHANNEL]}}
+              {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__PERCEPTUAL_DIFF].toFixed(4)}}%
+              {{imagePair[constants.KEY__IMAGEPAIRS__DIFFERENCES][constants.KEY__DIFFERENCES__MAX_DIFF_PER_CHANNEL]}}
               <br/>
               <a href="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" target="_blank">View Image</a><br/>
               <img ng-if="showThumbnails"
@@ -405,7 +405,7 @@
                    width="{{imageSize}}"
                    ng-src="{{imageSets[constants.KEY__IMAGESETS__SET__DIFFS][constants.KEY__IMAGESETS__FIELD__BASE_URL]}}/{{getImageDiffRelativeUrl(imagePair)}}" />
             </div>
-            <div ng-show="!imagePair[constants.KEY__IS_DIFFERENT]"
+            <div ng-show="!imagePair[constants.KEY__IMAGEPAIRS__IS_DIFFERENT]"
                  style="text-align:center">
               &ndash;none&ndash;
             </div>

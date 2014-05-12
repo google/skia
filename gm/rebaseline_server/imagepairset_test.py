@@ -22,47 +22,47 @@ BASE_URL_1 = 'http://base/url/1'
 BASE_URL_2 = 'http://base/url/2'
 DIFF_BASE_URL = 'http://diff/base/url'
 IMAGEPAIR_1_AS_DICT = {
-    imagepair.KEY__EXTRA_COLUMN_VALUES: {
+    imagepair.KEY__IMAGEPAIRS__EXTRACOLUMNS: {
         'builder': 'MyBuilder',
         'test': 'test1',
     },
-    imagepair.KEY__IMAGE_A_URL: 'test1/1111.png',
-    imagepair.KEY__IMAGE_B_URL: 'test1/1111.png',
-    imagepair.KEY__IS_DIFFERENT: False,
+    imagepair.KEY__IMAGEPAIRS__IMAGE_A_URL: 'test1/1111.png',
+    imagepair.KEY__IMAGEPAIRS__IMAGE_B_URL: 'test1/1111.png',
+    imagepair.KEY__IMAGEPAIRS__IS_DIFFERENT: False,
 }
 IMAGEPAIR_2_AS_DICT = {
-    imagepair.KEY__DIFFERENCE_DATA: {
+    imagepair.KEY__IMAGEPAIRS__DIFFERENCES: {
         'maxDiffPerChannel': [1, 2, 3],
         'numDifferingPixels': 111,
         'percentDifferingPixels': 22.222,
         'weightedDiffMeasure': 33.333,
     },
-    imagepair.KEY__EXTRA_COLUMN_VALUES: {
+    imagepair.KEY__IMAGEPAIRS__EXTRACOLUMNS: {
         'builder': 'MyBuilder',
         'test': 'test2',
     },
-    imagepair.KEY__IMAGE_A_URL: 'test2/2222.png',
-    imagepair.KEY__IMAGE_B_URL: 'test2/22223.png',
-    imagepair.KEY__IS_DIFFERENT: True,
+    imagepair.KEY__IMAGEPAIRS__IMAGE_A_URL: 'test2/2222.png',
+    imagepair.KEY__IMAGEPAIRS__IMAGE_B_URL: 'test2/22223.png',
+    imagepair.KEY__IMAGEPAIRS__IS_DIFFERENT: True,
 }
 IMAGEPAIR_3_AS_DICT = {
-    imagepair.KEY__DIFFERENCE_DATA: {
+    imagepair.KEY__IMAGEPAIRS__DIFFERENCES: {
         'maxDiffPerChannel': [4, 5, 6],
         'numDifferingPixels': 111,
         'percentDifferingPixels': 44.444,
         'weightedDiffMeasure': 33.333,
     },
-    imagepair.KEY__EXPECTATIONS_DATA: {
+    imagepair.KEY__IMAGEPAIRS__EXPECTATIONS: {
         'bugs': [1001, 1002],
         'ignoreFailure': True,
     },
-    imagepair.KEY__EXTRA_COLUMN_VALUES: {
+    imagepair.KEY__IMAGEPAIRS__EXTRACOLUMNS: {
         'builder': 'MyBuilder',
         'test': 'test3',
     },
-    imagepair.KEY__IMAGE_A_URL: 'test3/3333.png',
-    imagepair.KEY__IMAGE_B_URL: 'test3/33334.png',
-    imagepair.KEY__IS_DIFFERENT: True,
+    imagepair.KEY__IMAGEPAIRS__IMAGE_A_URL: 'test3/3333.png',
+    imagepair.KEY__IMAGEPAIRS__IMAGE_B_URL: 'test3/33334.png',
+    imagepair.KEY__IMAGEPAIRS__IS_DIFFERENT: True,
 }
 SET_A_DESCRIPTION = 'expectations'
 SET_B_DESCRIPTION = 'actuals'
@@ -166,7 +166,7 @@ class MockImagePair(object):
     """
     self.base_url = base_url
     self.extra_columns_dict = dict_to_return.get(
-        imagepair.KEY__EXTRA_COLUMN_VALUES, None)
+        imagepair.KEY__IMAGEPAIRS__EXTRACOLUMNS, None)
     self._dict_to_return = dict_to_return
 
   def as_dict(self):

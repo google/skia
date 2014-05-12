@@ -101,13 +101,13 @@ class ConfigComparisons(results.BaseComparisons):
         diff_base_url=self._diff_base_url)
 
     all_image_pairs.ensure_extra_column_values_in_summary(
-        column_id=results.KEY__EXTRACOLUMN__RESULT_TYPE, values=[
+        column_id=results.KEY__EXTRACOLUMNS__RESULT_TYPE, values=[
             results.KEY__RESULT_TYPE__FAILED,
             results.KEY__RESULT_TYPE__NOCOMPARISON,
             results.KEY__RESULT_TYPE__SUCCEEDED,
         ])
     failing_image_pairs.ensure_extra_column_values_in_summary(
-        column_id=results.KEY__EXTRACOLUMN__RESULT_TYPE, values=[
+        column_id=results.KEY__EXTRACOLUMNS__RESULT_TYPE, values=[
             results.KEY__RESULT_TYPE__FAILED,
             results.KEY__RESULT_TYPE__NOCOMPARISON,
         ])
@@ -155,13 +155,13 @@ class ConfigComparisons(results.BaseComparisons):
               result_type = results.KEY__RESULT_TYPE__FAILED
 
             extra_columns_dict = {
-                results.KEY__EXTRACOLUMN__RESULT_TYPE: result_type,
-                results.KEY__EXTRACOLUMN__BUILDER: builder,
-                results.KEY__EXTRACOLUMN__TEST: test,
+                results.KEY__EXTRACOLUMNS__RESULT_TYPE: result_type,
+                results.KEY__EXTRACOLUMNS__BUILDER: builder,
+                results.KEY__EXTRACOLUMNS__TEST: test,
                 # TODO(epoger): Right now, the client UI crashes if it receives
                 # results that do not include a 'config' column.
                 # Until we fix that, keep the client happy.
-                results.KEY__EXTRACOLUMN__CONFIG: 'TODO',
+                results.KEY__EXTRACOLUMNS__CONFIG: 'TODO',
             }
 
             try:
