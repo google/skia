@@ -25,9 +25,15 @@ CONFIGS_TO_INCLUDE = ['simple_viewport_1000x1000',
                       'simple_viewport_1000x1000_scalar_1.100000_gpu',
                      ]
 
-# List of flaky SKPs that should be excluded.
-SKPS_TO_EXCLUDE = [
-                  ]
+# List of flaky entries that should be excluded. Each entry is defined by a list
+# of 3 strings, corresponding to the substrings of [bench, config, builder] to
+# search for. A bench expectations line is excluded when each of the 3 strings
+# in the list is a substring of the corresponding element of the given line. For
+# instance, ['desk_yahooanswers', 'gpu', 'Ubuntu'] will skip expectation entries
+# of SKP benchs whose name contains 'desk_yahooanswers' on all gpu-related
+# configs of all Ubuntu builders.
+ENTRIES_TO_EXCLUDE = [
+                     ]
 
 
 def compute_ranges(benches):
@@ -48,11 +54,12 @@ def compute_ranges(benches):
           maximum + diff * RANGE_RATIO_UPPER + avg * ERR_RATIO + ERR_UB]
 
 
-def create_expectations_dict(revision_data_points):
+def create_expectations_dict(revision_data_points, builder):
   """Convert list of bench data points into a dictionary of expectations data.
 
   Args:
     revision_data_points: a list of BenchDataPoint objects.
+    builder: string of the corresponding buildbot builder name.
 
   Returns:
     a dictionary of this form:
@@ -62,8 +69,15 @@ def create_expectations_dict(revision_data_points):
   bench_dict = {}
   for point in revision_data_points:
     if (point.time_type or  # Not walltime which has time_type ''
-        not point.config in CONFIGS_TO_INCLUDE or
-        point.bench in SKPS_TO_EXCLUDE):
+        not point.config in CONFIGS_TO_INCLUDE):
+      continue
+    to_skip = False
+    for bench_substr, config_substr, builder_substr in ENTRIES_TO_EXCLUDE:
+      if (bench_substr in point.bench and config_substr in point.config and
+          builder_substr in builder):
+        to_skip = True
+        break
+    if to_skip:
       continue
     key = (point.config, point.bench)
     if key in bench_dict:
@@ -99,7 +113,7 @@ def main():
     data_points = bench_util.parse_skp_bench_data(
         args.input_dir, args.git_revision, args.representation_alg)
 
-    expectations_dict = create_expectations_dict(data_points)
+    expectations_dict = create_expectations_dict(data_points, builder)
 
     out_lines = []
     keys = expectations_dict.keys()
