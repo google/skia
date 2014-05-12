@@ -439,7 +439,10 @@ SkPerlinNoiseShader::PerlinNoiseShaderContext::PerlinNoiseShaderContext(
     : INHERITED(shader, rec)
 {
     SkMatrix newMatrix = *rec.fMatrix;
-    newMatrix.postConcat(shader.getLocalMatrix());
+    newMatrix.preConcat(shader.getLocalMatrix());
+    if (rec.fLocalMatrix) {
+        newMatrix.preConcat(*rec.fLocalMatrix);
+    }
     SkMatrix invMatrix;
     if (!newMatrix.invert(&invMatrix)) {
         invMatrix.reset();
