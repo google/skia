@@ -42,7 +42,7 @@ static inline __m128i SkAlphaMulAlpha_SSE2(const __m128i& a,
 
 // Portable version SkAlphaMulQ is in SkColorPriv.h.
 static inline __m128i SkAlphaMulQ_SSE2(const __m128i& c, const __m128i& scale) {
-    __m128i mask = _mm_set1_epi32(gMask_00FF00FF);
+    __m128i mask = _mm_set1_epi32(0xFF00FF);
     __m128i s = _mm_or_si128(_mm_slli_epi32(scale, 16), scale);
 
     // uint32_t rb = ((c & mask) * scale) >> 8

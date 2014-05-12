@@ -524,10 +524,8 @@ SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return SkPackARGB32(a, r, g, b);
 }
 
-SK_API extern const uint32_t gMask_00FF00FF;
-
 static inline uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
-    uint32_t mask = gMask_00FF00FF;
+    uint32_t mask = 0xFF00FF;
 
     uint32_t rb = ((c & mask) * scale) >> 8;
     uint32_t ag = ((c >> 8) & mask) * scale;
@@ -786,8 +784,6 @@ static inline SkPMColor16 SkPackARGB4444(unsigned a, unsigned r,
     return (SkPMColor16)((a << SK_A4444_SHIFT) | (r << SK_R4444_SHIFT) |
                          (g << SK_G4444_SHIFT) | (b << SK_B4444_SHIFT));
 }
-
-extern const uint16_t gMask_0F0F;
 
 static inline U16CPU SkAlphaMulQ4(U16CPU c, unsigned scale) {
     SkASSERT(scale <= 16);

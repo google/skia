@@ -353,9 +353,6 @@ static void A8_RowProc_Blend(SkPMColor* SK_RESTRICT dst,
 static void A8_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
                               const uint8_t* SK_RESTRICT mask,
                               const SkPMColor* SK_RESTRICT src, int count) {
-#if 0 // suppress warning
-    const uint32_t rbmask = gMask_00FF00FF;
-#endif
     for (int i = 0; i < count; ++i) {
         int m = mask[i];
         if (m) {

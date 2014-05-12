@@ -993,11 +993,6 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const uint16_t gMask_0F0F = 0xF0F;
-const uint32_t gMask_00FF00FF = 0xFF00FF;
-
-///////////////////////////////////////////////////////////////////////////////
-
 class SkTransparentShaderContext : public SkShader::Context {
 public:
     SkTransparentShaderContext(const SkShader& shader, const SkShader::ContextRec& rec)
