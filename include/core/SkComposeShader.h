@@ -62,6 +62,8 @@ public:
     SkShader* getShaderB() { return fShaderB; }
 #endif
 
+    virtual bool asACompose(ComposeRec* rec) const SK_OVERRIDE;
+
     SK_TO_STRING_OVERRIDE()
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposeShader)
 

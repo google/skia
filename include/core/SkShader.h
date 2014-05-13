@@ -17,6 +17,7 @@
 
 class SkPath;
 class SkPicture;
+class SkXfermode;
 class GrContext;
 class GrEffectRef;
 
@@ -356,6 +357,20 @@ public:
     virtual GradientType asAGradient(GradientInfo* info) const;
 
     /**
+     *  If the shader subclass is composed of two shaders, return true, and if rec is not NULL,
+     *  fill it out with info about the shader.
+     */
+
+    struct ComposeRec {
+        const SkShader*     fShaderA;
+        const SkShader*     fShaderB;
+        const SkXfermode*   fMode;
+    };
+
+    virtual bool asACompose(ComposeRec* rec) const { return false; }
+
+
+    /**
      *  If the shader subclass has a GrEffect implementation, this resturns the effect to install.
      *  The incoming color to the effect has r=g=b=a all extracted from the SkPaint's alpha.
      *  The output color should be the computed SkShader premul color modulated by the incoming
@@ -364,6 +379,14 @@ public:
      */
     virtual GrEffectRef* asNewEffect(GrContext* context, const SkPaint& paint,
                                      const SkMatrix* localMatrixOrNull) const;
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    /**
+     *  If the shader is a custom shader which has data the caller might want, call this function
+     *  to get that data.
+     */
+    virtual bool asACustomShader(void** customData) const { return false; }
+#endif
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders

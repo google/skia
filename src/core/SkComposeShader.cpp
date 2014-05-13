@@ -121,6 +121,16 @@ SkComposeShader::ComposeShaderContext::~ComposeShaderContext() {
     fShaderContextB->~Context();
 }
 
+bool SkComposeShader::asACompose(ComposeRec* rec) const {
+    if (rec) {
+        rec->fShaderA = fShaderA;
+        rec->fShaderB = fShaderB;
+        rec->fMode = fMode;
+    }
+    return true;
+}
+
+
 // larger is better (fewer times we have to loop), but we shouldn't
 // take up too much stack-space (each element is 4 bytes)
 #define TMP_COLOR_COUNT     64
