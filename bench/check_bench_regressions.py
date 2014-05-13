@@ -28,6 +28,9 @@ UB_IDX = -1
 SLOWER = 0
 FASTER = 1
 
+# URL prefix for the bench dashboard page. Showing recent 15 days of data.
+DASHBOARD_URL_PREFIX = 'http://go/skpdash/#15'
+
 def usage():
     """Prints simple usage information."""
 
@@ -147,6 +150,9 @@ def check_expectations(lines, expectations, key_suffix):
     for line in lines:
         line_str = str(line)
         line_str = line_str[ : line_str.find('_{')]
+        # Extracts bench and config from line_str, which is in the format
+        # <bench-picture-name>.skp_<config>_
+        bench, config = line_str.strip('_').split('.skp_')
         bench_platform_key = line_str + ',' + key_suffix
         if bench_platform_key not in expectations:
             continue
@@ -157,6 +163,8 @@ def check_expectations(lines, expectations, key_suffix):
             exception = 'Bench %s out of range [%s, %s] (%s vs %s, %s%%).' % (
                 bench_platform_key, this_min, this_max, this_bench_value,
                 this_expected, (off_ratio - 1) * 100)
+            exception += '\n' + '~'.join([
+                DASHBOARD_URL_PREFIX, bench, platform, config])
             if off_ratio > 1:  # Bench is slower.
                 exceptions[SLOWER].setdefault(off_ratio, []).append(exception)
             else:
