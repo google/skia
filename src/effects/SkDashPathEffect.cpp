@@ -565,10 +565,12 @@ SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
 
     if (useOldPic) {
         fPhase = 0;
-        for (int i = 0; i < fInitialDashIndex; ++i) {
-            fPhase += fIntervals[i];
+        if (fInitialDashLength != -1) { // Signal for bad dash interval
+            for (int i = 0; i < fInitialDashIndex; ++i) {
+                fPhase += fIntervals[i];
+            }
+            fPhase += fIntervals[fInitialDashIndex] - fInitialDashLength;
         }
-        fPhase += fIntervals[fInitialDashIndex] - fInitialDashLength;
     } else {
         this->setInternalMembers(fPhase);
     }
