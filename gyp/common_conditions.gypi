@@ -299,8 +299,6 @@
         'SK_DEFAULT_FONT_CACHE_LIMIT   (768 * 1024)',
         'SK_ATOMICS_PLATFORM_H "../../src/ports/SkAtomics_android.h"',
         'SK_MUTEX_PLATFORM_H "../../src/ports/SkMutex_pthread.h"',
-        # FIXME: b/13729784: Need to rework LayerRasterizer.cpp
-        'SK_SUPPORT_LEGACY_LAYERRASTERIZER_API',
         # Still need to switch Android to the new name for N32.
         'kNative_8888_SkColorType kN32_SkColorType',
         'SK_SUPPORT_LEGACY_PICTURE_CAN_RECORD',
