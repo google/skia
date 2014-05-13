@@ -119,7 +119,7 @@ static void InitializeFlattenables(int*) {
     SkLightingImageFilter::InitializeFlattenables();
     SkTableColorFilter::InitializeFlattenables();
     SkXfermode::InitializeFlattenables();
-    
+
 }
 
 void SkFlattenable::InitializeFlattenablesIfNeeded() {

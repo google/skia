@@ -88,16 +88,16 @@ public:
     PerlinNoiseGM2() {
         fSize = SkISize::Make(80, 80);
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("perlinnoise_localmatrix");
     }
-    
+
     virtual SkISize onISize() {
         return SkISize::Make(640, 480);
     }
-    
+
     void install(SkPaint* paint, SkPerlinNoiseShader::Type type,
               float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
               bool stitchTiles) {
@@ -108,7 +108,7 @@ protected:
                                               seed, stitchTiles ? &fSize : NULL);
         paint->setShader(shader)->unref();
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         canvas->translate(10, 10);
 
@@ -131,7 +131,7 @@ protected:
         canvas->scale(2, 2);
         canvas->drawRect(r, paint);
         canvas->restore();
-        
+
         canvas->save();
         canvas->translate(w + 100, h + 10);
         canvas->scale(2, 2);
@@ -153,13 +153,13 @@ protected:
         canvas->translate(0, h + 10);
         canvas->drawRect(r, paint);
         canvas->restore();
-        
+
         canvas->save();
         canvas->translate(w + 100, h + 10);
         canvas->drawRect(r, paint);
         canvas->restore();
     }
-    
+
 private:
     typedef GM INHERITED;
     SkISize fSize;
