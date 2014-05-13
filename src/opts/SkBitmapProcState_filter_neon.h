@@ -17,12 +17,15 @@
  * exact results for the color components, but if the 4 incoming colors are
  * all opaque, then the output color must also be opaque. Subsequent parts of
  * the drawing pipeline may rely on this (e.g. which blitrow proc to use).
+ *
  */
-
-static inline void Filter_32_opaque_neon(unsigned x, unsigned y,
-                                         SkPMColor a00, SkPMColor a01,
-                                         SkPMColor a10, SkPMColor a11,
-                                         SkPMColor *dst) {
+// Chrome on Android uses -Os so we need to force these inline. Otherwise
+// calling the function in the inner loops will cause significant overhead on
+// some platforms.
+static SK_ALWAYS_INLINE void Filter_32_opaque_neon(unsigned x, unsigned y,
+                                                   SkPMColor a00, SkPMColor a01,
+                                                   SkPMColor a10, SkPMColor a11,
+                                                   SkPMColor *dst) {
     uint8x8_t vy, vconst16_8, v16_y, vres;
     uint16x4_t vx, vconst16_16, v16_x, tmp;
     uint32x2_t va0, va1;
@@ -53,10 +56,11 @@ static inline void Filter_32_opaque_neon(unsigned x, unsigned y,
     vst1_lane_u32(dst, vreinterpret_u32_u8(vres), 0);         // store result
 }
 
-static inline void Filter_32_alpha_neon(unsigned x, unsigned y,
-                                        SkPMColor a00, SkPMColor a01,
-                                        SkPMColor a10, SkPMColor a11,
-                                        SkPMColor *dst, uint16_t scale) {
+static SK_ALWAYS_INLINE void Filter_32_alpha_neon(unsigned x, unsigned y,
+                                                  SkPMColor a00, SkPMColor a01,
+                                                  SkPMColor a10, SkPMColor a11,
+                                                  SkPMColor *dst,
+                                                  uint16_t scale) {
     uint8x8_t vy, vconst16_8, v16_y, vres;
     uint16x4_t vx, vconst16_16, v16_x, tmp, vscale;
     uint32x2_t va0, va1;
