@@ -762,16 +762,23 @@ bool SkGPipeCanvas::commonDrawBitmap(const SkBitmap& bm, DrawOps op,
                                      unsigned flags,
                                      size_t opBytesNeeded,
                                      const SkPaint* paint) {
+    if (fDone) {
+        return false;
+    }
+
     if (paint != NULL) {
         flags |= kDrawBitmap_HasPaint_DrawOpFlag;
         this->writePaint(*paint);
     }
+    // This needs to run first so its calls to needOpBytes() and its writes
+    // don't interlace with the needOpBytes() and write below.
+    SkASSERT(fBitmapHeap != NULL);
+    int32_t bitmapIndex = fBitmapHeap->insert(bm);
+    if (SkBitmapHeap::INVALID_SLOT == bitmapIndex) {
+        return false;
+    }
+
     if (this->needOpBytes(opBytesNeeded)) {
-        SkASSERT(fBitmapHeap != NULL);
-        int32_t bitmapIndex = fBitmapHeap->insert(bm);
-        if (SkBitmapHeap::INVALID_SLOT == bitmapIndex) {
-            return false;
-        }
         this->writeOp(op, flags, bitmapIndex);
         return true;
     }
