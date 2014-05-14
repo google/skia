@@ -10,7 +10,7 @@ if [[ -z "$GOPATH" ]]; then
 fi
 
 go get github.com/gorilla/securecookie
-go get code.google.com/p/goauth2
+go get code.google.com/p/goauth2/oauth
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd $DIR
