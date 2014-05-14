@@ -3,7 +3,14 @@ if [[ -z `which go` ]]; then
   exit 1
 fi
 
+if [[ -z "$GOPATH" ]]; then
+  echo "GOPATH environment variable is not set. Please see"
+  echo "http://golang.org/doc/code.html#GOPATH for more information."
+  exit 1
+fi
+
 go get github.com/gorilla/securecookie
+go get code.google.com/p/goauth2
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd $DIR
