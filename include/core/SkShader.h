@@ -359,6 +359,8 @@ public:
     /**
      *  If the shader subclass is composed of two shaders, return true, and if rec is not NULL,
      *  fill it out with info about the shader.
+     *
+     *  These are bare pointers; the ownership and reference count are unchanged.
      */
 
     struct ComposeRec {
