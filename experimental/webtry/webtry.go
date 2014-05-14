@@ -235,6 +235,17 @@ func init() {
 		_, err = db.Exec(sql)
 		log.Printf("Info: status creating sqlite table for workspace try: %q\n", err)
 	}
+
+	// Ping the database to keep the connection fresh.
+	go func() {
+		c := time.Tick(1 * time.Minute)
+		for _ = range c {
+			if err := db.Ping(); err != nil {
+				log.Printf("ERROR: Database failed to respond: %q\n", err)
+			}
+		}
+	}()
+
 }
 
 // Titlebar is used in titlebar template expansion.
