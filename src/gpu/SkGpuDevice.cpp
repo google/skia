@@ -1942,6 +1942,11 @@ SkSurface* SkGpuDevice::newSurface(const SkImageInfo& info) {
 void SkGpuDevice::EXPERIMENTAL_optimize(SkPicture* picture) {
     SkPicture::AccelData::Key key = GPUAccelData::ComputeAccelDataKey();
 
+    const SkPicture::AccelData* existing = picture->EXPERIMENTAL_getAccelData(key);
+    if (NULL != existing) {
+        return;
+    }
+
     SkAutoTUnref<GPUAccelData> data(SkNEW_ARGS(GPUAccelData, (key)));
 
     picture->EXPERIMENTAL_addAccelData(data);
@@ -1969,6 +1974,10 @@ bool SkGpuDevice::EXPERIMENTAL_drawPicture(SkCanvas* canvas, SkPicture* picture)
     }
 
     const GPUAccelData *gpuData = static_cast<const GPUAccelData*>(data);
+
+    if (0 == gpuData->numSaveLayers()) {
+        return false;
+    }
 
     SkAutoTArray<bool> pullForward(gpuData->numSaveLayers());
     for (int i = 0; i < gpuData->numSaveLayers(); ++i) {
