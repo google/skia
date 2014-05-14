@@ -9,6 +9,8 @@
 #include "SkString.h"
 
 DEFINE_string2(writePath, w, "", "If set, write GMs here as .pngs.");
+DEFINE_bool(writePngOnly, false, "If true, don't encode raw bitmap after .png data.  "
+                                 "This means -r won't work, but skdiff will still work fine.");
 
 namespace DM {
 
@@ -26,16 +28,12 @@ static int split_suffixes(int N, const char* name, SkTArray<SkString>* out) {
     return consumed;
 }
 
-WriteTask::WriteTask(const Task& parent, SkBitmap bitmap, Mode mode)
+WriteTask::WriteTask(const Task& parent, SkBitmap bitmap)
     : CpuTask(parent), fBitmap(bitmap) {
-    if (mode == kVerbatim_Mode) {
-        fGmName.set(parent.name());
-    } else {
-        const int suffixes = parent.depth() + 1;
-        const SkString& name = parent.name();
-        const int totalSuffixLength = split_suffixes(suffixes, name.c_str(), &fSuffixes);
-        fGmName.set(name.c_str(), name.size()-totalSuffixLength);
-    }
+    const int suffixes = parent.depth() + 1;
+    const SkString& name = parent.name();
+    const int totalSuffixLength = split_suffixes(suffixes, name.c_str(), &fSuffixes);
+    fGmName.set(name.c_str(), name.size()-totalSuffixLength);
 }
 
 void WriteTask::makeDirOrFail(SkString dir) {
@@ -60,6 +58,9 @@ struct PngAndRaw {
         if (!SkImageEncoder::EncodeStream(&stream, bitmap, SkImageEncoder::kPNG_Type, 100)) {
             SkDebugf("Can't encode a PNG.\n");
             return false;
+        }
+        if (FLAGS_writePngOnly) {
+            return true;
         }
 
         // Pad out so the raw pixels start 4-byte aligned.

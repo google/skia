@@ -5,8 +5,17 @@
 
 namespace DM {
 
-SKPTask::SKPTask(Reporter* r, TaskRunner* tr, SkPicture* pic, SkString name)
-    : CpuTask(r, tr), fPicture(SkRef(pic)), fName(name) {}
+// foo_bar.skp -> foo-bar_skp
+static SkString filename_to_task_name(SkString filename) {
+    for (size_t i = 0; i < filename.size(); i++) {
+        if ('_' == filename[i]) { filename[i] = '-'; }
+        if ('.' == filename[i]) { filename[i] = '_'; }
+    }
+    return filename;
+}
+
+SKPTask::SKPTask(Reporter* r, TaskRunner* tr, SkPicture* pic, SkString filename)
+    : CpuTask(r, tr), fPicture(SkRef(pic)), fName(filename_to_task_name(filename)) {}
 
 void SKPTask::draw() {
     SkBitmap bitmap;
@@ -17,7 +26,7 @@ void SKPTask::draw() {
                                 (*this, fPicture, bitmap, RecordTask::kNoOptimize_Mode)));
     this->spawnChild(SkNEW_ARGS(RecordTask,
                                 (*this, fPicture, bitmap, RecordTask::kOptimize_Mode)));
-    this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap, WriteTask::kVerbatim_Mode)));
+    this->spawnChild(SkNEW_ARGS(WriteTask, (*this, bitmap)));
 }
 
 }  // namespace DM
