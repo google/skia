@@ -58,7 +58,7 @@ void GrLayerCache::init() {
     // The layer cache only gets 1 plot
     SkISize textureSize = SkISize::Make(kAtlasTextureWidth, kAtlasTextureHeight);
     fAtlasMgr.reset(SkNEW_ARGS(GrAtlasMgr, (fGpu, kSkia8888_GrPixelConfig,
-                                            textureSize, 1, 1)));
+                                            textureSize, 1, 1, false)));
 }
 
 void GrLayerCache::freeAll() {

@@ -90,6 +90,14 @@ public:
     }
     GrTextStrike* getHeadStrike() const { return fHead; }
 
+    void updateTextures() {
+        for (int i = 0; i < kAtlasCount; ++i) {
+            if (fAtlasMgr[i]) {
+                fAtlasMgr[i]->uploadPlotsToTexture();
+            }
+        }
+    }
+
 #ifdef SK_DEBUG
     void validate() const;
 #else

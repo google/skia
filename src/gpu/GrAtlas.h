@@ -40,21 +40,28 @@ public:
     GrDrawTarget::DrawToken drawToken() const { return fDrawToken; }
     void setDrawToken(GrDrawTarget::DrawToken draw) { fDrawToken = draw; }
 
+    void uploadToTexture();
+
     void resetRects();
 
 private:
     GrPlot();
     ~GrPlot(); // does not try to delete the fNext field
-    void init(GrAtlasMgr* mgr, int offX, int offY, int width, int height, size_t bpp);
+    void init(GrAtlasMgr* mgr, int offX, int offY, int width, int height, size_t bpp,
+              bool batchUploads);
 
     // for recycling
     GrDrawTarget::DrawToken fDrawToken;
 
+    unsigned char*          fPlotData;
     GrTexture*              fTexture;
     GrRectanizer*           fRects;
     GrAtlasMgr*             fAtlasMgr;
     GrIPoint16              fOffset;        // the offset of the plot in the backing texture
     size_t                  fBytesPerPixel;
+    SkIRect                 fDirtyRect;
+    bool                    fDirty;
+    bool                    fBatchUploads;
 
     friend class GrAtlasMgr;
 };
@@ -64,7 +71,7 @@ typedef SkTInternalLList<GrPlot> GrPlotList;
 class GrAtlasMgr {
 public:
     GrAtlasMgr(GrGpu*, GrPixelConfig, const SkISize& backingTextureSize,
-               int numPlotsX, int numPlotsY);
+               int numPlotsX, int numPlotsY, bool batchUploads);
     ~GrAtlasMgr();
 
     // add subimage of width, height dimensions to atlas
@@ -82,6 +89,8 @@ public:
         return fTexture;
     }
 
+    void uploadPlotsToTexture();
+
 private:
     void moveToHead(GrPlot* plot);
 
@@ -91,6 +100,7 @@ private:
     SkISize       fBackingTextureSize;
     int           fNumPlotsX;
     int           fNumPlotsY;
+    bool          fBatchUploads;
 
     // allocated array of GrPlots
     GrPlot*       fPlotArray;
