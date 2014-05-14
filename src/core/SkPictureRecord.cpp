@@ -427,7 +427,7 @@ static bool merge_savelayer_paint_into_drawbitmp(SkWriter32* writer,
     SkColor layerColor = saveLayerPaint->getColor() | 0xFF000000; // force opaque
 
     SkAutoTDelete<SkPaint> dbmPaint(paintDict->unflatten(dbmPaintId));
-    if (NULL == dbmPaint.get() || dbmPaint->getColor() != layerColor) {
+    if (NULL == dbmPaint.get() || dbmPaint->getColor() != layerColor || !is_simple(*dbmPaint)) {
         return false;
     }
 

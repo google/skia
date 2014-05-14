@@ -131,7 +131,8 @@ struct SaveLayerDrawRestoreNooper {
 
         const uint32_t layerColor = layerPaint->getColor();
         const uint32_t  drawColor =  drawPaint->getColor();
-        if (!IsOnlyAlpha(layerColor) || !IsOpaque(drawColor) || HasAnyEffect(*layerPaint)) {
+        if (!IsOnlyAlpha(layerColor)  || !IsOpaque(drawColor) ||
+            HasAnyEffect(*layerPaint) || HasAnyEffect(*drawPaint)) {
             // Too fancy for us.  Actually, as long as layerColor is just an alpha
             // we can blend it into drawColor's alpha; drawColor doesn't strictly have to be opaque.
             return false;
