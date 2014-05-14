@@ -18,7 +18,6 @@
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkPathEffect.h"
 #include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkString.h"
@@ -157,6 +156,10 @@ static void setarray_number(lua_State* L, int index, double value) {
     lua_rawseti(L, -2, index);
 }
 
+static void setarray_scalar(lua_State* L, int index, SkScalar value) {
+    setarray_number(L, index, SkScalarToLua(value));
+}
+
 void SkLua::pushBool(bool value, const char key[]) {
     lua_pushboolean(fL, value);
     CHECK_SETFIELD(key);
@@ -219,6 +222,15 @@ void SkLua::pushArrayPoint(const SkPoint array[], int count, const char key[]) {
     CHECK_SETFIELD(key);
 }
 
+void SkLua::pushArrayScalar(const SkScalar array[], int count, const char key[]) {
+    lua_newtable(fL);
+    for (int i = 0; i < count; ++i) {
+        // make it base-1 to match lua convention
+        setarray_scalar(fL, i + 1, array[i]);
+    }
+    CHECK_SETFIELD(key);
+}
+
 void SkLua::pushRect(const SkRect& r, const char key[]) {
     lua_newtable(fL);
     setfield_scalar(fL, "left", r.fLeft);
@@ -232,6 +244,14 @@ void SkLua::pushRRect(const SkRRect& rr, const char key[]) {
     push_obj(fL, rr);
     CHECK_SETFIELD(key);
 }
+
+void SkLua::pushDash(const SkPathEffect::DashInfo& info, const char key[]) {
+    lua_newtable(fL);
+    setfield_scalar(fL, "phase", info.fPhase);
+    this->pushArrayScalar(info.fIntervals, info.fCount, "intervals");
+    CHECK_SETFIELD(key);
+}
+
 
 void SkLua::pushMatrix(const SkMatrix& matrix, const char key[]) {
     push_obj(fL, matrix);
@@ -1006,12 +1026,29 @@ static const struct luaL_Reg gSkShader_Methods[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static int lpatheffect_asADash(lua_State* L) {
+    SkPathEffect* pe = get_ref<SkPathEffect>(L, 1);
+    if (pe) {
+        SkPathEffect::DashInfo info;
+        SkPathEffect::DashType dashType = pe->asADash(&info);
+        if (SkPathEffect::kDash_DashType == dashType) {
+            SkAutoTArray<SkScalar> intervals(info.fCount);
+            info.fIntervals = intervals.get();
+            pe->asADash(&info);
+            SkLua(L).pushDash(info);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int lpatheffect_gc(lua_State* L) {
     get_ref<SkPathEffect>(L, 1)->unref();
     return 0;
 }
 
 static const struct luaL_Reg gSkPathEffect_Methods[] = {
+    { "asADash",        lpatheffect_asADash },
     { "__gc",           lpatheffect_gc },
     { NULL, NULL }
 };
