@@ -1226,12 +1226,14 @@ protected:
         kFullLayer_SaveLayerStrategy,
         kNoLayer_SaveLayerStrategy
     };
-    virtual void willSave(SaveFlags);
-    virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags);
-    virtual void willRestore();
 
-    virtual void didConcat(const SkMatrix&);
-    virtual void didSetMatrix(const SkMatrix&);
+    virtual void willSave(SaveFlags) {}
+    virtual SaveLayerStrategy willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) {
+        return kFullLayer_SaveLayerStrategy;
+    }
+    virtual void willRestore() {}
+    virtual void didConcat(const SkMatrix&) {}
+    virtual void didSetMatrix(const SkMatrix&) {}
 
     virtual void onDrawDRRect(const SkRRect&, const SkRRect&, const SkPaint&);
 

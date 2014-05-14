@@ -830,10 +830,6 @@ int SkCanvas::internalSave(SaveFlags flags) {
     return saveCount;
 }
 
-void SkCanvas::willSave(SaveFlags) {
-    // Do nothing. Subclasses may do something.
-}
-
 int SkCanvas::save() {
     this->willSave(kMatrixClip_SaveFlag);
     return this->internalSave(kMatrixClip_SaveFlag);
@@ -895,12 +891,6 @@ bool SkCanvas::clipRectBounds(const SkRect* bounds, SaveFlags flags,
         *intersection = ir;
     }
     return true;
-}
-
-SkCanvas::SaveLayerStrategy SkCanvas::willSaveLayer(const SkRect*, const SkPaint*, SaveFlags) {
-
-    // Do nothing. Subclasses may do something.
-    return kFullLayer_SaveLayerStrategy;
 }
 
 int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint) {
@@ -997,10 +987,6 @@ int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha,
         tmpPaint.setAlpha(alpha);
         return this->saveLayer(bounds, &tmpPaint, flags);
     }
-}
-
-void SkCanvas::willRestore() {
-    // Do nothing. Subclasses may do something.
 }
 
 void SkCanvas::restore() {
@@ -1344,10 +1330,6 @@ void SkCanvas::skew(SkScalar sx, SkScalar sy) {
     this->concat(m);
 }
 
-void SkCanvas::didConcat(const SkMatrix&) {
-    // Do nothing. Subclasses may do something.
-}
-
 void SkCanvas::concat(const SkMatrix& matrix) {
     if (matrix.isIdentity()) {
         return;
@@ -1358,10 +1340,6 @@ void SkCanvas::concat(const SkMatrix& matrix) {
     fMCRec->fMatrix->preConcat(matrix);
 
     this->didConcat(matrix);
-}
-
-void SkCanvas::didSetMatrix(const SkMatrix&) {
-    // Do nothing. Subclasses may do something.
 }
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
