@@ -26,11 +26,16 @@ static int split_suffixes(int N, const char* name, SkTArray<SkString>* out) {
     return consumed;
 }
 
-WriteTask::WriteTask(const Task& parent, SkBitmap bitmap) : CpuTask(parent), fBitmap(bitmap) {
-    const int suffixes = parent.depth() + 1;
-    const SkString& name = parent.name();
-    const int totalSuffixLength = split_suffixes(suffixes, name.c_str(), &fSuffixes);
-    fGmName.set(name.c_str(), name.size()-totalSuffixLength);
+WriteTask::WriteTask(const Task& parent, SkBitmap bitmap, Mode mode)
+    : CpuTask(parent), fBitmap(bitmap) {
+    if (mode == kVerbatim_Mode) {
+        fGmName.set(parent.name());
+    } else {
+        const int suffixes = parent.depth() + 1;
+        const SkString& name = parent.name();
+        const int totalSuffixLength = split_suffixes(suffixes, name.c_str(), &fSuffixes);
+        fGmName.set(name.c_str(), name.size()-totalSuffixLength);
+    }
 }
 
 void WriteTask::makeDirOrFail(SkString dir) {

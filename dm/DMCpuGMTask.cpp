@@ -36,14 +36,14 @@ void CpuGMTask::draw() {
 #define SPAWN(ChildTask, ...) this->spawnChild(SkNEW_ARGS(ChildTask, (*this, __VA_ARGS__)))
     SPAWN(ExpectationsTask, fExpectations, bitmap);
 
-    SPAWN(PipeTask, fGMFactory(NULL), bitmap, false, false);
-    SPAWN(PipeTask, fGMFactory(NULL), bitmap, true, false);
-    SPAWN(PipeTask, fGMFactory(NULL), bitmap, true, true);
+    SPAWN(PipeTask, fGMFactory(NULL), bitmap, PipeTask::kInProcess_Mode);
+    SPAWN(PipeTask, fGMFactory(NULL), bitmap, PipeTask::kCrossProcess_Mode);
+    SPAWN(PipeTask, fGMFactory(NULL), bitmap, PipeTask::kSharedAddress_Mode);
     SPAWN(QuiltTask, fGMFactory(NULL), bitmap);
-    SPAWN(RecordTask, fGMFactory(NULL), bitmap, true);
-    SPAWN(RecordTask, fGMFactory(NULL), bitmap, false);
-    SPAWN(ReplayTask, fGMFactory(NULL), bitmap, false);
-    SPAWN(ReplayTask, fGMFactory(NULL), bitmap, true);
+    SPAWN(RecordTask, fGMFactory(NULL), bitmap, RecordTask::kOptimize_Mode);
+    SPAWN(RecordTask, fGMFactory(NULL), bitmap, RecordTask::kNoOptimize_Mode);
+    SPAWN(ReplayTask, fGMFactory(NULL), bitmap, ReplayTask::kNormal_Mode);
+    SPAWN(ReplayTask, fGMFactory(NULL), bitmap, ReplayTask::kRTree_Mode);
     SPAWN(SerializeTask, fGMFactory(NULL), bitmap);
 
     SPAWN(WriteTask, bitmap);

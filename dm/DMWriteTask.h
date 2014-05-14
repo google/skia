@@ -15,8 +15,13 @@ namespace DM {
 class WriteTask : public CpuTask {
 
 public:
-    WriteTask(const Task& parent,  // WriteTask must be a child Task.  Pass its parent here.
-              SkBitmap bitmap);    // Bitmap to write.
+    enum Mode {
+        kParseName_Mode,  // Parse the parent's name into directories by underscores.
+        kVerbatim_Mode,   // Don't parse the name at all.
+    };
+    WriteTask(const Task& parent,    // WriteTask must be a child Task.  Pass its parent here.
+              SkBitmap bitmap,       // Bitmap to write.
+              Mode = kParseName_Mode);
 
     virtual void draw() SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE;

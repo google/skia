@@ -14,11 +14,16 @@ namespace DM {
 class PipeTask : public CpuTask {
 
 public:
+    enum Mode {
+        kInProcess_Mode,
+        kCrossProcess_Mode,
+        kSharedAddress_Mode,
+    };
+
     PipeTask(const Task& parent,        // PipeTask must be a child task.  Pass its parent here.
              skiagm::GM*,               // GM to run through a pipe.  Takes ownership.
              SkBitmap reference,        // Bitmap to compare pipe results to.
-             bool crossProcess,         // Should we set up a cross process pipe?
-             bool sharedAddressSpace);  // If cross process, should it assume shared address space?
+             Mode);
 
     virtual void draw() SK_OVERRIDE;
     virtual bool shouldSkip() const SK_OVERRIDE;

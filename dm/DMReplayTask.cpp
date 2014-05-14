@@ -14,12 +14,12 @@ namespace DM {
 ReplayTask::ReplayTask(const Task& parent,
                        skiagm::GM* gm,
                        SkBitmap reference,
-                       bool useRTree)
+                       Mode mode)
     : CpuTask(parent)
-    , fName(UnderJoin(parent.name().c_str(), useRTree ? "rtree" : "replay"))
+    , fUseRTree(mode == kRTree_Mode)
+    , fName(UnderJoin(parent.name().c_str(), fUseRTree ? "rtree" : "replay"))
     , fGM(gm)
     , fReference(reference)
-    , fUseRTree(useRTree)
     {}
 
 void ReplayTask::draw() {

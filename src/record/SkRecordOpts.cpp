@@ -17,7 +17,8 @@ void SkRecordOptimize(SkRecord* record) {
     // TODO(mtklein): fuse independent optimizations to reduce number of passes?
     SkRecordNoopCulls(record);
     SkRecordNoopSaveRestores(record);
-    SkRecordNoopSaveLayerDrawRestores(record);
+    // TODO(mtklein): figure out why we draw differently and reenable
+    //SkRecordNoopSaveLayerDrawRestores(record);
 
     SkRecordAnnotateCullingPairs(record);
     SkRecordReduceDrawPosTextStrength(record);  // Helpful to run this before BoundDrawPosTextH.

@@ -38,6 +38,7 @@
             '../dm/DMReplayTask.cpp',
             '../dm/DMReporter.cpp',
             '../dm/DMSerializeTask.cpp',
+            '../dm/DMSKPTask.cpp',
             '../dm/DMTask.cpp',
             '../dm/DMTaskRunner.cpp',
             '../dm/DMTestTask.cpp',

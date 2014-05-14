@@ -26,12 +26,16 @@ static void setup_bitmap(SkColorType ct, int width, int height, SkBitmap* bitmap
     bitmap->eraseColor(0x00000000);
 }
 
-void SetupBitmap(const SkColorType ct, skiagm::GM* gm, SkBitmap* bitmap) {
+void SetupBitmap(SkColorType ct, skiagm::GM* gm, SkBitmap* bitmap) {
     setup_bitmap(ct, gm->getISize().width(), gm->getISize().height(), bitmap);
 }
 
-void SetupBitmap(const SkColorType ct, SkBenchmark* bench, SkBitmap* bitmap) {
+void SetupBitmap(SkColorType ct, SkBenchmark* bench, SkBitmap* bitmap) {
     setup_bitmap(ct, bench->getSize().x(), bench->getSize().y(), bitmap);
+}
+
+void SetupBitmap(SkColorType ct, const SkPicture& pic, SkBitmap* bitmap) {
+    setup_bitmap(ct, pic.width(), pic.height(), bitmap);
 }
 
 void DrawPicture(SkPicture* picture, SkBitmap* bitmap) {

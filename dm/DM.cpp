@@ -5,6 +5,7 @@
 #include "SkCommandLineFlags.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
+#include "SkPicture.h"
 #include "SkString.h"
 #include "Test.h"
 #include "gm.h"
@@ -14,6 +15,7 @@
 #include "DMGpuGMTask.h"
 #include "DMGpuSupport.h"
 #include "DMReporter.h"
+#include "DMSKPTask.h"
 #include "DMTask.h"
 #include "DMTaskRunner.h"
 #include "DMTestTask.h"
@@ -43,6 +45,7 @@ DEFINE_string(match, "",  "[~][^]substring[$] [...] of GM name to run.\n"
 DEFINE_string(config, "565 8888 gpu nonrendering",
               "Options: 565 8888 gpu nonrendering msaa4 msaa16 nvprmsaa4 nvprmsaa16 gpunull gpudebug angle mesa");
 DEFINE_bool(leaks, false, "Print leaked instance-counted objects at exit?");
+DEFINE_string(skps, "", "Directory to read skps from.");
 
 DEFINE_bool(gms, true, "Run GMs?");
 DEFINE_bool(benches, true, "Run benches?  Does not run GMs-as-benches.");
@@ -143,6 +146,35 @@ static void kick_off_tests(const SkTDArray<TestRegistry::Factory>& tests,
     }
 }
 
+static void kick_off_skps(DM::Reporter* reporter, DM::TaskRunner* tasks) {
+    if (FLAGS_skps.isEmpty()) {
+        return;
+    }
+
+    SkOSFile::Iter it(FLAGS_skps[0], ".skp");
+    SkString filename;
+    while (it.next(&filename)) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, filename.c_str())) {
+            continue;
+        }
+
+        const SkString path = SkOSPath::SkPathJoin(FLAGS_skps[0], filename.c_str());
+
+        SkAutoTDelete<SkStream> stream(SkStream::NewFromFile(path.c_str()));
+        if (stream.get() == NULL) {
+            SkDebugf("Could not read %s.\n", path.c_str());
+            exit(1);
+        }
+        SkAutoTUnref<SkPicture> pic(SkPicture::CreateFromStream(stream.get()));
+        if (pic.get() == NULL) {
+            SkDebugf("Could not read %s as an SkPicture.\n", path.c_str());
+            exit(1);
+        }
+
+        tasks->add(SkNEW_ARGS(DM::SKPTask, (reporter, tasks, pic.detach(), filename)));
+    }
+}
+
 static void report_failures(const DM::Reporter& reporter) {
     SkTArray<SkString> failures;
     reporter.getFailures(&failures);
@@ -215,6 +247,7 @@ int tool_main(int argc, char** argv) {
     kick_off_gms(gms, configs, *expectations, &reporter, &tasks);
     kick_off_benches(benches, configs, &reporter, &tasks);
     kick_off_tests(tests, &reporter, &tasks);
+    kick_off_skps(&reporter, &tasks);
     tasks.wait();
 
     SkDebugf("\n");
