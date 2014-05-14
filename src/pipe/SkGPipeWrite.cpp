@@ -366,7 +366,7 @@ void SkGPipeCanvas::flattenFactoryNames() {
     const char* name;
     while ((name = fFactorySet->getNextAddedFactoryName()) != NULL) {
         size_t len = strlen(name);
-        if (this->needOpBytes(len)) {
+        if (this->needOpBytes(SkWriter32::WriteStringSize(name, len))) {
             this->writeOp(kDef_Factory_DrawOp);
             fWriter.writeString(name, len);
         }
@@ -474,12 +474,13 @@ bool SkGPipeCanvas::needOpBytes(size_t needed) {
     }
 
     needed += 4;  // size of DrawOp atom
+    needed = SkTMax<size_t>(MIN_BLOCK_SIZE, needed);
+    needed = SkAlign4(needed);
     if (fWriter.bytesWritten() + needed > fBlockSize) {
         // Before we wipe out any data that has already been written, read it
         // out.
         this->doNotify();
-        size_t blockSize = SkTMax<size_t>(MIN_BLOCK_SIZE, needed);
-        void* block = fController->requestBlock(blockSize, &fBlockSize);
+        void* block = fController->requestBlock(needed, &fBlockSize);
         if (NULL == block) {
             // Do not notify the readers, which would call this function again.
             this->finish(false);
@@ -936,9 +937,15 @@ void SkGPipeCanvas::drawVertices(VertexMode vmode, int vertexCount,
     }
 
     NOTIFY_SETUP(this);
-    size_t size = 4 + vertexCount * sizeof(SkPoint);
     this->writePaint(paint);
-    unsigned flags = 0;
+
+    unsigned flags = 0;  // packs with the op, so needs no extra space
+
+    size_t size = 0;
+    size += 4;                              // vmode
+    size += 4;                              // vertex count
+    size += vertexCount * sizeof(SkPoint);  // vertices
+
     if (texs) {
         flags |= kDrawVertices_HasTexs_DrawOpFlag;
         size += vertexCount * sizeof(SkPoint);
@@ -947,13 +954,14 @@ void SkGPipeCanvas::drawVertices(VertexMode vmode, int vertexCount,
         flags |= kDrawVertices_HasColors_DrawOpFlag;
         size += vertexCount * sizeof(SkColor);
     }
-    if (indices && indexCount > 0) {
-        flags |= kDrawVertices_HasIndices_DrawOpFlag;
-        size += 4 + SkAlign4(indexCount * sizeof(uint16_t));
-    }
     if (xfer && !SkXfermode::IsMode(xfer, SkXfermode::kModulate_Mode)) {
         flags |= kDrawVertices_HasXfermode_DrawOpFlag;
-        size += sizeof(int32_t);    // mode enum
+        size += sizeof(int32_t);    // SkXfermode::Mode
+    }
+    if (indices && indexCount > 0) {
+        flags |= kDrawVertices_HasIndices_DrawOpFlag;
+        size += 4;                                        // index count
+        size += SkAlign4(indexCount * sizeof(uint16_t));  // indices
     }
 
     if (this->needOpBytes(size)) {
@@ -961,18 +969,18 @@ void SkGPipeCanvas::drawVertices(VertexMode vmode, int vertexCount,
         fWriter.write32(vmode);
         fWriter.write32(vertexCount);
         fWriter.write(vertices, vertexCount * sizeof(SkPoint));
-        if (texs) {
+        if (flags & kDrawVertices_HasTexs_DrawOpFlag) {
             fWriter.write(texs, vertexCount * sizeof(SkPoint));
         }
-        if (colors) {
+        if (flags & kDrawVertices_HasColors_DrawOpFlag) {
             fWriter.write(colors, vertexCount * sizeof(SkColor));
         }
         if (flags & kDrawVertices_HasXfermode_DrawOpFlag) {
             SkXfermode::Mode mode = SkXfermode::kModulate_Mode;
-            (void)xfer->asMode(&mode);
+            SkAssertResult(xfer->asMode(&mode));
             fWriter.write32(mode);
         }
-        if (indices && indexCount > 0) {
+        if (flags & kDrawVertices_HasIndices_DrawOpFlag) {
             fWriter.write32(indexCount);
             fWriter.writePad(indices, indexCount * sizeof(uint16_t));
         }
@@ -1009,7 +1017,7 @@ void SkGPipeCanvas::endCommentGroup() {
 }
 
 void SkGPipeCanvas::flushRecording(bool detachCurrentBlock) {
-    doNotify();
+    this->doNotify();
     if (detachCurrentBlock) {
         // force a new block to be requested for the next recorded command
         fBlockSize = 0;

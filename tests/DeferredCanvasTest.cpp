@@ -547,7 +547,7 @@ static void TestDeferredCanvasBitmapCaching(skiatest::Reporter* reporter) {
     canvas->drawBitmap(sourceImages[0], 0, 0, NULL);
     REPORTER_ASSERT(reporter, 2 == notificationCounter.fStorageAllocatedChangedCount);
     canvas->drawBitmap(sourceImages[0], 0, 0, NULL);
-    REPORTER_ASSERT(reporter, 2 == notificationCounter.fStorageAllocatedChangedCount);
+    REPORTER_ASSERT(reporter, 3 == notificationCounter.fStorageAllocatedChangedCount);
     REPORTER_ASSERT(reporter, 1 == notificationCounter.fFlushedDrawCommandsCount);
     REPORTER_ASSERT(reporter, canvas->storageAllocatedForRecording() < 2 * bitmapSize);
 
