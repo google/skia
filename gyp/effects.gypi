@@ -101,7 +101,6 @@
     '<(skia_include_path)/effects/SkDropShadowImageFilter.h',
     '<(skia_include_path)/effects/SkEmbossMaskFilter.h',
     '<(skia_include_path)/effects/SkGradientShader.h',
-    '<(skia_include_path)/effects/SkKernel33MaskFilter.h',
     '<(skia_include_path)/effects/SkLayerDrawLooper.h',
     '<(skia_include_path)/effects/SkLayerRasterizer.h',
     '<(skia_include_path)/effects/SkLerpXfermode.h',
