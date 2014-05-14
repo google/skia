@@ -66,6 +66,24 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "blanket-ignored_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          111111111
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
+    "blanket-ignored_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          111111111
+        ]
+      ], 
+      "ignore-failure": false
+    }, 
     "displacement_565.png": {
       "allowed-digests": [
         [

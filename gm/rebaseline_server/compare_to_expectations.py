@@ -48,6 +48,7 @@ EXPECTATION_FIELDS_PASSED_THRU_VERBATIM = [
     results.KEY__EXPECTATIONS__REVIEWED,
 ]
 DEFAULT_EXPECTATIONS_DIR = os.path.join(TRUNK_DIRECTORY, 'expectations', 'gm')
+DEFAULT_IGNORE_FAILURES_FILE = 'ignored-tests.txt'
 
 IMAGEPAIR_SET_DESCRIPTIONS = ('expected image', 'actual image')
 
@@ -64,12 +65,15 @@ class ExpectationComparisons(results.BaseComparisons):
 
   def __init__(self, actuals_root=results.DEFAULT_ACTUALS_DIR,
                expected_root=DEFAULT_EXPECTATIONS_DIR,
+               ignore_failures_file=DEFAULT_IGNORE_FAILURES_FILE,
                generated_images_root=results.DEFAULT_GENERATED_IMAGES_ROOT,
                diff_base_url=None, builder_regex_list=None):
     """
     Args:
       actuals_root: root directory containing all actual-results.json files
       expected_root: root directory containing all expected-results.json files
+      ignore_failures_file: if a file with this name is found within
+          expected_root, ignore failures for any tests listed in the file
       generated_images_root: directory within which to create all pixel diffs;
           if this directory does not yet exist, it will be created
       diff_base_url: base URL within which the client should look for diff
@@ -87,6 +91,11 @@ class ExpectationComparisons(results.BaseComparisons):
         download_actuals.create_filepath_url(generated_images_root))
     self._actuals_root = actuals_root
     self._expected_root = expected_root
+    self._ignore_failures_on_these_tests = []
+    if ignore_failures_file:
+      self._ignore_failures_on_these_tests = (
+          ExpectationComparisons._read_noncomment_lines(
+              os.path.join(expected_root, ignore_failures_file)))
     self._load_actual_and_expected()
     self._timestamp = int(time.time())
     logging.info('Results complete; took %d seconds.' %
@@ -316,10 +325,11 @@ class ExpectationComparisons(results.BaseComparisons):
           # categories recorded within the gm_actuals AT ALL, and
           # instead evaluate the result_type ourselves based on what
           # we see in expectations vs actual checksum?
-          # See related http://skbug.com/2514 ('rebaseline_server: apply
-          # ignored-tests.txt within rebaseline_server, not just on the bots')
           if expected_image_relative_url == actual_image_relative_url:
             updated_result_type = results.KEY__RESULT_TYPE__SUCCEEDED
+          elif ((result_type == results.KEY__RESULT_TYPE__FAILED) and
+                (test in self._ignore_failures_on_these_tests)):
+            updated_result_type = results.KEY__RESULT_TYPE__FAILUREIGNORED
           else:
             updated_result_type = result_type
           extra_columns_dict = {
@@ -362,6 +372,11 @@ def main():
       help='Directory containing all expected-result JSON files; defaults to '
       '\'%(default)s\' .')
   parser.add_argument(
+      '--ignore-failures-file', default=DEFAULT_IGNORE_FAILURES_FILE,
+      help='If a file with this name is found within the EXPECTATIONS dir, '
+      'ignore failures for any tests listed in the file; defaults to '
+      '\'%(default)s\' .')
+  parser.add_argument(
       '--outfile', required=True,
       help='File to write result summary into, in JSON format.')
   parser.add_argument(
@@ -375,9 +390,11 @@ def main():
       help='Directory within which to download images and generate diffs; '
       'defaults to \'%(default)s\' .')
   args = parser.parse_args()
-  results_obj = ExpectationComparisons(actuals_root=args.actuals,
-                                       expected_root=args.expectations,
-                                       generated_images_root=args.workdir)
+  results_obj = ExpectationComparisons(
+      actuals_root=args.actuals,
+      expected_root=args.expectations,
+      ignore_failures_file=args.ignore_failures_file,
+      generated_images_root=args.workdir)
   gm_json.WriteToFile(
       results_obj.get_packaged_results_of_type(results_type=args.results),
       args.outfile)

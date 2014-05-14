@@ -246,6 +246,22 @@ class BaseComparisons(object):
     return meta_dict
 
   @staticmethod
+  def _read_noncomment_lines(path):
+    """Return a list of all noncomment lines within a file.
+
+    (A "noncomment" line is one that does not start with a '#'.)
+
+    Args:
+      path: path to file
+    """
+    lines = []
+    with open(path, 'r') as fh:
+      for line in fh:
+        if not line.startswith('#'):
+          lines.append(line.strip())
+    return lines
+
+  @staticmethod
   def _create_relative_url(hashtype_and_digest, test_name):
     """Returns the URL for this image, relative to GM_ACTUALS_ROOT_HTTP_URL.
 

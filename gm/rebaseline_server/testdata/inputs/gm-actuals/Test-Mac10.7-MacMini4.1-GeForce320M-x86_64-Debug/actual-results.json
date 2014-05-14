@@ -1,6 +1,9 @@
 {
    "actual-results" : {
-      "failed" : null,
+      "failed" : {
+         "blanket-ignored_565.png" : [ "bitmap-64bitMD5", 22222222 ],
+         "blanket-ignored_8888.png" : [ "bitmap-64bitMD5", 22222222 ]
+      },
       "failure-ignored" : {
          "displacement_565.png" : [ "bitmap-64bitMD5", 4569468668668628191 ],
          "displacement_8888.png" : [ "bitmap-64bitMD5", 11401048196735046263 ],
@@ -51,6 +54,18 @@
       "3x3bitmaprect_pdf-poppler.png" : {
          "allowed-digests" : [
             [ "bitmap-64bitMD5", 16723580409414313678 ]
+         ],
+         "ignore-failure" : false
+      },
+      "blanket-ignored_565.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 111111111 ]
+         ],
+         "ignore-failure" : false
+      },
+      "blanket-ignored_8888.png" : {
+         "allowed-digests" : [
+            [ "bitmap-64bitMD5", 111111111 ]
          ],
          "ignore-failure" : false
       },

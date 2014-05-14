@@ -15,7 +15,7 @@
         ], 
         [
           "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-          3
+          4
         ]
       ]
     }, 
@@ -26,7 +26,7 @@
       "valuesAndCounts": [
         [
           "TODO", 
-          13
+          14
         ]
       ]
     }, 
@@ -41,7 +41,7 @@
         ], 
         [
           "no-comparison", 
-          7
+          8
         ], 
         [
           "succeeded", 
@@ -71,6 +71,10 @@
           1
         ], 
         [
+          "blanket-ignored", 
+          1
+        ], 
+        [
           "displacement", 
           2
         ], 
@@ -90,7 +94,7 @@
     }
   }, 
   "header": {
-    "dataHash": "-7043844904261310530", 
+    "dataHash": "-3232866296817265056", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 3, 
@@ -230,6 +234,17 @@
       "imageAUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
       "imageBUrl": "bitmap-64bitMD5/3x3bitmaprect/2054956815327187963.png", 
       "isDifferent": false
+    }, 
+    {
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "TODO", 
+        "resultType": "no-comparison", 
+        "test": "blanket-ignored"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/blanket-ignored/22222222.png", 
+      "imageBUrl": null, 
+      "isDifferent": true
     }, 
     {
       "differenceData": {

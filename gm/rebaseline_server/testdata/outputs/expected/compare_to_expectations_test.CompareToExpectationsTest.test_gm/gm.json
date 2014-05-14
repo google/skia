@@ -11,7 +11,7 @@
         ], 
         [
           "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
-          15
+          17
         ]
       ]
     }, 
@@ -22,11 +22,11 @@
       "valuesAndCounts": [
         [
           "565", 
-          9
+          10
         ], 
         [
           "8888", 
-          9
+          10
         ], 
         [
           "gpu", 
@@ -53,7 +53,7 @@
         ], 
         [
           "failure-ignored", 
-          4
+          6
         ], 
         [
           "no-comparison", 
@@ -87,6 +87,10 @@
           2
         ], 
         [
+          "blanket-ignored", 
+          2
+        ], 
+        [
           "displacement", 
           5
         ], 
@@ -106,7 +110,7 @@
     }
   }, 
   "header": {
-    "dataHash": "2775016045957284034", 
+    "dataHash": "-7988419419043310401", 
     "isEditable": false, 
     "isExported": true, 
     "schemaVersion": 3, 
@@ -369,6 +373,38 @@
       "imageAUrl": "bitmap-64bitMD5/aaclip/14456211900777561488.png", 
       "imageBUrl": "bitmap-64bitMD5/aaclip/14456211900777561488.png", 
       "isDifferent": false
+    }, 
+    {
+      "expectations": {
+        "bugs": null, 
+        "ignore-failure": false, 
+        "reviewed-by-human": null
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "565", 
+        "resultType": "failure-ignored", 
+        "test": "blanket-ignored"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/blanket-ignored/111111111.png", 
+      "imageBUrl": "bitmap-64bitMD5/blanket-ignored/22222222.png", 
+      "isDifferent": true
+    }, 
+    {
+      "expectations": {
+        "bugs": null, 
+        "ignore-failure": false, 
+        "reviewed-by-human": null
+      }, 
+      "extraColumns": {
+        "builder": "Test-Mac10.7-MacMini4.1-GeForce320M-x86_64-Debug", 
+        "config": "8888", 
+        "resultType": "failure-ignored", 
+        "test": "blanket-ignored"
+      }, 
+      "imageAUrl": "bitmap-64bitMD5/blanket-ignored/111111111.png", 
+      "imageBUrl": "bitmap-64bitMD5/blanket-ignored/22222222.png", 
+      "isDifferent": true
     }, 
     {
       "expectations": {
