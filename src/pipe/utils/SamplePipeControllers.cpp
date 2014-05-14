@@ -13,16 +13,23 @@
 #include "SkMatrix.h"
 
 PipeController::PipeController(SkCanvas* target, SkPicture::InstallPixelRefProc proc)
-    : fReader(target), fBlockSize(0), fBytesWritten(0) {
+:fReader(target) {
+    fBlock = NULL;
+    fBlockSize = fBytesWritten = 0;
     fReader.setBitmapDecoder(proc);
 }
 
-void* PipeController::requestBlock(size_t minRequest, size_t* actual) {
-    fBlockSize = minRequest;
-    fBlock.reset(fBlockSize);
+PipeController::~PipeController() {
+    sk_free(fBlock);
+}
+
+void* PipeController::requestBlock(size_t minRequest, size_t *actual) {
+    sk_free(fBlock);
+    fBlockSize = minRequest * 4;
+    fBlock = sk_malloc_throw(fBlockSize);
     fBytesWritten = 0;
     *actual = fBlockSize;
-    return fBlock.get();
+    return fBlock;
 }
 
 void PipeController::notifyWritten(size_t bytes) {
