@@ -96,9 +96,7 @@ public:
     void validate() const {}
 #endif
 
-#ifdef SK_DEVELOPER
     void dump() const;
-#endif
 
     enum AtlasType {
         kA8_AtlasType,   //!< 1-byte per pixel

@@ -187,7 +187,6 @@ void GrFontCache::validate() const {
 }
 #endif
 
-#ifdef SK_DEVELOPER
 void GrFontCache::dump() const {
     static int gDumpCount = 0;
     for (int i = 0; i < kAtlasCount; ++i) {
@@ -206,7 +205,6 @@ void GrFontCache::dump() const {
     }
     ++gDumpCount;
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
