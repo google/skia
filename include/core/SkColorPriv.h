@@ -524,7 +524,9 @@ SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return SkPackARGB32(a, r, g, b);
 }
 
-static inline uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
+// When Android is compiled optimizing for size, SkAlphaMulQ doesn't get
+// inlined; forcing inlining significantly improves performance.
+static SK_ALWAYS_INLINE uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
     uint32_t mask = 0xFF00FF;
 
     uint32_t rb = ((c & mask) * scale) >> 8;
