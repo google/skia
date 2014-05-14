@@ -1055,6 +1055,8 @@ void SkScalerContext_GDI::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint:
         my->fMaxCharWidth = SkIntToScalar(otm.otmTextMetrics.tmMaxCharWidth);
         my->fXMin = SkIntToScalar(otm.otmrcFontBox.left);
         my->fXMax = SkIntToScalar(otm.otmrcFontBox.right);
+#endif
+#ifndef SK_IGNORE_UNDERLINE_POSITION_FIX
         my->fUnderlineThickness = SkIntToScalar(otm.otmsUnderscoreSize);
         my->fUnderlinePosition = -SkIntToScalar(otm.otmsUnderscorePosition);
 
