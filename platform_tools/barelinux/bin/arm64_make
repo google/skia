@@ -44,6 +44,7 @@ while getopts ":c:x:o:t:h" opt ; do
             usage || exit;;
     esac
 done
+OPTIND=1  # Reset this variable for calling barelinux_make with -t command flag.
 
 export GYP_DEFINES="${GYP_DEFINES} \
     skia_gpu=0 \
