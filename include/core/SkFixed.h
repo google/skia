@@ -107,9 +107,10 @@ static inline SkFixed SkFixedCos(SkFixed radians) {
 
 #if defined(SK_CPU_ARM)
     /* This guy does not handle NaN or other obscurities, but is faster than
-       than (int)(x*65536)
+       than (int)(x*65536).  When built on Android with -Os, needs forcing
+       to inline or we lose the speed benefit.
     */
-    inline SkFixed SkFloatToFixed_arm(float x)
+    SK_ALWAYS_INLINE SkFixed SkFloatToFixed_arm(float x)
     {
         int32_t y, z;
         asm("movs    %1, %3, lsl #1         \n"
