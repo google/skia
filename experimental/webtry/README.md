@@ -85,3 +85,9 @@ Do this step only once, but only after running webtry_setup.sh the first time
 
     sudo debootstrap --variant=minbase wheezy /srv/chroot/webtry
 
+
+Third Party Code
+----------------
+
+  * res/js/pointerevents.min.js - obtained from https://github.com/components/pointerevents-polyfill
+

@@ -73,9 +73,9 @@
       this.parentNode.insertBefore(canvasCopy, this);
     }
 
-    document.body.addEventListener('mousemove',  zoomMove,     true);
-    document.body.addEventListener('mouseup',    zoomFinished);
-    document.body.addEventListener('mouseleave', zoomFinished);
+    document.body.addEventListener('pointermove',   zoomMove,     true);
+    document.body.addEventListener('pointerup',     zoomFinished);
+    document.body.addEventListener('pointerleave',  zoomFinished);
 
     // Kick off the drawing.
     setTimeout(drawZoom, 1);
@@ -141,15 +141,15 @@
     document.body.style.cursor = 'default';
     ctx.canvas.parentNode.removeChild(ctx.canvas);
     canvasCopy.parentNode.removeChild(canvasCopy);
-    document.body.removeEventListener('mousemove',  zoomMove,     true);
-    document.body.removeEventListener('mouseup',    zoomFinished);
-    document.body.removeEventListener('mouseleave', zoomFinished);
+    document.body.removeEventListener('pointermove',  zoomMove,     true);
+    document.body.removeEventListener('pointerup',    zoomFinished);
+    document.body.removeEventListener('pointerleave', zoomFinished);
   }
 
   this.addEventListener('DOMContentLoaded', function() {
     var zoomables = document.body.querySelectorAll('.zoom');
     for (var i=0; i<zoomables.length; i++) {
-      zoomables[i].addEventListener('mousedown', zoomMouseDown);
+      zoomables[i].addEventListener('pointerdown', zoomMouseDown);
     }
   });
 })();
