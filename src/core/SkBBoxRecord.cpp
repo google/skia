@@ -165,6 +165,18 @@ void SkBBoxRecord::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
     }
 }
 
+// Hack to work-around https://code.google.com/p/chromium/issues/detail?id=373785
+// This logic assums that 'pad' is enough to add to the left and right to account for
+// big glyphs. For the font in question (a logo font) the glyphs is much wider than just
+// the pointsize (approx 3x wider).
+// As a temp work-around, we scale-up pad.
+// A more correct fix might be to add fontmetrics.fMaxX, but we don't have that value in hand
+// at the moment, and (possibly) the value in the font may not be accurate (but who knows).
+//
+static SkScalar hack_373785_amend_pad(SkScalar pad) {
+    return pad * 4;
+}
+
 void SkBBoxRecord::onDrawPosText(const void* text, size_t byteLength, const SkPoint pos[],
                                  const SkPaint& paint) {
     SkRect bbox;
@@ -176,6 +188,7 @@ void SkBBoxRecord::onDrawPosText(const void* text, size_t byteLength, const SkPo
 
     // pad on left and right by half of max vertical glyph extents
     SkScalar pad = (metrics.fTop - metrics.fBottom) / 2;
+    pad = hack_373785_amend_pad(pad);
     bbox.fLeft += pad;
     bbox.fRight -= pad;
 
@@ -212,6 +225,7 @@ void SkBBoxRecord::onDrawPosTextH(const void* text, size_t byteLength, const SkS
     }
 
     // pad horizontally by max glyph height
+    pad = hack_373785_amend_pad(pad);
     bbox.fLeft  += pad;
     bbox.fRight -= pad;
 
