@@ -348,6 +348,7 @@
       'type': 'executable',
       'sources': [
         '../tools/dump_record.cpp',
+        '../tools/DumpRecord.cpp',
         '../tools/LazyDecodeBitmap.cpp',
       ],
       'include_dirs': [
