@@ -1,9 +1,16 @@
-# To update the Doxygen output checked into the Skia subversion repo (which is
-# browsable at http://skia-autogen.googlecode.com/svn/docs/html/index.html ), run:
-# tools/update-doxygen.sh
+# Configuration used by
+# https://skia.googlesource.com/buildbot/+/master/slave/skia_slave_scripts/generate_doxygen.py
+# to generate our Doxygen docs, which are then uploaded to
+# http://chromium-skia-gm.commondatastorage.googleapis.com/doxygen/doxygen/html/index.html
+
 
 PROJECT_NAME = skia
 PROJECT_BRIEF = 2D Graphics Library
+
+# These lines are overridden by
+# https://skia.googlesource.com/buildbot/+/master/slave/skia_slave_scripts/generate_doxygen.py ,
+# but they are needed in case someone wants to generate the doxygen manually
+# for some reason.
 OUTPUT_DIRECTORY = ../docs
 HTML_FOOTER = ../docs/static_footer.txt
 
