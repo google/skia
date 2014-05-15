@@ -76,6 +76,25 @@ GrTexture* GrLockAndRefCachedBitmapTexture(GrContext*, const SkBitmap&, const Gr
 void GrUnlockAndUnrefCachedBitmapTexture(GrTexture*);
 
 ////////////////////////////////////////////////////////////////////////////////
+
+class SkGpuDevice;
+
+// Converts a SkPaint to a GrPaint, ignoring the SkPaint's shader.
+// justAlpha indicates that the SkPaint's alpha should be used rather than the color.
+// Callers may subsequently modify the GrPaint. Setting constantColor indicates
+// that the final paint will draw the same color at every pixel. This allows
+// an optimization where the the color filter can be applied to the SkPaint's
+// color once while converting to GrPaint and then ignored.
+void SkPaint2GrPaintNoShader(SkGpuDevice* dev, const SkPaint& skPaint, bool justAlpha,
+                             bool constantColor, GrPaint* grPaint);
+
+// This function is similar to skPaint2GrPaintNoShader but also converts
+// skPaint's shader to a GrTexture/GrEffectStage if possible.
+// constantColor has the same meaning as in skPaint2GrPaintNoShader.
+void SkPaint2GrPaintShader(SkGpuDevice* dev, const SkPaint& skPaint,
+                           bool constantColor, GrPaint* grPaint);
+
+////////////////////////////////////////////////////////////////////////////////
 // Classes
 
 class SkGlyphCache;
