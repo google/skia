@@ -120,9 +120,9 @@ void GrPlot::uploadToTexture() {
         dataPtr += rowBytes*fDirtyRect.fTop;
         dataPtr += fBytesPerPixel*fDirtyRect.fLeft;
         context->writeTexturePixels(fTexture,
-                                    fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop, 
+                                    fOffset.fX + fDirtyRect.fLeft, fOffset.fY + fDirtyRect.fTop,
                                     fDirtyRect.width(), fDirtyRect.height(),
-                                    fTexture->config(), dataPtr, 
+                                    fTexture->config(), dataPtr,
                                     rowBytes,
                                     GrContext::kDontFlush_PixelOpsFlag);
         fDirtyRect.setEmpty();
