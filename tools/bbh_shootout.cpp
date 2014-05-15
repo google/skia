@@ -67,7 +67,7 @@ static void do_benchmark_work(sk_tools::PictureRenderer* renderer,
         BenchTimer* timer) {
     renderer->setBBoxHierarchyType(bBoxType);
     renderer->setGridSize(FLAGS_tilesize, FLAGS_tilesize);
-    renderer->init(pic, NULL, NULL, false);
+    renderer->init(pic, NULL, NULL, NULL, false);
 
     SkDebugf("%s %d times...\n", renderer->getConfigName().c_str(), numRepeats);
     for (int i = 0; i < numRepeats; ++i) {

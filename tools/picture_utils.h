@@ -53,6 +53,20 @@ namespace sk_tools {
     // Specifically, it configures the bitmap, allocates pixels and then
     // erases the pixels to transparent black.
     void setup_bitmap(SkBitmap* bitmap, int width, int height);
-}
+
+    /**
+     * Write a bitmap file to disk.
+     *
+     * @param bm the bitmap to record
+     * @param dirPath directory within which to write the image file
+     * @param subdirOrNull subdirectory within dirPath, or NULL to just write into dirPath
+     * @param baseName last part of the filename
+     *
+     * @return true if written out successfully
+     */
+    bool write_bitmap_to_disk(const SkBitmap& bm, const SkString& dirPath,
+                              const char *subdirOrNull, const SkString& baseName);
+
+} // namespace sk_tools
 
 #endif  // picture_utils_DEFINED

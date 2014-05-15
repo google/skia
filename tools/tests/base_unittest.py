@@ -10,7 +10,9 @@ A wrapper around the standard Python unittest library, adding features we need
 for various unittests within this directory.
 """
 
+import errno
 import os
+import shutil
 import sys
 import unittest
 
@@ -25,6 +27,20 @@ class TestCase(unittest.TestCase):
   def shortDescription(self):
     """Tell unittest framework to not print docstrings for test cases."""
     return None
+
+  def create_empty_dir(self, path):
+    """Creates an empty directory at path and returns path.
+
+    Args:
+      path: path on local disk
+    """
+    shutil.rmtree(path=path, ignore_errors=True)
+    try:
+      os.makedirs(path)
+    except OSError as exc:
+      if exc.errno != errno.EEXIST:
+        raise
+    return path
 
   def run_command(self, args):
     """Runs a program from the command line and returns stdout.

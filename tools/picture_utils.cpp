@@ -6,11 +6,13 @@
  */
 
 #include "picture_utils.h"
-#include "SkColorPriv.h"
 #include "SkBitmap.h"
+#include "SkColorPriv.h"
+#include "SkImageEncoder.h"
+#include "SkOSFile.h"
 #include "SkPicture.h"
-#include "SkString.h"
 #include "SkStream.h"
+#include "SkString.h"
 
 static bool is_path_seperator(const char chr) {
 #if defined(SK_BUILD_FOR_WIN)
@@ -99,4 +101,23 @@ namespace sk_tools {
         bitmap->allocPixels();
         bitmap->eraseColor(SK_ColorTRANSPARENT);
     }
-}
+
+    bool write_bitmap_to_disk(const SkBitmap& bm, const SkString& dirPath,
+                              const char *subdirOrNull, const SkString& baseName) {
+        SkString partialPath;
+        if (subdirOrNull) {
+            partialPath = SkOSPath::SkPathJoin(dirPath.c_str(), subdirOrNull);
+            sk_mkdir(partialPath.c_str());
+        } else {
+            partialPath.set(dirPath);
+        }
+        SkString fullPath = SkOSPath::SkPathJoin(partialPath.c_str(), baseName.c_str());
+        if (SkImageEncoder::EncodeFile(fullPath.c_str(), bm, SkImageEncoder::kPNG_Type, 100)) {
+            return true;
+        } else {
+            SkDebugf("Failed to write the bitmap to %s.\n", fullPath.c_str());
+            return false;
+        }
+    }
+
+} // namespace sk_tools

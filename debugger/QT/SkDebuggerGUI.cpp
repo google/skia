@@ -326,7 +326,7 @@ void SkDebuggerGUI::run(SkTimedPicture* pict,
         return;
     }
 
-    renderer->init(pict, NULL, NULL, false);
+    renderer->init(pict, NULL, NULL, NULL, false);
 
     renderer->setup();
     renderer->render();

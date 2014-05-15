@@ -31,6 +31,8 @@ DECLARE_bool(deferImageDecoding);
 DEFINE_int32(maxComponentDiff, 256, "Maximum diff on a component, 0 - 256. Components that differ "
              "by more than this amount are considered errors, though all diffs are reported. "
              "Requires --validate.");
+DEFINE_string(mismatchPath, "", "Write images for tests that failed due to "
+              "pixel mismatches into this directory.");
 DEFINE_string(readJsonSummaryPath, "", "JSON file to read image expectations from.");
 DECLARE_string(readPath);
 DEFINE_bool(writeChecksumBasedFilenames, false,
@@ -137,14 +139,19 @@ static bool write_image_to_file(const void* buffer, size_t size, SkBitmap* bitma
 /**
  * Called only by render_picture().
  */
-static bool render_picture_internal(const SkString& inputPath, const SkString* outputDir,
+static bool render_picture_internal(const SkString& inputPath, const SkString* writePath,
+                                    const SkString* mismatchPath,
                                     sk_tools::PictureRenderer& renderer,
                                     SkBitmap** out) {
     SkString inputFilename;
     sk_tools::get_basename(&inputFilename, inputPath);
-    SkString outputDirString;
-    if (NULL != outputDir && outputDir->size() > 0 && !FLAGS_writeEncodedImages) {
-        outputDirString.set(*outputDir);
+    SkString writePathString;
+    if (NULL != writePath && writePath->size() > 0 && !FLAGS_writeEncodedImages) {
+        writePathString.set(*writePath);
+    }
+    SkString mismatchPathString;
+    if (NULL != mismatchPath && mismatchPath->size() > 0) {
+        mismatchPathString.set(*mismatchPath);
     }
 
     SkFILEStream inputStream;
@@ -189,7 +196,8 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* o
     SkDebugf("drawing... [%i %i] %s\n", picture->width(), picture->height(),
              inputPath.c_str());
 
-    renderer.init(picture, &outputDirString, &inputFilename, FLAGS_writeChecksumBasedFilenames);
+    renderer.init(picture, &writePathString, &mismatchPathString, &inputFilename,
+                  FLAGS_writeChecksumBasedFilenames);
 
     if (FLAGS_preprocess) {
         if (NULL != renderer.getCanvas()) {
@@ -246,21 +254,23 @@ private:
 };
 
 /**
- * Render the SKP file(s) within inputPath, writing their bitmap images into outputDir.
+ * Render the SKP file(s) within inputPath.
  *
  * @param inputPath path to an individual SKP file, or a directory of SKP files
- * @param outputDir if not NULL, write the image(s) generated into this directory
+ * @param writePath if not NULL, write all image(s) generated into this directory
+ * @param mismatchPath if not NULL, write any image(s) not matching expectations into this directory
  * @param renderer PictureRenderer to use to render the SKPs
  * @param jsonSummaryPtr if not NULL, add the image(s) generated to this summary
  */
-static bool render_picture(const SkString& inputPath, const SkString* outputDir,
-                           sk_tools::PictureRenderer& renderer,
+static bool render_picture(const SkString& inputPath, const SkString* writePath,
+                           const SkString* mismatchPath, sk_tools::PictureRenderer& renderer,
                            sk_tools::ImageResultsAndExpectations *jsonSummaryPtr) {
     int diffs[256] = {0};
     SkBitmap* bitmap = NULL;
     renderer.setJsonSummaryPtr(jsonSummaryPtr);
     bool success = render_picture_internal(inputPath,
-        FLAGS_writeWholeImage ? NULL : outputDir,
+        FLAGS_writeWholeImage ? NULL : writePath,
+        FLAGS_writeWholeImage ? NULL : mismatchPath,
         renderer,
         FLAGS_validate || FLAGS_writeWholeImage ? &bitmap : NULL);
 
@@ -286,7 +296,7 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
         }
         SkAutoTUnref<sk_tools::PictureRenderer> aurReferenceRenderer(referenceRenderer);
 
-        success = render_picture_internal(inputPath, NULL, *referenceRenderer,
+        success = render_picture_internal(inputPath, NULL, NULL, *referenceRenderer,
                                           &referenceBitmap);
 
         if (!success || NULL == referenceBitmap || NULL == referenceBitmap->getPixels()) {
@@ -342,25 +352,24 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
     if (FLAGS_writeWholeImage) {
         sk_tools::force_all_opaque(*bitmap);
 
-        SkString inputFilename, outputPath;
+        SkString inputFilename;
         sk_tools::get_basename(&inputFilename, inputPath);
-        sk_tools::make_filepath(&outputPath, *outputDir, inputFilename);
-        sk_tools::replace_char(&outputPath, '.', '_');
-        outputPath.append(".png");
+        SkString outputFilename(inputFilename);
+        sk_tools::replace_char(&outputFilename, '.', '_');
+        outputFilename.append(".png");
 
         if (NULL != jsonSummaryPtr) {
             sk_tools::ImageDigest imageDigest(*bitmap);
-            SkString outputFileBasename;
-            sk_tools::get_basename(&outputFileBasename, outputPath);
-            jsonSummaryPtr->add(inputFilename.c_str(), outputFileBasename.c_str(), imageDigest);
+            jsonSummaryPtr->add(inputFilename.c_str(), outputFilename.c_str(), imageDigest);
+            if ((NULL != mismatchPath) && !mismatchPath->isEmpty() &&
+                !jsonSummaryPtr->matchesExpectation(inputFilename.c_str(), imageDigest)) {
+                success &= sk_tools::write_bitmap_to_disk(*bitmap, *mismatchPath, NULL,
+                                                          outputFilename);
+            }
         }
 
-        if (NULL != outputDir) {
-            if (!SkImageEncoder::EncodeFile(outputPath.c_str(), *bitmap,
-                                            SkImageEncoder::kPNG_Type, 100)) {
-                SkDebugf("Failed to draw the picture.\n");
-                success = false;
-            }
+        if ((NULL != writePath) && !writePath->isEmpty()) {
+            success &= sk_tools::write_bitmap_to_disk(*bitmap, *writePath, NULL, outputFilename);
         }
     }
     SkDELETE(bitmap);
@@ -369,8 +378,8 @@ static bool render_picture(const SkString& inputPath, const SkString* outputDir,
 }
 
 
-static int process_input(const char* input, const SkString* outputDir,
-                         sk_tools::PictureRenderer& renderer,
+static int process_input(const char* input, const SkString* writePath,
+                         const SkString* mismatchPath, sk_tools::PictureRenderer& renderer,
                          sk_tools::ImageResultsAndExpectations *jsonSummaryPtr) {
     SkOSFile::Iter iter(input, "skp");
     SkString inputFilename;
@@ -381,13 +390,13 @@ static int process_input(const char* input, const SkString* outputDir,
             SkString inputPath;
             SkString inputAsSkString(input);
             sk_tools::make_filepath(&inputPath, inputAsSkString, inputFilename);
-            if (!render_picture(inputPath, outputDir, renderer, jsonSummaryPtr)) {
+            if (!render_picture(inputPath, writePath, mismatchPath, renderer, jsonSummaryPtr)) {
                 ++failures;
             }
         } while(iter.next(&inputFilename));
     } else if (SkStrEndsWith(input, ".skp")) {
         SkString inputPath(input);
-        if (!render_picture(inputPath, outputDir, renderer, jsonSummaryPtr)) {
+        if (!render_picture(inputPath, writePath, mismatchPath, renderer, jsonSummaryPtr)) {
             ++failures;
         }
     } else {
@@ -447,9 +456,13 @@ int tool_main(int argc, char** argv) {
 
     SkAutoGraphics ag;
 
-    SkString outputDir;
+    SkString writePath;
     if (FLAGS_writePath.count() == 1) {
-        outputDir.set(FLAGS_writePath[0]);
+        writePath.set(FLAGS_writePath[0]);
+    }
+    SkString mismatchPath;
+    if (FLAGS_mismatchPath.count() == 1) {
+        mismatchPath.set(FLAGS_mismatchPath[0]);
     }
     sk_tools::ImageResultsAndExpectations jsonSummary;
     sk_tools::ImageResultsAndExpectations* jsonSummaryPtr = NULL;
@@ -462,7 +475,8 @@ int tool_main(int argc, char** argv) {
 
     int failures = 0;
     for (int i = 0; i < FLAGS_readPath.count(); i ++) {
-        failures += process_input(FLAGS_readPath[i], &outputDir, *renderer.get(), jsonSummaryPtr);
+        failures += process_input(FLAGS_readPath[i], &writePath, &mismatchPath, *renderer.get(),
+                                  jsonSummaryPtr);
     }
     if (failures != 0) {
         SkDebugf("Failed to render %i pictures.\n", failures);

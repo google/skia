@@ -84,13 +84,15 @@ public:
      * Called with each new SkPicture to render.
      *
      * @param pict The SkPicture to render.
-     * @param outputDir The output directory within which this renderer should write files,
-     *     or NULL if this renderer should not write files at all.
+     * @param writePath The output directory within which this renderer should write all images,
+     *     or NULL if this renderer should not write all images.
+     * @param mismatchPath The output directory within which this renderer should write any images
+     *     which do not match expectations, or NULL if this renderer should not write mismatches.
      * @param inputFilename The name of the input file we are rendering.
      * @param useChecksumBasedFilenames Whether to use checksum-based filenames when writing
      *     bitmap images to disk.
      */
-    virtual void init(SkPicture* pict, const SkString* outputDir,
+    virtual void init(SkPicture* pict, const SkString* writePath, const SkString* mismatchPath,
                       const SkString* inputFilename, bool useChecksumBasedFilenames);
 
     /**
@@ -116,11 +118,13 @@ public:
      * Typically "the work" is rendering an SkPicture into a bitmap, but in some subclasses
      * it is recording the source SkPicture into another SkPicture.
      *
-     * If fOutputDir has been specified, the result of the work will be written to that dir.
+     * If fWritePath has been specified, the result of the work will be written to that dir.
+     * If fMismatchPath has been specified, and the actual image result differs from its
+     * expectation, the result of the work will be written to that dir.
      *
      * @param out If non-null, the implementing subclass MAY allocate an SkBitmap, copy the
      *            output image into it, and return it here.  (Some subclasses ignore this parameter)
-     * @return bool True if rendering succeeded and, if fOutputDir had been specified, the output
+     * @return bool True if rendering succeeded and, if fWritePath had been specified, the output
      *              was successfully written to a file.
      */
     virtual bool render(SkBitmap** out = NULL) = 0;
@@ -370,7 +374,8 @@ protected:
     BBoxHierarchyType      fBBoxHierarchyType;
     DrawFilterFlags        fDrawFilters[SkDrawFilter::kTypeCount];
     SkString               fDrawFiltersConfig;
-    SkString               fOutputDir;
+    SkString               fWritePath;
+    SkString               fMismatchPath;
     SkString               fInputFilename;
     SkTileGridFactory::TileGridInfo fGridInfo; // used when fBBoxHierarchyType is TileGrid
 
@@ -447,7 +452,7 @@ private:
 
 class SimplePictureRenderer : public PictureRenderer {
 public:
-    virtual void init(SkPicture* pict, const SkString* outputDir,
+    virtual void init(SkPicture* pict, const SkString* writePath, const SkString* mismatchPath,
                       const SkString* inputFilename, bool useChecksumBasedFilenames) SK_OVERRIDE;
 
     virtual bool render(SkBitmap** out = NULL) SK_OVERRIDE;
@@ -462,12 +467,12 @@ class TiledPictureRenderer : public PictureRenderer {
 public:
     TiledPictureRenderer();
 
-    virtual void init(SkPicture* pict, const SkString* outputDir,
+    virtual void init(SkPicture* pict, const SkString* writePath, const SkString* mismatchPath,
                       const SkString* inputFilename, bool useChecksumBasedFilenames) SK_OVERRIDE;
 
     /**
      * Renders to tiles, rather than a single canvas.
-     * If fOutputDir was provided, a separate file is
+     * If fWritePath was provided, a separate file is
      * created for each tile, named "path0.png", "path1.png", etc.
      * Multithreaded mode currently does not support writing to a file.
      */
@@ -587,7 +592,7 @@ public:
 
     ~MultiCorePictureRenderer();
 
-    virtual void init(SkPicture* pict, const SkString* outputDir,
+    virtual void init(SkPicture* pict, const SkString* writePath, const SkString* mismatchPath,
                       const SkString* inputFilename, bool useChecksumBasedFilenames) SK_OVERRIDE;
 
     /**

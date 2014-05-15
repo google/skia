@@ -90,10 +90,21 @@ namespace sk_tools {
          * @param sourceName name of the source file that generated this result
          * @param fileName relative path to the image output file on local disk
          * @param digest description of the image's contents
-         * @param tileNumber if not NULL, ptr to tile number
+         * @param tileNumber if not NULL, pointer to tile number
          */
         void add(const char *sourceName, const char *fileName, const ImageDigest &digest,
                  const int *tileNumber=NULL);
+
+        /**
+         * Returns true if this test result matches its expectations.
+         * If there are no expectations for this test result, this will return false.
+         *
+         * @param sourceName name of the source file that generated this result
+         * @param digest description of the image's contents
+         * @param tileNumber if not NULL, pointer to tile number
+         */
+        bool matchesExpectation(const char *sourceName, const ImageDigest &digest,
+                                const int *tileNumber=NULL);
 
         /**
          * Writes the summary (as constructed so far) to a file.

@@ -156,12 +156,13 @@ class RenderPicturesTest(base_unittest.TestCase):
     self.maxDiff = MAX_DIFF_LENGTH
     self._expectations_dir = tempfile.mkdtemp()
     self._input_skp_dir = tempfile.mkdtemp()
-    self._temp_dir = tempfile.mkdtemp()
+    # All output of render_pictures binary will go into this directory.
+    self._output_dir = tempfile.mkdtemp()
 
   def tearDown(self):
     shutil.rmtree(self._expectations_dir)
     shutil.rmtree(self._input_skp_dir)
-    shutil.rmtree(self._temp_dir)
+    shutil.rmtree(self._output_dir)
 
   def test_tiled_whole_image(self):
     """Run render_pictures with tiles and --writeWholeImage flag.
@@ -169,6 +170,7 @@ class RenderPicturesTest(base_unittest.TestCase):
     TODO(epoger): This test generates undesired results!  The JSON summary
     includes both whole-image and tiled-images (as it should), but only
     whole-images are written out to disk.  See http://skbug.com/2463
+    Once I fix that, I should add a similar test that exercises mismatchPath.
 
     TODO(epoger): I noticed that when this is run without --writePath being
     specified, this test writes red_skp.png and green_skp.png to the current
@@ -176,7 +178,9 @@ class RenderPicturesTest(base_unittest.TestCase):
     probably shouldn't write out red_skp.png and green_skp.png at all!
     See http://skbug.com/2464
     """
-    output_json_path = os.path.join(self._temp_dir, 'actuals.json')
+    output_json_path = os.path.join(self._output_dir, 'actuals.json')
+    write_path_dir = self.create_empty_dir(
+        path=os.path.join(self._output_dir, 'writePath'))
     self._generate_skps()
     expectations_path = self._create_expectations()
     self._run_render_pictures([
@@ -185,7 +189,7 @@ class RenderPicturesTest(base_unittest.TestCase):
         '--mode', 'tile', '256', '256',
         '--readJsonSummaryPath', expectations_path,
         '--writeJsonSummaryPath', output_json_path,
-        '--writePath', self._temp_dir,
+        '--writePath', write_path_dir,
         '--writeWholeImage'])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
@@ -202,12 +206,14 @@ class RenderPicturesTest(base_unittest.TestCase):
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
     self._assert_directory_contents(
-        self._temp_dir, ['red_skp.png', 'green_skp.png', 'actuals.json'])
+        write_path_dir, ['red_skp.png', 'green_skp.png'])
 
   def test_missing_tile_and_whole_image(self):
     """test_tiled_whole_image, but missing expectations for some images.
     """
-    output_json_path = os.path.join(self._temp_dir, 'actuals.json')
+    output_json_path = os.path.join(self._output_dir, 'actuals.json')
+    write_path_dir = self.create_empty_dir(
+        path=os.path.join(self._output_dir, 'writePath'))
     self._generate_skps()
     expectations_path = self._create_expectations(missing_some_images=True)
     self._run_render_pictures([
@@ -216,7 +222,7 @@ class RenderPicturesTest(base_unittest.TestCase):
         '--mode', 'tile', '256', '256',
         '--readJsonSummaryPath', expectations_path,
         '--writeJsonSummaryPath', output_json_path,
-        '--writePath', self._temp_dir,
+        '--writePath', write_path_dir,
         '--writeWholeImage'])
     modified_red_tiles = copy.deepcopy(RED_TILES)
     modified_red_tiles[5]['comparisonResult'] = 'no-comparison'
@@ -238,13 +244,15 @@ class RenderPicturesTest(base_unittest.TestCase):
 
   def test_untiled(self):
     """Run without tiles."""
-    output_json_path = os.path.join(self._temp_dir, 'actuals.json')
+    output_json_path = os.path.join(self._output_dir, 'actuals.json')
+    write_path_dir = self.create_empty_dir(
+        path=os.path.join(self._output_dir, 'writePath'))
     self._generate_skps()
     expectations_path = self._create_expectations()
     self._run_render_pictures([
         '-r', self._input_skp_dir,
         '--readJsonSummaryPath', expectations_path,
-        '--writePath', self._temp_dir,
+        '--writePath', write_path_dir,
         '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
@@ -259,15 +267,17 @@ class RenderPicturesTest(base_unittest.TestCase):
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
     self._assert_directory_contents(
-        self._temp_dir, ['red_skp.png', 'green_skp.png', 'actuals.json'])
+        write_path_dir, ['red_skp.png', 'green_skp.png'])
 
   def test_untiled_writeChecksumBasedFilenames(self):
     """Same as test_untiled, but with --writeChecksumBasedFilenames."""
-    output_json_path = os.path.join(self._temp_dir, 'actuals.json')
+    output_json_path = os.path.join(self._output_dir, 'actuals.json')
+    write_path_dir = self.create_empty_dir(
+        path=os.path.join(self._output_dir, 'writePath'))
     self._generate_skps()
     self._run_render_pictures(['-r', self._input_skp_dir,
                                '--writeChecksumBasedFilenames',
-                               '--writePath', self._temp_dir,
+                               '--writePath', write_path_dir,
                                '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
@@ -293,25 +303,26 @@ class RenderPicturesTest(base_unittest.TestCase):
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
-    self._assert_directory_contents(self._temp_dir, [
-        'red_skp', 'green_skp', 'actuals.json'])
+    self._assert_directory_contents(write_path_dir, ['red_skp', 'green_skp'])
     self._assert_directory_contents(
-        os.path.join(self._temp_dir, 'red_skp'),
+        os.path.join(write_path_dir, 'red_skp'),
         ['bitmap-64bitMD5_11092453015575919668.png'])
     self._assert_directory_contents(
-        os.path.join(self._temp_dir, 'green_skp'),
+        os.path.join(write_path_dir, 'green_skp'),
         ['bitmap-64bitMD5_8891695120562235492.png'])
 
   def test_untiled_validate(self):
     """Same as test_untiled, but with --validate."""
-    output_json_path = os.path.join(self._temp_dir, 'actuals.json')
+    output_json_path = os.path.join(self._output_dir, 'actuals.json')
+    write_path_dir = self.create_empty_dir(
+        path=os.path.join(self._output_dir, 'writePath'))
     self._generate_skps()
     expectations_path = self._create_expectations()
     self._run_render_pictures([
         '-r', self._input_skp_dir,
         '--readJsonSummaryPath', expectations_path,
         '--validate',
-        '--writePath', self._temp_dir,
+        '--writePath', write_path_dir,
         '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
@@ -326,11 +337,11 @@ class RenderPicturesTest(base_unittest.TestCase):
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
     self._assert_directory_contents(
-        self._temp_dir, ['red_skp.png', 'green_skp.png', 'actuals.json'])
+        write_path_dir, ['red_skp.png', 'green_skp.png'])
 
   def test_untiled_without_writePath(self):
     """Same as test_untiled, but without --writePath."""
-    output_json_path = os.path.join(self._temp_dir, 'actuals.json')
+    output_json_path = os.path.join(self._output_dir, 'actuals.json')
     self._generate_skps()
     expectations_path = self._create_expectations()
     self._run_render_pictures([
@@ -352,7 +363,9 @@ class RenderPicturesTest(base_unittest.TestCase):
 
   def test_tiled(self):
     """Generate individual tiles."""
-    output_json_path = os.path.join(self._temp_dir, 'actuals.json')
+    output_json_path = os.path.join(self._output_dir, 'actuals.json')
+    write_path_dir = self.create_empty_dir(
+        path=os.path.join(self._output_dir, 'writePath'))
     self._generate_skps()
     expectations_path = self._create_expectations()
     self._run_render_pictures([
@@ -360,7 +373,7 @@ class RenderPicturesTest(base_unittest.TestCase):
         '--bbh', 'grid', '256', '256',
         '--mode', 'tile', '256', '256',
         '--readJsonSummaryPath', expectations_path,
-        '--writePath', self._temp_dir,
+        '--writePath', write_path_dir,
         '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
@@ -375,22 +388,56 @@ class RenderPicturesTest(base_unittest.TestCase):
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
     self._assert_directory_contents(
-        self._temp_dir,
+        write_path_dir,
         ['red_skp-tile0.png', 'red_skp-tile1.png', 'red_skp-tile2.png',
          'red_skp-tile3.png', 'red_skp-tile4.png', 'red_skp-tile5.png',
          'green_skp-tile0.png', 'green_skp-tile1.png', 'green_skp-tile2.png',
          'green_skp-tile3.png', 'green_skp-tile4.png', 'green_skp-tile5.png',
-         'actuals.json'])
+        ])
+
+  def test_tiled_mismatches(self):
+    """Same as test_tiled, but only write out mismatching images."""
+    output_json_path = os.path.join(self._output_dir, 'actuals.json')
+    mismatch_path_dir = self.create_empty_dir(
+        path=os.path.join(self._output_dir, 'mismatchPath'))
+    self._generate_skps()
+    expectations_path = self._create_expectations()
+    self._run_render_pictures([
+        '-r', self._input_skp_dir,
+        '--bbh', 'grid', '256', '256',
+        '--mode', 'tile', '256', '256',
+        '--readJsonSummaryPath', expectations_path,
+        '--mismatchPath', mismatch_path_dir,
+        '--writeJsonSummaryPath', output_json_path])
+    expected_summary_dict = {
+        "header" : EXPECTED_HEADER_CONTENTS,
+        "actual-results" : {
+            "red.skp": {
+                "tiled-images": RED_TILES,
+            },
+            "green.skp": {
+                "tiled-images": GREEN_TILES,
+            }
+        }
+    }
+    self._assert_json_contents(output_json_path, expected_summary_dict)
+    self._assert_directory_contents(
+        mismatch_path_dir,
+        ['red_skp-tile0.png', 'red_skp-tile1.png', 'red_skp-tile2.png',
+         'red_skp-tile3.png', 'red_skp-tile4.png', 'red_skp-tile5.png',
+        ])
 
   def test_tiled_writeChecksumBasedFilenames(self):
     """Same as test_tiled, but with --writeChecksumBasedFilenames."""
-    output_json_path = os.path.join(self._temp_dir, 'actuals.json')
+    output_json_path = os.path.join(self._output_dir, 'actuals.json')
+    write_path_dir = self.create_empty_dir(
+        path=os.path.join(self._output_dir, 'writePath'))
     self._generate_skps()
     self._run_render_pictures(['-r', self._input_skp_dir,
                                '--bbh', 'grid', '256', '256',
                                '--mode', 'tile', '256', '256',
                                '--writeChecksumBasedFilenames',
-                               '--writePath', self._temp_dir,
+                               '--writePath', write_path_dir,
                                '--writeJsonSummaryPath', output_json_path])
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
@@ -470,10 +517,9 @@ class RenderPicturesTest(base_unittest.TestCase):
         }
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
-    self._assert_directory_contents(self._temp_dir, [
-        'red_skp', 'green_skp', 'actuals.json'])
+    self._assert_directory_contents(write_path_dir, ['red_skp', 'green_skp'])
     self._assert_directory_contents(
-        os.path.join(self._temp_dir, 'red_skp'),
+        os.path.join(write_path_dir, 'red_skp'),
         ['bitmap-64bitMD5_5815827069051002745.png',
          'bitmap-64bitMD5_9323613075234140270.png',
          'bitmap-64bitMD5_16670399404877552232.png',
@@ -481,7 +527,7 @@ class RenderPicturesTest(base_unittest.TestCase):
          'bitmap-64bitMD5_7325267995523877959.png',
          'bitmap-64bitMD5_2181381724594493116.png'])
     self._assert_directory_contents(
-        os.path.join(self._temp_dir, 'green_skp'),
+        os.path.join(write_path_dir, 'green_skp'),
         ['bitmap-64bitMD5_12587324416545178013.png',
          'bitmap-64bitMD5_7624374914829746293.png',
          'bitmap-64bitMD5_5686489729535631913.png',

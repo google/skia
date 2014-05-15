@@ -104,7 +104,7 @@ namespace sk_tools {
     }
 
     void ImageResultsAndExpectations::add(const char *sourceName, const char *fileName,
-                                  const ImageDigest &digest, const int *tileNumber) {
+                                          const ImageDigest &digest, const int *tileNumber) {
         // Get expectation, if any.
         Json::Value expectedImage;
         if (!fExpectedResults.isNull()) {
@@ -144,6 +144,29 @@ namespace sk_tools {
         } else {
             fActualResults[sourceName][kJsonKey_Source_TiledImages][*tileNumber] = actualImage;
         }
+    }
+
+    bool ImageResultsAndExpectations::matchesExpectation(const char *sourceName,
+                                                         const ImageDigest &digest,
+                                                         const int *tileNumber) {
+        if (fExpectedResults.isNull()) {
+            return false;
+        }
+
+        Json::Value expectedImage;
+        if (NULL == tileNumber) {
+            expectedImage = fExpectedResults[sourceName][kJsonKey_Source_WholeImage];
+        } else {
+            expectedImage = fExpectedResults[sourceName][kJsonKey_Source_TiledImages][*tileNumber];
+        }
+        if (expectedImage.isNull()) {
+            return false;
+        }
+
+        Json::Value actualChecksumAlgorithm = digest.getHashType().c_str();
+        Json::Value actualChecksumValue = Json::UInt64(digest.getHashValue());
+        return ((actualChecksumAlgorithm == expectedImage[kJsonKey_Image_ChecksumAlgorithm]) &&
+                (actualChecksumValue == expectedImage[kJsonKey_Image_ChecksumValue]));
     }
 
     void ImageResultsAndExpectations::writeToFile(const char *filename) const {

@@ -20,15 +20,17 @@ namespace sk_tools {
     : fXTilesPerLargeTile(x)
     , fYTilesPerLargeTile(y) {
     }
-    void CopyTilesRenderer::init(SkPicture* pict, const SkString* outputDir,
-                                 const SkString* inputFilename, bool useChecksumBasedFilenames) {
+    void CopyTilesRenderer::init(SkPicture* pict, const SkString* writePath,
+                                 const SkString* mismatchPath, const SkString* inputFilename,
+                                 bool useChecksumBasedFilenames) {
         // Do not call INHERITED::init(), which would create a (potentially large) canvas which is
         // not used by bench_pictures.
         SkASSERT(pict != NULL);
         // Only work with absolute widths (as opposed to percentages).
         SkASSERT(this->getTileWidth() != 0 && this->getTileHeight() != 0);
         fPicture.reset(pict)->ref();
-        this->CopyString(&fOutputDir, outputDir);
+        this->CopyString(&fWritePath, writePath);
+        this->CopyString(&fMismatchPath, mismatchPath);
         this->CopyString(&fInputFilename, inputFilename);
         fUseChecksumBasedFilenames = useChecksumBasedFilenames;
         this->buildBBoxHierarchy();
@@ -64,13 +66,13 @@ namespace sk_tools {
                         SkDEBUGCODE(bool extracted =)
                         baseBitmap.extractSubset(&dst, subset);
                         SkASSERT(extracted);
-                        if (!fOutputDir.isEmpty()) {
+                        if (!fWritePath.isEmpty()) {
                             // Similar to write() in PictureRenderer.cpp, but just encodes
                             // a bitmap directly.
                             // TODO: Share more common code with write() to do this, to properly
                             // write out the JSON summary, etc.
                             SkString pathWithNumber;
-                            make_filepath(&pathWithNumber, fOutputDir, fInputFilename);
+                            make_filepath(&pathWithNumber, fWritePath, fInputFilename);
                             pathWithNumber.remove(pathWithNumber.size() - 4, 4);
                             pathWithNumber.appendf("%i.png", i++);
                             SkBitmap copy;
