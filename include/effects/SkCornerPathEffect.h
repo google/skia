@@ -31,13 +31,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkCornerPathEffect)
 
 protected:
-    SkCornerPathEffect(SkReadBuffer&);
+    explicit SkCornerPathEffect(SkScalar radius);
+    explicit SkCornerPathEffect(SkReadBuffer&);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
-    SkCornerPathEffect(SkScalar radius);
 
 private:
     SkScalar    fRadius;

@@ -68,7 +68,16 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMatrixConvolutionImageFilter)
 
 protected:
-    SkMatrixConvolutionImageFilter(SkReadBuffer& buffer);
+    SkMatrixConvolutionImageFilter(const SkISize& kernelSize,
+                                   const SkScalar* kernel,
+                                   SkScalar gain,
+                                   SkScalar bias,
+                                   const SkIPoint& kernelOffset,
+                                   TileMode tileMode,
+                                   bool convolveAlpha,
+                                   SkImageFilter* input,
+                                   const CropRect* cropRect);
+    explicit SkMatrixConvolutionImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
@@ -82,19 +91,6 @@ protected:
                              const SkMatrix& ctm,
                              const SkIRect& bounds) const SK_OVERRIDE;
 #endif
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
-    SkMatrixConvolutionImageFilter(const SkISize& kernelSize,
-                                   const SkScalar* kernel,
-                                   SkScalar gain,
-                                   SkScalar bias,
-                                   const SkIPoint& kernelOffset,
-                                   TileMode tileMode,
-                                   bool convolveAlpha,
-                                   SkImageFilter* input = NULL,
-                                   const CropRect* cropRect = NULL);
 
 private:
     SkISize   fKernelSize;

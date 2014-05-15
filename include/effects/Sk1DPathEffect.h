@@ -63,17 +63,13 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPath1DPathEffect)
 
 protected:
-    SkPath1DPathEffect(SkReadBuffer& buffer);
+    SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkScalar phase, Style);
+    explicit SkPath1DPathEffect(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // overrides from Sk1DPathEffect
     virtual SkScalar begin(SkScalar contourLength) const SK_OVERRIDE;
     virtual SkScalar next(SkPath*, SkScalar, SkPathMeasure&) const SK_OVERRIDE;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
-    SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkScalar phase, Style);
 
 private:
     SkPath      fPath;          // copied from constructor

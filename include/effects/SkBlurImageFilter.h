@@ -25,6 +25,10 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurImageFilter)
 
 protected:
+    SkBlurImageFilter(SkScalar sigmaX,
+                      SkScalar sigmaY,
+                      SkImageFilter* input,
+                      const CropRect* cropRect);
     explicit SkBlurImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
@@ -36,14 +40,6 @@ protected:
     bool canFilterImageGPU() const SK_OVERRIDE { return true; }
     virtual bool filterImageGPU(Proxy* proxy, const SkBitmap& src, const Context& ctx,
                                 SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
-    SkBlurImageFilter(SkScalar sigmaX,
-                      SkScalar sigmaY,
-                      SkImageFilter* input = NULL,
-                      const CropRect* cropRect = NULL);
 
 private:
     SkSize   fSigma;

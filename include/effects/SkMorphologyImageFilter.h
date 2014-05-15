@@ -68,15 +68,11 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDilateImageFilter)
 
 protected:
-    SkDilateImageFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
     SkDilateImageFilter(int radiusX, int radiusY,
                         SkImageFilter* input = NULL,
                         const CropRect* cropRect = NULL)
-    : INHERITED(radiusX, radiusY, input, cropRect) {}
+        : INHERITED(radiusX, radiusY, input, cropRect) {}
+    explicit SkDilateImageFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     typedef SkMorphologyImageFilter INHERITED;
@@ -100,15 +96,11 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkErodeImageFilter)
 
 protected:
-    SkErodeImageFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
     SkErodeImageFilter(int radiusX, int radiusY,
                        SkImageFilter* input = NULL,
                        const CropRect* cropRect = NULL)
-    : INHERITED(radiusX, radiusY, input, cropRect) {}
+        : INHERITED(radiusX, radiusY, input, cropRect) {}
+    explicit SkErodeImageFilter(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     typedef SkMorphologyImageFilter INHERITED;

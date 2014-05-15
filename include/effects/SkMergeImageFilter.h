@@ -30,21 +30,18 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkMergeImageFilter)
 
 protected:
-    SkMergeImageFilter(SkReadBuffer& buffer);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-
-    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
-                               SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
     SkMergeImageFilter(SkImageFilter* first, SkImageFilter* second,
                        SkXfermode::Mode = SkXfermode::kSrcOver_Mode,
                        const CropRect* cropRect = NULL);
     SkMergeImageFilter(SkImageFilter* filters[], int count,
                        const SkXfermode::Mode modes[] = NULL,
                        const CropRect* cropRect = NULL);
+    explicit SkMergeImageFilter(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
+
+    virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
+                               SkBitmap* result, SkIPoint* loc) const SK_OVERRIDE;
+
 private:
     uint8_t*            fModes; // SkXfermode::Mode
 

@@ -32,14 +32,10 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkStippleMaskFilter);
 
 protected:
-    SkStippleMaskFilter(SkReadBuffer& buffer)
-    : SkMaskFilter(buffer) {
-    }
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
     SkStippleMaskFilter() : INHERITED() {
+    }
+    explicit SkStippleMaskFilter(SkReadBuffer& buffer)
+        : SkMaskFilter(buffer) {
     }
 
 private:

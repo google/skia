@@ -31,6 +31,8 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPictureImageFilter)
 
 protected:
+    explicit SkPictureImageFilter(SkPicture* picture);
+    SkPictureImageFilter(SkPicture* picture, const SkRect& cropRect);
     virtual ~SkPictureImageFilter();
     /*  Constructs an SkPictureImageFilter object from an SkReadBuffer.
      *  Note: If the SkPictureImageFilter object construction requires bitmap
@@ -42,12 +44,6 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     virtual bool onFilterImage(Proxy*, const SkBitmap& src, const Context&,
                                SkBitmap* result, SkIPoint* offset) const SK_OVERRIDE;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
-    explicit SkPictureImageFilter(SkPicture* picture);
-    SkPictureImageFilter(SkPicture* picture, const SkRect& cropRect);
 
 private:
     SkPicture* fPicture;

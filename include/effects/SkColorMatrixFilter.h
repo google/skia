@@ -39,14 +39,10 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkColorMatrixFilter)
 
 protected:
-    SkColorMatrixFilter(SkReadBuffer& buffer);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
     explicit SkColorMatrixFilter(const SkColorMatrix&);
-    SkColorMatrixFilter(const SkScalar array[20]);
+    explicit SkColorMatrixFilter(const SkScalar array[20]);
+    explicit SkColorMatrixFilter(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     SkColorMatrix fMatrix;

@@ -51,17 +51,13 @@ public:
 #endif
 
 protected:
-    explicit SkDisplacementMapEffect(SkReadBuffer& buffer);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
     SkDisplacementMapEffect(ChannelSelectorType xChannelSelector,
                             ChannelSelectorType yChannelSelector,
                             SkScalar scale, SkImageFilter* displacement,
                             SkImageFilter* color = NULL,
                             const CropRect* cropRect = NULL);
+    explicit SkDisplacementMapEffect(SkReadBuffer& buffer);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     ChannelSelectorType fXChannelSelector;

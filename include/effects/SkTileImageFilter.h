@@ -32,15 +32,11 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTileImageFilter)
 
 protected:
+    SkTileImageFilter(const SkRect& srcRect, const SkRect& dstRect, SkImageFilter* input)
+        : INHERITED(input), fSrcRect(srcRect), fDstRect(dstRect) {}
     explicit SkTileImageFilter(SkReadBuffer& buffer);
 
     virtual void flatten(SkWriteBuffer& buffer) const SK_OVERRIDE;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
-    SkTileImageFilter(const SkRect& srcRect, const SkRect& dstRect, SkImageFilter* input)
-        : INHERITED(input), fSrcRect(srcRect), fDstRect(dstRect) {}
 
 private:
     SkRect fSrcRect;

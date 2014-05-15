@@ -216,7 +216,8 @@ public:
     SK_DEFINE_FLATTENABLE_TYPE(SkXfermode)
 
 protected:
-    SkXfermode(SkReadBuffer& rb) : SkFlattenable(rb) {}
+    SkXfermode() {}
+    explicit SkXfermode(SkReadBuffer& rb) : SkFlattenable(rb) {}
 
     /** The default implementation of xfer32/xfer16/xferA8 in turn call this
         method, 1 color at a time (upscaled to a SkPMColor). The default
@@ -227,11 +228,6 @@ protected:
         be implemented if your subclass has overridden xfer32/xfer16/xferA8
     */
     virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst) const;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
-    SkXfermode() {}
 
 private:
     enum {

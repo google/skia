@@ -53,14 +53,10 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTableMaskFilter)
 
 protected:
-    SkTableMaskFilter(SkReadBuffer& rb);
-    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
     SkTableMaskFilter();
-    SkTableMaskFilter(const uint8_t table[256]);
+    explicit SkTableMaskFilter(const uint8_t table[256]);
+    explicit SkTableMaskFilter(SkReadBuffer& rb);
+    virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
 private:
     uint8_t fTable[256];

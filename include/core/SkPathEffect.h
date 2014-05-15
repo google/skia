@@ -189,13 +189,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkComposePathEffect)
 
 protected:
-    SkComposePathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
     SkComposePathEffect(SkPathEffect* outer, SkPathEffect* inner)
         : INHERITED(outer, inner) {}
+    explicit SkComposePathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     // illegal
@@ -227,13 +223,9 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkSumPathEffect)
 
 protected:
-    SkSumPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
     SkSumPathEffect(SkPathEffect* first, SkPathEffect* second)
         : INHERITED(first, second) {}
+    explicit SkSumPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {}
 
 private:
     // illegal

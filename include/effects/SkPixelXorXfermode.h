@@ -25,16 +25,12 @@ public:
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkPixelXorXfermode)
 
 protected:
-    SkPixelXorXfermode(SkReadBuffer& rb);
+    explicit SkPixelXorXfermode(SkColor opColor) : fOpColor(opColor) {}
+    explicit SkPixelXorXfermode(SkReadBuffer& rb);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
 
     // override from SkXfermode
     virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst) const;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
-    SkPixelXorXfermode(SkColor opColor) : fOpColor(opColor) {}
 
 private:
     SkColor fOpColor;

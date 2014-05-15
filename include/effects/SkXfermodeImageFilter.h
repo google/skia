@@ -43,14 +43,10 @@ public:
 #endif
 
 protected:
+    SkXfermodeImageFilter(SkXfermode* mode, SkImageFilter* background,
+                          SkImageFilter* foreground, const CropRect* cropRect);
     explicit SkXfermodeImageFilter(SkReadBuffer& buffer);
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
-
-#ifdef SK_SUPPORT_LEGACY_PUBLICEFFECTCONSTRUCTORS
-public:
-#endif
-    SkXfermodeImageFilter(SkXfermode* mode, SkImageFilter* background,
-                          SkImageFilter* foreground = NULL, const CropRect* cropRect = NULL);
 
 private:
     SkXfermode* fMode;
