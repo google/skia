@@ -19,7 +19,7 @@ SKPTask::SKPTask(Reporter* r, TaskRunner* tr, SkPicture* pic, SkString filename)
 
 void SKPTask::draw() {
     SkBitmap bitmap;
-    SetupBitmap(kN32_SkColorType, *fPicture, &bitmap);
+    AllocatePixels(kN32_SkColorType, fPicture->width(), fPicture->height(), &bitmap);
     DrawPicture(fPicture, &bitmap);
 
     this->spawnChild(SkNEW_ARGS(RecordTask,

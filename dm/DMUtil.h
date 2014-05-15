@@ -20,11 +20,10 @@ SkPicture* RecordPicture(skiagm::GM* gm,
                          uint32_t recordFlags = 0,
                          SkBBHFactory* factory = NULL);
 
-// Prepare bitmap to have gm, bench or picture draw into it with this config.
-// TODO(mtklein): make SkBenchmark::getSize()/GM::getISize() const.
-void SetupBitmap(SkColorType, skiagm::GM* gm, SkBitmap* bitmap);
-void SetupBitmap(SkColorType, SkBenchmark* bench, SkBitmap* bitmap);
-void SetupBitmap(SkColorType, const SkPicture& picture, SkBitmap* bitmap);
+// Allocate an empty bitmap with this size and depth.
+void AllocatePixels(SkColorType, int w, int h, SkBitmap* bitmap);
+// Allocate an empty bitmap the same size and depth as reference.
+void AllocatePixels(const SkBitmap& reference, SkBitmap* bitmap);
 
 // Draw picture to bitmap.
 void DrawPicture(SkPicture* picture, SkBitmap* bitmap);

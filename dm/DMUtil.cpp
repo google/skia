@@ -21,21 +21,13 @@ SkPicture* RecordPicture(skiagm::GM* gm, uint32_t recordFlags, SkBBHFactory* fac
     return recorder.endRecording();
 }
 
-static void setup_bitmap(SkColorType ct, int width, int height, SkBitmap* bitmap) {
+void AllocatePixels(SkColorType ct, int width, int height, SkBitmap* bitmap) {
     bitmap->allocPixels(SkImageInfo::Make(width, height, ct, kPremul_SkAlphaType));
     bitmap->eraseColor(0x00000000);
 }
 
-void SetupBitmap(SkColorType ct, skiagm::GM* gm, SkBitmap* bitmap) {
-    setup_bitmap(ct, gm->getISize().width(), gm->getISize().height(), bitmap);
-}
-
-void SetupBitmap(SkColorType ct, SkBenchmark* bench, SkBitmap* bitmap) {
-    setup_bitmap(ct, bench->getSize().x(), bench->getSize().y(), bitmap);
-}
-
-void SetupBitmap(SkColorType ct, const SkPicture& pic, SkBitmap* bitmap) {
-    setup_bitmap(ct, pic.width(), pic.height(), bitmap);
+void AllocatePixels(const SkBitmap& reference, SkBitmap* bitmap) {
+    AllocatePixels(reference.colorType(), reference.width(), reference.height(), bitmap);
 }
 
 void DrawPicture(SkPicture* picture, SkBitmap* bitmap) {

@@ -26,7 +26,7 @@ CpuGMTask::CpuGMTask(const char* config,
 
 void CpuGMTask::draw() {
     SkBitmap bitmap;
-    SetupBitmap(fColorType, fGM.get(), &bitmap);
+    AllocatePixels(fColorType, fGM->getISize().width(), fGM->getISize().height(), &bitmap);
 
     SkCanvas canvas(bitmap);
     canvas.concat(fGM->getInitialTransform());

@@ -47,11 +47,7 @@ void RecordTask::draw() {
 
     // Draw the SkRecord back into a bitmap.
     SkBitmap bitmap;
-    if (fGM.get()) {
-        SetupBitmap(fReference.colorType(), fGM.get(), &bitmap);
-    } else {
-        SetupBitmap(fReference.colorType(), *fPicture, &bitmap);
-    }
+    AllocatePixels(fReference, &bitmap);
     SkCanvas target(bitmap);
     SkRecordDraw(record, &target);
 

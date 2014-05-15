@@ -45,7 +45,7 @@ PipeTask::PipeTask(const Task& parent,
 
 void PipeTask::draw() {
     SkBitmap bitmap;
-    SetupBitmap(fReference.colorType(), fGM.get(), &bitmap);
+    AllocatePixels(fReference, &bitmap);
 
     SkCanvas canvas(bitmap);
     PipeController pipeController(&canvas, &SkImageDecoder::DecodeMemory);

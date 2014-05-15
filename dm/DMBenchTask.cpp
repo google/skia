@@ -54,7 +54,7 @@ bool GpuBenchTask::shouldSkip() const {
 
 static void draw_raster(SkBenchmark* bench, SkColorType colorType) {
     SkBitmap bitmap;
-    SetupBitmap(colorType, bench, &bitmap);
+    AllocatePixels(colorType, bench->getSize().x(), bench->getSize().y(), &bitmap);
     SkCanvas canvas(bitmap);
 
     bench->preDraw();

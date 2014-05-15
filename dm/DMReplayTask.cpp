@@ -30,7 +30,7 @@ void ReplayTask::draw() {
     SkAutoTUnref<SkPicture> recorded(RecordPicture(fGM.get(), 0, factory.get()));
 
     SkBitmap bitmap;
-    SetupBitmap(fReference.colorType(), fGM.get(), &bitmap);
+    AllocatePixels(fReference, &bitmap);
     DrawPicture(recorded, &bitmap);
     if (!BitmapsEqual(bitmap, fReference)) {
         this->fail();

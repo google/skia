@@ -25,7 +25,7 @@ void QuiltTask::draw() {
     SkAutoTUnref<SkPicture> recorded(RecordPicture(fGM.get()));
 
     SkBitmap full;
-    SetupBitmap(fReference.colorType(), fGM.get(), &full);
+    AllocatePixels(fReference, &full);
     SkCanvas fullCanvas(full);
 
     SkBitmap tile;
