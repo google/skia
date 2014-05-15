@@ -55,7 +55,7 @@ void SkBoxBlur_SSE2(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
         const SkPMColor* sptr = src;
         SkColor* dptr = dst;
         for (int x = 0; x < width; ++x) {
-#if 0
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
             // In SSE4.1, this would be
             __m128i result = _mm_mullo_epi32(sum, scale);
 #else
