@@ -417,4 +417,3 @@ void SkPaint2GrPaintShader(SkGpuDevice* dev, const SkPaint& skPaint,
         }
     }
 }
-
