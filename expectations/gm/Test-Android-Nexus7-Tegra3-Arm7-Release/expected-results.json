@@ -585,10 +585,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7223184661450870674
+          17064574350106356585
         ]
       ], 
-      "reviewed-by-human": false
+      "bugs": [
+        2561
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": true
     }, 
     "bitmapsource_565.png": {
       "allowed-digests": [
