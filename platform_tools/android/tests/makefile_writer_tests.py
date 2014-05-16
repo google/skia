@@ -119,7 +119,8 @@ def generate_dummy_tool_makefile(target_dir):
   """
   vars_dict = generate_dummy_vars_dict(None)
   tool_makefile_writer.write_tool_android_mk(target_dir=target_dir,
-                                             var_dict=vars_dict)
+                                             var_dict=vars_dict,
+                                             place_in_local_tmp=False)
 
 
 class MakefileWriterTest(unittest.TestCase):
