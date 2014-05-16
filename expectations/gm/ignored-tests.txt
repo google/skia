@@ -41,16 +41,3 @@ canvas-layer-state
 # bsalomon: https://codereview.chromium.org/264303008/
 # bsalomon@ will rebaseline this test
 ninepatch-stretch
-
-
-# These are part of picture-version 27 -- removal of SkUnitMapp
-# just need to be rebaselined
-scaled_tilemode_bitmap
-scaled_tilemodes_npot
-scaled_tilemodes
-tilemode_bitmap
-tilemodes_npot
-tilemodes
-shadertext3
-shadertext
-shadertext2

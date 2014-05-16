@@ -24,6 +24,7 @@
 #include "SkReader32.h"
 #include "SkRefCnt.h"
 #include "SkShader.h"
+#include "SkUnitMapper.h"
 #include "SkWriteBuffer.h"
 #include "SkXfermode.h"
 
@@ -109,13 +110,9 @@ public:
     SkPixelRef*    readPixelRef()    { return this->readFlattenable<SkPixelRef>(); }
     SkRasterizer*  readRasterizer()  { return this->readFlattenable<SkRasterizer>(); }
     SkShader*      readShader()      { return this->readFlattenable<SkShader>(); }
+    SkUnitMapper*  readUnitMapper()  { return this->readFlattenable<SkUnitMapper>(); }
     SkXfermode*    readXfermode()    { return this->readFlattenable<SkXfermode>(); }
 
-    /**
-     *  Like readFlattenable() but explicitly just skips the data that was written for the
-     *  flattenable (or the sentinel that there wasn't one).
-     */
-    virtual void skipFlattenable();
 
     // binary data and arrays
     virtual bool readByteArray(void* value, size_t size);

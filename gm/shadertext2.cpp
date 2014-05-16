@@ -7,6 +7,7 @@
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
+#include "SkUnitMappers.h"
 
 namespace skiagm {
 
@@ -25,8 +26,14 @@ static void makebm(SkBitmap* bm, int w, int h) {
 
     SkPaint     paint;
 
+    SkUnitMapper*   um = NULL;
+
+    um = new SkCosineMapper;
+
+    SkAutoUnref au(um);
+
     paint.setShader(SkGradientShader::CreateLinear(kPts0, kColors0, kPos,
-                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode))->unref();
+                    SK_ARRAY_COUNT(kColors0), SkShader::kClamp_TileMode, um))->unref();
     canvas.drawPaint(paint);
     paint.setShader(SkGradientShader::CreateLinear(kPts1, kColors1, kPos,
                     SK_ARRAY_COUNT(kColors1), SkShader::kClamp_TileMode))->unref();

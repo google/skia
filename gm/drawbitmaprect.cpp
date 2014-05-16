@@ -63,7 +63,7 @@ static void makebm(SkBitmap* bm, int w, int h) {
                         colors, pos,
                         SK_ARRAY_COUNT(colors),
                         SkShader::kRepeat_TileMode,
-                        0, &mat))->unref();
+                        NULL, 0, &mat))->unref();
         canvas.drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.postScale(SK_Scalar1 / 4, SK_Scalar1 / 4);

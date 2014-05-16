@@ -21,10 +21,6 @@ class SkXfermode;
 class GrContext;
 class GrEffectRef;
 
-#ifdef SK_SUPPORT_LEGACY_DEADUNITMAPPERTYPE
-    class SkDeadUnitMapperType;
-#endif
-
 /** \class SkShader
  *
  *  Shaders specify the source color(s) for what is being drawn. If a paint

@@ -13,6 +13,7 @@
 #include "SkDraw.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
+#include "SkUnitMappers.h"
 
 class HelloSkia : public SkExample {
 public:
@@ -49,9 +50,12 @@ protected:
             };
             SkColor linearColors[] = {SK_ColorGREEN, SK_ColorBLACK};
 
+            SkUnitMapper* linearMapper = new SkDiscreteMapper(100);
+            SkAutoUnref lm_deleter(linearMapper);
+
             SkShader* shader = SkGradientShader::CreateLinear(
                     linearPoints, linearColors, NULL, 2,
-                    SkShader::kMirror_TileMode);
+                    SkShader::kMirror_TileMode, linearMapper);
             SkAutoUnref shader_deleter(shader);
 
             paint.setShader(shader);

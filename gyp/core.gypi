@@ -307,6 +307,7 @@
         '<(skia_include_path)/core/SkTypeface.h',
         '<(skia_include_path)/core/SkTypes.h',
         '<(skia_include_path)/core/SkUnPreMultiply.h',
+        '<(skia_include_path)/core/SkUnitMapper.h',
         '<(skia_include_path)/core/SkUtils.h',
         '<(skia_include_path)/core/SkWeakRefCnt.h',
         '<(skia_include_path)/core/SkWriter32.h',

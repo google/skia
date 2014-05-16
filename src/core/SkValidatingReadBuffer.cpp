@@ -273,15 +273,3 @@ SkFlattenable* SkValidatingReadBuffer::readFlattenable(SkFlattenable::Type type)
     }
     return obj;
 }
-
-void SkValidatingReadBuffer::skipFlattenable() {
-    SkString name;
-    this->readString(&name);
-    if (fError) {
-        return;
-    }
-    uint32_t sizeRecorded = this->readUInt();
-    this->skip(sizeRecorded);
-}
-
-

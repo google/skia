@@ -13,6 +13,7 @@
 #include "SkPaint.h"
 #include "SkShader.h"
 #include "SkString.h"
+#include "SkUnitMapper.h"
 
 struct GradData {
     int             fCount;
@@ -44,33 +45,38 @@ static const GradData gGradData[] = {
 
 /// Ignores scale
 static SkShader* MakeLinear(const SkPoint pts[2], const GradData& data,
-                            SkShader::TileMode tm, float scale) {
-    return SkGradientShader::CreateLinear(pts, data.fColors, data.fPos, data.fCount, tm);
+                            SkShader::TileMode tm, SkUnitMapper* mapper,
+                            float scale) {
+    return SkGradientShader::CreateLinear(pts, data.fColors, data.fPos,
+                                          data.fCount, tm, mapper);
 }
 
 static SkShader* MakeRadial(const SkPoint pts[2], const GradData& data,
-                            SkShader::TileMode tm, float scale) {
+                            SkShader::TileMode tm, SkUnitMapper* mapper,
+                            float scale) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
     return SkGradientShader::CreateRadial(center, center.fX * scale,
                                           data.fColors,
-                                          data.fPos, data.fCount, tm);
+                                          data.fPos, data.fCount, tm, mapper);
 }
 
 /// Ignores scale
 static SkShader* MakeSweep(const SkPoint pts[2], const GradData& data,
-                           SkShader::TileMode tm, float scale) {
+                           SkShader::TileMode tm, SkUnitMapper* mapper,
+                           float scale) {
     SkPoint center;
     center.set(SkScalarAve(pts[0].fX, pts[1].fX),
                SkScalarAve(pts[0].fY, pts[1].fY));
     return SkGradientShader::CreateSweep(center.fX, center.fY, data.fColors,
-                                         data.fPos, data.fCount);
+                                         data.fPos, data.fCount, mapper);
 }
 
 /// Ignores scale
 static SkShader* Make2Radial(const SkPoint pts[2], const GradData& data,
-                             SkShader::TileMode tm, float scale) {
+                             SkShader::TileMode tm, SkUnitMapper* mapper,
+                             float scale) {
     SkPoint center0, center1;
     center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
@@ -79,12 +85,13 @@ static SkShader* Make2Radial(const SkPoint pts[2], const GradData& data,
     return SkGradientShader::CreateTwoPointRadial(
                                                   center1, (pts[1].fX - pts[0].fX) / 7,
                                                   center0, (pts[1].fX - pts[0].fX) / 2,
-                                                  data.fColors, data.fPos, data.fCount, tm);
+                                                  data.fColors, data.fPos, data.fCount, tm, mapper);
 }
 
 /// Ignores scale
 static SkShader* MakeConical(const SkPoint pts[2], const GradData& data,
-                             SkShader::TileMode tm, float scale) {
+                             SkShader::TileMode tm, SkUnitMapper* mapper,
+                             float scale) {
     SkPoint center0, center1;
     center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
@@ -92,12 +99,13 @@ static SkShader* MakeConical(const SkPoint pts[2], const GradData& data,
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
     return SkGradientShader::CreateTwoPointConical(center1, (pts[1].fX - pts[0].fX) / 7,
                                                    center0, (pts[1].fX - pts[0].fX) / 2,
-                                                   data.fColors, data.fPos, data.fCount, tm);
+                                                   data.fColors, data.fPos, data.fCount, tm, mapper);
 }
 
 /// Ignores scale
 static SkShader* MakeConicalZeroRad(const SkPoint pts[2], const GradData& data,
-                                    SkShader::TileMode tm, float scale) {
+                                    SkShader::TileMode tm, SkUnitMapper* mapper,
+                                    float scale) {
     SkPoint center0, center1;
     center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
                 SkScalarAve(pts[0].fY, pts[1].fY));
@@ -105,12 +113,13 @@ static SkShader* MakeConicalZeroRad(const SkPoint pts[2], const GradData& data,
                 SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
     return SkGradientShader::CreateTwoPointConical(center1, 0.0,
                                                    center0, (pts[1].fX - pts[0].fX) / 2,
-                                                   data.fColors, data.fPos, data.fCount, tm);
+                                                   data.fColors, data.fPos, data.fCount, tm, mapper);
 }
 
 /// Ignores scale
 static SkShader* MakeConicalOutside(const SkPoint pts[2], const GradData& data,
-                                    SkShader::TileMode tm, float scale) {
+                                    SkShader::TileMode tm, SkUnitMapper* mapper,
+                                    float scale) {
     SkPoint center0, center1;
     SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 10);
     SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
@@ -119,12 +128,13 @@ static SkShader* MakeConicalOutside(const SkPoint pts[2], const GradData& data,
     return SkGradientShader::CreateTwoPointConical(center0, radius0,
                                                    center1, radius1,
                                                    data.fColors, data.fPos,
-                                                   data.fCount, tm);
+                                                   data.fCount, tm, mapper);
 }
 
 /// Ignores scale
 static SkShader* MakeConicalOutsideZeroRad(const SkPoint pts[2], const GradData& data,
-                                           SkShader::TileMode tm, float scale) {
+                                           SkShader::TileMode tm, SkUnitMapper* mapper,
+                                           float scale) {
     SkPoint center0, center1;
     SkScalar radius0 = SkScalarDiv(pts[1].fX - pts[0].fX, 10);
     SkScalar radius1 = SkScalarDiv(pts[1].fX - pts[0].fX, 3);
@@ -133,11 +143,12 @@ static SkShader* MakeConicalOutsideZeroRad(const SkPoint pts[2], const GradData&
     return SkGradientShader::CreateTwoPointConical(center0, 0.0,
                                                    center1, radius1,
                                                    data.fColors, data.fPos,
-                                                   data.fCount, tm);
+                                                   data.fCount, tm, mapper);
 }
 
 typedef SkShader* (*GradMaker)(const SkPoint pts[2], const GradData& data,
-                               SkShader::TileMode tm, float scale);
+                               SkShader::TileMode tm, SkUnitMapper* mapper,
+                               float scale);
 
 static const struct {
     GradMaker   fMaker;
@@ -229,7 +240,7 @@ public:
             { SkIntToScalar(W), SkIntToScalar(H) }
         };
 
-        fShader = gGrads[gradType].fMaker(pts, data, tm, scale);
+        fShader = gGrads[gradType].fMaker(pts, data, tm, NULL, scale);
         fGeomType = geomType;
     }
 
