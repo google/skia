@@ -22,12 +22,13 @@
 
 namespace skiagm {
 
+#ifdef SK_BUILD_JSON_WRITER
     Json::Value CreateJsonTree(Json::Value expectedResults,
                                Json::Value actualResultsFailed,
                                Json::Value actualResultsFailureIgnored,
                                Json::Value actualResultsNoComparison,
                                Json::Value actualResultsSucceeded);
-
+#endif
     /**
      * The digest of a GM test result.
      *
@@ -41,12 +42,14 @@ namespace skiagm {
          */
         explicit GmResultDigest(const SkBitmap &bitmap);
 
+#ifdef SK_BUILD_JSON_WRITER
         /**
          * Create a ResultDigest representing an allowed result
          * checksum within JSON expectations file, in the form
          * ["bitmap-64bitMD5", 12345].
          */
         explicit GmResultDigest(const Json::Value &jsonTypeValuePair);
+#endif
 
         /**
          * Returns true if this GmResultDigest was fully and successfully
@@ -60,11 +63,13 @@ namespace skiagm {
          */
         bool equals(const GmResultDigest &other) const;
 
+#ifdef SK_BUILD_JSON_WRITER
         /**
          * Returns a JSON type/value pair representing this result,
          * such as ["bitmap-64bitMD5", 12345].
          */
         Json::Value asJsonTypeValuePair() const;
+#endif
 
         /**
          * Returns the hashtype, such as "bitmap-64bitMD5", as an SkString.
@@ -113,6 +118,7 @@ namespace skiagm {
          */
         explicit Expectations(const BitmapAndDigest& bitmapAndDigest);
 
+#ifdef SK_BUILD_JSON_WRITER
         /**
          * Create Expectations from a JSON element as found within the
          * kJsonKey_ExpectedResults section.
@@ -121,6 +127,7 @@ namespace skiagm {
          * don't have any expectations.
          */
         explicit Expectations(Json::Value jsonElement);
+#endif
 
         /**
          * Returns true iff we want to ignore failed expectations.
@@ -154,10 +161,12 @@ namespace skiagm {
             return (SkBitmap::kNo_Config == fBitmap.config()) ? NULL : &fBitmap;
         }
 
+#ifdef SK_BUILD_JSON_WRITER
         /**
          * Return a JSON representation of the expectations.
          */
         Json::Value asJsonValue() const;
+#endif
 
     private:
         const static bool kDefaultIgnoreFailure = false;
@@ -200,6 +209,7 @@ namespace skiagm {
         const SkString fRootDir;
     };
 
+#ifdef SK_BUILD_JSON_WRITER
     /**
      * Return Expectations based on JSON summary file.
      */
@@ -227,6 +237,7 @@ namespace skiagm {
         Json::Value fJsonRoot;
         Json::Value fJsonExpectedResults;
     };
+#endif // SK_BUILD_JSON_WRITER
 
 }
 #endif
