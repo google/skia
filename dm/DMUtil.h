@@ -28,6 +28,9 @@ void AllocatePixels(const SkBitmap& reference, SkBitmap* bitmap);
 // Draw picture to bitmap.
 void DrawPicture(SkPicture* picture, SkBitmap* bitmap);
 
+// What is the maximum component difference in these bitmaps?
+unsigned MaxComponentDifference(const SkBitmap& a, const SkBitmap& b);
+
 // Are these identical bitmaps?
 bool BitmapsEqual(const SkBitmap& a, const SkBitmap& b);
 

@@ -1,5 +1,6 @@
 #include "DMUtil.h"
 
+#include "SkColorPriv.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 
@@ -38,9 +39,52 @@ void DrawPicture(SkPicture* picture, SkBitmap* bitmap) {
     canvas.flush();
 }
 
-bool BitmapsEqual(const SkBitmap& a, const SkBitmap& b) {
+static void unpack_565(uint16_t pixel, unsigned* r, unsigned* g, unsigned* b) {
+    *r = SkGetPackedR16(pixel);
+    *g = SkGetPackedG16(pixel);
+    *b = SkGetPackedB16(pixel);
+}
+
+// Returns |a-b|.
+static unsigned abs_diff(unsigned a, unsigned b) {
+    return a > b ? a - b : b - a;
+}
+
+unsigned MaxComponentDifference(const SkBitmap& a, const SkBitmap& b) {
+    if (a.info() != b.info()) {
+        SkFAIL("Can't compare bitmaps of different shapes.");
+    }
+
+    unsigned max = 0;
+
     const SkAutoLockPixels lockA(a), lockB(b);
-    return a.getSize() == b.getSize() && 0 == memcmp(a.getPixels(), b.getPixels(), b.getSize());
+    if (a.info().colorType() == kRGB_565_SkColorType) {
+        // 565 is special/annoying because its 3 components straddle 2 bytes.
+        const uint16_t* aPixels = (const uint16_t*)a.getPixels();
+        const uint16_t* bPixels = (const uint16_t*)b.getPixels();
+        for (size_t i = 0; i < a.getSize() / 2; i++) {
+            unsigned ar, ag, ab,
+                     br, bg, bb;
+            unpack_565(aPixels[i], &ar, &ag, &ab);
+            unpack_565(bPixels[i], &br, &bg, &bb);
+            max = SkTMax(max, abs_diff(ar, br));
+            max = SkTMax(max, abs_diff(ag, bg));
+            max = SkTMax(max, abs_diff(ab, bb));
+        }
+    } else {
+        // Everything else we produce is byte aligned, so max component diff == max byte diff.
+        const uint8_t* aBytes = (const uint8_t*)a.getPixels();
+        const uint8_t* bBytes = (const uint8_t*)b.getPixels();
+        for (size_t i = 0; i < a.getSize(); i++) {
+            max = SkTMax(max, abs_diff(aBytes[i], bBytes[i]));
+        }
+    }
+
+    return max;
+}
+
+bool BitmapsEqual(const SkBitmap& a, const SkBitmap& b) {
+    return a.info() == b.info() && 0 == MaxComponentDifference(a, b);
 }
 
 }  // namespace DM
