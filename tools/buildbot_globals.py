@@ -12,6 +12,7 @@ Provides read access to buildbot's global_variables.json .
 from contextlib import closing
 
 import HTMLParser
+import base64
 import json
 import re
 import svn
@@ -22,8 +23,9 @@ import urllib2
 _global_vars = None
 
 
-GLOBAL_VARS_JSON_URL = ('http://skia-tree-status.appspot.com/repo-serving/'
-                        'buildbot/site_config/global_variables.json')
+_GLOBAL_VARS_JSON_BASE64_URL = (
+    'https://skia.googlesource.com/buildbot/+/master/'
+    'site_config/global_variables.json?format=TEXT')
 
 
 class GlobalVarsRetrievalError(Exception):
@@ -46,21 +48,9 @@ class NoSuchGlobalVariable(KeyError):
   pass
 
 
-def retrieve_from_mirror(url):
-  """Retrieve the given file from the Skia Buildbot repo mirror.
-
-  Args:
-      url: string; the URL of the file to retrieve.
-  Returns:
-      The contents of the file in the repository.
-  """
-  with closing(urllib2.urlopen(url)) as f:
-    return f.read()
-
-
 def Get(var_name):
   """Return the value associated with this name in global_variables.json.
-  
+
   Args:
       var_name: string; the variable to look up.
   Returns:
@@ -71,10 +61,11 @@ def Get(var_name):
   global _global_vars
   if not _global_vars:
     try:
-      global_vars_text = retrieve_from_mirror(GLOBAL_VARS_JSON_URL)
+      with closing(urllib2.urlopen(_GLOBAL_VARS_JSON_BASE64_URL)) as f:
+        global_vars_text = base64.b64decode(f.read())
     except Exception as e:
       raise GlobalVarsRetrievalError('Failed to retrieve %s:\n%s' %
-                                     (GLOBAL_VARS_JSON_URL, str(e)))
+                                     (_GLOBAL_VARS_JSON_BASE64_URL, str(e)))
     try:
       _global_vars = json.loads(global_vars_text)
     except ValueError as e:
