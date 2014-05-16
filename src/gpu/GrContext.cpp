@@ -268,13 +268,13 @@ GrStencilBuffer* GrContext::findStencilBuffer(int width, int height,
     return static_cast<GrStencilBuffer*>(resource);
 }
 
-static void stretchImage(void* dst,
-                         int dstW,
-                         int dstH,
-                         void* src,
-                         int srcW,
-                         int srcH,
-                         size_t bpp) {
+static void stretch_image(void* dst,
+                          int dstW,
+                          int dstH,
+                          void* src,
+                          int srcW,
+                          int srcH,
+                          size_t bpp) {
     SkFixed dx = (srcW << 16) / dstW;
     SkFixed dy = (srcH << 16) / dstH;
 
@@ -364,13 +364,12 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         rtDesc.fHeight = GrNextPow2(desc.fHeight);
         size_t bpp = GrBytesPerPixel(desc.fConfig);
         SkAutoSMalloc<128*128*4> stretchedPixels(bpp * rtDesc.fWidth * rtDesc.fHeight);
-        stretchImage(stretchedPixels.get(), rtDesc.fWidth, rtDesc.fHeight,
-                     srcData, desc.fWidth, desc.fHeight, bpp);
+        stretch_image(stretchedPixels.get(), rtDesc.fWidth, rtDesc.fHeight,
+                      srcData, desc.fWidth, desc.fHeight, bpp);
 
         size_t stretchedRowBytes = rtDesc.fWidth * bpp;
 
-        SkDEBUGCODE(GrTexture* texture = )fGpu->createTexture(rtDesc, stretchedPixels.get(),
-                                                              stretchedRowBytes);
+        texture = fGpu->createTexture(rtDesc, stretchedPixels.get(), stretchedRowBytes);
         SkASSERT(NULL != texture);
     }
 
