@@ -21,7 +21,7 @@
 #include "DMTestTask.h"
 #include "DMWriteTask.h"
 
-#include <string.h>
+#include <ctype.h>
 
 using skiagm::GM;
 using skiagm::GMRegistry;
@@ -32,7 +32,10 @@ DEFINE_int32(threads, -1, "Threads for CPU work. Default NUM_CPUS.");
 DEFINE_int32(gpuThreads, 1, "Threads for GPU work.");
 DEFINE_string2(expectations, r, "",
                "If a directory, compare generated images against images under this path. "
-               "If a file, compare generated images against JSON expectations at this path.");
+#ifdef SK_BUILD_JSON_WRITER
+               "If a file, compare generated images against JSON expectations at this path."
+#endif
+);
 DEFINE_string2(resources, i, "resources", "Path to resources directory.");
 DEFINE_string(match, "",  "[~][^]substring[$] [...] of GM name to run.\n"
                           "Multiple matches may be separated by spaces.\n"
@@ -225,7 +228,9 @@ int tool_main(int argc, char** argv) {
             if (sk_isdir(path)) {
                 expectations.reset(SkNEW_ARGS(DM::WriteTask::Expectations, (path)));
             } else {
+#ifdef SK_BUILD_JSON_WRITER
                 expectations.reset(SkNEW_ARGS(DM::JsonExpectations, (path)));
+#endif
             }
         }
     }

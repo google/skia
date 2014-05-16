@@ -19,6 +19,7 @@ public:
     bool check(const Task&, SkBitmap) const SK_OVERRIDE { return true; }
 };
 
+#ifdef SK_BUILD_JSON_WRITER
 class JsonExpectations : public Expectations {
 public:
     explicit JsonExpectations(const char* path) : fGMExpectations(path) {}
@@ -40,6 +41,7 @@ public:
 private:
     skiagm::JsonExpectationsSource fGMExpectations;
 };
+#endif
 
 }  // namespace DM
 

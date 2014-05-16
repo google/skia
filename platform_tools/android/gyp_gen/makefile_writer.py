@@ -124,6 +124,9 @@ include $(BASE_PATH)/gm/Android.mk
 
 # unit-tests
 include $(BASE_PATH)/tests/Android.mk
+
+# diamond-master (one test to rule them all)
+include $(BASE_PATH)/dm/Android.mk
 """
 )
 

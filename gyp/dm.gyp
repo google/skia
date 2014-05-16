@@ -59,5 +59,15 @@
             'gputest.gyp:skgputest',
             'record.gyp:*',
         ],
+        'conditions': [
+          ['skia_android_framework',
+            {
+              'libraries': [
+                '-lskia',
+                '-lcutils',
+              ],
+            },
+          ],
+        ],
     }]
 }
