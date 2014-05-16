@@ -30,12 +30,16 @@ using skiatest::TestRegistry;
 
 DEFINE_int32(threads, -1, "Threads for CPU work. Default NUM_CPUS.");
 DEFINE_int32(gpuThreads, 1, "Threads for GPU work.");
+#ifdef SK_BUILD_JSON_WRITER
 DEFINE_string2(expectations, r, "",
                "If a directory, compare generated images against images under this path. "
-#ifdef SK_BUILD_JSON_WRITER
                "If a file, compare generated images against JSON expectations at this path."
-#endif
 );
+#else
+DEFINE_string2(expectations, r, "",
+               "If a directory, compare generated images against images under this path. "
+);
+#endif
 DEFINE_string2(resources, i, "resources", "Path to resources directory.");
 DEFINE_string(match, "",  "[~][^]substring[$] [...] of GM name to run.\n"
                           "Multiple matches may be separated by spaces.\n"
