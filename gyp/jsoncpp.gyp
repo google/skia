@@ -19,38 +19,42 @@
     {
       'target_name': 'jsoncpp',
       'type': 'static_library',
-      'defines': [
-        'JSON_USE_EXCEPTION=0',
-      ],
-      'sources': [
-        '../third_party/externals/jsoncpp/include/json/assertions.h',
-        '../third_party/externals/jsoncpp/include/json/autolink.h',
-        '../third_party/externals/jsoncpp/include/json/config.h',
-        '../third_party/externals/jsoncpp/include/json/features.h',
-        '../third_party/externals/jsoncpp/include/json/forwards.h',
-        '../third_party/externals/jsoncpp/include/json/json.h',
-        '../third_party/externals/jsoncpp/include/json/reader.h',
-        '../third_party/externals/jsoncpp-chromium/overrides/include/json/value.h',
-        '../third_party/externals/jsoncpp/include/json/writer.h',
-        '../third_party/externals/jsoncpp/src/lib_json/json_batchallocator.h',
-        '../third_party/externals/jsoncpp/src/lib_json/json_reader.cpp',
-        '../third_party/externals/jsoncpp/src/lib_json/json_tool.h',
-        '../third_party/externals/jsoncpp-chromium/overrides/src/lib_json/json_value.cpp',
-        '../third_party/externals/jsoncpp/src/lib_json/json_writer.cpp',
-      ],
-      'include_dirs': [
-        '../third_party/externals/jsoncpp-chromium/overrides/include/',
-        '../third_party/externals/jsoncpp/include/',
-        '../third_party/externals/jsoncpp/src/lib_json/',
-      ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '../third_party/externals/jsoncpp-chromium/overrides/include/',
-          '../third_party/externals/jsoncpp/include/',
-        ],
-      },
-      'cflags': [
-        '-w',
+      'conditions': [
+        ['skia_build_json_writer', {
+          'defines': [
+            'JSON_USE_EXCEPTION=0',
+          ],
+          'sources': [
+            '../third_party/externals/jsoncpp/include/json/assertions.h',
+            '../third_party/externals/jsoncpp/include/json/autolink.h',
+            '../third_party/externals/jsoncpp/include/json/config.h',
+            '../third_party/externals/jsoncpp/include/json/features.h',
+            '../third_party/externals/jsoncpp/include/json/forwards.h',
+            '../third_party/externals/jsoncpp/include/json/json.h',
+            '../third_party/externals/jsoncpp/include/json/reader.h',
+            '../third_party/externals/jsoncpp-chromium/overrides/include/json/value.h',
+            '../third_party/externals/jsoncpp/include/json/writer.h',
+            '../third_party/externals/jsoncpp/src/lib_json/json_batchallocator.h',
+            '../third_party/externals/jsoncpp/src/lib_json/json_reader.cpp',
+            '../third_party/externals/jsoncpp/src/lib_json/json_tool.h',
+            '../third_party/externals/jsoncpp-chromium/overrides/src/lib_json/json_value.cpp',
+            '../third_party/externals/jsoncpp/src/lib_json/json_writer.cpp',
+          ],
+          'include_dirs': [
+            '../third_party/externals/jsoncpp-chromium/overrides/include/',
+            '../third_party/externals/jsoncpp/include/',
+            '../third_party/externals/jsoncpp/src/lib_json/',
+          ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+              '../third_party/externals/jsoncpp-chromium/overrides/include/',
+              '../third_party/externals/jsoncpp/include/',
+            ],
+          },
+          'cflags': [
+            '-w',
+          ],
+        }],
       ],
     },
   ],

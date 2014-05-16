@@ -135,14 +135,14 @@ def main(target_dir=None, require_sk_user_config=False):
                                        local_module_name='skia_test',
                                        local_module_tags=['eng', 'tests'])
 
-    # TODO (scroggo): Generate bench/Android.mk. See skbug.com/2448
-    #tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
-    #                                   target_file='bench.gyp',
-    #                                   skia_trunk=target_dir,
-    #                                   dest_dir='bench',
-    #                                   skia_lib_var_dict=common,
-    #                                   local_module_name='skia_bench',
-    #                                   local_module_tags=['tests'])
+    tool_makefile_writer.generate_tool(gyp_dir=tmp_folder,
+                                       target_file='bench.gyp',
+                                       skia_trunk=target_dir,
+                                       dest_dir='bench',
+                                       skia_lib_var_dict=common,
+                                       local_module_name='skia_bench',
+                                       local_module_tags=['tests'],
+                                       place_in_local_tmp=True)
 
     # Now that the defines have been written to SkUserConfig and they've been
     # used to skip adding them to the tools makefiles, they are not needed in

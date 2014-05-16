@@ -33,6 +33,14 @@
             ],
           },
         ],
+        ['skia_android_framework == 1',
+          {
+            'libraries': [
+              '-lskia',
+              '-lcutils',
+            ],
+          },
+        ],
       ],
       'includes': [
         'bench.gypi',

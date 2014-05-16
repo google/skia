@@ -639,6 +639,12 @@
       ],
     }],
 
+    [ 'skia_build_json_writer', {
+      'defines': [
+        'SK_BUILD_JSON_WRITER',
+      ]
+    }],
+
   ], # end 'conditions'
   # The Xcode SYMROOT must be at the root. See build/common.gypi in chromium for more details
   'xcode_settings': {

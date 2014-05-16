@@ -60,9 +60,13 @@
         [ 'skia_android_framework == 1', {
           'skia_os%': 'android',
           'skia_chrome_utils%': 0,
+          # FIXME (scroggo): JSON is disabled in Android framework until we
+          # solve skbug.com/2448
+          'skia_build_json_writer%': 0,
         }, {
           'skia_os%': '<(skia_os)',
           'skia_chrome_utils%': 1,
+          'skia_build_json_writer%': 1,
         }],
         [ 'skia_os == "win"', {
           'os_posix%': 0,
@@ -198,6 +202,7 @@
     'skia_mesa%': '<(skia_mesa)',
     'skia_stroke_path_rendering%': '<(skia_stroke_path_rendering)',
     'skia_android_framework%': '<(skia_android_framework)',
+    'skia_build_json_writer%': '<(skia_build_json_writer)',
     'skia_android_path_rendering%': '<(skia_android_path_rendering)',
     'skia_resource_cache_mb_limit%': '<(skia_resource_cache_mb_limit)',
     'skia_resource_cache_count_limit%': '<(skia_resource_cache_count_limit)',

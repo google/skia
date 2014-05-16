@@ -97,6 +97,9 @@ def parse_dictionary(var_dict, d, current_target_name, dest_dir):
       # wants relative to dest_dir.
       rel_include = os.path.relpath(include, os.pardir)
       rel_include = os.path.relpath(rel_include, dest_dir)
+      # No need to include the base directory.
+      if rel_include is os.curdir:
+        continue
       rel_include = os.path.join('$(LOCAL_PATH)', rel_include)
 
     # Remove a trailing slash, if present.

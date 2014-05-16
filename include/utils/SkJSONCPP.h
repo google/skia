@@ -10,6 +10,8 @@
 #ifndef SkJSONCPP_DEFINED
 #define SkJSONCPP_DEFINED
 
+#ifdef SK_BUILD_JSON_WRITER
+
 #ifdef SK_BUILD_FOR_WIN
     // json includes xlocale which generates warning 4530 because we're
     // compiling without exceptions;
@@ -23,4 +25,6 @@
     #pragma warning(pop)
 #endif
 
-#endif
+#endif // SK_BUILD_JSON_WRITER
+
+#endif // SkJSONCPP_DEFINED

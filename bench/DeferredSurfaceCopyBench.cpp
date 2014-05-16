@@ -6,14 +6,14 @@
  * found in the LICENSE file.
  */
 
-#if SK_SUPPORT_GPU
-#include "GrRenderTarget.h"
-#endif
 #include "SkBenchmark.h"
 #include "SkDeferredCanvas.h"
 #include "SkDevice.h"
 #include "SkImage.h"
 #include "SkSurface.h"
+#if SK_SUPPORT_GPU
+#include "GrRenderTarget.h"
+#endif
 
 class DeferredSurfaceCopyBench : public SkBenchmark {
     enum {

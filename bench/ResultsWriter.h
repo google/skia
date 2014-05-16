@@ -77,6 +77,7 @@ private:
     const char* fTimeFormat;
 };
 
+#ifdef SK_BUILD_JSON_WRITER
 /**
  * This ResultsWriter handles writing out the results in JSON.
  *
@@ -133,6 +134,7 @@ private:
     Json::Value* fConfig;
 };
 
+#endif // SK_BUILD_JSON_WRITER
 /**
  * This ResultsWriter writes out to multiple ResultsWriters.
  */

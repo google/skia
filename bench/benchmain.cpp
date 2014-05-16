@@ -267,8 +267,9 @@ DEFINE_double(error, 0.01,
 DEFINE_string(timeFormat, "%9.2f", "Format to print results, in milliseconds per 1000 loops.");
 DEFINE_bool2(verbose, v, false, "Print more.");
 DEFINE_string2(resourcePath, i, "resources", "directory for test resources.");
+#ifdef SK_BUILD_JSON_WRITER
 DEFINE_string(outResultsFile, "", "If given, the results will be written to the file in JSON format.");
-
+#endif
 DEFINE_bool(dryRun, false, "Don't actually run the tests, just print what would have been done.");
 
 // Has this bench converged?  First arguments are milliseconds / loop iteration,
@@ -301,11 +302,15 @@ int tool_main(int argc, char** argv) {
     LoggerResultsWriter logWriter(logger, FLAGS_timeFormat[0]);
     MultiResultsWriter writer;
     writer.add(&logWriter);
+
+#ifdef SK_BUILD_JSON_WRITER
     SkAutoTDelete<JSONResultsWriter> jsonWriter;
     if (FLAGS_outResultsFile.count()) {
         jsonWriter.reset(SkNEW(JSONResultsWriter(FLAGS_outResultsFile[0])));
         writer.add(jsonWriter.get());
     }
+#endif
+
     // Instantiate after all the writers have been added to writer so that we
     // call close() before their destructors are called on the way out.
     CallEnd<MultiResultsWriter> ender(writer);
