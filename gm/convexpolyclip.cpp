@@ -46,7 +46,7 @@ static SkBitmap make_bmp(int w, int h) {
                         colors, pos,
                         SK_ARRAY_COUNT(colors),
                         SkShader::kRepeat_TileMode,
-                        NULL, 0, &mat))->unref();
+                        0, &mat))->unref();
         canvas.drawRect(rect, paint);
         rect.inset(wScalar / 8, hScalar / 8);
         mat.preTranslate(6 * wScalar, 6 * hScalar);

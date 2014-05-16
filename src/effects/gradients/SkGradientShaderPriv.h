@@ -14,7 +14,6 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 #include "SkMallocPixelRef.h"
-#include "SkUnitMapper.h"
 #include "SkUtils.h"
 #include "SkTemplates.h"
 #include "SkBitmapCache.h"
@@ -94,7 +93,6 @@ public:
         const SkScalar*     fPos;
         int                 fCount;
         SkShader::TileMode  fTileMode;
-        SkUnitMapper*       fMapper;
         uint32_t            fGradFlags;
     };
 
@@ -201,7 +199,6 @@ protected:
     virtual void flatten(SkWriteBuffer&) const SK_OVERRIDE;
     SK_TO_STRING_OVERRIDE()
 
-    SkUnitMapper* fMapper;
     SkMatrix    fPtsToUnit;     // set by subclass
     TileMode    fTileMode;
     TileProc    fTileProc;

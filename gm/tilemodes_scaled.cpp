@@ -17,7 +17,6 @@
 
 // effects
 #include "SkGradientShader.h"
-#include "SkUnitMappers.h"
 #include "SkBlurDrawLooper.h"
 
 static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
@@ -30,16 +29,9 @@ static void makebm(SkBitmap* bm, SkColorType ct, int w, int h) {
     SkScalar    pos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
     SkPaint     paint;
 
-    SkUnitMapper*   um = NULL;
-
-    um = new SkCosineMapper;
-//    um = new SkDiscreteMapper(12);
-
-    SkAutoUnref au(um);
-
     paint.setDither(true);
     paint.setShader(SkGradientShader::CreateLinear(pts, colors, pos,
-                SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode, um))->unref();
+                SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode))->unref();
     canvas.drawPaint(paint);
 }
 
