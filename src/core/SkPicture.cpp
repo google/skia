@@ -131,6 +131,17 @@ SkPicture::SkPicture()
     fWidth = fHeight = 0;
 }
 
+// This method makes a SkPicturePlayback object from an in-progress recording.
+// Unfortunately, it does not include the restoreToCount of a real endRecording
+// call.
+SkPicturePlayback* SkPicture::FakeEndRecording(const SkPicture* resourceSrc,
+                                               const SkPictureRecord& record,
+                                               bool deepCopy) {
+    SkPictInfo info;
+    resourceSrc->createHeader(&info);
+    return SkNEW_ARGS(SkPicturePlayback, (resourceSrc, record, info, deepCopy));
+}
+
 SkPicture::SkPicture(const SkPicture& src)
     : INHERITED()
     , fAccelData(NULL)
@@ -149,10 +160,7 @@ SkPicture::SkPicture(const SkPicture& src)
         SkASSERT(NULL == src.fRecord);
         fUniqueID = src.uniqueID();     // need to call method to ensure != 0
     } else if (src.fRecord) {
-        SkPictInfo info;
-        this->createHeader(&info);
-        // here we do a fake src.endRecording()
-        fPlayback = SkNEW_ARGS(SkPicturePlayback, (this, *src.fRecord, info));
+        fPlayback = FakeEndRecording(this, *src.fRecord, false);
     } else {
         fPlayback = NULL;
     }
@@ -220,8 +228,6 @@ SkPicture* SkPicture::clone() const {
 
 void SkPicture::clone(SkPicture* pictures, int count) const {
     SkPictCopyInfo copyInfo;
-    SkPictInfo info;
-    this->createHeader(&info);
 
     for (int i = 0; i < count; i++) {
         SkPicture* clone = &pictures[i];
@@ -284,8 +290,7 @@ void SkPicture::clone(SkPicture* pictures, int count) const {
             SkASSERT(NULL == fRecord);
             clone->fUniqueID = this->uniqueID(); // need to call method to ensure != 0
         } else if (fRecord) {
-            // here we do a fake src.endRecording()
-            clone->fPlayback = SkNEW_ARGS(SkPicturePlayback, (clone, *fRecord, info, true));
+            clone->fPlayback = FakeEndRecording(clone, *fRecord, true);
         } else {
             clone->fPlayback = NULL;
         }
@@ -571,12 +576,12 @@ void SkPicture::createHeader(SkPictInfo* info) const {
 void SkPicture::serialize(SkWStream* stream, EncodeBitmap encoder) const {
     SkPicturePlayback* playback = fPlayback;
 
-    SkPictInfo info;
-    this->createHeader(&info);
     if (NULL == playback && fRecord) {
-        playback = SkNEW_ARGS(SkPicturePlayback, (this, *fRecord, info));
+        playback = FakeEndRecording(this, *fRecord, false);
     }
 
+    SkPictInfo info;
+    this->createHeader(&info);
     stream->write(&info, sizeof(info));
     if (playback) {
         stream->writeBool(true);
@@ -629,12 +634,12 @@ void SkPicture::flattenToBuffer(SkWriteBuffer& buffer) const {
 void SkPicture::flatten(SkWriteBuffer& buffer) const {
     SkPicturePlayback* playback = fPlayback;
 
-    SkPictInfo info;
-    this->createHeader(&info);
     if (NULL == playback && fRecord) {
-        playback = SkNEW_ARGS(SkPicturePlayback, (this, *fRecord, info));
+        playback = FakeEndRecording(this, *fRecord, false);
     }
 
+    SkPictInfo info;
+    this->createHeader(&info);
     buffer.writeByteArray(&info, sizeof(info));
     if (playback) {
         buffer.writeBool(true);
