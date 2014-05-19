@@ -66,6 +66,7 @@
     nv_driver_bug_1
     Memcheck:Param
     write(buf)
+    ...
     obj:/usr/lib/libnvidia-glcore.so*
 }
 {
@@ -77,7 +78,7 @@
     nv_driver_bug_3
     Memcheck:Leak
     fun:calloc
-    obj:/usr/lib/libGL.so*
+    obj:/usr/lib*/libGL.so*
 }
 {
     font_config_bug_1
