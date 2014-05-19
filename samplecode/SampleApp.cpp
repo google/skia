@@ -78,7 +78,7 @@ public:
 SkTCPServer gServer;
 #endif
 
-#define USE_ARROWS_FOR_ZOOM false
+#define USE_ARROWS_FOR_ZOOM true
 
 #if SK_ANGLE
 //#define DEFAULT_TO_ANGLE 1

@@ -219,6 +219,8 @@ private:
                          int tileSize,
                          bool bicubic);
 
+    bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
+
     static SkPicture::AccelData::Key ComputeAccelDataKey();
 
     typedef SkBitmapDevice INHERITED;

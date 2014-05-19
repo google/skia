@@ -8,6 +8,7 @@
 #include "SkGpuDevice.h"
 
 #include "effects/GrBicubicEffect.h"
+#include "effects/GrDashingEffect.h"
 #include "effects/GrTextureDomain.h"
 #include "effects/GrSimpleTextureEffect.h"
 
@@ -417,6 +418,12 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     SkScalar width = paint.getStrokeWidth();
     if (width < 0) {
         return;
+    }
+
+    if (paint.getPathEffect() && 2 == count && SkCanvas::kLines_PointMode == mode) {
+        if (GrDashingEffect::DrawDashLine(pts, paint, this)) {
+            return;
+        }
     }
 
     // we only handle hairlines and paints without path effects or mask filters,

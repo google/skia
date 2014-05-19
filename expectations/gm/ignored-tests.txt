@@ -41,3 +41,10 @@ canvas-layer-state
 # bsalomon: https://codereview.chromium.org/264303008/
 # bsalomon@ will rebaseline this test
 ninepatch-stretch
+
+# egdaniel: https://codereview.chromium.org/274673004/
+# dashing effects will change slightly on GPU, will rebaseline after patch lands
+dashing
+dashing2
+dashing3
+dashcubics

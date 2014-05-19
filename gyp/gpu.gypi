@@ -150,6 +150,8 @@
       '<(skia_src_path)/gpu/effects/GrBicubicEffect.h',
       '<(skia_src_path)/gpu/effects/GrCustomCoordsTextureEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrCustomCoordsTextureEffect.h',
+      '<(skia_src_path)/gpu/effects/GrDashingEffect.cpp',
+      '<(skia_src_path)/gpu/effects/GrDashingEffect.h',
       '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.cpp',
       '<(skia_src_path)/gpu/effects/GrDistanceFieldTextureEffect.h',
       '<(skia_src_path)/gpu/effects/GrOvalEffect.cpp',
