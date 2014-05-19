@@ -152,6 +152,11 @@ private slots:
     void actionMegaVizWidget(bool isToggled);
 
     /**
+        Toggles using path ops to simplify the clip stack
+     */
+    void actionPathOpsWidget(bool );
+
+    /**
         Applies the new texture filter override
      */
     void actionTextureFilter();
@@ -342,6 +347,11 @@ private:
         Fills in the overview pane with text
      */
     void setupOverviewText(const SkTDArray<double>* typeTimes, double totTime, int numRuns);
+
+    /**
+        Fills in the clip stack pane with text
+     */
+    void setupClipStackText();
 
     /**
         Render the supplied picture several times tracking the time consumed

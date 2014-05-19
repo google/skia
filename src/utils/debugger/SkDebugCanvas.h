@@ -12,6 +12,7 @@
 
 #include "SkCanvas.h"
 #include "SkDrawCommand.h"
+#include "SkPathOps.h"
 #include "SkPicture.h"
 #include "SkTArray.h"
 #include "SkString.h"
@@ -36,6 +37,8 @@ public:
 
     void setOutstandingSaveCount(int saveCount) { fOutstandingSaveCount = saveCount; }
     int getOutstandingSaveCount() const { return fOutstandingSaveCount; }
+
+    bool getAllowSimplifyClip() const { return fAllowSimplifyClip; }
 
     void setPicture(SkPicture* picture) { fPicture = picture; }
 
@@ -150,6 +153,8 @@ public:
     void setUserMatrix(SkMatrix matrix) {
         fUserMatrix = matrix;
     }
+
+    SkString clipStackData() const { return fClipStackData; }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inherited from SkCanvas
@@ -266,6 +271,10 @@ private:
     SkMatrix fMatrix;
     SkIRect fClip;
 
+    SkString fClipStackData;
+    bool fCalledAddStackData;
+    SkPath fSaveDevPath;
+
     bool fOverdrawViz;
     SkDrawFilter* fOverdrawFilter;
 
@@ -311,6 +320,16 @@ private:
         return 0;
     }
 
+    void resetClipStackData() { fClipStackData.reset(); fCalledAddStackData = false; }
+
+    void addClipStackData(const SkPath& devPath, const SkPath& operand, SkRegion::Op elementOp);
+    void addPathData(const SkPath& path, const char* pathName);
+    bool lastClipStackData(const SkPath& devPath);
+    void outputConicPoints(const SkPoint* pts, SkScalar weight);
+    void outputPoints(const SkPoint* pts, int count);
+    void outputPointsCommon(const SkPoint* pts, int count);
+    void outputScalar(SkScalar num);
+   
     typedef SkCanvas INHERITED;
 };
 

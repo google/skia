@@ -240,12 +240,14 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
     SkASSERT(index < fCommandVector.count());
     int i = 0;
 
+    bool pathOpsMode = getAllowSimplifyClip();
+    canvas->setAllowSimplifyClip(pathOpsMode);
     // This only works assuming the canvas and device are the same ones that
     // were previously drawn into because they need to preserve all saves
     // and restores.
     // The visibility filter also requires a full re-draw - otherwise we can
     // end up drawing the filter repeatedly.
-    if (fIndex < index && !fFilter && !fMegaVizMode) {
+    if (fIndex < index && !fFilter && !fMegaVizMode && !pathOpsMode) {
         i = fIndex + 1;
     } else {
         for (int j = 0; j < fOutstandingSaveCount; j++) {
@@ -334,6 +336,28 @@ void SkDebugCanvas::drawTo(SkCanvas* canvas, int index) {
         canvas->replayClips(&visitor);
 
         canvas->restore();
+    }
+    if (pathOpsMode) {
+        this->resetClipStackData();
+        const SkClipStack* clipStack = canvas->getClipStack();
+        SkClipStack::Iter iter(*clipStack, SkClipStack::Iter::kBottom_IterStart);
+        const SkClipStack::Element* element;
+        SkPath devPath;
+        while ((element = iter.next())) {
+            SkClipStack::Element::Type type = element->getType();
+            SkPath operand;
+            if (type != SkClipStack::Element::kEmpty_Type) {
+               element->asPath(&operand);
+            }
+            SkRegion::Op elementOp = element->getOp();
+            this->addClipStackData(devPath, operand, elementOp);
+            if (elementOp == SkRegion::kReplace_Op) {
+                devPath = operand;
+            } else {
+                Op(devPath, operand, (SkPathOp) elementOp, &devPath);
+            }
+        }
+        this->lastClipStackData(devPath);
     }
     fMatrix = canvas->getTotalMatrix();
     if (!canvas->getClipDeviceBounds(&fClip)) {
@@ -587,4 +611,129 @@ void SkDebugCanvas::didSetMatrix(const SkMatrix& matrix) {
 void SkDebugCanvas::toggleCommand(int index, bool toggle) {
     SkASSERT(index < fCommandVector.count());
     fCommandVector[index]->setVisible(toggle);
+}
+
+static const char* gFillTypeStrs[] = {
+    "kWinding_FillType",
+    "kEvenOdd_FillType",
+    "kInverseWinding_FillType",
+    "kInverseEvenOdd_FillType"
+};
+
+static const char* gOpStrs[] = {
+    "kDifference_PathOp",
+    "kIntersect_PathOp",
+    "kUnion_PathOp",
+    "kXor_PathOp",
+    "kReverseDifference_PathOp",
+};
+
+static const char kHTML4SpaceIndent[] = "&nbsp;&nbsp;&nbsp;&nbsp;";
+
+void SkDebugCanvas::outputScalar(SkScalar num) {
+    if (num == (int) num) {
+        fClipStackData.appendf("%d", (int) num);
+    } else {
+        SkString str;
+        str.printf("%1.9g", num);
+        int width = (int) str.size();
+        const char* cStr = str.c_str();
+        while (cStr[width - 1] == '0') {
+            --width;
+        }
+        str.resize(width);
+        fClipStackData.appendf("%sf", str.c_str());
+    }
+}
+
+void SkDebugCanvas::outputPointsCommon(const SkPoint* pts, int count) {
+    for (int index = 0; index < count; ++index) {
+        this->outputScalar(pts[index].fX);
+        fClipStackData.appendf(", ");
+        this->outputScalar(pts[index].fY);
+        if (index + 1 < count) {
+            fClipStackData.appendf(", ");
+        }
+    }
+}
+
+void SkDebugCanvas::outputPoints(const SkPoint* pts, int count) {
+    this->outputPointsCommon(pts, count);
+    fClipStackData.appendf(");<br>");
+}
+
+void SkDebugCanvas::outputConicPoints(const SkPoint* pts, SkScalar weight) {
+    this->outputPointsCommon(pts, 2);
+    fClipStackData.appendf(", ");
+    this->outputScalar(weight);
+    fClipStackData.appendf(");<br>");
+}
+
+void SkDebugCanvas::addPathData(const SkPath& path, const char* pathName) {
+    SkPath::RawIter iter(path);
+    SkPath::FillType fillType = path.getFillType();
+    fClipStackData.appendf("%sSkPath %s;<br>", kHTML4SpaceIndent, pathName);
+    fClipStackData.appendf("%s%s.setFillType(SkPath::%s);<br>", kHTML4SpaceIndent, pathName,
+            gFillTypeStrs[fillType]);
+    iter.setPath(path);
+    uint8_t verb;
+    SkPoint pts[4];
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                fClipStackData.appendf("%s%s.moveTo(", kHTML4SpaceIndent, pathName);
+                this->outputPoints(&pts[0], 1);
+                continue;
+            case SkPath::kLine_Verb:
+                fClipStackData.appendf("%s%s.lineTo(", kHTML4SpaceIndent, pathName);
+                this->outputPoints(&pts[1], 1);
+                break;
+            case SkPath::kQuad_Verb:
+                fClipStackData.appendf("%s%s.quadTo(", kHTML4SpaceIndent, pathName);
+                this->outputPoints(&pts[1], 2);
+                break;
+            case SkPath::kConic_Verb:
+                fClipStackData.appendf("%s%s.conicTo(", kHTML4SpaceIndent, pathName);
+                this->outputConicPoints(&pts[1], iter.conicWeight());
+                break;
+            case SkPath::kCubic_Verb:
+                fClipStackData.appendf("%s%s.cubicTo(", kHTML4SpaceIndent, pathName);
+                this->outputPoints(&pts[1], 3);
+                break;
+            case SkPath::kClose_Verb:
+                fClipStackData.appendf("%s%s.close();<br>", kHTML4SpaceIndent, pathName);
+                break;
+            default:
+                SkDEBUGFAIL("bad verb");
+                return;
+        }
+    }
+}
+
+void SkDebugCanvas::addClipStackData(const SkPath& devPath, const SkPath& operand,
+                                     SkRegion::Op elementOp) {
+    if (elementOp == SkRegion::kReplace_Op) {
+        if (!lastClipStackData(devPath)) {
+            fSaveDevPath = operand;
+        }
+        fCalledAddStackData = false;
+    } else {
+        fClipStackData.appendf("<br>static void test(skiatest::Reporter* reporter,"
+            " const char* filename) {<br>");
+        addPathData(fCalledAddStackData ? devPath : fSaveDevPath, "path");
+        addPathData(operand, "pathB");
+        fClipStackData.appendf("%stestPathOp(reporter, path, pathB, %s, filename);<br>",
+            kHTML4SpaceIndent, gOpStrs[elementOp]);
+        fClipStackData.appendf("}<br>");
+        fCalledAddStackData = true;
+    }
+}
+
+bool SkDebugCanvas::lastClipStackData(const SkPath& devPath) {
+    if (fCalledAddStackData) {
+        fClipStackData.appendf("<br>");
+        addPathData(devPath, "pathOut");
+        return true;
+    }
+    return false;
 }

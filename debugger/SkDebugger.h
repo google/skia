@@ -111,6 +111,12 @@ public:
         }
     }
 
+    void setPathOps(bool pathOps) {
+        if (NULL != fDebugCanvas) {
+            fDebugCanvas->setAllowSimplifyClip(pathOps);
+        }
+    }
+
     void setMegaViz(bool megaViz) {
         if (NULL != fDebugCanvas) {
             fDebugCanvas->setMegaVizMode(megaViz);
@@ -125,6 +131,8 @@ public:
 
     void getOverviewText(const SkTDArray<double>* typeTimes, double totTime,
                          SkString* overview, int numRuns);
+
+    void getClipStackText(SkString* clipStack);
 
 private:
     SkDebugCanvas* fDebugCanvas;

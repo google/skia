@@ -56,6 +56,10 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
     fRasterLabel.setMinimumWidth(178);
     fRasterLabel.setMaximumWidth(178);
 
+    fPathOpsLabel.setText("PathOps: ");
+    fPathOpsLabel.setMinimumWidth(178);
+    fPathOpsLabel.setMaximumWidth(178);
+
     fRasterCheckBox.setChecked(true);
 
     fOverdrawVizLabel.setText("     Overdraw Viz: ");
@@ -112,6 +116,8 @@ SkSettingsWidget::SkSettingsWidget() : QWidget()
 
     fRasterLayout.addWidget(&fRasterLabel);
     fRasterLayout.addWidget(&fRasterCheckBox);
+    fRasterLayout.addWidget(&fPathOpsLabel);
+    fRasterLayout.addWidget(&fPathOpsCheckBox);
 
     fVizLayout.addWidget(&fOverdrawVizLabel);
     fVizLayout.addWidget(&fOverdrawVizCheckBox);

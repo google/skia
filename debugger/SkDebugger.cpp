@@ -49,6 +49,8 @@ SkPicture* SkDebugger::copyPicture() {
     fDebugCanvas->setMegaVizMode(false);
     bool overDraw = fDebugCanvas->getOverdrawViz();
     fDebugCanvas->setOverdrawViz(false);
+    bool pathOps = fDebugCanvas->getAllowSimplifyClip();
+    fDebugCanvas->setAllowSimplifyClip(false);
     int saveCount = fDebugCanvas->getOutstandingSaveCount();
     fDebugCanvas->setOutstandingSaveCount(0);
 
@@ -62,6 +64,7 @@ SkPicture* SkDebugger::copyPicture() {
     fDebugCanvas->setMegaVizMode(vizMode);
     fDebugCanvas->setOverdrawViz(overDraw);
     fDebugCanvas->setOutstandingSaveCount(saveCount);
+    fDebugCanvas->setAllowSimplifyClip(pathOps);
 
     return recorder.endRecording();
 }
@@ -148,3 +151,8 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
     overview->appendS32(pictureHeight());
     overview->append("px");
 }
+
+void SkDebugger::getClipStackText(SkString* clipStack) {
+    clipStack->set(fDebugCanvas->clipStackData());
+}
+

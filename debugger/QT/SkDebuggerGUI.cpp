@@ -101,6 +101,7 @@ SkDebuggerGUI::SkDebuggerGUI(QWidget *parent) :
     connect(fSettingsWidget.getRasterCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionRasterWidget(bool)));
     connect(fSettingsWidget.getOverdrawVizCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionOverdrawVizWidget(bool)));
     connect(fSettingsWidget.getMegaVizCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionMegaVizWidget(bool)));
+    connect(fSettingsWidget.getPathOpsCheckBox(), SIGNAL(toggled(bool)), this, SLOT(actionPathOpsWidget(bool)));
     connect(&fActionPause, SIGNAL(toggled(bool)), this, SLOT(pauseDrawing(bool)));
     connect(&fActionCreateBreakpoint, SIGNAL(activated()), this, SLOT(toggleBreakpoint()));
     connect(&fActionShowDeletes, SIGNAL(triggered()), this, SLOT(showDeletes()));
@@ -415,6 +416,7 @@ void SkDebuggerGUI::actionProfile() {
     }
 
     setupOverviewText(picture->typeTimes(), picture->totTime(), kNumRepeats);
+    setupClipStackText();
 }
 
 void SkDebuggerGUI::actionCancel() {
@@ -532,6 +534,11 @@ void SkDebuggerGUI::actionOverdrawVizWidget(bool isToggled) {
 
 void SkDebuggerGUI::actionMegaVizWidget(bool isToggled) {
     fDebugger.setMegaViz(isToggled);
+    fCanvasWidget.update();
+}
+
+void SkDebuggerGUI::actionPathOpsWidget(bool isToggled) {
+    fDebugger.setPathOps(isToggled);
     fCanvasWidget.update();
 }
 
@@ -662,6 +669,7 @@ void SkDebuggerGUI::registerListClick(QListWidgetItem *item) {
                 fInspectorWidget.setText(info, SkInspectorWidget::kDetail_TabType);
                 fInspectorWidget.setDisabled(false);
             }
+            setupClipStackText();
         }
 
     }
@@ -1041,6 +1049,12 @@ void SkDebuggerGUI::setupOverviewText(const SkTDArray<double>* typeTimes,
     SkString overview;
     fDebugger.getOverviewText(typeTimes, totTime, &overview, numRuns);
     fInspectorWidget.setText(overview.c_str(), SkInspectorWidget::kOverview_TabType);
+}
+
+void SkDebuggerGUI::setupClipStackText() {
+    SkString clipStack;
+    fDebugger.getClipStackText(&clipStack);
+    fInspectorWidget.setText(clipStack.c_str(), SkInspectorWidget::kClipStack_TabType);
 }
 
 void SkDebuggerGUI::setupComboBox(SkTArray<SkString>* command) {

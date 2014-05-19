@@ -31,6 +31,7 @@ public:
     enum TabType {
         kOverview_TabType,
         kDetail_TabType,
+        kClipStack_TabType,
         kTotalTabCount,
     };
 

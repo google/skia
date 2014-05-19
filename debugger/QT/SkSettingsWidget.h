@@ -74,6 +74,10 @@ public:
         return &fMegaVizCheckBox;
     }
 
+    QCheckBox* getPathOpsCheckBox() {
+        return &fPathOpsCheckBox;
+    }
+
 private slots:
     void updateCommand(int newCommand);
     void updateHit(int newHit);
@@ -122,6 +126,8 @@ private:
     QCheckBox fOverdrawVizCheckBox;
     QLabel fMegaVizLabel;
     QCheckBox fMegaVizCheckBox;
+    QLabel fPathOpsLabel;
+    QCheckBox fPathOpsCheckBox;
 
 #if SK_SUPPORT_GPU
     QHBoxLayout fGLLayout;

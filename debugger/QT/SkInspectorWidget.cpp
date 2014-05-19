@@ -23,6 +23,7 @@ SkInspectorWidget::SkInspectorWidget() : QWidget()
     QString tabNames[kTotalTabCount];
     tabNames[kOverview_TabType] = "Overview";
     tabNames[kDetail_TabType] = "Details";
+    tabNames[kClipStack_TabType] = "Clip Stack";
 
     for (int i = 0; i < kTotalTabCount; i++) {
         fTabTexts[i].setReadOnly(true);

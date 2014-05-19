@@ -1544,11 +1544,10 @@ void SkCanvas::onClipPath(const SkPath& path, SkRegion::Op op, ClipEdgeStyle edg
         const SkClipStack::Element* element;
         while ((element = iter.next())) {
             SkClipStack::Element::Type type = element->getType();
-            if (type == SkClipStack::Element::kEmpty_Type) {
-                continue;
-            }
             SkPath operand;
-            element->asPath(&operand);
+            if (type != SkClipStack::Element::kEmpty_Type) {
+                element->asPath(&operand);
+            }
             SkRegion::Op elementOp = element->getOp();
             if (elementOp == SkRegion::kReplace_Op) {
                 devPath = operand;
