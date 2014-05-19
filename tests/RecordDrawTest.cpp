@@ -6,6 +6,7 @@
  */
 
 #include "Test.h"
+#include "RecordTestUtils.h"
 
 #include "SkDebugCanvas.h"
 #include "SkRecord.h"
@@ -72,4 +73,33 @@ DEF_TEST(RecordDraw_Culling, r) {
     // We'll keep the clipRect call from above, and the outer two drawRects, and the push/pop pair.
     // If culling weren't working, we'd see 8 commands recorded here.
     REPORTER_ASSERT(r, 5 == clipped.count());
+}
+
+DEF_TEST(RecordDraw_SetMatrixClobber, r) {
+    // Set up an SkRecord that just scales by 2x,3x.
+    SkRecord scaleRecord;
+    SkRecorder scaleCanvas(SkRecorder::kReadWrite_Mode, &scaleRecord, W, H);
+    SkMatrix scale;
+    scale.setScale(2, 3);
+    scaleCanvas.setMatrix(scale);
+
+    // Set up an SkRecord with an initial +20, +20 translate.
+    SkRecord translateRecord;
+    SkRecorder translateCanvas(SkRecorder::kReadWrite_Mode, &translateRecord, W, H);
+    SkMatrix translate;
+    translate.setTranslate(20, 20);
+    translateCanvas.setMatrix(translate);
+
+    SkRecordDraw(scaleRecord, &translateCanvas);
+
+    // When we look at translateRecord now, it should have its first +20,+20 translate,
+    // then a 2x,3x scale that's been concatted with that +20,+20 translate.
+    const SkRecords::SetMatrix* setMatrix;
+    setMatrix = assert_type<SkRecords::SetMatrix>(r, translateRecord, 0);
+    REPORTER_ASSERT(r, setMatrix->matrix == translate);
+
+    setMatrix = assert_type<SkRecords::SetMatrix>(r, translateRecord, 1);
+    SkMatrix expected = scale;
+    expected.postConcat(translate);
+    REPORTER_ASSERT(r, setMatrix->matrix == expected);
 }

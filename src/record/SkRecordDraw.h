@@ -19,7 +19,8 @@ namespace SkRecords {
 // This is an SkRecord visitor that will draw that SkRecord to an SkCanvas.
 class Draw : SkNoncopyable {
 public:
-    explicit Draw(SkCanvas* canvas) : fCanvas(canvas), fIndex(0) {}
+    explicit Draw(SkCanvas* canvas)
+        : fInitialCTM(canvas->getTotalMatrix()), fCanvas(canvas), fIndex(0) {}
 
     unsigned index() const { return fIndex; }
     void next() { ++fIndex; }
@@ -44,6 +45,7 @@ private:
     bool skip(const PairedPushCull&);
     bool skip(const BoundedDrawPosTextH&);
 
+    const SkMatrix fInitialCTM;
     SkCanvas* fCanvas;
     unsigned fIndex;
 };

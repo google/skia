@@ -38,7 +38,13 @@ DRAW(PopCull, popCull());
 DRAW(PushCull, pushCull(r.rect));
 DRAW(Clear, clear(r.color));
 DRAW(Concat, concat(r.matrix));
-DRAW(SetMatrix, setMatrix(r.matrix));
+
+// We can't clobber the canvas' initial CTM when calling setMatrix.
+template <> void Draw::draw(const SetMatrix& r) {
+    SkMatrix ctm;
+    ctm.setConcat(fInitialCTM, r.matrix);
+    fCanvas->setMatrix(ctm);
+}
 
 DRAW(ClipPath, clipPath(r.path, r.op, r.doAA));
 DRAW(ClipRRect, clipRRect(r.rrect, r.op, r.doAA));
