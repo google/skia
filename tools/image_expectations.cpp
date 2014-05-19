@@ -95,12 +95,43 @@ namespace sk_tools {
     // ImageResultsAndExpectations class...
 
     bool ImageResultsAndExpectations::readExpectationsFile(const char *jsonPath) {
-        if (Parse(jsonPath, &fExpectedJsonRoot)) {
-            fExpectedResults = fExpectedJsonRoot[kJsonKey_ExpectedResults];
-            return true;
-        } else {
+        if (NULL == jsonPath) {
+            SkDebugf("JSON expectations filename not specified\n");
             return false;
         }
+        SkFILE* filePtr = sk_fopen(jsonPath, kRead_SkFILE_Flag);
+        if (NULL == filePtr) {
+            SkDebugf("JSON expectations file '%s' does not exist\n", jsonPath);
+            return false;
+        }
+        size_t size = sk_fgetsize(filePtr);
+        if (0 == size) {
+            SkDebugf("JSON expectations file '%s' is empty, so no expectations\n", jsonPath);
+            sk_fclose(filePtr);
+            fExpectedResults.clear();
+            return true;
+        }
+        bool parsedJson = Parse(filePtr, &fExpectedJsonRoot);
+        sk_fclose(filePtr);
+        if (!parsedJson) {
+            SkDebugf("Failed to parse JSON expectations file '%s'\n", jsonPath);
+            return false;
+        }
+        Json::Value header = fExpectedJsonRoot[kJsonKey_Header];
+        Json::Value headerType = header[kJsonKey_Header_Type];
+        Json::Value headerRevision = header[kJsonKey_Header_Revision];
+        if (strcmp(headerType.asCString(), kJsonValue_Header_Type)) {
+            SkDebugf("JSON expectations file '%s': expected headerType '%s', found '%s'\n",
+                     jsonPath, kJsonValue_Header_Type, headerType.asCString());
+            return false;
+        }
+        if (headerRevision.asInt() != kJsonValue_Header_Revision) {
+            SkDebugf("JSON expectations file '%s': expected headerRevision %d, found %d\n",
+                     jsonPath, kJsonValue_Header_Revision, headerRevision.asInt());
+            return false;
+        }
+        fExpectedResults = fExpectedJsonRoot[kJsonKey_ExpectedResults];
+        return true;
     }
 
     void ImageResultsAndExpectations::add(const char *sourceName, const char *fileName,
@@ -181,11 +212,10 @@ namespace sk_tools {
         stream.write(jsonStdString.c_str(), jsonStdString.length());
     }
 
-    /*static*/ bool ImageResultsAndExpectations::Parse(const char *jsonPath,
+    /*static*/ bool ImageResultsAndExpectations::Parse(SkFILE *filePtr,
                                                        Json::Value *jsonRoot) {
-        SkAutoDataUnref dataRef(SkData::NewFromFileName(jsonPath));
+        SkAutoDataUnref dataRef(SkData::NewFromFILE(filePtr));
         if (NULL == dataRef.get()) {
-            SkDebugf("error reading JSON file %s\n", jsonPath);
             return false;
         }
 
@@ -193,7 +223,6 @@ namespace sk_tools {
         size_t size = dataRef.get()->size();
         Json::Reader reader;
         if (!reader.parse(bytes, bytes+size, *jsonRoot)) {
-            SkDebugf("error parsing JSON file %s\n", jsonPath);
             return false;
         }
 

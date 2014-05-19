@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkJSONCPP.h"
+#include "SkOSFile.h"
 #include "SkRefCnt.h"
 
 namespace sk_tools {
@@ -81,6 +82,20 @@ namespace sk_tools {
     public:
         /**
          * Adds expectations from a JSON file, returning true if successful.
+         *
+         * If the file exists but is empty, it succeeds, and there will be no expectations.
+         * If the file does not exist, this will fail.
+         *
+         * Reasoning:
+         * Generating expectations the first time can be a tricky chicken-and-egg
+         * proposition.  "I need actual results to turn into expectations... but the only
+         * way to get actual results is to run the tool, and the tool won't run without
+         * expectations!"
+         * We could make the tool run even if there is no expectations file at all, but it's
+         * better for the tool to fail if the expectations file is not found--that will tell us
+         * quickly if files are not being copied around as they should be.
+         * Creating an empty file is an easy way to break the chicken-and-egg cycle and generate
+         * the first real expectations.
          */
         bool readExpectationsFile(const char *jsonPath);
 
@@ -116,11 +131,13 @@ namespace sk_tools {
     private:
 
         /**
-         * Read the file contents from jsonPath and parse them into jsonRoot.
+         * Read the file contents from filePtr and parse them into jsonRoot.
+         *
+         * It is up to the caller to close filePtr after this is done.
          *
          * Returns true if successful.
          */
-        static bool Parse(const char *jsonPath, Json::Value *jsonRoot);
+        static bool Parse(SkFILE* filePtr, Json::Value *jsonRoot);
 
         Json::Value fActualResults;
         Json::Value fExpectedJsonRoot;

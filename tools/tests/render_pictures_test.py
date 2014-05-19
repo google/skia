@@ -242,32 +242,73 @@ class RenderPicturesTest(base_unittest.TestCase):
     }
     self._assert_json_contents(output_json_path, expected_summary_dict)
 
-  def test_untiled(self):
-    """Run without tiles."""
+  def _test_untiled(self, expectations_path=None, expected_summary_dict=None,
+                    additional_args=None):
+    """Base for multiple tests without tiles.
+
+    Args:
+      expectations_path: path we should pass using --readJsonSummaryPath, or
+          None if we should create the default expectations file
+      expected_summary_dict: dict we should compare against the output actual
+          results summary, or None if we should use a default comparison dict
+      additional_args: array of command-line args to add when we run
+          render_pictures
+    """
     output_json_path = os.path.join(self._output_dir, 'actuals.json')
     write_path_dir = self.create_empty_dir(
         path=os.path.join(self._output_dir, 'writePath'))
     self._generate_skps()
-    expectations_path = self._create_expectations()
-    self._run_render_pictures([
+    if expectations_path == None:
+      expectations_path = self._create_expectations()
+    args = [
         '-r', self._input_skp_dir,
         '--readJsonSummaryPath', expectations_path,
         '--writePath', write_path_dir,
-        '--writeJsonSummaryPath', output_json_path])
+        '--writeJsonSummaryPath', output_json_path,
+    ]
+    if additional_args:
+      args.extend(additional_args)
+    self._run_render_pictures(args)
+    if expected_summary_dict == None:
+      expected_summary_dict = {
+          "header" : EXPECTED_HEADER_CONTENTS,
+          "actual-results" : {
+              "red.skp": {
+                  "whole-image": RED_WHOLEIMAGE,
+              },
+              "green.skp": {
+                  "whole-image": GREEN_WHOLEIMAGE,
+              }
+          }
+      }
+    self._assert_json_contents(output_json_path, expected_summary_dict)
+    self._assert_directory_contents(
+        write_path_dir, ['red_skp.png', 'green_skp.png'])
+
+  def test_untiled(self):
+    """Basic test without tiles."""
+    self._test_untiled()
+
+  def test_untiled_empty_expectations_file(self):
+    """Same as test_untiled, but with an empty expectations file."""
+    expectations_path = os.path.join(self._expectations_dir, 'empty')
+    with open(expectations_path, 'w') as fh:
+      pass
     expected_summary_dict = {
         "header" : EXPECTED_HEADER_CONTENTS,
         "actual-results" : {
             "red.skp": {
-                "whole-image": RED_WHOLEIMAGE,
+                "whole-image": modified_dict(
+                    RED_WHOLEIMAGE, {"comparisonResult" : "no-comparison"}),
             },
             "green.skp": {
-                "whole-image": GREEN_WHOLEIMAGE,
+                "whole-image": modified_dict(
+                    GREEN_WHOLEIMAGE, {"comparisonResult" : "no-comparison"}),
             }
         }
     }
-    self._assert_json_contents(output_json_path, expected_summary_dict)
-    self._assert_directory_contents(
-        write_path_dir, ['red_skp.png', 'green_skp.png'])
+    self._test_untiled(expectations_path=expectations_path,
+                       expected_summary_dict=expected_summary_dict)
 
   def test_untiled_writeChecksumBasedFilenames(self):
     """Same as test_untiled, but with --writeChecksumBasedFilenames."""
@@ -313,31 +354,7 @@ class RenderPicturesTest(base_unittest.TestCase):
 
   def test_untiled_validate(self):
     """Same as test_untiled, but with --validate."""
-    output_json_path = os.path.join(self._output_dir, 'actuals.json')
-    write_path_dir = self.create_empty_dir(
-        path=os.path.join(self._output_dir, 'writePath'))
-    self._generate_skps()
-    expectations_path = self._create_expectations()
-    self._run_render_pictures([
-        '-r', self._input_skp_dir,
-        '--readJsonSummaryPath', expectations_path,
-        '--validate',
-        '--writePath', write_path_dir,
-        '--writeJsonSummaryPath', output_json_path])
-    expected_summary_dict = {
-        "header" : EXPECTED_HEADER_CONTENTS,
-        "actual-results" : {
-            "red.skp": {
-                "whole-image": RED_WHOLEIMAGE,
-            },
-            "green.skp": {
-                "whole-image": GREEN_WHOLEIMAGE,
-            }
-        }
-    }
-    self._assert_json_contents(output_json_path, expected_summary_dict)
-    self._assert_directory_contents(
-        write_path_dir, ['red_skp.png', 'green_skp.png'])
+    self._test_untiled(additional_args=['--validate'])
 
   def test_untiled_without_writePath(self):
     """Same as test_untiled, but without --writePath."""
