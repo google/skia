@@ -10,6 +10,9 @@
 #include "SkBlurImage_opts_SSE2.h"
 #include "SkColorPriv.h"
 #include "SkRect.h"
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+#include <smmintrin.h>
+#endif
 
 namespace {
 enum BlurDirection {
