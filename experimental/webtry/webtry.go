@@ -8,8 +8,6 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/mattn/go-sqlite3"
 	htemplate "html/template"
 	"io/ioutil"
 	"log"
@@ -22,6 +20,12 @@ import (
 	"strings"
 	"text/template"
 	"time"
+)
+
+import (
+	"github.com/fiorix/go-web/autogzip"
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const (
@@ -336,6 +340,7 @@ func doCmd(commandLine string, moveToDebug bool) (string, error) {
 // reportError formats an HTTP error response and also logs the detailed error message.
 func reportError(w http.ResponseWriter, r *http.Request, err error, message string) {
 	log.Printf("Error: %s\n%s", message, err.Error())
+	w.Header().Set("Content-Type", "text/plain")
 	http.Error(w, message, 500)
 }
 
@@ -351,6 +356,7 @@ func reportTryError(w http.ResponseWriter, r *http.Request, err error, message, 
 		http.Error(w, "Failed to serialize a response", 500)
 		return
 	}
+	w.Header().Set("Content-Type", "text/plain")
 	w.Write(resp)
 }
 
@@ -381,6 +387,7 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	filename := match[1]
+	w.Header().Set("Content-Type", "image/png")
 	http.ServeFile(w, r, fmt.Sprintf("../../../inout/%s", filename))
 }
 
@@ -414,6 +421,7 @@ func recentHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		recent = append(recent, Try{Hash: hash, CreateTS: create_ts.Format("2006-02-01")})
 	}
+	w.Header().Set("Content-Type", "text/html")
 	if err := recentTemplate.Execute(w, Recent{Tries: recent, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
 		log.Printf("ERROR: Failed to expand template: %q\n", err)
 	}
@@ -484,6 +492,7 @@ func workspaceHandler(w http.ResponseWriter, r *http.Request) {
 			hash = tries[len(tries)-1].Hash
 			code, _ = getCode(hash)
 		}
+		w.Header().Set("Content-Type", "text/html")
 		if err := workspaceTemplate.Execute(w, Workspace{Tries: tries, Code: code, Name: name, Hash: hash, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
 		}
@@ -537,6 +546,7 @@ func iframeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Expand the template.
+	w.Header().Set("Content-Type", "text/html")
 	if err := iframeTemplate.Execute(w, userCode{Code: code, Hash: hash}); err != nil {
 		log.Printf("ERROR: Failed to expand template: %q\n", err)
 	}
@@ -604,6 +614,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		// Expand the template.
+		w.Header().Set("Content-Type", "text/html")
 		if err := indexTemplate.Execute(w, userCode{Code: code, Hash: hash, Titlebar: Titlebar{GitHash: gitHash, GitInfo: gitInfo}}); err != nil {
 			log.Printf("ERROR: Failed to expand template: %q\n", err)
 		}
@@ -683,23 +694,24 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 			reportTryError(w, r, err, "Failed to serialize a response.", hash)
 			return
 		}
+		w.Header().Set("Content-Type", "application/json")
 		w.Write(resp)
 	}
 }
 
 func main() {
 	flag.Parse()
-	http.HandleFunc("/i/", imageHandler)
-	http.HandleFunc("/w/", workspaceHandler)
-	http.HandleFunc("/recent/", recentHandler)
-	http.HandleFunc("/iframe/", iframeHandler)
-	http.HandleFunc("/json/", tryInfoHandler)
+	http.HandleFunc("/i/", autogzip.HandleFunc(imageHandler))
+	http.HandleFunc("/w/", autogzip.HandleFunc(workspaceHandler))
+	http.HandleFunc("/recent/", autogzip.HandleFunc(recentHandler))
+	http.HandleFunc("/iframe/", autogzip.HandleFunc(iframeHandler))
+	http.HandleFunc("/json/", autogzip.HandleFunc(tryInfoHandler))
 
 	// Resources are served directly
 	// TODO add support for caching/etags/gzip
-	http.Handle("/res/", http.FileServer(http.Dir("./")))
+	http.Handle("/res/", autogzip.Handle(http.FileServer(http.Dir("./"))))
 
 	// TODO Break out /c/ as it's own handler.
-	http.HandleFunc("/", mainHandler)
+	http.HandleFunc("/", autogzip.HandleFunc(mainHandler))
 	log.Fatal(http.ListenAndServe(*port, nil))
 }

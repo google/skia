@@ -56,6 +56,5 @@ ninja -C out/Debug webtry
 
 cd experimental/webtry
 
-go get github.com/mattn/go-sqlite3
-go get github.com/go-sql-driver/mysql
+go get -d
 go build webtry.go
