@@ -785,3 +785,16 @@ DEF_TEST(Matrix, reporter) {
     test_matrix_decomposition(reporter);
     test_matrix_homogeneous(reporter);
 }
+
+DEF_TEST(Matrix_Concat, r) {
+    SkMatrix a;
+    a.setTranslate(10, 20);
+
+    SkMatrix b;
+    b.setScale(3, 5);
+
+    SkMatrix expected;
+    expected.setConcat(a,b);
+
+    REPORTER_ASSERT(r, expected == SkMatrix::Concat(a, b));
+}

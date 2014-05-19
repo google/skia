@@ -590,6 +590,15 @@ public:
     static const SkMatrix& InvalidMatrix();
 
     /**
+     * Return the concatenation of two matrices, a * b.
+     */
+    static SkMatrix Concat(const SkMatrix& a, const SkMatrix& b) {
+        SkMatrix result;
+        result.setConcat(a, b);
+        return result;
+    }
+
+    /**
      * Testing routine; the matrix's type cache should never need to be
      * manually invalidated during normal use.
      */
