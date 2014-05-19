@@ -48,3 +48,7 @@ dashing
 dashing2
 dashing3
 dashcubics
+
+# humper: https://codereview.chromium.org/292773003/
+# changed texture coordinate generation for GPU rrect blur; will rebaseline after land.
+simpleblurroundrect

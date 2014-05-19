@@ -1040,13 +1040,13 @@ void GrGLRRectBlurEffect::emitCode(GrGLShaderBuilder* builder,
     builder->fsCodeAppendf("\t\tif (translatedFragPos.x >= threshold && translatedFragPos.x < (middle.x+threshold)) {\n" );
     builder->fsCodeAppendf("\t\t\ttranslatedFragPos.x = threshold;\n");
     builder->fsCodeAppendf("\t\t} else if (translatedFragPos.x >= (middle.x + threshold)) {\n");
-    builder->fsCodeAppendf("\t\t\ttranslatedFragPos.x -= middle.x;\n");
+    builder->fsCodeAppendf("\t\t\ttranslatedFragPos.x -= middle.x - 1.0;\n");
     builder->fsCodeAppendf("\t\t}\n");
 
     builder->fsCodeAppendf("\t\tif (translatedFragPos.y > threshold && translatedFragPos.y < (middle.y+threshold)) {\n" );
     builder->fsCodeAppendf("\t\t\ttranslatedFragPos.y = threshold;\n");
     builder->fsCodeAppendf("\t\t} else if (translatedFragPos.y >= (middle.y + threshold)) {\n");
-    builder->fsCodeAppendf("\t\t\ttranslatedFragPos.y -= middle.y;\n");
+    builder->fsCodeAppendf("\t\t\ttranslatedFragPos.y -= middle.y - 1.0;\n");
     builder->fsCodeAppendf("\t\t}\n");
 
     builder->fsCodeAppendf("\t\tvec2 proxyDims = vec2(2.0*threshold+1.0);\n");
