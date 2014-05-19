@@ -2,15 +2,13 @@
 <html>
 <head>
     <title>Workspace</title>
-    <meta charset='utf-8' />
-    <script src="/res/js/pointerevents.min.js" type="text/javascript" charset="utf-8"></script>
-    <link rel='stylesheet' href='/res/css/webtry.css' type='text/css' media='screen'>
-    <link rel="stylesheet" href="/res/css/cm/codemirror.css" type="text/css" media="screen">
+    {{template "headercommon.html" .}}
+    <link rel='import' type='text/html' href='/res/imp/zoom.html'>
 </head>
 <body>
   <template id=tryTemplate>
-    <div class=tries data-try="">
-      <img width=64 height=64 src="">
+    <div class=tries data-try=''>
+      <img width=64 height=64 src=''>
     </div>
   </template>
   {{template "titlebar.html" .}}
@@ -20,22 +18,22 @@
   <section id=tryHistory>
   </section>
 
-  <script type="text/javascript" charset="utf-8">
+  <script type='text/javascript'>
     var history = {{.Tries}};
   </script>
-  <script type='text/javascript' charset='utf-8'>
+  <script type='text/javascript'>
       // Set the workspace name so run.js also updates the history.
-      var workspaceName = "{{.Name}}";
+      var workspaceName = '{{.Name}}';
   </script>
-  <script src="/res/js/webtry.js" type="text/javascript" charset="utf-8"></script>
 {{else}}
   <section id=content>
     <h1>Create</h1>
     Create a new workspace:
-    <form action="." method="POST" accept-charset="utf-8">
-      <p><input type="submit" value="Create"></p>
+    <form action='.' method='POST'>
+      <p><input type='submit' value='Create'></p>
     </form>
   </section>
 {{end}}
+  {{template "footercommon.html" .}}
 </body>
 </html>

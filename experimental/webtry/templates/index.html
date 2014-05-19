@@ -2,19 +2,17 @@
 <html>
 <head>
     <title>Skia WebTry</title>
-    <meta charset='utf-8' />
-    <script src="/res/js/pointerevents.min.js" type="text/javascript" charset="utf-8"></script>
-    <link rel="stylesheet" href="/res/css/webtry.css" type="text/css" media="screen">
-    <link rel="stylesheet" href="/res/css/cm/codemirror.css" type="text/css" media="screen">
+    {{template "headercommon.html" .}}
+    <link rel='import' type='text/html' href='/res/imp/zoom.html'>
 </head>
 <body>
   {{template "titlebar.html" .}}
   {{template "content.html" .}}
 
-  <script type='text/javascript' charset='utf-8'>
+  <script type='text/javascript'>
       // Not running in a workspace.
-      var workspaceName = "";
+      var workspaceName = '';
   </script>
-  <script src="/res/js/webtry.js" type="text/javascript" charset="utf-8"></script>
+  {{template "footercommon.html" .}}
 </body>
 </html>

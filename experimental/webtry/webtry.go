@@ -140,6 +140,8 @@ func init() {
 		filepath.Join(cwd, "templates/index.html"),
 		filepath.Join(cwd, "templates/titlebar.html"),
 		filepath.Join(cwd, "templates/content.html"),
+		filepath.Join(cwd, "templates/headercommon.html"),
+		filepath.Join(cwd, "templates/footercommon.html"),
 	)
 	if err != nil {
 		panic(err)
@@ -147,6 +149,8 @@ func init() {
 	iframeTemplate, err = htemplate.ParseFiles(
 		filepath.Join(cwd, "templates/iframe.html"),
 		filepath.Join(cwd, "templates/content.html"),
+		filepath.Join(cwd, "templates/headercommon.html"),
+		filepath.Join(cwd, "templates/footercommon.html"),
 	)
 	if err != nil {
 		panic(err)
@@ -154,6 +158,8 @@ func init() {
 	recentTemplate, err = htemplate.ParseFiles(
 		filepath.Join(cwd, "templates/recent.html"),
 		filepath.Join(cwd, "templates/titlebar.html"),
+		filepath.Join(cwd, "templates/headercommon.html"),
+		filepath.Join(cwd, "templates/footercommon.html"),
 	)
 	if err != nil {
 		panic(err)
@@ -162,6 +168,8 @@ func init() {
 		filepath.Join(cwd, "templates/workspace.html"),
 		filepath.Join(cwd, "templates/titlebar.html"),
 		filepath.Join(cwd, "templates/content.html"),
+		filepath.Join(cwd, "templates/headercommon.html"),
+		filepath.Join(cwd, "templates/footercommon.html"),
 	)
 	if err != nil {
 		panic(err)

@@ -9,26 +9,6 @@ img {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAAAAAA6mKC9AAAAAXNSR0IArs4c6QAAAAJiS0dEAP+Hj8y/AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAB3RJTUUH3gUBEi4DGRAQYgAAAB1JREFUGNNjfMoAAVJQmokBDdBHgPE/lPFsYN0BABdaAwN6tehMAAAAAElFTkSuQmCC");
 }
 
-.zoom {
-  cursor: crosshair;
-}
-
-.zoomCanvas {
-  position: absolute;
-  width: vmin;
-  height: vmin;
-  top: 3em;
-  right: 1em;
-  z-index: -1;
-}
-
-#zoomCopy {
-  display: none;
-}
-
-#zoomHex {
-  text-shadow: 1px 1px #eee;
-}
 
 h1 {
   font-size: 18px;

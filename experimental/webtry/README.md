@@ -89,5 +89,6 @@ Do this step only once, but only after running webtry_setup.sh the first time
 Third Party Code
 ----------------
 
-  * res/js/pointerevents.min.js - obtained from https://github.com/components/pointerevents-polyfill
+  * res/js/polyfill.js - Various JS polyfill libraries. To rebuild or update
+    see polyfill/README.md.
 
