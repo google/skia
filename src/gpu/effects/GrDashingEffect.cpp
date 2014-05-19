@@ -79,7 +79,7 @@ static SkScalar calc_end_adjustment(const SkPathEffect::DashInfo& info, const Sk
     }
     if (*endingInt > info.fIntervals[0]) {
         if (0 == info.fIntervals[0]) {
-            *endingInt -= 0.01; // make sure we capture the last zero size pnt (used if has caps)
+            *endingInt -= 0.01f; // make sure we capture the last zero size pnt (used if has caps)
         }
         return *endingInt - info.fIntervals[0];
     }
