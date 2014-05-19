@@ -859,7 +859,8 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
 
     // Record this, so we can concat w/ it if we encounter a setMatrix()
     SkMatrix initialMatrix = canvas.getTotalMatrix();
-    int originalSaveCount = canvas.getSaveCount();
+
+    SkAutoCanvasRestore acr(&canvas, false);
 
 #ifdef SK_BUILD_FOR_ANDROID
     fAbortCurrentPlayback = false;
@@ -871,7 +872,6 @@ void SkPicturePlayback::draw(SkCanvas& canvas, SkDrawPictureCallback* callback) 
 
     while (!reader.eof()) {
         if (callback && callback->abortDrawing()) {
-            canvas.restoreToCount(originalSaveCount);
             return;
         }
 #ifdef SK_BUILD_FOR_ANDROID

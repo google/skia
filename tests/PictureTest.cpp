@@ -975,6 +975,48 @@ static void test_unbalanced_save_restores(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
         REPORTER_ASSERT(reporter, testCanvas.getTotalMatrix().isIdentity());
     }
+
+#if defined(SK_SUPPORT_LEGACY_PICTURE_CAN_RECORD) && \
+    defined(SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES)
+    set_canvas_to_save_count_4(&testCanvas);
+
+    // Due to "fake" endRecording, the old SkPicture recording interface
+    // allowed unbalanced saves/restores to leak out. This sub-test checks
+    // that the situation has been remedied.
+    {
+        SkPicture p;
+
+        SkCanvas* canvas = p.beginRecording(100, 100);
+        for (int i = 0; i < 4; ++i) {
+           canvas->save();
+        }
+        SkRect r = SkRect::MakeWH(50, 50);
+        SkPaint paint;
+        canvas->drawRect(r, paint);
+
+        // Copying a mid-recording picture could result in unbalanced saves/restores
+        SkPicture p2(p);
+
+        testCanvas.drawPicture(p2);
+        REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
+        set_canvas_to_save_count_4(&testCanvas);
+
+        // Cloning a mid-recording picture could result in unbalanced saves/restores
+        SkAutoTUnref<SkPicture> p3(p.clone());
+        testCanvas.drawPicture(*p3);
+        REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
+        set_canvas_to_save_count_4(&testCanvas);
+
+        // Serializing a mid-recording picture could result in unbalanced saves/restores
+        SkDynamicMemoryWStream wStream;
+        p.serialize(&wStream);
+        SkAutoDataUnref data(wStream.copyToData());
+        SkMemoryStream stream(data);
+        SkAutoTUnref<SkPicture> p4(SkPicture::CreateFromStream(&stream, NULL));
+        testCanvas.drawPicture(*p4);
+        REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
+    }
+#endif
 }
 
 static void test_peephole() {
