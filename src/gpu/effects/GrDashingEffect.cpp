@@ -14,7 +14,6 @@
 #include "GrDrawTargetCaps.h"
 #include "GrEffect.h"
 #include "GrTBackendEffectFactory.h"
-#include "SkGpuDevice.h"
 #include "SkGr.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -87,8 +86,7 @@ static SkScalar calc_end_adjustment(const SkPathEffect::DashInfo& info, const Sk
 }
 
 
-bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const SkPaint& paint, SkGpuDevice* dev) {
-    GrContext* context = dev->context();
+bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const SkPaint& paint, GrContext* context) {
     if (context->getRenderTarget()->isMultisampled()) {
         return false;
     }
@@ -139,7 +137,7 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const SkPaint& paint, S
     }
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(dev, paint, true, &grPaint);
+    SkPaint2GrPaintShader(context, paint, true, &grPaint);
 
     bool useAA = paint.isAntiAlias();
     

@@ -398,7 +398,7 @@ void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw, false);
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this, paint, true, &grPaint);
+    SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
     fContext->drawPaint(grPaint);
 }
@@ -421,7 +421,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     }
 
     if (paint.getPathEffect() && 2 == count && SkCanvas::kLines_PointMode == mode) {
-        if (GrDashingEffect::DrawDashLine(pts, paint, this)) {
+        if (GrDashingEffect::DrawDashLine(pts, paint, this->context())) {
             return;
         }
     }
@@ -434,7 +434,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     }
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this, paint, true, &grPaint);
+    SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
     fContext->drawVertices(grPaint,
                            gPointMode2PrimtiveType[mode],
@@ -491,7 +491,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     }
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this, paint, true, &grPaint);
+    SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
     if (!doStroke) {
         fContext->drawRect(grPaint, rect);
@@ -509,7 +509,7 @@ void SkGpuDevice::drawRRect(const SkDraw& draw, const SkRRect& rect,
     CHECK_SHOULD_DRAW(draw, false);
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this, paint, true, &grPaint);
+    SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
     SkStrokeRec stroke(paint);
     if (paint.getMaskFilter()) {
@@ -563,7 +563,7 @@ void SkGpuDevice::drawDRRect(const SkDraw& draw, const SkRRect& outer,
         CHECK_SHOULD_DRAW(draw, false);
 
         GrPaint grPaint;
-        SkPaint2GrPaintShader(this, paint, true, &grPaint);
+        SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
         if (NULL == paint.getMaskFilter() && NULL == paint.getPathEffect()) {
             fContext->drawDRRect(grPaint, outer, inner);
@@ -601,7 +601,7 @@ void SkGpuDevice::drawOval(const SkDraw& draw, const SkRect& oval,
     }
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this, paint, true, &grPaint);
+    SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
     SkStrokeRec stroke(paint);
 
     fContext->drawOval(grPaint, oval, stroke);
@@ -752,7 +752,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     CHECK_SHOULD_DRAW(draw, false);
 
     GrPaint grPaint;
-    SkPaint2GrPaintShader(this, paint, true, &grPaint);
+    SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
     // If we have a prematrix, apply it to the path, optimizing for the case
     // where the original path can in fact be modified in place (even though
@@ -1400,7 +1400,7 @@ void SkGpuDevice::internalDrawBitmap(const SkBitmap& bitmap,
     GrPaint grPaint;
     grPaint.addColorEffect(effect);
     bool alphaOnly = !(SkBitmap::kA8_Config == bitmap.config());
-    SkPaint2GrPaintNoShader(this, paint, alphaOnly, false, &grPaint);
+    SkPaint2GrPaintNoShader(this->context(), paint, alphaOnly, false, &grPaint);
 
     fContext->drawRectToRect(grPaint, dstRect, paintRect, NULL);
 }
@@ -1466,7 +1466,7 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     GrPaint grPaint;
     grPaint.addColorTextureEffect(texture, SkMatrix::I());
 
-    SkPaint2GrPaintNoShader(this, paint, true, false, &grPaint);
+    SkPaint2GrPaintNoShader(this->context(), paint, true, false, &grPaint);
 
     fContext->drawRectToRect(grPaint,
                              SkRect::MakeXYWH(SkIntToScalar(left),
@@ -1574,7 +1574,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkBaseDevice* device,
     GrPaint grPaint;
     grPaint.addColorTextureEffect(devTex, SkMatrix::I());
 
-    SkPaint2GrPaintNoShader(this, paint, true, false, &grPaint);
+    SkPaint2GrPaintNoShader(this->context(), paint, true, false, &grPaint);
 
     SkRect dstRect = SkRect::MakeXYWH(SkIntToScalar(x),
                                       SkIntToScalar(y),
@@ -1635,9 +1635,9 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     GrPaint grPaint;
     // we ignore the shader if texs is null.
     if (NULL == texs) {
-        SkPaint2GrPaintNoShader(this, paint, false, NULL == colors, &grPaint);
+        SkPaint2GrPaintNoShader(this->context(), paint, false, NULL == colors, &grPaint);
     } else {
-        SkPaint2GrPaintShader(this, paint, NULL == colors, &grPaint);
+        SkPaint2GrPaintShader(this->context(), paint, NULL == colors, &grPaint);
     }
 
     if (NULL != xmode && NULL != texs && NULL != colors) {
@@ -1677,14 +1677,14 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
 
     if (fMainTextContext->canDraw(paint)) {
         GrPaint grPaint;
-        SkPaint2GrPaintShader(this, paint, true, &grPaint);
+        SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
         SkDEBUGCODE(this->validate();)
 
         fMainTextContext->drawText(grPaint, paint, (const char *)text, byteLength, x, y);
     } else if (fFallbackTextContext && fFallbackTextContext->canDraw(paint)) {
         GrPaint grPaint;
-        SkPaint2GrPaintShader(this, paint, true, &grPaint);
+        SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
         SkDEBUGCODE(this->validate();)
 
@@ -1703,7 +1703,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
 
     if (fMainTextContext->canDraw(paint)) {
         GrPaint grPaint;
-        SkPaint2GrPaintShader(this, paint, true, &grPaint);
+        SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
         SkDEBUGCODE(this->validate();)
 
@@ -1711,7 +1711,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
                                       constY, scalarsPerPos);
     } else if (fFallbackTextContext && fFallbackTextContext->canDraw(paint)) {
         GrPaint grPaint;
-        SkPaint2GrPaintShader(this, paint, true, &grPaint);
+        SkPaint2GrPaintShader(this->context(), paint, true, &grPaint);
 
         SkDEBUGCODE(this->validate();)
 

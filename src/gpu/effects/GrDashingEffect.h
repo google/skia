@@ -12,13 +12,13 @@
 #include "GrTypesPriv.h"
 #include "SkPathEffect.h"
 
-class SkGpuDevice;
+class GrContext;
 
 class GrGLDashingEffect;
 class SkPath;
 
 namespace GrDashingEffect {
-    bool DrawDashLine(const SkPoint pnts[2], const SkPaint& paint, SkGpuDevice* dev);
+    bool DrawDashLine(const SkPoint pnts[2], const SkPaint& paint, GrContext* context);
 
     /**
      * An effect that renders a dashed line. It is intended to be used as a coverage effect.

@@ -8,7 +8,6 @@
 #include "SkGr.h"
 #include "SkColorFilter.h"
 #include "SkConfig8888.h"
-#include "SkGpuDevice.h"
 #include "SkMessageBus.h"
 #include "SkPixelRef.h"
 #include "GrResourceCache.h"
@@ -328,7 +327,7 @@ bool GrPixelConfig2ColorType(GrPixelConfig config, SkColorType* ctOut) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkPaint2GrPaintNoShader(SkGpuDevice* dev, const SkPaint& skPaint, bool justAlpha,
+void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, bool justAlpha,
                              bool constantColor, GrPaint* grPaint) {
 
     grPaint->setDither(skPaint.isDither());
@@ -371,7 +370,7 @@ void SkPaint2GrPaintNoShader(SkGpuDevice* dev, const SkPaint& skPaint, bool just
             SkColor filtered = colorFilter->filterColor(skPaint.getColor());
             grPaint->setColor(SkColor2GrColor(filtered));
         } else {
-            SkAutoTUnref<GrEffectRef> effect(colorFilter->asNewEffect(dev->context()));
+            SkAutoTUnref<GrEffectRef> effect(colorFilter->asNewEffect(context));
             if (NULL != effect.get()) {
                 grPaint->addColorEffect(effect);
             }
@@ -379,24 +378,24 @@ void SkPaint2GrPaintNoShader(SkGpuDevice* dev, const SkPaint& skPaint, bool just
     }
 }
 
-void SkPaint2GrPaintShader(SkGpuDevice* dev, const SkPaint& skPaint,
+void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
                            bool constantColor, GrPaint* grPaint) {
     SkShader* shader = skPaint.getShader();
     if (NULL == shader) {
-        SkPaint2GrPaintNoShader(dev, skPaint, false, constantColor, grPaint);
+        SkPaint2GrPaintNoShader(context, skPaint, false, constantColor, grPaint);
         return;
     }
 
     // SkShader::asNewEffect() may do offscreen rendering. Setup default drawing state and require
     // the shader to set a render target.
-    GrContext::AutoWideOpenIdentityDraw awo(dev->context(), NULL);
+    GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
 
     // setup the shader as the first color effect on the paint
-    SkAutoTUnref<GrEffectRef> effect(shader->asNewEffect(dev->context(), skPaint, NULL));
+    SkAutoTUnref<GrEffectRef> effect(shader->asNewEffect(context, skPaint, NULL));
     if (NULL != effect.get()) {
         grPaint->addColorEffect(effect);
         // Now setup the rest of the paint.
-        SkPaint2GrPaintNoShader(dev, skPaint, true, false, grPaint);
+        SkPaint2GrPaintNoShader(context, skPaint, true, false, grPaint);
     } else {
         // We still don't have SkColorShader::asNewEffect() implemented.
         SkShader::GradientInfo info;
@@ -411,9 +410,9 @@ void SkPaint2GrPaintShader(SkGpuDevice* dev, const SkPaint& skPaint,
             // modulate the paint alpha by the shader's solid color alpha
             U8CPU newA = SkMulDiv255Round(SkColorGetA(color), copy.getAlpha());
             copy.setColor(SkColorSetA(color, newA));
-            SkPaint2GrPaintNoShader(dev, copy, false, constantColor, grPaint);
+            SkPaint2GrPaintNoShader(context, copy, false, constantColor, grPaint);
         } else {
-            SkPaint2GrPaintNoShader(dev, skPaint, false, constantColor, grPaint);
+            SkPaint2GrPaintNoShader(context, skPaint, false, constantColor, grPaint);
         }
     }
 }
