@@ -374,24 +374,24 @@ protected:
             paint.setStrokeCap(SkPaint::kSquare_Cap);
 
             // Single dash element that is cut off at start and end
-            drawline(canvas, 32.f, 16.f, paint, 20.f, 0, 5.f);
+            drawline(canvas, 32, 16, paint, 20.f, 0, 5.f);
             canvas->translate(0, SkIntToScalar(20));
 
             // Two dash elements where each one is cut off at beginning and end respectively
-            drawline(canvas, 32.f, 16.f, paint, 56.f, 0, 5.f);
+            drawline(canvas, 32, 16, paint, 56.f, 0, 5.f);
             canvas->translate(0, SkIntToScalar(20));
 
             // Many dash elements where first and last are cut off at beginning and end respectively
-            drawline(canvas, 32.f, 16.f, paint, 584.f, 0, 5.f);
+            drawline(canvas, 32, 16, paint, 584.f, 0, 5.f);
             canvas->translate(0, SkIntToScalar(20));
 
             // Diagonal dash line where src pnts are not axis aligned (as apposed to being diagonal from
             // a canvas rotation)
-            drawline(canvas, 32.f, 16.f, paint, 600.f, 30.f);
+            drawline(canvas, 32, 16, paint, 600.f, 30.f);
             canvas->translate(0, SkIntToScalar(20));
 
             // Case where only the off interval exists on the line. Thus nothing should be drawn
-            drawline(canvas, 32.f, 16.f, paint, 8.f, 0.f, 40.f);
+            drawline(canvas, 32, 16, paint, 8.f, 0.f, 40.f);
             canvas->translate(0, SkIntToScalar(20));
         }
     }
