@@ -924,7 +924,7 @@ static const SkGlyph& sk_getMetrics_utf32_xy(SkGlyphCache* cache,
     SkASSERT(text != NULL);
 
     const int32_t* ptr = *(const int32_t**)text;
-    SkUnichar uni = *--ptr;
+    SkUnichar uni = *ptr++;
     *text = (const char*)ptr;
     return cache->getUnicharMetrics(uni, x, y);
 }
