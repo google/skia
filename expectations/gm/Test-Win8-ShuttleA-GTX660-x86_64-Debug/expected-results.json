@@ -15095,10 +15095,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15881700783330850304
+          10380483174533663495
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "pictureshader_msaa16.png": {
       "allowed-digests": [
