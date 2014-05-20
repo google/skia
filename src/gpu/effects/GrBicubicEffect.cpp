@@ -177,3 +177,36 @@ GrEffectRef* GrBicubicEffect::TestCreate(SkRandom* random,
     }
     return GrBicubicEffect::Create(textures[texIdx], coefficients);
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool GrBicubicEffect::ShouldUseBicubic(const SkMatrix& matrix,
+                                       GrTextureParams::FilterMode* filterMode) {
+    if (matrix.isIdentity()) {
+        *filterMode = GrTextureParams::kNone_FilterMode;
+        return false;
+    }
+
+    SkScalar scales[2];
+    if (!matrix.getMinMaxScales(scales) || scales[0] < SK_Scalar1) {
+        // Bicubic doesn't handle arbitrary minimization well, as src texels can be skipped
+        // entirely,
+        *filterMode = GrTextureParams::kMipMap_FilterMode;
+        return false;
+    }
+    // At this point if scales[1] == SK_Scalar1 then the matrix doesn't do any scaling.
+    if (scales[1] == SK_Scalar1) {
+        if (matrix.rectStaysRect() && SkScalarIsInt(matrix.getTranslateX()) &&
+            SkScalarIsInt(matrix.getTranslateY())) {
+            *filterMode = GrTextureParams::kNone_FilterMode;
+        } else {
+            // Use bilerp to handle rotation or fractional translation.
+            *filterMode = GrTextureParams::kBilerp_FilterMode;
+        }
+        return false;
+    }
+    // When we use the bicubic filtering effect each sample is read from the texture using
+    // nearest neighbor sampling.
+    *filterMode = GrTextureParams::kNone_FilterMode;
+    return true;
+}

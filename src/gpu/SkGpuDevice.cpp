@@ -1170,20 +1170,16 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
     SkPaint::FilterLevel paintFilterLevel = paint.getFilterLevel();
     GrTextureParams::FilterMode textureFilterMode;
 
-    int tileFilterPad;
     bool doBicubic = false;
 
     switch(paintFilterLevel) {
         case SkPaint::kNone_FilterLevel:
-            tileFilterPad = 0;
             textureFilterMode = GrTextureParams::kNone_FilterMode;
             break;
         case SkPaint::kLow_FilterLevel:
-            tileFilterPad = 1;
             textureFilterMode = GrTextureParams::kBilerp_FilterMode;
             break;
         case SkPaint::kMedium_FilterLevel:
-            tileFilterPad = 1;
             if (fContext->getMatrix().getMinScale() < SK_Scalar1) {
                 textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             } else {
@@ -1193,26 +1189,26 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
             break;
         case SkPaint::kHigh_FilterLevel:
             // Minification can look bad with the bicubic effect.
-            if (fContext->getMatrix().getMinScale() >= SK_Scalar1) {
-                // We will install an effect that does the filtering in the shader.
-                textureFilterMode = GrTextureParams::kNone_FilterMode;
-                tileFilterPad = GrBicubicEffect::kFilterTexelPad;
-                doBicubic = true;
-            } else {
-                textureFilterMode = GrTextureParams::kMipMap_FilterMode;
-                tileFilterPad = 1;
-            }
+            doBicubic =
+                GrBicubicEffect::ShouldUseBicubic(fContext->getMatrix(), &textureFilterMode);
             break;
         default:
             SkErrorInternals::SetError( kInvalidPaint_SkError,
                                         "Sorry, I don't understand the filtering "
                                         "mode you asked for.  Falling back to "
                                         "MIPMaps.");
-            tileFilterPad = 1;
             textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             break;
     }
 
+    int tileFilterPad;
+    if (doBicubic) {
+        tileFilterPad = GrBicubicEffect::kFilterTexelPad;
+    } else if (GrTextureParams::kNone_FilterMode == textureFilterMode) {
+        tileFilterPad = 0;
+    } else {
+        tileFilterPad = 1;
+    }
     params.setFilterMode(textureFilterMode);
 
     int maxTileSize = fContext->getMaxTextureSize() - 2 * tileFilterPad;

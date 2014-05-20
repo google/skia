@@ -78,6 +78,16 @@ public:
         return CreateEffectRef(effect);
     }
 
+    /**
+     * Determines whether the bicubic effect should be used based on the transformation from the
+     * local coords to the device. Returns true if the bicubic effect should be used. filterMode
+     * is set to appropriate filtering mode to use regardless of the return result (e.g. when this
+     * returns false it may indicate that the best fallback is to use kMipMap, kBilerp, or
+     * kNearest).
+     */
+    static bool ShouldUseBicubic(const SkMatrix& localCoordsToDevice,
+                                 GrTextureParams::FilterMode* filterMode);
+
 private:
     GrBicubicEffect(GrTexture*, const SkScalar coefficients[16],
                     const SkMatrix &matrix, const SkShader::TileMode tileModes[2]);

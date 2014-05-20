@@ -45,3 +45,10 @@ ninepatch-stretch
 # humper: https://codereview.chromium.org/292773003/
 # changed texture coordinate generation for GPU rrect blur; will rebaseline after land.
 simpleblurroundrect
+
+# bsalomon: https://codereview.chromium.org/282293004/
+# Conditionally fallback from bicubic filtering based on matrix.
+downsamplebitmap_checkerboard_high_512_256
+downsamplebitmap_image_high_mandrill_512.png
+filterbitmap_checkerboard_192_192
+downsamplebitmap_text_high_72.00pt
