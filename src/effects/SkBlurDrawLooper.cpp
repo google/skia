@@ -17,13 +17,6 @@
 #include "SkString.h"
 #include "SkStringUtils.h"
 
-#ifdef SK_SUPPORT_LEGACY_BLURDRAWLOOPERCONSTRUCTORS
-SkBlurDrawLooper::SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy,
-                                   SkColor color, uint32_t flags) {
-    this->init(SkBlurMask::ConvertRadiusToSigma(radius), dx, dy, color, flags);
-}
-#endif
-
 SkBlurDrawLooper::SkBlurDrawLooper(SkColor color, SkScalar sigma,
                                    SkScalar dx, SkScalar dy, uint32_t flags) {
     this->init(sigma, dx, dy, color, flags);

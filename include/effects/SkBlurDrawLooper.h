@@ -40,11 +40,6 @@ public:
         return SkNEW_ARGS(SkBlurDrawLooper, (color, sigma, dx, dy, flags));
     }
 
-#ifdef SK_SUPPORT_LEGACY_BLURDRAWLOOPERCONSTRUCTORS
-    SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy, SkColor color,
-                     uint32_t flags = kNone_BlurFlag);
-#endif
-
     virtual ~SkBlurDrawLooper();
 
     virtual SkDrawLooper::Context* createContext(SkCanvas*, void* storage) const SK_OVERRIDE;
