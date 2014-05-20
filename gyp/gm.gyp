@@ -76,7 +76,7 @@
         }],
         ['skia_poppler_enabled', {
           'dependencies': [
-            'poppler.gyp:libpoppler-cpp-gpl',
+            'poppler.gyp:*',
           ],
           'defines': [
             'SK_BUILD_POPPLER',

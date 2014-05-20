@@ -8,11 +8,14 @@
 # dependencies using your system's package manager.  If your system is
 # not supported, add logic here to support it.
 
+set -e
+
 if command -v lsb_release > /dev/null ; then
     case $(lsb_release -i -s) in
         Ubuntu)
             sudo apt-get install \
                 build-essential \
+		libpoppler-cpp-dev \
 		libfreetype6-dev \
 		libfontconfig-dev \
 		libpng12-dev \
