@@ -1456,8 +1456,8 @@ enum MinOrMax {
     kMax_MinOrMax
 };
 
-template <MinOrMax MIN_OR_MAX> SkScalar get_stretch_factor(SkMatrix::TypeMask typeMask,
-                                                           const SkScalar m[9]) {
+template <MinOrMax MIN_OR_MAX> SkScalar get_scale_factor(SkMatrix::TypeMask typeMask,
+                                                         const SkScalar m[9]) {
     if (typeMask & SkMatrix::kPerspective_Mask) {
         return -1;
     }
@@ -1510,12 +1510,12 @@ template <MinOrMax MIN_OR_MAX> SkScalar get_stretch_factor(SkMatrix::TypeMask ty
     return SkScalarSqrt(chosenRoot);
 }
 
-SkScalar SkMatrix::getMinStretch() const {
-    return get_stretch_factor<kMin_MinOrMax>(this->getType(), fMat);
+SkScalar SkMatrix::getMinScale() const {
+    return get_scale_factor<kMin_MinOrMax>(this->getType(), fMat);
 }
 
-SkScalar SkMatrix::getMaxStretch() const {
-    return get_stretch_factor<kMax_MinOrMax>(this->getType(), fMat);
+SkScalar SkMatrix::getMaxScale() const {
+    return get_scale_factor<kMax_MinOrMax>(this->getType(), fMat);
 }
 
 static void reset_identity_matrix(SkMatrix* identity) {

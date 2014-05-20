@@ -563,20 +563,20 @@ public:
     SK_TO_STRING_NONVIRT()
 
     /**
-     * Calculates the minimum stretching factor of the matrix. If the matrix has
+     * Calculates the minimum scaling factor of the matrix. If the matrix has
      * perspective -1 is returned.
      *
-     * @return minumum strecthing factor
+     * @return minumum scale factor
      */
-    SkScalar getMinStretch() const;
+    SkScalar getMinScale() const;
 
     /**
-     * Calculates the maximum stretching factor of the matrix. If the matrix has
+     * Calculates the maximum scale factor of the matrix. If the matrix has
      * perspective -1 is returned.
      *
-     * @return maximum strecthing factor
+     * @return maximum scale factor
      */
-    SkScalar getMaxStretch() const;
+    SkScalar getMaxScale() const;
 
     /**
      *  Return a reference to a const identity matrix

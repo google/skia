@@ -1184,7 +1184,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
             break;
         case SkPaint::kMedium_FilterLevel:
             tileFilterPad = 1;
-            if (fContext->getMatrix().getMinStretch() < SK_Scalar1) {
+            if (fContext->getMatrix().getMinScale() < SK_Scalar1) {
                 textureFilterMode = GrTextureParams::kMipMap_FilterMode;
             } else {
                 // Don't trigger MIP level generation unnecessarily.
@@ -1193,7 +1193,7 @@ void SkGpuDevice::drawBitmapCommon(const SkDraw& draw,
             break;
         case SkPaint::kHigh_FilterLevel:
             // Minification can look bad with the bicubic effect.
-            if (fContext->getMatrix().getMinStretch() >= SK_Scalar1) {
+            if (fContext->getMatrix().getMinScale() >= SK_Scalar1) {
                 // We will install an effect that does the filtering in the shader.
                 textureFilterMode = GrTextureParams::kNone_FilterMode;
                 tileFilterPad = GrBicubicEffect::kFilterTexelPad;

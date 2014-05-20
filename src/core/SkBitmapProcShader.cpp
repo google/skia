@@ -385,11 +385,11 @@ void SkBitmapProcShader::toString(SkString* str) const {
 // Note that this will return -1 if either matrix is perspective.
 static SkScalar get_combined_min_stretch(const SkMatrix& viewMatrix, const SkMatrix& localMatrix) {
     if (localMatrix.isIdentity()) {
-        return viewMatrix.getMinStretch();
+        return viewMatrix.getMinScale();
     } else {
         SkMatrix combined;
         combined.setConcat(viewMatrix, localMatrix);
-        return combined.getMinStretch();
+        return combined.getMinScale();
     }
 }
 

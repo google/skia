@@ -1725,7 +1725,7 @@ void GrGpuGL::onGpuDrawPath(const GrPath* path, SkPath::FillType fill) {
             vmi.mapRect(&bounds);
             // theoretically could set bloat = 0, instead leave it because of matrix inversion
             // precision.
-            SkScalar bloat = drawState->getViewMatrix().getMaxStretch() * SK_ScalarHalf;
+            SkScalar bloat = drawState->getViewMatrix().getMaxScale() * SK_ScalarHalf;
             bounds.outset(bloat, bloat);
         } else {
             avmr.setIdentity(drawState);
@@ -1818,7 +1818,7 @@ void GrGpuGL::onGpuDrawPaths(int pathCount, const GrPath** paths,
             vmi.mapRect(&bounds);
             // theoretically could set bloat = 0, instead leave it because of matrix inversion
             // precision.
-            SkScalar bloat = drawState->getViewMatrix().getMaxStretch() * SK_ScalarHalf;
+            SkScalar bloat = drawState->getViewMatrix().getMaxScale() * SK_ScalarHalf;
             bounds.outset(bloat, bloat);
         } else {
             avmr.setIdentity(drawState);

@@ -14,8 +14,8 @@ SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,
                                           const SkMatrix& viewM,
                                           const SkRect& pathBounds) {
     // In order to tesselate the path we get a bound on how much the matrix can
-    // stretch when mapping to screen coordinates.
-    SkScalar stretch = viewM.getMaxStretch();
+    // scale when mapping to screen coordinates.
+    SkScalar stretch = viewM.getMaxScale();
     SkScalar srcTol = devTol;
 
     if (stretch < 0) {
