@@ -223,14 +223,13 @@ public:
 
     /**
      *  Makes a deep copy of this PixelRef, respecting the requested config.
-     *  @param config Desired config.
      *  @param subset Subset of this PixelRef to copy. Must be fully contained within the bounds of
      *         of this PixelRef.
      *  @return A new SkPixelRef, or NULL if either there is an error (e.g. the destination could
      *          not be created with the given config), or this PixelRef does not support deep
      *          copies.
      */
-    virtual SkPixelRef* deepCopy(SkBitmap::Config config, const SkIRect* subset = NULL) {
+    virtual SkPixelRef* deepCopy(const SkIRect* subset = NULL) {
         return NULL;
     }
 

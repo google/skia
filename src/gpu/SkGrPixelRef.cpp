@@ -51,8 +51,7 @@ bool SkROLockPixelsPixelRef::onLockPixelsAreWritable() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkBitmap::Config dstConfig,
-                                           const SkIRect* subset) {
+static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, const SkIRect* subset) {
     if (NULL == texture) {
         return NULL;
     }
@@ -77,7 +76,7 @@ static SkGrPixelRef* copyToTexturePixelRef(GrTexture* texture, SkBitmap::Config 
         topLeft = NULL;
     }
     desc.fFlags = kRenderTarget_GrTextureFlagBit | kNoStencil_GrTextureFlagBit;
-    desc.fConfig = SkBitmapConfig2GrPixelConfig(dstConfig);
+    desc.fConfig = texture->config();
 
     SkImageInfo info;
     if (!GrPixelConfig2ColorType(desc.fConfig, &info.fColorType)) {
@@ -152,7 +151,7 @@ GrTexture* SkGrPixelRef::getTexture() {
     return NULL;
 }
 
-SkPixelRef* SkGrPixelRef::deepCopy(SkBitmap::Config dstConfig, const SkIRect* subset) {
+SkPixelRef* SkGrPixelRef::deepCopy(const SkIRect* subset) {
     if (NULL == fSurface) {
         return NULL;
     }
@@ -163,7 +162,7 @@ SkPixelRef* SkGrPixelRef::deepCopy(SkBitmap::Config dstConfig, const SkIRect* su
     // a GrTexture owned elsewhere (e.g., SkGpuDevice), and cannot live
     // independently of that texture.  Texture-backed pixel refs, on the other
     // hand, own their GrTextures, and are thus self-contained.
-    return copyToTexturePixelRef(fSurface->asTexture(), dstConfig, subset);
+    return copyToTexturePixelRef(fSurface->asTexture(), subset);
 }
 
 bool SkGrPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
