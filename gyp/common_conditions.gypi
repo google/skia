@@ -435,6 +435,9 @@
               # Extra warnings we like but that only Clang knows about.
               '-Wstring-conversion',
             ],
+            'cflags!': [
+                '-mfpmath=sse',  # Clang doesn't need to be told this, and sometimes gets confused.
+            ],
           }],
           [ 'skia_keep_frame_pointer', {
             'cflags': [ '-fno-omit-frame-pointer' ],
