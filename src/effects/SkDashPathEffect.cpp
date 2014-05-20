@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkDashPathEffect.h"
 #include "SkReadBuffer.h"
@@ -544,7 +542,7 @@ SkFlattenable* SkDashPathEffect::CreateProc(SkReadBuffer& buffer) {
 }
 
 SkDashPathEffect::SkDashPathEffect(SkReadBuffer& buffer) : INHERITED(buffer) {
-    bool useOldPic = buffer.pictureVersion() < 25 && 0 != buffer.pictureVersion();
+    bool useOldPic = buffer.isVersionLT(SkReadBuffer::kDashWritesPhaseIntervals_Version);
     if (useOldPic) {
         fInitialDashIndex = buffer.readInt();
         fInitialDashLength = buffer.readScalar();

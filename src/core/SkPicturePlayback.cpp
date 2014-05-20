@@ -534,7 +534,7 @@ bool SkPicturePlayback::parseStreamTag(SkPicture* picture,
 
             SkReadBuffer buffer(storage.get(), size);
             buffer.setFlags(pictInfoFlagsToReadBufferFlags(fInfo.fFlags));
-            buffer.setPictureVersion(fInfo.fVersion);
+            buffer.setVersion(fInfo.fVersion);
 
             fFactoryPlayback->setupBuffer(buffer);
             fTFPlayback.setupBuffer(buffer);
@@ -634,7 +634,7 @@ SkPicturePlayback* SkPicturePlayback::CreateFromBuffer(SkPicture* picture,
                                                        SkReadBuffer& buffer,
                                                        const SkPictInfo& info) {
     SkAutoTDelete<SkPicturePlayback> playback(SkNEW_ARGS(SkPicturePlayback, (picture, info)));
-    buffer.setPictureVersion(info.fVersion);
+    buffer.setVersion(info.fVersion);
 
     if (!playback->parseBuffer(picture, buffer)) {
         return NULL;

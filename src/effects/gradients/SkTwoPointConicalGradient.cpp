@@ -351,9 +351,7 @@ SkTwoPointConicalGradient::SkTwoPointConicalGradient(
     fCenter2(buffer.readPoint()),
     fRadius1(buffer.readScalar()),
     fRadius2(buffer.readScalar()) {
-    if (buffer.pictureVersion() >= 24 || 0 == buffer.pictureVersion()) {
-        fFlippedGrad = buffer.readBool();
-    } else {
+    if (buffer.isVersionLT(SkReadBuffer::kGradientFlippedFlag_Version)) {
         // V23_COMPATIBILITY_CODE
         // Sort gradient by radius size for old pictures
         if (fRadius2 < fRadius1) {
@@ -364,6 +362,8 @@ SkTwoPointConicalGradient::SkTwoPointConicalGradient(
         } else {
             fFlippedGrad = false;
         }
+    } else {
+        fFlippedGrad = buffer.readBool();
     }
     this->init();
 };
