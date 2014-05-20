@@ -378,6 +378,26 @@ void SkPaint2GrPaintNoShader(GrContext* context, const SkPaint& skPaint, bool ju
     }
 }
 
+/**
+ * Unlike GrContext::AutoMatrix, this doesn't require setting a new matrix. GrContext::AutoMatrix
+ * likes to set the new matrix in its constructor because it is usually necessary to simulataneously
+ * update a GrPaint. This AutoMatrix is used while initially setting up GrPaint, however.
+ */
+class AutoMatrix {
+public:
+    AutoMatrix(GrContext* context) {
+        fMatrix = context->getMatrix();
+        fContext = context;
+    }
+    ~AutoMatrix() {
+        SkASSERT(NULL != fContext);
+        fContext->setMatrix(fMatrix);
+    }
+private:
+    GrContext* fContext;
+    SkMatrix fMatrix;
+};
+
 void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
                            bool constantColor, GrPaint* grPaint) {
     SkShader* shader = skPaint.getShader();
@@ -386,9 +406,12 @@ void SkPaint2GrPaintShader(GrContext* context, const SkPaint& skPaint,
         return;
     }
 
-    // SkShader::asNewEffect() may do offscreen rendering. Setup default drawing state and require
-    // the shader to set a render target.
-    GrContext::AutoWideOpenIdentityDraw awo(context, NULL);
+    // SkShader::asNewEffect() may do offscreen rendering. Save off the current RT, clip, and
+    // matrix. We don't reset the matrix on the context because SkShader::asNewEffect may use
+    // GrContext::getMatrix() to know the transformation from local coords to device space.
+    GrContext::AutoRenderTarget art(context, NULL);
+    GrContext::AutoClip ac(context, GrContext::AutoClip::kWideOpen_InitialClip);
+    AutoMatrix am(context);
 
     // setup the shader as the first color effect on the paint
     SkAutoTUnref<GrEffectRef> effect(shader->asNewEffect(context, skPaint, NULL));
