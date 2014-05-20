@@ -15104,19 +15104,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16068130794510825896
+          14694612130825938684
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "pictureshader_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15881700783330850304
+          10380483174533663495
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "pictureshader_pdf-poppler.png": {
       "allowed-digests": [
