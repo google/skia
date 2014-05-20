@@ -140,7 +140,7 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const SkPaint& paint, G
     SkPaint2GrPaintShader(context, paint, true, &grPaint);
 
     bool useAA = paint.isAntiAlias();
-    
+
     // Scale corrections of intervals and stroke from view matrix
     SkScalar parallelScale;
     SkScalar perpScale;
@@ -174,7 +174,7 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const SkPaint& paint, G
             context->drawRect(grPaint, startRect, NULL, &srcRotInv);
 
             ptsRot[0].fX += info.fIntervals[0] + info.fIntervals[1] - info.fPhase;
-            info.fPhase = 0; 
+            info.fPhase = 0;
         }
     }
 
@@ -195,17 +195,17 @@ bool GrDashingEffect::DrawDashLine(const SkPoint pts[2], const SkPaint& paint, G
         // If we didn't adjust the end point then we just need to make sure the ending
         // dash isn't a full dash
         if (0 == endAdj && endingInterval != info.fIntervals[0]) {
-            
+
             SkPoint endPts[2];
             endPts[1] = ptsRot[1];
             endPts[0].fY = endPts[1].fY;
-            endPts[0].fX = endPts[1].fX - endingInterval; 
+            endPts[0].fX = endPts[1].fX - endingInterval;
 
             SkRect endRect;
             endRect.set(endPts, 2);
             endRect.outset(xStroke, halfStroke);
             context->drawRect(grPaint, endRect, NULL, &srcRotInv);
-            
+
             ptsRot[1].fX -= endingInterval + info.fIntervals[1];
             if (ptsRot[0].fX >= ptsRot[1].fX) {
                 // Nothing left to draw so just return
@@ -346,7 +346,7 @@ private:
     typedef GrGLEffect INHERITED;
 };
 
-GLDashingLineEffect::GLDashingLineEffect(const GrBackendEffectFactory& factory, 
+GLDashingLineEffect::GLDashingLineEffect(const GrBackendEffectFactory& factory,
                                      const GrDrawEffect& drawEffect)
     : INHERITED (factory) {
     fPrevRect.fLeft = SK_ScalarNaN;
@@ -420,7 +420,7 @@ GrGLEffect::EffectKey GLDashingLineEffect::GenKey(const GrDrawEffect& drawEffect
 }
 
 //////////////////////////////////////////////////////////////////////////////
-    
+
 GrEffectRef* DashingLineEffect::Create(GrEffectEdgeType edgeType, const DashInfo& info,
                                      const SkMatrix& matrix, SkScalar strokeWidth) {
     if (info.fCount != 2) {

@@ -329,7 +329,7 @@ private:
     void outputPoints(const SkPoint* pts, int count);
     void outputPointsCommon(const SkPoint* pts, int count);
     void outputScalar(SkScalar num);
-   
+
     typedef SkCanvas INHERITED;
 };
 

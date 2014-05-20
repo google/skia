@@ -155,4 +155,3 @@ void SkDebugger::getOverviewText(const SkTDArray<double>* typeTimes,
 void SkDebugger::getClipStackText(SkString* clipStack) {
     clipStack->set(fDebugCanvas->clipStackData());
 }
-
