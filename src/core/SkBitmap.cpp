@@ -885,7 +885,7 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 
     if (fPixelRef->getTexture() != NULL) {
         // Do a deep copy
-        SkPixelRef* pixelRef = fPixelRef->deepCopy(&subset);
+        SkPixelRef* pixelRef = fPixelRef->deepCopy(this->config(), &subset);
         if (pixelRef != NULL) {
             SkBitmap dst;
             dst.setConfig(this->config(), subset.width(), subset.height(), 0,
@@ -1085,7 +1085,8 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType,
 }
 
 bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
-    const SkColorType dstCT = this->colorType();
+    const SkBitmap::Config dstConfig = this->config();
+    const SkColorType dstCT = SkBitmapConfigToColorType(dstConfig);
 
     if (!this->canCopyTo(dstCT)) {
         return false;
@@ -1094,15 +1095,24 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
     // If we have a PixelRef, and it supports deep copy, use it.
     // Currently supported only by texture-backed bitmaps.
     if (fPixelRef) {
-        SkPixelRef* pixelRef = fPixelRef->deepCopy();
+        SkPixelRef* pixelRef = fPixelRef->deepCopy(dstConfig);
         if (pixelRef) {
-            // Since there is no subset to pass to deepCopy, and deepCopy
-            // succeeded, the new pixel ref must be identical.
-            SkASSERT(fPixelRef->info() == pixelRef->info());
-            pixelRef->cloneGenID(*fPixelRef);
+            uint32_t rowBytes;
+            if (this->colorType() == dstCT) {
+                // Since there is no subset to pass to deepCopy, and deepCopy
+                // succeeded, the new pixel ref must be identical.
+                SkASSERT(fPixelRef->info() == pixelRef->info());
+                pixelRef->cloneGenID(*fPixelRef);
+                // Use the same rowBytes as the original.
+                rowBytes = fRowBytes;
+            } else {
+                // With the new config, an appropriate fRowBytes will be computed by setConfig.
+                rowBytes = 0;
+            }
 
             SkImageInfo info = fInfo;
-            if (!dst->setConfig(info, fRowBytes)) {
+            info.fColorType = dstCT;
+            if (!dst->setConfig(info, rowBytes)) {
                 return false;
             }
             dst->setPixelRef(pixelRef, fPixelRefOrigin)->unref();

@@ -56,7 +56,7 @@ public:
 protected:
     // overrides from SkPixelRef
     virtual bool onReadPixels(SkBitmap* dst, const SkIRect* subset) SK_OVERRIDE;
-    virtual SkPixelRef* deepCopy(const SkIRect* subset) SK_OVERRIDE;
+    virtual SkPixelRef* deepCopy(SkBitmap::Config dstConfig, const SkIRect* subset) SK_OVERRIDE;
 
 private:
     GrSurface*  fSurface;
