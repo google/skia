@@ -81,7 +81,7 @@ private:
 /**
  * This ResultsWriter handles writing out the results in JSON.
  *
- * The output looks like:
+ * The output looks like (except compressed to a single line):
  *
  *  {
  *   "options" : {
@@ -90,9 +90,12 @@ private:
  *      ...
  *      "system" : "UNIX"
  *   },
- *   "results" : {
- *      "Xfermode_Luminosity_640_480" : {
- *         "565" : {
+ *   "results" : [
+ *      {
+ *      "name" : "Xfermode_Luminosity_640_480",
+ *      "results" : [
+ *         {
+ *            "name": "565",
  *            "cmsecs" : 143.188128906250,
  *            "msecs" : 143.835957031250
  *         },
@@ -113,7 +116,9 @@ private:
         if(search_results != NULL) {
             return search_results;
         } else {
-            return &(root->append(Json::Value()));
+            Json::Value* new_val = &(root->append(Json::Value()));
+            (*new_val)["name"] = name;
+            return new_val;
         }
     }
 public:
@@ -128,15 +133,17 @@ public:
         fRoot["options"][name] = value;
     }
     virtual void bench(const char name[], int32_t x, int32_t y) {
-        const char* full_name = SkStringPrintf( "%s_%d_%d", name, x, y).c_str();
-        Json::Value* bench_node = find_named_node(&fResults, full_name);
-        (*bench_node)["name"] = full_name;
+        SkString sk_name(name);
+        sk_name.append("_");
+        sk_name.appendS32(x);
+        sk_name.append("_");
+        sk_name.appendS32(y);
+        Json::Value* bench_node = find_named_node(&fResults, sk_name.c_str());
         fBench = &(*bench_node)["results"];
     }
     virtual void config(const char name[]) {
         SkASSERT(NULL != fBench);
         fConfig = find_named_node(fBench, name);
-        (*fConfig)["name"] = name;
     }
     virtual void timer(const char name[], double ms) {
         SkASSERT(NULL != fConfig);
@@ -144,10 +151,11 @@ public:
     }
     virtual void end() {
         SkFILEWStream stream(fFilename.c_str());
-        stream.writeText(fRoot.toStyledString().c_str());
+        stream.writeText(Json::FastWriter().write(fRoot).c_str());
         stream.flush();
     }
 private:
+
     SkString fFilename;
     Json::Value fRoot;
     Json::Value& fResults;
