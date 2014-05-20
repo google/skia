@@ -120,43 +120,67 @@ static void test_flatten(skiatest::Reporter* reporter, const SkMatrix& m) {
 }
 
 static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
+    SkScalar scales[2];
+    bool success;
+
     SkMatrix identity;
     identity.reset();
     REPORTER_ASSERT(reporter, SK_Scalar1 == identity.getMinScale());
     REPORTER_ASSERT(reporter, SK_Scalar1 == identity.getMaxScale());
+    success = identity.getMinMaxScales(scales);
+    REPORTER_ASSERT(reporter, success && SK_Scalar1 == scales[0] && SK_Scalar1 == scales[1]);
 
     SkMatrix scale;
     scale.setScale(SK_Scalar1 * 2, SK_Scalar1 * 4);
     REPORTER_ASSERT(reporter, SK_Scalar1 * 2 == scale.getMinScale());
     REPORTER_ASSERT(reporter, SK_Scalar1 * 4 == scale.getMaxScale());
+    success = scale.getMinMaxScales(scales);
+    REPORTER_ASSERT(reporter, success && SK_Scalar1 * 2 == scales[0] && SK_Scalar1 * 4 == scales[1]);
 
     SkMatrix rot90Scale;
     rot90Scale.setRotate(90 * SK_Scalar1);
     rot90Scale.postScale(SK_Scalar1 / 4, SK_Scalar1 / 2);
     REPORTER_ASSERT(reporter, SK_Scalar1 / 4 == rot90Scale.getMinScale());
     REPORTER_ASSERT(reporter, SK_Scalar1 / 2 == rot90Scale.getMaxScale());
+    success = rot90Scale.getMinMaxScales(scales);
+    REPORTER_ASSERT(reporter, success && SK_Scalar1 / 4  == scales[0] && SK_Scalar1 / 2 == scales[1]);
 
     SkMatrix rotate;
     rotate.setRotate(128 * SK_Scalar1);
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SK_Scalar1, rotate.getMinScale() ,SK_ScalarNearlyZero));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SK_Scalar1, rotate.getMinScale(), SK_ScalarNearlyZero));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SK_Scalar1, rotate.getMaxScale(), SK_ScalarNearlyZero));
+    success = rotate.getMinMaxScales(scales);
+    REPORTER_ASSERT(reporter, success);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SK_Scalar1, scales[0], SK_ScalarNearlyZero));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SK_Scalar1, scales[1], SK_ScalarNearlyZero));
 
     SkMatrix translate;
     translate.setTranslate(10 * SK_Scalar1, -5 * SK_Scalar1);
     REPORTER_ASSERT(reporter, SK_Scalar1 == translate.getMinScale());
     REPORTER_ASSERT(reporter, SK_Scalar1 == translate.getMaxScale());
+    success = translate.getMinMaxScales(scales);
+    REPORTER_ASSERT(reporter, success && SK_Scalar1 == scales[0] && SK_Scalar1 == scales[1]);
 
     SkMatrix perspX;
     perspX.reset();
     perspX.setPerspX(SkScalarToPersp(SK_Scalar1 / 1000));
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMinScale());
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMaxScale());
+    // Verify that getMinMaxScales() doesn't update the scales array on failure.
+    scales[0] = -5;
+    scales[1] = -5;
+    success = perspX.getMinMaxScales(scales);
+    REPORTER_ASSERT(reporter, !success && -5 * SK_Scalar1 == scales[0] && -5 * SK_Scalar1  == scales[1]);
 
     SkMatrix perspY;
     perspY.reset();
     perspY.setPerspY(SkScalarToPersp(-SK_Scalar1 / 500));
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspY.getMinScale());
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspY.getMaxScale());
+    scales[0] = -5;
+    scales[1] = -5;
+    success = perspY.getMinMaxScales(scales);
+    REPORTER_ASSERT(reporter, !success && -5 * SK_Scalar1 == scales[0] && -5 * SK_Scalar1  == scales[1]);
 
     SkMatrix baseMats[] = {scale, rot90Scale, rotate,
                            translate, perspX, perspY};
@@ -179,6 +203,11 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
         SkScalar maxScale = mat.getMaxScale();
         REPORTER_ASSERT(reporter, (minScale < 0) == (maxScale < 0));
         REPORTER_ASSERT(reporter, (maxScale < 0) == mat.hasPerspective());
+
+        SkScalar scales[2];
+        bool success = mat.getMinMaxScales(scales);
+        REPORTER_ASSERT(reporter, success == !mat.hasPerspective());
+        REPORTER_ASSERT(reporter, !success || (scales[0] == minScale && scales[1] == maxScale));
 
         if (mat.hasPerspective()) {
             m -= 1; // try another non-persp matrix

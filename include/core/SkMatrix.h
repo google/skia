@@ -563,21 +563,28 @@ public:
     SK_TO_STRING_NONVIRT()
 
     /**
-     * Calculates the minimum scaling factor of the matrix. If the matrix has
-     * perspective -1 is returned.
+     * Calculates the minimum scaling factor of the matrix as computed from the SVD of the upper
+     * left 2x2. If the matrix has perspective -1 is returned.
      *
      * @return minumum scale factor
      */
     SkScalar getMinScale() const;
 
     /**
-     * Calculates the maximum scale factor of the matrix. If the matrix has
-     * perspective -1 is returned.
+     * Calculates the maximum scaling factor of the matrix as computed from the SVD of the upper
+     * left 2x2. If the matrix has perspective -1 is returned.
      *
      * @return maximum scale factor
      */
     SkScalar getMaxScale() const;
 
+    /**
+     * Gets both the min and max scale factors. The min scale factor is scaleFactors[0] and the max
+     * is scaleFactors[1]. If the matrix has perspective false will be returned and scaleFactors
+     * will be unchanged.
+     */
+    bool getMinMaxScales(SkScalar scaleFactors[2]) const;
+        
     /**
      *  Return a reference to a const identity matrix
      */
