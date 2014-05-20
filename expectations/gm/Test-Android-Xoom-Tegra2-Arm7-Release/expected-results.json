@@ -615,11 +615,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17064574350106356585
+          16703280953816628958
         ]
-      ], 
-      "bugs": [
-        2561
       ], 
       "ignore-failure": true, 
       "reviewed-by-human": true
@@ -3197,7 +3194,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16679543673559096688
+          11226548876522986429
         ]
       ], 
       "reviewed-by-human": true
@@ -3230,13 +3227,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16108168154501778925
+          11649414644899884579
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "degeneratesegments_565.png": {
       "allowed-digests": [

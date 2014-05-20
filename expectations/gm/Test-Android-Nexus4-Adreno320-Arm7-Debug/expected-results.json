@@ -3416,13 +3416,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3324943851507847387
+          5544615485153057984
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashing_565.png": {
       "allowed-digests": [
@@ -3452,13 +3449,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16108168154501778925
+          2637106900149052753
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "degeneratesegments_565.png": {
       "allowed-digests": [

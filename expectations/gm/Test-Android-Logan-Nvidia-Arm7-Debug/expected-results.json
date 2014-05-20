@@ -4513,10 +4513,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1968311162567272920
+          8744019120027344709
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashing3_msaa16.png": {
       "allowed-digests": [
@@ -4558,10 +4558,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11137490508568328458
+          484770861362799750
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashing_msaa16.png": {
       "allowed-digests": [

@@ -42,13 +42,6 @@ canvas-layer-state
 # bsalomon@ will rebaseline this test
 ninepatch-stretch
 
-# egdaniel: https://codereview.chromium.org/274673004/
-# dashing effects will change slightly on GPU, will rebaseline after patch lands
-dashing
-dashing2
-dashing3
-dashcubics
-
 # humper: https://codereview.chromium.org/292773003/
 # changed texture coordinate generation for GPU rrect blur; will rebaseline after land.
 simpleblurroundrect

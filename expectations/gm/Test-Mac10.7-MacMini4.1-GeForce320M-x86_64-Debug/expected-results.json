@@ -6248,10 +6248,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4966669430067892482
+          5174838507087711872
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "dashing3_mesa.png": {
       "allowed-digests": [
@@ -6311,10 +6312,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11823947254095852426
+          7134946501053545745
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "dashing_pdf-mac.png": {
       "allowed-digests": [

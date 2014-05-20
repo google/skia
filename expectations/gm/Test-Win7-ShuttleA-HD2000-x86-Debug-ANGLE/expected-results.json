@@ -5634,10 +5634,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3706653746584108981
+          9007012854784815137
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "dashing3_gpu.png": {
       "allowed-digests": [
@@ -5691,10 +5692,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11137490508568328458
+          484770861362799750
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "dashing_gpu.png": {
       "allowed-digests": [

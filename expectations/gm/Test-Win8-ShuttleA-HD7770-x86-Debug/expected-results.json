@@ -4867,13 +4867,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2348462224829777854
+          11582045216852605969
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashing3_pdf-poppler.png": {
       "allowed-digests": [
@@ -4915,13 +4912,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3273061229131634551
+          9706302882087493806
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "dashing_pdf-poppler.png": {
       "allowed-digests": [
