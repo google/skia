@@ -10,9 +10,6 @@
 #include "SkBlurImage_opts_SSE2.h"
 #include "SkColorPriv.h"
 #include "SkRect.h"
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
-#include <smmintrin.h>
-#endif
 
 namespace {
 enum BlurDirection {
@@ -58,7 +55,7 @@ void SkBoxBlur_SSE2(const SkPMColor* src, int srcStride, SkPMColor* dst, int ker
         const SkPMColor* sptr = src;
         SkColor* dptr = dst;
         for (int x = 0; x < width; ++x) {
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+#if 0
             // In SSE4.1, this would be
             __m128i result = _mm_mullo_epi32(sum, scale);
 #else
