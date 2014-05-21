@@ -1,12 +1,20 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python
+# Copyright (c) 2014 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 
 """rebase.py: standalone script to batch update bench expectations.
-   Usage:
-     Copy script to a separate dir outside Skia repo. The script will create a
-         skia dir on the first run to host the repo, and will create/delete temp
-         dirs as needed.
-     ./rebase.py --githash <githash prefix to use for getting bench data>
+
+    Requires gsutil to access gs://chromium-skia-gm and Rietveld credentials.
+
+    Usage:
+      Copy script to a separate dir outside Skia repo. The script will create a
+          skia dir on the first run to host the repo, and will create/delete
+          temp dirs as needed.
+      ./rebase.py --githash <githash prefix to use for getting bench data>
 """
+
 
 import argparse
 import filecmp
@@ -62,7 +70,7 @@ def get_gs_filelist(p, h):
 
 def download_gs_files(p, h, gs_dir):
   print 'Downloading raw bench files from Google Storage...'
-  proc = subprocess.Popen(['gsutil', '-q', 'cp',
+  proc = subprocess.Popen(['gsutil', 'cp', '-q',
       '/'.join([GS_PREFIX, p, 'bench_' + h + '_data_skp_*']),
           '%s/%s' % (gs_dir, p)],
           stdout=subprocess.PIPE)
@@ -128,18 +136,19 @@ def git_commit_expectations(repo_dir, exp_dir, update_li, h, commit):
   os.chdir(repo_dir)
   upload = ['git', 'cl', 'upload', '-f', '--bypass-hooks',
             '--bypass-watchlists', '-m', commit_msg]
+  branch = exp_dir.split('/')[-1]
   if commit:
     upload.append('--use-commit-queue')
   cmds = ([['git', 'checkout', 'master'],
            ['git', 'pull'],
-           ['git', 'checkout', '-b', exp_dir, '-t', 'origin/master']] +
-          [['cp', '../%s/%s' % (exp_dir, f), 'expectations/bench'] for f in
+           ['git', 'checkout', '-b', branch, '-t', 'origin/master']] +
+          [['cp', '%s/%s' % (exp_dir, f), 'expectations/bench'] for f in
            update_li] +
           [['git', 'add'] + ['expectations/bench/%s' % i for i in update_li],
            ['git', 'commit', '-m', commit_msg],
            upload,
            ['git', 'checkout', 'master'],
-           ['git', 'branch', '-D', exp_dir],
+           ['git', 'branch', '-D', branch],
           ])
   status = True
   for cmd in cmds:
@@ -178,15 +187,15 @@ def main():
     print 'ERROR setting up Skia repo at %s' % repo_dir
     return 1
 
-  for item in os.listdir(os.path.join(d, 'skia/expectations/bench')):
-    PLATFORMS.append(
-        item.replace('bench_expectations_', '').replace('.txt', ''))
-
   file_in_repo = os.path.join(d, 'skia/experimental/benchtools/rebase.py')
   if not filecmp.cmp(__file__, file_in_repo):
     shutil.copy(file_in_repo, __file__)
     print 'Updated this script from repo; please run again.'
     return
+
+  for item in os.listdir(os.path.join(d, 'skia/expectations/bench')):
+    PLATFORMS.append(
+        item.replace('bench_expectations_', '').replace('.txt', ''))
 
   if not args.githash or len(args.githash) < 7:
     raise Exception('Please provide --githash with a longer prefix (7+).')

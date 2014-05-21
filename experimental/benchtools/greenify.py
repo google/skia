@@ -1,11 +1,20 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python
+
+
+# Copyright (c) 2014 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
 
 """greenify.py: standalone script to correct flaky bench expectations.
-   Usage:
-     Copy script to a separate dir outside Skia repo. The script will create a
-         skia dir on the first run to host the repo, and will create/delete temp
-         dirs as needed.
-     ./greenify.py --url <the stdio url from failed CheckForRegressions step>
+
+    Requires Rietveld credentials on the running machine.
+
+    Usage:
+      Copy script to a separate dir outside Skia repo. The script will create a
+          skia dir on the first run to host the repo, and will create/delete
+          temp dirs as needed.
+      ./greenify.py --url <the stdio url from failed CheckForRegressions step>
 """
 
 import argparse
@@ -147,8 +156,6 @@ def main():
     print 'Please copy script to a separate dir outside git repos to use.'
     return
   ts_str = '%s' % time.time()
-  exp_dir = os.path.join(d, 'exp' + ts_str)
-  clean_dir(exp_dir)
 
   parser = argparse.ArgumentParser()
   parser.add_argument('--url',
@@ -180,6 +187,8 @@ def main():
   if args.commit:
     commit = True
 
+  exp_dir = os.path.join(d, 'exp' + ts_str)
+  clean_dir(exp_dir)
   if not widen_bench_ranges(args.url, bot, repo_dir, exp_dir):
     print 'NO bench exceptions found! %s' % args.url
   elif not git_commit_expectations(
