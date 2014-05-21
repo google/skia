@@ -801,6 +801,8 @@ SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
     fGsA.m12 = SkScalarToFloat(GsA.get(SkMatrix::kMSkewY)); // This should be ~0.
     fGsA.m21 = SkScalarToFloat(GsA.get(SkMatrix::kMSkewX));
     fGsA.m22 = SkScalarToFloat(GsA.get(SkMatrix::kMScaleY));
+    fGsA.dx = 0;
+    fGsA.dy = 0;
 
     // fG_inv is G inverse, which is fairly simple since G is 2x2 rotational.
     fG_inv.setAll(G.get(SkMatrix::kMScaleX), -G.get(SkMatrix::kMSkewX), G.get(SkMatrix::kMTransX),
