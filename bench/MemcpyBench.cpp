@@ -151,4 +151,3 @@ BENCH(memcpy32_sse2_unalign, 100000)
 #endif // SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 
 #undef BENCH
-

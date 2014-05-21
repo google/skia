@@ -584,7 +584,7 @@ public:
      * will be unchanged.
      */
     bool getMinMaxScales(SkScalar scaleFactors[2]) const;
-        
+
     /**
      *  Return a reference to a const identity matrix
      */
