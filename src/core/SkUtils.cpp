@@ -34,6 +34,18 @@
         *(dst)++ = value;   *(dst)++ = value;   \
         *(dst)++ = value;   *(dst)++ = value;   \
     } while (0)
+
+#define copy_16_longs(dst, src)                       \
+    do {                                              \
+        *(dst)++ = *(src)++;   *(dst)++ = *(src)++;   \
+        *(dst)++ = *(src)++;   *(dst)++ = *(src)++;   \
+        *(dst)++ = *(src)++;   *(dst)++ = *(src)++;   \
+        *(dst)++ = *(src)++;   *(dst)++ = *(src)++;   \
+        *(dst)++ = *(src)++;   *(dst)++ = *(src)++;   \
+        *(dst)++ = *(src)++;   *(dst)++ = *(src)++;   \
+        *(dst)++ = *(src)++;   *(dst)++ = *(src)++;   \
+        *(dst)++ = *(src)++;   *(dst)++ = *(src)++;   \
+    } while (0)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,6 +121,24 @@ static void sk_memset32_portable(uint32_t dst[], uint32_t value, int count) {
     }
 }
 
+static void sk_memcpy32_portable(uint32_t dst[], const uint32_t src[], int count) {
+    SkASSERT(dst != NULL && count >= 0);
+
+    int sixteenlongs = count >> 4;
+    if (sixteenlongs) {
+        do {
+            copy_16_longs(dst, src);
+        } while (--sixteenlongs != 0);
+        count &= 15;
+    }
+
+    if (count) {
+        do {
+            *dst++ = *src++;
+        } while (--count != 0);
+    }
+}
+
 static void choose_memset16(SkMemset16Proc* proc) {
     *proc = SkMemset16GetPlatformProc();
     if (NULL == *proc) {
@@ -139,6 +169,22 @@ void sk_memset32(uint32_t dst[], uint32_t value, int count) {
     SkASSERT(proc != NULL);
 
     return proc(dst, value, count);
+}
+
+static void choose_memcpy32(SkMemcpy32Proc* proc) {
+    *proc = SkMemcpy32GetPlatformProc();
+    if (NULL == *proc) {
+        *proc = &sk_memcpy32_portable;
+    }
+}
+
+void sk_memcpy32(uint32_t dst[], const uint32_t src[], int count) {
+    SK_DECLARE_STATIC_ONCE(once);
+    static SkMemcpy32Proc proc = NULL;
+    SkOnce(&once, choose_memcpy32, &proc);
+    SkASSERT(proc != NULL);
+
+    return proc(dst, src, count);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

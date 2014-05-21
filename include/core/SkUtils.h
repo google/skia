@@ -30,6 +30,15 @@ void sk_memset32(uint32_t dst[], uint32_t value, int count);
 typedef void (*SkMemset32Proc)(uint32_t dst[], uint32_t value, int count);
 SkMemset32Proc SkMemset32GetPlatformProc();
 
+/** Similar to memcpy(), but it copies count 32bit values from src to dst.
+    @param dst      The memory to have value copied into it
+    @param src      The memory to have value copied from it
+    @param count    The number of values should be copied.
+*/
+void sk_memcpy32(uint32_t dst[], const uint32_t src[], int count);
+typedef void (*SkMemcpy32Proc)(uint32_t dst[], const uint32_t src[], int count);
+SkMemcpy32Proc SkMemcpy32GetPlatformProc();
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #define kMaxBytesInUTF8Sequence     4

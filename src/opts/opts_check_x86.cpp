@@ -305,6 +305,14 @@ SkMemset32Proc SkMemset32GetPlatformProc() {
     }
 }
 
+SkMemcpy32Proc SkMemcpy32GetPlatformProc() {
+    if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
+        return sk_memcpy32_SSE2;
+    } else {
+        return NULL;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 SkMorphologyImageFilter::Proc SkMorphologyGetPlatformProc(SkMorphologyProcType type) {

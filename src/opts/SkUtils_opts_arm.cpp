@@ -51,3 +51,7 @@ SkMemset32Proc SkMemset32GetPlatformProc() {
     return arm_memset32;
 #endif
 }
+
+SkMemcpy32Proc SkMemcpy32GetPlatformProc() {
+    return NULL;
+}
