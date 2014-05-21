@@ -864,7 +864,6 @@ private:
 
 GrEffectRef* GrRRectBlurEffect::Create(GrContext* context, float sigma, const SkRRect& rrect) {
     if (!rrect.isSimpleCircular()) {
-        SkDebugf( "not simple circular\n" );
         return NULL;
     }
 
