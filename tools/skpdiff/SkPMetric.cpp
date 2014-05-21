@@ -162,7 +162,7 @@ static float contrast_sensitivity(float cyclesPerDegree, float luminance) {
     float b = 0.3f * powf(1.0f + 100.0f / luminance, 0.15f);
     float exp = expf(-b * cyclesPerDegree);
     float root = sqrtf(1.0f + 0.06f * expf(b * cyclesPerDegree));
-    if (!std::isfinite(exp)  || !std::isfinite(root)) {
+    if (!SkScalarIsFinite(exp)  || !SkScalarIsFinite(root)) {
         return 0;
     }
     return a * cyclesPerDegree * exp * root;
