@@ -183,13 +183,21 @@ SkBitmapProcShader::BitmapProcShaderContext::~BitmapProcShaderContext() {
     fState->~SkBitmapProcState();
 }
 
-#define BUF_MAX     128
+/* Defines the buffer size for sample pixel indexes, used in the sample proc function calls.
+ * If the operation is bigger than the buffer, it's split into multiple calls. This split is bad
+ * for the performance of SIMD optimizations.
+ * A display in portrait mode, with a width of 720 pixels, requires a buffer size of at least 721
+ * to run uninterrupted in the more basic operations.
+ * (Formula: Width + 1 for 'scale/translate with filter' procs.
+ *  See description of SkBitmapProcState::maxCountForBufferSize for more information.)
+ */
+#define BUF_MAX     1081
 
 #define TEST_BUFFER_OVERRITEx
 
 #ifdef TEST_BUFFER_OVERRITE
     #define TEST_BUFFER_EXTRA   32
-    #define TEST_PATTERN    0x88888888
+    #define TEST_PATTERN        0x88888888
 #else
     #define TEST_BUFFER_EXTRA   0
 #endif
@@ -202,7 +210,9 @@ void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan(int x, int y, SkPMCo
         return;
     }
 
-    uint32_t buffer[BUF_MAX + TEST_BUFFER_EXTRA];
+    // Align buffer to 16 bytes to enable more efficient SIMD optimizations.
+    uint32_t SK_ALIGN(16) buffer[BUF_MAX + TEST_BUFFER_EXTRA];
+
     SkBitmapProcState::MatrixProc   mproc = state.getMatrixProc();
     SkBitmapProcState::SampleProc32 sproc = state.getSampleProc32();
     int max = state.maxCountForBufferSize(sizeof(buffer[0]) * BUF_MAX);
@@ -255,7 +265,9 @@ void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan16(int x, int y, uint
         return;
     }
 
-    uint32_t buffer[BUF_MAX];
+    // Align buffer to 16 bytes to enable more efficient SIMD optimizations.
+    uint32_t SK_ALIGN(16) buffer[BUF_MAX];
+
     SkBitmapProcState::MatrixProc   mproc = state.getMatrixProc();
     SkBitmapProcState::SampleProc16 sproc = state.getSampleProc16();
     int max = state.maxCountForBufferSize(sizeof(buffer));

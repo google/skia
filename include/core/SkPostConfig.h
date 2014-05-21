@@ -68,6 +68,16 @@
 #  endif
 #endif
 
+/**
+ * Used to align stack allocated variables/buffers.
+ * Different compilers have different ways to accomplish this.
+ */
+#if defined(_MSC_VER)
+#  define SK_ALIGN(x) __declspec(align(x))
+#else
+#  define SK_ALIGN(x) __attribute__((aligned(x)))
+#endif
+
 #if !defined(SK_SUPPORT_GPU)
 #  define SK_SUPPORT_GPU 1
 #endif
