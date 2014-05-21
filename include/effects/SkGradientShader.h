@@ -10,8 +10,6 @@
 
 #include "SkShader.h"
 
-class SkUnitMapper;
-
 /** \class SkGradientShader
 
     SkGradientShader hosts factories for creating subclasses of SkShader that
@@ -43,21 +41,16 @@ public:
                         intermediate values must be strictly increasing.
         @param  count   Must be >=2. The number of colors (and pos if not NULL) entries.
         @param  mode    The tiling mode
-        @param  mapper  May be NULL. Callback to modify the spread of the colors.
     */
     static SkShader* CreateLinear(const SkPoint pts[2],
                                   const SkColor colors[], const SkScalar pos[], int count,
                                   SkShader::TileMode mode,
-                                  SkUnitMapper* mapper = NULL,
-                                  uint32_t flags = 0,
-                                  const SkMatrix* localMatrix = NULL);
+                                  uint32_t flags, const SkMatrix* localMatrix);
 
     static SkShader* CreateLinear(const SkPoint pts[2],
                                   const SkColor colors[], const SkScalar pos[], int count,
-                                  SkShader::TileMode mode,
-                                  uint32_t flags,
-                                  const SkMatrix* localMatrix) {
-        return CreateLinear(pts, colors, pos, count, mode, NULL, flags, localMatrix);
+                                  SkShader::TileMode mode) {
+        return CreateLinear(pts, colors, pos, count, mode, 0, NULL);
     }
 
     /** Returns a shader that generates a radial gradient given the center and radius.
@@ -75,21 +68,16 @@ public:
                         intermediate values must be strictly increasing.
         @param  count   Must be >= 2. The number of colors (and pos if not NULL) entries
         @param  mode    The tiling mode
-        @param  mapper  May be NULL. Callback to modify the spread of the colors.
     */
     static SkShader* CreateRadial(const SkPoint& center, SkScalar radius,
                                   const SkColor colors[], const SkScalar pos[], int count,
                                   SkShader::TileMode mode,
-                                  SkUnitMapper* mapper = NULL,
-                                  uint32_t flags = 0,
-                                  const SkMatrix* localMatrix = NULL);
+                                  uint32_t flags, const SkMatrix* localMatrix);
 
     static SkShader* CreateRadial(const SkPoint& center, SkScalar radius,
                                   const SkColor colors[], const SkScalar pos[], int count,
-                                  SkShader::TileMode mode,
-                                  uint32_t flags,
-                                  const SkMatrix* localMatrix) {
-        return CreateRadial(center, radius, colors, pos, count, mode, NULL, flags, localMatrix);
+                                  SkShader::TileMode mode) {
+        return CreateRadial(center, radius, colors, pos, count, mode, 0, NULL);
     }
 
     /** Returns a shader that generates a radial gradient given the start position, start radius, end position and end radius.
@@ -110,30 +98,19 @@ public:
                         intermediate values must be strictly increasing.
         @param  count   Must be >= 2. The number of colors (and pos if not NULL) entries
         @param  mode    The tiling mode
-        @param  mapper  May be NULL. Callback to modify the spread of the colors.
     */
-    static SkShader* CreateTwoPointRadial(const SkPoint& start,
-                                          SkScalar startRadius,
-                                          const SkPoint& end,
-                                          SkScalar endRadius,
-                                          const SkColor colors[],
-                                          const SkScalar pos[], int count,
+    static SkShader* CreateTwoPointRadial(const SkPoint& start, SkScalar startRadius,
+                                          const SkPoint& end, SkScalar endRadius,
+                                          const SkColor colors[], const SkScalar pos[], int count,
                                           SkShader::TileMode mode,
-                                          SkUnitMapper* mapper = NULL,
-                                          uint32_t flags = 0,
-                                          const SkMatrix* localMatrix = NULL);
+                                          uint32_t flags, const SkMatrix* localMatrix);
 
-    static SkShader* CreateTwoPointRadial(const SkPoint& start,
-                                          SkScalar startRadius,
-                                          const SkPoint& end,
-                                          SkScalar endRadius,
-                                          const SkColor colors[],
-                                          const SkScalar pos[], int count,
-                                          SkShader::TileMode mode,
-                                          uint32_t flags,
-                                          const SkMatrix* localMatrix) {
+    static SkShader* CreateTwoPointRadial(const SkPoint& start, SkScalar startRadius,
+                                          const SkPoint& end, SkScalar endRadius,
+                                          const SkColor colors[], const SkScalar pos[], int count,
+                                          SkShader::TileMode mode) {
         return CreateTwoPointRadial(start, startRadius, end, endRadius, colors, pos, count, mode,
-                                    NULL, flags, localMatrix);
+                                    0, NULL);
     }
 
     /**
@@ -142,28 +119,18 @@ public:
      *  two circles according to the following HTML spec.
      *  http://dev.w3.org/html5/2dcontext/#dom-context-2d-createradialgradient
      */
-    static SkShader* CreateTwoPointConical(const SkPoint& start,
-                                           SkScalar startRadius,
-                                           const SkPoint& end,
-                                           SkScalar endRadius,
-                                           const SkColor colors[],
-                                           const SkScalar pos[], int count,
+    static SkShader* CreateTwoPointConical(const SkPoint& start, SkScalar startRadius,
+                                           const SkPoint& end, SkScalar endRadius,
+                                           const SkColor colors[], const SkScalar pos[], int count,
                                            SkShader::TileMode mode,
-                                           SkUnitMapper* mapper = NULL,
-                                           uint32_t flags = 0,
-                                           const SkMatrix* localMatrix = NULL);
+                                           uint32_t flags, const SkMatrix* localMatrix);
 
-    static SkShader* CreateTwoPointConical(const SkPoint& start,
-                                           SkScalar startRadius,
-                                           const SkPoint& end,
-                                           SkScalar endRadius,
-                                           const SkColor colors[],
-                                           const SkScalar pos[], int count,
-                                           SkShader::TileMode mode,
-                                           uint32_t flags,
-                                           const SkMatrix* localMatrix) {
+    static SkShader* CreateTwoPointConical(const SkPoint& start, SkScalar startRadius,
+                                           const SkPoint& end, SkScalar endRadius,
+                                           const SkColor colors[], const SkScalar pos[], int count,
+                                           SkShader::TileMode mode) {
         return CreateTwoPointConical(start, startRadius, end, endRadius, colors, pos, count, mode,
-                                     NULL, flags, localMatrix);
+                                     0, NULL);
     }
 
     /** Returns a shader that generates a sweep gradient given a center.
@@ -180,18 +147,14 @@ public:
                         If this is not null, the values must begin with 0, end with 1.0, and
                         intermediate values must be strictly increasing.
         @param  count   Must be >= 2. The number of colors (and pos if not NULL) entries
-        @param  mapper  May be NULL. Callback to modify the spread of the colors.
     */
     static SkShader* CreateSweep(SkScalar cx, SkScalar cy,
-                                 const SkColor colors[], const SkScalar pos[],
-                                 int count, SkUnitMapper* mapper = NULL,
-                                 uint32_t flags = 0,
-                                 const SkMatrix* localMatrix = NULL);
+                                 const SkColor colors[], const SkScalar pos[], int count,
+                                 uint32_t flags, const SkMatrix* localMatrix);
 
     static SkShader* CreateSweep(SkScalar cx, SkScalar cy,
-                                 const SkColor colors[], const SkScalar pos[], int count,
-                                 uint32_t flags, const SkMatrix* localMatrix) {
-        return CreateSweep(cx, cy, colors, pos, count, NULL, flags, localMatrix);
+                                 const SkColor colors[], const SkScalar pos[], int count) {
+        return CreateSweep(cx, cy, colors, pos, count, 0, NULL);
     }
 
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()

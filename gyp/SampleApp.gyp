@@ -106,7 +106,6 @@
         '../samplecode/SampleTextureDomain.cpp',
         '../samplecode/SampleTiling.cpp',
         '../samplecode/SampleTinyBitmap.cpp',
-        '../samplecode/SampleUnitMapper.cpp',
         '../samplecode/SampleUnpremul.cpp',
         '../samplecode/SampleVertices.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
@@ -273,7 +272,6 @@
         [ 'skia_os == "android"', {
           'sources!': [
             '../samplecode/SampleAnimator.cpp',
-            '../samplecode/SampleUnitMapper.cpp',
           ],
           'dependencies!': [
             'animator.gyp:animator',
