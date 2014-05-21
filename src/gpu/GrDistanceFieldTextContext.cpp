@@ -416,8 +416,8 @@ void GrDistanceFieldTextContext::drawText(const GrPaint& paint, const SkPaint& s
         y -= alignY;
     }
 
-    SkFixed fx = SkScalarToFixed(x) + SK_FixedHalf;
-    SkFixed fy = SkScalarToFixed(y) + SK_FixedHalf;
+    SkFixed fx = SkScalarToFixed(x);
+    SkFixed fy = SkScalarToFixed(y);
     SkFixed fixedScale = SkScalarToFixed(sizeRatio);
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
@@ -426,8 +426,8 @@ void GrDistanceFieldTextContext::drawText(const GrPaint& paint, const SkPaint& s
             this->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                 glyph.getSubXFixed(),
                                                 glyph.getSubYFixed()),
-                                  SkFixedFloorToFixed(fx),
-                                  SkFixedFloorToFixed(fy),
+                                  fx,
+                                  fy,
                                   fontScaler);
         }
 
@@ -473,8 +473,8 @@ void GrDistanceFieldTextContext::drawPosText(const GrPaint& paint, const SkPaint
                 this->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
                                                     glyph.getSubYFixed()),
-                                      SkScalarToFixed(x) + SK_FixedHalf, //d1g.fHalfSampleX,
-                                      SkScalarToFixed(y) + SK_FixedHalf, //d1g.fHalfSampleY,
+                                      SkScalarToFixed(x),
+                                      SkScalarToFixed(y),
                                       fontScaler);
             }
             pos += scalarsPerPosition;
@@ -492,10 +492,8 @@ void GrDistanceFieldTextContext::drawPosText(const GrPaint& paint, const SkPaint
                 this->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(),
                                                     glyph.getSubXFixed(),
                                                     glyph.getSubYFixed()),
-                                      SkScalarToFixed(x) - (glyph.fAdvanceX >> alignShift)
-                                        + SK_FixedHalf, //d1g.fHalfSampleX,
-                                      SkScalarToFixed(y) - (glyph.fAdvanceY >> alignShift)
-                                        + SK_FixedHalf, //d1g.fHalfSampleY,
+                                      SkScalarToFixed(x) - (glyph.fAdvanceX >> alignShift),
+                                      SkScalarToFixed(y) - (glyph.fAdvanceY >> alignShift),
                                       fontScaler);
             }
             pos += scalarsPerPosition;
