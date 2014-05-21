@@ -193,15 +193,23 @@ static GrGLInterface* create_es_interface(GrGLVersion version,
 
 #endif
 
-#if GL_ES_VERSION_3_0 || GL_EXT_map_buffer_range
-    functions->fMapBufferRange = glMapBufferRange;
-    functions->fFlushMappedBufferRange = glFlushMappedBufferRange;
+    if (version >= GR_GL_VER(3,0)) {
+#if GL_ES_VERSION_3_0
+        functions->fMapBufferRange = glMapBufferRange;
+        functions->fFlushMappedBufferRange = glFlushMappedBufferRange;
 #else
-    if (version >= GR_GL_VER(3,0) || extensions->has("GL_EXT_map_buffer_range")) {
         functions->fMapBufferRange = (GrGLMapBufferRangeProc) eglGetProcAddress("glMapBufferRange");
         functions->fFlushMappedBufferRange = (GrGLFlushMappedBufferRangeProc) eglGetProcAddress("glFlushMappedBufferRange");
-    }
 #endif
+    } else if (extensions->has("GL_EXT_map_buffer_range")) {
+#if GL_EXT_map_buffer_range
+        functions->fMapBufferRange = glMapBufferRangeEXT;
+        functions->fFlushMappedBufferRange = glFlushMappedBufferRangeEXT;
+#else
+        functions->fMapBufferRange = (GrGLMapBufferRangeProc) eglGetProcAddress("glMapBufferRangeEXT");
+        functions->fFlushMappedBufferRange = (GrGLFlushMappedBufferRangeProc) eglGetProcAddress("glFlushMappedBufferRangeEXT");
+#endif
+    }
 
     if (extensions->has("GL_EXT_debug_marker")) {
         functions->fInsertEventMarker = (GrGLInsertEventMarkerProc) eglGetProcAddress("glInsertEventMarker");
