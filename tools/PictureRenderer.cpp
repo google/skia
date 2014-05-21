@@ -298,9 +298,9 @@ static bool write(SkCanvas* canvas, const SkString& writePath, const SkString& m
     // TODO(epoger): what about including the config type within outputFilename?  That way,
     // we could combine results of different config types without conflicting filenames.
     SkString outputFilename;
-    const ImageDigest *imageDigestPtr = bitmapAndDigest.getImageDigestPtr();
     const char *outputSubdirPtr = NULL;
     if (useChecksumBasedFilenames) {
+        const ImageDigest *imageDigestPtr = bitmapAndDigest.getImageDigestPtr();
         outputSubdirPtr = escapedInputFilename.c_str();
         outputFilename.set(imageDigestPtr->getHashType());
         outputFilename.append("_");
