@@ -23,9 +23,6 @@
 
 #if defined(SK_CPU_ARM) && defined(__ARM_HAVE_OPTIONAL_NEON_SUPPORT)
 #  define SK_ARM_NEON_MODE  SK_ARM_NEON_MODE_DYNAMIC
-/* b/14056351 - temporarily disable NEON support for arm64 */
-#elif defined(SK_CPU_ARM64) && defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-#  define SK_ARM_NEON_MODE  SK_ARM_NEON_MODE_NONE
 #elif defined(SK_CPU_ARM) && defined(__ARM_HAVE_NEON) || defined(SK_CPU_ARM64)
 #  define SK_ARM_NEON_MODE  SK_ARM_NEON_MODE_ALWAYS
 #else
