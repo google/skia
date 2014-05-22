@@ -142,7 +142,8 @@ static void memcpy32_sse2_unalign(uint32_t* dst, const uint32_t* src, int count)
         *dst++ = *src++;
     }
 }
-BENCH(memcpy32_sse2_unalign, 10)
+// skia:2589: Crashing on ChromeOS Alex bot.  TODO(mtklein): why?
+//BENCH(memcpy32_sse2_unalign, 10)
 BENCH(memcpy32_sse2_unalign, 100)
 BENCH(memcpy32_sse2_unalign, 1000)
 BENCH(memcpy32_sse2_unalign, 10000)
