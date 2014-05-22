@@ -56,7 +56,7 @@ static void draw_text_set(SkCanvas* canvas, const SkPaint& paint) {
     canvas->translate(200, 0);
     SkPaint p(paint);
     p.setPathEffect(SkDashPathEffect::Create(intervals, SK_ARRAY_COUNT(intervals), phase))->unref();
-    draw_text_stroked(canvas, paint, 10);
+    draw_text_stroked(canvas, p, 10);
 }
 
 class StrokeTextGM : public skiagm::GM {
