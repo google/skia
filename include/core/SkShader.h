@@ -43,12 +43,12 @@ public:
      */
     const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
 
-#ifdef SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX
     /**
      *  Returns true if the local matrix is not an identity matrix.
      */
     bool hasLocalMatrix() const { return !fLocalMatrix.isIdentity(); }
 
+#ifdef SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX
     /**
      *  Set the shader's local matrix.
      *  @param localM   The shader's new local matrix.
