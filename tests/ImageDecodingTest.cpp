@@ -55,6 +55,7 @@ static bool skip_image_format(SkImageDecoder::Format format) {
         case SkImageDecoder::kICO_Format:
         case SkImageDecoder::kBMP_Format:
         // The rest of these are opaque.
+        case SkImageDecoder::kPKM_Format:
         case SkImageDecoder::kWBMP_Format:
         case SkImageDecoder::kGIF_Format:
         case SkImageDecoder::kJPEG_Format:

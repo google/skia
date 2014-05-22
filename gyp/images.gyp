@@ -9,6 +9,7 @@
       'dependencies': [
         'core.gyp:*',
         'libjpeg.gyp:*',
+        'etc1.gyp:libetc1',
         'libwebp.gyp:libwebp',
         'utils.gyp:utils',
       ],
@@ -59,6 +60,7 @@
         # for instance.) As a result, they are deliberately not in
         # alphabetical order.
         '../src/images/SkImageDecoder_wbmp.cpp',
+        '../src/images/SkImageDecoder_pkm.cpp',
         '../src/images/SkImageDecoder_libbmp.cpp',
         '../src/images/SkImageDecoder_libgif.cpp',
         '../src/images/SkImageDecoder_libico.cpp',

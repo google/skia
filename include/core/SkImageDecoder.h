@@ -37,6 +37,7 @@ public:
         kPNG_Format,
         kWBMP_Format,
         kWEBP_Format,
+        kPKM_Format,
 
         kLastKnownFormat = kWEBP_Format,
     };
@@ -525,6 +526,7 @@ DECLARE_DECODER_CREATOR(JPEGImageDecoder);
 DECLARE_DECODER_CREATOR(PNGImageDecoder);
 DECLARE_DECODER_CREATOR(WBMPImageDecoder);
 DECLARE_DECODER_CREATOR(WEBPImageDecoder);
+DECLARE_DECODER_CREATOR(PKMImageDecoder);
 
 
 // Typedefs to make registering decoder and formatter callbacks easier.

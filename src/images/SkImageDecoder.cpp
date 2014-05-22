@@ -84,6 +84,8 @@ const char* SkImageDecoder::GetFormatName(Format format) {
             return "GIF";
         case kICO_Format:
             return "ICO";
+        case kPKM_Format:
+            return "PKM";
         case kJPEG_Format:
             return "JPEG";
         case kPNG_Format:
