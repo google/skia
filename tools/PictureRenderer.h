@@ -96,6 +96,14 @@ public:
                       const SkString* inputFilename, bool useChecksumBasedFilenames);
 
     /**
+     * TODO(epoger): Temporary hack, while we work on http://skbug.com/2584 ('bench_pictures is
+     * timing reading pixels and writing json files'), such that:
+     * - render_pictures can call this method and continue to work
+     * - any other callers (bench_pictures) will skip calls to write() by default
+     */
+    void enableWrites() { fEnableWrites = true; }
+
+    /**
      *  Set the viewport so that only the portion listed gets drawn.
      */
     void setViewport(SkISize size) { fViewport = size; }
@@ -345,6 +353,7 @@ public:
     PictureRenderer()
         : fJsonSummaryPtr(NULL)
         , fDeviceType(kBitmap_DeviceType)
+        , fEnableWrites(false)
         , fBBoxHierarchyType(kNone_BBoxHierarchyType)
         , fScaleFactor(SK_Scalar1)
 #if SK_SUPPORT_GPU
@@ -371,6 +380,7 @@ protected:
     bool                   fUseChecksumBasedFilenames;
     ImageResultsAndExpectations*   fJsonSummaryPtr;
     SkDeviceTypes          fDeviceType;
+    bool                   fEnableWrites;
     BBoxHierarchyType      fBBoxHierarchyType;
     DrawFilterFlags        fDrawFilters[SkDrawFilter::kTypeCount];
     SkString               fDrawFiltersConfig;

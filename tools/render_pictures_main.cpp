@@ -206,6 +206,7 @@ static bool render_picture_internal(const SkString& inputPath, const SkString* w
     }
 
     renderer.setup();
+    renderer.enableWrites();
 
     bool success = renderer.render(out);
     if (!success) {
