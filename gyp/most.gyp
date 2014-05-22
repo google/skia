@@ -21,7 +21,6 @@
         'tests.gyp:tests',
         'tools.gyp:tools',
         'pathops_unittest.gyp:*',
-        'skpskgr_test.gyp:*',
 #       'pdfviewer.gyp:pdfviewer',
         'dm.gyp:dm',
       ],
@@ -36,7 +35,6 @@
           {
             'dependencies!': [
               'SampleApp.gyp:SampleApp',
-              'skpskgr_test.gyp:*',
             ]
           }
         ]
