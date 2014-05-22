@@ -485,6 +485,18 @@ static inline int SkFixedToFFFF(SkFixed x) {
     return x - (x >> 16);
 }
 
+static inline U16CPU bitsTo16(unsigned x, const unsigned bits) {
+    SkASSERT(x < (1U << bits));
+    if (6 == bits) {
+        return (x << 10) | (x << 4) | (x >> 2);
+    }
+    if (8 == bits) {
+        return (x << 8) | x;
+    }
+    sk_throw();
+    return 0;
+}
+
 const uint16_t* SkGradientShaderBase::GradientShaderCache::getCache16() {
     SkOnce(&fCache16Inited, &fCache16Mutex, SkGradientShaderBase::GradientShaderCache::initCache16,
            this);
