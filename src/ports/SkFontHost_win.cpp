@@ -1056,13 +1056,12 @@ void SkScalerContext_GDI::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint:
         my->fXMin = SkIntToScalar(otm.otmrcFontBox.left);
         my->fXMax = SkIntToScalar(otm.otmrcFontBox.right);
 #endif
-#ifndef SK_IGNORE_UNDERLINE_POSITION_FIX
         my->fUnderlineThickness = SkIntToScalar(otm.otmsUnderscoreSize);
         my->fUnderlinePosition = -SkIntToScalar(otm.otmsUnderscorePosition);
 
         my->fFlags |= SkPaint::FontMetrics::kUnderlineThinknessIsValid_Flag;
         my->fFlags |= SkPaint::FontMetrics::kUnderlinePositionIsValid_Flag;
-#endif
+
         my->fXHeight = SkIntToScalar(otm.otmsXHeight);
 
         GLYPHMETRICS gm;
