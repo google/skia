@@ -10,6 +10,8 @@
 
 #include "SkShader.h"
 
+#define SK_SUPPORT_LEGACY_GRADIENT_FACTORIES
+
 /** \class SkGradientShader
 
     SkGradientShader hosts factories for creating subclasses of SkShader that
@@ -53,6 +55,15 @@ public:
         return CreateLinear(pts, colors, pos, count, mode, 0, NULL);
     }
 
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_FACTORIES
+    static SkShader* CreateLinear(const SkPoint pts[2],
+                                  const SkColor colors[], const SkScalar pos[], int count,
+                                  SkShader::TileMode mode, void* ignored,
+                                  uint32_t flags, const SkMatrix* localMatrix) {
+        return CreateLinear(pts, colors, pos, count, mode, flags, localMatrix);
+    }
+#endif
+
     /** Returns a shader that generates a radial gradient given the center and radius.
         <p />
         CreateRadial returns a shader with a reference count of 1.
@@ -79,6 +90,15 @@ public:
                                   SkShader::TileMode mode) {
         return CreateRadial(center, radius, colors, pos, count, mode, 0, NULL);
     }
+
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_FACTORIES
+    static SkShader* CreateRadial(const SkPoint& center, SkScalar radius,
+                                  const SkColor colors[], const SkScalar pos[], int count,
+                                  SkShader::TileMode mode, void* ignored,
+                                  uint32_t flags, const SkMatrix* localMatrix) {
+        return CreateRadial(center, radius, colors, pos, count, mode, flags, localMatrix);
+    }
+#endif
 
     /** Returns a shader that generates a radial gradient given the start position, start radius, end position and end radius.
         <p />
@@ -113,6 +133,17 @@ public:
                                     0, NULL);
     }
 
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_FACTORIES
+    static SkShader* CreateTwoPointRadial(const SkPoint& start, SkScalar startRadius,
+                                          const SkPoint& end, SkScalar endRadius,
+                                          const SkColor colors[], const SkScalar pos[], int count,
+                                          SkShader::TileMode mode, void* ignored,
+                                          uint32_t flags, const SkMatrix* localMatrix) {
+        return CreateTwoPointRadial(start, startRadius, end, endRadius, colors, pos, count, mode,
+                                    flags, localMatrix);
+    }
+#endif
+    
     /**
      *  Returns a shader that generates a conical gradient given two circles, or
      *  returns NULL if the inputs are invalid. The gradient interprets the
@@ -133,6 +164,17 @@ public:
                                      0, NULL);
     }
 
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_FACTORIES
+    static SkShader* CreateTwoPointConical(const SkPoint& start, SkScalar startRadius,
+                                           const SkPoint& end, SkScalar endRadius,
+                                           const SkColor colors[], const SkScalar pos[], int count,
+                                           SkShader::TileMode mode, void* ignored,
+                                           uint32_t flags, const SkMatrix* localMatrix) {
+        return CreateTwoPointConical(start, startRadius, end, endRadius, colors, pos, count, mode,
+                                    flags, localMatrix);
+    }
+#endif
+    
     /** Returns a shader that generates a sweep gradient given a center.
         <p />
         CreateSweep returns a shader with a reference count of 1.
@@ -157,6 +199,15 @@ public:
         return CreateSweep(cx, cy, colors, pos, count, 0, NULL);
     }
 
+#ifdef SK_SUPPORT_LEGACY_GRADIENT_FACTORIES
+    static SkShader* CreateSweep(SkScalar cx, SkScalar cy,
+                                 const SkColor colors[], const SkScalar pos[], int count,
+                                 void* ignored,
+                                 uint32_t flags, const SkMatrix* localMatrix) {
+        return CreateSweep(cx, cy, colors, pos, count, flags, localMatrix);
+    }
+#endif
+    
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };
 
