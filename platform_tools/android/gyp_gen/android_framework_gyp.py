@@ -23,19 +23,18 @@ DIR_CONTENTS = os.listdir(SKIA_DIR)
 assert 'gyp' in DIR_CONTENTS
 
 # Directory within which we can find the gyp source.
-if 'third_party' in DIR_CONTENTS:
-  GYP_SOURCE_DIR = os.path.join(SKIA_DIR, 'third_party', 'externals', 'gyp')
-else:
+gyp_source_dir = os.path.join(SKIA_DIR, 'third_party', 'externals', 'gyp')
+if not os.path.exists(gyp_source_dir):
   # In an Android tree, there is no third_party/externals/gyp, which would
   # require running gclient sync. Use chromium's instead.
-  GYP_SOURCE_DIR = os.path.join(SKIA_DIR, os.pardir, 'chromium_org', 'tools',
+  gyp_source_dir = os.path.join(SKIA_DIR, os.pardir, 'chromium_org', 'tools',
                                 'gyp')
 
-assert os.path.exists(GYP_SOURCE_DIR)
+assert os.path.exists(gyp_source_dir)
 
 # Ensure we import our current gyp source's module, not any version
 # pre-installed in your PYTHONPATH.
-sys.path.insert(0, os.path.join(GYP_SOURCE_DIR, 'pylib'))
+sys.path.insert(0, os.path.join(gyp_source_dir, 'pylib'))
 
 import gyp
 
