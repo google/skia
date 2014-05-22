@@ -2223,7 +2223,7 @@ void SkPath::validate() const {
 static int sign(SkScalar x) { return x < 0; }
 #define kValueNeverReturnedBySign   2
 
-static bool AlmostEqual(SkScalar compA, SkScalar compB) {
+static bool almost_equal(SkScalar compA, SkScalar compB) {
     // The error epsilon was empirically derived; worse case round rects
     // with a mid point outset by 2x float epsilon in tests had an error
     // of 12.
@@ -2247,8 +2247,7 @@ struct Convexicator {
         // warnings
         fLastPt.set(0, 0);
         fCurrPt.set(0, 0);
-        fVec0.set(0, 0);
-        fVec1.set(0, 0);
+        fLastVec.set(0, 0);
         fFirstVec.set(0, 0);
 
         fDx = fDy = 0;
@@ -2274,7 +2273,7 @@ struct Convexicator {
                 fLastPt = fCurrPt;
                 fCurrPt = pt;
                 if (++fPtCount == 2) {
-                    fFirstVec = fVec1 = vec;
+                    fFirstVec = fLastVec = vec;
                 } else {
                     SkASSERT(fPtCount > 2);
                     this->addVec(vec);
@@ -2303,31 +2302,28 @@ struct Convexicator {
 private:
     void addVec(const SkVector& vec) {
         SkASSERT(vec.fX || vec.fY);
-        fVec0 = fVec1;
-        fVec1 = vec;
-        SkScalar cross = SkPoint::CrossProduct(fVec0, fVec1);
+        SkScalar cross = SkPoint::CrossProduct(fLastVec, vec);
         SkScalar smallest = SkTMin(fCurrPt.fX, SkTMin(fCurrPt.fY, SkTMin(fLastPt.fX, fLastPt.fY)));
         SkScalar largest = SkTMax(fCurrPt.fX, SkTMax(fCurrPt.fY, SkTMax(fLastPt.fX, fLastPt.fY)));
         largest = SkTMax(largest, -smallest);
-        int sign = AlmostEqual(largest, largest + cross) ? 0 : SkScalarSignAsInt(cross);
-        if (0 == fSign) {
-            fSign = sign;
-            if (1 == sign) {
-                fDirection = SkPath::kCW_Direction;
-            } else if (-1 == sign) {
-                fDirection = SkPath::kCCW_Direction;
-            }
-        } else if (sign) {
-            if (fSign != sign) {
+        if (!almost_equal(largest, largest + cross)) {
+            int sign = SkScalarSignAsInt(cross);
+            if (0 == fSign) {
+                fSign = sign;
+                fDirection = (1 == sign) ? SkPath::kCW_Direction : SkPath::kCCW_Direction;
+            } else if (sign && fSign != sign) {
                 fConvexity = SkPath::kConcave_Convexity;
                 fDirection = SkPath::kUnknown_Direction;
             }
+            fLastVec = vec;
         }
     }
 
     SkPoint             fLastPt;
     SkPoint             fCurrPt;
-    SkVector            fVec0, fVec1, fFirstVec;
+    // fLastVec does not necessarily start at fLastPt. We only advance it when the cross product
+    // value with the current vec is deemed to be of a significant value.
+    SkVector            fLastVec, fFirstVec;
     int                 fPtCount;   // non-degenerate points
     int                 fSign;
     SkPath::Convexity   fConvexity;

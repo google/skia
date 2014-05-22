@@ -1151,6 +1151,23 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     dent.close();
     check_convexity(reporter, dent, SkPath::kConcave_Convexity);
     check_direction(reporter, dent, SkPath::kCW_Direction);
+
+    // http://skbug.com/2235
+    SkPath strokedSin;
+    for (int i = 0; i < 2000; i++) {
+        SkScalar x = SkIntToScalar(i) / 2;
+        SkScalar y = 500 - (x + SkScalarSin(x / 100) * 40) / 3;
+        if (0 == i) {
+            strokedSin.moveTo(x, y);
+        } else {
+            strokedSin.lineTo(x, y);
+        }
+    }
+    SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
+    stroke.setStrokeStyle(2 * SK_Scalar1);
+    stroke.applyToPath(&strokedSin, strokedSin);
+    check_convexity(reporter, strokedSin, SkPath::kConcave_Convexity);
+    check_direction(reporter, strokedSin, kDontCheckDir);
 }
 
 static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
