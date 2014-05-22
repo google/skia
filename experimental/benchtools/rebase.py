@@ -126,12 +126,12 @@ def checkout_or_update_skia(repo_dir):
   return status
 
 def git_commit_expectations(repo_dir, exp_dir, update_li, h, commit):
-  commit_msg = """bench rebase after %s
+  commit_msg = """manual bench rebase after %s
 
-      TBR=robertphillips@google.com
+TBR=robertphillips@google.com
 
-      Bypassing trybots:
-      NOTRY=true""" % h
+Bypassing trybots:
+NOTRY=true""" % h
   old_cwd = os.getcwd()
   os.chdir(repo_dir)
   upload = ['git', 'cl', 'upload', '-f', '--bypass-hooks',

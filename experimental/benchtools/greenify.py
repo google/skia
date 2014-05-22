@@ -60,10 +60,10 @@ def checkout_or_update_skia(repo_dir):
 def git_commit_expectations(repo_dir, exp_dir, bot, build, commit):
   commit_msg = """Greenify bench bot %s at build %s
 
-      TBR=bsalomon@google.com
+TBR=bsalomon@google.com
 
-      Bypassing trybots:
-      NOTRY=true""" % (bot, build)
+Bypassing trybots:
+NOTRY=true""" % (bot, build)
   old_cwd = os.getcwd()
   os.chdir(repo_dir)
   upload = ['git', 'cl', 'upload', '-f', '--bypass-hooks',
