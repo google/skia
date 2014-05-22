@@ -48,7 +48,7 @@ static const struct {
     {1, "http___accuweather_com_.skp"},  // Couldn't convert bitmap to texture.http___absoku072_com_
 };
 
-static const size_t skipOverSkGrCount = 0; // SK_ARRAY_COUNT(skipOverSkGr);
+static const size_t skipOverSkGrCount = SK_ARRAY_COUNT(skipOverSkGr);
 
 /////////////////////////////////////////
 
@@ -425,7 +425,7 @@ void TestResult::testOne() {
         do {
             dim.fX = (pWidth + scale - 1) / scale;
             dim.fY = (pHeight + scale - 1) / scale;
-            bool success = bitmap.allocN32Pixels(, dim.fX, dim.fY);
+            bool success = bitmap.allocN32Pixels(dim.fX, dim.fY);
             if (success) {
                 break;
             }
