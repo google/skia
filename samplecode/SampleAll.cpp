@@ -36,6 +36,7 @@
 #include "SkRandom.h"
 #include "SkTransparentShader.h"
 #include "SkTypeface.h"
+#include "SkUnitMappers.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
@@ -367,8 +368,10 @@ protected:
         SkScalar* linearPos = NULL;
         int linearCount = 2;
         SkShader::TileMode linearMode = SkShader::kMirror_TileMode;
+        SkUnitMapper* linearMapper = new SkDiscreteMapper(3);
+        SkAutoUnref unmapLinearMapper(linearMapper);
         SkShader* linear = SkGradientShader::CreateLinear(linearPoints,
-            linearColors, linearPos, linearCount, linearMode);
+            linearColors, linearPos, linearCount, linearMode, linearMapper);
 
         SkPoint radialCenter = { SkIntToScalar(25), SkIntToScalar(25) };
         SkScalar radialRadius = SkIntToScalar(25);
@@ -376,9 +379,11 @@ protected:
         SkScalar radialPos[] = { 0, SkIntToScalar(3) / 5, SkIntToScalar(1)};
         int radialCount = 3;
         SkShader::TileMode radialMode = SkShader::kRepeat_TileMode;
+        SkUnitMapper* radialMapper = new SkCosineMapper();
+        SkAutoUnref unmapRadialMapper(radialMapper);
         SkShader* radial = SkGradientShader::CreateRadial(radialCenter,
             radialRadius, radialColors, radialPos, radialCount,
-            radialMode);
+            radialMode, radialMapper);
 
         SkTransparentShader* transparentShader = new SkTransparentShader();
         SkEmbossMaskFilter::Light light;

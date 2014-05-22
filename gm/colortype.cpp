@@ -20,7 +20,7 @@ public:
         SkMatrix local;
         local.setRotate(180);
         SkShader* s = SkGradientShader::CreateSweep(0,0, colors, NULL,
-                                                    SK_ARRAY_COUNT(colors), 0, &local);
+                                                    SK_ARRAY_COUNT(colors), NULL, 0, &local);
 
         SkPaint paint;
         paint.setAntiAlias(true);

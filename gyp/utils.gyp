@@ -56,6 +56,7 @@
         '../include/utils/SkRandom.h',
         '../include/utils/SkRTConf.h',
         '../include/utils/SkProxyCanvas.h',
+        '../include/utils/SkUnitMappers.h',
         '../include/utils/SkWGL.h',
 
         '../src/utils/SkBase64.cpp',
@@ -109,6 +110,7 @@
         '../src/utils/SkThreadUtils_win.h',
         '../src/utils/SkTFitsIn.h',
         '../src/utils/SkTLogic.h',
+        '../src/utils/SkUnitMappers.cpp',
 
         #mac
         '../include/utils/mac/SkCGUtils.h',

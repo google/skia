@@ -150,6 +150,7 @@
 #include "SkTSearch.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"
+#include "SkUnitMapper.h"
 #include "SkUnPreMultiply.h"
 #include "SkUtils.h"
 #include "SkWeakRefCnt.h"

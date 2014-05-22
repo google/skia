@@ -61,7 +61,7 @@ public:
         kSkPixelRef_Type,
         kSkRasterizer_Type,
         kSkShader_Type,
-        kSkUnused_Type,     // used to be SkUnitMapper
+        kSkUnitMapper_Type,
         kSkXfermode_Type,
     };
 

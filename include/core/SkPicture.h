@@ -327,14 +327,13 @@ protected:
     // V24: SkTwoPointConicalGradient now has fFlipped flag for gradient flipping
     // V25: SkDashPathEffect now only writes phase and interval array when flattening
     // V26: Removed boolean from SkColorShader for inheriting color from SkPaint.
-    // V27: Remove SkUnitMapper from gradients (and skia).
 
     // Note: If the picture version needs to be increased then please follow the
     // steps to generate new SKPs in (only accessible to Googlers): http://goo.gl/qATVcw
 
     // Only SKPs within the min/current picture version range (inclusive) can be read.
     static const uint32_t MIN_PICTURE_VERSION = 19;
-    static const uint32_t CURRENT_PICTURE_VERSION = 27;
+    static const uint32_t CURRENT_PICTURE_VERSION = 26;
 
     mutable uint32_t      fUniqueID;
 

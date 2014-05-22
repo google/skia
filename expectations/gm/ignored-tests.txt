@@ -52,15 +52,3 @@ downsamplebitmap_checkerboard_high_512_256
 downsamplebitmap_image_high_mandrill_512.png
 filterbitmap_checkerboard_192_192
 downsamplebitmap_text_high_72.00pt
-
-# These are part of picture-version 27 -- removal of SkUnitMapp
-# just need to be rebaselined
-scaled_tilemode_bitmap
-scaled_tilemodes_npot
-scaled_tilemodes
-tilemode_bitmap
-tilemodes_npot
-tilemodes
-shadertext3
-shadertext
-shadertext2

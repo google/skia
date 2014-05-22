@@ -359,7 +359,7 @@ static void TestDeferredCanvasFreshFrame(skiatest::Reporter* reporter) {
         const SkColor colors[2] = {SK_ColorWHITE, SK_ColorWHITE};
         const SkScalar pos[2] = {0, SK_Scalar1};
         SkShader* shader = SkGradientShader::CreateTwoPointConical(
-            pt1, r1, pt2, r2, colors, pos, 2, SkShader::kClamp_TileMode);
+            pt1, r1, pt2, r2, colors, pos, 2, SkShader::kClamp_TileMode, NULL);
         paint.setShader(shader)->unref();
         canvas->drawRect(fullRect, paint);
         REPORTER_ASSERT(reporter, !canvas->isFreshFrame());

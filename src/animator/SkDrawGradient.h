@@ -14,6 +14,8 @@
 #include "SkDrawShader.h"
 #include "SkIntArray.h"
 
+class SkUnitMapper;
+
 class SkDrawGradient : public SkDrawShader {
     DECLARE_PRIVATE_MEMBER_INFO(DrawGradient);
     SkDrawGradient();
@@ -28,6 +30,7 @@ protected:
     SkString unitMapper;
     SkTDColorArray fColors;
     SkTDDrawColorArray fDrawColors;
+    SkUnitMapper* fUnitMapper;
     int addPrelude();
 private:
     typedef SkDrawShader INHERITED;
