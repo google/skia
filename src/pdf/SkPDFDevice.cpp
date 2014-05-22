@@ -2028,8 +2028,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         const SkPaint& paint,
         bool hasText,
         GraphicStateEntry* entry) {
-    SkASSERT(paint.getPathEffect() == NULL);
-
+    NOT_IMPLEMENTED(paint.getPathEffect() != NULL, false);
     NOT_IMPLEMENTED(paint.getMaskFilter() != NULL, false);
     NOT_IMPLEMENTED(paint.getColorFilter() != NULL, false);
 
