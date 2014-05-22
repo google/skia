@@ -51,8 +51,6 @@ def MakeClean():
     """Cross-platform "make clean" operation."""
     cd(SCRIPT_DIR)
     rmtree(OUT_SUBDIR)
-    # clean up the directory that XCode (on Mac) creates
-    rmtree('xcodebuild')
 
 
 def CheckWindowsEnvironment():
