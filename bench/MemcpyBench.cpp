@@ -90,6 +90,8 @@ static void memcpy32_sse2_align(uint32_t* dst, const uint32_t* src, int count) {
 
         __m128i* dst128 = reinterpret_cast<__m128i*>(dst);
         const __m128i* src128 = reinterpret_cast<const __m128i*>(src);
+        dst += 16 * (count / 16);
+        src += 16 * (count / 16);
         while (count >= 16) {
             __m128i a = _mm_loadu_si128(src128++);
             __m128i b = _mm_loadu_si128(src128++);
@@ -103,9 +105,6 @@ static void memcpy32_sse2_align(uint32_t* dst, const uint32_t* src, int count) {
 
             count -= 16;
         }
-
-        dst = reinterpret_cast<uint32_t*>(dst128);
-        src = reinterpret_cast<const uint32_t*>(src128);
     }
 
     while (count --> 0) {
@@ -122,6 +121,8 @@ BENCH(memcpy32_sse2_align, 100000)
 static void memcpy32_sse2_unalign(uint32_t* dst, const uint32_t* src, int count) {
     __m128i* dst128 = reinterpret_cast<__m128i*>(dst);
     const __m128i* src128 = reinterpret_cast<const __m128i*>(src);
+    dst += 16 * (count / 16);
+    src += 16 * (count / 16);
     while (count >= 16) {
         __m128i a = _mm_loadu_si128(src128++);
         __m128i b = _mm_loadu_si128(src128++);
@@ -136,14 +137,11 @@ static void memcpy32_sse2_unalign(uint32_t* dst, const uint32_t* src, int count)
         count -= 16;
     }
 
-    dst = reinterpret_cast<uint32_t*>(dst128);
-    src = reinterpret_cast<const uint32_t*>(src128);
     while (count --> 0) {
         *dst++ = *src++;
     }
 }
-// skia:2589: Crashing on ChromeOS Alex bot.  TODO(mtklein): why?
-//BENCH(memcpy32_sse2_unalign, 10)
+BENCH(memcpy32_sse2_unalign, 10)
 BENCH(memcpy32_sse2_unalign, 100)
 BENCH(memcpy32_sse2_unalign, 1000)
 BENCH(memcpy32_sse2_unalign, 10000)
