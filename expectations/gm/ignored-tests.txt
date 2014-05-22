@@ -64,3 +64,7 @@ tilemodes
 shadertext3
 shadertext
 shadertext2
+
+# Changing this GM to add more test cases (failing at the moment)
+# Need to rebaseline when they are fixed
+stroketext
