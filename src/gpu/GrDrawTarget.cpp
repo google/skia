@@ -1029,6 +1029,7 @@ void GrDrawTargetCaps::reset() {
     fMaxSampleCount = 0;
 
     memset(fConfigRenderSupport, 0, sizeof(fConfigRenderSupport));
+    memset(fCompressedFormatSupport, 0, sizeof(fCompressedFormatSupport));
 }
 
 GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
@@ -1054,6 +1055,8 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fMaxSampleCount = other.fMaxSampleCount;
 
     memcpy(fConfigRenderSupport, other.fConfigRenderSupport, sizeof(fConfigRenderSupport));
+    memcpy(fCompressedFormatSupport, other.fCompressedFormatSupport,
+	   sizeof(fCompressedFormatSupport));
 
     return *this;
 }
@@ -1129,5 +1132,18 @@ SkString GrDrawTargetCaps::dump() const {
                      gNY[fConfigRenderSupport[i][1]]);
         }
     }
+
+    static const char* kCompressedFormatNames[] = {
+        "ETC1",  // kETC1_GrCompressedFormat
+    };
+    GR_STATIC_ASSERT(0 == kETC1_GrCompressedFormat);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kCompressedFormatNames) == kCompressedFormatCount);
+
+    for (size_t i = 0; i < kCompressedFormatCount; ++i) {
+        r.appendf("%s Compressed Texture Support: %s\n",
+		  kCompressedFormatNames[i],
+		  gNY[fCompressedFormatSupport[i]]);
+    }
+
     return r;
 }
