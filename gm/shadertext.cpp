@@ -86,7 +86,7 @@ static SkShader* Make2Radial(const SkPoint pts[2], const GradData& data, SkShade
 }
 
 typedef SkShader* (*GradMaker)(const SkPoint pts[2], const GradData& data, SkShader::TileMode tm);
-    
+
 static const GradMaker gGradMakers[] = {
     MakeLinear, MakeRadial, MakeSweep, Make2Radial
 };

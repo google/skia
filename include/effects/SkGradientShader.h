@@ -143,7 +143,7 @@ public:
                                     flags, localMatrix);
     }
 #endif
-    
+
     /**
      *  Returns a shader that generates a conical gradient given two circles, or
      *  returns NULL if the inputs are invalid. The gradient interprets the
@@ -174,7 +174,7 @@ public:
                                     flags, localMatrix);
     }
 #endif
-    
+
     /** Returns a shader that generates a sweep gradient given a center.
         <p />
         CreateSweep returns a shader with a reference count of 1.
@@ -207,7 +207,7 @@ public:
         return CreateSweep(cx, cy, colors, pos, count, flags, localMatrix);
     }
 #endif
-    
+
     SK_DECLARE_FLATTENABLE_REGISTRAR_GROUP()
 };
 

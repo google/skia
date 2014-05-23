@@ -283,5 +283,3 @@ void SkValidatingReadBuffer::skipFlattenable() {
     uint32_t sizeRecorded = this->readUInt();
     this->skip(sizeRecorded);
 }
-
-
