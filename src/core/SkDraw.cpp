@@ -1896,6 +1896,10 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
     SkMatrix matrix;
     matrix.setScale(matrixScale, matrixScale);
 
+    // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
+    paint.setStyle(SkPaint::kFill_Style);
+    paint.setPathEffect(NULL);
+
     SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
     SkAutoGlyphCache    autoCache(paint, NULL, NULL);
     SkGlyphCache*       cache = autoCache.getCache();
@@ -1904,6 +1908,10 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength,
     AlignProc_scalar   alignProc = pick_align_proc_scalar(paint.getTextAlign());
     TextMapState       tms(SkMatrix::I(), constY);
     TextMapState::Proc tmsProc = tms.pickProc(scalarsPerPosition);
+
+    // Now restore the original settings, so we "draw" with whatever style/stroking.
+    paint.setStyle(origPaint.getStyle());
+    paint.setPathEffect(origPaint.getPathEffect());
 
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache, &text, 0, 0);
