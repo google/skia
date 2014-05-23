@@ -72,34 +72,3 @@ stroketext
 # yunchao: https://codereview.chromium.org/292943002/
 # changed the rendering result of this gm case to respect paint's alpha
 vertices_80
-
-# https://codereview.chromium.org/240433002/
-# scroggo will rebaseline this test
-shadertext3
-pictureshader
-giantbitmap_mirror_bilerp_rotate
-giantbitmap_repeat_bilerp_rotate
-filterbitmap_image_mandrill_512.png
-filterbitmap_image_mandrill_256.png
-filterbitmap_image_mandrill_128.png
-filterbitmap_image_mandrill_64.png
-filterbitmap_image_mandrill_32.png
-filterbitmap_image_mandrill_16.png
-filterbitmap_checkerboard_192_192
-filterbitmap_checkerboard_32_2
-filterbitmap_checkerboard_32_8
-filterbitmap_checkerboard_32_32
-filterbitmap_checkerboard_4_4
-filterbitmap_text_10.00pt
-filterbitmap_text_7.00pt
-filterbitmap_text_3.00pt
-downsamplebitmap_image_none_mandrill_512.png
-downsamplebitmap_checkerboard_none_512_256
-downsamplebitmap_text_none_72.00pt
-downsamplebitmap_image_low_mandrill_512.png
-downsamplebitmap_checkerboard_low_512_256
-downsamplebitmap_text_low_72.00pt
-downsamplebitmap_image_medium_mandrill_512.png
-downsamplebitmap_checkerboard_medium_512_256
-downsamplebitmap_text_medium_72.00pt
-drawbitmapmatrix
