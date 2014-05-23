@@ -13828,9 +13828,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15869153829052254914
+          4772439453656054334
         ]
       ], 
+      "bugs": [
+        2602
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "scaled_tilemodes_npot_pdf-poppler.png": {
@@ -13858,9 +13862,13 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7847821803173677477
+          11356937570541547918
         ]
       ], 
+      "bugs": [
+        2602
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "scaled_tilemodes_pdf-poppler.png": {
