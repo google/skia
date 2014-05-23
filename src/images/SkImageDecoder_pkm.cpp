@@ -7,6 +7,7 @@
 
 #include "SkColorPriv.h"
 #include "SkImageDecoder.h"
+#include "SkScaledBitmapSampler.h"
 #include "SkStream.h"
 #include "SkStreamHelpers.h"
 #include "SkTypes.h"
@@ -50,7 +51,12 @@ bool SkPKMImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
         return false;
     }
 
-    bm->setConfig(SkBitmap::kARGB_8888_Config, width, height, 0, kOpaque_SkAlphaType);
+    // Setup the sampler...
+    SkScaledBitmapSampler sampler(width, height, this->getSampleSize());
+
+    // Set the config...
+    bm->setConfig(SkBitmap::kARGB_8888_Config, sampler.scaledWidth(), sampler.scaledHeight(),
+                  0, kOpaque_SkAlphaType);
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }
@@ -61,6 +67,10 @@ bool SkPKMImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
     // Lock the pixels, since we're about to write to them...
     SkAutoLockPixels alp(*bm);
+
+    if (!sampler.begin(bm, SkScaledBitmapSampler::kRGB, *this)) {
+        return false;
+    }
 
     // Advance buffer past the header
     buf += ETC_PKM_HEADER_SIZE;
@@ -76,14 +86,13 @@ bool SkPKMImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     }
 
     // Set each of the pixels...
-    const uint8_t *src = reinterpret_cast<uint8_t *>(outRGBDataPtr);
-    uint8_t *dst = reinterpret_cast<uint8_t *>(bm->getPixels());
-    for (int i = 0; i < width*height; ++i) {
-        *dst++ = src[2]; // B
-        *dst++ = src[1]; // G
-        *dst++ = src[0]; // R
-        *dst++ = 0xFF; // Opaque alpha...
-        src += 3;
+    const int srcRowBytes = width * 3;
+    const int dstHeight = sampler.scaledHeight();
+    const uint8_t *srcRow = reinterpret_cast<uint8_t *>(outRGBDataPtr);
+    srcRow += sampler.srcY0() * srcRowBytes;
+    for (int y = 0; y < dstHeight; ++y) {
+        sampler.next(srcRow);
+        srcRow += sampler.srcDY() * srcRowBytes;
     }
 
     return true;
