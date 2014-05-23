@@ -84,7 +84,7 @@ def download_gs_files(p, h, gs_dir):
       os.remove(os.path.join(gs_dir, p, f))
     else:
       files += 1
-  if files == 4:
+  if files:
     return True
   return False
 
@@ -220,7 +220,7 @@ def main():
     hash_to_use = ''
     for h in reversed(hashes):
       li = get_gs_filelist(p, h)
-      if len(li) != 4:  # no or partial data
+      if not len(li):  # no data
         continue
       if download_gs_files(p, h, gs_dir):
         print 'Copied %s/%s' % (p, h)
