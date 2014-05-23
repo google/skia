@@ -49,7 +49,7 @@ DEFINE_bool(trackDeferredCaching, false, "Only meaningful with --deferImageDecod
             "SK_LAZY_CACHE_STATS set to true. Report percentage of cache hits when using "
             "deferred image decoding.");
 
-DEFINE_bool(preprocess, true, "If true, perform device specific preprocessing before timing.");
+DEFINE_bool(preprocess, false, "If true, perform device specific preprocessing before timing.");
 
 static char const * const gFilterTypes[] = {
     "paint",
