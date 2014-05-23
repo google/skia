@@ -20,6 +20,7 @@ ERR_LB = 1.5
 
 # List of bench configs to monitor. Ignore all other configs.
 CONFIGS_TO_INCLUDE = ['simple_viewport_1000x1000',
+                      'simple_viewport_1000x1000_angle',
                       'simple_viewport_1000x1000_gpu',
                       'simple_viewport_1000x1000_scalar_1.100000',
                       'simple_viewport_1000x1000_scalar_1.100000_gpu',
