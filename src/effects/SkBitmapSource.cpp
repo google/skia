@@ -21,15 +21,17 @@ SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap)
 }
 
 SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap, const SkRect& srcRect, const SkRect& dstRect)
-  : INHERITED(0, 0),
-    fBitmap(bitmap),
-    fSrcRect(srcRect),
-    fDstRect(dstRect) {
-}
+  : INHERITED(0, 0)
+  , fBitmap(bitmap)
+  , fSrcRect(srcRect)
+  , fDstRect(dstRect) {}
 
-SkBitmapSource::SkBitmapSource(SkReadBuffer& buffer)
-  : INHERITED(0, buffer) {
-    fBitmap.unflatten(buffer);
+SkBitmapSource::SkBitmapSource(SkReadBuffer& buffer) : INHERITED(0, buffer) {
+    if (buffer.isVersionLT(SkReadBuffer::kNoMoreBitmapFlatten_Version)) {
+        fBitmap.unflatten(buffer);
+    } else {
+        buffer.readBitmap(&fBitmap);
+    }
     buffer.readRect(&fSrcRect);
     buffer.readRect(&fDstRect);
     buffer.validate(buffer.isValid() && SkIsValidRect(fSrcRect) && SkIsValidRect(fDstRect));
@@ -37,7 +39,7 @@ SkBitmapSource::SkBitmapSource(SkReadBuffer& buffer)
 
 void SkBitmapSource::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    fBitmap.flatten(buffer);
+    buffer.writeBitmap(fBitmap);
     buffer.writeRect(fSrcRect);
     buffer.writeRect(fDstRect);
 }

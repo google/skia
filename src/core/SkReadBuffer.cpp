@@ -191,7 +191,7 @@ uint32_t SkReadBuffer::getArrayCount() {
     return *(uint32_t*)fReader.peek();
 }
 
-void SkReadBuffer::readBitmap(SkBitmap* bitmap) {
+bool SkReadBuffer::readBitmap(SkBitmap* bitmap) {
     const int width = this->readInt();
     const int height = this->readInt();
     // The writer stored a boolean value to determine whether an SkBitmapHeap was used during
@@ -204,7 +204,7 @@ void SkReadBuffer::readBitmap(SkBitmap* bitmap) {
         if (fBitmapStorage) {
             *bitmap = *fBitmapStorage->getBitmap(index);
             fBitmapStorage->releaseRef(index);
-            return;
+            return true;
         } else {
             // The bitmap was stored in a heap, but there is no way to access it. Set an error and
             // fall through to use a place holder bitmap.
@@ -239,7 +239,7 @@ void SkReadBuffer::readBitmap(SkBitmap* bitmap) {
 #endif // DEBUG_NON_DETERMINISTIC_ASSERT
                     // If the width and height match, there should be no offset.
                     SkASSERT(0 == xOffset && 0 == yOffset);
-                    return;
+                    return true;
                 }
 
                 // This case can only be reached if extractSubset was called, so
@@ -255,7 +255,7 @@ void SkReadBuffer::readBitmap(SkBitmap* bitmap) {
                 SkIRect subset = SkIRect::MakeXYWH(xOffset, yOffset, width, height);
                 if (bitmap->extractSubset(&subsetBm, subset)) {
                     bitmap->swap(subsetBm);
-                    return;
+                    return true;
                 }
             }
             // This bitmap was encoded when written, but we are unable to decode, possibly due to
@@ -264,13 +264,20 @@ void SkReadBuffer::readBitmap(SkBitmap* bitmap) {
                                        "Could not decode bitmap. Resulting bitmap will be red.");
         } else {
             // A size of zero means the SkBitmap was simply flattened.
-            bitmap->unflatten(*this);
-            return;
+            if (this->isVersionLT(kNoMoreBitmapFlatten_Version)) {
+                SkBitmap tmp;
+                tmp.unflatten(*this);
+                // just throw this guy away
+            } else {
+                if (SkBitmap::ReadRawPixels(this, bitmap)) {
+                    return true;
+                }
+            }
         }
     }
     // Could not read the SkBitmap. Use a placeholder bitmap.
-    bitmap->allocPixels(SkImageInfo::MakeN32Premul(width, height));
-    bitmap->eraseColor(SK_ColorRED);
+    bitmap->setConfig(SkImageInfo::MakeUnknown(width, height));
+    return false;
 }
 
 SkTypeface* SkReadBuffer::readTypeface() {

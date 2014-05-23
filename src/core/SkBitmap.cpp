@@ -1266,11 +1266,88 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkBitmap::WriteRawPixels(SkWriteBuffer* buffer, const SkBitmap& bitmap) {
+    const SkImageInfo info = bitmap.info();
+    SkAutoLockPixels alp(bitmap);
+    if (0 == info.width() || 0 == info.height() || NULL == bitmap.getPixels()) {
+        buffer->writeUInt(0); // instead of snugRB, signaling no pixels
+        return;
+    }
+
+    const size_t snugRB = info.width() * info.bytesPerPixel();
+    const char* src = (const char*)bitmap.getPixels();
+    const size_t ramRB = bitmap.rowBytes();
+    
+    buffer->write32(SkToU32(snugRB));
+    info.flatten(*buffer);
+
+    const size_t size = snugRB * info.height();
+    SkAutoMalloc storage(size);
+    char* dst = (char*)storage.get();
+    for (int y = 0; y < info.height(); ++y) {
+        memcpy(dst, src, snugRB);
+        dst += snugRB;
+        src += ramRB;
+    }
+    buffer->writeByteArray(storage.get(), size);
+
+    SkColorTable* ct = bitmap.getColorTable();
+    if (kIndex_8_SkColorType == info.colorType() && ct) {
+        buffer->writeBool(true);
+        ct->writeToBuffer(*buffer);
+    } else {
+        buffer->writeBool(false);
+    }
+}
+
+bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
+    const size_t snugRB = buffer->readUInt();
+    if (0 == snugRB) {  // no pixels
+        return false;
+    }
+
+    SkImageInfo info;
+    info.unflatten(*buffer);
+
+    const size_t ramRB = info.minRowBytes();
+    const int height = info.height();
+    const size_t snugSize = snugRB * height;
+    const size_t ramSize = ramRB * height;
+    SkASSERT(snugSize <= ramSize);
+
+    char* dst = (char*)sk_malloc_throw(ramSize);
+    buffer->readByteArray(dst, snugSize);
+    SkAutoDataUnref data(SkData::NewFromMalloc(dst, ramSize));
+
+    if (snugSize != ramSize) {
+        const char* srcRow = dst + snugRB * (height - 1);
+        char* dstRow = dst + ramRB * (height - 1);
+        for (int y = height - 1; y >= 1; --y) {
+            memmove(dstRow, srcRow, snugRB);
+            srcRow -= snugRB;
+            dstRow -= ramRB;
+        }
+        SkASSERT(srcRow == dstRow); // first row does not need to be moved
+    }
+    
+    SkAutoTUnref<SkColorTable> ctable;
+    if (buffer->readBool()) {
+        ctable.reset(SkNEW_ARGS(SkColorTable, (*buffer)));
+    }
+    
+    SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewWithData(info, info.minRowBytes(),
+                                                              ctable.get(), data.get()));
+    bitmap->setConfig(pr->info());
+    bitmap->setPixelRef(pr, 0, 0);
+    return true;
+}
+
 enum {
     SERIALIZE_PIXELTYPE_NONE,
     SERIALIZE_PIXELTYPE_REF_DATA
 };
 
+#ifdef SK_SUPPORT_LEGACY_BITMAPFLATTEN
 void SkBitmap::flatten(SkWriteBuffer& buffer) const {
     fInfo.flatten(buffer);
     buffer.writeInt(fRowBytes);
@@ -1289,6 +1366,7 @@ void SkBitmap::flatten(SkWriteBuffer& buffer) const {
         buffer.writeInt(SERIALIZE_PIXELTYPE_NONE);
     }
 }
+#endif
 
 void SkBitmap::unflatten(SkReadBuffer& buffer) {
     this->reset();

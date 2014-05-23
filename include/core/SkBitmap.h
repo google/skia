@@ -24,6 +24,8 @@ class SkRegion;
 class SkString;
 class GrTexture;
 
+//#define SK_SUPPORT_LEGACY_BITMAPFLATTEN
+
 /** \class SkBitmap
 
     The SkBitmap class specifies a raster bitmap. A bitmap has an integer width
@@ -691,6 +693,7 @@ public:
     bool extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator,
                       SkIPoint* offset) const;
 
+#ifdef SK_SUPPORT_LEGACY_BITMAPFLATTEN
     /** The following two functions provide the means to both flatten and
         unflatten the bitmap AND its pixels into the provided buffer.
         It is recommended that you do not call these functions directly,
@@ -699,7 +702,11 @@ public:
         duplicate bitmaps and pixelRefs.
      */
     void flatten(SkWriteBuffer&) const;
+#else
+private:
+#endif
     void unflatten(SkReadBuffer&);
+public:
 
     SkDEBUGCODE(void validate() const;)
 
@@ -796,7 +803,13 @@ private:
     */
     void freePixels();
     void updatePixelsFromRef() const;
+    
+    static void WriteRawPixels(SkWriteBuffer*, const SkBitmap&);
+    static bool ReadRawPixels(SkReadBuffer*, SkBitmap*);
 
+    friend class SkBitmapSource;    // unflatten
+    friend class SkReadBuffer;      // unflatten, rawpixels
+    friend class SkWriteBuffer;     // rawpixels
     friend struct SkBitmapProcState;
 };
 

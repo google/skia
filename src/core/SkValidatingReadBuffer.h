@@ -58,7 +58,6 @@ public:
     // helpers to get info about arrays and binary data
     virtual uint32_t getArrayCount() SK_OVERRIDE;
 
-    virtual void readBitmap(SkBitmap* bitmap) SK_OVERRIDE;
     // TODO: Implement this (securely) when needed
     virtual SkTypeface* readTypeface() SK_OVERRIDE;
 

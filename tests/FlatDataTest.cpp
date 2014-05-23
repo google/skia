@@ -21,11 +21,6 @@ struct SkFlattenableTraits {
         buffer.writeFlattenable(&flattenable);
     }
 };
-struct SkBitmapTraits {
-    static void Flatten(SkWriteBuffer& buffer, const SkBitmap& bitmap) {
-        bitmap.flatten(buffer);
-    }
-};
 
 class Controller : public SkChunkFlatController {
 public:
@@ -64,17 +59,6 @@ DEF_TEST(FlatData, reporter) {
     SkAutoTUnref<SkShader> shader(SkGradientShader::CreateLinear(points, colors, NULL, 2,
                                                                  SkShader::kRepeat_TileMode));
     testCreate<SkFlattenableTraits>(reporter, *shader);
-
-    // Test SkBitmap
-    {
-        SkBitmap bm;
-        bm.allocN32Pixels(50, 50);
-        SkCanvas canvas(bm);
-        SkPaint paint;
-        paint.setShader(shader);
-        canvas.drawPaint(paint);
-        testCreate<SkBitmapTraits>(reporter, bm);
-    }
 
     // Test SkColorFilter
     SkAutoTUnref<SkColorFilter> cf(SkColorFilter::CreateLightingFilter(SK_ColorBLUE, SK_ColorRED));

@@ -210,19 +210,6 @@ uint32_t SkValidatingReadBuffer::getArrayCount() {
     return fError ? 0 : *(uint32_t*)fReader.peek();
 }
 
-void SkValidatingReadBuffer::readBitmap(SkBitmap* bitmap) {
-    const int width = this->readInt();
-    const int height = this->readInt();
-    const bool useBitmapHeap = this->readBool();
-    const size_t length = this->readUInt();
-    // A size of zero means the SkBitmap was simply flattened.
-    if (!this->validate(!useBitmapHeap && (0 == length))) {
-        return;
-    }
-    bitmap->unflatten(*this);
-    this->validate((bitmap->width() == width) && (bitmap->height() == height));
-}
-
 SkTypeface* SkValidatingReadBuffer::readTypeface() {
     // TODO: Implement this (securely) when needed
     return NULL;

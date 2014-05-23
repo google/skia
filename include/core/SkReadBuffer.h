@@ -45,6 +45,7 @@ public:
         kDashWritesPhaseIntervals_Version  = 25,
         kColorShaderNoBool_Version         = 26,
         kNoUnitMappers_Version             = 27,
+        kNoMoreBitmapFlatten_Version       = 28,
     };
 
     /**
@@ -149,7 +150,12 @@ public:
     // helpers to get info about arrays and binary data
     virtual uint32_t getArrayCount();
 
-    virtual void readBitmap(SkBitmap* bitmap);
+    /**
+     *  Returns false if the bitmap could not be completely read. In that case, it will be set
+     *  to have width/height, but no pixels.
+     */
+    bool readBitmap(SkBitmap* bitmap);
+
     virtual SkTypeface* readTypeface();
 
     void setBitmapStorage(SkBitmapHeapReader* bitmapStorage) {
