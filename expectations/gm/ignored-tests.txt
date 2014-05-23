@@ -79,8 +79,6 @@ shadertext3
 pictureshader
 giantbitmap_mirror_bilerp_rotate
 giantbitmap_repeat_bilerp_rotate
-giantbitmap_repeat_bilerp_scale
-giantbitmap_repeat_point_scale
 filterbitmap_image_mandrill_512.png
 filterbitmap_image_mandrill_256.png
 filterbitmap_image_mandrill_128.png
@@ -105,4 +103,3 @@ downsamplebitmap_image_medium_mandrill_512.png
 downsamplebitmap_checkerboard_medium_512_256
 downsamplebitmap_text_medium_72.00pt
 drawbitmapmatrix
-verylargebitmap
