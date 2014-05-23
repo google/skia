@@ -106,7 +106,3 @@ downsamplebitmap_checkerboard_medium_512_256
 downsamplebitmap_text_medium_72.00pt
 drawbitmapmatrix
 verylargebitmap
-
-# https://code.google.com/p/skia/issues/detail?id=2603
-# started failing on Android, but actual results missing.
-testimagefilters

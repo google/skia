@@ -6669,10 +6669,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4806854696235085637
+          14688683472045987229
         ]
       ], 
-      "ignore-failure": false
+      "bugs": [
+        2603
+      ], 
+      "ignore-failure": false, 
+      "reviewed-by-human": false
     }, 
     "texdata_565.png": {
       "allowed-digests": [
