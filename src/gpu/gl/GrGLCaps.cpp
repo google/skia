@@ -369,8 +369,6 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
 
     this->initConfigRenderableTable(ctxInfo);
 
-    this->initCompressedTextureSupport(ctxInfo);
-
     return true;
 }
 
@@ -458,35 +456,6 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
             fConfigRenderSupport[i][kYes_MSAA] = false;
         }
     }
-}
-
-void GrGLCaps::initCompressedTextureSupport(const GrGLContextInfo &ctxInfo) {
-    GrGLStandard standard = ctxInfo.standard();
-    GrGLVersion version = ctxInfo.version();
-
-    // glCompressedTexImage2D is available on all OpenGL ES devices...
-    // however, it is only available on standard OpenGL after version 1.3
-    if (kGL_GrGLStandard == standard && version < GR_GL_VER(1, 3)) {
-        return;
-    }
-
-    // Check for ETC1
-    bool hasETC1 = false;
-
-    // First check version for support
-    if (kGL_GrGLStandard == standard) {
-        hasETC1 =
-            version >= GR_GL_VER(4, 3) ||
-            ctxInfo.hasExtension("GL_ARB_ES3_compatibility");
-    } else {
-        hasETC1 =
-            version >= GR_GL_VER(3, 0) ||
-            ctxInfo.hasExtension("GL_OES_compressed_ETC1_RGB8_texture") ||
-            // ETC2 is a superset of ETC1, so we can just check for that, too.
-            (ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGB8_texture") &&
-             ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGBA8_texture"));
-    }
-    fCompressedFormatSupport[kETC1_GrCompressedFormat] = hasETC1;
 }
 
 bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,

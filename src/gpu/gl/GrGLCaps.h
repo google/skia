@@ -313,8 +313,6 @@ private:
     // This must be called after initFSAASupport().
     void initConfigRenderableTable(const GrGLContextInfo&);
 
-    void initCompressedTextureSupport(const GrGLContextInfo &);
-
     // tracks configs that have been verified to pass the FBO completeness when
     // used as a color attachment
     VerifiedColorConfigs fVerifiedColorConfigs;
