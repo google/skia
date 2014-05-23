@@ -491,18 +491,8 @@ static SkPixelRef* install_pixel_ref(SkBitmap* bitmap,
     SkASSERT(stream->unique());
     SkColorType colorType = bitmap->colorType();
     SkDecodingImageGenerator::Options opts(sampleSize, ditherImage, colorType);
-    SkAutoTDelete<SkImageGenerator> gen(
-        SkDecodingImageGenerator::Create(stream, opts));
-    SkImageInfo info;
-    if ((NULL == gen.get()) || !gen->getInfo(&info)) {
-        return NULL;
-    }
-    SkDiscardableMemory::Factory* factory = NULL;
-    if (info.getSafeSize(info.minRowBytes()) < (32 * 1024)) {
-        // only use ashmem for large images, since mmaps come at a price
-        factory = SkGetGlobalDiscardableMemoryPool();
-    }
-    if (SkInstallDiscardablePixelRef(gen.detach(), bitmap, factory)) {
+    if (SkInstallDiscardablePixelRef(
+                SkDecodingImageGenerator::Create(stream, opts), bitmap)) {
         return bitmap->pixelRef();
     }
     return NULL;

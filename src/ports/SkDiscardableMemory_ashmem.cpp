@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include "SkDiscardableMemory.h"
+#include "SkDiscardableMemoryPool.h"
 #include "SkTypes.h"
 #include "android/ashmem.h"
 
@@ -24,6 +25,8 @@ public:
     virtual bool lock() SK_OVERRIDE;
     virtual void* data() SK_OVERRIDE;
     virtual void unlock() SK_OVERRIDE;
+    static SkAshmemDiscardableMemory* Create(size_t bytes);
+
 private:
     bool         fLocked;
     int          fFd;
@@ -86,10 +89,8 @@ void SkAshmemDiscardableMemory::unlock() {
     }
     fLocked = false;
 }
-}  // namespace
-////////////////////////////////////////////////////////////////////////////////
 
-SkDiscardableMemory* SkDiscardableMemory::Create(size_t bytes) {
+SkAshmemDiscardableMemory* SkAshmemDiscardableMemory::Create(size_t bytes) {
     // ashmem likes lengths on page boundaries.
     const size_t mask = getpagesize() - 1;
     size_t size = (bytes + mask) & ~mask;
@@ -111,3 +112,18 @@ SkDiscardableMemory* SkDiscardableMemory::Create(size_t bytes) {
 
     return SkNEW_ARGS(SkAshmemDiscardableMemory, (fd, addr, size));
 }
+}  // namespace
+////////////////////////////////////////////////////////////////////////////////
+
+#ifndef SK_ASHMEM_MINIMUM_MEMORY_SIZE
+// number taken from android/graphics/BitmapFactory.cpp
+#define SK_ASHMEM_MINIMUM_MEMORY_SIZE (32 * 1024)
+#endif  // SK_ASHMEM_MINIMUM_MEMORY_SIZE
+SkDiscardableMemory* SkDiscardableMemory::Create(size_t bytes) {
+    if (bytes < SK_ASHMEM_MINIMUM_MEMORY_SIZE) {
+        return SkGetGlobalDiscardableMemoryPool()->create(bytes);
+    } else {
+        return SkAshmemDiscardableMemory::Create(bytes);
+    }
+}
+
