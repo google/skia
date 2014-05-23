@@ -1649,8 +1649,13 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     if (NULL != colors) {
         // need to convert byte order and from non-PM to PM
         convertedColors.reset(vertexCount);
+        SkColor color;
         for (int i = 0; i < vertexCount; ++i) {
-            convertedColors[i] = SkColor2GrColor(colors[i]);
+            color = colors[i];
+            if (paint.getAlpha() != 255) {
+                color = SkColorSetA(color, SkMulDiv255Round(SkColorGetA(color), paint.getAlpha()));
+            }
+            convertedColors[i] = SkColor2GrColor(color);
         }
         colors = convertedColors.get();
     }

@@ -68,3 +68,7 @@ shadertext2
 # Changing this GM to add more test cases (failing at the moment)
 # Need to rebaseline when they are fixed
 stroketext
+
+# yunchao: https://codereview.chromium.org/292943002/
+# changed the rendering result of this gm case to respect paint's alpha
+vertices_80
