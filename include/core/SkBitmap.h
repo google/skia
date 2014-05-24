@@ -803,7 +803,7 @@ private:
     */
     void freePixels();
     void updatePixelsFromRef() const;
-    
+
     static void WriteRawPixels(SkWriteBuffer*, const SkBitmap&);
     static bool ReadRawPixels(SkReadBuffer*, SkBitmap*);
 

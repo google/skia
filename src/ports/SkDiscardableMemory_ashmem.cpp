@@ -126,4 +126,3 @@ SkDiscardableMemory* SkDiscardableMemory::Create(size_t bytes) {
         return SkAshmemDiscardableMemory::Create(bytes);
     }
 }
-
