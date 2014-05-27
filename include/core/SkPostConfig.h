@@ -386,8 +386,6 @@
 #ifndef SK_ATOMICS_PLATFORM_H
 #  if defined(_MSC_VER)
 #    define SK_ATOMICS_PLATFORM_H "../../src/ports/SkAtomics_win.h"
-#  elif defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-#    define SK_ATOMICS_PLATFORM_H "../../src/ports/SkAtomics_android.h"
 #  else
 #    define SK_ATOMICS_PLATFORM_H "../../src/ports/SkAtomics_sync.h"
 #  endif

@@ -305,7 +305,7 @@
         'SK_DISABLE_PIXELREF_LOCKCOUNT_BALANCE_CHECK',
         'SkLONGLONG int64_t',
         'SK_DEFAULT_FONT_CACHE_LIMIT   (768 * 1024)',
-        'SK_ATOMICS_PLATFORM_H "../../src/ports/SkAtomics_android.h"',
+        'SK_ATOMICS_PLATFORM_H "../../src/ports/SkAtomics_sync.h"',
         'SK_MUTEX_PLATFORM_H "../../src/ports/SkMutex_pthread.h"',
         # Still need to switch Android to the new name for N32.
         'kNative_8888_SkColorType kN32_SkColorType',

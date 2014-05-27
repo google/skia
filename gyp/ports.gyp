@@ -23,7 +23,6 @@
         '../src/utils',
       ],
       'sources': [
-        '../src/ports/SkAtomics_android.h',
         '../src/ports/SkAtomics_sync.h',
         '../src/ports/SkAtomics_win.h',
         '../src/ports/SkMutex_pthread.h',
