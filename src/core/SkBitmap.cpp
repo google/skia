@@ -1347,28 +1347,7 @@ enum {
     SERIALIZE_PIXELTYPE_REF_DATA
 };
 
-#ifdef SK_SUPPORT_LEGACY_BITMAPFLATTEN
-void SkBitmap::flatten(SkWriteBuffer& buffer) const {
-    fInfo.flatten(buffer);
-    buffer.writeInt(fRowBytes);
-
-    if (fPixelRef) {
-        if (fPixelRef->getFactory()) {
-            buffer.writeInt(SERIALIZE_PIXELTYPE_REF_DATA);
-            buffer.writeInt(fPixelRefOrigin.fX);
-            buffer.writeInt(fPixelRefOrigin.fY);
-            buffer.writeFlattenable(fPixelRef);
-            return;
-        }
-        // if we get here, we can't record the pixels
-        buffer.writeInt(SERIALIZE_PIXELTYPE_NONE);
-    } else {
-        buffer.writeInt(SERIALIZE_PIXELTYPE_NONE);
-    }
-}
-#endif
-
-void SkBitmap::unflatten(SkReadBuffer& buffer) {
+void SkBitmap::legacyUnflatten(SkReadBuffer& buffer) {
     this->reset();
 
     SkImageInfo info;

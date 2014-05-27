@@ -28,7 +28,7 @@ SkBitmapSource::SkBitmapSource(const SkBitmap& bitmap, const SkRect& srcRect, co
 
 SkBitmapSource::SkBitmapSource(SkReadBuffer& buffer) : INHERITED(0, buffer) {
     if (buffer.isVersionLT(SkReadBuffer::kNoMoreBitmapFlatten_Version)) {
-        fBitmap.unflatten(buffer);
+        fBitmap.legacyUnflatten(buffer);
     } else {
         buffer.readBitmap(&fBitmap);
     }

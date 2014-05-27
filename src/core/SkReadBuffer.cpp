@@ -266,7 +266,7 @@ bool SkReadBuffer::readBitmap(SkBitmap* bitmap) {
             // A size of zero means the SkBitmap was simply flattened.
             if (this->isVersionLT(kNoMoreBitmapFlatten_Version)) {
                 SkBitmap tmp;
-                tmp.unflatten(*this);
+                tmp.legacyUnflatten(*this);
                 // just throw this guy away
             } else {
                 if (SkBitmap::ReadRawPixels(this, bitmap)) {
