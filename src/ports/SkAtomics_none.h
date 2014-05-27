@@ -32,12 +32,6 @@ static inline int32_t sk_atomic_dec(int32_t* addr) {
 
 static inline void sk_membar_acquire__after_atomic_dec() { }
 
-static inline int32_t sk_atomic_conditional_inc(int32_t* addr) {
-    int32_t value = *addr;
-    if (value != 0) ++*addr;
-    return value;
-}
-
 static inline bool sk_atomic_cas(int32_t* addr, int32_t before, int32_t after) {
     if (*addr != before) return false;
     *addr = after;

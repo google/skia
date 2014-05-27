@@ -32,18 +32,6 @@ static inline __attribute__((always_inline)) void sk_membar_acquire__after_atomi
     //android_atomic_acquire_store(0, &dummy);
 }
 
-static inline __attribute__((always_inline)) int32_t sk_atomic_conditional_inc(int32_t* addr) {
-    while (true) {
-        int32_t value = *addr;
-        if (value == 0) {
-            return 0;
-        }
-        if (0 == android_atomic_release_cas(value, value + 1, addr)) {
-            return value;
-        }
-    }
-}
-
 static inline __attribute__((always_inline)) bool sk_atomic_cas(int32_t* addr,
                                                                  int32_t before,
                                                                  int32_t after) {
