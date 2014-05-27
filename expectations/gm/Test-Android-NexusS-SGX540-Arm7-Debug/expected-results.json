@@ -3239,6 +3239,24 @@
       ], 
       "ignore-failure": false
     }, 
+    "etc1bitmap_565.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15855537393781495131
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "etc1bitmap_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          10396043285211938891
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "extractbitmap_565.png": {
       "allowed-digests": [
         [
