@@ -286,6 +286,7 @@
       'target_name': 'bench_pictures',
       'type': 'executable',
       'sources': [
+        '../bench/ResultsWriter.cpp',
         '../bench/SkBenchLogger.h',
         '../bench/SkBenchLogger.cpp',
         '../bench/TimerData.h',

@@ -9,6 +9,7 @@
 #ifndef TimerData_DEFINED
 #define TimerData_DEFINED
 
+#include "SkJSONCPP.h"
 #include "SkString.h"
 #include "SkTemplates.h"
 
@@ -58,6 +59,9 @@ public:
                        const char* configName,
                        uint32_t timerFlags,
                        int itersPerTiming = 1);
+    Json::Value getJSON(uint32_t timerFlags, 
+                        Result result,
+                        int itersPerTiming = 1);
 
 private:
     int fMaxNumTimings;

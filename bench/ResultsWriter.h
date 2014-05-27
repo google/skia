@@ -101,26 +101,9 @@ private:
  *         },
  *         ...
  */
-class JSONResultsWriter : public ResultsWriter {
-private:
-    Json::Value* find_named_node(Json::Value* root, const char name[]) {
-        Json::Value* search_results = NULL;
-        for(Json::Value::iterator iter = root->begin();
-                iter!= root->end(); ++iter) {
-            if(SkString(name).equals((*iter)["name"].asCString())) {
-                search_results = &(*iter);
-                break;
-            }
-        }
 
-        if(search_results != NULL) {
-            return search_results;
-        } else {
-            Json::Value* new_val = &(root->append(Json::Value()));
-            (*new_val)["name"] = name;
-            return new_val;
-        }
-    }
+Json::Value* SkFindNamedNode(Json::Value* root, const char name[]);
+class JSONResultsWriter : public ResultsWriter {
 public:
     explicit JSONResultsWriter(const char filename[])
         : fFilename(filename)
@@ -138,12 +121,12 @@ public:
         sk_name.appendS32(x);
         sk_name.append("_");
         sk_name.appendS32(y);
-        Json::Value* bench_node = find_named_node(&fResults, sk_name.c_str());
+        Json::Value* bench_node = SkFindNamedNode(&fResults, sk_name.c_str());
         fBench = &(*bench_node)["results"];
     }
     virtual void config(const char name[]) {
         SkASSERT(NULL != fBench);
-        fConfig = find_named_node(fBench, name);
+        fConfig = SkFindNamedNode(fBench, name);
     }
     virtual void timer(const char name[], double ms) {
         SkASSERT(NULL != fConfig);
@@ -164,6 +147,7 @@ private:
 };
 
 #endif // SK_BUILD_JSON_WRITER
+
 /**
  * This ResultsWriter writes out to multiple ResultsWriters.
  */
