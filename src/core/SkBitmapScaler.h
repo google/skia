@@ -79,28 +79,10 @@ public:
         RESIZE_LAST_ALGORITHM_METHOD = RESIZE_MITCHELL,
     };
 
-    // Resizes the given source bitmap using the specified resize method, so that
-    // the entire image is (dest_size) big. The dest_subset is the rectangle in
-    // this destination image that should actually be returned.
-    //
-    // The output image will be (dest_subset.width(), dest_subset.height()). This
-    // will save work if you do not need the entire bitmap.
-    //
-    // The destination subset must be smaller than the destination image.
     static bool Resize(SkBitmap* result,
                        const SkBitmap& source,
                        ResizeMethod method,
-                       int dest_width, int dest_height,
-                       const SkIRect& dest_subset,
-                       const SkConvolutionProcs&,
-                       SkBitmap::Allocator* allocator = NULL);
-
-    // Alternate version for resizing and returning the entire bitmap rather than
-    // a subset.
-    static bool Resize(SkBitmap* result,
-                       const SkBitmap& source,
-                       ResizeMethod method,
-                       int dest_width, int dest_height,
+                       float dest_width, float dest_height,
                        const SkConvolutionProcs&,
                        SkBitmap::Allocator* allocator = NULL);
 };
