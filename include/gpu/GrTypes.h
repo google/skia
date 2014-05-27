@@ -620,6 +620,20 @@ enum GrGLBackendState {
 };
 
 /**
+ * The compressed texture formats that may be supported by the renderer.
+ * Make sure to check for the required capabilities using
+ * GrDrawTargetCaps::compressedTextureSupport
+ */
+enum GrCompressedFormat {
+    kETC1_GrCompressedFormat,
+    kETC2_GrCompressedFormat,
+    kDXT1_GrCompressedFormat,
+
+    kLast_GrCompressedFormat = kDXT1_GrCompressedFormat
+};
+static const int kGrCompressedFormatCount = kLast_GrCompressedFormat + 1;
+
+/**
  * This value translates to reseting all the context state for any backend.
  */
 static const uint32_t kAll_GrBackendState = 0xffffffff;
