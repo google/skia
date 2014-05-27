@@ -1113,7 +1113,7 @@ static void test_bitmap_with_encoded_data(skiatest::Reporter* reporter) {
 
     SkBitmap bm;
     bool installSuccess = SkInstallDiscardablePixelRef(
-         SkDecodingImageGenerator::Create(data, SkDecodingImageGenerator::Options()), &bm, NULL);
+         SkDecodingImageGenerator::Create(data, SkDecodingImageGenerator::Options()), &bm);
     REPORTER_ASSERT(reporter, installSuccess);
 
     // Write both bitmaps to pictures, and ensure that the resulting data streams are the same.

@@ -77,8 +77,7 @@ void SkDiscardablePixelRef::onUnlockPixels() {
     fDiscardableMemory->unlock();
 }
 
-bool SkInstallDiscardablePixelRef(SkImageGenerator* generator,
-                                  SkBitmap* dst,
+bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst,
                                   SkDiscardableMemory::Factory* factory) {
     SkImageInfo info;
     SkAutoTDelete<SkImageGenerator> autoGenerator(generator);
@@ -97,3 +96,9 @@ bool SkInstallDiscardablePixelRef(SkImageGenerator* generator,
     dst->setPixelRef(ref);
     return true;
 }
+
+// This is the public API
+bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst) {
+    return SkInstallDiscardablePixelRef(generator, dst, NULL);
+}
+

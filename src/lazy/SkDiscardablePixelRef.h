@@ -52,8 +52,7 @@ private:
                           size_t rowBytes,
                           SkDiscardableMemory::Factory* factory);
 
-    friend bool SkInstallDiscardablePixelRef(SkImageGenerator*,
-                                             SkBitmap*,
+    friend bool SkInstallDiscardablePixelRef(SkImageGenerator*, SkBitmap*,
                                              SkDiscardableMemory::Factory*);
 
     typedef SkPixelRef INHERITED;

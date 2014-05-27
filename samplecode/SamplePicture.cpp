@@ -41,7 +41,7 @@ static SkBitmap load_bitmap() {
     SkAutoDataUnref data(SkData::NewFromFileName(path.c_str()));
     if (data.get() != NULL) {
         SkInstallDiscardablePixelRef(SkDecodingImageGenerator::Create(
-            data, SkDecodingImageGenerator::Options()), &bm, NULL);
+            data, SkDecodingImageGenerator::Options()), &bm);
     }
     return bm;
 }

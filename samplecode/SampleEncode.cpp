@@ -196,7 +196,7 @@ protected:
                     if (!SkInstallDiscardablePixelRef(
                             SkDecodingImageGenerator::Create(encoded,
                                 SkDecodingImageGenerator::Options()),
-                            &bm, NULL)) {
+                            &bm)) {
                     SkDebugf("[%s:%d] failed to decode %s%s\n",
                              __FILE__, __LINE__,gConfigLabels[i], gExt[j]);
                     }

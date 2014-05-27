@@ -8,7 +8,6 @@
 #ifndef SkImageGenerator_DEFINED
 #define SkImageGenerator_DEFINED
 
-#include "SkDiscardableMemory.h"
 #include "SkImageInfo.h"
 
 class SkBitmap;
@@ -31,15 +30,9 @@ class SkImageGenerator;
  *  @param destination Upon success, this bitmap will be
  *  configured and have a pixelref installed.
  *
- *  @param factory If not NULL, this object will be used as a
- *  source of discardable memory when decoding.  If NULL, then
- *  SkDiscardableMemory::Create() will be called.
- *
  *  @return true iff successful.
  */
-SK_API bool SkInstallDiscardablePixelRef(SkImageGenerator* generator,
-                                         SkBitmap* destination,
-                                         SkDiscardableMemory::Factory* factory = NULL);
+SK_API bool SkInstallDiscardablePixelRef(SkImageGenerator*, SkBitmap* destination);
 
 
 /**

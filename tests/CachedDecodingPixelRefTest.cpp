@@ -12,6 +12,7 @@
 #include "SkDecodingImageGenerator.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkImageDecoder.h"
+#include "SkImageGeneratorPriv.h"
 #include "SkScaledImageCache.h"
 #include "SkStream.h"
 #include "SkUtils.h"
@@ -152,7 +153,7 @@ static bool install_skDiscardablePixelRef(SkData* encoded, SkBitmap* dst) {
     // Use system-default discardable memory.
     return SkInstallDiscardablePixelRef(
         SkDecodingImageGenerator::Create(
-            encoded, SkDecodingImageGenerator::Options()), dst, NULL);
+            encoded, SkDecodingImageGenerator::Options()), dst);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -276,7 +277,7 @@ static void test_newlockdelete(skiatest::Reporter* reporter) {
     SkBitmap bm;
     SkImageGenerator* ig = new TestImageGenerator(
         TestImageGenerator::kSucceedGetPixels_TestType, reporter);
-    SkInstallDiscardablePixelRef(ig, &bm, NULL);
+    SkInstallDiscardablePixelRef(ig, &bm);
     bm.pixelRef()->lockPixels();
 }
 

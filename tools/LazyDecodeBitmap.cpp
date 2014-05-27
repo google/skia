@@ -10,7 +10,7 @@
 #include "SkData.h"
 #include "SkDecodingImageGenerator.h"
 #include "SkDiscardableMemoryPool.h"
-#include "SkImageGenerator.h"
+#include "SkImageGeneratorPriv.h"
 #include "SkForceLinking.h"
 
 #include "SkCommandLineFlags.h"
