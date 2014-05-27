@@ -649,11 +649,6 @@ public:
      */
     bool deepCopyTo(SkBitmap* dst) const;
 
-#ifdef SK_SUPPORT_LEGACY_BUILDMIPMAP
-    SK_ATTR_DEPRECATED("use setFilterLevel on SkPaint")
-    void buildMipMap(bool forceRebuild = false) {}
-#endif
-
 #ifdef SK_BUILD_FOR_ANDROID
     bool hasHardwareMipMap() const {
         return (fFlags & kHasHardwareMipMap_Flag) != 0;
