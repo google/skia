@@ -24,10 +24,8 @@
       ],
       'sources': [
         '../src/ports/SkAtomics_android.h',
-        '../src/ports/SkAtomics_none.h',
         '../src/ports/SkAtomics_sync.h',
         '../src/ports/SkAtomics_win.h',
-        '../src/ports/SkMutex_none.h',
         '../src/ports/SkMutex_pthread.h',
         '../src/ports/SkMutex_win.h',
         '../src/ports/SkDebug_nacl.cpp',
@@ -44,7 +42,6 @@
 
         '../src/ports/SkGlobalInitialization_default.cpp',
         '../src/ports/SkMemory_malloc.cpp',
-        '../src/ports/SkMutex_none.h',
         '../src/ports/SkMutex_pthread.h',
         '../src/ports/SkMutex_win.h',
         '../src/ports/SkOSFile_posix.cpp',
@@ -53,7 +50,6 @@
         '../src/ports/SkDiscardableMemory_none.cpp',
         '../src/ports/SkTime_Unix.cpp',
         '../src/ports/SkTime_win.cpp',
-       #'../src/ports/SkTLS_none.cpp',
         '../src/ports/SkTLS_pthread.cpp',
         '../src/ports/SkTLS_win.cpp',
         '../src/ports/SkXMLParser_empty.cpp',
