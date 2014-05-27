@@ -51,8 +51,8 @@ SkColorType SkBitmapConfigToColorType(SkBitmap::Config config) {
 }
 
 SkImage* SkNewImageFromBitmap(const SkBitmap& bm, bool canSharePixelRef) {
-    SkImageInfo info;
-    if (!bm.asImageInfo(&info)) {
+    const SkImageInfo info = bm.info();
+    if (kUnknown_SkColorType == info.colorType()) {
         return NULL;
     }
 

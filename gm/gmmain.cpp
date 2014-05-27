@@ -561,8 +561,7 @@ public:
                                            bool deferred) {
         SkISize size (gm->getISize());
         setup_bitmap(gRec, size, bitmap);
-        SkImageInfo info;
-        bitmap->asImageInfo(&info);
+        const SkImageInfo info = bitmap->info();
 
         SkAutoTUnref<SkSurface> surface;
         SkAutoTUnref<SkCanvas> canvas;

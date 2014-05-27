@@ -133,8 +133,8 @@ bool SkImage_Raster::onReadPixels(SkBitmap* dst, const SkIRect& subset) const {
 
 const void* SkImage_Raster::onPeekPixels(SkImageInfo* infoPtr,
                                          size_t* rowBytesPtr) const {
-    SkImageInfo info;
-    if (!fBitmap.asImageInfo(&info) || !fBitmap.getPixels()) {
+    const SkImageInfo info = fBitmap.info();
+    if ((kUnknown_SkColorType == info.colorType()) || !fBitmap.getPixels()) {
         return NULL;
     }
     *infoPtr = info;

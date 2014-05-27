@@ -310,24 +310,23 @@ static bool config_to_colorType(SkBitmap::Config config, SkColorType* ctOut) {
 SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, int dx, int dy) {
 #ifdef SK_DEBUG
     if (pr) {
-        SkImageInfo info;
-        if (this->asImageInfo(&info)) {
+        if (kUnknown_SkColorType != fInfo.colorType()) {
             const SkImageInfo& prInfo = pr->info();
-            SkASSERT(info.fWidth <= prInfo.fWidth);
-            SkASSERT(info.fHeight <= prInfo.fHeight);
-            SkASSERT(info.fColorType == prInfo.fColorType);
+            SkASSERT(fInfo.fWidth <= prInfo.fWidth);
+            SkASSERT(fInfo.fHeight <= prInfo.fHeight);
+            SkASSERT(fInfo.fColorType == prInfo.fColorType);
             switch (prInfo.fAlphaType) {
                 case kIgnore_SkAlphaType:
                     SkASSERT(fInfo.fAlphaType == kIgnore_SkAlphaType);
                     break;
                 case kOpaque_SkAlphaType:
                 case kPremul_SkAlphaType:
-                    SkASSERT(info.fAlphaType == kOpaque_SkAlphaType ||
-                             info.fAlphaType == kPremul_SkAlphaType);
+                    SkASSERT(fInfo.fAlphaType == kOpaque_SkAlphaType ||
+                             fInfo.fAlphaType == kPremul_SkAlphaType);
                     break;
                 case kUnpremul_SkAlphaType:
-                    SkASSERT(info.fAlphaType == kOpaque_SkAlphaType ||
-                             info.fAlphaType == kUnpremul_SkAlphaType);
+                    SkASSERT(fInfo.fAlphaType == kOpaque_SkAlphaType ||
+                             fInfo.fAlphaType == kUnpremul_SkAlphaType);
                     break;
             }
         }
@@ -386,13 +385,12 @@ void SkBitmap::setPixels(void* p, SkColorTable* ctable) {
         return;
     }
 
-    SkImageInfo info;
-    if (!this->asImageInfo(&info)) {
+    if (kUnknown_SkColorType == fInfo.colorType()) {
         this->setPixelRef(NULL);
         return;
     }
 
-    SkPixelRef* pr = SkMallocPixelRef::NewDirect(info, p, fRowBytes, ctable);
+    SkPixelRef* pr = SkMallocPixelRef::NewDirect(fInfo, p, fRowBytes, ctable);
     if (NULL == pr) {
         this->setPixelRef(NULL);
         return;
@@ -526,14 +524,13 @@ GrTexture* SkBitmap::getTexture() const {
  */
 bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst,
                                             SkColorTable* ctable) {
-    SkImageInfo info;
-    if (!dst->asImageInfo(&info)) {
+    const SkImageInfo info = dst->info();
+    if (kUnknown_SkColorType == info.colorType()) {
 //        SkDebugf("unsupported config for info %d\n", dst->config());
         return false;
     }
 
-    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, dst->rowBytes(),
-                                                   ctable);
+    SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, dst->rowBytes(), ctable);
     if (NULL == pr) {
         return false;
     }

@@ -88,6 +88,19 @@ public:
     SkColorType colorType() const { return fInfo.fColorType; }
     SkAlphaType alphaType() const { return fInfo.fAlphaType; }
 
+#ifdef SK_SUPPORT_LEGACY_ASIMAGEINFO
+    bool asImageInfo(SkImageInfo* info) const {
+        // compatibility: return false for kUnknown
+        if (kUnknown_SkColorType == this->colorType()) {
+            return false;
+        }
+        if (info) {
+            *info = this->info();
+        }
+        return true;
+    }
+#endif
+
     /** Return the number of bytes per pixel based on the config. If the config
      does not have at least 1 byte per (e.g. kA1_Config) then 0 is returned.
      */
@@ -323,20 +336,6 @@ public:
      *  of the created bitmap (and its pixelRef).
      */
     bool installMaskPixels(const SkMask&);
-
-    /**
-     *  DEPRECATED: call info().
-     */
-    bool asImageInfo(SkImageInfo* info) const {
-        // compatibility: return false for kUnknown
-        if (kUnknown_SkColorType == this->colorType()) {
-            return false;
-        }
-        if (info) {
-            *info = this->info();
-        }
-        return true;
-    }
 
     /** Use this to assign a new pixel address for an existing bitmap. This
         will automatically release any pixelref previously installed. Only call

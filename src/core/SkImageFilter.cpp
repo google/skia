@@ -326,8 +326,8 @@ bool SkImageFilter::getInputResultGPU(SkImageFilter::Proxy* proxy,
     } else {
         if (this->filterImage(proxy, src, ctx, result, offset)) {
             if (!result->getTexture()) {
-                SkImageInfo info;
-                if (!result->asImageInfo(&info)) {
+                const SkImageInfo info = result->info();
+                if (kUnknown_SkColorType == info.colorType()) {
                     return false;
                 }
                 GrTexture* resultTex = GrLockAndRefCachedBitmapTexture(context, *result, NULL);

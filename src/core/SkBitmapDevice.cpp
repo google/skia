@@ -440,7 +440,11 @@ SkSurface* SkBitmapDevice::newSurface(const SkImageInfo& info) {
 }
 
 const void* SkBitmapDevice::peekPixels(SkImageInfo* info, size_t* rowBytes) {
-    if (fBitmap.getPixels() && fBitmap.asImageInfo(info)) {
+    const SkImageInfo bmInfo = fBitmap.info();
+    if (fBitmap.getPixels() && (kUnknown_SkColorType != bmInfo.colorType())) {
+        if (info) {
+            *info = bmInfo;
+        }
         if (rowBytes) {
             *rowBytes = fBitmap.rowBytes();
         }
