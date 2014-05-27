@@ -916,6 +916,131 @@ static void set_canvas_to_save_count_4(SkCanvas* canvas) {
     canvas->save();
 }
 
+#ifdef SK_BUILD_FOR_ANDROID
+/**
+ * A canvas that records the number of saves, saveLayers and restores.
+ */
+class SaveCountingCanvas : public SkCanvas {
+public:
+    SaveCountingCanvas(int width, int height)
+        : INHERITED(width, height)
+        , fSaveCount(0)
+        , fSaveLayerCount(0)
+        , fRestoreCount(0){
+    }
+
+    virtual SaveLayerStrategy willSaveLayer(const SkRect* bounds, const SkPaint* paint,
+                                            SaveFlags flags) SK_OVERRIDE {
+        ++fSaveLayerCount;
+        return this->INHERITED::willSaveLayer(bounds, paint, flags);
+    }
+
+    virtual void willSave(SaveFlags flags) SK_OVERRIDE {
+        ++fSaveCount;
+        this->INHERITED::willSave(flags);
+    }
+
+    virtual void willRestore() SK_OVERRIDE {
+        ++fRestoreCount;
+        this->INHERITED::willRestore();
+    }
+
+    unsigned int getSaveCount() const { return fSaveCount; }
+    unsigned int getSaveLayerCount() const { return fSaveLayerCount; }
+    unsigned int getRestoreCount() const { return fRestoreCount; }
+
+private:
+    unsigned int fSaveCount;
+    unsigned int fSaveLayerCount;
+    unsigned int fRestoreCount;
+
+    typedef SkCanvas INHERITED;
+};
+
+void check_save_state(skiatest::Reporter* reporter, SkPicture* picture, 
+                      unsigned int numSaves, unsigned int numSaveLayers,
+                      unsigned int numRestores) {
+    SaveCountingCanvas canvas(picture->width(), picture->height());
+
+    picture->draw(&canvas);
+
+    REPORTER_ASSERT(reporter, numSaves == canvas.getSaveCount());
+    REPORTER_ASSERT(reporter, numSaveLayers == canvas.getSaveLayerCount());
+    REPORTER_ASSERT(reporter, numRestores == canvas.getRestoreCount());
+}
+
+// This class exists so SkPicture can friend it and give it access to
+// the 'partialReplay' method.
+class SkPictureRecorderReplayTester {
+public:
+    static SkPicture* Copy(SkPictureRecorder* recorder) {
+        SkPictureRecorder recorder2;
+
+        SkCanvas* canvas = recorder2.beginRecording(10, 10, NULL, 0);
+
+        recorder->partialReplay(canvas);
+
+        return recorder2.endRecording();
+    }
+};
+
+// Test out SkPictureRecorder::partialReplay
+DEF_TEST(PictureRecorder_replay, reporter) {
+    // check save/saveLayer state
+    {
+        SkPictureRecorder recorder;
+
+        SkCanvas* canvas = recorder.beginRecording(10, 10, NULL, 0);
+
+        canvas->saveLayer(NULL, NULL);
+
+        SkAutoTUnref<SkPicture> copy(SkPictureRecorderReplayTester::Copy(&recorder));
+
+        // The extra save and restore comes from the Copy process.
+        check_save_state(reporter, copy, 2, 1, 3);
+
+        canvas->saveLayer(NULL, NULL);
+
+        SkAutoTUnref<SkPicture> final(recorder.endRecording());
+
+        check_save_state(reporter, final, 1, 2, 3);
+
+        // The copy shouldn't pick up any operations added after it was made
+        check_save_state(reporter, copy, 2, 1, 3);
+    }
+
+    // (partially) check leakage of draw ops
+    {
+        SkPictureRecorder recorder;
+
+        SkCanvas* canvas = recorder.beginRecording(10, 10, NULL, 0);
+
+        SkRect r = SkRect::MakeWH(5, 5);
+        SkPaint p;
+
+        canvas->drawRect(r, p);
+
+        SkAutoTUnref<SkPicture> copy(SkPictureRecorderReplayTester::Copy(&recorder));
+
+        REPORTER_ASSERT(reporter, !copy->willPlayBackBitmaps());
+
+        SkBitmap bm;
+        make_bm(&bm, 10, 10, SK_ColorRED, true);
+
+        r.offset(5.0f, 5.0f);
+        canvas->drawBitmapRectToRect(bm, NULL, r);
+
+        SkAutoTUnref<SkPicture> final(recorder.endRecording());
+        REPORTER_ASSERT(reporter, final->willPlayBackBitmaps());
+
+        REPORTER_ASSERT(reporter, copy->uniqueID() != final->uniqueID());
+
+        // The snapshot shouldn't pick up any operations added after it was made
+        REPORTER_ASSERT(reporter, !copy->willPlayBackBitmaps());
+    }
+}
+#endif
+
 static void test_unbalanced_save_restores(skiatest::Reporter* reporter) {
     SkCanvas testCanvas(100, 100);
     set_canvas_to_save_count_4(&testCanvas);
@@ -994,20 +1119,21 @@ static void test_unbalanced_save_restores(skiatest::Reporter* reporter) {
         SkPaint paint;
         canvas->drawRect(r, paint);
 
-        // Copying a mid-recording picture could result in unbalanced saves/restores
+        // Check that copying a mid-recording picture does not result in unbalanced saves/restores
         SkPicture p2(p);
 
         testCanvas.drawPicture(p2);
         REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
         set_canvas_to_save_count_4(&testCanvas);
 
-        // Cloning a mid-recording picture could result in unbalanced saves/restores
+        // Check that cloning a mid-recording picture does not result in unbalanced saves/restores
         SkAutoTUnref<SkPicture> p3(p.clone());
         testCanvas.drawPicture(*p3);
         REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
         set_canvas_to_save_count_4(&testCanvas);
 
-        // Serializing a mid-recording picture could result in unbalanced saves/restores
+        // Check that serializing a mid-recording picture doesn't result in unbalanced 
+        // saves/restores
         SkDynamicMemoryWStream wStream;
         p.serialize(&wStream);
         SkAutoDataUnref data(wStream.copyToData());
@@ -1299,7 +1425,7 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
  */
 class ClipCountingCanvas : public SkCanvas {
 public:
-    explicit ClipCountingCanvas(int width, int height)
+    ClipCountingCanvas(int width, int height)
         : INHERITED(width, height)
         , fClipCount(0){
     }

@@ -99,6 +99,15 @@ private:
     SkAutoTUnref<SkPictureFactory>  fFactory;
 #endif
 
+#ifdef SK_BUILD_FOR_ANDROID
+    /** Replay the current (partially recorded) operation stream into
+        canvas. This call doesn't close the current recording.
+    */
+    friend class AndroidPicture;
+    friend class SkPictureRecorderReplayTester; // for unit testing
+    void partialReplay(SkCanvas* canvas);
+#endif
+
     SkAutoTUnref<SkPicture>         fPicture;
 
     typedef SkNoncopyable INHERITED;
