@@ -12,7 +12,6 @@
 #include "PictureRenderingFlags.h"
 #include "SkBenchLogger.h"
 #include "SkCommandLineFlags.h"
-#include "SkData.h"
 #include "SkDiscardableMemoryPool.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -21,11 +20,8 @@
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "picture_utils.h"
-#include "PictureResultsWriter.h"
 
 SkBenchLogger gLogger;
-PictureResultsLoggerWriter gLogWriter(&gLogger);
-PictureResultsMultiWriter gWriter;
 
 // Flags used by this file, in alphabetical order.
 DEFINE_bool(countRAM, false, "Count the RAM used for bitmap pixels in each skp file");
@@ -39,9 +35,6 @@ DEFINE_string(filter, "",
         "Specific flags are listed above.");
 DEFINE_string(logFile, "", "Destination for writing log output, in addition to stdout.");
 DEFINE_bool(logPerIter, false, "Log each repeat timer instead of mean.");
-#ifdef SK_BUILD_JSON_WRITER
-DEFINE_string(jsonLog, "", "Destination for writing JSON data.");
-#endif
 DEFINE_bool(min, false, "Print the minimum times (instead of average).");
 DECLARE_int32(multi);
 DECLARE_string(readPath);
@@ -194,7 +187,10 @@ static bool run_single_benchmark(const SkString& inputPath,
     SkString filename;
     sk_tools::get_basename(&filename, inputPath);
 
-    gWriter.bench(filename.c_str(), picture->width(), picture->height());
+    SkString result;
+    result.printf("running bench [%i %i] %s ", picture->width(), picture->height(),
+                  filename.c_str());
+    gLogger.logProgress(result);
 
     benchmark.run(picture);
 
@@ -364,7 +360,7 @@ static void setup_benchmark(sk_tools::PictureBenchmark* benchmark) {
     }
     benchmark->setRenderer(renderer);
     benchmark->setRepeats(FLAGS_repeat);
-    benchmark->setWriter(&gWriter);
+    benchmark->setLogger(&gLogger);
 }
 
 static int process_input(const char* input,
@@ -421,16 +417,6 @@ int tool_main(int argc, char** argv) {
         }
     }
 
-#ifdef SK_BUILD_JSON_WRITER
-    SkAutoTDelete<PictureJSONResultsWriter> jsonWriter;
-    if (FLAGS_jsonLog.count() == 1) {
-        jsonWriter.reset(SkNEW(PictureJSONResultsWriter(FLAGS_jsonLog[0])));
-        gWriter.add(jsonWriter.get());
-    }
-
-#endif
-    gWriter.add(&gLogWriter);
-
 
 #if SK_ENABLE_INST_COUNT
     gPrintInstCount = true;
@@ -458,7 +444,6 @@ int tool_main(int argc, char** argv) {
                  (double) gTotalCacheHits / (gTotalCacheHits + gTotalCacheMisses));
     }
 #endif
-    gWriter.end();
     return 0;
 }
 

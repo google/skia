@@ -15,7 +15,6 @@
         'jsoncpp.gyp:jsoncpp',
       ],
       'sources': [
-        '../bench/ResultsWriter.cpp',
         '../bench/SkBenchLogger.cpp',
         '../bench/SkBenchLogger.h',
         '../bench/SkGMBench.cpp',

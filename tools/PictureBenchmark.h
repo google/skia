@@ -11,7 +11,6 @@
 #include "SkTypes.h"
 #include "PictureRenderer.h"
 #include "TimerData.h"
-#include "PictureResultsWriter.h"
 
 class BenchTimer;
 class SkBenchLogger;
@@ -28,7 +27,7 @@ public:
 
     /**
      * Draw the provided SkPicture fRepeats times while collecting timing data, and log the output
-     * via fWriter.
+     * via fLogger.
      */
     void run(SkPicture* pict);
 
@@ -56,10 +55,11 @@ public:
 
     void setTimersToShow(bool wall, bool truncatedWall, bool cpu, bool truncatedCpu, bool gpu);
 
-    void setWriter(PictureResultsWriter* writer) { fWriter = writer; }
+    void setLogger(SkBenchLogger* logger) { fLogger = logger; }
 
 private:
     int               fRepeats;
+    SkBenchLogger*    fLogger;
     PictureRenderer*  fRenderer;
     TimerData::Result fTimerResult;
     uint32_t          fTimerTypes; // bitfield of TimerData::TimerFlags values
@@ -67,7 +67,7 @@ private:
     bool              fPurgeDecodedTex;
     bool              fPreprocess;
 
-    PictureResultsWriter* fWriter;
+    void logProgress(const char msg[]);
 
     BenchTimer* setupTimer(bool useGLTimer = true);
 };

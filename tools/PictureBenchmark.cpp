@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkBenchLogger.h"
 #include "BenchTimer.h"
 #include "PictureBenchmark.h"
 #include "SkCanvas.h"
@@ -16,13 +17,13 @@ namespace sk_tools {
 
 PictureBenchmark::PictureBenchmark()
 : fRepeats(1)
+, fLogger(NULL)
 , fRenderer(NULL)
 , fTimerResult(TimerData::kAvg_Result)
 , fTimerTypes(0)
 , fTimeIndividualTiles(false)
 , fPurgeDecodedTex(false)
 , fPreprocess(false)
-, fWriter(NULL)
 {}
 
 PictureBenchmark::~PictureBenchmark() {
@@ -49,6 +50,12 @@ BenchTimer* PictureBenchmark::setupTimer(bool useGLTimer) {
     }
 #endif
     return SkNEW_ARGS(BenchTimer, (NULL));
+}
+
+void PictureBenchmark::logProgress(const char msg[]) {
+    if (fLogger != NULL) {
+        fLogger->logProgress(msg);
+    }
 }
 
 PictureRenderer* PictureBenchmark::setRenderer(sk_tools::PictureRenderer* renderer) {
@@ -130,6 +137,10 @@ void PictureBenchmark::run(SkPicture* pict) {
             return;
         }
 
+        // Insert a newline so that each tile is reported on its own line (separate from the line
+        // that describes the skp being run).
+        this->logProgress("\n");
+
         int x, y;
         while (tiledRenderer->nextTile(x, y)) {
             // There are two timers, which will behave slightly differently:
@@ -173,8 +184,8 @@ void PictureBenchmark::run(SkPicture* pict) {
                 SkAssertResult(longRunningTimerData.appendTimes(longRunningTimer.get()));
             }
 
-            fWriter->tileConfig(tiledRenderer->getConfigName());
-            fWriter->tileMeta(x, y, xTiles, yTiles);
+            SkString configName = tiledRenderer->getConfigName();
+            configName.appendf(": tile [%i,%i] out of [%i,%i]", x, y, xTiles, yTiles);
 
             // TODO(borenet): Turn off per-iteration tile time reporting for now.
             // Avoiding logging the time for every iteration for each tile cuts
@@ -182,23 +193,22 @@ void PictureBenchmark::run(SkPicture* pict) {
             // we're loading the bench data directly into a data store and are no
             // longer generating SVG graphs.
 #if 0
-            fWriter->tileData(
-                    &perTileTimerData, 
-                    timeFormat.c_str(), 
-                    fTimerResult,
-                    timerTypes);
+            SkString result = perTileTimerData.getResult(timeFormat.c_str(), fTimerResult,
+                                                         configName.c_str(), timerTypes);
+            result.append("\n");
+            this->logProgress(result.c_str());
 #endif
 
             if (fPurgeDecodedTex) {
-                fWriter->addTileFlag(PictureResultsWriter::kPurging);
+                configName.append(" <withPurging>");
             }
-            fWriter->addTileFlag(PictureResultsWriter::kAvg);
-            fWriter->tileData(
-                &longRunningTimerData, 
+            configName.append(" <averaged>");
+            SkString longRunningResult = longRunningTimerData.getResult(
                 tiledRenderer->getNormalTimeFormat().c_str(),
                 TimerData::kAvg_Result,
-                timerTypes,
-                numInnerLoops);
+                configName.c_str(), timerTypes, numInnerLoops);
+            longRunningResult.append("\n");
+            this->logProgress(longRunningResult.c_str());
         }
     } else {
         SkAutoTDelete<BenchTimer> longRunningTimer(this->setupTimer());
@@ -236,26 +246,29 @@ void PictureBenchmark::run(SkPicture* pict) {
             SkAssertResult(longRunningTimerData.appendTimes(longRunningTimer.get()));
         }
 
-        fWriter->tileConfig(fRenderer->getConfigName());
+        SkString configName = fRenderer->getConfigName();
         if (fPurgeDecodedTex) {
-            fWriter->addTileFlag(PictureResultsWriter::kPurging);
+            configName.append(" <withPurging>");
         }
 
         // Beware - since the per-run-timer doesn't ever include a glFinish it can
         // report a lower time then the long-running-timer
 #if 0
-        fWriter->tileData(
-                &perRunTimerData,
-                timeFormat.c_str(),
-                fTimerResult,
-                timerTypes);
+        SkString result = perRunTimerData.getResult(timeFormat.c_str(),
+                                                    fTimerResult,
+                                                    configName.c_str(),
+                                                    timerTypes);
+        result.append("\n");
+
+        this->logProgress(result.c_str());
 #else
-        fWriter->tileData(
-                &longRunningTimerData,
-                timeFormat.c_str(),
-                fTimerResult,
-                timerTypes,
-                numInnerLoops);
+        SkString result = longRunningTimerData.getResult(timeFormat.c_str(),
+                                                            fTimerResult,
+                                                            configName.c_str(),
+                                                            timerTypes,
+                                                            numInnerLoops);
+        result.append("\n");
+        this->logProgress(result.c_str());
 #endif
     }
 
