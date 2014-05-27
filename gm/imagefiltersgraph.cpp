@@ -18,7 +18,6 @@
 #include "SkWriteBuffer.h"
 #include "SkMergeImageFilter.h"
 #include "SkMorphologyImageFilter.h"
-#include "SkOnce.h"
 #include "SkTestImageFilters.h"
 #include "SkXfermodeImageFilter.h"
 
@@ -77,17 +76,13 @@ private:
     SkScalar fDX, fDY;
 };
 
-static void init_flattenable(int*) {
-    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SimpleOffsetFilter)
-}
+SkFlattenable::Registrar registrar("SimpleOffsetFilter",
+                                   SimpleOffsetFilter::CreateProc,
+                                   SimpleOffsetFilter::GetFlattenableType());
 
 class ImageFiltersGraphGM : public skiagm::GM {
 public:
-    ImageFiltersGraphGM() : fInitialized(false) {
-        int dummy;
-        SK_DECLARE_STATIC_ONCE(once);
-        SkOnce(&once, init_flattenable, &dummy);
-    }
+    ImageFiltersGraphGM() {}
 
 protected:
     virtual uint32_t onGetFlags() const SK_OVERRIDE {
@@ -120,11 +115,11 @@ protected:
 
     virtual SkISize onISize() { return SkISize::Make(500, 150); }
 
+    virtual void onOnceBeforeDraw() {
+        this->make_bitmap();
+    }
+
     virtual void onDraw(SkCanvas* canvas) {
-        if (!fInitialized) {
-            this->make_bitmap();
-            fInitialized = true;
-        }
         canvas->clear(0x00000000);
         {
             SkAutoTUnref<SkImageFilter> bitmapSource(SkBitmapSource::Create(fBitmap));
@@ -215,7 +210,6 @@ protected:
 private:
     typedef GM INHERITED;
     SkBitmap fBitmap;
-    bool fInitialized;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

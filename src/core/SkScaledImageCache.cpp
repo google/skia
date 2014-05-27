@@ -7,7 +7,6 @@
 
 #include "SkScaledImageCache.h"
 #include "SkMipMap.h"
-#include "SkOnce.h"
 #include "SkPixelRef.h"
 #include "SkRect.h"
 
@@ -673,18 +672,17 @@ SK_DECLARE_STATIC_MUTEX(gMutex);
 static SkScaledImageCache* gScaledImageCache = NULL;
 static void cleanup_gScaledImageCache() { SkDELETE(gScaledImageCache); }
 
-static void create_cache(int) {
-#ifdef SK_USE_DISCARDABLE_SCALEDIMAGECACHE
-    gScaledImageCache = SkNEW_ARGS(SkScaledImageCache, (SkDiscardableMemory::Create));
-#else
-    gScaledImageCache = SkNEW_ARGS(SkScaledImageCache, (SK_DEFAULT_IMAGE_CACHE_LIMIT));
-#endif
-}
-
+/** Must hold gMutex when calling. */
 static SkScaledImageCache* get_cache() {
-    SK_DECLARE_STATIC_ONCE(once);
-    SkOnce(&once, create_cache, 0, cleanup_gScaledImageCache);
-    SkASSERT(NULL != gScaledImageCache);
+    // gMutex is always held when this is called, so we don't need to be fancy in here.
+    if (NULL == gScaledImageCache) {
+#ifdef SK_USE_DISCARDABLE_SCALEDIMAGECACHE
+        gScaledImageCache = SkNEW_ARGS(SkScaledImageCache, (SkDiscardableMemory::Create));
+#else
+        gScaledImageCache = SkNEW_ARGS(SkScaledImageCache, (SK_DEFAULT_IMAGE_CACHE_LIMIT));
+#endif
+        atexit(cleanup_gScaledImageCache);
+    }
     return gScaledImageCache;
 }
 
