@@ -15,7 +15,6 @@
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 #include "SkScaledImageCache.h"
-#include "SkImageEncoder.h"
 
 #if !SK_ARM_NEON_IS_NONE
 // These are defined in src/opts/SkBitmapProcState_arm_neon.cpp
@@ -167,13 +166,8 @@ bool SkBitmapProcState::possiblyScaleImage() {
         }
 
         if (NULL == fScaledCacheID) {
-            float dest_width  = fOrigBitmap.width() / invScaleX;
-            float dest_height = fOrigBitmap.height() / invScaleY;
-
-#ifdef SK_IGNORE_CORRECT_HIGH_QUALITY_IMAGE_SCALE
-            dest_width = SkScalarCeilToScalar(dest_width);
-            dest_height = SkScalarCeilToScalar(dest_height);
-#endif
+            int dest_width  = SkScalarCeilToInt(fOrigBitmap.width() / invScaleX);
+            int dest_height = SkScalarCeilToInt(fOrigBitmap.height() / invScaleY);
 
             // All the criteria are met; let's make a new bitmap.
 
@@ -193,7 +187,6 @@ bool SkBitmapProcState::possiblyScaleImage() {
                 return false;
 
             }
-
             SkASSERT(NULL != fScaledBitmap.getPixels());
             fScaledCacheID = SkScaledImageCache::AddAndLock(fOrigBitmap,
                                                             invScaleX,

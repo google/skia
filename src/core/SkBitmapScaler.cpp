@@ -13,8 +13,8 @@ class SkResizeFilter {
 public:
     SkResizeFilter(SkBitmapScaler::ResizeMethod method,
                    int srcFullWidth, int srcFullHeight,
-                   float destWidth, float destHeight,
-                   const SkRect& destSubset,
+                   int destWidth, int destHeight,
+                   const SkIRect& destSubset,
                    const SkConvolutionProcs& convolveProcs);
     ~SkResizeFilter() {
         SkDELETE( fBitmapFilter );
@@ -40,7 +40,7 @@ private:
     // for the transform is also specified.
 
     void computeFilters(int srcSize,
-                        float destSubsetLo, float destSubsetSize,
+                        int destSubsetLo, int destSubsetSize,
                         float scale,
                         SkConvolutionFilter1D* output,
                         const SkConvolutionProcs& convolveProcs);
@@ -51,8 +51,8 @@ private:
 
 SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
                                int srcFullWidth, int srcFullHeight,
-                               float destWidth, float destHeight,
-                               const SkRect& destSubset,
+                               int destWidth, int destHeight,
+                               const SkIRect& destSubset,
                                const SkConvolutionProcs& convolveProcs) {
 
     // method will only ever refer to an "algorithm method".
@@ -82,8 +82,10 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
     }
 
 
-    float scaleX = destWidth / srcFullWidth;
-    float scaleY = destHeight / srcFullHeight;
+    float scaleX = static_cast<float>(destWidth) /
+                   static_cast<float>(srcFullWidth);
+    float scaleY = static_cast<float>(destHeight) /
+                   static_cast<float>(srcFullHeight);
 
     this->computeFilters(srcFullWidth, destSubset.fLeft, destSubset.width(),
                          scaleX, &fXFilter, convolveProcs);
@@ -110,11 +112,11 @@ SkResizeFilter::SkResizeFilter(SkBitmapScaler::ResizeMethod method,
 // the coefficients can be shared. For periods of 1 we can consider
 // loading the factors only once outside the borders.
 void SkResizeFilter::computeFilters(int srcSize,
-                                  float destSubsetLo, float destSubsetSize,
+                                  int destSubsetLo, int destSubsetSize,
                                   float scale,
                                   SkConvolutionFilter1D* output,
                                   const SkConvolutionProcs& convolveProcs) {
-  float destSubsetHi = destSubsetLo + destSubsetSize;  // [lo, hi)
+  int destSubsetHi = destSubsetLo + destSubsetSize;  // [lo, hi)
 
   // When we're doing a magnification, the scale will be larger than one. This
   // means the destination pixels are much smaller than the source pixels, and
@@ -136,7 +138,7 @@ void SkResizeFilter::computeFilters(int srcSize,
   // Loop over all pixels in the output range. We will generate one set of
   // filter values for each one. Those values will tell us how to blend the
   // source pixels to compute the destination pixel.
-  for (int destSubsetI = SkScalarFloorToInt(destSubsetLo); destSubsetI < SkScalarCeilToInt(destSubsetHi);
+  for (int destSubsetI = destSubsetLo; destSubsetI < destSubsetHi;
        destSubsetI++) {
     // Reset the arrays. We don't declare them inside so they can re-use the
     // same malloc-ed buffer.
@@ -245,23 +247,22 @@ static SkBitmapScaler::ResizeMethod ResizeMethodToAlgorithmMethod(
 bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
                             const SkBitmap& source,
                             ResizeMethod method,
-                            float destWidth, float destHeight,
+                            int destWidth, int destHeight,
+                            const SkIRect& destSubset,
                             const SkConvolutionProcs& convolveProcs,
                             SkBitmap::Allocator* allocator) {
-
-  SkRect destSubset = { 0, 0, destWidth, destHeight };
-
   // Ensure that the ResizeMethod enumeration is sound.
     SkASSERT(((RESIZE_FIRST_QUALITY_METHOD <= method) &&
         (method <= RESIZE_LAST_QUALITY_METHOD)) ||
         ((RESIZE_FIRST_ALGORITHM_METHOD <= method) &&
         (method <= RESIZE_LAST_ALGORITHM_METHOD)));
 
-    SkRect dest = { 0, 0, destWidth, destHeight };
+    SkIRect dest = { 0, 0, destWidth, destHeight };
     if (!dest.contains(destSubset)) {
         SkErrorInternals::SetError( kInvalidArgument_SkError,
-                                    "Sorry, the destination bitmap scale subset "
-                                    "falls outside the full destination bitmap." );
+                                    "Sorry, you passed me a bitmap resize "
+                                    " method I have never heard of: %d",
+                                    method );
     }
 
     // If the size of source or destination is 0, i.e. 0x0, 0xN or Nx0, just
@@ -296,8 +297,8 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
 
     // Convolve into the result.
     SkBitmap result;
-    result.setConfig(SkImageInfo::MakeN32(SkScalarCeilToInt(destSubset.width()),
-                                          SkScalarCeilToInt(destSubset.height()),
+    result.setConfig(SkImageInfo::MakeN32(destSubset.width(),
+                                          destSubset.height(),
                                           source.alphaType()));
     result.allocPixels(allocator, NULL);
     if (!result.readyToDraw()) {
@@ -314,4 +315,16 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
     resultPtr->lockPixels();
     SkASSERT(NULL != resultPtr->getPixels());
     return true;
+}
+
+// static
+bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
+                            const SkBitmap& source,
+                            ResizeMethod method,
+                            int destWidth, int destHeight,
+                            const SkConvolutionProcs& convolveProcs,
+                            SkBitmap::Allocator* allocator) {
+    SkIRect destSubset = { 0, 0, destWidth, destHeight };
+    return Resize(resultPtr, source, method, destWidth, destHeight, destSubset,
+                  convolveProcs, allocator);
 }
