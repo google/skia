@@ -100,10 +100,10 @@ static SkRect make_rect() {
 }
 
 static SkRegion make_region() {
-    SkIRect iRegion = SkIRect::MakeXYWH(SkIntToScalar(R(static_cast<float>(kBitmapSize))),
-                                        SkIntToScalar(R(static_cast<float>(kBitmapSize))),
-                                        SkIntToScalar(R(static_cast<float>(kBitmapSize))),
-                                        SkIntToScalar(R(static_cast<float>(kBitmapSize))));
+    SkIRect iRegion = SkIRect::MakeXYWH(R(static_cast<float>(kBitmapSize)),
+                                        R(static_cast<float>(kBitmapSize)),
+                                        R(static_cast<float>(kBitmapSize)),
+                                        R(static_cast<float>(kBitmapSize)));
     return SkRegion(iRegion);
 }
 
@@ -293,7 +293,8 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         for (int i = 0; i < arraySize; ++i) {
             kernel.push_back() = make_scalar();
         }
-        SkIPoint kernelOffset = SkIPoint::Make(R(size.width()), R(size.height()));
+        SkIPoint kernelOffset = SkIPoint::Make(R(SkIntToScalar(size.width())),
+                                               R(SkIntToScalar(size.height())));
         filter = SkMatrixConvolutionImageFilter::Create(size,
                                                         kernel.begin(),
                                                         make_scalar(),
