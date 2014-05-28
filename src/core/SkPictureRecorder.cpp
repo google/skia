@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+// Need to include SkTypes first, so that SK_BUILD_FOR_ANDROID is defined.
+#include "SkTypes.h"
 #ifdef SK_BUILD_FOR_ANDROID
 #include "SkPicturePlayback.h"
 #endif
