@@ -16807,25 +16807,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2304893429010053102
+          2113206247214385098
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext3_msaa16.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          214343614335077859
+          13900944639817366223
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext3_nvprmsaa4.png": {
       "allowed-digests": [
