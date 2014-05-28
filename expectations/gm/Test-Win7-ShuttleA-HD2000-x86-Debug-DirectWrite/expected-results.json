@@ -10628,25 +10628,27 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13983079154956850607
+          9411606413705478166
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "shadertext3_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13494632378831276116
+          3468347122432835559
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "shadertext3_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17913123271197341994
+          498169849781671149
         ]
       ], 
       "reviewed-by-human": true

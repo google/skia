@@ -9255,6 +9255,15 @@
       "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
+    "filterbitmap_image_mandrill_512.png_565-pipe cross-process.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13704381245629684333
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "filterbitmap_image_mandrill_512.png_565-serialize.png": {
       "allowed-digests": [
         [
@@ -9269,6 +9278,24 @@
         [
           "bitmap-64bitMD5", 
           13704381245629684333
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "filterbitmap_image_mandrill_512.png_8888-pipe cross-process.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13206855341598955499
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "filterbitmap_image_mandrill_512.png_8888-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13206855341598955499
         ]
       ], 
       "reviewed-by-human": true
