@@ -6,7 +6,7 @@
  */
 #include <stdarg.h>
 #include "SkOSMenu.h"
-#include "../../src/core/SkThread.h"
+#include "SkThread.h"
 
 static int gOSMenuCmd = 7000;
 

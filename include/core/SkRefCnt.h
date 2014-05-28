@@ -11,10 +11,9 @@
 #define SkRefCnt_DEFINED
 
 #include "SkDynamicAnnotations.h"
+#include "SkThread.h"
 #include "SkInstCnt.h"
 #include "SkTemplates.h"
-
-#include "../../src/core/SkThread.h"
 
 /** \class SkRefCntBase
 

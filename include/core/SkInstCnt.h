@@ -29,7 +29,7 @@
 
 #include "SkOnce.h"
 #include "SkTArray.h"
-#include "../../src/core/SkThread.h"
+#include "SkThread.h"
 extern bool gPrintInstCount;
 
 // The non-root classes just register themselves with their parent
