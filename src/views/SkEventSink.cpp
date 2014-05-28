@@ -9,9 +9,8 @@
 
 #include "SkEventSink.h"
 #include "SkTagList.h"
-#include "SkThread.h"
 
-#include "SkThread.h"
+#include "../../src/core/SkThread.h"
 #include "SkTime.h"
 
 class SkEventSink_Globals {

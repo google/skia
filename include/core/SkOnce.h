@@ -29,8 +29,9 @@
 // You may optionally pass SkOnce a second function to be called at exit for cleanup.
 
 #include "SkDynamicAnnotations.h"
-#include "SkThread.h"
 #include "SkTypes.h"
+
+#include "../../src/core/SkThread.h"
 
 #define SK_ONCE_INIT { false, { 0, SkDEBUGCODE(0) } }
 #define SK_DECLARE_STATIC_ONCE(name) static SkOnceFlag name = SK_ONCE_INIT

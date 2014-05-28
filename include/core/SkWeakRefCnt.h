@@ -9,7 +9,7 @@
 #define SkWeakRefCnt_DEFINED
 
 #include "SkRefCnt.h"
-#include "SkThread.h"
+#include "../../src/core/SkThread.h"
 
 /** \class SkWeakRefCnt
 

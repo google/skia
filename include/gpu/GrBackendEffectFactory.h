@@ -10,8 +10,9 @@
 
 #include "GrTypes.h"
 #include "SkTemplates.h"
-#include "SkThread.h"
 #include "SkTypes.h"
+
+#include "../../src/core/SkThread.h"
 
 /** Given a GrEffect of a particular type, creates the corresponding graphics-backend-specific
     effect object. Also tracks equivalence of shaders generated via a key. Each factory instance
