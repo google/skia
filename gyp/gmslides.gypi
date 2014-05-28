@@ -76,6 +76,7 @@
     '../gm/filltypes.cpp',
     '../gm/filltypespersp.cpp',
     '../gm/filterbitmap.cpp',
+    '../gm/filterindiabox.cpp',
     '../gm/fontcache.cpp',
     '../gm/fontmgr.cpp',
     '../gm/fontscaler.cpp',
