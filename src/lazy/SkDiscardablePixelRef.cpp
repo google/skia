@@ -101,4 +101,3 @@ bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst,
 bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst) {
     return SkInstallDiscardablePixelRef(generator, dst, NULL);
 }
-

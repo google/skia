@@ -957,7 +957,7 @@ private:
     typedef SkCanvas INHERITED;
 };
 
-void check_save_state(skiatest::Reporter* reporter, SkPicture* picture, 
+void check_save_state(skiatest::Reporter* reporter, SkPicture* picture,
                       unsigned int numSaves, unsigned int numSaveLayers,
                       unsigned int numRestores) {
     SaveCountingCanvas canvas(picture->width(), picture->height());
@@ -1132,7 +1132,7 @@ static void test_unbalanced_save_restores(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 4 == testCanvas.getSaveCount());
         set_canvas_to_save_count_4(&testCanvas);
 
-        // Check that serializing a mid-recording picture doesn't result in unbalanced 
+        // Check that serializing a mid-recording picture doesn't result in unbalanced
         // saves/restores
         SkDynamicMemoryWStream wStream;
         p.serialize(&wStream);

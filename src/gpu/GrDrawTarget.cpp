@@ -1056,7 +1056,7 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
 
     memcpy(fConfigRenderSupport, other.fConfigRenderSupport, sizeof(fConfigRenderSupport));
     memcpy(fCompressedFormatSupport, other.fCompressedFormatSupport,
-	   sizeof(fCompressedFormatSupport));
+       sizeof(fCompressedFormatSupport));
 
     return *this;
 }
@@ -1145,8 +1145,8 @@ SkString GrDrawTargetCaps::dump() const {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(kCompressedFormatNames); ++i) {
         r.appendf("%s Compressed Texture Support: %s\n",
-		  kCompressedFormatNames[i],
-		  gNY[fCompressedFormatSupport[i]]);
+          kCompressedFormatNames[i],
+          gNY[fCompressedFormatSupport[i]]);
     }
 
     return r;
