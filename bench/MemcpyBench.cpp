@@ -8,6 +8,7 @@
 #include "SkBenchmark.h"
 #include "SkRandom.h"
 #include "SkTemplates.h"
+#include "SkUtils.h"
 
 template <typename Memcpy32>
 class Memcpy32Bench : public SkBenchmark {
@@ -146,6 +147,13 @@ BENCH(memcpy32_sse2_unalign, 100)
 BENCH(memcpy32_sse2_unalign, 1000)
 BENCH(memcpy32_sse2_unalign, 10000)
 BENCH(memcpy32_sse2_unalign, 100000)
+
+// Test our chosen best, from SkUtils.h
+BENCH(sk_memcpy32, 10)
+BENCH(sk_memcpy32, 100)
+BENCH(sk_memcpy32, 1000)
+BENCH(sk_memcpy32, 10000)
+BENCH(sk_memcpy32, 100000)
 
 #endif // SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
 
