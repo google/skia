@@ -741,31 +741,46 @@ SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface* typeface,
     // If the scale is negative, this means the matrix will do the flip anyway.
     SkScalar realTextSize = SkScalarAbs(GA.get(SkMatrix::kMScaleY));
     // Due to floating point math, the lower bits are suspect. Round carefully.
-    SkScalar roundedTextSize = SkScalarRoundToScalar(realTextSize * 64.0f) / 64.0f;
-    SkScalar gdiTextSize = SkScalarFloorToScalar(roundedTextSize);
+    SkScalar gdiTextSize = SkScalarRoundToScalar(realTextSize * 64.0f) / 64.0f;
     if (gdiTextSize == 0) {
         gdiTextSize = SK_Scalar1;
     }
 
-    bool hasBitmap = fRec.fFlags & SkScalerContext::kEmbeddedBitmapText_Flag &&
-                     hasBitmapStrike(typeface, SkScalarTruncToInt(gdiTextSize));
-    bool axisAligned = isAxisAligned(fRec);
-    bool isBiLevel = SkMask::kBW_Format == fRec.fMaskFormat || (hasBitmap && axisAligned);
+    bool bitmapRequested = SkToBool(fRec.fFlags & SkScalerContext::kEmbeddedBitmapText_Flag);
+    bool hasBitmap = false;
+    bool axisAlignedBitmap = false;
+    if (bitmapRequested) {
+        hasBitmap = hasBitmapStrike(typeface, SkScalarTruncToInt(gdiTextSize));
+        axisAlignedBitmap = isAxisAligned(fRec);
+    }
 
-    if (isBiLevel) {
+    // If the user requested aliased, do so with aliased compatible metrics.
+    if (SkMask::kBW_Format == fRec.fMaskFormat) {
         fTextSizeRender = gdiTextSize;
         fRenderingMode = DWRITE_RENDERING_MODE_ALIASED;
         fTextureType = DWRITE_TEXTURE_ALIASED_1x1;
         fTextSizeMeasure = gdiTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_GDI_CLASSIC;
+
+    // If we can use a bitmap, use gdi classic rendering and measurement.
+    // This will not always provide a bitmap, but matches expected behavior.
+    } else if (hasBitmap && axisAlignedBitmap) {
+        fTextSizeRender = gdiTextSize;
+        fRenderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_GDI_CLASSIC;
+        fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
+        fTextSizeMeasure = gdiTextSize;
+        fMeasuringMode = DWRITE_MEASURING_MODE_GDI_CLASSIC;
+
+    // If rotated but the horizontal text could have used a bitmap,
+    // render high quality rotated glyphs but measure using bitmap metrics.
     } else if (hasBitmap) {
-        // If rotated but the horizontal text would have used a bitmap,
-        // render high quality rotated glyphs using the bitmap metrics.
         fTextSizeRender = gdiTextSize;
         fRenderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC;
         fTextureType = DWRITE_TEXTURE_CLEARTYPE_3x1;
         fTextSizeMeasure = gdiTextSize;
         fMeasuringMode = DWRITE_MEASURING_MODE_GDI_CLASSIC;
+
+    // The normal case is to use natural symmetric rendering and linear metrics.
     } else {
         fTextSizeRender = realTextSize;
         fRenderingMode = DWRITE_RENDERING_MODE_CLEARTYPE_NATURAL_SYMMETRIC;
