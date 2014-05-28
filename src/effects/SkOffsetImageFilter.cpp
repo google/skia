@@ -84,6 +84,9 @@ bool SkOffsetImageFilter::onFilterBounds(const SkIRect& src, const SkMatrix& ctm
     SkIRect bounds = src;
     bounds.offset(-SkScalarCeilToInt(vec.fX), -SkScalarCeilToInt(vec.fY));
     bounds.join(src);
+    if (getInput(0)) {
+        return getInput(0)->filterBounds(bounds, ctm, dst);
+    }
     *dst = bounds;
     return true;
 }

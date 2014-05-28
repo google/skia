@@ -298,9 +298,12 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     };
     SkISize kernelSize = SkISize::Make(3, 3);
     SkScalar gain = SK_Scalar1, bias = 0;
+    SkScalar five = SkIntToScalar(5);
 
     SkAutoTUnref<SkImageFilter> gradient_source(SkBitmapSource::Create(make_gradient_circle(64, 64)));
+    SkAutoTUnref<SkImageFilter> blur(SkBlurImageFilter::Create(five, five));
     SkMatrix matrix;
+
     matrix.setTranslate(SK_Scalar1, SK_Scalar1);
     matrix.postRotate(SkIntToScalar(45), SK_Scalar1, SK_Scalar1);
 
@@ -331,6 +334,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
         { "tile", SkTileImageFilter::Create(SkRect::MakeXYWH(0, 0, 50, 50),
                                             SkRect::MakeXYWH(0, 0, 100, 100), NULL) },
         { "matrix", SkMatrixImageFilter::Create(matrix, SkPaint::kLow_FilterLevel) },
+        { "blur and offset", SkOffsetImageFilter::Create(five, five, blur.get()) },
     };
 
     SkBitmap untiledResult, tiledResult;
