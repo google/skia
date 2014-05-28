@@ -10596,7 +10596,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18193699725951867208
+          9609945883200356113
         ]
       ], 
       "reviewed-by-human": true
@@ -10605,7 +10605,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7912552785423460337
+          5117505556807733747
         ]
       ], 
       "reviewed-by-human": true
@@ -10623,25 +10623,27 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13983079154956850607
+          9411606413705478166
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "shadertext3_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13494632378831276116
+          3468347122432835559
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "shadertext3_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17913123271197341994
+          498169849781671149
         ]
       ], 
       "reviewed-by-human": true
@@ -11508,28 +11510,28 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12227736480530687476
+          10043902679277564783
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stroketext_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          704282034256586406
+          560241391671542747
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stroketext_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4526382217518228568
+          18386971098792391094
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stroketext_pdf-poppler.png": {
       "allowed-digests": [

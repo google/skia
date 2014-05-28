@@ -14143,10 +14143,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12738053637777372666
+          938783559120983537
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "tablecolorfilter_565.png": {
       "allowed-digests": [

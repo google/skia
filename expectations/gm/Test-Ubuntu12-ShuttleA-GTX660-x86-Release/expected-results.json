@@ -9255,6 +9255,15 @@
       "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
+    "filterbitmap_image_mandrill_512.png_565-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          13704381245629684333
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "filterbitmap_image_mandrill_512.png_565.png": {
       "allowed-digests": [
         [
@@ -16385,7 +16394,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          41312444111048444
+          10197093962733292494
         ]
       ], 
       "reviewed-by-human": true
@@ -17742,7 +17751,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1059914398798149176
+          7615951997407285496
         ]
       ], 
       "reviewed-by-human": true
@@ -17751,7 +17760,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10302993069124518247
+          17665436176340313326
         ]
       ], 
       "reviewed-by-human": true
@@ -17760,7 +17769,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8182488309718509398
+          2400348954160929648
         ]
       ], 
       "reviewed-by-human": true
@@ -17769,7 +17778,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17803066236388932530
+          16313266180313846066
         ]
       ], 
       "reviewed-by-human": true
@@ -17778,7 +17787,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16059115464218911870
+          5216165706151276286
         ]
       ], 
       "reviewed-by-human": true
@@ -17787,13 +17796,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          37807039503874328
+          15038081753146699890
         ]
       ], 
-      "bugs": [
-        2325
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "tablecolorfilter_565.png": {
       "allowed-digests": [

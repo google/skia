@@ -6616,10 +6616,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15123025435783251153
+          10230426069067413407
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stroketext_8888.png": {
       "allowed-digests": [
