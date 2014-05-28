@@ -311,6 +311,20 @@ static void get_bounds(DiffRecord& drp) {
     get_bounds(drp.fComparison, "comparison");
 }
 
+#ifdef SK_OS_WIN
+#define ANSI_COLOR_RED     ""
+#define ANSI_COLOR_GREEN   ""
+#define ANSI_COLOR_YELLOW  ""
+#define ANSI_COLOR_RESET   ""
+#else
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+#endif
+
+#define VERBOSE_STATUS(status,color,filename) if (verbose) printf( "[ " color " %10s " ANSI_COLOR_RESET " ] %s\n", status, filename->c_str())
+
 /// Creates difference images, returns the number that have a 0 metric.
 /// If outputDir.isEmpty(), don't write out diff files.
 static void create_diff_images (DiffMetricProc dmp,
@@ -323,6 +337,7 @@ static void create_diff_images (DiffMetricProc dmp,
                                 const StringArray& nomatchSubstrings,
                                 bool recurseIntoSubdirs,
                                 bool getBounds,
+                                bool verbose,
                                 DiffSummary* summary) {
     SkASSERT(!baseDir.isEmpty());
     SkASSERT(!comparisonDir.isEmpty());
@@ -370,6 +385,8 @@ static void create_diff_images (DiffMetricProc dmp,
             drp->fComparison.fFullPath = comparisonPath;
             drp->fComparison.fStatus = DiffResource::kDoesNotExist_Status;
 
+            VERBOSE_STATUS("MISSING", ANSI_COLOR_YELLOW, baseFiles[i]);
+
             ++i;
         } else if (v > 0) {
             // in comparisonDir, but not in baseDir
@@ -385,6 +402,8 @@ static void create_diff_images (DiffMetricProc dmp,
             drp->fComparison.fFilename = *comparisonFiles[j];
             drp->fComparison.fFullPath = comparisonPath;
             drp->fComparison.fStatus = DiffResource::kExists_Status;
+
+            VERBOSE_STATUS("MISSING", ANSI_COLOR_YELLOW, comparisonFiles[j]);
 
             ++j;
         } else {
@@ -413,20 +432,23 @@ static void create_diff_images (DiffMetricProc dmp,
             if (NULL == baseFileBits || NULL == comparisonFileBits) {
                 if (NULL == baseFileBits) {
                     drp->fBase.fStatus = DiffResource::kCouldNotRead_Status;
+                    VERBOSE_STATUS("READ FAIL", ANSI_COLOR_RED, baseFiles[i]);
                 }
                 if (NULL == comparisonFileBits) {
                     drp->fComparison.fStatus = DiffResource::kCouldNotRead_Status;
+                    VERBOSE_STATUS("READ FAIL", ANSI_COLOR_RED, comparisonFiles[j]);
                 }
                 drp->fResult = DiffRecord::kCouldNotCompare_Result;
 
             } else if (are_buffers_equal(baseFileBits, comparisonFileBits)) {
                 drp->fResult = DiffRecord::kEqualBits_Result;
-
+                VERBOSE_STATUS("MATCH", ANSI_COLOR_GREEN, baseFiles[i]);
             } else {
                 AutoReleasePixels arp(drp);
                 get_bitmap(baseFileBits, drp->fBase, SkImageDecoder::kDecodePixels_Mode);
                 get_bitmap(comparisonFileBits, drp->fComparison,
                            SkImageDecoder::kDecodePixels_Mode);
+                VERBOSE_STATUS("DIFFERENT", ANSI_COLOR_RED, baseFiles[i]);
                 if (DiffResource::kDecoded_Status == drp->fBase.fStatus &&
                     DiffResource::kDecoded_Status == drp->fComparison.fStatus) {
                     create_and_write_diff_image(drp, dmp, colorThreshold,
@@ -558,6 +580,7 @@ int tool_main(int argc, char** argv) {
     bool listFilenames = false;
     bool printDirNames = true;
     bool recurseIntoSubdirs = true;
+    bool verbose = false;
 
     RecordArray differences;
     DiffSummary summary;
@@ -623,6 +646,10 @@ int tool_main(int argc, char** argv) {
         }
         if (!strcmp(argv[i], "--listfilenames")) {
             listFilenames = true;
+            continue;
+        }
+        if (!strcmp(argv[i], "--verbose")) {
+            verbose = true;
             continue;
         }
         if (!strcmp(argv[i], "--match")) {
@@ -728,7 +755,7 @@ int tool_main(int argc, char** argv) {
     create_diff_images(diffProc, colorThreshold, &differences,
                        baseDir, comparisonDir, outputDir,
                        matchSubstrings, nomatchSubstrings, recurseIntoSubdirs, generateDiffs,
-                       &summary);
+                       verbose, &summary);
     summary.print(listFilenames, failOnResultType, failOnStatusType);
 
     if (differences.count()) {
