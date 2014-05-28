@@ -16740,46 +16740,37 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13512127700146495843
+          4721382661721666101
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext2_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1894251781694927596
+          1127004971154957997
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext2_msaa16.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12235767331495687621
+          11415907613654257389
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext2_nvprmsaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13773836069656628753
+          16341665841246227362
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext2_pdf-poppler.png": {
       "allowed-digests": [
@@ -16797,25 +16788,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15199990603069943968
+          17353877458368015149
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext3_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3866502982006660650
+          15348462621046294022
         ]
       ], 
-      "bugs": [
-        1935
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext3_gpu.png": {
       "allowed-digests": [
@@ -16845,10 +16830,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8223836998128168280
+          10246206376000090761
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext3_pdf-poppler.png": {
       "allowed-digests": [

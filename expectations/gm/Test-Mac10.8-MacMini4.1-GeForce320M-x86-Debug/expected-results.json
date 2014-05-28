@@ -14958,10 +14958,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1505181865615191775
+          13205076994244157607
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stroketext_gpu.png": {
       "allowed-digests": [

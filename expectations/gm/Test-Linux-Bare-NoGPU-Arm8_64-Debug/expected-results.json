@@ -5340,7 +5340,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4433891134756961825
+          12236959946584193132
         ]
       ], 
       "ignore-failure": false, 
@@ -5350,24 +5350,21 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15769155464101084114
+          11199020935492957874
         ]
       ], 
-      "bugs": [
-        2422
-      ], 
       "ignore-failure": true, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext3_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11273427152483864161
+          9045868200679894491
         ]
       ], 
       "ignore-failure": false, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext_565.png": {
       "allowed-digests": [

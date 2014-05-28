@@ -9105,7 +9105,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17591321336127440400
+          9342750822777050473
         ]
       ], 
       "ignore-failure": false, 
@@ -9133,10 +9133,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4658178860447498370
+          363651743109664983
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "shadertext3_8888.png": {
       "allowed-digests": [

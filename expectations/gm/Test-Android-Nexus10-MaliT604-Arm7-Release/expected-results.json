@@ -10672,37 +10672,37 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15123025435783251153
+          10230426069067413407
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stroketext_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9671548309737752931
+          15098401526248766364
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stroketext_gpu.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6175100071450737384
+          16598261928768030936
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stroketext_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17055455153967043969
+          14551311725473456993
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "tablecolorfilter_565.png": {
       "allowed-digests": [

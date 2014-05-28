@@ -8411,19 +8411,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15145975290921662204
+          7449648884353637669
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stroketext_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11948151408204192676
+          4914721999172725849
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "stroketext_gpu.png": {
       "allowed-digests": [
