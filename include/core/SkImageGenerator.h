@@ -9,6 +9,7 @@
 #define SkImageGenerator_DEFINED
 
 #include "SkImageInfo.h"
+#include "SkColor.h"
 
 class SkBitmap;
 class SkData;
@@ -47,6 +48,13 @@ public:
      */
     virtual ~SkImageGenerator() { }
 
+#ifdef SK_SUPPORT_LEGACY_IMAGEGENERATORAPI
+    virtual bool refEncodedData() { return this->onRefEncodedData(); }
+    virtual bool getInfo(SkImageInfo* info) { return this->onGetInfo(info); }
+    virtual bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
+        return this->onGetPixels(info, pixels, rowBytes, NULL, NULL);
+    }
+#else
     /**
      *  Return a ref to the encoded (i.e. compressed) representation,
      *  of this data.
@@ -54,7 +62,7 @@ public:
      *  If non-NULL is returned, the caller is responsible for calling
      *  unref() on the data when it is finished.
      */
-    virtual SkData* refEncodedData() { return NULL; }
+    SkData* refEncodedData() { return this->onRefEncodedData(); }
 
     /**
      *  Return some information about the image, allowing the owner of
@@ -65,7 +73,7 @@ public:
      *
      *  @return false if anything goes wrong.
      */
-    virtual bool getInfo(SkImageInfo* info) = 0;
+    bool getInfo(SkImageInfo* info);
 
     /**
      *  Decode into the given pixels, a block of memory of size at
@@ -83,12 +91,31 @@ public:
      *         different output-configs, which the implementation can
      *         decide to support or not.
      *
+     *  If info is kIndex8_SkColorType, then the caller must provide storage for up to 256
+     *  SkPMColor values in ctable. On success the generator must copy N colors into that storage,
+     *  (where N is the logical number of table entries) and set ctableCount to N.
+     *
+     *  If info is not kIndex8_SkColorType, then the last two parameters may be NULL. If ctableCount
+     *  is not null, it will be set to 0.
+     *
      *  @return false if anything goes wrong or if the image info is
      *          unsupported.
      */
-    virtual bool getPixels(const SkImageInfo& info,
-                           void* pixels,
-                           size_t rowBytes) = 0;
+    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                   SkPMColor ctable[], int* ctableCount);
+
+    /**
+     *  Simplified version of getPixels() that asserts that info is NOT kIndex8_SkColorType.
+     */
+    bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes);
+#endif
+
+protected:
+    virtual SkData* onRefEncodedData();
+    virtual bool onGetInfo(SkImageInfo* info);
+    virtual bool onGetPixels(const SkImageInfo& info,
+                             void* pixels, size_t rowBytes,
+                             SkPMColor ctable[], int* ctableCount);
 };
 
 #endif  // SkImageGenerator_DEFINED
