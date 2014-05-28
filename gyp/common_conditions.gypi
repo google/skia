@@ -319,6 +319,7 @@
         # Transitional, for deprecated SkCanvas::SaveFlags methods.
         'SK_ATTR_DEPRECATED=SK_NOTHING_ARG1',
         'SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX',
+        'SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE (512 * 1024)',
       ],
     }],
 
