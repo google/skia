@@ -3345,7 +3345,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2448805777455282675
+          10440183167364399689
         ]
       ], 
       "reviewed-by-human": true
@@ -3477,7 +3477,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12784231498320649735
+          12594265632012724270
         ]
       ], 
       "reviewed-by-human": true
@@ -3990,7 +3990,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9177992263267003730
+          16599266076720296573
         ]
       ], 
       "reviewed-by-human": true
@@ -6206,7 +6206,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13320400598203315130
+          12965826143216775511
         ]
       ], 
       "reviewed-by-human": true
@@ -8429,10 +8429,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6977384764558600106
+          14004712143264262077
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "vertices_8888.png": {
       "allowed-digests": [

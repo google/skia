@@ -4753,7 +4753,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14883788634267734591
+          12241316569839901585
         ]
       ], 
       "reviewed-by-human": true
@@ -4942,7 +4942,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9728138740685428331
+          1503976714167724830
         ]
       ], 
       "reviewed-by-human": true
@@ -5131,7 +5131,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17724554139633342897
+          2141019891928343978
         ]
       ], 
       "reviewed-by-human": true
@@ -5778,7 +5778,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17547680681124627771
+          5752432145406068435
         ]
       ], 
       "reviewed-by-human": true
@@ -12256,10 +12256,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14873078309899436312
+          7468160426894723766
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "vertices_80_pdf-poppler.png": {
       "allowed-digests": [

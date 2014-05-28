@@ -5917,7 +5917,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17528203856946988833
+          6481939352948074473
         ]
       ], 
       "reviewed-by-human": true
@@ -6118,7 +6118,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          429104140719767348
+          13242845885221560615
         ]
       ], 
       "reviewed-by-human": true
@@ -6307,7 +6307,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16891848626697306121
+          10731343456279484141
         ]
       ], 
       "reviewed-by-human": true
@@ -7139,7 +7139,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3189403603662260150
+          8442978142037036312
         ]
       ], 
       "reviewed-by-human": true
@@ -14914,10 +14914,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15378416112190717089
+          1238935355949663480
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "vertices_80_pdf-mac.png": {
       "allowed-digests": [

@@ -5991,7 +5991,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14916900785927829017
+          8197937578774172307
         ]
       ], 
       "reviewed-by-human": true
@@ -6222,7 +6222,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11052936308093283672
+          3228782803799821040
         ]
       ], 
       "reviewed-by-human": true
@@ -6453,7 +6453,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          452054886132892837
+          14823543740668188829
         ]
       ], 
       "reviewed-by-human": true
@@ -7237,7 +7237,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13820272039299006684
+          2391531137386173794
         ]
       ], 
       "reviewed-by-human": true
@@ -15028,10 +15028,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14873078309899436312
+          7468160426894723766
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "vertices_angle.png": {
       "allowed-digests": [

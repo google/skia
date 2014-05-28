@@ -7133,10 +7133,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17300310584829412785
+          8964360398879710880
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "vertices_8888.png": {
       "allowed-digests": [

@@ -3599,13 +3599,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12232933515407285411
+          9753614989636915824
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "downsamplebitmap_checkerboard_low_512_256_565.png": {
       "allowed-digests": [
@@ -3743,13 +3740,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12905833358446861679
+          8358902968682749303
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "downsamplebitmap_image_low_mandrill_512.png_565.png": {
       "allowed-digests": [
@@ -3881,7 +3875,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15161074940722891075
+          10904087299234981169
         ]
       ], 
       "reviewed-by-human": true
@@ -4349,13 +4343,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8356245075942692052
+          5345582652871648495
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "filterbitmap_checkerboard_32_2_565.png": {
       "allowed-digests": [
@@ -6822,13 +6813,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          14936367940776924385
+          18050122059109328370
         ]
       ], 
-      "bugs": [
-        2146
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "nonclosedpaths_565.png": {
       "allowed-digests": [
@@ -9261,10 +9249,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9747017168179419934
+          567116109091156501
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "vertices_8888.png": {
       "allowed-digests": [

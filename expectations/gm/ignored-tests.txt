@@ -38,17 +38,6 @@
 # I will likely just delete the GM.
 canvas-layer-state
 
-# bsalomon: https://codereview.chromium.org/264303008/
-# bsalomon@ will rebaseline this test
-ninepatch-stretch
-
-# bsalomon: https://codereview.chromium.org/282293004/
-# Conditionally fallback from bicubic filtering based on matrix.
-downsamplebitmap_checkerboard_high_512_256
-downsamplebitmap_image_high_mandrill_512.png
-filterbitmap_checkerboard_192_192
-downsamplebitmap_text_high_72.00pt
-
 # These are part of picture-version 27 -- removal of SkUnitMapp
 # just need to be rebaselined
 scaled_tilemode_bitmap
@@ -65,6 +54,3 @@ shadertext2
 # Need to rebaseline when they are fixed
 stroketext
 
-# yunchao: https://codereview.chromium.org/292943002/
-# changed the rendering result of this gm case to respect paint's alpha
-vertices_80

@@ -4443,7 +4443,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18384441246874487919
+          16402901581873179688
         ]
       ], 
       "reviewed-by-human": true
@@ -4452,7 +4452,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          7364428462017839969
+          13362740310524141608
         ]
       ], 
       "reviewed-by-human": true
@@ -4623,7 +4623,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11829912296774800941
+          11015226385634627319
         ]
       ], 
       "reviewed-by-human": true
@@ -4632,7 +4632,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8864295336742467639
+          12072318510619816364
         ]
       ], 
       "reviewed-by-human": true
@@ -4797,7 +4797,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2501413394740751643
+          16613355738876267064
         ]
       ], 
       "reviewed-by-human": true
@@ -4806,7 +4806,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          191790086710861257
+          11814031037659245194
         ]
       ], 
       "reviewed-by-human": true
@@ -5358,7 +5358,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5354661860469844004
+          6416906456074531975
         ]
       ], 
       "reviewed-by-human": true
@@ -5367,7 +5367,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16394707611472777580
+          15346563228391012421
         ]
       ], 
       "reviewed-by-human": true
@@ -11349,19 +11349,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5521059598963741498
+          4978884384916614166
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "vertices_80_msaa4.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12630980443690073157
+          13624063381339047598
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "vertices_8888.png": {
       "allowed-digests": [

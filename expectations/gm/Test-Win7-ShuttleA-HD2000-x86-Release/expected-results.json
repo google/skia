@@ -13104,10 +13104,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12748284108144234684
+          15279301671403043658
         ]
       ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "vertices_80_pdf-poppler.png": {
       "allowed-digests": [
