@@ -33,12 +33,6 @@ static int32_t sk_atomic_dec(int32_t* addr);
  */
 static bool sk_atomic_cas(int32_t* addr, int32_t before, int32_t after);
 
-/** Atomic compare and set, for pointers.
- *  If *addr == before, set *addr to after.  Always returns previous value of *addr.
- *  This must act as a compiler barrier.
- */
-static void* sk_atomic_cas(void** addr, void* before, void* after);
-
 /** If sk_atomic_dec does not act as an acquire (L/SL) barrier,
  *  this must act as an acquire (L/SL) memory barrier and as a compiler barrier.
  */

@@ -40,10 +40,6 @@ static inline bool sk_atomic_cas(int32_t* addr, int32_t before, int32_t after) {
     return _InterlockedCompareExchange(reinterpret_cast<long*>(addr), after, before) == before;
 }
 
-static inline void* sk_atomic_cas(void** addr, void* before, void* after) {
-    return InterlockedCompareExchange(reinterpret_cast<long*>(addr), after, before);
-}
-
 static inline void sk_membar_acquire__after_atomic_conditional_inc() { }
 
 #endif
