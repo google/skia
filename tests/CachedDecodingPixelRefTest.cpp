@@ -183,9 +183,7 @@ public:
         SkASSERT((fType <= kLast_TestType) && (fType >= 0));
     }
     virtual ~TestImageGenerator() { }
-
-protected:
-    virtual bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
+    virtual bool getInfo(SkImageInfo* info) SK_OVERRIDE {
         REPORTER_ASSERT(fReporter, NULL != info);
         if ((NULL == info) || (kFailGetInfo_TestType == fType)) {
             return false;
@@ -196,9 +194,9 @@ protected:
         info->fAlphaType = kOpaque_SkAlphaType;
         return true;
     }
-
-    virtual bool onGetPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
-                             SkPMColor ctable[], int* ctableCount) SK_OVERRIDE {
+    virtual bool getPixels(const SkImageInfo& info,
+                           void* pixels,
+                           size_t rowBytes) SK_OVERRIDE {
         REPORTER_ASSERT(fReporter, pixels != NULL);
         size_t minRowBytes
             = static_cast<size_t>(info.fWidth * info.bytesPerPixel());

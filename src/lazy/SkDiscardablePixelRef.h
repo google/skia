@@ -17,6 +17,10 @@
  *  A PixelRef backed by SkDiscardableMemory, with the ability to
  *  re-generate the pixels (via a SkImageGenerator) if the DM is
  *  purged.
+ *
+ *  Since SkColorTable is reference-counted, we do not support indexed
+ *  color with this class; there would be no way for the discardable
+ *  memory system to unref the color table.
  */
 class SkDiscardablePixelRef : public SkPixelRef {
 public:
@@ -42,7 +46,6 @@ private:
     // PixelRef, since the SkBitmap doesn't expect them to change.
 
     SkDiscardableMemory* fDiscardableMemory;
-    SkAutoTUnref<SkColorTable> fCTable;
 
     /* Takes ownership of SkImageGenerator. */
     SkDiscardablePixelRef(const SkImageInfo&, SkImageGenerator*,
