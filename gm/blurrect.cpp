@@ -203,7 +203,7 @@ protected:
                     }
 
                     canvas->save();
-                    canvas->translate(cur_x, cur_y);
+                    canvas->translate((SkScalar)cur_x, (SkScalar)cur_y);
                     canvas->translate(-(bm.width() - r.width())/2, -(bm.height()-r.height())/2);
                     canvas->drawBitmap(bm, 0.f, 0.f, NULL);
                     canvas->restore();
