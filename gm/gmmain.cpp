@@ -590,7 +590,7 @@ public:
             // the device is as large as the current rendertarget, so
             // we explicitly only readback the amount we expect (in
             // size) overwrite our previous allocation
-            bitmap->setInfo(SkImageInfo::MakeN32Premul(size.fWidth, size.fHeight));
+            bitmap->setConfig(SkImageInfo::MakeN32Premul(size.fWidth, size.fHeight));
             canvas->readPixels(bitmap, 0, 0);
         }
 #endif

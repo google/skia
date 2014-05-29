@@ -390,12 +390,12 @@ DEF_TEST(Serialization, reporter) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(kBitmapSize, kBitmapSize);
 
         SkBitmap validBitmap;
-        validBitmap.setInfo(info);
+        validBitmap.setConfig(info);
 
         // Create a bitmap with a really large height
         info.fHeight = 1000000000;
         SkBitmap invalidBitmap;
-        invalidBitmap.setInfo(info);
+        invalidBitmap.setConfig(info);
 
         // The deserialization should succeed, and the rendering shouldn't crash,
         // even when the device fails to initialize, due to its size

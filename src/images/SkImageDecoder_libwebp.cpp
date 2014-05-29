@@ -311,7 +311,7 @@ bool SkWEBPImageDecoder::setDecodeConfig(SkBitmap* decodedBitmap,
     } else {
         info.fAlphaType = kOpaque_SkAlphaType;
     }
-    return decodedBitmap->setInfo(info);
+    return decodedBitmap->setConfig(info);
 }
 
 bool SkWEBPImageDecoder::onBuildTileIndex(SkStreamRewindable* stream,

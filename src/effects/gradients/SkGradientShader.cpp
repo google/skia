@@ -619,7 +619,7 @@ void SkGradientShaderBase::getGradientTableBitmap(SkBitmap* bitmap) const {
     if (!gCache->find(storage.get(), size, bitmap)) {
         // force our cahce32pixelref to be built
         (void)cache->getCache32();
-        bitmap->setInfo(SkImageInfo::MakeN32Premul(kCache32Count, 1));
+        bitmap->setConfig(SkImageInfo::MakeN32Premul(kCache32Count, 1));
         bitmap->setPixelRef(cache->getCache32PixelRef());
 
         gCache->add(storage.get(), size, *bitmap);

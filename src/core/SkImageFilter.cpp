@@ -309,7 +309,7 @@ SkImageFilter::Cache* SkImageFilter::GetExternalCache() {
 
 void SkImageFilter::WrapTexture(GrTexture* texture, int width, int height, SkBitmap* result) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-    result->setInfo(info);
+    result->setConfig(info);
     result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
 }
 

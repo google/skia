@@ -78,7 +78,7 @@ SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& origInfo,
     SkBitmap bitmap;
 
     if (kUnknown_SkColorType == info.colorType()) {
-        if (!bitmap.setInfo(info)) {
+        if (!bitmap.setConfig(info)) {
             return NULL;
         }
     } else {

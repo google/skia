@@ -102,7 +102,7 @@ bool SkInstallDiscardablePixelRef(SkImageGenerator* generator, SkBitmap* dst,
     SkAutoTDelete<SkImageGenerator> autoGenerator(generator);
     if ((NULL == autoGenerator.get())
         || (!autoGenerator->getInfo(&info))
-        || (!dst->setInfo(info))) {
+        || (!dst->setConfig(info, 0))) {
         return false;
     }
     SkASSERT(dst->colorType() != kUnknown_SkColorType);

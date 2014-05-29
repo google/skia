@@ -584,6 +584,7 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft),
                         -SkIntToScalar(mask.fBounds.fTop));
 
+    SkBitmap::Config config = SkBitmap::kA8_Config;
     paint.setAntiAlias(SkMask::kBW_Format != mask.fFormat);
     switch (mask.fFormat) {
         case SkMask::kBW_Format:
@@ -607,17 +608,18 @@ static void generateMask(const SkMask& mask, const SkPath& path,
     SkRasterClip clip;
     clip.setRect(SkIRect::MakeWH(dstW, dstH));
 
-    const SkImageInfo info = SkImageInfo::MakeA8(dstW, dstH);
     SkBitmap bm;
+    bm.setConfig(config, dstW, dstH, dstRB);
 
     if (0 == dstRB) {
-        if (!bm.allocPixels(info)) {
+        if (!bm.allocPixels()) {
             // can't allocate offscreen, so empty the mask and return
             sk_bzero(mask.fImage, mask.computeImageSize());
             return;
         }
+        bm.lockPixels();
     } else {
-        bm.installPixels(info, mask.fImage, dstRB);
+        bm.setPixels(mask.fImage);
     }
     sk_bzero(bm.getPixels(), bm.getSafeSize());
 

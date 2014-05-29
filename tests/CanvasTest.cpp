@@ -101,7 +101,7 @@ static void test_clipVisitor(skiatest::Reporter* reporter, SkCanvas* canvas) {
     SkISize size = canvas->getDeviceSize();
 
     SkBitmap bm;
-    bm.setInfo(SkImageInfo::MakeN32Premul(size.width(), size.height()));
+    bm.setConfig(SkImageInfo::MakeN32Premul(size.width(), size.height()));
     SkCanvas c(bm);
 
     Canvas2CanvasClipVisitor visitor(&c);

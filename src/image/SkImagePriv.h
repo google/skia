@@ -11,6 +11,8 @@
 #include "SkBitmap.h"
 #include "SkImage.h"
 
+extern SkBitmap::Config SkImageInfoToBitmapConfig(const SkImageInfo&);
+
 // Call this if you explicitly want to use/share this pixelRef in the image
 extern SkImage* SkNewImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
                                        size_t rowBytes);
@@ -21,7 +23,7 @@ extern SkImage* SkNewImageFromPixelRef(const SkImageInfo&, SkPixelRef*,
  *  be shared if either the bitmap is marked as immutable, or canSharePixelRef
  *  is true.
  *
- *  If the bitmap's colortype cannot be converted into a corresponding
+ *  If the bitmap's config cannot be converted into a corresponding
  *  SkImageInfo, or the bitmap's pixels cannot be accessed, this will return
  *  NULL.
  */

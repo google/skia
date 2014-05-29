@@ -23,23 +23,22 @@ static void post_SkEvent_event() {
 }
 
 static bool skia_setBitmapFromSurface(SkBitmap* dst, SDL_Surface* src) {
-    SkColorType ct;
-    SkAlphaType at;
+    SkBitmap::Config config;
 
     switch (src->format->BytesPerPixel) {
         case 2:
-            ct = kRGB_565_SkColorType;
-            at = kOpaque_SkAlphaType;
+            config = SkBitmap::kRGB_565_Config;
             break;
         case 4:
-            ct = kN32_SkColorType;
-            at = kPremul_SkAlphaType;
+            config = SkBitmap::kARGB_8888_Config;
             break;
         default:
             return false;
     }
 
-    return dst->installPixels(SkImageInfo::Make(src->w, src->h, ct, at), src->pixels, src->pitch);
+    dst->setConfig(config, src->w, src->h, src->pitch);
+    dst->setPixels(src->pixels);
+    return true;
 }
 
 SkOSWindow::SkOSWindow(void* screen) {

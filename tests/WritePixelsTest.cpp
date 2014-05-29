@@ -290,7 +290,7 @@ static const CanvasConfig gCanvasConfigs[] = {
 // sure that the two rowBytes match (and the infos match).
 //
 static bool allocRowBytes(SkBitmap* bm, const SkImageInfo& info, size_t rowBytes) {
-    if (!bm->setInfo(info, rowBytes)) {
+    if (!bm->setConfig(info, rowBytes)) {
         return false;
     }
     SkPixelRef* pr = SkMallocPixelRef::NewAllocate(info, rowBytes, NULL);

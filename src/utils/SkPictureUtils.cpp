@@ -54,7 +54,7 @@ public:
 
     GatherPixelRefDevice(int width, int height, PixelRefSet* prset) {
         fSize.set(width, height);
-        fEmptyBitmap.setInfo(SkImageInfo::MakeUnknown(width, height));
+        fEmptyBitmap.setConfig(SkImageInfo::MakeUnknown(width, height));
         fPRSet = prset;
     }
 

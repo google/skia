@@ -31,7 +31,7 @@ public:
             return false;
         }
 
-        if (kUnknown_SkColorType == info.colorType()) {
+        if (SkImageInfoToBitmapConfig(info) == SkBitmap::kNo_Config) {
             return false;
         }
 
@@ -104,7 +104,7 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes)
 SkImage_Raster::SkImage_Raster(const Info& info, SkPixelRef* pr, size_t rowBytes)
     : INHERITED(info.fWidth, info.fHeight)
 {
-    fBitmap.setInfo(info, rowBytes);
+    fBitmap.setConfig(info, rowBytes);
     fBitmap.setPixelRef(pr);
     fBitmap.lockPixels();
 }

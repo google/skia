@@ -14,7 +14,7 @@ static void test_bitmap(skiatest::Reporter* reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);
 
     SkBitmap bmp;
-    bmp.setInfo(info);
+    bmp.setConfig(info);
 
     // test 1: bitmap without pixel data
     SkShader* shader = SkShader::CreateBitmapShader(bmp,

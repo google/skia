@@ -725,7 +725,7 @@ static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
     }
 
     SkBitmap bitmap;
-    bitmap.setInfo(info);
+    bitmap.setConfig(info);
     return bitmap;
 }
 

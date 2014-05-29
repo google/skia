@@ -238,7 +238,7 @@ static void init_bitmap(SkBitmap* bitmap, const SkIRect& rect, BitmapInit init, 
     if (alloc) {
         bitmap->allocPixels(info);
     } else {
-        bitmap->setInfo(info, rowBytes);
+        bitmap->setConfig(info, rowBytes);
     }
 }
 
