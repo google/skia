@@ -80,6 +80,38 @@ pre, code {
     float: none;
 }
 
+#chooseList {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+#chooseSource {
+  display: none;
+  background: ivory;
+  padding: 1em;
+  border: solid lightgray 2px;
+}
+
+#chooseSource.show {
+  display: block;
+}
+
+#selectedSource {
+  display: none;
+}
+
+#selectedSource.show {
+  display: block;
+}
+
+#sourceCode {
+  display: none;
+}
+
+#sourceCode.show {
+  display: block;
+}
+
 #gitInfo {
     float: right;
     font-size: 70%;

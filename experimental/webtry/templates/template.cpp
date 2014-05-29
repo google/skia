@@ -158,4 +158,6 @@
 #include "SkXfermode.h"
 #include "SkXfermodeImageFilter.h"
 
+SkBitmap source;
+
 {{.Code}}

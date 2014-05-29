@@ -133,33 +133,50 @@ Initial setup of the database, the user, and the only table:
     CREATE DATABASE webtry;
     USE webtry;
     CREATE USER 'webtry'@'%' IDENTIFIED BY '<password is in valentine>';
-    GRANT SELECT, INSERT, UPDATE ON webtry.webtry       TO 'webtry'@'%';
-    GRANT SELECT, INSERT, UPDATE ON webtry.workspace    TO 'webtry'@'%';
-    GRANT SELECT, INSERT, UPDATE ON webtry.workspacetry TO 'webtry'@'%';
+    GRANT SELECT, INSERT, UPDATE ON webtry.webtry        TO 'webtry'@'%';
+    GRANT SELECT, INSERT, UPDATE ON webtry.workspace     TO 'webtry'@'%';
+    GRANT SELECT, INSERT, UPDATE ON webtry.workspacetry  TO 'webtry'@'%';
+    GRANT SELECT, INSERT, UPDATE ON webtry.source_images TO 'webtry'@'%';
 
     // If this gets changed also update the sqlite create statement in webtry.go.
 
     CREATE TABLE webtry (
-      code      TEXT      DEFAULT ''                 NOT NULL,
-      create_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
-      hash      CHAR(64)  DEFAULT ''                 NOT NULL,
-      PRIMARY KEY(hash)
+      code               TEXT      DEFAULT ''                 NOT NULL,
+      create_ts          TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
+      hash               CHAR(64)  DEFAULT ''                 NOT NULL,
+      source_image_id    INTEGER   DEFAULT 0                  NOT NULL,
+      PRIMARY KEY(hash),
+
+      FOREIGN KEY (source) REFERENCES sources(id)
     );
 
     CREATE TABLE workspace (
       name      CHAR(64)  DEFAULT ''                 NOT NULL,
       create_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
-      PRIMARY KEY(name)
+      PRIMARY KEY(name),
     );
 
     CREATE TABLE workspacetry (
-      name      CHAR(64)  DEFAULT ''                 NOT NULL,
-      create_ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
-      hash      CHAR(64)  DEFAULT ''                 NOT NULL,
-      hidden    INTEGER   DEFAULT 0                  NOT NULL,
+      name             CHAR(64)  DEFAULT ''                 NOT NULL,
+      create_ts        TIMESTAMP DEFAULT CURRENT_TIMESTAMP  NOT NULL,
+      hash             CHAR(64)  DEFAULT ''                 NOT NULL,
+      source_image_id  INTEGER   DEFAULT 0                  NOT NULL,
+      hidden           INTEGER   DEFAULT 0                  NOT NULL,
 
-      FOREIGN KEY (name) REFERENCES workspace(name)
+      FOREIGN KEY (name)   REFERENCES workspace(name),
     );
+
+    CREATE TABLE source_images (
+      id        INTEGER     PRIMARY KEY                NOT NULL,
+      image     MEDIUMBLOB  DEFAULT ''                 NOT NULL, -- Stored as PNG.
+      width     INTEGER     DEFAULT 0                  NOT NULL,
+      height    INTEGER     DEFAULT 0                  NOT NULL,
+      create_ts TIMESTAMP   DEFAULT CURRENT_TIMESTAMP  NOT NULL,
+      hidden    INTEGER     DEFAULT 0                  NOT NULL
+    );
+
+    ALTER TABLE webtry       ADD COLUMN source_image_id INTEGER DEFAULT 0 NOT NULL AFTER hash;
+    ALTER TABLE workspacetry ADD COLUMN source_image_id INTEGER DEFAULT 0 NOT NULL AFTER hash;
 
 Common queries webtry.go will use:
 
@@ -183,6 +200,10 @@ Common queries for workspaces:
 
     SELECT name FROM workspace GROUP BY name;
 
+Common queries for sources:
+
+    SELECT id, image, width, height, create_ts FROM source_images ORDER BY create_ts DESC LIMIT 100;
+
 Password for the database will be stored in the metadata instance, if the
 metadata server can't be found, i.e. running locally, then a local sqlite
 database will be used. To see the current password stored in metadata and the
@@ -201,6 +222,29 @@ the metadata server:
 
 N.B. If you need to change the MySQL password that webtry uses, you must change
 it both in MySQL and the value stored in the metadata server.
+
+Source Images
+-------------
+
+For every try the user can select an optional source image to use as an input.
+The id of the source image is just an integer and is stored in the database
+along with the other try information, such as the code.
+
+The actual image itself is also stored in a separate table, 'sources', in the
+database.  On startup we check that all the images are available in 'inout',
+and write out the images if not. Since they are all written to 'inout' we can
+use the same /i/ image handler to serve them.
+
+When a user uploads an image it is decoded and converted to PNG and stored
+as a binary blob in the database.
+
+The bitmap is available to user code as a module level variable:
+
+    SkBitmap source;
+
+The bitmap is read, decoded and stored in source before the seccomp jail is
+instantiated.
+
 
 Squid
 -----

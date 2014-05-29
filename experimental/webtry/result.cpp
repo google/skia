@@ -7,6 +7,7 @@
 #include "SkStream.h"
 #include "SkSurface.h"
 
+SkBitmap source;
 
 void draw(SkCanvas* canvas) {
 #line 1

@@ -6,6 +6,7 @@
 #include "SkData.h"
 #include "SkForceLinking.h"
 #include "SkGraphics.h"
+#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkImageInfo.h"
 #include "SkStream.h"
@@ -16,6 +17,10 @@
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
 DEFINE_string(out, "", "Filename of the PNG to write to.");
+DEFINE_string(source, "", "Filename of the source image.");
+
+// Defined in template.cpp.
+extern SkBitmap source;
 
 static bool install_syscall_filter() {
     struct sock_filter filter[] = {
@@ -89,6 +94,13 @@ int main(int argc, char** argv) {
       perror("The --out flag must have an argument.");
       return 1;
     }
+
+    if (FLAGS_source.count() == 1) {
+       if (!SkImageDecoder::DecodeFile(FLAGS_source[0], &source)) {
+           perror("Unable to read the source image.");
+       }
+    }
+
     SkFILEWStream stream(FLAGS_out[0]);
 
     SkImageInfo info = SkImageInfo::MakeN32(256, 256, kPremul_SkAlphaType);

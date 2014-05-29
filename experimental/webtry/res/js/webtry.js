@@ -18,17 +18,127 @@
  */
 (function() {
     function onLoad() {
-      var run = document.getElementById('run');
-      var permalink = document.getElementById('permalink');
-      var embed = document.getElementById('embed');
-      var embedButton = document.getElementById('embedButton');
-      var code = document.getElementById('code');
-      var output = document.getElementById('output');
-      var stdout = document.getElementById('stdout');
-      var img = document.getElementById('img');
-      var tryHistory = document.getElementById('tryHistory');
-      var parser = new DOMParser();
-      var tryTemplate = document.getElementById('tryTemplate');
+      var run             = document.getElementById('run');
+      var permalink       = document.getElementById('permalink');
+      var embed           = document.getElementById('embed');
+      var embedButton     = document.getElementById('embedButton');
+      var code            = document.getElementById('code');
+      var output          = document.getElementById('output');
+      var stdout          = document.getElementById('stdout');
+      var img             = document.getElementById('img');
+      var tryHistory      = document.getElementById('tryHistory');
+      var parser          = new DOMParser();
+      var tryTemplate     = document.getElementById('tryTemplate');
+      var sourcesTemplate = document.getElementById('sourcesTemplate');
+
+      var enableSource   = document.getElementById('enableSource');
+      var selectedSource = document.getElementById('selectedSource');
+      var sourceCode     = document.getElementById('sourceCode');
+      var chooseSource   = document.getElementById('chooseSource');
+      var chooseList     = document.getElementById('chooseList');
+
+      // Id of the source image to use, 0 if no source image is used.
+      var sourceId = 0;
+
+      sourceId = parseInt(enableSource.getAttribute('data-id'));
+      if (sourceId) {
+        sourceSelectByID(sourceId);
+      }
+
+
+      function beginWait() {
+        document.body.classList.add('waiting');
+        run.disabled = true;
+      }
+
+
+      function endWait() {
+        document.body.classList.remove('waiting');
+        run.disabled = false;
+      }
+
+
+      function sourceSelectByID(id) {
+        sourceId = id;
+        if (id > 0) {
+          enableSource.checked = true;
+          selectedSource.innerHTML = '<img with=64 height=64 src="/i/image-'+sourceId+'.png" />';
+          selectedSource.classList.add('show');
+          sourceCode.classList.add('show');
+          chooseSource.classList.remove('show');
+        } else {
+          enableSource.checked = false;
+          selectedSource.classList.remove('show');
+          sourceCode.classList.remove('show');
+        }
+      }
+
+
+      /**
+       * A selection has been made in the choiceList.
+       */
+      function sourceSelect() {
+        sourceSelectByID(parseInt(this.getAttribute('data-id')));
+      }
+
+
+      /**
+       * Callback when the loading of the image sources is complete.
+       *
+       * Fills in the list of images from the data returned.
+       */
+      function sourcesComplete(e) {
+        endWait();
+        // The response is JSON of the form:
+        // [
+        //   {"id": 1},
+        //   {"id": 3},
+        //   ...
+        // ]
+        body = JSON.parse(e.target.response);
+        // Clear out the old list if present.
+        while (chooseList.firstChild) {
+          chooseList.removeChild(chooseList.firstChild);
+        }
+        body.forEach(function(source) {
+         var id = 'i'+source.id;
+         var imgsrc = '/i/image-'+source.id+'.png';
+         var clone = sourcesTemplate.content.cloneNode(true);
+         clone.querySelector('img').src     = imgsrc;
+         clone.querySelector('button').setAttribute('id', id);
+         clone.querySelector('button').setAttribute('data-id', source.id);
+         chooseList.insertBefore(clone, chooseList.firstChild);
+         chooseList.querySelector('#'+id).addEventListener('click', sourceSelect, true);
+        });
+        chooseSource.classList.add('show');
+      }
+
+
+      /**
+       * Toggle the use of a source image, or select a new source image.
+       *
+       * If enabling source images then load the list of available images via
+       * XHR.
+       */
+      function sourceClick(e) {
+        selectedSource.classList.remove('show');
+        sourceCode.classList.remove('show');
+        if (enableSource.checked) {
+          beginWait();
+          var req = new XMLHttpRequest();
+          req.addEventListener('load', sourcesComplete);
+          req.addEventListener('error', xhrError);
+          req.overrideMimeType('application/json');
+          req.open('GET', '/sources/', true);
+          req.send();
+        } else {
+          sourceId = 0;
+        }
+      }
+
+      enableSource.addEventListener('click', sourceClick, true);
+      selectedSource.addEventListener('click', sourceClick, true);
+
 
       var editor = CodeMirror.fromTextArea(code, {
         theme: "default",
@@ -41,17 +151,6 @@
       // Match the initial textarea size.
       editor.setSize(editor.defaultCharWidth() * code.cols,
                      editor.defaultTextHeight() * code.rows);
-
-      function beginWait() {
-        document.body.classList.add('waiting');
-        run.disabled = true;
-      }
-
-
-      function endWait() {
-        document.body.classList.remove('waiting');
-        run.disabled = false;
-      }
 
 
       /**
@@ -100,6 +199,7 @@
         code.value = body.code;
         editor.setValue(body.code);
         img.src = '/i/'+body.hash+'.png';
+        sourceSelectByID(body.source);
         if (permalink) {
           permalink.href = '/c/' + body.hash;
         }
@@ -172,7 +272,7 @@
         req.overrideMimeType('application/json');
         req.open('POST', '/', true);
         req.setRequestHeader('content-type', 'application/json');
-        req.send(JSON.stringify({'code': editor.getValue(), 'name': workspaceName}));
+        req.send(JSON.stringify({'code': editor.getValue(), 'name': workspaceName, 'source': sourceId}));
       }
       run.addEventListener('click', onSubmitCode);
 
