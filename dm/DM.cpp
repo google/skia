@@ -182,10 +182,7 @@ static void kick_off_skps(DM::Reporter* reporter, DM::TaskRunner* tasks) {
     }
 }
 
-static void report_failures(const DM::Reporter& reporter) {
-    SkTArray<SkString> failures;
-    reporter.getFailures(&failures);
-
+static void report_failures(const SkTArray<SkString>& failures) {
     if (failures.count() == 0) {
         return;
     }
@@ -194,6 +191,7 @@ static void report_failures(const DM::Reporter& reporter) {
     for (int i = 0; i < failures.count(); i++) {
         SkDebugf("  %s\n", failures[i].c_str());
     }
+    SkDebugf("%d failures.\n", failures.count());
 }
 
 template <typename T, typename Registry>
@@ -208,7 +206,7 @@ static void append_matching_factories(Registry* head, SkTDArray<typename Registr
 
 int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
-    SkGraphics::Init();
+    SkAutoGraphics ag;
     SkCommandLineFlags::Parse(argc, argv);
 #if SK_ENABLE_INST_COUNT
     gPrintInstCount = FLAGS_leaks;
@@ -260,11 +258,11 @@ int tool_main(int argc, char** argv) {
     tasks.wait();
 
     SkDebugf("\n");
-    report_failures(reporter);
 
-    SkGraphics::Term();
-
-    return reporter.failed() > 0;
+    SkTArray<SkString> failures;
+    reporter.getFailures(&failures);
+    report_failures(failures);
+    return failures.count() > 0;
 }
 
 #if !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_NACL)

@@ -12,20 +12,19 @@ namespace DM {
 
 class Reporter : SkNoncopyable {
 public:
-    Reporter() : fStarted(0), fFinished(0) {}
+    Reporter() : fPending(0), fFailed(0) {}
 
-    void start()  { sk_atomic_inc(&fStarted); }
-    void finish(SkString name, SkMSec timeMs);
+    void taskCreated()   { sk_atomic_inc(&fPending); }
+    void taskDestroyed() { sk_atomic_dec(&fPending); }
     void fail(SkString msg);
 
-    int32_t started()  const { return fStarted; }
-    int32_t finished() const { return fFinished; }
-    int32_t failed()   const;
+    void printStatus(SkString name, SkMSec timeMs) const;
 
     void getFailures(SkTArray<SkString>*) const;
 
 private:
-    int32_t fStarted, fFinished;
+    int32_t fPending; // atomic
+    int32_t fFailed;  // atomic, == fFailures.count().
 
     mutable SkMutex fMutex;  // Guards fFailures.
     SkTArray<SkString> fFailures;

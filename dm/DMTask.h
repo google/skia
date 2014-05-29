@@ -30,7 +30,7 @@ public:
 protected:
     Task(Reporter* reporter, TaskRunner* taskRunner);
     Task(const Task& parent);
-    virtual ~Task() {}
+    virtual ~Task();
 
     void start();
     void fail(const char* msg = NULL);
