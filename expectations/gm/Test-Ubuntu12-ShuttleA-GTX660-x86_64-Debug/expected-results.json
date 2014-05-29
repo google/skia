@@ -16517,10 +16517,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9062092996596322126
+          4702027525692342270
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        2619
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "shadertext2_pdf-poppler.png": {
       "allowed-digests": [

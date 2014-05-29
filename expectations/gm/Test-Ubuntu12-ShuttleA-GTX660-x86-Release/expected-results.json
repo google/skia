@@ -9274,7 +9274,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13704381245629684333
+          12617614780925646679
         ]
       ], 
       "reviewed-by-human": true
@@ -9301,7 +9301,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13206855341598955499
+          9743406049766573166
         ]
       ], 
       "reviewed-by-human": true
@@ -16433,10 +16433,14 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13374125976246952627
+          17518799550679467287
         ]
       ], 
-      "reviewed-by-human": true
+      "bugs": [
+        2619
+      ], 
+      "ignore-failure": true, 
+      "reviewed-by-human": false
     }, 
     "shadertext2_pdf-poppler.png": {
       "allowed-digests": [
