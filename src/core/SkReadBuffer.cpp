@@ -276,7 +276,7 @@ bool SkReadBuffer::readBitmap(SkBitmap* bitmap) {
         }
     }
     // Could not read the SkBitmap. Use a placeholder bitmap.
-    bitmap->setConfig(SkImageInfo::MakeUnknown(width, height));
+    bitmap->setInfo(SkImageInfo::MakeUnknown(width, height));
     return false;
 }
 

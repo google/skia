@@ -296,9 +296,9 @@ bool SkBitmapScaler::Resize(SkBitmap* resultPtr,
 
     // Convolve into the result.
     SkBitmap result;
-    result.setConfig(SkImageInfo::MakeN32(SkScalarCeilToInt(destSubset.width()),
-                                          SkScalarCeilToInt(destSubset.height()),
-                                          source.alphaType()));
+    result.setInfo(SkImageInfo::MakeN32(SkScalarCeilToInt(destSubset.width()),
+                                        SkScalarCeilToInt(destSubset.height()),
+                                        source.alphaType()));
     result.allocPixels(allocator, NULL);
     if (!result.readyToDraw()) {
         return false;

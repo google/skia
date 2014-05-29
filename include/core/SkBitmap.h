@@ -276,7 +276,13 @@ public:
                                kPremul_SkAlphaType);
     }
 
-    bool setConfig(const SkImageInfo& info, size_t rowBytes = 0);
+    bool setInfo(const SkImageInfo&, size_t rowBytes = 0);
+
+#ifdef SK_SUPPORT_LEGACY_SETCONFIG_INFO
+    bool setConfig(const SkImageInfo& info, size_t rowBytes = 0) {
+        return this->setInfo(info, rowBytes);
+    }
+#endif
 
     /**
      *  Allocate a pixelref to match the specified image info. If the Factory

@@ -92,10 +92,10 @@ struct SkPerlinNoiseShader::PaintingData {
         }
 
 #if SK_SUPPORT_GPU && !defined(SK_USE_SIMPLEX_NOISE)
-        fPermutationsBitmap.setConfig(SkImageInfo::MakeA8(kBlockSize, 1));
+        fPermutationsBitmap.setInfo(SkImageInfo::MakeA8(kBlockSize, 1));
         fPermutationsBitmap.setPixels(fLatticeSelector);
 
-        fNoiseBitmap.setConfig(SkImageInfo::MakeN32Premul(kBlockSize, 4));
+        fNoiseBitmap.setInfo(SkImageInfo::MakeN32Premul(kBlockSize, 4));
         fNoiseBitmap.setPixels(fNoise[0][0]);
 #endif
     }

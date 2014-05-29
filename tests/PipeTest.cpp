@@ -16,8 +16,7 @@
 // Ensures that the pipe gracefully handles drawing an invalid bitmap.
 static void testDrawingBadBitmap(SkCanvas* pipeCanvas) {
     SkBitmap badBitmap;
-    badBitmap.setConfig(SkImageInfo::Make(5, 5, kUnknown_SkColorType,
-                                          kPremul_SkAlphaType));
+    badBitmap.setInfo(SkImageInfo::MakeUnknown(5, 5));
     pipeCanvas->drawBitmap(badBitmap, 0, 0);
 }
 
@@ -44,7 +43,7 @@ static void testDrawingAfterEndRecording(SkCanvas* canvas) {
 
 DEF_TEST(Pipe, reporter) {
     SkBitmap bitmap;
-    bitmap.setConfig(SkImageInfo::MakeN32Premul(64, 64));
+    bitmap.setInfo(SkImageInfo::MakeN32Premul(64, 64));
     SkCanvas canvas(bitmap);
 
     PipeController pipeController(&canvas);

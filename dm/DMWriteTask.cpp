@@ -97,7 +97,7 @@ struct PngAndRaw {
                     info, rowBytes, NULL/*ctable*/, subset));
         SkASSERT(pixels);
 
-        bitmap->setConfig(info, rowBytes);
+        bitmap->setInfo(info, rowBytes);
         bitmap->setPixelRef(pixels);
         return true;
     }

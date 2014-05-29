@@ -37,7 +37,7 @@ void GpuGMTask::draw(GrContextFactory* grFactory) {
     canvas->flush();
 
     SkBitmap bitmap;
-    bitmap.setConfig(info);
+    bitmap.setInfo(info);
     canvas->readPixels(&bitmap, 0, 0);
 
     this->spawnChild(SkNEW_ARGS(ExpectationsTask, (*this, fExpectations, bitmap)));

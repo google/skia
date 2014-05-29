@@ -28,9 +28,7 @@ public:
         fSize.set(width, height);
         fPRCont = prCont;
         SkSafeRef(fPRCont);
-        fEmptyBitmap.setConfig(SkImageInfo::Make(width, height,
-                                                 kUnknown_SkColorType,
-                                                 kIgnore_SkAlphaType));
+        fEmptyBitmap.setInfo(SkImageInfo::MakeUnknown(width, height));
     }
 
     virtual ~SkGatherPixelRefsAndRectsDevice() {

@@ -14,7 +14,7 @@ bool SkCachingPixelRef::Install(SkImageGenerator* generator,
     SkASSERT(dst != NULL);
     if ((NULL == generator)
         || !(generator->getInfo(&info))
-        || !dst->setConfig(info, 0)) {
+        || !dst->setInfo(info)) {
         SkDELETE(generator);
         return false;
     }
@@ -54,7 +54,7 @@ bool SkCachingPixelRef::onNewLockPixels(LockRec* rec) {
                                                      &bitmap);
     if (NULL == fScaledCacheId) {
         // Cache has been purged, must re-decode.
-        if ((!bitmap.setConfig(info, fRowBytes)) || !bitmap.allocPixels()) {
+        if ((!bitmap.setInfo(info, fRowBytes)) || !bitmap.allocPixels()) {
             fErrorInDecoding = true;
             return false;
         }
