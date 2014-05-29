@@ -14,7 +14,7 @@
 
 /** Atomic compare and set, for pointers.
  *  If *addr == before, set *addr to after.  Always returns previous value of *addr.
- *  This must act as a compiler barrier.
+ *  This must issue a release barrier on success, acquire on failure, and always a compiler barrier.
  */
 static void* sk_atomic_cas(void** addr, void* before, void* after);
 

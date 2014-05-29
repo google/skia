@@ -11,8 +11,8 @@
 #include "SkXfermode_opts_SSE2.h"
 #include "SkXfermode_proccoeff.h"
 #include "SkColorPriv.h"
+#include "SkLazyPtr.h"
 #include "SkMathPriv.h"
-#include "SkOnce.h"
 #include "SkReadBuffer.h"
 #include "SkString.h"
 #include "SkUtilsArm.h"
@@ -1651,26 +1651,13 @@ void SkDstOutXfermode::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SK_DECLARE_STATIC_MUTEX(gCachedXfermodesMutex);
-static SkXfermode* gCachedXfermodes[SkXfermode::kLastMode + 1];  // All NULL to start.
-static bool gXfermodeCached[SK_ARRAY_COUNT(gCachedXfermodes)];  // All false to start.
-
-void SkXfermode::Term() {
-    SkAutoMutexAcquire ac(gCachedXfermodesMutex);
-
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gCachedXfermodes); ++i) {
-        SkSafeUnref(gCachedXfermodes[i]);
-        gCachedXfermodes[i] = NULL;
-    }
-}
-
-extern SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec,
-                                                      SkXfermode::Mode mode);
+extern SkProcCoeffXfermode* SkPlatformXfermodeFactory(const ProcCoeff& rec, SkXfermode::Mode mode);
 extern SkXfermodeProc SkPlatformXfermodeProcFactory(SkXfermode::Mode mode);
 
-
-static void create_mode(SkXfermode::Mode mode) {
-    SkASSERT(NULL == gCachedXfermodes[mode]);
+// Technically, can't be static and passed as a template parameter.  So we use anonymous namespace.
+namespace {
+SkXfermode* create_mode(int iMode) {
+    SkXfermode::Mode mode = (SkXfermode::Mode)iMode;
 
     ProcCoeff rec = gProcCoeffs[mode];
     SkXfermodeProc pp = SkPlatformXfermodeProcFactory(mode);
@@ -1709,28 +1696,27 @@ static void create_mode(SkXfermode::Mode mode) {
                 break;
         }
     }
-    gCachedXfermodes[mode] = xfer;
+    return xfer;
 }
+}  // namespace
+
 
 SkXfermode* SkXfermode::Create(Mode mode) {
     SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
-    SkASSERT(SK_ARRAY_COUNT(gCachedXfermodes) == kModeCount);
 
     if ((unsigned)mode >= kModeCount) {
         // report error
         return NULL;
     }
 
-    // Skia's "defaut" mode is srcover. NULL in SkPaint is interpreted as srcover
+    // Skia's "default" mode is srcover. NULL in SkPaint is interpreted as srcover
     // so we can just return NULL from the factory.
     if (kSrcOver_Mode == mode) {
         return NULL;
     }
 
-    SkOnce(&gXfermodeCached[mode], &gCachedXfermodesMutex, create_mode, mode);
-    SkXfermode* xfer = gCachedXfermodes[mode];
-    SkASSERT(xfer != NULL);
-    return SkSafeRef(xfer);
+    SK_DECLARE_STATIC_LAZY_PTR_ARRAY(SkXfermode, cached, kModeCount, create_mode);
+    return SkSafeRef(cached[mode]);
 }
 
 SkXfermodeProc SkXfermode::GetProc(Mode mode) {
