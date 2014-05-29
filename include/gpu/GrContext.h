@@ -213,7 +213,7 @@ public:
     GrTexture* createTexture(const GrTextureParams* params,
                              const GrTextureDesc& desc,
                              const GrCacheID& cacheID,
-                             void* srcData,
+                             const void* srcData,
                              size_t rowBytes,
                              GrResourceKey* cacheKey = NULL);
 
@@ -1000,7 +1000,7 @@ private:
 
     GrTexture* createResizedTexture(const GrTextureDesc& desc,
                                     const GrCacheID& cacheID,
-                                    void* srcData,
+                                    const void* srcData,
                                     size_t rowBytes,
                                     bool filter);
 

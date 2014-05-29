@@ -271,7 +271,7 @@ GrStencilBuffer* GrContext::findStencilBuffer(int width, int height,
 static void stretch_image(void* dst,
                           int dstW,
                           int dstH,
-                          void* src,
+                          const void* src,
                           int srcW,
                           int srcH,
                           size_t bpp) {
@@ -283,12 +283,10 @@ static void stretch_image(void* dst,
     size_t dstXLimit = dstW*bpp;
     for (int j = 0; j < dstH; ++j) {
         SkFixed x = dx >> 1;
-        void* srcRow = (uint8_t*)src + (y>>16)*srcW*bpp;
-        void* dstRow = (uint8_t*)dst + j*dstW*bpp;
+        const uint8_t* srcRow = reinterpret_cast<const uint8_t *>(src) + (y>>16)*srcW*bpp;
+        uint8_t* dstRow = reinterpret_cast<uint8_t *>(dst) + j*dstW*bpp;
         for (size_t i = 0; i < dstXLimit; i += bpp) {
-            memcpy((uint8_t*) dstRow + i,
-                   (uint8_t*) srcRow + (x>>16)*bpp,
-                   bpp);
+            memcpy(dstRow + i, srcRow + (x>>16)*bpp, bpp);
             x += dx;
         }
         y += dy;
@@ -309,7 +307,7 @@ extern const GrVertexAttrib gVertexAttribs[] = {
 // the current hardware. Resize the texture to be a POT
 GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
                                            const GrCacheID& cacheID,
-                                           void* srcData,
+                                           const void* srcData,
                                            size_t rowBytes,
                                            bool filter) {
     SkAutoTUnref<GrTexture> clampedTexture(this->findAndRefTexture(desc, cacheID, NULL));
@@ -379,7 +377,7 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
 GrTexture* GrContext::createTexture(const GrTextureParams* params,
                                     const GrTextureDesc& desc,
                                     const GrCacheID& cacheID,
-                                    void* srcData,
+                                    const void* srcData,
                                     size_t rowBytes,
                                     GrResourceKey* cacheKey) {
     GrResourceKey resourceKey = GrTextureImpl::ComputeKey(fGpu, params, desc, cacheID);
