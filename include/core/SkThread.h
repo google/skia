@@ -60,6 +60,25 @@ static inline int32_t sk_atomic_conditional_inc(int32_t* addr) {
     return prev;
 }
 
+// SK_BARRIERS_PLATFORM_H must provide implementations for the following declarations:
+
+/** Prevent the compiler from reordering across this barrier. */
+static void sk_compiler_barrier();
+
+/** Read T*, with at least an acquire barrier.
+ *
+ *  Only needs to be implemented for T which can be atomically read.
+ */
+template <typename T> T sk_acquire_load(T*);
+
+/** Write T*, with at least a release barrier.
+ *
+ *  Only needs to be implemented for T which can be atomically written.
+ */
+template <typename T> void sk_release_store(T*, T);
+
+#include SK_BARRIERS_PLATFORM_H
+
 /** SK_MUTEX_PLATFORM_H must provide the following (or equivalent) declarations.
 
 class SkBaseMutex {

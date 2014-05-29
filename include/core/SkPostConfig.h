@@ -399,6 +399,14 @@
 #  endif
 #endif
 
+#ifndef SK_BARRIERS_PLATFORM_H
+#  if defined(SK_CPU_ARM) || defined(SK_CPU_ARM64)
+#    define SK_BARRIERS_PLATFORM_H "../../src/ports/SkBarriers_arm.h"
+#  else
+#    define SK_BARRIERS_PLATFORM_H "../../src/ports/SkBarriers_x86.h"
+#  endif
+#endif
+
 
 //////////////////////////////////////////////////////////////////////
 

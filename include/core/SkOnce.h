@@ -71,44 +71,6 @@ struct SkOnceFlag {
     SkSpinlock lock;
 };
 
-// TODO(bungeman, mtklein): move all these *barrier* functions to SkThread when refactoring lands.
-
-#ifdef SK_BUILD_FOR_WIN
-#  include <intrin.h>
-inline static void compiler_barrier() {
-    _ReadWriteBarrier();
-}
-#else
-inline static void compiler_barrier() {
-    asm volatile("" : : : "memory");
-}
-#endif
-
-inline static void full_barrier_on_arm() {
-#if (defined(SK_CPU_ARM) && SK_ARM_ARCH >= 7) || defined(SK_CPU_ARM64)
-    asm volatile("dmb ish" : : : "memory");
-#elif defined(SK_CPU_ARM)
-    asm volatile("mcr p15, 0, %0, c7, c10, 5" : : "r" (0) : "memory");
-#endif
-}
-
-// On every platform, we issue a compiler barrier to prevent it from reordering
-// code.  That's enough for platforms like x86 where release and acquire
-// barriers are no-ops.  On other platforms we may need to be more careful;
-// ARM, in particular, needs real code for both acquire and release.  We use a
-// full barrier, which acts as both, because that the finest precision ARM
-// provides.
-
-inline static void release_barrier() {
-    compiler_barrier();
-    full_barrier_on_arm();
-}
-
-inline static void acquire_barrier() {
-    compiler_barrier();
-    full_barrier_on_arm();
-}
-
 // Works with SkSpinlock or SkMutex.
 template <typename Lock>
 class SkAutoLockAcquire {
@@ -143,8 +105,7 @@ static void sk_once_slow(bool* done, Lock* lock, Func f, Arg arg, void (*atExit)
         //
         // We'll use this in the fast path to make sure f(arg)'s effects are
         // observable whenever we observe *done == true.
-        release_barrier();
-        *done = true;
+        sk_release_store(done, true);
     }
 }
 
@@ -156,15 +117,15 @@ inline void SkOnce(bool* done, Lock* lock, Func f, Arg arg, void(*atExit)()) {
     }
     // Also known as a load-load/load-store barrier, this acquire barrier makes
     // sure that anything we read from memory---in particular, memory written by
-    // calling f(arg)---is at least as current as the value we read from once->done.
+    // calling f(arg)---is at least as current as the value we read from done.
     //
     // In version control terms, this is a lot like saying "sync up to the
-    // commit where we wrote once->done = true".
+    // commit where we wrote done = true".
     //
-    // The release barrier in sk_once_slow guaranteed that once->done = true
-    // happens after f(arg), so by syncing to once->done = true here we're
+    // The release barrier in sk_once_slow guaranteed that done = true
+    // happens after f(arg), so by syncing to done = true here we're
     // forcing ourselves to also wait until the effects of f(arg) are readble.
-    acquire_barrier();
+    SkAssertResult(sk_acquire_load(done));
 }
 
 template <typename Func, typename Arg>
