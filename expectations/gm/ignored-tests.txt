@@ -38,24 +38,6 @@
 # I will likely just delete the GM.
 canvas-layer-state
 
-# humper: https://codereview.chromium.org/300113008/
-# Needs rebaselining after image scaling tweak
-downsamplebitmap_image_high_mandrill_512
-downsamplebitmap_text_high_72.00pt
-downsamplebitmap_checkerboard_high_512_256
-filterbitmap_image_mandrill_256.png
-filterbitmap_image_mandrill_128.png
-filterbitmap_image_mandrill_64.png
-filterbitmap_image_mandrill_32.png
-filterbitmap_image_mandrill_16.png
-filterbitmap_checkerboard_192_192
-filterbitmap_checkerboard_32_32
-filterbitmap_checkerboard_32_8
-filterbitmap_checkerboard_32_2
-filterbitmap_checkerboard_4_4
-filterbitmap_text_7.00pt
-filterbitmap_text_3.00pt
-
 # bsalomon: https://codereview.chromium.org/264303008/
 # bsalomon@ will rebaseline this test
 ninepatch-stretch
