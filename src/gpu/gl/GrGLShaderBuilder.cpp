@@ -89,10 +89,108 @@ static const char kDstCopyColorName[] = "_dstColor";
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool GrGLShaderBuilder::GenProgram(GrGpuGL* gpu,
+                                   GrGLUniformManager& uman,
+                                   const GrGLProgramDesc& desc,
+                                   const GrEffectStage* inColorStages[],
+                                   const GrEffectStage* inCoverageStages[],
+                                   GenProgramOutput* output) {
+    if (desc.getHeader().fHasVertexCode ||!gpu->shouldUseFixedFunctionTexturing()) {
+        GrGLFullShaderBuilder fullBuilder(gpu, uman, desc);
+        if (fullBuilder.genProgram(inColorStages, inCoverageStages, output)) {
+            output->fHasVS = true;
+            output->fUniformHandles.fViewMatrixUni = fullBuilder.getViewMatrixUniform();
+            output->fUniformHandles.fRTAdjustmentUni = fullBuilder.getRTAdjustmentVecUniform();
+            return true;
+        }
+    } else {
+        GrGLFragmentOnlyShaderBuilder fragmentOnlyBuilder(gpu, uman, desc);
+        if (fragmentOnlyBuilder.genProgram(inColorStages, inCoverageStages, output)) {
+            output->fHasVS = false;
+            output->fNumTexCoordSets = fragmentOnlyBuilder.getNumTexCoordSets();
+            return true;
+        }
+    }
+    return false;
+}
+
+bool GrGLShaderBuilder::genProgram(const GrEffectStage* colorStages[],
+                                   const GrEffectStage* coverageStages[],
+                                   GenProgramOutput* output) {
+    const GrGLProgramDesc::KeyHeader& header = this->desc().getHeader();
+
+    // incoming color to current stage being processed.
+    GrGLSLExpr4 inColor = this->getInputColor();
+
+    output->fColorEffects =
+        this->createAndEmitEffects(colorStages,
+                                   this->desc().getEffectKeys(),
+                                   this->desc().numColorEffects(),
+                                   &inColor);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // compute the partial coverage
+    GrGLSLExpr4 inCoverage = this->getInputCoverage();
+
+    output->fCoverageEffects =
+        this->createAndEmitEffects(coverageStages,
+                                    this->desc().getEffectKeys() + this->desc().numColorEffects(),
+                                    this->desc().numCoverageEffects(),
+                                    &inCoverage);
+
+    if (GrGLProgramDesc::CoverageOutputUsesSecondaryOutput(header.fCoverageOutput)) {
+        const char* secondaryOutputName = this->enableSecondaryOutput();
+
+        // default coeff to ones for kCoverage_DualSrcOutput
+        GrGLSLExpr4 coeff(1);
+        if (GrGLProgramDesc::kSecondaryCoverageISA_CoverageOutput == header.fCoverageOutput) {
+            // Get (1-A) into coeff
+            coeff = GrGLSLExpr4::VectorCast(GrGLSLExpr1(1) - inColor.a());
+        } else if (GrGLProgramDesc::kSecondaryCoverageISC_CoverageOutput == 
+                   header.fCoverageOutput){
+            // Get (1-RGBA) into coeff
+            coeff = GrGLSLExpr4(1) - inColor;
+        }
+        // Get coeff * coverage into modulate and then write that to the dual source output.
+        this->fsCodeAppendf("\t%s = %s;\n", secondaryOutputName, (coeff * inCoverage).c_str());
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // combine color and coverage as frag color
+
+    // Get "color * coverage" into fragColor
+    GrGLSLExpr4 fragColor = inColor * inCoverage;
+    // Now tack on "+(1-coverage)dst onto the frag color if we were asked to do so.
+    if (GrGLProgramDesc::kCombineWithDst_CoverageOutput == header.fCoverageOutput) {
+        GrGLSLExpr4 dstCoeff = GrGLSLExpr4(1) - inCoverage;
+
+        GrGLSLExpr4 dstContribution = dstCoeff * GrGLSLExpr4(this->dstColor());
+
+        fragColor = fragColor + dstContribution;
+    }
+    this->fsCodeAppendf("\t%s = %s;\n", this->getColorOutputName(), fragColor.c_str());
+
+    if (!this->finish(&output->fProgramID)) {
+        return false;
+    }
+
+    output->fUniformHandles.fRTHeightUni = this->getRTHeightUniform();
+    output->fUniformHandles.fDstCopyTopLeftUni = this->getDstCopyTopLeftUniform();
+    output->fUniformHandles.fDstCopyScaleUni = this->getDstCopyScaleUniform();
+    output->fUniformHandles.fColorUni = this->getColorUniform();
+    output->fUniformHandles.fCoverageUni = this->getCoverageUniform();
+    output->fUniformHandles.fDstCopySamplerUni = this->getDstCopySamplerUniform();
+
+    return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 GrGLShaderBuilder::GrGLShaderBuilder(GrGpuGL* gpu,
                                      GrGLUniformManager& uniformManager,
                                      const GrGLProgramDesc& desc)
-    : fGpu(gpu)
+    : fDesc(desc)
+    , fGpu(gpu)
     , fUniformManager(uniformManager)
     , fFSFeaturesAddedMask(0)
     , fFSInputs(kVarsPerBlock)
@@ -735,13 +833,12 @@ GrGLFullShaderBuilder::GrGLFullShaderBuilder(GrGpuGL* gpu,
                                              GrGLUniformManager& uniformManager,
                                              const GrGLProgramDesc& desc)
     : INHERITED(gpu, uniformManager, desc)
-    , fDesc(desc)
     , fVSAttrs(kVarsPerBlock)
     , fVSOutputs(kVarsPerBlock)
     , fGSInputs(kVarsPerBlock)
     , fGSOutputs(kVarsPerBlock) {
 
-    const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
+    const GrGLProgramDesc::KeyHeader& header = this->desc().getHeader();
 
     fPositionVar = &fVSAttrs.push_back();
     fPositionVar->set(kVec2f_GrSLType, GrGLShaderVar::kAttribute_TypeModifier, "aPosition");
@@ -837,7 +934,7 @@ void GrGLFullShaderBuilder::addVarying(GrSLType type,
     // input to FS comes either from VS or GS
     const SkString* fsName;
 #if GR_GL_EXPERIMENTAL_GS
-    if (fDesc.getHeader().fExperimentalGS) {
+    if (this->desc().getHeader().fExperimentalGS) {
         // if we have a GS take each varying in as an array
         // and output as non-array.
         fGSInputs.push_back();
@@ -887,7 +984,8 @@ GrGLProgramEffects* GrGLFullShaderBuilder::createAndEmitEffects(
     return programEffectsBuilder.finish();
 }
 
-bool GrGLFullShaderBuilder::compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const {
+bool GrGLFullShaderBuilder::compileAndAttachShaders(GrGLuint programId,
+                                                    SkTDArray<GrGLuint>* shaderIds) const {
     const GrGLContext& glCtx = this->gpu()->glContext();
     SkString vertShaderSrc(GrGetGLSLVersionDecl(this->ctxInfo()));
     this->appendUniformDecls(kVertex_Visibility, &vertShaderSrc);
@@ -903,7 +1001,7 @@ bool GrGLFullShaderBuilder::compileAndAttachShaders(GrGLuint programId, SkTDArra
     *shaderIds->append() = vertShaderId;
 
 #if GR_GL_EXPERIMENTAL_GS
-    if (fDesc.getHeader().fExperimentalGS) {
+    if (this->desc().getHeader().fExperimentalGS) {
         SkASSERT(this->ctxInfo().glslGeneration() >= k150_GrGLSLGeneration);
         SkString geomShaderSrc(GrGetGLSLVersionDecl(this->ctxInfo()));
         geomShaderSrc.append("layout(triangles) in;\n"
@@ -913,7 +1011,7 @@ bool GrGLFullShaderBuilder::compileAndAttachShaders(GrGLuint programId, SkTDArra
         geomShaderSrc.append("void main() {\n");
         geomShaderSrc.append("\tfor (int i = 0; i < 3; ++i) {\n"
                              "\t\tgl_Position = gl_in[i].gl_Position;\n");
-        if (fDesc.getHeader().fEmitsPointSize) {
+        if (this->desc().getHeader().fEmitsPointSize) {
             geomShaderSrc.append("\t\tgl_PointSize = 1.0;\n");
         }
         SkASSERT(fGSInputs.count() == fGSOutputs.count());
@@ -940,7 +1038,7 @@ bool GrGLFullShaderBuilder::compileAndAttachShaders(GrGLuint programId, SkTDArra
 void GrGLFullShaderBuilder::bindProgramLocations(GrGLuint programId) const {
     this->INHERITED::bindProgramLocations(programId);
 
-    const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
+    const GrGLProgramDesc::KeyHeader& header = this->desc().getHeader();
 
     // Bind the attrib locations to same values for all shaders
     SkASSERT(-1 != header.fPositionAttributeIndex);

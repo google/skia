@@ -164,23 +164,6 @@ public:
 private:
     typedef GrGLUniformManager::UniformHandle UniformHandle;
 
-    // handles for uniforms (aside from per-effect samplers)
-    struct UniformHandles {
-        UniformHandle       fViewMatrixUni;
-        UniformHandle       fRTAdjustmentUni;
-        UniformHandle       fColorUni;
-        UniformHandle       fCoverageUni;
-
-        // We use the render target height to provide a y-down frag coord when specifying
-        // origin_upper_left is not supported.
-        UniformHandle       fRTHeightUni;
-
-        // Uniforms for computing texture coords to do the dst-copy lookup
-        UniformHandle       fDstCopyTopLeftUni;
-        UniformHandle       fDstCopyScaleUni;
-        UniformHandle       fDstCopySamplerUni;
-    };
-
     GrGLProgram(GrGpuGL* gpu,
                 const GrGLProgramDesc& desc,
                 const GrEffectStage* colorStages[],
@@ -226,7 +209,7 @@ private:
     GrGpuGL*                          fGpu;
 
     GrGLUniformManager                fUniformManager;
-    UniformHandles                    fUniformHandles;
+    GrGLShaderBuilder::UniformHandles fUniformHandles;
 
     bool                              fHasVertexShader;
     int                               fNumTexCoordSets;

@@ -41,7 +41,41 @@ public:
         kFragment_Visibility = 0x4,
     };
 
-    GrGLShaderBuilder(GrGpuGL*, GrGLUniformManager&, const GrGLProgramDesc&);
+    typedef GrGLUniformManager::UniformHandle UniformHandle;
+
+    // Handles for program uniforms (other than per-effect uniforms)
+    struct UniformHandles {
+        UniformHandle       fViewMatrixUni;
+        UniformHandle       fRTAdjustmentUni;
+        UniformHandle       fColorUni;
+        UniformHandle       fCoverageUni;
+
+        // We use the render target height to provide a y-down frag coord when specifying
+        // origin_upper_left is not supported.
+        UniformHandle       fRTHeightUni;
+
+        // Uniforms for computing texture coords to do the dst-copy lookup
+        UniformHandle       fDstCopyTopLeftUni;
+        UniformHandle       fDstCopyScaleUni;
+        UniformHandle       fDstCopySamplerUni;
+    };
+
+    struct GenProgramOutput {
+        GrGLProgramEffects* fColorEffects;
+        GrGLProgramEffects* fCoverageEffects;
+        UniformHandles fUniformHandles;
+        bool fHasVS;
+        int fNumTexCoordSets;
+        GrGLuint fProgramID;
+    };
+
+    static bool GenProgram(GrGpuGL* gpu,
+                           GrGLUniformManager& uman,
+                           const GrGLProgramDesc& desc,
+                           const GrEffectStage* inColorStages[],
+                           const GrEffectStage* inCoverageStages[],
+                           GenProgramOutput* output);
+
     virtual ~GrGLShaderBuilder() {}
 
     /**
@@ -228,7 +262,11 @@ public:
     };
 
 protected:
+    GrGLShaderBuilder(GrGpuGL*, GrGLUniformManager&, const GrGLProgramDesc&);
+
     GrGpuGL* gpu() const { return fGpu; }
+
+    const GrGLProgramDesc& desc() const { return fDesc; }
 
     void setInputColor(const GrGLSLExpr4& inputColor) { fInputColor = inputColor; }
     void setInputCoverage(const GrGLSLExpr4& inputCoverage) { fInputCoverage = inputCoverage; }
@@ -306,6 +344,10 @@ private:
         const GrEffectStage*    fEffectStage;
     } fCodeStage;
 
+    bool genProgram(const GrEffectStage* colorStages[],
+                    const GrEffectStage* coverageStages[],
+                    GenProgramOutput* output);
+
     /**
      * Features that should only be enabled by GrGLShaderBuilder itself.
      */
@@ -334,6 +376,7 @@ private:
         kBottomLeftFragPosRead_FragPosKey   = 0x2,// Read frag pos relative to bottom-left.
     };
 
+    const GrGLProgramDesc&                  fDesc;
     GrGpuGL*                                fGpu;
     GrGLUniformManager&                     fUniformManager;
     uint32_t                                fFSFeaturesAddedMask;
@@ -433,7 +476,6 @@ protected:
     virtual void bindProgramLocations(GrGLuint programId) const SK_OVERRIDE;
 
 private:
-    const GrGLProgramDesc&              fDesc;
     VarArray                            fVSAttrs;
     VarArray                            fVSOutputs;
     VarArray                            fGSInputs;

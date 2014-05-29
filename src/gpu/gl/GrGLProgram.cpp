@@ -47,19 +47,18 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
 
     fColor = GrColor_ILLEGAL;
 
-    if (fDesc.getHeader().fHasVertexCode ||
-        !fGpu->shouldUseFixedFunctionTexturing()) {
-        GrGLFullShaderBuilder fullBuilder(fGpu, fUniformManager, fDesc);
-        if (this->genProgram(&fullBuilder, colorStages, coverageStages)) {
-            fUniformHandles.fViewMatrixUni = fullBuilder.getViewMatrixUniform();
-            fUniformHandles.fRTAdjustmentUni = fullBuilder.getRTAdjustmentVecUniform();
-            fHasVertexShader = true;
-        }
-    } else {
-        GrGLFragmentOnlyShaderBuilder fragmentOnlyBuilder(fGpu, fUniformManager, fDesc);
-        if (this->genProgram(&fragmentOnlyBuilder, colorStages, coverageStages)) {
-            fNumTexCoordSets = fragmentOnlyBuilder.getNumTexCoordSets();
-        }
+    GrGLShaderBuilder::GenProgramOutput output;
+
+    if (GrGLShaderBuilder::GenProgram(gpu, fUniformManager, desc, colorStages, coverageStages,
+                                      &output)) {
+        fProgramID = output.fProgramID;
+        fUniformHandles = output.fUniformHandles;
+        fColorEffects.reset(output.fColorEffects);
+        fCoverageEffects.reset(output.fCoverageEffects);
+        fHasVertexShader = output.fHasVS;
+        fNumTexCoordSets = output.fNumTexCoordSets;
+        fGpu = gpu;
+        this->initSamplerUniforms();
     }
 }
 
@@ -93,79 +92,6 @@ void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
             SkFAIL("Unexpected coverage output");
             break;
     }
-}
-
-bool GrGLProgram::genProgram(GrGLShaderBuilder* builder,
-                             const GrEffectStage* colorStages[],
-                             const GrEffectStage* coverageStages[]) {
-    SkASSERT(0 == fProgramID);
-
-    const GrGLProgramDesc::KeyHeader& header = fDesc.getHeader();
-
-    // incoming color to current stage being processed.
-    GrGLSLExpr4 inColor = builder->getInputColor();
-
-    fColorEffects.reset(
-        builder->createAndEmitEffects(colorStages,
-                                      fDesc.effectKeys(),
-                                      fDesc.numColorEffects(),
-                                      &inColor));
-
-    ///////////////////////////////////////////////////////////////////////////
-    // compute the partial coverage
-    GrGLSLExpr4 inCoverage = builder->getInputCoverage();
-
-    fCoverageEffects.reset(
-        builder->createAndEmitEffects(coverageStages,
-                                      fDesc.getEffectKeys() + fDesc.numColorEffects(),
-                                      fDesc.numCoverageEffects(),
-                                      &inCoverage));
-
-    if (GrGLProgramDesc::CoverageOutputUsesSecondaryOutput(header.fCoverageOutput)) {
-        const char* secondaryOutputName = builder->enableSecondaryOutput();
-
-        // default coeff to ones for kCoverage_DualSrcOutput
-        GrGLSLExpr4 coeff(1);
-        if (GrGLProgramDesc::kSecondaryCoverageISA_CoverageOutput == header.fCoverageOutput) {
-            // Get (1-A) into coeff
-            coeff = GrGLSLExpr4::VectorCast(GrGLSLExpr1(1) - inColor.a());
-        } else if (GrGLProgramDesc::kSecondaryCoverageISC_CoverageOutput == header.fCoverageOutput) {
-            // Get (1-RGBA) into coeff
-            coeff = GrGLSLExpr4(1) - inColor;
-        }
-        // Get coeff * coverage into modulate and then write that to the dual source output.
-        builder->fsCodeAppendf("\t%s = %s;\n", secondaryOutputName, (coeff * inCoverage).c_str());
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // combine color and coverage as frag color
-
-    // Get "color * coverage" into fragColor
-    GrGLSLExpr4 fragColor = inColor * inCoverage;
-    // Now tack on "+(1-coverage)dst onto the frag color if we were asked to do so.
-    if (GrGLProgramDesc::kCombineWithDst_CoverageOutput == header.fCoverageOutput) {
-        GrGLSLExpr4 dstCoeff = GrGLSLExpr4(1) - inCoverage;
-
-        GrGLSLExpr4 dstContribution = dstCoeff * GrGLSLExpr4(builder->dstColor());
-
-        fragColor = fragColor + dstContribution;
-    }
-    builder->fsCodeAppendf("\t%s = %s;\n", builder->getColorOutputName(), fragColor.c_str());
-
-    if (!builder->finish(&fProgramID)) {
-        return false;
-    }
-
-    fUniformHandles.fRTHeightUni = builder->getRTHeightUniform();
-    fUniformHandles.fDstCopyTopLeftUni = builder->getDstCopyTopLeftUniform();
-    fUniformHandles.fDstCopyScaleUni = builder->getDstCopyScaleUniform();
-    fUniformHandles.fColorUni = builder->getColorUniform();
-    fUniformHandles.fCoverageUni = builder->getCoverageUniform();
-    fUniformHandles.fDstCopySamplerUni = builder->getDstCopySamplerUniform();
-    // This must be called after we set fDstCopySamplerUni above.
-    this->initSamplerUniforms();
-
-    return true;
 }
 
 void GrGLProgram::initSamplerUniforms() {
