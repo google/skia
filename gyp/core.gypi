@@ -102,6 +102,7 @@
         '<(skia_src_path)/core/SkInstCnt.cpp',
         '<(skia_src_path)/core/SkImageFilter.cpp',
         '<(skia_src_path)/core/SkImageInfo.cpp',
+        '<(skia_src_path)/core/SkImageGenerator.cpp',
         '<(skia_src_path)/core/SkLocalMatrixShader.cpp',
         '<(skia_src_path)/core/SkLineClipper.cpp',
         '<(skia_src_path)/core/SkMallocPixelRef.cpp',
