@@ -2506,13 +2506,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8701945827022342915
+          1036697453890262279
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "cmykjpeg_565.png": {
       "allowed-digests": [
@@ -5267,13 +5264,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          16033234687806780314
+          3789170878621908162
         ]
       ], 
-      "bugs": [
-        1759
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "hairmodes_565.png": {
       "allowed-digests": [
@@ -6753,10 +6747,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1394964730030609980
+          8170912362460019405
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "poly2poly_565.png": {
       "allowed-digests": [

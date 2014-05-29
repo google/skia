@@ -9637,10 +9637,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4693974556239318160
+          313027145945575448
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "points_pdf-poppler.png": {
       "allowed-digests": [
@@ -9827,9 +9828,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          8279663236909196801
+          5265572241734657782
         ]
-      ]
+      ], 
+      "reviewed-by-human": true
     }, 
     "radial_gradient2_pdf-poppler.png": {
       "allowed-digests": [
@@ -11489,7 +11491,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          2844992699680978958
+          1163627664342649361
         ]
       ], 
       "reviewed-by-human": true

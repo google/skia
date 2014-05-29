@@ -4388,13 +4388,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6039640393806943864
+          4801779334892993466
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "clippedcubic_gpu.png": {
       "allowed-digests": [
@@ -5409,10 +5406,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6991391090289940122
+          13125632869332727872
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "cubicclosepath_gpu.png": {
       "allowed-digests": [
@@ -5466,10 +5464,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4267469000941675438
+          17028001984269604559
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "cubicpath_gpu.png": {
       "allowed-digests": [
