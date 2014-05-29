@@ -55,7 +55,7 @@ public:
     virtual ~SkImageGenerator() { }
 
 #ifdef SK_SUPPORT_LEGACY_IMAGEGENERATORAPI
-    virtual bool refEncodedData() { return this->onRefEncodedData(); }
+    virtual SkData* refEncodedData() { return this->onRefEncodedData(); }
     virtual bool getInfo(SkImageInfo* info) { return this->onGetInfo(info); }
     virtual bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
         return this->onGetPixels(info, pixels, rowBytes, NULL, NULL);
