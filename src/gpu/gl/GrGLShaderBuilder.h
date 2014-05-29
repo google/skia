@@ -61,12 +61,19 @@ public:
     };
 
     struct GenProgramOutput {
+        GenProgramOutput()
+            : fColorEffects(NULL)
+            , fCoverageEffects(NULL)
+            , fHasVertexShader(false)
+            , fTexCoordSetCnt(0)
+            , fProgramID(0) {}
+
         GrGLProgramEffects* fColorEffects;
         GrGLProgramEffects* fCoverageEffects;
-        UniformHandles fUniformHandles;
-        bool fHasVS;
-        int fNumTexCoordSets;
-        GrGLuint fProgramID;
+        UniformHandles      fUniformHandles;
+        bool                fHasVertexShader;
+        int                 fTexCoordSetCnt;
+        GrGLuint            fProgramID;
     };
 
     static bool GenProgram(GrGpuGL* gpu,
@@ -159,8 +166,7 @@ public:
         uniform should be accessible. At least one bit must be set. Geometry shader uniforms are not
         supported at this time. The actual uniform name will be mangled. If outName is not NULL then
         it will refer to the final uniform name after return. Use the addUniformArray variant to add
-        an array of uniforms.
-    */
+        an array of uniforms. */
     GrGLUniformManager::UniformHandle addUniform(uint32_t visibility,
                                                  GrSLType type,
                                                  const char* name,
@@ -252,6 +258,10 @@ protected:
     void appendDecls(const VarArray&, SkString*) const;
     void appendUniformDecls(ShaderVisibility, SkString*) const;
 
+    const GenProgramOutput& getOutput() const { return fOutput; }
+
+    GenProgramOutput fOutput;
+
 private:
     class CodeStage : SkNoncopyable {
     public:
@@ -304,9 +314,7 @@ private:
         const GrEffectStage*    fEffectStage;
     } fCodeStage;
 
-    bool genProgram(const GrEffectStage* colorStages[],
-                    const GrEffectStage* coverageStages[],
-                    GenProgramOutput* output);
+    bool genProgram(const GrEffectStage* colorStages[], const GrEffectStage* coverageStages[]);
 
     /**
     * Adds code for effects and returns a GrGLProgramEffects* object. The caller is responsible for
@@ -327,7 +335,11 @@ private:
     /** Gets the name of the primary color output. */
     const char* getColorOutputName() const;
 
-    bool finish(GrGLuint* outProgramId);
+    /**
+     * Compiles all the shaders, links them into a program, and writes the program id to the output
+     * struct.
+     **/
+    bool finish();
 
     const GrGLSLExpr4& getInputColor() const {
         return fInputColor;
@@ -353,10 +365,10 @@ private:
 
     // Interpretation of DstReadKey when generating code
     enum {
-        kNoDstRead_DstReadKey         = 0,
-        kYesDstRead_DstReadKeyBit     = 0x1, // Set if we do a dst-copy-read.
-        kUseAlphaConfig_DstReadKeyBit = 0x2, // Set if dst-copy config is alpha only.
-        kTopLeftOrigin_DstReadKeyBit  = 0x4, // Set if dst-copy origin is top-left.
+        kNoDstRead_DstReadKey           = 0,
+        kYesDstRead_DstReadKeyBit       = 0x1, // Set if we do a dst-copy-read.
+        kUseAlphaConfig_DstReadKeyBit   = 0x2, // Set if dst-copy config is alpha only.
+        kTopLeftOrigin_DstReadKeyBit    = 0x4, // Set if dst-copy origin is top-left.
     };
 
     enum {
@@ -378,21 +390,13 @@ private:
     SkString                                fFSCode;
 
     bool                                    fSetupFragPosition;
-    GrGLUniformManager::UniformHandle       fDstCopySamplerUniform;
+    bool                                    fTopLeftFragPosRead;
 
     GrGLSLExpr4                             fInputColor;
     GrGLSLExpr4                             fInputCoverage;
 
     bool                                    fHasCustomColorOutput;
     bool                                    fHasSecondaryOutput;
-
-    GrGLUniformManager::UniformHandle       fRTHeightUniform;
-    GrGLUniformManager::UniformHandle       fDstCopyTopLeftUniform;
-    GrGLUniformManager::UniformHandle       fDstCopyScaleUniform;
-    GrGLUniformManager::UniformHandle       fColorUniform;
-    GrGLUniformManager::UniformHandle       fCoverageUniform;
-
-    bool                                    fTopLeftFragPosRead;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -443,17 +447,6 @@ public:
     bool addEffectAttribute(int attributeIndex, GrSLType type, const SkString& name);
     const SkString* getEffectAttributeName(int attributeIndex) const;
 
-    /**
-     * The view matrix uniform is only valid in the VS. It is always mat33.
-     */
-    GrGLUniformManager::UniformHandle getViewMatrixUniform() const {
-        return fViewMatrixUniform;
-    }
-
-    GrGLUniformManager::UniformHandle getRTAdjustmentVecUniform() const {
-        return fRTAdustmentVecUniform;
-    }
-
 private:
     virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
                                                      const EffectKey effectKeys[],
@@ -480,8 +473,6 @@ private:
     };
     SkSTArray<10, AttributePair, true>  fEffectAttributes;
 
-    GrGLUniformManager::UniformHandle   fViewMatrixUniform;
-    GrGLUniformManager::UniformHandle   fRTAdustmentVecUniform;
     GrGLShaderVar*                      fPositionVar;
     GrGLShaderVar*                      fLocalCoordsVar;
 
@@ -494,7 +485,6 @@ class GrGLFragmentOnlyShaderBuilder : public GrGLShaderBuilder {
 public:
     GrGLFragmentOnlyShaderBuilder(GrGpuGL*, GrGLUniformManager*, const GrGLProgramDesc&);
 
-    int getNumTexCoordSets() const { return fNumTexCoordSets; }
     int addTexCoordSets(int count);
 
 private:
@@ -503,8 +493,6 @@ private:
                                                      const EffectKey effectKeys[],
                                                      int effectCnt,
                                                      GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
-
-    int fNumTexCoordSets;
 
     typedef GrGLShaderBuilder INHERITED;
 };

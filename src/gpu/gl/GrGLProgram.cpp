@@ -48,8 +48,8 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
     , fGpu(gpu)
     , fUniformManager(SkRef(uman))
     , fUniformHandles(builderOutput.fUniformHandles)
-    , fHasVertexShader(builderOutput.fHasVS)
-    , fNumTexCoordSets(builderOutput.fNumTexCoordSets) {
+    , fHasVertexShader(builderOutput.fHasVertexShader)
+    , fTexCoordSetCnt(builderOutput.fTexCoordSetCnt) {
     this->initSamplerUniforms();
 }
 
@@ -151,7 +151,7 @@ void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
     // custom shaders, it's ignored, so we don't need to change the texgen
     // settings in that case.
     if (!fHasVertexShader) {
-        fGpu->flushPathTexGenSettings(fNumTexCoordSets);
+        fGpu->flushPathTexGenSettings(fTexCoordSetCnt);
     }
 }
 

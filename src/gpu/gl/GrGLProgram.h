@@ -203,7 +203,7 @@ private:
     GrGLShaderBuilder::UniformHandles   fUniformHandles;
 
     bool                                fHasVertexShader;
-    int                                 fNumTexCoordSets;
+    int                                 fTexCoordSetCnt;
 
     typedef SkRefCnt INHERITED;
 };
