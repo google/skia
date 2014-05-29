@@ -1,3 +1,10 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #ifndef SkLazyFnPtr_DEFINED
 #define SkLazyFnPtr_DEFINED
 
@@ -10,8 +17,8 @@
  *  static FooImpl choose_foo() { return ... };
  *
  *  int Foo(int a, int b) {
- *     SK_DECLARE_STATIC_LAZY_FN_PTR(FooImpl, choice);
- *     return choice.get(choose_foo)(a, b);
+ *     SK_DECLARE_STATIC_LAZY_FN_PTR(FooImpl, foo, choose_foo);
+ *     return foo.get()(a, b);
  *  }
  *
  *  You can think of SK_DECLARE_STATIC_LAZY_FN_PTR as a cheaper specialization of SkOnce.
@@ -19,7 +26,7 @@
  *
  *  This must be used in a global or function scope, not as a class member.
  */
-#define SK_DECLARE_STATIC_LAZY_FN_PTR(F, name) static Private::SkLazyFnPtr<F> name = { NULL }
+#define SK_DECLARE_STATIC_LAZY_FN_PTR(F, name, Choose) static Private::SkLazyFnPtr<F, Choose> name
 
 
 // Everything below here is private implementation details.  Don't touch, don't even look.
@@ -29,10 +36,11 @@
 
 namespace Private {
 
-// This has no constructor and is link-time initialized, so its members must be public.
-template <typename F>
-struct SkLazyFnPtr {
-    F get(F (*choose)()) {
+// This has no constructor and must be zero-initialized (the macro above does this).
+template <typename F, F (*Choose)()>
+class SkLazyFnPtr {
+public:
+    F get() {
         // First, try reading to see if it's already set.
         F fn = (F)SK_ANNOTATE_UNPROTECTED_READ(fPtr);
         if (fn != NULL) {
@@ -40,7 +48,7 @@ struct SkLazyFnPtr {
         }
 
         // We think it's not already set.
-        fn = choose();
+        fn = Choose();
 
         // No particular memory barriers needed; we're not guarding anything but the pointer itself.
         F prev = (F)sk_atomic_cas(&fPtr, NULL, (void*)fn);
@@ -50,6 +58,7 @@ struct SkLazyFnPtr {
         return prev != NULL ? prev : fn;
     }
 
+private:
     void* fPtr;
 };
 
