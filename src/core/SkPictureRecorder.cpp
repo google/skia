@@ -20,7 +20,7 @@ SkCanvas* SkPictureRecorder::beginRecording(int width, int height,
 }
 
 #ifdef SK_BUILD_FOR_ANDROID
-void SkPictureRecorder::partialReplay(SkCanvas* canvas) {
+void SkPictureRecorder::partialReplay(SkCanvas* canvas) const {
     if (NULL == fPicture.get() || NULL == canvas) {
         // Not recording or nothing to replay into
         return;
@@ -28,7 +28,7 @@ void SkPictureRecorder::partialReplay(SkCanvas* canvas) {
 
     SkASSERT(NULL != fPicture->fRecord);
 
-    SkAutoTDelete<SkPicturePlayback> playback(SkPicture::FakeEndRecording(fPicture,
+    SkAutoTDelete<SkPicturePlayback> playback(SkPicture::FakeEndRecording(fPicture.get(),
                                                                           *fPicture->fRecord,
                                                                           false));
     playback->draw(*canvas, NULL);

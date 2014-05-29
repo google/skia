@@ -105,7 +105,7 @@ private:
     */
     friend class AndroidPicture;
     friend class SkPictureRecorderReplayTester; // for unit testing
-    void partialReplay(SkCanvas* canvas);
+    void partialReplay(SkCanvas* canvas) const;
 #endif
 
     SkAutoTUnref<SkPicture>         fPicture;
