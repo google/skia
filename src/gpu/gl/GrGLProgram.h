@@ -103,19 +103,49 @@ public:
             fRenderTargetSize.fHeight = -1;
             fRenderTargetOrigin = (GrSurfaceOrigin) -1;
         }
+
+        /**
+         * Gets a matrix that goes from local coords to Skia's device coordinates.
+         */
         template<int Size> void getGLMatrix(GrGLfloat* destMatrix) {
+            GrGLGetMatrix<Size>(destMatrix, fViewMatrix);
+        }
+
+        /**
+         * Gets a matrix that goes from local coordinates to GL normalized device coords.
+         */
+        template<int Size> void getRTAdjustedGLMatrix(GrGLfloat* destMatrix) {
             SkMatrix combined;
             if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
                 combined.setAll(SkIntToScalar(2) / fRenderTargetSize.fWidth, 0, -SK_Scalar1,
                                 0, -SkIntToScalar(2) / fRenderTargetSize.fHeight, SK_Scalar1,
-                                0, 0, SkMatrix::I()[8]);
+                                0, 0, 1);
             } else {
                 combined.setAll(SkIntToScalar(2) / fRenderTargetSize.fWidth, 0, -SK_Scalar1,
                                 0, SkIntToScalar(2) / fRenderTargetSize.fHeight, -SK_Scalar1,
-                                0, 0, SkMatrix::I()[8]);
+                                0, 0, 1);
             }
             combined.preConcat(fViewMatrix);
             GrGLGetMatrix<Size>(destMatrix, combined);
+        }
+
+        /**
+         * Gets a vec4 that adjusts the position from Skia device coords to GL's normalized device
+         * coords. Assuming the transformed position, pos, is a homogeneous vec3, the vec, v, is
+         * applied as such:
+         * pos.x = dot(v.xy, pos.xz)
+         * pos.y = dot(v.zq, pos.yz)
+         */
+        void getRTAdjustmentVec(GrGLfloat* destVec) {
+            destVec[0] = 2.f / fRenderTargetSize.fWidth;
+            destVec[1] = -1.f;
+            if (kBottomLeft_GrSurfaceOrigin == fRenderTargetOrigin) {
+                destVec[2] = -2.f / fRenderTargetSize.fHeight;
+                destVec[3] = 1.f;
+            } else {
+                destVec[2] = 2.f / fRenderTargetSize.fHeight;
+                destVec[3] = -1.f;
+            }
         }
     };
 
@@ -137,6 +167,7 @@ private:
     // handles for uniforms (aside from per-effect samplers)
     struct UniformHandles {
         UniformHandle       fViewMatrixUni;
+        UniformHandle       fRTAdjustmentUni;
         UniformHandle       fColorUni;
         UniformHandle       fCoverageUni;
 

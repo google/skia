@@ -417,8 +417,15 @@ public:
                 int effectCnt,
                 GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
 
+    /**
+     * The view matrix uniform is only valid in the VS. It is always mat33.
+     */
     GrGLUniformManager::UniformHandle getViewMatrixUniform() const {
         return fViewMatrixUniform;
+    }
+
+    GrGLUniformManager::UniformHandle getRTAdjustmentVecUniform() const {
+        return fRTAdustmentVecUniform;
     }
 
 protected:
@@ -444,7 +451,7 @@ private:
     SkSTArray<10, AttributePair, true>  fEffectAttributes;
 
     GrGLUniformManager::UniformHandle   fViewMatrixUniform;
-
+    GrGLUniformManager::UniformHandle   fRTAdustmentVecUniform;
     GrGLShaderVar*                      fPositionVar;
     GrGLShaderVar*                      fLocalCoordsVar;
 

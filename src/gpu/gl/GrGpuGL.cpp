@@ -2233,7 +2233,7 @@ void GrGpuGL::setProjectionMatrix(const SkMatrix& matrix,
     fHWProjectionMatrixState.fRenderTargetOrigin = renderTargetOrigin;
 
     GrGLfloat glMatrix[4 * 4];
-    fHWProjectionMatrixState.getGLMatrix<4>(glMatrix);
+    fHWProjectionMatrixState.getRTAdjustedGLMatrix<4>(glMatrix);
     GL_CALL(MatrixLoadf(GR_GL_PROJECTION, glMatrix));
 }
 

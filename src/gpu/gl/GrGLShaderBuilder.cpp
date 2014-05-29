@@ -757,10 +757,18 @@ GrGLFullShaderBuilder::GrGLFullShaderBuilder(GrGpuGL* gpu,
     const char* viewMName;
     fViewMatrixUniform = this->addUniform(GrGLShaderBuilder::kVertex_Visibility,
                                           kMat33f_GrSLType, "ViewM", &viewMName);
+    const char* rtAdjustName;
+    fRTAdustmentVecUniform = this->addUniform(GrGLShaderBuilder::kVertex_Visibility,
+                                              kVec4f_GrSLType, "rtAdjustment", &rtAdjustName);
 
-    this->vsCodeAppendf("\tvec3 pos3 = %s * vec3(%s, 1);\n"
-                        "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n",
+    // Transform the position into Skia's device coords.
+    this->vsCodeAppendf("\tvec3 pos3 = %s * vec3(%s, 1);\n",
                         viewMName, fPositionVar->c_str());
+
+    // Transform from Skia's device coords to GL's normalized device coords.
+    this->vsCodeAppendf(
+        "\tgl_Position = vec4(dot(pos3.xz, %s.xy), dot(pos3.yz, %s.zw), 0, pos3.z);\n",
+        rtAdjustName, rtAdjustName);
 
     // we output point size in the GS if present
     if (header.fEmitsPointSize

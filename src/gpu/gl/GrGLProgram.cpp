@@ -52,6 +52,7 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
         GrGLFullShaderBuilder fullBuilder(fGpu, fUniformManager, fDesc);
         if (this->genProgram(&fullBuilder, colorStages, coverageStages)) {
             fUniformHandles.fViewMatrixUni = fullBuilder.getViewMatrixUniform();
+            fUniformHandles.fRTAdjustmentUni = fullBuilder.getRTAdjustmentVecUniform();
             fHasVertexShader = true;
         }
     } else {
@@ -329,6 +330,7 @@ void GrGLProgram::setMatrixAndRenderTargetHeight(const GrDrawState& drawState) {
 
     if (!fHasVertexShader) {
         SkASSERT(!fUniformHandles.fViewMatrixUni.isValid());
+        SkASSERT(!fUniformHandles.fRTAdjustmentUni.isValid());
         fGpu->setProjectionMatrix(drawState.getViewMatrix(), size, rt->origin());
     } else if (fMatrixState.fRenderTargetOrigin != rt->origin() ||
                fMatrixState.fRenderTargetSize != size ||
@@ -342,5 +344,9 @@ void GrGLProgram::setMatrixAndRenderTargetHeight(const GrDrawState& drawState) {
         GrGLfloat viewMatrix[3 * 3];
         fMatrixState.getGLMatrix<3>(viewMatrix);
         fUniformManager.setMatrix3f(fUniformHandles.fViewMatrixUni, viewMatrix);
+
+        GrGLfloat rtAdjustmentVec[4];
+        fMatrixState.getRTAdjustmentVec(rtAdjustmentVec);
+        fUniformManager.set4fv(fUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
     }
 }
