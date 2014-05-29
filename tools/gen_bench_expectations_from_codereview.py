@@ -23,6 +23,10 @@ CHECKOUT_PATH = os.path.realpath(os.path.join(
 TMP_BENCH_DATA_DIR = os.path.join(CHECKOUT_PATH, '.bench_data')
 
 
+TryBuild = collections.namedtuple(
+    'TryBuild', ['builder_name', 'build_number', 'is_finished'])
+
+
 def find_all_builds(codereview_url):
   """Finds and returns information about trybot runs for a code review.
 
@@ -33,15 +37,40 @@ def find_all_builds(codereview_url):
       List of NamedTuples: (builder_name, build_number, is_finished)
   """
   results = compare_codereview.CodeReviewHTMLParser().parse(codereview_url)
-  TryBuild = collections.namedtuple(
-      'TryBuild', ['builder_name', 'build_number', 'is_finished'])
   try_builds = []
-
   for builder, data in results.iteritems():
     if builder.startswith('Perf'):
-      try_builds.append(TryBuild(builder, data.url.split('/')[-1],
+      build_num = data.url.split('/')[-1] if data.url else None
+      try_builds.append(TryBuild(builder, build_num,
                                  data.status != 'pending'))
   return try_builds
+
+
+def _all_trybots_finished(try_builds):
+  """Return True iff all of the given try jobs have finished.
+
+  Args:
+      try_builds: list of TryBuild instances.
+
+  Returns:
+      True if all of the given try jobs have finished, otherwise False.
+  """
+  for try_build in try_builds:
+    if not try_build.is_finished:
+      return False
+  return True
+
+
+def all_trybots_finished(codereview_url):
+  """Return True iff all of the try jobs on the given codereview have finished.
+
+  Args:
+      codereview_url: string; URL of the codereview.
+
+  Returns:
+      True if all of the try jobs have finished, otherwise False.
+  """
+  return _all_trybots_finished(find_all_builds(codereview_url))
 
 
 def get_bench_data(builder, build_num, dest_dir):
@@ -94,12 +123,9 @@ def gen_bench_expectations_from_codereview(codereview_url,
   try_builds = find_all_builds(codereview_url)
 
   # Verify that all trybots have finished running.
-  if error_on_unfinished:
-    for try_build in try_builds:
-      if not try_build.is_finished:
-        raise TrybotNotFinishedError('%s: #%s is not finished.' % (
-                                         try_build.builder_name,
-                                         try_build.build_number))
+  if error_on_unfinished and not _all_trybots_finished(try_builds):
+    raise TrybotNotFinishedError('Not all trybots have finished.')
+
   failed_data_pull = []
   failed_gen_expectations = []
 
