@@ -12,6 +12,16 @@
 #include "SkString.h"
 #include "SkTemplates.h"
 
+#ifdef SK_BUILD_FOR_WIN
+    #pragma warning(push)
+    #pragma warning(disable : 4530)
+#endif
+
+#include "SkJSONCPP.h"
+
+#ifdef SK_BUILD_FOR_WIN
+    #pragma warning(pop)
+#endif
 
 class BenchTimer;
 
@@ -58,6 +68,11 @@ public:
                        const char* configName,
                        uint32_t timerFlags,
                        int itersPerTiming = 1);
+#ifdef SK_BUILD_JSON_WRITER
+    Json::Value getJSON(uint32_t timerFlags, 
+                        Result result,
+                        int itersPerTiming = 1);
+#endif // SK_BUILD_JSON_WRITER
 
 private:
     int fMaxNumTimings;
