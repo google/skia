@@ -16427,6 +16427,10 @@
           12366755253801250205
         ]
       ], 
+      "bugs": [
+        2619
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "shadertext2_nvprmsaa4.png": {

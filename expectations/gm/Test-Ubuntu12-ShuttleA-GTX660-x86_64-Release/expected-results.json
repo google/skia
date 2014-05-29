@@ -16618,6 +16618,10 @@
           4702027525692342270
         ]
       ], 
+      "bugs": [
+        2619
+      ], 
+      "ignore-failure": true, 
       "reviewed-by-human": true
     }, 
     "shadertext2_pdf-poppler.png": {
