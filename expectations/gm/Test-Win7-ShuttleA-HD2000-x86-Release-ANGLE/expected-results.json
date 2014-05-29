@@ -13057,10 +13057,11 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          5922756940107787910
+          15734966135864889540
         ]
       ], 
-      "ignore-failure": false
+      "ignore-failure": false, 
+      "reviewed-by-human": true
     }, 
     "shadertext_gpu.png": {
       "allowed-digests": [

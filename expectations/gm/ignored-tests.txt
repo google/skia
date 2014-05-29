@@ -75,10 +75,4 @@ scaled_tilemodes
 tilemode_bitmap
 tilemodes_npot
 tilemodes
-shadertext
-
-# Changing this GM to add more test cases (failing at the moment)
-# Need to rebaseline when they are fixed
-# Failed to get 2 "actuals" -- need to try again
-stroketext
 

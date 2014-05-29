@@ -5370,21 +5370,21 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11563767619941403900
+          8042695526022881321
         ]
       ], 
       "ignore-failure": false, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          18432228934046407527
+          5658275435793534827
         ]
       ], 
       "ignore-failure": false, 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadows_565.png": {
       "allowed-digests": [

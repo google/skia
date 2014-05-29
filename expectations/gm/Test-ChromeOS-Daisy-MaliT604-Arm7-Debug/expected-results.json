@@ -5617,25 +5617,19 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          11478704119936633842
+          16854659843522686561
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadertext_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          3712580628051695056
+          10095764636848439150
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadows_565.png": {
       "allowed-digests": [

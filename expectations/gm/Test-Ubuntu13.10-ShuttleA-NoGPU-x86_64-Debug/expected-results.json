@@ -9171,7 +9171,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17431344735761767741
+          1800000102265782105
         ]
       ], 
       "ignore-failure": false, 
@@ -9181,7 +9181,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17478733822145003510
+          12281091565078967987
         ]
       ], 
       "ignore-failure": false, 
@@ -9200,13 +9200,10 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          6672399658450758510
+          5033402855732189708
         ]
       ], 
-      "bugs": [
-        1578
-      ], 
-      "reviewed-by-human": false
+      "reviewed-by-human": true
     }, 
     "shadows_565.png": {
       "allowed-digests": [
