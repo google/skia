@@ -48,6 +48,8 @@
 
         'skia_android_framework%': 0,
         'skia_arch_type%': 'x86',
+        'arm_version%': 0,
+        'arm_neon%': 0,
       },
 
       # Re-define all variables defined within the level-3 'variables' dict,
@@ -55,6 +57,8 @@
       # (skia_os will depend on skia_android_framework.)
       'skia_android_framework%': '<(skia_android_framework)',
       'skia_arch_type%': '<(skia_arch_type)',
+      'arm_version%': '<(arm_version)',
+      'arm_neon%': '<(arm_neon)',
 
       'conditions': [
         [ 'skia_android_framework == 1', {
@@ -92,10 +96,6 @@
           'skia_arch_type%': 'arm',
           'arm_version%': 7,
           'arm_neon%': 0, # neon asm files known not to work with the ios build
-        },{ # skia_os is not ios
-          'skia_arch_type%': 'x86',
-          'arm_version%': 0,
-          'arm_neon%': 0,
         }],
         [ 'skia_os in ["android", "nacl"] and not skia_android_framework',
           # skia_freetype_static - on OS variants that normally would
