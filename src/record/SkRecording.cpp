@@ -25,7 +25,7 @@ void SkPlayback::draw(SkCanvas* canvas) const {
 
 SkRecording::SkRecording(int width, int height)
     : fRecord(SkNEW(SkRecord))
-    , fRecorder(SkNEW_ARGS(SkRecorder, (SkRecorder::kReadWrite_Mode, fRecord.get(), width, height)))
+    , fRecorder(SkNEW_ARGS(SkRecorder, (fRecord.get(), width, height)))
     {}
 
 SkPlayback* SkRecording::releasePlayback() {

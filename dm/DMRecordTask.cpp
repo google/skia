@@ -30,8 +30,7 @@ RecordTask::RecordTask(const Task& parent, SkPicture* pic, SkBitmap reference, M
 void RecordTask::draw() {
     // Record into an SkRecord.
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record,
-                        fReference.width(), fReference.height());
+    SkRecorder recorder(&record, fReference.width(), fReference.height());
 
     if (fGM.get()) {
         recorder.concat(fGM->getInitialTransform());

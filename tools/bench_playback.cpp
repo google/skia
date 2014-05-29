@@ -12,9 +12,7 @@
 #include "SkOSFile.h"
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
-#include "SkRecordDraw.h"
-#include "SkRecordOpts.h"
-#include "SkRecorder.h"
+#include "SkRecording.h"
 #include "SkStream.h"
 #include "SkString.h"
 
@@ -33,14 +31,28 @@ static double scale_time(double ms) {
     return ms;
 }
 
-static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
-    // We don't use the public SkRecording interface here because we need kWriteOnly_Mode.
-    // (We don't want SkPicturePlayback to be able to optimize playing into our SkRecord.)
-    SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, src.width(), src.height());
-    src.draw(&recorder);
+static SkPicture* rerecord_with_tilegrid(SkPicture& src) {
+    SkTileGridFactory::TileGridInfo info;
+    info.fTileInterval.set(FLAGS_tile, FLAGS_tile);
+    info.fMargin.setEmpty();
+    info.fOffset.setZero();
+    SkTileGridFactory factory(info);
 
-    SkRecordOptimize(&record);
+    SkPictureRecorder recorder;
+    src.draw(recorder.beginRecording(src.width(), src.height(), &factory,
+                                     SkPicture::kUsePathBoundsForClip_RecordingFlag));
+    return recorder.endRecording();
+}
+
+static EXPERIMENTAL::SkPlayback* rerecord_with_skr(SkPicture& src) {
+    EXPERIMENTAL::SkRecording recording(src.width(), src.height());
+    src.draw(recording.canvas());
+    return recording.releasePlayback();
+}
+
+static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
+    SkAutoTUnref<SkPicture> picture(rerecord_with_tilegrid(src));
+    SkAutoTDelete<EXPERIMENTAL::SkPlayback> record(rerecord_with_skr(src));
 
     SkAutoTDelete<SkCanvas> canvas(SkCanvas::NewRasterDirectN32(src.width(),
                                                                 src.height(),
@@ -52,9 +64,9 @@ static void bench(SkPMColor* scratch, SkPicture& src, const char* name) {
     timer.start();
     for (int i = 0; i < FLAGS_loops; i++) {
         if (FLAGS_skr) {
-            SkRecordDraw(record, canvas.get());
+            record->draw(canvas.get());
         } else {
-            src.draw(canvas.get());
+            picture->draw(canvas.get());
         }
     }
     timer.end();
@@ -102,21 +114,7 @@ int tool_main(int argc, char** argv) {
             continue;
         }
 
-        // Rerecord into a picture using a tile grid.
-        SkTileGridFactory::TileGridInfo info;
-        info.fTileInterval.set(FLAGS_tile, FLAGS_tile);
-        info.fMargin.setEmpty();
-        info.fOffset.setZero();
-        SkTileGridFactory factory(info);
-
-        SkPictureRecorder recorder;
-        SkCanvas* canvas = recorder.beginRecording(src->width(), src->height(),
-                                                   &factory,
-                                                   SkPicture::kUsePathBoundsForClip_RecordingFlag);
-        src->draw(canvas);
-        SkAutoTUnref<SkPicture> replay(recorder.endRecording());
-
-        bench(scratch.get(), *replay, filename.c_str());
+        bench(scratch.get(), *src, filename.c_str());
     }
     return failed ? 1 : 0;
 }

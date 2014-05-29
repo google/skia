@@ -18,7 +18,7 @@ static const int W = 1920, H = 1080;
 
 DEF_TEST(RecordOpts_Culling, r) {
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+    SkRecorder recorder(&record, W, H);
 
     recorder.drawRect(SkRect::MakeWH(1000, 10000), SkPaint());
 
@@ -38,7 +38,7 @@ DEF_TEST(RecordOpts_Culling, r) {
 
 DEF_TEST(RecordOpts_NoopCulls, r) {
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+    SkRecorder recorder(&record, W, H);
 
     // All should be nooped.
     recorder.pushCull(SkRect::MakeWH(200, 200));
@@ -77,7 +77,7 @@ static void draw_pos_text(SkCanvas* canvas, const char* text, bool constantY) {
 
 DEF_TEST(RecordOpts_StrengthReduction, r) {
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+    SkRecorder recorder(&record, W, H);
 
     // We can convert a drawPosText into a drawPosTextH when all the Ys are the same.
     draw_pos_text(&recorder, "This will be reduced to drawPosTextH.", true);
@@ -91,7 +91,7 @@ DEF_TEST(RecordOpts_StrengthReduction, r) {
 
 DEF_TEST(RecordOpts_TextBounding, r) {
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+    SkRecorder recorder(&record, W, H);
 
     // First, get a drawPosTextH.  Here's a handy way.  Its text size will be the default (12).
     draw_pos_text(&recorder, "This will be reduced to drawPosTextH.", true);
@@ -114,7 +114,7 @@ DEF_TEST(RecordOpts_TextBounding, r) {
 
 DEF_TEST(RecordOpts_NoopDrawSaveRestore, r) {
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+    SkRecorder recorder(&record, W, H);
 
     // The save and restore are pointless if there's only draw commands in the middle.
     recorder.save();
@@ -136,7 +136,7 @@ DEF_TEST(RecordOpts_NoopDrawSaveRestore, r) {
 
 DEF_TEST(RecordOpts_SingleNoopSaveRestore, r) {
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+    SkRecorder recorder(&record, W, H);
 
     recorder.save();
         recorder.clipRect(SkRect::MakeWH(200, 200));
@@ -150,7 +150,7 @@ DEF_TEST(RecordOpts_SingleNoopSaveRestore, r) {
 
 DEF_TEST(RecordOpts_NoopSaveRestores, r) {
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+    SkRecorder recorder(&record, W, H);
 
     // The second pass will clean up this pair after the first pass noops all the innards.
     recorder.save();
@@ -187,7 +187,7 @@ static void assert_savelayer_restore(skiatest::Reporter* r,
 
 DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+    SkRecorder recorder(&record, W, H);
 
     SkRect bounds = SkRect::MakeWH(100, 200);
     SkRect   draw = SkRect::MakeWH(50, 60);

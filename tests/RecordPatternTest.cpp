@@ -17,7 +17,7 @@ DEF_TEST(RecordPattern_Simple, r) {
     SkRecord record;
     REPORTER_ASSERT(r, !pattern.match(&record, 0));
 
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1200);
+    SkRecorder recorder(&record, 1920, 1200);
 
     // Build up a save-clip-restore block.  The pattern will match only it's complete.
     recorder.save();
@@ -37,7 +37,7 @@ DEF_TEST(RecordPattern_StartingIndex, r) {
     SaveClipRectRestore pattern;
 
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1200);
+    SkRecorder recorder(&record, 1920, 1200);
 
     // There will be two save-clipRect-restore blocks [0,3) and [3,6).
     for (int i = 0; i < 2; i++) {
@@ -60,7 +60,7 @@ DEF_TEST(RecordPattern_DontMatchSubsequences, r) {
     SaveClipRectRestore pattern;
 
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1200);
+    SkRecorder recorder(&record, 1920, 1200);
 
     recorder.save();
         recorder.clipRect(SkRect::MakeWH(300, 200));
@@ -74,7 +74,7 @@ DEF_TEST(RecordPattern_Star, r) {
     Pattern3<Is<Save>, Star<Is<ClipRect> >, Is<Restore> > pattern;
 
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1200);
+    SkRecorder recorder(&record, 1920, 1200);
 
     recorder.save();
     recorder.restore();
@@ -96,7 +96,7 @@ DEF_TEST(RecordPattern_IsDraw, r) {
     Pattern3<Is<Save>, IsDraw, Is<Restore> > pattern;
 
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1200);
+    SkRecorder recorder(&record, 1920, 1200);
 
     recorder.save();
         recorder.clipRect(SkRect::MakeWH(300, 200));
@@ -135,7 +135,7 @@ DEF_TEST(RecordPattern_Complex, r) {
              Is<Restore> > pattern;
 
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1200);
+    SkRecorder recorder(&record, 1920, 1200);
 
     recorder.save();
     recorder.restore();
@@ -192,7 +192,7 @@ DEF_TEST(RecordPattern_SaveLayerIsNotADraw, r) {
     Pattern1<IsDraw> pattern;
 
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1200);
+    SkRecorder recorder(&record, 1920, 1200);
     recorder.saveLayer(NULL, NULL);
 
     REPORTER_ASSERT(r, !pattern.match(&record, 0));

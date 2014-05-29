@@ -40,7 +40,7 @@ private:
 
 DEF_TEST(Recorder, r) {
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1080);
+    SkRecorder recorder(&record, 1920, 1080);
 
     recorder.drawRect(SkRect::MakeWH(10, 10), SkPaint());
 
@@ -62,7 +62,7 @@ DEF_TEST(Recorder_RefLeaking, r) {
     REPORTER_ASSERT(r, paint.getShader()->unique());
     {
         SkRecord record;
-        SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, 1920, 1080);
+        SkRecorder recorder(&record, 1920, 1080);
         recorder.saveLayer(&bounds, &paint);
         REPORTER_ASSERT(r, !paint.getShader()->unique());
     }

@@ -29,14 +29,14 @@ static void draw_pos_text_h(SkCanvas* canvas, const char* text, SkScalar y) {
 // Rerecord into another SkRecord using full SkCanvas semantics,
 // tracking clips and allowing SkRecordDraw's quickReject() calls to work.
 static void record_clipped(const SkRecord& record, SkRect clip, SkRecord* clipped) {
-    SkRecorder recorder(SkRecorder::kReadWrite_Mode, clipped, W, H);
+    SkRecorder recorder(clipped, W, H);
     recorder.clipRect(clip);
     SkRecordDraw(record, &recorder);
 }
 
 DEF_TEST(RecordDraw_PosTextHQuickReject, r) {
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+    SkRecorder recorder(&record, W, H);
 
     draw_pos_text_h(&recorder, "This will draw.", 20);
     draw_pos_text_h(&recorder, "This won't.", 5000);
@@ -53,7 +53,7 @@ DEF_TEST(RecordDraw_PosTextHQuickReject, r) {
 DEF_TEST(RecordDraw_Culling, r) {
     // Record these 7 drawing commands verbatim.
     SkRecord record;
-    SkRecorder recorder(SkRecorder::kWriteOnly_Mode, &record, W, H);
+    SkRecorder recorder(&record, W, H);
 
     recorder.pushCull(SkRect::MakeWH(100, 100));
         recorder.drawRect(SkRect::MakeWH(10, 10), SkPaint());
@@ -78,14 +78,14 @@ DEF_TEST(RecordDraw_Culling, r) {
 DEF_TEST(RecordDraw_SetMatrixClobber, r) {
     // Set up an SkRecord that just scales by 2x,3x.
     SkRecord scaleRecord;
-    SkRecorder scaleCanvas(SkRecorder::kReadWrite_Mode, &scaleRecord, W, H);
+    SkRecorder scaleCanvas(&scaleRecord, W, H);
     SkMatrix scale;
     scale.setScale(2, 3);
     scaleCanvas.setMatrix(scale);
 
     // Set up an SkRecord with an initial +20, +20 translate.
     SkRecord translateRecord;
-    SkRecorder translateCanvas(SkRecorder::kReadWrite_Mode, &translateRecord, W, H);
+    SkRecorder translateCanvas(&translateRecord, W, H);
     SkMatrix translate;
     translate.setTranslate(20, 20);
     translateCanvas.setMatrix(translate);

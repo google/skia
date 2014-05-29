@@ -16,17 +16,8 @@
 
 class SkRecorder : public SkCanvas {
 public:
-    // SkRecorder can work in two modes:
-    //   write-only: only a core subset of SkCanvas operations (save/restore, clip, transform, draw)
-    //   are supported, and all of the readback methods on SkCanvas will probably fail or lie.
-    //
-    //   read-write: all methods should behave with similar semantics to SkCanvas.
-    //
-    // Write-only averages 10-20% faster, but you can't sensibly inspect the canvas while recording.
-    enum Mode { kWriteOnly_Mode, kReadWrite_Mode };
-
     // Does not take ownership of the SkRecord.
-    SkRecorder(Mode mode, SkRecord*, int width, int height);
+    SkRecorder(SkRecord*, int width, int height);
 
     // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
     void forgetRecord();
@@ -114,7 +105,6 @@ private:
     template <typename T>
     T* copy(const T[], unsigned count);
 
-    const Mode fMode;
     SkRecord* fRecord;
 };
 

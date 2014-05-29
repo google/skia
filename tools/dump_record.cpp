@@ -60,9 +60,8 @@ int tool_main(int argc, char** argv) {
         const int w = src->width(), h = src->height();
 
         SkRecord record;
-        SkRecorder canvas(SkRecorder::kWriteOnly_Mode, &record, w, h);
+        SkRecorder canvas(&record, w, h);
         src->draw(&canvas);
-
 
         if (FLAGS_optimize) {
             SkRecordOptimize(&record);

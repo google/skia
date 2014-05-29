@@ -9,8 +9,8 @@
 #include "SkPicture.h"
 
 // SkCanvas will fail in mysterious ways if it doesn't know the real width and height.
-SkRecorder::SkRecorder(SkRecorder::Mode mode, SkRecord* record, int width, int height)
-    : SkCanvas(width, height), fMode(mode), fRecord(record) {}
+SkRecorder::SkRecorder(SkRecord* record, int width, int height)
+    : SkCanvas(width, height), fRecord(record) {}
 
 void SkRecorder::forgetRecord() {
     fRecord = NULL;
@@ -20,8 +20,8 @@ void SkRecorder::forgetRecord() {
 #define APPEND(T, ...) \
         SkNEW_PLACEMENT_ARGS(fRecord->append<SkRecords::T>(), SkRecords::T, (__VA_ARGS__))
 
-// For methods which must call back into SkCanvas in kReadWrite_Mode.
-#define INHERITED(method, ...) if (fMode == kReadWrite_Mode) this->SkCanvas::method(__VA_ARGS__)
+// For methods which must call back into SkCanvas.
+#define INHERITED(method, ...) this->SkCanvas::method(__VA_ARGS__)
 
 // The structs we're creating all copy their constructor arguments.  Given the way the SkRecords
 // framework works, sometimes they happen to technically be copied twice, which is fine and elided
