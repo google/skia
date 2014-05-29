@@ -94,8 +94,9 @@ SkImage_Raster::SkImage_Raster(const Info& info, SkData* data, size_t rowBytes)
 {
     data->ref();
     void* addr = const_cast<void*>(data->data());
+    SkColorTable* ctable = NULL;
 
-    fBitmap.installPixels(info, addr, rowBytes, release_data, data);
+    fBitmap.installPixels(info, addr, rowBytes, ctable, release_data, data);
     fBitmap.setImmutable();
     fBitmap.lockPixels();
 }

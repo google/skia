@@ -242,7 +242,7 @@ static bool draw_rects_into_mask(const SkRect rects[], int count, SkMask* mask) 
                                            mask->fBounds.height(),
                                            kAlpha_8_SkColorType,
                                            kPremul_SkAlphaType),
-                         mask->fImage, mask->fRowBytes, NULL, NULL);
+                         mask->fImage, mask->fRowBytes);
 
     SkCanvas canvas(bitmap);
     canvas.translate(-SkIntToScalar(mask->fBounds.left()),

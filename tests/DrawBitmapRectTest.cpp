@@ -22,20 +22,16 @@ class FailureImageGenerator : public SkImageGenerator {
 public:
     FailureImageGenerator() { }
     virtual ~FailureImageGenerator() { }
-    virtual bool getInfo(SkImageInfo* info) SK_OVERRIDE {
+    
+protected:
+    virtual bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
         info->fWidth = 100;
         info->fHeight = 100;
         info->fColorType = kN32_SkColorType;
         info->fAlphaType = kPremul_SkAlphaType;
         return true;
     }
-    virtual bool getPixels(const SkImageInfo& info,
-                           void* pixels,
-                           size_t rowBytes) SK_OVERRIDE {
-        // this will deliberately return false if they are asking us
-        // to decode into pixels.
-        return false;
-    }
+    // default onGetPixels() returns false, which is what we want.
 };
 
 // crbug.com/295895

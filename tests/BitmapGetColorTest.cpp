@@ -37,7 +37,7 @@ DEF_TEST(GetColor, reporter) {
                                              kPremul_SkAlphaType);
         SkBitmap bm;
         uint32_t storage[4];
-        bm.installPixels(info, storage, info.minRowBytes(), NULL, NULL);
+        bm.installPixels(info, storage, info.minRowBytes());
 
         bm.eraseColor(initColor);
         bm.eraseArea(area, gRec[i].fInColor);

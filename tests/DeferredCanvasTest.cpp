@@ -40,7 +40,7 @@ static SkSurface* createSurface(SkColor color) {
 static SkPMColor read_pixel(SkSurface* surface, int x, int y) {
     SkPMColor pixel = 0;
     SkBitmap bitmap;
-    bitmap.installPixels(SkImageInfo::MakeN32Premul(1, 1), &pixel, 4, NULL, NULL);
+    bitmap.installPixels(SkImageInfo::MakeN32Premul(1, 1), &pixel, 4);
     SkCanvas canvas(bitmap);
 
     SkPaint paint;

@@ -442,16 +442,14 @@ bool SkBitmap::allocPixels(const SkImageInfo& info, SkPixelRefFactory* factory,
     return true;
 }
 
-bool SkBitmap::installPixels(const SkImageInfo& info, void* pixels, size_t rb,
-                             void (*releaseProc)(void* addr, void* context),
-                             void* context) {
+bool SkBitmap::installPixels(const SkImageInfo& info, void* pixels, size_t rb, SkColorTable* ct,
+                             void (*releaseProc)(void* addr, void* context), void* context) {
     if (!this->setConfig(info, rb)) {
         this->reset();
         return false;
     }
 
-    SkPixelRef* pr = SkMallocPixelRef::NewWithProc(info, rb, NULL, pixels,
-                                                   releaseProc, context);
+    SkPixelRef* pr = SkMallocPixelRef::NewWithProc(info, rb, ct, pixels, releaseProc, context);
     if (!pr) {
         this->reset();
         return false;

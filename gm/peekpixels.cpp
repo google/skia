@@ -46,8 +46,7 @@ protected:
                 SkImageInfo info;
                 size_t rowBytes;
                 const void* addr = surfCanvas->peekPixels(&info, &rowBytes);
-                if (addr && bitmap.installPixels(info, const_cast<void*>(addr),
-                                                 rowBytes, NULL, NULL)) {
+                if (addr && bitmap.installPixels(info, const_cast<void*>(addr), rowBytes)) {
                     canvas->drawBitmap(bitmap, 0, 0, NULL);
                 }
             }

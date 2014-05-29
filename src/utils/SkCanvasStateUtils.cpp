@@ -291,8 +291,7 @@ static SkCanvas* create_canvas_from_canvas_layer(const SkCanvasLayerState& layer
 
     bitmap.installPixels(SkImageInfo::Make(layerState.width, layerState.height,
                                            colorType, kPremul_SkAlphaType),
-                         layerState.raster.pixels, layerState.raster.rowBytes,
-                         NULL, NULL);
+                         layerState.raster.pixels, layerState.raster.rowBytes);
 
     SkASSERT(!bitmap.empty());
     SkASSERT(!bitmap.isNull());

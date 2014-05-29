@@ -1114,8 +1114,7 @@ SkAutoROCanvasPixels::SkAutoROCanvasPixels(SkCanvas* canvas) {
 
 bool SkAutoROCanvasPixels::asROBitmap(SkBitmap* bitmap) const {
     if (fAddr) {
-        return bitmap->installPixels(fInfo, const_cast<void*>(fAddr), fRowBytes,
-                                     NULL, NULL);
+        return bitmap->installPixels(fInfo, const_cast<void*>(fAddr), fRowBytes);
     } else {
         bitmap->reset();
         return false;

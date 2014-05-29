@@ -75,9 +75,8 @@ public:
     const static int W = 64;
     const static int H = 64;
     XfermodesBlurView() {
-        fBG.installPixels(SkImageInfo::Make(2, 2, kARGB_4444_SkColorType,
-                                            kPremul_SkAlphaType),
-                          gBG, 4, NULL, NULL);
+        fBG.installPixels(SkImageInfo::Make(2, 2, kARGB_4444_SkColorType, kPremul_SkAlphaType),
+                          gBG, 4);
     }
 
 protected:

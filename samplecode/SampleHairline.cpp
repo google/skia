@@ -230,8 +230,7 @@ protected:
         bm.eraseColor(SK_ColorTRANSPARENT);
 
         bm2.installPixels(SkImageInfo::MakeN32Premul(WIDTH, HEIGHT),
-                          bm.getAddr32(MARGIN, MARGIN), bm.rowBytes(),
-                          NULL, NULL);
+                          bm.getAddr32(MARGIN, MARGIN), bm.rowBytes());
 
         SkCanvas c2(bm2);
         SkPaint paint;

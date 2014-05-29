@@ -15,8 +15,7 @@
 static void test_big_aa_rect(skiatest::Reporter* reporter) {
     SkBitmap output;
     SkPMColor pixel[1];
-    output.installPixels(SkImageInfo::MakeN32Premul(1, 1),
-                         pixel, 4, NULL, NULL);
+    output.installPixels(SkImageInfo::MakeN32Premul(1, 1), pixel, 4);
 
     SkSurface* surf = SkSurface::NewRasterPMColor(300, 33300);
     SkCanvas* canvas = surf->getCanvas();

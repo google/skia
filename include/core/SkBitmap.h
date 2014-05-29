@@ -313,13 +313,20 @@ public:
     /**
      *  Install a pixelref that wraps the specified pixels and rowBytes, and
      *  optional ReleaseProc and context. When the pixels are no longer
-     *  referenced, if ReleaseProc is not null, it will be called with the
+     *  referenced, if releaseProc is not null, it will be called with the
      *  pixels and context as parameters.
      *  On failure, the bitmap will be set to empty and return false.
      */
-    bool installPixels(const SkImageInfo&, void* pixels, size_t rowBytes,
-                       void (*ReleaseProc)(void* addr, void* context),
-                       void* context);
+    bool installPixels(const SkImageInfo&, void* pixels, size_t rowBytes, SkColorTable*,
+                       void (*releaseProc)(void* addr, void* context), void* context);
+
+#ifdef SK_SUPPORT_LEGACY_INSTALLPIXELSPARAMS
+    bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes,
+                       void (*releaseProc)(void* addr, void* context),
+                       void* context) {
+        return this->installPixels(info, pixels, rowBytes, NULL, releaseProc, context);
+    }
+#endif
 
     /**
      *  Call installPixels with no ReleaseProc specified. This means that the
@@ -327,7 +334,7 @@ public:
      *  of the created bitmap (and its pixelRef).
      */
     bool installPixels(const SkImageInfo& info, void* pixels, size_t rowBytes) {
-        return this->installPixels(info, pixels, rowBytes, NULL, NULL);
+        return this->installPixels(info, pixels, rowBytes, NULL, NULL, NULL);
     }
 
     /**

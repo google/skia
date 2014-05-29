@@ -76,7 +76,7 @@ static void copyToMask(const SkRegion& rgn, SkMask* mask) {
                                          kAlpha_8_SkColorType,
                                          kPremul_SkAlphaType);
     SkBitmap bitmap;
-    bitmap.installPixels(info, mask->fImage, mask->fRowBytes, NULL, NULL);
+    bitmap.installPixels(info, mask->fImage, mask->fRowBytes);
 
     // canvas expects its coordinate system to always be 0,0 in the top/left
     // so we translate the rgn to match that before drawing into the mask.

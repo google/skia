@@ -101,7 +101,7 @@ static SkImage* createImage(ImageType imageType, GrContext* context,
             return NULL;        // TODO
         case kCodec_ImageType: {
             SkBitmap bitmap;
-            bitmap.installPixels(info, addr, rowBytes, NULL, NULL);
+            bitmap.installPixels(info, addr, rowBytes);
             SkAutoTUnref<SkData> src(
                  SkImageEncoder::EncodeData(bitmap, SkImageEncoder::kPNG_Type,
                                             100));
