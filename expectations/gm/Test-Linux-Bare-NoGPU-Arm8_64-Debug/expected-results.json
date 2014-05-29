@@ -5799,18 +5799,20 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17592292995537725992
+          11724619719370678146
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "stroketext_8888.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17247957969208541798
+          11559858618240438449
         ]
       ], 
+      "ignore-failure": true, 
       "reviewed-by-human": false
     }, 
     "tablecolorfilter_565.png": {
