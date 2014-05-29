@@ -147,7 +147,7 @@ bool SkBitmapProcState::possiblyScaleImage() {
 
     if (SkPaint::kHigh_FilterLevel == fFilterLevel &&
         fInvMatrix.getType() <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask) &&
-        fOrigBitmap.config() == SkBitmap::kARGB_8888_Config) {
+        kN32_SkColorType == fOrigBitmap.colorType()) {
 
         SkScalar invScaleX = fInvMatrix.getScaleX();
         SkScalar invScaleY = fInvMatrix.getScaleY();
@@ -285,10 +285,10 @@ bool SkBitmapProcState::possiblyScaleImage() {
                 SkScalar invScaleFixup = level.fScale;
                 fInvMatrix.postScale(invScaleFixup, invScaleFixup);
 
-                fScaledBitmap.setConfig(fOrigBitmap.config(),
-                                        level.fWidth, level.fHeight,
-                                        level.fRowBytes);
-                fScaledBitmap.setPixels(level.fPixels);
+                SkImageInfo info = fOrigBitmap.info();
+                info.fWidth = level.fWidth;
+                info.fHeight = level.fHeight;
+                fScaledBitmap.installPixels(info, level.fPixels, level.fRowBytes);
                 fBitmap = &fScaledBitmap;
                 fFilterLevel = SkPaint::kLow_FilterLevel;
                 unlocker.release();
@@ -508,20 +508,20 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
             index |= 4;
         }
         // bits 3,4,5 encoding the source bitmap format
-        switch (fBitmap->config()) {
-            case SkBitmap::kARGB_8888_Config:
+        switch (fBitmap->colorType()) {
+            case kN32_SkColorType:
                 index |= 0;
                 break;
-            case SkBitmap::kRGB_565_Config:
+            case kRGB_565_SkColorType:
                 index |= 8;
                 break;
-            case SkBitmap::kIndex8_Config:
+            case kIndex_8_SkColorType:
                 index |= 16;
                 break;
-            case SkBitmap::kARGB_4444_Config:
+            case kARGB_4444_SkColorType:
                 index |= 24;
                 break;
-            case SkBitmap::kA8_Config:
+            case kAlpha_8_SkColorType:
                 index |= 32;
                 fPaintPMColor = SkPreMultiplyColor(paint.getColor());
                 break;
@@ -886,7 +886,7 @@ bool SkBitmapProcState::setupForTranslate() {
 
 SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
 
-    if (SkBitmap::kARGB_8888_Config != fBitmap->config()) {
+    if (kN32_SkColorType != fBitmap->colorType()) {
         return NULL;
     }
 

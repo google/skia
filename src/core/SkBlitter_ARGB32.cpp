@@ -500,7 +500,7 @@ void SkARGB32_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) 
         if (shaderContext->getFlags() & SkShader::kOpaqueAlpha_Flag) {
             flags |= SkBlitMask::kSrcIsOpaque_RowFlag;
         }
-        proc = SkBlitMask::RowFactory(SkBitmap::kARGB_8888_Config, mask.fFormat,
+        proc = SkBlitMask::RowFactory(kN32_SkColorType, mask.fFormat,
                                       (SkBlitMask::RowFlags)flags);
         if (NULL == proc) {
             this->INHERITED::blitMask(mask, clip);

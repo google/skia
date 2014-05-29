@@ -826,10 +826,10 @@ SkRGB16_Shader_Blitter::SkRGB16_Shader_Blitter(const SkBitmap& device,
         flags |= SkBlitRow::kDither_Flag;
     }
     // used when we know our global alpha is 0xFF
-    fOpaqueProc = SkBlitRow::Factory(flags, SkBitmap::kRGB_565_Config);
+    fOpaqueProc = SkBlitRow::Factory(flags, kRGB_565_SkColorType);
     // used when we know our global alpha is < 0xFF
     fAlphaProc  = SkBlitRow::Factory(flags | SkBlitRow::kGlobalAlpha_Flag,
-                                     SkBitmap::kRGB_565_Config);
+                                     kRGB_565_SkColorType);
 }
 
 SkRGB16_Shader_Blitter::~SkRGB16_Shader_Blitter() {

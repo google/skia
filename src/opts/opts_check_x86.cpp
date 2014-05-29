@@ -244,7 +244,7 @@ SkBlitRow::ColorRectProc PlatformColorRectProcFactory() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkBitmap::Config dstConfig,
+SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkColorType dstCT,
                                                      SkMask::Format maskFormat,
                                                      SkColor color) {
     if (SkMask::kA8_Format != maskFormat) {
@@ -253,8 +253,8 @@ SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkBitmap::Config dstConfig,
 
     ColorProc proc = NULL;
     if (supports_simd(SK_CPU_SSE_LEVEL_SSE2)) {
-        switch (dstConfig) {
-            case SkBitmap::kARGB_8888_Config:
+        switch (dstCT) {
+            case kN32_SkColorType:
                 // The SSE2 version is not (yet) faster for black, so we check
                 // for that.
                 if (SK_ColorBLACK != color) {
@@ -281,9 +281,7 @@ SkBlitMask::BlitLCD16RowProc SkBlitMask::PlatformBlitRowProcs16(bool isOpaque) {
 
 }
 
-SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkBitmap::Config dstConfig,
-                                                 SkMask::Format maskFormat,
-                                                 RowFlags flags) {
+SkBlitMask::RowProc SkBlitMask::PlatformRowProcs(SkColorType, SkMask::Format, RowFlags) {
     return NULL;
 }
 

@@ -646,29 +646,29 @@ SkColor SkBitmap::getColor(int x, int y) const {
     SkASSERT((unsigned)x < (unsigned)this->width());
     SkASSERT((unsigned)y < (unsigned)this->height());
 
-    switch (this->config()) {
-        case SkBitmap::kA8_Config: {
+    switch (this->colorType()) {
+        case kAlpha_8_SkColorType: {
             uint8_t* addr = this->getAddr8(x, y);
             return SkColorSetA(0, addr[0]);
         }
-        case SkBitmap::kIndex8_Config: {
+        case kIndex_8_SkColorType: {
             SkPMColor c = this->getIndex8Color(x, y);
             return SkUnPreMultiply::PMColorToColor(c);
         }
-        case SkBitmap::kRGB_565_Config: {
+        case kRGB_565_SkColorType: {
             uint16_t* addr = this->getAddr16(x, y);
             return SkPixel16ToColor(addr[0]);
         }
-        case SkBitmap::kARGB_4444_Config: {
+        case kARGB_4444_SkColorType: {
             uint16_t* addr = this->getAddr16(x, y);
             SkPMColor c = SkPixel4444ToPixel32(addr[0]);
             return SkUnPreMultiply::PMColorToColor(c);
         }
-        case SkBitmap::kARGB_8888_Config: {
+        case kBGRA_8888_SkColorType:
+        case kRGBA_8888_SkColorType: {
             uint32_t* addr = this->getAddr32(x, y);
             return SkUnPreMultiply::PMColorToColor(addr[0]);
         }
-        case kNo_Config:
         default:
             SkASSERT(false);
             return 0;
@@ -686,8 +686,8 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
     const int height = bm.height();
     const int width = bm.width();
 
-    switch (bm.config()) {
-        case SkBitmap::kA8_Config: {
+    switch (bm.colorType()) {
+        case kAlpha_8_SkColorType: {
             unsigned a = 0xFF;
             for (int y = 0; y < height; ++y) {
                 const uint8_t* row = bm.getAddr8(0, y);
@@ -700,7 +700,7 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
             }
             return true;
         } break;
-        case SkBitmap::kIndex8_Config: {
+        case kIndex_8_SkColorType: {
             SkAutoLockColors alc(bm);
             const SkPMColor* table = alc.colors();
             if (!table) {
@@ -712,10 +712,10 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
             }
             return 0xFF == SkGetPackedA32(c);
         } break;
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             return true;
             break;
-        case SkBitmap::kARGB_4444_Config: {
+        case kARGB_4444_SkColorType: {
             unsigned c = 0xFFFF;
             for (int y = 0; y < height; ++y) {
                 const SkPMColor16* row = bm.getAddr16(0, y);
@@ -728,7 +728,8 @@ bool SkBitmap::ComputeIsOpaque(const SkBitmap& bm) {
             }
             return true;
         } break;
-        case SkBitmap::kARGB_8888_Config: {
+        case kBGRA_8888_SkColorType:
+        case kRGBA_8888_SkColorType: {
             SkPMColor c = (SkPMColor)~0;
             for (int y = 0; y < height; ++y) {
                 const SkPMColor* row = bm.getAddr32(0, y);
@@ -883,8 +884,8 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
         SkPixelRef* pixelRef = fPixelRef->deepCopy(this->config(), &subset);
         if (pixelRef != NULL) {
             SkBitmap dst;
-            dst.setConfig(this->config(), subset.width(), subset.height(), 0,
-                          this->alphaType());
+            dst.setConfig(SkImageInfo::Make(subset.width(), subset.height(),
+                                            this->colorType(), this->alphaType()));
             dst.setIsVolatile(this->isVolatile());
             dst.setPixelRef(pixelRef)->unref();
             SkDEBUGCODE(dst.validate());
@@ -899,8 +900,8 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkASSERT(static_cast<unsigned>(r.fTop) < static_cast<unsigned>(this->height()));
 
     SkBitmap dst;
-    dst.setConfig(this->config(), r.width(), r.height(), this->rowBytes(),
-                  this->alphaType());
+    dst.setConfig(SkImageInfo::Make(r.width(), r.height(), this->colorType(), this->alphaType()),
+                  this->rowBytes());
     dst.setIsVolatile(this->isVolatile());
 
     if (fPixelRef) {
@@ -1129,10 +1130,10 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha,
     SkASSERT(alpha != NULL);
     SkASSERT(alphaRowBytes >= src.width());
 
-    SkBitmap::Config config = src.config();
-    int              w = src.width();
-    int              h = src.height();
-    size_t           rb = src.rowBytes();
+    SkColorType colorType = src.colorType();
+    int         w = src.width();
+    int         h = src.height();
+    size_t      rb = src.rowBytes();
 
     SkAutoLockPixels alp(src);
     if (!src.readyToDraw()) {
@@ -1144,14 +1145,14 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha,
         return false;
     }
 
-    if (SkBitmap::kA8_Config == config && !src.isOpaque()) {
+    if (kAlpha_8_SkColorType == colorType && !src.isOpaque()) {
         const uint8_t* s = src.getAddr8(0, 0);
         while (--h >= 0) {
             memcpy(alpha, s, w);
             s += rb;
             alpha += alphaRowBytes;
         }
-    } else if (SkBitmap::kARGB_8888_Config == config && !src.isOpaque()) {
+    } else if (kN32_SkColorType == colorType && !src.isOpaque()) {
         const SkPMColor* SK_RESTRICT s = src.getAddr32(0, 0);
         while (--h >= 0) {
             for (int x = 0; x < w; x++) {
@@ -1160,7 +1161,7 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha,
             s = (const SkPMColor*)((const char*)s + rb);
             alpha += alphaRowBytes;
         }
-    } else if (SkBitmap::kARGB_4444_Config == config && !src.isOpaque()) {
+    } else if (kARGB_4444_SkColorType == colorType && !src.isOpaque()) {
         const SkPMColor16* SK_RESTRICT s = src.getAddr16(0, 0);
         while (--h >= 0) {
             for (int x = 0; x < w; x++) {
@@ -1169,7 +1170,7 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha,
             s = (const SkPMColor16*)((const char*)s + rb);
             alpha += alphaRowBytes;
         }
-    } else if (SkBitmap::kIndex8_Config == config && !src.isOpaque()) {
+    } else if (kIndex_8_SkColorType == colorType && !src.isOpaque()) {
         SkColorTable* ct = src.getColorTable();
         if (ct) {
             const SkPMColor* SK_RESTRICT table = ct->lockColors();
@@ -1217,8 +1218,7 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
         dstM.fRowBytes = SkAlign4(dstM.fBounds.width());
     } else {
     NO_FILTER_CASE:
-        tmpBitmap.setConfig(SkBitmap::kA8_Config, this->width(), this->height(),
-                       srcM.fRowBytes);
+        tmpBitmap.setConfig(SkImageInfo::MakeA8(this->width(), this->height()), srcM.fRowBytes);
         if (!tmpBitmap.allocPixels(allocator, NULL)) {
             // Allocation of pixels for alpha bitmap failed.
             SkDebugf("extractAlpha failed to allocate (%d,%d) alpha bitmap\n",
@@ -1241,8 +1241,8 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
     }
     SkAutoMaskFreeImage dstCleanup(dstM.fImage);
 
-    tmpBitmap.setConfig(SkBitmap::kA8_Config, dstM.fBounds.width(),
-                   dstM.fBounds.height(), dstM.fRowBytes);
+    tmpBitmap.setConfig(SkImageInfo::MakeA8(dstM.fBounds.width(), dstM.fBounds.height()),
+                        dstM.fRowBytes);
     if (!tmpBitmap.allocPixels(allocator, NULL)) {
         // Allocation of pixels for alpha bitmap failed.
         SkDebugf("extractAlpha failed to allocate (%d,%d) alpha bitmap\n",
@@ -1435,12 +1435,12 @@ void SkBitmap::validate() const {
 #ifndef SK_IGNORE_TO_STRING
 void SkBitmap::toString(SkString* str) const {
 
-    static const char* gConfigNames[kConfigCount] = {
-        "NONE", "A8", "INDEX8", "565", "4444", "8888"
+    static const char* gColorTypeNames[kLastEnum_SkColorType + 1] = {
+        "UNKNOWN", "A8", "565", "4444", "RGBA", "BGRA", "INDEX8",
     };
 
     str->appendf("bitmap: ((%d, %d) %s", this->width(), this->height(),
-                 gConfigNames[this->config()]);
+                 gColorTypeNames[this->colorType()]);
 
     str->append(" (");
     if (this->isOpaque()) {

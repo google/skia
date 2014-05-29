@@ -1,3 +1,10 @@
+/*
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
 #include "SkBlitMask.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
@@ -230,16 +237,16 @@ static SkBlitMask::ColorProc D32_LCD32_Factory(SkColor color) {
     return (0xFF == SkColorGetA(color)) ? D32_LCD32_Opaque : D32_LCD32_Blend;
 }
 
-SkBlitMask::ColorProc SkBlitMask::ColorFactory(SkBitmap::Config config,
+SkBlitMask::ColorProc SkBlitMask::ColorFactory(SkColorType ct,
                                                SkMask::Format format,
                                                SkColor color) {
-    ColorProc proc = PlatformColorProcs(config, format, color);
+    ColorProc proc = PlatformColorProcs(ct, format, color);
     if (proc) {
         return proc;
     }
 
-    switch (config) {
-        case SkBitmap::kARGB_8888_Config:
+    switch (ct) {
+        case kN32_SkColorType:
             switch (format) {
                 case SkMask::kA8_Format:
                     return D32_A8_Factory(color);
@@ -259,7 +266,7 @@ SkBlitMask::ColorProc SkBlitMask::ColorFactory(SkBitmap::Config config,
 
 bool SkBlitMask::BlitColor(const SkBitmap& device, const SkMask& mask,
                            const SkIRect& clip, SkColor color) {
-    ColorProc proc = ColorFactory(device.config(), mask.fFormat, color);
+    ColorProc proc = ColorFactory(device.colorType(), mask.fFormat, color);
     if (proc) {
         int x = clip.fLeft;
         int y = clip.fTop;
@@ -548,11 +555,11 @@ static void LCD32_RowProc_Opaque(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-SkBlitMask::RowProc SkBlitMask::RowFactory(SkBitmap::Config config,
+SkBlitMask::RowProc SkBlitMask::RowFactory(SkColorType ct,
                                            SkMask::Format format,
                                            RowFlags flags) {
 // make this opt-in until chrome can rebaseline
-    RowProc proc = PlatformRowProcs(config, format, flags);
+    RowProc proc = PlatformRowProcs(ct, format, flags);
     if (proc) {
         return proc;
     }
@@ -567,8 +574,8 @@ SkBlitMask::RowProc SkBlitMask::RowFactory(SkBitmap::Config config,
     };
 
     int index;
-    switch (config) {
-        case SkBitmap::kARGB_8888_Config:
+    switch (ct) {
+        case kN32_SkColorType:
             switch (format) {
                 case SkMask::kBW_Format:    index = 0; break;
                 case SkMask::kA8_Format:    index = 2; break;

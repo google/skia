@@ -461,7 +461,7 @@ bool SkBitmapDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
         return false;
     }
 
-    if (SkBitmap::kARGB_8888_Config != fBitmap.config() ||
+    if (kN32_SkColorType != fBitmap.colorType() ||
         paint.getRasterizer() ||
         paint.getPathEffect() ||
         paint.isFakeBoldText() ||

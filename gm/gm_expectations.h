@@ -158,7 +158,7 @@ namespace skiagm {
          * than a single bitmap), returns NULL.
          */
         const SkBitmap *asBitmap() const {
-            return (SkBitmap::kNo_Config == fBitmap.config()) ? NULL : &fBitmap;
+            return (kUnknown_SkColorType == fBitmap.colorType()) ? NULL : &fBitmap;
         }
 
 #ifdef SK_BUILD_JSON_WRITER

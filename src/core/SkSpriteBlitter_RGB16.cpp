@@ -278,7 +278,7 @@ public:
         if (paint.isDither()) {
             flags |= SkBlitRow::kDither_Flag;
         }
-        fProc = SkBlitRow::Factory(flags, SkBitmap::kRGB_565_Config);
+        fProc = SkBlitRow::Factory(flags, kRGB_565_SkColorType);
     }
 
     virtual void blitRect(int x, int y, int width, int height) {
