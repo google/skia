@@ -10,13 +10,6 @@
 
 #include "GrPoint.h"
 
-class GrRectanizerPurgeListener {
-public:
-    virtual ~GrRectanizerPurgeListener() {}
-
-    virtual void notifyPurgeStrip(void*, int yCoord) = 0;
-};
-
 class GrRectanizer {
 public:
     GrRectanizer(int width, int height) : fWidth(width), fHeight(height) {
@@ -33,12 +26,6 @@ public:
 
     virtual bool addRect(int width, int height, GrIPoint16* loc) = 0;
     virtual float percentFull() const = 0;
-
-    // return the Y-coordinate of a strip that should be purged, given height
-    // i.e. return the oldest such strip, or some other criteria. Return -1
-    // if there is no candidate
-    virtual int stripToPurge(int height) const = 0;
-    virtual void purgeStripAtY(int yCoord) = 0;
 
     /**
      *  Our factory, which returns the subclass du jour

@@ -6,57 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrRectanizer.h"
-#include "SkTDArray.h"
-
-// Pack rectangles and track the current silhouette
-// Based in part on Jukka Jylänki's work at http://clb.demon.fi
-
-class GrRectanizerSkyline : public GrRectanizer {
-public:
-    GrRectanizerSkyline(int w, int h) : INHERITED(w, h) {
-        this->reset();
-    }
-
-    virtual ~GrRectanizerSkyline() {
-    }
-
-    virtual void reset() SK_OVERRIDE {
-        fAreaSoFar = 0;
-        fSkyline.reset();
-        SkylineSegment* seg = fSkyline.append(1);
-        seg->fX = 0;
-        seg->fY = 0;
-        seg->fWidth = this->width();
-    }
-
-    virtual bool addRect(int w, int h, GrIPoint16* loc) SK_OVERRIDE;
-
-    virtual float percentFull() const SK_OVERRIDE {
-        return fAreaSoFar / ((float)this->width() * this->height());
-    }
-
-    virtual int stripToPurge(int height) const SK_OVERRIDE { return -1; }
-    virtual void purgeStripAtY(int yCoord) SK_OVERRIDE { }
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    struct SkylineSegment {
-        int  fX;
-        int  fY;
-        int  fWidth;
-    };
-
-    SkTDArray<SkylineSegment> fSkyline;
-
-    int32_t fAreaSoFar;
-
-    bool rectangleFits(int skylineIndex, int width, int height, int* y) const;
-    void addSkylineLevel(int skylineIndex, int x, int y, int width, int height);
-
-private:
-    typedef GrRectanizer INHERITED;
-};
+#include "GrRectanizer_skyline.h"
 
 bool GrRectanizerSkyline::addRect(int width, int height, GrIPoint16* loc) {
     if ((unsigned)width > (unsigned)this->width() ||
