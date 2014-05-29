@@ -99,6 +99,7 @@
         '../samplecode/SampleSlides.cpp',
         '../samplecode/SampleStringArt.cpp',
         '../samplecode/SampleStrokePath.cpp',
+        '../samplecode/SampleSubpixelTranslate.cpp',
         '../samplecode/SampleText.cpp',
         '../samplecode/SampleTextAlpha.cpp',
         '../samplecode/SampleTextBox.cpp',
