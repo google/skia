@@ -41,8 +41,11 @@ def find_all_builds(codereview_url):
   for builder, data in results.iteritems():
     if builder.startswith('Perf'):
       build_num = data.url.split('/')[-1] if data.url else None
-      try_builds.append(TryBuild(builder, build_num,
-                                 data.status != 'pending'))
+      is_finished = (data.status not in ('pending', 'try-pending') and
+                     build_num is not None)
+      try_builds.append(TryBuild(builder_name=builder,
+                                 build_number=build_num,
+                                 is_finished=is_finished))
   return try_builds
 
 
