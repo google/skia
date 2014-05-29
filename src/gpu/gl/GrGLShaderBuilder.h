@@ -70,7 +70,7 @@ public:
     };
 
     static bool GenProgram(GrGpuGL* gpu,
-                           GrGLUniformManager& uman,
+                           GrGLUniformManager* uman,
                            const GrGLProgramDesc& desc,
                            const GrEffectStage* inColorStages[],
                            const GrEffectStage* inCoverageStages[],
@@ -174,7 +174,7 @@ public:
                                                       const char** outName = NULL);
 
     const GrGLShaderVar& getUniformVariable(GrGLUniformManager::UniformHandle u) const {
-        return fUniformManager.getBuilderUniform(fUniforms, u).fVariable;
+        return fUniformManager->getBuilderUniform(fUniforms, u).fVariable;
     }
 
     /**
@@ -195,50 +195,9 @@ public:
         is in device space (e.g. 0,0 is the top left and pixel centers are at half-integers). */
     const char* fragmentPosition();
 
-    /** Returns the color of the destination pixel. This may be NULL if no effect advertised
-        that it will read the destination. */
+    /** Returns the variable name that holds the color of the destination pixel. This may be NULL if
+        no effect advertised that it will read the destination. */
     const char* dstColor();
-
-    /**
-     * Interfaces used by GrGLProgram.
-     */
-    const GrGLSLExpr4& getInputColor() const {
-        return fInputColor;
-    }
-    const GrGLSLExpr4& getInputCoverage() const {
-        return fInputCoverage;
-    }
-
-    /**
-     * Adds code for effects and returns a GrGLProgramEffects* object. The caller is responsible for
-     * deleting it when finished. effectStages contains the effects to add. effectKeys[i] is the key
-     * generated from effectStages[i]. inOutFSColor specifies the input color to the first stage and
-     * is updated to be the output color of the last stage.
-     * The handles to texture samplers for effectStage[i] are added to
-     * effectSamplerHandles[i].
-     */
-    virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
-                                                     const EffectKey effectKeys[],
-                                                     int effectCnt,
-                                                     GrGLSLExpr4* inOutFSColor) = 0;
-
-    const char* getColorOutputName() const;
-    const char* enableSecondaryOutput();
-
-    GrGLUniformManager::UniformHandle getRTHeightUniform() const { return fRTHeightUniform; }
-    GrGLUniformManager::UniformHandle getDstCopyTopLeftUniform() const {
-        return fDstCopyTopLeftUniform;
-    }
-    GrGLUniformManager::UniformHandle getDstCopyScaleUniform() const {
-        return fDstCopyScaleUniform;
-    }
-    GrGLUniformManager::UniformHandle getColorUniform() const { return fColorUniform; }
-    GrGLUniformManager::UniformHandle getCoverageUniform() const { return fCoverageUniform; }
-    GrGLUniformManager::UniformHandle getDstCopySamplerUniform() const {
-        return fDstCopySamplerUniform;
-    }
-
-    bool finish(GrGLuint* outProgramId);
 
     const GrGLContextInfo& ctxInfo() const;
 
@@ -262,7 +221,7 @@ public:
     };
 
 protected:
-    GrGLShaderBuilder(GrGpuGL*, GrGLUniformManager&, const GrGLProgramDesc&);
+    GrGLShaderBuilder(GrGpuGL*, GrGLUniformManager*, const GrGLProgramDesc&);
 
     GrGpuGL* gpu() const { return fGpu; }
 
@@ -274,11 +233,6 @@ protected:
     /** Add input/output variable declarations (i.e. 'varying') to the fragment shader. */
     GrGLShaderVar& fsInputAppend() { return fFSInputs.push_back(); }
 
-    // Generates a name for a variable. The generated string will be name prefixed by the prefix
-    // char (unless the prefix is '\0'). It also mangles the name to be stage-specific if we're
-    // generating stage code.
-    void nameVariable(SkString* out, char prefix, const char* name);
-
     // Helper for emitEffects().
     void createAndEmitEffects(GrGLProgramEffectsBuilder*,
                               const GrEffectStage* effectStages[],
@@ -286,7 +240,13 @@ protected:
                               int effectCnt,
                               GrGLSLExpr4* inOutFSColor);
 
+    // Generates a name for a variable. The generated string will be name prefixed by the prefix
+    // char (unless the prefix is '\0'). It also mangles the name to be stage-specific if we're
+    // generating stage code.
+    void nameVariable(SkString* out, char prefix, const char* name);
+
     virtual bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const;
+
     virtual void bindProgramLocations(GrGLuint programId) const;
 
     void appendDecls(const VarArray&, SkString*) const;
@@ -349,6 +309,35 @@ private:
                     GenProgramOutput* output);
 
     /**
+    * Adds code for effects and returns a GrGLProgramEffects* object. The caller is responsible for
+    * deleting it when finished. effectStages contains the effects to add. effectKeys[i] is the key
+    * generated from effectStages[i]. inOutFSColor specifies the input color to the first stage and
+    * is updated to be the output color of the last stage.
+    * The handles to texture samplers for effectStage[i] are added to
+    * effectSamplerHandles[i].
+    */
+    virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
+                                                     const EffectKey effectKeys[],
+                                                     int effectCnt,
+                                                     GrGLSLExpr4* inOutFSColor) = 0;
+
+    /** Enables using the secondary color output and returns the name of the var in which it is
+        to be stored */
+    const char* enableSecondaryOutput();
+    /** Gets the name of the primary color output. */
+    const char* getColorOutputName() const;
+
+    bool finish(GrGLuint* outProgramId);
+
+    const GrGLSLExpr4& getInputColor() const {
+        return fInputColor;
+    }
+
+    const GrGLSLExpr4& getInputCoverage() const {
+        return fInputCoverage;
+    }
+
+    /**
      * Features that should only be enabled by GrGLShaderBuilder itself.
      */
     enum GLSLPrivateFeature {
@@ -378,7 +367,7 @@ private:
 
     const GrGLProgramDesc&                  fDesc;
     GrGpuGL*                                fGpu;
-    GrGLUniformManager&                     fUniformManager;
+    SkAutoTUnref<GrGLUniformManager>        fUniformManager;
     uint32_t                                fFSFeaturesAddedMask;
     SkString                                fFSFunctions;
     SkString                                fFSExtensions;
@@ -410,7 +399,7 @@ private:
 
 class GrGLFullShaderBuilder : public GrGLShaderBuilder {
 public:
-    GrGLFullShaderBuilder(GrGpuGL*, GrGLUniformManager&, const GrGLProgramDesc&);
+    GrGLFullShaderBuilder(GrGpuGL*, GrGLUniformManager*, const GrGLProgramDesc&);
 
     /**
      * Called by GrGLEffects to add code to one of the shaders.
@@ -454,12 +443,6 @@ public:
     bool addEffectAttribute(int attributeIndex, GrSLType type, const SkString& name);
     const SkString* getEffectAttributeName(int attributeIndex) const;
 
-    virtual GrGLProgramEffects* createAndEmitEffects(
-                const GrEffectStage* effectStages[],
-                const EffectKey effectKeys[],
-                int effectCnt,
-                GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
-
     /**
      * The view matrix uniform is only valid in the VS. It is always mat33.
      */
@@ -471,11 +454,16 @@ public:
         return fRTAdustmentVecUniform;
     }
 
-protected:
-    virtual bool compileAndAttachShaders(GrGLuint programId, SkTDArray<GrGLuint>* shaderIds) const SK_OVERRIDE;
+private:
+    virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
+                                                     const EffectKey effectKeys[],
+                                                     int effectCnt,
+                                                     GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
+    virtual bool compileAndAttachShaders(GrGLuint programId,
+                                         SkTDArray<GrGLuint>* shaderIds) const SK_OVERRIDE;
+
     virtual void bindProgramLocations(GrGLuint programId) const SK_OVERRIDE;
 
-private:
     VarArray                            fVSAttrs;
     VarArray                            fVSOutputs;
     VarArray                            fGSInputs;
@@ -504,18 +492,18 @@ private:
 
 class GrGLFragmentOnlyShaderBuilder : public GrGLShaderBuilder {
 public:
-    GrGLFragmentOnlyShaderBuilder(GrGpuGL*, GrGLUniformManager&, const GrGLProgramDesc&);
+    GrGLFragmentOnlyShaderBuilder(GrGpuGL*, GrGLUniformManager*, const GrGLProgramDesc&);
 
     int getNumTexCoordSets() const { return fNumTexCoordSets; }
     int addTexCoordSets(int count);
 
-    virtual GrGLProgramEffects* createAndEmitEffects(
-                const GrEffectStage* effectStages[],
-                const EffectKey effectKeys[],
-                int effectCnt,
-                GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
-
 private:
+
+    virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
+                                                     const EffectKey effectKeys[],
+                                                     int effectCnt,
+                                                     GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
+
     int fNumTexCoordSets;
 
     typedef GrGLShaderBuilder INHERITED;

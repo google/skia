@@ -166,18 +166,8 @@ private:
 
     GrGLProgram(GrGpuGL* gpu,
                 const GrGLProgramDesc& desc,
-                const GrEffectStage* colorStages[],
-                const GrEffectStage* coverageStages[]);
-
-    bool succeeded() const { return 0 != fProgramID; }
-
-    /**
-     * This is the heavy initialization routine for building a GLProgram. colorStages and
-     * coverageStages correspond to the output of GrGLProgramDesc::Build().
-     */
-    bool genProgram(GrGLShaderBuilder* builder,
-                    const GrEffectStage* colorStages[],
-                    const GrEffectStage* coverageStages[]);
+                GrGLUniformManager* uman,
+                const GrGLShaderBuilder::GenProgramOutput& builderOutput);
 
     // Sets the texture units for samplers
     void initSamplerUniforms();
@@ -194,25 +184,26 @@ private:
     void setMatrixAndRenderTargetHeight(const GrDrawState&);
 
     // GL program ID
-    GrGLuint                    fProgramID;
+    GrGLuint                            fProgramID;
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
-    MatrixState                       fMatrixState;
-    GrColor                           fColor;
-    GrColor                           fCoverage;
-    int                               fDstCopyTexUnit;
+    MatrixState                         fMatrixState;
+    GrColor                             fColor;
+    GrColor                             fCoverage;
+    int                                 fDstCopyTexUnit;
 
-    SkAutoTDelete<GrGLProgramEffects> fColorEffects;
-    SkAutoTDelete<GrGLProgramEffects> fCoverageEffects;
+    SkAutoTDelete<GrGLProgramEffects>   fColorEffects;
+    SkAutoTDelete<GrGLProgramEffects>   fCoverageEffects;
+    
+    GrGLProgramDesc                     fDesc;
+    
+    GrGpuGL*                            fGpu;
 
-    GrGLProgramDesc                   fDesc;
-    GrGpuGL*                          fGpu;
+    SkAutoTUnref<GrGLUniformManager>    fUniformManager;
+    GrGLShaderBuilder::UniformHandles   fUniformHandles;
 
-    GrGLUniformManager                fUniformManager;
-    GrGLShaderBuilder::UniformHandles fUniformHandles;
-
-    bool                              fHasVertexShader;
-    int                               fNumTexCoordSets;
+    bool                                fHasVertexShader;
+    int                                 fNumTexCoordSets;
 
     typedef SkRefCnt INHERITED;
 };

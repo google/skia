@@ -90,7 +90,7 @@ static const char kDstCopyColorName[] = "_dstColor";
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrGLShaderBuilder::GenProgram(GrGpuGL* gpu,
-                                   GrGLUniformManager& uman,
+                                   GrGLUniformManager* uman,
                                    const GrGLProgramDesc& desc,
                                    const GrEffectStage* inColorStages[],
                                    const GrEffectStage* inCoverageStages[],
@@ -174,12 +174,12 @@ bool GrGLShaderBuilder::genProgram(const GrEffectStage* colorStages[],
         return false;
     }
 
-    output->fUniformHandles.fRTHeightUni = this->getRTHeightUniform();
-    output->fUniformHandles.fDstCopyTopLeftUni = this->getDstCopyTopLeftUniform();
-    output->fUniformHandles.fDstCopyScaleUni = this->getDstCopyScaleUniform();
-    output->fUniformHandles.fColorUni = this->getColorUniform();
-    output->fUniformHandles.fCoverageUni = this->getCoverageUniform();
-    output->fUniformHandles.fDstCopySamplerUni = this->getDstCopySamplerUniform();
+    output->fUniformHandles.fRTHeightUni = fRTHeightUniform;
+    output->fUniformHandles.fColorUni = fColorUniform;
+    output->fUniformHandles.fCoverageUni = fCoverageUniform;
+    output->fUniformHandles.fDstCopyTopLeftUni = fDstCopyTopLeftUniform;
+    output->fUniformHandles.fDstCopyScaleUni = fDstCopyScaleUniform;
+    output->fUniformHandles.fDstCopySamplerUni = fDstCopySamplerUniform;
 
     return true;
 }
@@ -187,11 +187,11 @@ bool GrGLShaderBuilder::genProgram(const GrEffectStage* colorStages[],
 //////////////////////////////////////////////////////////////////////////////
 
 GrGLShaderBuilder::GrGLShaderBuilder(GrGpuGL* gpu,
-                                     GrGLUniformManager& uniformManager,
+                                     GrGLUniformManager* uniformManager,
                                      const GrGLProgramDesc& desc)
     : fDesc(desc)
     , fGpu(gpu)
-    , fUniformManager(uniformManager)
+    , fUniformManager(SkRef(uniformManager))
     , fFSFeaturesAddedMask(0)
     , fFSInputs(kVarsPerBlock)
     , fFSOutputs(kMaxFSOutputs)
@@ -453,7 +453,7 @@ GrGLUniformManager::UniformHandle GrGLShaderBuilder::addUniformArray(uint32_t vi
     BuilderUniform& uni = fUniforms.push_back();
     UniformHandle h = GrGLUniformManager::UniformHandle::CreateFromUniformIndex(fUniforms.count() - 1);
     SkDEBUGCODE(UniformHandle h2 =)
-    fUniformManager.appendUniform(type, count);
+    fUniformManager->appendUniform(type, count);
     // We expect the uniform manager to initially have no uniforms and that all uniforms are added
     // by this function. Therefore, the handles should match.
     SkASSERT(h2 == h);
@@ -682,8 +682,8 @@ bool GrGLShaderBuilder::finish(GrGLuint* outProgramId) {
     }
 
     this->bindProgramLocations(programId);
-    if (fUniformManager.isUsingBindUniform()) {
-      fUniformManager.getUniformLocations(programId, fUniforms);
+    if (fUniformManager->isUsingBindUniform()) {
+      fUniformManager->getUniformLocations(programId, fUniforms);
     }
 
     GL_CALL(LinkProgram(programId));
@@ -716,8 +716,8 @@ bool GrGLShaderBuilder::finish(GrGLuint* outProgramId) {
         }
     }
 
-    if (!fUniformManager.isUsingBindUniform()) {
-      fUniformManager.getUniformLocations(programId, fUniforms);
+    if (!fUniformManager->isUsingBindUniform()) {
+      fUniformManager->getUniformLocations(programId, fUniforms);
     }
 
     for (int i = 0; i < shadersToDelete.count(); ++i) {
@@ -830,7 +830,7 @@ const GrGLContextInfo& GrGLShaderBuilder::ctxInfo() const {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrGLFullShaderBuilder::GrGLFullShaderBuilder(GrGpuGL* gpu,
-                                             GrGLUniformManager& uniformManager,
+                                             GrGLUniformManager* uniformManager,
                                              const GrGLProgramDesc& desc)
     : INHERITED(gpu, uniformManager, desc)
     , fVSAttrs(kVarsPerBlock)
@@ -1070,7 +1070,7 @@ void GrGLFullShaderBuilder::bindProgramLocations(GrGLuint programId) const {
 ////////////////////////////////////////////////////////////////////////////////
 
 GrGLFragmentOnlyShaderBuilder::GrGLFragmentOnlyShaderBuilder(GrGpuGL* gpu,
-                                                             GrGLUniformManager& uniformManager,
+                                                             GrGLUniformManager* uniformManager,
                                                              const GrGLProgramDesc& desc)
     : INHERITED(gpu, uniformManager, desc)
     , fNumTexCoordSets(0) {

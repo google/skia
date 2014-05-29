@@ -19,7 +19,7 @@ class SkMatrix;
 
 /** Manages a program's uniforms.
 */
-class GrGLUniformManager {
+class GrGLUniformManager : public SkRefCnt {
 public:
     // Opaque handle to a uniform
     class UniformHandle {
@@ -113,6 +113,8 @@ private:
     bool fUsingBindUniform;
     SkTArray<Uniform, true> fUniforms;
     GrGpuGL* fGpu;
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif
