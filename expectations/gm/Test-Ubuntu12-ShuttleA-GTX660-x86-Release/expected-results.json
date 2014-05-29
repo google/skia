@@ -9937,11 +9937,8 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          15470714396621126342
+          9447761248334139841
         ]
-      ], 
-      "bugs": [
-        2325
       ], 
       "reviewed-by-human": false
     }, 
@@ -12274,6 +12271,24 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "imagefiltersscaled_565-pipe cross-process.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7766171136569007958
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "imagefiltersscaled_565-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          7766171136569007958
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
     "imagefiltersscaled_565.png": {
       "allowed-digests": [
         [
@@ -12282,6 +12297,24 @@
         ]
       ], 
       "reviewed-by-human": true
+    }, 
+    "imagefiltersscaled_8888-pipe cross-process.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          2700246532112245179
+        ]
+      ], 
+      "reviewed-by-human": false
+    }, 
+    "imagefiltersscaled_8888-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          16251317014161141240
+        ]
+      ], 
+      "reviewed-by-human": false
     }, 
     "imagefiltersscaled_8888.png": {
       "allowed-digests": [
@@ -16385,7 +16418,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          4744541246163447516
+          17773646925429384088
         ]
       ], 
       "reviewed-by-human": true
@@ -16394,7 +16427,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          10197093962733292494
+          12366755253801250205
         ]
       ], 
       "reviewed-by-human": true
@@ -16403,7 +16436,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          17791550814890831442
+          17518799550679467287
         ]
       ], 
       "reviewed-by-human": true
