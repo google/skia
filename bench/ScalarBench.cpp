@@ -41,6 +41,18 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
+// we want to stop the compiler from eliminating code that it thinks is a no-op
+// so we have a non-static global we increment, hoping that will convince the
+// compiler to execute everything
+int gScalarBench_NonStaticGlobal;
+
+#define always_do(pred)                     \
+    do {                                    \
+        if (pred) {                         \
+            ++gScalarBench_NonStaticGlobal; \
+        }                                   \
+    } while (0)
+
 // having unknown values in our arrays can throw off the timing a lot, perhaps
 // handling NaN values is a lot slower. Anyway, this guy is just meant to put
 // reasonable values in our arrays.
@@ -59,10 +71,8 @@ public:
 protected:
     virtual int mulLoopCount() const { return 4; }
     virtual void performTest() {
-        // xoring into a volatile prevents the compiler from optimizing these checks away.
-        volatile bool junk = false;
-        junk ^= (fArray[6] != 0.0f || fArray[7] != 0.0f || fArray[8] != 1.0f);
-        junk ^= (fArray[2] != 0.0f || fArray[5] != 0.0f);
+        always_do(fArray[6] != 0.0f || fArray[7] != 0.0f || fArray[8] != 1.0f);
+        always_do(fArray[2] != 0.0f || fArray[5] != 0.0f);
     }
 private:
     float fArray[9];
@@ -78,13 +88,11 @@ public:
 protected:
     virtual int mulLoopCount() const { return 4; }
     virtual void performTest() {
-        // xoring into a volatile prevents the compiler from optimizing these checks away.
-        volatile bool junk = false;
-        junk ^= (SkScalarAs2sCompliment(fArray[6]) |
-                 SkScalarAs2sCompliment(fArray[7]) |
-                (SkScalarAs2sCompliment(fArray[8]) - kPersp1Int));
-        junk ^= (SkScalarAs2sCompliment(fArray[2]) |
-                 SkScalarAs2sCompliment(fArray[5]));
+        always_do(SkScalarAs2sCompliment(fArray[6]) |
+                  SkScalarAs2sCompliment(fArray[7]) |
+                  (SkScalarAs2sCompliment(fArray[8]) - kPersp1Int));
+        always_do(SkScalarAs2sCompliment(fArray[2]) |
+                  SkScalarAs2sCompliment(fArray[5]));
     }
 private:
     static const int32_t kPersp1Int = 0x3f800000;
