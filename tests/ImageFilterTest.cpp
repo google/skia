@@ -25,6 +25,7 @@
 #include "SkMorphologyImageFilter.h"
 #include "SkOffsetImageFilter.h"
 #include "SkPicture.h"
+#include "SkPictureImageFilter.h"
 #include "SkPictureRecorder.h"
 #include "SkRect.h"
 #include "SkTileImageFilter.h"
@@ -307,6 +308,16 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
     matrix.setTranslate(SK_Scalar1, SK_Scalar1);
     matrix.postRotate(SkIntToScalar(45), SK_Scalar1, SK_Scalar1);
 
+    SkRTreeFactory factory;
+    SkPictureRecorder recorder;
+    SkCanvas* recordingCanvas = recorder.beginRecording(64, 64, &factory, 0);
+
+    SkPaint greenPaint;
+    greenPaint.setColor(SK_ColorGREEN);
+    recordingCanvas->drawRect(SkRect::Make(SkIRect::MakeXYWH(10, 10, 30, 20)), greenPaint);
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+    SkAutoTUnref<SkImageFilter> pictureFilter(SkPictureImageFilter::Create(picture.get()));
+
     struct {
         const char*    fName;
         SkImageFilter* fFilter;
@@ -335,6 +346,7 @@ DEF_TEST(ImageFilterDrawTiled, reporter) {
                                             SkRect::MakeXYWH(0, 0, 100, 100), NULL) },
         { "matrix", SkMatrixImageFilter::Create(matrix, SkPaint::kLow_FilterLevel) },
         { "blur and offset", SkOffsetImageFilter::Create(five, five, blur.get()) },
+        { "picture and blur", SkBlurImageFilter::Create(five, five, pictureFilter.get()) },
     };
 
     SkBitmap untiledResult, tiledResult;
