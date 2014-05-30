@@ -172,6 +172,8 @@ static void make_big_bitmap(SkBitmap* bitmap) {
 // tile placement.
 class DrawBitmapRect4 : public skiagm::GM {
     bool fUseIRect;
+    SkBitmap fBigBitmap;
+
 public:
     DrawBitmapRect4(bool useIRect) : fUseIRect(useIRect) {
         this->setBGColor(0x88444444);
@@ -188,6 +190,10 @@ protected:
         return SkISize::Make(640, 480);
     }
 
+    virtual void onOnceBeforeDraw() SK_OVERRIDE {
+        make_big_bitmap(&fBigBitmap);
+    }
+
     virtual void onDraw(SkCanvas* canvas) SK_OVERRIDE {
 
         SkXfermode* mode = SkXfermode::Create(SkXfermode::kXor_Mode);
@@ -196,9 +202,6 @@ protected:
         paint.setAlpha(128);
         paint.setXfermode(mode)->unref();
 
-        SkBitmap bitmap;
-        make_big_bitmap(&bitmap);
-
         SkRect srcR1 = { 0.0f, 0.0f, 4096.0f, 2040.0f };
         SkRect dstR1 = { 10.1f, 10.1f, 629.9f, 400.9f };
 
@@ -206,16 +209,16 @@ protected:
         SkRect dstR2 = { 10, 410, 30, 430 };
 
         if (!fUseIRect) {
-            canvas->drawBitmapRectToRect(bitmap, &srcR1, dstR1, &paint);
-            canvas->drawBitmapRectToRect(bitmap, &srcR2, dstR2, &paint);
+            canvas->drawBitmapRectToRect(fBigBitmap, &srcR1, dstR1, &paint);
+            canvas->drawBitmapRectToRect(fBigBitmap, &srcR2, dstR2, &paint);
         } else {
             SkIRect iSrcR1, iSrcR2;
 
             srcR1.roundOut(&iSrcR1);
             srcR2.roundOut(&iSrcR2);
 
-            canvas->drawBitmapRect(bitmap, &iSrcR1, dstR1, &paint);
-            canvas->drawBitmapRect(bitmap, &iSrcR2, dstR2, &paint);
+            canvas->drawBitmapRect(fBigBitmap, &iSrcR1, dstR1, &paint);
+            canvas->drawBitmapRect(fBigBitmap, &iSrcR2, dstR2, &paint);
         }
     }
 

@@ -16,6 +16,7 @@
 #include "SkPicture.h"
 #include "SkPictureRecorder.h"
 #include "SkStream.h"
+#include "SkSurface.h"
 #include "SkTSort.h"
 #include "SkTime.h"
 #include "SkWindow.h"
@@ -1192,27 +1193,33 @@ void SampleWindow::draw(SkCanvas* canvas) {
     } else {
         SkSize tile = this->tileSize();
 
-        for (SkScalar y = 0; y < height(); y += tile.height()) {
-            for (SkScalar x = 0; x < width(); x += tile.width()) {
-                SkAutoCanvasRestore acr(canvas, true);
-                canvas->clipRect(SkRect::MakeXYWH(x, y,
-                                                  tile.width(),
-                                                  tile.height()));
-                this->INHERITED::draw(canvas);
-            }
-        }
+        if (kNo_Tiling == fTilingMode) {
+            this->INHERITED::draw(canvas); // no looping or surfaces needed
+        } else {
+            const int w = SkScalarRoundToInt(tile.width());
+            const int h = SkScalarRoundToInt(tile.height());
+            SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
+            SkAutoTUnref<SkSurface> surface(canvas->newSurface(info));
+            SkCanvas* tileCanvas = surface->getCanvas();
 
-        if (fTilingMode != kNo_Tiling) {
+            for (SkScalar y = 0; y < height(); y += tile.height()) {
+                for (SkScalar x = 0; x < width(); x += tile.width()) {
+                    SkAutoCanvasRestore acr(tileCanvas, true);
+                    tileCanvas->translate(-x, -y);
+                    tileCanvas->clear(0);
+                    this->INHERITED::draw(tileCanvas);
+                    surface->draw(canvas, x, y, NULL);
+                }
+            }
+
+            // for drawing the borders between tiles
             SkPaint paint;
             paint.setColor(0x60FF00FF);
             paint.setStyle(SkPaint::kStroke_Style);
 
             for (SkScalar y = 0; y < height(); y += tile.height()) {
                 for (SkScalar x = 0; x < width(); x += tile.width()) {
-                    canvas->drawRect(SkRect::MakeXYWH(x, y,
-                                                      tile.width(),
-                                                      tile.height()),
-                                     paint);
+                    canvas->drawRect(SkRect::MakeXYWH(x, y, tile.width(), tile.height()), paint);
                 }
             }
         }
