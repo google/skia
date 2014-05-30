@@ -34,6 +34,7 @@
 #include "SkSurface.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
+#include "SkVertState.h"
 #include "SkErrorInternals.h"
 
 #define CACHE_COMPATIBLE_DEVICE_TEXTURES 1
@@ -1627,6 +1628,31 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw, false);
+
+    // If both textures and vertex-colors are NULL, strokes hairlines with the paint's color.
+    if ((NULL == texs || NULL == paint.getShader()) && NULL == colors) {
+        texs = NULL;
+        SkPaint copy(paint);
+        copy.setStyle(SkPaint::kStroke_Style);
+        copy.setStrokeWidth(0);
+
+        VertState       state(vertexCount, indices, indexCount);
+        VertState::Proc vertProc = state.chooseProc(vmode);
+
+        SkPoint* pts = new SkPoint[vertexCount * 6];
+        int i = 0;
+        while (vertProc(&state)) {
+            pts[i] = vertices[state.f0];
+            pts[i + 1] = vertices[state.f1];
+            pts[i + 2] = vertices[state.f1];
+            pts[i + 3] = vertices[state.f2];
+            pts[i + 4] = vertices[state.f2];
+            pts[i + 5] = vertices[state.f0];
+            i += 6;
+        }
+        draw.drawPoints(SkCanvas::kLines_PointMode, i, pts, copy, true);
+        return;
+    }
 
     GrPaint grPaint;
     // we ignore the shader if texs is null.
