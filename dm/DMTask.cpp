@@ -5,6 +5,8 @@
 DEFINE_bool(cpu, true, "Master switch for running CPU-bound work.");
 DEFINE_bool(gpu, true, "Master switch for running GPU-bound work.");
 
+DECLARE_bool(dryRun);
+
 namespace DM {
 
 Task::Task(Reporter* reporter, TaskRunner* taskRunner)
@@ -51,7 +53,7 @@ CpuTask::CpuTask(const Task& parent) : Task(parent) {}
 void CpuTask::run() {
     if (FLAGS_cpu && !this->shouldSkip()) {
         this->start();
-        this->draw();
+        if (!FLAGS_dryRun) this->draw();
         this->finish();
     }
     SkDELETE(this);
@@ -69,7 +71,7 @@ GpuTask::GpuTask(Reporter* reporter, TaskRunner* taskRunner) : Task(reporter, ta
 void GpuTask::run(GrContextFactory& factory) {
     if (FLAGS_gpu && !this->shouldSkip()) {
         this->start();
-        this->draw(&factory);
+        if (!FLAGS_dryRun) this->draw(&factory);
         this->finish();
     }
     SkDELETE(this);

@@ -51,12 +51,15 @@ DEFINE_string(match, "",  "[~][^]substring[$] [...] of GM name to run.\n"
                           "it is skipped unless some list entry starts with ~");
 DEFINE_string(config, "565 8888 gpu nonrendering",
               "Options: 565 8888 gpu nonrendering msaa4 msaa16 nvprmsaa4 nvprmsaa16 gpunull gpudebug angle mesa");
+DEFINE_bool(dryRun, false, "Just print the tests that would be run, without actually running them.");
 DEFINE_bool(leaks, false, "Print leaked instance-counted objects at exit?");
 DEFINE_string(skps, "", "Directory to read skps from.");
 
 DEFINE_bool(gms, true, "Run GMs?");
 DEFINE_bool(benches, true, "Run benches?  Does not run GMs-as-benches.");
 DEFINE_bool(tests, true, "Run tests?");
+
+DECLARE_bool(verbose);
 
 __SK_FORCE_IMAGE_DECODER_LINKING;
 
@@ -208,6 +211,10 @@ int tool_main(int argc, char** argv);
 int tool_main(int argc, char** argv) {
     SkAutoGraphics ag;
     SkCommandLineFlags::Parse(argc, argv);
+
+    if (FLAGS_dryRun) {
+        FLAGS_verbose = true;
+    }
 #if SK_ENABLE_INST_COUNT
     gPrintInstCount = FLAGS_leaks;
 #endif
