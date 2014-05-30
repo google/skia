@@ -24,7 +24,7 @@ class GrGLFragmentOnlyShaderBuilder;
  * and textures). It is built with GrGLProgramEffectsBuilder, then used to manage the necessary GL
  * state and shader uniforms.
  */
-class GrGLProgramEffects {
+class GrGLProgramEffects : public SkRefCnt {
 public:
     typedef GrBackendEffectFactory::EffectKey EffectKey;
     typedef GrGLUniformManager::UniformHandle UniformHandle;
@@ -122,6 +122,9 @@ protected:
 
     SkTArray<GrGLEffect*>                  fGLEffects;
     SkTArray<SkSTArray<4, Sampler, true> > fSamplers;
+
+private:
+    typedef SkRefCnt INHERITED;
 };
 
 /**

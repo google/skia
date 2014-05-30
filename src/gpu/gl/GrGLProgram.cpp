@@ -38,29 +38,24 @@ GrGLProgram::GrGLProgram(GrGpuGL* gpu,
                          const GrGLProgramDesc& desc,
                          GrGLUniformManager* uman,
                          const GrGLShaderBuilder::GenProgramOutput& builderOutput)
-    : fProgramID(builderOutput.fProgramID)
-    , fColor(GrColor_ILLEGAL)
+    : fColor(GrColor_ILLEGAL)
     , fCoverage(GrColor_ILLEGAL)
     , fDstCopyTexUnit(-1)
-    , fColorEffects(builderOutput.fColorEffects)
-    , fCoverageEffects(builderOutput.fCoverageEffects)
+    , fBuilderOutput(builderOutput)
     , fDesc(desc)
     , fGpu(gpu)
-    , fUniformManager(SkRef(uman))
-    , fUniformHandles(builderOutput.fUniformHandles)
-    , fHasVertexShader(builderOutput.fHasVertexShader)
-    , fTexCoordSetCnt(builderOutput.fTexCoordSetCnt) {
+    , fUniformManager(SkRef(uman)) {
     this->initSamplerUniforms();
 }
 
 GrGLProgram::~GrGLProgram() {
-    if (fProgramID) {
-        GL_CALL(DeleteProgram(fProgramID));
+    if (fBuilderOutput.fProgramID) {
+        GL_CALL(DeleteProgram(fBuilderOutput.fProgramID));
     }
 }
 
 void GrGLProgram::abandon() {
-    fProgramID = 0;
+    fBuilderOutput.fProgramID = 0;
 }
 
 void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
@@ -86,14 +81,14 @@ void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
 }
 
 void GrGLProgram::initSamplerUniforms() {
-    GL_CALL(UseProgram(fProgramID));
+    GL_CALL(UseProgram(fBuilderOutput.fProgramID));
     GrGLint texUnitIdx = 0;
-    if (fUniformHandles.fDstCopySamplerUni.isValid()) {
-        fUniformManager->setSampler(fUniformHandles.fDstCopySamplerUni, texUnitIdx);
+    if (fBuilderOutput.fUniformHandles.fDstCopySamplerUni.isValid()) {
+        fUniformManager->setSampler(fBuilderOutput.fUniformHandles.fDstCopySamplerUni, texUnitIdx);
         fDstCopyTexUnit = texUnitIdx++;
     }
-    fColorEffects->initSamplers(*fUniformManager, &texUnitIdx);
-    fCoverageEffects->initSamplers(*fUniformManager, &texUnitIdx);
+    fBuilderOutput.fColorEffects->initSamplers(*fUniformManager, &texUnitIdx);
+    fBuilderOutput.fCoverageEffects->initSamplers(*fUniformManager, &texUnitIdx);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -123,35 +118,35 @@ void GrGLProgram::setData(GrDrawState::BlendOptFlags blendOpts,
     this->setMatrixAndRenderTargetHeight(drawState);
 
     if (NULL != dstCopy) {
-        if (fUniformHandles.fDstCopyTopLeftUni.isValid()) {
-            fUniformManager->set2f(fUniformHandles.fDstCopyTopLeftUni,
+        if (fBuilderOutput.fUniformHandles.fDstCopyTopLeftUni.isValid()) {
+            fUniformManager->set2f(fBuilderOutput.fUniformHandles.fDstCopyTopLeftUni,
                                    static_cast<GrGLfloat>(dstCopy->offset().fX),
                                    static_cast<GrGLfloat>(dstCopy->offset().fY));
-            fUniformManager->set2f(fUniformHandles.fDstCopyScaleUni,
+            fUniformManager->set2f(fBuilderOutput.fUniformHandles.fDstCopyScaleUni,
                                    1.f / dstCopy->texture()->width(),
                                    1.f / dstCopy->texture()->height());
             GrGLTexture* texture = static_cast<GrGLTexture*>(dstCopy->texture());
             static GrTextureParams kParams; // the default is clamp, nearest filtering.
             fGpu->bindTexture(fDstCopyTexUnit, kParams, texture);
         } else {
-            SkASSERT(!fUniformHandles.fDstCopyScaleUni.isValid());
-            SkASSERT(!fUniformHandles.fDstCopySamplerUni.isValid());
+            SkASSERT(!fBuilderOutput.fUniformHandles.fDstCopyScaleUni.isValid());
+            SkASSERT(!fBuilderOutput.fUniformHandles.fDstCopySamplerUni.isValid());
         }
     } else {
-        SkASSERT(!fUniformHandles.fDstCopyTopLeftUni.isValid());
-        SkASSERT(!fUniformHandles.fDstCopyScaleUni.isValid());
-        SkASSERT(!fUniformHandles.fDstCopySamplerUni.isValid());
+        SkASSERT(!fBuilderOutput.fUniformHandles.fDstCopyTopLeftUni.isValid());
+        SkASSERT(!fBuilderOutput.fUniformHandles.fDstCopyScaleUni.isValid());
+        SkASSERT(!fBuilderOutput.fUniformHandles.fDstCopySamplerUni.isValid());
     }
 
-    fColorEffects->setData(fGpu, *fUniformManager, colorStages);
-    fCoverageEffects->setData(fGpu, *fUniformManager, coverageStages);
+    fBuilderOutput.fColorEffects->setData(fGpu, *fUniformManager, colorStages);
+    fBuilderOutput.fCoverageEffects->setData(fGpu, *fUniformManager, coverageStages);
 
 
     // PathTexGen state applies to the the fixed function vertex shader. For
     // custom shaders, it's ignored, so we don't need to change the texgen
     // settings in that case.
-    if (!fHasVertexShader) {
-        fGpu->flushPathTexGenSettings(fTexCoordSetCnt);
+    if (!fBuilderOutput.fHasVertexShader) {
+        fGpu->flushPathTexGenSettings(fBuilderOutput.fTexCoordSetCnt);
     }
 }
 
@@ -174,11 +169,11 @@ void GrGLProgram::setColor(const GrDrawState& drawState,
                 }
                 break;
             case GrGLProgramDesc::kUniform_ColorInput:
-                if (fColor != color && fUniformHandles.fColorUni.isValid()) {
+                if (fColor != color && fBuilderOutput.fUniformHandles.fColorUni.isValid()) {
                     // OpenGL ES doesn't support unsigned byte varieties of glUniform
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(color, c);
-                    fUniformManager->set4fv(fUniformHandles.fColorUni, 1, c);
+                    fUniformManager->set4fv(fBuilderOutput.fUniformHandles.fColorUni, 1, c);
                     fColor = color;
                 }
                 sharedState->fConstAttribColorIndex = -1;
@@ -217,7 +212,7 @@ void GrGLProgram::setCoverage(const GrDrawState& drawState,
                     // OpenGL ES doesn't support unsigned byte varieties of glUniform
                     GrGLfloat c[4];
                     GrColorToRGBAFloat(coverage, c);
-                    fUniformManager->set4fv(fUniformHandles.fCoverageUni, 1, c);
+                    fUniformManager->set4fv(fBuilderOutput.fUniformHandles.fCoverageUni, 1, c);
                     fCoverage = coverage;
                 }
                 sharedState->fConstAttribCoverageIndex = -1;
@@ -240,19 +235,20 @@ void GrGLProgram::setMatrixAndRenderTargetHeight(const GrDrawState& drawState) {
     size.set(rt->width(), rt->height());
 
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
-    if (fUniformHandles.fRTHeightUni.isValid() &&
+    if (fBuilderOutput.fUniformHandles.fRTHeightUni.isValid() &&
         fMatrixState.fRenderTargetSize.fHeight != size.fHeight) {
-        fUniformManager->set1f(fUniformHandles.fRTHeightUni, SkIntToScalar(size.fHeight));
+        fUniformManager->set1f(fBuilderOutput.fUniformHandles.fRTHeightUni,
+                               SkIntToScalar(size.fHeight));
     }
 
-    if (!fHasVertexShader) {
-        SkASSERT(!fUniformHandles.fViewMatrixUni.isValid());
-        SkASSERT(!fUniformHandles.fRTAdjustmentUni.isValid());
+    if (!fBuilderOutput.fHasVertexShader) {
+        SkASSERT(!fBuilderOutput.fUniformHandles.fViewMatrixUni.isValid());
+        SkASSERT(!fBuilderOutput.fUniformHandles.fRTAdjustmentUni.isValid());
         fGpu->setProjectionMatrix(drawState.getViewMatrix(), size, rt->origin());
     } else if (fMatrixState.fRenderTargetOrigin != rt->origin() ||
                fMatrixState.fRenderTargetSize != size ||
                !fMatrixState.fViewMatrix.cheapEqualTo(drawState.getViewMatrix())) {
-        SkASSERT(fUniformHandles.fViewMatrixUni.isValid());
+        SkASSERT(fBuilderOutput.fUniformHandles.fViewMatrixUni.isValid());
 
         fMatrixState.fViewMatrix = drawState.getViewMatrix();
         fMatrixState.fRenderTargetSize = size;
@@ -260,10 +256,10 @@ void GrGLProgram::setMatrixAndRenderTargetHeight(const GrDrawState& drawState) {
 
         GrGLfloat viewMatrix[3 * 3];
         fMatrixState.getGLMatrix<3>(viewMatrix);
-        fUniformManager->setMatrix3f(fUniformHandles.fViewMatrixUni, viewMatrix);
+        fUniformManager->setMatrix3f(fBuilderOutput.fUniformHandles.fViewMatrixUni, viewMatrix);
 
         GrGLfloat rtAdjustmentVec[4];
         fMatrixState.getRTAdjustmentVec(rtAdjustmentVec);
-        fUniformManager->set4fv(fUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
+        fUniformManager->set4fv(fBuilderOutput.fUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
     }
 }

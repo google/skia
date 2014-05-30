@@ -60,9 +60,9 @@ public:
     /**
      * Gets the GL program ID for this program.
      */
-    GrGLuint programID() const { return fProgramID; }
+    GrGLuint programID() const { return fBuilderOutput.fProgramID; }
 
-    bool hasVertexShader() const { return fHasVertexShader; }
+    bool hasVertexShader() const { return fBuilderOutput.fHasVertexShader; }
 
     /**
      * Some GL state that is relevant to programs is not stored per-program. In particular color
@@ -164,12 +164,12 @@ public:
 private:
     typedef GrGLUniformManager::UniformHandle UniformHandle;
 
-    GrGLProgram(GrGpuGL* gpu,
-                const GrGLProgramDesc& desc,
-                GrGLUniformManager* uman,
-                const GrGLShaderBuilder::GenProgramOutput& builderOutput);
+    GrGLProgram(GrGpuGL*,
+                const GrGLProgramDesc&,
+                GrGLUniformManager*,
+                const GrGLShaderBuilder::GenProgramOutput&);
 
-    // Sets the texture units for samplers
+    // Sets the texture units for samplers.
     void initSamplerUniforms();
 
     // Helper for setData(). Makes GL calls to specify the initial color when there is not
@@ -183,27 +183,18 @@ private:
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setMatrixAndRenderTargetHeight(const GrDrawState&);
 
-    // GL program ID
-    GrGLuint                            fProgramID;
-
     // these reflect the current values of uniforms (GL uniform values travel with program)
     MatrixState                         fMatrixState;
     GrColor                             fColor;
     GrColor                             fCoverage;
     int                                 fDstCopyTexUnit;
 
-    SkAutoTDelete<GrGLProgramEffects>   fColorEffects;
-    SkAutoTDelete<GrGLProgramEffects>   fCoverageEffects;
+    GrGLShaderBuilder::GenProgramOutput fBuilderOutput;
 
     GrGLProgramDesc                     fDesc;
-
     GrGpuGL*                            fGpu;
 
     SkAutoTUnref<GrGLUniformManager>    fUniformManager;
-    GrGLShaderBuilder::UniformHandles   fUniformHandles;
-
-    bool                                fHasVertexShader;
-    int                                 fTexCoordSetCnt;
 
     typedef SkRefCnt INHERITED;
 };

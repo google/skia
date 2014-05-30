@@ -194,17 +194,15 @@ bool GrGLShaderBuilder::genProgram(const GrEffectStage* colorStages[],
     ///////////////////////////////////////////////////////////////////////////
     // emit the per-effect code for both color and coverage effects
 
-    fOutput.fColorEffects =
-        this->createAndEmitEffects(colorStages,
-                                   this->desc().getEffectKeys(),
-                                   this->desc().numColorEffects(),
-                                   &inputColor);
+    fOutput.fColorEffects.reset(this->createAndEmitEffects(colorStages,
+                                                           this->desc().getEffectKeys(),
+                                                           this->desc().numColorEffects(),
+                                                           &inputColor));
 
-    fOutput.fCoverageEffects =
-        this->createAndEmitEffects(coverageStages,
+    fOutput.fCoverageEffects.reset(this->createAndEmitEffects(coverageStages,
                                     this->desc().getEffectKeys() + this->desc().numColorEffects(),
                                     this->desc().numCoverageEffects(),
-                                    &inputCoverage);
+                                    &inputCoverage));
 
     this->emitCodeAfterEffects();
 

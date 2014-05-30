@@ -68,12 +68,26 @@ public:
             , fTexCoordSetCnt(0)
             , fProgramID(0) {}
 
-        GrGLProgramEffects* fColorEffects;
-        GrGLProgramEffects* fCoverageEffects;
-        UniformHandles      fUniformHandles;
-        bool                fHasVertexShader;
-        int                 fTexCoordSetCnt;
-        GrGLuint            fProgramID;
+        GenProgramOutput(const GenProgramOutput& other) {
+            *this = other;
+        }
+
+        GenProgramOutput& operator=(const GenProgramOutput& other) {
+            fColorEffects.reset(SkRef(other.fColorEffects.get()));
+            fCoverageEffects.reset(SkRef(other.fCoverageEffects.get()));
+            fUniformHandles = other.fUniformHandles;
+            fHasVertexShader = other.fHasVertexShader;
+            fTexCoordSetCnt = other.fTexCoordSetCnt;
+            fProgramID = other.fProgramID;
+            return *this;
+        }
+
+        SkAutoTUnref<GrGLProgramEffects> fColorEffects;
+        SkAutoTUnref<GrGLProgramEffects> fCoverageEffects;
+        UniformHandles                   fUniformHandles;
+        bool                             fHasVertexShader;
+        int                              fTexCoordSetCnt;
+        GrGLuint                         fProgramID;
     };
 
     static bool GenProgram(GrGpuGL* gpu,
