@@ -233,9 +233,6 @@ protected:
 
     const GrGLProgramDesc& desc() const { return fDesc; }
 
-    void setInputColor(const GrGLSLExpr4& inputColor) { fInputColor = inputColor; }
-    void setInputCoverage(const GrGLSLExpr4& inputCoverage) { fInputCoverage = inputCoverage; }
-
     /** Add input/output variable declarations (i.e. 'varying') to the fragment shader. */
     GrGLShaderVar& fsInputAppend() { return fFSInputs.push_back(); }
 
@@ -317,6 +314,15 @@ private:
     bool genProgram(const GrEffectStage* colorStages[], const GrEffectStage* coverageStages[]);
 
     /**
+     * The base class will emit the fragment code that precedes the per-effect code and then call
+     * this function. The subclass can use it to insert additional fragment code that should
+     * execute before the effects' code and/or emit other shaders (e.g. geometry, vertex).
+     *
+     * The subclass can modify the initial color or coverage 
+     */
+    virtual void emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLExpr4* coverage) = 0;
+
+    /**
     * Adds code for effects and returns a GrGLProgramEffects* object. The caller is responsible for
     * deleting it when finished. effectStages contains the effects to add. effectKeys[i] is the key
     * generated from effectStages[i]. inOutFSColor specifies the input color to the first stage and
@@ -329,6 +335,11 @@ private:
                                                      int effectCnt,
                                                      GrGLSLExpr4* inOutFSColor) = 0;
 
+    /**
+     * Similar to emitCodeBeforeEffects() but called after per-effect code is emitted.
+     */
+    virtual void emitCodeAfterEffects() = 0;
+
     /** Enables using the secondary color output and returns the name of the var in which it is
         to be stored */
     const char* enableSecondaryOutput();
@@ -340,14 +351,6 @@ private:
      * struct.
      **/
     bool finish();
-
-    const GrGLSLExpr4& getInputColor() const {
-        return fInputColor;
-    }
-
-    const GrGLSLExpr4& getInputCoverage() const {
-        return fInputCoverage;
-    }
 
     /**
      * Features that should only be enabled by GrGLShaderBuilder itself.
@@ -391,9 +394,6 @@ private:
 
     bool                                    fSetupFragPosition;
     bool                                    fTopLeftFragPosRead;
-
-    GrGLSLExpr4                             fInputColor;
-    GrGLSLExpr4                             fInputCoverage;
 
     bool                                    fHasCustomColorOutput;
     bool                                    fHasSecondaryOutput;
@@ -448,10 +448,15 @@ public:
     const SkString* getEffectAttributeName(int attributeIndex) const;
 
 private:
+    virtual void emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLExpr4* coverage) SK_OVERRIDE;
+
     virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
                                                      const EffectKey effectKeys[],
                                                      int effectCnt,
                                                      GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
+
+    virtual void emitCodeAfterEffects() SK_OVERRIDE;
+
     virtual bool compileAndAttachShaders(GrGLuint programId,
                                          SkTDArray<GrGLuint>* shaderIds) const SK_OVERRIDE;
 
@@ -488,11 +493,14 @@ public:
     int addTexCoordSets(int count);
 
 private:
+    virtual void emitCodeBeforeEffects(GrGLSLExpr4* color, GrGLSLExpr4* coverage) SK_OVERRIDE {}
 
     virtual GrGLProgramEffects* createAndEmitEffects(const GrEffectStage* effectStages[],
                                                      const EffectKey effectKeys[],
                                                      int effectCnt,
                                                      GrGLSLExpr4* inOutFSColor) SK_OVERRIDE;
+
+    virtual void emitCodeAfterEffects() SK_OVERRIDE {}
 
     typedef GrGLShaderBuilder INHERITED;
 };
