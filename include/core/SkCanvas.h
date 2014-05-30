@@ -1514,7 +1514,7 @@ private:
 
 static inline SkCanvas::SaveFlags operator|(const SkCanvas::SaveFlags lhs,
                                             const SkCanvas::SaveFlags rhs) {
-    return static_cast<SkCanvas::SaveFlags>(lhs | rhs);
+    return static_cast<SkCanvas::SaveFlags>(static_cast<int>(lhs) | static_cast<int>(rhs));
 }
 
 static inline SkCanvas::SaveFlags& operator|=(SkCanvas::SaveFlags& lhs,
