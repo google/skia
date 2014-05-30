@@ -1185,7 +1185,7 @@ static void test_bad_bitmap() {
     // This bitmap has a width and height but no pixels. As a result, attempting to record it will
     // fail.
     SkBitmap bm;
-    bm.setConfig(SkImageInfo::MakeN32Premul(100, 100));
+    bm.setInfo(SkImageInfo::MakeN32Premul(100, 100));
     SkPictureRecorder recorder;
     SkCanvas* recordingCanvas = recorder.beginRecording(100, 100, NULL, 0);
     recordingCanvas->drawBitmap(bm, 0, 0);
@@ -1616,7 +1616,7 @@ static void draw_bitmaps(const SkBitmap bitmap, SkCanvas* canvas) {
 static void test_draw_bitmaps(SkCanvas* canvas) {
     SkBitmap empty;
     draw_bitmaps(empty, canvas);
-    empty.setConfig(SkImageInfo::MakeN32Premul(10, 10));
+    empty.setInfo(SkImageInfo::MakeN32Premul(10, 10));
     draw_bitmaps(empty, canvas);
 }
 

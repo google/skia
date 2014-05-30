@@ -739,7 +739,7 @@ SkBitmap wrap_texture(GrTexture* texture) {
     texture->asImageInfo(&info);
 
     SkBitmap result;
-    result.setConfig(info);
+    result.setInfo(info);
     result.setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
     return result;
 }
@@ -1844,7 +1844,7 @@ void SkGpuDevice::EXPERIMENTAL_optimize(SkPicture* picture) {
 
 static void wrap_texture(GrTexture* texture, int width, int height, SkBitmap* result) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-    result->setConfig(info);
+    result->setInfo(info);
     result->setPixelRef(SkNEW_ARGS(SkGrPixelRef, (info, texture)))->unref();
 }
 

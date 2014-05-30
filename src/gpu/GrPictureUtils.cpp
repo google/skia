@@ -41,10 +41,7 @@ public:
         fInfo.fHasNestedLayers = false;
         fInfo.fIsNested = (2 == fSaveLayerDepth);
 
-        fEmptyBitmap.setConfig(SkImageInfo::Make(fInfo.fSize.fWidth,
-                                                 fInfo.fSize.fHeight,
-                                                 kUnknown_SkColorType,
-                                                 kIgnore_SkAlphaType));
+        fEmptyBitmap.setInfo(SkImageInfo::MakeUnknown(fInfo.fSize.fWidth, fInfo.fSize.fHeight));
         fAccelData = accelData;
         fAlreadyDrawn = false;
     }

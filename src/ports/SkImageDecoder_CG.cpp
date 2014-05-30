@@ -70,7 +70,7 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     const int height = SkToInt(CGImageGetHeight(image));
     SkImageInfo skinfo = SkImageInfo::MakeN32Premul(width, height);
 
-    bm->setConfig(skinfo);
+    bm->setInfo(skinfo);
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
         return true;
     }

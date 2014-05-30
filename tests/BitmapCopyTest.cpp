@@ -336,9 +336,8 @@ DEF_TEST(BitmapCopy, reporter) {
             // Test with a very large configuration without pixel buffer
             // attached.
             SkBitmap tstSafeSize;
-            tstSafeSize.setConfig(SkImageInfo::Make(100000000U, 100000000U,
-                                                    gPairs[i].fColorType,
-                                                    kPremul_SkAlphaType));
+            tstSafeSize.setInfo(SkImageInfo::Make(100000000U, 100000000U,
+                                                  gPairs[i].fColorType, kPremul_SkAlphaType));
             int64_t safeSize = tstSafeSize.computeSafeSize64();
             if (safeSize < 0) {
                 ERRORF(reporter, "getSafeSize64() negative: %s",

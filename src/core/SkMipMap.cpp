@@ -123,21 +123,21 @@ SkMipMap::Level* SkMipMap::AllocLevels(int levelCount, size_t pixelSize) {
 SkMipMap* SkMipMap::Build(const SkBitmap& src) {
     void (*proc)(SkBitmap* dst, int x, int y, const SkBitmap& src);
 
-    const SkBitmap::Config config = src.config();
-    switch (config) {
-        case SkBitmap::kARGB_8888_Config:
+    const SkColorType ct = src.colorType();
+    const SkAlphaType at = src.alphaType();
+    switch (ct) {
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
             proc = downsampleby2_proc32;
             break;
-        case SkBitmap::kRGB_565_Config:
+        case kRGB_565_SkColorType:
             proc = downsampleby2_proc16;
             break;
-        case SkBitmap::kARGB_4444_Config:
+        case kARGB_4444_SkColorType:
             proc = downsampleby2_proc4444;
             break;
-        case SkBitmap::kIndex8_Config:
-        case SkBitmap::kA8_Config:
         default:
-            return NULL; // don't build mipmaps for these configs
+            return NULL; // don't build mipmaps for any other colortypes (yet)
     }
 
     SkAutoLockPixels alp(src);
@@ -157,7 +157,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src) {
             if (0 == width || 0 == height) {
                 break;
             }
-            size += SkBitmap::ComputeRowBytes(config, width) * height;
+            size += SkColorTypeMinRowBytes(ct, width) * height;
             countLevels += 1;
         }
     }
@@ -180,7 +180,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src) {
     for (int i = 0; i < countLevels; ++i) {
         width >>= 1;
         height >>= 1;
-        rowBytes = SkToU32(SkBitmap::ComputeRowBytes(config, width));
+        rowBytes = SkToU32(SkColorTypeMinRowBytes(ct, width));
 
         levels[i].fPixels   = addr;
         levels[i].fWidth    = width;
@@ -189,8 +189,7 @@ SkMipMap* SkMipMap::Build(const SkBitmap& src) {
         levels[i].fScale    = (float)width / src.width();
 
         SkBitmap dstBM;
-        dstBM.setConfig(config, width, height, rowBytes);
-        dstBM.setPixels(addr);
+        dstBM.installPixels(SkImageInfo::Make(width, height, ct, at), addr, rowBytes);
 
         srcBM.lockPixels();
         for (int y = 0; y < height; y++) {

@@ -499,7 +499,7 @@ SkCanvas::SkCanvas(int width, int height)
     inc_canvas();
 
     SkBitmap bitmap;
-    bitmap.setConfig(SkImageInfo::MakeUnknown(width, height));
+    bitmap.setInfo(SkImageInfo::MakeUnknown(width, height));
     this->init(SkNEW_ARGS(SkBitmapDevice, (bitmap)))->unref();
 }
 

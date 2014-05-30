@@ -1216,9 +1216,8 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
         // now draw our bitmap(src) into mask(dst), transformed by the matrix
         {
             SkBitmap    device;
-            device.setConfig(SkBitmap::kA8_Config, mask.fBounds.width(),
-                             mask.fBounds.height(), mask.fRowBytes);
-            device.setPixels(mask.fImage);
+            device.installPixels(SkImageInfo::MakeA8(mask.fBounds.width(), mask.fBounds.height()),
+                                 mask.fImage, mask.fRowBytes);
 
             SkCanvas c(device);
             // need the unclipped top/left for the translate
@@ -1666,9 +1665,8 @@ void SkDraw1Glyph::blitMaskAsSprite(const SkMask& mask) const {
     SkASSERT(SkMask::kARGB32_Format == mask.fFormat);
 
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config,
-                 mask.fBounds.width(), mask.fBounds.height(), mask.fRowBytes);
-    bm.setPixels((SkPMColor*)mask.fImage);
+    bm.installPixels(SkImageInfo::MakeN32Premul(mask.fBounds.width(), mask.fBounds.height()),
+                     (SkPMColor*)mask.fImage, mask.fRowBytes);
 
     fDraw->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), *fPaint);
 }
@@ -2673,8 +2671,8 @@ static void draw_into_mask(const SkMask& mask, const SkPath& devPath,
     SkMatrix        matrix;
     SkPaint         paint;
 
-    bm.setConfig(SkBitmap::kA8_Config, mask.fBounds.width(), mask.fBounds.height(), mask.fRowBytes);
-    bm.setPixels(mask.fImage);
+    bm.installPixels(SkImageInfo::MakeA8(mask.fBounds.width(), mask.fBounds.height()),
+                     mask.fImage, mask.fRowBytes);
 
     clip.setRect(SkIRect::MakeWH(mask.fBounds.width(), mask.fBounds.height()));
     matrix.setTranslate(-SkIntToScalar(mask.fBounds.fLeft),

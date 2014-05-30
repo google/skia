@@ -186,7 +186,7 @@ bool SkImageDecoder_WIC::decodeStream(SkStream* stream, SkBitmap* bm, WICModes w
 
     //Exit early if we're only looking for the bitmap bounds.
     if (SUCCEEDED(hr)) {
-        bm->setConfig(SkImageInfo::MakeN32Premul(width, height));
+        bm->setInfo(SkImageInfo::MakeN32Premul(width, height));
         if (kDecodeBounds_WICMode == wicMode) {
             return true;
         }

@@ -314,6 +314,7 @@
         'SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES',
         'SK_SUPPORT_LEGACY_PICTURE_HEADERS',
         'SK_SUPPORT_LEGACY_BLURMASKFILTER_STYLE',
+        'SK_SUPPORT_LEGACY_SETCONFIG_INFO',
         # Needed until we fix skbug.com/2440.
         'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
         # Transitional, for deprecated SkCanvas::SaveFlags methods.

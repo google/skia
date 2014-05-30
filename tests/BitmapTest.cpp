@@ -13,11 +13,10 @@ static void test_bigwidth(skiatest::Reporter* reporter) {
     SkBitmap bm;
     int width = 1 << 29;    // *4 will be the high-bit of 32bit int
 
-    SkImageInfo info = SkImageInfo::Make(width, 1, kAlpha_8_SkColorType,
-                                         kPremul_SkAlphaType);
-    REPORTER_ASSERT(reporter, bm.setConfig(info));
+    SkImageInfo info = SkImageInfo::MakeA8(width, 1);
+    REPORTER_ASSERT(reporter, bm.setInfo(info));
     info.fColorType = kRGB_565_SkColorType;
-    REPORTER_ASSERT(reporter, bm.setConfig(info));
+    REPORTER_ASSERT(reporter, bm.setInfo(info));
 
     // for a 4-byte config, this width will compute a rowbytes of 0x80000000,
     // which does not fit in a int32_t. setConfig should detect this, and fail.
@@ -26,7 +25,7 @@ static void test_bigwidth(skiatest::Reporter* reporter) {
     //       in a uint32_t (or larger), but for now this is the constraint.
 
     info.fColorType = kN32_SkColorType;
-    REPORTER_ASSERT(reporter, !bm.setConfig(info));
+    REPORTER_ASSERT(reporter, !bm.setInfo(info));
 }
 
 /**
@@ -37,8 +36,7 @@ DEF_TEST(Bitmap, reporter) {
     for (int width = 0; width < 2; ++width) {
         for (int height = 0; height < 2; ++height) {
             SkBitmap bm;
-            bool setConf = bm.setConfig(SkImageInfo::MakeN32Premul(width,
-                                                                   height));
+            bool setConf = bm.setInfo(SkImageInfo::MakeN32Premul(width, height));
             REPORTER_ASSERT(reporter, setConf);
             if (setConf) {
                 REPORTER_ASSERT(reporter, bm.allocPixels(NULL));

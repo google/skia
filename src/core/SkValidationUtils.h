@@ -23,12 +23,6 @@ static inline bool SkIsValidMode(SkXfermode::Mode mode) {
     return (mode >= 0) && (mode <= SkXfermode::kLastMode);
 }
 
-/** Returns true if config's value is in the SkBitmap::Config enum.
-  */
-static inline bool SkIsValidConfig(SkBitmap::Config config) {
-    return (config >= 0) && (config <= static_cast<int>(SkBitmap::kConfigCount));
-}
-
 /** Returns true if the rect's dimensions are between 0 and SK_MaxS32
   */
 static inline bool SkIsValidIRect(const SkIRect& rect) {

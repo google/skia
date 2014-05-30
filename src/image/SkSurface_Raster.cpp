@@ -79,8 +79,7 @@ bool SkSurface_Raster::Valid(const SkImageInfo& info, size_t rowBytes) {
 SkSurface_Raster::SkSurface_Raster(const SkImageInfo& info, void* pixels, size_t rb)
     : INHERITED(info)
 {
-    fBitmap.setConfig(info, rb);
-    fBitmap.setPixels(pixels);
+    fBitmap.installPixels(info, pixels, rb);
     fWeOwnThePixels = false;    // We are "Direct"
 }
 
@@ -89,7 +88,7 @@ SkSurface_Raster::SkSurface_Raster(SkPixelRef* pr)
 {
     const SkImageInfo& info = pr->info();
 
-    fBitmap.setConfig(info, info.minRowBytes());
+    fBitmap.setInfo(info, info.minRowBytes());
     fBitmap.setPixelRef(pr);
     fWeOwnThePixels = true;
 

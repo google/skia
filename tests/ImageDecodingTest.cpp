@@ -509,7 +509,7 @@ DEF_TEST(ImprovedBitmapFactory, reporter) {
         SkStream::NewFromFile(path.c_str()));
     if (sk_exists(path.c_str())) {
         SkBitmap bm;
-        SkAssertResult(bm.setConfig(SkImageInfo::MakeN32Premul(1, 1)));
+        SkAssertResult(bm.setInfo(SkImageInfo::MakeN32Premul(1, 1)));
         REPORTER_ASSERT(reporter,
             NULL != install_pixel_ref(&bm, stream.detach(), 1, true));
         SkAutoLockPixels alp(bm);

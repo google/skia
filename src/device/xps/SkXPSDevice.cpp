@@ -106,7 +106,7 @@ static HRESULT create_id(wchar_t* buffer, size_t bufferSize,
 
 static SkBitmap make_fake_bitmap(int width, int height) {
     SkBitmap bitmap;
-    bitmap.setConfig(SkImageInfo::MakeUnknown(width, height));
+    bitmap.setInfo(SkImageInfo::MakeUnknown(width, height));
     return bitmap;
 }
 
@@ -1589,11 +1589,7 @@ HRESULT SkXPSDevice::applyMask(const SkDraw& d,
     xy[1] = (SkShader::TileMode)3;
 
     SkBitmap bm;
-    bm.setConfig(SkBitmap::kA8_Config,
-                 mask.fBounds.width(),
-                 mask.fBounds.height(),
-                 mask.fRowBytes);
-    bm.setPixels(mask.fImage);
+    bm.installMaskPixels(mask);
 
     SkTScopedComPtr<IXpsOMTileBrush> maskBrush;
     HR(this->createXpsImageBrush(bm, m, xy, 0xFF, &maskBrush));

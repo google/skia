@@ -202,7 +202,7 @@ static bool validate_alphaType(SkColorType colorType, SkAlphaType alphaType,
     return true;
 }
 
-bool SkBitmap::setConfig(const SkImageInfo& origInfo, size_t rowBytes) {
+bool SkBitmap::setInfo(const SkImageInfo& origInfo, size_t rowBytes) {
     SkImageInfo info = origInfo;
 
     if (!validate_alphaType(info.fColorType, info.fAlphaType,
@@ -241,8 +241,7 @@ bool SkBitmap::setConfig(const SkImageInfo& origInfo, size_t rowBytes) {
 bool SkBitmap::setConfig(Config config, int width, int height, size_t rowBytes,
                          SkAlphaType alphaType) {
     SkColorType ct = SkBitmapConfigToColorType(config);
-    return this->setConfig(SkImageInfo::Make(width, height, ct, alphaType),
-                           rowBytes);
+    return this->setInfo(SkImageInfo::Make(width, height, ct, alphaType), rowBytes);
 }
 
 bool SkBitmap::setAlphaType(SkAlphaType alphaType) {
@@ -419,7 +418,7 @@ bool SkBitmap::allocPixels(const SkImageInfo& info, SkPixelRefFactory* factory,
     if (kIndex_8_SkColorType == info.fColorType && NULL == ctable) {
         return reset_return_false(this);
     }
-    if (!this->setConfig(info)) {
+    if (!this->setInfo(info)) {
         return reset_return_false(this);
     }
 
@@ -444,7 +443,7 @@ bool SkBitmap::allocPixels(const SkImageInfo& info, SkPixelRefFactory* factory,
 
 bool SkBitmap::installPixels(const SkImageInfo& info, void* pixels, size_t rb, SkColorTable* ct,
                              void (*releaseProc)(void* addr, void* context), void* context) {
-    if (!this->setConfig(info, rb)) {
+    if (!this->setInfo(info, rb)) {
         this->reset();
         return false;
     }
@@ -884,8 +883,8 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
         SkPixelRef* pixelRef = fPixelRef->deepCopy(this->config(), &subset);
         if (pixelRef != NULL) {
             SkBitmap dst;
-            dst.setConfig(SkImageInfo::Make(subset.width(), subset.height(),
-                                            this->colorType(), this->alphaType()));
+            dst.setInfo(SkImageInfo::Make(subset.width(), subset.height(),
+                                          this->colorType(), this->alphaType()));
             dst.setIsVolatile(this->isVolatile());
             dst.setPixelRef(pixelRef)->unref();
             SkDEBUGCODE(dst.validate());
@@ -900,8 +899,8 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
     SkASSERT(static_cast<unsigned>(r.fTop) < static_cast<unsigned>(this->height()));
 
     SkBitmap dst;
-    dst.setConfig(SkImageInfo::Make(r.width(), r.height(), this->colorType(), this->alphaType()),
-                  this->rowBytes());
+    dst.setInfo(SkImageInfo::Make(r.width(), r.height(), this->colorType(), this->alphaType()),
+                this->rowBytes());
     dst.setIsVolatile(this->isVolatile());
 
     if (fPixelRef) {
@@ -994,7 +993,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, SkColorType dstColorType,
     dstInfo.fColorType = dstColorType;
 
     SkBitmap tmpDst;
-    if (!tmpDst.setConfig(dstInfo)) {
+    if (!tmpDst.setInfo(dstInfo)) {
         return false;
     }
 
@@ -1102,13 +1101,13 @@ bool SkBitmap::deepCopyTo(SkBitmap* dst) const {
                 // Use the same rowBytes as the original.
                 rowBytes = fRowBytes;
             } else {
-                // With the new config, an appropriate fRowBytes will be computed by setConfig.
+                // With the new config, an appropriate fRowBytes will be computed by setInfo.
                 rowBytes = 0;
             }
 
             SkImageInfo info = fInfo;
             info.fColorType = dstCT;
-            if (!dst->setConfig(info, rowBytes)) {
+            if (!dst->setInfo(info, rowBytes)) {
                 return false;
             }
             dst->setPixelRef(pixelRef, fPixelRefOrigin)->unref();
@@ -1218,7 +1217,7 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
         dstM.fRowBytes = SkAlign4(dstM.fBounds.width());
     } else {
     NO_FILTER_CASE:
-        tmpBitmap.setConfig(SkImageInfo::MakeA8(this->width(), this->height()), srcM.fRowBytes);
+        tmpBitmap.setInfo(SkImageInfo::MakeA8(this->width(), this->height()), srcM.fRowBytes);
         if (!tmpBitmap.allocPixels(allocator, NULL)) {
             // Allocation of pixels for alpha bitmap failed.
             SkDebugf("extractAlpha failed to allocate (%d,%d) alpha bitmap\n",
@@ -1241,8 +1240,8 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
     }
     SkAutoMaskFreeImage dstCleanup(dstM.fImage);
 
-    tmpBitmap.setConfig(SkImageInfo::MakeA8(dstM.fBounds.width(), dstM.fBounds.height()),
-                        dstM.fRowBytes);
+    tmpBitmap.setInfo(SkImageInfo::MakeA8(dstM.fBounds.width(), dstM.fBounds.height()),
+                      dstM.fRowBytes);
     if (!tmpBitmap.allocPixels(allocator, NULL)) {
         // Allocation of pixels for alpha bitmap failed.
         SkDebugf("extractAlpha failed to allocate (%d,%d) alpha bitmap\n",
@@ -1334,7 +1333,7 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
 
     SkAutoTUnref<SkPixelRef> pr(SkMallocPixelRef::NewWithData(info, info.minRowBytes(),
                                                               ctable.get(), data.get()));
-    bitmap->setConfig(pr->info());
+    bitmap->setInfo(pr->info());
     bitmap->setPixelRef(pr, 0, 0);
     return true;
 }
@@ -1358,7 +1357,7 @@ void SkBitmap::legacyUnflatten(SkReadBuffer& buffer) {
         return;
     }
 
-    bool configIsValid = this->setConfig(info, rowBytes);
+    bool configIsValid = this->setInfo(info, rowBytes);
     buffer.validate(configIsValid);
 
     int reftype = buffer.readInt();
