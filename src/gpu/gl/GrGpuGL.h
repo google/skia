@@ -124,6 +124,8 @@ private:
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
                                        size_t rowBytes) SK_OVERRIDE;
+    virtual GrTexture* onCreateCompressedTexture(const GrTextureDesc& desc,
+                                                 const void* srcData) SK_OVERRIDE;
     virtual GrVertexBuffer* onCreateVertexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
     virtual GrIndexBuffer* onCreateIndexBuffer(size_t size, bool dynamic) SK_OVERRIDE;
     virtual GrPath* onCreatePath(const SkPath&, const SkStrokeRec&) SK_OVERRIDE;
@@ -264,6 +266,10 @@ private:
                        GrPixelConfig dataConfig,
                        const void* data,
                        size_t rowBytes);
+
+    // helper for onCreateCompressedTexture
+    bool uploadCompressedTexData(const GrGLTexture::Desc& desc,
+                                 const void* data);
 
     bool createRenderTargetObjects(int width, int height,
                                    GrGLuint texID,
