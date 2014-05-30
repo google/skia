@@ -8,7 +8,7 @@
 #ifndef SkMessageBus_DEFINED
 #define SkMessageBus_DEFINED
 
-#include "SkOnce.h"
+#include "SkLazyPtr.h"
 #include "SkTDArray.h"
 #include "SkThread.h"
 #include "SkTypes.h"
@@ -38,7 +38,7 @@ public:
 private:
     SkMessageBus();
     static SkMessageBus* Get();
-    static void New(SkMessageBus**);
+    static SkMessageBus* New();
 
     SkTDArray<Inbox*> fInboxes;
     SkMutex           fInboxesMutex;
@@ -46,14 +46,11 @@ private:
 
 // This must go in a single .cpp file, not some .h, or we risk creating more than one global
 // SkMessageBus per type when using shared libraries.
-#define DECLARE_SKMESSAGEBUS_MESSAGE(Message)             \
-    template <>                                           \
-    SkMessageBus<Message>* SkMessageBus<Message>::Get() { \
-        static SkMessageBus<Message>* bus = NULL;         \
-        SK_DECLARE_STATIC_ONCE(once);                     \
-        SkOnce(&once, &New, &bus);                        \
-        SkASSERT(bus != NULL);                            \
-        return bus;                                       \
+#define DECLARE_SKMESSAGEBUS_MESSAGE(Message)                        \
+    template <>                                                      \
+    SkMessageBus<Message>* SkMessageBus<Message>::Get() {            \
+        SK_DECLARE_STATIC_LAZY_PTR(SkMessageBus<Message>, bus, New); \
+        return bus.get();                                            \
     }
 
 //   ----------------------- Implementation of SkMessageBus::Inbox -----------------------
@@ -100,8 +97,8 @@ template <typename Message>
 SkMessageBus<Message>::SkMessageBus() {}
 
 template <typename Message>
-/*static*/ void SkMessageBus<Message>::New(SkMessageBus<Message>** bus) {
-    *bus = new SkMessageBus<Message>();
+/*static*/ SkMessageBus<Message>* SkMessageBus<Message>::New() {
+    return SkNEW(SkMessageBus<Message>);
 }
 
 template <typename Message>

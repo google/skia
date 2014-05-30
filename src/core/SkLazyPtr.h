@@ -64,7 +64,6 @@
 
 // See FIXME below.
 class SkFontConfigInterface;
-class SkTypeface;
 
 namespace Private {
 
@@ -100,7 +99,6 @@ public:
 #ifdef SK_DEBUG
     // FIXME: We know we leak refs on some classes.  For now, let them leak.
     void cleanup(SkFontConfigInterface*) {}
-    void cleanup(SkTypeface*) {}
     template <typename U> void cleanup(U* ptr) { Destroy(ptr); }
 
     ~SkLazyPtr() {
