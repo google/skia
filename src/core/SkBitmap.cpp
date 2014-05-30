@@ -1308,7 +1308,9 @@ bool SkBitmap::ReadRawPixels(SkReadBuffer* buffer, SkBitmap* bitmap) {
     const int height = info.height();
     const size_t snugSize = snugRB * height;
     const size_t ramSize = ramRB * height;
-    SkASSERT(snugSize <= ramSize);
+    if (!buffer->validate(snugSize <= ramSize)) {
+        return false;
+    }
 
     char* dst = (char*)sk_malloc_throw(ramSize);
     buffer->readByteArray(dst, snugSize);
