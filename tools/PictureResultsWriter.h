@@ -31,8 +31,8 @@ public:
     virtual void tileMeta(int x, int y, int tx, int ty) = 0;
     virtual void addTileFlag(PictureResultsWriter::TileFlags flag) = 0;
     virtual void tileData(
-            TimerData* data, 
-            const char format[], 
+            TimerData* data,
+            const char format[],
             const TimerData::Result result,
             uint32_t timerTypes,
             int numInnerLoops = 1) = 0;
@@ -46,7 +46,7 @@ public:
  * passed to PictureResultsMultiWriter */
 class PictureResultsMultiWriter : public PictureResultsWriter {
 public:
-    PictureResultsMultiWriter() 
+    PictureResultsMultiWriter()
         : fWriters() {}
     void add(PictureResultsWriter* newWriter) {
         fWriters.push_back(newWriter);
@@ -73,13 +73,13 @@ public:
         }
     }
     virtual void tileData(
-            TimerData* data, 
-            const char format[], 
+            TimerData* data,
+            const char format[],
             const TimerData::Result result,
             uint32_t timerTypes,
             int numInnerLoops = 1) {
         for(int i=0; i<fWriters.count(); ++i) {
-            fWriters[i]->tileData(data, format, result, timerTypes, 
+            fWriters[i]->tileData(data, format, result, timerTypes,
                                  numInnerLoops);
         }
     }
@@ -95,7 +95,7 @@ private:
 /**
  * Writes to SkBenchLogger to mimic original behavior
  */
-class PictureResultsLoggerWriter : public PictureResultsWriter {    
+class PictureResultsLoggerWriter : public PictureResultsWriter {
 private:
     void logProgress(const char str[]) {
         if(fLogger != NULL) {
@@ -124,8 +124,8 @@ public:
         }
     }
     virtual void tileData(
-            TimerData* data, 
-            const char format[], 
+            TimerData* data,
+            const char format[],
             const TimerData::Result result,
             uint32_t timerTypes,
             int numInnerLoops = 1) {
@@ -173,7 +173,7 @@ class PictureJSONResultsWriter : public PictureResultsWriter {
 public:
     PictureJSONResultsWriter(const char filename[])
         : fFilename(filename),
-          fRoot(), 
+          fRoot(),
           fCurrentBench(NULL),
           fCurrentTileSet(NULL),
           fCurrentTile(NULL) {}
@@ -207,8 +207,8 @@ public:
         }
     }
     virtual void tileData(
-            TimerData* data, 
-            const char format[], 
+            TimerData* data,
+            const char format[],
             const TimerData::Result result,
             uint32_t timerTypes,
             int numInnerLoops = 1) {

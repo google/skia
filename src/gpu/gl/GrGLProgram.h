@@ -194,9 +194,9 @@ private:
 
     SkAutoTDelete<GrGLProgramEffects>   fColorEffects;
     SkAutoTDelete<GrGLProgramEffects>   fCoverageEffects;
-    
+
     GrGLProgramDesc                     fDesc;
-    
+
     GrGpuGL*                            fGpu;
 
     SkAutoTUnref<GrGLUniformManager>    fUniformManager;

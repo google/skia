@@ -22,7 +22,7 @@ class FailureImageGenerator : public SkImageGenerator {
 public:
     FailureImageGenerator() { }
     virtual ~FailureImageGenerator() { }
-    
+
 protected:
     virtual bool onGetInfo(SkImageInfo* info) SK_OVERRIDE {
         info->fWidth = 100;

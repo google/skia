@@ -69,7 +69,7 @@ public:
                        uint32_t timerFlags,
                        int itersPerTiming = 1);
 #ifdef SK_BUILD_JSON_WRITER
-    Json::Value getJSON(uint32_t timerFlags, 
+    Json::Value getJSON(uint32_t timerFlags,
                         Result result,
                         int itersPerTiming = 1);
 #endif // SK_BUILD_JSON_WRITER

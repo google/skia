@@ -141,7 +141,7 @@ SkString TimerData::getResult(const char* doubleFormat,
 }
 
 #ifdef SK_BUILD_JSON_WRITER
-Json::Value TimerData::getJSON(uint32_t timerFlags, 
+Json::Value TimerData::getJSON(uint32_t timerFlags,
                                Result result,
                                int itersPerTiming) {
     SkASSERT(itersPerTiming >= 1);

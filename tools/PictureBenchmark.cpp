@@ -183,8 +183,8 @@ void PictureBenchmark::run(SkPicture* pict) {
             // longer generating SVG graphs.
 #if 0
             fWriter->tileData(
-                    &perTileTimerData, 
-                    timeFormat.c_str(), 
+                    &perTileTimerData,
+                    timeFormat.c_str(),
                     fTimerResult,
                     timerTypes);
 #endif
@@ -194,7 +194,7 @@ void PictureBenchmark::run(SkPicture* pict) {
             }
             fWriter->addTileFlag(PictureResultsWriter::kAvg);
             fWriter->tileData(
-                &longRunningTimerData, 
+                &longRunningTimerData,
                 tiledRenderer->getNormalTimeFormat().c_str(),
                 TimerData::kAvg_Result,
                 timerTypes,
