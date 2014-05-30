@@ -7195,11 +7195,47 @@
       ], 
       "reviewed-by-human": false
     }, 
+    "downsamplebitmap_checkerboard_high_512_256_565-pipe cross-process.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11293806862486787976
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "downsamplebitmap_checkerboard_high_512_256_565-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          11293806862486787976
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "downsamplebitmap_checkerboard_high_512_256_565.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          1752307360323996469
+          13447447689608543204
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "downsamplebitmap_checkerboard_high_512_256_8888-pipe cross-process.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9122796611608409641
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "downsamplebitmap_checkerboard_high_512_256_8888-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9122796611608409641
         ]
       ], 
       "reviewed-by-human": true
@@ -7208,7 +7244,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9122796611608409641
+          15602323353983157176
         ]
       ], 
       "reviewed-by-human": true
@@ -7438,6 +7474,24 @@
       ], 
       "reviewed-by-human": true
     }, 
+    "downsamplebitmap_image_high_mandrill_512.png_565-pipe cross-process.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9042527082827049360
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "downsamplebitmap_image_high_mandrill_512.png_565-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          9042527082827049360
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
     "downsamplebitmap_image_high_mandrill_512.png_565.png": {
       "allowed-digests": [
         [
@@ -7447,11 +7501,47 @@
       ], 
       "reviewed-by-human": true
     }, 
-    "downsamplebitmap_image_high_mandrill_512.png_8888.png": {
+    "downsamplebitmap_image_high_mandrill_512.png_8888-pipe.png": {
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
           6090416266698448089
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "downsamplebitmap_image_high_mandrill_512.png_8888-rtree.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6090416266698448089
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "downsamplebitmap_image_high_mandrill_512.png_8888-serialize.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          15810246200237980585
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "downsamplebitmap_image_high_mandrill_512.png_8888-tilegrid.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          6090416266698448089
+        ]
+      ], 
+      "reviewed-by-human": true
+    }, 
+    "downsamplebitmap_image_high_mandrill_512.png_8888.png": {
+      "allowed-digests": [
+        [
+          "bitmap-64bitMD5", 
+          4276981932731074819
         ]
       ], 
       "reviewed-by-human": true
@@ -9274,7 +9364,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          12617614780925646679
+          13704381245629684333
         ]
       ], 
       "reviewed-by-human": true
@@ -9283,7 +9373,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          13206855341598955499
+          9743406049766573166
         ]
       ], 
       "reviewed-by-human": true
@@ -9301,7 +9391,7 @@
       "allowed-digests": [
         [
           "bitmap-64bitMD5", 
-          9743406049766573166
+          13206855341598955499
         ]
       ], 
       "reviewed-by-human": true
