@@ -6,7 +6,7 @@
  */
 
 #include "SkBuffer.h"
-#include "SkOnce.h"
+#include "SkLazyPtr.h"
 #include "SkPath.h"
 #include "SkPathRef.h"
 
@@ -28,18 +28,16 @@ SkPathRef::Editor::Editor(SkAutoTUnref<SkPathRef>* pathRef,
 }
 
 //////////////////////////////////////////////////////////////////////////////
-static SkPathRef* gEmptyPathRef = NULL;
-static void cleanup_gEmptyPathRef() { gEmptyPathRef->unref(); }
 
-void SkPathRef::CreateEmptyImpl(int) {
-    gEmptyPathRef = SkNEW(SkPathRef);
-    gEmptyPathRef->computeBounds();  // Preemptively avoid a race to clear fBoundsIsDirty.
+SkPathRef* SkPathRef::CreateEmptyImpl() {
+    SkPathRef* p = SkNEW(SkPathRef);
+    p->computeBounds();   // Preemptively avoid a race to clear fBoundsIsDirty.
+    return p;
 }
 
 SkPathRef* SkPathRef::CreateEmpty() {
-    SK_DECLARE_STATIC_ONCE(once);
-    SkOnce(&once, SkPathRef::CreateEmptyImpl, 0, cleanup_gEmptyPathRef);
-    return SkRef(gEmptyPathRef);
+    SK_DECLARE_STATIC_LAZY_PTR(SkPathRef, empty, CreateEmptyImpl);
+    return SkRef(empty.get());
 }
 
 void SkPathRef::CreateTransformedCopy(SkAutoTUnref<SkPathRef>* dst,

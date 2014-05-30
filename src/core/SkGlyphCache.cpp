@@ -11,7 +11,7 @@
 #include "SkGlyphCache_Globals.h"
 #include "SkDistanceFieldGen.h"
 #include "SkGraphics.h"
-#include "SkOnce.h"
+#include "SkLazyPtr.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkTemplates.h"
@@ -21,18 +21,18 @@
 //#define SPEW_PURGE_STATUS
 //#define RECORD_HASH_EFFICIENCY
 
-static void create_globals(SkGlyphCache_Globals** globals) {
-    *globals = SkNEW_ARGS(SkGlyphCache_Globals, (SkGlyphCache_Globals::kYes_UseMutex));
+namespace {
+
+SkGlyphCache_Globals* create_globals() {
+    return SkNEW_ARGS(SkGlyphCache_Globals, (SkGlyphCache_Globals::kYes_UseMutex));
 }
+
+}  // namespace
 
 // Returns the shared globals
 static SkGlyphCache_Globals& getSharedGlobals() {
-    // we leak this, so we don't incur any shutdown cost of the destructor
-    static SkGlyphCache_Globals* gGlobals = NULL;
-    SK_DECLARE_STATIC_ONCE(once);
-    SkOnce(&once, create_globals, &gGlobals);
-    SkASSERT(NULL != gGlobals);
-    return *gGlobals;
+    SK_DECLARE_STATIC_LAZY_PTR(SkGlyphCache_Globals, globals, create_globals);
+    return *globals.get();
 }
 
 // Returns the TLS globals (if set), or the shared globals
