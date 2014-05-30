@@ -131,7 +131,7 @@ protected:
                                                unsigned styleBits) const = 0;
 private:
     static SkFontMgr* Factory();    // implemented by porting layer
-    static SkFontMgr* CreateDefault();
+    friend void set_up_default(SkFontMgr** singleton);
 
     typedef SkRefCnt INHERITED;
 };

@@ -62,7 +62,7 @@
 #include "SkThread.h"
 #include "SkThreadPriv.h"
 
-// See FIXMEs below.
+// See FIXME below.
 class SkFontConfigInterface;
 class SkTypeface;
 
@@ -100,6 +100,7 @@ public:
 #ifdef SK_DEBUG
     // FIXME: We know we leak refs on some classes.  For now, let them leak.
     void cleanup(SkFontConfigInterface*) {}
+    void cleanup(SkTypeface*) {}
     template <typename U> void cleanup(U* ptr) { Destroy(ptr); }
 
     ~SkLazyPtr() {
@@ -125,12 +126,9 @@ public:
     }
 
 #ifdef SK_DEBUG
-    // FIXME: We know we leak refs on some classes.  For now, let them leak.
-    void cleanup(SkTypeface*) {}
-    template <typename U> void cleanup(U* ptr) { Destroy(ptr); }
     ~SkLazyPtrArray() {
         for (int i = 0; i < N; i++) {
-            this->cleanup((T*)fArray[i]);
+            Destroy((T*)fArray[i]);
             fArray[i] = NULL;
         }
     }
