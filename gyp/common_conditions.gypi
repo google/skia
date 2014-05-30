@@ -249,6 +249,9 @@
     ],
 
     ['skia_android_framework', {
+      'includes' : [
+        'skia_for_android_framework_defines.gypi',
+      ],
       'cflags': [
         # Skia does not enforce this usage pattern so we disable it here to avoid
         # unecessary log spew when building
@@ -313,14 +316,9 @@
         'SK_SUPPORT_DEPRECATED_RECORD_FLAGS',
         'SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES',
         'SK_SUPPORT_LEGACY_PICTURE_HEADERS',
-        'SK_SUPPORT_LEGACY_BLURMASKFILTER_STYLE',
-        'SK_SUPPORT_LEGACY_SETCONFIG_INFO',
-        # Needed until we fix skbug.com/2440.
-        'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
-        # Transitional, for deprecated SkCanvas::SaveFlags methods.
-        'SK_ATTR_DEPRECATED=SK_NOTHING_ARG1',
-        'SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX',
         'SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE (512 * 1024)',
+        # Defines from skia_for_android_framework_defines.gypi
+        '<@(skia_for_android_framework_defines)',
       ],
     }],
 
