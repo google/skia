@@ -913,7 +913,7 @@ static SkBaseDevice* create_compatible_device(SkCanvas* canvas,
 int SkCanvas::internalSaveLayer(const SkRect* bounds, const SkPaint* paint, SaveFlags flags,
                                 bool justForImageFilter, SaveLayerStrategy strategy) {
 #ifndef SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG
-    flags = (SaveFlags)(flags | kClipToLayer_SaveFlag);
+    flags |= kClipToLayer_SaveFlag;
 #endif
 
     // do this before we create the layer. We don't call the public save() since

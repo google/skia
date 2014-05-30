@@ -172,8 +172,7 @@ int SkMatrixClipStateMgr::saveLayer(const SkRect* bounds, const SkPaint* paint,
     // restore
     fSkipOffsets = SkNEW(SkTDArray<int>);
 
-    fPicRecord->recordSaveLayer(bounds, paint,
-                                (SkCanvas::SaveFlags)(flags| SkCanvas::kMatrixClip_SaveFlag));
+    fPicRecord->recordSaveLayer(bounds, paint, flags | SkCanvas::kMatrixClip_SaveFlag);
 #ifdef SK_DEBUG
     fActualDepth++;
 #endif

@@ -1512,4 +1512,16 @@ private:
     size_t      fRowBytes;
 };
 
+static inline SkCanvas::SaveFlags operator|(const SkCanvas::SaveFlags lhs,
+                                            const SkCanvas::SaveFlags rhs) {
+    return static_cast<SkCanvas::SaveFlags>(lhs | rhs);
+}
+
+static inline SkCanvas::SaveFlags& operator|=(SkCanvas::SaveFlags& lhs,
+                                              const SkCanvas::SaveFlags rhs) {
+    lhs = lhs | rhs;
+    return lhs;
+}
+
+
 #endif
