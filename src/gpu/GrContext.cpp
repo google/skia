@@ -388,14 +388,11 @@ GrTexture* GrContext::createTexture(const GrTextureParams* params,
 
     GrTexture* texture;
     if (GrTextureImpl::NeedsResizing(resourceKey)) {
-        // We do not know how to resize compressed textures.
-        SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
-
         texture = this->createResizedTexture(desc, cacheID,
                                              srcData, rowBytes,
                                              GrTextureImpl::NeedsBilerp(resourceKey));
     } else {
-        texture = fGpu->createTexture(desc, srcData, rowBytes);
+        texture= fGpu->createTexture(desc, srcData, rowBytes);
     }
 
     if (NULL != texture) {

@@ -7,8 +7,6 @@
 
 #include "gm.h"
 #include "SkCanvas.h"
-#include "SkData.h"
-#include "SkDecodingImageGenerator.h"
 #include "SkImageDecoder.h"
 #include "SkOSFile.h"
 
@@ -37,20 +35,13 @@ protected:
         SkBitmap bm;
         SkString filename = SkOSPath::SkPathJoin(
                 INHERITED::gResourcePath.c_str(), "mandrill_512.pkm");
-
-        SkData *fileData = SkData::NewFromFileName(filename.c_str());
-        if (NULL == fileData) {
-            SkDebugf("Could not open the file. Did you forget to set the resourcePath?\n");
+        if (!SkImageDecoder::DecodeFile(filename.c_str(), &bm,
+                                        SkBitmap::kARGB_8888_Config,
+                                        SkImageDecoder::kDecodePixels_Mode)) {
+            SkDebugf("Could not decode the file. Did you forget to set the "
+                     "resourcePath?\n");
             return;
         }
-
-        if (!SkInstallDiscardablePixelRef(
-                SkDecodingImageGenerator::Create(
-                    fileData, SkDecodingImageGenerator::Options()), &bm)) {
-            SkDebugf("Could not install discardable pixel ref.\n");
-            return;
-        }
-
         canvas->drawBitmap(bm, 0, 0);
     }
 

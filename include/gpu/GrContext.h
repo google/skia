@@ -204,11 +204,10 @@ public:
      *                  for different wrap modes on GPUs with limited NPOT
      *                  texture support). NULL implies clamp wrap modes.
      * @param desc      Description of the texture properties.
-     * @param cacheID   Cache-specific properties (e.g., texture gen ID)
+     * @param cacheID Cache-specific properties (e.g., texture gen ID)
      * @param srcData   Pointer to the pixel values.
      * @param rowBytes  The number of bytes between rows of the texture. Zero
-     *                  implies tightly packed rows. For compressed pixel configs, this
-     *                  field is ignored.
+     *                  implies tightly packed rows.
      * @param cacheKey  (optional) If non-NULL, we'll write the cache key we used to cacheKey.
      */
     GrTexture* createTexture(const GrTextureParams* params,
@@ -217,6 +216,7 @@ public:
                              const void* srcData,
                              size_t rowBytes,
                              GrResourceKey* cacheKey = NULL);
+
     /**
      * Search for an entry based on key and dimensions. If found, ref it and return it. The return
      * value will be NULL if not found. The caller must balance with a call to unref.

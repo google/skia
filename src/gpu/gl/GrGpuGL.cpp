@@ -702,41 +702,6 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     return succeeded;
 }
 
-bool GrGpuGL::uploadCompressedTexData(const GrGLTexture::Desc& desc,
-                                      const void* data) {
-    SkASSERT(NULL != data);
-
-    // No support for software flip y, yet...
-    SkASSERT(kBottomLeft_GrSurfaceOrigin != desc.fOrigin);
-
-    // Make sure that the width and height that we pass to OpenGL
-    // is a multiple of the block size.
-    int dataSize = GrCompressedFormatDataSize(desc.fConfig, desc.fWidth, desc.fHeight);
-
-    // We only need the internal format for compressed 2D textures.
-    GrGLenum internalFormat = 0;
-    if (!this->configToGLFormats(desc.fConfig, false, &internalFormat, NULL, NULL)) {
-        return false;
-    }
-
-    bool succeeded = true;
-    CLEAR_ERROR_BEFORE_ALLOC(this->glInterface());
-    GL_ALLOC_CALL(this->glInterface(),
-                  CompressedTexImage2D(GR_GL_TEXTURE_2D,
-                                       0, // level
-                                       internalFormat,
-                                       desc.fWidth, desc.fHeight,
-                                       0, // border
-                                       dataSize,
-                                       data));
-
-    GrGLenum error = check_alloc_error(desc, this->glInterface());
-    if (error != GR_GL_NO_ERROR) {
-        succeeded = false;
-    }
-    return succeeded;
-}
-
 static bool renderbuffer_storage_msaa(GrGLContext& ctx,
                                       int sampleCount,
                                       GrGLenum format,
@@ -1011,80 +976,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
 #ifdef TRACE_TEXTURE_CREATION
     GrPrintf("--- new texture [%d] size=(%d %d) config=%d\n",
-             glTexDesc.fTextureID, desc.fWidth, desc.fHeight, desc.fConfig);
-#endif
-    return tex;
-}
-
-GrTexture* GrGpuGL::onCreateCompressedTexture(const GrTextureDesc& desc,
-                                              const void* srcData) {
-
-    if(SkToBool(desc.fFlags & kRenderTarget_GrTextureFlagBit)) {
-        return return_null_texture();
-    }
-
-    // Make sure that we're not flipping Y.
-    GrSurfaceOrigin texOrigin = resolve_origin(desc.fOrigin, false);
-    if (kBottomLeft_GrSurfaceOrigin == texOrigin) {
-        return return_null_texture();
-    }
-
-    GrGLTexture::Desc glTexDesc;
-
-    glTexDesc.fFlags  = desc.fFlags;
-    glTexDesc.fWidth  = desc.fWidth;
-    glTexDesc.fHeight = desc.fHeight;
-    glTexDesc.fConfig = desc.fConfig;
-    glTexDesc.fIsWrapped = false;
-    glTexDesc.fOrigin = texOrigin;
-
-    int maxSize = this->caps()->maxTextureSize();
-    if (glTexDesc.fWidth > maxSize || glTexDesc.fHeight > maxSize) {
-        return return_null_texture();
-    }
-
-    GL_CALL(GenTextures(1, &glTexDesc.fTextureID));
-
-    if (!glTexDesc.fTextureID) {
-        return return_null_texture();
-    }
-
-    this->setScratchTextureUnit();
-    GL_CALL(BindTexture(GR_GL_TEXTURE_2D, glTexDesc.fTextureID));
-
-    // Some drivers like to know filter/wrap before seeing glTexImage2D. Some
-    // drivers have a bug where an FBO won't be complete if it includes a
-    // texture that is not mipmap complete (considering the filter in use).
-    GrGLTexture::TexParams initialTexParams;
-    // we only set a subset here so invalidate first
-    initialTexParams.invalidate();
-    initialTexParams.fMinFilter = GR_GL_NEAREST;
-    initialTexParams.fMagFilter = GR_GL_NEAREST;
-    initialTexParams.fWrapS = GR_GL_CLAMP_TO_EDGE;
-    initialTexParams.fWrapT = GR_GL_CLAMP_TO_EDGE;
-    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                          GR_GL_TEXTURE_MAG_FILTER,
-                          initialTexParams.fMagFilter));
-    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                          GR_GL_TEXTURE_MIN_FILTER,
-                          initialTexParams.fMinFilter));
-    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                          GR_GL_TEXTURE_WRAP_S,
-                          initialTexParams.fWrapS));
-    GL_CALL(TexParameteri(GR_GL_TEXTURE_2D,
-                          GR_GL_TEXTURE_WRAP_T,
-                          initialTexParams.fWrapT));
-
-    if (!this->uploadCompressedTexData(glTexDesc, srcData)) {
-        GL_CALL(DeleteTextures(1, &glTexDesc.fTextureID));
-        return return_null_texture();
-    }
-
-    GrGLTexture* tex;
-    tex = SkNEW_ARGS(GrGLTexture, (this, glTexDesc));
-    tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
-#ifdef TRACE_TEXTURE_CREATION
-    GrPrintf("--- new compressed texture [%d] size=(%d %d) config=%d\n",
              glTexDesc.fTextureID, desc.fWidth, desc.fHeight, desc.fConfig);
 #endif
     return tex;
