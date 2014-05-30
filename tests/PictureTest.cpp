@@ -730,7 +730,10 @@ static void test_gpu_veto(skiatest::Reporter* reporter) {
     }
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
     // path effects currently render an SkPicture undesireable for GPU rendering
-    REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL));
+
+    const char *reason = NULL;
+    REPORTER_ASSERT(reporter, !picture->suitableForGpuRasterization(NULL, &reason));
+    REPORTER_ASSERT(reporter, NULL != reason);
 
     canvas = recorder.beginRecording(100, 100, NULL, 0);
     {

@@ -296,7 +296,7 @@ public:
      */
 
 #if SK_SUPPORT_GPU
-    bool suitableForGpuRasterization(GrContext*) const;
+    bool suitableForGpuRasterization(GrContext*, const char ** = NULL) const;
 #endif
 
 protected:

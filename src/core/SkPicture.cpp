@@ -654,15 +654,22 @@ void SkPicture::flatten(SkWriteBuffer& buffer) const {
 }
 
 #if SK_SUPPORT_GPU
-bool SkPicture::suitableForGpuRasterization(GrContext* context) const {
+bool SkPicture::suitableForGpuRasterization(GrContext* context, const char **reason) const {
     // TODO: the heuristic used here needs to be refined
     static const int kNumPaintWithPathEffectUsesTol = 1;
     static const int kNumAAConcavePaths = 5;
 
     SkASSERT(this->numAAHairlineConcavePaths() <= this->numAAConcavePaths());
 
-    return this->numPaintWithPathEffectUses() < kNumPaintWithPathEffectUsesTol &&
-           (this->numAAConcavePaths()-this->numAAHairlineConcavePaths()) < kNumAAConcavePaths;
+    bool ret = this->numPaintWithPathEffectUses() < kNumPaintWithPathEffectUsesTol &&
+               (this->numAAConcavePaths()-this->numAAHairlineConcavePaths()) < kNumAAConcavePaths;
+    if (!ret && reason) {
+        if (this->numPaintWithPathEffectUses() < kNumPaintWithPathEffectUsesTol)
+            *reason = "Too many path effects.";
+        else if ((this->numAAConcavePaths()-this->numAAHairlineConcavePaths()) < kNumAAConcavePaths)
+            *reason = "Too many anti-aliased concave paths.";
+    }
+    return ret;
 }
 #endif
 
