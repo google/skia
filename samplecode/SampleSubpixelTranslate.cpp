@@ -51,7 +51,7 @@ public:
 protected:
     SkBitmap fBM;
     SkString fFilename;
-    int fSize;
+    SkScalar fSize;
     float fHorizontalVelocity, fVerticalVelocity;
 
     SkPoint fCurPos;
@@ -122,5 +122,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new SubpixelTranslateView("mandrill_256.png", .05, .05); }
+static SkView* MyFactory() { return new SubpixelTranslateView("mandrill_256.png", .05f, .05f); }
 static SkViewRegister reg(MyFactory);
