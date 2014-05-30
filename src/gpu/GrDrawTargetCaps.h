@@ -26,7 +26,6 @@ public:
     virtual void reset();
     virtual SkString dump() const;
 
-    bool eightBitPaletteSupport() const { return f8BitPaletteSupport; }
     bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
     /** To avoid as-yet-unnecessary complexity we don't allow any partial support of MIP Maps (e.g.
         only for POT textures) */
@@ -72,13 +71,12 @@ public:
         return fConfigRenderSupport[config][withMSAA];
     }
 
-    bool compressedTextureSupport(GrCompressedFormat format) const {
-        SkASSERT(kGrCompressedFormatCount > format);
-        return fCompressedFormatSupport[format];
+    bool isConfigTexturable(GrPixelConfig config) const {
+        SkASSERT(kGrPixelConfigCnt > config);
+        return fConfigTextureSupport[config];
     }
 
 protected:
-    bool f8BitPaletteSupport        : 1;
     bool fNPOTTextureTileSupport    : 1;
     bool fMipMapSupport             : 1;
     bool fTwoSidedStencilSupport    : 1;
@@ -101,8 +99,7 @@ protected:
 
     // The first entry for each config is without msaa and the second is with.
     bool fConfigRenderSupport[kGrPixelConfigCnt][2];
-
-    bool fCompressedFormatSupport[kGrCompressedFormatCount];
+    bool fConfigTextureSupport[kGrPixelConfigCnt];
 
     typedef SkRefCnt INHERITED;
 };

@@ -62,6 +62,25 @@ size_t GrTexture::gpuMemorySize() const {
     size_t textureSize =  (size_t) fDesc.fWidth *
                                    fDesc.fHeight *
                                    GrBytesPerPixel(fDesc.fConfig);
+
+    if (GrPixelConfigIsCompressed(fDesc.fConfig)) {
+        // Figure out the width and height corresponding to the data...
+
+        // Both of the available formats (ETC1 and LATC) have 4x4
+        // blocks that compress down to 8 bytes.
+        switch(fDesc.fConfig) {
+            case kETC1_GrPixelConfig:
+            case kLATC_GrPixelConfig:
+                SkASSERT((fDesc.fWidth & 3) == 0);
+                SkASSERT((fDesc.fHeight & 3) == 0);
+                textureSize = (fDesc.fWidth >> 2) * (fDesc.fHeight >> 2) * 8;
+                break;
+
+            default:
+                SkFAIL("Unknown compressed config");
+        }
+    }
+
     if (this->impl()->hasMipMaps()) {
         // We don't have to worry about the mipmaps being a different size than
         // we'd expect because we never change fDesc.fWidth/fHeight.

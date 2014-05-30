@@ -1007,7 +1007,6 @@ void GrDrawTarget::initCopySurfaceDstDesc(const GrSurface* src, GrTextureDesc* d
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrDrawTargetCaps::reset() {
-    f8BitPaletteSupport = false;
     fMipMapSupport = false;
     fNPOTTextureTileSupport = false;
     fTwoSidedStencilSupport = false;
@@ -1029,11 +1028,10 @@ void GrDrawTargetCaps::reset() {
     fMaxSampleCount = 0;
 
     memset(fConfigRenderSupport, 0, sizeof(fConfigRenderSupport));
-    memset(fCompressedFormatSupport, 0, sizeof(fCompressedFormatSupport));
+    memset(fConfigTextureSupport, 0, sizeof(fConfigTextureSupport));
 }
 
 GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
-    f8BitPaletteSupport = other.f8BitPaletteSupport;
     fMipMapSupport = other.fMipMapSupport;
     fNPOTTextureTileSupport = other.fNPOTTextureTileSupport;
     fTwoSidedStencilSupport = other.fTwoSidedStencilSupport;
@@ -1055,8 +1053,7 @@ GrDrawTargetCaps& GrDrawTargetCaps::operator=(const GrDrawTargetCaps& other) {
     fMaxSampleCount = other.fMaxSampleCount;
 
     memcpy(fConfigRenderSupport, other.fConfigRenderSupport, sizeof(fConfigRenderSupport));
-    memcpy(fCompressedFormatSupport, other.fCompressedFormatSupport,
-       sizeof(fCompressedFormatSupport));
+    memcpy(fConfigTextureSupport, other.fConfigTextureSupport, sizeof(fConfigTextureSupport));
 
     return *this;
 }
@@ -1084,7 +1081,6 @@ static SkString map_flags_to_string(uint32_t flags) {
 SkString GrDrawTargetCaps::dump() const {
     SkString r;
     static const char* gNY[] = {"NO", "YES"};
-    r.appendf("8 Bit Palette Support        : %s\n", gNY[f8BitPaletteSupport]);
     r.appendf("MIP Map Support              : %s\n", gNY[fMipMapSupport]);
     r.appendf("NPOT Texture Tile Support    : %s\n", gNY[fNPOTTextureTileSupport]);
     r.appendf("Two Sided Stencil Support    : %s\n", gNY[fTwoSidedStencilSupport]);
@@ -1112,6 +1108,8 @@ SkString GrDrawTargetCaps::dump() const {
         "RGBA444",  // kRGBA_4444_GrPixelConfig,
         "RGBA8888", // kRGBA_8888_GrPixelConfig,
         "BGRA8888", // kBGRA_8888_GrPixelConfig,
+        "ETC1",     // kETC1_GrPixelConfig,
+        "LATC",     // kLATC_GrPixelConfig,
     };
     GR_STATIC_ASSERT(0 == kUnknown_GrPixelConfig);
     GR_STATIC_ASSERT(1 == kAlpha_8_GrPixelConfig);
@@ -1120,33 +1118,26 @@ SkString GrDrawTargetCaps::dump() const {
     GR_STATIC_ASSERT(4 == kRGBA_4444_GrPixelConfig);
     GR_STATIC_ASSERT(5 == kRGBA_8888_GrPixelConfig);
     GR_STATIC_ASSERT(6 == kBGRA_8888_GrPixelConfig);
+    GR_STATIC_ASSERT(7 == kETC1_GrPixelConfig);
+    GR_STATIC_ASSERT(8 == kLATC_GrPixelConfig);
     GR_STATIC_ASSERT(SK_ARRAY_COUNT(kConfigNames) == kGrPixelConfigCnt);
 
     SkASSERT(!fConfigRenderSupport[kUnknown_GrPixelConfig][0]);
     SkASSERT(!fConfigRenderSupport[kUnknown_GrPixelConfig][1]);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kConfigNames); ++i)  {
-        if (i != kUnknown_GrPixelConfig) {
-            r.appendf("%s is renderable: %s, with MSAA: %s\n",
-                     kConfigNames[i],
-                     gNY[fConfigRenderSupport[i][0]],
-                     gNY[fConfigRenderSupport[i][1]]);
-        }
+
+    for (size_t i = 1; i < SK_ARRAY_COUNT(kConfigNames); ++i)  {
+        r.appendf("%s is renderable: %s, with MSAA: %s\n",
+                  kConfigNames[i],
+                  gNY[fConfigRenderSupport[i][0]],
+                  gNY[fConfigRenderSupport[i][1]]);
     }
 
-    static const char* kCompressedFormatNames[] = {
-        "ETC1",  // kETC1_GrCompressedFormat
-        "ETC2",  // kETC2_GrCompressedFormat,
-        "DXT1",  // kDXT1_GrCompressedFormat,
-    };
-    GR_STATIC_ASSERT(0 == kETC1_GrCompressedFormat);
-    GR_STATIC_ASSERT(1 == kETC2_GrCompressedFormat);
-    GR_STATIC_ASSERT(2 == kDXT1_GrCompressedFormat);
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(kCompressedFormatNames) == kGrCompressedFormatCount);
+    SkASSERT(!fConfigTextureSupport[kUnknown_GrPixelConfig]);
 
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kCompressedFormatNames); ++i) {
-        r.appendf("%s Compressed Texture Support: %s\n",
-          kCompressedFormatNames[i],
-          gNY[fCompressedFormatSupport[i]]);
+    for (size_t i = 1; i < SK_ARRAY_COUNT(kConfigNames); ++i)  {
+        r.appendf("%s is uploadable to a texture: %s\n",
+                  kConfigNames[i],
+                  gNY[fConfigTextureSupport[i]]);
     }
 
     return r;

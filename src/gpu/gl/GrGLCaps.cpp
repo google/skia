@@ -30,7 +30,6 @@ void GrGLCaps::reset() {
     fMaxFragmentTextureUnits = 0;
     fMaxFixedFunctionTextureCoords = 0;
     fRGBA8RenderbufferSupport = false;
-    fBGRAFormatSupport = false;
     fBGRAIsInternalFormat = false;
     fTextureSwizzleSupport = false;
     fUnpackRowLengthSupport = false;
@@ -68,7 +67,6 @@ GrGLCaps& GrGLCaps::operator= (const GrGLCaps& caps) {
     fInvalidateFBType = caps.fInvalidateFBType;
     fMapBufferType = caps.fMapBufferType;
     fRGBA8RenderbufferSupport = caps.fRGBA8RenderbufferSupport;
-    fBGRAFormatSupport = caps.fBGRAFormatSupport;
     fBGRAIsInternalFormat = caps.fBGRAIsInternalFormat;
     fTextureSwizzleSupport = caps.fTextureSwizzleSupport;
     fUnpackRowLengthSupport = caps.fUnpackRowLengthSupport;
@@ -132,20 +130,6 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         fRGBA8RenderbufferSupport = version >= GR_GL_VER(3,0) ||
                                     ctxInfo.hasExtension("GL_OES_rgb8_rgba8") ||
                                     ctxInfo.hasExtension("GL_ARM_rgba8");
-    }
-
-    if (kGL_GrGLStandard == standard) {
-        fBGRAFormatSupport = version >= GR_GL_VER(1,2) ||
-                             ctxInfo.hasExtension("GL_EXT_bgra");
-    } else {
-        if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
-            fBGRAFormatSupport = true;
-        } else if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
-            fBGRAFormatSupport = true;
-            fBGRAIsInternalFormat = true;
-        }
-        SkASSERT(fBGRAFormatSupport ||
-                 kSkia8888_GrPixelConfig != kBGRA_8888_GrPixelConfig);
     }
 
     if (kGL_GrGLStandard == standard) {
@@ -262,19 +246,6 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     /**************************************************************************
      * GrDrawTargetCaps fields
      **************************************************************************/
-    GrGLint numFormats;
-    GR_GL_GetIntegerv(gli, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
-    if (numFormats) {
-        SkAutoSTMalloc<10, GrGLint> formats(numFormats);
-        GR_GL_GetIntegerv(gli, GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
-        for (int i = 0; i < numFormats; ++i) {
-            if (formats[i] == GR_GL_PALETTE8_RGBA8) {
-                f8BitPaletteSupport = true;
-                break;
-            }
-        }
-    }
-
     if (kGL_GrGLStandard == standard) {
         // we could also look for GL_ATI_separate_stencil extension or
         // GL_EXT_stencil_two_side but they use different function signatures
@@ -367,9 +338,8 @@ bool GrGLCaps::init(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
         GR_GL_GetIntegerv(gli, GR_GL_MAX_SAMPLES, &fMaxSampleCount);
     }
 
+    this->initConfigTexturableTable(ctxInfo, gli);
     this->initConfigRenderableTable(ctxInfo);
-
-    this->initCompressedTextureSupport(ctxInfo);
 
     return true;
 }
@@ -404,12 +374,14 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
     // Same as ES 2.0 except R8 and RGBA8 are supported without extensions (the functions called
     // below already account for this).
 
+    GrGLStandard standard = ctxInfo.standard();
+
     enum {
         kNo_MSAA = 0,
         kYes_MSAA = 1,
     };
 
-    if (kGL_GrGLStandard == ctxInfo.standard()) {
+    if (kGL_GrGLStandard == standard) {
         // Post 3.0 we will get R8
         // Prior to 3.0 we will get ALPHA8 (with GL_ARB_framebuffer_object)
         if (ctxInfo.version() >= GR_GL_VER(3,0) ||
@@ -423,7 +395,7 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
         fConfigRenderSupport[kAlpha_8_GrPixelConfig][kYes_MSAA] = fTextureRedSupport;
     }
 
-    if (kGL_GrGLStandard != ctxInfo.standard()) {
+    if (kGL_GrGLStandard != standard) {
         // only available in ES
         fConfigRenderSupport[kRGB_565_GrPixelConfig][kNo_MSAA] = true;
         fConfigRenderSupport[kRGB_565_GrPixelConfig][kYes_MSAA] = true;
@@ -438,7 +410,7 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
         fConfigRenderSupport[kRGBA_8888_GrPixelConfig][kYes_MSAA]  = true;
     }
 
-    if (this->fBGRAFormatSupport) {
+    if (this->isConfigTexturable(kBGRA_8888_GrPixelConfig)) {
         fConfigRenderSupport[kBGRA_8888_GrPixelConfig][kNo_MSAA]  = true;
         // The GL_EXT_texture_format_BGRA8888 extension does not add BGRA to the list of
         // configs that are color-renderable and can be passed to glRenderBufferStorageMultisample.
@@ -460,36 +432,103 @@ void GrGLCaps::initConfigRenderableTable(const GrGLContextInfo& ctxInfo) {
     }
 }
 
-void GrGLCaps::initCompressedTextureSupport(const GrGLContextInfo &ctxInfo) {
+void GrGLCaps::initConfigTexturableTable(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {
     GrGLStandard standard = ctxInfo.standard();
     GrGLVersion version = ctxInfo.version();
 
+    // Base texture support
+    fConfigTextureSupport[kAlpha_8_GrPixelConfig] = true;
+    fConfigTextureSupport[kRGB_565_GrPixelConfig] = true;
+    fConfigTextureSupport[kRGBA_4444_GrPixelConfig] = true;
+    fConfigTextureSupport[kRGBA_8888_GrPixelConfig] = true;
+
+    // Check for 8-bit palette..
+    GrGLint numFormats;
+    GR_GL_GetIntegerv(gli, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
+    if (numFormats) {
+        SkAutoSTMalloc<10, GrGLint> formats(numFormats);
+        GR_GL_GetIntegerv(gli, GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
+        for (int i = 0; i < numFormats; ++i) {
+            if (GR_GL_PALETTE8_RGBA8 == formats[i]) {
+                fConfigTextureSupport[kIndex_8_GrPixelConfig] = true;
+                break;
+            }
+        }
+    }
+
+    // Check for BGRA
+    if (kGL_GrGLStandard == standard) {
+        fConfigTextureSupport[kBGRA_8888_GrPixelConfig] =
+            version >= GR_GL_VER(1,2) || ctxInfo.hasExtension("GL_EXT_bgra");
+    } else {
+        if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
+            fConfigTextureSupport[kBGRA_8888_GrPixelConfig] = true;
+        } else if (ctxInfo.hasExtension("GL_EXT_texture_format_BGRA8888")) {
+            fConfigTextureSupport[kBGRA_8888_GrPixelConfig] = true;
+            fBGRAIsInternalFormat = true;
+        }
+        SkASSERT(fConfigTextureSupport[kBGRA_8888_GrPixelConfig] ||
+                 kSkia8888_GrPixelConfig != kBGRA_8888_GrPixelConfig);
+    }
+
+    // Compressed texture support
+
     // glCompressedTexImage2D is available on all OpenGL ES devices...
     // however, it is only available on standard OpenGL after version 1.3
-    if (kGL_GrGLStandard == standard && version < GR_GL_VER(1, 3)) {
-        return;
-    }
+    bool hasCompressTex2D = (kGL_GrGLStandard != standard || version >= GR_GL_VER(1, 3));
 
     // Check for ETC1
     bool hasETC1 = false;
 
     // First check version for support
     if (kGL_GrGLStandard == standard) {
-        hasETC1 =
-            version >= GR_GL_VER(4, 3) ||
-            ctxInfo.hasExtension("GL_ARB_ES3_compatibility");
+        hasETC1 = hasCompressTex2D &&
+            (version >= GR_GL_VER(4, 3) || 
+             ctxInfo.hasExtension("GL_ARB_ES3_compatibility"));
     } else {
-        hasETC1 =
-            version >= GR_GL_VER(3, 0) ||
-            ctxInfo.hasExtension("GL_OES_compressed_ETC1_RGB8_texture") ||
-            // ETC2 is a superset of ETC1, so we can just check for that, too.
-            (ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGB8_texture") &&
-             ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGBA8_texture"));
+        hasETC1 = hasCompressTex2D &&
+            (version >= GR_GL_VER(3, 0) ||
+             ctxInfo.hasExtension("GL_OES_compressed_ETC1_RGB8_texture") ||
+             // ETC2 is a superset of ETC1, so we can just check for that, too.
+             (ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGB8_texture") &&
+              ctxInfo.hasExtension("GL_OES_compressed_ETC2_RGBA8_texture")));
     }
-    fCompressedFormatSupport[kETC1_GrCompressedFormat] = hasETC1;
+    fConfigTextureSupport[kETC1_GrPixelConfig] = hasETC1;
 
-    fCompressedFormatSupport[kETC2_GrCompressedFormat] = false;
-    fCompressedFormatSupport[kDXT1_GrCompressedFormat] = false;
+    // Check for LATC under its various forms
+    LATCAlias alias = kLATC_LATCAlias;
+    bool hasLATC = hasCompressTex2D &&
+        (ctxInfo.hasExtension("GL_EXT_texture_compression_latc") ||
+         ctxInfo.hasExtension("GL_NV_texture_compression_latc"));
+
+    // Check for RGTC
+    if (!hasLATC) {
+        // If we're using OpenGL 3.0 or later, then we have RGTC, an identical compression format.
+        if (kGL_GrGLStandard == standard) {
+            hasLATC = version >= GR_GL_VER(3, 0);
+        }
+
+        if (!hasLATC) {
+            hasLATC =
+                ctxInfo.hasExtension("GL_EXT_texture_compression_rgtc") ||
+                ctxInfo.hasExtension("GL_ARB_texture_compression_rgtc");
+        }
+
+        if (hasLATC) {
+            alias = kRGTC_LATCAlias;
+        }
+    }
+
+    // Check for 3DC
+    if (!hasLATC) {
+        hasLATC = ctxInfo.hasExtension("GL_AMD_compressed_3DC_texture");
+        if (hasLATC) {
+            alias = k3DC_LATCAlias;
+        }
+    }
+
+    fConfigTextureSupport[kLATC_GrPixelConfig] = hasLATC;
+    fLATCAlias = alias;
 }
 
 bool GrGLCaps::readPixelsSupported(const GrGLInterface* intf,
@@ -728,7 +767,6 @@ SkString GrGLCaps::dump() const {
     }
     r.appendf("Max Vertex Attributes: %d\n", fMaxVertexAttributes);
     r.appendf("Support RGBA8 Render Buffer: %s\n", (fRGBA8RenderbufferSupport ? "YES": "NO"));
-    r.appendf("BGRA support: %s\n", (fBGRAFormatSupport ? "YES": "NO"));
     r.appendf("BGRA is an internal format: %s\n", (fBGRAIsInternalFormat ? "YES": "NO"));
     r.appendf("Support texture swizzle: %s\n", (fTextureSwizzleSupport ? "YES": "NO"));
     r.appendf("Unpack Row length support: %s\n", (fUnpackRowLengthSupport ? "YES": "NO"));

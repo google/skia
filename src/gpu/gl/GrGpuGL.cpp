@@ -200,7 +200,8 @@ GrPixelConfig GrGpuGL::preferredWritePixelsConfig(GrPixelConfig writeConfig,
 }
 
 bool GrGpuGL::canWriteTexturePixels(const GrTexture* texture, GrPixelConfig srcConfig) const {
-    if (kIndex_8_GrPixelConfig == srcConfig || kIndex_8_GrPixelConfig == texture->config()) {
+    if (kIndex_8_GrPixelConfig == srcConfig || kIndex_8_GrPixelConfig == texture->config() ||
+        GrPixelConfigIsCompressed(srcConfig) || GrPixelConfigIsCompressed(texture->config())) {
         return false;
     }
     if (srcConfig != texture->config() && kGLES_GrGLStandard == this->glStandard()) {
@@ -209,7 +210,7 @@ bool GrGpuGL::canWriteTexturePixels(const GrTexture* texture, GrPixelConfig srcC
         // texture. It depends upon which extension added BGRA. The Apple extension allows it
         // (BGRA's internal format is RGBA) while the EXT extension does not (BGRA is its own
         // internal format).
-        if (this->glCaps().bgraFormatSupport() &&
+        if (this->glCaps().isConfigTexturable(kBGRA_8888_GrPixelConfig) &&
             !this->glCaps().bgraIsInternalFormat() &&
             kBGRA_8888_GrPixelConfig == srcConfig &&
             kRGBA_8888_GrPixelConfig == texture->config()) {
@@ -531,6 +532,9 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
                             size_t rowBytes) {
     SkASSERT(NULL != data || isNewTexture);
 
+    // If we're uploading compressed data then we should be using uploadCompressedTexData
+    SkASSERT(!GrPixelConfigIsCompressed(dataConfig));
+
     size_t bpp = GrBytesPerPixel(dataConfig);
     if (!adjust_pixel_ops_params(desc.fWidth, desc.fHeight, bpp, &left, &top,
                                  &width, &height, &data, &rowBytes)) {
@@ -548,7 +552,7 @@ bool GrGpuGL::uploadTexData(const GrGLTexture::Desc& desc,
     // texture storage.
     bool useTexStorage = false &&
                          isNewTexture &&
-                         desc.fConfig != kIndex_8_GrPixelConfig &&
+                         kIndex_8_GrPixelConfig != desc.fConfig &&
                          this->glCaps().texStorageSupport();
 
     if (useTexStorage && kGL_GrGLStandard == this->glStandard()) {
@@ -1432,8 +1436,13 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
                            GrPixelConfig config,
                            void* buffer,
                            size_t rowBytes) {
-    GrGLenum format;
-    GrGLenum type;
+    // We cannot read pixels into a compressed buffer
+    if (GrPixelConfigIsCompressed(config)) {
+        return false;
+    }
+
+    GrGLenum format = 0;
+    GrGLenum type = 0;
     bool flipY = kBottomLeft_GrSurfaceOrigin == target->origin();
     if (!this->configToGLFormats(config, false, NULL, &format, &type)) {
         return false;
@@ -2160,8 +2169,8 @@ void GrGpuGL::bindTexture(int unitIdx, const GrTextureParams& params, GrGLTextur
     newTexParams.fMinFilter = glMinFilterModes[filterMode];
     newTexParams.fMagFilter = glMagFilterModes[filterMode];
 
-    if (GrTextureParams::kMipMap_FilterMode == filterMode && texture->mipMapsAreDirty()) {
-//        GL_CALL(Hint(GR_GL_GENERATE_MIPMAP_HINT,GR_GL_NICEST));
+    if (GrTextureParams::kMipMap_FilterMode == filterMode &&
+        texture->mipMapsAreDirty() && !GrPixelConfigIsCompressed(texture->config())) {
         GL_CALL(GenerateMipmap(GR_GL_TEXTURE_2D));
         texture->dirtyMipMaps(false);
     }
@@ -2395,6 +2404,10 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
         externalType = &dontCare;
     }
 
+    if(!this->glCaps().isConfigTexturable(config)) {
+        return false;
+    }
+
     switch (config) {
         case kRGBA_8888_GrPixelConfig:
             *internalFormat = GR_GL_RGBA;
@@ -2407,9 +2420,6 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
             *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         case kBGRA_8888_GrPixelConfig:
-            if (!this->glCaps().bgraFormatSupport()) {
-                return false;
-            }
             if (this->glCaps().bgraIsInternalFormat()) {
                 if (getSizedInternalFormat) {
                     *internalFormat = GR_GL_BGRA8;
@@ -2451,16 +2461,12 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
             *externalType = GR_GL_UNSIGNED_SHORT_4_4_4_4;
             break;
         case kIndex_8_GrPixelConfig:
-            if (this->caps()->eightBitPaletteSupport()) {
-                // glCompressedTexImage doesn't take external params
-                *externalFormat = GR_GL_PALETTE8_RGBA8;
-                // no sized/unsized internal format distinction here
-                *internalFormat = GR_GL_PALETTE8_RGBA8;
-                // unused with CompressedTexImage
-                *externalType = GR_GL_UNSIGNED_BYTE;
-            } else {
-                return false;
-            }
+            // glCompressedTexImage doesn't take external params
+            *externalFormat = GR_GL_PALETTE8_RGBA8;
+            // no sized/unsized internal format distinction here
+            *internalFormat = GR_GL_PALETTE8_RGBA8;
+            // unused with CompressedTexImage
+            *externalType = GR_GL_UNSIGNED_BYTE;
             break;
         case kAlpha_8_GrPixelConfig:
             if (this->glCaps().textureRedSupport()) {
@@ -2481,6 +2487,22 @@ bool GrGpuGL::configToGLFormats(GrPixelConfig config,
                     *internalFormat = GR_GL_ALPHA;
                 }
                 *externalType = GR_GL_UNSIGNED_BYTE;
+            }
+            break;
+        case kETC1_GrPixelConfig:
+            *internalFormat = GR_GL_COMPRESSED_RGB8_ETC1;
+            break;
+        case kLATC_GrPixelConfig:
+            switch(this->glCaps().latcAlias()) {
+                case GrGLCaps::kLATC_LATCAlias:
+                    *internalFormat = GR_GL_COMPRESSED_LUMINANCE_LATC1;
+                    break;
+                case GrGLCaps::kRGTC_LATCAlias:
+                    *internalFormat = GR_GL_COMPRESSED_RED_RGTC1;
+                    break;
+                case GrGLCaps::k3DC_LATCAlias:
+                    *internalFormat = GR_GL_COMPRESSED_3DC_X;
+                    break;
             }
             break;
         default:
@@ -2559,7 +2581,8 @@ inline bool can_copy_texsubimage(const GrSurface* dst,
     if (gpu->glCaps().isConfigRenderable(src->config(), src->desc().fSampleCnt > 0) &&
         NULL != dst->asTexture() &&
         dst->origin() == src->origin() &&
-        kIndex_8_GrPixelConfig != src->config()) {
+        kIndex_8_GrPixelConfig != src->config() &&
+        !GrPixelConfigIsCompressed(src->config())) {
         if (NULL != wouldNeedTempFBO) {
             *wouldNeedTempFBO = NULL == src->asRenderTarget();
         }

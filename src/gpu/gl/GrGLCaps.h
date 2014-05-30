@@ -205,9 +205,6 @@ public:
     /// ES requires an extension to support RGBA8 in RenderBufferStorage
     bool rgba8RenderbufferSupport() const { return fRGBA8RenderbufferSupport; }
 
-    /// Is GL_BGRA supported
-    bool bgraFormatSupport() const { return fBGRAFormatSupport; }
-
     /**
      * Depending on the ES extensions present the BGRA external format may
      * correspond either a BGRA or RGBA internalFormat. On desktop GL it is
@@ -270,6 +267,19 @@ public:
      */
     virtual SkString dump() const SK_OVERRIDE;
 
+    /**
+     * LATC can appear under one of three possible names. In order to know
+     * which GL internal format to use, we need to keep track of which name
+     * we found LATC under. The default is LATC.
+     */
+    enum LATCAlias {
+        kLATC_LATCAlias,
+        kRGTC_LATCAlias,
+        k3DC_LATCAlias
+    };
+
+    LATCAlias latcAlias() const { return fLATCAlias; }
+
 private:
     /**
      * Maintains a bit per GrPixelConfig. It is used to avoid redundantly
@@ -312,8 +322,7 @@ private:
     void initStencilFormats(const GrGLContextInfo&);
     // This must be called after initFSAASupport().
     void initConfigRenderableTable(const GrGLContextInfo&);
-
-    void initCompressedTextureSupport(const GrGLContextInfo &);
+    void initConfigTexturableTable(const GrGLContextInfo&, const GrGLInterface*);
 
     // tracks configs that have been verified to pass the FBO completeness when
     // used as a color attachment
@@ -334,9 +343,9 @@ private:
     FBFetchType         fFBFetchType;
     InvalidateFBType    fInvalidateFBType;
     MapBufferType       fMapBufferType;
+    LATCAlias           fLATCAlias;
 
     bool fRGBA8RenderbufferSupport : 1;
-    bool fBGRAFormatSupport : 1;
     bool fBGRAIsInternalFormat : 1;
     bool fTextureSwizzleSupport : 1;
     bool fUnpackRowLengthSupport : 1;

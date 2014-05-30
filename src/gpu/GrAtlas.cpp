@@ -163,6 +163,9 @@ GrAtlasMgr::GrAtlasMgr(GrGpu* gpu, GrPixelConfig config,
     SkASSERT(plotWidth * fNumPlotsX == textureWidth);
     SkASSERT(plotHeight * fNumPlotsY == textureHeight);
 
+    // We currently do not support compressed atlases...
+    SkASSERT(!GrPixelConfigIsCompressed(config));
+
     // set up allocated plots
     size_t bpp = GrBytesPerPixel(fPixelConfig);
     fPlotArray = SkNEW_ARRAY(GrPlot, (fNumPlotsX*fNumPlotsY));

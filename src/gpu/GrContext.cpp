@@ -360,6 +360,10 @@ GrTexture* GrContext::createResizedTexture(const GrTextureDesc& desc,
         // no longer need to clamp at min RT size.
         rtDesc.fWidth  = GrNextPow2(desc.fWidth);
         rtDesc.fHeight = GrNextPow2(desc.fHeight);
+
+        // We shouldn't be resizing a compressed texture.
+        SkASSERT(!GrPixelConfigIsCompressed(desc.fConfig));
+
         size_t bpp = GrBytesPerPixel(desc.fConfig);
         SkAutoSMalloc<128*128*4> stretchedPixels(bpp * rtDesc.fWidth * rtDesc.fHeight);
         stretch_image(stretchedPixels.get(), rtDesc.fWidth, rtDesc.fHeight,
@@ -607,7 +611,7 @@ GrRenderTarget* GrContext::wrapBackendRenderTarget(const GrBackendRenderTargetDe
 bool GrContext::supportsIndex8PixelConfig(const GrTextureParams* params,
                                           int width, int height) const {
     const GrDrawTargetCaps* caps = fGpu->caps();
-    if (!caps->eightBitPaletteSupport()) {
+    if (!caps->isConfigTexturable(kIndex_8_GrPixelConfig)) {
         return false;
     }
 
