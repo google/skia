@@ -78,6 +78,7 @@
     '../tests/FlateTest.cpp',
     '../tests/FontHostStreamTest.cpp',
     '../tests/FontHostTest.cpp',
+    '../tests/FontObjTest.cpp',
     '../tests/FontMgrTest.cpp',
     '../tests/FontNamesTest.cpp',
     '../tests/FrontBufferedStreamTest.cpp',

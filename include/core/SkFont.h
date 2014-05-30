@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkFont_DEFINED
+#define SkFont_DEFINED
+
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 
@@ -125,6 +128,12 @@ public:
     uint32_t    getFlags() const { return fFlags; }
     MaskType    getMaskType() const { return (MaskType)fMaskType; }
 
+    bool isVertical() const { return SkToBool(fFlags & kVertical_Flag); }
+    bool isEmbolden() const { return SkToBool(fFlags & kEmbolden_Flag); }
+    bool isEnableAutoHints() const { return SkToBool(fFlags & kEnableAutoHints_Flag); }
+    bool isEnableByteCodeHints() const { return SkToBool(fFlags & kEnableByteCodeHints_Flag); }
+    bool isUseNonLinearMetrics() const { return SkToBool(fFlags & kUseNonlinearMetrics_Flag); }
+
     int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding,
                      uint16_t glyphs[], int maxGlyphCount) const;
 
@@ -148,3 +157,5 @@ private:
     uint8_t     fMaskType;
 //  uint8_t     fPad;
 };
+
+#endif
