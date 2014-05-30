@@ -25,7 +25,10 @@ static bool is_enable_bytecode_hints(const SkPaint& paint) {
 static void test_cachedfont(skiatest::Reporter* reporter, const SkPaint& paint) {
     SkAutoTUnref<SkFont> font(SkFont::Testing_CreateFromPaint(paint));
 
-    REPORTER_ASSERT(reporter, font->getTypeface() == paint.getTypeface());
+    // Currently SkFont resolves null into the default, so only test if paint's is not null
+    if (paint.getTypeface()) {
+        REPORTER_ASSERT(reporter, font->getTypeface() == paint.getTypeface());
+    }
     REPORTER_ASSERT(reporter, font->getSize() == paint.getTextSize());
     REPORTER_ASSERT(reporter, font->getScaleX() == paint.getTextScaleX());
     REPORTER_ASSERT(reporter, font->getSkewX() == paint.getTextSkewX());
