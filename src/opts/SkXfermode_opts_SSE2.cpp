@@ -644,6 +644,7 @@ extern SkXfermodeProcSIMD gSSE2XfermodeProcs[];
 SkSSE2ProcCoeffXfermode::SkSSE2ProcCoeffXfermode(SkReadBuffer& buffer)
     : INHERITED(buffer) {
     fProcSIMD = reinterpret_cast<void*>(gSSE2XfermodeProcs[this->getMode()]);
+    buffer.validate(fProcSIMD != NULL);
 }
 
 void SkSSE2ProcCoeffXfermode::xfer32(SkPMColor dst[], const SkPMColor src[],
