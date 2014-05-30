@@ -17,6 +17,7 @@
 #include "SkDisplacementMapEffect.h"
 #include "SkDropShadowImageFilter.h"
 #include "SkFlattenableBuffers.h"
+#include "SkFlattenableSerialization.h"
 #include "SkGradientShader.h"
 #include "SkLightingImageFilter.h"
 #include "SkMatrixConvolutionImageFilter.h"
@@ -491,6 +492,66 @@ DEF_TEST(ImageFilterMatrixTest, reporter) {
     SkAutoTUnref<SkPicture> picture(recorder.endRecording());
 
     canvas.drawPicture(*picture);
+}
+
+DEF_TEST(ImageFilterPictureImageFilterTest, reporter) {
+
+    SkRTreeFactory factory;
+    SkPictureRecorder recorder;
+    SkCanvas* recordingCanvas = recorder.beginRecording(1, 1, &factory, 0);
+
+    // Create an SkPicture which simply draws a green 1x1 rectangle.
+    SkPaint greenPaint;
+    greenPaint.setColor(SK_ColorGREEN);
+    recordingCanvas->drawRect(SkRect::Make(SkIRect::MakeWH(1, 1)), greenPaint);
+    SkAutoTUnref<SkPicture> picture(recorder.endRecording());
+
+    // Wrap that SkPicture in an SkPictureImageFilter.
+    SkAutoTUnref<SkImageFilter> imageFilter(
+        SkPictureImageFilter::Create(picture.get()));
+
+    // Check that SkPictureImageFilter successfully serializes its contained
+    // SkPicture when not in cross-process mode.
+    SkPaint paint;
+    paint.setImageFilter(imageFilter.get());
+    SkPictureRecorder outerRecorder;
+    SkCanvas* outerCanvas = outerRecorder.beginRecording(1, 1, &factory, 0);
+    SkPaint redPaintWithFilter;
+    redPaintWithFilter.setColor(SK_ColorRED);
+    redPaintWithFilter.setImageFilter(imageFilter.get());
+    outerCanvas->drawRect(SkRect::Make(SkIRect::MakeWH(1, 1)), redPaintWithFilter);
+    SkAutoTUnref<SkPicture> outerPicture(outerRecorder.endRecording());
+
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(1, 1);
+    SkBitmapDevice device(bitmap);
+    SkCanvas canvas(&device);
+
+    // The result here should be green, since the filter replaces the primitive's red interior.
+    canvas.clear(0x0);
+    canvas.drawPicture(*outerPicture);
+    uint32_t pixel = *bitmap.getAddr32(0, 0);
+    REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
+
+    // Check that, for now, SkPictureImageFilter does not serialize or
+    // deserialize its contained picture when the filter is serialized
+    // cross-process. Do this by "laundering" it through SkValidatingReadBuffer.
+    SkAutoTUnref<SkData> data(SkValidatingSerializeFlattenable(imageFilter.get()));
+    SkAutoTUnref<SkFlattenable> flattenable(SkValidatingDeserializeFlattenable(
+        data->data(), data->size(), SkImageFilter::GetFlattenableType()));
+    SkImageFilter* unflattenedFilter = static_cast<SkImageFilter*>(flattenable.get());
+
+    redPaintWithFilter.setImageFilter(unflattenedFilter);
+    SkPictureRecorder crossProcessRecorder;
+    SkCanvas* crossProcessCanvas = crossProcessRecorder.beginRecording(1, 1, &factory, 0);
+    crossProcessCanvas->drawRect(SkRect::Make(SkIRect::MakeWH(1, 1)), redPaintWithFilter);
+    SkAutoTUnref<SkPicture> crossProcessPicture(crossProcessRecorder.endRecording());
+
+    canvas.clear(0x0);
+    canvas.drawPicture(*crossProcessPicture);
+    pixel = *bitmap.getAddr32(0, 0);
+    // The result here should not be green, since the filter draws nothing.
+    REPORTER_ASSERT(reporter, pixel != SK_ColorGREEN);
 }
 
 DEF_TEST(ImageFilterEmptySaveLayerTest, reporter) {

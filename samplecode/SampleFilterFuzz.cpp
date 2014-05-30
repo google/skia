@@ -27,6 +27,7 @@
 #include "SkOffsetImageFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkPictureImageFilter.h"
+#include "SkPictureRecorder.h"
 #include "SkRandom.h"
 #include "SkRectShaderImageFilter.h"
 #include "SkTestImageFilters.h"
@@ -206,7 +207,6 @@ static const SkBitmap& make_bitmap() {
     return bitmap[R(2)];
 }
 
-#ifdef SK_ALLOW_PICTUREIMAGEFILTER_SERIALIZATION
 static void drawSomething(SkCanvas* canvas) {
     SkPaint paint;
 
@@ -228,7 +228,6 @@ static void drawSomething(SkCanvas* canvas) {
     paint.setTextSize(SkIntToScalar(kBitmapSize/3));
     canvas->drawText("Picture", 7, SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), paint);
 }
-#endif
 
 static SkImageFilter* make_image_filter(bool canBeNull = true) {
     SkImageFilter* filter = 0;
@@ -376,14 +375,12 @@ static SkImageFilter* make_image_filter(bool canBeNull = true) {
         break;
     case PICTURE:
     {
-        SkPicture* pict = NULL;
-#ifdef SK_ALLOW_PICTUREIMAGEFILTER_SERIALIZATION
-        pict = new SkPicture;
-        SkAutoUnref aur(pict);
-        drawSomething(pict->beginRecording(kBitmapSize, kBitmapSize));
-        pict->endRecording();
-#endif
-        filter = SkPictureImageFilter::Create(pict, make_rect());
+        SkRTreeFactory factory;
+        SkPictureRecorder recorder;
+        SkCanvas* recordingCanvas = recorder.beginRecording(kBitmapSize, kBitmapSize, &factory, 0);
+        drawSomething(recordingCanvas);
+        SkAutoTUnref<SkPicture> pict(recorder.endRecording());
+        filter = SkPictureImageFilter::Create(pict.get(), make_rect());
     }
         break;
     default:
