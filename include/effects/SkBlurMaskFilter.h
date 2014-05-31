@@ -15,17 +15,6 @@
 
 class SK_API SkBlurMaskFilter {
 public:
-#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER_STYLE
-    enum BlurStyle {
-        kNormal_BlurStyle = kNormal_SkBlurStyle,  //!< fuzzy inside and outside
-        kSolid_BlurStyle = kSolid_SkBlurStyle,   //!< solid inside, fuzzy outside
-        kOuter_BlurStyle = kOuter_SkBlurStyle,   //!< nothing inside, fuzzy outside
-        kInner_BlurStyle = kInner_SkBlurStyle,   //!< fuzzy inside, nothing outside
-
-        kBlurStyleCount
-    };
-#endif
-
     /**
      *  If radius > 0, return the corresponding sigma, else return 0. Use this to convert from the
      *  (legacy) idea of specify the blur "radius" to the standard notion of specifying its sigma.
@@ -41,21 +30,6 @@ public:
         /** mask for all blur flags */
         kAll_BlurFlag = 0x03
     };
-
-#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER_STYLE
-    SK_ATTR_DEPRECATED("use sigma version")
-    static SkMaskFilter* Create(SkScalar radius, BlurStyle style,
-                                uint32_t flags = kNone_BlurFlag);
-
-    /** Create a blur maskfilter.
-        @param style    The BlurStyle to use
-        @param sigma    Standard deviation of the Gaussian blur to apply. Must be > 0.
-        @param flags    Flags to use - defaults to none
-        @return The new blur maskfilter
-    */
-    static SkMaskFilter* Create(BlurStyle style, SkScalar sigma,
-                                uint32_t flags = kNone_BlurFlag);
-#endif
 
     /** Create a blur maskfilter.
      *  @param style    The SkBlurStyle to use

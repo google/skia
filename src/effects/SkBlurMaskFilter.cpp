@@ -125,21 +125,6 @@ SkMaskFilter* SkBlurMaskFilter::Create(SkBlurStyle style, SkScalar sigma, uint32
     return SkNEW_ARGS(SkBlurMaskFilterImpl, (sigma, style, flags));
 }
 
-#ifdef SK_SUPPORT_LEGACY_BLURMASKFILTER_STYLE
-SkMaskFilter* SkBlurMaskFilter::Create(SkScalar radius,
-                                       SkBlurMaskFilter::BlurStyle style,
-                                       uint32_t flags) {
-    SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(radius);
-    return Create((SkBlurStyle)style, sigma, flags);
-}
-
-SkMaskFilter* SkBlurMaskFilter::Create(SkBlurMaskFilter::BlurStyle style,
-                                       SkScalar sigma,
-                                       uint32_t flags) {
-    return Create((SkBlurStyle)style, sigma, flags);
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle style, uint32_t flags)
