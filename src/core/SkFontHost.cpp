@@ -6,7 +6,7 @@
  */
 
 #include "SkFontLCDConfig.h"
-#include "SkLazyPtr.h"
+#include "SkOnce.h"
 
 static SkFontLCDConfig::LCDOrientation gLCDOrientation = SkFontLCDConfig::kHorizontal_LCDOrientation;
 static SkFontLCDConfig::LCDOrder gLCDOrder = SkFontLCDConfig::kRGB_LCDOrder;
@@ -198,14 +198,19 @@ SkTypeface* SkFontMgr::legacyCreateTypeface(const char familyName[],
     return this->onLegacyCreateTypeface(familyName, styleBits);
 }
 
-SkFontMgr* SkFontMgr::CreateDefault() {
-    SkFontMgr* fm = SkFontMgr::Factory();
-    return fm ? fm : SkNEW(SkEmptyFontMgr);
+void set_up_default(SkFontMgr** singleton) {
+  *singleton = SkFontMgr::Factory();
+  // we never want to return NULL
+  if (NULL == *singleton) {
+      *singleton = SkNEW(SkEmptyFontMgr);
+  }
 }
 
 SkFontMgr* SkFontMgr::RefDefault() {
-    SK_DECLARE_STATIC_LAZY_PTR(SkFontMgr, singleton, CreateDefault);
-    return SkRef(singleton.get());
+    static SkFontMgr* gFM = NULL;
+    SK_DECLARE_STATIC_ONCE(once);
+    SkOnce(&once, set_up_default, &gFM);
+    return SkRef(gFM);
 }
 
 //////////////////////////////////////////////////////////////////////////

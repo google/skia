@@ -46,7 +46,7 @@ public:
 
 private:
     SkRemotableFontIdentitySet() : fCount(0), fData() { }
-    static SkRemotableFontIdentitySet* NewEmptyImpl();
+    static void NewEmptyImpl(int);
 
     int fCount;
     SkAutoTMalloc<SkFontIdentity> fData;

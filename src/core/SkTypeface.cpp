@@ -8,7 +8,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkFontDescriptor.h"
 #include "SkFontHost.h"
-#include "SkLazyPtr.h"
+#include "SkOnce.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
 
@@ -74,23 +74,34 @@ protected:
     }
 };
 
-SkTypeface* SkTypeface::CreateDefault(int style) {
-    SkTypeface* t = SkFontHost::CreateTypeface(NULL, NULL, (Style)style);
-    return t ? t : SkEmptyTypeface::Create();
-}
+static SkTypeface* gDefaultTypefaces[] = { NULL, NULL, NULL, NULL };
+static const size_t FONT_STYLE_COUNT = SK_ARRAY_COUNT(gDefaultTypefaces);
+static SkOnceFlag gDefaultTypefaceOnce[FONT_STYLE_COUNT] = {
+    SK_ONCE_INIT, SK_ONCE_INIT, SK_ONCE_INIT, SK_ONCE_INIT
+};
+template <uintmax_t N> struct SkTIsPow2 {
+    static const bool value = (N & (N - 1)) == 0;
+};
+SK_COMPILE_ASSERT(SkTIsPow2<FONT_STYLE_COUNT>::value, FONT_STYLE_COUNT_not_power_of_2);
 
-void SkTypeface::DeleteDefault(SkTypeface* t) {
-    // The SkTypeface returned by SkFontHost::CreateTypeface may _itself_ be a
-    // cleverly-shared singleton.  This is less than ideal.  This means we
-    // cannot just assert our ownership and SkDELETE(t) like we'd want to.
-    SkSafeUnref(t);
+void SkTypeface::create_default_typeface(Style style) {
+    if (NULL == gDefaultTypefaces[style]) {
+        gDefaultTypefaces[style] = SkFontHost::CreateTypeface(NULL, NULL, style);
+    }
+    if (NULL == gDefaultTypefaces[style]) {
+        // FIXME: Use a singleton for SkEmptyTypeface.
+        gDefaultTypefaces[style] = SkEmptyTypeface::Create();
+    }
 }
 
 SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
-    SK_DECLARE_STATIC_LAZY_PTR_ARRAY(SkTypeface, defaults, 4, CreateDefault, DeleteDefault);
+    SkASSERT((size_t)style < FONT_STYLE_COUNT);
 
-    SkASSERT((int)style < 4);
-    return defaults[style];
+    // mask off any other bits to avoid a crash in SK_RELEASE
+    style = (Style)(style & (FONT_STYLE_COUNT - 1));
+
+    SkOnce(&gDefaultTypefaceOnce[style], SkTypeface::create_default_typeface, style);
+    return gDefaultTypefaces[style];
 }
 
 SkTypeface* SkTypeface::RefDefault(Style style) {
