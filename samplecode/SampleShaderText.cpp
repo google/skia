@@ -185,9 +185,6 @@ protected:
             canvas->restore();
         }
         canvas->restore();
-
-        canvas->translate(0, SkIntToScalar(370));
-        this->inval(NULL);
     }
 
 private:
