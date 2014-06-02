@@ -7,8 +7,9 @@
 
 #include "SkMatrix.h"
 #include "SkFloatBits.h"
-#include "SkLazyPtr.h"
 #include "SkString.h"
+
+#include <stddef.h>
 
 // In a few places, we performed the following
 //      a * b + c * d + e
@@ -1560,31 +1561,38 @@ bool SkMatrix::getMinMaxScales(SkScalar scaleFactors[2]) const {
 
 namespace {
 
-SkMatrix* create_identity() {
-    SkMatrix* m = SkNEW(SkMatrix);
-    m->reset();
-    return m;
-}
+struct PODMatrix {
+    SkScalar matrix[9];
+    uint32_t typemask;
 
-SkMatrix* create_invalid() {
-    SkMatrix* m = SkNEW(SkMatrix);
-    m->setAll(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
-              SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
-              SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
-    m->getType();  // Force the type to be computed.
-    return m;
-}
+    const SkMatrix& asSkMatrix() const { return *reinterpret_cast<const SkMatrix*>(this); }
+};
+SK_COMPILE_ASSERT(sizeof(PODMatrix) == sizeof(SkMatrix), PODMatrixSizeMismatch);
 
 }  // namespace
 
 const SkMatrix& SkMatrix::I() {
-    SK_DECLARE_STATIC_LAZY_PTR(SkMatrix, identity, create_identity);
-    return *identity.get();
+    SK_COMPILE_ASSERT(offsetof(SkMatrix, fMat)      == offsetof(PODMatrix, matrix),   BadfMat);
+    SK_COMPILE_ASSERT(offsetof(SkMatrix, fTypeMask) == offsetof(PODMatrix, typemask), BadfTypeMask);
+
+    static const PODMatrix identity = { {SK_Scalar1, 0, 0,
+                                         0, SK_Scalar1, 0,
+                                         0, 0, SK_Scalar1 },
+                                       kIdentity_Mask | kRectStaysRect_Mask};
+    SkASSERT(identity.asSkMatrix().isIdentity());
+    return identity.asSkMatrix();
 }
 
 const SkMatrix& SkMatrix::InvalidMatrix() {
-    SK_DECLARE_STATIC_LAZY_PTR(SkMatrix, invalid, create_invalid);
-    return *invalid.get();
+    SK_COMPILE_ASSERT(offsetof(SkMatrix, fMat)      == offsetof(PODMatrix, matrix),   BadfMat);
+    SK_COMPILE_ASSERT(offsetof(SkMatrix, fTypeMask) == offsetof(PODMatrix, typemask), BadfTypeMask);
+
+    static const PODMatrix invalid =
+        { {SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
+           SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
+           SK_ScalarMax, SK_ScalarMax, SK_ScalarMax },
+         kTranslate_Mask | kScale_Mask | kAffine_Mask | kPerspective_Mask };
+    return invalid.asSkMatrix();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
