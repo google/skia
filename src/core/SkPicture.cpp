@@ -664,10 +664,12 @@ bool SkPicture::suitableForGpuRasterization(GrContext* context, const char **rea
     bool ret = this->numPaintWithPathEffectUses() < kNumPaintWithPathEffectUsesTol &&
                (this->numAAConcavePaths()-this->numAAHairlineConcavePaths()) < kNumAAConcavePaths;
     if (!ret && reason) {
-        if (this->numPaintWithPathEffectUses() < kNumPaintWithPathEffectUsesTol)
+        if (this->numPaintWithPathEffectUses() >= kNumPaintWithPathEffectUsesTol)
             *reason = "Too many path effects.";
-        else if ((this->numAAConcavePaths()-this->numAAHairlineConcavePaths()) < kNumAAConcavePaths)
+        else if ((this->numAAConcavePaths()-this->numAAHairlineConcavePaths()) >= kNumAAConcavePaths)
             *reason = "Too many anti-aliased concave paths.";
+        else
+            *reason = "Unknown reason for GPU unsuitability.";
     }
     return ret;
 }
