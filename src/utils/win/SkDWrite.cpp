@@ -14,6 +14,12 @@
 
 static IDWriteFactory* gDWriteFactory = NULL;
 
+static void release_dwrite_factory() {
+    if (gDWriteFactory) {
+        gDWriteFactory->Release();
+    }
+}
+
 static void create_dwrite_factory(IDWriteFactory** factory) {
     typedef decltype(DWriteCreateFactory)* DWriteCreateFactoryProc;
     DWriteCreateFactoryProc dWriteCreateFactoryProc = reinterpret_cast<DWriteCreateFactoryProc>(
@@ -31,17 +37,13 @@ static void create_dwrite_factory(IDWriteFactory** factory) {
                                  __uuidof(IDWriteFactory),
                                  reinterpret_cast<IUnknown**>(factory)),
          "Could not create DirectWrite factory.");
+    atexit(release_dwrite_factory);
 }
 
-static void release_dwrite_factory() {
-    if (gDWriteFactory) {
-        gDWriteFactory->Release();
-    }
-}
 
 IDWriteFactory* sk_get_dwrite_factory() {
     SK_DECLARE_STATIC_ONCE(once);
-    SkOnce(&once, create_dwrite_factory, &gDWriteFactory, release_dwrite_factory);
+    SkOnce(&once, create_dwrite_factory, &gDWriteFactory);
 
     return gDWriteFactory;
 }

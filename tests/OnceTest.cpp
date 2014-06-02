@@ -27,20 +27,6 @@ DEF_TEST(SkOnce_Singlethreaded, r) {
     REPORTER_ASSERT(r, 5 == x);
 }
 
-struct AddFour { void operator()(int* x) { *x += 4; } };
-
-DEF_TEST(SkOnce_MiscFeatures, r) {
-    // Tests that we support functors and explicit SkOnceFlags.
-    int x = 0;
-
-    SkOnceFlag once = SK_ONCE_INIT;
-    SkOnce(&once, AddFour(), &x);
-    SkOnce(&once, AddFour(), &x);
-    SkOnce(&once, AddFour(), &x);
-
-    REPORTER_ASSERT(r, 4 == x);
-}
-
 static void add_six(int* x) {
     *x += 6;
 }
@@ -78,14 +64,13 @@ DEF_TEST(SkOnce_Multithreaded, r) {
     REPORTER_ASSERT(r, 6 == x);
 }
 
-// Test that the atExit option works.
-static int gToDecrement = 1;
-static void noop(int) {}
-static void decrement() { gToDecrement--; }
-static void checkDecremented() { SkASSERT(gToDecrement == 0); }
+static int gX = 0;
+static void inc_gX() { gX++; }
 
-DEF_TEST(SkOnce_atExit, r) {
-    atexit(checkDecremented);
+DEF_TEST(SkOnce_NoArg, r) {
     SK_DECLARE_STATIC_ONCE(once);
-    SkOnce(&once, noop, 0, decrement);
+    SkOnce(&once, inc_gX);
+    SkOnce(&once, inc_gX);
+    SkOnce(&once, inc_gX);
+    REPORTER_ASSERT(r, 1 == gX);
 }

@@ -62,7 +62,7 @@
 #include "SkMatrixImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 
-static void InitializeFlattenables(int*) {
+static void InitializeFlattenables() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkAvoidXfermode)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBicubicImageFilter)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBitmapProcShader)
@@ -122,7 +122,6 @@ static void InitializeFlattenables(int*) {
 }
 
 void SkFlattenable::InitializeFlattenablesIfNeeded() {
-    int dummy;
     SK_DECLARE_STATIC_ONCE(once);
-    SkOnce(&once, InitializeFlattenables, &dummy);
+    SkOnce(&once, InitializeFlattenables);
 }

@@ -47,11 +47,11 @@ extern bool gPrintInstCount;
     public:                                                                 \
         SkInstanceCountHelper() {                                           \
             SK_DECLARE_STATIC_ONCE(once);                                   \
-            SkOnce(&once, init, 0);                                         \
+            SkOnce(&once, init);                                            \
             sk_atomic_inc(GetInstanceCountPtr());                           \
         }                                                                   \
                                                                             \
-        static void init(int) {                                             \
+        static void init() {                                                \
             initStep                                                        \
         }                                                                   \
                                                                             \
