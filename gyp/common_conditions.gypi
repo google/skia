@@ -313,10 +313,12 @@
         'SK_MUTEX_PLATFORM_H "../../src/ports/SkMutex_pthread.h"',
         # Still need to switch Android to the new name for N32.
         'kNative_8888_SkColorType kN32_SkColorType',
-        'SK_SUPPORT_LEGACY_PICTURE_CAN_RECORD',
-        'SK_SUPPORT_DEPRECATED_RECORD_FLAGS',
-        'SK_SUPPORT_LEGACY_DERIVED_PICTURE_CLASSES',
-        'SK_SUPPORT_LEGACY_PICTURE_HEADERS',
+        'SK_SUPPORT_LEGACY_BLURMASKFILTER_STYLE',
+        # Needed until we fix skbug.com/2440.
+        'SK_SUPPORT_LEGACY_CLIPTOLAYERFLAG',
+        # Transitional, for deprecated SkCanvas::SaveFlags methods.
+        'SK_ATTR_DEPRECATED=SK_NOTHING_ARG1',
+        'SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX',
         'SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE (512 * 1024)',
         # Defines from skia_for_android_framework_defines.gypi
         '<@(skia_for_android_framework_defines)',
