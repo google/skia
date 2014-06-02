@@ -6,15 +6,26 @@
 race:third_party/externals/libwebp
 
 # skia:2459  Seemingly misdiagnosed use-after-free, having something to do with software GL drivers.
-# We don't always get swrast_dri.so in the stack or we'd use that.
-race:SkGLContextHelper::init
+# Having trouble getting this suppression to match.
+# We've tried: race:swrast_dri.so
+#              race:SkGLContextHelper::init
+# Maybe because it's diagnosed as a use-after-free, not as a race?
+race:SkGLContextHelper
 
 # Threadsafe, should be ported to SkLazyPtr.
 race:SkFontHost_FreeType
 
 # Not threadsafe, should be fixed.
-race:SkFontHost_fontconfig_ref_global
+race:RefFCI
 race:SkString::RefRec
 
 # Not threadsafe, should be deleted.
 race:SkPDF
+
+# Should be these can be removed once TSAN learns sk_acquire_load / sk_release_store.
+race:SkOnce
+race:SkRefCntBase
+
+# This is SkLazyPtr.  Also can be cleaned up when TSAN learns sk_acquire_load / sk_release_store.
+race:sk_acquire_load
+race:__tsan_atomic64_compare_exchange_val
