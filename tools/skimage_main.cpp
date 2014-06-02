@@ -595,7 +595,7 @@ static void decodeFileAndWrite(const char srcPath[], const SkString* writePath) 
                 SkBitmap bitmapFromDecodeSubset;
                 // FIXME: Come up with a more representative set of rectangles.
                 SkIRect rect = generate_random_rect(&rand, width, height);
-                SkString subsetDim = SkStringPrintf("(%d,%d,%d,%d)", rect.fLeft, rect.fTop,
+                SkString subsetDim = SkStringPrintf("[%d,%d,%d,%d]", rect.fLeft, rect.fTop,
                                                     rect.fRight, rect.fBottom);
                 if (codec->decodeSubset(&bitmapFromDecodeSubset, rect, gPrefConfig)) {
                     SkString subsetName = SkStringPrintf("%s-%s", filename, subsetDim.c_str());
