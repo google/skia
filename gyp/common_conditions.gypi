@@ -6,7 +6,6 @@
     'SK_SUPPORT_GPU=<(skia_gpu)',
     'SK_SUPPORT_OPENCL=<(skia_opencl)',
     'SK_FORCE_DISTANCEFIELD_FONTS=<(skia_force_distancefield_fonts)',
-    'SK_SUPPORT_ETC1'
   ],
   'conditions' : [
     [ 'skia_arch_type == "arm64"', {
@@ -320,6 +319,7 @@
         'SK_ATTR_DEPRECATED=SK_NOTHING_ARG1',
         'SK_SUPPORT_LEGACY_SHADER_LOCALMATRIX',
         'SK_DEFAULT_GLOBAL_DISCARDABLE_MEMORY_POOL_SIZE (512 * 1024)',
+        'SK_IGNORE_ETC1_SUPPORT',
         # Defines from skia_for_android_framework_defines.gypi
         '<@(skia_for_android_framework_defines)',
       ],

@@ -15,7 +15,7 @@
 #include "GrGpu.h"
 #include "GrDrawTargetCaps.h"
 
-#if SK_SUPPORT_ETC1
+#ifndef SK_IGNORE_ETC1_SUPPORT
 #  include "etc1.h"
 #endif
 
@@ -131,7 +131,7 @@ static void add_genID_listener(GrResourceKey key, SkPixelRef* pixelRef) {
     pixelRef->addGenIDChangeListener(SkNEW_ARGS(GrResourceInvalidator, (key)));
 }
 
-#if SK_SUPPORT_ETC1
+#ifndef SK_IGNORE_ETC1_SUPPORT
 static GrTexture *load_etc1_texture(GrContext* ctx,
                                     const GrTextureParams* params,
                                     const SkBitmap &bm, GrTextureDesc desc) {
@@ -173,7 +173,7 @@ static GrTexture *load_etc1_texture(GrContext* ctx,
     }
     return result;
 }
-#endif   // SK_SUPPORT_ETC1
+#endif   // SK_IGNORE_ETC1_SUPPORT
 
 static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
                                               bool cache,
@@ -226,14 +226,14 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
     }
 
     // Is this an ETC1 encoded texture?
-#if SK_SUPPORT_ETC1
+#ifndef SK_IGNORE_ETC1_SUPPORT
     else if (cache && ctx->getGpu()->caps()->isConfigTexturable(kETC1_GrPixelConfig)) {
         GrTexture *texture = load_etc1_texture(ctx, params, *bitmap, desc);
         if (NULL != texture) {
             return texture;
         }
     }
-#endif   // SK_SUPPORT_ETC1
+#endif   // SK_IGNORE_ETC1_SUPPORT
 
     SkAutoLockPixels alp(*bitmap);
     if (!bitmap->readyToDraw()) {
