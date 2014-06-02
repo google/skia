@@ -114,7 +114,7 @@ public:
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
                             const SkMatrix&, const SkPaint& paint) SK_OVERRIDE {
         this->addBitmap(bitmap);
-        if (SkBitmap::kA8_Config == bitmap.config()) {
+        if (kAlpha_8_SkColorType == bitmap.colorType()) {
             this->addBitmapFromPaint(paint);
         }
     }
@@ -123,7 +123,7 @@ public:
                                 const SkPaint& paint,
                                 SkCanvas::DrawBitmapRectFlags flags) SK_OVERRIDE {
         this->addBitmap(bitmap);
-        if (SkBitmap::kA8_Config == bitmap.config()) {
+        if (kAlpha_8_SkColorType == bitmap.colorType()) {
             this->addBitmapFromPaint(paint);
         }
     }

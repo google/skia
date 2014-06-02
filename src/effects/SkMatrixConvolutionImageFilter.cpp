@@ -238,9 +238,7 @@ static SkBitmap unpremultiplyBitmap(const SkBitmap& src)
         return SkBitmap();
     }
     SkBitmap result;
-    result.setConfig(src.config(), src.width(), src.height());
-    result.allocPixels();
-    if (!result.getPixels()) {
+    if (!result.allocPixels(src.info())) {
         return SkBitmap();
     }
     for (int y = 0; y < src.height(); ++y) {

@@ -22,7 +22,7 @@ public:
      * If this is unable to compute the hash for some reason,
      * it returns false.
      *
-     * Note: depending on the bitmap config, we may need to create an
+     * Note: depending on the bitmap colortype, we may need to create an
      * intermediate SkBitmap and copy the pixels over to it... so in some
      * cases, performance and memory usage can suffer.
      */

@@ -163,11 +163,10 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    dst->setConfig(src.config(), srcBounds.width(), srcBounds.height());
-    dst->getBounds(&dstBounds);
-    if (!dst->allocPixels()) {
+    if (!dst->allocPixels(src.info().makeWH(srcBounds.width(), srcBounds.height()))) {
         return false;
     }
+    dst->getBounds(&dstBounds);
 
     SkVector sigma = SkVector::Make(fSigma.width(), fSigma.height());
     ctx.ctm().mapVectors(&sigma, 1);
@@ -191,8 +190,7 @@ bool SkBlurImageFilter::onFilterImage(Proxy* proxy,
     }
 
     SkBitmap temp;
-    temp.setConfig(dst->config(), dst->width(), dst->height());
-    if (!temp.allocPixels()) {
+    if (!temp.allocPixels(dst->info())) {
         return false;
     }
 

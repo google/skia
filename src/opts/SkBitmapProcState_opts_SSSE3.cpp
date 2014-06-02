@@ -395,7 +395,7 @@ void S32_generic_D32_filter_DX_SSSE3(const SkBitmapProcState& s,
                                      int count, uint32_t* colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fFilterLevel != SkPaint::kNone_FilterLevel);
-    SkASSERT(s.fBitmap->config() == SkBitmap::kARGB_8888_Config);
+    SkASSERT(kN32_SkColorType == s.fBitmap->colorType());
     if (has_alpha) {
         SkASSERT(s.fAlphaScale < 256);
     } else {
@@ -587,7 +587,7 @@ void S32_generic_D32_filter_DXDY_SSSE3(const SkBitmapProcState& s,
                                        int count, uint32_t* colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fFilterLevel != SkPaint::kNone_FilterLevel);
-    SkASSERT(s.fBitmap->config() == SkBitmap::kARGB_8888_Config);
+    SkASSERT(kN32_SkColorType == s.fBitmap->colorType());
     if (has_alpha) {
         SkASSERT(s.fAlphaScale < 256);
     } else {

@@ -55,7 +55,7 @@ static inline uint64_t first_8_bytes_as_uint64(const uint8_t *bytearray) {
     }
 
     // Hmm, that didn't work. Maybe if we create a new
-    // kARGB_8888_Config version of the bitmap it will work better?
+    // version of the bitmap it will work better?
     SkBitmap copyBitmap;
     if (!bitmap.copyTo(&copyBitmap, kN32_SkColorType)) {
         return false;

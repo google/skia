@@ -189,6 +189,14 @@ struct SkImageInfo {
 
     SkISize dimensions() const { return SkISize::Make(fWidth, fHeight); }
 
+    /**
+     *  Return a new ImageInfo with the same colortype and alphatype as this info,
+     *  but with the specified width and height.
+     */
+    SkImageInfo makeWH(int newWidth, int newHeight) const {
+        return SkImageInfo::Make(newWidth, newHeight, fColorType, fAlphaType);
+    }
+
     int bytesPerPixel() const {
         return SkColorTypeBytesPerPixel(fColorType);
     }

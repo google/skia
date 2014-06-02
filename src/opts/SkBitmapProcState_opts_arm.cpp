@@ -202,8 +202,8 @@ void SkBitmapProcState::platformProcs() {
         justDx = true;
     }
 
-    switch (fBitmap->config()) {
-        case SkBitmap::kIndex8_Config:
+    switch (fBitmap->colorType()) {
+        case kIndex_8_SkColorType:
             if (justDx && SkPaint::kNone_FilterLevel == fFilterLevel) {
 #if 0   /* crashing on android device */
                 fSampleProc16 = SI8_D16_nofilter_DX_arm;

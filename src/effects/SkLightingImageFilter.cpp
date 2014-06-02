@@ -960,8 +960,7 @@ bool SkDiffuseLightingImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    dst->setConfig(src.config(), bounds.width(), bounds.height());
-    if (!dst->allocPixels()) {
+    if (!dst->allocPixels(src.info().makeWH(bounds.width(), bounds.height()))) {
         return false;
     }
 
@@ -1052,9 +1051,7 @@ bool SkSpecularLightingImageFilter::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    dst->setConfig(src.config(), bounds.width(), bounds.height());
-    dst->allocPixels();
-    if (!dst->getPixels()) {
+    if (!dst->allocPixels(src.info().makeWH(bounds.width(), bounds.height()))) {
         return false;
     }
 

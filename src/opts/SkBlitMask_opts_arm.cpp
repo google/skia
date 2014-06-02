@@ -24,7 +24,7 @@ SkBlitMask::ColorProc SkBlitMask::PlatformColorProcs(SkColorType dstCT,
         return NULL;
     }
 #endif
-    if ((SkBitmap::kARGB_8888_Config == dstConfig) &&
+    if ((kN32_SkColorType == dstCT) &&
         (SkMask::kA8_Format == maskFormat)) {
             return D32_A8_Factory_neon(color);
     }

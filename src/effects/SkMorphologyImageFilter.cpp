@@ -163,9 +163,7 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
         return false;
     }
 
-    dst->setConfig(src.config(), bounds.width(), bounds.height());
-    dst->allocPixels();
-    if (!dst->getPixels()) {
+    if (!dst->allocPixels(src.info().makeWH(bounds.width(), bounds.height()))) {
         return false;
     }
 
@@ -190,8 +188,7 @@ bool SkMorphologyImageFilter::filterImageGeneric(SkMorphologyImageFilter::Proc p
     }
 
     SkBitmap temp;
-    temp.setConfig(dst->config(), dst->width(), dst->height());
-    if (!temp.allocPixels()) {
+    if (!temp.allocPixels(dst->info())) {
         return false;
     }
 

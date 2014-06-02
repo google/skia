@@ -227,8 +227,7 @@ bool SkDisplacementMapEffect::onFilterImage(Proxy* proxy,
         return false;
     }
 
-    dst->setConfig(color.config(), bounds.width(), bounds.height());
-    if (!dst->allocPixels()) {
+    if (!dst->allocPixels(color.info().makeWH(bounds.width(), bounds.height()))) {
         return false;
     }
 
