@@ -82,9 +82,11 @@ public:
     */
     virtual bool isOpaque() const = 0;
 
+#ifdef SK_SUPPORT_LEGACY_DEVICE_CONFIG
     /** Return the bitmap config of the device's pixels
      */
     virtual SkBitmap::Config config() const = 0;
+#endif
 
     /** Return the bitmap associated with this device. Call this each time you need
         to access the bitmap, as it notifies the subclass to perform any flushing

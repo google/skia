@@ -380,6 +380,7 @@ SK_COMPILE_ASSERT(SkShader::kLast_BitmapType == 6, shader_type_mismatch);
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SUPPORT_LEGACY_DEVICE_CONFIG
 SkBitmap::Config SkGpuDevice::config() const {
     if (NULL == fRenderTarget) {
         return SkBitmap::kNo_Config;
@@ -388,6 +389,7 @@ SkBitmap::Config SkGpuDevice::config() const {
     bool isOpaque;
     return grConfig2skConfig(fRenderTarget->config(), &isOpaque);
 }
+#endif
 
 void SkGpuDevice::clear(SkColor color) {
     SkIRect rect = SkIRect::MakeWH(this->width(), this->height());
