@@ -418,7 +418,7 @@ private:
     /**
      * Called the first time someone calls CreateEmpty to actually create the singleton.
      */
-    static void CreateEmptyImpl(int/*unused*/);
+    static SkPathRef* CreateEmptyImpl();
 
     void setIsOval(bool isOval) { fIsOval = isOval; }
 

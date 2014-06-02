@@ -7,7 +7,7 @@
 
 #include "SkRemotableFontMgr.h"
 
-#include "SkOnce.h"
+#include "SkLazyPtr.h"
 
 SkRemotableFontIdentitySet::SkRemotableFontIdentitySet(int count, SkFontIdentity** data)
       : fCount(count), fData(count)
@@ -16,17 +16,11 @@ SkRemotableFontIdentitySet::SkRemotableFontIdentitySet(int count, SkFontIdentity
     *data = fData;
 }
 
-static SkRemotableFontIdentitySet* gEmptyRemotableFontIdentitySet = NULL;
-static void cleanup_gEmptyRemotableFontIdentitySet() { gEmptyRemotableFontIdentitySet->unref(); }
-
-void SkRemotableFontIdentitySet::NewEmptyImpl(int) {
-    gEmptyRemotableFontIdentitySet = new SkRemotableFontIdentitySet();
+SkRemotableFontIdentitySet* SkRemotableFontIdentitySet::NewEmptyImpl() {
+    return SkNEW(SkRemotableFontIdentitySet);
 }
 
 SkRemotableFontIdentitySet* SkRemotableFontIdentitySet::NewEmpty() {
-    SK_DECLARE_STATIC_ONCE(once);
-    SkOnce(&once, SkRemotableFontIdentitySet::NewEmptyImpl, 0,
-           cleanup_gEmptyRemotableFontIdentitySet);
-    gEmptyRemotableFontIdentitySet->ref();
-    return gEmptyRemotableFontIdentitySet;
+    SK_DECLARE_STATIC_LAZY_PTR(SkRemotableFontIdentitySet, empty, NewEmptyImpl);
+    return SkRef(empty.get());
 }

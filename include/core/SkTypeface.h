@@ -339,7 +339,8 @@ private:
                           uint32_t glyphIDsCount = 0) const;
 
 private:
-    static void create_default_typeface(Style style);
+    static SkTypeface* CreateDefault(int style);  // SkLazyPtr requires an int, not a Style.
+    static void        DeleteDefault(SkTypeface*);
 
     SkFontID    fUniqueID;
     Style       fStyle;

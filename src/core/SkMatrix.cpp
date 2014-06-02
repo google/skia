@@ -7,7 +7,7 @@
 
 #include "SkMatrix.h"
 #include "SkFloatBits.h"
-#include "SkOnce.h"
+#include "SkLazyPtr.h"
 #include "SkString.h"
 
 // In a few places, we performed the following
@@ -1558,29 +1558,33 @@ bool SkMatrix::getMinMaxScales(SkScalar scaleFactors[2]) const {
     return get_scale_factor<kBoth_MinMaxOrBoth>(this->getType(), fMat, scaleFactors);
 }
 
-static void reset_identity_matrix(SkMatrix* identity) {
-    identity->reset();
+namespace {
+
+SkMatrix* create_identity() {
+    SkMatrix* m = SkNEW(SkMatrix);
+    m->reset();
+    return m;
 }
 
+SkMatrix* create_invalid() {
+    SkMatrix* m = SkNEW(SkMatrix);
+    m->setAll(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
+              SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
+              SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
+    m->getType();  // Force the type to be computed.
+    return m;
+}
+
+}  // namespace
+
 const SkMatrix& SkMatrix::I() {
-    // If you can use C++11 now, you might consider replacing this with a constexpr constructor.
-    static SkMatrix gIdentity;
-    SK_DECLARE_STATIC_ONCE(once);
-    SkOnce(&once, reset_identity_matrix, &gIdentity);
-    return gIdentity;
+    SK_DECLARE_STATIC_LAZY_PTR(SkMatrix, identity, create_identity);
+    return *identity.get();
 }
 
 const SkMatrix& SkMatrix::InvalidMatrix() {
-    static SkMatrix gInvalid;
-    static bool gOnce;
-    if (!gOnce) {
-        gInvalid.setAll(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
-                        SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
-                        SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
-        gInvalid.getType(); // force the type to be computed
-        gOnce = true;
-    }
-    return gInvalid;
+    SK_DECLARE_STATIC_LAZY_PTR(SkMatrix, invalid, create_invalid);
+    return *invalid.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
