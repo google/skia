@@ -90,6 +90,7 @@
         '../samplecode/SamplePictFile.cpp',
         '../samplecode/SamplePoints.cpp',
         '../samplecode/SamplePolyToPoly.cpp',
+        '../samplecode/SampleRectanizer.cpp',
         '../samplecode/SampleRegion.cpp',
         '../samplecode/SampleRepeatTile.cpp',
         '../samplecode/SampleRotateCircles.cpp',

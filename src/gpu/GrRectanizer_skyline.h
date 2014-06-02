@@ -1,9 +1,9 @@
 /*
-* Copyright 2014 Google Inc.
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
+ * Copyright 2014 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #ifndef GrRectanizer_skyline_DEFINED
 #define GrRectanizer_skyline_DEFINED
@@ -12,7 +12,7 @@
 #include "SkTDArray.h"
 
 // Pack rectangles and track the current silhouette
-// Based in part on Jukka Jylänki's work at http://clb.demon.fi
+// Based, in part, on Jukka Jylanki's work at http://clb.demon.fi
 class GrRectanizerSkyline : public GrRectanizer {
 public:
     GrRectanizerSkyline(int w, int h) : INHERITED(w, h) {

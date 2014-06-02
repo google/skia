@@ -7,7 +7,6 @@
  */
 
 #include "GrRectanizer_pow2.h"
-#include "GrTBSearch.h"
 
 bool GrRectanizerPow2::addRect(int width, int height, GrIPoint16* loc) {
     if ((unsigned)width > (unsigned)this->width() ||
@@ -15,13 +14,8 @@ bool GrRectanizerPow2::addRect(int width, int height, GrIPoint16* loc) {
         return false;
     }
 
-    int32_t area = width * height;
+    int32_t area = width * height; // computed here since height will be modified
 
-    /*
-        We use bsearch, but there may be more than one row with the same height,
-        so we actually search for height-1, which can only be a pow2 itself if
-        height == 2. Thus we set a minimum height.
-     */
     height = GrNextPow2(height);
     if (height < kMIN_HEIGHT_POW2) {
         height = kMIN_HEIGHT_POW2;

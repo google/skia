@@ -15,13 +15,17 @@
 #include "SkScalar.h"
 #include "SkPoint.h"
 
-#if 0
-#define GrPoint     SkPoint
-#define GrVec       SkVector
-#endif
-
 struct GrIPoint16 {
     int16_t fX, fY;
+
+    static GrIPoint16 Make(intptr_t x, intptr_t y) {
+        GrIPoint16 pt;
+        pt.set(x, y);
+        return pt;
+    }
+
+    int16_t x() const { return fX; }
+    int16_t y() const { return fY; }
 
     void set(intptr_t x, intptr_t y) {
         fX = SkToS16(x);

@@ -10,6 +10,11 @@
 
 #include "GrRectanizer.h"
 
+// This Rectanizer quantizes the incoming rects to powers of 2. Each power
+// of two can have, at most, one active row/shelf. Once a row/shelf for
+// a particular power of two gets full its fRows entry is recycled to point
+// to a new row.
+// The skyline algorithm almost always provides a better packing.
 class GrRectanizerPow2 : public GrRectanizer {
 public:
     GrRectanizerPow2(int w, int h) : INHERITED(w, h) {
@@ -32,9 +37,12 @@ public:
 
 private:
     static const int kMIN_HEIGHT_POW2 = 2;
+    static const int kMaxExponent = 16;
 
     struct Row {
         GrIPoint16  fLoc;
+        // fRowHeight is actually known by this struct's position in fRows
+        // but it is used to signal if there exists an open row of this height
         int         fRowHeight;
 
         bool canAddWidth(int width, int containerWidth) const {
@@ -42,14 +50,16 @@ private:
         }
     };
 
-    Row fRows[16];
+    Row fRows[kMaxExponent];    // 0-th entry will be unused
 
     int fNextStripY;
     int32_t fAreaSoFar;
 
     static int HeightToRowIndex(int height) {
         SkASSERT(height >= kMIN_HEIGHT_POW2);
-        return 32 - SkCLZ(height - 1);
+        int index = 32 - SkCLZ(height - 1);
+        SkASSERT(index < kMaxExponent);
+        return index;
     }
 
     bool canAddStrip(int height) const {

@@ -24,6 +24,8 @@ public:
     int width() const { return fWidth; }
     int height() const { return fHeight; }
 
+    // Attempt to add a rect. Return true on success; false on failure. If
+    // successful the position in the atlas is returned in 'loc'.
     virtual bool addRect(int width, int height, GrIPoint16* loc) = 0;
     virtual float percentFull() const = 0;
 
