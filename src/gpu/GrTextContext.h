@@ -8,7 +8,6 @@
 #ifndef GrTextContext_DEFINED
 #define GrTextContext_DEFINED
 
-#include "GrPoint.h"
 #include "GrGlyph.h"
 #include "GrPaint.h"
 #include "SkDeviceProperties.h"

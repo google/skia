@@ -7,8 +7,9 @@
  */
 
 #include "GrRectanizer_skyline.h"
+#include "SkPoint.h"
 
-bool GrRectanizerSkyline::addRect(int width, int height, GrIPoint16* loc) {
+bool GrRectanizerSkyline::addRect(int width, int height, SkIPoint16* loc) {
     if ((unsigned)width > (unsigned)this->width() ||
         (unsigned)height > (unsigned)this->height()) {
         return false;

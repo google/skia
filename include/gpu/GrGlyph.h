@@ -26,7 +26,7 @@ struct GrGlyph {
     SkPath*     fPath;
     PackedID    fPackedID;
     GrIRect16   fBounds;
-    GrIPoint16  fAtlasLocation;
+    SkIPoint16  fAtlasLocation;
 
     void init(GrGlyph::PackedID packed, const SkIRect& bounds) {
         fPlot = NULL;

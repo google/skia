@@ -7,7 +7,7 @@
 
 #include "GrPathUtils.h"
 
-#include "GrPoint.h"
+#include "GrTypes.h"
 #include "SkGeometry.h"
 
 SkScalar GrPathUtils::scaleToleranceToSrc(SkScalar devTol,

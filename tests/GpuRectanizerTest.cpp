@@ -22,7 +22,7 @@ static void test_rectanizer_basic(skiatest::Reporter* reporter, GrRectanizer* re
     REPORTER_ASSERT(reporter, kWidth == rectanizer->width());
     REPORTER_ASSERT(reporter, kHeight == rectanizer->height());
 
-    GrIPoint16 loc;
+    SkIPoint16 loc;
 
     REPORTER_ASSERT(reporter, rectanizer->addRect(50, 50, &loc));
     REPORTER_ASSERT(reporter, rectanizer->percentFull() > 0.0f);
@@ -35,7 +35,7 @@ static void test_rectanizer_inserts(skiatest::Reporter*,
                                     const SkTDArray<SkISize>& rects) {
     int i;
     for (i = 0; i < rects.count(); ++i) {
-        GrIPoint16 loc;
+        SkIPoint16 loc;
         if (!rectanizer->addRect(rects[i].fWidth, rects[i].fHeight, &loc)) {
             break;
         }

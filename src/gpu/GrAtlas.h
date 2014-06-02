@@ -10,7 +10,7 @@
 #define GrAtlas_DEFINED
 
 
-#include "GrPoint.h"
+#include "SkPoint.h"
 #include "GrTexture.h"
 #include "GrDrawTarget.h"
 
@@ -35,7 +35,7 @@ public:
 
     GrTexture* texture() const { return fTexture; }
 
-    bool addSubImage(int width, int height, const void*, GrIPoint16*);
+    bool addSubImage(int width, int height, const void*, SkIPoint16*);
 
     GrDrawTarget::DrawToken drawToken() const { return fDrawToken; }
     void setDrawToken(GrDrawTarget::DrawToken draw) { fDrawToken = draw; }
@@ -57,7 +57,7 @@ private:
     GrTexture*              fTexture;
     GrRectanizer*           fRects;
     GrAtlasMgr*             fAtlasMgr;
-    GrIPoint16              fOffset;        // the offset of the plot in the backing texture
+    SkIPoint16              fOffset;        // the offset of the plot in the backing texture
     size_t                  fBytesPerPixel;
     SkIRect                 fDirtyRect;
     bool                    fDirty;
@@ -76,7 +76,7 @@ public:
 
     // add subimage of width, height dimensions to atlas
     // returns the containing GrPlot and location relative to the backing texture
-    GrPlot* addToAtlas(GrAtlas*, int width, int height, const void*, GrIPoint16*);
+    GrPlot* addToAtlas(GrAtlas*, int width, int height, const void*, SkIPoint16*);
 
     // remove reference to this plot
     bool removePlot(GrAtlas* atlas, const GrPlot* plot);

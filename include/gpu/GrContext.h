@@ -12,7 +12,6 @@
 #include "GrColor.h"
 #include "GrPaint.h"
 #include "GrPathRendererChain.h"
-#include "GrPoint.h"
 #include "GrRenderTarget.h"
 #include "GrTexture.h"
 #include "SkMatrix.h"

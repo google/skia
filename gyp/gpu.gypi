@@ -25,7 +25,6 @@
       '<(skia_include_path)/gpu/GrKey.h',
       '<(skia_include_path)/gpu/GrPaint.h',
       '<(skia_include_path)/gpu/GrPathRendererChain.h',
-      '<(skia_include_path)/gpu/GrPoint.h',
       '<(skia_include_path)/gpu/GrRect.h',
       '<(skia_include_path)/gpu/GrRenderTarget.h',
       '<(skia_include_path)/gpu/GrSurface.h',

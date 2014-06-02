@@ -9,6 +9,7 @@
 #define GrRectanizer_pow2_DEFINED
 
 #include "GrRectanizer.h"
+#include "SkPoint.h"
 
 // This Rectanizer quantizes the incoming rects to powers of 2. Each power
 // of two can have, at most, one active row/shelf. Once a row/shelf for
@@ -29,7 +30,7 @@ public:
         sk_bzero(fRows, sizeof(fRows));
     }
 
-    virtual bool addRect(int w, int h, GrIPoint16* loc) SK_OVERRIDE;
+    virtual bool addRect(int w, int h, SkIPoint16* loc) SK_OVERRIDE;
 
     virtual float percentFull() const SK_OVERRIDE {
         return fAreaSoFar / ((float)this->width() * this->height());
@@ -40,7 +41,7 @@ private:
     static const int kMaxExponent = 16;
 
     struct Row {
-        GrIPoint16  fLoc;
+        SkIPoint16  fLoc;
         // fRowHeight is actually known by this struct's position in fRows
         // but it is used to signal if there exists an open row of this height
         int         fRowHeight;

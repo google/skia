@@ -8,7 +8,9 @@
 #ifndef GrRectanizer_DEFINED
 #define GrRectanizer_DEFINED
 
-#include "GrPoint.h"
+#include "GrTypes.h"
+
+struct SkIPoint16;
 
 class GrRectanizer {
 public:
@@ -26,7 +28,7 @@ public:
 
     // Attempt to add a rect. Return true on success; false on failure. If
     // successful the position in the atlas is returned in 'loc'.
-    virtual bool addRect(int width, int height, GrIPoint16* loc) = 0;
+    virtual bool addRect(int width, int height, SkIPoint16* loc) = 0;
     virtual float percentFull() const = 0;
 
     /**

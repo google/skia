@@ -48,13 +48,13 @@ void GrPlot::init(GrAtlasMgr* mgr, int offX, int offY, int width, int height, si
     fBatchUploads = batchUploads;
 }
 
-static inline void adjust_for_offset(GrIPoint16* loc, const GrIPoint16& offset) {
+static inline void adjust_for_offset(SkIPoint16* loc, const SkIPoint16& offset) {
     loc->fX += offset.fX;
     loc->fY += offset.fY;
 }
 
 bool GrPlot::addSubImage(int width, int height, const void* image,
-                          GrIPoint16* loc) {
+                         SkIPoint16* loc) {
     float percentFull = fRects->percentFull();
     if (!fRects->addRect(width, height, loc)) {
         return false;
@@ -203,7 +203,7 @@ void GrAtlasMgr::moveToHead(GrPlot* plot) {
 
 GrPlot* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
                                int width, int height, const void* image,
-                               GrIPoint16* loc) {
+                               SkIPoint16* loc) {
     // iterate through entire plot list for this atlas, see if we can find a hole
     // last one was most recently added and probably most empty
     for (int i = atlas->fPlots.count()-1; i >= 0; --i) {

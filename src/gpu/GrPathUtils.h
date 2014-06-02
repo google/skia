@@ -8,7 +8,6 @@
 #ifndef GrPathUtils_DEFINED
 #define GrPathUtils_DEFINED
 
-#include "GrPoint.h"
 #include "SkRect.h"
 #include "SkPath.h"
 #include "SkTArray.h"

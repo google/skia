@@ -12,7 +12,6 @@
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrPath.h"
-#include "GrPoint.h"
 #include "GrRenderTarget.h"
 #include "GrTemplates.h"
 #include "GrTexture.h"

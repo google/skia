@@ -30,7 +30,7 @@ public:
         seg->fWidth = this->width();
     }
 
-    virtual bool addRect(int w, int h, GrIPoint16* loc) SK_OVERRIDE;
+    virtual bool addRect(int w, int h, SkIPoint16* loc) SK_OVERRIDE;
 
     virtual float percentFull() const SK_OVERRIDE{
         return fAreaSoFar / ((float)this->width() * this->height());

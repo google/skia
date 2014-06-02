@@ -11,6 +11,28 @@
 #include "SkMath.h"
 #include "SkScalar.h"
 
+/** \struct SkIPoint16
+
+    SkIPoint holds two 16 bit integer coordinates
+*/
+struct SkIPoint16 {
+    int16_t fX, fY;
+
+    static SkIPoint16 Make(int x, int y) {
+        SkIPoint16 pt;
+        pt.set(x, y);
+        return pt;
+    }
+
+    int16_t x() const { return fX; }
+    int16_t y() const { return fY; }
+
+    void set(int x, int y) {
+        fX = SkToS16(x);
+        fY = SkToS16(y);
+    }
+};
+
 /** \struct SkIPoint
 
     SkIPoint holds two 32 bit integer coordinates

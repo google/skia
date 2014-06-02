@@ -14,7 +14,6 @@
 #include "GrAllocPool.h"
 #include "GrFontScaler.h"
 #include "GrTHashTable.h"
-#include "GrPoint.h"
 #include "GrGlyph.h"
 #include "GrDrawTarget.h"
 #include "GrAtlas.h"

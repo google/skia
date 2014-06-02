@@ -40,7 +40,7 @@ public:
                         GrNextPow2(random.nextRangeU(kMinRectSize, kMaxRectSize)),
                         GrNextPow2(random.nextRangeU(kMinRectSize, kMaxRectSize)));
             *fRects[2].append() = SkISize::Make(128, 128);
-            *fRectLocations.append() = GrIPoint16::Make(0, 0);
+            *fRectLocations.append() = SkIPoint16::Make(0, 0);
         }
 
         fCurRects = &fRects[0];
@@ -142,7 +142,7 @@ private:
     int                   fCurRandRect;
     SkTDArray<SkISize>    fRects[3];
     SkTDArray<SkISize>*   fCurRects;
-    SkTDArray<GrIPoint16> fRectLocations;
+    SkTDArray<SkIPoint16> fRectLocations;
     GrRectanizer*         fRectanizers[2];
     GrRectanizer*         fCurRectanizer;
 

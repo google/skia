@@ -59,7 +59,6 @@
       'gpu/GrRenderTarget.h',
       'gpu/GrSurface.h',
       'gpu/GrTypesPriv.h',
-      'gpu/GrPoint.h',
       'config/sk_stdint.h',
       'config/SkUserConfig.h',
       'pipe/SkGPipe.h',
