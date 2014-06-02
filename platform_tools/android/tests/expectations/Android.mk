@@ -23,8 +23,8 @@ LOCAL_PATH:= $(call my-dir)
 #       needed since your sources and libskia have been built with SK_DEBUG.
 # (2) You're building libskia in debug mode.
 #   (a) RECOMMENDED: You can build the entire system in debug mode. Do this by
-#       updating your build/config.mk to include -DSK_DEBUG on the line that
-#       defines COMMON_GLOBAL_CFLAGS
+#       updating your build/core/config.mk to include -DSK_DEBUG on the line
+#       that defines COMMON_GLOBAL_CFLAGS
 #   (b) You can update all the users of libskia to define SK_DEBUG when they are
 #       building their sources.
 #
