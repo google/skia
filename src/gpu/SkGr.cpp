@@ -223,10 +223,11 @@ static GrTexture* sk_gr_create_bitmap_texture(GrContext* ctx,
             bitmap = &tmpBitmap;
             desc.fConfig = SkImageInfo2GrPixelConfig(bitmap->info());
         }
+    }
 
     // Is this an ETC1 encoded texture?
 #if SK_SUPPORT_ETC1
-    } else if (cache && ctx->getGpu()->caps()->isConfigTexturable(kETC1_GrPixelConfig)) {
+    else if (cache && ctx->getGpu()->caps()->isConfigTexturable(kETC1_GrPixelConfig)) {
         GrTexture *texture = load_etc1_texture(ctx, params, *bitmap, desc);
         if (NULL != texture) {
             return texture;
